@@ -94,9 +94,9 @@ public final class ModelUtils {
 		for (Triangle triangle : box.triangles) {
 			geoset.add(triangle);
 			triangle.setGeoset(geoset);
-			for (GeosetVertex vertex : triangle.getVerts()) {
-				vertex.addTriangle(triangle);
-			}
+//			for (GeosetVertex vertex : triangle.getVerts()) {
+//				vertex.addTriangle(triangle);
+//			}
 		}
 
 		geoset.setName("Box");
@@ -115,9 +115,9 @@ public final class ModelUtils {
 		}
 		for (Triangle triangle : box.getTriangles()) {
 			triangle.setGeoset(dataGeoset);
-			for (GeosetVertex vertex : triangle.getVerts()) {
-				vertex.addTriangle(triangle);
-			}
+//			for (GeosetVertex vertex : triangle.getVerts()) {
+//				vertex.addTriangle(triangle);
+//			}
 		}
 		return box;
 	}
@@ -174,9 +174,9 @@ public final class ModelUtils {
 		for (Triangle triangle : sidedPlane.triangles) {
 			triangle.setGeoset(geoset);
 			geoset.add(triangle);
-			for (GeosetVertex vertex : triangle.getVerts()) {
-				vertex.addTriangle(triangle);
-			}
+//			for (GeosetVertex vertex : triangle.getVerts()) {
+//				vertex.addTriangle(triangle);
+//			}
 		}
 		model.add(geoset);
 	}

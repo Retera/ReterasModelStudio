@@ -115,9 +115,9 @@ public class ViewportPopupMenu extends JPopupMenu {
 	}
 
 	void reAssignMatrix(Viewport viewport) {
-		final MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
-		final String[] words = {"Accept", "Cancel"};
-		final int i = JOptionPane.showOptionDialog(viewport, matrixPopup, "Rebuild Matrix", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
+		MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
+		String[] words = {"Accept", "Cancel"};
+		int i = JOptionPane.showOptionDialog(viewport, matrixPopup, "Rebuild Matrix", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
 			UndoAction reassignMatrixAction = modelEditor.setMatrix(matrixPopup.getNewBoneList());
 			undoListener.pushAction(reassignMatrixAction);
@@ -126,22 +126,22 @@ public class ViewportPopupMenu extends JPopupMenu {
 
 	void reAssignSkinning(Viewport viewport) {
 		SkinPopup skinPopup = new SkinPopup(modelView);
-		final String[] words = {"Accept", "Cancel"};
-		final int i = JOptionPane.showOptionDialog(viewport, skinPopup, "Rebuild Skin", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
+		String[] words = {"Accept", "Cancel"};
+		int i = JOptionPane.showOptionDialog(viewport, skinPopup, "Rebuild Skin", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
 			undoListener.pushAction(modelEditor.setHDSkinning(skinPopup.getBones(), skinPopup.getSkinWeights()));
 		}
 	}
 
 	void appendBoneBone(Viewport viewport) {
-		final String name = JOptionPane.showInputDialog(viewport, "Enter bone suffix:");
+		String name = JOptionPane.showInputDialog(viewport, "Enter bone suffix:");
 		if (name != null) {
 			modelEditor.addSelectedBoneSuffix(name);
 		}
 	}
 
 	void renameBone(Viewport viewport) {
-		final String name = JOptionPane.showInputDialog(viewport, "Enter bone name:");
+		String name = JOptionPane.showInputDialog(viewport, "Enter bone name:");
 		if (name != null) {
 			modelEditor.setSelectedBoneName(name);
 		}
@@ -149,9 +149,9 @@ public class ViewportPopupMenu extends JPopupMenu {
 
 	void setParent(Viewport viewport) {
 		class NodeShell {
-			final IdObject node;
+			IdObject node;
 
-			public NodeShell(final IdObject node) {
+			public NodeShell(IdObject node) {
 				this.node = node;
 			}
 
@@ -168,16 +168,16 @@ public class ViewportPopupMenu extends JPopupMenu {
 			}
 		}
 
-		final List<IdObject> idObjects = modelView.getModel().getIdObjects();
-		final NodeShell[] nodeOptions = new NodeShell[idObjects.size() + 1];
+		List<IdObject> idObjects = modelView.getModel().getIdObjects();
+		NodeShell[] nodeOptions = new NodeShell[idObjects.size() + 1];
 		nodeOptions[0] = new NodeShell(null);
-		final NodeShell defaultChoice = nodeOptions[0];
+		NodeShell defaultChoice = nodeOptions[0];
 		for (int i = 0; i < idObjects.size(); i++) {
-			final IdObject node = idObjects.get(i);
+			IdObject node = idObjects.get(i);
 			nodeOptions[i + 1] = new NodeShell(node);
 		}
-		final NodeShell result = (NodeShell) JOptionPane.showInputDialog(viewport, "Choose a parent node", "Set Parent Node", JOptionPane.PLAIN_MESSAGE, null, nodeOptions, defaultChoice);
-		final MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
+		NodeShell result = (NodeShell) JOptionPane.showInputDialog(viewport, "Choose a parent node", "Set Parent Node", JOptionPane.PLAIN_MESSAGE, null, nodeOptions, defaultChoice);
+//		MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
 		if (result != null) {
 			// JOptionPane.showMessageDialog(null,"action approved");
 			modelEditor.setParent(result.getNode());
@@ -185,48 +185,48 @@ public class ViewportPopupMenu extends JPopupMenu {
 	}
 
 	void manualMove(Viewport viewport) {
-		final JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
+		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
 		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(0, 0, 0), "Move X:", "Move Y:", "Move Z:");
 		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel());
-		final int x = JOptionPane.showConfirmDialog(viewport.getRootPane(), inputPanel, "Manual Translation", JOptionPane.OK_CANCEL_OPTION);
+		int x = JOptionPane.showConfirmDialog(viewport.getRootPane(), inputPanel, "Manual Translation", JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
 		}
-		final UndoAction translate = modelEditor.translate(spinners.getValue());
+		UndoAction translate = modelEditor.translate(spinners.getValue());
 		undoListener.pushAction(translate);
 	}
 
 	void manualRotate(Viewport viewport) {
-		final JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
+		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
 		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(0, 0, 0), "Rotate X degrees (around axis facing front):", "Rotate Y degrees (around axis facing left):", "Rotate Z degrees (around axis facing up):");
 		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel());
-		final int x = JOptionPane.showConfirmDialog(viewport.getRootPane(), inputPanel, "Manual Rotation", JOptionPane.OK_CANCEL_OPTION);
+		int x = JOptionPane.showConfirmDialog(viewport.getRootPane(), inputPanel, "Manual Rotation", JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
 		}
 
-		final UndoAction rotate = modelEditor.rotate(modelEditor.getSelectionCenter(), spinners.getValue());
+		UndoAction rotate = modelEditor.rotate(modelEditor.getSelectionCenter(), spinners.getValue());
 		undoListener.pushAction(rotate);
 
 	}
 
 	void manualSet(Viewport viewport) {
-		final JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
+		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
 		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(0, 0, 0), "New Position X:", "New Position Y:", "New Position Z:");
 		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel());
-		final int x = JOptionPane.showConfirmDialog(viewport.getRootPane(), inputPanel, "Manual Position", JOptionPane.OK_CANCEL_OPTION);
+		int x = JOptionPane.showConfirmDialog(viewport.getRootPane(), inputPanel, "Manual Position", JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
 		}
-		final UndoAction setPosition = modelEditor.setPosition(modelEditor.getSelectionCenter(), spinners.getValue());
+		UndoAction setPosition = modelEditor.setPosition(modelEditor.getSelectionCenter(), spinners.getValue());
 		undoListener.pushAction(setPosition);
 	}
 
 	void manualScale(Viewport viewport) {
-		final JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
+		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
 		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(1, 1, 1), "Scale X:", "Scale Y:", "Scale Z:");
 		inputPanel.add(spinners.spinnerPanel(), "wrap");
-		final JCheckBox customOrigin = new JCheckBox("Custom Scaling Origin");
+		JCheckBox customOrigin = new JCheckBox("Custom Scaling Origin");
 		inputPanel.add(customOrigin, "wrap");
 
 		Vec3 selectionCenter = modelEditor.getSelectionCenter();
@@ -238,7 +238,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		centerSpinners.setEnabled(false);
 		customOrigin.addActionListener(e -> centerSpinners.setEnabled(customOrigin.isSelected()));
 
-		final int x = JOptionPane.showConfirmDialog(
+		int x = JOptionPane.showConfirmDialog(
 				viewport.getRootPane(), inputPanel, "Manual Scaling", JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
@@ -247,7 +247,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		if (customOrigin.isSelected()) {
 			center = centerSpinners.getValue();
 		}
-		final GenericScaleAction scalingAction = modelEditor.beginScaling(center);
+		GenericScaleAction scalingAction = modelEditor.beginScaling(center);
 		scalingAction.updateScale(spinners.getValue());
 		undoListener.pushAction(scalingAction);
 	}

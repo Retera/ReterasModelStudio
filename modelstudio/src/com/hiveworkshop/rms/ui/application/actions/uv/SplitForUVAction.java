@@ -59,9 +59,9 @@ public final class SplitForUVAction<T> implements UndoAction {
 			Geoset newGeoset = oldGeoToNewGeo.get(tri.getGeoset());
 			Triangle newTriangle = new Triangle(a, b, c, newGeoset);
 			newGeoset.add(newTriangle);
-			a.addTriangle(newTriangle);
-			b.addTriangle(newTriangle);
-			c.addTriangle(newTriangle);
+//			a.addTriangle(newTriangle);
+//			b.addTriangle(newTriangle);
+//			c.addTriangle(newTriangle);
 		}
 		selection = new ArrayList<>(selectionManager.getSelection());
 	}

@@ -10,31 +10,44 @@ public class Triangle {
 	int[] vertIds = new int[3];
 	Geoset geoset;
 
-	public Triangle(final GeosetVertex a, final GeosetVertex b, final GeosetVertex c, final Geoset geoRef) {
-		verts[0] = a;
-		verts[1] = b;
-		verts[2] = c;
+	public Triangle(Geoset geoRef) {
+		verts[0] = null;
+		verts[1] = null;
+		verts[2] = null;
 		geoset = geoRef;
 	}
 
-	public Triangle(final int a, final int b, final int c, final Geoset geoRef) {
+	public Triangle(GeosetVertex a, GeosetVertex b, GeosetVertex c, Geoset geoRef) {
+		verts[0] = a.addTriangle(this);
+		verts[1] = b.addTriangle(this);
+		verts[2] = c.addTriangle(this);
+		geoset = geoRef;
+	}
+
+	public Triangle(int a, int b, int c, Geoset geoRef) {
 		vertIds[0] = a;
 		vertIds[1] = b;
 		vertIds[2] = c;
-		verts[0] = geoRef.getVertex(a);
-		verts[1] = geoRef.getVertex(b);
-		verts[2] = geoRef.getVertex(c);
+		verts[0] = geoRef.getVertex(a).addTriangle(this);
+		verts[1] = geoRef.getVertex(b).addTriangle(this);
+		verts[2] = geoRef.getVertex(c).addTriangle(this);
 		geoset = geoRef;
 	}
 
-	public Triangle(final GeosetVertex a, final GeosetVertex b, final GeosetVertex c) {
-		verts[0] = a;
-		verts[1] = b;
-		verts[2] = c;
+	public Triangle(GeosetVertex a, GeosetVertex b, GeosetVertex c) {
+		verts[0] = a.addTriangle(this);
+		verts[1] = b.addTriangle(this);
+		verts[2] = c.addTriangle(this);
 		geoset = null;
 	}
+//	public Triangle(GeosetVertex a, GeosetVertex b, GeosetVertex c) {
+//		verts[0] = a;
+//		verts[1] = b;
+//		verts[2] = c;
+//		geoset = null;
+//	}
 
-	public Triangle(final int a, final int b, final int c) {
+	public Triangle(int a, int b, int c) {
 		vertIds[0] = a;
 		vertIds[1] = b;
 		vertIds[2] = c;
@@ -44,7 +57,7 @@ public class Triangle {
 		geoset = null;
 	}
 
-	public void setGeoRef(final Geoset geoRef) {
+	public void setGeoRef(Geoset geoRef) {
 		geoset = geoRef;
 	}
 
@@ -75,39 +88,39 @@ public class Triangle {
 		}
 	}
 
-	public void updateVertexIds(final Geoset geoRef) {
+	public void updateVertexIds(Geoset geoRef) {
 		geoset = geoRef;
 		updateVertexIds();
 	}
 
-	public void updateVertexRefs(final List<GeosetVertex> list) {
+	public void updateVertexRefs(List<GeosetVertex> list) {
 		verts[0] = list.get(vertIds[0]);
 		verts[1] = list.get(vertIds[1]);
 		verts[2] = list.get(vertIds[2]);
 	}
 
-	public boolean containsRef(final GeosetVertex v) {
+	public boolean containsRef(GeosetVertex v) {
 		return verts[0] == v || verts[1] == v || verts[2] == v;
 	}
 
-	public boolean contains(final GeosetVertex v) {
+	public boolean contains(GeosetVertex v) {
 		return verts[0].equalLocs(v) || verts[1].equalLocs(v) || verts[2].equalLocs(v);
 	}
 
-	public GeosetVertex get(final int index) {
+	public GeosetVertex get(int index) {
 		return verts[index];
 	}
 
-	public int getId(final int index) {
+	public int getId(int index) {
 		return vertIds[index];
 	}
 
-	public void set(final int index, final GeosetVertex v) {
+	public void set(int index, GeosetVertex v) {
 		verts[index] = v;
 		vertIds[index] = geoset.getVertexId(v);
 	}
 
-	public int indexOf(final GeosetVertex v) {
+	public int indexOf(GeosetVertex v) {
 		int out = -1;
 		for (int i = 0; i < verts.length && out == -1; i++) {
 			if (verts[i].equalLocs(v)) {
@@ -117,7 +130,7 @@ public class Triangle {
 		return out;
 	}
 
-	public boolean equalLocs(final Triangle t) {
+	public boolean equalLocs(Triangle t) {
 		for (int i = 0; i < 3; i++) {
 			if (!t.verts[i].equalLocs(verts[i]) || t.vertIds[i] != vertIds[i]) {
 				return false;
@@ -126,7 +139,7 @@ public class Triangle {
 		return true;
 	}
 
-	public boolean sameVerts(final Triangle t) {
+	public boolean sameVerts(Triangle t) {
 		for (int i = 0; i < 3; i++) {
 			if (!contains(t.verts[i])) {
 				return false;
@@ -135,7 +148,7 @@ public class Triangle {
 		return true;
 	}
 
-	public int indexOfRef(final GeosetVertex v) {
+	public int indexOfRef(GeosetVertex v) {
 		int out = -1;
 		for (int i = 0; i < verts.length && out == -1; i++) {
 			if (verts[i] == v) {
@@ -145,7 +158,7 @@ public class Triangle {
 		return out;
 	}
 
-	public boolean equalRefsNoIds(final Triangle t) {
+	public boolean equalRefsNoIds(Triangle t) {
 		for (int i = 0; i < 3; i++) {
 			if (t.verts[i] != verts[i]) {
 				return false;
@@ -154,7 +167,7 @@ public class Triangle {
 		return true;
 	}
 
-	public boolean equalRefs(final Triangle t) {
+	public boolean equalRefs(Triangle t) {
 		for (int i = 0; i < 3; i++) {
 			if (t.verts[i] != verts[i] || t.vertIds[i] != vertIds[i]) {
 				return false;
@@ -167,24 +180,24 @@ public class Triangle {
 		return verts;
 	}
 
-	public int[] getIntCoords(final byte dim) {
-		final int[] output = new int[3];
+	public int[] getIntCoords(byte dim) {
+		int[] output = new int[3];
 		for (int i = 0; i < 3; i++) {
 			output[i] = (int) (verts[i].getCoord(dim));
 		}
 		return output;
 	}
 
-	public double[] getCoords(final byte dim) {
-		final double[] output = new double[3];
+	public double[] getCoords(byte dim) {
+		double[] output = new double[3];
 		for (int i = 0; i < 3; i++) {
 			output[i] = (verts[i].getCoord(dim));
 		}
 		return output;
 	}
 
-	public Vec2[] getProjectedVerts(final byte axis1, final byte axis2) {
-		final Vec2[] output = new Vec2[3];
+	public Vec2[] getProjectedVerts(byte axis1, byte axis2) {
+		Vec2[] output = new Vec2[3];
 		for (int i = 0; i < 3; i++) {
 //			output[i] = new Vec2(verts[i].getCoord(axis1), verts[i].getCoord(axis2));
 			output[i] = verts[i].getProjected(axis1, axis2);
@@ -192,8 +205,8 @@ public class Triangle {
 		return output;
 	}
 
-	public Vec2[] getProjectedNorms(final byte axis1, final byte axis2) {
-		final Vec2[] output = new Vec2[3];
+	public Vec2[] getProjectedNorms(byte axis1, byte axis2) {
+		Vec2[] output = new Vec2[3];
 		for (int i = 0; i < 3; i++) {
 //			output[i] = new Vec2(verts[i].getCoord(axis1), verts[i].getCoord(axis2));
 			output[i] = verts[i].getNormal().getProjected(axis1, axis2);
@@ -201,8 +214,8 @@ public class Triangle {
 		return output;
 	}
 
-	public double[] getTVertCoords(final byte dim, final int layerId) {
-		final double[] output = new double[3];
+	public double[] getTVertCoords(byte dim, int layerId) {
+		double[] output = new double[3];
 		for (int i = 0; i < 3; i++) {
 			output[i] = (verts[i].getTVertex(layerId).getCoord(dim));
 		}
@@ -217,7 +230,7 @@ public class Triangle {
 	/**
 	 * Flips the triangle's orientation, and optionally the normal vectors for all the triangle's components.
 	 */
-	public void flip(final boolean flipNormals) {
+	public void flip(boolean flipNormals) {
 		GeosetVertex tempVert;
 		int tempVertId;
 		tempVert = verts[2];
@@ -227,8 +240,8 @@ public class Triangle {
 		verts[1] = tempVert;
 		vertIds[1] = tempVertId;
 		if (flipNormals) {
-			for (final GeosetVertex geosetVertex : verts) {
-				final Vec3 normal = geosetVertex.getNormal();
+			for (GeosetVertex geosetVertex : verts) {
+				Vec3 normal = geosetVertex.getNormal();
 				if (normal != null) {
 					// Flip normals, preserve lighting!
 					normal.negate();
@@ -241,7 +254,7 @@ public class Triangle {
 		return geoset;
 	}
 
-	public void setGeoset(final Geoset geoset) {
+	public void setGeoset(Geoset geoset) {
 		this.geoset = geoset;
 	}
 
@@ -249,7 +262,7 @@ public class Triangle {
 		return verts;
 	}
 
-	public void setVerts(final GeosetVertex[] verts) {
+	public void setVerts(GeosetVertex[] verts) {
 		this.verts = verts;
 	}
 
@@ -257,13 +270,13 @@ public class Triangle {
 		return vertIds;
 	}
 
-	public void setVertIds(final int[] vertIds) {
+	public void setVertIds(int[] vertIds) {
 		this.vertIds = vertIds;
 	}
 
 	public Vec3 getNormal() {
-		final Vec3 edge1 = Vec3.getDiff(verts[1], verts[0]);
-		final Vec3 edge2 = Vec3.getDiff(verts[2], verts[1]);
+		Vec3 edge1 = Vec3.getDiff(verts[1], verts[0]);
+		Vec3 edge2 = Vec3.getDiff(verts[2], verts[1]);
 		return Vec3.getCross(edge1, edge2);
 	}
 }

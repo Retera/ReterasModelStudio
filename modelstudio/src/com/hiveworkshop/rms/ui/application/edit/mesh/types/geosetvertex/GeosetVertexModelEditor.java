@@ -27,7 +27,6 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.*;
@@ -40,39 +39,6 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	                               ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
-	}
-
-	public static boolean hitTest(Rectangle2D area, GeosetVertex geosetVertex, CoordinateSystem coordinateSystem, double vertexSize) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-		double minX = coordinateSystem.viewX(area.getMinX());
-		double minY = coordinateSystem.viewY(area.getMinY());
-		double maxX = coordinateSystem.viewX(area.getMaxX());
-		double maxY = coordinateSystem.viewY(area.getMaxY());
-		double vertexX = geosetVertex.getCoord(dim1);
-		double x = coordinateSystem.viewX(vertexX);
-		double vertexY = geosetVertex.getCoord(dim2);
-		double y = coordinateSystem.viewY(vertexY);
-		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0))
-				|| (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
-				|| area.contains(vertexX, vertexY)) {
-			return true;
-		}
-		return false;
-	}
-
-	public static boolean hitTest(Vec3 vertex, Point2D point, CoordinateSystem coordinateSystem, double vertexSize) {
-		double x = coordinateSystem.viewX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-		double y = coordinateSystem.viewY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-		double px = coordinateSystem.viewX(point.getX());
-		double py = coordinateSystem.viewY(point.getY());
-		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
-	}
-
-	public static double distance(double vertexX, double vertexY, double x, double y) {
-		double dx = x - vertexX;
-		double dy = y - vertexY;
-		return Math.sqrt((dx * dx) + (dy * dy));
 	}
 
 	@Override
@@ -160,16 +126,9 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	@Override
 	protected List<GeosetVertex> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem) {
 		List<GeosetVertex> selectedItems = new ArrayList<>();
-		double startingClickX = region.getX();
-		double startingClickY = region.getY();
-		double endingClickX = region.getX() + region.getWidth();
-		double endingClickY = region.getY() + region.getHeight();
 
-		double minX = Math.min(startingClickX, endingClickX);
-		double minY = Math.min(startingClickY, endingClickY);
-		double maxX = Math.max(startingClickX, endingClickX);
-		double maxY = Math.max(startingClickY, endingClickY);
-		Rectangle2D area = new Rectangle2D.Double(minX, minY, (maxX - minX), (maxY - minY));
+		Rectangle2D area = getArea(region);
+
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (hitTest(area, geosetVertex, coordinateSystem, programPreferences.getVertexSize()))

@@ -85,9 +85,9 @@ public final class TeamColorAddAction<T> implements UndoAction {
 			final Geoset newGeoset = oldGeoToNewGeo.get(tri.getGeoset());
 			final Triangle newTriangle = new Triangle(a, b, c, newGeoset);
 			newGeoset.add(newTriangle);
-			a.addTriangle(newTriangle);
-			b.addTriangle(newTriangle);
-			c.addTriangle(newTriangle);
+//			a.addTriangle(newTriangle);
+//			b.addTriangle(newTriangle);
+//			c.addTriangle(newTriangle);
 		}
 		selection = new ArrayList<>(selectionManager.getSelection());
 	}
