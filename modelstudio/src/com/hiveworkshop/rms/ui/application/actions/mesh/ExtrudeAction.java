@@ -71,8 +71,8 @@ public class ExtrudeAction implements UndoAction {
 							// System.out.println("should be a number:"+t.indexOfRef(gv));
 							// System.out.println("should be a negative one number: "+t.indexOfRef(cgv));
 							t.set(t.indexOfRef(gv), cgv);
-							gv.getTriangles().remove(t);
-							cgv.getTriangles().add(t);
+							gv.removeTriangle(t);
+							cgv.addTriangle(t);
 						}
 					}
 				}
@@ -81,8 +81,8 @@ public class ExtrudeAction implements UndoAction {
 		}
 		for (Triangle t : addedTriangles) {
 			for (GeosetVertex gv : t.getAll()) {
-				if (!gv.getTriangles().contains(t)) {
-					gv.getTriangles().add(t);
+				if (!gv.hasTriangle(t)) {
+					gv.addTriangle(t);
 				}
 			}
 			if (!t.getGeoset().contains(t)) {
@@ -123,7 +123,7 @@ public class ExtrudeAction implements UndoAction {
 		if (type) {
 			for (Triangle t : addedTriangles) {
 				for (GeosetVertex gv : t.getAll()) {
-					gv.getTriangles().remove(t);
+					gv.removeTriangle(t);
 				}
 				t.getGeoset().removeTriangle(t);
 			}
@@ -133,8 +133,8 @@ public class ExtrudeAction implements UndoAction {
 					List<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
 					for (Triangle t : ctris) {
 						t.set(t.indexOf(cgv), gv);
-						cgv.getTriangles().remove(t);
-						gv.getTriangles().add(t);
+						cgv.removeTriangle(t);
+						gv.addTriangle(t);
 					}
 					cgv.getGeoset().remove(cgv);
 					if (!gv.getGeoset().contains(gv)) {
@@ -145,7 +145,7 @@ public class ExtrudeAction implements UndoAction {
 		} else {
 			for (Triangle t : addedTriangles) {
 				for (GeosetVertex gv : t.getAll()) {
-					gv.getTriangles().remove(t);
+					gv.removeTriangle(t);
 				}
 				t.getGeoset().removeTriangle(t);
 			}
@@ -155,8 +155,8 @@ public class ExtrudeAction implements UndoAction {
 					List<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
 					for (Triangle t : ctris) {
 						t.set(t.indexOf(cgv), gv);
-						cgv.getTriangles().remove(t);
-						gv.getTriangles().add(t);
+						cgv.removeTriangle(t);
+						gv.addTriangle(t);
 					}
 					cgv.getGeoset().remove(cgv);
 					if (!gv.getGeoset().contains(gv)) {

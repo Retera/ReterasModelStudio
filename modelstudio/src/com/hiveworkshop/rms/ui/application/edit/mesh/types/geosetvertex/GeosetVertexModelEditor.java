@@ -248,7 +248,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 				for (GeosetVertex geosetVertex : triangle.getAll()) {
 					if (selection.contains(geosetVertex)) {
 						GeosetVertex newGeosetVertex = new GeosetVertex(geosetVertex);
-						newGeosetVertex.getTriangles().clear();
+						newGeosetVertex.clearTriangles();
 						copiedVertices.add(newGeosetVertex);
 						triangleVertices.add(newGeosetVertex);
 					} else {

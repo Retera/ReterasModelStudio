@@ -214,7 +214,7 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 				for (GeosetVertex geosetVertex : triangle.getAll()) {
 					if (selection.contains(new VertexGroupBundle(geoset, geosetVertex.getVertexGroup()))) {
 						GeosetVertex newGeosetVertex = new GeosetVertex(geosetVertex);
-						newGeosetVertex.getTriangles().clear();
+						newGeosetVertex.clearTriangles();
 						copiedVertices.add(newGeosetVertex);
 						triangleVertices.add(newGeosetVertex);
 					} else {

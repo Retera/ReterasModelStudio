@@ -41,6 +41,72 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         vertexSelectionHelper = this::selectByVertices;
     }
 
+    public static boolean hitTest(Rectangle2D area, Vec3 vec3, CoordinateSystem coordinateSystem, double vertexSize) {
+        byte dim1 = coordinateSystem.getPortFirstXYZ();
+        byte dim2 = coordinateSystem.getPortSecondXYZ();
+
+        double minX = coordinateSystem.viewX(area.getMinX());
+        double minY = coordinateSystem.viewY(area.getMinY());
+        double maxX = coordinateSystem.viewX(area.getMaxX());
+        double maxY = coordinateSystem.viewY(area.getMaxY());
+
+        double vertexX = vec3.getCoord(dim1);
+        double x = coordinateSystem.viewX(vertexX);
+        double vertexY = vec3.getCoord(dim2);
+        double y = coordinateSystem.viewY(vertexY);
+
+        return (distance(x, y, minX, minY) <= (vertexSize / 2.0))
+                || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
+                || area.contains(vertexX, vertexY);
+    }
+
+    public static boolean hitTest(Vec3 vec3, Point2D point, CoordinateSystem coordinateSystem, double vertexSize) {
+        double x = coordinateSystem.viewX(vec3.getCoord(coordinateSystem.getPortFirstXYZ()));
+        double y = coordinateSystem.viewY(vec3.getCoord(coordinateSystem.getPortSecondXYZ()));
+        double px = coordinateSystem.viewX(point.getX());
+        double py = coordinateSystem.viewY(point.getY());
+        return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
+    }
+
+    public static double distance(double vpX, double vpY, double x, double y) {
+        double dx = x - vpX;
+        double dy = y - vpY;
+        return Math.sqrt((dx * dx) + (dy * dy));
+    }
+
+    public static boolean triHitTest(Triangle triangle, Rectangle2D area, CoordinateSystem coordinateSystem) {
+        byte dim1 = coordinateSystem.getPortFirstXYZ();
+        byte dim2 = coordinateSystem.getPortSecondXYZ();
+
+        GeosetVertex[] verts = triangle.getVerts();
+        Path2D.Double path = new Path2D.Double();
+        path.moveTo(verts[0].getCoord(dim1), verts[0].getCoord(dim2));
+
+        for (int i = 1; i < verts.length; i++) {
+            path.lineTo(verts[i].getCoord(dim1), verts[i].getCoord(dim2));
+        }
+        return area.contains(verts[0].getCoord(dim1), verts[0].getCoord(dim2))
+                || area.contains(verts[1].getCoord(dim1), verts[1].getCoord(dim2))
+                || area.contains(verts[2].getCoord(dim1), verts[2].getCoord(dim2))
+                || path.intersects(area);
+    }
+
+    public static boolean triHitTest(Triangle triangle, Point2D point, CoordinateSystem coordinateSystem) {
+        byte dim1 = coordinateSystem.getPortFirstXYZ();
+        byte dim2 = coordinateSystem.getPortSecondXYZ();
+
+        GeosetVertex[] verts = triangle.getVerts();
+        Path2D.Double path = new Path2D.Double();
+        path.moveTo(verts[0].getCoord(dim1), verts[0].getCoord(dim2));
+
+        for (int i = 1; i < verts.length; i++) {
+            path.lineTo(verts[i].getCoord(dim1), verts[i].getCoord(dim2));
+        } // TODO fix bad performance allocation
+
+        path.closePath();
+        return path.contains(point);
+    }
+
     @Override
     public UndoAction setMatrix(Collection<Bone> bones) {
 //        System.out.println("setMatrix");
@@ -199,7 +265,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     private void removeSelectedTrisFromGeosetVerts(List<Triangle> deletedTris) {
         for (Triangle t : deletedTris) {
             for (GeosetVertex vertex : t.getAll()) {
-                vertex.getTriangles().remove(t);
+                vertex.removeTriangle(t);
             }
         }
     }
@@ -330,8 +396,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
         for (Triangle t : newTriangles) {
             for (GeosetVertex gv : t.getAll()) {
-                if (!gv.getTriangles().contains(t)) {
-                    gv.getTriangles().add(t);
+                if (!gv.hasTriangle(t)) {
+                    gv.addTriangle(t);
                 }
                 if (!gv.getGeoset().contains(t)) {
                     gv.getGeoset().addTriangle(t);
@@ -431,10 +497,10 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                     if (selection.contains(a)) {
                         GeosetVertex b = copies.get(selection.indexOf(a));
                         tri.set(i, b);
-                        a.getTriangles().remove(tri);
-                        // if (a.getTriangles().contains(tri)) {
+                        a.removeTriangle(tri);
+                        // if (a.hasInTriangle(tri)) {
                         // System.out.println("It's a bloody war!");}
-                        b.getTriangles().add(tri);
+                        b.addTriangle(tri);
                     }
                 }
             }
@@ -487,8 +553,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                         copies.add(b);
                         copiedGroup.add(a);
                         tri.set(i, b);
-                        a.getTriangles().remove(tri);
-                        b.getTriangles().add(tri);
+                        a.removeTriangle(tri);
+                        b.addTriangle(tri);
                         if (gv == null) {
                             gv = a;
                             gvCopy = b;
@@ -517,18 +583,18 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                     Triangle newFace = getNewFace(gv, gvTemp, gv, gvCopy, indexA, indexB, indexC);
 
                     // Make sure it's included later
-                    gvTemp.getTriangles().add(newFace);
-                    gv.getTriangles().add(newFace);
-                    gvCopy.getTriangles().add(newFace);
+                    gvTemp.addTriangle(newFace);
+                    gv.addTriangle(newFace);
+                    gvCopy.addTriangle(newFace);
                     gv.getGeoset().addTriangle(newFace);
                     newTriangles.add(newFace);
 
                     Triangle newFace2 = getNewFace(gv, gvTemp, gvCopy, gvTempCopy, indexA, indexB, indexC);
 
                     // Make sure it's included later
-                    gvCopy.getTriangles().add(newFace2);
-                    gvTemp.getTriangles().add(newFace2);
-                    gvTempCopy.getTriangles().add(newFace2);
+                    gvCopy.addTriangle(newFace2);
+                    gvTemp.addTriangle(newFace2);
+                    gvTempCopy.addTriangle(newFace2);
                     gv.getGeoset().addTriangle(newFace2);
                     newTriangles.add(newFace2);
                 }
@@ -661,9 +727,9 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
             GeosetVertex c = newVertices.get(source.indexOf(tri.get(2)));
             Triangle newTriangle = new Triangle(a, b, c, a.getGeoset());
             newTriangles.add(newTriangle);
-            a.getTriangles().add(newTriangle);
-            b.getTriangles().add(newTriangle);
-            c.getTriangles().add(newTriangle);
+            a.addTriangle(newTriangle);
+            b.addTriangle(newTriangle);
+            c.addTriangle(newTriangle);
         }
     }
 
@@ -827,39 +893,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         throw new UnsupportedOperationException("Cannot create keyframe outside of animation mode");
     }
 
-    public static boolean hitTest(Rectangle2D area, Vec3 vec3, CoordinateSystem coordinateSystem, double vertexSize) {
-        byte dim1 = coordinateSystem.getPortFirstXYZ();
-        byte dim2 = coordinateSystem.getPortSecondXYZ();
-
-        double minX = coordinateSystem.viewX(area.getMinX());
-        double minY = coordinateSystem.viewY(area.getMinY());
-        double maxX = coordinateSystem.viewX(area.getMaxX());
-        double maxY = coordinateSystem.viewY(area.getMaxY());
-
-        double vertexX = vec3.getCoord(dim1);
-        double x = coordinateSystem.viewX(vertexX);
-        double vertexY = vec3.getCoord(dim2);
-        double y = coordinateSystem.viewY(vertexY);
-
-        return (distance(x, y, minX, minY) <= (vertexSize / 2.0))
-                || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
-                || area.contains(vertexX, vertexY);
-    }
-
-    public static boolean hitTest(Vec3 vec3, Point2D point, CoordinateSystem coordinateSystem, double vertexSize) {
-        double x = coordinateSystem.viewX(vec3.getCoord(coordinateSystem.getPortFirstXYZ()));
-        double y = coordinateSystem.viewY(vec3.getCoord(coordinateSystem.getPortSecondXYZ()));
-        double px = coordinateSystem.viewX(point.getX());
-        double py = coordinateSystem.viewY(point.getY());
-        return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
-    }
-
-    public static double distance(double vpX, double vpY, double x, double y) {
-        double dx = x - vpX;
-        double dy = y - vpY;
-        return Math.sqrt((dx * dx) + (dy * dy));
-    }
-
     @Override
     public RigAction rig() {
         System.out.println("rig, sel vert: " + this.selectionManager.getSelectedVertices().size());
@@ -898,39 +931,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
             boneList = new StringBuilder("Nothing was selected that was attached to any bones.");
         }
         return boneList.toString();
-    }
-
-    public static boolean triHitTest(Triangle triangle, Rectangle2D area, CoordinateSystem coordinateSystem) {
-        byte dim1 = coordinateSystem.getPortFirstXYZ();
-        byte dim2 = coordinateSystem.getPortSecondXYZ();
-
-        GeosetVertex[] verts = triangle.getVerts();
-        Path2D.Double path = new Path2D.Double();
-        path.moveTo(verts[0].getCoord(dim1), verts[0].getCoord(dim2));
-
-        for (int i = 1; i < verts.length; i++) {
-            path.lineTo(verts[i].getCoord(dim1), verts[i].getCoord(dim2));
-        }
-        return area.contains(verts[0].getCoord(dim1), verts[0].getCoord(dim2))
-                || area.contains(verts[1].getCoord(dim1), verts[1].getCoord(dim2))
-                || area.contains(verts[2].getCoord(dim1), verts[2].getCoord(dim2))
-                || path.intersects(area);
-    }
-
-    public static boolean triHitTest(Triangle triangle, Point2D point, CoordinateSystem coordinateSystem) {
-        byte dim1 = coordinateSystem.getPortFirstXYZ();
-        byte dim2 = coordinateSystem.getPortSecondXYZ();
-
-        GeosetVertex[] verts = triangle.getVerts();
-        Path2D.Double path = new Path2D.Double();
-        path.moveTo(verts[0].getCoord(dim1), verts[0].getCoord(dim2));
-
-        for (int i = 1; i < verts.length; i++) {
-            path.lineTo(verts[i].getCoord(dim1), verts[i].getCoord(dim2));
-        } // TODO fix bad performance allocation
-
-        path.closePath();
-        return path.contains(point);
     }
 
     @Override
@@ -1049,5 +1049,4 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
         return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
     }
-
 }

@@ -213,7 +213,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 					List<GeosetVertex> triangleVertices = new ArrayList<>(3);
 					for (GeosetVertex geosetVertex : triangle.getAll()) {
 						GeosetVertex newGeosetVertex = new GeosetVertex(geosetVertex);
-						newGeosetVertex.getTriangles().clear();
+						newGeosetVertex.clearTriangles();
 						copiedVertices.add(newGeosetVertex);
 						triangleVertices.add(newGeosetVertex);
 					}

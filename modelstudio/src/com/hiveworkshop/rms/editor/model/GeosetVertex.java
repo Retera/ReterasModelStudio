@@ -96,36 +96,6 @@ public class GeosetVertex extends Vec3 {
         }
     }
 
-//    public void un900Heuristic2() {
-//        if (tangent != null) {
-//            tangent = null;
-//        }
-//        if (skinBones != null) {
-//            bones.clear();
-//            int index = 0;
-//            boolean fallback = false;
-//            for (final Bone bone : skinBones) {
-//                if (bone != null) {
-//                    fallback = true;
-//                    if (skinBoneWeights[index] > 110) {
-//                        bones.add(bone);
-//                    }
-//                }
-//                index++;
-//            }
-//            if (bones.isEmpty() && fallback) {
-//                for (final Bone bone : skinBones) {
-//                    if (bone != null) {
-//                        bones.add(bone);
-//                    }
-//                }
-//            }
-//            skinBones = null;
-//            skinBoneWeights = null;
-//            skinBoneIndexes = null;
-//        }
-//    }
-
     public void un900Heuristic() {
         if (tangent != null) {
             tangent = null;
@@ -234,6 +204,19 @@ public class GeosetVertex extends Vec3 {
     public GeosetVertex removeTriangle(Triangle triangle) {
         triangles.remove(triangle);
         return this;
+    }
+
+    public GeosetVertex clearTriangles() {
+        triangles.clear();
+        return this;
+    }
+
+    public boolean isInTriangle(Triangle triangle) {
+        return triangles.contains(triangle) && triangle.contains(this);
+    }
+
+    public boolean hasTriangle(Triangle triangle) {
+        return triangles.contains(triangle);
     }
 
     public void setTriangles(List<Triangle> triangles) {

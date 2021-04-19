@@ -1,14 +1,14 @@
 package com.hiveworkshop.rms.ui.application.actions.mesh;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Something to undo when you deleted something important.
@@ -21,8 +21,8 @@ public class DeleteAction implements UndoAction {
 	private final List<Triangle> deletedTris;
 	private final VertexSelectionHelper vertexSelectionHelper;
 
-	public DeleteAction(final Collection<? extends Vec3> selection, final List<Triangle> deletedTris,
-			final VertexSelectionHelper vertexSelectionHelper) {
+	public DeleteAction(Collection<? extends Vec3> selection, List<Triangle> deletedTris,
+	                    VertexSelectionHelper vertexSelectionHelper) {
 		this.vertexSelectionHelper = vertexSelectionHelper;
 		this.selection = new ArrayList<>(selection);
 		this.deleted = new ArrayList<>(selection);
@@ -33,14 +33,14 @@ public class DeleteAction implements UndoAction {
 	public void redo() {
 		for (Vec3 vec3 : deleted) {
 			if (vec3.getClass() == GeosetVertex.class) {
-				final GeosetVertex gv = (GeosetVertex) vec3;
+				GeosetVertex gv = (GeosetVertex) vec3;
 				gv.getGeoset().remove(gv);
 			}
 		}
-		for (final Triangle t : deletedTris) {
+		for (Triangle t : deletedTris) {
 			t.getGeoset().removeTriangle(t);
-			for (final GeosetVertex vertex : t.getAll()) {
-				vertex.getTriangles().remove(t);
+			for (GeosetVertex vertex : t.getAll()) {
+				vertex.removeTriangle(t);
 			}
 		}
 		vertexSelectionHelper.selectVertices(new ArrayList<>());
@@ -50,14 +50,14 @@ public class DeleteAction implements UndoAction {
 	public void undo() {
 		for (Vec3 vec3 : deleted) {
 			if (vec3.getClass() == GeosetVertex.class) {
-				final GeosetVertex gv = (GeosetVertex) vec3;
+				GeosetVertex gv = (GeosetVertex) vec3;
 				gv.getGeoset().addVertex(gv);
 			}
 		}
-		for (final Triangle t : deletedTris) {
+		for (Triangle t : deletedTris) {
 			t.getGeoset().addTriangle(t);
-			for (final GeosetVertex vertex : t.getAll()) {
-				vertex.getTriangles().add(t);
+			for (GeosetVertex vertex : t.getAll()) {
+				vertex.addTriangle(t);
 			}
 		}
 		vertexSelectionHelper.selectVertices(selection);

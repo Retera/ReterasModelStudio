@@ -219,7 +219,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 				for (GeosetVertex geosetVertex : triangle.getAll()) {
 					if (selection.contains(new VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(geosetVertex)))) {
 						GeosetVertex newGeosetVertex = new GeosetVertex(geosetVertex);
-						newGeosetVertex.getTriangles().clear();
+						newGeosetVertex.clearTriangles();
 						copiedVertices.add(newGeosetVertex);
 						triangleVertices.add(newGeosetVertex);
 					} else {

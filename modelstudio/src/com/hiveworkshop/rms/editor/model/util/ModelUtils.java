@@ -116,7 +116,7 @@ public final class ModelUtils {
 		for (Triangle triangle : box.getTriangles()) {
 			triangle.setGeoset(dataGeoset);
 			for (GeosetVertex vertex : triangle.getVerts()) {
-				vertex.getTriangles().add(triangle);
+				vertex.addTriangle(triangle);
 			}
 		}
 		return box;
@@ -175,7 +175,7 @@ public final class ModelUtils {
 			triangle.setGeoset(geoset);
 			geoset.add(triangle);
 			for (GeosetVertex vertex : triangle.getVerts()) {
-				vertex.getTriangles().add(triangle);
+				vertex.addTriangle(triangle);
 			}
 		}
 		model.add(geoset);

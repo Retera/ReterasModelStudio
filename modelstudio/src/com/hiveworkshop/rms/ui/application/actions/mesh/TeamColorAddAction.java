@@ -1,23 +1,14 @@
 package com.hiveworkshop.rms.ui.application.actions.mesh;
 
-import java.util.*;
-
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.ExtLog;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetAnim;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Layer;
-import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.*;
 
 public final class TeamColorAddAction<T> implements UndoAction {
 
@@ -94,9 +85,9 @@ public final class TeamColorAddAction<T> implements UndoAction {
 			final Geoset newGeoset = oldGeoToNewGeo.get(tri.getGeoset());
 			final Triangle newTriangle = new Triangle(a, b, c, newGeoset);
 			newGeoset.add(newTriangle);
-			a.getTriangles().add(newTriangle);
-			b.getTriangles().add(newTriangle);
-			c.getTriangles().add(newTriangle);
+			a.addTriangle(newTriangle);
+			b.addTriangle(newTriangle);
+			c.addTriangle(newTriangle);
 		}
 		selection = new ArrayList<>(selectionManager.getSelection());
 	}
@@ -110,7 +101,7 @@ public final class TeamColorAddAction<T> implements UndoAction {
 		for (final Triangle tri : trisToSeparate) {
 			final Geoset geoset = tri.getGeoset();
 			for (final GeosetVertex gv : tri.getVerts()) {
-				gv.getTriangles().add(tri);
+				gv.addTriangle(tri);
 				if (!geoset.getVertices().contains(gv)) {
 					geoset.add(gv);
 				}
@@ -128,7 +119,7 @@ public final class TeamColorAddAction<T> implements UndoAction {
 		for (final Triangle tri : trisToSeparate) {
 			final Geoset geoset = tri.getGeoset();
 			for (final GeosetVertex gv : tri.getVerts()) {
-				gv.getTriangles().remove(tri);
+				gv.removeTriangle(tri);
 				if (gv.getTriangles().isEmpty()) {
 					geoset.remove(gv);
 				}
