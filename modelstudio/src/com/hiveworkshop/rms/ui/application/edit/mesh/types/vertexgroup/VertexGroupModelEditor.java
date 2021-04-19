@@ -7,8 +7,6 @@ import com.hiveworkshop.rms.ui.application.actions.mesh.TeamColorAddAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.types.faces.FaceModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVertexModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
@@ -110,14 +108,14 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 		boolean canSelect = false;
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (FaceModelEditor.hitTest(triangle, CoordinateSystem.Util.geom(axes, point), axes)) {
+				if (triHitTest(triangle, CoordinateSystem.Util.geom(axes, point), axes)) {
 					canSelect = true;
 				}
 			}
 		}
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (GeosetVertexModelEditor.hitTest(geosetVertex, CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
+				if (hitTest(geosetVertex, CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
 					canSelect = true;
 				}
 			}
@@ -128,32 +126,24 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 	@Override
 	protected List<VertexGroupBundle> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem) {
 		List<VertexGroupBundle> newSelection = new ArrayList<>();
-		double startingClickX = region.getX();
-		double startingClickY = region.getY();
-		double endingClickX = region.getX() + region.getWidth();
-		double endingClickY = region.getY() + region.getHeight();
-
-		double minX = Math.min(startingClickX, endingClickX);
-		double minY = Math.min(startingClickY, endingClickY);
-		double maxX = Math.max(startingClickX, endingClickX);
-		double maxY = Math.max(startingClickY, endingClickY);
-		Rectangle2D area = new Rectangle2D.Double(minX, minY, (maxX - minX), (maxY - minY));
+		Rectangle2D area = getArea(region);
 
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (FaceModelEditor.hitTest(triangle, new Point2D.Double(area.getX(), area.getY()), coordinateSystem)
-						|| FaceModelEditor.hitTest(triangle, new Point2D.Double(area.getX() + area.getWidth(), area.getY() + area.getHeight()), coordinateSystem)
-						|| FaceModelEditor.hitTest(triangle, area, coordinateSystem)) {
+				if (triHitTest(triangle, new Point2D.Double(area.getX(), area.getY()), coordinateSystem)
+						|| triHitTest(triangle, new Point2D.Double(area.getX() + area.getWidth(), area.getY() + area.getHeight()), coordinateSystem)
+						|| triHitTest(triangle, area, coordinateSystem)) {
 					for (GeosetVertex vertex : triangle.getAll()) {
 						newSelection.add(new VertexGroupBundle(geoset, vertex.getVertexGroup()));
 					}
 				}
 			}
 		}
+
 		List<GeosetVertex> geosetVerticesSelected = new ArrayList<>();
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (GeosetVertexModelEditor.hitTest(area, geosetVertex, coordinateSystem, programPreferences.getVertexSize())) {
+				if (hitTest(area, geosetVertex, coordinateSystem, programPreferences.getVertexSize())) {
 					geosetVerticesSelected.add(geosetVertex);
 				}
 			}

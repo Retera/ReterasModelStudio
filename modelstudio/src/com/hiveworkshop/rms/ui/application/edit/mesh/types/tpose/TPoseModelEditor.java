@@ -26,7 +26,6 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.*;
@@ -44,38 +43,6 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		this.programPreferences = programPreferences;
 		genericSelectorVisitor = new GenericSelectorVisitor();
 		selectionAtPointTester = new SelectionAtPointTester();
-	}
-
-	public static void hitTest(List<IdObject> selectedItems, Rectangle2D area, Vec3 geosetVertex, CoordinateSystem coordinateSystem, double vertexSize, IdObject node) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-		double minX = coordinateSystem.viewX(area.getMinX());
-		double minY = coordinateSystem.viewY(area.getMinY());
-		double maxX = coordinateSystem.viewX(area.getMaxX());
-		double maxY = coordinateSystem.viewY(area.getMaxY());
-		double vertexX = geosetVertex.getCoord(dim1);
-		double x = coordinateSystem.viewX(vertexX);
-		double vertexY = geosetVertex.getCoord(dim2);
-		double y = coordinateSystem.viewY(vertexY);
-		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0))
-				|| (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
-				|| area.contains(vertexX, vertexY)) {
-			selectedItems.add(node);
-		}
-	}
-
-	public static boolean hitTest(Vec3 vertex, Point2D point, CoordinateSystem coordinateSystem, double vertexSize) {
-		double x = coordinateSystem.viewX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-		double y = coordinateSystem.viewY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-		double px = coordinateSystem.viewX(point.getX());
-		double py = coordinateSystem.viewY(point.getY());
-		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
-	}
-
-	public static double distance(double vertexX, double vertexY, double x, double y) {
-		double dx = x - vertexX;
-		double dy = y - vertexY;
-		return Math.sqrt((dx * dx) + (dy * dy));
 	}
 
 	@Override
@@ -231,16 +198,8 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	protected List<IdObject> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem) {
 		List<IdObject> selectedItems = new ArrayList<>();
-		double startingClickX = region.getX();
-		double startingClickY = region.getY();
-		double endingClickX = region.getX() + region.getWidth();
-		double endingClickY = region.getY() + region.getHeight();
+		Rectangle2D area = getArea(region);
 
-		double minX = Math.min(startingClickX, endingClickX);
-		double minY = Math.min(startingClickY, endingClickY);
-		double maxX = Math.max(startingClickX, endingClickX);
-		double maxY = Math.max(startingClickY, endingClickY);
-		Rectangle2D area = new Rectangle2D.Double(minX, minY, (maxX - minX), (maxY - minY));
 		IdObjectVisitor visitor = genericSelectorVisitor.reset(selectedItems, area, coordinateSystem);
 		for (IdObject object : model.getEditableIdObjects()) {
 			object.apply(visitor);
@@ -266,76 +225,11 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public UndoAction invertSelection() {
 		throw new WrongModeException("Not supported in T-Pose mode");
-		// List<Vertex> oldSelection = new
-		// ArrayList<>(selectionManager.getSelection());
-		// Set<Vertex> invertedSelection = new
-		// HashSet<>(selectionManager.getSelection());
-		// IdObjectVisitor visitor = new IdObjectVisitor() {
-		// @Override
-		// public void ribbonEmitter(RibbonEmitter particleEmitter) { toggleSelection(invertedSelection, particleEmitter.getPivotPoint()); }
-		// @Override
-		// public void particleEmitter2(ParticleEmitter2 particleEmitter) { toggleSelection(invertedSelection, particleEmitter.getPivotPoint()); }
-		// @Override
-		// public void particleEmitter(ParticleEmitter particleEmitter) { toggleSelection(invertedSelection, particleEmitter.getPivotPoint()); }
-		// @Override
-		// public void light(Light light) { toggleSelection(invertedSelection, light.getPivotPoint()); }
-		// @Override
-		// public void helper(Helper object) { toggleSelection(invertedSelection, object.getPivotPoint()); }
-		// @Override
-		// public void eventObject(EventObject eventObject) { toggleSelection(invertedSelection, eventObject.getPivotPoint()); }
-		// @Override
-		// public void collisionShape(CollisionShape collisionShape) {
-		// toggleSelection(invertedSelection, collisionShape.getPivotPoint());
-		// for (Vertex vertex : collisionShape.getVertices()) { toggleSelection(invertedSelection, vertex); } }
-		// @Override
-		// public void camera(Camera camera) {
-		// toggleSelection(invertedSelection, camera.getPosition()); toggleSelection(invertedSelection, camera.getTargetPosition()); }
-		// @Override
-		// public void bone(Bone object) { toggleSelection(invertedSelection, object.getPivotPoint()); }
-		// @Override
-		// public void attachment(Attachment attachment) { toggleSelection(invertedSelection, attachment.getPivotPoint()); } };
-		// for (IdObject node : model.getEditableIdObjects()) { node.apply(visitor); }
-		// for (Camera object : model.getEditableCameras()) { visitor.camera(object); }
-		// selectionManager.setSelection(invertedSelection);
-		// return (new SetSelectionAction<>(invertedSelection, oldSelection,
-		// selectionManager, "invert selection"));
 	}
 
 	@Override
 	public UndoAction selectAll() {
 		throw new WrongModeException("Not supported in T-Pose mode");
-		// List<Vertex> oldSelection = new
-		// ArrayList<>(selectionManager.getSelection());
-		// Set<Vertex> allSelection = new HashSet<>();
-		// IdObjectVisitor visitor = new IdObjectVisitor() {
-		// @Override
-		// public void ribbonEmitter(RibbonEmitter particleEmitter) { allSelection.add(particleEmitter.getPivotPoint());}
-		// @Override
-		// public void particleEmitter2(ParticleEmitter2 particleEmitter) { allSelection.add(particleEmitter.getPivotPoint());}
-		// @Override
-		// public void particleEmitter(ParticleEmitter particleEmitter) { allSelection.add(particleEmitter.getPivotPoint());}
-		// @Override
-		// public void light(Light light) { allSelection.add(light.getPivotPoint());}
-		// @Override
-		// public void helper(Helper object) { allSelection.add(object.getPivotPoint());}
-		// @Override
-		// public void eventObject(EventObject eventObject) { allSelection.add(eventObject.getPivotPoint());}
-		// @Override
-		// public void collisionShape(CollisionShape collisionShape) {
-		// allSelection.add(collisionShape.getPivotPoint());
-		// for (Vertex vertex : collisionShape.getVertices()) { allSelection.add(vertex);}}
-		// @Override
-		// public void camera(Camera camera) {
-		// allSelection.add(camera.getPosition()); allSelection.add(camera.getTargetPosition());}
-		// @Override
-		// public void bone(Bone object) { allSelection.add(object.getPivotPoint());}
-		// @Override
-		// public void attachment(Attachment attachment) { allSelection.add(attachment.getPivotPoint());}};
-		// for (IdObject node : model.getEditableIdObjects()) { node.apply(visitor);}
-		// for (Camera object : model.getEditableCameras()) { visitor.camera(object);}
-		// selectionManager.setSelection(allSelection);
-		// return (new SetSelectionAction<>(allSelection, oldSelection,
-		// selectionManager, "select all"));
 	}
 
 	@Override
@@ -587,60 +481,92 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		}
 
 		@Override
-		public void ribbonEmitter(RibbonEmitter particleEmitter) {
-			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem, particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, particleEmitter);
-		}
-
-		@Override
-		public void particleEmitter2(ParticleEmitter2 particleEmitter) {
-			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem, particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, particleEmitter);
-		}
-
-		@Override
-		public void particleEmitter(ParticleEmitter particleEmitter) {
-			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem, particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, particleEmitter);
-		}
-
-		@Override
-		public void popcornFxEmitter(ParticleEmitterPopcorn particleEmitter) {
-			hitTest(selectedItems, area, particleEmitter.getPivotPoint(), coordinateSystem, particleEmitter.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, particleEmitter);
-		}
-
-		@Override
-		public void light(Light light) {
-			hitTest(selectedItems, area, light.getPivotPoint(), coordinateSystem, light.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, light);
-		}
-
-		@Override
-		public void helper(Helper object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem), object);
-		}
-
-		@Override
-		public void eventObject(EventObject eventObject) {
-			hitTest(selectedItems, area, eventObject.getPivotPoint(), coordinateSystem, eventObject.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, eventObject);
-		}
-
-		@Override
-		public void collisionShape(CollisionShape collisionShape) {
-			hitTest(selectedItems, area, collisionShape.getPivotPoint(), coordinateSystem, collisionShape.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, collisionShape);
-			for (Vec3 vertex : collisionShape.getVertices()) {
-				hitTest(selectedItems, area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS, collisionShape);
+		public void ribbonEmitter(RibbonEmitter object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
 			}
 		}
 
 		@Override
-		public void camera(Camera camera) {
+		public void particleEmitter2(ParticleEmitter2 object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
+		}
+
+		@Override
+		public void particleEmitter(ParticleEmitter object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
+		}
+
+		@Override
+		public void popcornFxEmitter(ParticleEmitterPopcorn object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
+		}
+
+		@Override
+		public void light(Light object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
+		}
+
+		@Override
+		public void helper(Helper object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
+		}
+
+		@Override
+		public void eventObject(EventObject object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
 		}
 
 		@Override
 		public void bone(Bone object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem), object);
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
 		}
 
 		@Override
-		public void attachment(Attachment attachment) {
-			hitTest(selectedItems, area, attachment.getPivotPoint(), coordinateSystem, attachment.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, attachment);
+		public void attachment(Attachment object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
+		}
+
+		@Override
+		public void collisionShape(CollisionShape object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
+			for (Vec3 vertex : object.getVertices()) {
+				if (hitTest(area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
+					selectedItems.add(object);
+				}
+			}
+		}
+
+		@Override
+		public void camera(Camera object) {
 		}
 	}
 

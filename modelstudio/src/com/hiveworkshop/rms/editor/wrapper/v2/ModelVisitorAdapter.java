@@ -1,74 +1,53 @@
 package com.hiveworkshop.rms.editor.wrapper.v2;
 
-import com.hiveworkshop.rms.editor.model.Attachment;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.CollisionShape;
-import com.hiveworkshop.rms.editor.model.EventObject;
-import com.hiveworkshop.rms.editor.model.GeosetAnim;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.Light;
-import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.model.RibbonEmitter;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.visitor.GeosetVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
 
 public abstract class ModelVisitorAdapter implements ModelVisitor {
 
 	@Override
-	public void bone(final Bone object) {
-
+	public void bone(Bone object) {
 	}
 
 	@Override
-	public void light(final Light light) {
-
+	public void light(Light light) {
 	}
 
 	@Override
-	public void helper(final Helper object) {
-
+	public void helper(Helper object) {
 	}
 
 	@Override
-	public void attachment(final Attachment attachment) {
-
+	public void attachment(Attachment attachment) {
 	}
 
 	@Override
-	public void particleEmitter(final ParticleEmitter particleEmitter) {
-
+	public void particleEmitter(ParticleEmitter particleEmitter) {
 	}
 
 	@Override
-	public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
-
+	public void particleEmitter2(ParticleEmitter2 particleEmitter) {
 	}
 
 	@Override
-	public void ribbonEmitter(final RibbonEmitter particleEmitter) {
-
+	public void ribbonEmitter(RibbonEmitter particleEmitter) {
 	}
 
 	@Override
-	public void eventObject(final EventObject eventObject) {
-
+	public void eventObject(EventObject eventObject) {
 	}
 
 	@Override
-	public void collisionShape(final CollisionShape collisionShape) {
-
+	public void collisionShape(CollisionShape collisionShape) {
 	}
 
 	@Override
-	public void camera(final Camera camera) {
-
+	public void camera(Camera camera) {
 	}
 
 	@Override
-	public GeosetVisitor beginGeoset(final int geosetId, final Material material, final GeosetAnim geosetAnim) {
+	public GeosetVisitor beginGeoset(int geosetId, Material material, GeosetAnim geosetAnim) {
 		return GeosetVisitor.NO_ACTION;
 	}
 

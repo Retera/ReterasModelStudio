@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.ui.application.actions.mesh.*;
 import com.hiveworkshop.rms.ui.application.actions.model.RecalculateExtentsAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawBoxAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawPlaneAction;
@@ -19,8 +20,12 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.*;
 
 public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> {
@@ -822,70 +827,37 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         throw new UnsupportedOperationException("Cannot create keyframe outside of animation mode");
     }
 
-    @Override
-    public GenericMoveAction addPlane(double x, double y, double x2, double y2, byte dim1, byte dim2, Vec3 facingVector, int numberOfWidthSegments, int numberOfHeightSegments) {
-        List<Geoset> geosets = model.getModel().getGeosets();
-        Geoset solidWhiteGeoset = null;
-        for (Geoset geoset : geosets) {
-            Layer firstLayer = geoset.getMaterial().firstLayer();
-            if ((geoset.getMaterial() != null) && (firstLayer != null)
-                    && (firstLayer.getFilterMode() == FilterMode.NONE)
-                    && "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
-                solidWhiteGeoset = geoset;
-            }
-        }
-        boolean needsGeosetAction = false;
+    public static boolean hitTest(Rectangle2D area, Vec3 vec3, CoordinateSystem coordinateSystem, double vertexSize) {
+        byte dim1 = coordinateSystem.getPortFirstXYZ();
+        byte dim2 = coordinateSystem.getPortSecondXYZ();
 
-        if (solidWhiteGeoset == null) {
-            solidWhiteGeoset = new Geoset();
-            solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
-            needsGeosetAction = true;
-        }
+        double minX = coordinateSystem.viewX(area.getMinX());
+        double minY = coordinateSystem.viewY(area.getMinY());
+        double maxX = coordinateSystem.viewX(area.getMaxX());
+        double maxY = coordinateSystem.viewY(area.getMaxY());
 
-        GenericMoveAction action;
-        DrawPlaneAction drawVertexAction = new DrawPlaneAction(x, y, x2, y2, dim1, dim2, facingVector, numberOfWidthSegments, numberOfHeightSegments, solidWhiteGeoset);
+        double vertexX = vec3.getCoord(dim1);
+        double x = coordinateSystem.viewX(vertexX);
+        double vertexY = vec3.getCoord(dim2);
+        double y = coordinateSystem.viewY(vertexY);
 
-        if (needsGeosetAction) {
-            NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(), structureChangeListener);
-            action = new CompoundMoveAction("create plane", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
-        } else {
-            action = drawVertexAction;
-        }
-        action.redo();
-        return action;
-
+        return (distance(x, y, minX, minY) <= (vertexSize / 2.0))
+                || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0))
+                || area.contains(vertexX, vertexY);
     }
 
-    @Override
-    public GenericMoveAction addBox(double x, double y, double x2, double y2, byte dim1, byte dim2, Vec3 facingVector, int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments) {
-        List<Geoset> geosets = model.getModel().getGeosets();
-        Geoset solidWhiteGeoset = null;
-        for (Geoset geoset : geosets) {
-            Layer firstLayer = geoset.getMaterial().firstLayer();
-            if ((geoset.getMaterial() != null) && (firstLayer != null)
-                    && (firstLayer.getFilterMode() == FilterMode.NONE)
-                    && "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
-                solidWhiteGeoset = geoset;
-            }
-        }
-        boolean needsGeosetAction = false;
-        if (solidWhiteGeoset == null) {
-            solidWhiteGeoset = new Geoset();
-            solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
-            needsGeosetAction = true;
-        }
-        GenericMoveAction action;
-        DrawBoxAction drawVertexAction = new DrawBoxAction(x, y, x2, y2, dim1, dim2, facingVector, numberOfLengthSegments, numberOfWidthSegments, numberOfHeightSegments, solidWhiteGeoset);
+    public static boolean hitTest(Vec3 vec3, Point2D point, CoordinateSystem coordinateSystem, double vertexSize) {
+        double x = coordinateSystem.viewX(vec3.getCoord(coordinateSystem.getPortFirstXYZ()));
+        double y = coordinateSystem.viewY(vec3.getCoord(coordinateSystem.getPortSecondXYZ()));
+        double px = coordinateSystem.viewX(point.getX());
+        double py = coordinateSystem.viewY(point.getY());
+        return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
+    }
 
-        if (needsGeosetAction) {
-            NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(), structureChangeListener);
-            action = new CompoundMoveAction("create plane", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
-        } else {
-            action = drawVertexAction;
-        }
-        action.redo();
-        return action;
-
+    public static double distance(double vpX, double vpY, double x, double y) {
+        double dx = x - vpX;
+        double dy = y - vpY;
+        return Math.sqrt((dx * dx) + (dy * dy));
     }
 
     @Override
@@ -928,46 +900,154 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         return boneList.toString();
     }
 
+    public static boolean triHitTest(Triangle triangle, Rectangle2D area, CoordinateSystem coordinateSystem) {
+        byte dim1 = coordinateSystem.getPortFirstXYZ();
+        byte dim2 = coordinateSystem.getPortSecondXYZ();
+
+        GeosetVertex[] verts = triangle.getVerts();
+        Path2D.Double path = new Path2D.Double();
+        path.moveTo(verts[0].getCoord(dim1), verts[0].getCoord(dim2));
+
+        for (int i = 1; i < verts.length; i++) {
+            path.lineTo(verts[i].getCoord(dim1), verts[i].getCoord(dim2));
+        }
+        return area.contains(verts[0].getCoord(dim1), verts[0].getCoord(dim2))
+                || area.contains(verts[1].getCoord(dim1), verts[1].getCoord(dim2))
+                || area.contains(verts[2].getCoord(dim1), verts[2].getCoord(dim2))
+                || path.intersects(area);
+    }
+
+    public static boolean triHitTest(Triangle triangle, Point2D point, CoordinateSystem coordinateSystem) {
+        byte dim1 = coordinateSystem.getPortFirstXYZ();
+        byte dim2 = coordinateSystem.getPortSecondXYZ();
+
+        GeosetVertex[] verts = triangle.getVerts();
+        Path2D.Double path = new Path2D.Double();
+        path.moveTo(verts[0].getCoord(dim1), verts[0].getCoord(dim2));
+
+        for (int i = 1; i < verts.length; i++) {
+            path.lineTo(verts[i].getCoord(dim1), verts[i].getCoord(dim2));
+        } // TODO fix bad performance allocation
+
+        path.closePath();
+        return path.contains(point);
+    }
+
+    @Override
+    public GenericMoveAction addPlane(Vec2 p1, Vec2 p2, byte dim1, byte dim2, Vec3 facingVector,
+                                      int numberOfWidthSegments, int numberOfHeightSegments) {
+        Geoset solidWhiteGeoset = getSolidWhiteGeoset();
+
+        DrawPlaneAction drawVertexAction = new DrawPlaneAction(p1, p2, dim1, dim2, facingVector, numberOfWidthSegments, numberOfHeightSegments, solidWhiteGeoset);
+
+        GenericMoveAction action;
+        if (!model.getModel().contains(solidWhiteGeoset)) {
+            NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(), structureChangeListener);
+            action = new CompoundMoveAction("Add Plane", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
+        } else {
+            action = drawVertexAction;
+        }
+        action.redo();
+        return action;
+    }
+
+    @Override
+    public GenericMoveAction addBox(Vec2 p1, Vec2 p2, byte dim1, byte dim2, Vec3 facingVector, int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments) {
+        Geoset solidWhiteGeoset = getSolidWhiteGeoset();
+
+        GenericMoveAction action;
+        DrawBoxAction drawVertexAction = new DrawBoxAction(p1, p2, dim1, dim2, facingVector, numberOfLengthSegments, numberOfWidthSegments, numberOfHeightSegments, solidWhiteGeoset);
+
+        if (!model.getModel().contains(solidWhiteGeoset)) {
+            NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(), structureChangeListener);
+            action = new CompoundMoveAction("Add Box", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
+        } else {
+            action = drawVertexAction;
+        }
+        action.redo();
+        return action;
+    }
+
+    public Geoset getSolidWhiteGeoset() {
+        List<Geoset> geosets = model.getModel().getGeosets();
+        Geoset solidWhiteGeoset = null;
+        for (Geoset geoset : geosets) {
+            Layer firstLayer = geoset.getMaterial().firstLayer();
+            if ((geoset.getMaterial() != null) && (firstLayer != null)
+                    && (firstLayer.getFilterMode() == FilterMode.NONE)
+                    && "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
+                solidWhiteGeoset = geoset;
+            }
+        }
+
+        if (solidWhiteGeoset == null) {
+            solidWhiteGeoset = new Geoset();
+            solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
+        }
+        return solidWhiteGeoset;
+    }
+
     @Override
     public String getSelectedHDSkinningDescription() {
         Collection<? extends Vec3> selectedVertices = selectionManager.getSelectedVertices();
-        Bone[] boneArray = null;
-        short[] weightArray = null;
+        GeosetVertex.SkinBone[] skinBones = null;
         boolean selectionIsNotUniform = false;
+        Set<Geoset> geosets = new HashSet<>();
         for (Vec3 vertex : selectedVertices) {
             if (vertex instanceof GeosetVertex) {
                 GeosetVertex gv = (GeosetVertex) vertex;
-                if (boneArray == null) {
-                    boneArray = gv.getSkinBones();
-                } else if (!Arrays.equals(boneArray, gv.getSkinBones())) {
-                    selectionIsNotUniform = true;
+                if (skinBones == null) {
+                    skinBones = gv.getSSkinBones();
+                    geosets.add(gv.getGeoset());
+                } else if (!Arrays.equals(skinBones, gv.getSSkinBones())) {
+                    selectionIsNotUniform = true; // todo collect and show all groups
                     break;
-                }
-                if (weightArray == null) {
-                    weightArray = gv.getSkinBoneWeights();
-                } else if (!Arrays.equals(weightArray, gv.getSkinBoneWeights())) {
-                    selectionIsNotUniform = true;
-                    break;
+                } else {
+                    geosets.add(gv.getGeoset());
                 }
             }
         }
         if (selectionIsNotUniform) {
             return "The skinning of the selection is not uniform. Please select only one vertex, or a group of vertices that are exactly sharing their animation skin bindings.";
         }
+        if (skinBones == null && model.getModel().getFormatVersion() >= 900) {
+            for (Geoset geoset : geosets) {
+                geoset.makeHd();
+
+            }
+        }
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < 4; i++) {
-            if (boneArray[i] == null) {
+            if (skinBones == null) {
                 output.append("null");
             } else {
-                output.append(boneArray[i].getName());
+                if (skinBones[i].getBone() == null) {
+                    output.append("null");
+                } else {
+                    output.append(skinBones[i].getBone().getName());
+                }
+                output.append(": ");
+                output.append(skinBones[i].getWeight());
+                output.append(" (");
+                output.append(skinBones[i].getWeight() / 255.0);
+                output.append(")\n");
             }
-            output.append(": ");
-            output.append(weightArray[i]);
-            output.append(" (");
-            output.append(weightArray[i] / 255.0);
-            output.append(")\n");
         }
         return output.toString();
+    }
+
+    protected Rectangle2D getArea(Rectangle2D region) {
+        double startingClickX = region.getX();
+        double startingClickY = region.getY();
+        double endingClickX = region.getX() + region.getWidth();
+        double endingClickY = region.getY() + region.getHeight();
+
+        double minX = Math.min(startingClickX, endingClickX);
+        double minY = Math.min(startingClickY, endingClickY);
+        double maxX = Math.max(startingClickX, endingClickX);
+        double maxY = Math.max(startingClickY, endingClickY);
+
+        return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
     }
 
 }

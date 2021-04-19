@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePic
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ComponentVisibilityListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
@@ -56,10 +57,10 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	UndoAction addBone(double x, double y, double z);
 
-	GenericMoveAction addPlane(double x, double y, double x2, double y2, byte dim1, byte dim2, Vec3 facingVector,
+	GenericMoveAction addPlane(Vec2 p1, Vec2 p2, byte dim1, byte dim2, Vec3 facingVector,
 	                           int numberOfWidthSegments, int numberOfHeightSegments);
 
-	GenericMoveAction addBox(double x, double y, double x2, double y2, byte dim1, byte dim2, Vec3 facingVector,
+	GenericMoveAction addBox(Vec2 p1, Vec2 p2, byte dim1, byte dim2, Vec3 facingVector,
 	                         int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments);
 
 	UndoAction setMatrix(Collection<Bone> bones);

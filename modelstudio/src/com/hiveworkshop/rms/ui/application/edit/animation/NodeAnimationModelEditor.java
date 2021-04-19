@@ -32,10 +32,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.Mat4;
-import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec4;
+import com.hiveworkshop.rms.util.*;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -313,8 +310,16 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	public GenericMoveAction addPlane(double x, double y, double x2, double y2, byte dim1, byte dim2, Vec3 facingVector, int numberOfWidthSegments, int numberOfHeightSegments) {
+	public GenericMoveAction addPlane(Vec2 p1, Vec2 p2, byte dim1, byte dim2, Vec3 facingVector,
+	                                  int numberOfWidthSegments, int numberOfHeightSegments) {
 		throw new WrongModeException("Unable to add plane in Animation Editor");
+
+	}
+
+	@Override
+	public GenericMoveAction addBox(Vec2 p1, Vec2 p2, byte dim1, byte dim2, Vec3 facingVector,
+	                                int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments) {
+		throw new WrongModeException("Unable to add box in Animation Editor");
 	}
 
 	@Override
@@ -606,11 +611,6 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 		return new CompoundAction("create keyframe", actions);
 
-	}
-
-	@Override
-	public GenericMoveAction addBox(double x, double y, double x2, double y2, byte dim1, byte dim2, Vec3 facingVector, int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments) {
-		throw new WrongModeException("Unable to create box in animation editor");
 	}
 
 	@Override

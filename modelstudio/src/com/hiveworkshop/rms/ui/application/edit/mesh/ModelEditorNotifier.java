@@ -21,6 +21,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePic
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.util.SubscriberSetNotifier;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
@@ -537,11 +538,20 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public GenericMoveAction addPlane(double x, double y, double x2, double y2, byte dim1, byte dim2,
-	                                  Vec3 facingVector, int numberOfSegmentsX, int numberOfSegmentsY) {
+	public GenericMoveAction addPlane(Vec2 p1, Vec2 p2, byte dim1, byte dim2, Vec3 facingVector, int numberOfWidthSegments, int numberOfHeightSegments) {
 		List<GenericMoveAction> actions = new ArrayList<>();
 		for (ModelEditor handler : set) {
-			actions.add(handler.addPlane(x, y, x2, y2, dim1, dim2, facingVector, numberOfSegmentsX, numberOfSegmentsY));
+			System.out.println(handler);
+			actions.add(handler.addPlane(p1, p2, dim1, dim2, facingVector, numberOfWidthSegments, numberOfHeightSegments));
+		}
+		return mergeMoveActions(actions);
+	}
+
+	@Override
+	public GenericMoveAction addBox(Vec2 p1, Vec2 p2, byte dim1, byte dim2, Vec3 facingVector, int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments) {
+		List<GenericMoveAction> actions = new ArrayList<>();
+		for (ModelEditor handler : set) {
+			actions.add(handler.addBox(p1, p2, dim1, dim2, facingVector, numberOfLengthSegments, numberOfWidthSegments, numberOfHeightSegments));
 		}
 		return mergeMoveActions(actions);
 	}
@@ -575,17 +585,6 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 			}
 		}
 		return null;
-	}
-
-	@Override
-	public GenericMoveAction addBox(double x, double y, double x2, double y2, byte dim1, byte dim2,
-	                                Vec3 facingVector,
-	                                int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments) {
-		List<GenericMoveAction> actions = new ArrayList<>();
-		for (ModelEditor handler : set) {
-			actions.add(handler.addBox(x, y, x2, y2, dim1, dim2, facingVector, numberOfLengthSegments, numberOfWidthSegments, numberOfHeightSegments));
-		}
-		return mergeMoveActions(actions);
 	}
 
 	@Override

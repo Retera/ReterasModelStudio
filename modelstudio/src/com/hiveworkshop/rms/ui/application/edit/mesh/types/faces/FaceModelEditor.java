@@ -21,7 +21,6 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
-import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
@@ -40,38 +39,6 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	@Override
 	public UndoAction autoCenterSelectedBones() {
 		throw new UnsupportedOperationException("This feature is not available in Face mode");
-	}
-
-	public static boolean hitTest(Triangle triangle, Rectangle2D rectangle, CoordinateSystem coordinateSystem) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-		GeosetVertex[] verts = triangle.getVerts();
-		Path2D.Double path = new Path2D.Double();
-		path.moveTo(verts[0].getCoord(dim1), verts[0].getCoord(dim2));
-		for (int i = 1; i < verts.length; i++) {
-			path.lineTo(verts[i].getCoord(dim1), verts[i].getCoord(dim2));
-		}
-		return rectangle.contains(verts[0].getCoord(dim1), verts[0].getCoord(dim2))
-				|| rectangle.contains(verts[1].getCoord(dim1), verts[1].getCoord(dim2))
-				|| rectangle.contains(verts[2].getCoord(dim1), verts[2].getCoord(dim2))
-				|| path.intersects(rectangle);
-	}
-
-	public static boolean hitTest(Triangle triangle, Point2D point, CoordinateSystem coordinateSystem) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-		GeosetVertex[] verts = triangle.getVerts();
-		Path2D.Double path = new Path2D.Double();
-		path.moveTo(verts[0].getCoord(dim1), verts[0].getCoord(dim2));
-		for (int i = 1; i < verts.length; i++) {
-			path.lineTo(verts[i].getCoord(dim1), verts[i].getCoord(dim2));
-			// xpts[i] = (int)
-			// (verts[i].getCoord(dim1));
-			// ypts[i] = (int)
-			// (verts[i].getCoord(dim2));
-		} // TODO fix bad performance allocation
-		path.closePath();
-		return path.contains(point);
 	}
 
 	@Override
@@ -167,7 +134,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		boolean canSelect = false;
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (hitTest(triangle, CoordinateSystem.Util.geom(axes, point), axes)) {
+				if (triHitTest(triangle, CoordinateSystem.Util.geom(axes, point), axes)) {
 					canSelect = true;
 				}
 			}
@@ -178,21 +145,13 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	@Override
 	protected List<Triangle> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem) {
 		List<Triangle> newSelection = new ArrayList<>();
-		double startingClickX = region.getX();
-		double startingClickY = region.getY();
-		double endingClickX = region.getX() + region.getWidth();
-		double endingClickY = region.getY() + region.getHeight();
+		Rectangle2D area = getArea(region);
 
-		double minX = Math.min(startingClickX, endingClickX);
-		double minY = Math.min(startingClickY, endingClickY);
-		double maxX = Math.max(startingClickX, endingClickX);
-		double maxY = Math.max(startingClickY, endingClickY);
-		Rectangle2D area = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (hitTest(triangle, new Point2D.Double(area.getX(), area.getY()), coordinateSystem)
-						|| hitTest(triangle, new Point2D.Double(area.getX() + area.getWidth(), area.getY() + area.getHeight()), coordinateSystem)
-						|| hitTest(triangle, area, coordinateSystem)) {
+				if (triHitTest(triangle, new Point2D.Double(area.getX(), area.getY()), coordinateSystem)
+						|| triHitTest(triangle, new Point2D.Double(area.getX() + area.getWidth(), area.getY() + area.getHeight()), coordinateSystem)
+						|| triHitTest(triangle, area, coordinateSystem)) {
 					newSelection.add(triangle);
 				}
 			}
