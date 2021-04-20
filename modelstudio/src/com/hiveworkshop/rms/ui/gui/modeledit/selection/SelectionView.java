@@ -25,7 +25,7 @@ public interface SelectionView {
 	double getCircumscribedSphereRadius(Vec3 center);
 
 	void renderSelection(ModelElementRenderer renderer,
-	                     final CoordinateSystem coordinateSystem,
+	                     CoordinateSystem coordinateSystem,
 	                     ModelView modelView,
 	                     ProgramPreferences programPreferences);
 

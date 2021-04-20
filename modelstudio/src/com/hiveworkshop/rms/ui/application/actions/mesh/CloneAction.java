@@ -23,8 +23,8 @@ public class CloneAction implements UndoAction {
 	private List<GeosetVertex> copiedGroup;
 	boolean type;
 
-	public CloneAction(final List<Vec3> selection, final Vec3 moveVector, final List<GeosetVertex> clones,
-			final List<Triangle> addedTriangles, final boolean isExtrude) {
+	public CloneAction(List<Vec3> selection, Vec3 moveVector, List<GeosetVertex> clones,
+	                   List<Triangle> addedTriangles, boolean isExtrude) {
 		addedVerts = clones;
 		this.addedTriangles = addedTriangles;
 		this.selection = new ArrayList<>(selection);
@@ -36,11 +36,11 @@ public class CloneAction implements UndoAction {
 
 	}
 
-	public void storeSelection(final List<Vec3> selection) {
+	public void storeSelection(List<Vec3> selection) {
 		this.selection = new ArrayList<>(selection);
 	}
 
-	public void storeBaseMovement(final Vec3 moveVector) {
+	public void storeBaseMovement(Vec3 moveVector) {
 		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
 	}
 
@@ -49,7 +49,7 @@ public class CloneAction implements UndoAction {
 		baseMovement.redo();
 		for (int i = 0; i < selection.size(); i++) {
 			if (selection.get(i).getClass() == GeosetVertex.class) {
-				final GeosetVertex gv = (GeosetVertex) selection.get(i);
+				GeosetVertex gv = (GeosetVertex) selection.get(i);
 				GeosetVertex cgv = null;
 				boolean good = true;
 				if (type) {
@@ -63,25 +63,25 @@ public class CloneAction implements UndoAction {
 					}
 				}
 				if (good) {
-					final List<Triangle> tris = new ArrayList<>(gv.getTriangles());
-					for (final Triangle t : tris) {
+					List<Triangle> tris = new ArrayList<>(gv.getTriangles());
+					for (Triangle t : tris) {
 						if (!selection.contains(t.get(0))
 								|| !selection.contains(t.get(1))
 								|| !selection.contains(t.get(2))) {
 
 							t.set(t.indexOfRef(gv), cgv);
-							gv.getTriangles().remove(t);
-							cgv.getTriangles().add(t);
+							gv.removeTriangle(t);
+							cgv.addTriangle(t);
 						}
 					}
 				}
 			}
 		}
 		addTriangles();
-		for (final GeosetVertex cgv : addedVerts) {
+		for (GeosetVertex cgv : addedVerts) {
 			if (cgv != null) {
 				boolean inGeoset = false;
-				for (final Triangle t : cgv.getGeoset().getTriangles()) {
+				for (Triangle t : cgv.getGeoset().getTriangles()) {
 					if (t.containsRef(cgv)) {
 						inGeoset = true;
 						break;
@@ -97,10 +97,10 @@ public class CloneAction implements UndoAction {
 	}
 
 	private void addTriangles() {
-		for (final Triangle t : addedTriangles) {
-			for (final GeosetVertex gv : t.getAll()) {
-				if (!gv.getTriangles().contains(t)) {
-					gv.getTriangles().add(t);
+		for (Triangle t : addedTriangles) {
+			for (GeosetVertex gv : t.getAll()) {
+				if (!gv.hasTriangle(t)) {
+					gv.addTriangle(t);
 				}
 			}
 			if (!t.getGeoset().contains(t)) {
@@ -115,10 +115,10 @@ public class CloneAction implements UndoAction {
 		if (type) {
 			removeTriangle();
 			for (int i = 0; i < addedVerts.size(); i++) {
-				final GeosetVertex cgv = addedVerts.get(i);
+				GeosetVertex cgv = addedVerts.get(i);
 				if (cgv != null) {
-					final GeosetVertex gv = (GeosetVertex) selection.get(addedVerts.indexOf(cgv));
-					final List<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
+					GeosetVertex gv = (GeosetVertex) selection.get(addedVerts.indexOf(cgv));
+					List<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
 					moveTriangle(cgv, gv, ctris);
 					cgv.getGeoset().remove(cgv);
 					if (!gv.getGeoset().contains(gv)) {
@@ -129,10 +129,10 @@ public class CloneAction implements UndoAction {
 		} else {
 			removeTriangle();
 			for (int i = 0; i < addedVerts.size(); i++) {
-				final GeosetVertex cgv = addedVerts.get(i);
+				GeosetVertex cgv = addedVerts.get(i);
 				if (cgv != null) {
-					final GeosetVertex gv = copiedGroup.get(addedVerts.indexOf(cgv));
-					final List<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
+					GeosetVertex gv = copiedGroup.get(addedVerts.indexOf(cgv));
+					List<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
 					moveTriangle(cgv, gv, ctris);
 					cgv.getGeoset().remove(cgv);
 					if (!gv.getGeoset().contains(gv)) {
@@ -147,10 +147,10 @@ public class CloneAction implements UndoAction {
 
 	private void checkForErrors(String s) {
 		int probs = 0;
-		for (final Vec3 vert : selection) {
+		for (Vec3 vert : selection) {
 			if (vert.getClass() == GeosetVertex.class) {
-				final GeosetVertex gv = (GeosetVertex) vert;
-				for (final Triangle t : gv.getTriangles()) {
+				GeosetVertex gv = (GeosetVertex) vert;
+				for (Triangle t : gv.getTriangles()) {
 					System.out.println("SHOULD be one: " + Collections.frequency(gv.getTriangles(), t));
 					if (!t.containsRef(gv)) {
 						probs++;
@@ -162,17 +162,17 @@ public class CloneAction implements UndoAction {
 	}
 
 	private void moveTriangle(GeosetVertex cgv, GeosetVertex gv, List<Triangle> ctris) {
-		for (final Triangle t : ctris) {
+		for (Triangle t : ctris) {
 			t.set(t.indexOf(cgv), gv);
-			cgv.getTriangles().remove(t);
-			gv.getTriangles().add(t);
+			cgv.removeTriangle(t);
+			gv.addTriangle(t);
 		}
 	}
 
 	private void removeTriangle() {
-		for (final Triangle t : addedTriangles) {
-			for (final GeosetVertex gv : t.getAll()) {
-				gv.getTriangles().remove(t);
+		for (Triangle t : addedTriangles) {
+			for (GeosetVertex gv : t.getAll()) {
+				gv.removeTriangle(t);
 			}
 			t.getGeoset().removeTriangle(t);
 		}

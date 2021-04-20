@@ -17,7 +17,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-public final class VertexGroupSelectionManager extends SelectionManager<VertexGroupModelEditor.VertexGroupBundle> {
+public final class VertexGroupSelectionManager extends SelectionManager<VertexGroupBundle> {
 	private static final Color GROUP_SELECTED_COLOR = new Color(1f, 0.75f, 0.45f, 0.3f);
 
 	private static final Color GROUP_HIGHLIGHT_COLOR = new Color(0.45f, 1f, 0.45f, 0.3f);
@@ -28,9 +28,9 @@ public final class VertexGroupSelectionManager extends SelectionManager<VertexGr
 	public VertexGroupSelectionManager() {
 		cachedVertexListManager = new GeosetVertexSelectionManager();
 		addSelectionListener(newSelection -> {
-			final List<GeosetVertex> verticesSelected = new ArrayList<>();
-			for (final VertexGroupModelEditor.VertexGroupBundle bundle : getSelection()) {
-				for (final GeosetVertex geosetVertex : bundle.getGeoset().getVertices()) {
+			List<GeosetVertex> verticesSelected = new ArrayList<>();
+			for (VertexGroupBundle bundle : getSelection()) {
+				for (GeosetVertex geosetVertex : bundle.getGeoset().getVertices()) {
 					if (geosetVertex.getVertexGroup() == bundle.getVertexGroupId()) {
 						verticesSelected.add(geosetVertex);
 					}
@@ -56,11 +56,11 @@ public final class VertexGroupSelectionManager extends SelectionManager<VertexGr
 	}
 
 	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem, final ModelView modelView, final ProgramPreferences programPreferences) {
-		final Set<VertexGroupModelEditor.VertexGroupBundle> selection = getSelection();
-		for (final Geoset geoset : modelView.getEditableGeosets()) {
-			final Color outlineColor;
-			final Color fillColor;
+	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView modelView, ProgramPreferences programPreferences) {
+		Set<VertexGroupBundle> selection = getSelection();
+		for (Geoset geoset : modelView.getEditableGeosets()) {
+			Color outlineColor;
+			Color fillColor;
 			if (geoset == modelView.getHighlightedGeoset()) {
 				outlineColor = Color.YELLOW;
 				fillColor = GROUP_HIGHLIGHT_COLOR;
@@ -68,8 +68,8 @@ public final class VertexGroupSelectionManager extends SelectionManager<VertexGr
 				outlineColor = Color.ORANGE;
 				fillColor = GROUP_SELECTED_COLOR;
 			}
-			for (final Triangle triangle : geoset.getTriangles()) {
-				final GeosetVertex[] triangleVertices = triangle.getVerts();
+			for (Triangle triangle : geoset.getTriangles()) {
+				GeosetVertex[] triangleVertices = triangle.getVerts();
 
 				if (renderIf(renderer, selection, geoset, outlineColor, fillColor, triangle, triangleVertices, 0, 1, 2))
 					continue;
@@ -80,7 +80,7 @@ public final class VertexGroupSelectionManager extends SelectionManager<VertexGr
 				if (renderIf(renderer, selection, geoset, outlineColor, fillColor, triangle, triangleVertices, 1, 2, 1))
 					continue;
 			}
-			// for (final GeosetVertex geosetVertex : geoset.getVertices()) {
+			// for (GeosetVertex geosetVertex : geoset.getVertices()) {
 			// if (selection.contains(new VertexGroupBundle(geoset,
 			// geosetVertex.getVertexGroup()))) {
 			// renderer.renderVertex(outlineColor, geosetVertex);
@@ -89,7 +89,7 @@ public final class VertexGroupSelectionManager extends SelectionManager<VertexGr
 		}
 	}
 
-	public boolean renderIf(ModelElementRenderer renderer, Set<VertexGroupModelEditor.VertexGroupBundle> selection, Geoset geoset, Color outlineColor, Color fillColor, Triangle triangle, GeosetVertex[] triangleVertices, int i, int i2, int i3) {
+	public boolean renderIf(ModelElementRenderer renderer, Set<VertexGroupBundle> selection, Geoset geoset, Color outlineColor, Color fillColor, Triangle triangle, GeosetVertex[] triangleVertices, int i, int i2, int i3) {
 		if (selectionContainsVertexGroup(selection, i, geoset, triangleVertices)
 				&& selectionContainsVertexGroup(selection, i2, geoset, triangleVertices)
 				&& selectionContainsVertexGroup(selection, i3, geoset, triangleVertices)) {
@@ -100,33 +100,33 @@ public final class VertexGroupSelectionManager extends SelectionManager<VertexGr
 		return false;
 	}
 
-	private boolean selectionContainsVertexGroup(Set<VertexGroupModelEditor.VertexGroupBundle> selection, int i, Geoset geoset, GeosetVertex[] triangleVertices) {
-		return selection.contains(new VertexGroupModelEditor.VertexGroupBundle(geoset, triangleVertices[i].getVertexGroup()));
+	private boolean selectionContainsVertexGroup(Set<VertexGroupBundle> selection, int i, Geoset geoset, GeosetVertex[] triangleVertices) {
+		return selection.contains(new VertexGroupBundle(geoset, triangleVertices[i].getVertexGroup()));
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec3 center) {
+	public double getCircumscribedSphereRadius(Vec3 center) {
 		return cachedVertexListManager.getCircumscribedSphereRadius(center);
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
+	public double getCircumscribedSphereRadius(Vec2 center, int tvertexLayerId) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	@Override
-	public Vec2 getUVCenter(final int tvertexLayerId) {
+	public Vec2 getUVCenter(int tvertexLayerId) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	@Override
-	public Collection<? extends Vec2> getSelectedTVertices(final int tvertexLayerId) {
+	public Collection<? extends Vec2> getSelectedTVertices(int tvertexLayerId) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 	@Override
-	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
-                                  final ProgramPreferences programPreferences, final int tvertexLayerId) {
+	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView,
+	                              ProgramPreferences programPreferences, int tvertexLayerId) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 }

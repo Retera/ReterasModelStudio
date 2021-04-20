@@ -91,10 +91,11 @@ public class CreatorModelingPanel extends JPanel
 	private final JPanel northCardPanel;
 	private TSpline tSpline;
 
-	public CreatorModelingPanel(final ModelEditorChangeActivityListener listener,
-	                            final ProgramPreferences programPreferences,
-	                            final ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
-	                            final ViewportListener viewportListener, final TimeEnvironmentImpl timeEnvironmentImpl) {
+	public CreatorModelingPanel(ModelEditorChangeActivityListener listener,
+	                            ProgramPreferences programPreferences,
+	                            ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
+	                            ViewportListener viewportListener,
+	                            TimeEnvironmentImpl timeEnvironmentImpl) {
 		this.listener = listener;
 		this.programPreferences = programPreferences;
 		this.actionTypeGroup = actionTypeGroup;
@@ -113,11 +114,11 @@ public class CreatorModelingPanel extends JPanel
 		animationChooserBox = new JComboBox<>(animationChooserBoxModel);
 		animationChooserBox.setVisible(false);
 		animationChooserBox.addActionListener(e -> {
-            final ChooseableTimeRange selectedItem = (ChooseableTimeRange) animationChooserBox.getSelectedItem();
-            if (selectedItem != null) {
-                selectedItem.applyTo(timeEnvironmentImpl);
-            }
-        });
+			ChooseableTimeRange selectedItem = (ChooseableTimeRange) animationChooserBox.getSelectedItem();
+			if (selectedItem != null) {
+				selectedItem.applyTo(timeEnvironmentImpl);
+			}
+		});
 		northCardLayout = new CardLayout();
 		northCardPanel = new JPanel(northCardLayout);
 		add(northCardPanel, BorderLayout.NORTH);
@@ -129,25 +130,22 @@ public class CreatorModelingPanel extends JPanel
 		cardPanel = new JPanel(cardLayout);
 		add(cardPanel, BorderLayout.CENTER);
 
-		makeMeshBasicsPanel(listener, programPreferences, actionTypeGroup, viewportListener, modeChooserBoxModel,
-				cardPanel);
+		makeMeshBasicsPanel(listener, programPreferences, actionTypeGroup, viewportListener, modeChooserBoxModel, cardPanel);
 
-		final JPanel standardPrimitivesPanel = new JPanel(new BorderLayout());
-		final JPanel drawPrimitivesPanel = new JPanel(new GridLayout(16, 1));
+		JPanel standardPrimitivesPanel = new JPanel(new BorderLayout());
+		JPanel drawPrimitivesPanel = new JPanel(new GridLayout(16, 1));
 		drawPrimitivesPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
-		final ModeButton planeButton = new ModeButton("Plane");
-		planeButton.addActionListener(new ActionListenerImplementation(
-				new DrawPlaneActivityDescriptor(programPreferences, viewportListener), programPreferences,
-				listener, planeButton));
-		modeButtons.add(planeButton);
+		ModeButton planeButton = new ModeButton("Plane");
+		planeButton.addActionListener(new ActionListenerImplementation(new DrawPlaneActivityDescriptor(programPreferences, viewportListener), programPreferences, listener, planeButton));
 		drawPrimitivesPanel.add(planeButton);
-		final ModeButton boxButton = new ModeButton("Box");
-		boxButton.addActionListener(new ActionListenerImplementation(
-				new DrawBoxActivityDescriptor(programPreferences, viewportListener), programPreferences, listener,
-				boxButton));
-		modeButtons.add(boxButton);
+		modeButtons.add(planeButton);
+
+		ModeButton boxButton = new ModeButton("Box");
+		boxButton.addActionListener(new ActionListenerImplementation(new DrawBoxActivityDescriptor(programPreferences, viewportListener), programPreferences, listener, boxButton));
 		drawPrimitivesPanel.add(boxButton);
-		final JPanel spOptionsPanel = new JPanel(new GridLayout(16, 1));
+		modeButtons.add(boxButton);
+
+		JPanel spOptionsPanel = new JPanel(new GridLayout(16, 1));
 		spOptionsPanel.setBorder(BorderFactory.createTitledBorder("Options"));
 		standardPrimitivesPanel.add(drawPrimitivesPanel, BorderLayout.NORTH);
 		standardPrimitivesPanel.add(spOptionsPanel, BorderLayout.CENTER);
@@ -156,54 +154,52 @@ public class CreatorModelingPanel extends JPanel
 
 		modeChooserBox.addActionListener(e -> cardLayout.show(cardPanel, modeChooserBox.getSelectedItem().toString()));
 
-		makeAnimationBasicsPanel(listener, programPreferences, actionTypeGroup, viewportListener,
-				modeChooserBoxModel, cardPanel);
+		makeAnimationBasicsPanel(listener, programPreferences, actionTypeGroup, viewportListener, modeChooserBoxModel, cardPanel);
 
 		cardLayout.show(cardPanel, modeChooserBoxModel.getElementAt(0));
 	}
 
-	public void makeMeshBasicsPanel(final ModelEditorChangeActivityListener listener,
-	                                final ProgramPreferences programPrefences,
-	                                final ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
-	                                final ViewportListener viewportListener, final DefaultComboBoxModel<String> modeChooserBoxModel,
-	                                final JPanel cardPanel) {
-		final ModeButton vertexButton = new ModeButton("Vertex");
-		final ModeButton faceButton = new ModeButton("Face from Selection");
-		final ModeButton boneButton = new ModeButton("Bone");
+	public void makeMeshBasicsPanel(ModelEditorChangeActivityListener listener,
+	                                ProgramPreferences programPrefences,
+	                                ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
+	                                ViewportListener viewportListener, DefaultComboBoxModel<String> modeChooserBoxModel,
+	                                JPanel cardPanel) {
+		ModeButton vertexButton = new ModeButton("Vertex");
+		ModeButton faceButton = new ModeButton("Face from Selection");
+		ModeButton boneButton = new ModeButton("Bone");
 		faceButton.addActionListener(e -> {
 			if (modelEditorManager == null) {
 				return;
 			}
 			try {
-				final Viewport viewport = viewportListener.getViewport();
-				final Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
-                final UndoAction createFaceFromSelection = modelEditorManager
-                        .getModelEditor().createFaceFromSelection(facingVector);
-                undoActionListener.pushAction(createFaceFromSelection);
-            } catch (final WrongModeException exc) {
-                JOptionPane.showMessageDialog(CreatorModelingPanel.this,
-                        "Unable to create face, wrong selection mode", "Error", JOptionPane.ERROR_MESSAGE);
-            } catch (final FaceCreationException exc) {
-                JOptionPane.showMessageDialog(CreatorModelingPanel.this, exc.getMessage(), "Error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-        });
-		final JPanel drawToolsPanel = new JPanel(new GridLayout(2, 1));
+				Viewport viewport = viewportListener.getViewport();
+				Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
+				UndoAction createFaceFromSelection = modelEditorManager.getModelEditor().createFaceFromSelection(facingVector);
+				undoActionListener.pushAction(createFaceFromSelection);
+			} catch (WrongModeException exc) {
+				JOptionPane.showMessageDialog(CreatorModelingPanel.this,
+						"Unable to create face, wrong selection mode", "Error", JOptionPane.ERROR_MESSAGE);
+			} catch (FaceCreationException exc) {
+				JOptionPane.showMessageDialog(CreatorModelingPanel.this, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		});
+		JPanel drawToolsPanel = new JPanel(new GridLayout(2, 1));
 		drawToolsPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
 		drawToolsPanel.add(vertexButton);
 		drawToolsPanel.add(faceButton);
 		drawToolsPanel.add(boneButton);
-		final JPanel meshBasicsPanel = new JPanel(new BorderLayout());
-		cardPanel.add(meshBasicsPanel, modeChooserBoxModel.getElementAt(0));
 
+		JPanel meshBasicsPanel = new JPanel(new BorderLayout());
 		meshBasicsPanel.add(drawToolsPanel, BorderLayout.NORTH);
 
-		final JPanel editToolsPanel = new JPanel(new GridLayout(16, 1));
+		cardPanel.add(meshBasicsPanel, modeChooserBoxModel.getElementAt(0));
+
+		JPanel editToolsPanel = new JPanel(new GridLayout(16, 1));
 		editToolsPanel.setBorder(BorderFactory.createTitledBorder("Manipulate"));
 
-		for (final ToolbarActionButtonType type : actionTypeGroup.getToolbarButtonTypes()) {
-			final String typeName = type.getName();
-			final ModeButton button = new ModeButton(typeName.substring(typeName.lastIndexOf(' ') + 1));
+		for (ToolbarActionButtonType type : actionTypeGroup.getToolbarButtonTypes()) {
+			String typeName = type.getName();
+			ModeButton button = new ModeButton(typeName.substring(typeName.lastIndexOf(' ') + 1));
 			editToolsPanel.add(button);
 			button.addActionListener(e -> listener.changeActivity(type));
 			putTypeToButton(type, button);
@@ -212,39 +208,43 @@ public class CreatorModelingPanel extends JPanel
 
 		meshBasicsPanel.add(editToolsPanel, BorderLayout.CENTER);
 
-		vertexButton.addActionListener(e -> {
-			listeningForActivityChanges = false;
-			listener.changeActivity(new DrawVertexActivityDescriptor(programPrefences, viewportListener));
-			resetButtons();
-            vertexButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
-            listeningForActivityChanges = true;
-        });
-		boneButton.addActionListener(e -> {
-			listeningForActivityChanges = false;
-			listener.changeActivity(new DrawBoneActivityDescriptor(programPrefences, viewportListener));
-			resetButtons();
-            boneButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
-            listeningForActivityChanges = true;
-        });
+		vertexButton.addActionListener(e -> addVertex(listener, programPrefences, viewportListener, vertexButton));
+		boneButton.addActionListener(e -> addBone(listener, programPrefences, viewportListener, boneButton));
 		modeButtons.add(vertexButton);
 		modeButtons.add(boneButton);
 	}
 
-	public void makeAnimationBasicsPanel(final ModelEditorChangeActivityListener listener,
-	                                     final ProgramPreferences programPreferences,
-	                                     final ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
-	                                     final ViewportListener viewportListener, final DefaultComboBoxModel<String> modeChooserBoxModel,
-	                                     final JPanel cardPanel) {
-		final JPanel meshBasicsPanel = new JPanel(new BorderLayout());
+	private void addBone(ModelEditorChangeActivityListener listener, ProgramPreferences programPrefences, ViewportListener viewportListener, ModeButton boneButton) {
+		listeningForActivityChanges = false;
+		listener.changeActivity(new DrawBoneActivityDescriptor(programPrefences, viewportListener));
+		resetButtons();
+		boneButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
+		listeningForActivityChanges = true;
+	}
+
+	private void addVertex(ModelEditorChangeActivityListener listener, ProgramPreferences programPrefences, ViewportListener viewportListener, ModeButton vertexButton) {
+		listeningForActivityChanges = false;
+		listener.changeActivity(new DrawVertexActivityDescriptor(programPrefences, viewportListener));
+		resetButtons();
+		vertexButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
+		listeningForActivityChanges = true;
+	}
+
+	public void makeAnimationBasicsPanel(ModelEditorChangeActivityListener listener,
+	                                     ProgramPreferences programPreferences,
+	                                     ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
+	                                     ViewportListener viewportListener, DefaultComboBoxModel<String> modeChooserBoxModel,
+	                                     JPanel cardPanel) {
+		JPanel meshBasicsPanel = new JPanel(new BorderLayout());
 		cardPanel.add(meshBasicsPanel, ANIMATIONBASICS);
-		final JPanel editToolsPanel = new JPanel(new GridLayout(16, 1));
+		JPanel editToolsPanel = new JPanel(new GridLayout(16, 1));
 		editToolsPanel.setBorder(BorderFactory.createTitledBorder("Manipulate"));
 
 		int index = 0;
-		for (final ToolbarActionButtonType type : actionTypeGroup.getToolbarButtonTypes()) {
+		for (ToolbarActionButtonType type : actionTypeGroup.getToolbarButtonTypes()) {
 			if (index < 3) {
-				final String typeName = type.getName();
-				final ModeButton button = new ModeButton(typeName.substring(typeName.lastIndexOf(' ') + 1));
+				String typeName = type.getName();
+				ModeButton button = new ModeButton(typeName.substring(typeName.lastIndexOf(' ') + 1));
 				editToolsPanel.add(button);
 				button.addActionListener(e -> listener.changeActivity(type));
 				putTypeToButton(type, button);
@@ -252,12 +252,9 @@ public class CreatorModelingPanel extends JPanel
 			}
 			index++;
 		}
-		final ActivityDescriptor selectAndSquatDescriptor = (modelEditorManager, modelView, undoActionListener) -> new ModelEditorMultiManipulatorActivity(
-                new SquatToolWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
-                        modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView),
-                undoActionListener, modelEditorManager.getSelectionView());
-		final String squatTypeName = "Squat";
-		final ModeButton squatButton = new ModeButton(squatTypeName);
+		ActivityDescriptor selectAndSquatDescriptor = (modelEditorManager, modelView, undoActionListener) -> new ModelEditorMultiManipulatorActivity(new SquatToolWidgetManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView), undoActionListener, modelEditorManager.getSelectionView());
+		String squatTypeName = "Squat";
+		ModeButton squatButton = new ModeButton(squatTypeName);
 		editToolsPanel.add(squatButton);
 		squatButton.addActionListener(e -> listener.changeActivity(selectAndSquatDescriptor));
 		putTypeToButton(selectAndSquatDescriptor, squatButton);
@@ -271,12 +268,12 @@ public class CreatorModelingPanel extends JPanel
 		meshBasicsPanel.add(editToolsPanel, BorderLayout.CENTER);
 	}
 
-	private void putTypeToButton(final ActivityDescriptor type, final ModeButton button) {
+	private void putTypeToButton(ActivityDescriptor type, ModeButton button) {
 		List<ModeButton> buttons = typeToButtons.computeIfAbsent(type, k -> new ArrayList<>());
 		buttons.add(button);
 	}
 
-	public void setAnimationModeState(final boolean animationModeState) {
+	public void setAnimationModeState(boolean animationModeState) {
 		this.animationModeState = animationModeState;
 		northCardLayout.show(northCardPanel, animationModeState ? "ANIM" : "MESH");
 		if (animationModeState) {
@@ -286,18 +283,18 @@ public class CreatorModelingPanel extends JPanel
 		}
 	}
 
-	public void setModelEditorManager(final ModelEditorManager modelEditorManager) {
+	public void setModelEditorManager(ModelEditorManager modelEditorManager) {
 		this.modelEditorManager = modelEditorManager;
 	}
 
-	public void setCurrentModel(final ModelView modelView) {
+	public void setCurrentModel(ModelView modelView) {
 		this.modelView = modelView;
 		if (modelView != null) {
 			reloadAnimationList();
 		}
 	}
 
-	public void setChosenAnimation(final Animation animation) {
+	public void setChosenAnimation(Animation animation) {
 		if (animation == null && animationChooserBox.getItemCount() > 0) {
 			animationChooserBox.setSelectedIndex(0);
 		} else if (animation != null) {
@@ -305,7 +302,7 @@ public class CreatorModelingPanel extends JPanel
 		}
 	}
 
-	public void setChosenGlobalSeq(final Integer globalSeq) {
+	public void setChosenGlobalSeq(Integer globalSeq) {
 		if (globalSeq == null) {
 			animationChooserBox.setSelectedIndex(0);
 		} else {
@@ -314,38 +311,41 @@ public class CreatorModelingPanel extends JPanel
 	}
 
 	public void reloadAnimationList() {
-		final ChooseableTimeRange selectedItem = (ChooseableTimeRange) animationChooserBox.getSelectedItem();
+		ChooseableTimeRange selectedItem = (ChooseableTimeRange) animationChooserBox.getSelectedItem();
 		animationChooserBoxModel.removeAllElements();
-		final Object thingSelected = selectedItem == null ? null : selectedItem.getThing();
+		Object thingSelected = selectedItem == null ? null : selectedItem.getThing();
 		thingToChooseableItem.clear();
 		boolean sawLast = selectedItem == null;
-		final ChooseableDoNothing doNothingItem = new ChooseableDoNothing("Custom Timeframe");
+		ChooseableDoNothing doNothingItem = new ChooseableDoNothing("Custom Timeframe");
 		animationChooserBoxModel.addElement(doNothingItem);
 		thingToChooseableItem.put("Custom Timeframe", doNothingItem);
-		for (final Animation animation : modelView.getModel().getAnims()) {
-			final ChooseableAnimation choosableItem = new ChooseableAnimation(animation);
+
+		for (Animation animation : modelView.getModel().getAnims()) {
+			ChooseableAnimation choosableItem = new ChooseableAnimation(animation);
 			thingToChooseableItem.put(animation, choosableItem);
 			animationChooserBoxModel.addElement(choosableItem);
 			if (animation == selectedItem) {
 				sawLast = true;
 			}
 		}
-		for (final Integer integer : modelView.getModel().getGlobalSeqs()) {
-			final ChooseableGlobalSeq chooseableItem = new ChooseableGlobalSeq(integer);
+
+		for (Integer integer : modelView.getModel().getGlobalSeqs()) {
+			ChooseableGlobalSeq chooseableItem = new ChooseableGlobalSeq(integer);
 			thingToChooseableItem.put(integer, chooseableItem);
 			animationChooserBoxModel.addElement(chooseableItem);
 		}
+
 		if (sawLast && (selectedItem != null)) {
 			animationChooserBox.setSelectedItem(thingToChooseableItem.get(thingSelected));
 		}
 	}
 
 	@Override
-	public void changeActivity(final ActivityDescriptor newType) {
-		final List<ModeButton> modeButtons = typeToButtons.get(newType);
+	public void changeActivity(ActivityDescriptor newType) {
+		List<ModeButton> modeButtons = typeToButtons.get(newType);
 		if ((modeButtons != null) && !modeButtons.isEmpty()) {
 			resetButtons();
-			for (final ModeButton modeButton : modeButtons) {
+			for (ModeButton modeButton : modeButtons) {
 				modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
 			}
 		} else {
@@ -355,12 +355,12 @@ public class CreatorModelingPanel extends JPanel
 		}
 	}
 
-	public void setUndoManager(final UndoActionListener undoManager) {
+	public void setUndoManager(UndoActionListener undoManager) {
 		undoActionListener = undoManager;
 	}
 
 	public void resetButtons() {
-		for (final ModeButton button : modeButtons) {
+		for (ModeButton button : modeButtons) {
 			button.resetColors();
 		}
 	}
@@ -374,12 +374,12 @@ public class CreatorModelingPanel extends JPanel
 	private static final class ChooseableAnimation implements ChooseableTimeRange {
 		private final Animation animation;
 
-		public ChooseableAnimation(final Animation animation) {
+		public ChooseableAnimation(Animation animation) {
 			this.animation = animation;
 		}
 
 		@Override
-		public void applyTo(final TimeEnvironmentImpl timeEnvironment) {
+		public void applyTo(TimeEnvironmentImpl timeEnvironment) {
 			timeEnvironment.setBounds(animation);
 		}
 
@@ -395,7 +395,7 @@ public class CreatorModelingPanel extends JPanel
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
+			int prime = 31;
 			int result = 1;
 			result = (prime * result) + (animation == null ? 0 : animation.hashCode());
 			return result;
@@ -412,7 +412,7 @@ public class CreatorModelingPanel extends JPanel
 			if (getClass() != obj.getClass()) {
 				return false;
 			}
-			final ChooseableAnimation other = (ChooseableAnimation) obj;
+			ChooseableAnimation other = (ChooseableAnimation) obj;
 			if (animation == null) {
 				return other.animation == null;
 			} else {
@@ -424,12 +424,12 @@ public class CreatorModelingPanel extends JPanel
 	private static final class ChooseableDoNothing implements ChooseableTimeRange {
 		private final String text;
 
-		public ChooseableDoNothing(final String text) {
+		public ChooseableDoNothing(String text) {
 			this.text = text;
 		}
 
 		@Override
-		public void applyTo(final TimeEnvironmentImpl timeEnvironment) {
+		public void applyTo(TimeEnvironmentImpl timeEnvironment) {
 		}
 
 		@Override
@@ -444,7 +444,7 @@ public class CreatorModelingPanel extends JPanel
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
+			int prime = 31;
 			int result = 1;
 			result = (prime * result) + (text == null ? 0 : text.hashCode());
 			return result;
@@ -461,7 +461,7 @@ public class CreatorModelingPanel extends JPanel
 			if (getClass() != obj.getClass()) {
 				return false;
 			}
-			final ChooseableDoNothing other = (ChooseableDoNothing) obj;
+			ChooseableDoNothing other = (ChooseableDoNothing) obj;
 			if (text == null) {
 				return other.text == null;
 			} else {
@@ -473,12 +473,12 @@ public class CreatorModelingPanel extends JPanel
 	private static final class ChooseableGlobalSeq implements ChooseableTimeRange {
 		private final Integer globalSeq;
 
-		public ChooseableGlobalSeq(final Integer globalSeq) {
+		public ChooseableGlobalSeq(Integer globalSeq) {
 			this.globalSeq = globalSeq;
 		}
 
 		@Override
-		public void applyTo(final TimeEnvironmentImpl timeEnvironment) {
+		public void applyTo(TimeEnvironmentImpl timeEnvironment) {
 			timeEnvironment.setGlobalSeq(globalSeq);
 		}
 
@@ -494,7 +494,7 @@ public class CreatorModelingPanel extends JPanel
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
+			int prime = 31;
 			int result = 1;
 			result = (prime * result) + (globalSeq == null ? 0 : globalSeq.hashCode());
 			return result;
@@ -511,7 +511,7 @@ public class CreatorModelingPanel extends JPanel
 			if (getClass() != obj.getClass()) {
 				return false;
 			}
-			final ChooseableGlobalSeq other = (ChooseableGlobalSeq) obj;
+			ChooseableGlobalSeq other = (ChooseableGlobalSeq) obj;
 			if (globalSeq == null) {
 				return other.globalSeq == null;
 			} else {

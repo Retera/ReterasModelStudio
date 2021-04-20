@@ -306,7 +306,7 @@ public class Geoset implements Named, VisibilitySource {
 
 	@Override
 	public void setName(String text) {
-		if (getParentModel().getFormatVersion() > 900) {
+		if (getParentModel() != null && getParentModel().getFormatVersion() > 900) {
 			setLevelOfDetailName(text);
 		}
 	}
@@ -623,6 +623,12 @@ public class Geoset implements Named, VisibilitySource {
 
 	private void setSkinBones(EditableModel mdlr, int i, GeosetVertex gv) {
 		if ((ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) && (tangents != null)) {
+//			if (skinBones == null && model.getModel().getFormatVersion() >= 900) {
+//	            for (Geoset geoset : geosets) {
+//	                geoset.makeHd();
+//
+//	            }
+//	        }
 			gv.initV900();
 			for (int j = 0; j < 4; j++) {
 				short boneLookupId = (short) ((skin.get(i)[j] + 256) % 256);
@@ -806,6 +812,10 @@ public class Geoset implements Named, VisibilitySource {
 		return vertices;
 	}
 
+	public void addVerticies(List<GeosetVertex> vertex) {
+		this.vertices.addAll(vertex);
+	}
+
 	public void setVertex(final List<GeosetVertex> vertex) {
 		this.vertices = vertex;
 	}
@@ -886,6 +896,10 @@ public class Geoset implements Named, VisibilitySource {
 		triangles.remove(tri);
 	}
 
+	public boolean isHD() {
+		return getParentModel().getFormatVersion() >= 900 && !getVertices().isEmpty() && getVertex(0).getTangent() != null;
+	}
+
 	public ExtLog calculateExtent() {
 		double maximumDistanceFromCenter = 0;
 		Vec3 max = new Vec3(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
@@ -901,6 +915,24 @@ public class Geoset implements Named, VisibilitySource {
 			}
 		}
 		return new ExtLog(min, max, maximumDistanceFromCenter);
+	}
+
+	public void makeHd() {
+		final List<GeosetVertex> vertices = getVertices();
+		for (final GeosetVertex gv : vertices) {
+			final Vec3 normal = gv.getNormal();
+			gv.initV900();
+			if (normal != null) {
+				gv.setTangent(normal, 1);
+			}
+			gv.magicSkinBones();
+		}
+	}
+
+	public void makeSd() {
+		for (final GeosetVertex vertex : getVertices()) {
+			vertex.un900Heuristic();
+		}
 	}
 
 	public Map<Bone, List<GeosetVertex>> getBoneMap() {

@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
-import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
-
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+
+import java.awt.*;
+import java.awt.event.MouseEvent;
 
 public final class ModelEditorViewportActivityManager implements ModelEditorViewportActivity {
 	private ModelEditorViewportActivity currentActivity;
@@ -15,11 +15,11 @@ public final class ModelEditorViewportActivityManager implements ModelEditorView
 	private ModelEditor newModelEditor;
 	private SelectionView newSelection;
 
-	public ModelEditorViewportActivityManager(final ModelEditorViewportActivity currentActivity) {
+	public ModelEditorViewportActivityManager(ModelEditorViewportActivity currentActivity) {
 		this.currentActivity = currentActivity;
 	}
 
-	public void setCurrentActivity(final ModelEditorViewportActivity currentActivity) {
+	public void setCurrentActivity(ModelEditorViewportActivity currentActivity) {
 		this.currentActivity = currentActivity;
 		if (this.currentActivity != null) {
 			this.currentActivity.viewportChanged(cursorManager);
@@ -29,32 +29,32 @@ public final class ModelEditorViewportActivityManager implements ModelEditorView
 	}
 
 	@Override
-	public void mousePressed(final MouseEvent e, final CoordinateSystem coordinateSystem) {
+	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
 		currentActivity.mousePressed(e, coordinateSystem);
 	}
 
 	@Override
-	public void mouseReleased(final MouseEvent e, final CoordinateSystem coordinateSystem) {
+	public void mouseReleased(MouseEvent e, CoordinateSystem coordinateSystem) {
 		currentActivity.mouseReleased(e, coordinateSystem);
 	}
 
 	@Override
-	public void mouseMoved(final MouseEvent e, final CoordinateSystem coordinateSystem) {
+	public void mouseMoved(MouseEvent e, CoordinateSystem coordinateSystem) {
 		currentActivity.mouseMoved(e, coordinateSystem);
 	}
 
 	@Override
-	public void mouseDragged(final MouseEvent e, final CoordinateSystem coordinateSystem) {
+	public void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem) {
 		currentActivity.mouseDragged(e, coordinateSystem);
 	}
 
 	@Override
-	public void render(final Graphics2D g, final CoordinateSystem coordinateSystem, final RenderModel renderModel) {
+	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel) {
 		currentActivity.render(g, coordinateSystem, renderModel);
 	}
 
 	@Override
-	public void renderStatic(final Graphics2D g, final CoordinateSystem coordinateSystem) {
+	public void renderStatic(Graphics2D g, CoordinateSystem coordinateSystem) {
 		currentActivity.renderStatic(g, coordinateSystem);
 	}
 
@@ -69,7 +69,7 @@ public final class ModelEditorViewportActivityManager implements ModelEditorView
 	}
 
 	@Override
-	public void onSelectionChanged(final SelectionView newSelection) {
+	public void onSelectionChanged(SelectionView newSelection) {
 		this.newSelection = newSelection;
 		if (currentActivity != null) {
 			currentActivity.onSelectionChanged(newSelection);
@@ -77,7 +77,7 @@ public final class ModelEditorViewportActivityManager implements ModelEditorView
 	}
 
 	@Override
-	public void viewportChanged(final CursorManager cursorManager) {
+	public void viewportChanged(CursorManager cursorManager) {
 		this.cursorManager = cursorManager;
 		if (currentActivity != null) {
 			currentActivity.viewportChanged(cursorManager);
@@ -85,7 +85,7 @@ public final class ModelEditorViewportActivityManager implements ModelEditorView
 	}
 
 	@Override
-	public void modelEditorChanged(final ModelEditor newModelEditor) {
+	public void modelEditorChanged(ModelEditor newModelEditor) {
 		this.newModelEditor = newModelEditor;
 		if (currentActivity != null) {
 			currentActivity.modelEditorChanged(newModelEditor);

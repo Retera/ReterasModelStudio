@@ -33,14 +33,14 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 	public static void hitTest(final List<GeosetVertex> selectedItems, final Rectangle2D area, final GeosetVertex geosetVertex, final Vec2 tVertex, final CoordinateSystem coordinateSystem, final double vertexSize) {
 		final byte dim1 = coordinateSystem.getPortFirstXYZ();
 		final byte dim2 = coordinateSystem.getPortSecondXYZ();
-		final double minX = coordinateSystem.convertX(area.getMinX());
-		final double minY = coordinateSystem.convertY(area.getMinY());
-		final double maxX = coordinateSystem.convertX(area.getMaxX());
-		final double maxY = coordinateSystem.convertY(area.getMaxY());
+		final double minX = coordinateSystem.viewX(area.getMinX());
+		final double minY = coordinateSystem.viewY(area.getMinY());
+		final double maxX = coordinateSystem.viewX(area.getMaxX());
+		final double maxY = coordinateSystem.viewY(area.getMaxY());
 		final double vertexX = tVertex.getCoord(dim1);
-		final double x = coordinateSystem.convertX(vertexX);
+		final double x = coordinateSystem.viewX(vertexX);
 		final double vertexY = tVertex.getCoord(dim2);
-		final double y = coordinateSystem.convertY(vertexY);
+		final double y = coordinateSystem.viewY(vertexY);
 		if (distance(x, y, minX, minY) <= vertexSize / 2.0
 				|| distance(x, y, maxX, maxY) <= vertexSize / 2.0
 				|| area.contains(vertexX, vertexY)) {
@@ -49,10 +49,10 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 	}
 
 	public static boolean hitTest(final Vec2 vertex, final Point2D point, final CoordinateSystem coordinateSystem, final double vertexSize) {
-		final double x = coordinateSystem.convertX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-		final double y = coordinateSystem.convertY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-		final double px = coordinateSystem.convertX(point.getX());
-		final double py = coordinateSystem.convertY(point.getY());
+		final double x = coordinateSystem.viewX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
+		final double y = coordinateSystem.viewY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+		final double px = coordinateSystem.viewX(point.getX());
+		final double py = coordinateSystem.viewY(point.getY());
 		return Point2D.distance(px, py, x, y) <= vertexSize / 2.0;
 	}
 

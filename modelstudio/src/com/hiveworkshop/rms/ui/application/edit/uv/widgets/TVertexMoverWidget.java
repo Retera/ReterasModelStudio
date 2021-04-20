@@ -35,8 +35,8 @@ public final class TVertexMoverWidget {
 	}
 
 	public MoveDimension getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem, final byte dim1, final byte dim2) {
-		final double x = coordinateSystem.convertX(point.getCoord(dim1));
-		final double y = coordinateSystem.convertY(point.getCoord(dim2));
+		final double x = coordinateSystem.viewX(point.getCoord(dim1));
+		final double y = coordinateSystem.viewY(point.getCoord(dim2));
 
 		MoveDimension direction = MoveDimension.NONE;
 
@@ -74,8 +74,8 @@ public final class TVertexMoverWidget {
 	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
 		final byte xDimension = coordinateSystem.getPortFirstXYZ();
 		final byte yDimension = coordinateSystem.getPortSecondXYZ();
-		final int x = (int) coordinateSystem.convertX(point.getCoord(xDimension));
-		final int y = (int) coordinateSystem.convertY(point.getCoord(yDimension));
+		final int x = (int) coordinateSystem.viewX(point.getCoord(xDimension));
+		final int y = (int) coordinateSystem.viewY(point.getCoord(yDimension));
 
 		setHighLightableColor(graphics, yDimension, moveDirection);
 		drawNorthArrow(graphics, x, y);

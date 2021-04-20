@@ -234,7 +234,7 @@ public class MenuBarActions {
                 if (userChoice != JOptionPane.OK_OPTION) {
                     return;
                 }
-                ModelUtils.createBox(mdl, new Vec3(64, 64, 128), new Vec3(-64, -64, 0), ((Number) spinner.getValue()).intValue());
+                ModelUtils.createBox(mdl, new Vec3(-64, -64, 0), new Vec3(64, 64, 128), ((Number) spinner.getValue()).intValue());
             } else if (createPlaneButton.isSelected()) {
                 final SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
                 final JSpinner spinner = new JSpinner(sModel);

@@ -8,6 +8,7 @@ public final class InfoPopup {
         final JTextArea tpane = new JTextArea(text);
         tpane.setLineWrap(true);
         tpane.setWrapStyleWord(true);
+        tpane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         tpane.setEditable(false);
         tpane.setSize(400, 400);
 

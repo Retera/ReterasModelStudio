@@ -14,8 +14,8 @@ public class RigAction implements UndoAction {
 	private final Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences;
 	private final Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences;
 
-	public RigAction(final Collection<? extends Vec3> selectedVertices,
-	                 final Collection<? extends Bone> selectedBones) {
+	public RigAction(Collection<? extends Vec3> selectedVertices,
+	                 Collection<? extends Bone> selectedBones) {
 		this.selectedVertices = new ArrayList<>(selectedVertices);
 		this.selectedBones = new ArrayList<>(selectedBones);
 		this.vertexToPriorBoneAttachment = new HashMap<>();
@@ -24,13 +24,13 @@ public class RigAction implements UndoAction {
 		loadUndoData();
 	}
 
-	public RigAction(final RigAction... rigActions) {
+	public RigAction(RigAction... rigActions) {
 		this.selectedVertices = new ArrayList<>();
 		this.selectedBones = new ArrayList<>();
 		this.vertexToPriorBoneAttachment = new HashMap<>();
 		this.vertexToOldSkinBoneReferences = new HashMap<>();
 		this.vertexToOldSkinBoneWeightReferences = new HashMap<>();
-		for (final RigAction other : rigActions) {
+		for (RigAction other : rigActions) {
 			selectedVertices.addAll(other.selectedVertices);
 			selectedBones.addAll(other.selectedBones);
 		}
@@ -38,14 +38,14 @@ public class RigAction implements UndoAction {
 	}
 
 	private void loadUndoData() {
-		for (final Vec3 vertex : selectedVertices) {
+		for (Vec3 vertex : selectedVertices) {
 			if (vertex instanceof GeosetVertex) {
 				GeosetVertex geosetVertex = (GeosetVertex) vertex;
 				if(geosetVertex.getSkinBones() != null) {
 					vertexToOldSkinBoneReferences.put(geosetVertex, geosetVertex.getSkinBones().clone());
 					vertexToOldSkinBoneWeightReferences.put(geosetVertex, geosetVertex.getSkinBoneWeights().clone());
 				} else {
-					final List<Bone> boneAttachments = geosetVertex.getBoneAttachments();
+					List<Bone> boneAttachments = geosetVertex.getBoneAttachments();
 					vertexToPriorBoneAttachment.put(vertex, new ArrayList<>(boneAttachments));
 				}
 			}
@@ -54,9 +54,9 @@ public class RigAction implements UndoAction {
 
 	@Override
 	public void undo() {
-		for (final Vec3 vertex : selectedVertices) {
+		for (Vec3 vertex : selectedVertices) {
 			if (vertex instanceof GeosetVertex) {
-				final List<Bone> list = vertexToPriorBoneAttachment.get(vertex);
+				List<Bone> list = vertexToPriorBoneAttachment.get(vertex);
 				if (list != null) {
 					((GeosetVertex) vertex).rigBones(new ArrayList<>(list));
 				} else {
@@ -70,7 +70,7 @@ public class RigAction implements UndoAction {
 
 	@Override
 	public void redo() {
-		for (final Vec3 vertex : selectedVertices) {
+		for (Vec3 vertex : selectedVertices) {
 			if (vertex instanceof GeosetVertex) {
 				((GeosetVertex) vertex).rigBones(new ArrayList<>(selectedBones));
 			}

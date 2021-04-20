@@ -50,11 +50,8 @@ public class Vec2 {
 		}
 	}
 
-	public void translateCoord(final byte dim, final double value) {
-		switch (dim) {
-			case 0 -> x += value;
-			case 1 -> y += value;
-		}
+	public static Vec2 getProd(Vec2 a, Vec2 b) {
+		return new Vec2(a).mul(b);
 	}
 
 	public static Vec2 getScaled(Vec2 a, float factor) {
@@ -67,6 +64,14 @@ public class Vec2 {
 
 	public static Vec2 getDif(Vec2 a, Vec2 b) {
 		return new Vec2(a).sub(b);
+	}
+
+	public Vec2 translateCoord(final byte dim, final double value) {
+		switch (dim) {
+			case 0 -> x += value;
+			case 1 -> y += value;
+		}
+		return this;
 	}
 
 //	public void rotate(final double centerX, final double centerY, final double radians, final byte firstXYZ,
@@ -92,18 +97,20 @@ public class Vec2 {
 		return (float) Math.sqrt((dx * dx) + (dy * dy));
 	}
 
-	public void scale(final double centerX, final double centerY, final double scaleX, final double scaleY) {
+	public Vec2 scale(final double centerX, final double centerY, final double scaleX, final double scaleY) {
 		final float dx = this.x - (float) centerX;
 		final float dy = this.y - (float) centerY;
 		this.x = (float) centerX + (dx * (float) scaleX);
 		this.y = (float) centerY + (dy * (float) scaleY);
+		return this;
 	}
 
-	public void scale(Vec2 center, Vec2 a) {
+	public Vec2 scale(Vec2 center, Vec2 a) {
 		final float dx = this.x - center.x;
 		final float dy = this.y - center.y;
 		this.x = center.x + (dx * a.x);
 		this.y = center.y + (dy * a.y);
+		return this;
 	}
 
 	public Vec2 rotate(final double centerX, final double centerY, final double radians,

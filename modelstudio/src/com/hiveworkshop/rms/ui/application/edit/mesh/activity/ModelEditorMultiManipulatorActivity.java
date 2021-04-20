@@ -7,14 +7,14 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 public class ModelEditorMultiManipulatorActivity extends MultiManipulatorActivity<ModelEditorManipulatorBuilder>
 		implements ModelEditorViewportActivity {
 
-	public ModelEditorMultiManipulatorActivity(final ModelEditorManipulatorBuilder manipulatorBuilder,
-	                                           final UndoActionListener undoActionListener,
-	                                           final SelectionView selectionView) {
+	public ModelEditorMultiManipulatorActivity(ModelEditorManipulatorBuilder manipulatorBuilder,
+	                                           UndoActionListener undoActionListener,
+	                                           SelectionView selectionView) {
 		super(manipulatorBuilder, undoActionListener, selectionView);
 	}
 
 	@Override
-	public void modelEditorChanged(final ModelEditor newModelEditor) {
+	public void modelEditorChanged(ModelEditor newModelEditor) {
 		manipulatorBuilder.modelEditorChanged(newModelEditor);
 	}
 

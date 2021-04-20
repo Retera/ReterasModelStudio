@@ -35,9 +35,96 @@ public class ViewportModelRenderer implements ModelVisitor {
 		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
 	}
 
-	public ViewportModelRenderer reset(final Graphics2D graphics, final ProgramPreferences programPreferences,
-	                                   final byte xDimension, final byte yDimension, final ViewportView viewportView,
-									   final CoordinateSystem coordinateSystem, final ModelView modelView) {
+	public static void drawGeosetsFlat(EditableModel model, Graphics g, byte a, byte b, Color color) {
+//		g.setColor(color);
+		for (Geoset geo : model.getGeosets()) {
+			drawGeosetFlat(g, a, b, geo, color);
+		}
+	}
+
+	public static void drawGeosetFlat(Graphics g, byte a, byte b, Geoset geo, Color color) {
+		g.setColor(color);
+		for (Triangle t : geo.getTriangles()) {
+			drawTriangle(g, a, b, t);
+		}
+	}
+
+	public static void drawFilteredTriangles2(EditableModel model, Graphics g,
+	                                          byte a, byte b, Map<Geoset, Map<Bone, List<GeosetVertex>>> boneMap, Bone bone) {
+		List<Triangle> triangles = getBoneParentedTriangles(model, boneMap, bone);
+
+		g.setColor(Color.RED);
+		for (Triangle t : triangles) {
+			drawTriangle(g, a, b, t);
+		}
+	}
+
+	private static List<Triangle> getBoneParentedTriangles(EditableModel model, Map<Geoset, Map<Bone, List<GeosetVertex>>> boneMap, Bone bone) {
+		List<Triangle> triangles = new ArrayList<>();
+		for (Geoset geo : model.getGeosets()) {
+			if (boneMap.containsKey(geo) && boneMap.get(geo).containsKey(bone)) {
+				for (GeosetVertex vertex : boneMap.get(geo).get(bone)) {
+					for (Triangle t : vertex.getTriangles()) {
+						if (!triangles.contains(t)) {
+							triangles.add(t);
+						}
+					}
+				}
+			}
+		}
+		return triangles;
+	}
+
+	public static void scaleAndTranslateGraphic(Graphics2D g, Rectangle bounds, Vec2[] realBounds) {
+		Vec2 delta = Vec2.getDif(realBounds[1], realBounds[0]);
+		double boxSize = Math.max(delta.x, delta.y);
+
+		Vec2 boxOffset = Vec2.getScaled(delta, -.5f).add(new Vec2(boxSize / 2f, boxSize / 2f)).add(realBounds[1]);
+
+		g.scale(bounds.getWidth() / boxSize, bounds.getHeight() / boxSize);
+		g.translate(boxOffset.x, boxOffset.y);
+	}
+
+	public static Vec2[] getBoundBoxSize(EditableModel model, byte a, byte b) {
+		Vec2[] realBoxBounds = {new Vec2(Float.MAX_VALUE, Float.MAX_VALUE), new Vec2(Float.MIN_VALUE, Float.MIN_VALUE)};
+
+		for (Geoset geo : model.getGeosets()) {
+			for (Triangle t : geo.getTriangles()) {
+				Vec2[] projectedVerts = t.getProjectedVerts(a, b);
+				for (Vec2 v : projectedVerts) {
+					realBoxBounds[0].minimize(v);
+					realBoxBounds[1].maximize(v);
+				}
+			}
+		}
+		return realBoxBounds;
+	}
+
+	public static void drawCrossHair(Graphics g, byte a, byte b, Vec3 extraHighlightPoint) {
+		int x = (int) extraHighlightPoint.getCoord(a);
+		int y = (int) -extraHighlightPoint.getCoord(b);
+		g.drawOval(x - 5, y - 5, 10, 10);
+		g.drawLine(x, y - 10, x, y + 10);
+		g.drawLine(x - 10, y, x + 10, y);
+	}
+
+	private static void drawTriangle(Graphics g, byte a, byte b, Triangle t) {
+		double[] x = t.getCoords(a);
+		double[] y = t.getCoords(b);
+		int[] xInt = new int[4];
+		int[] yInt = new int[4];
+		for (int ix = 0; ix < 3; ix++) {
+			xInt[ix] = (int) Math.round(x[ix]);
+			yInt[ix] = (int) Math.round(-y[ix]);
+		}
+		xInt[3] = xInt[0];
+		yInt[3] = yInt[0];
+		g.drawPolyline(xInt, yInt, 4);
+	}
+
+	public ViewportModelRenderer reset(Graphics2D graphics, ProgramPreferences programPreferences,
+	                                   byte xDimension, byte yDimension, ViewportView viewportView,
+	                                   CoordinateSystem coordinateSystem, ModelView modelView) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
 		this.xDimension = xDimension;
@@ -52,12 +139,12 @@ public class ViewportModelRenderer implements ModelVisitor {
 	}
 
 	@Override
-	public GeosetVisitor beginGeoset(final int geosetId, final Material material, final GeosetAnim geosetAnim) {
+	public GeosetVisitor beginGeoset(int geosetId, Material material, GeosetAnim geosetAnim) {
 		graphics.setColor(programPreferences.getTriangleColor());
 		if (modelView.getHighlightedGeoset() == modelView.getModel().getGeoset(geosetId)) {
 			graphics.setColor(programPreferences.getHighlighTriangleColor());
 		} else {
-			final Geoset geoset = modelView.getModel().getGeoset(geosetId);
+			Geoset geoset = modelView.getModel().getGeoset(geosetId);
 			if (!modelView.getEditableGeosets().contains(geoset)) {
 				graphics.setColor(programPreferences.getVisibleUneditableColor());
 			}
@@ -66,12 +153,12 @@ public class ViewportModelRenderer implements ModelVisitor {
 	}
 
 	@Override
-	public void bone(final Bone object) {
+	public void bone(Bone object) {
 		resetIdObjectRendererWithNode(object);
 		idObjectRenderer.bone(object);
 	}
 
-	private void resetIdObjectRendererWithNode(final IdObject object) {
+	private void resetIdObjectRendererWithNode(IdObject object) {
 		idObjectRenderer.reset(coordinateSystem, graphics,
 				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor() : programPreferences.getLightsColor(),
 				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor() : programPreferences.getPivotPointsColor(),
@@ -80,63 +167,15 @@ public class ViewportModelRenderer implements ModelVisitor {
 	}
 
 	@Override
-	public void light(final Light light) {
+	public void light(Light light) {
 		resetIdObjectRendererWithNode(light);
 		idObjectRenderer.light(light);
 	}
 
 	@Override
-	public void helper(final Helper object) {
+	public void helper(Helper object) {
 		resetIdObjectRendererWithNode(object);
 		idObjectRenderer.helper(object);
-	}
-
-	@Override
-	public void attachment(final Attachment attachment) {
-		resetIdObjectRendererWithNode(attachment);
-		idObjectRenderer.attachment(attachment);
-	}
-
-	@Override
-	public void particleEmitter(final ParticleEmitter particleEmitter) {
-		resetIdObjectRendererWithNode(particleEmitter);
-		idObjectRenderer.particleEmitter(particleEmitter);
-	}
-
-	@Override
-	public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
-		resetIdObjectRendererWithNode(particleEmitter);
-		idObjectRenderer.particleEmitter2(particleEmitter);
-	}
-
-	@Override
-	public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
-		resetIdObjectRendererWithNode(popcornFxEmitter);
-		idObjectRenderer.popcornFxEmitter(popcornFxEmitter);
-	}
-
-	@Override
-	public void ribbonEmitter(final RibbonEmitter ribbonEmitter) {
-		resetIdObjectRendererWithNode(ribbonEmitter);
-		idObjectRenderer.ribbonEmitter(ribbonEmitter);
-	}
-
-	@Override
-	public void eventObject(final EventObject eventObject) {
-		resetIdObjectRendererWithNode(eventObject);
-		idObjectRenderer.eventObject(eventObject);
-	}
-
-	@Override
-	public void collisionShape(final CollisionShape collisionShape) {
-		resetIdObjectRendererWithNode(collisionShape);
-		idObjectRenderer.collisionShape(collisionShape);
-
-	}
-
-	@Override
-	public void camera(final Camera cam) {
-		idObjectRenderer.camera(cam);
 	}
 
 	private final class GeosetRendererImpl implements GeosetVisitor {
@@ -157,44 +196,28 @@ public class ViewportModelRenderer implements ModelVisitor {
 
 	}
 
-	public static void drawGeosetsFlat(EditableModel model, Graphics g, byte a, byte b, Color color) {
-//		g.setColor(color);
-		for (final Geoset geo : model.getGeosets()) {
-			drawGeosetFlat(g, a, b, geo, color);
-		}
+	@Override
+	public void attachment(Attachment attachment) {
+		resetIdObjectRendererWithNode(attachment);
+		idObjectRenderer.attachment(attachment);
 	}
 
-	public static void drawGeosetFlat(Graphics g, byte a, byte b, Geoset geo, Color color) {
-		g.setColor(color);
-		for (final Triangle t : geo.getTriangles()) {
-			drawTriangle(g, a, b, t);
-		}
+	@Override
+	public void particleEmitter(ParticleEmitter particleEmitter) {
+		resetIdObjectRendererWithNode(particleEmitter);
+		idObjectRenderer.particleEmitter(particleEmitter);
 	}
 
-	public static void drawFilteredTriangles2(final EditableModel model, Graphics g,
-	                                          byte a, byte b, Map<Geoset, Map<Bone, List<GeosetVertex>>> boneMap, Bone bone) {
-		final List<Triangle> triangles = getBoneParentedTriangles(model, boneMap, bone);
-
-		g.setColor(Color.RED);
-		for (final Triangle t : triangles) {
-			drawTriangle(g, a, b, t);
-		}
+	@Override
+	public void particleEmitter2(ParticleEmitter2 particleEmitter) {
+		resetIdObjectRendererWithNode(particleEmitter);
+		idObjectRenderer.particleEmitter2(particleEmitter);
 	}
 
-	private static List<Triangle> getBoneParentedTriangles(EditableModel model, Map<Geoset, Map<Bone, List<GeosetVertex>>> boneMap, Bone bone) {
-		final List<Triangle> triangles = new ArrayList<>();
-		for (final Geoset geo : model.getGeosets()) {
-			if (boneMap.containsKey(geo) && boneMap.get(geo).containsKey(bone)) {
-				for (final GeosetVertex vertex : boneMap.get(geo).get(bone)) {
-					for (Triangle t : vertex.getTriangles()) {
-						if (!triangles.contains(t)) {
-							triangles.add(t);
-						}
-					}
-				}
-			}
-		}
-		return triangles;
+	@Override
+	public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
+		resetIdObjectRendererWithNode(popcornFxEmitter);
+		idObjectRenderer.popcornFxEmitter(popcornFxEmitter);
 	}
 
 	public static void drawBoneMarker(Graphics g, byte a, byte b, Vec3 boneMarker) {
@@ -204,53 +227,28 @@ public class ViewportModelRenderer implements ModelVisitor {
 		}
 	}
 
-	public static void scaleAndTranslateGraphic(Graphics2D g, Rectangle bounds, Vec2[] realBounds) {
-		Vec2 delta = Vec2.getDif(realBounds[1], realBounds[0]);
-		final double boxSize = Math.max(delta.x, delta.y);
-
-		Vec2 boxOffset = Vec2.getScaled(delta, -.5f).add(new Vec2(boxSize/2f, boxSize/2f)).add(realBounds[1]);
-
-		g.scale(bounds.getWidth() / boxSize, bounds.getHeight() / boxSize);
-		g.translate(boxOffset.x, boxOffset.y);
+	@Override
+	public void ribbonEmitter(RibbonEmitter ribbonEmitter) {
+		resetIdObjectRendererWithNode(ribbonEmitter);
+		idObjectRenderer.ribbonEmitter(ribbonEmitter);
 	}
 
-
-	public static Vec2[] getBoundBoxSize(final EditableModel model, final byte a, final byte b) {
-		Vec2[] realBoxBounds = {new Vec2(Float.MAX_VALUE, Float.MAX_VALUE), new Vec2(Float.MIN_VALUE, Float.MIN_VALUE)};
-
-		for (final Geoset geo : model.getGeosets()) {
-			for (final Triangle t : geo.getTriangles()) {
-				Vec2[] projectedVerts = t.getProjectedVerts(a, b);
-				for (Vec2 v : projectedVerts) {
-					realBoxBounds[0].minimize(v);
-					realBoxBounds[1].maximize(v);
-				}
-			}
-		}
-		return realBoxBounds;
+	@Override
+	public void eventObject(EventObject eventObject) {
+		resetIdObjectRendererWithNode(eventObject);
+		idObjectRenderer.eventObject(eventObject);
 	}
 
-	public static void drawCrossHair(Graphics g, byte a, byte b, Vec3 extraHighlightPoint) {
-		final int x = (int) extraHighlightPoint.getCoord(a);
-		final int y = (int) -extraHighlightPoint.getCoord(b);
-		g.drawOval(x - 5, y - 5, 10, 10);
-		g.drawLine(x, y - 10, x, y + 10);
-		g.drawLine(x - 10, y, x + 10, y);
+	@Override
+	public void collisionShape(CollisionShape collisionShape) {
+		resetIdObjectRendererWithNode(collisionShape);
+		idObjectRenderer.collisionShape(collisionShape);
+
 	}
 
-
-	private static void drawTriangle(final Graphics g, final byte a, final byte b, final Triangle t) {
-		final double[] x = t.getCoords(a);
-		final double[] y = t.getCoords(b);
-		final int[] xInt = new int[4];
-		final int[] yInt = new int[4];
-		for (int ix = 0; ix < 3; ix++) {
-			xInt[ix] = (int) Math.round(x[ix]);
-			yInt[ix] = (int) Math.round(-y[ix]);
-		}
-		xInt[3] = xInt[0];
-		yInt[3] = yInt[0];
-		g.drawPolyline(xInt, yInt, 4);
+	@Override
+	public void camera(Camera cam) {
+		idObjectRenderer.camera(cam);
 	}
 
 	private final class TriangleRendererImpl implements TriangleVisitor {
@@ -262,28 +260,29 @@ public class ViewportModelRenderer implements ModelVisitor {
 		}
 
 		@Override
-		public VertexVisitor vertex(Vec3 vert, Vec3 normal, final List<Bone> bones) {
-			final double firstCoord = vert.getCoord(xDimension);
-			final double secondCoord = vert.getCoord(yDimension);
-			final Point point = new Point((int) coordinateSystem.convertX(firstCoord), (int) coordinateSystem.convertY(secondCoord));
+		public VertexVisitor vertex(Vec3 vert, Vec3 normal, List<Bone> bones) {
+			double firstCoord = vert.getCoord(xDimension);
+			double secondCoord = vert.getCoord(yDimension);
+			Point point = new Point((int) coordinateSystem.viewX(firstCoord), (int) coordinateSystem.viewY(secondCoord));
 
 			if (previousVertices.size() > 0) {
-				final Point previousPoint = previousVertices.get(previousVertices.size() - 1);
+				Point previousPoint = previousVertices.get(previousVertices.size() - 1);
 				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
 			}
 			previousVertices.add(point);
 
 			if (programPreferences.showNormals()) {
-				final Color triangleColor = graphics.getColor();
-				final double firstNormalCoord = normal.getCoord(xDimension);
-				final double secondNormalCoord = normal.getCoord(yDimension);
+				Color triangleColor = graphics.getColor();
 
 				graphics.setColor(programPreferences.getNormalsColor());
-				final double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+				double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
 
-				final Point endPoint = new Point(
-						(int) coordinateSystem.convertX(firstCoord + ((firstNormalCoord * 12) / zoom)),
-						(int) coordinateSystem.convertY(secondCoord + ((secondNormalCoord * 12) / zoom)));
+				double firstNormalCoord = (normal.getCoord(xDimension) * 12) / zoom;
+				double secondNormalCoord = (normal.getCoord(yDimension) * 12) / zoom;
+
+				Point endPoint = new Point(
+						(int) coordinateSystem.viewX(firstCoord + firstNormalCoord),
+						(int) coordinateSystem.viewY(secondCoord + secondNormalCoord));
 				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
 				graphics.setColor(triangleColor);
 			}
@@ -292,15 +291,15 @@ public class ViewportModelRenderer implements ModelVisitor {
 
 
 		@Override
-		public VertexVisitor hdVertex(Vec3 vert, Vec3 normal, final Bone[] skinBones, final short[] skinBoneWeights) {
+		public VertexVisitor hdVertex(Vec3 vert, Vec3 normal, Bone[] skinBones, short[] skinBoneWeights) {
 			return vertex(vert, normal, null);
 		}
 
 		@Override
 		public void triangleFinished() {
 			if (previousVertices.size() > 1) {
-				final Point previousPoint = previousVertices.get(previousVertices.size() - 1);
-				final Point point = previousVertices.get(0);
+				Point previousPoint = previousVertices.get(previousVertices.size() - 1);
+				Point point = previousVertices.get(0);
 				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
 			}
 		}

@@ -312,10 +312,11 @@ public class Vec3 {
 		return new short[] {(short) x, (short) y, (short) z};
 	}
 
-	public void translate(final double x, final double y, final double z) {
+	public Vec3 translate(final double x, final double y, final double z) {
 		this.x += x;
 		this.y += y;
 		this.z += z;
+		return this;
 	}
 
 	public long[] toLongArray() {
@@ -396,7 +397,7 @@ public class Vec3 {
 		return Math.acos(cos);
 	}
 
-	public void scale(final double centerX, final double centerY, final double centerZ,
+	public Vec3 scale(final double centerX, final double centerY, final double centerZ,
 	                  final double scaleX, final double scaleY, final double scaleZ) {
 		final float dx = this.x - (float) centerX;
 		final float dy = this.y - (float) centerY;
@@ -404,6 +405,7 @@ public class Vec3 {
 		this.x = (float) centerX + (dx * (float) scaleX);
 		this.y = (float) centerY + (dy * (float) scaleY);
 		this.z = (float) centerZ + (dz * (float) scaleZ);
+		return this;
 	}
 
 	public Vec3 scale(final Vec3 center, final Vec3 scale) {
@@ -424,7 +426,7 @@ public class Vec3 {
 		return this;
 	}
 
-	public void setCoord(final byte dim, final double value) {
+	public Vec3 setCoord(final byte dim, final double value) {
 		if (!Double.isNaN(value)) {
 			switch (dim) {
 				case 0 -> x = (float) value;
@@ -436,9 +438,16 @@ public class Vec3 {
 //                case -32 -> z = (float) -value;
 			}
 		}
+		return this;
 	}
 
-	public void translateCoord(final byte dim, final double value) {
+	public Vec3 setCoords(byte dim1, byte dim2, Vec2 vec2) {
+		setCoord(dim1, vec2.x);
+		setCoord(dim2, vec2.y);
+		return this;
+	}
+
+	public Vec3 translateCoord(final byte dim, final double value) {
 		switch (dim) {
 			case 0 -> x += value;
 			case 1 -> y += value;
@@ -447,6 +456,7 @@ public class Vec3 {
 			case -2 -> y -= value;
 			case 3 -> z -= value;
 		}
+		return this;
 	}
 
 	public Vec3 minimize(Vec3 a) {
