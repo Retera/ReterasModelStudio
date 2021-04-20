@@ -15,10 +15,8 @@ import com.hiveworkshop.rms.util.Vec3SpinnerArray;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
 import java.util.List;
 
 public class ViewportPopupMenu extends JPopupMenu {
@@ -90,9 +88,6 @@ public class ViewportPopupMenu extends JPopupMenu {
 		addMenuItem("View Matrix", e -> InfoPopup.show(viewport, modelEditorManager.getModelEditor().getSelectedMatricesDescription()), matrixMenu);
 		addMenuItem("Re-assign HD Skin", e -> reAssignSkinning(viewport), matrixMenu);
 		addMenuItem("View HD Skin", e -> InfoPopup.show(viewport, modelEditorManager.getModelEditor().getSelectedHDSkinningDescription()), matrixMenu);
-
-
-		System.out.println(Arrays.toString(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()));
 
 		JMenu nodeMenu = new JMenu("Node");
 		add(nodeMenu);
