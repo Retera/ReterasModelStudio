@@ -31,8 +31,6 @@ import java.util.List;
 public class ScriptActions {
 	static void mergeGeosetActionRes(MainPanel mainPanel) throws IOException {
 		FileDialog fileDialog = new FileDialog(mainPanel);
-
-//        mainPanel.fc.setDialogTitle("Merge Single Geoset (Oinker-based)");
 //
 		EditableModel current = mainPanel.currentMDL();
 //        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
@@ -93,8 +91,6 @@ public class ScriptActions {
 				tri.setGeoRef(host);
 			}
 		}
-
-		mainPanel.fc.setSelectedFile(null);
 	}
 
 //    static void exportAnimatedFramePNG(MainPanel mainPanel) {

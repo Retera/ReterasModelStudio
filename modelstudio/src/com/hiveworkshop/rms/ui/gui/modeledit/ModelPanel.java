@@ -22,7 +22,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChange
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.InfoPopup;
 
@@ -79,12 +78,11 @@ public class ModelPanel implements ActionListener, MouseListener {
 	                  final ViewportTransferHandler viewportTransferHandler,
 	                  final ViewportListener viewportListener,
 	                  final Icon icon,
-	                  final boolean specialBLPModel,
-	                  final TextureExporter textureExporter)
+	                  final boolean specialBLPModel)
 			throws IOException {
 		this(parent, MdxUtils.loadEditable(input), prefs, undoHandler, notifier, modeNotifier,
-				modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, icon,
-				specialBLPModel, textureExporter);
+				modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener,
+				icon, specialBLPModel);
 		file = input;
 	}
 
@@ -99,8 +97,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 	                  final ViewportTransferHandler viewportTransferHandler,
 	                  final ViewportListener viewportListener,
 	                  final Icon icon,
-	                  final boolean specialBLPModel,
-	                  final TextureExporter textureExporter) {
+	                  final boolean specialBLPModel) {
 		this.parent = parent;
 		this.prefs = prefs;
 		this.undoHandler = undoHandler;
@@ -151,7 +148,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs);
 
-		componentsPanel = new ComponentsPanel(getModelViewManager(), undoManager, modelStructureChangeListener, textureExporter);
+		componentsPanel = new ComponentsPanel(getModelViewManager(), undoManager, modelStructureChangeListener);
 
 		modelComponentBrowserTree.addSelectListener(componentsPanel);
 	}

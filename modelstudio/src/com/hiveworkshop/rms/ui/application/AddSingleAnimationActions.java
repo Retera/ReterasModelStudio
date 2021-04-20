@@ -23,7 +23,7 @@ public class AddSingleAnimationActions {
     static void addAnimationFromFile(MainPanel mainPanel) {
         FileDialog fileDialog = new FileDialog(mainPanel);
 
-        final EditableModel animationSourceModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+        EditableModel animationSourceModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
         if (animationSourceModel != null) {
             addSingleAnimation(mainPanel, fileDialog.getModel(), animationSourceModel);
         }
@@ -31,7 +31,7 @@ public class AddSingleAnimationActions {
         MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
     }
 
-    static void addSingleAnimation(MainPanel mainPanel, final EditableModel current, final EditableModel animationSourceModel) {
+    static void addSingleAnimation(MainPanel mainPanel, EditableModel current, EditableModel animationSourceModel) {
         Animation choice = null;
         choice = (Animation) JOptionPane.showInputDialog(mainPanel, "Choose an animation!", "Add Animation",
                 JOptionPane.QUESTION_MESSAGE, null, animationSourceModel.getAnims().toArray(),
@@ -40,15 +40,15 @@ public class AddSingleAnimationActions {
             JOptionPane.showMessageDialog(mainPanel, "Bad choice. No animation added.");
             return;
         }
-        final Animation visibilitySource = (Animation) JOptionPane.showInputDialog(mainPanel,
+        Animation visibilitySource = (Animation) JOptionPane.showInputDialog(mainPanel,
                 "Which animation from THIS model to copy visiblity from?", "Add Animation",
                 JOptionPane.QUESTION_MESSAGE, null, current.getAnims().toArray(), current.getAnims().get(0));
         if (visibilitySource == null) {
             JOptionPane.showMessageDialog(mainPanel, "No visibility will be copied.");
         }
-        final List<Animation> animationsAdded = current.addAnimationsFrom(animationSourceModel,
+        List<Animation> animationsAdded = current.addAnimationsFrom(animationSourceModel,
                 Collections.singletonList(choice));
-        for (final Animation anim : animationsAdded) {
+        for (Animation anim : animationsAdded) {
             current.copyVisibility(visibilitySource, anim);
         }
         JOptionPane.showMessageDialog(mainPanel, "Added " + animationSourceModel.getName() + "'s " + choice.getName()
@@ -57,8 +57,7 @@ public class AddSingleAnimationActions {
     }
 
     static void addAnimationFromObject(MainPanel mainPanel){
-        mainPanel.fc.setDialogTitle("Animation Source");
-        final MutableObjectData.MutableGameObject fetchResult = ImportFileActions.fetchObject(mainPanel);
+        MutableObjectData.MutableGameObject fetchResult = ImportFileActions.fetchObject(mainPanel);
         if (fetchResult != null) {
             String path = fetchResult.getFieldAsString(UnitFields.MODEL_FILE, 0);
             fetchAndAddSingleAnimation(mainPanel, path);
@@ -66,8 +65,7 @@ public class AddSingleAnimationActions {
     }
 
     static void addAnimFromModel(MainPanel mainPanel){
-        mainPanel.fc.setDialogTitle("Animation Source");
-        final ModelOptionPane.ModelElement fetchResult = ImportFileActions.fetchModel(mainPanel);
+        ModelOptionPane.ModelElement fetchResult = ImportFileActions.fetchModel(mainPanel);
         if (fetchResult != null) {
             String path = fetchResult.getFilepath();
             fetchAndAddSingleAnimation(mainPanel, path);
@@ -75,8 +73,7 @@ public class AddSingleAnimationActions {
     }
 
     static void addAnimationFromUnit(MainPanel mainPanel) {
-        mainPanel.fc.setDialogTitle("Animation Source");
-        final GameObject fetchResult = ImportFileActions.fetchUnit(mainPanel);
+        GameObject fetchResult = ImportFileActions.fetchUnit(mainPanel);
         if (fetchResult != null) {
             String path = fetchResult.getField("file");
             fetchAndAddSingleAnimation(mainPanel, path);
@@ -84,19 +81,13 @@ public class AddSingleAnimationActions {
     }
 
     static void addEmptyAnimation(MainPanel mainPanel) {
-//        mainPanel.fc.setDialogTitle("Animation Source");
-//        final GameObject fetchResult = ImportFileActions.fetchUnit(mainPanel);
-//        if (fetchResult != null) {
-//            String path = fetchResult.getField("file");
-//            fetchAndAddSingleAnimation(mainPanel, path);
-//        }
-        final EditableModel current = mainPanel.currentMDL();
+        EditableModel current = mainPanel.currentMDL();
         if (current != null) {
             addEmptyAnimation(mainPanel, current);
         }
     }
 
-    static void addEmptyAnimation(MainPanel mainPanel, final EditableModel current) {
+    static void addEmptyAnimation(MainPanel mainPanel, EditableModel current) {
         JPanel creationPanel = new JPanel(new MigLayout());
 
         JPanel newAnimationPanel = new JPanel(new MigLayout());
@@ -185,10 +176,10 @@ public class AddSingleAnimationActions {
     }
 
     private static void fetchAndAddSingleAnimation(MainPanel mainPanel, String path) {
-        final String filepath = ImportFileActions.convertPathToMDX(path);
-        final EditableModel current = mainPanel.currentMDL();
+        String filepath = ImportFileActions.convertPathToMDX(path);
+        EditableModel current = mainPanel.currentMDL();
         if (filepath != null) {
-            final EditableModel animationSource;
+            EditableModel animationSource;
             try {
                 animationSource = MdxUtils.loadEditable(GameDataFileSystem.getDefault().getFile(filepath));
                 addSingleAnimation(mainPanel, current, animationSource);
