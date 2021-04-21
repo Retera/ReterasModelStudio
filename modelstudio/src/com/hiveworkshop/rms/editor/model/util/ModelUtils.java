@@ -1,7 +1,9 @@
 package com.hiveworkshop.rms.editor.model.util;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -237,5 +239,38 @@ public final class ModelUtils {
 	}
 
 	private ModelUtils() {
+	}
+
+	public static Mat4 processHdBones(RenderModel renderModel, Bone[] skinBones, short[] skinBoneWeights) {
+		boolean processedBones = false;
+		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();
+
+		for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
+			Bone skinBone = skinBones[boneIndex];
+			if (skinBone == null) {
+				continue;
+			}
+			processedBones = true;
+			Mat4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
+
+			float skinBoneWeight = skinBoneWeights[boneIndex] / 255f;
+			skinBonesMatrixSumHeap.add(worldMatrix.getUniformlyScaled(skinBoneWeight));
+		}
+		if (!processedBones) {
+			skinBonesMatrixSumHeap.setIdentity();
+		}
+		return skinBonesMatrixSumHeap;
+	}
+
+	public static Mat4 processSdBones(RenderModel renderModel, List<Bone> bones) {
+		int boneCount = bones.size();
+		Mat4 bonesMatrixSumHeap = new Mat4().setZero();
+		if (boneCount > 0) {
+			for (Bone bone : bones) {
+				bonesMatrixSumHeap.add(renderModel.getRenderNode(bone).getWorldMatrix());
+			}
+			return bonesMatrixSumHeap.uniformScale(1f / boneCount);
+		}
+		return bonesMatrixSumHeap.setIdentity();
 	}
 }

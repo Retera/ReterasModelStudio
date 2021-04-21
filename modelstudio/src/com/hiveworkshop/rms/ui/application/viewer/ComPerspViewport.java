@@ -894,9 +894,9 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 			for (final GeosetVertex vertex : tri.getVerts()) {
 				Mat4 skinBonesMatrixSumHeap;
 				if (isHd) {
-					skinBonesMatrixSumHeap = processHdBones(vertex);
+					skinBonesMatrixSumHeap = ModelUtils.processHdBones(renderModel, vertex.getSkinBones(), vertex.getSkinBoneWeights());
 				} else {
-					skinBonesMatrixSumHeap = processSdBones(vertex);
+					skinBonesMatrixSumHeap = ModelUtils.processSdBones(renderModel, vertex.getBones());
 				}
 				Vec4 vertexSumHeap = Vec4.getTransformed(new Vec4(vertex, 1), skinBonesMatrixSumHeap);
 				transformedVertices.add(vertexSumHeap);
@@ -911,39 +911,6 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 		}
 		vertListMap.put(geo, transformedVertices);
 		normalListMap.put(geo, transformedNormals);
-	}
-
-	private Mat4 processSdBones(GeosetVertex vertex) {
-		final int boneCount = vertex.getBones().size();
-		Mat4 bonesMatrixSumHeap = new Mat4().setZero();
-		if (boneCount > 0) {
-			for (final Bone bone : vertex.getBones()) {
-				bonesMatrixSumHeap.add(renderModel.getRenderNode(bone).getWorldMatrix());
-			}
-			return bonesMatrixSumHeap.uniformScale(1f / boneCount);
-		}
-		return bonesMatrixSumHeap.setIdentity();
-	}
-
-	private Mat4 processHdBones(GeosetVertex vertex) {
-		final Bone[] skinBones = vertex.getSkinBones();
-		final short[] skinBoneWeights = vertex.getSkinBoneWeights();
-		boolean processedBones = false;
-		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();
-		for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
-			final Bone skinBone = skinBones[boneIndex];
-			if (skinBone == null) {
-				continue;
-			}
-			processedBones = true;
-			final Mat4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
-			float skinBoneWeight = skinBoneWeights[boneIndex] / 255f;
-			skinBonesMatrixSumHeap.add(worldMatrix.getUniformlyScaled(skinBoneWeight));
-		}
-		if (!processedBones) {
-			skinBonesMatrixSumHeap.setIdentity();
-		}
-		return skinBonesMatrixSumHeap;
 	}
 
 	private boolean isHD(Geoset geo, int formatVersion) {

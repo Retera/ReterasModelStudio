@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.visitor.GeosetVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.TriangleVisitor;
@@ -173,39 +174,6 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 		graphics.setColor(triangleColor);
 	}
 
-	public Mat4 processHdBones(Bone[] skinBones, short[] skinBoneWeights) {
-		boolean processedBones = false;
-		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();
-
-		for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
-			Bone skinBone = skinBones[boneIndex];
-			if (skinBone == null) {
-				continue;
-			}
-			processedBones = true;
-			Mat4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
-
-			float skinBoneWeight = skinBoneWeights[boneIndex] / 255f;
-			skinBonesMatrixSumHeap.add(worldMatrix.getUniformlyScaled(skinBoneWeight));
-		}
-		if (!processedBones) {
-			skinBonesMatrixSumHeap.setIdentity();
-		}
-		return skinBonesMatrixSumHeap;
-	}
-
-	public Mat4 processSdBones(List<Bone> bones) {
-		int boneCount = bones.size();
-		Mat4 bonesMatrixSumHeap = new Mat4().setZero();
-		if (boneCount > 0) {
-			for (Bone bone : bones) {
-				bonesMatrixSumHeap.add(renderModel.getRenderNode(bone).getWorldMatrix());
-			}
-			return bonesMatrixSumHeap.uniformScale(1f / boneCount);
-		}
-		return bonesMatrixSumHeap.setIdentity();
-	}
-
 	private class GeosetRendererImpl implements GeosetVisitor {
 		private TriangleRendererImpl triangleRenderer = new TriangleRendererImpl();
 
@@ -241,7 +209,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 
 		@Override
 		public VertexVisitor hdVertex(Vec3 vert, Vec3 normal, Bone[] skinBones, short[] skinBoneWeights) {
-			Mat4 skinBonesMatrixSumHeap = processHdBones(skinBones, skinBoneWeights);
+			Mat4 skinBonesMatrixSumHeap = ModelUtils.processHdBones(renderModel, skinBones, skinBoneWeights);
 
 			processAndDraw(vert, normal, skinBonesMatrixSumHeap);
 
@@ -250,7 +218,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 
 		@Override
 		public VertexVisitor vertex(Vec3 vert, Vec3 normal, List<Bone> bones) {
-			Mat4 bonesMatrixSumHeap = processSdBones(bones);
+			Mat4 bonesMatrixSumHeap = ModelUtils.processSdBones(renderModel, bones);
 
 			processAndDraw(vert, normal, bonesMatrixSumHeap);
 			return VertexVisitor.NO_ACTION;
