@@ -61,10 +61,12 @@ public class ZoomableImagePreviewPanel extends JPanel {
 	}
 
 	private void adjustOffset(Image image) {
-		double offX = image.getWidth(null) * scale * .2;
-		double offY = image.getHeight(null) * scale * .2;
-		offsetX = (int) Math.max(Math.min(offsetX, offX), -offX);
-		offsetY = (int) Math.max(Math.min(offsetY, offY), -offY);
+		if (image != null) {
+			double offX = image.getWidth(null) * scale * .2;
+			double offY = image.getHeight(null) * scale * .2;
+			offsetX = (int) Math.max(Math.min(offsetX, offX), -offX);
+			offsetY = (int) Math.max(Math.min(offsetY, offY), -offY);
+		}
 	}
 
 	@Override
