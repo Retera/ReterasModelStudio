@@ -811,6 +811,13 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
+	public void clear() {
+		times.clear();
+		values.clear();
+		inTans.clear();
+		outTans.clear();
+	}
+
 	/**
 	 * Copies time track data from a certain interval into a different, new interval.
 	 * The AnimFlag source of the data to copy cannot be same AnimFlag into which the

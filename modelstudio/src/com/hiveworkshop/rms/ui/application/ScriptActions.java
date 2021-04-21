@@ -4,16 +4,18 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.actions.mesh.DeleteGeosetAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.scripts.ChangeAnimationLengthFrame;
+import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -25,7 +27,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class ScriptActions {
@@ -33,18 +34,8 @@ public class ScriptActions {
 		FileDialog fileDialog = new FileDialog(mainPanel);
 //
 		EditableModel current = mainPanel.currentMDL();
-//        if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-//            mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-//        } else if (mainPanel.profile.getPath() != null) {
-//            mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-//        }
-//        final int returnValue = mainPanel.fc.showOpenDialog(mainPanel);
 		EditableModel geoSource = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
 
-//        if (returnValue == JFileChooser.APPROVE_OPTION) {
-//            mainPanel.currentFile = mainPanel.fc.getSelectedFile();
-//            final EditableModel geoSource = MdxUtils.loadEditable(mainPanel.currentFile);
-//            mainPanel.profile.setPath(mainPanel.currentFile.getParent());
 		if (geoSource != null) {
 			boolean going = true;
 			Geoset host = null;
@@ -149,131 +140,100 @@ public class ScriptActions {
 					"Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		Vec4 vertexHeap = new Vec4();
-		Vec4 vertexSumHeap = new Vec4();
-		Vec4 normalHeap = new Vec4();
-		Vec4 normalSumHeap = new Vec4();
 
 		ModelPanel modelContext = mainPanel.currentModelPanel();
 		RenderModel editorRenderModel = modelContext.getEditorRenderModel();
 		EditableModel model = modelContext.getModel();
-		ModelViewManager modelViewManager = modelContext.getModelViewManager();
 
-		EditableModel snapshotModel = EditableModel.deepClone(model, model.getHeaderName() + "At"
-				+ editorRenderModel.getAnimatedRenderEnvironment().getAnimationTime());
+		AnimatedRenderEnvironment renderEnv = editorRenderModel.getAnimatedRenderEnvironment();
+		TimeBoundProvider currentAnimation = renderEnv.getCurrentAnimation();
 
-		for (int geosetIndex = 0; geosetIndex < snapshotModel.getGeosets().size(); geosetIndex++) {
+		String s = "At" + renderEnv.getAnimationTime();
+		System.out.println(currentAnimation);
+		if (currentAnimation instanceof Animation) {
+			s = ((Animation) currentAnimation).getName() + s;
+		}
+		EditableModel frozenModel = EditableModel.deepClone(model, model.getHeaderName() + s);
+		if (frozenModel.getFileRef() != null) {
+			frozenModel.setFileRef(new File(frozenModel.getFileRef().getPath().replaceFirst("(?<=\\w)\\.(?=md[lx])", s + ".")));
+		}
+
+		for (int geosetIndex = 0; geosetIndex < frozenModel.getGeosets().size(); geosetIndex++) {
 			Geoset geoset = model.getGeoset(geosetIndex);
-			Geoset snapshotGeoset = snapshotModel.getGeoset(geosetIndex);
+			Geoset frozenGeoset = frozenModel.getGeoset(geosetIndex);
 
 			for (int vertexIndex = 0; vertexIndex < geoset.getVertices().size(); vertexIndex++) {
 				GeosetVertex vertex = geoset.getVertex(vertexIndex);
-				GeosetVertex snapshotVertex = snapshotGeoset.getVertex(vertexIndex);
-				List<Bone> bones = vertex.getBones();
-				vertexHeap.set(vertex, 1);
-
-				if (bones.size() > 0) {
-
-					vertexSumHeap.set(0, 0, 0, 0);
-					for (Bone bone : bones) {
-						Vec4 appliedVertexHeap = Vec4.getTransformed(vertexHeap, editorRenderModel.getRenderNode(bone).getWorldMatrix());
-						vertexSumHeap.add(appliedVertexHeap);
-					}
-
-					vertexSumHeap.scale(1f / bones.size());
+				GeosetVertex frozenVertex = frozenGeoset.getVertex(vertexIndex);
+				Mat4 skinBonesMatrixSumHeap;
+				if (vertex.getSSkinBones() != null) {
+					skinBonesMatrixSumHeap = ModelUtils.processHdBones(editorRenderModel, vertex.getSkinBones(), vertex.getSkinBoneWeights());
 				} else {
-					vertexSumHeap.set(vertexHeap);
+					skinBonesMatrixSumHeap = ModelUtils.processSdBones(editorRenderModel, vertex.getBones());
 				}
-				snapshotVertex.set(vertexSumHeap);
-
-				normalHeap.set(vertex.getNormal(), 0);
-				if (bones.size() > 0) {
-
-					normalSumHeap.set(0, 0, 0, 0);
-					for (Bone bone : bones) {
-						Vec4 appliedNormalHeap = Vec4.getTransformed(normalHeap, editorRenderModel.getRenderNode(bone).getWorldMatrix());
-						normalSumHeap.add(appliedNormalHeap);
-					}
-
-					if (normalSumHeap.length() > 0) {
-						normalSumHeap.normalize();
-					} else {
-						normalSumHeap.set(0, 1, 0, 0);
-					}
-				} else {
-					normalSumHeap.set(normalHeap);
+				Vec4 vertexSumHeap = Vec4.getTransformed(new Vec4(vertex, 1), skinBonesMatrixSumHeap);
+				frozenVertex.set(vertexSumHeap);
+				if (vertex.getNormal() != null) {
+					Vec4 normalSumHeap = Vec4.getTransformed(new Vec4(vertex.getNormal(), 0), skinBonesMatrixSumHeap);
+					normalSumHeap.normalize();
+					frozenVertex.getNormal().set(normalSumHeap);
 				}
-				snapshotVertex.getNormal().set(normalSumHeap);
 			}
 		}
-		snapshotModel.getIdObjects().clear();
+		frozenModel.clearAllIdObjects();
 		Bone boneRoot = new Bone("Bone_Root");
 		boneRoot.setPivotPoint(new Vec3(0, 0, 0));
-		snapshotModel.add(boneRoot);
+		frozenModel.add(boneRoot);
 
-		for (Geoset geoset : snapshotModel.getGeosets()) {
+		for (Geoset geoset : frozenModel.getGeosets()) {
 			for (GeosetVertex vertex : geoset.getVertices()) {
-				vertex.getBones().clear();
-				vertex.getBones().add(boneRoot);
+				if (vertex.getSSkinBones() != null) {
+					vertex.setSkinBones(new Bone[] {boneRoot, null, null, null}, new short[] {255, 0, 0, 0});
+				} else {
+					vertex.getBones().clear();
+					vertex.getBones().add(boneRoot);
+				}
 			}
 		}
 
-		Iterator<Geoset> geosetIterator = snapshotModel.getGeosets().iterator();
-
-		while (geosetIterator.hasNext()) {
-			Geoset geoset = geosetIterator.next();
+		List<Geoset> geosetsToRemove = new ArrayList<>();
+		for (Geoset geoset : frozenModel.getGeosets()) {
 			GeosetAnim geosetAnim = geoset.getGeosetAnim();
 
-			if (geosetAnim != null) {
-				Object visibilityValue = geosetAnim.getVisibilityFlag().interpolateAt(editorRenderModel.getAnimatedRenderEnvironment());
+			if (geosetAnim != null && geosetAnim.getVisibilityFlag() != null) {
+				Object visibilityValue = geosetAnim.getVisibilityFlag().interpolateAt(renderEnv);
 
 				if (visibilityValue instanceof Float) {
 					double visValue = (Float) visibilityValue;
 
 					if (visValue < 0.01) {
-						geosetIterator.remove();
-						snapshotModel.remove(geosetAnim);
+						geosetsToRemove.add(geoset);
+						frozenModel.remove(geosetAnim);
 					}
 				}
-
 			}
 		}
-		snapshotModel.getAnims().clear();
-		snapshotModel.add(new Animation("Stand", 333, 1333));
-		List<AnimFlag<?>> allAnimFlags = snapshotModel.getAllAnimFlags();
+
+		for (Geoset geoset : geosetsToRemove) {
+			frozenModel.remove(geoset);
+		}
+
+		frozenModel.getAnims().clear();
+		frozenModel.add(new Animation("Stand", 333, 1333));
+		List<AnimFlag<?>> allAnimFlags = frozenModel.getAllAnimFlags();
 		for (AnimFlag flag : allAnimFlags) {
 			if (!flag.hasGlobalSeq()) {
 				if (flag.size() > 0) {
 					Object value = flag.interpolateAt(mainPanel.animatedRenderEnvironment);
 					flag.setInterpType(InterpolationType.DONT_INTERP);
-					flag.getValues().clear();
-					flag.getTimes().clear();
-					flag.getInTans().clear();
-					flag.getOutTans().clear();
+					flag.clear();
 					flag.addEntry(333, value);
 				}
 			}
 		}
 
 		FileDialog fileDialog = new FileDialog(mainPanel);
-		fileDialog.onClickSaveAs(snapshotModel, FileDialog.SAVE_MODEL, false);
-
-//        mainPanel.fc.setDialogTitle("Export Static Snapshot");
-//        int result = mainPanel.fc.showSaveDialog(mainPanel);
-//        if (result == JFileChooser.APPROVE_OPTION) {
-//            File selectedFile = mainPanel.fc.getSelectedFile();
-//            if (selectedFile != null) {
-//                if (!selectedFile.getPath().toLowerCase().endsWith(".mdx")) {
-//                    selectedFile = new File(selectedFile.getPath() + ".mdx");
-//                }
-//                try {
-//                    MdxUtils.saveMdx(snapshotModel, selectedFile);
-//                } catch (final IOException e1) {
-//                    // TODO Auto-generated catch block
-//                    e1.printStackTrace();
-//                }
-//            }
-//        }
+		fileDialog.onClickSaveAs(frozenModel, FileDialog.SAVE_MODEL, false);
 	}
 
 	static void combineAnimations(MainPanel mainPanel) {
@@ -311,16 +271,6 @@ public class ScriptActions {
 	}
 
 	static void scaleAnimations(MainPanel mainPanel) {
-		// if( disp.animpanel == null )
-		// {
-		// AnimationPanel panel = new UVPanel(disp);
-		// disp.setUVPanel(panel);
-		// panel.showFrame();
-		// }
-		// else if(!disp.uvpanel.frameVisible() )
-		// {
-		// disp.uvpanel.showFrame();
-		// }
 		ChangeAnimationLengthFrame aFrame = new ChangeAnimationLengthFrame(mainPanel.currentModelPanel(), () -> mainPanel.timeSliderPanel.revalidateKeyframeDisplay());
 		aFrame.setVisible(true);
 	}

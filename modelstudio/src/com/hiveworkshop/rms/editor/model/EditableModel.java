@@ -2279,6 +2279,10 @@ public class EditableModel implements Named {
 		return modelIdObjects.getIdObjectToIdMap();
 	}
 
+	public void clearAllIdObjects() {
+		modelIdObjects.clearAll();
+	}
+
 	private static class ModelIdObjects {
 		final List<IdObject> allObjects;
 		final List<Bone> bones;
