@@ -72,11 +72,8 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 
 		JButton editUvButton = new JButton("Edit Geoset UVs");
 		toggleSdHd = new JButton("Make Geoset HD");
-		if (modelViewManager.getModel().getFormatVersion() >= 900) {
-			toggleSdHd.addActionListener(e -> toggleSdHd());
-			add(toggleSdHd, "wrap");
-		}
-
+		toggleSdHd.addActionListener(e -> toggleSdHd());
+		add(toggleSdHd, "wrap");
 	}
 
 	private void createHDPanel(ModelViewManager modelViewManager) {
@@ -150,6 +147,7 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 	}
 
 	private void setToggleButtonText() {
+		toggleSdHd.setVisible(modelViewManager.getModel().getFormatVersion() >= 900);
 		if (geoset.isHD()) {
 			toggleSdHd.setText("Make Geoset SD");
 		} else {
