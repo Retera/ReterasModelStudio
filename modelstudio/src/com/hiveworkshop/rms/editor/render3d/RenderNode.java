@@ -16,8 +16,8 @@ public final class RenderNode {
 	boolean billboardedY;
 	boolean billboardedZ;
 
-	protected final Vec3 localLocation = new Vec3();
-	protected final Quat localRotation = new Quat();
+	protected final Vec3 localLocation = new Vec3(0, 0, 0);
+	protected final Quat localRotation = new Quat(0, 0, 0, 1);
 	protected final Vec3 localScale = new Vec3(1, 1, 1);
 	private final Mat4 localMatrix = new Mat4();
 
@@ -35,6 +35,9 @@ public final class RenderNode {
 	protected boolean visible;
 
 	private final RenderModel model;
+
+	boolean dirty = false;
+	boolean wasDirty = false;
 
 	public RenderNode(final RenderModel model, final AnimatedNode idObject) {
 		this.model = model;
@@ -77,12 +80,9 @@ public final class RenderNode {
 		}
 	}
 
-	boolean dirty = false;
-	boolean wasDirty = false;
-
 	public void recalculateTransformation() {
 		if (dirty) {
-			dirty = false;
+//			dirty = false;
 			if (idObject instanceof IdObject && ((IdObject) idObject).getParent() != null) {
 				Vec3 computedLocation = new Vec3(localLocation);
 				Vec3 computedScaling = new Vec3();

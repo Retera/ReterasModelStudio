@@ -136,7 +136,7 @@ public class MPQBrowserView {
         mainPanel
                 .currentModelPanel()
                 .getEditorRenderModel()
-                .updateNodes(true, false); // update to 0 position
+                .updateNodes(false); // update to 0 position
     }
 
     private static ModelPanel newTempModelPanel(MainPanel mainPanel, ImageIcon icon, EditableModel model) {

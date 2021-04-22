@@ -207,7 +207,7 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		if (modelEditorManager.getModelEditor().editorWantsAnimation()) {
 			Stroke stroke = graphics2d.getStroke();
 			graphics2d.setStroke(new BasicStroke(3));
-			renderModel.updateNodes(true, false);
+			renderModel.updateNodes(false);
 			linkRenderer.reset(this, graphics2d, NodeIconPalette.HIGHLIGHT, renderModel);
 			modelView.visit(linkRenderingVisitorAdapter);
 			graphics2d.setStroke(stroke);
