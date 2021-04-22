@@ -51,7 +51,7 @@ public class TimeSliderView {
 						ModelStructureChangeListenerImplementation.IDENTITY,
 						ModelStructureChangeListenerImplementation.IDENTITY,
 						panel.getPerspArea().getViewport());
-				panel.getEditorRenderModel().updateNodes(true, false);
+				panel.getEditorRenderModel().updateNodes(false);
 			}
 		}
 	}
@@ -62,7 +62,7 @@ public class TimeSliderView {
 		mainPanel.timeSliderPanel.addListener(currentTime -> {
 			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime - mainPanel.animatedRenderEnvironment.getStart());
 			if (mainPanel.currentModelPanel() != null) {
-				mainPanel.currentModelPanel().getEditorRenderModel().updateNodes(true, false);
+				mainPanel.currentModelPanel().getEditorRenderModel().updateNodes(false);
 				mainPanel.currentModelPanel().repaintSelfAndRelatedChildren();
 			}
 		});

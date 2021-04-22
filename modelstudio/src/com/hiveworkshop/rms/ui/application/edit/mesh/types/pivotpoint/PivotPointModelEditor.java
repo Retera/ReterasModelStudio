@@ -95,13 +95,21 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			}
 		}
 
+		Map<Geoset, Map<Bone, List<GeosetVertex>>> geosetBoneMaps = new HashMap<>();
+		for (Geoset geo : model.getModel().getGeosets()) {
+			geosetBoneMaps.put(geo, geo.getBoneMap());
+		}
+
 		Map<Bone, Vec3> boneToOldPosition = new HashMap<>();
 		for (IdObject obj : selBones) {
 			if (Bone.class.isAssignableFrom(obj.getClass())) {
 				Bone bone = (Bone) obj;
 				List<GeosetVertex> childVerts = new ArrayList<>();
 				for (Geoset geo : model.getModel().getGeosets()) {
-					childVerts.addAll(geo.getChildrenOf(bone));
+					List<GeosetVertex> vertices = geosetBoneMaps.get(geo).get(bone);
+					if (vertices != null) {
+						childVerts.addAll(vertices);
+					}
 				}
 				if (childVerts.size() > 0) {
 					Vec3 pivotPoint = bone.getPivotPoint();
