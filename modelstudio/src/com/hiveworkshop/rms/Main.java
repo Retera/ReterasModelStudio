@@ -33,7 +33,7 @@ import java.util.List;
 public class Main {
 
     public static void main(final String[] args) throws IOException {
-        final boolean hasArgs = args.length >= 1;
+        final boolean hasArgs = args.length > 0;
         final List<String> startupModelPaths = new ArrayList<>();
         if (hasArgs) {
             if ((args.length > 1) && args[0].equals("-convert")) {

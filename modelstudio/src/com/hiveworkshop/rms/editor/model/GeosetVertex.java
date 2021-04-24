@@ -62,7 +62,8 @@ public class GeosetVertex extends Vec3 {
 //            skinBoneWeights = old.skinBoneWeights.clone();
 //        }
         if (old.sskinBones != null) {
-            sskinBones = old.sskinBones.clone();
+//            sskinBones = old.sskinBones.clone();
+            setSkinBones(old.getSkinBones(), old.getSkinBoneWeights());
         }
         if (old.tangent != null) {
             tangent = new Vec4(old.tangent);
@@ -566,7 +567,7 @@ public class GeosetVertex extends Vec3 {
             this.bone = skinBone.bone;
         }
 
-        SkinBone(short weight, Bone bone) {
+        public SkinBone(short weight, Bone bone) {
             this.weight = weight;
             this.bone = bone;
         }

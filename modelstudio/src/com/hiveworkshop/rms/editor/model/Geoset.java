@@ -498,7 +498,7 @@ public class Geoset implements Named, VisibilitySource {
 	public List<GeosetVertex> getChildrenOf(final Bone parent) {
 		final List<GeosetVertex> children = new ArrayList<>();
 		for (final GeosetVertex gv : vertices) {
-			if (gv.bones.contains(parent)) {
+			if (gv.bones.contains(parent) || Arrays.stream(gv.getSkinBones()).anyMatch(bone -> bone == parent)) {
 				children.add(gv);
 			}
 		}
