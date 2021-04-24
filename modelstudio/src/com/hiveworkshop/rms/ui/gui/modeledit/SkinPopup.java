@@ -33,7 +33,7 @@ public class SkinPopup extends JPanel {
             add(boneButton, "growx");
             boneButton.addActionListener(e -> boneChooserPopup(index, boneButton, boneChooserPanel));
 
-            JSpinner boneWeightSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 255, 1));
+            JSpinner boneWeightSpinner = new JSpinner(new SpinnerNumberModel(i==0 ? 255 : 0, 0, 255, 1));
             boneWeightSpinner.addChangeListener(e -> updateWeightLabel());
             add(boneWeightSpinner, "wrap");
 

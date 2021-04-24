@@ -199,7 +199,6 @@ public final class ModelUtils {
 			}
 		}
 		for (final GeosetVertex vertex : box.getVertices()) {
-			vertex.addTVertex(new Vec2(0, 0));
 			vertex.setGeoset(dataGeoset);
 		}
 		for (final Triangle triangle : box.getTriangles()) {

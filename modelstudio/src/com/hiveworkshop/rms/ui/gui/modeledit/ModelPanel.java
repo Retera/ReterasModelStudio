@@ -69,26 +69,6 @@ public class ModelPanel implements ActionListener, MouseListener {
 	private final ComponentsPanel componentsPanel;
 
 	public ModelPanel(final JComponent parent,
-	                  final File input,
-	                  final ProgramPreferences prefs,
-	                  final UndoHandler undoHandler,
-	                  final ToolbarButtonGroup<SelectionItemTypes> notifier,
-	                  final ToolbarButtonGroup<SelectionMode> modeNotifier,
-	                  final ModelStructureChangeListener modelStructureChangeListener,
-	                  final CoordDisplayListener coordDisplayListener,
-	                  final ViewportTransferHandler viewportTransferHandler,
-	                  final ViewportListener viewportListener,
-	                  final Icon icon,
-	                  final boolean specialBLPModel,
-	                  final TextureExporter textureExporter)
-			throws IOException {
-		this(parent, MdxUtils.loadEditable(input), prefs, undoHandler, notifier, modeNotifier,
-				modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, icon,
-				specialBLPModel, textureExporter);
-		file = input;
-	}
-
-	public ModelPanel(final JComponent parent,
 	                  final EditableModel input,
 	                  final ProgramPreferences prefs,
 	                  final UndoHandler undoHandler,
@@ -191,10 +171,6 @@ public class ModelPanel implements ActionListener, MouseListener {
 		return icon;
 	}
 
-	public void setFile(final File file) {
-		this.file = file;
-	}
-
 	public void changeActivity(final ActivityDescriptor activityDescriptor) {
 		viewportActivityManager.setCurrentActivity(
 				activityDescriptor.createActivity(modelEditorManager, modelView, undoManager));
@@ -210,13 +186,6 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 	public void setEditUVPanel(final UVPanel editUVPanel) {
 		this.editUVPanel = editUVPanel;
-	}
-
-	public void loadModel(final File input) throws IOException {
-		file = input;
-		if (file != null) {
-			model = MdxUtils.loadEditable(input);
-		}
 	}
 
 	public void loadModel(final EditableModel model) {

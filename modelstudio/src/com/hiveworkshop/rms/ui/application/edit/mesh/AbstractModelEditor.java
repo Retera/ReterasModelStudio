@@ -966,6 +966,9 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         if (selectionIsNotUniform) {
             return "The skinning of the selection is not uniform. Please select only one vertex, or a group of vertices that are exactly sharing their animation skin bindings.";
         }
+        if(boneArray==null) {
+            return "Nothing selected";
+        }
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < 4; i++) {
             if (boneArray[i] == null) {

@@ -651,17 +651,17 @@ public class StandardObjectData {
 		}
 
 		@Override
-		public ImageIcon getScaledIcon(final double amt) {
+		public ImageIcon getScaledIcon(int size) {
 			final Image img = getImage();
-			return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * amt),
-					(int) (img.getHeight(null) * amt), Image.SCALE_FAST));
+			return new ImageIcon(img.getScaledInstance(size,
+					size, Image.SCALE_FAST));
 		}
 
 		@Override
-		public ImageIcon getScaledTintedIcon(final Color tint, final double amt) {
+		public ImageIcon getScaledTintedIcon(final Color tint, int amt) {
 			final Image img = getTintedImage(tint);
-			return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * amt),
-					(int) (img.getHeight(null) * amt), Image.SCALE_SMOOTH));
+			return new ImageIcon(img.getScaledInstance(amt,
+					amt, Image.SCALE_SMOOTH));
 		}
 
 		public Image getTintedImage(final Color tint) {

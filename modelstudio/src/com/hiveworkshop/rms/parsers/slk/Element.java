@@ -138,22 +138,22 @@ public class Element extends HashedGameObject {
 	}
 
 	@Override
-	public ImageIcon getScaledIcon(final double amt) {
+	public ImageIcon getScaledIcon(int size) {
 		Image img = getImage();
 		if (img == null) {
 			img = BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
 		}
-		return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * amt), (int) (img.getHeight(null) * amt),
+		return new ImageIcon(img.getScaledInstance(size, size,
 				Image.SCALE_SMOOTH));
 	}
 
 	@Override
-	public ImageIcon getScaledTintedIcon(final Color tint, final double amt) {
+	public ImageIcon getScaledTintedIcon(final Color tint, final int amt) {
 		Image img = getTintedImage(tint);
 		if (img == null) {
 			img = BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
 		}
-		return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * amt), (int) (img.getHeight(null) * amt),
+		return new ImageIcon(img.getScaledInstance(amt, amt,
 				Image.SCALE_SMOOTH));
 	}
 

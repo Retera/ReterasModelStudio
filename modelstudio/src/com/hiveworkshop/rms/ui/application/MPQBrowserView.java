@@ -565,7 +565,7 @@ public class MPQBrowserView {
         if (unitFetched != null) {
 
             final String filepath = ImportFileActions.convertPathToMDX(unitFetched.getField("file"));
-            final ImageIcon icon = unitFetched.getScaledIcon(0.25f);
+            final ImageIcon icon = unitFetched.getScaledIcon(16);
 
             loadFromStream(mainPanel, filepath, icon);
         }

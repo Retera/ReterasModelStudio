@@ -1311,7 +1311,7 @@ public class EditableModel implements Named {
 						bone.geosetAnim = null;
 					}
 					IdObject boneParent = bone.getParent();
-					while (boneParent != null) {
+					while (boneParent != null && boneParent != boneParent.getParent()) {
 						if (boneParent.getClass() == Bone.class) {
 							final Bone b2 = (Bone) boneParent;
 							if (!b2.multiGeoId) {

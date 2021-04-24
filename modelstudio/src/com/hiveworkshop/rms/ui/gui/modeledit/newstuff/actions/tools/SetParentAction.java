@@ -45,7 +45,7 @@ public final class SetParentAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "re-assign matrix";
+		return "set parent";
 	}
 
 }

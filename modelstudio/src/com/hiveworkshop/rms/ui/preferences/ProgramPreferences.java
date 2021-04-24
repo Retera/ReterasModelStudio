@@ -51,7 +51,6 @@ public class ProgramPreferences implements Serializable {
 	private transient Boolean[] dimLocks = new Boolean[3];
 	private Integer vertexSize = 3;
 	private Boolean quickBrowse = true;
-	private Boolean smallIcons = true;
 
 
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
@@ -362,9 +361,6 @@ public class ProgramPreferences implements Serializable {
 		return show2dGrid != null && show2dGrid;
 	}
 
-	public boolean isSmallIcons() {
-		return smallIcons;
-	}
 
 	public Boolean getUseBoxesForPivotPoints() {
 		return useBoxesForPivotPoints != null && useBoxesForPivotPoints;
@@ -385,12 +381,6 @@ public class ProgramPreferences implements Serializable {
 
 	public void setShow2dGrid(final Boolean show2dGrid) {
 		this.show2dGrid = show2dGrid;
-		SaveProfile.save();
-		firePrefsChanged();
-	}
-
-	public void setSmallIcons(boolean smallIcons) {
-		this.smallIcons = smallIcons;
 		SaveProfile.save();
 		firePrefsChanged();
 	}

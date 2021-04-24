@@ -62,6 +62,7 @@ public class Main {
 
             final ProgramPreferences preferences = SaveProfile.get().getPreferences();
             setTheme(preferences);
+            setupExceptionHandling();
             SwingUtilities.invokeLater(() -> tryStartup(startupModelPaths, dataPromptForced));
         } catch (final Throwable th) {
             th.printStackTrace();
@@ -73,6 +74,13 @@ public class Main {
                 SwingUtilities.invokeLater(() -> startupFailDialog());
             }
         }
+    }
+
+    private static void setupExceptionHandling() {
+        SwingUtilities.invokeLater(() -> Thread.currentThread().setUncaughtExceptionHandler((thread, exception) -> {
+            exception.printStackTrace();
+            ExceptionPopup.display(exception);
+        }));
     }
 
     private static void tryStartup(List<String> startupModelPaths, boolean dataPromptForced) {

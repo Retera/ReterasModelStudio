@@ -31,10 +31,10 @@ public class RotateTVertexManipulator extends Manipulator {
 		byte planeDim1;
 		byte planeDim2;
 
-		if (dir.containDirection(dim1)) {
+		if (dir != MoveDimension.XYZ && dir.containDirection(dim1)) {
 			planeDim1 = CoordinateSystem.Util.getUnusedXYZ(dim1, dim2);
 			planeDim2 = dim2;
-		} else if (dir.containDirection(dim2)) {
+		} else if (dir != MoveDimension.XYZ && dir.containDirection(dim2)) {
 			planeDim1 = dim1;
 			planeDim2 = CoordinateSystem.Util.getUnusedXYZ(dim1, dim2);
 		} else {
