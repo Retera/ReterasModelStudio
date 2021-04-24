@@ -2,6 +2,8 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.editor.model.util.TwiAiIoSys;
+import com.hiveworkshop.rms.editor.model.util.TwiAiSceneParser;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
@@ -23,6 +25,7 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.War3ID;
 import jassimp.AiPostProcessSteps;
+import jassimp.AiProgressHandler;
 import jassimp.AiScene;
 import jassimp.Jassimp;
 import net.infonode.docking.SplitWindow;
@@ -282,8 +285,7 @@ public class MPQBrowserView {
         if (selectNewTab && mainPanel.prefs.getQuickBrowse()) {
             for (int i = (mainPanel.modelPanels.size() - 2); i >= 0; i--) {
                 final ModelPanel openModelPanel = mainPanel.modelPanels.get(i);
-                if (openModelPanel.getUndoManager().isRedoListEmpty()
-                        && openModelPanel.getUndoManager().isUndoListEmpty()) {
+                if (openModelPanel.getUndoManager().isRedoListEmpty() && openModelPanel.getUndoManager().isUndoListEmpty()) {
                     if (openModelPanel.close(mainPanel)) {
                         mainPanel.modelPanels.remove(openModelPanel);
 //                        mainPanel.windowMenu.remove(openModelPanel.getMenuItem());
@@ -417,11 +419,24 @@ public class MPQBrowserView {
                 }
             } else if (Arrays.asList("obj", "fbx").contains(ext)) {
                 try {
-                    AiScene scene = Jassimp.importFile(f.getPath(), new HashSet<>(Collections.singletonList(AiPostProcessSteps.TRIANGULATE)));
-
-                    final EditableModel model = new EditableModel(scene);
+                    System.out.println("importing file \"" + f.getName() + "\" this might take a while...");
+                    long timeStart = System.currentTimeMillis();
+                    AiProgressHandler aiProgressHandler = new AiProgressHandler() {
+                        @Override
+                        public boolean update(float v) {
+//                            System.out.println("progress: " + (int)((v+1)*100) + "%  " + (System.currentTimeMillis()-timeStart) + " ms");
+                            return true;
+                        }
+                    };
+//                    AiClassLoaderIOSystem aiIOSystem = new AiClassLoaderIOSystem();
+                    TwiAiIoSys twiAiIoSys = new TwiAiIoSys();
+                    AiScene scene = Jassimp.importFile(f.getPath(), new HashSet<>(Collections.singletonList(AiPostProcessSteps.TRIANGULATE)), twiAiIoSys, aiProgressHandler);
+                    TwiAiSceneParser twiAiSceneParser = new TwiAiSceneParser(scene);
+//                    final EditableModel model = new EditableModel(scene);
+                    System.out.println("took " + (System.currentTimeMillis() - timeStart) + " ms to load the model");
+                    EditableModel model = twiAiSceneParser.getEditableModel();
                     model.setFileRef(f);
-
+//
                     temp = newTempModelPanel(mainPanel, icon, model);
                 } catch (final Exception e) {
                     ExceptionPopup.display(e);
