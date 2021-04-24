@@ -123,8 +123,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
             if (vert instanceof GeosetVertex) {
                 GeosetVertex gv = (GeosetVertex) vert;
                 List<Bone> matrixBones = mx.getBones();
-                if (gv.getSkinBones() != null) {
-                    vertexToOldSkinBoneReferences.put(gv, gv.getSkinBones().clone());
+                if (gv.getSkinBoneBones() != null) {
+                    vertexToOldSkinBoneReferences.put(gv, gv.getSkinBoneBones().clone());
                     vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights().clone());
                 } else {
                     vertexToOldBoneReferences.put(gv, new ArrayList<>(gv.getBoneAttachments()));
@@ -145,8 +145,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         for (Vec3 vert : selectionManager.getSelectedVertices()) {
             if (vert instanceof GeosetVertex) {
                 GeosetVertex gv = (GeosetVertex) vert;
-                if (gv.getSkinBones() != null) {
-                    vertexToOldSkinBoneReferences.put(gv, gv.getSkinBones().clone());
+                if (gv.getSkinBoneBones() != null) {
+                    vertexToOldSkinBoneReferences.put(gv, gv.getSkinBoneBones().clone());
                     vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights().clone());
                     for (int i = 0; i < bones.length; i++) {
                         gv.setSkinBone(bones[i], skinWeights[i], i);
@@ -996,7 +996,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         for (Vec3 vertex : selectedVertices) {
             if (vertex instanceof GeosetVertex) {
                 GeosetVertex gv = (GeosetVertex) vertex;
-                GeosetVertex.SkinBone[] skinBones = gv.getSSkinBones(); //Arrays.equals(skinBones, gv.getSSkinBones())
+                GeosetVertex.SkinBone[] skinBones = gv.getSkinBones(); //Arrays.equals(skinBones, gv.getSSkinBones())
 
                 String sbId = skinBonesId(skinBones);
                 if (!skinBonesArrayMap.containsKey(sbId)) {

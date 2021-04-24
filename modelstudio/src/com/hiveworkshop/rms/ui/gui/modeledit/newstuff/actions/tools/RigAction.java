@@ -41,8 +41,8 @@ public class RigAction implements UndoAction {
 		for (Vec3 vertex : selectedVertices) {
 			if (vertex instanceof GeosetVertex) {
 				GeosetVertex geosetVertex = (GeosetVertex) vertex;
-				if(geosetVertex.getSkinBones() != null) {
-					vertexToOldSkinBoneReferences.put(geosetVertex, geosetVertex.getSkinBones().clone());
+				if (geosetVertex.getSkinBoneBones() != null) {
+					vertexToOldSkinBoneReferences.put(geosetVertex, geosetVertex.getSkinBoneBones().clone());
 					vertexToOldSkinBoneWeightReferences.put(geosetVertex, geosetVertex.getSkinBoneWeights().clone());
 				} else {
 					List<Bone> boneAttachments = geosetVertex.getBoneAttachments();

@@ -247,7 +247,7 @@ public class Geoset implements Named, VisibilitySource {
 		geoset.lod = getLevelOfDetail();
 		geoset.lodName = getLevelOfDetailName();
 
-		if ((numVertices > 0) && (getVertex(0).getSkinBones() != null)) {
+		if ((numVertices > 0) && (getVertex(0).getSkinBoneBones() != null)) {
 			// v900
 			geoset.skin = new short[8 * numVertices];
 			geoset.tangents = new float[4 * numVertices];
@@ -498,7 +498,7 @@ public class Geoset implements Named, VisibilitySource {
 	public List<GeosetVertex> getChildrenOf(final Bone parent) {
 		final List<GeosetVertex> children = new ArrayList<>();
 		for (final GeosetVertex gv : vertices) {
-			if (gv.bones.contains(parent) || Arrays.stream(gv.getSkinBones()).anyMatch(bone -> bone == parent)) {
+			if (gv.bones.contains(parent) || Arrays.stream(gv.getSkinBoneBones()).anyMatch(bone -> bone == parent)) {
 				children.add(gv);
 			}
 		}
@@ -715,7 +715,7 @@ public class Geoset implements Named, VisibilitySource {
 		// Clearing matrix list
 		matrix.clear();
 		for (final GeosetVertex geosetVertex : vertices) {
-			if (geosetVertex.getSkinBones() != null) {
+			if (geosetVertex.getSkinBoneBones() != null) {
 				if (matrix.isEmpty()) {
 //					final List<Bone> bones = mdlr.sortedIdObjects(Bone.class);
 					final List<Bone> bones = mdlr.getBones();
@@ -728,7 +728,7 @@ public class Geoset implements Named, VisibilitySource {
 					}
 				}
 				int skinIndex = 0;
-				for (final Bone bone : geosetVertex.getSkinBones()) {
+				for (final Bone bone : geosetVertex.getSkinBoneBones()) {
 					if (bone != null) {
 						final List<Bone> singleBoneList = new ArrayList<>();
 						singleBoneList.add(bone);
@@ -938,7 +938,7 @@ public class Geoset implements Named, VisibilitySource {
 	public Map<Bone, List<GeosetVertex>> getBoneMap() {
 		Map<Bone, List<GeosetVertex>> boneMap = new HashMap<>();
 		for (GeosetVertex geosetVertex : vertices) {
-			Bone[] sb = geosetVertex.getSkinBones();
+			Bone[] sb = geosetVertex.getSkinBoneBones();
 			short[] bw = geosetVertex.getSkinBoneWeights();
 			if (sb != null && bw != null) {
 				for (int i = 0; i < sb.length; i++) {

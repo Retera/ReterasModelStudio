@@ -894,7 +894,7 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 			for (final GeosetVertex vertex : tri.getVerts()) {
 				Mat4 skinBonesMatrixSumHeap;
 				if (isHd) {
-					skinBonesMatrixSumHeap = ModelUtils.processHdBones(renderModel, vertex.getSkinBones(), vertex.getSkinBoneWeights());
+					skinBonesMatrixSumHeap = ModelUtils.processHdBones(renderModel, vertex.getSkinBoneBones(), vertex.getSkinBoneWeights());
 				} else {
 					skinBonesMatrixSumHeap = ModelUtils.processSdBones(renderModel, vertex.getBones());
 				}
