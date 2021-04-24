@@ -15,7 +15,7 @@ public class Element extends HashedGameObject {
 	// String id;
 	// UnitDataTable parentTable;
 
-	public Element(final String id, final DataTable table) {
+	public Element(String id, DataTable table) {
 		super(id, table);
 	}
 
@@ -24,19 +24,19 @@ public class Element extends HashedGameObject {
 	}
 
 	public List<GameObject> requires() {
-		final List<GameObject> requirements = getFieldAsList("Requires", parentTable);
-		final List<Integer> reqLvls = requiresLevels();
+		List<GameObject> requirements = getFieldAsList("Requires", parentTable);
+		List<Integer> reqLvls = requiresLevels();
 		// parentTable.updateListWithLevels(requirements, reqLvls);
 		return requirements;
 	}
 
 	public List<Integer> requiresLevels() {
-		final String stringList = getField("Requiresamount");
-		final String[] listAsArray = stringList.split(",");
-		final LinkedList<Integer> output = new LinkedList<>();
+		String stringList = getField("Requiresamount");
+		String[] listAsArray = stringList.split(",");
+		LinkedList<Integer> output = new LinkedList<>();
 		if (listAsArray != null && listAsArray.length > 0 && !listAsArray[0].equals("")) {
-			for (final String levelString : listAsArray) {
-				final Integer level = Integer.parseInt(levelString);
+			for (String levelString : listAsArray) {
+				Integer level = Integer.parseInt(levelString);
 				if (level != null) {
 					output.add(level);
 				}
@@ -85,31 +85,31 @@ public class Element extends HashedGameObject {
 	}
 
 	public int getTechTier() {
-		final String tier = getField("Custom Field: TechTier");
+		String tier = getField("Custom Field: TechTier");
 		if (tier == null) {
 			return -1;
 		}
 		return Integer.parseInt(tier);
 	}
 
-	public void setTechTier(final int i) {
+	public void setTechTier(int i) {
 		setField("Custom Field: TechTier", i + "");
 	}
 
 	public int getTechDepth() {
-		final String tier = getField("Custom Field: TechDepth");
+		String tier = getField("Custom Field: TechDepth");
 		if (tier == null) {
 			return -1;
 		}
 		return Integer.parseInt(tier);
 	}
 
-	public void setTechDepth(final int i) {
+	public void setTechDepth(int i) {
 		setField("Custom Field: TechDepth", i + "");
 	}
 
 	public ImageIcon getIcon() {
-		final String artField = getIconPath();
+		String artField = getIconPath();
 		return new ImageIcon(BLPHandler.get().getGameTex(artField));
 	}
 
@@ -123,7 +123,7 @@ public class Element extends HashedGameObject {
 
 	@Override
 	public Image getImage() {
-		final String artField = getIconPath();
+		String artField = getIconPath();
 		try {
 			return BLPHandler.get().getGameTex(artField);
 		} catch (final NullPointerException exc) {
@@ -132,39 +132,37 @@ public class Element extends HashedGameObject {
 	}
 
 	public ImageIcon getBigIcon() {
-		final Image img = getImage();
+		Image img = getImage();
 		return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * 1.25),
 				(int) (img.getHeight(null) * 1.25), Image.SCALE_SMOOTH));
 	}
 
 	@Override
-	public ImageIcon getScaledIcon(final double amt) {
+	public ImageIcon getScaledIcon(int size) {
 		Image img = getImage();
 		if (img == null) {
 			img = BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
 		}
-		return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * amt), (int) (img.getHeight(null) * amt),
-				Image.SCALE_SMOOTH));
+		return new ImageIcon(img.getScaledInstance(size, size, Image.SCALE_SMOOTH));
 	}
 
 	@Override
-	public ImageIcon getScaledTintedIcon(final Color tint, final double amt) {
+	public ImageIcon getScaledTintedIcon(Color tint, int size) {
 		Image img = getTintedImage(tint);
 		if (img == null) {
 			img = BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
 		}
-		return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * amt), (int) (img.getHeight(null) * amt),
-				Image.SCALE_SMOOTH));
+		return new ImageIcon(img.getScaledInstance(size, size, Image.SCALE_SMOOTH));
 	}
 
-	public Image getTintedImage(final Color tint) {
-		final Image img = getImage();
+	public Image getTintedImage(Color tint) {
+		Image img = getImage();
 		if (img == null) {
 			return BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
 		}
-		final BufferedImage out = new BufferedImage(img.getWidth(null), img.getHeight(null),
+		BufferedImage out = new BufferedImage(img.getWidth(null), img.getHeight(null),
 				BufferedImage.TYPE_4BYTE_ABGR);
-		final Graphics2D g2 = (Graphics2D) out.getGraphics();
+		Graphics2D g2 = (Graphics2D) out.getGraphics();
 		g2.drawImage(img, 0, 0, null);
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
 		g2.setColor(tint);
@@ -173,7 +171,7 @@ public class Element extends HashedGameObject {
 	}
 
 	public ImageIcon getSmallIcon() {
-		final Image img = getImage();
+		Image img = getImage();
 		return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * 0.25),
 				(int) (img.getHeight(null) * 0.25), Image.SCALE_SMOOTH));
 	}
@@ -187,7 +185,7 @@ public class Element extends HashedGameObject {
 		StringBuilder name = new StringBuilder(getField("Name"));
 		boolean nameKnown = name.length() >= 1;
 		if (!nameKnown && !getField("code").equals(id) && getField("code").length() >= 4) {
-			final Element other = (Element) parentTable.get(getField("code").substring(0, 4));
+			Element other = (Element) parentTable.get(getField("code").substring(0, 4));
 			if (other != null) {
 				name = new StringBuilder(other.getName());
 				nameKnown = true;
@@ -213,9 +211,9 @@ public class Element extends HashedGameObject {
 			if (!name.toString().contains(" ")) {
 				name = new StringBuilder(WEString.getString(name.toString()));
 			} else {
-				final String[] names = name.toString().split(" ");
+				String[] names = name.toString().split(" ");
 				name = new StringBuilder();
-				for (final String subName : names) {
+				for (String subName : names) {
 					if (name.length() > 0) {
 						name.append(" ");
 					}
@@ -253,7 +251,7 @@ public class Element extends HashedGameObject {
 		return name.toString();
 	}
 
-	public void addParent(final String parentId) {
+	public void addParent(String parentId) {
 		String parentField = getField("Parents");
 		if (!parentField.contains(parentId)) {
 			parentField = parentField + "," + parentId;
@@ -261,7 +259,7 @@ public class Element extends HashedGameObject {
 		}
 	}
 
-	public void addChild(final String parentId) {
+	public void addChild(String parentId) {
 		String parentField = getField("Children");
 		if (!parentField.contains(parentId)) {
 			parentField = parentField + "," + parentId;
@@ -269,7 +267,7 @@ public class Element extends HashedGameObject {
 		}
 	}
 
-	public void addRequiredBy(final String parentId) {
+	public void addRequiredBy(String parentId) {
 		String parentField = getField("RequiredBy");
 		if (!parentField.contains(parentId)) {
 			parentField = parentField + "," + parentId;
@@ -277,7 +275,7 @@ public class Element extends HashedGameObject {
 		}
 	}
 
-	public void addResearches(final String parentId) {
+	public void addResearches(String parentId) {
 		String parentField = getField("Researches");
 		if (!parentField.contains(parentId)) {
 			parentField = parentField + "," + parentId;

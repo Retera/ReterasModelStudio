@@ -197,10 +197,10 @@ public class TwiAiSceneParser {
 			for (Bone bone : boneWeightMap.keySet()) {
 				gv.setSkinBone(bone, (short) (boneWeightMap.get(bone) * 255), j);
 				j++;
-				skinBoneList.add(new GeosetVertex.SkinBone((short) (boneWeightMap.get(bone) * 255), bone));
+//				skinBoneList.add(new GeosetVertex.SkinBone((short) (boneWeightMap.get(bone) * 255), bone));
 			}
 //			System.out.println("skinBoneList.size(): " + skinBoneList.size());
-			geosetVertexSkinBoneMap.put(gv, skinBoneList);
+//			geosetVertexSkinBoneMap.put(gv, skinBoneList);
 //			gv.setSkinBones(boneWeightMap.keySet().toArray(Bone[]::new));
 
 			if (normals != null) {

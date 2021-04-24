@@ -62,26 +62,34 @@ public class Main {
 
             final ProgramPreferences preferences = SaveProfile.get().getPreferences();
             setTheme(preferences);
-            SwingUtilities.invokeLater(() -> tryStartup(startupModelPaths, dataPromptForced));
+	        setupExceptionHandling();
+	        SwingUtilities.invokeLater(() -> tryStartup(startupModelPaths, dataPromptForced));
         } catch (final Throwable th) {
             th.printStackTrace();
-            SwingUtilities.invokeLater(() -> ExceptionPopup.display(th));
-            if (!dataPromptForced) {
-                startRealRMS(null, true);
+	        SwingUtilities.invokeLater(() -> ExceptionPopup.display(th));
+	        if (!dataPromptForced) {
+		        startRealRMS(null, true);
 //                main(new String[] {"-forcedataprompt"});
-            } else {
-                SwingUtilities.invokeLater(() -> startupFailDialog());
-            }
+	        } else {
+		        SwingUtilities.invokeLater(() -> startupFailDialog());
+	        }
         }
     }
 
-    private static void tryStartup(List<String> startupModelPaths, boolean dataPromptForced) {
-        try {
-            final List<DataSourceDescriptor> dataSources = SaveProfile.get().getDataSources();
+	private static void setupExceptionHandling() {
+		SwingUtilities.invokeLater(() -> Thread.currentThread().setUncaughtExceptionHandler((thread, exception) -> {
+			exception.printStackTrace();
+			ExceptionPopup.display(exception);
+		}));
+	}
 
-            if ((dataSources == null) || dataPromptForced) {
-                if (!showDataSourceChooser(dataSources)) return;
-            }
+	private static void tryStartup(List<String> startupModelPaths, boolean dataPromptForced) {
+		try {
+			final List<DataSourceDescriptor> dataSources = SaveProfile.get().getDataSources();
+
+			if ((dataSources == null) || dataPromptForced) {
+				if (!showDataSourceChooser(dataSources)) return;
+			}
 
 //                    JPopupMenu.setDefaultLightWeightPopupEnabled(false);
             MainFrame.create(startupModelPaths);

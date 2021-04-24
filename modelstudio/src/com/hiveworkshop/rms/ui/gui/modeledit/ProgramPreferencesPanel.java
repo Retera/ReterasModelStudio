@@ -68,13 +68,6 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		allowLoadingNonBlpTextures.setToolTipText("Needed for opening PNGs with standard File Open");
 		generalPrefsPanel.add(allowLoadingNonBlpTextures, "wrap");
 
-		final JCheckBox limitIconSize = new JCheckBox();
-		limitIconSize.addActionListener(e -> pref.setSmallIcons(limitIconSize.isSelected()));
-		limitIconSize.setSelected(pref.isSmallIcons());
-		generalPrefsPanel.add(new JLabel("Use Small Portraits Icons"));
-		limitIconSize.setToolTipText("Limit portrait size to 32px in parts of the ui.");
-		generalPrefsPanel.add(limitIconSize, "wrap");
-
 //		generalPrefsPanel.add(new JLabel("Render Particle Emitters:"), "cell 0 7");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
