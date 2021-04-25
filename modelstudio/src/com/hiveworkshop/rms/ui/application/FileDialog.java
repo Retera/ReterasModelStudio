@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.ui.util.ExtFilter;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -19,7 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.List;
 
 public class FileDialog {
     public static final int OPEN_FILE = 0;
@@ -37,36 +38,27 @@ public class FileDialog {
     private ModelPanel modelPanel;
     private JComponent parent;
     private final JFileChooser fileChooser;
-    private List<FileNameExtensionFilter> openFilesExtensions;
-    private List<FileNameExtensionFilter> openModelExtensions;
-    private List<FileNameExtensionFilter> saveModelExtensions;
-    private List<FileNameExtensionFilter> savableExtensions;
-    private List<FileNameExtensionFilter> textureExtensions;
-    //    private Set<String> acceptedExtensions;
-    private Set<String> savableModelExtensions;
-    private Set<String> savableTextureExtensions;
-    private String defaultModelExtension = ".mdx";
-    private String defaultTextureExtension = ".png";
+    private final ExtFilter extFilter;
 
     public FileDialog(MainPanel mainPanel) {
         this.mainPanel = mainPanel;
         this.fileChooser = getFileChooser();
         this.fileChooser.setAcceptAllFileFilterUsed(false);
-        fillExtensionLists();
+        extFilter = new ExtFilter();
     }
 
     public FileDialog(ModelPanel modelPanel) {
         this.modelPanel = modelPanel;
         this.fileChooser = getFileChooser();
         this.fileChooser.setAcceptAllFileFilterUsed(false);
-        fillExtensionLists();
+        extFilter = new ExtFilter();
     }
 
     public FileDialog(JComponent parent) {
         this.parent = parent;
         this.fileChooser = getFileChooser();
         this.fileChooser.setAcceptAllFileFilterUsed(false);
-        fillExtensionLists();
+        extFilter = new ExtFilter();
     }
 
     public static void setCurrentPath(File modelFile) {
@@ -97,37 +89,23 @@ public class FileDialog {
 
     private void setFilter(int type) {
         switch (type) {
-            case OPEN_FILE -> setFilter(openFilesExtensions);
-            case OPEN_MODEL -> setFilter(openModelExtensions);
-            case SAVE_MODEL, OPEN_WC_MODEL -> setFilter(saveModelExtensions);
-            case OPEN_TEXTURE, SAVE_TEXTURE -> setFilter(textureExtensions);
-            case SAVE -> setFilter(savableExtensions);
+            case OPEN_FILE -> setFilter(extFilter.getOpenFilesExtensions());
+            case OPEN_MODEL -> setFilter(extFilter.getOpenModelExtensions());
+            case SAVE_MODEL, OPEN_WC_MODEL -> setFilter(extFilter.getSaveModelExtensions());
+            case OPEN_TEXTURE, SAVE_TEXTURE -> setFilter(extFilter.getTextureExtensions());
+            case SAVE -> setFilter(extFilter.getSavableExtensions());
         }
     }
 
     private void setFilter(List<FileNameExtensionFilter> filters) {
         fileChooser.resetChoosableFileFilters();
-//        acceptedExtensions = new HashSet<>();
         for (FileNameExtensionFilter filter : filters) {
             fileChooser.addChoosableFileFilter(filter);
-//            acceptedExtensions.addAll(Arrays.asList(filter.getExtensions()));
-        }
-    }
-
-    private void fillExtensionSets() {
-        savableModelExtensions = new HashSet<>();
-        savableTextureExtensions = new HashSet<>();
-        for (FileNameExtensionFilter filter : saveModelExtensions) {
-            savableModelExtensions.addAll(Arrays.asList(filter.getExtensions()));
-        }
-        for (FileNameExtensionFilter filter : textureExtensions) {
-            savableTextureExtensions.addAll(Arrays.asList(filter.getExtensions()));
         }
     }
 
     public static String getPath() {
         return profile.getPath();
-//        return mainPanel.profile.getPath();
     }
 
     public static File getCurrentFile() {
@@ -135,49 +113,7 @@ public class FileDialog {
     }
 
     public static void setCurrentFile(File file) {
-//        mainPanel.currentFile = file;
         currentFile = file;
-    }
-
-    void fillExtensionLists() {
-        // TODO make a class for extention handeling that builds filters from a map(s?) with <extension, [image/model, isWC3, (loadable), savable]>
-        FileNameExtensionFilter OpenFiles = new FileNameExtensionFilter("Supported Files (*.mdx;*.mdl;*.blp;*.dds;*.tga;*.png;*.bmp;*.jpg;*.jpeg;*.obj,*.fbx)", "mdx", "mdl", "blp", "dds", "tga", "png", "bmp", "jpg", "jpeg", "obj", "fbx");
-        FileNameExtensionFilter SaveFiles = new FileNameExtensionFilter("Supported Files (*.mdx;*.mdl;*.blp;*.dds;*.tga;*.png)", "mdx", "mdl", "blp", "dds", "tga", "png");
-        FileNameExtensionFilter Image = new FileNameExtensionFilter("Supported Image Files (*.blp;*.dds;*.tga;*.png)", "blp", "dds", "tga", "png");
-        FileNameExtensionFilter OpenModel = new FileNameExtensionFilter("Supported Model Files (*.mdx;*.mdl;*.obj,*.fbx)", "mdx", "mdl", "obj", "fbx");
-        FileNameExtensionFilter WcModel = new FileNameExtensionFilter("Warcraft III Models (*.mdx;*.mdl)", "mdx", "mdl");
-        FileNameExtensionFilter WcFiles = new FileNameExtensionFilter("Warcraft III Files (*.mdx;*.mdl;*.blp;*.dds;*.tga)", "mdx", "mdl", "blp", "dds", "tga");
-        FileNameExtensionFilter BLP = new FileNameExtensionFilter("Warcraft III BLP Image (*.blp)", "blp");
-        FileNameExtensionFilter DDS = new FileNameExtensionFilter("DDS Image (*.dds)", "dds");
-        FileNameExtensionFilter TGA = new FileNameExtensionFilter("TGA Image (*.tga)", "tga");
-        FileNameExtensionFilter PNG = new FileNameExtensionFilter("PNG Image (*.png)", "png");
-        FileNameExtensionFilter JPG = new FileNameExtensionFilter("JPG Image (*.jpg;*.jpeg)", "jpg", "jpeg");
-        FileNameExtensionFilter BMP = new FileNameExtensionFilter("BMP Image (*.bmp)", "bmp");
-        FileNameExtensionFilter MDL = new FileNameExtensionFilter("Warcraft III Text Model (*.mdl)", "mdl");
-        FileNameExtensionFilter MDX = new FileNameExtensionFilter("Warcraft III Binary Model (*.mdx)", "mdx");
-        FileNameExtensionFilter OBJ = new FileNameExtensionFilter("Wavefront OBJ Model (*.obj)", "obj");
-        FileNameExtensionFilter FBX = new FileNameExtensionFilter("Autodesk FBX Model (*.fbx)", "fbx");
-
-
-        textureExtensions = new ArrayList<>(Arrays.asList(Image, BLP, DDS, TGA, PNG, JPG, BMP));
-
-        saveModelExtensions = new ArrayList<>(Arrays.asList(WcModel, MDX, MDL));
-
-        savableExtensions = new ArrayList<>(Arrays.asList(SaveFiles, WcModel, Image, MDX, MDL, BLP, DDS, TGA, PNG, JPG, BMP));
-
-        openModelExtensions = new ArrayList<>(Arrays.asList(OpenModel, WcFiles, WcModel, MDX, MDL, OBJ, FBX));
-
-        openFilesExtensions = new ArrayList<>(Arrays.asList(OpenFiles, WcFiles, WcModel, MDX, MDL, BLP, Image, DDS, TGA, PNG, OBJ, FBX));
-
-//        fillExtensionSets();
-        savableModelExtensions = new HashSet<>();
-        savableTextureExtensions = new HashSet<>();
-        for (FileNameExtensionFilter filter : saveModelExtensions) {
-            savableModelExtensions.addAll(Arrays.asList(filter.getExtensions()));
-        }
-        for (FileNameExtensionFilter filter : textureExtensions) {
-            savableTextureExtensions.addAll(Arrays.asList(filter.getExtensions()));
-        }
     }
 
     // Creates an overwrite-prompt without closing the fileChooser dialog,
@@ -218,9 +154,9 @@ public class FileDialog {
 
     public void exportTexture(final BufferedImage bufferedImage, String fileName) {
         setCurrentDirectory(getModel());
+        setFilter(SAVE_TEXTURE);
         File selectedFile = new File(fileChooser.getCurrentDirectory(), fileName);
         fileChooser.setSelectedFile(selectedFile);
-//        new ArrayList<>(mainPanel.currentModelPanel().getModelEditorManager().getSelectionView().getSelectedFaces()).get(0).getGeoset().getMaterial().getBufferedImage(mainPanel.currentMDL().getWrappedDataSource())
         onClickSaveAs(null, bufferedImage, SAVE_TEXTURE, false);
     }
 
@@ -240,7 +176,6 @@ public class FileDialog {
                 bufferedImage = model.getMaterial(0).getBufferedImage(getModel().getWrappedDataSource());
             }
         }
-//        new ArrayList<>(mainPanel.currentModelPanel().getModelEditorManager().getSelectionView().getSelectedFaces()).get(0).getGeoset().getMaterial().getBufferedImage(mainPanel.currentMDL().getWrappedDataSource())
         onClickSaveAs(model, bufferedImage, operationType, updateCurrent);
     }
 
@@ -271,10 +206,9 @@ public class FileDialog {
                         file = new File(absolutePath);
                     }
                     setCurrentPath(file);
-
-                    if (savableModelExtensions.contains(ext)) {
+                    if (extFilter.isSavableModelExt(ext)) {
                         saveModel(model, file, ext, updateCurrent);
-                    } else if (savableTextureExtensions.contains(ext) && bufferedImage != null) {
+                    } else if (extFilter.isSavableTextureExt(ext) && bufferedImage != null) {
                         saveTexture(bufferedImage, file, ext);
                     }
                 } else {
@@ -351,7 +285,6 @@ public class FileDialog {
     public void exportAnimatedFramePNG() {
         if (getModelPanel() != null) {
             final BufferedImage fBufferedImage = getModelPanel().getPerspArea().getViewport().getBufferedImage();
-//            final BufferedImage fBufferedImage = mainPanel.currentModelPanel().getAnimationViewer().getBufferedImage();
             if (fBufferedImage != null) {
                 onClickSaveAs(null, fBufferedImage, SAVE_TEXTURE, false);
             }
@@ -422,12 +355,6 @@ public class FileDialog {
                     String extension = getExtension(modelFile);
                     saveModel(model, modelFile, extension, true);
                 }
-//                String extention =  model.getFile().getName().split(".+(?=\\..+)")[1];
-//
-//                MdxUtils.saveMdx(model, modelFile);
-//                mainPanel.profile.setPath(modelFile.getParent());
-                // currentMDLDisp().resetBeenSaved();
-//                SaveProfile.get().addRecent(mainPanel.currentFile.getPath());
                 // TODO reset been saved
             } else {
                 onClickSaveAs();
@@ -470,14 +397,13 @@ public class FileDialog {
                     file = new File(absolutePath);
                 }
                 setCurrentPath(file);
-
-                if (savableModelExtensions.contains(ext)) {
+                if (extFilter.isSavableModelExt(ext)) {
                     try {
                         model = MdxUtils.loadEditable(file);
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }
-                } else if (savableTextureExtensions.contains(ext)) {
+                } else if (extFilter.isSavableTextureExt(ext)) {
                     int version = ext.equals("dds") ? 1000 : 800;
                     model = MPQBrowserView.getImagePlaneModel(file, version);
                 }

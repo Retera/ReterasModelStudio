@@ -494,6 +494,11 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 
 			addLamp(0.2f, -100.0f, 100.5f, 0.5f, GL_LIGHT1);
 
+			if (programPreferences != null && programPreferences.showPerspectiveGrid()) {
+				paintGridFloor();
+			}
+
+
 			for (final Geoset geo : modelView.getModel().getGeosets()) {
 				processMesh(geo, isHD(geo, formatVersion));
 			}
@@ -510,9 +515,9 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 				if (programPreferences.getRenderParticles()) {
 					renderParticles();
 				}
-				if (programPreferences.showPerspectiveGrid()) {
-					paintGridFloor();
-				}
+//				if (programPreferences.showPerspectiveGrid()) {
+//					paintGridFloor();
+//				}
 			}
 
 			if (autoRepainting) {
