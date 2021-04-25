@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.util;
 
+import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
@@ -38,7 +39,7 @@ public class ExceptionPopup {
 		jScrollPane.setPreferredSize(ScreenInfo.getSmallWindow());
 		jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-		JOptionPane.showMessageDialog(null, jScrollPane, "Warning", JOptionPane.WARNING_MESSAGE, null);
+		JOptionPane.showMessageDialog(null, jScrollPane, "Warning (" + MainFrame.getVersion() + ")", JOptionPane.WARNING_MESSAGE, null);
 	}
 
 
@@ -87,7 +88,7 @@ public class ExceptionPopup {
 			jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 			clearStringsToShow();
-			JOptionPane.showMessageDialog(null, infoPanel, "Warning", JOptionPane.WARNING_MESSAGE, null);
+			JOptionPane.showMessageDialog(null, infoPanel, "Warning (" + MainFrame.getVersion() + ")", JOptionPane.WARNING_MESSAGE, null);
 
 			clearFirstException();
 		}

@@ -116,7 +116,7 @@ public class Main {
         final DataSourceChooserPanel dataSourceChooserPanel = new DataSourceChooserPanel(dataSources);
 
         int opt = JOptionPane.showConfirmDialog(null, dataSourceChooserPanel,
-                "Retera Model Studio: Setup", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                "Retera Model Studio " + MainFrame.getVersion() + ": Setup", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (opt == JOptionPane.OK_OPTION) {
             SaveProfile.get().setDataSources(dataSourceChooserPanel.getDataSourceDescriptors());
@@ -152,6 +152,7 @@ public class Main {
                             "\nRetera Model Studio just fine for everything else.",
                     "Error", JOptionPane.ERROR_MESSAGE);
             ExceptionPopup.display(e);
+            e.printStackTrace();
         }
     }
 
@@ -204,6 +205,7 @@ public class Main {
             UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
         } catch (final Exception exc) {
             setSystemLookAndFeel();
+            exc.printStackTrace();
         }
     }
 
