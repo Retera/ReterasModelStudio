@@ -630,8 +630,8 @@ public class DataSourceChooserPanel extends JPanel {
 				}
 			}
 		} catch (final Exception e1) {
-			ExceptionPopup.display(e1);
 			e1.printStackTrace();
+			ExceptionPopup.display(e1);
 		}
 	}
 
@@ -703,8 +703,8 @@ public class DataSourceChooserPanel extends JPanel {
 				}
 			}
 		} catch (final Exception e1) {
-			ExceptionPopup.display(e1);
 			e1.printStackTrace();
+			ExceptionPopup.display(e1);
 		}
 	}
 
