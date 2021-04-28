@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit.cutpaste;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorNotifier;
@@ -67,7 +66,7 @@ public class ViewportTransferHandler extends TransferHandler {
 	}
 
 	private void pasteModelIntoViewport(EditableModel pastedModel, Viewport viewport, Point dropPoint, ModelStructureChangeListener modelStructureChangeListener) {
-		ModelViewManager pastedModelView = new ModelViewManager(pastedModel);
+		ModelView pastedModelView = new ModelView(pastedModel);
 		for (IdObject object : pastedModel.getIdObjects()) {
 			pastedModelView.makeIdObjectVisible(object);
 		}

@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
@@ -19,7 +19,7 @@ import java.util.Map;
 
 
 public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<GeosetAnim> {
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final Map<GeosetAnim, ComponentGeosetMaterialPanel> animPanels;
@@ -31,7 +31,7 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 	GeosetAnim geosetAnim;
 
 
-	public ComponentGeosetAnimPanel(final ModelViewManager modelViewManager,
+	public ComponentGeosetAnimPanel(final ModelView modelViewManager,
 	                                final UndoActionListener undoActionListener,
 	                                final ModelStructureChangeListener modelStructureChangeListener) {
 		this.undoActionListener = undoActionListener;

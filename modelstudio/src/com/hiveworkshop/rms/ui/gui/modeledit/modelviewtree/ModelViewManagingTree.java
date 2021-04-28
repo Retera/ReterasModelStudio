@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
@@ -21,7 +21,7 @@ import java.awt.event.MouseMotionListener;
 import java.util.*;
 
 public final class ModelViewManagingTree extends JCheckBoxTree {
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	JCheckBoxTreeNode root;
 	JCheckBoxTreeNode meshes;
 	JCheckBoxTreeNode nodes;
@@ -29,7 +29,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 	Map<IdObject, JCheckBoxTreeNode> nodeToTreeElement = new HashMap<>();
 
 	public ModelViewManagingTree(
-			final ModelViewManager modelViewManager,
+			final ModelView modelViewManager,
 			final UndoActionListener undoActionListener,
 			final ModelEditorManager modelEditorManager) {
 		super();
@@ -58,7 +58,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		return this;
 	}
 
-	private DefaultTreeModel buildTreeModel(ModelViewManager modelViewManager) {
+	private DefaultTreeModel buildTreeModel(ModelView modelViewManager) {
 		meshes.removeAllChildren();
 		nodes.removeAllChildren();
 		cameras.removeAllChildren();

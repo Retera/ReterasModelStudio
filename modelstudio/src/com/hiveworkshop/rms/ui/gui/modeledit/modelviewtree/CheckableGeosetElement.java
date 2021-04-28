@@ -1,16 +1,16 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 
 public class CheckableGeosetElement extends CheckableDisplayElement<Geoset> {
-	public CheckableGeosetElement(ModelViewManager modelViewManager, Geoset item) {
+	public CheckableGeosetElement(ModelView modelViewManager, Geoset item) {
 		super(modelViewManager, item);
 	}
 
 	@Override
-	protected void setChecked(Geoset item, ModelViewManager modelViewManager, boolean checked) {
+	protected void setChecked(Geoset item, ModelView modelViewManager, boolean checked) {
 		if (checked) {
 			modelViewManager.makeGeosetEditable(item);
 		} else {
@@ -19,7 +19,7 @@ public class CheckableGeosetElement extends CheckableDisplayElement<Geoset> {
 	}
 
 	@Override
-	protected String getName(Geoset item, ModelViewManager modelViewManager) {
+	protected String getName(Geoset item, ModelView modelViewManager) {
 		if ((item.getLevelOfDetailName() != null) && (item.getLevelOfDetailName().length() > 0)) {
 			return item.getLevelOfDetailName();
 		}

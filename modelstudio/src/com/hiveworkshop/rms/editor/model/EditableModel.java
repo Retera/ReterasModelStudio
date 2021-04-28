@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag.Entry;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.model.visitor.*;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
@@ -11,15 +10,10 @@ import com.hiveworkshop.rms.filesystem.sources.FolderDataSource;
 import com.hiveworkshop.rms.parsers.mdlx.*;
 import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
-import jassimp.AiMaterial;
-import jassimp.AiMesh;
-import jassimp.AiScene;
 
 import javax.swing.*;
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
@@ -283,56 +277,6 @@ public class EditableModel implements Named {
 		doPostRead(); // fixes all the things
 	}
 
-	public EditableModel(final AiScene scene) {
-		System.out.println("IMPLEMENT EditableModel(AiScene)");
-
-		modelIdObjects = new ModelIdObjects();
-		final Map<Material, Vec3> materialColors = new HashMap<>();
-
-		for (final AiMaterial material : scene.getMaterials()) {
-			final Material editableMaterial = new Material(material, this);
-
-			add(editableMaterial);
-
-			final AiMaterial.Property prop = material.getProperty("$raw.Diffuse");
-			if (prop != null) {
-				final ByteBuffer buffer = (ByteBuffer) prop.getData();
-				final float r = buffer.getFloat();
-				final float g = buffer.getFloat();
-				final float b = buffer.getFloat();
-
-				if (r != 1.0f || g != 1.0f || b != 1.0f) {
-					// Alpha?
-					materialColors.put(editableMaterial, new Vec3(r, g, b));
-				}
-			}
-		}
-
-		for (final AiMesh mesh : scene.getMeshes()) {
-			// For now only handle triangular meshes.
-			// Note that this doesn't mean polygons are not supported.
-			// This is because the meshes are triangularized by Assimp.
-			// Rather, this stops line meshes from being imported.
-			if (mesh.isPureTriangle()) {
-				final Geoset geoset = new Geoset(mesh, this);
-
-				add(geoset);
-
-				// If the material used by this geoset had a diffuse color, add a geoset animation with that color.
-				final Material material = geoset.getMaterial();
-
-				if (materialColors.containsKey(material)) {
-					final GeosetAnim geosetAnim = new GeosetAnim(geoset);
-					geosetAnim.setStaticColor(materialColors.get(material));
-					add(geosetAnim);
-					geoset.geosetAnim = geosetAnim;
-				}
-			}
-		}
-
-		doPostRead();
-	}
-
 	public static EditableModel clone(final EditableModel what, final String newName) {
 		final EditableModel newModel = new EditableModel(what);
 
@@ -534,13 +478,13 @@ public class EditableModel implements Named {
 	 *
 	 * Might leave behind nice things like global sequences if the code works out.
 	 */
-	public void deleteAllAnimation(final boolean clearUnusedNodes) {
+	public static void deleteAllAnimation(EditableModel model, final boolean clearUnusedNodes) {
 		if (clearUnusedNodes) {
 			// check the emitters
-			final List<ParticleEmitter> particleEmitters = getParticleEmitters();
-			final List<ParticleEmitter2> particleEmitters2 = getParticleEmitter2s();
-			final List<RibbonEmitter> ribbonEmitters = getRibbonEmitters();
-			final List<ParticleEmitterPopcorn> popcornEmitters = getPopcornEmitters();
+			final List<ParticleEmitter> particleEmitters = model.getParticleEmitters();
+			final List<ParticleEmitter2> particleEmitters2 = model.getParticleEmitter2s();
+			final List<RibbonEmitter> ribbonEmitters = model.getRibbonEmitters();
+			final List<ParticleEmitterPopcorn> popcornEmitters = model.getPopcornEmitters();
 			final List<IdObject> emitters = new ArrayList<>();
 			emitters.addAll(particleEmitters2);
 			emitters.addAll(particleEmitters);
@@ -552,7 +496,7 @@ public class EditableModel implements Named {
 				int talliesAgainst = 0;
 //				final AnimFlag<?> visibility = ((VisibilitySource) emitter).getVisibilityFlag();
 				final AnimFlag<?> visibility = emitter.getVisibilityFlag();
-				for (final Animation anim : anims) {
+				for (final Animation anim : model.anims) {
 					final Integer animStartTime = anim.getStart();
 					final Number visible = (Number) visibility.valueAt(animStartTime);
 					if ((visible == null) || (visible.floatValue() > 0)) {
@@ -562,110 +506,25 @@ public class EditableModel implements Named {
 					}
 				}
 				if (talliesAgainst > talliesFor) {
-					remove(emitter);
+					model.remove(emitter);
 				}
 			}
 		}
-		final List<AnimFlag<?>> flags = getAllAnimFlags();
+		final List<AnimFlag<?>> flags = model.getAllAnimFlags();
 //		final List<EventObject> evts = (List<EventObject>) sortedIdObjects(EventObject.class);
-		final List<EventObject> evts = modelIdObjects.events;
-		for (final Animation anim : anims) {
+		final List<EventObject> evts = model.modelIdObjects.events;
+		for (final Animation anim : model.anims) {
 			anim.clearData(flags, evts);
 		}
 		if (clearUnusedNodes) {
 			for (final EventObject e : evts) {
 				if (e.size() <= 0) {
-					modelIdObjects.removeIdObject(e);
+					model.modelIdObjects.removeIdObject(e);
 //					idObjects.remove(e);
 				}
 			}
 		}
-		clearAnimations();
-	}
-
-	public List<Animation> addAnimationsFrom(EditableModel other, final List<Animation> anims) {
-		// this process destroys the "other" model inside memory, so destroy
-		// a copy instead
-		other = EditableModel.deepClone(other, "animation source file");
-
-		final List<AnimFlag<?>> flags = getAllAnimFlags();
-//		final List<EventObject> eventObjs = (List<EventObject>) sortedIdObjects(EventObject.class);
-		final List<EventObject> eventObjs = getEvents();
-
-		final List<AnimFlag<?>> othersFlags = other.getAllAnimFlags();
-//		final List<EventObject> othersEventObjs = (List<EventObject>) other.sortedIdObjects(EventObject.class);
-		final List<EventObject> othersEventObjs = other.getEvents();
-
-		final List<Animation> newAnimations = new ArrayList<>();
-
-		// ------ Duplicate the time track in the other model -------------
-		//
-		// On this new, separate time track, we want to be able to
-		// the information specific to each node about how it will
-		// move if it gets translated into or onto the current model
-
-		final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
-		for (final AnimFlag<?> af : othersFlags) {
-			if (!af.hasGlobalSeq) {
-				newImpFlags.add(AnimFlag.buildEmptyFrom(af));
-			} else {
-				newImpFlags.add(AnimFlag.createFromAnimFlag(af));
-			}
-		}
-		final List<EventObject> newImpEventObjs = new ArrayList<>();
-		for (final Object e : othersEventObjs) {
-			newImpEventObjs.add(EventObject.buildEmptyFrom((EventObject) e));
-		}
-
-		// Fill the newly created time track with the exact same data, but shifted forward
-		// relative to wherever the current model's last animation starts
-		for (final Animation anim : anims) {
-			final int animTrackEnd = animTrackEnd();
-			final int newStart = animTrackEnd + 300;
-			final int newEnd = newStart + anim.length();
-			final Animation newAnim = new Animation(anim);
-			// clone the animation from the other model
-			newAnim.copyToInterval(newStart, newEnd, othersFlags, othersEventObjs, newImpFlags, newImpEventObjs);
-			newAnim.setInterval(newStart, newEnd);
-			add(newAnim); // add the new animation to this model
-			newAnimations.add(newAnim);
-		}
-
-		// destroy the other model's animations, filling them in with the new stuff
-		for (final AnimFlag<?> af : othersFlags) {
-			af.setValuesTo(newImpFlags.get(othersFlags.indexOf(af)));
-		}
-		for (final Object e : othersEventObjs) {
-			((EventObject) e).setValuesTo(newImpEventObjs.get(othersEventObjs.indexOf(e)));
-		}
-
-		// Now, map the bones in the other model onto the bones in the current model
-		final List<Bone> leftBehind = new ArrayList<>();
-		// the bones that don't find matches in current model
-//		for (final IdObject object : other.idObjects) {
-		for (final IdObject object : other.getBones()) {
-			if (object instanceof Bone) {
-				// the bone from the other model
-				final Bone bone = (Bone) object;
-				// the object in this model of similar name
-				final Object localObject = getObject(bone.getName());
-				if ((localObject instanceof Bone)) {
-					final Bone localBone = (Bone) localObject;
-					localBone.copyMotionFrom(bone);
-					// if it's a match, take the data
-				} else {
-					leftBehind.add(bone);
-				}
-			}
-		}
-		for (final Bone bone : leftBehind) {
-			if (bone.animates()) {
-				add(bone);
-			}
-		}
-
-		return newAnimations;
-		// i think we're done????
+		model.clearAnimations();
 	}
 
 	public void copyVisibility(final Animation visibilitySource, final Animation target) {
@@ -1343,52 +1202,6 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public void visit(final MeshVisitor renderer) {
-		int geosetId = 0;
-		for (final Geoset geoset : geosets) {
-			final GeosetVisitor geosetRenderer = renderer.beginGeoset(geosetId++, geoset.getMaterial(), geoset.getGeosetAnim());
-			visitVert(geoset, geosetRenderer, isHd(geoset));
-			geosetRenderer.geosetFinished();
-		}
-	}
-
-	public boolean isHd(Geoset geoset) {
-		return (ModelUtils.isTangentAndSkinSupported(formatVersion))
-				&& (geoset.getVertices().size() > 0)
-				&& (geoset.getVertex(0).getSkinBoneBones() != null);
-	}
-
-	private void visitVert(Geoset geoset, GeosetVisitor geosetRenderer, boolean isHD) {
-		for (final Triangle triangle : geoset.getTriangles()) {
-			final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
-			for (final GeosetVertex vertex : triangle.getVerts()) {
-				final VertexVisitor vertexRenderer;
-				// TODO redesign for nullable normals
-				Vec3 normal = vertex.getNormal() == null ? new Vec3(0, 0, 0) : vertex.getNormal();
-				if (isHD) {
-					vertexRenderer = triangleRenderer.hdVertex(vertex, normal, vertex.getSkinBoneBones(), vertex.getSkinBoneWeights());
-				} else {
-					vertexRenderer = triangleRenderer.vertex(vertex, normal, vertex.getBoneAttachments());
-				}
-				for (final Vec2 tvert : vertex.getTverts()) {
-					vertexRenderer.textureCoords(tvert.x, tvert.y);
-				}
-				vertexRenderer.vertexFinished();
-			}
-			triangleRenderer.triangleFinished();
-		}
-	}
-
-	public void render(final ModelVisitor renderer) {
-		visit(renderer);
-//		for (final IdObject object : idObjects) {
-		for (final IdObject object : modelIdObjects.allObjects) {
-			object.apply(renderer);
-		}
-		for (final Camera camera : cameras) {
-			renderer.camera(camera);
-		}
-	}
 
 	public void simplifyKeyframes() {
 		final EditableModel currentMDL = this;

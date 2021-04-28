@@ -1,18 +1,18 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection;
 
-import java.util.List;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+
+import java.util.List;
 
 public final class HideGeosetsAction implements UndoAction {
 	private final List<Geoset> geosets;
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final Runnable refreshGUIRunnable;
 
-	public HideGeosetsAction(final List<Geoset> geosets, final ModelViewManager modelViewManager,
-			final Runnable refreshGUIRunnable) {
+	public HideGeosetsAction(final List<Geoset> geosets, final ModelView modelViewManager,
+	                         final Runnable refreshGUIRunnable) {
 		this.geosets = geosets;
 		this.modelViewManager = modelViewManager;
 		this.refreshGUIRunnable = refreshGUIRunnable;

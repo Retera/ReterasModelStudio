@@ -1,16 +1,16 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 
 public class CheckableNodeElement extends CheckableDisplayElement<IdObject> {
-	public CheckableNodeElement(ModelViewManager modelViewManager, IdObject item) {
+	public CheckableNodeElement(ModelView modelViewManager, IdObject item) {
 		super(modelViewManager, item);
 	}
 
 	@Override
-	protected void setChecked(IdObject item, ModelViewManager modelViewManager, boolean checked) {
+	protected void setChecked(IdObject item, ModelView modelViewManager, boolean checked) {
 		if (checked) {
 			modelViewManager.makeIdObjectVisible(item);
 		} else {
@@ -19,7 +19,7 @@ public class CheckableNodeElement extends CheckableDisplayElement<IdObject> {
 	}
 
 	@Override
-	protected String getName(IdObject item, ModelViewManager modelViewManager) {
+	protected String getName(IdObject item, ModelView modelViewManager) {
 		return item.getClass().getSimpleName() + " \"" + item.getName() + "\"";
 	}
 

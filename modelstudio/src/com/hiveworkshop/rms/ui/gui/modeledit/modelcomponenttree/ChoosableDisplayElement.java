@@ -1,22 +1,22 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree;
 
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 
 import javax.swing.*;
 import java.util.Objects;
 
 abstract class ChooseableDisplayElement<T> {
-	protected final ModelViewManager modelViewManager;
+	protected final ModelView modelViewManager;
 	private final int id;
 	protected final T item;
 	private ImageIcon icon;
 
-	public ChooseableDisplayElement(final ImageIcon icon, final ModelViewManager modelViewManager, final T item) {
+	public ChooseableDisplayElement(final ImageIcon icon, final ModelView modelViewManager, final T item) {
 		this(icon, modelViewManager, item, -1);
 	}
 
-	public ChooseableDisplayElement(final ImageIcon icon, final ModelViewManager modelViewManager, final T item, final int id) {
+	public ChooseableDisplayElement(final ImageIcon icon, final ModelView modelViewManager, final T item, final int id) {
 		this.modelViewManager = modelViewManager;
 		this.id = id;
 		this.item = item;
@@ -47,7 +47,7 @@ abstract class ChooseableDisplayElement<T> {
 		return getName(item, modelViewManager);
 	}
 
-	protected abstract String getName(T item, ModelViewManager modelViewManager);
+	protected abstract String getName(T item, ModelView modelViewManager);
 
 	public boolean hasSameItem(final ChooseableDisplayElement<?> other) {
 		return (getClass() == other.getClass())

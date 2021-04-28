@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.model.material;
 
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.material.AddLayerAction;
 import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveMaterialAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -20,7 +20,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 	private static final Color HIGHLIGHT_BUTTON_BACKGROUND_COLOR = new Color(100, 118, 135);
 	private Material material;
 	private UndoActionListener undoActionListener;
-	private ModelViewManager modelViewManager;
+	private ModelView modelViewManager;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private final JPanel layerPanelsHolder;
 	private final Map<String, ComponentLayerPanel> layerPanelMap;
@@ -62,7 +62,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		return addLayerButton;
 	}
 
-	public void setMaterial(final Material material, final ModelViewManager modelViewManager,
+	public void setMaterial(final Material material, final ModelView modelViewManager,
 	                        final UndoActionListener undoActionListener,
 	                        final ModelStructureChangeListener modelStructureChangeListener) {
 		this.material = material;
@@ -85,7 +85,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 	}
 
 
-	private void createLayerPanels(Material material, ModelViewManager modelViewManager, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener, boolean hdShader) {
+	private void createLayerPanels(Material material, ModelView modelViewManager, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener, boolean hdShader) {
 		for (int i = 0; i < material.getLayers().size(); i++) {
 			final Layer layer = material.getLayers().get(i);
 			ComponentLayerPanel panel;

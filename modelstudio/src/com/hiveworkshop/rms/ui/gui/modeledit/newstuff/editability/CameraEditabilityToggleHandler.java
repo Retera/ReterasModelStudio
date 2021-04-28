@@ -1,16 +1,16 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.editability;
 
-import java.util.List;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
+
+import java.util.List;
 
 public class CameraEditabilityToggleHandler implements EditabilityToggleHandler {
 	private final List<Camera> cameras;
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 
-	public CameraEditabilityToggleHandler(final List<Camera> cameras, final ModelViewManager modelViewManager) {
+	public CameraEditabilityToggleHandler(final List<Camera> cameras, final ModelView modelViewManager) {
 		this.cameras = cameras;
 		this.modelViewManager = modelViewManager;
 	}

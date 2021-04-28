@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.browsers.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
@@ -483,7 +482,7 @@ public class ModelOptionPanel extends JPanel {
 	AnimationViewer viewer;
 
 	final EditableModel blank = new EditableModel();
-	final ModelView blankDisp = new ModelViewManager(blank);
+	final ModelView blankDisp = new ModelView(blank);
 
 	private static void addModelsToList(Map<String, NamedList<String>> modelsData, Element unit, String artName, String weStringTypeSuffix) {
 		String filepath = unit.getField(artName);
@@ -577,7 +576,7 @@ public class ModelOptionPanel extends JPanel {
 			final InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
 			final MdlxModel model = MdxUtils.loadMdlx(modelStream);
 			toLoad = new EditableModel(model);
-			modelDisp = new ModelViewManager(toLoad);
+			modelDisp = new ModelView(toLoad);
 		} catch (final Exception exc) {
 			exc.printStackTrace();
 			// bad model!

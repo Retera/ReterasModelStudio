@@ -1,16 +1,16 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 
 public class CheckableCameraElement extends CheckableDisplayElement<Camera> {
-	public CheckableCameraElement(ModelViewManager modelViewManager, Camera item) {
+	public CheckableCameraElement(ModelView modelViewManager, Camera item) {
 		super(modelViewManager, item);
 	}
 
 	@Override
-	protected void setChecked(Camera item, ModelViewManager modelViewManager, boolean checked) {
+	protected void setChecked(Camera item, ModelView modelViewManager, boolean checked) {
 		if (checked) {
 			modelViewManager.makeCameraVisible(item);
 		} else {
@@ -19,7 +19,7 @@ public class CheckableCameraElement extends CheckableDisplayElement<Camera> {
 	}
 
 	@Override
-	protected String getName(Camera item, ModelViewManager modelViewManager) {
+	protected String getName(Camera item, ModelView modelViewManager) {
 		return item.getName();
 	}
 

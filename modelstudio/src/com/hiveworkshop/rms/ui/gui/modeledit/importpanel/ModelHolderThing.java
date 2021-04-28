@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.util.BiMap;
 import com.hiveworkshop.rms.util.IterableListModel;
 
@@ -85,8 +85,8 @@ public class ModelHolderThing {
 	VisibilityShell alwaysVisible = new VisibilityShell(true);
 	VisibilityShell multipleVisible = new VisibilityShell(false).setMultiple();
 
-	public ModelViewManager recModelManager;
-	public ModelViewManager donModelManager;
+	public ModelView recModelManager;
+	public ModelView donModelManager;
 
 
 	public ModelHolderThing(EditableModel receivingModel, EditableModel donatingModel) {
@@ -97,8 +97,8 @@ public class ModelHolderThing {
 		initiateGeosetLists();
 		initObjectLists();
 
-		recModelManager = new ModelViewManager(receivingModel);
-		donModelManager = new ModelViewManager(donatingModel);
+		recModelManager = new ModelView(receivingModel);
+		donModelManager = new ModelView(donatingModel);
 		boneShellRenderer = new BoneShellListCellRenderer(recModelManager, donModelManager);
 	}
 

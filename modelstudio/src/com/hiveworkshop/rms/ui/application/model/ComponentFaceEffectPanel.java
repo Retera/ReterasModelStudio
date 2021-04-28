@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.FaceEffect;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import net.miginfocom.swing.MigLayout;
@@ -12,7 +12,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class ComponentFaceEffectPanel extends JPanel implements ComponentPanel<FaceEffect> {
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	FaceEffect faceEffect;
@@ -21,7 +21,7 @@ public class ComponentFaceEffectPanel extends JPanel implements ComponentPanel<F
 	JTextField effectField;
 
 
-	public ComponentFaceEffectPanel(final ModelViewManager modelViewManager,
+	public ComponentFaceEffectPanel(final ModelView modelViewManager,
 	                                final UndoActionListener undoActionListener,
 	                                final ModelStructureChangeListener modelStructureChangeListener) {
 		this.undoActionListener = undoActionListener;

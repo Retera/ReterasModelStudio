@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag.Entry;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
@@ -220,8 +219,8 @@ public class MDLSnapshot {
 		return height;
 	}
 
-	public static ModelViewManager createDefaultDisplay(final GameObject unit) {
-		final ModelViewManager mdlDisplay;
+	public static ModelView createDefaultDisplay(final GameObject unit) {
+		final ModelView mdlDisplay;
 		final EditableModel model;
 		try {
 			String field = unit.getField("file");
@@ -232,7 +231,7 @@ public class MDLSnapshot {
 			}
 			model = new EditableModel(
 					MdxUtils.loadMdlx(GameDataFileSystem.getDefault().getResourceAsStream(field)));
-			mdlDisplay = new ModelViewManager(model);
+			mdlDisplay = new ModelView(model);
 
 			Animation bestStandAnim = null;
 			for (final Animation anim : model.getAnims()) {

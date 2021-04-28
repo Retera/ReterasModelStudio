@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
@@ -39,7 +38,7 @@ public class MatrixPopup extends JPanel {
 		setLayout(new MigLayout("gap 0", "[grow][][grow]", "[align center][grow][align center]"));
 		this.model = model;
 
-		final ModelView disp = new ModelViewManager(model);
+		final ModelView disp = new ModelView(model);
 		BoneShellListCellRenderer renderer = new BoneShellListCellRenderer(disp, null).setShowClass(false);
 
 		JCheckBox displayParents = new JCheckBox("Display parents", false);

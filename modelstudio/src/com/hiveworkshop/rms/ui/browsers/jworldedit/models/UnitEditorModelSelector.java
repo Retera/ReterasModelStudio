@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
@@ -47,7 +46,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 
 	EditableModel mdl = new EditableModel();
 	// MDL mdl;
-	ModelView modelDisp = new ModelViewManager(mdl);
+	ModelView modelDisp = new ModelView(mdl);
 	PerspDisplayPanel modelPanel;
 	DefaultTableModel tableModel;
 	DefaultMutableTreeNode defaultSelection = null;
@@ -143,7 +142,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 
 			try (InputStream reader = GameDataFileSystem.getDefault().getResourceAsStream(filepath)) {
 				mdl = new EditableModel(MdxUtils.loadMdlx(reader));
-				modelDisp = new ModelViewManager(mdl);
+				modelDisp = new ModelView(mdl);
 				modelPanel.setViewport(modelDisp);
 				modelPanel.setTitle(currentUnit.getName());
 			} catch (final IOException e) {

@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.NameChangeAction;
 import com.hiveworkshop.rms.ui.application.actions.model.ParentChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -22,7 +22,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class ComponentBonePanel extends JPanel implements ComponentPanel<Bone> {
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	JLabel title;
@@ -36,7 +36,7 @@ public class ComponentBonePanel extends JPanel implements ComponentPanel<Bone> {
 	private JLabel pivot;
 
 
-	public ComponentBonePanel(final ModelViewManager modelViewManager,
+	public ComponentBonePanel(final ModelView modelViewManager,
 	                          final UndoActionListener undoActionListener,
 	                          final ModelStructureChangeListener modelStructureChangeListener) {
 		this.undoActionListener = undoActionListener;

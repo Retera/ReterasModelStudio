@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
@@ -53,7 +53,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 	private final ModelEditorViewportActivityManager viewportActivityManager;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelEditorManager modelEditorManager;
-	private final ModelViewManager modelView;
+	private final ModelView modelView;
 	private final UndoManager undoManager;
 	private UVPanel editUVPanel;
 
@@ -108,7 +108,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
-		modelView = new ModelViewManager(input);
+		modelView = new ModelView(input);
 
 		undoManager = new UndoManagerImpl(undoHandler);
 
@@ -339,7 +339,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		return model;
 	}
 
-	public ModelViewManager getModelViewManager() {
+	public ModelView getModelViewManager() {
 		return modelView;
 	}
 

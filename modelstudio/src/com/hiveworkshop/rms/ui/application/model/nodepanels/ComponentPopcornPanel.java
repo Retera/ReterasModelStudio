@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.ParentChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -23,7 +23,7 @@ import java.awt.*;
 
 public class ComponentPopcornPanel extends JPanel implements ComponentPanel<ParticleEmitterPopcorn> {
 
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	//	private final Map<AnimatedNode, ComponentGeosetMaterialPanel> nodePanels;
@@ -49,7 +49,7 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 	ParentChooser parentChooser;
 
 
-	public ComponentPopcornPanel(final ModelViewManager modelViewManager,
+	public ComponentPopcornPanel(final ModelView modelViewManager,
 	                             final UndoActionListener undoActionListener,
 	                             final ModelStructureChangeListener modelStructureChangeListener) {
 		this.undoActionListener = undoActionListener;

@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import net.miginfocom.swing.MigLayout;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geoset> {
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private ComponentGeosetMaterialPanel materialPanel;
@@ -33,7 +33,7 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 	private final JPanel materialPanelHolder;
 
 
-	public ComponentGeosetPanel(final ModelViewManager modelViewManager,
+	public ComponentGeosetPanel(final ModelView modelViewManager,
 	                            final UndoActionListener undoActionListener,
 	                            final ModelStructureChangeListener modelStructureChangeListener) {
 		this.undoActionListener = undoActionListener;
@@ -76,7 +76,7 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 		add(toggleSdHd, "wrap");
 	}
 
-	private void createHDPanel(ModelViewManager modelViewManager) {
+	private void createHDPanel(ModelView modelViewManager) {
 		hdPanel = new JPanel(new MigLayout("fill, ins 0", "[]16[][grow][grow]"));
 
 		hdPanel.add(new JLabel("Name: "));

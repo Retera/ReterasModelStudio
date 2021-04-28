@@ -69,6 +69,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	private final List<ModeButton> selectionModeButtons = new ArrayList<>();
 	private final Map<TVertexEditorActivityDescriptor, ModeButton> typeToButton = new HashMap<>();
 	private final Map<SelectionMode, ModeButton> modeToButton = new HashMap<>();
+	UndoActionListener undoListener;
 	JButton snapButton;
 	JCheckBoxMenuItem wrapImage;
 	ArrayList<ModeButton> buttons = new ArrayList<>();
@@ -128,6 +129,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		ModelPanel modelPanel = mainPanel.currentModelPanel();
 //        ModelStructureChangeListener modelStructureChangeListener = mainPanel.modelStructureChangeListener;
 
+		undoListener = mainPanel.currentModelPanel().getUndoManager();
 		viewportActivityManager = new TVertexEditorViewportActivityManager(new DoNothingTVertexActivity());
 		TVertexEditorChangeNotifier modelEditorChangeNotifier = new TVertexEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
@@ -715,12 +717,15 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	public void setMouseCoordDisplay(double x, double y) {
-		mouseCoordDisplay[0].setText((float) x + "");
-		mouseCoordDisplay[1].setText((float) y + "");
+//		String.format(Locale.US,"", x)
+		mouseCoordDisplay[0].setText(String.format(Locale.US, "%3.4f", x));
+		mouseCoordDisplay[1].setText(String.format(Locale.US, "%3.4f", y));
+//		mouseCoordDisplay[0].setText((float) x + "");
+//		mouseCoordDisplay[1].setText((float) y + "");
 	}
 
 	public void setViewport(ModelPanel dispModel) {
-		vp = new UVViewport(dispModel.getModelViewManager(), this, prefs, viewportActivityManager, this,
+		vp = new UVViewport(dispModel.getModelViewManager(), this, prefs, viewportActivityManager, undoListener, mainPanel, this,
 				modelEditorManager.getModelEditor());
 		add(vp);
 	}

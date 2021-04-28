@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.NameChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -13,7 +13,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class ComponentCameraPanel extends JPanel implements ComponentPanel<Camera> {
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	JLabel title;
@@ -21,7 +21,7 @@ public class ComponentCameraPanel extends JPanel implements ComponentPanel<Camer
 	private Camera camera;
 
 
-	public ComponentCameraPanel(final ModelViewManager modelViewManager,
+	public ComponentCameraPanel(final ModelView modelViewManager,
 	                            final UndoActionListener undoActionListener,
 	                            final ModelStructureChangeListener modelStructureChangeListener) {
 		this.undoActionListener = undoActionListener;

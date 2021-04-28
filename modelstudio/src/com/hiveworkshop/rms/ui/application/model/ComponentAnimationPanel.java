@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.animation.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -22,11 +22,11 @@ public class ComponentAnimationPanel extends JPanel implements ComponentPanel<An
 	private final JCheckBox nonLoopingChooser;
 	private final JButton deleteButton;
 	private Animation animation;
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final UndoActionListener undoListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 
-	public ComponentAnimationPanel(final ModelViewManager modelViewManager, final UndoActionListener undoListener,
+	public ComponentAnimationPanel(final ModelView modelViewManager, final UndoActionListener undoListener,
 	                               final ModelStructureChangeListener modelStructureChangeListener) {
 		this.modelViewManager = modelViewManager;
 		this.undoListener = undoListener;

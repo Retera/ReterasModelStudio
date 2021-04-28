@@ -1,17 +1,17 @@
 package com.hiveworkshop.rms.ui.application.actions.model.material;
 
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 public class AddMaterialAction implements UndoAction {
 	private final Material material;
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final ModelStructureChangeListener structureChangeListener;
 
 	public AddMaterialAction(final Material material,
-	                         final ModelViewManager modelViewManager,
+	                         final ModelView modelViewManager,
 	                         final ModelStructureChangeListener modelStructureChangeListener) {
 		this.material = material;
 		this.material.setShaderString(material.getShaderString());

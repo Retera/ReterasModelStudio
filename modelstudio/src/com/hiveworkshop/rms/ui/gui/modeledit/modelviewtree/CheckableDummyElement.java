@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,12 +13,12 @@ public class CheckableDummyElement extends CheckableDisplayElement<String> {
 
 	//	List<Geoset> tempGeosetList = new ArrayList<>();
 //	List<IdObject> tempIdObjectList = new ArrayList<>();
-	public CheckableDummyElement(final ModelViewManager modelViewManager, final String name) {
+	public CheckableDummyElement(final ModelView modelViewManager, final String name) {
 		super(modelViewManager, name);
 	}
 
 	@Override
-	protected void setChecked(final String item, final ModelViewManager modelViewManager, final boolean checked) {
+	protected void setChecked(final String item, final ModelView modelViewManager, final boolean checked) {
 		System.out.println(item + " set checked: " + checked);
 		if (item.equals("Mesh")) {
 //			updateMeshState(modelViewManager, checked);
@@ -28,7 +28,7 @@ public class CheckableDummyElement extends CheckableDisplayElement<String> {
 		}
 	}
 
-	private void updateNodesState(ModelViewManager modelViewManager, boolean checked) {
+	private void updateNodesState(ModelView modelViewManager, boolean checked) {
 		System.out.println("1 tempIdObjectList: " + tempIdObjectList.size());
 		if (!checked) {
 			tempIdObjectList.addAll(modelViewManager.getEditableIdObjects());
@@ -47,7 +47,7 @@ public class CheckableDummyElement extends CheckableDisplayElement<String> {
 		System.out.println("2 tempIdObjectList: " + tempIdObjectList.size());
 	}
 
-	private void updateMeshState(ModelViewManager modelViewManager, boolean checked) {
+	private void updateMeshState(ModelView modelViewManager, boolean checked) {
 		System.out.println("1 tempGeosetList: " + tempGeosetList.size());
 		if (!checked) {
 			tempGeosetList.addAll(modelViewManager.getEditableGeosets());
@@ -83,7 +83,7 @@ public class CheckableDummyElement extends CheckableDisplayElement<String> {
 	}
 
 	@Override
-	protected String getName(final String item, final ModelViewManager modelViewManager) {
+	protected String getName(final String item, final ModelView modelViewManager) {
 		return item;
 	}
 }

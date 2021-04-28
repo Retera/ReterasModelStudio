@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
@@ -40,7 +40,7 @@ public class ComponentLayerPanel extends JPanel {
 	private JPanel titlePanel;
 	private Layer layer;
 	private Material material;
-	private ModelViewManager modelViewManager;
+	private ModelView modelViewManager;
 
 	private FloatValuePanel fresnelOpacityPanel;
 	private FloatValuePanel fresnelTeamColor;
@@ -51,7 +51,7 @@ public class ComponentLayerPanel extends JPanel {
 	private boolean listenersEnabled = true;
 	DefaultListModel<Bitmap> bitmapListModel;
 
-	public ComponentLayerPanel(Material material, ModelViewManager modelViewManager, int i, boolean hdShader, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
+	public ComponentLayerPanel(Material material, ModelView modelViewManager, int i, boolean hdShader, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
 		setLayout(new MigLayout("fill", "[][][grow]", "[][fill][fill]"));
 		setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 //		setOpaque(true);

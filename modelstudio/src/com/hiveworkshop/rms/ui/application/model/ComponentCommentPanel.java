@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.EditCommentAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -16,11 +16,11 @@ import java.util.List;
 
 public class ComponentCommentPanel extends JPanel implements ComponentPanel<List<String>> {
 	private final JTextPane textPane;
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener changeListener;
 
-	public ComponentCommentPanel(final ModelViewManager modelViewManager,
+	public ComponentCommentPanel(final ModelView modelViewManager,
 	                             final UndoActionListener undoActionListener,
 	                             final ModelStructureChangeListener changeListener) {
 		this.modelViewManager = modelViewManager;

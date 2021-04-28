@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -109,7 +109,7 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 		}
 	}
 
-	private void cloneMaterial(Geoset geoset, ModelViewManager modelViewManager) {
+	private void cloneMaterial(Geoset geoset, ModelView modelViewManager) {
 
 		if (listenersEnabled) {
 			Material material = new Material(geoset.getMaterial());
@@ -123,7 +123,7 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 		}
 	}
 
-	public void setMaterialChooser(Geoset geoset, final ModelViewManager modelViewManager,
+	public void setMaterialChooser(Geoset geoset, final ModelView modelViewManager,
 	                               final UndoActionListener undoActionListener,
 	                               final ModelStructureChangeListener modelStructureChangeListener) {
 //		System.out.println("setMaterialChooser");

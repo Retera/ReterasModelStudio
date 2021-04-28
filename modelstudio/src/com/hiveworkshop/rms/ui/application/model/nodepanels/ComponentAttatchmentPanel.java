@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.model.nodepanels;
 import com.hiveworkshop.rms.editor.model.Attachment;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.NameChangeAction;
 import com.hiveworkshop.rms.ui.application.actions.model.ParentChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -16,7 +16,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class ComponentAttatchmentPanel extends JPanel implements ComponentPanel<Attachment> {
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	Attachment idObject;
@@ -27,7 +27,7 @@ public class ComponentAttatchmentPanel extends JPanel implements ComponentPanel<
 	ParentChooser parentChooser;
 
 
-	public ComponentAttatchmentPanel(final ModelViewManager modelViewManager,
+	public ComponentAttatchmentPanel(final ModelView modelViewManager,
 	                                 final UndoActionListener undoActionListener,
 	                                 final ModelStructureChangeListener modelStructureChangeListener) {
 		this.undoActionListener = undoActionListener;

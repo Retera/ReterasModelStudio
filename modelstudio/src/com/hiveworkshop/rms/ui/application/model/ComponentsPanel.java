@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.*;
@@ -19,7 +19,7 @@ public class ComponentsPanel extends JPanel {
 	private final Map<Class<?>, ComponentPanel<?>> panelMap;
 	private final ComponentGlobalSequencePanel globalSeqPanel;
 
-	public ComponentsPanel(ModelViewManager modelViewManager,
+	public ComponentsPanel(ModelView modelViewManager,
 	                       UndoActionListener undoActionListener,
 	                       ModelStructureChangeListener modelStructureChangeListener) {
 		panelMap = new HashMap<>();

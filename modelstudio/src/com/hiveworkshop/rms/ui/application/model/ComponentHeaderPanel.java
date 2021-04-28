@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.header.SetBlendTimeAction;
 import com.hiveworkshop.rms.ui.application.actions.model.header.SetFormatVersionAction;
 import com.hiveworkshop.rms.ui.application.actions.model.header.SetHeaderExtentsAction;
@@ -21,11 +21,11 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel<Edita
 	private final ComponentEditorJSpinner formatVersionSpinner;
 	private final ComponentEditorJSpinner blendTimeSpinner;
 	private final ExtLogEditor extLogEditor;
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener changeListener;
 
-	public ComponentHeaderPanel(final ModelViewManager modelViewManager,
+	public ComponentHeaderPanel(final ModelView modelViewManager,
 	                            final UndoActionListener undoActionListener,
 	                            final ModelStructureChangeListener changeListener) {
 

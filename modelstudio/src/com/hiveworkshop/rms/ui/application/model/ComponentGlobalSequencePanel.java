@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.globalsequence.SetGlobalSequenceLengthAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -11,7 +11,7 @@ import javax.swing.*;
 
 //public class ComponentGlobalSequencePanel extends JPanel implements ComponentPanel<EditableModel> {
 public class ComponentGlobalSequencePanel extends JPanel implements ComponentPanel<Integer> {
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final JLabel indexLabel;
@@ -19,7 +19,7 @@ public class ComponentGlobalSequencePanel extends JPanel implements ComponentPan
 	private int globalSequenceId;
 	private Integer value;
 
-	public ComponentGlobalSequencePanel(final ModelViewManager modelViewManager,
+	public ComponentGlobalSequencePanel(final ModelView modelViewManager,
 	                                    final UndoActionListener undoActionListener,
 	                                    final ModelStructureChangeListener modelStructureChangeListener) {
 		this.undoActionListener = undoActionListener;

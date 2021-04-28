@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
@@ -32,10 +32,10 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel<Bitma
 	private final JPanel previewPanel;
 	private final UndoActionListener undoListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final FileDialog fileDialog;
 
-	public ComponentBitmapPanel(ModelViewManager modelViewManager,
+	public ComponentBitmapPanel(ModelView modelViewManager,
 	                            UndoActionListener undoListener,
 	                            ModelStructureChangeListener modelStructureChangeListener) {
 		this.modelViewManager = modelViewManager;

@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.actions.model;
 
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
@@ -10,12 +10,12 @@ import java.util.Arrays;
 public class EditCommentAction implements UndoAction {
 	private final String stringOld;
 	private final String stringNew;
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final ModelStructureChangeListener structureChangeListener;
 
 	public EditCommentAction(final String stringOld,
 	                         String stringNew,
-	                         final ModelViewManager modelViewManager,
+	                         final ModelView modelViewManager,
 	                         final ModelStructureChangeListener modelStructureChangeListener) {
 		this.stringOld = stringOld;
 		this.stringNew = stringNew;

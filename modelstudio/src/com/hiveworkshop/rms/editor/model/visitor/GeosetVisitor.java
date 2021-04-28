@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model.visitor;
 
+
 public interface GeosetVisitor {
 	TriangleVisitor beginTriangle();
 

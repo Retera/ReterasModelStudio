@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.material.SetMaterialPriorityPlaneAction;
 import com.hiveworkshop.rms.ui.application.actions.model.material.SetMaterialShaderStringAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -24,7 +24,7 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 	private Material material;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 
 	private final JComboBox<String> shaderOptionComboBox;
 	private final ComponentEditorJSpinner priorityPlaneSpinner;
@@ -32,7 +32,7 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 	private boolean listenForChanges = true;
 	private final ComponentMaterialLayersPanel multipleLayersPanel;
 
-	public ComponentMaterialPanel(final ModelViewManager modelViewManager,
+	public ComponentMaterialPanel(final ModelView modelViewManager,
 	                              final UndoActionListener undoActionListener,
 	                              final ModelStructureChangeListener modelStructureChangeListener) {
 		this.modelViewManager = modelViewManager;

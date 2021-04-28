@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -18,13 +18,13 @@ import java.util.List;
 import java.util.*;
 
 public final class ModelComponentBrowserTree extends JTree {
-	private final ModelViewManager modelViewManager;
+	private final ModelView modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private Map<IdObject, DefaultMutableTreeNode> nodeToTreeElement;
 	private boolean controlDown = false;
 
-	public ModelComponentBrowserTree(final ModelViewManager modelViewManager,
+	public ModelComponentBrowserTree(final ModelView modelViewManager,
 	                                 final UndoActionListener undoActionListener, final ModelEditorManager modelEditorManager,
 	                                 final ModelStructureChangeListener modelStructureChangeListener) {
 		super();
@@ -110,7 +110,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private DefaultTreeModel buildTreeModel(
-			final ModelViewManager modelViewManager,
+			final ModelView modelViewManager,
 			final UndoActionListener undoActionListener,
 			final ModelStructureChangeListener modelStructureChangeListener) {
 
