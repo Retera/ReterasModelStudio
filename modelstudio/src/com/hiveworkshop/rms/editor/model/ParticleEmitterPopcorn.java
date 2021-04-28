@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitterPopcorn;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
@@ -192,10 +191,10 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return animVisibilityGuide;
 	}
 
-	@Override
-	public void apply(final IdObjectVisitor visitor) {
-		visitor.popcornFxEmitter(this);
-	}
+//	@Override
+//	public void apply(final IdObjectVisitor visitor) {
+//		visitor.popcornFxEmitter(this);
+//	}
 
 	@Override
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {

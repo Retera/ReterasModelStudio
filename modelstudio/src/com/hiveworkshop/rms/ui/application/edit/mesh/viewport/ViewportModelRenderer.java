@@ -147,54 +147,12 @@ public class ViewportModelRenderer implements ModelVisitor {
 		return geosetRenderer.reset(graphics, programPreferences, xDimension, yDimension, coordinateSystem);
 	}
 
-	@Override
-	public void bone(Bone object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.bone(object);
-	}
-
 	private void resetIdObjectRendererWithNode(IdObject object) {
 		idObjectRenderer.reset(coordinateSystem, graphics,
 				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor() : programPreferences.getLightsColor(),
 				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor() : programPreferences.getPivotPointsColor(),
 				modelView.getHighlightedNode() == object ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED,
 				programPreferences.isUseBoxesForPivotPoints());
-	}
-
-	@Override
-	public void light(Light object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.light(object);
-	}
-
-	@Override
-	public void helper(Helper object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.helper(object);
-	}
-
-	@Override
-	public void attachment(Attachment object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.attachment(object);
-	}
-
-	@Override
-	public void particleEmitter(ParticleEmitter object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.particleEmitter(object);
-	}
-
-	@Override
-	public void particleEmitter2(ParticleEmitter2 object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.particleEmitter2(object);
-	}
-
-	@Override
-	public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.popcornFxEmitter(object);
 	}
 
 	public static void drawBoneMarker(Graphics g, byte a, byte b, Vec3 boneMarker) {
@@ -205,22 +163,9 @@ public class ViewportModelRenderer implements ModelVisitor {
 	}
 
 	@Override
-	public void ribbonEmitter(RibbonEmitter object) {
+	public void visitIdObject(IdObject object) {
 		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.ribbonEmitter(object);
-	}
-
-	@Override
-	public void eventObject(EventObject object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.eventObject(object);
-	}
-
-	@Override
-	public void collisionShape(CollisionShape object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.collisionShape(object);
-
+		idObjectRenderer.visitIdObject(object);
 	}
 
 	@Override

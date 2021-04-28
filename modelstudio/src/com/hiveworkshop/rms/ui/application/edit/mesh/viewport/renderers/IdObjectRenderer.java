@@ -83,76 +83,49 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
 	}
 
-	private void drawNodeImage(IdObject attachment, Image nodeImage) {
-		drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem, attachment, nodeImage);
+	private void drawNodeImage(IdObject object, Image nodeImage) {
+		drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem, object, nodeImage);
 	}
 
 	@Override
-	public void bone(Bone object) {
-		graphics.setColor(pivotPointColor);
-		drawCrosshair(object);
+	public void visitIdObject(IdObject object) {
+		if (object instanceof Helper) {
+			graphics.setColor(pivotPointColor.darker());
+			drawCrosshair((Bone) object);
+		} else if (object instanceof Bone) {
+			graphics.setColor(pivotPointColor);
+			drawCrosshair((Bone) object);
+		} else if (object instanceof Light) {
+			graphics.setColor(lightColor);
+			drawNodeImage(object, nodeIconPalette.getObjectImage(object));
+			light((Light) object);
+		} else if (object instanceof CollisionShape) {
+			collisionShape((CollisionShape) object);
+		} else {
+			drawNodeImage(object, nodeIconPalette.getObjectImage(object));
+		}
 	}
 
-	@Override
-	public void helper(Helper object) {
-		graphics.setColor(pivotPointColor.darker());
-		drawCrosshair(object);
-	}
-
-	@Override
 	public void light(Light object) {
-		Image lightImage = nodeIconPalette.getLightImage();
-		graphics.setColor(lightColor);
-		int xCoord = (int) coordinateSystem.viewX(object.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
-		int yCoord = (int) coordinateSystem.viewY(object.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
+		byte xDimension = coordinateSystem.getPortFirstXYZ();
+		byte yDimension = coordinateSystem.getPortSecondXYZ();
+
+		int xCoord2 = (int) coordinateSystem.viewX(object.getPivotPoint().getCoord(xDimension));
+		int yCoord2 = (int) coordinateSystem.viewY(object.getPivotPoint().getCoord(yDimension));
+
 		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-		// graphics.drawOval(xCoord - vertexSize * 2, yCoord - vertexSize * 2, vertexSize * 4, vertexSize * 4);
-		// graphics.setColor(programPreferences.getAmbientLightColor());
-		// graphics.drawLine(xCoord - vertexSize * 3, yCoord, xCoord +  vertexSize * 3, yCoord);
-		// graphics.drawLine(xCoord, yCoord - vertexSize * 3, xCoord, yCoord + vertexSize * 3);
-		graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2), yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
 
 		int attenuationStart = (int) (object.getAttenuationStart() * zoom);
 		if (attenuationStart > 0) {
-			graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2, attenuationStart * 2);
+			graphics.drawOval(xCoord2 - attenuationStart, yCoord2 - attenuationStart, attenuationStart * 2, attenuationStart * 2);
 		}
 		int attenuationEnd = (int) (object.getAttenuationEnd() * zoom);
 		if (attenuationEnd > 0) {
-			graphics.drawOval(xCoord - attenuationEnd, yCoord - attenuationEnd, attenuationEnd * 2, attenuationEnd * 2);
+			graphics.drawOval(xCoord2 - attenuationEnd, yCoord2 - attenuationEnd, attenuationEnd * 2, attenuationEnd * 2);
 		}
 	}
 
-	@Override
-	public void attachment(Attachment object) {
-		drawNodeImage(object, nodeIconPalette.getAttachmentImage());
-	}
 
-	@Override
-	public void particleEmitter(ParticleEmitter object) {
-		drawNodeImage(object, nodeIconPalette.getParticleImage());
-	}
-
-	@Override
-	public void particleEmitter2(ParticleEmitter2 object) {
-		drawNodeImage(object, nodeIconPalette.getParticle2Image());
-	}
-
-	@Override
-	public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-		drawNodeImage(object, nodeIconPalette.getParticleImage());
-	}
-
-	@Override
-	public void ribbonEmitter(RibbonEmitter object) {
-		drawNodeImage(object, nodeIconPalette.getRibbonImage());
-	}
-
-	@Override
-	public void eventObject(EventObject object) {
-		drawNodeImage(object, nodeIconPalette.getEventImage());
-	}
-
-	@Override
 	public void collisionShape(CollisionShape object) {
 		drawCollisionShape(graphics, pivotPointColor, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), vertexSize, object, nodeIconPalette.getCollisionImage());
 	}

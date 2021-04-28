@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2.FilterMode;
@@ -600,10 +599,10 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return texture;
 	}
 
-	@Override
-	public void apply(final IdObjectVisitor visitor) {
-		visitor.particleEmitter2(this);
-	}
+//	@Override
+//	public void apply(final IdObjectVisitor visitor) {
+//		visitor.particleEmitter2(this);
+//	}
 
 	@Override
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {
@@ -611,7 +610,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public double getRenderWidth(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "Width", (float)getWidth());
+		return getInterpolatedFloat(animatedRenderEnvironment, "Width", (float) getWidth());
 	}
 
 	public double getRenderLength(final AnimatedRenderEnvironment animatedRenderEnvironment) {

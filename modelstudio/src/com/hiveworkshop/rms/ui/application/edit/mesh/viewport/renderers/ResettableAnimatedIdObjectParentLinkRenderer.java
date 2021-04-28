@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
@@ -50,25 +52,6 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 		this.renderModel = renderModel;
 		return this;
 	}
-
-	@Override
-	public void bone(Bone object) {
-		if (object.getParent() != null) {
-			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
-					renderModel.getRenderNode(object).getWorldMatrix(),
-					renderModel.getRenderNode(object.getParent()).getWorldMatrix());
-		}
-	}
-
-	@Override
-	public void light(Light object) {
-		if (object.getParent() != null) {
-			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
-					renderModel.getRenderNode(object).getWorldMatrix(),
-					renderModel.getRenderNode(object.getParent()).getWorldMatrix());
-		}
-	}
-
 	private void drawCrosshair(Bone object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
@@ -78,70 +61,7 @@ public final class ResettableAnimatedIdObjectParentLinkRenderer implements IdObj
 	}
 
 	@Override
-	public void helper(Helper object) {
-		if (object.getParent() != null) {
-			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
-					renderModel.getRenderNode(object).getWorldMatrix(),
-					renderModel.getRenderNode(object.getParent()).getWorldMatrix());
-		}
-	}
-
-	@Override
-	public void attachment(Attachment object) {
-		if (object.getParent() != null) {
-			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
-					renderModel.getRenderNode(object).getWorldMatrix(),
-					renderModel.getRenderNode(object.getParent()).getWorldMatrix());
-		}
-	}
-
-	@Override
-	public void particleEmitter(ParticleEmitter object) {
-		if (object.getParent() != null) {
-			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
-					renderModel.getRenderNode(object).getWorldMatrix(),
-					renderModel.getRenderNode(object.getParent()).getWorldMatrix());
-		}
-	}
-
-	@Override
-	public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-		if (object.getParent() != null) {
-			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
-					renderModel.getRenderNode(object).getWorldMatrix(),
-					renderModel.getRenderNode(object.getParent()).getWorldMatrix());
-		}
-	}
-
-	@Override
-	public void particleEmitter2(ParticleEmitter2 object) {
-		if (object.getParent() != null) {
-			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
-					renderModel.getRenderNode(object).getWorldMatrix(),
-					renderModel.getRenderNode(object.getParent()).getWorldMatrix());
-		}
-	}
-
-	@Override
-	public void ribbonEmitter(RibbonEmitter object) {
-		if (object.getParent() != null) {
-			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
-					renderModel.getRenderNode(object).getWorldMatrix(),
-					renderModel.getRenderNode(object.getParent()).getWorldMatrix());
-		}
-	}
-
-	@Override
-	public void eventObject(EventObject object) {
-		if (object.getParent() != null) {
-			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
-					renderModel.getRenderNode(object).getWorldMatrix(),
-					renderModel.getRenderNode(object.getParent()).getWorldMatrix());
-		}
-	}
-
-	@Override
-	public void collisionShape(CollisionShape object) {
+	public void visitIdObject(IdObject object) {
 		if (object.getParent() != null) {
 			drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
 					renderModel.getRenderNode(object).getWorldMatrix(),

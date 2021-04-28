@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxRibbonEmitter;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
@@ -205,10 +204,10 @@ public class RibbonEmitter extends IdObject {
 		this.staticColor = staticColor;
 	}
 
-	@Override
-	public void apply(final IdObjectVisitor visitor) {
-		visitor.ribbonEmitter(this);
-	}
+//	@Override
+//	public void apply(final IdObjectVisitor visitor) {
+//		visitor.ribbonEmitter(this);
+//	}
 
 	@Override
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {

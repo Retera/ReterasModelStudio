@@ -274,7 +274,10 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return parent;
 	}
 
-	public abstract void apply(IdObjectVisitor visitor);
+//	public abstract void apply(IdObjectVisitor visitor);
+public void apply(IdObjectVisitor visitor) {
+	visitor.visitIdObject(this);
+}
 
 	@Override
 	public List<IdObject> getChildrenNodes() {

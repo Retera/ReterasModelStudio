@@ -78,64 +78,9 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 	}
 
 	@Override
-	public void bone(Bone object) {
+	public void visitIdObject(IdObject object) {
 		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.bone(object);
-	}
-
-	@Override
-	public void helper(Helper object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.helper(object);
-	}
-
-	@Override
-	public void light(Light object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.light(object);
-	}
-
-	@Override
-	public void attachment(Attachment object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.attachment(object);
-	}
-
-	@Override
-	public void particleEmitter(ParticleEmitter object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.particleEmitter(object);
-	}
-
-	@Override
-	public void particleEmitter2(ParticleEmitter2 object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.particleEmitter2(object);
-	}
-
-	@Override
-	public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.popcornFxEmitter(object);
-	}
-
-	@Override
-	public void ribbonEmitter(RibbonEmitter object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.ribbonEmitter(object);
-	}
-
-	@Override
-	public void eventObject(EventObject object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.eventObject(object);
-	}
-
-	@Override
-	public void collisionShape(CollisionShape object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.collisionShape(object);
-
+		idObjectRenderer.visitIdObject(object);
 	}
 
 	@Override

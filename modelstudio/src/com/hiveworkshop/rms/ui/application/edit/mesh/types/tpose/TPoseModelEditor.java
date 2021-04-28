@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.types.tpose;
 
-import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
@@ -151,48 +150,14 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			}
 			object.apply(new IdObjectVisitor() {
 				@Override
-				public void bone(Bone object) {
-				}
-
-				@Override
-				public void helper(Helper object) {
-				}
-
-				@Override
-				public void ribbonEmitter(RibbonEmitter particleEmitter) {
-				}
-
-				@Override
-				public void particleEmitter2(ParticleEmitter2 particleEmitter) {
-				}
-
-				@Override
-				public void particleEmitter(ParticleEmitter particleEmitter) {
-				}
-
-				@Override
-				public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
-				}
-
-				@Override
-				public void light(Light light) {
-				}
-
-				@Override
-				public void eventObject(EventObject eventObject) {
-				}
-
-				@Override
-				public void collisionShape(CollisionShape collisionShape) {
-					for (Vec3 vertex : collisionShape.getVertices()) {
-						if (newSelection.contains(vertex)) {
-							newlySelectedPivots.add(collisionShape);
+				public void visitIdObject(IdObject object) {
+					if (object instanceof CollisionShape) {
+						for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+							if (newSelection.contains(vertex)) {
+								newlySelectedPivots.add(object);
+							}
 						}
 					}
-				}
-
-				@Override
-				public void attachment(Attachment attachment) {
 				}
 
 				@Override
@@ -255,79 +220,37 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
 				b.apply(new IdObjectVisitor() {
 					@Override
-					public void bone(Bone object) {
-						Vec3AnimFlag translation = (Vec3AnimFlag) object.find("Translation");
-						if (translation != null) {
-							for (int i = 0; i < translation.size(); i++) {
-								Vec3 scaleData = translation.getValues().get(i);
-								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-								if (translation.tans()) {
-									Vec3 inTanData = translation.getInTans().get(i);
-									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									Vec3 outTanData = translation.getInTans().get(i);
-									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-								}
+					public void visitIdObject(IdObject object) {
+						if (object instanceof Bone) {
+							translateBone((Bone) object, scaleX, scaleY, scaleZ);
+						} else if (object instanceof CollisionShape) {
+							ExtLog extents = ((CollisionShape) object).getExtents();
+							if ((extents != null) && (scaleX == scaleY) && (scaleY == scaleZ)) {
+								extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
 							}
 						}
-					}
-
-					@Override
-					public void helper(Helper object) {
-						Vec3AnimFlag translation = (Vec3AnimFlag) object.find("Translation");
-						if (translation != null) {
-							for (int i = 0; i < translation.size(); i++) {
-								Vec3 scaleData = translation.getValues().get(i);
-								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-								if (translation.tans()) {
-									Vec3 inTanData = translation.getInTans().get(i);
-									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									Vec3 outTanData = translation.getInTans().get(i);
-									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-								}
-							}
-						}
-					}
-
-					@Override
-					public void ribbonEmitter(RibbonEmitter object) {
-					}
-
-					@Override
-					public void particleEmitter2(ParticleEmitter2 object) {
-					}
-
-					@Override
-					public void particleEmitter(ParticleEmitter object) {
-					}
-
-					@Override
-					public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-					}
-
-					@Override
-					public void light(Light object) {
-					}
-
-					@Override
-					public void eventObject(EventObject object) {
-					}
-
-					@Override
-					public void collisionShape(CollisionShape object) {
-						ExtLog extents = object.getExtents();
-						if ((extents != null) && (scaleX == scaleY) && (scaleY == scaleZ)) {
-							extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
-						}
-					}
-
-					@Override
-					public void attachment(Attachment object) {
 					}
 
 					@Override
 					public void camera(Camera camera) {
 					}
 				});
+			}
+		}
+	}
+
+	public void translateBone(Bone object, double scaleX, double scaleY, double scaleZ) {
+		Vec3AnimFlag translation = (Vec3AnimFlag) object.find("Translation");
+		if (translation != null) {
+			for (int i = 0; i < translation.size(); i++) {
+				Vec3 scaleData = translation.getValues().get(i);
+				scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
+				if (translation.tans()) {
+					Vec3 inTanData = translation.getInTans().get(i);
+					inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
+					Vec3 outTanData = translation.getInTans().get(i);
+					outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
+				}
 			}
 		}
 	}
@@ -402,56 +325,19 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			}
 		}
 
+		public boolean isMouseOverVertex() {
+			return mouseOverVertex;
+		}
+
 		@Override
-		public void ribbonEmitter(RibbonEmitter object) {
+		public void visitIdObject(IdObject object) {
 			handleDefaultNode(point, axes, object);
-		}
 
-		@Override
-		public void bone(Bone object) {
-			if (hitTest(object.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, object.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
-				mouseOverVertex = true;
-			}
-		}
-
-		@Override
-		public void helper(Helper object) {
-			if (hitTest(object.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, object.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
-				mouseOverVertex = true;
-			}
-		}
-
-		@Override
-		public void particleEmitter2(ParticleEmitter2 object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void particleEmitter(ParticleEmitter object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void light(Light object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void eventObject(EventObject object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void collisionShape(CollisionShape object) {
-			handleDefaultNode(point, axes, object);
-			for (Vec3 vertex : object.getVertices()) {
-				if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes, IdObject.DEFAULT_CLICK_RADIUS)) {
-					mouseOverVertex = true;
+			if (object instanceof CollisionShape) {
+				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+					if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes, IdObject.DEFAULT_CLICK_RADIUS)) {
+						mouseOverVertex = true;
+					}
 				}
 			}
 		}
@@ -464,15 +350,6 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			if (hitTest(camera.getTargetPosition(), CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
 				mouseOverVertex = true;
 			}
-		}
-
-		@Override
-		public void attachment(Attachment object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		public boolean isMouseOverVertex() {
-			return mouseOverVertex;
 		}
 	}
 
@@ -489,86 +366,16 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		}
 
 		@Override
-		public void bone(Bone object) {
+		public void visitIdObject(IdObject object) {
 			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
 			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
 				selectedItems.add(object);
 			}
-		}
-
-		@Override
-		public void helper(Helper object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object);
-			}
-		}
-
-		@Override
-		public void ribbonEmitter(RibbonEmitter object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object);
-			}
-		}
-
-		@Override
-		public void particleEmitter2(ParticleEmitter2 object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object);
-			}
-		}
-
-		@Override
-		public void particleEmitter(ParticleEmitter object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object);
-			}
-		}
-
-		@Override
-		public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object);
-			}
-		}
-
-		@Override
-		public void light(Light object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object);
-			}
-		}
-
-		@Override
-		public void eventObject(EventObject object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object);
-			}
-		}
-
-		@Override
-		public void attachment(Attachment object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object);
-			}
-		}
-
-		@Override
-		public void collisionShape(CollisionShape object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object);
-			}
-			for (Vec3 vertex : object.getVertices()) {
-				if (hitTest(area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
-					selectedItems.add(object);
+			if (object instanceof CollisionShape) {
+				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+					if (hitTest(area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
+						selectedItems.add(object);
+					}
 				}
 			}
 		}

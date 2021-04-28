@@ -1,6 +1,9 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.GeosetAnim;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.model.visitor.GeosetVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -29,53 +32,8 @@ public class LinkRenderingVisitorAdapter implements ModelVisitor {
 	}
 
 	@Override
-	public void bone(Bone object) {
-		linkRenderer.bone(object);
-	}
-
-	@Override
-	public void helper(Helper object) {
-		linkRenderer.helper(object);
-	}
-
-	@Override
-	public void ribbonEmitter(RibbonEmitter object) {
-		linkRenderer.ribbonEmitter(object);
-	}
-
-	@Override
-	public void particleEmitter2(ParticleEmitter2 object) {
-		linkRenderer.particleEmitter2(object);
-	}
-
-	@Override
-	public void particleEmitter(ParticleEmitter object) {
-		linkRenderer.particleEmitter(object);
-	}
-
-	@Override
-	public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-		linkRenderer.popcornFxEmitter(object);
-	}
-
-	@Override
-	public void light(Light object) {
-		linkRenderer.light(object);
-	}
-
-	@Override
-	public void eventObject(EventObject object) {
-		linkRenderer.eventObject(object);
-	}
-
-	@Override
-	public void collisionShape(CollisionShape object) {
-		linkRenderer.collisionShape(object);
-	}
-
-	@Override
-	public void attachment(Attachment object) {
-		linkRenderer.attachment(object);
+	public void visitIdObject(IdObject object) {
+		linkRenderer.visitIdObject(object);
 	}
 
 	@Override

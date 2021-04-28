@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxHelper;
 
 /**
@@ -44,8 +43,8 @@ public class Helper extends Bone { // Haha blizz
 		return new Helper(this);
 	}
 
-	@Override
-	public void apply(final IdObjectVisitor visitor) {
-		visitor.helper(this);
-	}
+//	@Override
+//	public void apply(final IdObjectVisitor visitor) {
+//		visitor.helper(this);
+//	}
 }

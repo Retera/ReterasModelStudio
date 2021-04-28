@@ -422,53 +422,28 @@ public class DispElements {
 		}
 
 		@Override
-		public void bone(Bone object) {
-			element = new ChooseableBoneItem(modelViewManager, object);
-		}
-
-		@Override
-		public void light(Light object) {
-			element = new ChooseableLightItem(modelViewManager, object);
-		}
-
-		@Override
-		public void helper(Helper object) {
-			element = new ChooseableHelperItem(modelViewManager, object);
-		}
-
-		@Override
-		public void attachment(Attachment object) {
-			element = new ChooseableAttachmentItem(modelViewManager, object);
-		}
-
-		@Override
-		public void particleEmitter(ParticleEmitter object) {
-			element = new ChooseableParticleEmitterItem(modelViewManager, object);
-		}
-
-		@Override
-		public void particleEmitter2(ParticleEmitter2 object) {
-			element = new ChooseableParticleEmitter2Item(modelViewManager, object);
-		}
-
-		@Override
-		public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-			element = new ChooseableParticleEmitterPopcornItem(modelViewManager, object);
-		}
-
-		@Override
-		public void ribbonEmitter(RibbonEmitter object) {
-			element = new ChooseableRibbonEmitterItem(modelViewManager, object);
-		}
-
-		@Override
-		public void eventObject(EventObject object) {
-			element = new ChooseableEventObjectItem(modelViewManager, object);
-		}
-
-		@Override
-		public void collisionShape(CollisionShape object) {
-			element = new ChooseableCollisionShapeItem(modelViewManager, object);
+		public void visitIdObject(IdObject object) {
+			if (object instanceof Light) {
+				element = new ChooseableLightItem(modelViewManager, (Light) object);
+			} else if (object instanceof Helper) {
+				element = new ChooseableHelperItem(modelViewManager, (Helper) object);
+			} else if (object instanceof Bone) {
+				element = new ChooseableBoneItem(modelViewManager, (Bone) object);
+			} else if (object instanceof Attachment) {
+				element = new ChooseableAttachmentItem(modelViewManager, (Attachment) object);
+			} else if (object instanceof ParticleEmitter) {
+				element = new ChooseableParticleEmitterItem(modelViewManager, (ParticleEmitter) object);
+			} else if (object instanceof ParticleEmitter2) {
+				element = new ChooseableParticleEmitter2Item(modelViewManager, (ParticleEmitter2) object);
+			} else if (object instanceof ParticleEmitterPopcorn) {
+				element = new ChooseableParticleEmitterPopcornItem(modelViewManager, (ParticleEmitterPopcorn) object);
+			} else if (object instanceof RibbonEmitter) {
+				element = new ChooseableRibbonEmitterItem(modelViewManager, (RibbonEmitter) object);
+			} else if (object instanceof EventObject) {
+				element = new ChooseableEventObjectItem(modelViewManager, (EventObject) object);
+			} else if (object instanceof CollisionShape) {
+				element = new ChooseableCollisionShapeItem(modelViewManager, (CollisionShape) object);
+			}
 		}
 
 		@Override

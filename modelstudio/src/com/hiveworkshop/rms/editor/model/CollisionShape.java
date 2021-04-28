@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape.Type;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -116,10 +115,10 @@ public class CollisionShape extends IdObject {
 		this.vertices = vertices;
 	}
 
-	@Override
-	public void apply(final IdObjectVisitor visitor) {
-		visitor.collisionShape(this);
-	}
+//	@Override
+//	public void apply(final IdObjectVisitor visitor) {
+//		visitor.collisionShape(this);
+//	}
 
 	@Override
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {

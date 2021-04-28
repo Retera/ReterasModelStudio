@@ -122,51 +122,45 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		}
 	}
 
-	@Override
-	public void bone(Bone object) {
-		graphics.setColor(pivotPointColor);
-		drawCrosshair(object);
+	private void drawNodeImage(IdObject object, Image nodeImage) {
+		drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem, object, nodeImage);
 	}
 
 	@Override
-	public void helper(Helper object) {
-		graphics.setColor(pivotPointColor.darker());
-		drawCrosshair(object);
+	public void visitIdObject(IdObject object) {
+		if (object instanceof Bone) {
+			graphics.setColor(pivotPointColor);
+			drawCrosshair((Bone) object);
+		} else if (object instanceof Light) {
+			light((Light) object);
+		} else if (object instanceof CollisionShape) {
+			collisionShape((CollisionShape) object);
+		} else {
+			drawNodeImage(object, nodeIconPalette.getObjectImage(object));
+		}
 	}
 
-	@Override
-	public void attachment(Attachment object) {
-		drawNodeImage(object, nodeIconPalette.getAttachmentImage());
-	}
-
-	@Override
-	public void particleEmitter(ParticleEmitter object) {
-		drawNodeImage(object, nodeIconPalette.getParticleImage());
-	}
-
-	@Override
-	public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-		drawNodeImage(object, nodeIconPalette.getParticleImage());
-	}
-
-	@Override
-	public void particleEmitter2(ParticleEmitter2 object) {
-		drawNodeImage(object, nodeIconPalette.getParticle2Image());
-	}
-
-	@Override
-	public void ribbonEmitter(RibbonEmitter object) {
-		drawNodeImage(object, nodeIconPalette.getRibbonImage());
-	}
-
-	@Override
-	public void eventObject(EventObject object) {
-		drawNodeImage(object, nodeIconPalette.getEventImage());
-	}
-
-	@Override
 	public void collisionShape(CollisionShape object) {
 		drawCollisionShape(graphics, pivotPointColor, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), vertexSize, object, nodeIconPalette.getCollisionImage(), crosshairIsBox);
+	}
+
+	public void light(Light object) {
+		Image lightImage = nodeIconPalette.getLightImage();
+		graphics.setColor(lightColor);
+		int xCoord = (int) coordinateSystem.viewX(object.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
+		int yCoord = (int) coordinateSystem.viewY(object.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
+		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+
+		graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2), yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
+
+		int attenuationStart = (int) (object.getAttenuationStart() * zoom);
+		if (attenuationStart > 0) {
+			graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2, attenuationStart * 2);
+		}
+		int attenuationEnd = (int) (object.getAttenuationEnd() * zoom);
+		if (attenuationEnd > 0) {
+			graphics.drawOval(xCoord - attenuationEnd, yCoord - attenuationEnd, attenuationEnd * 2, attenuationEnd * 2);
+		}
 	}
 
 	@Override
@@ -196,29 +190,5 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		g2.drawLine(0, 0, size, -size);
 
 		g2.drawLine(0, 0, (int) dist, 0);
-	}
-
-	private void drawNodeImage(IdObject object, Image nodeImage) {
-		drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem, object, nodeImage);
-	}
-
-	@Override
-	public void light(Light object) {
-		Image lightImage = nodeIconPalette.getLightImage();
-		graphics.setColor(lightColor);
-		int xCoord = (int) coordinateSystem.viewX(object.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
-		int yCoord = (int) coordinateSystem.viewY(object.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
-		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-
-		graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2), yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
-
-		int attenuationStart = (int) (object.getAttenuationStart() * zoom);
-		if (attenuationStart > 0) {
-			graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2, attenuationStart * 2);
-		}
-		int attenuationEnd = (int) (object.getAttenuationEnd() * zoom);
-		if (attenuationEnd > 0) {
-			graphics.drawOval(xCoord - attenuationEnd, yCoord - attenuationEnd, attenuationEnd * 2, attenuationEnd * 2);
-		}
 	}
 }

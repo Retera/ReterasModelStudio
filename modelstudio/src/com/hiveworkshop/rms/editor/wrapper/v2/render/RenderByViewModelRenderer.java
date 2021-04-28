@@ -30,73 +30,15 @@ public final class RenderByViewModelRenderer implements ModelVisitor {
 		return GeosetVisitor.NO_ACTION;
 	}
 
+
+	private boolean isVisibleNode(IdObject object) {
+		return modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode());
+	}
+
 	@Override
-	public void bone(Bone object) {
+	public void visitIdObject(IdObject object) {
 		if (isVisibleNode(object)) {
-			fullModelRenderer.bone(object);
-		}
-	}
-
-	@Override
-	public void light(Light light) {
-		if (isVisibleNode(light)) {
-			fullModelRenderer.light(light);
-		}
-	}
-
-	@Override
-	public void helper(Helper object) {
-		if (isVisibleNode(object)) {
-			fullModelRenderer.helper(object);
-		}
-	}
-
-	@Override
-	public void attachment(Attachment attachment) {
-		if (isVisibleNode(attachment)) {
-			fullModelRenderer.attachment(attachment);
-		}
-	}
-
-	@Override
-	public void particleEmitter(ParticleEmitter particleEmitter) {
-		if (isVisibleNode(particleEmitter)) {
-			fullModelRenderer.particleEmitter(particleEmitter);
-		}
-	}
-
-	@Override
-	public void particleEmitter2(ParticleEmitter2 particleEmitter) {
-		if (isVisibleNode(particleEmitter)) {
-			fullModelRenderer.particleEmitter2(particleEmitter);
-		}
-	}
-
-	@Override
-	public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
-		if (isVisibleNode(popcornFxEmitter)) {
-			fullModelRenderer.popcornFxEmitter(popcornFxEmitter);
-		}
-	}
-
-	@Override
-	public void ribbonEmitter(RibbonEmitter particleEmitter) {
-		if (isVisibleNode(particleEmitter)) {
-			fullModelRenderer.ribbonEmitter(particleEmitter);
-		}
-	}
-
-	@Override
-	public void eventObject(EventObject eventObject) {
-		if (isVisibleNode(eventObject)) {
-			fullModelRenderer.eventObject(eventObject);
-		}
-	}
-
-	@Override
-	public void collisionShape(CollisionShape collisionShape) {
-		if (isVisibleNode(collisionShape)) {
-			fullModelRenderer.collisionShape(collisionShape);
+			fullModelRenderer.visitIdObject(object);
 		}
 	}
 
@@ -105,10 +47,6 @@ public final class RenderByViewModelRenderer implements ModelVisitor {
 		if (modelView.getEditableCameras().contains(camera)) {
 			fullModelRenderer.camera(camera);
 		}
-	}
-
-	private boolean isVisibleNode(IdObject object) {
-		return modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode());
 	}
 
 }

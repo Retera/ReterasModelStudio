@@ -122,52 +122,44 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
     }
 
     @Override
-    public void bone(Bone object) {
-        graphics.setColor(pivotPointColor);
-        drawCrosshair(object);
+    public void visitIdObject(IdObject object) {
+        if (object instanceof Helper) {
+            graphics.setColor(pivotPointColor.darker());
+            drawCrosshair((Bone) object);
+        } else if (object instanceof Bone) {
+            graphics.setColor(pivotPointColor);
+            drawCrosshair((Bone) object);
+        } else if (object instanceof CollisionShape) {
+            collisionShape((CollisionShape) object);
+        } else if (object instanceof Light) {
+            graphics.setColor(lightColor);
+            drawNodeImage(object, nodeIconPalette.getObjectImage(object), renderModel.getRenderNode(object).getWorldMatrix());
+            light((Light) object);
+        } else {
+            drawNodeImage(object, nodeIconPalette.getObjectImage(object), renderModel.getRenderNode(object).getWorldMatrix());
+        }
     }
 
-    @Override
-    public void helper(Helper object) {
-        graphics.setColor(pivotPointColor.darker());
-        drawCrosshair(object);
-    }
-
-    @Override
-    public void attachment(Attachment object) {
-        drawNodeImage(object, nodeIconPalette.getAttachmentImage(), renderModel.getRenderNode(object).getWorldMatrix());
-    }
-
-    @Override
-    public void particleEmitter(ParticleEmitter object) {
-        drawNodeImage(object, nodeIconPalette.getParticleImage(), renderModel.getRenderNode(object).getWorldMatrix());
-    }
-
-    @Override
-    public void particleEmitter2(ParticleEmitter2 object) {
-        drawNodeImage(object, nodeIconPalette.getParticle2Image(), renderModel.getRenderNode(object).getWorldMatrix());
-    }
-
-    @Override
-    public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-        drawNodeImage(object, nodeIconPalette.getParticleImage(), renderModel.getRenderNode(object).getWorldMatrix());
-    }
-
-    @Override
-    public void ribbonEmitter(RibbonEmitter object) {
-        drawNodeImage(object, nodeIconPalette.getRibbonImage(), renderModel.getRenderNode(object).getWorldMatrix());
-    }
-
-    @Override
-    public void eventObject(EventObject object) {
-        drawNodeImage(object, nodeIconPalette.getEventImage(), renderModel.getRenderNode(object).getWorldMatrix());
-    }
-
-    @Override
     public void collisionShape(CollisionShape object) {
         drawCollisionShape(graphics, pivotPointColor, coordinateSystem, coordinateSystem.getPortFirstXYZ(),
                 coordinateSystem.getPortSecondXYZ(), vertexSize, object, nodeIconPalette.getCollisionImage(),
                 renderModel.getRenderNode(object).getWorldMatrix(), crosshairIsBox);
+    }
+
+    public void light(Light object) {
+        Vec3 vertexHeap = Vec3.getTransformed(object.getPivotPoint(), renderModel.getRenderNode(object).getWorldMatrix());
+        int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+        int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+        double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+
+        int attenuationStart = (int) (object.getAttenuationStart() * zoom);
+        if (attenuationStart > 0) {
+            graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2, attenuationStart * 2);
+        }
+        int attenuationEnd = (int) (object.getAttenuationEnd() * zoom);
+        if (attenuationEnd > 0) {
+            graphics.drawOval(xCoord - attenuationEnd, yCoord - attenuationEnd, attenuationEnd * 2, attenuationEnd * 2);
+        }
     }
 
     @Override
@@ -184,26 +176,5 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         float renderRotationScalar = renderModel.getAnimatedRenderEnvironment() == null ? 0 : camera.getSourceNode().getRenderRotationScalar(renderModel.getAnimatedRenderEnvironment());
 
         renderableCameraProp.render(g2, coordinateSystem, vec3Start, vec3End, renderRotationScalar);
-    }
-
-    @Override
-    public void light(Light object) {
-        Image lightImage = nodeIconPalette.getLightImage();
-        graphics.setColor(lightColor);
-        Vec3 vertexHeap = Vec3.getTransformed(object.getPivotPoint(), renderModel.getRenderNode(object).getWorldMatrix());
-        int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-        int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
-        double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-
-        graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2), yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
-
-        int attenuationStart = (int) (object.getAttenuationStart() * zoom);
-        if (attenuationStart > 0) {
-            graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2, attenuationStart * 2);
-        }
-        int attenuationEnd = (int) (object.getAttenuationEnd() * zoom);
-        if (attenuationEnd > 0) {
-            graphics.drawOval(xCoord - attenuationEnd, yCoord - attenuationEnd, attenuationEnd * 2, attenuationEnd * 2);
-        }
     }
 }

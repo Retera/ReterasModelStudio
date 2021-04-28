@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
-import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
@@ -128,52 +127,18 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			}
 			object.apply(new IdObjectVisitor() {
 				@Override
-				public void ribbonEmitter(RibbonEmitter object) {
-				}
-
-				@Override
-				public void particleEmitter2(ParticleEmitter2 object) {
-				}
-
-				@Override
-				public void particleEmitter(ParticleEmitter object) {
-				}
-
-				@Override
-				public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-				}
-
-				@Override
-				public void light(Light object) {
-				}
-
-				@Override
-				public void helper(Helper object) {
-				}
-
-				@Override
-				public void eventObject(EventObject object) {
-				}
-
-				@Override
-				public void collisionShape(CollisionShape object) {
-					for (Vec3 vertex : object.getVertices()) {
-						if (newSelection.contains(vertex)) {
-							newlySelectedObjects.add(object);
+				public void visitIdObject(IdObject object) {
+					if (object instanceof CollisionShape) {
+						for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+							if (newSelection.contains(vertex)) {
+								newlySelectedObjects.add(object);
+							}
 						}
 					}
 				}
 
 				@Override
 				public void camera(Camera camera) {
-				}
-
-				@Override
-				public void bone(Bone object) {
-				}
-
-				@Override
-				public void attachment(Attachment object) {
 				}
 			});
 		}
@@ -701,58 +666,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		}
 
 		@Override
-		public void ribbonEmitter(RibbonEmitter object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void particleEmitter2(ParticleEmitter2 object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void particleEmitter(ParticleEmitter object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void light(Light object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void bone(Bone object) {
-			Mat4 worldMatrix = renderModel.getRenderNode(object).getWorldMatrix();
-			if (hitTest(object.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, object.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes), worldMatrix)) {
-				mouseOverVertex = true;
-			}
-		}
-
-		@Override
-		public void helper(Helper object) {
-			Mat4 worldMatrix = renderModel.getRenderNode(object).getWorldMatrix();
-			if (hitTest(object.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, object.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes), worldMatrix)) {
-				mouseOverVertex = true;
-			}
-		}
-
-		@Override
-		public void eventObject(EventObject object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void collisionShape(CollisionShape object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void attachment(Attachment object) {
+		public void visitIdObject(IdObject object) {
 			handleDefaultNode(point, axes, object);
 		}
 
@@ -790,52 +704,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		}
 
 		@Override
-		public void bone(Bone object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, object, renderModel);
-		}
-
-		@Override
-		public void helper(Helper object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, object, renderModel);
-		}
-
-		@Override
-		public void ribbonEmitter(RibbonEmitter object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, object, renderModel);
-		}
-
-		@Override
-		public void particleEmitter2(ParticleEmitter2 object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, object, renderModel);
-		}
-
-		@Override
-		public void particleEmitter(ParticleEmitter object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, object, renderModel);
-		}
-
-		@Override
-		public void popcornFxEmitter(ParticleEmitterPopcorn object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, object, renderModel);
-		}
-
-		@Override
-		public void light(Light object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, object, renderModel);
-		}
-
-		@Override
-		public void eventObject(EventObject object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, object, renderModel);
-		}
-
-		@Override
-		public void collisionShape(CollisionShape object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, object, renderModel);
-		}
-
-		@Override
-		public void attachment(Attachment object) {
+		public void visitIdObject(IdObject object) {
 			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, object, renderModel);
 		}
 
