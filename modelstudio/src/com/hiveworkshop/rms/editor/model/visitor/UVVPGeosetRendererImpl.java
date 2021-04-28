@@ -87,10 +87,6 @@ public class UVVPGeosetRendererImpl implements GeosetVisitor {
 				index++;
 			}
 
-			@Override
-			public void vertexFinished() {
-			}
-
 		}
 	}
 }

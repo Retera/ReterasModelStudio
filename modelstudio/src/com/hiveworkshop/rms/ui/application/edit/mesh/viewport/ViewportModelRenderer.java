@@ -19,19 +19,14 @@ import java.util.Map;
 public class ViewportModelRenderer implements ModelVisitor {
 	private Graphics2D graphics;
 	private ProgramPreferences programPreferences;
-	//	private final GeosetRendererImpl geosetRenderer;
 	private final VPGeosetRendererImpl geosetRenderer;
-	private final int vertexSize;
 	private byte xDimension;
 	private byte yDimension;
-	private ViewportView viewportView;
 	private CoordinateSystem coordinateSystem;
 	private final ResettableIdObjectRenderer idObjectRenderer;
 	private ModelView modelView;
 
 	public ViewportModelRenderer(final int vertexSize) {
-		this.vertexSize = vertexSize;
-//		geosetRenderer = new GeosetRendererImpl();
 		geosetRenderer = new VPGeosetRendererImpl();
 		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
 	}
@@ -130,7 +125,6 @@ public class ViewportModelRenderer implements ModelVisitor {
 		this.programPreferences = programPreferences;
 		this.xDimension = xDimension;
 		this.yDimension = yDimension;
-		this.viewportView = viewportView;
 		this.coordinateSystem = coordinateSystem;
 		this.modelView = modelView;
 		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences.getLightsColor(),
@@ -178,24 +172,6 @@ public class ViewportModelRenderer implements ModelVisitor {
 		resetIdObjectRendererWithNode(object);
 		idObjectRenderer.helper(object);
 	}
-
-//	private final class GeosetRendererImpl implements GeosetVisitor {
-//		private final TriangleRendererImpl triangleRenderer = new TriangleRendererImpl();
-//
-//		public GeosetRendererImpl reset() {
-//			return this;
-//		}
-//
-//		@Override
-//		public TriangleVisitor beginTriangle() {
-//			return triangleRenderer.reset();
-//		}
-//
-//		@Override
-//		public void geosetFinished() {
-//		}
-//
-//	}
 
 	@Override
 	public void attachment(Attachment attachment) {
@@ -251,59 +227,4 @@ public class ViewportModelRenderer implements ModelVisitor {
 	public void camera(Camera cam) {
 		idObjectRenderer.camera(cam);
 	}
-
-//	private final class TriangleRendererImpl implements TriangleVisitor {
-//		private final List<Point> previousVertices = new ArrayList<>();
-//
-//		public TriangleRendererImpl reset() {
-//			previousVertices.clear();
-//			return this;
-//		}
-//
-//		@Override
-//		public VertexVisitor vertex(Vec3 vert, Vec3 normal, List<Bone> bones) {
-//			double firstCoord = vert.getCoord(xDimension);
-//			double secondCoord = vert.getCoord(yDimension);
-//			Point point = new Point((int) coordinateSystem.viewX(firstCoord), (int) coordinateSystem.viewY(secondCoord));
-//
-//			if (previousVertices.size() > 0) {
-//				Point previousPoint = previousVertices.get(previousVertices.size() - 1);
-//				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
-//			}
-//			previousVertices.add(point);
-//
-//			if (programPreferences.showNormals()) {
-//				Color triangleColor = graphics.getColor();
-//
-//				graphics.setColor(programPreferences.getNormalsColor());
-//				double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-//
-//				double firstNormalCoord = (normal.getCoord(xDimension) * 12) / zoom;
-//				double secondNormalCoord = (normal.getCoord(yDimension) * 12) / zoom;
-//
-//				Point endPoint = new Point(
-//						(int) coordinateSystem.viewX(firstCoord + firstNormalCoord),
-//						(int) coordinateSystem.viewY(secondCoord + secondNormalCoord));
-//				graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
-//				graphics.setColor(triangleColor);
-//			}
-//			return VertexVisitor.NO_ACTION;
-//		}
-//
-//
-//		@Override
-//		public VertexVisitor hdVertex(Vec3 vert, Vec3 normal, Bone[] skinBones, short[] skinBoneWeights) {
-//			return vertex(vert, normal, null);
-//		}
-//
-//		@Override
-//		public void triangleFinished() {
-//			if (previousVertices.size() > 1) {
-//				Point previousPoint = previousVertices.get(previousVertices.size() - 1);
-//				Point point = previousVertices.get(0);
-//				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
-//			}
-//		}
-//
-//	}
 }

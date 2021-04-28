@@ -48,7 +48,6 @@ public class UvIlandThing {
 				for (final Vec2 tvert : vertex.getTverts()) {
 					vertexRenderer.textureCoords(tvert.x, tvert.y);
 				}
-				vertexRenderer.vertexFinished();
 			}
 			triangleRenderer.triangleFinished();
 		}

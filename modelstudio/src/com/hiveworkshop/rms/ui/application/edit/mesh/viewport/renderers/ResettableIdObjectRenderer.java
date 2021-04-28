@@ -175,38 +175,12 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		Graphics2D g2 = ((Graphics2D) graphics.create());
 		Vec3 ver = camera.getPosition();
 		Vec3 targ = camera.getTargetPosition();
-		// boolean verSel = selection.contains(ver);
-		// boolean tarSel = selection.contains(targ);
 		Point start = new Point(
 				(int) Math.round(coordinateSystem.viewX(ver.getCoord(coordinateSystem.getPortFirstXYZ()))),
 				(int) Math.round(coordinateSystem.viewY(ver.getCoord(coordinateSystem.getPortSecondXYZ()))));
 		Point end = new Point(
 				(int) Math.round(coordinateSystem.viewX(targ.getCoord(coordinateSystem.getPortFirstXYZ()))),
 				(int) Math.round(coordinateSystem.viewY(targ.getCoord(coordinateSystem.getPortSecondXYZ()))));
-		// if (dispCameraNames) {
-		// boolean changedCol = false;
-		//
-		// if (verSel) {
-		// g2.setColor(Color.orange.darker());
-		// changedCol = true;
-		// }
-		// g2.drawString(cam.getName(), (int)
-		// Math.round(vp.convertX(ver.getCoord(vp.getPortFirstXYZ()))),
-		// (int) Math.round(vp.convertY(ver.getCoord(vp.getPortSecondXYZ()))));
-		// if (tarSel) {
-		// g2.setColor(Color.orange.darker());
-		// changedCol = true;
-		// } else if (verSel) {
-		// g2.setColor(Color.green.darker());
-		// changedCol = false;
-		// }
-		// g2.drawString(cam.getName() + "_target",
-		// (int) Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ()))),
-		// (int) Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ()))));
-		// if (changedCol) {
-		// g2.setColor(Color.green.darker());
-		// }
-		// }
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-((Math.PI / 2) + Math.atan2(end.x - start.x, end.y - start.y)));
@@ -214,28 +188,13 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		int size = (int) (20 * zoom);
 		double dist = start.distance(end);
 
-		// if (verSel) {
-		// g2.setColor(Color.orange.darker());
-		// }
-		// Cam
 		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
 		g2.drawRect((int) dist - size, -size, size * 2, size * 2);
 
-		// if (tarSel) {
-		// g2.setColor(Color.orange.darker());
-		// } else if (verSel) {
-		// g2.setColor(Color.green.darker());
-		// }
-		// Target
 		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
-		g2.drawLine(0, 0, size, size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())+5)),
-		// (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())+5)));
-		g2.drawLine(0, 0, size, -size);// (int)Math.round(vp.convertX(targ.getCoord(vp.getPortFirstXYZ())-5)),
-		// (int)Math.round(vp.convertY(targ.getCoord(vp.getPortSecondXYZ())-5)));
+		g2.drawLine(0, 0, size, size);
+		g2.drawLine(0, 0, size, -size);
 
-		// if (!verSel && tarSel) {
-		// g2.setColor(Color.green.darker());
-		// }
 		g2.drawLine(0, 0, (int) dist, 0);
 	}
 
@@ -250,13 +209,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		int xCoord = (int) coordinateSystem.viewX(light.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
 		int yCoord = (int) coordinateSystem.viewY(light.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
 		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-		// graphics.drawOval(xCoord - vertexSize * 2, yCoord - vertexSize * 2,
-		// vertexSize * 4, vertexSize * 4);
-		// graphics.setColor(programPreferences.getAmbientLightColor());
-		// graphics.drawLine(xCoord - vertexSize * 3, yCoord, xCoord +
-		// vertexSize * 3, yCoord);
-		// graphics.drawLine(xCoord, yCoord - vertexSize * 3, xCoord, yCoord +
-		// vertexSize * 3);
+
 		graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2), yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
 
 		int attenuationStart = (int) (light.getAttenuationStart() * zoom);

@@ -15,8 +15,6 @@ import com.hiveworkshop.rms.editor.wrapper.v2.render.RenderByViewModelRenderer;
 import java.util.HashSet;
 import java.util.Set;
 
-//public final class ModelViewManager implements ModelView {
-//public final class ModelView {
 public final class ModelView {
 	private final EditableModel model;
 	private final RenderModel editorRenderModel;
@@ -31,7 +29,6 @@ public final class ModelView {
 	private IdObject highlightedNode;
 	private boolean vetoParticles = false;
 
-	//	public ModelViewManager(final EditableModel model) {
 	public ModelView(final EditableModel model) {
 		this.model = model;
 		editorRenderModel = new RenderModel(this.model, this);
@@ -165,7 +162,6 @@ public final class ModelView {
 	}
 
 	public void visitMesh(final MeshVisitor visitor) {
-//		model.visit(renderByViewMeshRenderer.reset(visitor));
 		UvIlandThing.visit(renderByViewMeshRenderer.reset(visitor), model);
 	}
 }
