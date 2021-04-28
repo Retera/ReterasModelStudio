@@ -75,41 +75,22 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		return this;
 	}
 
-	@Override
-	public void bone(Bone object) {
-		graphics.setColor(pivotPointColor);
-		drawCrosshair(object);
-	}
-
-	@Override
-	public void light(Light light) {
-		Image lightImage = nodeIconPalette.getLightImage();
-		graphics.setColor(lightColor);
-		int xCoord = (int) coordinateSystem.viewX(light.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
-		int yCoord = (int) coordinateSystem.viewY(light.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
-		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-		// graphics.drawOval(xCoord - vertexSize * 2, yCoord - vertexSize * 2, vertexSize * 4, vertexSize * 4);
-		// graphics.setColor(programPreferences.getAmbientLightColor());
-		// graphics.drawLine(xCoord - vertexSize * 3, yCoord, xCoord +  vertexSize * 3, yCoord);
-		// graphics.drawLine(xCoord, yCoord - vertexSize * 3, xCoord, yCoord + vertexSize * 3);
-		graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2), yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
-
-		int attenuationStart = (int) (light.getAttenuationStart() * zoom);
-		if (attenuationStart > 0) {
-			graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2, attenuationStart * 2);
-		}
-		int attenuationEnd = (int) (light.getAttenuationEnd() * zoom);
-		if (attenuationEnd > 0) {
-			graphics.drawOval(xCoord - attenuationEnd, yCoord - attenuationEnd, attenuationEnd * 2, attenuationEnd * 2);
-		}
-	}
-
 	private void drawCrosshair(Bone object) {
 		int xCoord = (int) coordinateSystem.viewX(object.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
 		int yCoord = (int) coordinateSystem.viewY(object.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
 		graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
 		graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
 		graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
+	}
+
+	private void drawNodeImage(IdObject attachment, Image nodeImage) {
+		drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem, attachment, nodeImage);
+	}
+
+	@Override
+	public void bone(Bone object) {
+		graphics.setColor(pivotPointColor);
+		drawCrosshair(object);
 	}
 
 	@Override
@@ -119,38 +100,61 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 	}
 
 	@Override
-	public void attachment(Attachment attachment) {
-		drawNodeImage(attachment, nodeIconPalette.getAttachmentImage());
+	public void light(Light object) {
+		Image lightImage = nodeIconPalette.getLightImage();
+		graphics.setColor(lightColor);
+		int xCoord = (int) coordinateSystem.viewX(object.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
+		int yCoord = (int) coordinateSystem.viewY(object.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
+		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+		// graphics.drawOval(xCoord - vertexSize * 2, yCoord - vertexSize * 2, vertexSize * 4, vertexSize * 4);
+		// graphics.setColor(programPreferences.getAmbientLightColor());
+		// graphics.drawLine(xCoord - vertexSize * 3, yCoord, xCoord +  vertexSize * 3, yCoord);
+		// graphics.drawLine(xCoord, yCoord - vertexSize * 3, xCoord, yCoord + vertexSize * 3);
+		graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2), yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
+
+		int attenuationStart = (int) (object.getAttenuationStart() * zoom);
+		if (attenuationStart > 0) {
+			graphics.drawOval(xCoord - attenuationStart, yCoord - attenuationStart, attenuationStart * 2, attenuationStart * 2);
+		}
+		int attenuationEnd = (int) (object.getAttenuationEnd() * zoom);
+		if (attenuationEnd > 0) {
+			graphics.drawOval(xCoord - attenuationEnd, yCoord - attenuationEnd, attenuationEnd * 2, attenuationEnd * 2);
+		}
 	}
 
 	@Override
-	public void particleEmitter(ParticleEmitter particleEmitter) {
-		drawNodeImage(particleEmitter, nodeIconPalette.getParticleImage());
+	public void attachment(Attachment object) {
+		drawNodeImage(object, nodeIconPalette.getAttachmentImage());
 	}
 
 	@Override
-	public void particleEmitter2(ParticleEmitter2 particleEmitter) {
-		drawNodeImage(particleEmitter, nodeIconPalette.getParticle2Image());
+	public void particleEmitter(ParticleEmitter object) {
+		drawNodeImage(object, nodeIconPalette.getParticleImage());
 	}
 
 	@Override
-	public void popcornFxEmitter(ParticleEmitterPopcorn particleEmitter) {
-		drawNodeImage(particleEmitter, nodeIconPalette.getParticleImage());
+	public void particleEmitter2(ParticleEmitter2 object) {
+		drawNodeImage(object, nodeIconPalette.getParticle2Image());
 	}
 
 	@Override
-	public void ribbonEmitter(RibbonEmitter ribbonEmitter) {
-		drawNodeImage(ribbonEmitter, nodeIconPalette.getRibbonImage());
+	public void popcornFxEmitter(ParticleEmitterPopcorn object) {
+		drawNodeImage(object, nodeIconPalette.getParticleImage());
 	}
 
 	@Override
-	public void eventObject(EventObject eventObject) {
-		drawNodeImage(eventObject, nodeIconPalette.getEventImage());
+	public void ribbonEmitter(RibbonEmitter object) {
+		drawNodeImage(object, nodeIconPalette.getRibbonImage());
 	}
 
 	@Override
-	public void collisionShape(CollisionShape collisionShape) {
-		drawCollisionShape(graphics, pivotPointColor, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), vertexSize, collisionShape, nodeIconPalette.getCollisionImage());
+	public void eventObject(EventObject object) {
+		drawNodeImage(object, nodeIconPalette.getEventImage());
+	}
+
+	@Override
+	public void collisionShape(CollisionShape object) {
+		drawCollisionShape(graphics, pivotPointColor, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), vertexSize, object, nodeIconPalette.getCollisionImage());
 	}
 
 	@Override
@@ -208,9 +212,5 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		// g2.setColor(Color.green.darker());
 		// }
 		g2.drawLine(0, 0, (int) dist, 0);
-	}
-
-	private void drawNodeImage(IdObject attachment, Image nodeImage) {
-		drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem, attachment, nodeImage);
 	}
 }

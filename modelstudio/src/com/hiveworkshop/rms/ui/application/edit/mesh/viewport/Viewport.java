@@ -1,8 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.visitor.GeosetVisitor;
-import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -13,7 +10,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.AnimatedViewportModelRenderer;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableAnimatedIdObjectParentLinkRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
@@ -24,17 +20,16 @@ import net.infonode.docking.View;
 import javax.swing.*;
 import java.awt.*;
 
-//public class Viewport extends JPanel implements CoordinateSystem, ViewportView, ModelEditorChangeListener {
 public class Viewport extends ViewportView implements ModelEditorChangeListener {
 	Timer paintTimer;
 
 	private final ViewportModelRenderer viewportModelRenderer;
 	private final AnimatedViewportModelRenderer animatedViewportModelRenderer;
-	private final ResettableAnimatedIdObjectParentLinkRenderer linkRenderer;
-	private ModelEditorManager modelEditorManager;
+	private final LinkRenderingVisitorAdapter linkRenderingVisitorAdapter;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final RenderModel renderModel;
-	private final ModelVisitorImplementation linkRenderingVisitorAdapter;
+	//	private final ResettableAnimatedIdObjectParentLinkRenderer linkRenderer;
+	private ModelEditorManager modelEditorManager;
 	private final Vec3 facingVector;
 	private View view;
 
@@ -81,8 +76,8 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 
 		viewportModelRenderer = new ViewportModelRenderer(programPreferences.getVertexSize());
 		animatedViewportModelRenderer = new AnimatedViewportModelRenderer(programPreferences.getVertexSize());
-		linkRenderer = new ResettableAnimatedIdObjectParentLinkRenderer(programPreferences.getVertexSize());
-		linkRenderingVisitorAdapter = new ModelVisitorImplementation();
+//		linkRenderer = new ResettableAnimatedIdObjectParentLinkRenderer(programPreferences.getVertexSize());
+		linkRenderingVisitorAdapter = new LinkRenderingVisitorAdapter(programPreferences);
 
 		facingVector = new Vec3(0, 0, 0);
 		final byte unusedXYZ = CoordinateSystem.Util.getUnusedXYZ(this);
@@ -132,7 +127,8 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 			Stroke stroke = graphics2d.getStroke();
 			graphics2d.setStroke(new BasicStroke(3));
 			renderModel.updateNodes(false);
-			linkRenderer.reset(this, graphics2d, NodeIconPalette.HIGHLIGHT, renderModel);
+//			linkRenderer.reset(this, graphics2d, NodeIconPalette.HIGHLIGHT, renderModel);
+			linkRenderingVisitorAdapter.reset(this, graphics2d, renderModel);
 			modelView.visit(linkRenderingVisitorAdapter);
 			graphics2d.setStroke(stroke);
 			animatedViewportModelRenderer.reset(graphics2d, programPreferences, m_d1, m_d2, this, this, modelView, renderModel);
@@ -239,67 +235,6 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 
 	public ModelStructureChangeListener getModelStructureChangeListener() {
 		return modelStructureChangeListener;
-	}
-
-	private final class ModelVisitorImplementation implements ModelVisitor {
-		@Override
-		public void ribbonEmitter(RibbonEmitter particleEmitter) {
-			linkRenderer.ribbonEmitter(particleEmitter);
-		}
-
-		@Override
-		public void particleEmitter2(ParticleEmitter2 particleEmitter) {
-			linkRenderer.particleEmitter2(particleEmitter);
-		}
-
-		@Override
-		public void particleEmitter(ParticleEmitter particleEmitter) {
-			linkRenderer.particleEmitter(particleEmitter);
-		}
-
-		@Override
-		public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
-			linkRenderer.popcornFxEmitter(popcornFxEmitter);
-		}
-
-		@Override
-		public void light(Light light) {
-			linkRenderer.light(light);
-		}
-
-		@Override
-		public void helper(Helper object) {
-			linkRenderer.helper(object);
-		}
-
-		@Override
-		public void eventObject(EventObject eventObject) {
-			linkRenderer.eventObject(eventObject);
-		}
-
-		@Override
-		public void collisionShape(CollisionShape collisionShape) {
-			linkRenderer.collisionShape(collisionShape);
-		}
-
-		@Override
-		public void camera(Camera camera) {
-		}
-
-		@Override
-		public void bone(Bone object) {
-			linkRenderer.bone(object);
-		}
-
-		@Override
-		public void attachment(Attachment attachment) {
-			linkRenderer.attachment(attachment);
-		}
-
-		@Override
-		public GeosetVisitor beginGeoset(int geosetId, Material material, GeosetAnim geosetAnim) {
-			return GeosetVisitor.NO_ACTION;
-		}
 	}
 
 	public Vec3 getFacingVector() {

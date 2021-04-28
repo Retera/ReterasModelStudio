@@ -151,6 +151,14 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			}
 			object.apply(new IdObjectVisitor() {
 				@Override
+				public void bone(Bone object) {
+				}
+
+				@Override
+				public void helper(Helper object) {
+				}
+
+				@Override
 				public void ribbonEmitter(RibbonEmitter particleEmitter) {
 				}
 
@@ -171,10 +179,6 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 				}
 
 				@Override
-				public void helper(Helper object) {
-				}
-
-				@Override
 				public void eventObject(EventObject eventObject) {
 				}
 
@@ -188,15 +192,11 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 				}
 
 				@Override
-				public void camera(Camera camera) {
-				}
-
-				@Override
-				public void bone(Bone object) {
-				}
-
-				@Override
 				public void attachment(Attachment attachment) {
+				}
+
+				@Override
+				public void camera(Camera camera) {
 				}
 			});
 		}
@@ -255,23 +255,20 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
 				b.apply(new IdObjectVisitor() {
 					@Override
-					public void ribbonEmitter(RibbonEmitter particleEmitter) {
-					}
-
-					@Override
-					public void particleEmitter2(ParticleEmitter2 particleEmitter) {
-					}
-
-					@Override
-					public void particleEmitter(ParticleEmitter particleEmitter) {
-					}
-
-					@Override
-					public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
-					}
-
-					@Override
-					public void light(Light light) {
+					public void bone(Bone object) {
+						Vec3AnimFlag translation = (Vec3AnimFlag) object.find("Translation");
+						if (translation != null) {
+							for (int i = 0; i < translation.size(); i++) {
+								Vec3 scaleData = translation.getValues().get(i);
+								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
+								if (translation.tans()) {
+									Vec3 inTanData = translation.getInTans().get(i);
+									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
+									Vec3 outTanData = translation.getInTans().get(i);
+									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
+								}
+							}
+						}
 					}
 
 					@Override
@@ -292,40 +289,43 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 					}
 
 					@Override
-					public void eventObject(EventObject eventObject) {
+					public void ribbonEmitter(RibbonEmitter object) {
 					}
 
 					@Override
-					public void collisionShape(CollisionShape collisionShape) {
-						ExtLog extents = collisionShape.getExtents();
+					public void particleEmitter2(ParticleEmitter2 object) {
+					}
+
+					@Override
+					public void particleEmitter(ParticleEmitter object) {
+					}
+
+					@Override
+					public void popcornFxEmitter(ParticleEmitterPopcorn object) {
+					}
+
+					@Override
+					public void light(Light object) {
+					}
+
+					@Override
+					public void eventObject(EventObject object) {
+					}
+
+					@Override
+					public void collisionShape(CollisionShape object) {
+						ExtLog extents = object.getExtents();
 						if ((extents != null) && (scaleX == scaleY) && (scaleY == scaleZ)) {
 							extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
 						}
 					}
 
 					@Override
+					public void attachment(Attachment object) {
+					}
+
+					@Override
 					public void camera(Camera camera) {
-					}
-
-					@Override
-					public void bone(Bone object) {
-						Vec3AnimFlag translation = (Vec3AnimFlag) object.find("Translation");
-						if (translation != null) {
-							for (int i = 0; i < translation.size(); i++) {
-								Vec3 scaleData = translation.getValues().get(i);
-								scaleData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-								if (translation.tans()) {
-									Vec3 inTanData = translation.getInTans().get(i);
-									inTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-									Vec3 outTanData = translation.getInTans().get(i);
-									outTanData.scale(0, 0, 0, scaleX, scaleY, scaleZ);
-								}
-							}
-						}
-					}
-
-					@Override
-					public void attachment(Attachment attachment) {
 					}
 				});
 			}
@@ -396,53 +396,60 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			return this;
 		}
 
-		@Override
-		public void ribbonEmitter(RibbonEmitter particleEmitter) {
-			handleDefaultNode(point, axes, particleEmitter);
-		}
-
-		private void handleDefaultNode(Point point, CoordinateSystem axes, IdObject node) {
-			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes) * 2)) {
+		private void handleDefaultNode(Point point, CoordinateSystem axes, IdObject object) {
+			if (hitTest(object.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, object.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes) * 2)) {
 				mouseOverVertex = true;
 			}
 		}
 
 		@Override
-		public void particleEmitter2(ParticleEmitter2 particleEmitter) {
-			handleDefaultNode(point, axes, particleEmitter);
+		public void ribbonEmitter(RibbonEmitter object) {
+			handleDefaultNode(point, axes, object);
 		}
 
 		@Override
-		public void particleEmitter(ParticleEmitter particleEmitter) {
-			handleDefaultNode(point, axes, particleEmitter);
-		}
-
-		@Override
-		public void popcornFxEmitter(ParticleEmitterPopcorn particleEmitter) {
-			handleDefaultNode(point, axes, particleEmitter);
-		}
-
-		@Override
-		public void light(Light light) {
-			handleDefaultNode(point, axes, light);
-		}
-
-		@Override
-		public void helper(Helper node) {
-			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
+		public void bone(Bone object) {
+			if (hitTest(object.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, object.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
 				mouseOverVertex = true;
 			}
 		}
 
 		@Override
-		public void eventObject(EventObject eventObject) {
-			handleDefaultNode(point, axes, eventObject);
+		public void helper(Helper object) {
+			if (hitTest(object.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, object.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
+				mouseOverVertex = true;
+			}
 		}
 
 		@Override
-		public void collisionShape(CollisionShape collisionShape) {
-			handleDefaultNode(point, axes, collisionShape);
-			for (Vec3 vertex : collisionShape.getVertices()) {
+		public void particleEmitter2(ParticleEmitter2 object) {
+			handleDefaultNode(point, axes, object);
+		}
+
+		@Override
+		public void particleEmitter(ParticleEmitter object) {
+			handleDefaultNode(point, axes, object);
+		}
+
+		@Override
+		public void popcornFxEmitter(ParticleEmitterPopcorn object) {
+			handleDefaultNode(point, axes, object);
+		}
+
+		@Override
+		public void light(Light object) {
+			handleDefaultNode(point, axes, object);
+		}
+
+		@Override
+		public void eventObject(EventObject object) {
+			handleDefaultNode(point, axes, object);
+		}
+
+		@Override
+		public void collisionShape(CollisionShape object) {
+			handleDefaultNode(point, axes, object);
+			for (Vec3 vertex : object.getVertices()) {
 				if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes, IdObject.DEFAULT_CLICK_RADIUS)) {
 					mouseOverVertex = true;
 				}
@@ -460,15 +467,8 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		}
 
 		@Override
-		public void bone(Bone node) {
-			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
-				mouseOverVertex = true;
-			}
-		}
-
-		@Override
-		public void attachment(Attachment attachment) {
-			handleDefaultNode(point, axes, attachment);
+		public void attachment(Attachment object) {
+			handleDefaultNode(point, axes, object);
 		}
 
 		public boolean isMouseOverVertex() {
@@ -486,6 +486,22 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			this.area = area;
 			this.coordinateSystem = coordinateSystem;
 			return this;
+		}
+
+		@Override
+		public void bone(Bone object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
+		}
+
+		@Override
+		public void helper(Helper object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
 		}
 
 		@Override
@@ -529,24 +545,8 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		}
 
 		@Override
-		public void helper(Helper object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object);
-			}
-		}
-
-		@Override
 		public void eventObject(EventObject object) {
 			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object);
-			}
-		}
-
-		@Override
-		public void bone(Bone object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
 			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
 				selectedItems.add(object);
 			}

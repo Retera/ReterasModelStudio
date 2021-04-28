@@ -247,28 +247,28 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		Set<Vec3> allSelection = new HashSet<>();
 		IdObjectVisitor visitor = new IdObjectVisitor() {
 			@Override
-			public void ribbonEmitter(RibbonEmitter particleEmitter) {
-				allSelection.add(particleEmitter.getPivotPoint());
+			public void ribbonEmitter(RibbonEmitter object) {
+				allSelection.add(object.getPivotPoint());
 			}
 
 			@Override
-			public void particleEmitter2(ParticleEmitter2 particleEmitter) {
-				allSelection.add(particleEmitter.getPivotPoint());
+			public void particleEmitter2(ParticleEmitter2 object) {
+				allSelection.add(object.getPivotPoint());
 			}
 
 			@Override
-			public void particleEmitter(ParticleEmitter particleEmitter) {
-				allSelection.add(particleEmitter.getPivotPoint());
+			public void particleEmitter(ParticleEmitter object) {
+				allSelection.add(object.getPivotPoint());
 			}
 
 			@Override
-			public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
-				allSelection.add(popcornFxEmitter.getPivotPoint());
+			public void popcornFxEmitter(ParticleEmitterPopcorn object) {
+				allSelection.add(object.getPivotPoint());
 			}
 
 			@Override
-			public void light(Light light) {
-				allSelection.add(light.getPivotPoint());
+			public void light(Light object) {
+				allSelection.add(object.getPivotPoint());
 			}
 
 			@Override
@@ -277,14 +277,14 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			}
 
 			@Override
-			public void eventObject(EventObject eventObject) {
-				allSelection.add(eventObject.getPivotPoint());
+			public void eventObject(EventObject object) {
+				allSelection.add(object.getPivotPoint());
 			}
 
 			@Override
-			public void collisionShape(CollisionShape collisionShape) {
-				allSelection.add(collisionShape.getPivotPoint());
-				allSelection.addAll(collisionShape.getVertices());
+			public void collisionShape(CollisionShape object) {
+				allSelection.add(object.getPivotPoint());
+				allSelection.addAll(object.getVertices());
 			}
 
 			@Override
@@ -349,23 +349,23 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			}
 			object.apply(new IdObjectVisitor() {
 				@Override
-				public void ribbonEmitter(RibbonEmitter particleEmitter) {
+				public void ribbonEmitter(RibbonEmitter object) {
 				}
 
 				@Override
-				public void particleEmitter2(ParticleEmitter2 particleEmitter) {
+				public void particleEmitter2(ParticleEmitter2 object) {
 				}
 
 				@Override
-				public void particleEmitter(ParticleEmitter particleEmitter) {
+				public void particleEmitter(ParticleEmitter object) {
 				}
 
 				@Override
-				public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
+				public void popcornFxEmitter(ParticleEmitterPopcorn object) {
 				}
 
 				@Override
-				public void light(Light light) {
+				public void light(Light object) {
 				}
 
 				@Override
@@ -373,12 +373,12 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 				}
 
 				@Override
-				public void eventObject(EventObject eventObject) {
+				public void eventObject(EventObject object) {
 				}
 
 				@Override
-				public void collisionShape(CollisionShape collisionShape) {
-					for (Vec3 vertex : collisionShape.getVertices()) {
+				public void collisionShape(CollisionShape object) {
+					for (Vec3 vertex : object.getVertices()) {
 						if (newSelection.contains(vertex)) {
 							newlySelectedPivots.add(vertex);
 						}
@@ -394,7 +394,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 				}
 
 				@Override
-				public void attachment(Attachment attachment) {
+				public void attachment(Attachment object) {
 				}
 			});
 		}
@@ -415,23 +415,23 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		Set<Vec3> oldSelection = new HashSet<>(selectionManager.getSelection());
 		IdObjectVisitor visitor = new IdObjectVisitor() {
 			@Override
-			public void ribbonEmitter(RibbonEmitter particleEmitter) {
+			public void ribbonEmitter(RibbonEmitter object) {
 			}
 
 			@Override
-			public void particleEmitter2(ParticleEmitter2 particleEmitter) {
+			public void particleEmitter2(ParticleEmitter2 object) {
 			}
 
 			@Override
-			public void particleEmitter(ParticleEmitter particleEmitter) {
+			public void particleEmitter(ParticleEmitter object) {
 			}
 
 			@Override
-			public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
+			public void popcornFxEmitter(ParticleEmitterPopcorn object) {
 			}
 
 			@Override
-			public void light(Light light) {
+			public void light(Light object) {
 			}
 
 			@Override
@@ -439,24 +439,24 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			}
 
 			@Override
-			public void eventObject(EventObject eventObject) {
+			public void eventObject(EventObject object) {
 			}
 
 			@Override
-			public void collisionShape(CollisionShape collisionShape) {
+			public void collisionShape(CollisionShape object) {
 				boolean selected = false;
-				if (oldSelection.contains(collisionShape.getPivotPoint())) {
+				if (oldSelection.contains(object.getPivotPoint())) {
 					selected = true;
 				}
-				for (Vec3 vertex : collisionShape.getVertices()) {
+				for (Vec3 vertex : object.getVertices()) {
 					if (oldSelection.contains(vertex)) {
 						selected = true;
 						break;
 					}
 				}
 				if (selected) {
-					expandedSelection.addAll(collisionShape.getVertices());
-					expandedSelection.add(collisionShape.getPivotPoint());
+					expandedSelection.addAll(object.getVertices());
+					expandedSelection.add(object.getPivotPoint());
 				}
 			}
 
@@ -474,7 +474,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			}
 
 			@Override
-			public void attachment(Attachment attachment) {
+			public void attachment(Attachment object) {
 
 			}
 		};
@@ -505,23 +505,23 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 					possibleVerticesToTruncate.add(node.getPivotPoint());
 					node.apply(new IdObjectVisitor() {
 						@Override
-						public void ribbonEmitter(RibbonEmitter particleEmitter) {
+						public void ribbonEmitter(RibbonEmitter object) {
 						}
 
 						@Override
-						public void particleEmitter2(ParticleEmitter2 particleEmitter) {
+						public void particleEmitter2(ParticleEmitter2 object) {
 						}
 
 						@Override
-						public void particleEmitter(ParticleEmitter particleEmitter) {
+						public void particleEmitter(ParticleEmitter object) {
 						}
 
 						@Override
-						public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
+						public void popcornFxEmitter(ParticleEmitterPopcorn object) {
 						}
 
 						@Override
-						public void light(Light light) {
+						public void light(Light object) {
 						}
 
 						@Override
@@ -529,12 +529,12 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 						}
 
 						@Override
-						public void eventObject(EventObject eventObject) {
+						public void eventObject(EventObject object) {
 						}
 
 						@Override
-						public void collisionShape(CollisionShape collisionShape) {
-							possibleVerticesToTruncate.addAll(collisionShape.getVertices());
+						public void collisionShape(CollisionShape object) {
+							possibleVerticesToTruncate.addAll(object.getVertices());
 						}
 
 						@Override
@@ -547,7 +547,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 						}
 
 						@Override
-						public void attachment(Attachment attachment) {
+						public void attachment(Attachment object) {
 						}
 					});
 				}
@@ -593,23 +593,23 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
 				b.apply(new IdObjectVisitor() {
 					@Override
-					public void ribbonEmitter(RibbonEmitter particleEmitter) {
+					public void ribbonEmitter(RibbonEmitter object) {
 					}
 
 					@Override
-					public void particleEmitter2(ParticleEmitter2 particleEmitter) {
+					public void particleEmitter2(ParticleEmitter2 object) {
 					}
 
 					@Override
-					public void particleEmitter(ParticleEmitter particleEmitter) {
+					public void particleEmitter(ParticleEmitter object) {
 					}
 
 					@Override
-					public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
+					public void popcornFxEmitter(ParticleEmitterPopcorn object) {
 					}
 
 					@Override
-					public void light(Light light) {
+					public void light(Light object) {
 					}
 
 					@Override
@@ -630,12 +630,12 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 					}
 
 					@Override
-					public void eventObject(EventObject eventObject) {
+					public void eventObject(EventObject object) {
 					}
 
 					@Override
-					public void collisionShape(CollisionShape collisionShape) {
-						ExtLog extents = collisionShape.getExtents();
+					public void collisionShape(CollisionShape object) {
+						ExtLog extents = object.getExtents();
 						if ((extents != null) && (scaleX == scaleY) && (scaleY == scaleZ)) {
 							extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
 						}
@@ -663,7 +663,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 					}
 
 					@Override
-					public void attachment(Attachment attachment) {
+					public void attachment(Attachment object) {
 					}
 				});
 			}
@@ -774,41 +774,41 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		}
 
 		@Override
-		public void particleEmitter2(ParticleEmitter2 particleEmitter) {
-			handleDefaultNode(point, axes, particleEmitter);
+		public void particleEmitter2(ParticleEmitter2 object) {
+			handleDefaultNode(point, axes, object);
 		}
 
 		@Override
-		public void particleEmitter(ParticleEmitter particleEmitter) {
-			handleDefaultNode(point, axes, particleEmitter);
+		public void particleEmitter(ParticleEmitter object) {
+			handleDefaultNode(point, axes, object);
 		}
 
 		@Override
-		public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
-			handleDefaultNode(point, axes, popcornFxEmitter);
+		public void popcornFxEmitter(ParticleEmitterPopcorn object) {
+			handleDefaultNode(point, axes, object);
 		}
 
 		@Override
-		public void light(Light light) {
-			handleDefaultNode(point, axes, light);
+		public void light(Light object) {
+			handleDefaultNode(point, axes, object);
 		}
 
 		@Override
-		public void helper(Helper node) {
-			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
+		public void helper(Helper object) {
+			if (hitTest(object.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, object.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
 				mouseOverVertex = true;
 			}
 		}
 
 		@Override
-		public void eventObject(EventObject eventObject) {
-			handleDefaultNode(point, axes, eventObject);
+		public void eventObject(EventObject object) {
+			handleDefaultNode(point, axes, object);
 		}
 
 		@Override
-		public void collisionShape(CollisionShape collisionShape) {
-			handleDefaultNode(point, axes, collisionShape);
-			for (Vec3 vertex : collisionShape.getVertices()) {
+		public void collisionShape(CollisionShape object) {
+			handleDefaultNode(point, axes, object);
+			for (Vec3 vertex : object.getVertices()) {
 				if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes, IdObject.DEFAULT_CLICK_RADIUS)) {
 					mouseOverVertex = true;
 				}
@@ -826,8 +826,8 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		}
 
 		@Override
-		public void bone(Bone node) {
-			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
+		public void bone(Bone object) {
+			if (hitTest(object.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, object.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes))) {
 				mouseOverVertex = true;
 			}
 		}
@@ -852,6 +852,22 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			this.area = area;
 			this.coordinateSystem = coordinateSystem;
 			return this;
+		}
+
+		@Override
+		public void bone(Bone object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object.getPivotPoint());
+			}
+		}
+
+		@Override
+		public void helper(Helper object) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
+			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object.getPivotPoint());
+			}
 		}
 
 		@Override
@@ -895,24 +911,8 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		}
 
 		@Override
-		public void helper(Helper object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object.getPivotPoint());
-			}
-		}
-
-		@Override
 		public void eventObject(EventObject object) {
 			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2;
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object.getPivotPoint());
-			}
-		}
-
-		@Override
-		public void bone(Bone object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
 			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
 				selectedItems.add(object.getPivotPoint());
 			}

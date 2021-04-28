@@ -427,8 +427,8 @@ public class DispElements {
 		}
 
 		@Override
-		public void light(Light light) {
-			element = new ChooseableLightItem(modelViewManager, light);
+		public void light(Light object) {
+			element = new ChooseableLightItem(modelViewManager, object);
 		}
 
 		@Override
@@ -437,38 +437,38 @@ public class DispElements {
 		}
 
 		@Override
-		public void attachment(Attachment attachment) {
-			element = new ChooseableAttachmentItem(modelViewManager, attachment);
+		public void attachment(Attachment object) {
+			element = new ChooseableAttachmentItem(modelViewManager, object);
 		}
 
 		@Override
-		public void particleEmitter(ParticleEmitter particleEmitter) {
-			element = new ChooseableParticleEmitterItem(modelViewManager, particleEmitter);
+		public void particleEmitter(ParticleEmitter object) {
+			element = new ChooseableParticleEmitterItem(modelViewManager, object);
 		}
 
 		@Override
-		public void particleEmitter2(ParticleEmitter2 particleEmitter) {
-			element = new ChooseableParticleEmitter2Item(modelViewManager, particleEmitter);
+		public void particleEmitter2(ParticleEmitter2 object) {
+			element = new ChooseableParticleEmitter2Item(modelViewManager, object);
 		}
 
 		@Override
-		public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
-			element = new ChooseableParticleEmitterPopcornItem(modelViewManager, popcornFxEmitter);
+		public void popcornFxEmitter(ParticleEmitterPopcorn object) {
+			element = new ChooseableParticleEmitterPopcornItem(modelViewManager, object);
 		}
 
 		@Override
-		public void ribbonEmitter(RibbonEmitter particleEmitter) {
-			element = new ChooseableRibbonEmitterItem(modelViewManager, particleEmitter);
+		public void ribbonEmitter(RibbonEmitter object) {
+			element = new ChooseableRibbonEmitterItem(modelViewManager, object);
 		}
 
 		@Override
-		public void eventObject(EventObject eventObject) {
-			element = new ChooseableEventObjectItem(modelViewManager, eventObject);
+		public void eventObject(EventObject object) {
+			element = new ChooseableEventObjectItem(modelViewManager, object);
 		}
 
 		@Override
-		public void collisionShape(CollisionShape collisionShape) {
-			element = new ChooseableCollisionShapeItem(modelViewManager, collisionShape);
+		public void collisionShape(CollisionShape object) {
+			element = new ChooseableCollisionShapeItem(modelViewManager, object);
 		}
 
 		@Override

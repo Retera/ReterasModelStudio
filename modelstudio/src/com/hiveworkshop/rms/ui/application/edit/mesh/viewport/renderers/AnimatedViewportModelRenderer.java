@@ -69,12 +69,6 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 		return geosetRenderer.reset(graphics, programPreferences, xDimension, yDimension, coordinateSystem, renderModel);
 	}
 
-	@Override
-	public void bone(Bone object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.bone(object);
-	}
-
 	private void resetIdObjectRendererWithNode(IdObject object) {
 		idObjectRenderer.reset(coordinateSystem, graphics,
 				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor() : programPreferences.getLightsColor(),
@@ -84,9 +78,9 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 	}
 
 	@Override
-	public void light(Light light) {
-		resetIdObjectRendererWithNode(light);
-		idObjectRenderer.light(light);
+	public void bone(Bone object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.bone(object);
 	}
 
 	@Override
@@ -96,45 +90,51 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 	}
 
 	@Override
-	public void attachment(Attachment attachment) {
-		resetIdObjectRendererWithNode(attachment);
-		idObjectRenderer.attachment(attachment);
+	public void light(Light object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.light(object);
 	}
 
 	@Override
-	public void particleEmitter(ParticleEmitter particleEmitter) {
-		resetIdObjectRendererWithNode(particleEmitter);
-		idObjectRenderer.particleEmitter(particleEmitter);
+	public void attachment(Attachment object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.attachment(object);
 	}
 
 	@Override
-	public void particleEmitter2(ParticleEmitter2 particleEmitter) {
-		resetIdObjectRendererWithNode(particleEmitter);
-		idObjectRenderer.particleEmitter2(particleEmitter);
+	public void particleEmitter(ParticleEmitter object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.particleEmitter(object);
 	}
 
 	@Override
-	public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
-		resetIdObjectRendererWithNode(popcornFxEmitter);
-		idObjectRenderer.popcornFxEmitter(popcornFxEmitter);
+	public void particleEmitter2(ParticleEmitter2 object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.particleEmitter2(object);
 	}
 
 	@Override
-	public void ribbonEmitter(RibbonEmitter ribbonEmitter) {
-		resetIdObjectRendererWithNode(ribbonEmitter);
-		idObjectRenderer.ribbonEmitter(ribbonEmitter);
+	public void popcornFxEmitter(ParticleEmitterPopcorn object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.popcornFxEmitter(object);
 	}
 
 	@Override
-	public void eventObject(EventObject eventObject) {
-		resetIdObjectRendererWithNode(eventObject);
-		idObjectRenderer.eventObject(eventObject);
+	public void ribbonEmitter(RibbonEmitter object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.ribbonEmitter(object);
 	}
 
 	@Override
-	public void collisionShape(CollisionShape collisionShape) {
-		resetIdObjectRendererWithNode(collisionShape);
-		idObjectRenderer.collisionShape(collisionShape);
+	public void eventObject(EventObject object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.eventObject(object);
+	}
+
+	@Override
+	public void collisionShape(CollisionShape object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.collisionShape(object);
 
 	}
 
@@ -142,122 +142,5 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 	public void camera(Camera cam) {
 		idObjectRenderer.camera(cam);
 	}
-
-//	public void drawNormal(float firstCoord, float secondCoord, Point point, Vec4 normalSumHeap) {
-//		Color triangleColor = graphics.getColor();
-//
-//		float firstNormalCoord = normalSumHeap.getVec3().getCoord(xDimension);
-//		float secondNormalCoord = normalSumHeap.getVec3().getCoord(yDimension);
-//
-//		graphics.setColor(programPreferences.getNormalsColor());
-//		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
-//
-//		double normXsize = (firstNormalCoord * 12) / zoom;
-//		double normYsize = (secondNormalCoord * 12) / zoom;
-//		double normEndX3 = coordinateSystem.viewX(firstCoord + normXsize);
-//		double normEndY3 = coordinateSystem.viewY(secondCoord + normYsize);
-//		Point endPoint3 = new Point((int) normEndX3, (int) normEndY3);
-//
-//		double normEndX2 = coordinateSystem.viewX(firstCoord + (firstNormalCoord * 12 / zoom));
-//		double normEndY2 = coordinateSystem.viewY(secondCoord + (secondNormalCoord * 12 / zoom));
-//		Point endPoint2 = new Point((int) normEndX2, (int) normEndY2);
-//
-//		double normEndX = firstCoord + (firstNormalCoord * 12 / zoom);
-//		double normEndY = secondCoord + (secondNormalCoord * 12 / zoom);
-//		Point endPoint = new Point((int) coordinateSystem.viewX(normEndX), (int) coordinateSystem.viewY(normEndY));
-//
-//		graphics.drawLine(point.x, point.y, endPoint.x, endPoint.y);
-//		graphics.setColor(triangleColor);
-//	}
-
-//	private class GeosetRendererImpl implements GeosetVisitor {
-//		private TriangleRendererImpl triangleRenderer = new TriangleRendererImpl();
-//
-//		public GeosetRendererImpl reset() {
-//			return this;
-//		}
-//
-//		@Override
-//		public TriangleVisitor beginTriangle() {
-//			return triangleRenderer.reset();
-//		}
-//
-//		@Override
-//		public void geosetFinished() {
-//		}
-//	}
-
-//	public void normalizeHeap(Vec4 heap) {
-//		if (heap.length() > 0) {
-//			heap.normalize();
-//		} else {
-//			heap.set(0, 1, 0, 0);
-//		}
-//	}
-
-//	private final class TriangleRendererImpl implements TriangleVisitor {
-//		private final List<Point> previousVertices = new ArrayList<>();
-//
-//		public TriangleRendererImpl reset() {
-//			previousVertices.clear();
-//			return this;
-//		}
-//
-//		@Override
-//		public VertexVisitor hdVertex(Vec3 vert, Vec3 normal, Bone[] skinBones, short[] skinBoneWeights) {
-//			Mat4 skinBonesMatrixSumHeap = ModelUtils.processHdBones(renderModel, skinBones, skinBoneWeights);
-//
-//			processAndDraw(vert, normal, skinBonesMatrixSumHeap);
-//
-//			return VertexVisitor.NO_ACTION;
-//		}
-//
-//		@Override
-//		public VertexVisitor vertex(Vec3 vert, Vec3 normal, List<Bone> bones) {
-//			Mat4 bonesMatrixSumHeap = ModelUtils.processSdBones(renderModel, bones);
-//
-//			processAndDraw(vert, normal, bonesMatrixSumHeap);
-//			return VertexVisitor.NO_ACTION;
-//		}
-//
-//		public void processAndDraw(Vec3 v, Vec3 normal, Mat4 skinBonesMatrixSumHeap) {
-//			Vec4 vertexHeap = new Vec4(v, 1);
-//			Vec4 vertexSumHeap = Vec4.getTransformed(vertexHeap, skinBonesMatrixSumHeap);
-//
-//			Vec4 normalHeap = new Vec4(normal, 0);
-//			Vec4 normalSumHeap = Vec4.getTransformed(normalHeap, skinBonesMatrixSumHeap);
-//			normalizeHeap(normalSumHeap);
-//
-//			drawLineFromVert(normalSumHeap, vertexSumHeap);
-//		}
-//
-//		public void drawLineFromVert(Vec4 normalSumHeap, Vec4 vertexSumHeap) {
-//			float firstCoord = vertexSumHeap.getVec3().getCoord(xDimension);
-//			float secondCoord = vertexSumHeap.getVec3().getCoord(yDimension);
-//			Point point = new Point((int) coordinateSystem.viewX(firstCoord), (int) coordinateSystem.viewY(secondCoord));
-//
-//			if (previousVertices.size() > 0) {
-//				Point previousPoint = previousVertices.get(previousVertices.size() - 1);
-//				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
-//			}
-//			previousVertices.add(point);
-//			// graphics.setColor(programPreferences.getVertexColor());
-//			// graphics.fillRect((int) firstCoord - vertexSize / 2, (int)
-//			// secondCoord - vertexSize / 2, vertexSize, vertexSize);
-//			if (programPreferences.showNormals()) {
-//				drawNormal(firstCoord, secondCoord, point, normalSumHeap);
-//			}
-//		}
-//
-//		@Override
-//		public void triangleFinished() {
-//			if (previousVertices.size() > 1) {
-//				Point previousPoint = previousVertices.get(previousVertices.size() - 1);
-//				Point point = previousVertices.get(0);
-//				graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
-//			}
-//		}
-//
-//	}
 
 }

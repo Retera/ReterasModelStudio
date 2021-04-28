@@ -162,9 +162,9 @@ public class ViewportModelRenderer implements ModelVisitor {
 	}
 
 	@Override
-	public void light(Light light) {
-		resetIdObjectRendererWithNode(light);
-		idObjectRenderer.light(light);
+	public void light(Light object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.light(object);
 	}
 
 	@Override
@@ -174,27 +174,27 @@ public class ViewportModelRenderer implements ModelVisitor {
 	}
 
 	@Override
-	public void attachment(Attachment attachment) {
-		resetIdObjectRendererWithNode(attachment);
-		idObjectRenderer.attachment(attachment);
+	public void attachment(Attachment object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.attachment(object);
 	}
 
 	@Override
-	public void particleEmitter(ParticleEmitter particleEmitter) {
-		resetIdObjectRendererWithNode(particleEmitter);
-		idObjectRenderer.particleEmitter(particleEmitter);
+	public void particleEmitter(ParticleEmitter object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.particleEmitter(object);
 	}
 
 	@Override
-	public void particleEmitter2(ParticleEmitter2 particleEmitter) {
-		resetIdObjectRendererWithNode(particleEmitter);
-		idObjectRenderer.particleEmitter2(particleEmitter);
+	public void particleEmitter2(ParticleEmitter2 object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.particleEmitter2(object);
 	}
 
 	@Override
-	public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
-		resetIdObjectRendererWithNode(popcornFxEmitter);
-		idObjectRenderer.popcornFxEmitter(popcornFxEmitter);
+	public void popcornFxEmitter(ParticleEmitterPopcorn object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.popcornFxEmitter(object);
 	}
 
 	public static void drawBoneMarker(Graphics g, byte a, byte b, Vec3 boneMarker) {
@@ -205,21 +205,21 @@ public class ViewportModelRenderer implements ModelVisitor {
 	}
 
 	@Override
-	public void ribbonEmitter(RibbonEmitter ribbonEmitter) {
-		resetIdObjectRendererWithNode(ribbonEmitter);
-		idObjectRenderer.ribbonEmitter(ribbonEmitter);
+	public void ribbonEmitter(RibbonEmitter object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.ribbonEmitter(object);
 	}
 
 	@Override
-	public void eventObject(EventObject eventObject) {
-		resetIdObjectRendererWithNode(eventObject);
-		idObjectRenderer.eventObject(eventObject);
+	public void eventObject(EventObject object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.eventObject(object);
 	}
 
 	@Override
-	public void collisionShape(CollisionShape collisionShape) {
-		resetIdObjectRendererWithNode(collisionShape);
-		idObjectRenderer.collisionShape(collisionShape);
+	public void collisionShape(CollisionShape object) {
+		resetIdObjectRendererWithNode(object);
+		idObjectRenderer.collisionShape(object);
 
 	}
 
