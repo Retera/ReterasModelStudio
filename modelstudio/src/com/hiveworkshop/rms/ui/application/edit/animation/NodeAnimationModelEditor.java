@@ -5,6 +5,8 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
+import com.hiveworkshop.rms.editor.model.visitor.NodeAnimGenericSelectorVisitor;
+import com.hiveworkshop.rms.editor.model.visitor.NodeAnimSelectionAtPointTester;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -42,8 +44,8 @@ import java.util.function.BiFunction;
 
 public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> {
 	private final ProgramPreferences programPreferences;
-	private final GenericSelectorVisitor genericSelectorVisitor;
-	private final SelectionAtPointTester selectionAtPointTester;
+	private final NodeAnimGenericSelectorVisitor genericSelectorVisitor;
+	private final NodeAnimSelectionAtPointTester selectionAtPointTester;
 	private final ModelView model;
 	private final RenderModel renderModel;
 	private final ModelStructureChangeListener structureChangeListener;
@@ -53,8 +55,8 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		this.model = model;
 		this.programPreferences = programPreferences;
 		this.structureChangeListener = structureChangeListener;
-		genericSelectorVisitor = new GenericSelectorVisitor();
-		selectionAtPointTester = new SelectionAtPointTester();
+		genericSelectorVisitor = new NodeAnimGenericSelectorVisitor();
+		selectionAtPointTester = new NodeAnimSelectionAtPointTester();
 		this.renderModel = renderModel;
 	}
 
@@ -177,7 +179,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		double maxX = Math.max(startingClickX, endingClickX);
 		double maxY = Math.max(startingClickY, endingClickY);
 		Rectangle2D area = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
-		IdObjectVisitor visitor = genericSelectorVisitor.reset(selectedItems, area, coordinateSystem);
+		IdObjectVisitor visitor = genericSelectorVisitor.reset(renderModel, selectedItems, area, coordinateSystem);
 		for (IdObject object : model.getEditableIdObjects()) {
 			visitor.visitIdObject(object);
 		}
@@ -186,7 +188,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public boolean canSelectAt(Point point, CoordinateSystem axes) {
-		IdObjectVisitor visitor = selectionAtPointTester.reset(axes, point);
+		IdObjectVisitor visitor = selectionAtPointTester.reset(renderModel, axes, point);
 		for (IdObject object : model.getEditableIdObjects()) {
 			visitor.visitIdObject(object);
 		}
@@ -633,77 +635,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		throw new WrongModeException("Unable to add bone in Animation Editor");
 	}
 
-	private final class SelectionAtPointTester implements IdObjectVisitor {
-		private CoordinateSystem axes;
-		private Point point;
-		private boolean mouseOverVertex;
-
-		private SelectionAtPointTester reset(CoordinateSystem axes, Point point) {
-			this.axes = axes;
-			this.point = point;
-			mouseOverVertex = false;
-			return this;
-		}
-
-		private void handleDefaultNode(Point point, CoordinateSystem axes, IdObject node) {
-			Mat4 worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
-			if (hitTest(node.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, node.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes) * 2, worldMatrix)) {
-				mouseOverVertex = true;
-			}
-		}
-
-		public boolean isMouseOverVertex() {
-			return mouseOverVertex;
-		}
-
-		@Override
-		public void visitIdObject(IdObject object) {
-			handleDefaultNode(point, axes, object);
-		}
-
-		@Override
-		public void camera(Camera camera) {
-			System.err.println("CAMERA processed in NodeAnimationModelEditor!!!");
-			// if (hitTest(camera.getPosition(), CoordinateSystem.Util.geom(axes, point),
-			// axes,
-			// programPreferences.getVertexSize(), worldMatrix)) {
-			// mouseOverVertex = true;
-			// }
-			// if (hitTest(camera.getTargetPosition(), CoordinateSystem.Util.geom(axes,
-			// point), axes,
-			// programPreferences.getVertexSize(), worldMatrix)) {
-			// mouseOverVertex = true;
-			// }
-		}
-	}
-
 	@Override
 	public RigAction rig() {
 		throw new WrongModeException("Unable to rig in Animation Editor");
-	}
-
-	private final class GenericSelectorVisitor implements IdObjectVisitor {
-		private List<IdObject> selectedItems;
-		private Rectangle2D area;
-		private CoordinateSystem coordinateSystem;
-
-		private GenericSelectorVisitor reset(List<IdObject> selectedItems, Rectangle2D area, CoordinateSystem coordinateSystem) {
-			this.selectedItems = selectedItems;
-			this.area = area;
-			this.coordinateSystem = coordinateSystem;
-			return this;
-		}
-
-		@Override
-		public void visitIdObject(IdObject object) {
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem) * 2, object, renderModel);
-		}
-
-		@Override
-		public void camera(Camera camera) {
-			System.err.println("Attempted to process camera with Node Animation Editor generic selector!!!");
-		}
-
 	}
 
 }

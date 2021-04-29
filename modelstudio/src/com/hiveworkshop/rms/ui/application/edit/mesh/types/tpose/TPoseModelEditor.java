@@ -3,6 +3,8 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.types.tpose;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
+import com.hiveworkshop.rms.editor.model.visitor.TPoseGenericSelectorVisitor;
+import com.hiveworkshop.rms.editor.model.visitor.TPoseSelectionAtPointTester;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
@@ -31,8 +33,8 @@ import java.util.*;
 
 public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	private final ProgramPreferences programPreferences;
-	private final GenericSelectorVisitor genericSelectorVisitor;
-	private final SelectionAtPointTester selectionAtPointTester;
+	private final TPoseGenericSelectorVisitor genericSelectorVisitor;
+	private final TPoseSelectionAtPointTester selectionAtPointTester;
 
 	public TPoseModelEditor(ModelView model,
 	                        ProgramPreferences programPreferences,
@@ -40,8 +42,8 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	                        ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
-		genericSelectorVisitor = new GenericSelectorVisitor();
-		selectionAtPointTester = new SelectionAtPointTester();
+		genericSelectorVisitor = new TPoseGenericSelectorVisitor();
+		selectionAtPointTester = new TPoseSelectionAtPointTester();
 	}
 
 	@Override
@@ -164,7 +166,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		List<IdObject> selectedItems = new ArrayList<>();
 		Rectangle2D area = getArea(region);
 
-		IdObjectVisitor visitor = genericSelectorVisitor.reset(selectedItems, area, coordinateSystem);
+		IdObjectVisitor visitor = genericSelectorVisitor.reset(programPreferences, selectedItems, area, coordinateSystem);
 		for (IdObject object : model.getEditableIdObjects()) {
 			visitor.visitIdObject(object);
 		}
@@ -176,7 +178,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 	@Override
 	public boolean canSelectAt(Point point, CoordinateSystem axes) {
-		IdObjectVisitor visitor = selectionAtPointTester.reset(axes, point);
+		IdObjectVisitor visitor = selectionAtPointTester.reset(programPreferences, axes, point);
 		for (IdObject object : model.getEditableIdObjects()) {
 			visitor.visitIdObject(object);
 		}
@@ -287,84 +289,6 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public UndoAction createFaceFromSelection(Vec3 preferredFacingVector) {
 		return new DoNothingAction("create face");
-	}
-
-	private class SelectionAtPointTester implements IdObjectVisitor {
-		private CoordinateSystem axes;
-		private Point point;
-		private boolean mouseOverVertex;
-
-		private SelectionAtPointTester reset(CoordinateSystem axes, Point point) {
-			this.axes = axes;
-			this.point = point;
-			mouseOverVertex = false;
-			return this;
-		}
-
-		private void handleDefaultNode(Point point, CoordinateSystem axes, IdObject object) {
-			if (hitTest(object.getPivotPoint(), CoordinateSystem.Util.geom(axes, point), axes, object.getClickRadius(axes) * CoordinateSystem.Util.getZoom(axes) * 2)) {
-				mouseOverVertex = true;
-			}
-		}
-
-		public boolean isMouseOverVertex() {
-			return mouseOverVertex;
-		}
-
-		@Override
-		public void visitIdObject(IdObject object) {
-			handleDefaultNode(point, axes, object);
-
-			if (object instanceof CollisionShape) {
-				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
-					if (hitTest(vertex, CoordinateSystem.Util.geom(axes, point), axes, IdObject.DEFAULT_CLICK_RADIUS)) {
-						mouseOverVertex = true;
-					}
-				}
-			}
-		}
-
-		@Override
-		public void camera(Camera camera) {
-			if (hitTest(camera.getPosition(), CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
-				mouseOverVertex = true;
-			}
-			if (hitTest(camera.getTargetPosition(), CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
-				mouseOverVertex = true;
-			}
-		}
-	}
-
-	private class GenericSelectorVisitor implements IdObjectVisitor {
-		private List<IdObject> selectedItems;
-		private Rectangle2D area;
-		private CoordinateSystem coordinateSystem;
-
-		private GenericSelectorVisitor reset(List<IdObject> selectedItems, Rectangle2D area, CoordinateSystem coordinateSystem) {
-			this.selectedItems = selectedItems;
-			this.area = area;
-			this.coordinateSystem = coordinateSystem;
-			return this;
-		}
-
-		@Override
-		public void visitIdObject(IdObject object) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.Util.getZoom(coordinateSystem);
-			if (hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-				selectedItems.add(object);
-			}
-			if (object instanceof CollisionShape) {
-				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
-					if (hitTest(area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
-						selectedItems.add(object);
-					}
-				}
-			}
-		}
-
-		@Override
-		public void camera(Camera object) {
-		}
 	}
 
 	public VertexSelectionHelper getVertexSelectionHelper() {
