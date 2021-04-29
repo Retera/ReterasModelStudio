@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Mat4;
 
@@ -25,8 +26,8 @@ public class NodeAnimSelectionAtPointTester implements IdObjectVisitor {
 
 	private void handleDefaultNode(Point point, CoordinateSystem axes, IdObject node) {
 		Mat4 worldMatrix = renderModel.getRenderNode(node).getWorldMatrix();
-		double vertexSize = node.getClickRadius(axes) * CoordinateSystem.getZoom(axes) * 2;
-		if (NodeAnimationModelEditor.hitTest(node.getPivotPoint(), CoordinateSystem.geom(axes, point), axes, vertexSize, worldMatrix)) {
+		double vertexSize = node.getClickRadius(axes) * CoordSysUtils.getZoom(axes) * 2;
+		if (NodeAnimationModelEditor.hitTest(node.getPivotPoint(), CoordSysUtils.geom(axes, point), axes, vertexSize, worldMatrix)) {
 			mouseOverVertex = true;
 		}
 	}

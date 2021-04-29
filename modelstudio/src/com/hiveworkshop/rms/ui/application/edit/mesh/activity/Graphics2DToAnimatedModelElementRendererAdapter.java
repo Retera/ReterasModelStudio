@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableAnimatedIdObjectRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -41,9 +42,9 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	                       GeosetVertex a, GeosetVertex b, GeosetVertex c) {
 		graphics.setColor(color);
 
-		Point pointA = CoordinateSystem.convertToViewPoint(coordinateSystem, a, renderModel);
-		Point pointB = CoordinateSystem.convertToViewPoint(coordinateSystem, b, renderModel);
-		Point pointC = CoordinateSystem.convertToViewPoint(coordinateSystem, c, renderModel);
+		Point pointA = CoordSysUtils.convertToViewPoint(coordinateSystem, a, renderModel);
+		Point pointB = CoordSysUtils.convertToViewPoint(coordinateSystem, b, renderModel);
+		Point pointC = CoordSysUtils.convertToViewPoint(coordinateSystem, c, renderModel);
 
 		GU.fillPolygon(graphics, pointA, pointB, pointC);
 		graphics.setColor(borderColor);
@@ -52,7 +53,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 
 	@Override
 	public void renderVertex(Color color, Vec3 vertex) {
-		Point point = CoordinateSystem.convertToViewPoint(coordinateSystem, vertex);
+		Point point = CoordSysUtils.convertToViewPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
 		GU.fillCenteredSquare(graphics, point, vertexSize);
 //		graphics.fillRect(point.x - (vertexSize / 2), (int) (point.y - (vertexSize / 2.0)), vertexSize, vertexSize);
@@ -104,7 +105,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-((Math.PI / 2) + Math.atan2(end.x - start.x, end.y - start.y)));
-		double zoom = CoordinateSystem.getZoom(coordinateSystem);
+		double zoom = CoordSysUtils.getZoom(coordinateSystem);
 		int size = (int) (20 * zoom);
 		double dist = start.distance(end);
 

@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableIdObjectRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -36,9 +37,9 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 		graphics.setColor(color);
 
 
-		Point vertexA = CoordinateSystem.convertToViewPoint(coordinateSystem, a);
-		Point vertexB = CoordinateSystem.convertToViewPoint(coordinateSystem, b);
-		Point vertexC = CoordinateSystem.convertToViewPoint(coordinateSystem, c);
+		Point vertexA = CoordSysUtils.convertToViewPoint(coordinateSystem, a);
+		Point vertexB = CoordSysUtils.convertToViewPoint(coordinateSystem, b);
+		Point vertexC = CoordSysUtils.convertToViewPoint(coordinateSystem, c);
 
 		int[] polygonX = new int[3];
 		polygonX[0] = vertexA.x;
@@ -59,7 +60,7 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 
 	@Override
 	public void renderVertex(Color color, Vec3 vertex) {
-		Point point = CoordinateSystem.convertToViewPoint(coordinateSystem, vertex);
+		Point point = CoordSysUtils.convertToViewPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
 		graphics.fillRect(point.x - vertexSize / 2, (int) (point.y - (vertexSize / 2.0)), vertexSize, vertexSize);
 	}
@@ -87,7 +88,7 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
-		double zoom = CoordinateSystem.getZoom(coordinateSystem);
+		double zoom = CoordSysUtils.getZoom(coordinateSystem);
 		int size = (int) (20 * zoom);
 		double dist = start.distance(end);
 

@@ -19,8 +19,6 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 	//	private final GeosetRendererImpl geosetRenderer;
 	private final AnimVPGeosetRendererImpl geosetRenderer;
 	private final int vertexSize;
-	private byte xDimension;
-	private byte yDimension;
 	private ViewportView viewportView;
 	private CoordinateSystem coordinateSystem;
 	private final ResettableAnimatedIdObjectRenderer idObjectRenderer;
@@ -37,15 +35,12 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 
 	public AnimatedViewportModelRenderer reset(Graphics2D graphics,
 	                                           ProgramPreferences programPreferences,
-	                                           byte xDimension, byte yDimension,
 	                                           ViewportView viewportView,
 	                                           CoordinateSystem coordinateSystem,
 	                                           ModelView modelView,
 	                                           RenderModel renderModel) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
-		this.xDimension = xDimension;
-		this.yDimension = yDimension;
 		this.viewportView = viewportView;
 		this.coordinateSystem = coordinateSystem;
 		this.modelView = modelView;
@@ -66,7 +61,7 @@ public class AnimatedViewportModelRenderer implements ModelVisitor {
 				graphics.setColor(programPreferences.getVisibleUneditableColor());
 			}
 		}
-		return geosetRenderer.reset(graphics, programPreferences, xDimension, yDimension, coordinateSystem, renderModel);
+		return geosetRenderer.reset(graphics, programPreferences, coordinateSystem, renderModel);
 	}
 
 	private void resetIdObjectRendererWithNode(IdObject object) {

@@ -30,12 +30,13 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 
 		this.editor = editor;
 		this.viewportListener = new ViewportListener();
+		coordinateSystem.setYFlip(1);
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
 
 
 //		coordinateSystem = new BasicCoordinateSystem((byte) 0, (byte) 1, this);
-		coordinateSystem = this;
+//		coordinateSystem = this;
 		viewport = null;
 
 
@@ -49,9 +50,8 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 	}
 
 	public void init() {
-		zoom = getWidth();
-		cameraX = geomX(0);
-		cameraY = geomY(0);
+		coordinateSystem.setZoom(getWidth());
+		coordinateSystem.setGeomPosition(0,0);
 	}
 
 	public void paintComponent(Graphics g, int vertexSize) {
@@ -72,30 +72,30 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 	private void PaintBackgroundImage(Graphics g) {
 		for (Image background : backgrounds) {
 			if (uvPanel.wrapImage.isSelected()) {
-				Vec2 geomMin = new Vec2(geomX(0), geomY(0));
-				Vec2 geomMax = new Vec2(geomX(getWidth()), geomY(getHeight()));
+				Vec2 geomMin = new Vec2(coordinateSystem.geomX(0), coordinateSystem.geomY(0));
+				Vec2 geomMax = new Vec2(coordinateSystem.geomX(getWidth()), coordinateSystem.geomY(getHeight()));
 
-				double geomMinX = geomX(0);
-				double geomMinY = geomY(0);
-				double geomMaxX = geomX(getWidth());
-				double geomMaxY = geomY(getHeight());
+				double geomMinX = coordinateSystem.geomX(0);
+				double geomMinY = coordinateSystem.geomY(0);
+				double geomMaxX = coordinateSystem.geomX(getWidth());
+				double geomMaxY = coordinateSystem.geomY(getHeight());
 				int minX = (int) Math.floor(geomMinX);
 				int minY = (int) Math.floor(geomMinY);
 				int maxX = (int) Math.ceil(geomMaxX);
 				int maxY = (int) Math.ceil(geomMaxY);
 				for (int y = minY; y < maxY; y++) {
 					for (int x = minX; x < maxX; x++) {
-						g.drawImage(background, (int) viewX(x), (int) viewY(y), (int) (viewX(x + 1) - viewX(x)), (int) (viewY(y + 1) - viewY(y)), null);
+						g.drawImage(background, (int) coordinateSystem.viewX(x), (int) coordinateSystem.viewY(y), (int) (coordinateSystem.viewX(x + 1) - coordinateSystem.viewX(x)), (int) (coordinateSystem.viewY(y + 1) - coordinateSystem.viewY(y)), null);
 					}
 				}
 			} else {
-				g.drawImage(background, (int) viewX(0), (int) viewY(0), (int) (viewX(1) - viewX(0)), (int) (viewY(1) - viewY(0)), null);
+				g.drawImage(background, (int) coordinateSystem.viewX(0), (int) coordinateSystem.viewY(0), (int) (coordinateSystem.viewX(1) - coordinateSystem.viewX(0)), (int) (coordinateSystem.viewY(1) - coordinateSystem.viewY(0)), null);
 			}
 		}
 	}
 
 	public void setAspectRatio(final double ratio) {
-		aspectRatio = ratio;
+		coordinateSystem.setAspectRatio(ratio);
 		setMinimumSize(new Dimension((int) (400 * ratio), 400));
 		remove(boxX);
 		add(boxX = Box.createHorizontalStrut((int) (400 * ratio)));

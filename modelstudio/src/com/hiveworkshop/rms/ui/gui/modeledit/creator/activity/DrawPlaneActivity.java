@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewpor
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
@@ -85,7 +86,7 @@ public class DrawPlaneActivity implements ModelEditorViewportActivity {
 	@Override
 	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
 		if (drawingState == DrawingState.NOTHING) {
-			locationCalculator.set(CoordinateSystem.convertToVec3(coordinateSystem, e.getPoint()));
+			locationCalculator.set(CoordSysUtils.convertToVec3(coordinateSystem, e.getPoint()));
 			mouseStart = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			drawingState = DrawingState.WANT_BEGIN_BASE;
 		}
@@ -111,7 +112,7 @@ public class DrawPlaneActivity implements ModelEditorViewportActivity {
 	public void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem) {
 		if (drawingState == DrawingState.WANT_BEGIN_BASE || drawingState == DrawingState.BASE) {
 			drawingState = DrawingState.BASE;
-			locationCalculator.set(CoordinateSystem.convertToVec3(coordinateSystem, e.getPoint()));
+			locationCalculator.set(CoordSysUtils.convertToVec3(coordinateSystem, e.getPoint()));
 
 			Vec2 mouseEnd = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			updateBase(mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());

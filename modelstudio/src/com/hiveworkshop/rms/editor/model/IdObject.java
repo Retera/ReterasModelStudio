@@ -208,7 +208,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 //		this.parentId = parentId;
 //	}
 
-	public void setDontInheritTranslation(final boolean dontInheritTranslation) {
+	public void setDontInheritTranslation(boolean dontInheritTranslation) {
 		this.dontInheritTranslation = dontInheritTranslation;
 	}
 
@@ -216,7 +216,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return dontInheritTranslation;
 	}
 
-	public void setDontInheritRotation(final boolean dontInheritRotation) {
+	public void setDontInheritRotation(boolean dontInheritRotation) {
 		this.dontInheritRotation = dontInheritRotation;
 	}
 
@@ -224,7 +224,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return dontInheritRotation;
 	}
 
-	public void setDontInheritScaling(final boolean dontInheritScaling) {
+	public void setDontInheritScaling(boolean dontInheritScaling) {
 		this.dontInheritScaling = dontInheritScaling;
 	}
 
@@ -232,7 +232,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return dontInheritScaling;
 	}
 
-	public void setBillboarded(final boolean billboarded) {
+	public void setBillboarded(boolean billboarded) {
 		this.billboarded = billboarded;
 	}
 
@@ -240,7 +240,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return billboarded;
 	}
 
-	public void setBillboardLockX(final boolean billboardLockX) {
+	public void setBillboardLockX(boolean billboardLockX) {
 		this.billboardLockX = billboardLockX;
 	}
 
@@ -248,7 +248,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return billboardLockX;
 	}
 
-	public void setBillboardLockY(final boolean billboardLockY) {
+	public void setBillboardLockY(boolean billboardLockY) {
 		this.billboardLockY = billboardLockY;
 	}
 
@@ -256,7 +256,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return billboardLockY;
 	}
 
-	public void setBillboardLockZ(final boolean billboardLockZ) {
+	public void setBillboardLockZ(boolean billboardLockZ) {
 		this.billboardLockZ = billboardLockZ;
 	}
 
@@ -274,8 +274,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return parent;
 	}
 
-//	public abstract void apply(IdObjectVisitor visitor);
-public void apply(IdObjectVisitor visitor) {
+	public void apply(IdObjectVisitor visitor) {
 	visitor.visitIdObject(this);
 }
 
@@ -288,7 +287,7 @@ public void apply(IdObjectVisitor visitor) {
 		return bindPose;
 	}
 
-	public void setBindPose(final float[] bindPose) {
+	public void setBindPose(float[] bindPose) {
 		this.bindPose = bindPose;
 	}
 }

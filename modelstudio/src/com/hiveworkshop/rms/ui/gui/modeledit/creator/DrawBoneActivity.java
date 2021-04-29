@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewpor
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
@@ -31,7 +32,7 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 	private final Graphics2DToModelElementRendererAdapter graphics2dToModelElementRendererAdapter;
 	private final ViewportListener viewportListener;
 
-	public DrawBoneActivity(final ProgramPreferences preferences, final UndoActionListener undoActionListener, final ModelEditor modelEditor, final ModelView modelView, final SelectionView selectionView, final ViewportListener viewportListener) {
+	public DrawBoneActivity(ProgramPreferences preferences, UndoActionListener undoActionListener, ModelEditor modelEditor, ModelView modelView, SelectionView selectionView, ViewportListener viewportListener) {
 		this.preferences = preferences;
 		this.undoActionListener = undoActionListener;
 		this.modelEditor = modelEditor;
@@ -42,7 +43,7 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 	}
 
 	@Override
-	public void onSelectionChanged(final SelectionView newSelection) {
+	public void onSelectionChanged(SelectionView newSelection) {
 		selectionView = newSelection;
 	}
 
@@ -50,45 +51,45 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 	public void modelChanged() { }
 
 	@Override
-	public void modelEditorChanged(final ModelEditor newModelEditor) {
+	public void modelEditorChanged(ModelEditor newModelEditor) {
 		modelEditor = newModelEditor;
 	}
 
 	@Override
-	public void viewportChanged(final CursorManager cursorManager) { }
+	public void viewportChanged(CursorManager cursorManager) { }
 
 	@Override
-	public void mousePressed(final MouseEvent e, final CoordinateSystem coordinateSystem) {
+	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
 		Vec3 worldPressLocation = new Vec3(0, 0, 0);
 		worldPressLocation.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(e.getX()));
 		worldPressLocation.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(e.getY()));
-		worldPressLocation.setCoord(CoordinateSystem.getUnusedXYZ(coordinateSystem), 0);
+		worldPressLocation.setCoord(CoordSysUtils.getUnusedXYZ(coordinateSystem), 0);
 		try {
-			final Viewport viewport = viewportListener.getViewport();
-			final Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
-			final UndoAction action = modelEditor.addBone(worldPressLocation.x, worldPressLocation.y, worldPressLocation.z);
+			Viewport viewport = viewportListener.getViewport();
+			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
+			UndoAction action = modelEditor.addBone(worldPressLocation.x, worldPressLocation.y, worldPressLocation.z);
 			undoActionListener.pushAction(action);
-		} catch (final WrongModeException exc) {
+		} catch (WrongModeException exc) {
 			JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
 	@Override
-	public void mouseReleased(final MouseEvent e, final CoordinateSystem coordinateSystem) { }
+	public void mouseReleased(MouseEvent e, CoordinateSystem coordinateSystem) { }
 
 	@Override
-	public void mouseMoved(final MouseEvent e, final CoordinateSystem coordinateSystem) {
+	public void mouseMoved(MouseEvent e, CoordinateSystem coordinateSystem) {
 		lastMousePoint = e.getPoint();
 	}
 
 	@Override
-	public void mouseDragged(final MouseEvent e, final CoordinateSystem coordinateSystem) { }
+	public void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem) { }
 
 	@Override
-	public void render(final Graphics2D g, final CoordinateSystem coordinateSystem, final RenderModel renderModel) { }
+	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel) { }
 
 	@Override
-	public void renderStatic(final Graphics2D g, final CoordinateSystem coordinateSystem) {
+	public void renderStatic(Graphics2D g, CoordinateSystem coordinateSystem) {
 		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem), coordinateSystem, modelView, preferences);
 		g.setColor(preferences.getVertexColor());
 		if (lastMousePoint != null) {

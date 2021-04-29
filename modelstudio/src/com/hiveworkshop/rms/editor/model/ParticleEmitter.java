@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 
@@ -190,7 +191,7 @@ public class ParticleEmitter extends EmitterIdObject {
 
 	@Override
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / CoordinateSystem.getZoom(coordinateSystem);
+		return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
 	}
 
 	public double getRenderSpeed(final AnimatedRenderEnvironment animatedRenderEnvironment) {

@@ -17,14 +17,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
-public abstract class ViewportView extends JPanel implements CoordinateSystem {
-	protected double aspectRatio = 1;
-	protected byte dimension1;
-	protected byte dimension2;
-	protected double cameraX = 0;
-	protected double cameraY = 0;
-	protected double zoom = 1;
-	protected int yFlip = 1;
+public abstract class ViewportView extends JPanel {
 
 	protected CoordinateSystem coordinateSystem;
 
@@ -33,9 +26,7 @@ public abstract class ViewportView extends JPanel implements CoordinateSystem {
 	protected JPanel popupParent;
 	protected JPopupMenu contextMenu;
 
-
 	protected Component boxX, boxY;
-
 
 	protected Point lastMouseMotion = new Point(0, 0);
 	protected CursorManager cursorManager;
@@ -62,8 +53,6 @@ public abstract class ViewportView extends JPanel implements CoordinateSystem {
 	                    UndoHandler undoHandler,
 	                    CoordDisplayListener coordDisplayListener) {
 		this.modelView = modelView;
-		this.dimension1 = d1;
-		this.dimension2 = d2;
 		this.programPreferences = programPreferences;
 		this.activityListener = viewportActivity;
 		this.viewportListener = viewportListener;
@@ -71,7 +60,8 @@ public abstract class ViewportView extends JPanel implements CoordinateSystem {
 		this.undoHandler = undoHandler;
 		this.coordDisplayListener = coordDisplayListener;
 
-
+		coordinateSystem = new CoordinateSystem(d1, d2, this);
+//		coordinateSystem = this;
 		popupParent = this;
 
 		setBorder(BorderFactory.createBevelBorder(1));
@@ -93,38 +83,14 @@ public abstract class ViewportView extends JPanel implements CoordinateSystem {
 		cursorManager = this::setCursor;
 	}
 
-
-	public double getCameraX() {
-		return cameraX;
-	}
-
-	public double getCameraY() {
-		return cameraY;
-	}
-
-	public double getZoom() {
-		return zoom;
-	}
-
-
-	public void setPosition(double a, double b) {
-		cameraX = a;
-		cameraY = b;
-	}
-
-	public void translate(double a, double b) {
-		cameraX += a / aspectRatio;
-		cameraY += b;
-	}
-
-	public void zoom(final double amount) {
-		zoom *= 1 + amount;
+	public CoordinateSystem getCoordinateSystem() {
+		return coordinateSystem;
 	}
 
 	public void drawGrid(Graphics g) {
-		Point2D.Double cameraOrigin = new Point2D.Double(viewX(0), viewY(0));
+		Point2D.Double cameraOrigin = new Point2D.Double(coordinateSystem.viewX(0), coordinateSystem.viewY(0));
 
-		float increment = 20 * (float) getZoom();
+		float increment = 20 * (float) coordinateSystem.getZoom();
 		while (increment < 100) {
 			increment *= 10;
 		}
@@ -183,13 +149,15 @@ public abstract class ViewportView extends JPanel implements CoordinateSystem {
 
 		if (lastClick != null) {
 
-			cameraX += ((int) mx - lastClick.x) / aspectRatio / zoom;
-			cameraY += ((int) my - lastClick.y) / zoom;
+			int deltaX = (int) mx - lastClick.x;
+			int deltaY = (int) my - lastClick.y;
+			coordinateSystem.translateZoomed(deltaX, deltaY);
+
 			lastClick.x = (int) mx;
 			lastClick.y = (int) my;
 		}
-		coordDisplayListener.notifyUpdate(dimension1, dimension2, ((mx - (getWidth() / 2.0)) / aspectRatio / zoom) - cameraX, ((my - (getHeight() / 2.0)) / zoom) - cameraY);
-//		parent.setMouseCoordDisplay(((mx - (getWidth() / 2.0)) / aspectRatio / m_zoom) - m_a, ((my - (getHeight() / 2.0)) / m_zoom) - m_b);
+
+		coordDisplayListener.notifyUpdate(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomX(mx), coordinateSystem.geomY(my));
 
 		repaint();
 		return false;
@@ -210,41 +178,41 @@ public abstract class ViewportView extends JPanel implements CoordinateSystem {
 
 	public abstract void paintComponent(final Graphics g, final int vertexSize);
 
-	@Override
-	public double viewX(double x) {
-		return ((x + cameraX) * zoom * aspectRatio) + (getWidth() / 2.0);
-	}
-
-	@Override
-	public double viewY(double y) {
-		return ((y * yFlip + cameraY) * zoom) + (getHeight() / 2.0);
-	}
-
-	@Override
-	public double geomX(double x) {
-		return ((x - (getWidth() / 2.0)) / aspectRatio / zoom) - cameraX;
-	}
-
-	@Override
-	public double geomY(double y) {
-		return yFlip * ((y - (getHeight() / 2.0)) / zoom) - cameraY;
-	}
-
-
 //	@Override
-//	public CoordinateSystem copy() {
-//		return new BasicCoordinateSystem(m_d1, m_d2, m_a, m_b, m_zoom, getWidth(), getHeight());
+//	public double viewX(double x) {
+//		return ((x + cameraX) * zoom * aspectRatio) + (getWidth() / 2.0);
 //	}
-
-	@Override
-	public byte getPortFirstXYZ() {
-		return dimension1;
-	}
-
-	@Override
-	public byte getPortSecondXYZ() {
-		return dimension2;
-	}
+//
+//	@Override
+//	public double viewY(double y) {
+//		return ((y * yFlip + cameraY) * zoom) + (getHeight() / 2.0);
+//	}
+//
+//	@Override
+//	public double geomX(double x) {
+//		return ((x - (getWidth() / 2.0)) / aspectRatio / zoom) - cameraX;
+//	}
+//
+//	@Override
+//	public double geomY(double y) {
+//		return yFlip * ((y - (getHeight() / 2.0)) / zoom) - cameraY;
+//	}
+//
+//
+////	@Override
+////	public CoordinateSystem copy() {
+////		return new BasicCoordinateSystem(m_d1, m_d2, m_a, m_b, m_zoom, getWidth(), getHeight());
+////	}
+//
+//	@Override
+//	public byte getPortFirstXYZ() {
+//		return dimension1;
+//	}
+//
+//	@Override
+//	public byte getPortSecondXYZ() {
+//		return dimension2;
+//	}
 
 
 	protected MouseAdapter getMouseAdapter() {
@@ -298,8 +266,9 @@ public abstract class ViewportView extends JPanel implements CoordinateSystem {
 				undoHandler.refreshUndo();
 				// TODO fix, refresh undo
 				if ((e.getButton() == MouseEvent.BUTTON2) && (lastClick != null)) {
-					cameraX += (e.getX() - lastClick.x) / zoom;
-					cameraY += (e.getY() - lastClick.y) / zoom;
+					double translateX = (e.getX() - lastClick.x);
+					double translateY = (e.getY() - lastClick.y);
+					coordinateSystem.translateZoomed(translateX, translateY);
 					lastClick = null;
 				} else if (e.getButton() == MouseEvent.BUTTON1) {
 					activityListener.mouseReleased(e, coordinateSystem);
@@ -328,23 +297,21 @@ public abstract class ViewportView extends JPanel implements CoordinateSystem {
 
 				int dir = wr < 0 ? -1 : 1;
 
-				double mx = e.getX();
-				double my = e.getY();
+				double mouseX = e.getX();
+				double mouseY = e.getY();
 
 				for (int i = 0; i < wr * dir; i++) {
-					double zoomAmount = ((1 / zoom) - (1 / (zoom * 1.15))) * dir;
+					double zoomAdjust = .15 * dir / 1.15;
 
-					double w = (mx - (getWidth() / 2.0)) / aspectRatio;
-					double h = my - (getHeight() / 2.0);
+					double w = mouseX - (getWidth() / 2.0) ;
+					double h = mouseY - (getHeight() / 2.0);
 
-
-					cameraX += w * zoomAmount;
-					cameraY += h * zoomAmount;
+					coordinateSystem.translateZoomed(w * zoomAdjust, h * zoomAdjust);
 
 					if (dir == -1) {
-						zoom *= 1.15;
+						coordinateSystem.zoomIn(1.15);
 					} else {
-						zoom /= 1.15;
+						coordinateSystem.zoomOut(1.15);
 					}
 				}
 			}

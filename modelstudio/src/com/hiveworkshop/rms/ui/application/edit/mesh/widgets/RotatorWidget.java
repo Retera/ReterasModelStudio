@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.Vec3;
@@ -101,7 +102,7 @@ public final class RotatorWidget {
 	}
 
 	private byte getOutwardDimension(byte xDimension, byte yDimension) {
-		return CoordinateSystem.getUnusedXYZ(xDimension, yDimension);
+		return CoordSysUtils.getUnusedXYZ(xDimension, yDimension);
 	}
 
 	private void setColorByDimension(Graphics2D graphics, byte dimension) {

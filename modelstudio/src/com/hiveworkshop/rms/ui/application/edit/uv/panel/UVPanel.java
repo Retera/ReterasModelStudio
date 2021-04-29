@@ -182,8 +182,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	private JPanel getBotomPanel() {
-		JButton plusZoom = addButton(20, 20, "Plus.png", e -> zoom(.15));
-		JButton minusZoom = addButton(20, 20, "Minus.png", e -> zoom(-.15));
+		JButton plusZoom = addButton(20, 20, "Plus.png", e -> zoom(1.15));
+		JButton minusZoom = addButton(20, 20, "Minus.png", e -> zoom(-1.15));
 		zoomPanel = new JPanel(new MigLayout("gap 0", "[]16[]"));
 		zoomPanel.add(plusZoom);
 		zoomPanel.add(minusZoom);
@@ -738,17 +738,25 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	private void moveUpDown(int i) {
-		vp.translate(0, i * (1 / vp.getZoom()));
+		vp.getCoordinateSystem().translateZoomed(0, i);
+//		vp.translate(0, i * (1 / vp.getZoom()));
 		vp.repaint();
 	}
 
 	private void moveLeftRight(int i) {
-		vp.translate(i * (1 / vp.getZoom()), 0);// *vp.getZoomAmount()
+		vp.getCoordinateSystem().translateZoomed(i, 0);
+//		vp.translate(i * (1 / vp.getZoom()), 0);// *vp.getZoomAmount()
 		vp.repaint();
 	}
 
 	private void zoom(double v) {
-		vp.zoom(v);
+		if (v>0){
+			vp.getCoordinateSystem().zoomIn(v);
+		}else {
+			vp.getCoordinateSystem().zoomOut(-v);
+
+		}
+//		vp.zoom(v);
 		vp.repaint();
 	}
 

@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 
 import java.awt.geom.Rectangle2D;
@@ -25,7 +26,7 @@ public class NodeAnimGenericSelectorVisitor implements IdObjectVisitor {
 
 	@Override
 	public void visitIdObject(IdObject object) {
-		double vertexSize = object.getClickRadius(coordinateSystem) * CoordinateSystem.getZoom(coordinateSystem) * 2;
+		double vertexSize = object.getClickRadius(coordinateSystem) * CoordSysUtils.getZoom(coordinateSystem) * 2;
 		NodeAnimationModelEditor.hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, vertexSize, object, renderModel);
 	}
 

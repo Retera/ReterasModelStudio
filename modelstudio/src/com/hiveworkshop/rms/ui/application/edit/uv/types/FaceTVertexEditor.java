@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.edit.uv.types;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
@@ -162,7 +163,7 @@ public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
 		boolean canSelect = false;
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final Triangle triangle : geoset.getTriangles()) {
-				if (hitTest(triangle, CoordinateSystem.geom(axes, point), axes, uvLayerIndex)) {
+				if (hitTest(triangle, CoordSysUtils.geom(axes, point), axes, uvLayerIndex)) {
 					canSelect = true;
 				}
 			}

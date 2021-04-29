@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.editor.model.visitor;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Mat4;
@@ -17,8 +18,6 @@ public class AnimVPGeosetRendererImpl implements GeosetVisitor {
 	RenderModel renderModel;
 	private Graphics2D graphics;
 	private ProgramPreferences programPreferences;
-	private byte xDimension;
-	private byte yDimension;
 	private CoordinateSystem coordinateSystem;
 	private AnimVPTriangleRendererImpl triangleRenderer;
 
@@ -26,21 +25,9 @@ public class AnimVPGeosetRendererImpl implements GeosetVisitor {
 		triangleRenderer = new AnimVPTriangleRendererImpl();
 	}
 
-	public AnimVPGeosetRendererImpl(Graphics2D graphics, ProgramPreferences programPreferences, byte xDimension, byte yDimension, CoordinateSystem coordinateSystem, RenderModel renderModel) {
+	public AnimVPGeosetRendererImpl reset(Graphics2D graphics, ProgramPreferences programPreferences, CoordinateSystem coordinateSystem, RenderModel renderModel) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
-		this.xDimension = xDimension;
-		this.yDimension = yDimension;
-		this.coordinateSystem = coordinateSystem;
-		this.renderModel = renderModel;
-		triangleRenderer = new AnimVPTriangleRendererImpl(graphics, programPreferences, xDimension, yDimension, coordinateSystem, renderModel);
-	}
-
-	public AnimVPGeosetRendererImpl reset(Graphics2D graphics, ProgramPreferences programPreferences, byte xDimension, byte yDimension, CoordinateSystem coordinateSystem, RenderModel renderModel) {
-		this.graphics = graphics;
-		this.programPreferences = programPreferences;
-		this.xDimension = xDimension;
-		this.yDimension = yDimension;
 		this.coordinateSystem = coordinateSystem;
 		this.renderModel = renderModel;
 		return this;
@@ -48,7 +35,7 @@ public class AnimVPGeosetRendererImpl implements GeosetVisitor {
 
 	@Override
 	public TriangleVisitor beginTriangle() {
-		return triangleRenderer.reset(graphics, programPreferences, xDimension, yDimension, coordinateSystem, renderModel);
+		return triangleRenderer.reset(graphics, programPreferences, coordinateSystem, renderModel);
 	}
 
 	@Override
@@ -60,8 +47,6 @@ class AnimVPTriangleRendererImpl implements TriangleVisitor {
 	private final java.util.List<Point> previousVertices = new ArrayList<>();
 	private Graphics2D graphics;
 	private ProgramPreferences programPreferences;
-	private byte xDimension;
-	private byte yDimension;
 	private CoordinateSystem coordinateSystem;
 	private RenderModel renderModel;
 
@@ -69,21 +54,17 @@ class AnimVPTriangleRendererImpl implements TriangleVisitor {
 
 	}
 
-	AnimVPTriangleRendererImpl(Graphics2D graphics, ProgramPreferences programPreferences, byte xDimension, byte yDimension, CoordinateSystem coordinateSystem, RenderModel renderModel) {
+	AnimVPTriangleRendererImpl(Graphics2D graphics, ProgramPreferences programPreferences, CoordinateSystem coordinateSystem, RenderModel renderModel) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
-		this.xDimension = xDimension;
-		this.yDimension = yDimension;
 		this.coordinateSystem = coordinateSystem;
 		this.renderModel = renderModel;
 	}
 
-	public AnimVPTriangleRendererImpl reset(Graphics2D graphics, ProgramPreferences programPreferences, byte xDimension, byte yDimension, CoordinateSystem coordinateSystem, RenderModel renderModel) {
+	public AnimVPTriangleRendererImpl reset(Graphics2D graphics, ProgramPreferences programPreferences, CoordinateSystem coordinateSystem, RenderModel renderModel) {
 		previousVertices.clear();
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
-		this.xDimension = xDimension;
-		this.yDimension = yDimension;
 		this.coordinateSystem = coordinateSystem;
 		this.renderModel = renderModel;
 		return this;
@@ -118,8 +99,8 @@ class AnimVPTriangleRendererImpl implements TriangleVisitor {
 	}
 
 	public void drawLineFromVert(Vec4 normalSumHeap, Vec4 vertexSumHeap) {
-		float firstCoord = vertexSumHeap.getVec3().getCoord(xDimension);
-		float secondCoord = vertexSumHeap.getVec3().getCoord(yDimension);
+		float firstCoord = vertexSumHeap.getVec3().getCoord(coordinateSystem.getPortFirstXYZ());
+		float secondCoord = vertexSumHeap.getVec3().getCoord(coordinateSystem.getPortSecondXYZ());
 		Point point = new Point((int) coordinateSystem.viewX(firstCoord), (int) coordinateSystem.viewY(secondCoord));
 
 		if (previousVertices.size() > 0) {
@@ -147,11 +128,11 @@ class AnimVPTriangleRendererImpl implements TriangleVisitor {
 	public void drawNormal(float firstCoord, float secondCoord, Point point, Vec4 normalSumHeap) {
 		Color triangleColor = graphics.getColor();
 
-		float firstNormalCoord = normalSumHeap.getVec3().getCoord(xDimension);
-		float secondNormalCoord = normalSumHeap.getVec3().getCoord(yDimension);
+		float firstNormalCoord = normalSumHeap.getVec3().getCoord(coordinateSystem.getPortFirstXYZ());
+		float secondNormalCoord = normalSumHeap.getVec3().getCoord(coordinateSystem.getPortSecondXYZ());
 
 		graphics.setColor(programPreferences.getNormalsColor());
-		double zoom = CoordinateSystem.getZoom(coordinateSystem);
+		double zoom = CoordSysUtils.getZoom(coordinateSystem);
 
 		double normXsize = (firstNormalCoord * 12) / zoom;
 		double normYsize = (secondNormalCoord * 12) / zoom;

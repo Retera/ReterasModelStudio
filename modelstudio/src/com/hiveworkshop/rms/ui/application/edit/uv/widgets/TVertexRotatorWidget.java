@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.widgets;
 
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.Vec2;
@@ -12,17 +13,17 @@ public final class TVertexRotatorWidget {
 	private final Vec2 point;
 	private MoveDimension moveDirection = MoveDimension.NONE;
 
-	public TVertexRotatorWidget(final Vec2 point) {
+	public TVertexRotatorWidget(Vec2 point) {
 		this.point = new Vec2(0, 0);
 		this.point.set(point);
 	}
 
-	public MoveDimension getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem) {
-		final double x = coordinateSystem.viewX(point.getCoord(coordinateSystem.getPortFirstXYZ()));
-		final double y = coordinateSystem.viewY(point.getCoord(coordinateSystem.getPortSecondXYZ()));
+	public MoveDimension getDirectionByMouse(Point mousePoint, CoordinateSystem coordinateSystem) {
+		double x = coordinateSystem.viewX(point.getCoord(coordinateSystem.getPortFirstXYZ()));
+		double y = coordinateSystem.viewY(point.getCoord(coordinateSystem.getPortSecondXYZ()));
 
-		final double deltaY = y - mousePoint.getY();
-		final double deltaX = x - mousePoint.getX();
+		double deltaY = y - mousePoint.getY();
+		double deltaX = x - mousePoint.getX();
 		byte dim1 = coordinateSystem.getPortFirstXYZ();
 		byte dim2 = coordinateSystem.getPortSecondXYZ();
 
@@ -32,7 +33,7 @@ public final class TVertexRotatorWidget {
 		if (Math.abs(deltaX) <= ROTATOR_RADIUS && Math.abs(deltaY) <= 3) {
 			return MoveDimension.getByByte(dim2);
 		}
-		final double dstSquared = deltaY * deltaY + deltaX * deltaX;
+		double dstSquared = deltaY * deltaY + deltaX * deltaX;
 		if (Math.abs(Math.sqrt(dstSquared) - ROTATOR_RADIUS) <= 3) {
 			return MoveDimension.getByByte(getOutwardDimension(dim1, dim2));
 		}
@@ -47,7 +48,7 @@ public final class TVertexRotatorWidget {
 		return point;
 	}
 
-	public void setPoint(final Vec2 point) {
+	public void setPoint(Vec2 point) {
 		this.point.set(point);
 	}
 
@@ -55,15 +56,15 @@ public final class TVertexRotatorWidget {
 		return moveDirection;
 	}
 
-	public void setMoveDirection(final MoveDimension moveDirection) {
+	public void setMoveDirection(MoveDimension moveDirection) {
 		this.moveDirection = moveDirection;
 	}
 
-	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
-		final byte xDimension = coordinateSystem.getPortFirstXYZ();
-		final byte yDimension = coordinateSystem.getPortSecondXYZ();
-		final double x = coordinateSystem.viewX(point.getCoord(xDimension));
-		final double y = coordinateSystem.viewY(point.getCoord(yDimension));
+	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
+		byte xDimension = coordinateSystem.getPortFirstXYZ();
+		byte yDimension = coordinateSystem.getPortSecondXYZ();
+		double x = coordinateSystem.viewX(point.getCoord(xDimension));
+		double y = coordinateSystem.viewY(point.getCoord(yDimension));
 
 		setHighLightableColor(graphics, yDimension, moveDirection);
 		drawHorzLine(graphics, x, y);
@@ -98,15 +99,15 @@ public final class TVertexRotatorWidget {
 		graphics.drawLine((int) (x - ROTATOR_RADIUS), (int) y, (int) (x + ROTATOR_RADIUS), (int) y);
 	}
 
-	private byte getOutwardDimension(final byte xDimension, final byte yDimension) {
-		return CoordinateSystem.getUnusedXYZ(xDimension, yDimension);
+	private byte getOutwardDimension(byte xDimension, byte yDimension) {
+		return CoordSysUtils.getUnusedXYZ(xDimension, yDimension);
 	}
 
-//	private byte getOutwardDimension(final byte xDimension, final byte yDimension) {
+//	private byte getOutwardDimension(byte xDimension, byte yDimension) {
 //		return (byte) (3 - xDimension - yDimension);
 //	}
 
-	private void setColorByDimension(final Graphics2D graphics, final byte dimension) {
+	private void setColorByDimension(Graphics2D graphics, byte dimension) {
 		switch (dimension) {
 			case 0, -1 -> graphics.setColor(new Color(0, 255, 0));
 			case 1, -2 -> graphics.setColor(new Color(255, 0, 0));
@@ -114,7 +115,7 @@ public final class TVertexRotatorWidget {
 		}
 	}
 
-	private void setHighLightableColor(final Graphics2D graphics, final byte dimension, MoveDimension moveDimension) {
+	private void setHighLightableColor(Graphics2D graphics, byte dimension, MoveDimension moveDimension) {
 //		System.out.println(moveDimension + " has " + MoveDimension.getByByte(dimension) + "?");
 		if (moveDimension.containDirection(dimension)) {
 			graphics.setColor(new Color(255, 255, 0));

@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model.visitor;
 
 import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
@@ -13,27 +14,23 @@ public class VPGeosetRendererImpl implements GeosetVisitor {
 	private final VPTriangleRendererImpl triangleRenderer = new VPTriangleRendererImpl();
 	private Graphics2D graphics;
 	private ProgramPreferences programPreferences;
-	private byte xDimension;
-	private byte yDimension;
 	private CoordinateSystem coordinateSystem;
 
 	public VPGeosetRendererImpl() {
 
 	}
 
-	public VPGeosetRendererImpl reset(Graphics2D graphics, ProgramPreferences programPreferences, byte xDimension, byte yDimension, CoordinateSystem coordinateSystem) {
+	public VPGeosetRendererImpl reset(Graphics2D graphics, ProgramPreferences programPreferences, CoordinateSystem coordinateSystem) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
-		this.xDimension = xDimension;
-		this.yDimension = yDimension;
 		this.coordinateSystem = coordinateSystem;
-		this.triangleRenderer.reset(graphics, programPreferences, xDimension, yDimension, coordinateSystem);
+		this.triangleRenderer.reset(graphics, programPreferences, coordinateSystem);
 		return this;
 	}
 
 	@Override
 	public TriangleVisitor beginTriangle() {
-		return triangleRenderer.reset(graphics, programPreferences, xDimension, yDimension, coordinateSystem);
+		return triangleRenderer.reset(graphics, programPreferences, coordinateSystem);
 	}
 
 	@Override
@@ -45,27 +42,21 @@ class VPTriangleRendererImpl implements TriangleVisitor {
 	private final java.util.List<Point> previousVertices = new ArrayList<>();
 	private Graphics2D graphics;
 	private ProgramPreferences programPreferences;
-	private byte xDimension;
-	private byte yDimension;
 	private CoordinateSystem coordinateSystem;
 
 	VPTriangleRendererImpl() {
 
 	}
 
-	VPTriangleRendererImpl(Graphics2D graphics, ProgramPreferences programPreferences, byte xDimension, byte yDimension, CoordinateSystem coordinateSystem) {
+	VPTriangleRendererImpl(Graphics2D graphics, ProgramPreferences programPreferences, CoordinateSystem coordinateSystem) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
-		this.xDimension = xDimension;
-		this.yDimension = yDimension;
 		this.coordinateSystem = coordinateSystem;
 	}
 
-	public VPTriangleRendererImpl reset(Graphics2D graphics, ProgramPreferences programPreferences, byte xDimension, byte yDimension, CoordinateSystem coordinateSystem) {
+	public VPTriangleRendererImpl reset(Graphics2D graphics, ProgramPreferences programPreferences, CoordinateSystem coordinateSystem) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
-		this.xDimension = xDimension;
-		this.yDimension = yDimension;
 		this.coordinateSystem = coordinateSystem;
 		previousVertices.clear();
 		return this;
@@ -73,8 +64,8 @@ class VPTriangleRendererImpl implements TriangleVisitor {
 
 	@Override
 	public VertexVisitor vertex(Vec3 vert, Vec3 normal, List<Bone> bones) {
-		double firstCoord = vert.getCoord(xDimension);
-		double secondCoord = vert.getCoord(yDimension);
+		double firstCoord = vert.getCoord(coordinateSystem.getPortFirstXYZ());
+		double secondCoord = vert.getCoord(coordinateSystem.getPortSecondXYZ());
 		Point point = new Point((int) coordinateSystem.viewX(firstCoord), (int) coordinateSystem.viewY(secondCoord));
 
 		if (previousVertices.size() > 0) {
@@ -87,10 +78,10 @@ class VPTriangleRendererImpl implements TriangleVisitor {
 			Color triangleColor = graphics.getColor();
 
 			graphics.setColor(programPreferences.getNormalsColor());
-			double zoom = CoordinateSystem.getZoom(coordinateSystem);
+			double zoom = CoordSysUtils.getZoom(coordinateSystem);
 
-			double firstNormalCoord = (normal.getCoord(xDimension) * 12) / zoom;
-			double secondNormalCoord = (normal.getCoord(yDimension) * 12) / zoom;
+			double firstNormalCoord = (normal.getCoord(coordinateSystem.getPortFirstXYZ()) * 12) / zoom;
+			double secondNormalCoord = (normal.getCoord(coordinateSystem.getPortSecondXYZ()) * 12) / zoom;
 
 			Point endPoint = new Point(
 					(int) coordinateSystem.viewX(firstCoord + firstNormalCoord),

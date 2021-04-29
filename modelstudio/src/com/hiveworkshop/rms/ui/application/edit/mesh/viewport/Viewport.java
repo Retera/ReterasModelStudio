@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.AnimatedViewportModelRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
@@ -42,14 +42,13 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
 
-		yFlip = -1;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.modelEditorManager = modelEditorManager;
 		this.renderModel = renderModel;
 		setupCopyPaste(viewportTransferHandler);
 
 //		coordinateSystem = new BasicCoordinateSystem(d1, d2, this);
-		coordinateSystem = this;
+//		coordinateSystem = this;
 		viewport = this;
 
 		contextMenu = new ViewportPopupMenu(this, this.undoListener, this.modelEditorManager, this.modelView);
@@ -61,8 +60,9 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 		linkRenderingVisitorAdapter = new LinkRenderingVisitorAdapter(programPreferences);
 
 		facingVector = new Vec3(0, 0, 0);
-		final byte unusedXYZ = CoordinateSystem.getUnusedXYZ(this);
+		final byte unusedXYZ = CoordSysUtils.getUnusedXYZ(coordinateSystem);
 		facingVector.setCoord(unusedXYZ, unusedXYZ == 0 ? 1 : -1);
+
 		paintTimer = new Timer(16, e -> {
 			repaint();
 			if (!isShowing()) {
@@ -109,23 +109,23 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 			graphics2d.setStroke(new BasicStroke(3));
 			renderModel.updateNodes(false);
 //			linkRenderer.reset(this, graphics2d, NodeIconPalette.HIGHLIGHT, renderModel);
-			linkRenderingVisitorAdapter.reset(this, graphics2d, renderModel);
+			linkRenderingVisitorAdapter.reset(coordinateSystem, graphics2d, renderModel);
 			modelView.visit(linkRenderingVisitorAdapter);
 			graphics2d.setStroke(stroke);
-			animatedViewportModelRenderer.reset(graphics2d, programPreferences, dimension1, dimension2, this, this, modelView, renderModel);
+			animatedViewportModelRenderer.reset(graphics2d, programPreferences,this, coordinateSystem, modelView, renderModel);
 			modelView.visit(animatedViewportModelRenderer);
-			activityListener.render(graphics2d, this, renderModel);
+			activityListener.render(graphics2d, coordinateSystem, renderModel);
 		} else {
-			viewportModelRenderer.reset(graphics2d, programPreferences, dimension1, dimension2, this, this, modelView);
+			viewportModelRenderer.reset(graphics2d, programPreferences,this, coordinateSystem, modelView);
 			modelView.visit(viewportModelRenderer);
-			activityListener.renderStatic(graphics2d, this);
+			activityListener.renderStatic(graphics2d, coordinateSystem);
 		}
 
-		getColor(g, dimension1);
-		g.drawLine((int) Math.round(viewX(0)), (int) Math.round(viewY(0)), (int) Math.round(viewX(5)), (int) Math.round(viewY(0)));
+		getColor(g, coordinateSystem.getPortFirstXYZ());
+		g.drawLine((int) Math.round(coordinateSystem.viewX(0)), (int) Math.round(coordinateSystem.viewY(0)), (int) Math.round(coordinateSystem.viewX(5)), (int) Math.round(coordinateSystem.viewY(0)));
 
-		getColor(g, dimension2);
-		g.drawLine((int) Math.round(viewX(0)), (int) Math.round(viewY(0)), (int) Math.round(viewX(0)), (int) Math.round(viewY(5)));
+		getColor(g, coordinateSystem.getPortSecondXYZ());
+		g.drawLine((int) Math.round(coordinateSystem.viewX(0)), (int) Math.round(coordinateSystem.viewY(0)), (int) Math.round(coordinateSystem.viewX(0)), (int) Math.round(coordinateSystem.viewY(5)));
 
 
 		adjustAndRunPaintTimer(renderStart);
@@ -192,8 +192,7 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 
 	public void setViewportAxises(String name, byte dim1, byte dim2) {
 		view.getViewProperties().setTitle(name);
-		dimension1 = dim1;
-		dimension2 = dim2;
+		coordinateSystem.setDimensions(dim1, dim2);
 	}
 
 	public ModelEditorManager getModelEditorManager() {

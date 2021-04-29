@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.CollisionShape;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
@@ -25,8 +26,8 @@ public class TPoseSelectionAtPointTester implements IdObjectVisitor {
 	}
 
 	private void handleDefaultNode(Point point, CoordinateSystem axes, IdObject object) {
-		double vertexSize = object.getClickRadius(axes) * CoordinateSystem.getZoom(axes) * 2;
-		if (AbstractModelEditor.hitTest(object.getPivotPoint(), CoordinateSystem.geom(axes, point), axes, vertexSize)) {
+		double vertexSize = object.getClickRadius(axes) * CoordSysUtils.getZoom(axes) * 2;
+		if (AbstractModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geom(axes, point), axes, vertexSize)) {
 			mouseOverVertex = true;
 		}
 	}
@@ -42,7 +43,7 @@ public class TPoseSelectionAtPointTester implements IdObjectVisitor {
 		if (object instanceof CollisionShape) {
 			for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
 				int vertexSize = IdObject.DEFAULT_CLICK_RADIUS;
-				if (AbstractModelEditor.hitTest(vertex, CoordinateSystem.geom(axes, point), axes, vertexSize)) {
+				if (AbstractModelEditor.hitTest(vertex, CoordSysUtils.geom(axes, point), axes, vertexSize)) {
 					mouseOverVertex = true;
 				}
 			}
@@ -52,10 +53,10 @@ public class TPoseSelectionAtPointTester implements IdObjectVisitor {
 	@Override
 	public void camera(Camera camera) {
 		int vertexSize = programPreferences.getVertexSize();
-		if (AbstractModelEditor.hitTest(camera.getPosition(), CoordinateSystem.geom(axes, point), axes, vertexSize)) {
+		if (AbstractModelEditor.hitTest(camera.getPosition(), CoordSysUtils.geom(axes, point), axes, vertexSize)) {
 			mouseOverVertex = true;
 		}
-		if (AbstractModelEditor.hitTest(camera.getTargetPosition(), CoordinateSystem.geom(axes, point), axes, vertexSize)) {
+		if (AbstractModelEditor.hitTest(camera.getTargetPosition(), CoordSysUtils.geom(axes, point), axes, vertexSize)) {
 			mouseOverVertex = true;
 		}
 	}

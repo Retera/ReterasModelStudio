@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
 import com.hiveworkshop.rms.util.Mat4;
@@ -210,7 +210,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		int floorIndex = rotationTimeline.floorIndex(trackTime);
 		//final RenderNode renderNode = renderModel.getRenderNode(this);
-		byte unusedXYZ = CoordinateSystem.getUnusedXYZ(firstXYZ, secondXYZ);
+		byte unusedXYZ = CoordSysUtils.getUnusedXYZ(firstXYZ, secondXYZ);
 		AnimatedNode parent = null;// = getParent();
 		if (this instanceof IdObject) {
 			parent = ((IdObject) this).getParent();

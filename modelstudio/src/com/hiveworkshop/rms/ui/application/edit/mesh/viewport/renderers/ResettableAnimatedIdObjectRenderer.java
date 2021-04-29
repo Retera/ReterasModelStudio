@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportRenderableCamera;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
@@ -30,14 +31,17 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
 
     public static void drawCollisionShape(Graphics2D graphics, Color color,
                                           CoordinateSystem coordinateSystem,
-                                          byte xDimension, byte yDimension,
                                           int vertexSize,
                                           CollisionShape collisionShape, Image collisionImage,
                                           Mat4 worldMatrix, boolean crosshairIsBox) {
+        byte xDimension = coordinateSystem.getPortFirstXYZ();
+        byte yDimension = coordinateSystem.getPortSecondXYZ();
+
         Vec3 pivotPoint = collisionShape.getPivotPoint();
         List<Vec3> vertices = collisionShape.getVertices();
         graphics.setColor(color);
         Vec3 vertexHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
+
         int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(xDimension));
         int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(yDimension));
         if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
@@ -60,25 +64,28 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
             }
         } else {
             if (collisionShape.getExtents() != null) {
-                double zoom = CoordinateSystem.getZoom(coordinateSystem);
+                double zoom = CoordSysUtils.getZoom(coordinateSystem);
                 double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
                 graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
             }
         }
-        drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage, worldMatrix);
+        drawNodeImage(graphics, coordinateSystem, collisionShape, collisionImage, worldMatrix);
 
         for (Vec3 vertex : vertices) {
             drawCrosshair(graphics, coordinateSystem, vertexSize, vertex, worldMatrix, crosshairIsBox);
         }
     }
 
-    public static void drawNodeImage(Graphics2D graphics, byte xDimension, byte yDimension,
-                                     CoordinateSystem coordinateSystem, IdObject attachment, Image nodeImage,
-                                     Mat4 worldMatrix) {
+    public static void drawNodeImage(Graphics2D graphics, CoordinateSystem coordinateSystem,
+                                     IdObject attachment, Image nodeImage, Mat4 worldMatrix) {
+        byte xDimension = coordinateSystem.getPortFirstXYZ();
+        byte yDimension = coordinateSystem.getPortSecondXYZ();
         Vec3 vertexHeap = Vec3.getTransformed(attachment.getPivotPoint(), worldMatrix);
         int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(xDimension));
         int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(yDimension));
-        graphics.drawImage(nodeImage, xCoord - (nodeImage.getWidth(null) / 2), yCoord - (nodeImage.getHeight(null) / 2), nodeImage.getWidth(null), nodeImage.getHeight(null), null);
+        int height = nodeImage.getHeight(null);
+        int width = nodeImage.getWidth(null);
+        graphics.drawImage(nodeImage, xCoord - (width / 2), yCoord - (height / 2), width, height, null);
     }
 
     public static void drawCrosshair(Graphics2D graphics, CoordinateSystem coordinateSystem, int vertexSize, Vec3 pivotPoint, Mat4 worldMatrix, boolean crosshairIsBox) {
@@ -110,7 +117,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
     }
 
     private void drawNodeImage(IdObject object, Image nodeImage, Mat4 worldMatrix) {
-        drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem, object, nodeImage, worldMatrix);
+        drawNodeImage(graphics, coordinateSystem, object, nodeImage, worldMatrix);
     }
 
     private void drawCrosshair(Bone object) {
@@ -141,8 +148,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
     }
 
     public void collisionShape(CollisionShape object) {
-        drawCollisionShape(graphics, pivotPointColor, coordinateSystem, coordinateSystem.getPortFirstXYZ(),
-                coordinateSystem.getPortSecondXYZ(), vertexSize, object, nodeIconPalette.getCollisionImage(),
+        drawCollisionShape(graphics, pivotPointColor, coordinateSystem, vertexSize, object, nodeIconPalette.getCollisionImage(),
                 renderModel.getRenderNode(object).getWorldMatrix(), crosshairIsBox);
     }
 
@@ -150,7 +156,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         Vec3 vertexHeap = Vec3.getTransformed(object.getPivotPoint(), renderModel.getRenderNode(object).getWorldMatrix());
         int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
         int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
-        double zoom = CoordinateSystem.getZoom(coordinateSystem);
+        double zoom = CoordSysUtils.getZoom(coordinateSystem);
 
         int attenuationStart = (int) (object.getAttenuationStart() * zoom);
         if (attenuationStart > 0) {

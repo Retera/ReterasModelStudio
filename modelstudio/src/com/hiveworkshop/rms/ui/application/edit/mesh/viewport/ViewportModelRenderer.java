@@ -20,8 +20,6 @@ public class ViewportModelRenderer implements ModelVisitor {
 	private Graphics2D graphics;
 	private ProgramPreferences programPreferences;
 	private final VPGeosetRendererImpl geosetRenderer;
-	private byte xDimension;
-	private byte yDimension;
 	private CoordinateSystem coordinateSystem;
 	private final ResettableIdObjectRenderer idObjectRenderer;
 	private ModelView modelView;
@@ -119,12 +117,10 @@ public class ViewportModelRenderer implements ModelVisitor {
 	}
 
 	public ViewportModelRenderer reset(Graphics2D graphics, ProgramPreferences programPreferences,
-	                                   byte xDimension, byte yDimension, ViewportView viewportView,
+	                                   ViewportView viewportView,
 	                                   CoordinateSystem coordinateSystem, ModelView modelView) {
 		this.graphics = graphics;
 		this.programPreferences = programPreferences;
-		this.xDimension = xDimension;
-		this.yDimension = yDimension;
 		this.coordinateSystem = coordinateSystem;
 		this.modelView = modelView;
 		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences.getLightsColor(),
@@ -144,7 +140,7 @@ public class ViewportModelRenderer implements ModelVisitor {
 				graphics.setColor(programPreferences.getVisibleUneditableColor());
 			}
 		}
-		return geosetRenderer.reset(graphics, programPreferences, xDimension, yDimension, coordinateSystem);
+		return geosetRenderer.reset(graphics, programPreferences, coordinateSystem);
 	}
 
 	private void resetIdObjectRendererWithNode(IdObject object) {

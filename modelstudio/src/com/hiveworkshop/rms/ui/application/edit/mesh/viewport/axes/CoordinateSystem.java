@@ -1,205 +1,123 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes;
 
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
-import com.hiveworkshop.rms.util.Vec2;
-import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec4;
+import javax.swing.*;
 
-import java.awt.*;
-import java.awt.geom.Point2D;
+public final class CoordinateSystem {
+	private byte dimension1;
+	private byte dimension2;
+	//	private final int width;
+//	private final int height;
+	private final JComponent parent;
+	private double cameraX = 0;
+	private double cameraY = 0;
+	private double zoom = 1;
+	private double aspectRatio = 1;
+	private int yFlip = -1;
 
-public interface CoordinateSystem {
-
-	double viewX(double x);
-
-	double viewY(double y);
-
-	double geomX(double x);
-
-	double geomY(double y);
-
-	byte getPortFirstXYZ();
-
-	byte getPortSecondXYZ();
-
-//	CoordinateSystem copy();
-
-
-	static double getZoom(final CoordinateSystem coordinateSystem) {
-		if (coordinateSystem instanceof Viewport) {
-			return ((Viewport) coordinateSystem).getZoom();
-		}
-		final double originX = coordinateSystem.viewX(0);
-		final double offsetX = coordinateSystem.viewX(100);
-		return (offsetX - originX) / 100.0;
+	public CoordinateSystem(byte dimension1, byte dimension2, JComponent parent) {
+		this.dimension1 = dimension1;
+		this.dimension2 = dimension2;
+		this.parent = parent;
 	}
 
-	static CoordinateSystem identity(final byte a, final byte b) {
-		return new IdentityCoordinateSystem(b, a);
+	public CoordinateSystem setYFlip(int yFlip) {
+		this.yFlip = yFlip;
+		return this;
 	}
 
-	static byte getUnusedXYZ(final CoordinateSystem coordinateSystem) {
-		return getUnusedXYZ(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+	public CoordinateSystem setAspectRatio(double aspectRatio) {
+		this.aspectRatio = aspectRatio;
+		return this;
 	}
 
-	static byte getUnusedXYZ(byte portFirstXYZ, byte portSecondXYZ) {
-		if (portFirstXYZ < 0) {
-			portFirstXYZ = (byte) (-portFirstXYZ - 1);
-		}
-		if (portSecondXYZ < 0) {
-			portSecondXYZ = (byte) (-portSecondXYZ - 1);
-		}
-		return (byte) (3 - portFirstXYZ - portSecondXYZ);
+	public double getCameraX() {
+		return cameraX;
 	}
 
-	static Vec3 convertToVec3(final CoordinateSystem coordinateSystem, final Point point) {
-		final Vec3 vertex = new Vec3(0, 0, 0);
-		vertex.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(point.x));
-		vertex.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(point.y));
-		return vertex;
+	public double getCameraY() {
+		return cameraY;
 	}
 
-	static Point2D.Double geom(final CoordinateSystem coordinateSystem, final Point point) {
-		return new Point2D.Double(coordinateSystem.geomX(point.x), coordinateSystem.geomY(point.y));
+	public double getZoom() {
+		return zoom;
 	}
 
-	static Vec3 convertToVec3(final CoordinateSystem coordinateSystem, final Vec2 point) {
-		final Vec3 vertex = new Vec3(0, 0, 0);
-		vertex.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(point.x));
-		vertex.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(point.y));
-		return vertex;
+	public CoordinateSystem setZoom(double zoom) {
+		this.zoom = zoom;
+		return this;
 	}
 
-	static Point2D.Double geom(final CoordinateSystem coordinateSystem, final Vec2 point) {
-		return new Point2D.Double(coordinateSystem.geomX(point.x), coordinateSystem.geomY(point.y));
+	public CoordinateSystem zoomIn(double amount) {
+		zoom *= amount;
+		return this;
+	}
+	public CoordinateSystem zoomOut(double amount) {
+		zoom /= amount;
+		return this;
 	}
 
-	static Point convertToViewPoint(final CoordinateSystem coordinateSystem, final Vec3 vertex) {
-		int x = (int) (getViewX(coordinateSystem, vertex) + .5);
-		int y = (int) (getViewY(coordinateSystem, vertex) + .5);
-		return new Point(x, y);
+	public CoordinateSystem setPosition(double a, double b) {
+		cameraX = a;
+		cameraY = b;
+		return this;
 	}
 
-	static Point convertToViewPoint(final CoordinateSystem coordinateSystem, final Vec2 vertex) {
-		int x = (int) getViewX(coordinateSystem, vertex);
-		int y = (int) getViewY(coordinateSystem, vertex);
-		return new Point(x, y);
+	public CoordinateSystem translate(double a, double b) {
+		cameraX += a / aspectRatio;
+		cameraY += b;
+		return this;
 	}
 
-	static Point convertToViewPoint(final CoordinateSystem coordinateSystem, final GeosetVertex vertex, final RenderModel renderModel) {
-		Vec4 vertexHeap = new Vec4(vertex, 1);
-
-		Vec4 vertexSumHeap = new Vec4(0, 0, 0, 0);
-		for (final Bone bone : vertex.getBones()) {
-			Vec4 appliedVertexHeap = Vec4.getTransformed(vertexHeap, renderModel.getRenderNode(bone).getWorldMatrix());
-			vertexSumHeap.add(appliedVertexHeap);
-		}
-		final int boneCount = vertex.getBones().size();
-		vertexSumHeap.scale(1f / boneCount);
-		int x = (int) getViewX(coordinateSystem, vertexSumHeap);
-		int y = (int) getViewY(coordinateSystem, vertexSumHeap);
-
-		return new Point(x, y);
+	public CoordinateSystem translateZoomed(double a, double b) {
+		cameraX += a / zoom / aspectRatio;
+		cameraY += b / zoom;
+		return this;
 	}
 
-	static Vec2 convertToViewVec2(final CoordinateSystem coordinateSystem, final Vec3 vertex) {
-		double x = getViewX(coordinateSystem, vertex);
-		double y = getViewY(coordinateSystem, vertex);
-		return new Vec2(x, y);
+	public CoordinateSystem setGeomPosition(double a, double b) {
+		cameraX = geomX(a);
+		cameraY = geomY(b);
+		return this;
 	}
 
-	static Vec2 convertToViewVec2(final CoordinateSystem coordinateSystem, final Vec2 vertex) {
-		double x = getViewX(coordinateSystem, vertex);
-		double y = getViewY(coordinateSystem, vertex);
-		return new Vec2(x, y);
+	public CoordinateSystem setDimensions(byte dimension1, byte dimension2) {
+		this.dimension1 = dimension1;
+		this.dimension2 = dimension2;
+		return this;
 	}
 
-	static Vec2 convertToViewVec2(final CoordinateSystem coordinateSystem, final GeosetVertex vertex, final RenderModel renderModel) {
-		Vec4 vertexHeap = new Vec4(vertex, 1);
+//	@Override
+	public double viewX(double x) {
+		return (x + cameraX) * zoom * aspectRatio + parent.getWidth() / 2.0;
+	}
+//	public double viewX(double x) { return ((x + cameraX) * zoom * aspectRatio) + parent.getWidth() / 2.0;}
 
-		Vec4 vertexSumHeap = new Vec4(0, 0, 0, 0);
-		for (final Bone bone : vertex.getBones()) {
-			Vec4 appliedVertexHeap = Vec4.getTransformed(vertexHeap, renderModel.getRenderNode(bone).getWorldMatrix());
-			vertexSumHeap.add(appliedVertexHeap);
-		}
-		final int boneCount = vertex.getBones().size();
-		vertexSumHeap.scale(1f / boneCount);
-		double x = getViewX(coordinateSystem, vertexSumHeap);
-		double y = getViewY(coordinateSystem, vertexSumHeap);
+//	@Override
+	public double viewY(double y) {
+		return ((y * yFlip + cameraY) * zoom) + parent.getHeight() / 2.0;
+	}
+//	public double viewY(double y) { return ((y * yFlip + cameraY) * zoom) + parent.getHeight() / 2.0;}
 
-		return new Vec2(x, y);
+//	@Override
+	public double geomX(double x) {
+		return (x - parent.getWidth() / 2.0) / aspectRatio / zoom - cameraX;
+	}
+//	public double geomX(double x) { return (x - parent.getWidth() / 2.0) / aspectRatio / zoom - cameraX;}
+
+//	@Override
+	public double geomY(double y) {
+		return yFlip * ((y - parent.getHeight() / 2.0) / zoom - cameraY);
+	}
+//	public double geomY(double y) { return yFlip * ((y - parent.getHeight() / 2.0) / zoom) - cameraY;}
+
+//	@Override
+	public byte getPortFirstXYZ() {
+		return dimension1;
 	}
 
-
-	static double getViewY(CoordinateSystem coordinateSystem, Vec4 vertexSumHeap) {
-		return coordinateSystem.viewY(vertexSumHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+//	@Override
+	public byte getPortSecondXYZ() {
+		return dimension2;
 	}
 
-	static double getViewX(CoordinateSystem coordinateSystem, Vec4 vertexSumHeap) {
-		return coordinateSystem.viewX(vertexSumHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-	}
-
-	static double getViewY(CoordinateSystem coordinateSystem, Vec2 vertex) {
-		return coordinateSystem.viewY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-	}
-
-	static double getViewX(CoordinateSystem coordinateSystem, Vec2 vertex) {
-		return coordinateSystem.viewX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-	}
-
-	static double getViewY(CoordinateSystem coordinateSystem, Vec3 vertex) {
-		return coordinateSystem.viewY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
-	}
-
-	static double getViewX(CoordinateSystem coordinateSystem, Vec3 vertex) {
-		return coordinateSystem.viewX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
-	}
-
-	final class IdentityCoordinateSystem implements CoordinateSystem {
-		private final byte b;
-		private final byte a;
-
-		private IdentityCoordinateSystem(final byte b, final byte a) {
-			this.b = b;
-			this.a = a;
-		}
-
-		@Override
-		public double viewX(final double x) {
-			return x;
-		}
-
-		@Override
-		public double viewY(final double y) {
-			return y;
-		}
-
-		@Override
-		public double geomX(final double x) {
-			return x;
-		}
-
-		@Override
-		public double geomY(final double y) {
-			return y;
-		}
-
-		@Override
-		public byte getPortFirstXYZ() {
-			return a;
-		}
-
-		@Override
-		public byte getPortSecondXYZ() {
-			return b;
-		}
-
-//		@Override
-//		public CoordinateSystem copy() {
-//			return new IdentityCoordinateSystem(b, a);
-//		}
-	}
 }

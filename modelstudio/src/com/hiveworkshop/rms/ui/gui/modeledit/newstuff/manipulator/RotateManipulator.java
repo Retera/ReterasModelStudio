@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
@@ -32,11 +32,11 @@ public class RotateManipulator extends Manipulator {
 		nonRotAngle = 0;
 
 		if (dir != MoveDimension.XYZ && dir.containDirection(dim1)) {
-			planeDim1 = CoordinateSystem.getUnusedXYZ(dim1, dim2);
+			planeDim1 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
 			planeDim2 = dim2;
 		} else if (dir != MoveDimension.XYZ && dir.containDirection(dim2)) {
 			planeDim1 = dim1;
-			planeDim2 = CoordinateSystem.getUnusedXYZ(dim1, dim2);
+			planeDim2 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
 		} else {
 			planeDim1 = dim1;
 			planeDim2 = dim2;
@@ -84,7 +84,7 @@ public class RotateManipulator extends Manipulator {
 				}
 				deltaAngle = (endingClick.x - startingClick.x) / radius;
 			}
-			if (dir.containDirection(CoordinateSystem.getUnusedXYZ(portFirstXYZ, portSecondXYZ))) {
+			if (dir.containDirection(CoordSysUtils.getUnusedXYZ(portFirstXYZ, portSecondXYZ))) {
 				Vec2 startingDelta = Vec2.getDif(startingClick, center.getProjected(portFirstXYZ, portSecondXYZ));
 				Vec2 endingDelta = Vec2.getDif(endingClick, center.getProjected(portFirstXYZ, portSecondXYZ));
 

@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.editor.model.util;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -32,7 +32,7 @@ public final class ModelUtils {
 	}
 
 	public static Mesh createPlane(byte firstDimension, byte secondDimension, Vec3 facingVector, double planeHeight, Vec2 p1, Vec2 p2, int numberOfSegmentsX, int numberOfSegmentsY) {
-		byte planeDimension = CoordinateSystem.getUnusedXYZ(firstDimension, secondDimension);
+		byte planeDimension = CoordSysUtils.getUnusedXYZ(firstDimension, secondDimension);
 
 		List<GeosetVertex> vertices = new ArrayList<>();
 		List<Triangle> triangles = new ArrayList<>();

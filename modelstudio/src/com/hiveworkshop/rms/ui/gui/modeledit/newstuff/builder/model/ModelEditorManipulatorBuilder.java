@@ -91,9 +91,9 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 	}
 
 	@Override
-	public final void renderStatic(final Graphics2D graphics,
-	                               final CoordinateSystem coordinateSystem,
-	                               final SelectionView selectionView) {
+	public final void renderStatic(Graphics2D graphics,
+	                               CoordinateSystem coordinateSystem,
+	                               SelectionView selectionView) {
 		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(graphics, coordinateSystem), coordinateSystem, modelView, programPreferences);
 		if (!selectionView.isEmpty()) {
 			renderWidget(graphics, coordinateSystem, selectionView);
@@ -106,6 +106,6 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 
 	protected abstract Manipulator createDefaultManipulator(Vec3 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
 
-	protected abstract void renderWidget(final Graphics2D graphics, final CoordinateSystem coordinateSystem, final SelectionView selectionView);
+	protected abstract void renderWidget(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView);
 
 }

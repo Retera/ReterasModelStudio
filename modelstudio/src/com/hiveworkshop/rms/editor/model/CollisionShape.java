@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape.Type;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Vec3;
@@ -19,7 +20,7 @@ public class CollisionShape extends IdObject {
 	Type type = Type.BOX;
 	List<Vec3> vertices = new ArrayList<>();
 
-	public CollisionShape(final CollisionShape shape) {
+	public CollisionShape(CollisionShape shape) {
 		copyObject(shape);
 
 		type = shape.type;
@@ -31,7 +32,7 @@ public class CollisionShape extends IdObject {
 		}
 	}
 
-	public CollisionShape(final MdlxCollisionShape shape) {
+	public CollisionShape(MdlxCollisionShape shape) {
 		if ((shape.flags & 8192) != 8192) {
 			System.err.println("MDX -> MDL error: A collisionshape '" + shape.name
 					+ "' not flagged as collisionshape in MDX!");
@@ -41,7 +42,7 @@ public class CollisionShape extends IdObject {
 
 		type = shape.type;
 
-		final float[][] vertices = shape.vertices;
+		float[][] vertices = shape.vertices;
 
 		this.vertices.add(new Vec3(vertices[0]));
 
@@ -55,7 +56,7 @@ public class CollisionShape extends IdObject {
 	}
 
 	public MdlxCollisionShape toMdlx(EditableModel model) {
-		final MdlxCollisionShape shape = new MdlxCollisionShape();
+		MdlxCollisionShape shape = new MdlxCollisionShape();
 
 		objectToMdlx(shape, model);
 
@@ -83,15 +84,15 @@ public class CollisionShape extends IdObject {
 		return type;
 	}
 
-	public void setType(final Type type) {
+	public void setType(Type type) {
 		this.type = type;
 	}
 
-	public void addVertex(final Vec3 v) {
+	public void addVertex(Vec3 v) {
 		vertices.add(v);
 	}
 
-	public Vec3 getVertex(final int vertId) {
+	public Vec3 getVertex(int vertId) {
 		return vertices.get(vertId);
 	}
 
@@ -103,7 +104,7 @@ public class CollisionShape extends IdObject {
 		return extents;
 	}
 
-	public void setExtents(final ExtLog extents) {
+	public void setExtents(ExtLog extents) {
 		this.extents = extents;
 	}
 
@@ -111,47 +112,47 @@ public class CollisionShape extends IdObject {
 		return vertices;
 	}
 
-	public void setVertices(final List<Vec3> vertices) {
+	public void setVertices(List<Vec3> vertices) {
 		this.vertices = vertices;
 	}
 
 //	@Override
-//	public void apply(final IdObjectVisitor visitor) {
+//	public void apply(IdObjectVisitor visitor) {
 //		visitor.collisionShape(this);
 //	}
 
 	@Override
-	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		final byte xDimension = coordinateSystem.getPortFirstXYZ();
-		final byte yDimension = coordinateSystem.getPortSecondXYZ();
-		final int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(xDimension));
-		final int yCoord = (int) coordinateSystem.viewY(pivotPoint.getCoord(yDimension));
+	public double getClickRadius(CoordinateSystem coordinateSystem) {
+		byte xDimension = coordinateSystem.getPortFirstXYZ();
+		byte yDimension = coordinateSystem.getPortSecondXYZ();
+		int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(xDimension));
+		int yCoord = (int) coordinateSystem.viewY(pivotPoint.getCoord(yDimension));
 		if (type == Type.BOX) {
 			if (vertices.size() > 0) {
-				// final Vertex vertex = vertices.get(0);
-				// final int secondXCoord = (int)
+				// Vertex vertex = vertices.get(0);
+				// int secondXCoord = (int)
 				// coordinateSystem.convertX(vertex.getCoord(xDimension));
-				// final int secondYCoord = (int)
+				// int secondYCoord = (int)
 				// coordinateSystem.convertY(vertex.getCoord(yDimension));
-				// final int minXCoord = Math.min(xCoord, secondXCoord);
-				// final int minYCoord = Math.min(yCoord, secondYCoord);
-				// final int maxXCoord = Math.max(xCoord, secondXCoord);
-				// final int maxYCoord = Math.max(yCoord, secondYCoord);
-				// final int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord -
+				// int minXCoord = Math.min(xCoord, secondXCoord);
+				// int minYCoord = Math.min(yCoord, secondYCoord);
+				// int maxXCoord = Math.max(xCoord, secondXCoord);
+				// int maxYCoord = Math.max(yCoord, secondYCoord);
+				// int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord -
 				// minYCoord) / 2;
-				return DEFAULT_CLICK_RADIUS / CoordinateSystem.getZoom(coordinateSystem);
+				return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
 			} else {
-				return DEFAULT_CLICK_RADIUS / CoordinateSystem.getZoom(coordinateSystem);
+				return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
 			}
 		}
 		if (extents == null) {
-			return DEFAULT_CLICK_RADIUS / CoordinateSystem.getZoom(coordinateSystem);
+			return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
 		}
 		return extents.getBoundsRadius();
 	}
 
 	@Override
-	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public float getRenderVisibility(AnimatedRenderEnvironment animatedRenderEnvironment) {
 		return 1;
 	}
 }

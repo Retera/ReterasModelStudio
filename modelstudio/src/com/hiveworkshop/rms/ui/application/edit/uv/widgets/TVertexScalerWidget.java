@@ -20,7 +20,7 @@ public final class TVertexScalerWidget {
 	private final Polygon northLineHitBox;
 	private final Polygon eastLineHitBox;
 
-	public TVertexScalerWidget(final Vec2 point) {
+	public TVertexScalerWidget(Vec2 point) {
 		this.point = new Vec2(0, 0);
 		this.point.set(point);
 
@@ -39,9 +39,9 @@ public final class TVertexScalerWidget {
 		eastLineHitBox = GU.getRektPoly(0, -LINE_SENS, LINE_LEN + LINE_SENS, LINE_SENS);
 	}
 
-	public MoveDimension getDirectionByMouse(final Point mousePoint, final CoordinateSystem coordinateSystem, final byte dim1, final byte dim2) {
-		final int x = (int) coordinateSystem.viewX(point.getCoord(dim1));
-		final int y = (int) coordinateSystem.viewY(point.getCoord(dim2));
+	public MoveDimension getDirectionByMouse(Point mousePoint, CoordinateSystem coordinateSystem, byte dim1, byte dim2) {
+		int x = (int) coordinateSystem.viewX(point.getCoord(dim1));
+		int y = (int) coordinateSystem.viewY(point.getCoord(dim2));
 
 		MoveDimension direction = MoveDimension.NONE;
 
@@ -64,7 +64,7 @@ public final class TVertexScalerWidget {
 		return point;
 	}
 
-	public void setPoint(final Vec2 point) {
+	public void setPoint(Vec2 point) {
 		this.point.set(point);
 	}
 
@@ -72,15 +72,15 @@ public final class TVertexScalerWidget {
 		return moveDirection;
 	}
 
-	public void setMoveDirection(final MoveDimension moveDirection) {
+	public void setMoveDirection(MoveDimension moveDirection) {
 		this.moveDirection = moveDirection;
 	}
 
-	public void render(final Graphics2D graphics, final CoordinateSystem coordinateSystem) {
-		final byte xDimension = coordinateSystem.getPortFirstXYZ();
-		final byte yDimension = coordinateSystem.getPortSecondXYZ();
-		final int x = (int) coordinateSystem.viewX(point.getCoord(xDimension));
-		final int y = (int) coordinateSystem.viewY(point.getCoord(yDimension));
+	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
+		byte xDimension = coordinateSystem.getPortFirstXYZ();
+		byte yDimension = coordinateSystem.getPortSecondXYZ();
+		int x = (int) coordinateSystem.viewX(point.getCoord(xDimension));
+		int y = (int) coordinateSystem.viewY(point.getCoord(yDimension));
 		if (moveDirection != null) {
 			setHighLightableColor(graphics, xDimension, moveDirection);
 			drawEastLine(graphics, x, y);
@@ -130,7 +130,7 @@ public final class TVertexScalerWidget {
 		graphics.drawLine(x, y, x + LINE_LEN, y);
 	}
 
-	private void setColorByDimension(final Graphics2D graphics, final byte dimension) {
+	private void setColorByDimension(Graphics2D graphics, byte dimension) {
 		switch (dimension) {
 			case 0, -1 -> graphics.setColor(new Color(0, 255, 0));
 			case 1, -2 -> graphics.setColor(new Color(255, 0, 0));
@@ -138,7 +138,7 @@ public final class TVertexScalerWidget {
 		}
 	}
 
-	private void setHighLightableColor(final Graphics2D graphics, final byte dimension, MoveDimension moveDimension) {
+	private void setHighLightableColor(Graphics2D graphics, byte dimension, MoveDimension moveDimension) {
 		if (moveDimension.containDirection(dimension)) {
 			graphics.setColor(new Color(255, 255, 0));
 		} else {

@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxBone;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Vec3;
@@ -23,12 +24,12 @@ public class Bone extends IdObject {
 
 	}
 
-	public Bone(final String name) {
+	public Bone(String name) {
 		this.name = name;
 		pivotPoint = new Vec3(0, 0, 0);
 	}
 
-	public Bone(final Bone b) {
+	public Bone(Bone b) {
 		copyObject(b);
 		
 		geosetId = b.geosetId;
@@ -39,7 +40,7 @@ public class Bone extends IdObject {
 		hasGeoAnim = b.hasGeoAnim;
 	}
 
-	public Bone(final MdlxBone bone) {
+	public Bone(MdlxBone bone) {
 		if ((bone.flags & 256) != 256) {
 			System.err.println("MDX -> MDL error: A bone '" + bone.name + "' not flagged as bone in MDX!");
 		}
@@ -51,7 +52,7 @@ public class Bone extends IdObject {
 	}
 
 	public MdlxBone toMdlx(EditableModel model) {
-		final MdlxBone bone = new MdlxBone();
+		MdlxBone bone = new MdlxBone();
 
 		objectToMdlx(bone, model);
 
@@ -66,10 +67,10 @@ public class Bone extends IdObject {
 		return new Bone(this);
 	}
 	
-	public void copyMotionFrom(final Bone b) {
-		for (final AnimFlag<?> baf : b.animFlags.values()) {
+	public void copyMotionFrom(Bone b) {
+		for (AnimFlag<?> baf : b.animFlags.values()) {
 			boolean foundMatch = false;
-			for (final AnimFlag<?> af : animFlags.values()) {
+			for (AnimFlag<?> af : animFlags.values()) {
 				boolean sameSeq = false;
 				if (baf.globalSeq == null && af.globalSeq == null) {
 					sameSeq = true;
@@ -88,8 +89,8 @@ public class Bone extends IdObject {
 		}
 	}
 
-	public void clearAnimation(final Animation a) {
-		for (final AnimFlag<?> af : animFlags.values()) {
+	public void clearAnimation(Animation a) {
+		for (AnimFlag<?> af : animFlags.values()) {
 			af.deleteAnim(a);
 		}
 	}
@@ -99,7 +100,7 @@ public class Bone extends IdObject {
 	 * the time track.
 	 */
 	public boolean animates() {
-		for (final AnimFlag<?> af : animFlags.values()) {
+		for (AnimFlag<?> af : animFlags.values()) {
 			if (af.size() > 1) {
 				return true;
 			}
@@ -120,17 +121,18 @@ public class Bone extends IdObject {
 	}
 
 //	@Override
-//	public void apply(final IdObjectVisitor visitor) {
+//	public void apply(IdObjectVisitor visitor) {
 //		visitor.bone(this);
 //	}
 
 	@Override
-	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS * 3 / CoordinateSystem.getZoom(coordinateSystem);
+	public double getClickRadius(CoordinateSystem coordinateSystem) {
+		return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
+//		return DEFAULT_CLICK_RADIUS * 3 / CoordinateSystem.getZoom(coordinateSystem);
 	}
 
 	@Override
-	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public float getRenderVisibility(AnimatedRenderEnvironment animatedRenderEnvironment) {
 		if (geosetAnim != null) {
 			return geosetAnim.getRenderVisibility(animatedRenderEnvironment);
 		}

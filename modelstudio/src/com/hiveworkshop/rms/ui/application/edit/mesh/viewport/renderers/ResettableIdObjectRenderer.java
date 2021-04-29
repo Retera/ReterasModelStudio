@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -27,7 +28,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	public static void drawNodeImage(Graphics2D graphics,
 	                                 CoordinateSystem coordinateSystem,
 	                                 IdObject attachment, Image nodeImage) {
-		Vec2 coord = CoordinateSystem.convertToViewVec2(coordinateSystem, attachment.getPivotPoint());
+		Vec2 coord = CoordSysUtils.convertToViewVec2(coordinateSystem, attachment.getPivotPoint());
 
 		Vec2 imageSize = new Vec2(nodeImage.getWidth(null), nodeImage.getHeight(null));
 		coord.sub(imageSize.getScaled(.5f));
@@ -37,7 +38,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	}
 
 	public static void drawCrosshair(Graphics2D graphics, CoordinateSystem coordinateSystem, int vertexSize, Vec3 pivotPoint) {
-		Vec2 coord = CoordinateSystem.convertToViewVec2(coordinateSystem, pivotPoint);
+		Vec2 coord = CoordSysUtils.convertToViewVec2(coordinateSystem, pivotPoint);
 
 		Vec2 vertSize = new Vec2(vertexSize, vertexSize);
 
@@ -65,15 +66,15 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		List<Vec3> vertices = collisionShape.getVertices();
 		graphics.setColor(color);
 
-		Vec2 coord = CoordinateSystem.convertToViewVec2(coordinateSystem, collisionShape.getPivotPoint());
+		Vec2 coord = CoordSysUtils.convertToViewVec2(coordinateSystem, collisionShape.getPivotPoint());
 
 		if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
 			if (vertices.size() > 1) {
 				Vec3 vertex1 = vertices.get(0);
 				Vec3 vertex2 = vertices.get(1);
 
-				Vec2 firstCoord = CoordinateSystem.convertToViewVec2(coordinateSystem, vertex1);
-				Vec2 secondCoord = CoordinateSystem.convertToViewVec2(coordinateSystem, vertex2);
+				Vec2 firstCoord = CoordSysUtils.convertToViewVec2(coordinateSystem, vertex1);
+				Vec2 secondCoord = CoordSysUtils.convertToViewVec2(coordinateSystem, vertex2);
 
 				Vec2 minCoord = new Vec2(firstCoord).minimize(secondCoord);
 				Vec2 maxCoord = new Vec2(firstCoord).maximize(secondCoord);
@@ -84,7 +85,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 			}
 		} else {
 			if (collisionShape.getExtents() != null) {
-				double zoom = CoordinateSystem.getZoom(coordinateSystem);
+				double zoom = CoordSysUtils.getZoom(coordinateSystem);
 				double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
 				graphics.drawOval((int) (coord.x - boundsRadius), (int) (coord.y - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
 			}
@@ -151,7 +152,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		graphics.setColor(lightColor);
 		int xCoord = (int) coordinateSystem.viewX(object.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
 		int yCoord = (int) coordinateSystem.viewY(object.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
-		double zoom = CoordinateSystem.getZoom(coordinateSystem);
+		double zoom = CoordSysUtils.getZoom(coordinateSystem);
 
 		int height = lightImage.getHeight(null);
 		int width = lightImage.getWidth(null);
@@ -173,8 +174,8 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		Graphics2D g2 = ((Graphics2D) graphics.create());
 		Vec3 ver = camera.getPosition();
 		Vec3 targ = camera.getTargetPosition();
-		Point start = CoordinateSystem.convertToViewPoint(coordinateSystem, ver);
-		Point end = CoordinateSystem.convertToViewPoint(coordinateSystem, targ);
+		Point start = CoordSysUtils.convertToViewPoint(coordinateSystem, ver);
+		Point end = CoordSysUtils.convertToViewPoint(coordinateSystem, targ);
 //		Point start = new Point(
 //				(int) Math.round(coordinateSystem.viewX(ver.getCoord(coordinateSystem.getPortFirstXYZ()))),
 //				(int) Math.round(coordinateSystem.viewY(ver.getCoord(coordinateSystem.getPortSecondXYZ()))));
@@ -184,7 +185,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-((Math.PI / 2) + Math.atan2(end.x - start.x, end.y - start.y)));
-		double zoom = CoordinateSystem.getZoom(coordinateSystem);
+		double zoom = CoordSysUtils.getZoom(coordinateSystem);
 		int size = (int) (20 * zoom);
 		double dist = start.distance(end);
 

@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils.Mesh;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -45,7 +45,7 @@ public class DrawBoxAction implements GenericMoveAction {
 
 		Vec3 dummy2 = new Vec3(0, 0, 0);
 		dummy2.setCoords(dim1, dim2, planeMax);
-		dummy2.setCoord(CoordinateSystem.getUnusedXYZ(dim1, dim2), 1);
+		dummy2.setCoord(CoordSysUtils.getUnusedXYZ(dim1, dim2), 1);
 		zHeight = 1;
 
 		box = ModelUtils.createBox(dummy1, dummy2, numberOfLengthSegments, numberOfWidthSegments, numberOfHeightSegments, planeGeoset);
@@ -109,7 +109,7 @@ public class DrawBoxAction implements GenericMoveAction {
 
 		vertex.setCoords(dim1, dim2, shift);
 
-		byte unusedXYZ = CoordinateSystem.getUnusedXYZ(dim1, dim2);
+		byte unusedXYZ = CoordSysUtils.getUnusedXYZ(dim1, dim2);
 		vertex.setCoord(unusedXYZ, vertex.getCoord(unusedXYZ) * scaleZ);
 	}
 }

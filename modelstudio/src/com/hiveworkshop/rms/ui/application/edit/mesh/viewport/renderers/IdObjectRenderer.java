@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -60,7 +61,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 			}
 		} else {
 			if (collisionShape.getExtents() != null) {
-				double zoom = CoordinateSystem.getZoom(coordinateSystem);
+				double zoom = CoordSysUtils.getZoom(coordinateSystem);
 				double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
 				graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
 			} else {
@@ -113,7 +114,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		int xCoord2 = (int) coordinateSystem.viewX(object.getPivotPoint().getCoord(xDimension));
 		int yCoord2 = (int) coordinateSystem.viewY(object.getPivotPoint().getCoord(yDimension));
 
-		double zoom = CoordinateSystem.getZoom(coordinateSystem);
+		double zoom = CoordSysUtils.getZoom(coordinateSystem);
 
 		int attenuationStart = (int) (object.getAttenuationStart() * zoom);
 		if (attenuationStart > 0) {
@@ -158,7 +159,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-((Math.PI / 2) + Math.atan2(end.x - start.x, end.y - start.y)));
-		double zoom = CoordinateSystem.getZoom(coordinateSystem);
+		double zoom = CoordSysUtils.getZoom(coordinateSystem);
 		int size = (int) (20 * zoom);
 		double dist = start.distance(end);
 

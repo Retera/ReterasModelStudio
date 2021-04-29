@@ -65,8 +65,8 @@ public class DisplayPanel extends JPanel {
 	private JPanel getButtonPanel() {
 		JPanel buttonPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[][][]", "[][][][][]"));
 		JPanel arrowPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[][][]", "[][][]"));
-		JButton plusZoom = addButton(20, 20, "Plus.png", e -> zoom(.15));
-		JButton minusZoom = addButton(20, 20, "Minus.png", e -> zoom(-.15));
+		JButton plusZoom = addButton(20, 20, "Plus.png", e -> zoom(1.15));
+		JButton minusZoom = addButton(20, 20, "Minus.png", e -> zoom(-1.15));
 		JButton up = addButton(32, 16, "ArrowUp.png", e -> panUpDown(20));
 		JButton left = addButton(16, 32, "ArrowLeft.png", e -> panLeftRight(20));
 		JButton right = addButton(16, 32, "ArrowRight.png", e -> panLeftRight(-20));
@@ -119,17 +119,25 @@ public class DisplayPanel extends JPanel {
 	}
 
 	public void zoom(double v) {
-		vp.zoom(v);
+		if (v>0){
+			vp.getCoordinateSystem().zoomIn(v);
+		}else {
+			vp.getCoordinateSystem().zoomOut(-v);
+
+		}
+//		vp.zoom(v);
 		vp.repaint();
 	}
 
 	public void panLeftRight(int i) {
-		vp.translate((i * (1 / vp.getZoom())), 0);
+		vp.getCoordinateSystem().translateZoomed(i, 0);
+//		vp.translate((i / vp.getZoom()), 0);
 		vp.repaint();
 	}
 
 	public void panUpDown(int i) {
-		vp.translate(0, (i * (1 / vp.getZoom())));
+		vp.getCoordinateSystem().translateZoomed(0, 1);
+//		vp.translate(0, (i / vp.getZoom()));
 		vp.repaint();
 	}
 

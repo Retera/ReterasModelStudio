@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
@@ -31,11 +31,11 @@ public class RotateTVertexManipulator extends Manipulator {
 		byte planeDim2;
 
 		if (dir.containDirection(dim1)) {
-			planeDim1 = CoordinateSystem.getUnusedXYZ(dim1, dim2);
+			planeDim1 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
 			planeDim2 = dim2;
 		} else if (dir.containDirection(dim2)) {
 			planeDim1 = dim1;
-			planeDim2 = CoordinateSystem.getUnusedXYZ(dim1, dim2);
+			planeDim2 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
 		} else {
 			planeDim1 = dim1;
 			planeDim2 = dim2;
@@ -84,7 +84,7 @@ public class RotateTVertexManipulator extends Manipulator {
 				}
 				deltaAngle = (endingClick.x - startingClick.x) / radius;
 			}
-			if (dir.containDirection(CoordinateSystem.getUnusedXYZ(portFirstXYZ, portSecondXYZ))) {
+			if (dir.containDirection(CoordSysUtils.getUnusedXYZ(portFirstXYZ, portSecondXYZ))) {
 //				double startingDeltaX = startingClick.x - center.getCoord(portFirstXYZ);
 //				double startingDeltaY = startingClick.y - center.getCoord(portSecondXYZ);
 				Vec2 startingDelta = Vec2.getDif(startingClick, center);

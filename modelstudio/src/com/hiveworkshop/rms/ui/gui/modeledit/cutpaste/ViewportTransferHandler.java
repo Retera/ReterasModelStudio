@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVe
 import com.hiveworkshop.rms.ui.application.edit.mesh.types.pivotpoint.PivotPointModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.types.pivotpoint.PivotPointSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -77,10 +77,10 @@ public class ViewportTransferHandler extends TransferHandler {
 		modelEditorNotifier.subscribe(new GeosetVertexModelEditor(pastedModelView, null, new GeosetVertexSelectionManager(), viewport.getModelStructureChangeListener()));
 		modelEditorNotifier.subscribe(new PivotPointModelEditor(pastedModelView, null, new PivotPointSelectionManager(), viewport.getModelStructureChangeListener()));
 		modelEditorNotifier.selectAll();
-		Double geomPoint = CoordinateSystem.geom(viewport, dropPoint);
+		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
 		Vec3 vertex = new Vec3(0, 0, 0);
-		vertex.setCoord(viewport.getPortFirstXYZ(), geomPoint.x);
-		vertex.setCoord(viewport.getPortSecondXYZ(), geomPoint.y);
+		vertex.setCoord(viewport.getCoordinateSystem().getPortFirstXYZ(), geomPoint.x);
+		vertex.setCoord(viewport.getCoordinateSystem().getPortSecondXYZ(), geomPoint.y);
 		modelEditorNotifier.setPosition(modelEditorNotifier.getSelectionCenter(), vertex.x, vertex.y, vertex.z);
 
 		// this is the model they're actually working on
