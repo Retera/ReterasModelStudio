@@ -162,28 +162,17 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	public UndoAction invertSelection() {
 		List<Vec3> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		Set<Vec3> invertedSelection = new HashSet<>(selectionManager.getSelection());
-		IdObjectVisitor visitor = new IdObjectVisitor() {
-			@Override
-			public void visitIdObject(IdObject object) {
-				toggleSelection(invertedSelection, object.getPivotPoint());
-				if (object instanceof CollisionShape) {
-					for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
-						toggleSelection(invertedSelection, vertex);
-					}
+		for (IdObject object : model.getEditableIdObjects()) {
+			toggleSelection(invertedSelection, object.getPivotPoint());
+			if (object instanceof CollisionShape) {
+				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+					toggleSelection(invertedSelection, vertex);
 				}
 			}
-
-			@Override
-			public void camera(Camera camera) {
-				toggleSelection(invertedSelection, camera.getPosition());
-				toggleSelection(invertedSelection, camera.getTargetPosition());
-			}
-		};
-		for (IdObject node : model.getEditableIdObjects()) {
-			node.apply(visitor);
 		}
 		for (Camera object : model.getEditableCameras()) {
-			visitor.camera(object);
+			toggleSelection(invertedSelection, object.getPosition());
+			toggleSelection(invertedSelection, object.getTargetPosition());
 		}
 		selectionManager.setSelection(invertedSelection);
 		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
@@ -201,26 +190,15 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	public UndoAction selectAll() {
 		List<Vec3> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		Set<Vec3> allSelection = new HashSet<>();
-		IdObjectVisitor visitor = new IdObjectVisitor() {
-			@Override
-			public void visitIdObject(IdObject object) {
-				allSelection.add(object.getPivotPoint());
-				if (object instanceof CollisionShape) {
-					allSelection.addAll(((CollisionShape) object).getVertices());
-				}
+		for (IdObject object : model.getEditableIdObjects()) {
+			allSelection.add(object.getPivotPoint());
+			if (object instanceof CollisionShape) {
+				allSelection.addAll(((CollisionShape) object).getVertices());
 			}
-
-			@Override
-			public void camera(Camera camera) {
-				allSelection.add(camera.getPosition());
-				allSelection.add(camera.getTargetPosition());
-			}
-		};
-		for (IdObject node : model.getEditableIdObjects()) {
-			node.apply(visitor);
 		}
 		for (Camera object : model.getEditableCameras()) {
-			visitor.camera(object);
+			allSelection.add(object.getPosition());
+			allSelection.add(object.getTargetPosition());
 		}
 		selectionManager.setSelection(allSelection);
 		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
@@ -233,7 +211,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 		IdObjectVisitor visitor = genericSelectorVisitor.reset(selectedItems, area, coordinateSystem);
 		for (IdObject object : model.getEditableIdObjects()) {
-			object.apply(visitor);
+			visitor.visitIdObject(object);
 		}
 		for (Camera camera : model.getEditableCameras()) {
 			visitor.camera(camera);
@@ -245,7 +223,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	public boolean canSelectAt(Point point, CoordinateSystem axes) {
 		IdObjectVisitor visitor = selectionAtPointTester.reset(axes, point);
 		for (IdObject object : model.getEditableIdObjects()) {
-			object.apply(visitor);
+			visitor.visitIdObject(object);
 		}
 		for (Camera camera : model.getEditableCameras()) {
 			visitor.camera(camera);
@@ -260,23 +238,13 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			if (newSelection.contains(object.getPivotPoint())) {
 				newlySelectedPivots.add(object.getPivotPoint());
 			}
-			object.apply(new IdObjectVisitor() {
-
-				@Override
-				public void visitIdObject(IdObject object) {
-					if (object instanceof CollisionShape) {
-						for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
-							if (newSelection.contains(vertex)) {
-								newlySelectedPivots.add(vertex);
-							}
-						}
+			if (object instanceof CollisionShape) {
+				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+					if (newSelection.contains(vertex)) {
+						newlySelectedPivots.add(vertex);
 					}
 				}
-
-				@Override
-				public void camera(Camera camera) {
-				}
-			});
+			}
 		}
 		for (Camera camera : model.getEditableCameras()) {
 			if (newSelection.contains(camera.getPosition())) {
@@ -293,41 +261,31 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	public UndoAction expandSelection() {
 		Set<Vec3> expandedSelection = new HashSet<>(selectionManager.getSelection());
 		Set<Vec3> oldSelection = new HashSet<>(selectionManager.getSelection());
-		IdObjectVisitor visitor = new IdObjectVisitor() {
 
-			@Override
-			public void visitIdObject(IdObject object) {
-				if (object instanceof CollisionShape) {
-					boolean selected = false;
-					if (oldSelection.contains(object.getPivotPoint())) {
+		for (IdObject object : model.getEditableIdObjects()) {
+			if (object instanceof CollisionShape) {
+				boolean selected = false;
+				if (oldSelection.contains(object.getPivotPoint())) {
+					selected = true;
+				}
+				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+					if (oldSelection.contains(vertex)) {
 						selected = true;
-					}
-					for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
-						if (oldSelection.contains(vertex)) {
-							selected = true;
-							break;
-						}
-					}
-					if (selected) {
-						expandedSelection.addAll(((CollisionShape) object).getVertices());
-						expandedSelection.add(object.getPivotPoint());
+						break;
 					}
 				}
-			}
-
-			@Override
-			public void camera(Camera camera) {
-				if (oldSelection.contains(camera.getTargetPosition()) || oldSelection.contains(camera.getPosition())) {
-					expandedSelection.add(camera.getPosition());
-					expandedSelection.add(camera.getTargetPosition());
+				if (selected) {
+					expandedSelection.addAll(((CollisionShape) object).getVertices());
+					expandedSelection.add(object.getPivotPoint());
 				}
 			}
-		};
-		for (IdObject node : model.getEditableIdObjects()) {
-			node.apply(visitor);
 		}
+
 		for (Camera camera : model.getEditableCameras()) {
-			visitor.camera(camera);
+			if (oldSelection.contains(camera.getTargetPosition()) || oldSelection.contains(camera.getPosition())) {
+				expandedSelection.add(camera.getPosition());
+				expandedSelection.add(camera.getTargetPosition());
+			}
 		}
 		selectionManager.setSelection(expandedSelection);
 		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection");
@@ -346,22 +304,11 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 				}
 
 				@Override
-				public void accept(IdObject node) {
-					possibleVerticesToTruncate.add(node.getPivotPoint());
-					node.apply(new IdObjectVisitor() {
-
-						@Override
-						public void visitIdObject(IdObject object) {
-							if (object instanceof CollisionShape) {
-								possibleVerticesToTruncate.addAll(((CollisionShape) object).getVertices());
-							}
-						}
-
-						@Override
-						public void camera(Camera camera) {
-							// do not use, visitor for IdObjects only
-						}
-					});
+				public void accept(IdObject object) {
+					possibleVerticesToTruncate.add(object.getPivotPoint());
+					if (object instanceof CollisionShape) {
+						possibleVerticesToTruncate.addAll(((CollisionShape) object).getVertices());
+					}
 				}
 
 				@Override
@@ -401,25 +348,16 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	@Override
 	public void rawScale(double centerX, double centerY, double centerZ, double scaleX, double scaleY, double scaleZ) {
 		super.rawScale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
-		for (IdObject b : model.getEditableIdObjects()) {
-			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
-				b.apply(new IdObjectVisitor() {
-					@Override
-					public void visitIdObject(IdObject object) {
-						if (object instanceof Bone) {
-							scaleBone((Bone) object, scaleX, scaleY, scaleZ);
-						} else if (object instanceof CollisionShape) {
-							ExtLog extents = ((CollisionShape) object).getExtents();
-							if ((extents != null) && (scaleX == scaleY) && (scaleY == scaleZ)) {
-								extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
-							}
-						}
+		for (IdObject object : model.getEditableIdObjects()) {
+			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
+				if (object instanceof Bone) {
+					scaleBone((Bone) object, scaleX, scaleY, scaleZ);
+				} else if (object instanceof CollisionShape) {
+					ExtLog extents = ((CollisionShape) object).getExtents();
+					if ((extents != null) && (scaleX == scaleY) && (scaleY == scaleZ)) {
+						extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
 					}
-
-					@Override
-					public void camera(Camera camera) {
-					}
-				});
+				}
 			}
 		}
 	}

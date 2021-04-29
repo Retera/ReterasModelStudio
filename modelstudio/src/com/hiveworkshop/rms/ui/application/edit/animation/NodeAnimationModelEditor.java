@@ -125,22 +125,13 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			if (newSelection.contains(object.getPivotPoint())) {
 				newlySelectedObjects.add(object);
 			}
-			object.apply(new IdObjectVisitor() {
-				@Override
-				public void visitIdObject(IdObject object) {
-					if (object instanceof CollisionShape) {
-						for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
-							if (newSelection.contains(vertex)) {
-								newlySelectedObjects.add(object);
-							}
-						}
+			if (object instanceof CollisionShape) {
+				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+					if (newSelection.contains(vertex)) {
+						newlySelectedObjects.add(object);
 					}
 				}
-
-				@Override
-				public void camera(Camera camera) {
-				}
-			});
+			}
 		}
 		// TODO cameras in a second CameraAnimationEditor
 		selectionManager.setSelection(newlySelectedObjects);
@@ -188,7 +179,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		Rectangle2D area = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
 		IdObjectVisitor visitor = genericSelectorVisitor.reset(selectedItems, area, coordinateSystem);
 		for (IdObject object : model.getEditableIdObjects()) {
-			object.apply(visitor);
+			visitor.visitIdObject(object);
 		}
 		return selectedItems;
 	}
@@ -197,7 +188,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	public boolean canSelectAt(Point point, CoordinateSystem axes) {
 		IdObjectVisitor visitor = selectionAtPointTester.reset(axes, point);
 		for (IdObject object : model.getEditableIdObjects()) {
-			object.apply(visitor);
+			visitor.visitIdObject(object);
 		}
 		return selectionAtPointTester.isMouseOverVertex();
 	}

@@ -9,9 +9,8 @@ public class UvIlandThing {
 
 	public static void render(final ModelVisitor renderer, EditableModel model) {
 		visit(renderer, model);
-//		for (final IdObject object : idObjects) {
 		for (final IdObject object : model.getAllObjects()) {
-			object.apply(renderer);
+			renderer.visitIdObject(object);
 		}
 		for (final Camera camera : model.getCameras()) {
 			renderer.camera(camera);

@@ -60,7 +60,9 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 
 	@Override
 	public void renderIdObject(IdObject object, NodeIconPalette nodeIconPalette, Color lightColor, Color pivotPointColor) {
-		object.apply(idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette, renderModel, programPreferences.isUseBoxesForPivotPoints()));
+		ResettableAnimatedIdObjectRenderer visitor = idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette, renderModel, programPreferences.isUseBoxesForPivotPoints());
+
+		visitor.visitIdObject(object);
 	}
 
 	@Override

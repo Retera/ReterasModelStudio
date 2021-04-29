@@ -66,7 +66,9 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 
 	@Override
 	public void renderIdObject(IdObject object, NodeIconPalette nodeIconPalette, Color lightColor, Color pivotPointColor) {
-		object.apply(idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette, programPreferences.isUseBoxesForPivotPoints()));
+		ResettableIdObjectRenderer visitor = idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette, programPreferences.isUseBoxesForPivotPoints());
+
+		visitor.visitIdObject(object);
 	}
 
 	@Override

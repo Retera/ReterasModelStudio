@@ -148,22 +148,13 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			if (newSelection.contains(object.getPivotPoint())) {
 				newlySelectedPivots.add(object);
 			}
-			object.apply(new IdObjectVisitor() {
-				@Override
-				public void visitIdObject(IdObject object) {
-					if (object instanceof CollisionShape) {
-						for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
-							if (newSelection.contains(vertex)) {
-								newlySelectedPivots.add(object);
-							}
-						}
+			if (object instanceof CollisionShape) {
+				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+					if (newSelection.contains(vertex)) {
+						newlySelectedPivots.add(object);
 					}
 				}
-
-				@Override
-				public void camera(Camera camera) {
-				}
-			});
+			}
 		}
 		selectionManager.setSelection(newlySelectedPivots);
 	}
@@ -175,7 +166,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 		IdObjectVisitor visitor = genericSelectorVisitor.reset(selectedItems, area, coordinateSystem);
 		for (IdObject object : model.getEditableIdObjects()) {
-			object.apply(visitor);
+			visitor.visitIdObject(object);
 		}
 		for (Camera camera : model.getEditableCameras()) {
 			visitor.camera(camera);
@@ -187,7 +178,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	public boolean canSelectAt(Point point, CoordinateSystem axes) {
 		IdObjectVisitor visitor = selectionAtPointTester.reset(axes, point);
 		for (IdObject object : model.getEditableIdObjects()) {
-			object.apply(visitor);
+			visitor.visitIdObject(object);
 		}
 		for (Camera camera : model.getEditableCameras()) {
 			visitor.camera(camera);
@@ -216,25 +207,16 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public void rawScale(double centerX, double centerY, double centerZ, double scaleX, double scaleY, double scaleZ) {
 		super.rawScale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
-		for (IdObject b : model.getEditableIdObjects()) {
-			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
-				b.apply(new IdObjectVisitor() {
-					@Override
-					public void visitIdObject(IdObject object) {
-						if (object instanceof Bone) {
-							translateBone((Bone) object, scaleX, scaleY, scaleZ);
-						} else if (object instanceof CollisionShape) {
-							ExtLog extents = ((CollisionShape) object).getExtents();
-							if ((extents != null) && (scaleX == scaleY) && (scaleY == scaleZ)) {
-								extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
-							}
-						}
+		for (IdObject object : model.getEditableIdObjects()) {
+			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
+				if (object instanceof Bone) {
+					translateBone((Bone) object, scaleX, scaleY, scaleZ);
+				} else if (object instanceof CollisionShape) {
+					ExtLog extents = ((CollisionShape) object).getExtents();
+					if ((extents != null) && (scaleX == scaleY) && (scaleY == scaleZ)) {
+						extents.setBoundsRadius(extents.getBoundsRadius() * scaleX);
 					}
-
-					@Override
-					public void camera(Camera camera) {
-					}
-				});
+				}
 			}
 		}
 	}

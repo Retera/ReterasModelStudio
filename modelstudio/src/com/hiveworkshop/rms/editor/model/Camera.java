@@ -114,6 +114,14 @@ public class Camera implements Named {
 		this.targetPosition = targetPosition;
 	}
 
+	public float[] getBindPose() {
+		return bindPose;
+	}
+
+	public void setBindPose(final float[] bindPose) {
+		this.bindPose = bindPose;
+	}
+
 	public SourceNode getSourceNode() {
 		return sourceNode;
 	}
@@ -231,13 +239,5 @@ public class Camera implements Named {
 		public Vec3 getRenderScale(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 			return AnimFlag.SCALE_IDENTITY;
 		}
-	}
-
-	public void setBindPose(final float[] bindPose) {
-		this.bindPose = bindPose;
-	}
-
-	public float[] getBindPose() {
-		return bindPose;
 	}
 }
