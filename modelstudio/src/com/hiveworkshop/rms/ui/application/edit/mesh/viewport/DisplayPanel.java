@@ -124,12 +124,12 @@ public class DisplayPanel extends JPanel {
 	}
 
 	public void panLeftRight(int i) {
-		vp.translate((i * (1 / vp.getZoomAmount())), 0);
+		vp.translate((i * (1 / vp.getZoom())), 0);
 		vp.repaint();
 	}
 
 	public void panUpDown(int i) {
-		vp.translate(0, (i * (1 / vp.getZoomAmount())));
+		vp.translate(0, (i * (1 / vp.getZoom())));
 		vp.repaint();
 	}
 

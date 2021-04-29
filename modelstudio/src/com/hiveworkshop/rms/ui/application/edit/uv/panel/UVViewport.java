@@ -15,7 +15,6 @@ import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.util.ArrayList;
 
 public class UVViewport extends ViewportView implements TVertexEditorChangeListener {
@@ -23,40 +22,21 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 
 	JMenuItem placeholderButton;
 	UVPanel uvPanel;
-	Component boxX, boxY;
 	private final UVViewportModelRenderer viewportModelRenderer;
 	private TVertexEditor editor;
 
 	public UVViewport(ModelView modelView, UVPanel uvPanel, ProgramPreferences programPreferences, ViewportActivity viewportActivity, UndoActionListener undoListener, UndoHandler undoHandler, CoordDisplayListener coordDisplayListener, TVertexEditor editor) {
-		this.modelView = modelView;
-		this.programPreferences = programPreferences;
-		activityListener = viewportActivity;
-		this.coordDisplayListener = coordDisplayListener;
-		this.undoHandler = undoHandler;
-		this.undoListener = undoListener;
+		super(modelView, (byte) 0, (byte) 1, new Dimension(400, 400), programPreferences, viewportActivity, new ViewportListener(), undoListener, undoHandler, coordDisplayListener);
+
 		this.editor = editor;
 		this.viewportListener = new ViewportListener();
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
-		m_d1 = 0;
-		m_d2 = 1;
 
-		// Viewport border
-		setBorder(BorderFactory.createBevelBorder(1));
-		setBackground(programPreferences.getBackgroundColor());
-		setMinimumSize(new Dimension(400, 400));
-		add(boxX = Box.createHorizontalStrut(400));
-		add(boxY = Box.createVerticalStrut(400));
-		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
 		coordinateSystem = this;
 		viewport = null;
-		popupParent = this;
 
-		MouseAdapter mouseAdapter = getMouseAdapter();
-		addMouseListener(mouseAdapter);
-		addMouseMotionListener(mouseAdapter);
-		addMouseWheelListener(mouseAdapter);
 
 		contextMenu = new JPopupMenu();
 		placeholderButton = new JMenuItem("Placeholder Button");
@@ -65,13 +45,12 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 		this.uvPanel = uvPanel;
 
 		viewportModelRenderer = new UVViewportModelRenderer();
-		cursorManager = UVViewport.this::setCursor;
 	}
 
 	public void init() {
-		m_zoom = getWidth();
-		m_a = geomX(0);
-		m_b = geomY(0);
+		zoom = getWidth();
+		cameraX = geomX(0);
+		cameraY = geomY(0);
 	}
 
 	public void paintComponent(Graphics g, int vertexSize) {

@@ -738,12 +738,12 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	private void moveUpDown(int i) {
-		vp.translate(0, i * (1 / vp.getZoomAmount()));
+		vp.translate(0, i * (1 / vp.getZoom()));
 		vp.repaint();
 	}
 
 	private void moveLeftRight(int i) {
-		vp.translate(i * (1 / vp.getZoomAmount()), 0);// *vp.getZoomAmount()
+		vp.translate(i * (1 / vp.getZoom()), 0);// *vp.getZoomAmount()
 		vp.repaint();
 	}
 

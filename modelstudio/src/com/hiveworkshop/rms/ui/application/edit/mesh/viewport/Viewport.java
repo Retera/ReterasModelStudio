@@ -38,38 +38,18 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 
 
 	public Viewport(byte d1, byte d2, ModelView modelView, ProgramPreferences programPreferences, ViewportActivity activityListener, ModelStructureChangeListener modelStructureChangeListener, UndoActionListener undoListener, CoordDisplayListener coordDisplayListener, UndoHandler undoHandler, ModelEditorManager modelEditorManager, ViewportTransferHandler viewportTransferHandler, RenderModel renderModel, ViewportListener viewportListener) {
+		super(modelView, d1, d2, new Dimension(200, 200), programPreferences, activityListener, viewportListener, undoListener, undoHandler, coordDisplayListener);
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
-		m_d1 = d1;
-		m_d2 = d2;
+
 		yFlip = -1;
-		this.modelView = modelView;
-		this.programPreferences = programPreferences;
-		this.activityListener = activityListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.modelEditorManager = modelEditorManager;
-		this.undoListener = undoListener;
-		this.coordDisplayListener = coordDisplayListener;
-		this.undoHandler = undoHandler;
 		this.renderModel = renderModel;
-		this.viewportListener = viewportListener;
-		cursorManager = Viewport.this::setCursor;
 		setupCopyPaste(viewportTransferHandler);
-		// Viewport border
-		setBorder(BorderFactory.createBevelBorder(1));
-		setupViewportBackground(programPreferences);
-		programPreferences.addChangeListener(() -> setupViewportBackground(programPreferences));
-		setMinimumSize(new Dimension(200, 200));
-		add(Box.createHorizontalStrut(200));
-		add(Box.createVerticalStrut(200));
-		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-		addMouseListener(getMouseAdapter());
-		addMouseWheelListener(getMouseAdapter());
-		addMouseMotionListener(getMouseAdapter());
 
 		coordinateSystem = this;
 		viewport = this;
-		popupParent = this;
 
 		contextMenu = new ViewportPopupMenu(this, this.undoListener, this.modelEditorManager, this.modelView);
 		add(contextMenu);
@@ -131,19 +111,19 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 			linkRenderingVisitorAdapter.reset(this, graphics2d, renderModel);
 			modelView.visit(linkRenderingVisitorAdapter);
 			graphics2d.setStroke(stroke);
-			animatedViewportModelRenderer.reset(graphics2d, programPreferences, m_d1, m_d2, this, this, modelView, renderModel);
+			animatedViewportModelRenderer.reset(graphics2d, programPreferences, dimension1, dimension2, this, this, modelView, renderModel);
 			modelView.visit(animatedViewportModelRenderer);
 			activityListener.render(graphics2d, this, renderModel);
 		} else {
-			viewportModelRenderer.reset(graphics2d, programPreferences, m_d1, m_d2, this, this, modelView);
+			viewportModelRenderer.reset(graphics2d, programPreferences, dimension1, dimension2, this, this, modelView);
 			modelView.visit(viewportModelRenderer);
 			activityListener.renderStatic(graphics2d, this);
 		}
 
-		getColor(g, m_d1);
+		getColor(g, dimension1);
 		g.drawLine((int) Math.round(viewX(0)), (int) Math.round(viewY(0)), (int) Math.round(viewX(5)), (int) Math.round(viewY(0)));
 
-		getColor(g, m_d2);
+		getColor(g, dimension2);
 		g.drawLine((int) Math.round(viewX(0)), (int) Math.round(viewY(0)), (int) Math.round(viewX(0)), (int) Math.round(viewY(5)));
 
 
@@ -211,8 +191,8 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 
 	public void setViewportAxises(String name, byte dim1, byte dim2) {
 		view.getViewProperties().setTitle(name);
-		m_d1 = dim1;
-		m_d2 = dim2;
+		dimension1 = dim1;
+		dimension2 = dim2;
 	}
 
 	public ModelEditorManager getModelEditorManager() {

@@ -58,6 +58,10 @@ public class Vec2 {
 		return new Vec2(a).scale(factor);
 	}
 
+	public Vec2 getScaled(float factor) {
+		return new Vec2(this).scale(factor);
+	}
+
 	public static Vec2 getSum(Vec2 a, Vec2 b) {
 		return new Vec2(a).add(b);
 	}
