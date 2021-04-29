@@ -41,9 +41,9 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	                       GeosetVertex a, GeosetVertex b, GeosetVertex c) {
 		graphics.setColor(color);
 
-		Point pointA = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, a, renderModel);
-		Point pointB = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, b, renderModel);
-		Point pointC = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, c, renderModel);
+		Point pointA = CoordinateSystem.convertToViewPoint(coordinateSystem, a, renderModel);
+		Point pointB = CoordinateSystem.convertToViewPoint(coordinateSystem, b, renderModel);
+		Point pointC = CoordinateSystem.convertToViewPoint(coordinateSystem, c, renderModel);
 
 		GU.fillPolygon(graphics, pointA, pointB, pointC);
 		graphics.setColor(borderColor);
@@ -52,7 +52,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 
 	@Override
 	public void renderVertex(Color color, Vec3 vertex) {
-		Point point = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, vertex);
+		Point point = CoordinateSystem.convertToViewPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
 		GU.fillCenteredSquare(graphics, point, vertexSize);
 //		graphics.fillRect(point.x - (vertexSize / 2), (int) (point.y - (vertexSize / 2.0)), vertexSize, vertexSize);
@@ -104,7 +104,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-((Math.PI / 2) + Math.atan2(end.x - start.x, end.y - start.y)));
-		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+		double zoom = CoordinateSystem.getZoom(coordinateSystem);
 		int size = (int) (20 * zoom);
 		double dist = start.distance(end);
 

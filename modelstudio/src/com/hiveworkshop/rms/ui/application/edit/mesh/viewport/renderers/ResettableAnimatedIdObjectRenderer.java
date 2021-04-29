@@ -60,7 +60,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
             }
         } else {
             if (collisionShape.getExtents() != null) {
-                double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+                double zoom = CoordinateSystem.getZoom(coordinateSystem);
                 double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
                 graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
             }
@@ -150,7 +150,7 @@ public final class ResettableAnimatedIdObjectRenderer implements IdObjectVisitor
         Vec3 vertexHeap = Vec3.getTransformed(object.getPivotPoint(), renderModel.getRenderNode(object).getWorldMatrix());
         int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
         int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
-        double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+        double zoom = CoordinateSystem.getZoom(coordinateSystem);
 
         int attenuationStart = (int) (object.getAttenuationStart() * zoom);
         if (attenuationStart > 0) {

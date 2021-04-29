@@ -210,7 +210,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		int floorIndex = rotationTimeline.floorIndex(trackTime);
 		//final RenderNode renderNode = renderModel.getRenderNode(this);
-		byte unusedXYZ = CoordinateSystem.Util.getUnusedXYZ(firstXYZ, secondXYZ);
+		byte unusedXYZ = CoordinateSystem.getUnusedXYZ(firstXYZ, secondXYZ);
 		AnimatedNode parent = null;// = getParent();
 		if (this instanceof IdObject) {
 			parent = ((IdObject) this).getParent();

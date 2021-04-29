@@ -134,7 +134,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		boolean canSelect = false;
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (triHitTest(triangle, CoordinateSystem.Util.geom(axes, point), axes)) {
+				if (triHitTest(triangle, CoordinateSystem.geom(axes, point), axes)) {
 					canSelect = true;
 				}
 			}

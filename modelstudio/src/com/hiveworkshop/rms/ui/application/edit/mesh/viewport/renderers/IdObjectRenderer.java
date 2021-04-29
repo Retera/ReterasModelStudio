@@ -60,7 +60,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 			}
 		} else {
 			if (collisionShape.getExtents() != null) {
-				double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+				double zoom = CoordinateSystem.getZoom(coordinateSystem);
 				double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
 				graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
 			} else {
@@ -113,7 +113,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 		int xCoord2 = (int) coordinateSystem.viewX(object.getPivotPoint().getCoord(xDimension));
 		int yCoord2 = (int) coordinateSystem.viewY(object.getPivotPoint().getCoord(yDimension));
 
-		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+		double zoom = CoordinateSystem.getZoom(coordinateSystem);
 
 		int attenuationStart = (int) (object.getAttenuationStart() * zoom);
 		if (attenuationStart > 0) {
@@ -158,7 +158,7 @@ public final class IdObjectRenderer implements IdObjectVisitor {
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-((Math.PI / 2) + Math.atan2(end.x - start.x, end.y - start.y)));
-		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+		double zoom = CoordinateSystem.getZoom(coordinateSystem);
 		int size = (int) (20 * zoom);
 		double dist = start.distance(end);
 

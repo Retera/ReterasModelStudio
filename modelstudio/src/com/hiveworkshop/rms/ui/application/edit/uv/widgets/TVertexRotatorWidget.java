@@ -99,7 +99,7 @@ public final class TVertexRotatorWidget {
 	}
 
 	private byte getOutwardDimension(final byte xDimension, final byte yDimension) {
-		return CoordinateSystem.Util.getUnusedXYZ(xDimension, yDimension);
+		return CoordinateSystem.getUnusedXYZ(xDimension, yDimension);
 	}
 
 //	private byte getOutwardDimension(final byte xDimension, final byte yDimension) {

@@ -1,11 +1,8 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 
@@ -403,52 +400,52 @@ public class DispElements {
 		}
 	}
 
-	static final class IdObjectToChooseableElementWrappingConverter implements IdObjectVisitor {
-		private final ModelView modelViewManager;
-		private ChooseableDisplayElement<?> element;
-		private final UndoActionListener undoActionListener;
-		private final ModelStructureChangeListener modelStructureChangeListener;
-
-		public IdObjectToChooseableElementWrappingConverter(ModelView modelViewManager,
-		                                                    UndoActionListener undoActionListener,
-		                                                    ModelStructureChangeListener modelStructureChangeListener) {
-			this.modelViewManager = modelViewManager;
-			this.undoActionListener = undoActionListener;
-			this.modelStructureChangeListener = modelStructureChangeListener;
-		}
-
-		public ChooseableDisplayElement<?> getElement() {
-			return element;
-		}
-
-		@Override
-		public void visitIdObject(IdObject object) {
-			if (object instanceof Light) {
-				element = new ChooseableLightItem(modelViewManager, (Light) object);
-			} else if (object instanceof Helper) {
-				element = new ChooseableHelperItem(modelViewManager, (Helper) object);
-			} else if (object instanceof Bone) {
-				element = new ChooseableBoneItem(modelViewManager, (Bone) object);
-			} else if (object instanceof Attachment) {
-				element = new ChooseableAttachmentItem(modelViewManager, (Attachment) object);
-			} else if (object instanceof ParticleEmitter) {
-				element = new ChooseableParticleEmitterItem(modelViewManager, (ParticleEmitter) object);
-			} else if (object instanceof ParticleEmitter2) {
-				element = new ChooseableParticleEmitter2Item(modelViewManager, (ParticleEmitter2) object);
-			} else if (object instanceof ParticleEmitterPopcorn) {
-				element = new ChooseableParticleEmitterPopcornItem(modelViewManager, (ParticleEmitterPopcorn) object);
-			} else if (object instanceof RibbonEmitter) {
-				element = new ChooseableRibbonEmitterItem(modelViewManager, (RibbonEmitter) object);
-			} else if (object instanceof EventObject) {
-				element = new ChooseableEventObjectItem(modelViewManager, (EventObject) object);
-			} else if (object instanceof CollisionShape) {
-				element = new ChooseableCollisionShapeItem(modelViewManager, (CollisionShape) object);
-			}
-		}
-
-		@Override
-		public void camera(Camera camera) {
-			element = new ChooseableCameraItem(modelViewManager, camera);
-		}
-	}
+//	static final class IdObjectToChooseableElementWrappingConverter implements IdObjectVisitor {
+//		private final ModelView modelViewManager;
+//		private ChooseableDisplayElement<?> element;
+//		private final UndoActionListener undoActionListener;
+//		private final ModelStructureChangeListener modelStructureChangeListener;
+//
+//		public IdObjectToChooseableElementWrappingConverter(ModelView modelViewManager,
+//		                                                    UndoActionListener undoActionListener,
+//		                                                    ModelStructureChangeListener modelStructureChangeListener) {
+//			this.modelViewManager = modelViewManager;
+//			this.undoActionListener = undoActionListener;
+//			this.modelStructureChangeListener = modelStructureChangeListener;
+//		}
+//
+//		public ChooseableDisplayElement<?> getElement() {
+//			return element;
+//		}
+//
+//		@Override
+//		public void visitIdObject(IdObject object) {
+//			if (object instanceof Light) {
+//				element = new ChooseableLightItem(modelViewManager, (Light) object);
+//			} else if (object instanceof Helper) {
+//				element = new ChooseableHelperItem(modelViewManager, (Helper) object);
+//			} else if (object instanceof Bone) {
+//				element = new ChooseableBoneItem(modelViewManager, (Bone) object);
+//			} else if (object instanceof Attachment) {
+//				element = new ChooseableAttachmentItem(modelViewManager, (Attachment) object);
+//			} else if (object instanceof ParticleEmitter) {
+//				element = new ChooseableParticleEmitterItem(modelViewManager, (ParticleEmitter) object);
+//			} else if (object instanceof ParticleEmitter2) {
+//				element = new ChooseableParticleEmitter2Item(modelViewManager, (ParticleEmitter2) object);
+//			} else if (object instanceof ParticleEmitterPopcorn) {
+//				element = new ChooseableParticleEmitterPopcornItem(modelViewManager, (ParticleEmitterPopcorn) object);
+//			} else if (object instanceof RibbonEmitter) {
+//				element = new ChooseableRibbonEmitterItem(modelViewManager, (RibbonEmitter) object);
+//			} else if (object instanceof EventObject) {
+//				element = new ChooseableEventObjectItem(modelViewManager, (EventObject) object);
+//			} else if (object instanceof CollisionShape) {
+//				element = new ChooseableCollisionShapeItem(modelViewManager, (CollisionShape) object);
+//			}
+//		}
+//
+//		@Override
+//		public void camera(Camera camera) {
+//			element = new ChooseableCameraItem(modelViewManager, camera);
+//		}
+//	}
 }

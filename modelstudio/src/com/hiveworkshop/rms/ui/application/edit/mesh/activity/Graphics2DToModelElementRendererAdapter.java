@@ -36,9 +36,9 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 		graphics.setColor(color);
 
 
-		Point vertexA = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, a);
-		Point vertexB = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, b);
-		Point vertexC = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, c);
+		Point vertexA = CoordinateSystem.convertToViewPoint(coordinateSystem, a);
+		Point vertexB = CoordinateSystem.convertToViewPoint(coordinateSystem, b);
+		Point vertexC = CoordinateSystem.convertToViewPoint(coordinateSystem, c);
 
 		int[] polygonX = new int[3];
 		polygonX[0] = vertexA.x;
@@ -59,7 +59,7 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 
 	@Override
 	public void renderVertex(Color color, Vec3 vertex) {
-		Point point = CoordinateSystem.Util.convertToViewPoint(coordinateSystem, vertex);
+		Point point = CoordinateSystem.convertToViewPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
 		graphics.fillRect(point.x - vertexSize / 2, (int) (point.y - (vertexSize / 2.0)), vertexSize, vertexSize);
 	}
@@ -87,7 +87,7 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
-		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+		double zoom = CoordinateSystem.getZoom(coordinateSystem);
 		int size = (int) (20 * zoom);
 		double dist = start.distance(end);
 

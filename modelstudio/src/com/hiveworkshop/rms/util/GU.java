@@ -15,6 +15,17 @@ public class GU {
 		graphics.fillPolygon(polygonX, polygonY, points.length);
 	}
 
+	public static void fillPolygon(Graphics graphics, Vec2... points) {
+		int[] polygonX = new int[points.length];
+		int[] polygonY = new int[points.length];
+
+		for (int i = 0; i < points.length; i++) {
+			polygonX[i] = (int) points[i].x;
+			polygonY[i] = (int) points[i].y;
+		}
+		graphics.fillPolygon(polygonX, polygonY, points.length);
+	}
+
 	public static void fillPolygonAt(Graphics graphics, Point point, Point... points) {
 		int[] polygonX = new int[points.length];
 		int[] polygonY = new int[points.length];

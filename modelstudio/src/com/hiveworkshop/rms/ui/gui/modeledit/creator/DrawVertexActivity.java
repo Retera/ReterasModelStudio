@@ -67,7 +67,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	public void mousePressed(final MouseEvent e, final CoordinateSystem coordinateSystem) {
 		locationCalculator.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(e.getX()));
 		locationCalculator.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(e.getY()));
-		locationCalculator.setCoord(CoordinateSystem.Util.getUnusedXYZ(coordinateSystem), 0);
+		locationCalculator.setCoord(CoordinateSystem.getUnusedXYZ(coordinateSystem), 0);
 		try {
 			final Viewport viewport = viewportListener.getViewport();
 			final Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();

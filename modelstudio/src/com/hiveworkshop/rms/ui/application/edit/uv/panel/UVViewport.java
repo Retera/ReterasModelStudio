@@ -34,6 +34,7 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
 
 
+//		coordinateSystem = new BasicCoordinateSystem((byte) 0, (byte) 1, this);
 		coordinateSystem = this;
 		viewport = null;
 

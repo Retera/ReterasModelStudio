@@ -32,11 +32,11 @@ public class RotateManipulator extends Manipulator {
 		nonRotAngle = 0;
 
 		if (dir != MoveDimension.XYZ && dir.containDirection(dim1)) {
-			planeDim1 = CoordinateSystem.Util.getUnusedXYZ(dim1, dim2);
+			planeDim1 = CoordinateSystem.getUnusedXYZ(dim1, dim2);
 			planeDim2 = dim2;
 		} else if (dir != MoveDimension.XYZ && dir.containDirection(dim2)) {
 			planeDim1 = dim1;
-			planeDim2 = CoordinateSystem.Util.getUnusedXYZ(dim1, dim2);
+			planeDim2 = CoordinateSystem.getUnusedXYZ(dim1, dim2);
 		} else {
 			planeDim1 = dim1;
 			planeDim2 = dim2;
@@ -84,7 +84,7 @@ public class RotateManipulator extends Manipulator {
 				}
 				deltaAngle = (endingClick.x - startingClick.x) / radius;
 			}
-			if (dir.containDirection(CoordinateSystem.Util.getUnusedXYZ(portFirstXYZ, portSecondXYZ))) {
+			if (dir.containDirection(CoordinateSystem.getUnusedXYZ(portFirstXYZ, portSecondXYZ))) {
 				Vec2 startingDelta = Vec2.getDif(startingClick, center.getProjected(portFirstXYZ, portSecondXYZ));
 				Vec2 endingDelta = Vec2.getDif(endingClick, center.getProjected(portFirstXYZ, portSecondXYZ));
 

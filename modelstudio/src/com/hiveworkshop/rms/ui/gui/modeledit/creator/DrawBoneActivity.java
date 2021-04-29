@@ -62,7 +62,7 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 		Vec3 worldPressLocation = new Vec3(0, 0, 0);
 		worldPressLocation.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(e.getX()));
 		worldPressLocation.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(e.getY()));
-		worldPressLocation.setCoord(CoordinateSystem.Util.getUnusedXYZ(coordinateSystem), 0);
+		worldPressLocation.setCoord(CoordinateSystem.getUnusedXYZ(coordinateSystem), 0);
 		try {
 			final Viewport viewport = viewportListener.getViewport();
 			final Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();

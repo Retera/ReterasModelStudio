@@ -48,6 +48,7 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 		this.renderModel = renderModel;
 		setupCopyPaste(viewportTransferHandler);
 
+//		coordinateSystem = new BasicCoordinateSystem(d1, d2, this);
 		coordinateSystem = this;
 		viewport = this;
 
@@ -60,7 +61,7 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 		linkRenderingVisitorAdapter = new LinkRenderingVisitorAdapter(programPreferences);
 
 		facingVector = new Vec3(0, 0, 0);
-		final byte unusedXYZ = CoordinateSystem.Util.getUnusedXYZ(this);
+		final byte unusedXYZ = CoordinateSystem.getUnusedXYZ(this);
 		facingVector.setCoord(unusedXYZ, unusedXYZ == 0 ? 1 : -1);
 		paintTimer = new Timer(16, e -> {
 			repaint();

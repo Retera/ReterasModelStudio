@@ -139,13 +139,13 @@ public class CollisionShape extends IdObject {
 				// final int maxYCoord = Math.max(yCoord, secondYCoord);
 				// final int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord -
 				// minYCoord) / 2;
-				return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
+				return DEFAULT_CLICK_RADIUS / CoordinateSystem.getZoom(coordinateSystem);
 			} else {
-				return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
+				return DEFAULT_CLICK_RADIUS / CoordinateSystem.getZoom(coordinateSystem);
 			}
 		}
 		if (extents == null) {
-			return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
+			return DEFAULT_CLICK_RADIUS / CoordinateSystem.getZoom(coordinateSystem);
 		}
 		return extents.getBoundsRadius();
 	}

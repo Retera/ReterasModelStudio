@@ -45,7 +45,7 @@ public class DrawBoxAction implements GenericMoveAction {
 
 		Vec3 dummy2 = new Vec3(0, 0, 0);
 		dummy2.setCoords(dim1, dim2, planeMax);
-		dummy2.setCoord(CoordinateSystem.Util.getUnusedXYZ(dim1, dim2), 1);
+		dummy2.setCoord(CoordinateSystem.getUnusedXYZ(dim1, dim2), 1);
 		zHeight = 1;
 
 		box = ModelUtils.createBox(dummy1, dummy2, numberOfLengthSegments, numberOfWidthSegments, numberOfHeightSegments, planeGeoset);
@@ -109,7 +109,7 @@ public class DrawBoxAction implements GenericMoveAction {
 
 		vertex.setCoords(dim1, dim2, shift);
 
-		byte unusedXYZ = CoordinateSystem.Util.getUnusedXYZ(dim1, dim2);
+		byte unusedXYZ = CoordinateSystem.getUnusedXYZ(dim1, dim2);
 		vertex.setCoord(unusedXYZ, vertex.getCoord(unusedXYZ) * scaleZ);
 	}
 }

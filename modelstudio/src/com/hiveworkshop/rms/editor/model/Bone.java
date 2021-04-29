@@ -126,7 +126,7 @@ public class Bone extends IdObject {
 
 	@Override
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS * 3 / CoordinateSystem.Util.getZoom(coordinateSystem);
+		return DEFAULT_CLICK_RADIUS * 3 / CoordinateSystem.getZoom(coordinateSystem);
 	}
 
 	@Override

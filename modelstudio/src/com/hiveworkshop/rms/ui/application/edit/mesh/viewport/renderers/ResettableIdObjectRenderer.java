@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
@@ -24,25 +25,30 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	}
 
 	public static void drawNodeImage(Graphics2D graphics,
-	                                 byte xDimension, byte yDimension,
 	                                 CoordinateSystem coordinateSystem,
 	                                 IdObject attachment, Image nodeImage) {
-		int xCoord = (int) coordinateSystem.viewX(attachment.getPivotPoint().getCoord(xDimension));
-		int yCoord = (int) coordinateSystem.viewY(attachment.getPivotPoint().getCoord(yDimension));
+		Vec2 coord = CoordinateSystem.convertToViewVec2(coordinateSystem, attachment.getPivotPoint());
 
-		int width = nodeImage.getWidth(null);
-		int height = nodeImage.getHeight(null);
-		graphics.drawImage(nodeImage, xCoord - (width / 2), yCoord - (height / 2), width, height, null);
+		Vec2 imageSize = new Vec2(nodeImage.getWidth(null), nodeImage.getHeight(null));
+		coord.sub(imageSize.getScaled(.5f));
+
+
+		graphics.drawImage(nodeImage, (int) coord.x, (int) coord.y, (int) imageSize.x, (int) imageSize.y, null);
 	}
 
 	public static void drawCrosshair(Graphics2D graphics, CoordinateSystem coordinateSystem, int vertexSize, Vec3 pivotPoint) {
+		Vec2 coord = CoordinateSystem.convertToViewVec2(coordinateSystem, pivotPoint);
 
-		int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(coordinateSystem.getPortFirstXYZ()));
-		int yCoord = (int) coordinateSystem.viewY(pivotPoint.getCoord(coordinateSystem.getPortSecondXYZ()));
+		Vec2 vertSize = new Vec2(vertexSize, vertexSize);
 
-		graphics.drawOval(xCoord - vertexSize, yCoord - vertexSize, vertexSize * 2, vertexSize * 2);
-		graphics.drawLine(xCoord - (int) (vertexSize * 1.5f), yCoord, xCoord + (int) (vertexSize * 1.5f), yCoord);
-		graphics.drawLine(xCoord, yCoord - (int) (vertexSize * 1.5f), xCoord, yCoord + (int) (vertexSize * 1.5f));
+		Vec2 ovalStart = Vec2.getDif(coord, vertSize);
+
+		Vec2 outerMin = Vec2.getDif(coord, vertSize.getScaled(1.5f));
+		Vec2 outerMax = Vec2.getSum(coord, vertSize.getScaled(1.5f));
+
+		graphics.drawOval((int) ovalStart.x, (int) ovalStart.y, vertexSize * 2, vertexSize * 2);
+		graphics.drawLine((int) outerMin.x, (int) coord.y, (int) outerMax.x, (int) coord.y);
+		graphics.drawLine((int) coord.x, (int) outerMin.y, (int) coord.x, (int) outerMax.y);
 	}
 
 	public static void drawBox(Graphics2D graphics, CoordinateSystem coordinateSystem, int vertexSize, Vec3 pivotPoint) {
@@ -54,40 +60,36 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	}
 
 	public static void drawCollisionShape(Graphics2D graphics, Color color, CoordinateSystem coordinateSystem,
-	                                      byte xDimension, byte yDimension, int vertexSize,
-	                                      CollisionShape collisionShape, Image collisionImage,
-	                                      boolean crosshairIsBox) {
-		Vec3 pivotPoint = collisionShape.getPivotPoint();
+	                                      int vertexSize,
+	                                      CollisionShape collisionShape, Image collisionImage, boolean crosshairIsBox) {
 		List<Vec3> vertices = collisionShape.getVertices();
 		graphics.setColor(color);
-		int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(xDimension));
-		int yCoord = (int) coordinateSystem.viewY(pivotPoint.getCoord(yDimension));
+
+		Vec2 coord = CoordinateSystem.convertToViewVec2(coordinateSystem, collisionShape.getPivotPoint());
 
 		if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
 			if (vertices.size() > 1) {
-				Vec3 vertex = vertices.get(0);
+				Vec3 vertex1 = vertices.get(0);
 				Vec3 vertex2 = vertices.get(1);
 
-				int firstXCoord = (int) coordinateSystem.viewX(vertex2.getCoord(xDimension));
-				int firstYCoord = (int) coordinateSystem.viewY(vertex2.getCoord(yDimension));
-				int secondXCoord = (int) coordinateSystem.viewX(vertex.getCoord(xDimension));
-				int secondYCoord = (int) coordinateSystem.viewY(vertex.getCoord(yDimension));
+				Vec2 firstCoord = CoordinateSystem.convertToViewVec2(coordinateSystem, vertex1);
+				Vec2 secondCoord = CoordinateSystem.convertToViewVec2(coordinateSystem, vertex2);
 
-				int minXCoord = Math.min(firstXCoord, secondXCoord);
-				int minYCoord = Math.min(firstYCoord, secondYCoord);
-				int maxXCoord = Math.max(firstXCoord, secondXCoord);
-				int maxYCoord = Math.max(firstYCoord, secondYCoord);
+				Vec2 minCoord = new Vec2(firstCoord).minimize(secondCoord);
+				Vec2 maxCoord = new Vec2(firstCoord).maximize(secondCoord);
 
-				graphics.drawRoundRect(minXCoord, minYCoord, maxXCoord - minXCoord, maxYCoord - minYCoord, vertexSize, vertexSize);
+				Vec2 diff = Vec2.getDif(maxCoord, minCoord);
+
+				graphics.drawRoundRect((int) minCoord.x, (int) minCoord.y, (int) diff.x, (int) diff.y, vertexSize, vertexSize);
 			}
 		} else {
 			if (collisionShape.getExtents() != null) {
-				double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+				double zoom = CoordinateSystem.getZoom(coordinateSystem);
 				double boundsRadius = collisionShape.getExtents().getBoundsRadius() * zoom;
-				graphics.drawOval((int) (xCoord - boundsRadius), (int) (yCoord - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
+				graphics.drawOval((int) (coord.x - boundsRadius), (int) (coord.y - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
 			}
 		}
-		drawNodeImage(graphics, xDimension, yDimension, coordinateSystem, collisionShape, collisionImage);
+		drawNodeImage(graphics, coordinateSystem, collisionShape, collisionImage);
 
 		for (Vec3 vertex : vertices) {
 			if (crosshairIsBox) {
@@ -123,7 +125,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	}
 
 	private void drawNodeImage(IdObject object, Image nodeImage) {
-		drawNodeImage(graphics, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem, object, nodeImage);
+		drawNodeImage(graphics, coordinateSystem, object, nodeImage);
 	}
 
 	@Override
@@ -141,7 +143,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 	}
 
 	public void collisionShape(CollisionShape object) {
-		drawCollisionShape(graphics, pivotPointColor, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), vertexSize, object, nodeIconPalette.getCollisionImage(), crosshairIsBox);
+		drawCollisionShape(graphics, pivotPointColor, coordinateSystem, vertexSize, object, nodeIconPalette.getCollisionImage(), crosshairIsBox);
 	}
 
 	public void light(Light object) {
@@ -149,9 +151,11 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		graphics.setColor(lightColor);
 		int xCoord = (int) coordinateSystem.viewX(object.getPivotPoint().getCoord(coordinateSystem.getPortFirstXYZ()));
 		int yCoord = (int) coordinateSystem.viewY(object.getPivotPoint().getCoord(coordinateSystem.getPortSecondXYZ()));
-		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+		double zoom = CoordinateSystem.getZoom(coordinateSystem);
 
-		graphics.drawImage(lightImage, xCoord - (lightImage.getWidth(null) / 2), yCoord - (lightImage.getHeight(null) / 2), lightImage.getWidth(null), lightImage.getHeight(null), null);
+		int height = lightImage.getHeight(null);
+		int width = lightImage.getWidth(null);
+		graphics.drawImage(lightImage, xCoord - (width / 2), yCoord - (height / 2), width, height, null);
 
 		int attenuationStart = (int) (object.getAttenuationStart() * zoom);
 		if (attenuationStart > 0) {
@@ -169,16 +173,18 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 		Graphics2D g2 = ((Graphics2D) graphics.create());
 		Vec3 ver = camera.getPosition();
 		Vec3 targ = camera.getTargetPosition();
-		Point start = new Point(
-				(int) Math.round(coordinateSystem.viewX(ver.getCoord(coordinateSystem.getPortFirstXYZ()))),
-				(int) Math.round(coordinateSystem.viewY(ver.getCoord(coordinateSystem.getPortSecondXYZ()))));
-		Point end = new Point(
-				(int) Math.round(coordinateSystem.viewX(targ.getCoord(coordinateSystem.getPortFirstXYZ()))),
-				(int) Math.round(coordinateSystem.viewY(targ.getCoord(coordinateSystem.getPortSecondXYZ()))));
+		Point start = CoordinateSystem.convertToViewPoint(coordinateSystem, ver);
+		Point end = CoordinateSystem.convertToViewPoint(coordinateSystem, targ);
+//		Point start = new Point(
+//				(int) Math.round(coordinateSystem.viewX(ver.getCoord(coordinateSystem.getPortFirstXYZ()))),
+//				(int) Math.round(coordinateSystem.viewY(ver.getCoord(coordinateSystem.getPortSecondXYZ()))));
+//		Point end = new Point(
+//				(int) Math.round(coordinateSystem.viewX(targ.getCoord(coordinateSystem.getPortFirstXYZ()))),
+//				(int) Math.round(coordinateSystem.viewY(targ.getCoord(coordinateSystem.getPortSecondXYZ()))));
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-((Math.PI / 2) + Math.atan2(end.x - start.x, end.y - start.y)));
-		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+		double zoom = CoordinateSystem.getZoom(coordinateSystem);
 		int size = (int) (20 * zoom);
 		double dist = start.distance(end);
 

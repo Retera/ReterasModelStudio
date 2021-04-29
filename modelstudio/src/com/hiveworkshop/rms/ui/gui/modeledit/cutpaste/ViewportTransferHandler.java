@@ -77,7 +77,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		modelEditorNotifier.subscribe(new GeosetVertexModelEditor(pastedModelView, null, new GeosetVertexSelectionManager(), viewport.getModelStructureChangeListener()));
 		modelEditorNotifier.subscribe(new PivotPointModelEditor(pastedModelView, null, new PivotPointSelectionManager(), viewport.getModelStructureChangeListener()));
 		modelEditorNotifier.selectAll();
-		Double geomPoint = CoordinateSystem.Util.geom(viewport, dropPoint);
+		Double geomPoint = CoordinateSystem.geom(viewport, dropPoint);
 		Vec3 vertex = new Vec3(0, 0, 0);
 		vertex.setCoord(viewport.getPortFirstXYZ(), geomPoint.x);
 		vertex.setCoord(viewport.getPortSecondXYZ(), geomPoint.y);

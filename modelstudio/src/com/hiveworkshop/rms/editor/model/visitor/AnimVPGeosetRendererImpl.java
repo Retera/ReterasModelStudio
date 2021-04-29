@@ -151,7 +151,7 @@ class AnimVPTriangleRendererImpl implements TriangleVisitor {
 		float secondNormalCoord = normalSumHeap.getVec3().getCoord(yDimension);
 
 		graphics.setColor(programPreferences.getNormalsColor());
-		double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+		double zoom = CoordinateSystem.getZoom(coordinateSystem);
 
 		double normXsize = (firstNormalCoord * 12) / zoom;
 		double normYsize = (secondNormalCoord * 12) / zoom;

@@ -87,7 +87,7 @@ class VPTriangleRendererImpl implements TriangleVisitor {
 			Color triangleColor = graphics.getColor();
 
 			graphics.setColor(programPreferences.getNormalsColor());
-			double zoom = CoordinateSystem.Util.getZoom(coordinateSystem);
+			double zoom = CoordinateSystem.getZoom(coordinateSystem);
 
 			double firstNormalCoord = (normal.getCoord(xDimension) * 12) / zoom;
 			double secondNormalCoord = (normal.getCoord(yDimension) * 12) / zoom;

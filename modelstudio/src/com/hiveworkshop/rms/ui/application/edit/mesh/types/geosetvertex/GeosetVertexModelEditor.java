@@ -157,7 +157,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		boolean canSelect = false;
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (hitTest(geosetVertex, CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
+				if (hitTest(geosetVertex, CoordinateSystem.geom(axes, point), axes, programPreferences.getVertexSize())) {
 					canSelect = true;
 				}
 			}

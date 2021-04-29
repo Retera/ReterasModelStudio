@@ -162,7 +162,7 @@ public class FaceTVertexEditor extends AbstractTVertexEditor<Triangle> {
 		boolean canSelect = false;
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final Triangle triangle : geoset.getTriangles()) {
-				if (hitTest(triangle, CoordinateSystem.Util.geom(axes, point), axes, uvLayerIndex)) {
+				if (hitTest(triangle, CoordinateSystem.geom(axes, point), axes, uvLayerIndex)) {
 					canSelect = true;
 				}
 			}

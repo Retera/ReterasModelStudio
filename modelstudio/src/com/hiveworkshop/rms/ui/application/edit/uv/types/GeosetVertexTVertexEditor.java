@@ -158,7 +158,7 @@ public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVerte
 		for (final Geoset geoset : model.getEditableGeosets()) {
 			for (final GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (geosetVertex.getTverts().size() > uvLayerIndex) {
-					if (hitTest(geosetVertex.getTVertex(uvLayerIndex), CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
+					if (hitTest(geosetVertex.getTVertex(uvLayerIndex), CoordinateSystem.geom(axes, point), axes, programPreferences.getVertexSize())) {
 						canSelect = true;
 					}
 				}

@@ -95,7 +95,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 	@Override
 	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
 		if (drawingState == DrawingState.NOTHING) {
-			locationCalculator.set(CoordinateSystem.Util.convertToVec3(coordinateSystem, e.getPoint()));
+			locationCalculator.set(CoordinateSystem.convertToVec3(coordinateSystem, e.getPoint()));
 			mouseStart = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			drawingState = DrawingState.WANT_BEGIN_BASE;
 		}
@@ -129,7 +129,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 		if (drawingState == DrawingState.WANT_BEGIN_BASE || drawingState == DrawingState.BASE) {
 			drawingState = DrawingState.BASE;
 
-			locationCalculator.set(CoordinateSystem.Util.convertToVec3(coordinateSystem, e.getPoint()));
+			locationCalculator.set(CoordinateSystem.convertToVec3(coordinateSystem, e.getPoint()));
 			Vec2 mouseEnd = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 
 			updateBase(mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());

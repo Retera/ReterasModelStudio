@@ -606,7 +606,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 
 	@Override
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
+		return DEFAULT_CLICK_RADIUS / CoordinateSystem.getZoom(coordinateSystem);
 	}
 
 	public double getRenderWidth(final AnimatedRenderEnvironment animatedRenderEnvironment) {

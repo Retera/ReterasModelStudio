@@ -108,14 +108,14 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 		boolean canSelect = false;
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (triHitTest(triangle, CoordinateSystem.Util.geom(axes, point), axes)) {
+				if (triHitTest(triangle, CoordinateSystem.geom(axes, point), axes)) {
 					canSelect = true;
 				}
 			}
 		}
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (hitTest(geosetVertex, CoordinateSystem.Util.geom(axes, point), axes, programPreferences.getVertexSize())) {
+				if (hitTest(geosetVertex, CoordinateSystem.geom(axes, point), axes, programPreferences.getVertexSize())) {
 					canSelect = true;
 				}
 			}

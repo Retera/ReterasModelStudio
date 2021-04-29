@@ -101,7 +101,7 @@ public final class RotatorWidget {
 	}
 
 	private byte getOutwardDimension(byte xDimension, byte yDimension) {
-		return CoordinateSystem.Util.getUnusedXYZ(xDimension, yDimension);
+		return CoordinateSystem.getUnusedXYZ(xDimension, yDimension);
 	}
 
 	private void setColorByDimension(Graphics2D graphics, byte dimension) {

@@ -32,7 +32,7 @@ public final class ModelUtils {
 	}
 
 	public static Mesh createPlane(byte firstDimension, byte secondDimension, Vec3 facingVector, double planeHeight, Vec2 p1, Vec2 p2, int numberOfSegmentsX, int numberOfSegmentsY) {
-		byte planeDimension = CoordinateSystem.Util.getUnusedXYZ(firstDimension, secondDimension);
+		byte planeDimension = CoordinateSystem.getUnusedXYZ(firstDimension, secondDimension);
 
 		List<GeosetVertex> vertices = new ArrayList<>();
 		List<Triangle> triangles = new ArrayList<>();

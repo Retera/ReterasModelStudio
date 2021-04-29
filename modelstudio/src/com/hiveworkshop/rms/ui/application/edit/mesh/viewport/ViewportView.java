@@ -231,10 +231,10 @@ public abstract class ViewportView extends JPanel implements CoordinateSystem {
 	}
 
 
-	@Override
-	public CoordinateSystem copy() {
-		return new BasicCoordinateSystem(m_d1, m_d2, m_a, m_b, m_zoom, getWidth(), getHeight());
-	}
+//	@Override
+//	public CoordinateSystem copy() {
+//		return new BasicCoordinateSystem(m_d1, m_d2, m_a, m_b, m_zoom, getWidth(), getHeight());
+//	}
 
 	@Override
 	public byte getPortFirstXYZ() {
