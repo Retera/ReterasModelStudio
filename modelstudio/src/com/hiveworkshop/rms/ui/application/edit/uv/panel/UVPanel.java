@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
@@ -10,8 +9,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorActivityDescriptor;
-import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorMultiManipulatorActivity;
-import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.DoNothingTVertexActivity;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeActivityListener;
@@ -21,10 +18,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.MoverWidgetTVertexEditorManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.RotatorWidgetTVertexEditorManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.ScaleWidgetTVertexEditorManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.TVertexEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
@@ -369,11 +362,11 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, TVertexSelectionItemTypes.values());
 		toolbar.addSeparator();
 
-		TVertexToolbarActionButtonType selectAndMoveDescriptor = getButtonStuff("move2.png", "Select and Move", ModelEditorActionType.TRANSLATION);
+		TVertexToolbarActionButtonType selectAndMoveDescriptor = new TVertexToolbarActionButtonType("move2.png", "Select and Move", prefs, ModelEditorActionType.TRANSLATION);
 
-		TVertexToolbarActionButtonType selectAndRotateDescriptor = getButtonStuff("rotate.png", "Select and Rotate", ModelEditorActionType.ROTATION);
+		TVertexToolbarActionButtonType selectAndRotateDescriptor = new TVertexToolbarActionButtonType("rotate.png", "Select and Rotate", prefs, ModelEditorActionType.ROTATION);
 
-		TVertexToolbarActionButtonType selectAndScaleDescriptor = getButtonStuff("scale.png", "Select and Scale", ModelEditorActionType.SCALING);
+		TVertexToolbarActionButtonType selectAndScaleDescriptor = new TVertexToolbarActionButtonType("scale.png", "Select and Scale", prefs, ModelEditorActionType.SCALING);
 
 		actionTypeGroup = new ToolbarButtonGroup<>(toolbar, new TVertexToolbarActionButtonType[] {selectAndMoveDescriptor, selectAndRotateDescriptor, selectAndScaleDescriptor});
 		currentActivity = actionTypeGroup.getActiveButtonType();
@@ -392,27 +385,6 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		toolbar.setMaximumSize(new Dimension(80000, 48));
 
 		return toolbar;
-	}
-
-	private TVertexToolbarActionButtonType getButtonStuff(String path, String name, ModelEditorActionType editorActionType) {
-		return new TVertexToolbarActionButtonType(RMSIcons.loadToolBarImageIcon(path), name) {
-			@Override
-			public TVertexEditorViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelView modelView, UndoActionListener undoActionListener) {
-				return new TVertexEditorMultiManipulatorActivity(
-						getManipulatorWidget(modelEditorManager, modelView, editorActionType),
-						undoActionListener,
-						modelEditorManager.getSelectionView());
-			}
-		};
-	}
-
-	private TVertexEditorManipulatorBuilder getManipulatorWidget(TVertexEditorManager modelEditorManager, ModelView modelView, ModelEditorActionType editorActionType) {
-		return switch (editorActionType) {
-			case SCALING -> new ScaleWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), prefs, modelView);
-			case ROTATION -> new RotatorWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), prefs, modelView);
-			case TRANSLATION -> new MoverWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), prefs, modelView);
-
-		};
 	}
 
 	public JMenuBar createMenuBar() {
