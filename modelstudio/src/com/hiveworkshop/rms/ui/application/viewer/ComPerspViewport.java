@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.GPUReadyTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -36,35 +37,35 @@ import java.util.Map;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
-public abstract class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourceAllocator {
+public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourceAllocator {
 	public static final boolean LOG_EXCEPTIONS = true;
 	private static final int BYTES_PER_PIXEL = 4;
 	private final float[] whiteDiffuse = {1f, 1f, 1f, 1f};
 	private final float[] posSun = {0.0f, 10.0f, 0.0f, 1.0f};
-	protected RenderModel renderModel;
-	ModelView modelView;
-	Vec3 cameraPos = new Vec3(0, 0, 0);
-	Quat inverseCameraRotation = new Quat();
-	Quat inverseCameraRotationYSpin = new Quat();
-	Quat inverseCameraRotationZSpin = new Quat();
-	double m_zoom = 1;
-	Point cameraPanStartPoint;
-	Point cameraSpinStartPoint;
-	Point actStart;
-	Timer paintTimer;
-	boolean mouseInBounds = false;
-	boolean enabled = false;
-	boolean texLoaded = false;
-	JCheckBox wireframe;
-	HashMap<Bitmap, Integer> textureMap = new HashMap<>();
-	Map<Geoset, List<Vec4>> normalListMap;
-	Map<Geoset, List<Vec4>> vertListMap;
-	Class<? extends Throwable> lastThrownErrorClass;
-	boolean wantReload = false;
-	boolean wantReloadAll = false;
-	int popupCount = 0;
-	ComPerspRenderEnv renderEnv;
-	boolean initialized = false;
+	private RenderModel renderModel;
+	private ModelView modelView;
+	private Vec3 cameraPos = new Vec3(0, 0, 0);
+	private Quat inverseCameraRotation = new Quat();
+	private Quat inverseCameraRotationYSpin = new Quat();
+	private Quat inverseCameraRotationZSpin = new Quat();
+	private double m_zoom = 1;
+	private Point cameraPanStartPoint;
+	private Point cameraSpinStartPoint;
+	private Point actStart;
+	private Timer paintTimer;
+	private boolean mouseInBounds = false;
+	private boolean enabled = false;
+	private boolean texLoaded = false;
+	private JCheckBox wireframe;
+	private HashMap<Bitmap, Integer> textureMap = new HashMap<>();
+	private Map<Geoset, List<Vec4>> normalListMap;
+	private Map<Geoset, List<Vec4>> vertListMap;
+	private Class<? extends Throwable> lastThrownErrorClass;
+	private boolean wantReload = false;
+	private boolean wantReloadAll = false;
+	private int popupCount = 0;
+	private TimeEnvironmentImpl renderEnv;
+	private boolean initialized = false;
 	private ProgramPreferences programPreferences;
 
 	private long lastExceptionTimeMillis = 0;
@@ -82,7 +83,7 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 	int ugg = 0;
 
-	public ComPerspViewport(final ModelView modelView, RenderModel renderModel, final ProgramPreferences programPreferences, ComPerspRenderEnv renderEnvironment, boolean loadDefaultCamera) throws LWJGLException {
+	public ComPerspViewport(final ModelView modelView, RenderModel renderModel, final ProgramPreferences programPreferences, TimeEnvironmentImpl renderEnvironment, boolean loadDefaultCamera) throws LWJGLException {
 		super();
 		this.programPreferences = programPreferences;
 
@@ -121,6 +122,7 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 		});
 		paintTimer.start();
 		shortcutKeyListener();
+		this.renderModel.refreshFromEditor(renderEnv, inverseCameraRotation, inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
 	}
 
 	public static int loadTexture(final GPUReadyTexture texture, final Bitmap bitmap) {
@@ -645,7 +647,7 @@ public abstract class ComPerspViewport extends BetterAWTGLCanvas implements Rend
 		glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
 	}
 
-	private void setStandardColors(GeosetAnim geosetAnim, float geosetAnimVisibility, ComPerspRenderEnv timeEnvironment, Layer layer) {
+	private void setStandardColors(GeosetAnim geosetAnim, float geosetAnimVisibility, TimeEnvironmentImpl timeEnvironment, Layer layer) {
 		if (timeEnvironment.getCurrentAnimation() != null) {
 			float layerVisibility = layer.getRenderVisibility(timeEnvironment);
 			float alphaValue = geosetAnimVisibility * layerVisibility;

@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.*;
@@ -13,7 +12,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayL
 import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
 import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.viewer.AnimationController;
-import com.hiveworkshop.rms.ui.application.viewer.ControlledAnimationViewer;
+import com.hiveworkshop.rms.ui.application.viewer.AnimationControllerListener;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.ModelComponentBrowserTree;
@@ -26,12 +25,8 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.InfoPopup;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * The ModelPanel is a pane holding the display of a given MDL model. I plan to
@@ -39,22 +34,19 @@ import java.io.IOException;
  *
  * Eric Theller 6/7/2012
  */
-public class ModelPanel implements ActionListener, MouseListener {
-	private static final int VERTEX_SIZE = 3;
-	private JMenuBar menuBar;
-	private JMenu fileMenu, modelMenu;
+public class ModelPanel implements MouseListener {
 	private DisplayPanel frontArea, sideArea, botArea;
 	private PerspDisplayPanel perspArea;
 	private EditableModel model;
-	private File file;
-	private final ProgramPreferences prefs;
 	private final UndoHandler undoHandler;
+	private final ModelView modelView;
+	private final UndoManager undoManager;
+	private final RenderModel editorRenderModel;
+	private final ProgramPreferences prefs;
 	private final ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeNotifier;
 	private final ModelEditorViewportActivityManager viewportActivityManager;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelEditorManager modelEditorManager;
-	private final ModelView modelView;
-	private final UndoManager undoManager;
 	private UVPanel editUVPanel;
 
 	private final ModelViewManagingTree modelViewManagingTree;
@@ -62,45 +54,30 @@ public class ModelPanel implements ActionListener, MouseListener {
 	private final JComponent parent;
 	private final Icon icon;
 	private JMenuItem menuItem;
-	private final ControlledAnimationViewer animationViewer;
-	private final RenderModel editorRenderModel;
+	private final AnimationControllerListener animationViewer;
 	private final AnimationController animationController;
 	private final ComponentsPanel componentsPanel;
 
-	public ModelPanel(final JComponent parent,
-	                  final File input,
-	                  final ProgramPreferences prefs,
-	                  final UndoHandler undoHandler,
-	                  final ToolbarButtonGroup<SelectionItemTypes> notifier,
-	                  final ToolbarButtonGroup<SelectionMode> modeNotifier,
-	                  final ModelStructureChangeListener modelStructureChangeListener,
-	                  final CoordDisplayListener coordDisplayListener,
-	                  final ViewportTransferHandler viewportTransferHandler,
-	                  final ViewportListener viewportListener,
-	                  final Icon icon,
-	                  final boolean specialBLPModel)
-			throws IOException {
-		this(parent, MdxUtils.loadEditable(input), prefs, undoHandler, notifier, modeNotifier,
-				modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener,
-				icon, specialBLPModel);
-		file = input;
-	}
+	public ModelPanel(JComponent parent,
+	                  EditableModel editableModel,
+	                  ProgramPreferences prefs,
+	                  UndoHandler undoHandler,
+	                  ToolbarButtonGroup<SelectionItemTypes> notifier,
+	                  ToolbarButtonGroup<SelectionMode> modeNotifier,
+	                  ModelStructureChangeListener modelStructureChangeListener,
+	                  CoordDisplayListener coordDisplayListener,
+	                  ViewportTransferHandler viewportTransferHandler,
+	                  ViewportListener viewportListener,
+	                  Icon icon,
+	                  boolean specialBLPModel) {
+		this.model = editableModel;
+		this.undoHandler = undoHandler;
+		modelView = new ModelView(editableModel);
+		undoManager = new UndoManagerImpl(undoHandler);
+		editorRenderModel = modelView.getEditorRenderModel();
 
-	public ModelPanel(final JComponent parent,
-	                  final EditableModel input,
-	                  final ProgramPreferences prefs,
-	                  final UndoHandler undoHandler,
-	                  final ToolbarButtonGroup<SelectionItemTypes> notifier,
-	                  final ToolbarButtonGroup<SelectionMode> modeNotifier,
-	                  final ModelStructureChangeListener modelStructureChangeListener,
-	                  final CoordDisplayListener coordDisplayListener,
-	                  final ViewportTransferHandler viewportTransferHandler,
-	                  final ViewportListener viewportListener,
-	                  final Icon icon,
-	                  final boolean specialBLPModel) {
 		this.parent = parent;
 		this.prefs = prefs;
-		this.undoHandler = undoHandler;
 		selectionItemTypeNotifier = notifier;
 		this.icon = icon;
 		viewportActivityManager = new ModelEditorViewportActivityManager(new DoNothingActivity());
@@ -108,37 +85,22 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
-		modelView = new ModelView(input);
 
-		undoManager = new UndoManagerImpl(undoHandler);
 
-//		editorRenderModel = new RenderModel(input, modelView);
-//		editorRenderModel.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
-//		editorRenderModel.setAllowInanimateParticles((prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
-		editorRenderModel = modelView.getEditorRenderModel();
 
 		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier, modelEditorChangeNotifier, viewportActivityManager, editorRenderModel, modelStructureChangeListener);
 
 		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
-//		modelViewManagingTree.setFocusable(false);
 
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager, modelEditorManager, modelStructureChangeListener);
 
 		selectionItemTypeNotifier.addToolbarButtonListener(modelEditorManager::setSelectionItemType);
-		// Produce the front display panel
-		// file = input;
-		// model = MDL.read(file);
-		// dispModel = new MDLDisplay(model,this);
-		loadModel(input);
 
 		frontArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Front", (byte) 1, (byte) 2);
-		// frontArea.setViewport(1,2);
 		botArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Bottom", (byte) 1, (byte) 0);
-		// botArea.setViewport(0,1);
 		sideArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Side", (byte) 0, (byte) 2);
-		// sideArea.setViewport(0,2);
 
-		animationViewer = new ControlledAnimationViewer(modelView, prefs, !specialBLPModel);
+		animationViewer = new AnimationControllerListener(modelView, prefs, !specialBLPModel);
 
 		animationController = new AnimationController(modelView, true, animationViewer, animationViewer.getCurrentAnimation());
 
@@ -148,7 +110,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs);
 
-		componentsPanel = new ComponentsPanel(getModelViewManager(), undoManager, modelStructureChangeListener);
+		componentsPanel = new ComponentsPanel(modelView, undoManager, modelStructureChangeListener);
 
 		modelComponentBrowserTree.addSelectListener(componentsPanel);
 	}
@@ -163,7 +125,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		return editorRenderModel;
 	}
 
-	public ControlledAnimationViewer getAnimationViewer() {
+	public AnimationControllerListener getAnimationViewer() {
 		return animationViewer;
 	}
 
@@ -187,10 +149,6 @@ public class ModelPanel implements ActionListener, MouseListener {
 		return icon;
 	}
 
-	public void setFile(final File file) {
-		this.file = file;
-	}
-
 	public void changeActivity(final ActivityDescriptor activityDescriptor) {
 		viewportActivityManager.setCurrentActivity(activityDescriptor.createActivity(modelEditorManager, modelView, undoManager));
 	}
@@ -205,21 +163,6 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 	public void setEditUVPanel(final UVPanel editUVPanel) {
 		this.editUVPanel = editUVPanel;
-	}
-
-	public void loadModel(final File input) throws IOException {
-		file = input;
-		if (file != null) {
-			model = MdxUtils.loadEditable(input);
-		}
-	}
-
-	public void loadModel(final EditableModel model) {
-		this.model = model;
-	}
-
-	@Override
-	public void actionPerformed(final ActionEvent e) {
 	}
 
 	public boolean close(final ModelPanelCloseListener listener)// MainPanel parent) TODO fix

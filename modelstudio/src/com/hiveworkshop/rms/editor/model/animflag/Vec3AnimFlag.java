@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -171,7 +171,7 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		return timeline;
 	}
 
-	public Vec3 interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public Vec3 interpolateAt(final TimeEnvironmentImpl animatedRenderEnvironment) {
 //		System.out.println(name + ", interpolateAt");
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 //			System.out.println("~~ animatedRenderEnvironment == null");

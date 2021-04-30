@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
@@ -101,7 +101,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 	@Override
 	public void update() {
 		final ParticleEmitter2 modelObject = emitter.modelObject;
-		final float dt = (float) (AnimatedRenderEnvironment.FRAMES_PER_UPDATE * 0.001f * emitterView.getTimeScale());
+		final float dt = (float) (TimeEnvironmentImpl.FRAMES_PER_UPDATE * 0.001f * emitterView.getTimeScale());
 
 		health -= dt;
 		velocity.z -= gravity * dt;

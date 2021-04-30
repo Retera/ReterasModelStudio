@@ -3,7 +3,8 @@ package com.hiveworkshop.rms.ui.application.viewer.perspective;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.viewer.ComPerspRenderEnv;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.viewer.ComPerspViewport;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import net.infonode.docking.View;
 import org.lwjgl.LWJGLException;
@@ -21,14 +22,14 @@ import java.util.List;
  * @version (a version number or a date)
  */
 public class PerspDisplayPanel extends JPanel {
-	private PerspectiveViewport vp;
-	private JPanel vpp;
+	//	private PerspectiveViewport vp;
+	private ComPerspViewport vp;
 	private String title;
 	private final ProgramPreferences programPreferences;
 	private final View view;
 
 	// private JCheckBox wireframe;
-	public PerspDisplayPanel(final String title, final ModelView modelView, final ProgramPreferences programPreferences) {
+	public PerspDisplayPanel(String title, ModelView modelView, ProgramPreferences programPreferences) {
 		super();
 		this.programPreferences = programPreferences;
 		setOpaque(true);
@@ -63,11 +64,10 @@ public class PerspDisplayPanel extends JPanel {
 		button.setMinimumSize(dim);
 		button.setPreferredSize(dim);
 		button.addActionListener(actionListener);
-		// add(button);
 		return button;
 	}
 
-	public void setViewportBackground(final Color background) {
+	public void setViewportBackground(Color background) {
 //		vp.setViewportBackground(background);
 	}
 
@@ -79,7 +79,7 @@ public class PerspDisplayPanel extends JPanel {
 		return view;
 	}
 
-	public void addGeosets(final List<Geoset> list) {
+	public void addGeosets(List<Geoset> list) {
 		vp.addGeosets(list);
 	}
 
@@ -91,46 +91,50 @@ public class PerspDisplayPanel extends JPanel {
 		vp.reloadAllTextures();
 	}
 
-	public void setViewport(final ModelView modelView, ComPerspRenderEnv renderEnvironment) {
-//	public void setViewport(final ModelView modelView, TimeEnvironmentImpl renderEnvironment) {
+	public void setViewport(ModelView modelView, TimeEnvironmentImpl renderEnvironment) {
+//	public void setViewport(ModelView modelView, TimeEnvironmentImpl renderEnvironment) {
 		setViewport(modelView, 200, renderEnvironment);
 	}
 
-	public void setViewport(final ModelView dispModel) {
-		ComPerspRenderEnv renderEnvironment = new ComPerspRenderEnv();
-		setViewport(dispModel, 200, renderEnvironment);
-	}
-
-	public void setViewport(final ModelView modelView, final int viewerSize, ComPerspRenderEnv renderEnvironment) {
+	public void setViewport(ModelView modelView, int viewerSize, TimeEnvironmentImpl renderEnvironment) {
 		try {
 			if (vp != null) {
 				vp.destroy();
 			}
 			removeAll();
 			RenderModel renderModel = modelView.getEditorRenderModel();
-			vp = new PerspectiveViewport(modelView, renderModel, programPreferences, renderEnvironment);
+//			vp = new PerspectiveViewport(modelView, renderModel, programPreferences, renderEnvironment);
+			vp = new ComPerspViewport(modelView, renderModel, programPreferences, renderEnvironment, false);
 			vp.setIgnoreRepaint(false);
 			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
 
 			setLayout(new BorderLayout());
-		} catch (final LWJGLException e) {
+		} catch (LWJGLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		add(vp, BorderLayout.CENTER);
 	}
 
-	public void setTitle(final String what) {
+	public void setTitle(String what) {
 		title = what;
 		setBorder(BorderFactory.createTitledBorder(title));
 	}
 
-	public PerspectiveViewport getViewport() {
+	//	public PerspectiveViewport getViewport() {
+//		return vp;
+//	}
+	public ComPerspViewport getViewport() {
 		return vp;
 	}
 
+	public void setViewport(ModelView dispModel) {
+		TimeEnvironmentImpl renderEnvironment = new TimeEnvironmentImpl();
+		setViewport(dispModel, 200, renderEnvironment);
+	}
+
 	@Override
-	public void paintComponent(final Graphics g) {
+	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		vp.paint(vp.getGraphics());
 		// g.drawString(title,3,3);

@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatTimeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.MathUtils;
 
 import javax.swing.*;
@@ -99,7 +99,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		outTans = deepCopy(af.outTans);
 	}
 
-	public Float interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public Float interpolateAt(final TimeEnvironmentImpl animatedRenderEnvironment) {
 //		System.out.println(name + ", interpolateAt");
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 //			System.out.println("~~ animatedRenderEnvironment == null");

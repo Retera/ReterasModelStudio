@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 
 
 	@Override
-	public Integer interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public Integer interpolateAt(final TimeEnvironmentImpl animatedRenderEnvironment) {
 //		System.out.println(name + ", interpolateAt");
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 //			System.out.println("~~ animatedRenderEnvironment == null");

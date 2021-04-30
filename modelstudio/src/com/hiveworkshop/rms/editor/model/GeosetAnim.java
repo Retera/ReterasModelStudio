@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.List;
@@ -20,19 +20,19 @@ public class GeosetAnim extends TimelineContainer implements Named {
 	Geoset geoset;
 	boolean dropShadow = false;
 
-	public GeosetAnim(final AnimFlag<?> flag) {
+	public GeosetAnim(AnimFlag<?> flag) {
 		add(flag);
 	}
 
-	public GeosetAnim(final List<AnimFlag<?>> flags) {
+	public GeosetAnim(List<AnimFlag<?>> flags) {
 		setAnimFlags(flags);
 	}
 
-	public GeosetAnim(final Geoset g) {
+	public GeosetAnim(Geoset g) {
 		geoset = g;
 	}
 
-	public GeosetAnim(final Geoset geoset, final GeosetAnim other) {
+	public GeosetAnim(Geoset geoset, GeosetAnim other) {
 		addAll(other.getAnimFlags());
 		staticAlpha = other.staticAlpha;
 		staticColor = other.staticColor;
@@ -40,19 +40,19 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		dropShadow = other.dropShadow;
 	}
 
-	public GeosetAnim(final MdlxGeosetAnimation animation, final EditableModel model) {
+	public GeosetAnim(MdlxGeosetAnimation animation, EditableModel model) {
 		geoset = model.getGeoset(animation.geosetId);
 		staticAlpha = animation.alpha;
 		staticColor = new Vec3(ModelUtils.flipRGBtoBGR(animation.color));
 
-		final int flags = animation.flags;
+		int flags = animation.flags;
 		dropShadow = ((flags & 1) == 1);
 
 		loadTimelines(animation);
 	}
 
-	public MdlxGeosetAnimation toMdlx(final EditableModel model) {
-		final MdlxGeosetAnimation animation = new MdlxGeosetAnimation();
+	public MdlxGeosetAnimation toMdlx(EditableModel model) {
+		MdlxGeosetAnimation animation = new MdlxGeosetAnimation();
 
 		animation.geosetId = model.computeGeosetID(geoset);
 
@@ -83,12 +83,12 @@ public class GeosetAnim extends TimelineContainer implements Named {
 	public void setName(String text) {
 	}
 
-	public GeosetAnim getMostVisible(final GeosetAnim partner) {
+	public GeosetAnim getMostVisible(GeosetAnim partner) {
 		if ((getVisibilityFlag() != null) && (partner != null)) {
-			final AnimFlag<?> thisFlag = getVisibilityFlag();
-			final AnimFlag thatFlag = partner.getVisibilityFlag();
+			AnimFlag<?> thisFlag = getVisibilityFlag();
+			AnimFlag thatFlag = partner.getVisibilityFlag();
 			if (thatFlag != null) {
-				final AnimFlag<?> result = thisFlag.getMostVisible(thatFlag);
+				AnimFlag<?> result = thisFlag.getMostVisible(thatFlag);
 				if (result == thisFlag) {
 					return this;
 				} else if (result == thatFlag) {
@@ -108,7 +108,7 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		return staticAlpha;
 	}
 
-	public void setStaticAlpha(final double staticAlpha) {
+	public void setStaticAlpha(double staticAlpha) {
 		this.staticAlpha = staticAlpha;
 	}
 
@@ -116,7 +116,7 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		return staticColor;
 	}
 
-	public void setStaticColor(final Vec3 staticColor) {
+	public void setStaticColor(Vec3 staticColor) {
 		this.staticColor = staticColor;
 	}
 
@@ -124,7 +124,7 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		return geoset;
 	}
 
-	public void setGeoset(final Geoset geoset) {
+	public void setGeoset(Geoset geoset) {
 		this.geoset = geoset;
 	}
 
@@ -132,32 +132,32 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		return dropShadow;
 	}
 
-	public void setDropShadow(final boolean dropShadow) {
+	public void setDropShadow(boolean dropShadow) {
 		this.dropShadow = dropShadow;
 	}
 
 	@Override
-	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public float getRenderVisibility(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return getRenderVisibility(animatedRenderEnvironment, (float) staticAlpha);
 	}
 
-	public Vec3 getRenderColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public Vec3 getRenderColor(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return getInterpolatedVector(animatedRenderEnvironment, "Color", staticColor);
 	}
 
-	public void copyVisibilityFrom(final VisibilitySource other, final EditableModel mdlr) {
-		final VisibilitySource temp = this;
-		final AnimFlag<?> visFlag = getVisibilityFlag();// might be null
-		final FloatAnimFlag newVisFlag;
+	public void copyVisibilityFrom(VisibilitySource other, EditableModel mdlr) {
+		VisibilitySource temp = this;
+		AnimFlag<?> visFlag = getVisibilityFlag();// might be null
+		FloatAnimFlag newVisFlag;
 		if (visFlag != null) {
 			newVisFlag = (FloatAnimFlag) AnimFlag.buildEmptyFrom(visFlag);
 		} else {
 			newVisFlag = new FloatAnimFlag(temp.visFlagName());
 		}
 		// newVisFlag = new AnimFlag(temp.visFlagName());
-		final FloatAnimFlag flagNew = (FloatAnimFlag) other.getVisibilityFlag();
+		FloatAnimFlag flagNew = (FloatAnimFlag) other.getVisibilityFlag();
 		// this is an element not favoring existing over imported
-		for (final Animation a : mdlr.getAnims()) {
+		for (Animation a : mdlr.getAnims()) {
 			if (newVisFlag != null) {
 				if (!newVisFlag.hasGlobalSeq()) {
 					newVisFlag.deleteAnim(a);

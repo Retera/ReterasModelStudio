@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
@@ -26,15 +25,15 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 	abstract public String getName();
 
-	public Vec3 getRenderTranslation(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public Vec3 getRenderTranslation(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return getInterpolatedVector(animatedRenderEnvironment, "Translation", null);
 	}
 
-	public Quat getRenderRotation(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public Quat getRenderRotation(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return getInterpolatedQuat(animatedRenderEnvironment, "Rotation", null);
 	}
 
-	public Vec3 getRenderScale(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public Vec3 getRenderScale(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return getInterpolatedVector(animatedRenderEnvironment, "Scaling", null);
 	}
 

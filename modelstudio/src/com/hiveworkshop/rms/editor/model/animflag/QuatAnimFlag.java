@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Quat;
 
 import javax.swing.*;
@@ -171,7 +171,7 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		return timeline;
 	}
 
-	public Quat interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public Quat interpolateAt(final TimeEnvironmentImpl animatedRenderEnvironment) {
 //		System.out.println(name + ", interpolateAt");
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 //			System.out.println("~~ animatedRenderEnvironment == null");

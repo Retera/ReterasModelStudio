@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatTimeline;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.*;
 
 import javax.swing.*;
@@ -60,13 +60,13 @@ public abstract class AnimFlag<T> {
 	int vectorSize = 1;
 	boolean isFloat = true;
 
-	public AnimFlag(final MdlxTimeline<?> timeline) {
+	public AnimFlag(MdlxTimeline<?> timeline) {
 		name = AnimationMap.ID_TO_TAG.get(timeline.name).getMdlToken();
 		generateTypeId();
 
 		interpolationType = timeline.interpolationType;
 
-		final int globalSequenceId = timeline.globalSequenceId;
+		int globalSequenceId = timeline.globalSequenceId;
 		if (globalSequenceId >= 0) {
 			setGlobalSeqId(globalSequenceId);
 			setHasGlobalSeq(true);
@@ -74,14 +74,14 @@ public abstract class AnimFlag<T> {
 	}
 
 	// end special constructors
-	public AnimFlag(final String title, final List<Integer> times, final List<T> values) {
+	public AnimFlag(String title, List<Integer> times, List<T> values) {
 		name = title;
 		this.times = times;
 		this.values = values;
 		generateTypeId();
 	}
 
-	public AnimFlag(final AnimFlag<T> af) {
+	public AnimFlag(AnimFlag<T> af) {
 		name = af.name;
 		globalSeq = af.globalSeq;
 		globalSeqId = af.globalSeqId;
@@ -96,7 +96,7 @@ public abstract class AnimFlag<T> {
 		isFloat = af.isFloat;
 	}
 
-//	public static AnimFlag<?> createFromName(final AnimFlag<?> af) {
+//	public static AnimFlag<?> createFromName(AnimFlag<?> af) {
 //		if(af instanceof IntAnimFlag){
 //			return new IntAnimFlag((IntAnimFlag) af);
 //		}else if(af instanceof FloatAnimFlag){
@@ -110,8 +110,8 @@ public abstract class AnimFlag<T> {
 //	}
 
 
-//	public static AnimFlag createEmpty2018(final String title, final InterpolationType interpolationType, final Integer globalSeq) {
-//		final AnimFlag flag = new AnimFlag();
+//	public static AnimFlag createEmpty2018(String title, InterpolationType interpolationType, Integer globalSeq) {
+//		AnimFlag flag = new AnimFlag();
 //		flag.name = title;
 //		flag.interpolationType = interpolationType;
 //		flag.generateTypeId();
@@ -119,12 +119,12 @@ public abstract class AnimFlag<T> {
 //		return flag;
 //	}
 
-	public AnimFlag(final String title) {
+	public AnimFlag(String title) {
 		name = title;
 		generateTypeId();
 	}
 
-	public static AnimFlag<?> createFromTimeline(final MdlxTimeline<?> timeline) {
+	public static AnimFlag<?> createFromTimeline(MdlxTimeline<?> timeline) {
 		Object firstValue = timeline.values[0];
 		if (firstValue instanceof float[]) {
 			if (((float[]) firstValue).length == 1) {
@@ -144,7 +144,7 @@ public abstract class AnimFlag<T> {
 		return null;
 	}
 
-	public static AnimFlag<?> createFromAnimFlag(final AnimFlag<?> af) {
+	public static AnimFlag<?> createFromAnimFlag(AnimFlag<?> af) {
 		if (af instanceof IntAnimFlag) {
 			return new IntAnimFlag((IntAnimFlag) af);
 		} else if (af instanceof FloatAnimFlag) {
@@ -156,7 +156,7 @@ public abstract class AnimFlag<T> {
 		} else return null;
 	}
 
-	public static Object cloneValue(final Object value) {
+	public static Object cloneValue(Object value) {
 		if (value == null) {
 			return null;
 		}
@@ -172,7 +172,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public static Object cloneValueAsEmpty(final Object value) {
+	public static Object cloneValueAsEmpty(Object value) {
 		if (value == null) {
 			return null;
 		}
@@ -190,7 +190,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public static AnimFlag<?> buildEmptyFrom(final AnimFlag<?> af) {
+	public static AnimFlag<?> buildEmptyFrom(AnimFlag<?> af) {
 		if (af instanceof IntAnimFlag) {
 			return new IntAnimFlag((IntAnimFlag) af);
 		} else if (af instanceof FloatAnimFlag) {
@@ -202,7 +202,7 @@ public abstract class AnimFlag<T> {
 		} else return null;
 	}
 
-	public boolean equals(final AnimFlag<T> animFlag) {
+	public boolean equals(AnimFlag<T> animFlag) {
 		boolean does = animFlag != null;
 		if (!does) {
 			return false;
@@ -222,17 +222,17 @@ public abstract class AnimFlag<T> {
 		return globalSeq;
 	}
 
-	public void setGlobalSeq(final Integer globalSeq) {
+	public void setGlobalSeq(Integer globalSeq) {
 		this.globalSeq = globalSeq;
 	}
 
-	public void setGlobSeq(final Integer integer) {
+	public void setGlobSeq(Integer integer) {
 		globalSeq = integer;
 		hasGlobalSeq = integer != null;
 	}
 
-	public War3ID getWar3ID(final TimelineContainer container) {
-		final AnimationMap id = getAnimationMap(container);
+	public War3ID getWar3ID(TimelineContainer container) {
+		AnimationMap id = getAnimationMap(container);
 
 		if (id == null) {
 			throw new RuntimeException("Got an unknown timeline name: " + name);
@@ -241,7 +241,7 @@ public abstract class AnimFlag<T> {
 		return id.getWar3id();
 	}
 
-	public AnimationMap getAnimationMap(final TimelineContainer container) {
+	public AnimationMap getAnimationMap(TimelineContainer container) {
 		if (container instanceof Layer) {
 			switch (name) {
 				case MdlUtils.TOKEN_TEXTURE_ID:
@@ -409,7 +409,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void setInterpType(final InterpolationType interpolationType) {
+	public void setInterpType(InterpolationType interpolationType) {
 		if (interpolationType.tangential() && inTans.isEmpty()) {
 			unLinearize();
 		} else if (!interpolationType.tangential()) {
@@ -426,13 +426,13 @@ public abstract class AnimFlag<T> {
 		return times.size();
 	}
 
-	public abstract MdlxTimeline<?> toMdlx(final TimelineContainer container);
+	public abstract MdlxTimeline<?> toMdlx(TimelineContainer container);
 
 	public int getGlobalSeqId() {
 		return globalSeqId;
 	}
 
-	public void setGlobalSeqId(final int globalSeqId) {
+	public void setGlobalSeqId(int globalSeqId) {
 		this.globalSeqId = globalSeqId;
 	}
 
@@ -440,16 +440,16 @@ public abstract class AnimFlag<T> {
 		return hasGlobalSeq;
 	}
 
-	public void setHasGlobalSeq(final boolean hasGlobalSeq) {
+	public void setHasGlobalSeq(boolean hasGlobalSeq) {
 		this.hasGlobalSeq = hasGlobalSeq;
 	}
 
-	public void addEntry(final Integer time, final T value) {
+	public void addEntry(Integer time, T value) {
 		times.add(time);
 		values.add(value);
 	}
 
-	public void addEntry(final Integer time, final T value, final T inTan, final T outTan) {
+	public void addEntry(Integer time, T value, T inTan, T outTan) {
 		times.add(time);
 		values.add(value);
 
@@ -470,9 +470,9 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-//	public abstract T cloneValue(final T value);
+//	public abstract T cloneValue(T value);
 
-	public void setEntry(final Integer time, final T value) {
+	public void setEntry(Integer time, T value) {
 		for (int index = 0; index < times.size(); index++) {
 			if (times.get(index).equals(time)) {
 				values.set(index, value);
@@ -490,7 +490,7 @@ public abstract class AnimFlag<T> {
 	 * @param time  the time of the entry to be changed
 	 * @param entry the entry to replace the old entry
 	 */
-	public void setEntryT(final Integer time, Entry<?> entry) {
+	public void setEntryT(Integer time, Entry<?> entry) {
 		if (entry.value instanceof Integer && this instanceof IntAnimFlag) {
 			setEntry(time, (Entry<T>) entry);
 		} else if (entry.value instanceof Float && this instanceof FloatAnimFlag) {
@@ -502,7 +502,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void setEntry(final Integer time, Entry<T> entry) {
+	public void setEntry(Integer time, Entry<T> entry) {
 		for (int index = 0; index < times.size(); index++) {
 			if (times.get(index).equals(time)) {
 				times.set(index, entry.time);
@@ -515,7 +515,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void setOrAddEntryT(final Integer time, Entry<?> entry) {
+	public void setOrAddEntryT(Integer time, Entry<?> entry) {
 		if (entry.value instanceof Integer && this instanceof IntAnimFlag) {
 			setOrAddEntry(time, (Entry<T>) entry);
 		} else if (entry.value instanceof Float && this instanceof FloatAnimFlag) {
@@ -527,7 +527,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void setOrAddEntry(final Integer time, Entry<T> entry) {
+	public void setOrAddEntry(Integer time, Entry<T> entry) {
 		System.out.println("vec3 set entry");
 		int index = floorIndex(time);
 		if (!times.get(index).equals(time)) {
@@ -551,7 +551,7 @@ public abstract class AnimFlag<T> {
 		setEntry(entry.time, entry);
 	}
 
-	public Entry<T> getEntry(final int index) {
+	public Entry<T> getEntry(int index) {
 		if (tans()) {
 			return new Entry<T>(times.get(index), values.get(index), inTans.get(index), outTans.get(index));
 		} else {
@@ -559,7 +559,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public Entry<T> getEntryAt(final int time) {
+	public Entry<T> getEntryAt(int time) {
 		int index = ceilIndex(time);
 		if (times.get(index) == time) {
 			return getEntry(index);
@@ -567,7 +567,7 @@ public abstract class AnimFlag<T> {
 		return null;
 	}
 
-	public T valueAt(final Integer time) {
+	public T valueAt(Integer time) {
 		for (int i = 0; i < times.size(); i++) {
 			if (times.get(i).equals(time)) {
 				return values.get(i);
@@ -576,7 +576,7 @@ public abstract class AnimFlag<T> {
 		return null;
 	}
 
-	public T inTanAt(final Integer time) {
+	public T inTanAt(Integer time) {
 		for (int i = 0; i < times.size(); i++) {
 			if (times.get(i).equals(time)) {
 				return inTans.get(i);
@@ -585,7 +585,7 @@ public abstract class AnimFlag<T> {
 		return null;
 	}
 
-	public T outTanAt(final Integer time) {
+	public T outTanAt(Integer time) {
 		for (int i = 0; i < times.size(); i++) {
 			if (times.get(i).equals(time)) {
 				return outTans.get(i);
@@ -594,7 +594,7 @@ public abstract class AnimFlag<T> {
 		return null;
 	}
 
-	public void setValuesTo(final AnimFlag<?> af) {
+	public void setValuesTo(AnimFlag<?> af) {
 		if (af instanceof IntAnimFlag && this instanceof IntAnimFlag) {
 			((IntAnimFlag) this).setValuesTo((IntAnimFlag) af);
 		} else if (af instanceof FloatAnimFlag && this instanceof FloatAnimFlag) {
@@ -607,9 +607,9 @@ public abstract class AnimFlag<T> {
 	}
 
 
-	public abstract void setValuesTo2(final AnimFlag<T> af);
+	public abstract void setValuesTo2(AnimFlag<T> af);
 
-	public void setValuesTo3(final AnimFlag<T> af) {
+	public void setValuesTo3(AnimFlag<T> af) {
 		name = af.name;
 		globalSeq = af.globalSeq;
 		globalSeqId = af.globalSeqId;
@@ -622,16 +622,16 @@ public abstract class AnimFlag<T> {
 		outTans = deepCopy(af.outTans);
 	}
 
-	List<T> deepCopy(final List<T> source) {
+	List<T> deepCopy(List<T> source) {
 
-		final List<T> copy = new ArrayList<>();
-		for (final T item : source) {
+		List<T> copy = new ArrayList<>();
+		for (T item : source) {
 			T toAdd = item;
 			if (item instanceof Vec3) {
-				final Vec3 v = (Vec3) item;
+				Vec3 v = (Vec3) item;
 				toAdd = (T) v;
 			} else if (item instanceof Quat) {
-				final Quat r = (Quat) item;
+				Quat r = (Quat) item;
 				toAdd = (T) r;
 			}
 			copy.add(toAdd);
@@ -643,7 +643,7 @@ public abstract class AnimFlag<T> {
 		return name;
 	}
 
-	public void setName(final String title) {
+	public void setName(String title) {
 		name = title;
 	}
 
@@ -651,13 +651,13 @@ public abstract class AnimFlag<T> {
 		return typeid;
 	}
 
-	public void updateGlobalSeqRef(final EditableModel mdlr) {
+	public void updateGlobalSeqRef(EditableModel mdlr) {
 		if (hasGlobalSeq) {
 			globalSeq = mdlr.getGlobalSeq(globalSeqId);
 		}
 	}
 
-	public void updateGlobalSeqId(final EditableModel mdlr) {
+	public void updateGlobalSeqId(EditableModel mdlr) {
 		if (hasGlobalSeq) {
 			globalSeqId = mdlr.getGlobalSeqId(globalSeq);
 		}
@@ -674,7 +674,7 @@ public abstract class AnimFlag<T> {
 		};
 	}
 
-	public void flipOver(final byte axis) {
+	public void flipOver(byte axis) {
 		if (typeid == 2) {
 			// Rotation
 			flipAll(axis, values);
@@ -682,20 +682,20 @@ public abstract class AnimFlag<T> {
 			flipAll(axis, outTans);
 		} else if (typeid == 3) {
 			// Translation
-			for (final Object value : values) {
-				final Vec3 trans = (Vec3) value;
+			for (Object value : values) {
+				Vec3 trans = (Vec3) value;
 
 				trans.setCoord(axis, -trans.getCoord(axis));
 			}
 
-			for (final Object inTan : inTans) {
-				final Vec3 trans = (Vec3) inTan;
+			for (Object inTan : inTans) {
+				Vec3 trans = (Vec3) inTan;
 
 				trans.setCoord(axis, -trans.getCoord(axis));
 			}
 
-			for (final Object outTan : outTans) {
-				final Vec3 trans = (Vec3) outTan;
+			for (Object outTan : outTans) {
+				Vec3 trans = (Vec3) outTan;
 
 				trans.setCoord(axis, -trans.getCoord(axis));
 			}
@@ -703,9 +703,9 @@ public abstract class AnimFlag<T> {
 	}
 
 	private void flipAll(byte axis, List<T> values) {
-		for (final T value : values) {
-			final Quat rot = (Quat) value;
-			final Vec3 euler = rot.toEuler();
+		for (T value : values) {
+			Quat rot = (Quat) value;
+			Vec3 euler = rot.toEuler();
 			switch (axis) {
 				case 0 -> {
 					euler.x = -euler.x;
@@ -724,13 +724,13 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public AnimFlag<T> getMostVisible(final AnimFlag<T> partner) {
+	public AnimFlag<T> getMostVisible(AnimFlag<T> partner) {
 		if (partner != null) {
 			if ((typeid == 0) && (partner.typeid == 0)) {
-				final List<Integer> atimes = new ArrayList<>(times);
-				final List<Integer> btimes = new ArrayList<>(partner.times);
-				final List<T> avalues = new ArrayList<>(values);
-				final List<T> bvalues = new ArrayList<>(partner.values);
+				List<Integer> atimes = new ArrayList<>(times);
+				List<Integer> btimes = new ArrayList<>(partner.times);
+				List<T> avalues = new ArrayList<>(values);
+				List<T> bvalues = new ArrayList<>(partner.values);
 
 				AnimFlag<T> mostVisible = null;
 				mostVisible = getMostVissibleAnimFlag(atimes, btimes, avalues, bvalues, mostVisible, partner, this);
@@ -788,10 +788,10 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void deleteAnim(final Animation anim) {
+	public void deleteAnim(Animation anim) {
 		if (!hasGlobalSeq) {
 			for (int index = times.size() - 1; index >= 0; index--) {
-				final int time = times.get(index);
+				int time = times.get(index);
 				if ((time >= anim.getStart()) && (time <= anim.getEnd())) {
 					// If this "time" is a part of the anim being removed
 					deleteAt(index);
@@ -802,7 +802,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void deleteAt(final int index) {
+	public void deleteAt(int index) {
 		times.remove(index);
 		values.remove(index);
 		if (tans()) {
@@ -830,7 +830,7 @@ public abstract class AnimFlag<T> {
 	 * @param newStart    the start time for the interval in the destination AnimFlag, inclusive
 	 * @param newEnd      the end time for the interval in the destination AnimFlag, inclusive
 	 */
-	public void copyFrom(final AnimFlag<?> source, final int sourceStart, final int sourceEnd, final int newStart, final int newEnd) {
+	public void copyFrom(AnimFlag<?> source, int sourceStart, int sourceEnd, int newStart, int newEnd) {
 		if (this instanceof IntAnimFlag && source instanceof IntAnimFlag) {
 			((IntAnimFlag) this).copyFrom((IntAnimFlag) source, sourceStart, sourceEnd, newStart, newEnd);
 		}
@@ -845,7 +845,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void copyFrom(final AnimFlag<?> source) {
+	public void copyFrom(AnimFlag<?> source) {
 		if (this instanceof IntAnimFlag && source instanceof IntAnimFlag) {
 			((IntAnimFlag) this).copyFrom((IntAnimFlag) source);
 		}
@@ -860,13 +860,13 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void timeScale(final int start, final int end, final int newStart, final int newEnd) {
+	public void timeScale(int start, int end, int newStart, int newEnd) {
 		// Timescales a part of the AnimFlag from section "start" to "end" into the new time "newStart" to "newEnd"
 		for (int index = 0; index < times.size(); index++) {
-			final int time = times.get(index);
+			int time = times.get(index);
 			if ((time >= start) && (time <= end)) {
 				// If this "time" is a part of the anim being rescaled
-				final double ratio = (double) (time - start) / (double) (end - start);
+				double ratio = (double) (time - start) / (double) (end - start);
 				times.set(index, (int) (newStart + (ratio * (newEnd - newStart))));
 			}
 		}
@@ -874,18 +874,18 @@ public abstract class AnimFlag<T> {
 	}
 
 	public void sort() {
-		final int low = 0;
-		final int high = times.size() - 1;
+		int low = 0;
+		int high = times.size() - 1;
 		if (size() > 1) {
 			quicksort(low, high);
 		}
 	}
 
-	private void quicksort(final int low, final int high) {
+	private void quicksort(int low, int high) {
 		// Thanks to Lars Vogel for the quicksort concept code (something to look at), found on google
 		// (re-written by Eric "Retera" for use in AnimFlags)
 		int i = low, j = high;
-		final Integer pivot = times.get(low + ((high - low) / 2));
+		Integer pivot = times.get(low + ((high - low) / 2));
 
 		while (i <= j) {
 			while (times.get(i) < pivot) {
@@ -909,14 +909,14 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	private void exchange(final int i, final int j) {
-		final Integer iTime = times.get(i);
-		final T iValue = values.get(i);
+	private void exchange(int i, int j) {
+		Integer iTime = times.get(i);
+		T iValue = values.get(i);
 
 		times.set(i, times.get(j));
 		try {
 			values.set(i, values.get(j));
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -925,8 +925,8 @@ public abstract class AnimFlag<T> {
 
 		if (inTans.size() > 0)// if we have to mess with Tans
 		{
-			final T iInTan = inTans.get(i);
-			final T iOutTan = outTans.get(i);
+			T iInTan = inTans.get(i);
+			T iOutTan = outTans.get(i);
 
 			inTans.set(i, inTans.get(j));
 			outTans.set(i, outTans.get(j));
@@ -952,11 +952,11 @@ public abstract class AnimFlag<T> {
 		return outTans;
 	}
 
-	public int ceilIndex(final int time) {
+	public int ceilIndex(int time) {
 		if (times.size() == 0) {
 			return 0;
 		}
-		final int ceilIndex = ceilIndex(time, 0, times.size() - 1);
+		int ceilIndex = ceilIndex(time, 0, times.size() - 1);
 		if (ceilIndex == -1) {
 			return times.size() - 1;
 		}
@@ -967,7 +967,7 @@ public abstract class AnimFlag<T> {
 	 * Rather than spending time visualizing corner cases for these, I borrowed
 	 * logic from: https://www.geeksforgeeks.org/ceiling-in-a-sorted-array/
 	 */
-	private int ceilIndex(final int time, final int timeStartIndex, final int timeEndIndex) {
+	private int ceilIndex(int time, int timeStartIndex, int timeEndIndex) {
 		if (time <= times.get(timeStartIndex)) {
 			return timeStartIndex;
 		}
@@ -983,8 +983,8 @@ public abstract class AnimFlag<T> {
 			}
 		}
 
-		final int midIndex = (timeStartIndex + timeEndIndex) / 2;
-		final Integer midTime = times.get(midIndex);
+		int midIndex = (timeStartIndex + timeEndIndex) / 2;
+		Integer midTime = times.get(midIndex);
 		if (midTime < time) {
 			if (((midIndex + 1) <= timeEndIndex) && (time <= times.get(midIndex + 1))) {
 				return midIndex + 1;
@@ -1000,7 +1000,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public int floorIndex(final int time) {
+	public int floorIndex(int time) {
 		if (times.size() == 0) {
 			return -1;
 		}
@@ -1011,7 +1011,7 @@ public abstract class AnimFlag<T> {
 	 * Rather than spending time visualizing corner cases for these, I borrowed
 	 * logic from: https://www.geeksforgeeks.org/floor-in-a-sorted-array/
 	 */
-	private int floorIndex(final int time, final int timeStartIndex, final int timeEndIndex) {
+	private int floorIndex(int time, int timeStartIndex, int timeEndIndex) {
 		if (timeStartIndex > timeEndIndex) {
 			return -1;
 		} else if (time >= times.get(timeEndIndex)) {
@@ -1026,8 +1026,8 @@ public abstract class AnimFlag<T> {
 				}
 			}
 		}
-		final int mid = (timeStartIndex + timeEndIndex) / 2;
-		final Integer midTime = times.get(mid);
+		int mid = (timeStartIndex + timeEndIndex) / 2;
+		Integer midTime = times.get(mid);
 		if (times.get(mid) == time) {
 			return mid;
 		}
@@ -1041,7 +1041,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	protected Object identity(final int typeid) {
+	protected Object identity(int typeid) {
 		return switch (typeid) {
 			case ALPHA -> 1.f;
 			case TRANSLATION -> TRANSLATE_IDENTITY;
@@ -1059,7 +1059,7 @@ public abstract class AnimFlag<T> {
 	 * Interpolates at a given time. The lack of generics on this function is
 	 * abysmal, but currently this is how the codebase is.
 	 */
-	public Object interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public Object interpolateAt(TimeEnvironmentImpl animatedRenderEnvironment) {
 //		System.out.println(name + ", interpolateAt");
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 //			System.out.println("~~ animatedRenderEnvironment == null");
@@ -1078,21 +1078,21 @@ public abstract class AnimFlag<T> {
 			return identity(localTypeId);
 		}
 		// TODO ghostwolf says to stop using binary search, because linear walking is faster for the small MDL case
-		final int time;
+		int time;
 		int ceilIndex;
-		final int floorIndex;
+		int floorIndex;
 		Object floorInTan;
 		Object floorOutTan;
 		Object floorValue;
 		Object ceilValue;
 		Integer floorIndexTime;
 		Integer ceilIndexTime;
-		final float timeBetweenFrames;
+		float timeBetweenFrames;
 		if (hasGlobalSeq() && (getGlobalSeq() >= 0)) {
 //			System.out.println(name + ", ~~ hasGlobalSeq");
 			time = animatedRenderEnvironment.getGlobalSeqTime(getGlobalSeq());
-			final int floorAnimStartIndex = Math.max(0, floorIndex(1));
-			final int floorAnimEndIndex = Math.max(0, floorIndex(getGlobalSeq()));
+			int floorAnimStartIndex = Math.max(0, floorIndex(1));
+			int floorAnimEndIndex = Math.max(0, floorIndex(getGlobalSeq()));
 			floorIndex = Math.max(0, floorIndex(time));
 
 			ceilIndex = Math.max(floorIndex, ceilIndex(time)); // retarded repeated keyframes issue, see Peasant's Bone_Chest at time 18300
@@ -1128,17 +1128,17 @@ public abstract class AnimFlag<T> {
 			}
 		} else {
 //			System.out.println(name + ", ~~ no global seq");
-			final TimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
+			TimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
 			int animationStart = animation.getStart();
 			time = animationStart + animatedRenderEnvironment.getAnimationTime();
-			final int floorAnimStartIndex = Math.max(0, floorIndex(animationStart + 1));
+			int floorAnimStartIndex = Math.max(0, floorIndex(animationStart + 1));
 			int animationEnd = animation.getEnd();
-			final int floorAnimEndIndex = Math.max(0, floorIndex(animationEnd));
+			int floorAnimEndIndex = Math.max(0, floorIndex(animationEnd));
 			floorIndex = floorIndex(time);
 			ceilIndex = Math.max(floorIndex, ceilIndex(time)); // retarded repeated keyframes issue, see Peasant's Bone_Chest at time 18300
 
 			ceilIndexTime = times.get(ceilIndex);
-			final int lookupFloorIndex = Math.max(0, floorIndex);
+			int lookupFloorIndex = Math.max(0, floorIndex);
 			floorIndexTime = times.get(lookupFloorIndex);
 			if (ceilIndexTime < animationStart || floorIndexTime > animationEnd) {
 //				System.out.println(name + ", ~~~~ identity(localTypeId)1 " + localTypeId + " id: " + identity(localTypeId));
@@ -1184,15 +1184,15 @@ public abstract class AnimFlag<T> {
 		}
 //		System.out.println(name + ", ~~ Something");
 
-		final Integer floorTime = floorIndexTime;
-		final Integer ceilTime = ceilIndexTime;
-		final float timeFactor = (time - floorTime) / timeBetweenFrames;
+		Integer floorTime = floorIndexTime;
+		Integer ceilTime = ceilIndexTime;
+		float timeFactor = (time - floorTime) / timeBetweenFrames;
 
 		// Integer
 		switch (localTypeId) {
 			case ALPHA | OTHER_TYPE -> {
-				final Float previous = (Float) floorValue;
-				final Float next = (Float) ceilValue;
+				Float previous = (Float) floorValue;
+				Float next = (Float) ceilValue;
 				return switch (interpolationType) {
 					case BEZIER -> MathUtils.bezier(previous, (Float) floorOutTan, (Float) inTans.get(ceilIndex), next, timeFactor);
 					case DONT_INTERP -> floorValue;
@@ -1202,8 +1202,8 @@ public abstract class AnimFlag<T> {
 			}
 			case TRANSLATION, SCALING, COLOR -> {
 				// Vertex
-				final Vec3 previous = (Vec3) floorValue;
-				final Vec3 next = (Vec3) ceilValue;
+				Vec3 previous = (Vec3) floorValue;
+				Vec3 next = (Vec3) ceilValue;
 
 				return switch (interpolationType) {
 					case BEZIER -> Vec3.getBezier(previous, (Vec3) floorOutTan, (Vec3) inTans.get(ceilIndex), next, timeFactor);
@@ -1214,8 +1214,8 @@ public abstract class AnimFlag<T> {
 			}
 			case ROTATION -> {
 				// Quat
-				final Quat previous = (Quat) floorValue;
-				final Quat next = (Quat) ceilValue;
+				Quat previous = (Quat) floorValue;
+				Quat next = (Quat) ceilValue;
 
 				return switch (interpolationType) {
 					case BEZIER -> Quat.getSquad(previous, (Quat) floorOutTan, (Quat) inTans.get(ceilIndex), next, timeFactor);
@@ -1225,7 +1225,7 @@ public abstract class AnimFlag<T> {
 				};
 			}
 			case TEXTUREID -> {
-				final Integer previous = (Integer) floorValue;
+				Integer previous = (Integer) floorValue;
 				return switch (interpolationType) {
 					// dont use linear on these, does that even make any sense?
 					// dont use hermite on these, does that even make any sense?
@@ -1237,8 +1237,8 @@ public abstract class AnimFlag<T> {
 		throw new IllegalStateException();
 	}
 
-	public void removeKeyframe(final int trackTime) {
-		final int keyframeIndex = floorIndex(trackTime);
+	public void removeKeyframe(int trackTime) {
+		int keyframeIndex = floorIndex(trackTime);
 		if (keyframeIndex == -1 || (keyframeIndex >= size()) || (times.get(keyframeIndex) != trackTime)) {
 			System.out.println("Attempted to remove keyframe, but no keyframe was found (" + keyframeIndex
 					+ " @ time " + trackTime + ")");
@@ -1249,7 +1249,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void addKeyframe(final Entry<T> entry) {
+	public void addKeyframe(Entry<T> entry) {
 		addEntry(entry);
 	}
 
@@ -1265,13 +1265,13 @@ public abstract class AnimFlag<T> {
 		return keyframeIndex;
 	}
 
-	public void addKeyframe(final int trackTime, final T value) {
+	public void addKeyframe(int trackTime, T value) {
 		int keyframeIndex = getKeyframeCeilIndex(trackTime);
 		times.add(keyframeIndex, trackTime);
 		values.add(keyframeIndex, value);
 	}
 
-	public void addKeyframe(final int trackTime, final T value, final T inTan, final T outTan) {
+	public void addKeyframe(int trackTime, T value, T inTan, T outTan) {
 		int keyframeIndex = getKeyframeCeilIndex(trackTime);
 		times.add(keyframeIndex, trackTime);
 		values.add(keyframeIndex, value);
@@ -1279,7 +1279,7 @@ public abstract class AnimFlag<T> {
 		outTans.add(keyframeIndex, outTan);
 	}
 
-	public void setKeyframe(final Integer time, final T value) {
+	public void setKeyframe(Integer time, T value) {
 		if (tans()) {
 			throw new IllegalStateException();
 		}
@@ -1291,7 +1291,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void setKeyframe(final Integer time, final T value, final T inTan, final T outTan) {
+	public void setKeyframe(Integer time, T value, T inTan, T outTan) {
 		if (!tans()) {
 			throw new IllegalStateException();
 		}
@@ -1304,12 +1304,12 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void slideKeyframe(final int startTrackTime, final int endTrackTime) {
+	public void slideKeyframe(int startTrackTime, int endTrackTime) {
 		if (times.size() < 1) {
 			throw new IllegalStateException("Unable to slide keyframe: no frames exist");
 		}
-		final int startIndex = floorIndex(startTrackTime);
-		final int endIndex = floorIndex(endTrackTime);
+		int startIndex = floorIndex(startTrackTime);
+		int endIndex = floorIndex(endTrackTime);
 		if (endIndex != -1 && startIndex != -1) {
 			if (times.get(endIndex) == endTrackTime) {
 				throw new IllegalStateException("Sliding this keyframe would create duplicate entries at one time!");
@@ -1351,7 +1351,7 @@ public abstract class AnimFlag<T> {
 		public Integer time;
 		public T value, inTan, outTan;
 
-		public Entry(final Integer time, final T value, final T inTan, final T outTan) {
+		public Entry(Integer time, T value, T inTan, T outTan) {
 			super();
 			this.time = time;
 			this.value = value;
@@ -1359,13 +1359,13 @@ public abstract class AnimFlag<T> {
 			this.outTan = outTan;
 		}
 
-		public Entry(final Integer time, final T value) {
+		public Entry(Integer time, T value) {
 			super();
 			this.time = time;
 			this.value = value;
 		}
 
-		public Entry(final Entry<T> other) {
+		public Entry(Entry<T> other) {
 			super();
 			this.time = other.time;
 			this.value = cloneEntryValue(other.value);
@@ -1373,7 +1373,7 @@ public abstract class AnimFlag<T> {
 			this.outTan = cloneEntryValue(other.outTan);
 		}
 
-		public void set(final Entry<T> other) {
+		public void set(Entry<T> other) {
 			time = other.time;
 			value = other.value;
 			inTan = other.inTan;

@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.editor.render3d;
 
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
@@ -71,7 +71,7 @@ public class RenderParticle {
 
     public void update() {
 //        float frameTimeS = emitterView.instance.getAnimatedRenderEnvironment().getFrameTime()* 0.001f;
-        final float frameTimeS = AnimatedRenderEnvironment.FRAMES_PER_UPDATE * 0.001f;
+	    final float frameTimeS = TimeEnvironmentImpl.FRAMES_PER_UPDATE * 0.001f;
         internalInstance.setPaused(false);
 
         health -= frameTimeS;

@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
 public class RenderParticleEmitter2View extends EmitterView {
 	private final ParticleEmitter2 emitter;
@@ -39,7 +39,7 @@ public class RenderParticleEmitter2View extends EmitterView {
 
 				lastEmissionRate = emissionRate;
 			} else {
-				currentEmission += emissionRate * AnimatedRenderEnvironment.FRAMES_PER_UPDATE * 0.001 * instance.getAnimatedRenderEnvironment().getAnimationSpeed();
+				currentEmission += emissionRate * TimeEnvironmentImpl.FRAMES_PER_UPDATE * 0.001 * instance.getAnimatedRenderEnvironment().getAnimationSpeed();
 			}
 			renderEmitter.fill(this);
 		}

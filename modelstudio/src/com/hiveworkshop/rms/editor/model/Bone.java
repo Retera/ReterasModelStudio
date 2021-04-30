@@ -2,9 +2,9 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxBone;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Vec3;
 
 /**
@@ -132,11 +132,11 @@ public class Bone extends IdObject {
 	}
 
 	@Override
-	public float getRenderVisibility(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public float getRenderVisibility(TimeEnvironmentImpl animatedRenderEnvironment) {
 		if (geosetAnim != null) {
 			return geosetAnim.getRenderVisibility(animatedRenderEnvironment);
 		}
-		
+
 		return 1;
 	}
 }

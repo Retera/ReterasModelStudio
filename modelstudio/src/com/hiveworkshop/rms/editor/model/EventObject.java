@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxEventObject;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -253,7 +253,7 @@ public class EventObject extends IdObject {
 	}
 
 	@Override
-	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public float getRenderVisibility(final TimeEnvironmentImpl animatedRenderEnvironment) {
 		return 1;
 	}
 

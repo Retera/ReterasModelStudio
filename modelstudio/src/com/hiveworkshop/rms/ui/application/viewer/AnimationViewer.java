@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.viewer;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import org.lwjgl.LWJGLException;
 
@@ -13,20 +14,22 @@ import java.util.List;
 
 public class AnimationViewer extends JPanel {
 	private ModelView modelView;
-	private final AnimatedPerspectiveViewport perspectiveViewport;
+	//	private final AnimatedPerspectiveViewport perspectiveViewport;
+	private final ComPerspViewport perspectiveViewport;
 	private final DefaultComboBoxModel<Animation> animations;
 	private final JComboBox<Animation> animationBox;
 	private final boolean allowUnanimated;
-	ComPerspRenderEnv renderEnv;
+	TimeEnvironmentImpl renderEnv;
 
 	public AnimationViewer(final ModelView modelView, final ProgramPreferences programPreferences, final boolean allowUnanimated) {
 		this.modelView = modelView;
 		this.allowUnanimated = allowUnanimated;
 		try {
-			renderEnv = new ComPerspRenderEnv();
+			renderEnv = new TimeEnvironmentImpl();
 			modelView.setVetoOverrideParticles(true);
 			RenderModel renderModel = new RenderModel(modelView.getModel(), modelView);
-			perspectiveViewport = new AnimatedPerspectiveViewport(modelView, renderModel, programPreferences, renderEnv, true);
+//			perspectiveViewport = new AnimatedPerspectiveViewport(modelView, renderModel, programPreferences, renderEnv, true);
+			perspectiveViewport = new ComPerspViewport(modelView, renderModel, programPreferences, renderEnv, true);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);

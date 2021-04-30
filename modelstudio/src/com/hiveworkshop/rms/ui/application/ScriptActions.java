@@ -9,8 +9,8 @@ import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.actions.mesh.DeleteGeosetAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.scripts.ChangeAnimationLengthFrame;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
@@ -145,7 +145,7 @@ public class ScriptActions {
 		RenderModel editorRenderModel = modelContext.getEditorRenderModel();
 		EditableModel model = modelContext.getModel();
 
-		AnimatedRenderEnvironment renderEnv = editorRenderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl renderEnv = editorRenderModel.getAnimatedRenderEnvironment();
 		TimeBoundProvider currentAnimation = renderEnv.getCurrentAnimation();
 
 		String s = "At" + renderEnv.getAnimationTime();

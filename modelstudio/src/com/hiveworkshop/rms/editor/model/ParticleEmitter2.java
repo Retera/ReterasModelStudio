@@ -4,9 +4,9 @@ import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2.HeadOrTail;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
@@ -58,13 +58,13 @@ public class ParticleEmitter2 extends EmitterIdObject {
 
 	}
 
-	public ParticleEmitter2(final String name) {
+	public ParticleEmitter2(String name) {
 		this.name = name;
 	}
 
-	public ParticleEmitter2(final ParticleEmitter2 emitter) {
+	public ParticleEmitter2(ParticleEmitter2 emitter) {
 		copyObject(emitter);
-		
+
 		filterMode = emitter.filterMode;
 		headOrTail = emitter.headOrTail;
 		unshaded = emitter.unshaded;
@@ -102,12 +102,12 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		texture = emitter.texture;
 	}
 
-	public ParticleEmitter2(final MdlxParticleEmitter2 emitter) {
+	public ParticleEmitter2(MdlxParticleEmitter2 emitter) {
 		if ((emitter.flags & 4096) != 4096) {
 			System.err.println("MDX -> MDL error: A particle emitter '" + emitter.name
 					+ "' not flagged as particle emitter in MDX!");
 		}
-		
+
 		loadObject(emitter);
 
 		if ((emitter.flags & 0x8000) != 0) {
@@ -139,17 +139,17 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		setWidth(emitter.width);
 		filterMode = emitter.filterMode;
 
-		setRows((int)emitter.rows);
-		setColumns((int)emitter.columns);
+		setRows((int) emitter.rows);
+		setColumns((int) emitter.columns);
 
 		headOrTail = emitter.headOrTail;
 
 		setTailLength(emitter.tailLength);
 		setTime(emitter.timeMiddle);
 
-		final float[][] colors = emitter.segmentColors;
-		final short[] alphas = emitter.segmentAlphas;
-		
+		float[][] colors = emitter.segmentColors;
+		short[] alphas = emitter.segmentAlphas;
+
 		// SegmentColor - Inverse order for MDL!
 		for (int i = 0; i < 3; i++) {
 			setSegmentColor(i, new Vec3(colors[i]));
@@ -159,8 +159,8 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		setAlpha(new Vec3(alphas[0], alphas[1], alphas[2]));
 		setParticleScaling(new Vec3(emitter.segmentScaling));
 
-		final long[][] head = emitter.headIntervals;
-		final long[][] tail = emitter.tailIntervals;
+		long[][] head = emitter.headIntervals;
+		long[][] tail = emitter.tailIntervals;
 
 		setHeadUVAnim(new Vec3(head[0][0], head[0][1], head[0][2]));
 		setHeadDecayUVAnim(new Vec3(head[1][0], head[1][1], head[1][2]));
@@ -178,7 +178,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public MdlxParticleEmitter2 toMdlx(EditableModel model) {
-		final MdlxParticleEmitter2 emitter = new MdlxParticleEmitter2();
+		MdlxParticleEmitter2 emitter = new MdlxParticleEmitter2();
 
 		objectToMdlx(emitter, model);
 
@@ -257,7 +257,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return unshaded;
 	}
 
-	public void setUnshaded(final boolean unshaded) {
+	public void setUnshaded(boolean unshaded) {
 		this.unshaded = unshaded;
 	}
 
@@ -265,7 +265,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return sortPrimsFarZ;
 	}
 
-	public void setSortPrimsFarZ(final boolean sortPrimsFarZ) {
+	public void setSortPrimsFarZ(boolean sortPrimsFarZ) {
 		this.sortPrimsFarZ = sortPrimsFarZ;
 	}
 
@@ -273,7 +273,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return lineEmitter;
 	}
 
-	public void setLineEmitter(final boolean lineEmitter) {
+	public void setLineEmitter(boolean lineEmitter) {
 		this.lineEmitter = lineEmitter;
 	}
 
@@ -281,7 +281,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return unfogged;
 	}
 
-	public void setUnfogged(final boolean unfogged) {
+	public void setUnfogged(boolean unfogged) {
 		this.unfogged = unfogged;
 	}
 
@@ -289,7 +289,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return modelSpace;
 	}
 
-	public void setModelSpace(final boolean modelSpace) {
+	public void setModelSpace(boolean modelSpace) {
 		this.modelSpace = modelSpace;
 	}
 
@@ -297,7 +297,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return xYQuad;
 	}
 
-	public void setXYQuad(final boolean xYQuad) {
+	public void setXYQuad(boolean xYQuad) {
 		this.xYQuad = xYQuad;
 	}
 
@@ -305,7 +305,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return squirt;
 	}
 
-	public void setSquirt(final boolean squirt) {
+	public void setSquirt(boolean squirt) {
 		this.squirt = squirt;
 	}
 
@@ -345,7 +345,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return headOrTail;
 	}
 
-	public void setHeadOrTail(final HeadOrTail headOrTail) {
+	public void setHeadOrTail(HeadOrTail headOrTail) {
 		this.headOrTail = headOrTail;
 	}
 
@@ -353,11 +353,11 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return filterMode;
 	}
 
-	public void setFilterMode(final FilterMode filterMode) {
+	public void setFilterMode(FilterMode filterMode) {
 		this.filterMode = filterMode;
 	}
 
-	public void updateTextureRef(final List<Bitmap> textures) {
+	public void updateTextureRef(List<Bitmap> textures) {
 		texture = textures.get(getTextureId());
 	}
 
@@ -365,7 +365,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return textureID;
 	}
 
-	public void setTextureId(final int textureId) {
+	public void setTextureId(int textureId) {
 		textureID = textureId;
 	}
 
@@ -373,7 +373,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return speed;
 	}
 
-	public void setSpeed(final double speed) {
+	public void setSpeed(double speed) {
 		this.speed = speed;
 	}
 
@@ -381,7 +381,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return variation;
 	}
 
-	public void setVariation(final double variation) {
+	public void setVariation(double variation) {
 		this.variation = variation;
 	}
 
@@ -389,7 +389,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return latitude;
 	}
 
-	public void setLatitude(final double latitude) {
+	public void setLatitude(double latitude) {
 		this.latitude = latitude;
 	}
 
@@ -397,7 +397,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return gravity;
 	}
 
-	public void setGravity(final double gravity) {
+	public void setGravity(double gravity) {
 		this.gravity = gravity;
 	}
 
@@ -405,7 +405,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return emissionRate;
 	}
 
-	public void setEmissionRate(final double emissionRate) {
+	public void setEmissionRate(double emissionRate) {
 		this.emissionRate = emissionRate;
 	}
 
@@ -413,7 +413,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return width;
 	}
 
-	public void setWidth(final double width) {
+	public void setWidth(double width) {
 		this.width = width;
 	}
 
@@ -421,7 +421,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return length;
 	}
 
-	public void setLength(final double length) {
+	public void setLength(double length) {
 		this.length = length;
 	}
 
@@ -429,7 +429,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return lifeSpan;
 	}
 
-	public void setLifeSpan(final double lifeSpan) {
+	public void setLifeSpan(double lifeSpan) {
 		this.lifeSpan = lifeSpan;
 	}
 
@@ -437,7 +437,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return tailLength;
 	}
 
-	public void setTailLength(final double tailLength) {
+	public void setTailLength(double tailLength) {
 		this.tailLength = tailLength;
 	}
 
@@ -445,7 +445,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return time;
 	}
 
-	public void setTime(final double time) {
+	public void setTime(double time) {
 		this.time = time;
 	}
 
@@ -488,7 +488,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return false;
 	}
 
-	public void setRows(final int rows) {
+	public void setRows(int rows) {
 		this.rows = rows;
 	}
 
@@ -496,7 +496,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return columns;
 	}
 
-	public void setColumns(final int columns) {
+	public void setColumns(int columns) {
 		this.columns = columns;
 	}
 
@@ -504,7 +504,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return textureID;
 	}
 
-	public void setTextureID(final int textureID) {
+	public void setTextureID(int textureID) {
 		this.textureID = textureID;
 	}
 
@@ -516,7 +516,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return getReplaceableId() != 0;
 	}
 
-	public void setReplaceableId(final int replaceableId) {
+	public void setReplaceableId(int replaceableId) {
 		this.replaceableId = replaceableId;
 	}
 
@@ -524,7 +524,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return priorityPlane;
 	}
 
-	public void setPriorityPlane(final int priorityPlane) {
+	public void setPriorityPlane(int priorityPlane) {
 		this.priorityPlane = priorityPlane;
 	}
 
@@ -532,7 +532,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return alphas;
 	}
 
-	public void setAlpha(final Vec3 alphas) {
+	public void setAlpha(Vec3 alphas) {
 		this.alphas = alphas;
 	}
 
@@ -540,7 +540,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return particleScaling;
 	}
 
-	public void setParticleScaling(final Vec3 particleScaling) {
+	public void setParticleScaling(Vec3 particleScaling) {
 		this.particleScaling = particleScaling;
 	}
 
@@ -548,7 +548,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return headUVAnim;
 	}
 
-	public void setHeadUVAnim(final Vec3 headUVAnim) {
+	public void setHeadUVAnim(Vec3 headUVAnim) {
 		this.headUVAnim = headUVAnim;
 	}
 
@@ -556,7 +556,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return headDecayUVAnim;
 	}
 
-	public void setHeadDecayUVAnim(final Vec3 headDecayUVAnim) {
+	public void setHeadDecayUVAnim(Vec3 headDecayUVAnim) {
 		this.headDecayUVAnim = headDecayUVAnim;
 	}
 
@@ -564,7 +564,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return tailUVAnim;
 	}
 
-	public void setTailUVAnim(final Vec3 tailUVAnim) {
+	public void setTailUVAnim(Vec3 tailUVAnim) {
 		this.tailUVAnim = tailUVAnim;
 	}
 
@@ -572,15 +572,15 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return tailDecayUVAnim;
 	}
 
-	public void setTailDecayUVAnim(final Vec3 tailDecayUVAnim) {
+	public void setTailDecayUVAnim(Vec3 tailDecayUVAnim) {
 		this.tailDecayUVAnim = tailDecayUVAnim;
 	}
 
-	public void setSegmentColor(final int index, final Vec3 color) {
+	public void setSegmentColor(int index, Vec3 color) {
 		segmentColor[index] = color;
 	}
 
-	public Vec3 getSegmentColor(final int index) {
+	public Vec3 getSegmentColor(int index) {
 		return segmentColor[index];
 	}
 
@@ -592,7 +592,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		return segmentColor;
 	}
 
-	public void setTexture(final Bitmap texture) {
+	public void setTexture(Bitmap texture) {
 		this.texture = texture;
 	}
 
@@ -601,40 +601,40 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 //	@Override
-//	public void apply(final IdObjectVisitor visitor) {
+//	public void apply(IdObjectVisitor visitor) {
 //		visitor.particleEmitter2(this);
 //	}
 
 	@Override
-	public double getClickRadius(final CoordinateSystem coordinateSystem) {
+	public double getClickRadius(CoordinateSystem coordinateSystem) {
 		return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
 	}
 
-	public double getRenderWidth(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderWidth(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return getInterpolatedFloat(animatedRenderEnvironment, "Width", (float) getWidth());
 	}
 
-	public double getRenderLength(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "Length", (float)getLength());
+	public double getRenderLength(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedFloat(animatedRenderEnvironment, "Length", (float) getLength());
 	}
 
-	public double getRenderLatitude(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "Latitude", (float)getLatitude());
+	public double getRenderLatitude(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedFloat(animatedRenderEnvironment, "Latitude", (float) getLatitude());
 	}
 
-	public double getRenderVariation(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "Variation", (float)getVariation());
+	public double getRenderVariation(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedFloat(animatedRenderEnvironment, "Variation", (float) getVariation());
 	}
 
-	public double getRenderSpeed(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "Speed", (float)getSpeed());
+	public double getRenderSpeed(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedFloat(animatedRenderEnvironment, "Speed", (float) getSpeed());
 	}
 
-	public double getRenderGravity(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "Gravity", (float)getGravity());
+	public double getRenderGravity(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedFloat(animatedRenderEnvironment, "Gravity", (float) getGravity());
 	}
 
-	public double getRenderEmissionRate(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "EmissionRate", (float)getEmissionRate());
+	public double getRenderEmissionRate(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedFloat(animatedRenderEnvironment, "EmissionRate", (float) getEmissionRate());
 	}
 }

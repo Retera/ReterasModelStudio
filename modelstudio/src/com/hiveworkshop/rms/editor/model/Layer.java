@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
@@ -40,9 +40,106 @@ public class Layer extends TimelineContainer implements Named {
 	boolean noDepthSet = false;
 	boolean unlit = false;
 
+	private transient Map<Integer, Bitmap> ridiculouslyWrongTextureIDToTexture = new HashMap<>();
+
+	public Layer(String filterMode, int textureId) {
+		this.filterMode = FilterMode.nameToFilter(filterMode);
+		this.textureId = textureId;
+	}
+
+	public Layer() {
+
+	}
+
+	public Layer(String filterMode, Bitmap texture) {
+		this.filterMode = FilterMode.nameToFilter(filterMode);
+		this.texture = texture;
+	}
+
+	public Layer(Layer other) {
+		filterMode = other.filterMode;
+		textureId = other.textureId;
+		TVertexAnimId = other.TVertexAnimId;
+		coordId = other.coordId;
+		texture = other.texture;
+		if (other.textureAnim != null) {
+			textureAnim = new TextureAnim(other.textureAnim);
+		} else {
+			textureAnim = null;
+		}
+		staticAlpha = other.staticAlpha;
+		emissiveGain = other.emissiveGain;
+		fresnelColor = new Vec3(other.fresnelColor);
+		fresnelOpacity = other.fresnelOpacity;
+		fresnelTeamColor = other.fresnelTeamColor;
+		unshaded = other.unshaded;
+		sphereEnvMap = other.sphereEnvMap;
+		twoSided = other.twoSided;
+		unfogged = other.unfogged;
+		noDepthTest = other.noDepthTest;
+		noDepthSet = other.noDepthSet;
+		unlit = other.unlit;
+
+		for (AnimFlag<?> animFlag : other.getAnimFlags()) {
+			add(AnimFlag.createFromAnimFlag(animFlag));
+		}
+
+		textures = new ArrayList<>();
+		if (other.textures != null) {
+//			for (Bitmap bmp : other.textures) {
+//				textures.add(new Bitmap(bmp));
+//			}
+			for (Bitmap bmp : other.textures) {
+				textures.add(bmp);
+			}
+		} else {
+			textures = null;
+		}
+	}
+
+	public Layer(MdlxLayer layer) {
+		this(layer.filterMode.toString(), layer.textureId);
+
+		int shadingFlags = layer.flags;
+		if ((shadingFlags & 0x1) != 0) {
+			unshaded = true;
+		}
+		if ((shadingFlags & 0x2) != 0) {
+			sphereEnvMap = true;
+		}
+		if ((shadingFlags & 0x10) != 0) {
+			twoSided = true;
+		}
+		if ((shadingFlags & 0x20) != 0) {
+			unfogged = true;
+		}
+		if ((shadingFlags & 0x40) != 0) {
+			noDepthTest = true;
+		}
+		if ((shadingFlags & 0x80) != 0) {
+			noDepthSet = true;
+		}
+		if ((shadingFlags & 0x100) != 0) {
+			unlit = true;
+		}
+
+		setTVertexAnimId(layer.textureAnimationId);
+		setCoordId((int) layer.coordId);
+		setStaticAlpha(layer.alpha);
+
+		// > 800
+		emissiveGain = layer.emissiveGain;
+		// > 900
+		setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(layer.fresnelColor)));
+		fresnelOpacity = layer.fresnelOpacity;
+		fresnelTeamColor = layer.fresnelTeamColor;
+
+		loadTimelines(layer);
+	}
+
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		int prime = 31;
 		int result = 1;
 		result = (prime * result) + coordId;
 		result = (prime * result) + TVertexAnimId;
@@ -74,7 +171,7 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -84,7 +181,7 @@ public class Layer extends TimelineContainer implements Named {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final Layer other = (Layer) obj;
+		Layer other = (Layer) obj;
 		if (coordId != other.coordId) {
 			return false;
 		}
@@ -177,103 +274,19 @@ public class Layer extends TimelineContainer implements Named {
 		}
 	}
 
-	public Layer() {
-
-	}
-
-	public Layer(final String filterMode, final int textureId) {
-		this.filterMode = FilterMode.nameToFilter(filterMode);
-		this.textureId = textureId;
-	}
-
-	public Layer(final String filterMode, final Bitmap texture) {
-		this.filterMode = FilterMode.nameToFilter(filterMode);
-		this.texture = texture;
-	}
-
-	public Layer(final Layer other) {
-		filterMode = other.filterMode;
-		textureId = other.textureId;
-		TVertexAnimId = other.TVertexAnimId;
-		coordId = other.coordId;
-		texture = other.texture;
-		if (other.textureAnim != null) {
-			textureAnim = new TextureAnim(other.textureAnim);
+	public Bitmap firstTexture() {
+		if (texture != null) {
+			return texture;
 		} else {
-			textureAnim = null;
-		}
-		staticAlpha = other.staticAlpha;
-		emissiveGain = other.emissiveGain;
-		fresnelColor = new Vec3(other.fresnelColor);
-		fresnelOpacity = other.fresnelOpacity;
-		fresnelTeamColor = other.fresnelTeamColor;
-		unshaded = other.unshaded;
-		sphereEnvMap = other.sphereEnvMap;
-		twoSided = other.twoSided;
-		unfogged = other.unfogged;
-		noDepthTest = other.noDepthTest;
-		noDepthSet = other.noDepthSet;
-		unlit = other.unlit;
-
-		for (AnimFlag<?> animFlag : other.getAnimFlags()) {
-			add(AnimFlag.createFromAnimFlag(animFlag));
-		}
-
-		textures = new ArrayList<>();
-		if (other.textures != null) {
-//			for (final Bitmap bmp : other.textures) {
-//				textures.add(new Bitmap(bmp));
-//			}
-			for (final Bitmap bmp : other.textures) {
-				textures.add(bmp);
+			if ((textures != null) && (textures.size() > 0)) {
+				return textures.get(0);
 			}
-		} else {
-			textures = null;
+			return null;
 		}
-	}
-
-	public Layer(final MdlxLayer layer) {
-		this(layer.filterMode.toString(), layer.textureId);
-
-		final int shadingFlags = layer.flags;
-		if ((shadingFlags & 0x1) != 0) {
-			unshaded = true;
-		}
-		if ((shadingFlags & 0x2) != 0) {
-			sphereEnvMap = true;
-		}
-		if ((shadingFlags & 0x10) != 0) {
-			twoSided = true;
-		}
-		if ((shadingFlags & 0x20) != 0) {
-			unfogged = true;
-		}
-		if ((shadingFlags & 0x40) != 0) {
-			noDepthTest = true;
-		}
-		if ((shadingFlags & 0x80) != 0) {
-			noDepthSet = true;
-		}
-		if ((shadingFlags & 0x100) != 0) {
-			unlit = true;
-		}
-
-		setTVertexAnimId(layer.textureAnimationId);
-		setCoordId((int) layer.coordId);
-		setStaticAlpha(layer.alpha);
-
-		// > 800
-		emissiveGain = layer.emissiveGain;
-		// > 900
-		setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(layer.fresnelColor)));
-		fresnelOpacity = layer.fresnelOpacity;
-		fresnelTeamColor = layer.fresnelTeamColor;
-
-		loadTimelines(layer);
 	}
 
 	public MdlxLayer toMdlx() {
-		final MdlxLayer layer = new MdlxLayer();
+		MdlxLayer layer = new MdlxLayer();
 
 		layer.filterMode = filterMode;
 
@@ -322,20 +335,9 @@ public class Layer extends TimelineContainer implements Named {
 		return layer;
 	}
 
-	public Bitmap firstTexture() {
-		if (texture != null) {
-			return texture;
-		} else {
-			if ((textures != null) && (textures.size() > 0)) {
-				return textures.get(0);
-			}
-			return null;
-		}
-	}
-
-	public Bitmap getRenderTexture(final AnimatedRenderEnvironment animatedRenderEnvironment,
-			final EditableModel model) {
-		final IntAnimFlag textureFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
+	public Bitmap getRenderTexture(TimeEnvironmentImpl animatedRenderEnvironment,
+	                               EditableModel model) {
+		IntAnimFlag textureFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
 		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
 			if (animatedRenderEnvironment.getCurrentAnimation() == null) {
 				if (textures.size() > 0) {
@@ -344,7 +346,7 @@ public class Layer extends TimelineContainer implements Named {
 					return texture;
 				}
 			}
-			final Integer textureIdAtTime = textureFlag.interpolateAt(animatedRenderEnvironment);
+			Integer textureIdAtTime = textureFlag.interpolateAt(animatedRenderEnvironment);
 			if (textureIdAtTime >= model.getTextures().size()) {
 				return texture;
 			}
@@ -355,56 +357,54 @@ public class Layer extends TimelineContainer implements Named {
 	}
 
 	@Override
-	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public float getRenderVisibility(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return getRenderVisibility(animatedRenderEnvironment, (float) staticAlpha);
 	}
 
-	public void setTextureAnim(final TextureAnim texa) {
+	public void setTextureAnim(TextureAnim texa) {
 		textureAnim = texa;
 	}
 
-	public void setTextureAnim(final List<TextureAnim> list) {
+	public void setTextureAnim(List<TextureAnim> list) {
 		// Sets the texture anim reference to the one from
 		// the list corresponding to the TVertexAnimId
 		textureAnim = list.get(TVertexAnimId);
 	}
 
-	private final transient Map<Integer, Bitmap> ridiculouslyWrongTextureIDToTexture = new HashMap<>();
-
-	public void buildTextureList(final EditableModel mdlr) {
+	public void buildTextureList(EditableModel mdlr) {
 		textures = new ArrayList<>();
-		final IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
+		IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
 		for (int i = 0; i < txFlag.getValues().size(); i++) {
-			final int txId = txFlag.getValues().get(i);
-			final Bitmap texture2 = mdlr.getTexture(txId);
+			int txId = txFlag.getValues().get(i);
+			Bitmap texture2 = mdlr.getTexture(txId);
 			textures.add(texture2);
 			ridiculouslyWrongTextureIDToTexture.put(txId, texture2);
 		}
 	}
 
-	public void updateIds(final EditableModel mdlr) {
+	public void updateIds(EditableModel mdlr) {
 		textureId = mdlr.getTextureId(texture);
 		TVertexAnimId = mdlr.getTextureAnimId(textureAnim);
 		if (textures != null) {
-			final IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
+			IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
 			for (int i = 0; i < txFlag.getValues().size(); i++) {
-				final Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture
+				Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture
 						.get(txFlag.getValues().get(i));
-				final int newerTextureId = mdlr.getTextureId(textureFoundFromDirtyId);
+				int newerTextureId = mdlr.getTextureId(textureFoundFromDirtyId);
 				txFlag.getValues().set(i, newerTextureId);
 				ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);
 			}
 		}
 	}
 
-	public void updateRefs(final EditableModel mdlr) {
+	public void updateRefs(EditableModel mdlr) {
 		if ((textureId >= 0) && (textureId < mdlr.getTextures().size())) {
 			texture = mdlr.getTexture(textureId);
 		}
 		if ((TVertexAnimId >= 0) && (TVertexAnimId < mdlr.texAnims.size())) {
 			textureAnim = mdlr.texAnims.get(TVertexAnimId);
 		}
-		final IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
+		IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
 		if (txFlag != null) {
 			buildTextureList(mdlr);
 		}
@@ -439,7 +439,7 @@ public class Layer extends TimelineContainer implements Named {
 		return textureId;
 	}
 
-	public void setTextureId(final int textureId) {
+	public void setTextureId(int textureId) {
 		this.textureId = textureId;
 	}
 
@@ -447,7 +447,7 @@ public class Layer extends TimelineContainer implements Named {
 		return TVertexAnimId;
 	}
 
-	public void setTVertexAnimId(final int tVertexAnimId) {
+	public void setTVertexAnimId(int tVertexAnimId) {
 		TVertexAnimId = tVertexAnimId;
 	}
 
@@ -455,7 +455,7 @@ public class Layer extends TimelineContainer implements Named {
 		return texture;
 	}
 
-	public void setTexture(final Bitmap texture) {
+	public void setTexture(Bitmap texture) {
 		this.texture = texture;
 	}
 
@@ -463,7 +463,7 @@ public class Layer extends TimelineContainer implements Named {
 		return staticAlpha;
 	}
 
-	public void setStaticAlpha(final double staticAlpha) {
+	public void setStaticAlpha(double staticAlpha) {
 		this.staticAlpha = staticAlpha;
 	}
 
@@ -471,7 +471,7 @@ public class Layer extends TimelineContainer implements Named {
 		return textures;
 	}
 
-	public void setTextures(final List<Bitmap> textures) {
+	public void setTextures(List<Bitmap> textures) {
 		this.textures = textures;
 	}
 
@@ -479,7 +479,7 @@ public class Layer extends TimelineContainer implements Named {
 		return textureAnim;
 	}
 
-	public void setFilterMode(final FilterMode filterMode) {
+	public void setFilterMode(FilterMode filterMode) {
 		this.filterMode = filterMode;
 	}
 
@@ -487,7 +487,7 @@ public class Layer extends TimelineContainer implements Named {
 		return filterMode;
 	}
 
-	public void setCoordId(final int coordId) {
+	public void setCoordId(int coordId) {
 		this.coordId = coordId;
 	}
 
@@ -499,7 +499,7 @@ public class Layer extends TimelineContainer implements Named {
 		return emissiveGain;
 	}
 
-	public void setEmissive(final double emissive) {
+	public void setEmissive(double emissive) {
 		emissiveGain = emissive;
 	}
 
@@ -507,7 +507,7 @@ public class Layer extends TimelineContainer implements Named {
 		return fresnelColor;
 	}
 
-	public void setFresnelColor(final Vec3 fresnelColor) {
+	public void setFresnelColor(Vec3 fresnelColor) {
 		this.fresnelColor = fresnelColor;
 	}
 
@@ -515,7 +515,7 @@ public class Layer extends TimelineContainer implements Named {
 		return fresnelOpacity;
 	}
 
-	public void setFresnelOpacity(final double fresnelOpacity) {
+	public void setFresnelOpacity(double fresnelOpacity) {
 		this.fresnelOpacity = fresnelOpacity;
 	}
 
@@ -523,7 +523,7 @@ public class Layer extends TimelineContainer implements Named {
 		return fresnelTeamColor;
 	}
 
-	public void setFresnelTeamColor(final double fresnelTeamColor) {
+	public void setFresnelTeamColor(double fresnelTeamColor) {
 		this.fresnelTeamColor = fresnelTeamColor;
 	}
 
@@ -531,7 +531,7 @@ public class Layer extends TimelineContainer implements Named {
 		return unshaded;
 	}
 
-	public void setUnshaded(final boolean unshaded) {
+	public void setUnshaded(boolean unshaded) {
 		this.unshaded = unshaded;
 	}
 
@@ -539,7 +539,7 @@ public class Layer extends TimelineContainer implements Named {
 		return sphereEnvMap;
 	}
 
-	public void setSphereEnvMap(final boolean sphereEnvMap) {
+	public void setSphereEnvMap(boolean sphereEnvMap) {
 		this.sphereEnvMap = sphereEnvMap;
 	}
 
@@ -547,7 +547,7 @@ public class Layer extends TimelineContainer implements Named {
 		return twoSided;
 	}
 
-	public void setTwoSided(final boolean twoSided) {
+	public void setTwoSided(boolean twoSided) {
 		this.twoSided = twoSided;
 	}
 
@@ -555,7 +555,7 @@ public class Layer extends TimelineContainer implements Named {
 		return unfogged;
 	}
 
-	public void setUnfogged(final boolean unfogged) {
+	public void setUnfogged(boolean unfogged) {
 		this.unfogged = unfogged;
 	}
 
@@ -563,7 +563,7 @@ public class Layer extends TimelineContainer implements Named {
 		return noDepthTest;
 	}
 
-	public void setNoDepthTest(final boolean noDepthTest) {
+	public void setNoDepthTest(boolean noDepthTest) {
 		this.noDepthTest = noDepthTest;
 	}
 
@@ -571,7 +571,7 @@ public class Layer extends TimelineContainer implements Named {
 		return noDepthSet;
 	}
 
-	public void setNoDepthSet(final boolean noDepthSet) {
+	public void setNoDepthSet(boolean noDepthSet) {
 		this.noDepthSet = noDepthSet;
 	}
 
@@ -579,7 +579,7 @@ public class Layer extends TimelineContainer implements Named {
 		return unlit;
 	}
 
-	public void setUnlit(final boolean unlit) {
+	public void setUnlit(boolean unlit) {
 		this.unlit = unlit;
 	}
 }

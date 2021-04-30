@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -118,7 +117,7 @@ public class TimeBoundChooserPanel extends JPanel {
 	private TimeBoundProvider getTimeBound(ModelView modelView) {
 		RenderModel editorRenderModel = modelView.getEditorRenderModel();
 		if (editorRenderModel != null) {
-			AnimatedRenderEnvironment renderEnvironment = editorRenderModel.getAnimatedRenderEnvironment();
+			TimeEnvironmentImpl renderEnvironment = editorRenderModel.getAnimatedRenderEnvironment();
 			if (renderEnvironment != null) {
 				return renderEnvironment.getCurrentAnimation();
 			}

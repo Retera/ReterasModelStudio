@@ -2,9 +2,9 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape.Type;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
@@ -152,7 +152,7 @@ public class CollisionShape extends IdObject {
 	}
 
 	@Override
-	public float getRenderVisibility(AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public float getRenderVisibility(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return 1;
 	}
 }

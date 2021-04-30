@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitterPopcorn;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
@@ -26,11 +26,11 @@ public class ParticleEmitterPopcorn extends IdObject {
 	State always = State.off;
 	Map<Animation, State> animationVisStateMap = new HashMap<>();
 
-	public ParticleEmitterPopcorn(final String name) {
+	public ParticleEmitterPopcorn(String name) {
 		this.name = name;
 	}
 
-	public ParticleEmitterPopcorn(final ParticleEmitterPopcorn emitter) {
+	public ParticleEmitterPopcorn(ParticleEmitterPopcorn emitter) {
 		copyObject(emitter);
 
 		replaceableId = emitter.replaceableId;
@@ -43,7 +43,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 		animVisibilityGuide = emitter.animVisibilityGuide;
 	}
 
-	public ParticleEmitterPopcorn(final MdlxParticleEmitterPopcorn emitter) {
+	public ParticleEmitterPopcorn(MdlxParticleEmitterPopcorn emitter) {
 		loadObject(emitter);
 
 		lifeSpan = emitter.lifeSpan;
@@ -60,7 +60,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 	}
 
 	public MdlxParticleEmitterPopcorn toMdlx(EditableModel model) {
-		final MdlxParticleEmitterPopcorn emitter = new MdlxParticleEmitterPopcorn();
+		MdlxParticleEmitterPopcorn emitter = new MdlxParticleEmitterPopcorn();
 
 		objectToMdlx(emitter, model);
 
@@ -87,11 +87,11 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return path;
 	}
 
-	public void setPath(final String path) {
+	public void setPath(String path) {
 		this.path = path;
 	}
 
-	public void setAnimVisibilityGuide(final String flagString) {
+	public void setAnimVisibilityGuide(String flagString) {
 		animVisibilityGuide = flagString;
 	}
 
@@ -193,16 +193,16 @@ public class ParticleEmitterPopcorn extends IdObject {
 	}
 
 //	@Override
-//	public void apply(final IdObjectVisitor visitor) {
+//	public void apply(IdObjectVisitor visitor) {
 //		visitor.popcornFxEmitter(this);
 //	}
 
 	@Override
-	public double getClickRadius(final CoordinateSystem coordinateSystem) {
+	public double getClickRadius(CoordinateSystem coordinateSystem) {
 		return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
 	}
 
-	public double getRenderEmissionRate(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderEmissionRate(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return getInterpolatedFloat(animatedRenderEnvironment, "EmissionRate", 0);
 	}
 
@@ -210,7 +210,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return color;
 	}
 
-	public void setColor(final Vec3 color) {
+	public void setColor(Vec3 color) {
 		this.color = color;
 	}
 
@@ -218,7 +218,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return alpha;
 	}
 
-	public void setAlpha(final float alpha) {
+	public void setAlpha(float alpha) {
 		this.alpha = alpha;
 	}
 
@@ -226,7 +226,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return emissionRate;
 	}
 
-	public void setEmissionRate(final float emissionRate) {
+	public void setEmissionRate(float emissionRate) {
 		this.emissionRate = emissionRate;
 	}
 
@@ -234,7 +234,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return lifeSpan;
 	}
 
-	public void setLifeSpan(final float lifeSpan) {
+	public void setLifeSpan(float lifeSpan) {
 		this.lifeSpan = lifeSpan;
 	}
 
@@ -242,7 +242,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return speed;
 	}
 
-	public void setSpeed(final float speed) {
+	public void setSpeed(float speed) {
 		this.speed = speed;
 	}
 
@@ -250,7 +250,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return replaceableId;
 	}
 
-	public void setReplaceableId(final int replaceableId) {
+	public void setReplaceableId(int replaceableId) {
 		this.replaceableId = replaceableId;
 	}
 
