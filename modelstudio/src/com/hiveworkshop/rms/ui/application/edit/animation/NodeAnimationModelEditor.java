@@ -406,11 +406,12 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		Set<IdObject> selection = selectionManager.getSelection();
 		List<UndoAction> actions = new ArrayList<>();
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
-		TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
 		generateKeyframes(selection, actions, timeEnvironmentImpl, "Translation", (node, translationTimeline) -> node.createTranslationKeyframe(renderModel, (Vec3AnimFlag) translationTimeline, structureChangeListener));
 
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+//		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getStart();
 		int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
 		return new TranslationKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this);
 	}
@@ -457,11 +458,12 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		Set<IdObject> selection = selectionManager.getSelection();
 		List<UndoAction> actions = new ArrayList<>();
 
-		TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
 		generateKeyframes(selection, actions, timeEnvironmentImpl, "Rotation", (node, translationTimeline) -> node.createRotationKeyframe(renderModel, (QuatAnimFlag) translationTimeline, structureChangeListener));
 
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+//		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getStart();
 		int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
 		return new RotationKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ, firstXYZ, secondXYZ);
 	}
@@ -505,12 +507,13 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	public GenericScaleAction beginScaling(double centerX, double centerY, double centerZ) {
 		Set<IdObject> selection = selectionManager.getSelection();
 		List<UndoAction> actions = new ArrayList<>();
-		TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
 		generateKeyframes(selection, actions, timeEnvironmentImpl, "Scaling", (node, translationTimeline) -> node.createScalingKeyframe(renderModel, (Vec3AnimFlag) translationTimeline, structureChangeListener));
 
 
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+//		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getStart();
 		int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
 		return new ScalingKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ);
 	}
@@ -519,12 +522,13 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	public GenericScaleAction beginScaling(Vec3 center) {
 		Set<IdObject> selection = selectionManager.getSelection();
 		List<UndoAction> actions = new ArrayList<>();
-		TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
 		generateKeyframes(selection, actions, timeEnvironmentImpl, "Scaling", (node, translationTimeline) -> node.createScalingKeyframe(renderModel, (Vec3AnimFlag) translationTimeline, structureChangeListener));
 
 
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+//		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getStart();
 		int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
 		return new ScalingKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this, center);
 	}
@@ -540,7 +544,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		Set<IdObject> selection = selectionManager.getSelection();
 		List<UndoAction> actions = new ArrayList<>();
 
-		TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 		for (IdObject node : selection) {
 			AnimFlag<?> transformationTimeline = node.find(keyframeMdlTypeName, timeEnvironmentImpl.getGlobalSeq());
 
@@ -581,7 +585,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			}
 		}
 		List<UndoAction> actions = new ArrayList<>();
-		TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
 		for (IdObject node : selection) {
 			QuatAnimFlag translationTimeline = (QuatAnimFlag) node.find("Rotation", timeEnvironmentImpl.getGlobalSeq());
@@ -600,7 +604,8 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			}
 		}
 
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+//		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart();
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime() + renderModel.getAnimatedRenderEnvironment().getStart();
 		int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
 		return new SquatToolKeyframeAction(new CompoundAction("setup", actions), trackTimeToUse, timeEnvironmentImpl.getGlobalSeq(), selection, this, centerX, centerY, centerZ, firstXYZ, secondXYZ);
 	}

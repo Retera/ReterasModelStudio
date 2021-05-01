@@ -58,10 +58,10 @@ public final class ModelEditorViewportActivityManager implements ModelEditorView
 		currentActivity.renderStatic(g, coordinateSystem);
 	}
 
-	@Override
-	public void modelChanged() {
-		currentActivity.modelChanged();
-	}
+//	@Override
+//	public void modelChanged() {
+//		currentActivity.modelChanged();
+//	}
 
 	@Override
 	public boolean isEditing() {

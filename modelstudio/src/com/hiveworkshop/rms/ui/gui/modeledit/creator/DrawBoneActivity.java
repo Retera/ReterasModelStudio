@@ -48,9 +48,6 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 	}
 
 	@Override
-	public void modelChanged() { }
-
-	@Override
 	public void modelEditorChanged(ModelEditor newModelEditor) {
 		modelEditor = newModelEditor;
 	}

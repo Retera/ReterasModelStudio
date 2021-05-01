@@ -29,12 +29,7 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 		this.editor = editor;
 		this.viewportListener = new ViewportListener();
 		coordinateSystem.setYFlip(1);
-		// Dimension 1 and Dimension 2, these specify which dimensions to display.
-		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
 
-
-//		coordinateSystem = new BasicCoordinateSystem((byte) 0, (byte) 1, this);
-//		coordinateSystem = this;
 		viewport = null;
 
 
@@ -61,9 +56,8 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 		PaintBackgroundImage(g);
 
 		Graphics2D graphics2d = (Graphics2D) g;
-//		dispMDL.drawGeosets(g, this, vertexSize);
-		viewportModelRenderer.reset(graphics2d, programPreferences, this, coordinateSystem, modelHandler.getModelView());
-		modelHandler.getModelView().visitMesh(viewportModelRenderer);
+		viewportModelRenderer.reset(graphics2d, programPreferences, coordinateSystem, modelHandler);
+
 		activityListener.renderStatic(graphics2d, coordinateSystem);
 	}
 

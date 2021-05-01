@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
@@ -10,7 +9,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.AnimatedViewportModelRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.View;
@@ -18,14 +16,14 @@ import net.infonode.docking.View;
 import javax.swing.*;
 import java.awt.*;
 
-public class Viewport extends ViewportView implements ModelEditorChangeListener {
+public class Viewport extends ViewportView {
 	Timer paintTimer;
 
 	private final ViewportModelRenderer viewportModelRenderer;
 	private final AnimatedViewportModelRenderer animatedViewportModelRenderer;
 	private final LinkRenderingVisitorAdapter linkRenderingVisitorAdapter;
 	private final ModelStructureChangeListener modelStructureChangeListener;
-//	private final RenderModel renderModel;
+	//	private final RenderModel renderModel;
 	//	private final ResettableAnimatedIdObjectParentLinkRenderer linkRenderer;
 	private ModelEditorManager modelEditorManager;
 	private final Vec3 facingVector;
@@ -42,11 +40,8 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.modelEditorManager = modelEditorManager;
-//		this.renderModel = renderModel;
 		setupCopyPaste(viewportTransferHandler);
 
-//		coordinateSystem = new BasicCoordinateSystem(d1, d2, this);
-//		coordinateSystem = this;
 		viewport = this;
 
 		contextMenu = new ViewportPopupMenu(this, this.modelHandler, this.modelEditorManager);
@@ -54,7 +49,6 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 
 		viewportModelRenderer = new ViewportModelRenderer(programPreferences.getVertexSize());
 		animatedViewportModelRenderer = new AnimatedViewportModelRenderer(programPreferences.getVertexSize());
-//		linkRenderer = new ResettableAnimatedIdObjectParentLinkRenderer(programPreferences.getVertexSize());
 		linkRenderingVisitorAdapter = new LinkRenderingVisitorAdapter(programPreferences);
 
 		facingVector = new Vec3(0, 0, 0);
@@ -106,16 +100,17 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 			Stroke stroke = graphics2d.getStroke();
 			graphics2d.setStroke(new BasicStroke(3));
 			modelHandler.getRenderModel().updateNodes(false);
-//			linkRenderer.reset(this, graphics2d, NodeIconPalette.HIGHLIGHT, renderModel);
-			linkRenderingVisitorAdapter.reset(coordinateSystem, graphics2d, modelHandler.getRenderModel());
-			modelHandler.getModelView().visit(linkRenderingVisitorAdapter);
+
+			linkRenderingVisitorAdapter.reset(graphics2d, coordinateSystem, modelHandler);
+
 			graphics2d.setStroke(stroke);
-			animatedViewportModelRenderer.reset(graphics2d, programPreferences,this, coordinateSystem, modelHandler.getModelView(), modelHandler.getRenderModel());
-			modelHandler.getModelView().visit(animatedViewportModelRenderer);
+
+			animatedViewportModelRenderer.reset(graphics2d, programPreferences, coordinateSystem, modelHandler);
+
 			activityListener.render(graphics2d, coordinateSystem, modelHandler.getRenderModel());
 		} else {
-			viewportModelRenderer.reset(graphics2d, programPreferences,this, coordinateSystem, modelHandler.getModelView());
-			modelHandler.getModelView().visit(viewportModelRenderer);
+			viewportModelRenderer.reset(graphics2d, programPreferences, coordinateSystem, modelHandler);
+
 			activityListener.renderStatic(graphics2d, coordinateSystem);
 		}
 
@@ -180,12 +175,6 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 			case 1 -> g.setColor(new Color(255, 0, 0));
 			case 2 -> g.setColor(new Color(0, 0, 255));
 		}
-	}
-
-	@Override
-	public void modelEditorChanged(ModelEditor newModelEditor) {
-//		modelEditorManager = newModelEditor;
-		// TODO call from display panel and above
 	}
 
 	public void setViewportAxises(String name, byte dim1, byte dim2) {

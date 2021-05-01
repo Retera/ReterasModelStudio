@@ -101,9 +101,10 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 	private int getTrackTime(RenderModel renderModel) {
 		int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+//		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getStart() + animationTime;
 
-		Integer globalSeq = ((TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment()).getGlobalSeq();
+		Integer globalSeq = renderModel.getAnimatedRenderEnvironment().getGlobalSeq();
 		if (globalSeq != null) {
 			trackTime = renderModel.getAnimatedRenderEnvironment().getGlobalSeqTime(globalSeq);
 		}
@@ -142,13 +143,14 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must  make AnimFlag.find seek on globalSeqId
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
 		//  a TimeEnvironmentImpl render environment, and never from the anim previewer impl
-		TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 		Vec3AnimFlag translationFlag = (Vec3AnimFlag) find("Translation", timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
 		int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+//		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getStart() + animationTime;
 		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
 		if (globalSeq != null) {
 			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
@@ -196,13 +198,14 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be  constructed from
 		//  a TimeEnvironmentImpl render environment, and never from the anim previewer impl
-		TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 		QuatAnimFlag rotationTimeline = (QuatAnimFlag) find("Rotation", timeEnvironmentImpl.getGlobalSeq());
 		if (rotationTimeline == null) {
 			return;
 		}
 		int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+//		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getStart() + animationTime;
 		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
 		if (globalSeq != null) {
 			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
@@ -267,14 +270,15 @@ public abstract class AnimatedNode extends TimelineContainer {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from
 		//  a TimeEnvironmentImpl render environment, and never from the anim previewer impl
-		TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 		Vec3AnimFlag translationFlag = (Vec3AnimFlag) find("Scaling", timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
 
 		int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+//		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getStart() + animationTime;
 
 		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
 		if (globalSeq != null) {

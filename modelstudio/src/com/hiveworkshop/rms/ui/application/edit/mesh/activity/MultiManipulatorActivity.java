@@ -115,7 +115,4 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 		return manipulator != null;
 	}
 
-	@Override
-	public void modelChanged() {}
-
 }

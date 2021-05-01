@@ -15,10 +15,6 @@ public final class DoNothingActivity implements ModelEditorViewportActivity {
 	}
 
 	@Override
-	public void modelChanged() {
-	}
-
-	@Override
 	public void modelEditorChanged(ModelEditor newModelEditor) {
 	}
 

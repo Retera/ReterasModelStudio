@@ -54,9 +54,6 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	}
 
 	@Override
-	public void modelChanged() { }
-
-	@Override
 	public void modelEditorChanged(final ModelEditor newModelEditor) {
 		modelEditor = newModelEditor;
 	}

@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportModelRenderer;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ModelThumbnailMaker;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -95,8 +95,8 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 			EditableModel model = modelDisplay.getModel();
 			BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
 			graphics.drawImage(modelOutline, 0, 0, null);
-			ViewportModelRenderer.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
-			ViewportModelRenderer.drawGeosetFlat(graphics, (byte) 1, (byte) 2, geoset.getGeoset(), Color.RED);
+			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
+			ModelThumbnailMaker.drawGeosetFlat(graphics, (byte) 1, (byte) 2, geoset.getGeoset(), Color.RED);
 		}
 	}
 
@@ -104,7 +104,7 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 		if (modelBoundsSizeMap.containsKey(model)) {
 			return modelBoundsSizeMap.get(model);
 		} else {
-			Vec2[] boundSize = ViewportModelRenderer.getBoundBoxSize(model, (byte) 1, (byte) 2);
+			Vec2[] boundSize = ModelThumbnailMaker.getBoundBoxSize(model, (byte) 1, (byte) 2);
 			modelBoundsSizeMap.put(model, boundSize);
 			return boundSize;
 		}
@@ -123,9 +123,9 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 			graphics.setColor(backgroundColor.brighter());
 			graphics.fill3DRect(EIGHTH_SIZE, EIGHTH_SIZE, SIZE - QUARTER_SIZE, SIZE - QUARTER_SIZE, true);
 
-			ViewportModelRenderer.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
+			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
 
-			ViewportModelRenderer.drawGeosetsFlat(model, graphics, (byte) 1, (byte) 2, Color.GRAY);
+			ModelThumbnailMaker.drawGeosetsFlat(model, graphics, (byte) 1, (byte) 2, Color.GRAY);
 			modelOutlineImageMap.put(model, image);
 
 			graphics.dispose();

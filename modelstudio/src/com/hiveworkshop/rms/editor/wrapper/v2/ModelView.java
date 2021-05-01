@@ -1,11 +1,10 @@
 package com.hiveworkshop.rms.editor.wrapper.v2;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.model.visitor.GeosetVisitor;
-import com.hiveworkshop.rms.editor.model.visitor.MeshVisitor;
-import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
-import com.hiveworkshop.rms.editor.model.visitor.TriangleVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 
 import java.util.HashSet;
@@ -23,13 +22,13 @@ public final class ModelView {
 	private IdObject highlightedNode;
 	private boolean vetoParticles = false;
 
-	public ModelView(final EditableModel model) {
+	public ModelView(EditableModel model) {
 		this.model = model;
 		editorRenderModel = new RenderModel(this.model, this);
 
 		modelViewStateNotifier = new ModelViewStateNotifier();
 		editableGeosets = new HashSet<>();
-		for (final Geoset geoset : model.getGeosets()) {
+		for (Geoset geoset : model.getGeosets()) {
 			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() == 0)) {
 				editableGeosets.add(geoset);
 			}
@@ -43,39 +42,7 @@ public final class ModelView {
 		return editorRenderModel;
 	}
 
-	public void visit(final ModelVisitor visitor) {
-		int geosetId = 0;
-		for (final Geoset geoset : model.getGeosets()) {
-			final GeosetVisitor geosetRenderer = visitor.beginGeoset(geosetId++, geoset.getMaterial(), geoset.getGeosetAnim());
-			boolean isHD = isHd(model, geoset);
-			for (Triangle triangle : geoset.getTriangles()) {
-				TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
-				for (GeosetVertex vertex : triangle.getVerts()) {
-					triangleRenderer.vertex(vertex, isHD);
-				}
-				triangleRenderer.triangleFinished();
-			}
-		}
-		for (IdObject object : model.getAllObjects()) {
-			visitor.visitIdObject(object);
-		}
-		for (final Camera camera : model.getCameras()) {
-			visitor.camera(camera);
-		}
-	}
-
-	public boolean isHd(EditableModel model, Geoset geoset) {
-		return (ModelUtils.isTangentAndSkinSupported(model.getFormatVersion()))
-				&& (geoset.getVertices().size() > 0)
-				&& (geoset.getVertex(0).getSkinBoneBones() != null);
-	}
-
-//	public void visit(final ModelVisitor visitor) {
-////		model.render(renderByViewModelRenderer.reset(visitor));
-//		UvIlandThing.render(renderByViewModelRenderer.reset(visitor), model);
-//	}
-
-	public void addStateListener(final ModelViewStateListener listener) {
+	public void addStateListener(ModelViewStateListener listener) {
 		modelViewStateNotifier.subscribe(listener);
 	}
 
@@ -107,64 +74,64 @@ public final class ModelView {
 		return highlightedNode;
 	}
 
-	public void makeGeosetEditable(final Geoset geoset) {
+	public void makeGeosetEditable(Geoset geoset) {
 		editableGeosets.add(geoset);
 		modelViewStateNotifier.geosetEditable(geoset);
 	}
 
-	public void makeGeosetNotEditable(final Geoset geoset) {
+	public void makeGeosetNotEditable(Geoset geoset) {
 		editableGeosets.remove(geoset);
 		modelViewStateNotifier.geosetNotEditable(geoset);
 	}
 
-	public void makeGeosetVisible(final Geoset geoset) {
+	public void makeGeosetVisible(Geoset geoset) {
 		visibleGeosets.add(geoset);
 		modelViewStateNotifier.geosetVisible(geoset);
 	}
 
-	public void makeGeosetNotVisible(final Geoset geoset) {
+	public void makeGeosetNotVisible(Geoset geoset) {
 		visibleGeosets.remove(geoset);
 		modelViewStateNotifier.geosetNotVisible(geoset);
 	}
 
-	public void makeIdObjectVisible(final IdObject bone) {
+	public void makeIdObjectVisible(IdObject bone) {
 		editableIdObjects.add(bone);
 		modelViewStateNotifier.idObjectVisible(bone);
 	}
 
-	public void makeIdObjectNotVisible(final IdObject bone) {
+	public void makeIdObjectNotVisible(IdObject bone) {
 		editableIdObjects.remove(bone);
 		modelViewStateNotifier.idObjectNotVisible(bone);
 	}
 
-	public void makeCameraVisible(final Camera camera) {
+	public void makeCameraVisible(Camera camera) {
 		editableCameras.add(camera);
 		modelViewStateNotifier.cameraVisible(camera);
 	}
 
-	public void makeCameraNotVisible(final Camera camera) {
+	public void makeCameraNotVisible(Camera camera) {
 		editableCameras.remove(camera);
 		modelViewStateNotifier.cameraNotVisible(camera);
 	}
 
-	public void highlightGeoset(final Geoset geoset) {
+	public void highlightGeoset(Geoset geoset) {
 		highlightedGeoset = geoset;
 		modelViewStateNotifier.highlightGeoset(geoset);
 	}
 
-	public void unhighlightGeoset(final Geoset geoset) {
+	public void unhighlightGeoset(Geoset geoset) {
 		if (highlightedGeoset == geoset) {
 			highlightedGeoset = null;
 		}
 		modelViewStateNotifier.unhighlightGeoset(geoset);
 	}
 
-	public void highlightNode(final IdObject node) {
+	public void highlightNode(IdObject node) {
 		highlightedNode = node;
 		modelViewStateNotifier.highlightNode(node);
 	}
 
-	public void unhighlightNode(final IdObject node) {
+	public void unhighlightNode(IdObject node) {
 		if (highlightedNode == node) {
 			highlightedNode = null;
 		}
@@ -179,23 +146,4 @@ public final class ModelView {
 	public void setVetoOverrideParticles(boolean override) {
 		vetoParticles = override;
 	}
-
-	public void visitMesh(MeshVisitor visitor) {
-		int geosetId = 0;
-		for (Geoset geoset : model.getGeosets()) {
-			GeosetVisitor geosetRenderer = visitor.beginGeoset(geosetId++, geoset.getMaterial(), geoset.getGeosetAnim());
-			boolean isHD = isHd(model, geoset);
-			for (Triangle triangle : geoset.getTriangles()) {
-				TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
-				for (GeosetVertex vertex : triangle.getVerts()) {
-					triangleRenderer.vertex(vertex, isHD);
-				}
-				triangleRenderer.triangleFinished();
-			}
-		}
-
-	}
-//	public void visitMesh(final MeshVisitor visitor) {
-//		UvIlandThing.renderGeosets(renderByViewMeshRenderer.reset(visitor), model);
-//	}
 }

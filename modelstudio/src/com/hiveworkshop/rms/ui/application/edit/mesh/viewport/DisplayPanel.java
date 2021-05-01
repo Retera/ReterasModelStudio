@@ -49,7 +49,6 @@ public class DisplayPanel extends JPanel {
 
 		setOpaque(true);
 		vp = getViewport(a, b, modelHandler, preferences, coordDisplayListener, modelEditorManager, viewportTransferHandler);
-		modelEditorChangeNotifier.subscribe(vp);
 		add(vp, "spany, growy, growx");
 
 		buttonPanel = getButtonPanel();

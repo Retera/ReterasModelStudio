@@ -363,7 +363,7 @@ public class Vec3 {
 		return scale(-1f);
 	}
 
-	public Vec3 transform(final Vec3 a, final Mat4 mat4) {
+	public static Vec3 transform(final Vec3 a, final Mat4 mat4) {
 		float newX = (mat4.m00 * a.x) + (mat4.m10 * a.y) + (mat4.m20 * a.z) + mat4.m30;
 		float newY = (mat4.m01 * a.x) + (mat4.m11 * a.y) + (mat4.m21 * a.z) + mat4.m31;
 		float newZ = (mat4.m02 * a.x) + (mat4.m12 * a.y) + (mat4.m22 * a.z) + mat4.m32;

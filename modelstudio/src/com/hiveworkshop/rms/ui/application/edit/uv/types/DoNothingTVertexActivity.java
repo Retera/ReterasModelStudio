@@ -16,10 +16,6 @@ public final class DoNothingTVertexActivity implements TVertexEditorViewportActi
 	}
 
 	@Override
-	public void modelChanged() {
-	}
-
-	@Override
 	public void editorChanged(final TVertexEditor newModelEditor) {
 	}
 

@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportModelRenderer;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ModelThumbnailMaker;
 import com.hiveworkshop.rms.ui.gui.modeledit.VertexFilter;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.util.Vec2;
@@ -109,12 +109,12 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 			BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
 			graphics.drawImage(modelOutline, 0, 0, null);
 //			ViewportModelRenderer.drawFilteredTriangles(model, graphics, new Rectangle(SIZE, SIZE), (byte) 1, (byte) 2, modelBoundsSizeMap.get(model), matrixFilter.reset(matrixShell));
-			ViewportModelRenderer.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
+			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
 			if (value instanceof BoneShell) {
 //				System.out.println("BONE!!!");
-				ViewportModelRenderer.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), ((BoneShell) value).getBone());
+				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), ((BoneShell) value).getBone());
 			}
-			ViewportModelRenderer.drawBoneMarker(graphics, (byte) 1, (byte) 2, getRenderVertex(matrixShell));
+			ModelThumbnailMaker.drawBoneMarker(graphics, (byte) 1, (byte) 2, getRenderVertex(matrixShell));
 		}
 	}
 
@@ -122,7 +122,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 		if (modelBoundsSizeMap.containsKey(model)) {
 			return modelBoundsSizeMap.get(model);
 		} else {
-			Vec2[] boundSize = ViewportModelRenderer.getBoundBoxSize(model, (byte) 1, (byte) 2);
+			Vec2[] boundSize = ModelThumbnailMaker.getBoundBoxSize(model, (byte) 1, (byte) 2);
 			modelBoundsSizeMap.put(model, boundSize);
 			return boundSize;
 		}
@@ -145,9 +145,9 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 //			System.out.println("creating icon for model: " + model.getName());
 //			System.out.println("nr geosets: " + model.getGeosets().size());
 //			System.out.println("bounds: " + Arrays.toString(getModelBoundsSize(model)));
-			ViewportModelRenderer.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
+			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
 
-			ViewportModelRenderer.drawGeosetsFlat(model, graphics, (byte) 1, (byte) 2, Color.GRAY);
+			ModelThumbnailMaker.drawGeosetsFlat(model, graphics, (byte) 1, (byte) 2, Color.GRAY);
 			modelOutlineImageMap.put(model, image);
 //			ViewportModelRenderer.drawFittedTriangles2(otherDisplay.getModel(), graphics, new Rectangle(SIZE, SIZE), (byte) 1, (byte) 2, matrixFilter.reset(matrixShell), getRenderVertex(matrixShell));
 			graphics.dispose();

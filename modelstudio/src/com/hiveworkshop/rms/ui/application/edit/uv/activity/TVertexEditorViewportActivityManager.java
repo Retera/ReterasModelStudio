@@ -59,11 +59,6 @@ public final class TVertexEditorViewportActivityManager implements TVertexEditor
 	}
 
 	@Override
-	public void modelChanged() {
-		currentActivity.modelChanged();
-	}
-
-	@Override
 	public boolean isEditing() {
 		return currentActivity.isEditing();
 	}
