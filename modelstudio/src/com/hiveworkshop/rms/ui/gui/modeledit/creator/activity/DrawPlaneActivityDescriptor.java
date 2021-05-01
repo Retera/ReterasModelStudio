@@ -1,11 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 public class DrawPlaneActivityDescriptor implements ActivityDescriptor {
@@ -14,8 +13,8 @@ public class DrawPlaneActivityDescriptor implements ActivityDescriptor {
 	private final ViewportListener viewportListener;
 	private int numberOfHeightSegments;
 
-	public DrawPlaneActivityDescriptor(final ProgramPreferences programPreferences,
-	                                   final ViewportListener viewportListener) {
+	public DrawPlaneActivityDescriptor(ProgramPreferences programPreferences,
+	                                   ViewportListener viewportListener) {
 		this.programPreferences = programPreferences;
 		this.viewportListener = viewportListener;
 		numberOfWidthSegments = 1;
@@ -23,10 +22,9 @@ public class DrawPlaneActivityDescriptor implements ActivityDescriptor {
 	}
 
 	@Override
-	public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
-	                                                  final ModelView modelView, final UndoActionListener undoActionListener) {
-		return new DrawPlaneActivity(programPreferences, undoActionListener, modelEditorManager.getModelEditor(),
-				modelView, modelEditorManager.getSelectionView(), viewportListener, 1, 1, 1);
+	public ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
+		return new DrawPlaneActivity(programPreferences, modelHandler.getUndoManager(), modelEditorManager.getModelEditor(),
+				modelHandler.getModelView(), modelEditorManager.getSelectionView(), viewportListener, 1, 1, 1);
 	}
 
 }

@@ -261,6 +261,26 @@ public final class ModelUtils {
 		}
 		return skinBonesMatrixSumHeap;
 	}
+	public static Mat4 processHdBones(RenderModel renderModel, GeosetVertex.SkinBone[] skinBones) {
+		boolean processedBones = false;
+		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();
+
+		for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
+			Bone bone = skinBones[boneIndex].getBone();
+			if (bone == null) {
+				continue;
+			}
+			processedBones = true;
+			Mat4 worldMatrix = renderModel.getRenderNode(bone).getWorldMatrix();
+
+			float skinBoneWeight = skinBones[boneIndex].getWeight() / 255f;
+			skinBonesMatrixSumHeap.add(worldMatrix.getUniformlyScaled(skinBoneWeight));
+		}
+		if (!processedBones) {
+			skinBonesMatrixSumHeap.setIdentity();
+		}
+		return skinBonesMatrixSumHeap;
+	}
 
 	public static Mat4 processSdBones(RenderModel renderModel, List<Bone> bones) {
 		int boneCount = bones.size();

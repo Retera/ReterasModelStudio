@@ -15,6 +15,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObje
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.UnitComparator;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import javax.swing.*;
@@ -40,7 +41,8 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 
 	EditableModel mdl = new EditableModel();
 	// MDL mdl;
-	ModelView modelDisp = new ModelView(mdl);
+	ModelHandler modelHandler = new ModelHandler(mdl, null);
+//	ModelView modelDisp = new ModelView(mdl);
 	PerspDisplayPanel modelPanel;
 	DefaultTableModel tableModel;
 	DefaultMutableTreeNode defaultSelection = null;
@@ -57,7 +59,7 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 		final JPanel temp = new JPanel();
 		temp.add(debugLabel);
 
-		modelPanel = new PerspDisplayPanel("blank", modelDisp, new ProgramPreferences());
+		modelPanel = new PerspDisplayPanel("blank", modelHandler, new ProgramPreferences());
 		fillTable();
 
 		setRightComponent(modelPanel);
@@ -92,8 +94,9 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 			}
 			try (InputStream reader = GameDataFileSystem.getDefault().getResourceAsStream(filepath)) {
 				mdl = new EditableModel(MdxUtils.loadMdlx(reader));
-				modelDisp = new ModelView(mdl);
-				modelPanel.setViewport(modelDisp);
+//				modelDisp = new ModelView(mdl);
+				modelHandler = new ModelHandler(mdl, null);
+				modelPanel.setViewport(modelHandler);
 				modelPanel.setTitle(currentUnit.getName());
 			} catch (final IOException e) {
 				// TODO Auto-generated catch block

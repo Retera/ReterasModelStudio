@@ -1,10 +1,11 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 public class CheckableModelElement extends CheckableDisplayElement<Void> {
-	public CheckableModelElement(ModelView modelViewManager) {
-		super(modelViewManager, null);
+	public CheckableModelElement(ModelHandler modelHandler) {
+		super(modelHandler.getModelView(), null);
 	}
 
 	@Override

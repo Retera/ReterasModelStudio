@@ -2,11 +2,12 @@ package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 
 public class CheckableNodeElement extends CheckableDisplayElement<IdObject> {
-	public CheckableNodeElement(ModelView modelViewManager, IdObject item) {
-		super(modelViewManager, item);
+	public CheckableNodeElement(ModelHandler modelHandler, IdObject item) {
+		super(modelHandler.getModelView(), item);
 	}
 
 	@Override

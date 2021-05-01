@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
@@ -9,7 +7,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayL
 import com.hiveworkshop.rms.ui.application.edit.uv.UVViewportModelRenderer;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 
@@ -25,8 +23,8 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 	private final UVViewportModelRenderer viewportModelRenderer;
 	private TVertexEditor editor;
 
-	public UVViewport(ModelView modelView, UVPanel uvPanel, ProgramPreferences programPreferences, ViewportActivity viewportActivity, UndoActionListener undoListener, UndoHandler undoHandler, CoordDisplayListener coordDisplayListener, TVertexEditor editor) {
-		super(modelView, (byte) 0, (byte) 1, new Dimension(400, 400), programPreferences, viewportActivity, new ViewportListener(), undoListener, undoHandler, coordDisplayListener);
+	public UVViewport(ModelHandler modelHandler, UVPanel uvPanel, ProgramPreferences programPreferences, ViewportActivity viewportActivity, CoordDisplayListener coordDisplayListener, TVertexEditor editor) {
+		super(modelHandler, (byte) 0, (byte) 1, new Dimension(400, 400), programPreferences, viewportActivity, new ViewportListener(), coordDisplayListener);
 
 		this.editor = editor;
 		this.viewportListener = new ViewportListener();
@@ -64,8 +62,8 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 
 		Graphics2D graphics2d = (Graphics2D) g;
 //		dispMDL.drawGeosets(g, this, vertexSize);
-		viewportModelRenderer.reset(graphics2d, programPreferences, this, coordinateSystem, modelView);
-		modelView.visitMesh(viewportModelRenderer);
+		viewportModelRenderer.reset(graphics2d, programPreferences, this, coordinateSystem, modelHandler.getModelView());
+		modelHandler.getModelView().visitMesh(viewportModelRenderer);
 		activityListener.renderStatic(graphics2d, coordinateSystem);
 	}
 

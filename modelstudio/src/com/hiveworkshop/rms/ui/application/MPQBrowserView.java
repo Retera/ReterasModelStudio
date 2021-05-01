@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.util.TwiAiIoSys;
 import com.hiveworkshop.rms.editor.model.util.TwiAiSceneParser;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
@@ -14,6 +15,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObje
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
 import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
@@ -81,14 +83,15 @@ public class MPQBrowserView {
     }
 
     public static void refreshAnimationModeState(MainPanel mainPanel) {
+        ModelPanel modelPanel = mainPanel.currentModelPanel();
         if (mainPanel.animationModeState) {
-            if ((mainPanel.currentModelPanel() != null) && (mainPanel.currentModelPanel().getModel() != null)) {
-                if (mainPanel.currentModelPanel().getModel().getAnimsSize() > 0) {
-                    final Animation anim = mainPanel.currentModelPanel().getModel().getAnim(0);
+            if ((modelPanel != null) && (modelPanel.getModel() != null)) {
+                if (modelPanel.getModel().getAnimsSize() > 0) {
+                    final Animation anim = modelPanel.getModel().getAnim(0);
                     mainPanel.animatedRenderEnvironment.setBounds(anim);
                 }
                 refreshAndUpdateModelPanel(mainPanel);
-                mainPanel.timeSliderPanel.setNodeSelectionManager(mainPanel.currentModelPanel().getModelEditorManager().getNodeAnimationSelectionManager());
+                mainPanel.timeSliderPanel.setNodeSelectionManager(modelPanel.getModelEditorManager().getNodeAnimationSelectionManager());
             }
             if ((mainPanel.actionTypeGroup.getActiveButtonType() == mainPanel.actionTypeGroup.getToolbarButtonTypes()[3])
                     || (mainPanel.actionTypeGroup.getActiveButtonType() == mainPanel.actionTypeGroup.getToolbarButtonTypes()[4])) {
@@ -99,7 +102,7 @@ public class MPQBrowserView {
         mainPanel.animatedRenderEnvironment.setStaticViewMode(!mainPanel.animationModeState);
 
         if (!mainPanel.animationModeState) {
-            if ((mainPanel.currentModelPanel() != null) && (mainPanel.currentModelPanel().getModel() != null)) {
+            if ((modelPanel != null) && (modelPanel.getModel() != null)) {
                 refreshAndUpdateModelPanel(mainPanel);
             }
         }
@@ -120,24 +123,21 @@ public class MPQBrowserView {
     }
 
     private static void refreshAndUpdateModelPanel(MainPanel mainPanel) {
-        mainPanel
-                .currentModelPanel()
-                .getEditorRenderModel()
+        RenderModel editorRenderModel = mainPanel.currentModelPanel().getEditorRenderModel();
+        editorRenderModel
                 .refreshFromEditor(
                         mainPanel.animatedRenderEnvironment,
                         ModelStructureChangeListenerImplementation.IDENTITY,
                         ModelStructureChangeListenerImplementation.IDENTITY,
                         ModelStructureChangeListenerImplementation.IDENTITY,
                         mainPanel.currentModelPanel().getPerspArea().getViewport());
-        mainPanel
-                .currentModelPanel()
-                .getEditorRenderModel()
-                .updateNodes(false); // update to 0 position
+        editorRenderModel.updateNodes(false); // update to 0 position
     }
 
     private static ModelPanel newTempModelPanel(MainPanel mainPanel, ImageIcon icon, EditableModel model) {
         ModelPanel temp;
-        temp = new ModelPanel(mainPanel, model, mainPanel.prefs, mainPanel,
+        ModelHandler modelHandler = new ModelHandler(model, mainPanel);
+        temp = new ModelPanel(mainPanel, modelHandler, mainPanel.prefs,
                 mainPanel.selectionItemTypeGroup,
                 mainPanel.selectionModeGroup,
                 mainPanel.modelStructureChangeListener,

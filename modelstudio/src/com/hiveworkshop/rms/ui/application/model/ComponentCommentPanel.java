@@ -1,10 +1,10 @@
 package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.EditCommentAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,17 +14,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ComponentCommentPanel extends JPanel implements ComponentPanel<List<String>> {
+public class ComponentCommentPanel extends ComponentPanel<List<String>> {
 	private final JTextPane textPane;
-	private final ModelView modelViewManager;
-	private final UndoActionListener undoActionListener;
+	private final ModelHandler modelHandler;
 	private final ModelStructureChangeListener changeListener;
 
-	public ComponentCommentPanel(final ModelView modelViewManager,
-	                             final UndoActionListener undoActionListener,
-	                             final ModelStructureChangeListener changeListener) {
-		this.modelViewManager = modelViewManager;
-		this.undoActionListener = undoActionListener;
+	public ComponentCommentPanel(ModelHandler modelHandler,
+	                             ModelStructureChangeListener changeListener) {
+		this.modelHandler = modelHandler;
 		this.changeListener = changeListener;
 
 		textPane = new JTextPane();
@@ -48,9 +45,9 @@ public class ComponentCommentPanel extends JPanel implements ComponentPanel<List
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				final EditCommentAction editCommentAction = new EditCommentAction("ugg", "ugg", modelViewManager, changeListener);
+				final EditCommentAction editCommentAction = new EditCommentAction("ugg", "ugg", modelHandler.getModelView(), changeListener);
 				editCommentAction.redo();
-				undoActionListener.pushAction(editCommentAction);
+				modelHandler.getUndoManager().pushAction(editCommentAction);
 			}
 		};
 	}

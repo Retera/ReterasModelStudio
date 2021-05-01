@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.ui.application.viewer.AnimationViewer;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ProgramPreferencesPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -245,7 +246,9 @@ public class MenuBarActions {
 						((Number) spinner.getValue()).intValue());
 				mdl.setExtents(new ExtLog(128).setDefault());
 			}
-			ModelPanel temp = new ModelPanel(mainPanel, mdl, mainPanel.prefs, mainPanel,
+
+			ModelHandler modelHandler = new ModelHandler(mdl, mainPanel);
+			ModelPanel temp = new ModelPanel(mainPanel, modelHandler, mainPanel.prefs,
 					mainPanel.selectionItemTypeGroup, mainPanel.selectionModeGroup,
 					mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
 					mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false);

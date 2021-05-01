@@ -3,9 +3,9 @@ package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.JCheckBoxTree;
@@ -21,7 +21,7 @@ import java.awt.event.MouseMotionListener;
 import java.util.*;
 
 public final class ModelViewManagingTree extends JCheckBoxTree {
-	private final ModelView modelViewManager;
+	private ModelHandler modelHandler;
 	JCheckBoxTreeNode root;
 	JCheckBoxTreeNode meshes;
 	JCheckBoxTreeNode nodes;
@@ -29,22 +29,21 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 	Map<IdObject, JCheckBoxTreeNode> nodeToTreeElement = new HashMap<>();
 
 	public ModelViewManagingTree(
-			final ModelView modelViewManager,
-			final UndoActionListener undoActionListener,
-			final ModelEditorManager modelEditorManager) {
+			ModelHandler modelHandler,
+			ModelEditorManager modelEditorManager) {
 		super();
-		cameras = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, "Cameras"));
-		root = new JCheckBoxTreeNode(new CheckableModelElement(modelViewManager)).setChecked(true);
-		meshes = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, "Mesh")).setChecked(true);
-		nodes = new JCheckBoxTreeNode(new CheckableDummyElement(modelViewManager, "Nodes")).setChecked(false);
+		cameras = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, "Cameras"));
+		root = new JCheckBoxTreeNode(new CheckableModelElement(modelHandler)).setChecked(true);
+		meshes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, "Mesh")).setChecked(true);
+		nodes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, "Nodes")).setChecked(false);
 
-		setModel(buildTreeModel(modelViewManager));
+		setModel(buildTreeModel(modelHandler));
 		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
 		basicTreeUI.setRightChildIndent(5);
 
-		this.modelViewManager = modelViewManager;
+		this.modelHandler = modelHandler;
 
-		listenerList.add(CheckChangeEventListener.class, changeEventListener(undoActionListener, modelEditorManager));
+		listenerList.add(CheckChangeEventListener.class, changeEventListener(modelHandler.getUndoManager(), modelEditorManager));
 
 		final HighlightOnMouseoverListenerImpl mouseListener = new HighlightOnMouseoverListenerImpl();
 		addMouseMotionListener(mouseListener);
@@ -58,14 +57,14 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		return this;
 	}
 
-	private DefaultTreeModel buildTreeModel(ModelView modelViewManager) {
+	private DefaultTreeModel buildTreeModel(ModelHandler modelHandler) {
 		meshes.removeAllChildren();
 		nodes.removeAllChildren();
 		cameras.removeAllChildren();
 
-		for (Geoset geoset : modelViewManager.getModel().getGeosets()) {
-			boolean contains = modelViewManager.getEditableGeosets().contains(geoset);
-			meshes.add(new JCheckBoxTreeNode(new CheckableGeosetElement(modelViewManager, geoset), contains));
+		for (Geoset geoset : modelHandler.getModel().getGeosets()) {
+			boolean contains = modelHandler.getModelView().getEditableGeosets().contains(geoset);
+			meshes.add(new JCheckBoxTreeNode(new CheckableGeosetElement(modelHandler.getModelView(), geoset), contains));
 		}
 
 		if (meshes.getChildCount() > 0) {
@@ -76,13 +75,13 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 		nodeToTreeElement.put(null, nodes);
 
-		for (IdObject object : modelViewManager.getModel().getIdObjects()) {
-			boolean checked = modelViewManager.getEditableIdObjects().contains(object);
-			JCheckBoxTreeNode treeNode = new JCheckBoxTreeNode(new CheckableNodeElement(modelViewManager, object), checked);
+		for (IdObject object : modelHandler.getModel().getIdObjects()) {
+			boolean checked = modelHandler.getModelView().getEditableIdObjects().contains(object);
+			JCheckBoxTreeNode treeNode = new JCheckBoxTreeNode(new CheckableNodeElement(modelHandler, object), checked);
 			nodeToTreeElement.put(object, treeNode);
 
 		}
-		for (IdObject object : modelViewManager.getModel().getIdObjects()) {
+		for (IdObject object : modelHandler.getModel().getIdObjects()) {
 			IdObject parent = object.getParent();
 			if (parent == object) {
 				parent = null;
@@ -96,9 +95,9 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 			root.add(nodes);
 		}
 
-		for (final Camera camera : modelViewManager.getModel().getCameras()) {
-			boolean checked = modelViewManager.getEditableCameras().contains(camera);
-			cameras.add(new JCheckBoxTreeNode(new CheckableCameraElement(modelViewManager, camera), checked));
+		for (final Camera camera : modelHandler.getModel().getCameras()) {
+			boolean checked = modelHandler.getModelView().getEditableCameras().contains(camera);
+			cameras.add(new JCheckBoxTreeNode(new CheckableCameraElement(modelHandler, camera), checked));
 		}
 
 		if (cameras.getChildCount() > 0) {
@@ -131,7 +130,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		final TreePath rootPath = new TreePath(getModel().getRoot());
 		final Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
 
-		updateModel(buildTreeModel(modelViewManager));
+		updateModel(buildTreeModel(modelHandler));
 
 		final TreePath newRootPath = new TreePath(getModel().getRoot());
 		final List<TreePath> pathsToExpand = new ArrayList<>();

@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
@@ -14,6 +13,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import net.miginfocom.swing.MigLayout;
 
@@ -22,7 +22,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class ComponentBitmapPanel extends JPanel implements ComponentPanel<Bitmap> {
+public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 
 	private Bitmap bitmap;
 	private final ComponentEditorTextField texturePathField;
@@ -30,16 +30,13 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel<Bitma
 	private final JCheckBox wrapWidthBox;
 	private final JCheckBox wrapHeightBox;
 	private final JPanel previewPanel;
-	private final UndoActionListener undoListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
-	private final ModelView modelViewManager;
 	private final FileDialog fileDialog;
+	private final ModelHandler modelHandler;
 
-	public ComponentBitmapPanel(ModelView modelViewManager,
-	                            UndoActionListener undoListener,
+	public ComponentBitmapPanel(ModelHandler modelHandler,
 	                            ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelViewManager = modelViewManager;
-		this.undoListener = undoListener;
+		this.modelHandler = modelHandler;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		texturePathField = new ComponentEditorTextField(24);
 		texturePathField.addEditingStoppedListener(this::texturePathField);
@@ -75,7 +72,7 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel<Bitma
 	}
 
 	private void exportTextureImageFile() {
-		DataSource workingDirectory = modelViewManager.getModel().getWrappedDataSource();
+		DataSource workingDirectory = modelHandler.getModel().getWrappedDataSource();
 		BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory);
 		String suggestedName = texturePathField.getText();
 		suggestedName = suggestedName.substring(suggestedName.lastIndexOf("\\") + 1);
@@ -87,14 +84,14 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel<Bitma
 		SetBitmapWrapHeightAction setBitmapWrapHeightAction = new SetBitmapWrapHeightAction(bitmap,
 				bitmap.isWrapHeight(), wrapHeightBox.isSelected(), modelStructureChangeListener);
 		setBitmapWrapHeightAction.redo();
-		undoListener.pushAction(setBitmapWrapHeightAction);
+		modelHandler.getUndoManager().pushAction(setBitmapWrapHeightAction);
 	}
 
 	private void wrapWidthBox() {
 		SetBitmapWrapWidthAction setBitmapWrapWidthAction = new SetBitmapWrapWidthAction(bitmap,
 				bitmap.isWrapWidth(), wrapWidthBox.isSelected(), modelStructureChangeListener);
 		setBitmapWrapWidthAction.redo();
-		undoListener.pushAction(setBitmapWrapWidthAction);
+		modelHandler.getUndoManager().pushAction(setBitmapWrapWidthAction);
 	}
 
 	private void replaceableIdSpinner() {
@@ -102,14 +99,14 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel<Bitma
 				bitmap, bitmap.getReplaceableId(), ((Number) replaceableIdSpinner.getValue()).intValue(),
 				modelStructureChangeListener);
 		setBitmapReplaceableIdAction.redo();
-		undoListener.pushAction(setBitmapReplaceableIdAction);
+		modelHandler.getUndoManager().pushAction(setBitmapReplaceableIdAction);
 	}
 
 	private void texturePathField() {
 		SetBitmapPathAction setBitmapPathAction = new SetBitmapPathAction(bitmap, bitmap.getPath(),
 				texturePathField.getText(), modelStructureChangeListener);
 		setBitmapPathAction.redo();
-		undoListener.pushAction(setBitmapPathAction);
+		modelHandler.getUndoManager().pushAction(setBitmapPathAction);
 	}
 
 	@Override
@@ -129,7 +126,7 @@ public class ComponentBitmapPanel extends JPanel implements ComponentPanel<Bitma
 
 	private void loadBitmapPreview(Bitmap defaultTexture) {
 		if (defaultTexture != null) {
-			DataSource workingDirectory = modelViewManager.getModel().getWrappedDataSource();
+			DataSource workingDirectory = modelHandler.getModel().getWrappedDataSource();
 			previewPanel.removeAll();
 			try {
 				BufferedImage texture = BLPHandler.getImage(defaultTexture, workingDirectory);

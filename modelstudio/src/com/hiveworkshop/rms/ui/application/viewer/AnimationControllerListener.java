@@ -1,9 +1,8 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import org.lwjgl.LWJGLException;
 
@@ -14,15 +13,14 @@ import java.awt.image.BufferedImage;
 public class AnimationControllerListener extends JPanel {
 	private final ComPerspViewport perspectiveViewport;
 	TimeEnvironmentImpl renderEnv;
-	private ModelView modelView;
+	private ModelHandler modelHandler;
 
-	public AnimationControllerListener(ModelView modelView, ProgramPreferences programPreferences, boolean doDefaultCamera) {
-		this.modelView = modelView;
+	public AnimationControllerListener(ModelHandler modelHandler, ProgramPreferences programPreferences, boolean doDefaultCamera) {
+		this.modelHandler = modelHandler;
 		try {
 			renderEnv = new TimeEnvironmentImpl();
-			modelView.setVetoOverrideParticles(true);
-			RenderModel renderModel = new RenderModel(modelView.getModel(), modelView);
-			perspectiveViewport = new ComPerspViewport(modelView, renderModel, programPreferences, renderEnv, doDefaultCamera);
+			modelHandler.getModelView().setVetoOverrideParticles(true);
+			perspectiveViewport = new ComPerspViewport(modelHandler.getModelView(), modelHandler.getPreviewRenderModel(), programPreferences, renderEnv, doDefaultCamera);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);
@@ -33,11 +31,11 @@ public class AnimationControllerListener extends JPanel {
 		add(perspectiveViewport, BorderLayout.CENTER);
 	}
 
-	public void setModel(ModelView modelView) {
-		this.modelView = modelView;
-		perspectiveViewport.setModel(modelView);
-		reload();
-	}
+//	public void setModel(ModelView modelView) {
+//		this.modelView = modelView;
+//		perspectiveViewport.setModel(modelView);
+//		reload();
+//	}
 
 	public void setTitle(String title) {
 		setBorder(BorderFactory.createTitledBorder(title));

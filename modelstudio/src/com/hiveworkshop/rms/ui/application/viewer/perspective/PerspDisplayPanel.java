@@ -1,10 +1,9 @@
 package com.hiveworkshop.rms.ui.application.viewer.perspective;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.ComPerspViewport;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import net.infonode.docking.View;
 import org.lwjgl.LWJGLException;
@@ -22,6 +21,7 @@ import java.util.List;
  * @version (a version number or a date)
  */
 public class PerspDisplayPanel extends JPanel {
+	private ModelHandler modelHandler;
 	//	private PerspectiveViewport vp;
 	private ComPerspViewport vp;
 	private String title;
@@ -29,12 +29,12 @@ public class PerspDisplayPanel extends JPanel {
 	private final View view;
 
 	// private JCheckBox wireframe;
-	public PerspDisplayPanel(String title, ModelView modelView, ProgramPreferences programPreferences) {
+	public PerspDisplayPanel(String title, ModelHandler modelHandler, ProgramPreferences programPreferences) {
 		super();
 		this.programPreferences = programPreferences;
 		setOpaque(true);
 
-		setViewport(modelView);
+		setViewport(modelHandler);
 		getViewport().setMinimumSize(new Dimension(200, 200));
 		this.title = title;
 
@@ -91,20 +91,19 @@ public class PerspDisplayPanel extends JPanel {
 		vp.reloadAllTextures();
 	}
 
-	public void setViewport(ModelView modelView, TimeEnvironmentImpl renderEnvironment) {
+	public void setViewport(ModelHandler modelHandler, TimeEnvironmentImpl renderEnvironment) {
 //	public void setViewport(ModelView modelView, TimeEnvironmentImpl renderEnvironment) {
-		setViewport(modelView, 200, renderEnvironment);
+		setViewport(modelHandler, 200, renderEnvironment);
 	}
 
-	public void setViewport(ModelView modelView, int viewerSize, TimeEnvironmentImpl renderEnvironment) {
+	public void setViewport(ModelHandler modelHandler, int viewerSize, TimeEnvironmentImpl renderEnvironment) {
 		try {
 			if (vp != null) {
 				vp.destroy();
 			}
 			removeAll();
-			RenderModel renderModel = modelView.getEditorRenderModel();
 //			vp = new PerspectiveViewport(modelView, renderModel, programPreferences, renderEnvironment);
-			vp = new ComPerspViewport(modelView, renderModel, programPreferences, renderEnvironment, false);
+			vp = new ComPerspViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), programPreferences, renderEnvironment, false);
 			vp.setIgnoreRepaint(false);
 			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
 
@@ -128,9 +127,9 @@ public class PerspDisplayPanel extends JPanel {
 		return vp;
 	}
 
-	public void setViewport(ModelView dispModel) {
+	public void setViewport(ModelHandler modelHandler) {
 		TimeEnvironmentImpl renderEnvironment = new TimeEnvironmentImpl();
-		setViewport(dispModel, 200, renderEnvironment);
+		setViewport(modelHandler, 200, renderEnvironment);
 	}
 
 	@Override

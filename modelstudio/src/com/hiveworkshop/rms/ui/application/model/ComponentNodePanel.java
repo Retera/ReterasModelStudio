@@ -2,18 +2,17 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ComponentNodePanel extends JPanel implements ComponentPanel<AnimatedNode> {
-	private final ModelView modelViewManager;
-	private final UndoActionListener undoActionListener;
+public class ComponentNodePanel extends ComponentPanel<AnimatedNode> {
+	private final ModelHandler modelHandler;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final Map<AnimatedNode, ComponentGeosetMaterialPanel> nodePanels;
 	private final boolean listenersEnabled = true;
@@ -23,11 +22,9 @@ public class ComponentNodePanel extends JPanel implements ComponentPanel<Animate
 	private ComponentGeosetMaterialPanel nodePanel;
 
 
-	public ComponentNodePanel(final ModelView modelViewManager,
-	                          final UndoActionListener undoActionListener,
-	                          final ModelStructureChangeListener modelStructureChangeListener) {
-		this.undoActionListener = undoActionListener;
-		this.modelViewManager = modelViewManager;
+	public ComponentNodePanel(ModelHandler modelHandler,
+	                          ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelHandler = modelHandler;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
 

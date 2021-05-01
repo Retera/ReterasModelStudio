@@ -131,6 +131,12 @@ public class ViewportModelRenderer implements ModelVisitor {
 
 	@Override
 	public GeosetVisitor beginGeoset(int geosetId, Material material, GeosetAnim geosetAnim) {
+
+//		if (modelView.getEditableGeosets().contains(geoset)
+//				|| (modelView.getHighlightedGeoset() == geoset)
+//				|| modelView.getVisibleGeosets().contains(geoset)) {
+//			System.out.println("woop");
+//		}
 		graphics.setColor(programPreferences.getTriangleColor());
 		if (modelView.getHighlightedGeoset() == modelView.getModel().getGeoset(geosetId)) {
 			graphics.setColor(programPreferences.getHighlighTriangleColor());
@@ -158,10 +164,16 @@ public class ViewportModelRenderer implements ModelVisitor {
 		}
 	}
 
+	private boolean isVisibleNode(IdObject object) {
+		return modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode());
+	}
+
 	@Override
 	public void visitIdObject(IdObject object) {
-		resetIdObjectRendererWithNode(object);
-		idObjectRenderer.visitIdObject(object);
+		if (isVisibleNode(object)) {
+			resetIdObjectRendererWithNode(object);
+			idObjectRenderer.visitIdObject(object);
+		}
 	}
 
 	@Override

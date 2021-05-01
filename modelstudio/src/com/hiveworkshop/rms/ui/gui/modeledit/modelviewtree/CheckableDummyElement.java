@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,12 +14,12 @@ public class CheckableDummyElement extends CheckableDisplayElement<String> {
 
 	//	List<Geoset> tempGeosetList = new ArrayList<>();
 //	List<IdObject> tempIdObjectList = new ArrayList<>();
-	public CheckableDummyElement(final ModelView modelViewManager, final String name) {
-		super(modelViewManager, name);
+	public CheckableDummyElement(ModelHandler modelHandler, String name) {
+		super(modelHandler.getModelView(), name);
 	}
 
 	@Override
-	protected void setChecked(final String item, final ModelView modelViewManager, final boolean checked) {
+	protected void setChecked(String item, ModelView modelViewManager, boolean checked) {
 		System.out.println(item + " set checked: " + checked);
 		if (item.equals("Mesh")) {
 //			updateMeshState(modelViewManager, checked);
@@ -83,7 +84,7 @@ public class CheckableDummyElement extends CheckableDisplayElement<String> {
 	}
 
 	@Override
-	protected String getName(final String item, final ModelView modelViewManager) {
+	protected String getName(String item, ModelView modelViewManager) {
 		return item;
 	}
 }

@@ -42,7 +42,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		}
 
 		Viewport list = (Viewport) info.getComponent();
-		ModelView modelView = list.getModelView();
+//		ModelView modelView = list.getModelView();
 		// Fetch the data -- bail if this fails
 		try {
 			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);

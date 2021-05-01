@@ -123,9 +123,9 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 		}
 	}
 
-	public void setMaterialChooser(Geoset geoset, final ModelView modelViewManager,
-	                               final UndoActionListener undoActionListener,
-	                               final ModelStructureChangeListener modelStructureChangeListener) {
+	public void setMaterialChooser(Geoset geoset, ModelView modelViewManager,
+	                               UndoActionListener undoActionListener,
+	                               ModelStructureChangeListener modelStructureChangeListener) {
 //		System.out.println("setMaterialChooser");
 		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;

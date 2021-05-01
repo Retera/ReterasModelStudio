@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -13,9 +14,8 @@ import java.awt.event.FocusEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geoset> {
-	private final ModelView modelViewManager;
-	private final UndoActionListener undoActionListener;
+public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
+	private final ModelHandler modelHandler;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private ComponentGeosetMaterialPanel materialPanel;
 	private final Map<Geoset, ComponentGeosetMaterialPanel> materialPanels;
@@ -33,11 +33,9 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 	private final JPanel materialPanelHolder;
 
 
-	public ComponentGeosetPanel(final ModelView modelViewManager,
-	                            final UndoActionListener undoActionListener,
-	                            final ModelStructureChangeListener modelStructureChangeListener) {
-		this.undoActionListener = undoActionListener;
-		this.modelViewManager = modelViewManager;
+	public ComponentGeosetPanel(ModelHandler modelHandler,
+	                            ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelHandler = modelHandler;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		setLayout(new MigLayout("fill", "[][grow][grow]", "[][][grow]"));
 
@@ -53,7 +51,7 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 		JPanel geosetInfoPanel = new JPanel(new MigLayout("fill, hidemode 1", "[][][grow][grow]"));
 		add(geosetInfoPanel, "wrap, growx, spanx");
 
-		createHDPanel(modelViewManager);
+		createHDPanel(modelHandler.getModelView());
 		geosetInfoPanel.add(hdPanel, "growx, spanx, wrap");
 
 		geosetInfoPanel.add(new JLabel("Triangles: "));
@@ -102,7 +100,7 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 		materialPanels.putIfAbsent(geoset, new ComponentGeosetMaterialPanel());
 		materialPanel = materialPanels.get(geoset);
 
-		materialPanel.setMaterialChooser(geoset, modelViewManager, undoActionListener, modelStructureChangeListener);
+		materialPanel.setMaterialChooser(geoset, modelHandler.getModelView(), modelHandler.getUndoManager(), modelStructureChangeListener);
 		materialPanelHolder.add(materialPanel);
 		materialPanelHolder.revalidate();
 		materialPanelHolder.repaint();
@@ -114,7 +112,7 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 		lodSpinner.setValue(geoset.getLevelOfDetail());
 		nameTextField.setText(geoset.getLevelOfDetailName());
 
-		hdPanel.setVisible(modelViewManager.getModel().getFormatVersion() == 1000);
+		hdPanel.setVisible(modelHandler.getModel().getFormatVersion() == 1000);
 
 		revalidate();
 		repaint();
@@ -147,7 +145,7 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 	}
 
 	private void setToggleButtonText() {
-		toggleSdHd.setVisible(modelViewManager.getModel().getFormatVersion() >= 900);
+		toggleSdHd.setVisible(modelHandler.getModel().getFormatVersion() >= 900);
 		if (geoset.isHD()) {
 			toggleSdHd.setText("Make Geoset SD");
 		} else {

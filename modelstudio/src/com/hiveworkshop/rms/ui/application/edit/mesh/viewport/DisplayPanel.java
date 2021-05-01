@@ -1,13 +1,10 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -35,12 +32,12 @@ public class DisplayPanel extends JPanel {
 	private final View view;
 	private final ViewportListener viewportListener;
 
-	public DisplayPanel(String title, byte a, byte b, ModelView modelView,
+	public DisplayPanel(String title, byte a, byte b, ModelHandler modelHandler,
 	                    ModelEditorManager modelEditorManager, ModelStructureChangeListener modelStructureChangeListener,
 	                    ViewportActivity activityListener, ProgramPreferences preferences,
-	                    UndoActionListener undoListener, CoordDisplayListener coordDisplayListener,
-	                    UndoHandler undoHandler, ModelEditorChangeNotifier modelEditorChangeNotifier,
-	                    ViewportTransferHandler viewportTransferHandler, RenderModel renderModel,
+	                    CoordDisplayListener coordDisplayListener,
+	                    ModelEditorChangeNotifier modelEditorChangeNotifier,
+	                    ViewportTransferHandler viewportTransferHandler,
 	                    ViewportListener viewportListener) {
 		super();
 		this.modelStructureChangeListener = modelStructureChangeListener;
@@ -51,7 +48,7 @@ public class DisplayPanel extends JPanel {
 		setLayout(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
 
 		setOpaque(true);
-		vp = getViewport(a, b, modelView, preferences, undoListener, coordDisplayListener, undoHandler, modelEditorManager, viewportTransferHandler, renderModel);
+		vp = getViewport(a, b, modelHandler, preferences, coordDisplayListener, modelEditorManager, viewportTransferHandler);
 		modelEditorChangeNotifier.subscribe(vp);
 		add(vp, "spany, growy, growx");
 
@@ -102,12 +99,12 @@ public class DisplayPanel extends JPanel {
 		buttonPanel.setVisible(flag);
 	}
 
-	public Viewport getViewport(byte a, byte b, ModelView modelView,
-	                            ProgramPreferences programPreferences, UndoActionListener undoListener,
-	                            CoordDisplayListener coordDisplayListener, UndoHandler undoHandler,
-	                            ModelEditorManager modelEditorManager, ViewportTransferHandler viewportTransferHandler,
-	                            RenderModel renderModel) {
-		return new Viewport(a, b, modelView, programPreferences, activityListener, modelStructureChangeListener, undoListener, coordDisplayListener, undoHandler, modelEditorManager, viewportTransferHandler, renderModel, viewportListener);
+	public Viewport getViewport(byte a, byte b, ModelHandler modelHandler,
+	                            ProgramPreferences programPreferences,
+	                            CoordDisplayListener coordDisplayListener,
+	                            ModelEditorManager modelEditorManager,
+	                            ViewportTransferHandler viewportTransferHandler) {
+		return new Viewport(a, b, modelHandler, programPreferences, activityListener, modelStructureChangeListener, coordDisplayListener, modelEditorManager, viewportTransferHandler, viewportListener);
 	}
 
 	@Override

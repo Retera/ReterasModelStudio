@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.DoNothingTVertexActivity;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeActivityListener;
@@ -60,7 +59,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	private final ProgramPreferences prefs;
 	private final List<ModeButton> modeButtons = new ArrayList<>();
 	private final List<ModeButton> selectionModeButtons = new ArrayList<>();
-	private final Map<TVertexEditorActivityDescriptor, ModeButton> typeToButton = new HashMap<>();
+	private final Map<TVertexToolbarActionButtonType, ModeButton> typeToButton = new HashMap<>();
 	private final Map<SelectionMode, ModeButton> modeToButton = new HashMap<>();
 	UndoActionListener undoListener;
 	JButton snapButton;
@@ -77,7 +76,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	private ToolbarButtonGroup<TVertexSelectionItemTypes> selectionItemTypeGroup;
 	private ToolbarButtonGroup<SelectionMode> selectionModeGroup;
 	private ToolbarButtonGroup<TVertexToolbarActionButtonType> actionTypeGroup;
-	private TVertexEditorActivityDescriptor currentActivity;
+	private TVertexToolbarActionButtonType currentActivity;
 	private AbstractAction undoAction;
 	private AbstractAction redoAction;
 
@@ -116,8 +115,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	//    public UVPanel(ModelPanel modelPanel, ProgramPreferences prefs,
 //                   ModelStructureChangeListener modelStructureChangeListener) {
 	public UVPanel(MainPanel mainPanel, ModelStructureChangeListener modelStructureChangeListener, ProgramPreferences prefs) {
-
 		this.mainPanel = mainPanel;
+		this.prefs = prefs;
 		JToolBar toolbar = createJToolBar();
 		ModelPanel modelPanel = mainPanel.currentModelPanel();
 //        ModelStructureChangeListener modelStructureChangeListener = mainPanel.modelStructureChangeListener;
@@ -126,9 +125,10 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		viewportActivityManager = new TVertexEditorViewportActivityManager(new DoNothingTVertexActivity());
 		TVertexEditorChangeNotifier modelEditorChangeNotifier = new TVertexEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
+
+		System.out.println("UVprefs: " + prefs);
 		modelEditorManager = new TVertexEditorManager(modelPanel.getModelViewManager(), prefs, selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager, modelPanel.getEditorRenderModel(), modelStructureChangeListener);
 
-		this.prefs = prefs;
 		setBorder(BorderFactory.createLineBorder(Color.black));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
 		// ));
@@ -362,6 +362,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, TVertexSelectionItemTypes.values());
 		toolbar.addSeparator();
 
+		System.out.println("toolbarPrefs: " + prefs);
 		TVertexToolbarActionButtonType selectAndMoveDescriptor = new TVertexToolbarActionButtonType("move2.png", "Select and Move", prefs, ModelEditorActionType.TRANSLATION);
 
 		TVertexToolbarActionButtonType selectAndRotateDescriptor = new TVertexToolbarActionButtonType("rotate.png", "Select and Rotate", prefs, ModelEditorActionType.ROTATION);
@@ -697,7 +698,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	public void setViewport(ModelPanel dispModel) {
-		vp = new UVViewport(dispModel.getModelViewManager(), this, prefs, viewportActivityManager, undoListener, mainPanel, this,
+		vp = new UVViewport(dispModel.getModelHandler(), this, prefs, viewportActivityManager, this,
 				modelEditorManager.getModelEditor());
 		add(vp);
 	}
@@ -868,7 +869,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	@Override
-	public void changeActivity(TVertexEditorActivityDescriptor newType) {
+	public void changeActivity(TVertexToolbarActionButtonType newType) {
 		currentActivity = newType;
 		viewportActivityManager.setCurrentActivity(newType.createActivity(modelEditorManager, dispMDL.getModelViewManager(), dispMDL.getUndoManager()));
 		resetButtons();

@@ -1,29 +1,26 @@
 package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.globalsequence.SetGlobalSequenceLengthAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
 //public class ComponentGlobalSequencePanel extends JPanel implements ComponentPanel<EditableModel> {
-public class ComponentGlobalSequencePanel extends JPanel implements ComponentPanel<Integer> {
-	private final ModelView modelViewManager;
-	private final UndoActionListener undoActionListener;
+public class ComponentGlobalSequencePanel extends ComponentPanel<Integer> {
+	private final ModelHandler modelHandler;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final JLabel indexLabel;
 	private final JSpinner lengthSpinner;
 	private int globalSequenceId;
 	private Integer value;
 
-	public ComponentGlobalSequencePanel(final ModelView modelViewManager,
-	                                    final UndoActionListener undoActionListener,
-	                                    final ModelStructureChangeListener modelStructureChangeListener) {
-		this.undoActionListener = undoActionListener;
-		this.modelViewManager = modelViewManager;
+	public ComponentGlobalSequencePanel(ModelHandler modelHandler,
+	                                    ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelHandler = modelHandler;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 
 		setLayout(new MigLayout());
@@ -47,10 +44,10 @@ public class ComponentGlobalSequencePanel extends JPanel implements ComponentPan
 
 	private void lengthSpinner() {
 		final SetGlobalSequenceLengthAction setGlobalSequenceLengthAction = new SetGlobalSequenceLengthAction(
-				modelViewManager.getModel(), globalSequenceId, value, (Integer) lengthSpinner.getValue(),
+				modelHandler.getModel(), globalSequenceId, value, (Integer) lengthSpinner.getValue(),
 				modelStructureChangeListener);
 		setGlobalSequenceLengthAction.redo();
-		undoActionListener.pushAction(setGlobalSequenceLengthAction);
+		modelHandler.getUndoManager().pushAction(setGlobalSequenceLengthAction);
 	}
 //
 //	private void lengthSpinner() {
@@ -76,7 +73,7 @@ public class ComponentGlobalSequencePanel extends JPanel implements ComponentPan
 	@Override
 	public void setSelectedItem(Integer itemToSelect) {
 		this.globalSequenceId = itemToSelect;
-		value = modelViewManager.getModel().getGlobalSeq(itemToSelect);
+		value = modelHandler.getModel().getGlobalSeq(itemToSelect);
 		indexLabel.setText(Integer.toString(globalSequenceId));
 		lengthSpinner.setValue(value);
 //	public void setSelectedItem(EditableModel itemToSelect) {

@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.header.SetBlendTimeAction;
 import com.hiveworkshop.rms.ui.application.actions.model.header.SetFormatVersionAction;
 import com.hiveworkshop.rms.ui.application.actions.model.header.SetHeaderExtentsAction;
@@ -10,107 +9,114 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
 import java.text.ParseException;
 
-public class ComponentHeaderPanel extends JPanel implements ComponentPanel<EditableModel> {
+public class ComponentHeaderPanel extends ComponentPanel<EditableModel> {
 	private static final Dimension MAXIMUM_SIZE = new Dimension(99999, 25);
 	private final ComponentEditorTextField modelNameField;
 	private final ComponentEditorJSpinner formatVersionSpinner;
 	private final ComponentEditorJSpinner blendTimeSpinner;
 	private final ExtLogEditor extLogEditor;
-	private final ModelView modelViewManager;
-	private final UndoActionListener undoActionListener;
+	private final ModelHandler modelHandler;
 	private final ModelStructureChangeListener changeListener;
 
-	public ComponentHeaderPanel(final ModelView modelViewManager,
-	                            final UndoActionListener undoActionListener,
-	                            final ModelStructureChangeListener changeListener) {
-
-		this.modelViewManager = modelViewManager;
-		this.undoActionListener = undoActionListener;
+	public ComponentHeaderPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		this.modelHandler = modelHandler;
 		this.changeListener = changeListener;
 
-		final JLabel modelNameLabel = new JLabel("Model Name:");
+		setLayout(new MigLayout("fill", "[]", "[][][][][][][][grow]"));
+
+		JLabel modelNameLabel = new JLabel("Model Name:");
 		modelNameField = new ComponentEditorTextField();
 		modelNameField.setMaximumSize(MAXIMUM_SIZE);
 		modelNameField.addActionListener(e -> modelNameField());
 
-		final JLabel versionLabel = new JLabel("Format Version:");
+		JLabel versionLabel = new JLabel("Format Version:");
 		formatVersionSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(800, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
 		formatVersionSpinner.setMaximumSize(MAXIMUM_SIZE);
 		formatVersionSpinner.addActionListener(this::formatVersionSpinner);
 
-		final JLabel blendTimeLabel = new JLabel("Blend Time:");
+		JLabel blendTimeLabel = new JLabel("Blend Time:");
 		blendTimeSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(150, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
 		blendTimeSpinner.setMaximumSize(MAXIMUM_SIZE);
 		blendTimeSpinner.addActionListener(this::blendTimeSpinner);
 
 		extLogEditor = new ExtLogEditor();
 		extLogEditor.setBorder(BorderFactory.createTitledBorder("Extents"));
-		extLogEditor.addActionListener(this::extLogEditor);
+		extLogEditor.addActionListener(this::setExtLog);
 
-		final GroupLayout layout = new GroupLayout(this);
+		add(new JLabel("Model Name:"), "wrap");
+		add(modelNameField, "wrap, growx");
+		add(new JLabel("Format Version:"), "wrap");
+		add(formatVersionSpinner, "wrap, growx");
+		add(new JLabel("Blend Time:"), "wrap");
+		add(blendTimeSpinner, "wrap, growx");
+		add(extLogEditor, "wrap, growx");
 
-		layout.setHorizontalGroup(layout.createParallelGroup().addComponent(modelNameLabel).addComponent(modelNameField)
-				.addComponent(versionLabel).addComponent(formatVersionSpinner).addComponent(blendTimeLabel)
-				.addComponent(blendTimeSpinner).addComponent(extLogEditor));
-		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(modelNameLabel).addComponent(modelNameField)
-				.addComponent(versionLabel).addComponent(formatVersionSpinner).addComponent(blendTimeLabel)
-				.addComponent(blendTimeSpinner).addComponent(extLogEditor));
-		setLayout(layout);
+		GroupLayout layout = new GroupLayout(this);
+
+//		layout.setHorizontalGroup(layout.createParallelGroup().addComponent(modelNameLabel).addComponent(modelNameField)
+//				.addComponent(versionLabel).addComponent(formatVersionSpinner).addComponent(blendTimeLabel)
+//				.addComponent(blendTimeSpinner).addComponent(extLogEditor));
+//		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(modelNameLabel).addComponent(modelNameField)
+//				.addComponent(versionLabel).addComponent(formatVersionSpinner).addComponent(blendTimeLabel)
+//				.addComponent(blendTimeSpinner).addComponent(extLogEditor));
+//		setLayout(layout);
 	}
 
-	private void extLogEditor() {
-		final SetHeaderExtentsAction setHeaderExtentsAction = new SetHeaderExtentsAction(
-				modelViewManager.getModel().getExtents(), extLogEditor.getExtLog(), modelViewManager,
-				changeListener);
+	private void setExtLog() {
+		System.out.println("edited: " + extLogEditor.getExtLog());
+		SetHeaderExtentsAction setHeaderExtentsAction = new SetHeaderExtentsAction(
+				modelHandler.getModel().getExtents(), extLogEditor.getExtLog(), modelHandler.getModelView(), changeListener);
 		setHeaderExtentsAction.redo();
-		undoActionListener.pushAction(setHeaderExtentsAction);
+		modelHandler.getUndoManager().pushAction(setHeaderExtentsAction);
 	}
 
 	private void blendTimeSpinner() {
-		if (modelViewManager != null) {
-			final SetBlendTimeAction setFormatVersionAction =
+		if (modelHandler != null) {
+			SetBlendTimeAction setFormatVersionAction =
 					new SetBlendTimeAction(
-							modelViewManager.getModel().getBlendTime(),
+							modelHandler.getModel().getBlendTime(),
 							((Number) blendTimeSpinner.getValue()).intValue(),
-							modelViewManager,
+							modelHandler.getModelView(),
 							changeListener);
 			setFormatVersionAction.redo();
-			undoActionListener.pushAction(setFormatVersionAction);
+			modelHandler.getUndoManager().pushAction(setFormatVersionAction);
 		}
 	}
 
 	private void formatVersionSpinner() {
-		if (modelViewManager != null) {
-			final SetFormatVersionAction setFormatVersionAction =
+		if (modelHandler != null) {
+			SetFormatVersionAction setFormatVersionAction =
 					new SetFormatVersionAction(
-							modelViewManager.getModel().getFormatVersion(),
+							modelHandler.getModel().getFormatVersion(),
 							((Number) formatVersionSpinner.getValue()).intValue(),
-							modelViewManager,
+							modelHandler.getModelView(),
 							changeListener);
 			setFormatVersionAction.redo();
-			undoActionListener.pushAction(setFormatVersionAction);
+			modelHandler.getUndoManager().pushAction(setFormatVersionAction);
 		}
 	}
 
 	private void modelNameField() {
-		if (modelViewManager != null) {
-			final SetNameAction action =
+		if (modelHandler != null) {
+			SetNameAction action =
 					new SetNameAction(
-							modelViewManager.getModel().getHeaderName(),
+							modelHandler.getModel().getHeaderName(),
 							modelNameField.getText(),
-							modelViewManager,
+							modelHandler.getModelView(),
 							changeListener);
 			action.redo();
-			undoActionListener.pushAction(action);
+			modelHandler.getUndoManager().pushAction(action);
 		}
 	}
 
-	private void setModelHeader(final EditableModel model) {
+	private void setModelHeader(EditableModel model) {
 		modelNameField.reloadNewValue(model.getHeaderName());
 		formatVersionSpinner.reloadNewValue(model.getFormatVersion());
 		blendTimeSpinner.reloadNewValue(model.getBlendTime());
@@ -119,19 +125,22 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel<Edita
 
 	@Override
 	public void setSelectedItem(EditableModel model) {
-		commitEdits();
-		setModelHeader(model);
+//		commitEdits();
+		modelNameField.reloadNewValue(model.getHeaderName());
+		formatVersionSpinner.reloadNewValue(model.getFormatVersion());
+		blendTimeSpinner.reloadNewValue(model.getBlendTime());
+		extLogEditor.setExtLog(model.getExtents());
 	}
 
 	private void commitEdits() {
 		try {
 			formatVersionSpinner.commitEdit();
-		} catch (final ParseException e) {
+		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 		try {
 			blendTimeSpinner.commitEdit();
-		} catch (final ParseException e) {
+		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 		extLogEditor.commitEdits();
@@ -139,8 +148,8 @@ public class ComponentHeaderPanel extends JPanel implements ComponentPanel<Edita
 	}
 
 	@Override
-	public void save(final EditableModel modelOutput, final UndoActionListener undoListener,
-	                 final ModelStructureChangeListener changeListener) {
+	public void save(EditableModel modelOutput, UndoActionListener undoListener,
+	                 ModelStructureChangeListener changeListener) {
 		modelOutput.setFormatVersion(((Number) formatVersionSpinner.getValue()).intValue());
 		modelOutput.setBlendTime(((Number) blendTimeSpinner.getValue()).intValue());
 		modelOutput.setExtents(extLogEditor.getExtLog());

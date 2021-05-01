@@ -252,7 +252,7 @@ public class CreatorModelingPanel extends JPanel
 			}
 			index++;
 		}
-		ActivityDescriptor selectAndSquatDescriptor = (modelEditorManager, modelView, undoActionListener) -> new ModelEditorMultiManipulatorActivity(new SquatToolWidgetManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView), undoActionListener, modelEditorManager.getSelectionView());
+		ActivityDescriptor selectAndSquatDescriptor = (modelEditorManager, modelHandler) -> new ModelEditorMultiManipulatorActivity(new SquatToolWidgetManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView), undoActionListener, modelEditorManager.getSelectionView());
 		String squatTypeName = "Squat";
 		ModeButton squatButton = new ModeButton(squatTypeName);
 		editToolsPanel.add(squatButton);

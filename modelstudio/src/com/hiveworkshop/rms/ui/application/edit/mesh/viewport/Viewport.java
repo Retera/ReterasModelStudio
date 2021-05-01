@@ -1,16 +1,14 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.AnimatedViewportModelRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -27,7 +25,7 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 	private final AnimatedViewportModelRenderer animatedViewportModelRenderer;
 	private final LinkRenderingVisitorAdapter linkRenderingVisitorAdapter;
 	private final ModelStructureChangeListener modelStructureChangeListener;
-	private final RenderModel renderModel;
+//	private final RenderModel renderModel;
 	//	private final ResettableAnimatedIdObjectParentLinkRenderer linkRenderer;
 	private ModelEditorManager modelEditorManager;
 	private final Vec3 facingVector;
@@ -37,21 +35,21 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 	long renderCount;
 
 
-	public Viewport(byte d1, byte d2, ModelView modelView, ProgramPreferences programPreferences, ViewportActivity activityListener, ModelStructureChangeListener modelStructureChangeListener, UndoActionListener undoListener, CoordDisplayListener coordDisplayListener, UndoHandler undoHandler, ModelEditorManager modelEditorManager, ViewportTransferHandler viewportTransferHandler, RenderModel renderModel, ViewportListener viewportListener) {
-		super(modelView, d1, d2, new Dimension(200, 200), programPreferences, activityListener, viewportListener, undoListener, undoHandler, coordDisplayListener);
+	public Viewport(byte d1, byte d2, ModelHandler modelHandler, ProgramPreferences programPreferences, ViewportActivity activityListener, ModelStructureChangeListener modelStructureChangeListener, CoordDisplayListener coordDisplayListener, ModelEditorManager modelEditorManager, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener) {
+		super(modelHandler, d1, d2, new Dimension(200, 200), programPreferences, activityListener, viewportListener, coordDisplayListener);
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
 
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.modelEditorManager = modelEditorManager;
-		this.renderModel = renderModel;
+//		this.renderModel = renderModel;
 		setupCopyPaste(viewportTransferHandler);
 
 //		coordinateSystem = new BasicCoordinateSystem(d1, d2, this);
 //		coordinateSystem = this;
 		viewport = this;
 
-		contextMenu = new ViewportPopupMenu(this, this.undoListener, this.modelEditorManager, this.modelView);
+		contextMenu = new ViewportPopupMenu(this, this.modelHandler, this.modelEditorManager);
 		add(contextMenu);
 
 		viewportModelRenderer = new ViewportModelRenderer(programPreferences.getVertexSize());
@@ -107,17 +105,17 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 		if (modelEditorManager.getModelEditor().editorWantsAnimation()) {
 			Stroke stroke = graphics2d.getStroke();
 			graphics2d.setStroke(new BasicStroke(3));
-			renderModel.updateNodes(false);
+			modelHandler.getRenderModel().updateNodes(false);
 //			linkRenderer.reset(this, graphics2d, NodeIconPalette.HIGHLIGHT, renderModel);
-			linkRenderingVisitorAdapter.reset(coordinateSystem, graphics2d, renderModel);
-			modelView.visit(linkRenderingVisitorAdapter);
+			linkRenderingVisitorAdapter.reset(coordinateSystem, graphics2d, modelHandler.getRenderModel());
+			modelHandler.getModelView().visit(linkRenderingVisitorAdapter);
 			graphics2d.setStroke(stroke);
-			animatedViewportModelRenderer.reset(graphics2d, programPreferences,this, coordinateSystem, modelView, renderModel);
-			modelView.visit(animatedViewportModelRenderer);
-			activityListener.render(graphics2d, coordinateSystem, renderModel);
+			animatedViewportModelRenderer.reset(graphics2d, programPreferences,this, coordinateSystem, modelHandler.getModelView(), modelHandler.getRenderModel());
+			modelHandler.getModelView().visit(animatedViewportModelRenderer);
+			activityListener.render(graphics2d, coordinateSystem, modelHandler.getRenderModel());
 		} else {
-			viewportModelRenderer.reset(graphics2d, programPreferences,this, coordinateSystem, modelView);
-			modelView.visit(viewportModelRenderer);
+			viewportModelRenderer.reset(graphics2d, programPreferences,this, coordinateSystem, modelHandler.getModelView());
+			modelHandler.getModelView().visit(viewportModelRenderer);
 			activityListener.renderStatic(graphics2d, coordinateSystem);
 		}
 
@@ -206,7 +204,7 @@ public class Viewport extends ViewportView implements ModelEditorChangeListener 
 	}
 
 	public ModelView getModelView() {
-		return modelView;
+		return modelHandler.getModelView();
 	}
 
 	public Point getLastMouseMotion() {

@@ -1,7 +1,8 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.SmartButtonGroup;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -11,55 +12,60 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 public class AnimationController extends JPanel {
-	private ModelView mdlDisp;
+	private ModelHandler modelHandler;
+//	private ModelView modelView;
 	private DefaultComboBoxModel<Animation> animations;
 	private JComboBox<Animation> animationBox;
 	private final boolean allowUnanimated;
 
-	public AnimationController(final ModelView mdlDisp, final boolean allowUnanimated, final AnimationControllerListener listener) {
-		this(mdlDisp, allowUnanimated, listener, null);
-	}
-
-	public AnimationController(final ModelView mdlDisp, final boolean allowUnanimated,
-	                           final AnimationControllerListener listener, final Animation defaultAnimation) {
-		this.mdlDisp = mdlDisp;
+	public AnimationController(ModelHandler modelHandler, boolean allowUnanimated,
+	                           AnimationControllerListener listener, Animation defaultAnimation) {
+		this.modelHandler = modelHandler;
 		this.allowUnanimated = allowUnanimated;
 		setLayout(new MigLayout("fillx"));
 
-		createAnimationChooser(mdlDisp, allowUnanimated, listener);
+		createAnimationChooser(modelHandler, allowUnanimated, listener);
 		add(animationBox, "wrap, w 90%:90%:90%, gapbottom 16");
 
-		final JButton playAnimationButton = new JButton("Play Animation");
-		final ActionListener playAnimationActionListener = e -> listener.playAnimation();
+		JButton playAnimationButton = new JButton("Play Animation");
+		ActionListener playAnimationActionListener = e -> listener.playAnimation();
 		playAnimationButton.addActionListener(playAnimationActionListener);
 		add(playAnimationButton, "wrap, gapbottom 16");
 
-		final ButtonGroup buttonGroup = new ButtonGroup();
+		SmartButtonGroup smartButtonGroup = new SmartButtonGroup();
+		smartButtonGroup.addJRadioButton("Default Loop", e -> listener.setLoop(AnimationControllerListener.LoopType.DEFAULT_LOOP));
+		smartButtonGroup.addJRadioButton("Always Loop", e -> listener.setLoop(AnimationControllerListener.LoopType.ALWAYS_LOOP));
+		smartButtonGroup.addJRadioButton("Never Loop", e -> listener.setLoop(AnimationControllerListener.LoopType.NEVER_LOOP));
+		smartButtonGroup.setSelectedIndex(0);
 
-		final JRadioButton defaultLoopButton = new JRadioButton("Default Loop");
-		defaultLoopButton.addActionListener(e -> setLoopType(listener, "default"));
-		buttonGroup.add(defaultLoopButton);
-		defaultLoopButton.setSelected(true);
-		add(defaultLoopButton, "wrap");
+		add(smartButtonGroup.getButtonPanel(), "wrap");
 
-		final JRadioButton alwaysLoopButton = new JRadioButton("Always Loop");
-		alwaysLoopButton.addActionListener(e -> setLoopType(listener, "always"));
-		buttonGroup.add(alwaysLoopButton);
-		add(alwaysLoopButton, "wrap");
+//		ButtonGroup buttonGroup = new ButtonGroup();
+//
+//		JRadioButton defaultLoopButton = new JRadioButton("Default Loop");
+//		defaultLoopButton.addActionListener(e -> listener.setLoop(AnimationControllerListener.LoopType.DEFAULT_LOOP));
+//		buttonGroup.add(defaultLoopButton);
+//		defaultLoopButton.setSelected(true);
+//		add(defaultLoopButton, "wrap");
+//
+//		JRadioButton alwaysLoopButton = new JRadioButton("Always Loop");
+//		alwaysLoopButton.addActionListener(e -> listener.setLoop(AnimationControllerListener.LoopType.ALWAYS_LOOP));
+//		buttonGroup.add(alwaysLoopButton);
+//		add(alwaysLoopButton, "wrap");
+//
+//		JRadioButton neverLoopButton = new JRadioButton("Never Loop");
+//		neverLoopButton.addActionListener(e -> listener.setLoop(AnimationControllerListener.LoopType.NEVER_LOOP));
+//		buttonGroup.add(neverLoopButton);
+//		add(neverLoopButton, "wrap, gapbottom 16");
 
-		final JRadioButton neverLoopButton = new JRadioButton("Never Loop");
-		neverLoopButton.addActionListener(e -> setLoopType(listener, "never"));
-		buttonGroup.add(neverLoopButton);
-		add(neverLoopButton, "wrap, gapbottom 16");
-
-		final JSlider speedSlider = new JSlider(0, 100, 50);
-		final JLabel speedSliderLabel = new JLabel("Speed: 100%");
+		JSlider speedSlider = new JSlider(0, 100, 50);
+		JLabel speedSliderLabel = new JLabel("Speed: 100%");
 		add(speedSliderLabel, "wrap");
 		speedSlider.addChangeListener(e -> changeAnimationSpeed(listener, speedSlider, speedSliderLabel));
 		add(speedSlider, "wrap, w 90%:90%:90%, gapbottom 16");
 
 		add(new JLabel("Level of Detail"), "wrap");
-		final JSpinner levelOfDetailSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 5, 1));
+		JSpinner levelOfDetailSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 5, 1));
 		levelOfDetailSpinner.addChangeListener(e -> listener.setLevelOfDetail(((Number) levelOfDetailSpinner.getValue()).intValue()));
 		levelOfDetailSpinner.setMaximumSize(new Dimension(99999, 25));
 		add(levelOfDetailSpinner, "wrap, w 90%:90%:90%");
@@ -68,12 +74,12 @@ public class AnimationController extends JPanel {
 		listener.setLoop(AnimationControllerListener.LoopType.DEFAULT_LOOP);
 	}
 
-	public void createAnimationChooser(ModelView mdlDisp, boolean allowUnanimated, AnimationControllerListener listener) {
+	public void createAnimationChooser(ModelHandler modelHandler, boolean allowUnanimated, AnimationControllerListener listener) {
 		animations = new DefaultComboBoxModel<>();
-		if (allowUnanimated || (mdlDisp.getModel().getAnims().size() == 0)) {
+		if (allowUnanimated || (modelHandler.getModel().getAnims().size() == 0)) {
 			animations.addElement(null);
 		}
-		for (final Animation animation : mdlDisp.getModel().getAnims()) {
+		for (Animation animation : modelHandler.getModel().getAnims()) {
 			animations.addElement(animation);
 		}
 		animationBox = new JComboBox<>(animations);
@@ -88,11 +94,11 @@ public class AnimationController extends JPanel {
 	private BasicComboBoxRenderer getComboBoxRenderer() {
 		return new BasicComboBoxRenderer() {
 			@Override
-			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-			                                              final boolean isSelected, final boolean cellHasFocus) {
+			public Component getListCellRendererComponent(JList list, Object value, int index,
+			                                              boolean isSelected, boolean cellHasFocus) {
 				Object display = value == null ? "(Unanimated)" : value;
 				if (value != null) {
-					display = "(" + mdlDisp.getModel().getAnims().indexOf(value) + ") " + display;
+					display = "(" + modelHandler.getModel().getAnims().indexOf(value) + ") " + display;
 				}
 				return super.getListCellRendererComponent(list, display, index, isSelected, cellHasFocus);
 			}
@@ -105,7 +111,7 @@ public class AnimationController extends JPanel {
 	}
 
 	public void changeAnimation(java.awt.event.MouseWheelEvent e) {
-		final int wheelRotation = e.getWheelRotation();
+		int wheelRotation = e.getWheelRotation();
 		int previousSelectedIndex = animationBox.getSelectedIndex();
 		if (previousSelectedIndex < 0) {
 			previousSelectedIndex = 0;
@@ -138,9 +144,9 @@ public class AnimationController extends JPanel {
 	}
 
 	public void reload() {
-		final Animation selectedItem = (Animation) animationBox.getSelectedItem();
+		Animation selectedItem = (Animation) animationBox.getSelectedItem();
 		animations.removeAllElements();
-		List<Animation> anims = mdlDisp.getModel().getAnims();
+		List<Animation> anims = modelHandler.getModel().getAnims();
 		if (allowUnanimated || (anims.size() == 0)) {
 			animations.addElement(null);
 		}
@@ -156,12 +162,12 @@ public class AnimationController extends JPanel {
 		}
 	}
 
-	public Animation getCurrentAnimation() {
-		return (Animation) animationBox.getSelectedItem();
-	}
+//	public Animation getCurrentAnimation() {
+//		return (Animation) animationBox.getSelectedItem();
+//	}
 
-	public void setModel(final ModelView modelView) {
-		mdlDisp = modelView;
-		reload();
-	}
+//	public void setModel(ModelView modelView) {
+//		this.modelView = modelView;
+//		reload();
+//	}
 }

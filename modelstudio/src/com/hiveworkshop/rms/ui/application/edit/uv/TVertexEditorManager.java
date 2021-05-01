@@ -33,10 +33,10 @@ public final class TVertexEditorManager {
 	private final ModelStructureChangeListener structureChangeListener;
 	public static boolean MOVE_LINKED;
 
-	public TVertexEditorManager(final ModelView model, final ProgramPreferences programPreferences,
-			final ToolbarButtonGroup<SelectionMode> modeButtonGroup,
-			final TVertexEditorChangeListener modelEditorChangeListener, final SelectionListener selectionListener,
-			final RenderModel renderModel, final ModelStructureChangeListener structureChangeListener) {
+	public TVertexEditorManager(ModelView model, ProgramPreferences programPreferences,
+			ToolbarButtonGroup<SelectionMode> modeButtonGroup,
+			TVertexEditorChangeListener modelEditorChangeListener, SelectionListener selectionListener,
+			RenderModel renderModel, ModelStructureChangeListener structureChangeListener) {
 		this.model = model;
 		this.modelEditorChangeListener = modelEditorChangeListener;
 		this.programPreferences = programPreferences;

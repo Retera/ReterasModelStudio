@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.model.Helper;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.NameChangeAction;
 import com.hiveworkshop.rms.ui.application.actions.model.ParentChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -13,6 +12,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.QuatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.Vec3ValuePanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
@@ -21,9 +21,8 @@ import javax.swing.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
-public class ComponentHelperPanel extends JPanel implements ComponentPanel<Helper> {
-	private final ModelView modelViewManager;
-	private final UndoActionListener undoActionListener;
+public class ComponentHelperPanel extends ComponentPanel<Helper> {
+	private final ModelHandler modelHandler;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	JLabel title;
 	JTextField nameField;
@@ -35,14 +34,12 @@ public class ComponentHelperPanel extends JPanel implements ComponentPanel<Helpe
 	private QuatValuePanel rotPanel;
 
 
-	public ComponentHelperPanel(final ModelView modelViewManager,
-	                            final UndoActionListener undoActionListener,
-	                            final ModelStructureChangeListener modelStructureChangeListener) {
-		this.undoActionListener = undoActionListener;
-		this.modelViewManager = modelViewManager;
+	public ComponentHelperPanel(ModelHandler modelHandler,
+	                            ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelHandler = modelHandler;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 
-		parentChooser = new ParentChooser(modelViewManager);
+		parentChooser = new ParentChooser(modelHandler.getModelView());
 
 		setLayout(new MigLayout("fill, gap 0", "[][][grow]", "[][][grow]"));
 		title = new JLabel("Select a Helper");
@@ -56,11 +53,11 @@ public class ComponentHelperPanel extends JPanel implements ComponentPanel<Helpe
 		JButton chooseParentButton = new JButton("change");
 		chooseParentButton.addActionListener(e -> chooseParent());
 		add(chooseParentButton, "wrap");
-		transPanel = new Vec3ValuePanel("Translation", undoActionListener, modelStructureChangeListener);
+		transPanel = new Vec3ValuePanel("Translation", modelHandler.getUndoManager(), modelStructureChangeListener);
 		add(transPanel, "spanx, growx, wrap");
-		scalePanel = new Vec3ValuePanel("Scaling", undoActionListener, modelStructureChangeListener);
+		scalePanel = new Vec3ValuePanel("Scaling", modelHandler.getUndoManager(), modelStructureChangeListener);
 		add(scalePanel, "spanx, growx, wrap");
-		rotPanel = new QuatValuePanel("Rotation", undoActionListener, modelStructureChangeListener);
+		rotPanel = new QuatValuePanel("Rotation", modelHandler.getUndoManager(), modelStructureChangeListener);
 		add(rotPanel, "spanx, growx, wrap");
 	}
 
@@ -96,7 +93,7 @@ public class ComponentHelperPanel extends JPanel implements ComponentPanel<Helpe
 		ParentChangeAction action = new ParentChangeAction(idObject, newParent, modelStructureChangeListener);
 		action.redo();
 		repaint();
-		undoActionListener.pushAction(action);
+		modelHandler.getUndoManager().pushAction(action);
 	}
 
 	private FocusAdapter changeName() {
@@ -107,7 +104,7 @@ public class ComponentHelperPanel extends JPanel implements ComponentPanel<Helpe
 				if (!newName.equals("")) {
 					NameChangeAction action = new NameChangeAction(idObject, newName, modelStructureChangeListener);
 					action.redo();
-					undoActionListener.pushAction(action);
+					modelHandler.getUndoManager().pushAction(action);
 				}
 			}
 		};

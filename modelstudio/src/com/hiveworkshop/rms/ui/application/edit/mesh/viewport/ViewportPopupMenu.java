@@ -1,11 +1,10 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.gui.modeledit.MatrixPopup;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.SkinPopup;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
@@ -35,15 +34,17 @@ public class ViewportPopupMenu extends JPopupMenu {
 			new ViewportAxis("Bottom270", (byte) 0, (byte) -2),
 	};
 	Viewport viewport;
-	UndoActionListener undoListener;
+//	UndoActionListener undoListener;
 	ModelEditorManager modelEditorManager;
-	ModelView modelView;
+//	ModelView modelView;
+	ModelHandler modelHandler;
 
-	public ViewportPopupMenu(Viewport viewport, UndoActionListener undoListener, ModelEditorManager modelEditorManager, ModelView modelView) {
+	public ViewportPopupMenu(Viewport viewport, ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
 		this.viewport = viewport;
-		this.undoListener = undoListener;
+		this.modelHandler = modelHandler;
+//		this.undoListener = undoListener;
 		this.modelEditorManager = modelEditorManager;
-		this.modelView = modelView;
+//		this.modelView = modelView;
 
 		JMenu viewMenu = new JMenu("View");
 		add(viewMenu);
@@ -69,8 +70,8 @@ public class ViewportPopupMenu extends JPopupMenu {
 		createFace.addActionListener(e -> createFace(viewport));
 		meshMenu.add(createFace);
 
-		addMenuItem("Split Geoset and Add Team Color", e -> undoListener.pushAction(modelEditorManager.getModelEditor().addTeamColor()), meshMenu);
-		addMenuItem("Split Geoset", e -> undoListener.pushAction(modelEditorManager.getModelEditor().splitGeoset()), meshMenu);
+		addMenuItem("Split Geoset and Add Team Color", e -> modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().addTeamColor()), meshMenu);
+		addMenuItem("Split Geoset", e -> modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().splitGeoset()), meshMenu);
 
 		JMenu editMenu = new JMenu("Edit");
 		add(editMenu);
@@ -83,7 +84,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		JMenu matrixMenu = new JMenu("Rig");
 		add(matrixMenu);
 
-		addMenuItem("Selected Mesh to Selected Nodes", e -> undoListener.pushAction(modelEditorManager.getModelEditor().rig()), matrixMenu);
+		addMenuItem("Selected Mesh to Selected Nodes", e -> modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().rig()), matrixMenu);
 		addMenuItem("Re-assign Matrix", e -> reAssignMatrix(viewport), matrixMenu);
 		addMenuItem("View Matrix", e -> InfoPopup.show(viewport, modelEditorManager.getModelEditor().getSelectedMatricesDescription()), matrixMenu);
 		addMenuItem("Re-assign HD Skin", e -> reAssignSkinning(viewport), matrixMenu);
@@ -93,7 +94,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		add(nodeMenu);
 
 		addMenuItem("Set Parent", e -> setParent(viewport), nodeMenu);
-		addMenuItem("Auto-Center Bone(s)", e -> undoListener.pushAction(modelEditorManager.getModelEditor().autoCenterSelectedBones()), nodeMenu);
+		addMenuItem("Auto-Center Bone(s)", e -> modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().autoCenterSelectedBones()), nodeMenu);
 		addMenuItem("Rename Bone", e -> renameBone(viewport), nodeMenu);
 		addMenuItem("Append Bone Suffix", e -> appendBoneBone(viewport), nodeMenu);
 	}
@@ -107,28 +108,28 @@ public class ViewportPopupMenu extends JPopupMenu {
 
 	void createFace(Viewport viewport) {
 		try {
-			undoListener.pushAction(modelEditorManager.getModelEditor().createFaceFromSelection(viewport.getFacingVector()));
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().createFaceFromSelection(viewport.getFacingVector()));
 		} catch (final FaceCreationException exc) {
 			JOptionPane.showMessageDialog(viewport, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
 	void reAssignMatrix(Viewport viewport) {
-		MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
+		MatrixPopup matrixPopup = new MatrixPopup(modelHandler.getModel());
 		String[] words = {"Accept", "Cancel"};
 		int i = JOptionPane.showOptionDialog(viewport, matrixPopup, "Rebuild Matrix", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
 			UndoAction reassignMatrixAction = modelEditorManager.getModelEditor().setMatrix(matrixPopup.getNewBoneList());
-			undoListener.pushAction(reassignMatrixAction);
+			modelHandler.getUndoManager().pushAction(reassignMatrixAction);
 		}
 	}
 
 	void reAssignSkinning(Viewport viewport) {
-		SkinPopup skinPopup = new SkinPopup(modelView);
+		SkinPopup skinPopup = new SkinPopup(modelHandler.getModelView());
 		String[] words = {"Accept", "Cancel"};
 		int i = JOptionPane.showOptionDialog(viewport, skinPopup, "Rebuild Skin", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
-			undoListener.pushAction(modelEditorManager.getModelEditor().setHDSkinning(skinPopup.getBones(), skinPopup.getSkinWeights()));
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().setHDSkinning(skinPopup.getBones(), skinPopup.getSkinWeights()));
 		}
 	}
 
@@ -167,7 +168,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 			}
 		}
 
-		List<IdObject> idObjects = modelView.getModel().getIdObjects();
+		List<IdObject> idObjects = modelHandler.getModel().getIdObjects();
 		NodeShell[] nodeOptions = new NodeShell[idObjects.size() + 1];
 		nodeOptions[0] = new NodeShell(null);
 		NodeShell defaultChoice = nodeOptions[0];
@@ -192,7 +193,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 			return;
 		}
 		UndoAction translate = modelEditorManager.getModelEditor().translate(spinners.getValue());
-		undoListener.pushAction(translate);
+		modelHandler.getUndoManager().pushAction(translate);
 	}
 
 	void manualRotate(Viewport viewport) {
@@ -205,7 +206,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		}
 
 		UndoAction rotate = modelEditorManager.getModelEditor().rotate(modelEditorManager.getModelEditor().getSelectionCenter(), spinners.getValue());
-		undoListener.pushAction(rotate);
+		modelHandler.getUndoManager().pushAction(rotate);
 
 	}
 
@@ -218,7 +219,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 			return;
 		}
 		UndoAction setPosition = modelEditorManager.getModelEditor().setPosition(modelEditorManager.getModelEditor().getSelectionCenter(), spinners.getValue());
-		undoListener.pushAction(setPosition);
+		modelHandler.getUndoManager().pushAction(setPosition);
 	}
 
 	void manualScale(Viewport viewport) {
@@ -248,7 +249,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		}
 		GenericScaleAction scalingAction = modelEditorManager.getModelEditor().beginScaling(center);
 		scalingAction.updateScale(spinners.getValue());
-		undoListener.pushAction(scalingAction);
+		modelHandler.getUndoManager().pushAction(scalingAction);
 	}
 
 	private void changeViewportAxis(ViewportAxis axis) {

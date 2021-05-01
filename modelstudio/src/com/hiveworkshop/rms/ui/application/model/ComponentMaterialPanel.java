@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.material.SetMaterialPriorityPlaneAction;
 import com.hiveworkshop.rms.ui.application.actions.model.material.SetMaterialShaderStringAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -10,6 +9,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.application.model.material.ComponentMaterialLayersPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -18,13 +18,12 @@ import javax.swing.plaf.basic.BasicComboBoxEditor;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
 
-public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Material> {
+public class ComponentMaterialPanel extends ComponentPanel<Material> {
 	private static final String SD = "SD";
 	private static final String HD = "HD";
 	private Material material;
-	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
-	private final ModelView modelViewManager;
+	private final ModelHandler modelHandler;
 
 	private final JComboBox<String> shaderOptionComboBox;
 	private final ComponentEditorJSpinner priorityPlaneSpinner;
@@ -32,11 +31,9 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 	private boolean listenForChanges = true;
 	private final ComponentMaterialLayersPanel multipleLayersPanel;
 
-	public ComponentMaterialPanel(final ModelView modelViewManager,
-	                              final UndoActionListener undoActionListener,
-	                              final ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelViewManager = modelViewManager;
-		this.undoActionListener = undoActionListener;
+	public ComponentMaterialPanel(ModelHandler modelHandler,
+	                              ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelHandler = modelHandler;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 
 		shaderOptionComboBox = getShaderComboBox();
@@ -73,7 +70,7 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 			listenForChanges = true;
 		}
 
-		multipleLayersPanel.setMaterial(material, modelViewManager, undoActionListener, modelStructureChangeListener);
+		multipleLayersPanel.setMaterial(material, modelHandler.getModelView(), modelHandler.getUndoManager(), modelStructureChangeListener);
 	}
 
 	private JComboBox<String> getShaderComboBox() {
@@ -92,7 +89,7 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 				material, material.getPriorityPlane(), ((Number) priorityPlaneSpinner.getValue()).intValue(),
 				modelStructureChangeListener);
 		setMaterialPriorityPlaneAction.redo();
-		undoActionListener.pushAction(setMaterialPriorityPlaneAction);
+		modelHandler.getUndoManager().pushAction(setMaterialPriorityPlaneAction);
 	}
 
 	private void shaderOptionComboBoxListener() {
@@ -101,7 +98,7 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 					material, material.getShaderString(), (String) shaderOptionComboBox.getSelectedItem(),
 					modelStructureChangeListener);
 			setMaterialShaderStringAction.redo();
-			undoActionListener.pushAction(setMaterialShaderStringAction);
+			modelHandler.getUndoManager().pushAction(setMaterialShaderStringAction);
 		}
 	}
 
@@ -155,8 +152,8 @@ public class ComponentMaterialPanel extends JPanel implements ComponentPanel<Mat
 	}
 
 	@Override
-	public void save(final EditableModel model, final UndoActionListener undoListener,
-	                 final ModelStructureChangeListener changeListener) {
+	public void save(EditableModel model, UndoActionListener undoListener,
+	                 ModelStructureChangeListener changeListener) {
 	}
 
 }

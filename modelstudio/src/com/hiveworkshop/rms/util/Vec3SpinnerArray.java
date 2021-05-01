@@ -3,15 +3,17 @@ package com.hiveworkshop.rms.util;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
 
 public class Vec3SpinnerArray {
-	JSpinner[] spinners = new JSpinner[3];
-	JLabel[] labels = new JLabel[3];
-	String labelWrap = "wrap";
-	String spinnerWrap = "";
-	String labelConst = "";
-	String spinnerConst = "";
+	private JSpinner[] spinners = new JSpinner[3];
+	private JLabel[] labels = new JLabel[3];
+	private String labelWrap = "wrap";
+	private String spinnerWrap = "";
+	private String labelConst = "";
+	private String spinnerConst = "";
 
+	boolean isUpdating = false;
 
 	public Vec3SpinnerArray() {
 		spinners[0] = getStandardSpinner(0);
@@ -71,9 +73,11 @@ public class Vec3SpinnerArray {
 	}
 
 	public Vec3SpinnerArray setValues(Vec3 newValues) {
+		isUpdating = true;
 		spinners[0].setValue(newValues.x);
 		spinners[1].setValue(newValues.y);
 		spinners[2].setValue(newValues.z);
+		isUpdating = false;
 		return this;
 	}
 
@@ -101,6 +105,24 @@ public class Vec3SpinnerArray {
 
 	public Vec3SpinnerArray setSpinnerConstrains(String constrains) {
 		spinnerConst = constrains;
+		return this;
+	}
+
+	boolean ugg;
+	public Vec3SpinnerArray addActionListener(Runnable actionListener){
+//		spinners[0].addChangeListener(e -> System.out.println("ChangeListener"));
+//		spinners[0].addPropertyChangeListener(e -> System.out.println("PropertyChange"));
+		ChangeListener changeListener = e -> {
+			if(!isUpdating){
+				if(ugg){
+					actionListener.run();
+				}
+				ugg = !ugg; // this is just an ugly temporary hack to run the actionListener only on the second change event fire
+			}
+		};
+		spinners[0].addChangeListener(changeListener);
+		spinners[1].addChangeListener(changeListener);
+		spinners[2].addChangeListener(changeListener);
 		return this;
 	}
 }

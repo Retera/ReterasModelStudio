@@ -1,12 +1,10 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import javax.swing.*;
@@ -31,9 +29,7 @@ public abstract class ViewportView extends JPanel {
 	protected Point lastMouseMotion = new Point(0, 0);
 	protected CursorManager cursorManager;
 
-	protected ModelView modelView;
-	protected UndoHandler undoHandler;
-	protected UndoActionListener undoListener;
+	protected ModelHandler modelHandler;
 	protected ProgramPreferences programPreferences;
 	protected ViewportActivity activityListener;
 	protected ViewportListener viewportListener;
@@ -44,20 +40,19 @@ public abstract class ViewportView extends JPanel {
 	protected Point actStart;
 	protected Timer clickTimer = new Timer(16, e -> clickTimer());
 
-	public ViewportView(ModelView modelView, byte d1, byte d2,
+	public ViewportView(ModelHandler modelHandler, byte d1, byte d2,
 	                    Dimension minDim,
 	                    ProgramPreferences programPreferences,
 	                    ViewportActivity viewportActivity,
 	                    ViewportListener viewportListener,
-	                    UndoActionListener undoListener,
-	                    UndoHandler undoHandler,
 	                    CoordDisplayListener coordDisplayListener) {
-		this.modelView = modelView;
+//		this.modelView = modelView;
+		this.modelHandler = modelHandler;
 		this.programPreferences = programPreferences;
 		this.activityListener = viewportActivity;
 		this.viewportListener = viewportListener;
-		this.undoListener = undoListener;
-		this.undoHandler = undoHandler;
+//		this.undoListener = undoListener;
+//		this.undoHandler = undoHandler;
 		this.coordDisplayListener = coordDisplayListener;
 
 		coordinateSystem = new CoordinateSystem(d1, d2, this);
@@ -178,42 +173,6 @@ public abstract class ViewportView extends JPanel {
 
 	public abstract void paintComponent(final Graphics g, final int vertexSize);
 
-//	@Override
-//	public double viewX(double x) {
-//		return ((x + cameraX) * zoom * aspectRatio) + (getWidth() / 2.0);
-//	}
-//
-//	@Override
-//	public double viewY(double y) {
-//		return ((y * yFlip + cameraY) * zoom) + (getHeight() / 2.0);
-//	}
-//
-//	@Override
-//	public double geomX(double x) {
-//		return ((x - (getWidth() / 2.0)) / aspectRatio / zoom) - cameraX;
-//	}
-//
-//	@Override
-//	public double geomY(double y) {
-//		return yFlip * ((y - (getHeight() / 2.0)) / zoom) - cameraY;
-//	}
-//
-//
-////	@Override
-////	public CoordinateSystem copy() {
-////		return new BasicCoordinateSystem(m_d1, m_d2, m_a, m_b, m_zoom, getWidth(), getHeight());
-////	}
-//
-//	@Override
-//	public byte getPortFirstXYZ() {
-//		return dimension1;
-//	}
-//
-//	@Override
-//	public byte getPortSecondXYZ() {
-//		return dimension2;
-//	}
-
 
 	protected MouseAdapter getMouseAdapter() {
 		return new MouseAdapter() {
@@ -263,7 +222,7 @@ public abstract class ViewportView extends JPanel {
 //					clickTimer.stop();
 //					repaint();
 //				}
-				undoHandler.refreshUndo();
+				modelHandler.getUndoHandler().refreshUndo();
 				// TODO fix, refresh undo
 				if ((e.getButton() == MouseEvent.BUTTON2) && (lastClick != null)) {
 					double translateX = (e.getX() - lastClick.x);

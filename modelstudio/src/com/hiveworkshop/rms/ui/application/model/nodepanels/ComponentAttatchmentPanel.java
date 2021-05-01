@@ -3,21 +3,20 @@ package com.hiveworkshop.rms.ui.application.model.nodepanels;
 import com.hiveworkshop.rms.editor.model.Attachment;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.NameChangeAction;
 import com.hiveworkshop.rms.ui.application.actions.model.ParentChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
-public class ComponentAttatchmentPanel extends JPanel implements ComponentPanel<Attachment> {
-	private final ModelView modelViewManager;
-	private final UndoActionListener undoActionListener;
+public class ComponentAttatchmentPanel extends ComponentPanel<Attachment> {
+	private final ModelHandler modelHandler;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	Attachment idObject;
 
@@ -27,14 +26,12 @@ public class ComponentAttatchmentPanel extends JPanel implements ComponentPanel<
 	ParentChooser parentChooser;
 
 
-	public ComponentAttatchmentPanel(final ModelView modelViewManager,
-	                                 final UndoActionListener undoActionListener,
-	                                 final ModelStructureChangeListener modelStructureChangeListener) {
-		this.undoActionListener = undoActionListener;
-		this.modelViewManager = modelViewManager;
+	public ComponentAttatchmentPanel(ModelHandler modelHandler,
+	                                 ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelHandler = modelHandler;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 
-		parentChooser = new ParentChooser(modelViewManager);
+		parentChooser = new ParentChooser(modelHandler.getModelView());
 
 		setLayout(new MigLayout("fill, gap 0", "[][][grow]", "[][][grow]"));
 		title = new JLabel("Select an Emitter");
@@ -77,7 +74,7 @@ public class ComponentAttatchmentPanel extends JPanel implements ComponentPanel<
 		ParentChangeAction action = new ParentChangeAction(idObject, newParent, modelStructureChangeListener);
 		action.redo();
 		repaint();
-		undoActionListener.pushAction(action);
+		modelHandler.getUndoManager().pushAction(action);
 	}
 
 	private FocusAdapter changeName() {
@@ -88,7 +85,7 @@ public class ComponentAttatchmentPanel extends JPanel implements ComponentPanel<
 				if (!newName.equals("")) {
 					NameChangeAction action = new NameChangeAction(idObject, newName, modelStructureChangeListener);
 					action.redo();
-					undoActionListener.pushAction(action);
+					modelHandler.getUndoManager().pushAction(action);
 				}
 			}
 		};

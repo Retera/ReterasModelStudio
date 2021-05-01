@@ -4,9 +4,11 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 
-public interface ComponentPanel<T> {
+import javax.swing.*;
 
-	void setSelectedItem(T itemToSelect);
+public abstract class ComponentPanel<T> extends JPanel {
 
-	void save(EditableModel model, UndoActionListener undoListener, ModelStructureChangeListener changeListener);
+	public abstract void setSelectedItem(T itemToSelect);
+
+	public abstract void save(EditableModel model, UndoActionListener undoListener, ModelStructureChangeListener changeListener);
 }

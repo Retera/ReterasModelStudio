@@ -4,13 +4,13 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.TimelineKeyNamer;
 import com.hiveworkshop.rms.ui.application.tools.GeosetAnimCopyPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -18,9 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<GeosetAnim> {
-	private final ModelView modelViewManager;
-	private final UndoActionListener undoActionListener;
+public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
+	private final ModelHandler modelHandler;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final Map<GeosetAnim, ComponentGeosetMaterialPanel> animPanels;
 	private final boolean listenersEnabled = true;
@@ -31,11 +30,9 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 	GeosetAnim geosetAnim;
 
 
-	public ComponentGeosetAnimPanel(final ModelView modelViewManager,
-	                                final UndoActionListener undoActionListener,
-	                                final ModelStructureChangeListener modelStructureChangeListener) {
-		this.undoActionListener = undoActionListener;
-		this.modelViewManager = modelViewManager;
+	public ComponentGeosetAnimPanel(ModelHandler modelHandler,
+	                                ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelHandler = modelHandler;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
 
@@ -50,12 +47,12 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 		button.addActionListener(e -> copyFromOther());
 		animsPanelHolder.add(button, "wrap");
 
-		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
-		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelViewManager.getModel()));
+		alphaPanel = new FloatValuePanel("Alpha", modelHandler.getUndoManager(), modelStructureChangeListener);
+		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		animsPanelHolder.add(alphaPanel, "wrap, span 2");
 
-		colorPanel = new ColorValuePanel("Color", undoActionListener, modelStructureChangeListener);
-		colorPanel.setKeyframeHelper(new TimelineKeyNamer(modelViewManager.getModel()));
+		colorPanel = new ColorValuePanel("Color", modelHandler.getUndoManager(), modelStructureChangeListener);
+		colorPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		animsPanelHolder.add(colorPanel, "wrap, span 2");
 
 
@@ -88,7 +85,7 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 	}
 
 	private void copyFromOther() {
-		GeosetAnimCopyPanel.show(this, modelViewManager, geosetAnim, modelStructureChangeListener, undoActionListener);
+		GeosetAnimCopyPanel.show(this, modelHandler.getModelView(), geosetAnim, modelStructureChangeListener, modelHandler.getUndoManager());
 		repaint();
 	}
 

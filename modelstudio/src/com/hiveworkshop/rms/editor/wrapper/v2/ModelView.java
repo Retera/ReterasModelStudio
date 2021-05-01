@@ -1,16 +1,12 @@
 package com.hiveworkshop.rms.editor.wrapper.v2;
 
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.editor.model.visitor.GeosetVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.MeshVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
-import com.hiveworkshop.rms.editor.model.visitor.UvIlandThing;
+import com.hiveworkshop.rms.editor.model.visitor.TriangleVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.render.RenderByViewMeshRenderer;
-import com.hiveworkshop.rms.editor.wrapper.v2.render.RenderByViewModelRenderer;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,8 +19,6 @@ public final class ModelView {
 	private final Set<Geoset> visibleGeosets;
 	private final Set<IdObject> editableIdObjects;
 	private final Set<Camera> editableCameras;
-	private final RenderByViewModelRenderer renderByViewModelRenderer;
-	private final RenderByViewMeshRenderer renderByViewMeshRenderer;
 	private Geoset highlightedGeoset;
 	private IdObject highlightedNode;
 	private boolean vetoParticles = false;
@@ -43,8 +37,6 @@ public final class ModelView {
 		visibleGeosets = new HashSet<>();
 		editableIdObjects = new HashSet<>();
 		editableCameras = new HashSet<>();
-		renderByViewModelRenderer = new RenderByViewModelRenderer(this);
-		renderByViewMeshRenderer = new RenderByViewMeshRenderer(this);
 	}
 
 	public RenderModel getEditorRenderModel() {
@@ -52,9 +44,36 @@ public final class ModelView {
 	}
 
 	public void visit(final ModelVisitor visitor) {
-//		model.render(renderByViewModelRenderer.reset(visitor));
-		UvIlandThing.render(renderByViewModelRenderer.reset(visitor), model);
+		int geosetId = 0;
+		for (final Geoset geoset : model.getGeosets()) {
+			final GeosetVisitor geosetRenderer = visitor.beginGeoset(geosetId++, geoset.getMaterial(), geoset.getGeosetAnim());
+			boolean isHD = isHd(model, geoset);
+			for (Triangle triangle : geoset.getTriangles()) {
+				TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
+				for (GeosetVertex vertex : triangle.getVerts()) {
+					triangleRenderer.vertex(vertex, isHD);
+				}
+				triangleRenderer.triangleFinished();
+			}
+		}
+		for (IdObject object : model.getAllObjects()) {
+			visitor.visitIdObject(object);
+		}
+		for (final Camera camera : model.getCameras()) {
+			visitor.camera(camera);
+		}
 	}
+
+	public boolean isHd(EditableModel model, Geoset geoset) {
+		return (ModelUtils.isTangentAndSkinSupported(model.getFormatVersion()))
+				&& (geoset.getVertices().size() > 0)
+				&& (geoset.getVertex(0).getSkinBoneBones() != null);
+	}
+
+//	public void visit(final ModelVisitor visitor) {
+////		model.render(renderByViewModelRenderer.reset(visitor));
+//		UvIlandThing.render(renderByViewModelRenderer.reset(visitor), model);
+//	}
 
 	public void addStateListener(final ModelViewStateListener listener) {
 		modelViewStateNotifier.subscribe(listener);
@@ -161,7 +180,22 @@ public final class ModelView {
 		vetoParticles = override;
 	}
 
-	public void visitMesh(final MeshVisitor visitor) {
-		UvIlandThing.visit(renderByViewMeshRenderer.reset(visitor), model);
+	public void visitMesh(MeshVisitor visitor) {
+		int geosetId = 0;
+		for (Geoset geoset : model.getGeosets()) {
+			GeosetVisitor geosetRenderer = visitor.beginGeoset(geosetId++, geoset.getMaterial(), geoset.getGeosetAnim());
+			boolean isHD = isHd(model, geoset);
+			for (Triangle triangle : geoset.getTriangles()) {
+				TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
+				for (GeosetVertex vertex : triangle.getVerts()) {
+					triangleRenderer.vertex(vertex, isHD);
+				}
+				triangleRenderer.triangleFinished();
+			}
+		}
+
 	}
+//	public void visitMesh(final MeshVisitor visitor) {
+//		UvIlandThing.renderGeosets(renderByViewMeshRenderer.reset(visitor), model);
+//	}
 }

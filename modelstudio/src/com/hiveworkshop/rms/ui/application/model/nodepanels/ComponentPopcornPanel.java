@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.ParentChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
@@ -16,15 +15,14 @@ import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.TimelineKeyNamer;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class ComponentPopcornPanel extends JPanel implements ComponentPanel<ParticleEmitterPopcorn> {
-
-	private final ModelView modelViewManager;
-	private final UndoActionListener undoActionListener;
+public class ComponentPopcornPanel extends ComponentPanel<ParticleEmitterPopcorn> {
+	private final ModelHandler modelHandler;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	//	private final Map<AnimatedNode, ComponentGeosetMaterialPanel> nodePanels;
 	private final boolean listenersEnabled = true;
@@ -49,14 +47,12 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 	ParentChooser parentChooser;
 
 
-	public ComponentPopcornPanel(final ModelView modelViewManager,
-	                             final UndoActionListener undoActionListener,
-	                             final ModelStructureChangeListener modelStructureChangeListener) {
-		this.undoActionListener = undoActionListener;
-		this.modelViewManager = modelViewManager;
+	public ComponentPopcornPanel(ModelHandler modelHandler,
+	                             ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelHandler = modelHandler;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 
-		parentChooser = new ParentChooser(modelViewManager);
+		parentChooser = new ParentChooser(modelHandler.getModelView());
 
 		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
 
@@ -119,8 +115,8 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 	}
 
 	private ColorValuePanel getColorValuePanel(JPanel panel, String title) {
-		ColorValuePanel colorPanel1 = new ColorValuePanel(title, undoActionListener, modelStructureChangeListener);
-		colorPanel1.setKeyframeHelper(new TimelineKeyNamer(modelViewManager.getModel()));
+		ColorValuePanel colorPanel1 = new ColorValuePanel(title, modelHandler.getUndoManager(), modelStructureChangeListener);
+		colorPanel1.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		JScrollPane colorScrollPane = new JScrollPane(colorPanel1);
 		colorScrollPane.setMaximumSize(new Dimension(700, 300));
 		colorScrollPane.getVerticalScrollBar().setUnitIncrement(16);
@@ -129,8 +125,8 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 	}
 
 	private FloatValuePanel getFloatValuePanel(JPanel panel1, String title) {
-		FloatValuePanel panel = new FloatValuePanel(title, undoActionListener, modelStructureChangeListener);
-		panel.setKeyframeHelper(new TimelineKeyNamer(modelViewManager.getModel()));
+		FloatValuePanel panel = new FloatValuePanel(title, modelHandler.getUndoManager(), modelStructureChangeListener);
+		panel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		JScrollPane scrollPane = new JScrollPane(panel);
 		scrollPane.setMaximumSize(new Dimension(700, 300));
 		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
@@ -159,7 +155,7 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 
 		nameField.reloadNewValue(popcorn.getName());
 		popcornPathField.reloadNewValue(popcorn.getPath());
-		popcorn.updateAnimsVisMap(modelViewManager.getModel().getAnims());
+		popcorn.updateAnimsVisMap(modelHandler.getModel().getAnims());
 		updateAnimVisGuidPanel();
 //		nodePanelHolder.revalidate();
 //		nodePanelHolder.repaint();
@@ -186,7 +182,7 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 	private JPanel updateAnimVisGuidPanel() {
 //		JPanel visGuidPanel = new JPanel(new MigLayout("gap 0", "[][]"));
 		visGuidPanel.removeAll();
-		for (Animation animation : modelViewManager.getModel().getAnims()) {
+		for (Animation animation : modelHandler.getModel().getAnims()) {
 			visGuidPanel.add(new JLabel(animation.getName()));
 			JButton button = new JButton(popcorn.getAnimVisState(animation).name());
 			button.addActionListener(e -> setState(animation, button));
@@ -223,6 +219,6 @@ public class ComponentPopcornPanel extends JPanel implements ComponentPanel<Part
 		ParentChangeAction action = new ParentChangeAction(popcorn, newParent, modelStructureChangeListener);
 		action.redo();
 		repaint();
-		undoActionListener.pushAction(action);
+		modelHandler.getUndoManager().pushAction(action);
 	}
 }

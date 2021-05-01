@@ -15,18 +15,17 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.WarcraftObjectTreeCellRenderer;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.UnitComparator;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -45,10 +44,11 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 	JLabel debugLabel = new JLabel("debug");
 
 	EditableModel mdl = new EditableModel();
+	ModelHandler modelHandler = new ModelHandler(mdl, null);
 	// MDL mdl;
-	ModelView modelDisp = new ModelView(mdl);
+//	ModelView modelDisp = new ModelView(mdl);
 	PerspDisplayPanel modelPanel;
-	DefaultTableModel tableModel;
+//	DefaultTableModel tableModel;
 	DefaultMutableTreeNode defaultSelection = null;
 
 	public UnitEditorModelSelector() {
@@ -92,7 +92,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		temp.add(debugLabel);
 
 		// TODO null prefs
-		modelPanel = new PerspDisplayPanel("blank", modelDisp, new ProgramPreferences());
+		modelPanel = new PerspDisplayPanel("blank", modelHandler, new ProgramPreferences());
 		fillTable();
 
 		setRightComponent(modelPanel);
@@ -142,8 +142,9 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 
 			try (InputStream reader = GameDataFileSystem.getDefault().getResourceAsStream(filepath)) {
 				mdl = new EditableModel(MdxUtils.loadMdlx(reader));
-				modelDisp = new ModelView(mdl);
-				modelPanel.setViewport(modelDisp);
+				modelHandler = new ModelHandler(mdl, null);
+//				modelDisp = new ModelView(mdl);
+				modelPanel.setViewport(modelHandler);
 				modelPanel.setTitle(currentUnit.getName());
 			} catch (final IOException e) {
 				e.printStackTrace();
@@ -155,26 +156,26 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		}
 	}
 
-	public void loadHotkeys() {
-		final JRootPane root = getRootPane();
-		getRootPane().getActionMap().put("displayAsRawData", new AbstractAction() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				settings.setDisplayAsRawData(!settings.isDisplayAsRawData());
-				final Enumeration<TreeNode> enumeration = UnitEditorModelSelector.this.root.breadthFirstEnumeration();
-				while (enumeration.hasMoreElements()) {
-					model.nodeChanged(enumeration.nextElement());
-				}
-				fillTable();
-				repaint();
-			}
-
-		});
-		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control D"),
-				"displayAsRawData");
-
-	}
+//	public void loadHotkeys() {
+//		final JRootPane root = getRootPane();
+//		getRootPane().getActionMap().put("displayAsRawData", new AbstractAction() {
+//
+//			@Override
+//			public void actionPerformed(final ActionEvent e) {
+//				settings.setDisplayAsRawData(!settings.isDisplayAsRawData());
+//				final Enumeration<TreeNode> enumeration = UnitEditorModelSelector.this.root.breadthFirstEnumeration();
+//				while (enumeration.hasMoreElements()) {
+//					model.nodeChanged(enumeration.nextElement());
+//				}
+//				fillTable();
+//				repaint();
+//			}
+//
+//		});
+//		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control D"),
+//				"displayAsRawData");
+//
+//	}
 
 	static class UnitEditorTreeModel extends DefaultTreeModel {
 		public UnitEditorTreeModel(final DefaultMutableTreeNode root) {

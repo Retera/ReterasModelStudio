@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application.edit.uv.types;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorMultiManipulatorActivity;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorViewportActivity;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
@@ -17,7 +16,7 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import javax.swing.*;
 
-public class TVertexToolbarActionButtonType implements ToolbarButtonType, TVertexEditorActivityDescriptor {
+public class TVertexToolbarActionButtonType implements ToolbarButtonType {
 	private final ImageIcon imageIcon;
 	private final String name;
 	private final ProgramPreferences prefs;
@@ -40,8 +39,9 @@ public class TVertexToolbarActionButtonType implements ToolbarButtonType, TVerte
 		return name;
 	}
 
-	@Override
 	public TVertexEditorViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelView modelView, UndoActionListener undoActionListener) {
+		System.out.println("TVertPrefs: " + prefs);
+		System.out.println("TVertPrefs: " + name);
 		return new TVertexEditorMultiManipulatorActivity(
 				getManipulatorWidget(modelEditorManager, modelView, editorActionType),
 				undoActionListener,

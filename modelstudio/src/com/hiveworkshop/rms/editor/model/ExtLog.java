@@ -119,6 +119,7 @@ public class ExtLog {
 	}
 
 	public String toString() {
-		return "minExt: " + minimumExtent.toString() + "\nmaxExt: " + maximumExtent.toString() + "\nbonusRad: " + boundsRadius;
+		return "minExt: " + minimumExtent + "\nmaxExt: " + maximumExtent + "\nbonusRad: " + boundsRadius;
+//		return "minExt: " + minimumExtent.toString() + "\nmaxExt: " + maximumExtent.toString() + "\nbonusRad: " + boundsRadius;
 	}
 }

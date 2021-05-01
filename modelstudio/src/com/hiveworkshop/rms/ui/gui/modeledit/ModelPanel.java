@@ -5,7 +5,10 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.DoNothingActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivityManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
@@ -37,11 +40,7 @@ import java.awt.event.MouseListener;
 public class ModelPanel implements MouseListener {
 	private DisplayPanel frontArea, sideArea, botArea;
 	private PerspDisplayPanel perspArea;
-	private EditableModel model;
-	private final UndoHandler undoHandler;
-	private final ModelView modelView;
-	private final UndoManager undoManager;
-	private final RenderModel editorRenderModel;
+	private ModelHandler modelHandler;
 	private final ProgramPreferences prefs;
 	private final ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeNotifier;
 	private final ModelEditorViewportActivityManager viewportActivityManager;
@@ -59,9 +58,8 @@ public class ModelPanel implements MouseListener {
 	private final ComponentsPanel componentsPanel;
 
 	public ModelPanel(JComponent parent,
-	                  EditableModel editableModel,
+	                  ModelHandler modelHandler,
 	                  ProgramPreferences prefs,
-	                  UndoHandler undoHandler,
 	                  ToolbarButtonGroup<SelectionItemTypes> notifier,
 	                  ToolbarButtonGroup<SelectionMode> modeNotifier,
 	                  ModelStructureChangeListener modelStructureChangeListener,
@@ -70,11 +68,7 @@ public class ModelPanel implements MouseListener {
 	                  ViewportListener viewportListener,
 	                  Icon icon,
 	                  boolean specialBLPModel) {
-		this.model = editableModel;
-		this.undoHandler = undoHandler;
-		modelView = new ModelView(editableModel);
-		undoManager = new UndoManagerImpl(undoHandler);
-		editorRenderModel = modelView.getEditorRenderModel();
+		this.modelHandler = modelHandler;
 
 		this.parent = parent;
 		this.prefs = prefs;
@@ -88,11 +82,11 @@ public class ModelPanel implements MouseListener {
 
 
 
-		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier, modelEditorChangeNotifier, viewportActivityManager, editorRenderModel, modelStructureChangeListener);
+		modelEditorManager = new ModelEditorManager(modelHandler, prefs, modeNotifier, modelEditorChangeNotifier, viewportActivityManager, modelStructureChangeListener);
 
-		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
+		modelViewManagingTree = new ModelViewManagingTree(modelHandler, modelEditorManager);
 
-		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager, modelEditorManager, modelStructureChangeListener);
+		modelComponentBrowserTree = new ModelComponentBrowserTree(modelHandler, modelEditorManager, modelStructureChangeListener);
 
 		selectionItemTypeNotifier.addToolbarButtonListener(modelEditorManager::setSelectionItemType);
 
@@ -100,29 +94,29 @@ public class ModelPanel implements MouseListener {
 		botArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Bottom", (byte) 1, (byte) 0);
 		sideArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Side", (byte) 0, (byte) 2);
 
-		animationViewer = new AnimationControllerListener(modelView, prefs, !specialBLPModel);
+		animationViewer = new AnimationControllerListener(modelHandler, prefs, !specialBLPModel);
 
-		animationController = new AnimationController(modelView, true, animationViewer, animationViewer.getCurrentAnimation());
+		animationController = new AnimationController(modelHandler, true, animationViewer, animationViewer.getCurrentAnimation());
 
 		frontArea.setControlsVisible(prefs.showVMControls());
 		botArea.setControlsVisible(prefs.showVMControls());
 		sideArea.setControlsVisible(prefs.showVMControls());
 
-		perspArea = new PerspDisplayPanel("Perspective", modelView, prefs);
+		perspArea = new PerspDisplayPanel("Perspective", modelHandler, prefs);
 
-		componentsPanel = new ComponentsPanel(modelView, undoManager, modelStructureChangeListener);
+		componentsPanel = new ComponentsPanel(modelHandler, modelStructureChangeListener);
 
 		modelComponentBrowserTree.addSelectListener(componentsPanel);
 	}
 
 	private DisplayPanel getDisplayPanel(ModelStructureChangeListener modelStructureChangeListener, CoordDisplayListener coordDisplayListener, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener, String side, byte i, byte i2) {
-		return new DisplayPanel(side, i, i2, modelView, modelEditorManager, modelStructureChangeListener,
-				viewportActivityManager, prefs, undoManager, coordDisplayListener, undoHandler,
-				modelEditorChangeNotifier, viewportTransferHandler, editorRenderModel, viewportListener);
+		return new DisplayPanel(side, i, i2, modelHandler, modelEditorManager, modelStructureChangeListener,
+				viewportActivityManager, prefs,  coordDisplayListener,
+				modelEditorChangeNotifier, viewportTransferHandler, viewportListener);
 	}
 
 	public RenderModel getEditorRenderModel() {
-		return editorRenderModel;
+		return modelHandler.getRenderModel();
 	}
 
 	public AnimationControllerListener getAnimationViewer() {
@@ -150,7 +144,7 @@ public class ModelPanel implements MouseListener {
 	}
 
 	public void changeActivity(final ActivityDescriptor activityDescriptor) {
-		viewportActivityManager.setCurrentActivity(activityDescriptor.createActivity(modelEditorManager, modelView, undoManager));
+		viewportActivityManager.setCurrentActivity(activityDescriptor.createActivity(modelEditorManager, modelHandler));
 	}
 
 	public ModelEditorManager getModelEditorManager() {
@@ -170,17 +164,17 @@ public class ModelPanel implements MouseListener {
 		// returns true if closed successfully
 		boolean canceled = false;
 		// int myIndex = parent.tabbedPane.indexOfComponent(this);
-		if (!undoManager.isUndoListEmpty()) {
+		if (!modelHandler.getUndoManager().isUndoListEmpty()) {
 			final Object[] options = { "Yes", "No", "Cancel" };
 			final int n = JOptionPane.showOptionDialog(parent,
-					"Would you like to save " + model.getName()/* parent.tabbedPane.getTitleAt(myIndex) */ + " (\""
-							+ model.getHeaderName() + "\") before closing?",
+					"Would you like to save " + modelHandler.getModel().getName()/* parent.tabbedPane.getTitleAt(myIndex) */ + " (\""
+							+ modelHandler.getModel().getHeaderName() + "\") before closing?",
 					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
 					options[2]);
 			switch (n) {
 			case JOptionPane.YES_OPTION:
 				// ((ModelPanel)parent.tabbedPane.getComponentAt(myIndex)).getMDLDisplay().getMDL().saveFile();
-				listener.save(model);
+				listener.save(modelHandler.getModel());
 				// parent.tabbedPane.remove(myIndex);
 				if (editUVPanel != null) {
 					editUVPanel.getView().setVisible(false);
@@ -258,7 +252,7 @@ public class ModelPanel implements MouseListener {
 	}
 
 	public UndoManager getUndoManager() {
-		return undoManager;
+		return modelHandler.getUndoManager();
 	}
 
 	public void repaintSelfAndRelatedChildren() {
@@ -279,11 +273,15 @@ public class ModelPanel implements MouseListener {
 	}
 
 	public EditableModel getModel() {
-		return model;
+		return modelHandler.getModel();
 	}
 
 	public ModelView getModelViewManager() {
-		return modelView;
+		return modelHandler.getModelView();
+	}
+
+	public ModelHandler getModelHandler() {
+		return modelHandler;
 	}
 
 	public ModelViewManagingTree getModelViewManagingTree() {

@@ -1,11 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -18,27 +17,26 @@ import java.util.List;
 import java.util.*;
 
 public final class ModelComponentBrowserTree extends JTree {
-	private final ModelView modelViewManager;
-	private final UndoActionListener undoActionListener;
+	//	private final ModelView modelViewManager;
+//	private final UndoActionListener undoActionListener;
+	private ModelHandler modelHandler;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private Map<IdObject, DefaultMutableTreeNode> nodeToTreeElement;
 	private boolean controlDown = false;
 
-	public ModelComponentBrowserTree(final ModelView modelViewManager,
-	                                 final UndoActionListener undoActionListener, final ModelEditorManager modelEditorManager,
-	                                 final ModelStructureChangeListener modelStructureChangeListener) {
+	public ModelComponentBrowserTree(ModelHandler modelHandler, ModelEditorManager modelEditorManager,
+	                                 ModelStructureChangeListener modelStructureChangeListener) {
 		super();
-		setModel(buildTreeModel(modelViewManager, undoActionListener, modelStructureChangeListener));
+		this.modelHandler = modelHandler;
+		setModel(buildTreeModel(modelHandler, modelStructureChangeListener));
 //		super(buildTreeModel(modelViewManager, undoActionListener, modelStructureChangeListener));
 
-		this.modelViewManager = modelViewManager;
-		this.undoActionListener = undoActionListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 
 
 		addKeyListener(getKeyAdapter());
 
-		final HighlightOnMouseoverListenerImpl mouseListener = new HighlightOnMouseoverListenerImpl();
+		HighlightOnMouseoverListenerImpl mouseListener = new HighlightOnMouseoverListenerImpl();
 		addMouseMotionListener(mouseListener);
 		addMouseListener(mouseListener);
 		addTreeExpansionListener(getExpansionListener());
@@ -110,138 +108,137 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private DefaultTreeModel buildTreeModel(
-			final ModelView modelViewManager,
-			final UndoActionListener undoActionListener,
-			final ModelStructureChangeListener modelStructureChangeListener) {
+			ModelHandler modelHandler,
+			ModelStructureChangeListener modelStructureChangeListener) {
 
-		EditableModel model = modelViewManager.getModel();
+		EditableModel model = modelHandler.getModel();
 
-		final DispElements.ChooseableModelRoot modelRoot = new DispElements.ChooseableModelRoot(modelViewManager, model);
-		final DefaultMutableTreeNode root = new DefaultMutableTreeNode(modelRoot);
+		DispElements.ChooseableModelRoot modelRoot = new DispElements.ChooseableModelRoot(modelHandler.getModelView(), model);
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode(modelRoot);
 		int number = 0;
 
-		DispElements.ChooseableModelComment modelComment = new DispElements.ChooseableModelComment(modelViewManager, model.getHeader());
+		DispElements.ChooseableModelComment modelComment = new DispElements.ChooseableModelComment(modelHandler.getModelView(), model.getHeader());
 //		System.out.println(model.getHeader());
 //		System.out.println(model.getName());
 //		System.out.println(model.getWrappedDataSource());
 		root.add(new DefaultMutableTreeNode(modelComment));
 
-		DispElements.ChooseableModelHeader modelHeader = new DispElements.ChooseableModelHeader(modelViewManager, model);
+		DispElements.ChooseableModelHeader modelHeader = new DispElements.ChooseableModelHeader(modelHandler.getModelView(), model);
 		root.add(new DefaultMutableTreeNode(modelHeader));
 
-		DefaultMutableTreeNode sequences = new DefaultMutableTreeNode(DispElements.getDummyItem(modelViewManager, "Sequences"));
+		DefaultMutableTreeNode sequences = new DefaultMutableTreeNode(DispElements.getDummyItem(modelHandler.getModelView(), "Sequences"));
 		for (Animation item : model.getAnims()) {
-			sequences.add(new DefaultMutableTreeNode(new DispElements.ChooseableAnimationItem(modelViewManager, item)));
+			sequences.add(new DefaultMutableTreeNode(new DispElements.ChooseableAnimationItem(modelHandler.getModelView(), item)));
 		}
 		root.add(sequences);
 
-		final DefaultMutableTreeNode globalSequences = new DefaultMutableTreeNode(DispElements.getDummyItem(modelViewManager, "GlobalSequences"));
+		DefaultMutableTreeNode globalSequences = new DefaultMutableTreeNode(DispElements.getDummyItem(modelHandler.getModelView(), "GlobalSequences"));
 		for (int globalSeqId = 0; globalSeqId < model.getGlobalSeqs().size(); globalSeqId++) {
-			DispElements.ChooseableGlobalSequenceItem sequenceItem = new DispElements.ChooseableGlobalSequenceItem(modelViewManager, model.getGlobalSeq(globalSeqId), globalSeqId);
+			DispElements.ChooseableGlobalSequenceItem sequenceItem = new DispElements.ChooseableGlobalSequenceItem(modelHandler.getModelView(), model.getGlobalSeq(globalSeqId), globalSeqId);
 			globalSequences.add(new DefaultMutableTreeNode(sequenceItem));
 		}
 		root.add(globalSequences);
 
 		number = 0;
-		final DefaultMutableTreeNode textures = new DefaultMutableTreeNode(DispElements.getDummyItem(modelViewManager, "Textures"));
-		for (final Bitmap item : model.getTextures()) {
-			textures.add(new DefaultMutableTreeNode(new DispElements.ChooseableBitmapItem(modelViewManager, item, number++)));
+		DefaultMutableTreeNode textures = new DefaultMutableTreeNode(DispElements.getDummyItem(modelHandler.getModelView(), "Textures"));
+		for (Bitmap item : model.getTextures()) {
+			textures.add(new DefaultMutableTreeNode(new DispElements.ChooseableBitmapItem(modelHandler.getModelView(), item, number++)));
 		}
 		root.add(textures);
 
 		number = 0;
-		final DefaultMutableTreeNode materials = new DefaultMutableTreeNode(DispElements.getDummyItem(modelViewManager, "Materials"));
-		for (final Material item : model.getMaterials()) {
-			materials.add(new DefaultMutableTreeNode(new DispElements.ChooseableMaterialItem(modelViewManager, item, number++)));
+		DefaultMutableTreeNode materials = new DefaultMutableTreeNode(DispElements.getDummyItem(modelHandler.getModelView(), "Materials"));
+		for (Material item : model.getMaterials()) {
+			materials.add(new DefaultMutableTreeNode(new DispElements.ChooseableMaterialItem(modelHandler.getModelView(), item, number++)));
 		}
 		root.add(materials);
 
 		number = 0;
-		final DefaultMutableTreeNode tVertexAnims = new DefaultMutableTreeNode(DispElements.getDummyItem(modelViewManager, "TVertexAnims"));
-		for (final TextureAnim item : model.getTexAnims()) {
-			DispElements.ChooseableTextureAnimItem textureAnimItem = new DispElements.ChooseableTextureAnimItem(modelViewManager, item, number++);
+		DefaultMutableTreeNode tVertexAnims = new DefaultMutableTreeNode(DispElements.getDummyItem(modelHandler.getModelView(), "TVertexAnims"));
+		for (TextureAnim item : model.getTexAnims()) {
+			DispElements.ChooseableTextureAnimItem textureAnimItem = new DispElements.ChooseableTextureAnimItem(modelHandler.getModelView(), item, number++);
 			tVertexAnims.add(new DefaultMutableTreeNode(textureAnimItem));
 		}
 		root.add(tVertexAnims);
 
 		number = 0;
-		final DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(DispElements.getDummyItem(modelViewManager, "Geosets"));
-		for (final Geoset item : model.getGeosets()) {
-			DispElements.ChooseableGeosetItem geosetItem = new DispElements.ChooseableGeosetItem(modelViewManager, item, number++);
+		DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(DispElements.getDummyItem(modelHandler.getModelView(), "Geosets"));
+		for (Geoset item : model.getGeosets()) {
+			DispElements.ChooseableGeosetItem geosetItem = new DispElements.ChooseableGeosetItem(modelHandler.getModelView(), item, number++);
 			geosets.add(new DefaultMutableTreeNode(geosetItem));
 		}
 		root.add(geosets);
 
-		final DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(DispElements.getDummyItem(modelViewManager, "GeosetAnims"));
-		for (final GeosetAnim item : model.getGeosetAnims()) {
-			DispElements.ChooseableGeosetAnimItem geosetAnimItem = new DispElements.ChooseableGeosetAnimItem(modelViewManager, item, number++);
+		DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(DispElements.getDummyItem(modelHandler.getModelView(), "GeosetAnims"));
+		for (GeosetAnim item : model.getGeosetAnims()) {
+			DispElements.ChooseableGeosetAnimItem geosetAnimItem = new DispElements.ChooseableGeosetAnimItem(modelHandler.getModelView(), item, number++);
 			geosetAnims.add(new DefaultMutableTreeNode(geosetAnimItem));
 		}
 		root.add(geosetAnims);
 
-//		final DispElements.IdObjectToChooseableElementWrappingConverter converter =
+//		DispElements.IdObjectToChooseableElementWrappingConverter converter =
 //				new DispElements.IdObjectToChooseableElementWrappingConverter(
-//						modelViewManager, undoActionListener, modelStructureChangeListener);
+//						modelHandler.getModelView(), undoActionListener, modelStructureChangeListener);
 
 
-		final DefaultMutableTreeNode nodes = new DefaultMutableTreeNode(DispElements.getDummyItem(modelViewManager, "Nodes"));
+		DefaultMutableTreeNode nodes = new DefaultMutableTreeNode(DispElements.getDummyItem(modelHandler.getModelView(), "Nodes"));
 
 //		Map<IdObject, DefaultMutableTreeNode> nodeToTreeElement = new HashMap<>();
 		nodeToTreeElement = new HashMap<>();
 		nodeToTreeElement.put(null, nodes);
 
 		// Create all treeNodes
-		for (final IdObject idObject : model.getIdObjects()) {
+		for (IdObject idObject : model.getIdObjects()) {
 //			idObject.apply(converter);
-//			final DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(converter.getElement());
-			ChooseableDisplayElement<?> element = DispElements.getIdObjectElement(modelViewManager, idObject);
-			final DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(element);
+//			DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(converter.getElement());
+			ChooseableDisplayElement<?> element = DispElements.getIdObjectElement(modelHandler.getModelView(), idObject);
+			DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(element);
 
 			nodeToTreeElement.put(idObject, treeNode);
 		}
 
 		// Link all treeNodes
-		for (final IdObject idObject : model.getIdObjects()) {
+		for (IdObject idObject : model.getIdObjects()) {
 			IdObject parent = idObject.getParent();
 
 			if (parent == idObject) {
 				parent = null;
 			}
 
-			final DefaultMutableTreeNode parentTreeNode = nodeToTreeElement.get(parent);
+			DefaultMutableTreeNode parentTreeNode = nodeToTreeElement.get(parent);
 			parentTreeNode.add(nodeToTreeElement.get(idObject));
 		}
 
 		root.add(nodes);
 
-		final DefaultMutableTreeNode cameras = new DefaultMutableTreeNode(DispElements.getDummyItem(modelViewManager, "Cameras"));
-		for (final Camera item : model.getCameras()) {
-			cameras.add(new DefaultMutableTreeNode(new DispElements.ChooseableCameraItem(modelViewManager, item)));
+		DefaultMutableTreeNode cameras = new DefaultMutableTreeNode(DispElements.getDummyItem(modelHandler.getModelView(), "Cameras"));
+		for (Camera item : model.getCameras()) {
+			cameras.add(new DefaultMutableTreeNode(new DispElements.ChooseableCameraItem(modelHandler.getModelView(), item)));
 		}
 		root.add(cameras);
 
 		number = 0;
 		if (!model.getFaceEffects().isEmpty()) {
-			for (final FaceEffect faceEffect : model.getFaceEffects()) {
-				DispElements.ChooseableFaceEffectsChunkItem effectsChunkItem = new DispElements.ChooseableFaceEffectsChunkItem(modelViewManager, faceEffect, number++);
+			for (FaceEffect faceEffect : model.getFaceEffects()) {
+				DispElements.ChooseableFaceEffectsChunkItem effectsChunkItem = new DispElements.ChooseableFaceEffectsChunkItem(modelHandler.getModelView(), faceEffect, number++);
 				root.add(new DefaultMutableTreeNode(effectsChunkItem));
 			}
 		}
 		if (model.getBindPoseChunk() != null) {
-			DispElements.ChooseableBindPoseChunkItem bindPoseChunkItem = new DispElements.ChooseableBindPoseChunkItem(modelViewManager, model.getBindPoseChunk());
+			DispElements.ChooseableBindPoseChunkItem bindPoseChunkItem = new DispElements.ChooseableBindPoseChunkItem(modelHandler.getModelView(), model.getBindPoseChunk());
 			root.add(new DefaultMutableTreeNode(bindPoseChunkItem));
 		}
 		return new DefaultTreeModel(root);
 	}
 
-	public void addSelectListener(final ComponentsPanel componentsPanel) {
+	public void addSelectListener(ComponentsPanel componentsPanel) {
 		addTreeSelectionListener(e -> {
-			final TreePath path = e.getNewLeadSelectionPath();
+			TreePath path = e.getNewLeadSelectionPath();
 			boolean selected = false;
 
 			if (path != null && path.getLastPathComponent() instanceof DefaultMutableTreeNode) {
 
-				final DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
 
 				if (node.getUserObject() instanceof ChooseableDisplayElement) {
 					asElement(node.getUserObject()).select(componentsPanel);
@@ -257,8 +254,8 @@ public final class ModelComponentBrowserTree extends JTree {
 	private DefaultTreeCellRenderer getComponentBrowserCellRenderer() {
 		return new DefaultTreeCellRenderer() {
 			@Override
-			public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean selected,
-			                                              final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
+			public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected,
+			                                              boolean expanded, boolean leaf, int row, boolean hasFocus) {
 				ImageIcon iconOverride = null;
 				if (value instanceof DefaultMutableTreeNode) {
 					Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
@@ -269,7 +266,7 @@ public final class ModelComponentBrowserTree extends JTree {
 						}
 					}
 				}
-				final Component treeCellRendererComponent =
+				Component treeCellRendererComponent =
 						super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
 				if (iconOverride != null) {
 					setIcon(iconOverride);
@@ -279,7 +276,7 @@ public final class ModelComponentBrowserTree extends JTree {
 		};
 	}
 
-	private ChooseableDisplayElement<?> asElement(final Object userObject) {
+	private ChooseableDisplayElement<?> asElement(Object userObject) {
 		return (ChooseableDisplayElement<?>) userObject;
 	}
 
@@ -313,12 +310,12 @@ public final class ModelComponentBrowserTree extends JTree {
 
 
 			Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
-			setModel(buildTreeModel(modelViewManager, undoActionListener, modelStructureChangeListener));
+			setModel(buildTreeModel(modelHandler, modelStructureChangeListener));
 
 			TreePath newRootPath = new TreePath(getModel().getRoot());
 			System.out.println("newRootPath: " + newRootPath);
 
-			final List<TreePath> pathsToExpand = new ArrayList<>();
+			List<TreePath> pathsToExpand = new ArrayList<>();
 
 			DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getModel().getRoot();
 
@@ -371,18 +368,18 @@ public final class ModelComponentBrowserTree extends JTree {
 		return compoundPath;
 	}
 
-	private final class HighlightOnMouseoverListenerImpl implements MouseMotionListener, MouseListener {
+	private class HighlightOnMouseoverListenerImpl implements MouseMotionListener, MouseListener {
 		private ChooseableDisplayElement<?> lastMouseOverNode = null;
 
 		@Override
-		public void mouseMoved(final MouseEvent e) {
+		public void mouseMoved(MouseEvent e) {
 //			controlDown = e.isControlDown();
-			final TreePath pathForLocation = getPathForLocation(e.getX(), e.getY());
-			final ChooseableDisplayElement<?> element;
+			TreePath pathForLocation = getPathForLocation(e.getX(), e.getY());
+			ChooseableDisplayElement<?> element;
 			if (pathForLocation == null) {
 				element = null;
 			} else {
-				final DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) pathForLocation.getLastPathComponent();
+				DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) pathForLocation.getLastPathComponent();
 				element = (ChooseableDisplayElement<?>) lastPathComponent.getUserObject();
 			}
 			if (element != lastMouseOverNode) {
@@ -397,42 +394,42 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 
 		@Override
-		public void mouseDragged(final MouseEvent e) {
+		public void mouseDragged(MouseEvent e) {
 		}
 
 		@Override
-		public void mouseReleased(final MouseEvent e) {
+		public void mouseReleased(MouseEvent e) {
 //			controlDown = e.isControlDown();
 		}
 
 		@Override
-		public void mousePressed(final MouseEvent e) {
+		public void mousePressed(MouseEvent e) {
 //			controlDown = e.isControlDown();
 		}
 
 		@Override
-		public void mouseExited(final MouseEvent e) {
+		public void mouseExited(MouseEvent e) {
 			if (lastMouseOverNode != null) {
 				lastMouseOverNode.mouseExited();
 			}
 		}
 
 		@Override
-		public void mouseEntered(final MouseEvent e) {
+		public void mouseEntered(MouseEvent e) {
 		}
 
 		@Override
-		public void mouseClicked(final MouseEvent e) {
+		public void mouseClicked(MouseEvent e) {
 //			controlDown = e.isControlDown();
 		}
 	}
 
-//	final Image attachmentImage = IconUtils.loadNodeImage("/attachment" + template + ".png");
-//	final Image eventImage = IconUtils.loadNodeImage("/event" + template + ".png");
-//	final Image lightImage = IconUtils.loadNodeImage("/light" + template + ".png");
-//	final Image particleImage = IconUtils.loadNodeImage("/particle1" + template + ".png");
-//	final Image particle2Image = IconUtils.loadNodeImage("/particle2" + template + ".png");
-//	final Image ribbonImage = IconUtils.loadNodeImage("/ribbon" + template + ".png");
-//	final Image collisionImage = IconUtils.loadNodeImage("/collision" + template + ".png");
+//	Image attachmentImage = IconUtils.loadNodeImage("/attachment" + template + ".png");
+//	Image eventImage = IconUtils.loadNodeImage("/event" + template + ".png");
+//	Image lightImage = IconUtils.loadNodeImage("/light" + template + ".png");
+//	Image particleImage = IconUtils.loadNodeImage("/particle1" + template + ".png");
+//	Image particle2Image = IconUtils.loadNodeImage("/particle2" + template + ".png");
+//	Image ribbonImage = IconUtils.loadNodeImage("/ribbon" + template + ".png");
+//	Image collisionImage = IconUtils.loadNodeImage("/collision" + template + ".png");
 
 }

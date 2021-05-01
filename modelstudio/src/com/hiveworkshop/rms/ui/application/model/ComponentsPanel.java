@@ -1,10 +1,10 @@
 package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,8 +19,7 @@ public class ComponentsPanel extends JPanel {
 	private final Map<Class<?>, ComponentPanel<?>> panelMap;
 	private final ComponentGlobalSequencePanel globalSeqPanel;
 
-	public ComponentsPanel(ModelView modelViewManager,
-	                       UndoActionListener undoActionListener,
+	public ComponentsPanel(ModelHandler modelHandler,
 	                       ModelStructureChangeListener modelStructureChangeListener) {
 		panelMap = new HashMap<>();
 		cardLayout = new CardLayout();
@@ -31,108 +30,108 @@ public class ComponentsPanel extends JPanel {
 		add(blankPanel, BLANK);
 //		panelMap.put(null, blankPanel);
 
-		ComponentHeaderPanel headerPanel = new ComponentHeaderPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentHeaderPanel headerPanel = new ComponentHeaderPanel(modelHandler, modelStructureChangeListener);
 		add(headerPanel, EditableModel.class.getName());
 		panelMap.put(EditableModel.class, headerPanel);
 
-		ComponentCommentPanel commentPanel = new ComponentCommentPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentCommentPanel commentPanel = new ComponentCommentPanel(modelHandler, modelStructureChangeListener);
 		add(commentPanel, ArrayList.class.getName());
 		panelMap.put(ArrayList.class, commentPanel);
 
-		ComponentAnimationPanel animationPanel = new ComponentAnimationPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentAnimationPanel animationPanel = new ComponentAnimationPanel(modelHandler, modelStructureChangeListener);
 		add(animationPanel, Animation.class.getName());
 		panelMap.put(Animation.class, animationPanel);
 
 
-		globalSeqPanel = new ComponentGlobalSequencePanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		globalSeqPanel = new ComponentGlobalSequencePanel(modelHandler, modelStructureChangeListener);
 		add(globalSeqPanel, Integer.class.getName());
 		panelMap.put(Integer.class, globalSeqPanel);
 //		add(globalSeqPanel, GLOBALSEQ);
 ////		panelMap.put(EditableModel.class, globalSeqPanel);
 
-		ComponentBitmapPanel bitmapPanel = new ComponentBitmapPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentBitmapPanel bitmapPanel = new ComponentBitmapPanel(modelHandler, modelStructureChangeListener);
 		add(bitmapPanel, Bitmap.class.getName());
 		panelMap.put(Bitmap.class, bitmapPanel);
 
-		ComponentMaterialPanel materialPanel = new ComponentMaterialPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentMaterialPanel materialPanel = new ComponentMaterialPanel(modelHandler, modelStructureChangeListener);
 		JScrollPane materialScrollPane = new JScrollPane(materialPanel);
 		materialScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(materialScrollPane, Material.class.getName());
 		panelMap.put(Material.class, materialPanel);
 
-		ComponentGeosetPanel geosetPanel = new ComponentGeosetPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentGeosetPanel geosetPanel = new ComponentGeosetPanel(modelHandler, modelStructureChangeListener);
 		add(geosetPanel, Geoset.class.getName());
 		panelMap.put(Geoset.class, geosetPanel);
 
-		ComponentGeosetAnimPanel geosetAnimPanel = new ComponentGeosetAnimPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentGeosetAnimPanel geosetAnimPanel = new ComponentGeosetAnimPanel(modelHandler, modelStructureChangeListener);
 		JScrollPane geosetAnimScrollPane = new JScrollPane(geosetAnimPanel);
 		geosetAnimScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(geosetAnimScrollPane, GeosetAnim.class.getName());
 		panelMap.put(GeosetAnim.class, geosetAnimPanel);
 
-		ComponentNodePanel nodePanel = new ComponentNodePanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentNodePanel nodePanel = new ComponentNodePanel(modelHandler, modelStructureChangeListener);
 		add(nodePanel, AnimatedNode.class.getName());
 		panelMap.put(AnimatedNode.class, nodePanel);
 
-		ComponentPopcornPanel popcornPanel = new ComponentPopcornPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentPopcornPanel popcornPanel = new ComponentPopcornPanel(modelHandler, modelStructureChangeListener);
 		JScrollPane popcornScrollPane = new JScrollPane(popcornPanel);
 		popcornScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(popcornScrollPane, ParticleEmitterPopcorn.class.getName());
 		panelMap.put(ParticleEmitterPopcorn.class, popcornPanel);
 
-		ComponentBonePanel bonePanel = new ComponentBonePanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentBonePanel bonePanel = new ComponentBonePanel(modelHandler, modelStructureChangeListener);
 		JScrollPane boneScrollPane = new JScrollPane(bonePanel);
 		boneScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(boneScrollPane, Bone.class.getName());
 		panelMap.put(Bone.class, bonePanel);
 
-		ComponentHelperPanel helperPanel = new ComponentHelperPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentHelperPanel helperPanel = new ComponentHelperPanel(modelHandler, modelStructureChangeListener);
 		JScrollPane helperScrollPane = new JScrollPane(helperPanel);
 		helperScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(helperScrollPane, Helper.class.getName());
 		panelMap.put(Helper.class, helperPanel);
 
-		ComponentParticle2Panel particle2Panel = new ComponentParticle2Panel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentParticle2Panel particle2Panel = new ComponentParticle2Panel(modelHandler, modelStructureChangeListener);
 		JScrollPane particle2ScrollPane = new JScrollPane(particle2Panel);
 		particle2ScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(particle2ScrollPane, ParticleEmitter2.class.getName());
 		panelMap.put(ParticleEmitter2.class, particle2Panel);
 
-		ComponentCollisionPanel collisionPanel = new ComponentCollisionPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentCollisionPanel collisionPanel = new ComponentCollisionPanel(modelHandler, modelStructureChangeListener);
 		JScrollPane collosionScrollPane = new JScrollPane(collisionPanel);
 		collosionScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(collosionScrollPane, CollisionShape.class.getName());
 		panelMap.put(CollisionShape.class, collisionPanel);
 
-		ComponentEventPanel eventPanel = new ComponentEventPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentEventPanel eventPanel = new ComponentEventPanel(modelHandler, modelStructureChangeListener);
 		JScrollPane eventScrollPane = new JScrollPane(eventPanel);
 		eventScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(eventScrollPane, EventObject.class.getName());
 		panelMap.put(EventObject.class, eventPanel);
 
-		ComponentRibbonPanel ribbonPanel = new ComponentRibbonPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentRibbonPanel ribbonPanel = new ComponentRibbonPanel(modelHandler, modelStructureChangeListener);
 		JScrollPane ribbonScrollPane = new JScrollPane(ribbonPanel);
 		ribbonScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(ribbonScrollPane, RibbonEmitter.class.getName());
 		panelMap.put(RibbonEmitter.class, ribbonPanel);
 
-		ComponentAttatchmentPanel attachmentPanel = new ComponentAttatchmentPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentAttatchmentPanel attachmentPanel = new ComponentAttatchmentPanel(modelHandler, modelStructureChangeListener);
 		JScrollPane attachmentScrollPane = new JScrollPane(attachmentPanel);
 		attachmentScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		add(attachmentScrollPane, Attachment.class.getName());
 		panelMap.put(Attachment.class, attachmentPanel);
 
-//		ComponentPopcornPanel popcornPanel = new ComponentPopcornPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+//		ComponentPopcornPanel popcornPanel = new ComponentPopcornPanel(modelHandler, modelStructureChangeListener);
 //		JScrollPane popcornScrollPane = new JScrollPane(popcornPanel);
 //		popcornScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 //		add(popcornScrollPane, ParticleEmitterPopcorn.class.getName());
 //		panelMap.put(ParticleEmitterPopcorn.class, popcornPanel);
 
-		ComponentFaceEffectPanel faceEffectPanel = new ComponentFaceEffectPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentFaceEffectPanel faceEffectPanel = new ComponentFaceEffectPanel(modelHandler, modelStructureChangeListener);
 		add(faceEffectPanel, FaceEffect.class.getName());
 		panelMap.put(FaceEffect.class, faceEffectPanel);
 
-		ComponentCameraPanel cameraPanel = new ComponentCameraPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
+		ComponentCameraPanel cameraPanel = new ComponentCameraPanel(modelHandler, modelStructureChangeListener);
 		add(cameraPanel, Camera.class.getName());
 		panelMap.put(Camera.class, cameraPanel);
 

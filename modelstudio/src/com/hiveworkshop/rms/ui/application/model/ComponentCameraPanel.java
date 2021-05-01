@@ -2,30 +2,27 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.NameChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
-public class ComponentCameraPanel extends JPanel implements ComponentPanel<Camera> {
-	private final ModelView modelViewManager;
-	private final UndoActionListener undoActionListener;
+public class ComponentCameraPanel extends ComponentPanel<Camera> {
+	private final ModelHandler modelHandler;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	JLabel title;
 	JTextField nameField;
 	private Camera camera;
 
 
-	public ComponentCameraPanel(final ModelView modelViewManager,
-	                            final UndoActionListener undoActionListener,
-	                            final ModelStructureChangeListener modelStructureChangeListener) {
-		this.undoActionListener = undoActionListener;
-		this.modelViewManager = modelViewManager;
+	public ComponentCameraPanel(ModelHandler modelHandler,
+	                            ModelStructureChangeListener modelStructureChangeListener) {
+		this.modelHandler = modelHandler;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 
 		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][grow]"));
@@ -60,7 +57,7 @@ public class ComponentCameraPanel extends JPanel implements ComponentPanel<Camer
 				if (!newName.equals("")) {
 					NameChangeAction action = new NameChangeAction(camera, newName, modelStructureChangeListener);
 					action.redo();
-					undoActionListener.pushAction(action);
+					modelHandler.getUndoManager().pushAction(action);
 				}
 			}
 		};
