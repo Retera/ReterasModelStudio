@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.toolbar;
 
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
@@ -42,7 +41,7 @@ public class ToolbarActionButtonType implements ToolbarButtonType, ActivityDescr
 	@Override
 	public ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
 		mainPanel.actionType = getActivityType();
-		return new ModelEditorMultiManipulatorActivity(getBuilder(modelEditorManager, modelHandler.getModelView()), modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
+		return new ModelEditorMultiManipulatorActivity(getBuilder(modelEditorManager, modelHandler), modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
 	}
 
 	private ModelEditorActionType getActivityType() {
@@ -55,13 +54,13 @@ public class ToolbarActionButtonType implements ToolbarButtonType, ActivityDescr
 		};
 	}
 
-	private ModelEditorManipulatorBuilder getBuilder(ModelEditorManager modelEditorManager, ModelView modelView) {
+	private ModelEditorManipulatorBuilder getBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
 		return switch (action) {
-			case "move" -> new MoverWidgetManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView);
-			case "scale" -> new ScaleWidgetManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView);
-			case "rotate" -> new RotatorWidgetManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView);
-			case "extrude" -> new ExtrudeWidgetManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView);
-			case "extend" -> new ExtendWidgetManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView);
+			case "move" -> new MoverWidgetManipulatorBuilder(modelEditorManager, modelHandler, programPreferences);
+			case "scale" -> new ScaleWidgetManipulatorBuilder(modelEditorManager, modelHandler, programPreferences);
+			case "rotate" -> new RotatorWidgetManipulatorBuilder(modelEditorManager, modelHandler, programPreferences);
+			case "extrude" -> new ExtrudeWidgetManipulatorBuilder(modelEditorManager, modelHandler, programPreferences);
+			case "extend" -> new ExtendWidgetManipulatorBuilder(modelEditorManager, modelHandler, programPreferences);
 
 			default -> throw new IllegalStateException("Unexpected value: " + action);
 		};

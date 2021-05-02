@@ -23,8 +23,8 @@ public class DrawPlaneActivityDescriptor implements ActivityDescriptor {
 
 	@Override
 	public ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
-		return new DrawPlaneActivity(programPreferences, modelHandler.getUndoManager(), modelEditorManager.getModelEditor(),
-				modelHandler.getModelView(), modelEditorManager.getSelectionView(), viewportListener, 1, 1, 1);
+		return new DrawPlaneActivity(modelHandler, programPreferences, modelEditorManager.getModelEditor(),
+				modelEditorManager.getSelectionView(), viewportListener, 1, 1, 1);
 	}
 
 }

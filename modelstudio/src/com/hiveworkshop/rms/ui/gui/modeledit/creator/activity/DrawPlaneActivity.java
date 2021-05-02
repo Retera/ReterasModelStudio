@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -38,23 +39,24 @@ public class DrawPlaneActivity implements ModelEditorViewportActivity {
 	private GenericMoveAction planeAction;
 	private int numSegsX;
 	private int numSegsY;
+	private final ModelHandler modelHandler;
 
-	public DrawPlaneActivity(ProgramPreferences preferences,
-	                         UndoActionListener undoActionListener,
+	public DrawPlaneActivity(ModelHandler modelHandler,
+	                         ProgramPreferences preferences,
 	                         ModelEditor modelEditor,
-	                         ModelView modelView,
 	                         SelectionView selectionView,
 	                         ViewportListener viewportListener,
 	                         int numSegsX, int numSegsY, int numSegsZ) {
+		this.modelHandler = modelHandler;
 		this.preferences = preferences;
-		this.undoActionListener = undoActionListener;
+		this.undoActionListener = modelHandler.getUndoManager();
 		this.modelEditor = modelEditor;
-		this.modelView = modelView;
+		this.modelView = modelHandler.getModelView();
 		this.selectionView = selectionView;
 		this.viewportListener = viewportListener;
 		this.numSegsX = numSegsX;
 		this.numSegsY = numSegsY;
-		graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(preferences.getVertexSize(), preferences);
+		graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(preferences.getVertexSize());
 	}
 
 	public void setNumSegsX(int numSegsX) {
@@ -139,7 +141,7 @@ public class DrawPlaneActivity implements ModelEditorViewportActivity {
 
 	@Override
 	public void renderStatic(Graphics2D g, CoordinateSystem coordinateSystem) {
-		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem), coordinateSystem, modelView, preferences);
+		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem, modelHandler.getRenderModel(), preferences, false), coordinateSystem, modelView, preferences);
 	}
 
 	@Override

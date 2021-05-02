@@ -64,20 +64,37 @@ public class CoordSysUtils {
 	}
 
 	public static Point convertToViewPoint(CoordinateSystem coordinateSystem, GeosetVertex vertex, RenderModel renderModel) {
-		Vec4 vertexHeap = new Vec4(vertex, 1);
+//		Vec4 vertexHeap = new Vec4(vertex, 1);
 
-		Vec4 vertexSumHeap = new Vec4(0, 0, 0, 0);
-		for (Bone bone : vertex.getBones()) {
-			Vec4 appliedVertexHeap = Vec4.getTransformed(vertexHeap, renderModel.getRenderNode(bone).getWorldMatrix());
-			vertexSumHeap.add(appliedVertexHeap);
+		Vec3 vertexSumHeap = new Vec3(0, 0, 0);
+		if (renderModel != null) {
+			for (Bone bone : vertex.getBones()) {
+				Vec3 appliedVertexHeap = Vec3.getTransformed(vertex, renderModel.getRenderNode(bone).getWorldMatrix());
+				vertexSumHeap.add(appliedVertexHeap);
+			}
+			int boneCount = vertex.getBones().size();
+			vertexSumHeap.scale(1f / boneCount);
 		}
-		int boneCount = vertex.getBones().size();
-		vertexSumHeap.scale(1f / boneCount);
 		int x = (int) getViewX(coordinateSystem, vertexSumHeap);
 		int y = (int) getViewY(coordinateSystem, vertexSumHeap);
 
 		return new Point(x, y);
 	}
+//	public static Point convertToViewPoint(CoordinateSystem coordinateSystem, GeosetVertex vertex, RenderModel renderModel) {
+//		Vec4 vertexHeap = new Vec4(vertex, 1);
+//
+//		Vec4 vertexSumHeap = new Vec4(0, 0, 0, 0);
+//		for (Bone bone : vertex.getBones()) {
+//			Vec4 appliedVertexHeap = Vec4.getTransformed(vertexHeap, renderModel.getRenderNode(bone).getWorldMatrix());
+//			vertexSumHeap.add(appliedVertexHeap);
+//		}
+//		int boneCount = vertex.getBones().size();
+//		vertexSumHeap.scale(1f / boneCount);
+//		int x = (int) getViewX(coordinateSystem, vertexSumHeap);
+//		int y = (int) getViewY(coordinateSystem, vertexSumHeap);
+//
+//		return new Point(x, y);
+//	}
 
 	public static Vec2 convertToViewVec2(CoordinateSystem coordinateSystem, Vec3 vertex) {
 		double x = getViewX(coordinateSystem, vertex);

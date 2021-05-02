@@ -33,21 +33,6 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
     }
 
     public ResettableIdObjectRenderer reset(CoordinateSystem coordinateSystem, Graphics2D graphics,
-                                            Color lightColor, Color pivotPointColor,
-                                            NodeIconPalette nodeIconPalette,
-                                            RenderModel renderModel, boolean crosshairIsBox, boolean isAnimated) {
-        this.isAnimated = isAnimated;
-        this.coordinateSystem = coordinateSystem;
-        this.graphics = graphics;
-        this.lightColor = lightColor;
-        this.pivotPointColor = pivotPointColor;
-        this.nodeIconPalette = nodeIconPalette;
-        this.renderModel = renderModel;
-        this.crosshairIsBox = crosshairIsBox;
-        return this;
-    }
-
-    public ResettableIdObjectRenderer reset(CoordinateSystem coordinateSystem, Graphics2D graphics,
                                             ProgramPreferences programPreferences,
                                             RenderModel renderModel, boolean isAnimated, boolean isHighLighted) {
         this.isAnimated = isAnimated;
@@ -57,7 +42,6 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
         Color pivotPointColor1 = isAnimated ? programPreferences.getAnimatedBoneUnselectedColor() : programPreferences.getPivotPointsColor();
         this.pivotPointColor = isHighLighted ? programPreferences.getHighlighVertexColor() : pivotPointColor1;
         this.nodeIconPalette = isHighLighted ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED;
-//        this.nodeIconPalette = nodeIconPalette;
         this.renderModel = renderModel;
         this.crosshairIsBox = programPreferences.isUseBoxesForPivotPoints();
         return this;
@@ -71,7 +55,6 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
 
         Vec3 vertexHeap = new Vec3(attachment.getPivotPoint());
         if (worldMatrix != null) {
-//        if(isAnimated){
             vertexHeap.transform(worldMatrix);
         }
         Vec2 coord = CoordSysUtils.convertToViewVec2(coordinateSystem, vertexHeap);
@@ -132,7 +115,6 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
     public void drawCrosshair(Graphics2D graphics, CoordinateSystem coordinateSystem, int vertexSize, Vec3 pivotPoint, Mat4 worldMatrix, boolean crosshairIsBox) {
         Vec3 vertexHeap = new Vec3(pivotPoint);
         if (worldMatrix != null) {
-//        if(isAnimated){
             vertexHeap.transform(worldMatrix);
         }
         Vec2 coord = CoordSysUtils.convertToViewVec2(coordinateSystem, vertexHeap);
@@ -202,7 +184,6 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
         Vec3 vertexHeap = new Vec3(object.getPivotPoint());
         Mat4 worldMatrix = getWorldMatrix(object);
         if (worldMatrix != null) {
-//        if(isAnimated){
             vertexHeap.transform(worldMatrix);
         }
         int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
@@ -227,14 +208,12 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
         Vec3 vec3Start = new Vec3(camera.getPosition());
         Mat4 worldMatrix = getWorldMatrix(camera.getSourceNode());
         if (worldMatrix != null) {
-//        if(isAnimated){
             vec3Start.transform(worldMatrix);
         }
 
         Vec3 vec3End = new Vec3(camera.getTargetPosition());
         worldMatrix = getWorldMatrix(camera.getTargetNode());
         if (worldMatrix != null) {
-//        if(isAnimated){
             vec3Start.transform(worldMatrix);
         }
 

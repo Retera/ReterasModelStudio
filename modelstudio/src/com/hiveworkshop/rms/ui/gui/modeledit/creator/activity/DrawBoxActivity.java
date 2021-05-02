@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -42,24 +43,24 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 	private int numSegsZ;
 	private double lastHeightModeZ = 0;
 	private double firstHeightModeZ = 0;
+	private final ModelHandler modelHandler;
 
-	public DrawBoxActivity(ProgramPreferences preferences,
-	                       UndoActionListener undoActionListener,
+	public DrawBoxActivity(ModelHandler modelHandler, ProgramPreferences preferences,
 	                       ModelEditor modelEditor,
-	                       ModelView modelView,
 	                       SelectionView selectionView,
 	                       ViewportListener viewportListener,
 	                       int numSegsX, int numSegsY, int numSegsZ) {
+		this.modelHandler = modelHandler;
 		this.preferences = preferences;
-		this.undoActionListener = undoActionListener;
+		this.undoActionListener = modelHandler.getUndoManager();
 		this.modelEditor = modelEditor;
-		this.modelView = modelView;
+		this.modelView = modelHandler.getModelView();
 		this.selectionView = selectionView;
 		this.viewportListener = viewportListener;
 		this.numSegsX = numSegsX;
 		this.numSegsY = numSegsY;
 		this.numSegsZ = numSegsZ;
-		graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(preferences.getVertexSize(), preferences);
+		graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(preferences.getVertexSize());
 	}
 
 	public void setNumSegsX(int numSegsX) {
@@ -163,7 +164,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 
 	@Override
 	public void renderStatic(Graphics2D g, CoordinateSystem coordinateSystem) {
-		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem), coordinateSystem, modelView, preferences);
+		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem, modelHandler.getRenderModel(), preferences, false), coordinateSystem, modelView, preferences);
 	}
 
 	@Override

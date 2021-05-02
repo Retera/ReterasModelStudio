@@ -3,12 +3,15 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableIdObjectRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.GU;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
@@ -19,65 +22,61 @@ public final class Graphics2DToModelElementRendererAdapter implements ModelEleme
 	private ProgramPreferences programPreferences;
 	private int vertexSize;
 	private ResettableIdObjectRenderer idObjectRenderer;
+	private RenderModel renderModel;
+	private boolean isAnimated;
 
-	public Graphics2DToModelElementRendererAdapter(int vertexSize, ProgramPreferences programPreferences) {
+	public Graphics2DToModelElementRendererAdapter(int vertexSize) {
 		this.vertexSize = vertexSize;
-		this.programPreferences = programPreferences;
 		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
 	}
 
-	public Graphics2DToModelElementRendererAdapter reset(Graphics2D graphics, CoordinateSystem coordinateSystem) {
+	public Graphics2DToModelElementRendererAdapter reset(Graphics2D graphics, CoordinateSystem coordinateSystem, RenderModel renderModel, ProgramPreferences programPreferences, boolean isAnimated) {
 		this.graphics = graphics;
 		this.coordinateSystem = coordinateSystem;
+		this.renderModel = renderModel;
+		this.programPreferences = programPreferences;
+		this.isAnimated = isAnimated;
 		return this;
 	}
 
 	@Override
 	public void renderFace(Color borderColor, Color color, GeosetVertex a, GeosetVertex b, GeosetVertex c) {
 		graphics.setColor(color);
-
+		System.out.println("ugg static");
 
 		Point vertexA = CoordSysUtils.convertToViewPoint(coordinateSystem, a);
 		Point vertexB = CoordSysUtils.convertToViewPoint(coordinateSystem, b);
 		Point vertexC = CoordSysUtils.convertToViewPoint(coordinateSystem, c);
+//		Point vertexA = CoordSysUtils.convertToViewPoint(coordinateSystem, a, null);
+//		Point vertexB = CoordSysUtils.convertToViewPoint(coordinateSystem, b, null);
+//		Point vertexC = CoordSysUtils.convertToViewPoint(coordinateSystem, c, null);
 
-		int[] polygonX = new int[3];
-		polygonX[0] = vertexA.x;
-		polygonX[1] = vertexB.x;
-		polygonX[2] = vertexC.x;
-
-		int[] polygonY = new int[3];
-		polygonY[0] = vertexA.y;
-		polygonY[1] = vertexB.y;
-		polygonY[2] = vertexC.y;
-
-		graphics.fillPolygon(polygonX, polygonY, 3);
+		GU.fillPolygon(graphics, vertexA, vertexB, vertexC);
 		graphics.setColor(borderColor);
-		graphics.drawPolygon(polygonX, polygonY, 3);
-//		GU.fillPolygon(graphics, vertexA, vertexB, vertexC);
-//		GU.drawPolygon(graphics, vertexA, vertexB, vertexC);
+		GU.drawPolygon(graphics, vertexA, vertexB, vertexC);
 	}
 
 	@Override
 	public void renderVertex(Color color, Vec3 vertex) {
 		Point point = CoordSysUtils.convertToViewPoint(coordinateSystem, vertex);
 		graphics.setColor(color);
-		graphics.fillRect(point.x - vertexSize / 2, (int) (point.y - (vertexSize / 2.0)), vertexSize, vertexSize);
+		GU.fillCenteredSquare(graphics, point, vertexSize);
 	}
 
 	@Override
 	public void renderIdObject(IdObject object, NodeIconPalette nodeIconPalette, Color lightColor, Color pivotPointColor) {
-//		ResettableIdObjectRenderer visitor = idObjectRenderer1.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette, programPreferences.isUseBoxesForPivotPoints());
-		ResettableIdObjectRenderer visitor = idObjectRenderer.reset(coordinateSystem, graphics, programPreferences, null, false, false);
+		ResettableIdObjectRenderer visitor = idObjectRenderer.reset(coordinateSystem, graphics, programPreferences, renderModel, isAnimated, true);
 
 		visitor.visitIdObject(object);
 	}
 
 	@Override
 	public void renderCamera(Camera camera, Color boxColor, Vec3 position, Color targetColor, Vec3 targetPosition) {
+		if (isAnimated) {
+			throw new WrongModeException("not animating cameras yet, code not finished");
+		}
 		Graphics2D g2 = ((Graphics2D) graphics.create());
-		// boolean verSel = selection.contains(ver);
-		// boolean tarSel = selection.contains(targ);
+
 		byte dim1 = coordinateSystem.getPortFirstXYZ();
 		byte dim2 = coordinateSystem.getPortSecondXYZ();
 		Point start = new Point(

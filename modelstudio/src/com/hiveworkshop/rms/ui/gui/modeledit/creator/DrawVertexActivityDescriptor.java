@@ -19,8 +19,7 @@ public class DrawVertexActivityDescriptor implements ActivityDescriptor {
 
 	@Override
 	public ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
-		return new DrawVertexActivity(programPrefences, modelHandler.getUndoManager(), modelEditorManager.getModelEditor(),
-				modelHandler.getModelView(), modelEditorManager.getSelectionView(), viewportListener);
+		return new DrawVertexActivity(modelHandler, programPrefences, modelEditorManager.getModelEditor(), modelEditorManager.getSelectionView(), viewportListener);
 	}
 
 }

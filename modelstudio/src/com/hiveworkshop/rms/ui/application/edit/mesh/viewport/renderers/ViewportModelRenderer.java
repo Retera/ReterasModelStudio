@@ -42,9 +42,7 @@ public class ViewportModelRenderer implements ModelVisitor {
 		this.coordinateSystem = coordinateSystem;
 		this.modelView = modelHandler.getModelView();
 		this.renderModel = modelHandler.getRenderModel();
-		idObjectRenderer.reset(coordinateSystem, graphics,
-				programPreferences,
-				modelHandler.getRenderModel(), this.isAnimated, false);
+		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences, modelHandler.getRenderModel(), this.isAnimated, false);
 
 		EditableModel model = modelHandler.getModel();
 		for (final Geoset geoset : model.getGeosets()) {

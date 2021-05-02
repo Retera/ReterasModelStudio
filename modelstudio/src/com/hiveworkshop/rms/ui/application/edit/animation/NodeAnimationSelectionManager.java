@@ -58,8 +58,7 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 	}
 
 	@Override
-	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
-	                            ModelView model, ProgramPreferences programPreferences) {
+	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView model, ProgramPreferences programPreferences) {
 		// TODO !!! apply rendering
 		Set<IdObject> drawnSelection = new HashSet<>();
 		Set<IdObject> parentedNonSelection = new HashSet<>();
