@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableAnimatedIdObjectRenderer;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableIdObjectRenderer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.GU;
 import com.hiveworkshop.rms.util.Vec3;
@@ -21,12 +21,12 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 	private CoordinateSystem coordinateSystem;
 	private ProgramPreferences programPreferences;
 	private int vertexSize;
-	private ResettableAnimatedIdObjectRenderer idObjectRenderer;
+	private ResettableIdObjectRenderer idObjectRenderer;
 	private RenderModel renderModel;
 
 	public Graphics2DToAnimatedModelElementRendererAdapter(final int vertexSize) {
 		this.vertexSize = vertexSize;
-		idObjectRenderer = new ResettableAnimatedIdObjectRenderer(vertexSize);
+		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
 	}
 
 	public Graphics2DToAnimatedModelElementRendererAdapter reset(Graphics2D graphics, CoordinateSystem coordinateSystem, RenderModel renderModel, ProgramPreferences preferences) {
@@ -61,7 +61,7 @@ public final class Graphics2DToAnimatedModelElementRendererAdapter implements Mo
 
 	@Override
 	public void renderIdObject(IdObject object, NodeIconPalette nodeIconPalette, Color lightColor, Color pivotPointColor) {
-		ResettableAnimatedIdObjectRenderer visitor = idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette, renderModel, programPreferences.isUseBoxesForPivotPoints());
+		ResettableIdObjectRenderer visitor = idObjectRenderer.reset(coordinateSystem, graphics, lightColor, pivotPointColor, nodeIconPalette, renderModel, programPreferences.isUseBoxesForPivotPoints(), true);
 
 		visitor.visitIdObject(object);
 	}

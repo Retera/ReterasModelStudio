@@ -189,7 +189,8 @@ public class Camera implements Named {
 		}
 
 		public float getRenderRotationScalar(TimeEnvironmentImpl animatedRenderEnvironment) {
-			return getInterpolatedFloat(animatedRenderEnvironment, "Rotation", 0);
+//			return getInterpolatedFloat(animatedRenderEnvironment, "Rotation", 0);
+			return getInterpolatedInteger(animatedRenderEnvironment, "Rotation", 0);
 		}
 
 		@Override

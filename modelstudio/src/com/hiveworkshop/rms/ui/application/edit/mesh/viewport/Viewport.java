@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.AnimatedViewportModelRenderer;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ViewportModelRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -20,12 +20,9 @@ public class Viewport extends ViewportView {
 	Timer paintTimer;
 
 	private final ViewportModelRenderer viewportModelRenderer;
-	private final AnimatedViewportModelRenderer animatedViewportModelRenderer;
 	private final LinkRenderingVisitorAdapter linkRenderingVisitorAdapter;
 	private final ModelStructureChangeListener modelStructureChangeListener;
-	//	private final RenderModel renderModel;
-	//	private final ResettableAnimatedIdObjectParentLinkRenderer linkRenderer;
-	private ModelEditorManager modelEditorManager;
+	private final ModelEditorManager modelEditorManager;
 	private final Vec3 facingVector;
 	private View view;
 
@@ -48,7 +45,6 @@ public class Viewport extends ViewportView {
 		add(contextMenu);
 
 		viewportModelRenderer = new ViewportModelRenderer(programPreferences.getVertexSize());
-		animatedViewportModelRenderer = new AnimatedViewportModelRenderer(programPreferences.getVertexSize());
 		linkRenderingVisitorAdapter = new LinkRenderingVisitorAdapter(programPreferences);
 
 		facingVector = new Vec3(0, 0, 0);
@@ -105,11 +101,11 @@ public class Viewport extends ViewportView {
 
 			graphics2d.setStroke(stroke);
 
-			animatedViewportModelRenderer.reset(graphics2d, programPreferences, coordinateSystem, modelHandler);
+			viewportModelRenderer.reset(graphics2d, programPreferences, coordinateSystem, modelHandler, true);
 
 			activityListener.render(graphics2d, coordinateSystem, modelHandler.getRenderModel());
 		} else {
-			viewportModelRenderer.reset(graphics2d, programPreferences, coordinateSystem, modelHandler);
+			viewportModelRenderer.reset(graphics2d, programPreferences, coordinateSystem, modelHandler, false);
 
 			activityListener.renderStatic(graphics2d, coordinateSystem);
 		}

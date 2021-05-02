@@ -3,14 +3,27 @@ package com.hiveworkshop.rms.editor.model.visitor;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.GU;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
+import java.util.ArrayList;
 
-public class UVVPGeosetRendererImpl extends GeosetVisitor {
+//public class UVVPGeosetRendererImpl extends GeosetVisitor {
+public class UVVPGeosetRendererImpl {
+	protected final ArrayList<Point> previousVertices = new ArrayList<>();
+	protected ProgramPreferences programPreferences;
+	protected CoordinateSystem coordinateSystem;
+	protected Graphics2D graphics;
+	protected Geoset geoset;
+	protected RenderModel renderModel;
+	private Vec2[] triV2 = new Vec2[3];
 	private int uvLayerIndex;
-	private int index = 0;
+	private int vIndex = 0;
 
 	public UVVPGeosetRendererImpl reset(Graphics2D graphics,
 	                                    CoordinateSystem coordinateSystem,
@@ -23,7 +36,6 @@ public class UVVPGeosetRendererImpl extends GeosetVisitor {
 		return this;
 	}
 
-	@Override
 	public void beginTriangle(boolean isHD) {
 		renderGeosetTries(geoset, isHD);
 	}
@@ -32,44 +44,15 @@ public class UVVPGeosetRendererImpl extends GeosetVisitor {
 	private void renderGeosetTries(Geoset geoset, boolean isHD) {
 		for (Triangle triangle : geoset.getTriangles()) {
 			previousVertices.clear();
+			vIndex = 0;
 			for (GeosetVertex vertex : triangle.getVerts()) {
-				index = 0;
-				for (Vec2 tvert : vertex.getTverts()) {
-					if (index == uvLayerIndex) {
-						Point point = new Point((int) coordinateSystem.viewX(tvert.x), (int) coordinateSystem.viewY(tvert.y));
-						if (previousVertices.size() > 0) {
-							Point previousPoint = previousVertices.get(previousVertices.size() - 1);
-							graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
-						}
-						previousVertices.add(point);
-					}
-					index++;
-				}
+
+				triV2[vIndex] = CoordSysUtils.convertToViewVec2(coordinateSystem, vertex.getTVertex(0));
+
+				vIndex++;
 			}
-			triangleFinished();
+			GU.drawPolygon(graphics, triV2);
 		}
 	}
 
-	public void vertex(GeosetVertex vert, Boolean isHd) {
-		index = 0;
-		for (Vec2 tvert : vert.getTverts()) {
-			if (index == uvLayerIndex) {
-				Point point = new Point((int) coordinateSystem.viewX(tvert.x), (int) coordinateSystem.viewY(tvert.y));
-				if (previousVertices.size() > 0) {
-					Point previousPoint = previousVertices.get(previousVertices.size() - 1);
-					graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
-				}
-				previousVertices.add(point);
-			}
-			index++;
-		}
-	}
-
-	public void triangleFinished() {
-		if (previousVertices.size() > 1) {
-			Point previousPoint = previousVertices.get(previousVertices.size() - 1);
-			Point point = previousVertices.get(0);
-			graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);
-		}
-	}
 }

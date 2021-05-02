@@ -53,8 +53,10 @@ public class GU {
 		int[] polygonY = new int[points.length];
 
 		for (int i = 0; i < points.length; i++) {
-			polygonX[i] = points[i].x;
-			polygonY[i] = points[i].y;
+			if (points[i] != null) {
+				polygonX[i] = points[i].x;
+				polygonY[i] = points[i].y;
+			}
 		}
 		graphics.drawPolygon(polygonX, polygonY, points.length);
 	}
@@ -64,8 +66,10 @@ public class GU {
 		int[] polygonY = new int[points.length];
 
 		for (int i = 0; i < points.length; i++) {
-			polygonX[i] = (int) points[i].x;
-			polygonY[i] = (int) points[i].y;
+			if (points[i] != null) {
+				polygonX[i] = (int) points[i].x;
+				polygonY[i] = (int) points[i].y;
+			}
 		}
 		graphics.drawPolygon(polygonX, polygonY, points.length);
 	}
@@ -122,7 +126,9 @@ public class GU {
 
 	public static void drawLines(Graphics graphics, Point... points) {
 		for (int i = 0; i < points.length - 1; i += 2) {
-			graphics.drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+			if (points[i] != null) {
+				graphics.drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+			}
 		}
 	}
 

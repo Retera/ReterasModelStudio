@@ -12,12 +12,7 @@ import java.awt.geom.Point2D;
 
 public class CoordSysUtils {
 	public static double getZoom(CoordinateSystem coordinateSystem) {
-		if (coordinateSystem instanceof CoordinateSystem) {
-			return ((CoordinateSystem) coordinateSystem).getZoom();
-		}
-		double originX = coordinateSystem.viewX(0);
-		double offsetX = coordinateSystem.viewX(100);
-		return (offsetX - originX) / 100.0;
+		return coordinateSystem.getZoom();
 	}
 
 	public static byte getUnusedXYZ(CoordinateSystem coordinateSystem) {

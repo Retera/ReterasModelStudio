@@ -5,8 +5,6 @@ import javax.swing.*;
 public final class CoordinateSystem {
 	private byte dimension1;
 	private byte dimension2;
-	//	private final int width;
-//	private final int height;
 	private final JComponent parent;
 	private double cameraX = 0;
 	private double cameraY = 0;
@@ -86,36 +84,26 @@ public final class CoordinateSystem {
 		return this;
 	}
 
-//	@Override
 	public double viewX(double x) {
 		return (x + cameraX) * zoom * aspectRatio + parent.getWidth() / 2.0;
 	}
-//	public double viewX(double x) { return ((x + cameraX) * zoom * aspectRatio) + parent.getWidth() / 2.0;}
 
-//	@Override
 	public double viewY(double y) {
 		return ((y * yFlip + cameraY) * zoom) + parent.getHeight() / 2.0;
 	}
-//	public double viewY(double y) { return ((y * yFlip + cameraY) * zoom) + parent.getHeight() / 2.0;}
 
-//	@Override
 	public double geomX(double x) {
 		return (x - parent.getWidth() / 2.0) / aspectRatio / zoom - cameraX;
 	}
-//	public double geomX(double x) { return (x - parent.getWidth() / 2.0) / aspectRatio / zoom - cameraX;}
 
-//	@Override
 	public double geomY(double y) {
 		return yFlip * ((y - parent.getHeight() / 2.0) / zoom - cameraY);
 	}
-//	public double geomY(double y) { return yFlip * ((y - parent.getHeight() / 2.0) / zoom) - cameraY;}
 
-//	@Override
 	public byte getPortFirstXYZ() {
 		return dimension1;
 	}
 
-//	@Override
 	public byte getPortSecondXYZ() {
 		return dimension2;
 	}

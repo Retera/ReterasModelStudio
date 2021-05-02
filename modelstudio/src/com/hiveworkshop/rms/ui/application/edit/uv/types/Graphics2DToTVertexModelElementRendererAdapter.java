@@ -14,13 +14,11 @@ public final class Graphics2DToTVertexModelElementRendererAdapter implements TVe
 	private CoordinateSystem coordinateSystem;
 	private ProgramPreferences programPreferences;
 	private int vertexSize;
-	private ResettableIdObjectRenderer idObjectRenderer;
 
 	public Graphics2DToTVertexModelElementRendererAdapter(int vertexSize,
 	                                                      ProgramPreferences programPreferences) {
 		this.vertexSize = vertexSize;
 		this.programPreferences = programPreferences;
-		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
 	}
 
 	public Graphics2DToTVertexModelElementRendererAdapter reset(Graphics2D graphics,
