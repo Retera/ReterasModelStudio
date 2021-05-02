@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.types.tpose;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
@@ -91,7 +90,7 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 		Set<IdObject> parentedNonSelection = new HashSet<>();
 		for (IdObject object : model.getEditableIdObjects()) {
 			if (selection.contains(object)) {
-				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getAnimatedBoneSelectedColor(), programPreferences.getAnimatedBoneSelectedColor());
+				renderer.renderIdObject(object);
 				drawnSelection.add(object);
 			} else {
 				IdObject parent = object.getParent();
@@ -106,13 +105,13 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 		for (IdObject selectedObject : selection) {
 			if (!drawnSelection.contains(selectedObject)) {
 				renderBoneDummy.setPivotPoint(selectedObject.getPivotPoint());
-				renderer.renderIdObject(renderBoneDummy, NodeIconPalette.SELECTED, programPreferences.getAnimatedBoneSelectedColor(), programPreferences.getAnimatedBoneSelectedColor());
+				renderer.renderIdObject(renderBoneDummy);
 				drawnSelection.add(selectedObject);
 			}
 		}
 		for (IdObject object : model.getEditableIdObjects()) {
 			if (parentedNonSelection.contains(object) && !drawnSelection.contains(object)) {
-				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getAnimatedBoneSelectedUpstreamColor(), programPreferences.getAnimatedBoneSelectedUpstreamColor());
+				renderer.renderIdObject(object);
 			}
 		}
 	}

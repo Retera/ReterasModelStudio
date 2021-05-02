@@ -1,13 +1,12 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv;
 
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ButtonType;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
-import com.hiveworkshop.rms.ui.application.edit.uv.types.Graphics2DToTVertexModelElementRendererAdapter;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.SelectManipulator;
@@ -20,8 +19,7 @@ import java.awt.*;
 public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVertexEditorChangeListener {
 	private final ViewportSelectionHandler viewportSelectionHandler;
 	private final ProgramPreferences programPreferences;
-	private final Graphics2DToTVertexModelElementRendererAdapter graphics2dToModelElementRendererAdapter;
-	//	private final Graphics2DToAnimatedModelElementRendererAdapter graphics2dToAnimatedModelElementRendererAdapter;
+	private final TVertexModelElementRenderer tVertexModelElementRenderer;
 	private final ModelView modelView;
 	private TVertexEditor modelEditor;
 
@@ -34,8 +32,7 @@ public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuil
 		this.modelEditor = modelEditor;
 		this.modelView = modelView;
 		System.out.println("TVertexEditorMB prefs: " + programPreferences);
-		graphics2dToModelElementRendererAdapter = new Graphics2DToTVertexModelElementRendererAdapter(programPreferences.getVertexSize(), programPreferences);
-//		graphics2dToAnimatedModelElementRendererAdapter = new Graphics2DToAnimatedModelElementRendererAdapter(programPreferences.getVertexSize());
+		tVertexModelElementRenderer = new TVertexModelElementRenderer(programPreferences.getVertexSize(), programPreferences);
 	}
 
 	@Override
@@ -83,21 +80,12 @@ public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuil
 	public final void render(Graphics2D graphics,
 	                         CoordinateSystem coordinateSystem,
 	                         SelectionView selectionView,
-	                         RenderModel renderModel) {
-//		selectionView.renderUVSelection(
-//				graphics2dToAnimatedModelElementRendererAdapter.reset(graphics, coordinateSystem, renderModel), modelView, programPreferences, uvLayerIndex);
-//		if (!selectionView.isEmpty()) {
-//			renderWidget(graphics, coordinateSystem, selectionView);
-//		}
-	}
-
-	@Override
-	public final void renderStatic(Graphics2D graphics,
-	                               CoordinateSystem coordinateSystem,
-	                               SelectionView selectionView) {
-		selectionView.renderUVSelection(graphics2dToModelElementRendererAdapter.reset(graphics, coordinateSystem), modelView, programPreferences, modelEditor.getUVLayerIndex());
-		if (!selectionView.isEmpty()) {
-			renderWidget(graphics, coordinateSystem, selectionView);
+	                         boolean isAnimated) {
+		if (!isAnimated) {
+			selectionView.renderUVSelection(tVertexModelElementRenderer.reset(graphics, coordinateSystem), modelView, programPreferences, modelEditor.getUVLayerIndex());
+			if (!selectionView.isEmpty()) {
+				renderWidget(graphics, coordinateSystem, selectionView);
+			}
 		}
 	}
 

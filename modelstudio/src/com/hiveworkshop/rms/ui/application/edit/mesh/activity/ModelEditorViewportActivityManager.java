@@ -49,19 +49,9 @@ public final class ModelEditorViewportActivityManager implements ModelEditorView
 	}
 
 	@Override
-	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel) {
-		currentActivity.render(g, coordinateSystem, renderModel);
+	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
+		currentActivity.render(g, coordinateSystem, renderModel, isAnimated);
 	}
-
-	@Override
-	public void renderStatic(Graphics2D g, CoordinateSystem coordinateSystem) {
-		currentActivity.renderStatic(g, coordinateSystem);
-	}
-
-//	@Override
-//	public void modelChanged() {
-//		currentActivity.modelChanged();
-//	}
 
 	@Override
 	public boolean isEditing() {

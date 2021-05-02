@@ -103,11 +103,11 @@ public class Viewport extends ViewportView {
 
 			viewportModelRenderer.reset(graphics2d, programPreferences, coordinateSystem, modelHandler, true);
 
-			activityListener.render(graphics2d, coordinateSystem, modelHandler.getRenderModel());
+			activityListener.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), true);
 		} else {
 			viewportModelRenderer.reset(graphics2d, programPreferences, coordinateSystem, modelHandler, false);
 
-			activityListener.renderStatic(graphics2d, coordinateSystem);
+			activityListener.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), false);
 		}
 
 		getColor(g, coordinateSystem.getPortFirstXYZ());

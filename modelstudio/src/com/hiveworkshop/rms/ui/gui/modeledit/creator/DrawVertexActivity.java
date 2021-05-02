@@ -4,8 +4,8 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.Graphics2DToModelElementRendererAdapter;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
@@ -31,7 +31,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
 	private final ModelView modelView;
 	private SelectionView selectionView;
-	private final Graphics2DToModelElementRendererAdapter graphics2dToModelElementRendererAdapter;
+	private final ModelElementRenderer graphics2dToModelElementRendererAdapter;
 	private final ViewportListener viewportListener;
 	private final ModelHandler modelHandler;
 
@@ -47,7 +47,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 		this.modelView = modelHandler.getModelView();
 		this.selectionView = selectionView;
 		this.viewportListener = viewportListener;
-		graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(preferences.getVertexSize());
+		graphics2dToModelElementRendererAdapter = new ModelElementRenderer(preferences.getVertexSize());
 	}
 
 	@Override
@@ -90,14 +90,13 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	public void mouseDragged(final MouseEvent e, final CoordinateSystem coordinateSystem) { }
 
 	@Override
-	public void render(final Graphics2D g, final CoordinateSystem coordinateSystem, final RenderModel renderModel) { }
-
-	@Override
-	public void renderStatic(final Graphics2D g, final CoordinateSystem coordinateSystem) {
-		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem, modelHandler.getRenderModel(), preferences, false), coordinateSystem, modelView, preferences);
-		g.setColor(preferences.getVertexColor());
-		if (lastMousePoint != null) {
-			g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
+	public void render(final Graphics2D g, final CoordinateSystem coordinateSystem, final RenderModel renderModel, boolean isAnimated) {
+		if (!isAnimated) {
+			selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem, modelHandler.getRenderModel(), preferences, false), coordinateSystem, modelView, preferences);
+			g.setColor(preferences.getVertexColor());
+			if (lastMousePoint != null) {
+				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
+			}
 		}
 	}
 

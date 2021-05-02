@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
@@ -45,7 +44,7 @@ public final class PivotPointSelectionManager extends SelectionManager<Vec3> {
 		Set<Vec3> drawnSelection = new HashSet<>();
 		for (IdObject object : model.getEditableIdObjects()) {
 			if (selection.contains(object.getPivotPoint())) {
-				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getSelectColor(), programPreferences.getPivotPointsSelectedColor());
+				renderer.renderIdObject(object);
 				drawnSelection.add(object.getPivotPoint());
 			}
 		}
@@ -57,7 +56,7 @@ public final class PivotPointSelectionManager extends SelectionManager<Vec3> {
 		for (Vec3 vertex : selection) {
 			if (!drawnSelection.contains(vertex)) {
 				renderBoneDummy.setPivotPoint(vertex);
-				renderer.renderIdObject(renderBoneDummy, NodeIconPalette.SELECTED, programPreferences.getSelectColor(), programPreferences.getPivotPointsSelectedColor());
+				renderer.renderIdObject(renderBoneDummy);
 			}
 		}
 	}

@@ -1,11 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model;
 
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ButtonType;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.Graphics2DToModelElementRendererAdapter;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -21,7 +20,7 @@ import java.awt.*;
 
 public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilder, ModelEditorChangeListener {
 	private final ProgramPreferences programPreferences;
-	private final Graphics2DToModelElementRendererAdapter graphics2dToModelElementRendererAdapter;
+	private final ModelElementRenderer modelElementRenderer;
 	ModelEditorManager modelEditorManager;
 	private ViewportSelectionHandler viewportSelectionHandler;
 	private ModelEditor modelEditor;
@@ -36,7 +35,7 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 		this.programPreferences = programPreferences;
 		this.modelEditor = modelEditor;
 		this.modelView = modelView;
-		graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(programPreferences.getVertexSize());
+		modelElementRenderer = new ModelElementRenderer(programPreferences.getVertexSize());
 	}
 
 	public ModelEditorManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler,
@@ -47,7 +46,7 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 		this.programPreferences = programPreferences;
 		this.modelEditor = modelEditorManager.getModelEditor();
 		this.modelView = modelHandler.getModelView();
-		graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(programPreferences.getVertexSize());
+		modelElementRenderer = new ModelElementRenderer(programPreferences.getVertexSize());
 	}
 
 	@Override
@@ -93,18 +92,8 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 	public final void render(Graphics2D graphics,
 	                         CoordinateSystem coordinateSystem,
 	                         SelectionView selectionView,
-	                         RenderModel renderModel) {
-		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(graphics, coordinateSystem, modelHandler.getRenderModel(), programPreferences, true), coordinateSystem, modelView, programPreferences);
-		if (!selectionView.isEmpty()) {
-			renderWidget(graphics, coordinateSystem, selectionView);
-		}
-	}
-
-	@Override
-	public final void renderStatic(Graphics2D graphics,
-	                               CoordinateSystem coordinateSystem,
-	                               SelectionView selectionView) {
-		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(graphics, coordinateSystem, modelHandler.getRenderModel(), programPreferences, false), coordinateSystem, modelView, programPreferences);
+	                         boolean isAnimated) {
+		selectionView.renderSelection(modelElementRenderer.reset(graphics, coordinateSystem, modelHandler.getRenderModel(), programPreferences, isAnimated), coordinateSystem, modelView, programPreferences);
 		if (!selectionView.isEmpty()) {
 			renderWidget(graphics, coordinateSystem, selectionView);
 		}

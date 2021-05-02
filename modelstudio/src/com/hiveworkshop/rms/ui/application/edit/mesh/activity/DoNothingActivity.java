@@ -39,11 +39,7 @@ public final class DoNothingActivity implements ModelEditorViewportActivity {
 	}
 
 	@Override
-	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel) {
-	}
-
-	@Override
-	public void renderStatic(Graphics2D g, CoordinateSystem coordinateSystem) {
+	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 	}
 
 	@Override

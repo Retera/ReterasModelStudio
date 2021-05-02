@@ -49,13 +49,8 @@ public final class TVertexEditorViewportActivityManager implements TVertexEditor
 	}
 
 	@Override
-	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel) {
-		currentActivity.render(g, coordinateSystem, renderModel);
-	}
-
-	@Override
-	public void renderStatic(Graphics2D g, CoordinateSystem coordinateSystem) {
-		currentActivity.renderStatic(g, coordinateSystem);
+	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
+		currentActivity.render(g, coordinateSystem, renderModel, isAnimated);
 	}
 
 	@Override

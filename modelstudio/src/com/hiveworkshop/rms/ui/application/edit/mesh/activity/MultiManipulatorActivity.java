@@ -95,16 +95,8 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 	}
 
 	@Override
-	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem, RenderModel renderModel) {
-		manipulatorBuilder.render(graphics, coordinateSystem, selectionView, renderModel);
-		if (manipulator != null) {
-			manipulator.render(graphics, coordinateSystem);
-		}
-	}
-
-	@Override
-	public void renderStatic(Graphics2D graphics, CoordinateSystem coordinateSystem) {
-		manipulatorBuilder.renderStatic(graphics, coordinateSystem, selectionView);
+	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
+		manipulatorBuilder.render(graphics, coordinateSystem, selectionView, isAnimated);
 		if (manipulator != null) {
 			manipulator.render(graphics, coordinateSystem);
 		}

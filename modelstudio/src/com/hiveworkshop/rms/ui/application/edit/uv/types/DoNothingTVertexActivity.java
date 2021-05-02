@@ -40,11 +40,7 @@ public final class DoNothingTVertexActivity implements TVertexEditorViewportActi
 	}
 
 	@Override
-	public void render(final Graphics2D g, final CoordinateSystem coordinateSystem, final RenderModel renderModel) {
-	}
-
-	@Override
-	public void renderStatic(final Graphics2D g, final CoordinateSystem coordinateSystem) {
+	public void render(final Graphics2D g, final CoordinateSystem coordinateSystem, final RenderModel renderModel, boolean isAnimated) {
 	}
 
 	@Override
