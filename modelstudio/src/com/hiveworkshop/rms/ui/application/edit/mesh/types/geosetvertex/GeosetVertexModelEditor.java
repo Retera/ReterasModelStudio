@@ -35,7 +35,8 @@ import java.util.*;
 public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	private final ProgramPreferences programPreferences;
 
-	public GeosetVertexModelEditor(ModelView model, ProgramPreferences programPreferences,
+	public GeosetVertexModelEditor(ModelView model,
+	                               ProgramPreferences programPreferences,
 	                               SelectionManager<GeosetVertex> selectionManager,
 	                               ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);

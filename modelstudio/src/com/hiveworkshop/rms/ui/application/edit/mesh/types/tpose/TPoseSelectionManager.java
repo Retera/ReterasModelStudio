@@ -85,7 +85,6 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 	@Override
 	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
 	                            ModelView model, ProgramPreferences programPreferences) {
-		// TODO !!! apply rendering
 		Set<IdObject> drawnSelection = new HashSet<>();
 		Set<IdObject> parentedNonSelection = new HashSet<>();
 		for (IdObject object : model.getEditableIdObjects()) {

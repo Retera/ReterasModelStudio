@@ -34,8 +34,7 @@ import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.*;
 
-public class CreatorModelingPanel extends JPanel
-		implements ModelEditorChangeActivityListener, TimeSliderTimeSelectionListener {
+public class CreatorModelingPanel extends JPanel implements ModelEditorChangeActivityListener, TimeSliderTimeSelectionListener {
 	private static final String ANIMATIONBASICS = "ANIMATIONBASICS";
 
 	private final class ActionListenerImplementation implements ActionListener {
@@ -45,7 +44,7 @@ public class CreatorModelingPanel extends JPanel
 		private final ModeButton planeButton;
 
 		private ActionListenerImplementation(final ActivityDescriptor activityDescriptor,
-				final ProgramPreferences programPreferences, final ModelEditorChangeActivityListener listener,
+		                                     final ProgramPreferences programPreferences, final ModelEditorChangeActivityListener listener,
 				final ModeButton planeButton) {
 			this.activityDescriptor = activityDescriptor;
 			this.programPreferences = programPreferences;

@@ -458,29 +458,53 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 			// mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor()
 			// .selectFromViewer(mpanel.getModelEditorManager().getSelectionView()));
 
-			Collection<? extends Vec2> selectedTVertices = modelEditorManager.getSelectionView()
-					.getSelectedTVertices(currentLayer());
+			Collection<? extends Vec2> selectedTVertices = modelEditorManager.getSelectionView().getSelectedTVertices(currentLayer());
 			for (Geoset g : mpanel.getModel().getGeosets()) {
 				for (GeosetVertex gv : new ArrayList<>(g.getVertices())) {
 					Vec2 tVertex = gv.getTVertex(currentLayer());
 					if (selectedTVertices.contains(tVertex)) {
 						List<Triangle> triangles = gv.getTriangles();
-						Iterator<Triangle> iterator = triangles.iterator();
-						if (iterator.hasNext()) {
-							iterator.next(); // keep using gv in 1 triangle, but not more
+						GeosetVertex newVertex = new GeosetVertex(gv);
+						List<Triangle> trianglesToRemove = new ArrayList<>();
+						for (int i = 1; i < triangles.size(); i++) {
+							Triangle triangle = triangles.get(i);
+							int vInd = triangle.indexOfRef(gv);
+							if (vInd != -1) {
+								triangle.set(vInd, newVertex);
+								newVertex.addTriangle(triangle);
+							}
+							trianglesToRemove.add(triangle);
 						}
-						while (iterator.hasNext()) {
-							Triangle tri = iterator.next();
-							int vertexIndex = tri.indexOfRef(gv);
-							GeosetVertex newVertex = new GeosetVertex(gv);
-							tri.set(vertexIndex, newVertex);
-							newVertex.addTriangle(tri);
-							newVertex.getGeoset().add(newVertex);
-							iterator.remove();
+						if (!newVertex.getTriangles().isEmpty()) {
+							g.add(newVertex);
 						}
+						gv.getTriangles().removeAll(trianglesToRemove);
+//						Iterator<Triangle> triangleIterator = triangles.iterator();
+////						if (triangleIterator.hasNext()) {
+////							triangleIterator.next(); // keep using gv in 1 triangle, but not more
+////						}
+//						while (triangleIterator.hasNext()) {
+//							Triangle tri = triangleIterator.next();
+//							int vertexIndex = tri.indexOfRef(gv);
+//							if(vertexIndex != -1){
+//								break;
+//							}
+//						}
+//						while (triangleIterator.hasNext()) {
+//							Triangle tri = triangleIterator.next();
+//							int vertexIndex = tri.indexOfRef(gv);
+//							if(vertexIndex != -1){
+//								GeosetVertex newVertex = new GeosetVertex(gv);
+//								tri.set(vertexIndex, newVertex);
+//								newVertex.addTriangle(tri);
+//								newVertex.getGeoset().add(newVertex);
+//							}
+//							triangleIterator.remove();
+//						}
 					}
 				}
 			}
+//			mpanel.model
 		}
 		repaint();
 	}
@@ -868,7 +892,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		setMouseCoordDisplay(coord1, coord2);
 	}
 
-	@Override
+	//	@Override
 	public void changeActivity(TVertexToolbarActionButtonType newType) {
 		currentActivity = newType;
 		viewportActivityManager.setCurrentActivity(newType.createActivity(modelEditorManager, dispMDL.getModelViewManager(), dispMDL.getUndoManager()));

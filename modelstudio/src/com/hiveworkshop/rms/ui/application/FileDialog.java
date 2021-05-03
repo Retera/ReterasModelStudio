@@ -147,7 +147,7 @@ public class FileDialog {
         };
     }
 
-    void onClickSaveAs() {
+    public void onClickSaveAs() {
         final EditableModel model = getModel();
         onClickSaveAs(model, SAVE, true);
     }
@@ -405,7 +405,7 @@ public class FileDialog {
                     }
                 } else if (extFilter.isSavableTextureExt(ext)) {
                     int version = ext.equals("dds") ? 1000 : 800;
-                    model = MPQBrowserView.getImagePlaneModel(file, version);
+                    model = ModelLoader.getImagePlaneModel(file, version);
                 }
             }
         }
@@ -459,7 +459,7 @@ public class FileDialog {
             MenuBar.toolsMenu.setEnabled(true);
             SaveProfile.get().addRecent(getCurrentFile().getPath());
             MenuBar.updateRecent();
-            MPQBrowserView.loadFile(mainPanel, getCurrentFile());
+            ModelLoader.loadFile(mainPanel, getCurrentFile());
         }
     }
 }

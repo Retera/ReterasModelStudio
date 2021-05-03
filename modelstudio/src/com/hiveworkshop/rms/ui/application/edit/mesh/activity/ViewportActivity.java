@@ -18,6 +18,7 @@ public interface ViewportActivity extends SelectionListener {
 
 	void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem);
 
+	//ugg
 	void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated);
 
 	boolean isEditing();

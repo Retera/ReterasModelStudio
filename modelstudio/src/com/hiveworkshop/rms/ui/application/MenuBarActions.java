@@ -198,10 +198,10 @@ public class MenuBarActions {
 				MenuBar.windowMenu.remove(modelPanel.getMenuItem());
 				if (mainPanel.modelPanels.size() > 0) {
 					int newIndex = Math.min(mainPanel.modelPanels.size() - 1, oldIndex);
-					MPQBrowserView.setCurrentModel(mainPanel, mainPanel.modelPanels.get(newIndex));
+					ModelLoader.setCurrentModel(mainPanel, mainPanel.modelPanels.get(newIndex));
 				} else {
 					// TODO remove from notifiers to fix leaks
-					MPQBrowserView.setCurrentModel(mainPanel, null);
+					ModelLoader.setCurrentModel(mainPanel, null);
 				}
 			}
 		}
@@ -251,8 +251,8 @@ public class MenuBarActions {
 			ModelPanel temp = new ModelPanel(mainPanel, modelHandler, mainPanel.prefs,
 					mainPanel.selectionItemTypeGroup, mainPanel.selectionModeGroup,
 					mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
-					mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false);
-			MPQBrowserView.loadModel(mainPanel, true, true, temp);
+					mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false, mainPanel.animatedRenderEnvironment);
+			ModelLoader.loadModel(mainPanel, true, true, temp);
 		}
 
 	}
@@ -281,7 +281,7 @@ public class MenuBarActions {
 			}
 		}
 		if (closedCurrentPanel) {
-			MPQBrowserView.setCurrentModel(mainPanel, lastUnclosedModelPanel);
+			ModelLoader.setCurrentModel(mainPanel, lastUnclosedModelPanel);
 		}
 		return success;
 	}

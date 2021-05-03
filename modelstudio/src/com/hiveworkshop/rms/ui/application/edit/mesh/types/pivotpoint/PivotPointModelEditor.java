@@ -38,7 +38,10 @@ import java.util.*;
 public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	private final ProgramPreferences programPreferences;
 
-	public PivotPointModelEditor(ModelView model, ProgramPreferences programPreferences, SelectionManager<Vec3> selectionManager, ModelStructureChangeListener structureChangeListener) {
+	public PivotPointModelEditor(ModelView model,
+	                             ProgramPreferences programPreferences,
+	                             SelectionManager<Vec3> selectionManager,
+	                             ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
 	}

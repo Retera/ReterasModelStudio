@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -40,16 +41,16 @@ public class TimeSliderView {
 		ModelPanel panel = mainPanel.currentModelPanel();
 		ModelView modelView = panel == null ? null : panel.getModelViewManager();
 		TimeBoundChooserPanel tbcPanel = new TimeBoundChooserPanel(modelView, mainPanel.modelStructureChangeListener);
-		int confirmDialogResult = JOptionPane.showConfirmDialog(mainPanel, tbcPanel,
-				"Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
+		int confirmDialogResult = JOptionPane.showConfirmDialog(mainPanel, tbcPanel, "Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
+
 		if (confirmDialogResult == JOptionPane.OK_OPTION) {
 			tbcPanel.applyTo(mainPanel.animatedRenderEnvironment);
 			if (panel != null) {
 				panel.getEditorRenderModel().refreshFromEditor(
 						mainPanel.animatedRenderEnvironment,
-						ModelStructureChangeListenerImplementation.IDENTITY,
-						ModelStructureChangeListenerImplementation.IDENTITY,
-						ModelStructureChangeListenerImplementation.IDENTITY,
+						ModelStructureChangeListener.IDENTITY,
+						ModelStructureChangeListener.IDENTITY,
+						ModelStructureChangeListener.IDENTITY,
 						panel.getPerspArea().getViewport());
 				panel.getEditorRenderModel().updateNodes(false);
 			}
@@ -60,7 +61,8 @@ public class TimeSliderView {
 		mainPanel.timeSliderPanel = new TimeSliderPanel(mainPanel, mainPanel.animatedRenderEnvironment, mainPanel.modelStructureChangeListener, mainPanel.prefs);
 		mainPanel.timeSliderPanel.setDrawing(false);
 		mainPanel.timeSliderPanel.addListener(currentTime -> {
-			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime - mainPanel.animatedRenderEnvironment.getStart());
+//			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime);
+//			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime - mainPanel.animatedRenderEnvironment.getStart());
 			if (mainPanel.currentModelPanel() != null) {
 				mainPanel.currentModelPanel().getEditorRenderModel().updateNodes(false);
 				mainPanel.currentModelPanel().repaintSelfAndRelatedChildren();

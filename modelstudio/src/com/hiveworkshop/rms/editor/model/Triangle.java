@@ -149,13 +149,12 @@ public class Triangle {
 	}
 
 	public int indexOfRef(GeosetVertex v) {
-		int out = -1;
-		for (int i = 0; i < verts.length && out == -1; i++) {
+		for (int i = 0; i < verts.length; i++) {
 			if (verts[i] == v) {
-				out = i;
+				return i;
 			}
 		}
-		return out;
+		return -1;
 	}
 
 	public boolean equalRefsNoIds(Triangle t) {

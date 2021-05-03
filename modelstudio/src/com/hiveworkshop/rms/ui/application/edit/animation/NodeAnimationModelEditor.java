@@ -46,7 +46,11 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	private final RenderModel renderModel;
 	private final ModelStructureChangeListener structureChangeListener;
 
-	public NodeAnimationModelEditor(ModelView model, ProgramPreferences programPreferences, SelectionManager<IdObject> selectionManager, RenderModel renderModel, ModelStructureChangeListener structureChangeListener) {
+	public NodeAnimationModelEditor(ModelView model,
+	                                ProgramPreferences programPreferences,
+	                                SelectionManager<IdObject> selectionManager,
+	                                RenderModel renderModel,
+	                                ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager);
 		this.model = model;
 		this.programPreferences = programPreferences;

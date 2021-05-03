@@ -1,10 +1,13 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.DockingWindow;
@@ -28,6 +31,10 @@ public class MainPanelLinkActions {
 		root.getActionMap().put("Delete", mainPanel.deleteAction);
 
 		root.getActionMap().put("CloneSelection", mainPanel.cloneAction);
+
+//		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift pressed SHIFT"), "shiftSelect");
+////		root.getActionMap().put("shiftSelect", shiftSelectAction(mainPanel));
+//		root.getActionMap().put("shiftSelect", new AcAd(e -> shiftSelectActionRes(mainPanel)));
 
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("SPACE"), "MaximizeSpacebar");
 		root.getActionMap().put("MaximizeSpacebar", maximizeSpacebarAction(mainPanel));
@@ -349,6 +356,164 @@ public class MainPanelLinkActions {
 	private static Component getFocusedComponent() {
 		final KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 		return kfm.getFocusOwner();
+	}
+
+	static void selectAllActionRes(MainPanel mainPanel) {
+		final ModelPanel mpanel = mainPanel.currentModelPanel();
+		if (mpanel != null) {
+			mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().selectAll());
+		}
+		mainPanel.repaint();
+	}
+
+	static void invertSelectActionRes(MainPanel mainPanel) {
+		final ModelPanel mpanel = mainPanel.currentModelPanel();
+		if (mpanel != null) {
+			mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().invertSelection());
+		}
+		mainPanel.repaint();
+	}
+
+	static void getExpandSelectionActionRes(MainPanel mainPanel) {
+		final ModelPanel mpanel = mainPanel.currentModelPanel();
+		if (mpanel != null) {
+			mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().expandSelection());
+		}
+		mainPanel.repaint();
+	}
+
+	static void actionTypeGroupActionRes(MainPanel mainPanel, ToolbarActionButtonType newType) {
+		if (newType != null) {
+			mainPanel.changeActivity(newType);
+		}
+	}
+
+	static void animatedRenderEnvChangeResult(MainPanel mainPanel, int start, int end) {
+		Integer globalSeq = mainPanel.animatedRenderEnvironment.getGlobalSeq();
+		if (globalSeq != null) {
+			mainPanel.creatorPanel.setChosenGlobalSeq(globalSeq);
+		} else {
+			final ModelPanel modelPanel = mainPanel.currentModelPanel();
+			if (modelPanel != null) {
+				boolean foundAnim = false;
+				for (final Animation animation : modelPanel.getModel().getAnims()) {
+					if ((animation.getStart() == start) && (animation.getEnd() == end)) {
+						mainPanel.creatorPanel.setChosenAnimation(animation);
+						foundAnim = true;
+						break;
+					}
+				}
+				if (!foundAnim) {
+					mainPanel.creatorPanel.setChosenAnimation(null);
+				}
+			}
+
+		}
+	}
+
+	static void cloneActionRes(MainPanel mainPanel) {
+		final ModelPanel mpanel = mainPanel.currentModelPanel();
+		if (mpanel != null) {
+			try {
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
+						.cloneSelectedComponents(mainPanel.namePicker));
+			} catch (final Exception exc) {
+				ExceptionPopup.display(exc);
+			}
+			mainPanel.refreshUndo();
+			MainPanel.repaintSelfAndChildren(mainPanel);
+			mpanel.repaintSelfAndRelatedChildren();
+		}
+	}
+
+	static void deleteActionRes(MainPanel mainPanel) {
+		final ModelPanel mpanel = mainPanel.currentModelPanel();
+		if (mpanel != null) {
+			if (mainPanel.animationModeState) {
+				mainPanel.timeSliderPanel.deleteSelectedKeyframes();
+			} else {
+				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().deleteSelectedComponents());
+			}
+			MainPanel.repaintSelfAndChildren(mainPanel);
+			mpanel.repaintSelfAndRelatedChildren();
+		}
+	}
+
+	static void rigActionRes(ModelPanel mpanel) {
+		if (mpanel != null) {
+			EditableModel model = mpanel.getModel();
+			ModelEditorManager editorManager = mpanel.getModelEditorManager();
+			boolean valid = false;
+			for (Vec3 v : editorManager.getSelectionView().getSelectedVertices()) {
+				int index = model.getPivots().indexOf(v);
+
+				if (index != -1 && index < model.getIdObjects().size()) {
+					IdObject node = model.getIdObject(index);
+					if ((node instanceof Bone) && !(node instanceof Helper)) {
+						valid = true;
+					}
+				}
+			}
+			if (valid) {
+				mpanel.getUndoManager().pushAction(editorManager.getModelEditor().rig());
+			} else {
+				System.err.println("NOT RIGGING, NOT VALID");
+			}
+		}
+	}
+
+	static AbstractAction getSelectAllAction(final MainPanel mainPanel) {
+		return new AbstractAction("Select All") {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				selectAllActionRes(mainPanel);
+			}
+		};
+	}
+
+	static AbstractAction getInvertSelectAction(final MainPanel mainPanel) {
+		return new AbstractAction("Invert Selection") {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				invertSelectActionRes(mainPanel);
+			}
+		};
+	}
+
+	static AbstractAction getExpandSelectionAction(final MainPanel mainPanel) {
+		return new AbstractAction("Expand Selection") {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				getExpandSelectionActionRes(mainPanel);
+			}
+		};
+	}
+
+	static AbstractAction getRigAction(final MainPanel mainPanel) {
+		return new AbstractAction("Rig") {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				rigActionRes(mainPanel.currentModelPanel());
+			}
+		};
+	}
+
+	static AbstractAction getCloneAction(final MainPanel mainPanel) {
+		return new AbstractAction("CloneSelection") {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				cloneActionRes(mainPanel);
+			}
+		};
+	}
+
+	static AbstractAction getDeleteAction(final MainPanel mainPanel) {
+		return new AbstractAction("Delete") {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				deleteActionRes(mainPanel);
+			}
+		};
 	}
 
 	private static class AcAd extends AbstractAction {

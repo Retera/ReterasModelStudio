@@ -23,7 +23,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.*;
 
-public class GeosetVertexTVertexEditor extends AbstractTVertexEditor<GeosetVertex> {
+public class GeosetVertexTVertexEditor extends TVertexEditor<GeosetVertex> {
 	private final ProgramPreferences programPreferences;
 
 	public GeosetVertexTVertexEditor(ModelView model, ProgramPreferences programPreferences, SelectionManager<GeosetVertex> selectionManager, ModelStructureChangeListener structureChangeListener) {

@@ -30,7 +30,8 @@ import java.util.*;
 public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	private final ProgramPreferences programPreferences;
 
-	public FaceModelEditor(ModelView model, ProgramPreferences programPreferences,
+	public FaceModelEditor(ModelView model,
+	                       ProgramPreferences programPreferences,
 	                       SelectionManager<Triangle> selectionManager,
 	                       ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);

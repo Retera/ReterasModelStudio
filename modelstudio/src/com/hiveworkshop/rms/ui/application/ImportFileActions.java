@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
@@ -13,6 +14,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ public class ImportFileActions {
         final EditableModel currentModel = mainPanel.currentMDL();
         if (currentModel != null) {
             mainPanel.importPanel = new ImportPanel(currentModel, model);
-            mainPanel.importPanel.setCallback(new ModelStructureChangeListenerImplementation(mainPanel, new ModelStructureChangeListenerImplementation.ModelReference() {
+            mainPanel.importPanel.setCallback(new ModelStructureChangeListener(mainPanel, new ModelStructureChangeListener.ModelReference() {
                 private final EditableModel model = mainPanel.currentMDL();
 
                 @Override
@@ -90,10 +92,10 @@ public class ImportFileActions {
         MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
     }
 
-    static MutableObjectData.MutableGameObject fetchObject(MainPanel mainPanel) {
+    static MutableObjectData.MutableGameObject fetchObject(Component parent) {
         final BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(MainLayoutCreator.getUnitData(),
                 MainLayoutCreator.getUnitEditorSettings());
-        final int x = JOptionPane.showConfirmDialog(mainPanel, selector,
+        final int x = JOptionPane.showConfirmDialog(parent, selector,
                 "Object Editor - Select Unit",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         final MutableObjectData.MutableGameObject choice = selector.getSelection();
@@ -107,7 +109,7 @@ public class ImportFileActions {
         return null;
     }
 
-    static void importGameObjectActionRes(MainPanel mainPanel){
+    static void importGameObjectActionRes(MainPanel mainPanel) {
         final MutableObjectData.MutableGameObject fetchObjectResult = fetchObject(mainPanel);
         if (fetchObjectResult != null) {
             String path = fetchObjectResult.getFieldAsString(UnitFields.MODEL_FILE, 0);
@@ -116,8 +118,8 @@ public class ImportFileActions {
         }
     }
 
-    static ModelOptionPane.ModelElement fetchModel(MainPanel mainPanel) {
-        final ModelOptionPane.ModelElement model = ModelOptionPane.showAndLogIcon(mainPanel);
+    static ModelOptionPane.ModelElement fetchModel(Component parent) {
+        final ModelOptionPane.ModelElement model = ModelOptionPane.showAndLogIcon(parent);
         if (model == null) {
             return null;
         }
@@ -126,7 +128,7 @@ public class ImportFileActions {
         return null;
     }
 
-    static void importGameModelActionRes(MainPanel mainPanel){
+    static void importGameModelActionRes(MainPanel mainPanel) {
         final ModelOptionPane.ModelElement fetchModelResult = fetchModel(mainPanel);
         if (fetchModelResult != null) {
             String path = fetchModelResult.getFilepath();

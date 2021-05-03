@@ -23,7 +23,7 @@ import java.io.IOException;
 public class MainLayoutCreator {
     static TabWindow createMainLayout(MainPanel mainPanel) {
 
-        final JPanel jPanel = new JPanel();
+        JPanel jPanel = new JPanel();
         jPanel.add(new JLabel("..."));
         mainPanel.viewportControllerWindowView = new View("Outliner", null, jPanel);// GlobalIcons.geoIcon
 //		viewportControllerWindowView.getWindowProperties().setCloseEnabled(false);
@@ -38,35 +38,35 @@ public class MainLayoutCreator {
         mainPanel.perspectiveView = new View("Perspective", null, new JPanel());
 
 
-        final SplitWindow editingTab = getEditTab(mainPanel);
+        SplitWindow editingTab = getEditTab(mainPanel);
 
-        final SplitWindow viewingTab = getViewTab(mainPanel);
+        SplitWindow viewingTab = getViewTab(mainPanel);
 
-        final SplitWindow modelTab = new SplitWindow(true, 0.2f, mainPanel.modelDataView, mainPanel.modelComponentView);
+        SplitWindow modelTab = new SplitWindow(true, 0.2f, mainPanel.modelDataView, mainPanel.modelComponentView);
         modelTab.getWindowProperties().setTitleProvider(arg0 -> "Model");
 
-        final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
-//        final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, viewingTab, modelTab});
-        traverseAndFix(startupTabWindow);
+        TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
+//        TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, viewingTab, modelTab});
+        WindowHandler.traverseAndFix(startupTabWindow);
         return startupTabWindow;
     }
 
     private static SplitWindow getViewTab(MainPanel mainPanel) {
-        final ImageIcon imageIcon;
+        ImageIcon imageIcon;
         imageIcon = new ImageIcon(MainFrame.MAIN_PROGRAM_ICON.getScaledInstance(16, 16, Image.SCALE_FAST));
 
-        final View mpqBrowserView = MPQBrowserView.createMPQBrowser(mainPanel, imageIcon);
+        View mpqBrowserView = MPQBrowserView.createMPQBrowser(mainPanel, imageIcon);
 
-        final UnitEditorTree unitEditorTree = createUnitEditorTree(mainPanel);
+        UnitEditorTree unitEditorTree = createUnitEditorTree(mainPanel);
         View view = new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree));
         DockingWindow[] dockingWindow = new DockingWindow[] {view, mpqBrowserView};
 
-        final TabWindow tabWindow = new TabWindow(dockingWindow);
+        TabWindow tabWindow = new TabWindow(dockingWindow);
 
         tabWindow.setSelectedTab(0);
 
         SplitWindow animPersp = new SplitWindow(true, 0.8f, mainPanel.previewView, mainPanel.animationControllerView);
-        final SplitWindow viewingTab = new SplitWindow(true, 0.8f, animPersp, tabWindow);
+        SplitWindow viewingTab = new SplitWindow(true, 0.8f, animPersp, tabWindow);
 
         viewingTab.getWindowProperties().setTitleProvider(arg0 -> "View");
         viewingTab.getWindowProperties().setCloseEnabled(false);
@@ -74,7 +74,7 @@ public class MainLayoutCreator {
     }
 
     private static SplitWindow getEditTab(MainPanel mainPanel) {
-        final TabWindow leftHandTabWindow = new TabWindow(new DockingWindow[] {mainPanel.viewportControllerWindowView, mainPanel.toolView});
+        TabWindow leftHandTabWindow = new TabWindow(new DockingWindow[] {mainPanel.viewportControllerWindowView, mainPanel.toolView});
         leftHandTabWindow.setSelectedTab(0);
 
         SplitWindow frBt = new SplitWindow(true, mainPanel.frontView, mainPanel.bottomView);
@@ -83,29 +83,16 @@ public class MainLayoutCreator {
 
         SplitWindow splitWindow = new SplitWindow(true, 0.2f, leftHandTabWindow, new SplitWindow(true, 0.8f, quadView, mainPanel.creatorView));
 
-        final SplitWindow editingTab = new SplitWindow(false, 0.875f, splitWindow, mainPanel.timeSliderView);
+        SplitWindow editingTab = new SplitWindow(false, 0.875f, splitWindow, mainPanel.timeSliderView);
 
         editingTab.getWindowProperties().setCloseEnabled(false);
         editingTab.getWindowProperties().setTitleProvider(arg0 -> "Edit");
         return editingTab;
     }
 
-    static void traverseAndFix(final DockingWindow window) {
-        final boolean tabWindow = window instanceof TabWindow;
-        final int childWindowCount = window.getChildWindowCount();
-        for (int i = 0; i < childWindowCount; i++) {
-            final DockingWindow childWindow = window.getChildWindow(i);
-            traverseAndFix(childWindow);
-            if (tabWindow && (childWindowCount != 1) && (childWindow instanceof View)) {
-                final View view = (View) childWindow;
-                view.getViewProperties().getViewTitleBarProperties().setVisible(false);
-            }
-        }
-    }
-
     static UnitEditorTree createUnitEditorTree(MainPanel mainPanel) {
         return new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(),
-                getUnitEditorSettings(), MutableObjectData.WorldEditorDataType.UNITS, (mdxFilePath, b, c, icon) -> MPQBrowserView.loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(mdxFilePath), b, c, icon), mainPanel.prefs);
+                getUnitEditorSettings(), MutableObjectData.WorldEditorDataType.UNITS, (mdxFilePath, b, c, icon) -> InternalFileLoader.loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(mdxFilePath), b, c, icon), mainPanel.prefs);
     }
 
     /**
@@ -114,9 +101,9 @@ public class MainLayoutCreator {
      * future -- the MutableObjectData class can parse map unit data!
      */
     public static MutableObjectData getUnitData() {
-        final War3ObjectDataChangeset editorData = new War3ObjectDataChangeset('u');
+        War3ObjectDataChangeset editorData = new War3ObjectDataChangeset('u');
         try {
-            final CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
+            CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
             if (gameDataFileSystem.has("war3map.w3u")) {
                 editorData.load(
                         new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream("war3map.w3u")),
@@ -124,8 +111,8 @@ public class MainLayoutCreator {
                                 ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null,
                         true);
             }
-        } catch (final IOException e) {
-	        e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 	    return new MutableObjectData(MutableObjectData.WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
 			    StandardObjectData.getStandardUnitMeta(), editorData);
@@ -137,11 +124,11 @@ public class MainLayoutCreator {
 
 
 ////        TempBonePanel tempBonePanel = new TempBonePanel();
-////        final DockingWindow boneTab = new SplitWindow(true, 0.5f, tempBonePanel.getBoneView(), mainPanel.previewView);
+////        DockingWindow boneTab = new SplitWindow(true, 0.5f, tempBonePanel.getBoneView(), mainPanel.previewView);
 ////        boneTab.getWindowProperties().setTitleProvider(arg0 -> "Bones");
 //
 //        editingTab.setDebugGraphicsOptions(JComponent.WHEN_FOCUSED);
 //        System.out.println("editingTab insets: " + editingTab.getInsets());
 //        System.out.println("leftView insets: " + mainPanel.leftView.getInsets());
-////        final TabWindow startupTabWindow = new TabWindow(new DockingWindow[]{boneTab, viewingTab, editingTab, modelTab});
+////        TabWindow startupTabWindow = new TabWindow(new DockingWindow[]{boneTab, viewingTab, editingTab, modelTab});
 }

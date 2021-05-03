@@ -50,7 +50,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private static final Stroke WIDTH_1_STROKE = new BasicStroke(1);
 
 	private boolean keyframeModeActive;
-	private final TimeBoundProvider timeBoundProvider;
+	private final TimeEnvironmentImpl timeEnvironment;
 	private int start, end = 30;
 	private int currentTime = 0;
 	int tickStep = 25;
@@ -86,7 +86,6 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private final ModelStructureChangeListener structureChangeListener;
 	private ModelView modelView;
 	private final JCheckBox allKF;
-	private TimeEnvironmentImpl timeEnvironmentImpl;
 	private final Timer liveAnimationTimer;
 	private final ProgramPreferences preferences;
 	private final GUITheme theme;
@@ -101,17 +100,17 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 //	TimeLine timeLine;
 
 	//	public TimeSliderPanel(
-//			final TimeBoundProvider timeBoundProvider,
-//			final ModelStructureChangeListener structureChangeListener,
-//			final ProgramPreferences preferences) {
+//			TimeBoundProvider timeBoundProvider,
+//			ModelStructureChangeListener structureChangeListener,
+//			ProgramPreferences preferences) {
 //	public TimeSliderPanel(MainPanel mainPanel) {
 	public TimeSliderPanel(MainPanel mainPanel,
-	                       final TimeBoundProvider timeBoundProvider,
-	                       final ModelStructureChangeListener structureChangeListener,
-	                       final ProgramPreferences preferences) {
+	                       TimeEnvironmentImpl timeEnvironment,
+	                       ModelStructureChangeListener structureChangeListener,
+	                       ProgramPreferences preferences) {
 		this.mainPanel = mainPanel;
 		//mainPanel.animatedRenderEnvironment, mainPanel.modelStructureChangeListener, mainPanel.prefs
-		this.timeBoundProvider = timeBoundProvider;
+		this.timeEnvironment = timeEnvironment;
 		this.structureChangeListener = structureChangeListener;
 		this.preferences = preferences;
 		theme = preferences.getTheme();
@@ -157,10 +156,10 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 //		setMaximumSize(new Dimension(Integer.MAX_VALUE, VERTICAL_SLIDER_HEIGHT + VERTICAL_TICKS_HEIGHT + 9999));
 
-		timeBoundProvider.addChangeListener(this);
+		timeEnvironment.addChangeListener(this);
 
-		start = timeBoundProvider.getStart();
-		end = timeBoundProvider.getEnd();
+		start = timeEnvironment.getStart();
+		end = timeEnvironment.getEnd();
 
 		setForeground(Color.WHITE);
 		setFont(new Font("Courier New", Font.PLAIN, 12));
@@ -296,9 +295,9 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 						timeChooserRect.x = 0;
 					}
 					final int computedTime = computeTimeFromSlider();
-					if (computedTime != currentTime) {
-						currentTime = computedTime;
-						notifier.timeChanged(currentTime);
+					if (computedTime != timeEnvironment.getAnimationTime()) {
+						timeEnvironment.setCurrentTime(computedTime);
+						notifier.timeChanged(timeEnvironment.getAnimationTime());
 					}
 					repaint();
 				} else if (draggingFrame != null) {
@@ -419,21 +418,21 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private void showTimeSliderPopUp2(MouseEvent mouseEvent) {
 		popupMenu.removeAll();
 
-		final JMenuItem timeIndicator = new JMenuItem("" + currentTime);
+		final JMenuItem timeIndicator = new JMenuItem("" + timeEnvironment.getAnimationTime());
 		timeIndicator.setEnabled(false);
 		popupMenu.add(timeIndicator);
 		popupMenu.addSeparator();
 
 		final JMenuItem copyItem = new JMenuItem("Copy");
-		copyItem.addActionListener(e -> copyKeyframes(structureChangeListener, currentTime));
+		copyItem.addActionListener(e -> copyKeyframes(structureChangeListener, timeEnvironment.getAnimationTime()));
 		popupMenu.add(copyItem);
 
 		final JMenuItem copyFrameItem = new JMenuItem("Copy Frame (whole model)");
-		copyFrameItem.addActionListener(e -> copyAllKeyframes(currentTime));
+		copyFrameItem.addActionListener(e -> copyAllKeyframes(timeEnvironment.getAnimationTime()));
 		popupMenu.add(copyFrameItem);
 
 		final JMenuItem pasteItem = new JMenuItem("Paste");
-		pasteItem.addActionListener(e -> pasteToAllSelected(structureChangeListener, currentTime));
+		pasteItem.addActionListener(e -> pasteToAllSelected(structureChangeListener, timeEnvironment.getAnimationTime()));
 		popupMenu.add(pasteItem);
 
 		popupMenu.addSeparator();
@@ -454,10 +453,13 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		if (!drawing) {
 			return;
 		}
-		if (currentTime == end) {
-			currentTime = start;
+//		timeEnvironment.updateAnimationTime();
+//		notifier.timeChanged(timeEnvironment.getAnimationTime());
+
+		if (timeEnvironment.getAnimationTime() == end) {
+			timeEnvironment.setAnimationTime(start);
 			timeChooserRect.x = computeSliderXFromTime();
-			notifier.timeChanged(currentTime);
+			notifier.timeChanged(timeEnvironment.getAnimationTime());
 			repaint();
 		} else {
 			jumpFrames(16);
@@ -465,9 +467,9 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	}
 
 	public void deleteSelectedKeyframes() {
-		final KeyFrame keyFrame = timeToKey.get(currentTime);
+		final KeyFrame keyFrame = timeToKey.get(timeEnvironment.getAnimationTime());
 		if (keyFrame != null) {
-			deleteKeyframes("delete keyframe", structureChangeListener, currentTime, keyFrame.objects);
+			deleteKeyframes("delete keyframe", structureChangeListener, timeEnvironment.getAnimationTime(), keyFrame.objects);
 		}
 		revalidateKeyframeDisplay();
 	}
@@ -522,7 +524,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	}
 
 	public void jumpToPreviousTime() {
-		final List<Integer> validTimes = getTimes().stream().filter(t -> t < currentTime).collect(Collectors.toList());
+		final List<Integer> validTimes = getTimes().stream().filter(t -> t < timeEnvironment.getAnimationTime()).collect(Collectors.toList());
 		if (validTimes.isEmpty()) {
 			setCurrentTime(start);
 		} else {
@@ -531,7 +533,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	}
 
 	public void jumpToNextTime() {
-		final List<Integer> validTimes = getTimes().stream().filter(t -> t > currentTime).collect(Collectors.toList());
+		final List<Integer> validTimes = getTimes().stream().filter(t -> t > timeEnvironment.getAnimationTime()).collect(Collectors.toList());
 		if (validTimes.isEmpty()) {
 			setCurrentTime(start);
 		} else {
@@ -548,8 +550,9 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	public void setCurrentTime(final int newTime) {
 //		System.out.println("setCurrentTime");
-		currentTime = newTime;
-		notifier.timeChanged(currentTime);
+		timeEnvironment.setAnimationTime(newTime);
+//		currentTime = newTime;
+		notifier.timeChanged(timeEnvironment.getAnimationTime());
 		final int maxXPosition = timelinePanel.getWidth() - timeChooserRect.width;
 		timeChooserRect.x = computeSliderXFromTime();
 		if (timeChooserRect.x > maxXPosition) {
@@ -561,7 +564,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	}
 
 	public void jumpFrames(final int deltaFrames) {
-		int newTime = currentTime + deltaFrames;
+		int newTime = timeEnvironment.getAnimationTime() + deltaFrames;
 		if (newTime > end) {
 			newTime = end;
 		} else if (newTime < start) {
@@ -576,7 +579,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		useAllCopiedKeyframes = false;
 		for (final IdObject object : getSelectionToUse()) {
 			for (final AnimFlag<?> flag : object.getAnimFlags()) {
-				final Integer currentEditorGlobalSeq = timeEnvironmentImpl.getGlobalSeq();
+				final Integer currentEditorGlobalSeq = timeEnvironment.getGlobalSeq();
 				if (((flag.getGlobalSeq() == null) && (currentEditorGlobalSeq == null)) || ((currentEditorGlobalSeq != null) && currentEditorGlobalSeq.equals(flag.getGlobalSeq()))) {
 					copuKeyframes(object, flag, trackTime);
 				}
@@ -601,7 +604,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 //				copiedKeyframes.add(new CopiedKeyFrame(object, flag, AnimFlag.cloneValue(value), null, null));
 //			}
 		} else {
-			final Object value = flag.interpolateAt(timeEnvironmentImpl);
+			final Object value = flag.interpolateAt(timeEnvironment);
 			if (flag.tans()) {
 				copiedKeyframes.add(new CopiedKeyFrame(object, flag, AnimFlag.cloneValue(value), AnimFlag.cloneValue(value), AnimFlag.cloneValue(value)));
 			} else {
@@ -615,7 +618,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		useAllCopiedKeyframes = true;
 		for (final IdObject object : modelView.getModel().getIdObjects()) {
 			for (final AnimFlag<?> flag : object.getAnimFlags()) {
-				final Integer currentEditorGlobalSeq = timeEnvironmentImpl.getGlobalSeq();
+				final Integer currentEditorGlobalSeq = timeEnvironment.getGlobalSeq();
 				if (((flag.getGlobalSeq() == null) && (currentEditorGlobalSeq == null)) || ((currentEditorGlobalSeq != null) && currentEditorGlobalSeq.equals(flag.getGlobalSeq()))) {
 					copuKeyframes(object, flag, trackTime);
 				}
@@ -627,9 +630,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		this.tickStep = tickStep;
 	}
 
-	public void setUndoManager(final UndoActionListener undoManager, final TimeEnvironmentImpl timeEnvironmentImpl) {
+	public void setUndoManager(final UndoActionListener undoManager) {
 		this.undoManager = undoManager;
-		this.timeEnvironmentImpl = timeEnvironmentImpl;
 	}
 
 	public void setModelView(final ModelView modelView) {
@@ -668,28 +670,29 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	}
 
 	private void stepBackwards() {
-		if (currentTime > start) {
+		if (timeEnvironment.getAnimationTime() > start) {
 			timeStep(-1);
 		}
 		repaint();
 	}
 
 	private void stepForwards() {
-		if (currentTime < end) {
+		if (timeEnvironment.getAnimationTime() < end) {
 			timeStep(1);
 		}
 		repaint();
 	}
 
 	private void timeStep(int step) {
-		currentTime += step;
+		timeEnvironment.stepAnimationTime(step);
+//		currentTime += step;
 		int pixelDelta = timeChooserRect.x;
 		timeChooserRect.x = computeSliderXFromTime();
 		pixelDelta = timeChooserRect.x - pixelDelta;
 		if (robot != null) {
 			robot.mouseMove(MouseInfo.getPointerInfo().getLocation().x + pixelDelta, MouseInfo.getPointerInfo().getLocation().y);
 		}
-		notifier.timeChanged(currentTime);
+		notifier.timeChanged(timeEnvironment.getAnimationTime());
 	}
 
 	private int computeTimeFromSlider() {
@@ -709,7 +712,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	private int computeSliderXFromTime() {
 		final int widthMinusOffsets = timelinePanel.getWidth() - (SIDE_OFFSETS * 2);
-		final double timeRatio = (currentTime - start) / (double) (end - start);
+		final double timeRatio = (timeEnvironment.getAnimationTime() - start) / (double) (end - start);
 		return (int) (widthMinusOffsets * timeRatio);
 	}
 
@@ -771,7 +774,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	private void drawCurrentKeyframeMarker(Graphics g) {
 		g.setColor(GLASS_TICK_COVER_COLOR);
-		final int currentTimePixelX = computeXFromTime(currentTime);
+		final int currentTimePixelX = computeXFromTime(timeEnvironment.getAnimationTime());
 		g.fillRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
 		g.setColor(GLASS_TICK_COVER_BORDER_COLOR);
 		g.drawRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
@@ -844,7 +847,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 			for (final AnimFlag<?> timeline : draggingFrame.timelines) {
 				timeline.slideKeyframe(draggingFrame.time, computedTime);
 				// TODO this is a hack to refresh screen while dragging
-				notifier.timeChanged(currentTime);
+				notifier.timeChanged(timeEnvironment.getAnimationTime());
 			}
 			draggingFrame.time = computedTime;
 			timeToKey.put(draggingFrame.time, draggingFrame);
@@ -905,7 +908,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		g.fill3DRect((timeChooserRect.x + timeChooserRect.width) - SLIDER_SIDE_BUTTON_SIZE, timeChooserRect.y, SLIDER_SIDE_BUTTON_SIZE, timeChooserRect.height, true);
 		g.setColor(getForeground());
 //		String timeChooserLabel = currentTime + " / " + end;
-		String timeChooserLabel = currentTime + "";
+		String timeChooserLabel = timeEnvironment.getAnimationTime() + "";
 		int y = (timeChooserRect.y + ((timeChooserRect.height + fontMetrics.getAscent()) / 2)) - 1;
 		g.drawString(timeChooserLabel, timeChooserRect.x + ((timeChooserRect.width - fontMetrics.stringWidth(timeChooserLabel)) / 2), y);
 		timeChooserLabel = "<";
@@ -920,7 +923,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		playButton.setIcon(RMSIcons.PLAY);
 		this.start = start;
 		this.end = end;
-		currentTime = start;
+		timeEnvironment.setAnimationTime(start);
 		timeChooserRect.x = computeSliderXFromTime();
 		updateKeyframeDisplay();
 //		timeLine.repaint();
@@ -929,10 +932,6 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	public void setKeyframeModeActive(final boolean keyframeModeActive) {
 		this.keyframeModeActive = keyframeModeActive;
-	}
-
-	public int getCurrentTime() {
-		return currentTime;
 	}
 
 	private void slideExistingKeyFramesForResize() {
@@ -947,7 +946,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 			final Iterable<IdObject> selection = getSelectionToUse();
 			for (final IdObject object : selection) {
 				for (final AnimFlag<?> flag : object.getAnimFlags()) {
-					if (((flag.getGlobalSeq() == null) && (timeEnvironmentImpl.getGlobalSeq() == null)) || ((timeEnvironmentImpl.getGlobalSeq() != null) && timeEnvironmentImpl.getGlobalSeq().equals(flag.getGlobalSeq()))) {
+					if (((flag.getGlobalSeq() == null) && (timeEnvironment.getGlobalSeq() == null)) || ((timeEnvironment.getGlobalSeq() != null) && timeEnvironment.getGlobalSeq().equals(flag.getGlobalSeq()))) {
 						final int flagStartIndex = flag.ceilIndex(start);
 						final int endFlagIndex = flag.floorIndex(end);
 						if (flag.size() > 0) {
@@ -972,8 +971,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		if ((modelView == null) || (modelView.getModel() == null)) {
 			return Collections.emptySet();
 		}
-		return allKF.isSelected() ? modelView.getModel().getIdObjects()
-				: nodeSelectionManager.getSelection();
+		return allKF.isSelected() ? modelView.getModel().getIdObjects() : nodeSelectionManager.getSelection();
 	}
 
 	@Override
@@ -1053,7 +1051,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 			sourceTimeline.setEntry(mouseClickAnimationTime, newEntry);
 			action = new SetKeyframeAction(frame.node, sourceTimeline, newEntry, () -> {
 				// TODO this is a hack to refresh screen while dragging
-				notifier.timeChanged(currentTime);
+				notifier.timeChanged(timeEnvironment.getAnimationTime());
 			});
 		} else {
 //			if (sourceTimeline.tans()) {
@@ -1113,7 +1111,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 			private void drawCurrentKeyframeMarker(Graphics g) {
 				g.setColor(GLASS_TICK_COVER_COLOR);
-				final int currentTimePixelX = computeXFromTime(currentTime);
+				final int currentTimePixelX = computeXFromTime(timeEnvironment.getAnimationTime());
 				g.fillRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
 				g.setColor(GLASS_TICK_COVER_BORDER_COLOR);
 				g.drawRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
@@ -1201,20 +1199,20 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	// to be called externally
 	public void copy() {
-		copyKeyframes(structureChangeListener, currentTime);
+		copyKeyframes(structureChangeListener, timeEnvironment.getAnimationTime());
 	}
 
 	public void cut() {
-		copyKeyframes(structureChangeListener, currentTime);
-		final KeyFrame keyFrame = timeToKey.get(currentTime);
+		copyKeyframes(structureChangeListener, timeEnvironment.getAnimationTime());
+		final KeyFrame keyFrame = timeToKey.get(timeEnvironment.getAnimationTime());
 		if (keyFrame != null) {
-			deleteKeyframes("cut keyframe", structureChangeListener, currentTime, keyFrame.objects);
+			deleteKeyframes("cut keyframe", structureChangeListener, timeEnvironment.getAnimationTime(), keyFrame.objects);
 		}
 		revalidateKeyframeDisplay();
 	}
 
 	public void paste() {
-		pasteToAllSelected(structureChangeListener, currentTime);
+		pasteToAllSelected(structureChangeListener, timeEnvironment.getAnimationTime());
 	}
 
 	public void play() {
@@ -1241,6 +1239,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	public void setDrawing(final boolean drawing) {
 		this.drawing = drawing;
+		System.out.println("is drawing: " + drawing);
 		for (final Component component : getComponents()) {
 			component.setEnabled(drawing);
 		}

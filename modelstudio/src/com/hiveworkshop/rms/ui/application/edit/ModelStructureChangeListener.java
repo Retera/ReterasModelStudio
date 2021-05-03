@@ -2,43 +2,237 @@ package com.hiveworkshop.rms.ui.application.edit;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.util.Quat;
 
+import javax.swing.*;
 import java.util.List;
 
-public interface ModelStructureChangeListener {
-	void geosetsAdded(List<Geoset> geosets);
+public class ModelStructureChangeListener {
+	public static final Quat IDENTITY = new Quat();
+	private final ModelReference modelReference;
+	private final MainPanel mainPanel;
 
-	void geosetsRemoved(List<Geoset> geosets);
+	public ModelStructureChangeListener(MainPanel mainPanel, final ModelReference modelReference) {
+		this.modelReference = modelReference;
+		this.mainPanel = mainPanel;
+	}
 
-	void nodesAdded(List<IdObject> nodes);
+	public ModelStructureChangeListener(MainPanel mainPanel, EditableModel model) {
+		modelReference = () -> model;
+		this.mainPanel = mainPanel;
+	}
 
-	void nodesRemoved(List<IdObject> nodes);
+	/**
+	 * Returns the MDLDisplay associated with a given MDL, or null if one cannot be
+	 * found.
+	 */
+	public static ModelPanel displayFor(List<ModelPanel> modelPanels, EditableModel model) {
+		ModelView tempDisplay;
+		for (ModelPanel modelPanel : modelPanels) {
+			tempDisplay = modelPanel.getModelViewManager();
+			if (tempDisplay.getModel() == model) {
+				return modelPanel;
+			}
+		}
+		return null;
+	}
 
-	void camerasAdded(List<Camera> nodes);
+	public static void reloadComponentBrowser(JScrollPane geoControlModelData, ModelPanel display) {
+		if (display != null) {
+			geoControlModelData.repaint();
+			display.getModelComponentBrowserTree().reloadFromModelView();
+			geoControlModelData.setViewportView(display.getModelComponentBrowserTree());
+		}
+	}
 
-	void camerasRemoved(List<Camera> nodes);
+	public static void reloadGeosetManagers(MainPanel mainPanel, ModelPanel display) {
+		mainPanel.getGeoControl().repaint();
+		mainPanel.getGeoControl().setViewportView(display.getModelViewManagingTree().reloadFromModelView());
+		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
+		display.getPerspArea().reloadTextures();
+		display.getAnimationViewer().reload();
+		display.getAnimationController().reload();
+		mainPanel.getCreatorPanel().reloadAnimationList();
 
-	void timelineAdded(TimelineContainer node, AnimFlag<?> timeline);
+		display.getEditorRenderModel().refreshFromEditor(mainPanel.getAnimatedRenderEnvironment(), IDENTITY, IDENTITY, IDENTITY,
+				display.getPerspArea().getViewport());
+	}
 
-	void keyframeAdded(TimelineContainer node, AnimFlag<?> timeline, int trackTime);
+	public static ModelStructureChangeListener getModelStructureChangeListener(MainPanel mainPanel) {
+		ModelStructureChangeListener modelStructureChangeListener;
+		modelStructureChangeListener = new ModelStructureChangeListener(mainPanel, () -> mainPanel.currentModelPanel().getModel());
+		return modelStructureChangeListener;
+	}
 
-	void timelineRemoved(TimelineContainer node, AnimFlag<?> timeline);
+	public void nodesRemoved(List<IdObject> nodes) {
+		// Tell program to set visibility after import
+		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		if (display != null) {
+			for (IdObject geoset : nodes) {
+				display.getModelViewManager().makeIdObjectNotVisible(geoset);
+			}
+			reloadGeosetManagers(mainPanel, display);
+		}
+	}
 
-	void keyframeRemoved(TimelineContainer node, AnimFlag<?> timeline, int trackTime);
+	public void nodesAdded(List<IdObject> nodes) {
+		// Tell program to set visibility after import
+		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		if (display != null) {
+			// display.setBeenSaved(false); // we edited the model
+			// TODO notify been saved system, wherever that moves to
+			for (IdObject geoset : nodes) {
+				display.getModelViewManager().makeIdObjectVisible(geoset);
+			}
+			reloadGeosetManagers(mainPanel, display);
+			display.getEditorRenderModel().refreshFromEditor(mainPanel.getAnimatedRenderEnvironment(), IDENTITY,
+					IDENTITY, IDENTITY, display.getPerspArea().getViewport());
+			display.getAnimationViewer().reload();
+		}
+	}
 
-	void animationsAdded(List<Animation> animation);
+	public void geosetsRemoved(List<Geoset> geosets) {
+		// Tell program to set visibility after import
+		final ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		if (display != null) {
+			// display.setBeenSaved(false); // we edited the model
+			// TODO notify been saved system, wherever that moves to
+			for (Geoset geoset : geosets) {
+				display.getModelViewManager().makeGeosetNotEditable(geoset);
+				display.getModelViewManager().makeGeosetNotVisible(geoset);
+			}
+			reloadGeosetManagers(mainPanel, display);
+		}
+	}
 
-	void animationsRemoved(List<Animation> animation);
+	public void geosetsAdded(List<Geoset> geosets) {
+		// Tell program to set visibility after import
+		final ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		if (display != null) {
+			// display.setBeenSaved(false); // we edited the model
+			// TODO notify been saved system, wherever that moves to
+			for (Geoset geoset : geosets) {
+				display.getModelViewManager().makeGeosetEditable(geoset);
+				// display.getModelViewManager().makeGeosetVisible(geoset);
+			}
+			reloadGeosetManagers(mainPanel, display);
+		}
+	}
 
-	void texturesChanged();
+	public void camerasAdded(List<Camera> cameras) {
+		// Tell program to set visibility after import
+		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		if (display != null) {
+			// display.setBeenSaved(false); // we edited the model
+			// TODO notify been saved system, wherever that moves to
+			for (Camera camera : cameras) {
+				display.getModelViewManager().makeCameraVisible(camera);
+				// display.getModelViewManager().makeGeosetVisible(geoset);
+			}
+			reloadGeosetManagers(mainPanel, display);
+		}
+	}
 
-	void headerChanged();
+	public void camerasRemoved(List<Camera> cameras) {
+		// Tell program to set visibility after import
+		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		if (display != null) {
+			// display.setBeenSaved(false); // we edited the model
+			// TODO notify been saved system, wherever that moves to
+			for (Camera camera : cameras) {
+				display.getModelViewManager().makeCameraNotVisible(camera);
+				// display.getModelViewManager().makeGeosetVisible(geoset);
+			}
+			reloadGeosetManagers(mainPanel, display);
+		}
+	}
 
-	void animationParamsChanged(Animation animation);
+	public void timelineAdded(TimelineContainer node, AnimFlag<?> timeline) {
 
-	void globalSequenceLengthChanged(int index, Integer newLength);
+	}
 
-	void materialsListChanged();
+	public void keyframeAdded(TimelineContainer node, AnimFlag<?> timeline, int trackTime) {
+		mainPanel.getTimeSliderPanel().revalidateKeyframeDisplay();
+	}
 
-	void nodeHierarchyChanged();
+	public void timelineRemoved(TimelineContainer node, AnimFlag<?> timeline) {
+
+	}
+
+	public void keyframeRemoved(TimelineContainer node, AnimFlag<?> timeline, int trackTime) {
+		mainPanel.getTimeSliderPanel().revalidateKeyframeDisplay();
+	}
+
+	public void animationsAdded(List<Animation> animation) {
+		mainPanel.currentModelPanel().getAnimationViewer().reload();
+		mainPanel.currentModelPanel().getAnimationController().reload();
+		mainPanel.getCreatorPanel().reloadAnimationList();
+		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
+	}
+
+	public void animationsRemoved(List<Animation> animation) {
+		mainPanel.currentModelPanel().getAnimationViewer().reload();
+		mainPanel.currentModelPanel().getAnimationController().reload();
+		mainPanel.getCreatorPanel().reloadAnimationList();
+		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
+	}
+
+	public void texturesChanged() {
+		ModelPanel modelPanel = mainPanel.currentModelPanel();
+		if (modelPanel != null) {
+			modelPanel.getAnimationViewer().reloadAllTextures();
+			modelPanel.getPerspArea().reloadAllTextures();
+		}
+		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
+	}
+
+	public void headerChanged() {
+		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
+	}
+
+	public void animationParamsChanged(Animation animation) {
+		mainPanel.currentModelPanel().getAnimationViewer().reload();
+		mainPanel.currentModelPanel().getAnimationController().reload();
+		mainPanel.getCreatorPanel().reloadAnimationList();
+		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
+	}
+
+	public void globalSequenceLengthChanged(int index, Integer newLength) {
+		mainPanel.currentModelPanel().getAnimationViewer().reload();
+		mainPanel.currentModelPanel().getAnimationController().reload();
+		mainPanel.getCreatorPanel().reloadAnimationList();
+		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
+	}
+
+	public void materialsListChanged() {
+		ModelPanel modelPanel = mainPanel.currentModelPanel();
+		if (modelPanel != null) {
+			modelPanel.getAnimationViewer().reloadAllTextures();
+			modelPanel.getPerspArea().reloadAllTextures();
+			modelPanel.repaintSelfAndRelatedChildren();
+		}
+		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
+	}
+
+	public void nodeHierarchyChanged() {
+		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		if (display != null) {
+			display.getModelViewManagingTree().reloadFromModelView();
+			reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
+		}
+	}
+
+	public interface ModelReference {
+		EditableModel getModel();
+	}
 }

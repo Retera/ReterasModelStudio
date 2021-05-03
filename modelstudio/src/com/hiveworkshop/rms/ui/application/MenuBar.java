@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
 import com.hiveworkshop.rms.ui.application.scripts.AnimationTransfer;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
@@ -21,7 +22,6 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import net.infonode.docking.DockingWindow;
-import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
 
 import javax.swing.*;
@@ -161,11 +161,11 @@ public class MenuBar {
         fetch.setMnemonic(KeyEvent.VK_F);
         fileMenu.add(fetch);
 
-        createAndAddMenuItem("Unit", fetch, KeyEvent.VK_U, KeyStroke.getKeyStroke("control U"), e -> MPQBrowserView.fetchUnit(mainPanel));
+        createAndAddMenuItem("Unit", fetch, KeyEvent.VK_U, KeyStroke.getKeyStroke("control U"), e -> InternalFileLoader.fetchUnit(mainPanel));
 
-        createAndAddMenuItem("Model", fetch, KeyEvent.VK_M, KeyStroke.getKeyStroke("control M"), e -> MPQBrowserView.fetchModel(mainPanel));
+        createAndAddMenuItem("Model", fetch, KeyEvent.VK_M, KeyStroke.getKeyStroke("control M"), e -> InternalFileLoader.fetchModel(mainPanel));
 
-        createAndAddMenuItem("Object Editor", fetch, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> MPQBrowserView.fetchObject(mainPanel));
+        createAndAddMenuItem("Object Editor", fetch, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> InternalFileLoader.fetchObject(mainPanel));
 
         fetch.add(new JSeparator());
 
@@ -203,7 +203,7 @@ public class MenuBar {
 
         fileMenu.add(new JSeparator());
 
-        createAndAddMenuItem("Revert", fileMenu, -1, e -> MPQBrowserView.revert(mainPanel));
+        createAndAddMenuItem("Revert", fileMenu, -1, e -> ModelLoader.revert(mainPanel));
 
         createAndAddMenuItem("Close", fileMenu, KeyEvent.VK_E, KeyStroke.getKeyStroke("control E"), e -> MenuBarActions.closePanel(mainPanel));
 
@@ -374,7 +374,7 @@ public class MenuBar {
         newDirectory.setAccelerator(KeyStroke.getKeyStroke("control shift D"));
         newDirectory.setToolTipText("Changes the directory from which to load texture files for the 3D display.");
         newDirectory.setMnemonic(KeyEvent.VK_D);
-        newDirectory.addActionListener(mainPanel);
+        newDirectory.addActionListener(e -> mainPanel.refreshUndo());
 //		viewMenu.add(newDirectory);
 
         viewMenu.add(new JSeparator());
@@ -408,7 +408,7 @@ public class MenuBar {
 
     private static void fillWindowsMenu(MainPanel mainPanel, JMenu windowMenu) {
         final JMenuItem resetViewButton = new JMenuItem("Reset Layout");
-        resetViewButton.addActionListener(e -> resetView(mainPanel));
+        resetViewButton.addActionListener(e -> WindowHandler.resetView(mainPanel));
         windowMenu.add(resetViewButton);
 
         final JMenu viewsMenu = createMenu("Views", KeyEvent.VK_V);
@@ -452,7 +452,7 @@ public class MenuBar {
         createAndAddMenuItem("Unit Browser", browsersMenu, KeyEvent.VK_U, e -> MenuBarActions.openUnitViewer(mainPanel));
 
 //        createAndAddMenuItem("Doodad Browser", browsersMenu, KeyEvent.VK_D, getOpenDoodadViewerAction(mainPanel));
-        createAndAddMenuItem("Doodad Browser", browsersMenu, KeyEvent.VK_D, e -> MPQBrowserView.OpenDoodadViewer(mainPanel));
+        createAndAddMenuItem("Doodad Browser", browsersMenu, KeyEvent.VK_D, e -> InternalFileLoader.OpenDoodadViewer(mainPanel));
 
         JMenuItem hiveViewer = new JMenuItem("Hive Browser");
         hiveViewer.setMnemonic(KeyEvent.VK_H);
@@ -552,16 +552,6 @@ public class MenuBar {
         createAndAddMenuItem("Changelog", aboutMenu, KeyEvent.VK_A, e -> MenuBarActions.createAndShowRtfPanel("docs/changelist.rtf", "Changelog"));
 
         createAndAddMenuItem("About", aboutMenu, KeyEvent.VK_A, e -> MenuBarActions.createAndShowRtfPanel("docs/credits.rtf", "About"));
-    }
-
-    private static void resetView(MainPanel mainPanel) {
-        traverseAndReset(mainPanel.rootWindow);
-        final TabWindow startupTabWindow = MainLayoutCreator.createMainLayout(mainPanel);
-        startupTabWindow.setSelectedTab(0);
-        mainPanel.rootWindow.setWindow(startupTabWindow);
-        MPQBrowserView.setCurrentModel(mainPanel, mainPanel.currentModelPanel());
-        mainPanel.rootWindow.revalidate();
-        MainLayoutCreator.traverseAndFix(mainPanel.rootWindow);
     }
 
     private static void repaint(MainPanel mainPanel, int radioButton) {
@@ -732,7 +722,7 @@ public class MenuBar {
                         modelPanel.getAnimationViewer().reloadAllTextures();
                         modelPanel.getPerspArea().reloadAllTextures();
 
-                        ModelStructureChangeListenerImplementation.reloadComponentBrowser(mainPanel.geoControlModelData, modelPanel);
+                        ModelStructureChangeListener.reloadComponentBrowser(mainPanel.geoControlModelData, modelPanel);
                     }
                     mainPanel.profile.getPreferences().setTeamColor(teamColorValueNumber);
                 });
@@ -771,18 +761,6 @@ public class MenuBar {
         mainPanel.modelStructureChangeListener.materialsListChanged();
     }
 
-    static void traverseAndReset(final DockingWindow window) {
-        final int childWindowCount = window.getChildWindowCount();
-        for (int i = 0; i < childWindowCount; i++) {
-            final DockingWindow childWindow = window.getChildWindow(i);
-            traverseAndReset(childWindow);
-            if (childWindow instanceof View) {
-                final View view = (View) childWindow;
-                view.getViewProperties().getViewTitleBarProperties().setVisible(true);
-            }
-        }
-    }
-
     public static void updateRecent() {
         final List<String> recent = SaveProfile.get().getRecent();
         for (final RecentItem recentItem : recentItems) {
@@ -809,7 +787,7 @@ public class MenuBar {
                     toolsMenu.setEnabled(true);
                     SaveProfile.get().addRecent(FileDialog.getCurrentFile().getPath());
                     updateRecent();
-                    MPQBrowserView.loadFile(mainPanel, FileDialog.getCurrentFile());
+                    ModelLoader.loadFile(mainPanel, FileDialog.getCurrentFile());
                 });
                 recentMenu.add(item, recentMenu.getItemCount() - 2);
             }
@@ -836,7 +814,7 @@ public class MenuBar {
             }
         }
         if (closedCurrentPanel) {
-            MPQBrowserView.setCurrentModel(mainPanel, lastUnclosedModelPanel);
+            ModelLoader.setCurrentModel(mainPanel, lastUnclosedModelPanel);
         }
         return success;
     }

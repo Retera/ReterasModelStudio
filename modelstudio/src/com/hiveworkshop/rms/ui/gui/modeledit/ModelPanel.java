@@ -3,7 +3,10 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.DoNothingActivity;
@@ -67,7 +70,7 @@ public class ModelPanel implements MouseListener {
 	                  ViewportTransferHandler viewportTransferHandler,
 	                  ViewportListener viewportListener,
 	                  Icon icon,
-	                  boolean specialBLPModel) {
+	                  boolean specialBLPModel, TimeEnvironmentImpl timeEnvironment) {
 		this.modelHandler = modelHandler;
 
 		this.parent = parent;
@@ -102,7 +105,7 @@ public class ModelPanel implements MouseListener {
 		botArea.setControlsVisible(prefs.showVMControls());
 		sideArea.setControlsVisible(prefs.showVMControls());
 
-		perspArea = new PerspDisplayPanel("Perspective", modelHandler, prefs);
+		perspArea = new PerspDisplayPanel("Perspective", modelHandler, prefs, timeEnvironment);
 
 		componentsPanel = new ComponentsPanel(modelHandler, modelStructureChangeListener);
 
@@ -159,33 +162,32 @@ public class ModelPanel implements MouseListener {
 		this.editUVPanel = editUVPanel;
 	}
 
-	public boolean close(final ModelPanelCloseListener listener)// MainPanel parent) TODO fix
+	public boolean close(MainPanel mainPanel)// MainPanel parent) TODO fix
 	{
 		// returns true if closed successfully
 		boolean canceled = false;
 		// int myIndex = parent.tabbedPane.indexOfComponent(this);
 		if (!modelHandler.getUndoManager().isUndoListEmpty()) {
-			final Object[] options = { "Yes", "No", "Cancel" };
+			final Object[] options = {"Yes", "No", "Cancel"};
 			final int n = JOptionPane.showOptionDialog(parent,
 					"Would you like to save " + modelHandler.getModel().getName()/* parent.tabbedPane.getTitleAt(myIndex) */ + " (\""
 							+ modelHandler.getModel().getHeaderName() + "\") before closing?",
 					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
 					options[2]);
 			switch (n) {
-			case JOptionPane.YES_OPTION:
-				// ((ModelPanel)parent.tabbedPane.getComponentAt(myIndex)).getMDLDisplay().getMDL().saveFile();
-				listener.save(modelHandler.getModel());
-				// parent.tabbedPane.remove(myIndex);
-				if (editUVPanel != null) {
-					editUVPanel.getView().setVisible(false);
-				}
-				break;
-			case JOptionPane.NO_OPTION:
-				// parent.tabbedPane.remove(myIndex);
-				if (editUVPanel != null) {
-					editUVPanel.getView().setVisible(false);
-				}
-				break;
+				case JOptionPane.YES_OPTION:
+					FileDialog fileDialog = new FileDialog(this);
+					fileDialog.onClickSaveAs();
+					if (editUVPanel != null) {
+						editUVPanel.getView().setVisible(false);
+					}
+					break;
+				case JOptionPane.NO_OPTION:
+					// parent.tabbedPane.remove(myIndex);
+					if (editUVPanel != null) {
+						editUVPanel.getView().setVisible(false);
+					}
+					break;
 			case JOptionPane.CANCEL_OPTION:
 				canceled = true;
 				break;

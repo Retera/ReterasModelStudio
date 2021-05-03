@@ -93,7 +93,8 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 	                         CoordinateSystem coordinateSystem,
 	                         SelectionView selectionView,
 	                         boolean isAnimated) {
-		selectionView.renderSelection(modelElementRenderer.reset(graphics, coordinateSystem, modelHandler.getRenderModel(), programPreferences, isAnimated), coordinateSystem, modelView, programPreferences);
+		modelElementRenderer.reset(graphics, coordinateSystem, modelHandler.getRenderModel(), programPreferences, isAnimated);
+		selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView, programPreferences);
 		if (!selectionView.isEmpty()) {
 			renderWidget(graphics, coordinateSystem, selectionView);
 		}

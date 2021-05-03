@@ -57,6 +57,34 @@ public class PerspDisplayPanel extends JPanel {
 		view = new View(title, null, this);
 	}
 
+	public PerspDisplayPanel(String title, ModelHandler modelHandler, ProgramPreferences programPreferences, TimeEnvironmentImpl timeEnvironment) {
+		super();
+		this.programPreferences = programPreferences;
+		setOpaque(true);
+
+		setViewport(modelHandler, timeEnvironment);
+		getViewport().setMinimumSize(new Dimension(200, 200));
+		this.title = title;
+
+		JButton plusZoom = getButton(e -> zoom(.15), 20, 20);
+		// add(plusZoom);
+		JButton minusZoom = getButton(e -> zoom(-.15), 20, 20);
+		// add(minusZoom);
+		JButton up = getButton(e -> translateViewUpDown(20), 32, 16);
+		// add(up);
+		JButton down = getButton(e -> translateViewUpDown(-20), 32, 16);
+		// add(down);
+		JButton left = getButton(e -> translateViewLeftRight(20), 16, 32);
+		// add(left);
+		JButton right = getButton(e -> translateViewLeftRight(-20), 16, 32);
+		// add(right);
+
+		setLayout(new BorderLayout());
+		add(vp);
+
+		view = new View(title, null, this);
+	}
+
 	private static JButton getButton(ActionListener actionListener, int width, int height) {
 		Dimension dim = new Dimension(width, height);
 		JButton button = new JButton("");

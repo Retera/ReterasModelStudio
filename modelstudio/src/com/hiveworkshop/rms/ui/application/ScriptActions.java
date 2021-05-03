@@ -390,7 +390,7 @@ public class ScriptActions {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						MPQBrowserView.loadFile(mainPanel, newModel.getFile());
+						ModelLoader.loadFile(mainPanel, newModel.getFile());
 					}
 				}
 			});
