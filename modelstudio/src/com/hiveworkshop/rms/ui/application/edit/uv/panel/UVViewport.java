@@ -48,7 +48,6 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 	}
 
 	public void paintComponent(Graphics g, int vertexSize) {
-//		super.paintComponent(g);
 		if (programPreferences.show2dGrid()) {
 			drawGrid(g);
 		}
@@ -56,7 +55,7 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 		PaintBackgroundImage(g);
 
 		Graphics2D graphics2d = (Graphics2D) g;
-		viewportModelRenderer.reset(graphics2d, programPreferences, coordinateSystem, modelHandler);
+		viewportModelRenderer.drawGeosetUVs(graphics2d, programPreferences, coordinateSystem, modelHandler);
 
 		activityListener.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), false);
 	}

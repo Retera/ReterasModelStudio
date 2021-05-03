@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
@@ -16,7 +15,7 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.awt.*;
 import java.util.List;
 
-public final class ResettableIdObjectRenderer implements IdObjectVisitor {
+public final class ResettableIdObjectRenderer {
     private final int vertexSize;
     private final ViewportRenderableCamera renderableCameraProp = new ViewportRenderableCamera();
     private CoordinateSystem coordinateSystem;
@@ -68,7 +67,7 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
     public void drawCollisionShape(Graphics2D graphics,
                                    CoordinateSystem coordinateSystem,
                                    int vertexSize,
-                                   CollisionShape collisionShape, Image collisionImage,
+                                   CollisionShape collisionShape,
                                    Mat4 worldMatrix, boolean crosshairIsBox) {
         List<Vec3> vertices = collisionShape.getVertices();
 
@@ -77,7 +76,6 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
                 Vec3 vertexHeap1 = new Vec3(vertices.get(0));
                 Vec3 vertexHeap2 = new Vec3(vertices.get(1));
                 if (worldMatrix != null) {
-//                if(isAnimated){
                     vertexHeap1.transform(worldMatrix);
                     vertexHeap2.transform(worldMatrix);
                 }
@@ -104,7 +102,6 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
                 graphics.drawOval((int) (coord.x - boundsRadius), (int) (coord.y - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
             }
         }
-        drawNodeImage(graphics, coordinateSystem, collisionShape, collisionImage, worldMatrix);
 
         for (Vec3 vertex : vertices) {
             drawCrosshair(graphics, coordinateSystem, vertexSize, vertex, worldMatrix, crosshairIsBox);
@@ -136,35 +133,23 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
         }
     }
 
-    private void drawNodeImage(IdObject object, Image nodeImage, Mat4 worldMatrix) {
-        drawNodeImage(graphics, coordinateSystem, object, nodeImage, worldMatrix);
-    }
-
-    private void drawCrosshair(Bone object) {
-        drawCrosshair(object.getPivotPoint(), getWorldMatrix(object));
-    }
-
-    private void drawCrosshair(Vec3 pivotPoint, Mat4 worldMatrix) {
-        drawCrosshair(graphics, coordinateSystem, vertexSize, pivotPoint, worldMatrix, crosshairIsBox);
-    }
-
-    @Override
     public void visitIdObject(IdObject object) {
         if (object instanceof Helper) {
             graphics.setColor(pivotPointColor.darker());
-            drawCrosshair((Bone) object);
+            drawCrosshair(graphics, coordinateSystem, vertexSize, object.getPivotPoint(), getWorldMatrix(object), crosshairIsBox);
         } else if (object instanceof Bone) {
             graphics.setColor(pivotPointColor);
-            drawCrosshair((Bone) object);
+            drawCrosshair(graphics, coordinateSystem, vertexSize, object.getPivotPoint(), getWorldMatrix(object), crosshairIsBox);
         } else if (object instanceof CollisionShape) {
             graphics.setColor(pivotPointColor);
-            collisionShape((CollisionShape) object);
+            drawCollisionShape(graphics, coordinateSystem, vertexSize, (CollisionShape) object, getWorldMatrix(object), crosshairIsBox);
+            drawNodeImage(graphics, coordinateSystem, object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
         } else if (object instanceof Light) {
             graphics.setColor(lightColor);
-            drawNodeImage(object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
+            drawNodeImage(graphics, coordinateSystem, object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
             light((Light) object);
         } else {
-            drawNodeImage(object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
+            drawNodeImage(graphics, coordinateSystem, object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
         }
     }
 
@@ -173,11 +158,6 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
             return null;
         }
         return renderModel.getRenderNode(object).getWorldMatrix();
-    }
-
-    public void collisionShape(CollisionShape object) {
-        drawCollisionShape(graphics, coordinateSystem, vertexSize, object, nodeIconPalette.getCollisionImage(),
-                getWorldMatrix(object), crosshairIsBox);
     }
 
     public void light(Light object) {
@@ -200,7 +180,6 @@ public final class ResettableIdObjectRenderer implements IdObjectVisitor {
         }
     }
 
-    @Override
     public void camera(Camera camera) {
         graphics.setColor(Color.GREEN.darker());
         Graphics2D g2 = ((Graphics2D) graphics.create());

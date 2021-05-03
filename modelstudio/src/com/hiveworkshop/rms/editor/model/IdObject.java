@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGenericObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
@@ -273,10 +272,6 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	public IdObject getParent() {
 		return parent;
 	}
-
-	public void apply(IdObjectVisitor visitor) {
-	visitor.visitIdObject(this);
-}
 
 	@Override
 	public List<IdObject> getChildrenNodes() {

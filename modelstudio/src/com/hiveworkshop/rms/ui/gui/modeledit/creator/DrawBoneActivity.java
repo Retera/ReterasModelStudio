@@ -30,7 +30,7 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 	private final UndoActionListener undoActionListener;
 	private final ModelView modelView;
 	private SelectionView selectionView;
-	private final ModelElementRenderer graphics2dToModelElementRendererAdapter;
+	private final ModelElementRenderer modelElementRenderer;
 	private final ViewportListener viewportListener;
 	private final ModelHandler modelHandler;
 
@@ -42,7 +42,7 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 		this.modelView = modelHandler.getModelView();
 		this.selectionView = selectionView;
 		this.viewportListener = viewportListener;
-		graphics2dToModelElementRendererAdapter = new ModelElementRenderer(preferences.getVertexSize());
+		modelElementRenderer = new ModelElementRenderer(preferences.getVertexSize());
 	}
 
 	@Override
@@ -88,7 +88,8 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 	@Override
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
-			selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem, modelHandler.getRenderModel(), preferences, false), coordinateSystem, modelView, preferences);
+			modelElementRenderer.reset(g, coordinateSystem, modelHandler.getRenderModel(), preferences, false);
+			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView, preferences);
 			g.setColor(preferences.getVertexColor());
 			if (lastMousePoint != null) {
 				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);

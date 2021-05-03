@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
 import com.hiveworkshop.rms.editor.model.visitor.VPGeosetRenderer;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -15,7 +14,7 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import java.awt.*;
 
-public class ViewportModelRenderer implements ModelVisitor {
+public class ViewportModelRenderer {
 	private Graphics2D graphics;
 	private ProgramPreferences programPreferences;
 	private final VPGeosetRenderer geosetRenderer;
@@ -49,10 +48,13 @@ public class ViewportModelRenderer implements ModelVisitor {
 			beginGeoset(geoset, isHd(model, geoset));
 		}
 		for (IdObject object : model.getAllObjects()) {
-			visitIdObject(object);
+			if (modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode())) {
+				idObjectRenderer.reset(coordinateSystem, graphics, programPreferences, renderModel, isAnimated, modelView.getHighlightedNode() == object);
+				idObjectRenderer.visitIdObject(object);
+			}
 		}
 		for (final Camera camera : model.getCameras()) {
-			camera(camera);
+			idObjectRenderer.camera(camera);
 		}
 
 		return this;
@@ -80,31 +82,5 @@ public class ViewportModelRenderer implements ModelVisitor {
 		}
 		geosetRenderer.reset(graphics, programPreferences, coordinateSystem, renderModel, geoset, isAnimated);
 		geosetRenderer.beginTriangle(isHD);
-	}
-
-	@Override
-	public void visitIdObject(IdObject object) {
-		if (isVisibleNode(object)) {
-			resetIdObjectRendererWithNode(object);
-			idObjectRenderer.visitIdObject(object);
-		}
-	}
-
-	@Override
-	public void camera(Camera cam) {
-		idObjectRenderer.camera(cam);
-	}
-
-	private void resetIdObjectRendererWithNode(IdObject object) {
-//		idObjectRenderer.reset(coordinateSystem, graphics,
-//				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor() : programPreferences.getLightsColor(),
-//				modelView.getHighlightedNode() == object ? programPreferences.getHighlighVertexColor() : programPreferences.getAnimatedBoneUnselectedColor(),
-//				modelView.getHighlightedNode() == object ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED,
-//				renderModel, programPreferences.isUseBoxesForPivotPoints(), isAnimated);
-		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences, renderModel, isAnimated, modelView.getHighlightedNode() == object);
-	}
-
-	private boolean isVisibleNode(IdObject object) {
-		return modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode());
 	}
 }

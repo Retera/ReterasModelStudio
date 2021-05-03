@@ -46,17 +46,13 @@ public abstract class ViewportView extends JPanel {
 	                    ViewportActivity viewportActivity,
 	                    ViewportListener viewportListener,
 	                    CoordDisplayListener coordDisplayListener) {
-//		this.modelView = modelView;
 		this.modelHandler = modelHandler;
 		this.programPreferences = programPreferences;
 		this.activityListener = viewportActivity;
 		this.viewportListener = viewportListener;
-//		this.undoListener = undoListener;
-//		this.undoHandler = undoHandler;
 		this.coordDisplayListener = coordDisplayListener;
 
 		coordinateSystem = new CoordinateSystem(d1, d2, this);
-//		coordinateSystem = this;
 		popupParent = this;
 
 		setBorder(BorderFactory.createBevelBorder(1));

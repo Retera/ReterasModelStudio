@@ -31,7 +31,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
 	private final ModelView modelView;
 	private SelectionView selectionView;
-	private final ModelElementRenderer graphics2dToModelElementRendererAdapter;
+	private final ModelElementRenderer modelElementRenderer;
 	private final ViewportListener viewportListener;
 	private final ModelHandler modelHandler;
 
@@ -47,7 +47,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 		this.modelView = modelHandler.getModelView();
 		this.selectionView = selectionView;
 		this.viewportListener = viewportListener;
-		graphics2dToModelElementRendererAdapter = new ModelElementRenderer(preferences.getVertexSize());
+		modelElementRenderer = new ModelElementRenderer(preferences.getVertexSize());
 	}
 
 	@Override
@@ -92,7 +92,8 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	@Override
 	public void render(final Graphics2D g, final CoordinateSystem coordinateSystem, final RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
-			selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem, modelHandler.getRenderModel(), preferences, false), coordinateSystem, modelView, preferences);
+			modelElementRenderer.reset(g, coordinateSystem, modelHandler.getRenderModel(), preferences, false);
+			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView, preferences);
 			g.setColor(preferences.getVertexColor());
 			if (lastMousePoint != null) {
 				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);

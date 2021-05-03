@@ -31,7 +31,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
 	private final ModelView modelView;
 	private SelectionView selectionView;
-	private final ModelElementRenderer graphics2dToModelElementRendererAdapter;
+	private final ModelElementRenderer modelElementRenderer;
 	private final ViewportListener viewportListener;
 
 	private DrawingState drawingState = DrawingState.NOTHING;
@@ -60,7 +60,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 		this.numSegsX = numSegsX;
 		this.numSegsY = numSegsY;
 		this.numSegsZ = numSegsZ;
-		graphics2dToModelElementRendererAdapter = new ModelElementRenderer(preferences.getVertexSize());
+		modelElementRenderer = new ModelElementRenderer(preferences.getVertexSize());
 	}
 
 	public void setNumSegsX(int numSegsX) {
@@ -161,7 +161,8 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 	@Override
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
-			selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem, modelHandler.getRenderModel(), preferences, false), coordinateSystem, modelView, preferences);
+			modelElementRenderer.reset(g, coordinateSystem, modelHandler.getRenderModel(), preferences, false);
+			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView, preferences);
 		}
 	}
 

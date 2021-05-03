@@ -1,66 +1,59 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.model.visitor.ModelVisitor;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableAnimatedIdObjectParentLinkRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 
-public class LinkRenderingVisitorAdapter implements ModelVisitor {
-	private ResettableAnimatedIdObjectParentLinkRenderer linkRenderer;
+public class LinkRenderingVisitorAdapter {
+	private CoordinateSystem coordinateSystem;
+	private ProgramPreferences programPreferences;
 	ModelView modelView;
 	private ModelHandler modelHandler;
+	private Graphics2D graphics;
 
 	public LinkRenderingVisitorAdapter(ProgramPreferences programPreferences) {
-		linkRenderer = new ResettableAnimatedIdObjectParentLinkRenderer(programPreferences.getVertexSize());
+		this.programPreferences = programPreferences;
 	}
 
-	public ResettableAnimatedIdObjectParentLinkRenderer reset(Graphics2D graphics,
-	                                                          CoordinateSystem coordinateSystem,
-	                                                          ModelHandler modelHandler) {
+	public static void drawLink(Graphics2D graphics, CoordinateSystem coordinateSystem,
+	                            Vec3 pivotPoint, Vec3 target,
+	                            Mat4 worldMatrix, Mat4 targetWorldMatrix) {
+		Vec3 vertexHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
+		Vec3 vertexHeap2 = Vec3.getTransformed(target, targetWorldMatrix);
+
+		int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+		int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+		int xCoord2 = (int) coordinateSystem.viewX(vertexHeap2.getCoord(coordinateSystem.getPortFirstXYZ()));
+		int yCoord2 = (int) coordinateSystem.viewY(vertexHeap2.getCoord(coordinateSystem.getPortSecondXYZ()));
+
+		graphics.setPaint(new GradientPaint(new Point(xCoord, yCoord), Color.WHITE, new Point(xCoord2, yCoord2), Color.BLACK));
+
+		graphics.drawLine(xCoord, yCoord, xCoord2, yCoord2);
+	}
+
+	public void reset(Graphics2D graphics, CoordinateSystem coordinateSystem, ModelHandler modelHandler) {
+		this.graphics = graphics;
 		this.modelHandler = modelHandler;
 		this.modelView = modelHandler.getModelView();
-		linkRenderer.reset(coordinateSystem, graphics, NodeIconPalette.HIGHLIGHT, modelHandler.getRenderModel());
+		this.coordinateSystem = coordinateSystem;
 
 		EditableModel model = modelHandler.getModel();
 
 		for (IdObject object : model.getAllObjects()) {
-			visitIdObject(object);
+			if (modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode())) {
+				if (object.getParent() != null) {
+					drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),
+							modelHandler.getRenderModel().getRenderNode(object).getWorldMatrix(),
+							modelHandler.getRenderModel().getRenderNode(object.getParent()).getWorldMatrix());
+				}
+			}
 		}
-
-		return linkRenderer;
-	}
-
-	public boolean isHd(EditableModel model, Geoset geoset) {
-		return (ModelUtils.isTangentAndSkinSupported(model.getFormatVersion()))
-				&& (geoset.getVertices().size() > 0)
-				&& (geoset.getVertex(0).getSkinBoneBones() != null);
-	}
-
-	//	@Override
-	public void beginGeoset(Geoset geoset, boolean isHD) {
-	}
-
-	private boolean isVisibleNode(IdObject object) {
-		return modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode());
-	}
-
-	@Override
-	public void visitIdObject(IdObject object) {
-		if (isVisibleNode(object)) {
-			linkRenderer.visitIdObject(object);
-		}
-	}
-
-	@Override
-	public void camera(Camera camera) {
 	}
 }

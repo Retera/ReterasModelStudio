@@ -2,12 +2,10 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.types.pivotpoint;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
-import com.hiveworkshop.rms.editor.model.visitor.PivPGenericSelectorVisitor;
-import com.hiveworkshop.rms.editor.model.visitor.PivPSelectionAtPointTester;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawBoneAction;
@@ -39,14 +37,10 @@ import java.util.*;
 
 public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	private final ProgramPreferences programPreferences;
-	private final PivPGenericSelectorVisitor genericSelectorVisitor;
-	private final PivPSelectionAtPointTester selectionAtPointTester;
 
 	public PivotPointModelEditor(ModelView model, ProgramPreferences programPreferences, SelectionManager<Vec3> selectionManager, ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
-		genericSelectorVisitor = new PivPGenericSelectorVisitor();
-		selectionAtPointTester = new PivPSelectionAtPointTester();
 	}
 
 	private static String getNumberName(String name, int number) {
@@ -211,26 +205,60 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		List<Vec3> selectedItems = new ArrayList<>();
 		Rectangle2D area = getArea(region);
 
-		IdObjectVisitor visitor = genericSelectorVisitor.reset(programPreferences, selectedItems, area, coordinateSystem);
 		for (IdObject object : model.getEditableIdObjects()) {
-			visitor.visitIdObject(object);
+			double vertexSize1 = object.getClickRadius(coordinateSystem) * CoordSysUtils.getZoom(coordinateSystem) * 2;
+			if (AbstractModelEditor.hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize1)) {
+				System.out.println("selected " + object.getName());
+				selectedItems.add(object.getPivotPoint());
+			}
+
+			if (object instanceof CollisionShape) {
+				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+					int vertexSize = IdObject.DEFAULT_CLICK_RADIUS;
+					if (AbstractModelEditor.hitTest(area, vertex, coordinateSystem, vertexSize)) {
+						selectedItems.add(vertex);
+					}
+				}
+			}
 		}
 		for (Camera camera : model.getEditableCameras()) {
-			visitor.camera(camera);
+			int vertexSize = programPreferences.getVertexSize();
+			if (AbstractModelEditor.hitTest(area, camera.getPosition(), coordinateSystem, vertexSize)) {
+				selectedItems.add(camera.getPosition());
+			}
+			if (AbstractModelEditor.hitTest(area, camera.getTargetPosition(), coordinateSystem, vertexSize)) {
+				selectedItems.add(camera.getTargetPosition());
+			}
 		}
 		return selectedItems;
 	}
 
 	@Override
 	public boolean canSelectAt(Point point, CoordinateSystem axes) {
-		IdObjectVisitor visitor = selectionAtPointTester.reset(programPreferences, axes, point);
 		for (IdObject object : model.getEditableIdObjects()) {
-			visitor.visitIdObject(object);
+			double vertexSize1 = object.getClickRadius(axes) * CoordSysUtils.getZoom(axes) * 2;
+			if (AbstractModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geom(axes, point), axes, vertexSize1)) {
+				return true;
+			}
+			if (object instanceof CollisionShape) {
+				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+					int vertexSize = IdObject.DEFAULT_CLICK_RADIUS;
+					if (AbstractModelEditor.hitTest(vertex, CoordSysUtils.geom(axes, point), axes, vertexSize)) {
+						return true;
+					}
+				}
+			}
 		}
 		for (Camera camera : model.getEditableCameras()) {
-			visitor.camera(camera);
+			int vertexSize = programPreferences.getVertexSize();
+			if (AbstractModelEditor.hitTest(camera.getPosition(), CoordSysUtils.geom(axes, point), axes, vertexSize)) {
+				return true;
+			}
+			if (AbstractModelEditor.hitTest(camera.getTargetPosition(), CoordSysUtils.geom(axes, point), axes, vertexSize)) {
+				return true;
+			}
 		}
-		return selectionAtPointTester.isMouseOverVertex();
+		return false;
 	}
 
 	@Override

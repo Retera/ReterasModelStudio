@@ -4,15 +4,13 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
-import com.hiveworkshop.rms.editor.model.visitor.NodeAnimGenericSelectorVisitor;
-import com.hiveworkshop.rms.editor.model.visitor.NodeAnimSelectionAtPointTester;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractSelectingEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
@@ -44,8 +42,6 @@ import java.util.function.BiFunction;
 
 public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> {
 	private final ProgramPreferences programPreferences;
-	private final NodeAnimGenericSelectorVisitor genericSelectorVisitor;
-	private final NodeAnimSelectionAtPointTester selectionAtPointTester;
 	private final ModelView model;
 	private final RenderModel renderModel;
 	private final ModelStructureChangeListener structureChangeListener;
@@ -55,8 +51,6 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		this.model = model;
 		this.programPreferences = programPreferences;
 		this.structureChangeListener = structureChangeListener;
-		genericSelectorVisitor = new NodeAnimGenericSelectorVisitor();
-		selectionAtPointTester = new NodeAnimSelectionAtPointTester();
 		this.renderModel = renderModel;
 	}
 
@@ -179,20 +173,24 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		double maxX = Math.max(startingClickX, endingClickX);
 		double maxY = Math.max(startingClickY, endingClickY);
 		Rectangle2D area = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
-		IdObjectVisitor visitor = genericSelectorVisitor.reset(renderModel, selectedItems, area, coordinateSystem);
+
 		for (IdObject object : model.getEditableIdObjects()) {
-			visitor.visitIdObject(object);
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordSysUtils.getZoom(coordinateSystem) * 2;
+			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, vertexSize, object, renderModel);
 		}
 		return selectedItems;
 	}
 
 	@Override
 	public boolean canSelectAt(Point point, CoordinateSystem axes) {
-		IdObjectVisitor visitor = selectionAtPointTester.reset(renderModel, axes, point);
 		for (IdObject object : model.getEditableIdObjects()) {
-			visitor.visitIdObject(object);
+			Mat4 worldMatrix = renderModel.getRenderNode(object).getWorldMatrix();
+			double vertexSize = object.getClickRadius(axes) * CoordSysUtils.getZoom(axes) * 2;
+			if (NodeAnimationModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geom(axes, point), axes, vertexSize, worldMatrix)) {
+				return true;
+			}
 		}
-		return selectionAtPointTester.isMouseOverVertex();
+		return false;
 	}
 
 	@Override

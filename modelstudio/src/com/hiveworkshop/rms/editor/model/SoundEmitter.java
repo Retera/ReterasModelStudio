@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
@@ -155,11 +154,6 @@ public class SoundEmitter extends IdObject {
 
 	public String getVisTagname() {
 		return "soundEmitter";// geoset.getName();
-	}
-
-	@Override
-	public void apply(final IdObjectVisitor visitor) {
-		throw new UnsupportedOperationException("NYI");
 	}
 
 	@Override

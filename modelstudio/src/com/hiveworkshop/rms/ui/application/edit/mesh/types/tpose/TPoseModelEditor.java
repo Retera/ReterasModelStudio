@@ -2,13 +2,11 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.types.tpose;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
-import com.hiveworkshop.rms.editor.model.visitor.TPoseGenericSelectorVisitor;
-import com.hiveworkshop.rms.editor.model.visitor.TPoseSelectionAtPointTester;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
@@ -33,8 +31,6 @@ import java.util.*;
 
 public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	private final ProgramPreferences programPreferences;
-	private final TPoseGenericSelectorVisitor genericSelectorVisitor;
-	private final TPoseSelectionAtPointTester selectionAtPointTester;
 
 	public TPoseModelEditor(ModelView model,
 	                        ProgramPreferences programPreferences,
@@ -42,8 +38,6 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	                        ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
 		this.programPreferences = programPreferences;
-		genericSelectorVisitor = new TPoseGenericSelectorVisitor();
-		selectionAtPointTester = new TPoseSelectionAtPointTester();
 	}
 
 	@Override
@@ -166,26 +160,49 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		List<IdObject> selectedItems = new ArrayList<>();
 		Rectangle2D area = getArea(region);
 
-		IdObjectVisitor visitor = genericSelectorVisitor.reset(programPreferences, selectedItems, area, coordinateSystem);
 		for (IdObject object : model.getEditableIdObjects()) {
-			visitor.visitIdObject(object);
-		}
-		for (Camera camera : model.getEditableCameras()) {
-			visitor.camera(camera);
+			double vertexSize = object.getClickRadius(coordinateSystem) * CoordSysUtils.getZoom(coordinateSystem);
+			if (AbstractModelEditor.hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
+			if (object instanceof CollisionShape) {
+				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+					if (AbstractModelEditor.hitTest(area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
+						selectedItems.add(object);
+					}
+				}
+			}
 		}
 		return selectedItems;
 	}
 
 	@Override
 	public boolean canSelectAt(Point point, CoordinateSystem axes) {
-		IdObjectVisitor visitor = selectionAtPointTester.reset(programPreferences, axes, point);
 		for (IdObject object : model.getEditableIdObjects()) {
-			visitor.visitIdObject(object);
+			double vertexSize1 = object.getClickRadius(axes) * CoordSysUtils.getZoom(axes) * 2;
+			if (AbstractModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geom(axes, point), axes, vertexSize1)) {
+				return true;
+			}
+
+			if (object instanceof CollisionShape) {
+				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+					int vertexSize = IdObject.DEFAULT_CLICK_RADIUS;
+					if (AbstractModelEditor.hitTest(vertex, CoordSysUtils.geom(axes, point), axes, vertexSize)) {
+						return true;
+					}
+				}
+			}
 		}
 		for (Camera camera : model.getEditableCameras()) {
-			visitor.camera(camera);
+			int vertexSize = programPreferences.getVertexSize();
+			if (AbstractModelEditor.hitTest(camera.getPosition(), CoordSysUtils.geom(axes, point), axes, vertexSize)) {
+				return true;
+			}
+			if (AbstractModelEditor.hitTest(camera.getTargetPosition(), CoordSysUtils.geom(axes, point), axes, vertexSize)) {
+				return true;
+			}
 		}
-		return selectionAtPointTester.isMouseOverVertex();
+		return false;
 	}
 
 	@Override
