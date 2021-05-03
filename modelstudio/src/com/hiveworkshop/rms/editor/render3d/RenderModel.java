@@ -62,12 +62,21 @@ public final class RenderModel {
 			new Vec4(0, 1, 0, 1),
 			new Vec4(0, 0, 1, 1),
 			new Vec4(1, 0, 0, 1)};
+
 	private final ModelView modelView;
 
 	public RenderModel(final EditableModel model, final ModelView modelView) {
 		this.model = model;
 		this.modelView = modelView;
 		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
+		// Some classes doesn't call refreshFromEditor which leads to null-pointers when these in nor initialised
+	}
+
+	public RenderModel(final EditableModel model, final ModelView modelView, TimeEnvironmentImpl timeEnvironment) {
+		this.model = model;
+		this.modelView = modelView;
+		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
+		this.animatedRenderEnvironment = timeEnvironment;
 		// Some classes doesn't call refreshFromEditor which leads to null-pointers when these in nor initialised
 	}
 

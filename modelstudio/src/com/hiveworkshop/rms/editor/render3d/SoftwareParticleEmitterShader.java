@@ -39,8 +39,4 @@ public class SoftwareParticleEmitterShader implements ParticleEmitterShader {
 		GL11.glEnd();
 	}
 
-	@Override
-	public void use() {
-
-	}
 }

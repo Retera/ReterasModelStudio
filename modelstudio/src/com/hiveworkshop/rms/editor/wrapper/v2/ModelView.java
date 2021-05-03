@@ -6,13 +6,14 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public final class ModelView {
 	private final EditableModel model;
-	private final RenderModel editorRenderModel;
+	private RenderModel editorRenderModel;
 	private final ModelViewStateNotifier modelViewStateNotifier;
 	private final Set<Geoset> editableGeosets;
 	private final Set<Geoset> visibleGeosets;
@@ -24,7 +25,23 @@ public final class ModelView {
 
 	public ModelView(EditableModel model) {
 		this.model = model;
-		editorRenderModel = new RenderModel(this.model, this);
+//		editorRenderModel = new RenderModel(this.model, this);
+
+		modelViewStateNotifier = new ModelViewStateNotifier();
+		editableGeosets = new HashSet<>();
+		for (Geoset geoset : model.getGeosets()) {
+			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() == 0)) {
+				editableGeosets.add(geoset);
+			}
+		}
+		visibleGeosets = new HashSet<>();
+		editableIdObjects = new HashSet<>();
+		editableCameras = new HashSet<>();
+	}
+
+	public ModelView(EditableModel model, TimeEnvironmentImpl timeEnvironment) {
+		this.model = model;
+		editorRenderModel = new RenderModel(this.model, this, timeEnvironment);
 
 		modelViewStateNotifier = new ModelViewStateNotifier();
 		editableGeosets = new HashSet<>();

@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
@@ -21,19 +20,19 @@ import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener;
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.View;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
-import java.util.*;
 
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createAndAddMenuItem;
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
@@ -47,34 +46,58 @@ public class MenuBar {
     static JMenu recentMenu;
     static JMenu toolsMenu;
     static JMenu windowMenu;
+    static JMenu teamColorMenu;
     static List<MenuBar.RecentItem> recentItems = new ArrayList<>();
+    static WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier directoryChangeNotifier = new WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier();
 
     public static JMenuBar createMenuBar(MainPanel mainPanel) {
         MenuBar.mainPanel = mainPanel;
-        // Create my menu bar
         menuBar = new JMenuBar();
 
-        // Build the file menu
+        recentMenu = createMenu("Open Recent", KeyEvent.VK_R, "Allows you to access recently opened files.");
+        recentMenu.add(new JSeparator());
+        createAndAddMenuItem("Clear", recentMenu, KeyEvent.VK_C, e -> MenuBarActions.clearRecent(mainPanel));
+
         JMenu fileMenu = createMenu("File", KeyEvent.VK_F, "Allows the user to open, save, close, and manipulate files.");
-        menuBar.add(fileMenu);
+        fillFileMenu(mainPanel, fileMenu);
 
         JMenu editMenu = createMenu("Edit", KeyEvent.VK_E, "Allows the user to use various tools to edit the currently selected model.");
-        menuBar.add(editMenu);
+        fillEditMenu(mainPanel, editMenu);
 
-//        mainPanel.toolsMenu = createMenu("Tools", KeyEvent.VK_T, "Allows the user to use various model editing tools. (You must open a model before you may use this menu.)");
-//        mainPanel.toolsMenu.setEnabled(false);
-//        menuBar.add(mainPanel.toolsMenu);
         toolsMenu = createMenu("Tools", KeyEvent.VK_T, "Allows the user to use various model editing tools. (You must open a model before you may use this menu.)");
         toolsMenu.setEnabled(false);
-        menuBar.add(toolsMenu);
+        fillToolsMenu(mainPanel);
 
         JMenu viewMenu = createMenu("View", -1, "Allows the user to control view settings.");
-        menuBar.add(viewMenu);
+        fillViewMenu(mainPanel, viewMenu);
 
-        mainPanel.teamColorMenu = createMenu("Team Color", -1, "Allows the user to control team color settings.");
-        menuBar.add(mainPanel.teamColorMenu);
+        MenuBar.teamColorMenu = createMenu("Team Color", -1, "Allows the user to control team color settings.");
+        createTeamColorMenuItems(mainPanel);
 
-        mainPanel.directoryChangeNotifier.subscribe(() -> {
+        MenuBar.windowMenu = createMenu("Window", KeyEvent.VK_W, "Allows the user to open various windows containing the program features.");
+        fillWindowsMenu(mainPanel, MenuBar.windowMenu);
+
+        JMenu addMenu = createMenu("Add", KeyEvent.VK_A, "Allows the user to add new components to the model.");
+        fillAddMenu(mainPanel, addMenu);
+
+        JMenu scriptsMenu = createMenu("Scripts", KeyEvent.VK_A, "Allows the user to execute model edit scripts.");
+        fillScriptsMenu(mainPanel, scriptsMenu);
+
+        JMenu aboutMenu = createMenu("Help", KeyEvent.VK_H, "");
+        fillAboutMenu(mainPanel, aboutMenu);
+
+//        final JMenuItem fixReteraLand = new JMenuItem("Fix Retera Land");
+//
+//        fixReteraLand.setMnemonic(KeyEvent.VK_A);
+//        fixReteraLand.addActionListener(e -> {
+//            final EditableModel currentMDL = mainPanel.currentMDL();
+//            for (final Geoset geo : currentMDL.getGeosets()) {
+//                final Animation anim = new Animation(new ExtLog(currentMDL.getExtents()));
+//                geo.add(anim);
+//            }
+//        });
+
+        directoryChangeNotifier.subscribe(() -> {
             GameDataFileSystem.refresh(SaveProfile.get().getDataSources());
             // cache priority order...
             UnitOptionPanel.dropRaceCache();
@@ -82,68 +105,27 @@ public class MenuBar {
             ModelOptionPanel.dropCache();
             WEString.dropCache();
             BLPHandler.get().dropCache();
-            mainPanel.teamColorMenu.removeAll();
+            MenuBar.teamColorMenu.removeAll();
             createTeamColorMenuItems(mainPanel);
             traverseAndReloadData(mainPanel.rootWindow);
         });
-        createTeamColorMenuItems(mainPanel);
 
-        JMenu windowMenu = createMenu("Window", KeyEvent.VK_W, "Allows the user to open various windows containing the program features.");
-//        mainPanel.windowMenu = windowMenu;
-        MenuBar.windowMenu = windowMenu;
-        menuBar.add(windowMenu);
+        menuBar.add(fileMenu);
+        menuBar.add(editMenu);
+        menuBar.add(toolsMenu);
 
-        fillWindowsMenu(mainPanel, windowMenu);
-
-        JMenu addMenu = createMenu("Add", KeyEvent.VK_A, "Allows the user to add new components to the model.");
+        menuBar.add(viewMenu);
+        menuBar.add(MenuBar.teamColorMenu);
+        menuBar.add(MenuBar.windowMenu);
         menuBar.add(addMenu);
-
-        fillAddMenu(mainPanel, addMenu);
-
-        JMenu scriptsMenu = createMenu("Scripts", KeyEvent.VK_A, "Allows the user to execute model edit scripts.");
         menuBar.add(scriptsMenu);
-
-        fillScriptsMenu(mainPanel, scriptsMenu);
-
-        final JMenuItem fixReteraLand = new JMenuItem("Fix Retera Land");
-
-        fixReteraLand.setMnemonic(KeyEvent.VK_A);
-        fixReteraLand.addActionListener(e -> {
-            final EditableModel currentMDL = mainPanel.currentMDL();
-            for (final Geoset geo : currentMDL.getGeosets()) {
-                final Animation anim = new Animation(new ExtLog(currentMDL.getExtents()));
-                geo.add(anim);
-            }
-        });
-//		scriptsMenu.add(fixReteraLand);
-
-        JMenu aboutMenu = createMenu("Help", KeyEvent.VK_H, "");
         menuBar.add(aboutMenu);
-
-
-//        mainPanel.recentMenu = createMenu("Open Recent", KeyEvent.VK_R, "Allows you to access recently opened files.");
-//        mainPanel.recentMenu.add(new JSeparator());
-//        createAndAddMenuItem("Clear", mainPanel.recentMenu, KeyEvent.VK_C, e -> MenuBarActions.clearRecent(mainPanel));
-        recentMenu = createMenu("Open Recent", KeyEvent.VK_R, "Allows you to access recently opened files.");
-        recentMenu.add(new JSeparator());
-        createAndAddMenuItem("Clear", recentMenu, KeyEvent.VK_C, e -> MenuBarActions.clearRecent(mainPanel));
-
-        updateRecent();
-
-        fillAboutMenu(mainPanel, aboutMenu);
-
-        fillToolsMenu(mainPanel);
-
-        fillViewMenu(mainPanel, viewMenu);
-
-        fillFileMenu(mainPanel, fileMenu);
-
-
-        fillEditMenu(mainPanel, editMenu);
 
         for (int i = 0; i < menuBar.getMenuCount(); i++) {
             menuBar.getMenu(i).getPopupMenu().setLightWeightPopupEnabled(false);
         }
+
+        updateRecent();
         return menuBar;
     }
 
@@ -151,10 +133,8 @@ public class MenuBar {
         FileDialog fileDialog = new FileDialog(mainPanel);
         createAndAddMenuItem("New", fileMenu, KeyEvent.VK_N, KeyStroke.getKeyStroke("control N"), e -> MenuBarActions.newModel(mainPanel));
 
-//        createAndAddMenuItem("Open", fileMenu, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> MenuBarActions.onClickOpen(mainPanel));
         createAndAddMenuItem("Open", fileMenu, KeyEvent.VK_O, KeyStroke.getKeyStroke("control O"), e -> fileDialog.onClickOpen());
 
-//        fileMenu.add(mainPanel.recentMenu);
         fileMenu.add(recentMenu);
 
         JMenu fetch = new JMenu("Open Internal");
@@ -235,16 +215,16 @@ public class MenuBar {
 
         createAndAddMenuItem("Simplify Keyframes (Experimental)", optimizeMenu, KeyEvent.VK_K, e -> ModelEditActions.simplifyKeyframes(mainPanel));
 
-        createAndAddMenuItem("Minimize Geosets", optimizeMenu, KeyEvent.VK_K, e -> minimizeGeoset(mainPanel));
+        createAndAddMenuItem("Minimize Geosets", optimizeMenu, KeyEvent.VK_K, e -> MenuBarActions.minimizeGeoset(mainPanel));
 
-        createAndAddMenuItem("Sort Nodes", optimizeMenu, KeyEvent.VK_S, e -> sortBones(mainPanel));
+        createAndAddMenuItem("Sort Nodes", optimizeMenu, KeyEvent.VK_S, e -> MenuBarActions.sortBones(mainPanel));
 
         final JMenuItem flushUnusedTexture = new JMenuItem("Flush Unused Texture");
         flushUnusedTexture.setEnabled(false);
         flushUnusedTexture.setMnemonic(KeyEvent.VK_F);
         optimizeMenu.add(flushUnusedTexture);
 
-        createAndAddMenuItem("Remove Materials Duplicates", optimizeMenu, KeyEvent.VK_S, e -> removeMaterialDuplicates(mainPanel));
+        createAndAddMenuItem("Remove Materials Duplicates", optimizeMenu, KeyEvent.VK_S, e -> MenuBarActions.removeMaterialDuplicates(mainPanel));
 
         createAndAddMenuItem("Recalculate Normals", editMenu, -1, KeyStroke.getKeyStroke("control N"), e -> ModelEditActions.recalculateNormals(mainPanel));
 
@@ -252,7 +232,7 @@ public class MenuBar {
 
         editMenu.add(new JSeparator());
         final TransferActionListener transferActionListener = new TransferActionListener();
-        final ActionListener copyActionListener = e -> copyCutPast(mainPanel, transferActionListener, e);
+        final ActionListener copyActionListener = e -> MenuBarActions.copyCutPast(mainPanel, transferActionListener, e);
 
 
         createAndAddMenuItem("Cut", editMenu, KeyStroke.getKeyStroke("control X"), (String) TransferHandler.getCutAction().getValue(Action.NAME), copyActionListener);
@@ -403,24 +383,21 @@ public class MenuBar {
         viewMode.add(solid);
         viewModes.add(solid);
 
-//        viewModes.setSelected(solid.getModel(), true);
     }
 
     private static void fillWindowsMenu(MainPanel mainPanel, JMenu windowMenu) {
-        final JMenuItem resetViewButton = new JMenuItem("Reset Layout");
+        JMenuItem resetViewButton = new JMenuItem("Reset Layout");
         resetViewButton.addActionListener(e -> WindowHandler.resetView(mainPanel));
         windowMenu.add(resetViewButton);
 
-        final JMenu viewsMenu = createMenu("Views", KeyEvent.VK_V);
+        JMenu viewsMenu = createMenu("Views", KeyEvent.VK_V);
         windowMenu.add(viewsMenu);
 
-        final JMenuItem testItem = new JMenuItem("test");
-        testItem.addActionListener(new OpenViewAction(mainPanel.rootWindow, "Animation Preview", () -> MenuBarActions.testItemResponse(mainPanel)));
+//        JMenuItem testItem = new JMenuItem("test");
+//        testItem.addActionListener(new OpenViewAction(mainPanel.rootWindow, "Animation Preview", () -> MenuBarActions.testItemResponse(mainPanel)));
 
-//		viewsMenu.add(testItem);
 
         createAndAddMenuItem("Animation Preview", viewsMenu, KeyEvent.VK_A, OpenViewAction.getOpenViewAction(mainPanel.rootWindow, "Animation Preview", mainPanel.previewView));
-//        createAndAddMenuItem("Animation Preview", viewsMenu, KeyEvent.VK_A, new OpenViewAction(mainPanel.rootWindow, "Animation Preview", () -> mainPanel.previewView));
 
         createAndAddMenuItem("Animation Controller", viewsMenu, KeyEvent.VK_C, OpenViewAction.getOpenViewAction(mainPanel.rootWindow, "Animation Controller", mainPanel.animationControllerView));
 
@@ -444,20 +421,18 @@ public class MenuBar {
 
         createAndAddMenuItem("Matrix Eater Script", viewsMenu, KeyEvent.VK_H, KeyStroke.getKeyStroke("control P"), OpenViewAction.getOpenViewAction(mainPanel.rootWindow, "Matrix Eater Script", ScriptView.createHackerView(mainPanel)));
 
-        final JMenu browsersMenu = createMenu("Browsers", KeyEvent.VK_B);
+        JMenu browsersMenu = createMenu("Browsers", KeyEvent.VK_B);
         windowMenu.add(browsersMenu);
 
         createAndAddMenuItem("Data Browser", browsersMenu, KeyEvent.VK_A, e -> MPQBrowserView.openMPQViewer(mainPanel));
 
         createAndAddMenuItem("Unit Browser", browsersMenu, KeyEvent.VK_U, e -> MenuBarActions.openUnitViewer(mainPanel));
 
-//        createAndAddMenuItem("Doodad Browser", browsersMenu, KeyEvent.VK_D, getOpenDoodadViewerAction(mainPanel));
         createAndAddMenuItem("Doodad Browser", browsersMenu, KeyEvent.VK_D, e -> InternalFileLoader.OpenDoodadViewer(mainPanel));
 
         JMenuItem hiveViewer = new JMenuItem("Hive Browser");
         hiveViewer.setMnemonic(KeyEvent.VK_H);
         hiveViewer.addActionListener(e -> MenuBarActions.openHiveViewer(mainPanel));
-//		browsersMenu.add(hiveViewer);
 
         windowMenu.addSeparator();
     }
@@ -565,145 +540,10 @@ public class MenuBar {
         mainPanel.repaint();
     }
 
-//    private static void save(MainPanel mainPanel) {
-//        if ((mainPanel.currentMDL() != null) && (mainPanel.currentMDL().getFile() != null)) {
-//            MenuBarActions.onClickSave(mainPanel);
-//        } else {
-//            MenuBarActions.onClickSaveAs(mainPanel);
-//        }
-//    }
-
     private static void closeProgram(MainPanel mainPanel) {
         if (closeAll(mainPanel)) {
             MainFrame.frame.dispose();
         }
-    }
-
-    private static void copyCutPast(MainPanel mainPanel, TransferActionListener transferActionListener, ActionEvent e) {
-        if (!mainPanel.animationModeState) {
-            transferActionListener.actionPerformed(e);
-        } else {
-            if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
-                mainPanel.timeSliderPanel.cut();
-            } else if (e.getActionCommand().equals(TransferHandler.getCopyAction().getValue(Action.NAME))) {
-                mainPanel.timeSliderPanel.copy();
-            } else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
-                mainPanel.timeSliderPanel.paste();
-            }
-        }
-    }
-
-    private static void sortBones(MainPanel mainPanel) {
-        final EditableModel model = mainPanel.currentMDL();
-        final List<IdObject> roots = new ArrayList<>();
-        final List<IdObject> modelList = model.getIdObjects();
-        for (final IdObject object : modelList) {
-            if (object.getParent() == null) {
-                roots.add(object);
-            }
-        }
-        final Queue<IdObject> bfsQueue = new LinkedList<>(roots);
-        final List<IdObject> result = new ArrayList<>();
-        while (!bfsQueue.isEmpty()) {
-            final IdObject nextItem = bfsQueue.poll();
-            bfsQueue.addAll(nextItem.getChildrenNodes());
-            result.add(nextItem);
-        }
-        for (final IdObject node : result) {
-            model.remove(node);
-        }
-        mainPanel.modelStructureChangeListener.nodesRemoved(result);
-        for (final IdObject node : result) {
-            model.add(node);
-        }
-        mainPanel.modelStructureChangeListener.nodesAdded(result);
-    }
-
-    private static void minimizeGeoset(MainPanel mainPanel) {
-        final int confirm = JOptionPane.showConfirmDialog(mainPanel,
-                "This is experimental and I did not code the Undo option for it yet. Continue?" +
-                        "\nMy advice is to click cancel and save once first.",
-                "Confirmation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-        if (confirm != JOptionPane.OK_OPTION) {
-            return;
-        }
-
-        mainPanel.currentMDL().doSavePreps();
-
-        final Map<Geoset, Geoset> sourceToDestination = new HashMap<>();
-        final List<Geoset> retainedGeosets = new ArrayList<>();
-        for (final Geoset geoset : mainPanel.currentMDL().getGeosets()) {
-            boolean alreadyRetained = false;
-            for (final Geoset retainedGeoset : retainedGeosets) {
-                if (retainedGeoset.getMaterial().equals(geoset.getMaterial())
-                        && (retainedGeoset.getSelectionGroup() == geoset.getSelectionGroup())
-                        && (retainedGeoset.getUnselectable() == geoset.getUnselectable())
-                        && isGeosetAnimationsMergable(retainedGeoset.getGeosetAnim(), geoset.getGeosetAnim())) {
-                    alreadyRetained = true;
-                    for (final GeosetVertex gv : geoset.getVertices()) {
-                        retainedGeoset.add(gv);
-                    }
-                    for (final Triangle t : geoset.getTriangles()) {
-                        retainedGeoset.add(t);
-                    }
-                    break;
-                }
-            }
-            if (!alreadyRetained) {
-                retainedGeosets.add(geoset);
-            }
-        }
-        final EditableModel currentMDL = mainPanel.currentMDL();
-        final List<Geoset> geosets = currentMDL.getGeosets();
-        final List<Geoset> geosetsRemoved = new ArrayList<>();
-        final Iterator<Geoset> iterator = geosets.iterator();
-        while (iterator.hasNext()) {
-            final Geoset geoset = iterator.next();
-            if (!retainedGeosets.contains(geoset)) {
-                iterator.remove();
-                final GeosetAnim geosetAnim = geoset.getGeosetAnim();
-                if (geosetAnim != null) {
-                    currentMDL.remove(geosetAnim);
-                }
-                geosetsRemoved.add(geoset);
-            }
-        }
-        mainPanel.modelStructureChangeListener.geosetsRemoved(geosetsRemoved);
-    }
-
-    private static boolean isGeosetAnimationsMergable(final GeosetAnim first, final GeosetAnim second) {
-        if ((first == null) && (second == null)) {
-            return true;
-        }
-        if ((first == null) || (second == null)) {
-            return false;
-        }
-        final AnimFlag<?> firstVisibilityFlag = first.getVisibilityFlag();
-        final AnimFlag<?> secondVisibilityFlag = second.getVisibilityFlag();
-        if ((firstVisibilityFlag == null) != (secondVisibilityFlag == null)) {
-            return false;
-        }
-        if ((firstVisibilityFlag != null) && !firstVisibilityFlag.equals(secondVisibilityFlag)) {
-            return false;
-        }
-        if (first.isDropShadow() != second.isDropShadow()) {
-            return false;
-        }
-        if (Math.abs(first.getStaticAlpha() - second.getStaticAlpha()) > 0.001) {
-            return false;
-        }
-        if ((first.getStaticColor() == null) != (second.getStaticColor() == null)) {
-            return false;
-        }
-        if ((first.getStaticColor() != null) && !first.getStaticColor().equalLocs(second.getStaticColor())) {
-            return false;
-        }
-        final AnimFlag<?> firstAnimatedColor = first.find("Color");
-        final AnimFlag<?> secondAnimatedColor = second.find("Color");
-        if ((firstAnimatedColor == null) != (secondAnimatedColor == null)) {
-            return false;
-        }
-        return (firstAnimatedColor == null) || firstAnimatedColor.equals(secondAnimatedColor);
     }
 
     private static void createTeamColorMenuItems(MainPanel mainPanel) {
@@ -713,7 +553,7 @@ public class MenuBar {
                 final String colorName = WEString.getString("WESTRING_UNITCOLOR_" + colorNumber);
                 final JMenuItem menuItem = new JMenuItem(colorName, new ImageIcon(BLPHandler.get()
                         .getGameTex("ReplaceableTextures\\TeamColor\\TeamColor" + colorNumber + ".blp")));
-                mainPanel.teamColorMenu.add(menuItem);
+                MenuBar.teamColorMenu.add(menuItem);
                 final int teamColorValueNumber = i;
                 menuItem.addActionListener(e -> {
                     Material.teamColor = teamColorValueNumber;
@@ -731,34 +571,6 @@ public class MenuBar {
                 break;
             }
         }
-    }
-
-    private static void removeMaterialDuplicates(MainPanel mainPanel) {
-        EditableModel model = mainPanel.currentModelPanel().getModel();
-        List<Material> materials = model.getMaterials();
-        Map<Material, Material> sameMaterialMap = new HashMap<>();
-        for (int i = 0; i < materials.size(); i++) {
-            Material material1 = materials.get(i);
-            for (int j = i + 1; j < materials.size(); j++) {
-                Material material2 = materials.get(j);
-                System.out.println(material1.getName() + " == " + material2.getName());
-                if (material1.equals(material2)) {
-                    if (!sameMaterialMap.containsKey(material2)) {
-                        sameMaterialMap.put(material2, material1);
-                    }
-                }
-            }
-        }
-
-        List<Geoset> geosets = model.getGeosets();
-        for (Geoset geoset : geosets) {
-            if (sameMaterialMap.containsKey(geoset.getMaterial())) {
-                geoset.setMaterial(sameMaterialMap.get(geoset.getMaterial()));
-            }
-        }
-
-        materials.removeAll(sameMaterialMap.keySet());
-        mainPanel.modelStructureChangeListener.materialsListChanged();
     }
 
     public static void updateRecent() {

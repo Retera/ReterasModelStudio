@@ -11,11 +11,13 @@ import com.hiveworkshop.rms.ui.application.viewer.AnimationViewer;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -89,59 +91,7 @@ public class ModelOptionPanel extends JPanel {
 		preloaded = false;
 	}
 
-	public ModelOptionPanel() {
-		preload();
-
-		for (final ModelGroup group : groups) {
-			groupsModel.addElement(group);
-			final DefaultComboBoxModel<Model> groupModel = new DefaultComboBoxModel<>();
-
-			for (final Model model : group.models) {
-				groupModel.addElement(model);
-			}
-			groupModels.add(groupModel);
-		}
-		groupBox = new JComboBox<>(groupsModel);
-		modelBox = new JComboBox<>(groupModels.get(0));
-		filePathField = new JTextField();
-		filePathField.setMaximumSize(new Dimension(20000, 25));
-		groupBox.addActionListener(e -> groupBoxListener());
-		modelBox.addActionListener(e -> modelBoxListener());
-
-		filePathField.getDocument().addDocumentListener(getFilepathDocumentListener(this));
-
-		groupBox.setMaximumRowCount(11);
-		modelBox.setMaximumRowCount(36);
-
-		groupBox.setMaximumSize(new Dimension(140, 25));
-		modelBox.setMaximumSize(new Dimension(10000, 25));
-
-		// TODO program prefs not be null???
-		// viewer = new PerspDisplayPanel("blank", blankDisp, null);
-		viewer = new AnimationViewer(blankDisp, new ProgramPreferences(), false);
-		modelBox.setSelectedIndex(0);
-
-		add(groupBox);
-		add(modelBox);
-
-		final GroupLayout layout = new GroupLayout(this);
-
-		layout.setHorizontalGroup(layout.createSequentialGroup().addGap(8)
-				.addComponent(viewer).addGap(8)
-				.addGroup(layout.createParallelGroup()
-						.addComponent(groupBox)
-						.addComponent(modelBox)
-						.addComponent(filePathField)).addGap(8));
-		layout.setVerticalGroup(layout.createSequentialGroup().addGap(8)
-				.addGroup(layout.createParallelGroup()
-						.addComponent(viewer)
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(groupBox).addGap(4)
-								.addComponent(modelBox).addGap(4)
-								.addComponent(filePathField))).addGap(8));
-
-		setLayout(layout);
-	}
+	boolean choosingModel;
 
 	static void preload() {
 		if (preloaded) {
@@ -482,7 +432,6 @@ public class ModelOptionPanel extends JPanel {
 	AnimationViewer viewer;
 
 	final EditableModel blank = new EditableModel();
-	final ModelView blankDisp = new ModelView(blank);
 
 	private static void addModelsToList(Map<String, NamedList<String>> modelsData, Element unit, String artName, String weStringTypeSuffix) {
 		String filepath = unit.getField(artName);
@@ -493,6 +442,46 @@ public class ModelOptionPanel extends JPanel {
 			NamedList<String> unitList = getUnitList(modelsData, unit, filepath);
 			unitList.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
 		}
+	}
+
+	public ModelOptionPanel() {
+		preload();
+
+		for (final ModelGroup group : groups) {
+			groupsModel.addElement(group);
+			final DefaultComboBoxModel<Model> groupModel = new DefaultComboBoxModel<>();
+
+			for (final Model model : group.models) {
+				groupModel.addElement(model);
+			}
+			groupModels.add(groupModel);
+		}
+		groupBox = new JComboBox<>(groupsModel);
+		modelBox = new JComboBox<>(groupModels.get(0));
+		filePathField = new JTextField(18);
+		filePathField.setMaximumSize(new Dimension(4000, 25));
+		groupBox.addActionListener(e -> groupBoxListener(e));
+		modelBox.addActionListener(e -> modelBoxListener(e));
+
+		filePathField.getDocument().addDocumentListener(getFilepathDocumentListener(this));
+
+		groupBox.setMaximumRowCount(11);
+		modelBox.setMaximumRowCount(36);
+
+		groupBox.setMaximumSize(new Dimension(200, 25));
+		modelBox.setMaximumSize(new Dimension(4000, 25));
+
+		viewer = new AnimationViewer(null, new ProgramPreferences(), false);
+		modelBox.setSelectedIndex(0);
+
+		setLayout(new MigLayout("fill", "", "[grow]"));
+		JPanel rightPanel = new JPanel(new MigLayout("fill", "[]", "[][][][grow]"));
+		rightPanel.add(groupBox, "wrap, growx");
+		rightPanel.add(modelBox, "wrap, growx");
+		rightPanel.add(filePathField, "wrap, growx");
+
+		add(viewer, "growx");
+		add(rightPanel, "growx, growy");
 	}
 
 	private static DocumentListener getFilepathDocumentListener(final ModelOptionPanel modelOptionPanel) {
@@ -513,24 +502,28 @@ public class ModelOptionPanel extends JPanel {
 			}
 
 			void refresh() {
-				String filepath = modelOptionPanel.filePathField.getText();
-				modelOptionPanel.cachedIconPath = null;
-				modelOptionPanel.showModel(filepath);
+				if (!modelOptionPanel.choosingModel) {
+					String filepath = modelOptionPanel.filePathField.getText();
+					modelOptionPanel.cachedIconPath = null;
+					modelOptionPanel.showModel(filepath);
+				}
 			}
 		};
 	}
 
-	private void groupBoxListener() {
+	private void groupBoxListener(ActionEvent e) {
 		modelBox.setModel(groupModels.get(groupBox.getSelectedIndex()));
 		modelBox.setSelectedIndex(0);
 	}
 
-	private void modelBoxListener() {
+	private void modelBoxListener(ActionEvent e) {
+		choosingModel = true;
 		Model model = (Model) modelBox.getSelectedItem();
 		String filepath = model != null ? model.filepath : null;
 		filePathField.setText(filepath);
 		cachedIconPath = ((Model) modelBox.getSelectedItem()).cachedIcon;
 		showModel(filepath);
+		choosingModel = false;
 	}
 
 	public String getSelection() {
@@ -580,7 +573,7 @@ public class ModelOptionPanel extends JPanel {
 		} catch (final Exception exc) {
 			exc.printStackTrace();
 			// bad model!
-			modelDisp = blankDisp;
+			modelDisp = null;
 		}
 		viewer.setModel(modelDisp);
 		viewer.setTitle(toLoad.getName());

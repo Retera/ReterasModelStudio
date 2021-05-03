@@ -357,33 +357,20 @@ public class ScriptActions {
 			while (newModel.getFile().exists()) {
 				newModel.setFileRef(new File(currentMDL.getFile().getParent() + "/" + incName(newModel.getName()) + ".mdl"));
 			}
-			mainPanel.importPanel = new ImportPanel(newModel, EditableModel.deepClone(currentMDL, "CurrentModel"));
+			ImportPanel importPanel = new ImportPanel(newModel, EditableModel.deepClone(currentMDL, "CurrentModel"));
 
 			final Thread watcher = new Thread(() -> {
-				while (mainPanel.importPanel.getParentFrame().isVisible()
-						&& (!mainPanel.importPanel.importStarted()
-						|| mainPanel.importPanel.importEnded())) {
+				while (importPanel.getParentFrame().isVisible()
+						&& (!importPanel.importStarted()
+						|| importPanel.importEnded())) {
 					trySleep();
 				}
-				// if( !importPanel.getParentFrame().isVisible() &&
-				// !importPanel.importEnded() )
-				// JOptionPane.showMessageDialog(null,"bad voodoo
-				// "+importPanel.importSuccessful());
-				// else
-				// JOptionPane.showMessageDialog(null,"good voodoo
-				// "+importPanel.importSuccessful());
-				// if( importPanel.importSuccessful() )
-				// {
-				// newModel.saveFile();
-				// loadFile(newModel.getFile());
-				// }
-
-				if (mainPanel.importPanel.importStarted()) {
-					while (!mainPanel.importPanel.importEnded()) {
+				if (importPanel.importStarted()) {
+					while (!importPanel.importEnded()) {
 						trySleep();
 					}
 
-					if (mainPanel.importPanel.importSuccessful()) {
+					if (importPanel.importSuccessful()) {
 						try {
 							MdxUtils.saveMdx(newModel, newModel.getFile());
 						} catch (final IOException e) {

@@ -161,11 +161,28 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 	public void setModel(final ModelView modelView) {
 		renderEnv.setAnimation(null);
 		this.modelView = modelView;
-		renderModel = new RenderModel(modelView.getModel(), modelView);
+		renderModel = new RenderModel(modelView.getModel(), modelView, renderEnv);
+		modelExtent.setDefault().setMinMax(modelView.getModel().getExtents());
+		setCurrentExtent();
 //		renderModel.refreshFromEditor(renderEnv, inverseCameraRotationQuat, inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
 		if (modelView.getModel().getAnims().size() > 0) {
 			renderEnv.setAnimation(modelView.getModel().getAnim(0));
 		}
+//		loadDefaultCameraFor(modelView);
+		Vec3 maxExt = currentExt.getMaximumExtent();
+		double boundsRadius = getBoundsRadius(modelView);
+		if (modelView.getModel().getAnims().size() < 2) {
+			System.out.println("model? maxExt: " + maxExt.length() + ", boundsR: " + boundsRadius);
+			m_zoom = 128 / (maxExt.length());
+			setViewportCamera(0, (int) -(maxExt.length() / 6), 0, 0, 0);
+		} else {
+			System.out.println("dodad? maxExt: " + maxExt.length() + ", boundsR: " + boundsRadius);
+			m_zoom = 128 / (boundsRadius) * 2;
+			setViewportCamera(0, (int) -(boundsRadius / 6 / 2), 0, 0, 0);
+		}
+//		setViewportCamera(0, (int) -(maxExt.length() / 6/4), 0, 0, 0);
+//		setViewportCamera(0, (int) -(boundsRadius / 6/4), 0, 0, 0);
+
 		reloadAllTextures();
 	}
 
@@ -189,6 +206,7 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 				Vec3 maxExt = currentExt.getMaximumExtent();
 //				double boundsRadius = currentExt.getMaximumExtent().distance(currentExt.getMinimumExtent()) / 2;
 //				m_zoom = 128 / (boundsRadius*1.5);
+//				m_zoom = 128 / (maxExt.length()) * 200/getWidth();
 				m_zoom = 128 / (maxExt.length());
 
 				if (e.getKeyCode() == KeyEvent.VK_NUMPAD7) {
@@ -218,6 +236,7 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 	void loadDefaultCameraFor(final ModelView modelView) {
 		double boundsRadius = getBoundsRadius(modelView);
 
+//		m_zoom = 128 / (boundsRadius * 1.3) * getWidth()/200;
 		m_zoom = 128 / (boundsRadius * 1.3);
 		cameraPos.y -= boundsRadius / 4;
 		yangle += 35;
@@ -597,7 +616,7 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 		enableGlThings(GL_BLEND, GL_DEPTH_TEST);
 		GL11.glDisable(GL11.GL_CULL_FACE);
 
-		renderModel.getParticleShader().use();
+//		renderModel.getParticleShader().use();
 		for (final RenderParticleEmitter2 particle : renderModel.getParticleEmitters2()) {
 //			System.out.println("renderParticles");
 			particle.render(renderModel, renderModel.getParticleShader());

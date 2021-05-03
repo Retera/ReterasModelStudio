@@ -1,14 +1,9 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag.Entry;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
-import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
@@ -23,7 +18,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -219,57 +213,57 @@ public class MDLSnapshot {
 		return height;
 	}
 
-	public static ModelView createDefaultDisplay(final GameObject unit) {
-		final ModelView mdlDisplay;
-		final EditableModel model;
-		try {
-			String field = unit.getField("file");
-			if (field.endsWith(".mdl")) {
-				field = field.replace(".mdl", ".mdx");
-			} else {
-				field += ".mdx";
-			}
-			model = new EditableModel(
-					MdxUtils.loadMdlx(GameDataFileSystem.getDefault().getResourceAsStream(field)));
-			mdlDisplay = new ModelView(model);
-
-			Animation bestStandAnim = null;
-			for (final Animation anim : model.getAnims()) {
-				if (anim.getName().toLowerCase().contains("stand")) {
-					final String animProps = unit.getField("Animprops");// should not be case sensitive!
-					final String[] animationNames = animProps.split(",");
-					boolean isGoodAnimation = true;
-					for (final String name : animationNames) {
-						if (!anim.getName().toLowerCase().contains(name.toLowerCase())) {
-							isGoodAnimation = false;
-							break;
-						}
-					}
-					if (isGoodAnimation && ((bestStandAnim == null)
-							|| (anim.getName().length() < bestStandAnim.getName().length()))) {
-						bestStandAnim = anim;
-					}
-				}
-			}
-			if (bestStandAnim != null) {
-				for (final Geoset geo : model.getGeosets()) {
-					final AnimFlag<?> visibilityFlag = geo.getVisibilityFlag();
-					if (visibilityFlag != null) {
-						for (int i = 0; i < visibilityFlag.size(); i++) {
-							final Entry<?> entry = visibilityFlag.getEntry(i);
-							if ((entry.time == bestStandAnim.getStart()) && (((Number) entry.value).intValue() == 0)) {
-								mdlDisplay.makeGeosetNotEditable(geo);
-								mdlDisplay.makeGeosetNotVisible(geo);
-							}
-						}
-					}
-				}
-			}
-			return mdlDisplay;
-		} catch (final IOException e1) {
-			throw new RuntimeException(e1);
-		}
-	}
+//	public static ModelView createDefaultDisplay(final GameObject unit) {
+//		final ModelView mdlDisplay;
+//		final EditableModel model;
+//		try {
+//			String field = unit.getField("file");
+//			if (field.endsWith(".mdl")) {
+//				field = field.replace(".mdl", ".mdx");
+//			} else {
+//				field += ".mdx";
+//			}
+//			model = new EditableModel(
+//					MdxUtils.loadMdlx(GameDataFileSystem.getDefault().getResourceAsStream(field)));
+//			mdlDisplay = new ModelView(model);
+//
+//			Animation bestStandAnim = null;
+//			for (final Animation anim : model.getAnims()) {
+//				if (anim.getName().toLowerCase().contains("stand")) {
+//					final String animProps = unit.getField("Animprops");// should not be case sensitive!
+//					final String[] animationNames = animProps.split(",");
+//					boolean isGoodAnimation = true;
+//					for (final String name : animationNames) {
+//						if (!anim.getName().toLowerCase().contains(name.toLowerCase())) {
+//							isGoodAnimation = false;
+//							break;
+//						}
+//					}
+//					if (isGoodAnimation && ((bestStandAnim == null)
+//							|| (anim.getName().length() < bestStandAnim.getName().length()))) {
+//						bestStandAnim = anim;
+//					}
+//				}
+//			}
+//			if (bestStandAnim != null) {
+//				for (final Geoset geo : model.getGeosets()) {
+//					final AnimFlag<?> visibilityFlag = geo.getVisibilityFlag();
+//					if (visibilityFlag != null) {
+//						for (int i = 0; i < visibilityFlag.size(); i++) {
+//							final Entry<?> entry = visibilityFlag.getEntry(i);
+//							if ((entry.time == bestStandAnim.getStart()) && (((Number) entry.value).intValue() == 0)) {
+//								mdlDisplay.makeGeosetNotEditable(geo);
+//								mdlDisplay.makeGeosetNotVisible(geo);
+//							}
+//						}
+//					}
+//				}
+//			}
+//			return mdlDisplay;
+//		} catch (final IOException e1) {
+//			throw new RuntimeException(e1);
+//		}
+//	}
 
 	public void zoomToFitOld() {
 		setYangle(35);// model.getExtents() == null ? 25 :

@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer.perspective;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.ComPerspViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -34,35 +33,8 @@ public class PerspDisplayPanel extends JPanel {
 		this.programPreferences = programPreferences;
 		setOpaque(true);
 
+		this.modelHandler = modelHandler;
 		setViewport(modelHandler);
-		getViewport().setMinimumSize(new Dimension(200, 200));
-		this.title = title;
-
-		JButton plusZoom = getButton(e -> zoom(.15), 20, 20);
-		// add(plusZoom);
-		JButton minusZoom = getButton(e -> zoom(-.15), 20, 20);
-		// add(minusZoom);
-		JButton up = getButton(e -> translateViewUpDown(20), 32, 16);
-		// add(up);
-		JButton down = getButton(e -> translateViewUpDown(-20), 32, 16);
-		// add(down);
-		JButton left = getButton(e -> translateViewLeftRight(20), 16, 32);
-		// add(left);
-		JButton right = getButton(e -> translateViewLeftRight(-20), 16, 32);
-		// add(right);
-
-		setLayout(new BorderLayout());
-		add(vp);
-
-		view = new View(title, null, this);
-	}
-
-	public PerspDisplayPanel(String title, ModelHandler modelHandler, ProgramPreferences programPreferences, TimeEnvironmentImpl timeEnvironment) {
-		super();
-		this.programPreferences = programPreferences;
-		setOpaque(true);
-
-		setViewport(modelHandler, timeEnvironment);
 		getViewport().setMinimumSize(new Dimension(200, 200));
 		this.title = title;
 
@@ -119,19 +91,18 @@ public class PerspDisplayPanel extends JPanel {
 		vp.reloadAllTextures();
 	}
 
-	public void setViewport(ModelHandler modelHandler, TimeEnvironmentImpl renderEnvironment) {
-//	public void setViewport(ModelView modelView, TimeEnvironmentImpl renderEnvironment) {
-		setViewport(modelHandler, 200, renderEnvironment);
+	public void setViewport(ModelHandler modelHandler) {
+		setViewport(modelHandler, 200);
 	}
 
-	public void setViewport(ModelHandler modelHandler, int viewerSize, TimeEnvironmentImpl renderEnvironment) {
+	public void setViewport(ModelHandler modelHandler, int viewerSize) {
 		try {
 			if (vp != null) {
 				vp.destroy();
 			}
 			removeAll();
 //			vp = new PerspectiveViewport(modelView, renderModel, programPreferences, renderEnvironment);
-			vp = new ComPerspViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), programPreferences, renderEnvironment, false);
+			vp = new ComPerspViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), programPreferences, modelHandler.getEditTimeEnv(), false);
 			vp.setIgnoreRepaint(false);
 			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
 
@@ -153,11 +124,6 @@ public class PerspDisplayPanel extends JPanel {
 //	}
 	public ComPerspViewport getViewport() {
 		return vp;
-	}
-
-	public void setViewport(ModelHandler modelHandler) {
-		TimeEnvironmentImpl renderEnvironment = new TimeEnvironmentImpl();
-		setViewport(modelHandler, 200, renderEnvironment);
 	}
 
 	@Override

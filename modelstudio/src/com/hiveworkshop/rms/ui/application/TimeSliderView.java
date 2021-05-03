@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import net.infonode.docking.View;
@@ -60,14 +61,15 @@ public class TimeSliderView {
 	static void createTimeSliderPanel(MainPanel mainPanel) {
 		mainPanel.timeSliderPanel = new TimeSliderPanel(mainPanel, mainPanel.animatedRenderEnvironment, mainPanel.modelStructureChangeListener, mainPanel.prefs);
 		mainPanel.timeSliderPanel.setDrawing(false);
-		mainPanel.timeSliderPanel.addListener(currentTime -> {
+		TimeSliderTimeListener timeSliderTimeListener = currentTime -> {
 //			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime);
 //			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime - mainPanel.animatedRenderEnvironment.getStart());
 			if (mainPanel.currentModelPanel() != null) {
 				mainPanel.currentModelPanel().getEditorRenderModel().updateNodes(false);
 				mainPanel.currentModelPanel().repaintSelfAndRelatedChildren();
 			}
-		});
+		};
+		mainPanel.timeSliderPanel.addListener(timeSliderTimeListener);
 		//		timeSliderPanel.addListener(creatorPanel);
 	}
 

@@ -7,5 +7,4 @@ public interface ParticleEmitterShader {
 	                     RenderSharedGeometryEmitter.RenderData[] bufferData,
 	                     boolean isRibbonEmitter, int numItemsToRender);
 
-	void use();
 }

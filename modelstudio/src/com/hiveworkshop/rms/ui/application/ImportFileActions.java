@@ -35,15 +35,15 @@ public class ImportFileActions {
     public static void importFile(final MainPanel mainPanel, final EditableModel model) {
         final EditableModel currentModel = mainPanel.currentMDL();
         if (currentModel != null) {
-            mainPanel.importPanel = new ImportPanel(currentModel, model);
-            mainPanel.importPanel.setCallback(new ModelStructureChangeListener(mainPanel, new ModelStructureChangeListener.ModelReference() {
-                private final EditableModel model = mainPanel.currentMDL();
+	        ImportPanel importPanel = new ImportPanel(currentModel, model);
+	        importPanel.setCallback(new ModelStructureChangeListener(mainPanel, new ModelStructureChangeListener.ModelReference() {
+		        private final EditableModel model = mainPanel.currentMDL();
 
-                @Override
-                public EditableModel getModel() {
-                    return model;
-                }
-            }));
+		        @Override
+		        public EditableModel getModel() {
+			        return model;
+		        }
+	        }));
 
         }
     }

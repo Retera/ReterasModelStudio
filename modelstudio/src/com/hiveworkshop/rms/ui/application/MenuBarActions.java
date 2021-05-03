@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
@@ -8,13 +9,13 @@ import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
-import com.hiveworkshop.rms.ui.application.viewer.AnimationViewer;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ProgramPreferencesPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
@@ -32,20 +33,14 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
+import java.util.*;
 
 public class MenuBarActions {
 	static final ImageIcon POWERED_BY_HIVE = RMSIcons.loadHiveBrowserImageIcon("powered_by_hive.png");
-
-	static void updateUIFromProgramPreferences(List<ModelPanel> modelPanels, ProgramPreferences prefs) {
-		for (ModelPanel mpanel : modelPanels) {
-//            mpanel.getEditorRenderModel().setSpawnParticles(prefs.getRenderParticles());
-//            mpanel.getEditorRenderModel().setAllowInanimateParticles(prefs.getRenderStaticPoseParticles());
-//            mpanel.getAnimationViewer().setSpawnParticles(prefs.getRenderParticles());
-		}
-	}
 
 	private static void dataSourcesChanged(WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier directoryChangeNotifier, List<ModelPanel> modelPanels) {
 		for (ModelPanel modelPanel : modelPanels) {
@@ -134,9 +129,8 @@ public class MenuBarActions {
 			}
 			SaveProfile.save();
 			if (changedDataSources) {
-				dataSourcesChanged(mainPanel.directoryChangeNotifier, mainPanel.modelPanels);
+				dataSourcesChanged(MenuBar.directoryChangeNotifier, mainPanel.modelPanels);
 			}
-			updateUIFromProgramPreferences(mainPanel.modelPanels, mainPanel.prefs);
 		}
 	}
 
@@ -158,24 +152,6 @@ public class MenuBarActions {
 		frame.setSize(650, 500);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		// JOptionPane.showMessageDialog(this,new JScrollPane(textPane));
-	}
-
-	static void duplicateSelectionActionRes(MainPanel mainPanel) {
-		// final int x = JOptionPane.showConfirmDialog(this,
-		// "This is an irreversible process that will split selected
-		// vertices into many copies of themself, one for each face, so
-		// you can wrap textures and normals in a different
-		// way.\n\nContinue?",
-		// "Warning"/* : Divide Vertices" */,
-		// JOptionPane.OK_CANCEL_OPTION);
-		// if (x == JOptionPane.OK_OPTION) {
-		ModelPanel currentModelPanel = mainPanel.currentModelPanel();
-		if (currentModelPanel != null) {
-			currentModelPanel.getUndoManager().pushAction(currentModelPanel.getModelEditorManager()
-					.getModelEditor().cloneSelectedComponents(mainPanel.namePicker));
-		}
-		// }
 	}
 
 	static void clearRecent(MainPanel mainPanel) {
@@ -251,7 +227,7 @@ public class MenuBarActions {
 			ModelPanel temp = new ModelPanel(mainPanel, modelHandler, mainPanel.prefs,
 					mainPanel.selectionItemTypeGroup, mainPanel.selectionModeGroup,
 					mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
-					mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false, mainPanel.animatedRenderEnvironment);
+					mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false);
 			ModelLoader.loadModel(mainPanel, true, true, temp);
 		}
 
@@ -296,25 +272,25 @@ public class MenuBarActions {
 		}
 	}
 
-	static View testItemResponse(MainPanel mainPanel) {
-		JPanel testPanel = new JPanel();
-
-		for (int i = 0; i < 3; i++) {
-//					ControlledAnimationViewer animationViewer = new ControlledAnimationViewer(
-//							currentModelPanel().getModelViewManager(), prefs);
-//					animationViewer.setMinimumSize(new Dimension(400, 400));
-//					AnimationController animationController = new AnimationController(
-//							currentModelPanel().getModelViewManager(), true, animationViewer);
-
-			AnimationViewer animationViewer2 = new AnimationViewer(
-					mainPanel.currentModelPanel().getModelViewManager(), mainPanel.prefs, false);
-			animationViewer2.setMinimumSize(new Dimension(400, 400));
-			testPanel.add(animationViewer2);
-//					testPanel.add(animationController);
-		}
-		testPanel.setLayout(new GridLayout(1, 4));
-		return new View("Test", null, testPanel);
-	}
+//	static View testItemResponse(MainPanel mainPanel) {
+//		JPanel testPanel = new JPanel();
+//
+//		for (int i = 0; i < 3; i++) {
+////					ControlledAnimationViewer animationViewer = new ControlledAnimationViewer(
+////							currentModelPanel().getModelViewManager(), prefs);
+////					animationViewer.setMinimumSize(new Dimension(400, 400));
+////					AnimationController animationController = new AnimationController(
+////							currentModelPanel().getModelViewManager(), true, animationViewer);
+//
+//			AnimationViewer animationViewer2 = new AnimationViewer(
+//					mainPanel.currentModelPanel().getModelViewManager(), mainPanel.prefs, false);
+//			animationViewer2.setMinimumSize(new Dimension(400, 400));
+//			testPanel.add(animationViewer2);
+////					testPanel.add(animationController);
+//		}
+//		testPanel.setLayout(new GridLayout(1, 4));
+//		return new View("Test", null, testPanel);
+//	}
 
 	public static void addNewMaterial(MainPanel mainPanel) {
 		EditableModel current = mainPanel.currentMDL();
@@ -470,5 +446,160 @@ public class MenuBarActions {
 				faceNormal.normalize();
 			}
 		}
+	}
+
+	static void copyCutPast(MainPanel mainPanel, TransferActionListener transferActionListener, ActionEvent e) {
+		if (!mainPanel.animationModeState) {
+			transferActionListener.actionPerformed(e);
+		} else {
+			if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
+				mainPanel.timeSliderPanel.cut();
+			} else if (e.getActionCommand().equals(TransferHandler.getCopyAction().getValue(Action.NAME))) {
+				mainPanel.timeSliderPanel.copy();
+			} else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
+				mainPanel.timeSliderPanel.paste();
+			}
+		}
+	}
+
+	static void sortBones(MainPanel mainPanel) {
+		final EditableModel model = mainPanel.currentMDL();
+		final List<IdObject> roots = new ArrayList<>();
+		final List<IdObject> modelList = model.getIdObjects();
+		for (final IdObject object : modelList) {
+			if (object.getParent() == null) {
+				roots.add(object);
+			}
+		}
+		final Queue<IdObject> bfsQueue = new LinkedList<>(roots);
+		final List<IdObject> result = new ArrayList<>();
+		while (!bfsQueue.isEmpty()) {
+			final IdObject nextItem = bfsQueue.poll();
+			bfsQueue.addAll(nextItem.getChildrenNodes());
+			result.add(nextItem);
+		}
+		for (final IdObject node : result) {
+			model.remove(node);
+		}
+		mainPanel.modelStructureChangeListener.nodesRemoved(result);
+		for (final IdObject node : result) {
+			model.add(node);
+		}
+		mainPanel.modelStructureChangeListener.nodesAdded(result);
+	}
+
+	static void minimizeGeoset(MainPanel mainPanel) {
+		final int confirm = JOptionPane.showConfirmDialog(mainPanel,
+				"This is experimental and I did not code the Undo option for it yet. Continue?" +
+						"\nMy advice is to click cancel and save once first.",
+				"Confirmation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+		if (confirm != JOptionPane.OK_OPTION) {
+			return;
+		}
+
+		mainPanel.currentMDL().doSavePreps();
+
+		final Map<Geoset, Geoset> sourceToDestination = new HashMap<>();
+		final List<Geoset> retainedGeosets = new ArrayList<>();
+		for (final Geoset geoset : mainPanel.currentMDL().getGeosets()) {
+			boolean alreadyRetained = false;
+			for (final Geoset retainedGeoset : retainedGeosets) {
+				if (retainedGeoset.getMaterial().equals(geoset.getMaterial())
+						&& (retainedGeoset.getSelectionGroup() == geoset.getSelectionGroup())
+						&& (retainedGeoset.getUnselectable() == geoset.getUnselectable())
+						&& isGeosetAnimationsMergable(retainedGeoset.getGeosetAnim(), geoset.getGeosetAnim())) {
+					alreadyRetained = true;
+					for (final GeosetVertex gv : geoset.getVertices()) {
+						retainedGeoset.add(gv);
+					}
+					for (final Triangle t : geoset.getTriangles()) {
+						retainedGeoset.add(t);
+					}
+					break;
+				}
+			}
+			if (!alreadyRetained) {
+				retainedGeosets.add(geoset);
+			}
+		}
+		final EditableModel currentMDL = mainPanel.currentMDL();
+		final List<Geoset> geosets = currentMDL.getGeosets();
+		final List<Geoset> geosetsRemoved = new ArrayList<>();
+		final Iterator<Geoset> iterator = geosets.iterator();
+		while (iterator.hasNext()) {
+			final Geoset geoset = iterator.next();
+			if (!retainedGeosets.contains(geoset)) {
+				iterator.remove();
+				final GeosetAnim geosetAnim = geoset.getGeosetAnim();
+				if (geosetAnim != null) {
+					currentMDL.remove(geosetAnim);
+				}
+				geosetsRemoved.add(geoset);
+			}
+		}
+		mainPanel.modelStructureChangeListener.geosetsRemoved(geosetsRemoved);
+	}
+
+	private static boolean isGeosetAnimationsMergable(final GeosetAnim first, final GeosetAnim second) {
+		if ((first == null) && (second == null)) {
+			return true;
+		}
+		if ((first == null) || (second == null)) {
+			return false;
+		}
+		final AnimFlag<?> firstVisibilityFlag = first.getVisibilityFlag();
+		final AnimFlag<?> secondVisibilityFlag = second.getVisibilityFlag();
+		if ((firstVisibilityFlag == null) != (secondVisibilityFlag == null)) {
+			return false;
+		}
+		if ((firstVisibilityFlag != null) && !firstVisibilityFlag.equals(secondVisibilityFlag)) {
+			return false;
+		}
+		if (first.isDropShadow() != second.isDropShadow()) {
+			return false;
+		}
+		if (Math.abs(first.getStaticAlpha() - second.getStaticAlpha()) > 0.001) {
+			return false;
+		}
+		if ((first.getStaticColor() == null) != (second.getStaticColor() == null)) {
+			return false;
+		}
+		if ((first.getStaticColor() != null) && !first.getStaticColor().equalLocs(second.getStaticColor())) {
+			return false;
+		}
+		final AnimFlag<?> firstAnimatedColor = first.find("Color");
+		final AnimFlag<?> secondAnimatedColor = second.find("Color");
+		if ((firstAnimatedColor == null) != (secondAnimatedColor == null)) {
+			return false;
+		}
+		return (firstAnimatedColor == null) || firstAnimatedColor.equals(secondAnimatedColor);
+	}
+
+	static void removeMaterialDuplicates(MainPanel mainPanel) {
+		EditableModel model = mainPanel.currentModelPanel().getModel();
+		List<Material> materials = model.getMaterials();
+		Map<Material, Material> sameMaterialMap = new HashMap<>();
+		for (int i = 0; i < materials.size(); i++) {
+			Material material1 = materials.get(i);
+			for (int j = i + 1; j < materials.size(); j++) {
+				Material material2 = materials.get(j);
+				System.out.println(material1.getName() + " == " + material2.getName());
+				if (material1.equals(material2)) {
+					if (!sameMaterialMap.containsKey(material2)) {
+						sameMaterialMap.put(material2, material1);
+					}
+				}
+			}
+		}
+
+		List<Geoset> geosets = model.getGeosets();
+		for (Geoset geoset : geosets) {
+			if (sameMaterialMap.containsKey(geoset.getMaterial())) {
+				geoset.setMaterial(sameMaterialMap.get(geoset.getMaterial()));
+			}
+		}
+
+		materials.removeAll(sameMaterialMap.keySet());
+		mainPanel.modelStructureChangeListener.materialsListChanged();
 	}
 }

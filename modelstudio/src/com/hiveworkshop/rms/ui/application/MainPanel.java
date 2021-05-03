@@ -16,7 +16,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.CreatorModelingPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -25,7 +24,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
-import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
@@ -45,7 +43,6 @@ public class MainPanel extends JPanel implements UndoHandler, ModelEditorChangeA
     MenuBar.UndoMenuItem undo;
     MenuBar.RedoMenuItem redo;
 
-    ImportPanel importPanel;
     List<ModelPanel> modelPanels;
     ModelPanel currentModelPanel;
     View frontView, leftView, bottomView, perspectiveView;
@@ -71,7 +68,7 @@ public class MainPanel extends JPanel implements UndoHandler, ModelEditorChangeA
     final RootWindow rootWindow;
 
     public ModelEditorActionType actionType;
-    JMenu teamColorMenu;
+//    JMenu teamColorMenu;
     JButton snapButton;
     ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
     ToolbarButtonGroup<SelectionMode> selectionModeGroup;
@@ -98,17 +95,12 @@ public class MainPanel extends JPanel implements UndoHandler, ModelEditorChangeA
 
     final ViewportListener viewportListener = new ViewportListener();
 
-    WarcraftDataSourceChangeNotifier directoryChangeNotifier = new WarcraftDataSourceChangeNotifier();
-
     ClonedNodeNamePicker namePicker = new ClonedNodeNamePickerImplementation(this);
 
     public MainPanel() {
         super();
         setLayout(new MigLayout("fill, ins 0, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
         add(ToolBar.createJToolBar(this));
-        // testArea = new PerspDisplayPanel("Graphic Test",2,0);
-        // //botArea.setViewport(0,1);
-        // add(testArea);
 
         final JLabel[] divider = new JLabel[3];
         for (int i = 0; i < divider.length; i++) {
@@ -133,7 +125,13 @@ public class MainPanel extends JPanel implements UndoHandler, ModelEditorChangeA
         viewMap = new StringViewMap();
 
         rootWindow = new RootWindow(viewMap);
+        final Runnable fixit = () -> {
+            WindowHandler.traverseAndReset(rootWindow);
+            WindowHandler.traverseAndFix(rootWindow);
+        };
         rootWindow.addListener(WindowHandler.getDockingWindowListener(this));
+        setRootProps(rootWindow);
+        rootWindow.addListener(WindowHandler.getDockingWindowListener2(fixit));
 
 
         JPanel contentsDummy = new JPanel();
@@ -141,14 +139,6 @@ public class MainPanel extends JPanel implements UndoHandler, ModelEditorChangeA
         modelDataView = new View("Contents", null, contentsDummy);
         modelComponentView = new View("Component", null, new JPanel());
 
-        setRootProps(rootWindow);
-
-        final Runnable fixit = () -> {
-            WindowHandler.traverseAndReset(rootWindow);
-            WindowHandler.traverseAndFix(rootWindow);
-        };
-
-        rootWindow.addListener(WindowHandler.getDockingWindowListener2(fixit));
 
         previewView = new View("Preview", null, new JPanel());
 
@@ -174,21 +164,21 @@ public class MainPanel extends JPanel implements UndoHandler, ModelEditorChangeA
 
         actionTypeGroup.addToolbarButtonListener(newType -> MainPanelLinkActions.actionTypeGroupActionRes(MainPanel.this, newType));
         actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
+
         viewportTransferHandler = new ViewportTransferHandler();
         coordDisplayListener = (dim1, dim2, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
     }
 
     private static void setRootProps(RootWindow rootWindow) {
-        //		toolView.getWindowProperties().setCloseEnabled(false);
         rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties().setSizePolicy(TitledTabSizePolicy.EQUAL_SIZE);
         rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties().setBorderSizePolicy(TitledTabBorderSizePolicy.EQUAL_SIZE);
 
-        rootWindow.getRootWindowProperties().getViewProperties().getViewTitleBarProperties().setVisible(true);
         rootWindow.getRootWindowProperties().getTabWindowProperties().getTabbedPanelProperties().getTabAreaProperties().setTabAreaVisiblePolicy(TabAreaVisiblePolicy.MORE_THAN_ONE_TAB);
-        rootWindow.getRootWindowProperties().getFloatingWindowProperties().setUseFrame(true);
-        rootWindow.getRootWindowProperties().getSplitWindowProperties().setDividerSize(1);
         rootWindow.getRootWindowProperties().getTabWindowProperties().getTabbedPanelProperties().setShadowEnabled(false);
         rootWindow.getRootWindowProperties().getWindowAreaProperties().getInsets().set(0, 0, 0, 0);
+        rootWindow.getRootWindowProperties().getSplitWindowProperties().setDividerSize(1);
+        rootWindow.getRootWindowProperties().getFloatingWindowProperties().setUseFrame(true);
+        rootWindow.getRootWindowProperties().getViewProperties().getViewTitleBarProperties().setVisible(true);
 
         rootWindow.setBackground(Color.GREEN);
         rootWindow.setForeground(Color.GREEN);
@@ -276,7 +266,6 @@ public class MainPanel extends JPanel implements UndoHandler, ModelEditorChangeA
         final JRootPane root = getRootPane();
         MainPanelLinkActions.linkActions(this, root);
 
-        MenuBarActions.updateUIFromProgramPreferences(modelPanels, prefs);
     }
 
     @Override

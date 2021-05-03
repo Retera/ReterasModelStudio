@@ -92,7 +92,7 @@ public class ModelLoader {
 				mainPanel.modelStructureChangeListener,
 				mainPanel.coordDisplayListener,
 				mainPanel.viewportTransferHandler,
-				mainPanel.viewportListener, icon, false, mainPanel.animatedRenderEnvironment
+				mainPanel.viewportListener, icon, false
 		);
 		return temp;
 	}

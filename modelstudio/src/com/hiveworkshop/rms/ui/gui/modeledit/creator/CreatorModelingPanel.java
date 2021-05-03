@@ -1,11 +1,8 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
 import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeSelectionListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TSpline;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TTan;
@@ -31,10 +28,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
-public class CreatorModelingPanel extends JPanel implements ModelEditorChangeActivityListener, TimeSliderTimeSelectionListener {
+public class CreatorModelingPanel extends JPanel implements ModelEditorChangeActivityListener {
 	private static final String ANIMATIONBASICS = "ANIMATIONBASICS";
 
 	private final class ActionListenerImplementation implements ActionListener {
@@ -43,9 +42,10 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		private final ModelEditorChangeActivityListener listener;
 		private final ModeButton planeButton;
 
-		private ActionListenerImplementation(final ActivityDescriptor activityDescriptor,
-		                                     final ProgramPreferences programPreferences, final ModelEditorChangeActivityListener listener,
-				final ModeButton planeButton) {
+		private ActionListenerImplementation(ActivityDescriptor activityDescriptor,
+		                                     ProgramPreferences programPreferences,
+		                                     ModelEditorChangeActivityListener listener,
+		                                     ModeButton planeButton) {
 			this.activityDescriptor = activityDescriptor;
 			this.programPreferences = programPreferences;
 			this.listener = listener;
@@ -519,10 +519,10 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 
 	}
-
-	@Override
-	public void timeChanged(final int currentTime, final Set<IdObject> objects, final List<AnimFlag<?>> timelines) {
-//		tSpline.setSelection(currentTime);
-	}
+//
+//	@Override
+//	public void timeChanged(final int currentTime, final Set<IdObject> objects, final List<AnimFlag<?>> timelines) {
+////		tSpline.setSelection(currentTime);
+//	}
 
 }

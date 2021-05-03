@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.DoNothingActivity;
@@ -31,8 +30,6 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.InfoPopup;
 
 import javax.swing.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 /**
  * The ModelPanel is a pane holding the display of a given MDL model. I plan to
@@ -40,7 +37,7 @@ import java.awt.event.MouseListener;
  *
  * Eric Theller 6/7/2012
  */
-public class ModelPanel implements MouseListener {
+public class ModelPanel {
 	private DisplayPanel frontArea, sideArea, botArea;
 	private PerspDisplayPanel perspArea;
 	private ModelHandler modelHandler;
@@ -70,7 +67,7 @@ public class ModelPanel implements MouseListener {
 	                  ViewportTransferHandler viewportTransferHandler,
 	                  ViewportListener viewportListener,
 	                  Icon icon,
-	                  boolean specialBLPModel, TimeEnvironmentImpl timeEnvironment) {
+	                  boolean specialBLPModel) {
 		this.modelHandler = modelHandler;
 
 		this.parent = parent;
@@ -81,9 +78,6 @@ public class ModelPanel implements MouseListener {
 
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
-
-
-
 
 		modelEditorManager = new ModelEditorManager(modelHandler, prefs, modeNotifier, modelEditorChangeNotifier, viewportActivityManager, modelStructureChangeListener);
 
@@ -105,7 +99,7 @@ public class ModelPanel implements MouseListener {
 		botArea.setControlsVisible(prefs.showVMControls());
 		sideArea.setControlsVisible(prefs.showVMControls());
 
-		perspArea = new PerspDisplayPanel("Perspective", modelHandler, prefs, timeEnvironment);
+		perspArea = new PerspDisplayPanel("Perspective", modelHandler, prefs);
 
 		componentsPanel = new ComponentsPanel(modelHandler, modelStructureChangeListener);
 
@@ -201,56 +195,20 @@ public class ModelPanel implements MouseListener {
 		return !canceled;
 	}
 
-	@Override
-	public void mouseEntered(final MouseEvent e) {
-	}
-
-	@Override
-	public void mouseExited(final MouseEvent e) {
-	}
-
-	@Override
-	public void mousePressed(final MouseEvent e) {
-	}
-
-	@Override
-	public void mouseReleased(final MouseEvent e) {
-	}
-
-	@Override
-	public void mouseClicked(final MouseEvent e) {
-	}
-
 	public DisplayPanel getFrontArea() {
 		return frontArea;
-	}
-
-	public void setFrontArea(final DisplayPanel frontArea) {
-		this.frontArea = frontArea;
 	}
 
 	public DisplayPanel getSideArea() {
 		return sideArea;
 	}
 
-	public void setSideArea(final DisplayPanel sideArea) {
-		this.sideArea = sideArea;
-	}
-
 	public DisplayPanel getBotArea() {
 		return botArea;
 	}
 
-	public void setBotArea(final DisplayPanel botArea) {
-		this.botArea = botArea;
-	}
-
 	public PerspDisplayPanel getPerspArea() {
 		return perspArea;
-	}
-
-	public void setPerspArea(final PerspDisplayPanel perspArea) {
-		this.perspArea = perspArea;
 	}
 
 	public UndoManager getUndoManager() {

@@ -1,10 +1,12 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import net.miginfocom.swing.MigLayout;
 import org.lwjgl.LWJGLException;
 
 import javax.swing.*;
@@ -14,65 +16,85 @@ import java.util.List;
 
 public class AnimationViewer extends JPanel {
 	private ModelView modelView;
-	//	private final AnimatedPerspectiveViewport perspectiveViewport;
-	private final ComPerspViewport perspectiveViewport;
+	final EditableModel blank = new EditableModel();
 	private final DefaultComboBoxModel<Animation> animations;
 	private final JComboBox<Animation> animationBox;
 	private final boolean allowUnanimated;
 	TimeEnvironmentImpl renderEnv;
+	private ComPerspViewport perspectiveViewport;
 
-	public AnimationViewer(final ModelView modelView, final ProgramPreferences programPreferences, final boolean allowUnanimated) {
-		this.modelView = modelView;
+	public AnimationViewer(ModelView modelView, ProgramPreferences programPreferences, boolean allowUnanimated) {
 		this.allowUnanimated = allowUnanimated;
-		try {
-			renderEnv = new TimeEnvironmentImpl();
-			modelView.setVetoOverrideParticles(true);
-			RenderModel renderModel = new RenderModel(modelView.getModel(), modelView);
-//			perspectiveViewport = new AnimatedPerspectiveViewport(modelView, renderModel, programPreferences, renderEnv, true);
-			perspectiveViewport = new ComPerspViewport(modelView, renderModel, programPreferences, renderEnv, true);
-			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
-			renderEnv.setAnimationTime(0);
-			renderEnv.setLive(true);
-		} catch (final LWJGLException e) {
-			throw new RuntimeException(e);
-		}
-		setLayout(new BorderLayout());
-		add(perspectiveViewport, BorderLayout.CENTER);
+
+		getModelViewport(modelView, programPreferences);
+		JPanel viewportPanel = new JPanel(new BorderLayout());
+		setLayout(new MigLayout());
+
+		viewportPanel.add(perspectiveViewport, BorderLayout.CENTER);
+		add(viewportPanel, "wrap");
+
 		animations = new DefaultComboBoxModel<>();
-		if (allowUnanimated || (modelView.getModel().getAnims().size() == 0)) {
+
+		if (allowUnanimated || (this.modelView.getModel().getAnims().size() == 0)) {
 			animations.addElement(null);
 		}
-		for (final Animation animation : modelView.getModel().getAnims()) {
+		for (Animation animation : this.modelView.getModel().getAnims()) {
 			animations.addElement(animation);
 		}
 		animationBox = new JComboBox<>(animations);
-		animationBox.setRenderer(new BasicComboBoxRenderer() {
-			@Override
-			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-			                                              final boolean isSelected, final boolean cellHasFocus) {
-				return super.getListCellRendererComponent(list, value == null
-						? "(Unanimated)" : value, index, isSelected, cellHasFocus);
-			}
-		});
+		animationBox.setRenderer(getBoxRenderer());
 		animationBox.addActionListener(e -> renderEnv.setAnimation((Animation) animationBox.getSelectedItem()));
-		add(animationBox, BorderLayout.AFTER_LAST_LINE);
+
+		add(animationBox);
 
 	}
 
-	public void setModel(final ModelView modelView) {
+	private BasicComboBoxRenderer getBoxRenderer() {
+		return new BasicComboBoxRenderer() {
+			@Override
+			public Component getListCellRendererComponent(JList list, Object value, int index,
+			                                              boolean isSelected, boolean cellHasFocus) {
+				return super.getListCellRendererComponent(list, value == null
+						? "(Unanimated)" : value, index, isSelected, cellHasFocus);
+			}
+		};
+	}
+
+	private void getModelViewport(ModelView modelView, ProgramPreferences programPreferences) {
+		try {
+			renderEnv = new TimeEnvironmentImpl();
+			if (modelView == null) {
+				this.modelView = new ModelView(blank, renderEnv);
+			} else {
+				this.modelView = modelView;
+			}
+			this.modelView.setVetoOverrideParticles(true);
+			RenderModel renderModel = new RenderModel(this.modelView.getModel(), this.modelView, renderEnv);
+			perspectiveViewport = new ComPerspViewport(this.modelView, renderModel, programPreferences, renderEnv, true);
+			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
+			renderEnv.setAnimationTime(0);
+			renderEnv.setLive(true);
+		} catch (LWJGLException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void setModel(ModelView modelView) {
+		if (modelView == null) {
+			modelView = new ModelView(blank, renderEnv);
+		}
 		this.modelView = modelView;
 		perspectiveViewport.setModel(modelView);
 		reload();
 	}
 
-	public void setTitle(final String title) {
+	public void setTitle(String title) {
 		setBorder(BorderFactory.createTitledBorder(title));
 	}
 
 	@Override
-	public void paintComponent(final Graphics g) {
+	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		// perspectiveViewport.repaint();
 		perspectiveViewport.paint(perspectiveViewport.getGraphics());
 	}
 
@@ -81,14 +103,14 @@ public class AnimationViewer extends JPanel {
 	}
 
 	public void reload() {
-		final Animation selectedItem = (Animation) animationBox.getSelectedItem();
+		Animation selectedItem = (Animation) animationBox.getSelectedItem();
 		animations.removeAllElements();
 //		boolean sawLast = selectedItem == null;
 		List<Animation> anims = modelView.getModel().getAnims();
 		if (allowUnanimated || (anims.size() == 0)) {
 			animations.addElement(null);
 		}
-//		for (final Animation animation : anims) {
+//		for (Animation animation : anims) {
 //			animations.addElement(animation);
 //			if (animation == selectedItem) {
 //				sawLast = true;

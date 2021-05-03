@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayL
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.DoNothingTVertexActivity;
-import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeActivityListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexToolbarActionButtonType;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
@@ -43,7 +42,7 @@ import java.util.*;
  * @author (your name)
  * @version (a version number or a date)
  */
-public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEditorChangeActivityListener {
+public class UVPanel extends JPanel implements CoordDisplayListener {
 
 	static final ImageIcon UVIcon;
 
@@ -105,15 +104,12 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	AbstractAction selFromMainAction = new AbstractAction("Sel From Main") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-//            UndoAction undoAction = modelEditorManager.getModelEditor().selectFromViewer(mpanel.getModelEditorManager().getSelectionView());
 			ModelPanel mpanel = currentModelPanel();
 			mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().selectFromViewer(mpanel.getModelEditorManager().getSelectionView()));
 			repaint();
 		}
 	};
 
-	//    public UVPanel(ModelPanel modelPanel, ProgramPreferences prefs,
-//                   ModelStructureChangeListener modelStructureChangeListener) {
 	public UVPanel(MainPanel mainPanel, ModelStructureChangeListener modelStructureChangeListener, ProgramPreferences prefs) {
 		this.mainPanel = mainPanel;
 		this.prefs = prefs;
