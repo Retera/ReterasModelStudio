@@ -203,6 +203,11 @@ public final class ModelUtils {
 		return (formatVersion == 900) || (formatVersion == 1000);
 	}
 
+	public static boolean isTangentAndSkinSupported(EditableModel model) {
+		int formatVersion = model.getFormatVersion();
+		return (formatVersion == 900) || (formatVersion == 1000);
+	}
+
 	public static boolean isBindPoseSupported(int formatVersion) {
 		return (formatVersion == 900) || (formatVersion == 1000);
 	}
@@ -241,26 +246,15 @@ public final class ModelUtils {
 	private ModelUtils() {
 	}
 
-	public static Mat4 processHdBones(RenderModel renderModel, Bone[] skinBones, short[] skinBoneWeights) {
-		boolean processedBones = false;
-		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();
-
-		for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
-			Bone skinBone = skinBones[boneIndex];
-			if (skinBone == null) {
-				continue;
-			}
-			processedBones = true;
-			Mat4 worldMatrix = renderModel.getRenderNode(skinBone).getWorldMatrix();
-
-			float skinBoneWeight = skinBoneWeights[boneIndex] / 255f;
-			skinBonesMatrixSumHeap.add(worldMatrix.getUniformlyScaled(skinBoneWeight));
+	public static Mat4 processBones(RenderModel renderModel, GeosetVertex geosetVertex, Geoset geoset) {
+		if (isTangentAndSkinSupported(geoset.getParentModel()) && (geoset.getVertex(0).getSkinBoneBones() != null)) {
+			return processHdBones(renderModel, geosetVertex.getSkinBones());
+		} else {
+			return processSdBones(renderModel, geosetVertex.getBones());
 		}
-		if (!processedBones) {
-			skinBonesMatrixSumHeap.setIdentity();
-		}
-		return skinBonesMatrixSumHeap;
 	}
+
+
 	public static Mat4 processHdBones(RenderModel renderModel, GeosetVertex.SkinBone[] skinBones) {
 		boolean processedBones = false;
 		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();

@@ -11,15 +11,10 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 
-public class LinkRenderingVisitorAdapter {
-	private CoordinateSystem coordinateSystem;
-	private ProgramPreferences programPreferences;
+public class LinkRenderer {
 	ModelView modelView;
-	private ModelHandler modelHandler;
-	private Graphics2D graphics;
 
-	public LinkRenderingVisitorAdapter(ProgramPreferences programPreferences) {
-		this.programPreferences = programPreferences;
+	public LinkRenderer(ProgramPreferences programPreferences) {
 	}
 
 	public static void drawLink(Graphics2D graphics, CoordinateSystem coordinateSystem,
@@ -38,11 +33,8 @@ public class LinkRenderingVisitorAdapter {
 		graphics.drawLine(xCoord, yCoord, xCoord2, yCoord2);
 	}
 
-	public void reset(Graphics2D graphics, CoordinateSystem coordinateSystem, ModelHandler modelHandler) {
-		this.graphics = graphics;
-		this.modelHandler = modelHandler;
+	public void renderLinks(Graphics2D graphics, CoordinateSystem coordinateSystem, ModelHandler modelHandler) {
 		this.modelView = modelHandler.getModelView();
-		this.coordinateSystem = coordinateSystem;
 
 		EditableModel model = modelHandler.getModel();
 

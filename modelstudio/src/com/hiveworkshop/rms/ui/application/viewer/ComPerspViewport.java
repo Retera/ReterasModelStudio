@@ -502,7 +502,7 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 
 
 			for (final Geoset geo : modelView.getModel().getGeosets()) {
-				processMesh(geo, isHD(geo, formatVersion));
+				processMesh(geo);
 			}
 			renderGeosets(modelView.getEditableGeosets(), formatVersion, false);
 
@@ -894,17 +894,12 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 		GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 	}
 
-	private void processMesh(Geoset geo, boolean isHd) {
+	private void processMesh(Geoset geo) {
 		List<Vec4> transformedVertices = new ArrayList<>();
 		List<Vec4> transformedNormals = new ArrayList<>();
 		for (final Triangle tri : geo.getTriangles()) {
 			for (final GeosetVertex vertex : tri.getVerts()) {
-				Mat4 skinBonesMatrixSumHeap;
-				if (isHd) {
-					skinBonesMatrixSumHeap = ModelUtils.processHdBones(renderModel, vertex.getSkinBoneBones(), vertex.getSkinBoneWeights());
-				} else {
-					skinBonesMatrixSumHeap = ModelUtils.processSdBones(renderModel, vertex.getBones());
-				}
+				Mat4 skinBonesMatrixSumHeap = ModelUtils.processBones(renderModel, vertex, geo);
 				Vec4 vertexSumHeap = Vec4.getTransformed(new Vec4(vertex, 1), skinBonesMatrixSumHeap);
 				transformedVertices.add(vertexSumHeap);
 				if (vertex.getNormal() != null) {
@@ -918,10 +913,6 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 		}
 		vertListMap.put(geo, transformedVertices);
 		normalListMap.put(geo, transformedNormals);
-	}
-
-	private boolean isHD(Geoset geo, int formatVersion) {
-		return (ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geo.getVertices().size() > 0) && (geo.getVertex(0).getSkinBones() != null);
 	}
 
 	private void clickTimerAction() {

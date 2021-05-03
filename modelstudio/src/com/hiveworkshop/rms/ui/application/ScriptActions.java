@@ -165,12 +165,7 @@ public class ScriptActions {
 			for (int vertexIndex = 0; vertexIndex < geoset.getVertices().size(); vertexIndex++) {
 				GeosetVertex vertex = geoset.getVertex(vertexIndex);
 				GeosetVertex frozenVertex = frozenGeoset.getVertex(vertexIndex);
-				Mat4 skinBonesMatrixSumHeap;
-				if (vertex.getSkinBones() != null) {
-					skinBonesMatrixSumHeap = ModelUtils.processHdBones(editorRenderModel, vertex.getSkinBoneBones(), vertex.getSkinBoneWeights());
-				} else {
-					skinBonesMatrixSumHeap = ModelUtils.processSdBones(editorRenderModel, vertex.getBones());
-				}
+				Mat4 skinBonesMatrixSumHeap = ModelUtils.processBones(editorRenderModel, vertex, geoset);
 				Vec4 vertexSumHeap = Vec4.getTransformed(new Vec4(vertex, 1), skinBonesMatrixSumHeap);
 				frozenVertex.set(vertexSumHeap);
 				if (vertex.getNormal() != null) {

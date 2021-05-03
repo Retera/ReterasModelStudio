@@ -20,7 +20,7 @@ public class Viewport extends ViewportView {
 	Timer paintTimer;
 
 	private final ViewportModelRenderer viewportModelRenderer;
-	private final LinkRenderingVisitorAdapter linkRenderingVisitorAdapter;
+	private final LinkRenderer linkRenderer;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final ModelEditorManager modelEditorManager;
 	private final Vec3 facingVector;
@@ -45,7 +45,7 @@ public class Viewport extends ViewportView {
 		add(contextMenu);
 
 		viewportModelRenderer = new ViewportModelRenderer(programPreferences.getVertexSize());
-		linkRenderingVisitorAdapter = new LinkRenderingVisitorAdapter(programPreferences);
+		linkRenderer = new LinkRenderer(programPreferences);
 
 		facingVector = new Vec3(0, 0, 0);
 		final byte unusedXYZ = CoordSysUtils.getUnusedXYZ(coordinateSystem);
@@ -97,15 +97,15 @@ public class Viewport extends ViewportView {
 			graphics2d.setStroke(new BasicStroke(3));
 			modelHandler.getRenderModel().updateNodes(false);
 
-			linkRenderingVisitorAdapter.reset(graphics2d, coordinateSystem, modelHandler);
+			linkRenderer.renderLinks(graphics2d, coordinateSystem, modelHandler);
 
 			graphics2d.setStroke(stroke);
 
-			viewportModelRenderer.reset(graphics2d, programPreferences, coordinateSystem, modelHandler, true);
+			viewportModelRenderer.renderModel(graphics2d, programPreferences, coordinateSystem, modelHandler, true);
 
 			activityListener.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), true);
 		} else {
-			viewportModelRenderer.reset(graphics2d, programPreferences, coordinateSystem, modelHandler, false);
+			viewportModelRenderer.renderModel(graphics2d, programPreferences, coordinateSystem, modelHandler, false);
 
 			activityListener.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), false);
 		}
