@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorViewportActivityManager;
@@ -60,7 +60,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	private final List<ModeButton> selectionModeButtons = new ArrayList<>();
 	private final Map<TVertexToolbarActionButtonType, ModeButton> typeToButton = new HashMap<>();
 	private final Map<SelectionMode, ModeButton> modeToButton = new HashMap<>();
-	UndoActionListener undoListener;
+	UndoManager undoListener;
 	JButton snapButton;
 	JCheckBoxMenuItem wrapImage;
 	ArrayList<ModeButton> buttons = new ArrayList<>();
@@ -890,7 +890,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	//	@Override
 	public void changeActivity(TVertexToolbarActionButtonType newType) {
 		currentActivity = newType;
-		viewportActivityManager.setCurrentActivity(newType.createActivity(modelEditorManager, dispMDL.getModelViewManager(), dispMDL.getUndoManager()));
+		viewportActivityManager.setCurrentActivity(newType.createActivity(modelEditorManager, dispMDL.getModelHandler()));
 		resetButtons();
 		ModeButton modeButton = typeToButton.get(newType);
 		if (modeButton != null) {

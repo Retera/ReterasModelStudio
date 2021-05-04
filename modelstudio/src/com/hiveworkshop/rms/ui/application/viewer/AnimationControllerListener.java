@@ -18,9 +18,9 @@ public class AnimationControllerListener extends JPanel {
 	public AnimationControllerListener(ModelHandler modelHandler, ProgramPreferences programPreferences, boolean doDefaultCamera) {
 		this.modelHandler = modelHandler;
 		try {
-			renderEnv = new TimeEnvironmentImpl();
+			renderEnv = modelHandler.getPreviewTimeEnv();
 			modelHandler.getModelView().setVetoOverrideParticles(true);
-			perspectiveViewport = new ComPerspViewport(modelHandler.getModelView(), modelHandler.getPreviewRenderModel(), programPreferences, renderEnv, doDefaultCamera);
+			perspectiveViewport = new ComPerspViewport(modelHandler.getModelView(), modelHandler.getPreviewRenderModel(), programPreferences, modelHandler.getPreviewTimeEnv(), doDefaultCamera);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);

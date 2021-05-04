@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.ui.application.actions.model.NameChangeAction;
 import com.hiveworkshop.rms.ui.application.actions.model.ParentChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.QuatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.Vec3ValuePanel;
@@ -84,7 +84,7 @@ public class ComponentHelperPanel extends ComponentPanel<Helper> {
 	}
 
 	@Override
-	public void save(EditableModel model, UndoActionListener undoListener, ModelStructureChangeListener changeListener) {
+	public void save(EditableModel model, UndoManager undoManager, ModelStructureChangeListener changeListener) {
 
 	}
 

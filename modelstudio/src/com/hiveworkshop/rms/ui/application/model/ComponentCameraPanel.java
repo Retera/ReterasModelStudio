@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.actions.model.NameChangeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
@@ -45,7 +45,7 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 	}
 
 	@Override
-	public void save(EditableModel model, UndoActionListener undoListener, ModelStructureChangeListener changeListener) {
+	public void save(EditableModel model, UndoManager undoManager, ModelStructureChangeListener changeListener) {
 
 	}
 

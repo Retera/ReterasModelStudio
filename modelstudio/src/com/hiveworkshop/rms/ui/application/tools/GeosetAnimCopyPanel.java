@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.actions.model.animFlag.ReplaceAnimFlagsAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -31,16 +31,16 @@ public class GeosetAnimCopyPanel extends JPanel {
 	GeosetAnim recGeosetAnim;
 
 	ModelStructureChangeListener listener;
-	UndoActionListener undoActionListener;
+	UndoManager undoManager;
 
 	/**
 	 * Create the panel.
 	 */
-	public GeosetAnimCopyPanel(ModelView modelView, GeosetAnim geosetAnim, ModelStructureChangeListener listener, UndoActionListener undoActionListener) {
+	public GeosetAnimCopyPanel(ModelView modelView, GeosetAnim geosetAnim, ModelStructureChangeListener listener, UndoManager undoManager) {
 		fileDialog = new FileDialog(this);
 		recGeosetAnim = geosetAnim;
 		this.listener = listener;
-		this.undoActionListener = undoActionListener;
+		this.undoManager = undoManager;
 		setLayout(new MigLayout("fill", "[grow][grow]"));
 
 //		add(new JLabel("Copies all keyframes from source animation within specified interval to destination. \nWARNING: Make sure that the copied interval fits within the destination animation."), "spanx, wrap");
@@ -73,8 +73,8 @@ public class GeosetAnimCopyPanel extends JPanel {
 		add(copyButton, "spanx, align center, wrap");
 	}
 
-	public static void show(Component parent, ModelView modelView, GeosetAnim geosetAnim, ModelStructureChangeListener listener, UndoActionListener undoActionListener) {
-		final GeosetAnimCopyPanel textureManager = new GeosetAnimCopyPanel(modelView, geosetAnim, listener, undoActionListener);
+	public static void show(Component parent, ModelView modelView, GeosetAnim geosetAnim, ModelStructureChangeListener listener, UndoManager undoManager) {
+		final GeosetAnimCopyPanel textureManager = new GeosetAnimCopyPanel(modelView, geosetAnim, listener, undoManager);
 		final JFrame frame = new JFrame(geosetAnim.getName());
 //			textureManager.setSize(new Dimension(600, 450));
 		frame.setContentPane(textureManager);
@@ -189,7 +189,7 @@ public class GeosetAnimCopyPanel extends JPanel {
 		ArrayList<AnimFlag<?>> animFlags = donGeosetAnim.getAnimFlags();
 		ReplaceAnimFlagsAction replaceAnimFlagsAction = new ReplaceAnimFlagsAction(recGeosetAnim, animFlags, listener);
 		replaceAnimFlagsAction.redo();
-		undoActionListener.pushAction(replaceAnimFlagsAction);
+		undoManager.pushAction(replaceAnimFlagsAction);
 //		Integer donStart = (Integer) donTimeSpinner.getValue();
 //		Animation recAnimation = geosetAnims.get(recAnimBox.getSelectedIndex());
 //		Integer recStart = (Integer) recTimeSpinner.getValue();

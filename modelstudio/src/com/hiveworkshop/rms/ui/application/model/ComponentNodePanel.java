@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.model;
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
@@ -69,7 +69,7 @@ public class ComponentNodePanel extends ComponentPanel<AnimatedNode> {
 
 
 	@Override
-	public void save(final EditableModel model, final UndoActionListener undoListener,
+	public void save(final EditableModel model, final UndoManager undoManager,
 	                 final ModelStructureChangeListener changeListener) {
 	}
 

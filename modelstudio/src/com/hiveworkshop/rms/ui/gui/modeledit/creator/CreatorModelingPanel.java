@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
 import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TSpline;
@@ -10,10 +9,11 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorChangeActivityListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorMultiManipulatorActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawBoxActivityDescriptor;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawPlaneActivityDescriptor;
@@ -36,32 +36,6 @@ import java.util.Map;
 public class CreatorModelingPanel extends JPanel implements ModelEditorChangeActivityListener {
 	private static final String ANIMATIONBASICS = "ANIMATIONBASICS";
 
-	private final class ActionListenerImplementation implements ActionListener {
-		private final ActivityDescriptor activityDescriptor;
-		private final ProgramPreferences programPreferences;
-		private final ModelEditorChangeActivityListener listener;
-		private final ModeButton planeButton;
-
-		private ActionListenerImplementation(ActivityDescriptor activityDescriptor,
-		                                     ProgramPreferences programPreferences,
-		                                     ModelEditorChangeActivityListener listener,
-		                                     ModeButton planeButton) {
-			this.activityDescriptor = activityDescriptor;
-			this.programPreferences = programPreferences;
-			this.listener = listener;
-			this.planeButton = planeButton;
-		}
-
-		@Override
-		public void actionPerformed(final ActionEvent e) {
-			listeningForActivityChanges = false;
-			listener.changeActivity(activityDescriptor);
-			resetButtons();
-			planeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
-			listeningForActivityChanges = true;
-		}
-	}
-
 	private static final String MESH_BASICS = "MB";
 	private static final String STANDARD_PRIMITIVES = "SP";
 	private static final String EXTENDED_PRIMITIVES = "EP";
@@ -72,7 +46,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 	private boolean listeningForActivityChanges = true;
 	private boolean animationModeState;
 	private ModelEditorManager modelEditorManager;
-	private UndoActionListener undoActionListener;
+	private UndoManager undoManager;
 	private final ViewportListener viewportListener;
 	private final ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
 	private final Map<ActivityDescriptor, List<ModeButton>> typeToButtons = new HashMap<>();
@@ -83,8 +57,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 	private final JComboBox<ChooseableTimeRange> animationChooserBox;
 	private final CardLayout cardLayout;
 	private final JPanel cardPanel;
-	private ModelView modelView;
-	private final TimeEnvironmentImpl timeEnvironmentImpl;
+	private ModelHandler modelHandler;
 	private final Map<Object, ChooseableTimeRange> thingToChooseableItem = new HashMap<>();
 	private final CardLayout northCardLayout;
 	private final JPanel northCardPanel;
@@ -99,7 +72,6 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		this.programPreferences = programPreferences;
 		this.actionTypeGroup = actionTypeGroup;
 		this.viewportListener = viewportListener;
-		this.timeEnvironmentImpl = timeEnvironmentImpl;
 
 		setLayout(new BorderLayout());
 
@@ -112,12 +84,13 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		modeChooserBox = new JComboBox<>(modeChooserBoxModel);
 		animationChooserBox = new JComboBox<>(animationChooserBoxModel);
 		animationChooserBox.setVisible(false);
-		animationChooserBox.addActionListener(e -> {
+		ActionListener actionListener = e -> {
 			ChooseableTimeRange selectedItem = (ChooseableTimeRange) animationChooserBox.getSelectedItem();
 			if (selectedItem != null) {
-				selectedItem.applyTo(timeEnvironmentImpl);
+				selectedItem.applyTo(getTimeEnv());
 			}
-		});
+		};
+		animationChooserBox.addActionListener(actionListener);
 		northCardLayout = new CardLayout();
 		northCardPanel = new JPanel(northCardLayout);
 		add(northCardPanel, BorderLayout.NORTH);
@@ -158,10 +131,18 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		cardLayout.show(cardPanel, modeChooserBoxModel.getElementAt(0));
 	}
 
+	private TimeEnvironmentImpl getTimeEnv(){
+		if(modelHandler != null){
+			return modelHandler.getEditTimeEnv();
+		}
+		return null;
+	}
+
 	public void makeMeshBasicsPanel(ModelEditorChangeActivityListener listener,
 	                                ProgramPreferences programPrefences,
 	                                ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
-	                                ViewportListener viewportListener, DefaultComboBoxModel<String> modeChooserBoxModel,
+	                                ViewportListener viewportListener,
+	                                DefaultComboBoxModel<String> modeChooserBoxModel,
 	                                JPanel cardPanel) {
 		ModeButton vertexButton = new ModeButton("Vertex");
 		ModeButton faceButton = new ModeButton("Face from Selection");
@@ -174,7 +155,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 				Viewport viewport = viewportListener.getViewport();
 				Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 				UndoAction createFaceFromSelection = modelEditorManager.getModelEditor().createFaceFromSelection(facingVector);
-				undoActionListener.pushAction(createFaceFromSelection);
+				undoManager.pushAction(createFaceFromSelection);
 			} catch (WrongModeException exc) {
 				JOptionPane.showMessageDialog(CreatorModelingPanel.this,
 						"Unable to create face, wrong selection mode", "Error", JOptionPane.ERROR_MESSAGE);
@@ -251,7 +232,10 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 			}
 			index++;
 		}
-		ActivityDescriptor selectAndSquatDescriptor = (modelEditorManager, modelHandler) -> new ModelEditorMultiManipulatorActivity(new SquatToolWidgetManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), programPreferences, modelView), undoActionListener, modelEditorManager.getSelectionView());
+		ActivityDescriptor selectAndSquatDescriptor = (modelEditorManager, modelHandler) -> new ModelEditorMultiManipulatorActivity(
+				new SquatToolWidgetManipulatorBuilder(modelEditorManager.getModelEditor(),
+						modelEditorManager.getViewportSelectionHandler(), programPreferences, modelHandler.getModelView()),
+				modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
 		String squatTypeName = "Squat";
 		ModeButton squatButton = new ModeButton(squatTypeName);
 		editToolsPanel.add(squatButton);
@@ -286,9 +270,9 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		this.modelEditorManager = modelEditorManager;
 	}
 
-	public void setCurrentModel(ModelView modelView) {
-		this.modelView = modelView;
-		if (modelView != null) {
+	public void setCurrentModel(ModelHandler modelHandler) {
+		this.modelHandler = modelHandler;
+		if (modelHandler != null) {
 			reloadAnimationList();
 		}
 	}
@@ -319,7 +303,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		animationChooserBoxModel.addElement(doNothingItem);
 		thingToChooseableItem.put("Custom Timeframe", doNothingItem);
 
-		for (Animation animation : modelView.getModel().getAnims()) {
+		for (Animation animation : modelHandler.getModel().getAnims()) {
 			ChooseableAnimation choosableItem = new ChooseableAnimation(animation);
 			thingToChooseableItem.put(animation, choosableItem);
 			animationChooserBoxModel.addElement(choosableItem);
@@ -328,7 +312,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 			}
 		}
 
-		for (Integer integer : modelView.getModel().getGlobalSeqs()) {
+		for (Integer integer : modelHandler.getModel().getGlobalSeqs()) {
 			ChooseableGlobalSeq chooseableItem = new ChooseableGlobalSeq(integer);
 			thingToChooseableItem.put(integer, chooseableItem);
 			animationChooserBoxModel.addElement(chooseableItem);
@@ -354,8 +338,8 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 	}
 
-	public void setUndoManager(UndoActionListener undoManager) {
-		undoActionListener = undoManager;
+	public void setUndoManager(UndoManager undoManager) {
+		this.undoManager = undoManager;
 	}
 
 	public void resetButtons() {
@@ -370,159 +354,32 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		Object getThing();
 	}
 
-//	private static final class ChooseableAnimation implements ChooseableTimeRange {
-//		private final Animation animation;
-//
-//		public ChooseableAnimation(Animation animation) {
-//			this.animation = animation;
-//		}
-//
-//		@Override
-//		public void applyTo(TimeEnvironmentImpl timeEnvironment) {
-//			timeEnvironment.setBounds(animation);
-//		}
-//
-//		@Override
-//		public String toString() {
-//			return animation.getName();
-//		}
-//
-//		@Override
-//		public Object getThing() {
-//			return animation;
-//		}
-//
-//		@Override
-//		public int hashCode() {
-//			int prime = 31;
-//			int result = 1;
-//			result = (prime * result) + (animation == null ? 0 : animation.hashCode());
-//			return result;
-//		}
-//
-//		@Override
-//		public boolean equals(final Object obj) {
-//			if (this == obj) {
-//				return true;
-//			}
-//			if (obj == null) {
-//				return false;
-//			}
-//			if (getClass() != obj.getClass()) {
-//				return false;
-//			}
-//			ChooseableAnimation other = (ChooseableAnimation) obj;
-//			if (animation == null) {
-//				return other.animation == null;
-//			} else {
-//				return animation.equals(other.animation);
-//			}
-//		}
-//	}
-//
-//	private static final class ChooseableDoNothing implements ChooseableTimeRange {
-//		private final String text;
-//
-//		public ChooseableDoNothing(String text) {
-//			this.text = text;
-//		}
-//
-//		@Override
-//		public void applyTo(TimeEnvironmentImpl timeEnvironment) {
-//		}
-//
-//		@Override
-//		public String toString() {
-//			return text;
-//		}
-//
-//		@Override
-//		public Object getThing() {
-//			return text;
-//		}
-//
-//		@Override
-//		public int hashCode() {
-//			int prime = 31;
-//			int result = 1;
-//			result = (prime * result) + (text == null ? 0 : text.hashCode());
-//			return result;
-//		}
-//
-//		@Override
-//		public boolean equals(final Object obj) {
-//			if (this == obj) {
-//				return true;
-//			}
-//			if (obj == null) {
-//				return false;
-//			}
-//			if (getClass() != obj.getClass()) {
-//				return false;
-//			}
-//			ChooseableDoNothing other = (ChooseableDoNothing) obj;
-//			if (text == null) {
-//				return other.text == null;
-//			} else {
-//				return text.equals(other.text);
-//			}
-//		}
-//	}
-//
-//	private static final class ChooseableGlobalSeq implements ChooseableTimeRange {
-//		private final Integer globalSeq;
-//
-//		public ChooseableGlobalSeq(Integer globalSeq) {
-//			this.globalSeq = globalSeq;
-//		}
-//
-//		@Override
-//		public void applyTo(TimeEnvironmentImpl timeEnvironment) {
-//			timeEnvironment.setGlobalSeq(globalSeq);
-//		}
-//
-//		@Override
-//		public String toString() {
-//			return globalSeq.toString();
-//		}
-//
-//		@Override
-//		public Object getThing() {
-//			return globalSeq;
-//		}
-//
-//		@Override
-//		public int hashCode() {
-//			int prime = 31;
-//			int result = 1;
-//			result = (prime * result) + (globalSeq == null ? 0 : globalSeq.hashCode());
-//			return result;
-//		}
-//
-//		@Override
-//		public boolean equals(final Object obj) {
-//			if (this == obj) {
-//				return true;
-//			}
-//			if (obj == null) {
-//				return false;
-//			}
-//			if (getClass() != obj.getClass()) {
-//				return false;
-//			}
-//			ChooseableGlobalSeq other = (ChooseableGlobalSeq) obj;
-//			if (globalSeq == null) {
-//				return other.globalSeq == null;
-//			} else {
-//				return globalSeq.equals(other.globalSeq);
-//			}
-//		}
-//
-//	}
-//
-//	@Override
-//	public void timeChanged(final int currentTime, final Set<IdObject> objects, final List<AnimFlag<?>> timelines) {
-////		tSpline.setSelection(currentTime);
-//	}
+
+
+	private final class ActionListenerImplementation implements ActionListener {
+		private final ActivityDescriptor activityDescriptor;
+		private final ProgramPreferences programPreferences;
+		private final ModelEditorChangeActivityListener listener;
+		private final ModeButton planeButton;
+
+		private ActionListenerImplementation(ActivityDescriptor activityDescriptor,
+		                                     ProgramPreferences programPreferences,
+		                                     ModelEditorChangeActivityListener listener,
+		                                     ModeButton planeButton) {
+			this.activityDescriptor = activityDescriptor;
+			this.programPreferences = programPreferences;
+			this.listener = listener;
+			this.planeButton = planeButton;
+		}
+
+		@Override
+		public void actionPerformed(final ActionEvent e) {
+			listeningForActivityChanges = false;
+			listener.changeActivity(activityDescriptor);
+			resetButtons();
+			planeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			listeningForActivityChanges = true;
+		}
+	}
 
 }

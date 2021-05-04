@@ -3,8 +3,6 @@ package com.hiveworkshop.rms.ui.application;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.edit.ClonedNodeNamePickerImplementation;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.RedoActionImplementation;
-import com.hiveworkshop.rms.ui.application.edit.UndoActionImplementation;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
@@ -124,6 +122,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         rootWindow = new RootWindow(viewMap);
         final Runnable fixit = () -> {
             WindowHandler.traverseAndReset(rootWindow);
+//            WindowHandler.traverseAndReset(rootWindow, new Vec3(.3,.3,.3));
             WindowHandler.traverseAndFix(rootWindow);
         };
         rootWindow.addListener(WindowHandler.getDockingWindowListener(this));

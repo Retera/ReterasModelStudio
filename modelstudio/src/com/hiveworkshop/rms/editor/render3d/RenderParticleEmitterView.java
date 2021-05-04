@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.ParticleEmitter;
+import com.hiveworkshop.rms.ui.application.viewer.Particle2TextureInstance;
 
 public class RenderParticleEmitterView extends EmitterView {
     private final ParticleEmitter emitter;
@@ -10,7 +11,7 @@ public class RenderParticleEmitterView extends EmitterView {
     }
 
     @Override
-    public void addToScene(final InternalInstance internalInstance) {
+    public void addToScene(final Particle2TextureInstance internalInstance) {
         throw new UnsupportedOperationException();
     }
 

@@ -48,11 +48,11 @@ public class TimeSliderView {
 			tbcPanel.applyTo(mainPanel.animatedRenderEnvironment);
 			if (panel != null) {
 				panel.getEditorRenderModel().refreshFromEditor(
-						mainPanel.animatedRenderEnvironment,
+//						mainPanel.animatedRenderEnvironment,
 						ModelStructureChangeListener.IDENTITY,
 						ModelStructureChangeListener.IDENTITY,
 						ModelStructureChangeListener.IDENTITY,
-						panel.getPerspArea().getViewport());
+						panel.getPerspArea().getViewport().getParticleTextureInstance());
 				panel.getEditorRenderModel().updateNodes(false);
 			}
 		}

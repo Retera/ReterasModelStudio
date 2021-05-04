@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.scripts;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.EditAnimationLengthsAction;
 import com.hiveworkshop.rms.ui.util.SliderBarHandler;
 
@@ -21,14 +21,14 @@ public class ChangeAnimationLengthPanel extends JPanel implements ActionListener
 	JButton okay, cancel;
 	ModelView mdlDisp;
 	ChangeAnimationLengthFrame parentFrame;
-	private final UndoActionListener undoActionListener;
+	private final UndoManager undoManager;
 	private final Runnable onFinish;
 
-	public ChangeAnimationLengthPanel(final ModelView mdlDisp, final ChangeAnimationLengthFrame frame,
-									  final UndoActionListener undoActionListener, final Runnable onFinish) {
+	public ChangeAnimationLengthPanel(ModelView mdlDisp, ChangeAnimationLengthFrame frame,
+	                                  UndoManager undoManager, Runnable onFinish) {
 		this.mdlDisp = mdlDisp;
 		parentFrame = frame;
-		this.undoActionListener = undoActionListener;
+		this.undoManager = undoManager;
 		this.onFinish = onFinish;
 		final GridLayout layout = new GridLayout(
 				(mdlDisp.getModel().getAnimsSize() + mdlDisp.getModel().getGlobalSeqs().size()) * 2 + 2, 2);
@@ -110,7 +110,7 @@ public class ChangeAnimationLengthPanel extends JPanel implements ActionListener
 			final EditAnimationLengthsAction editAnimationLengths = new EditAnimationLengthsAction(mdl,
 					animationToNewLength, animationToOldLength, newGlobalSeqLengths, oldGlobalSeqLengths);
 			editAnimationLengths.redo();
-			undoActionListener.pushAction(editAnimationLengths);
+			undoManager.pushAction(editAnimationLengths);
 			parentFrame.setVisible(false);
 			onFinish.run();
 		}

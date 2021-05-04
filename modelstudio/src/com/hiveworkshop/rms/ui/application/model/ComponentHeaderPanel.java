@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.ui.application.actions.model.header.SetFormatVersion
 import com.hiveworkshop.rms.ui.application.actions.model.header.SetHeaderExtentsAction;
 import com.hiveworkshop.rms.ui.application.actions.model.header.SetNameAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -148,7 +148,7 @@ public class ComponentHeaderPanel extends ComponentPanel<EditableModel> {
 	}
 
 	@Override
-	public void save(EditableModel modelOutput, UndoActionListener undoListener,
+	public void save(EditableModel modelOutput, UndoManager undoManager,
 	                 ModelStructureChangeListener changeListener) {
 		modelOutput.setFormatVersion(((Number) formatVersionSpinner.getValue()).intValue());
 		modelOutput.setBlendTime(((Number) blendTimeSpinner.getValue()).intValue());

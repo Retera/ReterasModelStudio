@@ -14,7 +14,7 @@ import java.awt.event.MouseEvent;
 
 public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends ManipulatorBuilder> implements ViewportActivity {
 	protected final MANIPULATOR_BUILDER manipulatorBuilder;
-	private final UndoActionListener undoActionListener;
+	private final UndoManager undoManager;
 	private Manipulator manipulator;
 	private CursorManager cursorManager;
 	private Vec2 mouseStartPoint;
@@ -22,10 +22,10 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 	private SelectionView selectionView;
 
 	public MultiManipulatorActivity(MANIPULATOR_BUILDER manipulatorBuilder,
-	                                UndoActionListener undoActionListener,
+	                                UndoManager undoManager,
 	                                SelectionView selectionView) {
 		this.manipulatorBuilder = manipulatorBuilder;
-		this.undoActionListener = undoActionListener;
+		this.undoManager = undoManager;
 		this.selectionView = selectionView;
 	}
 
@@ -72,7 +72,7 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 			if (wasCanceled) {
 				undoAction.undo();
 			} else {
-				undoActionListener.pushAction(undoAction);
+				undoManager.pushAction(undoAction);
 			}
 			mouseStartPoint = null;
 			lastDragPoint = null;

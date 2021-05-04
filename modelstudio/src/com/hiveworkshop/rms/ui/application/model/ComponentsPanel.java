@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
@@ -140,7 +140,7 @@ public class ComponentsPanel extends JPanel {
 
 
 	public void selected(EditableModel model, Integer globalSequence, int globalSequenceId,
-	                     UndoActionListener undoListener,
+	                     UndoManager undoManager,
 	                     ModelStructureChangeListener changeListener) {
 //		globalSeqPanel.setGlobalSequence(model, globalSequence, globalSequenceId, undoListener, changeListener);
 		globalSeqPanel.setSelectedItem(globalSequence);

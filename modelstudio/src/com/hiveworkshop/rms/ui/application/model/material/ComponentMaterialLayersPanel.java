@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.material.AddLayerAction;
 import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveMaterialAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -19,7 +19,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 			"Reflections"};
 	private static final Color HIGHLIGHT_BUTTON_BACKGROUND_COLOR = new Color(100, 118, 135);
 	private Material material;
-	private UndoActionListener undoActionListener;
+	private UndoManager undoManager;
 	private ModelView modelViewManager;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private final JPanel layerPanelsHolder;
@@ -62,11 +62,11 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		return addLayerButton;
 	}
 
-	public void setMaterial(final Material material, final ModelView modelViewManager,
-	                        final UndoActionListener undoActionListener,
-	                        final ModelStructureChangeListener modelStructureChangeListener) {
+	public void setMaterial(Material material, ModelView modelViewManager,
+	                        UndoManager undoManager,
+	                        ModelStructureChangeListener modelStructureChangeListener) {
 		this.material = material;
-		this.undoActionListener = undoActionListener;
+		this.undoManager = undoManager;
 		this.modelViewManager = modelViewManager;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		final boolean hdShader = Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString());
@@ -78,14 +78,14 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		}
 
 		layerPanelsHolder.removeAll();
-		createLayerPanels(material, modelViewManager, undoActionListener, modelStructureChangeListener, hdShader);
+		createLayerPanels(material, modelViewManager, undoManager, modelStructureChangeListener, hdShader);
 		revalidate();
 		repaint();
 
 	}
 
 
-	private void createLayerPanels(Material material, ModelView modelViewManager, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener, boolean hdShader) {
+	private void createLayerPanels(Material material, ModelView modelViewManager, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener, boolean hdShader) {
 		for (int i = 0; i < material.getLayers().size(); i++) {
 			final Layer layer = material.getLayers().get(i);
 			ComponentLayerPanel panel;
@@ -94,10 +94,10 @@ public class ComponentMaterialLayersPanel extends JPanel {
 			if (layerPanelMap.containsKey(keyString)) {
 				panel = layerPanelMap.get(keyString);
 			} else {
-				panel = new ComponentLayerPanel(material, modelViewManager, i, hdShader, undoActionListener, modelStructureChangeListener);
+				panel = new ComponentLayerPanel(material, modelViewManager, i, hdShader, undoManager, modelStructureChangeListener);
 				layerPanelMap.put(keyString, panel);
 			}
-			panel.setLayer(modelViewManager.getModel(), layer, modelViewManager.getModel().getFormatVersion(), hdShader, undoActionListener);
+			panel.setLayer(modelViewManager.getModel(), layer, modelViewManager.getModel().getFormatVersion(), hdShader, undoManager);
 			layerPanelsHolder.add(panel, "growx, wrap");
 		}
 	}
@@ -105,7 +105,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 
 	private void addLayer() {
 		AddLayerAction addLayerAction = new AddLayerAction(new Layer("None", 0), material, modelStructureChangeListener);
-		undoActionListener.pushAction(addLayerAction);
+		undoManager.pushAction(addLayerAction);
 		addLayerAction.redo();
 	}
 
@@ -116,7 +116,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 	private void deleteMaterial() {
 		if (!modelViewManager.getModel().getMaterials().isEmpty()) {
 			RemoveMaterialAction removeMaterialAction = new RemoveMaterialAction(material, modelViewManager, modelStructureChangeListener);
-			undoActionListener.pushAction(removeMaterialAction);
+			undoManager.pushAction(removeMaterialAction);
 			removeMaterialAction.redo();
 		}
 	}

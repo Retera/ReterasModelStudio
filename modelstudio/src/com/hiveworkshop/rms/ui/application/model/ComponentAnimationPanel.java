@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.actions.model.animation.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -152,7 +152,7 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 	}
 
 	@Override
-	public void save(EditableModel model, UndoActionListener undoListener, ModelStructureChangeListener changeListener) {
+	public void save(EditableModel model, UndoManager undoManager, ModelStructureChangeListener changeListener) {
 
 	}
 }

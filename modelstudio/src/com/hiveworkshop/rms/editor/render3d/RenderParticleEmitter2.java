@@ -1,11 +1,12 @@
 package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.ui.application.viewer.Particle2TextureInstance;
 
 public class RenderParticleEmitter2 extends RenderSharedGeometryEmitter<ParticleEmitter2, RenderParticleEmitter2View> {
 	private final ParticleEmitter2 emitter;
 
-	public RenderParticleEmitter2(final ParticleEmitter2 emitter, final InternalResource textureResource) {
+	public RenderParticleEmitter2(final ParticleEmitter2 emitter, final Particle2TextureInstance textureResource) {
 		super(emitter, (emitter.isBoth() ? 2 : 1) * 30, textureResource);
 		this.emitter = emitter;
 	}

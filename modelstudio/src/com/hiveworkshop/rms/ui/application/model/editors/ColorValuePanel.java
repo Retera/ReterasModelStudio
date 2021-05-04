@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -30,8 +30,8 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 	private Vec3 selectedColor;
 
 
-	public ColorValuePanel(final String title, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
-		super(title, undoActionListener, modelStructureChangeListener);
+	public ColorValuePanel(final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
+		super(title, undoManager, modelStructureChangeListener);
 
 		colorChooser = new JColorChooser();
 //		colorChooser.getSelectionModel().addChangeListener(e -> color = new Vec3(colorChooser.getColor().getComponents(null)));

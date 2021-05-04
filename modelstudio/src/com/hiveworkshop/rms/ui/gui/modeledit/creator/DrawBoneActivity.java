@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
@@ -27,7 +27,7 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 	private Point lastMousePoint;
 	private final ProgramPreferences preferences;
 	private ModelEditor modelEditor;
-	private final UndoActionListener undoActionListener;
+	private final UndoManager undoActionListener;
 	private final ModelView modelView;
 	private SelectionView selectionView;
 	private final ModelElementRenderer modelElementRenderer;

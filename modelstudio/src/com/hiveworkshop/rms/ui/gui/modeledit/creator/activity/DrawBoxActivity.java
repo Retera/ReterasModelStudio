@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
@@ -27,7 +27,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 
 	private final ProgramPreferences preferences;
 	private ModelEditor modelEditor;
-	private final UndoActionListener undoActionListener;
+	private final UndoManager undoManager;
 	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
 	private final ModelView modelView;
 	private SelectionView selectionView;
@@ -52,7 +52,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 	                       int numSegsX, int numSegsY, int numSegsZ) {
 		this.modelHandler = modelHandler;
 		this.preferences = preferences;
-		this.undoActionListener = modelHandler.getUndoManager();
+		this.undoManager = modelHandler.getUndoManager();
 		this.modelEditor = modelEditor;
 		this.modelView = modelHandler.getModelView();
 		this.selectionView = selectionView;
@@ -111,7 +111,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 				drawingState = DrawingState.HEIGHT;
 			}
 		} else if (drawingState == DrawingState.HEIGHT) {
-			undoActionListener.pushAction(boxAction);
+			undoManager.pushAction(boxAction);
 			boxAction = null;
 			drawingState = DrawingState.NOTHING;
 		}

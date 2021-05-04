@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.editor.render3d;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.viewer.Particle2TextureInstance;
 
 public class RenderParticleEmitter2View extends EmitterView {
 	private final ParticleEmitter2 emitter;
@@ -50,7 +51,7 @@ public class RenderParticleEmitter2View extends EmitterView {
 	}
 
 	@Override
-	public void addToScene(final InternalInstance internalInstance) {
+	public void addToScene(final Particle2TextureInstance internalInstance) {
 		throw new UnsupportedOperationException();
 	}
 

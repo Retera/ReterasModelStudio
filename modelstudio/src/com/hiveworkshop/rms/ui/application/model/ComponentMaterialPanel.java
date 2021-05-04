@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.ui.application.actions.model.material.SetMaterialPriorityPlaneAction;
 import com.hiveworkshop.rms.ui.application.actions.model.material.SetMaterialShaderStringAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.application.model.material.ComponentMaterialLayersPanel;
@@ -152,7 +152,7 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 	}
 
 	@Override
-	public void save(EditableModel model, UndoActionListener undoListener,
+	public void save(EditableModel model, UndoManager undoManager,
 	                 ModelStructureChangeListener changeListener) {
 	}
 

@@ -1,10 +1,11 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.types;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorMultiManipulatorActivity;
 import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorViewportActivity;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.MoverWidgetTVertexEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.RotatorWidgetTVertexEditorManipulatorBuilder;
@@ -39,12 +40,20 @@ public class TVertexToolbarActionButtonType implements ToolbarButtonType {
 		return name;
 	}
 
-	public TVertexEditorViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelView modelView, UndoActionListener undoActionListener) {
+	public TVertexEditorViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelView modelView, UndoManager undoManager) {
 		System.out.println("TVertPrefs: " + prefs);
 		System.out.println("TVertPrefs: " + name);
 		return new TVertexEditorMultiManipulatorActivity(
 				getManipulatorWidget(modelEditorManager, modelView, editorActionType),
-				undoActionListener,
+				undoManager,
+				modelEditorManager.getSelectionView());
+	}
+	public TVertexEditorViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelHandler modelHandler) {
+		System.out.println("TVertPrefs: " + prefs);
+		System.out.println("TVertPrefs: " + name);
+		return new TVertexEditorMultiManipulatorActivity(
+				getManipulatorWidget(modelEditorManager, modelHandler.getModelView(), editorActionType),
+				modelHandler.getUndoManager(),
 				modelEditorManager.getSelectionView());
 	}
 

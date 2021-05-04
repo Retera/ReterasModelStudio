@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveLayerAct
 import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveMaterialAction;
 import com.hiveworkshop.rms.ui.application.actions.model.material.SetLayerFilterModeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.*;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import net.miginfocom.swing.MigLayout;
@@ -46,19 +46,19 @@ public class ComponentLayerPanel extends JPanel {
 	private FloatValuePanel fresnelTeamColor;
 	private ColorValuePanel fresnelColorPanel;
 
-	private UndoActionListener undoActionListener;
+	private UndoManager undoActionListener;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private boolean listenersEnabled = true;
 	DefaultListModel<Bitmap> bitmapListModel;
 
-	public ComponentLayerPanel(Material material, ModelView modelViewManager, int i, boolean hdShader, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
+	public ComponentLayerPanel(Material material, ModelView modelViewManager, int i, boolean hdShader, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
 		setLayout(new MigLayout("fill", "[][][grow]", "[][fill][fill]"));
 		setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 //		setOpaque(true);
 //		setBackground(Color.cyan);
 
 		this.modelViewManager = modelViewManager;
-		this.undoActionListener = undoActionListener;
+		this.undoActionListener = undoManager;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.material = material;
 		titlePanel = new JPanel();
@@ -198,8 +198,8 @@ public class ComponentLayerPanel extends JPanel {
 		}
 	}
 
-	public void setLayer(final EditableModel model, final Layer layer, final int formatVersion,
-	                     final boolean hdShader, final UndoActionListener undoActionListener) {
+	public void setLayer(EditableModel model, Layer layer, int formatVersion,
+	                     boolean hdShader, UndoManager undoManager) {
 		listenersEnabled = false;
 		this.layer = layer;
 //		this.undoActionListener = undoActionListener;

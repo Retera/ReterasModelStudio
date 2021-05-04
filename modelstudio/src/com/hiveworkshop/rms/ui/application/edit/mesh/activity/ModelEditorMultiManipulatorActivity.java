@@ -8,9 +8,9 @@ public class ModelEditorMultiManipulatorActivity extends MultiManipulatorActivit
 		implements ModelEditorViewportActivity {
 
 	public ModelEditorMultiManipulatorActivity(ModelEditorManipulatorBuilder manipulatorBuilder,
-	                                           UndoActionListener undoActionListener,
+	                                           UndoManager undoManager,
 	                                           SelectionView selectionView) {
-		super(manipulatorBuilder, undoActionListener, selectionView);
+		super(manipulatorBuilder, undoManager, selectionView);
 	}
 
 	@Override

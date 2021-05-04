@@ -11,7 +11,9 @@ public class ChooseableGlobalSeq implements CreatorModelingPanel.ChooseableTimeR
 
 	@Override
 	public void applyTo(TimeEnvironmentImpl timeEnvironment) {
-		timeEnvironment.setGlobalSeq(globalSeq);
+		if(timeEnvironment != null){
+			timeEnvironment.setGlobalSeq(globalSeq);
+		}
 	}
 
 	@Override

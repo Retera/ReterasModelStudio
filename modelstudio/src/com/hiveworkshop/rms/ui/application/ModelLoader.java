@@ -75,11 +75,11 @@ public class ModelLoader {
 		RenderModel editorRenderModel = mainPanel.currentModelPanel().getEditorRenderModel();
 		editorRenderModel
 				.refreshFromEditor(
-						mainPanel.animatedRenderEnvironment,
+//						mainPanel.animatedRenderEnvironment,
 						ModelStructureChangeListener.IDENTITY,
 						ModelStructureChangeListener.IDENTITY,
 						ModelStructureChangeListener.IDENTITY,
-						mainPanel.currentModelPanel().getPerspArea().getViewport());
+						mainPanel.currentModelPanel().getPerspArea().getViewport().getParticleTextureInstance());
 		editorRenderModel.updateNodes(false); // update to 0 position
 	}
 
@@ -206,11 +206,9 @@ public class ModelLoader {
 			mainPanel.animationControllerView.setComponent(new JPanel());
 			refreshAnimationModeState(mainPanel);
 
-			mainPanel.timeSliderPanel.setUndoManager(null);
-			mainPanel.timeSliderPanel.setModelView(null);
+			mainPanel.timeSliderPanel.setModelHandler(null);
 			mainPanel.creatorPanel.setModelEditorManager(null);
 			mainPanel.creatorPanel.setCurrentModel(null);
-			mainPanel.creatorPanel.setUndoManager(null);
 
 			mainPanel.modelComponentView.setComponent(new JPanel());
 			mainPanel.geoControlModelData = null;
@@ -226,11 +224,9 @@ public class ModelLoader {
 			mainPanel.animationControllerView.setComponent(modelContextManager.getAnimationController());
 			refreshAnimationModeState(mainPanel);
 
-			mainPanel.timeSliderPanel.setUndoManager(mainPanel.currentModelPanel.getUndoManager());
-			mainPanel.timeSliderPanel.setModelView(mainPanel.currentModelPanel.getModelViewManager());
+			mainPanel.timeSliderPanel.setModelHandler(mainPanel.currentModelPanel.getModelHandler());
 			mainPanel.creatorPanel.setModelEditorManager(mainPanel.currentModelPanel.getModelEditorManager());
-			mainPanel.creatorPanel.setCurrentModel(mainPanel.currentModelPanel.getModelViewManager());
-			mainPanel.creatorPanel.setUndoManager(mainPanel.currentModelPanel.getUndoManager());
+			mainPanel.creatorPanel.setCurrentModel(mainPanel.currentModelPanel.getModelHandler());
 
 			mainPanel.modelComponentView.setComponent(mainPanel.currentModelPanel.getComponentsPanel());
 			mainPanel.geoControlModelData.setViewportView(mainPanel.currentModelPanel.getModelComponentBrowserTree());

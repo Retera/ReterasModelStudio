@@ -12,7 +12,9 @@ public class ChooseableAnimation implements CreatorModelingPanel.ChooseableTimeR
 
 	@Override
 	public void applyTo(TimeEnvironmentImpl timeEnvironment) {
-		timeEnvironment.setBounds(animation);
+		if(timeEnvironment != null){
+			timeEnvironment.setBounds(animation);
+		}
 	}
 
 	@Override

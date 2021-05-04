@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.util.FilteredTextField;
 import com.hiveworkshop.rms.util.Quat;
 
@@ -17,8 +17,8 @@ public class QuatValuePanel extends ValuePanel<Quat> {
 	private Quat quat;
 
 
-	public QuatValuePanel(final String title, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
-		super(title, undoActionListener, modelStructureChangeListener);
+	public QuatValuePanel(final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
+		super(title, undoManager, modelStructureChangeListener);
 
 		quat = new Quat(QUAT);
 		allowedCharacters += "\\{}, ";

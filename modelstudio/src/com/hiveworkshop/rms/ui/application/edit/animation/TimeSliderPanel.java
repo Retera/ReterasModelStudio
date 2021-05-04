@@ -9,7 +9,8 @@ import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.TimeSliderView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener.TimeSliderTimeNotifier;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
@@ -79,12 +80,13 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	private final Cursor slideCursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
 	private final Cursor defaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
-	private UndoActionListener undoManager;
+	private UndoManager undoManager;
 
 	private final List<CopiedKeyFrame> copiedKeyframes;
 	private boolean useAllCopiedKeyframes = false;
 	private final ModelStructureChangeListener structureChangeListener;
 	private ModelView modelView;
+	private ModelHandler modelHandler;
 	private final JCheckBox allKF;
 	private final Timer liveAnimationTimer;
 	private final ProgramPreferences preferences;
@@ -97,13 +99,6 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private EditableModel model;
 	MainPanel mainPanel;
 
-//	TimeLine timeLine;
-
-	//	public TimeSliderPanel(
-//			TimeBoundProvider timeBoundProvider,
-//			ModelStructureChangeListener structureChangeListener,
-//			ProgramPreferences preferences) {
-//	public TimeSliderPanel(MainPanel mainPanel) {
 	public TimeSliderPanel(MainPanel mainPanel,
 	                       TimeEnvironmentImpl timeEnvironment,
 	                       ModelStructureChangeListener structureChangeListener,
@@ -630,12 +625,22 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		this.tickStep = tickStep;
 	}
 
-	public void setUndoManager(final UndoActionListener undoManager) {
+	public void setUndoManager(final UndoManager undoManager) {
 		this.undoManager = undoManager;
 	}
 
 	public void setModelView(final ModelView modelView) {
 		this.modelView = modelView;
+	}
+	public void setModelHandler(final ModelHandler modelHandler) {
+		this.modelHandler = modelHandler;
+		if(modelHandler != null){
+			this.undoManager = modelHandler.getUndoManager();
+			this.modelView = modelHandler.getModelView();
+		} else {
+			this.undoManager = null;
+			this.modelView = null;
+		}
 	}
 
 

@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.activity;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.TVertexEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
@@ -9,9 +9,9 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 public class TVertexEditorMultiManipulatorActivity extends MultiManipulatorActivity<TVertexEditorManipulatorBuilder> implements TVertexEditorViewportActivity {
 
 	public TVertexEditorMultiManipulatorActivity(TVertexEditorManipulatorBuilder manipulatorBuilder,
-	                                             UndoActionListener undoActionListener,
+	                                             UndoManager undoManager,
 	                                             SelectionView selectionView) {
-		super(manipulatorBuilder, undoActionListener, selectionView);
+		super(manipulatorBuilder, undoManager, selectionView);
 	}
 
 	@Override

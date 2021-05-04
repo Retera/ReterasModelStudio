@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.model;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.actions.model.globalsequence.SetGlobalSequenceLengthAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
@@ -43,7 +43,7 @@ public class ComponentGlobalSequencePanel extends ComponentPanel<Integer> {
 	}
 
 	private void lengthSpinner() {
-		final SetGlobalSequenceLengthAction setGlobalSequenceLengthAction = new SetGlobalSequenceLengthAction(
+		SetGlobalSequenceLengthAction setGlobalSequenceLengthAction = new SetGlobalSequenceLengthAction(
 				modelHandler.getModel(), globalSequenceId, value, (Integer) lengthSpinner.getValue(),
 				modelStructureChangeListener);
 		setGlobalSequenceLengthAction.redo();
@@ -58,9 +58,9 @@ public class ComponentGlobalSequencePanel extends ComponentPanel<Integer> {
 //		undoActionListener.pushAction(setGlobalSequenceLengthAction);
 //	}
 
-	public void setGlobalSequence(final EditableModel model, final Integer value, final int globalSequenceId,
-	                              final UndoActionListener undoActionListener,
-	                              final ModelStructureChangeListener modelStructureChangeListener) {
+	public void setGlobalSequence(EditableModel model, Integer value, int globalSequenceId,
+	                              UndoManager undoManager,
+	                              ModelStructureChangeListener modelStructureChangeListener) {
 		this.value = value;
 		this.globalSequenceId = globalSequenceId;
 //		this.undoActionListener = undoActionListener;
@@ -81,7 +81,7 @@ public class ComponentGlobalSequencePanel extends ComponentPanel<Integer> {
 	}
 
 	@Override
-	public void save(EditableModel model, UndoActionListener undoListener, ModelStructureChangeListener changeListener) {
+	public void save(EditableModel model, UndoManager undoManager, ModelStructureChangeListener changeListener) {
 
 	}
 }

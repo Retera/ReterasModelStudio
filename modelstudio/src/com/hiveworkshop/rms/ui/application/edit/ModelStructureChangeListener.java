@@ -57,8 +57,12 @@ public class ModelStructureChangeListener {
 		display.getAnimationController().reload();
 		mainPanel.getCreatorPanel().reloadAnimationList();
 
-		display.getEditorRenderModel().refreshFromEditor(mainPanel.getAnimatedRenderEnvironment(), IDENTITY, IDENTITY, IDENTITY,
-				display.getPerspArea().getViewport());
+//		display.getEditorRenderModel().refreshFromEditor(mainPanel.getAnimatedRenderEnvironment(), IDENTITY, IDENTITY, IDENTITY,
+//				display.getPerspArea().getViewport());
+		display.getEditorRenderModel().refreshFromEditor(
+//				mainPanel.getAnimatedRenderEnvironment(),
+				IDENTITY, IDENTITY, IDENTITY,
+				display.getPerspArea().getViewport().getParticleTextureInstance());
 	}
 
 	public static ModelStructureChangeListener getModelStructureChangeListener(MainPanel mainPanel) {
@@ -88,8 +92,10 @@ public class ModelStructureChangeListener {
 				display.getModelViewManager().makeIdObjectVisible(geoset);
 			}
 			reloadGeosetManagers(mainPanel, display);
-			display.getEditorRenderModel().refreshFromEditor(mainPanel.getAnimatedRenderEnvironment(), IDENTITY,
-					IDENTITY, IDENTITY, display.getPerspArea().getViewport());
+			display.getEditorRenderModel().refreshFromEditor(
+//					mainPanel.getAnimatedRenderEnvironment(),
+					IDENTITY,
+					IDENTITY, IDENTITY, display.getPerspArea().getViewport().getParticleTextureInstance());
 			display.getAnimationViewer().reload();
 		}
 	}

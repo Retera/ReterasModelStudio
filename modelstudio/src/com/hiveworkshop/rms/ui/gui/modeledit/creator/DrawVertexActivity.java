@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
@@ -27,7 +27,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	private Point lastMousePoint;
 	private final ProgramPreferences preferences;
 	private ModelEditor modelEditor;
-	private final UndoActionListener undoActionListener;
+	private final UndoManager undoManager;
 	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
 	private final ModelView modelView;
 	private SelectionView selectionView;
@@ -42,7 +42,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	                          ViewportListener viewportListener) {
 		this.modelHandler = modelHandler;
 		this.preferences = preferences;
-		this.undoActionListener = modelHandler.getUndoManager();
+		this.undoManager = modelHandler.getUndoManager();
 		this.modelEditor = modelEditor;
 		this.modelView = modelHandler.getModelView();
 		this.selectionView = selectionView;
@@ -72,7 +72,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 			final Viewport viewport = viewportListener.getViewport();
 			final Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 			final UndoAction action = modelEditor.addVertex(locationCalculator.x, locationCalculator.y, locationCalculator.z, facingVector);
-			undoActionListener.pushAction(action);
+			undoManager.pushAction(action);
 		} catch (final WrongModeException exc) {
 			JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}

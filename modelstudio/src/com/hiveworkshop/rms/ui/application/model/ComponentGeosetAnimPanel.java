@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.TimelineKeyNamer;
@@ -80,7 +80,7 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 
 
 	@Override
-	public void save(final EditableModel model, final UndoActionListener undoListener,
+	public void save(final EditableModel model, final UndoManager undoManager,
 	                 final ModelStructureChangeListener changeListener) {
 	}
 

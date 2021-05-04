@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManagerImpl;
 
 public class ModelHandler {
 	private EditableModel model;
@@ -21,7 +20,7 @@ public class ModelHandler {
 		this.model = model;
 		this.undoHandler = undoHandler;
 		if (undoHandler != null) {
-			undoManager = new UndoManagerImpl(this.undoHandler);
+			undoManager = new UndoManager(this.undoHandler);
 		}
 		editTimeEnv = new TimeEnvironmentImpl();
 		modelView = new ModelView(model, editTimeEnv);

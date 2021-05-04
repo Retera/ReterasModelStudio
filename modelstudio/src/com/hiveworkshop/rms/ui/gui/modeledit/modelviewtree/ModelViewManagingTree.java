@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
@@ -153,7 +153,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		return (CheckableDisplayElement<?>) userObject;
 	}
 
-	private CheckChangeEventListener changeEventListener(UndoActionListener undoListener, ModelEditorManager editorManager) {
+	private CheckChangeEventListener changeEventListener(UndoManager undoManager, ModelEditorManager editorManager) {
 		return new CheckChangeEventListener() {
 			@Override
 			public void checkStateChanged(final CheckChangeEvent event) {
@@ -188,7 +188,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 					Runnable refreshGUI = () -> reloadFromModelView();
 					showHideUndo = editorManager.getModelEditor().hideComponent(components, toggleHandler, refreshGUI);
 				}
-				undoListener.pushAction(showHideUndo);
+				undoManager.pushAction(showHideUndo);
 			}
 
 			private void handleNodeRecursively(JCheckBoxTreeNode parent) {

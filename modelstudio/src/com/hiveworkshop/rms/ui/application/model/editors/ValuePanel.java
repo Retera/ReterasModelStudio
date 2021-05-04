@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.actions.model.animFlag.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.ScreenInfo;
@@ -33,7 +33,7 @@ public abstract class ValuePanel<T> extends JPanel {
 	//	protected final ComponentEditorJSpinner staticSpinner;
 	protected final JComponent staticComponent;
 	protected final JComboBox<InterpolationType> interpTypeBox;
-	protected final UndoActionListener undoActionListener;
+	protected final UndoManager undoManager;
 	protected final ModelStructureChangeListener modelStructureChangeListener;
 	protected String allowedCharacters = "-1234567890.eE";
 	protected JTable keyframeTable;
@@ -56,13 +56,13 @@ public abstract class ValuePanel<T> extends JPanel {
 	JScrollPane tableScrollPane = new JScrollPane();
 	JPanel tablePanel;
 
-	public ValuePanel(final String title, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
-		this(title, Double.MAX_VALUE, -Double.MAX_VALUE, undoActionListener, modelStructureChangeListener);
+	public ValuePanel(final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
+		this(title, Double.MAX_VALUE, -Double.MAX_VALUE, undoManager, modelStructureChangeListener);
 	}
 
-	public ValuePanel(final String title, double maxValue, double minValue, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
+	public ValuePanel(final String title, double maxValue, double minValue, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
 		//		System.out.println("New FloatValuePanel!");
-		this.undoActionListener = undoActionListener;
+		this.undoManager = undoManager;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		setFocusable(true);
 		timelineKeyNamer = null;
@@ -149,7 +149,7 @@ public abstract class ValuePanel<T> extends JPanel {
 //		oldAnimFlag = animFlag;
 		toggleStaticDynamicPanel(true);
 		RemoveAnimFlagAction removeAnimFlagAction = new RemoveAnimFlagAction(timelineContainer, animFlag, modelStructureChangeListener);
-		undoActionListener.pushAction(removeAnimFlagAction);
+		undoManager.pushAction(removeAnimFlagAction);
 		removeAnimFlagAction.redo();
 	}
 
@@ -165,14 +165,14 @@ public abstract class ValuePanel<T> extends JPanel {
 			if (newAnimFlag != null) {
 				newAnimFlag.addEntry(0, staticValue);
 				AddAnimFlagAction addAnimFlagAction = new AddAnimFlagAction(timelineContainer, newAnimFlag, modelStructureChangeListener);
-				undoActionListener.pushAction(addAnimFlagAction);
+				undoManager.pushAction(addAnimFlagAction);
 				addAnimFlagAction.redo();
 			}
 //		} else if (oldAnimFlag != null){
 		} else if (animFlag != null) {
 			toggleStaticDynamicPanel(false);
 			AddAnimFlagAction addAnimFlagAction = new AddAnimFlagAction(timelineContainer, animFlag, modelStructureChangeListener);
-			undoActionListener.pushAction(addAnimFlagAction);
+			undoManager.pushAction(addAnimFlagAction);
 			addAnimFlagAction.redo();
 		}
 //		System.out.println("ftt: "+ floatTrackTableModel.getColumnCount());
@@ -387,7 +387,7 @@ public abstract class ValuePanel<T> extends JPanel {
 	private void setInterpolationType() {
 		if (interpTypeBox.getSelectedItem() != null) {
 			UndoAction undoAction = new ChangeInterpTypeAction(animFlag, InterpolationType.getType(interpTypeBox.getSelectedItem().toString()), modelStructureChangeListener);
-			undoActionListener.pushAction(undoAction);
+			undoManager.pushAction(undoAction);
 			undoAction.redo();
 
 			setTableModel();
@@ -433,7 +433,7 @@ public abstract class ValuePanel<T> extends JPanel {
 				flag.addEntry(entry);
 //			UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flagName, modelStructureChangeListener);
 				UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flag, modelStructureChangeListener);
-				undoActionListener.pushAction(undoAction);
+				undoManager.pushAction(undoAction);
 				undoAction.redo();
 			}
 		} else if (animFlag != null) {
@@ -458,7 +458,7 @@ public abstract class ValuePanel<T> extends JPanel {
 			}
 
 			UndoAction undoAction = new AddFlagEntryAction(animFlag, newEntry, timelineContainer, modelStructureChangeListener);
-			undoActionListener.pushAction(undoAction);
+			undoManager.pushAction(undoAction);
 			undoAction.redo();
 
 		}
@@ -498,7 +498,7 @@ public abstract class ValuePanel<T> extends JPanel {
 		oldAnimFlag = animFlag;
 
 		UndoAction undoAction = new RemoveFlagEntryAction(animFlag, row, timelineContainer, modelStructureChangeListener);
-		undoActionListener.pushAction(undoAction);
+		undoManager.pushAction(undoAction);
 		undoAction.redo();
 
 		revalidate();
@@ -525,7 +525,7 @@ public abstract class ValuePanel<T> extends JPanel {
 		}
 
 		UndoAction undoAction = new ChangeFlagEntryAction(animFlag, entry, orgTime, timelineContainer, modelStructureChangeListener);
-		undoActionListener.pushAction(undoAction);
+		undoManager.pushAction(undoAction);
 		undoAction.redo();
 
 //		revalidate();

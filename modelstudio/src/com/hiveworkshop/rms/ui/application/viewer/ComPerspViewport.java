@@ -2,11 +2,9 @@ package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.render3d.*;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.filesystem.sources.DataSource;
-import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.parsers.blp.GPUReadyTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -19,7 +17,10 @@ import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.Pbuffer;
+import org.lwjgl.opengl.PixelFormat;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,8 +38,7 @@ import java.util.Map;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
-public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourceAllocator {
-	public static final boolean LOG_EXCEPTIONS = true;
+public class ComPerspViewport extends BetterAWTGLCanvas {
 	private static final int BYTES_PER_PIXEL = 4;
 	private final float[] whiteDiffuse = {1f, 1f, 1f, 1f};
 	private final float[] posSun = {0.0f, 10.0f, 0.0f, 1.0f};
@@ -122,36 +122,20 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 		});
 		paintTimer.start();
 		shortcutKeyListener();
-		this.renderModel.refreshFromEditor(renderEnv, inverseCameraRotation, inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
+//		this.renderModel.refreshFromEditor(renderEnv, inverseCameraRotation, inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
+		this.renderModel.refreshFromEditor(
+//				renderEnv,
+				inverseCameraRotation,
+				inverseCameraRotationYSpin,
+				inverseCameraRotationZSpin,
+				getParticleTextureInstance(modelView, programPreferences));
 	}
 
-	public static int loadTexture(final GPUReadyTexture texture, final Bitmap bitmap) {
-		if (texture == null) {
-			return -1;
-		}
-		final ByteBuffer buffer = texture.getBuffer();
-		// You now have a ByteBuffer filled with the color data of each pixel.
-		// Now just create a texture ID and bind it. Then you can load it using
-		// whatever OpenGL method you want, for example:
-
-		final int textureID = GL11.glGenTextures(); // Generate texture ID
-		bindTexture(bitmap, textureID);
-
-		// Setup texture scaling filtering
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-
-		// Send texel data to OpenGL
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, texture.getWidth(), texture.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-
-		// Return the texture ID so we can bind it later again
-		return textureID;
+	public Particle2TextureInstance getParticleTextureInstance(ModelView modelView, ProgramPreferences programPreferences) {
+		return new Particle2TextureInstance(textureMap, modelView, programPreferences);
 	}
-
-	private static void bindTexture(Bitmap tex, Integer texture) {
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+	public Particle2TextureInstance getParticleTextureInstance() {
+		return new Particle2TextureInstance(textureMap, modelView, programPreferences);
 	}
 
 	public void setLevelOfDetail(final int levelOfDetail) {
@@ -304,27 +288,6 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 	}
 
 
-	protected void loadToTexMap(final Bitmap tex) {
-		if (textureMap.get(tex) == null) {
-			String path = tex.getPath();
-			if (!path.isEmpty() && !programPreferences.getAllowLoadingNonBlpTextures()) {
-				path = path.replaceAll("\\.\\w+", "") + ".blp";
-			}
-			Integer texture = null;
-			try {
-				final DataSource workingDirectory = modelView.getModel().getWrappedDataSource();
-				texture = loadTexture(BLPHandler.get().loadTexture2(workingDirectory, path, tex), tex);
-			} catch (final Exception exc) {
-				if (LOG_EXCEPTIONS) {
-					exc.printStackTrace();
-				}
-			}
-			if (texture != null) {
-				textureMap.put(tex, texture);
-			}
-		}
-	}
-
 	private void setViewportCamera(int x, int y, int z, int rX, int rY) {
 		cameraPanStartPoint = null;
 		cameraSpinStartPoint = null;
@@ -337,13 +300,6 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 
 		Vec3 vertexHeap = new Vec3(-x, y, -z);
 		cameraPos.set(vertexHeap);
-	}
-
-	protected void deleteAllTextures() {
-		for (final Integer textureId : textureMap.values()) {
-			GL11.glDeleteTextures(textureId);
-		}
-		textureMap.clear();
 	}
 
 	public void setPosition(final double a, final double b) {
@@ -397,9 +353,15 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 	protected void forceReloadTextures() {
 		texLoaded = true;
 
-		deleteAllTextures();
+		TextureThing.deleteAllTextures(textureMap);
 		addGeosets(modelView.getModel().getGeosets());
-		renderModel.refreshFromEditor(renderEnv, Quat.getInverseRotation(inverseCameraRotation), inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
+//		renderModel.refreshFromEditor(renderEnv, Quat.getInverseRotation(inverseCameraRotation), inverseCameraRotationYSpin, inverseCameraRotationZSpin, this);
+		renderModel.refreshFromEditor(
+//				renderEnv,
+				Quat.getInverseRotation(inverseCameraRotation),
+				inverseCameraRotationYSpin,
+				inverseCameraRotationZSpin,
+				getParticleTextureInstance(modelView, programPreferences));
 	}
 
 	public void updateAnimatedNodes() {
@@ -426,11 +388,11 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 				}
 				final Layer layer = geo.getMaterial().getLayers().get(i);
 				if (layer.getTextureBitmap() != null) {
-					loadToTexMap(layer.getTextureBitmap());
+					TextureThing.loadToTexMap(modelView, programPreferences, textureMap, layer.getTextureBitmap());
 				}
 				if (layer.getTextures() != null) {
 					for (final Bitmap tex : layer.getTextures()) {
-						loadToTexMap(tex);
+						TextureThing.loadToTexMap(modelView, programPreferences, textureMap, tex);
 					}
 				}
 			}
@@ -689,77 +651,6 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 		}
 	}
 
-	private void bindLayerTexture(final Layer layer, final Bitmap tex, final Integer texture, final int formatVersion, final Material parent) {
-		if (texture != null) {
-			bindTexture(tex, texture);
-		} else if (textureMap.size() > 0) {
-			bindTexture(tex, 0);
-		}
-		boolean depthMask = false;
-		switch (layer.getFilterMode()) {
-			case BLEND -> setBlendWOAlpha(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			case ADDITIVE, ADDALPHA -> setBlendWOAlpha(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-			case MODULATE -> setBlendWOAlpha(GL11.GL_ZERO, GL11.GL_SRC_COLOR);
-			case MODULATE2X -> setBlendWOAlpha(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
-			case NONE -> {
-				GL11.glDisable(GL11.GL_ALPHA_TEST);
-				GL11.glDisable(GL11.GL_BLEND);
-				depthMask = true;
-			}
-			case TRANSPARENT -> {
-				GL11.glEnable(GL11.GL_ALPHA_TEST);
-				GL11.glAlphaFunc(GL11.GL_GREATER, 0.75f);
-				GL11.glDisable(GL11.GL_BLEND);
-				depthMask = true;
-			}
-		}
-		if (layer.getTwoSided() || ((ModelUtils.isShaderStringSupported(formatVersion)) && parent.getTwoSided())) {
-			GL11.glDisable(GL11.GL_CULL_FACE);
-		} else {
-			GL11.glEnable(GL11.GL_CULL_FACE);
-		}
-		if (layer.getNoDepthTest()) {
-			GL11.glDisable(GL11.GL_DEPTH_TEST);
-		} else {
-			GL11.glEnable(GL11.GL_DEPTH_TEST);
-		}
-		if (layer.getNoDepthSet()) {
-			GL11.glDepthMask(false);
-		} else {
-			GL11.glDepthMask(depthMask);
-		}
-		if (layer.getUnshaded()) {
-			GL11.glDisable(GL_LIGHTING);
-		} else {
-			glEnable(GL_LIGHTING);
-		}
-	}
-
-	protected void bindParticleTexture(final ParticleEmitter2 particle2, final Bitmap tex, final Integer texture) {
-		if (texture != null) {
-			bindTexture(tex, texture);
-		} else if (textureMap.size() > 0) {
-			bindTexture(tex, 0);
-		}
-		switch (particle2.getFilterMode()) {
-			case BLEND -> setBlendWOAlpha(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			case ADDITIVE, ALPHAKEY -> setBlendWOAlpha(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-			case MODULATE -> setBlendWOAlpha(GL11.GL_ZERO, GL11.GL_SRC_COLOR);
-			case MODULATE2X -> setBlendWOAlpha(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
-		}
-		if (particle2.getUnshaded()) {
-			GL11.glDisable(GL_LIGHTING);
-		} else {
-			glEnable(GL_LIGHTING);
-		}
-	}
-
-	private void setBlendWOAlpha(int sFactor, int dFactor) {
-		GL11.glDisable(GL11.GL_ALPHA_TEST);
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(sFactor, dFactor);
-	}
-
 	private void drawHighlightedGeosets(int formatVersion) {
 		GL11.glDepthMask(true);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -826,7 +717,7 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 			if ((renderOpaque && opaqueLayer) || (!renderOpaque && !opaqueLayer)) {
 				final Bitmap tex = layer.getRenderTexture(renderEnv, modelView.getModel());
 				final Integer texture = textureMap.get(tex);
-				bindLayerTexture(layer, tex, texture, formatVersion, material);
+				TextureThing.bindLayerTexture(textureMap.size(), layer, tex, texture, formatVersion, material);
 
 				if (overriddenColors) {
 					GL11.glDisable(GL11.GL_ALPHA_TEST);
@@ -1162,60 +1053,5 @@ public class ComPerspViewport extends BetterAWTGLCanvas implements RenderResourc
 				}
 			}
 		};
-	}
-
-	@Override
-	public InternalResource allocateTexture(final Bitmap bitmap, final ParticleEmitter2 textureSource) {
-		return new Particle2TextureInstance(bitmap, textureSource);
-	}
-
-	protected final class Particle2TextureInstance implements InternalResource, InternalInstance {
-		private final Bitmap bitmap;
-		private final ParticleEmitter2 particle;
-		private boolean loaded = false;
-
-		public Particle2TextureInstance(final Bitmap bitmap, final ParticleEmitter2 particle) {
-			this.bitmap = bitmap;
-			this.particle = particle;
-		}
-
-		@Override
-		public void setTransformation(final Vec3 worldLocation, final Quat rotation, final Vec3 worldScale) {
-		}
-
-		@Override
-		public void setSequence(final int index) {
-		}
-
-		@Override
-		public void show() {
-		}
-
-		@Override
-		public void setPaused(final boolean paused) {
-		}
-
-		@Override
-		public void move(final Vec3 deltaPosition) {
-		}
-
-		@Override
-		public void hide() {
-		}
-
-		@Override
-		public void bind() {
-			if (!loaded) {
-				loadToTexMap(bitmap);
-				loaded = true;
-			}
-			final Integer texture = textureMap.get(bitmap);
-			bindParticleTexture(particle, bitmap, texture);
-		}
-
-		@Override
-		public InternalInstance addInstance() {
-			return this;
-		}
 	}
 }

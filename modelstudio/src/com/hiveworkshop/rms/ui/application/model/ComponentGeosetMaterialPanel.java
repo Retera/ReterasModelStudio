@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -18,7 +18,7 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 	Map<String, Material> materialMap = new TreeMap<>();
 	int materialNumber = -1;
 	private JComboBox<String> materialChooser;
-	private UndoActionListener undoActionListener;
+	private UndoManager undoManager;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private boolean listenersEnabled = true;
 	private int currentlyDisplayedMaterialCount = 0;
@@ -114,7 +114,7 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 		if (listenersEnabled) {
 			Material material = new Material(geoset.getMaterial());
 			AddMaterialAction addMaterialAction = new AddMaterialAction(material, modelViewManager, modelStructureChangeListener);
-			undoActionListener.pushAction(addMaterialAction);
+			undoManager.pushAction(addMaterialAction);
 			addMaterialAction.redo();
 //			geoset.setMaterial(material);
 			updateMaterialChooserBox(geoset);
@@ -124,10 +124,10 @@ public class ComponentGeosetMaterialPanel extends JPanel {
 	}
 
 	public void setMaterialChooser(Geoset geoset, ModelView modelViewManager,
-	                               UndoActionListener undoActionListener,
+	                               UndoManager undoManager,
 	                               ModelStructureChangeListener modelStructureChangeListener) {
 //		System.out.println("setMaterialChooser");
-		this.undoActionListener = undoActionListener;
+		this.undoManager = undoManager;
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		listenersEnabled = false;
 		int materialCount = geoset.getParentModel().getMaterials().size();

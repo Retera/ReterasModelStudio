@@ -1,16 +1,16 @@
 package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.ParticleEmitter;
+import com.hiveworkshop.rms.ui.application.viewer.Particle2TextureInstance;
 
 public class RenderParticleEmitter extends RenderSharedGeometryEmitter<ParticleEmitter, RenderParticleEmitterView> {
 
-	public RenderParticleEmitter(final ParticleEmitter particleEmitter, final int elementsPerEmit,
-			final InternalResource internalResource) {
+	public RenderParticleEmitter(ParticleEmitter particleEmitter, int elementsPerEmit, Particle2TextureInstance internalResource) {
 		super(particleEmitter, elementsPerEmit, internalResource);
 	}
 
 	@Override
-	protected void emit(final RenderParticleEmitterView emitterView) {
+	protected void emit(RenderParticleEmitterView emitterView) {
 
 	}
 

@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.ui.application.actions.model.material.ChangeLayerStaticTextureAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboPopup;
@@ -27,8 +27,8 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 	private int selectedRow;
 
 
-	public TextureValuePanel(final String title, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener, EditableModel model) {
-		super(title, undoActionListener, modelStructureChangeListener);
+	public TextureValuePanel(final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener, EditableModel model) {
+		super(title, undoManager, modelStructureChangeListener);
 
 		textureChooser = new JComboBox<>(getTextures(model));
 		textureChooser.setModel(new DefaultComboBoxModel<>(getTextures(model)));
@@ -183,7 +183,7 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 
 			ChangeLayerStaticTextureAction changeLayerStaticTextureAction = new ChangeLayerStaticTextureAction(bitmap, bitmapId, (Layer) timelineContainer, modelStructureChangeListener);
 			changeLayerStaticTextureAction.redo();
-			undoActionListener.pushAction(changeLayerStaticTextureAction);
+			undoManager.pushAction(changeLayerStaticTextureAction);
 		}
 	}
 

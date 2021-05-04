@@ -1,12 +1,11 @@
 package com.hiveworkshop.rms.editor.wrapper.v2;
 
-import com.hiveworkshop.rms.util.SubscriberSetNotifier;
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.util.SubscriberSetNotifier;
 
-public final class ModelViewStateNotifier extends SubscriberSetNotifier<ModelViewStateListener>
-		implements ModelViewStateListener {
+public final class ModelViewStateNotifier extends SubscriberSetNotifier<ModelViewStateListener> implements ModelViewStateListener {
 
 	@Override
 	public void geosetEditable(final Geoset geoset) {

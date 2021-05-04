@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.Camera.SourceNode;
 import com.hiveworkshop.rms.editor.model.Camera.TargetNode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.viewer.Particle2TextureInstance;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -27,7 +28,7 @@ public final class RenderModel {
 	private final Map<ParticleEmitter2, RenderParticleEmitter2View> emitterToRenderer = new HashMap<>();
 	private final List<RenderParticleEmitter2> particleEmitters2 = new ArrayList<>();// TODO one per model, not instance
 	private final List<RenderParticleEmitter2View> particleEmitterViews2 = new ArrayList<>();
-	private final SoftwareParticleEmitterShader particleShader = new SoftwareParticleEmitterShader();
+	private final ParticleEmitterShader particleShader = new ParticleEmitterShader();
 
 	private final RenderNode rootPosition;
 
@@ -65,14 +66,14 @@ public final class RenderModel {
 
 	private final ModelView modelView;
 
-	public RenderModel(final EditableModel model, final ModelView modelView) {
+	public RenderModel(EditableModel model, ModelView modelView) {
 		this.model = model;
 		this.modelView = modelView;
 		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
 		// Some classes doesn't call refreshFromEditor which leads to null-pointers when these in nor initialised
 	}
 
-	public RenderModel(final EditableModel model, final ModelView modelView, TimeEnvironmentImpl timeEnvironment) {
+	public RenderModel(EditableModel model, ModelView modelView, TimeEnvironmentImpl timeEnvironment) {
 		this.model = model;
 		this.modelView = modelView;
 		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
@@ -80,23 +81,23 @@ public final class RenderModel {
 		// Some classes doesn't call refreshFromEditor which leads to null-pointers when these in nor initialised
 	}
 
-	public void setSpawnParticles(final boolean spawnParticles) {
+	public void setSpawnParticles(boolean spawnParticles) {
 		this.spawnParticles = spawnParticles;
 	}
 
-	public void setAllowInanimateParticles(final boolean allowInanimateParticles) {
+	public void setAllowInanimateParticles(boolean allowInanimateParticles) {
 		this.allowInanimateParticles = allowInanimateParticles;
 	}
 
-	public RenderNode getRenderNode(final AnimatedNode idObject) {
-		final RenderNode renderNode = objectToRenderNode.get(idObject);
+	public RenderNode getRenderNode(AnimatedNode idObject) {
+		RenderNode renderNode = objectToRenderNode.get(idObject);
 		if (renderNode == null) {
 			return rootPosition;
 		}
 		return renderNode;
 	}
 
-	public RenderNode getRenderNodeByObjectId(final int objectId) {
+	public RenderNode getRenderNodeByObjectId(int objectId) {
 		return getRenderNode(model.getIdObject(objectId));
 	}
 
@@ -104,13 +105,25 @@ public final class RenderModel {
 		return animatedRenderEnvironment;
 	}
 
-	public void refreshFromEditor(final TimeEnvironmentImpl animatedRenderEnvironment, final Quat inverseCameraRotation, final Quat inverseCameraRotationYSpin, final Quat inverseCameraRotationZSpin, final RenderResourceAllocator renderResourceAllocator) {
-		particleEmitterViews2.clear();
-		particleEmitters2.clear();
+	public void refreshFromEditor(TimeEnvironmentImpl animatedRenderEnvironment,
+	                              Quat inverseCameraRotation,
+	                              Quat inverseCameraRotationYSpin,
+	                              Quat inverseCameraRotationZSpin,
+	                              Particle2TextureInstance renderResourceAllocator) {
 		this.animatedRenderEnvironment = animatedRenderEnvironment;
+		refreshFromEditor(inverseCameraRotation, inverseCameraRotationYSpin,inverseCameraRotationZSpin, renderResourceAllocator);
+	}
+
+	public void refreshFromEditor(Quat inverseCameraRotation,
+	                              Quat inverseCameraRotationYSpin,
+	                              Quat inverseCameraRotationZSpin,
+	                              Particle2TextureInstance renderResourceAllocator) {
+//		this.animatedRenderEnvironment = animatedRenderEnvironment;
 		this.inverseCameraRotation = inverseCameraRotation;
 		this.inverseCameraRotationYSpin = inverseCameraRotationYSpin;
 		this.inverseCameraRotationZSpin = inverseCameraRotationZSpin;
+		particleEmitterViews2.clear();
+		particleEmitters2.clear();
 
 		for (int i = 0; i < billboardVectors.length; i++) {
 //			inverseCameraRotation.transform(billboardBaseVectors[i], billboardVectors[i]);
@@ -118,8 +131,8 @@ public final class RenderModel {
 		}
 
 		sortedNodes.clear();
-		for (final Camera camera : model.getCameras()) {
-			final SourceNode object = camera.getSourceNode();
+		for (Camera camera : model.getCameras()) {
+			SourceNode object = camera.getSourceNode();
 			sortedNodes.add(object);
 			RenderNode renderNode = objectToRenderNode.get(object);
 			if (renderNode == null) {
@@ -128,8 +141,8 @@ public final class RenderModel {
 			}
 		}
 		setupHierarchy2(null);
-		for (final Camera camera : model.getCameras()) {
-			final TargetNode object = camera.getTargetNode();
+		for (Camera camera : model.getCameras()) {
+			TargetNode object = camera.getTargetNode();
 			sortedNodes.add(object);
 			RenderNode renderNode = objectToRenderNode.get(object);
 			if (renderNode == null) {
@@ -138,19 +151,19 @@ public final class RenderModel {
 			}
 		}
 
-		for (final ParticleEmitter2 particleEmitter : model.getParticleEmitter2s()) {
-			particleEmitters2.add(new RenderParticleEmitter2(particleEmitter, renderResourceAllocator.allocateTexture(particleEmitter.getTexture(), particleEmitter)));
+		for (ParticleEmitter2 particleEmitter : model.getParticleEmitter2s()) {
+			particleEmitters2.add(new RenderParticleEmitter2(particleEmitter, renderResourceAllocator.generate(particleEmitter.getTexture(), particleEmitter)));
 		}
 		particleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
 //		System.out.println("refresh from renderer, partEm: " + particleEmitters2.size());
 
-		for (final RenderParticleEmitter2 particleEmitter : particleEmitters2) {
-			final RenderParticleEmitter2View emitterView = new RenderParticleEmitter2View(this, particleEmitter);
+		for (RenderParticleEmitter2 particleEmitter : particleEmitters2) {
+			RenderParticleEmitter2View emitterView = new RenderParticleEmitter2View(this, particleEmitter);
 //			System.out.println("emitterView: " + emitterView + " emitterView.em: " + emitterView.getEmitter());
 			particleEmitterViews2.add(emitterView);
 			emitterToRenderer.put(emitterView.getEmitter(), emitterView);
 		}
-		for (final AnimatedNode node : sortedNodes) {
+		for (AnimatedNode node : sortedNodes) {
 			getRenderNode(node).refreshFromEditor();
 		}
 	}
@@ -212,7 +225,7 @@ public final class RenderModel {
 	// Soft is to only update billborded
 	public void updateNodes(boolean forced, boolean soft, boolean particles) {
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
-			for (final AnimatedNode idObject : sortedNodes) {
+			for (AnimatedNode idObject : sortedNodes) {
 				getRenderNode(idObject).resetTransformation();
 				getRenderNode(idObject).getWorldMatrix().setIdentity();
 			}
@@ -300,7 +313,7 @@ public final class RenderModel {
 				// TODO instanced rendering in 2090
 				if (objectVisible) {
 					if (particles) {
-						final RenderParticleEmitter2View renderer = emitterToRenderer.get(idObject);
+						RenderParticleEmitter2View renderer = emitterToRenderer.get(idObject);
 //						System.out.println("render: " + renderer);
 						if (renderer != null) {
 							if ((modelView == null) || modelView.getEditableIdObjects().contains(idObject) || modelView.isVetoOverrideParticles()) {
@@ -379,21 +392,21 @@ public final class RenderModel {
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 			// not animating
 			if (allowInanimateParticles) {
-				for (final RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
+				for (RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
 					if ((modelView == null) || modelView.getEditableIdObjects().contains(renderParticleEmitter2View.getEmitter())) {
 						renderParticleEmitter2View.fill();
 					}
 					renderParticleEmitter2View.update();
 				}
-				for (final RenderParticleEmitter2 renderParticleEmitter2 : particleEmitters2) {
+				for (RenderParticleEmitter2 renderParticleEmitter2 : particleEmitters2) {
 					renderParticleEmitter2.update();
 				}
 			}
 		} else {
-			for (final RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
+			for (RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
 				renderParticleEmitter2View.update();
 			}
-			for (final RenderParticleEmitter2 renderParticleEmitter2 : particleEmitters2) {
+			for (RenderParticleEmitter2 renderParticleEmitter2 : particleEmitters2) {
 				renderParticleEmitter2.update();
 			}
 		}
@@ -415,7 +428,7 @@ public final class RenderModel {
 		return particleEmitterViews2;
 	}
 
-	public SoftwareParticleEmitterShader getParticleShader() {
+	public ParticleEmitterShader getParticleShader() {
 		return particleShader;
 	}
 

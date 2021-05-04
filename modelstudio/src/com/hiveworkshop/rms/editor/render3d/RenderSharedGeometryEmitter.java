@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.render3d;
 
+import com.hiveworkshop.rms.ui.application.viewer.Particle2TextureInstance;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.nio.ByteBuffer;
@@ -11,10 +12,10 @@ public abstract class RenderSharedGeometryEmitter<MODEL_OBJECT extends EmitterId
 	private float[] data;
 	private RenderData[] renderData;
 	private final ByteBuffer buffer;
-	protected InternalResource internalResource;
+	protected Particle2TextureInstance internalResource;
 
 	public RenderSharedGeometryEmitter(final MODEL_OBJECT model_object, final int elementsPerEmit,
-	                                   final InternalResource internalResource) {
+	                                   final Particle2TextureInstance internalResource) {
 		super(model_object);
 		this.elementsPerEmit = elementsPerEmit;
 		this.internalResource = internalResource;

@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapReplace
 import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapWrapHeightAction;
 import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapWrapWidthAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -121,7 +121,7 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	}
 
 	@Override
-	public void save(EditableModel model, UndoActionListener undoListener, ModelStructureChangeListener changeListener) {
+	public void save(EditableModel model, UndoManager undoManager, ModelStructureChangeListener changeListener) {
 	}
 
 	private void loadBitmapPreview(Bitmap defaultTexture) {
