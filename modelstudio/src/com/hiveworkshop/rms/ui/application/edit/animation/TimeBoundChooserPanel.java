@@ -24,7 +24,7 @@ public class TimeBoundChooserPanel extends JPanel {
 
 	public TimeBoundChooserPanel(ModelView modelView, ModelStructureChangeListener structureChangeListener) {
 		makeAnimationBox(modelView);
-		final JPanel animationPanel = getAnimationPanel(modelView, structureChangeListener);
+		final JPanel animationPanel = getAnimationPanel(modelView.getModel(), structureChangeListener);
 
 		final JPanel globSeqPanel = getGlobSeqPanel(modelView);
 
@@ -41,7 +41,7 @@ public class TimeBoundChooserPanel extends JPanel {
 		add(tabs);
 	}
 
-	private JPanel getAnimationPanel(ModelView modelView, ModelStructureChangeListener structureChangeListener) {
+	private JPanel getAnimationPanel(EditableModel model, ModelStructureChangeListener structureChangeListener) {
 		final JPanel animationPanel = new JPanel(new MigLayout("fill", "[]", "[grow][]"));
 
 		JScrollPane animationScrollPane = new JScrollPane(animationBox);
@@ -50,20 +50,20 @@ public class TimeBoundChooserPanel extends JPanel {
 
 		JPanel buttonPanel = new JPanel(new MigLayout("ins 0"));
 		final JButton createAnimation = new JButton("Create");
-		createAnimation.addActionListener(e -> createAnimation(modelView, structureChangeListener));
+		createAnimation.addActionListener(e -> createAnimation(model, structureChangeListener));
 		buttonPanel.add(createAnimation);
 
 		final JButton duplicateAnimation = new JButton("Duplicate");
-		duplicateAnimation.addActionListener(e -> duplicateAnimation(modelView, structureChangeListener));
+		duplicateAnimation.addActionListener(e -> duplicateAnimation(model, structureChangeListener));
 		buttonPanel.add(duplicateAnimation);
 
 
 		final JButton editAnimation = new JButton("Edit");
-		editAnimation.addActionListener(e -> editAnimation(modelView, structureChangeListener));
+		editAnimation.addActionListener(e -> editAnimation(model, structureChangeListener));
 		buttonPanel.add(editAnimation);
 
 		final JButton deleteAnimation = new JButton("Delete");
-		deleteAnimation.addActionListener(e -> deleteAnimation(modelView, structureChangeListener));
+		deleteAnimation.addActionListener(e -> deleteAnimation(model, structureChangeListener));
 		buttonPanel.add(deleteAnimation);
 		animationPanel.add(buttonPanel);
 		return animationPanel;
@@ -167,21 +167,21 @@ public class TimeBoundChooserPanel extends JPanel {
 		}
 	}
 
-	private void deleteAnimation(ModelView modelView, ModelStructureChangeListener structureChangeListener) {
+	private void deleteAnimation(EditableModel model, ModelStructureChangeListener structureChangeListener) {
 		final int result = JOptionPane.showConfirmDialog(TimeBoundChooserPanel.this, "Also delete keyframes?",
 				"Delete Animation(s)", JOptionPane.YES_NO_CANCEL_OPTION);
 		final List<Animation> selectedValues = animationBox.getSelectedValuesList();
 		if (result == JOptionPane.YES_OPTION) {
 			// del keys
 			for (Animation animation : selectedValues) {
-				animation.clearData(modelView.getModel().getAllAnimFlags(), modelView.getModel().getEvents());
+				animation.clearData(model.getAllAnimFlags(), model.getEvents());
 			}
 //			selectedValue.clearData(modelView.getModel().getAllAnimFlags(), modelView.getModel().getEvents());
 		}
 		if (result != JOptionPane.CANCEL_OPTION) {
 			// del anim
 			for (Animation animation : selectedValues) {
-				modelView.getModel().remove(animation);
+				model.remove(animation);
 				animations.removeElement(animation);
 				structureChangeListener.animationsRemoved(Collections.singletonList(animation));
 			}
@@ -224,10 +224,9 @@ public class TimeBoundChooserPanel extends JPanel {
 		}
 	}
 
-	private void createAnimation(ModelView modelView, ModelStructureChangeListener structureChangeListener) {
+	private void createAnimation(EditableModel model, ModelStructureChangeListener structureChangeListener) {
 		final JPanel createAnimQuestionPanel = new JPanel(new MigLayout());
 		final JSpinner newAnimLength = new JSpinner(new SpinnerNumberModel(1000, 0, Integer.MAX_VALUE, 1));
-		EditableModel model = modelView.getModel();
 		final Animation lastAnimation = model.getAnimsSize() == 0 ? null : model.getAnim(model.getAnimsSize() - 1);
 		final int lastAnimationEnd = lastAnimation == null ? 0 : lastAnimation.getEnd();
 
@@ -314,14 +313,14 @@ public class TimeBoundChooserPanel extends JPanel {
 		timeRangeButton(lengthButton, newAnimLength, timeRangeButton, newAnimTimeStart, newAnimTimeEnd);
 	}
 
-	private void editAnimation(ModelView modelView, ModelStructureChangeListener structureChangeListener) {
+	private void editAnimation(EditableModel model, ModelStructureChangeListener structureChangeListener) {
 		final Animation selectedValue = animationBox.getSelectedValue();
 		if (selectedValue != null) {
-			createAnimation(modelView, structureChangeListener);
+			createAnimation(model, structureChangeListener);
 		}
 	}
 
-	private void duplicateAnimation(ModelView modelView, ModelStructureChangeListener structureChangeListener) {
+	private void duplicateAnimation(EditableModel model, ModelStructureChangeListener structureChangeListener) {
 		final Animation selectedAnimation = animationBox.getSelectedValue();
 //		final List<Animation> selectedValues = animationBox.getSelectedValuesList();
 		final String userChosenName = JOptionPane.showInputDialog(TimeBoundChooserPanel.this,
@@ -330,7 +329,6 @@ public class TimeBoundChooserPanel extends JPanel {
 //			for (Animation animation : selectedValues){
 //			}
 			final Animation copyAnimation = new Animation(selectedAnimation);
-			EditableModel model = modelView.getModel();
 			final Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
 			copyAnimation.setInterval(lastAnim.getEnd() + 300, lastAnim.getEnd() + 300 + selectedAnimation.length());
 			copyAnimation.setName(userChosenName);

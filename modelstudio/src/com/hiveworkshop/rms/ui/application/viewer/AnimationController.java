@@ -8,7 +8,6 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 public class AnimationController extends JPanel {
@@ -28,8 +27,7 @@ public class AnimationController extends JPanel {
 		add(animationBox, "wrap, w 90%:90%:90%, gapbottom 16");
 
 		JButton playAnimationButton = new JButton("Play Animation");
-		ActionListener playAnimationActionListener = e -> listener.playAnimation();
-		playAnimationButton.addActionListener(playAnimationActionListener);
+		playAnimationButton.addActionListener(e -> listener.playAnimation());
 		add(playAnimationButton, "wrap, gapbottom 16");
 
 		SmartButtonGroup smartButtonGroup = new SmartButtonGroup();

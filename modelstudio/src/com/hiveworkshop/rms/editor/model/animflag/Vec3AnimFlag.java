@@ -237,7 +237,7 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 //			System.out.println(name + ", ~~ no global seq");
 			final TimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
 			int animationStart = animation.getStart();
-			time = animationStart + animatedRenderEnvironment.getAnimationTime();
+			time = animatedRenderEnvironment.getAnimationTime();
 			final int floorAnimStartIndex = Math.max(0, floorIndex(animationStart + 1));
 			int animationEnd = animation.getEnd();
 			final int floorAnimEndIndex = Math.max(0, floorIndex(animationEnd));

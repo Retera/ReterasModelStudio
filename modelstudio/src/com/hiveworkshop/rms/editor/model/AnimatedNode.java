@@ -101,8 +101,7 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 	private int getTrackTime(RenderModel renderModel) {
 		int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-//		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getStart() + animationTime;
+		int trackTime = animationTime;
 
 		Integer globalSeq = renderModel.getAnimatedRenderEnvironment().getGlobalSeq();
 		if (globalSeq != null) {
@@ -150,7 +149,8 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
 //		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getStart() + animationTime;
+//		int trackTime = renderModel.getAnimatedRenderEnvironment().getStart() + animationTime;
+		int trackTime = animationTime;
 		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
 		if (globalSeq != null) {
 			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
@@ -205,7 +205,8 @@ public abstract class AnimatedNode extends TimelineContainer {
 		}
 		int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
 //		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getStart() + animationTime;
+//		int trackTime = renderModel.getAnimatedRenderEnvironment().getStart() + animationTime;
+		int trackTime = animationTime;
 		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
 		if (globalSeq != null) {
 			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
@@ -278,7 +279,8 @@ public abstract class AnimatedNode extends TimelineContainer {
 
 		int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
 //		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getStart() + animationTime;
+//		int trackTime = renderModel.getAnimatedRenderEnvironment().getStart() + animationTime;
+		int trackTime = animationTime;
 
 		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
 		if (globalSeq != null) {

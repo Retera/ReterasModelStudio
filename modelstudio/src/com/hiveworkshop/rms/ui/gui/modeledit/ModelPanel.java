@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
@@ -55,7 +56,7 @@ public class ModelPanel {
 	private final AnimationController animationController;
 	private final ComponentsPanel componentsPanel;
 
-	public ModelPanel(JComponent parent,
+	public ModelPanel(MainPanel parent,
 	                  ModelHandler modelHandler,
 	                  ProgramPreferences prefs,
 	                  ToolbarButtonGroup<SelectionItemTypes> notifier,

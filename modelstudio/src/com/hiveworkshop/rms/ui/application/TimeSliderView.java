@@ -45,8 +45,9 @@ public class TimeSliderView {
 		int confirmDialogResult = JOptionPane.showConfirmDialog(mainPanel, tbcPanel, "Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
 
 		if (confirmDialogResult == JOptionPane.OK_OPTION) {
-			tbcPanel.applyTo(mainPanel.animatedRenderEnvironment);
+//			tbcPanel.applyTo(mainPanel.animatedRenderEnvironment);
 			if (panel != null) {
+				tbcPanel.applyTo(panel.getModelHandler().getEditTimeEnv());
 				panel.getEditorRenderModel().refreshFromEditor(
 //						mainPanel.animatedRenderEnvironment,
 						ModelStructureChangeListener.IDENTITY,

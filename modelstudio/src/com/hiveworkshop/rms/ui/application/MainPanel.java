@@ -280,10 +280,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         return geoControlModelData;
     }
 
-    public TimeEnvironmentImpl getAnimatedRenderEnvironment() {
-        return animatedRenderEnvironment;
-    }
-
     public TimeSliderPanel getTimeSliderPanel() {
         return timeSliderPanel;
     }

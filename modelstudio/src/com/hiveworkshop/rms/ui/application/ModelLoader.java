@@ -39,6 +39,8 @@ public class ModelLoader {
 			if ((modelPanel != null) && (modelPanel.getModel() != null)) {
 				if (modelPanel.getModel().getAnimsSize() > 0) {
 					final Animation anim = modelPanel.getModel().getAnim(0);
+					modelPanel.getModelHandler().getEditTimeEnv().setAnimation(anim);
+					modelPanel.getModelHandler().getEditTimeEnv().setStaticViewMode(!mainPanel.animationModeState);
 					mainPanel.animatedRenderEnvironment.setBounds(anim);
 				}
 				refreshAndUpdateModelPanel(mainPanel);
@@ -55,6 +57,8 @@ public class ModelLoader {
 		if (!mainPanel.animationModeState) {
 			if ((modelPanel != null) && (modelPanel.getModel() != null)) {
 				refreshAndUpdateModelPanel(mainPanel);
+				modelPanel.getModelHandler().getEditTimeEnv().setAnimation(null);
+				modelPanel.getModelHandler().getEditTimeEnv().setStaticViewMode(!mainPanel.animationModeState);
 			}
 		}
 		List<ToolbarButtonGroup<ToolbarActionButtonType>.ToolbarButtonAction> buttons = mainPanel.actionTypeGroup.getButtons();
@@ -190,8 +194,8 @@ public class ModelLoader {
 		}
 	}
 
-	public static void setCurrentModel(MainPanel mainPanel, ModelPanel modelContextManager) {
-		mainPanel.currentModelPanel = modelContextManager;
+	public static void setCurrentModel(MainPanel mainPanel, ModelPanel modelPanel) {
+		mainPanel.currentModelPanel = modelPanel;
 		if (mainPanel.currentModelPanel == null) {
 			JPanel jPanel = new JPanel();
 			jPanel.add(new JLabel("..."));
@@ -216,12 +220,12 @@ public class ModelLoader {
 			mainPanel.geoControl.setViewportView(mainPanel.currentModelPanel.getModelViewManagingTree());
 			mainPanel.geoControl.repaint();
 
-			mainPanel.frontView.setComponent(modelContextManager.getFrontArea());
-			mainPanel.bottomView.setComponent(modelContextManager.getBotArea());
-			mainPanel.leftView.setComponent(modelContextManager.getSideArea());
-			mainPanel.perspectiveView.setComponent(modelContextManager.getPerspArea());
-			mainPanel.previewView.setComponent(modelContextManager.getAnimationViewer());
-			mainPanel.animationControllerView.setComponent(modelContextManager.getAnimationController());
+			mainPanel.frontView.setComponent(modelPanel.getFrontArea());
+			mainPanel.bottomView.setComponent(modelPanel.getBotArea());
+			mainPanel.leftView.setComponent(modelPanel.getSideArea());
+			mainPanel.perspectiveView.setComponent(modelPanel.getPerspArea());
+			mainPanel.previewView.setComponent(modelPanel.getAnimationViewer());
+			mainPanel.animationControllerView.setComponent(modelPanel.getAnimationController());
 			refreshAnimationModeState(mainPanel);
 
 			mainPanel.timeSliderPanel.setModelHandler(mainPanel.currentModelPanel.getModelHandler());

@@ -1130,7 +1130,7 @@ public abstract class AnimFlag<T> {
 //			System.out.println(name + ", ~~ no global seq");
 			TimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
 			int animationStart = animation.getStart();
-			time = animationStart + animatedRenderEnvironment.getAnimationTime();
+			time = animatedRenderEnvironment.getAnimationTime();
 			int floorAnimStartIndex = Math.max(0, floorIndex(animationStart + 1));
 			int animationEnd = animation.getEnd();
 			int floorAnimEndIndex = Math.max(0, floorIndex(animationEnd));
@@ -1188,7 +1188,6 @@ public abstract class AnimFlag<T> {
 		Integer ceilTime = ceilIndexTime;
 		float timeFactor = (time - floorTime) / timeBetweenFrames;
 
-		// Integer
 		switch (localTypeId) {
 			case ALPHA | OTHER_TYPE -> {
 				Float previous = (Float) floorValue;
@@ -1225,6 +1224,7 @@ public abstract class AnimFlag<T> {
 				};
 			}
 			case TEXTUREID -> {
+				// Integer
 				Integer previous = (Integer) floorValue;
 				return switch (interpolationType) {
 					// dont use linear on these, does that even make any sense?

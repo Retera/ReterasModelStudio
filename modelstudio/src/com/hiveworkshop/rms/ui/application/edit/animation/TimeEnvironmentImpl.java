@@ -15,7 +15,6 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 	protected float animationSpeed = 1f;
 	private int start;
 	private boolean looping = true;
-	private int currentTime;
 	private boolean staticViewMode;
 	private int globalSequenceLength = -1;
 	private int end;
@@ -34,26 +33,29 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		this.end = end;
 	}
 
-	public void setCurrentTime(final int currentTime) {
-		this.currentTime = currentTime;
-	}
-
-	public void setBounds(Animation animation) {
+	public TimeEnvironmentImpl setBounds(Animation animation) {
 		setBounds(animation.getStart(), animation.getEnd());
+		return this;
 	}
 
-	public void setBounds(final int startTime, final int endTime) {
-		setStart(startTime);
-		setEnd(endTime);
+	public TimeEnvironmentImpl setBounds(final int startTime, final int endTime) {
+		start = startTime;
+		end = endTime;
 		//		globalSequenceLength = -1;
 		if (globalSequenceLength == -1) {
-			currentTime = 0;
+			animationTime = Math.min(endTime, animationTime);
+			animationTime = Math.max(startTime, animationTime);
+
 			notifier.timeBoundsChanged(start, end);
 		}
+		return this;
 	}
 
 	public Animation setAnimation(Animation animation) {
 		this.animation = animation;
+		if (animation != null) {
+			setBounds(animation);
+		}
 		updateLastMillis();
 		if (loopType == AnimationControllerListener.LoopType.DEFAULT_LOOP) {
 			looping = animation != null && !animation.isNonLooping();
@@ -76,26 +78,23 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return 0;
 	}
 
-	//	public TimeBoundProvider getCurrentAnimation() {
-//		if (staticViewMode) {
-//			return null;
-//		}
-//		return this;
-//	}
 	public Animation getCurrentAnimation() {
 		return animation;
 	}
 
-	public void setStaticViewMode(final boolean staticViewMode) {
+	public TimeEnvironmentImpl setStaticViewMode(final boolean staticViewMode) {
 		this.staticViewMode = staticViewMode;
+		return this;
 	}
 
-	public void setGlobalSeq(final int globalSeq) {
+	public TimeEnvironmentImpl setGlobalSeq(final int globalSeq) {
 		globalSequenceLength = globalSeq;
 		if (globalSequenceLength != -1) {
-			currentTime = 0;
+//			currentTime = 0;
+//			animationTime = 0;
 		}
 		notifier.timeBoundsChanged(0, globalSequenceLength);
+		return this;
 	}
 
 	public int getGlobalSequenceLength() {
@@ -111,7 +110,14 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 
 	public int setAnimationTime(int newTime) {
 		animationTime = newTime;
+		updateLastMillis();
 		return animationTime;
+	}
+
+	public TimeEnvironmentImpl setRelativeAnimationTime(int newTime) {
+		animationTime = start + newTime;
+		updateLastMillis();
+		return this;
 	}
 
 	public int stepAnimationTime(int timeStep) {
@@ -127,14 +133,15 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return 0;
 	}
 
-	public void setStart(final int startTime) {
+	public TimeEnvironmentImpl setStart(final int startTime) {
 		start = startTime;
 
 		if (globalSequenceLength == -1) {
-			currentTime = Math.min(startTime, currentTime);
+			animationTime = Math.max(startTime, animationTime);
 
 			notifier.timeBoundsChanged(getStart(), getEnd());
 		}
+		return this;
 	}
 
 	//	public int getGlobalSeqTime(final int globalSeqId) {
@@ -158,12 +165,13 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return globalSequenceLength;
 	}
 
-	public void setEnd(final int endTime) {
+	public TimeEnvironmentImpl setEnd(final int endTime) {
 		end = endTime;
 		if (globalSequenceLength == -1) {
-			currentTime = Math.min(endTime, currentTime);
+			animationTime = Math.min(endTime, animationTime);
 			notifier.timeBoundsChanged(getStart(), getEnd());
 		}
+		return this;
 	}
 
 	@Override
@@ -175,33 +183,38 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return animationSpeed;
 	}
 
-	public void setAnimationSpeed(float animationSpeed) {
+	public TimeEnvironmentImpl setAnimationSpeed(float animationSpeed) {
 		this.animationSpeed = animationSpeed;
+		return this;
 	}
 
 
-	public void setLoopType(final AnimationControllerListener.LoopType loopType) {
+	public TimeEnvironmentImpl setLoopType(final AnimationControllerListener.LoopType loopType) {
 		this.loopType = loopType;
 		switch (loopType) {
 			case ALWAYS_LOOP -> looping = true;
 			case DEFAULT_LOOP -> looping = animation != null && !animation.isNonLooping();
 			case NEVER_LOOP -> looping = false;
 		}
+		return this;
 	}
 
-	public void setAlwaysLooping() {
+	public TimeEnvironmentImpl setAlwaysLooping() {
 		this.loopType = AnimationControllerListener.LoopType.ALWAYS_LOOP;
 		looping = true;
+		return this;
 	}
 
-	public void setDefaultLooping() {
+	public TimeEnvironmentImpl setDefaultLooping() {
 		this.loopType = AnimationControllerListener.LoopType.DEFAULT_LOOP;
 		looping = looping = animation != null && !animation.isNonLooping();
+		return this;
 	}
 
-	public void setNeverLooping() {
+	public TimeEnvironmentImpl setNeverLooping() {
 		this.loopType = AnimationControllerListener.LoopType.NEVER_LOOP;
 		looping = false;
+		return this;
 	}
 
 
@@ -209,27 +222,34 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return live;
 	}
 
-	public void setLive(final boolean live) {
+	public TimeEnvironmentImpl setLive(final boolean live) {
 		this.live = live;
+		updateLastMillis();
+		return this;
 	}
 
-	public void updateAnimationTime() {
+	public TimeEnvironmentImpl updateAnimationTime() {
 		long timeSkip = System.currentTimeMillis() - lastUpdateMillis;
 		updateLastMillis();
-		if ((animation != null) && (animation.length() > 0)) {
-//			System.out.println("animationTime: " + animationTime);
+//		if ((animation != null) && (end-start > 0)) {
+		if ((live) && (end - start > 0)) {
+//			System.out.println("animationTime: " + animationTime + ", speed: " + animationSpeed);
 			if (looping) {
-				animationTime = (int) ((animationTime + (long) (timeSkip * animationSpeed)) % animation.length());
+//				animationTime = start + (int) ((animationTime - start + (long) (timeSkip * animationSpeed)) % animation.length());
+				animationTime = start + (int) (((animationTime - start) + (long) (timeSkip * animationSpeed)) % (end - start));
 			} else {
-				animationTime = Math.min(animation.length(), (int) (animationTime + (timeSkip * animationSpeed)));
-				if (animationTime > animation.length()) {
+//				if (animationTime >= animation.length()) {
+				if (animationTime >= end) {
 					live = false;
 				}
+				animationTime = Math.min(end, (int) (animationTime + (timeSkip * animationSpeed)));
 			}
 		}
+		return this;
 	}
 
-	public void updateLastMillis() {
+	public TimeEnvironmentImpl updateLastMillis() {
 		lastUpdateMillis = System.currentTimeMillis();
+		return this;
 	}
 }
