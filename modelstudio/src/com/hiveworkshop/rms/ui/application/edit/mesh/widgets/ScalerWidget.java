@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
@@ -12,7 +13,7 @@ public final class ScalerWidget {
 	private static final int LINE_SENS = 3;
 	private static final int EXTERIOR_TRIANGLE_OFFSET = LINE_LEN - 16;
 	private static final int INTERIOR_TRIANGLE_OFFSET = LINE_LEN - 32;
-	private final Vec3 point;
+	private final Vec3 point = new Vec3(0, 0, 0);
 
 	private final Polygon triangle;
 	private final Polygon romb;
@@ -21,10 +22,7 @@ public final class ScalerWidget {
 	private final Polygon northLineHitBox;
 	private final Polygon eastLineHitBox;
 
-	public ScalerWidget(Vec3 point) {
-		this.point = new Vec3(0, 0, 0);
-		this.point.set(point);
-
+	public ScalerWidget() {
 		triangle = new Polygon();
 		triangle.addPoint(0, 0);
 		triangle.addPoint(INTERIOR_TRIANGLE_OFFSET, 0);
@@ -62,12 +60,16 @@ public final class ScalerWidget {
 		return direction;
 	}
 
-    public Vec3 getPoint() {
-        return point;
-    }
+	public Vec3 getPoint() {
+		return point;
+	}
 
 	public void setPoint(Vec3 point) {
 		this.point.set(point);
+	}
+
+	public void setPoint(Vec2 point) {
+		this.point.set(point.x, point.y, 0);
 	}
 
 	public MoveDimension getMoveDirection() {

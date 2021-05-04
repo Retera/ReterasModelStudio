@@ -24,7 +24,7 @@ public abstract class AbstractMoveTVertexManipulator extends Manipulator {
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
-		super.onStart(e, mouseStart, dim1, dim2);
+//		super.onStart(e, mouseStart, dim1, dim2);
 		translationAction = modelEditor.beginTranslation();
 	}
 

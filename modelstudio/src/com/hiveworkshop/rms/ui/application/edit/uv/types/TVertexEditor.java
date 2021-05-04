@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.AddSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeEditableAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.RemoveSelectionAction;
@@ -18,7 +19,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleA
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ComponentVisibilityListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.*;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
@@ -97,10 +97,10 @@ public abstract class TVertexEditor<T> implements ComponentVisibilityListener {
 
 	protected abstract java.util.List<T> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem);
 
-	protected abstract UndoAction buildHideComponentAction(java.util.List<? extends SelectableComponent> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable);
+	protected abstract UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable);
 
 	@Override
-	public UndoAction hideComponent(java.util.List<? extends SelectableComponent> selectableComponent, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
+	public UndoAction hideComponent(List<? extends CheckableDisplayElement> selectableComponent, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
 		UndoAction hideComponentAction = buildHideComponentAction(selectableComponent, editabilityToggleHandler,
 				refreshGUIRunnable);
 		hideComponentAction.redo();
@@ -193,6 +193,14 @@ public abstract class TVertexEditor<T> implements ComponentVisibilityListener {
 		}
 	}
 
+	public void rawRotate2d(Vec3 center,
+	                        double radians,
+	                        byte firstXYZ, byte secondXYZ) {
+		for (Vec2 vertex : TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex)) {
+			vertex.rotate(center.x, center.y, radians, firstXYZ, secondXYZ);
+		}
+	}
+
 	public UndoAction translate(double x, double y) {
 		Vec2 delta = new Vec2(x, y);
 		StaticMeshUVMoveAction moveAction = new StaticMeshUVMoveAction(this, delta);
@@ -233,6 +241,11 @@ public abstract class TVertexEditor<T> implements ComponentVisibilityListener {
 	public GenericRotateAction beginRotation(double centerX, double centerY,
 	                                         byte dim1, byte dim2) {
 		return new StaticMeshUVRotateAction(this, new Vec2(centerX, centerY), dim1, dim2);
+	}
+
+	public GenericRotateAction beginRotation(Vec3 center,
+	                                         byte dim1, byte dim2) {
+		return new StaticMeshUVRotateAction(this, center, dim1, dim2);
 	}
 
 	public GenericScaleAction beginScaling(double centerX, double centerY) {

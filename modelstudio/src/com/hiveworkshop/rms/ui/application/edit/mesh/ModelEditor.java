@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.RigAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
@@ -13,7 +14,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleA
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ComponentVisibilityListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -110,8 +110,8 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	UndoAction selectAll();
 
 	@Override
-	UndoAction hideComponent(List<? extends SelectableComponent> selectableComponents,
-							 EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable);
+	UndoAction hideComponent(List<? extends CheckableDisplayElement> selectableComponents,
+	                         EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable);
 
 	@Override
 	UndoAction showComponent(EditabilityToggleHandler editabilityToggleHandler);

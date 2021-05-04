@@ -25,7 +25,7 @@ public class RotateTVertexManipulator extends Manipulator {
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
-		super.onStart(e, mouseStart, dim1, dim2);
+//		super.onStart(e, mouseStart, dim1, dim2);
 		Vec2 center = selectionView.getUVCenter(modelEditor.getUVLayerIndex());
 		byte planeDim1;
 		byte planeDim2;

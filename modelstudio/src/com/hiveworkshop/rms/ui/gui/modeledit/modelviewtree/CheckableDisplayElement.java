@@ -1,12 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 
 import java.util.Objects;
 
-public abstract class CheckableDisplayElement<T> implements SelectableComponent {
+public abstract class CheckableDisplayElement<T> {
 	protected final ModelView modelViewManager;
 	protected final T item;
 
@@ -26,10 +24,6 @@ public abstract class CheckableDisplayElement<T> implements SelectableComponent 
 	}
 
 	protected abstract void setChecked(T item, ModelView modelViewManager, boolean checked);
-
-	@Override
-	public void visit(final SelectableComponentVisitor visitor) {
-	}
 
 	@Override
 	public String toString() {

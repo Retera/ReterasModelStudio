@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawBoneAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.nodes.DeleteNodesAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
@@ -22,8 +23,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingActi
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingMoveActionAdapter;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -325,29 +324,20 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(List<? extends SelectableComponent> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
+	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
 		List<Vec3> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		List<Vec3> possibleVerticesToTruncate = new ArrayList<>();
-		for (SelectableComponent component : selectableComponents) {
-			component.visit(new SelectableComponentVisitor() {
-				@Override
-				public void accept(Camera camera) {
-					possibleVerticesToTruncate.add(camera.getPosition());
-					possibleVerticesToTruncate.add(camera.getTargetPosition());
+		for (CheckableDisplayElement component : selectableComponents) {
+			Object item = component.getItem();
+			if (item instanceof Camera) {
+				possibleVerticesToTruncate.add(((Camera) item).getPosition());
+				possibleVerticesToTruncate.add(((Camera) item).getTargetPosition());
+			} else if (item instanceof IdObject) {
+				possibleVerticesToTruncate.add(((IdObject) item).getPivotPoint());
+				if (item instanceof CollisionShape) {
+					possibleVerticesToTruncate.addAll(((CollisionShape) item).getVertices());
 				}
-
-				@Override
-				public void accept(IdObject object) {
-					possibleVerticesToTruncate.add(object.getPivotPoint());
-					if (object instanceof CollisionShape) {
-						possibleVerticesToTruncate.addAll(((CollisionShape) object).getVertices());
-					}
-				}
-
-				@Override
-				public void accept(Geoset geoset) {
-				}
-			});
+			}
 		}
 		Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleVerticesToTruncate);
 		Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);

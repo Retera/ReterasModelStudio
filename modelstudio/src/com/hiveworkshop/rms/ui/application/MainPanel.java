@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.application.edit.ClonedNodeNamePickerImplementation;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
@@ -89,7 +88,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
     final ViewportListener viewportListener = new ViewportListener();
 
-    ClonedNodeNamePicker namePicker = new ClonedNodeNamePickerImplementation(this);
+    ClonedNodeNamePicker namePicker = new ClonedNodeNamePicker(this);
 
     public MainPanel() {
         super();

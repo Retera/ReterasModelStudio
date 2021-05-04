@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 
 public class CheckableGeosetElement extends CheckableDisplayElement<Geoset> {
 	public CheckableGeosetElement(ModelView modelViewManager, Geoset item) {
@@ -26,11 +25,6 @@ public class CheckableGeosetElement extends CheckableDisplayElement<Geoset> {
 //		return "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
 //		return item.getName().substring(0, Math.max(100, item.getName().length()));
 		return item.getName();
-	}
-
-	@Override
-	public void visit(final SelectableComponentVisitor visitor) {
-		visitor.accept(item);
 	}
 
 	@Override

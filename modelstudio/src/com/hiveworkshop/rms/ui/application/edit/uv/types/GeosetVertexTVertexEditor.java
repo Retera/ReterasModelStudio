@@ -1,16 +1,17 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.types;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -169,26 +170,16 @@ public class GeosetVertexTVertexEditor extends TVertexEditor<GeosetVertex> {
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(List<? extends SelectableComponent> selectableComponents,
-                                                  EditabilityToggleHandler editabilityToggleHandler,
-                                                  Runnable refreshGUIRunnable) {
+	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents,
+	                                              EditabilityToggleHandler editabilityToggleHandler,
+	                                              Runnable refreshGUIRunnable) {
 		List<GeosetVertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		List<GeosetVertex> possibleVerticesToTruncate = new ArrayList<>();
-		for (SelectableComponent component : selectableComponents) {
-			component.visit(new SelectableComponentVisitor() {
-				@Override
-				public void accept(final Camera camera) {
-				}
-
-				@Override
-				public void accept(final IdObject node) {
-				}
-
-				@Override
-				public void accept(final Geoset geoset) {
-					possibleVerticesToTruncate.addAll(geoset.getVertices());
-				}
-			});
+		for (CheckableDisplayElement component : selectableComponents) {
+			Object item = component.getItem();
+			if (item instanceof Geoset) {
+				possibleVerticesToTruncate.addAll(((Geoset) item).getVertices());
+			}
 		}
 		final Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleVerticesToTruncate);
 

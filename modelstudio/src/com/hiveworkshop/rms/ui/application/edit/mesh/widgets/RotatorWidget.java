@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
@@ -10,12 +11,10 @@ import java.awt.*;
 public final class RotatorWidget {
 	private static final int ROTATOR_RADIUS = 60;
 	private static final int ROTATOR_RADIUS_SQUARED = ROTATOR_RADIUS * ROTATOR_RADIUS;
-	private final Vec3 point;
+	private final Vec3 point = new Vec3(0, 0, 0);
 	private MoveDimension moveDirection = MoveDimension.NONE;
 
-	public RotatorWidget(Vec3 point) {
-		this.point = new Vec3(0, 0, 0);
-		this.point.set(point);
+	public RotatorWidget() {
 	}
 
 	public MoveDimension getDirectionByMouse(Point mousePoint, CoordinateSystem coordinateSystem) {
@@ -43,12 +42,16 @@ public final class RotatorWidget {
 		return MoveDimension.NONE;
 	}
 
-    public Vec3 getPoint() {
-        return point;
-    }
+	public Vec3 getPoint() {
+		return point;
+	}
 
 	public void setPoint(Vec3 point) {
 		this.point.set(point);
+	}
+
+	public void setPoint(Vec2 point) {
+		this.point.set(point.x, point.y, 0);
 	}
 
 	public MoveDimension getMoveDirection() {

@@ -24,7 +24,7 @@ public abstract class AbstractScaleManipulator extends Manipulator {
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
-		super.onStart(e, mouseStart, dim1, dim2);
+//		super.onStart(e, mouseStart, dim1, dim2);
 		Vec3 center = selectionView.getCenter();
 		scaleAction = modelEditor.beginScaling(center.x, center.y, center.z);
 	}

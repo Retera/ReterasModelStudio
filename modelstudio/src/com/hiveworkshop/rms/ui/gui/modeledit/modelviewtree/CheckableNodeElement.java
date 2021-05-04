@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 
 public class CheckableNodeElement extends CheckableDisplayElement<IdObject> {
 	public CheckableNodeElement(ModelHandler modelHandler, IdObject item) {
@@ -22,11 +21,6 @@ public class CheckableNodeElement extends CheckableDisplayElement<IdObject> {
 	@Override
 	protected String getName(IdObject item, ModelView modelViewManager) {
 		return item.getClass().getSimpleName() + " \"" + item.getName() + "\"";
-	}
-
-	@Override
-	public void visit(SelectableComponentVisitor visitor) {
-		visitor.accept(item);
 	}
 
 	@Override

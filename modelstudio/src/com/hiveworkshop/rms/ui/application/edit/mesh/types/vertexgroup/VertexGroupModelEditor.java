@@ -1,6 +1,9 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.types.vertexgroup;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.mesh.SplitGeosetAction;
 import com.hiveworkshop.rms.ui.application.actions.mesh.TeamColorAddAction;
@@ -11,12 +14,11 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -156,28 +158,18 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(List<? extends SelectableComponent> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
+	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
 		List<VertexGroupBundle> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		List<VertexGroupBundle> vertexBundlesToTruncate = new ArrayList<>(selectionManager.getSelection());
-		for (SelectableComponent component : selectableComponents) {
-			component.visit(new SelectableComponentVisitor() {
-				@Override
-				public void accept(Camera camera) {
-				}
-
-				@Override
-				public void accept(IdObject node) {
-				}
-
-				@Override
-				public void accept(Geoset geoset) {
-					for (VertexGroupBundle bundle : previousSelection) {
-						if (bundle.getGeoset() == geoset) {
-							vertexBundlesToTruncate.add(bundle);
-						}
+		for (CheckableDisplayElement component : selectableComponents) {
+			Object item = component.getItem();
+			if (item instanceof Geoset) {
+				for (VertexGroupBundle bundle : previousSelection) {
+					if (bundle.getGeoset() == item) {
+						vertexBundlesToTruncate.add(bundle);
 					}
 				}
-			});
+			}
 		}
 		Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(vertexBundlesToTruncate);
 		Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);

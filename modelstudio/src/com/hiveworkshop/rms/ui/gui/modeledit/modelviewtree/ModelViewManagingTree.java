@@ -179,7 +179,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 					handleNodeRecursively(sourceNode);
 				}
 
-				CheckableDisplayElementToggleHandler toggleHandler = new CheckableDisplayElementToggleHandler(components);
+				EditabilityToggleHandler toggleHandler = new EditabilityToggleHandler(components);
 
 				UndoAction showHideUndo;
 				if (isSelected(sourceNode)) {
@@ -215,28 +215,6 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 				}
 			}
 		};
-	}
-
-	private static final class CheckableDisplayElementToggleHandler implements EditabilityToggleHandler {
-		private final Collection<CheckableDisplayElement<?>> elements;
-
-		public CheckableDisplayElementToggleHandler(final Collection<CheckableDisplayElement<?>> elements) {
-			this.elements = elements;
-		}
-
-		@Override
-		public void makeEditable() {
-			for (final CheckableDisplayElement<?> element : elements) {
-				element.setChecked(true);
-			}
-		}
-
-		@Override
-		public void makeNotEditable() {
-			for (final CheckableDisplayElement<?> element : elements) {
-				element.setChecked(false);
-			}
-		}
 	}
 
 	private final class HighlightOnMouseoverListenerImpl implements MouseMotionListener, MouseListener {

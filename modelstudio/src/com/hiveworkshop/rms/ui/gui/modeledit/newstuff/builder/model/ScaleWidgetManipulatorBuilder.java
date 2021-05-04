@@ -14,7 +14,7 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.awt.*;
 
 public final class ScaleWidgetManipulatorBuilder extends ModelEditorManipulatorBuilder {
-	private final ScalerWidget moverWidget = new ScalerWidget(new Vec3(0, 0, 0));
+	private final ScalerWidget widget = new ScalerWidget();
 
 	public ScaleWidgetManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler, ProgramPreferences programPreferences) {
 		super(modelEditorManager, modelHandler, programPreferences);
@@ -22,18 +22,18 @@ public final class ScaleWidgetManipulatorBuilder extends ModelEditorManipulatorB
 
 	@Override
 	protected boolean widgetOffersEdit(Vec3 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		moverWidget.setPoint(selectionView.getCenter());
-		MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-		moverWidget.setMoveDirection(directionByMouse);
+		widget.setPoint(selectionView.getCenter());
+		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		widget.setMoveDirection(directionByMouse);
 		return directionByMouse != MoveDimension.NONE;
 	}
 
 	@Override
 	protected Manipulator createManipulatorFromWidget(Vec3 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		moverWidget.setPoint(selectionView.getCenter());
-		MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		widget.setPoint(selectionView.getCenter());
+		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 
-		moverWidget.setMoveDirection(directionByMouse);
+		widget.setMoveDirection(directionByMouse);
 		if (directionByMouse != MoveDimension.NONE) {
 			return new ScaleManipulator(getModelEditor(), selectionView, directionByMouse);
 		}
@@ -47,8 +47,8 @@ public final class ScaleWidgetManipulatorBuilder extends ModelEditorManipulatorB
 
 	@Override
 	protected void renderWidget(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		moverWidget.setPoint(selectionView.getCenter());
-		moverWidget.render(graphics, coordinateSystem);
+		widget.setPoint(selectionView.getCenter());
+		widget.render(graphics, coordinateSystem);
 	}
 
 }

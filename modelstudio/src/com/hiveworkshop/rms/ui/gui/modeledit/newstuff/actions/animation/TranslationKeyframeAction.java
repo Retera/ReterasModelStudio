@@ -1,14 +1,14 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
+import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TranslationKeyframeAction implements GenericMoveAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
@@ -35,8 +35,8 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		for (final Map.Entry<IdObject, Vec3> nodeAndLocalTranslation : nodeToLocalTranslation.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
 			final Vec3 localTranslation = nodeAndLocalTranslation.getValue();
-			node.updateLocalTranslationKeyframe(trackTime, trackGlobalSeq, -localTranslation.x, -localTranslation.y,
-					-localTranslation.z);
+			node.updateLocalTranslationKeyframe(trackTime, trackGlobalSeq,
+					-localTranslation.x, -localTranslation.y, -localTranslation.z);
 		}
 		addingTimelinesOrKeyframesAction.undo();
 	}
@@ -47,8 +47,8 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		for (final Map.Entry<IdObject, Vec3> nodeAndLocalTranslation : nodeToLocalTranslation.entrySet()) {
 			final IdObject node = nodeAndLocalTranslation.getKey();
 			final Vec3 localTranslation = nodeAndLocalTranslation.getValue();
-			node.updateLocalTranslationKeyframe(trackTime, trackGlobalSeq, localTranslation.x, localTranslation.y,
-					localTranslation.z);
+			node.updateLocalTranslationKeyframe(trackTime, trackGlobalSeq,
+					localTranslation.x, localTranslation.y, localTranslation.z);
 		}
 	}
 

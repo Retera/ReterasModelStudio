@@ -4,23 +4,23 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 
 public final class TVertexRotatorWidget {
 	private static final int ROTATOR_RADIUS = 60;
 	private static final int ROTATOR_RADIUS_SQUARED = ROTATOR_RADIUS * ROTATOR_RADIUS;
-	private final Vec2 point;
+	//	private final Vec2 point;
+	private final Vec3 point2 = new Vec3(0, 0, 0);
 	private MoveDimension moveDirection = MoveDimension.NONE;
 
-	public TVertexRotatorWidget(Vec2 point) {
-		this.point = new Vec2(0, 0);
-		this.point.set(point);
+	public TVertexRotatorWidget() {
 	}
 
 	public MoveDimension getDirectionByMouse(Point mousePoint, CoordinateSystem coordinateSystem) {
-		double x = coordinateSystem.viewX(point.getCoord(coordinateSystem.getPortFirstXYZ()));
-		double y = coordinateSystem.viewY(point.getCoord(coordinateSystem.getPortSecondXYZ()));
+		double x = coordinateSystem.viewX(point2.getCoord(coordinateSystem.getPortFirstXYZ()));
+		double y = coordinateSystem.viewY(point2.getCoord(coordinateSystem.getPortSecondXYZ()));
 
 		double deltaY = y - mousePoint.getY();
 		double deltaX = x - mousePoint.getX();
@@ -44,12 +44,12 @@ public final class TVertexRotatorWidget {
 		return MoveDimension.NONE;
 	}
 
-	public Vec2 getPoint() {
-		return point;
-	}
+//	public Vec2 getPoint() {
+//		return point;
+//	}
 
 	public void setPoint(Vec2 point) {
-		this.point.set(point);
+		this.point2.set(point.x, point.y, 0);
 	}
 
 	public MoveDimension getMoveDirection() {
@@ -63,8 +63,8 @@ public final class TVertexRotatorWidget {
 	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
 		byte xDimension = coordinateSystem.getPortFirstXYZ();
 		byte yDimension = coordinateSystem.getPortSecondXYZ();
-		double x = coordinateSystem.viewX(point.getCoord(xDimension));
-		double y = coordinateSystem.viewY(point.getCoord(yDimension));
+		double x = coordinateSystem.viewX(point2.getCoord(xDimension));
+		double y = coordinateSystem.viewY(point2.getCoord(yDimension));
 
 		setHighLightableColor(graphics, yDimension, moveDirection);
 		drawHorzLine(graphics, x, y);

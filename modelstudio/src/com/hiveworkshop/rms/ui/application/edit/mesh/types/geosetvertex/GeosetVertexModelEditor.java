@@ -14,13 +14,12 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawVertexAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.NewGeosetAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.AddTriangleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -168,24 +167,14 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(List<? extends SelectableComponent> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
+	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
 		List<GeosetVertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		List<GeosetVertex> possibleVerticesToTruncate = new ArrayList<>();
-		for (SelectableComponent component : selectableComponents) {
-			component.visit(new SelectableComponentVisitor() {
-				@Override
-				public void accept(Camera camera) {
-				}
-
-				@Override
-				public void accept(IdObject node) {
-				}
-
-				@Override
-				public void accept(Geoset geoset) {
-					possibleVerticesToTruncate.addAll(geoset.getVertices());
-				}
-			});
+		for (CheckableDisplayElement component : selectableComponents) {
+			Object item = component.getItem();
+			if (item instanceof Geoset) {
+				possibleVerticesToTruncate.addAll(((Geoset) item).getVertices());
+			}
 		}
 		Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleVerticesToTruncate);
 		Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);

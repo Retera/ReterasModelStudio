@@ -2,12 +2,12 @@ package com.hiveworkshop.rms.ui.application.edit.mesh;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.AddSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeEditableAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.RemoveSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponent;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 
 import java.awt.geom.Rectangle2D;
@@ -60,12 +60,12 @@ public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 
 	protected abstract List<T> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem);
 
-	protected abstract UndoAction buildHideComponentAction(List<? extends SelectableComponent> selectableComponents,
+	protected abstract UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents,
 	                                                       EditabilityToggleHandler editabilityToggleHandler,
 	                                                       Runnable refreshGUIRunnable);
 
 	@Override
-	public UndoAction hideComponent(List<? extends SelectableComponent> selectableComponent,
+	public UndoAction hideComponent(List<? extends CheckableDisplayElement> selectableComponent,
 	                                EditabilityToggleHandler editabilityToggleHandler,
 	                                Runnable refreshGUIRunnable) {
 		UndoAction hideComponentAction = buildHideComponentAction(selectableComponent, editabilityToggleHandler, refreshGUIRunnable);

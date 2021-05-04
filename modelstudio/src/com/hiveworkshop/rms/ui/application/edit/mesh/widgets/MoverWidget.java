@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
@@ -11,7 +12,7 @@ public final class MoverWidget {
 	private static final int LINE_LONG = 60;
 	private static final int LINE_SHORT = 20;
 	private static final int TRIANGLE_OFFSET = LINE_LONG - 16;
-	private final Vec3 point;
+	private final Vec3 point = new Vec3(0, 0, 0);
 	private MoveDimension moveDirection = MoveDimension.NONE;
 	private final Polygon northTriangle;
 	private final Polygon eastTriangle;
@@ -19,10 +20,7 @@ public final class MoverWidget {
 	private final Polygon eastLineHitBox;
 	private final Polygon nortLineHitBox;
 
-	public MoverWidget(Vec3 point) {
-		this.point = new Vec3(0, 0, 0);
-		this.point.set(point);
-
+	public MoverWidget() {
 		northTriangle = GU.getSymTriPoly(5, 0, -18);
 		northTriangle.translate(0, -TRIANGLE_OFFSET);
 
@@ -68,6 +66,10 @@ public final class MoverWidget {
 
 	public void setPoint(Vec3 point) {
 		this.point.set(point);
+	}
+
+	public void setPoint(Vec2 point) {
+		this.point.set(point.x, point.y, 0);
 	}
 
 	public MoveDimension getMoveDirection() {

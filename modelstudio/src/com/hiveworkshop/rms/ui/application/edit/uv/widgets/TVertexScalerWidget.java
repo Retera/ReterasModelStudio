@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.GU;
 import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 
@@ -12,7 +13,8 @@ public final class TVertexScalerWidget {
 	private static final int LINE_SENS = 3;
 	private static final int EXTERIOR_TRIANGLE_OFFSET = LINE_LEN - 16;
 	private static final int INTERIOR_TRIANGLE_OFFSET = LINE_LEN - 32;
-	private final Vec2 point;
+	//	private final Vec2 point;
+	private final Vec3 point2 = new Vec3(0, 0, 0);
 	private final Polygon romb;
 	private final Polygon triangle;
 	private MoveDimension moveDirection = MoveDimension.NONE;
@@ -20,10 +22,7 @@ public final class TVertexScalerWidget {
 	private final Polygon northLineHitBox;
 	private final Polygon eastLineHitBox;
 
-	public TVertexScalerWidget(Vec2 point) {
-		this.point = new Vec2(0, 0);
-		this.point.set(point);
-
+	public TVertexScalerWidget() {
 		triangle = new Polygon();
 		triangle.addPoint(0, 0);
 		triangle.addPoint(INTERIOR_TRIANGLE_OFFSET, 0);
@@ -40,8 +39,8 @@ public final class TVertexScalerWidget {
 	}
 
 	public MoveDimension getDirectionByMouse(Point mousePoint, CoordinateSystem coordinateSystem, byte dim1, byte dim2) {
-		int x = (int) coordinateSystem.viewX(point.getCoord(dim1));
-		int y = (int) coordinateSystem.viewY(point.getCoord(dim2));
+		int x = (int) coordinateSystem.viewX(point2.getCoord(dim1));
+		int y = (int) coordinateSystem.viewY(point2.getCoord(dim2));
 
 		MoveDimension direction = MoveDimension.NONE;
 
@@ -60,12 +59,13 @@ public final class TVertexScalerWidget {
 		return direction;
 	}
 
-	public Vec2 getPoint() {
-		return point;
-	}
+//	public Vec2 getPoint() {
+//		return point;
+//	}
 
 	public void setPoint(Vec2 point) {
-		this.point.set(point);
+//		this.point.set(point);
+		point2.set(point.x, point.y, 0);
 	}
 
 	public MoveDimension getMoveDirection() {
@@ -79,8 +79,8 @@ public final class TVertexScalerWidget {
 	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
 		byte xDimension = coordinateSystem.getPortFirstXYZ();
 		byte yDimension = coordinateSystem.getPortSecondXYZ();
-		int x = (int) coordinateSystem.viewX(point.getCoord(xDimension));
-		int y = (int) coordinateSystem.viewY(point.getCoord(yDimension));
+		int x = (int) coordinateSystem.viewX(point2.getCoord(xDimension));
+		int y = (int) coordinateSystem.viewY(point2.getCoord(yDimension));
 		if (moveDirection != null) {
 			setHighLightableColor(graphics, xDimension, moveDirection);
 			drawEastLine(graphics, x, y);
