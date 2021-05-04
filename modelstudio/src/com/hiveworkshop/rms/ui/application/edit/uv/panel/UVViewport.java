@@ -57,7 +57,7 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 		Graphics2D graphics2d = (Graphics2D) g;
 		viewportModelRenderer.drawGeosetUVs(graphics2d, programPreferences, coordinateSystem, modelHandler);
 
-		activityListener.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), false);
+		viewportActivity.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), false);
 	}
 
 	private void PaintBackgroundImage(Graphics g) {

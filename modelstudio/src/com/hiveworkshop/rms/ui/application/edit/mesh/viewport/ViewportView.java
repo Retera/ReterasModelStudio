@@ -31,7 +31,7 @@ public abstract class ViewportView extends JPanel {
 
 	protected ModelHandler modelHandler;
 	protected ProgramPreferences programPreferences;
-	protected ViewportActivity activityListener;
+	protected ViewportActivity viewportActivity;
 	protected ViewportListener viewportListener;
 	protected CoordDisplayListener coordDisplayListener;
 
@@ -48,7 +48,7 @@ public abstract class ViewportView extends JPanel {
 	                    CoordDisplayListener coordDisplayListener) {
 		this.modelHandler = modelHandler;
 		this.programPreferences = programPreferences;
-		this.activityListener = viewportActivity;
+		this.viewportActivity = viewportActivity;
 		this.viewportListener = viewportListener;
 		this.coordDisplayListener = coordDisplayListener;
 
@@ -174,8 +174,8 @@ public abstract class ViewportView extends JPanel {
 		return new MouseAdapter() {
 			@Override
 			public void mouseEntered(final MouseEvent e) {
-				if (!activityListener.isEditing()) {
-					activityListener.viewportChanged(cursorManager);
+				if (!viewportActivity.isEditing()) {
+					viewportActivity.viewportChanged(cursorManager);
 					requestFocus();
 					mouseInBounds = true;
 					setBorder(BorderFactory.createBevelBorder(1, Color.YELLOW, Color.YELLOW.darker()));
@@ -186,7 +186,7 @@ public abstract class ViewportView extends JPanel {
 
 			@Override
 			public void mouseExited(final MouseEvent e) {
-				if (!activityListener.isEditing()) {
+				if (!viewportActivity.isEditing()) {
 					if ((selectStart == null) && (actStart == null) && (lastClick == null)) {
 						clickTimer.stop();
 					}
@@ -200,15 +200,15 @@ public abstract class ViewportView extends JPanel {
 				if (e.getButton() == MouseEvent.BUTTON2) {
 					lastClick = new Point(e.getX(), e.getY());
 				} else if (e.getButton() == MouseEvent.BUTTON1) {
-					activityListener.viewportChanged(cursorManager);
+					viewportActivity.viewportChanged(cursorManager);
 					viewportListener.viewportChanged(viewport);
 					requestFocus();
-					activityListener.mousePressed(e, coordinateSystem);
+					viewportActivity.mousePressed(e, coordinateSystem);
 				} else if (e.getButton() == MouseEvent.BUTTON3) {
-					activityListener.viewportChanged(cursorManager);
+					viewportActivity.viewportChanged(cursorManager);
 					viewportListener.viewportChanged(viewport);
 					requestFocus();
-					activityListener.mousePressed(e, coordinateSystem);
+					viewportActivity.mousePressed(e, coordinateSystem);
 				}
 			}
 
@@ -226,15 +226,15 @@ public abstract class ViewportView extends JPanel {
 					coordinateSystem.translateZoomed(translateX, translateY);
 					lastClick = null;
 				} else if (e.getButton() == MouseEvent.BUTTON1) {
-					activityListener.mouseReleased(e, coordinateSystem);
+					viewportActivity.mouseReleased(e, coordinateSystem);
 				} else if (e.getButton() == MouseEvent.BUTTON3) {
-					activityListener.mouseReleased(e, coordinateSystem);
+					viewportActivity.mouseReleased(e, coordinateSystem);
 				}
 				if (!mouseInBounds && (selectStart == null) && (actStart == null) && (lastClick == null)) {
 					clickTimer.stop();
 					repaint();
 				}
-				if (mouseInBounds && !getBounds().contains(e.getPoint()) && !activityListener.isEditing()) {
+				if (mouseInBounds && !getBounds().contains(e.getPoint()) && !viewportActivity.isEditing()) {
 					mouseExited(e);
 				}
 			}
@@ -273,17 +273,17 @@ public abstract class ViewportView extends JPanel {
 
 			@Override
 			public void mouseDragged(final MouseEvent e) {
-				activityListener.mouseDragged(e, coordinateSystem);
+				viewportActivity.mouseDragged(e, coordinateSystem);
 				lastMouseMotion = e.getPoint();
 //				repaint();
 			}
 
 			@Override
 			public void mouseMoved(final MouseEvent e) {
-				if (!mouseInBounds && getBounds().contains(e.getPoint()) && !activityListener.isEditing()) {
+				if (!mouseInBounds && getBounds().contains(e.getPoint()) && !viewportActivity.isEditing()) {
 					mouseEntered(e);
 				}
-				activityListener.mouseMoved(e, coordinateSystem);
+				viewportActivity.mouseMoved(e, coordinateSystem);
 				lastMouseMotion = e.getPoint();
 				repaint();
 			}

@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
@@ -32,8 +31,7 @@ import com.hiveworkshop.rms.ui.util.InfoPopup;
 import javax.swing.*;
 
 /**
- * The ModelPanel is a pane holding the display of a given MDL model. I plan to
- * tab between them.
+ * The ModelPanel is a pane holding the display of a given MDL model. I plan to tab between them.
  *
  * Eric Theller 6/7/2012
  */
@@ -156,15 +154,13 @@ public class ModelPanel {
 		this.editUVPanel = editUVPanel;
 	}
 
-	public boolean close(MainPanel mainPanel)// MainPanel parent) TODO fix
-	{
+	public boolean close() {
 		// returns true if closed successfully
 		boolean canceled = false;
-		// int myIndex = parent.tabbedPane.indexOfComponent(this);
 		if (!modelHandler.getUndoManager().isUndoListEmpty()) {
 			final Object[] options = {"Yes", "No", "Cancel"};
 			final int n = JOptionPane.showOptionDialog(parent,
-					"Would you like to save " + modelHandler.getModel().getName()/* parent.tabbedPane.getTitleAt(myIndex) */ + " (\""
+					"Would you like to save " + modelHandler.getModel().getName() + " (\""
 							+ modelHandler.getModel().getHeaderName() + "\") before closing?",
 					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
 					options[2]);
@@ -177,7 +173,6 @@ public class ModelPanel {
 					}
 					break;
 				case JOptionPane.NO_OPTION:
-					// parent.tabbedPane.remove(myIndex);
 					if (editUVPanel != null) {
 						editUVPanel.getView().setVisible(false);
 					}
@@ -187,7 +182,6 @@ public class ModelPanel {
 				break;
 			}
 		} else {
-			// parent.tabbedPane.remove(myIndex);
 			if (editUVPanel != null) {
 				editUVPanel.getView().setVisible(false);
 			}

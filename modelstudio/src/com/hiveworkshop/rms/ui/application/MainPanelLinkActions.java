@@ -22,10 +22,10 @@ import java.awt.event.ActionListener;
 public class MainPanelLinkActions {
 	static void linkActions(final MainPanel mainPanel, final JComponent root) {
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Z"), "Undo");
-		root.getActionMap().put("Undo", mainPanel.undoAction);
+		root.getActionMap().put("Undo", mainPanel.getUndoHandler().getUndoAction());
 
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control Y"), "Redo");
-		root.getActionMap().put("Redo", mainPanel.redoAction);
+		root.getActionMap().put("Redo", mainPanel.getUndoHandler().getRedoAction());
 
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DELETE"), "Delete");
 		root.getActionMap().put("Delete", mainPanel.deleteAction);
@@ -420,7 +420,7 @@ public class MainPanelLinkActions {
 			} catch (final Exception exc) {
 				ExceptionPopup.display(exc);
 			}
-			mainPanel.refreshUndo();
+			mainPanel.getUndoHandler().refreshUndo();
 			MainPanel.repaintSelfAndChildren(mainPanel);
 			mpanel.repaintSelfAndRelatedChildren();
 		}

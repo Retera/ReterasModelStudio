@@ -168,9 +168,8 @@ public class MenuBarActions {
 		ModelPanel modelPanel = mainPanel.currentModelPanel();
 		int oldIndex = mainPanel.modelPanels.indexOf(modelPanel);
 		if (modelPanel != null) {
-			if (modelPanel.close(mainPanel)) {
+			if (modelPanel.close()) {
 				mainPanel.modelPanels.remove(modelPanel);
-//                mainPanel.windowMenu.remove(modelPanel.getMenuItem());
 				MenuBar.windowMenu.remove(modelPanel.getMenuItem());
 				if (mainPanel.modelPanels.size() > 0) {
 					int newIndex = Math.min(mainPanel.modelPanels.size() - 1, oldIndex);
@@ -223,7 +222,7 @@ public class MenuBarActions {
 				mdl.setExtents(new ExtLog(128).setDefault());
 			}
 
-			ModelHandler modelHandler = new ModelHandler(mdl, mainPanel);
+			ModelHandler modelHandler = new ModelHandler(mdl, mainPanel.getUndoHandler());
 			ModelPanel temp = new ModelPanel(mainPanel, modelHandler, mainPanel.prefs,
 					mainPanel.selectionItemTypeGroup, mainPanel.selectionModeGroup,
 					mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
@@ -244,7 +243,7 @@ public class MenuBarActions {
 				lastUnclosedModelPanel = panel;
 				continue;
 			}
-			if (success = panel.close(mainPanel)) {
+			if (success = panel.close()) {
 //                mainPanel.windowMenu.remove(panel.getMenuItem());
 				MenuBar.windowMenu.remove(panel.getMenuItem());
 				iterator.remove();

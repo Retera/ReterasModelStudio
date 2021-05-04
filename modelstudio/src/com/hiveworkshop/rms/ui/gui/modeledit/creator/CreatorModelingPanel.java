@@ -364,161 +364,161 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 	}
 
-	private interface ChooseableTimeRange {
+	public interface ChooseableTimeRange {
 		void applyTo(TimeEnvironmentImpl timeEnvironment);
 
 		Object getThing();
 	}
 
-	private static final class ChooseableAnimation implements ChooseableTimeRange {
-		private final Animation animation;
-
-		public ChooseableAnimation(Animation animation) {
-			this.animation = animation;
-		}
-
-		@Override
-		public void applyTo(TimeEnvironmentImpl timeEnvironment) {
-			timeEnvironment.setBounds(animation);
-		}
-
-		@Override
-		public String toString() {
-			return animation.getName();
-		}
-
-		@Override
-		public Object getThing() {
-			return animation;
-		}
-
-		@Override
-		public int hashCode() {
-			int prime = 31;
-			int result = 1;
-			result = (prime * result) + (animation == null ? 0 : animation.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(final Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			ChooseableAnimation other = (ChooseableAnimation) obj;
-			if (animation == null) {
-				return other.animation == null;
-			} else {
-				return animation.equals(other.animation);
-			}
-		}
-	}
-
-	private static final class ChooseableDoNothing implements ChooseableTimeRange {
-		private final String text;
-
-		public ChooseableDoNothing(String text) {
-			this.text = text;
-		}
-
-		@Override
-		public void applyTo(TimeEnvironmentImpl timeEnvironment) {
-		}
-
-		@Override
-		public String toString() {
-			return text;
-		}
-
-		@Override
-		public Object getThing() {
-			return text;
-		}
-
-		@Override
-		public int hashCode() {
-			int prime = 31;
-			int result = 1;
-			result = (prime * result) + (text == null ? 0 : text.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(final Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			ChooseableDoNothing other = (ChooseableDoNothing) obj;
-			if (text == null) {
-				return other.text == null;
-			} else {
-				return text.equals(other.text);
-			}
-		}
-	}
-
-	private static final class ChooseableGlobalSeq implements ChooseableTimeRange {
-		private final Integer globalSeq;
-
-		public ChooseableGlobalSeq(Integer globalSeq) {
-			this.globalSeq = globalSeq;
-		}
-
-		@Override
-		public void applyTo(TimeEnvironmentImpl timeEnvironment) {
-			timeEnvironment.setGlobalSeq(globalSeq);
-		}
-
-		@Override
-		public String toString() {
-			return globalSeq.toString();
-		}
-
-		@Override
-		public Object getThing() {
-			return globalSeq;
-		}
-
-		@Override
-		public int hashCode() {
-			int prime = 31;
-			int result = 1;
-			result = (prime * result) + (globalSeq == null ? 0 : globalSeq.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(final Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			ChooseableGlobalSeq other = (ChooseableGlobalSeq) obj;
-			if (globalSeq == null) {
-				return other.globalSeq == null;
-			} else {
-				return globalSeq.equals(other.globalSeq);
-			}
-		}
-
-	}
+//	private static final class ChooseableAnimation implements ChooseableTimeRange {
+//		private final Animation animation;
+//
+//		public ChooseableAnimation(Animation animation) {
+//			this.animation = animation;
+//		}
+//
+//		@Override
+//		public void applyTo(TimeEnvironmentImpl timeEnvironment) {
+//			timeEnvironment.setBounds(animation);
+//		}
+//
+//		@Override
+//		public String toString() {
+//			return animation.getName();
+//		}
+//
+//		@Override
+//		public Object getThing() {
+//			return animation;
+//		}
+//
+//		@Override
+//		public int hashCode() {
+//			int prime = 31;
+//			int result = 1;
+//			result = (prime * result) + (animation == null ? 0 : animation.hashCode());
+//			return result;
+//		}
+//
+//		@Override
+//		public boolean equals(final Object obj) {
+//			if (this == obj) {
+//				return true;
+//			}
+//			if (obj == null) {
+//				return false;
+//			}
+//			if (getClass() != obj.getClass()) {
+//				return false;
+//			}
+//			ChooseableAnimation other = (ChooseableAnimation) obj;
+//			if (animation == null) {
+//				return other.animation == null;
+//			} else {
+//				return animation.equals(other.animation);
+//			}
+//		}
+//	}
+//
+//	private static final class ChooseableDoNothing implements ChooseableTimeRange {
+//		private final String text;
+//
+//		public ChooseableDoNothing(String text) {
+//			this.text = text;
+//		}
+//
+//		@Override
+//		public void applyTo(TimeEnvironmentImpl timeEnvironment) {
+//		}
+//
+//		@Override
+//		public String toString() {
+//			return text;
+//		}
+//
+//		@Override
+//		public Object getThing() {
+//			return text;
+//		}
+//
+//		@Override
+//		public int hashCode() {
+//			int prime = 31;
+//			int result = 1;
+//			result = (prime * result) + (text == null ? 0 : text.hashCode());
+//			return result;
+//		}
+//
+//		@Override
+//		public boolean equals(final Object obj) {
+//			if (this == obj) {
+//				return true;
+//			}
+//			if (obj == null) {
+//				return false;
+//			}
+//			if (getClass() != obj.getClass()) {
+//				return false;
+//			}
+//			ChooseableDoNothing other = (ChooseableDoNothing) obj;
+//			if (text == null) {
+//				return other.text == null;
+//			} else {
+//				return text.equals(other.text);
+//			}
+//		}
+//	}
+//
+//	private static final class ChooseableGlobalSeq implements ChooseableTimeRange {
+//		private final Integer globalSeq;
+//
+//		public ChooseableGlobalSeq(Integer globalSeq) {
+//			this.globalSeq = globalSeq;
+//		}
+//
+//		@Override
+//		public void applyTo(TimeEnvironmentImpl timeEnvironment) {
+//			timeEnvironment.setGlobalSeq(globalSeq);
+//		}
+//
+//		@Override
+//		public String toString() {
+//			return globalSeq.toString();
+//		}
+//
+//		@Override
+//		public Object getThing() {
+//			return globalSeq;
+//		}
+//
+//		@Override
+//		public int hashCode() {
+//			int prime = 31;
+//			int result = 1;
+//			result = (prime * result) + (globalSeq == null ? 0 : globalSeq.hashCode());
+//			return result;
+//		}
+//
+//		@Override
+//		public boolean equals(final Object obj) {
+//			if (this == obj) {
+//				return true;
+//			}
+//			if (obj == null) {
+//				return false;
+//			}
+//			if (getClass() != obj.getClass()) {
+//				return false;
+//			}
+//			ChooseableGlobalSeq other = (ChooseableGlobalSeq) obj;
+//			if (globalSeq == null) {
+//				return other.globalSeq == null;
+//			} else {
+//				return globalSeq.equals(other.globalSeq);
+//			}
+//		}
+//
+//	}
 //
 //	@Override
 //	public void timeChanged(final int currentTime, final Set<IdObject> objects, final List<AnimFlag<?>> timelines) {

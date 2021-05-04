@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.*;
 
 import javax.swing.*;
@@ -120,6 +121,19 @@ public class WindowHandler {
 			if (childWindow instanceof View) {
 				final View view = (View) childWindow;
 				view.getViewProperties().getViewTitleBarProperties().setVisible(true);
+			}
+		}
+	}
+
+	public static void traverseAndReset(final DockingWindow window, Vec3 color) {
+		final int childWindowCount = window.getChildWindowCount();
+		for (int i = 0; i < childWindowCount; i++) {
+			final DockingWindow childWindow = window.getChildWindow(i);
+			traverseAndReset(childWindow, Vec3.getSum(color, new Vec3(.1, .1, .1)));
+			if (childWindow instanceof View) {
+				final View view = (View) childWindow;
+				view.getViewProperties().getViewTitleBarProperties().setVisible(true);
+				view.setBackground(color.asIntColor());
 			}
 		}
 	}

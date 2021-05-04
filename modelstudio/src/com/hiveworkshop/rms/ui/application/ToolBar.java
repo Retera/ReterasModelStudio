@@ -28,9 +28,8 @@ public class ToolBar {
         toolbar.addSeparator();
 
 
-        addToolbarIcon(toolbar, "Undo", "undo.png", mainPanel.undoAction);
-
-        addToolbarIcon(toolbar, "Redo", "redo.png", mainPanel.redoAction);
+        addToolbarIcon(toolbar, "Undo", "undo.png", mainPanel.getUndoHandler().getUndoAction());
+        addToolbarIcon(toolbar, "Redo", "redo.png", mainPanel.getUndoHandler().getRedoAction());
 
         toolbar.addSeparator();
         mainPanel.selectionModeGroup = new ToolbarButtonGroup<>(toolbar, SelectionMode.values());

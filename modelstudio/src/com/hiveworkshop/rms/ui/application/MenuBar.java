@@ -193,19 +193,9 @@ public class MenuBar {
     }
 
     private static void fillEditMenu(final MainPanel mainPanel, JMenu editMenu) {
-        mainPanel.undo = new UndoMenuItem(mainPanel, "Undo");
-        mainPanel.undo.addActionListener(mainPanel.undoAction);
-        mainPanel.undo.setAccelerator(KeyStroke.getKeyStroke("control Z"));
-        mainPanel.undo.setEnabled(mainPanel.undo.funcEnabled());
-        // undo.addMouseListener(this);
-        editMenu.add(mainPanel.undo);
+        editMenu.add(mainPanel.getUndoHandler().getUndo());
 
-        mainPanel.redo = new RedoMenuItem(mainPanel, "Redo");
-        mainPanel.redo.addActionListener(mainPanel.redoAction);
-        mainPanel.redo.setAccelerator(KeyStroke.getKeyStroke("control Y"));
-        mainPanel.redo.setEnabled(mainPanel.redo.funcEnabled());
-        // redo.addMouseListener(this);
-        editMenu.add(mainPanel.redo);
+        editMenu.add(mainPanel.getUndoHandler().getRedo());
 
 
         editMenu.add(new JSeparator());
@@ -354,7 +344,7 @@ public class MenuBar {
         newDirectory.setAccelerator(KeyStroke.getKeyStroke("control shift D"));
         newDirectory.setToolTipText("Changes the directory from which to load texture files for the 3D display.");
         newDirectory.setMnemonic(KeyEvent.VK_D);
-        newDirectory.addActionListener(e -> mainPanel.refreshUndo());
+        newDirectory.addActionListener(e -> mainPanel.getUndoHandler().refreshUndo());
 //		viewMenu.add(newDirectory);
 
         viewMenu.add(new JSeparator());
@@ -613,8 +603,7 @@ public class MenuBar {
         ModelPanel lastUnclosedModelPanel = null;
         while (iterator.hasNext()) {
             final ModelPanel panel = iterator.next();
-            if (success = panel.close(mainPanel)) {
-//                mainPanel.windowMenu.remove(panel.getMenuItem());
+            if (success = panel.close()) {
                 windowMenu.remove(panel.getMenuItem());
                 iterator.remove();
                 if (panel == mainPanel.currentModelPanel) {
@@ -665,7 +654,6 @@ public class MenuBar {
     static void showVertexModifyControls(List<ModelPanel> modelPanels, ProgramPreferences prefs, JCheckBoxMenuItem showVertexModifyControls) {
         final boolean selected = showVertexModifyControls.isSelected();
         prefs.setShowVertexModifierControls(selected);
-        // SaveProfile.get().setShowViewportButtons(selected);
         for (final ModelPanel panel : modelPanels) {
             panel.getFrontArea().setControlsVisible(selected);
             panel.getBotArea().setControlsVisible(selected);
@@ -693,60 +681,6 @@ public class MenuBar {
         }
 
         String filepath;
-    }
-
-    static class UndoMenuItem extends JMenuItem {
-        private final MainPanel mainPanel;
-
-        public UndoMenuItem(MainPanel mainPanel, final String text) {
-            super(text);
-            this.mainPanel = mainPanel;
-        }
-
-        @Override
-        public String getText() {
-            if (funcEnabled()) {
-                return "Undo " + mainPanel.currentModelPanel().getUndoManager().getUndoText();// +"
-                // Ctrl+Z";
-            } else {
-                return "Can't undo";// +" Ctrl+Z";
-            }
-        }
-
-        public boolean funcEnabled() {
-            try {
-                return !mainPanel.currentModelPanel().getUndoManager().isUndoListEmpty();
-            } catch (final NullPointerException e) {
-                return false;
-            }
-        }
-    }
-
-    static class RedoMenuItem extends JMenuItem {
-        private final MainPanel mainPanel;
-
-        public RedoMenuItem(MainPanel mainPanel, final String text) {
-            super(text);
-            this.mainPanel = mainPanel;
-        }
-
-        @Override
-        public String getText() {
-            if (funcEnabled()) {
-                return "Redo " + mainPanel.currentModelPanel().getUndoManager().getRedoText();// +"
-                // Ctrl+Y";
-            } else {
-                return "Can't redo";// +" Ctrl+Y";
-            }
-        }
-
-        public boolean funcEnabled() {
-            try {
-                return !mainPanel.currentModelPanel().getUndoManager().isRedoListEmpty();
-            } catch (final NullPointerException e) {
-                return false;
-            }
-        }
     }
 
 }

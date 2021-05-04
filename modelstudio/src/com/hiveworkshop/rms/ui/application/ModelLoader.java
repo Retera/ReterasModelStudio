@@ -57,9 +57,9 @@ public class ModelLoader {
 				refreshAndUpdateModelPanel(mainPanel);
 			}
 		}
-		final List<ToolbarButtonGroup<ToolbarActionButtonType>.ToolbarButtonAction> buttons = mainPanel.actionTypeGroup
-				.getButtons();
-		final int numberOfButtons = buttons.size();
+		List<ToolbarButtonGroup<ToolbarActionButtonType>.ToolbarButtonAction> buttons = mainPanel.actionTypeGroup.getButtons();
+
+		int numberOfButtons = buttons.size();
 		for (int i = 3; i < numberOfButtons; i++) {
 			buttons.get(i).getButton().setVisible(!mainPanel.animationModeState);
 		}
@@ -85,7 +85,7 @@ public class ModelLoader {
 
 	public static ModelPanel newTempModelPanel(MainPanel mainPanel, ImageIcon icon, EditableModel model) {
 		ModelPanel temp;
-		ModelHandler modelHandler = new ModelHandler(model, mainPanel);
+		ModelHandler modelHandler = new ModelHandler(model, mainPanel.getUndoHandler());
 		temp = new ModelPanel(mainPanel, modelHandler, mainPanel.prefs,
 				mainPanel.selectionItemTypeGroup,
 				mainPanel.selectionModeGroup,
@@ -97,7 +97,7 @@ public class ModelLoader {
 		return temp;
 	}
 
-	//    public static EditableModel getImagePlaneModel(String fileName, File workingDirectory, int version) {
+
 	public static EditableModel getImagePlaneModel(File file, int version) {
 		String fileName = file.getName();
 		System.out.println("fileName: " + fileName);
@@ -150,7 +150,7 @@ public class ModelLoader {
 		}
 		JMenuItem menuItem = new JMenuItem(modelPanel.getModel().getName());
 		menuItem.setIcon(modelPanel.getIcon());
-		//	    mainPanel.windowMenu.add(menuItem);
+
 		MenuBar.windowMenu.add(menuItem);
 		menuItem.addActionListener(e -> setCurrentModel(mainPanel, modelPanel));
 		modelPanel.setJMenuItem(menuItem);
@@ -175,16 +175,14 @@ public class ModelLoader {
 			modelPanel.getModelViewManager().getModel().setFileRef(null);
 		}
 
-		//        mainPanel.toolsMenu.setEnabled(true);
 		MenuBar.toolsMenu.setEnabled(true);
 
 		if (selectNewTab && mainPanel.prefs.getQuickBrowse()) {
 			for (int i = (mainPanel.modelPanels.size() - 2); i >= 0; i--) {
 				ModelPanel openModelPanel = mainPanel.modelPanels.get(i);
 				if (openModelPanel.getUndoManager().isRedoListEmpty() && openModelPanel.getUndoManager().isUndoListEmpty()) {
-					if (openModelPanel.close(mainPanel)) {
+					if (openModelPanel.close()) {
 						mainPanel.modelPanels.remove(openModelPanel);
-						//                        mainPanel.windowMenu.remove(openModelPanel.getMenuItem());
 						MenuBar.windowMenu.remove(openModelPanel.getMenuItem());
 					}
 				}
@@ -324,9 +322,8 @@ public class ModelLoader {
 		final ModelPanel modelPanel = mainPanel.currentModelPanel();
 		final int oldIndex = mainPanel.modelPanels.indexOf(modelPanel);
 		if (modelPanel != null) {
-			if (modelPanel.close(mainPanel)) {
+			if (modelPanel.close()) {
 				mainPanel.modelPanels.remove(modelPanel);
-				//                mainPanel.windowMenu.remove(modelPanel.getMenuItem());
 				MenuBar.windowMenu.remove(modelPanel.getMenuItem());
 				if (mainPanel.modelPanels.size() > 0) {
 					final int newIndex = Math.min(mainPanel.modelPanels.size() - 1, oldIndex);

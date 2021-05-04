@@ -344,11 +344,10 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		JToolBar toolbar = new JToolBar(JToolBar.HORIZONTAL);
 		toolbar.setFloatable(false);
 		toolbar.addSeparator();
-		undoAction = mainPanel.undoAction;
-//        undoAction = getUndoAction();
+		undoAction = mainPanel.getUndoHandler().getUndoAction();
 		toolbar.add(undoAction);
-		redoAction = mainPanel.redoAction;
-//        redoAction = getRedoAction();
+
+		redoAction = mainPanel.getUndoHandler().getRedoAction();
 		toolbar.add(redoAction);
 
 		toolbar.addSeparator();

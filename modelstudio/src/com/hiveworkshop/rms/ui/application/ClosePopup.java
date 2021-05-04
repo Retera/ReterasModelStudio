@@ -8,7 +8,7 @@ public class ClosePopup {
 	static void createContextMenuPopup(MainPanel mainPanel) {
 		contextMenu = new JPopupMenu();
 		JMenuItem contextClose = new JMenuItem("Close");
-		contextClose.addActionListener(e -> mainPanel.refreshUndo());
+		contextClose.addActionListener(e -> mainPanel.getUndoHandler().refreshUndo());
 		contextMenu.add(contextClose);
 
 		JMenuItem contextCloseOthers = new JMenuItem("Close Others");
