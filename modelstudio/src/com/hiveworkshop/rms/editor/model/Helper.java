@@ -42,9 +42,4 @@ public class Helper extends Bone { // Haha blizz
 	public Helper copy() {
 		return new Helper(this);
 	}
-
-//	@Override
-//	public void apply(final IdObjectVisitor visitor) {
-//		visitor.helper(this);
-//	}
 }

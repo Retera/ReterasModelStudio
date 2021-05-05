@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxBone;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -120,15 +119,10 @@ public class Bone extends IdObject {
 		return this.geoset.equals(geoset) || multiGeoId;
 	}
 
-//	@Override
-//	public void apply(IdObjectVisitor visitor) {
-//		visitor.bone(this);
-//	}
-
 	@Override
 	public double getClickRadius(CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
-//		return DEFAULT_CLICK_RADIUS * 3 / CoordinateSystem.getZoom(coordinateSystem);
+		return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+//		return DEFAULT_CLICK_RADIUS * 3 / coordinateSystem.getZoom();
 	}
 
 	@Override

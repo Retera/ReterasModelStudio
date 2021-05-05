@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 
 /**
@@ -184,14 +183,9 @@ public class ParticleEmitter extends EmitterIdObject {
 		this.path = path;
 	}
 
-//	@Override
-//	public void apply(IdObjectVisitor visitor) {
-//		visitor.particleEmitter(this);
-//	}
-
 	@Override
 	public double getClickRadius(CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
+		return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
 	}
 
 	public double getRenderSpeed(TimeEnvironmentImpl animatedRenderEnvironment) {

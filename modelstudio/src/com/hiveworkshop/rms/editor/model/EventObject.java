@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxEventObject;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 
 import java.util.ArrayList;
@@ -242,14 +241,9 @@ public class EventObject extends IdObject {
 		this.eventTrack = eventTrack;
 	}
 
-//	@Override
-//	public void apply(final IdObjectVisitor visitor) {
-//		visitor.eventObject(this);
-//	}
-
 	@Override
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
+		return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
 	}
 
 	@Override

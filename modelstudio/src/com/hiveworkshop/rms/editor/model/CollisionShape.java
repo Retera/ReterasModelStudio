@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape.Type;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -116,11 +115,6 @@ public class CollisionShape extends IdObject {
 		this.vertices = vertices;
 	}
 
-//	@Override
-//	public void apply(IdObjectVisitor visitor) {
-//		visitor.collisionShape(this);
-//	}
-
 	@Override
 	public double getClickRadius(CoordinateSystem coordinateSystem) {
 		byte xDimension = coordinateSystem.getPortFirstXYZ();
@@ -140,13 +134,13 @@ public class CollisionShape extends IdObject {
 				// int maxYCoord = Math.max(yCoord, secondYCoord);
 				// int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord -
 				// minYCoord) / 2;
-				return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
+				return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
 			} else {
-				return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
+				return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
 			}
 		}
 		if (extents == null) {
-			return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
+			return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
 		}
 		return extents.getBoundsRadius();
 	}

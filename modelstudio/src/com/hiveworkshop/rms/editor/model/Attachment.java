@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxAttachment;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 
 /**
@@ -77,13 +76,8 @@ public class Attachment extends IdObject {
 		this.attachmentID = attachmentID;
 	}
 
-//	@Override
-//	public void apply(IdObjectVisitor visitor) {
-//		visitor.attachment(this);
-//	}
-
 	@Override
 	public double getClickRadius(CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
+		return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
 	}
 }

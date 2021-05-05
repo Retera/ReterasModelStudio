@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLight;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLight.Type;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -131,13 +130,8 @@ public class Light extends IdObject {
 		this.staticAmbColor = staticAmbColor;
 	}
 
-//	@Override
-//	public void apply(final IdObjectVisitor visitor) {
-//		visitor.light(this);
-//	}
-
 	@Override
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / CoordSysUtils.getZoom(coordinateSystem);
+		return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
 	}
 }
