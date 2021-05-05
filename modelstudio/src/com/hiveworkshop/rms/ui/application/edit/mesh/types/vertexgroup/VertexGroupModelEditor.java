@@ -22,12 +22,9 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggle
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.List;
 import java.util.*;
 
 public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGroupBundle> {
@@ -107,18 +104,18 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 	}
 
 	@Override
-	public boolean canSelectAt(Point point, CoordinateSystem axes) {
+	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
 		boolean canSelect = false;
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (triHitTest(triangle, CoordSysUtils.geom(axes, point), axes)) {
+				if (triHitTest(triangle, CoordSysUtils.geomV2(axes, point), axes)) {
 					canSelect = true;
 				}
 			}
 		}
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (hitTest(geosetVertex, CoordSysUtils.geom(axes, point), axes, programPreferences.getVertexSize())) {
+				if (hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, programPreferences.getVertexSize())) {
 					canSelect = true;
 				}
 			}
@@ -127,15 +124,14 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 	}
 
 	@Override
-	protected List<VertexGroupBundle> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem) {
+	protected List<VertexGroupBundle> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<VertexGroupBundle> newSelection = new ArrayList<>();
-		Rectangle2D area = getArea(region);
 
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (triHitTest(triangle, new Point2D.Double(area.getX(), area.getY()), coordinateSystem)
-						|| triHitTest(triangle, new Point2D.Double(area.getX() + area.getWidth(), area.getY() + area.getHeight()), coordinateSystem)
-						|| triHitTest(triangle, area, coordinateSystem)) {
+				if (triHitTest(triangle, min, coordinateSystem)
+						|| triHitTest(triangle, max, coordinateSystem)
+						|| triHitTest(triangle, min, max, coordinateSystem)) {
 					for (GeosetVertex vertex : triangle.getAll()) {
 						newSelection.add(new VertexGroupBundle(geoset, vertex.getVertexGroup()));
 					}
@@ -146,7 +142,7 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 		List<GeosetVertex> geosetVerticesSelected = new ArrayList<>();
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (hitTest(area, geosetVertex, coordinateSystem, programPreferences.getVertexSize())) {
+				if (hitTest(min, max, geosetVertex, coordinateSystem, programPreferences.getVertexSize())) {
 					geosetVerticesSelected.add(geosetVertex);
 				}
 			}

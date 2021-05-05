@@ -9,29 +9,21 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
-
 public final class MoverWidgetManipulatorBuilder extends ModelEditorManipulatorBuilder {
-	private final MoverWidget widget = new MoverWidget();
+//	private final MoverWidget widget = new MoverWidget();
 
 	public MoverWidgetManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler, ProgramPreferences programPreferences) {
 		super(modelEditorManager, modelHandler, programPreferences);
+		widget = new MoverWidget();
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(Vec3 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+	protected Manipulator createManipulatorFromWidget(Vec3 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		widget.setPoint(selectionView.getCenter());
-		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-		widget.setMoveDirection(directionByMouse);
-		return directionByMouse != MoveDimension.NONE;
-	}
-
-	@Override
-	protected Manipulator createManipulatorFromWidget(Vec3 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		widget.setPoint(selectionView.getCenter());
-		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
 
 		widget.setMoveDirection(directionByMouse);
 		if (directionByMouse != MoveDimension.NONE) {
@@ -41,14 +33,7 @@ public final class MoverWidgetManipulatorBuilder extends ModelEditorManipulatorB
 	}
 
 	@Override
-	protected Manipulator createDefaultManipulator(Vec3 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+	protected Manipulator createDefaultManipulator(Vec3 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		return new MoveManipulator(getModelEditor(), MoveDimension.XYZ);
 	}
-
-	@Override
-	protected void renderWidget(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		widget.setPoint(selectionView.getCenter());
-		widget.render(graphics, coordinateSystem);
-	}
-
 }

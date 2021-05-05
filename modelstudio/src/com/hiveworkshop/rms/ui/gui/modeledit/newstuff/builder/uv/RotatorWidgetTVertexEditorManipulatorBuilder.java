@@ -22,7 +22,7 @@ public final class RotatorWidgetTVertexEditorManipulatorBuilder extends TVertexE
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(final Vec2 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected boolean widgetOffersEdit(final Vec2 selectionCenter, final Vec2 mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
 		final MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
 		widget.setMoveDirection(directionByMouse);
@@ -30,7 +30,7 @@ public final class RotatorWidgetTVertexEditorManipulatorBuilder extends TVertexE
 	}
 
 	@Override
-	protected Manipulator createManipulatorFromWidget(final Vec2 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected Manipulator createManipulatorFromWidget(final Vec2 selectionCenter, final Vec2 mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
 		final MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
 
@@ -42,7 +42,7 @@ public final class RotatorWidgetTVertexEditorManipulatorBuilder extends TVertexE
 	}
 
 	@Override
-	protected Manipulator createDefaultManipulator(final Vec2 selectionCenter, final Point mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
+	protected Manipulator createDefaultManipulator(final Vec2 selectionCenter, final Vec2 mousePoint, final CoordinateSystem coordinateSystem, final SelectionView selectionView) {
 		return new RotateTVertexManipulator(getModelEditor(), selectionView, MoveDimension.XYZ);
 	}
 

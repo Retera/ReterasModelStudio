@@ -18,12 +18,9 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggle
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.List;
 import java.util.*;
 
 public class FaceModelEditor extends AbstractModelEditor<Triangle> {
@@ -131,11 +128,11 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	}
 
 	@Override
-	public boolean canSelectAt(Point point, CoordinateSystem axes) {
+	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
 		boolean canSelect = false;
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (triHitTest(triangle, CoordSysUtils.geom(axes, point), axes)) {
+				if (triHitTest(triangle, CoordSysUtils.geomV2(axes, point), axes)) {
 					canSelect = true;
 				}
 			}
@@ -144,15 +141,14 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	}
 
 	@Override
-	protected List<Triangle> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem) {
+	protected List<Triangle> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<Triangle> newSelection = new ArrayList<>();
-		Rectangle2D area = getArea(region);
 
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (triHitTest(triangle, new Point2D.Double(area.getX(), area.getY()), coordinateSystem)
-						|| triHitTest(triangle, new Point2D.Double(area.getX() + area.getWidth(), area.getY() + area.getHeight()), coordinateSystem)
-						|| triHitTest(triangle, area, coordinateSystem)) {
+				if (triHitTest(triangle, min, coordinateSystem)
+						|| triHitTest(triangle, max, coordinateSystem)
+						|| triHitTest(triangle, min, max, coordinateSystem)) {
 					newSelection.add(triangle);
 				}
 			}

@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.browsers.mpq;
 
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.util.Callback;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -20,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.*;
+import java.util.function.Consumer;
 
 public final class MPQBrowser extends JPanel {
 	private final class MouseAdapterExtension extends MouseAdapter {
@@ -60,8 +60,8 @@ public final class MPQBrowser extends JPanel {
 	private Set<TreePath> expandedPaths;
 	private Set<TreePath> collapsedPaths;
 
-	public MPQBrowser(CompoundDataSource gameDataFileSystem, Callback<String> fileOpenCallback,
-	                  Callback<String> useAsTextureCallback) {
+	public MPQBrowser(CompoundDataSource gameDataFileSystem, Consumer<String> fileOpenCallback,
+	                  Consumer<String> useAsTextureCallback) {
 		this.gameDataFileSystem = gameDataFileSystem;
 		iconMap = new HashMap<>();
 
@@ -211,7 +211,7 @@ public final class MPQBrowser extends JPanel {
 		filtersMenu.add(checkAll);
 	}
 
-	private MouseAdapter getMouseClickedListener(Callback<String> fileOpenCallback) {
+	private MouseAdapter getMouseClickedListener(Consumer<String> fileOpenCallback) {
 		return new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -223,11 +223,11 @@ public final class MPQBrowser extends JPanel {
 		};
 	}
 
-	private void openTreePath(TreePath treePath, Callback<String> fileOpenCallback) {
+	private void openTreePath(TreePath treePath, Consumer<String> fileOpenCallback) {
 		if (treePath != null) {
 			MPQTreeNode lastPathComponent = (MPQTreeNode) treePath.getLastPathComponent();
 			if (lastPathComponent != null && lastPathComponent.isLeaf()) {
-				fileOpenCallback.run(lastPathComponent.getPath());
+				fileOpenCallback.accept(lastPathComponent.getPath());
 			}
 		}
 	}
@@ -262,7 +262,7 @@ public final class MPQBrowser extends JPanel {
 		};
 	}
 
-	private KeyListener getKeyListener(Callback<String> fileOpenCallback) {
+	private KeyListener getKeyListener(Consumer<String> fileOpenCallback) {
 		return new KeyListener() {
 			boolean stillPressed = false;
 
@@ -340,8 +340,8 @@ public final class MPQBrowser extends JPanel {
 		clipboard.setContents(selection, selection);
 	}
 
-	private void useAsTextureActionRes(Callback<String> useAsTextureCallback) {
-		useAsTextureCallback.run(((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent()).getPath());
+	private void useAsTextureActionRes(Consumer<String> useAsTextureCallback) {
+		useAsTextureCallback.accept(((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent()).getPath());
 	}
 
 	private void exportItemActionRes(CompoundDataSource gameDataFileSystem) {

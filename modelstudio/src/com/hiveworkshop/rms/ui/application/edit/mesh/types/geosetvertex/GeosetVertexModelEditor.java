@@ -26,9 +26,6 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.List;
 import java.util.*;
 
 public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
@@ -124,15 +121,12 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
 	}
 
-	@Override
-	protected List<GeosetVertex> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem) {
+	protected List<GeosetVertex> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<GeosetVertex> selectedItems = new ArrayList<>();
-
-		Rectangle2D area = getArea(region);
 
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (hitTest(area, geosetVertex, coordinateSystem, programPreferences.getVertexSize()))
+				if (hitTest(min, max, geosetVertex, coordinateSystem, programPreferences.getVertexSize()))
 					selectedItems.add(geosetVertex);
 			}
 		}
@@ -154,11 +148,11 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	}
 
 	@Override
-	public boolean canSelectAt(Point point, CoordinateSystem axes) {
+	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
 		boolean canSelect = false;
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (hitTest(geosetVertex, CoordSysUtils.geom(axes, point), axes, programPreferences.getVertexSize())) {
+				if (hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, programPreferences.getVertexSize())) {
 					canSelect = true;
 				}
 			}

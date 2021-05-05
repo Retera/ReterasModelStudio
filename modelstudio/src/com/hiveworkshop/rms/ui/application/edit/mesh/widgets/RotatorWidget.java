@@ -8,23 +8,22 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 
-public final class RotatorWidget {
+public final class RotatorWidget extends Widget {
 	private static final int ROTATOR_RADIUS = 60;
 	private static final int ROTATOR_RADIUS_SQUARED = ROTATOR_RADIUS * ROTATOR_RADIUS;
-	private final Vec3 point = new Vec3(0, 0, 0);
-	private MoveDimension moveDirection = MoveDimension.NONE;
 
 	public RotatorWidget() {
 	}
 
-	public MoveDimension getDirectionByMouse(Point mousePoint, CoordinateSystem coordinateSystem) {
-		double x = coordinateSystem.viewX(point.getCoord(coordinateSystem.getPortFirstXYZ()));
-		double y = coordinateSystem.viewY(point.getCoord(coordinateSystem.getPortSecondXYZ()));
-
-		double deltaY = y - mousePoint.getY();
-		double deltaX = x - mousePoint.getX();
+	@Override
+	public MoveDimension getDirectionByMouse(Vec2 mousePoint, CoordinateSystem coordinateSystem) {
 		byte dim1 = coordinateSystem.getPortFirstXYZ();
 		byte dim2 = coordinateSystem.getPortSecondXYZ();
+		double x = coordinateSystem.viewX(point.getCoord(dim1));
+		double y = coordinateSystem.viewY(point.getCoord(dim2));
+
+		double deltaX = x - mousePoint.x;
+		double deltaY = y - mousePoint.y;
 		if (Math.abs(deltaX) <= 3 && Math.abs(deltaY) <= ROTATOR_RADIUS) {
 			return MoveDimension.getByByte(dim1);
 		}
@@ -46,22 +45,7 @@ public final class RotatorWidget {
 		return point;
 	}
 
-	public void setPoint(Vec3 point) {
-		this.point.set(point);
-	}
-
-	public void setPoint(Vec2 point) {
-		this.point.set(point.x, point.y, 0);
-	}
-
-	public MoveDimension getMoveDirection() {
-		return moveDirection;
-	}
-
-	public void setMoveDirection(MoveDimension moveDirection) {
-		this.moveDirection = moveDirection;
-	}
-
+	@Override
 	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
 		byte xDimension = coordinateSystem.getPortFirstXYZ();
 		byte yDimension = coordinateSystem.getPortSecondXYZ();
@@ -106,22 +90,5 @@ public final class RotatorWidget {
 
 	private byte getOutwardDimension(byte xDimension, byte yDimension) {
 		return CoordSysUtils.getUnusedXYZ(xDimension, yDimension);
-	}
-
-	private void setColorByDimension(Graphics2D graphics, byte dimension) {
-		switch (dimension) {
-			case 0, -1 -> graphics.setColor(new Color(0, 255, 0));
-			case 1, -2 -> graphics.setColor(new Color(255, 0, 0));
-			case 2, -3 -> graphics.setColor(new Color(0, 0, 255));
-		}
-	}
-
-	private void setHighLightableColor(Graphics2D graphics, byte dimension, MoveDimension moveDimension) {
-//		System.out.println(moveDimension + " has " + MoveDimension.getByByte(dimension) + "?");
-		if (moveDimension.containDirection(dimension)) {
-			graphics.setColor(new Color(255, 255, 0));
-		} else {
-			setColorByDimension(graphics, dimension);
-		}
 	}
 }

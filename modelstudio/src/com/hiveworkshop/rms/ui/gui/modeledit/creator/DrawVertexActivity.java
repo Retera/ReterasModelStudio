@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewpor
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
@@ -67,7 +66,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	public void mousePressed(final MouseEvent e, final CoordinateSystem coordinateSystem) {
 		locationCalculator.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(e.getX()));
 		locationCalculator.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(e.getY()));
-		locationCalculator.setCoord(CoordSysUtils.getUnusedXYZ(coordinateSystem), 0);
+		locationCalculator.setCoord(coordinateSystem.getUnusedXYZ(), 0);
 		try {
 			final Viewport viewport = viewportListener.getViewport();
 			final Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();

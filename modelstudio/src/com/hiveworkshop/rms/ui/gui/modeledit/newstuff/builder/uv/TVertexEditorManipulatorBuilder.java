@@ -48,7 +48,7 @@ public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuil
 	public final Cursor getCursorAt(int x, int y,
 	                                CoordinateSystem coordinateSystem,
 	                                SelectionView selectionView) {
-		Point mousePoint = new Point(x, y);
+		Vec2 mousePoint = new Vec2(x, y);
 		if (!selectionView.isEmpty() && widgetOffersEdit(selectionView.getUVCenter(modelEditor.getUVLayerIndex()), mousePoint, coordinateSystem, selectionView)) {
 			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
 		} else if (viewportSelectionHandler.canSelectAt(mousePoint, coordinateSystem)) {
@@ -62,7 +62,7 @@ public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuil
 	                                               ButtonType clickedButton,
 	                                               CoordinateSystem coordinateSystem,
 	                                               SelectionView selectionView) {
-		Point mousePoint = new Point(x, y);
+		Vec2 mousePoint = new Vec2(x, y);
 		if (clickedButton == ButtonType.RIGHT_MOUSE) {
 			return createDefaultManipulator(selectionView.getUVCenter(modelEditor.getUVLayerIndex()), mousePoint, coordinateSystem, selectionView);
 		} else {
@@ -89,11 +89,11 @@ public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuil
 		}
 	}
 
-	protected abstract boolean widgetOffersEdit(Vec2 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
+	protected abstract boolean widgetOffersEdit(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
 
-	protected abstract Manipulator createManipulatorFromWidget(Vec2 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
+	protected abstract Manipulator createManipulatorFromWidget(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
 
-	protected abstract Manipulator createDefaultManipulator(Vec2 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
+	protected abstract Manipulator createDefaultManipulator(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
 
 	protected abstract void renderWidget(final Graphics2D graphics, final CoordinateSystem coordinateSystem, final SelectionView selectionView);
 }

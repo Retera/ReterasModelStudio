@@ -47,8 +47,10 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 	}
 
 	@Override
-	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
-	                            ModelView modelView, ProgramPreferences programPreferences) {
+	public void renderSelection(ModelElementRenderer renderer,
+	                            CoordinateSystem coordinateSystem,
+	                            ModelView modelView,
+	                            ProgramPreferences programPreferences) {
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
 				Color outlineColor;

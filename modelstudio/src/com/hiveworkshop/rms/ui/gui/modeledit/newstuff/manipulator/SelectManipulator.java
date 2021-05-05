@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
 
 public class SelectManipulator extends Manipulator {
 	private final ViewportSelectionHandler eventHandler;
@@ -39,7 +38,7 @@ public class SelectManipulator extends Manipulator {
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		Vec2 min = new Vec2(activityStart).minimize(mouseEnd);
 		Vec2 max = new Vec2(activityStart).maximize(mouseEnd);
-		return eventHandler.selectRegion(new Rectangle2D.Double(min.x, min.y, max.x - min.x, max.y - min.y), coordinateSystem);
+		return eventHandler.selectRegion(min, max, coordinateSystem);
 	}
 
 	@Override

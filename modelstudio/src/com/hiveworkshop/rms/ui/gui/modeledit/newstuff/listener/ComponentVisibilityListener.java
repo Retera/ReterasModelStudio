@@ -6,8 +6,9 @@ import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayEleme
 import java.util.List;
 
 public interface ComponentVisibilityListener {
-	UndoAction hideComponent(List<? extends CheckableDisplayElement> selectableComponents,
-	                         EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable);
+	UndoAction hideComponent(List<? extends CheckableDisplayElement<?>> selectableComponents,
+	                         EditabilityToggleHandler editabilityToggleHandler,
+	                         Runnable refreshGUIRunnable);
 
 	UndoAction showComponent(EditabilityToggleHandler editabilityToggleHandler);
 }

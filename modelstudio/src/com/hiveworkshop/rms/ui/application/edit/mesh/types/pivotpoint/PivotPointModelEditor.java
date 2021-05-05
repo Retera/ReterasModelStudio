@@ -29,9 +29,6 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.List;
 import java.util.*;
 
 public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
@@ -203,13 +200,12 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	}
 
 	@Override
-	protected List<Vec3> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem) {
+	protected List<Vec3> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<Vec3> selectedItems = new ArrayList<>();
-		Rectangle2D area = getArea(region);
 
 		for (IdObject object : model.getEditableIdObjects()) {
-			double vertexSize1 = object.getClickRadius(coordinateSystem) * CoordSysUtils.getZoom(coordinateSystem) * 2;
-			if (AbstractModelEditor.hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize1)) {
+			double vertexSize1 = object.getClickRadius(coordinateSystem) * coordinateSystem.getZoom() * 2;
+			if (AbstractModelEditor.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize1)) {
 				System.out.println("selected " + object.getName());
 				selectedItems.add(object.getPivotPoint());
 			}
@@ -217,7 +213,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			if (object instanceof CollisionShape) {
 				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
 					int vertexSize = IdObject.DEFAULT_CLICK_RADIUS;
-					if (AbstractModelEditor.hitTest(area, vertex, coordinateSystem, vertexSize)) {
+					if (AbstractModelEditor.hitTest(min, max, vertex, coordinateSystem, vertexSize)) {
 						selectedItems.add(vertex);
 					}
 				}
@@ -225,10 +221,10 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		}
 		for (Camera camera : model.getEditableCameras()) {
 			int vertexSize = programPreferences.getVertexSize();
-			if (AbstractModelEditor.hitTest(area, camera.getPosition(), coordinateSystem, vertexSize)) {
+			if (AbstractModelEditor.hitTest(min, max, camera.getPosition(), coordinateSystem, vertexSize)) {
 				selectedItems.add(camera.getPosition());
 			}
-			if (AbstractModelEditor.hitTest(area, camera.getTargetPosition(), coordinateSystem, vertexSize)) {
+			if (AbstractModelEditor.hitTest(min, max, camera.getTargetPosition(), coordinateSystem, vertexSize)) {
 				selectedItems.add(camera.getTargetPosition());
 			}
 		}
@@ -236,16 +232,16 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	}
 
 	@Override
-	public boolean canSelectAt(Point point, CoordinateSystem axes) {
+	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
 		for (IdObject object : model.getEditableIdObjects()) {
-			double vertexSize1 = object.getClickRadius(axes) * CoordSysUtils.getZoom(axes) * 2;
-			if (AbstractModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geom(axes, point), axes, vertexSize1)) {
+			double vertexSize1 = object.getClickRadius(axes) * axes.getZoom() * 2;
+			if (AbstractModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geomV2(axes, point), axes, vertexSize1)) {
 				return true;
 			}
 			if (object instanceof CollisionShape) {
 				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
 					int vertexSize = IdObject.DEFAULT_CLICK_RADIUS;
-					if (AbstractModelEditor.hitTest(vertex, CoordSysUtils.geom(axes, point), axes, vertexSize)) {
+					if (AbstractModelEditor.hitTest(vertex, CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
 						return true;
 					}
 				}
@@ -253,10 +249,10 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		}
 		for (Camera camera : model.getEditableCameras()) {
 			int vertexSize = programPreferences.getVertexSize();
-			if (AbstractModelEditor.hitTest(camera.getPosition(), CoordSysUtils.geom(axes, point), axes, vertexSize)) {
+			if (AbstractModelEditor.hitTest(camera.getPosition(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
 				return true;
 			}
-			if (AbstractModelEditor.hitTest(camera.getTargetPosition(), CoordSysUtils.geom(axes, point), axes, vertexSize)) {
+			if (AbstractModelEditor.hitTest(camera.getTargetPosition(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
 				return true;
 			}
 		}

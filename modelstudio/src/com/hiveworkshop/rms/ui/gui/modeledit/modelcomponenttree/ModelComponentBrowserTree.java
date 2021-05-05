@@ -189,8 +189,6 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		// Create all treeNodes
 		for (IdObject idObject : model.getIdObjects()) {
-//			idObject.apply(converter);
-//			DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(converter.getElement());
 			ChooseableDisplayElement<?> element = DispElements.getIdObjectElement(modelHandler.getModelView(), idObject);
 			DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(element);
 

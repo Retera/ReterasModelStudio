@@ -108,4 +108,14 @@ public final class CoordinateSystem {
 		return dimension2;
 	}
 
+	public byte getUnusedXYZ() {
+		if (dimension1 < 0) {
+			dimension1 = (byte) (-dimension1 - 1);
+		}
+		if (dimension2 < 0) {
+			dimension2 = (byte) (-dimension2 - 1);
+		}
+		return (byte) (3 - dimension1 - dimension2);
+	}
+
 }

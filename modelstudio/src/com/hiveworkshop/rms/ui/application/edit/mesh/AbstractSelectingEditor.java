@@ -9,8 +9,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.RemoveSe
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.rms.util.Vec2;
 
-import java.awt.geom.Rectangle2D;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,20 +23,20 @@ public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 	}
 
 	@Override
-	public final UndoAction setSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem) {
-		List<T> newSelection = genericSelect(region, coordinateSystem);
+	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
+		List<T> newSelection = genericSelect(min, max, coordinateSystem);
 		return setSelectionWithAction(newSelection);
 	}
 
 	@Override
-	public final UndoAction removeSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem) {
-		List<T> newSelection = genericSelect(region, coordinateSystem);
+	public final UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
+		List<T> newSelection = genericSelect(min, max, coordinateSystem);
 		return removeSelectionWithAction(newSelection);
 	}
 
 	@Override
-	public final UndoAction addSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem) {
-		List<T> newSelection = genericSelect(region, coordinateSystem);
+	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
+		List<T> newSelection = genericSelect(min, max, coordinateSystem);
 		return addSelectionWithAction(newSelection);
 	}
 
@@ -58,14 +58,14 @@ public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 		return (new AddSelectionAction<>(previousSelection, newSelection, selectionManager));
 	}
 
-	protected abstract List<T> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem);
+	protected abstract List<T> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 
 	protected abstract UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents,
 	                                                       EditabilityToggleHandler editabilityToggleHandler,
 	                                                       Runnable refreshGUIRunnable);
 
 	@Override
-	public UndoAction hideComponent(List<? extends CheckableDisplayElement> selectableComponent,
+	public UndoAction hideComponent(List<? extends CheckableDisplayElement<?>> selectableComponent,
 	                                EditabilityToggleHandler editabilityToggleHandler,
 	                                Runnable refreshGUIRunnable) {
 		UndoAction hideComponentAction = buildHideComponentAction(selectableComponent, editabilityToggleHandler, refreshGUIRunnable);

@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ViewportModelRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
@@ -48,7 +47,7 @@ public class Viewport extends ViewportView {
 		linkRenderer = new LinkRenderer(programPreferences);
 
 		facingVector = new Vec3(0, 0, 0);
-		final byte unusedXYZ = CoordSysUtils.getUnusedXYZ(coordinateSystem);
+		final byte unusedXYZ = coordinateSystem.getUnusedXYZ();
 		facingVector.setCoord(unusedXYZ, unusedXYZ == 0 ? 1 : -1);
 
 		paintTimer = new Timer(16, e -> {

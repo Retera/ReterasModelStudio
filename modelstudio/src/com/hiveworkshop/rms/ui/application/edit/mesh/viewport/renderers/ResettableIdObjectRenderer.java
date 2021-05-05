@@ -133,7 +133,7 @@ public final class ResettableIdObjectRenderer {
         }
     }
 
-    public void visitIdObject(IdObject object) {
+    public void renderIdObject(IdObject object) {
         if (object instanceof Helper) {
             graphics.setColor(pivotPointColor.darker());
             drawCrosshair(graphics, coordinateSystem, vertexSize, object.getPivotPoint(), getWorldMatrix(object), crosshairIsBox);
@@ -168,7 +168,7 @@ public final class ResettableIdObjectRenderer {
         }
         int xCoord = (int) coordinateSystem.viewX(vertexHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
         int yCoord = (int) coordinateSystem.viewY(vertexHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
-        double zoom = CoordSysUtils.getZoom(coordinateSystem);
+        double zoom = coordinateSystem.getZoom();
 
         int attenuationStart = (int) (object.getAttenuationStart() * zoom);
         if (attenuationStart > 0) {

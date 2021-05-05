@@ -60,9 +60,9 @@ public class ModelElementRenderer {
 	}
 
 	public void renderIdObject(IdObject object) {
-		ResettableIdObjectRenderer visitor = idObjectRenderer.reset(coordinateSystem, graphics, programPreferences, renderModel, isAnimated, true);
+		ResettableIdObjectRenderer idObjectRenderer = this.idObjectRenderer.reset(coordinateSystem, graphics, programPreferences, renderModel, isAnimated, true);
 
-		visitor.visitIdObject(object);
+		idObjectRenderer.renderIdObject(object);
 	}
 
 	public void renderCamera(Camera camera, Color boxColor, Vec3 position, Color targetColor, Vec3 targetPosition) {
@@ -82,7 +82,7 @@ public class ModelElementRenderer {
 
 		g2.translate(end.x, end.y);
 		g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
-		double zoom = CoordSysUtils.getZoom(coordinateSystem);
+		double zoom = coordinateSystem.getZoom();
 		int size = (int) (20 * zoom);
 		double dist = start.distance(end);
 

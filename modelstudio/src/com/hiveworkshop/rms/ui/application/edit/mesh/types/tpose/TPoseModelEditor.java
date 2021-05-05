@@ -22,11 +22,9 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggle
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.util.List;
 import java.util.*;
 
 public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
@@ -156,18 +154,17 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	}
 
 	@Override
-	protected List<IdObject> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem) {
+	protected List<IdObject> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<IdObject> selectedItems = new ArrayList<>();
-		Rectangle2D area = getArea(region);
 
 		for (IdObject object : model.getEditableIdObjects()) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordSysUtils.getZoom(coordinateSystem);
-			if (AbstractModelEditor.hitTest(area, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+			double vertexSize = object.getClickRadius(coordinateSystem) * coordinateSystem.getZoom();
+			if (AbstractModelEditor.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize)) {
 				selectedItems.add(object);
 			}
 			if (object instanceof CollisionShape) {
 				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
-					if (AbstractModelEditor.hitTest(area, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
+					if (AbstractModelEditor.hitTest(min, max, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
 						selectedItems.add(object);
 					}
 				}
@@ -177,17 +174,17 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	}
 
 	@Override
-	public boolean canSelectAt(Point point, CoordinateSystem axes) {
+	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
 		for (IdObject object : model.getEditableIdObjects()) {
-			double vertexSize1 = object.getClickRadius(axes) * CoordSysUtils.getZoom(axes) * 2;
-			if (AbstractModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geom(axes, point), axes, vertexSize1)) {
+			double vertexSize1 = object.getClickRadius(axes) * axes.getZoom() * 2;
+			if (AbstractModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geomV2(axes, point), axes, vertexSize1)) {
 				return true;
 			}
 
 			if (object instanceof CollisionShape) {
 				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
 					int vertexSize = IdObject.DEFAULT_CLICK_RADIUS;
-					if (AbstractModelEditor.hitTest(vertex, CoordSysUtils.geom(axes, point), axes, vertexSize)) {
+					if (AbstractModelEditor.hitTest(vertex, CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
 						return true;
 					}
 				}
@@ -195,10 +192,10 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		}
 		for (Camera camera : model.getEditableCameras()) {
 			int vertexSize = programPreferences.getVertexSize();
-			if (AbstractModelEditor.hitTest(camera.getPosition(), CoordSysUtils.geom(axes, point), axes, vertexSize)) {
+			if (AbstractModelEditor.hitTest(camera.getPosition(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
 				return true;
 			}
-			if (AbstractModelEditor.hitTest(camera.getTargetPosition(), CoordSysUtils.geom(axes, point), axes, vertexSize)) {
+			if (AbstractModelEditor.hitTest(camera.getTargetPosition(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
 				return true;
 			}
 		}

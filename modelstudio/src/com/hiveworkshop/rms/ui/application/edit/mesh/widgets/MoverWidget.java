@@ -8,12 +8,10 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 
-public final class MoverWidget {
+public final class MoverWidget extends Widget {
 	private static final int LINE_LONG = 60;
 	private static final int LINE_SHORT = 20;
 	private static final int TRIANGLE_OFFSET = LINE_LONG - 16;
-	private final Vec3 point = new Vec3(0, 0, 0);
-	private MoveDimension moveDirection = MoveDimension.NONE;
 	private final Polygon northTriangle;
 	private final Polygon eastTriangle;
 
@@ -34,7 +32,10 @@ public final class MoverWidget {
 
 	private long debugPrintLimiter;
 
-	public MoveDimension getDirectionByMouse(Point mousePoint, CoordinateSystem coordinateSystem, byte dim1, byte dim2) {
+	@Override
+	public MoveDimension getDirectionByMouse(Vec2 mousePoint1, CoordinateSystem coordinateSystem) {
+		byte dim1 = coordinateSystem.getPortFirstXYZ();
+		byte dim2 = coordinateSystem.getPortSecondXYZ();
 		double x = coordinateSystem.viewX(point.getCoord(dim1));
 		double y = coordinateSystem.viewY(point.getCoord(dim2));
 		long currentTime = System.currentTimeMillis();
@@ -44,6 +45,7 @@ public final class MoverWidget {
 		}
 
 		MoveDimension direction = MoveDimension.NONE;
+		Point mousePoint = new Point((int)mousePoint1.x, (int)mousePoint1.y);
 
 		if (GU.getTransPolygon((int) x, (int) y, northTriangle).contains(mousePoint)
 				|| GU.getTransPolygon((int) x, (int) y, nortLineHitBox).contains(mousePoint)) {
@@ -64,22 +66,7 @@ public final class MoverWidget {
 		return point;
 	}
 
-	public void setPoint(Vec3 point) {
-		this.point.set(point);
-	}
-
-	public void setPoint(Vec2 point) {
-		this.point.set(point.x, point.y, 0);
-	}
-
-	public MoveDimension getMoveDirection() {
-		return moveDirection;
-	}
-
-	public void setMoveDirection(MoveDimension moveDirection) {
-		this.moveDirection = moveDirection;
-	}
-
+	@Override
 	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
 		byte xDimension = coordinateSystem.getPortFirstXYZ();
 		byte yDimension = coordinateSystem.getPortSecondXYZ();
@@ -120,22 +107,5 @@ public final class MoverWidget {
 
 	private void drawNorthLine(Graphics2D graphics, int x, int y, int length, int offset) {
 		graphics.drawLine(x + offset, y, x + offset, y - length);
-	}
-
-	private void setColorByDimension(Graphics2D graphics, byte dimension) {
-		switch (dimension) {
-			case 0, -1 -> graphics.setColor(new Color(0, 255, 0));
-			case 1, -2 -> graphics.setColor(new Color(255, 0, 0));
-			case 2, -3 -> graphics.setColor(new Color(0, 0, 255));
-		}
-	}
-
-	private void setHighLightableColor(Graphics2D graphics, byte dimension, MoveDimension moveDimension) {
-//		System.out.println(moveDimension + " has " + MoveDimension.getByByte(dimension) + "?");
-		if (moveDimension.containDirection(dimension)) {
-			graphics.setColor(new Color(255, 255, 0));
-		} else {
-			setColorByDimension(graphics, dimension);
-		}
 	}
 }

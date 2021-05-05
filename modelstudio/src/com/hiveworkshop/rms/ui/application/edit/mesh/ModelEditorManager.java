@@ -33,27 +33,28 @@ import java.util.Collection;
 
 public final class ModelEditorManager {
 	private ModelHandler modelHandler;
-//	private final ModelView modelView;
 	private final ProgramPreferences programPreferences;
 	private ModelEditor modelEditor;
 	private final ViewportSelectionHandlerImpl viewportSelectionHandler;
 	private final ModelEditorChangeListener modelEditorChangeListener;
 	private SelectionView selectionView;
 	private final SelectionListener selectionListener;
-//	private final RenderModel renderModel;
 	private NodeAnimationSelectionManager nodeAnimationSelectionManager;
 	private final ModelStructureChangeListener structureChangeListener;
 	public static boolean MOVE_LINKED;
 
-	public ModelEditorManager(ModelHandler modelHandler, ProgramPreferences programPreferences, ToolbarButtonGroup<SelectionMode> modeButtonGroup, ModelEditorChangeListener modelEditorChangeListener, SelectionListener selectionListener, ModelStructureChangeListener structureChangeListener) {
+	public ModelEditorManager(ModelHandler modelHandler,
+	                          ProgramPreferences programPreferences,
+	                          ToolbarButtonGroup<SelectionMode> modeButtonGroup,
+	                          ModelEditorChangeListener modelEditorChangeListener,
+	                          SelectionListener selectionListener,
+	                          ModelStructureChangeListener structureChangeListener) {
 		this.modelHandler = modelHandler;
-//		this.modelView = modelView;
 		this.modelEditorChangeListener = modelEditorChangeListener;
 		this.programPreferences = programPreferences;
 		this.selectionListener = selectionListener;
-//		this.renderModel = renderModel;
 		this.structureChangeListener = structureChangeListener;
-		viewportSelectionHandler = new ViewportSelectionHandlerImpl(modeButtonGroup, null);
+		this.viewportSelectionHandler = new ViewportSelectionHandlerImpl(modeButtonGroup, null);
 		setSelectionItemType(SelectionItemTypes.VERTEX);
 	}
 

@@ -7,13 +7,16 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ButtonType;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
+import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.Widget;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.SelectManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
@@ -26,6 +29,7 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 	private ModelEditor modelEditor;
 	private ModelView modelView;
 	private ModelHandler modelHandler;
+	Widget widget;
 
 	public ModelEditorManipulatorBuilder(ViewportSelectionHandler viewportSelectionHandler,
 	                                     ProgramPreferences programPreferences,
@@ -38,7 +42,8 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 		modelElementRenderer = new ModelElementRenderer(programPreferences.getVertexSize());
 	}
 
-	public ModelEditorManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler,
+	public ModelEditorManipulatorBuilder(ModelEditorManager modelEditorManager,
+	                                     ModelHandler modelHandler,
 	                                     ProgramPreferences programPreferences) {
 		this.modelEditorManager = modelEditorManager;
 		this.modelHandler = modelHandler;
@@ -60,7 +65,7 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 
 	@Override
 	public final Cursor getCursorAt(int x, int y, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		Point mousePoint = new Point(x, y);
+		Vec2 mousePoint = new Vec2(x, y);
 		if (!selectionView.isEmpty() && widgetOffersEdit(selectionView.getCenter(), mousePoint, coordinateSystem, selectionView)) {
 			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
 		} else if (viewportSelectionHandler.canSelectAt(mousePoint, coordinateSystem)) {
@@ -74,7 +79,7 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 	                                               ButtonType clickedButton,
 	                                               CoordinateSystem coordinateSystem,
 	                                               SelectionView selectionView) {
-		Point mousePoint = new Point(x, y);
+		Vec2 mousePoint = new Vec2(x, y);
 		if (clickedButton == ButtonType.RIGHT_MOUSE) {
 			return createDefaultManipulator(selectionView.getCenter(), mousePoint, coordinateSystem, selectionView);
 		} else {
@@ -100,12 +105,20 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 		}
 	}
 
-	protected abstract boolean widgetOffersEdit(Vec3 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
+	protected boolean widgetOffersEdit(Vec3 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+		widget.setPoint(selectionView.getCenter());
+		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
+		widget.setMoveDirection(directionByMouse);
+		return directionByMouse != MoveDimension.NONE;
+	}
 
-	protected abstract Manipulator createManipulatorFromWidget(Vec3 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
+	protected abstract Manipulator createManipulatorFromWidget(Vec3 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
 
-	protected abstract Manipulator createDefaultManipulator(Vec3 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
+	protected abstract Manipulator createDefaultManipulator(Vec3 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
 
-	protected abstract void renderWidget(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView);
+	protected void renderWidget(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+		widget.setPoint(selectionView.getCenter());
+		widget.render(graphics, coordinateSystem);
+	}
 
 }

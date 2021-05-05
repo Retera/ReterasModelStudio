@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewpor
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
@@ -63,7 +62,7 @@ public class DrawBoneActivity implements ModelEditorViewportActivity {
 		Vec3 worldPressLocation = new Vec3(0, 0, 0);
 		worldPressLocation.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(e.getX()));
 		worldPressLocation.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(e.getY()));
-		worldPressLocation.setCoord(CoordSysUtils.getUnusedXYZ(coordinateSystem), 0);
+		worldPressLocation.setCoord(coordinateSystem.getUnusedXYZ(), 0);
 		try {
 			Viewport viewport = viewportListener.getViewport();
 			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();

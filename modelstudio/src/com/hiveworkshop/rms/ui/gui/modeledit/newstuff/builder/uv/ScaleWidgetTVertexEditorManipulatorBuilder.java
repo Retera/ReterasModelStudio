@@ -22,17 +22,17 @@ public final class ScaleWidgetTVertexEditorManipulatorBuilder extends TVertexEdi
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(Vec2 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+	protected boolean widgetOffersEdit(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
 		moverWidget.setMoveDirection(directionByMouse);
 		return directionByMouse != MoveDimension.NONE;
 	}
 
 	@Override
-	protected Manipulator createManipulatorFromWidget(Vec2 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+	protected Manipulator createManipulatorFromWidget(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
 
 		moverWidget.setMoveDirection(directionByMouse);
 		if (directionByMouse != MoveDimension.NONE) {
@@ -42,7 +42,7 @@ public final class ScaleWidgetTVertexEditorManipulatorBuilder extends TVertexEdi
 	}
 
 	@Override
-	protected Manipulator createDefaultManipulator(Vec2 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+	protected Manipulator createDefaultManipulator(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		return new ScaleTVertexManipulator(getModelEditor(), selectionView, MoveDimension.XYZ);
 	}
 

@@ -17,8 +17,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggle
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.List;
 
@@ -95,11 +93,11 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	UndoAction cloneSelectedComponents(ClonedNodeNamePicker clonedNodeNamePicker);
 
-	UndoAction setSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem);
+	UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 
-	UndoAction removeSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem);
+	UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 
-	UndoAction addSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem);
+	UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 
 	UndoAction expandSelection();
 
@@ -110,7 +108,7 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	UndoAction selectAll();
 
 	@Override
-	UndoAction hideComponent(List<? extends CheckableDisplayElement> selectableComponents,
+	UndoAction hideComponent(List<? extends CheckableDisplayElement<?>> selectableComponents,
 	                         EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable);
 
 	@Override
@@ -118,7 +116,7 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	void selectByVertices(Collection<? extends Vec3> newSelection);
 
-	boolean canSelectAt(Point point, CoordinateSystem axes);
+	boolean canSelectAt(Vec2 point, CoordinateSystem axes);
 
 	GenericMoveAction beginTranslation();
 

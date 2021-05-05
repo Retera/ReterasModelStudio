@@ -51,7 +51,7 @@ public class ViewportModelRenderer {
 		for (IdObject object : model.getAllObjects()) {
 			if (modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode())) {
 				idObjectRenderer.reset(coordinateSystem, graphics, programPreferences, renderModel, isAnimated, modelView.getHighlightedNode() == object);
-				idObjectRenderer.visitIdObject(object);
+				idObjectRenderer.renderIdObject(object);
 			}
 		}
 		for (final Camera camera : model.getCameras()) {

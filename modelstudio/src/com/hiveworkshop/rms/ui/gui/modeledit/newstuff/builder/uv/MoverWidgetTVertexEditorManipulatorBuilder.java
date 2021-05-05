@@ -23,17 +23,17 @@ public final class MoverWidgetTVertexEditorManipulatorBuilder extends TVertexEdi
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(Vec2 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+	protected boolean widgetOffersEdit(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
 		widget.setMoveDirection(directionByMouse);
 		return directionByMouse != MoveDimension.NONE;
 	}
 
 	@Override
-	protected Manipulator createManipulatorFromWidget(Vec2 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+	protected Manipulator createManipulatorFromWidget(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
 
 		widget.setMoveDirection(directionByMouse);
 		if (directionByMouse != MoveDimension.NONE) {
@@ -43,7 +43,7 @@ public final class MoverWidgetTVertexEditorManipulatorBuilder extends TVertexEdi
 	}
 
 	@Override
-	protected Manipulator createDefaultManipulator(Vec2 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+	protected Manipulator createDefaultManipulator(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		return new MoveTVertexManipulator(getModelEditor(), MoveDimension.XY);
 	}
 

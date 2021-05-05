@@ -11,13 +11,7 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 
 public class CoordSysUtils {
-	public static double getZoom(CoordinateSystem coordinateSystem) {
-		return coordinateSystem.getZoom();
-	}
 
-	public static byte getUnusedXYZ(CoordinateSystem coordinateSystem) {
-		return getUnusedXYZ(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-	}
 
 	public static byte getUnusedXYZ(byte portFirstXYZ, byte portSecondXYZ) {
 		if (portFirstXYZ < 0) {
@@ -49,6 +43,9 @@ public class CoordSysUtils {
 
 	public static Point2D.Double geom(CoordinateSystem coordinateSystem, Vec2 point) {
 		return new Point2D.Double(coordinateSystem.geomX(point.x), coordinateSystem.geomY(point.y));
+	}
+	public static Vec2 geomV2(CoordinateSystem coordinateSystem, Vec2 point) {
+		return new Vec2(coordinateSystem.geomX(point.x), coordinateSystem.geomY(point.y));
 	}
 
 	public static Point convertToViewPoint(CoordinateSystem coordinateSystem, Vec3 vertex) {

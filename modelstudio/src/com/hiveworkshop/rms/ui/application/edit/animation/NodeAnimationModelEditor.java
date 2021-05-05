@@ -33,12 +33,11 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePic
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.util.*;
+import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.util.List;
 import java.util.*;
 import java.util.function.BiFunction;
 
@@ -65,33 +64,46 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		throw new WrongModeException("Unable to autocenter bones in Animation Editor");
 	}
 
-	public static void hitTest(List<IdObject> selectedItems, Rectangle2D area, Vec3 geosetVertex, CoordinateSystem coordinateSystem, double vertexSize, IdObject object, RenderModel renderModel) {
+	public static void hitTest(List<IdObject> selectedItems, Vec2 min, Vec2 max, Vec3 geosetVertex, CoordinateSystem coordinateSystem, double vertexSize, IdObject object, RenderModel renderModel) {
 		RenderNode renderNode = renderModel.getRenderNode(object);
-		Vec4 pivotHeap = new Vec4(geosetVertex, 1);
-		pivotHeap.transform(renderNode.getWorldMatrix());
+		Vec3 pivotHeap = Vec3.getTransformed(geosetVertex, renderNode.getWorldMatrix());
+
 		byte dim1 = coordinateSystem.getPortFirstXYZ();
 		byte dim2 = coordinateSystem.getPortSecondXYZ();
-		double minX = coordinateSystem.viewX(area.getMinX());
-		double minY = coordinateSystem.viewY(area.getMinY());
-		double maxX = coordinateSystem.viewX(area.getMaxX());
-		double maxY = coordinateSystem.viewY(area.getMaxY());
-		double vertexX = pivotHeap.getCoord(dim1);
-		double x = coordinateSystem.viewX(vertexX);
-		double vertexY = pivotHeap.getCoord(dim2);
-		double y = coordinateSystem.viewY(vertexY);
-		if ((distance(x, y, minX, minY) <= (vertexSize / 2.0)) || (distance(x, y, maxX, maxY) <= (vertexSize / 2.0)) || area.contains(vertexX, vertexY)) {
+
+		Vec2 minView = new Vec2(min).minimize(max);
+		Vec2 maxView = new Vec2(max).maximize(min);
+
+//		double minX = coordinateSystem.viewX(area.getMinX());
+//		double minY = coordinateSystem.viewY(area.getMinY());
+//		double maxX = coordinateSystem.viewX(area.getMaxX());
+//		double maxY = coordinateSystem.viewY(area.getMaxY());
+		Vec2 vertexV2 = pivotHeap.getProjected(dim1, dim2);
+//		double vertexX = pivotHeap.getCoord(dim1);
+//		double x = coordinateSystem.viewX(vertexX);
+//		double vertexY = pivotHeap.getCoord(dim2);
+//		double y = coordinateSystem.viewY(vertexY);
+		vertexV2.distance(max);
+		if ((vertexV2.distance(min) <= (vertexSize / 2.0)) || (vertexV2.distance(max) <= (vertexSize / 2.0)) || within(vertexV2, min, max)) {
 			selectedItems.add(object);
 		}
 	}
 
-	public static boolean hitTest(Vec3 vertex, Point2D point, CoordinateSystem coordinateSystem, double vertexSize, Mat4 worldMatrix) {
-		Vec4 pivotHeap = new Vec4(vertex, 1);
+	private static boolean within(Vec2 point, Vec2 min, Vec2 max){
+		boolean xIn = max.x >= point.x && point.x >= min.x;
+		boolean yIn = max.y >= point.y && point.y >= min.y;
+		return xIn && yIn;
+	}
+
+	public static boolean hitTest(Vec3 vertex, Vec2 point, CoordinateSystem coordinateSystem, double vertexSize, Mat4 worldMatrix) {
+		Vec3 pivotHeap = Vec3.getTransformed(vertex, worldMatrix);
 		pivotHeap.transform(worldMatrix);
-		double x = coordinateSystem.viewX(pivotHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
-		double y = coordinateSystem.viewY(pivotHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
-		double px = coordinateSystem.viewX(point.getX());
-		double py = coordinateSystem.viewY(point.getY());
-		return Point2D.distance(px, py, x, y) <= (vertexSize / 2.0);
+		Vec2 vertexV2 = CoordSysUtils.convertToViewVec2(coordinateSystem, pivotHeap);
+//		double x = coordinateSystem.viewX(pivotHeap.getCoord(coordinateSystem.getPortFirstXYZ()));
+//		double y = coordinateSystem.viewY(pivotHeap.getCoord(coordinateSystem.getPortSecondXYZ()));
+//		double px = coordinateSystem.viewX(point.getX());
+//		double py = coordinateSystem.viewY(point.getY());
+		return vertexV2.distance(point) <= (vertexSize / 2.0);
 	}
 
 	@Override
@@ -167,32 +179,32 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	protected List<IdObject> genericSelect(Rectangle2D region, CoordinateSystem coordinateSystem) {
+	protected List<IdObject> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<IdObject> selectedItems = new ArrayList<>();
-		double startingClickX = region.getX();
-		double startingClickY = region.getY();
-		double endingClickX = region.getX() + region.getWidth();
-		double endingClickY = region.getY() + region.getHeight();
+//		double startingClickX = region.getX();
+//		double startingClickY = region.getY();
+//		double endingClickX = region.getX() + region.getWidth();
+//		double endingClickY = region.getY() + region.getHeight();
 
-		double minX = Math.min(startingClickX, endingClickX);
-		double minY = Math.min(startingClickY, endingClickY);
-		double maxX = Math.max(startingClickX, endingClickX);
-		double maxY = Math.max(startingClickY, endingClickY);
-		Rectangle2D area = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
+//		double minX = Math.min(startingClickX, endingClickX);
+//		double minY = Math.min(startingClickY, endingClickY);
+//		double maxX = Math.max(startingClickX, endingClickX);
+//		double maxY = Math.max(startingClickY, endingClickY);
+//		Rectangle2D area = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
 
 		for (IdObject object : model.getEditableIdObjects()) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * CoordSysUtils.getZoom(coordinateSystem) * 2;
-			hitTest(selectedItems, area, object.getPivotPoint(), coordinateSystem, vertexSize, object, renderModel);
+			double vertexSize = object.getClickRadius(coordinateSystem) * coordinateSystem.getZoom() * 2;
+			hitTest(selectedItems, min, max, object.getPivotPoint(), coordinateSystem, vertexSize, object, renderModel);
 		}
 		return selectedItems;
 	}
 
 	@Override
-	public boolean canSelectAt(Point point, CoordinateSystem axes) {
+	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
 		for (IdObject object : model.getEditableIdObjects()) {
 			Mat4 worldMatrix = renderModel.getRenderNode(object).getWorldMatrix();
-			double vertexSize = object.getClickRadius(axes) * CoordSysUtils.getZoom(axes) * 2;
-			if (NodeAnimationModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geom(axes, point), axes, vertexSize, worldMatrix)) {
+			double vertexSize = object.getClickRadius(axes) * axes.getZoom() * 2;
+			if (NodeAnimationModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geomV2(axes, point), axes, vertexSize, worldMatrix)) {
 				return true;
 			}
 		}

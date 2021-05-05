@@ -22,6 +22,10 @@ public abstract class AbstractScaleManipulator extends Manipulator {
 		this.dir = dir;
 	}
 
+	protected final GenericScaleAction getScaleAction() {
+		return scaleAction;
+	}
+
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
 //		super.onStart(e, mouseStart, dim1, dim2);
@@ -34,10 +38,6 @@ public abstract class AbstractScaleManipulator extends Manipulator {
 		Vec3 center = selectionView.getCenter();
 		double scaleFactor = computeScaleFactor(mouseStart, mouseEnd, center, dim1, dim2);
 		scaleWithFactor(modelEditor, center, scaleFactor, dim1, dim2);
-	}
-
-	protected final GenericScaleAction getScaleAction() {
-		return scaleAction;
 	}
 
 	@Override

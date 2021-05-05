@@ -54,8 +54,10 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	}
 
 	@Override
-	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
-	                            ModelView model, ProgramPreferences programPreferences) {
+	public void renderSelection(ModelElementRenderer renderer,
+	                            CoordinateSystem coordinateSystem,
+	                            ModelView model,
+	                            ProgramPreferences programPreferences) {
 		for (Geoset geo : model.getEditableGeosets()) {
 			List<GeosetVertex> vertices = geo.getVertices();
 			for (GeosetVertex geosetVertex : vertices) {

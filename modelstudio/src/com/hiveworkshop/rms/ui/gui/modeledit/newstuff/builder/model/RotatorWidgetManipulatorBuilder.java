@@ -9,27 +9,19 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.RotateManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
-
 public final class RotatorWidgetManipulatorBuilder extends ModelEditorManipulatorBuilder {
-	private final RotatorWidget widget = new RotatorWidget();
+//	private final RotatorWidget widget = new RotatorWidget();
 
 	public RotatorWidgetManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler, ProgramPreferences programPreferences) {
 		super(modelEditorManager, modelHandler, programPreferences);
+		widget = new RotatorWidget();
 	}
 
 	@Override
-	protected boolean widgetOffersEdit(Vec3 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		widget.setPoint(selectionView.getCenter());
-		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
-		widget.setMoveDirection(directionByMouse);
-		return directionByMouse != MoveDimension.NONE;
-	}
-
-	@Override
-	protected Manipulator createManipulatorFromWidget(Vec3 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+	protected Manipulator createManipulatorFromWidget(Vec3 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		widget.setPoint(selectionView.getCenter());
 		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
 
@@ -41,14 +33,7 @@ public final class RotatorWidgetManipulatorBuilder extends ModelEditorManipulato
 	}
 
 	@Override
-	protected Manipulator createDefaultManipulator(Vec3 selectionCenter, Point mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+	protected Manipulator createDefaultManipulator(Vec3 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		return new RotateManipulator(getModelEditor(), selectionView, MoveDimension.XYZ);
 	}
-
-	@Override
-	protected void renderWidget(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		widget.setPoint(selectionView.getCenter());
-		widget.render(graphics, coordinateSystem);
-	}
-
 }

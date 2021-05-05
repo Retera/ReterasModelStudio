@@ -24,8 +24,6 @@ import com.hiveworkshop.rms.util.SubscriberSetNotifier;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,10 +37,10 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction setSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem) {
+	public UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<UndoAction> actions = new ArrayList<>();
 		for (ModelEditor handler : set) {
-			actions.add(handler.setSelectedRegion(region, coordinateSystem));
+			actions.add(handler.setSelectedRegion(min, max, coordinateSystem));
 		}
 		return mergeActions(actions);
 	}
@@ -64,19 +62,19 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction removeSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem) {
+	public UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<UndoAction> actions = new ArrayList<>();
 		for (ModelEditor handler : set) {
-			actions.add(handler.removeSelectedRegion(region, coordinateSystem));
+			actions.add(handler.removeSelectedRegion(min, max, coordinateSystem));
 		}
 		return mergeActions(actions);
 	}
 
 	@Override
-	public UndoAction addSelectedRegion(Rectangle2D region, CoordinateSystem coordinateSystem) {
+	public UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<UndoAction> actions = new ArrayList<>();
 		for (ModelEditor handler : set) {
-			actions.add(handler.addSelectedRegion(region, coordinateSystem));
+			actions.add(handler.addSelectedRegion(min, max, coordinateSystem));
 		}
 		return mergeActions(actions);
 	}
@@ -109,7 +107,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction hideComponent(List<? extends CheckableDisplayElement> selectableComponents,
+	public UndoAction hideComponent(List<? extends CheckableDisplayElement<?>> selectableComponents,
 	                                EditabilityToggleHandler editabilityToggleHandler,
 	                                Runnable refreshGUIRunnable) {
 		List<UndoAction> actions = new ArrayList<>();
@@ -419,7 +417,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public boolean canSelectAt(Point point, CoordinateSystem axes) {
+	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
 		boolean canSelect = false;
 		for (ModelEditor handler : set) {
 			canSelect = canSelect || handler.canSelectAt(point, axes);
