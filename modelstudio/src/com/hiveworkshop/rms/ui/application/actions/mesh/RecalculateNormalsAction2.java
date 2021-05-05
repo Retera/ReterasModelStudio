@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.actions.mesh;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -16,51 +17,51 @@ import java.util.Map;
  */
 public class RecalculateNormalsAction2 implements UndoAction {
 	List<Vec3> oldNormals;
+	List<Vec3> newNormals;
 	List<GeosetVertex> affectedVertices;
-	Vec3 snapPoint;
 	double maxAngle;
 	boolean useTries;
 
-	public RecalculateNormalsAction2(final List<GeosetVertex> affectedVertices, final List<Vec3> oldNormals, final Vec3 snapPoint) {
+	public RecalculateNormalsAction2(List<GeosetVertex> affectedVertices, double maxAngle, boolean useTries) {
 		this.affectedVertices = new ArrayList<>(affectedVertices);
-		this.oldNormals = oldNormals;
-		this.snapPoint = new Vec3(snapPoint);
-		maxAngle = 360.0;
-		useTries = false;
-	}
-
-	public RecalculateNormalsAction2(final List<GeosetVertex> affectedVertices, final List<Vec3> oldNormals, final Vec3 snapPoint, final double maxAngle, boolean useTries) {
-		this.affectedVertices = new ArrayList<>(affectedVertices);
-		this.oldNormals = oldNormals;
-		this.snapPoint = new Vec3(snapPoint);
+		this.oldNormals = new ArrayList<>();
+		this.newNormals = new ArrayList<>();
+		for (GeosetVertex vertex : affectedVertices) {
+			this.oldNormals.add(new Vec3(vertex.getNormal()));
+		}
 		this.maxAngle = maxAngle;
 		this.useTries = useTries;
+		makeNormals();
+
 	}
 
-	@Override
-	public void undo() {
-		for (int i = 0; i < affectedVertices.size(); i++) {
-			affectedVertices.get(i).getNormal().set(oldNormals.get(i));
+	public static Vec3 createNormal(GeosetVertex geosetVertex, List<GeosetVertex> matches, double maxAngle) {
+		Vec3 sum = new Vec3();
+		Vec3 normal = createNormal(geosetVertex.getTriangles());
+		List<Vec3> uniqueNormals = new ArrayList<>();
+		for (GeosetVertex match : matches) {
+			Vec3 matchNormal = createNormal(match.getTriangles());
+			uniqueNormals.add(matchNormal);
 		}
+		uniqueNormals.stream().filter(n -> normal.degAngleTo(n) < maxAngle).forEach(sum::add);
+
+		return sum.normalize();
 	}
 
-	@Override
-	public void redo() {
-		final Map<Tuplet, List<GeosetVertex>> tupletToMatches = new HashMap<>();
-		for (final GeosetVertex geosetVertex : affectedVertices) {
-			final Tuplet tuplet = new Tuplet(geosetVertex.x, geosetVertex.y, geosetVertex.z);
-			List<GeosetVertex> matches = tupletToMatches.computeIfAbsent(tuplet, k -> new ArrayList<>());
-			matches.add(geosetVertex);
-		}
-		for (final GeosetVertex geosetVertex : affectedVertices) {
-			final Tuplet tuplet = new Tuplet(geosetVertex.x, geosetVertex.y, geosetVertex.z);
-			final List<GeosetVertex> matches = tupletToMatches.get(tuplet);
-			if (useTries) {
-				geosetVertex.getNormal().set(geosetVertex.createNormalFromFaces(matches, maxAngle));
-			} else {
-				geosetVertex.getNormal().set(geosetVertex.createNormal(matches, maxAngle));
+	public static Vec3 createNormalFromFaces(GeosetVertex geosetVertex, List<GeosetVertex> matches, double maxAngle) {
+		Vec3 sum = new Vec3();
+		Vec3 normal = createNormal(geosetVertex.getTriangles());
+		for (GeosetVertex match : matches) {
+			for (Triangle triangle : match.getTriangles()) {
+				Vec3 matchNormal = triangle.getNormal().normalize();
+				double angle = normal.degAngleTo(matchNormal);
+				if (angle < maxAngle) {
+					sum.add(matchNormal);
+				}
 			}
 		}
+
+		return sum.normalize();
 	}
 
 	@Override
@@ -68,14 +69,54 @@ public class RecalculateNormalsAction2 implements UndoAction {
 		return "recalculate normals";
 	}
 
-	private static final class Tuplet {
+	public static Vec3 createNormal(List<Triangle> triangles) {
+		Vec3 sum = new Vec3();
+		for (Triangle triangle : triangles) {
+			sum.add(triangle.getNormal());
+		}
+		return sum.normalize();
+	}
+
+	@Override
+	public void undo() {
+		for (int i = 0; i < affectedVertices.size(); i++) {
+			affectedVertices.get(i).setNormalValue(oldNormals.get(i));
+		}
+	}
+
+	@Override
+	public void redo() {
+		for (int i = 0; i < affectedVertices.size(); i++) {
+			affectedVertices.get(i).setNormalValue(newNormals.get(i));
+		}
+	}
+
+	private void makeNormals() {
+		Map<Location, List<GeosetVertex>> locationToGVs = new HashMap<>();
+		for (GeosetVertex geosetVertex : affectedVertices) {
+			Location location = new Location(geosetVertex);
+			List<GeosetVertex> gvAtLocation = locationToGVs.computeIfAbsent(location, gvList -> new ArrayList<>());
+			gvAtLocation.add(geosetVertex);
+		}
+		for (GeosetVertex geosetVertex : affectedVertices) {
+			Location location = new Location(geosetVertex);
+			List<GeosetVertex> gvAtLocation = locationToGVs.get(location);
+			if (useTries) {
+				newNormals.add(createNormalFromFaces(geosetVertex, gvAtLocation, maxAngle));
+			} else {
+				newNormals.add(createNormal(geosetVertex, gvAtLocation, maxAngle));
+			}
+		}
+	}
+
+	private static final class Location {
 		private final double x, y, z;
 
-		public Tuplet(final double x, final double y, final double z) {
+		public Location(Vec3 vec3) {
 			super();
-			this.x = x;
-			this.y = y;
-			this.z = z;
+			this.x = vec3.x;
+			this.y = vec3.y;
+			this.z = vec3.z;
 		}
 
 		@Override
@@ -103,7 +144,7 @@ public class RecalculateNormalsAction2 implements UndoAction {
 			if (getClass() != obj.getClass()) {
 				return false;
 			}
-			final Tuplet other = (Tuplet) obj;
+			final Location other = (Location) obj;
 			if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x)) {
 				return false;
 			}

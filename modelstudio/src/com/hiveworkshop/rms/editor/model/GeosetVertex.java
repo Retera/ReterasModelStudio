@@ -174,6 +174,16 @@ public class GeosetVertex extends Vec3 {
 		normal = n;
 	}
 
+	public void setNormalValue(Vec3 n) {
+		if (n == null) {
+			normal = null;
+		} else if (normal == null) {
+			normal = new Vec3(n);
+		} else {
+			normal.set(n);
+		}
+	}
+
 	public List<Vec2> getTverts() {
 		return tverts;
 	}
@@ -404,59 +414,6 @@ public class GeosetVertex extends Vec3 {
 		return this;
 	}
 
-	public Vec3 createNormal() {
-		Vec3 sum = new Vec3();
-
-		for (Triangle triangle : triangles) {
-			sum.add(triangle.getNormal());
-		}
-
-		sum.normalize();
-
-		return sum;
-	}
-
-	public Vec3 createNormal(List<GeosetVertex> matches) {
-		Vec3 sum = new Vec3();
-
-		for (GeosetVertex match : matches) {
-			for (Triangle triangle : match.triangles) {
-				sum.add(triangle.getNormal());
-			}
-		}
-
-		return sum.normalize();
-	}
-
-	public Vec3 createNormal(List<GeosetVertex> matches, double maxAngle) {
-		Vec3 sum = new Vec3();
-		Vec3 normal = createNormal();
-		List<Vec3> uniqueNormals = new ArrayList<>();
-		for (GeosetVertex match : matches) {
-			Vec3 matchNormal = match.createNormal();
-			uniqueNormals.add(matchNormal);
-		}
-		uniqueNormals.stream().filter(n -> normal.degAngleTo(n) < maxAngle).forEach(sum::add);
-
-		return sum.normalize();
-	}
-
-
-	public Vec3 createNormalFromFaces(List<GeosetVertex> matches, double maxAngle) {
-		Vec3 sum = new Vec3();
-		Vec3 normal = createNormal();
-		for (GeosetVertex match : matches) {
-			for (Triangle triangle : match.triangles) {
-				Vec3 matchNormal = triangle.getNormal().normalize();
-				double angle = normal.degAngleTo(matchNormal);
-				if (angle < maxAngle) {
-					sum.add(matchNormal);
-				}
-			}
-		}
-
-		return sum.normalize();
-	}
 
 	public void rigBones(List<Bone> matrixBones) {
 		if (skinBones == null) {

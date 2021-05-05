@@ -181,37 +181,17 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
     @Override
     public UndoAction recalcNormals(double maxAngle, boolean useTries) {
-        List<Vec3> oldLocations = new ArrayList<>();
         List<GeosetVertex> selectedVertices = new ArrayList<>();
-        Vec3 snapped = new Vec3(0, 0, 1);
         Collection<? extends Vec3> vertices = selectionManager.getSelectedVertices();
-
         if (vertices.isEmpty()) {
-            Set<Geoset> editable = model.getEditableGeosets();
-            List<GeosetVertex> edVert = new ArrayList<>();
-            editable.forEach(geoset -> edVert.addAll(geoset.getVertices()));
-
-            for (Vec3 vertex : edVert) {
-//        for (Vec3 vertex : selectionManager.getSelectedVertices()) {
-                addIfValidNormal(oldLocations, selectedVertices, (GeosetVertex) vertex);
-            }
+            model.getEditableGeosets().forEach(geoset -> selectedVertices.addAll(geoset.getVertices()));
         } else {
-            for (Vec3 vertex : vertices) {
-                if (vertex instanceof GeosetVertex) {
-                    addIfValidNormal(oldLocations, selectedVertices, (GeosetVertex) vertex);
-                }
-            }
+            vertices.forEach(vert -> selectedVertices.add((GeosetVertex) vert));
         }
-        RecalculateNormalsAction2 temp = new RecalculateNormalsAction2(selectedVertices, oldLocations, snapped, maxAngle, useTries);
-        temp.redo();// a handy way to do the snapping!
-        return temp;
-    }
 
-    public void addIfValidNormal(List<Vec3> oldLocations, List<GeosetVertex> selectedVertices, GeosetVertex vertex) {
-        if (vertex.getNormal() != null) {
-            oldLocations.add(new Vec3(vertex.getNormal()));
-            selectedVertices.add(vertex);
-        } // else no normal to snap!!!
+        RecalculateNormalsAction2 temp = new RecalculateNormalsAction2(selectedVertices, maxAngle, useTries);
+        temp.redo();
+        return temp;
     }
 
     @Override
