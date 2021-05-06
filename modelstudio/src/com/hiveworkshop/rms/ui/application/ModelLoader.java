@@ -41,7 +41,6 @@ public class ModelLoader {
 					final Animation anim = modelPanel.getModel().getAnim(0);
 					modelPanel.getModelHandler().getEditTimeEnv().setAnimation(anim);
 					modelPanel.getModelHandler().getEditTimeEnv().setStaticViewMode(!mainPanel.animationModeState);
-					mainPanel.animatedRenderEnvironment.setBounds(anim);
 				}
 				refreshAndUpdateModelPanel(mainPanel);
 				mainPanel.timeSliderPanel.setNodeSelectionManager(modelPanel.getModelEditorManager().getNodeAnimationSelectionManager());
@@ -51,8 +50,6 @@ public class ModelLoader {
 				mainPanel.actionTypeGroup.setToolbarButtonType(mainPanel.actionTypeGroup.getToolbarButtonTypes()[0]);
 			}
 		}
-
-		mainPanel.animatedRenderEnvironment.setStaticViewMode(!mainPanel.animationModeState);
 
 		if (!mainPanel.animationModeState) {
 			if ((modelPanel != null) && (modelPanel.getModel() != null)) {
@@ -162,7 +159,7 @@ public class ModelLoader {
 		modelPanel.changeActivity(mainPanel.currentActivity);
 
 //		if (mainPanel.mEditingTP == null) {
-		if (true) {
+		if (mainPanel.currentModelPanel == modelPanel) {
 //			mainPanel.geoControl = new JScrollPane(modelPanel.getModelViewManagingTree());
 			mainPanel.viewportControllerWindowView.setComponent(modelPanel.getModelEditingTreePane());
 			mainPanel.viewportControllerWindowView.repaint();
@@ -201,7 +198,6 @@ public class ModelLoader {
 			JPanel jPanel = new JPanel();
 			jPanel.add(new JLabel("..."));
 			mainPanel.viewportControllerWindowView.setComponent(jPanel);
-//			mainPanel.mEditingTP = null;
 
 			mainPanel.frontView.setComponent(new JPanel());
 			mainPanel.bottomView.setComponent(new JPanel());
@@ -215,11 +211,10 @@ public class ModelLoader {
 			mainPanel.creatorPanel.setModelEditorManager(null);
 			mainPanel.creatorPanel.setCurrentModel(null);
 
+			mainPanel.modelDataView.setComponent(new JPanel());
 			mainPanel.modelComponentView.setComponent(new JPanel());
-//			mainPanel.compBrowserTP = null;
 		} else {
-//			mainPanel.mEditingTP.setViewportView(mainPanel.currentModelPanel.getModelViewManagingTree());
-//			mainPanel.mEditingTP.repaint();
+			mainPanel.viewportControllerWindowView.setComponent(modelPanel.getModelEditingTreePane());
 
 			mainPanel.frontView.setComponent(modelPanel.getFrontArea());
 			mainPanel.bottomView.setComponent(modelPanel.getBotArea());
@@ -233,10 +228,11 @@ public class ModelLoader {
 			mainPanel.creatorPanel.setModelEditorManager(mainPanel.currentModelPanel.getModelEditorManager());
 			mainPanel.creatorPanel.setCurrentModel(mainPanel.currentModelPanel.getModelHandler());
 
-			mainPanel.modelComponentView.setComponent(mainPanel.currentModelPanel.getComponentsPanel());
-//			mainPanel.compBrowserTP.setViewportView(mainPanel.currentModelPanel.getModelComponentBrowserTree());
-//			mainPanel.compBrowserTP.repaint();
+			mainPanel.modelDataView.setComponent(modelPanel.getComponentBrowserTreePane());
+			mainPanel.modelComponentView.setComponent(modelPanel.getComponentsPanel());
+
 			mainPanel.currentModelPanel.reloadComponentBrowser();
+			mainPanel.currentModelPanel.reloadModelEditingTree();
 		}
 		mainPanel.viewportListener.viewportChanged(null);
 		mainPanel.timeSliderPanel.revalidateKeyframeDisplay();

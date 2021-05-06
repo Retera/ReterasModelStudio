@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawBoxAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawPlaneAction;
@@ -24,18 +25,19 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.geom.Rectangle2D;
 import java.util.*;
 
 public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> {
-    protected final ModelView model;
+    protected final ModelView modelView;
     protected final VertexSelectionHelper vertexSelectionHelper;
     protected final ModelStructureChangeListener structureChangeListener;
+    protected ModelHandler modelHandler;
 
-    public AbstractModelEditor(SelectionManager<T> selectionManager, ModelView model,
-                               ModelStructureChangeListener structureChangeListener) {
+    public AbstractModelEditor(SelectionManager<T> selectionManager, ModelView modelView,
+                               ModelStructureChangeListener structureChangeListener, ModelHandler modelHandler) {
         super(selectionManager);
-        this.model = model;
+        this.modelHandler = modelHandler;
+        this.modelView = modelView;
         this.structureChangeListener = structureChangeListener;
         vertexSelectionHelper = this::selectByVertices;
     }
@@ -194,12 +196,12 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         List<GeosetVertex> selectedVertices = new ArrayList<>();
         Collection<? extends Vec3> vertices = selectionManager.getSelectedVertices();
         if (vertices.isEmpty()) {
-            model.getEditableGeosets().forEach(geoset -> selectedVertices.addAll(geoset.getVertices()));
+            modelView.getEditableGeosets().forEach(geoset -> selectedVertices.addAll(geoset.getVertices()));
         } else {
             vertices.forEach(vert -> selectedVertices.add((GeosetVertex) vert));
         }
 
-        RecalculateNormalsAction2 temp = new RecalculateNormalsAction2(selectedVertices, maxAngle, useTries);
+        RecalculateNormalsAction temp = new RecalculateNormalsAction(selectedVertices, maxAngle, useTries);
         temp.redo();
         return temp;
     }
@@ -208,11 +210,11 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     public UndoAction recalcExtents(boolean onlyIncludeEditableGeosets) {
         List<Geoset> geosetsToIncorporate = new ArrayList<>();
         if (onlyIncludeEditableGeosets) {
-            geosetsToIncorporate.addAll(model.getEditableGeosets());
+            geosetsToIncorporate.addAll(modelView.getEditableGeosets());
         } else {
-            geosetsToIncorporate.addAll(model.getModel().getGeosets());
+            geosetsToIncorporate.addAll(modelHandler.getModel().getGeosets());
         }
-        RecalculateExtentsAction recalculateExtentsAction = new RecalculateExtentsAction(model, geosetsToIncorporate);
+        RecalculateExtentsAction recalculateExtentsAction = new RecalculateExtentsAction(modelView, geosetsToIncorporate);
         recalculateExtentsAction.redo();
         return recalculateExtentsAction;
     }
@@ -220,64 +222,14 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     @Override
     public UndoAction deleteSelectedComponents() {
         // TODO this code is RIPPED FROM MDLDispaly and is not good for general cases
-        // TODO this code operates directly on MODEL
-        List<Geoset> remGeosets = new ArrayList<>();// model.getGeosets()
-        List<Triangle> deletedTris = new ArrayList<>();
-        Collection<? extends Vec3> selection = new ArrayList<>(selectionManager.getSelectedVertices());
-
-        removeSelectedTriVertsFromGeoset(deletedTris, selection);
-        removeSelectedTrisFromGeosetVerts(deletedTris);
-        removeEmptyGeosetsAndCorrGeoAnims(remGeosets);
-        selectByVertices(new ArrayList<>());
-
-        if (remGeosets.size() <= 0) {
-            return new DeleteAction(selection, deletedTris, vertexSelectionHelper);
-        } else {
-            SpecialDeleteAction temp = new SpecialDeleteAction(selection, deletedTris, vertexSelectionHelper, remGeosets, model.getModel(), structureChangeListener);
-            structureChangeListener.geosetsRemoved(remGeosets);
-            return temp;
-        }
-    }
-
-    private void removeEmptyGeosetsAndCorrGeoAnims(List<Geoset> remGeosets) {
-        for (int i = model.getModel().getGeosets().size() - 1; i >= 0; i--) {
-            if (model.getModel().getGeosets().get(i).isEmpty()) {
-                Geoset g = model.getModel().getGeoset(i);
-                remGeosets.add(g);
-                model.getModel().remove(g);
-                if (g.getGeosetAnim() != null) {
-                    model.getModel().remove(g.getGeosetAnim());
-                }
-            }
-        }
-    }
-
-    private void removeSelectedTrisFromGeosetVerts(List<Triangle> deletedTris) {
-        for (Triangle t : deletedTris) {
-            for (GeosetVertex vertex : t.getAll()) {
-                vertex.removeTriangle(t);
-            }
-        }
-    }
-
-    private void removeSelectedTriVertsFromGeoset(List<Triangle> deletedTris, Collection<? extends Vec3> selection) {
-        for (Vec3 vertex : selection) {
-            if (vertex.getClass() == GeosetVertex.class) {
-                GeosetVertex gv = (GeosetVertex) vertex;
-                for (Triangle t : gv.getTriangles()) {
-                    t.getGeoset().removeTriangle(t);
-                    if (!deletedTris.contains(t)) {
-                        deletedTris.add(t);
-                    }
-                }
-                gv.getGeoset().remove(gv);
-            }
-        }
+        DeleteAction deleteAction = new DeleteAction(modelHandler.getModel(), selectionManager.getSelectedVertices(), structureChangeListener, vertexSelectionHelper);
+        deleteAction.redo();
+        return deleteAction;
     }
 
     @Override
     public UndoAction mirror(byte dim, boolean flipModel, double centerX, double centerY, double centerZ) {
-        MirrorModelAction mirror = new MirrorModelAction(selectionManager.getSelectedVertices(), model.getEditableIdObjects(), dim, centerX, centerY, centerZ);
+        MirrorModelAction mirror = new MirrorModelAction(selectionManager.getSelectedVertices(), modelView.getEditableIdObjects(), dim, centerX, centerY, centerZ);
         // super weird passing of currently editable id Objects, works because mirror action
         // checks selected vertices against pivot points from this list
         mirror.redo();
@@ -655,7 +607,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                 newVertices.add(null);
             }
         }
-        for (IdObject b : model.getEditableIdObjects()) {
+        for (IdObject b : modelView.getEditableIdObjects()) {
             if (source.contains(b.getPivotPoint()) && !selBones.contains(b)) {
                 selBones.add(b);
                 newBones.add(b.copy());
@@ -688,7 +640,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
             }
         }
         // TODO cameras
-        CloneAction cloneAction = new CloneAction(model, source, structureChangeListener, vertexSelectionHelper, selBones, newVerticesWithoutNulls, newTriangles, newBones, newSelection);
+        CloneAction cloneAction = new CloneAction(modelView, source, structureChangeListener, vertexSelectionHelper, selBones, newVerticesWithoutNulls, newTriangles, newBones, newSelection);
         cloneAction.redo();
         return cloneAction;
     }
@@ -896,8 +848,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         DrawPlaneAction drawVertexAction = new DrawPlaneAction(p1, p2, dim1, dim2, facingVector, numberOfWidthSegments, numberOfHeightSegments, solidWhiteGeoset);
 
         GenericMoveAction action;
-        if (!model.getModel().contains(solidWhiteGeoset)) {
-            NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(), structureChangeListener);
+        if (!modelView.getModel().contains(solidWhiteGeoset)) {
+            NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView.getModel(), structureChangeListener);
             action = new CompoundMoveAction("Add Plane", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
         } else {
             action = drawVertexAction;
@@ -913,8 +865,8 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         GenericMoveAction action;
         DrawBoxAction drawVertexAction = new DrawBoxAction(p1, p2, dim1, dim2, facingVector, numberOfLengthSegments, numberOfWidthSegments, numberOfHeightSegments, solidWhiteGeoset);
 
-        if (!model.getModel().contains(solidWhiteGeoset)) {
-            NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(), structureChangeListener);
+        if (!modelView.getModel().contains(solidWhiteGeoset)) {
+            NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView.getModel(), structureChangeListener);
             action = new CompoundMoveAction("Add Box", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
         } else {
             action = drawVertexAction;
@@ -924,7 +876,7 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     }
 
     public Geoset getSolidWhiteGeoset() {
-        List<Geoset> geosets = model.getModel().getGeosets();
+        List<Geoset> geosets = modelView.getModel().getGeosets();
         Geoset solidWhiteGeoset = null;
         for (Geoset geoset : geosets) {
             Layer firstLayer = geoset.getMaterial().firstLayer();
@@ -1042,19 +994,5 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
             return output.toString() + output2.toString();
         }
         return "null";
-    }
-
-    protected Rectangle2D getArea(Rectangle2D region) {
-        double startingClickX = region.getX();
-        double startingClickY = region.getY();
-        double endingClickX = region.getX() + region.getWidth();
-        double endingClickY = region.getY() + region.getHeight();
-
-        double minX = Math.min(startingClickX, endingClickX);
-        double minY = Math.min(startingClickY, endingClickY);
-        double maxX = Math.max(startingClickX, endingClickX);
-        double maxY = Math.max(startingClickY, endingClickY);
-
-        return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
     }
 }

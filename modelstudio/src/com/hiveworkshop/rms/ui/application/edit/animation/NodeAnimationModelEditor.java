@@ -212,11 +212,11 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
+	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement<?>> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
 		List<IdObject> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		List<IdObject> possibleVerticesToTruncate = new ArrayList<>();
 
-		for (CheckableDisplayElement component : selectableComponents) {
+		for (CheckableDisplayElement<?> component : selectableComponents) {
 			Object item = component.getItem();
 			if (item instanceof IdObject) {
 				possibleVerticesToTruncate.add((IdObject) item);

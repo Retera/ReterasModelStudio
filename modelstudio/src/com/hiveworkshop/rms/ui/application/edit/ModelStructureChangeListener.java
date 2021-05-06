@@ -92,15 +92,14 @@ public class ModelStructureChangeListener {
 
 	public void geosetsRemoved(List<Geoset> geosets) {
 		// Tell program to set visibility after import
-		final ModelPanel panel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
-		if (panel != null) {
-			// panel.setBeenSaved(false); // we edited the model
+		final ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		if (modelPanel != null) {
 			// TODO notify been saved system, wherever that moves to
 			for (Geoset geoset : geosets) {
-				panel.getModelViewManager().makeGeosetNotEditable(geoset);
-				panel.getModelViewManager().makeGeosetNotVisible(geoset);
+				modelPanel.getModelViewManager().makeGeosetNotEditable(geoset);
+				modelPanel.getModelViewManager().makeGeosetNotVisible(geoset);
 			}
-			reloadGeosetManagers(mainPanel, panel);
+			reloadGeosetManagers(mainPanel, modelPanel);
 		}
 	}
 
@@ -108,11 +107,9 @@ public class ModelStructureChangeListener {
 		// Tell program to set visibility after import
 		final ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
 		if (display != null) {
-			// display.setBeenSaved(false); // we edited the model
 			// TODO notify been saved system, wherever that moves to
 			for (Geoset geoset : geosets) {
 				display.getModelViewManager().makeGeosetEditable(geoset);
-				// display.getModelViewManager().makeGeosetVisible(geoset);
 			}
 			reloadGeosetManagers(mainPanel, display);
 		}

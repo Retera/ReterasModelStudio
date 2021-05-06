@@ -439,8 +439,8 @@ public class ScriptActions {
 
 					ModelUtils.Mesh mesh = ModelUtils.createBox(new Vec3(x, y, z).scale(10),
 							new Vec3(x + sX, y + sY, z + sZ).scale(10), 1, 1, 1, geo);
-					geo.getVertices().addAll(mesh.getVertices());
-					geo.getTriangles().addAll(mesh.getTriangles());
+					geo.addVerticies(mesh.getVertices());
+					geo.addTriangles(mesh.getTriangles());
 				}
 			}
 

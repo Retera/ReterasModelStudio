@@ -265,14 +265,19 @@ public class ModelPanel {
 
 	public void reloadComponentBrowser() {
 		componentBrowserTreePane.setViewportView(modelComponentBrowserTree.reloadFromModelView());
+		modelComponentBrowserTree.repaint();
+		componentBrowserTreePane.repaint();
 	}
 
 	public void reloadModelEditingTree() {
 		modelEditingTreePane.setViewportView(modelViewManagingTree.reloadFromModelView());
+		modelViewManagingTree.repaint();
+		modelEditingTreePane.repaint();
 	}
 
 	public void repaintModelTrees() {
 		if (modelEditingTreePane != null) {
+			modelViewManagingTree.repaint();
 			modelEditingTreePane.repaint();
 		}
 		if (componentBrowserTreePane != null) {

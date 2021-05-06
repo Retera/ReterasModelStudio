@@ -60,7 +60,7 @@ public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 
 	protected abstract List<T> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 
-	protected abstract UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents,
+	protected abstract UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement<?>> selectableComponents,
 	                                                       EditabilityToggleHandler editabilityToggleHandler,
 	                                                       Runnable refreshGUIRunnable);
 

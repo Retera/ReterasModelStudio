@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawBoneAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
@@ -37,8 +38,9 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	public PivotPointModelEditor(ModelView model,
 	                             ProgramPreferences programPreferences,
 	                             SelectionManager<Vec3> selectionManager,
-	                             ModelStructureChangeListener structureChangeListener) {
-		super(selectionManager, model, structureChangeListener);
+	                             ModelStructureChangeListener structureChangeListener,
+	                             ModelHandler modelHandler) {
+		super(selectionManager, model, structureChangeListener, modelHandler);
 		this.programPreferences = programPreferences;
 	}
 
@@ -70,7 +72,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	@Override
 	public UndoAction setParent(IdObject node) {
 		Map<IdObject, IdObject> nodeToOldParent = new HashMap<>();
-		for (IdObject b : model.getEditableIdObjects()) {
+		for (IdObject b : modelView.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
 				nodeToOldParent.put(b, b.getParent());
 			}
@@ -83,14 +85,14 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	@Override
 	public UndoAction autoCenterSelectedBones() {
 		Set<IdObject> selBones = new HashSet<>();
-		for (IdObject b : model.getEditableIdObjects()) {
+		for (IdObject b : modelView.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
 				selBones.add(b);
 			}
 		}
 
 		Map<Geoset, Map<Bone, List<GeosetVertex>>> geosetBoneMaps = new HashMap<>();
-		for (Geoset geo : model.getModel().getGeosets()) {
+		for (Geoset geo : modelView.getModel().getGeosets()) {
 			geosetBoneMaps.put(geo, geo.getBoneMap());
 		}
 
@@ -99,7 +101,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			if (Bone.class.isAssignableFrom(obj.getClass())) {
 				Bone bone = (Bone) obj;
 				List<GeosetVertex> childVerts = new ArrayList<>();
-				for (Geoset geo : model.getModel().getGeosets()) {
+				for (Geoset geo : modelView.getModel().getGeosets()) {
 					List<GeosetVertex> vertices = geosetBoneMaps.get(geo).get(bone);
 					if (vertices != null) {
 						childVerts.addAll(vertices);
@@ -122,7 +124,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		}
 		Vec3 selectedVertex = selectionManager.getSelection().iterator().next();
 		IdObject node = null;
-		for (IdObject bone : model.getEditableIdObjects()) {
+		for (IdObject bone : modelView.getEditableIdObjects()) {
 			if (bone.getPivotPoint() == selectedVertex) {
 				if (node != null) {
 					throw new IllegalStateException(
@@ -143,7 +145,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	public UndoAction addSelectedBoneSuffix(String name) {
 		Set<Vec3> selection = selectionManager.getSelection();
 		List<RenameBoneAction> actions = new ArrayList<>();
-		for (IdObject bone : model.getEditableIdObjects()) {
+		for (IdObject bone : modelView.getEditableIdObjects()) {
 			if (selection.contains(bone.getPivotPoint())) {
 				RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName(), bone.getName() + name, bone);
 				renameBoneAction.redo();
@@ -157,7 +159,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	public UndoAction invertSelection() {
 		List<Vec3> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		Set<Vec3> invertedSelection = new HashSet<>(selectionManager.getSelection());
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			toggleSelection(invertedSelection, object.getPivotPoint());
 			if (object instanceof CollisionShape) {
 				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
@@ -165,7 +167,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 				}
 			}
 		}
-		for (Camera object : model.getEditableCameras()) {
+		for (Camera object : modelView.getEditableCameras()) {
 			toggleSelection(invertedSelection, object.getPosition());
 			toggleSelection(invertedSelection, object.getTargetPosition());
 		}
@@ -185,13 +187,13 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	public UndoAction selectAll() {
 		List<Vec3> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		Set<Vec3> allSelection = new HashSet<>();
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			allSelection.add(object.getPivotPoint());
 			if (object instanceof CollisionShape) {
 				allSelection.addAll(((CollisionShape) object).getVertices());
 			}
 		}
-		for (Camera object : model.getEditableCameras()) {
+		for (Camera object : modelView.getEditableCameras()) {
 			allSelection.add(object.getPosition());
 			allSelection.add(object.getTargetPosition());
 		}
@@ -203,7 +205,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	protected List<Vec3> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<Vec3> selectedItems = new ArrayList<>();
 
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			double vertexSize1 = object.getClickRadius(coordinateSystem) * coordinateSystem.getZoom() * 2;
 			if (AbstractModelEditor.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize1)) {
 				System.out.println("selected " + object.getName());
@@ -219,7 +221,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 				}
 			}
 		}
-		for (Camera camera : model.getEditableCameras()) {
+		for (Camera camera : modelView.getEditableCameras()) {
 			int vertexSize = programPreferences.getVertexSize();
 			if (AbstractModelEditor.hitTest(min, max, camera.getPosition(), coordinateSystem, vertexSize)) {
 				selectedItems.add(camera.getPosition());
@@ -233,7 +235,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 	@Override
 	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			double vertexSize1 = object.getClickRadius(axes) * axes.getZoom() * 2;
 			if (AbstractModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geomV2(axes, point), axes, vertexSize1)) {
 				return true;
@@ -247,7 +249,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 				}
 			}
 		}
-		for (Camera camera : model.getEditableCameras()) {
+		for (Camera camera : modelView.getEditableCameras()) {
 			int vertexSize = programPreferences.getVertexSize();
 			if (AbstractModelEditor.hitTest(camera.getPosition(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
 				return true;
@@ -262,7 +264,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	@Override
 	public void selectByVertices(Collection<? extends Vec3> newSelection) {
 		List<Vec3> newlySelectedPivots = new ArrayList<>();
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			if (newSelection.contains(object.getPivotPoint())) {
 				newlySelectedPivots.add(object.getPivotPoint());
 			}
@@ -274,7 +276,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 				}
 			}
 		}
-		for (Camera camera : model.getEditableCameras()) {
+		for (Camera camera : modelView.getEditableCameras()) {
 			if (newSelection.contains(camera.getPosition())) {
 				newlySelectedPivots.add(camera.getPosition());
 			}
@@ -290,7 +292,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		Set<Vec3> expandedSelection = new HashSet<>(selectionManager.getSelection());
 		Set<Vec3> oldSelection = new HashSet<>(selectionManager.getSelection());
 
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			if (object instanceof CollisionShape) {
 				boolean selected = false;
 				if (oldSelection.contains(object.getPivotPoint())) {
@@ -309,7 +311,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			}
 		}
 
-		for (Camera camera : model.getEditableCameras()) {
+		for (Camera camera : modelView.getEditableCameras()) {
 			if (oldSelection.contains(camera.getTargetPosition()) || oldSelection.contains(camera.getPosition())) {
 				expandedSelection.add(camera.getPosition());
 				expandedSelection.add(camera.getTargetPosition());
@@ -320,10 +322,10 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
+	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement<?>> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
 		List<Vec3> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		List<Vec3> possibleVerticesToTruncate = new ArrayList<>();
-		for (CheckableDisplayElement component : selectableComponents) {
+		for (CheckableDisplayElement<?> component : selectableComponents) {
 			Object item = component.getItem();
 			if (item instanceof Camera) {
 				possibleVerticesToTruncate.add(((Camera) item).getPosition());
@@ -345,7 +347,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		Set<Vec3> selection = selectionManager.getSelection();
 		Set<IdObject> clonedNodes = new HashSet<>();
 		Set<Camera> clonedCameras = new HashSet<>();
-		for (IdObject b : model.getEditableIdObjects()) {
+		for (IdObject b : modelView.getEditableIdObjects()) {
 			if (selection.contains(b.getPivotPoint())) {
 				clonedNodes.add(b.copy());
 			}
@@ -355,7 +357,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 				obj.setParent(null);
 			}
 		}
-		for (Camera camera : model.getEditableCameras()) {
+		for (Camera camera : modelView.getEditableCameras()) {
 			if (selection.contains(camera.getTargetPosition())
 					|| selection.contains(camera.getPosition())) {
 				clonedCameras.add(camera);
@@ -367,7 +369,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	@Override
 	public void rawScale(double centerX, double centerY, double centerZ, double scaleX, double scaleY, double scaleZ) {
 		super.rawScale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
 				if (object instanceof Bone) {
 					scaleBone((Bone) object, scaleX, scaleY, scaleZ);
@@ -400,19 +402,19 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	@Override
 	public UndoAction deleteSelectedComponents() {
 		List<IdObject> deletedIdObjects = new ArrayList<>();
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
 				deletedIdObjects.add(object);
 			}
 		}
 		List<Camera> deletedCameras = new ArrayList<>();
-		for (Camera camera : model.getEditableCameras()) {
+		for (Camera camera : modelView.getEditableCameras()) {
 			if (selectionManager.getSelection().contains(camera.getPosition())
 					|| selectionManager.getSelection().contains(camera.getTargetPosition())) {
 				deletedCameras.add(camera);
 			}
 		}
-		DeleteNodesAction deleteNodesAction = new DeleteNodesAction(selectionManager.getSelection(), deletedIdObjects, deletedCameras, structureChangeListener, model, vertexSelectionHelper);
+		DeleteNodesAction deleteNodesAction = new DeleteNodesAction(selectionManager.getSelection(), deletedIdObjects, deletedCameras, structureChangeListener, modelView, vertexSelectionHelper);
 		deleteNodesAction.redo();
 		return deleteNodesAction;
 	}
@@ -425,7 +427,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	@Override
 	public void rawTranslate(double x, double y, double z) {
 		super.rawTranslate(x, y, z);
-		for (IdObject b : model.getEditableIdObjects()) {
+		for (IdObject b : modelView.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
 				float[] bindPose = b.getBindPose();
 				if (bindPose != null) {
@@ -446,7 +448,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	public RigAction rig() {
 		System.out.println("pivot Rig, sel verts: " + selectionManager.getSelectedVertices().size());
 		List<Bone> selectedBones = new ArrayList<>();
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
 				if (object instanceof Bone) {
 					selectedBones.add((Bone) object);
@@ -463,7 +465,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	@Override
 	public UndoAction addBone(double x, double y, double z) {
 		Set<String> allBoneNames = new HashSet<>();
-		for (IdObject object : model.getModel().getIdObjects()) {
+		for (IdObject object : modelView.getModel().getIdObjects()) {
 			allBoneNames.add(object.getName());
 		}
 		int nameNumber = 1;
@@ -472,7 +474,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		}
 		Bone bone = new Bone(getNumberName("Bone", nameNumber));
 		bone.setPivotPoint(new Vec3(x, y, z));
-		DrawBoneAction drawBoneAction = new DrawBoneAction(model, structureChangeListener, bone);
+		DrawBoneAction drawBoneAction = new DrawBoneAction(modelView, structureChangeListener, bone);
 		drawBoneAction.redo();
 		return drawBoneAction;
 	}

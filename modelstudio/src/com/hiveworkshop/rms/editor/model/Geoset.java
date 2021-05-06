@@ -479,6 +479,10 @@ public class Geoset implements Named, VisibilitySource {
 		add(p);
 	}
 
+	public void addTriangles(List<Triangle> t) {
+		triangles.addAll(t);
+	}
+
 	public void add(final Triangle p) {
 		if (!triangles.contains(p)) {
 			triangles.add(p);
@@ -511,6 +515,10 @@ public class Geoset implements Named, VisibilitySource {
 
 	public void removeTriangle(final Triangle t) {
 		triangles.remove(t);
+	}
+
+	public void removeTriangles(List<Triangle> t) {
+		triangles.removeAll(t);
 	}
 
 	public void addMatrix(final Matrix v) {

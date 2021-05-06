@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawVertexAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.NewGeosetAction;
@@ -34,15 +35,16 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	public GeosetVertexModelEditor(ModelView model,
 	                               ProgramPreferences programPreferences,
 	                               SelectionManager<GeosetVertex> selectionManager,
-	                               ModelStructureChangeListener structureChangeListener) {
-		super(selectionManager, model, structureChangeListener);
+	                               ModelStructureChangeListener structureChangeListener,
+	                               ModelHandler modelHandler) {
+		super(selectionManager, model, structureChangeListener, modelHandler);
 		this.programPreferences = programPreferences;
 	}
 
 	@Override
 	public void selectByVertices(Collection<? extends Vec3> newSelection) {
 		List<GeosetVertex> newGeosetVertices = new ArrayList<>();
-		for (Geoset geoset : model.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (GeosetVertex vertex : geoset.getVertices()) {
 				if (newSelection.contains(vertex)) {
 					newGeosetVertices.add(vertex);
@@ -93,7 +95,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	public UndoAction invertSelection() {
 		List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		Set<GeosetVertex> invertedSelection = new HashSet<>(selectionManager.getSelection());
-		for (Geoset geo : model.getEditableGeosets()) {
+		for (Geoset geo : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geo.getVertices()) {
 				toggleSelection(invertedSelection, geosetVertex);
 			}
@@ -114,7 +116,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	public UndoAction selectAll() {
 		List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
 		Set<GeosetVertex> allSelection = new HashSet<>();
-		for (Geoset geo : model.getEditableGeosets()) {
+		for (Geoset geo : modelView.getEditableGeosets()) {
 			allSelection.addAll(geo.getVertices());
 		}
 		selectionManager.setSelection(allSelection);
@@ -124,7 +126,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	protected List<GeosetVertex> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<GeosetVertex> selectedItems = new ArrayList<>();
 
-		for (Geoset geoset : model.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (hitTest(min, max, geosetVertex, coordinateSystem, programPreferences.getVertexSize()))
 					selectedItems.add(geosetVertex);
@@ -135,14 +137,14 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction addTeamColor() {
-		TeamColorAddAction<GeosetVertex> teamColorAddAction = new TeamColorAddAction<>(selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
+		TeamColorAddAction<GeosetVertex> teamColorAddAction = new TeamColorAddAction<>(selectionManager.getSelectedFaces(), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
 
 	@Override
 	public UndoAction splitGeoset() {
-		SplitGeosetAction<GeosetVertex> teamColorAddAction = new SplitGeosetAction<>(selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
+		SplitGeosetAction<GeosetVertex> teamColorAddAction = new SplitGeosetAction<>(selectionManager.getSelectedFaces(), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
@@ -150,7 +152,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	@Override
 	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
 		boolean canSelect = false;
-		for (Geoset geoset : model.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, programPreferences.getVertexSize())) {
 					canSelect = true;
@@ -161,10 +163,10 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
+	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement<?>> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
 		List<GeosetVertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		List<GeosetVertex> possibleVerticesToTruncate = new ArrayList<>();
-		for (CheckableDisplayElement component : selectableComponents) {
+		for (CheckableDisplayElement<?> component : selectableComponents) {
 			Object item = component.getItem();
 			if (item instanceof Geoset) {
 				possibleVerticesToTruncate.addAll(((Geoset) item).getVertices());
@@ -179,7 +181,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 	public CopiedModelData copySelection() {
 		Set<GeosetVertex> selection = selectionManager.getSelection();
 		List<Geoset> copiedGeosets = new ArrayList<>();
-		for (Geoset geoset : model.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			Geoset copy = new Geoset();
 			copy.setSelectionGroup(geoset.getSelectionGroup());
 			copy.setAnims(geoset.getAnims());
@@ -219,7 +221,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction addVertex(double x, double y, double z, Vec3 preferredNormalFacingVector) {
-		List<Geoset> geosets = model.getModel().getGeosets();
+		List<Geoset> geosets = modelView.getModel().getGeosets();
 		Geoset solidWhiteGeoset = null;
 		for (Geoset geoset : geosets) {
 			Layer firstLayer = geoset.getMaterial().firstLayer();
@@ -242,7 +244,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		UndoAction action;
 		DrawVertexAction drawVertexAction = new DrawVertexAction(geosetVertex);
 		if (needsGeosetAction) {
-			NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, model.getModel(), structureChangeListener);
+			NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView.getModel(), structureChangeListener);
 			action = new CompoundAction("add vertex", Arrays.asList(newGeosetAction, drawVertexAction));
 		} else {
 			action = drawVertexAction;

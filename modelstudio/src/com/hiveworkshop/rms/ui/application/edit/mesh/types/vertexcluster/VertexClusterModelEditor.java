@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.types.vertexgroup.VertexGroupBundle;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
@@ -37,8 +38,9 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 	                                ProgramPreferences programPreferences,
 	                                SelectionManager<VertexGroupBundle> selectionManager,
 	                                ModelStructureChangeListener structureChangeListener,
-	                                VertexClusterDefinitions vertexClusterDefinitions) {
-		super(selectionManager, model, structureChangeListener);
+	                                VertexClusterDefinitions vertexClusterDefinitions,
+	                                ModelHandler modelHandler) {
+		super(selectionManager, model, structureChangeListener, modelHandler);
 		this.programPreferences = programPreferences;
 		this.vertexClusterDefinitions = vertexClusterDefinitions;
 	}
@@ -60,14 +62,14 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 
 	@Override
 	public UndoAction addTeamColor() {
-		TeamColorAddAction<VertexGroupBundle> teamColorAddAction = new TeamColorAddAction<>(selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
+		TeamColorAddAction<VertexGroupBundle> teamColorAddAction = new TeamColorAddAction<>(selectionManager.getSelectedFaces(), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
 
 	@Override
 	public UndoAction splitGeoset() {
-		SplitGeosetAction<VertexGroupBundle> teamColorAddAction = new SplitGeosetAction<>(selectionManager.getSelectedFaces(), model.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
+		SplitGeosetAction<VertexGroupBundle> teamColorAddAction = new SplitGeosetAction<>(selectionManager.getSelectedFaces(), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
@@ -81,7 +83,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 	public UndoAction invertSelection() {
 		Set<VertexGroupBundle> oldSelection = new HashSet<>(selectionManager.getSelection());
 		Set<VertexGroupBundle> invertedSelection = new HashSet<>(selectionManager.getSelection());
-		for (Geoset geoset : model.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (int vertexGroupId = -1; vertexGroupId < vertexClusterDefinitions.getMaxClusterIdKnown(); vertexGroupId++) {
 				VertexGroupBundle bundle = new VertexGroupBundle(geoset, vertexGroupId);
 				if (invertedSelection.contains(bundle)) {
@@ -99,7 +101,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 	public UndoAction selectAll() {
 		Set<VertexGroupBundle> oldSelection = new HashSet<>(selectionManager.getSelection());
 		Set<VertexGroupBundle> allSelection = new HashSet<>();
-		for (Geoset geoset : model.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (int vertexGroupId = -1; vertexGroupId < vertexClusterDefinitions.getMaxClusterIdKnown(); vertexGroupId++) {
 				VertexGroupBundle bundle = new VertexGroupBundle(geoset, vertexGroupId);
 				allSelection.add(bundle);
@@ -112,14 +114,14 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 	@Override
 	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
 		boolean canSelect = false;
-		for (Geoset geoset : model.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
 				if (triHitTest(triangle, CoordSysUtils.geomV2(axes, point), axes)) {
 					canSelect = true;
 				}
 			}
 		}
-		for (Geoset geoset : model.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, programPreferences.getVertexSize())) {
 					canSelect = true;
@@ -133,7 +135,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 	protected List<VertexGroupBundle> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<VertexGroupBundle> newSelection = new ArrayList<>();
 
-		for (Geoset geoset : model.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
 				if (triHitTest(triangle, min, coordinateSystem)
 						|| triHitTest(triangle, max, coordinateSystem)
@@ -145,7 +147,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 			}
 		}
 		List<GeosetVertex> geosetVerticesSelected = new ArrayList<>();
-		for (Geoset geoset : model.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (hitTest(min, max, geosetVertex, coordinateSystem, programPreferences.getVertexSize())) {
 					geosetVerticesSelected.add(geosetVertex);
@@ -159,10 +161,10 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
+	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement<?>> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
 		List<VertexGroupBundle> previousSelection = new ArrayList<>(selectionManager.getSelection());
 		List<VertexGroupBundle> vertexBundlesToTruncate = new ArrayList<>(selectionManager.getSelection());
-		for (CheckableDisplayElement component : selectableComponents) {
+		for (CheckableDisplayElement<?> component : selectableComponents) {
 			Object item = component.getItem();
 			if (item instanceof Geoset) {
 				for (VertexGroupBundle bundle : previousSelection) {
@@ -180,7 +182,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 	@Override
 	public void selectByVertices(Collection<? extends Vec3> newSelection) {
 		List<VertexGroupBundle> newSelectionGroups = new ArrayList<>();
-		for (Geoset geoset : model.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (newSelection.contains(geosetVertex)) {
 					newSelectionGroups.add(new VertexGroupBundle(geosetVertex.getGeoset(), vertexClusterDefinitions.getClusterId(geosetVertex)));
@@ -195,7 +197,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 		// TODO fix heavy overlap with other model editor code
 		Set<VertexGroupBundle> selection = selectionManager.getSelection();
 		List<Geoset> copiedGeosets = new ArrayList<>();
-		for (Geoset geoset : model.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			Geoset copy = new Geoset();
 			copy.setSelectionGroup(geoset.getSelectionGroup());
 			copy.setAnims(geoset.getAnims());

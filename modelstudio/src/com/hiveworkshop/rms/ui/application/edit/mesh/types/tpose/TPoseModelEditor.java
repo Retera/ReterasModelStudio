@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
@@ -33,15 +34,15 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	public TPoseModelEditor(ModelView model,
 	                        ProgramPreferences programPreferences,
 	                        SelectionManager<IdObject> selectionManager,
-	                        ModelStructureChangeListener structureChangeListener) {
-		super(selectionManager, model, structureChangeListener);
+	                        ModelStructureChangeListener structureChangeListener, ModelHandler modelHandler) {
+		super(selectionManager, model, structureChangeListener, modelHandler);
 		this.programPreferences = programPreferences;
 	}
 
 	@Override
 	public UndoAction setParent(IdObject node) {
 		Map<IdObject, IdObject> nodeToOldParent = new HashMap<>();
-		for (IdObject b : model.getEditableIdObjects()) {
+		for (IdObject b : modelView.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
 				nodeToOldParent.put(b, b.getParent());
 			}
@@ -64,14 +65,14 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public UndoAction autoCenterSelectedBones() {
 		Set<IdObject> selBones = new HashSet<>();
-		for (IdObject b : model.getEditableIdObjects()) {
+		for (IdObject b : modelView.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
 				selBones.add(b);
 			}
 		}
 
 		Map<Geoset, Map<Bone, List<GeosetVertex>>> geosetBoneMaps = new HashMap<>();
-		for (Geoset geo : model.getModel().getGeosets()) {
+		for (Geoset geo : modelView.getModel().getGeosets()) {
 			geosetBoneMaps.put(geo, geo.getBoneMap());
 		}
 
@@ -80,7 +81,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			if (Bone.class.isAssignableFrom(obj.getClass())) {
 				Bone bone = (Bone) obj;
 				List<GeosetVertex> childVerts = new ArrayList<>();
-				for (Geoset geo : model.getModel().getGeosets()) {
+				for (Geoset geo : modelView.getModel().getGeosets()) {
 					List<GeosetVertex> vertices = geosetBoneMaps.get(geo).get(bone);
 					if (vertices != null) {
 						childVerts.addAll(vertices);
@@ -138,7 +139,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public void selectByVertices(Collection<? extends Vec3> newSelection) {
 		Set<IdObject> newlySelectedPivots = new HashSet<>();
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			if (newSelection.contains(object.getPivotPoint())) {
 				newlySelectedPivots.add(object);
 			}
@@ -157,7 +158,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	protected List<IdObject> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<IdObject> selectedItems = new ArrayList<>();
 
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			double vertexSize = object.getClickRadius(coordinateSystem) * coordinateSystem.getZoom();
 			if (AbstractModelEditor.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize)) {
 				selectedItems.add(object);
@@ -175,7 +176,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 	@Override
 	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			double vertexSize1 = object.getClickRadius(axes) * axes.getZoom() * 2;
 			if (AbstractModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geomV2(axes, point), axes, vertexSize1)) {
 				return true;
@@ -190,7 +191,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 				}
 			}
 		}
-		for (Camera camera : model.getEditableCameras()) {
+		for (Camera camera : modelView.getEditableCameras()) {
 			int vertexSize = programPreferences.getVertexSize();
 			if (AbstractModelEditor.hitTest(camera.getPosition(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
 				return true;
@@ -213,9 +214,9 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	}
 
 	@Override
-	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
+	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement<?>> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
 		List<IdObject> previousSelection = new ArrayList<>(selectionManager.getSelection());
-		Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(model.getModel().getIdObjects());
+		Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(modelView.getModel().getIdObjects());
 		Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
 		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
@@ -223,7 +224,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public void rawScale(double centerX, double centerY, double centerZ, double scaleX, double scaleY, double scaleZ) {
 		super.rawScale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
 				if (object instanceof Bone) {
 					translateBone((Bone) object, scaleX, scaleY, scaleZ);
@@ -256,18 +257,18 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	@Override
 	public UndoAction deleteSelectedComponents() {
 		List<IdObject> deletedIdObjects = new ArrayList<>();
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
 				deletedIdObjects.add(object);
 			}
 		}
 		List<Camera> deletedCameras = new ArrayList<>();
-		for (Camera camera : model.getEditableCameras()) {
+		for (Camera camera : modelView.getEditableCameras()) {
 			if (selectionManager.getSelection().contains(camera.getPosition()) || selectionManager.getSelection().contains(camera.getTargetPosition())) {
 				deletedCameras.add(camera);
 			}
 		}
-		DeleteNodesAction deleteNodesAction = new DeleteNodesAction(selectionManager.getSelectedVertices(), deletedIdObjects, deletedCameras, structureChangeListener, model, vertexSelectionHelper);
+		DeleteNodesAction deleteNodesAction = new DeleteNodesAction(selectionManager.getSelectedVertices(), deletedIdObjects, deletedCameras, structureChangeListener, modelView, vertexSelectionHelper);
 		deleteNodesAction.redo();
 		return deleteNodesAction;
 	}
@@ -277,7 +278,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		Collection<? extends Vec3> selection = selectionManager.getSelectedVertices();
 		Set<IdObject> clonedNodes = new HashSet<>();
 		Set<Camera> clonedCameras = new HashSet<>();
-		for (IdObject b : model.getEditableIdObjects()) {
+		for (IdObject b : modelView.getEditableIdObjects()) {
 			if (selection.contains(b.getPivotPoint())) {
 				clonedNodes.add(b.copy());
 			}
@@ -287,7 +288,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 				obj.setParent(null);
 			}
 		}
-		for (Camera camera : model.getEditableCameras()) {
+		for (Camera camera : modelView.getEditableCameras()) {
 			if (selection.contains(camera.getTargetPosition()) || selection.contains(camera.getPosition())) {
 				clonedCameras.add(camera);
 			}

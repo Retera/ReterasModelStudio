@@ -58,6 +58,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 	}
 
 	private DefaultTreeModel buildTreeModel(ModelHandler modelHandler) {
+		root.removeAllChildren();
 		meshes.removeAllChildren();
 		nodes.removeAllChildren();
 		cameras.removeAllChildren();
