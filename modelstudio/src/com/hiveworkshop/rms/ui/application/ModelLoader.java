@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.util.TwiAiIoSys;
 import com.hiveworkshop.rms.editor.model.util.TwiAiSceneParser;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -151,14 +152,14 @@ public class ModelLoader {
 		}
 		JMenuItem menuItem = new JMenuItem(modelPanel.getModel().getName());
 		menuItem.setIcon(modelPanel.getIcon());
-
-		MenuBar.windowMenu.add(menuItem);
 		menuItem.addActionListener(e -> setCurrentModel(mainPanel, modelPanel));
 		modelPanel.setJMenuItem(menuItem);
+
 		modelPanel.getModelView().addStateListener(new RepaintingModelStateListener(mainPanel));
 		modelPanel.changeActivity(mainPanel.currentActivity);
 
-//		if (mainPanel.mEditingTP == null) {
+		MenuBar.addModelPanel(modelPanel);
+
 		if (mainPanel.currentModelPanel == modelPanel) {
 //			mainPanel.geoControl = new JScrollPane(modelPanel.getModelViewManagingTree());
 			mainPanel.viewportControllerWindowView.setComponent(modelPanel.getModelEditingTreePane());
@@ -177,7 +178,7 @@ public class ModelLoader {
 			modelPanel.getModelView().getModel().setFileRef(null);
 		}
 
-		MenuBar.toolsMenu.setEnabled(true);
+		MenuBar.setToolsMenuEnabled(true);
 
 		if (selectNewTab && mainPanel.prefs.getQuickBrowse()) {
 			for (int i = (mainPanel.modelPanels.size() - 2); i >= 0; i--) {
@@ -185,7 +186,7 @@ public class ModelLoader {
 				if (openModelPanel.getUndoManager().isRedoListEmpty() && openModelPanel.getUndoManager().isUndoListEmpty()) {
 					if (openModelPanel.close()) {
 						mainPanel.modelPanels.remove(openModelPanel);
-						MenuBar.windowMenu.remove(openModelPanel.getMenuItem());
+						MenuBar.removeModelPanel(openModelPanel);
 					}
 				}
 			}
@@ -315,13 +316,13 @@ public class ModelLoader {
 		}
 	}
 
-	static void revert(MainPanel mainPanel) {
+	public static void revert(MainPanel mainPanel) {
 		final ModelPanel modelPanel = mainPanel.currentModelPanel();
 		final int oldIndex = mainPanel.modelPanels.indexOf(modelPanel);
 		if (modelPanel != null) {
 			if (modelPanel.close()) {
 				mainPanel.modelPanels.remove(modelPanel);
-				MenuBar.windowMenu.remove(modelPanel.getMenuItem());
+				MenuBar.removeModelPanel(modelPanel);
 				if (mainPanel.modelPanels.size() > 0) {
 					final int newIndex = Math.min(mainPanel.modelPanels.size() - 1, oldIndex);
 					setCurrentModel(mainPanel, mainPanel.modelPanels.get(newIndex));

@@ -12,7 +12,7 @@ import java.awt.*;
 
 public class MPQBrowserView {
 
-    static View createMPQBrowser(MainPanel mainPanel, final ImageIcon imageIcon) {
+    public static View createMPQBrowser(MainPanel mainPanel, final ImageIcon imageIcon) {
         final MPQBrowser mpqBrowser = new MPQBrowser(GameDataFileSystem.getDefault(),
                 filepath -> loadFileByType(mainPanel, filepath),
                 path -> fetchModelTexture(mainPanel, path));
@@ -21,7 +21,7 @@ public class MPQBrowserView {
         return view;
     }
 
-    static void openMPQViewer(MainPanel mainPanel) {
+    public static void openMPQViewer(MainPanel mainPanel) {
         final View view = createMPQBrowser(mainPanel, new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)));
         mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(), view));
     }

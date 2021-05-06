@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 
 import javax.swing.*;
@@ -15,7 +16,8 @@ public class MainFrame extends JFrame {
 
 	public static MainFrame frame;
 	public static MainPanel panel;
-	public static JMenuBar menuBar;
+	//	public static JMenuBar menuBar;
+	public static com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar menuBar2;
 
 	public static MainPanel getPanel() {
 		return panel;
@@ -28,14 +30,16 @@ public class MainFrame extends JFrame {
 		setBounds(0, 0, 1000, 650);
 		panel = new MainPanel();
 		setContentPane(panel);
-		menuBar = MenuBar.createMenuBar(panel);
-		setJMenuBar(menuBar);// MainFrame.class.getResource("ImageBin/DDChicken2.png")
+//		menuBar = MenuBar.createMenuBar(panel);
+		menuBar2 = new com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar(panel);
+//		setJMenuBar(menuBar);// MainFrame.class.getResource("ImageBin/DDChicken2.png")
+		setJMenuBar(com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.getMenuBar());// MainFrame.class.getResource("ImageBin/DDChicken2.png")
 		setIconImage(MAIN_PROGRAM_ICON);
 
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent e) {
-				if (MenuBar.closeAll(panel)) {
+				if (MenuBar.closeAll()) {
 					System.exit(0);
 				}
 			}

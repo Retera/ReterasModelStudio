@@ -22,7 +22,7 @@ import java.util.*;
 
 public class AddBirthDeathSequences {
 
-    static void riseFallBirthActionRes(MainPanel mainPanel) {
+    public static void riseFallBirthActionRes(MainPanel mainPanel) {
         final int confirmed = JOptionPane.showConfirmDialog(mainPanel,
                 "This will permanently alter model. Are you sure?", "Confirmation",
                 JOptionPane.OK_CANCEL_OPTION);

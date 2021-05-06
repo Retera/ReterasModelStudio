@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -312,7 +313,7 @@ public class FileDialog {
         MenuBar.updateRecent();
     }
 
-    void onClickOpen() {
+    public void onClickOpen() {
         onClickOpen(OPEN_FILE);
     }
 
@@ -345,7 +346,7 @@ public class FileDialog {
         }
     }
 
-    void onClickSave() {
+    public void onClickSave() {
         System.out.println("saving");
         try {
             EditableModel model = getModel();
@@ -453,10 +454,10 @@ public class FileDialog {
             // sideArea.clearGeosets();
             // botArea.clearGeosets();
 //            mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
-            MenuBar.toolsMenu.getAccessibleContext().setAccessibleDescription(
-                    "Allows the user to control which parts of the model are displayed for editing.");
+//            MenuBar.toolsMenu.getAccessibleContext().setAccessibleDescription(
+//                    "Allows the user to control which parts of the model are displayed for editing.");
 //            mainPanel.toolsMenu.setEnabled(true);
-            MenuBar.toolsMenu.setEnabled(true);
+            MenuBar.setToolsMenuEnabled(true);
             SaveProfile.get().addRecent(getCurrentFile().getPath());
             MenuBar.updateRecent();
             ModelLoader.loadFile(mainPanel, getCurrentFile());

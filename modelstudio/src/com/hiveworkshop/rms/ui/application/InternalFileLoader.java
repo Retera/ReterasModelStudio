@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
+import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
@@ -57,7 +58,7 @@ public class InternalFileLoader {
 		}
 	}
 
-	static void OpenDoodadViewer(MainPanel mainPanel) {
+	public static void OpenDoodadViewer(MainPanel mainPanel) {
 		UnitEditorTree unitEditorTree = new UnitEditorTree(
 				MenuBarActions.getDoodadData(),
 				new DoodadTabTreeBrowserBuilder(),
@@ -100,16 +101,16 @@ public class InternalFileLoader {
 						loadMdxStream(obj, prePath, mainPanel, true);
 					}
 					//                    mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
-					MenuBar.toolsMenu.getAccessibleContext().setAccessibleDescription(
-							"Allows the user to control which parts of the model are displayed for editing.");
+//					MenuBar.toolsMenu.getAccessibleContext().setAccessibleDescription(
+//							"Allows the user to control which parts of the model are displayed for editing.");
 					//                    mainPanel.toolsMenu.setEnabled(true);
-					MenuBar.toolsMenu.setEnabled(true);
+					MenuBar.setToolsMenuEnabled(true);
 				}
 			}
 		}
 	}
 
-	static void fetchObject(MainPanel mainPanel) {
+	public static void fetchObject(MainPanel mainPanel) {
 		MutableObjectData.MutableGameObject objectFetched = ImportFileActions.fetchObject(mainPanel);
 		if (objectFetched != null) {
 
@@ -120,7 +121,7 @@ public class InternalFileLoader {
 		}
 	}
 
-	static void fetchModel(MainPanel mainPanel) {
+	public static void fetchModel(MainPanel mainPanel) {
 		ModelOptionPane.ModelElement model = ImportFileActions.fetchModel(mainPanel);
 		if (model != null) {
 
@@ -131,7 +132,7 @@ public class InternalFileLoader {
 		}
 	}
 
-	static void fetchUnit(MainPanel mainPanel) {
+	public static void fetchUnit(MainPanel mainPanel) {
 		GameObject unitFetched = ImportFileActions.fetchUnit(mainPanel);
 		if (unitFetched != null) {
 
@@ -153,10 +154,10 @@ public class InternalFileLoader {
 				loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
 			}
 			//            mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
-			MenuBar.toolsMenu.getAccessibleContext().setAccessibleDescription(
-					"Allows the user to control which parts of the model are displayed for editing.");
+//			MenuBar.toolsMenu.getAccessibleContext().setAccessibleDescription(
+//					"Allows the user to control which parts of the model are displayed for editing.");
 			//            mainPanel.toolsMenu.setEnabled(true);
-			MenuBar.toolsMenu.setEnabled(true);
+			com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.setToolsMenuEnabled(true);
 		}
 	}
 }

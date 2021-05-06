@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScriptActions {
-	static void mergeGeosetActionRes(MainPanel mainPanel) throws IOException {
+	public static void mergeGeosetActionRes(MainPanel mainPanel) throws IOException {
 		FileDialog fileDialog = new FileDialog(mainPanel);
 //
 		EditableModel current = mainPanel.currentMDL();
@@ -134,7 +134,7 @@ public class ScriptActions {
 //        }
 //    }
 
-	static void exportAnimatedToStaticMesh(MainPanel mainPanel) {
+	public static void exportAnimatedToStaticMesh(MainPanel mainPanel) {
 		if (!mainPanel.animationModeState) {
 			JOptionPane.showMessageDialog(mainPanel, "You must be in the Animation Editor to use that!",
 					"Error", JOptionPane.ERROR_MESSAGE);
@@ -231,7 +231,7 @@ public class ScriptActions {
 		fileDialog.onClickSaveAs(frozenModel, FileDialog.SAVE_MODEL, false);
 	}
 
-	static void combineAnimations(MainPanel mainPanel) {
+	public static void combineAnimations(MainPanel mainPanel) {
 		List<Animation> anims = mainPanel.currentMDL().getAnims();
 		Animation[] array = anims.toArray(new Animation[0]);
 		Object choice = JOptionPane.showInputDialog(mainPanel, "Pick the first animation",
@@ -265,12 +265,12 @@ public class ScriptActions {
 		}
 	}
 
-	static void scaleAnimations(MainPanel mainPanel) {
+	public static void scaleAnimations(MainPanel mainPanel) {
 		ChangeAnimationLengthFrame aFrame = new ChangeAnimationLengthFrame(mainPanel.currentModelPanel(), () -> mainPanel.timeSliderPanel.revalidateKeyframeDisplay());
 		aFrame.setVisible(true);
 	}
 
-	static void nullmodelButtonActionRes(MainPanel mainPanel) {
+	public static void nullmodelButtonActionRes(MainPanel mainPanel) {
 		nullModelFile(mainPanel);
 		if (mainPanel.currentModelPanel != null) {
 			mainPanel.currentModelPanel.repaintModelTrees();
@@ -395,7 +395,7 @@ public class ScriptActions {
 		}
 	}
 
-	static void jokeButtonClickResponse(MainPanel mainPanel) {
+	public static void jokeButtonClickResponse(MainPanel mainPanel) {
 		StringBuilder sb = new StringBuilder();
 		for (File file : new File(
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\CustomMapData\\LuaFpsMap\\Maps\\MultiplayerFun004")
@@ -592,7 +592,7 @@ public class ScriptActions {
 	}
 
 
-	static void removeLoDs(MainPanel mainPanel) {
+	public static void removeLoDs(MainPanel mainPanel) {
 		ModelPanel modelPanel = mainPanel.currentModelPanel();
 		if (modelPanel != null) {
 			JPanel panel = new JPanel(new MigLayout());

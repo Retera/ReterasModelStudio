@@ -8,17 +8,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-class OpenViewAction extends AbstractAction {
+public class OpenViewAction extends AbstractAction {
     private final OpenViewGetter openViewGetter;
     private final RootWindow rootWindow;
 
-    OpenViewAction(RootWindow rootWindow, final String name, final OpenViewGetter openViewGetter) {
+    public OpenViewAction(RootWindow rootWindow, final String name, final OpenViewGetter openViewGetter) {
         super(name);
         this.openViewGetter = openViewGetter;
         this.rootWindow = rootWindow;
     }
 
-    static OpenViewAction getOpenViewAction(RootWindow rootWindow, String s, View view) {
+    public static OpenViewAction getOpenViewAction(RootWindow rootWindow, String s, View view) {
         return new OpenViewAction(rootWindow, s, () -> view);
     }
 

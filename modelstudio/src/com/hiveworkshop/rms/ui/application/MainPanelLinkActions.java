@@ -1,6 +1,9 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
@@ -358,75 +361,69 @@ public class MainPanelLinkActions {
 		return kfm.getFocusOwner();
 	}
 
-	static void selectAllActionRes(MainPanel mainPanel) {
-		final ModelPanel mpanel = mainPanel.currentModelPanel();
-		if (mpanel != null) {
-			mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().selectAll());
+	public static void selectAllActionRes(ModelPanel modelPanel) {
+		if (modelPanel != null) {
+			modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().selectAll());
 		}
-		mainPanel.repaint();
 	}
 
-	static void invertSelectActionRes(MainPanel mainPanel) {
-		final ModelPanel mpanel = mainPanel.currentModelPanel();
-		if (mpanel != null) {
-			mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().invertSelection());
+	public static void invertSelectActionRes(ModelPanel modelPanel) {
+		if (modelPanel != null) {
+			modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().invertSelection());
 		}
-		mainPanel.repaint();
 	}
 
-	static void getExpandSelectionActionRes(MainPanel mainPanel) {
-		final ModelPanel mpanel = mainPanel.currentModelPanel();
-		if (mpanel != null) {
-			mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().expandSelection());
+	public static void getExpandSelectionActionRes(ModelPanel modelPanel) {
+		if (modelPanel != null) {
+			modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().expandSelection());
 		}
-		mainPanel.repaint();
 	}
 
-	static void actionTypeGroupActionRes(MainPanel mainPanel, ToolbarActionButtonType newType) {
+	public static void actionTypeGroupActionRes(MainPanel mainPanel, ToolbarActionButtonType newType) {
 		if (newType != null) {
 			mainPanel.changeActivity(newType);
 		}
 	}
 
-	static void animatedRenderEnvChangeResult(MainPanel mainPanel, int start, int end) {
-		Integer globalSeq = mainPanel.animatedRenderEnvironment.getGlobalSeq();
-		if (globalSeq != null) {
-			mainPanel.creatorPanel.setChosenGlobalSeq(globalSeq);
-		} else {
-			final ModelPanel modelPanel = mainPanel.currentModelPanel();
-			if (modelPanel != null) {
-				boolean foundAnim = false;
-				for (final Animation animation : modelPanel.getModel().getAnims()) {
-					if ((animation.getStart() == start) && (animation.getEnd() == end)) {
-						mainPanel.creatorPanel.setChosenAnimation(animation);
-						foundAnim = true;
-						break;
-					}
-				}
-				if (!foundAnim) {
-					mainPanel.creatorPanel.setChosenAnimation(null);
-				}
-			}
+//	static void animatedRenderEnvChangeResult(MainPanel mainPanel, int start, int end) {
+//		Integer globalSeq = mainPanel.animatedRenderEnvironment.getGlobalSeq();
+//		if (globalSeq != null) {
+//			mainPanel.creatorPanel.setChosenGlobalSeq(globalSeq);
+//		} else {
+//			final ModelPanel modelPanel = mainPanel.currentModelPanel();
+//			if (modelPanel != null) {
+//				boolean foundAnim = false;
+//				for (final Animation animation : modelPanel.getModel().getAnims()) {
+//					if ((animation.getStart() == start) && (animation.getEnd() == end)) {
+//						mainPanel.creatorPanel.setChosenAnimation(animation);
+//						foundAnim = true;
+//						break;
+//					}
+//				}
+//				if (!foundAnim) {
+//					mainPanel.creatorPanel.setChosenAnimation(null);
+//				}
+//			}
+//
+//		}
+//	}
 
-		}
-	}
-
-	static void cloneActionRes(MainPanel mainPanel) {
-		final ModelPanel mpanel = mainPanel.currentModelPanel();
-		if (mpanel != null) {
+	public static void cloneActionRes(MainPanel mainPanel) {
+		final ModelPanel modelPanel = mainPanel.currentModelPanel();
+		if (modelPanel != null) {
 			try {
-				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor()
+				modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor()
 						.cloneSelectedComponents(mainPanel.namePicker));
 			} catch (final Exception exc) {
 				ExceptionPopup.display(exc);
 			}
 			mainPanel.getUndoHandler().refreshUndo();
 			MainPanel.repaintSelfAndChildren(mainPanel);
-			mpanel.repaintSelfAndRelatedChildren();
+			modelPanel.repaintSelfAndRelatedChildren();
 		}
 	}
 
-	static void deleteActionRes(MainPanel mainPanel) {
+	public static void deleteActionRes(MainPanel mainPanel) {
 		final ModelPanel mpanel = mainPanel.currentModelPanel();
 		if (mpanel != null) {
 			if (mainPanel.animationModeState) {
@@ -439,7 +436,7 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	static void rigActionRes(ModelPanel mpanel) {
+	public static void rigActionRes(ModelPanel mpanel) {
 		if (mpanel != null) {
 			EditableModel model = mpanel.getModel();
 			ModelEditorManager editorManager = mpanel.getModelEditorManager();
@@ -466,7 +463,7 @@ public class MainPanelLinkActions {
 		return new AbstractAction("Select All") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				selectAllActionRes(mainPanel);
+				selectAllActionRes(mainPanel.currentModelPanel());
 			}
 		};
 	}
@@ -475,7 +472,7 @@ public class MainPanelLinkActions {
 		return new AbstractAction("Invert Selection") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				invertSelectActionRes(mainPanel);
+				invertSelectActionRes(mainPanel.currentModelPanel);
 			}
 		};
 	}
@@ -484,7 +481,7 @@ public class MainPanelLinkActions {
 		return new AbstractAction("Expand Selection") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				getExpandSelectionActionRes(mainPanel);
+				getExpandSelectionActionRes(mainPanel.currentModelPanel());
 			}
 		};
 	}

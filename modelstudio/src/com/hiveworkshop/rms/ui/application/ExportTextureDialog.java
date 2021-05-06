@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 public class ExportTextureDialog {
 
     //ToDo figure out why these throw errors sometimes (might have to do with non-existing texture files)
-    static void exportMaterialAsTextures(MainPanel mainPanel) {
+    public static void exportMaterialAsTextures(MainPanel mainPanel) {
         exportMaterialAsTextures(mainPanel, mainPanel.currentMDL());
     }
 
@@ -57,7 +57,7 @@ public class ExportTextureDialog {
         }
     }
 
-    static void exportTextures(MainPanel mainPanel) {
+    public static void exportTextures(MainPanel mainPanel) {
         exportTextures(mainPanel, mainPanel.currentMDL());
     }
 

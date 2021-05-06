@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
+import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
@@ -67,7 +68,7 @@ public class MenuBarActions {
 				StandardObjectData.getStandardDoodadMeta(), editorData);
 	}
 
-	static void openUnitViewer(MainPanel mainPanel) {
+	public static void openUnitViewer(MainPanel mainPanel) {
 		UnitEditorTree unitEditorTree = MainLayoutCreator.createUnitEditorTree(mainPanel);
 		mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(),
 				new View("Unit Browser",
@@ -75,7 +76,7 @@ public class MenuBarActions {
 						new JScrollPane(unitEditorTree))));
 	}
 
-	static void openHiveViewer(MainPanel mainPanel) {
+	public static void openHiveViewer(MainPanel mainPanel) {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.add(BorderLayout.BEFORE_FIRST_LINE, new JLabel(POWERED_BY_HIVE));
@@ -112,7 +113,7 @@ public class MenuBarActions {
 						panel)));
 	}
 
-	static void openPreferences(MainPanel mainPanel) {
+	public static void openPreferences(MainPanel mainPanel) {
 		ProgramPreferences programPreferences = new ProgramPreferences();
 		programPreferences.loadFrom(mainPanel.prefs);
 		List<DataSourceDescriptor> priorDataSources = SaveProfile.get().getDataSources();
@@ -129,12 +130,13 @@ public class MenuBarActions {
 			}
 			SaveProfile.save();
 			if (changedDataSources) {
-				dataSourcesChanged(MenuBar.directoryChangeNotifier, mainPanel.modelPanels);
+				com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.updateDataSource(mainPanel);
+//				dataSourcesChanged(MenuBar.directoryChangeNotifier, mainPanel.modelPanels);
 			}
 		}
 	}
 
-	static void createAndShowRtfPanel(String filePath, String title) {
+	public static void createAndShowRtfPanel(String filePath, String title) {
 		DefaultStyledDocument document = new DefaultStyledDocument();
 		JTextPane textPane = new JTextPane();
 		textPane.setForeground(Color.BLACK);
@@ -154,23 +156,23 @@ public class MenuBarActions {
 		frame.setVisible(true);
 	}
 
-	static void clearRecent(MainPanel mainPanel) {
+	public static void clearRecent(MainPanel mainPanel) {
 		int dialogResult = JOptionPane.showConfirmDialog(mainPanel,
 				"Are you sure you want to clear the Recent history?", "Confirm Clear",
 				JOptionPane.YES_NO_OPTION);
 		if (dialogResult == JOptionPane.YES_OPTION) {
 			SaveProfile.get().clearRecent();
-			MenuBar.updateRecent();
+			com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.updateRecent();
 		}
 	}
 
-	static void closePanel(MainPanel mainPanel) {
+	public static void closeModelPanel(MainPanel mainPanel) {
 		ModelPanel modelPanel = mainPanel.currentModelPanel();
 		int oldIndex = mainPanel.modelPanels.indexOf(modelPanel);
 		if (modelPanel != null) {
 			if (modelPanel.close()) {
 				mainPanel.modelPanels.remove(modelPanel);
-				MenuBar.windowMenu.remove(modelPanel.getMenuItem());
+				com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.removeModelPanel(modelPanel);
 				if (mainPanel.modelPanels.size() > 0) {
 					int newIndex = Math.min(mainPanel.modelPanels.size() - 1, oldIndex);
 					ModelLoader.setCurrentModel(mainPanel, mainPanel.modelPanels.get(newIndex));
@@ -182,7 +184,7 @@ public class MenuBarActions {
 		}
 	}
 
-	static void newModel(MainPanel mainPanel) {
+	public static void newModel(MainPanel mainPanel) {
 		JPanel newModelPanel = new JPanel();
 		newModelPanel.setLayout(new MigLayout("fill, ins 0"));
 		newModelPanel.add(new JLabel("Model Name: "), "");
@@ -245,7 +247,7 @@ public class MenuBarActions {
 			}
 			if (success = panel.close()) {
 //                mainPanel.windowMenu.remove(panel.getMenuItem());
-				MenuBar.windowMenu.remove(panel.getMenuItem());
+				MenuBar.removeModelPanel(panel);
 				iterator.remove();
 				if (panel == mainPanel.currentModelPanel) {
 					closedCurrentPanel = true;
@@ -437,7 +439,7 @@ public class MenuBarActions {
 		}
 	}
 
-	static void copyCutPast(MainPanel mainPanel, TransferActionListener transferActionListener, ActionEvent e) {
+	public static void copyCutPast(MainPanel mainPanel, TransferActionListener transferActionListener, ActionEvent e) {
 		if (!mainPanel.animationModeState) {
 			transferActionListener.actionPerformed(e);
 		} else {
@@ -451,7 +453,7 @@ public class MenuBarActions {
 		}
 	}
 
-	static void sortBones(MainPanel mainPanel) {
+	public static void sortBones(MainPanel mainPanel) {
 		final EditableModel model = mainPanel.currentMDL();
 		final List<IdObject> roots = new ArrayList<>();
 		final List<IdObject> modelList = model.getIdObjects();
@@ -477,7 +479,7 @@ public class MenuBarActions {
 		mainPanel.modelStructureChangeListener.nodesAdded(result);
 	}
 
-	static void minimizeGeoset(MainPanel mainPanel) {
+	public static void minimizeGeoset(MainPanel mainPanel) {
 		final int confirm = JOptionPane.showConfirmDialog(mainPanel,
 				"This is experimental and I did not code the Undo option for it yet. Continue?" +
 						"\nMy advice is to click cancel and save once first.",
@@ -564,7 +566,7 @@ public class MenuBarActions {
 		return (firstAnimatedColor == null) || firstAnimatedColor.equals(secondAnimatedColor);
 	}
 
-	static void removeMaterialDuplicates(MainPanel mainPanel) {
+	public static void removeMaterialDuplicates(MainPanel mainPanel) {
 		EditableModel model = mainPanel.currentModelPanel().getModel();
 		List<Material> materials = model.getMaterials();
 		Map<Material, Material> sameMaterialMap = new HashMap<>();

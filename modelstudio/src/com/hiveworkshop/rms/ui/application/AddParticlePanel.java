@@ -34,7 +34,7 @@ public class AddParticlePanel {
             {"WeaponMagicFlatEmitter.mdx", "WeaponMagicFlatEmitter.png"}
     };
 
-    static void addParticleButtons(MainPanel mainPanel, JMenu addParticle) {
+    public static void addParticleButtons(MainPanel mainPanel, JMenu addParticle) {
         List<ParticleInformation> particleInformationList = fetchIncludedParticles();
         for (ParticleInformation particleInformation : particleInformationList) {
             makeAndAddParticleButtons(mainPanel, addParticle, particleInformation);
@@ -67,7 +67,7 @@ public class AddParticlePanel {
             "FireSmallOrange.png",
     };
 
-    static void addEmptyPopcorn(MainPanel mainPanel) {
+    public static void addEmptyPopcorn(MainPanel mainPanel) {
         final EditableModel current = mainPanel.currentMDL();
         if (current != null) {
             System.out.println("added popcorn!");

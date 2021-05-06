@@ -5,8 +5,9 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.application.MainPanel;
-import com.hiveworkshop.rms.ui.application.MenuBar;
+import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
+import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import net.miginfocom.swing.MigLayout;
@@ -29,11 +30,15 @@ public class AnimationTransfer extends JPanel {
 
 	EditableModel sourceFile;
 	EditableModel animFile;
-	private final JFrame parentFrame;
+	private JFrame parentFrame;
 
 	public AnimationTransfer(final JFrame parentFrame) {
-		setLayout(new MigLayout("gap 0"));
+		this();
 		this.parentFrame = parentFrame;
+	}
+
+	public AnimationTransfer() {
+		setLayout(new MigLayout("gap 0"));
 		final MainPanel panel = MainFrame.getPanel();
 		final EditableModel current;// ;
 		if (panel != null && (current = panel.currentMDL()) != null && current.getFile() != null) {
@@ -106,6 +111,37 @@ public class AnimationTransfer extends JPanel {
 						"so that you can micro-manage particular settings before finishing the operation.");
 
 		add(goAdvanced, "spanx, align center");
+	}
+
+	public static void main(final String[] args) {
+		try {
+			// Set cross-platform Java L&F (also called "Metal")
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (final UnsupportedLookAndFeelException
+				| ClassNotFoundException
+				| InstantiationException
+				| IllegalAccessException e) {
+			// handle exception
+		}
+		new AnimationTransfer().showWindow();
+//		final JFrame frame = new JFrame();
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		frame.setIconImage((new ImageIcon(MainFrame.class.getResource("ImageBin/Anim.png"))).getImage());
+//		final AnimationTransfer transfer = new AnimationTransfer(frame);
+//		frame.setContentPane(transfer);
+//		frame.pack();
+//		frame.setLocationRelativeTo(null);
+//		frame.setVisible(true);
+	}
+
+	public void showWindow() {
+		parentFrame = new JFrame("Animation Transferer");
+		parentFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		parentFrame.setContentPane(new AnimationTransfer(parentFrame));
+		parentFrame.setIconImage(RMSIcons.AnimIcon.getImage());
+		parentFrame.pack();
+		parentFrame.setLocationRelativeTo(null);
+		parentFrame.setVisible(true);
 	}
 
 	public JTextField getFileField() {
@@ -182,11 +218,6 @@ public class AnimationTransfer extends JPanel {
 		if (!equalModels) {
 			pickAnimBox.setModel(model);
 		}
-	}
-
-	private void done() {
-		parentFrame.setVisible(false);
-		parentFrame.dispose();
 	}
 
 	private void transfer(boolean advancedTransfer) {
@@ -339,24 +370,8 @@ public class AnimationTransfer extends JPanel {
 		}
 	}
 
-	public static void main(final String[] args) {
-		try {
-			// Set cross-platform Java L&F (also called "Metal")
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (final UnsupportedLookAndFeelException
-				| ClassNotFoundException
-				| InstantiationException
-				| IllegalAccessException e) {
-			// handle exception
-		}
-
-		final JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setIconImage((new ImageIcon(MainFrame.class.getResource("ImageBin/Anim.png"))).getImage());
-		final AnimationTransfer transfer = new AnimationTransfer(frame);
-		frame.setContentPane(transfer);
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
+	private void done() {
+		parentFrame.setVisible(false);
+		parentFrame.dispose();
 	}
 }

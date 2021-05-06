@@ -48,7 +48,7 @@ public class ImportFileActions {
         }
     }
 
-    static void importButtonActionRes(MainPanel mainPanel) {
+    public static void importButtonActionRes(MainPanel mainPanel) {
         FileDialog fileDialog = new FileDialog(mainPanel);
 
         final EditableModel model = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
@@ -60,7 +60,7 @@ public class ImportFileActions {
         }
     }
 
-    static void importFromWorkspaceActionRes(MainPanel mainPanel) {
+    public static void importFromWorkspaceActionRes(MainPanel mainPanel) {
         final List<EditableModel> optionNames = new ArrayList<>();
         for (final ModelPanel modelPanel : mainPanel.modelPanels) {
             final EditableModel model = modelPanel.getModel();
@@ -98,7 +98,7 @@ public class ImportFileActions {
         }
     }
 
-    static MutableObjectData.MutableGameObject fetchObject(Component parent) {
+    public static MutableObjectData.MutableGameObject fetchObject(Component parent) {
         final BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(MainLayoutCreator.getUnitData(),
                 MainLayoutCreator.getUnitEditorSettings());
         final int x = JOptionPane.showConfirmDialog(parent, selector,
@@ -115,7 +115,7 @@ public class ImportFileActions {
         return null;
     }
 
-    static void importGameObjectActionRes(MainPanel mainPanel) {
+    public static void importGameObjectActionRes(MainPanel mainPanel) {
         final MutableObjectData.MutableGameObject fetchObjectResult = fetchObject(mainPanel);
         if (fetchObjectResult != null) {
             String path = fetchObjectResult.getFieldAsString(UnitFields.MODEL_FILE, 0);
@@ -124,7 +124,7 @@ public class ImportFileActions {
         }
     }
 
-    static ModelOptionPane.ModelElement fetchModel(Component parent) {
+    public static ModelOptionPane.ModelElement fetchModel(Component parent) {
         final ModelOptionPane.ModelElement model = ModelOptionPane.showAndLogIcon(parent);
         if (model == null) {
             return null;
@@ -134,7 +134,7 @@ public class ImportFileActions {
         return null;
     }
 
-    static void importGameModelActionRes(MainPanel mainPanel) {
+    public static void importGameModelActionRes(MainPanel mainPanel) {
         final ModelOptionPane.ModelElement fetchModelResult = fetchModel(mainPanel);
         if (fetchModelResult != null) {
             String path = fetchModelResult.getFilepath();
@@ -142,7 +142,7 @@ public class ImportFileActions {
         }
     }
 
-    static GameObject fetchUnit(MainPanel mainPanel) {
+    public static GameObject fetchUnit(MainPanel mainPanel) {
         final GameObject choice = UnitOptionPane.show(mainPanel);
 
         if (choice != null) {
@@ -167,7 +167,7 @@ public class ImportFileActions {
         return true;
     }
 
-    static void importUnitActionRes(MainPanel mainPanel) {
+    public static void importUnitActionRes(MainPanel mainPanel) {
         final GameObject fetchUnitResult = fetchUnit(mainPanel);
         if (fetchUnitResult != null) {
             String path = fetchUnitResult.getField("file");

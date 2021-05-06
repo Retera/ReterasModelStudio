@@ -41,11 +41,11 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
     List<ModelPanel> modelPanels;
     ModelPanel currentModelPanel;
-    View frontView, leftView, bottomView, perspectiveView;
-    final View timeSliderView;
-    final View previewView;
-    final View creatorView;
-    final View animationControllerView;
+    public final View timeSliderView;
+    public final View previewView;
+    public final View creatorView;
+    public final View animationControllerView;
+    public View frontView, leftView, bottomView, perspectiveView;
 
     JTextField[] mouseCoordDisplay = new JTextField[3];
     boolean cheatShift = false;
@@ -62,14 +62,14 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     final RootWindow rootWindow;
 
     public ModelEditorActionType actionType;
-//    JMenu teamColorMenu;
+    //    JMenu teamColorMenu;
     JButton snapButton;
     ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
     ToolbarButtonGroup<SelectionMode> selectionModeGroup;
     ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
-    View viewportControllerWindowView;
-    View toolView;
-    View modelDataView;
+    public View viewportControllerWindowView;
+    public View toolView;
+    public View modelDataView;
     View modelComponentView;
     ActivityDescriptor currentActivity;
 
@@ -107,7 +107,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
         TimeSliderView.createTimeSliderPanel(this);
 
-        animatedRenderEnvironment.addChangeListener((start, end) -> MainPanelLinkActions.animatedRenderEnvChangeResult(MainPanel.this, start, end));
+//        animatedRenderEnvironment.addChangeListener((start, end) -> MainPanelLinkActions.animatedRenderEnvChangeResult(MainPanel.this, start, end));
 
 
         ClosePopup.createContextMenuPopup(this);

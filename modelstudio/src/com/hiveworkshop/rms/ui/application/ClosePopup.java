@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
+
 import javax.swing.*;
 
 public class ClosePopup {
@@ -16,7 +18,7 @@ public class ClosePopup {
 		contextMenu.add(contextCloseOthers);
 
 		JMenuItem contextCloseAll = new JMenuItem("Close All");
-		contextCloseAll.addActionListener(e -> MenuBar.closeAll(mainPanel));
+		contextCloseAll.addActionListener(e -> MenuBar.closeAll());
 		contextMenu.add(contextCloseAll);
 	}
 }

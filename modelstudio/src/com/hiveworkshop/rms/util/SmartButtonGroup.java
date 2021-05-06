@@ -98,6 +98,16 @@ public class SmartButtonGroup extends ButtonGroup {
 		return this;
 	}
 
+	public SmartButtonGroup addJRadioButtonMenuItem(String text, ActionListener actionListener) {
+		return addJRadioButton(text, actionListener, buttonIndexMap.size());
+	}
+
+	private SmartButtonGroup addJRadioButtonMenuItem(String text, ActionListener actionListener, int index) {
+		JRadioButtonMenuItem button = new JRadioButtonMenuItem(text);
+		addNewButton(actionListener, index, button);
+		return this;
+	}
+
 	private void addNewButton(ActionListener actionListener, int index, AbstractButton button) {
 		button.addActionListener(actionListener);
 		add(button);

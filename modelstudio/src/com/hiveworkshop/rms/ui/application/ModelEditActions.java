@@ -16,7 +16,7 @@ public class ModelEditActions {
     static double lastNormalMaxAngle = 90;
     static boolean useTris = false;
 
-    static void viewMatrices(MainPanel mainPanel) {
+    public static void viewMatrices(MainPanel mainPanel) {
         final ModelPanel modelPanel = mainPanel.currentModelPanel();
         if (modelPanel != null) {
             modelPanel.viewMatrices();
@@ -24,7 +24,7 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void inverseAllUVs(MainPanel mainPanel) {
+    public static void inverseAllUVs(MainPanel mainPanel) {
         for (final Geoset geo : mainPanel.currentMDL().getGeosets()) {
             for (final GeosetVertex vertex : geo.getVertices()) {
                 for (final Vec2 tvert : vertex.getTverts()) {
@@ -37,7 +37,7 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void flipAllUVsV(MainPanel mainPanel) {
+    public static void flipAllUVsV(MainPanel mainPanel) {
         for (final Geoset geo : mainPanel.currentMDL().getGeosets()) {
             for (final GeosetVertex vertex : geo.getVertices()) {
                 for (final Vec2 tvert : vertex.getTverts()) {
@@ -48,7 +48,7 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void flipAllUVsU(MainPanel mainPanel) {
+    public static void flipAllUVsU(MainPanel mainPanel) {
         for (final Geoset geo : mainPanel.currentMDL().getGeosets()) {
             for (final GeosetVertex vertex : geo.getVertices()) {
                 for (final Vec2 tvert : vertex.getTverts()) {
@@ -59,7 +59,7 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void insideOutNormals(MainPanel mainPanel) {
+    public static void insideOutNormals(MainPanel mainPanel) {
         final ModelPanel modelPanel = mainPanel.currentModelPanel();
         if (modelPanel != null) {
             modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().flipSelectedNormals());
@@ -67,7 +67,7 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void insideOut(MainPanel mainPanel) {
+    public static void insideOut(MainPanel mainPanel) {
         final ModelPanel modelPanel = mainPanel.currentModelPanel();
         if (modelPanel != null) {
             modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().flipSelectedFaces());
@@ -75,7 +75,7 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void snapVertices(MainPanel mainPanel) {
+    public static void snapVertices(MainPanel mainPanel) {
         final ModelPanel modelPanel = mainPanel.currentModelPanel();
         if (modelPanel != null) {
             modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
@@ -83,7 +83,7 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void snapNormals(MainPanel mainPanel) {
+    public static void snapNormals(MainPanel mainPanel) {
         final ModelPanel modelPanel = mainPanel.currentModelPanel();
         if (modelPanel != null) {
             modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().snapNormals());
@@ -91,7 +91,7 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void recalculateNormals(MainPanel mainPanel) {
+    public static void recalculateNormals(MainPanel mainPanel) {
         final ModelPanel modelPanel = mainPanel.currentModelPanel();
         if (modelPanel != null) {
             JPanel panel = new JPanel(new MigLayout());
@@ -112,7 +112,7 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void recalculateExtents(MainPanel mainPanel) {
+    public static void recalculateExtents(MainPanel mainPanel) {
         final ModelPanel modelPanel = mainPanel.currentModelPanel();
         if (modelPanel != null) {
             final JPanel messagePanel = new JPanel(new MigLayout());
@@ -138,7 +138,7 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void mirrorAxis(MainPanel mainPanel, byte i, boolean mirrorFlip) {
+    public static void mirrorAxis(MainPanel mainPanel, byte i, boolean mirrorFlip) {
         final ModelPanel modelPanel = mainPanel.currentModelPanel();
         if (modelPanel != null) {
             final Vec3 selectionCenter = modelPanel.getModelEditorManager().getModelEditor().getSelectionCenter();
@@ -149,7 +149,7 @@ public class ModelEditActions {
         mainPanel.repaint();
     }
 
-    static void linearizeAnimations(MainPanel mainPanel) {
+    public static void linearizeAnimations(MainPanel mainPanel) {
         final int x = JOptionPane.showConfirmDialog(mainPanel,
                 "This is an irreversible process that will lose some of your model data," +
                         "\nin exchange for making it a smaller storage size." +
@@ -163,7 +163,7 @@ public class ModelEditActions {
         }
     }
 
-    static void simplifyKeyframes(MainPanel mainPanel) {
+    public static void simplifyKeyframes(MainPanel mainPanel) {
         final int x = JOptionPane.showConfirmDialog(mainPanel,
                 "This is an irreversible process that will lose some of your model data," +
                         "\nin exchange for making it a smaller storage size." +
