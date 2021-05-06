@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
 import com.hiveworkshop.rms.ui.application.scripts.AnimationTransfer;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
@@ -552,7 +551,7 @@ public class MenuBar {
                         modelPanel.getAnimationViewer().reloadAllTextures();
                         modelPanel.getPerspArea().reloadAllTextures();
 
-                        ModelStructureChangeListener.reloadComponentBrowser(mainPanel.geoControlModelData, modelPanel);
+                        modelPanel.reloadComponentBrowser();
                     }
                     mainPanel.profile.getPreferences().setTeamColor(teamColorValueNumber);
                 });

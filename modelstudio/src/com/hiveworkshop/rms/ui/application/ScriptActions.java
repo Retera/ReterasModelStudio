@@ -272,7 +272,9 @@ public class ScriptActions {
 
 	static void nullmodelButtonActionRes(MainPanel mainPanel) {
 		nullModelFile(mainPanel);
-		MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+		if (mainPanel.currentModelPanel != null) {
+			mainPanel.currentModelPanel.repaintModelTrees();
+		}
 	}
 
 	public static String incName(String name) {

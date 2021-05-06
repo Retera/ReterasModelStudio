@@ -65,6 +65,7 @@ public class AnimationControllerListener extends JPanel {
 
 	public void playAnimation() {
 		renderEnv.setRelativeAnimationTime(0);
+		renderEnv.setLive(true);
 	}
 
 	public void setLoop(AnimationControllerListener.LoopType loopType) {

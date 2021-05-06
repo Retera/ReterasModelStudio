@@ -46,6 +46,9 @@ public class ModelPanel {
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelEditorManager modelEditorManager;
 	private UVPanel editUVPanel;
+	private JScrollPane modelEditingTreePane;
+	private JScrollPane componentBrowserTreePane;
+
 
 	private final ModelViewManagingTree modelViewManagingTree;
 	private final ModelComponentBrowserTree modelComponentBrowserTree;
@@ -68,7 +71,6 @@ public class ModelPanel {
 	                  Icon icon,
 	                  boolean specialBLPModel) {
 		this.modelHandler = modelHandler;
-
 		this.parent = parent;
 		this.prefs = prefs;
 		selectionItemTypeNotifier = notifier;
@@ -81,8 +83,10 @@ public class ModelPanel {
 		modelEditorManager = new ModelEditorManager(modelHandler, prefs, modeNotifier, modelEditorChangeNotifier, viewportActivityManager, modelStructureChangeListener);
 
 		modelViewManagingTree = new ModelViewManagingTree(modelHandler, modelEditorManager);
+		modelEditingTreePane = new JScrollPane(modelViewManagingTree);
 
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelHandler, modelEditorManager, modelStructureChangeListener);
+		componentBrowserTreePane = new JScrollPane(modelComponentBrowserTree);
 
 		selectionItemTypeNotifier.addToolbarButtonListener(modelEditorManager::setSelectionItemType);
 
@@ -249,5 +253,30 @@ public class ModelPanel {
 
 	public ComponentsPanel getComponentsPanel() {
 		return componentsPanel;
+	}
+
+	public JScrollPane getModelEditingTreePane() {
+		return modelEditingTreePane;
+	}
+
+	public JScrollPane getComponentBrowserTreePane() {
+		return componentBrowserTreePane;
+	}
+
+	public void reloadComponentBrowser() {
+		componentBrowserTreePane.setViewportView(modelComponentBrowserTree.reloadFromModelView());
+	}
+
+	public void reloadModelEditingTree() {
+		modelEditingTreePane.setViewportView(modelViewManagingTree.reloadFromModelView());
+	}
+
+	public void repaintModelTrees() {
+		if (modelEditingTreePane != null) {
+			modelEditingTreePane.repaint();
+		}
+		if (componentBrowserTreePane != null) {
+			componentBrowserTreePane.repaint();
+		}
 	}
 }

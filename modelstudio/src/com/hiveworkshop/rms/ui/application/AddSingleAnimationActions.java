@@ -21,14 +21,17 @@ import java.util.List;
 public class AddSingleAnimationActions {
 
     static void addAnimationFromFile(MainPanel mainPanel) {
-        FileDialog fileDialog = new FileDialog(mainPanel);
+	    FileDialog fileDialog = new FileDialog(mainPanel);
 
-        EditableModel animationSourceModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
-        if (animationSourceModel != null) {
-            addSingleAnimation(mainPanel, fileDialog.getModel(), animationSourceModel);
-        }
+	    EditableModel animationSourceModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+	    if (animationSourceModel != null) {
+		    addSingleAnimation(mainPanel, fileDialog.getModel(), animationSourceModel);
+	    }
 
-        MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+//        MenuBarActions.refreshController(mainPanel.currentModelPanel.getGeoControl(), mainPanel.currentModelPanel.getGeoControlModelData());
+	    if (mainPanel.currentModelPanel != null) {
+		    mainPanel.currentModelPanel.repaintModelTrees();
+	    }
     }
 
     static void addSingleAnimation(MainPanel mainPanel, EditableModel current, EditableModel animationSourceModel) {

@@ -47,8 +47,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     final View creatorView;
     final View animationControllerView;
 
-    JScrollPane geoControl;
-    JScrollPane geoControlModelData;
     JTextField[] mouseCoordDisplay = new JTextField[3];
     boolean cheatShift = false;
     boolean cheatAlt = false;
@@ -271,13 +269,13 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         return modelPanels;
     }
 
-    public JScrollPane getGeoControl() {
-        return geoControl;
-    }
-
-    public JScrollPane getGeoControlModelData() {
-        return geoControlModelData;
-    }
+//    public JScrollPane getmEditingTP() {
+//        return mEditingTP;
+//    }
+//
+//    public JScrollPane getCompBrowserTP() {
+//        return compBrowserTP;
+//    }
 
     public TimeSliderPanel getTimeSliderPanel() {
         return timeSliderPanel;
@@ -346,7 +344,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
     public static void repaintSelfAndChildren(MainPanel mainPanel) {
         mainPanel.repaint();
-        mainPanel.geoControl.repaint();
-        mainPanel.geoControlModelData.repaint();
+//        mainPanel.mEditingTP.repaint();
+//        mainPanel.compBrowserTP.repaint();
     }
 }

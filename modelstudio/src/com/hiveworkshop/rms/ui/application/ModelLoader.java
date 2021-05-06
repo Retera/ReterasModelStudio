@@ -161,12 +161,13 @@ public class ModelLoader {
 		modelPanel.getModelViewManager().addStateListener(new RepaintingModelStateListener(mainPanel));
 		modelPanel.changeActivity(mainPanel.currentActivity);
 
-		if (mainPanel.geoControl == null) {
-			mainPanel.geoControl = new JScrollPane(modelPanel.getModelViewManagingTree());
-			mainPanel.viewportControllerWindowView.setComponent(mainPanel.geoControl);
+//		if (mainPanel.mEditingTP == null) {
+		if (true) {
+//			mainPanel.geoControl = new JScrollPane(modelPanel.getModelViewManagingTree());
+			mainPanel.viewportControllerWindowView.setComponent(modelPanel.getModelEditingTreePane());
 			mainPanel.viewportControllerWindowView.repaint();
-			mainPanel.geoControlModelData = new JScrollPane(modelPanel.getModelComponentBrowserTree());
-			mainPanel.modelDataView.setComponent(mainPanel.geoControlModelData);
+//			mainPanel.geoControlModelData = new JScrollPane(modelPanel.getModelComponentBrowserTree());
+			mainPanel.modelDataView.setComponent(modelPanel.getComponentBrowserTreePane());
 			mainPanel.modelComponentView.setComponent(modelPanel.getComponentsPanel());
 			mainPanel.modelDataView.repaint();
 		}
@@ -200,7 +201,7 @@ public class ModelLoader {
 			JPanel jPanel = new JPanel();
 			jPanel.add(new JLabel("..."));
 			mainPanel.viewportControllerWindowView.setComponent(jPanel);
-			mainPanel.geoControl = null;
+//			mainPanel.mEditingTP = null;
 
 			mainPanel.frontView.setComponent(new JPanel());
 			mainPanel.bottomView.setComponent(new JPanel());
@@ -215,10 +216,10 @@ public class ModelLoader {
 			mainPanel.creatorPanel.setCurrentModel(null);
 
 			mainPanel.modelComponentView.setComponent(new JPanel());
-			mainPanel.geoControlModelData = null;
+//			mainPanel.compBrowserTP = null;
 		} else {
-			mainPanel.geoControl.setViewportView(mainPanel.currentModelPanel.getModelViewManagingTree());
-			mainPanel.geoControl.repaint();
+//			mainPanel.mEditingTP.setViewportView(mainPanel.currentModelPanel.getModelViewManagingTree());
+//			mainPanel.mEditingTP.repaint();
 
 			mainPanel.frontView.setComponent(modelPanel.getFrontArea());
 			mainPanel.bottomView.setComponent(modelPanel.getBotArea());
@@ -233,9 +234,9 @@ public class ModelLoader {
 			mainPanel.creatorPanel.setCurrentModel(mainPanel.currentModelPanel.getModelHandler());
 
 			mainPanel.modelComponentView.setComponent(mainPanel.currentModelPanel.getComponentsPanel());
-			mainPanel.geoControlModelData.setViewportView(mainPanel.currentModelPanel.getModelComponentBrowserTree());
-			mainPanel.geoControlModelData.repaint();
-			mainPanel.currentModelPanel.getModelComponentBrowserTree().reloadFromModelView();
+//			mainPanel.compBrowserTP.setViewportView(mainPanel.currentModelPanel.getModelComponentBrowserTree());
+//			mainPanel.compBrowserTP.repaint();
+			mainPanel.currentModelPanel.reloadComponentBrowser();
 		}
 		mainPanel.viewportListener.viewportChanged(null);
 		mainPanel.timeSliderPanel.revalidateKeyframeDisplay();

@@ -297,7 +297,7 @@ public final class ModelComponentBrowserTree extends JTree {
 		return null;
 	}
 
-	public void reloadFromModelView() {
+	public ModelComponentBrowserTree reloadFromModelView() {
 //		System.out.println("Reloading ModelComponentBrowserTree");
 		SwingUtilities.invokeLater(() -> {
 			TreePath selectionPath = getSelectionPath();
@@ -343,6 +343,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 			setSelectionPath(newSelectionPath); // should also fire listeners
 		});
+		return this;
 	}
 
 	private TreePath getTreePath(TreePath nodePath, DefaultMutableTreeNode rootNode) {

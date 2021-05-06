@@ -55,7 +55,9 @@ public class ImportFileActions {
         if (model != null) {
             importFile(mainPanel, model);
         }
-        MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+        if (mainPanel.currentModelPanel != null) {
+            mainPanel.currentModelPanel.repaintModelTrees();
+        }
     }
 
     static void importFromWorkspaceActionRes(MainPanel mainPanel) {
@@ -70,7 +72,9 @@ public class ImportFileActions {
         if (choice != null) {
             importFile(mainPanel, EditableModel.deepClone(choice, choice.getHeaderName()));
         }
-        MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+        if (mainPanel.currentModelPanel != null) {
+            mainPanel.currentModelPanel.repaintModelTrees();
+        }
     }
 
     public static String convertPathToMDX(String filepath) {
@@ -82,14 +86,16 @@ public class ImportFileActions {
         return filepath;
     }
 
-    static void importMdxObject(MainPanel mainPanel, String path){
+    static void importMdxObject(MainPanel mainPanel, String path) {
         final String filepath = convertPathToMDX(path);
         final EditableModel current = mainPanel.currentMDL();
         if (filepath != null) {
             final File animationSource = GameDataFileSystem.getDefault().getFile(filepath);
             importFile(mainPanel, animationSource);
         }
-        MenuBarActions.refreshController(mainPanel.geoControl, mainPanel.geoControlModelData);
+        if (mainPanel.currentModelPanel != null) {
+            mainPanel.currentModelPanel.repaintModelTrees();
+        }
     }
 
     static MutableObjectData.MutableGameObject fetchObject(Component parent) {

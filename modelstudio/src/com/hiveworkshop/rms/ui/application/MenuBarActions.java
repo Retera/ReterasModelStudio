@@ -261,16 +261,6 @@ public class MenuBarActions {
 		return success;
 	}
 
-
-	public static void refreshController(JScrollPane geoControl, JScrollPane geoControlModelData) {
-		if (geoControl != null) {
-			geoControl.repaint();
-		}
-		if (geoControlModelData != null) {
-			geoControlModelData.repaint();
-		}
-	}
-
 //	static View testItemResponse(MainPanel mainPanel) {
 //		JPanel testPanel = new JPanel();
 //

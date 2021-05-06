@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.Quat;
 
-import javax.swing.*;
 import java.util.List;
 
 public class ModelStructureChangeListener {
@@ -40,29 +39,20 @@ public class ModelStructureChangeListener {
 		return null;
 	}
 
-	public static void reloadComponentBrowser(JScrollPane geoControlModelData, ModelPanel display) {
-		if (display != null) {
-			geoControlModelData.repaint();
-			display.getModelComponentBrowserTree().reloadFromModelView();
-			geoControlModelData.setViewportView(display.getModelComponentBrowserTree());
-		}
-	}
+	public static void reloadGeosetManagers(MainPanel mainPanel, ModelPanel modelPanel) {
 
-	public static void reloadGeosetManagers(MainPanel mainPanel, ModelPanel display) {
-		mainPanel.getGeoControl().repaint();
-		mainPanel.getGeoControl().setViewportView(display.getModelViewManagingTree().reloadFromModelView());
-		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
-		display.getPerspArea().reloadTextures();
-		display.getAnimationViewer().reload();
-		display.getAnimationController().reload();
+		modelPanel.reloadModelEditingTree();
+		modelPanel.reloadComponentBrowser();
+		modelPanel.getComponentBrowserTreePane().repaint();
+
+		modelPanel.getPerspArea().reloadTextures();
+		modelPanel.getAnimationViewer().reload();
+		modelPanel.getAnimationController().reload();
 		mainPanel.getCreatorPanel().reloadAnimationList();
 
-//		display.getEditorRenderModel().refreshFromEditor(mainPanel.getAnimatedRenderEnvironment(), IDENTITY, IDENTITY, IDENTITY,
-//				display.getPerspArea().getViewport());
-		display.getEditorRenderModel().refreshFromEditor(
-//				mainPanel.getAnimatedRenderEnvironment(),
+		modelPanel.getEditorRenderModel().refreshFromEditor(
 				IDENTITY, IDENTITY, IDENTITY,
-				display.getPerspArea().getViewport().getParticleTextureInstance());
+				modelPanel.getPerspArea().getViewport().getParticleTextureInstance());
 	}
 
 	public static ModelStructureChangeListener getModelStructureChangeListener(MainPanel mainPanel) {
@@ -73,44 +63,44 @@ public class ModelStructureChangeListener {
 
 	public void nodesRemoved(List<IdObject> nodes) {
 		// Tell program to set visibility after import
-		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
-		if (display != null) {
+		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		if (modelPanel != null) {
 			for (IdObject geoset : nodes) {
-				display.getModelViewManager().makeIdObjectNotVisible(geoset);
+				modelPanel.getModelViewManager().makeIdObjectNotVisible(geoset);
 			}
-			reloadGeosetManagers(mainPanel, display);
+			reloadGeosetManagers(mainPanel, modelPanel);
 		}
 	}
 
 	public void nodesAdded(List<IdObject> nodes) {
 		// Tell program to set visibility after import
-		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
-		if (display != null) {
-			// display.setBeenSaved(false); // we edited the model
+		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		if (modelPanel != null) {
+			// modelPanel.setBeenSaved(false); // we edited the model
 			// TODO notify been saved system, wherever that moves to
 			for (IdObject geoset : nodes) {
-				display.getModelViewManager().makeIdObjectVisible(geoset);
+				modelPanel.getModelViewManager().makeIdObjectVisible(geoset);
 			}
-			reloadGeosetManagers(mainPanel, display);
-			display.getEditorRenderModel().refreshFromEditor(
+			reloadGeosetManagers(mainPanel, modelPanel);
+			modelPanel.getEditorRenderModel().refreshFromEditor(
 //					mainPanel.getAnimatedRenderEnvironment(),
 					IDENTITY,
-					IDENTITY, IDENTITY, display.getPerspArea().getViewport().getParticleTextureInstance());
-			display.getAnimationViewer().reload();
+					IDENTITY, IDENTITY, modelPanel.getPerspArea().getViewport().getParticleTextureInstance());
+			modelPanel.getAnimationViewer().reload();
 		}
 	}
 
 	public void geosetsRemoved(List<Geoset> geosets) {
 		// Tell program to set visibility after import
-		final ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
-		if (display != null) {
-			// display.setBeenSaved(false); // we edited the model
+		final ModelPanel panel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		if (panel != null) {
+			// panel.setBeenSaved(false); // we edited the model
 			// TODO notify been saved system, wherever that moves to
 			for (Geoset geoset : geosets) {
-				display.getModelViewManager().makeGeosetNotEditable(geoset);
-				display.getModelViewManager().makeGeosetNotVisible(geoset);
+				panel.getModelViewManager().makeGeosetNotEditable(geoset);
+				panel.getModelViewManager().makeGeosetNotVisible(geoset);
 			}
-			reloadGeosetManagers(mainPanel, display);
+			reloadGeosetManagers(mainPanel, panel);
 		}
 	}
 
@@ -175,17 +165,19 @@ public class ModelStructureChangeListener {
 	public void animationsAdded(List<Animation> animation) {
 		mainPanel.currentModelPanel().getAnimationViewer().reload();
 		mainPanel.currentModelPanel().getAnimationController().reload();
+		mainPanel.currentModelPanel().reloadComponentBrowser();
 		mainPanel.getCreatorPanel().reloadAnimationList();
+//		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
-		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 	}
 
 	public void animationsRemoved(List<Animation> animation) {
 		mainPanel.currentModelPanel().getAnimationViewer().reload();
 		mainPanel.currentModelPanel().getAnimationController().reload();
+		mainPanel.currentModelPanel().reloadComponentBrowser();
 		mainPanel.getCreatorPanel().reloadAnimationList();
+//		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
-		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 	}
 
 	public void texturesChanged() {
@@ -193,30 +185,36 @@ public class ModelStructureChangeListener {
 		if (modelPanel != null) {
 			modelPanel.getAnimationViewer().reloadAllTextures();
 			modelPanel.getPerspArea().reloadAllTextures();
+			modelPanel.reloadComponentBrowser();
 		}
+//		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
-		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 	}
 
 	public void headerChanged() {
+//		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
-		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
+		if (display != null) {
+			display.reloadComponentBrowser();
+		}
 	}
 
 	public void animationParamsChanged(Animation animation) {
 		mainPanel.currentModelPanel().getAnimationViewer().reload();
 		mainPanel.currentModelPanel().getAnimationController().reload();
+		mainPanel.currentModelPanel().reloadComponentBrowser();
 		mainPanel.getCreatorPanel().reloadAnimationList();
+//		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
-		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 	}
 
 	public void globalSequenceLengthChanged(int index, Integer newLength) {
 		mainPanel.currentModelPanel().getAnimationViewer().reload();
 		mainPanel.currentModelPanel().getAnimationController().reload();
+		mainPanel.currentModelPanel().reloadComponentBrowser();
 		mainPanel.getCreatorPanel().reloadAnimationList();
+//		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
-		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 	}
 
 	public void materialsListChanged() {
@@ -225,16 +223,18 @@ public class ModelStructureChangeListener {
 			modelPanel.getAnimationViewer().reloadAllTextures();
 			modelPanel.getPerspArea().reloadAllTextures();
 			modelPanel.repaintSelfAndRelatedChildren();
+			modelPanel.reloadComponentBrowser();
 		}
+//		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
-		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
 	}
 
 	public void nodeHierarchyChanged() {
-		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
-		if (display != null) {
-			display.getModelViewManagingTree().reloadFromModelView();
-			reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
+		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		if (modelPanel != null) {
+//			reloadComponentBrowser(mainPanel.getGeoControlModelData(), modelPanel);
+			modelPanel.reloadModelEditingTree();
+			modelPanel.reloadComponentBrowser();
 		}
 	}
 
