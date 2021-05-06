@@ -70,7 +70,7 @@ public class KeyframeCopyPanel extends JPanel {
 	public static void show(MainPanel mainPanel) {
 		ModelPanel modelPanel = mainPanel.currentModelPanel();
 		if (modelPanel != null) {
-			final KeyframeCopyPanel textureManager = new KeyframeCopyPanel(modelPanel.getModelViewManager(),
+			final KeyframeCopyPanel textureManager = new KeyframeCopyPanel(modelPanel.getModelView(),
 					mainPanel.getModelStructureChangeListener());
 			final JFrame frame = new JFrame("Copy Keyframes");
 //			textureManager.setSize(new Dimension(600, 450));

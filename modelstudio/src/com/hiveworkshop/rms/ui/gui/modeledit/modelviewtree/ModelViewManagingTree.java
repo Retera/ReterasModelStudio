@@ -64,7 +64,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		cameras.removeAllChildren();
 
 		for (Geoset geoset : modelHandler.getModel().getGeosets()) {
-			boolean contains = modelHandler.getModelView().getEditableGeosets().contains(geoset);
+			boolean contains = modelHandler.getModelView().isEditable(geoset);
 			meshes.add(new JCheckBoxTreeNode(new CheckableGeosetElement(modelHandler.getModelView(), geoset), contains));
 		}
 
@@ -77,7 +77,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		nodeToTreeElement.put(null, nodes);
 
 		for (IdObject object : modelHandler.getModel().getIdObjects()) {
-			boolean checked = modelHandler.getModelView().getEditableIdObjects().contains(object);
+			boolean checked = modelHandler.getModelView().isEditable(object);
 			JCheckBoxTreeNode treeNode = new JCheckBoxTreeNode(new CheckableNodeElement(modelHandler, object), checked);
 			nodeToTreeElement.put(object, treeNode);
 
@@ -97,7 +97,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		}
 
 		for (final Camera camera : modelHandler.getModel().getCameras()) {
-			boolean checked = modelHandler.getModelView().getEditableCameras().contains(camera);
+			boolean checked = modelHandler.getModelView().isEditable(camera);
 			cameras.add(new JCheckBoxTreeNode(new CheckableCameraElement(modelHandler, camera), checked));
 		}
 
@@ -172,12 +172,16 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 				if (baseNode != null) {
 					if (sourceNode == meshes || sourceNode == nodes || !baseNode.isChecked()) {
 						baseNode.setChecked(sourceNode.isChecked());
-						hideOrUnhideTemporary(baseNode, !baseNode.isChecked(), components);
+						modelHandler.getModelView().setIdObjectsVisible(nodes.isChecked());
+						modelHandler.getModelView().setGeosetsVisible(meshes.isChecked());
+						modelHandler.getModelView().setCamerasVisible(cameras.isChecked());
+//						hideOrUnhideTemporary(baseNode, !baseNode.isChecked(), components);
 					}
 					handleNodeRecursively(baseNode);
 				} else {
 					components.add((CheckableDisplayElement<?>) sourceNode.getUserObject());
 					handleNodeRecursively(sourceNode);
+					modelHandler.getModelView().setCamerasVisible(cameras.isChecked());
 				}
 
 				EditabilityToggleHandler toggleHandler = new EditabilityToggleHandler(components);

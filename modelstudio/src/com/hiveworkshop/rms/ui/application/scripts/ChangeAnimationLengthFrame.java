@@ -11,7 +11,7 @@ public class ChangeAnimationLengthFrame extends JFrame {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setIconImage(RMSIcons.animIcon.getImage());
 		setContentPane(new JScrollPane(
-				new ChangeAnimationLengthPanel(mdlDisp.getModelViewManager(), this, mdlDisp.getUndoManager(), onFinish)));
+				new ChangeAnimationLengthPanel(mdlDisp.getModelView(), this, mdlDisp.getUndoManager(), onFinish)));
 		pack();
 		setLocationRelativeTo(mdlDisp.getParent());
 	}

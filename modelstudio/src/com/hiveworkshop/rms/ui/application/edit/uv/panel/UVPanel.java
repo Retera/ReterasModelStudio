@@ -123,7 +123,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
 		System.out.println("UVprefs: " + prefs);
-		modelEditorManager = new TVertexEditorManager(modelPanel.getModelViewManager(), prefs, selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager, modelPanel.getEditorRenderModel(), modelStructureChangeListener);
+		modelEditorManager = new TVertexEditorManager(modelPanel.getModelView(), prefs, selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager, modelPanel.getEditorRenderModel(), modelStructureChangeListener);
 
 		setBorder(BorderFactory.createLineBorder(Color.black));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)

@@ -147,7 +147,7 @@ public class ModelLoader {
 
 	public static void loadModel(MainPanel mainPanel, boolean temporary, boolean selectNewTab, ModelPanel modelPanel) {
 		if (temporary) {
-			modelPanel.getModelViewManager().getModel().setTemp(true);
+			modelPanel.getModelView().getModel().setTemp(true);
 		}
 		JMenuItem menuItem = new JMenuItem(modelPanel.getModel().getName());
 		menuItem.setIcon(modelPanel.getIcon());
@@ -155,7 +155,7 @@ public class ModelLoader {
 		MenuBar.windowMenu.add(menuItem);
 		menuItem.addActionListener(e -> setCurrentModel(mainPanel, modelPanel));
 		modelPanel.setJMenuItem(menuItem);
-		modelPanel.getModelViewManager().addStateListener(new RepaintingModelStateListener(mainPanel));
+		modelPanel.getModelView().addStateListener(new RepaintingModelStateListener(mainPanel));
 		modelPanel.changeActivity(mainPanel.currentActivity);
 
 //		if (mainPanel.mEditingTP == null) {
@@ -174,7 +174,7 @@ public class ModelLoader {
 		mainPanel.modelPanels.add(modelPanel);
 
 		if (temporary) {
-			modelPanel.getModelViewManager().getModel().setFileRef(null);
+			modelPanel.getModelView().getModel().setFileRef(null);
 		}
 
 		MenuBar.toolsMenu.setEnabled(true);

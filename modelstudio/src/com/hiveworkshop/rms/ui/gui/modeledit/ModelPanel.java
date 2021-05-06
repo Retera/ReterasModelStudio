@@ -28,6 +28,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.InfoPopup;
+import com.hiveworkshop.rms.util.Quat;
 
 import javax.swing.*;
 
@@ -52,7 +53,7 @@ public class ModelPanel {
 
 	private final ModelViewManagingTree modelViewManagingTree;
 	private final ModelComponentBrowserTree modelComponentBrowserTree;
-	private final JComponent parent;
+	private final MainPanel parent;
 	private final Icon icon;
 	private JMenuItem menuItem;
 	private final AnimationControllerListener animationViewer;
@@ -235,7 +236,7 @@ public class ModelPanel {
 		return modelHandler.getModel();
 	}
 
-	public ModelView getModelViewManager() {
+	public ModelView getModelView() {
 		return modelHandler.getModelView();
 	}
 
@@ -283,5 +284,20 @@ public class ModelPanel {
 		if (componentBrowserTreePane != null) {
 			componentBrowserTreePane.repaint();
 		}
+	}
+
+	public void reloadGeosetManagers() {
+		reloadModelEditingTree();
+		reloadComponentBrowser();
+
+		getPerspArea().reloadTextures();
+		getAnimationViewer().reload();
+		getAnimationController().reload();
+		parent.getCreatorPanel().reloadAnimationList();
+
+		Quat IDENTITY = new Quat();
+		getEditorRenderModel().refreshFromEditor(
+				IDENTITY, IDENTITY, IDENTITY,
+				getPerspArea().getViewport().getParticleTextureInstance());
 	}
 }

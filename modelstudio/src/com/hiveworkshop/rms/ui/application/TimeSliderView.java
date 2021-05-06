@@ -39,22 +39,22 @@ public class TimeSliderView {
 	}
 
 	private static void timeBoundsChooserPanel(MainPanel mainPanel) {
-		ModelPanel panel = mainPanel.currentModelPanel();
-		ModelView modelView = panel == null ? null : panel.getModelViewManager();
+		ModelPanel modelPanel = mainPanel.currentModelPanel();
+		ModelView modelView = modelPanel == null ? null : modelPanel.getModelView();
 		TimeBoundChooserPanel tbcPanel = new TimeBoundChooserPanel(modelView, mainPanel.modelStructureChangeListener);
 		int confirmDialogResult = JOptionPane.showConfirmDialog(mainPanel, tbcPanel, "Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
 
 		if (confirmDialogResult == JOptionPane.OK_OPTION) {
 //			tbcPanel.applyTo(mainPanel.animatedRenderEnvironment);
-			if (panel != null) {
-				tbcPanel.applyTo(panel.getModelHandler().getEditTimeEnv());
-				panel.getEditorRenderModel().refreshFromEditor(
+			if (modelPanel != null) {
+				tbcPanel.applyTo(modelPanel.getModelHandler().getEditTimeEnv());
+				modelPanel.getEditorRenderModel().refreshFromEditor(
 //						mainPanel.animatedRenderEnvironment,
 						ModelStructureChangeListener.IDENTITY,
 						ModelStructureChangeListener.IDENTITY,
 						ModelStructureChangeListener.IDENTITY,
-						panel.getPerspArea().getViewport().getParticleTextureInstance());
-				panel.getEditorRenderModel().updateNodes(false);
+						modelPanel.getPerspArea().getViewport().getParticleTextureInstance());
+				modelPanel.getEditorRenderModel().updateNodes(false);
 			}
 		}
 	}

@@ -38,7 +38,7 @@ public class AddBirthDeathSequences {
     }
 
     private static void replaceOrUseOldAnimation(MainPanel mainPanel, String name, int offsetStart, int offsetEnd) {
-        final EditableModel model = mainPanel.currentModelPanel().getModelViewManager().getModel();
+        final EditableModel model = mainPanel.currentModelPanel().getModelView().getModel();
         final Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
 
         Animation animation = getAnimationToUse(mainPanel, name, model, lastAnim);
@@ -153,7 +153,7 @@ public class AddBirthDeathSequences {
 	    ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener(mainPanel);
 	    NodeAnimationSelectionManager nodeAnimationSelectionManager = new NodeAnimationSelectionManager(renderModel);
 
-        final NodeAnimationModelEditor nodeAnimationModelEditor = new NodeAnimationModelEditor(mainPanel.currentModelPanel.getModelViewManager(),
+        final NodeAnimationModelEditor nodeAnimationModelEditor = new NodeAnimationModelEditor(mainPanel.currentModelPanel.getModelView(),
                 mainPanel.prefs, nodeAnimationSelectionManager, renderModel, structureChangeListener);
 
         final Set<IdObject> selection = new HashSet<>(getRootObjects(model));

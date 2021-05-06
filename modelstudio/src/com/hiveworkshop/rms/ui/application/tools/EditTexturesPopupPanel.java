@@ -228,7 +228,7 @@ public class EditTexturesPopupPanel extends JPanel {
 	}
 
 	public static void show(MainPanel mainPanel) {
-		final EditTexturesPopupPanel textureManager = new EditTexturesPopupPanel(mainPanel.currentModelPanel().getModelViewManager(),
+		final EditTexturesPopupPanel textureManager = new EditTexturesPopupPanel(mainPanel.currentModelPanel().getModelView(),
 				mainPanel.getModelStructureChangeListener());
 		final JFrame frame = new JFrame("Edit Textures");
 		textureManager.setSize(new Dimension(800, 650));
