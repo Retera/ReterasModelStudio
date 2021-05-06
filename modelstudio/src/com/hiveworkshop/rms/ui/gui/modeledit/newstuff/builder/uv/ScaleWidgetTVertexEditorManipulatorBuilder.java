@@ -12,29 +12,20 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 
-import java.awt.*;
-
 public final class ScaleWidgetTVertexEditorManipulatorBuilder extends TVertexEditorManipulatorBuilder {
-	private final ScalerWidget moverWidget = new ScalerWidget();
+//	private final ScalerWidget widget = new ScalerWidget();
 
 	public ScaleWidgetTVertexEditorManipulatorBuilder(TVertexEditor modelEditor, ViewportSelectionHandler viewportSelectionHandler, ProgramPreferences programPreferences, ModelView modelView) {
 		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
-	}
-
-	@Override
-	protected boolean widgetOffersEdit(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
-		moverWidget.setMoveDirection(directionByMouse);
-		return directionByMouse != MoveDimension.NONE;
+		widget = new ScalerWidget();
 	}
 
 	@Override
 	protected Manipulator createManipulatorFromWidget(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		MoveDimension directionByMouse = moverWidget.getDirectionByMouse(mousePoint, coordinateSystem);
+		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
+		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
 
-		moverWidget.setMoveDirection(directionByMouse);
+		widget.setMoveDirection(directionByMouse);
 		if (directionByMouse != MoveDimension.NONE) {
 			return new ScaleTVertexManipulator(getModelEditor(), selectionView, directionByMouse);
 		}
@@ -45,11 +36,4 @@ public final class ScaleWidgetTVertexEditorManipulatorBuilder extends TVertexEdi
 	protected Manipulator createDefaultManipulator(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		return new ScaleTVertexManipulator(getModelEditor(), selectionView, MoveDimension.XYZ);
 	}
-
-	@Override
-	protected void renderWidget(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		moverWidget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		moverWidget.render(graphics, coordinateSystem);
-	}
-
 }

@@ -4,11 +4,13 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ButtonType;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
+import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.Widget;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.SelectManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -22,6 +24,7 @@ public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuil
 	private final TVertexModelElementRenderer tVertexModelElementRenderer;
 	private final ModelView modelView;
 	private TVertexEditor modelEditor;
+	protected Widget widget;
 
 	public TVertexEditorManipulatorBuilder(ViewportSelectionHandler viewportSelectionHandler,
 	                                       ProgramPreferences programPreferences,
@@ -89,11 +92,19 @@ public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuil
 		}
 	}
 
-	protected abstract boolean widgetOffersEdit(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
+	protected boolean widgetOffersEdit(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
+		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
+		widget.setMoveDirection(directionByMouse);
+		return directionByMouse != MoveDimension.NONE;
+	}
 
 	protected abstract Manipulator createManipulatorFromWidget(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
 
 	protected abstract Manipulator createDefaultManipulator(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
 
-	protected abstract void renderWidget(final Graphics2D graphics, final CoordinateSystem coordinateSystem, final SelectionView selectionView);
+	protected void renderWidget(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
+		widget.render(graphics, coordinateSystem);
+	}
 }

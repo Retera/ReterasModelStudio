@@ -12,22 +12,13 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 
-import java.awt.*;
-
 public final class MoverWidgetTVertexEditorManipulatorBuilder extends TVertexEditorManipulatorBuilder {
-	private final MoverWidget widget = new MoverWidget();
+//	private final MoverWidget widget = new MoverWidget();
 
 	public MoverWidgetTVertexEditorManipulatorBuilder(TVertexEditor modelEditor, ViewportSelectionHandler viewportSelectionHandler, ProgramPreferences programPreferences, ModelView modelView) {
 		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
+		widget = new MoverWidget();
 		System.out.println("programPreferences: " + programPreferences);
-	}
-
-	@Override
-	protected boolean widgetOffersEdit(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
-		widget.setMoveDirection(directionByMouse);
-		return directionByMouse != MoveDimension.NONE;
 	}
 
 	@Override
@@ -46,11 +37,4 @@ public final class MoverWidgetTVertexEditorManipulatorBuilder extends TVertexEdi
 	protected Manipulator createDefaultManipulator(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		return new MoveTVertexManipulator(getModelEditor(), MoveDimension.XY);
 	}
-
-	@Override
-	protected void renderWidget(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
-		widget.render(graphics, coordinateSystem);
-	}
-
 }
