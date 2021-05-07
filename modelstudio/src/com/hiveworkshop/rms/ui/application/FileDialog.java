@@ -226,6 +226,7 @@ public class FileDialog {
 
     public void exportInternalFile(String internalPath) {
         setCurrentDirectory(getModel());
+        setFilter(FileDialog.SAVE);
         String fileName = internalPath.replaceAll(".+[\\\\/](?=.+)", "");
         File tempFile = new File(fileChooser.getCurrentDirectory(), fileName);
         fileChooser.setSelectedFile(tempFile);
