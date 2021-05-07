@@ -87,11 +87,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         setLayout(new MigLayout("fill, ins 0, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
         add(ToolBar.createJToolBar(this));
 
-        final JLabel[] divider = new JLabel[3];
-        for (int i = 0; i < divider.length; i++) {
-            divider[i] = new JLabel("----------");
-        }
-
 
         TimeSliderView.createMouseCoordDisp(mouseCoordDisplay);
 

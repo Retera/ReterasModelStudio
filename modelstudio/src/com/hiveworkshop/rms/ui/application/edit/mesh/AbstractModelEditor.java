@@ -33,11 +33,12 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     protected final ModelStructureChangeListener structureChangeListener;
     protected ModelHandler modelHandler;
 
-    public AbstractModelEditor(SelectionManager<T> selectionManager, ModelView modelView,
-                               ModelStructureChangeListener structureChangeListener, ModelHandler modelHandler) {
+    public AbstractModelEditor(SelectionManager<T> selectionManager,
+                               ModelStructureChangeListener structureChangeListener,
+                               ModelHandler modelHandler) {
         super(selectionManager);
         this.modelHandler = modelHandler;
-        this.modelView = modelView;
+        this.modelView = modelHandler.getModelView();
         this.structureChangeListener = structureChangeListener;
         vertexSelectionHelper = this::selectByVertices;
     }

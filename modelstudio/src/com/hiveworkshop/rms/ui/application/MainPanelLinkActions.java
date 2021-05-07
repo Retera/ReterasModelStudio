@@ -94,7 +94,7 @@ public class MainPanelLinkActions {
 		root.getActionMap().put("GKeyboardKey", itemShortcutAction(mainPanel, 4));
 
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("Z"), "ZKeyboardKey");
-		root.getActionMap().put("ZKeyboardKey", zKeyboardKeyAction(mainPanel));
+		root.getActionMap().put("ZKeyboardKey", zKeyboardKeyAction());
 
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control F"), "CreateFaceShortcut");
 		root.getActionMap().put("CreateFaceShortcut", createFaceShortcutAction(mainPanel));
@@ -248,7 +248,7 @@ public class MainPanelLinkActions {
 		};
 	}
 
-	private static AbstractAction zKeyboardKeyAction(MainPanel mainPanel) {
+	private static AbstractAction zKeyboardKeyAction() {
 		return new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -436,10 +436,10 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	public static void rigActionRes(ModelPanel mpanel) {
-		if (mpanel != null) {
-			EditableModel model = mpanel.getModel();
-			ModelEditorManager editorManager = mpanel.getModelEditorManager();
+	public static void rigActionRes(ModelPanel modelPanel) {
+		if (modelPanel != null) {
+			EditableModel model = modelPanel.getModel();
+			ModelEditorManager editorManager = modelPanel.getModelEditorManager();
 			boolean valid = false;
 			for (Vec3 v : editorManager.getSelectionView().getSelectedVertices()) {
 				int index = model.getPivots().indexOf(v);
@@ -452,7 +452,7 @@ public class MainPanelLinkActions {
 				}
 			}
 			if (valid) {
-				mpanel.getUndoManager().pushAction(editorManager.getModelEditor().rig());
+				modelPanel.getUndoManager().pushAction(editorManager.getModelEditor().rig());
 			} else {
 				System.err.println("NOT RIGGING, NOT VALID");
 			}

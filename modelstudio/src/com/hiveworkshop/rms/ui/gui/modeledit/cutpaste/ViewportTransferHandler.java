@@ -74,8 +74,9 @@ public class ViewportTransferHandler extends TransferHandler {
 			pastedModelView.makeCameraVisible(object);
 		}
 		ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
-		modelEditorNotifier.subscribe(new GeosetVertexModelEditor(pastedModelView, null, new GeosetVertexSelectionManager(), viewport.getModelStructureChangeListener(), null));
-		modelEditorNotifier.subscribe(new PivotPointModelEditor(pastedModelView, null, new PivotPointSelectionManager(), viewport.getModelStructureChangeListener(), null));
+		// ToDo needs access to modelView...
+		modelEditorNotifier.subscribe(new GeosetVertexModelEditor(new GeosetVertexSelectionManager(), viewport.getModelStructureChangeListener(), null));
+		modelEditorNotifier.subscribe(new PivotPointModelEditor(new PivotPointSelectionManager(), viewport.getModelStructureChangeListener(), null));
 		modelEditorNotifier.selectAll();
 		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
 		Vec3 vertex = new Vec3(0, 0, 0);

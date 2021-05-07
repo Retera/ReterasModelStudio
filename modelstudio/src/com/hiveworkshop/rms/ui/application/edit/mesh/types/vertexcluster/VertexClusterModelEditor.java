@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actions.mesh.SplitGeosetAction;
 import com.hiveworkshop.rms.ui.application.actions.mesh.TeamColorAddAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -23,25 +23,20 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingActi
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
 public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGroupBundle> {
-	private final ProgramPreferences programPreferences;
 	private final Map<Vec3, Integer> vertexToClusterId = new HashMap<>();
 	private final VertexClusterDefinitions vertexClusterDefinitions;
 
-	public VertexClusterModelEditor(ModelView model,
-	                                ProgramPreferences programPreferences,
-	                                SelectionManager<VertexGroupBundle> selectionManager,
+	public VertexClusterModelEditor(SelectionManager<VertexGroupBundle> selectionManager,
 	                                ModelStructureChangeListener structureChangeListener,
 	                                VertexClusterDefinitions vertexClusterDefinitions,
 	                                ModelHandler modelHandler) {
-		super(selectionManager, model, structureChangeListener, modelHandler);
-		this.programPreferences = programPreferences;
+		super(selectionManager, structureChangeListener, modelHandler);
 		this.vertexClusterDefinitions = vertexClusterDefinitions;
 	}
 
@@ -123,7 +118,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 		}
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, programPreferences.getVertexSize())) {
+				if (hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, ProgramGlobals.getPrefs().getVertexSize())) {
 					canSelect = true;
 				}
 			}
@@ -149,7 +144,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 		List<GeosetVertex> geosetVerticesSelected = new ArrayList<>();
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (hitTest(min, max, geosetVertex, coordinateSystem, programPreferences.getVertexSize())) {
+				if (hitTest(min, max, geosetVertex, coordinateSystem, ProgramGlobals.getPrefs().getVertexSize())) {
 					geosetVerticesSelected.add(geosetVertex);
 				}
 			}

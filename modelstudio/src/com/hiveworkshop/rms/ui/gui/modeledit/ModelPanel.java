@@ -38,17 +38,18 @@ import javax.swing.*;
  * Eric Theller 6/7/2012
  */
 public class ModelPanel {
-	private DisplayPanel frontArea, sideArea, botArea;
-	private PerspDisplayPanel perspArea;
-	private ModelHandler modelHandler;
-	private final ProgramPreferences prefs;
+	private final DisplayPanel frontArea;
+	private final DisplayPanel sideArea;
+	private final DisplayPanel botArea;
+	private final PerspDisplayPanel perspArea;
+	private final ModelHandler modelHandler;
 	private final ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeNotifier;
 	private final ModelEditorViewportActivityManager viewportActivityManager;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelEditorManager modelEditorManager;
 	private UVPanel editUVPanel;
-	private JScrollPane modelEditingTreePane;
-	private JScrollPane componentBrowserTreePane;
+	private final JScrollPane modelEditingTreePane;
+	private final JScrollPane componentBrowserTreePane;
 
 
 	private final ModelViewManagingTree modelViewManagingTree;
@@ -73,7 +74,6 @@ public class ModelPanel {
 	                  boolean specialBLPModel) {
 		this.modelHandler = modelHandler;
 		this.parent = parent;
-		this.prefs = prefs;
 		selectionItemTypeNotifier = notifier;
 		this.icon = icon;
 		viewportActivityManager = new ModelEditorViewportActivityManager(new DoNothingActivity());
@@ -81,7 +81,7 @@ public class ModelPanel {
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
-		modelEditorManager = new ModelEditorManager(modelHandler, prefs, modeNotifier, modelEditorChangeNotifier, viewportActivityManager, modelStructureChangeListener);
+		modelEditorManager = new ModelEditorManager(modelHandler, modeNotifier, modelEditorChangeNotifier, viewportActivityManager, modelStructureChangeListener);
 
 		modelViewManagingTree = new ModelViewManagingTree(modelHandler, modelEditorManager);
 		modelEditingTreePane = new JScrollPane(modelViewManagingTree);

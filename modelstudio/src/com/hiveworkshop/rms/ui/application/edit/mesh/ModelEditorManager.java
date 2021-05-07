@@ -25,7 +25,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.Arrays;
@@ -33,7 +32,6 @@ import java.util.Collection;
 
 public final class ModelEditorManager {
 	private ModelHandler modelHandler;
-	private final ProgramPreferences programPreferences;
 	private ModelEditor modelEditor;
 	private final ViewportSelectionHandlerImpl viewportSelectionHandler;
 	private final ModelEditorChangeListener modelEditorChangeListener;
@@ -44,14 +42,12 @@ public final class ModelEditorManager {
 	public static boolean MOVE_LINKED;
 
 	public ModelEditorManager(ModelHandler modelHandler,
-	                          ProgramPreferences programPreferences,
 	                          ToolbarButtonGroup<SelectionMode> modeButtonGroup,
 	                          ModelEditorChangeListener modelEditorChangeListener,
 	                          SelectionListener selectionListener,
 	                          ModelStructureChangeListener structureChangeListener) {
 		this.modelHandler = modelHandler;
 		this.modelEditorChangeListener = modelEditorChangeListener;
-		this.programPreferences = programPreferences;
 		this.selectionListener = selectionListener;
 		this.structureChangeListener = structureChangeListener;
 		this.viewportSelectionHandler = new ViewportSelectionHandlerImpl(modeButtonGroup, null);
@@ -71,10 +67,10 @@ public final class ModelEditorManager {
 				FaceSelectionManager selectionManager = new FaceSelectionManager();
 				PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
 				ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
-				FaceModelEditor faceModelEditor = new FaceModelEditor(modelHandler.getModelView(), programPreferences, selectionManager, structureChangeListener, modelHandler);
+				FaceModelEditor faceModelEditor = new FaceModelEditor(selectionManager, structureChangeListener, modelHandler);
 				modelEditorNotifier.subscribe(faceModelEditor);
 
-				PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(modelHandler.getModelView(), programPreferences, pivotSelectionManager, structureChangeListener, modelHandler);
+				PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(pivotSelectionManager, structureChangeListener, modelHandler);
 				modelEditorNotifier.subscribe(pivotPointModelEditor);
 
 				modelEditor = modelEditorNotifier;
@@ -93,10 +89,10 @@ public final class ModelEditorManager {
 				PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
 				ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
 
-				VertexGroupModelEditor vertexGroupModelEditor = new VertexGroupModelEditor(modelHandler.getModelView(), programPreferences, selectionManager, structureChangeListener, modelHandler);
+				VertexGroupModelEditor vertexGroupModelEditor = new VertexGroupModelEditor(selectionManager, structureChangeListener, modelHandler);
 				modelEditorNotifier.subscribe(vertexGroupModelEditor);
 
-				PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(modelHandler.getModelView(), programPreferences, pivotSelectionManager, structureChangeListener, modelHandler);
+				PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(pivotSelectionManager, structureChangeListener, modelHandler);
 				modelEditorNotifier.subscribe(pivotPointModelEditor);
 				modelEditor = modelEditorNotifier;
 				if (lastSelectedVertices != null) {
@@ -125,7 +121,7 @@ public final class ModelEditorManager {
 			case TPOSE -> {
 				boolean moveLinked = MOVE_LINKED;// dialog == settings[0];
 				TPoseSelectionManager tposeSelectionManager = new TPoseSelectionManager(modelHandler.getModelView(), moveLinked);
-				TPoseModelEditor tPoseModelEditor = new TPoseModelEditor(modelHandler.getModelView(), programPreferences, tposeSelectionManager, structureChangeListener, modelHandler);
+				TPoseModelEditor tPoseModelEditor = new TPoseModelEditor(tposeSelectionManager, structureChangeListener, modelHandler);
 
 				modelEditor = tPoseModelEditor;
 				if (lastSelectedVertices != null) {
@@ -142,10 +138,10 @@ public final class ModelEditorManager {
 				PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
 				ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
 
-				VertexClusterModelEditor vertexGroupModelEditor = new VertexClusterModelEditor(modelHandler.getModelView(), programPreferences, selectionManager, structureChangeListener, vertexClusterDefinitions, modelHandler);
+				VertexClusterModelEditor vertexGroupModelEditor = new VertexClusterModelEditor(selectionManager, structureChangeListener, vertexClusterDefinitions, modelHandler);
 				modelEditorNotifier.subscribe(vertexGroupModelEditor);
 
-				PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(modelHandler.getModelView(), programPreferences, pivotSelectionManager, structureChangeListener, modelHandler);
+				PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(pivotSelectionManager, structureChangeListener, modelHandler);
 				modelEditorNotifier.subscribe(pivotPointModelEditor);
 				modelEditor = modelEditorNotifier;
 				if (lastSelectedVertices != null) {
@@ -163,10 +159,10 @@ public final class ModelEditorManager {
 				PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
 				ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
 
-				GeosetVertexModelEditor geosetVertexModelEditor = new GeosetVertexModelEditor(modelHandler.getModelView(), programPreferences, selectionManager, structureChangeListener, modelHandler);
+				GeosetVertexModelEditor geosetVertexModelEditor = new GeosetVertexModelEditor(selectionManager, structureChangeListener, modelHandler);
 				modelEditorNotifier.subscribe(geosetVertexModelEditor);
 
-				PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(modelHandler.getModelView(), programPreferences, pivotSelectionManager, structureChangeListener, modelHandler);
+				PivotPointModelEditor pivotPointModelEditor = new PivotPointModelEditor(pivotSelectionManager, structureChangeListener, modelHandler);
 				modelEditorNotifier.subscribe(pivotPointModelEditor);
 				modelEditor = modelEditorNotifier;
 				if (lastSelectedVertices != null) {

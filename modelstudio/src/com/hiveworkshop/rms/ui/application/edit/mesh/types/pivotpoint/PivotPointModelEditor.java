@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.types.pivotpoint;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
@@ -26,22 +26,17 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAc
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
 public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
-	private final ProgramPreferences programPreferences;
 
-	public PivotPointModelEditor(ModelView model,
-	                             ProgramPreferences programPreferences,
-	                             SelectionManager<Vec3> selectionManager,
+	public PivotPointModelEditor(SelectionManager<Vec3> selectionManager,
 	                             ModelStructureChangeListener structureChangeListener,
 	                             ModelHandler modelHandler) {
-		super(selectionManager, model, structureChangeListener, modelHandler);
-		this.programPreferences = programPreferences;
+		super(selectionManager, structureChangeListener, modelHandler);
 	}
 
 	private static String getNumberName(String name, int number) {
@@ -222,7 +217,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			}
 		}
 		for (Camera camera : modelView.getEditableCameras()) {
-			int vertexSize = programPreferences.getVertexSize();
+			int vertexSize = ProgramGlobals.getPrefs().getVertexSize();
 			if (AbstractModelEditor.hitTest(min, max, camera.getPosition(), coordinateSystem, vertexSize)) {
 				selectedItems.add(camera.getPosition());
 			}
@@ -250,7 +245,7 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			}
 		}
 		for (Camera camera : modelView.getEditableCameras()) {
-			int vertexSize = programPreferences.getVertexSize();
+			int vertexSize = ProgramGlobals.getPrefs().getVertexSize();
 			if (AbstractModelEditor.hitTest(camera.getPosition(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
 				return true;
 			}

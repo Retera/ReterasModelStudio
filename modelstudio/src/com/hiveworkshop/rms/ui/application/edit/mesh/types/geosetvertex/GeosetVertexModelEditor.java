@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actions.mesh.SplitGeosetAction;
 import com.hiveworkshop.rms.ui.application.actions.mesh.TeamColorAddAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -23,22 +23,17 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundActio
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
 public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
-	private final ProgramPreferences programPreferences;
 
-	public GeosetVertexModelEditor(ModelView model,
-	                               ProgramPreferences programPreferences,
-	                               SelectionManager<GeosetVertex> selectionManager,
+	public GeosetVertexModelEditor(SelectionManager<GeosetVertex> selectionManager,
 	                               ModelStructureChangeListener structureChangeListener,
 	                               ModelHandler modelHandler) {
-		super(selectionManager, model, structureChangeListener, modelHandler);
-		this.programPreferences = programPreferences;
+		super(selectionManager, structureChangeListener, modelHandler);
 	}
 
 	@Override
@@ -128,7 +123,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (hitTest(min, max, geosetVertex, coordinateSystem, programPreferences.getVertexSize()))
+				if (hitTest(min, max, geosetVertex, coordinateSystem, ProgramGlobals.getPrefs().getVertexSize()))
 					selectedItems.add(geosetVertex);
 			}
 		}
@@ -154,7 +149,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 		boolean canSelect = false;
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, programPreferences.getVertexSize())) {
+				if (hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, ProgramGlobals.getPrefs().getVertexSize())) {
 					canSelect = true;
 				}
 			}

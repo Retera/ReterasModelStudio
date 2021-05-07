@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.types.faces;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.mesh.SplitGeosetAction;
 import com.hiveworkshop.rms.ui.application.actions.mesh.TeamColorAddAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -18,22 +17,17 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelec
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
 public class FaceModelEditor extends AbstractModelEditor<Triangle> {
-	private final ProgramPreferences programPreferences;
 
-	public FaceModelEditor(ModelView modelView,
-	                       ProgramPreferences programPreferences,
-	                       SelectionManager<Triangle> selectionManager,
+	public FaceModelEditor(SelectionManager<Triangle> selectionManager,
 	                       ModelStructureChangeListener structureChangeListener,
 	                       ModelHandler modelHandler) {
-		super(selectionManager, modelView, structureChangeListener, modelHandler);
-		this.programPreferences = programPreferences;
+		super(selectionManager, structureChangeListener, modelHandler);
 	}
 
 	@Override

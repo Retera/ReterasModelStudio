@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.types.tpose;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
@@ -22,21 +22,17 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingActi
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
 public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
-	private final ProgramPreferences programPreferences;
 
-	public TPoseModelEditor(ModelView model,
-	                        ProgramPreferences programPreferences,
-	                        SelectionManager<IdObject> selectionManager,
-	                        ModelStructureChangeListener structureChangeListener, ModelHandler modelHandler) {
-		super(selectionManager, model, structureChangeListener, modelHandler);
-		this.programPreferences = programPreferences;
+	public TPoseModelEditor(SelectionManager<IdObject> selectionManager,
+	                        ModelStructureChangeListener structureChangeListener,
+	                        ModelHandler modelHandler) {
+		super(selectionManager, structureChangeListener, modelHandler);
 	}
 
 	@Override
@@ -192,7 +188,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 			}
 		}
 		for (Camera camera : modelView.getEditableCameras()) {
-			int vertexSize = programPreferences.getVertexSize();
+			int vertexSize = ProgramGlobals.getPrefs().getVertexSize();
 			if (AbstractModelEditor.hitTest(camera.getPosition(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
 				return true;
 			}

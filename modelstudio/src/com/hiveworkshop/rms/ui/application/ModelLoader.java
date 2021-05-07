@@ -43,7 +43,7 @@ public class ModelLoader {
 					modelPanel.getModelHandler().getEditTimeEnv().setAnimation(anim);
 					modelPanel.getModelHandler().getEditTimeEnv().setStaticViewMode(!mainPanel.animationModeState);
 				}
-				refreshAndUpdateModelPanel(mainPanel);
+				refreshAndUpdateModelPanel();
 				mainPanel.timeSliderPanel.setNodeSelectionManager(modelPanel.getModelEditorManager().getNodeAnimationSelectionManager());
 			}
 			if ((mainPanel.actionTypeGroup.getActiveButtonType() == mainPanel.actionTypeGroup.getToolbarButtonTypes()[3])
@@ -54,7 +54,7 @@ public class ModelLoader {
 
 		if (!mainPanel.animationModeState) {
 			if ((modelPanel != null) && (modelPanel.getModel() != null)) {
-				refreshAndUpdateModelPanel(mainPanel);
+				refreshAndUpdateModelPanel();
 				modelPanel.getModelHandler().getEditTimeEnv().setAnimation(null);
 				modelPanel.getModelHandler().getEditTimeEnv().setStaticViewMode(!mainPanel.animationModeState);
 			}
@@ -73,11 +73,10 @@ public class ModelLoader {
 		mainPanel.creatorPanel.setAnimationModeState(mainPanel.animationModeState);
 	}
 
-	private static void refreshAndUpdateModelPanel(MainPanel mainPanel) {
+	private static void refreshAndUpdateModelPanel() {
 		RenderModel editorRenderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
 		editorRenderModel
 				.refreshFromEditor(
-//						mainPanel.animatedRenderEnvironment,
 						ModelStructureChangeListener.IDENTITY,
 						ModelStructureChangeListener.IDENTITY,
 						ModelStructureChangeListener.IDENTITY,
