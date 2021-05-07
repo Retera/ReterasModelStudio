@@ -120,6 +120,16 @@ public class Triangle {
 		vertIds[index] = geoset.getVertexId(v);
 	}
 
+	public Triangle replace(GeosetVertex oldV, GeosetVertex newV) {
+		for (int i = 0; i < verts.length; i++) {
+			if (verts[i] == oldV) {
+				verts[i] = newV;
+				break;
+			}
+		}
+		return this;
+	}
+
 	public int indexOf(GeosetVertex v) {
 		int out = -1;
 		for (int i = 0; i < verts.length && out == -1; i++) {
@@ -250,6 +260,9 @@ public class Triangle {
 	}
 
 	public Geoset getGeoset() {
+		if (geoset == null) {
+
+		}
 		return geoset;
 	}
 

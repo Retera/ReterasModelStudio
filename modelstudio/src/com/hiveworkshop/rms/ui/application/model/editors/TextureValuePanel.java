@@ -90,7 +90,9 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 			staticTextureChooser.removeActionListener(actionListener);
 			staticTextureChooser.setSelectedItem(bitmap.getName());
 			staticValue = staticTextureChooser.getSelectedIndex();
-			this.bitmap = bitmapListModel.get(staticValue);
+			if (staticValue != -1) {
+				this.bitmap = bitmapListModel.get(staticValue);
+			}
 			staticTextureChooser.addActionListener(actionListener);
 		} else if (bitmapId < bitmapListModel.size()) {
 			staticTextureChooser.setSelectedIndex(bitmapId);

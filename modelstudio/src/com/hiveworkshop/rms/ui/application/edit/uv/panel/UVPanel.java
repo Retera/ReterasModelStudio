@@ -454,11 +454,10 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 				for (GeosetVertex gv : new ArrayList<>(g.getVertices())) {
 					Vec2 tVertex = gv.getTVertex(currentLayer());
 					if (selectedTVertices.contains(tVertex)) {
-						List<Triangle> triangles = gv.getTriangles();
+						Set<Triangle> triangles = gv.getTriangles();
 						GeosetVertex newVertex = new GeosetVertex(gv);
 						List<Triangle> trianglesToRemove = new ArrayList<>();
-						for (int i = 1; i < triangles.size(); i++) {
-							Triangle triangle = triangles.get(i);
+						for (Triangle triangle : triangles) {
 							int vInd = triangle.indexOfRef(gv);
 							if (vInd != -1) {
 								triangle.set(vInd, newVertex);

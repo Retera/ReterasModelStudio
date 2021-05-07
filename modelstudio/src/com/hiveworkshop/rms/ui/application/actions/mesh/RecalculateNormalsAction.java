@@ -5,10 +5,7 @@ import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Undoable snap action.
@@ -64,7 +61,7 @@ public class RecalculateNormalsAction implements UndoAction {
 		return sum.normalize();
 	}
 
-	public static Vec3 createNormal(List<Triangle> triangles) {
+	public static Vec3 createNormal(Collection<Triangle> triangles) {
 		Vec3 sum = new Vec3();
 		for (Triangle triangle : triangles) {
 			sum.add(triangle.getNormal());

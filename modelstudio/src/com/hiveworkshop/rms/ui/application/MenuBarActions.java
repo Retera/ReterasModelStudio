@@ -286,12 +286,14 @@ public class MenuBarActions {
 	public static void addNewMaterial(MainPanel mainPanel) {
 		EditableModel current = mainPanel.currentMDL();
 		if (current != null) {
+			// ToDo make this undo-able and use first texture of model if avalible
 			Material material = new Material();
 			Bitmap white = new Bitmap("Textures\\White.dds").setWrapHeight(true).setWrapWidth(true);
 			material.getLayers().add(new Layer("None", white));
 			if (current.getFormatVersion() == 1000) {
 				material.makeHD();
 			}
+			current.add(white);
 			current.add(material);
 			mainPanel.modelStructureChangeListener.materialsListChanged();
 		}

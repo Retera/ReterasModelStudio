@@ -5,7 +5,9 @@ import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * GeosetVertex is a extended version of the Vertex class, for use strictly
@@ -22,7 +24,7 @@ public class GeosetVertex extends Vec3 {
 	Matrix matrixRef;
 	List<Vec2> tverts = new ArrayList<>();
 	List<Bone> bones = new ArrayList<>();
-	List<Triangle> triangles = new ArrayList<>();
+	Set<Triangle> triangles = new HashSet<>();
 	Geoset geoset;
 	private Vec3 normal = new Vec3();
 	private byte[] skinBoneIndexes;
@@ -40,8 +42,8 @@ public class GeosetVertex extends Vec3 {
 
 	public GeosetVertex(GeosetVertex old) {
 		super(old.x, old.y, old.z);
-		normal = new Vec3(old.normal);
-		bones = new ArrayList<>(old.bones);
+		normal.set(old.getNormal());
+		bones.addAll(old.bones);
 		tverts = new ArrayList<>();
 		for (Vec2 tv : old.tverts) {
 			tverts.add(new Vec2(tv));
@@ -49,6 +51,7 @@ public class GeosetVertex extends Vec3 {
 		// odd, but when writing
 		geoset = old.geoset;
 		// TODO copy triangles???????
+		triangles.addAll(old.getTriangles());
 		if (old.skinBoneIndexes != null) {
 			skinBoneIndexes = old.skinBoneIndexes.clone();
 		}
@@ -200,11 +203,11 @@ public class GeosetVertex extends Vec3 {
 		this.bones = bones;
 	}
 
-	public List<Triangle> getTriangles() {
+	public Set<Triangle> getTriangles() {
 		return triangles;
 	}
 
-	public void setTriangles(List<Triangle> triangles) {
+	public void setTriangles(Set<Triangle> triangles) {
 		this.triangles = triangles;
 	}
 

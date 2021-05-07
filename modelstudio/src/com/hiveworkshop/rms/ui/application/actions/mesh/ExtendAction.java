@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
-public class ExtrudeAction implements UndoAction {
+public class ExtendAction implements UndoAction {
 	MoveAction baseMovement;
 	List<Vec3> selection;
 	List<Triangle> addedTriangles = new ArrayList<>();
@@ -21,24 +21,21 @@ public class ExtrudeAction implements UndoAction {
 	Map<GeosetVertex, GeosetVertex> oldToNew = new HashMap<>();
 	Set<Pair<GeosetVertex, GeosetVertex>> edges;
 
-	public ExtrudeAction(Collection<? extends Vec3> selection, Vec3 moveVector) {
+	public ExtendAction(Collection<? extends Vec3> selection, Vec3 moveVector) {
 		selection.forEach(vert -> affectedVertices.add((GeosetVertex) vert));
 		this.selection = new ArrayList<>(selection);
 
 		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);
-		findInternalEdgeVerts();
 		edges = ModelUtils.getEdges(affectedVertices);
+		collectEdgeVerts();
 		findEdgeTris();
 		makeVertCopies();
 	}
 
-	private void findInternalEdgeVerts() {
-		for (GeosetVertex geosetVertex : affectedVertices) {
-			for (Triangle triangle : geosetVertex.getTriangles()) {
-				if (!affectedVertices.containsAll(Arrays.asList(triangle.getVerts()))) {
-					orgEdgeVertices.add(geosetVertex);
-				}
-			}
+	private void collectEdgeVerts() {
+		for (Pair<GeosetVertex, GeosetVertex> edge : edges) {
+			orgEdgeVertices.add(edge.getFirst());
+			orgEdgeVertices.add(edge.getSecond());
 		}
 	}
 
@@ -73,7 +70,7 @@ public class ExtrudeAction implements UndoAction {
 					triangle.replace(geosetVertex, newVertex);
 				}
 			}
-			trisToRemove.forEach(t -> geosetVertex.removeTriangle(t));
+			trisToRemove.forEach(geosetVertex::removeTriangle);
 		}
 	}
 
@@ -92,17 +89,15 @@ public class ExtrudeAction implements UndoAction {
 		for (Pair<GeosetVertex, GeosetVertex> edge : edges) {
 			GeosetVertex org1 = edge.getFirst();
 			GeosetVertex org2 = edge.getSecond();
-			if (orgEdgeVertices.contains(org1) && orgEdgeVertices.contains(org2)) {
-				GeosetVertex new1 = oldToNew.get(edge.getFirst());
-				GeosetVertex new2 = oldToNew.get(edge.getSecond());
+			GeosetVertex new1 = oldToNew.get(edge.getFirst());
+			GeosetVertex new2 = oldToNew.get(edge.getSecond());
 
-				Triangle tri1 = new Triangle(org1, new1, org2);
-				tri1.setGeoset(org1.getGeoset());
-				Triangle tri2 = new Triangle(new1, new2, org2);
-				tri2.setGeoset(org1.getGeoset());
-				addedTriangles.add(tri1);
-				addedTriangles.add(tri2);
-			}
+			Triangle tri1 = new Triangle(org1, new1, org2);
+			tri1.setGeoset(org1.getGeoset());
+			Triangle tri2 = new Triangle(new1, new2, org2);
+			tri2.setGeoset(org1.getGeoset());
+			addedTriangles.add(tri1);
+			addedTriangles.add(tri2);
 		}
 	}
 
@@ -142,7 +137,6 @@ public class ExtrudeAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "extrude";
+		return "extend";
 	}
-
 }

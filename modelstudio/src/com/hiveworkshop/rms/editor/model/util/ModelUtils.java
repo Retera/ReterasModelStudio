@@ -4,11 +4,11 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Pair;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public final class ModelUtils {
 	public static String getPortrait(String filepath) {
@@ -241,6 +241,44 @@ public final class ModelUtils {
 			return triangles;
 		}
 
+	}
+
+	/**
+	 * Finds the outer edges of the meshes contained in the provided collection.
+	 * This will go through the triangles of the vertices in the collection and
+	 * for triangles who's vertices all is contained in the provided collection
+	 * find the edges(vertex-pairs) that only appears once
+	 *
+	 * @return a set of unique GeosetVertex pairs making up the outer edges
+	 */
+	public static Set<Pair<GeosetVertex, GeosetVertex>> getEdges(Collection<GeosetVertex> vertices) {
+		Map<Pair<GeosetVertex, GeosetVertex>, Integer> edgeCounter = new HashMap<>();
+		Set<Triangle> uniqueTriangles = new HashSet<>();
+		for (GeosetVertex geosetVertex : vertices) {
+			uniqueTriangles.addAll(geosetVertex.getTriangles());
+		}
+
+		for (Triangle triangle : uniqueTriangles) {
+			if (vertices.containsAll(Arrays.asList(triangle.getVerts()))) {
+				for (int i = 0; i < 3; i++) {
+					Pair<GeosetVertex, GeosetVertex> edge = new Pair<>(triangle.get(i % 3), triangle.get((i + 1) % 3));
+					if (edgeCounter.containsKey(edge)) {
+						int count = edgeCounter.get(edge) + 1;
+						edgeCounter.put(edge, count);
+					} else {
+						edgeCounter.put(edge, 1);
+					}
+				}
+			}
+		}
+
+		Set<Pair<GeosetVertex, GeosetVertex>> edges = new HashSet<>();
+		for (Map.Entry<Pair<GeosetVertex, GeosetVertex>, Integer> entry : edgeCounter.entrySet()) {
+			if (entry.getValue() == 1) {
+				edges.add(entry.getKey());
+			}
+		}
+		return edges;
 	}
 
 	private ModelUtils() {

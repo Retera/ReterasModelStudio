@@ -429,7 +429,9 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public void add(final GeosetVertex v) {
-		vertices.add(v);
+		if (!vertices.contains(v)) {
+			vertices.add(v);
+		}
 	}
 
 	public GeosetVertex getVertex(final int vertId) {
@@ -462,6 +464,10 @@ public class Geoset implements Named, VisibilitySource {
 		return vertices.contains(v);
 	}
 
+	public boolean containsVert(final GeosetVertex v) {
+		return vertices.contains(v);
+	}
+
 	public int numVerteces() {
 		return vertices.size();
 	}
@@ -486,9 +492,10 @@ public class Geoset implements Named, VisibilitySource {
 	public void add(final Triangle p) {
 		if (!triangles.contains(p)) {
 			triangles.add(p);
-		} else {
-			System.out.println("2x triangles");
 		}
+//		else {
+////			System.out.println("2x triangles");
+//		}
 	}
 
 	public Triangle getTriangle(final int triId) {
