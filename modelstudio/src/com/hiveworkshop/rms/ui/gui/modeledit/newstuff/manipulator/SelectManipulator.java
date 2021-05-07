@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
@@ -12,14 +12,12 @@ import java.awt.event.MouseEvent;
 public class SelectManipulator extends Manipulator {
 	private final ViewportSelectionHandler eventHandler;
 	private Vec2 mouseEnd;
-	private final ProgramPreferences programPreferences;
 	private final CoordinateSystem coordinateSystem;
 	private byte currentDim1;
 	private byte currentDim2;
 
-	public SelectManipulator(ViewportSelectionHandler eventHandler, ProgramPreferences programPreferences, CoordinateSystem coordinateSystem) {
+	public SelectManipulator(ViewportSelectionHandler eventHandler, CoordinateSystem coordinateSystem) {
 		this.eventHandler = eventHandler;
-		this.programPreferences = programPreferences;
 		this.coordinateSystem = coordinateSystem;
 	}
 
@@ -51,7 +49,7 @@ public class SelectManipulator extends Manipulator {
 			double minY = Math.min(coordinateSystem.viewY(activityStart.y), coordinateSystem.viewY(mouseEnd.y));
 			double maxX = Math.max(coordinateSystem.viewX(activityStart.x), coordinateSystem.viewX(mouseEnd.x));
 			double maxY = Math.max(coordinateSystem.viewY(activityStart.y), coordinateSystem.viewY(mouseEnd.y));
-			graphics.setColor(programPreferences.getSelectColor());
+			graphics.setColor(ProgramGlobals.getPrefs().getSelectColor());
 			graphics.drawRect((int) minX, (int) minY, (int) (maxX - minX), (int) (maxY - minY));
 		}
 	}

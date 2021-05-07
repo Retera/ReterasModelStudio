@@ -35,9 +35,9 @@ public class FileMenu extends JMenu {
 
 		JCheckBoxMenuItem fetchPortraitsToo = new JCheckBoxMenuItem("Fetch portraits, too!", true);
 		fetchPortraitsToo.setMnemonic(KeyEvent.VK_P);
-		fetchPortraitsToo.addActionListener(e -> ProgramGlobals.prefs.setLoadPortraits(fetchPortraitsToo.isSelected()));
+		fetchPortraitsToo.addActionListener(e -> ProgramGlobals.getPrefs().setLoadPortraits(fetchPortraitsToo.isSelected()));
 		fetch.add(fetchPortraitsToo);
-		fetchPortraitsToo.setSelected(ProgramGlobals.prefs.isLoadPortraits());
+		fetchPortraitsToo.setSelected(ProgramGlobals.getPrefs().isLoadPortraits());
 
 		add(new JSeparator());
 
@@ -77,7 +77,7 @@ public class FileMenu extends JMenu {
 
 	public boolean closeAll(MainPanel mainPanel) {
 		boolean success = true;
-		final Iterator<ModelPanel> iterator = mainPanel.getModelPanels().iterator();
+		final Iterator<ModelPanel> iterator = ProgramGlobals.getModelPanels().iterator();
 		boolean closedCurrentPanel = false;
 		ModelPanel lastUnclosedModelPanel = null;
 		while (iterator.hasNext()) {
@@ -87,7 +87,7 @@ public class FileMenu extends JMenu {
 					MenuBar.windowMenu.remove(panel.getMenuItem());
 				}
 				iterator.remove();
-				if (panel == mainPanel.currentModelPanel()) {
+				if (panel == ProgramGlobals.getCurrentModelPanel()) {
 					closedCurrentPanel = true;
 				}
 			} else {

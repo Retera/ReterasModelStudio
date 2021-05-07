@@ -115,14 +115,14 @@ public class MenuBarActions {
 
 	public static void openPreferences(MainPanel mainPanel) {
 		ProgramPreferences programPreferences = new ProgramPreferences();
-		programPreferences.loadFrom(mainPanel.prefs);
+		programPreferences.loadFrom(ProgramGlobals.getPrefs());
 		List<DataSourceDescriptor> priorDataSources = SaveProfile.get().getDataSources();
 		ProgramPreferencesPanel programPreferencesPanel = new ProgramPreferencesPanel(programPreferences, priorDataSources);
 
 		int ret = JOptionPane.showConfirmDialog(mainPanel, programPreferencesPanel, "Preferences",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (ret == JOptionPane.OK_OPTION) {
-			mainPanel.prefs.loadFrom(programPreferences);
+			ProgramGlobals.getPrefs().loadFrom(programPreferences);
 			List<DataSourceDescriptor> dataSources = programPreferencesPanel.getDataSources();
 			boolean changedDataSources = (dataSources != null) && !dataSources.equals(priorDataSources);
 			if (changedDataSources) {
@@ -167,15 +167,15 @@ public class MenuBarActions {
 	}
 
 	public static void closeModelPanel(MainPanel mainPanel) {
-		ModelPanel modelPanel = mainPanel.currentModelPanel();
-		int oldIndex = mainPanel.modelPanels.indexOf(modelPanel);
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
 		if (modelPanel != null) {
 			if (modelPanel.close()) {
-				mainPanel.modelPanels.remove(modelPanel);
+				ProgramGlobals.getModelPanels().remove(modelPanel);
 				com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.removeModelPanel(modelPanel);
-				if (mainPanel.modelPanels.size() > 0) {
-					int newIndex = Math.min(mainPanel.modelPanels.size() - 1, oldIndex);
-					ModelLoader.setCurrentModel(mainPanel, mainPanel.modelPanels.get(newIndex));
+				if (ProgramGlobals.getModelPanels().size() > 0) {
+					int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);
+					ModelLoader.setCurrentModel(mainPanel, ProgramGlobals.getModelPanels().get(newIndex));
 				} else {
 					// TODO remove from notifiers to fix leaks
 					ModelLoader.setCurrentModel(mainPanel, null);
@@ -225,7 +225,7 @@ public class MenuBarActions {
 			}
 
 			ModelHandler modelHandler = new ModelHandler(mdl, mainPanel.getUndoHandler());
-			ModelPanel temp = new ModelPanel(mainPanel, modelHandler, mainPanel.prefs,
+			ModelPanel temp = new ModelPanel(mainPanel, modelHandler, ProgramGlobals.getPrefs(),
 					mainPanel.selectionItemTypeGroup, mainPanel.selectionModeGroup,
 					mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
 					mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false);
@@ -234,14 +234,14 @@ public class MenuBarActions {
 
 	}
 
-	public static boolean closeOthers(MainPanel mainPanel, ModelPanel panelToKeepOpen) {
+	public static boolean closeOthers(MainPanel mainPanel) {
 		boolean success = true;
-		Iterator<ModelPanel> iterator = mainPanel.modelPanels.iterator();
+		Iterator<ModelPanel> iterator = ProgramGlobals.getModelPanels().iterator();
 		boolean closedCurrentPanel = false;
 		ModelPanel lastUnclosedModelPanel = null;
 		while (iterator.hasNext()) {
 			ModelPanel panel = iterator.next();
-			if (panel == panelToKeepOpen) {
+			if (panel == ProgramGlobals.getCurrentModelPanel()) {
 				lastUnclosedModelPanel = panel;
 				continue;
 			}
@@ -249,7 +249,7 @@ public class MenuBarActions {
 //                mainPanel.windowMenu.remove(panel.getMenuItem());
 				MenuBar.removeModelPanel(panel);
 				iterator.remove();
-				if (panel == mainPanel.currentModelPanel) {
+				if (panel == ProgramGlobals.getCurrentModelPanel()) {
 					closedCurrentPanel = true;
 				}
 			} else {
@@ -274,7 +274,7 @@ public class MenuBarActions {
 ////							currentModelPanel().getModelViewManager(), true, animationViewer);
 //
 //			AnimationViewer animationViewer2 = new AnimationViewer(
-//					mainPanel.currentModelPanel().getModelViewManager(), mainPanel.prefs, false);
+//					ProgramGlobals.getCurrentModelPanel().getModelViewManager(), ProgramGlobals.getPrefs(), false);
 //			animationViewer2.setMinimumSize(new Dimension(400, 400));
 //			testPanel.add(animationViewer2);
 ////					testPanel.add(animationController);
@@ -567,7 +567,7 @@ public class MenuBarActions {
 	}
 
 	public static void removeMaterialDuplicates(MainPanel mainPanel) {
-		EditableModel model = mainPanel.currentModelPanel().getModel();
+		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
 		List<Material> materials = model.getMaterials();
 		Map<Material, Material> sameMaterialMap = new HashMap<>();
 		for (int i = 0; i < materials.size(); i++) {

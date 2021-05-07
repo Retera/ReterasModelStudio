@@ -4,10 +4,10 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.GU;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
@@ -17,7 +17,6 @@ import java.awt.*;
 
 public class ViewportModelRenderer {
 	private Graphics2D graphics;
-	private ProgramPreferences programPreferences;
 	private CoordinateSystem coordinateSystem;
 	private final ResettableIdObjectRenderer idObjectRenderer;
 	private ModelView modelView;
@@ -33,16 +32,14 @@ public class ViewportModelRenderer {
 	}
 
 	public void renderModel(Graphics2D graphics,
-	                        ProgramPreferences programPreferences,
 	                        CoordinateSystem coordinateSystem,
 	                        ModelHandler modelHandler, boolean isAnimated) {
 		this.isAnimated = isAnimated;
 		this.graphics = graphics;
-		this.programPreferences = programPreferences;
 		this.coordinateSystem = coordinateSystem;
 		this.modelView = modelHandler.getModelView();
 		this.renderModel = modelHandler.getRenderModel();
-		idObjectRenderer.reset(coordinateSystem, graphics, programPreferences, modelHandler.getRenderModel(), this.isAnimated, false);
+		idObjectRenderer.reset(coordinateSystem, graphics, modelHandler.getRenderModel(), this.isAnimated, false);
 
 		EditableModel model = modelHandler.getModel();
 		for (final Geoset geoset : model.getGeosets()) {
@@ -50,7 +47,7 @@ public class ViewportModelRenderer {
 		}
 		for (IdObject object : model.getAllObjects()) {
 			if (modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode())) {
-				idObjectRenderer.reset(coordinateSystem, graphics, programPreferences, renderModel, isAnimated, modelView.getHighlightedNode() == object);
+				idObjectRenderer.reset(coordinateSystem, graphics, renderModel, isAnimated, modelView.getHighlightedNode() == object);
 				idObjectRenderer.renderIdObject(object);
 			}
 		}
@@ -72,11 +69,11 @@ public class ViewportModelRenderer {
 //			System.out.println("woop");
 //		}
 		if (modelView.getHighlightedGeoset() == geoset) {
-			triangleColor = programPreferences.getHighlighTriangleColor();
+			triangleColor = ProgramGlobals.getPrefs().getHighlighTriangleColor();
 		} else if (!modelView.getEditableGeosets().contains(geoset)) {
-			triangleColor = programPreferences.getVisibleUneditableColor();
+			triangleColor = ProgramGlobals.getPrefs().getVisibleUneditableColor();
 		} else {
-			triangleColor = programPreferences.getTriangleColor();
+			triangleColor = ProgramGlobals.getPrefs().getTriangleColor();
 		}
 
 		for (Triangle triangle : geoset.getTriangles()) {
@@ -98,7 +95,7 @@ public class ViewportModelRenderer {
 				Vec2 vert2 = CoordSysUtils.convertToViewVec2(coordinateSystem, vertexSumHeap);
 				triV2[index] = vert2;
 
-				if (programPreferences.showNormals() && normal != null) {
+				if (ProgramGlobals.getPrefs().showNormals() && normal != null) {
 					Vec3 normalPoint = Vec3.getScaled(normalSumHeap, (float) (12 / coordinateSystem.getZoom())).add(vertexSumHeap);
 
 					normalV2[index] = CoordSysUtils.convertToViewVec2(coordinateSystem, normalPoint);
@@ -110,8 +107,8 @@ public class ViewportModelRenderer {
 			graphics.setColor(triangleColor);
 			GU.drawPolygon(graphics, triV2);
 
-			if (programPreferences.showNormals()) {
-				graphics.setColor(programPreferences.getNormalsColor());
+			if (ProgramGlobals.getPrefs().showNormals()) {
+				graphics.setColor(ProgramGlobals.getPrefs().getNormalsColor());
 
 				GU.drawLines(graphics, triV2, normalV2);
 			}

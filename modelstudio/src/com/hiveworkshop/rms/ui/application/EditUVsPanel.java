@@ -8,11 +8,10 @@ import java.awt.*;
 
 public class EditUVsPanel {
     public static void showEditUVs(MainPanel mainPanel) {
-        final ModelPanel currentModelPanel = mainPanel.currentModelPanel();
+        final ModelPanel currentModelPanel = ProgramGlobals.getCurrentModelPanel();
         UVPanel panel = currentModelPanel.getEditUVPanel();
         if (panel == null) {
-            System.out.println("mainPanel.getPrefs(): " + mainPanel.getPrefs());
-            panel = new UVPanel(mainPanel, mainPanel.modelStructureChangeListener, mainPanel.getPrefs());
+            panel = new UVPanel(mainPanel, mainPanel.modelStructureChangeListener);
             currentModelPanel.setEditUVPanel(panel);
 
             panel.initViewport();

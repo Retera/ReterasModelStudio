@@ -39,7 +39,7 @@ public class TimeSliderView {
 	}
 
 	private static void timeBoundsChooserPanel(MainPanel mainPanel) {
-		ModelPanel modelPanel = mainPanel.currentModelPanel();
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		ModelView modelView = modelPanel == null ? null : modelPanel.getModelView();
 		TimeBoundChooserPanel tbcPanel = new TimeBoundChooserPanel(modelView, mainPanel.modelStructureChangeListener);
 		int confirmDialogResult = JOptionPane.showConfirmDialog(mainPanel, tbcPanel, "Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
@@ -60,14 +60,14 @@ public class TimeSliderView {
 	}
 
 	static void createTimeSliderPanel(MainPanel mainPanel) {
-		mainPanel.timeSliderPanel = new TimeSliderPanel(mainPanel, mainPanel.animatedRenderEnvironment, mainPanel.modelStructureChangeListener, mainPanel.prefs);
+		mainPanel.timeSliderPanel = new TimeSliderPanel(mainPanel, mainPanel.animatedRenderEnvironment, mainPanel.modelStructureChangeListener, ProgramGlobals.getPrefs());
 		mainPanel.timeSliderPanel.setDrawing(false);
 		TimeSliderTimeListener timeSliderTimeListener = currentTime -> {
 //			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime);
 //			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime - mainPanel.animatedRenderEnvironment.getStart());
-			if (mainPanel.currentModelPanel() != null) {
-				mainPanel.currentModelPanel().getEditorRenderModel().updateNodes(false);
-				mainPanel.currentModelPanel().repaintSelfAndRelatedChildren();
+			if (ProgramGlobals.getCurrentModelPanel() != null) {
+				ProgramGlobals.getCurrentModelPanel().getEditorRenderModel().updateNodes(false);
+				ProgramGlobals.getCurrentModelPanel().repaintSelfAndRelatedChildren();
 			}
 		};
 		mainPanel.timeSliderPanel.addListener(timeSliderTimeListener);

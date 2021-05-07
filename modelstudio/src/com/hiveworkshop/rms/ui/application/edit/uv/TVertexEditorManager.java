@@ -15,14 +15,12 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.Collection;
 
 public final class TVertexEditorManager {
 	private final ModelView model;
-	private final ProgramPreferences programPreferences;
 	private TVertexEditor modelEditor;
 	private final TVertexViewportSelectionHandlerImpl viewportSelectionHandler;
 	private final TVertexEditorChangeListener modelEditorChangeListener;
@@ -33,13 +31,14 @@ public final class TVertexEditorManager {
 	private final ModelStructureChangeListener structureChangeListener;
 	public static boolean MOVE_LINKED;
 
-	public TVertexEditorManager(ModelView model, ProgramPreferences programPreferences,
-			ToolbarButtonGroup<SelectionMode> modeButtonGroup,
-			TVertexEditorChangeListener modelEditorChangeListener, SelectionListener selectionListener,
-			RenderModel renderModel, ModelStructureChangeListener structureChangeListener) {
+	public TVertexEditorManager(ModelView model,
+	                            ToolbarButtonGroup<SelectionMode> modeButtonGroup,
+	                            TVertexEditorChangeListener modelEditorChangeListener,
+	                            SelectionListener selectionListener,
+	                            RenderModel renderModel,
+	                            ModelStructureChangeListener structureChangeListener) {
 		this.model = model;
 		this.modelEditorChangeListener = modelEditorChangeListener;
-		this.programPreferences = programPreferences;
 		this.selectionListener = selectionListener;
 		this.renderModel = renderModel;
 		this.structureChangeListener = structureChangeListener;
@@ -58,7 +57,7 @@ public final class TVertexEditorManager {
 		switch (selectionMode) {
 			case FACE -> {
 				final FaceSelectionManager selectionManager = new FaceSelectionManager();
-				final FaceTVertexEditor faceModelEditor = new FaceTVertexEditor(model, programPreferences, selectionManager, structureChangeListener);
+				final FaceTVertexEditor faceModelEditor = new FaceTVertexEditor(model, selectionManager, structureChangeListener);
 				modelEditor = faceModelEditor;
 				if (lastSelectedVertices != null) {
 					modelEditor.selectByVertices(lastSelectedVertices);
@@ -71,7 +70,7 @@ public final class TVertexEditorManager {
 			}
 			case VERTEX -> {
 				final GeosetVertexSelectionManager selectionManager = new GeosetVertexSelectionManager();
-				final GeosetVertexTVertexEditor geosetVertexModelEditor = new GeosetVertexTVertexEditor(model, programPreferences, selectionManager, structureChangeListener);
+				final GeosetVertexTVertexEditor geosetVertexModelEditor = new GeosetVertexTVertexEditor(model, selectionManager, structureChangeListener);
 				modelEditor = geosetVertexModelEditor;
 				if (lastSelectedVertices != null) {
 					modelEditor.selectByVertices(lastSelectedVertices);

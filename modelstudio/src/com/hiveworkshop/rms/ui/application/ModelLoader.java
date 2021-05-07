@@ -35,7 +35,7 @@ public class ModelLoader {
 	static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
 
 	public static void refreshAnimationModeState(MainPanel mainPanel) {
-		ModelPanel modelPanel = mainPanel.currentModelPanel();
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (mainPanel.animationModeState) {
 			if ((modelPanel != null) && (modelPanel.getModel() != null)) {
 				if (modelPanel.getModel().getAnimsSize() > 0) {
@@ -74,21 +74,21 @@ public class ModelLoader {
 	}
 
 	private static void refreshAndUpdateModelPanel(MainPanel mainPanel) {
-		RenderModel editorRenderModel = mainPanel.currentModelPanel().getEditorRenderModel();
+		RenderModel editorRenderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
 		editorRenderModel
 				.refreshFromEditor(
 //						mainPanel.animatedRenderEnvironment,
 						ModelStructureChangeListener.IDENTITY,
 						ModelStructureChangeListener.IDENTITY,
 						ModelStructureChangeListener.IDENTITY,
-						mainPanel.currentModelPanel().getPerspArea().getViewport().getParticleTextureInstance());
+						ProgramGlobals.getCurrentModelPanel().getPerspArea().getViewport().getParticleTextureInstance());
 		editorRenderModel.updateNodes(false); // update to 0 position
 	}
 
 	public static ModelPanel newTempModelPanel(MainPanel mainPanel, ImageIcon icon, EditableModel model) {
 		ModelPanel temp;
 		ModelHandler modelHandler = new ModelHandler(model, mainPanel.getUndoHandler());
-		temp = new ModelPanel(mainPanel, modelHandler, mainPanel.prefs,
+		temp = new ModelPanel(mainPanel, modelHandler, ProgramGlobals.getPrefs(),
 				mainPanel.selectionItemTypeGroup,
 				mainPanel.selectionModeGroup,
 				mainPanel.modelStructureChangeListener,
@@ -160,7 +160,7 @@ public class ModelLoader {
 
 		MenuBar.addModelPanel(modelPanel);
 
-		if (mainPanel.currentModelPanel == modelPanel) {
+		if (ProgramGlobals.getCurrentModelPanel() == modelPanel) {
 //			mainPanel.geoControl = new JScrollPane(modelPanel.getModelViewManagingTree());
 			mainPanel.viewportControllerWindowView.setComponent(modelPanel.getModelEditingTreePane());
 			mainPanel.viewportControllerWindowView.repaint();
@@ -172,7 +172,7 @@ public class ModelLoader {
 		if (selectNewTab) {
 			modelPanel.getMenuItem().doClick();
 		}
-		mainPanel.modelPanels.add(modelPanel);
+		ProgramGlobals.getModelPanels().add(modelPanel);
 
 		if (temporary) {
 			modelPanel.getModelView().getModel().setFileRef(null);
@@ -180,12 +180,12 @@ public class ModelLoader {
 
 		MenuBar.setToolsMenuEnabled(true);
 
-		if (selectNewTab && mainPanel.prefs.getQuickBrowse()) {
-			for (int i = (mainPanel.modelPanels.size() - 2); i >= 0; i--) {
-				ModelPanel openModelPanel = mainPanel.modelPanels.get(i);
+		if (selectNewTab && ProgramGlobals.getPrefs().getQuickBrowse()) {
+			for (int i = (ProgramGlobals.getModelPanels().size() - 2); i >= 0; i--) {
+				ModelPanel openModelPanel = ProgramGlobals.getModelPanels().get(i);
 				if (openModelPanel.getUndoManager().isRedoListEmpty() && openModelPanel.getUndoManager().isUndoListEmpty()) {
 					if (openModelPanel.close()) {
-						mainPanel.modelPanels.remove(openModelPanel);
+						ProgramGlobals.getModelPanels().remove(openModelPanel);
 						MenuBar.removeModelPanel(openModelPanel);
 					}
 				}
@@ -194,8 +194,8 @@ public class ModelLoader {
 	}
 
 	public static void setCurrentModel(MainPanel mainPanel, ModelPanel modelPanel) {
-		mainPanel.currentModelPanel = modelPanel;
-		if (mainPanel.currentModelPanel == null) {
+		ProgramGlobals.setCurrentModelPanel(modelPanel);
+		if (ProgramGlobals.getCurrentModelPanel() == null) {
 			JPanel jPanel = new JPanel();
 			jPanel.add(new JLabel("..."));
 			mainPanel.viewportControllerWindowView.setComponent(jPanel);
@@ -225,15 +225,15 @@ public class ModelLoader {
 			mainPanel.animationControllerView.setComponent(modelPanel.getAnimationController());
 			refreshAnimationModeState(mainPanel);
 
-			mainPanel.timeSliderPanel.setModelHandler(mainPanel.currentModelPanel.getModelHandler());
-			mainPanel.creatorPanel.setModelEditorManager(mainPanel.currentModelPanel.getModelEditorManager());
-			mainPanel.creatorPanel.setCurrentModel(mainPanel.currentModelPanel.getModelHandler());
+			mainPanel.timeSliderPanel.setModelHandler(ProgramGlobals.getCurrentModelPanel().getModelHandler());
+			mainPanel.creatorPanel.setModelEditorManager(ProgramGlobals.getCurrentModelPanel().getModelEditorManager());
+			mainPanel.creatorPanel.setCurrentModel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
 
 			mainPanel.modelDataView.setComponent(modelPanel.getComponentBrowserTreePane());
 			mainPanel.modelComponentView.setComponent(modelPanel.getComponentsPanel());
 
-			mainPanel.currentModelPanel.reloadComponentBrowser();
-			mainPanel.currentModelPanel.reloadModelEditingTree();
+			ProgramGlobals.getCurrentModelPanel().reloadComponentBrowser();
+			ProgramGlobals.getCurrentModelPanel().reloadModelEditingTree();
 		}
 		mainPanel.viewportListener.viewportChanged(null);
 		mainPanel.timeSliderPanel.revalidateKeyframeDisplay();
@@ -317,15 +317,15 @@ public class ModelLoader {
 	}
 
 	public static void revert(MainPanel mainPanel) {
-		final ModelPanel modelPanel = mainPanel.currentModelPanel();
-		final int oldIndex = mainPanel.modelPanels.indexOf(modelPanel);
+		final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		final int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
 		if (modelPanel != null) {
 			if (modelPanel.close()) {
-				mainPanel.modelPanels.remove(modelPanel);
+				ProgramGlobals.getModelPanels().remove(modelPanel);
 				MenuBar.removeModelPanel(modelPanel);
-				if (mainPanel.modelPanels.size() > 0) {
-					final int newIndex = Math.min(mainPanel.modelPanels.size() - 1, oldIndex);
-					setCurrentModel(mainPanel, mainPanel.modelPanels.get(newIndex));
+				if (ProgramGlobals.getModelPanels().size() > 0) {
+					final int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);
+					setCurrentModel(mainPanel, ProgramGlobals.getModelPanels().get(newIndex));
 				} else {
 					// TODO remove from notifiers to fix leaks
 					setCurrentModel(mainPanel, null);

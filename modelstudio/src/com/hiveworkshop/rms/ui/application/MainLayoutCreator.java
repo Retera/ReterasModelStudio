@@ -92,7 +92,7 @@ public class MainLayoutCreator {
 
     static UnitEditorTree createUnitEditorTree(MainPanel mainPanel) {
         return new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(),
-                getUnitEditorSettings(), MutableObjectData.WorldEditorDataType.UNITS, (mdxFilePath, b, c, icon) -> InternalFileLoader.loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(mdxFilePath), b, c, icon), mainPanel.prefs);
+                getUnitEditorSettings(), MutableObjectData.WorldEditorDataType.UNITS, (mdxFilePath, b, c, icon) -> InternalFileLoader.loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(mdxFilePath), b, c, icon));
     }
 
     /**

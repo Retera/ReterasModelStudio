@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import net.miginfocom.swing.MigLayout;
@@ -68,7 +69,7 @@ public class KeyframeCopyPanel extends JPanel {
 	}
 
 	public static void show(MainPanel mainPanel) {
-		ModelPanel modelPanel = mainPanel.currentModelPanel();
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			final KeyframeCopyPanel textureManager = new KeyframeCopyPanel(modelPanel.getModelView(),
 					mainPanel.getModelStructureChangeListener());

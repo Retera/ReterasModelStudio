@@ -13,20 +13,17 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.ScaleWidgetTVer
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.TVertexEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonType;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import javax.swing.*;
 
 public class TVertexToolbarActionButtonType implements ToolbarButtonType {
 	private final ImageIcon imageIcon;
 	private final String name;
-	private final ProgramPreferences prefs;
 	private final ModelEditorActionType editorActionType;
 
-	public TVertexToolbarActionButtonType(String path, String name, ProgramPreferences prefs, ModelEditorActionType editorActionType) {
+	public TVertexToolbarActionButtonType(String path, String name, ModelEditorActionType editorActionType) {
 		this.imageIcon = RMSIcons.loadToolBarImageIcon(path);
 		this.name = name;
-		this.prefs = prefs;
 		this.editorActionType = editorActionType;
 	}
 
@@ -41,7 +38,6 @@ public class TVertexToolbarActionButtonType implements ToolbarButtonType {
 	}
 
 	public TVertexEditorViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelView modelView, UndoManager undoManager) {
-		System.out.println("TVertPrefs: " + prefs);
 		System.out.println("TVertPrefs: " + name);
 		return new TVertexEditorMultiManipulatorActivity(
 				getManipulatorWidget(modelEditorManager, modelView, editorActionType),
@@ -49,7 +45,6 @@ public class TVertexToolbarActionButtonType implements ToolbarButtonType {
 				modelEditorManager.getSelectionView());
 	}
 	public TVertexEditorViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelHandler modelHandler) {
-		System.out.println("TVertPrefs: " + prefs);
 		System.out.println("TVertPrefs: " + name);
 		return new TVertexEditorMultiManipulatorActivity(
 				getManipulatorWidget(modelEditorManager, modelHandler.getModelView(), editorActionType),
@@ -59,9 +54,9 @@ public class TVertexToolbarActionButtonType implements ToolbarButtonType {
 
 	private TVertexEditorManipulatorBuilder getManipulatorWidget(TVertexEditorManager modelEditorManager, ModelView modelView, ModelEditorActionType editorActionType) {
 		return switch (editorActionType) {
-			case SCALING -> new ScaleWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), prefs, modelView);
-			case ROTATION -> new RotatorWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), prefs, modelView);
-			case TRANSLATION -> new MoverWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), prefs, modelView);
+			case SCALING -> new ScaleWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), modelView);
+			case ROTATION -> new RotatorWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), modelView);
+			case TRANSLATION -> new MoverWidgetTVertexEditorManipulatorBuilder(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), modelView);
 
 		};
 	}

@@ -8,16 +8,14 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.ExtendManipula
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 public final class ExtendWidgetManipulatorBuilder extends ModelEditorManipulatorBuilder {
 //	private final MoverWidget widget = new MoverWidget();
 
-	public ExtendWidgetManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler,
-	                                      ProgramPreferences programPreferences) {
-		super(modelEditorManager, modelHandler, programPreferences);
+	public ExtendWidgetManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
+		super(modelEditorManager, modelHandler);
 		widget = new MoverWidget();
 	}
 

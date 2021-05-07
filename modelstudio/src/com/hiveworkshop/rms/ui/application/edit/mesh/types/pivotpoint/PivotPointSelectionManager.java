@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -40,7 +39,7 @@ public final class PivotPointSelectionManager extends SelectionManager<Vec3> {
 
 	@Override
 	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
-	                            ModelView model, ProgramPreferences programPreferences) {
+	                            ModelView model) {
 		Set<Vec3> drawnSelection = new HashSet<>();
 		for (IdObject object : model.getEditableIdObjects()) {
 			if (selection.contains(object.getPivotPoint())) {
@@ -89,6 +88,6 @@ public final class PivotPointSelectionManager extends SelectionManager<Vec3> {
 	}
 
 	@Override
-	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView, ProgramPreferences programPreferences, int tvertexLayerId) {
+	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView, int tvertexLayerId) {
 	}
 }

@@ -69,7 +69,7 @@ public class ScriptView {
 	private void runScript(ScriptEngineManager factory, RSyntaxTextArea matrixEaterScriptTextArea, MainPanel mainPanel) {
 		String text = matrixEaterScriptTextArea.getText();
 		ScriptEngine engine = factory.getEngineByName("JavaScript");
-		ModelPanel modelPanel = mainPanel.currentModelPanel();
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 
 		if (modelPanel != null) {
 			engine.put("modelPanel", modelPanel);

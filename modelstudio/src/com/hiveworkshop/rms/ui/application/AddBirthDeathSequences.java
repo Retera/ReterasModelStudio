@@ -38,7 +38,7 @@ public class AddBirthDeathSequences {
     }
 
     private static void replaceOrUseOldAnimation(MainPanel mainPanel, String name, int offsetStart, int offsetEnd) {
-        final EditableModel model = mainPanel.currentModelPanel().getModelView().getModel();
+        final EditableModel model = ProgramGlobals.getCurrentModelPanel().getModelView().getModel();
         final Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
 
         Animation animation = getAnimationToUse(mainPanel, name, model, lastAnim);
@@ -149,12 +149,12 @@ public class AddBirthDeathSequences {
 
     // most of the code below are modified versions of code from AnimatedNode and NodeAnimationModelEditor
     public static void createKeyframes(MainPanel mainPanel, EditableModel model, int trackTime1, int trackTime2, Vec3 startVec, Vec3 endVec) {
-        RenderModel renderModel = mainPanel.currentModelPanel.getEditorRenderModel();
+        RenderModel renderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
 	    ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener(mainPanel);
 	    NodeAnimationSelectionManager nodeAnimationSelectionManager = new NodeAnimationSelectionManager(renderModel);
 
-        final NodeAnimationModelEditor nodeAnimationModelEditor = new NodeAnimationModelEditor(mainPanel.currentModelPanel.getModelView(),
-                mainPanel.prefs, nodeAnimationSelectionManager, renderModel, structureChangeListener);
+        final NodeAnimationModelEditor nodeAnimationModelEditor = new NodeAnimationModelEditor(ProgramGlobals.getCurrentModelPanel().getModelView(),
+                nodeAnimationSelectionManager, renderModel, structureChangeListener);
 
         final Set<IdObject> selection = new HashSet<>(getRootObjects(model));
         final List<UndoAction> actions = new ArrayList<>();

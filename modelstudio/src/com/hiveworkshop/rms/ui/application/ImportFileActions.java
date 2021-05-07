@@ -48,6 +48,12 @@ public class ImportFileActions {
         }
     }
 
+    public static void repaintModelTrees() {
+        if (ProgramGlobals.getCurrentModelPanel() != null) {
+            ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
+        }
+    }
+
     public static void importButtonActionRes(MainPanel mainPanel) {
         FileDialog fileDialog = new FileDialog(mainPanel);
 
@@ -55,14 +61,12 @@ public class ImportFileActions {
         if (model != null) {
             importFile(mainPanel, model);
         }
-        if (mainPanel.currentModelPanel != null) {
-            mainPanel.currentModelPanel.repaintModelTrees();
-        }
+        repaintModelTrees();
     }
 
     public static void importFromWorkspaceActionRes(MainPanel mainPanel) {
         final List<EditableModel> optionNames = new ArrayList<>();
-        for (final ModelPanel modelPanel : mainPanel.modelPanels) {
+        for (final ModelPanel modelPanel : ProgramGlobals.getModelPanels()) {
             final EditableModel model = modelPanel.getModel();
             optionNames.add(model);
         }
@@ -72,9 +76,7 @@ public class ImportFileActions {
         if (choice != null) {
             importFile(mainPanel, EditableModel.deepClone(choice, choice.getHeaderName()));
         }
-        if (mainPanel.currentModelPanel != null) {
-            mainPanel.currentModelPanel.repaintModelTrees();
-        }
+        repaintModelTrees();
     }
 
     public static String convertPathToMDX(String filepath) {
@@ -93,9 +95,7 @@ public class ImportFileActions {
             final File animationSource = GameDataFileSystem.getDefault().getFile(filepath);
             importFile(mainPanel, animationSource);
         }
-        if (mainPanel.currentModelPanel != null) {
-            mainPanel.currentModelPanel.repaintModelTrees();
-        }
+        repaintModelTrees();
     }
 
     public static MutableObjectData.MutableGameObject fetchObject(Component parent) {

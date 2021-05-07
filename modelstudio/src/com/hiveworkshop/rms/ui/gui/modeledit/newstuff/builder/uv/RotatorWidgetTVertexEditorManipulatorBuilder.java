@@ -9,14 +9,13 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.RotateTVertexManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 
 public final class RotatorWidgetTVertexEditorManipulatorBuilder extends TVertexEditorManipulatorBuilder {
 //	private final RotatorWidget widget = new RotatorWidget();
 
-	public RotatorWidgetTVertexEditorManipulatorBuilder(TVertexEditor modelEditor, ViewportSelectionHandler viewportSelectionHandler, ProgramPreferences programPreferences, ModelView modelView) {
-		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
+	public RotatorWidgetTVertexEditorManipulatorBuilder(TVertexEditor modelEditor, ViewportSelectionHandler viewportSelectionHandler, ModelView modelView) {
+		super(viewportSelectionHandler, modelEditor, modelView);
 		widget = new RotatorWidget();
 	}
 

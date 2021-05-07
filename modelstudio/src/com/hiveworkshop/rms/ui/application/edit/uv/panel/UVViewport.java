@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
@@ -8,7 +9,6 @@ import com.hiveworkshop.rms.ui.application.edit.uv.UVViewportModelRenderer;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
@@ -23,8 +23,8 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 	private final UVViewportModelRenderer viewportModelRenderer;
 	private TVertexEditor editor;
 
-	public UVViewport(ModelHandler modelHandler, UVPanel uvPanel, ProgramPreferences programPreferences, ViewportActivity viewportActivity, CoordDisplayListener coordDisplayListener, TVertexEditor editor) {
-		super(modelHandler, (byte) 0, (byte) 1, new Dimension(400, 400), programPreferences, viewportActivity, new ViewportListener(), coordDisplayListener);
+	public UVViewport(ModelHandler modelHandler, UVPanel uvPanel, ViewportActivity viewportActivity, CoordDisplayListener coordDisplayListener, TVertexEditor editor) {
+		super(modelHandler, (byte) 0, (byte) 1, new Dimension(400, 400), viewportActivity, new ViewportListener(), coordDisplayListener);
 
 		this.editor = editor;
 		this.viewportListener = new ViewportListener();
@@ -48,14 +48,14 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 	}
 
 	public void paintComponent(Graphics g, int vertexSize) {
-		if (programPreferences.show2dGrid()) {
+		if (ProgramGlobals.getPrefs().show2dGrid()) {
 			drawGrid(g);
 		}
 
 		PaintBackgroundImage(g);
 
 		Graphics2D graphics2d = (Graphics2D) g;
-		viewportModelRenderer.drawGeosetUVs(graphics2d, programPreferences, coordinateSystem, modelHandler);
+		viewportModelRenderer.drawGeosetUVs(graphics2d, coordinateSystem, modelHandler);
 
 		viewportActivity.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), false);
 	}

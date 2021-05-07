@@ -32,7 +32,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleA
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
@@ -42,19 +41,16 @@ import java.util.*;
 import java.util.function.BiFunction;
 
 public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> {
-	private final ProgramPreferences programPreferences;
 	private final ModelView model;
 	private final RenderModel renderModel;
 	private final ModelStructureChangeListener structureChangeListener;
 
 	public NodeAnimationModelEditor(ModelView model,
-	                                ProgramPreferences programPreferences,
 	                                SelectionManager<IdObject> selectionManager,
 	                                RenderModel renderModel,
 	                                ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager);
 		this.model = model;
-		this.programPreferences = programPreferences;
 		this.structureChangeListener = structureChangeListener;
 		this.renderModel = renderModel;
 	}

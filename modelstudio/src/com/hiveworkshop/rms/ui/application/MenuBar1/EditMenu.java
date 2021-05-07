@@ -1,9 +1,6 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
-import com.hiveworkshop.rms.ui.application.MainPanel;
-import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
-import com.hiveworkshop.rms.ui.application.MenuBarActions;
-import com.hiveworkshop.rms.ui.application.ModelEditActions;
+import com.hiveworkshop.rms.ui.application.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
 
 import javax.swing.*;
@@ -50,9 +47,9 @@ public class EditMenu extends JMenu {
 
 		add(new JSeparator());
 
-		add(createMenuItem("Select All", -1, KeyStroke.getKeyStroke("control A"), e -> MainPanelLinkActions.selectAllActionRes(mainPanel.currentModelPanel())));
-		add(createMenuItem("Invert Selection", -1, KeyStroke.getKeyStroke("control I"), e -> MainPanelLinkActions.invertSelectActionRes(mainPanel.currentModelPanel())));
-		add(createMenuItem("Expand Selection", -1, KeyStroke.getKeyStroke("control E"), e -> MainPanelLinkActions.getExpandSelectionActionRes(mainPanel.currentModelPanel())));
+		add(createMenuItem("Select All", -1, KeyStroke.getKeyStroke("control A"), e -> MainPanelLinkActions.selectAllActionRes(ProgramGlobals.getCurrentModelPanel())));
+		add(createMenuItem("Invert Selection", -1, KeyStroke.getKeyStroke("control I"), e -> MainPanelLinkActions.invertSelectActionRes(ProgramGlobals.getCurrentModelPanel())));
+		add(createMenuItem("Expand Selection", -1, KeyStroke.getKeyStroke("control E"), e -> MainPanelLinkActions.getExpandSelectionActionRes(ProgramGlobals.getCurrentModelPanel())));
 //		add(createMenuItem("Select All", -1, KeyStroke.getKeyStroke("control A"), mainPanel.selectAllAction));
 //		add(createMenuItem("Invert Selection", -1, KeyStroke.getKeyStroke("control I"), mainPanel.invertSelectAction));
 //		add(createMenuItem("Expand Selection", -1, KeyStroke.getKeyStroke("control E"), mainPanel.expandSelectionAction));

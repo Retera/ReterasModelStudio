@@ -15,29 +15,29 @@ public class ViewMenu extends JMenu {
 
 		JCheckBoxMenuItem textureModels = new JCheckBoxMenuItem("Texture Models", true);
 		textureModels.setMnemonic(KeyEvent.VK_T);
-		textureModels.setSelected(ProgramGlobals.prefs.textureModels());
-		textureModels.addActionListener(e -> ProgramGlobals.prefs.setTextureModels(textureModels.isSelected()));
+		textureModels.setSelected(ProgramGlobals.getPrefs().textureModels());
+		textureModels.addActionListener(e -> ProgramGlobals.getPrefs().setTextureModels(textureModels.isSelected()));
 		textureModels.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 		add(textureModels);
 
 		JCheckBoxMenuItem showNormals = new JCheckBoxMenuItem("Show Normals", true);
 		showNormals.setMnemonic(KeyEvent.VK_N);
-		showNormals.setSelected(ProgramGlobals.prefs.showNormals());
-		showNormals.addActionListener(e -> ProgramGlobals.prefs.setShowNormals(showNormals.isSelected()));
+		showNormals.setSelected(ProgramGlobals.getPrefs().showNormals());
+		showNormals.addActionListener(e -> ProgramGlobals.getPrefs().setShowNormals(showNormals.isSelected()));
 		showNormals.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 		add(showNormals);
 
 		JCheckBoxMenuItem renderParticles = new JCheckBoxMenuItem("Render Particles", true);
 		renderParticles.setMnemonic(KeyEvent.VK_P);
-		renderParticles.setSelected(ProgramGlobals.prefs.getRenderParticles());
-		renderParticles.addActionListener(e -> ProgramGlobals.prefs.setRenderParticles(renderParticles.isSelected()));
+		renderParticles.setSelected(ProgramGlobals.getPrefs().getRenderParticles());
+		renderParticles.addActionListener(e -> ProgramGlobals.getPrefs().setRenderParticles(renderParticles.isSelected()));
 		renderParticles.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 		add(renderParticles);
 
 		JCheckBoxMenuItem showPerspectiveGrid = new JCheckBoxMenuItem("Show Perspective Grid", true);
 		showPerspectiveGrid.setMnemonic(KeyEvent.VK_G);
-		showPerspectiveGrid.setSelected(ProgramGlobals.prefs.showPerspectiveGrid());
-		showPerspectiveGrid.addActionListener(e -> ProgramGlobals.prefs.setShowPerspectiveGrid(showPerspectiveGrid.isSelected()));
+		showPerspectiveGrid.setSelected(ProgramGlobals.getPrefs().showPerspectiveGrid());
+		showPerspectiveGrid.addActionListener(e -> ProgramGlobals.getPrefs().setShowPerspectiveGrid(showPerspectiveGrid.isSelected()));
 		showPerspectiveGrid.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 		add(showPerspectiveGrid);
 
@@ -52,7 +52,7 @@ public class ViewMenu extends JMenu {
 
 		JCheckBoxMenuItem showVertexModifyControls = new JCheckBoxMenuItem("Show Viewport Buttons", true);
 		// showVertexModifyControls.setMnemonic(KeyEvent.VK_V);
-		showVertexModifyControls.addActionListener(e -> ProgramGlobals.prefs.setShowVertexModifierControls(showVertexModifyControls.isSelected()));
+		showVertexModifyControls.addActionListener(e -> ProgramGlobals.getPrefs().setShowVertexModifierControls(showVertexModifyControls.isSelected()));
 		showVertexModifyControls.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 		add(showVertexModifyControls);
 
@@ -63,9 +63,9 @@ public class ViewMenu extends JMenu {
 
 		SmartButtonGroup viewModes2 = new SmartButtonGroup();
 
-		viewModes2.addJRadioButtonMenuItem("Wireframe", e -> ProgramGlobals.prefs.setViewMode(0));
-		viewModes2.addJRadioButtonMenuItem("Solid", e -> ProgramGlobals.prefs.setViewMode(1));
-		viewModes2.setSelectedIndex(ProgramGlobals.prefs.getViewMode());
+		viewModes2.addJRadioButtonMenuItem("Wireframe", e -> ProgramGlobals.getPrefs().setViewMode(0));
+		viewModes2.addJRadioButtonMenuItem("Solid", e -> ProgramGlobals.getPrefs().setViewMode(1));
+		viewModes2.setSelectedIndex(ProgramGlobals.getPrefs().getViewMode());
 
 		viewModeMenu.add(viewModes2.getButton(0));
 		viewModeMenu.add(viewModes2.getButton(1));

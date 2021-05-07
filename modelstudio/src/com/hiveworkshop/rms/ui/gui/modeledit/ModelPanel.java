@@ -112,7 +112,7 @@ public class ModelPanel {
 
 	private DisplayPanel getDisplayPanel(ModelStructureChangeListener modelStructureChangeListener, CoordDisplayListener coordDisplayListener, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener, String side, byte i, byte i2) {
 		return new DisplayPanel(side, i, i2, modelHandler, modelEditorManager, modelStructureChangeListener,
-				viewportActivityManager, prefs,  coordDisplayListener,
+				viewportActivityManager, coordDisplayListener,
 				modelEditorChangeNotifier, viewportTransferHandler, viewportListener);
 	}
 

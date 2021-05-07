@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.viewer.perspective;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.ui.application.viewer.ComPerspViewport;
+import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import net.infonode.docking.View;
@@ -22,7 +22,7 @@ import java.util.List;
 public class PerspDisplayPanel extends JPanel {
 	private ModelHandler modelHandler;
 	//	private PerspectiveViewport vp;
-	private ComPerspViewport vp;
+	private PerspectiveViewport vp;
 	private String title;
 	private final ProgramPreferences programPreferences;
 	private final View view;
@@ -102,7 +102,7 @@ public class PerspDisplayPanel extends JPanel {
 			}
 			removeAll();
 //			vp = new PerspectiveViewport(modelView, renderModel, programPreferences, renderEnvironment);
-			vp = new ComPerspViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), programPreferences, modelHandler.getEditTimeEnv(), false);
+			vp = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), programPreferences, modelHandler.getEditTimeEnv(), false);
 			vp.setIgnoreRepaint(false);
 			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
 
@@ -122,7 +122,7 @@ public class PerspDisplayPanel extends JPanel {
 	//	public PerspectiveViewport getViewport() {
 //		return vp;
 //	}
-	public ComPerspViewport getViewport() {
+	public PerspectiveViewport getViewport() {
 		return vp;
 	}
 

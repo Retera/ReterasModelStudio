@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.*;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import javax.swing.*;
 
@@ -17,7 +16,6 @@ public class ToolbarActionButtonType implements ToolbarButtonType, ActivityDescr
 	private final ImageIcon imageIcon;
 	private final String name;
 	MainPanel mainPanel;
-	ProgramPreferences programPreferences;
 	private String action;
 
 	public ToolbarActionButtonType(String action, String path, String name, MainPanel mainPanel) {
@@ -25,7 +23,6 @@ public class ToolbarActionButtonType implements ToolbarButtonType, ActivityDescr
 		this.imageIcon = RMSIcons.loadToolBarImageIcon(path);
 		this.name = name;
 		this.mainPanel = mainPanel;
-		this.programPreferences = mainPanel.getPrefs();
 	}
 
 	@Override
@@ -56,11 +53,11 @@ public class ToolbarActionButtonType implements ToolbarButtonType, ActivityDescr
 
 	private ModelEditorManipulatorBuilder getBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
 		return switch (action) {
-			case "move" -> new MoverWidgetManipulatorBuilder(modelEditorManager, modelHandler, programPreferences);
-			case "scale" -> new ScaleWidgetManipulatorBuilder(modelEditorManager, modelHandler, programPreferences);
-			case "rotate" -> new RotatorWidgetManipulatorBuilder(modelEditorManager, modelHandler, programPreferences);
-			case "extrude" -> new ExtrudeWidgetManipulatorBuilder(modelEditorManager, modelHandler, programPreferences);
-			case "extend" -> new ExtendWidgetManipulatorBuilder(modelEditorManager, modelHandler, programPreferences);
+			case "move" -> new MoverWidgetManipulatorBuilder(modelEditorManager, modelHandler);
+			case "scale" -> new ScaleWidgetManipulatorBuilder(modelEditorManager, modelHandler);
+			case "rotate" -> new RotatorWidgetManipulatorBuilder(modelEditorManager, modelHandler);
+			case "extrude" -> new ExtrudeWidgetManipulatorBuilder(modelEditorManager, modelHandler);
+			case "extend" -> new ExtendWidgetManipulatorBuilder(modelEditorManager, modelHandler);
 
 			default -> throw new IllegalStateException("Unexpected value: " + action);
 		};

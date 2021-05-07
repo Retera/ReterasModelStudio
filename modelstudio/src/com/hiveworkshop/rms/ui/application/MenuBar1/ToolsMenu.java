@@ -1,9 +1,6 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
-import com.hiveworkshop.rms.ui.application.EditUVsPanel;
-import com.hiveworkshop.rms.ui.application.MainPanel;
-import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
-import com.hiveworkshop.rms.ui.application.ModelEditActions;
+import com.hiveworkshop.rms.ui.application.*;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
 
 import javax.swing.*;
@@ -43,7 +40,7 @@ public class ToolsMenu extends JMenu {
 		editTextures.addActionListener(e -> EditTexturesPopupPanel.show(mainPanel));
 		add(editTextures);
 
-		add(createMenuItem("Rig Selection", KeyEvent.VK_R, KeyStroke.getKeyStroke("control W"), e -> MainPanelLinkActions.rigActionRes(mainPanel.currentModelPanel())));
+		add(createMenuItem("Rig Selection", KeyEvent.VK_R, KeyStroke.getKeyStroke("control W"), e -> MainPanelLinkActions.rigActionRes(ProgramGlobals.getCurrentModelPanel())));
 //		add(createMenuItem("Rig Selection", KeyEvent.VK_R, KeyStroke.getKeyStroke("control W"), mainPanel.rigAction));
 
 		JMenu tweaksSubmenu = new JMenu("Tweaks");

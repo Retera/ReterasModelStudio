@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
@@ -29,8 +30,8 @@ public class Viewport extends ViewportView {
 	long renderCount;
 
 
-	public Viewport(byte d1, byte d2, ModelHandler modelHandler, ProgramPreferences programPreferences, ViewportActivity activityListener, ModelStructureChangeListener modelStructureChangeListener, CoordDisplayListener coordDisplayListener, ModelEditorManager modelEditorManager, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener) {
-		super(modelHandler, d1, d2, new Dimension(200, 200), programPreferences, activityListener, viewportListener, coordDisplayListener);
+	public Viewport(byte d1, byte d2, ModelHandler modelHandler, ViewportActivity activityListener, ModelStructureChangeListener modelStructureChangeListener, CoordDisplayListener coordDisplayListener, ModelEditorManager modelEditorManager, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener) {
+		super(modelHandler, d1, d2, new Dimension(200, 200), activityListener, viewportListener, coordDisplayListener);
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
 
@@ -43,8 +44,8 @@ public class Viewport extends ViewportView {
 		contextMenu = new ViewportPopupMenu(this, this.modelHandler, this.modelEditorManager);
 		add(contextMenu);
 
-		viewportModelRenderer = new ViewportModelRenderer(programPreferences.getVertexSize());
-		linkRenderer = new LinkRenderer(programPreferences);
+		viewportModelRenderer = new ViewportModelRenderer(ProgramGlobals.getPrefs().getVertexSize());
+		linkRenderer = new LinkRenderer();
 
 		facingVector = new Vec3(0, 0, 0);
 		final byte unusedXYZ = coordinateSystem.getUnusedXYZ();
@@ -82,7 +83,7 @@ public class Viewport extends ViewportView {
 	public void paintComponent(Graphics g, int vertexSize) {
 //		super.paintComponent(g);
 		long renderStart = System.nanoTime();
-		if (programPreferences.show2dGrid()) {
+		if (ProgramGlobals.getPrefs().show2dGrid()) {
 			drawGrid(g);
 		}
 
@@ -100,11 +101,11 @@ public class Viewport extends ViewportView {
 
 			graphics2d.setStroke(stroke);
 
-			viewportModelRenderer.renderModel(graphics2d, programPreferences, coordinateSystem, modelHandler, true);
+			viewportModelRenderer.renderModel(graphics2d, coordinateSystem, modelHandler, true);
 
 			viewportActivity.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), true);
 		} else {
-			viewportModelRenderer.renderModel(graphics2d, programPreferences, coordinateSystem, modelHandler, false);
+			viewportModelRenderer.renderModel(graphics2d, coordinateSystem, modelHandler, false);
 
 			viewportActivity.render(graphics2d, coordinateSystem, modelHandler.getRenderModel(), false);
 		}

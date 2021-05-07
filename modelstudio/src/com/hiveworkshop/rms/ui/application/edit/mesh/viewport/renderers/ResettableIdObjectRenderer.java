@@ -3,11 +3,11 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportRenderableCamera;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -32,17 +32,16 @@ public final class ResettableIdObjectRenderer {
     }
 
     public ResettableIdObjectRenderer reset(CoordinateSystem coordinateSystem, Graphics2D graphics,
-                                            ProgramPreferences programPreferences,
                                             RenderModel renderModel, boolean isAnimated, boolean isHighLighted) {
         this.isAnimated = isAnimated;
         this.coordinateSystem = coordinateSystem;
         this.graphics = graphics;
-        this.lightColor = isHighLighted ? programPreferences.getHighlighVertexColor() : programPreferences.getLightsColor();
-        Color pivotPointColor1 = isAnimated ? programPreferences.getAnimatedBoneUnselectedColor() : programPreferences.getPivotPointsColor();
-        this.pivotPointColor = isHighLighted ? programPreferences.getHighlighVertexColor() : pivotPointColor1;
+        this.lightColor = isHighLighted ? ProgramGlobals.getPrefs().getHighlighVertexColor() : ProgramGlobals.getPrefs().getLightsColor();
+        Color pivotPointColor1 = isAnimated ? ProgramGlobals.getPrefs().getAnimatedBoneUnselectedColor() : ProgramGlobals.getPrefs().getPivotPointsColor();
+        this.pivotPointColor = isHighLighted ? ProgramGlobals.getPrefs().getHighlighVertexColor() : pivotPointColor1;
         this.nodeIconPalette = isHighLighted ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED;
         this.renderModel = renderModel;
-        this.crosshairIsBox = programPreferences.isUseBoxesForPivotPoints();
+        this.crosshairIsBox = ProgramGlobals.getPrefs().isUseBoxesForPivotPoints();
         return this;
     }
 

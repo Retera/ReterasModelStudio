@@ -14,7 +14,7 @@ public class ClosePopup {
 		contextMenu.add(contextClose);
 
 		JMenuItem contextCloseOthers = new JMenuItem("Close Others");
-		contextCloseOthers.addActionListener(e -> MenuBarActions.closeOthers(mainPanel, mainPanel.currentModelPanel));
+		contextCloseOthers.addActionListener(e -> MenuBarActions.closeOthers(mainPanel));
 		contextMenu.add(contextCloseOthers);
 
 		JMenuItem contextCloseAll = new JMenuItem("Close All");

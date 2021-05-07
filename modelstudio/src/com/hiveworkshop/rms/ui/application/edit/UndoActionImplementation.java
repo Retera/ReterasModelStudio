@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
 import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
@@ -18,7 +19,7 @@ public final class UndoActionImplementation extends AbstractAction {
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		final ModelPanel mpanel = mainPanel.currentModelPanel();
+		final ModelPanel mpanel = ProgramGlobals.getCurrentModelPanel();
 		if (mpanel != null) {
 			try {
 				mpanel.getUndoManager().undo();

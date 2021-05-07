@@ -44,13 +44,13 @@ public class TeamColorMenu extends JMenu {
 
 	private void setCurrentTeamColor(int teamColor) {
 		Material.teamColor = teamColor;
-		ModelPanel modelPanel = mainPanel.currentModelPanel();
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			modelPanel.getAnimationViewer().reloadAllTextures();
 			modelPanel.getPerspArea().reloadAllTextures();
 
 			modelPanel.reloadComponentBrowser();
 		}
-		ProgramGlobals.prefs.setTeamColor(teamColor);
+		ProgramGlobals.getPrefs().setTeamColor(teamColor);
 	}
 }

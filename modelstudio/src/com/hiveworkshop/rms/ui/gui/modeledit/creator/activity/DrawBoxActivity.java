@@ -161,8 +161,8 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 	@Override
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
-			modelElementRenderer.reset(g, coordinateSystem, modelHandler.getRenderModel(), preferences, false);
-			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView, preferences);
+			modelElementRenderer.reset(g, coordinateSystem, modelHandler.getRenderModel(), false);
+			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView);
 		}
 	}
 

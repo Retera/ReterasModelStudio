@@ -228,7 +228,7 @@ public class MainPanelLinkActions {
 				if (isTextField()) return;
 				if (!mainPanel.animationModeState) {
 					try {
-						final ModelPanel modelPanel = mainPanel.currentModelPanel();
+						final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 						if (modelPanel != null) {
 							final Viewport viewport = mainPanel.viewportListener.getViewport();
 							final Vec3 facingVector = viewport == null
@@ -253,7 +253,7 @@ public class MainPanelLinkActions {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				if (isTextField()) return;
-				mainPanel.prefs.setViewMode(mainPanel.prefs.getViewMode() == 1 ? 0 : 1);
+				ProgramGlobals.getPrefs().setViewMode(ProgramGlobals.getPrefs().getViewMode() == 1 ? 0 : 1);
 			}
 		};
 	}
@@ -390,7 +390,7 @@ public class MainPanelLinkActions {
 //		if (globalSeq != null) {
 //			mainPanel.creatorPanel.setChosenGlobalSeq(globalSeq);
 //		} else {
-//			final ModelPanel modelPanel = mainPanel.currentModelPanel();
+//			final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 //			if (modelPanel != null) {
 //				boolean foundAnim = false;
 //				for (final Animation animation : modelPanel.getModel().getAnims()) {
@@ -409,7 +409,7 @@ public class MainPanelLinkActions {
 //	}
 
 	public static void cloneActionRes(MainPanel mainPanel) {
-		final ModelPanel modelPanel = mainPanel.currentModelPanel();
+		final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			try {
 				modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor()
@@ -424,7 +424,7 @@ public class MainPanelLinkActions {
 	}
 
 	public static void deleteActionRes(MainPanel mainPanel) {
-		final ModelPanel mpanel = mainPanel.currentModelPanel();
+		final ModelPanel mpanel = ProgramGlobals.getCurrentModelPanel();
 		if (mpanel != null) {
 			if (mainPanel.animationModeState) {
 				mainPanel.timeSliderPanel.deleteSelectedKeyframes();
@@ -459,38 +459,38 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	static AbstractAction getSelectAllAction(final MainPanel mainPanel) {
+	static AbstractAction getSelectAllAction() {
 		return new AbstractAction("Select All") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				selectAllActionRes(mainPanel.currentModelPanel());
+				selectAllActionRes(ProgramGlobals.getCurrentModelPanel());
 			}
 		};
 	}
 
-	static AbstractAction getInvertSelectAction(final MainPanel mainPanel) {
+	static AbstractAction getInvertSelectAction() {
 		return new AbstractAction("Invert Selection") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				invertSelectActionRes(mainPanel.currentModelPanel);
+				invertSelectActionRes(ProgramGlobals.getCurrentModelPanel());
 			}
 		};
 	}
 
-	static AbstractAction getExpandSelectionAction(final MainPanel mainPanel) {
+	static AbstractAction getExpandSelectionAction() {
 		return new AbstractAction("Expand Selection") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				getExpandSelectionActionRes(mainPanel.currentModelPanel());
+				getExpandSelectionActionRes(ProgramGlobals.getCurrentModelPanel());
 			}
 		};
 	}
 
-	static AbstractAction getRigAction(final MainPanel mainPanel) {
+	static AbstractAction getRigAction() {
 		return new AbstractAction("Rig") {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				rigActionRes(mainPanel.currentModelPanel());
+				rigActionRes(ProgramGlobals.getCurrentModelPanel());
 			}
 		};
 	}

@@ -11,7 +11,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class AnimationControllerListener extends JPanel {
-	private final ComPerspViewport perspectiveViewport;
+	private final PerspectiveViewport perspectiveViewport;
 	TimeEnvironmentImpl renderEnv;
 	private ModelHandler modelHandler;
 
@@ -20,7 +20,7 @@ public class AnimationControllerListener extends JPanel {
 		try {
 			renderEnv = modelHandler.getPreviewTimeEnv();
 			modelHandler.getModelView().setVetoOverrideParticles(true);
-			perspectiveViewport = new ComPerspViewport(modelHandler.getModelView(), modelHandler.getPreviewRenderModel(), programPreferences, modelHandler.getPreviewTimeEnv(), doDefaultCamera);
+			perspectiveViewport = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getPreviewRenderModel(), programPreferences, modelHandler.getPreviewTimeEnv(), doDefaultCamera);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);

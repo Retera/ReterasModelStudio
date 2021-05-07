@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -14,7 +13,7 @@ import java.awt.*;
 public class LinkRenderer {
 	ModelView modelView;
 
-	public LinkRenderer(ProgramPreferences programPreferences) {
+	public LinkRenderer() {
 	}
 
 	public static void drawLink(Graphics2D graphics, CoordinateSystem coordinateSystem,

@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
@@ -21,7 +22,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertexSelectionItemTypes
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.util.Vec2;
 import net.infonode.docking.View;
@@ -55,7 +55,6 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	private final JTextField[] mouseCoordDisplay = new JTextField[2];
 	private final TVertexEditorViewportActivityManager viewportActivityManager;
 	private final TVertexEditorManager modelEditorManager;
-	private final ProgramPreferences prefs;
 	private final List<ModeButton> modeButtons = new ArrayList<>();
 	private final List<ModeButton> selectionModeButtons = new ArrayList<>();
 	private final Map<TVertexToolbarActionButtonType, ModeButton> typeToButton = new HashMap<>();
@@ -110,20 +109,18 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		}
 	};
 
-	public UVPanel(MainPanel mainPanel, ModelStructureChangeListener modelStructureChangeListener, ProgramPreferences prefs) {
+	public UVPanel(MainPanel mainPanel, ModelStructureChangeListener modelStructureChangeListener) {
 		this.mainPanel = mainPanel;
-		this.prefs = prefs;
 		JToolBar toolbar = createJToolBar();
-		ModelPanel modelPanel = mainPanel.currentModelPanel();
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 //        ModelStructureChangeListener modelStructureChangeListener = mainPanel.modelStructureChangeListener;
 
-		undoListener = mainPanel.currentModelPanel().getUndoManager();
+		undoListener = ProgramGlobals.getCurrentModelPanel().getUndoManager();
 		viewportActivityManager = new TVertexEditorViewportActivityManager(new DoNothingTVertexActivity());
 		TVertexEditorChangeNotifier modelEditorChangeNotifier = new TVertexEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
-		System.out.println("UVprefs: " + prefs);
-		modelEditorManager = new TVertexEditorManager(modelPanel.getModelView(), prefs, selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager, modelPanel.getEditorRenderModel(), modelStructureChangeListener);
+		modelEditorManager = new TVertexEditorManager(modelPanel.getModelView(), selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager, modelPanel.getEditorRenderModel(), modelStructureChangeListener);
 
 		setBorder(BorderFactory.createLineBorder(Color.black));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)
@@ -148,7 +145,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 			resetSelectionModeButtons();
 			ModeButton selectionModeButton = modeToButton.get(newType);
 			if (selectionModeButton != null) {
-				selectionModeButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
+				selectionModeButton.setColors(ProgramGlobals.getPrefs().getActiveColor1(), ProgramGlobals.getPrefs().getActiveColor2());
 			}
 		});
 
@@ -357,12 +354,11 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, TVertexSelectionItemTypes.values());
 		toolbar.addSeparator();
 
-		System.out.println("toolbarPrefs: " + prefs);
-		TVertexToolbarActionButtonType selectAndMoveDescriptor = new TVertexToolbarActionButtonType("move2.png", "Select and Move", prefs, ModelEditorActionType.TRANSLATION);
+		TVertexToolbarActionButtonType selectAndMoveDescriptor = new TVertexToolbarActionButtonType("move2.png", "Select and Move", ModelEditorActionType.TRANSLATION);
 
-		TVertexToolbarActionButtonType selectAndRotateDescriptor = new TVertexToolbarActionButtonType("rotate.png", "Select and Rotate", prefs, ModelEditorActionType.ROTATION);
+		TVertexToolbarActionButtonType selectAndRotateDescriptor = new TVertexToolbarActionButtonType("rotate.png", "Select and Rotate", ModelEditorActionType.ROTATION);
 
-		TVertexToolbarActionButtonType selectAndScaleDescriptor = new TVertexToolbarActionButtonType("scale.png", "Select and Scale", prefs, ModelEditorActionType.SCALING);
+		TVertexToolbarActionButtonType selectAndScaleDescriptor = new TVertexToolbarActionButtonType("scale.png", "Select and Scale", ModelEditorActionType.SCALING);
 
 		actionTypeGroup = new ToolbarButtonGroup<>(toolbar, new TVertexToolbarActionButtonType[] {selectAndMoveDescriptor, selectAndRotateDescriptor, selectAndScaleDescriptor});
 		currentActivity = actionTypeGroup.getActiveButtonType();
@@ -516,8 +512,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 
 	public void init() {
 		vp.init();
-		buttons.get(0).setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
-		buttons.get(3).setColors(prefs.getActiveRColor1(), prefs.getActiveRColor2());
+		buttons.get(0).setColors(ProgramGlobals.getPrefs().getActiveColor1(), ProgramGlobals.getPrefs().getActiveColor2());
+		buttons.get(3).setColors(ProgramGlobals.getPrefs().getActiveRColor1(), ProgramGlobals.getPrefs().getActiveRColor2());
 
 		JRootPane root = getRootPane();
 
@@ -618,7 +614,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		root.getInputMap(isAncestor).put(KeyStroke.getKeyStroke("control E"), "Expand Selection");
 		root.getActionMap().put("Expand Selection", expandSelectionAction);
 
-		setControlsVisible(prefs.showVMControls());
+		setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 
 //		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("D"), "DKeyboardKey");
 //		root.getActionMap().put("DKeyboardKey", new AbstractAction() {
@@ -717,7 +713,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	public void setViewport(ModelPanel dispModel) {
-		vp = new UVViewport(dispModel.getModelHandler(), this, prefs, viewportActivityManager, this,
+		vp = new UVViewport(dispModel.getModelHandler(), this, viewportActivityManager, this,
 				modelEditorManager.getModelEditor());
 		add(vp);
 	}
@@ -894,7 +890,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		resetButtons();
 		ModeButton modeButton = typeToButton.get(newType);
 		if (modeButton != null) {
-			modeButton.setColors(prefs.getActiveRColor1(), prefs.getActiveRColor2());
+			modeButton.setColors(ProgramGlobals.getPrefs().getActiveRColor1(), ProgramGlobals.getPrefs().getActiveRColor2());
 		}
 		actionTypeGroup.maybeSetButtonType(newType);
 	}

@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -26,8 +25,7 @@ public interface SelectionView {
 
 	void renderSelection(ModelElementRenderer renderer,
 	                     CoordinateSystem coordinateSystem,
-	                     ModelView modelView,
-	                     ProgramPreferences programPreferences);
+	                     ModelView modelView);
 
 	Vec2 getUVCenter(int tvertexLayerId);
 
@@ -37,7 +35,6 @@ public interface SelectionView {
 
 	void renderUVSelection(TVertexModelElementRenderer renderer,
 	                       ModelView modelView,
-	                       ProgramPreferences programPreferences,
 	                       int tvertexLayerId);
 
 	boolean isEmpty();

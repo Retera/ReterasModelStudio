@@ -17,7 +17,7 @@ public class ModelEditActions {
     static boolean useTris = false;
 
     public static void viewMatrices(MainPanel mainPanel) {
-        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             modelPanel.viewMatrices();
         }
@@ -60,7 +60,7 @@ public class ModelEditActions {
     }
 
     public static void insideOutNormals(MainPanel mainPanel) {
-        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().flipSelectedNormals());
         }
@@ -68,7 +68,7 @@ public class ModelEditActions {
     }
 
     public static void insideOut(MainPanel mainPanel) {
-        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().flipSelectedFaces());
         }
@@ -76,7 +76,7 @@ public class ModelEditActions {
     }
 
     public static void snapVertices(MainPanel mainPanel) {
-        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().snapSelectedVertices());
         }
@@ -84,7 +84,7 @@ public class ModelEditActions {
     }
 
     public static void snapNormals(MainPanel mainPanel) {
-        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().snapNormals());
         }
@@ -92,7 +92,7 @@ public class ModelEditActions {
     }
 
     public static void recalculateNormals(MainPanel mainPanel) {
-        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             JPanel panel = new JPanel(new MigLayout());
             panel.add(new JLabel("Limiting angle"));
@@ -113,7 +113,7 @@ public class ModelEditActions {
     }
 
     public static void recalculateExtents(MainPanel mainPanel) {
-        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             final JPanel messagePanel = new JPanel(new MigLayout());
             messagePanel.add(new JLabel("This will calculate the extents of all model components. Proceed?"),
@@ -139,7 +139,7 @@ public class ModelEditActions {
     }
 
     public static void mirrorAxis(MainPanel mainPanel, byte i, boolean mirrorFlip) {
-        final ModelPanel modelPanel = mainPanel.currentModelPanel();
+        final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             final Vec3 selectionCenter = modelPanel.getModelEditorManager().getModelEditor().getSelectionCenter();
             modelPanel.getUndoManager().pushAction(

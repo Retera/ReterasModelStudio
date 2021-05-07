@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -57,7 +56,7 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 	}
 
 	@Override
-	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView model, ProgramPreferences programPreferences) {
+	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView model) {
 		// TODO !!! apply rendering
 		Set<IdObject> drawnSelection = new HashSet<>();
 		Set<IdObject> parentedNonSelection = new HashSet<>();
@@ -120,7 +119,7 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 
 	@Override
 	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView,
-	                              ProgramPreferences programPreferences, int tvertexLayerId) {
+	                              int tvertexLayerId) {
 
 	}
 }

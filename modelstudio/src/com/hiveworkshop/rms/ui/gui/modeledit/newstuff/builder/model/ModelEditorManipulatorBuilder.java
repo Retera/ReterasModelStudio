@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
@@ -15,14 +16,12 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.SelectManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 
 public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilder, ModelEditorChangeListener {
-	private final ProgramPreferences programPreferences;
 	private final ModelElementRenderer modelElementRenderer;
 	ModelEditorManager modelEditorManager;
 	private ViewportSelectionHandler viewportSelectionHandler;
@@ -32,26 +31,22 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 	Widget widget;
 
 	public ModelEditorManipulatorBuilder(ViewportSelectionHandler viewportSelectionHandler,
-	                                     ProgramPreferences programPreferences,
 	                                     ModelEditor modelEditor,
 	                                     ModelView modelView) {
 		this.viewportSelectionHandler = viewportSelectionHandler;
-		this.programPreferences = programPreferences;
 		this.modelEditor = modelEditor;
 		this.modelView = modelView;
-		modelElementRenderer = new ModelElementRenderer(programPreferences.getVertexSize());
+		modelElementRenderer = new ModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
 	}
 
 	public ModelEditorManipulatorBuilder(ModelEditorManager modelEditorManager,
-	                                     ModelHandler modelHandler,
-	                                     ProgramPreferences programPreferences) {
+	                                     ModelHandler modelHandler) {
 		this.modelEditorManager = modelEditorManager;
 		this.modelHandler = modelHandler;
 		this.viewportSelectionHandler = modelEditorManager.getViewportSelectionHandler();
-		this.programPreferences = programPreferences;
 		this.modelEditor = modelEditorManager.getModelEditor();
 		this.modelView = modelHandler.getModelView();
-		modelElementRenderer = new ModelElementRenderer(programPreferences.getVertexSize());
+		modelElementRenderer = new ModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
 	}
 
 	@Override
@@ -89,7 +84,7 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 					return manipulatorFromWidget;
 				}
 			}
-			return new SelectManipulator(viewportSelectionHandler, programPreferences, coordinateSystem);
+			return new SelectManipulator(viewportSelectionHandler, coordinateSystem);
 		}
 	}
 
@@ -98,8 +93,8 @@ public abstract class ModelEditorManipulatorBuilder implements ManipulatorBuilde
 	                         CoordinateSystem coordinateSystem,
 	                         SelectionView selectionView,
 	                         boolean isAnimated) {
-		modelElementRenderer.reset(graphics, coordinateSystem, modelHandler.getRenderModel(), programPreferences, isAnimated);
-		selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView, programPreferences);
+		modelElementRenderer.reset(graphics, coordinateSystem, modelHandler.getRenderModel(), isAnimated);
+		selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView);
 		if (!selectionView.isEmpty()) {
 			renderWidget(graphics, coordinateSystem, selectionView);
 		}

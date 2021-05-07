@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.TimeSliderView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener.TimeSliderTimeNotifier;
@@ -189,7 +190,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	}
 
 	private static void createKeyframe(MainPanel mainPanel) {
-		final ModelPanel mpanel = mainPanel.currentModelPanel();
+		final ModelPanel mpanel = ProgramGlobals.getCurrentModelPanel();
 		if (mpanel != null) {
 			mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().createKeyframe(mainPanel.actionType));
 		}

@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.edit;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.Quat;
 
@@ -27,8 +28,8 @@ public class ModelStructureChangeListener {
 	 * Returns the MDLDisplay associated with a given MDL, or null if one cannot be
 	 * found.
 	 */
-	public static ModelPanel displayFor(List<ModelPanel> modelPanels, EditableModel model) {
-		for (ModelPanel modelPanel : modelPanels) {
+	public static ModelPanel displayFor(EditableModel model) {
+		for (ModelPanel modelPanel : ProgramGlobals.getModelPanels()) {
 			if (modelPanel.getModel() == model) {
 				return modelPanel;
 			}
@@ -53,12 +54,12 @@ public class ModelStructureChangeListener {
 	}
 
 	public static ModelStructureChangeListener getModelStructureChangeListener(MainPanel mainPanel) {
-		return new ModelStructureChangeListener(mainPanel, () -> mainPanel.currentModelPanel().getModel());
+		return new ModelStructureChangeListener(mainPanel, () -> ProgramGlobals.getCurrentModelPanel().getModel());
 	}
 
 	public void nodesRemoved(List<IdObject> nodes) {
 		// Tell program to set visibility after import
-		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.getModelView().updateElements();
 //			for (IdObject geoset : nodes) {
@@ -70,7 +71,7 @@ public class ModelStructureChangeListener {
 
 	public void nodesAdded(List<IdObject> nodes) {
 		// Tell program to set visibility after import
-		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.getModelView().updateElements();
 			// TODO notify been saved system, wherever that moves to
@@ -83,7 +84,7 @@ public class ModelStructureChangeListener {
 
 	public void geosetsRemoved(List<Geoset> geosets) {
 		// Tell program to set visibility after import
-		final ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		final ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.getModelView().updateElements();
 			// TODO notify been saved system, wherever that moves to
@@ -97,7 +98,7 @@ public class ModelStructureChangeListener {
 
 	public void geosetsAdded(List<Geoset> geosets) {
 		// Tell program to set visibility after import
-		final ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		final ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.getModelView().updateElements();
 			// TODO notify been saved system, wherever that moves to
@@ -110,7 +111,7 @@ public class ModelStructureChangeListener {
 
 	public void camerasAdded(List<Camera> cameras) {
 		// Tell program to set visibility after import
-		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.getModelView().updateElements();
 			// TODO notify been saved system, wherever that moves to
@@ -123,7 +124,7 @@ public class ModelStructureChangeListener {
 
 	public void camerasRemoved(List<Camera> cameras) {
 		// Tell program to set visibility after import
-		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.getModelView().updateElements();
 			// modelPanel.setBeenSaved(false); // we edited the model
@@ -153,21 +154,21 @@ public class ModelStructureChangeListener {
 	}
 
 	public void animationsAdded(List<Animation> animation) {
-		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.reloadGeosetManagers();
 		}
 	}
 
 	public void animationsRemoved(List<Animation> animation) {
-		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.reloadGeosetManagers();
 		}
 	}
 
 	public void texturesChanged() {
-		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.reloadGeosetManagers();
 		}
@@ -175,28 +176,28 @@ public class ModelStructureChangeListener {
 
 	public void headerChanged() {
 //		reloadComponentBrowser(mainPanel.getGeoControlModelData(), display);
-		ModelPanel display = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		ModelPanel display = displayFor(modelReference.getModel());
 		if (display != null) {
 			display.reloadComponentBrowser();
 		}
 	}
 
 	public void animationParamsChanged(Animation animation) {
-		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.reloadGeosetManagers();
 		}
 	}
 
 	public void globalSequenceLengthChanged(int index, Integer newLength) {
-		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.reloadGeosetManagers();
 		}
 	}
 
 	public void materialsListChanged() {
-		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.getAnimationViewer().reloadAllTextures();
 			modelPanel.getPerspArea().reloadAllTextures();
@@ -206,7 +207,7 @@ public class ModelStructureChangeListener {
 	}
 
 	public void nodeHierarchyChanged() {
-		ModelPanel modelPanel = displayFor(mainPanel.getModelPanels(), modelReference.getModel());
+		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.reloadModelEditingTree();
 			modelPanel.reloadComponentBrowser();

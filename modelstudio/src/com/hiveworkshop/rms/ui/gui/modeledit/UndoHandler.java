@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.RedoActionImplementation;
 import com.hiveworkshop.rms.ui.application.edit.UndoActionImplementation;
 
@@ -60,7 +61,7 @@ public class UndoHandler {
 		@Override
 		public String getText() {
 			if (funcEnabled()) {
-				return "Undo " + mainPanel.currentModelPanel().getUndoManager().getUndoText();// +"
+				return "Undo " + ProgramGlobals.getCurrentModelPanel().getUndoManager().getUndoText();// +"
 				// Ctrl+Z";
 			} else {
 				return "Can't undo";// +" Ctrl+Z";
@@ -69,7 +70,7 @@ public class UndoHandler {
 
 		public boolean funcEnabled() {
 			try {
-				return !mainPanel.currentModelPanel().getUndoManager().isUndoListEmpty();
+				return !ProgramGlobals.getCurrentModelPanel().getUndoManager().isUndoListEmpty();
 			} catch (final NullPointerException e) {
 				return false;
 			}
@@ -87,7 +88,7 @@ public class UndoHandler {
 		@Override
 		public String getText() {
 			if (funcEnabled()) {
-				return "Redo " + mainPanel.currentModelPanel().getUndoManager().getRedoText();// +"
+				return "Redo " + ProgramGlobals.getCurrentModelPanel().getUndoManager().getRedoText();// +"
 				// Ctrl+Y";
 			} else {
 				return "Can't redo";// +" Ctrl+Y";
@@ -96,7 +97,7 @@ public class UndoHandler {
 
 		public boolean funcEnabled() {
 			try {
-				return !mainPanel.currentModelPanel().getUndoManager().isRedoListEmpty();
+				return !ProgramGlobals.getCurrentModelPanel().getUndoManager().isRedoListEmpty();
 			} catch (final NullPointerException e) {
 				return false;
 			}

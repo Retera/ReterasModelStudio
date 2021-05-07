@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.edit.uv.types;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.GU;
 import com.hiveworkshop.rms.util.Vec2;
 
@@ -11,12 +10,10 @@ import java.awt.*;
 public class TVertexModelElementRenderer {
 	private Graphics2D graphics;
 	private CoordinateSystem coordinateSystem;
-	private ProgramPreferences programPreferences;
 	private int vertexSize;
 
-	public TVertexModelElementRenderer(int vertexSize, ProgramPreferences programPreferences) {
+	public TVertexModelElementRenderer(int vertexSize) {
 		this.vertexSize = vertexSize;
-		this.programPreferences = programPreferences;
 	}
 
 	public TVertexModelElementRenderer reset(Graphics2D graphics, CoordinateSystem coordinateSystem) {

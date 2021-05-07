@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +30,6 @@ public abstract class ViewportView extends JPanel {
 	protected CursorManager cursorManager;
 
 	protected ModelHandler modelHandler;
-	protected ProgramPreferences programPreferences;
 	protected ViewportActivity viewportActivity;
 	protected ViewportListener viewportListener;
 	protected CoordDisplayListener coordDisplayListener;
@@ -42,12 +41,10 @@ public abstract class ViewportView extends JPanel {
 
 	public ViewportView(ModelHandler modelHandler, byte d1, byte d2,
 	                    Dimension minDim,
-	                    ProgramPreferences programPreferences,
 	                    ViewportActivity viewportActivity,
 	                    ViewportListener viewportListener,
 	                    CoordDisplayListener coordDisplayListener) {
 		this.modelHandler = modelHandler;
-		this.programPreferences = programPreferences;
 		this.viewportActivity = viewportActivity;
 		this.viewportListener = viewportListener;
 		this.coordDisplayListener = coordDisplayListener;
@@ -56,8 +53,8 @@ public abstract class ViewportView extends JPanel {
 		popupParent = this;
 
 		setBorder(BorderFactory.createBevelBorder(1));
-		setBackground(programPreferences.getBackgroundColor());
-		programPreferences.addChangeListener(() -> setBackground(programPreferences.getBackgroundColor()));
+		setBackground(ProgramGlobals.getPrefs().getBackgroundColor());
+		ProgramGlobals.getPrefs().addChangeListener(() -> setBackground(ProgramGlobals.getPrefs().getBackgroundColor()));
 
 		// Viewport border
 		setMinimumSize(minDim);

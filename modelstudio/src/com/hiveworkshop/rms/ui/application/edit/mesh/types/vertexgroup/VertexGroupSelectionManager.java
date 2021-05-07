@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVe
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -56,7 +55,7 @@ public final class VertexGroupSelectionManager extends SelectionManager<VertexGr
 	}
 
 	@Override
-	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView modelView, ProgramPreferences programPreferences) {
+	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView modelView) {
 		Set<VertexGroupBundle> selection = getSelection();
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			Color outlineColor;
@@ -126,7 +125,7 @@ public final class VertexGroupSelectionManager extends SelectionManager<VertexGr
 
 	@Override
 	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView,
-	                              ProgramPreferences programPreferences, int tvertexLayerId) {
+	                              int tvertexLayerId) {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 }

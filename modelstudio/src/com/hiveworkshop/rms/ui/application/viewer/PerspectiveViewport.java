@@ -38,7 +38,7 @@ import java.util.Map;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
-public class ComPerspViewport extends BetterAWTGLCanvas {
+public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private static final int BYTES_PER_PIXEL = 4;
 	private final float[] whiteDiffuse = {1f, 1f, 1f, 1f};
 	private final float[] posSun = {0.0f, 10.0f, 0.0f, 1.0f};
@@ -83,7 +83,7 @@ public class ComPerspViewport extends BetterAWTGLCanvas {
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 	int ugg = 0;
 
-	public ComPerspViewport(final ModelView modelView, RenderModel renderModel, final ProgramPreferences programPreferences, TimeEnvironmentImpl renderEnvironment, boolean loadDefaultCamera) throws LWJGLException {
+	public PerspectiveViewport(final ModelView modelView, RenderModel renderModel, final ProgramPreferences programPreferences, TimeEnvironmentImpl renderEnvironment, boolean loadDefaultCamera) throws LWJGLException {
 		super();
 		this.programPreferences = programPreferences;
 

@@ -4,11 +4,11 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -56,17 +56,16 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	@Override
 	public void renderSelection(ModelElementRenderer renderer,
 	                            CoordinateSystem coordinateSystem,
-	                            ModelView model,
-	                            ProgramPreferences programPreferences) {
+	                            ModelView model) {
 		for (Geoset geo : model.getEditableGeosets()) {
 			List<GeosetVertex> vertices = geo.getVertices();
 			for (GeosetVertex geosetVertex : vertices) {
 				if (model.getHighlightedGeoset() == geo) {
-					renderer.renderVertex(programPreferences.getHighlighVertexColor(), geosetVertex);
+					renderer.renderVertex(ProgramGlobals.getPrefs().getHighlighVertexColor(), geosetVertex);
 				} else if (selection.contains(geosetVertex)) {
-					renderer.renderVertex(programPreferences.getSelectColor(), geosetVertex);
+					renderer.renderVertex(ProgramGlobals.getPrefs().getSelectColor(), geosetVertex);
 				} else {
-					renderer.renderVertex(programPreferences.getVertexColor(), geosetVertex);
+					renderer.renderVertex(ProgramGlobals.getPrefs().getVertexColor(), geosetVertex);
 				}
 			}
 		}
@@ -116,7 +115,7 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 
 	@Override
 	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView,
-	                              ProgramPreferences programPreferences, int tvertexLayerId) {
+	                              int tvertexLayerId) {
 		for (Geoset geo : modelView.getEditableGeosets()) {
 			List<GeosetVertex> vertices = geo.getVertices();
 			for (GeosetVertex geosetVertex : vertices) {
@@ -124,11 +123,11 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 					continue;
 				}
 				if (modelView.getHighlightedGeoset() == geo) {
-					renderer.renderVertex(programPreferences.getHighlighVertexColor(), geosetVertex.getTVertex(tvertexLayerId));
+					renderer.renderVertex(ProgramGlobals.getPrefs().getHighlighVertexColor(), geosetVertex.getTVertex(tvertexLayerId));
 				} else if (selection.contains(geosetVertex)) {
-					renderer.renderVertex(programPreferences.getSelectColor(), geosetVertex.getTVertex(tvertexLayerId));
+					renderer.renderVertex(ProgramGlobals.getPrefs().getSelectColor(), geosetVertex.getTVertex(tvertexLayerId));
 				} else {
-					renderer.renderVertex(programPreferences.getVertexColor(), geosetVertex.getTVertex(tvertexLayerId));
+					renderer.renderVertex(ProgramGlobals.getPrefs().getVertexColor(), geosetVertex.getTVertex(tvertexLayerId));
 				}
 			}
 		}

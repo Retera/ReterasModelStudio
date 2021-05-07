@@ -108,7 +108,7 @@ public class WindowHandler {
 		final TabWindow startupTabWindow = MainLayoutCreator.createMainLayout(mainPanel);
 		startupTabWindow.setSelectedTab(0);
 		mainPanel.rootWindow.setWindow(startupTabWindow);
-		ModelLoader.setCurrentModel(mainPanel, mainPanel.currentModelPanel());
+		ModelLoader.setCurrentModel(mainPanel, ProgramGlobals.getCurrentModelPanel());
 		mainPanel.rootWindow.revalidate();
 		traverseAndFix(mainPanel.rootWindow);
 	}

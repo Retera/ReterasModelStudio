@@ -19,8 +19,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
@@ -32,15 +30,12 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 
 public class MainPanel extends JPanel implements ModelEditorChangeActivityListener {
     UndoHandler undoHandler;
 
-    List<ModelPanel> modelPanels;
-    ModelPanel currentModelPanel;
+//    ModelPanel currentModelPanel;
     public final View timeSliderView;
     public final View previewView;
     public final View creatorView;
@@ -50,8 +45,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     JTextField[] mouseCoordDisplay = new JTextField[3];
     boolean cheatShift = false;
     boolean cheatAlt = false;
-    SaveProfile profile = SaveProfile.get();
-    ProgramPreferences prefs = profile.getPreferences();
 
     final CreatorModelingPanel creatorPanel;
     final TimeEnvironmentImpl animatedRenderEnvironment;
@@ -73,10 +66,10 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     View modelComponentView;
     ActivityDescriptor currentActivity;
 
-    AbstractAction expandSelectionAction = MainPanelLinkActions.getExpandSelectionAction(this);
-    AbstractAction selectAllAction = MainPanelLinkActions.getSelectAllAction(this);
-    AbstractAction invertSelectAction = MainPanelLinkActions.getInvertSelectAction(this);
-    AbstractAction rigAction = MainPanelLinkActions.getRigAction(this);
+    AbstractAction expandSelectionAction = MainPanelLinkActions.getExpandSelectionAction();
+    AbstractAction selectAllAction = MainPanelLinkActions.getSelectAllAction();
+    AbstractAction invertSelectAction = MainPanelLinkActions.getInvertSelectAction();
+    AbstractAction rigAction = MainPanelLinkActions.getRigAction();
     AbstractAction cloneAction = MainPanelLinkActions.getCloneAction(this);
     AbstractAction deleteAction = MainPanelLinkActions.getDeleteAction(this);
 
@@ -112,8 +105,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
         ClosePopup.createContextMenuPopup(this);
 
-        modelPanels = new ArrayList<>();
-
         viewMap = new StringViewMap();
 
         rootWindow = new RootWindow(viewMap);
@@ -140,7 +131,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         creatorPanel = new CreatorModelingPanel(newType -> {
             actionTypeGroup.maybeSetButtonType(newType);
             changeActivity(newType);
-        }, prefs, actionTypeGroup, viewportListener, animatedRenderEnvironment);
+        }, ProgramGlobals.getPrefs(), actionTypeGroup, viewportListener, animatedRenderEnvironment);
 
         creatorView = new View("Modeling", null, creatorPanel);
 
@@ -265,18 +256,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         return creatorPanel;
     }
 
-    public List<ModelPanel> getModelPanels() {
-        return modelPanels;
-    }
-
-//    public JScrollPane getmEditingTP() {
-//        return mEditingTP;
-//    }
-//
-//    public JScrollPane getCompBrowserTP() {
-//        return compBrowserTP;
-//    }
-
     public TimeSliderPanel getTimeSliderPanel() {
         return timeSliderPanel;
     }
@@ -285,21 +264,13 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         return modelStructureChangeListener;
     }
 
-    public ProgramPreferences getPrefs() {
-        return prefs;
-    }
-
     public RootWindow getRootWindow() {
         return rootWindow;
     }
 
-    public ModelPanel currentModelPanel() {
-        return currentModelPanel;
-    }
-
     public EditableModel currentMDL() {
-        if (currentModelPanel != null) {
-            return currentModelPanel.getModel();
+        if (ProgramGlobals.getCurrentModelPanel() != null) {
+            return ProgramGlobals.getCurrentModelPanel().getModel();
         } else {
             return null;
         }
@@ -329,7 +300,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     @Override
     public void changeActivity(ActivityDescriptor newType) {
         currentActivity = newType;
-        for (ModelPanel modelPanel : modelPanels) {
+        for (ModelPanel modelPanel : ProgramGlobals.getModelPanels()) {
             modelPanel.changeActivity(newType);
         }
         creatorPanel.changeActivity(newType);

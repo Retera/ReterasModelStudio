@@ -8,15 +8,14 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.RotateManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 public final class RotatorWidgetManipulatorBuilder extends ModelEditorManipulatorBuilder {
 //	private final RotatorWidget widget = new RotatorWidget();
 
-	public RotatorWidgetManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler, ProgramPreferences programPreferences) {
-		super(modelEditorManager, modelHandler, programPreferences);
+	public RotatorWidgetManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
+		super(modelEditorManager, modelHandler);
 		widget = new RotatorWidget();
 	}
 

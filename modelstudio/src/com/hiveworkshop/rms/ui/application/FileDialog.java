@@ -426,7 +426,7 @@ public class FileDialog {
 
     private ModelPanel getModelPanel() {
         if (mainPanel != null) {
-            return mainPanel.currentModelPanel();
+            return ProgramGlobals.getCurrentModelPanel();
         } else if (modelPanel != null) {
             return modelPanel;
         } else {

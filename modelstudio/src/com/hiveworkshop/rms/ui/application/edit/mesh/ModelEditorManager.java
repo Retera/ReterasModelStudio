@@ -111,7 +111,7 @@ public final class ModelEditorManager {
 			}
 			case ANIMATE -> {
 				nodeAnimationSelectionManager = new NodeAnimationSelectionManager(modelHandler.getRenderModel());
-				NodeAnimationModelEditor nodeAnimationModelEditor = new NodeAnimationModelEditor(modelHandler.getModelView(), programPreferences, nodeAnimationSelectionManager, modelHandler.getRenderModel(), structureChangeListener);
+				NodeAnimationModelEditor nodeAnimationModelEditor = new NodeAnimationModelEditor(modelHandler.getModelView(), nodeAnimationSelectionManager, modelHandler.getRenderModel(), structureChangeListener);
 
 				modelEditor = nodeAnimationModelEditor;
 				if (lastSelectedVertices != null) {

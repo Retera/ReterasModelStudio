@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ButtonType;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
@@ -13,29 +14,24 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.SelectManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
 
 public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVertexEditorChangeListener {
 	private final ViewportSelectionHandler viewportSelectionHandler;
-	private final ProgramPreferences programPreferences;
 	private final TVertexModelElementRenderer tVertexModelElementRenderer;
 	private final ModelView modelView;
 	private TVertexEditor modelEditor;
 	protected Widget widget;
 
 	public TVertexEditorManipulatorBuilder(ViewportSelectionHandler viewportSelectionHandler,
-	                                       ProgramPreferences programPreferences,
 	                                       TVertexEditor modelEditor,
 	                                       ModelView modelView) {
 		this.viewportSelectionHandler = viewportSelectionHandler;
-		this.programPreferences = programPreferences;
 		this.modelEditor = modelEditor;
 		this.modelView = modelView;
-		System.out.println("TVertexEditorMB prefs: " + programPreferences);
-		tVertexModelElementRenderer = new TVertexModelElementRenderer(programPreferences.getVertexSize(), programPreferences);
+		tVertexModelElementRenderer = new TVertexModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
 	}
 
 	@Override
@@ -75,7 +71,7 @@ public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuil
 					return manipulatorFromWidget;
 				}
 			}
-			return new SelectManipulator(viewportSelectionHandler, programPreferences, coordinateSystem);
+			return new SelectManipulator(viewportSelectionHandler, coordinateSystem);
 		}
 	}
 
@@ -85,7 +81,7 @@ public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuil
 	                         SelectionView selectionView,
 	                         boolean isAnimated) {
 		if (!isAnimated) {
-			selectionView.renderUVSelection(tVertexModelElementRenderer.reset(graphics, coordinateSystem), modelView, programPreferences, modelEditor.getUVLayerIndex());
+			selectionView.renderUVSelection(tVertexModelElementRenderer.reset(graphics, coordinateSystem), modelView, modelEditor.getUVLayerIndex());
 			if (!selectionView.isEmpty()) {
 				renderWidget(graphics, coordinateSystem, selectionView);
 			}

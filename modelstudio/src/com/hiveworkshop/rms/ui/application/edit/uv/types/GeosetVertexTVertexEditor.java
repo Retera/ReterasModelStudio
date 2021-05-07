@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
@@ -13,18 +14,15 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelec
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
 public class GeosetVertexTVertexEditor extends TVertexEditor<GeosetVertex> {
-	private final ProgramPreferences programPreferences;
 
-	public GeosetVertexTVertexEditor(ModelView model, ProgramPreferences programPreferences, SelectionManager<GeosetVertex> selectionManager, ModelStructureChangeListener structureChangeListener) {
+	public GeosetVertexTVertexEditor(ModelView model, SelectionManager<GeosetVertex> selectionManager, ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
-		this.programPreferences = programPreferences;
 	}
 
 	public static boolean hitTest(Vec2 min, Vec2 max, Vec2 tVertex, CoordinateSystem coordinateSystem, double vertexSize) {
@@ -125,7 +123,7 @@ public class GeosetVertexTVertexEditor extends TVertexEditor<GeosetVertex> {
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (geosetVertex.getTverts().size() > uvLayerIndex) {
-					if(hitTest(min, max, geosetVertex.getTVertex(uvLayerIndex), coordinateSystem, programPreferences.getVertexSize())){
+					if(hitTest(min, max, geosetVertex.getTVertex(uvLayerIndex), coordinateSystem, ProgramGlobals.getPrefs().getVertexSize())){
 						selectedItems.add(geosetVertex);
 					}
 				}
@@ -140,7 +138,7 @@ public class GeosetVertexTVertexEditor extends TVertexEditor<GeosetVertex> {
 		for (Geoset geoset : model.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
 				if (geosetVertex.getTverts().size() > uvLayerIndex) {
-					if (hitTest(geosetVertex.getTVertex(uvLayerIndex), point, axes, programPreferences.getVertexSize())) {
+					if (hitTest(geosetVertex.getTVertex(uvLayerIndex), point, axes, ProgramGlobals.getPrefs().getVertexSize())) {
 						canSelect = true;
 					}
 				}

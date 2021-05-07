@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableIdObjectRenderer;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.GU;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -17,7 +16,6 @@ import java.awt.*;
 public class ModelElementRenderer {
 	private Graphics2D graphics;
 	private CoordinateSystem coordinateSystem;
-	private ProgramPreferences programPreferences;
 	private int vertexSize;
 	private ResettableIdObjectRenderer idObjectRenderer;
 	private RenderModel renderModel;
@@ -28,11 +26,10 @@ public class ModelElementRenderer {
 		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
 	}
 
-	public ModelElementRenderer reset(Graphics2D graphics, CoordinateSystem coordinateSystem, RenderModel renderModel, ProgramPreferences programPreferences, boolean isAnimated) {
+	public ModelElementRenderer reset(Graphics2D graphics, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 		this.graphics = graphics;
 		this.coordinateSystem = coordinateSystem;
 		this.renderModel = renderModel;
-		this.programPreferences = programPreferences;
 		this.isAnimated = isAnimated;
 		return this;
 	}
@@ -60,7 +57,7 @@ public class ModelElementRenderer {
 	}
 
 	public void renderIdObject(IdObject object) {
-		ResettableIdObjectRenderer idObjectRenderer = this.idObjectRenderer.reset(coordinateSystem, graphics, programPreferences, renderModel, isAnimated, true);
+		ResettableIdObjectRenderer idObjectRenderer = this.idObjectRenderer.reset(coordinateSystem, graphics, renderModel, isAnimated, true);
 
 		idObjectRenderer.renderIdObject(object);
 	}

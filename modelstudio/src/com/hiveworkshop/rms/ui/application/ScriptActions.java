@@ -141,7 +141,7 @@ public class ScriptActions {
 			return;
 		}
 
-		ModelPanel modelContext = mainPanel.currentModelPanel();
+		ModelPanel modelContext = ProgramGlobals.getCurrentModelPanel();
 		RenderModel editorRenderModel = modelContext.getEditorRenderModel();
 		EditableModel model = modelContext.getModel();
 
@@ -266,14 +266,14 @@ public class ScriptActions {
 	}
 
 	public static void scaleAnimations(MainPanel mainPanel) {
-		ChangeAnimationLengthFrame aFrame = new ChangeAnimationLengthFrame(mainPanel.currentModelPanel(), () -> mainPanel.timeSliderPanel.revalidateKeyframeDisplay());
+		ChangeAnimationLengthFrame aFrame = new ChangeAnimationLengthFrame(ProgramGlobals.getCurrentModelPanel(), () -> mainPanel.timeSliderPanel.revalidateKeyframeDisplay());
 		aFrame.setVisible(true);
 	}
 
 	public static void nullmodelButtonActionRes(MainPanel mainPanel) {
 		nullModelFile(mainPanel);
-		if (mainPanel.currentModelPanel != null) {
-			mainPanel.currentModelPanel.repaintModelTrees();
+		if (ProgramGlobals.getCurrentModelPanel() != null) {
+			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
 		}
 	}
 
@@ -593,7 +593,7 @@ public class ScriptActions {
 
 
 	public static void removeLoDs(MainPanel mainPanel) {
-		ModelPanel modelPanel = mainPanel.currentModelPanel();
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			JPanel panel = new JPanel(new MigLayout());
 			panel.add(new JLabel("LoD to remove"));

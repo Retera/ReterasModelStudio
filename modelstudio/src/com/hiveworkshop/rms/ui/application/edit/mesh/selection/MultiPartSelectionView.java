@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -50,9 +49,9 @@ public class MultiPartSelectionView implements SelectionView {
 
 	@Override
 	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
-	                            ModelView modelView, ProgramPreferences programPreferences) {
+	                            ModelView modelView) {
 		for (SelectionView selectionView : selectionViews) {
-			selectionView.renderSelection(renderer, coordinateSystem, modelView, programPreferences);
+			selectionView.renderSelection(renderer, coordinateSystem, modelView);
 		}
 	}
 
@@ -117,9 +116,9 @@ public class MultiPartSelectionView implements SelectionView {
 
 	@Override
 	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView,
-	                              ProgramPreferences programPreferences, int tvertexLayerId) {
+	                              int tvertexLayerId) {
 		for (SelectionView selectionView : selectionViews) {
-			selectionView.renderUVSelection(renderer, modelView, programPreferences, tvertexLayerId);
+			selectionView.renderUVSelection(renderer, modelView, tvertexLayerId);
 		}
 	}
 }

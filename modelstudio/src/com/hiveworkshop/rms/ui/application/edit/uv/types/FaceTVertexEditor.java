@@ -11,18 +11,15 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelec
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
 public class FaceTVertexEditor extends TVertexEditor<Triangle> {
-	private final ProgramPreferences programPreferences;
 
-	public FaceTVertexEditor(ModelView model, ProgramPreferences programPreferences, SelectionManager<Triangle> selectionManager, ModelStructureChangeListener structureChangeListener) {
+	public FaceTVertexEditor(ModelView model, SelectionManager<Triangle> selectionManager, ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, model, structureChangeListener);
-		this.programPreferences = programPreferences;
 	}
 
 	public static boolean hitTest(Triangle triangle, Vec2 point, CoordinateSystem coordinateSystem, int uvLayerIndex) {

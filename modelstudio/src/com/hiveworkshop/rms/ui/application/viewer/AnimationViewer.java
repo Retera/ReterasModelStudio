@@ -21,7 +21,7 @@ public class AnimationViewer extends JPanel {
 	private final JComboBox<Animation> animationBox;
 	private final boolean allowUnanimated;
 	TimeEnvironmentImpl renderEnv;
-	private ComPerspViewport perspectiveViewport;
+	private PerspectiveViewport perspectiveViewport;
 
 	public AnimationViewer(ModelView modelView, ProgramPreferences programPreferences, boolean allowUnanimated) {
 		this.allowUnanimated = allowUnanimated;
@@ -70,7 +70,7 @@ public class AnimationViewer extends JPanel {
 			}
 			this.modelView.setVetoOverrideParticles(true);
 			RenderModel renderModel = new RenderModel(this.modelView.getModel(), this.modelView, renderEnv);
-			perspectiveViewport = new ComPerspViewport(this.modelView, renderModel, programPreferences, renderEnv, true);
+			perspectiveViewport = new PerspectiveViewport(this.modelView, renderModel, programPreferences, renderEnv, true);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);

@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import net.infonode.docking.View;
 import net.miginfocom.swing.MigLayout;
 
@@ -34,7 +33,7 @@ public class DisplayPanel extends JPanel {
 
 	public DisplayPanel(String title, byte a, byte b, ModelHandler modelHandler,
 	                    ModelEditorManager modelEditorManager, ModelStructureChangeListener modelStructureChangeListener,
-	                    ViewportActivity activityListener, ProgramPreferences preferences,
+	                    ViewportActivity activityListener,
 	                    CoordDisplayListener coordDisplayListener,
 	                    ModelEditorChangeNotifier modelEditorChangeNotifier,
 	                    ViewportTransferHandler viewportTransferHandler,
@@ -48,7 +47,7 @@ public class DisplayPanel extends JPanel {
 		setLayout(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
 
 		setOpaque(true);
-		vp = getViewport(a, b, modelHandler, preferences, coordDisplayListener, modelEditorManager, viewportTransferHandler);
+		vp = getViewport(a, b, modelHandler, coordDisplayListener, modelEditorManager, viewportTransferHandler);
 		add(vp, "spany, growy, growx");
 
 		buttonPanel = getButtonPanel();
@@ -99,11 +98,10 @@ public class DisplayPanel extends JPanel {
 	}
 
 	public Viewport getViewport(byte a, byte b, ModelHandler modelHandler,
-	                            ProgramPreferences programPreferences,
 	                            CoordDisplayListener coordDisplayListener,
 	                            ModelEditorManager modelEditorManager,
 	                            ViewportTransferHandler viewportTransferHandler) {
-		return new Viewport(a, b, modelHandler, programPreferences, activityListener, modelStructureChangeListener, coordDisplayListener, modelEditorManager, viewportTransferHandler, viewportListener);
+		return new Viewport(a, b, modelHandler, activityListener, modelStructureChangeListener, coordDisplayListener, modelEditorManager, viewportTransferHandler, viewportListener);
 	}
 
 	@Override

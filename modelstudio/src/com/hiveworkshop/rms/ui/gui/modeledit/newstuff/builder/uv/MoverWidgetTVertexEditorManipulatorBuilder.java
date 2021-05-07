@@ -9,16 +9,14 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.MoveTVertexManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 
 public final class MoverWidgetTVertexEditorManipulatorBuilder extends TVertexEditorManipulatorBuilder {
 //	private final MoverWidget widget = new MoverWidget();
 
-	public MoverWidgetTVertexEditorManipulatorBuilder(TVertexEditor modelEditor, ViewportSelectionHandler viewportSelectionHandler, ProgramPreferences programPreferences, ModelView modelView) {
-		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
+	public MoverWidgetTVertexEditorManipulatorBuilder(TVertexEditor modelEditor, ViewportSelectionHandler viewportSelectionHandler, ModelView modelView) {
+		super(viewportSelectionHandler, modelEditor, modelView);
 		widget = new MoverWidget();
-		System.out.println("programPreferences: " + programPreferences);
 	}
 
 	@Override

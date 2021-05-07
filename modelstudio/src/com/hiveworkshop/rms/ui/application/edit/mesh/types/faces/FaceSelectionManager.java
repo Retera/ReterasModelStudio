@@ -4,11 +4,11 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -49,17 +49,16 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 	@Override
 	public void renderSelection(ModelElementRenderer renderer,
 	                            CoordinateSystem coordinateSystem,
-	                            ModelView modelView,
-	                            ProgramPreferences programPreferences) {
+	                            ModelView modelView) {
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
 				Color outlineColor;
 				Color fillColor;
 				if (geoset == modelView.getHighlightedGeoset()) {
-					outlineColor = programPreferences.getHighlighTriangleColor();
+					outlineColor = ProgramGlobals.getPrefs().getHighlighTriangleColor();
 					fillColor = FACE_HIGHLIGHT_COLOR;
 				} else if (selection.contains(triangle)) {
-					outlineColor = programPreferences.getSelectColor();
+					outlineColor = ProgramGlobals.getPrefs().getSelectColor();
 					fillColor = FACE_SELECTED_COLOR;
 				} else {
 					outlineColor = Color.BLUE;
@@ -127,16 +126,16 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 	}
 
 	@Override
-	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView, ProgramPreferences programPreferences, int tvertexLayerId) {
+	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView, int tvertexLayerId) {
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
 				Color outlineColor;
 				Color fillColor;
 				if (geoset == modelView.getHighlightedGeoset()) {
-					outlineColor = programPreferences.getHighlighTriangleColor();
+					outlineColor = ProgramGlobals.getPrefs().getHighlighTriangleColor();
 					fillColor = FACE_HIGHLIGHT_COLOR;
 				} else if (selection.contains(triangle)) {
-					outlineColor = programPreferences.getSelectColor();
+					outlineColor = ProgramGlobals.getPrefs().getSelectColor();
 					fillColor = FACE_SELECTED_COLOR;
 				} else {
 					outlineColor = Color.BLUE;

@@ -19,12 +19,12 @@ public final class SquatToolWidgetManipulatorBuilder extends ModelEditorManipula
 //	private final RotatorWidget widget = new RotatorWidget();
 
 	public SquatToolWidgetManipulatorBuilder(ModelEditor modelEditor, ViewportSelectionHandler viewportSelectionHandler, ProgramPreferences programPreferences, ModelView modelView) {
-		super(viewportSelectionHandler, programPreferences, modelEditor, modelView);
+		super(viewportSelectionHandler, modelEditor, modelView);
 		widget = new RotatorWidget();
 	}
 
 	public SquatToolWidgetManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler, ProgramPreferences programPreferences) {
-		super(modelEditorManager, modelHandler, programPreferences);
+		super(modelEditorManager, modelHandler);
 		widget = new RotatorWidget();
 	}
 
