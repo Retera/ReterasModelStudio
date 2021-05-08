@@ -84,7 +84,7 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public EditableModel(final MdlxModel model) {
+	public EditableModel(final MdlxModel mdlxModel) {
 		// Step 1: Convert the Model Chunk
 		// For MDL api, this is currently embedded right inside the MDL class
 		Map<IdObject, Integer> parentMap = new HashMap<>();
@@ -92,45 +92,45 @@ public class EditableModel implements Named {
 		Map<IdObject, Integer> objIdMap = new HashMap<>();
 
 		modelIdObjects = new ModelIdObjects();
-		setFormatVersion(model.version);
-		setName(model.name);
-		setBlendTime((int) model.blendTime);
-		setExtents(new ExtLog(model.extent));
+		setFormatVersion(mdlxModel.version);
+		setName(mdlxModel.name);
+		setBlendTime((int) mdlxModel.blendTime);
+		setExtents(new ExtLog(mdlxModel.extent));
 
 		// Step 2: Convert the Sequences
-		for (final MdlxSequence sequence : model.sequences) {
+		for (final MdlxSequence sequence : mdlxModel.sequences) {
 			add(new Animation(sequence));
 		}
 
 		// Step 3: Convert any global sequences
-		for (final long sequence : model.globalSequences) {
+		for (final long sequence : mdlxModel.globalSequences) {
 			add((int) sequence);
 		}
 
 		// Step 4: Convert Texture refs
-		for (final MdlxTexture texture : model.textures) {
-			add(new Bitmap(texture));
+		for (final MdlxTexture mdlxTexture : mdlxModel.textures) {
+			add(new Bitmap(mdlxTexture));
 		}
 
 		// Step 6: Convert TVertexAnims
-		for (final MdlxTextureAnimation animation : model.textureAnimations) {
-			add(new TextureAnim(animation));
+		for (final MdlxTextureAnimation mdlxTextureAnimation : mdlxModel.textureAnimations) {
+			add(new TextureAnim(mdlxTextureAnimation));
 		}
 
 		// Step 5: Convert Material refs
-		for (final MdlxMaterial material : model.materials) {
-			add(new Material(material, this));
+		for (final MdlxMaterial mdlxMaterial : mdlxModel.materials) {
+			add(new Material(mdlxMaterial, this));
 		}
-		
+
 		// Step 7: Geoset
-		for (final MdlxGeoset geoset : model.geosets) {
-			add(new Geoset(geoset, this));
+		for (final MdlxGeoset mdlxGeoset : mdlxModel.geosets) {
+			add(new Geoset(mdlxGeoset, this));
 		}
 
 		// Step 8: GeosetAnims
-		for (final MdlxGeosetAnimation animation : model.geosetAnimations) {
-			if (animation.geosetId != -1) {
-				final GeosetAnim geosetAnim = new GeosetAnim(animation, this);
+		for (final MdlxGeosetAnimation mdlxGeosetAnimation : mdlxModel.geosetAnimations) {
+			if (mdlxGeosetAnimation.geosetId != -1) {
+				final GeosetAnim geosetAnim = new GeosetAnim(mdlxGeosetAnimation, this);
 
 				add(geosetAnim);
 
@@ -144,111 +144,111 @@ public class EditableModel implements Named {
 		// convert "IdObjects" as I called them in my high school mdl code (nodes)
 
 		// Bones
-		for (final MdlxBone bone : model.bones) {
-//			System.out.println("MdlxBone, id: " + bone.objectId + " name: " + bone.name);
-			Bone x = new Bone(bone);
-			objIdMap.put(x, bone.objectId);
-			idMap.put(bone.objectId, x);
-			parentMap.put(x, bone.parentId);
+		for (final MdlxBone mdlxBone : mdlxModel.bones) {
+//			System.out.println("MdlxBone, id: " + mdlxBone.objectId + " name: " + mdlxBone.name);
+			Bone x = new Bone(mdlxBone);
+			objIdMap.put(x, mdlxBone.objectId);
+			idMap.put(mdlxBone.objectId, x);
+			parentMap.put(x, mdlxBone.parentId);
 			add(x);
 		}
-		
+
 		// Lights
-		for (final MdlxLight light : model.lights) {
-			Light x = new Light(light);
-			objIdMap.put(x, light.objectId);
-			idMap.put(light.objectId, x);
-			parentMap.put(x, light.parentId);
+		for (final MdlxLight mdlxLight : mdlxModel.lights) {
+			Light x = new Light(mdlxLight);
+			objIdMap.put(x, mdlxLight.objectId);
+			idMap.put(mdlxLight.objectId, x);
+			parentMap.put(x, mdlxLight.parentId);
 			add(x);
 		}
 
 		// Helpers
-		for (final MdlxHelper helper : model.helpers) {
+		for (final MdlxHelper mdlxHelper : mdlxModel.helpers) {
 //			System.out.println("MdlxHelper");
-			Helper x = new Helper(helper);
-			objIdMap.put(x, helper.objectId);
-			idMap.put(helper.objectId, x);
-			parentMap.put(x, helper.parentId);
+			Helper x = new Helper(mdlxHelper);
+			objIdMap.put(x, mdlxHelper.objectId);
+			idMap.put(mdlxHelper.objectId, x);
+			parentMap.put(x, mdlxHelper.parentId);
 			add(x);
 		}
 
 		// Attachment
-		for (final MdlxAttachment attachment : model.attachments) {
-			Attachment x = new Attachment(attachment);
-			objIdMap.put(x, attachment.objectId);
-			idMap.put(attachment.objectId, x);
-			parentMap.put(x, attachment.parentId);
+		for (final MdlxAttachment mdlxAttachment : mdlxModel.attachments) {
+			Attachment x = new Attachment(mdlxAttachment);
+			objIdMap.put(x, mdlxAttachment.objectId);
+			idMap.put(mdlxAttachment.objectId, x);
+			parentMap.put(x, mdlxAttachment.parentId);
 			add(x);
 		}
 
 		// ParticleEmitter (number 1 kind)
-		for (final MdlxParticleEmitter emitter : model.particleEmitters) {
-			ParticleEmitter x = new ParticleEmitter(emitter);
-			objIdMap.put(x, emitter.objectId);
-			idMap.put(emitter.objectId, x);
-			parentMap.put(x, emitter.parentId);
+		for (final MdlxParticleEmitter mdlxEmitter : mdlxModel.particleEmitters) {
+			ParticleEmitter x = new ParticleEmitter(mdlxEmitter);
+			objIdMap.put(x, mdlxEmitter.objectId);
+			idMap.put(mdlxEmitter.objectId, x);
+			parentMap.put(x, mdlxEmitter.parentId);
 			add(x);
 		}
 
 		// ParticleEmitter2
-		for (final MdlxParticleEmitter2 emitter : model.particleEmitters2) {
-			ParticleEmitter2 x = new ParticleEmitter2(emitter);
-			objIdMap.put(x, emitter.objectId);
-			idMap.put(emitter.objectId, x);
-			parentMap.put(x, emitter.parentId);
+		for (final MdlxParticleEmitter2 mdlxEmitter : mdlxModel.particleEmitters2) {
+			ParticleEmitter2 x = new ParticleEmitter2(mdlxEmitter);
+			objIdMap.put(x, mdlxEmitter.objectId);
+			idMap.put(mdlxEmitter.objectId, x);
+			parentMap.put(x, mdlxEmitter.parentId);
 			add(x);
 		}
 
 		// PopcornFxEmitter
-		for (final MdlxParticleEmitterPopcorn emitter : model.particleEmittersPopcorn) {
-			ParticleEmitterPopcorn x = new ParticleEmitterPopcorn(emitter);
-			objIdMap.put(x, emitter.objectId);
-			idMap.put(emitter.objectId, x);
-			parentMap.put(x, emitter.parentId);
+		for (final MdlxParticleEmitterPopcorn mdlxEmitter : mdlxModel.particleEmittersPopcorn) {
+			ParticleEmitterPopcorn x = new ParticleEmitterPopcorn(mdlxEmitter);
+			objIdMap.put(x, mdlxEmitter.objectId);
+			idMap.put(mdlxEmitter.objectId, x);
+			parentMap.put(x, mdlxEmitter.parentId);
 			add(x);
 		}
 
 		// RibbonEmitter
-		for (final MdlxRibbonEmitter emitter : model.ribbonEmitters) {
-			RibbonEmitter x = new RibbonEmitter(emitter);
-			objIdMap.put(x, emitter.objectId);
-			idMap.put(emitter.objectId, x);
-			parentMap.put(x, emitter.parentId);
+		for (final MdlxRibbonEmitter mdlxEmitter : mdlxModel.ribbonEmitters) {
+			RibbonEmitter x = new RibbonEmitter(mdlxEmitter);
+			objIdMap.put(x, mdlxEmitter.objectId);
+			idMap.put(mdlxEmitter.objectId, x);
+			parentMap.put(x, mdlxEmitter.parentId);
 			add(x);
 		}
 
 		// EventObject
-		for (final MdlxEventObject object : model.eventObjects) {
-			EventObject x = new EventObject(object);
-			objIdMap.put(x, object.objectId);
-			idMap.put(object.objectId, x);
-			parentMap.put(x, object.parentId);
+		for (final MdlxEventObject mdlxObject : mdlxModel.eventObjects) {
+			EventObject x = new EventObject(mdlxObject);
+			objIdMap.put(x, mdlxObject.objectId);
+			idMap.put(mdlxObject.objectId, x);
+			parentMap.put(x, mdlxObject.parentId);
 			add(x);
 		}
 
-		for (final MdlxCamera camera : model.cameras) {
-			add(new Camera(camera));
+		for (final MdlxCamera mdlxCamera : mdlxModel.cameras) {
+			add(new Camera(mdlxCamera));
 		}
 
 		// CollisionShape
-		for (final MdlxCollisionShape shape : model.collisionShapes) {
-			CollisionShape x = new CollisionShape(shape);
-			objIdMap.put(x, shape.objectId);
-			idMap.put(shape.objectId, x);
-			parentMap.put(x, shape.parentId);
+		for (final MdlxCollisionShape mdlxShape : mdlxModel.collisionShapes) {
+			CollisionShape x = new CollisionShape(mdlxShape);
+			objIdMap.put(x, mdlxShape.objectId);
+			idMap.put(mdlxShape.objectId, x);
+			parentMap.put(x, mdlxShape.parentId);
 			add(x);
 		}
 
-		for (final float[] point : model.pivotPoints) {
+		for (final float[] point : mdlxModel.pivotPoints) {
 			addPivotPoint(new Vec3(point));
 		}
 
-		for (final MdlxFaceEffect effect : model.faceEffects) {
-			addFaceEffect(new FaceEffect(effect.type, effect.path));
+		for (final MdlxFaceEffect mdlxEffect : mdlxModel.faceEffects) {
+			addFaceEffect(new FaceEffect(mdlxEffect.type, mdlxEffect.path));
 		}
 
-		if (model.bindPose.size() > 0) {
-			bindPose = new BindPose(model.bindPose);
+		if (mdlxModel.bindPose.size() > 0) {
+			bindPose = new BindPose(mdlxModel.bindPose);
 		}
 
 		for (IdObject idObject : parentMap.keySet()) {
@@ -365,98 +365,98 @@ public class EditableModel implements Named {
 		// MatrixEater at runtime in doPostRead() in favor of each vertex
 		// having its own attachments list, no vertex groups)
 
-		final MdlxModel model = new MdlxModel();
+		final MdlxModel mdlxModel = new MdlxModel();
 
-		model.version = getFormatVersion();
-		model.name = getName();
-		model.blendTime = getBlendTime();
-		model.extent = getExtents().toMdlx();
+		mdlxModel.version = getFormatVersion();
+		mdlxModel.name = getName();
+		mdlxModel.blendTime = getBlendTime();
+		mdlxModel.extent = getExtents().toMdlx();
 
 		for (final Animation sequence : getAnims()) {
-			model.sequences.add(sequence.toMdlx());
+			mdlxModel.sequences.add(sequence.toMdlx());
 		}
 
 		for (final Integer sequence : globalSeqs) {
-			model.globalSequences.add(sequence.longValue());
+			mdlxModel.globalSequences.add(sequence.longValue());
 		}
 
 		for (final Bitmap texture : textures) {
-			model.textures.add(texture.toMdlx());
+			mdlxModel.textures.add(texture.toMdlx());
 		}
 
 		for (final TextureAnim animation : texAnims) {
-			model.textureAnimations.add(animation.toMdlx());
+			mdlxModel.textureAnimations.add(animation.toMdlx());
 		}
 
 		for (final Material material : materials) {
-			model.materials.add(material.toMdlx());
+			mdlxModel.materials.add(material.toMdlx());
 		}
 
 		for (final Geoset geoset : geosets) {
-			model.geosets.add(geoset.toMdlx(this));
+			mdlxModel.geosets.add(geoset.toMdlx(this));
 		}
 
 		for (final GeosetAnim animation : geosetAnims) {
-			model.geosetAnimations.add(animation.toMdlx(this));
+			mdlxModel.geosetAnimations.add(animation.toMdlx(this));
 		}
 
 		for (final Bone bone : getBones()) {
-			model.bones.add(bone.toMdlx(this));
+			mdlxModel.bones.add(bone.toMdlx(this));
 		}
 
 		for (final Light light : getLights()) {
-			model.lights.add(light.toMdlx(this));
+			mdlxModel.lights.add(light.toMdlx(this));
 		}
 
 		for (final Helper helper : getHelpers()) {
-			model.helpers.add(helper.toMdlxHelper(this));
+			mdlxModel.helpers.add(helper.toMdlxHelper(this));
 		}
 
 		for (final Attachment attachment : getAttachments()) {
-			model.attachments.add(attachment.toMdlx(this));
+			mdlxModel.attachments.add(attachment.toMdlx(this));
 		}
 
 		for (final ParticleEmitter emitter : getParticleEmitters()) {
-			model.particleEmitters.add(emitter.toMdlx(this));
+			mdlxModel.particleEmitters.add(emitter.toMdlx(this));
 		}
 
 		for (final ParticleEmitter2 emitter : getParticleEmitter2s()) {
-			model.particleEmitters2.add(emitter.toMdlx(this));
+			mdlxModel.particleEmitters2.add(emitter.toMdlx(this));
 		}
 
 		for (final ParticleEmitterPopcorn emitter : getPopcornEmitters()) {
-			model.particleEmittersPopcorn.add(emitter.toMdlx(this));
+			mdlxModel.particleEmittersPopcorn.add(emitter.toMdlx(this));
 		}
 
 		for (final RibbonEmitter emitter : getRibbonEmitters()) {
-			model.ribbonEmitters.add(emitter.toMdlx(this));
+			mdlxModel.ribbonEmitters.add(emitter.toMdlx(this));
 		}
 
 		for (final EventObject object : getEvents()) {
-			model.eventObjects.add(object.toMdlx(this));
+			mdlxModel.eventObjects.add(object.toMdlx(this));
 		}
 
 		for (final Camera camera : getCameras()) {
-			model.cameras.add(camera.toMdlx());
+			mdlxModel.cameras.add(camera.toMdlx());
 		}
 
 		for (final CollisionShape shape : getColliders()) {
-			model.collisionShapes.add(shape.toMdlx(this));
+			mdlxModel.collisionShapes.add(shape.toMdlx(this));
 		}
 
 		for (final Vec3 point : getPivots()) {
-			model.pivotPoints.add(point.toFloatArray());
+			mdlxModel.pivotPoints.add(point.toFloatArray());
 		}
 
 		for (final FaceEffect effect : faceEffects) {
-			model.faceEffects.add(effect.toMdlx());
+			mdlxModel.faceEffects.add(effect.toMdlx());
 		}
 
 		if (bindPose != null) {
-			model.bindPose = bindPose.toMdlx();
+			mdlxModel.bindPose = bindPose.toMdlx();
 		}
 
-		return model;
+		return mdlxModel;
 	}
 
 	public void clearToHeader() {

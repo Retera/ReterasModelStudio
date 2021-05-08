@@ -54,25 +54,25 @@ public class RibbonEmitter extends IdObject {
 		staticColor = new Vec3(emitter.staticColor);
 	}
 
-	public RibbonEmitter(final MdlxRibbonEmitter emitter) {
-		if ((emitter.flags & 16384) != 16384) {
-			System.err.println("MDX -> MDL error: A ribbon emitter '" + emitter.name
+	public RibbonEmitter(final MdlxRibbonEmitter mdlxEmitter) {
+		if ((mdlxEmitter.flags & 16384) != 16384) {
+			System.err.println("MDX -> MDL error: A ribbon emitter '" + mdlxEmitter.name
 					+ "' not flagged as ribbon emitter in MDX!");
 		}
-		
-		loadObject(emitter);
 
-		setTextureSlot(emitter.textureSlot);
-		setHeightAbove(emitter.heightAbove);
-		setHeightBelow(emitter.heightBelow);
-		setAlpha(emitter.alpha);
-		setStaticColor(new Vec3(ModelUtils.flipRGBtoBGR(emitter.color)));
-		setLifeSpan(emitter.lifeSpan);
-		setEmissionRate((int) emitter.emissionRate);
-		setRows((int) emitter.rows);
-		setColumns((int) emitter.columns);
-		setMaterialId(emitter.materialId);
-		setGravity(emitter.gravity);
+		loadObject(mdlxEmitter);
+
+		setTextureSlot(mdlxEmitter.textureSlot);
+		setHeightAbove(mdlxEmitter.heightAbove);
+		setHeightBelow(mdlxEmitter.heightBelow);
+		setAlpha(mdlxEmitter.alpha);
+		setStaticColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxEmitter.color)));
+		setLifeSpan(mdlxEmitter.lifeSpan);
+		setEmissionRate((int) mdlxEmitter.emissionRate);
+		setRows((int) mdlxEmitter.rows);
+		setColumns((int) mdlxEmitter.columns);
+		setMaterialId(mdlxEmitter.materialId);
+		setGravity(mdlxEmitter.gravity);
 	}
 
 	public MdlxRibbonEmitter toMdlx(EditableModel model) {

@@ -23,20 +23,20 @@ public class Attachment extends IdObject {
 
 	public Attachment(Attachment attachment) {
 		copyObject(attachment);
-	
+
 		path = attachment.path;
 		attachmentID = attachment.attachmentID;
 	}
 
-	public Attachment(MdlxAttachment attachment) {
-		if ((attachment.flags & 2048) != 2048) {
-			System.err.println("MDX -> MDL error: A light '" + attachment.name + "' not flagged as light in MDX!");
+	public Attachment(MdlxAttachment mdlxAttachment) {
+		if ((mdlxAttachment.flags & 2048) != 2048) {
+			System.err.println("MDX -> MDL error: A light '" + mdlxAttachment.name + "' not flagged as light in MDX!");
 		}
 
-		loadObject(attachment);
+		loadObject(mdlxAttachment);
 
-		setAttachmentID(attachment.attachmentId);
-		setPath(attachment.path);
+		setAttachmentID(mdlxAttachment.attachmentId);
+		setPath(mdlxAttachment.path);
 	}
 
 	public MdlxAttachment toMdlx(EditableModel model) {

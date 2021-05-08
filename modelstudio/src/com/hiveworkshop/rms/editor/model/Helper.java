@@ -21,12 +21,12 @@ public class Helper extends Bone { // Haha blizz
 		super(h);
 	}
 
-	public Helper(final MdlxHelper helper) {
-		if ((helper.flags & 1) != 0) {
-			System.err.println("MDX -> MDL error: A helper '" + helper.name + "' not flagged as helper in MDX!");
+	public Helper(final MdlxHelper mdlxHelper) {
+		if ((mdlxHelper.flags & 1) != 0) {
+			System.err.println("MDX -> MDL error: A helper '" + mdlxHelper.name + "' not flagged as helper in MDX!");
 		}
 
-		loadObject(helper);
+		loadObject(mdlxHelper);
 	}
 
 	public MdlxHelper toMdlxHelper(EditableModel model) {

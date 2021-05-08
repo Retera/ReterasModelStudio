@@ -42,20 +42,20 @@ public class ParticleEmitterPopcorn extends IdObject {
 		animVisibilityGuide = emitter.animVisibilityGuide;
 	}
 
-	public ParticleEmitterPopcorn(MdlxParticleEmitterPopcorn emitter) {
-		loadObject(emitter);
+	public ParticleEmitterPopcorn(MdlxParticleEmitterPopcorn mdlxEmitter) {
+		loadObject(mdlxEmitter);
 
-		lifeSpan = emitter.lifeSpan;
-		emissionRate = emitter.emissionRate;
-		speed = emitter.speed;
-		System.out.println("emitter color: " + Arrays.toString(emitter.color));
-		color = new Vec3(emitter.color);
+		lifeSpan = mdlxEmitter.lifeSpan;
+		emissionRate = mdlxEmitter.emissionRate;
+		speed = mdlxEmitter.speed;
+		System.out.println("emitter color: " + Arrays.toString(mdlxEmitter.color));
+		color = new Vec3(mdlxEmitter.color);
 //		color = new Vec3(ModelUtils.flipRGBtoBGR(emitter.color));
-		alpha = emitter.alpha;
-		replaceableId = emitter.replaceableId;
-		path = emitter.path;
-		animVisibilityGuide = emitter.animationVisiblityGuide;
-		System.out.println(emitter.animationVisiblityGuide);
+		alpha = mdlxEmitter.alpha;
+		replaceableId = mdlxEmitter.replaceableId;
+		path = mdlxEmitter.path;
+		animVisibilityGuide = mdlxEmitter.animationVisiblityGuide;
+		System.out.println(mdlxEmitter.animationVisiblityGuide);
 	}
 
 	public MdlxParticleEmitterPopcorn toMdlx(EditableModel model) {

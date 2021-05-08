@@ -40,15 +40,15 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		dropShadow = other.dropShadow;
 	}
 
-	public GeosetAnim(MdlxGeosetAnimation animation, EditableModel model) {
-		geoset = model.getGeoset(animation.geosetId);
-		staticAlpha = animation.alpha;
-		staticColor = new Vec3(ModelUtils.flipRGBtoBGR(animation.color));
+	public GeosetAnim(MdlxGeosetAnimation mdlxAnimation, EditableModel model) {
+		geoset = model.getGeoset(mdlxAnimation.geosetId);
+		staticAlpha = mdlxAnimation.alpha;
+		staticColor = new Vec3(ModelUtils.flipRGBtoBGR(mdlxAnimation.color));
 
-		int flags = animation.flags;
+		int flags = mdlxAnimation.flags;
 		dropShadow = ((flags & 1) == 1);
 
-		loadTimelines(animation);
+		loadTimelines(mdlxAnimation);
 	}
 
 	public MdlxGeosetAnimation toMdlx(EditableModel model) {

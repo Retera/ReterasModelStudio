@@ -30,7 +30,7 @@ public class Bone extends IdObject {
 
 	public Bone(Bone b) {
 		copyObject(b);
-		
+
 		geosetId = b.geosetId;
 		multiGeoId = b.multiGeoId;
 		geoset = b.geoset;
@@ -39,15 +39,15 @@ public class Bone extends IdObject {
 		hasGeoAnim = b.hasGeoAnim;
 	}
 
-	public Bone(MdlxBone bone) {
-		if ((bone.flags & 256) != 256) {
-			System.err.println("MDX -> MDL error: A bone '" + bone.name + "' not flagged as bone in MDX!");
+	public Bone(MdlxBone mdlxBone) {
+		if ((mdlxBone.flags & 256) != 256) {
+			System.err.println("MDX -> MDL error: A bone '" + mdlxBone.name + "' not flagged as bone in MDX!");
 		}
 
-		loadObject(bone);
+		loadObject(mdlxBone);
 
-		geosetId = bone.geosetId;
-		geosetAnimId = bone.geosetAnimationId;
+		geosetId = mdlxBone.geosetId;
+		geosetAnimId = mdlxBone.geosetAnimationId;
 	}
 
 	public MdlxBone toMdlx(EditableModel model) {

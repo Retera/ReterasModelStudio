@@ -56,36 +56,36 @@ public class Material {
 		twoSided = material.twoSided;
 	}
 
-	public Material(final MdlxMaterial material, final EditableModel editableModel) {
+	public Material(final MdlxMaterial mdlxMaterial, final EditableModel model) {
 		this();
 
-		for (final MdlxLayer mdlxLayer : material.layers) {
+		for (final MdlxLayer mdlxLayer : mdlxMaterial.layers) {
 			final Layer layer = new Layer(mdlxLayer);
 
-			layer.updateRefs(editableModel);
+			layer.updateRefs(model);
 
 			layers.add(layer);
 		}
 
-		setPriorityPlane(material.priorityPlane);
+		setPriorityPlane(mdlxMaterial.priorityPlane);
 
-		if ((material.flags & 0x1) != 0) {
+		if ((mdlxMaterial.flags & 0x1) != 0) {
 			constantColor = true;
 		}
 
-		if ((material.flags & 0x10) != 0) {
+		if ((mdlxMaterial.flags & 0x10) != 0) {
 			sortPrimsFarZ = true;
 		}
 
-		if ((material.flags & 0x20) != 0) {
+		if ((mdlxMaterial.flags & 0x20) != 0) {
 			fullResolution = true;
 		}
 
-		if (ModelUtils.isShaderStringSupported(editableModel.getFormatVersion()) && ((material.flags & 0x2) != 0)) {
+		if (ModelUtils.isShaderStringSupported(model.getFormatVersion()) && ((mdlxMaterial.flags & 0x2) != 0)) {
 			twoSided = true;
 		}
 
-		shaderString = material.shader;
+		shaderString = mdlxMaterial.shader;
 	}
 
 	public Material(final AiMaterial material, final EditableModel model) {

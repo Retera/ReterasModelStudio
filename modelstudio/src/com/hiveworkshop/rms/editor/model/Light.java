@@ -41,20 +41,20 @@ public class Light extends IdObject {
 		staticAmbColor = light.staticAmbColor;
 	}
 
-	public Light(final MdlxLight light) {
-		if ((light.flags & 512) != 512) {
-			System.err.println("MDX -> MDL error: A light '" + light.name + "' not flagged as light in MDX!");
+	public Light(final MdlxLight mdlxLight) {
+		if ((mdlxLight.flags & 512) != 512) {
+			System.err.println("MDX -> MDL error: A light '" + mdlxLight.name + "' not flagged as light in MDX!");
 		}
 
-		loadObject(light);
+		loadObject(mdlxLight);
 
-		type = light.type;
-		setAttenuationStart(light.attenuation[0]);
-		setAttenuationEnd(light.attenuation[1]);
-		setStaticColor(new Vec3(light.color, true));
-		setIntensity(light.intensity);
-		setStaticAmbColor(new Vec3(light.ambientColor, true));
-		setAmbIntensity(light.ambientIntensity);
+		type = mdlxLight.type;
+		setAttenuationStart(mdlxLight.attenuation[0]);
+		setAttenuationEnd(mdlxLight.attenuation[1]);
+		setStaticColor(new Vec3(mdlxLight.color, true));
+		setIntensity(mdlxLight.intensity);
+		setStaticAmbColor(new Vec3(mdlxLight.ambientColor, true));
+		setAmbIntensity(mdlxLight.ambientIntensity);
 	}
 
 	public MdlxLight toMdlx(EditableModel model) {

@@ -33,21 +33,21 @@ public class Geoset implements Named, VisibilitySource {
 
 	}
 
-	public Geoset(final MdlxGeoset geoset, final EditableModel model) {
-		setExtLog(new ExtLog(geoset.extent));
+	public Geoset(final MdlxGeoset mdlxGeoset, final EditableModel model) {
+		setExtLog(new ExtLog(mdlxGeoset.extent));
 
-		for (final MdlxExtent extent : geoset.sequenceExtents) {
+		for (final MdlxExtent extent : mdlxGeoset.sequenceExtents) {
 			final ExtLog extents = new ExtLog(extent);
 			final Animation anim = new Animation(extents);
 			add(anim);
 		}
 
-		material = model.getMaterial((int) geoset.materialId);
+		material = model.getMaterial((int) mdlxGeoset.materialId);
 
-		final float[] vertices = geoset.vertices;
-		final float[] normals = geoset.normals;
-		final float[][] uvSets = geoset.uvSets;
-		final short[] vertexGroups = geoset.vertexGroups;
+		final float[] vertices = mdlxGeoset.vertices;
+		final float[] normals = mdlxGeoset.normals;
+		final float[][] uvSets = mdlxGeoset.uvSets;
+		final short[] vertexGroups = mdlxGeoset.vertexGroups;
 
 		for (int i = 0; i < vertices.length / 3; i++) {
 			final GeosetVertex gv = new GeosetVertex(vertices[(i * 3)], vertices[(i * 3) + 1], vertices[(i * 3) + 2]);
@@ -71,41 +71,41 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		// guys I didn't code this to allow experimental non-triangle faces that were suggested to exist
 		// on the web (i.e. quads). if you wanted to fix that, you'd want to do it below
-		final int[] faces = geoset.faces;
+		final int[] faces = mdlxGeoset.faces;
 
 		for (int i = 0; i < faces.length; i += 3) {
 			add(new Triangle(faces[i], faces[i + 1], faces[i + 2], this));
 		}
 
-		if (geoset.selectionFlags == 4) {
+		if (mdlxGeoset.selectionFlags == 4) {
 			unselectable = true;
 		}
 
-		setSelectionGroup((int)geoset.selectionGroup);
-		setLevelOfDetail(geoset.lod);
-		setLevelOfDetailName(geoset.lodName);
+		setSelectionGroup((int) mdlxGeoset.selectionGroup);
+		setLevelOfDetail(mdlxGeoset.lod);
+		setLevelOfDetailName(mdlxGeoset.lodName);
 
 		int index = 0;
-		for (final long size : geoset.matrixGroups) {
+		for (final long size : mdlxGeoset.matrixGroups) {
 			final Matrix m = new Matrix();
 			for (int i = 0; i < size; i++) {
-				m.addId((int)geoset.matrixIndices[index++]);
+				m.addId((int) mdlxGeoset.matrixIndices[index++]);
 			}
 			addMatrix(m);
 		}
 
-		if (geoset.tangents != null) {
-			final float[] tangents = geoset.tangents;
-			final short[] skin = geoset.skin;
+		if (mdlxGeoset.tangents != null) {
+			final float[] tangents = mdlxGeoset.tangents;
+			final short[] skin = mdlxGeoset.skin;
 
 			// version 900
 			this.skin = new ArrayList<>();
 			this.tangents = new ArrayList<>();
 			for (int i = 0; i < tangents.length; i += 4) {
-				this.tangents.add(new float[] { tangents[i], tangents[i + 1], tangents[i + 2], tangents[i + 3] });
+				this.tangents.add(new float[] {tangents[i], tangents[i + 1], tangents[i + 2], tangents[i + 3]});
 			}
 			for (int i = 0; i < skin.length; i += 8) {
-				this.skin.add(new short[] { skin[i], skin[i + 1], skin[i + 2], skin[i + 3], skin[i + 4], skin[i + 5], skin[i + 6], skin[i + 7] });
+				this.skin.add(new short[] {skin[i], skin[i + 1], skin[i + 2], skin[i + 3], skin[i + 4], skin[i + 5], skin[i + 6], skin[i + 7]});
 			}
 		}
 	}

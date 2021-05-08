@@ -36,22 +36,22 @@ public class EventObject extends IdObject {
 		hasGlobalSeq = object.hasGlobalSeq;
 	}
 
-	public EventObject(final MdlxEventObject object) {
-		if ((object.flags & 1024) != 1024) {
-			System.err.println("MDX -> MDL error: An eventobject '" + object.name
+	public EventObject(final MdlxEventObject mdlxObject) {
+		if ((mdlxObject.flags & 1024) != 1024) {
+			System.err.println("MDX -> MDL error: An eventobject '" + mdlxObject.name
 					+ "' not flagged as eventobject in MDX!");
 		}
 
-		loadObject((object));
+		loadObject((mdlxObject));
 
-		final int globalSequenceId = object.globalSequenceId;
+		final int globalSequenceId = mdlxObject.globalSequenceId;
 
 		if (globalSequenceId >= 0) {
 			globalSeqId = globalSequenceId;
 			hasGlobalSeq = true;
 		}
 
-		for (final long val : object.keyFrames) {
+		for (final long val : mdlxObject.keyFrames) {
 			eventTrack.add((int) val);
 		}
 	}

@@ -44,24 +44,24 @@ public class ParticleEmitter extends EmitterIdObject {
 		path = emitter.path;
 	}
 
-	public ParticleEmitter(MdlxParticleEmitter emitter) {
-		if ((emitter.flags & 4096) != 4096) {
-			System.err.println("MDX -> MDL error: A particle emitter '" + emitter.name
+	public ParticleEmitter(MdlxParticleEmitter mdlxEmitter) {
+		if ((mdlxEmitter.flags & 4096) != 4096) {
+			System.err.println("MDX -> MDL error: A particle emitter '" + mdlxEmitter.name
 					+ "' not flagged as particle emitter in MDX!");
 		}
 
-		loadObject(emitter);
+		loadObject(mdlxEmitter);
 
-		setEmissionRate(emitter.emissionRate);
-		setGravity(emitter.gravity);
-		setInitVelocity(emitter.speed);
-		setLatitude(emitter.latitude);
-		setLifeSpan(emitter.lifeSpan);
-		setLongitude(emitter.longitude);
-		setPath(emitter.path);
+		setEmissionRate(mdlxEmitter.emissionRate);
+		setGravity(mdlxEmitter.gravity);
+		setInitVelocity(mdlxEmitter.speed);
+		setLatitude(mdlxEmitter.latitude);
+		setLifeSpan(mdlxEmitter.lifeSpan);
+		setLongitude(mdlxEmitter.longitude);
+		setPath(mdlxEmitter.path);
 
-		setMDLEmitter(((emitter.flags >> 15) & 1) == 1);
-		if (!isMDLEmitter() && (((emitter.flags >> 8) & 1) == 1)) {
+		setMDLEmitter(((mdlxEmitter.flags >> 15) & 1) == 1);
+		if (!isMDLEmitter() && (((mdlxEmitter.flags >> 8) & 1) == 1)) {
 			System.err.println(
 					"WARNING in MDX -> MDL: ParticleEmitter of unknown type! Defaults to EmitterUsesTGA in my MDL code!");
 		}

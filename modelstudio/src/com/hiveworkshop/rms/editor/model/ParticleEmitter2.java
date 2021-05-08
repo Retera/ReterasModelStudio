@@ -101,53 +101,53 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		texture = emitter.texture;
 	}
 
-	public ParticleEmitter2(MdlxParticleEmitter2 emitter) {
-		if ((emitter.flags & 4096) != 4096) {
-			System.err.println("MDX -> MDL error: A particle emitter '" + emitter.name
+	public ParticleEmitter2(MdlxParticleEmitter2 mdlxEmitter) {
+		if ((mdlxEmitter.flags & 4096) != 4096) {
+			System.err.println("MDX -> MDL error: A particle emitter '" + mdlxEmitter.name
 					+ "' not flagged as particle emitter in MDX!");
 		}
 
-		loadObject(emitter);
+		loadObject(mdlxEmitter);
 
-		if ((emitter.flags & 0x8000) != 0) {
+		if ((mdlxEmitter.flags & 0x8000) != 0) {
 			unshaded = true;
 		}
-		if ((emitter.flags & 0x10000) != 0) {
+		if ((mdlxEmitter.flags & 0x10000) != 0) {
 			sortPrimsFarZ = true;
 		}
-		if ((emitter.flags & 0x20000) != 0) {
+		if ((mdlxEmitter.flags & 0x20000) != 0) {
 			lineEmitter = true;
 		}
-		if ((emitter.flags & 0x40000) != 0) {
+		if ((mdlxEmitter.flags & 0x40000) != 0) {
 			unfogged = true;
 		}
-		if ((emitter.flags & 0x80000) != 0) {
+		if ((mdlxEmitter.flags & 0x80000) != 0) {
 			modelSpace = true;
 		}
-		if ((emitter.flags & 0x100000) != 0) {
+		if ((mdlxEmitter.flags & 0x100000) != 0) {
 			xYQuad = true;
 		}
 
-		setSpeed(emitter.speed);
-		setVariation(emitter.variation);
-		setLatitude(emitter.latitude);
-		setGravity(emitter.gravity);
-		setLifeSpan(emitter.lifeSpan);
-		setEmissionRate(emitter.emissionRate);
-		setLength(emitter.length);
-		setWidth(emitter.width);
-		filterMode = emitter.filterMode;
+		setSpeed(mdlxEmitter.speed);
+		setVariation(mdlxEmitter.variation);
+		setLatitude(mdlxEmitter.latitude);
+		setGravity(mdlxEmitter.gravity);
+		setLifeSpan(mdlxEmitter.lifeSpan);
+		setEmissionRate(mdlxEmitter.emissionRate);
+		setLength(mdlxEmitter.length);
+		setWidth(mdlxEmitter.width);
+		filterMode = mdlxEmitter.filterMode;
 
-		setRows((int) emitter.rows);
-		setColumns((int) emitter.columns);
+		setRows((int) mdlxEmitter.rows);
+		setColumns((int) mdlxEmitter.columns);
 
-		headOrTail = emitter.headOrTail;
+		headOrTail = mdlxEmitter.headOrTail;
 
-		setTailLength(emitter.tailLength);
-		setTime(emitter.timeMiddle);
+		setTailLength(mdlxEmitter.tailLength);
+		setTime(mdlxEmitter.timeMiddle);
 
-		float[][] colors = emitter.segmentColors;
-		short[] alphas = emitter.segmentAlphas;
+		float[][] colors = mdlxEmitter.segmentColors;
+		short[] alphas = mdlxEmitter.segmentAlphas;
 
 		// SegmentColor - Inverse order for MDL!
 		for (int i = 0; i < 3; i++) {
@@ -156,24 +156,24 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		}
 
 		setAlpha(new Vec3(alphas[0], alphas[1], alphas[2]));
-		setParticleScaling(new Vec3(emitter.segmentScaling));
+		setParticleScaling(new Vec3(mdlxEmitter.segmentScaling));
 
-		long[][] head = emitter.headIntervals;
-		long[][] tail = emitter.tailIntervals;
+		long[][] head = mdlxEmitter.headIntervals;
+		long[][] tail = mdlxEmitter.tailIntervals;
 
 		setHeadUVAnim(new Vec3(head[0][0], head[0][1], head[0][2]));
 		setHeadDecayUVAnim(new Vec3(head[1][0], head[1][1], head[1][2]));
 		setTailUVAnim(new Vec3(tail[0][0], tail[0][1], tail[0][2]));
 		setTailDecayUVAnim(new Vec3(tail[1][0], tail[1][1], tail[1][2]));
 
-		setTextureID(emitter.textureId);
+		setTextureID(mdlxEmitter.textureId);
 
-		if (emitter.squirt == 1) {
+		if (mdlxEmitter.squirt == 1) {
 			squirt = true;
 		}
 
-		setPriorityPlane(emitter.priorityPlane);
-		setReplaceableId((int) emitter.replaceableId);
+		setPriorityPlane(mdlxEmitter.priorityPlane);
+		setReplaceableId((int) mdlxEmitter.replaceableId);
 	}
 
 	public MdlxParticleEmitter2 toMdlx(EditableModel model) {
