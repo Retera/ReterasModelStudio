@@ -10,8 +10,8 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 public class DispElements {
-	static ChooseableDummyItem getDummyItem(ModelView modelViewManager, String sequences) {
-		return new ChooseableDummyItem(modelViewManager, sequences);
+	static ChooseableDummyItem getDummyItem(ModelView modelViewManager, String name) {
+		return new ChooseableDummyItem(modelViewManager, name);
 	}
 
 	public static ChooseableDisplayElement<?> getIdObjectElement(ModelView modelViewManager, IdObject idObject) {
@@ -301,7 +301,8 @@ public class DispElements {
 
 		@Override
 		protected String getName(GeosetAnim item, ModelView modelViewManager) {
-			return "GeosetAnim " + modelViewManager.getModel().getGeosetAnims().indexOf(item);
+			return "GeosetAnim " + modelViewManager.getModel().getGeosets().indexOf(item.getGeoset());
+//			return "GeosetAnim " + modelViewManager.getModel().getGeosetAnims().indexOf(item);
 		}
 	}
 
@@ -381,12 +382,14 @@ public class DispElements {
 
 		@Override
 		protected String getName(Geoset item, ModelView modelViewManager) {
-//			String numberName = item.getName();
-			String numberName = "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
-			if ((item.getLevelOfDetailName() != null) && (item.getLevelOfDetailName().length() > 0)) {
-				return numberName + ": " + item.getLevelOfDetailName();
-			}
-			return numberName;
+////			String numberName = item.getName();
+////			String numberName = "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
+//			String numberName = "Geoset " + (modelViewManager.getModel().getGeosetId(item));
+//			if ((item.getLevelOfDetailName() != null) && (item.getLevelOfDetailName().length() > 0)) {
+//				return numberName + ": " + item.getLevelOfDetailName();
+//			}
+////			return numberName;
+			return item.getName();
 		}
 
 		@Override

@@ -7,53 +7,53 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import java.util.*;
 
 public final class SetMatrixAction implements UndoAction {
-	private final Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences;
-	private final Collection<Bone> newBoneReferences;
-	private final Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences;
-	private final Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences;
-	private final Map<GeosetVertex, Bone[]> vertexToNewSkinBoneReferences;
-	private final Map<GeosetVertex, short[]> vertexToNewSkinBoneWeightReferences;
+	private Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences;
+	private Collection<Bone> newBoneReferences;
+	private Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences;
+	private Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences;
+	private Map<GeosetVertex, Bone[]> vertexToNewSkinBoneReferences;
+	private Map<GeosetVertex, short[]> vertexToNewSkinBoneWeightReferences;
 
-	public SetMatrixAction(final Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences,
-			final Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences,
-			final Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences,
-			final Collection<Bone> newBoneReferences) {
+	public SetMatrixAction(Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences,
+	                       Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences,
+	                       Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences,
+	                       Collection<Bone> newBoneReferences) {
 		this.vertexToOldBoneReferences = vertexToOldBoneReferences;
 		this.vertexToOldSkinBoneReferences = vertexToOldSkinBoneReferences;
 		this.vertexToOldSkinBoneWeightReferences = vertexToOldSkinBoneWeightReferences;
 		this.newBoneReferences = newBoneReferences;
 		vertexToNewSkinBoneReferences = new HashMap<>();
 		vertexToNewSkinBoneWeightReferences = new HashMap<>();
-		for (final Map.Entry<GeosetVertex, Bone[]> entry : vertexToOldSkinBoneReferences.entrySet()) {
+		for (Map.Entry<GeosetVertex, Bone[]> entry : vertexToOldSkinBoneReferences.entrySet()) {
 			vertexToNewSkinBoneReferences.put(entry.getKey(), entry.getKey().getSkinBoneBones().clone());
 		}
-		for (final Map.Entry<GeosetVertex, short[]> entry : vertexToOldSkinBoneWeightReferences.entrySet()) {
+		for (Map.Entry<GeosetVertex, short[]> entry : vertexToOldSkinBoneWeightReferences.entrySet()) {
 			vertexToNewSkinBoneWeightReferences.put(entry.getKey(), entry.getKey().getSkinBoneWeights().clone());
 		}
 	}
 
 	@Override
 	public void undo() {
-		for (final Map.Entry<GeosetVertex, List<Bone>> entry : vertexToOldBoneReferences.entrySet()) {
+		for (Map.Entry<GeosetVertex, List<Bone>> entry : vertexToOldBoneReferences.entrySet()) {
 			entry.getKey().setBones(new ArrayList<>(entry.getValue()));
 		}
-		for (final Map.Entry<GeosetVertex, Bone[]> entry : vertexToOldSkinBoneReferences.entrySet()) {
+		for (Map.Entry<GeosetVertex, Bone[]> entry : vertexToOldSkinBoneReferences.entrySet()) {
 			entry.getKey().setSkinBones(entry.getValue());
 		}
-		for (final Map.Entry<GeosetVertex, short[]> entry : vertexToOldSkinBoneWeightReferences.entrySet()) {
+		for (Map.Entry<GeosetVertex, short[]> entry : vertexToOldSkinBoneWeightReferences.entrySet()) {
 			entry.getKey().setSkinBoneWeights(entry.getValue());
 		}
 	}
 
 	@Override
 	public void redo() {
-		for (final Map.Entry<GeosetVertex, List<Bone>> entry : vertexToOldBoneReferences.entrySet()) {
+		for (Map.Entry<GeosetVertex, List<Bone>> entry : vertexToOldBoneReferences.entrySet()) {
 			entry.getKey().setBones(new ArrayList<>(newBoneReferences));
 		}
-		for (final Map.Entry<GeosetVertex, Bone[]> entry : vertexToNewSkinBoneReferences.entrySet()) {
+		for (Map.Entry<GeosetVertex, Bone[]> entry : vertexToNewSkinBoneReferences.entrySet()) {
 			entry.getKey().setSkinBones(entry.getValue());
 		}
-		for (final Map.Entry<GeosetVertex, short[]> entry : vertexToNewSkinBoneWeightReferences.entrySet()) {
+		for (Map.Entry<GeosetVertex, short[]> entry : vertexToNewSkinBoneWeightReferences.entrySet()) {
 			entry.getKey().setSkinBoneWeights(entry.getValue());
 		}
 	}

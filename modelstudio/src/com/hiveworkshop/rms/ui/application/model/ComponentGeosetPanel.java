@@ -28,6 +28,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	//	private final JLabel selectionGroupLabel;
 	private JSpinner selectionGroupSpinner;
 	private Geoset geoset;
+	private JLabel geosetLabel;
 
 	private final boolean listenersEnabled = true;
 	private final JPanel materialPanelHolder;
@@ -37,7 +38,10 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	                            ModelStructureChangeListener modelStructureChangeListener) {
 		this.modelHandler = modelHandler;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		setLayout(new MigLayout("fill", "[][grow][grow]", "[][][grow]"));
+		setLayout(new MigLayout("fill", "[][grow][grow]", "[][][][grow]"));
+
+		geosetLabel = new JLabel("geoset name");
+		add(geosetLabel, "wrap");
 
 		materialPanels = new HashMap<>();
 
@@ -94,6 +98,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	@Override
 	public void setSelectedItem(final Geoset geoset) {
 		this.geoset = geoset;
+		geosetLabel.setText(geoset.getName());
 		materialPanelHolder.remove(materialPanel);
 		setToggleButtonText();
 
