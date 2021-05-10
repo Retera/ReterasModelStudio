@@ -24,7 +24,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingActi
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingMoveActionAdapter;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -33,7 +32,7 @@ import java.util.*;
 
 public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
-	public PivotPointModelEditor(SelectionManager<Vec3> selectionManager,
+	public PivotPointModelEditor(PivotPointSelectionManager selectionManager,
 	                             ModelStructureChangeListener structureChangeListener,
 	                             ModelHandler modelHandler) {
 		super(selectionManager, structureChangeListener, modelHandler);
@@ -67,11 +66,14 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 	@Override
 	public UndoAction setParent(IdObject node) {
 		Map<IdObject, IdObject> nodeToOldParent = new HashMap<>();
-		for (IdObject b : modelView.getEditableIdObjects()) {
-			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
-				nodeToOldParent.put(b, b.getParent());
-			}
+		for (IdObject idObject : modelView.getSelectedIdObjects()) {
+			nodeToOldParent.put(idObject, idObject.getParent());
 		}
+//		for (IdObject b : modelView.getEditableIdObjects()) {
+//			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+//				nodeToOldParent.put(b, b.getParent());
+//			}
+//		}
 		SetParentAction setParentAction = new SetParentAction(nodeToOldParent, node, structureChangeListener);
 		setParentAction.redo();
 		return setParentAction;
@@ -79,12 +81,12 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 	@Override
 	public UndoAction autoCenterSelectedBones() {
-		Set<IdObject> selBones = new HashSet<>();
-		for (IdObject b : modelView.getEditableIdObjects()) {
-			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
-				selBones.add(b);
-			}
-		}
+//		Set<IdObject> selBones = new HashSet<>();
+//		for (IdObject b : modelView.getEditableIdObjects()) {
+//			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+//				selBones.add(b);
+//			}
+//		}
 
 		Map<Geoset, Map<Bone, List<GeosetVertex>>> geosetBoneMaps = new HashMap<>();
 		for (Geoset geo : modelView.getModel().getGeosets()) {
@@ -92,8 +94,9 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		}
 
 		Map<Bone, Vec3> boneToOldPosition = new HashMap<>();
-		for (IdObject obj : selBones) {
-			if (Bone.class.isAssignableFrom(obj.getClass())) {
+		for (IdObject obj : modelView.getSelectedIdObjects()) {
+			if (obj instanceof Bone) {
+//			if (Bone.class.isAssignableFrom(obj.getClass())) {
 				Bone bone = (Bone) obj;
 				List<GeosetVertex> childVerts = new ArrayList<>();
 				for (Geoset geo : modelView.getModel().getGeosets()) {
@@ -114,20 +117,21 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 	@Override
 	public UndoAction setSelectedBoneName(String name) {
-		if (selectionManager.getSelection().size() != 1) {
+		if (modelView.getSelectedIdObjects().size() != 1) {
 			throw new IllegalStateException("Only one bone can be renamed at a time.");
 		}
-		Vec3 selectedVertex = selectionManager.getSelection().iterator().next();
-		IdObject node = null;
-		for (IdObject bone : modelView.getEditableIdObjects()) {
-			if (bone.getPivotPoint() == selectedVertex) {
-				if (node != null) {
-					throw new IllegalStateException(
-							"Flagrant error. Multiple bones are bound to the same memory addresses. Save your work and restart the application.");
-				}
-				node = bone;
-			}
-		}
+//		Vec3 selectedVertex = selectionManager.getSelection().iterator().next();
+		IdObject node = modelView.getSelectedIdObjects().iterator().next();
+//		IdObject node = null;
+//		for (IdObject bone : modelView.getEditableIdObjects()) {
+//			if (bone.getPivotPoint() == selectedVertex) {
+//				if (node != null) {
+//					throw new IllegalStateException(
+//							"Flagrant error. Multiple bones are bound to the same memory addresses. Save your work and restart the application.");
+//				}
+//				node = bone;
+//			}
+//		}
 		if (node == null) {
 			throw new IllegalStateException("Selection is not a node");
 		}
@@ -138,14 +142,21 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 
 	@Override
 	public UndoAction addSelectedBoneSuffix(String name) {
-		Set<Vec3> selection = selectionManager.getSelection();
+//		Set<Vec3> selection = selectionManager.getSelection();
+//		List<RenameBoneAction> actions = new ArrayList<>();
+//		for (IdObject bone : modelView.getEditableIdObjects()) {
+//			if (selection.contains(bone.getPivotPoint())) {
+//				RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName(), bone.getName() + name, bone);
+//				renameBoneAction.redo();
+//				actions.add(renameBoneAction);
+//			}
+//		}
 		List<RenameBoneAction> actions = new ArrayList<>();
-		for (IdObject bone : modelView.getEditableIdObjects()) {
-			if (selection.contains(bone.getPivotPoint())) {
-				RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName(), bone.getName() + name, bone);
-				renameBoneAction.redo();
-				actions.add(renameBoneAction);
-			}
+		for (IdObject bone : modelView.getSelectedIdObjects()) {
+			RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName(), bone.getName() + name, bone);
+			renameBoneAction.redo();
+			actions.add(renameBoneAction);
+
 		}
 		return new CompoundAction("add selected bone suffix", actions);
 	}
@@ -156,9 +167,19 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 		Set<Vec3> invertedSelection = new HashSet<>(selectionManager.getSelection());
 		for (IdObject object : modelView.getEditableIdObjects()) {
 			toggleSelection(invertedSelection, object.getPivotPoint());
+//			if (selection.contains(position)) {
+//				selection.remove(position);
+//			} else {
+//				selection.add(position);
+//			}
 			if (object instanceof CollisionShape) {
 				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
 					toggleSelection(invertedSelection, vertex);
+//					if (selection.contains(position)) {
+//						selection.remove(position);
+//					} else {
+//						selection.add(position);
+//					}
 				}
 			}
 		}
@@ -177,6 +198,33 @@ public class PivotPointModelEditor extends AbstractModelEditor<Vec3> {
 			selection.add(position);
 		}
 	}
+//	@Override
+//	public UndoAction invertSelection() {
+//		List<Vec3> oldSelection = new ArrayList<>(selectionManager.getSelection());
+//		Set<Vec3> invertedSelection = new HashSet<>(selectionManager.getSelection());
+//		for (IdObject object : modelView.getEditableIdObjects()) {
+//			toggleSelection(invertedSelection, object.getPivotPoint());
+//			if (object instanceof CollisionShape) {
+//				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+//					toggleSelection(invertedSelection, vertex);
+//				}
+//			}
+//		}
+//		for (Camera object : modelView.getEditableCameras()) {
+//			toggleSelection(invertedSelection, object.getPosition());
+//			toggleSelection(invertedSelection, object.getTargetPosition());
+//		}
+//		selectionManager.setSelection(invertedSelection);
+//		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
+//	}
+//
+//	private void toggleSelection(Set<Vec3> selection, Vec3 position) {
+//		if (selection.contains(position)) {
+//			selection.remove(position);
+//		} else {
+//			selection.add(position);
+//		}
+//	}
 
 	@Override
 	public UndoAction selectAll() {

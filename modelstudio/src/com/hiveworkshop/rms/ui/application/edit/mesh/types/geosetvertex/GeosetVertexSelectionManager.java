@@ -19,9 +19,13 @@ import java.util.Set;
 
 public final class GeosetVertexSelectionManager extends SelectionManager<GeosetVertex> {
 
+	public GeosetVertexSelectionManager(ModelView modelView) {
+		super(modelView);
+	}
+
 	@Override
 	public Vec3 getCenter() {
-		return Vec3.centerOfGroup(selection);
+		return Vec3.centerOfGroup(modelView.getSelectedVertices());
 	}
 
 	@Override
@@ -62,7 +66,7 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 			for (GeosetVertex geosetVertex : vertices) {
 				if (model.getHighlightedGeoset() == geo) {
 					renderer.renderVertex(ProgramGlobals.getPrefs().getHighlighVertexColor(), geosetVertex);
-				} else if (selection.contains(geosetVertex)) {
+				} else if (modelView.isSelected(geosetVertex)) {
 					renderer.renderVertex(ProgramGlobals.getPrefs().getSelectColor(), geosetVertex);
 				} else {
 					renderer.renderVertex(ProgramGlobals.getPrefs().getVertexColor(), geosetVertex);
@@ -74,7 +78,7 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	@Override
 	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
 		double radius = 0;
-		for (Vec3 item : selection) {
+		for (Vec3 item : modelView.getSelectedVertices()) {
 			double distance = sphereCenter.distance(item);
 			if (distance >= radius) {
 				radius = distance;
@@ -86,7 +90,7 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	@Override
 	public double getCircumscribedSphereRadius(Vec2 center, int tvertexLayerId) {
 		double radius = 0;
-		for (GeosetVertex item : selection) {
+		for (GeosetVertex item : modelView.getSelectedVertices()) {
 			if (tvertexLayerId < item.getTverts().size()) {
 				double distance = center.distance(item.getTVertex(tvertexLayerId));
 				if (distance >= radius) {
@@ -105,7 +109,7 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	@Override
 	public Collection<? extends Vec2> getSelectedTVertices(int tvertexLayerId) {
 		Set<Vec2> selectedTVertices = new HashSet<>();
-		for (GeosetVertex vertex : selection) {
+		for (GeosetVertex vertex : modelView.getSelectedVertices()) {
 			if (tvertexLayerId < vertex.getTverts().size()) {
 				selectedTVertices.add(vertex.getTVertex(tvertexLayerId));
 			}
@@ -114,8 +118,7 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	}
 
 	@Override
-	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView,
-	                              int tvertexLayerId) {
+	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView, int tvertexLayerId) {
 		for (Geoset geo : modelView.getEditableGeosets()) {
 			List<GeosetVertex> vertices = geo.getVertices();
 			for (GeosetVertex geosetVertex : vertices) {
@@ -124,7 +127,7 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 				}
 				if (modelView.getHighlightedGeoset() == geo) {
 					renderer.renderVertex(ProgramGlobals.getPrefs().getHighlighVertexColor(), geosetVertex.getTVertex(tvertexLayerId));
-				} else if (selection.contains(geosetVertex)) {
+				} else if (modelView.isSelected(geosetVertex)) {
 					renderer.renderVertex(ProgramGlobals.getPrefs().getSelectColor(), geosetVertex.getTVertex(tvertexLayerId));
 				} else {
 					renderer.renderVertex(ProgramGlobals.getPrefs().getVertexColor(), geosetVertex.getTVertex(tvertexLayerId));

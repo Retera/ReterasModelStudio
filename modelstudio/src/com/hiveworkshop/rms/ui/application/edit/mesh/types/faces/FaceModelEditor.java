@@ -1,6 +1,9 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.types.faces;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.application.actions.mesh.SplitGeosetAction;
 import com.hiveworkshop.rms.ui.application.actions.mesh.TeamColorAddAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -15,7 +18,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayEleme
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -24,7 +26,7 @@ import java.util.*;
 
 public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 
-	public FaceModelEditor(SelectionManager<Triangle> selectionManager,
+	public FaceModelEditor(FaceSelectionManager selectionManager,
 	                       ModelStructureChangeListener structureChangeListener,
 	                       ModelHandler modelHandler) {
 		super(selectionManager, structureChangeListener, modelHandler);
@@ -48,6 +50,8 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	@Override
 	public void selectByVertices(Collection<? extends Vec3> newSelection) {
 		Set<Triangle> newlySelectedFaces = new HashSet<>();
+		Set<GeosetVertex> newlySelectedVerts = new HashSet<>();
+
 		for (Geoset geoset : modelView.getModel().getGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
 				boolean allInSelection = true;
@@ -58,21 +62,28 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 					}
 				}
 				if (allInSelection) {
+					newlySelectedVerts.addAll(Arrays.asList(triangle.getVerts()));
 					newlySelectedFaces.add(triangle);
 				}
 			}
 		}
-		selectionManager.setSelection(newlySelectedFaces);
+//		selectionManager.setSelection(newlySelectedFaces);
+		modelView.setSelectedVertices(newlySelectedVerts);
 	}
 
 	@Override
 	public UndoAction expandSelection() {
-		Set<Triangle> oldSelection = new HashSet<>(selectionManager.getSelection());
-		Set<Triangle> expandedSelection = new HashSet<>(selectionManager.getSelection());
-		for (Triangle triangle : new ArrayList<>(selectionManager.getSelection())) {
+		Set<Triangle> oldSelection = new HashSet<>(modelView.getSelectedTriangles());
+		Set<Triangle> expandedSelection = new HashSet<>(oldSelection);
+		for (Triangle triangle : new ArrayList<>(oldSelection)) {
 			expandSelection(triangle, expandedSelection);
 		}
-		selectionManager.addSelection(expandedSelection);
+		Set<GeosetVertex> expSelVerts = new HashSet<>();
+		for (Triangle triangle : expandedSelection) {
+			expSelVerts.addAll(Arrays.asList(triangle.getVerts()));
+		}
+//		selectionManager.addSelection(expandedSelection);
+		modelView.addSelectedVertices(expSelVerts);
 		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection");
 	}
 
@@ -89,36 +100,39 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 
 	@Override
 	public UndoAction invertSelection() {
-		Set<Triangle> oldSelection = new HashSet<>(selectionManager.getSelection());
-		Set<Triangle> invertedSelection = new HashSet<>(selectionManager.getSelection());
-		for (Geoset geoset : modelView.getEditableGeosets()) {
-			for (Triangle triangle : geoset.getTriangles()) {
-				if (invertedSelection.contains(triangle)) {
-					invertedSelection.remove(triangle);
-				} else {
-					invertedSelection.add(triangle);
-				}
-			}
-		}
-		selectionManager.setSelection(invertedSelection);
+		Set<Triangle> oldSelection = new HashSet<>(modelView.getSelectedTriangles());
+		modelView.invertVertSelection();
+		Set<Triangle> invertedSelection = new HashSet<>(modelView.getSelectedTriangles());
+//		Set<Triangle> invertedSelection = new HashSet<>(oldSelection);
+//		for (Geoset geoset : modelView.getEditableGeosets()) {
+//			for (Triangle triangle : geoset.getTriangles()) {
+//				if (invertedSelection.contains(triangle)) {
+//					invertedSelection.remove(triangle);
+//				} else {
+//					invertedSelection.add(triangle);
+//				}
+//			}
+//		}
+//		selectionManager.setSelection(invertedSelection);
 		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
 	}
 
 	@Override
 	public UndoAction selectAll() {
-		Set<Triangle> oldSelection = new HashSet<>(selectionManager.getSelection());
-		Set<Triangle> allSelection = new HashSet<>();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
-			allSelection.addAll(geoset.getTriangles());
-		}
-		selectionManager.setSelection(allSelection);
+		Set<Triangle> oldSelection = new HashSet<>(modelView.getSelectedTriangles());
+		modelView.selectAllVerts();
+		Set<Triangle> allSelection = new HashSet<>(modelView.getSelectedTriangles());
+//		for (Geoset geoset : modelView.getEditableGeosets()) {
+//			allSelection.addAll(geoset.getTriangles());
+//		}
+//		selectionManager.setSelection(allSelection);
 		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
 	}
 
 	@Override
 	public UndoAction addTeamColor() {
 		// copy the selection before we hand it off, so the we can't strip the stored action's list of faces to add/remove
-		TeamColorAddAction<Triangle> teamColorAddAction = new TeamColorAddAction<>(new ArrayList<>(selectionManager.getSelection()), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
+		TeamColorAddAction<Triangle> teamColorAddAction = new TeamColorAddAction<>(new ArrayList<>(modelView.getSelectedTriangles()), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
@@ -154,29 +168,30 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 
 	@Override
 	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement<?>> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
-		List<Triangle> previousSelection = new ArrayList<>(selectionManager.getSelection());
+		List<Triangle> previousSelection = new ArrayList<>(modelView.getSelectedTriangles());
 		List<Triangle> possibleTrianglesToTruncate = new ArrayList<>();
-		List<Vec3> possibleVerticesToTruncate = new ArrayList<>();
+//		List<Vec3> possibleVerticesToTruncate = new ArrayList<>();
 		for (CheckableDisplayElement<?> component : selectableComponents) {
 			Object item = component.getItem();
-			if (item instanceof Camera) {
-				possibleVerticesToTruncate.add(((Camera) item).getPosition());
-				possibleVerticesToTruncate.add(((Camera) item).getTargetPosition());
-			} else if (item instanceof IdObject) {
-				possibleVerticesToTruncate.add(((IdObject) item).getPivotPoint());
-			} else if (item instanceof Geoset) {
+//			if (item instanceof Camera) {
+//				possibleVerticesToTruncate.add(((Camera) item).getPosition());
+//				possibleVerticesToTruncate.add(((Camera) item).getTargetPosition());
+//			} else if (item instanceof IdObject) {
+//				possibleVerticesToTruncate.add(((IdObject) item).getPivotPoint());
+//			} else
+			if (item instanceof Geoset) {
 				possibleTrianglesToTruncate.addAll(((Geoset) item).getTriangles());
 			}
 		}
-		Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleTrianglesToTruncate);
-		Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
+		Runnable truncateSelectionRunnable = () -> modelView.removeSelectedTris(possibleTrianglesToTruncate);
+		Runnable unTruncateSelectionRunnable = () -> modelView.setSelectedTris(previousSelection);
 		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 
 	@Override
 	public UndoAction splitGeoset() {
 		// copy the selection before we hand it off, so the we can't strip the stored action's list of faces to add/remove
-		SplitGeosetAction<Triangle> teamColorAddAction = new SplitGeosetAction<>(new ArrayList<>(selectionManager.getSelection()), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
+		SplitGeosetAction<Triangle> teamColorAddAction = new SplitGeosetAction<>(new ArrayList<>(modelView.getSelectedTriangles()), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
@@ -184,7 +199,7 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	@Override
 	public CopiedModelData copySelection() {
 		// TODO heavy overlap with GeosetVertexModelEditor's code
-		Set<Triangle> selection = selectionManager.getSelection();
+		Set<Triangle> selection = modelView.getSelectedTriangles();
 		List<Geoset> copiedGeosets = new ArrayList<>();
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			Geoset copy = new Geoset();

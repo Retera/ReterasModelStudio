@@ -27,9 +27,10 @@ public final class VertexClusterSelectionManager extends SelectionManager<Vertex
 
 	private final VertexClusterDefinitions vertexClusterDefinitions;
 
-	public VertexClusterSelectionManager(VertexClusterDefinitions vertexClusterDefinitions) {
+	public VertexClusterSelectionManager(VertexClusterDefinitions vertexClusterDefinitions, ModelView modelView) {
+		super(modelView);
 		this.vertexClusterDefinitions = vertexClusterDefinitions;
-		cachedVertexListManager = new GeosetVertexSelectionManager();
+		cachedVertexListManager = new GeosetVertexSelectionManager(modelView);
 		addSelectionListener(newSelection -> {
 			List<GeosetVertex> verticesSelected = new ArrayList<>();
 			for (VertexGroupBundle bundle : getSelection()) {

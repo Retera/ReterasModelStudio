@@ -24,8 +24,9 @@ public final class VertexGroupSelectionManager extends SelectionManager<VertexGr
 	private final GeosetVertexSelectionManager cachedVertexListManager;
 	private final Set<Integer> resettableIntegerSet = new HashSet<>();
 
-	public VertexGroupSelectionManager() {
-		cachedVertexListManager = new GeosetVertexSelectionManager();
+	public VertexGroupSelectionManager(ModelView modelView) {
+		super(modelView);
+		cachedVertexListManager = new GeosetVertexSelectionManager(modelView);
 		addSelectionListener(newSelection -> {
 			List<GeosetVertex> verticesSelected = new ArrayList<>();
 			for (VertexGroupBundle bundle : getSelection()) {

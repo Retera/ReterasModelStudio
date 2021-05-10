@@ -15,14 +15,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class TPoseSelectionManager extends SelectionManager<IdObject> {
-	private final ModelView modelView;
+//	private final ModelView modelView;
 	private final boolean moveLinked;
 
 	private final Bone renderBoneDummy = new Bone();
 
 
 	public TPoseSelectionManager(ModelView modelView, boolean moveLinked) {
-		this.modelView = modelView;
+		super(modelView);
+//		this.modelView = modelView;
 		this.moveLinked = moveLinked;
 	}
 

@@ -64,8 +64,8 @@ public final class ModelEditorManager {
 		}
 		switch (selectionMode) {
 			case FACE -> {
-				FaceSelectionManager selectionManager = new FaceSelectionManager();
-				PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
+				FaceSelectionManager selectionManager = new FaceSelectionManager(modelHandler.getModelView());
+				PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager(modelHandler.getModelView());
 				ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
 				FaceModelEditor faceModelEditor = new FaceModelEditor(selectionManager, structureChangeListener, modelHandler);
 				modelEditorNotifier.subscribe(faceModelEditor);
@@ -85,8 +85,8 @@ public final class ModelEditorManager {
 				modelEditorNotifier.setCloneContextHelper(new CloneContextHelper(modelHandler.getModelView(), structureChangeListener, faceModelEditor.getVertexSelectionHelper(), pivotPointModelEditor.getVertexSelectionHelper(), pivotPointModelEditor.selectionManager, faceModelEditor.selectionManager));
 			}
 			case GROUP -> {
-				VertexGroupSelectionManager selectionManager = new VertexGroupSelectionManager();
-				PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
+				VertexGroupSelectionManager selectionManager = new VertexGroupSelectionManager(modelHandler.getModelView());
+				PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager(modelHandler.getModelView());
 				ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
 
 				VertexGroupModelEditor vertexGroupModelEditor = new VertexGroupModelEditor(selectionManager, structureChangeListener, modelHandler);
@@ -106,7 +106,7 @@ public final class ModelEditorManager {
 				modelEditorNotifier.setCloneContextHelper(new CloneContextHelper(modelHandler.getModelView(), structureChangeListener, vertexGroupModelEditor.getVertexSelectionHelper(), pivotPointModelEditor.getVertexSelectionHelper(), pivotPointModelEditor.selectionManager, vertexGroupModelEditor.selectionManager));
 			}
 			case ANIMATE -> {
-				nodeAnimationSelectionManager = new NodeAnimationSelectionManager(modelHandler.getRenderModel());
+				nodeAnimationSelectionManager = new NodeAnimationSelectionManager(modelHandler.getRenderModel(), modelHandler.getModelView());
 				NodeAnimationModelEditor nodeAnimationModelEditor = new NodeAnimationModelEditor(modelHandler.getModelView(), nodeAnimationSelectionManager, modelHandler.getRenderModel(), structureChangeListener);
 
 				modelEditor = nodeAnimationModelEditor;
@@ -134,8 +134,8 @@ public final class ModelEditorManager {
 			}
 			case CLUSTER -> {
 				VertexClusterDefinitions vertexClusterDefinitions = new VertexClusterDefinitions(modelHandler.getModel());
-				VertexClusterSelectionManager selectionManager = new VertexClusterSelectionManager(vertexClusterDefinitions);
-				PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
+				VertexClusterSelectionManager selectionManager = new VertexClusterSelectionManager(vertexClusterDefinitions, modelHandler.getModelView());
+				PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager(modelHandler.getModelView());
 				ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
 
 				VertexClusterModelEditor vertexGroupModelEditor = new VertexClusterModelEditor(selectionManager, structureChangeListener, vertexClusterDefinitions, modelHandler);
@@ -155,8 +155,8 @@ public final class ModelEditorManager {
 				modelEditorNotifier.setCloneContextHelper(new CloneContextHelper(modelHandler.getModelView(), structureChangeListener, vertexGroupModelEditor.getVertexSelectionHelper(), pivotPointModelEditor.getVertexSelectionHelper(), pivotPointModelEditor.selectionManager, vertexGroupModelEditor.selectionManager));
 			}
 			case VERTEX -> {
-				GeosetVertexSelectionManager selectionManager = new GeosetVertexSelectionManager();
-				PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager();
+				GeosetVertexSelectionManager selectionManager = new GeosetVertexSelectionManager(modelHandler.getModelView());
+				PivotPointSelectionManager pivotSelectionManager = new PivotPointSelectionManager(modelHandler.getModelView());
 				ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
 
 				GeosetVertexModelEditor geosetVertexModelEditor = new GeosetVertexModelEditor(selectionManager, structureChangeListener, modelHandler);

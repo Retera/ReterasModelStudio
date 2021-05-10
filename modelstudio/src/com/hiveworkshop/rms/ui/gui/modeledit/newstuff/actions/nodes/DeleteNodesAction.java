@@ -1,21 +1,13 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.nodes;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
+import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.*;
 
 public class DeleteNodesAction implements UndoAction {
 	private final List<IdObject> objects;
@@ -28,13 +20,13 @@ public class DeleteNodesAction implements UndoAction {
 	private final List<Camera> deletedCameras;
 
 	public DeleteNodesAction(final Collection<? extends Vec3> selection, final List<IdObject> objects,
-			final List<Camera> deletedCameras, final ModelStructureChangeListener changeListener, final ModelView model,
-			final VertexSelectionHelper vertexSelectionHelper) {
+	                         final List<Camera> deletedCameras, final ModelStructureChangeListener changeListener, final ModelView modelView,
+	                         final VertexSelectionHelper vertexSelectionHelper) {
 		this.selection = new ArrayList<>(selection);
 		this.objects = objects;
 		this.deletedCameras = deletedCameras;
 		this.changeListener = changeListener;
-		this.model = model;
+		this.model = modelView;
 		this.vertexSelectionHelper = vertexSelectionHelper;
 		this.quickHashSetRemovedObjects = new HashSet<>();
 		quickHashSetRemovedObjects.addAll(objects);

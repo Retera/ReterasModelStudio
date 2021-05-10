@@ -20,7 +20,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotE
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -29,7 +28,7 @@ import java.util.*;
 
 public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGroupBundle> {
 
-	public VertexGroupModelEditor(SelectionManager<VertexGroupBundle> selectionManager,
+	public VertexGroupModelEditor(VertexGroupSelectionManager selectionManager,
 	                              ModelStructureChangeListener structureChangeListener,
 	                              ModelHandler modelHandler) {
 		super(selectionManager, structureChangeListener, modelHandler);
@@ -52,14 +51,14 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 
 	@Override
 	public UndoAction addTeamColor() {
-		TeamColorAddAction<VertexGroupBundle> teamColorAddAction = new TeamColorAddAction<>(selectionManager.getSelectedFaces(), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
+		TeamColorAddAction<VertexGroupBundle> teamColorAddAction = new TeamColorAddAction<>(modelView.getSelectedTriangles(), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
 
 	@Override
 	public UndoAction splitGeoset() {
-		SplitGeosetAction<VertexGroupBundle> teamColorAddAction = new SplitGeosetAction<>(selectionManager.getSelectedFaces(), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
+		SplitGeosetAction<VertexGroupBundle> teamColorAddAction = new SplitGeosetAction<>(modelView.getSelectedTriangles(), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
@@ -83,7 +82,11 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 				}
 			}
 		}
-		selectionManager.setSelection(invertedSelection);
+		Set<GeosetVertex> oldVerticesSelection = new HashSet<>(modelView.getSelectedVertices());
+		modelView.invertVertSelection();
+		Set<GeosetVertex> newVerticesSelection = new HashSet<>(modelView.getSelectedVertices());
+
+//		selectionManager.setSelection(invertedSelection);
 		return (new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection"));
 	}
 
@@ -97,7 +100,10 @@ public final class VertexGroupModelEditor extends AbstractModelEditor<VertexGrou
 				allSelection.add(bundle);
 			}
 		}
-		selectionManager.setSelection(allSelection);
+//		selectionManager.setSelection(allSelection);
+		Set<GeosetVertex> oldVerticesSelection = new HashSet<>(modelView.getSelectedVertices());
+		modelView.selectAllVerts();
+		Set<GeosetVertex> newVerticesSelection = new HashSet<>(modelView.getSelectedVertices());
 		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
 	}
 

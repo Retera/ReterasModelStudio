@@ -149,18 +149,18 @@ public class AddBirthDeathSequences {
 
     // most of the code below are modified versions of code from AnimatedNode and NodeAnimationModelEditor
     public static void createKeyframes(MainPanel mainPanel, EditableModel model, int trackTime1, int trackTime2, Vec3 startVec, Vec3 endVec) {
-        RenderModel renderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
+	    RenderModel renderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
 	    ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener(mainPanel);
-	    NodeAnimationSelectionManager nodeAnimationSelectionManager = new NodeAnimationSelectionManager(renderModel);
+	    NodeAnimationSelectionManager nodeAnimationSelectionManager = new NodeAnimationSelectionManager(renderModel, ProgramGlobals.getCurrentModelPanel().getModelView());
 
-        final NodeAnimationModelEditor nodeAnimationModelEditor = new NodeAnimationModelEditor(ProgramGlobals.getCurrentModelPanel().getModelView(),
-                nodeAnimationSelectionManager, renderModel, structureChangeListener);
+	    final NodeAnimationModelEditor nodeAnimationModelEditor = new NodeAnimationModelEditor(ProgramGlobals.getCurrentModelPanel().getModelView(),
+			    nodeAnimationSelectionManager, renderModel, structureChangeListener);
 
-        final Set<IdObject> selection = new HashSet<>(getRootObjects(model));
-        final List<UndoAction> actions = new ArrayList<>();
-        // TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+	    final Set<IdObject> selection = new HashSet<>(getRootObjects(model));
+	    final List<UndoAction> actions = new ArrayList<>();
+	    // TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 
-        final TimeEnvironmentImpl timeEnvironmentImpl = (TimeEnvironmentImpl) renderModel.getAnimatedRenderEnvironment();
+	    final TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
         generateKeyframes(trackTime1, selection, actions, timeEnvironmentImpl, "Translation", structureChangeListener, renderModel, startVec);
         new TranslationKeyframeAction(new CompoundAction("setup", actions), trackTime1, timeEnvironmentImpl.getGlobalSeq(), selection, nodeAnimationModelEditor);

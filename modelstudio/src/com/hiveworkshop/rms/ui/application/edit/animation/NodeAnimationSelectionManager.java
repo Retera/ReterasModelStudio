@@ -20,20 +20,21 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 
 	private final Bone renderBoneDummy = new Bone();
 
-	public NodeAnimationSelectionManager(final RenderModel renderModel) {
+	public NodeAnimationSelectionManager(final RenderModel renderModel, ModelView modelView) {
+		super(modelView);
 		this.renderModel = renderModel;
 	}
 
 	@Override
 	public Vec3 getCenter() {
 		Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
-		for (IdObject object : selection) {
+		for (IdObject object : modelView.getSelectedIdObjects()) {
 			Vec4 pivotHeap = new Vec4(object.getPivotPoint(), 1);
 			pivotHeap.transform(renderModel.getRenderNode(object).getWorldMatrix());
 			centerOfGroupSumHeap.add(pivotHeap.getVec3());
 		}
-		if (selection.size() > 0) {
-			centerOfGroupSumHeap.scale(1f / selection.size());
+		if (modelView.getSelectedIdObjects().size() > 0) {
+			centerOfGroupSumHeap.scale(1f / modelView.getSelectedIdObjects().size());
 		}
 		return centerOfGroupSumHeap;
 	}
@@ -44,7 +45,7 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 		// so that downstream will know to select those pivots, and therefore those
 		// IdObject nodes, for static editing (hence we do not apply worldMatrix)
 		List<Vec3> vertices = new ArrayList<>();
-		for (IdObject obj : selection) {
+		for (IdObject obj : modelView.getSelectedIdObjects()) {
 			vertices.add(obj.getPivotPoint());
 		}
 		return vertices;
@@ -61,20 +62,20 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 		Set<IdObject> drawnSelection = new HashSet<>();
 		Set<IdObject> parentedNonSelection = new HashSet<>();
 		for (IdObject object : model.getEditableIdObjects()) {
-			if (selection.contains(object)) {
+			if (modelView.getSelectedIdObjects().contains(object)) {
 				renderer.renderIdObject(object);
 				drawnSelection.add(object);
 			} else {
 				IdObject parent = object.getParent();
 				while (parent != null) {
-					if (selection.contains(parent)) {
+					if (modelView.getSelectedIdObjects().contains(parent)) {
 						parentedNonSelection.add(object);
 					}
 					parent = parent.getParent();
 				}
 			}
 		}
-		for (IdObject selectedObject : selection) {
+		for (IdObject selectedObject : modelView.getSelectedIdObjects()) {
 			if (!drawnSelection.contains(selectedObject)) {
 				renderBoneDummy.setPivotPoint(selectedObject.getPivotPoint());
 				renderer.renderIdObject(renderBoneDummy);
@@ -91,7 +92,7 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 	@Override
 	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
 		double radius = 0;
-		for (IdObject item : selection) {
+		for (IdObject item : modelView.getSelectedIdObjects()) {
 			Vec4 pivotHeap = new Vec4(item.getPivotPoint(), 1);
 			pivotHeap.transform(renderModel.getRenderNode(item).getWorldMatrix());
 			double distance = sphereCenter.distance(pivotHeap);

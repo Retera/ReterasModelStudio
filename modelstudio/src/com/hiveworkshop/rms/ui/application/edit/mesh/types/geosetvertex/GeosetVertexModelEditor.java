@@ -21,7 +21,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelec
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.AddTriangleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -30,7 +29,7 @@ import java.util.*;
 
 public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
-	public GeosetVertexModelEditor(SelectionManager<GeosetVertex> selectionManager,
+	public GeosetVertexModelEditor(GeosetVertexSelectionManager selectionManager,
 	                               ModelStructureChangeListener structureChangeListener,
 	                               ModelHandler modelHandler) {
 		super(selectionManager, structureChangeListener, modelHandler);
@@ -66,12 +65,12 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction expandSelection() {
-		Set<GeosetVertex> expandedSelection = new HashSet<>(selectionManager.getSelection());
-		List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		Set<GeosetVertex> expandedSelection = new HashSet<>(modelView.getSelectedVertices());
+		List<GeosetVertex> oldSelection = new ArrayList<>(modelView.getSelectedVertices());
 		for (GeosetVertex v : oldSelection) {
 			expandSelection(v, expandedSelection);
 		}
-		selectionManager.setSelection(expandedSelection);
+		modelView.setSelectedVertices(expandedSelection);
 		return (new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection"));
 	}
 
@@ -88,14 +87,14 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction invertSelection() {
-		List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		Set<GeosetVertex> invertedSelection = new HashSet<>(selectionManager.getSelection());
+		List<GeosetVertex> oldSelection = new ArrayList<>(modelView.getSelectedVertices());
+		Set<GeosetVertex> invertedSelection = new HashSet<>(modelView.getSelectedVertices());
 		for (Geoset geo : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geo.getVertices()) {
 				toggleSelection(invertedSelection, geosetVertex);
 			}
 		}
-		selectionManager.setSelection(invertedSelection);
+		modelView.setSelectedVertices(invertedSelection);
 		return (new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection"));
 	}
 
@@ -109,12 +108,12 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction selectAll() {
-		List<GeosetVertex> oldSelection = new ArrayList<>(selectionManager.getSelection());
+		List<GeosetVertex> oldSelection = new ArrayList<>(modelView.getSelectedVertices());
 		Set<GeosetVertex> allSelection = new HashSet<>();
 		for (Geoset geo : modelView.getEditableGeosets()) {
 			allSelection.addAll(geo.getVertices());
 		}
-		selectionManager.setSelection(allSelection);
+		modelView.setSelectedVertices(allSelection);
 		return (new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all"));
 	}
 
@@ -132,7 +131,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction addTeamColor() {
-		TeamColorAddAction<GeosetVertex> teamColorAddAction = new TeamColorAddAction<>(selectionManager.getSelectedFaces(), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
+		TeamColorAddAction<GeosetVertex> teamColorAddAction = new TeamColorAddAction<>(modelView.getSelectedVertices(), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper, modelView);
 		teamColorAddAction.redo();
 		return teamColorAddAction;
 	}
@@ -159,7 +158,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement<?>> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
-		List<GeosetVertex> previousSelection = new ArrayList<>(selectionManager.getSelection());
+		List<GeosetVertex> previousSelection = new ArrayList<>(modelView.getSelectedVertices());
 		List<GeosetVertex> possibleVerticesToTruncate = new ArrayList<>();
 		for (CheckableDisplayElement<?> component : selectableComponents) {
 			Object item = component.getItem();
@@ -167,14 +166,14 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 				possibleVerticesToTruncate.addAll(((Geoset) item).getVertices());
 			}
 		}
-		Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleVerticesToTruncate);
-		Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
+		Runnable truncateSelectionRunnable = () -> modelView.removeSelectedVertices(possibleVerticesToTruncate);
+		Runnable unTruncateSelectionRunnable = () -> modelView.setSelectedVertices(previousSelection);
 		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 
 	@Override
 	public CopiedModelData copySelection() {
-		Set<GeosetVertex> selection = selectionManager.getSelection();
+		Set<GeosetVertex> selection = modelView.getSelectedVertices();
 		List<Geoset> copiedGeosets = new ArrayList<>();
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			Geoset copy = new Geoset();
@@ -250,7 +249,7 @@ public class GeosetVertexModelEditor extends AbstractModelEditor<GeosetVertex> {
 
 	@Override
 	public UndoAction createFaceFromSelection(Vec3 preferredFacingVector) {
-		Set<GeosetVertex> selection = selectionManager.getSelection();
+		Set<GeosetVertex> selection = modelView.getSelectedVertices();
 		if (selection.size() != 3) {
 			throw new FaceCreationException(
 					"A face can only be created from exactly 3 vertices (you have " + selection.size() + " selected)");

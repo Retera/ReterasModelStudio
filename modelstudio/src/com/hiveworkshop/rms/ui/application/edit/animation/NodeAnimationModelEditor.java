@@ -41,16 +41,16 @@ import java.util.*;
 import java.util.function.BiFunction;
 
 public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> {
-	private final ModelView model;
+	//	private final ModelView modelView;
 	private final RenderModel renderModel;
 	private final ModelStructureChangeListener structureChangeListener;
 
-	public NodeAnimationModelEditor(ModelView model,
+	public NodeAnimationModelEditor(ModelView modelView,
 	                                SelectionManager<IdObject> selectionManager,
 	                                RenderModel renderModel,
 	                                ModelStructureChangeListener structureChangeListener) {
-		super(selectionManager);
-		this.model = model;
+		super(selectionManager, modelView);
+//		this.modelView = modelView;
 		this.structureChangeListener = structureChangeListener;
 		this.renderModel = renderModel;
 	}
@@ -131,7 +131,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	@Override
 	public void selectByVertices(Collection<? extends Vec3> newSelection) {
 		Set<IdObject> newlySelectedObjects = new HashSet<>();
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			if (newSelection.contains(object.getPivotPoint())) {
 				newlySelectedObjects.add(object);
 			}
@@ -149,12 +149,13 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public UndoAction invertSelection() {
-		List<IdObject> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		Set<IdObject> invertedSelection = new HashSet<>(selectionManager.getSelection());
-		for (IdObject node : model.getEditableIdObjects()) {
-			toggleSelection(invertedSelection, node);
-		}
-		selectionManager.setSelection(invertedSelection);
+		List<IdObject> oldSelection = new ArrayList<>(modelView.getSelectedIdObjects());
+		modelView.invertIdObjSelection();
+		Set<IdObject> invertedSelection = new HashSet<>(modelView.getSelectedIdObjects());
+//		for (IdObject node : modelView.getEditableIdObjects()) {
+//			toggleSelection(invertedSelection, node);
+//		}
+//		selectionManager.setSelection(invertedSelection);
 		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
 	}
 
@@ -168,9 +169,10 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public UndoAction selectAll() {
-		List<IdObject> oldSelection = new ArrayList<>(selectionManager.getSelection());
-		Set<IdObject> allSelection = new HashSet<>(model.getEditableIdObjects());
-		selectionManager.setSelection(allSelection);
+		List<IdObject> oldSelection = new ArrayList<>(modelView.getSelectedIdObjects());
+		modelView.selectAllIdObjs();
+		Set<IdObject> allSelection = new HashSet<>(modelView.getSelectedIdObjects());
+//		selectionManager.setSelection(allSelection);
 		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
 	}
 
@@ -188,7 +190,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 //		double maxY = Math.max(startingClickY, endingClickY);
 //		Rectangle2D area = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
 
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			double vertexSize = object.getClickRadius(coordinateSystem) * coordinateSystem.getZoom() * 2;
 			hitTest(selectedItems, min, max, object.getPivotPoint(), coordinateSystem, vertexSize, object, renderModel);
 		}
@@ -197,7 +199,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
-		for (IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : modelView.getEditableIdObjects()) {
 			Mat4 worldMatrix = renderModel.getRenderNode(object).getWorldMatrix();
 			double vertexSize = object.getClickRadius(axes) * axes.getZoom() * 2;
 			if (NodeAnimationModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geomV2(axes, point), axes, vertexSize, worldMatrix)) {
@@ -209,7 +211,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement<?>> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
-		List<IdObject> previousSelection = new ArrayList<>(selectionManager.getSelection());
+		List<IdObject> previousSelection = new ArrayList<>(modelView.getSelectedIdObjects());
 		List<IdObject> possibleVerticesToTruncate = new ArrayList<>();
 
 		for (CheckableDisplayElement<?> component : selectableComponents) {
@@ -218,9 +220,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 				possibleVerticesToTruncate.add((IdObject) item);
 			}
 		}
-		Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(possibleVerticesToTruncate);
+		Runnable truncateSelectionRunnable = () -> modelView.removeSelectedIdObjects(possibleVerticesToTruncate);
 
-		Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
+		Runnable unTruncateSelectionRunnable = () -> modelView.setSelectedIdObjects(previousSelection);
 		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 
@@ -328,13 +330,13 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	public void rawScale(double centerX, double centerY, double centerZ, double scaleX, double scaleY, double scaleZ, Map<IdObject, Vec3> nodeToLocalScale) {
-		for (IdObject idObject : selectionManager.getSelection()) {
+		for (IdObject idObject : modelView.getSelectedIdObjects()) {
 			idObject.updateScalingKeyframe(renderModel, scaleX, scaleY, scaleZ, nodeToLocalScale.get(idObject));
 		}
 	}
 
 	public void rawScale(Vec3 center, Vec3 scale, Map<IdObject, Vec3> nodeToLocalScale) {
-		for (IdObject idObject : selectionManager.getSelection()) {
+		for (IdObject idObject : modelView.getSelectedIdObjects()) {
 			idObject.updateScalingKeyframe(renderModel, scale, nodeToLocalScale.get(idObject));
 		}
 	}
@@ -345,7 +347,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	public void rawRotate2d(double centerX, double centerY, double centerZ, double radians, byte firstXYZ, byte secondXYZ, Map<IdObject, Quat> nodeToLocalRotation) {
-		for (IdObject idObject : selectionManager.getSelection()) {
+		for (IdObject idObject : modelView.getSelectedIdObjects()) {
 			idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, radians, firstXYZ, secondXYZ, nodeToLocalRotation.get(idObject));
 		}
 	}
@@ -353,23 +355,23 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	@Override
 	public void rawTranslate(double x, double y, double z) {
 		// throw new UnsupportedOperationException("Unable to translate directly in animation mode, use other system");
-		for (IdObject idObject : selectionManager.getSelection()) {
+		for (IdObject idObject : modelView.getSelectedIdObjects()) {
 			idObject.updateTranslationKeyframe(renderModel, x, y, z, new Vec3());
 		}
 	}
 
 	public void rawTranslate(double x, double y, double z, Map<IdObject, Vec3> nodeToLocalTranslation) {
-		for (IdObject idObject : selectionManager.getSelection()) {
+		for (IdObject idObject : modelView.getSelectedIdObjects()) {
 			idObject.updateTranslationKeyframe(renderModel, x, y, z, nodeToLocalTranslation.get(idObject));
 		}
 	}
 
 	public void rawSquatToolRotate2d(double centerX, double centerY, double centerZ, double radians, byte firstXYZ, byte secondXYZ, Map<IdObject, Quat> nodeToLocalRotation) {
-		for (IdObject idObject : selectionManager.getSelection()) {
+		for (IdObject idObject : modelView.getSelectedIdObjects()) {
 			idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, radians, firstXYZ, secondXYZ, nodeToLocalRotation.get(idObject));
 		}
-		for (IdObject idObject : model.getModel().getIdObjects()) {
-			if (selectionManager.getSelection().contains(idObject.getParent()) && (((idObject.getClass() == Bone.class) && (idObject.getParent().getClass() == Bone.class)) || ((idObject.getClass() == Helper.class) && (idObject.getParent().getClass() == Helper.class)))) {
+		for (IdObject idObject : modelView.getModel().getIdObjects()) {
+			if (modelView.getSelectedIdObjects().contains(idObject.getParent()) && (((idObject.getClass() == Bone.class) && (idObject.getParent().getClass() == Bone.class)) || ((idObject.getClass() == Helper.class) && (idObject.getParent().getClass() == Helper.class)))) {
 				idObject.updateRotationKeyframe(renderModel, centerX, centerY, centerZ, -radians, firstXYZ, secondXYZ, nodeToLocalRotation.get(idObject));
 			}
 		}
@@ -405,7 +407,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public GenericMoveAction beginTranslation() {
-		Set<IdObject> selection = selectionManager.getSelection();
+		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		List<UndoAction> actions = new ArrayList<>();
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
@@ -456,7 +458,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public GenericRotateAction beginRotation(double centerX, double centerY, double centerZ, byte firstXYZ, byte secondXYZ) {
-		Set<IdObject> selection = selectionManager.getSelection();
+		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		List<UndoAction> actions = new ArrayList<>();
 
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
@@ -505,7 +507,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public GenericScaleAction beginScaling(double centerX, double centerY, double centerZ) {
-		Set<IdObject> selection = selectionManager.getSelection();
+		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		List<UndoAction> actions = new ArrayList<>();
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
@@ -519,7 +521,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public GenericScaleAction beginScaling(Vec3 center) {
-		Set<IdObject> selection = selectionManager.getSelection();
+		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		List<UndoAction> actions = new ArrayList<>();
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
@@ -539,7 +541,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			case TRANSLATION -> "Translation";
 		};
 
-		Set<IdObject> selection = selectionManager.getSelection();
+		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		List<UndoAction> actions = new ArrayList<>();
 
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
@@ -575,10 +577,10 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public GenericRotateAction beginSquatTool(double centerX, double centerY, double centerZ, byte firstXYZ, byte secondXYZ) {
-		Set<IdObject> selection = new HashSet<>(selectionManager.getSelection());
+		Set<IdObject> selection = new HashSet<>(modelView.getSelectedIdObjects());
 
-		for (IdObject idObject : model.getModel().getIdObjects()) {
-			if (selectionManager.getSelection().contains(idObject.getParent()) && (((idObject.getClass() == Bone.class) && (idObject.getParent().getClass() == Bone.class)) || ((idObject.getClass() == Helper.class) && (idObject.getParent().getClass() == Helper.class)))) {
+		for (IdObject idObject : modelView.getModel().getIdObjects()) {
+			if (modelView.getSelectedIdObjects().contains(idObject.getParent()) && (((idObject.getClass() == Bone.class) && (idObject.getParent().getClass() == Bone.class)) || ((idObject.getClass() == Helper.class) && (idObject.getParent().getClass() == Helper.class)))) {
 				selection.add(idObject);
 			}
 		}

@@ -1,21 +1,24 @@
 package com.hiveworkshop.rms.editor.wrapper.v2;
 
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public final class ModelView {
 	private final EditableModel model;
 	private RenderModel editorRenderModel;
 	private final ModelViewStateNotifier modelViewStateNotifier;
+
+	private final Set<GeosetVertex> selectedVertices = new HashSet<>();
+	private final Set<IdObject> selectedIdObjects = new HashSet<>();
+	private final Set<Camera> selectedCameras = new HashSet<>();
+
+	private final Set<GeosetVertex> hiddenVertices = new HashSet<>();
+	private final Set<GeosetVertex> editableVertices = new HashSet<>();
+
 	private final Set<Geoset> editableGeosets = new HashSet<>();
 	private final Set<Geoset> visibleGeosets = new HashSet<>();
 	private final Set<Geoset> hiddenGeosets = new HashSet<>();
@@ -35,6 +38,9 @@ public final class ModelView {
 	private boolean geosetsVisible = true;
 	private boolean idObjectsVisible = false;
 	private boolean camerasVisible = false;
+	private boolean geosetsEditable = true;
+	private boolean idObjectsEditable = true;
+	private boolean camerasEditable = true;
 
 	public ModelView(EditableModel model) {
 		this.model = model;
@@ -134,11 +140,13 @@ public final class ModelView {
 		editableGeosets.add(geoset);
 		visibleGeosets.add(geoset);
 		hiddenGeosets.remove(geoset);
+		editableVertices.addAll(geoset.getVertices());
 		modelViewStateNotifier.geosetEditable(geoset);
 	}
 
 	public void makeGeosetNotEditable(Geoset geoset) {
 		editableGeosets.remove(geoset);
+		editableVertices.removeAll(geoset.getVertices());
 		modelViewStateNotifier.geosetNotEditable(geoset);
 	}
 
@@ -307,6 +315,10 @@ public final class ModelView {
 		return editableGeosets.contains(ob);
 	}
 
+	public boolean isEditable(GeosetVertex ob) {
+		return editableVertices.contains(ob) && !hiddenVertices.contains(ob);
+	}
+
 	public boolean isEditable(IdObject ob) {
 		return editableIdObjects.contains(ob);
 	}
@@ -337,5 +349,188 @@ public final class ModelView {
 
 	public boolean canSelect(Camera ob) {
 		return editableCameras.contains(ob) && camerasVisible;
+	}
+
+	public Set<GeosetVertex> getSelectedVertices() {
+		return selectedVertices;
+	}
+
+	public void setSelectedVertices(Collection<GeosetVertex> geosetVertices) {
+		selectedVertices.clear();
+		selectedVertices.addAll(geosetVertices);
+	}
+
+	public Set<IdObject> getSelectedIdObjects() {
+		return selectedIdObjects;
+	}
+
+	public void setSelectedIdObjects(Collection<IdObject> idObjects) {
+		selectedIdObjects.clear();
+		selectedIdObjects.addAll(idObjects);
+	}
+
+	public Set<Camera> getSelectedCameras() {
+		return selectedCameras;
+	}
+
+	public void setSelectedCameras(Collection<Camera> cameras) {
+		selectedCameras.clear();
+		selectedCameras.addAll(cameras);
+	}
+
+	public Set<Triangle> getSelectedTriangles() {
+		Set<Triangle> selTris = new HashSet<>();
+		for (GeosetVertex vertex : selectedVertices) {
+			for (Triangle triangle : vertex.getTriangles()) {
+				if (selectedVertices.containsAll(Arrays.asList(triangle.getVerts()))) {
+					selTris.add(triangle);
+				}
+			}
+		}
+		return selTris;
+	}
+
+	public void addSelectedTris(Collection<Triangle> triangles) {
+		for (Triangle triangle : triangles) {
+			selectedVertices.addAll(Arrays.asList(triangle.getVerts()));
+		}
+	}
+
+	public void setSelectedTris(Collection<Triangle> triangles) {
+		selectedVertices.clear();
+		for (Triangle triangle : triangles) {
+			selectedVertices.addAll(Arrays.asList(triangle.getVerts()));
+		}
+	}
+
+	public void removeSelectedTris(Collection<Triangle> triangles) {
+		for (Triangle triangle : triangles) {
+			selectedVertices.removeAll(Arrays.asList(triangle.getVerts()));
+		}
+	}
+
+	public void addSelectedVertex(GeosetVertex geosetVertex) {
+		selectedVertices.add(geosetVertex);
+	}
+
+	public void addSelectedVertices(Collection<GeosetVertex> geosetVertices) {
+		selectedVertices.addAll(geosetVertices);
+	}
+
+	public void clearSelectedVertices() {
+		selectedVertices.clear();
+	}
+
+	public void removeSelectedVertices(Collection<GeosetVertex> geosetVertices) {
+		selectedVertices.removeAll(geosetVertices);
+	}
+
+	public void removeSelectedVertex(GeosetVertex geosetVertex) {
+		selectedVertices.remove(geosetVertex);
+	}
+
+	public void addSelectedIdObject(IdObject idObject) {
+		selectedIdObjects.add(idObject);
+	}
+
+	public void addSelectedIdObjects(Collection<IdObject> idObjects) {
+		selectedIdObjects.addAll(idObjects);
+	}
+
+	public void clearSelectedIdObjects() {
+		selectedIdObjects.clear();
+	}
+
+	public void removeSelectedIdObjects(Collection<IdObject> idObjects) {
+		selectedIdObjects.removeAll(idObjects);
+	}
+
+	public void removeSelectedIdObject(IdObject idObject) {
+		selectedIdObjects.remove(idObject);
+	}
+
+	public boolean isHidden(GeosetVertex vertex) {
+		return hiddenVertices.contains(vertex);
+	}
+
+	public void addSelectedCamera(Camera camera) {
+		selectedCameras.add(camera);
+	}
+
+	public void addSelectedCameras(Collection<Camera> cameras) {
+		selectedCameras.addAll(cameras);
+	}
+
+	public void clearSelectedCameras() {
+		selectedCameras.clear();
+	}
+
+	public void removeSelectedCameras(Collection<Camera> cameras) {
+		selectedCameras.removeAll(cameras);
+	}
+
+	public void removeSelectedCamera(Camera camera) {
+		selectedCameras.remove(camera);
+	}
+
+	public boolean isSelected(GeosetVertex geosetVertex) {
+		return selectedVertices.contains(geosetVertex);
+	}
+
+	public boolean isSelected(IdObject idObject) {
+		return selectedIdObjects.contains(idObject);
+	}
+
+	public boolean isSelected(Camera camera) {
+		return selectedCameras.contains(camera);
+	}
+
+	public void invertVertSelection() {
+		Set<GeosetVertex> tempVerts = new HashSet<>();
+		for (Geoset geoset : editableGeosets) {
+			tempVerts.addAll(geoset.getVertices());
+		}
+		tempVerts.removeAll(selectedVertices);
+		setSelectedVertices(tempVerts);
+	}
+
+	public void invertIdObjSelection() {
+		Set<IdObject> tempObjs = new HashSet<>(editableIdObjects);
+		tempObjs.removeAll(selectedIdObjects);
+		setSelectedIdObjects(tempObjs);
+	}
+
+	public void invertCamSelection() {
+		Set<Camera> tempCams = new HashSet<>(editableCameras);
+		tempCams.removeAll(selectedCameras);
+		setSelectedCameras(tempCams);
+	}
+
+	public void invertSelection() {
+		invertVertSelection();
+		invertIdObjSelection();
+		invertCamSelection();
+	}
+
+	public void selectAllVerts() {
+		for (Geoset geoset : editableGeosets) {
+			selectedVertices.addAll(geoset.getVertices());
+		}
+	}
+
+	public void selectAllIdObjs() {
+		selectedIdObjects.addAll(editableIdObjects);
+	}
+
+	public void selectAllCams() {
+		selectedCameras.addAll(editableCameras);
+	}
+
+	public void selectAll() {
+		for (Geoset geoset : editableGeosets) {
+			selectedVertices.addAll(geoset.getVertices());
+		}
+		selectedIdObjects.addAll(editableIdObjects);
+		selectedCameras.addAll(editableCameras);
 	}
 }

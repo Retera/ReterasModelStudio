@@ -19,8 +19,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class PivotPointSelectionManager extends SelectionManager<Vec3> {
-
 	private final Bone renderBoneDummy = new Bone();
+
+	public PivotPointSelectionManager(ModelView modelView) {
+		super(modelView);
+	}
 
 	@Override
 	public Vec3 getCenter() {
@@ -38,17 +41,16 @@ public final class PivotPointSelectionManager extends SelectionManager<Vec3> {
 	}
 
 	@Override
-	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
-	                            ModelView model) {
+	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView modelView) {
 		Set<Vec3> drawnSelection = new HashSet<>();
-		for (IdObject object : model.getEditableIdObjects()) {
-			if (selection.contains(object.getPivotPoint())) {
-				renderer.renderIdObject(object);
-				drawnSelection.add(object.getPivotPoint());
-			}
+		for (IdObject object : modelView.getSelectedIdObjects()) {
+			renderer.renderIdObject(object);
+			drawnSelection.add(object.getPivotPoint());
 		}
-		for (Camera camera : model.getEditableCameras()) {
-			renderer.renderCamera(camera, selection.contains(camera.getPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(), camera.getPosition(), selection.contains(camera.getTargetPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(), camera.getTargetPosition());
+		for (Camera camera : modelView.getEditableCameras()) {
+			Color targetColor = selection.contains(camera.getTargetPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker();
+			Color boxColor = selection.contains(camera.getPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker();
+			renderer.renderCamera(camera, boxColor, camera.getPosition(), targetColor, camera.getTargetPosition());
 			drawnSelection.add(camera.getPosition());
 			drawnSelection.add(camera.getTargetPosition());
 		}
@@ -58,17 +60,47 @@ public final class PivotPointSelectionManager extends SelectionManager<Vec3> {
 				renderer.renderIdObject(renderBoneDummy);
 			}
 		}
+//		Set<Vec3> drawnSelection = new HashSet<>();
+//		for (IdObject object : modelView.getEditableIdObjects()) {
+//			if (selection.contains(object.getPivotPoint())) {
+//				renderer.renderIdObject(object);
+//				drawnSelection.add(object.getPivotPoint());
+//			}
+//		}
+//		for (Camera camera : modelView.getEditableCameras()) {
+//			renderer.renderCamera(camera, selection.contains(camera.getPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(), camera.getPosition(), selection.contains(camera.getTargetPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker(), camera.getTargetPosition());
+//			drawnSelection.add(camera.getPosition());
+//			drawnSelection.add(camera.getTargetPosition());
+//		}
+//		for (Vec3 vertex : selection) {
+//			if (!drawnSelection.contains(vertex)) {
+//				renderBoneDummy.setPivotPoint(vertex);
+//				renderer.renderIdObject(renderBoneDummy);
+//			}
+//		}
 	}
 
 	@Override
 	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
 		double radius = 0;
-		for (Vec3 item : selection) {
-			double distance = sphereCenter.distance(item);
+		for (IdObject item : modelView.getSelectedIdObjects()) {
+			double distance = sphereCenter.distance(item.getPivotPoint());
 			if (distance >= radius) {
 				radius = distance;
 			}
 		}
+		for (Camera item : modelView.getSelectedCameras()) {
+			double distance = sphereCenter.distance(item.getPosition());
+			if (distance >= radius) {
+				radius = distance;
+			}
+		}
+//		for (Vec3 item : selection) {
+//			double distance = sphereCenter.distance(item);
+//			if (distance >= radius) {
+//				radius = distance;
+//			}
+//		}
 		return radius;
 	}
 

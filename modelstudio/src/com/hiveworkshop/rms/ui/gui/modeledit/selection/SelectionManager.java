@@ -1,12 +1,19 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 public abstract class SelectionManager<T> implements SelectionView {
 	protected final Set<T> selection = new HashSet<>();
+	protected ModelView modelView;
 	private final Set<SelectionListener> listeners = new HashSet<>();
+
+	public SelectionManager(ModelView modelView) {
+		this.modelView = modelView;
+	}
 
 	private void fireChangeListeners() {
 		for (final SelectionListener listener : listeners) {

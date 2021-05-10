@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.ui.application.actions.mesh.*;
 import com.hiveworkshop.rms.ui.application.actions.model.RecalculateExtentsAction;
@@ -28,7 +27,7 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.util.*;
 
 public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> {
-    protected final ModelView modelView;
+//    protected final ModelView modelView;
     protected final VertexSelectionHelper vertexSelectionHelper;
     protected final ModelStructureChangeListener structureChangeListener;
     protected ModelHandler modelHandler;
@@ -36,9 +35,9 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     public AbstractModelEditor(SelectionManager<T> selectionManager,
                                ModelStructureChangeListener structureChangeListener,
                                ModelHandler modelHandler) {
-        super(selectionManager);
+        super(selectionManager, modelHandler.getModelView());
         this.modelHandler = modelHandler;
-        this.modelView = modelHandler.getModelView();
+//        this.modelView = modelHandler.getModelView();
         this.structureChangeListener = structureChangeListener;
         vertexSelectionHelper = this::selectByVertices;
     }

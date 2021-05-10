@@ -21,7 +21,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotE
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -32,7 +31,7 @@ public final class VertexClusterModelEditor extends AbstractModelEditor<VertexGr
 	private final Map<Vec3, Integer> vertexToClusterId = new HashMap<>();
 	private final VertexClusterDefinitions vertexClusterDefinitions;
 
-	public VertexClusterModelEditor(SelectionManager<VertexGroupBundle> selectionManager,
+	public VertexClusterModelEditor(VertexClusterSelectionManager selectionManager,
 	                                ModelStructureChangeListener structureChangeListener,
 	                                VertexClusterDefinitions vertexClusterDefinitions,
 	                                ModelHandler modelHandler) {

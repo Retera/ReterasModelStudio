@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
@@ -16,10 +17,12 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class AbstractSelectingEditor<T> implements ModelEditor {
+	protected final ModelView modelView;
 	protected final SelectionManager<T> selectionManager;
 
-	public AbstractSelectingEditor(SelectionManager<T> selectionManager) {
+	public AbstractSelectingEditor(SelectionManager<T> selectionManager, ModelView modelView) {
 		this.selectionManager = selectionManager;
+		this.modelView = modelView;
 	}
 
 	@Override

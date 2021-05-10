@@ -20,7 +20,7 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.util.Collection;
 
 public final class TVertexEditorManager {
-	private final ModelView model;
+	private final ModelView modelView;
 	private TVertexEditor modelEditor;
 	private final TVertexViewportSelectionHandlerImpl viewportSelectionHandler;
 	private final TVertexEditorChangeListener modelEditorChangeListener;
@@ -31,13 +31,13 @@ public final class TVertexEditorManager {
 	private final ModelStructureChangeListener structureChangeListener;
 	public static boolean MOVE_LINKED;
 
-	public TVertexEditorManager(ModelView model,
+	public TVertexEditorManager(ModelView modelView,
 	                            ToolbarButtonGroup<SelectionMode> modeButtonGroup,
 	                            TVertexEditorChangeListener modelEditorChangeListener,
 	                            SelectionListener selectionListener,
 	                            RenderModel renderModel,
 	                            ModelStructureChangeListener structureChangeListener) {
-		this.model = model;
+		this.modelView = modelView;
 		this.modelEditorChangeListener = modelEditorChangeListener;
 		this.selectionListener = selectionListener;
 		this.renderModel = renderModel;
@@ -56,8 +56,8 @@ public final class TVertexEditorManager {
 		}
 		switch (selectionMode) {
 			case FACE -> {
-				final FaceSelectionManager selectionManager = new FaceSelectionManager();
-				final FaceTVertexEditor faceModelEditor = new FaceTVertexEditor(model, selectionManager, structureChangeListener);
+				final FaceSelectionManager selectionManager = new FaceSelectionManager(modelView);
+				final FaceTVertexEditor faceModelEditor = new FaceTVertexEditor(modelView, selectionManager, structureChangeListener);
 				modelEditor = faceModelEditor;
 				if (lastSelectedVertices != null) {
 					modelEditor.selectByVertices(lastSelectedVertices);
@@ -69,8 +69,8 @@ public final class TVertexEditorManager {
 				nodeAnimationSelectionManager = null;
 			}
 			case VERTEX -> {
-				final GeosetVertexSelectionManager selectionManager = new GeosetVertexSelectionManager();
-				final GeosetVertexTVertexEditor geosetVertexModelEditor = new GeosetVertexTVertexEditor(model, selectionManager, structureChangeListener);
+				final GeosetVertexSelectionManager selectionManager = new GeosetVertexSelectionManager(modelView);
+				final GeosetVertexTVertexEditor geosetVertexModelEditor = new GeosetVertexTVertexEditor(modelView, selectionManager, structureChangeListener);
 				modelEditor = geosetVertexModelEditor;
 				if (lastSelectedVertices != null) {
 					modelEditor.selectByVertices(lastSelectedVertices);

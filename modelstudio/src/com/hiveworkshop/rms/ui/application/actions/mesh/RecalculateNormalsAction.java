@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.actions.mesh;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.HashableVector;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
@@ -89,14 +90,14 @@ public class RecalculateNormalsAction implements UndoAction {
 	}
 
 	private void makeNormals() {
-		Map<Location, List<GeosetVertex>> locationToGVs = new HashMap<>();
+		Map<HashableVector, List<GeosetVertex>> locationToGVs = new HashMap<>();
 		for (GeosetVertex geosetVertex : affectedVertices) {
-			Location location = new Location(geosetVertex);
+			HashableVector location = new HashableVector(geosetVertex);
 			List<GeosetVertex> gvAtLocation = locationToGVs.computeIfAbsent(location, gvList -> new ArrayList<>());
 			gvAtLocation.add(geosetVertex);
 		}
 		for (GeosetVertex geosetVertex : affectedVertices) {
-			Location location = new Location(geosetVertex);
+			HashableVector location = new HashableVector(geosetVertex);
 			List<GeosetVertex> gvAtLocation = locationToGVs.get(location);
 			if (useTries) {
 				newNormals.add(createNormalFromFaces(geosetVertex, gvAtLocation, maxAngle));
@@ -104,52 +105,5 @@ public class RecalculateNormalsAction implements UndoAction {
 				newNormals.add(createNormal(geosetVertex, gvAtLocation, maxAngle));
 			}
 		}
-	}
-
-	private static final class Location {
-		private final double x, y, z;
-
-		public Location(Vec3 vec3) {
-			super();
-			this.x = vec3.x;
-			this.y = vec3.y;
-			this.z = vec3.z;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			long temp;
-			temp = Double.doubleToLongBits(x);
-			result = (prime * result) + (int) (temp ^ (temp >>> 32));
-			temp = Double.doubleToLongBits(y);
-			result = (prime * result) + (int) (temp ^ (temp >>> 32));
-			temp = Double.doubleToLongBits(z);
-			result = (prime * result) + (int) (temp ^ (temp >>> 32));
-			return result;
-		}
-
-		@Override
-		public boolean equals(final Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			final Location other = (Location) obj;
-			if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x)) {
-				return false;
-			}
-			if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y)) {
-				return false;
-			}
-			return Double.doubleToLongBits(z) == Double.doubleToLongBits(other.z);
-		}
-
 	}
 }

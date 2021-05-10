@@ -39,7 +39,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	public UndoAction setParent(IdObject node) {
 		Map<IdObject, IdObject> nodeToOldParent = new HashMap<>();
 		for (IdObject b : modelView.getEditableIdObjects()) {
-			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+			if (modelView.isSelected(b)) {
 				nodeToOldParent.put(b, b.getParent());
 			}
 		}
@@ -62,7 +62,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	public UndoAction autoCenterSelectedBones() {
 		Set<IdObject> selBones = new HashSet<>();
 		for (IdObject b : modelView.getEditableIdObjects()) {
-			if (selectionManager.getSelection().contains(b.getPivotPoint())) {
+			if (modelView.isSelected(b)) {
 				selBones.add(b);
 			}
 		}
@@ -103,7 +103,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		if (selectionManager.getSelection().size() != 1) {
 			throw new IllegalStateException("Only one bone can be renamed at a time.");
 		}
-		IdObject node = selectionManager.getSelection().iterator().next();
+		IdObject node = modelView.getSelectedIdObjects().iterator().next();
 		if (node == null) {
 			throw new IllegalStateException("Selection is not a node");
 		}
@@ -114,7 +114,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 	@Override
 	public UndoAction addSelectedBoneSuffix(String name) {
-		Set<IdObject> selection = selectionManager.getSelection();
+		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		List<RenameBoneAction> actions = new ArrayList<>();
 		for (IdObject bone : selection) {
 			RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName(), bone.getName() + name, bone);
@@ -147,7 +147,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 				}
 			}
 		}
-		selectionManager.setSelection(newlySelectedPivots);
+		modelView.setSelectedIdObjects(newlySelectedPivots);
 	}
 
 	@Override
@@ -211,9 +211,9 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 
 	@Override
 	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement<?>> selectableComponents, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
-		List<IdObject> previousSelection = new ArrayList<>(selectionManager.getSelection());
-		Runnable truncateSelectionRunnable = () -> selectionManager.removeSelection(modelView.getModel().getIdObjects());
-		Runnable unTruncateSelectionRunnable = () -> selectionManager.setSelection(previousSelection);
+		List<IdObject> previousSelection = new ArrayList<>(modelView.getSelectedIdObjects());
+		Runnable truncateSelectionRunnable = () -> modelView.removeSelectedIdObjects(modelView.getModel().getIdObjects());
+		Runnable unTruncateSelectionRunnable = () -> modelView.setSelectedIdObjects(previousSelection);
 		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 	}
 
@@ -221,7 +221,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	public void rawScale(double centerX, double centerY, double centerZ, double scaleX, double scaleY, double scaleZ) {
 		super.rawScale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
 		for (IdObject object : modelView.getEditableIdObjects()) {
-			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
+			if (modelView.isSelected(object)) {
 				if (object instanceof Bone) {
 					translateBone((Bone) object, scaleX, scaleY, scaleZ);
 				} else if (object instanceof CollisionShape) {
@@ -254,7 +254,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 	public UndoAction deleteSelectedComponents() {
 		List<IdObject> deletedIdObjects = new ArrayList<>();
 		for (IdObject object : modelView.getEditableIdObjects()) {
-			if (selectionManager.getSelection().contains(object.getPivotPoint())) {
+			if (modelView.isSelected(object)) {
 				deletedIdObjects.add(object);
 			}
 		}
@@ -275,7 +275,7 @@ public class TPoseModelEditor extends AbstractModelEditor<IdObject> {
 		Set<IdObject> clonedNodes = new HashSet<>();
 		Set<Camera> clonedCameras = new HashSet<>();
 		for (IdObject b : modelView.getEditableIdObjects()) {
-			if (selection.contains(b.getPivotPoint())) {
+			if (modelView.isSelected(b)) {
 				clonedNodes.add(b.copy());
 			}
 		}
