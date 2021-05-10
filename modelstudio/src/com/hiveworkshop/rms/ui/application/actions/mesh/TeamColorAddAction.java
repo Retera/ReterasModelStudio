@@ -65,7 +65,7 @@ public final class TeamColorAddAction<T> implements UndoAction {
 			if (geoset.getMaterial().firstLayer().getTwoSided()) {
 				teamColorLayer.setTwoSided(true);
 			}
-			newMaterial.getLayers().add(0, teamColorLayer);
+			newMaterial.addLayer(0, teamColorLayer);
 			geosetCreated.setMaterial(newMaterial);
 			oldGeoToNewGeo.put(geoset, geosetCreated);
 			geosetsCreated.add(geosetCreated);
@@ -142,7 +142,7 @@ public final class TeamColorAddAction<T> implements UndoAction {
 			if (geoset.getMaterial().firstLayer().getTwoSided()) {
 				teamColorLayer.setTwoSided(true);
 			}
-			newMaterial.getLayers().add(0, teamColorLayer);
+			newMaterial.addLayer(0, teamColorLayer);
 			geosetCreated.setMaterial(newMaterial);
 			oldGeoToNewGeo.put(geoset, geosetCreated);
 			geosetsCreated.add(geosetCreated);

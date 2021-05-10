@@ -235,6 +235,28 @@ public class Material {
 		return layers;
 	}
 
+	public void clearLayers() {
+		layers.clear();
+	}
+
+	public void addLayer(Layer layer) {
+		if (layer != null) {
+			layers.add(layer);
+		}
+	}
+
+	public void addLayer(int index, Layer layer) {
+		if (layer != null) {
+			layers.add(index, layer);
+		}
+	}
+
+	public void removeLayer(Layer layer) {
+		if (layer != null) {
+			layers.remove(layer);
+		}
+	}
+
 	public void setLayers(final List<Layer> layers) {
 		this.layers = layers;
 	}
@@ -423,35 +445,35 @@ public class Material {
 			final Bitmap white = new Bitmap("Textures\\White.dds");
 			white.setWrapHeight(true);
 			white.setWrapWidth(true);
-			getLayers().add(new Layer("None", white));
+			addLayer(new Layer("None", white));
 		}
 		if (getLayers().size() == 0) {
 			final Bitmap white = new Bitmap("Textures\\White.dds");
 			white.setWrapHeight(true);
 			white.setWrapWidth(true);
-			getLayers().add(new Layer("None", white));
+			addLayer(new Layer("None", white));
 		}
 //		final Bitmap normTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor09.dds");
 		final Bitmap normTex = new Bitmap("Textures\\normal.dds");
 		normTex.setWrapHeight(true);
 		normTex.setWrapWidth(true);
-		getLayers().add(1, new Layer("None", normTex));
+		addLayer(1, new Layer("None", normTex));
 //		final Bitmap ormTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor18.dds");
 		final Bitmap ormTex = new Bitmap("Textures\\orm.dds");
 		ormTex.setWrapHeight(true);
 		ormTex.setWrapWidth(true);
-		getLayers().add(2, new Layer("None", ormTex));
+		addLayer(2, new Layer("None", ormTex));
 
 		final Bitmap black32 = new Bitmap("Textures\\Black32.dds");
 		black32.setWrapHeight(true);
 		black32.setWrapWidth(true);
-		getLayers().add(3, new Layer("None", black32));
-		getLayers().add(4, new Layer("None", new Bitmap("", 1)));
+		addLayer(3, new Layer("None", black32));
+		addLayer(4, new Layer("None", new Bitmap("", 1)));
 
 		final Bitmap envTex = new Bitmap("ReplaceableTextures\\EnvironmentMap.dds");
 		envTex.setWrapHeight(true);
 		envTex.setWrapWidth(true);
-		getLayers().add(5, new Layer("None", envTex));
+		addLayer(5, new Layer("None", envTex));
 		for (final Layer l : getLayers()) {
 			l.setEmissive(1.0);
 		}
@@ -461,8 +483,8 @@ public class Material {
 		if (getShaderString() != null) {
 			setShaderString(null);
 			final Layer layerZero = getLayers().get(0);
-			getLayers().clear();
-			getLayers().add(layerZero);
+			clearLayers();
+			addLayer(layerZero);
 			if (getTwoSided()) {
 				setTwoSided(false);
 				layerZero.setTwoSided(true);

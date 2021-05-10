@@ -37,6 +37,36 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 	}
 
 	@Override
+	public Set<Triangle> getSelection() {
+		return modelView.getSelectedTriangles();
+	}
+
+	@Override
+	public void setSelection(final Collection<? extends Triangle> selectionItem) {
+//		selection.clear();
+//		selection.addAll(selectionItem);
+		modelView.setSelectedTris((Collection<Triangle>) selectionItem);
+//		fireChangeListeners();
+	}
+
+	@Override
+	public void addSelection(final Collection<? extends Triangle> selectionItem) {
+//		selection.addAll(selectionItem);
+		modelView.addSelectedTris((Collection<Triangle>) selectionItem);
+//		fireChangeListeners();
+	}
+
+	@Override
+	public void removeSelection(final Collection<? extends Triangle> selectionItem) {
+//		for (final Triangle item : selectionItem) {
+////			selection.remove(item);
+//		}
+		modelView.removeSelectedTris((Collection<Triangle>) selectionItem);
+//		fireChangeListeners();
+	}
+
+
+	@Override
 	public Set<Vec3> getSelectedVertices() {
 		Set<Vec3> vertices = new HashSet<>();
 		for (Triangle triangle : getSelection()) {

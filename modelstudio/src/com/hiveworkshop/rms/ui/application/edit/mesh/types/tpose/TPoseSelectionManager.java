@@ -28,6 +28,36 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 	}
 
 	@Override
+	public Set<IdObject> getSelection() {
+		return modelView.getSelectedIdObjects();
+	}
+
+	@Override
+	public void setSelection(final Collection<? extends IdObject> selectionItem) {
+//		selection.clear();
+//		selection.addAll(selectionItem);
+		modelView.setSelectedIdObjects((Collection<IdObject>) selectionItem);
+//		fireChangeListeners();
+	}
+
+	@Override
+	public void addSelection(final Collection<? extends IdObject> selectionItem) {
+//		selection.addAll(selectionItem);
+		modelView.addSelectedIdObjects((Collection<IdObject>) selectionItem);
+//		fireChangeListeners();
+	}
+
+	@Override
+	public void removeSelection(final Collection<? extends IdObject> selectionItem) {
+		for (final IdObject item : selectionItem) {
+//			selection.remove(item);
+			modelView.removeSelectedIdObjects((Collection<IdObject>) selectionItem);
+		}
+//		fireChangeListeners();
+	}
+
+
+	@Override
 	public Vec3 getCenter() {
 		Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
 		for (IdObject object : selection) {

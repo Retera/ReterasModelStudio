@@ -16,11 +16,12 @@ import java.awt.*;
 import java.util.List;
 
 public final class ResettableIdObjectRenderer {
-    private final int vertexSize;
+    private int vertexSize;
     private final ViewportRenderableCamera renderableCameraProp = new ViewportRenderableCamera();
     private CoordinateSystem coordinateSystem;
     private Graphics2D graphics;
     private Color lightColor;
+    private Color daColor;
     private Color pivotPointColor;
     private NodeIconPalette nodeIconPalette;
     private RenderModel renderModel;
@@ -29,6 +30,17 @@ public final class ResettableIdObjectRenderer {
 
     public ResettableIdObjectRenderer(int vertexSize) {
         this.vertexSize = vertexSize;
+    }
+
+    public ResettableIdObjectRenderer reset(CoordinateSystem coordinateSystem, Graphics2D graphics,
+                                            RenderModel renderModel, boolean isAnimated) {
+        this.isAnimated = isAnimated;
+        this.coordinateSystem = coordinateSystem;
+        this.graphics = graphics;
+        this.renderModel = renderModel;
+        this.crosshairIsBox = ProgramGlobals.getPrefs().isUseBoxesForPivotPoints();
+        this.vertexSize = ProgramGlobals.getPrefs().getVertexSize();
+        return this;
     }
 
     public ResettableIdObjectRenderer reset(CoordinateSystem coordinateSystem, Graphics2D graphics,
@@ -43,6 +55,94 @@ public final class ResettableIdObjectRenderer {
         this.renderModel = renderModel;
         this.crosshairIsBox = ProgramGlobals.getPrefs().isUseBoxesForPivotPoints();
         return this;
+    }
+
+    public ResettableIdObjectRenderer renderObject(CoordinateSystem coordinateSystem, Graphics2D graphics,
+                                                   RenderModel renderModel, boolean isAnimated, boolean isHighLighted, IdObject object) {
+        this.isAnimated = isAnimated;
+        this.coordinateSystem = coordinateSystem;
+        this.graphics = graphics;
+        this.lightColor = isHighLighted ? ProgramGlobals.getPrefs().getHighlighVertexColor() : ProgramGlobals.getPrefs().getLightsColor();
+        Color pivotPointColor1 = isAnimated ? ProgramGlobals.getPrefs().getAnimatedBoneUnselectedColor() : ProgramGlobals.getPrefs().getPivotPointsColor();
+        this.pivotPointColor = isHighLighted ? ProgramGlobals.getPrefs().getHighlighVertexColor() : pivotPointColor1;
+        this.nodeIconPalette = isHighLighted ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED;
+        this.renderModel = renderModel;
+        this.crosshairIsBox = ProgramGlobals.getPrefs().isUseBoxesForPivotPoints();
+        renderIdObject(object);
+        return this;
+    }
+
+    public ResettableIdObjectRenderer renderObject(boolean isHighLighted, IdObject object) {
+        this.lightColor = isHighLighted ? ProgramGlobals.getPrefs().getHighlighVertexColor() : ProgramGlobals.getPrefs().getLightsColor();
+        Color pivotPointColor1 = isAnimated ? ProgramGlobals.getPrefs().getAnimatedBoneUnselectedColor() : ProgramGlobals.getPrefs().getPivotPointsColor();
+        this.pivotPointColor = isHighLighted ? ProgramGlobals.getPrefs().getHighlighVertexColor() : pivotPointColor1;
+        this.nodeIconPalette = isHighLighted ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED;
+        this.crosshairIsBox = ProgramGlobals.getPrefs().isUseBoxesForPivotPoints();
+        renderIdObject(object);
+        return this;
+    }
+
+    public ResettableIdObjectRenderer renderObject(boolean isHighLighted, boolean isSelected, IdObject object) {
+        daColor = Color.CYAN;
+        if (object instanceof Light) {
+            daColor = isSelected ? ProgramGlobals.getPrefs().getSelectColor() : ProgramGlobals.getPrefs().getLightsColor();
+            daColor = isHighLighted ? ProgramGlobals.getPrefs().getHighlighVertexColor() : daColor;
+
+        } else {
+            daColor = isAnimated ? ProgramGlobals.getPrefs().getAnimatedBoneUnselectedColor() : ProgramGlobals.getPrefs().getPivotPointsColor();
+            daColor = isSelected ? ProgramGlobals.getPrefs().getSelectColor() : daColor;
+            daColor = isHighLighted ? ProgramGlobals.getPrefs().getHighlighVertexColor() : daColor;
+        }
+//        Color pivotPointColor1 = isAnimated ? ProgramGlobals.getPrefs().getAnimatedBoneUnselectedColor() : ProgramGlobals.getPrefs().getPivotPointsColor();
+//        this.pivotPointColor = isHighLighted ? ProgramGlobals.getPrefs().getHighlighVertexColor() : pivotPointColor1;
+
+        this.nodeIconPalette = isHighLighted ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED;
+        this.nodeIconPalette = isSelected ? this.nodeIconPalette : NodeIconPalette.SELECTED;
+
+        this.crosshairIsBox = ProgramGlobals.getPrefs().isUseBoxesForPivotPoints();
+        renderIdObject1(object);
+        return this;
+    }
+
+    public void renderIdObject(IdObject object) {
+        if (object instanceof Helper) {
+            graphics.setColor(pivotPointColor.darker());
+            drawCrosshair(graphics, coordinateSystem, vertexSize, object.getPivotPoint(), getWorldMatrix(object), crosshairIsBox);
+        } else if (object instanceof Bone) {
+            graphics.setColor(pivotPointColor);
+            drawCrosshair(graphics, coordinateSystem, vertexSize, object.getPivotPoint(), getWorldMatrix(object), crosshairIsBox);
+        } else if (object instanceof CollisionShape) {
+            graphics.setColor(pivotPointColor);
+            drawCollisionShape(graphics, coordinateSystem, vertexSize, (CollisionShape) object, getWorldMatrix(object), crosshairIsBox);
+            drawNodeImage(graphics, coordinateSystem, object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
+        } else if (object instanceof Light) {
+            graphics.setColor(lightColor);
+            drawNodeImage(graphics, coordinateSystem, object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
+            light((Light) object);
+        } else {
+            drawNodeImage(graphics, coordinateSystem, object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
+        }
+    }
+
+    public void renderIdObject1(IdObject object) {
+        graphics.setColor(daColor);
+        if (object instanceof Helper) {
+//            graphics.setColor(pivotPointColor.darker());
+            drawCrosshair(graphics, coordinateSystem, vertexSize, object.getPivotPoint(), getWorldMatrix(object), crosshairIsBox);
+        } else if (object instanceof Bone) {
+//            graphics.setColor(pivotPointColor);
+            drawCrosshair(graphics, coordinateSystem, vertexSize, object.getPivotPoint(), getWorldMatrix(object), crosshairIsBox);
+        } else if (object instanceof CollisionShape) {
+//            graphics.setColor(pivotPointColor);
+            drawCollisionShape(graphics, coordinateSystem, vertexSize, (CollisionShape) object, getWorldMatrix(object), crosshairIsBox);
+            drawNodeImage(graphics, coordinateSystem, object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
+        } else if (object instanceof Light) {
+//            graphics.setColor(lightColor);
+            drawNodeImage(graphics, coordinateSystem, object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
+            light((Light) object);
+        } else {
+            drawNodeImage(graphics, coordinateSystem, object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
+        }
     }
 
     public void drawNodeImage(Graphics2D graphics,
@@ -132,26 +232,6 @@ public final class ResettableIdObjectRenderer {
         }
     }
 
-    public void renderIdObject(IdObject object) {
-        if (object instanceof Helper) {
-            graphics.setColor(pivotPointColor.darker());
-            drawCrosshair(graphics, coordinateSystem, vertexSize, object.getPivotPoint(), getWorldMatrix(object), crosshairIsBox);
-        } else if (object instanceof Bone) {
-            graphics.setColor(pivotPointColor);
-            drawCrosshair(graphics, coordinateSystem, vertexSize, object.getPivotPoint(), getWorldMatrix(object), crosshairIsBox);
-        } else if (object instanceof CollisionShape) {
-            graphics.setColor(pivotPointColor);
-            drawCollisionShape(graphics, coordinateSystem, vertexSize, (CollisionShape) object, getWorldMatrix(object), crosshairIsBox);
-            drawNodeImage(graphics, coordinateSystem, object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
-        } else if (object instanceof Light) {
-            graphics.setColor(lightColor);
-            drawNodeImage(graphics, coordinateSystem, object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
-            light((Light) object);
-        } else {
-            drawNodeImage(graphics, coordinateSystem, object, nodeIconPalette.getObjectImage(object), getWorldMatrix(object));
-        }
-    }
-
     public Mat4 getWorldMatrix(AnimatedNode object) {
         if (!isAnimated || renderModel == null || renderModel.getRenderNode(object) == null) {
             return null;
@@ -180,6 +260,48 @@ public final class ResettableIdObjectRenderer {
     }
 
     public void camera(Camera camera) {
+        graphics.setColor(Color.GREEN.darker());
+        Graphics2D g2 = ((Graphics2D) graphics.create());
+
+        Vec3 vec3Start = new Vec3(camera.getPosition());
+        Mat4 worldMatrix = getWorldMatrix(camera.getSourceNode());
+        if (worldMatrix != null) {
+            vec3Start.transform(worldMatrix);
+        }
+
+        Vec3 vec3End = new Vec3(camera.getTargetPosition());
+        worldMatrix = getWorldMatrix(camera.getTargetNode());
+        if (worldMatrix != null) {
+            vec3Start.transform(worldMatrix);
+        }
+
+        float renderRotationScalar = 0;
+        if (renderModel != null && renderModel.getAnimatedRenderEnvironment() != null) {
+            renderRotationScalar = camera.getSourceNode().getRenderRotationScalar(renderModel.getAnimatedRenderEnvironment());
+        }
+
+        renderableCameraProp.render(g2, coordinateSystem, vec3Start, vec3End, renderRotationScalar);
+
+//		Point start = CoordSysUtils.convertToViewPoint(coordinateSystem, position);
+//		Point end = CoordSysUtils.convertToViewPoint(coordinateSystem, targetPosition);
+//
+//		g2.translate(end.x, end.y);
+//		g2.rotate(-((Math.PI / 2) + Math.atan2(end.x - start.x, end.y - start.y)));
+//		double zoom = CoordSysUtils.getZoom(coordinateSystem);
+//		int size = (int) (20 * zoom);
+//		double dist = start.distance(end);
+//
+//		g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
+//		g2.drawRect((int) dist - size, -size, size * 2, size * 2);
+//
+//		g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + (vertexSize * 2), 1 + (vertexSize * 2));
+//		g2.drawLine(0, 0, size, size);
+//		g2.drawLine(0, 0, size, -size);
+//
+//		g2.drawLine(0, 0, (int) dist, 0);
+    }
+
+    public void renderCamera(Camera camera, Graphics2D graphics, RenderModel renderModel, CoordinateSystem coordinateSystem) {
         graphics.setColor(Color.GREEN.darker());
         Graphics2D g2 = ((Graphics2D) graphics.create());
 

@@ -20,13 +20,13 @@ public class AddLayerAction implements UndoAction {
 
 	@Override
 	public void undo() {
-		material.getLayers().remove(layer);
+		material.removeLayer(layer);
 		structureChangeListener.materialsListChanged();
 	}
 
 	@Override
 	public void redo() {
-		material.getLayers().add(layer);
+		material.addLayer(layer);
 		structureChangeListener.materialsListChanged();
 	}
 

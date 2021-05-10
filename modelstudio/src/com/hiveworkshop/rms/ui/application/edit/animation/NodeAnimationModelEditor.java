@@ -31,7 +31,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotate
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
@@ -46,7 +45,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	private final ModelStructureChangeListener structureChangeListener;
 
 	public NodeAnimationModelEditor(ModelView modelView,
-	                                SelectionManager<IdObject> selectionManager,
+	                                NodeAnimationSelectionManager selectionManager,
 	                                RenderModel renderModel,
 	                                ModelStructureChangeListener structureChangeListener) {
 		super(selectionManager, modelView);

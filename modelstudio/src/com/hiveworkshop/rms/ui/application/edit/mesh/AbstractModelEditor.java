@@ -15,7 +15,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawPlaneAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.NewGeosetAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.*;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.CloneAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
@@ -121,74 +120,68 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
     @Override
     public UndoAction setMatrix(Collection<Bone> bones) {
-//        System.out.println("setMatrix");
-        Matrix mx = new Matrix();
-        mx.setBones(new ArrayList<>());
-        for (Bone bone : bones) {
-            mx.add(bone);
-        }
-        Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences = new HashMap<>();
-        Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences = new HashMap<>();
-        Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences = new HashMap<>();
-        System.out.println("selected verts: " + selectionManager.getSelectedVertices().size());
-        for (Vec3 vert : selectionManager.getSelectedVertices()) {
-            if (vert instanceof GeosetVertex) {
-                GeosetVertex gv = (GeosetVertex) vert;
-                List<Bone> matrixBones = mx.getBones();
-                if (gv.getSkinBoneBones() != null) {
-                    vertexToOldSkinBoneReferences.put(gv, gv.getSkinBoneBones().clone());
-                    vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights().clone());
-                } else {
-                    vertexToOldBoneReferences.put(gv, new ArrayList<>(gv.getBoneAttachments()));
-                }
-                gv.rigBones(matrixBones);
-            }
-        }
-        return new SetMatrixAction(vertexToOldBoneReferences, vertexToOldSkinBoneReferences, vertexToOldSkinBoneWeightReferences, bones);
+////        System.out.println("setMatrix");
+//        Matrix mx = new Matrix();
+//        mx.setBones(new ArrayList<>());
+//        for (Bone bone : bones) {
+//            mx.add(bone);
+//        }
+//        Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences = new HashMap<>();
+//        Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences = new HashMap<>();
+//        Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences = new HashMap<>();
+//        System.out.println("selected verts: " + selectionManager.getSelectedVertices().size());
+//        for (Vec3 vert : selectionManager.getSelectedVertices()) {
+//            if (vert instanceof GeosetVertex) {
+//                GeosetVertex gv = (GeosetVertex) vert;
+//                List<Bone> matrixBones = mx.getBones();
+//                if (gv.getSkinBoneBones() != null) {
+//                    vertexToOldSkinBoneReferences.put(gv, gv.getSkinBoneBones().clone());
+//                    vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights().clone());
+//                } else {
+//                    vertexToOldBoneReferences.put(gv, new ArrayList<>(gv.getBoneAttachments()));
+//                }
+//                gv.rigBones(matrixBones);
+//            }
+//        }
+//        return new SetMatrixAction(vertexToOldBoneReferences, vertexToOldSkinBoneReferences, vertexToOldSkinBoneWeightReferences, bones);
+        SetMatrixAction2 matrixAction2 = new SetMatrixAction2(selectionManager.getSelectedVertices(), bones);
+        matrixAction2.redo();
+        return matrixAction2;
     }
 
     @Override
     public UndoAction setHDSkinning(Bone[] bones, short[] skinWeights) {
-//        System.out.println("setHDSkinning");
-        Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences = new HashMap<>();
-        Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences = new HashMap<>();
-        Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences = new HashMap<>();
-//        System.out.println("sel Verts: "+ selectionManager.getSelectedVertices().size());
-        for (Vec3 vert : selectionManager.getSelectedVertices()) {
-            if (vert instanceof GeosetVertex) {
-                GeosetVertex gv = (GeosetVertex) vert;
-                if (gv.getSkinBoneBones() != null) {
-                    vertexToOldSkinBoneReferences.put(gv, gv.getSkinBoneBones().clone());
-                    vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights().clone());
-                    for (int i = 0; i < bones.length; i++) {
-                        gv.setSkinBone(bones[i], skinWeights[i], i);
-                    }
-                } else {
-                    throw new IllegalStateException("Attempted to manipulate HD Skinning while SD mesh is selected!");
-                }
-            }
-        }
-        return new SetMatrixAction(vertexToOldBoneReferences, vertexToOldSkinBoneReferences, vertexToOldSkinBoneWeightReferences, Collections.emptyList());
+////        System.out.println("setHDSkinning");
+//        Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences = new HashMap<>();
+//        Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences = new HashMap<>();
+//        Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences = new HashMap<>();
+////        System.out.println("sel Verts: "+ selectionManager.getSelectedVertices().size());
+//        for (Vec3 vert : selectionManager.getSelectedVertices()) {
+//            if (vert instanceof GeosetVertex) {
+//                GeosetVertex gv = (GeosetVertex) vert;
+//                if (gv.getSkinBoneBones() != null) {
+//                    vertexToOldSkinBoneReferences.put(gv, gv.getSkinBoneBones().clone());
+//                    vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights().clone());
+//                    for (int i = 0; i < bones.length; i++) {
+//                        gv.setSkinBone(bones[i], skinWeights[i], i);
+//                    }
+//                } else {
+//                    throw new IllegalStateException("Attempted to manipulate HD Skinning while SD mesh is selected!");
+//                }
+//            }
+//        }
+//        return new SetMatrixAction(vertexToOldBoneReferences, vertexToOldSkinBoneReferences, vertexToOldSkinBoneWeightReferences, Collections.emptyList());
+
+        SetHdSkinAction hdSkinAction = new SetHdSkinAction(selectionManager.getSelectedVertices(), bones, skinWeights);
+        hdSkinAction.redo();
+        return hdSkinAction;
     }
 
     @Override
     public UndoAction snapNormals() {
-        List<Vec3> oldLocations = new ArrayList<>();
-        List<Vec3> selectedNormals = new ArrayList<>();
-        Vec3 snapped = new Vec3(0, 0, 1);
-
-        for (Vec3 vertex : selectionManager.getSelectedVertices()) {
-            if (vertex instanceof GeosetVertex) {
-                GeosetVertex gv = (GeosetVertex) vertex;
-                if (gv.getNormal() != null) {
-                    oldLocations.add(new Vec3(gv.getNormal()));
-                    selectedNormals.add(gv.getNormal());
-                } // else no normal to snap!!!
-            }
-        }
-        SnapNormalsAction temp = new SnapNormalsAction(selectedNormals, oldLocations, snapped);
-        temp.redo();// a handy way to do the snapping!
-        return temp;
+        SnapNormalsAction snapNormalsAction = new SnapNormalsAction(selectionManager.getSelectedVertices(), new Vec3(0, 0, 1));
+        snapNormalsAction.redo();// a handy way to do the snapping!
+        return snapNormalsAction;
     }
 
     @Override
@@ -221,8 +214,9 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
     @Override
     public UndoAction deleteSelectedComponents() {
-        // TODO this code is RIPPED FROM MDLDispaly and is not good for general cases
-        DeleteAction deleteAction = new DeleteAction(modelHandler.getModel(), selectionManager.getSelectedVertices(), structureChangeListener, vertexSelectionHelper);
+        // TODO should probably be able to delete IdObjects
+        DeleteAction deleteAction = new DeleteAction(modelHandler.getModel(), modelView.getSelectedVertices(), structureChangeListener, vertexSelectionHelper);
+//        DeleteAction deleteAction = new DeleteAction(modelHandler.getModel(), selectionManager.getSelectedVertices(), structureChangeListener, vertexSelectionHelper);
         deleteAction.redo();
         return deleteAction;
     }
@@ -257,22 +251,9 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
     @Override
     public UndoAction snapSelectedNormals() {
-        Collection<? extends Vec3> selection = selectionManager.getSelectedVertices();
-        List<Vec3> oldLocations = new ArrayList<>();
-        List<Vec3> selectedNormals = new ArrayList<>();
-        Vec3 snapped = new Vec3(0, 0, 1);
-        for (Vec3 vertex : selection) {
-            if (vertex instanceof GeosetVertex) {
-                GeosetVertex gv = (GeosetVertex) vertex;
-                if (gv.getNormal() != null) {
-                    oldLocations.add(new Vec3(gv.getNormal()));
-                    selectedNormals.add(gv.getNormal());
-                } // else no normal to snap!!!
-            }
-        }
-        SnapNormalsAction temp = new SnapNormalsAction(selectedNormals, oldLocations, snapped);
-        temp.redo();// a handy way to do the snapping!
-        return temp;
+        SnapNormalsAction snapNormalsAction = new SnapNormalsAction(selectionManager.getSelectedVertices(), new Vec3(0, 0, 1));
+        snapNormalsAction.redo();// a handy way to do the snapping!
+        return snapNormalsAction;
     }
 
     @Override
@@ -284,134 +265,141 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
     @Override
     public UndoAction beginExtendingSelection() {
-        ExtrudeAction extendAction = new ExtrudeAction(selectionManager.getSelectedVertices(), new Vec3(0, 0, 0));
+//        ExtrudeAction extendAction = new ExtrudeAction(selectionManager.getSelectedVertices(), new Vec3(0, 0, 0));
+        ExtrudeAction extendAction = new ExtrudeAction(modelView.getSelectedVertices(), new Vec3(0, 0, 0));
         extendAction.redo();
         return extendAction;
     }
 
     @Override
     public UndoAction snapSelectedVertices() {
-        Collection<? extends Vec3> selection = selectionManager.getSelectedVertices();
-        List<Vec3> oldLocations = new ArrayList<>();
-        Vec3 cog = Vec3.centerOfGroup(selection);
-        for (Vec3 vertex : selection) {
-            oldLocations.add(new Vec3(vertex));
-        }
-        SnapAction temp = new SnapAction(selection, oldLocations, cog);
+//        Collection<? extends Vec3> selection = selectionManager.getSelectedVertices();
+//        List<Vec3> oldLocations = new ArrayList<>();
+//        Vec3 cog = Vec3.centerOfGroup(selection);
+//        for (Vec3 vertex : selection) {
+//            oldLocations.add(new Vec3(vertex));
+//        }
+//        SnapAction temp = new SnapAction(selection, oldLocations, cog);
+//        temp.redo();// a handy way to do the snapping!
+//        return temp;
+        SnapAction temp = new SnapAction(modelView.getSelectedVertices());
         temp.redo();// a handy way to do the snapping!
         return temp;
     }
 
     @Override
-    public CloneAction cloneSelectedComponents(ClonedNodeNamePicker clonedNodeNamePicker) {
-        List<Vec3> source = new ArrayList<>(selectionManager.getSelectedVertices());
-        List<Triangle> selTris = new ArrayList<>();
-        List<IdObject> selBones = new ArrayList<>();
-        List<IdObject> newBones = new ArrayList<>();
-        List<GeosetVertex> newVertices = new ArrayList<>();
-        List<Triangle> newTriangles = new ArrayList<>();
-        for (Vec3 vert : source) {
-            if (vert.getClass() == GeosetVertex.class) {
-                GeosetVertex gv = (GeosetVertex) vert;
-                newVertices.add(new GeosetVertex(gv));
-            } else {
-                newVertices.add(null);
-            }
-        }
-        for (IdObject b : modelView.getEditableIdObjects()) {
-            if (source.contains(b.getPivotPoint()) && !selBones.contains(b)) {
-                selBones.add(b);
-                newBones.add(b.copy());
-            }
-        }
-        if (newBones.size() > 0) {
-            java.util.Map<IdObject, String> nodeToNamePicked = clonedNodeNamePicker.pickNames(newBones);
-            if (nodeToNamePicked == null) {
-                throw new RuntimeException(
-                        "user does not wish to continue so we put in an error to interrupt clone so model is OK");
-            }
-            for (IdObject node : nodeToNamePicked.keySet()) {
-                node.setName(nodeToNamePicked.get(node));
-            }
-        }
-        filterSelectedCloneSelected(source, selTris);
-        cloneTris(source, selTris, newVertices, newTriangles);
-        Set<Vec3> newSelection = new HashSet<>();
-        cloneVerts(selBones, newBones, newVertices, newSelection);
-        for (IdObject b : newBones) {
-            newSelection.add(b.getPivotPoint());
-            if (selBones.contains(b.getParent())) {
-                b.setParent(newBones.get(selBones.indexOf(b.getParent())));
-            }
-        }
-        List<GeosetVertex> newVerticesWithoutNulls = new ArrayList<>();
-        for (GeosetVertex vertex : newVertices) {
-            if (vertex != null) {
-                newVerticesWithoutNulls.add(vertex);
-            }
-        }
-        // TODO cameras
-        CloneAction cloneAction = new CloneAction(modelView, source, structureChangeListener, vertexSelectionHelper, selBones, newVerticesWithoutNulls, newTriangles, newBones, newSelection);
+    public UndoAction cloneSelectedComponents(ClonedNodeNamePicker clonedNodeNamePicker) {
+//        List<Vec3> source = new ArrayList<>(selectionManager.getSelectedVertices());
+//        List<Triangle> selTris = new ArrayList<>();
+//        List<IdObject> selBones = new ArrayList<>();
+//        List<IdObject> newBones = new ArrayList<>();
+//        List<GeosetVertex> newVertices = new ArrayList<>();
+//        List<Triangle> newTriangles = new ArrayList<>();
+//        for (Vec3 vert : source) {
+//            if (vert.getClass() == GeosetVertex.class) {
+//                GeosetVertex gv = (GeosetVertex) vert;
+//                newVertices.add(new GeosetVertex(gv));
+//            } else {
+//                newVertices.add(null);
+//            }
+//        }
+//        for (IdObject b : modelView.getEditableIdObjects()) {
+//            if (source.contains(b.getPivotPoint()) && !selBones.contains(b)) {
+//                selBones.add(b);
+//                newBones.add(b.copy());
+//            }
+//        }
+//        if (newBones.size() > 0) {
+//            java.util.Map<IdObject, String> nodeToNamePicked = clonedNodeNamePicker.pickNames(newBones);
+//            if (nodeToNamePicked == null) {
+//                throw new RuntimeException(
+//                        "user does not wish to continue so we put in an error to interrupt clone so model is OK");
+//            }
+//            for (IdObject node : nodeToNamePicked.keySet()) {
+//                node.setName(nodeToNamePicked.get(node));
+//            }
+//        }
+//        filterSelectedCloneSelected(source, selTris);
+//        cloneTris(source, selTris, newVertices, newTriangles);
+//        Set<Vec3> newSelection = new HashSet<>();
+//        cloneVerts(selBones, newBones, newVertices, newSelection);
+//        for (IdObject b : newBones) {
+//            newSelection.add(b.getPivotPoint());
+//            if (selBones.contains(b.getParent())) {
+//                b.setParent(newBones.get(selBones.indexOf(b.getParent())));
+//            }
+//        }
+//        List<GeosetVertex> newVerticesWithoutNulls = new ArrayList<>();
+//        for (GeosetVertex vertex : newVertices) {
+//            if (vertex != null) {
+//                newVerticesWithoutNulls.add(vertex);
+//            }
+//        }
+//        // TODO cameras
+//        CloneAction cloneAction = new CloneAction(modelView, source, structureChangeListener, vertexSelectionHelper, selBones, newVerticesWithoutNulls, newTriangles, newBones, newSelection);
+//        cloneAction.redo();
+//        return cloneAction;
+        CloneAction2 cloneAction = new CloneAction2(modelView, structureChangeListener, vertexSelectionHelper, modelView.getSelectedVertices(), modelView.getSelectedIdObjects(), modelView.getSelectedCameras());
         cloneAction.redo();
         return cloneAction;
     }
 
-    private void cloneVerts(List<IdObject> selBones, List<IdObject> newBones, List<GeosetVertex> newVertices, Set<Vec3> newSelection) {
-        for (Vec3 ver : newVertices) {
-            if (ver != null) {
-                newSelection.add(ver);
-                if (ver.getClass() == GeosetVertex.class) {
-                    GeosetVertex gv = (GeosetVertex) ver;
-                    for (int i = 0; i < gv.getBones().size(); i++) {
-                        Bone b = gv.getBones().get(i);
-                        if (selBones.contains(b)) {
-                            gv.getBones().set(i, (Bone) newBones.get(selBones.indexOf(b)));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void cloneTris(List<Vec3> source, List<Triangle> selTris, List<GeosetVertex> newVertices, List<Triangle> newTriangles) {
-        for (Triangle tri : selTris) {
-            GeosetVertex a = newVertices.get(source.indexOf(tri.get(0)));
-            GeosetVertex b = newVertices.get(source.indexOf(tri.get(1)));
-            GeosetVertex c = newVertices.get(source.indexOf(tri.get(2)));
-            Triangle newTriangle = new Triangle(a, b, c, a.getGeoset());
-            newTriangles.add(newTriangle);
-//            a.addTriangle(newTriangle);
-//            b.addTriangle(newTriangle);
-//            c.addTriangle(newTriangle);
-        }
-    }
-
-    private void filterSelectedCloneSelected(List<Vec3> source, List<Triangle> selTris) {
-        for (int k = 0; k < source.size(); k++) {
-            Vec3 vert = source.get(k);
-            if (vert.getClass() == GeosetVertex.class) {
-                GeosetVertex gv = (GeosetVertex) vert;
-                List<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
-                for (Triangle tri : gv.getGeoset().getTriangles()) {
-                    if (tri.contains(gv)) {
-                        boolean good = true;
-                        for (Vec3 vTemp : tri.getAll()) {
-                            if (!source.contains(vTemp)) {
-                                good = false;
-                                break;
-                            }
-                        }
-                        if (good) {
-                            gvTriangles.add(tri);
-                            if (!selTris.contains(tri)) {
-                                selTris.add(tri);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    private void cloneVerts(List<IdObject> selBones, List<IdObject> newBones, List<GeosetVertex> newVertices, Set<Vec3> newSelection) {
+//        for (Vec3 ver : newVertices) {
+//            if (ver != null) {
+//                newSelection.add(ver);
+//                if (ver.getClass() == GeosetVertex.class) {
+//                    GeosetVertex gv = (GeosetVertex) ver;
+//                    for (int i = 0; i < gv.getBones().size(); i++) {
+//                        Bone b = gv.getBones().get(i);
+//                        if (selBones.contains(b)) {
+//                            gv.getBones().set(i, (Bone) newBones.get(selBones.indexOf(b)));
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    private void cloneTris(List<Vec3> source, List<Triangle> selTris, List<GeosetVertex> newVertices, List<Triangle> newTriangles) {
+//        for (Triangle tri : selTris) {
+//            GeosetVertex a = newVertices.get(source.indexOf(tri.get(0)));
+//            GeosetVertex b = newVertices.get(source.indexOf(tri.get(1)));
+//            GeosetVertex c = newVertices.get(source.indexOf(tri.get(2)));
+//            Triangle newTriangle = new Triangle(a, b, c, a.getGeoset());
+//            newTriangles.add(newTriangle);
+////            a.addTriangle(newTriangle);
+////            b.addTriangle(newTriangle);
+////            c.addTriangle(newTriangle);
+//        }
+//    }
+//
+//    private void filterSelectedCloneSelected(List<Vec3> source, List<Triangle> selTris) {
+//        for (int k = 0; k < source.size(); k++) {
+//            Vec3 vert = source.get(k);
+//            if (vert.getClass() == GeosetVertex.class) {
+//                GeosetVertex gv = (GeosetVertex) vert;
+//                List<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
+//                for (Triangle tri : gv.getGeoset().getTriangles()) {
+//                    if (tri.contains(gv)) {
+//                        boolean good = true;
+//                        for (Vec3 vTemp : tri.getAll()) {
+//                            if (!source.contains(vTemp)) {
+//                                good = false;
+//                                break;
+//                            }
+//                        }
+//                        if (good) {
+//                            gvTriangles.add(tri);
+//                            if (!selTris.contains(tri)) {
+//                                selTris.add(tri);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public void rawTranslate(double x, double y, double z) {

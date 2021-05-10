@@ -300,27 +300,27 @@ public final class ModelView {
 	}
 
 	public boolean isVisible(Geoset ob) {
-		return visibleGeosets.contains(ob);
+		return visibleGeosets.contains(ob) && geosetsVisible;
 	}
 
 	public boolean isVisible(IdObject ob) {
-		return visibleIdObjects.contains(ob);
+		return visibleIdObjects.contains(ob) && idObjectsVisible;
 	}
 
 	public boolean isVisible(Camera ob) {
-		return visibleCameras.contains(ob);
+		return visibleCameras.contains(ob) && camerasVisible;
 	}
 
 	public boolean isEditable(Geoset ob) {
-		return editableGeosets.contains(ob);
+		return editableGeosets.contains(ob) && geosetsEditable && geosetsVisible;
 	}
 
 	public boolean isEditable(GeosetVertex ob) {
-		return editableVertices.contains(ob) && !hiddenVertices.contains(ob);
+		return editableVertices.contains(ob) && !hiddenVertices.contains(ob) && geosetsEditable && geosetsVisible;
 	}
 
 	public boolean isEditable(IdObject ob) {
-		return editableIdObjects.contains(ob);
+		return editableIdObjects.contains(ob) && idObjectsEditable && idObjectsVisible;
 	}
 
 	public boolean isEditable(Camera ob) {
@@ -340,11 +340,11 @@ public final class ModelView {
 	}
 
 	public boolean canSelect(Geoset ob) {
-		return editableGeosets.contains(ob) && geosetsVisible;
+		return editableGeosets.contains(ob) && geosetsVisible && geosetsEditable;
 	}
 
 	public boolean canSelect(IdObject ob) {
-		return editableIdObjects.contains(ob) && idObjectsVisible;
+		return editableIdObjects.contains(ob) && idObjectsVisible && idObjectsEditable;
 	}
 
 	public boolean canSelect(Camera ob) {

@@ -5,10 +5,8 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ResettableIdObjectRenderer;
-import com.hiveworkshop.rms.util.GU;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
@@ -31,35 +29,36 @@ public class ModelElementRenderer {
 		this.coordinateSystem = coordinateSystem;
 		this.renderModel = renderModel;
 		this.isAnimated = isAnimated;
+		this.idObjectRenderer.reset(coordinateSystem, graphics, renderModel, isAnimated);
 		return this;
 	}
 
 	public void renderFace(Color borderColor, Color color, GeosetVertex a, GeosetVertex b, GeosetVertex c) {
-		graphics.setColor(color);
-		System.out.println("ugg static");
-
-		Point vertexA = CoordSysUtils.convertToViewPoint(coordinateSystem, a);
-		Point vertexB = CoordSysUtils.convertToViewPoint(coordinateSystem, b);
-		Point vertexC = CoordSysUtils.convertToViewPoint(coordinateSystem, c);
-//		Point vertexA = CoordSysUtils.convertToViewPoint(coordinateSystem, a, null);
-//		Point vertexB = CoordSysUtils.convertToViewPoint(coordinateSystem, b, null);
-//		Point vertexC = CoordSysUtils.convertToViewPoint(coordinateSystem, c, null);
-
-		GU.fillPolygon(graphics, vertexA, vertexB, vertexC);
-		graphics.setColor(borderColor);
-		GU.drawPolygon(graphics, vertexA, vertexB, vertexC);
+//		graphics.setColor(color);
+//		System.out.println("ugg static");
+//
+//		Point vertexA = CoordSysUtils.convertToViewPoint(coordinateSystem, a);
+//		Point vertexB = CoordSysUtils.convertToViewPoint(coordinateSystem, b);
+//		Point vertexC = CoordSysUtils.convertToViewPoint(coordinateSystem, c);
+////		Point vertexA = CoordSysUtils.convertToViewPoint(coordinateSystem, a, null);
+////		Point vertexB = CoordSysUtils.convertToViewPoint(coordinateSystem, b, null);
+////		Point vertexC = CoordSysUtils.convertToViewPoint(coordinateSystem, c, null);
+//
+//		GU.fillPolygon(graphics, vertexA, vertexB, vertexC);
+//		graphics.setColor(borderColor);
+//		GU.drawPolygon(graphics, vertexA, vertexB, vertexC);
 	}
 
 	public void renderVertex(Color color, Vec3 vertex) {
-		Point point = CoordSysUtils.convertToViewPoint(coordinateSystem, vertex);
-		graphics.setColor(color);
-		GU.fillCenteredSquare(graphics, point, vertexSize);
+//		Point point = CoordSysUtils.convertToViewPoint(coordinateSystem, vertex);
+//		graphics.setColor(color);
+//		GU.fillCenteredSquare(graphics, point, vertexSize);
 	}
 
 	public void renderIdObject(IdObject object) {
-		ResettableIdObjectRenderer idObjectRenderer = this.idObjectRenderer.reset(coordinateSystem, graphics, renderModel, isAnimated, true);
+//		ResettableIdObjectRenderer idObjectRenderer = this.idObjectRenderer.renderObject(true, object);
 
-		idObjectRenderer.renderIdObject(object);
+//		idObjectRenderer.renderObject(coordinateSystem, graphics, renderModel, isAnimated, true, object);
 	}
 
 	public void renderCamera(Camera camera, Color boxColor, Vec3 position, Color targetColor, Vec3 targetPosition) {

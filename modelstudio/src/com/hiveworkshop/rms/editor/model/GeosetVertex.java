@@ -4,10 +4,7 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * GeosetVertex is a extended version of the Vertex class, for use strictly
@@ -157,7 +154,7 @@ public class GeosetVertex extends Vec3 {
 		bones.add(b);
 	}
 
-	public void addBoneAttachments(List<Bone> b) {
+	public void addBoneAttachments(Collection<Bone> b) {
 		bones.addAll(b);
 	}
 

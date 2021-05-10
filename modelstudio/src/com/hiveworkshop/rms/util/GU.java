@@ -104,6 +104,10 @@ public class GU {
 		fillCenteredSquare(graphics, point.x, point.y, size);
 	}
 
+	public static void fillCenteredSquare(Graphics graphics, Vec2 point, int size) {
+		fillCenteredSquare(graphics, (int) (point.x + .5), (int) (point.y + .5), size);
+	}
+
 	public static void fillCenteredSquare(Graphics graphics, int x, int y, int size) {
 		int offset = size / 2;
 		graphics.fillRect(x - offset, (y - offset), size, size);

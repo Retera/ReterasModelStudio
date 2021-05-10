@@ -976,4 +976,12 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		return boneMap;
 	}
+
+	public void setSkin(List<short[]> skin) {
+		this.skin = skin;
+	}
+
+	public void setTangents(List<float[]> tangents) {
+		this.tangents = tangents;
+	}
 }

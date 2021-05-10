@@ -97,10 +97,10 @@ public class Layer extends TimelineContainer implements Named {
 		}
 	}
 
-	public Layer(MdlxLayer layer) {
-		this(layer.filterMode.toString(), layer.textureId);
+	public Layer(MdlxLayer mdlxLayer) {
+		this(mdlxLayer.filterMode.toString(), mdlxLayer.textureId);
 
-		int shadingFlags = layer.flags;
+		int shadingFlags = mdlxLayer.flags;
 		if ((shadingFlags & 0x1) != 0) {
 			unshaded = true;
 		}
@@ -123,18 +123,18 @@ public class Layer extends TimelineContainer implements Named {
 			unlit = true;
 		}
 
-		setTVertexAnimId(layer.textureAnimationId);
-		setCoordId((int) layer.coordId);
-		setStaticAlpha(layer.alpha);
+		setTVertexAnimId(mdlxLayer.textureAnimationId);
+		setCoordId((int) mdlxLayer.coordId);
+		setStaticAlpha(mdlxLayer.alpha);
 
 		// > 800
-		emissiveGain = layer.emissiveGain;
+		emissiveGain = mdlxLayer.emissiveGain;
 		// > 900
-		setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(layer.fresnelColor)));
-		fresnelOpacity = layer.fresnelOpacity;
-		fresnelTeamColor = layer.fresnelTeamColor;
+		setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
+		fresnelOpacity = mdlxLayer.fresnelOpacity;
+		fresnelTeamColor = mdlxLayer.fresnelTeamColor;
 
-		loadTimelines(layer);
+		loadTimelines(mdlxLayer);
 	}
 
 	@Override

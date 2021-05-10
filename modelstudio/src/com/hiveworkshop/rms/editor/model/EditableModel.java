@@ -564,16 +564,16 @@ public class EditableModel implements Named {
 					&& !af.getName().equals("Rotation")) {
 			}
 		}
-//		final List<EventObject> evtObjs = (List<EventObject>) sortedIdObjects(EventObject.class);
+
 		final List<EventObject> evtObjs = getEvents();
 		for (final EventObject af : evtObjs) {
 			af.updateGlobalSeqRef(this);
 		}
-//		for (final ParticleEmitter2 temp : (List<ParticleEmitter2>)sortedIdObjects(ParticleEmitter2.class)) {
+
 		for (final ParticleEmitter2 temp : getParticleEmitter2s()) {
 			temp.updateTextureRef(textures);
 		}
-//		for (final RibbonEmitter emitter : (List<RibbonEmitter>)sortedIdObjects(RibbonEmitter.class)) {
+
 		for (final RibbonEmitter emitter : getRibbonEmitters()) {
 			emitter.updateMaterialRef(materials);
 		}
@@ -2111,6 +2111,7 @@ public class EditableModel implements Named {
 
 		Map<Integer, IdObject> idToIdObjectMap;
 		Map<IdObject, Integer> idObjectToIdMap;
+		Map<String, IdObject> nameToIdObjectMap;
 
 
 		ModelIdObjects() {
@@ -2153,6 +2154,7 @@ public class EditableModel implements Named {
 			allObjects.add(idObject);
 			idToIdObjectMap = null;
 			idObjectToIdMap = null;
+			nameToIdObjectMap = null;
 		}
 
 		void removeIdObject(IdObject idObject) {
@@ -2180,6 +2182,7 @@ public class EditableModel implements Named {
 			allObjects.remove(idObject);
 			idToIdObjectMap = null;
 			idObjectToIdMap = null;
+			nameToIdObjectMap = null;
 		}
 
 		private void sort() {
@@ -2211,6 +2214,7 @@ public class EditableModel implements Named {
 
 			idToIdObjectMap = null;
 			idObjectToIdMap = null;
+			nameToIdObjectMap = null;
 		}
 
 		List<IdObject> getSorted() {
@@ -2226,12 +2230,23 @@ public class EditableModel implements Named {
 		}
 
 		IdObject getObject(final String name) {
-			for (final IdObject obj : allObjects) {
-				if (obj.name.equalsIgnoreCase(name)) {
-					return obj;
+//			for (final IdObject obj : allObjects) {
+//				if (obj.name.equalsIgnoreCase(name)) {
+//					return obj;
+//				}
+//			}
+//			return null;
+			return getNameToIdObjectMap().get(name);
+		}
+
+		Map<String, IdObject> getNameToIdObjectMap() {
+			if (nameToIdObjectMap == null) {
+				nameToIdObjectMap = new HashMap<>();
+				for (IdObject idObject : allObjects) {
+					nameToIdObjectMap.put(idObject.getName(), idObject);
 				}
 			}
-			return null;
+			return nameToIdObjectMap;
 		}
 
 		int getObjectId(final IdObject idObject) {
