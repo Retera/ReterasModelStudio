@@ -15,11 +15,10 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawBoxActivityDescriptor;
-import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawPlaneActivityDescriptor;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.SquatToolWidgetManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModeButton2;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.util.Vec3;
@@ -48,8 +47,8 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 	private ModelEditorManager modelEditorManager;
 	private UndoManager undoManager;
 	private final ViewportListener viewportListener;
-	private final ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
-	private final Map<ActivityDescriptor, List<ModeButton>> typeToButtons = new HashMap<>();
+	private final ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup;
+	private final Map<ModelEditorActionType3, List<ModeButton>> typeToButtons = new HashMap<>();
 	private final ProgramPreferences programPreferences;
 	private final DefaultComboBoxModel<String> modeChooserBoxModel;
 	private final DefaultComboBoxModel<ChooseableTimeRange> animationChooserBoxModel;
@@ -65,7 +64,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 
 	public CreatorModelingPanel(ModelEditorChangeActivityListener listener,
 	                            ProgramPreferences programPreferences,
-	                            ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
+	                            ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup,
 	                            ViewportListener viewportListener,
 	                            TimeEnvironmentImpl timeEnvironmentImpl) {
 		this.listener = listener;
@@ -107,13 +106,14 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		JPanel standardPrimitivesPanel = new JPanel(new BorderLayout());
 		JPanel drawPrimitivesPanel = new JPanel(new GridLayout(16, 1));
 		drawPrimitivesPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
+
 		ModeButton planeButton = new ModeButton("Plane");
-		planeButton.addActionListener(new ActionListenerImplementation(new DrawPlaneActivityDescriptor(programPreferences, viewportListener), programPreferences, listener, planeButton));
+//		planeButton.addActionListener(new ActionListenerImplementation(new DrawPlaneActivityDescriptor(viewportListener), programPreferences, listener, planeButton));//todo
 		drawPrimitivesPanel.add(planeButton);
 		modeButtons.add(planeButton);
 
 		ModeButton boxButton = new ModeButton("Box");
-		boxButton.addActionListener(new ActionListenerImplementation(new DrawBoxActivityDescriptor(programPreferences, viewportListener), programPreferences, listener, boxButton));
+//		boxButton.addActionListener(new ActionListenerImplementation(new DrawBoxActivityDescriptor(viewportListener), programPreferences, listener, boxButton));//todo
 		drawPrimitivesPanel.add(boxButton);
 		modeButtons.add(boxButton);
 
@@ -140,7 +140,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 
 	public void makeMeshBasicsPanel(ModelEditorChangeActivityListener listener,
 	                                ProgramPreferences programPrefences,
-	                                ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
+	                                ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup,
 	                                ViewportListener viewportListener,
 	                                DefaultComboBoxModel<String> modeChooserBoxModel,
 	                                JPanel cardPanel) {
@@ -177,13 +177,19 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		JPanel editToolsPanel = new JPanel(new GridLayout(16, 1));
 		editToolsPanel.setBorder(BorderFactory.createTitledBorder("Manipulate"));
 
-		for (ToolbarActionButtonType type : actionTypeGroup.getToolbarButtonTypes()) {
-			String typeName = type.getName();
-			ModeButton button = new ModeButton(typeName.substring(typeName.lastIndexOf(' ') + 1));
-			editToolsPanel.add(button);
-			button.addActionListener(e -> listener.changeActivity(type));
-			putTypeToButton(type, button);
-			modeButtons.add(button);
+//		for (ModelEditorActionType3 type : actionTypeGroup.getToolbarButtonTypes()) {
+//			String typeName = type.getName();
+//			ModeButton button = new ModeButton(typeName.substring(typeName.lastIndexOf(' ') + 1));
+//			editToolsPanel.add(button);
+//			button.addActionListener(e -> listener.changeActivity(type));
+//			putTypeToButton(type, button);
+//			modeButtons.add(button);
+//		}
+		for (ModeButton2 modeButton2 : actionTypeGroup.getModeButtons()) {
+			editToolsPanel.add(modeButton2);
+//			button.addActionListener(e -> listener.changeActivity(type));
+//			putTypeToButton(type, button);
+//			modeButtons.add(button);
 		}
 
 		meshBasicsPanel.add(editToolsPanel, BorderLayout.CENTER);
@@ -196,23 +202,23 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 
 	private void addBone(ModelEditorChangeActivityListener listener, ProgramPreferences programPrefences, ViewportListener viewportListener, ModeButton boneButton) {
 		listeningForActivityChanges = false;
-		listener.changeActivity(new DrawBoneActivityDescriptor(programPrefences, viewportListener));
-		resetButtons();
+//		listener.changeActivity(new DrawBoneActivityDescriptor(viewportListener));//ToDo
+//		resetButtons();
 		boneButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
 		listeningForActivityChanges = true;
 	}
 
 	private void addVertex(ModelEditorChangeActivityListener listener, ProgramPreferences programPrefences, ViewportListener viewportListener, ModeButton vertexButton) {
 		listeningForActivityChanges = false;
-		listener.changeActivity(new DrawVertexActivityDescriptor(programPrefences, viewportListener));
-		resetButtons();
+//		listener.changeActivity(new DrawVertexActivityDescriptor(viewportListener));//ToDo
+//		resetButtons();
 		vertexButton.setColors(programPrefences.getActiveColor1(), programPrefences.getActiveColor2());
 		listeningForActivityChanges = true;
 	}
 
 	public void makeAnimationBasicsPanel(ModelEditorChangeActivityListener listener,
 	                                     ProgramPreferences programPreferences,
-	                                     ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup,
+	                                     ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup,
 	                                     ViewportListener viewportListener, DefaultComboBoxModel<String> modeChooserBoxModel,
 	                                     JPanel cardPanel) {
 		JPanel meshBasicsPanel = new JPanel(new BorderLayout());
@@ -221,7 +227,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		editToolsPanel.setBorder(BorderFactory.createTitledBorder("Manipulate"));
 
 		int index = 0;
-		for (ToolbarActionButtonType type : actionTypeGroup.getToolbarButtonTypes()) {
+		for (ModelEditorActionType3 type : actionTypeGroup.getToolbarButtonTypes()) {
 			if (index < 3) {
 				String typeName = type.getName();
 				ModeButton button = new ModeButton(typeName.substring(typeName.lastIndexOf(' ') + 1));
@@ -239,8 +245,8 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		String squatTypeName = "Squat";
 		ModeButton squatButton = new ModeButton(squatTypeName);
 		editToolsPanel.add(squatButton);
-		squatButton.addActionListener(e -> listener.changeActivity(selectAndSquatDescriptor));
-		putTypeToButton(selectAndSquatDescriptor, squatButton);
+//		squatButton.addActionListener(e -> listener.changeActivity(selectAndSquatDescriptor));
+//		putTypeToButton(selectAndSquatDescriptor, squatButton); //ToDo
 		modeButtons.add(squatButton);
 
 		if (false) {
@@ -251,7 +257,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		meshBasicsPanel.add(editToolsPanel, BorderLayout.CENTER);
 	}
 
-	private void putTypeToButton(ActivityDescriptor type, ModeButton button) {
+	private void putTypeToButton(ModelEditorActionType3 type, ModeButton button) {
 		List<ModeButton> buttons = typeToButtons.computeIfAbsent(type, k -> new ArrayList<>());
 		buttons.add(button);
 	}
@@ -324,18 +330,18 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 	}
 
 	@Override
-	public void changeActivity(ActivityDescriptor newType) {
-		List<ModeButton> modeButtons = typeToButtons.get(newType);
-		if ((modeButtons != null) && !modeButtons.isEmpty()) {
-			resetButtons();
-			for (ModeButton modeButton : modeButtons) {
-				modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
-			}
-		} else {
-			if (listeningForActivityChanges) {
-				resetButtons();
-			}
-		}
+	public void changeActivity(ModelEditorActionType3 newType) {
+//		List<ModeButton> modeButtons = typeToButtons.get(newType);
+//		if ((modeButtons != null) && !modeButtons.isEmpty()) {
+////			resetButtons();
+////			for (ModeButton modeButton : modeButtons) {
+////				modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+////			}
+//		} else {
+//			if (listeningForActivityChanges) {
+//				resetButtons();
+//			}
+//		}
 	}
 
 	public void setUndoManager(UndoManager undoManager) {
@@ -354,30 +360,34 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		Object getThing();
 	}
 
+//	public void uggugg(){
+//		new ActionListenerImplementation(new DrawBoxActivityDescriptor(viewportListener), programPreferences, listener, boxButton);
+//	}
+
 
 
 	private final class ActionListenerImplementation implements ActionListener {
-		private final ActivityDescriptor activityDescriptor;
+		private final ModelEditorActionType3 activityDescriptor;
 		private final ProgramPreferences programPreferences;
 		private final ModelEditorChangeActivityListener listener;
-		private final ModeButton planeButton;
+		private final ModeButton modeButton;
 
-		private ActionListenerImplementation(ActivityDescriptor activityDescriptor,
+		private ActionListenerImplementation(ModelEditorActionType3 activityDescriptor,
 		                                     ProgramPreferences programPreferences,
 		                                     ModelEditorChangeActivityListener listener,
-		                                     ModeButton planeButton) {
+		                                     ModeButton modeButton) {
 			this.activityDescriptor = activityDescriptor;
 			this.programPreferences = programPreferences;
 			this.listener = listener;
-			this.planeButton = planeButton;
+			this.modeButton = modeButton;
 		}
 
 		@Override
 		public void actionPerformed(final ActionEvent e) {
 			listeningForActivityChanges = false;
 			listener.changeActivity(activityDescriptor);
-			resetButtons();
-			planeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+//			resetButtons();
+//			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
 			listeningForActivityChanges = true;
 		}
 	}

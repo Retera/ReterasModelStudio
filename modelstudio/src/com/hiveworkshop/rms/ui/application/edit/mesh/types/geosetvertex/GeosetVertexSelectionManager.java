@@ -38,14 +38,14 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 //		selection.clear();
 //		selection.addAll(selectionItem);
 		modelView.setSelectedVertices((Collection<GeosetVertex>) selectionItem);
-//		fireChangeListeners();
+		fireChangeListeners();
 	}
 
 	@Override
 	public void addSelection(final Collection<? extends GeosetVertex> selectionItem) {
 //		selection.addAll(selectionItem);
 		modelView.addSelectedVertices((Collection<GeosetVertex>) selectionItem);
-//		fireChangeListeners();
+		fireChangeListeners();
 	}
 
 	@Override
@@ -54,7 +54,7 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 ////			selection.remove(item);
 //		}
 		modelView.removeSelectedVertices((Collection<GeosetVertex>) selectionItem);
-//		fireChangeListeners();
+		fireChangeListeners();
 	}
 
 	@Override
@@ -90,18 +90,18 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	public void renderSelection(ModelElementRenderer renderer,
 	                            CoordinateSystem coordinateSystem,
 	                            ModelView model) {
-		for (Geoset geo : model.getEditableGeosets()) {
-			List<GeosetVertex> vertices = geo.getVertices();
-			for (GeosetVertex geosetVertex : vertices) {
-				if (model.getHighlightedGeoset() == geo) {
-					renderer.renderVertex(ProgramGlobals.getPrefs().getHighlighVertexColor(), geosetVertex);
-				} else if (modelView.isSelected(geosetVertex)) {
-					renderer.renderVertex(ProgramGlobals.getPrefs().getSelectColor(), geosetVertex);
-				} else {
-					renderer.renderVertex(ProgramGlobals.getPrefs().getVertexColor(), geosetVertex);
-				}
-			}
-		}
+//		for (Geoset geo : model.getEditableGeosets()) {
+//			List<GeosetVertex> vertices = geo.getVertices();
+//			for (GeosetVertex geosetVertex : vertices) {
+//				if (model.getHighlightedGeoset() == geo) {
+//					renderer.renderVertex(ProgramGlobals.getPrefs().getHighlighVertexColor(), geosetVertex);
+//				} else if (modelView.isSelected(geosetVertex)) {
+//					renderer.renderVertex(ProgramGlobals.getPrefs().getSelectColor(), geosetVertex);
+//				} else {
+//					renderer.renderVertex(ProgramGlobals.getPrefs().getVertexColor(), geosetVertex);
+//				}
+//			}
+//		}
 	}
 
 	@Override

@@ -115,34 +115,34 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 	@Override
 	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
 	                            ModelView model) {
-		Set<IdObject> drawnSelection = new HashSet<>();
-		Set<IdObject> parentedNonSelection = new HashSet<>();
-		for (IdObject object : model.getEditableIdObjects()) {
-			if (selection.contains(object)) {
-				renderer.renderIdObject(object);
-				drawnSelection.add(object);
-			} else {
-				IdObject parent = object.getParent();
-				while (parent != null) {
-					if (selection.contains(parent)) {
-						parentedNonSelection.add(object);
-					}
-					parent = parent.getParent();
-				}
-			}
-		}
-		for (IdObject selectedObject : selection) {
-			if (!drawnSelection.contains(selectedObject)) {
-				renderBoneDummy.setPivotPoint(selectedObject.getPivotPoint());
-				renderer.renderIdObject(renderBoneDummy);
-				drawnSelection.add(selectedObject);
-			}
-		}
-		for (IdObject object : model.getEditableIdObjects()) {
-			if (parentedNonSelection.contains(object) && !drawnSelection.contains(object)) {
-				renderer.renderIdObject(object);
-			}
-		}
+//		Set<IdObject> drawnSelection = new HashSet<>();
+//		Set<IdObject> parentedNonSelection = new HashSet<>();
+//		for (IdObject object : model.getEditableIdObjects()) {
+//			if (selection.contains(object)) {
+//				renderer.renderIdObject(object);
+//				drawnSelection.add(object);
+//			} else {
+//				IdObject parent = object.getParent();
+//				while (parent != null) {
+//					if (selection.contains(parent)) {
+//						parentedNonSelection.add(object);
+//					}
+//					parent = parent.getParent();
+//				}
+//			}
+//		}
+//		for (IdObject selectedObject : selection) {
+//			if (!drawnSelection.contains(selectedObject)) {
+//				renderBoneDummy.setPivotPoint(selectedObject.getPivotPoint());
+//				renderer.renderIdObject(renderBoneDummy);
+//				drawnSelection.add(selectedObject);
+//			}
+//		}
+//		for (IdObject object : model.getEditableIdObjects()) {
+//			if (parentedNonSelection.contains(object) && !drawnSelection.contains(object)) {
+//				renderer.renderIdObject(object);
+//			}
+//		}
 	}
 
 	@Override

@@ -29,7 +29,7 @@ public final class SquatToolWidgetManipulatorBuilder extends ModelEditorManipula
 	}
 
 	@Override
-	protected Manipulator createManipulatorFromWidget(Vec3 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+	protected Manipulator createManipulatorFromWidget(Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		widget.setPoint(selectionView.getCenter());
 		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
 

@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
@@ -35,18 +36,17 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	private final ModelHandler modelHandler;
 
 	public DrawVertexActivity(ModelHandler modelHandler,
-	                          ProgramPreferences preferences,
 	                          ModelEditor modelEditor,
 	                          SelectionView selectionView,
 	                          ViewportListener viewportListener) {
 		this.modelHandler = modelHandler;
-		this.preferences = preferences;
+		this.preferences = ProgramGlobals.getPrefs();
 		this.undoManager = modelHandler.getUndoManager();
 		this.modelEditor = modelEditor;
 		this.modelView = modelHandler.getModelView();
 		this.selectionView = selectionView;
 		this.viewportListener = viewportListener;
-		modelElementRenderer = new ModelElementRenderer(preferences.getVertexSize());
+		modelElementRenderer = new ModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
 	}
 
 	@Override

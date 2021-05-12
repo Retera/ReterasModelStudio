@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.application.edit.uv.types;
+package com.hiveworkshop.rms.ui.gui.modeledit.toolbar;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
@@ -11,7 +11,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.MoverWidgetTVer
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.RotatorWidgetTVertexEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.ScaleWidgetTVertexEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.TVertexEditorManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonType;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 
 import javax.swing.*;

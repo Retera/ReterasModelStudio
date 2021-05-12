@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
@@ -13,9 +14,8 @@ public class DrawPlaneActivityDescriptor implements ActivityDescriptor {
 	private final ViewportListener viewportListener;
 	private int numberOfHeightSegments;
 
-	public DrawPlaneActivityDescriptor(ProgramPreferences programPreferences,
-	                                   ViewportListener viewportListener) {
-		this.programPreferences = programPreferences;
+	public DrawPlaneActivityDescriptor(ViewportListener viewportListener) {
+		this.programPreferences = ProgramGlobals.getPrefs();
 		this.viewportListener = viewportListener;
 		numberOfWidthSegments = 1;
 		numberOfHeightSegments = 1;
@@ -23,7 +23,7 @@ public class DrawPlaneActivityDescriptor implements ActivityDescriptor {
 
 	@Override
 	public ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
-		return new DrawPlaneActivity(modelHandler, programPreferences, modelEditorManager.getModelEditor(),
+		return new DrawPlaneActivity(modelHandler, modelEditorManager.getModelEditor(),
 				modelEditorManager.getSelectionView(), viewportListener, 1, 1, 1);
 	}
 

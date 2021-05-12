@@ -192,7 +192,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private static void createKeyframe(MainPanel mainPanel) {
 		final ModelPanel mpanel = ProgramGlobals.getCurrentModelPanel();
 		if (mpanel != null) {
-			mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().createKeyframe(mainPanel.actionType));
+			mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().createKeyframe(mainPanel.actionTypeGroup.getActiveButtonType()));
 		}
 		MainPanel.repaintSelfAndChildren(mainPanel);
 		mpanel.repaintSelfAndRelatedChildren();

@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
@@ -11,15 +12,14 @@ public class DrawBoneActivityDescriptor implements ActivityDescriptor {
 	private final ProgramPreferences programPrefences;
 	private final ViewportListener viewportListener;
 
-	public DrawBoneActivityDescriptor(ProgramPreferences programPrefences,
-	                                  ViewportListener viewportListener) {
-		this.programPrefences = programPrefences;
+	public DrawBoneActivityDescriptor(ViewportListener viewportListener) {
+		this.programPrefences = ProgramGlobals.getPrefs();
 		this.viewportListener = viewportListener;
 	}
 
 	@Override
 	public ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
-		return new DrawBoneActivity(modelHandler, programPrefences, modelEditorManager.getModelEditor(), modelEditorManager.getSelectionView(), viewportListener);
+		return new DrawBoneActivity(modelHandler, modelEditorManager.getModelEditor(), modelEditorManager.getSelectionView(), viewportListener);
 	}
 
 }

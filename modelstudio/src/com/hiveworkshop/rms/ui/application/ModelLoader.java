@@ -10,8 +10,7 @@ import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -29,7 +28,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 
 public class ModelLoader {
 	static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
@@ -43,28 +41,30 @@ public class ModelLoader {
 					modelPanel.getModelHandler().getEditTimeEnv().setAnimation(anim);
 					modelPanel.getModelHandler().getEditTimeEnv().setStaticViewMode(!mainPanel.animationModeState);
 				}
-				refreshAndUpdateModelPanel();
+				refreshAndUpdateRenderModel();
 				mainPanel.timeSliderPanel.setNodeSelectionManager(modelPanel.getModelEditorManager().getNodeAnimationSelectionManager());
 			}
-			if ((mainPanel.actionTypeGroup.getActiveButtonType() == mainPanel.actionTypeGroup.getToolbarButtonTypes()[3])
-					|| (mainPanel.actionTypeGroup.getActiveButtonType() == mainPanel.actionTypeGroup.getToolbarButtonTypes()[4])) {
-				mainPanel.actionTypeGroup.setToolbarButtonType(mainPanel.actionTypeGroup.getToolbarButtonTypes()[0]);
+			if ((mainPanel.actionTypeGroup.getActiveButtonType() == ModelEditorActionType3.EXTRUDE)
+					|| (mainPanel.actionTypeGroup.getActiveButtonType() == ModelEditorActionType3.EXTEND)) {
+//				mainPanel.actionTypeGroup.setToolbarButtonType(mainPanel.actionTypeGroup.getToolbarButtonTypes()[0]);
+				mainPanel.actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
 			}
 		}
 
 		if (!mainPanel.animationModeState) {
 			if ((modelPanel != null) && (modelPanel.getModel() != null)) {
-				refreshAndUpdateModelPanel();
+				refreshAndUpdateRenderModel();
 				modelPanel.getModelHandler().getEditTimeEnv().setAnimation(null);
 				modelPanel.getModelHandler().getEditTimeEnv().setStaticViewMode(!mainPanel.animationModeState);
 			}
 		}
-		List<ToolbarButtonGroup<ToolbarActionButtonType>.ToolbarButtonAction> buttons = mainPanel.actionTypeGroup.getButtons();
-
-		int numberOfButtons = buttons.size();
-		for (int i = 3; i < numberOfButtons; i++) {
-			buttons.get(i).getButton().setVisible(!mainPanel.animationModeState);
-		}
+//		List<ToolbarButtonGroup<ToolbarActionButtonType>.ToolbarButtonAction> buttons = mainPanel.actionTypeGroup.getButtons();
+//		List<ModeButton2> buttons = mainPanel.actionTypeGroup.getButtons();
+//
+//		int numberOfButtons = buttons.size();
+//		for (int i = 3; i < numberOfButtons; i++) {
+//			buttons.get(i).getButton().setVisible(!mainPanel.animationModeState);
+//		}
 		mainPanel.snapButton.setVisible(!mainPanel.animationModeState);
 		mainPanel.timeSliderPanel.setDrawing(mainPanel.animationModeState);
 		mainPanel.timeSliderPanel.setKeyframeModeActive(mainPanel.animationModeState);
@@ -73,7 +73,7 @@ public class ModelLoader {
 		mainPanel.creatorPanel.setAnimationModeState(mainPanel.animationModeState);
 	}
 
-	private static void refreshAndUpdateModelPanel() {
+	private static void refreshAndUpdateRenderModel() {
 		RenderModel editorRenderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
 		editorRenderModel
 				.refreshFromEditor(
@@ -155,7 +155,7 @@ public class ModelLoader {
 		modelPanel.setJMenuItem(menuItem);
 
 		modelPanel.getModelView().addStateListener(new RepaintingModelStateListener(mainPanel));
-		modelPanel.changeActivity(mainPanel.currentActivity);
+		modelPanel.changeActivity(mainPanel.actionTypeGroup.getActiveButtonType());
 
 		MenuBar.addModelPanel(modelPanel);
 

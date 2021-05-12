@@ -12,7 +12,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,24 +41,25 @@ public final class PivotPointSelectionManager extends SelectionManager<Vec3> {
 
 	@Override
 	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView modelView) {
-		Set<Vec3> drawnSelection = new HashSet<>();
-		for (IdObject object : modelView.getSelectedIdObjects()) {
-			renderer.renderIdObject(object);
-			drawnSelection.add(object.getPivotPoint());
-		}
-		for (Camera camera : modelView.getEditableCameras()) {
-			Color targetColor = selection.contains(camera.getTargetPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker();
-			Color boxColor = selection.contains(camera.getPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker();
-			renderer.renderCamera(camera, boxColor, camera.getPosition(), targetColor, camera.getTargetPosition());
-			drawnSelection.add(camera.getPosition());
-			drawnSelection.add(camera.getTargetPosition());
-		}
-		for (Vec3 vertex : selection) {
-			if (!drawnSelection.contains(vertex)) {
-				renderBoneDummy.setPivotPoint(vertex);
-				renderer.renderIdObject(renderBoneDummy);
-			}
-		}
+//		Set<Vec3> drawnSelection = new HashSet<>();
+//		for (IdObject object : modelView.getSelectedIdObjects()) {
+//			renderer.renderIdObject(object);
+//			drawnSelection.add(object.getPivotPoint());
+//		}
+//		for (Camera camera : modelView.getEditableCameras()) {
+//			Color targetColor = selection.contains(camera.getTargetPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker();
+//			Color boxColor = selection.contains(camera.getPosition()) ? Color.GREEN.darker() : Color.ORANGE.darker();
+//			renderer.renderCamera(camera, boxColor, camera.getPosition(), targetColor, camera.getTargetPosition());
+//			drawnSelection.add(camera.getPosition());
+//			drawnSelection.add(camera.getTargetPosition());
+//		}
+//		for (Vec3 vertex : selection) {
+//			if (!drawnSelection.contains(vertex)) {
+//				renderBoneDummy.setPivotPoint(vertex);
+//				renderer.renderIdObject(renderBoneDummy);
+//			}
+//		}
+
 //		Set<Vec3> drawnSelection = new HashSet<>();
 //		for (IdObject object : modelView.getEditableIdObjects()) {
 //			if (selection.contains(object.getPivotPoint())) {

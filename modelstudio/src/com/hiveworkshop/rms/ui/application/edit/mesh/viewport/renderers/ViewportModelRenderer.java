@@ -73,6 +73,7 @@ public class ViewportModelRenderer {
 		for (IdObject object : model.getAllObjects()) {
 			if (modelView.isVisible(object) || (object == modelView.getHighlightedNode())) {
 //				idObjectRenderer.renderObject(modelView.getHighlightedNode() == object, object);
+				// ToDo mark children of selected parent
 				idObjectRenderer.renderObject(modelView.getHighlightedNode() == object, modelView.isSelected(object), object);
 
 //				idObjectRenderer.renderObject(coordinateSystem, graphics, renderModel, isAnimated, modelView.getHighlightedNode() == object, object);
@@ -112,6 +113,7 @@ public class ViewportModelRenderer {
 
 		for (Triangle triangle : geoset.getTriangles()) {
 			index = 0;
+			triangleColor = new Color(1f, 0.75f, 0.45f, 0.3f);
 
 			for (GeosetVertex vertex : triangle.getVerts()) {
 

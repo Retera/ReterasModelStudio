@@ -11,10 +11,10 @@ import com.hiveworkshop.rms.ui.application.edit.uv.types.GeosetVertexTVertexEdit
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertexSelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.TVertexSelectionItemTypes;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.Collection;
@@ -32,7 +32,7 @@ public final class TVertexEditorManager {
 	public static boolean MOVE_LINKED;
 
 	public TVertexEditorManager(ModelView modelView,
-	                            ToolbarButtonGroup<SelectionMode> modeButtonGroup,
+	                            ToolbarButtonGroup2<SelectionMode> modeButtonGroup,
 	                            TVertexEditorChangeListener modelEditorChangeListener,
 	                            SelectionListener selectionListener,
 	                            RenderModel renderModel,

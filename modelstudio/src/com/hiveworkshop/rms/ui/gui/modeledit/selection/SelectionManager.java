@@ -15,7 +15,7 @@ public abstract class SelectionManager<T> implements SelectionView {
 		this.modelView = modelView;
 	}
 
-	private void fireChangeListeners() {
+	protected void fireChangeListeners() {
 		for (final SelectionListener listener : listeners) {
 			listener.onSelectionChanged(this);
 		}

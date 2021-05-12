@@ -7,10 +7,7 @@ import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.DoNothingActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivityManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.*;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
@@ -22,10 +19,12 @@ import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.ModelComponentBrowserTree;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.ModelViewManagingTree;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.ModelEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.InfoPopup;
 import com.hiveworkshop.rms.util.Quat;
@@ -43,7 +42,7 @@ public class ModelPanel {
 	private final DisplayPanel botArea;
 	private final PerspDisplayPanel perspArea;
 	private final ModelHandler modelHandler;
-	private final ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeNotifier;
+	private final ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeNotifier;
 	private final ModelEditorViewportActivityManager viewportActivityManager;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelEditorManager modelEditorManager;
@@ -64,8 +63,8 @@ public class ModelPanel {
 	public ModelPanel(MainPanel parent,
 	                  ModelHandler modelHandler,
 	                  ProgramPreferences prefs,
-	                  ToolbarButtonGroup<SelectionItemTypes> notifier,
-	                  ToolbarButtonGroup<SelectionMode> modeNotifier,
+	                  ToolbarButtonGroup2<SelectionItemTypes> notifier,
+	                  ToolbarButtonGroup2<SelectionMode> modeNotifier,
 	                  ModelStructureChangeListener modelStructureChangeListener,
 	                  CoordDisplayListener coordDisplayListener,
 	                  ViewportTransferHandler viewportTransferHandler,
@@ -144,9 +143,25 @@ public class ModelPanel {
 		return icon;
 	}
 
-	public void changeActivity(final ActivityDescriptor activityDescriptor) {
-		viewportActivityManager.setCurrentActivity(activityDescriptor.createActivity(modelEditorManager, modelHandler));
+	public void changeActivity(ModelEditorActionType3 action) {
+		viewportActivityManager.setCurrentActivity(createActivity(modelEditorManager, modelHandler, parent, action));
 	}
+
+	public static ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler, MainPanel mainPanel, ModelEditorActionType3 action) {
+//		mainPanel.actionType = getActivityType(action);
+		return new ModelEditorMultiManipulatorActivity(new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action), modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
+	}
+
+//	private static ModelEditorActionType2 getActivityType(ModelEditorActionType3 action) {
+//		if(action == null){
+//			return ModelEditorActionType2.TRANSLATION;
+//		}
+//		return switch (action) {
+//			case TRANSLATION, EXTRUDE, EXTEND -> ModelEditorActionType2.TRANSLATION;
+//			case SCALING -> ModelEditorActionType2.SCALING;
+//			case ROTATION -> ModelEditorActionType2.ROTATION;
+//		};
+//	}
 
 	public ModelEditorManager getModelEditorManager() {
 		return modelEditorManager;

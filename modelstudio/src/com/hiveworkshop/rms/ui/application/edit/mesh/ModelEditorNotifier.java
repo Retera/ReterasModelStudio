@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.CompoundMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.CompoundRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.CompoundScaleAction;
@@ -20,6 +19,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotate
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.SubscriberSetNotifier;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -518,7 +518,7 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public UndoAction createKeyframe(ModelEditorActionType actionType) {
+	public UndoAction createKeyframe(ModelEditorActionType3 actionType) {
 		List<UndoAction> actions = new ArrayList<>();
 		for (ModelEditor handler : set) {
 			actions.add(handler.createKeyframe(actionType));

@@ -1,6 +1,5 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.selection;
+package com.hiveworkshop.rms.ui.gui.modeledit.toolbar;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonType;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 
 import javax.swing.*;

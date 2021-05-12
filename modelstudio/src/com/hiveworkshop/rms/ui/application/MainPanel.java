@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorChangeActivityListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
@@ -13,12 +12,12 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.CreatorModelingPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType2;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
@@ -54,17 +53,17 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     final StringViewMap viewMap;
     final RootWindow rootWindow;
 
-    public ModelEditorActionType actionType;
+    public ModelEditorActionType2 actionType;
     //    JMenu teamColorMenu;
     JButton snapButton;
-    ToolbarButtonGroup<SelectionItemTypes> selectionItemTypeGroup;
-    ToolbarButtonGroup<SelectionMode> selectionModeGroup;
-    ToolbarButtonGroup<ToolbarActionButtonType> actionTypeGroup;
+    ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeGroup;
+    ToolbarButtonGroup2<SelectionMode> selectionModeGroup;
+    public ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup;
     public View viewportControllerWindowView;
     public View toolView;
     public View modelDataView;
     View modelComponentView;
-    ActivityDescriptor currentActivity;
+    ModelEditorActionType3 currentActivity;
 
     AbstractAction expandSelectionAction = MainPanelLinkActions.getExpandSelectionAction();
     AbstractAction selectAllAction = MainPanelLinkActions.getSelectAllAction();
@@ -124,7 +123,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         timeSliderView = TimeSliderView.createTimeSliderView(timeSliderPanel);
 
         creatorPanel = new CreatorModelingPanel(newType -> {
-            actionTypeGroup.maybeSetButtonType(newType);
+            actionTypeGroup.setActiveButton(newType);
             changeActivity(newType);
         }, ProgramGlobals.getPrefs(), actionTypeGroup, viewportListener, animatedRenderEnvironment);
 
@@ -142,7 +141,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         selectionItemTypeGroup.addToolbarButtonListener(this::selectionItemTypeGroupActionRes);
 
         actionTypeGroup.addToolbarButtonListener(newType -> MainPanelLinkActions.actionTypeGroupActionRes(MainPanel.this, newType));
-        actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
+        actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
 
         viewportTransferHandler = new ViewportTransferHandler();
         coordDisplayListener = (dim1, dim2, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
@@ -293,12 +292,12 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     }
 
     @Override
-    public void changeActivity(ActivityDescriptor newType) {
-        currentActivity = newType;
+    public void changeActivity(ModelEditorActionType3 newType) {
+//        currentActivity = newType;
         for (ModelPanel modelPanel : ProgramGlobals.getModelPanels()) {
             modelPanel.changeActivity(newType);
         }
-        creatorPanel.changeActivity(newType);
+//        creatorPanel.changeActivity(newType);
     }
 
     public void init() {

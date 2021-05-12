@@ -61,30 +61,30 @@ public final class VertexClusterSelectionManager extends SelectionManager<Vertex
 
 	@Override
 	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView modelView) {
-		Set<VertexGroupBundle> selection = getSelection();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
-			Color outlineColor;
-			Color fillColor;
-			if (geoset == modelView.getHighlightedGeoset()) {
-				outlineColor = Color.YELLOW;
-				fillColor = GROUP_HIGHLIGHT_COLOR;
-			} else {
-				outlineColor = Color.RED;
-				fillColor = GROUP_SELECTED_COLOR;
-			}
-			for (Triangle triangle : geoset.getTriangles()) {
-				GeosetVertex[] triangleVertices = triangle.getVerts();
-				if (containsClusters(selection, geoset, triangleVertices, 0, 1, 2)) {
-					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(2));
-				} else if (containsClusters(selection, geoset, triangleVertices, 0, 1, 0)) {
-					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(0));
-				} else if (containsClusters(selection, geoset, triangleVertices, 0, 2, 0)) {
-					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(2), triangle.get(0));
-				} else if (containsClusters(selection, geoset, triangleVertices, 1, 2, 1)) {
-					renderer.renderFace(outlineColor, fillColor, triangle.get(1), triangle.get(2), triangle.get(1));
-				}
-			}
-		}
+//		Set<VertexGroupBundle> selection = getSelection();
+//		for (Geoset geoset : modelView.getEditableGeosets()) {
+//			Color outlineColor;
+//			Color fillColor;
+//			if (geoset == modelView.getHighlightedGeoset()) {
+//				outlineColor = Color.YELLOW;
+//				fillColor = GROUP_HIGHLIGHT_COLOR;
+//			} else {
+//				outlineColor = Color.RED;
+//				fillColor = GROUP_SELECTED_COLOR;
+//			}
+//			for (Triangle triangle : geoset.getTriangles()) {
+//				GeosetVertex[] triangleVertices = triangle.getVerts();
+//				if (containsClusters(selection, geoset, triangleVertices, 0, 1, 2)) {
+//					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(2));
+//				} else if (containsClusters(selection, geoset, triangleVertices, 0, 1, 0)) {
+//					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(0));
+//				} else if (containsClusters(selection, geoset, triangleVertices, 0, 2, 0)) {
+//					renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(2), triangle.get(0));
+//				} else if (containsClusters(selection, geoset, triangleVertices, 1, 2, 1)) {
+//					renderer.renderFace(outlineColor, fillColor, triangle.get(1), triangle.get(2), triangle.get(1));
+//				}
+//			}
+//		}
 	}
 
 	private boolean containsClusters(Set<VertexGroupBundle> selection, Geoset geoset, GeosetVertex[] triangleVertices, int cluster1, int cluster2, int cluster3) {

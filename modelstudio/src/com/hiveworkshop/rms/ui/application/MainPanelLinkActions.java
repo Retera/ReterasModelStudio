@@ -9,8 +9,8 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationExce
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionMode;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarActionButtonType;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.DockingWindow;
@@ -138,7 +138,8 @@ public class MainPanelLinkActions {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				if ((mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.DESELECT) && mainPanel.cheatAlt) {
-					mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
+//					mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
+					mainPanel.selectionModeGroup.setActiveButton(SelectionMode.SELECT);
 					mainPanel.cheatAlt = false;
 				}
 			}
@@ -158,7 +159,8 @@ public class MainPanelLinkActions {
 		if (isTextField()) return;
 		if ((mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.ADD)
 				&& mainPanel.cheatShift) {
-			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
+//			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
+			mainPanel.selectionModeGroup.setActiveButton(SelectionMode.SELECT);
 			mainPanel.cheatShift = false;
 		}
 	}
@@ -174,7 +176,8 @@ public class MainPanelLinkActions {
 
 	private static void altSelectActionRes(MainPanel mainPanel) {
 		if (mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
-			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.DESELECT);
+//			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.DESELECT);
+			mainPanel.selectionModeGroup.setActiveButton(SelectionMode.DESELECT);
 			mainPanel.cheatAlt = true;
 		}
 	}
@@ -191,7 +194,8 @@ public class MainPanelLinkActions {
 	private static void shiftSelectActionRes(MainPanel mainPanel) {
 		if (isTextField()) return;
 		if (mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
-			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.ADD);
+//			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.ADD);
+			mainPanel.selectionModeGroup.setActiveButton(SelectionMode.ADD);
 			mainPanel.cheatShift = true;
 		}
 	}
@@ -263,7 +267,8 @@ public class MainPanelLinkActions {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				if (isTextField()) return;
-				mainPanel.selectionItemTypeGroup.setToolbarButtonType(mainPanel.selectionItemTypeGroup.getToolbarButtonTypes()[i]);
+//				mainPanel.selectionItemTypeGroup.setToolbarButtonType(mainPanel.selectionItemTypeGroup.getToolbarButtonTypes()[i]);
+				mainPanel.selectionItemTypeGroup.setActiveButton(mainPanel.selectionItemTypeGroup.getToolbarButtonTypes()[i]);
 			}
 		};
 	}
@@ -274,7 +279,8 @@ public class MainPanelLinkActions {
 			public void actionPerformed(final ActionEvent e) {
 				if (isTextField()) return;
 				if (!mainPanel.animationModeState) {
-					mainPanel.actionTypeGroup.setToolbarButtonType(mainPanel.actionTypeGroup.getToolbarButtonTypes()[i]);
+//					mainPanel.actionTypeGroup.setToolbarButtonType(mainPanel.actionTypeGroup.getToolbarButtonTypes()[i]);
+					mainPanel.actionTypeGroup.setActiveButton(mainPanel.actionTypeGroup.getToolbarButtonTypes()[i]);
 				}
 			}
 		};
@@ -285,7 +291,8 @@ public class MainPanelLinkActions {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				if (isTextField()) return;
-				mainPanel.actionTypeGroup.setToolbarButtonType(mainPanel.actionTypeGroup.getToolbarButtonTypes()[i]);
+//				mainPanel.actionTypeGroup.setToolbarButtonType(mainPanel.actionTypeGroup.getToolbarButtonTypes()[i]);
+				mainPanel.actionTypeGroup.setActiveButton(mainPanel.actionTypeGroup.getToolbarButtonTypes()[i]);
 			}
 		};
 	}
@@ -379,7 +386,7 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	public static void actionTypeGroupActionRes(MainPanel mainPanel, ToolbarActionButtonType newType) {
+	public static void actionTypeGroupActionRes(MainPanel mainPanel, ModelEditorActionType3 newType) {
 		if (newType != null) {
 			mainPanel.changeActivity(newType);
 		}

@@ -57,36 +57,36 @@ public final class VertexGroupSelectionManager extends SelectionManager<VertexGr
 
 	@Override
 	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView modelView) {
-		Set<VertexGroupBundle> selection = getSelection();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
-			Color outlineColor;
-			Color fillColor;
-			if (geoset == modelView.getHighlightedGeoset()) {
-				outlineColor = Color.YELLOW;
-				fillColor = GROUP_HIGHLIGHT_COLOR;
-			} else {
-				outlineColor = Color.ORANGE;
-				fillColor = GROUP_SELECTED_COLOR;
-			}
-			for (Triangle triangle : geoset.getTriangles()) {
-				GeosetVertex[] triangleVertices = triangle.getVerts();
-
-				if (renderIf(renderer, selection, geoset, outlineColor, fillColor, triangle, triangleVertices, 0, 1, 2))
-					continue;
-				if (renderIf(renderer, selection, geoset, outlineColor, fillColor, triangle, triangleVertices, 0, 1, 0))
-					continue;
-				if (renderIf(renderer, selection, geoset, outlineColor, fillColor, triangle, triangleVertices, 0, 2, 0))
-					continue;
-				if (renderIf(renderer, selection, geoset, outlineColor, fillColor, triangle, triangleVertices, 1, 2, 1))
-					continue;
-			}
-			// for (GeosetVertex geosetVertex : geoset.getVertices()) {
-			// if (selection.contains(new VertexGroupBundle(geoset,
-			// geosetVertex.getVertexGroup()))) {
-			// renderer.renderVertex(outlineColor, geosetVertex);
-			// }
-			// }
-		}
+//		Set<VertexGroupBundle> selection = getSelection();
+//		for (Geoset geoset : modelView.getEditableGeosets()) {
+//			Color outlineColor;
+//			Color fillColor;
+//			if (geoset == modelView.getHighlightedGeoset()) {
+//				outlineColor = Color.YELLOW;
+//				fillColor = GROUP_HIGHLIGHT_COLOR;
+//			} else {
+//				outlineColor = Color.ORANGE;
+//				fillColor = GROUP_SELECTED_COLOR;
+//			}
+//			for (Triangle triangle : geoset.getTriangles()) {
+//				GeosetVertex[] triangleVertices = triangle.getVerts();
+//
+//				if (renderIf(renderer, selection, geoset, outlineColor, fillColor, triangle, triangleVertices, 0, 1, 2))
+//					continue;
+//				if (renderIf(renderer, selection, geoset, outlineColor, fillColor, triangle, triangleVertices, 0, 1, 0))
+//					continue;
+//				if (renderIf(renderer, selection, geoset, outlineColor, fillColor, triangle, triangleVertices, 0, 2, 0))
+//					continue;
+//				if (renderIf(renderer, selection, geoset, outlineColor, fillColor, triangle, triangleVertices, 1, 2, 1))
+//					continue;
+//			}
+//			// for (GeosetVertex geosetVertex : geoset.getVertices()) {
+//			// if (selection.contains(new VertexGroupBundle(geoset,
+//			// geosetVertex.getVertexGroup()))) {
+//			// renderer.renderVertex(outlineColor, geosetVertex);
+//			// }
+//			// }
+//		}
 	}
 
 	public boolean renderIf(ModelElementRenderer renderer, Set<VertexGroupBundle> selection, Geoset geoset, Color outlineColor, Color fillColor, Triangle triangle, GeosetVertex[] triangleVertices, int i, int i2, int i3) {
@@ -94,7 +94,7 @@ public final class VertexGroupSelectionManager extends SelectionManager<VertexGr
 				&& selectionContainsVertexGroup(selection, i2, geoset, triangleVertices)
 				&& selectionContainsVertexGroup(selection, i3, geoset, triangleVertices)) {
 
-			renderer.renderFace(outlineColor, fillColor, triangle.get(i), triangle.get(i2), triangle.get(i3));
+//			renderer.renderFace(outlineColor, fillColor, triangle.get(i), triangle.get(i2), triangle.get(i3));
 			return true;
 		}
 		return false;

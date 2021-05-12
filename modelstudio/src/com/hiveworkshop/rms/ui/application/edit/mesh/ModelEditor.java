@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.RigAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
@@ -14,6 +13,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleA
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ComponentVisibilityListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -67,7 +67,7 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	UndoAction setParent(IdObject node);
 
-	UndoAction createKeyframe(ModelEditorActionType actionType);
+	UndoAction createKeyframe(ModelEditorActionType3 actionType);
 
 	UndoAction deleteSelectedComponents();
 

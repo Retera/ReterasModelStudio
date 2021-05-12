@@ -87,35 +87,35 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 
 	@Override
 	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView model) {
-		// TODO !!! apply rendering
-		Set<IdObject> drawnSelection = new HashSet<>();
-		Set<IdObject> parentedNonSelection = new HashSet<>();
-		for (IdObject object : model.getEditableIdObjects()) {
-			if (modelView.getSelectedIdObjects().contains(object)) {
-				renderer.renderIdObject(object);
-				drawnSelection.add(object);
-			} else {
-				IdObject parent = object.getParent();
-				while (parent != null) {
-					if (modelView.getSelectedIdObjects().contains(parent)) {
-						parentedNonSelection.add(object);
-					}
-					parent = parent.getParent();
-				}
-			}
-		}
-		for (IdObject selectedObject : modelView.getSelectedIdObjects()) {
-			if (!drawnSelection.contains(selectedObject)) {
-				renderBoneDummy.setPivotPoint(selectedObject.getPivotPoint());
-				renderer.renderIdObject(renderBoneDummy);
-				drawnSelection.add(selectedObject);
-			}
-		}
-		for (IdObject object : model.getEditableIdObjects()) {
-			if (parentedNonSelection.contains(object) && !drawnSelection.contains(object)) {
-				renderer.renderIdObject(object);
-			}
-		}
+//		// TODO !!! apply rendering
+//		Set<IdObject> drawnSelection = new HashSet<>();
+//		Set<IdObject> parentedNonSelection = new HashSet<>();
+//		for (IdObject object : model.getEditableIdObjects()) {
+//			if (modelView.getSelectedIdObjects().contains(object)) {
+//				renderer.renderIdObject(object);
+//				drawnSelection.add(object);
+//			} else {
+//				IdObject parent = object.getParent();
+//				while (parent != null) {
+//					if (modelView.getSelectedIdObjects().contains(parent)) {
+//						parentedNonSelection.add(object);
+//					}
+//					parent = parent.getParent();
+//				}
+//			}
+//		}
+//		for (IdObject selectedObject : modelView.getSelectedIdObjects()) {
+//			if (!drawnSelection.contains(selectedObject)) {
+//				renderBoneDummy.setPivotPoint(selectedObject.getPivotPoint());
+//				renderer.renderIdObject(renderBoneDummy);
+//				drawnSelection.add(selectedObject);
+//			}
+//		}
+//		for (IdObject object : model.getEditableIdObjects()) {
+//			if (parentedNonSelection.contains(object) && !drawnSelection.contains(object)) {
+//				renderer.renderIdObject(object);
+//			}
+//		}
 	}
 
 	@Override

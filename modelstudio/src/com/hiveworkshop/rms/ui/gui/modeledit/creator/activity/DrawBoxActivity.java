@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
@@ -45,13 +46,13 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 	private double firstHeightModeZ = 0;
 	private final ModelHandler modelHandler;
 
-	public DrawBoxActivity(ModelHandler modelHandler, ProgramPreferences preferences,
+	public DrawBoxActivity(ModelHandler modelHandler,
 	                       ModelEditor modelEditor,
 	                       SelectionView selectionView,
 	                       ViewportListener viewportListener,
 	                       int numSegsX, int numSegsY, int numSegsZ) {
 		this.modelHandler = modelHandler;
-		this.preferences = preferences;
+		this.preferences = ProgramGlobals.getPrefs();
 		this.undoManager = modelHandler.getUndoManager();
 		this.modelEditor = modelEditor;
 		this.modelView = modelHandler.getModelView();
@@ -60,7 +61,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 		this.numSegsX = numSegsX;
 		this.numSegsY = numSegsY;
 		this.numSegsZ = numSegsZ;
-		modelElementRenderer = new ModelElementRenderer(preferences.getVertexSize());
+		modelElementRenderer = new ModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
 	}
 
 	public void setNumSegsX(int numSegsX) {

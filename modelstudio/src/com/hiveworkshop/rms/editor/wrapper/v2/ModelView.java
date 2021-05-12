@@ -42,6 +42,8 @@ public final class ModelView {
 	private boolean idObjectsEditable = true;
 	private boolean camerasEditable = true;
 
+	// Cameras got target and position. they should be posible to atleast edit separate
+	// CollosionShapes got some kind of verts (or points) that might should get selected together with them...
 	public ModelView(EditableModel model) {
 		this.model = model;
 //		editorRenderModel = new RenderModel(this.model, this);

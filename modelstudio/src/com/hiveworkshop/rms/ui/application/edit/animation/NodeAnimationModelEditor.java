@@ -18,7 +18,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.StaticMeshMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
@@ -31,6 +30,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotate
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
@@ -533,11 +533,11 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	}
 
 	@Override
-	public UndoAction createKeyframe(ModelEditorActionType actionType) {
+	public UndoAction createKeyframe(ModelEditorActionType3 actionType) {
 		String keyframeMdlTypeName = switch (actionType) {
 			case ROTATION -> "Rotation";
 			case SCALING -> "Scaling";
-			case TRANSLATION -> "Translation";
+			case TRANSLATION, EXTEND, EXTRUDE -> "Translation";
 		};
 
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
@@ -563,7 +563,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 			AddKeyframeAction keyframeAction = switch (actionType) {
 				case ROTATION -> node.createRotationKeyframe(renderModel, (QuatAnimFlag) transformationTimeline, structureChangeListener);
 				case SCALING -> node.createScalingKeyframe(renderModel, (Vec3AnimFlag) transformationTimeline, structureChangeListener);
-				case TRANSLATION -> node.createTranslationKeyframe(renderModel, (Vec3AnimFlag) transformationTimeline, structureChangeListener);
+				case TRANSLATION, EXTEND, EXTRUDE -> node.createTranslationKeyframe(renderModel, (Vec3AnimFlag) transformationTimeline, structureChangeListener);
 			};
 			if (keyframeAction != null) {
 				actions.add(keyframeAction);

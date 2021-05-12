@@ -46,14 +46,14 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 //		selection.clear();
 //		selection.addAll(selectionItem);
 		modelView.setSelectedTris((Collection<Triangle>) selectionItem);
-//		fireChangeListeners();
+		fireChangeListeners();
 	}
 
 	@Override
 	public void addSelection(final Collection<? extends Triangle> selectionItem) {
 //		selection.addAll(selectionItem);
 		modelView.addSelectedTris((Collection<Triangle>) selectionItem);
-//		fireChangeListeners();
+		fireChangeListeners();
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 ////			selection.remove(item);
 //		}
 		modelView.removeSelectedTris((Collection<Triangle>) selectionItem);
-//		fireChangeListeners();
+		fireChangeListeners();
 	}
 
 
@@ -84,25 +84,25 @@ public final class FaceSelectionManager extends SelectionManager<Triangle> {
 	public void renderSelection(ModelElementRenderer renderer,
 	                            CoordinateSystem coordinateSystem,
 	                            ModelView modelView) {
-		for (Geoset geoset : modelView.getEditableGeosets()) {
-			for (Triangle triangle : geoset.getTriangles()) {
-				Color outlineColor;
-				Color fillColor;
-				if (geoset == modelView.getHighlightedGeoset()) {
-					outlineColor = ProgramGlobals.getPrefs().getHighlighTriangleColor();
-					fillColor = FACE_HIGHLIGHT_COLOR;
-				} else if (selection.contains(triangle)) {
-					outlineColor = ProgramGlobals.getPrefs().getSelectColor();
-					fillColor = FACE_SELECTED_COLOR;
-				} else {
-					outlineColor = Color.BLUE;
-					fillColor = FACE_NOT_SELECTED_COLOR;
-					continue;
-				}
-//				renderer.renderFace(outlineColor, fillColor, triangle);
-				renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(2));
-			}
-		}
+//		for (Geoset geoset : modelView.getEditableGeosets()) {
+//			for (Triangle triangle : geoset.getTriangles()) {
+//				Color outlineColor;
+//				Color fillColor;
+//				if (geoset == modelView.getHighlightedGeoset()) {
+//					outlineColor = ProgramGlobals.getPrefs().getHighlighTriangleColor();
+//					fillColor = FACE_HIGHLIGHT_COLOR;
+//				} else if (selection.contains(triangle)) {
+//					outlineColor = ProgramGlobals.getPrefs().getSelectColor();
+//					fillColor = FACE_SELECTED_COLOR;
+//				} else {
+//					outlineColor = Color.BLUE;
+//					fillColor = FACE_NOT_SELECTED_COLOR;
+//					continue;
+//				}
+////				renderer.renderFace(outlineColor, fillColor, triangle);
+//				renderer.renderFace(outlineColor, fillColor, triangle.get(0), triangle.get(1), triangle.get(2));
+//			}
+//		}
 	}
 
 	@Override

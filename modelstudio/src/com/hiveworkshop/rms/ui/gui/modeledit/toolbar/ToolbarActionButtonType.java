@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorMultiMa
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.ModelEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 
 import javax.swing.*;
@@ -37,7 +37,7 @@ public class ToolbarActionButtonType implements ToolbarButtonType, ActivityDescr
 
 	@Override
 	public ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
-		mainPanel.actionType = getActivityType();
+//		mainPanel.actionType = getActivityType();
 		return new ModelEditorMultiManipulatorActivity(getBuilder(modelEditorManager, modelHandler), modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
 	}
 
@@ -52,14 +52,15 @@ public class ToolbarActionButtonType implements ToolbarButtonType, ActivityDescr
 	}
 
 	private ModelEditorManipulatorBuilder getBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
-		return switch (action) {
-			case "move" -> new MoverWidgetManipulatorBuilder(modelEditorManager, modelHandler);
-			case "scale" -> new ScaleWidgetManipulatorBuilder(modelEditorManager, modelHandler);
-			case "rotate" -> new RotatorWidgetManipulatorBuilder(modelEditorManager, modelHandler);
-			case "extrude" -> new ExtrudeWidgetManipulatorBuilder(modelEditorManager, modelHandler);
-			case "extend" -> new ExtendWidgetManipulatorBuilder(modelEditorManager, modelHandler);
-
-			default -> throw new IllegalStateException("Unexpected value: " + action);
-		};
+		return null;
+//		return switch (action) {
+//			case "move" -> new MoverWidgetManipulatorBuilder(modelEditorManager, modelHandler);
+//			case "scale" -> new ScaleWidgetManipulatorBuilder(modelEditorManager, modelHandler);
+//			case "rotate" -> new RotatorWidgetManipulatorBuilder(modelEditorManager, modelHandler);
+//			case "extrude" -> new ExtrudeWidgetManipulatorBuilder(modelEditorManager, modelHandler);
+//			case "extend" -> new ExtendWidgetManipulatorBuilder(modelEditorManager, modelHandler);
+//
+//			default -> throw new IllegalStateException("Unexpected value: " + action);
+//		};
 	}
 }
