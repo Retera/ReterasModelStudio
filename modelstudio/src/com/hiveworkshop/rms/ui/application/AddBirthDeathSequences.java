@@ -5,10 +5,9 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
@@ -151,10 +150,8 @@ public class AddBirthDeathSequences {
     public static void createKeyframes(MainPanel mainPanel, EditableModel model, int trackTime1, int trackTime2, Vec3 startVec, Vec3 endVec) {
 	    RenderModel renderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
 	    ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener(mainPanel);
-	    NodeAnimationSelectionManager nodeAnimationSelectionManager = new NodeAnimationSelectionManager(renderModel, ProgramGlobals.getCurrentModelPanel().getModelView());
 
-	    final NodeAnimationModelEditor nodeAnimationModelEditor = new NodeAnimationModelEditor(ProgramGlobals.getCurrentModelPanel().getModelView(),
-			    nodeAnimationSelectionManager, renderModel, structureChangeListener);
+        ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
 
 	    final Set<IdObject> selection = new HashSet<>(getRootObjects(model));
 	    final List<UndoAction> actions = new ArrayList<>();
@@ -163,10 +160,10 @@ public class AddBirthDeathSequences {
 	    final TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
         generateKeyframes(trackTime1, selection, actions, timeEnvironmentImpl, "Translation", structureChangeListener, renderModel, startVec);
-        new TranslationKeyframeAction(new CompoundAction("setup", actions), trackTime1, timeEnvironmentImpl.getGlobalSeq(), selection, nodeAnimationModelEditor);
+        new TranslationKeyframeAction(new CompoundAction("setup", actions), trackTime1, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
 
         generateKeyframes(trackTime2, selection, actions, timeEnvironmentImpl, "Translation", structureChangeListener, renderModel, endVec);
-        new TranslationKeyframeAction(new CompoundAction("setup", actions), trackTime2, timeEnvironmentImpl.getGlobalSeq(), selection, nodeAnimationModelEditor);
+        new TranslationKeyframeAction(new CompoundAction("setup", actions), trackTime2, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
     }
 
     //

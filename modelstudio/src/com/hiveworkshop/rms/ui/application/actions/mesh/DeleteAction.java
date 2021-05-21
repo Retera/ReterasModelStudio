@@ -4,14 +4,11 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Something to undo when you deleted something important.
@@ -19,23 +16,20 @@ import java.util.List;
  * Eric Theller 6/11/2012
  */
 public class DeleteAction implements UndoAction {
-	private final List<Vec3> selection;
-	private final List<GeosetVertex> affectedVerts;
-	private final List<Triangle> affectedTris;
+	private final Set<GeosetVertex> affectedVerts;
+	private final Set<Triangle> affectedTris;
 	private final List<Geoset> emptyGeosets;
-	private final VertexSelectionHelper vertexSelectionHelper;
+	private final ModelView modelView;
 	private final ModelStructureChangeListener structureChangeListener;
 	private final EditableModel model;
 
 
-	public DeleteAction(EditableModel model, Collection<? extends Vec3> selection, ModelStructureChangeListener structureChangeListener, VertexSelectionHelper vertexSelectionHelper) {
-		this.model = model;
+	public DeleteAction(Collection<GeosetVertex> selection, ModelStructureChangeListener structureChangeListener, ModelView modelView) {
+		this.model = modelView.getModel();
 		this.structureChangeListener = structureChangeListener;
-		this.vertexSelectionHelper = vertexSelectionHelper;
-		this.selection = new ArrayList<>(selection);
+		this.modelView = modelView;
 
-		this.affectedVerts = new ArrayList<>();
-		selection.forEach(vert -> affectedVerts.add((GeosetVertex) vert));
+		this.affectedVerts = new HashSet<>(selection);
 
 		this.affectedTris = getTrisToRemove(affectedVerts);
 
@@ -61,12 +55,7 @@ public class DeleteAction implements UndoAction {
 				model.remove(geoset.getGeosetAnim());
 			}
 		}
-
-		if (!emptyGeosets.isEmpty()) {
-			structureChangeListener.geosetsRemoved(emptyGeosets);
-		}
-
-		vertexSelectionHelper.selectVertices(new ArrayList<>());
+		structureChangeListener.geosetsUpdated();
 	}
 
 	@Override
@@ -86,11 +75,9 @@ public class DeleteAction implements UndoAction {
 				model.add(geoset.getGeosetAnim());
 			}
 		}
-		if (!emptyGeosets.isEmpty()) {
-			structureChangeListener.geosetsAdded(emptyGeosets);
-		}
+		structureChangeListener.geosetsUpdated();
 
-		vertexSelectionHelper.selectVertices(selection);
+		modelView.setSelectedVertices(affectedVerts);
 	}
 
 	private void checkForEmptyGeosets() {
@@ -104,14 +91,10 @@ public class DeleteAction implements UndoAction {
 	}
 
 
-	private List<Triangle> getTrisToRemove(List<GeosetVertex> selection) {
-		List<Triangle> trisToDelete = new ArrayList<>();
+	private Set<Triangle> getTrisToRemove(Set<GeosetVertex> selection) {
+		Set<Triangle> trisToDelete = new HashSet<>();
 		for (GeosetVertex vertex : selection) {
-			for (Triangle t : vertex.getTriangles()) {
-				if (!trisToDelete.contains(t)) {
-					trisToDelete.add(t);
-				}
-			}
+			trisToDelete.addAll(vertex.getTriangles());
 		}
 		return trisToDelete;
 	}

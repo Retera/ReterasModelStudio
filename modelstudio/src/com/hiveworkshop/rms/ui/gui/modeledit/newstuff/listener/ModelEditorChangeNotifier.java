@@ -7,7 +7,7 @@ public class ModelEditorChangeNotifier extends SubscriberSetNotifier<ModelEditor
 
 	@Override
 	public void modelEditorChanged(final ModelEditor newModelEditor) {
-		for (final ModelEditorChangeListener listener : set) {
+		for (ModelEditorChangeListener listener : listenerSet) {
 			listener.modelEditorChanged(newModelEditor);
 		}
 	}

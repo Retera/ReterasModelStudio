@@ -35,26 +35,25 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 
 	@Override
 	public void setSelection(final Collection<? extends GeosetVertex> selectionItem) {
-//		selection.clear();
-//		selection.addAll(selectionItem);
 		modelView.setSelectedVertices((Collection<GeosetVertex>) selectionItem);
 		fireChangeListeners();
 	}
 
 	@Override
 	public void addSelection(final Collection<? extends GeosetVertex> selectionItem) {
-//		selection.addAll(selectionItem);
 		modelView.addSelectedVertices((Collection<GeosetVertex>) selectionItem);
 		fireChangeListeners();
 	}
 
 	@Override
 	public void removeSelection(final Collection<? extends GeosetVertex> selectionItem) {
-//		for (final GeosetVertex item : selectionItem) {
-////			selection.remove(item);
-//		}
 		modelView.removeSelectedVertices((Collection<GeosetVertex>) selectionItem);
 		fireChangeListeners();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return modelView.getSelectedVertices().isEmpty();
 	}
 
 	@Override

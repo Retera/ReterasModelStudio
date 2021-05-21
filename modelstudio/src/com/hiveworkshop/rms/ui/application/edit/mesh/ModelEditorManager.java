@@ -185,6 +185,10 @@ public final class ModelEditorManager {
 		}
 	}
 
+	public ModelStructureChangeListener getStructureChangeListener() {
+		return structureChangeListener;
+	}
+
 	public ModelEditor getModelEditor() {
 		return modelEditor;
 	}

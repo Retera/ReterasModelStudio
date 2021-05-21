@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
@@ -17,7 +18,7 @@ public class RotateManipulator extends Manipulator {
 	MoveDimension dir;
 	private double nonRotAngle;
 
-	public RotateManipulator(ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
+	public RotateManipulator(ModelView modelView, ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
 		this.modelEditor = modelEditor;
 		this.selectionView = selectionView;
 		this.dir = dir;
@@ -42,7 +43,7 @@ public class RotateManipulator extends Manipulator {
 			planeDim2 = dim2;
 		}
 
-		rotationAction = modelEditor.beginRotation(center.x, center.y, center.z, planeDim1, planeDim2);
+		rotationAction = modelEditor.beginRotation(center, planeDim1, planeDim2);
 	}
 
 	@Override

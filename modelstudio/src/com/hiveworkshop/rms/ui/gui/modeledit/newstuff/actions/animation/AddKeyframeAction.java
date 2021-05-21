@@ -13,11 +13,11 @@ public class AddKeyframeAction implements UndoAction {
 //	private final Object keyframeInTan;
 //	private final Object keyframeOutTan;
 	private final ModelStructureChangeListener structureChangeListener;
-	private AnimFlag.Entry entry;
+	private AnimFlag.Entry<?> entry;
 
-	public AddKeyframeAction(final TimelineContainer node, final AnimFlag timeline, final int trackTime,
-	                         final Object keyframeValue, final Object keyframeInTan, final Object keyframeOutTan,
-	                         final ModelStructureChangeListener structureChangeListener) {
+	public AddKeyframeAction(TimelineContainer node, AnimFlag<?> timeline, int trackTime,
+	                         Object keyframeValue, Object keyframeInTan, Object keyframeOutTan,
+	                         ModelStructureChangeListener structureChangeListener) {
 		this.node = node;
 		this.timeline = timeline;
 		this.entry = new AnimFlag.Entry(trackTime, keyframeValue, keyframeInTan, keyframeOutTan);
@@ -28,13 +28,13 @@ public class AddKeyframeAction implements UndoAction {
 		this.structureChangeListener = structureChangeListener;
 	}
 
-	public AddKeyframeAction(final TimelineContainer node, final AnimFlag timeline, final int trackTime,
-	                         final Object keyframeValue, final ModelStructureChangeListener structureChangeListener) {
+	public AddKeyframeAction(TimelineContainer node, AnimFlag<?> timeline, int trackTime,
+	                         Object keyframeValue, ModelStructureChangeListener structureChangeListener) {
 		this(node, timeline, trackTime, keyframeValue, null, null, structureChangeListener);
 	}
 
-	public AddKeyframeAction(final TimelineContainer node, final AnimFlag timeline, AnimFlag.Entry entry,
-	                         final ModelStructureChangeListener structureChangeListener) {
+	public AddKeyframeAction(TimelineContainer node, AnimFlag<?> timeline, AnimFlag.Entry<?> entry,
+	                         ModelStructureChangeListener structureChangeListener) {
 		this.node = node;
 		this.timeline = timeline;
 		this.entry = entry;

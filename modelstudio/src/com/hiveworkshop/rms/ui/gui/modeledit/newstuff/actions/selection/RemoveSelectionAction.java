@@ -1,10 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 public final class RemoveSelectionAction<T> implements UndoAction {
 
@@ -12,8 +12,7 @@ public final class RemoveSelectionAction<T> implements UndoAction {
 	private final SelectionManager<T> selectionManager;
 	private final Collection<T> previousSelection;
 
-	public RemoveSelectionAction(final Collection<T> previousSelection, final Collection<T> selection,
-			final SelectionManager<T> selectionManager) {
+	public RemoveSelectionAction(Collection<T> previousSelection, Collection<T> selection, SelectionManager<T> selectionManager) {
 		this.previousSelection = new ArrayList<>(previousSelection);
 		this.selection = new ArrayList<>(selection);
 		this.selectionManager = selectionManager;

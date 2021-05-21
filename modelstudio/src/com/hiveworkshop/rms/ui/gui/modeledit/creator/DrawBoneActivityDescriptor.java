@@ -19,7 +19,7 @@ public class DrawBoneActivityDescriptor implements ActivityDescriptor {
 
 	@Override
 	public ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
-		return new DrawBoneActivity(modelHandler, modelEditorManager.getModelEditor(), modelEditorManager.getSelectionView(), viewportListener);
+		return new DrawBoneActivity(modelHandler, modelEditorManager, viewportListener);
 	}
 
 }

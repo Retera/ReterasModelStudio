@@ -136,50 +136,6 @@ public abstract class TVertexEditor<T> implements ComponentVisibilityListener {
 		return temp;
 	}
 
-	public void rawTranslate(double x, double y) {
-		for (Vec2 vertex : TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex)) {
-			vertex.translate(x, y);
-		}
-	}
-
-	public void rawScale(double centerX, double centerY, double scaleX, double scaleY) {
-		for (Vec2 vertex : TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex)) {
-			vertex.scale(centerX, centerY, scaleX, scaleY);
-		}
-	}
-
-	public void rawRotate2d(double centerX, double centerY, double radians, byte firstXYZ, byte secondXYZ) {
-		for (Vec2 vertex : TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex)) {
-			vertex.rotate(centerX, centerY, radians, firstXYZ, secondXYZ);
-		}
-	}
-
-	public void rawRotate2d(Vec3 center, double radians, byte firstXYZ, byte secondXYZ) {
-		for (Vec2 vertex : TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex)) {
-			vertex.rotate(center.x, center.y, radians, firstXYZ, secondXYZ);
-		}
-	}
-
-//	public UndoAction translate(double x, double y) {
-//		Vec2 delta = new Vec2(x, y);
-//		StaticMeshUVMoveAction moveAction = new StaticMeshUVMoveAction(this, delta);
-//		moveAction.redo();
-//		return moveAction;
-//	}
-
-//	public UndoAction setPosition(Vec2 center, double x, double y) {
-//		Vec2 delta = new Vec2(x - center.x, y - center.y);
-//		StaticMeshUVMoveAction moveAction = new StaticMeshUVMoveAction(this, delta);
-//		moveAction.redo();
-//		return moveAction;
-//	}
-
-//	public UndoAction rotate(Vec2 center, double rotateRadians) {
-//		SimpleRotateUVAction compoundAction = new SimpleRotateUVAction(this, center, rotateRadians);
-//		compoundAction.redo();
-//		return compoundAction;
-//	}
-
 	public Vec2 getSelectionCenter() {
 //		return selectionManager.getCenter();
 		Set<Vec2> tvertices = new HashSet<>(TVertexUtils.getTVertices(selectionManager.getSelectedVertices(), uvLayerIndex));
@@ -194,19 +150,15 @@ public abstract class TVertexEditor<T> implements ComponentVisibilityListener {
 	}
 
 	public GenericMoveAction beginTranslation() {
-		return new StaticMeshUVMoveAction(this, Vec2.ORIGIN);
+		return new StaticMeshUVMoveAction(selectionManager.getSelectedVertices(), uvLayerIndex, Vec2.ORIGIN);
 	}
 
-	public GenericRotateAction beginRotation(double centerX, double centerY, byte dim1, byte dim2) {
-		return new StaticMeshUVRotateAction(this, new Vec2(centerX, centerY), dim1, dim2);
+	public GenericRotateAction beginRotation(Vec2 center, byte dim1, byte dim2) {
+		return new StaticMeshUVRotateAction(selectionManager.getSelectedVertices(), uvLayerIndex, center, dim1, dim2);
 	}
 
-	public GenericRotateAction beginRotation(Vec3 center, byte dim1, byte dim2) {
-		return new StaticMeshUVRotateAction(this, center, dim1, dim2);
-	}
-
-	public GenericScaleAction beginScaling(double centerX, double centerY) {
-		return new StaticMeshUVScaleAction(this, centerX, centerY);
+	public GenericScaleAction beginScaling(Vec2 center) {
+		return new StaticMeshUVScaleAction(selectionManager.getSelectedVertices(), uvLayerIndex, center);
 	}
 
 	public int getUVLayerIndex() {

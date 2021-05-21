@@ -1,30 +1,37 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actions.mesh.ExtendAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
 
 public final class ExtendManipulator extends AbstractMoveManipulator {
 
-	private UndoAction extrudeAction;
+	private UndoAction extendAction;
 
-	public ExtendManipulator(ModelEditor modelEditor, MoveDimension dir) {
-		super(modelEditor, dir);
+	public ExtendManipulator(ModelView modelView, ModelEditor modelEditor, MoveDimension dir) {
+		super(modelView, modelEditor, dir);
 	}
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
 		super.onStart(e, mouseStart, dim1, dim2);
-		extrudeAction = modelEditor.beginExtendingSelection();
+//		extendAction = modelEditor.beginExtendingSelection();
+		ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
+		extendAction = new ExtendAction(modelView.getSelectedVertices(), new Vec3(0, 0, 0));
+		extendAction.redo();
 	}
 
 	@Override
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
-		return new CompoundAction("extend", Arrays.asList(extrudeAction, super.finish(e, mouseStart, mouseEnd, dim1, dim2)));
+		return new CompoundAction("extend", Arrays.asList(extendAction, super.finish(e, mouseStart, mouseEnd, dim1, dim2)));
 	}
 
 //	@Override

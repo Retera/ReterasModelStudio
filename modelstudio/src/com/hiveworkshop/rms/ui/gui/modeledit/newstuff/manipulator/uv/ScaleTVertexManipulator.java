@@ -25,7 +25,7 @@ public final class ScaleTVertexManipulator extends AbstractScaleTVertexManipulat
 				resettableScaleFactors.setCoord(dim2, scaleFactor);
 			}
 		}
-		getScaleAction().updateScale(resettableScaleFactors.x, resettableScaleFactors.y, resettableScaleFactors.z);
+		getScaleAction().updateScale(resettableScaleFactors);
 	}
 
 	@Override

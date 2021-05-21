@@ -1,12 +1,13 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.util.Vec2;
 
 public final class MoveManipulator extends AbstractMoveManipulator {
 
-	public MoveManipulator(ModelEditor modelEditor, MoveDimension dir) {
-		super(modelEditor, dir);
+	public MoveManipulator(ModelView modelView, ModelEditor modelEditor, MoveDimension dir) {
+		super(modelView, modelEditor, dir);
 	}
 
 	@Override

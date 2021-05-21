@@ -19,7 +19,7 @@ public class DrawBoxActivityDescriptor implements ActivityDescriptor {
 
 	@Override
 	public ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
-		return new DrawBoxActivity(modelHandler, modelEditorManager.getModelEditor(), modelEditorManager.getSelectionView(), viewportListener, 1, 1, 1);
+		return new DrawBoxActivity(modelHandler, modelEditorManager, viewportListener, 1, 1, 1);
 	}
 
 }

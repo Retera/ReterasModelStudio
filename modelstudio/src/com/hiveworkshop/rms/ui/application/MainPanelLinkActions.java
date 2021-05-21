@@ -1,14 +1,18 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.actions.mesh.DeleteAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.nodes.DeleteNodesAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.InvertSelectionAction2;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction2;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.CloneAction2;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -21,6 +25,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainPanelLinkActions {
 	static void linkActions(final MainPanel mainPanel, final JComponent root) {
@@ -232,13 +239,14 @@ public class MainPanelLinkActions {
 				if (isTextField()) return;
 				if (!mainPanel.animationModeState) {
 					try {
-						final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+						ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 						if (modelPanel != null) {
-							final Viewport viewport = mainPanel.viewportListener.getViewport();
-							final Vec3 facingVector = viewport == null
-									? new Vec3(0, 0, 1) : viewport.getFacingVector();
-							final UndoAction createFaceFromSelection = modelPanel.getModelEditorManager()
-									.getModelEditor().createFaceFromSelection(facingVector);
+							Viewport viewport = mainPanel.viewportListener.getViewport();
+							Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
+//							UndoAction createFaceFromSelection = modelPanel.getModelEditorManager().getModelEditor().createFaceFromSelection(facingVector);
+							UndoAction createFaceFromSelection = ModelEditActions.createFaceFromSelection(modelPanel.getModelView(), facingVector);
+
+
 							modelPanel.getUndoManager().pushAction(createFaceFromSelection);
 						}
 					} catch (final FaceCreationException exc) {
@@ -370,19 +378,48 @@ public class MainPanelLinkActions {
 
 	public static void selectAllActionRes(ModelPanel modelPanel) {
 		if (modelPanel != null) {
-			modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().selectAll());
+//			UndoAction action = modelPanel.getModelEditorManager().getModelEditor().selectAll();
+			UndoAction action = ModelEditActions.selectAll(modelPanel.getModelView());
+			action.redo();
+			modelPanel.getUndoManager().pushAction(action);
 		}
 	}
 
 	public static void invertSelectActionRes(ModelPanel modelPanel) {
 		if (modelPanel != null) {
-			modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().invertSelection());
+//			UndoAction action = modelPanel.getModelEditorManager().getModelEditor().invertSelection();
+			InvertSelectionAction2 invertSelectionAction = new InvertSelectionAction2(modelPanel.getModelView());
+			invertSelectionAction.redo();
+
+			modelPanel.getUndoManager().pushAction(invertSelectionAction);
 		}
 	}
 
 	public static void getExpandSelectionActionRes(ModelPanel modelPanel) {
+		// ToDo this should be renamed select linked, and a real "expand selection" should be implemented (ie this without the recursive call)
+		//  also, maybe care about collision shape vertices...
 		if (modelPanel != null) {
-			modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().expandSelection());
+			ModelView modelView = modelPanel.getModelView();
+			Set<GeosetVertex> expandedSelection = new HashSet<>(modelView.getSelectedVertices());
+
+			for (GeosetVertex v : modelView.getSelectedVertices()) {
+				expandSelection(v, expandedSelection);
+			}
+			SetSelectionAction2 setSelectionAction2 = new SetSelectionAction2(expandedSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), modelView, "expand selection");
+			setSelectionAction2.redo();
+
+			modelPanel.getUndoManager().pushAction(setSelectionAction2);
+		}
+	}
+
+	private static void expandSelection(GeosetVertex currentVertex, Set<GeosetVertex> selection) {
+		selection.add(currentVertex);
+		for (Triangle tri : currentVertex.getTriangles()) {
+			for (final GeosetVertex other : tri.getVerts()) {
+				if (!selection.contains(other)) {
+					expandSelection(other, selection);
+				}
+			}
 		}
 	}
 
@@ -416,11 +453,15 @@ public class MainPanelLinkActions {
 //	}
 
 	public static void cloneActionRes(MainPanel mainPanel) {
-		final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			try {
-				modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor()
-						.cloneSelectedComponents(mainPanel.namePicker));
+//				UndoAction cloneAction = modelPanel.getModelEditorManager().getModelEditor().cloneSelectedComponents(mainPanel.namePicker);
+				ModelView modelView = modelPanel.getModelView();
+				CloneAction2 cloneAction = new CloneAction2(modelView, modelPanel.getModelStructureChangeListener(), modelView.getSelectedVertices(), modelView.getSelectedIdObjects(), modelView.getSelectedCameras());
+				cloneAction.redo();
+
+				modelPanel.getUndoManager().pushAction(cloneAction);
 			} catch (final Exception exc) {
 				ExceptionPopup.display(exc);
 			}
@@ -431,12 +472,18 @@ public class MainPanelLinkActions {
 	}
 
 	public static void deleteActionRes(MainPanel mainPanel) {
-		final ModelPanel mpanel = ProgramGlobals.getCurrentModelPanel();
+		ModelPanel mpanel = ProgramGlobals.getCurrentModelPanel();
 		if (mpanel != null) {
 			if (mainPanel.animationModeState) {
 				mainPanel.timeSliderPanel.deleteSelectedKeyframes();
 			} else {
-				mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().deleteSelectedComponents());
+				ModelView modelView = mpanel.getModelView();
+//				UndoAction action = mpanel.getModelEditorManager().getModelEditor().deleteSelectedComponents();
+				DeleteAction deleteAction = new DeleteAction(modelView.getSelectedVertices(), mpanel.getModelStructureChangeListener(), modelView);
+				DeleteNodesAction deleteNodesAction = new DeleteNodesAction(modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), mpanel.getModelStructureChangeListener(), modelView);
+				CompoundAction compoundAction = new CompoundAction("deleted components", Arrays.asList(deleteAction, deleteNodesAction));
+				compoundAction.redo();
+				mpanel.getUndoManager().pushAction(compoundAction);
 			}
 			MainPanel.repaintSelfAndChildren(mainPanel);
 			mpanel.repaintSelfAndRelatedChildren();
@@ -459,7 +506,8 @@ public class MainPanelLinkActions {
 				}
 			}
 			if (valid) {
-				modelPanel.getUndoManager().pushAction(editorManager.getModelEditor().rig());
+//				modelPanel.getUndoManager().pushAction(editorManager.getModelEditor().rig());
+				modelPanel.getUndoManager().pushAction(ModelEditActions.rig(modelPanel.getModelView()));
 			} else {
 				System.err.println("NOT RIGGING, NOT VALID");
 			}

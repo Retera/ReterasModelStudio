@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
-public class ChooseableAnimation implements CreatorModelingPanel.ChooseableTimeRange {
+public class ChooseableAnimation implements CreatorModelingPanel.ChooseableTimeRange<Animation> {
 	private final Animation animation;
 
 	public ChooseableAnimation(Animation animation) {
@@ -23,7 +23,7 @@ public class ChooseableAnimation implements CreatorModelingPanel.ChooseableTimeR
 	}
 
 	@Override
-	public Object getThing() {
+	public Animation getThing() {
 		return animation;
 	}
 

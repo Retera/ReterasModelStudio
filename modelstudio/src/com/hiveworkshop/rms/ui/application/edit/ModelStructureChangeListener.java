@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -57,82 +59,29 @@ public class ModelStructureChangeListener {
 		return new ModelStructureChangeListener(mainPanel, () -> ProgramGlobals.getCurrentModelPanel().getModel());
 	}
 
-	public void nodesRemoved(List<IdObject> nodes) {
+	public void nodesUpdated() {
 		// Tell program to set visibility after import
 		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.getModelView().updateElements();
-//			for (IdObject geoset : nodes) {
-//				modelPanel.getModelView().makeIdObjectNotVisible(geoset);
-//			}
 			modelPanel.reloadGeosetManagers();
 		}
 	}
 
-	public void nodesAdded(List<IdObject> nodes) {
-		// Tell program to set visibility after import
-		ModelPanel modelPanel = displayFor(modelReference.getModel());
-		if (modelPanel != null) {
-			modelPanel.getModelView().updateElements();
-			// TODO notify been saved system, wherever that moves to
-//			for (IdObject geoset : nodes) {
-//				modelPanel.getModelView().makeIdObjectVisible(geoset);
-//			}
-			modelPanel.reloadGeosetManagers();
-		}
-	}
-
-	public void geosetsRemoved(List<Geoset> geosets) {
+	public void geosetsUpdated() {
 		// Tell program to set visibility after import
 		final ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.getModelView().updateElements();
-			// TODO notify been saved system, wherever that moves to
-//			for (Geoset geoset : geosets) {
-//				modelPanel.getModelView().makeGeosetNotEditable(geoset);
-//				modelPanel.getModelView().makeGeosetNotVisible(geoset);
-//			}
 			modelPanel.reloadGeosetManagers();
 		}
 	}
 
-	public void geosetsAdded(List<Geoset> geosets) {
-		// Tell program to set visibility after import
-		final ModelPanel modelPanel = displayFor(modelReference.getModel());
-		if (modelPanel != null) {
-			modelPanel.getModelView().updateElements();
-			// TODO notify been saved system, wherever that moves to
-//			for (Geoset geoset : geosets) {
-//				modelPanel.getModelView().makeGeosetEditable(geoset);
-//			}
-			modelPanel.reloadGeosetManagers();
-		}
-	}
-
-	public void camerasAdded(List<Camera> cameras) {
+	public void camerasUpdated() {
 		// Tell program to set visibility after import
 		ModelPanel modelPanel = displayFor(modelReference.getModel());
 		if (modelPanel != null) {
 			modelPanel.getModelView().updateElements();
-			// TODO notify been saved system, wherever that moves to
-//			for (Camera camera : cameras) {
-//				modelPanel.getModelView().makeCameraVisible(camera);
-//			}
-			modelPanel.reloadGeosetManagers();
-		}
-	}
-
-	public void camerasRemoved(List<Camera> cameras) {
-		// Tell program to set visibility after import
-		ModelPanel modelPanel = displayFor(modelReference.getModel());
-		if (modelPanel != null) {
-			modelPanel.getModelView().updateElements();
-			// modelPanel.setBeenSaved(false); // we edited the model
-			// TODO notify been saved system, wherever that moves to
-//			for (Camera camera : cameras) {
-//				modelPanel.getModelView().makeCameraNotVisible(camera);
-//				// modelPanel.getModelViewManager().makeGeosetVisible(geoset);
-//			}
 			modelPanel.reloadGeosetManagers();
 		}
 	}

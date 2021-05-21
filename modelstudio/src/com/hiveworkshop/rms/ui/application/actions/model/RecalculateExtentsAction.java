@@ -4,11 +4,12 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class RecalculateExtentsAction implements UndoAction {
@@ -20,40 +21,37 @@ public class RecalculateExtentsAction implements UndoAction {
 	private final Map<Animation, ExtLog> modelSequenceToNewExtents = new HashMap<>();
 	private final ExtLog newModelExtents;
 
-	public RecalculateExtentsAction(final ModelView modelView, final List<Geoset> geosetsIncludedForCalculation) {
-		this.modelView = modelView;
+	public RecalculateExtentsAction(ModelView modelView, Collection<Geoset> geosetsIncludedForCalculation) {
+//		this.modelView = modelView;
+		this.modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
 		double maximumBoundsRadius = 0;
-		double maxX = -Double.MAX_VALUE, maxY = -Double.MAX_VALUE, maxZ = -Double.MAX_VALUE;
-		double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE, minZ = Double.MAX_VALUE;
-		for (final Geoset geoset : geosetsIncludedForCalculation) {
-			final ExtLog extent = geoset.calculateExtent();
-			final Vec3 maximumExtent = extent.getMaximumExtent();
-			final Vec3 minimumExtent = extent.getMinimumExtent();
-			final double boundsRadius = extent.getBoundsRadius();
+		Vec3 max = new Vec3(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
+		Vec3 min = new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+		for (Geoset geoset : geosetsIncludedForCalculation) {
+			ExtLog extent = geoset.calculateExtent();
+			Vec3 maximumExtent = extent.getMaximumExtent();
+			Vec3 minimumExtent = extent.getMinimumExtent();
+			double boundsRadius = extent.getBoundsRadius();
 			if (boundsRadius > maximumBoundsRadius) {
 				maximumBoundsRadius = boundsRadius;
 			}
-			maxX = Math.max(maximumExtent.x, maxX);
-			maxY = Math.max(maximumExtent.y, maxY);
-			maxZ = Math.max(maximumExtent.z, maxZ);
-
-			minX = Math.min(minimumExtent.x, minX);
-			minY = Math.min(minimumExtent.y, minY);
-			minZ = Math.min(minimumExtent.z, minZ);
+			max.maximize(maximumExtent);
+			min.minimize(minimumExtent);
 		}
-		newModelExtents = new ExtLog(new Vec3(minX, minY, minZ), new Vec3(maxX, maxY, maxZ), maximumBoundsRadius);
+		newModelExtents = new ExtLog(new Vec3(min), new Vec3(max), maximumBoundsRadius);
 
-		for (final Geoset modelGeoset : modelView.getModel().getGeosets()) {
-			final Map<Animation, ExtLog> animationToOldExtents = new HashMap<>();
-			final Map<Animation, ExtLog> animationToNewExtents = new HashMap<>();
-			for (final Animation anim : modelGeoset.getAnims()) {
+		for (Geoset modelGeoset : modelView.getModel().getGeosets()) {
+//		for (Geoset modelGeoset : geosetsIncludedForCalculation) {
+			Map<Animation, ExtLog> animationToOldExtents = new HashMap<>();
+			Map<Animation, ExtLog> animationToNewExtents = new HashMap<>();
+			for (Animation anim : modelGeoset.getAnims()) {
 				animationToOldExtents.put(anim, anim.getExtents());
 				animationToNewExtents.put(anim, new ExtLog(newModelExtents));
 			}
 			geosetToAnimationToOldExtents.put(modelGeoset, animationToOldExtents);
 			geosetToAnimationToNewExtents.put(modelGeoset, animationToNewExtents);
 		}
-		for (final Animation sequence : modelView.getModel().getAnims()) {
+		for (Animation sequence : modelView.getModel().getAnims()) {
 			modelSequenceToOldExtents.put(sequence, sequence.getExtents());
 			modelSequenceToNewExtents.put(sequence, new ExtLog(newModelExtents));
 		}
@@ -63,39 +61,37 @@ public class RecalculateExtentsAction implements UndoAction {
 
 	@Override
 	public void undo() {
-		for (final Map.Entry<Geoset, Map<Animation, ExtLog>> entry : geosetToAnimationToOldExtents.entrySet()) {
-			final Map<Animation, ExtLog> animationToOldExtents = entry.getValue();
-			for (final Map.Entry<Animation, ExtLog> animationAndOldExtents : animationToOldExtents.entrySet()) {
-				final Animation anim = animationAndOldExtents.getKey();
-				final ExtLog extents = animationAndOldExtents.getValue();
-				anim.setExtents(extents);
+		for (Geoset geoset : geosetToAnimationToOldExtents.keySet()) {
+			Map<Animation, ExtLog> animationExtLogMap = geosetToAnimationToOldExtents.get(geoset);
+			for (Animation animation : animationExtLogMap.keySet()) {
+				animation.setExtents(animationExtLogMap.get(animation));
+
 			}
-			entry.getKey().setExtents(oldModelExtents);
+			geoset.setExtents(oldModelExtents);
 		}
-		for (final Map.Entry<Animation, ExtLog> animationAndOldExtents : modelSequenceToOldExtents.entrySet()) {
-			final Animation anim = animationAndOldExtents.getKey();
-			final ExtLog extents = animationAndOldExtents.getValue();
-			anim.setExtents(extents);
+
+		for (Animation animation : modelSequenceToOldExtents.keySet()) {
+			animation.setExtents(modelSequenceToOldExtents.get(animation));
 		}
+
 		modelView.getModel().setExtents(oldModelExtents);
 	}
 
 	@Override
 	public void redo() {
-		for (final Map.Entry<Geoset, Map<Animation, ExtLog>> entry : geosetToAnimationToNewExtents.entrySet()) {
-			final Map<Animation, ExtLog> animationToNewExtents = entry.getValue();
-			for (final Map.Entry<Animation, ExtLog> animationAndNewExtents : animationToNewExtents.entrySet()) {
-				final Animation anim = animationAndNewExtents.getKey();
-				final ExtLog extents = animationAndNewExtents.getValue();
-				anim.setExtents(extents);
+		for (Geoset geoset : geosetToAnimationToNewExtents.keySet()) {
+			Map<Animation, ExtLog> animationExtLogMap = geosetToAnimationToNewExtents.get(geoset);
+			for (Animation animation : animationExtLogMap.keySet()) {
+				animation.setExtents(animationExtLogMap.get(animation));
+
 			}
-			entry.getKey().setExtents(newModelExtents);
+			geoset.setExtents(newModelExtents);
 		}
-		for (final Map.Entry<Animation, ExtLog> animationAndNewExtents : modelSequenceToNewExtents.entrySet()) {
-			final Animation anim = animationAndNewExtents.getKey();
-			final ExtLog extents = animationAndNewExtents.getValue();
-			anim.setExtents(extents);
+
+		for (Animation animation : modelSequenceToNewExtents.keySet()) {
+			animation.setExtents(modelSequenceToNewExtents.get(animation));
 		}
+
 		modelView.getModel().setExtents(newModelExtents);
 	}
 

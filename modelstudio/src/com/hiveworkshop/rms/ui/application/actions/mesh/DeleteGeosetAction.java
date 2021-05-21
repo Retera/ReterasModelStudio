@@ -21,7 +21,7 @@ public class DeleteGeosetAction implements UndoAction {
 	private final List<GeosetAnim> geosetAnims;
 	ModelStructureChangeListener modelStructureChangeListener;
 
-	public DeleteGeosetAction(final Geoset geoset, ModelStructureChangeListener modelStructureChangeListener) {
+	public DeleteGeosetAction(Geoset geoset, ModelStructureChangeListener modelStructureChangeListener) {
 		this.geosets = Collections.singletonList(geoset);
 		model = geoset.getParentModel();
 		geosetAnims = Collections.singletonList(geoset.getGeosetAnim());
@@ -48,7 +48,7 @@ public class DeleteGeosetAction implements UndoAction {
 				model.remove(geosetAnim);
 			}
 		}
-		modelStructureChangeListener.geosetsRemoved(geosets);
+		modelStructureChangeListener.geosetsUpdated();
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class DeleteGeosetAction implements UndoAction {
 				model.add(geosetAnim);
 			}
 		}
-		modelStructureChangeListener.geosetsAdded(geosets);
+		modelStructureChangeListener.geosetsUpdated();
 	}
 
 	@Override

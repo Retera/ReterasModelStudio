@@ -9,7 +9,8 @@ public enum ModelEditorActionType3 implements ToolbarButtonType {
 	ROTATION("Rotate", RMSIcons.loadToolBarImageIcon("rotate.png")),
 	SCALING("Scale", RMSIcons.loadToolBarImageIcon("scale.png")),
 	EXTRUDE("Extrude", RMSIcons.loadToolBarImageIcon("extrude.png")),
-	EXTEND("Extend", RMSIcons.loadToolBarImageIcon("extend.png"));
+	EXTEND("Extend", RMSIcons.loadToolBarImageIcon("extend.png")),
+	SQUAT("Squat", RMSIcons.loadToolBarImageIcon("rotate.png"));
 
 	private final String name;
 	private final ImageIcon imageIcon;

@@ -125,7 +125,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         creatorPanel = new CreatorModelingPanel(newType -> {
             actionTypeGroup.setActiveButton(newType);
             changeActivity(newType);
-        }, ProgramGlobals.getPrefs(), actionTypeGroup, viewportListener, animatedRenderEnvironment);
+        }, actionTypeGroup, viewportListener);
 
         creatorView = new View("Modeling", null, creatorPanel);
 

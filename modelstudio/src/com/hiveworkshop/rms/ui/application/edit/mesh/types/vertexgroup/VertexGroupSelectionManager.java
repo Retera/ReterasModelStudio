@@ -27,17 +27,60 @@ public final class VertexGroupSelectionManager extends SelectionManager<VertexGr
 	public VertexGroupSelectionManager(ModelView modelView) {
 		super(modelView);
 		cachedVertexListManager = new GeosetVertexSelectionManager(modelView);
-		addSelectionListener(newSelection -> {
-			List<GeosetVertex> verticesSelected = new ArrayList<>();
-			for (VertexGroupBundle bundle : getSelection()) {
-				for (GeosetVertex geosetVertex : bundle.getGeoset().getVertices()) {
-					if (geosetVertex.getVertexGroup() == bundle.getVertexGroupId()) {
-						verticesSelected.add(geosetVertex);
-					}
+		addSelectionListener(newSelection -> selectBundle());
+	}
+
+	private void selectBundle() {
+		List<GeosetVertex> verticesSelected = new ArrayList<>();
+		for (VertexGroupBundle bundle : getSelection()) {
+			for (GeosetVertex geosetVertex : bundle.getGeoset().getVertices()) {
+				if (geosetVertex.getVertexGroup() == bundle.getVertexGroupId()) {
+					verticesSelected.add(geosetVertex);
 				}
 			}
-			cachedVertexListManager.setSelection(verticesSelected);
-		});
+		}
+		cachedVertexListManager.setSelection(verticesSelected);
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return modelView.getSelectedVertices().isEmpty();
+	}
+
+
+
+	@Override
+	public void setSelection(final Collection<? extends VertexGroupBundle> selectionItem) {
+		Set<GeosetVertex> ugg = new HashSet<>();
+		for (VertexGroupBundle bundle : selectionItem){
+			ugg.addAll(bundle.getGeoset().getVertices());
+		}
+		modelView.setSelectedVertices(ugg);
+		fireChangeListeners();
+	}
+
+	@Override
+	public void addSelection(final Collection<? extends VertexGroupBundle> selectionItem) {
+		Set<GeosetVertex> ugg = new HashSet<>();
+		for (VertexGroupBundle bundle : selectionItem){
+			ugg.addAll(bundle.getGeoset().getVertices());
+		}
+		modelView.addSelectedVertices(ugg);
+		fireChangeListeners();
+	}
+	@Override
+	public void removeSelection(final Collection<? extends VertexGroupBundle> selectionItem) {
+		Set<GeosetVertex> ugg = new HashSet<>();
+		for (VertexGroupBundle bundle : selectionItem){
+			ugg.addAll(bundle.getGeoset().getVertices());
+		}
+		modelView.removeSelectedVertices(ugg);
+		fireChangeListeners();
+	}
+	@Override
+	public Set<VertexGroupBundle> getSelection() {
+//		return modelView.getSelectedVertices();
+		return new HashSet<>();
 	}
 
 	@Override

@@ -7,12 +7,11 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.util.Vec2;
 
-public final class ViewportSelectionHandlerImpl implements ViewportSelectionHandler {
+public final class ViewportSelectionHandlerImpl extends ViewportSelectionHandler {
 	private final ToolbarButtonGroup2<SelectionMode> modeButtonGroup;
 	private ModelEditor selectingEventHandler;
 
-	public ViewportSelectionHandlerImpl(ToolbarButtonGroup2<SelectionMode> modeButtonGroup,
-	                                    ModelEditor selectingEventHandler) {
+	public ViewportSelectionHandlerImpl(ToolbarButtonGroup2<SelectionMode> modeButtonGroup, ModelEditor selectingEventHandler) {
 		this.modeButtonGroup = modeButtonGroup;
 		this.selectingEventHandler = selectingEventHandler;
 	}
@@ -34,7 +33,7 @@ public final class ViewportSelectionHandlerImpl implements ViewportSelectionHand
 	}
 
 	@Override
-	public boolean canSelectAt(final Vec2 point, final CoordinateSystem axes) {
+	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
 		return selectingEventHandler.canSelectAt(point, axes);
 	}
 

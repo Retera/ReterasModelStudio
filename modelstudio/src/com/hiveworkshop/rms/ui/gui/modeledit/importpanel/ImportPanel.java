@@ -247,10 +247,10 @@ public class ImportPanel extends JTabbedPane {
 
 
 			if (callback != null) {
-				callback.geosetsAdded(geosetsAdded);
-				callback.geosetsRemoved(geosetsRemoved);
-				callback.nodesAdded(objectsAdded);
-				callback.camerasAdded(camerasAdded);
+				callback.geosetsUpdated();
+				callback.geosetsUpdated();
+				callback.nodesUpdated();
+				callback.camerasUpdated();
 			}
 			for (final AnimFlag<?> flag : mht.receivingModel.getAllAnimFlags()) {
 				flag.sort();

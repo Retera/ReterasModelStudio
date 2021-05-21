@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.Vec3;
 
 public class DoNothingMoveActionAdapter implements GenericMoveAction {
 
@@ -27,6 +28,10 @@ public class DoNothingMoveActionAdapter implements GenericMoveAction {
 
 	@Override
 	public void updateTranslation(final double deltaX, final double deltaY, final double deltaZ) {
+	}
+
+	@Override
+	public void updateTranslation(Vec3 delta) {
 	}
 
 }

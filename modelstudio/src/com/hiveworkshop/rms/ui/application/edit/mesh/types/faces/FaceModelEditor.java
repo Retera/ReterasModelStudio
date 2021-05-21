@@ -2,21 +2,15 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.types.faces;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.ui.application.actions.mesh.SplitGeosetAction;
-import com.hiveworkshop.rms.ui.application.actions.mesh.TeamColorAddAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.CopiedModelData;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec2;
@@ -30,21 +24,6 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 	                       ModelStructureChangeListener structureChangeListener,
 	                       ModelHandler modelHandler) {
 		super(selectionManager, structureChangeListener, modelHandler);
-	}
-
-	@Override
-	public UndoAction autoCenterSelectedBones() {
-		throw new UnsupportedOperationException("This feature is not available in Face mode");
-	}
-
-	@Override
-	public UndoAction setSelectedBoneName(String name) {
-		throw new UnsupportedOperationException("This feature is not available in Face mode");
-	}
-
-	@Override
-	public UndoAction addSelectedBoneSuffix(String name) {
-		throw new UnsupportedOperationException("This feature is not available in Face mode");
 	}
 
 	@Override
@@ -69,72 +48,6 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		}
 //		selectionManager.setSelection(newlySelectedFaces);
 		modelView.setSelectedVertices(newlySelectedVerts);
-	}
-
-	@Override
-	public UndoAction expandSelection() {
-		Set<Triangle> oldSelection = new HashSet<>(modelView.getSelectedTriangles());
-		Set<Triangle> expandedSelection = new HashSet<>(oldSelection);
-		for (Triangle triangle : new ArrayList<>(oldSelection)) {
-			expandSelection(triangle, expandedSelection);
-		}
-		Set<GeosetVertex> expSelVerts = new HashSet<>();
-		for (Triangle triangle : expandedSelection) {
-			expSelVerts.addAll(Arrays.asList(triangle.getVerts()));
-		}
-//		selectionManager.addSelection(expandedSelection);
-		modelView.addSelectedVertices(expSelVerts);
-		return new SetSelectionAction<>(expandedSelection, oldSelection, selectionManager, "expand selection");
-	}
-
-	private void expandSelection(Triangle currentTriangle, Set<Triangle> selection) {
-		selection.add(currentTriangle);
-		for (GeosetVertex geosetVertex : currentTriangle.getVerts()) {
-			for (Triangle triangle : geosetVertex.getTriangles()) {
-				if (!selection.contains(triangle)) {
-					expandSelection(triangle, selection);
-				}
-			}
-		}
-	}
-
-	@Override
-	public UndoAction invertSelection() {
-		Set<Triangle> oldSelection = new HashSet<>(modelView.getSelectedTriangles());
-		modelView.invertVertSelection();
-		Set<Triangle> invertedSelection = new HashSet<>(modelView.getSelectedTriangles());
-//		Set<Triangle> invertedSelection = new HashSet<>(oldSelection);
-//		for (Geoset geoset : modelView.getEditableGeosets()) {
-//			for (Triangle triangle : geoset.getTriangles()) {
-//				if (invertedSelection.contains(triangle)) {
-//					invertedSelection.remove(triangle);
-//				} else {
-//					invertedSelection.add(triangle);
-//				}
-//			}
-//		}
-//		selectionManager.setSelection(invertedSelection);
-		return new SetSelectionAction<>(invertedSelection, oldSelection, selectionManager, "invert selection");
-	}
-
-	@Override
-	public UndoAction selectAll() {
-		Set<Triangle> oldSelection = new HashSet<>(modelView.getSelectedTriangles());
-		modelView.selectAllVerts();
-		Set<Triangle> allSelection = new HashSet<>(modelView.getSelectedTriangles());
-//		for (Geoset geoset : modelView.getEditableGeosets()) {
-//			allSelection.addAll(geoset.getTriangles());
-//		}
-//		selectionManager.setSelection(allSelection);
-		return new SetSelectionAction<>(allSelection, oldSelection, selectionManager, "select all");
-	}
-
-	@Override
-	public UndoAction addTeamColor() {
-		// copy the selection before we hand it off, so the we can't strip the stored action's list of faces to add/remove
-		TeamColorAddAction<Triangle> teamColorAddAction = new TeamColorAddAction<>(new ArrayList<>(modelView.getSelectedTriangles()), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
-		teamColorAddAction.redo();
-		return teamColorAddAction;
 	}
 
 	@Override
@@ -186,67 +99,6 @@ public class FaceModelEditor extends AbstractModelEditor<Triangle> {
 		Runnable truncateSelectionRunnable = () -> modelView.removeSelectedTris(possibleTrianglesToTruncate);
 		Runnable unTruncateSelectionRunnable = () -> modelView.setSelectedTris(previousSelection);
 		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
-	}
-
-	@Override
-	public UndoAction splitGeoset() {
-		// copy the selection before we hand it off, so the we can't strip the stored action's list of faces to add/remove
-		SplitGeosetAction<Triangle> teamColorAddAction = new SplitGeosetAction<>(new ArrayList<>(modelView.getSelectedTriangles()), modelView.getModel(), structureChangeListener, selectionManager, vertexSelectionHelper);
-		teamColorAddAction.redo();
-		return teamColorAddAction;
-	}
-
-	@Override
-	public CopiedModelData copySelection() {
-		// TODO heavy overlap with GeosetVertexModelEditor's code
-		Set<Triangle> selection = modelView.getSelectedTriangles();
-		List<Geoset> copiedGeosets = new ArrayList<>();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
-			Geoset copy = new Geoset();
-			copy.setSelectionGroup(geoset.getSelectionGroup());
-			copy.setAnims(geoset.getAnims());
-			copy.setMaterial(geoset.getMaterial());
-			Set<Triangle> copiedTriangles = new HashSet<>();
-			Set<GeosetVertex> copiedVertices = new HashSet<>();
-			for (Triangle triangle : geoset.getTriangles()) {
-				if (selection.contains(triangle)) {
-					List<GeosetVertex> triangleVertices = new ArrayList<>(3);
-					for (GeosetVertex geosetVertex : triangle.getAll()) {
-						GeosetVertex newGeosetVertex = new GeosetVertex(geosetVertex);
-						newGeosetVertex.clearTriangles();
-						copiedVertices.add(newGeosetVertex);
-						triangleVertices.add(newGeosetVertex);
-					}
-					Triangle newTriangle = new Triangle(triangleVertices.get(0), triangleVertices.get(1), triangleVertices.get(2), copy);
-					copiedTriangles.add(newTriangle);
-				}
-			}
-			for (Triangle triangle : copiedTriangles) {
-				copy.add(triangle);
-			}
-			for (GeosetVertex geosetVertex : copiedVertices) {
-				copy.add(geosetVertex);
-			}
-			if ((copiedTriangles.size() > 0) || (copiedVertices.size() > 0)) {
-				copiedGeosets.add(copy);
-			}
-		}
-		return new CopiedModelData(copiedGeosets, new ArrayList<>(), new ArrayList<>());
-	}
-
-	@Override
-	public UndoAction addVertex(double x, double y, double z, Vec3 preferredNormalFacingVector) {
-		throw new WrongModeException("Unable to add vertex in face selection mode");
-	}
-
-	@Override
-	public UndoAction createFaceFromSelection(Vec3 preferredFacingVector) {
-		throw new WrongModeException("Unable to create face from vertices in face selection mode");
-	}
-
-	@Override
-	public UndoAction setParent(IdObject node) {
-		throw new UnsupportedOperationException("This feature is not available in Face mode");
 	}
 
 	public VertexSelectionHelper getVertexSelectionHelper() {

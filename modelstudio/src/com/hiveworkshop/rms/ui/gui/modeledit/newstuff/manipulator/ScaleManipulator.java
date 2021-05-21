@@ -1,12 +1,13 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.Vec3;
 
 public final class ScaleManipulator extends AbstractScaleManipulator {
 
-	public ScaleManipulator(ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
+	public ScaleManipulator(ModelView modelView, ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
 		super(modelEditor, selectionView, dir);
 	}
 
@@ -23,7 +24,7 @@ public final class ScaleManipulator extends AbstractScaleManipulator {
 				resettableScaleFactors.setCoord(dim2, scaleFactor);
 			}
 		}
-		getScaleAction().updateScale(resettableScaleFactors.x, resettableScaleFactors.y, resettableScaleFactors.z);
+		getScaleAction().updateScale(resettableScaleFactors);
 	}
 
 	@Override

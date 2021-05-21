@@ -190,7 +190,7 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 	public MdlxUInt32Timeline toMdlx(final TimelineContainer container) {
 		final MdlxUInt32Timeline timeline = new MdlxUInt32Timeline();
 
-		timeline.name = getWar3ID(container);
+		timeline.name = FlagUtils.getWar3ID(name, container);
 		timeline.interpolationType = interpolationType;
 		timeline.globalSequenceId = getGlobalSeqId();
 

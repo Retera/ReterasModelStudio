@@ -1,16 +1,16 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools;
 
-import java.util.List;
-import java.util.Set;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
+import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.List;
+import java.util.Set;
 
 public final class AdvancedCloneAction implements UndoAction {
 	private final ModelView model;
@@ -28,11 +28,18 @@ public final class AdvancedCloneAction implements UndoAction {
 	private final VertexSelectionHelper pivotSelectionHelper;
 	private final Set<Vec3> newSelectionPivots;
 
-	public AdvancedCloneAction(final ModelView model, final List<Vec3> sourceNonPivots,
-			final List<Vec3> sourcePivots, final ModelStructureChangeListener modelStructureChangeListener,
-			final VertexSelectionHelper vertexSelectionHelper, final VertexSelectionHelper pivotSelectionHelper,
-			final List<IdObject> selBones, final List<GeosetVertex> newVertices, final List<Triangle> newTriangles,
-			final List<IdObject> newBones, final Set<Vec3> newSelection, final Set<Vec3> newSelectionPivots) {
+	public AdvancedCloneAction(ModelView model,
+	                           List<Vec3> sourceNonPivots,
+	                           List<Vec3> sourcePivots,
+	                           ModelStructureChangeListener modelStructureChangeListener,
+	                           VertexSelectionHelper vertexSelectionHelper,
+	                           VertexSelectionHelper pivotSelectionHelper,
+	                           List<IdObject> selBones,
+	                           List<GeosetVertex> newVertices,
+	                           List<Triangle> newTriangles,
+	                           List<IdObject> newBones,
+	                           Set<Vec3> newSelection,
+	                           Set<Vec3> newSelectionPivots) {
 		this.model = model;
 		this.sourceNonPivots = sourceNonPivots;
 		this.sourcePivots = sourcePivots;
@@ -60,7 +67,7 @@ public final class AdvancedCloneAction implements UndoAction {
 		}
 		vertexSelectionHelper.selectVertices(sourceNonPivots);
 		pivotSelectionHelper.selectVertices(sourcePivots);
-		modelStructureChangeListener.nodesRemoved(newBones);
+		modelStructureChangeListener.nodesUpdated();
 	}
 
 	@Override
@@ -74,7 +81,7 @@ public final class AdvancedCloneAction implements UndoAction {
 		for (final IdObject b : newBones) {
 			model.getModel().add(b);
 		}
-		modelStructureChangeListener.nodesAdded(newBones);
+		modelStructureChangeListener.nodesUpdated();
 		vertexSelectionHelper.selectVertices(newSelection);
 		pivotSelectionHelper.selectVertices(newSelectionPivots);
 	}

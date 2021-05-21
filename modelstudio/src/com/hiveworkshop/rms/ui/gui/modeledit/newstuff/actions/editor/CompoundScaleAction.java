@@ -35,13 +35,6 @@ public final class CompoundScaleAction implements GenericScaleAction {
 	}
 
 	@Override
-	public void updateScale(final double scaleX, final double scaleY, final double scaleZ) {
-		for (final GenericScaleAction action : actions) {
-			action.updateScale(scaleX, scaleY, scaleZ);
-		}
-	}
-
-	@Override
 	public void updateScale(final Vec3 scale) {
 		for (final GenericScaleAction action : actions) {
 			action.updateScale(scale);

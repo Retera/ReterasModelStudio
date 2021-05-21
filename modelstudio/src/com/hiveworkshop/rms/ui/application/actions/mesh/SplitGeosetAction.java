@@ -1,113 +1,59 @@
 package com.hiveworkshop.rms.ui.application.actions.mesh;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.BiMap;
+import com.hiveworkshop.rms.util.Pair;
 
 import java.util.*;
 
-public final class SplitGeosetAction<T> implements UndoAction {
+public final class SplitGeosetAction implements UndoAction {
 
-	private List<Triangle> trianglesMovedToSeparateGeo;
-	private final List<Geoset> geosetsCreated;
-	private final EditableModel model;
-	//	private Collection<Triangle> trisToSeparate;
-	private Set<Triangle> trisToSeparate1;
 	private final ModelStructureChangeListener modelStructureChangeListener;
-	private final SelectionManager<T> selectionManager;
-	private final Collection<T> selection;
-	private final Collection<Vec3> newVerticesToSelect;
-	private final VertexSelectionHelper vertexSelectionHelper;
+	private final EditableModel model;
+	private final ModelView modelView;
 
-	public SplitGeosetAction(Collection<Triangle> trisToSeparate, EditableModel model,
-	                         ModelStructureChangeListener modelStructureChangeListener, SelectionManager<T> selectionManager,
-	                         VertexSelectionHelper vertexSelectionHelper) {
-//		this.trisToSeparate = trisToSeparate;
-		this.trisToSeparate1 = new HashSet<>(trisToSeparate);
-		this.model = model;
-		this.modelStructureChangeListener = modelStructureChangeListener;
-		this.selectionManager = selectionManager;
-		this.vertexSelectionHelper = vertexSelectionHelper;
-		this.geosetsCreated = new ArrayList<>();
-		this.newVerticesToSelect = new ArrayList<>();
-		Set<GeosetVertex> verticesInTheTriangles = new HashSet<>();
-		Set<Geoset> geosetsToCopy = new HashSet<>();
-		for (Triangle tri : trisToSeparate1) {
-			verticesInTheTriangles.addAll(Arrays.asList(tri.getVerts()));
-			geosetsToCopy.add(tri.getGeoset());
-		}
-		Map<Geoset, Geoset> oldGeoToNewGeo = new HashMap<>();
-		Map<GeosetVertex, GeosetVertex> oldVertToNewVert = new HashMap<>();
-		for (Geoset geoset : geosetsToCopy) {
-			Geoset geosetCreated = new Geoset();
-			if (geoset.getExtents() != null) {
-				geosetCreated.setExtents(new ExtLog(geoset.getExtents()));
-			}
-			for (Animation anim : geoset.getAnims()) {
-				geosetCreated.add(new Animation(anim));
-			}
-			geosetCreated.setUnselectable(geoset.getUnselectable());
-			geosetCreated.setSelectionGroup(geoset.getSelectionGroup());
-			GeosetAnim geosetAnim = geoset.getGeosetAnim();
-			if (geosetAnim != null) {
-				GeosetAnim createdGeosetAnim = new GeosetAnim(geosetCreated, geosetAnim);
-				geosetCreated.setGeosetAnim(createdGeosetAnim);
-			}
-			geosetCreated.setParentModel(model);
-			geosetCreated.setMaterial(geoset.getMaterial());
-			oldGeoToNewGeo.put(geoset, geosetCreated);
-			geosetsCreated.add(geosetCreated);
-		}
-		for (GeosetVertex vertex : verticesInTheTriangles) {
-			GeosetVertex copy = new GeosetVertex(vertex);
-			Geoset newGeoset = oldGeoToNewGeo.get(vertex.getGeoset());
-			copy.setGeoset(newGeoset);
-			newGeoset.add(copy);
-			oldVertToNewVert.put(vertex, copy);
-			newVerticesToSelect.add(copy);
-		}
-		for (Triangle tri : trisToSeparate1) {
-			GeosetVertex a, b, c;
-			a = oldVertToNewVert.get(tri.get(0));
-			b = oldVertToNewVert.get(tri.get(1));
-			c = oldVertToNewVert.get(tri.get(2));
-			Geoset newGeoset = oldGeoToNewGeo.get(tri.getGeoset());
-			Triangle newTriangle = new Triangle(a, b, c, newGeoset);
-			newGeoset.add(newTriangle);
-//			a.addTriangle(newTriangle);
-//			b.addTriangle(newTriangle);
-//			c.addTriangle(newTriangle);
-		}
-		selection = new ArrayList<>(selectionManager.getSelection());
-	}
+	BiMap<Geoset, Geoset> oldGeoToNewGeo = new BiMap<>();
+
+
+	List<Triangle> addedTriangles = new ArrayList<>();
+	Set<Triangle> selectedEdgeTriangles = new HashSet<>();
+	Set<Triangle> notSelectedEdgeTriangles = new HashSet<>();
+	List<GeosetVertex> affectedVertices = new ArrayList<>();
+	Set<GeosetVertex> orgEdgeVertices = new HashSet<>();
+	Map<GeosetVertex, GeosetVertex> oldToNew = new HashMap<>();
+	Set<Pair<GeosetVertex, GeosetVertex>> edges;
 
 
 	public SplitGeosetAction(Collection<GeosetVertex> vertsToSep, EditableModel model,
-	                         ModelStructureChangeListener modelStructureChangeListener, SelectionManager<T> selectionManager,
-	                         VertexSelectionHelper vertexSelectionHelper, ModelView modelView) {
-		this.trisToSeparate1 = new HashSet<>();
-		this.model = model;
+	                         ModelStructureChangeListener modelStructureChangeListener,
+	                         ModelView modelView) {
+		this.modelView = modelView;
+		this.model = modelView.getModel();
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		this.selectionManager = selectionManager;
-		this.vertexSelectionHelper = vertexSelectionHelper;
-		this.geosetsCreated = new ArrayList<>();
-		this.newVerticesToSelect = new ArrayList<>();
-		Set<GeosetVertex> verticesInTheTriangles = new HashSet<>(vertsToSep);
+
+		affectedVertices.addAll(vertsToSep);
+
+		edges = ModelUtils.getEdges(affectedVertices);
+
+		collectEdgeVerts();
+		findEdgeTris();
+		makeVertCopies();
+
+		createGeosetCopies(model);
+
+	}
+
+	private void createGeosetCopies(EditableModel model) {
+
 		Set<Geoset> geosetsToCopy = new HashSet<>();
-		for (GeosetVertex vert : verticesInTheTriangles) {
-			for (Triangle triangle : vert.getTriangles()) {
-				if (verticesInTheTriangles.containsAll(Arrays.asList(triangle.getVerts()))) {
-					trisToSeparate1.add(triangle);
-					geosetsToCopy.add(triangle.getGeoset());
-				}
-			}
+		for (GeosetVertex vert : affectedVertices) {
+			geosetsToCopy.add(vert.getGeoset());
 		}
-		Map<Geoset, Geoset> oldGeoToNewGeo = new HashMap<>();
-		Map<GeosetVertex, GeosetVertex> oldVertToNewVert = new HashMap<>();
+
 		for (Geoset geoset : geosetsToCopy) {
 			Geoset geosetCreated = new Geoset();
 			if (geoset.getExtents() != null) {
@@ -126,74 +72,147 @@ public final class SplitGeosetAction<T> implements UndoAction {
 			geosetCreated.setParentModel(model);
 			geosetCreated.setMaterial(geoset.getMaterial());
 			oldGeoToNewGeo.put(geoset, geosetCreated);
-			geosetsCreated.add(geosetCreated);
 		}
-		for (GeosetVertex vertex : verticesInTheTriangles) {
-			GeosetVertex copy = new GeosetVertex(vertex);
-			Geoset newGeoset = oldGeoToNewGeo.get(vertex.getGeoset());
-			copy.setGeoset(newGeoset);
-			newGeoset.add(copy);
-			oldVertToNewVert.put(vertex, copy);
-			newVerticesToSelect.add(copy);
+	}
+
+	private void collectEdgeVerts() {
+		for (Pair<GeosetVertex, GeosetVertex> edge : edges) {
+			orgEdgeVertices.add(edge.getFirst());
+			orgEdgeVertices.add(edge.getSecond());
 		}
-		for (Triangle tri : trisToSeparate1) {
-			GeosetVertex a, b, c;
-			a = oldVertToNewVert.get(tri.get(0));
-			b = oldVertToNewVert.get(tri.get(1));
-			c = oldVertToNewVert.get(tri.get(2));
-			Geoset newGeoset = oldGeoToNewGeo.get(tri.getGeoset());
-			Triangle newTriangle = new Triangle(a, b, c, newGeoset);
-			newGeoset.add(newTriangle);
-//			a.addTriangle(newTriangle);
-//			b.addTriangle(newTriangle);
-//			c.addTriangle(newTriangle);
+	}
+
+	private void findEdgeTris() {
+		for (GeosetVertex geosetVertex : orgEdgeVertices) {
+			for (Triangle triangle : geosetVertex.getTriangles()) {
+				if (!affectedVertices.containsAll(Arrays.asList(triangle.getVerts()))) {
+					notSelectedEdgeTriangles.add(triangle);
+				} else {
+					selectedEdgeTriangles.add(triangle);
+				}
+			}
 		}
-		selection = new ArrayList<>(selectionManager.getSelection());
+	}
+
+	private void makeVertCopies() {
+		for (GeosetVertex geosetVertex : orgEdgeVertices) {
+			GeosetVertex newVertex = new GeosetVertex(geosetVertex);
+			oldToNew.put(geosetVertex, newVertex);
+		}
+	}
+
+	private void splitGeosets() {
+		for (GeosetVertex geosetVertex : orgEdgeVertices) {
+			GeosetVertex newVertex = oldToNew.get(geosetVertex);
+			List<Triangle> trisToRemove = new ArrayList<>();
+			for (Triangle triangle : geosetVertex.getTriangles()) {
+				if (selectedEdgeTriangles.contains(triangle)) {
+					newVertex.removeTriangle(triangle);
+				} else if (notSelectedEdgeTriangles.contains(triangle)) {
+					trisToRemove.add(triangle);
+					triangle.replace(geosetVertex, newVertex);
+				}
+			}
+			trisToRemove.forEach(geosetVertex::removeTriangle);
+		}
+		for (GeosetVertex vertex : affectedVertices){
+			Geoset oldGeoset = vertex.getGeoset();
+			Geoset newGeoset = oldGeoToNewGeo.get(oldGeoset);
+			vertex.setGeoset(newGeoset);
+			oldGeoset.remove(vertex);
+			newGeoset.add(vertex);
+			for (Triangle triangle : vertex.getTriangles()){
+				triangle.setGeoset(newGeoset);
+				oldGeoset.remove(triangle);
+				newGeoset.add(triangle);
+			}
+		}
+	}
+
+	private void unSplitGeosets() {
+		for (GeosetVertex geosetVertex : orgEdgeVertices) {
+			GeosetVertex newVertex = oldToNew.get(geosetVertex);
+			for (Triangle triangle : newVertex.getTriangles()) {
+				geosetVertex.addTriangle(triangle);
+				triangle.replace(newVertex, geosetVertex);
+			}
+		}
+		for (GeosetVertex vertex : affectedVertices){
+			Geoset newGeoset = vertex.getGeoset();
+			Geoset oldGeoset = oldGeoToNewGeo.getByValue(newGeoset);
+			vertex.setGeoset(oldGeoset);
+			newGeoset.remove(vertex);
+			oldGeoset.add(vertex);
+			for (Triangle triangle : vertex.getTriangles()){
+				triangle.setGeoset(oldGeoset);
+				newGeoset.remove(triangle);
+				oldGeoset.add(triangle);
+			}
+		}
 	}
 
 	@Override
 	public void undo() {
-		for (Geoset geoset : geosetsCreated) {
+		for (Geoset geoset : oldGeoToNewGeo.values()) {
 			model.remove(geoset);
 			if (geoset.getGeosetAnim() != null) {
 				model.remove(geoset.getGeosetAnim());
 			}
 		}
-		modelStructureChangeListener.geosetsRemoved(geosetsCreated);
-		for (Triangle tri : trisToSeparate1) {
-			Geoset geoset = tri.getGeoset();
-			for (GeosetVertex gv : tri.getVerts()) {
-				gv.addTriangle(tri);
-				if (!geoset.getVertices().contains(gv)) {
-					geoset.add(gv);
-				}
-			}
-			geoset.add(tri);
+
+		for (GeosetVertex newVert : oldToNew.values()) {
+			newVert.getGeoset().remove(newVert);
 		}
-		selectionManager.setSelection(selection);
+		for (Triangle triangle : addedTriangles) {
+			triangle.getGeoset().remove(triangle);
+		}
+		unSplitGeosets();
+//		for (Triangle tri : trisToSeparate1) {
+//			Geoset geoset = tri.getGeoset();
+//			for (GeosetVertex gv : tri.getVerts()) {
+//				gv.addTriangle(tri);
+//				if (!geoset.getVertices().contains(gv)) {
+//					geoset.add(gv);
+//				}
+//			}
+//			geoset.add(tri);
+//		}
+
+
+		modelStructureChangeListener.geosetsUpdated();
+//		modelView.setSelectedVertices(affectedVertices);
+
 	}
 
 	@Override
 	public void redo() {
-		for (Geoset geoset : geosetsCreated) {
+		for (Geoset geoset : oldGeoToNewGeo.values()) {
 			model.add(geoset);
 			if (geoset.getGeosetAnim() != null) {
 				model.add(geoset.getGeosetAnim());
 			}
 		}
-		for (Triangle tri : trisToSeparate1) {
-			Geoset geoset = tri.getGeoset();
-			for (GeosetVertex gv : tri.getVerts()) {
-				gv.removeTriangle(tri);
-				if (gv.getTriangles().isEmpty()) {
-					geoset.remove(gv);
-				}
+//		for (Triangle tri : trisToSeparate1) {
+//			Geoset geoset = tri.getGeoset();
+//			for (GeosetVertex gv : tri.getVerts()) {
+//				gv.removeTriangle(tri);
+//				if (gv.getTriangles().isEmpty()) {
+//					geoset.remove(gv);
+//				}
+//			}
+//			geoset.removeTriangle(tri);
+//		}
+
+		splitGeosets();
+		for (GeosetVertex newVert : oldToNew.values()) {
+			newVert.getGeoset().add(newVert);
+			for (Triangle triangle : newVert.getTriangles()) {
+				newVert.getGeoset().add(triangle);
 			}
-			geoset.removeTriangle(tri);
 		}
-		modelStructureChangeListener.geosetsAdded(geosetsCreated);
-		selectionManager.removeSelection(selection);
-		vertexSelectionHelper.selectVertices(newVerticesToSelect);
+
+		modelStructureChangeListener.geosetsUpdated();
+//		modelView.setSelectedVertices(affectedVertices);
 	}
 
 	@Override

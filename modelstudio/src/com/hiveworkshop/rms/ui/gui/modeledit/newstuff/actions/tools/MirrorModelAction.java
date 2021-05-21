@@ -9,20 +9,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public final class MirrorModelAction implements UndoAction {
-	private final char[] DIMENSION_NAMES = { 'Z', 'X', 'Y' };
-	private final List<Vec3> selection;
+public class MirrorModelAction implements UndoAction {
+	private char[] DIMENSION_NAMES = { 'Z', 'X', 'Y' };
+	private List<GeosetVertex> selection;
 	private final List<IdObject> idObjects;
 	private final byte mirrorDim;
-	private final double centerX;
-	private final double centerY;
-	private final double centerZ;
+	private final Vec3 center;
 
-	public MirrorModelAction(final Collection<? extends Vec3> selection, final Collection<IdObject> idObjects,
-			final byte mirrorDim, final double centerX, final double centerY, final double centerZ) {
-		this.centerX = centerX;
-		this.centerY = centerY;
-		this.centerZ = centerZ;
+	public MirrorModelAction(Collection<GeosetVertex> selection, Collection<IdObject> idObjects, byte mirrorDim, Vec3 center) {
+		this.center = center;
 		this.selection = new ArrayList<>(selection);
 		this.idObjects = new ArrayList<>(idObjects);
 		this.mirrorDim = mirrorDim;
@@ -39,34 +34,31 @@ public final class MirrorModelAction implements UndoAction {
 	}
 
 	private void doMirror() {
-		final Vec3 center = new Vec3(centerX, centerY, centerZ);
+		Vec3 center = new Vec3(this.center);
 		// Vertex.centerOfGroup(selection);// Calc center
 		// // of mass
-		for (final Vec3 vert : selection) {
+		for (GeosetVertex vert : selection) {
 			vert.setCoord(mirrorDim, (2 * center.getCoord(mirrorDim)) - vert.getCoord(mirrorDim));
-			if (vert.getClass() == GeosetVertex.class) {
-				final GeosetVertex gv = (GeosetVertex) vert;
-				final Vec3 normal = gv.getNormal();
-				if (normal != null) {
-					// Flip normals, preserve lighting!
-					normal.setCoord(mirrorDim, -normal.getCoord(mirrorDim));
-					// this will inverse back if they correctly choose to flip
-					// faces, otherwise we're making an inside out model now
-					normal.negate();
-				}
-				if (gv.getTangent() != null) {
-					// TODO doesn't support flip yet
-					gv.getTangent().setCoord(mirrorDim, -gv.getTangent().getCoord(mirrorDim));
-				}
+			Vec3 normal = vert.getNormal();
+			if (normal != null) {
+				// Flip normals, preserve lighting!
+				normal.setCoord(mirrorDim, -normal.getCoord(mirrorDim));
+				// this will inverse back if they correctly choose to flip
+				// faces, otherwise we're making an inside out model now
+				normal.negate();
+			}
+			if (vert.getTangent() != null) {
+				// TODO doesn't support flip yet
+				vert.getTangent().setCoord(mirrorDim, -vert.getTangent().getCoord(mirrorDim));
 			}
 		}
-		final List<IdObject> selBones = new ArrayList<>();
-		for (final IdObject b : idObjects) {
+		List<IdObject> selBones = new ArrayList<>();
+		for (IdObject b : idObjects) {
 			if (selection.contains(b.getPivotPoint()) && !selBones.contains(b)) {
 				selBones.add(b);
 			}
 		}
-		for (final IdObject obj : selBones) {
+		for (IdObject obj : selBones) {
 			obj.flipOver(mirrorDim);
 		}
 	}

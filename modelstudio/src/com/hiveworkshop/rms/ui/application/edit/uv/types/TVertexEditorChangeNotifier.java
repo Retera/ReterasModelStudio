@@ -6,8 +6,8 @@ public class TVertexEditorChangeNotifier extends SubscriberSetNotifier<TVertexEd
 		implements TVertexEditorChangeListener {
 
 	@Override
-	public void editorChanged(final TVertexEditor newModelEditor) {
-		for (final TVertexEditorChangeListener listener : set) {
+	public void editorChanged(TVertexEditor newModelEditor) {
+		for (TVertexEditorChangeListener listener : listenerSet) {
 			listener.editorChanged(newModelEditor);
 		}
 	}

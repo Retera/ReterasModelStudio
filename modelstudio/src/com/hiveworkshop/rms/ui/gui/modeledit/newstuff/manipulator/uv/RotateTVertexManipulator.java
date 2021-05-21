@@ -40,7 +40,7 @@ public class RotateTVertexManipulator extends Manipulator {
 			planeDim1 = dim1;
 			planeDim2 = dim2;
 		}
-		rotationAction = modelEditor.beginRotation(center.x, center.y, planeDim1, planeDim2);
+		rotationAction = modelEditor.beginRotation(center, planeDim1, planeDim2);
 	}
 
 	@Override

@@ -16,8 +16,10 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 public class AddParticlePanel {
 
@@ -74,7 +76,7 @@ public class AddParticlePanel {
             ParticleEmitterPopcorn new_popcornEmitter = new ParticleEmitterPopcorn("New PopcornEmitter");
             new_popcornEmitter.setPivotPoint(new Vec3(0, 0, 0));
             current.add(new_popcornEmitter);
-            mainPanel.modelStructureChangeListener.nodesAdded(Collections.singletonList(new_popcornEmitter));
+            mainPanel.modelStructureChangeListener.nodesUpdated();
         }
     }
 
@@ -201,7 +203,7 @@ public class AddParticlePanel {
         particle.setVisibilityFlag(visFlag);
         particle.setName(name);
         mainPanel.currentMDL().add(particle);
-        mainPanel.modelStructureChangeListener.nodesAdded(Collections.singletonList(particle));
+        mainPanel.modelStructureChangeListener.nodesUpdated();
     }
 
 

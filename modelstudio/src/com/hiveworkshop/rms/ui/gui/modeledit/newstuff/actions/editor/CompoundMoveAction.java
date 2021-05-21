@@ -1,9 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor;
 
-import java.util.List;
-
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
+import com.hiveworkshop.rms.util.Vec3;
+
+import java.util.List;
 
 public final class CompoundMoveAction implements GenericMoveAction {
 	private final List<? extends GenericMoveAction> actions;
@@ -37,6 +38,13 @@ public final class CompoundMoveAction implements GenericMoveAction {
 	public void updateTranslation(final double deltaX, final double deltaY, final double deltaZ) {
 		for (final GenericMoveAction action : actions) {
 			action.updateTranslation(deltaX, deltaY, deltaZ);
+		}
+	}
+
+	@Override
+	public void updateTranslation(Vec3 delta) {
+		for (final GenericMoveAction action : actions) {
+			action.updateTranslation(delta);
 		}
 	}
 

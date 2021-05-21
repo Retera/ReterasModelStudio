@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
@@ -12,11 +13,13 @@ import java.awt.event.MouseEvent;
 
 public class SquatToolManipulator extends Manipulator {
 	private final ModelEditor modelEditor;
+	private final ModelView modelView;
 	private final SelectionView selectionView;
 	private GenericRotateAction rotationAction;
 	MoveDimension dir;
 
-	public SquatToolManipulator(ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
+	public SquatToolManipulator(ModelView modelView, ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
+		this.modelView = modelView;
 		this.modelEditor = modelEditor;
 		this.selectionView = selectionView;
 		this.dir = dir;
@@ -40,7 +43,7 @@ public class SquatToolManipulator extends Manipulator {
 			planeDim2 = dim2;
 		}
 
-		rotationAction = modelEditor.beginSquatTool(center.x, center.y, center.z, planeDim1, planeDim2);
+		rotationAction = modelEditor.beginSquatTool(center, planeDim1, planeDim2);
 	}
 
 	@Override

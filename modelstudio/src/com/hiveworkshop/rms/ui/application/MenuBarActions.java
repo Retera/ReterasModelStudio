@@ -474,11 +474,11 @@ public class MenuBarActions {
 		for (final IdObject node : result) {
 			model.remove(node);
 		}
-		mainPanel.modelStructureChangeListener.nodesRemoved(result);
+		mainPanel.modelStructureChangeListener.nodesUpdated();
 		for (final IdObject node : result) {
 			model.add(node);
 		}
-		mainPanel.modelStructureChangeListener.nodesAdded(result);
+		mainPanel.modelStructureChangeListener.nodesUpdated();
 	}
 
 	public static void minimizeGeoset(MainPanel mainPanel) {
@@ -530,7 +530,7 @@ public class MenuBarActions {
 				geosetsRemoved.add(geoset);
 			}
 		}
-		mainPanel.modelStructureChangeListener.geosetsRemoved(geosetsRemoved);
+		mainPanel.modelStructureChangeListener.geosetsUpdated();
 	}
 
 	private static boolean isGeosetAnimationsMergable(final GeosetAnim first, final GeosetAnim second) {

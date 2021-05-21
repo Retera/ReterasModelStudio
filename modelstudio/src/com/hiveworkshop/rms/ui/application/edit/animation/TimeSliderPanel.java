@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction2;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.SetKeyframeAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.SlideKeyframeAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
@@ -192,7 +193,10 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private static void createKeyframe(MainPanel mainPanel) {
 		final ModelPanel mpanel = ProgramGlobals.getCurrentModelPanel();
 		if (mpanel != null) {
-			mpanel.getUndoManager().pushAction(mpanel.getModelEditorManager().getModelEditor().createKeyframe(mainPanel.actionTypeGroup.getActiveButtonType()));
+//			UndoAction undoAction = mpanel.getModelEditorManager().getModelEditor().createKeyframe(mainPanel.actionTypeGroup.getActiveButtonType());
+
+			UndoAction undoAction = new AddKeyframeAction2(mpanel.getModelStructureChangeListener(), mpanel.getModelHandler(), mainPanel.actionTypeGroup.getActiveButtonType());
+			mpanel.getUndoManager().pushAction(undoAction);
 		}
 		MainPanel.repaintSelfAndChildren(mainPanel);
 		mpanel.repaintSelfAndRelatedChildren();

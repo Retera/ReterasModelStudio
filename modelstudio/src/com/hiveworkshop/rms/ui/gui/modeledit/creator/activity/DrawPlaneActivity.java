@@ -1,10 +1,16 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
+import com.hiveworkshop.rms.editor.model.Bitmap;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
@@ -14,6 +20,10 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawPlaneAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.NewGeosetAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.CompoundMoveAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingMoveActionAdapter;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -23,6 +33,8 @@ import com.hiveworkshop.rms.util.Vec3;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
+import java.util.List;
 
 public class DrawPlaneActivity implements ModelEditorViewportActivity {
 
@@ -41,18 +53,19 @@ public class DrawPlaneActivity implements ModelEditorViewportActivity {
 	private int numSegsX;
 	private int numSegsY;
 	private final ModelHandler modelHandler;
+	ModelEditorManager modelEditorManager;
 
 	public DrawPlaneActivity(ModelHandler modelHandler,
-	                         ModelEditor modelEditor,
-	                         SelectionView selectionView,
+	                         ModelEditorManager modelEditorManager,
 	                         ViewportListener viewportListener,
 	                         int numSegsX, int numSegsY, int numSegsZ) {
 		this.modelHandler = modelHandler;
 		this.preferences = ProgramGlobals.getPrefs();
+		this.modelEditorManager = modelEditorManager;
 		this.undoManager = modelHandler.getUndoManager();
-		this.modelEditor = modelEditor;
+		this.modelEditor = modelEditorManager.getModelEditor();
 		this.modelView = modelHandler.getModelView();
-		this.selectionView = selectionView;
+		this.selectionView = modelEditorManager.getSelectionView();
 		this.viewportListener = viewportListener;
 		this.numSegsX = numSegsX;
 		this.numSegsY = numSegsY;
@@ -123,7 +136,21 @@ public class DrawPlaneActivity implements ModelEditorViewportActivity {
 				Viewport viewport = viewportListener.getViewport();
 				Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 				try {
-					planeAction = modelEditor.addPlane(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY);
+//					planeAction = modelEditor.addPlane(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY);
+
+					Geoset solidWhiteGeoset = getSolidWhiteGeoset();
+
+					DrawPlaneAction drawVertexAction = new DrawPlaneAction(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
+
+					if (!modelView.getModel().contains(solidWhiteGeoset)) {
+						NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView.getModel(), modelEditorManager.getStructureChangeListener());
+						planeAction = new CompoundMoveAction("Add Plane", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
+					} else {
+						planeAction = drawVertexAction;
+					}
+					planeAction.redo();
+
+
 				} catch (WrongModeException exc) {
 					drawingState = DrawingState.NOTHING;
 					JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -133,6 +160,25 @@ public class DrawPlaneActivity implements ModelEditorViewportActivity {
 			}
 			lastMousePoint = mouseEnd;
 		}
+	}
+
+	public Geoset getSolidWhiteGeoset() {
+		List<Geoset> geosets = modelView.getModel().getGeosets();
+		Geoset solidWhiteGeoset = null;
+		for (Geoset geoset : geosets) {
+			Layer firstLayer = geoset.getMaterial().firstLayer();
+			if ((geoset.getMaterial() != null) && (firstLayer != null)
+					&& (firstLayer.getFilterMode() == MdlxLayer.FilterMode.NONE)
+					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
+				solidWhiteGeoset = geoset;
+			}
+		}
+
+		if (solidWhiteGeoset == null) {
+			solidWhiteGeoset = new Geoset();
+			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
+		}
+		return solidWhiteGeoset;
 	}
 
 	@Override

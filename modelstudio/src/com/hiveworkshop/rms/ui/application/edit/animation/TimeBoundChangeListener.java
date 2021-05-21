@@ -8,8 +8,8 @@ public interface TimeBoundChangeListener {
 	final class TimeBoundChangeNotifier extends SubscriberSetNotifier<TimeBoundChangeListener>
 			implements TimeBoundChangeListener {
 		@Override
-		public void timeBoundsChanged(final int start, final int end) {
-			for (final TimeBoundChangeListener listener : set) {
+		public void timeBoundsChanged(int start, int end) {
+			for (TimeBoundChangeListener listener : listenerSet) {
 				listener.timeBoundsChanged(start, end);
 			}
 		}

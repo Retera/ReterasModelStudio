@@ -445,7 +445,7 @@ public class ScriptActions {
 			}
 
 		}
-		mainPanel.modelStructureChangeListener.geosetsAdded(new ArrayList<>(mainPanel.currentMDL().getGeosets()));
+		mainPanel.modelStructureChangeListener.geosetsUpdated();
 	}
 
 	/**

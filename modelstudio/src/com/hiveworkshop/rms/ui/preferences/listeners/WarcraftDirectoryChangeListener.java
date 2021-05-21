@@ -10,7 +10,7 @@ public interface WarcraftDirectoryChangeListener {
 
 		@Override
 		public void directoryChanged() {
-			for (final WarcraftDirectoryChangeListener listener : set) {
+			for (WarcraftDirectoryChangeListener listener : listenerSet) {
 				listener.directoryChanged();
 			}
 		}

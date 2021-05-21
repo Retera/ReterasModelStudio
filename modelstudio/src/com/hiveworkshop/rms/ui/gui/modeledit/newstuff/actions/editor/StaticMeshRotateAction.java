@@ -1,19 +1,18 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor;
 
-import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
+import com.hiveworkshop.rms.util.Vec3;
 
 public final class StaticMeshRotateAction implements GenericRotateAction {
-	private final ModelEditor modelEditor;
+	private final ModelView modelView;
 	private final Vec3 center;
 	private double radians;
 	private final byte dim1;
 	private final byte dim2;
 
-	public StaticMeshRotateAction(final ModelEditor modelEditor, final Vec3 center, final byte dim1,
-			final byte dim2) {
-		this.modelEditor = modelEditor;
+	public StaticMeshRotateAction(ModelView modelView, Vec3 center, byte dim1, byte dim2) {
+		this.modelView = modelView;
 		this.center = center;
 		radians = 0;
 		this.dim1 = dim1;
@@ -22,12 +21,16 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 
 	@Override
 	public void undo() {
-		modelEditor.rawRotate2d(center.x, center.y, center.z, -radians, dim1, dim2);
+		for (Vec3 vertex : modelView.getSelectedVertices()) {
+			vertex.rotate(center, -radians, dim1, dim2);
+		}
 	}
 
 	@Override
 	public void redo() {
-		modelEditor.rawRotate2d(center.x, center.y, center.z, radians, dim1, dim2);
+		for (Vec3 vertex : modelView.getSelectedVertices()) {
+			vertex.rotate(center, radians, dim1, dim2);
+		}
 	}
 
 	@Override
@@ -36,9 +39,11 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void updateRotation(final double radians) {
+	public void updateRotation(double radians) {
 		this.radians += radians;
-		modelEditor.rawRotate2d(center.x, center.y, center.z, radians, dim1, dim2);
+		for (Vec3 vertex : modelView.getSelectedVertices()) {
+			vertex.rotate(center, radians, dim1, dim2);
+		}
 	}
 
 }

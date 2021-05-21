@@ -5,33 +5,45 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ButtonType;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
+import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.MoverWidget;
+import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.RotatorWidget;
+import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.ScalerWidget;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.Widget;
+import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.SelectManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.MoveTVertexManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.RotateTVertexManipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv.ScaleTVertexManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType2;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
 
-public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVertexEditorChangeListener {
-	private final ViewportSelectionHandler viewportSelectionHandler;
+public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVertexEditorChangeListener {
+	private ViewportSelectionHandler viewportSelectionHandler;
+	private TVertexEditorManager modelEditorManager;
 	private final TVertexModelElementRenderer tVertexModelElementRenderer;
-	private final ModelView modelView;
+	private ModelView modelView;
 	private TVertexEditor modelEditor;
 	protected Widget widget;
+	ModelEditorActionType2 currentAction;
 
-	public TVertexEditorManipulatorBuilder(ViewportSelectionHandler viewportSelectionHandler,
-	                                       TVertexEditor modelEditor,
-	                                       ModelView modelView) {
-		this.viewportSelectionHandler = viewportSelectionHandler;
-		this.modelEditor = modelEditor;
-		this.modelView = modelView;
+
+	public TVertexEditorManipulatorBuilder(TVertexEditorManager modelEditorManager, ModelHandler modelHandler, ModelEditorActionType2 currentAction) {
+		this.modelEditorManager = modelEditorManager;
+		this.viewportSelectionHandler = modelEditorManager.getViewportSelectionHandler();
+		this.modelView = modelHandler.getModelView();
+		this.currentAction = currentAction;
 		tVertexModelElementRenderer = new TVertexModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
+		createWidget(currentAction);
 	}
 
 	@Override
@@ -95,9 +107,44 @@ public abstract class TVertexEditorManipulatorBuilder implements ManipulatorBuil
 		return directionByMouse != MoveDimension.NONE;
 	}
 
-	protected abstract Manipulator createManipulatorFromWidget(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
+	protected Manipulator createManipulatorFromWidget(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView){
+		return createManipulatorFromWidget2(mousePoint, coordinateSystem, selectionView, currentAction);
+	}
 
-	protected abstract Manipulator createDefaultManipulator(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView);
+	protected Manipulator createDefaultManipulator(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView){
+		return getBuilder2(selectionView, currentAction, MoveDimension.XYZ);
+	}
+
+	protected Manipulator createManipulatorFromWidget2(Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView, ModelEditorActionType2 action) {
+		widget.setPoint(selectionView.getCenter());
+		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
+
+		widget.setMoveDirection(directionByMouse);
+		if (directionByMouse != MoveDimension.NONE) {
+			return getBuilder2(selectionView, action, directionByMouse);
+		}
+		return null;
+	}
+
+	private Manipulator getBuilder2(SelectionView selectionView, ModelEditorActionType2 editorActionType, MoveDimension directionByMouse) {
+		return switch (editorActionType) {
+			case SCALING -> new ScaleTVertexManipulator(getModelEditor(), selectionView, directionByMouse);
+			case ROTATION -> new RotateTVertexManipulator(getModelEditor(), selectionView, directionByMouse);
+			case TRANSLATION -> new MoveTVertexManipulator(getModelEditor(), directionByMouse);
+
+		};
+	}
+	private void createWidget(ModelEditorActionType2 action) {
+		if(action == null){
+			widget = new MoverWidget();
+		} else {
+			switch (action) {
+				case TRANSLATION -> widget = new MoverWidget();
+				case ROTATION -> widget = new RotatorWidget();
+				case SCALING -> widget = new ScalerWidget();
+			};
+		}
+	}
 
 	protected void renderWidget(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView) {
 		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));

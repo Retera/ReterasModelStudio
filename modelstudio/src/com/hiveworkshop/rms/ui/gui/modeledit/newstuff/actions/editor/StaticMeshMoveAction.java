@@ -1,26 +1,51 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor;
 
-import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
+import com.hiveworkshop.rms.util.Vec3;
 
 public final class StaticMeshMoveAction implements GenericMoveAction {
-	private final ModelEditor modelEditor;
+	private final ModelView modelView;
 	private final Vec3 moveVector;
 
-	public StaticMeshMoveAction(final ModelEditor modelEditor, final Vec3 moveVector) {
-		this.modelEditor = modelEditor;
+	public StaticMeshMoveAction(ModelView modelView, Vec3 moveVector) {
+		this.modelView = modelView;
 		this.moveVector = new Vec3(moveVector);
 	}
 
 	@Override
 	public void undo() {
-		modelEditor.rawTranslate(-moveVector.x, -moveVector.y, -moveVector.z);
+		Vec3 antiMove = Vec3.getScaled(moveVector, -1);
+		rawTranslate(antiMove);
 	}
 
 	@Override
 	public void redo() {
-		modelEditor.rawTranslate(moveVector.x, moveVector.y, moveVector.z);
+		rawTranslate(moveVector);
+	}
+
+	public void rawTranslate(Vec3 vec3) {
+		for (Vec3 vertex : modelView.getSelectedVertices()) {
+			vertex.add(vec3);
+		}
+
+		for (IdObject b : modelView.getEditableIdObjects()) {
+			b.getPivotPoint().add(vec3);
+			if (modelView.isSelected(b)) {
+				float[] bindPose = b.getBindPose();
+				if (bindPose != null) {
+					bindPose[9] += vec3.x;
+					bindPose[10] += vec3.y;
+					bindPose[11] += vec3.z;
+				}
+			}
+		}
+
+		for (Camera camera : modelView.getSelectedCameras()) {
+			camera.getPosition().add(vec3);
+		}
 	}
 
 	@Override
@@ -29,11 +54,25 @@ public final class StaticMeshMoveAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void updateTranslation(final double deltaX, final double deltaY, final double deltaZ) {
-		moveVector.x += deltaX;
-		moveVector.y += deltaY;
-		moveVector.z += deltaZ;
-		modelEditor.rawTranslate(deltaX, deltaY, deltaZ);
+	public void updateTranslation(double deltaX, double deltaY, double deltaZ) {
+		Vec3 delta = new Vec3(deltaX, deltaY, deltaZ);
+		moveVector.add(delta);
+//		moveVector.x += deltaX;
+//		moveVector.y += deltaY;
+//		moveVector.z += deltaZ;
+//		modelEditor.rawTranslate(delta);
+		rawTranslate(delta);
+	}
+
+	@Override
+	public void updateTranslation(Vec3 delta1) {
+		Vec3 delta = new Vec3(delta1);
+		moveVector.add(delta);
+//		moveVector.x += deltaX;
+//		moveVector.y += deltaY;
+//		moveVector.z += deltaZ;
+//		modelEditor.rawTranslate(delta);
+		rawTranslate(delta);
 	}
 
 }

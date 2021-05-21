@@ -4,82 +4,128 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
+import com.hiveworkshop.rms.util.BiMap;
 
 import java.util.*;
 
 public class DeleteNodesAction implements UndoAction {
-	private final List<IdObject> objects;
+	private final Set<IdObject> selectedObjects;
 	private final ModelStructureChangeListener changeListener;
 	private final ModelView model;
-	private final Collection<Vec3> selection;
-	private final VertexSelectionHelper vertexSelectionHelper;
 	private List<GeosetVertexNodeDeleteOperation> meshLinkDeleteOps;
 	private final Set<IdObject> quickHashSetRemovedObjects;
-	private final List<Camera> deletedCameras;
+	private final Set<Camera> selectedCameras;
 
-	public DeleteNodesAction(final Collection<? extends Vec3> selection, final List<IdObject> objects,
-	                         final List<Camera> deletedCameras, final ModelStructureChangeListener changeListener, final ModelView modelView,
-	                         final VertexSelectionHelper vertexSelectionHelper) {
-		this.selection = new ArrayList<>(selection);
-		this.objects = objects;
-		this.deletedCameras = deletedCameras;
+	private CompoundAction meshLinkDelete;
+
+	private BiMap<IdObject, IdObject> parentMap = new BiMap<>();
+	private Map<IdObject, IdObject> topParentMap = new HashMap<>();
+	private Map<IdObject, Set<IdObject>> childMap = new HashMap<>();
+
+	private boolean relink = true;
+
+	public DeleteNodesAction(Collection<IdObject> selectedObjects,
+	                         Collection<Camera> selectedCameras,
+	                         ModelStructureChangeListener changeListener,
+	                         ModelView modelView) {
+		this.selectedObjects = new HashSet<>(selectedObjects);
+		this.selectedCameras = new HashSet<>(selectedCameras);
 		this.changeListener = changeListener;
 		this.model = modelView;
-		this.vertexSelectionHelper = vertexSelectionHelper;
+
 		this.quickHashSetRemovedObjects = new HashSet<>();
-		quickHashSetRemovedObjects.addAll(objects);
+		quickHashSetRemovedObjects.addAll(selectedObjects);
+
+		for (IdObject idObject : selectedObjects){
+			parentMap.put(idObject, idObject.getParent());
+			topParentMap.put(idObject, topParent(idObject));
+			childMap.put(idObject, new HashSet<>(idObject.getChildrenNodes()));
+		}
+	}
+
+	private IdObject topParent(IdObject idObject){
+		IdObject parent = idObject.getParent();
+		if(selectedObjects.contains(parent)){
+			return topParent(parent);
+		}
+		return parent;
+	}
+
+	private void removeFromParent(){
+		for(IdObject removedParent : childMap.keySet()){
+			for (IdObject affectedChild : childMap.get(removedParent)){
+				if (relink){
+					affectedChild.setParent(topParent(removedParent));
+				} else {
+					affectedChild.setParent(null);
+				}
+			}
+		}
+	}
+	private void addBackParent(){
+		for(IdObject removedParent : childMap.keySet()){
+			for (IdObject affectedChild : childMap.get(removedParent)){
+				affectedChild.setParent(removedParent);
+			}
+		}
 	}
 
 	@Override
 	public void undo() {
-		for (final IdObject object : objects) {
+		for (IdObject object : selectedObjects) {
 			model.getModel().add(object);
 		}
-		for (final Camera camera : deletedCameras) {
+		addBackParent();
+
+		for (Camera camera : selectedCameras) {
 			model.getModel().add(camera);
 		}
-		for (int i = meshLinkDeleteOps.size() - 1; i >= 0; i--) {
-			meshLinkDeleteOps.get(i).undo();
-		}
-		changeListener.nodesAdded(objects);
-		changeListener.camerasAdded(deletedCameras);
-		vertexSelectionHelper.selectVertices(selection);
+		meshLinkDelete.undo();
+
+		changeListener.nodesUpdated();
+		changeListener.camerasUpdated();
 	}
 
 	@Override
 	public void redo() {
-		for (final IdObject object : objects) {
+		for (IdObject object : selectedObjects) {
 			model.getModel().remove(object);
 		}
-		for (final Camera camera : deletedCameras) {
+		removeFromParent();
+		for (Camera camera : selectedCameras) {
 			model.getModel().remove(camera);
 		}
-		if (meshLinkDeleteOps == null) {
-			meshLinkDeleteOps = new ArrayList<>();
-			for (final Geoset geoset : model.getModel().getGeosets()) {
-				for (final GeosetVertex geosetVertex : geoset.getVertices()) {
-					for (int boneIndex = 0; boneIndex < geosetVertex.getBones().size(); boneIndex++) {
-						final Bone bone = geosetVertex.getBones().get(boneIndex);
-						if (quickHashSetRemovedObjects.contains(bone)) {
-							final GeosetVertexNodeDeleteOperation deleteOp = new GeosetVertexNodeDeleteOperation(
-									geosetVertex, bone, boneIndex);
-							meshLinkDeleteOps.add(deleteOp);
-							deleteOp.redo();
-							boneIndex--;
-						}
+
+		getMeshLinkDeleteAction().redo();
+
+		changeListener.nodesUpdated();
+		changeListener.camerasUpdated();
+	}
+
+	private UndoAction getMeshLinkDeleteAction() {
+		if(meshLinkDelete == null){
+			Set<GeosetVertex> affectedVerts = new HashSet<>();
+			Set<Bone> vertBones = new HashSet<>();
+			Map<Bone, Set<GeosetVertex>> boneVertMap = new HashMap<>();
+			for (Geoset geoset : model.getModel().getGeosets()) {
+				Map<Bone, List<GeosetVertex>> boneMap = geoset.getBoneMap();
+				for (Bone bone : boneMap.keySet()){
+					if(selectedObjects.contains(bone)){
+						boneVertMap.computeIfAbsent(bone, k -> new HashSet<>());
+						boneVertMap.get(bone).addAll(boneMap.get(bone));
+						affectedVerts.addAll(boneMap.get(bone));
+						vertBones.add(bone);
 					}
 				}
 			}
-		} else {
-			for (final GeosetVertexNodeDeleteOperation op : meshLinkDeleteOps) {
-				op.redo();
+			List<GeosetVertexNodeDeleteOperation> nodeDeleteOperations = new ArrayList<>();
+			for (GeosetVertex vertex : affectedVerts){
+				nodeDeleteOperations.add(new GeosetVertexNodeDeleteOperation(vertex, vertBones, relink, topParentMap));
 			}
+			meshLinkDelete = new CompoundAction("remove geoset attachments", nodeDeleteOperations);
 		}
-		changeListener.nodesRemoved(objects);
-		changeListener.camerasRemoved(deletedCameras);
-		vertexSelectionHelper.selectVertices(new ArrayList<>());
+		return meshLinkDelete;
 	}
 
 	@Override
@@ -87,23 +133,63 @@ public class DeleteNodesAction implements UndoAction {
 		return "delete nodes";
 	}
 
-	private static final class GeosetVertexNodeDeleteOperation {
+	private static class GeosetVertexNodeDeleteOperation implements UndoAction {
 		private final GeosetVertex vertex;
-		private final Bone object;
-		private final int bonesListIndex;
+		private final Map<Integer, Bone> integerBoneMap;
+		boolean relink;
+		Map<IdObject, IdObject> topParentMap;
 
-		public GeosetVertexNodeDeleteOperation(final GeosetVertex vertex, final Bone object, final int bonesListIndex) {
+
+		public GeosetVertexNodeDeleteOperation(GeosetVertex vertex, Set<Bone> bones, boolean relink, Map<IdObject, IdObject> topParentMap) {
 			this.vertex = vertex;
-			this.object = object;
-			this.bonesListIndex = bonesListIndex;
+			this.relink = relink;
+			this.topParentMap = topParentMap;
+
+			integerBoneMap = new TreeMap<>();
+			// ToDo SkinBones
+
+			List<Bone> vertexBones = vertex.getBones();
+			for (Bone bone : vertexBones){
+				if(bones.contains(bone)){
+					int key = vertexBones.indexOf(bone);
+					if(key != -1){
+						integerBoneMap.put(key, bone);
+					}
+				}
+			}
 		}
 
+		@Override
 		public void undo() {
-			vertex.getBoneAttachments().add(bonesListIndex, object);
+			for(Integer i : integerBoneMap.keySet()){
+				Bone oldBone = integerBoneMap.get(i);
+				if(relink){
+					IdObject replacedParent = topParentMap.get(oldBone);
+					if(replacedParent instanceof Bone){
+						vertex.getBones().remove(replacedParent);
+					}
+				}
+				vertex.getBones().add(i, oldBone);
+			}
 		}
 
+		@Override
 		public void redo() {
-			vertex.getBoneAttachments().remove(object);
+			if(relink){
+				for(Integer i : integerBoneMap.keySet()){
+					IdObject potParent = topParentMap.get(integerBoneMap.get(i));
+					if(potParent instanceof Bone && !(potParent instanceof Helper)){
+						vertex.getBones().remove(integerBoneMap.get(i));
+						vertex.getBones().add(i, (Bone) potParent);
+					}
+				}
+			}
+			vertex.getBones().removeAll(integerBoneMap.values());
+		}
+
+		@Override
+		public String actionName() {
+			return "remove vertex bone binding";
 		}
 	}
 }

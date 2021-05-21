@@ -4,8 +4,9 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.util.Vec2;
 
-public interface ViewportSelectionHandler {
-	UndoAction selectRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+public abstract class ViewportSelectionHandler {
 
-	boolean canSelectAt(Vec2 point, CoordinateSystem axes);
+	public abstract UndoAction selectRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+
+	public abstract boolean canSelectAt(Vec2 point, CoordinateSystem axes);
 }

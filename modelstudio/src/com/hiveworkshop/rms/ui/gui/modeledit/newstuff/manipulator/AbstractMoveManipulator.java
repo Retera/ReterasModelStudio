@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
@@ -10,11 +11,13 @@ import java.awt.event.MouseEvent;
 
 public abstract class AbstractMoveManipulator extends Manipulator {
 	protected final ModelEditor modelEditor;
+	protected final ModelView modelView;
 	protected final Vec3 moveVector;
 	private GenericMoveAction translationAction;
 	MoveDimension dir;
 
-	public AbstractMoveManipulator(ModelEditor modelEditor, MoveDimension dir) {
+	public AbstractMoveManipulator(ModelView modelView, ModelEditor modelEditor, MoveDimension dir) {
+		this.modelView = modelView;
 		this.modelEditor = modelEditor;
 		moveVector = new Vec3(0, 0, 0);
 		this.dir = dir;
@@ -22,7 +25,6 @@ public abstract class AbstractMoveManipulator extends Manipulator {
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
-//		super.onStart(e, mouseStart, dim1, dim2);
 		translationAction = modelEditor.beginTranslation();
 	}
 
@@ -30,7 +32,7 @@ public abstract class AbstractMoveManipulator extends Manipulator {
 	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		resetMoveVector();
 		buildMoveVector(mouseStart, mouseEnd, dim1, dim2);
-		translationAction.updateTranslation(moveVector.x, moveVector.y, moveVector.z);
+		translationAction.updateTranslation(moveVector);
 	}
 
 	@Override

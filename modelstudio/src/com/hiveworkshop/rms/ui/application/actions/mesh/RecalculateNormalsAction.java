@@ -20,7 +20,7 @@ public class RecalculateNormalsAction implements UndoAction {
 	double maxAngle;
 	boolean useTries;
 
-	public RecalculateNormalsAction(List<GeosetVertex> affectedVertices, double maxAngle, boolean useTries) {
+	public RecalculateNormalsAction(Collection<GeosetVertex> affectedVertices, double maxAngle, boolean useTries) {
 		this.affectedVertices = new ArrayList<>(affectedVertices);
 		this.oldNormals = new ArrayList<>();
 		this.newNormals = new ArrayList<>();

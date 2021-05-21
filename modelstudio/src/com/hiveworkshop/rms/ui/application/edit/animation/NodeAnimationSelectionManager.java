@@ -46,17 +46,13 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 
 	@Override
 	public void setSelection(final Collection<? extends IdObject> selectionItem) {
-//		selection.clear();
-//		selection.addAll(selectionItem);
 		modelView.setSelectedIdObjects((Collection<IdObject>) selectionItem);
 //		fireChangeListeners();
 	}
 
 	@Override
 	public void addSelection(final Collection<? extends IdObject> selectionItem) {
-//		selection.addAll(selectionItem);
 		modelView.addSelectedIdObjects((Collection<IdObject>) selectionItem);
-//		fireChangeListeners();
 	}
 
 	@Override
@@ -66,6 +62,11 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 			modelView.removeSelectedIdObjects((Collection<IdObject>) selectionItem);
 		}
 //		fireChangeListeners();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return modelView.getSelectedIdObjects().isEmpty();
 	}
 
 	@Override

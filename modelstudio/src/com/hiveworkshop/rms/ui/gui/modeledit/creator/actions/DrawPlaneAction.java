@@ -86,6 +86,12 @@ public class DrawPlaneAction implements GenericMoveAction {
 		scalePlaneToPoints(p1, p2);
 	}
 
+	@Override
+	public void updateTranslation(Vec3 delta) {
+		p2.translate(delta.x, delta.y);
+		scalePlaneToPoints(p1, p2);
+	}
+
 	public void scalePlaneToPoints(Vec2 p1, Vec2 p2) {
 		Vec2 min = new Vec2(p1).minimize(p2);
 		Vec2 max = new Vec2(p1).maximize(p2);

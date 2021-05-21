@@ -45,6 +45,46 @@ public final class VertexClusterSelectionManager extends SelectionManager<Vertex
 	}
 
 	@Override
+	public void setSelection(final Collection<? extends VertexGroupBundle> selectionItem) {
+		Set<GeosetVertex> ugg = new HashSet<>();
+		for (VertexGroupBundle bundle : selectionItem){
+			ugg.addAll(bundle.getGeoset().getVertices());
+		}
+		modelView.setSelectedVertices(ugg);
+		fireChangeListeners();
+	}
+
+	@Override
+	public void addSelection(final Collection<? extends VertexGroupBundle> selectionItem) {
+		Set<GeosetVertex> ugg = new HashSet<>();
+		for (VertexGroupBundle bundle : selectionItem){
+			ugg.addAll(bundle.getGeoset().getVertices());
+		}
+		modelView.addSelectedVertices(ugg);
+		fireChangeListeners();
+	}
+	@Override
+	public void removeSelection(final Collection<? extends VertexGroupBundle> selectionItem) {
+		Set<GeosetVertex> ugg = new HashSet<>();
+		for (VertexGroupBundle bundle : selectionItem){
+			ugg.addAll(bundle.getGeoset().getVertices());
+		}
+		modelView.removeSelectedVertices(ugg);
+		fireChangeListeners();
+	}
+
+	@Override
+	public Set<VertexGroupBundle> getSelection() {
+//		return modelView.getSelectedVertices();
+		return new HashSet<>();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return modelView.getSelectedVertices().isEmpty();
+	}
+
+	@Override
 	public Vec3 getCenter() {
 		return cachedVertexListManager.getCenter();
 	}

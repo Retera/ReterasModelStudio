@@ -1,0 +1,54 @@
+package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection;
+
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public final class InvertSelectionAction2 implements UndoAction {
+	private final Set<GeosetVertex> previousVerts;
+	private final Set<IdObject> previousIdObjects;
+	private final Set<Camera> previousCameras;
+	private final ModelView modelView;
+
+	public InvertSelectionAction2(ModelView modelView) {
+		this.modelView = modelView;
+		this.previousVerts = new HashSet<>(modelView.getSelectedVertices());
+		this.previousIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
+		this.previousCameras = new HashSet<>(modelView.getSelectedCameras());
+	}
+
+	@Override
+	public void undo() {
+		modelView.setSelectedVertices(previousVerts);
+		modelView.setSelectedIdObjects(previousIdObjects);
+		modelView.setSelectedCameras(previousCameras);
+	}
+
+	@Override
+	public void redo() {
+		modelView.invertVertSelection();
+		modelView.invertIdObjSelection();
+		modelView.invertCamSelection();
+	}
+
+//	@Override
+//	public void undo() {
+//		selectionManager.setSelection(previousSelection);
+//
+//	}
+//
+//	@Override
+//	public void redo() {
+//		selectionManager.setSelection(selection);
+//	}
+
+	@Override
+	public String actionName() {
+		return "invert selection";
+	}
+}

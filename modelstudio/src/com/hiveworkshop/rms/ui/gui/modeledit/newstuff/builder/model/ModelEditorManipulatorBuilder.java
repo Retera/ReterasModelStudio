@@ -33,24 +33,6 @@ public class ModelEditorManipulatorBuilder implements ManipulatorBuilder, ModelE
 	Widget widget;
 	ModelEditorActionType3 currentAction;
 
-	public ModelEditorManipulatorBuilder(ViewportSelectionHandler viewportSelectionHandler,
-	                                     ModelEditor modelEditor,
-	                                     ModelView modelView) {
-		this.viewportSelectionHandler = viewportSelectionHandler;
-		this.modelEditor = modelEditor;
-		this.modelView = modelView;
-		modelElementRenderer = new ModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
-	}
-
-	public ModelEditorManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
-		this.modelEditorManager = modelEditorManager;
-		this.modelHandler = modelHandler;
-		this.viewportSelectionHandler = modelEditorManager.getViewportSelectionHandler();
-		this.modelEditor = modelEditorManager.getModelEditor();
-		this.modelView = modelHandler.getModelView();
-		modelElementRenderer = new ModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
-	}
-
 	public ModelEditorManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler, ModelEditorActionType3 currentAction) {
 		this.modelEditorManager = modelEditorManager;
 		this.modelHandler = modelHandler;
@@ -126,7 +108,7 @@ public class ModelEditorManipulatorBuilder implements ManipulatorBuilder, ModelE
 	}
 
 	protected Manipulator createDefaultManipulator(Vec3 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView){
-		return getDefaultBuilder2(selectionView, currentAction);
+		return getBuilder2(selectionView, currentAction, MoveDimension.XYZ);
 	}
 
 
@@ -141,31 +123,25 @@ public class ModelEditorManipulatorBuilder implements ManipulatorBuilder, ModelE
 //	}
 	private Manipulator getBuilder2(SelectionView selectionView, ModelEditorActionType3 action, MoveDimension directionByMouse) {
 		return switch (action) {
-			case TRANSLATION -> new MoveManipulator(getModelEditor(), directionByMouse);
-			case ROTATION -> new RotateManipulator(getModelEditor(), selectionView, directionByMouse);
-			case SCALING -> new ScaleManipulator(getModelEditor(), selectionView, directionByMouse);
-			case EXTRUDE -> new ExtrudeManipulator(getModelEditor(), directionByMouse);
-			case EXTEND -> new ExtendManipulator(getModelEditor(), directionByMouse);
+			case TRANSLATION -> new MoveManipulator(modelView, getModelEditor(), directionByMouse);
+			case ROTATION -> new RotateManipulator(modelView, getModelEditor(), selectionView, directionByMouse);
+			case SCALING -> new ScaleManipulator(modelView, getModelEditor(), selectionView, directionByMouse);
+			case EXTRUDE -> new ExtrudeManipulator(modelView, getModelEditor(), directionByMouse);
+			case EXTEND -> new ExtendManipulator(modelView, getModelEditor(), directionByMouse);
+			case SQUAT -> new SquatToolManipulator(modelView, getModelEditor(), selectionView, directionByMouse);
 		};
 	}
-	private Manipulator getDefaultBuilder2(SelectionView selectionView, ModelEditorActionType3 action) {
-		return switch (action) {
-			case TRANSLATION -> new MoveManipulator(getModelEditor(), MoveDimension.XYZ);
-			case ROTATION -> new RotateManipulator(getModelEditor(), selectionView, MoveDimension.XYZ);
-			case SCALING -> new ScaleManipulator(getModelEditor(), selectionView, MoveDimension.XYZ);
-			case EXTRUDE -> new ExtrudeManipulator(getModelEditor(), MoveDimension.XYZ);
-			case EXTEND -> new ExtendManipulator(getModelEditor(), MoveDimension.XYZ);
-		};
-	}
+
 	private void createWidget(ModelEditorActionType3 action) {
 		if(action == null){
 			widget = new MoverWidget();
+		} else {
+			switch (action) {
+				case TRANSLATION, EXTRUDE, EXTEND -> widget = new MoverWidget();
+				case ROTATION, SQUAT -> widget = new RotatorWidget();
+				case SCALING -> widget = new ScalerWidget();
+			};
 		}
-		switch (action) {
-			case TRANSLATION, EXTRUDE, EXTEND -> widget = new MoverWidget();
-			case ROTATION -> widget = new RotatorWidget();
-			case SCALING -> widget = new ScalerWidget();
-		};
 	}
 
 	protected Manipulator createManipulatorFromWidget2(Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView, ModelEditorActionType3 action) {

@@ -8,8 +8,8 @@ public interface TimeSliderTimeListener {
 	final class TimeSliderTimeNotifier extends SubscriberSetNotifier<TimeSliderTimeListener>
 			implements TimeSliderTimeListener {
 		@Override
-		public void timeChanged(final int currentTime) {
-			for (final TimeSliderTimeListener listener : set) {
+		public void timeChanged(int currentTime) {
+			for (TimeSliderTimeListener listener : listenerSet) {
 				listener.timeChanged(currentTime);
 			}
 		}

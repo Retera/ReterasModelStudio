@@ -48,8 +48,7 @@ public class MultiPartSelectionView implements SelectionView {
 	}
 
 	@Override
-	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
-	                            ModelView modelView) {
+	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView modelView) {
 		for (SelectionView selectionView : selectionViews) {
 			selectionView.renderSelection(renderer, coordinateSystem, modelView);
 		}

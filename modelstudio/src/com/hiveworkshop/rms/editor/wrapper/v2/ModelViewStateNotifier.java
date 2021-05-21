@@ -8,85 +8,85 @@ import com.hiveworkshop.rms.util.SubscriberSetNotifier;
 public final class ModelViewStateNotifier extends SubscriberSetNotifier<ModelViewStateListener> implements ModelViewStateListener {
 
 	@Override
-	public void geosetEditable(final Geoset geoset) {
-		for (final ModelViewStateListener listener : set) {
+	public void geosetEditable(Geoset geoset) {
+		for (ModelViewStateListener listener : listenerSet) {
 			listener.geosetEditable(geoset);
 		}
 	}
 
 	@Override
-	public void geosetNotEditable(final Geoset geoset) {
-		for (final ModelViewStateListener listener : set) {
+	public void geosetNotEditable(Geoset geoset) {
+		for (ModelViewStateListener listener : listenerSet) {
 			listener.geosetNotEditable(geoset);
 		}
 	}
 
 	@Override
-	public void geosetVisible(final Geoset geoset) {
-		for (final ModelViewStateListener listener : set) {
+	public void geosetVisible(Geoset geoset) {
+		for (ModelViewStateListener listener : listenerSet) {
 			listener.geosetVisible(geoset);
 		}
 	}
 
 	@Override
-	public void geosetNotVisible(final Geoset geoset) {
-		for (final ModelViewStateListener listener : set) {
+	public void geosetNotVisible(Geoset geoset) {
+		for (ModelViewStateListener listener : listenerSet) {
 			listener.geosetNotVisible(geoset);
 		}
 	}
 
 	@Override
-	public void idObjectVisible(final IdObject bone) {
-		for (final ModelViewStateListener listener : set) {
+	public void idObjectVisible(IdObject bone) {
+		for (ModelViewStateListener listener : listenerSet) {
 			listener.idObjectVisible(bone);
 		}
 	}
 
 	@Override
-	public void idObjectNotVisible(final IdObject bone) {
-		for (final ModelViewStateListener listener : set) {
+	public void idObjectNotVisible(IdObject bone) {
+		for (ModelViewStateListener listener : listenerSet) {
 			listener.idObjectNotVisible(bone);
 		}
 	}
 
 	@Override
-	public void cameraVisible(final Camera camera) {
-		for (final ModelViewStateListener listener : set) {
+	public void cameraVisible(Camera camera) {
+		for (ModelViewStateListener listener : listenerSet) {
 			listener.cameraVisible(camera);
 		}
 	}
 
 	@Override
-	public void cameraNotVisible(final Camera camera) {
-		for (final ModelViewStateListener listener : set) {
+	public void cameraNotVisible(Camera camera) {
+		for (ModelViewStateListener listener : listenerSet) {
 			listener.cameraNotVisible(camera);
 		}
 	}
 
 	@Override
-	public void highlightGeoset(final Geoset geoset) {
-		for (final ModelViewStateListener listener : set) {
+	public void highlightGeoset(Geoset geoset) {
+		for (ModelViewStateListener listener : listenerSet) {
 			listener.highlightGeoset(geoset);
 		}
 	}
 
 	@Override
-	public void unhighlightGeoset(final Geoset geoset) {
-		for (final ModelViewStateListener listener : set) {
+	public void unhighlightGeoset(Geoset geoset) {
+		for (ModelViewStateListener listener : listenerSet) {
 			listener.unhighlightGeoset(geoset);
 		}
 	}
 
 	@Override
-	public void highlightNode(final IdObject node) {
-		for (final ModelViewStateListener listener : set) {
+	public void highlightNode(IdObject node) {
+		for (ModelViewStateListener listener : listenerSet) {
 			listener.highlightNode(node);
 		}
 	}
 
 	@Override
-	public void unhighlightNode(final IdObject node) {
-		for (final ModelViewStateListener listener : set) {
+	public void unhighlightNode(IdObject node) {
+		for (ModelViewStateListener listener : listenerSet) {
 			listener.unhighlightNode(node);
 		}
 	}

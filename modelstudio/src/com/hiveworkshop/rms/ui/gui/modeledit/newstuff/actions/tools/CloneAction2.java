@@ -4,36 +4,30 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
 public final class CloneAction2 implements UndoAction {
-	private ModelView modelView;
-	private ModelStructureChangeListener modelStructureChangeListener;
-	private VertexSelectionHelper vertexSelectionHelper;
-	private Set<GeosetVertex> newVertices = new HashSet<>();
-	private Set<Triangle> newTriangles = new HashSet<>();
-	private Set<IdObject> newBones = new HashSet<>();
-	private Set<Camera> newCameras = new HashSet<>();
-	private Set<GeosetVertex> selectedVertices = new HashSet<>();
-	private Set<IdObject> selectedIdObjects = new HashSet<>();
-	private Set<Camera> selectedCameras = new HashSet<>();
-	private Map<IdObject, IdObject> oldToNewObjMap = new HashMap<>();
-	private Map<GeosetVertex, GeosetVertex> oldToNewVertMap = new HashMap<>();
-
-	private Set<Vec3> newSelection;
+	private final ModelView modelView;
+	private final ModelStructureChangeListener modelStructureChangeListener;
+	private final Set<GeosetVertex> newVertices = new HashSet<>();
+	private final Set<Triangle> newTriangles = new HashSet<>();
+	private final Set<IdObject> newBones = new HashSet<>();
+	private final Set<Camera> newCameras = new HashSet<>();
+	private final Set<GeosetVertex> selectedVertices = new HashSet<>();
+	private final Set<IdObject> selectedIdObjects = new HashSet<>();
+	private final Set<Camera> selectedCameras = new HashSet<>();
+	private final Map<IdObject, IdObject> oldToNewObjMap = new HashMap<>();
+	private final Map<GeosetVertex, GeosetVertex> oldToNewVertMap = new HashMap<>();
 
 	public CloneAction2(ModelView modelView,
 	                    ModelStructureChangeListener modelStructureChangeListener,
-	                    VertexSelectionHelper vertexSelectionHelper,
 	                    Collection<? extends Vec3> vertices,
 	                    Collection<IdObject> idObjects,
 	                    Collection<Camera> cameras) {
 		this.modelView = modelView;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		this.vertexSelectionHelper = vertexSelectionHelper;
 
 		vertices.forEach(vert -> selectedVertices.add((GeosetVertex) vert));
 		selectedIdObjects.addAll(idObjects);
@@ -117,7 +111,7 @@ public final class CloneAction2 implements UndoAction {
 			modelView.getModel().remove(camera);
 		}
 //		vertexSelectionHelper.selectVertices(source);
-//		modelStructureChangeListener.nodesRemoved(newBones);
+		modelStructureChangeListener.nodesUpdated();
 	}
 
 	@Override
@@ -136,6 +130,7 @@ public final class CloneAction2 implements UndoAction {
 		}
 //		vertexSelectionHelper.selectVertices(newSelection);
 //		modelStructureChangeListener.nodesAdded(newBones);
+		modelStructureChangeListener.nodesUpdated();
 	}
 
 	@Override

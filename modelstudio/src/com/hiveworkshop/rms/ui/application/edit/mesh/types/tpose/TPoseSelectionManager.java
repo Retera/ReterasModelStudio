@@ -34,15 +34,12 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 
 	@Override
 	public void setSelection(final Collection<? extends IdObject> selectionItem) {
-//		selection.clear();
-//		selection.addAll(selectionItem);
 		modelView.setSelectedIdObjects((Collection<IdObject>) selectionItem);
 //		fireChangeListeners();
 	}
 
 	@Override
 	public void addSelection(final Collection<? extends IdObject> selectionItem) {
-//		selection.addAll(selectionItem);
 		modelView.addSelectedIdObjects((Collection<IdObject>) selectionItem);
 //		fireChangeListeners();
 	}
@@ -55,16 +52,21 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 		}
 //		fireChangeListeners();
 	}
+	@Override
+	public boolean isEmpty() {
+		return modelView.getSelectedIdObjects().isEmpty();
+	}
+
 
 
 	@Override
 	public Vec3 getCenter() {
 		Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
-		for (IdObject object : selection) {
+		for (IdObject object : modelView.getSelectedIdObjects()) {
 			centerOfGroupSumHeap.add(object.getPivotPoint());
 		}
-		if (selection.size() > 0) {
-			centerOfGroupSumHeap.scale(1f / selection.size());
+		if (modelView.getSelectedIdObjects().size() > 0) {
+			centerOfGroupSumHeap.scale(1f / modelView.getSelectedIdObjects().size());
 		}
 		return centerOfGroupSumHeap;
 	}
@@ -75,13 +77,13 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 		// so that downstream will know  to select those pivots, and therefore those IdObject nodes,
 		// for static editing (hence we do not apply worldMatrix)
 		Set<Vec3> vertices = new HashSet<>();
-		Set<IdObject> nodesToMove = new HashSet<>(selection);
+		Set<IdObject> nodesToMove = new HashSet<>(modelView.getEditableIdObjects());
 		if (moveLinked) {
 			for (IdObject object : modelView.getEditableIdObjects()) {
-				if (!selection.contains(object)) {
+				if (!modelView.isSelected(object)) {
 					IdObject parent = object.getParent();
 					while (parent != null) {
-						if (selection.contains(parent)) {
+						if (modelView.isSelected(parent)) {
 							nodesToMove.add(object);
 						}
 						parent = parent.getParent();
@@ -148,7 +150,7 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 	@Override
 	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
 		double radius = 0;
-		for (IdObject item : selection) {
+		for (IdObject item : modelView.getEditableIdObjects()) {
 			double distance = sphereCenter.distance(item.getPivotPoint());
 			if (distance >= radius) {
 				radius = distance;

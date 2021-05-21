@@ -10,7 +10,7 @@ public interface WarcraftDataSourceChangeListener {
 
 		@Override
 		public void dataSourcesChanged() {
-			for (final WarcraftDataSourceChangeListener listener : set) {
+			for (WarcraftDataSourceChangeListener listener : listenerSet) {
 				listener.dataSourcesChanged();
 			}
 		}

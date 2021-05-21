@@ -8,13 +8,11 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.util.Vec2;
 
-public final class TVertexViewportSelectionHandlerImpl implements ViewportSelectionHandler {
-//	private final ToolbarButtonGroup<SelectionMode> modeButtonGroup;
+public final class TVertexViewportSelectionHandlerImpl extends ViewportSelectionHandler {
 	private final ToolbarButtonGroup2<SelectionMode> modeButtonGroup;
 	private TVertexEditor selectingEventHandler;
 
-	public TVertexViewportSelectionHandlerImpl(ToolbarButtonGroup2<SelectionMode> modeButtonGroup,
-	                                           TVertexEditor selectingEventHandler) {
+	public TVertexViewportSelectionHandlerImpl(ToolbarButtonGroup2<SelectionMode> modeButtonGroup, TVertexEditor selectingEventHandler) {
 		this.modeButtonGroup = modeButtonGroup;
 		this.selectingEventHandler = selectingEventHandler;
 	}
@@ -25,7 +23,7 @@ public final class TVertexViewportSelectionHandlerImpl implements ViewportSelect
 
 	@Override
 	public UndoAction selectRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		if(modeButtonGroup.getActiveButtonType() == null){
+		if (modeButtonGroup.getActiveButtonType() == null){
 			return selectingEventHandler.setSelectedRegion(min, max, coordinateSystem);
 		}
 		return switch (modeButtonGroup.getActiveButtonType()) {

@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
@@ -353,7 +354,17 @@ public final class ModelView {
 		return editableCameras.contains(ob) && camerasVisible;
 	}
 
+	public Vec3 getSelectionCenter(){
+		Set<Vec3> selectedPoints = new HashSet<>();
+		selectedVertices.stream().filter(editableVertices::contains).forEach(selectedPoints::add);
+		selectedIdObjects.stream().filter(editableIdObjects::contains).forEach(o -> selectedPoints.add(o.getPivotPoint()));
+		selectedCameras.stream().filter(editableCameras::contains).forEach(c -> selectedPoints.add(c.getPosition()));
+
+		return Vec3.centerOfGroup(selectedPoints);
+	}
+
 	public Set<GeosetVertex> getSelectedVertices() {
+		// ToDo not editable stuff should not be in the selection (but maybe be added back once editable again)
 		return selectedVertices;
 	}
 

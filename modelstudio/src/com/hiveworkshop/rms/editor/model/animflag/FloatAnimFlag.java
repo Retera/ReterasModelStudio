@@ -237,7 +237,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		final MdlxFloatTimeline timeline = new MdlxFloatTimeline();
 		setVectorSize(values.get(0));
 
-		timeline.name = getWar3ID(container);
+		timeline.name = FlagUtils.getWar3ID(name, container);
 		timeline.interpolationType = interpolationType;
 		timeline.globalSequenceId = getGlobalSeqId();
 

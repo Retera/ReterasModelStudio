@@ -1,13 +1,13 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.actions;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DrawBoneAction implements UndoAction {
 	private final ModelView modelView;
@@ -27,13 +27,13 @@ public class DrawBoneAction implements UndoAction {
 	@Override
 	public void undo() {
 		modelView.getModel().remove(bone);
-		modelStructureChangeListener.nodesRemoved(boneAsList);
+		modelStructureChangeListener.nodesUpdated();
 	}
 
 	@Override
 	public void redo() {
 		modelView.getModel().add(bone);
-		modelStructureChangeListener.nodesAdded(boneAsList);
+		modelStructureChangeListener.nodesUpdated();
 	}
 
 	@Override

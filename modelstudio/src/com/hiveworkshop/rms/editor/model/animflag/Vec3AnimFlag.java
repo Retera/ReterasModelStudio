@@ -131,7 +131,7 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		final MdlxFloatArrayTimeline timeline = new MdlxFloatArrayTimeline(3);
 
 		setVectorSize(values.get(0));
-		timeline.name = getWar3ID(container);
+		timeline.name = FlagUtils.getWar3ID(name, container);
 		timeline.interpolationType = interpolationType;
 		timeline.globalSequenceId = getGlobalSeqId();
 

@@ -21,8 +21,8 @@ public class ExtendAction implements UndoAction {
 	Map<GeosetVertex, GeosetVertex> oldToNew = new HashMap<>();
 	Set<Pair<GeosetVertex, GeosetVertex>> edges;
 
-	public ExtendAction(Collection<? extends Vec3> selection, Vec3 moveVector) {
-		selection.forEach(vert -> affectedVertices.add((GeosetVertex) vert));
+	public ExtendAction(Collection<GeosetVertex> selection, Vec3 moveVector) {
+		affectedVertices.addAll(selection);
 		this.selection = new ArrayList<>(selection);
 
 		baseMovement = new MoveAction(this.selection, moveVector, VertexActionType.UNKNOWN);

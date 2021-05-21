@@ -7,7 +7,10 @@ import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.DoNothingActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorMultiManipulatorActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivityManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
@@ -26,7 +29,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import com.hiveworkshop.rms.ui.util.InfoPopup;
 import com.hiveworkshop.rms.util.Quat;
 
 import javax.swing.*;
@@ -45,6 +47,7 @@ public class ModelPanel {
 	private final ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeNotifier;
 	private final ModelEditorViewportActivityManager viewportActivityManager;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
+	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final ModelEditorManager modelEditorManager;
 	private UVPanel editUVPanel;
 	private final JScrollPane modelEditingTreePane;
@@ -76,6 +79,7 @@ public class ModelPanel {
 		selectionItemTypeNotifier = notifier;
 		this.icon = icon;
 		viewportActivityManager = new ModelEditorViewportActivityManager(new DoNothingActivity());
+		this.modelStructureChangeListener = modelStructureChangeListener;
 
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
@@ -144,24 +148,10 @@ public class ModelPanel {
 	}
 
 	public void changeActivity(ModelEditorActionType3 action) {
-		viewportActivityManager.setCurrentActivity(createActivity(modelEditorManager, modelHandler, parent, action));
+		ModelEditorManipulatorBuilder builder = new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action);
+		ModelEditorMultiManipulatorActivity manipulatorActivity = new ModelEditorMultiManipulatorActivity(builder, modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
+		viewportActivityManager.setCurrentActivity(manipulatorActivity);
 	}
-
-	public static ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler, MainPanel mainPanel, ModelEditorActionType3 action) {
-//		mainPanel.actionType = getActivityType(action);
-		return new ModelEditorMultiManipulatorActivity(new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action), modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
-	}
-
-//	private static ModelEditorActionType2 getActivityType(ModelEditorActionType3 action) {
-//		if(action == null){
-//			return ModelEditorActionType2.TRANSLATION;
-//		}
-//		return switch (action) {
-//			case TRANSLATION, EXTRUDE, EXTEND -> ModelEditorActionType2.TRANSLATION;
-//			case SCALING -> ModelEditorActionType2.SCALING;
-//			case ROTATION -> ModelEditorActionType2.ROTATION;
-//		};
-//	}
 
 	public ModelEditorManager getModelEditorManager() {
 		return modelEditorManager;
@@ -243,10 +233,6 @@ public class ModelPanel {
 		}
 	}
 
-	public void viewMatrices() {
-		InfoPopup.show(parent, modelEditorManager.getModelEditor().getSelectedMatricesDescription());
-	}
-
 	public EditableModel getModel() {
 		return modelHandler.getModel();
 	}
@@ -277,6 +263,10 @@ public class ModelPanel {
 
 	public JScrollPane getComponentBrowserTreePane() {
 		return componentBrowserTreePane;
+	}
+
+	public ModelStructureChangeListener getModelStructureChangeListener() {
+		return modelStructureChangeListener;
 	}
 
 	public void reloadComponentBrowser() {

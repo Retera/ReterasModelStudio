@@ -1,32 +1,29 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
-import com.hiveworkshop.rms.ui.application.actions.mesh.*;
-import com.hiveworkshop.rms.ui.application.actions.model.RecalculateExtentsAction;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawBoxAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawPlaneAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.NewGeosetAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.*;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.*;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.*;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.SimpleRotateAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.StaticMeshMoveAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.StaticMeshRotateAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.StaticMeshScaleAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.*;
+import java.util.Arrays;
 
 public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> {
-//    protected final ModelView modelView;
     protected final VertexSelectionHelper vertexSelectionHelper;
     protected final ModelStructureChangeListener structureChangeListener;
     protected ModelHandler modelHandler;
@@ -36,7 +33,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
                                ModelHandler modelHandler) {
         super(selectionManager, modelHandler.getModelView());
         this.modelHandler = modelHandler;
-//        this.modelView = modelHandler.getModelView();
         this.structureChangeListener = structureChangeListener;
         vertexSelectionHelper = this::selectByVertices;
     }
@@ -45,19 +41,11 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
         byte dim1 = coordinateSystem.getPortFirstXYZ();
         byte dim2 = coordinateSystem.getPortSecondXYZ();
 
-//        double minX = coordinateSystem.viewX(area.getMinX());
-//        double minY = coordinateSystem.viewY(area.getMinY());
-//        double maxX = coordinateSystem.viewX(area.getMaxX());
-//        double maxY = coordinateSystem.viewY(area.getMaxY());
         Vec2 minView = new Vec2(min).minimize(max);
         Vec2 maxView = new Vec2(max).maximize(min);
 
         Vec2 vertexV2 = vec3.getProjected(dim1, dim2);
 
-//        double vertexX = vec3.getCoord(dim1);
-//        double x = coordinateSystem.viewX(vertexX);
-//        double vertexY = vec3.getCoord(dim2);
-//        double y = coordinateSystem.viewY(vertexY);
 
         return (vertexV2.distance(min) <= (vertexSize / 2.0))
                 || (vertexV2.distance(max) <= (vertexSize / 2.0))
@@ -119,277 +107,36 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     }
 
     @Override
-    public UndoAction setMatrix(Collection<Bone> bones) {
-////        System.out.println("setMatrix");
-//        Matrix mx = new Matrix();
-//        mx.setBones(new ArrayList<>());
-//        for (Bone bone : bones) {
-//            mx.add(bone);
-//        }
-//        Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences = new HashMap<>();
-//        Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences = new HashMap<>();
-//        Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences = new HashMap<>();
-//        System.out.println("selected verts: " + selectionManager.getSelectedVertices().size());
-//        for (Vec3 vert : selectionManager.getSelectedVertices()) {
-//            if (vert instanceof GeosetVertex) {
-//                GeosetVertex gv = (GeosetVertex) vert;
-//                List<Bone> matrixBones = mx.getBones();
-//                if (gv.getSkinBoneBones() != null) {
-//                    vertexToOldSkinBoneReferences.put(gv, gv.getSkinBoneBones().clone());
-//                    vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights().clone());
-//                } else {
-//                    vertexToOldBoneReferences.put(gv, new ArrayList<>(gv.getBoneAttachments()));
-//                }
-//                gv.rigBones(matrixBones);
-//            }
-//        }
-//        return new SetMatrixAction(vertexToOldBoneReferences, vertexToOldSkinBoneReferences, vertexToOldSkinBoneWeightReferences, bones);
-//        SetMatrixAction2 matrixAction2 = new SetMatrixAction2(selectionManager.getSelectedVertices(), bones);
-        SetMatrixAction2 matrixAction2 = new SetMatrixAction2(modelView.getSelectedVertices(), bones);
-        matrixAction2.redo();
-        return matrixAction2;
-    }
-
-    @Override
-    public UndoAction setHDSkinning(Bone[] bones, short[] skinWeights) {
-////        System.out.println("setHDSkinning");
-//        Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences = new HashMap<>();
-//        Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences = new HashMap<>();
-//        Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences = new HashMap<>();
-////        System.out.println("sel Verts: "+ selectionManager.getSelectedVertices().size());
-//        for (Vec3 vert : selectionManager.getSelectedVertices()) {
-//            if (vert instanceof GeosetVertex) {
-//                GeosetVertex gv = (GeosetVertex) vert;
-//                if (gv.getSkinBoneBones() != null) {
-//                    vertexToOldSkinBoneReferences.put(gv, gv.getSkinBoneBones().clone());
-//                    vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights().clone());
-//                    for (int i = 0; i < bones.length; i++) {
-//                        gv.setSkinBone(bones[i], skinWeights[i], i);
-//                    }
-//                } else {
-//                    throw new IllegalStateException("Attempted to manipulate HD Skinning while SD mesh is selected!");
-//                }
-//            }
-//        }
-//        return new SetMatrixAction(vertexToOldBoneReferences, vertexToOldSkinBoneReferences, vertexToOldSkinBoneWeightReferences, Collections.emptyList());
-
-//        SetHdSkinAction hdSkinAction = new SetHdSkinAction(selectionManager.getSelectedVertices(), bones, skinWeights);
-        SetHdSkinAction hdSkinAction = new SetHdSkinAction(modelView.getSelectedVertices(), bones, skinWeights);
-        hdSkinAction.redo();
-        return hdSkinAction;
-    }
-
-    @Override
-    public UndoAction snapNormals() {
-//        SnapNormalsAction snapNormalsAction = new SnapNormalsAction(selectionManager.getSelectedVertices(), new Vec3(0, 0, 1));
-        SnapNormalsAction snapNormalsAction = new SnapNormalsAction(modelView.getSelectedVertices(), new Vec3(0, 0, 1));
-        snapNormalsAction.redo();// a handy way to do the snapping!
-        return snapNormalsAction;
-    }
-
-    @Override
-    public UndoAction recalcNormals(double maxAngle, boolean useTries) {
-        List<GeosetVertex> selectedVertices = new ArrayList<>();
-//        Collection<? extends Vec3> vertices = selectionManager.getSelectedVertices();
-        Collection<? extends Vec3> vertices = modelView.getSelectedVertices();
-        if (vertices.isEmpty()) {
-            modelView.getEditableGeosets().forEach(geoset -> selectedVertices.addAll(geoset.getVertices()));
-        } else {
-            vertices.forEach(vert -> selectedVertices.add((GeosetVertex) vert));
-        }
-
-        RecalculateNormalsAction temp = new RecalculateNormalsAction(selectedVertices, maxAngle, useTries);
-        temp.redo();
-        return temp;
-    }
-
-    @Override
-    public UndoAction recalcExtents(boolean onlyIncludeEditableGeosets) {
-        List<Geoset> geosetsToIncorporate = new ArrayList<>();
-        if (onlyIncludeEditableGeosets) {
-            geosetsToIncorporate.addAll(modelView.getEditableGeosets());
-        } else {
-            geosetsToIncorporate.addAll(modelHandler.getModel().getGeosets());
-        }
-        RecalculateExtentsAction recalculateExtentsAction = new RecalculateExtentsAction(modelView, geosetsToIncorporate);
-        recalculateExtentsAction.redo();
-        return recalculateExtentsAction;
-    }
-
-    @Override
-    public UndoAction deleteSelectedComponents() {
-        // TODO should probably be able to delete IdObjects
-        DeleteAction deleteAction = new DeleteAction(modelHandler.getModel(), modelView.getSelectedVertices(), structureChangeListener, vertexSelectionHelper);
-//        DeleteAction deleteAction = new DeleteAction(modelHandler.getModel(), selectionManager.getSelectedVertices(), structureChangeListener, vertexSelectionHelper);
-        deleteAction.redo();
-        return deleteAction;
-    }
-
-    @Override
-    public UndoAction mirror(byte dim, boolean flipModel, double centerX, double centerY, double centerZ) {
-//        MirrorModelAction mirror = new MirrorModelAction(selectionManager.getSelectedVertices(), modelView.getEditableIdObjects(), dim, centerX, centerY, centerZ);
-        MirrorModelAction mirror = new MirrorModelAction(modelView.getSelectedVertices(), modelView.getEditableIdObjects(), dim, centerX, centerY, centerZ);
-        // super weird passing of currently editable id Objects, works because mirror action
-        // checks selected vertices against pivot points from this list
-        mirror.redo();
-        if (flipModel) {
-            UndoAction flipFacesAction = flipSelectedFaces();
-            return new CompoundAction(mirror.actionName(), Arrays.asList(mirror, flipFacesAction));
-        }
-        return mirror;
-    }
-
-    @Override
-    public UndoAction flipSelectedFaces() {
-        // TODO implement using faces for FaceModelEditor... probably?
-//        FlipFacesAction flipFacesAction = new FlipFacesAction(selectionManager.getSelectedVertices());
-        FlipFacesAction flipFacesAction = new FlipFacesAction(modelView.getSelectedVertices());
-        flipFacesAction.redo();
-        return flipFacesAction;
-    }
-
-    @Override
-    public UndoAction flipSelectedNormals() {
-//        FlipNormalsAction flipNormalsAction = new FlipNormalsAction(selectionManager.getSelectedVertices());
-        FlipNormalsAction flipNormalsAction = new FlipNormalsAction(modelView.getSelectedVertices());
-        flipNormalsAction.redo();
-        return flipNormalsAction;
-    }
-
-    @Override
-    public UndoAction snapSelectedNormals() {
-//        SnapNormalsAction snapNormalsAction = new SnapNormalsAction(selectionManager.getSelectedVertices(), new Vec3(0, 0, 1));
-        SnapNormalsAction snapNormalsAction = new SnapNormalsAction(modelView.getSelectedVertices(), new Vec3(0, 0, 1));
-        snapNormalsAction.redo();// a handy way to do the snapping!
-        return snapNormalsAction;
-    }
-
-    @Override
-    public UndoAction beginExtrudingSelection() {
-//        ExtendAction extendAction = new ExtendAction(selectionManager.getSelectedVertices(), new Vec3(0, 0, 0));
-        ExtendAction extendAction = new ExtendAction(modelView.getSelectedVertices(), new Vec3(0, 0, 0));
-        extendAction.redo();
-        return extendAction;
-    }
-
-    @Override
-    public UndoAction beginExtendingSelection() {
-//        ExtrudeAction extendAction = new ExtrudeAction(selectionManager.getSelectedVertices(), new Vec3(0, 0, 0));
-        ExtrudeAction extendAction = new ExtrudeAction(modelView.getSelectedVertices(), new Vec3(0, 0, 0));
-        extendAction.redo();
-        return extendAction;
-    }
-
-    @Override
-    public UndoAction snapSelectedVertices() {
-//        Collection<? extends Vec3> selection = selectionManager.getSelectedVertices();
-//        List<Vec3> oldLocations = new ArrayList<>();
-//        Vec3 cog = Vec3.centerOfGroup(selection);
-//        for (Vec3 vertex : selection) {
-//            oldLocations.add(new Vec3(vertex));
-//        }
-//        SnapAction temp = new SnapAction(selection, oldLocations, cog);
-//        temp.redo();// a handy way to do the snapping!
-//        return temp;
-        SnapAction temp = new SnapAction(modelView.getSelectedVertices());
-        temp.redo();// a handy way to do the snapping!
-        return temp;
-    }
-
-    @Override
-    public UndoAction cloneSelectedComponents(ClonedNodeNamePicker clonedNodeNamePicker) {
-        CloneAction2 cloneAction = new CloneAction2(modelView, structureChangeListener, vertexSelectionHelper, modelView.getSelectedVertices(), modelView.getSelectedIdObjects(), modelView.getSelectedCameras());
-        cloneAction.redo();
-        return cloneAction;
-    }
-
-    @Override
-    public void rawTranslate(double x, double y, double z) {
-        for (Vec3 vertex : selectionManager.getSelectedVertices()) {
-            vertex.translate(x, y, z);
-        }
-    }
-
-    @Override
-    public void rawScale(double centerX, double centerY, double centerZ,
-                         double scaleX, double scaleY, double scaleZ) {
-        for (Vec3 vertex : selectionManager.getSelectedVertices()) {
-            vertex.scale(centerX, centerY, centerZ, scaleX, scaleY, scaleZ);
-        }
-    }
-
-    @Override
-    public void rawScale(Vec3 center, Vec3 scale) {
-        for (Vec3 vertex : selectionManager.getSelectedVertices()) {
-            vertex.scale(center, scale);
-        }
-    }
-
-    @Override
-    public void rawRotate2d(double centerX, double centerY, double centerZ, double radians,
-                            byte firstXYZ, byte secondXYZ) {
-        for (Vec3 vertex : selectionManager.getSelectedVertices()) {
-            vertex.rotate(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ);
-        }
-    }
-
-    @Override
-    public void rawRotate3d(Vec3 center, Vec3 axis, double radians) {
-        for (Vec3 vertex : selectionManager.getSelectedVertices()) {
-            Vec3.rotateVertex(center, axis, radians, vertex);
-        }
-    }
-
-    @Override
-    public UndoAction translate(double x, double y, double z) {
-        Vec3 delta = new Vec3(x, y, z);
-        StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
-        moveAction.redo();
-        return moveAction;
-    }
-
-    @Override
     public UndoAction translate(Vec3 v) {
         Vec3 delta = new Vec3(v);
-        StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
+        StaticMeshMoveAction moveAction = new StaticMeshMoveAction(modelView, delta);
         moveAction.redo();
         return moveAction;
     }
 
     @Override
-    public UndoAction setPosition(Vec3 center, double x, double y, double z) {
-        Vec3 delta = new Vec3(x - center.x, y - center.y, z - center.z);
-        StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
-        moveAction.redo();
-        return moveAction;
+    public UndoAction scale(Vec3 center, Vec3 scale) {
+        StaticMeshScaleAction scaleAction = new StaticMeshScaleAction(modelView, center);
+        scaleAction.updateScale(scale);
+        scaleAction.redo();
+        return scaleAction;
     }
 
     @Override
     public UndoAction setPosition(Vec3 center, Vec3 v) {
         Vec3 delta = Vec3.getDiff(v, center);
-        StaticMeshMoveAction moveAction = new StaticMeshMoveAction(this, delta);
+        StaticMeshMoveAction moveAction = new StaticMeshMoveAction(modelView, delta);
         moveAction.redo();
         return moveAction;
-    }
-
-    @Override
-    public UndoAction rotate(Vec3 center, double rotateX, double rotateY, double rotateZ) {
-
-        CompoundAction compoundAction = new CompoundAction("rotate", Arrays.asList(
-                new SimpleRotateAction(this, center, rotateX, (byte) 2, (byte) 1),
-                new SimpleRotateAction(this, center, rotateY, (byte) 0, (byte) 2),
-                new SimpleRotateAction(this, center, rotateZ, (byte) 1, (byte) 0)));
-        compoundAction.redo();
-        return compoundAction;
     }
 
     @Override
     public UndoAction rotate(Vec3 center, Vec3 rotate) {
 
         CompoundAction compoundAction = new CompoundAction("rotate", Arrays.asList(
-                new SimpleRotateAction(this, center, rotate.x, (byte) 2, (byte) 1),
-                new SimpleRotateAction(this, center, rotate.y, (byte) 0, (byte) 2),
-                new SimpleRotateAction(this, center, rotate.z, (byte) 1, (byte) 0)));
+                new SimpleRotateAction(modelView, center, rotate.x, (byte) 2, (byte) 1),
+                new SimpleRotateAction(modelView, center, rotate.y, (byte) 0, (byte) 2),
+                new SimpleRotateAction(modelView, center, rotate.z, (byte) 1, (byte) 0)));
         compoundAction.redo();
         return compoundAction;
     }
@@ -406,197 +153,21 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
 
     @Override
     public GenericMoveAction beginTranslation() {
-        return new StaticMeshMoveAction(this, Vec3.ORIGIN);
+        return new StaticMeshMoveAction(modelView, Vec3.ORIGIN);
     }
 
     @Override
-    public GenericRotateAction beginRotation(double centerX, double centerY, double centerZ,
-                                             byte dim1, byte dim2) {
-        return new StaticMeshRotateAction(this, new Vec3(centerX, centerY, centerZ), dim1, dim2);
+    public GenericRotateAction beginRotation(Vec3 center, byte dim1, byte dim2) {
+        return new StaticMeshRotateAction(modelView, new Vec3(center), dim1, dim2);
     }
 
     @Override
-    public GenericRotateAction beginSquatTool(double centerX, double centerY, double centerZ,
-                                              byte firstXYZ, byte secondXYZ) {
+    public GenericRotateAction beginSquatTool(Vec3 center, byte firstXYZ, byte secondXYZ) {
         throw new WrongModeException("Unable to use squat tool outside animation editor mode");
     }
 
     @Override
-    public GenericScaleAction beginScaling(double centerX, double centerY, double centerZ) {
-        return new StaticMeshScaleAction(this, centerX, centerY, centerZ);
-    }
-
-    @Override
     public GenericScaleAction beginScaling(Vec3 center) {
-        return new StaticMeshScaleAction(this, center);
-    }
-
-    @Override
-    public UndoAction createKeyframe(ModelEditorActionType3 actionType) {
-        throw new UnsupportedOperationException("Cannot create keyframe outside of animation mode");
-    }
-
-    @Override
-    public UndoAction addBone(double x, double y, double z) {
-        throw new WrongModeException("Unable to add bone outside of pivot point editor");
-    }
-
-    @Override
-    public GenericMoveAction addPlane(Vec2 p1, Vec2 p2, byte dim1, byte dim2, Vec3 facingVector,
-                                      int numberOfWidthSegments, int numberOfHeightSegments) {
-        Geoset solidWhiteGeoset = getSolidWhiteGeoset();
-
-        DrawPlaneAction drawVertexAction = new DrawPlaneAction(p1, p2, dim1, dim2, facingVector, numberOfWidthSegments, numberOfHeightSegments, solidWhiteGeoset);
-
-        GenericMoveAction action;
-        if (!modelView.getModel().contains(solidWhiteGeoset)) {
-            NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView.getModel(), structureChangeListener);
-            action = new CompoundMoveAction("Add Plane", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
-        } else {
-            action = drawVertexAction;
-        }
-        action.redo();
-        return action;
-    }
-
-    @Override
-    public GenericMoveAction addBox(Vec2 p1, Vec2 p2, byte dim1, byte dim2, Vec3 facingVector, int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments) {
-        Geoset solidWhiteGeoset = getSolidWhiteGeoset();
-
-        GenericMoveAction action;
-        DrawBoxAction drawVertexAction = new DrawBoxAction(p1, p2, dim1, dim2, facingVector, numberOfLengthSegments, numberOfWidthSegments, numberOfHeightSegments, solidWhiteGeoset);
-
-        if (!modelView.getModel().contains(solidWhiteGeoset)) {
-            NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView.getModel(), structureChangeListener);
-            action = new CompoundMoveAction("Add Box", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
-        } else {
-            action = drawVertexAction;
-        }
-        action.redo();
-        return action;
-    }
-
-    public Geoset getSolidWhiteGeoset() {
-        List<Geoset> geosets = modelView.getModel().getGeosets();
-        Geoset solidWhiteGeoset = null;
-        for (Geoset geoset : geosets) {
-            Layer firstLayer = geoset.getMaterial().firstLayer();
-            if ((geoset.getMaterial() != null) && (firstLayer != null)
-                    && (firstLayer.getFilterMode() == FilterMode.NONE)
-                    && "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
-                solidWhiteGeoset = geoset;
-            }
-        }
-
-        if (solidWhiteGeoset == null) {
-            solidWhiteGeoset = new Geoset();
-            solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
-        }
-        return solidWhiteGeoset;
-    }
-
-    @Override
-    public RigAction rig() {
-//        System.out.println("rig, sel vert: " + this.selectionManager.getSelectedVertices().size());
-//        return new RigAction(this.selectionManager.getSelectedVertices(), Collections.emptyList());
-        return new RigAction(modelView.getSelectedVertices(), Collections.emptyList());
-    }
-
-    @Override
-    public String getSelectedMatricesDescription() {
-        List<Bone> boneRefs = new ArrayList<>();
-//        for (Vec3 ver : selectionManager.getSelectedVertices()) {
-        for (Vec3 ver : modelView.getSelectedVertices()) {
-            if (ver instanceof GeosetVertex) {
-                GeosetVertex gv = (GeosetVertex) ver;
-                for (Bone b : gv.getBones()) {
-                    if (!boneRefs.contains(b)) {
-                        boneRefs.add(b);
-                    }
-                }
-            }
-        }
-        StringBuilder boneList = new StringBuilder();
-        for (int i = 0; i < boneRefs.size(); i++) {
-            if (i == (boneRefs.size() - 2)) {
-                boneList.append(boneRefs.get(i).getName()).append(" and ");
-            } else if (i == (boneRefs.size() - 1)) {
-                boneList.append(boneRefs.get(i).getName());
-            } else {
-                boneList.append(boneRefs.get(i).getName()).append(", ");
-            }
-        }
-        if (boneRefs.size() == 0) {
-            boneList = new StringBuilder("Nothing was selected that was attached to any bones.");
-        }
-        return boneList.toString();
-    }
-
-    @Override
-    public String getSelectedHDSkinningDescription() {
-//        Collection<? extends Vec3> selectedVertices = selectionManager.getSelectedVertices();
-        Collection<? extends Vec3> selectedVertices = modelView.getSelectedVertices();
-        Map<String, GeosetVertex.SkinBone[]> skinBonesArrayMap = new TreeMap<>();
-
-        boolean selectionIsNotUniform = false;
-        for (Vec3 vertex : selectedVertices) {
-            if (vertex instanceof GeosetVertex) {
-                GeosetVertex gv = (GeosetVertex) vertex;
-                GeosetVertex.SkinBone[] skinBones = gv.getSkinBones(); //Arrays.equals(skinBones, gv.getSSkinBones())
-
-                String sbId = skinBonesId(skinBones);
-                if (!skinBonesArrayMap.containsKey(sbId)) {
-                    skinBonesArrayMap.put(sbId, skinBones);
-                }
-            }
-        }
-//        if (selectionIsNotUniform) {
-//            return "The skinning of the selection is not uniform. Please select only one vertex, or a group of vertices that are exactly sharing their animation skin bindings.";
-//        }
-
-        StringBuilder output = new StringBuilder();
-        String ugg = ":                            ";
-        for (GeosetVertex.SkinBone[] skinBones : skinBonesArrayMap.values()) {
-            for (int i = 0; i < 4; i++) {
-                if (skinBones == null) {
-                    output.append("null");
-                } else {
-                    String s;
-                    if (skinBones[i].getBone() == null) {
-                        s = "null";
-                    } else {
-                        s = skinBones[i].getBone().getName();
-                    }
-                    s = (s + ugg).substring(0, ugg.length());
-                    output.append(s);
-                    String w = "   " + skinBones[i].getWeight();
-                    w = w.substring(w.length() - 3);
-                    output.append(w);
-                    output.append(" ( ");
-                    String w2 = (Math.round(skinBones[i].getWeight() / .255) / 1000.0 + "000000").substring(0, 6);
-                    output.append(w2);
-                    output.append(" )\n");
-                }
-            }
-            output.append("\n");
-        }
-        return output.toString();
-    }
-
-    private String skinBonesId(GeosetVertex.SkinBone[] skinBones) {
-        // this creates an id-string from the memory addresses of the bones and the weights.
-        // keeping weights and bones separated lets us use the string to sort on common bones
-        // inverting the weight lets us sort highest weight first
-        if (skinBones != null) {
-            StringBuilder output = new StringBuilder();
-            StringBuilder output2 = new StringBuilder();
-            for (GeosetVertex.SkinBone skinBone : skinBones) {
-//                output.append(skinBone.getBone()).append(skinBone.getWeight());
-                output.append(skinBone.getBone());
-                output2.append(255 - skinBone.getWeight());
-            }
-            return output.toString() + output2.toString();
-        }
-        return "null";
+        return new StaticMeshScaleAction(modelView, center);
     }
 }

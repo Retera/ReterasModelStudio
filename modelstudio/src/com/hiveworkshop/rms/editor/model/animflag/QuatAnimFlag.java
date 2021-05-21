@@ -131,7 +131,7 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 
 		setVectorSize(values.get(0));
 
-		timeline.name = getWar3ID(container);
+		timeline.name = FlagUtils.getWar3ID(name, container);
 		timeline.interpolationType = interpolationType;
 		timeline.globalSequenceId = getGlobalSeqId();
 

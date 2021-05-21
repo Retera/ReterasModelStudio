@@ -26,7 +26,41 @@ public final class PivotPointSelectionManager extends SelectionManager<Vec3> {
 
 	@Override
 	public Vec3 getCenter() {
-		return Vec3.centerOfGroup(selection);
+		return Vec3.centerOfGroup(getVec3Set());
+	}
+
+	@Override
+	public Set<Vec3> getSelection() {
+		Set<Vec3> ugg = getVec3Set();
+		return ugg;
+	}
+
+	@Override
+	public void setSelection(final Collection<? extends Vec3> selectionItem) {
+		Set<Vec3> ugg = new HashSet<>();
+//		modelView.setSelectedIdObjects(ugg);
+		fireChangeListeners();
+	}
+
+	private Set<Vec3> getVec3Set() {
+		Set<Vec3> ugg = new HashSet<>();
+		modelView.getSelectedIdObjects().stream().forEach(idObject -> ugg.add(idObject.getPivotPoint()));
+		return ugg;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return modelView.getSelectedIdObjects().isEmpty();
+	}
+
+	@Override
+	public void addSelection(final Collection<? extends Vec3> selectionItem) {
+		fireChangeListeners();
+	}
+
+	@Override
+	public void removeSelection(final Collection<? extends Vec3> selectionItem) {
+		fireChangeListeners();
 	}
 
 	@Override
