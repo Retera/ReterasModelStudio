@@ -90,7 +90,7 @@ public final class EditAnimationLengthsAction implements UndoAction {
 			final int newLength = newGlobalSeqLengths[myAnimationsIndex];
 
 			for (final AnimFlag<?> flag : mdl.getAllAnimFlags()) {
-				if (flag.hasGlobalSeq() && flag.getGlobalSeq().equals(myAnimation)) {
+				if (flag.hasGlobalSeq() && flag.getGlobalSeqLength().equals(myAnimation)) {
 					flag.timeScale(0, myAnimation, 0, newLength);
 					flag.setGlobSeq(newLength);
 				}

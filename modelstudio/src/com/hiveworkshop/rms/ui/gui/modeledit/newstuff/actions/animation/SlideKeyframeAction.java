@@ -11,8 +11,7 @@ public class SlideKeyframeAction implements UndoAction {
 	private final List<AnimFlag<?>> timelines;
 	private final Runnable keyframeChangeCallback;
 
-	public SlideKeyframeAction(final int startTrackTime, final int endTrackTime, final List<AnimFlag<?>> timelines,
-	                           final Runnable keyframeChangeCallback) {
+	public SlideKeyframeAction(int startTrackTime, int endTrackTime, List<AnimFlag<?>> timelines, Runnable keyframeChangeCallback) {
 		this.startTrackTime = startTrackTime;
 		this.endTrackTime = endTrackTime;
 		this.timelines = timelines;

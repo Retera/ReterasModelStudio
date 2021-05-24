@@ -5,47 +5,35 @@ import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
-public class ChangeInterpTypeAction implements UndoAction {
+public class ChangeInterpTypeAction<T> implements UndoAction {
 	private final ModelStructureChangeListener structureChangeListener;
-	private final AnimFlag<?> animFlag;
+	private final AnimFlag<T> animFlag;
 	InterpolationType newInterpType;
 	InterpolationType oldInterpType;
-	AnimFlag<?> oldAnimFlag;
+	AnimFlag<T> oldAnimFlag;
 
 
-	public ChangeInterpTypeAction(AnimFlag<?> animFlag, InterpolationType newInterpType, ModelStructureChangeListener structureChangeListener) {
+	public ChangeInterpTypeAction(AnimFlag<T> animFlag, InterpolationType newInterpType, ModelStructureChangeListener structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
 		this.animFlag = animFlag;
 		this.newInterpType = newInterpType;
 		oldInterpType = animFlag.getInterpolationType();
-		oldAnimFlag = AnimFlag.createFromAnimFlag(animFlag);
+		if (animFlag instanceof IntAnimFlag) {
+			oldAnimFlag = (AnimFlag<T>) new IntAnimFlag((IntAnimFlag) animFlag);
+		} else if (animFlag instanceof FloatAnimFlag) {
+			oldAnimFlag = (AnimFlag<T>) new FloatAnimFlag((FloatAnimFlag) animFlag);
+		} else if (animFlag instanceof Vec3AnimFlag) {
+			oldAnimFlag = (AnimFlag<T>) new Vec3AnimFlag((Vec3AnimFlag) animFlag);
+		} else if (animFlag instanceof QuatAnimFlag) {
+			oldAnimFlag = (AnimFlag<T>) new QuatAnimFlag((QuatAnimFlag) animFlag);
+		}
 	}
 
 	@Override
 	public void undo() {
 		animFlag.setInterpType(oldInterpType);
-		if (oldAnimFlag.getInterpolationType().tangential()) {
-			if (oldAnimFlag instanceof IntAnimFlag && animFlag instanceof IntAnimFlag) {
-				((IntAnimFlag) animFlag)
-						.setInTans(((IntAnimFlag) oldAnimFlag).getInTans())
-						.setOutTans(((IntAnimFlag) oldAnimFlag).getOutTans());
-			}
-			if (oldAnimFlag instanceof FloatAnimFlag && animFlag instanceof FloatAnimFlag) {
-				((FloatAnimFlag) animFlag)
-						.setInTans(((FloatAnimFlag) oldAnimFlag).getInTans())
-						.setOutTans(((FloatAnimFlag) oldAnimFlag).getOutTans());
-			}
-			if (oldAnimFlag instanceof Vec3AnimFlag && animFlag instanceof Vec3AnimFlag) {
-				((Vec3AnimFlag) animFlag)
-						.setInTans(((Vec3AnimFlag) oldAnimFlag).getInTans())
-						.setOutTans(((Vec3AnimFlag) oldAnimFlag).getOutTans());
-			}
-			if (oldAnimFlag instanceof QuatAnimFlag && animFlag instanceof QuatAnimFlag) {
-				((QuatAnimFlag) animFlag)
-						.setInTans(((QuatAnimFlag) oldAnimFlag).getInTans())
-						.setOutTans(((QuatAnimFlag) oldAnimFlag).getOutTans());
-			}
-		}
+		animFlag.setEntryMap(oldAnimFlag.getEntryMap());
+		animFlag.setFromOther(oldAnimFlag);
 		structureChangeListener.materialsListChanged();
 	}
 

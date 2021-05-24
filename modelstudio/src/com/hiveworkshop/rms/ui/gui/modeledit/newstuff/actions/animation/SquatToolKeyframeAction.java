@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.Helper;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
@@ -96,16 +97,12 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		if (rotationTimeline == null) {
 			return;
 		}
-		int floorIndex = rotationTimeline.floorIndex(trackTime);
-
-		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex).equals(trackTime))) {
-			// we must change it
-			rotationTimeline.getValues().get(floorIndex).mul(localRotation);
-
+		if (rotationTimeline.hasEntryAt(trackTime)) {
+			Entry<Quat> entry = rotationTimeline.getEntryAt(trackTime);
+			entry.getValue().mul(localRotation);
 			if (rotationTimeline.tans()) {
-				rotationTimeline.getInTans().get(floorIndex).mul(localRotation);
-				rotationTimeline.getOutTans().get(floorIndex).mul(localRotation);
-
+				entry.getInTan().mul(localRotation);
+				entry.getOutTan().mul(localRotation);
 			}
 		}
 	}
@@ -119,17 +116,13 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		if (rotationTimeline == null) {
 			return;
 		}
-		int floorIndex = rotationTimeline.floorIndex(trackTime);
-
-		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex).equals(trackTime))) {
-			// we must change it
-			rotationTimeline.getValues().get(floorIndex).mulLeft(localRotation.getInverted());
-
+		if (rotationTimeline.hasEntryAt(trackTime)) {
+			Entry<Quat> entry = rotationTimeline.getEntryAt(trackTime);
+			entry.getValue().mulLeft(localRotation);
 			if (rotationTimeline.tans()) {
-				rotationTimeline.getInTans().get(floorIndex).mulLeft(localRotation.getInverted());
-				rotationTimeline.getOutTans().get(floorIndex).mulLeft(localRotation.getInverted());
+				entry.getInTan().mulLeft(localRotation);
+				entry.getOutTan().mulLeft(localRotation);
 			}
-
 		}
 	}
 
@@ -154,7 +147,6 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		if (globalSeq != null) {
 			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
 		}
-		int floorIndex = rotationTimeline.floorIndex(trackTime);
 		//final RenderNode renderNode = renderModel.getRenderNode(this);
 		byte unusedXYZ = CoordSysUtils.getUnusedXYZ(firstXYZ, secondXYZ);
 		AnimatedNode parent = null;// = getParent();
@@ -176,19 +168,18 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		rotationAxis.w = (float) radians;
 		Quat rotation = new Quat().setFromAxisAngle(rotationAxis);
 
-		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex).equals(trackTime))) {
-			// we must change it
-			rotationTimeline.getValues().get(floorIndex).mulLeft(rotation);
 
-//			Quat oldTranslationValue = Quat.getProd(rotation, rotationTimeline.getValues().get(floorIndex));
+		if (rotationTimeline.hasEntryAt(trackTime)) {
+			Entry<Quat> entry = rotationTimeline.getEntryAt(trackTime);
+			entry.getValue().mulLeft(rotation);
 
 			if (savedLocalRotation != null) {
 				savedLocalRotation.mul(rotation);
 			}
 
 			if (rotationTimeline.tans()) {
-				rotationTimeline.getInTans().get(floorIndex).mul(rotation);
-				rotationTimeline.getOutTans().get(floorIndex).mul(rotation);
+				entry.getInTan().mul(rotation);
+				entry.getOutTan().mul(rotation);
 			}
 		}
 	}

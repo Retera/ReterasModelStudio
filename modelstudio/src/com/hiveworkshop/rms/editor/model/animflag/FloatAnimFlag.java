@@ -1,15 +1,12 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
-import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatTimeline;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.MathUtils;
 
 import javax.swing.*;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
@@ -22,6 +19,8 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 
 	public FloatAnimFlag(final MdlxFloatTimeline timeline) {
 		super(timeline);
+
+//		System.out.println(Arrays.deepToString(timeline.values));
 
 		final long[] frames = timeline.frames;
 		final Object[] values = timeline.values;
@@ -81,149 +80,45 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		return mostVisible;
 	}
 
-	@Override
-	public void setValuesTo2(final AnimFlag<Float> af) {
-		this.setValuesTo(af);
-	}
-
 	public void setValuesTo(final FloatAnimFlag af) {
 		name = af.name;
-		globalSeq = af.globalSeq;
+		globalSeqLength = af.globalSeqLength;
 		globalSeqId = af.globalSeqId;
 		hasGlobalSeq = af.hasGlobalSeq;
 		interpolationType = af.interpolationType;
 		typeid = af.typeid;
-		times = new ArrayList<>(af.times);
-		values = deepCopy(af.values);
-		inTans = deepCopy(af.inTans);
-		outTans = deepCopy(af.outTans);
+
+		for (Integer time : af.getEntryMap().keySet()) {
+			entryMap.put(time, new Entry<>(af.getEntryMap().get(time)));
+		}
 	}
 
-	public Float interpolateAt(final TimeEnvironmentImpl animatedRenderEnvironment) {
-//		System.out.println(name + ", interpolateAt");
-		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
-//			System.out.println("~~ animatedRenderEnvironment == null");
-			if (values.size() > 0) {
-				return values.get(0);
-			}
-			return (Float) identity(typeid);
+	@Override
+	protected Float getIdentity(int typeId) {
+		if ((typeId == ROTATION) && !entryMap.isEmpty() && entryMap.firstEntry().getValue().getValue() != null) {
+			return (float) identity(ALPHA); // magic Camera rotation!
 		}
-		int localTypeId = typeid;
-//		System.out.println("typeId 1: " + typeid);
-		if ((localTypeId == ROTATION) && (size() > 0) && (values.get(0) != null)) {
-			localTypeId = ALPHA; // magic Camera rotation!
-		}
-		if (times.isEmpty()) {
-//			System.out.println(name + ", ~~ no times");
-			return (Float) identity(localTypeId);
-		}
-		// TODO ghostwolf says to stop using binary search, because linear walking is faster for the small MDL case
-		final int time;
-		int ceilIndex;
-		final int floorIndex;
-		Float floorOutTan;
-		Float floorValue;
-		Float ceilValue;
-		Integer floorIndexTime;
-		Integer ceilIndexTime;
-		final float timeBetweenFrames;
-		if (hasGlobalSeq() && (getGlobalSeq() >= 0)) {
-//			System.out.println(name + ", ~~ hasGlobalSeq");
-			time = animatedRenderEnvironment.getGlobalSeqTime(getGlobalSeq());
-			final int floorAnimStartIndex = Math.max(0, floorIndex(1));
-			floorIndex = Math.max(0, floorIndex(time));
-			ceilIndex = Math.max(floorIndex, ceilIndex(time));
+		return (float) identity(typeId);
+	}
 
-			floorValue = values.get(floorIndex);
-			floorOutTan = tans() ? outTans.get(floorIndex) : null;
-			ceilValue = values.get(ceilIndex);
-			floorIndexTime = times.get(floorIndex);
-			ceilIndexTime = times.get(ceilIndex);
-			timeBetweenFrames = ceilIndexTime - floorIndexTime;
-			if (ceilIndexTime < 0) {
-				return (Float) identity(localTypeId);
+	@Override
+	protected Float getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
+		Float floorValue = entryMap.get(floorTime).getValue();
+		Float floorOutTan = entryMap.get(floorTime).getOutTan();
+
+		Float ceilValue = entryMap.get(ceilTime).getValue();
+		Float ceilInTan = entryMap.get(ceilTime).getInTan();
+
+		switch (typeid) {
+//			case TRANSLATION, SCALING, COLOR -> {
+			case ALPHA -> {
+				return switch (interpolationType) {
+					case BEZIER -> MathUtils.bezier(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
+					case DONT_INTERP -> floorValue;
+					case HERMITE -> MathUtils.hermite(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
+					case LINEAR -> MathUtils.lerp(floorValue, ceilValue, timeFactor);
+				};
 			}
-			if (floorIndexTime > getGlobalSeq()) {
-				if (values.size() > 0) {
-					// out of range global sequences end up just using the higher value keyframe
-					return values.get(floorIndex);
-				}
-				return (Float) identity(localTypeId);
-			}
-			if ((floorIndexTime < 0) && (ceilIndexTime > getGlobalSeq())) {
-				return (Float) identity(localTypeId);
-			} else if (floorIndexTime < 0) {
-				floorValue = (Float) identity(localTypeId);
-				floorOutTan = (Float) identity(localTypeId);
-			} else if (ceilIndexTime > getGlobalSeq()) {
-				ceilValue = values.get(floorAnimStartIndex);
-				ceilIndex = floorAnimStartIndex;
-			}
-		} else {
-//			System.out.println(name + ", ~~ no global seq");
-			final TimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
-			int animationStart = animation.getStart();
-			time = animatedRenderEnvironment.getAnimationTime();
-			final int floorAnimStartIndex = Math.max(0, floorIndex(animationStart + 1));
-			int animationEnd = animation.getEnd();
-			final int floorAnimEndIndex = Math.max(0, floorIndex(animationEnd));
-			floorIndex = floorIndex(time);
-			ceilIndex = Math.max(floorIndex, ceilIndex(time));
-			ceilIndexTime = times.get(ceilIndex);
-
-
-			final int lookupFloorIndex = Math.max(0, floorIndex);
-			floorIndexTime = times.get(lookupFloorIndex);
-
-			if (ceilIndexTime < animationStart || floorIndexTime > animationEnd || (floorIndexTime < animationStart && ceilIndexTime > animationEnd)) {
-//				System.out.println(name + ", ~~~~ identity(localTypeId)1 " + localTypeId + " id: " + identity(localTypeId));
-				return (Float) identity(localTypeId);
-			}
-
-			ceilValue = values.get(ceilIndex);
-			floorValue = values.get(lookupFloorIndex);
-			floorOutTan = tans() ? outTans.get(lookupFloorIndex) : null;
-
-			if ((floorIndex == -1) || (floorIndexTime < animationStart)) {
-				floorValue = values.get(floorAnimEndIndex);
-				floorIndexTime = times.get(floorAnimStartIndex);
-				if (tans()) {
-					floorOutTan = inTans.get(floorAnimEndIndex);
-//					floorIndexTime = times.get(floorAnimEndIndex);
-				}
-				timeBetweenFrames = times.get(floorAnimEndIndex) - animationStart;
-			} else if ((ceilIndexTime > animationEnd)
-					|| ((ceilIndexTime < time) && (times.get(floorAnimEndIndex) < time))) {
-				if (times.get(floorAnimStartIndex) == animationStart) {
-					ceilValue = values.get(floorAnimStartIndex);
-					ceilIndex = floorAnimStartIndex;
-					ceilIndexTime = animationEnd;
-					timeBetweenFrames = ceilIndexTime - floorIndexTime;
-				} else {
-					ceilIndex = ceilIndex(animationStart);
-					ceilValue = values.get(ceilIndex);
-					timeBetweenFrames = animationEnd - animationStart;
-				}
-				// NOTE: we just let it be in this case, based on Water Elemental's birth
-			} else {
-				timeBetweenFrames = ceilIndexTime - floorIndexTime;
-			}
-		}
-		if (floorIndex == ceilIndex) {
-			return floorValue;
-		}
-//		System.out.println(name + ", ~~ Something");
-
-		final Integer floorTime = floorIndexTime;
-		final float timeFactor = (time - floorTime) / timeBetweenFrames;
-
-		if (localTypeId == ALPHA) {
-			return switch (interpolationType) {
-				case BEZIER -> MathUtils.bezier(floorValue, floorOutTan, inTans.get(ceilIndex), ceilValue, timeFactor);
-				case DONT_INTERP -> floorValue;
-				case HERMITE -> MathUtils.hermite(floorValue, floorOutTan, inTans.get(ceilIndex), ceilValue, timeFactor);
-				case LINEAR -> MathUtils.lerp(floorValue, ceilValue, timeFactor);
-			};
 		}
 		throw new IllegalStateException();
 	}
@@ -235,36 +130,33 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 
 	public MdlxFloatTimeline toMdlx(final TimelineContainer container) {
 		final MdlxFloatTimeline timeline = new MdlxFloatTimeline();
-		setVectorSize(values.get(0));
+		if (!entryMap.isEmpty()) {
+			setVectorSize(entryMap.firstEntry().getValue().getValue());
+		}
 
 		timeline.name = FlagUtils.getWar3ID(name, container);
 		timeline.interpolationType = interpolationType;
 		timeline.globalSequenceId = getGlobalSeqId();
 
-		final List<Integer> times = getTimes();
-		final List<Float> values = getValues();
-		final List<Float> inTans = getInTans();
-		final List<Float> outTans = getOutTans();
-
-		final long[] tempFrames = new long[times.size()];
-		final float[][] tempValues = new float[times.size()][];
-		final float[][] tempInTans = new float[times.size()][];
-		final float[][] tempOutTans = new float[times.size()][];
+		long[] tempFrames = new long[entryMap.size()];
+		float[][] tempValues = new float[entryMap.size()][];
+		float[][] tempInTans = new float[entryMap.size()][];
+		float[][] tempOutTans = new float[entryMap.size()][];
 
 		final boolean hasTangents = timeline.interpolationType.tangential();
 
-		for (int i = 0, l = times.size(); i < l; i++) {
-			final Float value = values.get(i);
+		for (int i = 0, l = entryMap.size(); i < l; i++) {
+			Float value = getValueFromIndex(i);
 
-			tempFrames[i] = times.get(i).longValue();
+			tempFrames[i] = getTimeFromIndex(i);
 
 			if (isFloat) {
 				if (vectorSize == 1) {
 					tempValues[i] = new float[] {value};
 
 					if (hasTangents) {
-						tempInTans[i] = new float[] {inTans.get(i)};
-						tempOutTans[i] = new float[] {outTans.get(i)};
+						tempInTans[i] = new float[] {getInTanFromIndex(i)};
+						tempOutTans[i] = new float[] {getOutTanFromIndex(i)};
 					} else {
 						tempInTans[i] = new float[] {0};
 						tempOutTans[i] = new float[] {0};
@@ -281,28 +173,29 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		return timeline;
 	}
 
+	//ToDo should probably stay in use...
 	public FloatAnimFlag getMostVisible(final FloatAnimFlag partner) {
-		if (partner != null) {
-			if ((typeid == 0) && (partner.typeid == 0)) {
-				final List<Integer> selfTimes = new ArrayList<>(times);
-				final List<Integer> partnerTimes = new ArrayList<>(partner.times);
-				final List<Float> selfValues = new ArrayList<>(values);
-				final List<Float> partnerValues = new ArrayList<>(partner.values);
-
-				FloatAnimFlag mostVisible = null;
-				mostVisible = getMostVissibleAnimFlag(selfTimes, partnerTimes, selfValues, partnerValues, mostVisible, partner, this);
-				if (mostVisible == null) return null;
-
-				mostVisible = getMostVissibleAnimFlag(partnerTimes, selfTimes, partnerValues, selfValues, mostVisible, this, partner);
-				if (mostVisible == null) return null;
-
-				// partner has priority!
-				return mostVisible;
-			} else {
-				JOptionPane.showMessageDialog(null,
-						"Error: Program attempted to compare visibility with non-visibility animation component.\nThis... probably means something is horribly wrong. Save your work, if you can.");
-			}
-		}
+//		if (partner != null) {
+//			if ((typeid == 0) && (partner.typeid == 0)) {
+//				final List<Integer> selfTimes = new ArrayList<>(times);
+//				final List<Integer> partnerTimes = new ArrayList<>(partner.times);
+//				final List<Float> selfValues = new ArrayList<>(values);
+//				final List<Float> partnerValues = new ArrayList<>(partner.values);
+//
+//				FloatAnimFlag mostVisible = null;
+//				mostVisible = getMostVissibleAnimFlag(selfTimes, partnerTimes, selfValues, partnerValues, mostVisible, partner, this);
+//				if (mostVisible == null) return null;
+//
+//				mostVisible = getMostVissibleAnimFlag(partnerTimes, selfTimes, partnerValues, selfValues, mostVisible, this, partner);
+//				if (mostVisible == null) return null;
+//
+//				// partner has priority!
+//				return mostVisible;
+//			} else {
+//				JOptionPane.showMessageDialog(null,
+//						"Error: Program attempted to compare visibility with non-visibility animation component.\nThis... probably means something is horribly wrong. Save your work, if you can.");
+//			}
+//		}
 		return null;
 	}
 
@@ -337,44 +230,30 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 	 */
 	public void copyFrom(final FloatAnimFlag source, final int sourceStart, final int sourceEnd, final int newStart, final int newEnd) {
 		// Timescales a part of the AnimFlag from the source into the new time "newStart" to "newEnd"
-		boolean tans = source.tans();
-		if (tans && interpolationType == InterpolationType.LINEAR) {
-			final int x = JOptionPane.showConfirmDialog(null,
-					"ERROR! A source was found to have Linear and Nonlinear motion simultaneously. Does the following have non-zero data? " + source.inTans,
-					"Help This Program!", JOptionPane.YES_NO_OPTION);
-			if (x == JOptionPane.NO_OPTION) {
-				tans = false;
-			}
+		if (tans() && !source.tans()) {
+			JOptionPane.showMessageDialog(null,
+					"Some animations will lose complexity due to transfer incombatibility. There will probably be no visible change.");
+			linearize();
+			// Probably makes this flag linear, but certainly makes it more like the copy source
 		}
-		for (final Integer time : source.times) {
-			if ((time >= sourceStart) && (time <= sourceEnd)) {
-				final int index = source.times.indexOf(time);
-				// If this "time" is a part of the anim being rescaled
-				final double ratio = (double) (time - sourceStart) / (double) (sourceEnd - sourceStart);
-				times.add((int) (newStart + (ratio * (newEnd - newStart))));
-				values.add(source.values.get(index));
-				if (tans) {
-					inTans.add(source.inTans.get(index));
-					outTans.add(source.outTans.get(index));
-				}
-			}
+
+		TreeMap<Integer, Entry<Float>> scaledMap = new TreeMap<>();
+		for (int time = source.getEntryMap().ceilingKey(sourceStart); time <= source.getEntryMap().floorKey(sourceEnd); time = source.getEntryMap().higherKey(time)) {
+			double ratio = (double) (time - sourceStart) / (double) (sourceEnd - sourceStart);
+			int newTime = (int) (newStart + (ratio * (newEnd - newStart)));
+			scaledMap.put(newTime, new Entry<>(source.getEntryMap().get(time)).setTime(newTime));
 		}
-		sort();
 	}
 
 	public void copyFrom(final FloatAnimFlag source) {
-		times.addAll(source.times);
-		values.addAll(source.values);
-		if (source.tans() && tans()) {
-			inTans.addAll(source.inTans);
-			outTans.addAll(source.outTans);
-		} else if (tans()) {
+		if (tans() && !source.tans()) {
 			JOptionPane.showMessageDialog(null,
 					"Some animations will lose complexity due to transfer incombatibility. There will probably be no visible change.");
-			inTans.clear();
-			outTans.clear();
-			interpolationType = InterpolationType.LINEAR;
+			linearize();
 			// Probably makes this flag linear, but certainly makes it more like the copy source
+		}
+		for (Integer time : source.getEntryMap().keySet()) {
+			entryMap.put(time, new Entry<>(source.getEntryMap().get(time)));
 		}
 	}
 }

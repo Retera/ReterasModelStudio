@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.mesh.RecalculateNormalsAction;
 import com.hiveworkshop.rms.ui.application.actions.mesh.SnapAction;
@@ -16,9 +17,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelec
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.util.InfoPopup;
-import com.hiveworkshop.rms.util.SmartButtonGroup;
-import com.hiveworkshop.rms.util.Vec2;
-import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.*;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -393,15 +392,84 @@ public class ModelEditActions {
         }
     }
 
-    public static void simplifyKeyframes(MainPanel mainPanel) {
-        final int x = JOptionPane.showConfirmDialog(mainPanel,
-                "This is an irreversible process that will lose some of your model data," +
-                        "\nin exchange for making it a smaller storage size." +
-                        "\n\nContinue and simplify keyframes?",
-                "Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
-        if (x == JOptionPane.OK_OPTION) {
-            final EditableModel currentMDL = mainPanel.currentMDL();
-            currentMDL.simplifyKeyframes();
-        }
-    }
+	public static void simplifyKeyframes(MainPanel mainPanel) {
+		final int x = JOptionPane.showConfirmDialog(mainPanel,
+				"This is an irreversible process that will lose some of your model data," +
+						"\nin exchange for making it a smaller storage size." +
+						"\n\nContinue and simplify keyframes?",
+				"Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
+		if (x == JOptionPane.OK_OPTION) {
+			final EditableModel currentMDL = mainPanel.currentMDL();
+			simplifyKeyframes(currentMDL);
+		}
+	}
+
+	public static void simplifyKeyframes(EditableModel model) {
+		EditableModel currentMDL = model;
+		List<AnimFlag<?>> allAnimFlags = currentMDL.getAllAnimFlags();
+		List<Animation> anims = currentMDL.getAnims();
+
+		for (Animation anim : anims) {
+			for (AnimFlag<?> flag : allAnimFlags) {
+				if (!flag.hasGlobalSeq()) {
+					TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap();
+					removeTransitionalKeframes(entryMap, anim.getStart(), anim.getEnd());
+				}
+			}
+		}
+		for (Integer globalSeq : currentMDL.getGlobalSeqs()) {
+			for (AnimFlag<?> flag : allAnimFlags) {
+				if (flag.hasGlobalSeq() && flag.getGlobalSeqLength().equals(globalSeq)) {
+					List<Integer> indicesForDeletion = new ArrayList<>();
+
+					TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap();
+					Integer endTime = entryMap.lastEntry().getKey();
+					removeTransitionalKeframes(entryMap, 0, endTime);
+				}
+			}
+		}
+	}
+
+	public static void removeTransitionalKeframes(TreeMap<Integer, ? extends Entry<?>> entryMap, int start, int end) {
+		Object olderKeyframe = null;
+		Object oldKeyframe = null;
+		for (int time = entryMap.ceilingKey(start); time <= entryMap.floorKey(end); time = entryMap.higherKey(time)) {
+			Entry<?> entry = entryMap.get(time);
+
+			if (oldKeyframe != null && olderKeyframe != null) {
+				if (entry.value instanceof Float) {
+					Float current = (Float) entry.value;
+					Float older = (Float) olderKeyframe;
+					Float old = (Float) oldKeyframe;
+					if (MathUtils.isBetween(older, current, old)) {
+						entryMap.remove(entryMap.lowerKey(time));
+					}
+				} else if (entry.value instanceof Vec3) {
+					Vec3 current = (Vec3) entry.value;
+					Vec3 older = (Vec3) olderKeyframe;
+					Vec3 old = (Vec3) oldKeyframe;
+					if (MathUtils.isBetween(older.x, current.x, old.x)
+							&& MathUtils.isBetween(older.y, current.y, old.y)
+							&& MathUtils.isBetween(older.z, current.z, old.z)) {
+						entryMap.remove(entryMap.lowerKey(time));
+					}
+				} else if (entry.value instanceof Quat) {
+					Quat current = (Quat) entry.value;
+					Quat older = (Quat) olderKeyframe;
+					Quat old = (Quat) oldKeyframe;
+
+					Vec3 euler = current.toEuler();
+					Vec3 olderEuler = older.toEuler();
+					Vec3 oldEuler = old.toEuler();
+					if (MathUtils.isBetween(olderEuler.x, euler.x, oldEuler.x)
+							&& MathUtils.isBetween(olderEuler.y, euler.y, oldEuler.y)
+							&& MathUtils.isBetween(olderEuler.z, euler.z, oldEuler.z)) {
+						entryMap.remove(entryMap.lowerKey(time));
+					}
+				}
+			}
+			olderKeyframe = oldKeyframe;
+			oldKeyframe = entry.value;
+		}
+	}
 }

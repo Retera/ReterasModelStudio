@@ -374,8 +374,9 @@ public class Layer extends TimelineContainer implements Named {
 	public void buildTextureList(EditableModel mdlr) {
 		textures = new ArrayList<>();
 		IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
-		for (int i = 0; i < txFlag.getValues().size(); i++) {
-			int txId = txFlag.getValues().get(i);
+
+		for (int i = 0; i < txFlag.size(); i++) {
+			int txId = txFlag.getValueFromIndex(i);
 			Bitmap texture2 = mdlr.getTexture(txId);
 			textures.add(texture2);
 			ridiculouslyWrongTextureIDToTexture.put(txId, texture2);
@@ -387,11 +388,11 @@ public class Layer extends TimelineContainer implements Named {
 		TVertexAnimId = mdlr.getTextureAnimId(textureAnim);
 		if (textures != null) {
 			IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
-			for (int i = 0; i < txFlag.getValues().size(); i++) {
-				Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture
-						.get(txFlag.getValues().get(i));
+			for (int i = 0; i < txFlag.size(); i++) {
+				Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture.get(txFlag.getValueFromIndex(i));
 				int newerTextureId = mdlr.getTextureId(textureFoundFromDirtyId);
-				txFlag.getValues().set(i, newerTextureId);
+
+				txFlag.getEntryAt(txFlag.getTimeFromIndex(i)).setValue(newerTextureId);
 				ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);
 			}
 		}

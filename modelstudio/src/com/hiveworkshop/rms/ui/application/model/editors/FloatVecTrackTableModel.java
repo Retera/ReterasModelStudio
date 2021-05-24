@@ -82,18 +82,18 @@ public class FloatVecTrackTableModel extends AbstractTableModel {
 		}
 		if (track.tans()) {
 			return switch (columnIndex) {
-				case 0 -> track.getTimes().get(rowIndex);
-				case 1 -> track.getValues().get(rowIndex);
-				case 2 -> track.getInTans().get(rowIndex);
-				case 3 -> track.getOutTans().get(rowIndex);
+				case 0 -> track.getTimeFromIndex(rowIndex);
+				case 1 -> track.getValueFromIndex(rowIndex);
+				case 2 -> track.getInTanFromIndex(rowIndex);
+				case 3 -> track.getOutTanFromIndex(rowIndex);
 //				case 4 -> new JButton("X");
 				case 4 -> "X";
 				default -> null;
 			};
 		} else {
 			return switch (columnIndex) {
-				case 0 -> track.getTimes().get(rowIndex);
-				case 1 -> track.getValues().get(rowIndex);
+				case 0 -> track.getTimeFromIndex(rowIndex);
+				case 1 -> track.getValueFromIndex(rowIndex);
 //				case 2 -> new JButton("X");
 				case 2 -> "X";
 //				case 2 -> "\uD83C\uDFA8"; // 🎨 \uD83C\uDFA8

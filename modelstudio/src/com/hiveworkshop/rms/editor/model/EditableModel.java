@@ -1,15 +1,12 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag.Entry;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.filesystem.sources.FolderDataSource;
 import com.hiveworkshop.rms.parsers.mdlx.*;
-import com.hiveworkshop.rms.util.MathUtils;
-import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -736,8 +733,8 @@ public class EditableModel implements Named {
 //		final List<EventObject> evtObjs = (List<EventObject>) sortedIdObjects(EventObject.class);
 		final List<EventObject> evtObjs = getEvents();
 		for (final AnimFlag<?> af : animFlags) {
-			if (!globalSeqs.contains(af.globalSeq) && (af.globalSeq != null)) {
-				globalSeqs.add(af.globalSeq);
+			if (!globalSeqs.contains(af.globalSeqLength) && (af.globalSeqLength != null)) {
+				globalSeqs.add(af.globalSeqLength);
 			}
 			af.updateGlobalSeqId(this);// keep the ids straight
 		}
@@ -1203,153 +1200,6 @@ public class EditableModel implements Named {
 	}
 
 
-	public void simplifyKeyframes() {
-		final EditableModel currentMDL = this;
-		final List<AnimFlag<?>> allAnimFlags = currentMDL.getAllAnimFlags();
-		final List<Animation> anims = currentMDL.getAnims();
-
-		for (final AnimFlag<?> flag : allAnimFlags) {
-			final List<Integer> indicesForDeletion = new ArrayList<>();
-			Entry<?> lastEntry = null;
-			for (int i = 0; i < flag.size(); i++) {
-				final Entry<?> entry = flag.getEntry(i);
-				if ((lastEntry != null) && (lastEntry.time.equals(entry.time))) {
-					indicesForDeletion.add(i);
-				}
-				lastEntry = entry;
-			}
-			for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
-				flag.deleteAt(indicesForDeletion.get(i));
-			}
-		}
-		for (final Animation anim : anims) {
-			for (final AnimFlag<?> flag : allAnimFlags) {
-				if (!flag.hasGlobalSeq()) {
-					Object olderKeyframe = null;
-					Object oldKeyframe = null;
-					final List<Integer> indicesForDeletion = new ArrayList<>();
-					for (int i = 0; i < flag.size(); i++) {
-						final Entry<?> entry = flag.getEntry(i);
-						//
-						// //Types of AnimFlags:
-						// // 0 Alpha
-						// public static final int ALPHA = 0;
-						// // 1 Scaling
-						// public static final int SCALING = 1;
-						// // 2 Rotation
-						// public static final int ROTATION = 2;
-						// // 3 Translation
-						// public static final int TRANSLATION = 3;
-						// // 4 Color
-						// public static final int COLOR = 4;
-						// // 5 TextureID
-						// public static final int TEXTUREID = 5;
-						if ((entry.time >= anim.getStart()) && (entry.time <= anim.getEnd())) {
-							if (entry.value instanceof Float) {
-								final Float d = (Float) entry.value;
-								final Float older = (Float) olderKeyframe;
-								final Float old = (Float) oldKeyframe;
-								if ((older != null) && (old != null) && MathUtils.isBetween(older, d, old)) {
-									indicesForDeletion.add(i - 1);
-								}
-							} else if (entry.value instanceof Vec3) {
-								final Vec3 current = (Vec3) entry.value;
-								final Vec3 older = (Vec3) olderKeyframe;
-								final Vec3 old = (Vec3) oldKeyframe;
-								if ((older != null) && (old != null) && MathUtils.isBetween(older.x, current.x, old.x)
-										&& MathUtils.isBetween(older.y, current.y, old.y)
-										&& MathUtils.isBetween(older.z, current.z, old.z)) {
-									indicesForDeletion.add(i - 1);
-								}
-							} else if (entry.value instanceof Quat) {
-								final Quat current = (Quat) entry.value;
-								final Quat older = (Quat) olderKeyframe;
-								final Quat old = (Quat) oldKeyframe;
-								final Vec3 euler = current.toEuler();
-								if ((older != null) && (old != null)) {
-									final Vec3 olderEuler = older.toEuler();
-									final Vec3 oldEuler = old.toEuler();
-									if (MathUtils.isBetween(olderEuler.x, euler.x, oldEuler.x)
-											&& MathUtils.isBetween(olderEuler.y, euler.y, oldEuler.y)
-											&& MathUtils.isBetween(olderEuler.z, euler.z, oldEuler.z)) {
-										indicesForDeletion.add(i - 1);
-									}
-								}
-							}
-							olderKeyframe = oldKeyframe;
-							oldKeyframe = entry.value;
-						}
-					}
-					for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
-						flag.deleteAt(indicesForDeletion.get(i));
-					}
-				}
-			}
-		}
-		for (final Integer globalSeq : currentMDL.getGlobalSeqs()) {
-			for (final AnimFlag<?> flag : allAnimFlags) {
-				if (flag.hasGlobalSeq() && flag.getGlobalSeq().equals(globalSeq)) {
-					Object olderKeyframe = null;
-					Object oldKeyframe = null;
-					final List<Integer> indicesForDeletion = new ArrayList<>();
-					for (int i = 0; i < flag.size(); i++) {
-						final Entry entry = flag.getEntry(i);
-						//
-						// //Types of AnimFlags:
-						// // 0 Alpha
-						// public static final int ALPHA = 0;
-						// // 1 Scaling
-						// public static final int SCALING = 1;
-						// // 2 Rotation
-						// public static final int ROTATION = 2;
-						// // 3 Translation
-						// public static final int TRANSLATION = 3;
-						// // 4 Color
-						// public static final int COLOR = 4;
-						// // 5 TextureID
-						// public static final int TEXTUREID = 5;
-						if (entry.value instanceof Float) {
-							final Float d = (Float) entry.value;
-							final Float older = (Float) olderKeyframe;
-							final Float old = (Float) oldKeyframe;
-							if ((older != null) && (old != null) && MathUtils.isBetween(older, d, old)) {
-								indicesForDeletion.add(i - 1);
-							}
-						} else if (entry.value instanceof Vec3) {
-							final Vec3 current = (Vec3) entry.value;
-							final Vec3 older = (Vec3) olderKeyframe;
-							final Vec3 old = (Vec3) oldKeyframe;
-							if ((older != null) && (old != null) && MathUtils.isBetween(older.x, current.x, old.x)
-									&& MathUtils.isBetween(older.y, current.y, old.y)
-									&& MathUtils.isBetween(older.z, current.z, old.z)) {
-								indicesForDeletion.add(i - 1);
-							}
-						} else if (entry.value instanceof Quat) {
-							final Quat current = (Quat) entry.value;
-							final Quat older = (Quat) olderKeyframe;
-							final Quat old = (Quat) oldKeyframe;
-							final Vec3 euler = current.toEuler();
-							if ((older != null) && (old != null)) {
-								final Vec3 olderEuler = older.toEuler();
-								final Vec3 oldEuler = old.toEuler();
-								if (MathUtils.isBetween(olderEuler.x, euler.x, oldEuler.x)
-										&& MathUtils.isBetween(olderEuler.y, euler.y, oldEuler.y)
-										&& MathUtils.isBetween(olderEuler.z, euler.z, oldEuler.z)) {
-									indicesForDeletion.add(i - 1);
-								}
-							}
-						}
-						olderKeyframe = oldKeyframe;
-						oldKeyframe = entry.value;
-					}
-					for (int i = indicesForDeletion.size() - 1; i >= 0; i--) {
-						flag.deleteAt(indicesForDeletion.get(i));
-					}
-				}
-			}
-		}
-	}
-
 	public void removeAllTimelinesForGlobalSeq(final Integer selectedValue) {
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
@@ -1484,9 +1334,9 @@ public class EditableModel implements Named {
 			final Integer prevLength = globalSeqs.get(globalSequenceId);
 			final List<AnimFlag<?>> allAnimFlags = getAllAnimFlags();
 			for (final AnimFlag<?> af : allAnimFlags) {
-				if ((af.getGlobalSeq() != null) && af.hasGlobalSeq()) {// TODO eliminate redundant structure
-					if (af.getGlobalSeq().equals(prevLength)) {
-						af.setGlobalSeq(newLength);
+				if ((af.getGlobalSeqLength() != null) && af.hasGlobalSeq()) {// TODO eliminate redundant structure
+					if (af.getGlobalSeqLength().equals(prevLength)) {
+						af.setGlobalSeqLength(newLength);
 					}
 				}
 			}

@@ -20,7 +20,7 @@ public class RenderParticleEmitter2View extends EmitterView {
 		final AnimFlag emissionRateFlag = emitter.getEmitter().find("EmissionRate");
 		if (emissionRateFlag != null) {
 			if (emissionRateFlag.size() > 0) {
-				lastEmissionRate = (Float) emissionRateFlag.getValues().get(0);
+				lastEmissionRate = (Float) emissionRateFlag.getValueFromIndex(0);
 			}
 		}
 	}

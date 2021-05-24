@@ -31,12 +31,12 @@ public class ModelScale {
 		for (final AnimFlag<?> flag : mdl.getAllAnimFlags()) {
 			if (flag.getTypeId() == AnimFlag.TRANSLATION) {
 				for (int i = 0; i < flag.size(); i++) {
-					final Vec3 value = (Vec3) flag.getValues().get(i);
+					final Vec3 value = (Vec3) flag.getValueFromIndex(i);
 					value.scale(centerX, centerY, centerZ, x, y, z);
 					if (flag.tans()) {
-						final Vec3 inTan = (Vec3) flag.getInTans().get(i);
+						final Vec3 inTan = (Vec3) flag.getInTanFromIndex(i);
 						inTan.scale(centerX, centerY, centerZ, x, y, z);
-						final Vec3 outTan = (Vec3) flag.getOutTans().get(i);
+						final Vec3 outTan = (Vec3) flag.getOutTanFromIndex(i);
 						outTan.scale(centerX, centerY, centerZ, x, y, z);
 					}
 				}

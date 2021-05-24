@@ -429,7 +429,7 @@ public abstract class ValuePanel<T> extends JPanel {
 		if (animFlag == null && timelineContainer != null && !flagName.equals("")) {
 			AnimFlag<T> flag = getNewAnimFlag();
 			if (flag != null) {
-				AnimFlag.Entry<T> entry = new AnimFlag.Entry<>(0, staticValue);
+				Entry<T> entry = new Entry<>(0, staticValue);
 				flag.addEntry(entry);
 //			UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flagName, modelStructureChangeListener);
 				UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flag, modelStructureChangeListener);
@@ -437,24 +437,23 @@ public abstract class ValuePanel<T> extends JPanel {
 				undoAction.redo();
 			}
 		} else if (animFlag != null) {
-			AnimFlag.Entry<T> newEntry;
-			AnimFlag.Entry<T> lastEntry;
+			Entry<T> newEntry;
+			Entry<T> lastEntry;
 			T zeroValue = getZeroValue();
 			if (staticValue == null) {
 				staticValue = zeroValue;
 			}
-			if (animFlag.getTimes().isEmpty()) {
+			if (animFlag.getEntryMap().isEmpty()) {
 				if (animFlag.getInterpolationType().tangential()) {
-					lastEntry = new AnimFlag.Entry<>(0, staticValue, zeroValue, zeroValue);
+					lastEntry = new Entry<>(0, staticValue, zeroValue, zeroValue);
 				} else {
-					lastEntry = new AnimFlag.Entry<>(0, staticValue);
+					lastEntry = new Entry<>(0, staticValue);
 				}
-				newEntry = new AnimFlag.Entry<>(lastEntry);
+				newEntry = new Entry<>(lastEntry);
 			} else {
-//				lastEntry = animFlag.getEntry(animFlag.getTimes().size() - 1);
-				lastEntry = animFlag.getEntry(row);
-				newEntry = new AnimFlag.Entry<>(lastEntry);
-				newEntry.time++;
+				lastEntry = animFlag.getEntryMap().lastEntry().getValue();
+				newEntry = new Entry<>(lastEntry);
+				newEntry.setTime(newEntry.time + 1);
 			}
 
 			UndoAction undoAction = new AddFlagEntryAction(animFlag, newEntry, timelineContainer, modelStructureChangeListener);
@@ -497,7 +496,8 @@ public abstract class ValuePanel<T> extends JPanel {
 //		System.out.println("removeEntry");
 		oldAnimFlag = animFlag;
 
-		UndoAction undoAction = new RemoveFlagEntryAction(animFlag, row, timelineContainer, modelStructureChangeListener);
+		int orgTime = (int) floatTrackTableModel.getValueAt(row, 0);
+		UndoAction undoAction = new RemoveFlagEntryAction(animFlag, orgTime, timelineContainer, modelStructureChangeListener);
 		undoManager.pushAction(undoAction);
 		undoAction.redo();
 
@@ -507,8 +507,9 @@ public abstract class ValuePanel<T> extends JPanel {
 
 	protected void changeEntry(int row, int col, String field, String val) {
 //		System.out.println("changeEntry");
-		AnimFlag.Entry<T> entry = animFlag.getEntry(row);
-		int orgTime = animFlag.getTimes().get(row);
+//		int orgTime = animFlag.getTimeFromIndex(row);
+		int orgTime = (int) floatTrackTableModel.getValueAt(row, 0);
+		Entry<T> entry = animFlag.getEntryAt(orgTime);
 		T tValue = parseValue(val);
 		System.out.println(val);
 		System.out.println(tValue);
@@ -531,7 +532,7 @@ public abstract class ValuePanel<T> extends JPanel {
 //		revalidate();
 //		repaint();
 
-		selectNewIndex = animFlag.ceilIndex(entry.time);
+		selectNewIndex = animFlag.getIndexOfTime(entry.time);
 	}
 
 }

@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -125,10 +126,7 @@ public class AddBirthDeathSequences {
                 final List<Vec3> values = new ArrayList<>();
                 trans = new Vec3AnimFlag("Translation", times, values);
                 trans.setInterpType(InterpolationType.LINEAR);
-//                trans = AnimFlag.createEmpty2018(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
-                System.out.println(trans + " " + trans.getTimes() + " " + trans.getValues() + " " + trans.getInterpolationType());
                 b.add(trans);
-//                b.getAnimFlags().add(trans);
             }
             trans.addEntry(animation.getStart(), new Vec3(0, 0, startOffset));
             trans.addEntry(animation.getEnd(), new Vec3(0, 0, endOffset));
@@ -190,35 +188,23 @@ public class AddBirthDeathSequences {
     public static AddKeyframeAction createTranslationKeyframe2(int trackTime, IdObject idObject, RenderModel renderModel, Vec3AnimFlag translationFlag,
                                                                ModelStructureChangeListener structureChangeListener, Vec3 vec3) {
         // TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-        final int floorIndex = translationFlag.floorIndex(trackTime);
-
-        if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
-            return null;
-        } else {
-            return getAddKeyframeAction(idObject, translationFlag, structureChangeListener, trackTime, floorIndex, vec3);
+        if (translationFlag.hasEntryAt(trackTime)) {
+            return getAddKeyframeAction(idObject, translationFlag, structureChangeListener, trackTime, vec3);
         }
+        return null;
     }
 
-    private static AddKeyframeAction getAddKeyframeAction(IdObject idObject, Vec3AnimFlag timeline, ModelStructureChangeListener structureChangeListener, int trackTime, int floorIndex, Vec3 vec3) {
-        final int insertIndex = floorIndex + 1;
-        timeline.getTimes().add(insertIndex, trackTime);
-
-        final Vec3 keyframeValue = new Vec3(vec3);
-        timeline.getValues().add(insertIndex, keyframeValue);
+    private static AddKeyframeAction getAddKeyframeAction(IdObject idObject, Vec3AnimFlag timeline, ModelStructureChangeListener structureChangeListener, int trackTime, Vec3 vec3) {
+        Entry<Vec3> entry = new Entry<>(trackTime, vec3);
 
         if (timeline.getInterpolationType().tangential()) {
-            final Vec3 inTan = new Vec3(vec3);
-            timeline.getInTans().add(insertIndex, inTan);
-
-            final Vec3 outTan = new Vec3(vec3);
-            timeline.getOutTans().add(insertIndex, outTan);
-
-            structureChangeListener.keyframeAdded(idObject, timeline, trackTime);
-            return new AddKeyframeAction(idObject, timeline, trackTime, keyframeValue, inTan, outTan, structureChangeListener);
-        } else {
-            structureChangeListener.keyframeAdded(idObject, timeline, trackTime);
-            return new AddKeyframeAction(idObject, timeline, trackTime, keyframeValue, structureChangeListener);
+            entry.unLinearize();
         }
+
+        structureChangeListener.keyframeAdded(idObject, timeline, trackTime);
+        AddKeyframeAction addKeyframeAction = new AddKeyframeAction(idObject, timeline, entry, structureChangeListener);
+        addKeyframeAction.redo();
+        return addKeyframeAction;
     }
 
 }

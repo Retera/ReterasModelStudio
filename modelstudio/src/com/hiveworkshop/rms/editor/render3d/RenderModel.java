@@ -279,6 +279,7 @@ public final class RenderModel {
 					} catch (Exception e) {
 						long currentTime = System.currentTimeMillis();
 						if (lastConsoleLogTime < currentTime) {
+//							e.printStackTrace();
 							System.out.println("RenderModel#updateNodes: failed to update rotation for " + idObject.getName());
 							lastConsoleLogTime = currentTime + 500;
 						}

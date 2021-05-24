@@ -73,8 +73,8 @@ public abstract class TimelineContainer implements VisibilitySource {
 	public AnimFlag<?> find(String name, Integer globalSeq) {
 		AnimFlag<?> timeline = animFlags.get(name);
 
-		if (timeline != null && (((globalSeq == null) && (timeline.getGlobalSeq() == null))
-				|| ((globalSeq != null) && globalSeq.equals(timeline.getGlobalSeq())))) {
+		if (timeline != null && (((globalSeq == null) && (timeline.getGlobalSeqLength() == null))
+				|| ((globalSeq != null) && globalSeq.equals(timeline.getGlobalSeqLength())))) {
 			return timeline;
 		}
 
@@ -83,7 +83,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 
 	public void removeAllTimelinesForGlobalSeq(Integer selectedValue) {
 		for (AnimFlag<?> timeline : animFlags.values()) {
-			if (selectedValue.equals(timeline.getGlobalSeq())) {
+			if (selectedValue.equals(timeline.getGlobalSeqLength())) {
 				remove(timeline);
 			}
 		}

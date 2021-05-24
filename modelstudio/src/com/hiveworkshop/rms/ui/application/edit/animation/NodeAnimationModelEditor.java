@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -190,15 +191,12 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	                                                          ModelStructureChangeListener changeListener) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		int trackTime = getTrackTime(renderModel);
-		int floorIndex = translationFlag.floorIndex(trackTime);
 		RenderNode renderNode = renderModel.getRenderNode(animatedNode);
-
-		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
-			return null;
-		} else {
+		if (translationFlag.hasEntryAt(trackTime)) {
 			Vec3 localLocation = renderNode.getLocalLocation();
-			return getAddKeyframeAction(animatedNode, translationFlag, changeListener, trackTime, floorIndex, localLocation);
+			return getAddKeyframeAction(animatedNode, translationFlag, changeListener, trackTime, localLocation);
 		}
+		return null;
 	}
 
 	private static int getTrackTime(RenderModel renderModel) {
@@ -255,15 +253,12 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	                                                       ModelStructureChangeListener changeListener) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		int trackTime = getTrackTime(renderModel);
-		int floorIndex = rotationTimeline.floorIndex(trackTime);
 		RenderNode renderNode = renderModel.getRenderNode(animatedNode);
-
-		if ((floorIndex != -1) && (rotationTimeline.getTimes().size() > 0) && (rotationTimeline.getTimes().get(floorIndex).equals(trackTime))) {
-			return null;
-		} else {
+		if (rotationTimeline.hasEntryAt(trackTime)) {
 			Quat localRotation = renderNode.getLocalRotation();
-			return getAddKeyframeAction(animatedNode, rotationTimeline, changeListener, trackTime, floorIndex, localRotation);
+			return getAddKeyframeAction(animatedNode, rotationTimeline, changeListener, trackTime, localRotation);
 		}
+		return null;
 	}
 
 	@Override
@@ -321,15 +316,12 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	                                                      ModelStructureChangeListener changeListener) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		int trackTime = getTrackTime(renderModel);
-		int floorIndex = scalingTimeline.floorIndex(trackTime);
 		RenderNode renderNode = renderModel.getRenderNode(animatedNode);
-
-		if ((floorIndex != -1) && (scalingTimeline.getTimes().size() > 0) && (scalingTimeline.getTimes().get(floorIndex).equals(trackTime))) {
-			return null;
-		} else {
+		if (scalingTimeline.hasEntryAt(trackTime)) {
 			Vec3 localScale = renderNode.getLocalScale();
-			return getAddKeyframeAction(animatedNode, scalingTimeline, changeListener, trackTime, floorIndex, localScale);
+			return getAddKeyframeAction(animatedNode, scalingTimeline, changeListener, trackTime, localScale);
 		}
+		return null;
 	}
 
 	@Override
@@ -370,51 +362,33 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 	private static AddKeyframeAction getAddKeyframeAction(AnimatedNode animatedNode,
 	                                                      Vec3AnimFlag timeline,
 	                                                      ModelStructureChangeListener changeListener,
-	                                                      int trackTime, int floorIndex, Vec3 vec3) {
-		int insertIndex = floorIndex + 1;
-		timeline.getTimes().add(insertIndex, trackTime);
+	                                                      int trackTime, Vec3 vec3) {
+		Entry<Vec3> entry = new Entry<>(trackTime, vec3);
 
-		Vec3 keyframeValue = new Vec3(vec3);
-		timeline.getValues().add(insertIndex, keyframeValue);
-//		if (timeline.tans()) {
-		if (timeline.interpolationType.tangential()) {
-			Vec3 inTan = new Vec3(vec3);
-			timeline.getInTans().add(insertIndex, inTan);
-
-			Vec3 outTan = new Vec3(vec3);
-			timeline.getOutTans().add(insertIndex, outTan);
-
-			changeListener.keyframeAdded(animatedNode, timeline, trackTime);
-			return new AddKeyframeAction(animatedNode, timeline, trackTime, keyframeValue, inTan, outTan, changeListener);
-		} else {
-			changeListener.keyframeAdded(animatedNode, timeline, trackTime);
-			return new AddKeyframeAction(animatedNode, timeline, trackTime, keyframeValue, changeListener);
+		if (timeline.getInterpolationType().tangential()) {
+			entry.unLinearize();
 		}
+
+		changeListener.keyframeAdded(animatedNode, timeline, trackTime);
+		AddKeyframeAction addKeyframeAction = new AddKeyframeAction(animatedNode, timeline, entry, changeListener);
+		addKeyframeAction.redo();
+		return addKeyframeAction;
 	}
 
 	private static AddKeyframeAction getAddKeyframeAction(AnimatedNode animatedNode,
 	                                                      QuatAnimFlag rotationTimeline,
 	                                                      ModelStructureChangeListener changeListener,
 	                                                      int trackTime,
-	                                                      int floorIndex,
 	                                                      Quat localRotation) {
-		int insertIndex = floorIndex + 1;
-		rotationTimeline.getTimes().add(insertIndex, trackTime);
+		Entry<Quat> entry = new Entry<>(trackTime, localRotation);
 
-		Quat keyframeValue = new Quat(localRotation);
-		rotationTimeline.getValues().add(insertIndex, keyframeValue);
-		if (rotationTimeline.interpolationType.tangential()) {
-			Quat inTan = new Quat(localRotation);
-			rotationTimeline.getInTans().add(insertIndex, inTan);
-
-			Quat outTan = new Quat(localRotation);
-			rotationTimeline.getOutTans().add(insertIndex, outTan);
-
-			changeListener.keyframeAdded(animatedNode, rotationTimeline, trackTime);
-			return new AddKeyframeAction(animatedNode, rotationTimeline, trackTime, keyframeValue, inTan, outTan, changeListener);
-		} else {
-			changeListener.keyframeAdded(animatedNode, rotationTimeline, trackTime);
-			return new AddKeyframeAction(animatedNode, rotationTimeline, trackTime, keyframeValue, changeListener);
+		if (rotationTimeline.getInterpolationType().tangential()) {
+			entry.unLinearize();
 		}
+
+		changeListener.keyframeAdded(animatedNode, rotationTimeline, trackTime);
+		AddKeyframeAction addKeyframeAction = new AddKeyframeAction(animatedNode, rotationTimeline, entry, changeListener);
+		addKeyframeAction.redo();
+		return addKeyframeAction;
 	}
 }

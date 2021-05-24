@@ -71,10 +71,10 @@ public class Bone extends IdObject {
 			boolean foundMatch = false;
 			for (AnimFlag<?> af : animFlags.values()) {
 				boolean sameSeq = false;
-				if (baf.globalSeq == null && af.globalSeq == null) {
+				if (baf.globalSeqLength == null && af.globalSeqLength == null) {
 					sameSeq = true;
-				} else if (baf.globalSeq != null && af.globalSeq != null) {
-					sameSeq = baf.globalSeq.equals(af.globalSeq);
+				} else if (baf.globalSeqLength != null && af.globalSeqLength != null) {
+					sameSeq = baf.globalSeqLength.equals(af.globalSeqLength);
 				}
 				if (baf.getName().equals(af.getName()) && sameSeq && baf.hasGlobalSeq == af.hasGlobalSeq) {
 					// if( && baf.tags.equals(af.tags)

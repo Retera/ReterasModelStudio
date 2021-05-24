@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation;
 
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -110,19 +111,17 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 		if (globalSeq != null) {
 			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
 		}
-		int floorIndex = translationFlag.floorIndex(trackTime);
-
-		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
-			// we must change it
-			translationFlag.getValues().get(floorIndex).multiply(scale);
+		if (translationFlag.hasEntryAt(trackTime)) {
+			Entry<Vec3> entry = translationFlag.getEntryAt(trackTime);
+			entry.getValue().multiply(scale);
 
 			if (savedLocalScaling != null) {
 				savedLocalScaling.multiply(scale);
 			}
 
 			if (translationFlag.tans()) {
-				translationFlag.getInTans().get(floorIndex).multiply(scale);
-				translationFlag.getOutTans().get(floorIndex).multiply(scale);
+				entry.getInTan().multiply(scale);
+				entry.getOutTan().multiply(scale);
 			}
 		}
 	}
@@ -133,15 +132,12 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 		if (translationFlag == null) {
 			return;
 		}
-		int floorIndex = translationFlag.floorIndex(trackTime);
-
-		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
-			// we must change it
-			translationFlag.getValues().get(floorIndex).multiply(localScaling);
-
+		if (translationFlag.hasEntryAt(trackTime)) {
+			Entry<Vec3> entry = translationFlag.getEntryAt(trackTime);
+			entry.getValue().multiply(localScaling);
 			if (translationFlag.tans()) {
-				translationFlag.getInTans().get(floorIndex).multiply(localScaling);
-				translationFlag.getOutTans().get(floorIndex).multiply(localScaling);
+				entry.getInTan().multiply(localScaling);
+				entry.getOutTan().multiply(localScaling);
 			}
 		}
 	}

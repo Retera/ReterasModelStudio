@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.actions.model.animFlag;
 
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
@@ -9,9 +10,9 @@ public class AddFlagEntryAction implements UndoAction {
 	private final ModelStructureChangeListener structureChangeListener;
 	private final TimelineContainer timelineContainer;
 	AnimFlag animFlag;
-	AnimFlag.Entry entry;
+	Entry entry;
 
-	public AddFlagEntryAction(AnimFlag animFlag, AnimFlag.Entry entry, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
+	public AddFlagEntryAction(AnimFlag animFlag, Entry entry, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
 		this.timelineContainer = timelineContainer;
 		this.animFlag = animFlag;
@@ -22,14 +23,14 @@ public class AddFlagEntryAction implements UndoAction {
 		this.structureChangeListener = structureChangeListener;
 		this.timelineContainer = timelineContainer;
 		this.animFlag = animFlag;
-		entry = new AnimFlag.Entry(time, value);
+		entry = new Entry(time, value);
 	}
 
 	public AddFlagEntryAction(AnimFlag animFlag, int time, Object value, Object inTan, Object outTan, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
 		this.timelineContainer = timelineContainer;
 		this.animFlag = animFlag;
-		entry = new AnimFlag.Entry(time, value, inTan, outTan);
+		entry = new Entry(time, value, inTan, outTan);
 	}
 
 	@Override
@@ -42,7 +43,6 @@ public class AddFlagEntryAction implements UndoAction {
 	@Override
 	public void redo() {
 		animFlag.addEntry(entry);
-		animFlag.sort();
 //		structureChangeListener.keyframeAdded(timelineContainer, animFlag, entry.time);
 		structureChangeListener.materialsListChanged();
 	}

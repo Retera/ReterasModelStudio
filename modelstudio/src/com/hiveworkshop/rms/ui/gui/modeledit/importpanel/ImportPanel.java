@@ -252,9 +252,6 @@ public class ImportPanel extends JTabbedPane {
 				callback.nodesUpdated();
 				callback.camerasUpdated();
 			}
-			for (final AnimFlag<?> flag : mht.receivingModel.getAllAnimFlags()) {
-				flag.sort();
-			}
 		} catch (final Exception e) {
 			e.printStackTrace();
 			ExceptionPopup.display(e);

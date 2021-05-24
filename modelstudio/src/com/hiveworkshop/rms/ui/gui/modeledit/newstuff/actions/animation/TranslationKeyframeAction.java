@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation;
 
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
@@ -84,15 +85,12 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		if (translationFlag == null) {
 			return;
 		}
-		int floorIndex = translationFlag.floorIndex(trackTime);
-
-		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
-			// we must change it
-			translationFlag.getValues().get(floorIndex).add(localTranslation);
-
+		if (translationFlag.hasEntryAt(trackTime)) {
+			Entry<Vec3> entry = translationFlag.getEntryAt(trackTime);
+			entry.getValue().add(localTranslation);
 			if (translationFlag.tans()) {
-				translationFlag.getInTans().get(floorIndex).add(localTranslation);
-				translationFlag.getOutTans().get(floorIndex).add(localTranslation);
+				entry.getInTan().add(localTranslation);
+				entry.getOutTan().add(localTranslation);
 			}
 		}
 	}
@@ -114,7 +112,6 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		if (globalSeq != null) {
 			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
 		}
-		int floorIndex = translationFlag.floorIndex(trackTime);
 		//final RenderNode renderNode = renderModel.getRenderNode(this);
 		AnimatedNode parent = null;// = getParent();
 		if (animatedNode instanceof IdObject) {
@@ -132,20 +129,19 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 			translationHeap.set(newDelta, 1);
 		}
 
-		if ((floorIndex != -1) && (translationFlag.getTimes().size() > 0) && (translationFlag.getTimes().get(floorIndex).equals(trackTime))) {
-			// we must change it
-			translationFlag.getValues().get(floorIndex).add(translationHeap.getVec3());
+		if (translationFlag.hasEntryAt(trackTime)) {
+			Entry<Vec3> entry = translationFlag.getEntryAt(trackTime);
+			entry.getValue().add(translationHeap.getVec3());
 
 			if (savedLocalTranslation != null) {
 				savedLocalTranslation.add(translationHeap.getVec3());
 			}
 
 			if (translationFlag.tans()) {
-				translationFlag.getInTans().get(floorIndex).add(translationHeap.getVec3());
-				translationFlag.getOutTans().get(floorIndex).add(translationHeap.getVec3());
+				entry.getInTan().add(translationHeap.getVec3());
+				entry.getOutTan().add(translationHeap.getVec3());
 			}
 		}
-
 	}
 
 }

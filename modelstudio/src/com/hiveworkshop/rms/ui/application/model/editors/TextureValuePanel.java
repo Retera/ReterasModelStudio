@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.actions.model.material.ChangeLayerStaticTextureAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
@@ -13,6 +14,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 public class TextureValuePanel extends ValuePanel<Integer> {
 
@@ -122,12 +124,11 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 
 	private String[] getBitmapNameList() {
 		List<String> bitmapNames = new ArrayList<>();
-		for (Object textureId : animFlag.getValues()) {
-			if (textureId instanceof Integer) {
-				int tId = (int) textureId;
-				if (tId < bitmapListModel.size()) {
-					bitmapNames.add(bitmapListModel.get(tId).getName());
-				}
+		TreeMap<Integer, Entry<Integer>> entryMap = animFlag.getEntryMap();
+		for (Entry<Integer> entry : entryMap.values()) {
+			int tId = entry.getValue();
+			if (tId < bitmapListModel.size()) {
+				bitmapNames.add(bitmapListModel.get(tId).getName());
 			}
 		}
 		return bitmapNames.toArray(String[]::new);

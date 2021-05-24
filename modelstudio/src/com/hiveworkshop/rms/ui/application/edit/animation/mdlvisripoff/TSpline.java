@@ -1,12 +1,14 @@
 package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.util.Quat;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.TreeMap;
 
 public class TSpline extends JPanel {
 	private final TTan der; // in mdlvis this was just called der, and whatever, I'm copying them right now
@@ -49,24 +51,20 @@ public class TSpline extends JPanel {
 			setVisible(false);
 			return;
 		}
-		final int len;
-		final int num;
-		len = timeline.size();
-		num = timeline.ceilIndex(currentFrame);
-		if ((num == 0) || (num >= (len - 1)) || (timeline.getInterpolationType() != InterpolationType.HERMITE)) {
-			setVisible(false);
-			return;
-		}
-		if ((num >= len) || (num < 0) || !(timeline.getTimes().get(num).equals(currentFrame))) {
+
+		TreeMap<Integer, Entry> entryMap = timeline.getEntryMap();
+
+		if (entryMap.ceilingKey(currentFrame) == null
+				|| (timeline.getInterpolationType() != InterpolationType.HERMITE)) {
 			setVisible(false);
 			return;
 		}
 
-		der.tang = timeline.getEntry(num);
-		der.cur = timeline.getEntry(num);
-		der.prev = timeline.getEntry(num - 1);
-		der.next = timeline.getEntry(num + 1);
-		der.calcSplineParameters(timeline.getValues().get(0) instanceof Quat, 4);
+		der.tang = timeline.getEntryAt(currentFrame);
+		der.cur = timeline.getEntryAt(currentFrame);
+		der.prev = timeline.getEntryAt(entryMap.lowerKey(currentFrame));
+		der.next = timeline.getEntryAt(entryMap.higherKey(currentFrame));
+		der.calcSplineParameters(entryMap.firstEntry().getValue().getValue() instanceof Quat, 4);
 
 		tensionSpinner.setValue(Math.round(der.tension * 100));
 		continuitySpinner.setValue(Math.round(der.continuity * 100));
@@ -90,23 +88,25 @@ public class TSpline extends JPanel {
 	}
 
 	public void setTCB(final float tension, final float continuity, final float bias) {
-		final AnimFlag.Entry it;
+		final Entry it;
 		final int i;
 
 		der.tension = tension;
 		der.continuity = continuity;
 		der.bias = bias;
 
-		i = timeline.ceilIndex(currentFrame);
-		der.cur = timeline.getEntry(i);
-		der.prev = timeline.getEntry(i - 1);
-		der.next = timeline.getEntry(i + 1);
+		TreeMap<Integer, Entry> entryMap = timeline.getEntryMap();
+
+		der.cur = timeline.getEntryAt(currentFrame);
+		der.prev = timeline.getEntryAt(entryMap.lowerKey(currentFrame));
+		der.next = timeline.getEntryAt(entryMap.higherKey(currentFrame));
 
 		der.isLogsReady = false;
-		if (timeline.getValues().get(0) instanceof Quat) {
+		if (timeline.getValueFromIndex(0) instanceof Quat) {
 			der.calcDerivative4D();
 		} else {
-			der.calcDerivativeXD(TTan.getSizeOfElement(timeline.getValues().get(0)));
+			der.calcDerivativeXD(TTan.getSizeOfElement(timeline.getValueFromIndex(0)));
+//			der.calcDerivativeXD(TTan.getSizeOfElement(entryMap.firstEntry().getValue().getValue()));
 		}
 
 		throw new UnsupportedOperationException(
@@ -115,8 +115,8 @@ public class TSpline extends JPanel {
 
 	private final class CurveRenderer extends JPanel {
 
-		private final AnimFlag.Entry itd = new AnimFlag.Entry(0, 0.0, 0.0, 0.0);
-		private final AnimFlag.Entry its = new AnimFlag.Entry(0, 0.0, 0.0, 0.0);
+		private final Entry itd = new Entry(0, 0.0, 0.0, 0.0);
+		private final Entry its = new Entry(0, 0.0, 0.0, 0.0);
 
 		@Override
 		protected void paintComponent(final Graphics g) {

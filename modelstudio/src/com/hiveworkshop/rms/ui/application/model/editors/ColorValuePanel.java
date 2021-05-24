@@ -221,7 +221,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 	private void checkChangeColorPressed(Point point, int keyCode) {
 		int colorChangeColumnIndex = keyframeTable.getColumnCount() - 2;
 		if (keyCode == KeyEvent.VK_C || keyCode == KeyEvent.VK_ENTER && keyframeTable.getSelectedColumn() == colorChangeColumnIndex) {
-			colorChooser.setColor(new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), clampColorVector(((Vec3) animFlag.getValues().get(keyframeTable.getSelectedRow())).toFloatArray()), 1.0f));
+			colorChooser.setColor(new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), clampColorVector(animFlag.getValueFromIndex(keyframeTable.getSelectedRow()).toFloatArray()), 1.0f));
 			chooseColor.show(keyframeTable, point.x, point.y);
 		}
 	}

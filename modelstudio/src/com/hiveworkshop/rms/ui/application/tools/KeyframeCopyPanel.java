@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Helper;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
@@ -210,9 +211,9 @@ public class KeyframeCopyPanel extends JPanel {
 		for (int i = 0; i < animFlags.size(); i++) {
 			for (int j = 0; j < times; j++) {
 				animFlags.get(i).removeKeyframe(recKeyframe + j);
-				AnimFlag.Entry<?> entryAt = animFlags.get(i).getEntryAt(donKeyframe + j);
+				Entry<?> entryAt = animFlags.get(i).getEntryAt(donKeyframe + j);
 				if (entryAt != null) {
-					AnimFlag.Entry<?> entry = new AnimFlag.Entry<>(entryAt);
+					Entry<?> entry = new Entry<>(entryAt);
 					animFlags.get(i).setOrAddEntryT(recKeyframe + j, entry);
 				}
 			}

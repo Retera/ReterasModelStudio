@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -20,9 +20,9 @@ import com.hiveworkshop.rms.util.Vec3;
 public class TTan {
 	private float ds; // Deviation (for Calculation)
 	private Quat qcur, logNNP, logNMN; // Logarithms and current quaternion
-	public AnimFlag.Entry tang; // storage for tangents
+	public Entry tang; // storage for tangents
 	public float bias, tension, continuity; // Spline parameters
-	public AnimFlag.Entry prev, cur, next; // Values in KK
+	public Entry prev, cur, next; // Values in KK
 	public boolean isLogsReady; // "true" if Logarithms are ready
 
 	public void calcDerivativeXD(final int count) {
@@ -58,86 +58,22 @@ public class TTan {
 		}
 	}
 
-	public void calcWithConstBias(final boolean isQuaternion, final int count) {
-		float cMin, tMin, cCur, tCur, delta, cCurBeg, cCurEnd, tCurBeg, tCurEnd, step;
-		AnimFlag.Entry tang2;
+	public static void bezInterp(final int frame, final Entry its, final Entry itd) {
+		float t, f1, f2, f3, f4;
+		t = (frame - its.time) / (float) (itd.time - its.time);
 
-		tang2 = tang;
-		cMin = 0;
-		tMin = 0;
-		ds = 1e6f;
-		step = 0.1f;
-		tCurBeg = -1;
-		tCurEnd = 1;
-		cCurBeg = -1;
-		cCurEnd = 1;
-		while (step > 0.001) {
-			cCur = cCurBeg;
-			do {
-				tCur = tCurBeg;
-				do {
-					continuity = cCur;
-					tension = tCur;
-					if (isQuaternion) {
-						calcDerivative4D();
-						delta = Math.abs(
-								getSubscript(tang.outTan, 0).floatValue() - getSubscript(tang2.outTan, 0).floatValue())
-								+ Math.abs(getSubscript(tang.outTan, 1).floatValue()
-										- getSubscript(tang2.outTan, 1).floatValue())
-								+ Math.abs(getSubscript(tang.outTan, 2).floatValue()
-										- getSubscript(tang2.outTan, 2).floatValue())
-								+ Math.abs(getSubscript(tang.outTan, 3).floatValue()
-										- getSubscript(tang2.outTan, 3).floatValue())
-								+ Math.abs(getSubscript(tang.inTan, 0).floatValue()
-										- getSubscript(tang2.inTan, 0).floatValue())
-								+ Math.abs(getSubscript(tang.inTan, 1).floatValue()
-										- getSubscript(tang2.inTan, 1).floatValue())
-								+ Math.abs(getSubscript(tang.inTan, 2).floatValue()
-										- getSubscript(tang2.inTan, 2).floatValue())
-								+ Math.abs(getSubscript(tang.inTan, 3).floatValue()
-										- getSubscript(tang2.inTan, 3).floatValue());
-					} else {
-						calcDerivativeXD(count);
-						delta = 0;
-						for (int i = 0; i < count; i++) {
-							delta += Math
-									.abs(getSubscript(tang.outTan, i).floatValue()
-											- getSubscript(tang2.outTan, i).floatValue())
-									+ Math.abs(getSubscript(tang.inTan, i).floatValue()
-											- getSubscript(tang2.inTan, i).floatValue());
-						}
-					}
-					if (delta < ds) {
-						ds = delta;
-						cMin = cCur;
-						tMin = tCur;
-					}
-					tCur += step;
-				} while (tCur <= tCurEnd);
-				cCur += step;
-			} while (cCur <= cCurEnd);
-			cCurBeg = cMin - step;
-			if (cCurBeg < -1) {
-				cCurBeg = -1;
-			}
-			cCurEnd = cMin + step;
-			if (cCurEnd > 1) {
-				cCurEnd = 1;
-			}
-			tCurBeg = tMin - step;
-			if (tCurBeg < -1) {
-				tCurBeg = -1;
-			}
-			tCurEnd = tMin + step;
-			if (tCurEnd > 1) {
-				tCurEnd = 1;
-			}
-			step = step * 0.1f;
+		f1 = (1 - t) * (1 - t) * (1 - t);
+		f2 = 3 * t * (1 - t) * (1 - t);
+		f3 = 3 * t * t * (1 - t);
+		f4 = t * t * t;
+
+		for (int i = 0; i < 3; i++) {
+			assignSubscript(itd.value, i,
+					(f1 * getSubscript(its.value, i).floatValue()) + (f2 * getSubscript(its.outTan, i).floatValue())
+							+ (f3 * getSubscript(itd.inTan, i).floatValue())
+							+ (f4 * getSubscript(itd.value, i).floatValue()));
 		}
 
-		continuity = cMin;
-		tension = tMin;
-		tang = tang2;
 	}
 
 	public void calcSplineParameters(final boolean isQuaternion, final int count) {
@@ -311,25 +247,7 @@ public class TTan {
 		q.z = q.z * divt;
 	}
 
-	public static void bezInterp(final int frame, final AnimFlag.Entry its, final AnimFlag.Entry itd) {
-		float t, f1, f2, f3, f4;
-		t = (frame - its.time) / (float) (itd.time - its.time);
-
-		f1 = (1 - t) * (1 - t) * (1 - t);
-		f2 = 3 * t * (1 - t) * (1 - t);
-		f3 = 3 * t * t * (1 - t);
-		f4 = t * t * t;
-
-		for (int i = 0; i < 3; i++) {
-			assignSubscript(itd.value, i,
-					(f1 * getSubscript(its.value, i).floatValue()) + (f2 * getSubscript(its.outTan, i).floatValue())
-							+ (f3 * getSubscript(itd.inTan, i).floatValue())
-							+ (f4 * getSubscript(itd.value, i).floatValue()));
-		}
-
-	}
-
-	public static void spline(final int frame, final AnimFlag.Entry its, final AnimFlag.Entry itd) {
+	public static void spline(final int frame, final Entry its, final Entry itd) {
 		float t, f1, f2, f3, f4;
 		t = (frame - its.time) / (float) (itd.time - its.time);
 
@@ -345,6 +263,88 @@ public class TTan {
 							+ (f4 * getSubscript(itd.inTan, i).floatValue()));
 		}
 
+	}
+
+	public void calcWithConstBias(final boolean isQuaternion, final int count) {
+		float cMin, tMin, cCur, tCur, delta, cCurBeg, cCurEnd, tCurBeg, tCurEnd, step;
+		Entry tang2;
+
+		tang2 = tang;
+		cMin = 0;
+		tMin = 0;
+		ds = 1e6f;
+		step = 0.1f;
+		tCurBeg = -1;
+		tCurEnd = 1;
+		cCurBeg = -1;
+		cCurEnd = 1;
+		while (step > 0.001) {
+			cCur = cCurBeg;
+			do {
+				tCur = tCurBeg;
+				do {
+					continuity = cCur;
+					tension = tCur;
+					if (isQuaternion) {
+						calcDerivative4D();
+						delta = Math.abs(
+								getSubscript(tang.outTan, 0).floatValue() - getSubscript(tang2.outTan, 0).floatValue())
+								+ Math.abs(getSubscript(tang.outTan, 1).floatValue()
+								- getSubscript(tang2.outTan, 1).floatValue())
+								+ Math.abs(getSubscript(tang.outTan, 2).floatValue()
+								- getSubscript(tang2.outTan, 2).floatValue())
+								+ Math.abs(getSubscript(tang.outTan, 3).floatValue()
+								- getSubscript(tang2.outTan, 3).floatValue())
+								+ Math.abs(getSubscript(tang.inTan, 0).floatValue()
+								- getSubscript(tang2.inTan, 0).floatValue())
+								+ Math.abs(getSubscript(tang.inTan, 1).floatValue()
+								- getSubscript(tang2.inTan, 1).floatValue())
+								+ Math.abs(getSubscript(tang.inTan, 2).floatValue()
+								- getSubscript(tang2.inTan, 2).floatValue())
+								+ Math.abs(getSubscript(tang.inTan, 3).floatValue()
+								- getSubscript(tang2.inTan, 3).floatValue());
+					} else {
+						calcDerivativeXD(count);
+						delta = 0;
+						for (int i = 0; i < count; i++) {
+							delta += Math
+									.abs(getSubscript(tang.outTan, i).floatValue()
+											- getSubscript(tang2.outTan, i).floatValue())
+									+ Math.abs(getSubscript(tang.inTan, i).floatValue()
+									- getSubscript(tang2.inTan, i).floatValue());
+						}
+					}
+					if (delta < ds) {
+						ds = delta;
+						cMin = cCur;
+						tMin = tCur;
+					}
+					tCur += step;
+				} while (tCur <= tCurEnd);
+				cCur += step;
+			} while (cCur <= cCurEnd);
+			cCurBeg = cMin - step;
+			if (cCurBeg < -1) {
+				cCurBeg = -1;
+			}
+			cCurEnd = cMin + step;
+			if (cCurEnd > 1) {
+				cCurEnd = 1;
+			}
+			tCurBeg = tMin - step;
+			if (tCurBeg < -1) {
+				tCurBeg = -1;
+			}
+			tCurEnd = tMin + step;
+			if (tCurEnd > 1) {
+				tCurEnd = 1;
+			}
+			step = step * 0.1f;
+		}
+
+		continuity = cMin;
+		tension = tMin;
+		tang = tang2;
 	}
 
 	public static int getSizeOfElement(final Object value) {

@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import javax.swing.table.AbstractTableModel;
 
 public class FloatTrackTableModel extends AbstractTableModel {
-	private AnimFlag track;
+	private AnimFlag<?> track;
 	private Object[] lastButtons = {"X", null};
 	private String[] lastButtonsTitle = {"", null};
 	private Class<?>[] lastButtonsClazz = {Integer.class, null};
@@ -14,7 +14,7 @@ public class FloatTrackTableModel extends AbstractTableModel {
 	private Class<?>[] columnClassList = {Integer.class, String.class, getLbtClass(0), getLbtClass(1)};
 //	private Class<?>[] columnTansClassList = {Integer.class, String.class, String.class, String.class, getLbtClass(0), getLbtClass(1)};
 
-	public FloatTrackTableModel(final AnimFlag track) {
+	public FloatTrackTableModel(final AnimFlag<?> track) {
 		this.track = track;
 		setClassList();
 	}
@@ -109,10 +109,10 @@ public class FloatTrackTableModel extends AbstractTableModel {
 		}
 		if (track.tans()) {
 			return switch (columnIndex) {
-				case 0 -> track.getTimes().get(rowIndex);
-				case 1 -> track.getValues().get(rowIndex);
-				case 2 -> track.getInTans().get(rowIndex);
-				case 3 -> track.getOutTans().get(rowIndex);
+				case 0 -> track.getTimeFromIndex(rowIndex);
+				case 1 -> track.getValueFromIndex(rowIndex);
+				case 2 -> track.getInTanFromIndex(rowIndex);
+				case 3 -> track.getOutTanFromIndex(rowIndex);
 //				case 4 -> {JButton uggB = new JButton("X");
 //				uggB.addActionListener(e -> ugg());
 //				yield uggB;}
@@ -123,8 +123,8 @@ public class FloatTrackTableModel extends AbstractTableModel {
 			};
 		} else {
 			return switch (columnIndex) {
-				case 0 -> track.getTimes().get(rowIndex);
-				case 1 -> track.getValues().get(rowIndex);
+				case 0 -> track.getTimeFromIndex(rowIndex);
+				case 1 -> track.getValueFromIndex(rowIndex);
 //				case 2 ->  {JButton uggB = new JButton("X");
 //					uggB.addActionListener(e -> ugg());
 //					yield uggB;}
@@ -152,7 +152,7 @@ public class FloatTrackTableModel extends AbstractTableModel {
 ////		System.out.println("value: " + aValue + ", row: " + rowIndex + ", col: " + columnIndex);
 //	}
 
-	public void setTrack(final AnimFlag track) {
+	public void setTrack(AnimFlag<?> track) {
 		this.track = track;
 		setClassList();
 		fireTableDataChanged();

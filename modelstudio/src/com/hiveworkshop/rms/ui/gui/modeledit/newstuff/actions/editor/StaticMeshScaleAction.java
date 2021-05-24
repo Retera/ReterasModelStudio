@@ -4,15 +4,18 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.CollisionShape;
 import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.TreeMap;
+
 public class StaticMeshScaleAction implements GenericScaleAction {
 	private final ModelView modelView;
 	private final Vec3 center;
-	private final Vec3 scale = new Vec3(1,1,1);
+	private final Vec3 scale = new Vec3(1, 1, 1);
 
 	public StaticMeshScaleAction(ModelView modelView, Vec3 center) {
 		this.modelView = modelView;
@@ -63,13 +66,12 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	public void translateBone(Bone object, Vec3 scale) {
 		Vec3AnimFlag translation = (Vec3AnimFlag) object.find("Translation");
 		if (translation != null) {
-			for (int i = 0; i < translation.size(); i++) {
-				translation.getValues().get(i).multiply(scale);
+			TreeMap<Integer, Entry<Vec3>> entryMap = translation.getEntryMap();
+			for (Entry<Vec3> entry : entryMap.values()) {
+				entry.getValue().multiply(scale);
 				if (translation.tans()) {
-					Vec3 inTanData = translation.getInTans().get(i);
-					inTanData.multiply(scale);
-					Vec3 outTanData = translation.getInTans().get(i);
-					outTanData.multiply(scale);
+					entry.getInTan().multiply(scale);
+					entry.getOutTan().multiply(scale);
 				}
 			}
 		}
