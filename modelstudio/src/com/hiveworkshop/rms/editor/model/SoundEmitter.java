@@ -59,7 +59,7 @@ public class SoundEmitter extends IdObject {
 		x.setParent(getParent());
 
 		for (final AnimFlag<?> af : animFlags) {
-			x.animFlags.add(AnimFlag.createFromAnimFlag(af));
+			x.animFlags.add(af.deepCopy());
 		}
 		return x;
 	}

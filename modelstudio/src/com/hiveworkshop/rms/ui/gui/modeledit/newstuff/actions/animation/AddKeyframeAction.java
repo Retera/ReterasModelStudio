@@ -8,24 +8,10 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 public class AddKeyframeAction implements UndoAction {
 	private final TimelineContainer node;
-	private final AnimFlag timeline;
+	private final AnimFlag<?> timeline;
 
 	private final ModelStructureChangeListener structureChangeListener;
-	private Entry<?> entry;
-
-	public AddKeyframeAction(TimelineContainer node, AnimFlag<?> timeline, int trackTime,
-	                         Object keyframeValue, Object keyframeInTan, Object keyframeOutTan,
-	                         ModelStructureChangeListener structureChangeListener) {
-		this.node = node;
-		this.timeline = timeline;
-		this.entry = new Entry(trackTime, keyframeValue, keyframeInTan, keyframeOutTan);
-		this.structureChangeListener = structureChangeListener;
-	}
-
-	public AddKeyframeAction(TimelineContainer node, AnimFlag<?> timeline, int trackTime,
-	                         Object keyframeValue, ModelStructureChangeListener structureChangeListener) {
-		this(node, timeline, trackTime, keyframeValue, null, null, structureChangeListener);
-	}
+	private final Entry<?> entry;
 
 	public AddKeyframeAction(TimelineContainer node, AnimFlag<?> timeline, Entry<?> entry,
 	                         ModelStructureChangeListener structureChangeListener) {
@@ -33,7 +19,6 @@ public class AddKeyframeAction implements UndoAction {
 		this.timeline = timeline;
 		this.entry = entry;
 		this.structureChangeListener = structureChangeListener;
-//		this(node, timeline, trackTime, keyframeValue, null, null, structureChangeListener);
 	}
 
 	@Override
@@ -51,7 +36,7 @@ public class AddKeyframeAction implements UndoAction {
 			}
 		}
 
-		timeline.addEntry(entry);
+		timeline.setOrAddEntryT(entry.time, entry);
 		structureChangeListener.keyframeAdded(node, timeline, entry.time);
 	}
 

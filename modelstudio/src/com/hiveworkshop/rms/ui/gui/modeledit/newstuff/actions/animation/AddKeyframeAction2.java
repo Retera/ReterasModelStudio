@@ -32,7 +32,9 @@ public class AddKeyframeAction2 implements UndoAction {
 
 	private final UndoAction createKeyframeCompoundAction;
 
-	public AddKeyframeAction2(ModelStructureChangeListener structureChangeListener, ModelHandler modelHandler, ModelEditorActionType3 actionType) {
+	public AddKeyframeAction2(ModelStructureChangeListener structureChangeListener,
+	                          ModelHandler modelHandler,
+	                          ModelEditorActionType3 actionType) {
 		this.actionType = actionType;
 		this.modelHandler = modelHandler;
 		this.modelView = modelHandler.getModelView();
@@ -58,9 +60,9 @@ public class AddKeyframeAction2 implements UndoAction {
 
 			if (transformationTimeline == null) {
 				if (keyframeMdlTypeName.equals("Rotation")) {
-					transformationTimeline = QuatAnimFlag.createEmpty2018(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+					transformationTimeline = new QuatAnimFlag(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 				} else {
-					transformationTimeline = Vec3AnimFlag.createEmpty2018(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+					transformationTimeline = new Vec3AnimFlag(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 				}
 				node.add(transformationTimeline);
 
@@ -81,7 +83,9 @@ public class AddKeyframeAction2 implements UndoAction {
 		return new CompoundAction("create keyframe", actions);
 	}
 
-	public AddKeyframeAction createTranslationKeyframe(AnimatedNode animatedNode, RenderModel renderModel, Vec3AnimFlag translationFlag,
+	public AddKeyframeAction createTranslationKeyframe(AnimatedNode animatedNode,
+	                                                   RenderModel renderModel,
+	                                                   Vec3AnimFlag translationFlag,
 	                                                   ModelStructureChangeListener changeListener) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		int trackTime = getTrackTime(renderModel);
@@ -93,8 +97,10 @@ public class AddKeyframeAction2 implements UndoAction {
 		return null;
 	}
 
-	public AddKeyframeAction createRotationKeyframe(AnimatedNode animatedNode, RenderModel renderModel, QuatAnimFlag rotationTimeline,
-	                                                       ModelStructureChangeListener changeListener) {
+	public AddKeyframeAction createRotationKeyframe(AnimatedNode animatedNode,
+	                                                RenderModel renderModel,
+	                                                QuatAnimFlag rotationTimeline,
+	                                                ModelStructureChangeListener changeListener) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		int trackTime = getTrackTime(renderModel);
 		RenderNode renderNode = renderModel.getRenderNode(animatedNode);
@@ -145,7 +151,8 @@ public class AddKeyframeAction2 implements UndoAction {
 		return trackTime;
 	}
 
-	private AddKeyframeAction getAddKeyframeAction(AnimatedNode animatedNode, Vec3AnimFlag timeline,
+	private AddKeyframeAction getAddKeyframeAction(AnimatedNode animatedNode,
+	                                               Vec3AnimFlag timeline,
 	                                               ModelStructureChangeListener changeListener,
 	                                               int trackTime, Vec3 vec3) {
 		Entry<Vec3> entry = new Entry<>(trackTime, vec3);

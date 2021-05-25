@@ -81,17 +81,12 @@ public class Layer extends TimelineContainer implements Named {
 		unlit = other.unlit;
 
 		for (AnimFlag<?> animFlag : other.getAnimFlags()) {
-			add(AnimFlag.createFromAnimFlag(animFlag));
+			add(animFlag.deepCopy());
 		}
 
 		textures = new ArrayList<>();
 		if (other.textures != null) {
-//			for (Bitmap bmp : other.textures) {
-//				textures.add(new Bitmap(bmp));
-//			}
-			for (Bitmap bmp : other.textures) {
-				textures.add(bmp);
-			}
+			textures.addAll(other.textures);
 		} else {
 			textures = null;
 		}

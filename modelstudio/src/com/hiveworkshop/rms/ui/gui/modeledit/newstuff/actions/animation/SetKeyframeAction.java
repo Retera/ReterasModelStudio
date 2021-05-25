@@ -7,40 +7,19 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 public class SetKeyframeAction implements UndoAction {
 	private final TimelineContainer node;
-	private final AnimFlag timeline;
+	private final AnimFlag<?> timeline;
 	private final Runnable structureChangeListener;
-	private Entry entry;
-	private Entry orgEntry;
-	private int time;
-	private int orgTime;
+	private final Entry<?> entry;
+	private final Entry<?> orgEntry;
+	private final int time;
 
-	public SetKeyframeAction(final TimelineContainer node, final AnimFlag timeline, Entry entry, Entry oldEntry, final Runnable structureChangeListener) {
-		this.node = node;
-		this.timeline = timeline;
-		this.entry = entry;
-		this.orgEntry = oldEntry;
-		this.structureChangeListener = structureChangeListener;
-
-	}
-
-	public SetKeyframeAction(TimelineContainer node, AnimFlag timeline, int orgTime, Entry entry, Runnable structureChangeListener) {
+	public SetKeyframeAction(TimelineContainer node, AnimFlag<?> timeline, Entry<?> entry, Runnable structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
 		this.node = node;
 		this.timeline = timeline;
 		this.entry = entry;
-		this.orgTime = orgTime;
 		time = entry.time;
-		orgEntry = timeline.getEntryAt(orgTime);
-	}
-
-	public SetKeyframeAction(TimelineContainer node, AnimFlag timeline, Entry entry, Runnable structureChangeListener) {
-		this.structureChangeListener = structureChangeListener;
-		this.node = node;
-		this.timeline = timeline;
-		this.entry = entry;
-		this.orgTime = entry.time;
-		time = entry.time;
-		orgEntry = timeline.getEntryAt(orgTime);
+		orgEntry = timeline.getEntryAt(time);
 	}
 
 	@Override
@@ -51,7 +30,7 @@ public class SetKeyframeAction implements UndoAction {
 						"Cannot add interpolation information (inTan/outTan) for keyframe, animation data was \"Linear\" or \"DontInterp\" during previous user action");
 			}
 		}
-		timeline.setEntry(orgEntry);
+		timeline.setOrAddEntryT(time, orgEntry);
 		structureChangeListener.run();
 	}
 
@@ -63,7 +42,7 @@ public class SetKeyframeAction implements UndoAction {
 						"Cannot set interpolation information (inTan/outTan) for keyframe, animation data was \"Linear\" or \"DontInterp\" during previous user action");
 			}
 		}
-		timeline.setEntry(entry);
+		timeline.setOrAddEntryT(time, entry);
 		structureChangeListener.run();
 	}
 

@@ -208,13 +208,13 @@ public class KeyframeCopyPanel extends JPanel {
 	}
 
 	private void setKeyframes(int donKeyframe, int recKeyframe, int times, ArrayList<AnimFlag<?>> animFlags) {
-		for (int i = 0; i < animFlags.size(); i++) {
+		for (AnimFlag<?> animFlag : animFlags) {
 			for (int j = 0; j < times; j++) {
-				animFlags.get(i).removeKeyframe(recKeyframe + j);
-				Entry<?> entryAt = animFlags.get(i).getEntryAt(donKeyframe + j);
+				animFlag.removeKeyframe(recKeyframe + j);
+				Entry<?> entryAt = animFlag.getEntryAt(donKeyframe + j);
 				if (entryAt != null) {
-					Entry<?> entry = new Entry<>(entryAt);
-					animFlags.get(i).setOrAddEntryT(recKeyframe + j, entry);
+					Entry<?> entry = entryAt.deepCopy();
+					animFlag.setOrAddEntryT(recKeyframe + j, entry);
 				}
 			}
 		}

@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -170,9 +171,9 @@ public class ImportPanel extends JTabbedPane {
 			final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
 			for (final AnimFlag<?> af : donModFlags) {
 				if (!af.hasGlobalSeq()) {
-					newImpFlags.add(AnimFlag.buildEmptyFrom(af));
+					newImpFlags.add(af.getEmptyCopy());
 				} else {
-					newImpFlags.add(AnimFlag.createFromAnimFlag(af));
+					newImpFlags.add(af.deepCopy());
 				}
 			}
 			final List<EventObject> newImpEventObjs = new ArrayList<>();
@@ -261,15 +262,15 @@ public class ImportPanel extends JTabbedPane {
 	}
 
 	private void setNewVisSources(List<Animation> oldAnims, boolean clearAnims, List<Animation> newAnims) {
-		final List<AnimFlag<?>> finalVisFlags = new ArrayList<>();
+		final List<AnimFlag<Float>> finalVisFlags = new ArrayList<>();
 		for (VisibilityShell visibilityShell : mht.futureVisComponents) {
-			final VisibilitySource temp = ((VisibilitySource) visibilityShell.getSource());
-			final AnimFlag<?> visFlag = temp.getVisibilityFlag();// might be null
-			final AnimFlag<?> newVisFlag;
+			VisibilitySource temp = ((VisibilitySource) visibilityShell.getSource());
+			AnimFlag<Float> visFlag = temp.getVisibilityFlag();// might be null
+			AnimFlag<Float> newVisFlag;
 
 			boolean tans = false;
 			if (visFlag != null) {
-				newVisFlag = AnimFlag.buildEmptyFrom(visFlag);
+				newVisFlag = visFlag.getEmptyCopy();
 				tans = visFlag.tans();
 			} else {
 				newVisFlag = new FloatAnimFlag(temp.visFlagName());
@@ -298,7 +299,7 @@ public class ImportPanel extends JTabbedPane {
 		for (int i = 0; i < mht.futureVisComponents.size(); i++) {
 			final VisibilityShell vPanel = mht.futureVisComponents.get(i);
 			final VisibilitySource temp = ((VisibilitySource) vPanel.getSource());
-			final AnimFlag<?> visFlag = finalVisFlags.get(i);// might be null
+			final AnimFlag<Float> visFlag = finalVisFlags.get(i);// might be null
 			if (visFlag.size() > 0) {
 				temp.setVisibilityFlag(visFlag);
 			} else {
@@ -319,22 +320,27 @@ public class ImportPanel extends JTabbedPane {
 	}
 
 	private FloatAnimFlag getFloatAnimFlag(boolean tans, List<Animation> anims, VisibilityShell source) {
-		FloatAnimFlag flagOld = null;
 		if (source != null) {
 			if (source.isNeverVisible()) {
-				flagOld = new FloatAnimFlag("temp");
+				FloatAnimFlag flagOld = new FloatAnimFlag("temp");
+
+				Entry<Float> invisEntry = new Entry<>(0, 0f);
+				if(tans) invisEntry.unLinearize();
+
 				for (final Animation a : anims) {
-					if (tans) {
-						flagOld.addEntry(a.getStart(), 0f, 0f, 0f);
-					} else {
-						flagOld.addEntry(a.getStart(), 0f);
-					}
+					flagOld.setOrAddEntryT(a.getStart(), invisEntry.deepCopy().setTime(a.getStart()));
+//					if (tans) {
+//						flagOld.addEntry(a.getStart(), 0f, 0f, 0f);
+//					} else {
+//						flagOld.addEntry(a.getStart(), 0f);
+//					}
 				}
+				return flagOld;
 			} else if (!source.isAlwaysVisible()) {
-				flagOld = (FloatAnimFlag) ((VisibilitySource) source.getSource()).getVisibilityFlag();
+				return (FloatAnimFlag) ((VisibilitySource) source.getSource()).getVisibilityFlag();
 			}
 		}
-		return flagOld;
+		return null;
 	}
 
 	private List<Camera> addChosenObjects(List<IdObject> objectsAdded) {

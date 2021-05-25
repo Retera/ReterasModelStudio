@@ -136,19 +136,22 @@ public abstract class TimelineContainer implements VisibilitySource {
 	}
 
 	@Override
-	public AnimFlag<?> getVisibilityFlag() {
+	public AnimFlag<Float> getVisibilityFlag() {
 		AnimFlag<?> timeline = find(MdlUtils.TOKEN_VISIBILITY);
 
 		if (timeline == null) {
 			timeline = find(MdlUtils.TOKEN_ALPHA);
 		}
 
-		return timeline;
+		if(timeline instanceof FloatAnimFlag){
+			return (FloatAnimFlag) timeline;
+		}
+		return null;
 	}
 
 	// VisibilitySource methods
 	@Override
-	public void setVisibilityFlag(AnimFlag<?> flag) {
+	public void setVisibilityFlag(AnimFlag<Float> flag) {
 		remove(MdlUtils.TOKEN_VISIBILITY);
 		remove(MdlUtils.TOKEN_ALPHA);
 

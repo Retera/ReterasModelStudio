@@ -216,9 +216,9 @@ public class AddSingleAnimationActions {
 		final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
 		for (final AnimFlag<?> af : othersFlags) {
 			if (!af.hasGlobalSeq) {
-				newImpFlags.add(AnimFlag.buildEmptyFrom(af));
+				newImpFlags.add(af.getEmptyCopy());
 			} else {
-				newImpFlags.add(AnimFlag.createFromAnimFlag(af));
+				newImpFlags.add(af.deepCopy());
 			}
 		}
 		final List<EventObject> newImpEventObjs = new ArrayList<>();

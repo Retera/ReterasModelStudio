@@ -19,17 +19,10 @@ public class ReplaceAnimFlagsAction implements UndoAction {
 		this.timelineContainer = timelineContainer;
 		this.animFlags = new ArrayList<>();
 		for (AnimFlag<?> animFlag : animFlagsToCopy) {
-			animFlags.add(AnimFlag.createFromAnimFlag(animFlag));
+			animFlags.add(animFlag.deepCopy());
 		}
 		oldAnimFlags = timelineContainer.getAnimFlags();
 	}
-
-//	public AddAnimFlagAction(TimelineContainer timelineContainer, String flagName, ModelStructureChangeListener structureChangeListener) {
-//		this.structureChangeListener = structureChangeListener;
-//		this.timelineContainer = timelineContainer;
-//		animFlag = new AnimFlag(flagName);
-//		animFlag.addEntry(0, 1);
-//	}
 
 	@Override
 	public void undo() {

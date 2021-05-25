@@ -85,13 +85,13 @@ public class GeosetAnim extends TimelineContainer implements Named {
 
 	public GeosetAnim getMostVisible(GeosetAnim partner) {
 		if ((getVisibilityFlag() != null) && (partner != null)) {
-			AnimFlag<?> thisFlag = getVisibilityFlag();
-			AnimFlag thatFlag = partner.getVisibilityFlag();
-			if (thatFlag != null) {
-				AnimFlag<?> result = thisFlag.getMostVisible(thatFlag);
-				if (result == thisFlag) {
+			FloatAnimFlag selfFlag = (FloatAnimFlag) getVisibilityFlag();
+			FloatAnimFlag partnerFlag = (FloatAnimFlag) partner.getVisibilityFlag();
+			if (partnerFlag != null) {
+				FloatAnimFlag result = selfFlag.getMostVisible(partnerFlag);
+				if (result == selfFlag) {
 					return this;
-				} else if (result == thatFlag) {
+				} else if (result == partnerFlag) {
 					return partner;
 				}
 			}
@@ -150,7 +150,7 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		AnimFlag<?> visFlag = getVisibilityFlag();// might be null
 		FloatAnimFlag newVisFlag;
 		if (visFlag != null) {
-			newVisFlag = (FloatAnimFlag) AnimFlag.buildEmptyFrom(visFlag);
+			newVisFlag = (FloatAnimFlag) visFlag.getEmptyCopy();
 		} else {
 			newVisFlag = new FloatAnimFlag(temp.visFlagName());
 		}

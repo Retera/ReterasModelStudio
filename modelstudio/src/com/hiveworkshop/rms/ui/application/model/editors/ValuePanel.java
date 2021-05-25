@@ -430,7 +430,7 @@ public abstract class ValuePanel<T> extends JPanel {
 			AnimFlag<T> flag = getNewAnimFlag();
 			if (flag != null) {
 				Entry<T> entry = new Entry<>(0, staticValue);
-				flag.addEntry(entry);
+				flag.setOrAddEntryT(0, entry);
 //			UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flagName, modelStructureChangeListener);
 				UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flag, modelStructureChangeListener);
 				undoManager.pushAction(undoAction);
@@ -449,10 +449,10 @@ public abstract class ValuePanel<T> extends JPanel {
 				} else {
 					lastEntry = new Entry<>(0, staticValue);
 				}
-				newEntry = new Entry<>(lastEntry);
+				newEntry = lastEntry.deepCopy();
 			} else {
 				lastEntry = animFlag.getEntryMap().lastEntry().getValue();
-				newEntry = new Entry<>(lastEntry);
+				newEntry = lastEntry.deepCopy();
 				newEntry.setTime(newEntry.time + 1);
 			}
 
@@ -497,9 +497,11 @@ public abstract class ValuePanel<T> extends JPanel {
 		oldAnimFlag = animFlag;
 
 		int orgTime = (int) floatTrackTableModel.getValueAt(row, 0);
-		UndoAction undoAction = new RemoveFlagEntryAction(animFlag, orgTime, timelineContainer, modelStructureChangeListener);
-		undoManager.pushAction(undoAction);
-		undoAction.redo();
+		if(animFlag.hasEntryAt(orgTime)){
+			UndoAction undoAction = new RemoveFlagEntryAction(animFlag, orgTime, timelineContainer, modelStructureChangeListener);
+			undoManager.pushAction(undoAction);
+			undoAction.redo();
+		}
 
 		revalidate();
 		repaint();
@@ -509,7 +511,7 @@ public abstract class ValuePanel<T> extends JPanel {
 //		System.out.println("changeEntry");
 //		int orgTime = animFlag.getTimeFromIndex(row);
 		int orgTime = (int) floatTrackTableModel.getValueAt(row, 0);
-		Entry<T> entry = animFlag.getEntryAt(orgTime);
+		Entry<T> newEntry = animFlag.getEntryAt(orgTime).deepCopy();
 		T tValue = parseValue(val);
 		System.out.println(val);
 		System.out.println(tValue);
@@ -519,20 +521,20 @@ public abstract class ValuePanel<T> extends JPanel {
 		int iValue = Integer.parseInt(intString);
 
 		switch (field) {
-			case "Keyframe" -> entry.time = iValue;
-			case "Value" -> entry.value = tValue;
-			case "InTan" -> entry.inTan = tValue;
-			case "OutTan" -> entry.outTan = tValue;
+			case "Keyframe" -> newEntry.time = iValue;
+			case "Value" -> newEntry.value = tValue;
+			case "InTan" -> newEntry.inTan = tValue;
+			case "OutTan" -> newEntry.outTan = tValue;
 		}
 
-		UndoAction undoAction = new ChangeFlagEntryAction(animFlag, entry, orgTime, timelineContainer, modelStructureChangeListener);
-		undoManager.pushAction(undoAction);
+		UndoAction undoAction = new ChangeFlagEntryAction<>(animFlag, newEntry, orgTime, timelineContainer, modelStructureChangeListener);
 		undoAction.redo();
+		undoManager.pushAction(undoAction);
 
 //		revalidate();
 //		repaint();
 
-		selectNewIndex = animFlag.getIndexOfTime(entry.time);
+		selectNewIndex = animFlag.getIndexOfTime(newEntry.time);
 	}
 
 }

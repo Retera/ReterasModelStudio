@@ -10,7 +10,7 @@ public class RemoveFlagEntryAction implements UndoAction {
 	private final ModelStructureChangeListener structureChangeListener;
 	private final TimelineContainer timelineContainer;
 	AnimFlag<?> animFlag;
-	Entry entry;
+	Entry<?> entry;
 
 	public RemoveFlagEntryAction(AnimFlag<?> animFlag, int orgTime, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
@@ -19,17 +19,9 @@ public class RemoveFlagEntryAction implements UndoAction {
 		this.entry = animFlag.getEntryAt(orgTime);
 	}
 
-	public RemoveFlagEntryAction(AnimFlag animFlag, Entry entry, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
-		this.structureChangeListener = structureChangeListener;
-		this.timelineContainer = timelineContainer;
-		this.animFlag = animFlag;
-		this.entry = entry;
-	}
-
 	@Override
 	public void undo() {
-		animFlag.addEntry(entry);
-//		animFlag.sort();
+		animFlag.setOrAddEntryT(entry.time, entry);
 //		structureChangeListener.keyframeAdded(timelineContainer, animFlag, entry.time);
 		structureChangeListener.materialsListChanged();
 	}
@@ -43,6 +35,6 @@ public class RemoveFlagEntryAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "remove animation";
+		return "delete keyframe";
 	}
 }

@@ -796,7 +796,7 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	@Override
-	public AnimFlag<?> getVisibilityFlag() {
+	public AnimFlag<Float> getVisibilityFlag() {
 		if (geosetAnim != null) {
 			return geosetAnim.getVisibilityFlag();
 		}
@@ -804,7 +804,7 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	@Override
-	public void setVisibilityFlag(final AnimFlag<?> a) {
+	public void setVisibilityFlag(AnimFlag<Float> a) {
 		if (a != null) {
 			forceGetGeosetAnim().setVisibilityFlag(a);
 		}

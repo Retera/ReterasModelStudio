@@ -524,12 +524,12 @@ public class EditableModel implements Named {
 		model.clearAnimations();
 	}
 
-	public void copyVisibility(final Animation visibilitySource, final Animation target) {
+	public void copyVisibility(Animation visibilitySource, Animation target) {
 //		final List<VisibilitySource> allVisibilitySources = getAllVisibilitySources();
 		final List<VisibilitySource> allVisibilitySources = getAllVis();
-		for (final VisibilitySource source : allVisibilitySources) {
-			final AnimFlag<?> visibilityFlag = source.getVisibilityFlag();
-			final AnimFlag<?> copyFlag = AnimFlag.createFromAnimFlag(visibilityFlag);
+		for (VisibilitySource source : allVisibilitySources) {
+			AnimFlag<?> visibilityFlag = source.getVisibilityFlag();
+			AnimFlag<?> copyFlag = visibilityFlag.deepCopy();
 			visibilityFlag.deleteAnim(target);
 			visibilityFlag.copyFrom(copyFlag, visibilitySource.getStart(), visibilitySource.getEnd(), target.getStart(), target.getEnd());
 		}
@@ -1063,11 +1063,11 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public void buildGlobSeqFrom(final Animation anim, final List<AnimFlag<?>> flags) {
+	public void buildGlobSeqFrom(Animation anim, List<AnimFlag<?>> flags) {
 		final Integer newSeq = anim.length();
-		for (final AnimFlag<?> af : flags) {
+		for (AnimFlag<?> af : flags) {
 			if (!af.hasGlobalSeq) {
-				final AnimFlag<?> copy = AnimFlag.createFromAnimFlag(af);
+				AnimFlag<?> copy = af.deepCopy();
 				copy.setGlobSeq(newSeq);
 				copy.copyFrom(af, anim.getStart(), anim.getEnd(), 0, anim.length());
 				addFlagToParent(af, copy);
@@ -1101,13 +1101,8 @@ public class EditableModel implements Named {
 
 	public GeosetAnim getGeosetAnimOfGeoset(final Geoset g) {
 		if (g.geosetAnim == null) {
-			boolean noIds = true;
-			for (final GeosetAnim ga : geosetAnims) {
-				if (ga.geoset != null) {
-					noIds = false;
-					break;
-				}
-			}
+			boolean noIds = geosetAnims.stream().noneMatch(ga -> ga.geoset != null);
+
 			if (noIds) {
 				if (geosetAnims.size() > geosets.indexOf(g)) {
 					g.geosetAnim = geosetAnims.get(geosets.indexOf(g));
@@ -1115,14 +1110,12 @@ public class EditableModel implements Named {
 					return null;
 				}
 			} else {
-				GeosetAnim temp = null;
 				for (final GeosetAnim ga : geosetAnims) {
 					if (ga.geoset == g) {
-						temp = ga;
+						g.geosetAnim = ga;
 						break;
 					}
 				}
-				g.geosetAnim = temp;
 			}
 		}
 		return g.geosetAnim;
@@ -1254,11 +1247,9 @@ public class EditableModel implements Named {
 		other = EditableModel.deepClone(other, "animation source file");
 
 		final List<AnimFlag<?>> flags = getAllAnimFlags();
-//		final List<EventObject> eventObjs = (List<EventObject>) sortedIdObjects(EventObject.class);
 		final List<EventObject> eventObjs = getEvents();
 
 		final List<AnimFlag<?>> othersFlags = other.getAllAnimFlags();
-//		final List<EventObject> othersEventObjs = (List<EventObject>) other.sortedIdObjects(EventObject.class);
 		final List<EventObject> othersEventObjs = other.getEvents();
 
 		// ------ Duplicate the time track in the other model -------------
@@ -1269,9 +1260,9 @@ public class EditableModel implements Named {
 		final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
 		for (final AnimFlag<?> af : othersFlags) {
 			if (!af.hasGlobalSeq) {
-				newImpFlags.add(AnimFlag.buildEmptyFrom(af));
+				newImpFlags.add(af.getEmptyCopy());
 			} else {
-				newImpFlags.add(AnimFlag.createFromAnimFlag(af));
+				newImpFlags.add(af.deepCopy());
 			}
 		}
 		final List<EventObject> newImpEventObjs = new ArrayList<>();

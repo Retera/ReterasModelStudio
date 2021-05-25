@@ -122,9 +122,7 @@ public class AddBirthDeathSequences {
                 return;
             }
             if (trans == null) {
-                final List<Integer> times = new ArrayList<>();
-                final List<Vec3> values = new ArrayList<>();
-                trans = new Vec3AnimFlag("Translation", times, values);
+                trans = new Vec3AnimFlag("Translation");
                 trans.setInterpType(InterpolationType.LINEAR);
                 b.add(trans);
             }
@@ -170,7 +168,7 @@ public class AddBirthDeathSequences {
             Vec3AnimFlag translationTimeline = (Vec3AnimFlag) node.find(name, timeEnvironmentImpl.getGlobalSeq());
 
             if (translationTimeline == null) {
-                translationTimeline = Vec3AnimFlag.createEmpty2018(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+                translationTimeline = new Vec3AnimFlag(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
                 node.add(translationTimeline);
 
                 final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline, structureChangeListener);

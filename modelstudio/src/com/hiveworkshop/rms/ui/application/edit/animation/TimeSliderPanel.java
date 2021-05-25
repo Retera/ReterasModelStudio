@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.TimeSliderView;
+import com.hiveworkshop.rms.ui.application.actions.model.animFlag.RemoveFlagEntryAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener.TimeSliderTimeNotifier;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
@@ -19,7 +20,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyfr
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.SetKeyframeAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.SlideKeyframeAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.ReversedAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
@@ -478,10 +478,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		final List<UndoAction> actions = new ArrayList<>();
 		for (final IdObject object : objects) {
 			for (final AnimFlag<?> flag : object.getAnimFlags()) {
-
-				final ReversedAction deleteFrameAction = getDeleteAction(actionName, structureChangeListener, object, flag, trackTime);
-				if (deleteFrameAction != null) {
-					actions.add(deleteFrameAction);
+				if (flag.getEntryMap().containsKey(trackTime)) {
+					actions.add(new RemoveFlagEntryAction(flag, trackTime, object, structureChangeListener));
 				}
 			}
 		}
@@ -492,37 +490,11 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	}
 
 	private void deleteKeyframe(final String actionName, final ModelStructureChangeListener structureChangeListener, final IdObject object, final AnimFlag<?> flag, final int trackTime) {
-		ReversedAction deleteFrameAction = getDeleteAction(actionName, structureChangeListener, object, flag, trackTime);
-		if (deleteFrameAction != null) {
+		if (flag.getEntryMap().containsKey(trackTime)) {
+			UndoAction deleteFrameAction = new RemoveFlagEntryAction(flag, trackTime, object, structureChangeListener);
 			deleteFrameAction.redo();
 			undoManager.pushAction(deleteFrameAction);
 		}
-	}
-
-	private ReversedAction getDeleteAction(String actionName, ModelStructureChangeListener structureChangeListener, IdObject object, AnimFlag<?> flag, int trackTime) {
-		final ReversedAction deleteFrameAction;
-		if (flag.getEntryMap().containsKey(trackTime)) {
-			return new ReversedAction(actionName, new AddKeyframeAction(object, flag, flag.getEntryMap().get(trackTime), structureChangeListener));
-		}
-		return null;
-//		if ((flooredTimeIndex != -1) && (flooredTimeIndex < flag.getTimes().size()) && (flag.getTimes().get(flooredTimeIndex).equals(trackTime))) {
-//			// I'm going to cheat a little bit.
-//			// When this saves the list of keyframe values to put back if we CTRL+Z
-//			// to the "undo stack", it will store the memory references directly.
-//			// This makes the assumption that we can't graphically edit
-//			// deleted keyframes, and I'm pretty certain that should be true.
-//			// (Copy&Paste cannot use this optimization, and must create deep copies
-//			// of the keyframe values)
-////			if (flag.tans()) {
-////				deleteFrameAction = new ReversedAction(actionName, new AddKeyframeAction(object, flag, trackTime, flag.getValues().get(flooredTimeIndex), flag.getInTans().get(flooredTimeIndex), flag.getOutTans().get(flooredTimeIndex), structureChangeListener));
-////			} else {
-////				deleteFrameAction = new ReversedAction(actionName, new AddKeyframeAction(object, flag, trackTime, flag.getValues().get(flooredTimeIndex), structureChangeListener));
-////			}
-//			deleteFrameAction = new ReversedAction(actionName, new AddKeyframeAction(object, flag, flag.getEntry(flooredTimeIndex), structureChangeListener));
-//		} else {
-//			deleteFrameAction = null;
-//		}
-//		return deleteFrameAction;
 	}
 
 	public void jumpToPreviousTime() {
@@ -598,14 +570,14 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private void copuKeyframes(IdObject object, AnimFlag<?> flag, int trackTime) {
 		if (flag.getEntryMap().containsKey(trackTime)) {
 
-			copiedKeyframes.add(new CopiedKeyFrame(object, flag, new Entry<>(flag.getEntryMap().get(trackTime))));
+			copiedKeyframes.add(new CopiedKeyFrame(object, flag, flag.getEntryAt(trackTime).deepCopy()));
 
 		} else {
 			Object value = flag.interpolateAt(timeEnvironment);
 			if (flag.tans()) {
-				copiedKeyframes.add(new CopiedKeyFrame(object, flag, AnimFlag.cloneValue(value), AnimFlag.cloneValue(value), AnimFlag.cloneValue(value)));
+				copiedKeyframes.add(new CopiedKeyFrame(object, flag, flag.cloneValue(value), flag.cloneValue(value), flag.cloneValue(value)));
 			} else {
-				copiedKeyframes.add(new CopiedKeyFrame(object, flag, AnimFlag.cloneValue(value), null, null));
+				copiedKeyframes.add(new CopiedKeyFrame(object, flag, flag.cloneValue(value), null, null));
 			}
 		}
 	}
@@ -943,10 +915,14 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 			final Iterable<IdObject> selection = getSelectionToUse();
 			for (final IdObject object : selection) {
 				for (final AnimFlag<?> flag : object.getAnimFlags()) {
-					if (((flag.getGlobalSeqLength() == null) && (timeEnvironment.getGlobalSeq() == null)) || ((timeEnvironment.getGlobalSeq() != null) && timeEnvironment.getGlobalSeq().equals(flag.getGlobalSeqLength()))) {
+					if (((flag.getGlobalSeqLength() == null) && (timeEnvironment.getGlobalSeq() == null))
+							|| ((timeEnvironment.getGlobalSeq() != null) && timeEnvironment.getGlobalSeq().equals(flag.getGlobalSeqLength()))) {
 						if (flag.size() > 0) {
 							TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap();
-							for (int time = entryMap.ceilingKey(timeEnvironment.getStart()); time <= entryMap.floorKey(timeEnvironment.getEnd()); time = entryMap.higherKey(time)) {
+							Integer startTime = entryMap.ceilingKey(timeEnvironment.getStart());
+							Integer endTime = entryMap.floorKey(timeEnvironment.getEnd());
+							if(endTime == null) endTime = startTime;
+							for (Integer time = startTime; time != null && time <= endTime; time = entryMap.higherKey(time)) {
 								KeyFrame keyFrame = timeToKey.get(time);
 								if (keyFrame == null) {
 									keyFrame = new KeyFrame(time);
@@ -1018,7 +994,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		// only paste to selected nodes
 		UndoAction action;
 		AnimFlag<?> sourceTimeline = frame.sourceTimeline;
-		Entry newEntry = new Entry(frame.entry);
+		Entry<?> newEntry = frame.entry.deepCopy();
 //		final Object newValue = AnimFlag.cloneValue(frame.value);
 		// tans might be null
 //		final Object newInTan = AnimFlag.cloneValue(frame.inTan);
@@ -1041,8 +1017,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 //					notifier.timeChanged(currentTime);
 //				});
 //			}
-			newEntry.time = mouseClickAnimationTime;
-			sourceTimeline.setEntry(mouseClickAnimationTime, newEntry);
+			newEntry.setTime(mouseClickAnimationTime);
+			sourceTimeline.setOrAddEntryT(mouseClickAnimationTime, newEntry);
 			action = new SetKeyframeAction(frame.node, sourceTimeline, newEntry, () -> {
 				// TODO this is a hack to refresh screen while dragging
 				notifier.timeChanged(timeEnvironment.getAnimationTime());
@@ -1055,8 +1031,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 //				sourceTimeline.addKeyframe(mouseClickAnimationTime, newValue);
 //				action = new AddKeyframeAction(frame.node, sourceTimeline, mouseClickAnimationTime, newValue, structureChangeListener);
 //			}
-			newEntry.time = mouseClickAnimationTime;
-			sourceTimeline.addKeyframe(newEntry);
+			newEntry.setTime(mouseClickAnimationTime);
+			sourceTimeline.setOrAddEntryT(newEntry.time, newEntry);
 			action = new AddKeyframeAction(frame.node, sourceTimeline, newEntry, structureChangeListener);
 		}
 		return action;
@@ -1166,28 +1142,19 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private static final class CopiedKeyFrame {
 		private final TimelineContainer node;
 		private final AnimFlag<?> sourceTimeline;
-		private final Object value;
-		private final Object inTan;
-		private final Object outTan;
 		private final Entry<?> entry;
 
-		public CopiedKeyFrame(final TimelineContainer node, final AnimFlag<?> sourceTimeline, final Object value,
-		                      final Object inTan, final Object outTan) {
+		public CopiedKeyFrame(TimelineContainer node, AnimFlag<?> sourceTimeline, Object value,
+		                      Object inTan, Object outTan) {
 			this.node = node;
 			this.sourceTimeline = sourceTimeline;
-			this.value = value;
-			this.inTan = inTan;
-			this.outTan = outTan;
-			entry = new Entry(0, value, inTan, outTan);
+			entry = new Entry<>(0, value, inTan, outTan);
 		}
 
 		public CopiedKeyFrame(TimelineContainer node, AnimFlag<?> sourceTimeline, Entry<?> entry) {
 			this.node = node;
 			this.sourceTimeline = sourceTimeline;
 			this.entry = entry;
-			this.value = entry.value;
-			this.inTan = entry.inTan;
-			this.outTan = entry.outTan;
 		}
 	}
 

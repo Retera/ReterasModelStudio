@@ -10,7 +10,6 @@ public class Entry<T> {
 	public T value, inTan, outTan;
 
 	public Entry(Integer time, T value, T inTan, T outTan) {
-		super();
 		this.time = time;
 		this.value = value;
 		this.inTan = inTan;
@@ -18,13 +17,11 @@ public class Entry<T> {
 	}
 
 	public Entry(Integer time, T value) {
-		super();
 		this.time = time;
 		this.value = value;
 	}
 
 	public Entry(Entry<T> other) {
-		super();
 		this.time = other.time;
 		this.value = cloneEntryValue(other.value);
 		this.inTan = cloneEntryValue(other.inTan);
@@ -113,5 +110,9 @@ public class Entry<T> {
 	@Override
 	public int hashCode() {
 		return Objects.hash(time, value, inTan, outTan);
+	}
+
+	public Entry<T> deepCopy(){
+		return new Entry<>(this);
 	}
 }

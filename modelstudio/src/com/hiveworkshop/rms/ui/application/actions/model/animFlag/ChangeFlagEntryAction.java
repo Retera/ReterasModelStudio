@@ -6,35 +6,35 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
-public class ChangeFlagEntryAction implements UndoAction {
+public class ChangeFlagEntryAction<T> implements UndoAction {
 	private final ModelStructureChangeListener structureChangeListener;
 	private final TimelineContainer timelineContainer;
-	private final AnimFlag<?> animFlag;
-	Entry<?> entry;
+	Entry<T> newEntry;
 	int orgTime;
 	int time;
-	Entry<?> orgEntry;
+	Entry<T> orgEntry;
+	Entry<T> entry;
 
 
-	public ChangeFlagEntryAction(AnimFlag<?> animFlag, Entry<?> entry, int orgTime, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
+	public ChangeFlagEntryAction(AnimFlag<T> animFlag, Entry<T> newEntry, int orgTime, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
 		this.timelineContainer = timelineContainer;
-		this.animFlag = animFlag;
-		this.entry = entry;
+		this.newEntry = newEntry;
 		this.orgTime = orgTime;
-		time = entry.time;
-		orgEntry = animFlag.getEntryAt(orgTime);
+		time = newEntry.time;
+		orgEntry = animFlag.getEntryAt(orgTime).deepCopy();
+		entry = animFlag.getEntryAt(orgTime);
 	}
 
 	@Override
 	public void undo() {
-		animFlag.setEntryT(time, orgEntry);
+		entry.set(orgEntry);
 		structureChangeListener.materialsListChanged();
 	}
 
 	@Override
 	public void redo() {
-		animFlag.setEntryT(orgTime, entry);
+		entry.set(newEntry);
 		structureChangeListener.materialsListChanged();
 	}
 

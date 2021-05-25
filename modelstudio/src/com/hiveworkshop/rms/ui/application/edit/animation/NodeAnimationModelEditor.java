@@ -277,9 +277,9 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 			if (transformationTimeline == null) {
 				if (name.equals("Rotation")) {
-					transformationTimeline = QuatAnimFlag.createEmpty2018(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+					transformationTimeline = new QuatAnimFlag(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 				} else {
-					transformationTimeline = Vec3AnimFlag.createEmpty2018(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+					transformationTimeline = new Vec3AnimFlag(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 				}
 //				transformationTimeline = AnimFlag.createEmpty2018(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 				node.add(transformationTimeline);
@@ -339,7 +339,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 		for (IdObject node : selection) {
 			QuatAnimFlag translationTimeline = (QuatAnimFlag) node.find("Rotation", timeEnvironmentImpl.getGlobalSeq());
 			if (translationTimeline == null) {
-				translationTimeline = QuatAnimFlag.createEmpty2018("Rotation", InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+				translationTimeline = new QuatAnimFlag("Rotation", InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 				node.add(translationTimeline);
 
 				AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline, structureChangeListener);
