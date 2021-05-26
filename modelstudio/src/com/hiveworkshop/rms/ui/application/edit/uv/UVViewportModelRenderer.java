@@ -13,8 +13,10 @@ import com.hiveworkshop.rms.util.Vec2;
 import java.awt.*;
 
 public class UVViewportModelRenderer {
+	private int vertexSize;
 
 	public UVViewportModelRenderer() {
+		vertexSize = ProgramGlobals.getPrefs().getVertexSize();
 	}
 
 	public void drawGeosetUVs(Graphics2D graphics,
@@ -38,5 +40,29 @@ public class UVViewportModelRenderer {
 				GU.drawPolygon(graphics, triV2);
 			}
 		}
+	}
+
+	public void renderFace(Graphics2D graphics,
+	                       CoordinateSystem coordinateSystem,
+	                       Color borderColor,
+	                       Color color,
+	                       Vec2 a, Vec2 b, Vec2 c) {
+		Vec2 pointA = CoordSysUtils.convertToViewVec2(coordinateSystem, a);
+		Vec2 pointB = CoordSysUtils.convertToViewVec2(coordinateSystem, b);
+		Vec2 pointC = CoordSysUtils.convertToViewVec2(coordinateSystem, c);
+
+		graphics.setColor(color);
+		GU.fillPolygon(graphics, pointA, pointB, pointC);
+		graphics.setColor(borderColor);
+		GU.drawPolygon(graphics, pointA, pointB, pointC);
+	}
+
+	public void renderVertex(Graphics2D graphics,
+	                         CoordinateSystem coordinateSystem,
+	                         Color color, Vec2 vertex) {
+		Vec2 pointA = CoordSysUtils.convertToViewVec2(coordinateSystem, vertex);
+		graphics.setColor(color);
+		GU.fillCenteredSquare(graphics, pointA, vertexSize);
+//		graphics.fillRect(pointA.x - (vertexSize / 2), (int) (pointA.y - (vertexSize / 2.0)), vertexSize, vertexSize);
 	}
 }

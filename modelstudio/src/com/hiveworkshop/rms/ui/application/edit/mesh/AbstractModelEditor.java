@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
@@ -16,25 +16,25 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundActio
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.Arrays;
 
-public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> {
-    protected final VertexSelectionHelper vertexSelectionHelper;
+public class AbstractModelEditor<T> extends AbstractSelectingEditor<T> {
     protected final ModelStructureChangeListener structureChangeListener;
     protected ModelHandler modelHandler;
+    protected SelectionItemTypes selectionMode;
 
     public AbstractModelEditor(SelectionManager<T> selectionManager,
                                ModelStructureChangeListener structureChangeListener,
-                               ModelHandler modelHandler) {
+                               ModelHandler modelHandler, SelectionItemTypes selectionMode) {
         super(selectionManager, modelHandler.getModelView());
         this.modelHandler = modelHandler;
         this.structureChangeListener = structureChangeListener;
-        vertexSelectionHelper = this::selectByVertices;
+        this.selectionMode = selectionMode;
     }
 
     public static boolean hitTest(Vec2 min, Vec2 max, Vec3 vec3, CoordinateSystem coordinateSystem, double vertexSize) {
@@ -142,11 +142,6 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     }
 
     @Override
-    public Vec3 getSelectionCenter() {
-        return selectionManager.getCenter();
-    }
-
-    @Override
     public boolean editorWantsAnimation() {
         return false;
     }
@@ -169,5 +164,84 @@ public abstract class AbstractModelEditor<T> extends AbstractSelectingEditor<T> 
     @Override
     public GenericScaleAction beginScaling(Vec3 center) {
         return new StaticMeshScaleAction(modelView, center);
+    }
+
+    @Override
+    public boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes) {
+        for (IdObject object : modelView.getEditableIdObjects()) {
+            double vertexSize1 = object.getClickRadius(axes) * axes.getZoom() * 2;
+            if (AbstractModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geomV2(axes, point), axes, vertexSize1)) {
+                return true;
+            }
+            if (object instanceof CollisionShape) {
+                for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+                    int vertexSize = IdObject.DEFAULT_CLICK_RADIUS;
+                    if (AbstractModelEditor.hitTest(vertex, CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        for (Camera camera : modelView.getEditableCameras()) {
+            int vertexSize = ProgramGlobals.getPrefs().getVertexSize();
+            if (AbstractModelEditor.hitTest(camera.getPosition(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
+                return true;
+            }
+            if (AbstractModelEditor.hitTest(camera.getTargetPosition(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
+                return true;
+            }
+        }
+
+        if (selectionMode == SelectionItemTypes.VERTEX){
+            for (Geoset geoset : modelView.getEditableGeosets()) {
+                for (GeosetVertex geosetVertex : geoset.getVertices()) {
+                    if (hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, ProgramGlobals.getPrefs().getVertexSize())) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+
+        if(selectionMode == SelectionItemTypes.CLUSTER){
+            for (Geoset geoset : modelView.getEditableGeosets()) {
+                for (Triangle triangle : geoset.getTriangles()) {
+                    if (triHitTest(triangle, CoordSysUtils.geomV2(axes, point), axes)) {
+                        return true;
+                    }
+                }
+                for (GeosetVertex geosetVertex : geoset.getVertices()) {
+                    if (hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, ProgramGlobals.getPrefs().getVertexSize())) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        if(selectionMode == SelectionItemTypes.GROUP){
+            for (Geoset geoset : modelView.getEditableGeosets()) {
+                for (Triangle triangle : geoset.getTriangles()) {
+                    if (triHitTest(triangle, CoordSysUtils.geomV2(axes, point), axes)) {
+                        return true;
+                    }
+                }
+                for (GeosetVertex geosetVertex : geoset.getVertices()) {
+                    if (hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, ProgramGlobals.getPrefs().getVertexSize())) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        if(selectionMode == SelectionItemTypes.FACE){
+            for (Geoset geoset : modelView.getEditableGeosets()) {
+                for (Triangle triangle : geoset.getTriangles()) {
+                    if (triHitTest(triangle, CoordSysUtils.geomV2(axes, point), axes)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

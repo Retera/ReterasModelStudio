@@ -1,31 +1,20 @@
-package com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex;
+package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public final class GeosetVertexSelectionManager extends SelectionManager<GeosetVertex> {
 
-	public GeosetVertexSelectionManager(ModelView modelView) {
-		super(modelView);
-	}
-
-	@Override
-	public Vec3 getCenter() {
-		return Vec3.centerOfGroup(modelView.getSelectedVertices());
+	public GeosetVertexSelectionManager(ModelView modelView, SelectionItemTypes selectionMode) {
+		super(modelView, selectionMode);
 	}
 
 	@Override
@@ -57,51 +46,18 @@ public final class GeosetVertexSelectionManager extends SelectionManager<GeosetV
 	}
 
 	@Override
-	public Collection<? extends Vec3> getSelectedVertices() {
-		return getSelection();
-	}
+	public List<GeosetVertex> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
+		List<GeosetVertex> selectedItems = new ArrayList<>();
 
-	@Override
-	public Set<Triangle> getSelectedFaces() {
-		Set<Triangle> faces = new HashSet<>();
-		Set<GeosetVertex> selectedVertices = new HashSet<>();
-		Set<Triangle> partiallySelectedFaces = new HashSet<>();
-		for (GeosetVertex vertex : getSelection()) {
-			partiallySelectedFaces.addAll(vertex.getTriangles());
-			selectedVertices.add(vertex);
-		}
-		for (Triangle face : partiallySelectedFaces) {
-			boolean whollySelected = true;
-			for (GeosetVertex gv : face.getVerts()) {
-				if (!selectedVertices.contains(gv)) {
-					whollySelected = false;
-					break;
-				}
-			}
-			if (whollySelected) {
-				faces.add(face);
+		for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (GeosetVertex geosetVertex : geoset.getVertices()) {
+				if (HitTestStuff.hitTest(min, max, geosetVertex, coordinateSystem, ProgramGlobals.getPrefs().getVertexSize()))
+					selectedItems.add(geosetVertex);
 			}
 		}
-		return faces;
+		return selectedItems;
 	}
 
-	@Override
-	public void renderSelection(ModelElementRenderer renderer,
-	                            CoordinateSystem coordinateSystem,
-	                            ModelView model) {
-//		for (Geoset geo : model.getEditableGeosets()) {
-//			List<GeosetVertex> vertices = geo.getVertices();
-//			for (GeosetVertex geosetVertex : vertices) {
-//				if (model.getHighlightedGeoset() == geo) {
-//					renderer.renderVertex(ProgramGlobals.getPrefs().getHighlighVertexColor(), geosetVertex);
-//				} else if (modelView.isSelected(geosetVertex)) {
-//					renderer.renderVertex(ProgramGlobals.getPrefs().getSelectColor(), geosetVertex);
-//				} else {
-//					renderer.renderVertex(ProgramGlobals.getPrefs().getVertexColor(), geosetVertex);
-//				}
-//			}
-//		}
-	}
 
 	@Override
 	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {

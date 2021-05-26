@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.actions.mesh.DeleteAction;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -492,24 +492,24 @@ public class MainPanelLinkActions {
 
 	public static void rigActionRes(ModelPanel modelPanel) {
 		if (modelPanel != null) {
-			EditableModel model = modelPanel.getModel();
-			ModelEditorManager editorManager = modelPanel.getModelEditorManager();
-			boolean valid = false;
-			for (Vec3 v : editorManager.getSelectionView().getSelectedVertices()) {
-				int index = model.getPivots().indexOf(v);
-
-				if (index != -1 && index < model.getIdObjects().size()) {
-					IdObject node = model.getIdObject(index);
-					if ((node instanceof Bone) && !(node instanceof Helper)) {
-						valid = true;
-					}
-				}
-			}
-			if (valid) {
-//				modelPanel.getUndoManager().pushAction(editorManager.getModelEditor().rig());
-				modelPanel.getUndoManager().pushAction(ModelEditActions.rig(modelPanel.getModelView()));
+//			EditableModel model = modelPanel.getModel();
+//			ModelEditorManager editorManager = modelPanel.getModelEditorManager();
+//			boolean valid = false;
+//			for (Vec3 v : editorManager.getSelectionView().getSelectedVertices()) {
+//				int index = model.getPivots().indexOf(v);
+//
+//				if (index != -1 && index < model.getIdObjects().size()) {
+//					IdObject node = model.getIdObject(index);
+//					if ((node instanceof Bone) && !(node instanceof Helper)) {
+//						valid = true;
+//					}
+//				}
+//			}
+			final ModelView modelView = modelPanel.getModelView();
+			if (!modelView.getSelectedIdObjects().isEmpty() && !modelView.getSelectedVertices().isEmpty()) {
+				modelPanel.getUndoManager().pushAction(ModelEditActions.rig(modelView));
 			} else {
-				System.err.println("NOT RIGGING, NOT VALID");
+				System.err.println("NOT RIGGING, NOT VALID: " + modelView.getSelectedIdObjects().size() + " idObjects and " + modelView.getSelectedVertices() + " vertices selected");
 			}
 		}
 	}

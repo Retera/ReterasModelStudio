@@ -21,7 +21,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.SetKeyfr
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.SlideKeyframeAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.GUITheme;
@@ -66,7 +65,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	private final TimeSliderTimeNotifier notifier;
 
-	private SelectionManager<IdObject> nodeSelectionManager;
+//	private SelectionManager<IdObject> nodeSelectionManager;
 	private final GradientPaint keyframePaint;
 	private final GradientPaint keyframePaintBlue;
 	private final GradientPaint keyframePaintRed;
@@ -629,17 +628,17 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		}
 	}
 
-	public void setNodeSelectionManager(final SelectionManager<IdObject> nodeSelectionManager) {
-		if (this.nodeSelectionManager != nodeSelectionManager) {
-			if (this.nodeSelectionManager != null) {
-				this.nodeSelectionManager.removeSelectionListener(this);
-			}
-			this.nodeSelectionManager = nodeSelectionManager;
-			if (this.nodeSelectionManager != null) {
-				this.nodeSelectionManager.addSelectionListener(this);
-			}
-		}
-	}
+//	public void setNodeSelectionManager(final SelectionManager<IdObject> nodeSelectionManager) {
+////		if (this.nodeSelectionManager != nodeSelectionManager) {
+////			if (this.nodeSelectionManager != null) {
+////				this.nodeSelectionManager.removeSelectionListener(this);
+////			}
+////			this.nodeSelectionManager = nodeSelectionManager;
+////			if (this.nodeSelectionManager != null) {
+////				this.nodeSelectionManager.addSelectionListener(this);
+////			}
+////		}
+//	}
 
 	private void stepBackwards() {
 		if (timeEnvironment.getAnimationTime() > timeEnvironment.getStart()) {
@@ -911,7 +910,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 	private void updateKeyframeDisplay() {
 		timeToKey.clear();
-		if (nodeSelectionManager != null) {
+//		if (nodeSelectionManager != null) {
+		if (true) {
 			final Iterable<IdObject> selection = getSelectionToUse();
 			for (final IdObject object : selection) {
 				for (final AnimFlag<?> flag : object.getAnimFlags()) {
@@ -942,7 +942,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		if ((modelHandler == null) || (modelHandler.getModel() == null)) {
 			return Collections.emptySet();
 		}
-		return allKF.isSelected() ? modelHandler.getModel().getIdObjects() : nodeSelectionManager.getSelection();
+//		return allKF.isSelected() ? modelHandler.getModel().getIdObjects() : nodeSelectionManager.getSelection();
+		return allKF.isSelected() ? modelHandler.getModel().getIdObjects() : modelHandler.getModelView().getSelectedIdObjects();
 	}
 
 	@Override

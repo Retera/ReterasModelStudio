@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv;
 
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ButtonType;
@@ -37,6 +39,12 @@ public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVer
 	ModelEditorActionType2 currentAction;
 
 
+
+	private static final Color FACE_SELECTED_COLOR = new Color(1f, 0.45f, 0.45f, 0.3f);
+	private static final Color FACE_HIGHLIGHT_COLOR = new Color(0.45f, 1f, 0.45f, 0.3f);
+	private static final Color FACE_NOT_SELECTED_COLOR = new Color(0.45f, 0.45f, 1f, 0.3f);
+
+
 	public TVertexEditorManipulatorBuilder(TVertexEditorManager modelEditorManager, ModelHandler modelHandler, ModelEditorActionType2 currentAction) {
 		this.modelEditorManager = modelEditorManager;
 		this.viewportSelectionHandler = modelEditorManager.getViewportSelectionHandler();
@@ -62,7 +70,7 @@ public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVer
 		Vec2 mousePoint = new Vec2(x, y);
 		if (!selectionView.isEmpty() && widgetOffersEdit(selectionView.getUVCenter(modelEditor.getUVLayerIndex()), mousePoint, coordinateSystem, selectionView)) {
 			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-		} else if (viewportSelectionHandler.canSelectAt(mousePoint, coordinateSystem)) {
+		} else if (viewportSelectionHandler.selectableUnderCursor(mousePoint, coordinateSystem)) {
 			return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
 		}
 		return null;
@@ -93,7 +101,49 @@ public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVer
 	                         SelectionView selectionView,
 	                         boolean isAnimated) {
 		if (!isAnimated) {
-			selectionView.renderUVSelection(tVertexModelElementRenderer.reset(graphics, coordinateSystem), modelView, modelEditor.getUVLayerIndex());
+//			selectionView.renderUVSelection(tVertexModelElementRenderer.reset(graphics, coordinateSystem), modelView, modelEditor.getUVLayerIndex());
+			int tvertexLayerId = modelEditor.getUVLayerIndex();
+			for (Geoset geoset : modelView.getEditableGeosets()) {
+				for (Triangle triangle : geoset.getTriangles()) {
+					Color outlineColor;
+					Color fillColor;
+					if (geoset == modelView.getHighlightedGeoset()) {
+						outlineColor = ProgramGlobals.getPrefs().getHighlighTriangleColor();
+						fillColor = FACE_HIGHLIGHT_COLOR;
+//				} else if (selection.contains(triangle)) {
+					} else if (modelView.getSelectedTriangles().contains(triangle)) {
+						outlineColor = ProgramGlobals.getPrefs().getSelectColor();
+						fillColor = FACE_SELECTED_COLOR;
+					} else {
+						outlineColor = Color.BLUE;
+						fillColor = FACE_NOT_SELECTED_COLOR;
+						continue;
+					}
+					if ((tvertexLayerId < triangle.get(0).getTverts().size())
+							&& (tvertexLayerId < triangle.get(1).getTverts().size())
+							&& (tvertexLayerId < triangle.get(2).getTverts().size())) {
+						tVertexModelElementRenderer.reset(graphics, coordinateSystem).renderFace(outlineColor, fillColor, triangle.get(0).getTVertex(tvertexLayerId), triangle.get(1).getTVertex(tvertexLayerId), triangle.get(2).getTVertex(tvertexLayerId));
+					}
+				}
+			}
+
+//			for (Geoset geo : modelView.getEditableGeosets()) {
+//				List<GeosetVertex> vertices = geo.getVertices();
+//				for (GeosetVertex geosetVertex : vertices) {
+//					if (tvertexLayerId >= geosetVertex.getTverts().size()) {
+//						continue;
+//					}
+//					if (modelView.getHighlightedGeoset() == geo) {
+//						tVertexModelElementRenderer.reset(graphics, coordinateSystem).renderVertex(ProgramGlobals.getPrefs().getHighlighVertexColor(), geosetVertex.getTVertex(tvertexLayerId));
+//					} else if (modelView.isSelected(geosetVertex)) {
+//						tVertexModelElementRenderer.reset(graphics, coordinateSystem).renderVertex(ProgramGlobals.getPrefs().getSelectColor(), geosetVertex.getTVertex(tvertexLayerId));
+//					} else {
+//						tVertexModelElementRenderer.reset(graphics, coordinateSystem).renderVertex(ProgramGlobals.getPrefs().getVertexColor(), geosetVertex.getTVertex(tvertexLayerId));
+//					}
+//				}
+//			}
+
+
 			if (!selectionView.isEmpty()) {
 				renderWidget(graphics, coordinateSystem, selectionView);
 			}

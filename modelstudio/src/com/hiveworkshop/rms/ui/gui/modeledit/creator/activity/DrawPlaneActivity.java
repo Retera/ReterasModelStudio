@@ -185,7 +185,7 @@ public class DrawPlaneActivity implements ModelEditorViewportActivity {
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
 			modelElementRenderer.reset(g, coordinateSystem, modelHandler.getRenderModel(), false);
-			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView);
+//			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView);
 		}
 	}
 

@@ -33,8 +33,8 @@ public final class ViewportSelectionHandlerImpl extends ViewportSelectionHandler
 	}
 
 	@Override
-	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
-		return selectingEventHandler.canSelectAt(point, axes);
+	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes) {
+		return selectingEventHandler.selectableUnderCursor(point, axes);
 	}
 
 }

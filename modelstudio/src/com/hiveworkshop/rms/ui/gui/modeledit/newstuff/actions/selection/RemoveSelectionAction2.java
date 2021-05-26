@@ -10,19 +10,19 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class AddSelectionAction2 implements UndoAction {
+public final class RemoveSelectionAction2 implements UndoAction {
 
-	private Set<GeosetVertex> newVerts;
-	private Set<IdObject> newIdObjects;
-	private Set<Camera> newCameras;
+	private Set<GeosetVertex> deSelVerts;
+	private Set<IdObject> deSelIdObjects;
+	private Set<Camera> deSelCameras;
 	private Set<GeosetVertex> previousVerts;
 	private Set<IdObject> previousIdObjects;
 	private Set<Camera> previousCameras;
 	private ModelView modelView;
 
-	public AddSelectionAction2(Collection<GeosetVertex> newVerts,
-	                           Collection<IdObject> newIdObjects,
-	                           Collection<Camera> newCameras,
+	public RemoveSelectionAction2(Collection<GeosetVertex> deSelVerts,
+	                           Collection<IdObject> deSelIdObjects,
+	                           Collection<Camera> deSelCameras,
 	                           ModelView modelView) {
 		this.modelView = modelView;
 
@@ -30,21 +30,21 @@ public final class AddSelectionAction2 implements UndoAction {
 		this.previousIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
 		this.previousCameras = new HashSet<>(modelView.getSelectedCameras());
 
-		this.newVerts = new HashSet<>(newVerts);
-		this.newIdObjects = new HashSet<>(newIdObjects);
-		this.newCameras = new HashSet<>(newCameras);
+		this.deSelVerts = new HashSet<>(deSelVerts);
+		this.deSelIdObjects = new HashSet<>(deSelIdObjects);
+		this.deSelCameras = new HashSet<>(deSelCameras);
 	}
 
-	public AddSelectionAction2(Collection<GeosetVertex> newVerts, ModelView modelView) {
+	public RemoveSelectionAction2(Collection<GeosetVertex> deSelVerts, ModelView modelView) {
 		this.modelView = modelView;
 
 		this.previousVerts = new HashSet<>(modelView.getSelectedVertices());
 		this.previousIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
 		this.previousCameras = new HashSet<>(modelView.getSelectedCameras());
 
-		this.newVerts = new HashSet<>(newVerts);
-		this.newIdObjects = new HashSet<>();
-		this.newCameras = new HashSet<>();
+		this.deSelVerts = new HashSet<>(deSelVerts);
+		this.deSelIdObjects = new HashSet<>();
+		this.deSelCameras = new HashSet<>();
 	}
 
 	@Override
@@ -52,17 +52,18 @@ public final class AddSelectionAction2 implements UndoAction {
 		modelView.setSelectedVertices(previousVerts);
 		modelView.setSelectedIdObjects(previousIdObjects);
 		modelView.setSelectedCameras(previousCameras);
+
 	}
 
 	@Override
 	public void redo() {
-		modelView.addSelectedVertices(newVerts);
-		modelView.addSelectedIdObjects(newIdObjects);
-		modelView.addSelectedCameras(newCameras);
+		modelView.removeSelectedVertices(deSelVerts);
+		modelView.removeSelectedIdObjects(deSelIdObjects);
+		modelView.removeSelectedCameras(deSelCameras);
 	}
 
 	@Override
 	public String actionName() {
-		return "add selection";
+		return "deselect";
 	}
 }

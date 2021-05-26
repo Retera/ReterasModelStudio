@@ -132,7 +132,7 @@ public class DrawVertexActivity implements ModelEditorViewportActivity {
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
 			modelElementRenderer.reset(g, coordinateSystem, modelHandler.getRenderModel(), false);
-			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView);
+//			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView);
 			g.setColor(preferences.getVertexColor());
 			if (lastMousePoint != null) {
 				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);

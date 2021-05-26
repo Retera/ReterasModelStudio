@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
@@ -13,6 +14,7 @@ public final class ModelView {
 	private RenderModel editorRenderModel;
 	private final ModelViewStateNotifier modelViewStateNotifier;
 
+	private final Set<GeosetVertex> selectedTVertices = new HashSet<>();
 	private final Set<GeosetVertex> selectedVertices = new HashSet<>();
 	private final Set<IdObject> selectedIdObjects = new HashSet<>();
 	private final Set<Camera> selectedCameras = new HashSet<>();
@@ -545,5 +547,48 @@ public final class ModelView {
 		}
 		selectedIdObjects.addAll(editableIdObjects);
 		selectedCameras.addAll(editableCameras);
+	}
+
+	public void addSelectedTVertex(GeosetVertex geosetVertex) {
+		selectedTVertices.add(geosetVertex);
+	}
+
+	public void addSelectedTVertices(Collection<GeosetVertex> geosetVertices) {
+		selectedTVertices.addAll(geosetVertices);
+	}
+
+	public void clearSelectedTVertices() {
+		selectedTVertices.clear();
+	}
+
+	public void removeSelectedTVertices(Collection<GeosetVertex> geosetVertices) {
+		selectedTVertices.removeAll(geosetVertices);
+	}
+
+	public boolean isTSelected(GeosetVertex geosetVertex) {
+		return selectedTVertices.contains(geosetVertex);
+	}
+
+	public void selectAllTVerts() {
+		for (Geoset geoset : editableGeosets) {
+			selectedTVertices.addAll(geoset.getVertices());
+		}
+	}
+
+	public Vec2 getTSelectionCenter(){
+		Set<Vec2> selectedPoints = new HashSet<>();
+		selectedTVertices.stream().filter(editableVertices::contains).forEach(v -> selectedPoints.add(v.getTVertex(0)));
+
+		return Vec2.centerOfGroup(selectedPoints);
+	}
+
+	public Set<GeosetVertex> getSelectedTVertices() {
+		// ToDo not editable stuff should not be in the selection (but maybe be added back once editable again)
+		return selectedTVertices;
+	}
+
+	public void setSelectedTVertices(Collection<GeosetVertex> geosetVertices) {
+		selectedTVertices.clear();
+		selectedTVertices.addAll(geosetVertices);
 	}
 }

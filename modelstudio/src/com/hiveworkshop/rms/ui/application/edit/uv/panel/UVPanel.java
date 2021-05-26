@@ -102,7 +102,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			ModelPanel mpanel = currentModelPanel();
-			mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().selectFromViewer(mpanel.getModelEditorManager().getSelectionView()));
+			final UndoAction action = modelEditorManager.getModelEditor().selectFromViewer(mpanel.getModelEditorManager().getSelectionView());
+			mpanel.getUndoManager().pushAction(action);
 			repaint();
 		}
 	};

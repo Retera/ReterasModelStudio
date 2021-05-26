@@ -4,14 +4,14 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorNotifier;
-import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVertexModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVertexSelectionManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.types.pivotpoint.PivotPointModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.types.pivotpoint.PivotPointSelectionManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.GeosetVertexSelectionManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.PivotPointSelectionManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -83,15 +83,16 @@ public class ViewportTransferHandler extends TransferHandler {
 		pastedModelView.selectAll();
 		ModelEditorNotifier modelEditorNotifier = new ModelEditorNotifier();
 		// ToDo needs access to modelView...
-		modelEditorNotifier.subscribe(new GeosetVertexModelEditor(new GeosetVertexSelectionManager(pastedModelView), viewport.getModelStructureChangeListener(), modelHandler));
-		modelEditorNotifier.subscribe(new PivotPointModelEditor(new PivotPointSelectionManager(pastedModelView), viewport.getModelStructureChangeListener(), modelHandler));
+		modelEditorNotifier.subscribe(new AbstractModelEditor<>(new GeosetVertexSelectionManager(pastedModelView, SelectionItemTypes.VERTEX), viewport.getModelStructureChangeListener(), modelHandler, SelectionItemTypes.VERTEX));
+		modelEditorNotifier.subscribe(new AbstractModelEditor<>(new PivotPointSelectionManager(pastedModelView, SelectionItemTypes.VERTEX), viewport.getModelStructureChangeListener(), modelHandler, SelectionItemTypes.VERTEX));
 //		modelEditorNotifier.selectAll();
 		pastedModelView.selectAll();
 		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
 		Vec3 vertex = new Vec3(0, 0, 0);
 		vertex.setCoord(viewport.getCoordinateSystem().getPortFirstXYZ(), geomPoint.x);
 		vertex.setCoord(viewport.getCoordinateSystem().getPortSecondXYZ(), geomPoint.y);
-		modelEditorNotifier.setPosition(modelEditorNotifier.getSelectionCenter(), vertex);
+//		modelEditorNotifier.setPosition(modelEditorNotifier.getSelectionCenter(), vertex);
+		modelEditorNotifier.setPosition(pastedModelView.getSelectionCenter(), vertex);
 
 		// this is the model they're actually working on
 		ModelView currentModelView = viewport.getModelView();

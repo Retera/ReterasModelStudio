@@ -350,7 +350,8 @@ public class ModelEditActions {
     public static void mirrorAxis(MainPanel mainPanel, byte i, boolean mirrorFlip) {
         final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
-            final Vec3 selectionCenter = modelPanel.getModelEditorManager().getModelEditor().getSelectionCenter();
+//            final Vec3 selectionCenter = modelPanel.getModelEditorManager().getModelEditor().getSelectionCenter();
+            final Vec3 selectionCenter = modelPanel.getModelView().getSelectionCenter();
             ModelView modelView = modelPanel.getModelView();
 
             UndoAction mirrorAction;

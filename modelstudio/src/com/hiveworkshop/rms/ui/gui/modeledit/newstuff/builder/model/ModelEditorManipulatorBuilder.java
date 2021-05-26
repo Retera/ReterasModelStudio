@@ -58,7 +58,7 @@ public class ModelEditorManipulatorBuilder implements ManipulatorBuilder, ModelE
 		Vec2 mousePoint = new Vec2(x, y);
 		if (!selectionView.isEmpty() && widgetOffersEdit(selectionView.getCenter(), mousePoint, coordinateSystem, selectionView)) {
 			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-		} else if (viewportSelectionHandler.canSelectAt(mousePoint, coordinateSystem)) {
+		} else if (viewportSelectionHandler.selectableUnderCursor(mousePoint, coordinateSystem)) {
 			return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
 		}
 		return null;
@@ -90,7 +90,7 @@ public class ModelEditorManipulatorBuilder implements ManipulatorBuilder, ModelE
 	                         SelectionView selectionView,
 	                         boolean isAnimated) {
 		modelElementRenderer.reset(graphics, coordinateSystem, modelHandler.getRenderModel(), isAnimated);
-		selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView);
+//		selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView);
 		if (!selectionView.isEmpty()) {
 			renderWidget(graphics, coordinateSystem, selectionView);
 		}

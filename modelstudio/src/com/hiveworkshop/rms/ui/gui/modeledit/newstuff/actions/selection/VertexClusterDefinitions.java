@@ -1,9 +1,10 @@
-package com.hiveworkshop.rms.ui.application.edit.mesh.types.vertexcluster;
+package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.util.HashableVector;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -16,7 +17,7 @@ public class VertexClusterDefinitions {
 	private final Map<Vec3, Integer> vertexToClusterId = new HashMap<>();
 	private final int maxClusterIdKnown;
 
-	public VertexClusterDefinitions(EditableModel model) {
+	public VertexClusterDefinitions(EditableModel model, SelectionItemTypes selectionMode) {
 		Map<HashableVector, List<GeosetVertex>> positionToVertices = new HashMap<>();
 		for (Geoset geoset : model.getGeosets()) {
 			for (GeosetVertex vertex : geoset.getVertices()) {

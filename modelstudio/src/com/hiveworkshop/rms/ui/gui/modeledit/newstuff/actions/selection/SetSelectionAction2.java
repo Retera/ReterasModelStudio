@@ -36,6 +36,19 @@ public final class SetSelectionAction2 implements UndoAction {
 		this.newCameras = new HashSet<>(newCameras);
 		this.actionName = actionName;
 	}
+	public SetSelectionAction2(Collection<GeosetVertex> newVerts,
+	                           ModelView modelView, String actionName) {
+		this.modelView = modelView;
+
+		this.previousVerts = new HashSet<>(modelView.getSelectedVertices());
+		this.previousIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
+		this.previousCameras = new HashSet<>(modelView.getSelectedCameras());
+
+		this.newVerts = new HashSet<>(newVerts);
+		this.newIdObjects = new HashSet<>();
+		this.newCameras = new HashSet<>();
+		this.actionName = actionName;
+	}
 
 	@Override
 	public void undo() {

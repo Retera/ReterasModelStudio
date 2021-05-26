@@ -11,7 +11,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAc
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.util.SubscriberSetNotifier;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -20,8 +19,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> implements ModelEditor {
+public class ModelEditorNotifier implements ModelEditor {
 	private CloneContextHelper cloneContextHelper;
+	Set<ModelEditor> listenerSet = new HashSet<>();
+
+	public void subscribe(final ModelEditor listener) {
+		listenerSet.add(listener);
+	}
+
+	public void unsubscribe(final ModelEditor listener) {
+		listenerSet.remove(listener);
+	}
 
 	public void setCloneContextHelper(CloneContextHelper cloneContextHelper) {
 		this.cloneContextHelper = cloneContextHelper;
@@ -127,32 +135,12 @@ public class ModelEditorNotifier extends SubscriberSetNotifier<ModelEditor> impl
 	}
 
 	@Override
-	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
+	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes) {
 		boolean canSelect = false;
 		for (ModelEditor modelEditor : listenerSet) {
-			canSelect = canSelect || modelEditor.canSelectAt(point, axes);
+			canSelect = canSelect || modelEditor.selectableUnderCursor(point, axes);
 		}
 		return canSelect;
-	}
-
-	@Override
-	public Vec3 getSelectionCenter() {
-		Set<Vec3> centers = new HashSet<>();
-		for (ModelEditor modelEditor : listenerSet) {
-			Vec3 selectionCenter = modelEditor.getSelectionCenter();
-			if (Double.isNaN(selectionCenter.x) || Double.isNaN(selectionCenter.y) || Double.isNaN(selectionCenter.z)) {
-				continue;
-			}
-			centers.add(selectionCenter);
-		}
-		return Vec3.centerOfGroup(centers);
-	}
-
-	@Override
-	public void selectByVertices(java.util.Collection<? extends Vec3> newSelection) {
-		for (ModelEditor modelEditor : listenerSet) {
-			modelEditor.selectByVertices(newSelection);
-		}
 	}
 
 	@Override

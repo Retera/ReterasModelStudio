@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.application.edit.mesh.types.vertexgroup;
+package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
 

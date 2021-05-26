@@ -4,34 +4,31 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
-import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
-public final class SplitForUVAction<T> implements UndoAction {
+public final class SplitForUVAction implements UndoAction {
 
 	private List<Triangle> trianglesMovedToSeparateGeo;
 	private final List<Geoset> geosetsModified;
 	private final EditableModel model;
 	private final Collection<Triangle> trisToSeparate;
 	private final ModelStructureChangeListener modelStructureChangeListener;
-	private final SelectionManager<T> selectionManager;
-	private final Collection<T> selection;
-	private final Collection<Vec3> newVerticesToSelect;
-	private final VertexSelectionHelper vertexSelectionHelper;
+	private final Collection<GeosetVertex> selection;
+	private final Collection<GeosetVertex> newVerticesToSelect;
+	private final ModelView modelView;
 
-	public SplitForUVAction(Collection<Triangle> trisToSeparate, EditableModel model,
-	                        ModelStructureChangeListener modelStructureChangeListener, SelectionManager<T> selectionManager,
-	                        VertexSelectionHelper vertexSelectionHelper) {
+	public SplitForUVAction(Collection<Triangle> trisToSeparate,
+	                        EditableModel model,
+	                        ModelStructureChangeListener modelStructureChangeListener,
+	                        ModelView modelView) {
 		this.trisToSeparate = trisToSeparate;
 		this.model = model;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		this.selectionManager = selectionManager;
-		this.vertexSelectionHelper = vertexSelectionHelper;
+		this.modelView = modelView;
 		this.geosetsModified = new ArrayList<>();
 		this.newVerticesToSelect = new ArrayList<>();
 		Set<GeosetVertex> verticesInTheTriangles = new HashSet<>();
@@ -63,7 +60,7 @@ public final class SplitForUVAction<T> implements UndoAction {
 //			b.addTriangle(newTriangle);
 //			c.addTriangle(newTriangle);
 		}
-		selection = new ArrayList<>(selectionManager.getSelection());
+		selection = new ArrayList<>(modelView.getSelectedVertices());
 	}
 
 	@Override
@@ -78,7 +75,7 @@ public final class SplitForUVAction<T> implements UndoAction {
 			}
 			geoset.add(tri);
 		}
-		selectionManager.setSelection(selection);
+		modelView.setSelectedVertices(selection);
 	}
 
 	@Override
@@ -93,8 +90,8 @@ public final class SplitForUVAction<T> implements UndoAction {
 			}
 			geoset.removeTriangle(tri);
 		}
-		selectionManager.removeSelection(selection);
-		vertexSelectionHelper.selectVertices(newVerticesToSelect);
+		modelView.removeSelectedVertices(selection);
+		modelView.setSelectedVertices(newVerticesToSelect);
 	}
 
 	@Override

@@ -1,18 +1,28 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor;
 
 import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public final class StaticMeshMoveAction implements GenericMoveAction {
 	private final ModelView modelView;
 	private final Vec3 moveVector;
+	private final Set<GeosetVertex> selectedVertices;
+	private final Set<IdObject> selectedIdObjects;
+	private final Set<Camera> selectedCameras;
 
 	public StaticMeshMoveAction(ModelView modelView, Vec3 moveVector) {
 		this.modelView = modelView;
 		this.moveVector = new Vec3(moveVector);
+		selectedVertices = new HashSet<>(modelView.getSelectedVertices());
+		selectedIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
+		selectedCameras = new HashSet<>(modelView.getSelectedCameras());
 	}
 
 	@Override
@@ -27,23 +37,21 @@ public final class StaticMeshMoveAction implements GenericMoveAction {
 	}
 
 	public void rawTranslate(Vec3 vec3) {
-		for (Vec3 vertex : modelView.getSelectedVertices()) {
+		for (GeosetVertex vertex : selectedVertices) {
 			vertex.add(vec3);
 		}
 
-		for (IdObject b : modelView.getEditableIdObjects()) {
+		for (IdObject b : selectedIdObjects) {
 			b.getPivotPoint().add(vec3);
-			if (modelView.isSelected(b)) {
 				float[] bindPose = b.getBindPose();
 				if (bindPose != null) {
 					bindPose[9] += vec3.x;
 					bindPose[10] += vec3.y;
 					bindPose[11] += vec3.z;
 				}
-			}
 		}
 
-		for (Camera camera : modelView.getSelectedCameras()) {
+		for (Camera camera : selectedCameras) {
 			camera.getPosition().add(vec3);
 		}
 	}

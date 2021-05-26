@@ -9,9 +9,10 @@ public final class MakeNotEditableAction implements UndoAction {
 	private final Runnable unTruncateSelectionRunnable;
 	private final Runnable refreshGUIRunnable;
 
-	public MakeNotEditableAction(final EditabilityToggleHandler editabilityToggleHandler,
-			final Runnable truncateSelectionRunnable, final Runnable unTruncateSelectionRunnable,
-			final Runnable refreshGUIRunnable) {
+	public MakeNotEditableAction(EditabilityToggleHandler editabilityToggleHandler,
+	                             Runnable truncateSelectionRunnable,
+	                             Runnable unTruncateSelectionRunnable,
+	                             Runnable refreshGUIRunnable) {
 		this.editabilityToggleHandler = editabilityToggleHandler;
 		this.truncateSelectionRunnable = truncateSelectionRunnable;
 		this.unTruncateSelectionRunnable = unTruncateSelectionRunnable;

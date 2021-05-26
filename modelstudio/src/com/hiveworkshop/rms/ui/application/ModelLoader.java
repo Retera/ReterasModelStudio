@@ -42,7 +42,6 @@ public class ModelLoader {
 					modelPanel.getModelHandler().getEditTimeEnv().setStaticViewMode(!mainPanel.animationModeState);
 				}
 				refreshAndUpdateRenderModel();
-				mainPanel.timeSliderPanel.setNodeSelectionManager(modelPanel.getModelEditorManager().getNodeAnimationSelectionManager());
 			}
 			if ((mainPanel.actionTypeGroup.getActiveButtonType() == ModelEditorActionType3.EXTRUDE)
 					|| (mainPanel.actionTypeGroup.getActiveButtonType() == ModelEditorActionType3.EXTEND)) {

@@ -3,21 +3,12 @@ package com.hiveworkshop.rms.ui.application.edit.uv;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationSelectionManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.types.faces.FaceSelectionManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.types.geosetvertex.GeosetVertexSelectionManager;
-import com.hiveworkshop.rms.ui.application.edit.uv.types.FaceTVertexEditor;
-import com.hiveworkshop.rms.ui.application.edit.uv.types.GeosetVertexTVertexEditor;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
-import com.hiveworkshop.rms.util.Vec3;
-
-import java.util.Collection;
 
 public final class TVertexEditorManager {
 	private final ModelView modelView;
@@ -27,7 +18,6 @@ public final class TVertexEditorManager {
 	private SelectionView selectionView;
 	private final SelectionListener selectionListener;
 	private final RenderModel renderModel;
-	private NodeAnimationSelectionManager nodeAnimationSelectionManager;
 	private final ModelStructureChangeListener structureChangeListener;
 	public static boolean MOVE_LINKED;
 
@@ -47,41 +37,23 @@ public final class TVertexEditorManager {
 	}
 
 	public void setSelectionItemType(final TVertexSelectionItemTypes selectionMode) {
-		final Collection<? extends Vec3> lastSelectedVertices;
-		if (selectionView != null) {
-
-			lastSelectedVertices = selectionView.getSelectedVertices();
-		} else {
-			lastSelectedVertices = null;
-		}
 		switch (selectionMode) {
-			case FACE -> {
-				final FaceSelectionManager selectionManager = new FaceSelectionManager(modelView);
-				final FaceTVertexEditor faceModelEditor = new FaceTVertexEditor(modelView, selectionManager, structureChangeListener);
-				modelEditor = faceModelEditor;
-				if (lastSelectedVertices != null) {
-					modelEditor.selectByVertices(lastSelectedVertices);
-				}
-				viewportSelectionHandler.setSelectingEventHandler(modelEditor);
-				modelEditorChangeListener.editorChanged(modelEditor);
-				selectionView = selectionManager;
-				selectionListener.onSelectionChanged(selectionView);
-				nodeAnimationSelectionManager = null;
-			}
-			case VERTEX -> {
-				final GeosetVertexSelectionManager selectionManager = new GeosetVertexSelectionManager(modelView);
-				final GeosetVertexTVertexEditor geosetVertexModelEditor = new GeosetVertexTVertexEditor(modelView, selectionManager, structureChangeListener);
-				modelEditor = geosetVertexModelEditor;
-				if (lastSelectedVertices != null) {
-					modelEditor.selectByVertices(lastSelectedVertices);
-				}
-				viewportSelectionHandler.setSelectingEventHandler(modelEditor);
-				modelEditorChangeListener.editorChanged(modelEditor);
-				selectionView = selectionManager;
-				selectionListener.onSelectionChanged(selectionView);
-				nodeAnimationSelectionManager = null;
-			}
+			case FACE -> selectionView = new FaceSelectionManager(modelView, transformSelectionMode(selectionMode));
+			case VERTEX -> selectionView = new GeosetVertexSelectionManager(modelView, transformSelectionMode(selectionMode));
 		}
+
+		modelEditor = new TVertexEditor(modelView, structureChangeListener, selectionMode);
+
+		viewportSelectionHandler.setSelectingEventHandler(modelEditor);
+		modelEditorChangeListener.editorChanged(modelEditor);
+		selectionListener.onSelectionChanged(selectionView);
+	}
+
+	private SelectionItemTypes transformSelectionMode(TVertexSelectionItemTypes selectionMode){
+		if(selectionMode == TVertexSelectionItemTypes.FACE){
+			return SelectionItemTypes.FACE;
+		}
+		return SelectionItemTypes.VERTEX;
 	}
 
 	public TVertexEditor getModelEditor() {
@@ -94,9 +66,5 @@ public final class TVertexEditorManager {
 
 	public SelectionView getSelectionView() {
 		return selectionView;
-	}
-
-	public NodeAnimationSelectionManager getNodeAnimationSelectionManager() {
-		return nodeAnimationSelectionManager;
 	}
 }

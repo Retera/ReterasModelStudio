@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.VertexSelectionHelper;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.List;
@@ -14,9 +13,9 @@ import java.util.Set;
 
 public final class CloneAction implements UndoAction {
 	private final ModelView model;
-	private final List<Vec3> source;
+	private final List<GeosetVertex> source;
 	private final ModelStructureChangeListener modelStructureChangeListener;
-	private final VertexSelectionHelper vertexSelectionHelper;
+	private final ModelView modelView;
 
 	private final List<IdObject> selBones;
 	private final List<GeosetVertex> newVertices;
@@ -26,10 +25,10 @@ public final class CloneAction implements UndoAction {
 	private final Set<Vec3> newSelection;
 
 	public CloneAction(ModelView model,
-	                   List<Vec3> source,
 	                   ModelStructureChangeListener modelStructureChangeListener,
-	                   VertexSelectionHelper vertexSelectionHelper,
+	                   ModelView modelView,
 	                   List<IdObject> selBones,
+	                   List<GeosetVertex> source,
 	                   List<GeosetVertex> newVertices,
 	                   List<Triangle> newTriangles,
 	                   List<IdObject> newBones,
@@ -37,7 +36,7 @@ public final class CloneAction implements UndoAction {
 		this.model = model;
 		this.source = source;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		this.vertexSelectionHelper = vertexSelectionHelper;
+		this.modelView = modelView;
 		this.selBones = selBones;
 		this.newVertices = newVertices;
 		this.newTriangles = newTriangles;
@@ -56,7 +55,9 @@ public final class CloneAction implements UndoAction {
 		for (IdObject b : newBones) {
 			model.getModel().remove(b);
 		}
-		vertexSelectionHelper.selectVertices(source);
+		modelView.setSelectedVertices(source);
+		modelView.setSelectedIdObjects(selBones);
+//		modelView.setSelectedCameras();
 		modelStructureChangeListener.nodesUpdated();
 	}
 
@@ -71,7 +72,9 @@ public final class CloneAction implements UndoAction {
 		for (IdObject b : newBones) {
 			model.getModel().add(b);
 		}
-		vertexSelectionHelper.selectVertices(newSelection);
+		modelView.setSelectedVertices(newVertices);
+		modelView.setSelectedIdObjects(newBones);
+//		modelView.setSelectedCameras();
 		modelStructureChangeListener.nodesUpdated();
 	}
 

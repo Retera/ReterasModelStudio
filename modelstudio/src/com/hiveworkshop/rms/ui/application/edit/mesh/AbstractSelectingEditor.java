@@ -1,20 +1,21 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
+import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.AddSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeEditableAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.RemoveSelectionAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 	protected final ModelView modelView;
@@ -27,51 +28,59 @@ public abstract class AbstractSelectingEditor<T> implements ModelEditor {
 
 	@Override
 	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		List<T> newSelection = genericSelect(min, max, coordinateSystem);
-		return setSelectionWithAction(newSelection);
+		return selectionManager.setSelectedRegion(min, max, coordinateSystem);
 	}
 
 	@Override
 	public final UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		List<T> newSelection = genericSelect(min, max, coordinateSystem);
-		return removeSelectionWithAction(newSelection);
+		return selectionManager.removeSelectedRegion(min, max, coordinateSystem);
 	}
 
 	@Override
 	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		List<T> newSelection = genericSelect(min, max, coordinateSystem);
-		return addSelectionWithAction(newSelection);
+		return selectionManager.addSelectedRegion(min, max, coordinateSystem);
 	}
-
-	protected final UndoAction setSelectionWithAction(List<T> newSelection) {
-		Set<T> previousSelection = new HashSet<>(selectionManager.getSelection());
-		selectionManager.setSelection(newSelection);
-		return (new SetSelectionAction<>(newSelection, previousSelection, selectionManager, "select"));
-	}
-
-	protected final UndoAction removeSelectionWithAction(List<T> newSelection) {
-		Set<T> previousSelection = new HashSet<>(selectionManager.getSelection());
-		selectionManager.removeSelection(newSelection);
-		return (new RemoveSelectionAction<>(previousSelection, newSelection, selectionManager));
-	}
-
-	protected final UndoAction addSelectionWithAction(List<T> newSelection) {
-		Set<T> previousSelection = new HashSet<>(selectionManager.getSelection());
-		selectionManager.addSelection(newSelection);
-		return (new AddSelectionAction<>(previousSelection, newSelection, selectionManager));
-	}
-
-	protected abstract List<T> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
-
-	protected abstract UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement<?>> selectableComponents,
-	                                                       EditabilityToggleHandler editabilityToggleHandler,
-	                                                       Runnable refreshGUIRunnable);
 
 	@Override
-	public UndoAction hideComponent(List<? extends CheckableDisplayElement<?>> selectableComponent,
+	public UndoAction hideComponent(List<? extends CheckableDisplayElement<?>> selectableComponents,
 	                                EditabilityToggleHandler editabilityToggleHandler,
 	                                Runnable refreshGUIRunnable) {
-		UndoAction hideComponentAction = buildHideComponentAction(selectableComponent, editabilityToggleHandler, refreshGUIRunnable);
+
+		List<GeosetVertex> previousVertSelection = new ArrayList<>(modelView.getSelectedVertices());
+		List<IdObject> previousObjSelection = new ArrayList<>(modelView.getSelectedIdObjects());
+		List<Camera> previousCamSelection = new ArrayList<>(modelView.getSelectedCameras());
+		List<GeosetVertex> vertsToHide = new ArrayList<>();
+		List<IdObject> objsToHide = new ArrayList<>();
+		List<Camera> camsToHide = new ArrayList<>();
+		for (CheckableDisplayElement<?> component : selectableComponents) {
+			Object item = component.getItem();
+			if (item instanceof Geoset) {
+				vertsToHide.addAll(((Geoset) item).getVertices());
+			}
+			if (item instanceof Camera) {
+				camsToHide.add((Camera) item);
+			} else if (item instanceof IdObject) {
+				objsToHide.add((IdObject) item);
+//                if (item instanceof CollisionShape) {
+//                    vertsToHide.addAll(((CollisionShape) item).getVertices());
+//                }
+			}
+		}
+		for (CheckableDisplayElement<?> component : selectableComponents) {
+			Object item = component.getItem();
+		}
+		Runnable truncateSelectionRunnable = () -> {
+			modelView.removeSelectedVertices(vertsToHide);
+			modelView.removeSelectedIdObjects(objsToHide);
+			modelView.removeSelectedCameras(camsToHide);
+		};
+		Runnable unTruncateSelectionRunnable = () -> {
+			modelView.setSelectedVertices(previousVertSelection);
+			modelView.setSelectedIdObjects(previousObjSelection);
+			modelView.setSelectedCameras(previousCamSelection);
+		};
+
+		UndoAction hideComponentAction = new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
 		hideComponentAction.redo();
 		return hideComponentAction;
 	}

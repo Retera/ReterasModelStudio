@@ -34,7 +34,7 @@ public final class TVertexViewportSelectionHandlerImpl extends ViewportSelection
 	}
 
 	@Override
-	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
+	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes) {
 		return selectingEventHandler.canSelectAt(point, axes);
 	}
 

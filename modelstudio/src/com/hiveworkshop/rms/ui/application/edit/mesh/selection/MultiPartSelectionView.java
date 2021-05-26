@@ -1,9 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.selection;
 
-import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.Vec2;
@@ -30,28 +28,12 @@ public class MultiPartSelectionView implements SelectionView {
 	}
 
 	@Override
-	public Collection<? extends Vec3> getSelectedVertices() {
-		List<Vec3> vertices = new ArrayList<>();
+	public Collection<GeosetVertex> getSelectedVertices() {
+		List<GeosetVertex> vertices = new ArrayList<>();
 		for (SelectionView selectionView : selectionViews) {
 			vertices.addAll(selectionView.getSelectedVertices());
 		}
 		return vertices;
-	}
-
-	@Override
-	public Collection<Triangle> getSelectedFaces() {
-		List<Triangle> faces = new ArrayList<>();
-		for (SelectionView selectionView : selectionViews) {
-			faces.addAll(selectionView.getSelectedFaces());
-		}
-		return faces;
-	}
-
-	@Override
-	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView modelView) {
-		for (SelectionView selectionView : selectionViews) {
-			selectionView.renderSelection(renderer, coordinateSystem, modelView);
-		}
 	}
 
 	@Override

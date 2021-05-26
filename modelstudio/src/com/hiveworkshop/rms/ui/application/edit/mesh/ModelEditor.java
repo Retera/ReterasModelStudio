@@ -11,7 +11,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggle
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -43,9 +42,9 @@ public interface ModelEditor extends ComponentVisibilityListener {
 	@Override
 	UndoAction showComponent(EditabilityToggleHandler editabilityToggleHandler);
 
-	void selectByVertices(Collection<? extends Vec3> newSelection);
+//	void selectByVertices(Collection<? extends Vec3> newSelection);
 
-	boolean canSelectAt(Vec2 point, CoordinateSystem axes);
+	boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes);
 
 	GenericMoveAction beginTranslation();
 
@@ -55,7 +54,7 @@ public interface ModelEditor extends ComponentVisibilityListener {
 
 	GenericRotateAction beginSquatTool(Vec3 center, byte firstXYZ, byte secondXYZ);
 
-	Vec3 getSelectionCenter();
+//	Vec3 getSelectionCenter();
 
 	// true if we conceptually are editing/operating on top of an animated model,
 	// instead of a static one

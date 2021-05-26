@@ -8,5 +8,5 @@ public abstract class ViewportSelectionHandler {
 
 	public abstract UndoAction selectRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 
-	public abstract boolean canSelectAt(Vec2 point, CoordinateSystem axes);
+	public abstract boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes);
 }

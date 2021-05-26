@@ -291,7 +291,8 @@ public class ViewportPopupMenu extends JPopupMenu {
 			return;
 		}
 
-		UndoAction rotate = modelEditorManager.getModelEditor().rotate(modelEditorManager.getModelEditor().getSelectionCenter(), spinners.getValue());
+//		UndoAction rotate = modelEditorManager.getModelEditor().rotate(modelEditorManager.getModelEditor().getSelectionCenter(), spinners.getValue());
+		UndoAction rotate = modelEditorManager.getModelEditor().rotate(modelHandler.getModelView().getSelectionCenter(), spinners.getValue());
 		modelHandler.getUndoManager().pushAction(rotate);
 
 	}
@@ -304,7 +305,8 @@ public class ViewportPopupMenu extends JPopupMenu {
 		if (x != JOptionPane.OK_OPTION) {
 			return;
 		}
-		UndoAction setPosition = modelEditorManager.getModelEditor().setPosition(modelEditorManager.getModelEditor().getSelectionCenter(), spinners.getValue());
+//		UndoAction setPosition = modelEditorManager.getModelEditor().setPosition(modelEditorManager.getModelEditor().getSelectionCenter(), spinners.getValue());
+		UndoAction setPosition = modelEditorManager.getModelEditor().setPosition(modelHandler.getModelView().getSelectionCenter(), spinners.getValue());
 		modelHandler.getUndoManager().pushAction(setPosition);
 	}
 
@@ -315,7 +317,8 @@ public class ViewportPopupMenu extends JPopupMenu {
 		JCheckBox customOrigin = new JCheckBox("Custom Scaling Origin");
 		inputPanel.add(customOrigin, "wrap");
 
-		Vec3 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+//		Vec3 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+		Vec3 selectionCenter = modelHandler.getModelView().getSelectionCenter();
 		if (Double.isNaN(selectionCenter.x)) {
 			selectionCenter = new Vec3(0, 0, 0);
 		}

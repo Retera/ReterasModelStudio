@@ -1,28 +1,28 @@
-package com.hiveworkshop.rms.ui.application.edit.animation;
+package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
 import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.CollisionShape;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.HitTestStuff;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec4;
 
 import java.util.*;
 
-public final class NodeAnimationSelectionManager extends SelectionManager<IdObject> {
-	private final RenderModel renderModel;
+public final class TPoseSelectionManager extends SelectionManager<IdObject> {
+//	private final ModelView modelView;
+	private final boolean moveLinked;
 
 	private final Bone renderBoneDummy = new Bone();
 
-	public NodeAnimationSelectionManager(final RenderModel renderModel, ModelView modelView, SelectionItemTypes selectionMode) {
+
+	public TPoseSelectionManager(ModelView modelView, boolean moveLinked, SelectionItemTypes selectionMode) {
 		super(modelView, selectionMode);
-		this.renderModel = renderModel;
+//		this.modelView = modelView;
+		this.moveLinked = moveLinked;
 	}
 
 	@Override
@@ -39,6 +39,7 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 	@Override
 	public void addSelection(final Collection<? extends IdObject> selectionItem) {
 		modelView.addSelectedIdObjects((Collection<IdObject>) selectionItem);
+//		fireChangeListeners();
 	}
 
 	@Override
@@ -49,7 +50,6 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 		}
 //		fireChangeListeners();
 	}
-
 	@Override
 	public boolean isEmpty() {
 		return modelView.getSelectedIdObjects().isEmpty();
@@ -61,32 +61,47 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 		List<IdObject> selectedItems = new ArrayList<>();
 
 		for (IdObject object : modelView.getEditableIdObjects()) {
-			double vertexSize = object.getClickRadius(coordinateSystem) * coordinateSystem.getZoom() * 2;
-			HitTestStuff.hitTest(selectedItems, min, max, object.getPivotPoint(), coordinateSystem, vertexSize, object, renderModel);
+			double vertexSize = object.getClickRadius(coordinateSystem) * coordinateSystem.getZoom();
+			if (AbstractModelEditor.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+				selectedItems.add(object);
+			}
+			if (object instanceof CollisionShape) {
+				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+					if (AbstractModelEditor.hitTest(min, max, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
+						selectedItems.add(object);
+					}
+				}
+			}
 		}
 		return selectedItems;
 	}
 
 //	@Override
-//	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem, ModelView model) {
-////		// TODO !!! apply rendering
+//	public Set<Triangle> getSelectedFaces() {
+//		return new HashSet<>();
+//	}
+
+
+//	@Override
+//	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
+//	                            ModelView model) {
 ////		Set<IdObject> drawnSelection = new HashSet<>();
 ////		Set<IdObject> parentedNonSelection = new HashSet<>();
 ////		for (IdObject object : model.getEditableIdObjects()) {
-////			if (modelView.getSelectedIdObjects().contains(object)) {
+////			if (selection.contains(object)) {
 ////				renderer.renderIdObject(object);
 ////				drawnSelection.add(object);
 ////			} else {
 ////				IdObject parent = object.getParent();
 ////				while (parent != null) {
-////					if (modelView.getSelectedIdObjects().contains(parent)) {
+////					if (selection.contains(parent)) {
 ////						parentedNonSelection.add(object);
 ////					}
 ////					parent = parent.getParent();
 ////				}
 ////			}
 ////		}
-////		for (IdObject selectedObject : modelView.getSelectedIdObjects()) {
+////		for (IdObject selectedObject : selection) {
 ////			if (!drawnSelection.contains(selectedObject)) {
 ////				renderBoneDummy.setPivotPoint(selectedObject.getPivotPoint());
 ////				renderer.renderIdObject(renderBoneDummy);
@@ -103,10 +118,8 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 	@Override
 	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
 		double radius = 0;
-		for (IdObject item : modelView.getSelectedIdObjects()) {
-			Vec4 pivotHeap = new Vec4(item.getPivotPoint(), 1);
-			pivotHeap.transform(renderModel.getRenderNode(item).getWorldMatrix());
-			double distance = sphereCenter.distance(pivotHeap);
+		for (IdObject item : modelView.getEditableIdObjects()) {
+			double distance = sphereCenter.distance(item.getPivotPoint());
 			if (distance >= radius) {
 				radius = distance;
 			}
