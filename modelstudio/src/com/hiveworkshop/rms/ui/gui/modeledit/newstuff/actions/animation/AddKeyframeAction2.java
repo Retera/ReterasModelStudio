@@ -16,8 +16,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
-import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,21 +23,21 @@ import java.util.Set;
 
 public class AddKeyframeAction2 implements UndoAction {
 	//	private final AnimFlag timeline;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 	private final ModelView modelView;
 	private final ModelHandler modelHandler;
 	private final ModelEditorActionType3 actionType;
 
 	private final UndoAction createKeyframeCompoundAction;
 
-	public AddKeyframeAction2(ModelStructureChangeListener structureChangeListener,
+	public AddKeyframeAction2(ModelStructureChangeListener changeListener,
 	                          ModelHandler modelHandler,
 	                          ModelEditorActionType3 actionType) {
 		this.actionType = actionType;
 		this.modelHandler = modelHandler;
 		this.modelView = modelHandler.getModelView();
 
-		this.structureChangeListener = structureChangeListener;
+		this.changeListener = changeListener;
 
 		createKeyframeCompoundAction = createKeyframe();
 	}
@@ -56,24 +54,27 @@ public class AddKeyframeAction2 implements UndoAction {
 
 		TimeEnvironmentImpl timeEnvironmentImpl = modelHandler.getEditTimeEnv();
 		for (IdObject node : selection) {
-			AnimFlag<?> transformationTimeline = node.find(keyframeMdlTypeName, timeEnvironmentImpl.getGlobalSeq());
+			AnimFlag<?> timeline = node.find(keyframeMdlTypeName, timeEnvironmentImpl.getGlobalSeq());
 
-			if (transformationTimeline == null) {
+			if (timeline == null) {
 				if (keyframeMdlTypeName.equals("Rotation")) {
-					transformationTimeline = new QuatAnimFlag(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+					timeline = new QuatAnimFlag(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 				} else {
-					transformationTimeline = new Vec3AnimFlag(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+					timeline = new Vec3AnimFlag(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 				}
-				node.add(transformationTimeline);
+				node.add(timeline);
 
-				AddTimelineAction addTimelineAction = new AddTimelineAction(node, transformationTimeline, structureChangeListener);
+				AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline, changeListener);
 
 				actions.add(addTimelineAction);
 			}
+			int trackTime = getTrackTime(modelHandler.getRenderModel());
+			RenderNode renderNode = modelHandler.getRenderModel().getRenderNode(node);
+
 			AddKeyframeAction keyframeAction = switch (actionType) {
-				case ROTATION, SQUAT -> createRotationKeyframe(node, modelHandler.getRenderModel(), (QuatAnimFlag) transformationTimeline, structureChangeListener);
-				case SCALING -> createScalingKeyframe(node, modelHandler.getRenderModel(), (Vec3AnimFlag) transformationTimeline, structureChangeListener);
-				case TRANSLATION, EXTEND, EXTRUDE -> createTranslationKeyframe(node, modelHandler.getRenderModel(), (Vec3AnimFlag) transformationTimeline, structureChangeListener);
+				case ROTATION, SQUAT -> getAddKeyframeAction(node, timeline, changeListener, trackTime, new Entry<>(trackTime, renderNode.getLocalRotation()));
+				case SCALING -> getAddKeyframeAction(node, timeline, changeListener, trackTime, new Entry<>(trackTime, renderNode.getLocalScale()));
+				case TRANSLATION, EXTEND, EXTRUDE -> getAddKeyframeAction(node, timeline, changeListener, trackTime, new Entry<>(trackTime, renderNode.getLocalLocation()));
 			};
 			if (keyframeAction != null) {
 				actions.add(keyframeAction);
@@ -83,66 +84,8 @@ public class AddKeyframeAction2 implements UndoAction {
 		return new CompoundAction("create keyframe", actions);
 	}
 
-	public AddKeyframeAction createTranslationKeyframe(AnimatedNode animatedNode,
-	                                                   RenderModel renderModel,
-	                                                   Vec3AnimFlag translationFlag,
-	                                                   ModelStructureChangeListener changeListener) {
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		int trackTime = getTrackTime(renderModel);
-		RenderNode renderNode = renderModel.getRenderNode(animatedNode);
-		if (translationFlag.hasEntryAt(trackTime)) {
-			Vec3 localScale = renderNode.getLocalScale();
-			return getAddKeyframeAction(animatedNode, translationFlag, changeListener, trackTime, localScale);
-		}
-		return null;
-	}
-
-	public AddKeyframeAction createRotationKeyframe(AnimatedNode animatedNode,
-	                                                RenderModel renderModel,
-	                                                QuatAnimFlag rotationTimeline,
-	                                                ModelStructureChangeListener changeListener) {
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		int trackTime = getTrackTime(renderModel);
-		RenderNode renderNode = renderModel.getRenderNode(animatedNode);
-		if (rotationTimeline.hasEntryAt(trackTime)) {
-			Quat localRotation = renderNode.getLocalRotation();
-			return getAddKeyframeAction(animatedNode, rotationTimeline, changeListener, trackTime, localRotation);
-		}
-		return null;
-	}
-
-	private AddKeyframeAction getAddKeyframeAction(AnimatedNode animatedNode,
-	                                               QuatAnimFlag rotationTimeline,
-	                                               ModelStructureChangeListener changeListener,
-	                                               int trackTime,
-	                                               Quat localRotation) {
-		Entry<Quat> entry = new Entry<>(trackTime, localRotation);
-
-		if (rotationTimeline.getInterpolationType().tangential()) {
-			entry.unLinearize();
-		}
-
-		changeListener.keyframeAdded(animatedNode, rotationTimeline, trackTime);
-		AddKeyframeAction addKeyframeAction = new AddKeyframeAction(animatedNode, rotationTimeline, entry, changeListener);
-		addKeyframeAction.redo();
-		return addKeyframeAction;
-	}
-
-	public AddKeyframeAction createScalingKeyframe(AnimatedNode animatedNode, RenderModel renderModel, Vec3AnimFlag scalingTimeline,
-	                                                      ModelStructureChangeListener changeListener) {
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		int trackTime = getTrackTime(renderModel);
-		RenderNode renderNode = renderModel.getRenderNode(animatedNode);
-		if (scalingTimeline.hasEntryAt(trackTime)) {
-			Vec3 localScale = renderNode.getLocalScale();
-			return getAddKeyframeAction(animatedNode, scalingTimeline, changeListener, trackTime, localScale);
-		}
-		return null;
-	}
-
 	private int getTrackTime(RenderModel renderModel) {
-		int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		int trackTime = animationTime;
+		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
 
 		Integer globalSeq = renderModel.getAnimatedRenderEnvironment().getGlobalSeq();
 		if (globalSeq != null) {
@@ -152,19 +95,21 @@ public class AddKeyframeAction2 implements UndoAction {
 	}
 
 	private AddKeyframeAction getAddKeyframeAction(AnimatedNode animatedNode,
-	                                               Vec3AnimFlag timeline,
+	                                               AnimFlag<?> timeline,
 	                                               ModelStructureChangeListener changeListener,
-	                                               int trackTime, Vec3 vec3) {
-		Entry<Vec3> entry = new Entry<>(trackTime, vec3);
+	                                               int trackTime, Entry<?> entry) {
+		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
+		if (!timeline.hasEntryAt(trackTime)) {
+			if (timeline.getInterpolationType().tangential()) {
+				entry.unLinearize();
+			}
 
-		if (timeline.getInterpolationType().tangential()) {
-			entry.unLinearize();
+			changeListener.keyframeAdded(animatedNode, timeline, trackTime);
+			AddKeyframeAction addKeyframeAction = new AddKeyframeAction(animatedNode, timeline, entry, changeListener);
+			addKeyframeAction.redo();
+			return addKeyframeAction;
 		}
-
-		changeListener.keyframeAdded(animatedNode, timeline, trackTime);
-		AddKeyframeAction addKeyframeAction = new AddKeyframeAction(animatedNode, timeline, entry, changeListener);
-		addKeyframeAction.redo();
-		return addKeyframeAction;
+		return null;
 	}
 
 

@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TSpline;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TTan;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorChangeActivityListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
@@ -31,7 +30,6 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 	private static final String ANIMATIONBASICS = "ANIMATIONBASICS";
 
 	private ModelEditorManager modelEditorManager;
-	private UndoManager undoManager;
 	private final ProgramPreferences programPreferences;
 	private final DefaultComboBoxModel<ChooseableTimeRange<?>> animationChooserBoxModel;
 	private final JComboBox<ChooseableTimeRange<?>> animationChooserBox;
@@ -162,7 +160,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 //			UndoAction createFaceFromSelection = modelEditorManager.getModelEditor().createFaceFromSelection(facingVector);
 			UndoAction createFaceFromSelection = ModelEditActions.createFaceFromSelection(modelHandler.getModelView(), facingVector);
-			undoManager.pushAction(createFaceFromSelection);
+			modelHandler.getUndoManager().pushAction(createFaceFromSelection);
 		} catch (WrongModeException exc) {
 			JOptionPane.showMessageDialog(CreatorModelingPanel.this,
 					"Unable to create face, wrong selection mode", "Error", JOptionPane.ERROR_MESSAGE);
@@ -289,10 +287,6 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 			modelPanel.changeActivity(newType);
 		}
 //        creatorPanel.changeActivity(newType);
-	}
-
-	public void setUndoManager(UndoManager undoManager) {
-		this.undoManager = undoManager;
 	}
 
 

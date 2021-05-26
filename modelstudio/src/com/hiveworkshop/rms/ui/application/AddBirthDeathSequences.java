@@ -165,44 +165,39 @@ public class AddBirthDeathSequences {
     //
     public static void generateKeyframes(int time, Set<IdObject> selection, List<UndoAction> actions, TimeEnvironmentImpl timeEnvironmentImpl, String name, ModelStructureChangeListener structureChangeListener, RenderModel renderModel, Vec3 vec3) {
         for (final IdObject node : selection) {
-            Vec3AnimFlag translationTimeline = (Vec3AnimFlag) node.find(name, timeEnvironmentImpl.getGlobalSeq());
+            Vec3AnimFlag timeline = (Vec3AnimFlag) node.find(name, timeEnvironmentImpl.getGlobalSeq());
 
-            if (translationTimeline == null) {
-                translationTimeline = new Vec3AnimFlag(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
-                node.add(translationTimeline);
+            if (timeline == null) {
+                timeline = new Vec3AnimFlag(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+                node.add(timeline);
 
-                final AddTimelineAction addTimelineAction = new AddTimelineAction(node, translationTimeline, structureChangeListener);
-                structureChangeListener.timelineAdded(node, translationTimeline);
+                final AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline, structureChangeListener);
+                structureChangeListener.timelineAdded(node, timeline);
                 actions.add(addTimelineAction);
             }
 
-            final AddKeyframeAction keyframeAction = createTranslationKeyframe2(time, node, renderModel, translationTimeline, structureChangeListener, vec3);
+            final AddKeyframeAction keyframeAction = getAddKeyframeAction(node, timeline, structureChangeListener, time, vec3);
             if (keyframeAction != null) {
                 actions.add(keyframeAction);
             }
         }
     }
 
-    public static AddKeyframeAction createTranslationKeyframe2(int trackTime, IdObject idObject, RenderModel renderModel, Vec3AnimFlag translationFlag,
-                                                               ModelStructureChangeListener structureChangeListener, Vec3 vec3) {
-        // TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-        if (translationFlag.hasEntryAt(trackTime)) {
-            return getAddKeyframeAction(idObject, translationFlag, structureChangeListener, trackTime, vec3);
-        }
-        return null;
-    }
 
     private static AddKeyframeAction getAddKeyframeAction(IdObject idObject, Vec3AnimFlag timeline, ModelStructureChangeListener structureChangeListener, int trackTime, Vec3 vec3) {
-        Entry<Vec3> entry = new Entry<>(trackTime, vec3);
+        if (timeline.hasEntryAt(trackTime)) {
+            Entry<Vec3> entry = new Entry<>(trackTime, vec3);
 
-        if (timeline.getInterpolationType().tangential()) {
-            entry.unLinearize();
+            if (timeline.getInterpolationType().tangential()) {
+                entry.unLinearize();
+            }
+
+            structureChangeListener.keyframeAdded(idObject, timeline, trackTime);
+            AddKeyframeAction addKeyframeAction = new AddKeyframeAction(idObject, timeline, entry, structureChangeListener);
+            addKeyframeAction.redo();
+            return addKeyframeAction;
         }
-
-        structureChangeListener.keyframeAdded(idObject, timeline, trackTime);
-        AddKeyframeAction addKeyframeAction = new AddKeyframeAction(idObject, timeline, entry, structureChangeListener);
-        addKeyframeAction.redo();
-        return addKeyframeAction;
+        return null;
     }
 
 }
