@@ -24,6 +24,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAc
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
@@ -31,11 +32,11 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
-public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> {
+public class NodeAnimationModelEditor extends AbstractSelectingEditor {
 	private final RenderModel renderModel;
 	private final ModelStructureChangeListener changeListener;
 
-	public NodeAnimationModelEditor(NodeAnimationSelectionManager selectionManager, ModelStructureChangeListener changeListener, ModelHandler modelHandler,
+	public NodeAnimationModelEditor(SelectionManager selectionManager, ModelStructureChangeListener changeListener, ModelHandler modelHandler,
 	                                SelectionItemTypes selectionMode) {
 		super(selectionManager, modelHandler.getModelView());
 		this.changeListener = changeListener;

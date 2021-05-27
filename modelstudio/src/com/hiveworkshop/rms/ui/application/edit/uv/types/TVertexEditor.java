@@ -120,9 +120,9 @@ public class TVertexEditor implements ComponentVisibilityListener {
 			expandSelection(v, expandedSelection);
 		}
 
-		SetSelectionAction2 setSelectionAction2 = new SetSelectionAction2(expandedSelection, modelView, "expand selection");
-		setSelectionAction2.redo();
-		return setSelectionAction2;
+		SetSelectionAction setSelectionAction = new SetSelectionAction(expandedSelection, modelView, "expand selection");
+		setSelectionAction.redo();
+		return setSelectionAction;
 	}
 
 	private void expandSelection(GeosetVertex currentVertex, Set<GeosetVertex> selection) {
@@ -144,9 +144,9 @@ public class TVertexEditor implements ComponentVisibilityListener {
 		}
 		invertedSelection.removeAll(modelView.getSelectedVertices());
 
-		SetSelectionAction2 setSelectionAction2 = new SetSelectionAction2(invertedSelection, modelView, "invert selection");
-		setSelectionAction2.redo();
-		return setSelectionAction2;
+		SetSelectionAction setSelectionAction = new SetSelectionAction(invertedSelection, modelView, "invert selection");
+		setSelectionAction.redo();
+		return setSelectionAction;
 	}
 
 	public UndoAction selectAll() {
@@ -155,9 +155,9 @@ public class TVertexEditor implements ComponentVisibilityListener {
 			allSelection.addAll(geo.getVertices());
 		}
 
-		SetSelectionAction2 setSelectionAction2 = new SetSelectionAction2(allSelection, modelView, "select all");
-		setSelectionAction2.redo();
-		return setSelectionAction2;
+		SetSelectionAction setSelectionAction = new SetSelectionAction(allSelection, modelView, "select all");
+		setSelectionAction.redo();
+		return setSelectionAction;
 	}
 
 	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
@@ -185,21 +185,21 @@ public class TVertexEditor implements ComponentVisibilityListener {
 
 	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<GeosetVertex> newSelection = genericSelect(min, max, coordinateSystem);
-		final AddSelectionAction2 tAddSelectionAction = new AddSelectionAction2(newSelection, modelView);
+		final AddSelectionAction tAddSelectionAction = new AddSelectionAction(newSelection, modelView);
 		tAddSelectionAction.redo();
 		return tAddSelectionAction;
 	}
 
 	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<GeosetVertex> newSelection = genericSelect(min, max, coordinateSystem);
-		final SetSelectionAction2 select = new SetSelectionAction2(newSelection, modelView, "select");
+		final SetSelectionAction select = new SetSelectionAction(newSelection, modelView, "select");
 		select.redo();
 		return select;
 	}
 
 	public final UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<GeosetVertex> newSelection = genericSelect(min, max, coordinateSystem);
-		final RemoveSelectionAction2 tRemoveSelectionAction = new RemoveSelectionAction2(newSelection, modelView);
+		final RemoveSelectionAction tRemoveSelectionAction = new RemoveSelectionAction(newSelection, modelView);
 		tRemoveSelectionAction.redo();
 		return tRemoveSelectionAction;
 	}
@@ -293,9 +293,9 @@ public class TVertexEditor implements ComponentVisibilityListener {
 	}
 
 	public UndoAction selectFromViewer(SelectionView viewerSelectionView) {
-		SetSelectionAction2 setSelectionAction2 = new SetSelectionAction2(modelView.getSelectedVertices(), modelView, "");
-		setSelectionAction2.redo();
-		return setSelectionAction2;
+		SetSelectionAction setSelectionAction = new SetSelectionAction(modelView.getSelectedVertices(), modelView, "");
+		setSelectionAction.redo();
+		return setSelectionAction;
 	}
 
 	public GenericMoveAction beginTranslation() {

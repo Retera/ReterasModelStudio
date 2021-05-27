@@ -13,7 +13,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction2;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.util.InfoPopup;
@@ -193,7 +193,7 @@ public class ModelEditActions {
         for (Geoset geo : modelView.getEditableGeosets()) {
             allSelection.addAll(geo.getVertices());
         }
-        return new SetSelectionAction2(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras(), modelView, "select all");
+	    return new SetSelectionAction(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras(), modelView, "select all");
     }
 
     public static void inverseAllUVs(MainPanel mainPanel) {

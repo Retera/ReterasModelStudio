@@ -23,12 +23,12 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.Arrays;
 
-public class AbstractModelEditor<T> extends AbstractSelectingEditor<T> {
+public class AbstractModelEditor extends AbstractSelectingEditor {
     protected final ModelStructureChangeListener structureChangeListener;
     protected ModelHandler modelHandler;
     protected SelectionItemTypes selectionMode;
 
-    public AbstractModelEditor(SelectionManager<T> selectionManager,
+    public AbstractModelEditor(SelectionManager selectionManager,
                                ModelStructureChangeListener structureChangeListener,
                                ModelHandler modelHandler, SelectionItemTypes selectionMode) {
         super(selectionManager, modelHandler.getModelView());

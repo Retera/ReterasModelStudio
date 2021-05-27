@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection;
+package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
 

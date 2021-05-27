@@ -5,46 +5,31 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectoinUgg;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class RemoveSelectionAction implements UndoAction {
+public final class RemoveSelectionUggAction implements UndoAction {
 
-	private final Set<GeosetVertex> affectedVerts;
-	private final Set<IdObject> affectedIdObjects;
-	private final Set<Camera> affectedCameras;
+	private final ModelView modelView;
 	private final Set<GeosetVertex> previousVerts;
 	private final Set<IdObject> previousIdObjects;
 	private final Set<Camera> previousCameras;
-	private final ModelView modelView;
+	private final Set<GeosetVertex> affectedVerts;
+	private final Set<IdObject> affectedIdObjects;
+	private final Set<Camera> affectedCameras;
 
-	public RemoveSelectionAction(Collection<GeosetVertex> affectedVerts,
-	                             Collection<IdObject> affectedIdObjects,
-	                             Collection<Camera> affectedCameras,
-	                             ModelView modelView) {
+	public RemoveSelectionUggAction(SelectoinUgg newSelection, ModelView modelView) {
 		this.modelView = modelView;
 
 		this.previousVerts = new HashSet<>(modelView.getSelectedVertices());
 		this.previousIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
 		this.previousCameras = new HashSet<>(modelView.getSelectedCameras());
 
-		this.affectedVerts = new HashSet<>(affectedVerts);
-		this.affectedIdObjects = new HashSet<>(affectedIdObjects);
-		this.affectedCameras = new HashSet<>(affectedCameras);
-	}
-
-	public RemoveSelectionAction(Collection<GeosetVertex> affectedVerts, ModelView modelView) {
-		this.modelView = modelView;
-
-		this.previousVerts = new HashSet<>(modelView.getSelectedVertices());
-		this.previousIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
-		this.previousCameras = new HashSet<>(modelView.getSelectedCameras());
-
-		this.affectedVerts = new HashSet<>(affectedVerts);
-		this.affectedIdObjects = new HashSet<>();
-		this.affectedCameras = new HashSet<>();
+		this.affectedVerts = new HashSet<>(newSelection.getSelectedVertices());
+		this.affectedIdObjects = new HashSet<>(newSelection.getSelectedIdObjects());
+		this.affectedCameras = new HashSet<>(newSelection.getSelectedCameras());
 	}
 
 	@Override

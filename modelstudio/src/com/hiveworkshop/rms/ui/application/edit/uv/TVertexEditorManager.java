@@ -5,7 +5,10 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
@@ -38,8 +41,7 @@ public final class TVertexEditorManager {
 
 	public void setSelectionItemType(final TVertexSelectionItemTypes selectionMode) {
 		switch (selectionMode) {
-			case FACE -> selectionView = new FaceSelectionManager(modelView, transformSelectionMode(selectionMode));
-			case VERTEX -> selectionView = new GeosetVertexSelectionManager(modelView, transformSelectionMode(selectionMode));
+			case FACE, VERTEX -> selectionView = new SelectionManager(modelView, transformSelectionMode(selectionMode));
 		}
 
 		modelEditor = new TVertexEditor(modelView, structureChangeListener, selectionMode);

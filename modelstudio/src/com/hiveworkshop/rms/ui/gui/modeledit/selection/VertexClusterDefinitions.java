@@ -1,10 +1,9 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection;
+package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.util.HashableVector;
 import com.hiveworkshop.rms.util.Vec3;
 

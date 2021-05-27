@@ -17,11 +17,11 @@ import com.hiveworkshop.rms.util.Vec2;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractSelectingEditor<T> implements ModelEditor {
+public abstract class AbstractSelectingEditor implements ModelEditor {
 	protected final ModelView modelView;
-	protected final SelectionManager<T> selectionManager;
+	protected final SelectionManager selectionManager;
 
-	public AbstractSelectingEditor(SelectionManager<T> selectionManager, ModelView modelView) {
+	public AbstractSelectingEditor(SelectionManager selectionManager, ModelView modelView) {
 		this.selectionManager = selectionManager;
 		this.modelView = modelView;
 	}

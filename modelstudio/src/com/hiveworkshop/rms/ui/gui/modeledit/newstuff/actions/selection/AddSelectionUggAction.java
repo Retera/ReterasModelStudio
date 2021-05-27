@@ -5,46 +5,45 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectoinUgg;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class RemoveSelectionAction2 implements UndoAction {
+public final class AddSelectionUggAction implements UndoAction {
 
-	private Set<GeosetVertex> deSelVerts;
-	private Set<IdObject> deSelIdObjects;
-	private Set<Camera> deSelCameras;
-	private Set<GeosetVertex> previousVerts;
-	private Set<IdObject> previousIdObjects;
-	private Set<Camera> previousCameras;
-	private ModelView modelView;
+	private final Set<GeosetVertex> affectedVerts;
+	private final Set<IdObject> affectedIdObjects;
+	private final Set<Camera> affectedCameras;
+	private final Set<GeosetVertex> previousVerts;
+	private final Set<IdObject> previousIdObjects;
+	private final Set<Camera> previousCameras;
+	private final ModelView modelView;
 
-	public RemoveSelectionAction2(Collection<GeosetVertex> deSelVerts,
-	                           Collection<IdObject> deSelIdObjects,
-	                           Collection<Camera> deSelCameras,
-	                           ModelView modelView) {
+	public AddSelectionUggAction(SelectoinUgg newSelection,
+	                             ModelView modelView) {
 		this.modelView = modelView;
 
 		this.previousVerts = new HashSet<>(modelView.getSelectedVertices());
 		this.previousIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
 		this.previousCameras = new HashSet<>(modelView.getSelectedCameras());
 
-		this.deSelVerts = new HashSet<>(deSelVerts);
-		this.deSelIdObjects = new HashSet<>(deSelIdObjects);
-		this.deSelCameras = new HashSet<>(deSelCameras);
+		this.affectedVerts = new HashSet<>(newSelection.getSelectedVertices());
+		this.affectedIdObjects = new HashSet<>(newSelection.getSelectedIdObjects());
+		this.affectedCameras = new HashSet<>(newSelection.getSelectedCameras());
 	}
 
-	public RemoveSelectionAction2(Collection<GeosetVertex> deSelVerts, ModelView modelView) {
+	public AddSelectionUggAction(Collection<GeosetVertex> newVerts, ModelView modelView) {
 		this.modelView = modelView;
 
 		this.previousVerts = new HashSet<>(modelView.getSelectedVertices());
 		this.previousIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
 		this.previousCameras = new HashSet<>(modelView.getSelectedCameras());
 
-		this.deSelVerts = new HashSet<>(deSelVerts);
-		this.deSelIdObjects = new HashSet<>();
-		this.deSelCameras = new HashSet<>();
+		this.affectedVerts = new HashSet<>(newVerts);
+		this.affectedIdObjects = new HashSet<>();
+		this.affectedCameras = new HashSet<>();
 	}
 
 	@Override
@@ -52,18 +51,17 @@ public final class RemoveSelectionAction2 implements UndoAction {
 		modelView.setSelectedVertices(previousVerts);
 		modelView.setSelectedIdObjects(previousIdObjects);
 		modelView.setSelectedCameras(previousCameras);
-
 	}
 
 	@Override
 	public void redo() {
-		modelView.removeSelectedVertices(deSelVerts);
-		modelView.removeSelectedIdObjects(deSelIdObjects);
-		modelView.removeSelectedCameras(deSelCameras);
+		modelView.addSelectedVertices(affectedVerts);
+		modelView.addSelectedIdObjects(affectedIdObjects);
+		modelView.addSelectedCameras(affectedCameras);
 	}
 
 	@Override
 	public String actionName() {
-		return "deselect";
+		return "add selection";
 	}
 }

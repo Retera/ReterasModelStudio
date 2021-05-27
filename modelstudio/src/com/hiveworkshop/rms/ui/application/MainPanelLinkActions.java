@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.nodes.DeleteNodesAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.InvertSelectionAction2;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction2;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.CloneAction2;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
@@ -405,10 +405,10 @@ public class MainPanelLinkActions {
 			for (GeosetVertex v : modelView.getSelectedVertices()) {
 				expandSelection(v, expandedSelection);
 			}
-			SetSelectionAction2 setSelectionAction2 = new SetSelectionAction2(expandedSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), modelView, "expand selection");
-			setSelectionAction2.redo();
+			SetSelectionAction setSelectionAction = new SetSelectionAction(expandedSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), modelView, "expand selection");
+			setSelectionAction.redo();
 
-			modelPanel.getUndoManager().pushAction(setSelectionAction2);
+			modelPanel.getUndoManager().pushAction(setSelectionAction);
 		}
 	}
 
