@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -30,7 +30,7 @@ public abstract class ViewportView extends JPanel {
 	protected CursorManager cursorManager;
 
 	protected ModelHandler modelHandler;
-	protected ViewportActivity viewportActivity;
+	protected ViewportActivityManager viewportActivity;
 	protected ViewportListener viewportListener;
 	protected CoordDisplayListener coordDisplayListener;
 
@@ -41,7 +41,7 @@ public abstract class ViewportView extends JPanel {
 
 	public ViewportView(ModelHandler modelHandler, byte d1, byte d2,
 	                    Dimension minDim,
-	                    ViewportActivity viewportActivity,
+	                    ViewportActivityManager viewportActivity,
 	                    ViewportListener viewportListener,
 	                    CoordDisplayListener coordDisplayListener) {
 		this.modelHandler = modelHandler;

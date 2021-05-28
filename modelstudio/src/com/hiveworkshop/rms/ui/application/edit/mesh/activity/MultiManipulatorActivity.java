@@ -6,28 +6,26 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-public class MultiManipulatorActivity implements ViewportActivity {
+public class MultiManipulatorActivity extends ViewportActivity {
 	private final ManipulatorBuilder manipulatorBuilder;
-	private final UndoManager undoManager;
 	private Manipulator manipulator;
 	private CursorManager cursorManager;
 	private Vec2 mouseStartPoint;
 	private Vec2 lastDragPoint;
-	private SelectionView selectionView;
 
 	public MultiManipulatorActivity(ManipulatorBuilder manipulatorBuilder,
 	                                UndoManager undoManager,
-	                                SelectionView selectionView) {
+	                                AbstractSelectionManager selectionManager) {
 		this.manipulatorBuilder = manipulatorBuilder;
 		this.undoManager = undoManager;
-		this.selectionView = selectionView;
+		this.selectionManager = selectionManager;
 	}
 
 	@Override
@@ -36,8 +34,8 @@ public class MultiManipulatorActivity implements ViewportActivity {
 	}
 
 	@Override
-	public void onSelectionChanged(SelectionView newSelection) {
-		this.selectionView = newSelection;
+	public void onSelectionChanged(AbstractSelectionManager newSelection) {
+		this.selectionManager = newSelection;
 	}
 
 	@Override
@@ -58,8 +56,8 @@ public class MultiManipulatorActivity implements ViewportActivity {
 			buttonType = ButtonType.LEFT_MOUSE;
 			finnishAction(e, coordinateSystem, true);
 		}
-		System.out.println("Mouse pressed! selectionView: " + selectionView);
-		manipulator = manipulatorBuilder.buildActivityListener(e.getX(), e.getY(), buttonType, coordinateSystem, selectionView);
+		System.out.println("Mouse pressed! selectionView: " + selectionManager);
+		manipulator = manipulatorBuilder.buildActivityListener(e.getX(), e.getY(), buttonType, coordinateSystem, selectionManager);
 		if (manipulator != null) {
 			mouseStartPoint = new Vec2(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
 			manipulator.start(e, mouseStartPoint, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
@@ -89,7 +87,7 @@ public class MultiManipulatorActivity implements ViewportActivity {
 
 	@Override
 	public void mouseMoved(MouseEvent e, CoordinateSystem coordinateSystem) {
-		cursorManager.setCursor(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), coordinateSystem, selectionView));
+		cursorManager.setCursor(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), coordinateSystem, selectionManager));
 	}
 
 	@Override
@@ -103,7 +101,7 @@ public class MultiManipulatorActivity implements ViewportActivity {
 
 	@Override
 	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
-		manipulatorBuilder.render(graphics, coordinateSystem, selectionView, isAnimated);
+		manipulatorBuilder.renderWidget(graphics, coordinateSystem, selectionManager);
 		if (manipulator != null) {
 			manipulator.render(graphics, coordinateSystem);
 		}

@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
@@ -23,7 +23,7 @@ public class UVViewport extends ViewportView implements ModelEditorChangeListene
 	private final UVViewportModelRenderer viewportModelRenderer;
 	private ModelEditor editor;
 
-	public UVViewport(ModelHandler modelHandler, UVPanel uvPanel, ViewportActivity viewportActivity, CoordDisplayListener coordDisplayListener, ModelEditor editor) {
+	public UVViewport(ModelHandler modelHandler, UVPanel uvPanel, ViewportActivityManager viewportActivity, CoordDisplayListener coordDisplayListener, ModelEditor editor) {
 		super(modelHandler, (byte) 0, (byte) 1, new Dimension(400, 400), viewportActivity, new ViewportListener(), coordDisplayListener);
 
 		this.editor = editor;

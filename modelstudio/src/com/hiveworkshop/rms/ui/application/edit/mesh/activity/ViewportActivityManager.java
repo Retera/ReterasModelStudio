@@ -3,16 +3,18 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-public final class ViewportActivityManager implements ViewportActivity {
+public final class ViewportActivityManager implements SelectionListener, ModelEditorChangeListener {
 	private ViewportActivity currentActivity;
 	private CursorManager cursorManager;
 	private ModelEditor newModelEditor;
-	private SelectionView newSelection;
+	private AbstractSelectionManager newSelection;
 
 	public ViewportActivityManager(ViewportActivity currentActivity) {
 		this.currentActivity = currentActivity;
@@ -27,45 +29,58 @@ public final class ViewportActivityManager implements ViewportActivity {
 		}
 	}
 
-	@Override
+//	@Override
 	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
-		currentActivity.mousePressed(e, coordinateSystem);
+		if (this.currentActivity != null) {
+			currentActivity.mousePressed(e, coordinateSystem);
+		}
 	}
 
-	@Override
+//	@Override
 	public void mouseReleased(MouseEvent e, CoordinateSystem coordinateSystem) {
-		currentActivity.mouseReleased(e, coordinateSystem);
+		if (this.currentActivity != null) {
+			currentActivity.mouseReleased(e, coordinateSystem);
+		}
 	}
 
-	@Override
+//	@Override
 	public void mouseMoved(MouseEvent e, CoordinateSystem coordinateSystem) {
-		currentActivity.mouseMoved(e, coordinateSystem);
+		if (this.currentActivity != null) {
+			currentActivity.mouseMoved(e, coordinateSystem);
+		}
 	}
 
-	@Override
+//	@Override
 	public void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem) {
-		currentActivity.mouseDragged(e, coordinateSystem);
+		if (this.currentActivity != null) {
+			currentActivity.mouseDragged(e, coordinateSystem);
+		}
 	}
 
-	@Override
+//	@Override
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
-		currentActivity.render(g, coordinateSystem, renderModel, isAnimated);
+		if (this.currentActivity != null) {
+			currentActivity.render(g, coordinateSystem, renderModel, isAnimated);
+		}
 	}
 
-	@Override
+//	@Override
 	public boolean isEditing() {
-		return currentActivity.isEditing();
+		if (this.currentActivity != null) {
+			return currentActivity.isEditing();
+		}
+		return false;
 	}
 
 	@Override
-	public void onSelectionChanged(SelectionView newSelection) {
+	public void onSelectionChanged(AbstractSelectionManager newSelection) {
 		this.newSelection = newSelection;
 		if (currentActivity != null) {
 			currentActivity.onSelectionChanged(newSelection);
 		}
 	}
 
-	@Override
+//	@Override
 	public void viewportChanged(CursorManager cursorManager) {
 		this.cursorManager = cursorManager;
 		if (currentActivity != null) {

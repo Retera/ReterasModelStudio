@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -10,13 +10,13 @@ import java.awt.event.MouseEvent;
 
 public class RotateManipulator extends AbstractRotateManipulator {
 
-	public RotateManipulator(ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
-		super(modelEditor, selectionView, dir);
+	public RotateManipulator(ModelEditor modelEditor, AbstractSelectionManager selectionManager, MoveDimension dir) {
+		super(modelEditor, selectionManager, dir);
 	}
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
-		Vec3 center = selectionView.getCenter();
+		Vec3 center = selectionManager.getCenter();
 		byte planeDim1;
 		byte planeDim2;
 		nonRotAngle = 0;
@@ -36,11 +36,11 @@ public class RotateManipulator extends AbstractRotateManipulator {
 	}
 
 	protected Vec2 getVec2Center(byte portFirstXYZ, byte portSecondXYZ) {
-		return selectionView.getCenter().getProjected(portFirstXYZ, portSecondXYZ);
+		return selectionManager.getCenter().getProjected(portFirstXYZ, portSecondXYZ);
 	}
 
 	protected double getRadius() {
-		double radius = selectionView.getCircumscribedSphereRadius(selectionView.getCenter());
+		double radius = selectionManager.getCircumscribedSphereRadius(selectionManager.getCenter());
 		if (radius <= 0) {
 			radius = 64;
 		}

@@ -2,15 +2,11 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
@@ -20,8 +16,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawVertexAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.NewGeosetAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -31,18 +25,12 @@ import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 
-public class DrawVertexActivity implements ViewportActivity {
+public class DrawVertexActivity extends ViewportActivity {
 
 	private Point lastMousePoint;
-	private final ProgramPreferences preferences;
-	private ModelEditor modelEditor;
-	private final UndoManager undoManager;
 	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
-	private final ModelView modelView;
-	private SelectionView selectionView;
 	private final ModelElementRenderer modelElementRenderer;
 	private final ViewportListener viewportListener;
-	private final ModelHandler modelHandler;
 	ModelEditorManager modelEditorManager;
 
 	public DrawVertexActivity(ModelHandler modelHandler,
@@ -54,23 +42,10 @@ public class DrawVertexActivity implements ViewportActivity {
 		this.undoManager = modelHandler.getUndoManager();
 		this.modelEditor = modelEditorManager.getModelEditor();
 		this.modelView = modelHandler.getModelView();
-		this.selectionView = modelEditorManager.getSelectionView();
+		this.selectionManager = modelEditorManager.getSelectionView();
 		this.viewportListener = viewportListener;
 		modelElementRenderer = new ModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
 	}
-
-	@Override
-	public void onSelectionChanged(SelectionView newSelection) {
-		selectionView = newSelection;
-	}
-
-	@Override
-	public void modelEditorChanged(ModelEditor newModelEditor) {
-		modelEditor = newModelEditor;
-	}
-
-	@Override
-	public void viewportChanged(CursorManager cursorManager) { }
 
 	@Override
 	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {

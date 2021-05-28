@@ -11,9 +11,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractSelectingEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.*;
@@ -23,49 +21,21 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAc
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
-import com.hiveworkshop.rms.util.Mat4;
-import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
-public class NodeAnimationModelEditor extends AbstractSelectingEditor {
+public class NodeAnimationModelEditor extends ModelEditor {
 	private final RenderModel renderModel;
 	private final ModelStructureChangeListener changeListener;
 
-	public NodeAnimationModelEditor(SelectionView selectionManager, ModelStructureChangeListener changeListener, ModelHandler modelHandler,
+	public NodeAnimationModelEditor(SelectionManager selectionManager, ModelStructureChangeListener changeListener, ModelHandler modelHandler,
 	                                SelectionItemTypes selectionMode) {
 		super(selectionManager, modelHandler.getModelView());
 		this.changeListener = changeListener;
 		this.renderModel = modelHandler.getRenderModel();
-	}
-
-
-	public static boolean hitTest(Vec3 vertex, Vec2 point, CoordinateSystem coordinateSystem, double vertexSize, Mat4 worldMatrix) {
-		Vec3 pivotHeap = Vec3.getTransformed(vertex, worldMatrix);
-		pivotHeap.transform(worldMatrix);
-		Vec2 vertexV2 = CoordSysUtils.convertToViewVec2(coordinateSystem, pivotHeap);
-		return vertexV2.distance(point) <= (vertexSize / 2.0);
-	}
-
-	public static double distance(double vertexX, double vertexY, double x, double y) {
-		double dx = x - vertexX;
-		double dy = y - vertexY;
-		return Math.sqrt((dx * dx) + (dy * dy));
-	}
-
-	@Override
-	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes) {
-		for (IdObject object : modelView.getEditableIdObjects()) {
-			Mat4 worldMatrix = renderModel.getRenderNode(object).getWorldMatrix();
-			double vertexSize = object.getClickRadius(axes) * axes.getZoom() * 2;
-			if (NodeAnimationModelEditor.hitTest(object.getPivotPoint(), CoordSysUtils.geomV2(axes, point), axes, vertexSize, worldMatrix)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private static AddKeyframeAction getAddKeyframeAction(AnimFlag<?> timeline, int trackTime, Entry<?> entry) {
@@ -73,10 +43,6 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor {
 			if (timeline.getInterpolationType().tangential()) {
 				entry.unLinearize();
 			}
-
-//			AddKeyframeAction addKeyframeAction = new AddKeyframeAction(timeline, entry);
-//			addKeyframeAction.redo();
-//			return addKeyframeAction;
 			return new AddKeyframeAction(timeline, entry);
 		}
 		return null;

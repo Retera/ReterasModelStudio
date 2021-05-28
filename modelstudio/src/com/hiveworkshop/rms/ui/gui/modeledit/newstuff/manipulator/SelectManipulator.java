@@ -10,14 +10,14 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 
 public class SelectManipulator extends Manipulator {
-	private final ViewportSelectionHandler eventHandler;
+	private final ViewportSelectionHandler viewportSelectionHandler;
 	private Vec2 mouseEnd;
 	private final CoordinateSystem coordinateSystem;
 	private byte currentDim1;
 	private byte currentDim2;
 
-	public SelectManipulator(ViewportSelectionHandler eventHandler, CoordinateSystem coordinateSystem) {
-		this.eventHandler = eventHandler;
+	public SelectManipulator(ViewportSelectionHandler viewportSelectionHandler, CoordinateSystem coordinateSystem) {
+		this.viewportSelectionHandler = viewportSelectionHandler;
 		this.coordinateSystem = coordinateSystem;
 	}
 
@@ -36,12 +36,12 @@ public class SelectManipulator extends Manipulator {
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		Vec2 min = new Vec2(activityStart).minimize(mouseEnd);
 		Vec2 max = new Vec2(activityStart).maximize(mouseEnd);
-		return eventHandler.selectRegion(min, max, coordinateSystem);
+		return viewportSelectionHandler.selectRegion(min, max, coordinateSystem);
 	}
 
 	@Override
 	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
-		if ((activityStart == null) || (mouseEnd == null)) {
+		if (mouseEnd == null) {
 			return;
 		}
 		if ((currentDim1 == coordinateSystem.getPortFirstXYZ()) && (currentDim2 == coordinateSystem.getPortSecondXYZ())) {

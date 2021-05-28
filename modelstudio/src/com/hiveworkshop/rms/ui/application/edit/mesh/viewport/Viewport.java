@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.ViewportModelRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -30,7 +30,7 @@ public class Viewport extends ViewportView {
 	long renderCount;
 
 
-	public Viewport(byte d1, byte d2, ModelHandler modelHandler, ViewportActivity activityListener, ModelStructureChangeListener modelStructureChangeListener, CoordDisplayListener coordDisplayListener, ModelEditorManager modelEditorManager, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener) {
+	public Viewport(byte d1, byte d2, ModelHandler modelHandler, ViewportActivityManager activityListener, ModelStructureChangeListener modelStructureChangeListener, CoordDisplayListener coordDisplayListener, ModelEditorManager modelEditorManager, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener) {
 		super(modelHandler, d1, d2, new Dimension(200, 200), activityListener, viewportListener, coordDisplayListener);
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions

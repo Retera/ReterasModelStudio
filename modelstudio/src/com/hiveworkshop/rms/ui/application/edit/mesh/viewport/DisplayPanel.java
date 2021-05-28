@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
@@ -25,7 +25,7 @@ import java.awt.image.BufferedImage;
 public class DisplayPanel extends JPanel {
 	private Viewport vp;
 	JPanel buttonPanel;
-	private final ViewportActivity activityListener;
+	private final ViewportActivityManager activityListener;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final View view;
@@ -33,7 +33,7 @@ public class DisplayPanel extends JPanel {
 
 	public DisplayPanel(String title, byte a, byte b, ModelHandler modelHandler,
 	                    ModelEditorManager modelEditorManager, ModelStructureChangeListener modelStructureChangeListener,
-	                    ViewportActivity activityListener,
+	                    ViewportActivityManager activityListener,
 	                    CoordDisplayListener coordDisplayListener,
 	                    ModelEditorChangeNotifier modelEditorChangeNotifier,
 	                    ViewportTransferHandler viewportTransferHandler,

@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportRenderableCamera;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
@@ -341,5 +342,39 @@ public final class ResettableIdObjectRenderer {
 //		g2.drawLine(0, 0, size, -size);
 //
 //		g2.drawLine(0, 0, (int) dist, 0);
+    }
+
+    public void renderCamera(Camera camera, Color boxColor, Vec3 position, Color targetColor, Vec3 targetPosition) {
+        if (isAnimated) {
+            throw new WrongModeException("not animating cameras yet, code not finished");
+        }
+        Graphics2D g2 = ((Graphics2D) graphics.create());
+
+        byte dim1 = coordinateSystem.getPortFirstXYZ();
+        byte dim2 = coordinateSystem.getPortSecondXYZ();
+        Point start = new Point(
+                (int) Math.round(coordinateSystem.viewX(position.getCoord(dim1))),
+                (int) Math.round(coordinateSystem.viewY(position.getCoord(dim2))));
+        Point end = new Point(
+                (int) Math.round(coordinateSystem.viewX(targetPosition.getCoord(dim1))),
+                (int) Math.round(coordinateSystem.viewY(targetPosition.getCoord(dim2))));
+
+        g2.translate(end.x, end.y);
+        g2.rotate(-(Math.PI / 2 + Math.atan2(end.x - start.x, end.y - start.y)));
+        double zoom = coordinateSystem.getZoom();
+        int size = (int) (20 * zoom);
+        double dist = start.distance(end);
+
+        g2.setColor(boxColor);
+        g2.fillRect((int) dist - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
+        g2.drawRect((int) dist - size, -size, size * 2, size * 2);
+
+        g2.setColor(targetColor);
+
+        g2.fillRect(0 - vertexSize, 0 - vertexSize, 1 + vertexSize * 2, 1 + vertexSize * 2);
+        g2.drawLine(0, 0, size, size);
+        g2.drawLine(0, 0, size, -size);
+
+        g2.drawLine(0, 0, (int) dist, 0);
     }
 }

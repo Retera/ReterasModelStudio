@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractRotateManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -12,13 +12,13 @@ import java.awt.event.MouseEvent;
 
 public class RotateTVertexManipulator extends AbstractRotateManipulator {
 
-	public RotateTVertexManipulator(ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
-		super(modelEditor, selectionView, dir);
+	public RotateTVertexManipulator(ModelEditor modelEditor, AbstractSelectionManager selectionManager, MoveDimension dir) {
+		super(modelEditor, selectionManager, dir);
 	}
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
-		Vec3 center = new Vec3().setCoords(dim1, dim2, selectionView.getUVCenter(0));
+		Vec3 center = new Vec3().setCoords(dim1, dim2, selectionManager.getUVCenter(0));
 		byte planeDim1;
 		byte planeDim2;
 		nonRotAngle = 0;
@@ -37,12 +37,12 @@ public class RotateTVertexManipulator extends AbstractRotateManipulator {
 	}
 
 	protected Vec2 getVec2Center(byte portFirstXYZ, byte portSecondXYZ) {
-		return selectionView.getUVCenter(0);
+		return selectionManager.getUVCenter(0);
 	}
 
 	protected double getRadius() {
 //		double radius = selectionView.getCircumscribedSphereRadius(center, modelEditor.getUVLayerIndex());
-		double radius = selectionView.getCircumscribedSphereRadius(selectionView.getUVCenter(0), 0);
+		double radius = selectionManager.getCircumscribedSphereRadius(selectionManager.getUVCenter(0), 0);
 		if (radius <= 0) {
 			radius = 64;
 		}

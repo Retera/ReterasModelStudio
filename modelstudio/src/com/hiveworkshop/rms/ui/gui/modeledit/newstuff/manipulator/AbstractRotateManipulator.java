@@ -4,21 +4,21 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.event.MouseEvent;
 
 public abstract class AbstractRotateManipulator extends Manipulator {
 	protected final ModelEditor modelEditor;
-	protected final SelectionView selectionView;
+	protected final AbstractSelectionManager selectionManager;
 	protected GenericRotateAction rotationAction;
 	protected MoveDimension dir;
 	protected double nonRotAngle;
 
-	public AbstractRotateManipulator(ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
+	public AbstractRotateManipulator(ModelEditor modelEditor, AbstractSelectionManager selectionManager, MoveDimension dir) {
 		this.modelEditor = modelEditor;
-		this.selectionView = selectionView;
+		this.selectionManager = selectionManager;
 		this.dir = dir;
 	}
 

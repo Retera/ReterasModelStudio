@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
@@ -13,7 +12,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
@@ -25,7 +23,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.NewGeosetAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.CompoundMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingMoveActionAdapter;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -35,13 +33,10 @@ import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 
-public class DrawBoxActivity implements ViewportActivity {
+public class DrawBoxActivity extends ViewportActivity {
 
-	private ModelEditor modelEditor;
-	private final UndoManager undoManager;
 	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
-	private final ModelView modelView;
-	private SelectionView selectionView;
+
 	private final ModelElementRenderer modelElementRenderer;
 	private final ViewportListener viewportListener;
 
@@ -54,7 +49,6 @@ public class DrawBoxActivity implements ViewportActivity {
 	private int numSegsZ;
 	private double lastHeightModeZ = 0;
 	private double firstHeightModeZ = 0;
-	private final ModelHandler modelHandler;
 	ModelEditorManager modelEditorManager;
 
 	public DrawBoxActivity(ModelHandler modelHandler,
@@ -66,7 +60,7 @@ public class DrawBoxActivity implements ViewportActivity {
 		this.modelEditorManager = modelEditorManager;
 		this.modelEditor = modelEditorManager.getModelEditor();
 		this.modelView = modelHandler.getModelView();
-		this.selectionView = modelEditorManager.getSelectionView();
+		this.selectionManager = modelEditorManager.getSelectionView();
 		this.viewportListener = viewportListener;
 		this.numSegsX = numSegsX;
 		this.numSegsY = numSegsY;
@@ -87,8 +81,8 @@ public class DrawBoxActivity implements ViewportActivity {
 	}
 
 	@Override
-	public void onSelectionChanged(SelectionView newSelection) {
-		selectionView = newSelection;
+	public void onSelectionChanged(AbstractSelectionManager newSelection) {
+		selectionManager = newSelection;
 	}
 
 	@Override

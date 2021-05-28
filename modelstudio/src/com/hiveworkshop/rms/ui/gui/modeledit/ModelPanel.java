@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.DoNothingActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
@@ -78,7 +77,7 @@ public class ModelPanel {
 		this.parent = parent;
 		selectionItemTypeNotifier = notifier;
 		this.icon = icon;
-		viewportActivityManager = new ViewportActivityManager(new DoNothingActivity());
+		viewportActivityManager = new ViewportActivityManager(null);
 		this.modelStructureChangeListener = modelStructureChangeListener;
 
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();

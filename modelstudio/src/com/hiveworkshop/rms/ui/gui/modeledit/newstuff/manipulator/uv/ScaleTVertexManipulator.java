@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractScaleManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -11,19 +11,19 @@ import java.awt.event.MouseEvent;
 
 public final class ScaleTVertexManipulator extends AbstractScaleManipulator {
 
-	public ScaleTVertexManipulator(ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
-		super(modelEditor, selectionView, dir);
+	public ScaleTVertexManipulator(ModelEditor modelEditor, AbstractSelectionManager selectionManager, MoveDimension dir) {
+		super(modelEditor, selectionManager, dir);
 	}
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
-		Vec3 center = new Vec3().setCoords(dim1, dim2, selectionView.getUVCenter(0));
+		Vec3 center = new Vec3().setCoords(dim1, dim2, selectionManager.getUVCenter(0));
 		resetScaleVector();
 		scaleAction = modelEditor.beginScaling(center);
 	}
 
 	protected double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
-		Vec2 center = selectionView.getUVCenter(0);
+		Vec2 center = selectionManager.getUVCenter(0);
 		double dxEnd = 0;
 		double dyEnd = 0;
 		double dxStart = 0;

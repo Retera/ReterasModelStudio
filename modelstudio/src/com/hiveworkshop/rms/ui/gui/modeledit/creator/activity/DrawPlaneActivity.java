@@ -5,15 +5,11 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
@@ -25,8 +21,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.NewGeosetAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.CompoundMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingMoveActionAdapter;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -36,23 +30,16 @@ import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 
-public class DrawPlaneActivity implements ViewportActivity {
-
-	private final ProgramPreferences preferences;
-	private final UndoManager undoManager;
+public class DrawPlaneActivity extends ViewportActivity {
 	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
-	private final ModelView modelView;
 	private final ModelElementRenderer modelElementRenderer;
 	private final ViewportListener viewportListener;
-	private ModelEditor modelEditor;
-	private SelectionView selectionView;
 	private DrawingState drawingState = DrawingState.NOTHING;
 	private Vec2 mouseStart;
 	private Vec2 lastMousePoint;
 	private GenericMoveAction planeAction;
 	private int numSegsX;
 	private int numSegsY;
-	private final ModelHandler modelHandler;
 	ModelEditorManager modelEditorManager;
 
 	public DrawPlaneActivity(ModelHandler modelHandler,
@@ -65,7 +52,7 @@ public class DrawPlaneActivity implements ViewportActivity {
 		this.undoManager = modelHandler.getUndoManager();
 		this.modelEditor = modelEditorManager.getModelEditor();
 		this.modelView = modelHandler.getModelView();
-		this.selectionView = modelEditorManager.getSelectionView();
+		this.selectionManager = modelEditorManager.getSelectionView();
 		this.viewportListener = viewportListener;
 		this.numSegsX = numSegsX;
 		this.numSegsY = numSegsY;
@@ -78,20 +65,6 @@ public class DrawPlaneActivity implements ViewportActivity {
 
 	public void setNumSegsY(int numSegsY) {
 		this.numSegsY = numSegsY;
-	}
-
-	@Override
-	public void onSelectionChanged(SelectionView newSelection) {
-		selectionView = newSelection;
-	}
-
-	@Override
-	public void modelEditorChanged(ModelEditor newModelEditor) {
-		modelEditor = newModelEditor;
-	}
-
-	@Override
-	public void viewportChanged(CursorManager cursorManager) {
 	}
 
 	@Override

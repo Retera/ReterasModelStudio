@@ -20,8 +20,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyfr
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.SetKeyframeAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.SlideKeyframeAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.GUITheme;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -947,7 +947,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	}
 
 	@Override
-	public void onSelectionChanged(final SelectionView newSelection) {
+	public void onSelectionChanged(final AbstractSelectionManager newSelection) {
 		updateKeyframeDisplay();
 		repaint();
 	}

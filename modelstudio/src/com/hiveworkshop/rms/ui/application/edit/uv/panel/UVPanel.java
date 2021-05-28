@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
@@ -11,13 +12,17 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actions.uv.UVRemapAction;
 import com.hiveworkshop.rms.ui.application.actions.uv.UVSnapAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.*;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.TVertexEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.MirrorTVerticesAction;
@@ -79,14 +84,14 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	AbstractAction selectAllAction = new AbstractAction("Select All") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			UndoAction undoAction = modelEditorManager.getModelEditor().selectAll();
+			UndoAction undoAction = selectAll(modelPanel.getModelView());
 			addUndoAction(undoAction);
 		}
 	};
 	AbstractAction invertSelectAction = new AbstractAction("Invert Selection") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			UndoAction undoAction = modelEditorManager.getModelEditor().invertSelection();
+			UndoAction undoAction = invertSelection(modelPanel.getModelView());
 			addUndoAction(undoAction);
 //            addUndoAction(modelEditorManager.getModelEditor().invertSelection());
 		}
@@ -94,7 +99,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	AbstractAction expandSelectionAction = new AbstractAction("Expand Selection") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			UndoAction undoAction = modelEditorManager.getModelEditor().expandSelection();
+			UndoAction undoAction = expandSelection(modelPanel.getModelView());
 			addUndoAction(undoAction);
 		}
 	};
@@ -102,11 +107,15 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			ModelPanel mpanel = currentModelPanel();
-			final UndoAction action = modelEditorManager.getModelEditor().selectFromViewer(mpanel.getModelEditorManager().getSelectionView());
+			final UndoAction action = selectFromViewer(mpanel.getModelView());
 			mpanel.getUndoManager().pushAction(action);
 			repaint();
 		}
 	};
+
+	public UndoAction selectFromViewer(ModelView modelView) {
+		return new SetSelectionAction(modelView.getSelectedVertices(), modelView, "").redo();
+	}
 
 	public UVPanel(MainPanel mainPanel, ModelStructureChangeListener modelStructureChangeListener) {
 		this.mainPanel = mainPanel;
@@ -115,11 +124,11 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 //        ModelStructureChangeListener modelStructureChangeListener = mainPanel.modelStructureChangeListener;
 
 		undoListener = ProgramGlobals.getCurrentModelPanel().getUndoManager();
-		viewportActivityManager = new ViewportActivityManager(new DoNothingActivity());
+		viewportActivityManager = new ViewportActivityManager(null);
 		ModelEditorChangeNotifier modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
-		modelEditorManager = new TVertexEditorManager(modelPanel.getModelView(), selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager, modelPanel.getEditorRenderModel(), modelStructureChangeListener);
+		modelEditorManager = new TVertexEditorManager(modelPanel.getModelHandler(), selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager, modelStructureChangeListener);
 
 		setBorder(BorderFactory.createLineBorder(Color.black));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)));
@@ -236,6 +245,47 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		return stuffPanel;
 	}
 
+
+	public UndoAction expandSelection(ModelView modelView) {
+		Set<GeosetVertex> expandedSelection = new HashSet<>(modelView.getSelectedVertices());
+		Set<GeosetVertex> oldSelection = new HashSet<>(modelView.getSelectedVertices());
+		for (GeosetVertex v : oldSelection) {
+			expandSelection(v, expandedSelection);
+		}
+
+		return new SetSelectionAction(expandedSelection, modelView, "expand selection").redo();
+	}
+
+	private void expandSelection(GeosetVertex currentVertex, Set<GeosetVertex> selection) {
+		selection.add(currentVertex);
+		for (Triangle tri : currentVertex.getTriangles()) {
+			for (GeosetVertex other : tri.getVerts()) {
+				if (!selection.contains(other)) {
+					expandSelection(other, selection);
+				}
+			}
+		}
+	}
+
+	public UndoAction invertSelection(ModelView modelView) {
+		Set<GeosetVertex> invertedSelection = new HashSet<>();
+		for (Geoset geoset : modelView.getEditableGeosets()) {
+			invertedSelection.addAll(geoset.getVertices());
+		}
+		invertedSelection.removeAll(modelView.getSelectedVertices());
+
+		return new SetSelectionAction(invertedSelection, modelView, "invert selection").redo();
+	}
+
+	public UndoAction selectAll(ModelView modelView) {
+		Set<GeosetVertex> allSelection = new HashSet<>();
+		for (Geoset geo : modelView.getEditableGeosets()) {
+			allSelection.addAll(geo.getVertices());
+		}
+
+		return new SetSelectionAction(allSelection, modelView, "select all").redo();
+	}
+
 	private void addUndoAction(UndoAction undoAction) {
 		ModelPanel mpanel = currentModelPanel();
 		mpanel.getUndoManager().pushAction(undoAction);
@@ -245,7 +295,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	private void mirror(byte i) {
 		ModelPanel mpanel = currentModelPanel();
 		if (mpanel != null) {
-			Vec2 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+//			Vec2 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+			Vec2 selectionCenter = modelEditorManager.getSelectionView().getUVCenter(0);
 
 			UndoAction mirror = new MirrorTVerticesAction(TVertexUtils.getTVertices(modelPanel.getModelView().getSelectedVertices(), 0), i, selectionCenter.x, selectionCenter.y).redo();
 			mpanel.getUndoManager().pushAction(mirror);
@@ -360,7 +411,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 
 		createAndAddMenuItem("Select All", "control A", selectAllAction, editMenu);
 
-		createAndAddMenuItem("Invert Selection", "control I", e -> addUndoAction(modelEditorManager.getModelEditor().invertSelection()), editMenu);
+		createAndAddMenuItem("Invert Selection", "control I", e -> addUndoAction(invertSelection(modelPanel.getModelView())), editMenu);
 
 		createAndAddMenuItem("Expand Selection", "control E", expandSelectionAction, editMenu);
 

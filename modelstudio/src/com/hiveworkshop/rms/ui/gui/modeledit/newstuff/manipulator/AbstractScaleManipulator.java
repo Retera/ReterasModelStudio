@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -11,15 +11,15 @@ import java.awt.event.MouseEvent;
 
 public abstract class AbstractScaleManipulator extends Manipulator {
 	protected final ModelEditor modelEditor;
-	protected final SelectionView selectionView;
+	protected final AbstractSelectionManager selectionManager;
 	protected final Vec3 scaleVector;
 	protected GenericScaleAction scaleAction;
 	protected MoveDimension dir;
 	protected boolean isNeg = false;
 
-	public AbstractScaleManipulator(ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
+	public AbstractScaleManipulator(ModelEditor modelEditor, AbstractSelectionManager selectionManager, MoveDimension dir) {
 		this.modelEditor = modelEditor;
-		this.selectionView = selectionView;
+		this.selectionManager = selectionManager;
 		this.scaleVector = new Vec3(1, 1, 1);
 		this.dir = dir;
 	}

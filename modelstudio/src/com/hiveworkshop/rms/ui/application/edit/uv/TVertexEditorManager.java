@@ -1,54 +1,41 @@
 package com.hiveworkshop.rms.ui.application.edit.uv;
 
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
+import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 
-public final class TVertexEditorManager {
-	private final ModelView modelView;
-	private TVertexEditor modelEditor;
-	private final ViewportSelectionHandler viewportSelectionHandler;
-	private final ModelEditorChangeListener modelEditorChangeListener;
-	private SelectionView selectionView;
-	private final SelectionListener selectionListener;
-	private final RenderModel renderModel;
-	private final ModelStructureChangeListener structureChangeListener;
+public final class TVertexEditorManager extends AbstractModelEditorManager {
+//public final class TVertexEditorManager {
 	public static boolean MOVE_LINKED;
 
-	public TVertexEditorManager(ModelView modelView,
+	public TVertexEditorManager(ModelHandler modelHandler,
 	                            ToolbarButtonGroup2<SelectionMode> modeButtonGroup,
 	                            ModelEditorChangeListener modelEditorChangeListener,
 	                            SelectionListener selectionListener,
-	                            RenderModel renderModel,
 	                            ModelStructureChangeListener structureChangeListener) {
-		this.modelView = modelView;
-		this.modelEditorChangeListener = modelEditorChangeListener;
-		this.selectionListener = selectionListener;
-		this.renderModel = renderModel;
-		this.structureChangeListener = structureChangeListener;
-		viewportSelectionHandler = new ViewportSelectionHandler(modeButtonGroup, null);
+		super(modelHandler, modeButtonGroup, modelEditorChangeListener, selectionListener, structureChangeListener);
 		setSelectionItemType(TVertexSelectionItemTypes.VERTEX);
 	}
 
-	public void setSelectionItemType(final TVertexSelectionItemTypes selectionMode) {
+	public void setSelectionItemType(TVertexSelectionItemTypes selectionMode) {
 		switch (selectionMode) {
-			case FACE, VERTEX -> selectionView = new SelectionView(modelView, transformSelectionMode(selectionMode));
+			case FACE, VERTEX -> selectionManager = new TVertSelectionManager(modelHandler.getModelView(), transformSelectionMode(selectionMode));
 		}
 
-		modelEditor = new TVertexEditor(modelView, structureChangeListener, selectionMode);
+		modelEditor = new TVertexEditor(selectionManager, modelHandler.getModelView(), structureChangeListener, transformSelectionMode(selectionMode));
 
-		viewportSelectionHandler.setSelectingEventHandler(modelEditor);
+//		viewportSelectionHandler.setModelEditor(modelEditor);
+		viewportSelectionHandler.setModelEditor(selectionManager);
 		modelEditorChangeListener.modelEditorChanged(modelEditor);
-		selectionListener.onSelectionChanged(selectionView);
+		selectionListener.onSelectionChanged(selectionManager);
 	}
 
 	private SelectionItemTypes transformSelectionMode(TVertexSelectionItemTypes selectionMode) {
@@ -56,17 +43,5 @@ public final class TVertexEditorManager {
 			return SelectionItemTypes.FACE;
 		}
 		return SelectionItemTypes.VERTEX;
-	}
-
-	public TVertexEditor getModelEditor() {
-		return modelEditor;
-	}
-
-	public ViewportSelectionHandler getViewportSelectionHandler() {
-		return viewportSelectionHandler;
-	}
-
-	public SelectionView getSelectionView() {
-		return selectionView;
 	}
 }

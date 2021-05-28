@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -9,19 +9,19 @@ import java.awt.event.MouseEvent;
 
 public final class ScaleManipulator extends AbstractScaleManipulator {
 
-	public ScaleManipulator(ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
-		super(modelEditor, selectionView, dir);
+	public ScaleManipulator(ModelEditor modelEditor, AbstractSelectionManager selectionManager, MoveDimension dir) {
+		super(modelEditor, selectionManager, dir);
 	}
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
-		Vec3 center = selectionView.getCenter();
+		Vec3 center = selectionManager.getCenter();
 		resetScaleVector();
 		scaleAction = modelEditor.beginScaling(center);
 	}
 
 	protected double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
-		Vec3 center = selectionView.getCenter();
+		Vec3 center = selectionManager.getCenter();
 		double dxEnd = 0;
 		double dyEnd = 0;
 		double dxStart = 0;

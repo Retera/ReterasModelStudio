@@ -188,10 +188,12 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 				UndoAction showHideUndo;
 				if (isSelected(sourceNode)) {
-					showHideUndo = editorManager.getModelEditor().showComponent(toggleHandler);
+					showHideUndo = toggleHandler.showComponent();
+//					showHideUndo = editorManager.getModelEditor().showComponent(toggleHandler);
 				} else {
 					Runnable refreshGUI = () -> reloadFromModelView();
-					showHideUndo = editorManager.getModelEditor().hideComponent(components, toggleHandler, refreshGUI);
+					showHideUndo = toggleHandler.hideComponent(modelHandler.getModelView(), refreshGUI);
+//					showHideUndo = editorManager.getModelEditor().hideComponent(components, toggleHandler, refreshGUI);
 				}
 				undoManager.pushAction(showHideUndo);
 			}

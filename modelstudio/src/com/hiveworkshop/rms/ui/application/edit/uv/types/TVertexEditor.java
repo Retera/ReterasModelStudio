@@ -1,31 +1,25 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.types;
 
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.StaticMeshUVMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.StaticMeshUVRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.StaticMeshUVScaleAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.TVertexSelectionItemTypes;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * So, in some ideal future this would be an implementation of the ModelEditor
@@ -35,241 +29,23 @@ import java.util.*;
  *
  * It isn't like that right now, though, so this is just going to be a 2D copy pasta.
  */
-public class TVertexEditor implements ModelEditor {
+public class TVertexEditor extends ModelEditor {
 	protected final ModelView modelView;
 	protected final ModelStructureChangeListener structureChangeListener;
 	protected int uvLayerIndex;
-	protected TVertexSelectionItemTypes selectionType;
+	protected SelectionItemTypes selectionType;
 
-	public TVertexEditor(ModelView modelView, ModelStructureChangeListener structureChangeListener, TVertexSelectionItemTypes selectionTyp) {
+	public TVertexEditor(AbstractSelectionManager selectionManager, ModelView modelView, ModelStructureChangeListener structureChangeListener, SelectionItemTypes selectionTyp) {
+		super(null, modelView);
 		this.modelView = modelView;
 		this.structureChangeListener = structureChangeListener;
 		this.selectionType = selectionTyp;
-	}
-
-	public static boolean triHitTest(Triangle triangle, Vec2 point, CoordinateSystem coordinateSystem, int uvLayerIndex) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-		GeosetVertex[] verts = triangle.getVerts();
-
-		return pointInTriangle(point, verts[0].getTVertex(uvLayerIndex), verts[1].getTVertex(uvLayerIndex), verts[2].getTVertex(uvLayerIndex));
-	}
-
-	public static boolean triHitTest(Triangle triangle, Vec2 min, Vec2 max, CoordinateSystem coordinateSystem, int uvLayerIndex) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-		GeosetVertex[] verts = triangle.getVerts();
-//		Path2D.Double path = new Path2D.Double();
-//		path.moveTo(verts[0].getTVertex(uvLayerIndex).getCoord(dim1), verts[0].getTVertex(uvLayerIndex).getCoord(dim2));
-//		for (int i = 1; i < verts.length; i++) {
-//			path.lineTo(verts[i].getTVertex(uvLayerIndex).getCoord(dim1), verts[i].getTVertex(uvLayerIndex).getCoord(dim2));
-
-		System.out.println("min: " + min + ", max: " + max + ", tVertex1: " + verts[0].getTVertex(uvLayerIndex));
-//		}
-		return within(verts[0].getTVertex(uvLayerIndex), min, max)
-				|| within(verts[1].getTVertex(uvLayerIndex), min, max)
-				|| within(verts[2].getTVertex(uvLayerIndex), min, max);
-	}
-
-	private static boolean within(Vec2 point, Vec2 min, Vec2 max){
-		boolean xIn = max.x >= point.x && point.x >= min.x;
-		boolean yIn = max.y >= point.y && point.y >= min.y;
-		return xIn && yIn;
-	}
-
-	private static boolean pointInTriangle (Vec2 point, Vec2 v1, Vec2 v2, Vec2 v3)
-	{
-		float d1 = (point.x - v2.x) * (v1.y - v2.y) - (v1.x - v2.x) * (point.y - v2.y);
-		float d2 = (point.x - v3.x) * (v2.y - v3.y) - (v2.x - v3.x) * (point.y - v3.y);
-		float d3 = (point.x - v1.x) * (v3.y - v1.y) - (v3.x - v1.x) * (point.y - v1.y);;
-//        float d1 = sign(point, v1, v2);
-//        float d2 = sign(point, v2, v3);
-//        float d3 = sign(point, v3, v1);
-
-		boolean has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
-		boolean has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
-
-		return !(has_neg && has_pos);
-	}
-
-	public static boolean hitTest(Vec2 min, Vec2 max, Vec2 tVertex, CoordinateSystem coordinateSystem, double vertexSize) {
-		double vSizeView = vertexSize / coordinateSystem.getZoom();
-//		System.out.println("min: " + min + ", max: " + max + ", tVertex: " + tVertex + ", vSizeView: " + vSizeView);
-		return tVertex.distance(min) <= vSizeView
-				|| tVertex.distance(max) <= vSizeView
-				|| within(tVertex, min, max);
-	}
-
-	public static boolean hitTest(Vec2 vertex, Vec2 point, CoordinateSystem coordinateSystem, double vertexSize) {
-		double vSizeView = vertexSize / coordinateSystem.getZoom();
-		return vertex.distance(point) <= vSizeView / 2.0;
-	}
-
-	public static double distance(double vertexX, double vertexY, double x, double y) {
-		double dx = x - vertexX;
-		double dy = y - vertexY;
-		return Math.sqrt(dx * dx + dy * dy);
-	}
-
-
-	public UndoAction expandSelection() {
-		Set<GeosetVertex> expandedSelection = new HashSet<>(modelView.getSelectedVertices());
-		Set<GeosetVertex> oldSelection = new HashSet<>(modelView.getSelectedVertices());
-		for (GeosetVertex v : oldSelection) {
-			expandSelection(v, expandedSelection);
-		}
-
-		SetSelectionAction setSelectionAction = new SetSelectionAction(expandedSelection, modelView, "expand selection");
-		setSelectionAction.redo();
-		return setSelectionAction;
-	}
-
-	private void expandSelection(GeosetVertex currentVertex, Set<GeosetVertex> selection) {
-		selection.add(currentVertex);
-		for (Triangle tri : currentVertex.getTriangles()) {
-			for (GeosetVertex other : tri.getVerts()) {
-				if (!selection.contains(other)) {
-					expandSelection(other, selection);
-				}
-			}
-		}
-	}
-
-
-	public UndoAction invertSelection() {
-		Set<GeosetVertex> invertedSelection = new HashSet<>();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
-			invertedSelection.addAll(geoset.getVertices());
-		}
-		invertedSelection.removeAll(modelView.getSelectedVertices());
-
-		SetSelectionAction setSelectionAction = new SetSelectionAction(invertedSelection, modelView, "invert selection");
-		setSelectionAction.redo();
-		return setSelectionAction;
-	}
-
-	public UndoAction selectAll() {
-		Set<GeosetVertex> allSelection = new HashSet<>();
-		for (Geoset geo : modelView.getEditableGeosets()) {
-			allSelection.addAll(geo.getVertices());
-		}
-
-		SetSelectionAction setSelectionAction = new SetSelectionAction(allSelection, modelView, "select all");
-		setSelectionAction.redo();
-		return setSelectionAction;
-	}
-
-	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes) {
-		if (selectionType == TVertexSelectionItemTypes.VERTEX) {
-			for (Geoset geoset : modelView.getEditableGeosets()) {
-				for (GeosetVertex geosetVertex : geoset.getVertices()) {
-					if (geosetVertex.getTverts().size() > uvLayerIndex) {
-						if (hitTest(geosetVertex.getTVertex(uvLayerIndex), point, axes, ProgramGlobals.getPrefs().getVertexSize())) {
-							return true;
-						}
-					}
-				}
-			}
-		} else if (selectionType == TVertexSelectionItemTypes.FACE) {
-			for (Geoset geoset : modelView.getEditableGeosets()) {
-				for (Triangle triangle : geoset.getTriangles()) {
-					if (triHitTest(triangle, point, axes, uvLayerIndex)) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		List<GeosetVertex> newSelection = genericSelect(min, max, coordinateSystem);
-		final SetSelectionAction select = new SetSelectionAction(newSelection, modelView, "select");
-		select.redo();
-		return select;
-	}
-
-	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		List<GeosetVertex> newSelection = genericSelect(min, max, coordinateSystem);
-		final AddSelectionAction tAddSelectionAction = new AddSelectionAction(newSelection, modelView);
-		tAddSelectionAction.redo();
-		return tAddSelectionAction;
-	}
-
-	public final UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		List<GeosetVertex> newSelection = genericSelect(min, max, coordinateSystem);
-		final RemoveSelectionAction tRemoveSelectionAction = new RemoveSelectionAction(newSelection, modelView);
-		tRemoveSelectionAction.redo();
-		return tRemoveSelectionAction;
-	}
-
-	protected List<GeosetVertex> genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		List<GeosetVertex> selectedVerts = new ArrayList<>();
-		if(selectionType == TVertexSelectionItemTypes.FACE){
-			for (Geoset geoset : modelView.getEditableGeosets()) {
-				for (Triangle triangle : geoset.getTriangles()) {
-					if (triHitTest(triangle, min, coordinateSystem, uvLayerIndex)
-							|| triHitTest(triangle, max, coordinateSystem, uvLayerIndex)
-							|| triHitTest(triangle, min, max, coordinateSystem, uvLayerIndex)) {
-						selectedVerts.addAll(Arrays.asList(triangle.getVerts()));
-					}
-				}
-			}
-		}
-
-		if(selectionType == TVertexSelectionItemTypes.VERTEX){
-			for (Geoset geoset : modelView.getEditableGeosets()) {
-				for (GeosetVertex geosetVertex : geoset.getVertices()) {
-					if (geosetVertex.getTverts().size() > uvLayerIndex) {
-						if(hitTest(min, max, geosetVertex.getTVertex(uvLayerIndex), coordinateSystem, ProgramGlobals.getPrefs().getVertexSize())){
-							selectedVerts.add(geosetVertex);
-						}
-					}
-				}
-			}
-		}
-		return selectedVerts;
-	}
-
-	protected UndoAction buildHideComponentAction(List<? extends CheckableDisplayElement<?>> selectableComponents,
-	                                              EditabilityToggleHandler editabilityToggleHandler,
-	                                              Runnable refreshGUIRunnable) {
-		List<GeosetVertex> previousSelection = new ArrayList<>(modelView.getSelectedVertices());
-		List<GeosetVertex> possibleVerticesToTruncate = new ArrayList<>();
-		for (CheckableDisplayElement<?> component : selectableComponents) {
-			Object item = component.getItem();
-			if (item instanceof Geoset) {
-				possibleVerticesToTruncate.addAll(((Geoset) item).getVertices());
-			}
-		}
-		final Runnable truncateSelectionRunnable = () -> modelView.removeSelectedVertices(possibleVerticesToTruncate);
-
-		final Runnable unTruncateSelectionRunnable = () -> modelView.setSelectedVertices(previousSelection);
-		return new MakeNotEditableAction(editabilityToggleHandler, truncateSelectionRunnable, unTruncateSelectionRunnable, refreshGUIRunnable);
-	}
-	@Override
-	public UndoAction hideComponent(List<? extends CheckableDisplayElement<?>> selectableComponent, EditabilityToggleHandler editabilityToggleHandler, Runnable refreshGUIRunnable) {
-		UndoAction hideComponentAction = buildHideComponentAction(selectableComponent, editabilityToggleHandler, refreshGUIRunnable);
-		hideComponentAction.redo();
-		return hideComponentAction;
-	}
-
-	@Override
-	public UndoAction showComponent(EditabilityToggleHandler editabilityToggleHandler) {
-		editabilityToggleHandler.makeEditable();
-		return new MakeEditableAction(editabilityToggleHandler);
 	}
 
 	public Vec2 getSelectionCenter() {
 //		return selectionManager.getCenter();
 		Set<Vec2> tvertices = new HashSet<>(TVertexUtils.getTVertices(modelView.getSelectedVertices(), uvLayerIndex));
 		return Vec2.centerOfGroup(tvertices); // TODO is this correct?
-	}
-
-	public UndoAction selectFromViewer(SelectionView viewerSelectionView) {
-		SetSelectionAction setSelectionAction = new SetSelectionAction(modelView.getSelectedVertices(), modelView, "");
-		setSelectionAction.redo();
-		return setSelectionAction;
 	}
 
 	public GenericMoveAction beginTranslation() {

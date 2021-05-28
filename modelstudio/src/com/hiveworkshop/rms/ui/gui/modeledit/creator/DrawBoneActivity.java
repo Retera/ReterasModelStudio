@@ -3,22 +3,19 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawBoneAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -27,34 +24,28 @@ import java.awt.event.MouseEvent;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DrawBoneActivity implements ViewportActivity {
+public class DrawBoneActivity extends ViewportActivity {
 
 	private Point lastMousePoint;
-	private final ProgramPreferences preferences;
-	private ModelEditor modelEditor;
-	private final UndoManager undoActionListener;
-	private final ModelView modelView;
-	private SelectionView selectionView;
 	private final ModelElementRenderer modelElementRenderer;
 	private final ViewportListener viewportListener;
-	private final ModelHandler modelHandler;
 	ModelEditorManager modelEditorManager;
 
 	public DrawBoneActivity(ModelHandler modelHandler, ModelEditorManager modelEditorManager, ViewportListener viewportListener) {
 		this.modelHandler = modelHandler;
 		this.modelEditorManager = modelEditorManager;
 		this.preferences = ProgramGlobals.getPrefs();
-		this.undoActionListener = modelHandler.getUndoManager();
+		this.undoManager = modelHandler.getUndoManager();
 		this.modelEditor = modelEditorManager.getModelEditor();
 		this.modelView = modelHandler.getModelView();
-		this.selectionView = modelEditorManager.getSelectionView();
+		this.selectionManager = modelEditorManager.getSelectionView();
 		this.viewportListener = viewportListener;
 		modelElementRenderer = new ModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
 	}
 
 	@Override
-	public void onSelectionChanged(SelectionView newSelection) {
-		selectionView = newSelection;
+	public void onSelectionChanged(AbstractSelectionManager newSelection) {
+		selectionManager = newSelection;
 	}
 
 	@Override
@@ -89,7 +80,7 @@ public class DrawBoneActivity implements ViewportActivity {
 			drawBoneAction.redo();
 
 
-			undoActionListener.pushAction(drawBoneAction);
+			undoManager.pushAction(drawBoneAction);
 		} catch (WrongModeException exc) {
 			JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
@@ -113,7 +104,7 @@ public class DrawBoneActivity implements ViewportActivity {
 	@Override
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
-			modelElementRenderer.reset(g, coordinateSystem, modelHandler.getRenderModel(), false);
+//			modelElementRenderer.reset(g, coordinateSystem, modelHandler.getRenderModel(), false);
 //			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView);
 			g.setColor(preferences.getVertexColor());
 			if (lastMousePoint != null) {
