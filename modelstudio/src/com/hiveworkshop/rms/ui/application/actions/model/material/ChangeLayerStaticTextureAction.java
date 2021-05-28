@@ -29,17 +29,19 @@ public class ChangeLayerStaticTextureAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		layer.setTexture(oldBitmap);
 		layer.setTextureId(oldTextureId);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		layer.setTexture(bitmap);
 		layer.setTextureId(textureId);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override

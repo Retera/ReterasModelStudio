@@ -34,23 +34,25 @@ public class SnapAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 //		for (int i = 0; i < selection.size(); i++) {
 //			selection.get(i).set(oldSelLocs.get(i));
 //		}
 		for (GeosetVertex vertex : selectedVertices) {
 			vertex.set(gvToOldPos.get(vertex));
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 //        for (Vec3 vec3 : selection) {
 //            vec3.set(snapPoint);
 //        }
 		for (GeosetVertex vertex : selectedVertices) {
 			vertex.set(snapPoint);
 		}
+		return this;
 	}
 
 	@Override

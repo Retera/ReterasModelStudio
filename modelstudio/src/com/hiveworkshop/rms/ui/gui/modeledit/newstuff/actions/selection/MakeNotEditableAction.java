@@ -20,17 +20,19 @@ public final class MakeNotEditableAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		editabilityToggleHandler.makeEditable();
 		unTruncateSelectionRunnable.run();
 		refreshGUIRunnable.run();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		editabilityToggleHandler.makeNotEditable();
 		truncateSelectionRunnable.run();
 //		refreshGUIRunnable.run();
+		return this;
 	}
 
 	@Override

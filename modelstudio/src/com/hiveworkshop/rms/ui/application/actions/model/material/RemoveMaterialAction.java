@@ -26,14 +26,15 @@ public class RemoveMaterialAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		modelViewManager.getModel().getMaterials().add(index, material);
 		setMaterialForAffectedGeosets(material);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		// To remove the chosen instance of the material, if clones exists.
 		// This keeps the expected order of the material list in the model view
 		List<Material> materials = modelViewManager.getModel().getMaterials();
@@ -56,6 +57,7 @@ public class RemoveMaterialAction implements UndoAction {
 		removeGeosetUsers();
 
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	private void getAffectedGeosets() {

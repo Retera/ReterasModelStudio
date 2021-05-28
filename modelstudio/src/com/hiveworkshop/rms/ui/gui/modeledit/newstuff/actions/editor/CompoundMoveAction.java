@@ -16,17 +16,19 @@ public final class CompoundMoveAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (final UndoAction action : actions) {
 			action.undo();
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (final UndoAction action : actions) {
 			action.redo();
 		}
+		return this;
 	}
 
 	@Override
@@ -42,10 +44,11 @@ public final class CompoundMoveAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void updateTranslation(Vec3 delta) {
+	public GenericMoveAction updateTranslation(Vec3 delta) {
 		for (final GenericMoveAction action : actions) {
 			action.updateTranslation(delta);
 		}
+		return this;
 	}
 
 }

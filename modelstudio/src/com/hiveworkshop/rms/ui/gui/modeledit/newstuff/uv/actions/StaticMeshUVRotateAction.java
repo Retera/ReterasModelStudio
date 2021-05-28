@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions;
 
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexUtils;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -34,17 +35,19 @@ public final class StaticMeshUVRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (Vec2 vertex : TVertexUtils.getTVertices(selectedVertices, uvLayerIndex)) {
-			vertex.rotate(center.x, center.y, radians, dim1, dim2);
+			vertex.rotate(center.x, center.y, -radians, dim1, dim2);
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Vec2 vertex : TVertexUtils.getTVertices(selectedVertices, uvLayerIndex)) {
 			vertex.rotate(center.x, center.y, radians, dim1, dim2);
 		}
+		return this;
 	}
 
 	@Override
@@ -53,11 +56,12 @@ public final class StaticMeshUVRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void updateRotation(double radians) {
+	public GenericRotateAction updateRotation(double radians) {
 		this.radians += radians;
 		for (Vec2 vertex : TVertexUtils.getTVertices(selectedVertices, uvLayerIndex)) {
 			vertex.rotate(center.x, center.y, radians, dim1, dim2);
 		}
+		return this;
 	}
 
 }

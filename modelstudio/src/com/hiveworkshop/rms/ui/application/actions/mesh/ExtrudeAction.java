@@ -115,7 +115,7 @@ public class ExtrudeAction implements UndoAction {
 
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		splitEdge();
 		baseMovement.redo();
 		fillGap();
@@ -125,10 +125,11 @@ public class ExtrudeAction implements UndoAction {
 				newVert.getGeoset().add(triangle);
 			}
 		}
+		return this;
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (GeosetVertex newVert : oldToNew.values()) {
 			newVert.getGeoset().remove(newVert);
 		}
@@ -138,6 +139,7 @@ public class ExtrudeAction implements UndoAction {
 		removeGapFill();
 		baseMovement.undo();
 		unSplitEdge();
+		return this;
 	}
 
 	@Override

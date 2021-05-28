@@ -16,17 +16,19 @@ public final class CompoundScaleAction implements GenericScaleAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (final UndoAction action : actions) {
 			action.undo();
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (final UndoAction action : actions) {
 			action.redo();
 		}
+		return this;
 	}
 
 	@Override
@@ -35,10 +37,11 @@ public final class CompoundScaleAction implements GenericScaleAction {
 	}
 
 	@Override
-	public void updateScale(final Vec3 scale) {
+	public GenericScaleAction updateScale(final Vec3 scale) {
 		for (final GenericScaleAction action : actions) {
 			action.updateScale(scale);
 		}
+		return this;
 	}
 
 }

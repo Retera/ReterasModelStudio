@@ -25,15 +25,17 @@ public class DrawBoneAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		modelView.getModel().remove(bone);
 		modelStructureChangeListener.nodesUpdated();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		modelView.getModel().add(bone);
 		modelStructureChangeListener.nodesUpdated();
+		return this;
 	}
 
 	@Override

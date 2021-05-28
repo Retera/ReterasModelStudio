@@ -4,5 +4,5 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.util.Vec3;
 
 public interface GenericScaleAction extends UndoAction {
-	void updateScale(Vec3 scale);
+	GenericScaleAction updateScale(Vec3 scale);
 }

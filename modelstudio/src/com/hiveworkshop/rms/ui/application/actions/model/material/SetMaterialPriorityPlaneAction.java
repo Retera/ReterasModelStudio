@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.actions.model.material;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 public class SetMaterialPriorityPlaneAction implements UndoAction {
 	private final Material material;
@@ -19,15 +19,17 @@ public class SetMaterialPriorityPlaneAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		material.setPriorityPlane(prevPriorityPlane);
 		modelStructureChangeListener.texturesChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		material.setPriorityPlane(newPriorityPlane);
 		modelStructureChangeListener.texturesChanged();
+		return this;
 	}
 
 	@Override

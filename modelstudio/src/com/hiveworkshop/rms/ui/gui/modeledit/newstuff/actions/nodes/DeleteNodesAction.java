@@ -72,7 +72,7 @@ public class DeleteNodesAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (IdObject object : selectedObjects) {
 			model.getModel().add(object);
 		}
@@ -85,10 +85,11 @@ public class DeleteNodesAction implements UndoAction {
 
 		changeListener.nodesUpdated();
 		changeListener.camerasUpdated();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (IdObject object : selectedObjects) {
 			model.getModel().remove(object);
 		}
@@ -101,6 +102,7 @@ public class DeleteNodesAction implements UndoAction {
 
 		changeListener.nodesUpdated();
 		changeListener.camerasUpdated();
+		return this;
 	}
 
 	private UndoAction getMeshLinkDeleteAction() {
@@ -160,31 +162,33 @@ public class DeleteNodesAction implements UndoAction {
 		}
 
 		@Override
-		public void undo() {
-			for(Integer i : integerBoneMap.keySet()){
+		public UndoAction undo() {
+			for (Integer i : integerBoneMap.keySet()) {
 				Bone oldBone = integerBoneMap.get(i);
-				if(relink){
+				if (relink) {
 					IdObject replacedParent = topParentMap.get(oldBone);
-					if(replacedParent instanceof Bone){
+					if (replacedParent instanceof Bone) {
 						vertex.getBones().remove(replacedParent);
 					}
 				}
 				vertex.getBones().add(i, oldBone);
 			}
+			return this;
 		}
 
 		@Override
-		public void redo() {
-			if(relink){
-				for(Integer i : integerBoneMap.keySet()){
+		public UndoAction redo() {
+			if (relink) {
+				for (Integer i : integerBoneMap.keySet()) {
 					IdObject potParent = topParentMap.get(integerBoneMap.get(i));
-					if(potParent instanceof Bone && !(potParent instanceof Helper)){
+					if (potParent instanceof Bone && !(potParent instanceof Helper)) {
 						vertex.getBones().remove(integerBoneMap.get(i));
 						vertex.getBones().add(i, (Bone) potParent);
 					}
 				}
 			}
 			vertex.getBones().removeAll(integerBoneMap.values());
+			return this;
 		}
 
 		@Override

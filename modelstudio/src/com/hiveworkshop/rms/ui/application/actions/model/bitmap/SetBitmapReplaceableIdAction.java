@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.actions.model.bitmap;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.editor.model.Bitmap;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 public class SetBitmapReplaceableIdAction implements UndoAction {
 	private final Bitmap bitmap;
@@ -19,15 +19,17 @@ public class SetBitmapReplaceableIdAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		bitmap.setReplaceableId(prevId);
 		modelStructureChangeListener.texturesChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		bitmap.setReplaceableId(newId);
 		modelStructureChangeListener.texturesChanged();
+		return this;
 	}
 
 	@Override

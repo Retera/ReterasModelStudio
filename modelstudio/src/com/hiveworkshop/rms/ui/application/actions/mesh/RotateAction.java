@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.actions.mesh;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
@@ -59,23 +60,25 @@ public class RotateAction extends MoveAction {
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		super.redo();
 		for (int i = 0; i < normals.size(); i++) {
 			final Vec3 ver = normals.get(i);
 			final Vec3 vect = normalMoveVectors.get(i);
 			ver.add(vect);
 		}
+		return this;
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		super.undo();
 		for (int i = 0; i < normals.size(); i++) {
 			final Vec3 ver = normals.get(i);
 			final Vec3 vect = normalMoveVectors.get(i);
 			ver.sub(vect);
 		}
+		return this;
 	}
 
 	public ArrayList<Vec3> getNormals() {

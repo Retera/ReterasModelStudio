@@ -171,7 +171,7 @@ public class AddBirthDeathSequences {
                 timeline = new Vec3AnimFlag(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
                 node.add(timeline);
 
-                final AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline, structureChangeListener);
+                final AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline);
                 structureChangeListener.timelineAdded(node, timeline);
                 actions.add(addTimelineAction);
             }
@@ -193,7 +193,7 @@ public class AddBirthDeathSequences {
             }
 
             structureChangeListener.keyframeAdded(idObject, timeline, trackTime);
-            AddKeyframeAction addKeyframeAction = new AddKeyframeAction(idObject, timeline, entry, structureChangeListener);
+            AddKeyframeAction addKeyframeAction = new AddKeyframeAction(timeline, entry);
             addKeyframeAction.redo();
             return addKeyframeAction;
         }

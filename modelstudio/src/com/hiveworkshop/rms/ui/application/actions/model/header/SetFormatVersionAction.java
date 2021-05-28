@@ -19,15 +19,17 @@ public class SetFormatVersionAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		modelViewManager.getModel().setFormatVersion(prevVersion);
 		structureChangeListener.headerChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		modelViewManager.getModel().setFormatVersion(newVersion);
 		structureChangeListener.headerChanged();
+		return this;
 	}
 
 	@Override

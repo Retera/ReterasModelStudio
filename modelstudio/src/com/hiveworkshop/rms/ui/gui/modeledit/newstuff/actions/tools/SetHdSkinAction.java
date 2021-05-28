@@ -31,19 +31,21 @@ public final class SetHdSkinAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (GeosetVertex vertex : selectedVertices) {
 			vertex.setSkinBones(vertexToOldSkinBoneReferences.get(vertex), vertexToOldSkinBoneWeightReferences.get(vertex));
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (GeosetVertex vertex : selectedVertices) {
 			if (vertex.getSkinBones() != null) {
 				vertex.setSkinBones(bones, skinWeights);
 			}
 		}
+		return this;
 	}
 
 	@Override

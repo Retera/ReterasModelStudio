@@ -25,13 +25,15 @@ public final class EditAnimationLengthsAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		doEdit(animationToOldLength, oldGlobalSeqLengths);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		doEdit(animationToNewLength, newGlobalSeqLengths);
+		return this;
 	}
 
 	private void doEdit(final Map<Animation, Integer> lengthUpdates, final int[] newGlobalSeqLengths) {

@@ -152,7 +152,7 @@ public final class SplitGeosetAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (Geoset geoset : oldGeoToNewGeo.values()) {
 			model.remove(geoset);
 			if (geoset.getGeosetAnim() != null) {
@@ -181,11 +181,12 @@ public final class SplitGeosetAction implements UndoAction {
 
 		modelStructureChangeListener.geosetsUpdated();
 //		modelView.setSelectedVertices(affectedVertices);
+		return this;
 
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Geoset geoset : oldGeoToNewGeo.values()) {
 			model.add(geoset);
 			if (geoset.getGeosetAnim() != null) {
@@ -213,6 +214,7 @@ public final class SplitGeosetAction implements UndoAction {
 
 		modelStructureChangeListener.geosetsUpdated();
 //		modelView.setSelectedVertices(affectedVertices);
+		return this;
 	}
 
 	@Override

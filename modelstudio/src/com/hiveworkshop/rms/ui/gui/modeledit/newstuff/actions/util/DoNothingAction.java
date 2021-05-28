@@ -10,13 +10,13 @@ public final class DoNothingAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
-
+	public UndoAction undo() {
+		return this;
 	}
 
 	@Override
-	public void redo() {
-
+	public UndoAction redo() {
+		return this;
 	}
 
 	@Override

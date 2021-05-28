@@ -60,7 +60,7 @@ public class RecalculateExtentsAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (Geoset geoset : geosetToAnimationToOldExtents.keySet()) {
 			Map<Animation, ExtLog> animationExtLogMap = geosetToAnimationToOldExtents.get(geoset);
 			for (Animation animation : animationExtLogMap.keySet()) {
@@ -75,10 +75,11 @@ public class RecalculateExtentsAction implements UndoAction {
 		}
 
 		modelView.getModel().setExtents(oldModelExtents);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Geoset geoset : geosetToAnimationToNewExtents.keySet()) {
 			Map<Animation, ExtLog> animationExtLogMap = geosetToAnimationToNewExtents.get(geoset);
 			for (Animation animation : animationExtLogMap.keySet()) {
@@ -93,6 +94,7 @@ public class RecalculateExtentsAction implements UndoAction {
 		}
 
 		modelView.getModel().setExtents(newModelExtents);
+		return this;
 	}
 
 	@Override

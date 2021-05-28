@@ -65,22 +65,24 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (IdObject node : nodeToLocalScale.keySet()) {
 			Vec3 localTranslation = nodeToLocalScale.get(node);
 			Vec3 tempInverse = new Vec3(1, 1, 1).divide(localTranslation);
 			updateLocalScalingKeyframe(node, trackTime, trackGlobalSeq, tempInverse);
 		}
 		addingTimelinesOrKeyframesAction.undo();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		addingTimelinesOrKeyframesAction.redo();
 		for (IdObject node : nodeToLocalScale.keySet()) {
 			Vec3 localTranslation = nodeToLocalScale.get(node);
 			updateLocalScalingKeyframe(node, trackTime, trackGlobalSeq, localTranslation);
 		}
+		return this;
 	}
 
 	@Override
@@ -89,11 +91,12 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	}
 
 	@Override
-	public void updateScale(Vec3 scale) {
+	public GenericScaleAction updateScale(Vec3 scale) {
 //		modelEditor.rawScale(center, scale, nodeToLocalScale);
 		for (IdObject idObject : modelView.getSelectedIdObjects()) {
 			updateScalingKeyframe(idObject, modelView.getEditorRenderModel(), scale, nodeToLocalScale.get(idObject));
 		}
+		return this;
 	}
 
 	public void updateScalingKeyframe(AnimatedNode animatedNode, RenderModel renderModel, Vec3 scale, Vec3 savedLocalScaling) {

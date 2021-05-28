@@ -27,15 +27,17 @@ public class ParentChangeAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		this.idObject.setParent(oldParent);
 		structureChangeListener.nodeHierarchyChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		this.idObject.setParent(newParent);
 		structureChangeListener.nodeHierarchyChanged();
+		return this;
 	}
 
 	@Override

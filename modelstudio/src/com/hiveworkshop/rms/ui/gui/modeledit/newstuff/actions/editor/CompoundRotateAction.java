@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor;
 
-import java.util.List;
-
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
+
+import java.util.List;
 
 public final class CompoundRotateAction implements GenericRotateAction {
 	private final List<? extends GenericRotateAction> actions;
@@ -15,17 +15,19 @@ public final class CompoundRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (final UndoAction action : actions) {
 			action.undo();
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (final UndoAction action : actions) {
 			action.redo();
 		}
+		return this;
 	}
 
 	@Override
@@ -34,10 +36,11 @@ public final class CompoundRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void updateRotation(final double radians) {
+	public GenericRotateAction updateRotation(final double radians) {
 		for (final GenericRotateAction action : actions) {
 			action.updateRotation(radians);
 		}
+		return this;
 	}
 
 }

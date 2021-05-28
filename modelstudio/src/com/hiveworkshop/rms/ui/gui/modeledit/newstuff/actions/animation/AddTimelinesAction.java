@@ -15,17 +15,19 @@ public class AddTimelinesAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (final Pair<TimelineContainer, AnimFlag<?>> pair : containersAndTimelines) {
 			pair.getFirst().remove(pair.getSecond());
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (final Pair<TimelineContainer, AnimFlag<?>> pair : containersAndTimelines) {
 			pair.getFirst().add(pair.getSecond());
 		}
+		return this;
 	}
 
 	@Override

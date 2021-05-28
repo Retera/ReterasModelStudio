@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.ui.application.actions.model.material;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 public class SetLayerFilterModeAction implements UndoAction {
 	private final Layer layer;
@@ -20,15 +20,17 @@ public class SetLayerFilterModeAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		layer.setFilterMode(prevFilterMode);
 		modelStructureChangeListener.texturesChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		layer.setFilterMode(newFilterMode);
 		modelStructureChangeListener.texturesChanged();
+		return this;
 	}
 
 	@Override

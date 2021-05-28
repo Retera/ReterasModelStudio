@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools;
 
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.Vec3;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.util.Vec3;
 
 public final class AutoCenterBonesAction implements UndoAction {
 	private final Map<Bone, Vec3> boneToOldPosition;
@@ -20,19 +20,21 @@ public final class AutoCenterBonesAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (final Map.Entry<Bone, Vec3> entry : boneToOldPosition.entrySet()) {
 			final Bone bone = entry.getKey();
 			bone.setPivotPoint(entry.getValue());
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (final Map.Entry<Bone, Vec3> entry : boneToNewPosition.entrySet()) {
 			final Bone bone = entry.getKey();
 			bone.setPivotPoint(entry.getValue());
 		}
+		return this;
 	}
 
 	@Override

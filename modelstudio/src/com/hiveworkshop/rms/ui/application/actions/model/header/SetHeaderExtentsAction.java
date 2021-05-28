@@ -21,15 +21,17 @@ public class SetHeaderExtentsAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		modelViewManager.getModel().setExtents(prevExtLog);
 		structureChangeListener.headerChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		modelViewManager.getModel().setExtents(newExtLog);
 		structureChangeListener.headerChanged();
+		return this;
 	}
 
 	@Override

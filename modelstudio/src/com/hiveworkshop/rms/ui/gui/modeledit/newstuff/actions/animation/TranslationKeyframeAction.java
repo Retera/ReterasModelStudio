@@ -22,7 +22,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	private final int trackTime;
 	private final HashMap<IdObject, Vec3> nodeToLocalTranslation;
 	private final Integer trackGlobalSeq;
-	public ModelView modelView;
+	private final RenderModel editorRenderModel;
 
 	public TranslationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
 	                                 int trackTime,
@@ -32,7 +32,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 		this.trackTime = trackTime;
 		this.trackGlobalSeq = trackGlobalSeq;
-		this.modelView = modelView;
+		editorRenderModel = modelView.getEditorRenderModel();
 		nodeToLocalTranslation = new HashMap<>();
 		for (IdObject node : nodeSelection) {
 			nodeToLocalTranslation.put(node, new Vec3());
@@ -40,22 +40,24 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 
 		for (IdObject node : nodeToLocalTranslation.keySet()) {
 			Vec3 localTranslation = Vec3.getScaled(nodeToLocalTranslation.get(node), -1);
 			updateLocalTranslationKeyframe(node, trackTime, trackGlobalSeq, localTranslation);
 		}
 		addingTimelinesOrKeyframesAction.undo();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		addingTimelinesOrKeyframesAction.redo();
 		for (IdObject node : nodeToLocalTranslation.keySet()) {
 			Vec3 localTranslation = nodeToLocalTranslation.get(node);
 			updateLocalTranslationKeyframe(node, trackTime, trackGlobalSeq, localTranslation);
 		}
+		return this;
 	}
 
 	@Override
@@ -67,16 +69,17 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	public void updateTranslation(double deltaX, double deltaY, double deltaZ) {
 		Vec3 delta = new Vec3(deltaX, deltaY, deltaZ);
 		for (IdObject idObject : nodeToLocalTranslation.keySet()) {
-			updateTranslationKeyframe(idObject, modelView.getEditorRenderModel(), delta, nodeToLocalTranslation.get(idObject));
+			updateTranslationKeyframe(idObject, editorRenderModel, delta, nodeToLocalTranslation.get(idObject));
 		}
 	}
 
 	@Override
-	public void updateTranslation(Vec3 delta1) {
+	public GenericMoveAction updateTranslation(Vec3 delta1) {
 		Vec3 delta = new Vec3(delta1);
 		for (IdObject idObject : nodeToLocalTranslation.keySet()) {
-			updateTranslationKeyframe(idObject, modelView.getEditorRenderModel(), delta, nodeToLocalTranslation.get(idObject));
+			updateTranslationKeyframe(idObject, editorRenderModel, delta, nodeToLocalTranslation.get(idObject));
 		}
+		return this;
 	}
 
 	public void updateLocalTranslationKeyframe(AnimatedNode animatedNode, int trackTime, Integer trackGlobalSeq, Vec3 localTranslation) {

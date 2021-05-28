@@ -23,17 +23,19 @@ public final class InvertSelectionAction2 implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		modelView.setSelectedVertices(previousVerts);
 		modelView.setSelectedIdObjects(previousIdObjects);
 		modelView.setSelectedCameras(previousCameras);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		modelView.invertVertSelection();
 		modelView.invertIdObjSelection();
 		modelView.invertCamSelection();
+		return this;
 	}
 
 //	@Override

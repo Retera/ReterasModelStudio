@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -28,14 +29,16 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	}
 
 	@Override
-	public void undo() {
-		Vec3 revScale = new Vec3(1,1,1).divide(scale);
+	public UndoAction undo() {
+		Vec3 revScale = new Vec3(1, 1, 1).divide(scale);
 		rawScale(center, revScale);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		rawScale(center, scale);
+		return this;
 	}
 
 	@Override
@@ -44,9 +47,10 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	}
 
 	@Override
-	public void updateScale(Vec3 scale) {
+	public GenericScaleAction updateScale(Vec3 scale) {
 		this.scale.multiply(scale);
 		rawScale(center, scale);
+		return this;
 	}
 
 	public void rawScale(Vec3 center, Vec3 scale) {

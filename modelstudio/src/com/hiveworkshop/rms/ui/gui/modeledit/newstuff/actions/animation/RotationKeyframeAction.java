@@ -27,7 +27,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 	private final byte dim1;
 	private final byte dim2;
 	private final Integer trackGlobalSeq;
-	private ModelView modelView;
+	private final RenderModel editorRenderModel;
 
 	public RotationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
 	                              int trackTime,
@@ -39,9 +39,9 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 		this.trackTime = trackTime;
 		this.trackGlobalSeq = trackGlobalSeq;
-		this.modelView = modelView;
 		this.dim1 = dim1;
 		this.dim2 = dim2;
+		editorRenderModel = modelView.getEditorRenderModel();
 		nodeToLocalRotation = new HashMap<>();
 		for (IdObject node : nodeSelection) {
 			nodeToLocalRotation.put(node, new Quat());
@@ -50,21 +50,23 @@ public class RotationKeyframeAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (IdObject node : nodeToLocalRotation.keySet()) {
 			Quat localTranslation = nodeToLocalRotation.get(node);
 			updateLocalRotationKeyframeInverse(node, trackTime, trackGlobalSeq, localTranslation);
 		}
 		addingTimelinesOrKeyframesAction.undo();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		addingTimelinesOrKeyframesAction.redo();
 		for (IdObject node : nodeToLocalRotation.keySet()) {
 			Quat localTranslation = nodeToLocalRotation.get(node);
 			updateLocalRotationKeyframe(node, trackTime, trackGlobalSeq, localTranslation);
 		}
+		return this;
 	}
 
 	@Override
@@ -73,10 +75,11 @@ public class RotationKeyframeAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void updateRotation(double radians) {
-		for (IdObject idObject : modelView.getSelectedIdObjects()) {
-			updateRotationKeyframe(idObject, modelView.getEditorRenderModel(), center, radians, dim1, dim2, nodeToLocalRotation.get(idObject));
+	public GenericRotateAction updateRotation(double radians) {
+		for (IdObject idObject : nodeToLocalRotation.keySet()) {
+			updateRotationKeyframe(idObject, editorRenderModel, center, radians, dim1, dim2, nodeToLocalRotation.get(idObject));
 		}
+		return this;
 	}
 
 	public void updateLocalRotationKeyframe(AnimatedNode animatedNode, int trackTime, Integer trackGlobalSeq, Quat localRotation) {

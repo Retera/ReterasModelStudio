@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.application.actions.uv;
 
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.Vec2;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.util.Vec2;
 
 /**
  * Undoable snap action.
@@ -25,17 +25,19 @@ public class UVSnapAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (int i = 0; i < selection.size(); i++) {
 			selection.get(i).set(oldSelLocs.get(i));
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Vec2 vec2 : selection) {
 			vec2.set(snapPoint);
 		}
+		return this;
 	}
 
 	@Override

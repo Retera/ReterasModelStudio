@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -26,14 +27,16 @@ public final class StaticMeshMoveAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		Vec3 antiMove = Vec3.getScaled(moveVector, -1);
 		rawTranslate(antiMove);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		rawTranslate(moveVector);
+		return this;
 	}
 
 	public void rawTranslate(Vec3 vec3) {
@@ -73,7 +76,7 @@ public final class StaticMeshMoveAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void updateTranslation(Vec3 delta1) {
+	public GenericMoveAction updateTranslation(Vec3 delta1) {
 		Vec3 delta = new Vec3(delta1);
 		moveVector.add(delta);
 //		moveVector.x += deltaX;
@@ -81,6 +84,7 @@ public final class StaticMeshMoveAction implements GenericMoveAction {
 //		moveVector.z += deltaZ;
 //		modelEditor.rawTranslate(delta);
 		rawTranslate(delta);
+		return this;
 	}
 
 }

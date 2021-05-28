@@ -20,17 +20,19 @@ public class RemoveFlagEntryAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		animFlag.setOrAddEntryT(entry.time, entry);
 //		structureChangeListener.keyframeAdded(timelineContainer, animFlag, entry.time);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		animFlag.removeKeyframe(entry.time);
 //		structureChangeListener.keyframeRemoved(timelineContainer, animFlag, entry.time);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override

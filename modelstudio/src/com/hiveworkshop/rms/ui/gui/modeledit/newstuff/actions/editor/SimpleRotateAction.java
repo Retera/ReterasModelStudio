@@ -20,17 +20,19 @@ public final class SimpleRotateAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (Vec3 vertex : modelView.getSelectedVertices()) {
 			vertex.rotate(center, -radians, dim1, dim2);
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Vec3 vertex : modelView.getSelectedVertices()) {
 			vertex.rotate(center, radians, dim1, dim2);
 		}
+		return this;
 	}
 
 	@Override

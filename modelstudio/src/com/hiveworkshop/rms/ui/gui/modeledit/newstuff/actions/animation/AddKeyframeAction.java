@@ -1,34 +1,27 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation;
 
-import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 public class AddKeyframeAction implements UndoAction {
-	private final TimelineContainer node;
 	private final AnimFlag<?> timeline;
 
-	private final ModelStructureChangeListener structureChangeListener;
 	private final Entry<?> entry;
 
-	public AddKeyframeAction(TimelineContainer node, AnimFlag<?> timeline, Entry<?> entry,
-	                         ModelStructureChangeListener structureChangeListener) {
-		this.node = node;
+	public AddKeyframeAction(AnimFlag<?> timeline, Entry<?> entry) {
 		this.timeline = timeline;
 		this.entry = entry;
-		this.structureChangeListener = structureChangeListener;
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		timeline.removeKeyframe(entry.time);
-		structureChangeListener.keyframeRemoved(node, timeline, entry.time);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		if (timeline.tans()) {
 			if (entry.inTan == null) {
 				throw new IllegalStateException(
@@ -37,7 +30,7 @@ public class AddKeyframeAction implements UndoAction {
 		}
 
 		timeline.setOrAddEntryT(entry.time, entry);
-		structureChangeListener.keyframeAdded(node, timeline, entry.time);
+		return this;
 	}
 
 	@Override

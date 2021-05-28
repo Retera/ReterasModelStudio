@@ -45,7 +45,7 @@ public final class CloneAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (GeosetVertex gv : newVertices) {
 			gv.getGeoset().remove(gv);
 		}
@@ -59,10 +59,11 @@ public final class CloneAction implements UndoAction {
 		modelView.setSelectedIdObjects(selBones);
 //		modelView.setSelectedCameras();
 		modelStructureChangeListener.nodesUpdated();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (GeosetVertex gv : newVertices) {
 			gv.getGeoset().add(gv);
 		}
@@ -76,6 +77,7 @@ public final class CloneAction implements UndoAction {
 		modelView.setSelectedIdObjects(newBones);
 //		modelView.setSelectedCameras();
 		modelStructureChangeListener.nodesUpdated();
+		return this;
 	}
 
 	@Override

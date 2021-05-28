@@ -24,15 +24,17 @@ public class NewGeosetAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		model.remove(geoset);
 		modelStructureChangeListener.geosetsUpdated();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		model.add(geoset);
 		modelStructureChangeListener.geosetsUpdated();
+		return this;
 	}
 
 	@Override

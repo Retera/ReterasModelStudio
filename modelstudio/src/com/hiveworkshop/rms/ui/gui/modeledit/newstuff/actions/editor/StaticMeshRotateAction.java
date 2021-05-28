@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -30,13 +31,15 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		rotate(-radians);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		rotate(radians);
+		return this;
 	}
 
 	@Override
@@ -45,9 +48,10 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void updateRotation(double radians) {
+	public GenericRotateAction updateRotation(double radians) {
 		this.radians += radians;
 		rotate(radians);
+		return this;
 	}
 
 	public void rotate(double v) {

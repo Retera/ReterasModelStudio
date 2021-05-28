@@ -39,7 +39,7 @@ public class DeleteGeosetAction implements UndoAction {
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Geoset geoset : geosets) {
 			model.remove(geoset);
 		}
@@ -49,10 +49,11 @@ public class DeleteGeosetAction implements UndoAction {
 			}
 		}
 		modelStructureChangeListener.geosetsUpdated();
+		return this;
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (Geoset geoset : geosets) {
 			model.add(geoset);
 		}
@@ -62,6 +63,7 @@ public class DeleteGeosetAction implements UndoAction {
 			}
 		}
 		modelStructureChangeListener.geosetsUpdated();
+		return this;
 	}
 
 	@Override

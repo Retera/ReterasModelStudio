@@ -41,17 +41,19 @@ public class UVRemapAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (int i = 0; i < tVertices.size(); i++) {
 			tVertices.get(i).set(oldValueHolders.get(i));
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (int i = 0; i < tVertices.size(); i++) {
 			tVertices.get(i).set(newValueHolders.get(i));
 		}
+		return this;
 	}
 
 	@Override

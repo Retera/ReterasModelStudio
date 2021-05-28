@@ -20,17 +20,19 @@ public class RemoveLayerAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		material.addLayer(layer);
 //		modelViewManager.getModel().getMaterials().remove(layer);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		material.removeLayer(layer);
 //		modelViewManager.getModel().addMaterial(layer);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override

@@ -17,17 +17,18 @@ public class AddTriangleAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (Triangle triangle : triangles) {
 			geoset.remove(triangle);
 			for (GeosetVertex geosetVertex : triangle.getVerts()) {
 				geosetVertex.removeTriangle(triangle);
 			}
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Triangle triangle : triangles) {
 			geoset.add(triangle);
 			for (GeosetVertex geosetVertex : triangle.getVerts()) {
@@ -36,6 +37,7 @@ public class AddTriangleAction implements UndoAction {
 				}
 			}
 		}
+		return this;
 	}
 
 	@Override

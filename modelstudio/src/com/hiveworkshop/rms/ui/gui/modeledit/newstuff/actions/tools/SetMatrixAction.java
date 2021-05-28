@@ -33,7 +33,7 @@ public final class SetMatrixAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (Map.Entry<GeosetVertex, List<Bone>> entry : vertexToOldBoneReferences.entrySet()) {
 			entry.getKey().setBones(new ArrayList<>(entry.getValue()));
 		}
@@ -43,10 +43,11 @@ public final class SetMatrixAction implements UndoAction {
 		for (Map.Entry<GeosetVertex, short[]> entry : vertexToOldSkinBoneWeightReferences.entrySet()) {
 			entry.getKey().setSkinBoneWeights(entry.getValue());
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Map.Entry<GeosetVertex, List<Bone>> entry : vertexToOldBoneReferences.entrySet()) {
 			entry.getKey().setBones(new ArrayList<>(newBoneReferences));
 		}
@@ -56,6 +57,7 @@ public final class SetMatrixAction implements UndoAction {
 		for (Map.Entry<GeosetVertex, short[]> entry : vertexToNewSkinBoneWeightReferences.entrySet()) {
 			entry.getKey().setSkinBoneWeights(entry.getValue());
 		}
+		return this;
 	}
 
 	@Override

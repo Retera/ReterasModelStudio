@@ -24,19 +24,21 @@ public final class SetParentAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (IdObject idObject : nodeToOldParent.keySet()) {
 			idObject.setParent(nodeToOldParent.get(idObject));
 		}
 		changeListener.nodesUpdated();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (IdObject idObject : nodes) {
 			idObject.setParent(newParent);
 		}
 		changeListener.nodesUpdated();
+		return this;
 	}
 
 	@Override

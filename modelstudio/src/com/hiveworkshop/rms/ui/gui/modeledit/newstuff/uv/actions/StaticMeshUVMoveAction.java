@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions;
 
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexUtils;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -19,17 +20,19 @@ public final class StaticMeshUVMoveAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (Vec2 vertex : TVertexUtils.getTVertices(selectedVertices, uvLayerIndex)) {
 			vertex.translate(-moveVector.x, -moveVector.y);
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Vec2 vertex : TVertexUtils.getTVertices(selectedVertices, uvLayerIndex)) {
 			vertex.translate(moveVector.x, moveVector.y);
 		}
+		return this;
 	}
 
 	@Override
@@ -47,12 +50,13 @@ public final class StaticMeshUVMoveAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void updateTranslation(Vec3 delta) {
+	public GenericMoveAction updateTranslation(Vec3 delta) {
 		moveVector.x += delta.x;
 		moveVector.y += delta.y;
 		for (Vec2 vertex : TVertexUtils.getTVertices(selectedVertices, uvLayerIndex)) {
 			vertex.translate(delta.x, delta.y);
 		}
+		return this;
 	}
 
 }

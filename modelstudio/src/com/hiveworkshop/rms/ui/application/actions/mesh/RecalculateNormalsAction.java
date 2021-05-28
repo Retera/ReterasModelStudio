@@ -76,17 +76,19 @@ public class RecalculateNormalsAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (int i = 0; i < affectedVertices.size(); i++) {
 			affectedVertices.get(i).setNormalValue(oldNormals.get(i));
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (int i = 0; i < affectedVertices.size(); i++) {
 			affectedVertices.get(i).setNormalValue(newNormals.get(i));
 		}
+		return this;
 	}
 
 	private void makeNormals() {

@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools;
 
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.util.Vec3;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.util.Vec3;
 
 public final class FlipNormalsAction implements UndoAction {
 	private final List<Vec3> selection;
@@ -16,13 +16,15 @@ public final class FlipNormalsAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		doFlip();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		doFlip();
+		return this;
 	}
 
 	private void doFlip() {

@@ -52,21 +52,23 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (IdObject node : nodeToLocalRotation.keySet()) {
 			Quat localTranslation = nodeToLocalRotation.get(node);
 			updateLocalRotationKeyframeInverse(node, trackTime, trackGlobalSeq, localTranslation);
 		}
 		addingTimelinesOrKeyframesAction.undo();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		addingTimelinesOrKeyframesAction.redo();
 		for (IdObject node : nodeToLocalRotation.keySet()) {
 			Quat localTranslation = nodeToLocalRotation.get(node);
 			updateLocalRotationKeyframe(node, trackTime, trackGlobalSeq, localTranslation);
 		}
+		return this;
 	}
 
 	@Override
@@ -75,7 +77,7 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void updateRotation(double radians) {
+	public GenericRotateAction updateRotation(double radians) {
 //		modelEditor.rawSquatToolRotate2d(center, radians, dim1, dim2, nodeToLocalRotation);
 		for (IdObject idObject : modelView.getSelectedIdObjects()) {
 			updateRotationKeyframe(idObject, modelView.getEditorRenderModel(), center, radians, dim1, dim2, nodeToLocalRotation.get(idObject));
@@ -85,6 +87,7 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 				updateRotationKeyframe(idObject, modelView.getEditorRenderModel(), center, -radians, dim1, dim2, nodeToLocalRotation.get(idObject));
 			}
 		}
+		return this;
 	}
 
 	public void updateLocalRotationKeyframe(AnimatedNode animatedNode, int trackTime, Integer trackGlobalSeq, Quat localRotation) {

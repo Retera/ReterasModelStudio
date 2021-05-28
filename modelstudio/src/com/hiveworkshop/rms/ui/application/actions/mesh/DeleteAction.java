@@ -37,7 +37,7 @@ public class DeleteAction implements UndoAction {
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (GeosetVertex gv : affectedVerts) {
 			gv.getGeoset().remove(gv);
 		}
@@ -56,10 +56,11 @@ public class DeleteAction implements UndoAction {
 			}
 		}
 		structureChangeListener.geosetsUpdated();
+		return this;
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (GeosetVertex gv : affectedVerts) {
 			gv.getGeoset().addVertex(gv);
 		}
@@ -78,6 +79,7 @@ public class DeleteAction implements UndoAction {
 		structureChangeListener.geosetsUpdated();
 
 		modelView.setSelectedVertices(affectedVerts);
+		return this;
 	}
 
 	private void checkForEmptyGeosets() {

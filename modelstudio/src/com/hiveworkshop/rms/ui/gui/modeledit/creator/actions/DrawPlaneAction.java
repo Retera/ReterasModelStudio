@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils.Mesh;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -52,23 +53,25 @@ public class DrawPlaneAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (GeosetVertex vertex : plane.getVertices()) {
 			planeGeoset.remove(vertex);
 		}
 		for (Triangle triangle : plane.getTriangles()) {
 			planeGeoset.remove(triangle);
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (GeosetVertex vertex : plane.getVertices()) {
 			planeGeoset.add(vertex);
 		}
 		for (Triangle triangle : plane.getTriangles()) {
 			planeGeoset.add(triangle);
 		}
+		return this;
 	}
 
 	@Override
@@ -87,9 +90,10 @@ public class DrawPlaneAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void updateTranslation(Vec3 delta) {
+	public GenericMoveAction updateTranslation(Vec3 delta) {
 		p2.translate(delta.x, delta.y);
 		scalePlaneToPoints(p1, p2);
+		return this;
 	}
 
 	public void scalePlaneToPoints(Vec2 p1, Vec2 p2) {

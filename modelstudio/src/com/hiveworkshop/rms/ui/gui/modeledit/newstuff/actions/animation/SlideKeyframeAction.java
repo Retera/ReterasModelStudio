@@ -19,19 +19,21 @@ public class SlideKeyframeAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (final AnimFlag<?> timeline : timelines) {
 			timeline.slideKeyframe(endTrackTime, startTrackTime);
 		}
 		keyframeChangeCallback.run();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (final AnimFlag<?> timeline : timelines) {
 			timeline.slideKeyframe(startTrackTime, endTrackTime);
 		}
 		keyframeChangeCallback.run();
+		return this;
 	}
 
 	@Override

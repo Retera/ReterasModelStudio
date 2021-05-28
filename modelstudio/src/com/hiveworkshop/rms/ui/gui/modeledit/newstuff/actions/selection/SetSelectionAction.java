@@ -52,17 +52,19 @@ public final class SetSelectionAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		modelView.setSelectedVertices(previousVerts);
 		modelView.setSelectedIdObjects(previousIdObjects);
 		modelView.setSelectedCameras(previousCameras);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		modelView.setSelectedVertices(affectedVerts);
 		modelView.setSelectedIdObjects(affectedIdObjects);
 		modelView.setSelectedCameras(affectedCameras);
+		return this;
 	}
 
 //	@Override

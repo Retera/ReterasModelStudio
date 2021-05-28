@@ -21,15 +21,17 @@ public class AddMaterialAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		modelViewManager.getModel().getMaterials().remove(material);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		modelViewManager.getModel().addMaterial(material);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override

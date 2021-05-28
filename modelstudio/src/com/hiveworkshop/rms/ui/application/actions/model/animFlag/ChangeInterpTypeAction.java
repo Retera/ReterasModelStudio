@@ -22,17 +22,19 @@ public class ChangeInterpTypeAction<T> implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		animFlag.setInterpType(oldInterpType);
 		animFlag.setEntryMap(oldAnimFlag.getEntryMap());
 //		animFlag.setFromOther(oldAnimFlag);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		animFlag.setInterpType(newInterpType);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override

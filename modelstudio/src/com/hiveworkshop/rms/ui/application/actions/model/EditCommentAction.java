@@ -24,15 +24,17 @@ public class EditCommentAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		modelViewManager.getModel().setHeader(getCommentContent(stringOld));
 		structureChangeListener.headerChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		modelViewManager.getModel().setHeader(getCommentContent(stringNew));
 		structureChangeListener.headerChanged();
+		return this;
 	}
 
 	@Override

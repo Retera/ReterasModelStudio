@@ -64,7 +64,7 @@ public final class SplitForUVAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (Triangle tri : trisToSeparate) {
 			Geoset geoset = tri.getGeoset();
 			for (GeosetVertex gv : tri.getVerts()) {
@@ -76,10 +76,11 @@ public final class SplitForUVAction implements UndoAction {
 			geoset.add(tri);
 		}
 		modelView.setSelectedVertices(selection);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Triangle tri : trisToSeparate) {
 			Geoset geoset = tri.getGeoset();
 			for (GeosetVertex gv : tri.getVerts()) {
@@ -92,6 +93,7 @@ public final class SplitForUVAction implements UndoAction {
 		}
 		modelView.removeSelectedVertices(selection);
 		modelView.setSelectedVertices(newVerticesToSelect);
+		return this;
 	}
 
 	@Override

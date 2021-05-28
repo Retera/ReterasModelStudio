@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.actions.model.animation;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 public class SetAnimationIntervalEndAction implements UndoAction {
 	private final int prevIntervalEnd;
@@ -19,15 +19,17 @@ public class SetAnimationIntervalEndAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		animation.setIntervalEnd(prevIntervalEnd);
 		structureChangeListener.animationParamsChanged(animation);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		animation.setIntervalEnd(newIntervalEnd);
 		structureChangeListener.animationParamsChanged(animation);
+		return this;
 	}
 
 	@Override

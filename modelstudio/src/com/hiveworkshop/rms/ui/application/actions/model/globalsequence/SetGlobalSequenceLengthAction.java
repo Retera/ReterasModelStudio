@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.actions.model.globalsequence;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 public class SetGlobalSequenceLengthAction implements UndoAction {
 	private final EditableModel model;
@@ -21,15 +21,17 @@ public class SetGlobalSequenceLengthAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		model.setGlobalSequenceLength(globalSequenceId, previousLength);
 		structureChangeListener.globalSequenceLengthChanged(globalSequenceId, previousLength);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		model.setGlobalSequenceLength(globalSequenceId, newLength);
 		structureChangeListener.globalSequenceLengthChanged(globalSequenceId, newLength);
+		return this;
 	}
 
 	@Override

@@ -19,15 +19,17 @@ public class SetBlendTimeAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		modelViewManager.getModel().setBlendTime(prevBlendTime);
 		structureChangeListener.headerChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		modelViewManager.getModel().setBlendTime(newBlendTime);
 		structureChangeListener.headerChanged();
+		return this;
 	}
 
 	@Override

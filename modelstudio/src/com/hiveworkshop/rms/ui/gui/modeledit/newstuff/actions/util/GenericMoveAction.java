@@ -6,5 +6,5 @@ import com.hiveworkshop.rms.util.Vec3;
 public interface GenericMoveAction extends UndoAction {
 	void updateTranslation(double deltaX, double deltaY, double deltaZ);
 
-	void updateTranslation(Vec3 delta);
+	GenericMoveAction updateTranslation(Vec3 delta);
 }

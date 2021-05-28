@@ -47,7 +47,7 @@ public final class AdvancedCloneAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (final GeosetVertex gv : newVertices) {
 			gv.getGeoset().remove(gv);
 		}
@@ -60,10 +60,11 @@ public final class AdvancedCloneAction implements UndoAction {
 		modelView.setSelectedVertices(sourceNonPivots);
 		modelView.setSelectedIdObjects(newSelectionPivots);
 		modelStructureChangeListener.nodesUpdated();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (final GeosetVertex gv : newVertices) {
 			gv.getGeoset().add(gv);
 		}
@@ -76,6 +77,7 @@ public final class AdvancedCloneAction implements UndoAction {
 		modelView.setSelectedVertices(sourceNonPivots);
 		modelView.setSelectedIdObjects(sourcePivots);
 		modelStructureChangeListener.nodesUpdated();
+		return this;
 	}
 
 	@Override

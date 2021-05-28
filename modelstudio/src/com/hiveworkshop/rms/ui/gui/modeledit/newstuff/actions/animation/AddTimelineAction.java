@@ -2,31 +2,27 @@ package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation;
 
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 public class AddTimelineAction implements UndoAction {
 	private final AnimFlag<?> timeline;
 	private final TimelineContainer container;
-	private final ModelStructureChangeListener structureChangeListener;
 
-	public AddTimelineAction(TimelineContainer container, AnimFlag<?> timeline,
-	                         ModelStructureChangeListener structureChangeListener) {
+	public AddTimelineAction(TimelineContainer container, AnimFlag<?> timeline) {
 		this.container = container;
 		this.timeline = timeline;
-		this.structureChangeListener = structureChangeListener;
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		container.remove(timeline);
-		structureChangeListener.timelineRemoved(container, timeline);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		container.add(timeline);
-		structureChangeListener.timelineAdded(container, timeline);
+		return this;
 	}
 
 	@Override

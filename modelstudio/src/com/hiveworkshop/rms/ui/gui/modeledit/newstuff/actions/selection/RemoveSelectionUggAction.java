@@ -33,18 +33,19 @@ public final class RemoveSelectionUggAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		modelView.setSelectedVertices(previousVerts);
 		modelView.setSelectedIdObjects(previousIdObjects);
 		modelView.setSelectedCameras(previousCameras);
-
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		modelView.removeSelectedVertices(affectedVerts);
 		modelView.removeSelectedIdObjects(affectedIdObjects);
 		modelView.removeSelectedCameras(affectedCameras);
+		return this;
 	}
 
 	@Override

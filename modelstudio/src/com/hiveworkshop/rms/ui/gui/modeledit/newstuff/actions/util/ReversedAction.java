@@ -12,13 +12,15 @@ public class ReversedAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		delegate.redo();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		delegate.undo();
+		return this;
 	}
 
 	@Override

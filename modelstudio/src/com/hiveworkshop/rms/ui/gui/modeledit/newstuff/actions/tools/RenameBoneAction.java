@@ -15,13 +15,15 @@ public final class RenameBoneAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		nodeToRename.setName(oldName);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		nodeToRename.setName(newName);
+		return this;
 	}
 
 	@Override

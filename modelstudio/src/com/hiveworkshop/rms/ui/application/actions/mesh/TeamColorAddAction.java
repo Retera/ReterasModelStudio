@@ -94,7 +94,7 @@ public final class TeamColorAddAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (Geoset geoset : geosetsCreated) {
 			model.remove(geoset);
 		}
@@ -110,10 +110,11 @@ public final class TeamColorAddAction implements UndoAction {
 			geoset.add(tri);
 		}
 		modelView.setSelectedVertices(selection);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Geoset geoset : geosetsCreated) {
 			model.add(geoset);
 		}
@@ -129,6 +130,7 @@ public final class TeamColorAddAction implements UndoAction {
 		}
 		modelStructureChangeListener.geosetsUpdated();
 		modelView.setSelectedVertices(newVerticesToSelect);
+		return this;
 	}
 
 	@Override

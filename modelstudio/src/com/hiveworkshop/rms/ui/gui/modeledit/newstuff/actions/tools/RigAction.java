@@ -53,7 +53,7 @@ public class RigAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (Vec3 vertex : selectedVertices) {
 			if (vertex instanceof GeosetVertex) {
 				List<Bone> list = vertexToPriorBoneAttachment.get(vertex);
@@ -66,15 +66,17 @@ public class RigAction implements UndoAction {
 				}
 			}
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Vec3 vertex : selectedVertices) {
 			if (vertex instanceof GeosetVertex) {
 				((GeosetVertex) vertex).rigBones(new ArrayList<>(selectedBones));
 			}
 		}
+		return this;
 	}
 
 	@Override

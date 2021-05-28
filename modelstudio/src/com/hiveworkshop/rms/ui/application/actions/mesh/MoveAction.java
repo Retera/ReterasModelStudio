@@ -50,7 +50,7 @@ public class MoveAction implements UndoAction {
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		if (moveVector == null) {
 			for (int i = 0; i < selection.size(); i++) {
 				final Vec3 ver = selection.get(i);
@@ -63,10 +63,11 @@ public class MoveAction implements UndoAction {
 				ver.add(vect);
 			}
 		}
+		return this;
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		if (moveVector == null) {
 			for (int i = 0; i < selection.size(); i++) {
 				final Vec3 ver = selection.get(i);
@@ -79,6 +80,7 @@ public class MoveAction implements UndoAction {
 				ver.sub(vect);
 			}
 		}
+		return this;
 	}
 
 	@Override

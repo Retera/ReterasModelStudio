@@ -23,17 +23,19 @@ public class DeleteAnimationAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 //		model.getAnims();
 		model.addAnimation(animation);
 		structureChangeListener.animationsAdded(Collections.singletonList(animation));
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 //		animation.setIntervalStart(newIntervalStart);
 		model.remove(animation);
 		structureChangeListener.animationsRemoved(Collections.singletonList(animation));
+		return this;
 	}
 
 	@Override

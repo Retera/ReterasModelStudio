@@ -1034,7 +1034,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 //			}
 			newEntry.setTime(mouseClickAnimationTime);
 			sourceTimeline.setOrAddEntryT(newEntry.time, newEntry);
-			action = new AddKeyframeAction(frame.node, sourceTimeline, newEntry, structureChangeListener);
+			action = new AddKeyframeAction(sourceTimeline, newEntry);
 		}
 		return action;
 	}

@@ -17,16 +17,18 @@ public class RemoveAnimFlagAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		timelineContainer.add(animFlag);
 		structureChangeListener.materialsListChanged();
+		return this;
 
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		timelineContainer.remove(animFlag);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override

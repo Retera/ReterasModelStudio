@@ -17,13 +17,15 @@ public final class FlipFacesAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		doFlip();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		doFlip();
+		return this;
 	}
 
 	private void doFlip() {

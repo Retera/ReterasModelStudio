@@ -45,7 +45,7 @@ public class CloneAction implements UndoAction {
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		baseMovement.redo();
 		for (int i = 0; i < selection.size(); i++) {
 			if (selection.get(i).getClass() == GeosetVertex.class) {
@@ -94,6 +94,7 @@ public class CloneAction implements UndoAction {
 		}
 
 		checkForErrors("Redo ");
+		return this;
 	}
 
 	private void addTriangles() {
@@ -110,7 +111,7 @@ public class CloneAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		baseMovement.undo();
 		if (type) {
 			removeTriangle();
@@ -143,6 +144,7 @@ public class CloneAction implements UndoAction {
 		}
 
 		checkForErrors("Undo ");
+		return this;
 	}
 
 	private void checkForErrors(String s) {

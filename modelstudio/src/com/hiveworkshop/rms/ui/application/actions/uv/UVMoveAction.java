@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.application.actions.uv;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.hiveworkshop.rms.ui.application.actions.VertexActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.util.Vec2;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * MotionAction -- something for you to undo when you screw up with motion
@@ -50,7 +50,7 @@ public class UVMoveAction implements UndoAction {
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		if (moveVector == null) {
 			for (int i = 0; i < selection.size(); i++) {
 				final Vec2 ver = selection.get(i);
@@ -65,10 +65,11 @@ public class UVMoveAction implements UndoAction {
 				ver.y += vect.y;
 			}
 		}
+		return this;
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		if (moveVector == null) {
 			for (int i = 0; i < selection.size(); i++) {
 				final Vec2 ver = selection.get(i);
@@ -83,6 +84,7 @@ public class UVMoveAction implements UndoAction {
 				ver.y -= vect.y;
 			}
 		}
+		return this;
 	}
 
 	@Override

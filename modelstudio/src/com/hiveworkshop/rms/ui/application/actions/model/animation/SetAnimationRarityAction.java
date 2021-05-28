@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.actions.model.animation;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 public class SetAnimationRarityAction implements UndoAction {
 	private final float prevRarity;
@@ -19,15 +19,17 @@ public class SetAnimationRarityAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		animation.setRarity(prevRarity);
 		structureChangeListener.animationParamsChanged(animation);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		animation.setRarity(newRarity);
 		structureChangeListener.animationParamsChanged(animation);
+		return this;
 	}
 
 	@Override

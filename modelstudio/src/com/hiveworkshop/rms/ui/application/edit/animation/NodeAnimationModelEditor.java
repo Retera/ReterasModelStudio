@@ -91,7 +91,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor {
 			}
 
 			changeListener.keyframeAdded(node, timeline, trackTime);
-			AddKeyframeAction addKeyframeAction = new AddKeyframeAction(node, timeline, entry, changeListener);
+			AddKeyframeAction addKeyframeAction = new AddKeyframeAction(timeline, entry);
 			addKeyframeAction.redo();
 			return addKeyframeAction;
 		}
@@ -155,7 +155,7 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor {
 				}
 				node.add(timeline);
 
-				AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline, changeListener);
+				AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline);
 				changeListener.timelineAdded(node, timeline);
 				actions.add(addTimelineAction);
 			}

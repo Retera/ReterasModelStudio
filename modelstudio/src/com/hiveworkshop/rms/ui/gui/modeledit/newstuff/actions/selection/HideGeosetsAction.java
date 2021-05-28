@@ -19,19 +19,21 @@ public final class HideGeosetsAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (final Geoset geoset : geosets) {
 			modelViewManager.makeGeosetEditable(geoset);
 		}
 		refreshGUIRunnable.run();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (final Geoset geoset : geosets) {
 			modelViewManager.makeGeosetNotEditable(geoset);
 		}
 		refreshGUIRunnable.run();
+		return this;
 	}
 
 	@Override

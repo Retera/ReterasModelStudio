@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.actions;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 
 public class DrawVertexAction implements UndoAction {
 	private final GeosetVertex vertex;
@@ -11,13 +11,15 @@ public class DrawVertexAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		vertex.getGeoset().remove(vertex);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		vertex.getGeoset().add(vertex);
+		return this;
 	}
 
 	@Override

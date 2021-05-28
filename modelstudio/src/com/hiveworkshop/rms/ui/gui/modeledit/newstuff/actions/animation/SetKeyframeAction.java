@@ -23,7 +23,7 @@ public class SetKeyframeAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		if (timeline.tans()) {
 			if (orgEntry.inTan == null) {
 				throw new IllegalStateException(
@@ -32,10 +32,11 @@ public class SetKeyframeAction implements UndoAction {
 		}
 		timeline.setOrAddEntryT(time, orgEntry);
 		structureChangeListener.run();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		if (timeline.tans()) {
 			if (entry.inTan == null) {
 				throw new IllegalStateException(
@@ -44,6 +45,7 @@ public class SetKeyframeAction implements UndoAction {
 		}
 		timeline.setOrAddEntryT(time, entry);
 		structureChangeListener.run();
+		return this;
 	}
 
 	@Override

@@ -110,7 +110,7 @@ public class ExtendAction implements UndoAction {
 
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		splitEdge();
 		baseMovement.redo();
 		fillGap();
@@ -120,10 +120,11 @@ public class ExtendAction implements UndoAction {
 				newVert.getGeoset().add(triangle);
 			}
 		}
+		return this;
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (GeosetVertex newVert : oldToNew.values()) {
 			newVert.getGeoset().remove(newVert);
 		}
@@ -133,6 +134,7 @@ public class ExtendAction implements UndoAction {
 		removeGapFill();
 		baseMovement.undo();
 		unSplitEdge();
+		return this;
 	}
 
 	@Override

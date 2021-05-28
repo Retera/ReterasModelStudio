@@ -27,15 +27,17 @@ public class ChangeFlagEntryAction<T> implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		entry.set(orgEntry);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		entry.set(newEntry);
 		structureChangeListener.materialsListChanged();
+		return this;
 	}
 
 	@Override

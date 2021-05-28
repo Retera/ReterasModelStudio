@@ -11,13 +11,15 @@ public final class MakeEditableAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		editabilityToggleHandler.makeNotEditable();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		editabilityToggleHandler.makeEditable();
+		return this;
 	}
 
 	@Override

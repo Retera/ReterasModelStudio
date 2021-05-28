@@ -12,13 +12,15 @@ public class DoNothingMoveActionAdapter implements GenericMoveAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		delegate.undo();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		delegate.redo();
+		return this;
 	}
 
 	@Override
@@ -31,7 +33,8 @@ public class DoNothingMoveActionAdapter implements GenericMoveAction {
 	}
 
 	@Override
-	public void updateTranslation(Vec3 delta) {
+	public GenericMoveAction updateTranslation(Vec3 delta) {
+		return this;
 	}
 
 }

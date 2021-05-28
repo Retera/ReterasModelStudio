@@ -36,7 +36,7 @@ public final class SetMatrixAction2 implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (GeosetVertex gv : selectedVertices) {
 			if (gv.getSkinBones() != null) {
 				gv.setSkinBones(vertexToOldSkinBoneReferences.get(gv), vertexToOldSkinBoneWeightReferences.get(gv));
@@ -44,14 +44,16 @@ public final class SetMatrixAction2 implements UndoAction {
 				gv.setBones(vertexToOldBoneReferences.get(gv));
 			}
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (GeosetVertex gv : selectedVertices) {
 			gv.rigBones(newBoneReferences);
 //			gv.rigBones(mx.getBones());
 		}
+		return this;
 	}
 
 	@Override

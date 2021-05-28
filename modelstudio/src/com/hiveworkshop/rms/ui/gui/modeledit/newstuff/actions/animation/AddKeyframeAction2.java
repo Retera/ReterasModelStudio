@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation;
 
-import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
@@ -64,7 +63,7 @@ public class AddKeyframeAction2 implements UndoAction {
 				}
 				node.add(timeline);
 
-				AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline, changeListener);
+				AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline);
 
 				actions.add(addTimelineAction);
 			}
@@ -72,9 +71,9 @@ public class AddKeyframeAction2 implements UndoAction {
 			RenderNode renderNode = modelHandler.getRenderModel().getRenderNode(node);
 
 			AddKeyframeAction keyframeAction = switch (actionType) {
-				case ROTATION, SQUAT -> getAddKeyframeAction(node, timeline, changeListener, trackTime, new Entry<>(trackTime, renderNode.getLocalRotation()));
-				case SCALING -> getAddKeyframeAction(node, timeline, changeListener, trackTime, new Entry<>(trackTime, renderNode.getLocalScale()));
-				case TRANSLATION, EXTEND, EXTRUDE -> getAddKeyframeAction(node, timeline, changeListener, trackTime, new Entry<>(trackTime, renderNode.getLocalLocation()));
+				case ROTATION, SQUAT -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, renderNode.getLocalRotation()));
+				case SCALING -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, renderNode.getLocalScale()));
+				case TRANSLATION, EXTEND, EXTRUDE -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, renderNode.getLocalLocation()));
 			};
 			if (keyframeAction != null) {
 				actions.add(keyframeAction);
@@ -94,9 +93,7 @@ public class AddKeyframeAction2 implements UndoAction {
 		return trackTime;
 	}
 
-	private AddKeyframeAction getAddKeyframeAction(AnimatedNode animatedNode,
-	                                               AnimFlag<?> timeline,
-	                                               ModelStructureChangeListener changeListener,
+	private AddKeyframeAction getAddKeyframeAction(AnimFlag<?> timeline,
 	                                               int trackTime, Entry<?> entry) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		if (!timeline.hasEntryAt(trackTime)) {
@@ -104,8 +101,7 @@ public class AddKeyframeAction2 implements UndoAction {
 				entry.unLinearize();
 			}
 
-			changeListener.keyframeAdded(animatedNode, timeline, trackTime);
-			AddKeyframeAction addKeyframeAction = new AddKeyframeAction(animatedNode, timeline, entry, changeListener);
+			AddKeyframeAction addKeyframeAction = new AddKeyframeAction(timeline, entry);
 			addKeyframeAction.redo();
 			return addKeyframeAction;
 		}
@@ -113,17 +109,16 @@ public class AddKeyframeAction2 implements UndoAction {
 	}
 
 
-
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		createKeyframeCompoundAction.undo();
-//		structureChangeListener.keyframeRemoved(node, timeline, entry.time);
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		createKeyframeCompoundAction.redo();
-//		structureChangeListener.keyframeAdded(node, timeline, entry.time);
+		return this;
 	}
 
 	@Override

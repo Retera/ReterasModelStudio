@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions;
 
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexUtils;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -21,18 +22,20 @@ public class StaticMeshUVScaleAction implements GenericScaleAction {
 	}
 
 	@Override
-	public void undo() {
-		Vec2 invScale = new Vec2(1,1).div(scale);
+	public UndoAction undo() {
+		Vec2 invScale = new Vec2(1, 1).div(scale);
 		for (Vec2 vertex : TVertexUtils.getTVertices(selectedVertices, uvLayerIndex)) {
 			vertex.scale(center, invScale);
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (Vec2 vertex : TVertexUtils.getTVertices(selectedVertices, uvLayerIndex)) {
 			vertex.scale(center, scale);
 		}
+		return this;
 	}
 
 	@Override
@@ -41,12 +44,13 @@ public class StaticMeshUVScaleAction implements GenericScaleAction {
 	}
 
 	@Override
-	public void updateScale(Vec3 scale) {
+	public GenericScaleAction updateScale(Vec3 scale) {
 		this.scale.x *= scale.x;
 		this.scale.y *= scale.y;
 		for (Vec2 vertex : TVertexUtils.getTVertices(selectedVertices, uvLayerIndex)) {
 			vertex.scale(center, this.scale);
 		}
+		return this;
 	}
 
 }

@@ -24,13 +24,15 @@ public class MirrorModelAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		doMirror();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		doMirror();
+		return this;
 	}
 
 	private void doMirror() {

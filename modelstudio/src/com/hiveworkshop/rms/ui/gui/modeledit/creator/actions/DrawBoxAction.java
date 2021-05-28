@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils.Mesh;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -52,23 +53,25 @@ public class DrawBoxAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (GeosetVertex vertex : box.getVertices()) {
 			planeGeoset.remove(vertex);
 		}
 		for (Triangle triangle : box.getTriangles()) {
 			planeGeoset.remove(triangle);
 		}
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (GeosetVertex vertex : box.getVertices()) {
 			planeGeoset.add(vertex);
 		}
 		for (Triangle triangle : box.getTriangles()) {
 			planeGeoset.add(triangle);
 		}
+		return this;
 	}
 
 	@Override
@@ -87,9 +90,10 @@ public class DrawBoxAction implements GenericMoveAction {
 	}
 
 	@Override
-	public void updateTranslation(Vec3 delta) {
+	public GenericMoveAction updateTranslation(Vec3 delta) {
 		p2.translate(delta.x, delta.y);
 		scalePlaneToPoints(p1, p2, zHeight + delta.z);
+		return this;
 	}
 
 	public void scalePlaneToPoints(Vec2 p1, Vec2 p2, double newZHeight) {

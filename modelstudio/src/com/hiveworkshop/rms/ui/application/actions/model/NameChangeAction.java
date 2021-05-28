@@ -27,15 +27,17 @@ public class NameChangeAction implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		this.idObject.setName(oldName);
 		structureChangeListener.nodeHierarchyChanged();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		this.idObject.setName(newName);
 		structureChangeListener.nodeHierarchyChanged();
+		return this;
 	}
 
 	@Override

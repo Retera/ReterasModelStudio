@@ -97,7 +97,7 @@ public final class CloneAction2 implements UndoAction {
 	}
 
 	@Override
-	public void undo() {
+	public UndoAction undo() {
 		for (GeosetVertex gv : newVertices) {
 			gv.getGeoset().remove(gv);
 		}
@@ -112,10 +112,11 @@ public final class CloneAction2 implements UndoAction {
 		}
 //		vertexSelectionHelper.selectVertices(source);
 		modelStructureChangeListener.nodesUpdated();
+		return this;
 	}
 
 	@Override
-	public void redo() {
+	public UndoAction redo() {
 		for (GeosetVertex gv : newVertices) {
 			gv.getGeoset().add(gv);
 		}
@@ -131,6 +132,7 @@ public final class CloneAction2 implements UndoAction {
 //		vertexSelectionHelper.selectVertices(newSelection);
 //		modelStructureChangeListener.nodesAdded(newBones);
 		modelStructureChangeListener.nodesUpdated();
+		return this;
 	}
 
 	@Override
