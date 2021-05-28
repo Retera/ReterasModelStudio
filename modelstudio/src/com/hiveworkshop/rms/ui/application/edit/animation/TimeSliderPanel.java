@@ -967,7 +967,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				actions.add(action);
 			}
 		}
-		undoManager.pushAction(new CompoundAction("paste keyframe", actions));
+		undoManager.pushAction(new CompoundAction("paste keyframe", actions, structureChangeListener::keyframesUpdated));
 		revalidateKeyframeDisplay();
 	}
 

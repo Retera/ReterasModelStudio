@@ -3,11 +3,11 @@ package com.hiveworkshop.rms.ui.application.edit.uv;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
-import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.TVertexSelectionItemTypes;
@@ -16,8 +16,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 public final class TVertexEditorManager {
 	private final ModelView modelView;
 	private TVertexEditor modelEditor;
-	private final TVertexViewportSelectionHandlerImpl viewportSelectionHandler;
-	private final TVertexEditorChangeListener modelEditorChangeListener;
+	private final ViewportSelectionHandler viewportSelectionHandler;
+	private final ModelEditorChangeListener modelEditorChangeListener;
 	private SelectionView selectionView;
 	private final SelectionListener selectionListener;
 	private final RenderModel renderModel;
@@ -26,7 +26,7 @@ public final class TVertexEditorManager {
 
 	public TVertexEditorManager(ModelView modelView,
 	                            ToolbarButtonGroup2<SelectionMode> modeButtonGroup,
-	                            TVertexEditorChangeListener modelEditorChangeListener,
+	                            ModelEditorChangeListener modelEditorChangeListener,
 	                            SelectionListener selectionListener,
 	                            RenderModel renderModel,
 	                            ModelStructureChangeListener structureChangeListener) {
@@ -35,24 +35,24 @@ public final class TVertexEditorManager {
 		this.selectionListener = selectionListener;
 		this.renderModel = renderModel;
 		this.structureChangeListener = structureChangeListener;
-		viewportSelectionHandler = new TVertexViewportSelectionHandlerImpl(modeButtonGroup, null);
+		viewportSelectionHandler = new ViewportSelectionHandler(modeButtonGroup, null);
 		setSelectionItemType(TVertexSelectionItemTypes.VERTEX);
 	}
 
 	public void setSelectionItemType(final TVertexSelectionItemTypes selectionMode) {
 		switch (selectionMode) {
-			case FACE, VERTEX -> selectionView = new SelectionManager(modelView, transformSelectionMode(selectionMode));
+			case FACE, VERTEX -> selectionView = new SelectionView(modelView, transformSelectionMode(selectionMode));
 		}
 
 		modelEditor = new TVertexEditor(modelView, structureChangeListener, selectionMode);
 
 		viewportSelectionHandler.setSelectingEventHandler(modelEditor);
-		modelEditorChangeListener.editorChanged(modelEditor);
+		modelEditorChangeListener.modelEditorChanged(modelEditor);
 		selectionListener.onSelectionChanged(selectionView);
 	}
 
-	private SelectionItemTypes transformSelectionMode(TVertexSelectionItemTypes selectionMode){
-		if(selectionMode == TVertexSelectionItemTypes.FACE){
+	private SelectionItemTypes transformSelectionMode(TVertexSelectionItemTypes selectionMode) {
+		if (selectionMode == TVertexSelectionItemTypes.FACE) {
 			return SelectionItemTypes.FACE;
 		}
 		return SelectionItemTypes.VERTEX;
@@ -62,7 +62,7 @@ public final class TVertexEditorManager {
 		return modelEditor;
 	}
 
-	public TVertexViewportSelectionHandlerImpl getViewportSelectionHandler() {
+	public ViewportSelectionHandler getViewportSelectionHandler() {
 		return viewportSelectionHandler;
 	}
 

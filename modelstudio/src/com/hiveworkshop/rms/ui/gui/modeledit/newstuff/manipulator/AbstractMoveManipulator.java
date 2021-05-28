@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator;
 
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
@@ -11,13 +10,11 @@ import java.awt.event.MouseEvent;
 
 public abstract class AbstractMoveManipulator extends Manipulator {
 	protected final ModelEditor modelEditor;
-	protected final ModelView modelView;
 	protected final Vec3 moveVector;
 	private GenericMoveAction translationAction;
-	MoveDimension dir;
+	protected MoveDimension dir;
 
-	public AbstractMoveManipulator(ModelView modelView, ModelEditor modelEditor, MoveDimension dir) {
-		this.modelView = modelView;
+	public AbstractMoveManipulator(ModelEditor modelEditor, MoveDimension dir) {
 		this.modelEditor = modelEditor;
 		moveVector = new Vec3(0, 0, 0);
 		this.dir = dir;
@@ -25,6 +22,7 @@ public abstract class AbstractMoveManipulator extends Manipulator {
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
+		resetMoveVector();
 		translationAction = modelEditor.beginTranslation();
 	}
 
@@ -42,11 +40,16 @@ public abstract class AbstractMoveManipulator extends Manipulator {
 		return translationAction;
 	}
 
-	protected abstract void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2);
+	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
+		if (dir.containDirection(dim1)) {
+			moveVector.setCoord(dim1, mouseEnd.x - mouseStart.x);
+		}
+		if (dir.containDirection(dim2)) {
+			moveVector.setCoord(dim2, mouseEnd.y - mouseStart.y);
+		}
+	}
 
 	private void resetMoveVector() {
-		moveVector.x = 0;
-		moveVector.y = 0;
-		moveVector.z = 0;
+		moveVector.set(0, 0, 0);
 	}
 }

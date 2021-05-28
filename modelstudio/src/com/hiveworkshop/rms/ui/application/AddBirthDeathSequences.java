@@ -147,57 +147,55 @@ public class AddBirthDeathSequences {
 	    RenderModel renderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
 	    ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener(mainPanel);
 
-        ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
+	    ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
 
 	    final Set<IdObject> selection = new HashSet<>(getRootObjects(model));
-	    final List<UndoAction> actions = new ArrayList<>();
 	    // TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 
 	    final TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
-        generateKeyframes(trackTime1, selection, actions, timeEnvironmentImpl, "Translation", structureChangeListener, renderModel, startVec);
-        new TranslationKeyframeAction(new CompoundAction("setup", actions), trackTime1, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
+	    List<UndoAction> actions1 = generateKeyframes(trackTime1, selection, timeEnvironmentImpl, "Translation", renderModel, startVec);
+	    TranslationKeyframeAction setup1 = new TranslationKeyframeAction(new CompoundAction("setup", actions1, structureChangeListener::keyframesUpdated), trackTime1, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
 
-        generateKeyframes(trackTime2, selection, actions, timeEnvironmentImpl, "Translation", structureChangeListener, renderModel, endVec);
-        new TranslationKeyframeAction(new CompoundAction("setup", actions), trackTime2, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
+	    List<UndoAction> actions2 = generateKeyframes(trackTime2, selection, timeEnvironmentImpl, "Translation", renderModel, endVec);
+	    TranslationKeyframeAction setup2 = new TranslationKeyframeAction(new CompoundAction("setup", actions2, structureChangeListener::keyframesUpdated), trackTime2, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
     }
 
-    //
-    public static void generateKeyframes(int time, Set<IdObject> selection, List<UndoAction> actions, TimeEnvironmentImpl timeEnvironmentImpl, String name, ModelStructureChangeListener structureChangeListener, RenderModel renderModel, Vec3 vec3) {
-        for (final IdObject node : selection) {
-            Vec3AnimFlag timeline = (Vec3AnimFlag) node.find(name, timeEnvironmentImpl.getGlobalSeq());
+	//
+	public static List<UndoAction> generateKeyframes(int time, Set<IdObject> selection, TimeEnvironmentImpl timeEnvironmentImpl, String name, RenderModel renderModel, Vec3 vec3) {
+		List<UndoAction> actions = new ArrayList<>();
+		for (final IdObject node : selection) {
+			Vec3AnimFlag timeline = (Vec3AnimFlag) node.find(name, timeEnvironmentImpl.getGlobalSeq());
 
-            if (timeline == null) {
-                timeline = new Vec3AnimFlag(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
-                node.add(timeline);
+			if (timeline == null) {
+				timeline = new Vec3AnimFlag(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 
-                final AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline);
-                structureChangeListener.timelineAdded(node, timeline);
-                actions.add(addTimelineAction);
-            }
+				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline);
+				actions.add(addTimelineAction);
+			}
 
-            final AddKeyframeAction keyframeAction = getAddKeyframeAction(node, timeline, structureChangeListener, time, vec3);
-            if (keyframeAction != null) {
-                actions.add(keyframeAction);
-            }
-        }
-    }
+			final AddKeyframeAction keyframeAction = getAddKeyframeAction(timeline, time, vec3);
+			if (keyframeAction != null) {
+				actions.add(keyframeAction);
+			}
+		}
+		return actions;
+	}
 
 
-    private static AddKeyframeAction getAddKeyframeAction(IdObject idObject, Vec3AnimFlag timeline, ModelStructureChangeListener structureChangeListener, int trackTime, Vec3 vec3) {
-        if (timeline.hasEntryAt(trackTime)) {
-            Entry<Vec3> entry = new Entry<>(trackTime, vec3);
+	private static AddKeyframeAction getAddKeyframeAction(Vec3AnimFlag timeline, int trackTime, Vec3 vec3) {
+		if (timeline.hasEntryAt(trackTime)) {
+			Entry<Vec3> entry = new Entry<>(trackTime, vec3);
 
-            if (timeline.getInterpolationType().tangential()) {
-                entry.unLinearize();
-            }
+			if (timeline.getInterpolationType().tangential()) {
+				entry.unLinearize();
+			}
 
-            structureChangeListener.keyframeAdded(idObject, timeline, trackTime);
-            AddKeyframeAction addKeyframeAction = new AddKeyframeAction(timeline, entry);
-            addKeyframeAction.redo();
-            return addKeyframeAction;
-        }
-        return null;
+			AddKeyframeAction addKeyframeAction = new AddKeyframeAction(timeline, entry);
+			addKeyframeAction.redo();
+			return addKeyframeAction;
+		}
+		return null;
     }
 
 }

@@ -78,6 +78,11 @@ public class Vec2 {
 		return this;
 	}
 
+	public Vec2 setProjection(Vec3 vec3, byte dim1, byte dim2) {
+		this.x += vec3.getCoord(dim1);
+		this.y += vec3.getCoord(dim2);
+		return this;
+	}
 //	public void rotate(final double centerX, final double centerY, final double radians, final byte firstXYZ,
 //	                   final byte secondXYZ) {
 //		rotateVertex(centerX, centerY, radians, firstXYZ, secondXYZ, this);

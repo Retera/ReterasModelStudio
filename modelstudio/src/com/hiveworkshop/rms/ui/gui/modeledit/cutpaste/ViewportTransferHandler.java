@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -79,7 +79,7 @@ public class ViewportTransferHandler extends TransferHandler {
 			pastedModelView.makeCameraVisible(object);
 		}
 		// ToDo needs access to modelView...
-		final AbstractModelEditor listener = new AbstractModelEditor(new SelectionManager(pastedModelView, SelectionItemTypes.VERTEX), viewport.getModelStructureChangeListener(), modelHandler, SelectionItemTypes.VERTEX);
+		final AbstractModelEditor listener = new AbstractModelEditor(new SelectionView(pastedModelView, SelectionItemTypes.VERTEX), viewport.getModelStructureChangeListener(), modelHandler, SelectionItemTypes.VERTEX);
 		pastedModelView.selectAll();
 		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
 		Vec3 vertex = new Vec3(0, 0, 0);

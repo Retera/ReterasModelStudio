@@ -11,7 +11,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayEleme
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeEditableAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.MakeNotEditableAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.util.ArrayList;
@@ -19,9 +19,9 @@ import java.util.List;
 
 public abstract class AbstractSelectingEditor implements ModelEditor {
 	protected final ModelView modelView;
-	protected final SelectionManager selectionManager;
+	protected final SelectionView selectionManager;
 
-	public AbstractSelectingEditor(SelectionManager selectionManager, ModelView modelView) {
+	public AbstractSelectingEditor(SelectionView selectionManager, ModelView modelView) {
 		this.selectionManager = selectionManager;
 		this.modelView = modelView;
 	}

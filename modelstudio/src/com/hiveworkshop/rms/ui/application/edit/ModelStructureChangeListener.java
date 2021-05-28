@@ -2,8 +2,6 @@ package com.hiveworkshop.rms.ui.application.edit;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.TimelineContainer;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -86,19 +84,7 @@ public class ModelStructureChangeListener {
 		}
 	}
 
-	public void timelineAdded(TimelineContainer node, AnimFlag<?> timeline) {
-
-	}
-
-	public void keyframeAdded(TimelineContainer node, AnimFlag<?> timeline, int trackTime) {
-		mainPanel.getTimeSliderPanel().revalidateKeyframeDisplay();
-	}
-
-	public void timelineRemoved(TimelineContainer node, AnimFlag<?> timeline) {
-
-	}
-
-	public void keyframeRemoved(TimelineContainer node, AnimFlag<?> timeline, int trackTime) {
+	public void keyframesUpdated() {
 		mainPanel.getTimeSliderPanel().revalidateKeyframeDisplay();
 	}
 

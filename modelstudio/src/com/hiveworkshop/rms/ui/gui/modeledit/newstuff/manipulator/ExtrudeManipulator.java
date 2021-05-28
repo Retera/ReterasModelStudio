@@ -16,8 +16,8 @@ public final class ExtrudeManipulator extends AbstractMoveManipulator {
 
 	private UndoAction beginExtrudingSelection;
 
-	public ExtrudeManipulator(ModelView modelView, ModelEditor modelEditor, MoveDimension dir) {
-		super(modelView, modelEditor, dir);
+	public ExtrudeManipulator(ModelEditor modelEditor, MoveDimension dir) {
+		super(modelEditor, dir);
 	}
 
 	@Override
@@ -32,16 +32,6 @@ public final class ExtrudeManipulator extends AbstractMoveManipulator {
 	@Override
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		return new CompoundAction("extrude", Arrays.asList(beginExtrudingSelection, super.finish(e, mouseStart, mouseEnd, dim1, dim2)));
-	}
-
-	@Override
-	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
-		if (dir.containDirection(dim1)) {
-			moveVector.setCoord(dim1, mouseEnd.x - mouseStart.x);
-		}
-		if (dir.containDirection(dim2)) {
-			moveVector.setCoord(dim2, mouseEnd.y - mouseStart.y);
-		}
 	}
 
 }

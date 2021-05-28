@@ -1,29 +1,29 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.UVViewportModelRenderer;
-import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
-import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class UVViewport extends ViewportView implements TVertexEditorChangeListener {
+public class UVViewport extends ViewportView implements ModelEditorChangeListener {
 	ArrayList<Image> backgrounds = new ArrayList<>();
 
 	JMenuItem placeholderButton;
 	UVPanel uvPanel;
 	private final UVViewportModelRenderer viewportModelRenderer;
-	private TVertexEditor editor;
+	private ModelEditor editor;
 
-	public UVViewport(ModelHandler modelHandler, UVPanel uvPanel, ViewportActivity viewportActivity, CoordDisplayListener coordDisplayListener, TVertexEditor editor) {
+	public UVViewport(ModelHandler modelHandler, UVPanel uvPanel, ViewportActivity viewportActivity, CoordDisplayListener coordDisplayListener, ModelEditor editor) {
 		super(modelHandler, (byte) 0, (byte) 1, new Dimension(400, 400), viewportActivity, new ViewportListener(), coordDisplayListener);
 
 		this.editor = editor;
@@ -103,7 +103,7 @@ public class UVViewport extends ViewportView implements TVertexEditorChangeListe
 	}
 
 	@Override
-	public void editorChanged(final TVertexEditor newModelEditor) {
+	public void modelEditorChanged(final ModelEditor newModelEditor) {
 		editor = newModelEditor;
 	}
 }

@@ -16,8 +16,8 @@ public final class ExtendManipulator extends AbstractMoveManipulator {
 
 	private UndoAction extendAction;
 
-	public ExtendManipulator(ModelView modelView, ModelEditor modelEditor, MoveDimension dir) {
-		super(modelView, modelEditor, dir);
+	public ExtendManipulator(ModelEditor modelEditor, MoveDimension dir) {
+		super(modelEditor, dir);
 	}
 
 	@Override
@@ -39,15 +39,4 @@ public final class ExtendManipulator extends AbstractMoveManipulator {
 //		moveVector.setCoord(dim1, mouseEnd.x - mouseStart.x);
 //		moveVector.setCoord(dim2, mouseEnd.y - mouseStart.y);
 //	}
-
-	@Override
-	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
-		if (dir.containDirection(dim1)) {
-			moveVector.setCoord(dim1, mouseEnd.x - mouseStart.x);
-		}
-		if (dir.containDirection(dim2)) {
-			moveVector.setCoord(dim2, mouseEnd.y - mouseStart.y);
-		}
-	}
-
 }

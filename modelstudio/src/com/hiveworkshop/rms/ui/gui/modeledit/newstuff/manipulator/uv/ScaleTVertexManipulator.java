@@ -1,46 +1,51 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.uv;
 
-import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.AbstractScaleManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-public final class ScaleTVertexManipulator extends AbstractScaleTVertexManipulator {
+import java.awt.event.MouseEvent;
 
-	public ScaleTVertexManipulator(TVertexEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
+public final class ScaleTVertexManipulator extends AbstractScaleManipulator {
+
+	public ScaleTVertexManipulator(ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
 		super(modelEditor, selectionView, dir);
 	}
 
 	@Override
-	protected final void scaleWithFactor(TVertexEditor modelEditor, Vec2 center, double scaleFactor, byte dim1, byte dim2) {
-		Vec3 resettableScaleFactors = new Vec3(1, 1, 1);
-		if (dir == MoveDimension.XYZ) {
-			resettableScaleFactors.set(scaleFactor, scaleFactor, scaleFactor);
-		} else {
-			if (dir.containDirection(dim1)) {
-				resettableScaleFactors.setCoord(dim1, scaleFactor);
-			}
-			if (dir.containDirection(dim2)) {
-				resettableScaleFactors.setCoord(dim2, scaleFactor);
-			}
-		}
-		getScaleAction().updateScale(resettableScaleFactors);
+	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
+		Vec3 center = new Vec3().setCoords(dim1, dim2, selectionView.getUVCenter(0));
+		resetScaleVector();
+		scaleAction = modelEditor.beginScaling(center);
 	}
 
-	@Override
-	protected Vec3 buildScaleVector(double scaleFactor, byte dim1, byte dim2) {
-		Vec3 resettableScaleFactors = new Vec3(1, 1, 1);
-		if (dir == MoveDimension.XYZ) {
-			resettableScaleFactors.set(scaleFactor, scaleFactor, scaleFactor);
-		} else {
-			if (dir.containDirection(dim1)) {
-				resettableScaleFactors.setCoord(dim1, scaleFactor);
-			}
-			if (dir.containDirection(dim2)) {
-				resettableScaleFactors.setCoord(dim2, scaleFactor);
+	protected double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
+		Vec2 center = selectionView.getUVCenter(0);
+		double dxEnd = 0;
+		double dyEnd = 0;
+		double dxStart = 0;
+		double dyStart = 0;
+		int flipNeg = 1;
+
+		if (dir.containDirection(dim1)) {
+			dxEnd = mouseEnd.x - center.getCoord(dim1);
+			dxStart = mouseStart.x - center.getCoord(dim1);
+			flipNeg = getFlipNeg(dxEnd);
+		}
+		if (dir.containDirection(dim2)) {
+			dyEnd = mouseEnd.y - center.getCoord(dim2);
+			dyStart = mouseStart.y - center.getCoord(dim2);
+			if (!dir.containDirection(dim1)) {
+				// up is -y
+				flipNeg = getFlipNeg(-dyEnd);
 			}
 		}
-		return resettableScaleFactors;
+		double endDist = Math.sqrt((dxEnd * dxEnd) + (dyEnd * dyEnd));
+		double startDist = Math.sqrt((dxStart * dxStart) + (dyStart * dyStart));
+
+		return flipNeg * endDist / startDist;
 	}
 }

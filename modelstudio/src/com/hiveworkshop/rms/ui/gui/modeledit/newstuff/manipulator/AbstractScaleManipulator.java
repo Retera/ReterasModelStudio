@@ -10,78 +10,67 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.awt.event.MouseEvent;
 
 public abstract class AbstractScaleManipulator extends Manipulator {
-	private final ModelEditor modelEditor;
-	private final SelectionView selectionView;
-	private GenericScaleAction scaleAction;
-	MoveDimension dir;
-	boolean isNeg = false;
+	protected final ModelEditor modelEditor;
+	protected final SelectionView selectionView;
+	protected final Vec3 scaleVector;
+	protected GenericScaleAction scaleAction;
+	protected MoveDimension dir;
+	protected boolean isNeg = false;
 
 	public AbstractScaleManipulator(ModelEditor modelEditor, SelectionView selectionView, MoveDimension dir) {
 		this.modelEditor = modelEditor;
 		this.selectionView = selectionView;
+		this.scaleVector = new Vec3(1, 1, 1);
 		this.dir = dir;
 	}
 
-	protected final GenericScaleAction getScaleAction() {
-		return scaleAction;
-	}
-
-	@Override
-	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
-		Vec3 center = selectionView.getCenter();
-		scaleAction = modelEditor.beginScaling(center);
-	}
+//	@Override
+//	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
+//		Vec3 center = selectionView.getCenter();
+//		resetScaleVector();
+//		scaleAction = modelEditor.beginScaling(center);
+//	}
 
 	@Override
 	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
-		Vec3 center = selectionView.getCenter();
-		double scaleFactor = computeScaleFactor(mouseStart, mouseEnd, center, dim1, dim2);
-		scaleWithFactor(modelEditor, center, scaleFactor, dim1, dim2);
+		resetScaleVector();
+		buildScaleVector(mouseStart, mouseEnd, dim1, dim2);
+		scaleAction.updateScale(scaleVector);
 	}
 
 	@Override
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		update(e, mouseStart, mouseEnd, dim1, dim2);
+		resetScaleVector();
 		isNeg = false;
 		return scaleAction;
 	}
 
-	protected abstract void scaleWithFactor(ModelEditor modelEditor, Vec3 center, double scaleFactor, byte dim1, byte dim2);
-
-	protected abstract Vec3 buildScaleVector(double scaleFactor, byte dim1, byte dim2);
-
-	protected double computeScaleFactor(Vec2 startingClick, Vec2 endingClick, Vec3 center, byte dim1, byte dim2) {
-		double dxEnd = 0;
-		double dyEnd = 0;
-		double dxStart = 0;
-		double dyStart = 0;
-		int flipNeg = 1;
-
-		if (dir.containDirection(dim1)) {
-			dxEnd = endingClick.x - center.getCoord(dim1);
-			dxStart = startingClick.x - center.getCoord(dim1);
-			flipNeg = getFlipNeg(dxEnd);
-		}
-		if (dir.containDirection(dim2)) {
-			dyEnd = endingClick.y - center.getCoord(dim2);
-			dyStart = startingClick.y - center.getCoord(dim2);
-			if (!dir.containDirection(dim1)) {
-				// up is -y
-//				flipNeg = getFlipNeg(-dyEnd);
-				flipNeg = getFlipNeg(dyEnd);
+	protected final void buildScaleVector(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
+		double scaleFactor = computeScaleFactor(mouseStart, mouseEnd, dim1, dim2);
+		if (dir == MoveDimension.XYZ) {
+			scaleVector.set(scaleFactor, scaleFactor, scaleFactor);
+		} else {
+			if (dir.containDirection(dim1)) {
+				scaleVector.setCoord(dim1, scaleFactor);
+			}
+			if (dir.containDirection(dim2)) {
+				scaleVector.setCoord(dim2, scaleFactor);
 			}
 		}
-		double endDist = Math.sqrt((dxEnd * dxEnd) + (dyEnd * dyEnd));
-		double startDist = Math.sqrt((dxStart * dxStart) + (dyStart * dyStart));
-
-		return flipNeg * endDist / startDist;
 	}
 
-	private int getFlipNeg(double dEnd) {
+	protected abstract double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2);
+
+	protected int getFlipNeg(double dEnd) {
 		int flipNeg;
 		flipNeg = (!isNeg && dEnd < 0) || (isNeg && dEnd > 0) ? -1 : 1;
 		isNeg = (flipNeg < 0) != isNeg;
 		return flipNeg;
+	}
+
+	protected void resetScaleVector() {
+		scaleVector.set(1, 1, 1);
 	}
 
 }

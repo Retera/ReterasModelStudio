@@ -17,7 +17,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAc
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -28,14 +28,14 @@ public class AbstractModelEditor extends AbstractSelectingEditor {
     protected ModelHandler modelHandler;
     protected SelectionItemTypes selectionMode;
 
-    public AbstractModelEditor(SelectionManager selectionManager,
-                               ModelStructureChangeListener structureChangeListener,
-                               ModelHandler modelHandler, SelectionItemTypes selectionMode) {
-        super(selectionManager, modelHandler.getModelView());
-        this.modelHandler = modelHandler;
-        this.structureChangeListener = structureChangeListener;
-        this.selectionMode = selectionMode;
-    }
+	public AbstractModelEditor(SelectionView selectionManager,
+	                           ModelStructureChangeListener structureChangeListener,
+	                           ModelHandler modelHandler, SelectionItemTypes selectionMode) {
+		super(selectionManager, modelHandler.getModelView());
+		this.modelHandler = modelHandler;
+		this.structureChangeListener = structureChangeListener;
+		this.selectionMode = selectionMode;
+	}
 
     public static boolean hitTest(Vec2 min, Vec2 max, Vec3 vec3, CoordinateSystem coordinateSystem, double vertexSize) {
         byte dim1 = coordinateSystem.getPortFirstXYZ();
@@ -109,36 +109,27 @@ public class AbstractModelEditor extends AbstractSelectingEditor {
     @Override
     public UndoAction translate(Vec3 v) {
         Vec3 delta = new Vec3(v);
-        StaticMeshMoveAction moveAction = new StaticMeshMoveAction(modelView, delta);
-        moveAction.redo();
-        return moveAction;
+	    return new StaticMeshMoveAction(modelView, delta).redo();
     }
 
     @Override
     public UndoAction scale(Vec3 center, Vec3 scale) {
-        StaticMeshScaleAction scaleAction = new StaticMeshScaleAction(modelView, center);
-        scaleAction.updateScale(scale);
-        scaleAction.redo();
-        return scaleAction;
+	    return new StaticMeshScaleAction(modelView, center).updateScale(scale).redo();
     }
 
     @Override
     public UndoAction setPosition(Vec3 center, Vec3 v) {
         Vec3 delta = Vec3.getDiff(v, center);
-        StaticMeshMoveAction moveAction = new StaticMeshMoveAction(modelView, delta);
-        moveAction.redo();
-        return moveAction;
+	    return new StaticMeshMoveAction(modelView, delta).redo();
     }
 
     @Override
     public UndoAction rotate(Vec3 center, Vec3 rotate) {
-
-        CompoundAction compoundAction = new CompoundAction("rotate", Arrays.asList(
-                new SimpleRotateAction(modelView, center, rotate.x, (byte) 2, (byte) 1),
-                new SimpleRotateAction(modelView, center, rotate.y, (byte) 0, (byte) 2),
-                new SimpleRotateAction(modelView, center, rotate.z, (byte) 1, (byte) 0)));
-        compoundAction.redo();
-        return compoundAction;
+	    return new CompoundAction("rotate", Arrays.asList(
+			    new SimpleRotateAction(modelView, center, rotate.x, (byte) 2, (byte) 1),
+			    new SimpleRotateAction(modelView, center, rotate.y, (byte) 0, (byte) 2),
+			    new SimpleRotateAction(modelView, center, rotate.z, (byte) 1, (byte) 0)))
+			    .redo();
     }
 
     @Override

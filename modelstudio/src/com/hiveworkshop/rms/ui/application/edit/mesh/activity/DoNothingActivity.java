@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-public final class DoNothingActivity implements ModelEditorViewportActivity {
+public final class DoNothingActivity implements ViewportActivity {
 
 	@Override
 	public void onSelectionChanged(SelectionView newSelection) {

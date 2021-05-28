@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorMultiManipulatorActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.ModelEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -60,18 +60,18 @@ public class ToolBar {
 
 //        mainPanel.currentActivity = mainPanel.actionTypeGroup.getActiveButtonType();
 
-        toolbar.addSeparator();
+	    toolbar.addSeparator();
 
-        mainPanel.snapButton = addToolbarIcon(toolbar, "Snap", "snap.png", () -> ModelEditActions.snapVertices(mainPanel));
+	    mainPanel.snapButton = addToolbarIcon(toolbar, "Snap", "snap.png", () -> ModelEditActions.snapVertices(mainPanel));
 
-        toolbar.setMaximumSize(new Dimension(80000, 48));
-        return toolbar;
+	    toolbar.setMaximumSize(new Dimension(80000, 48));
+	    return toolbar;
     }
 
-    public static ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler, MainPanel mainPanel, ModelEditorActionType3 action) {
+	public static ViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler, MainPanel mainPanel, ModelEditorActionType3 action) {
 //        mainPanel.actionType = getActivityType(action);
-        return new ModelEditorMultiManipulatorActivity(new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action), modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
-    }
+		return new MultiManipulatorActivity(new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action), modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
+	}
 
 //    private static ModelEditorActionType2 getActivityType(ModelEditorActionType3 action) {
 //        return switch (action) {

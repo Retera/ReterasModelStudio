@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ButtonType;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
@@ -12,8 +13,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.RotatorWidget;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.ScalerWidget;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.Widget;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
-import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexModelElementRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.ManipulatorBuilder;
@@ -29,15 +28,14 @@ import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
 
-public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVertexEditorChangeListener {
-	private ViewportSelectionHandler viewportSelectionHandler;
-	private TVertexEditorManager modelEditorManager;
+public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder {
 	private final TVertexModelElementRenderer tVertexModelElementRenderer;
-	private ModelView modelView;
-	private TVertexEditor modelEditor;
+	private final ViewportSelectionHandler viewportSelectionHandler;
+	private final ModelHandler modelHandler;
+	private final ModelView modelView;
+	private ModelEditor modelEditor;
 	protected Widget widget;
 	ModelEditorActionType2 currentAction;
-
 
 
 	private static final Color FACE_SELECTED_COLOR = new Color(1f, 0.45f, 0.45f, 0.3f);
@@ -46,8 +44,9 @@ public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVer
 
 
 	public TVertexEditorManipulatorBuilder(TVertexEditorManager modelEditorManager, ModelHandler modelHandler, ModelEditorActionType2 currentAction) {
-		this.modelEditorManager = modelEditorManager;
 		this.viewportSelectionHandler = modelEditorManager.getViewportSelectionHandler();
+		this.modelEditor = modelEditorManager.getModelEditor();
+		this.modelHandler = modelHandler;
 		this.modelView = modelHandler.getModelView();
 		this.currentAction = currentAction;
 		tVertexModelElementRenderer = new TVertexModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
@@ -55,11 +54,11 @@ public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVer
 	}
 
 	@Override
-	public void editorChanged(TVertexEditor newModelEditor) {
+	public void modelEditorChanged(ModelEditor newModelEditor) {
 		modelEditor = newModelEditor;
 	}
 
-	protected final TVertexEditor getModelEditor() {
+	protected final ModelEditor getModelEditor() {
 		return modelEditor;
 	}
 
@@ -68,7 +67,7 @@ public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVer
 	                                CoordinateSystem coordinateSystem,
 	                                SelectionView selectionView) {
 		Vec2 mousePoint = new Vec2(x, y);
-		if (!selectionView.isEmpty() && widgetOffersEdit(selectionView.getUVCenter(modelEditor.getUVLayerIndex()), mousePoint, coordinateSystem, selectionView)) {
+		if (!selectionView.isEmpty() && widgetOffersEdit(mousePoint, coordinateSystem, selectionView)) {
 			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
 		} else if (viewportSelectionHandler.selectableUnderCursor(mousePoint, coordinateSystem)) {
 			return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
@@ -81,18 +80,16 @@ public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVer
 	                                               ButtonType clickedButton,
 	                                               CoordinateSystem coordinateSystem,
 	                                               SelectionView selectionView) {
-		Vec2 mousePoint = new Vec2(x, y);
 		if (clickedButton == ButtonType.RIGHT_MOUSE) {
-			return createDefaultManipulator(selectionView.getUVCenter(modelEditor.getUVLayerIndex()), mousePoint, coordinateSystem, selectionView);
-		} else {
-			if (!selectionView.isEmpty()) {
-				Manipulator manipulatorFromWidget = createManipulatorFromWidget(selectionView.getUVCenter(modelEditor.getUVLayerIndex()), mousePoint, coordinateSystem, selectionView);
-				if (manipulatorFromWidget != null) {
-					return manipulatorFromWidget;
-				}
+			return createDefaultManipulator(selectionView);
+		} else if (!selectionView.isEmpty()) {
+			Vec2 mousePoint = new Vec2(x, y);
+			Manipulator manipulatorFromWidget = createManipulatorFromWidget2(mousePoint, coordinateSystem, selectionView, currentAction);
+			if (manipulatorFromWidget != null) {
+				return manipulatorFromWidget;
 			}
-			return new SelectManipulator(viewportSelectionHandler, coordinateSystem);
 		}
+		return new SelectManipulator(viewportSelectionHandler, coordinateSystem);
 	}
 
 	@Override
@@ -102,7 +99,8 @@ public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVer
 	                         boolean isAnimated) {
 		if (!isAnimated) {
 //			selectionView.renderUVSelection(tVertexModelElementRenderer.reset(graphics, coordinateSystem), modelView, modelEditor.getUVLayerIndex());
-			int tvertexLayerId = modelEditor.getUVLayerIndex();
+//			int tvertexLayerId = modelEditor.getUVLayerIndex();
+			int tvertexLayerId = 0;
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
 					Color outlineColor;
@@ -150,23 +148,21 @@ public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVer
 		}
 	}
 
-	protected boolean widgetOffersEdit(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
+	protected boolean widgetOffersEdit(Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView) {
+//		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
+		widget.setPoint(selectionView.getUVCenter(0));
 		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
 		widget.setMoveDirection(directionByMouse);
 		return directionByMouse != MoveDimension.NONE;
 	}
 
-	protected Manipulator createManipulatorFromWidget(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView){
-		return createManipulatorFromWidget2(mousePoint, coordinateSystem, selectionView, currentAction);
-	}
-
-	protected Manipulator createDefaultManipulator(Vec2 selectionCenter, Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView){
+	protected Manipulator createDefaultManipulator(SelectionView selectionView) {
 		return getBuilder2(selectionView, currentAction, MoveDimension.XYZ);
 	}
 
 	protected Manipulator createManipulatorFromWidget2(Vec2 mousePoint, CoordinateSystem coordinateSystem, SelectionView selectionView, ModelEditorActionType2 action) {
-		widget.setPoint(selectionView.getCenter());
+//		widget.setPoint(selectionView.getCenter());
+		widget.setPoint(selectionView.getUVCenter(0));
 		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
 
 		widget.setMoveDirection(directionByMouse);
@@ -178,9 +174,9 @@ public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVer
 
 	private Manipulator getBuilder2(SelectionView selectionView, ModelEditorActionType2 editorActionType, MoveDimension directionByMouse) {
 		return switch (editorActionType) {
-			case SCALING -> new ScaleTVertexManipulator(getModelEditor(), selectionView, directionByMouse);
-			case ROTATION -> new RotateTVertexManipulator(getModelEditor(), selectionView, directionByMouse);
 			case TRANSLATION -> new MoveTVertexManipulator(getModelEditor(), directionByMouse);
+			case ROTATION -> new RotateTVertexManipulator(getModelEditor(), selectionView, directionByMouse);
+			case SCALING -> new ScaleTVertexManipulator(getModelEditor(), selectionView, directionByMouse);
 
 		};
 	}
@@ -197,7 +193,8 @@ public class TVertexEditorManipulatorBuilder implements ManipulatorBuilder, TVer
 	}
 
 	protected void renderWidget(Graphics2D graphics, CoordinateSystem coordinateSystem, SelectionView selectionView) {
-		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
+//		widget.setPoint(selectionView.getUVCenter(getModelEditor().getUVLayerIndex()));
+		widget.setPoint(selectionView.getUVCenter(0));
 		widget.render(graphics, coordinateSystem);
 	}
 }

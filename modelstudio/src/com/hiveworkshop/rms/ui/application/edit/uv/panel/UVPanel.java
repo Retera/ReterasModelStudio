@@ -8,19 +8,19 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actions.uv.UVRemapAction;
+import com.hiveworkshop.rms.ui.application.actions.uv.UVSnapAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.*;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorMultiManipulatorActivity;
-import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.uv.activity.TVertexEditorViewportActivityManager;
-import com.hiveworkshop.rms.ui.application.edit.uv.types.DoNothingTVertexActivity;
-import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditorChangeNotifier;
+import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.uv.TVertexEditorManipulatorBuilder;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeNotifier;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.MirrorTVerticesAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType2;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.TVertexSelectionItemTypes;
@@ -56,9 +56,9 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	final MainPanel mainPanel;
-	private final ModelPanel dispMDL;
+	private final ModelPanel modelPanel;
 	private final JTextField[] mouseCoordDisplay = new JTextField[2];
-	private final TVertexEditorViewportActivityManager viewportActivityManager;
+	private final ViewportActivityManager viewportActivityManager;
 	private final TVertexEditorManager modelEditorManager;
 	UndoManager undoListener;
 	JCheckBoxMenuItem wrapImage;
@@ -115,8 +115,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 //        ModelStructureChangeListener modelStructureChangeListener = mainPanel.modelStructureChangeListener;
 
 		undoListener = ProgramGlobals.getCurrentModelPanel().getUndoManager();
-		viewportActivityManager = new TVertexEditorViewportActivityManager(new DoNothingTVertexActivity());
-		TVertexEditorChangeNotifier modelEditorChangeNotifier = new TVertexEditorChangeNotifier();
+		viewportActivityManager = new ViewportActivityManager(new DoNothingActivity());
+		ModelEditorChangeNotifier modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
 		modelEditorManager = new TVertexEditorManager(modelPanel.getModelView(), selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager, modelPanel.getEditorRenderModel(), modelStructureChangeListener);
@@ -125,7 +125,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)));
 		setOpaque(true);
 		setViewport(modelPanel);
-		this.dispMDL = modelPanel;
+		this.modelPanel = modelPanel;
 
 		JPanel stuffPanel = getStuffPanel();
 
@@ -246,7 +246,9 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		ModelPanel mpanel = currentModelPanel();
 		if (mpanel != null) {
 			Vec2 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
-			mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().mirror(i, selectionCenter.x, selectionCenter.y));
+
+			UndoAction mirror = new MirrorTVerticesAction(TVertexUtils.getTVertices(modelPanel.getModelView().getSelectedVertices(), 0), i, selectionCenter.x, selectionCenter.y).redo();
+			mpanel.getUndoManager().pushAction(mirror);
 		}
 		repaint();
 	}
@@ -271,7 +273,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	protected void remap(byte xDim, byte yDim, UnwrapDirection direction) {
 		ModelPanel mpanel = currentModelPanel();
 		if (mpanel != null) {
-			mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().remap(xDim, yDim, direction));
+			mpanel.getUndoManager().pushAction(new UVRemapAction(modelPanel.getModelView().getSelectedVertices(), 0, xDim, yDim, direction).redo());
 		}
 		repaint();
 	}
@@ -321,7 +323,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ModelPanel currentModelPanel = currentModelPanel();
-				currentModelPanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().snapSelectedVertices());
+				currentModelPanel.getUndoManager().pushAction(snapSelectedVertices());
 
 			}
 		});
@@ -330,6 +332,17 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		toolbar.setMaximumSize(new Dimension(80000, 48));
 
 		return toolbar;
+	}
+
+
+	public UndoAction snapSelectedVertices() {
+		Collection<? extends Vec2> selection = TVertexUtils.getTVertices(modelPanel.getModelView().getSelectedVertices(), 0);
+		List<Vec2> oldLocations = new ArrayList<>();
+		Vec2 cog = Vec2.centerOfGroup(selection);
+		for (Vec2 vertex : selection) {
+			oldLocations.add(new Vec2(vertex));
+		}
+		return new UVSnapAction(selection, oldLocations, cog).redo();
 	}
 
 	public JMenuBar createMenuBar() {
@@ -582,7 +595,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		System.out.println("getComboBox!");
 		DefaultListModel<Bitmap> bitmapListModel;
 
-		List<Bitmap> bitmaps = new ArrayList<>(dispMDL.getModel().getTextures());
+		List<Bitmap> bitmaps = new ArrayList<>(modelPanel.getModel().getTextures());
 		List<String> bitmapNames = new ArrayList<>();
 
 		for (Bitmap bitmap : bitmaps) {
@@ -599,7 +612,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 			if (jComboBox.getSelectedItem() != null) {
 				Bitmap bitmap = bitmaps.get(jComboBox.getSelectedIndex());
 				if (bitmap != null) {
-					image = BLPHandler.getImage(bitmap, dispMDL.getModel().getWrappedDataSource());
+					image = BLPHandler.getImage(bitmap, modelPanel.getModel().getWrappedDataSource());
 //					image = BLPHandler.getImage(bitmap, null);
 				}
 			}
@@ -691,7 +704,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		FileDialog fileDialog = new FileDialog(this);
 		Bitmap bitmap = fileDialog.importImage();
 		if (bitmap != null) {
-			setTextureAsBackground(BLPHandler.getImage(bitmap, dispMDL.getModel().getWrappedDataSource()));
+			setTextureAsBackground(BLPHandler.getImage(bitmap, modelPanel.getModel().getWrappedDataSource()));
 		}
 	}
 
@@ -720,7 +733,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	private ModelPanel currentModelPanel() {
-		return dispMDL;
+		return modelPanel;
 	}
 
 	@Override
@@ -730,12 +743,12 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 
 	//	@Override
 	public void changeActivity(ModelEditorActionType2 newType) {
-		viewportActivityManager.setCurrentActivity(createActivity(modelEditorManager, dispMDL.getModelHandler(), newType));
+		viewportActivityManager.setCurrentActivity(createActivity(modelEditorManager, modelPanel.getModelHandler(), newType));
 	}
 
-	public TVertexEditorViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelHandler modelHandler, ModelEditorActionType2 editorActionType) {
+	public ViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelHandler modelHandler, ModelEditorActionType2 editorActionType) {
 		TVertexEditorManipulatorBuilder manipulatorBuilder = new TVertexEditorManipulatorBuilder(modelEditorManager, modelHandler, editorActionType);
-		return new TVertexEditorMultiManipulatorActivity(
+		return new MultiManipulatorActivity(
 				manipulatorBuilder,
 				modelHandler.getUndoManager(),
 				modelEditorManager.getSelectionView());

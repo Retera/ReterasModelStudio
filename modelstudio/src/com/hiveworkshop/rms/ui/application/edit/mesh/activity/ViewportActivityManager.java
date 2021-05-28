@@ -1,30 +1,29 @@
-package com.hiveworkshop.rms.ui.application.edit.uv.activity;
+package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-public final class TVertexEditorViewportActivityManager implements TVertexEditorViewportActivity {
-	private TVertexEditorViewportActivity currentActivity;
+public final class ViewportActivityManager implements ViewportActivity {
+	private ViewportActivity currentActivity;
 	private CursorManager cursorManager;
-	private TVertexEditor newModelEditor;
+	private ModelEditor newModelEditor;
 	private SelectionView newSelection;
 
-	public TVertexEditorViewportActivityManager(TVertexEditorViewportActivity currentActivity) {
+	public ViewportActivityManager(ViewportActivity currentActivity) {
 		this.currentActivity = currentActivity;
 	}
 
-	public void setCurrentActivity(TVertexEditorViewportActivity currentActivity) {
+	public void setCurrentActivity(ViewportActivity currentActivity) {
 		this.currentActivity = currentActivity;
 		if (this.currentActivity != null) {
 			this.currentActivity.viewportChanged(cursorManager);
 			this.currentActivity.onSelectionChanged(newSelection);
-			this.currentActivity.editorChanged(newModelEditor);
+			this.currentActivity.modelEditorChanged(newModelEditor);
 		}
 	}
 
@@ -75,10 +74,10 @@ public final class TVertexEditorViewportActivityManager implements TVertexEditor
 	}
 
 	@Override
-	public void editorChanged(TVertexEditor newModelEditor) {
+	public void modelEditorChanged(ModelEditor newModelEditor) {
 		this.newModelEditor = newModelEditor;
 		if (currentActivity != null) {
-			currentActivity.editorChanged(newModelEditor);
+			currentActivity.modelEditorChanged(newModelEditor);
 		}
 	}
 

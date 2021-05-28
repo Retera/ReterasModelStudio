@@ -5,26 +5,25 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.actions.uv.UVRemapAction;
-import com.hiveworkshop.rms.ui.application.actions.uv.UVSnapAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ComponentVisibilityListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.MirrorTVerticesAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.StaticMeshUVMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.StaticMeshUVRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.uv.actions.StaticMeshUVScaleAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
@@ -36,7 +35,7 @@ import java.util.*;
  *
  * It isn't like that right now, though, so this is just going to be a 2D copy pasta.
  */
-public class TVertexEditor implements ComponentVisibilityListener {
+public class TVertexEditor implements ModelEditor {
 	protected final ModelView modelView;
 	protected final ModelStructureChangeListener structureChangeListener;
 	protected int uvLayerIndex;
@@ -160,8 +159,8 @@ public class TVertexEditor implements ComponentVisibilityListener {
 		return setSelectionAction;
 	}
 
-	public boolean canSelectAt(Vec2 point, CoordinateSystem axes) {
-		if(selectionType == TVertexSelectionItemTypes.VERTEX){
+	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes) {
+		if (selectionType == TVertexSelectionItemTypes.VERTEX) {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (GeosetVertex geosetVertex : geoset.getVertices()) {
 					if (geosetVertex.getTverts().size() > uvLayerIndex) {
@@ -171,7 +170,7 @@ public class TVertexEditor implements ComponentVisibilityListener {
 					}
 				}
 			}
-		} else if(selectionType == TVertexSelectionItemTypes.FACE){
+		} else if (selectionType == TVertexSelectionItemTypes.FACE) {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
 					if (triHitTest(triangle, point, axes, uvLayerIndex)) {
@@ -183,18 +182,18 @@ public class TVertexEditor implements ComponentVisibilityListener {
 		return false;
 	}
 
-	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		List<GeosetVertex> newSelection = genericSelect(min, max, coordinateSystem);
-		final AddSelectionAction tAddSelectionAction = new AddSelectionAction(newSelection, modelView);
-		tAddSelectionAction.redo();
-		return tAddSelectionAction;
-	}
-
 	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		List<GeosetVertex> newSelection = genericSelect(min, max, coordinateSystem);
 		final SetSelectionAction select = new SetSelectionAction(newSelection, modelView, "select");
 		select.redo();
 		return select;
+	}
+
+	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
+		List<GeosetVertex> newSelection = genericSelect(min, max, coordinateSystem);
+		final AddSelectionAction tAddSelectionAction = new AddSelectionAction(newSelection, modelView);
+		tAddSelectionAction.redo();
+		return tAddSelectionAction;
 	}
 
 	public final UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
@@ -261,31 +260,6 @@ public class TVertexEditor implements ComponentVisibilityListener {
 		return new MakeEditableAction(editabilityToggleHandler);
 	}
 
-	public UndoAction mirror(byte dim, double centerX, double centerY) {
-		MirrorTVerticesAction mirror = new MirrorTVerticesAction(TVertexUtils.getTVertices(modelView.getSelectedVertices(), uvLayerIndex), dim, centerX, centerY);
-		// super weird passing of currently editable id Objects, works because mirror action checks selected vertices against pivot points from this list
-		mirror.redo();
-		return mirror;
-	}
-
-	public UndoAction remap(byte xDim, byte yDim, UVPanel.UnwrapDirection unwrapDirection) {
-		UVRemapAction uvRemapAction = new UVRemapAction(modelView.getSelectedVertices(), uvLayerIndex, xDim, yDim, unwrapDirection);
-		uvRemapAction.redo();
-		return uvRemapAction;
-	}
-
-	public UndoAction snapSelectedVertices() {
-		Collection<? extends Vec2> selection = TVertexUtils.getTVertices(modelView.getSelectedVertices(), uvLayerIndex);
-		List<Vec2> oldLocations = new ArrayList<>();
-		Vec2 cog = Vec2.centerOfGroup(selection);
-		for (Vec2 vertex : selection) {
-			oldLocations.add(new Vec2(vertex));
-		}
-		UVSnapAction temp = new UVSnapAction(selection, oldLocations, cog);
-		temp.redo();
-		return temp;
-	}
-
 	public Vec2 getSelectionCenter() {
 //		return selectionManager.getCenter();
 		Set<Vec2> tvertices = new HashSet<>(TVertexUtils.getTVertices(modelView.getSelectedVertices(), uvLayerIndex));
@@ -302,12 +276,42 @@ public class TVertexEditor implements ComponentVisibilityListener {
 		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, Vec2.ORIGIN);
 	}
 
-	public GenericRotateAction beginRotation(Vec2 center, byte dim1, byte dim2) {
+	public GenericRotateAction beginRotation(Vec3 center, byte dim1, byte dim2) {
 		return new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, dim1, dim2);
 	}
 
-	public GenericScaleAction beginScaling(Vec2 center) {
-		return new StaticMeshUVScaleAction(modelView.getSelectedVertices(), uvLayerIndex, center);
+	public GenericScaleAction beginScaling(Vec3 center) {
+		return new StaticMeshUVScaleAction(modelView.getSelectedVertices(), uvLayerIndex, center.getProjected((byte) 0, (byte) 1));
+	}
+
+	@Override
+	public GenericRotateAction beginSquatTool(Vec3 center, byte firstXYZ, byte secondXYZ) {
+		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
+	}
+
+	@Override
+	public UndoAction translate(Vec3 v) {
+		Vec3 delta = new Vec3(v);
+		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, Vec2.ORIGIN).updateTranslation(delta).redo();
+	}
+
+	@Override
+	public UndoAction scale(Vec3 center, Vec3 scale) {
+		return new StaticMeshUVScaleAction(modelView.getSelectedVertices(), uvLayerIndex, center.getProjected((byte) 0, (byte) 1)).updateScale(scale).redo();
+	}
+
+	@Override
+	public UndoAction rotate(Vec3 center, Vec3 rotate) {
+		return new CompoundAction("rotate", Arrays.asList(
+				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 2, (byte) 1),
+				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 0, (byte) 2)))
+				.redo();
+	}
+
+	@Override
+	public UndoAction setPosition(Vec3 center, Vec3 v) {
+		Vec3 delta = Vec3.getDiff(v, center);
+		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, Vec2.ORIGIN).updateTranslation(delta).redo();
 	}
 
 	public int getUVLayerIndex() {
@@ -319,4 +323,8 @@ public class TVertexEditor implements ComponentVisibilityListener {
 		// TODO deselect vertices with no such layer
 	}
 
+	@Override
+	public boolean editorWantsAnimation() {
+		return false;
+	}
 }

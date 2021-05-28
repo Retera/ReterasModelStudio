@@ -3,8 +3,8 @@ package com.hiveworkshop.rms.ui.gui.modeledit.toolbar;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ActivityDescriptor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorMultiManipulatorActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.ModelEditorActionType;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.model.ModelEditorManipulatorBuilder;
@@ -36,9 +36,9 @@ public class ToolbarActionButtonType implements ToolbarButtonType, ActivityDescr
 	}
 
 	@Override
-	public ModelEditorViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
+	public ViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
 //		mainPanel.actionType = getActivityType();
-		return new ModelEditorMultiManipulatorActivity(getBuilder(modelEditorManager, modelHandler), modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
+		return new MultiManipulatorActivity(getBuilder(modelEditorManager, modelHandler), modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
 	}
 
 	private ModelEditorActionType getActivityType() {

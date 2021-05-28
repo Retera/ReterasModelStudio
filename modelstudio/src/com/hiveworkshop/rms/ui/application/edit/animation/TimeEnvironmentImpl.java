@@ -71,6 +71,16 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 //		}
 //		return 0;
 //	}
+
+	public int getTrackTime() {
+		if (globalSequenceLength == -1) {
+			return animationTime;
+		} else if (globalSequenceLength > 0) {
+			return (int) (lastUpdateMillis % globalSequenceLength);
+		}
+		return 0;
+	}
+
 	public int getAnimationTime() {
 		if (globalSequenceLength == -1) {
 			return animationTime;

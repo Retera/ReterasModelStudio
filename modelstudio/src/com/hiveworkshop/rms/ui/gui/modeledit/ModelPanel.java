@@ -8,9 +8,9 @@ import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.DoNothingActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorMultiManipulatorActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivityManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
@@ -45,7 +45,7 @@ public class ModelPanel {
 	private final PerspDisplayPanel perspArea;
 	private final ModelHandler modelHandler;
 	private final ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeNotifier;
-	private final ModelEditorViewportActivityManager viewportActivityManager;
+	private final ViewportActivityManager viewportActivityManager;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final ModelEditorManager modelEditorManager;
@@ -78,7 +78,7 @@ public class ModelPanel {
 		this.parent = parent;
 		selectionItemTypeNotifier = notifier;
 		this.icon = icon;
-		viewportActivityManager = new ModelEditorViewportActivityManager(new DoNothingActivity());
+		viewportActivityManager = new ViewportActivityManager(new DoNothingActivity());
 		this.modelStructureChangeListener = modelStructureChangeListener;
 
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
@@ -149,7 +149,7 @@ public class ModelPanel {
 
 	public void changeActivity(ModelEditorActionType3 action) {
 		ModelEditorManipulatorBuilder builder = new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action);
-		ModelEditorMultiManipulatorActivity manipulatorActivity = new ModelEditorMultiManipulatorActivity(builder, modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
+		MultiManipulatorActivity manipulatorActivity = new MultiManipulatorActivity(builder, modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
 		viewportActivityManager.setCurrentActivity(manipulatorActivity);
 	}
 
