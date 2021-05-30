@@ -1,43 +1,39 @@
-package com.hiveworkshop.rms.editor.actions.model.animation;
+package com.hiveworkshop.rms.editor.actions.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
-public class SetAnimationNonLoopingAction implements UndoAction {
-	private final boolean prevValue;
-	private final boolean newValue;
+public class SetAnimationNameAction implements UndoAction {
+	private final String prevName;
+	private final String newName;
 	private final Animation animation;
 	private final ModelStructureChangeListener structureChangeListener;
 
-	public SetAnimationNonLoopingAction(final boolean prevValue, final boolean newValue, final Animation animation,
+	public SetAnimationNameAction(final String prevName, final String newName, final Animation animation,
 			final ModelStructureChangeListener structureChangeListener) {
-		this.prevValue = prevValue;
-		this.newValue = newValue;
+		this.prevName = prevName;
+		this.newName = newName;
 		this.animation = animation;
 		this.structureChangeListener = structureChangeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
-		animation.setNonLooping(prevValue);
+		animation.setName(prevName);
 		structureChangeListener.animationParamsChanged(animation);
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
-		animation.setNonLooping(newValue);
+		animation.setName(newName);
 		structureChangeListener.animationParamsChanged(animation);
 		return this;
 	}
 
 	@Override
 	public String actionName() {
-		if (newValue) {
-			return "set animation looping";
-		}
-		return "set animation non looping";
+		return "set animation name to \"" + newName + "\"";
 	}
-
 }

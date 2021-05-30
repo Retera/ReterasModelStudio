@@ -1,38 +1,45 @@
-package com.hiveworkshop.rms.editor.actions.model.animFlag;
+package com.hiveworkshop.rms.editor.actions.animation.animFlag;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
-public class RemoveAnimFlagAction implements UndoAction {
+import java.util.ArrayList;
+import java.util.List;
+
+public class ReplaceAnimFlagsAction implements UndoAction {
 	private final ModelStructureChangeListener structureChangeListener;
 	TimelineContainer timelineContainer;
-	AnimFlag animFlag;
+	List<AnimFlag<?>> animFlags;
+	List<AnimFlag<?>> oldAnimFlags;
 
-	public RemoveAnimFlagAction(TimelineContainer timelineContainer, AnimFlag animFlag, ModelStructureChangeListener structureChangeListener) {
+	public ReplaceAnimFlagsAction(TimelineContainer timelineContainer, List<AnimFlag<?>> animFlagsToCopy, ModelStructureChangeListener structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
 		this.timelineContainer = timelineContainer;
-		this.animFlag = animFlag;
+		this.animFlags = new ArrayList<>();
+		for (AnimFlag<?> animFlag : animFlagsToCopy) {
+			animFlags.add(animFlag.deepCopy());
+		}
+		oldAnimFlags = timelineContainer.getAnimFlags();
 	}
 
 	@Override
 	public UndoAction undo() {
-		timelineContainer.add(animFlag);
+		timelineContainer.setAnimFlags(oldAnimFlags);
 		structureChangeListener.materialsListChanged();
 		return this;
-
 	}
 
 	@Override
 	public UndoAction redo() {
-		timelineContainer.remove(animFlag);
+		timelineContainer.setAnimFlags(animFlags);
 		structureChangeListener.materialsListChanged();
 		return this;
 	}
 
 	@Override
 	public String actionName() {
-		return "set static";
+		return "set dynamic";
 	}
 }

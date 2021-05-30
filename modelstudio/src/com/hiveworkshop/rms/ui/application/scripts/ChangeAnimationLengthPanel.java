@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.scripts;
 
-import com.hiveworkshop.rms.editor.actions.tools.EditAnimationLengthsAction;
+import com.hiveworkshop.rms.editor.actions.animation.EditAnimationLengthsAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;

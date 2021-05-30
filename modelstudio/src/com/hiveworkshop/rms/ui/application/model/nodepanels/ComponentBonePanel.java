@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
-import com.hiveworkshop.rms.editor.actions.model.NameChangeAction;
-import com.hiveworkshop.rms.editor.actions.model.ParentChangeAction;
+import com.hiveworkshop.rms.editor.actions.nodes.NameChangeAction;
+import com.hiveworkshop.rms.editor.actions.nodes.ParentChangeAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;

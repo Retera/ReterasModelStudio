@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.editor.actions.model;
+package com.hiveworkshop.rms.editor.actions.nodes;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.IdObject;

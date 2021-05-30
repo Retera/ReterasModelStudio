@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.actions.animation.AddKeyframeAction;
 import com.hiveworkshop.rms.editor.actions.animation.AddKeyframeAction2;
 import com.hiveworkshop.rms.editor.actions.animation.SetKeyframeAction;
 import com.hiveworkshop.rms.editor.actions.animation.SlideKeyframeAction;
-import com.hiveworkshop.rms.editor.actions.model.animFlag.RemoveFlagEntryAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;

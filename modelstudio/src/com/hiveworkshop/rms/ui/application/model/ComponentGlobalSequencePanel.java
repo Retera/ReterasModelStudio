@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model;
 
-import com.hiveworkshop.rms.editor.actions.model.globalsequence.SetGlobalSequenceLengthAction;
+import com.hiveworkshop.rms.editor.actions.animation.globalsequence.SetGlobalSequenceLengthAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;

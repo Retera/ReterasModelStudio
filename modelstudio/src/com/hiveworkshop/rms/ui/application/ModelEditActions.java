@@ -1,13 +1,11 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.mesh.RecalculateNormalsAction;
-import com.hiveworkshop.rms.editor.actions.mesh.SnapAction;
-import com.hiveworkshop.rms.editor.actions.mesh.SnapNormalsAction;
-import com.hiveworkshop.rms.editor.actions.mesh.TeamColorAddAction;
+import com.hiveworkshop.rms.editor.actions.mesh.*;
 import com.hiveworkshop.rms.editor.actions.model.RecalculateExtentsAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionAction;
-import com.hiveworkshop.rms.editor.actions.tools.*;
+import com.hiveworkshop.rms.editor.actions.tools.MirrorModelAction;
+import com.hiveworkshop.rms.editor.actions.tools.RigAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;

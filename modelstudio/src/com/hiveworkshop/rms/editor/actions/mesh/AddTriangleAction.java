@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.editor.actions.tools;
+package com.hiveworkshop.rms.editor.actions.mesh;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Geoset;

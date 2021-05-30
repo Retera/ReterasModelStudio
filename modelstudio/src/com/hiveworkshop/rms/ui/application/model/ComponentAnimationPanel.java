@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model;
 
-import com.hiveworkshop.rms.editor.actions.model.animation.*;
+import com.hiveworkshop.rms.editor.actions.animation.*;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;

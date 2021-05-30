@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.editor.actions.model.animFlag;
+package com.hiveworkshop.rms.editor.actions.animation.animFlag;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;

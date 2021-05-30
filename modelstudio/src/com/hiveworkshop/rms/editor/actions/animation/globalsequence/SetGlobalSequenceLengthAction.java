@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.editor.actions.model.globalsequence;
+package com.hiveworkshop.rms.editor.actions.animation.globalsequence;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;

@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model;
 
-import com.hiveworkshop.rms.editor.actions.model.NameChangeAction;
+import com.hiveworkshop.rms.editor.actions.nodes.NameChangeAction;
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;

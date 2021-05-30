@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
-import com.hiveworkshop.rms.editor.actions.model.animFlag.ReplaceAnimFlagsAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.ReplaceAnimFlagsAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
