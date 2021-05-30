@@ -1,18 +1,18 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.mesh.DeleteAction;
+import com.hiveworkshop.rms.editor.actions.nodes.DeleteNodesAction;
+import com.hiveworkshop.rms.editor.actions.selection.InvertSelectionAction2;
+import com.hiveworkshop.rms.editor.actions.selection.SetSelectionAction;
+import com.hiveworkshop.rms.editor.actions.tools.CloneAction2;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.actions.mesh.DeleteAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.nodes.DeleteNodesAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.InvertSelectionAction2;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.selection.SetSelectionAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.CloneAction2;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;

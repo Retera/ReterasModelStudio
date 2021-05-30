@@ -1,10 +1,10 @@
 package com.hiveworkshop.rms.ui.application.model;
 
+import com.hiveworkshop.rms.editor.actions.model.header.SetBlendTimeAction;
+import com.hiveworkshop.rms.editor.actions.model.header.SetFormatVersionAction;
+import com.hiveworkshop.rms.editor.actions.model.header.SetHeaderExtentsAction;
+import com.hiveworkshop.rms.editor.actions.model.header.SetNameAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.application.actions.model.header.SetBlendTimeAction;
-import com.hiveworkshop.rms.ui.application.actions.model.header.SetFormatVersionAction;
-import com.hiveworkshop.rms.ui.application.actions.model.header.SetHeaderExtentsAction;
-import com.hiveworkshop.rms.ui.application.actions.model.header.SetNameAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;

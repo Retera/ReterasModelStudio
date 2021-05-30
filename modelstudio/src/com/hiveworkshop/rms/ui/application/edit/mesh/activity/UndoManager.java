@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 
 import java.util.ArrayDeque;

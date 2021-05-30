@@ -1,13 +1,13 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.EditabilityToggleHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.JCheckBoxTree;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.JCheckBoxTreeNode;
 

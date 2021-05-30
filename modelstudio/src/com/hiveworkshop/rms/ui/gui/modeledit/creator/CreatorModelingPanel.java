@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.ModelEditActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -14,9 +15,9 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawBoxActivity;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawPlaneActivity;
+import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawVertexActivity;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModeButton2;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;

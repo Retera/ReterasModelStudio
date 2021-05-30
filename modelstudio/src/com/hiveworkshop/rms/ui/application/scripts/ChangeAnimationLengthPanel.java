@@ -1,10 +1,10 @@
 package com.hiveworkshop.rms.ui.application.scripts;
 
+import com.hiveworkshop.rms.editor.actions.tools.EditAnimationLengthsAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.EditAnimationLengthsAction;
 import com.hiveworkshop.rms.ui.util.SliderBarHandler;
 
 import javax.swing.*;

@@ -1,10 +1,10 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
+import com.hiveworkshop.rms.editor.actions.model.material.AddLayerAction;
+import com.hiveworkshop.rms.editor.actions.model.material.RemoveMaterialAction;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.actions.model.material.AddLayerAction;
-import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveMaterialAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import net.miginfocom.swing.MigLayout;

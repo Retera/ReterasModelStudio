@@ -1,5 +1,9 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
+import com.hiveworkshop.rms.editor.actions.model.material.ChangeLayerStaticTextureAction;
+import com.hiveworkshop.rms.editor.actions.model.material.RemoveLayerAction;
+import com.hiveworkshop.rms.editor.actions.model.material.RemoveMaterialAction;
+import com.hiveworkshop.rms.editor.actions.model.material.SetLayerFilterModeAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
@@ -9,10 +13,6 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
-import com.hiveworkshop.rms.ui.application.actions.model.material.ChangeLayerStaticTextureAction;
-import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveLayerAction;
-import com.hiveworkshop.rms.ui.application.actions.model.material.RemoveMaterialAction;
-import com.hiveworkshop.rms.ui.application.actions.model.material.SetLayerFilterModeAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.*;

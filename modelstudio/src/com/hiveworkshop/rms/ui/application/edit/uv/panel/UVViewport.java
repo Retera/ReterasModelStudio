@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.UVViewportModelRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ModelEditorChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;

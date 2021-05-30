@@ -1,5 +1,10 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.animation.AddKeyframeAction;
+import com.hiveworkshop.rms.editor.actions.animation.AddTimelineAction;
+import com.hiveworkshop.rms.editor.actions.animation.TranslationKeyframeAction;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
@@ -10,11 +15,6 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddKeyframeAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.AddTimelineAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.animation.TranslationKeyframeAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.CompoundAction;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;

@@ -1,14 +1,14 @@
 package com.hiveworkshop.rms.ui.application.model;
 
+import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapPathAction;
+import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapReplaceableIdAction;
+import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapWrapHeightAction;
+import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapWrapWidthAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapPathAction;
-import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapReplaceableIdAction;
-import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapWrapHeightAction;
-import com.hiveworkshop.rms.ui.application.actions.model.bitmap.SetBitmapWrapWidthAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;

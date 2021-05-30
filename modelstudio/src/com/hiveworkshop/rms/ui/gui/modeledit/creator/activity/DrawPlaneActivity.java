@@ -1,5 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
+import com.hiveworkshop.rms.editor.actions.addactions.DrawPlaneAction;
+import com.hiveworkshop.rms.editor.actions.addactions.NewGeosetAction;
+import com.hiveworkshop.rms.editor.actions.editor.CompoundMoveAction;
+import com.hiveworkshop.rms.editor.actions.util.DoNothingMoveActionAdapter;
+import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Layer;
@@ -13,11 +18,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawPlaneAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.NewGeosetAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.CompoundMoveAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingMoveActionAdapter;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 

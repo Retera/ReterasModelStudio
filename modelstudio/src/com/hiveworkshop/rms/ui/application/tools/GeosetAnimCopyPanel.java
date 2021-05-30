@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
+import com.hiveworkshop.rms.editor.actions.model.animFlag.ReplaceAnimFlagsAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
@@ -7,7 +8,6 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.MainPanel;
-import com.hiveworkshop.rms.ui.application.actions.model.animFlag.ReplaceAnimFlagsAction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import net.miginfocom.swing.MigLayout;

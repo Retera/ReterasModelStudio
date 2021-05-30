@@ -1,13 +1,13 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
+import com.hiveworkshop.rms.editor.actions.tools.AdvancedCloneAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools.AdvancedCloneAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.listener.ClonedNodeNamePicker;
+import com.hiveworkshop.rms.ui.gui.modeledit.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
