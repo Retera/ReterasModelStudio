@@ -33,6 +33,7 @@ public class ComponentBonePanel extends JPanel implements ComponentPanel<Bone> {
 	private Vec3ValuePanel transPanel;
 	private Vec3ValuePanel scalePanel;
 	private QuatValuePanel rotPanel;
+	private JLabel pivot;
 
 
 	public ComponentBonePanel(final ModelViewManager modelViewManager,
@@ -56,6 +57,10 @@ public class ComponentBonePanel extends JPanel implements ComponentPanel<Bone> {
 		JButton chooseParentButton = new JButton("change");
 		chooseParentButton.addActionListener(e -> chooseParent());
 		add(chooseParentButton, "wrap");
+
+		pivot = new JLabel("(0.0,0.0,0.0)");
+		add(new JLabel("pivot: "));
+		add(pivot, "wrap");
 		transPanel = new Vec3ValuePanel("Translation", undoActionListener, modelStructureChangeListener);
 		add(transPanel, "spanx, growx, wrap");
 		scalePanel = new Vec3ValuePanel("Scaling", undoActionListener, modelStructureChangeListener);
@@ -75,6 +80,7 @@ public class ComponentBonePanel extends JPanel implements ComponentPanel<Bone> {
 		} else {
 			parentName.setText("no parent");
 		}
+		pivot.setText(idObject.getPivotPoint().toString());
 
 		transPanel.reloadNewValue(new Vec3(0, 0, 0), (Vec3AnimFlag) idObject.find("Translation"), idObject, "Translation", null);
 

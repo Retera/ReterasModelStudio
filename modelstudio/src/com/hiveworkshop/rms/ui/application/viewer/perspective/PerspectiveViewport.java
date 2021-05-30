@@ -9,7 +9,7 @@ import org.lwjgl.LWJGLException;
 
 public class PerspectiveViewport extends ComPerspViewport {
 
-	public PerspectiveViewport(final ModelView modelView, RenderModel renderModel, final ProgramPreferences programPreferences, ComPerspRenderEnv renderEnvironment) throws LWJGLException {
+	public PerspectiveViewport(ModelView modelView, RenderModel renderModel, ProgramPreferences programPreferences, ComPerspRenderEnv renderEnvironment) throws LWJGLException {
 		super(modelView, renderModel, programPreferences, renderEnvironment, false);
 	}
 }

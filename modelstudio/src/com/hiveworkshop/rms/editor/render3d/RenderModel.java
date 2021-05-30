@@ -118,7 +118,7 @@ public final class RenderModel {
 				objectToRenderNode.put(object, renderNode);
 			}
 		}
-		setupHierarchy(null);
+		setupHierarchy2(null);
 		for (final Camera camera : model.getCameras()) {
 			final TargetNode object = camera.getTargetNode();
 			sortedNodes.add(object);
@@ -146,8 +146,8 @@ public final class RenderModel {
 		}
 	}
 
-	private void setupHierarchy(final IdObject parent) {
-		for (final IdObject object : model.getIdObjects()) {
+	private void setupHierarchy(IdObject parent) {
+		for (IdObject object : model.getIdObjects()) {
 			if (object.getParent() == parent) {
 				sortedNodes.add(object);
 				RenderNode renderNode = objectToRenderNode.get(object);
@@ -160,13 +160,48 @@ public final class RenderModel {
 		}
 	}
 
+	private void setupHierarchy2(IdObject parent) {
+		if (parent == null) {
+			for (IdObject object : model.getIdObjects()) {
+				if (object.getParent() == null) {
+					sortedNodes.add(object);
+					RenderNode renderNode = objectToRenderNode.get(object);
+					if (renderNode == null) {
+						renderNode = new RenderNode(this, object);
+						objectToRenderNode.put(object, renderNode);
+					}
+					setupHierarchy2(object);
+				}
+			}
+		} else {
+			for (IdObject object : parent.getChildrenNodes()) {
+				sortedNodes.add(object);
+				RenderNode renderNode = objectToRenderNode.get(object);
+				if (renderNode == null) {
+					renderNode = new RenderNode(this, object);
+					objectToRenderNode.put(object, renderNode);
+				}
+				setupHierarchy2(object);
+			}
+		}
+	}
+
 	public void setCameraRotations(Quat inverseCameraRotation, Quat inverseCameraRotationYSpin, Quat inverseCameraRotationZSpin) {
 		this.inverseCameraRotation = inverseCameraRotation;
 		this.inverseCameraRotationYSpin = inverseCameraRotationYSpin;
 		this.inverseCameraRotationZSpin = inverseCameraRotationZSpin;
 	}
 
-	public void updateNodes(final boolean forced, final boolean particles) {
+	public void updateNodes(boolean soft, boolean particles) {
+		updateNodes(false, soft, particles);
+	}
+
+	public void updateNodes(boolean particles) {
+		updateNodes(true, false, particles);
+	}
+
+	// Soft is to only update billborded
+	public void updateNodes(boolean forced, boolean soft, boolean particles) {
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 			for (final AnimatedNode idObject : sortedNodes) {
 				getRenderNode(idObject).resetTransformation();
@@ -177,16 +212,17 @@ public final class RenderModel {
 			}
 			return;
 		}
-		for (final AnimatedNode idObject : sortedNodes) {
-			final RenderNode node = getRenderNode(idObject);
+		for (AnimatedNode idObject : sortedNodes) {
+			RenderNode node = getRenderNode(idObject);
 			AnimatedNode idObjectParent = null;
 			if (idObject instanceof IdObject) {
 				idObjectParent = ((IdObject) idObject).getParent();
 			}
-			final RenderNode parent = idObjectParent == null ? null : getRenderNode(idObjectParent);
-			final boolean objectVisible = idObject.getRenderVisibility(animatedRenderEnvironment) >= MAGIC_RENDER_SHOW_CONSTANT;
+			RenderNode parent = idObjectParent == null ? null : getRenderNode(idObjectParent);
+			boolean objectVisible = idObject.getRenderVisibility(animatedRenderEnvironment) >= MAGIC_RENDER_SHOW_CONSTANT;
 
-			final boolean nodeVisible = forced || (((parent == null) || parent.visible) && objectVisible);
+			boolean nodeVisible = forced || objectVisible;
+//			boolean nodeVisible = forced || (((parent == null) || parent.visible) && objectVisible);
 
 			node.visible = nodeVisible;
 
@@ -194,63 +230,51 @@ public final class RenderModel {
 			// the parent node and the generic object corresponding to this node are visible.
 			// Incoming messy code for optimizations!
 			// --- All copied from Ghostwolf
-			if (nodeVisible) {
-				boolean wasDirty = false;
+			boolean dirty = forced || (parent != null && parent.dirty) || node.billboarded;
+//			if (nodeVisible) {
+			if (nodeVisible || forced || !soft) {
 				// TODO variants
-				final Vec3 localLocation = node.localLocation;
-				final Quat localRotation = node.localRotation;
-				final Vec3 localScale = node.localScale;
+				Vec3 localLocation = new Vec3(0, 0, 0);
+				Quat localRotation = new Quat(0, 0, 0, 1);
+				Vec3 localScale = new Vec3(1, 1, 1);
 
 				// Only update the local data if there is a need to
-				if (forced || true /* variants */) {
-					wasDirty = true;
+				if (forced || (!soft && idObject.getAnimFlags().size() > 0)) {
+					dirty = true;
 
 					// Translation
-					if (forced || true /* variants */) {
-						final Vec3 renderTranslation = idObject.getRenderTranslation(animatedRenderEnvironment);
-						if (renderTranslation != null) {
-							localLocation.set(renderTranslation);
-						} else {
-							localLocation.set(0, 0, 0);
-						}
+					Vec3 renderTranslation = idObject.getRenderTranslation(animatedRenderEnvironment);
+					if (renderTranslation != null) {
+						localLocation.set(renderTranslation);
 					}
 
 					// Rotation
-					if (forced || true /* variants */) {
-						try {
-							final Quat renderRotation = idObject.getRenderRotation(animatedRenderEnvironment);
-							if (renderRotation != null) {
-								localRotation.set(renderRotation);
-							} else {
-								localRotation.set(0, 0, 0, 1);
-							}
-						} catch (Exception e) {
-							long currentTime = System.currentTimeMillis();
-							if (lastConsoleLogTime < currentTime) {
-								System.out.println("RenderModel#updateNodes: failed to update rotation for " + idObject.getName());
-								;
-								lastConsoleLogTime = currentTime + 500;
-							}
+					try {
+						Quat renderRotation = idObject.getRenderRotation(animatedRenderEnvironment);
+						if (renderRotation != null) {
+							localRotation.set(renderRotation);
 						}
-
+					} catch (Exception e) {
+						long currentTime = System.currentTimeMillis();
+						if (lastConsoleLogTime < currentTime) {
+							System.out.println("RenderModel#updateNodes: failed to update rotation for " + idObject.getName());
+							lastConsoleLogTime = currentTime + 500;
+						}
 					}
 
 					// Scale
-					if (forced || true /* variants */) {
-						final Vec3 renderScale = idObject.getRenderScale(animatedRenderEnvironment);
-						if (renderScale != null) {
-							localScale.set(renderScale);
-						} else {
-							localScale.set(1, 1, 1);
-						}
+					Vec3 renderScale = idObject.getRenderScale(animatedRenderEnvironment);
+					if (renderScale != null) {
+						localScale.set(renderScale);
 					}
-					node.dirty = true;
+
+					node.setTransformation(localLocation, localRotation, localScale);
 				}
-
+				node.dirty = dirty;
 				// Billboarding
-				wasDirty = RotateAndStuffBillboarding(node, parent, wasDirty, localRotation);
+				boolean wasDirty = RotateAndStuffBillboarding(node, parent, localRotation);
 
-				final boolean wasReallyDirty = forced || wasDirty || (parent == null) || parent.wasDirty;
+				boolean wasReallyDirty = forced || dirty || wasDirty || (parent != null && parent.wasDirty);
 				node.wasDirty = wasReallyDirty;
 
 				// If this is a forced upate, or this node's local data was updated, or the
@@ -265,9 +289,7 @@ public final class RenderModel {
 				// This includes attachments and emitters.
 
 				// TODO instanced rendering in 2090
-				// let object = node.object;
 				if (objectVisible) {
-					node.update();
 					if (particles) {
 						final RenderParticleEmitter2View renderer = emitterToRenderer.get(idObject);
 //						System.out.println("render: " + renderer);
@@ -278,8 +300,6 @@ public final class RenderModel {
 						}
 					}
 				}
-
-				node.updateChildren();
 			}
 		}
 		if (particles) {
@@ -288,7 +308,8 @@ public final class RenderModel {
 
 	}
 
-	public boolean RotateAndStuffBillboarding(RenderNode node, RenderNode parent, boolean wasDirty, Quat localRotation) {
+	public boolean RotateAndStuffBillboarding(RenderNode node, RenderNode parent, Quat localRotation) {
+		boolean wasDirty = false;
 		// If the instance is not attached to any scene, this is meaningless
 		if (node.billboarded || node.billboardedX) {
 			wasDirty = true;

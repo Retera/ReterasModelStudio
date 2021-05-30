@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.GameObjectComparator;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
@@ -17,13 +16,11 @@ import java.util.*;
 
 public class UnitOptionPanel extends JPanel implements ActionListener {
 	public static final String TILESETS = "ABKYXJDCIFLWNOZGVQ";
+	public static final int ICON_SIZE = 32;
 
 	ObjectData unitData;
 	final ObjectData abilityData;
 	GameObject selection = null;
-
-	double iconScale = 0.5;
-	double iconMaxSize = 32.0;
 
 	JComboBox<String> raceBox, meleeBox, tilesetBox, levelBox;// playerBox,
 	// DefaultComboBoxModel<String> playerBoxModel = new
@@ -399,12 +396,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		GameObject unit;
 
 		public UnitButton(final GameObject u) {
-			super(u.getScaledIcon(iconScale));
-
-			if (SaveProfile.get().getPreferences().isSmallIcons() && getIcon().getIconWidth() > iconMaxSize) {
-				iconScale = iconMaxSize * iconScale / getIcon().getIconWidth();
-				this.setIcon(u.getScaledIcon(iconScale));
-			}
+			super(u.getScaledIcon(ICON_SIZE));
 
 			setFocusable(false);
 			unit = u;
@@ -463,8 +455,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 			setToolTipText(uberTip);
 			buttonGroup.add(this);
 			addActionListener(e -> unitChosen(this));
-//			setDisabledIcon(unit.getScaledTintedIcon(Color.green, 0.5));
-			setDisabledIcon(unit.getScaledTintedIcon(Color.green, iconScale));
+			setDisabledIcon(unit.getScaledTintedIcon(Color.green, ICON_SIZE));
 			setMargin(new Insets(0, 0, 0, 0));
 			setBorder(null);
 		}

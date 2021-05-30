@@ -538,6 +538,8 @@ public class MenuBar {
 
         createAndAddMenuItem("HD -> SD (highly experimental, becomes 800)", scriptsMenu, KeyEvent.VK_A, e -> ScriptActions.convertToV800(1, mainPanel.currentMDL()));
 
+        createAndAddMenuItem("Remove LoDs (highly experimental)", scriptsMenu, KeyEvent.VK_A, e -> ScriptActions.removeLoDs(mainPanel));
+
         createAndAddMenuItem("Recalculate Tangents (requires 900 or 1000)", scriptsMenu, KeyEvent.VK_A, e -> MenuBarActions.recalculateTangents(mainPanel.currentMDL(), mainPanel));
 
         final JMenuItem jokebutton = new JMenuItem("Load Retera Land");

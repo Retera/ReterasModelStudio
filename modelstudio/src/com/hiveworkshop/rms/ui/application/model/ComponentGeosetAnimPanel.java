@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.TimelineKeyNamer;
+import com.hiveworkshop.rms.ui.application.tools.GeosetAnimCopyPanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -27,6 +28,7 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 	private FloatValuePanel alphaPanel;
 	private ColorValuePanel colorPanel;
 	private ComponentGeosetMaterialPanel geosetAnimPanel;
+	GeosetAnim geosetAnim;
 
 
 	public ComponentGeosetAnimPanel(final ModelViewManager modelViewManager,
@@ -44,6 +46,10 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 
 		animsPanelHolder.add(new JLabel("GeosetAnim"), "wrap");
 
+		JButton button = new JButton("copy all geosetAnim-info from other");
+		button.addActionListener(e -> copyFromOther());
+		animsPanelHolder.add(button, "wrap");
+
 		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
 		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelViewManager.getModel()));
 		animsPanelHolder.add(alphaPanel, "wrap, span 2");
@@ -51,6 +57,7 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 		colorPanel = new ColorValuePanel("Color", undoActionListener, modelStructureChangeListener);
 		colorPanel.setKeyframeHelper(new TimelineKeyNamer(modelViewManager.getModel()));
 		animsPanelHolder.add(colorPanel, "wrap, span 2");
+
 
 	}
 
@@ -64,6 +71,7 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 
 //		geosetAnimPanel.setMaterialChooser(geosetAnim, modelViewManager, undoActionListener, modelStructureChangeListener);
 //		animsPanelHolder.add(geosetAnimPanel);
+		this.geosetAnim = geosetAnim;
 		animsPanelHolder.revalidate();
 		animsPanelHolder.repaint();
 		alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), (FloatAnimFlag) geosetAnim.find("Alpha"), geosetAnim, "Alpha", geosetAnim::setStaticAlpha);
@@ -77,6 +85,11 @@ public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<G
 	@Override
 	public void save(final EditableModel model, final UndoActionListener undoListener,
 	                 final ModelStructureChangeListener changeListener) {
+	}
+
+	private void copyFromOther() {
+		GeosetAnimCopyPanel.show(this, modelViewManager, geosetAnim, modelStructureChangeListener, undoActionListener);
+		repaint();
 	}
 
 }

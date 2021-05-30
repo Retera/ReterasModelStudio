@@ -89,14 +89,14 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 
 	AbstractAction selectAllAction = new AbstractAction("Select All") {
 		@Override
-		public void actionPerformed(final ActionEvent e) {
+		public void actionPerformed(ActionEvent e) {
 			UndoAction undoAction = modelEditorManager.getModelEditor().selectAll();
 			addUndoAction(undoAction);
 		}
 	};
 	AbstractAction invertSelectAction = new AbstractAction("Invert Selection") {
 		@Override
-		public void actionPerformed(final ActionEvent e) {
+		public void actionPerformed(ActionEvent e) {
 			UndoAction undoAction = modelEditorManager.getModelEditor().invertSelection();
 			addUndoAction(undoAction);
 //            addUndoAction(modelEditorManager.getModelEditor().invertSelection());
@@ -104,24 +104,24 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	};
 	AbstractAction expandSelectionAction = new AbstractAction("Expand Selection") {
 		@Override
-		public void actionPerformed(final ActionEvent e) {
+		public void actionPerformed(ActionEvent e) {
 			UndoAction undoAction = modelEditorManager.getModelEditor().expandSelection();
 			addUndoAction(undoAction);
 		}
 	};
 	AbstractAction selFromMainAction = new AbstractAction("Sel From Main") {
 		@Override
-		public void actionPerformed(final ActionEvent e) {
+		public void actionPerformed(ActionEvent e) {
 //            UndoAction undoAction = modelEditorManager.getModelEditor().selectFromViewer(mpanel.getModelEditorManager().getSelectionView());
-			final ModelPanel mpanel = currentModelPanel();
+			ModelPanel mpanel = currentModelPanel();
 			mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().selectFromViewer(mpanel.getModelEditorManager().getSelectionView()));
 			repaint();
 		}
 	};
 
-	//    public UVPanel(final ModelPanel modelPanel, final ProgramPreferences prefs,
-//                   final ModelStructureChangeListener modelStructureChangeListener) {
-	public UVPanel(final MainPanel mainPanel, ModelStructureChangeListener modelStructureChangeListener, ProgramPreferences prefs) {
+	//    public UVPanel(ModelPanel modelPanel, ProgramPreferences prefs,
+//                   ModelStructureChangeListener modelStructureChangeListener) {
+	public UVPanel(MainPanel mainPanel, ModelStructureChangeListener modelStructureChangeListener, ProgramPreferences prefs) {
 
 		this.mainPanel = mainPanel;
 		JToolBar toolbar = createJToolBar();
@@ -155,7 +155,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 
 		selectionModeGroup.addToolbarButtonListener(newType -> {
 			resetSelectionModeButtons();
-			final ModeButton selectionModeButton = modeToButton.get(newType);
+			ModeButton selectionModeButton = modeToButton.get(newType);
 			if (selectionModeButton != null) {
 				selectionModeButton.setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
 			}
@@ -173,7 +173,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		});
 		actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
 
-		final JPanel menuHolderPanel = new JPanel(new BorderLayout());
+		JPanel menuHolderPanel = new JPanel(new BorderLayout());
 		menuHolderPanel.add(this, BorderLayout.CENTER);
 		menuHolderPanel.add(createMenuBar(), BorderLayout.BEFORE_FIRST_LINE);
 		view = new View("Texture Coordinate Editor: " + currentModelPanel().getModel().getName(), UVIcon, menuHolderPanel);
@@ -230,7 +230,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		modeToButton.put(selectionModeGroup.getToolbarButtonTypes()[2], deselectButton);
 		selectionModeButtons.add(deselectButton);
 
-		final JLabel[] divider = new JLabel[4];
+		JLabel[] divider = new JLabel[4];
 		for (int i = 0; i < divider.length; i++) {
 			divider[i] = new JLabel("----------");
 		}
@@ -273,7 +273,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		unwrapDirectionBox.setMinimumSize(new Dimension(90, 15));
 //		unwrapDirectionBox.addActionListener(this);
 
-		for (final ModeButton button : buttons) {
+		for (ModeButton button : buttons) {
 			button.setMaximumSize(new Dimension(100, 35));
 			button.setMinimumSize(new Dimension(90, 15));
 //			button.addActionListener(this);
@@ -298,22 +298,22 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	private void addUndoAction(UndoAction undoAction) {
-		final ModelPanel mpanel = currentModelPanel();
+		ModelPanel mpanel = currentModelPanel();
 		mpanel.getUndoManager().pushAction(undoAction);
 		repaint();
 	}
 
 	private void mirror(byte i) {
-		final ModelPanel mpanel = currentModelPanel();
+		ModelPanel mpanel = currentModelPanel();
 		if (mpanel != null) {
-			final Vec2 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+			Vec2 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
 			mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().mirror(i, selectionCenter.x, selectionCenter.y));
 		}
 		repaint();
 	}
 
 	private void unwrapFromView(JComboBox<UnwrapDirection> unwrapDirectionBox) {
-		final UnwrapDirection selectedItem = (UnwrapDirection) unwrapDirectionBox.getSelectedItem();
+		UnwrapDirection selectedItem = (UnwrapDirection) unwrapDirectionBox.getSelectedItem();
 
 		if (selectedItem != null) {
 			switch (selectedItem) {
@@ -341,8 +341,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		return button;
 	}
 
-	protected void remap(final byte xDim, final byte yDim, final UnwrapDirection direction) {
-		final ModelPanel mpanel = currentModelPanel();
+	protected void remap(byte xDim, byte yDim, UnwrapDirection direction) {
+		ModelPanel mpanel = currentModelPanel();
 		if (mpanel != null) {
 			mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().remap(xDim, yDim, direction));
 		}
@@ -379,8 +379,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 
 		JButton snapButton = toolbar.add(new AbstractAction("Snap", RMSIcons.loadToolBarImageIcon("snap.png")) {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final ModelPanel currentModelPanel = currentModelPanel();
+			public void actionPerformed(ActionEvent e) {
+				ModelPanel currentModelPanel = currentModelPanel();
 				currentModelPanel.getUndoManager().pushAction(modelEditorManager.getModelEditor().snapSelectedVertices());
 
 			}
@@ -395,7 +395,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	private TVertexToolbarActionButtonType getButtonStuff(String path, String name, ModelEditorActionType editorActionType) {
 		return new TVertexToolbarActionButtonType(RMSIcons.loadToolBarImageIcon(path), name) {
 			@Override
-			public TVertexEditorViewportActivity createActivity(final TVertexEditorManager modelEditorManager, final ModelView modelView, final UndoActionListener undoActionListener) {
+			public TVertexEditorViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelView modelView, UndoActionListener undoActionListener) {
 				return new TVertexEditorMultiManipulatorActivity(
 						getManipulatorWidget(modelEditorManager, modelView, editorActionType),
 						undoActionListener,
@@ -478,28 +478,28 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	private void splitVertex() {
-		final ModelPanel mpanel = currentModelPanel();
+		ModelPanel mpanel = currentModelPanel();
 		if (mpanel != null) {
 			// mpanel.getUndoManager().pushAction(modelEditorManager.getModelEditor()
 			// .selectFromViewer(mpanel.getModelEditorManager().getSelectionView()));
 
-			final Collection<? extends Vec2> selectedTVertices = modelEditorManager.getSelectionView()
+			Collection<? extends Vec2> selectedTVertices = modelEditorManager.getSelectionView()
 					.getSelectedTVertices(currentLayer());
-			for (final Geoset g : mpanel.getModel().getGeosets()) {
-				for (final GeosetVertex gv : new ArrayList<>(g.getVertices())) {
-					final Vec2 tVertex = gv.getTVertex(currentLayer());
+			for (Geoset g : mpanel.getModel().getGeosets()) {
+				for (GeosetVertex gv : new ArrayList<>(g.getVertices())) {
+					Vec2 tVertex = gv.getTVertex(currentLayer());
 					if (selectedTVertices.contains(tVertex)) {
-						final List<Triangle> triangles = gv.getTriangles();
-						final Iterator<Triangle> iterator = triangles.iterator();
+						List<Triangle> triangles = gv.getTriangles();
+						Iterator<Triangle> iterator = triangles.iterator();
 						if (iterator.hasNext()) {
 							iterator.next(); // keep using gv in 1 triangle, but not more
 						}
 						while (iterator.hasNext()) {
-							final Triangle tri = iterator.next();
-							final int vertexIndex = tri.indexOfRef(gv);
-							final GeosetVertex newVertex = new GeosetVertex(gv);
+							Triangle tri = iterator.next();
+							int vertexIndex = tri.indexOfRef(gv);
+							GeosetVertex newVertex = new GeosetVertex(gv);
 							tri.set(vertexIndex, newVertex);
-							newVertex.getTriangles().add(tri);
+							newVertex.addTriangle(tri);
 							newVertex.getGeoset().add(newVertex);
 							iterator.remove();
 						}
@@ -510,7 +510,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		repaint();
 	}
 
-	public void setControlsVisible(final boolean flag) {
+	public void setControlsVisible(boolean flag) {
 		navPanel.setVisible(flag);
 		zoomPanel.setVisible(flag);
 	}
@@ -525,7 +525,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		buttons.get(0).setColors(prefs.getActiveColor1(), prefs.getActiveColor2());
 		buttons.get(3).setColors(prefs.getActiveRColor1(), prefs.getActiveRColor2());
 
-		final JRootPane root = getRootPane();
+		JRootPane root = getRootPane();
 
 		root.getActionMap().put("Undo", undoAction);
 		int isAncestor = JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT;
@@ -537,7 +537,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		root.getInputMap(isAncestor).put(KeyStroke.getKeyStroke("W"), "MoveKeyboardKey");
 		root.getActionMap().put("MoveKeyboardKey", new AbstractAction() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[0]);
 			}
 		});
@@ -545,7 +545,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		root.getInputMap(isAncestor).put(KeyStroke.getKeyStroke("E"), "RotateKeyboardKey");
 		root.getActionMap().put("RotateKeyboardKey", new AbstractAction() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[1]);
 			}
 		});
@@ -553,7 +553,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		root.getInputMap(isAncestor).put(KeyStroke.getKeyStroke("R"), "ScaleKeyboardKey");
 		root.getActionMap().put("ScaleKeyboardKey", new AbstractAction() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				actionTypeGroup.setToolbarButtonType(actionTypeGroup.getToolbarButtonTypes()[2]);
 			}
 		});
@@ -565,21 +565,21 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		root.getInputMap(isAncestor).put(KeyStroke.getKeyStroke("A"), "SelectKeyboardKey");
 		root.getActionMap().put("SelectKeyboardKey", new AbstractAction() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[0]);
 			}
 		});
 		root.getInputMap(isAncestor).put(KeyStroke.getKeyStroke("S"), "AddSelectKeyboardKey");
 		root.getActionMap().put("AddSelectKeyboardKey", new AbstractAction() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[1]);
 			}
 		});
 
 		root.getActionMap().put("shiftSelect", new AbstractAction("shiftSelect") {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				if (selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
 					selectionModeGroup.setToolbarButtonType(SelectionMode.ADD);
 					cheatShift = true;
@@ -588,7 +588,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		});
 		root.getActionMap().put("altSelect", new AbstractAction("altSelect") {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				if (selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
 					selectionModeGroup.setToolbarButtonType(SelectionMode.DESELECT);
 					cheatAlt = true;
@@ -598,7 +598,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 
 		root.getActionMap().put("unShiftSelect", new AbstractAction("unShiftSelect") {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				if ((selectionModeGroup.getActiveButtonType() == SelectionMode.ADD) && cheatShift) {
 					selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
 					cheatShift = false;
@@ -607,7 +607,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		});
 		root.getActionMap().put("unAltSelect", new AbstractAction("unAltSelect") {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 				if ((selectionModeGroup.getActiveButtonType() == SelectionMode.DESELECT) && cheatAlt) {
 					selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
 					cheatAlt = false;
@@ -629,21 +629,21 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 //		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("D"), "DKeyboardKey");
 //		root.getActionMap().put("DKeyboardKey", new AbstractAction() {
 //			@Override
-//			public void actionPerformed(final ActionEvent e) {
+//			public void actionPerformed(ActionEvent e) {
 //				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[2]);
 //			}
 //		});
 //		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("F"), "FKeyboardKey");
 //		root.getActionMap().put("FKeyboardKey", new AbstractAction() {
 //			@Override
-//			public void actionPerformed(final ActionEvent e) {
+//			public void actionPerformed(ActionEvent e) {
 //				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[3]);
 //			}
 //		});
 //		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("G"), "GKeyboardKey");
 //		root.getActionMap().put("GKeyboardKey", new AbstractAction() {
 //			@Override
-//			public void actionPerformed(final ActionEvent e) {
+//			public void actionPerformed(ActionEvent e) {
 //				selectionItemTypeGroup.setToolbarButtonType(selectionItemTypeGroup.getToolbarButtonTypes()[4]);
 //			}
 //		});
@@ -659,7 +659,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		List<Bitmap> bitmaps = new ArrayList<>(dispMDL.getModel().getTextures());
 		List<String> bitmapNames = new ArrayList<>();
 
-		for (final Bitmap bitmap : bitmaps) {
+		for (Bitmap bitmap : bitmaps) {
 			bitmapNames.add(bitmap.getName());
 		}
 		bitmaps.add(0, null);
@@ -706,7 +706,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	public void packFrame() {
-		final JFrame frame = (JFrame) view.getTopLevelAncestor();
+		JFrame frame = (JFrame) view.getTopLevelAncestor();
 		if (frame != null) {
 			frame.pack();
 //			frame.setLocationRelativeTo(null);
@@ -714,19 +714,19 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		}
 	}
 
-	public void setMouseCoordDisplay(final double x, final double y) {
+	public void setMouseCoordDisplay(double x, double y) {
 		mouseCoordDisplay[0].setText((float) x + "");
 		mouseCoordDisplay[1].setText((float) y + "");
 	}
 
-	public void setViewport(final ModelPanel dispModel) {
+	public void setViewport(ModelPanel dispModel) {
 		vp = new UVViewport(dispModel.getModelViewManager(), this, prefs, viewportActivityManager, this,
 				modelEditorManager.getModelEditor());
 		add(vp);
 	}
 
 	@Override
-	public void paintComponent(final Graphics g) {
+	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		// g.drawString(title,3,3);
 		// vp.repaint();
@@ -748,10 +748,10 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	private void setAspectRatio() {
-		final JPanel panel = new JPanel();
-		final JSpinner widthVal = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
-		final JSpinner heightVal = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
-		final JLabel toLabel = new JLabel(" to ");
+		JPanel panel = new JPanel();
+		JSpinner widthVal = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
+		JSpinner heightVal = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
+		JLabel toLabel = new JLabel(" to ");
 		panel.add(widthVal);
 		panel.add(toLabel);
 		panel.add(heightVal);
@@ -760,18 +760,18 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	private void loadImage() {
-		final int x = JOptionPane.showConfirmDialog(this,
+		int x = JOptionPane.showConfirmDialog(this,
 				"Do you want to use the texture auto-loader to find available textures?" +
 						"\nIf you choose \"No\", then you will have to find a file on your hard drive instead.",
 				"Load Image", JOptionPane.YES_NO_CANCEL_OPTION);
 		if (x == JOptionPane.YES_OPTION) {
-			final DefaultListModel<Material> materials = new DefaultListModel<>();
+			DefaultListModel<Material> materials = new DefaultListModel<>();
 			for (int i = 0; i < dispMDL.getModel().getMaterials().size(); i++) {
-				final Material mat = dispMDL.getModel().getMaterials().get(i);
+				Material mat = dispMDL.getModel().getMaterials().get(i);
 				materials.addElement(mat);
 			}
 
-			final JList<Material> materialsList = new JList<>(materials);
+			JList<Material> materialsList = new JList<>(materials);
 			materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			materialsList.setCellRenderer(new MaterialListRenderer(dispMDL.getModel()));
 			JOptionPane.showMessageDialog(this, new JScrollPane(materialsList));
@@ -780,7 +780,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 			if (materialsList.getSelectedValue() != null) {
 				vp.addBackgroundImage(materialsList.getSelectedValue().getBufferedImage(dispMDL.getModel().getWrappedDataSource()));
 				boolean wrap = false;
-				for (final Layer layer : materialsList.getSelectedValue().getLayers()) {
+				for (Layer layer : materialsList.getSelectedValue().getLayers()) {
 					if ((layer.getTextureBitmap() != null) && (layer.getTextureBitmap().isWrapWidth()
 							|| layer.getTextureBitmap().isWrapHeight())) {
 						wrap = true;
@@ -802,18 +802,18 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	private void loadImage2() {
-		final int x = JOptionPane.showConfirmDialog(this,
+		int x = JOptionPane.showConfirmDialog(this,
 				"Do you want to use the texture auto-loader to find available textures?" +
 						"\nIf you choose \"No\", then you will have to find a file on your hard drive instead.",
 				"Load Image", JOptionPane.YES_NO_CANCEL_OPTION);
 		if (x == JOptionPane.YES_OPTION) {
-			final DefaultListModel<Material> materials = new DefaultListModel<>();
+			DefaultListModel<Material> materials = new DefaultListModel<>();
 			for (int i = 0; i < dispMDL.getModel().getMaterials().size(); i++) {
-				final Material mat = dispMDL.getModel().getMaterials().get(i);
+				Material mat = dispMDL.getModel().getMaterials().get(i);
 				materials.addElement(mat);
 			}
 
-			final JList<Material> materialsList = new JList<>(materials);
+			JList<Material> materialsList = new JList<>(materials);
 			materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			materialsList.setCellRenderer(new MaterialListRenderer(dispMDL.getModel()));
 			JOptionPane.showMessageDialog(this, new JScrollPane(materialsList));
@@ -821,7 +821,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 				BufferedImage image = materialsList.getSelectedValue().getBufferedImage(dispMDL.getModel().getWrappedDataSource());
 //				vp.addBackgroundImage(materialsList.getSelectedValue().getBufferedImage(dispMDL.getModel().getWrappedDataSource()));
 				boolean wrap = false;
-				for (final Layer layer : materialsList.getSelectedValue().getLayers()) {
+				for (Layer layer : materialsList.getSelectedValue().getLayers()) {
 					if ((layer.getTextureBitmap() != null) && (layer.getTextureBitmap().isWrapWidth() || layer.getTextureBitmap().isWrapHeight())) {
 						wrap = true;
 					}
@@ -878,16 +878,16 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	@Override
-	public void notifyUpdate(final byte dimension1, final byte dimension2, final double coord1, final double coord2) {
+	public void notifyUpdate(byte dimension1, byte dimension2, double coord1, double coord2) {
 		setMouseCoordDisplay(coord1, coord2);
 	}
 
 	@Override
-	public void changeActivity(final TVertexEditorActivityDescriptor newType) {
+	public void changeActivity(TVertexEditorActivityDescriptor newType) {
 		currentActivity = newType;
 		viewportActivityManager.setCurrentActivity(newType.createActivity(modelEditorManager, dispMDL.getModelViewManager(), dispMDL.getUndoManager()));
 		resetButtons();
-		final ModeButton modeButton = typeToButton.get(newType);
+		ModeButton modeButton = typeToButton.get(newType);
 		if (modeButton != null) {
 			modeButton.setColors(prefs.getActiveRColor1(), prefs.getActiveRColor2());
 		}
@@ -895,13 +895,13 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 	}
 
 	public void resetButtons() {
-		for (final ModeButton button : modeButtons) {
+		for (ModeButton button : modeButtons) {
 			button.resetColors();
 		}
 	}
 
 	public void resetSelectionModeButtons() {
-		for (final ModeButton button : selectionModeButtons) {
+		for (ModeButton button : selectionModeButtons) {
 			button.resetColors();
 		}
 	}
@@ -911,7 +911,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 
 		private final String displayText;
 
-		UnwrapDirection(final String displayText) {
+		UnwrapDirection(String displayText) {
 			this.displayText = displayText;
 		}
 
@@ -921,28 +921,28 @@ public class UVPanel extends JPanel implements CoordDisplayListener, TVertexEdit
 		}
 	}
 
-	private final class ButtonActionChangeListener implements ActionListener {
+	private class ButtonActionChangeListener implements ActionListener {
 		private final int buttonIndex;
 
-		private ButtonActionChangeListener(final int buttonIndex) {
+		private ButtonActionChangeListener(int buttonIndex) {
 			this.buttonIndex = buttonIndex;
 		}
 
 		@Override
-		public void actionPerformed(final ActionEvent e) {
+		public void actionPerformed(ActionEvent e) {
 			changeActivity(actionTypeGroup.getToolbarButtonTypes()[buttonIndex]);
 		}
 	}
 
-	private final class ButtonModeChangeListener implements ActionListener {
+	private class ButtonModeChangeListener implements ActionListener {
 		private final int buttonIndex;
 
-		private ButtonModeChangeListener(final int buttonIndex) {
+		private ButtonModeChangeListener(int buttonIndex) {
 			this.buttonIndex = buttonIndex;
 		}
 
 		@Override
-		public void actionPerformed(final ActionEvent e) {
+		public void actionPerformed(ActionEvent e) {
 			selectionModeGroup.setToolbarButtonType(selectionModeGroup.getToolbarButtonTypes()[buttonIndex]);
 		}
 	}

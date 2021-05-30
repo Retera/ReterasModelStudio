@@ -18,597 +18,540 @@ import java.util.List;
  * Eric Theller 3/9/2012
  */
 public class GeosetVertex extends Vec3 {
-    Matrix matrixRef;
-    private Vec3 normal = new Vec3();
-    public int vertexGroup = -1;
-    List<Vec2> tverts = new ArrayList<>();
-    List<Bone> bones = new ArrayList<>();
-    List<Triangle> triangles = new ArrayList<>();
-    private byte[] skinBoneIndexes;
-    //    private Bone[] skinBones; //ToDo replace with SkinBone[]
-//    private short[] skinBoneWeights;
-    private Vec4 tangent;
-    private SkinBone[] sskinBones;
+	public int vertexGroup = -1;
+	Matrix matrixRef;
+	List<Vec2> tverts = new ArrayList<>();
+	List<Bone> bones = new ArrayList<>();
+	List<Triangle> triangles = new ArrayList<>();
+	Geoset geoset;
+	private Vec3 normal = new Vec3();
+	private byte[] skinBoneIndexes;
+	private Vec4 tangent;
+	private SkinBone[] skinBones;
 
-    Geoset geoset;
+	public GeosetVertex(double x, double y, double z) {
+		super(x, y, z);
+	}
 
-    public GeosetVertex(final double x, final double y, final double z) {
-        super(x, y, z);
-    }
+	public GeosetVertex(double x, double y, double z, Vec3 n) {
+		super(x, y, z);
+		normal = n;
+	}
 
-    public GeosetVertex(final double x, final double y, final double z, final Vec3 n) {
-        super(x, y, z);
-        normal = n;
-    }
-
-    public GeosetVertex(final GeosetVertex old) {
-        super(old.x, old.y, old.z);
-        normal = new Vec3(old.normal);
-        bones = new ArrayList<>(old.bones);
-        tverts = new ArrayList<>();
-        for (final Vec2 tv : old.tverts) {
-            tverts.add(new Vec2(tv));
-        }
-        // odd, but when writing
-        geoset = old.geoset;
-        // TODO copy triangles???????
-        if (old.skinBoneIndexes != null) {
-            skinBoneIndexes = old.skinBoneIndexes.clone();
-        }
+	public GeosetVertex(GeosetVertex old) {
+		super(old.x, old.y, old.z);
+		normal = new Vec3(old.normal);
+		bones = new ArrayList<>(old.bones);
+		tverts = new ArrayList<>();
+		for (Vec2 tv : old.tverts) {
+			tverts.add(new Vec2(tv));
+		}
+		// odd, but when writing
+		geoset = old.geoset;
+		// TODO copy triangles???????
+		if (old.skinBoneIndexes != null) {
+			skinBoneIndexes = old.skinBoneIndexes.clone();
+		}
 //        if (old.skinBones != null) {
 //            skinBones = old.skinBones.clone();
 //        }
 //        if (old.skinBoneWeights != null) {
 //            skinBoneWeights = old.skinBoneWeights.clone();
 //        }
-        if (old.sskinBones != null) {
-            sskinBones = old.sskinBones.clone();
-        }
-        if (old.tangent != null) {
-            tangent = new Vec4(old.tangent);
-        }
-    }
+		if (old.skinBones != null) {
+//            sskinBones = old.sskinBones.clone();
+			setSkinBones(old.getSkinBoneBones(), old.getSkinBoneWeights());
+		}
+		if (old.tangent != null) {
+			tangent = new Vec4(old.tangent);
+		}
+	}
 
-    public void initV900() {
-        skinBoneIndexes = new byte[4];
+	public void initV900() {
+		skinBoneIndexes = new byte[4];
 //        skinBones = new Bone[4];
 //        skinBoneWeights = new short[4];
-        sskinBones = new SkinBone[4];
-        tangent = new Vec4(0, 0, 0, 0);
-    }
+		skinBones = new SkinBone[4];
+		tangent = new Vec4(0, 0, 0, 0);
+	}
 
-    public void magicSkinBones() {
-        final int bonesNum = Math.min(4, bones.size());
-        final short weight = (short) (255 / bonesNum);
+	public void magicSkinBones() {
+		int bonesNum = Math.min(4, bones.size());
+		short weight = 0;
+		if (bonesNum > 0) {
+			weight = (short) (255 / bonesNum);
+		}
 
-        for (int i = 0; i < 4; i++) {
-            if (i < bonesNum) {
-                setSkinBone(bones.get(i), weight, i);
-            } else {
-                setSkinBone((short) 0, i);
-            }
-        }
-        setSkinBone(bones.get(0), (short) (weight + (255 % bonesNum)), 0);
-    }
+		for (int i = 0; i < 4; i++) {
+			if (i < bonesNum) {
+				setSkinBone(bones.get(i), weight, i);
+			} else {
+				setSkinBone((short) 0, i);
+			}
+		}
+		if (!bones.isEmpty()) {
+			setSkinBone(bones.get(0), (short) (weight + (255 % bonesNum)), 0);
+		}
+	}
 
-//    public void un900Heuristic2() {
-//        if (tangent != null) {
-//            tangent = null;
-//        }
-//        if (skinBones != null) {
-//            bones.clear();
-//            int index = 0;
-//            boolean fallback = false;
-//            for (final Bone bone : skinBones) {
-//                if (bone != null) {
-//                    fallback = true;
-//                    if (skinBoneWeights[index] > 110) {
-//                        bones.add(bone);
-//                    }
-//                }
-//                index++;
-//            }
-//            if (bones.isEmpty() && fallback) {
-//                for (final Bone bone : skinBones) {
-//                    if (bone != null) {
-//                        bones.add(bone);
-//                    }
-//                }
-//            }
+	public void un900Heuristic() {
+		if (tangent != null) {
+			tangent = null;
+		}
+		if (skinBones != null) {
+			bones.clear();
+			boolean fallback = false;
+			for (SkinBone skinBone : skinBones) {
+				if (skinBone != null && skinBone.getBone() != null) {
+					fallback = true;
+					if (skinBone.getWeight() > 110) {
+						bones.add(skinBone.getBone());
+					}
+				}
+			}
+			if (bones.isEmpty() && fallback) {
+				for (SkinBone skinBone : skinBones) {
+					if (skinBone != null && skinBone.getBone() != null) {
+						bones.add(skinBone.getBone());
+					}
+				}
+			}
 //            skinBones = null;
 //            skinBoneWeights = null;
-//            skinBoneIndexes = null;
-//        }
-//    }
+			skinBoneIndexes = null;
+		}
+	}
 
-    public void un900Heuristic() {
-        if (tangent != null) {
-            tangent = null;
-        }
-        if (sskinBones != null) {
-            bones.clear();
-            boolean fallback = false;
-            for (final SkinBone skinBone : sskinBones) {
-                if (skinBone != null && skinBone.getBone() != null) {
-                    fallback = true;
-                    if (skinBone.getWeight() > 110) {
-                        bones.add(skinBone.getBone());
-                    }
-                }
-            }
-            if (bones.isEmpty() && fallback) {
-                for (final SkinBone skinBone : sskinBones) {
-                    if (skinBone != null && skinBone.getBone() != null) {
-                        bones.add(skinBone.getBone());
-                    }
-                }
-            }
-//            skinBones = null;
-//            skinBoneWeights = null;
-            skinBoneIndexes = null;
-        }
-    }
+	public void addTVertex(Vec2 v) {
+		tverts.add(v);
+	}
 
-    public void addTVertex(final Vec2 v) {
-        tverts.add(v);
-    }
+	public Vec2 getTVertex(int i) {
+		try {
+			return tverts.get(i);
+		} catch (final IndexOutOfBoundsException e) {
+			return null;
+		}
+	}
 
-    public Vec2 getTVertex(final int i) {
-        try {
-            return tverts.get(i);
-        } catch (final IndexOutOfBoundsException e) {
-            return null;
-        }
-    }
+	public int getVertexGroup() {
+		return vertexGroup;
+	}
 
-    public int getVertexGroup() {
-        return vertexGroup;
-    }
+	public void setVertexGroup(int k) {
+		vertexGroup = k;
+	}
 
-    public void setVertexGroup(final int k) {
-        vertexGroup = k;
-    }
+	public void clearBoneAttachments() {
+		bones.clear();
+	}
 
-    public void clearBoneAttachments() {
-        bones.clear();
-    }
+	public void clearTVerts() {
+		tverts.clear();
+	}
 
-    public void clearTVerts() {
-        tverts.clear();
-    }
+	public void addBoneAttachment(Bone b) {
+		bones.add(b);
+	}
 
-    public void addBoneAttachment(final Bone b) {
-        bones.add(b);
-    }
+	public void addBoneAttachments(List<Bone> b) {
+		bones.addAll(b);
+	}
 
-    public void addBoneAttachments(final List<Bone> b) {
-        bones.addAll(b);
-    }
+	public List<Bone> getBoneAttachments() {
+		return bones;
+	}
 
-    public List<Bone> getBoneAttachments() {
-        return bones;
-    }
+	public void setMatrix(Matrix ref) {
+		matrixRef = ref;
+	}
 
-    public void setMatrix(final Matrix ref) {
-        matrixRef = ref;
-    }
+	public Vec3 getNormal() {
+		return normal;
+	}
 
-    public void setNormal(final Vec3 n) {
-        normal = n;
-    }
+	public void setNormal(Vec3 n) {
+		normal = n;
+	}
 
-    public Vec3 getNormal() {
-        return normal;
-    }
+	public List<Vec2> getTverts() {
+		return tverts;
+	}
 
-    public List<Vec2> getTverts() {
-        return tverts;
-    }
+	public void setTverts(List<Vec2> tverts) {
+		this.tverts = tverts;
+	}
 
-    public void setTverts(final List<Vec2> tverts) {
-        this.tverts = tverts;
-    }
+	public List<Bone> getBones() {
+		return bones;
+	}
 
-    public List<Bone> getBones() {
-        return bones;
-    }
+	public void setBones(List<Bone> bones) {
+		this.bones = bones;
+	}
 
-    public void setBones(final List<Bone> bones) {
-        this.bones = bones;
-    }
+	public List<Triangle> getTriangles() {
+		return triangles;
+	}
 
-    public List<Triangle> getTriangles() {
-        return triangles;
-    }
+	public void setTriangles(List<Triangle> triangles) {
+		this.triangles = triangles;
+	}
 
-    public void setTriangles(final List<Triangle> triangles) {
-        this.triangles = triangles;
-    }
+	public GeosetVertex addTriangle(Triangle triangle) {
+		triangles.add(triangle);
+		return this;
+	}
 
-    public Geoset getGeoset() {
-        return geoset;
-    }
+	public GeosetVertex removeTriangle(Triangle triangle) {
+		triangles.remove(triangle);
+		return this;
+	}
 
-    /**
-     * @deprecated for use only with saving functionalities inside the system
-     */
-    @Deprecated
-    public byte[] getSkinBoneIndexes() {
-        return skinBoneIndexes;
-    }
+	public GeosetVertex clearTriangles() {
+		triangles.clear();
+		return this;
+	}
+
+	public boolean isInTriangle(Triangle triangle) {
+		return triangles.contains(triangle) && triangle.contains(this);
+	}
+
+	public boolean hasTriangle(Triangle triangle) {
+		return triangles.contains(triangle);
+	}
+
+	public Geoset getGeoset() {
+		return geoset;
+	}
+
+	public void setGeoset(Geoset geoset) {
+		this.geoset = geoset;
+	}
 
 //    public Bone[] getSkinBones() {
 //        return skinBones;
 //    }
 
-    public Bone[] getSkinBones() {
-        if (this.sskinBones == null) {
-            return null;
-        }
-        Bone[] sb = new Bone[4];
-        for (int i = 0; i < sskinBones.length; i++) {
-            sb[i] = sskinBones[i].getBone();
-        }
-        return sb;
-    }
+	/**
+	 * @deprecated for use only with saving functionalities inside the system
+	 */
+	@Deprecated
+	public byte[] getSkinBoneIndexes() {
+		return skinBoneIndexes;
+	}
 
-    public void setSkinBones(final Bone[] skinBones) {
-//        this.skinBones = skinBones;
-        if (this.sskinBones == null) {
-            this.sskinBones = new SkinBone[4];
-        }
-        for (int i = 0; i < 4; i++) {
-            if (this.sskinBones[i] == null) {
-                this.sskinBones[i] = new SkinBone(skinBones[i]);
-            } else {
-                this.sskinBones[i].setBone(skinBones[i]);
-            }
-        }
-    }
+	public Bone[] getSkinBoneBones() {
+		if (this.skinBones == null) {
+			return null;
+		}
+		Bone[] sb = new Bone[4];
+		for (int i = 0; i < skinBones.length; i++) {
+			sb[i] = skinBones[i].getBone();
+		}
+		return sb;
+	}
 
 //    public void setSkinBones(final Bone[] skinBones) {
 //        this.skinBones = skinBones;
 //    }
 
-    public SkinBone[] getSSkinBones() {
-        return sskinBones;
-    }
+	public SkinBone[] getSkinBones() {
+		return skinBones;
+	}
 
 //    public void setSkinBones(final Bone[] skinBones, final short[] skinBoneWeights) {
 //        this.skinBones = skinBones;
 //        this.skinBoneWeights = skinBoneWeights;
 //    }
 
-    public void setSkinBones(final Bone[] skinBones, final short[] skinBoneWeights) {
+	public void setSkinBones(Bone[] skinBones) {
+//        this.skinBones = skinBones;
+		if (this.skinBones == null) {
+			this.skinBones = new SkinBone[4];
+		}
+		for (int i = 0; i < 4; i++) {
+			if (this.skinBones[i] == null) {
+				this.skinBones[i] = new SkinBone(skinBones[i]);
+			} else {
+				this.skinBones[i].setBone(skinBones[i]);
+			}
+		}
+	}
+
+	public void setSkinBones(Bone[] skinBones, short[] skinBoneWeights) {
 //        this.skinBones = skinBones;
 //        this.skinBoneWeights = skinBoneWeights;
 
-        if (this.sskinBones == null) {
-            this.sskinBones = new SkinBone[4];
-        }
-        for (int i = 0; i < 4; i++) {
-            if (this.sskinBones[i] == null) {
-                this.sskinBones[i] = new SkinBone(skinBoneWeights[i], skinBones[i]);
-            } else {
-                this.sskinBones[i].set(skinBoneWeights[i], skinBones[i]);
-            }
-        }
-    }
+		if (this.skinBones == null) {
+			this.skinBones = new SkinBone[4];
+		}
+		for (int i = 0; i < 4; i++) {
+			if (this.skinBones[i] == null) {
+				this.skinBones[i] = new SkinBone(skinBoneWeights[i], skinBones[i]);
+			} else {
+				this.skinBones[i].set(skinBoneWeights[i], skinBones[i]);
+			}
+		}
+	}
 
-    public void setSkinBone(final Bone skinBone, final short skinBoneWeight, int i) {
+	public void setSkinBone(Bone skinBone, short skinBoneWeight, int i) {
 //        this.skinBones[i] = skinBone;
 //        this.skinBoneWeights[i] = skinBoneWeight;
-        if (this.sskinBones[i] == null) {
-            this.sskinBones[i] = new SkinBone(skinBoneWeight, skinBone);
-        } else {
-            this.sskinBones[i].set(skinBoneWeight, skinBone);
-        }
-    }
+		if (this.skinBones[i] == null) {
+			this.skinBones[i] = new SkinBone(skinBoneWeight, skinBone);
+		} else {
+			this.skinBones[i].set(skinBoneWeight, skinBone);
+		}
+	}
 
-    public void setSkinBone(final Bone skinBone, int i) {
+	public void setSkinBone(Bone skinBone, int i) {
 //        this.skinBones[i] = skinBone;
-        if (this.sskinBones[i] == null) {
-            this.sskinBones[i] = new SkinBone(skinBone);
-        } else {
-            this.sskinBones[i].setBone(skinBone);
-        }
-    }
-
-    public void setSkinBone(final short skinBoneWeight, int i) {
-//        this.skinBoneWeights[i] = skinBoneWeight;
-        if (this.sskinBones[i] == null) {
-            this.sskinBones[i] = new SkinBone(skinBoneWeight);
-        } else {
-            this.sskinBones[i].setWeight(skinBoneWeight);
-        }
-    }
+		if (this.skinBones[i] == null) {
+			this.skinBones[i] = new SkinBone(skinBone);
+		} else {
+			this.skinBones[i].setBone(skinBone);
+		}
+	}
 
 //    public short[] getSkinBoneWeights() {
 //        return skinBoneWeights;
 //    }
 
-    public short[] getSkinBoneWeights() {
-        if (this.sskinBones == null) {
-            return null;
-        }
-        short[] sw = new short[4];
-        for (int i = 0; i < sskinBones.length; i++) {
-            sw[i] = sskinBones[i].getWeight();
-        }
-        return sw;
-    }
+	public void setSkinBone(short skinBoneWeight, int i) {
+//        this.skinBoneWeights[i] = skinBoneWeight;
+		if (this.skinBones[i] == null) {
+			this.skinBones[i] = new SkinBone(skinBoneWeight);
+		} else {
+			this.skinBones[i].setWeight(skinBoneWeight);
+		}
+	}
 
 //    public void setSkinBoneWeights(final short[] skinBoneWeights) {
 //        this.skinBoneWeights = skinBoneWeights;
 //    }
 
-    public void setSkinBoneWeights(final short[] skinBoneWeights) {
+	public short[] getSkinBoneWeights() {
+		if (this.skinBones == null) {
+			return null;
+		}
+		short[] sw = new short[4];
+		for (int i = 0; i < skinBones.length; i++) {
+			sw[i] = skinBones[i].getWeight();
+		}
+		return sw;
+	}
+
+	public void setSkinBoneWeights(short[] skinBoneWeights) {
 //        this.skinBoneWeights = skinBoneWeights;
-        if (this.sskinBones == null) {
-            this.sskinBones = new SkinBone[4];
-        }
-        for (int i = 0; i < 4; i++) {
-            if (this.sskinBones[i] == null) {
-                this.sskinBones[i] = new SkinBone(skinBoneWeights[i]);
-            } else {
-                this.sskinBones[i].setWeight(skinBoneWeights[i]);
-            }
-        }
-    }
+		if (this.skinBones == null) {
+			this.skinBones = new SkinBone[4];
+		}
+		for (int i = 0; i < 4; i++) {
+			if (this.skinBones[i] == null) {
+				this.skinBones[i] = new SkinBone(skinBoneWeights[i]);
+			} else {
+				this.skinBones[i].setWeight(skinBoneWeights[i]);
+			}
+		}
+	}
 
-    public Vec4 getTangent() {
-        return tangent;
-    }
+	public Vec4 getTangent() {
+		return tangent;
+	}
 
-    public void setTangent(final float[] tangent) {
-        this.tangent = new Vec4(tangent);
-    }
+	public void setTangent(float[] tangent) {
+		this.tangent = new Vec4(tangent);
+	}
 
-    public void setTangent(Vec4 tangent) {
-        this.tangent = tangent;
-    }
+	public void setTangent(Vec4 tangent) {
+		this.tangent = tangent;
+	}
 
-    public Vec4 getTang() {
-        return tangent;
-    }
+	public Vec4 getTang() {
+		return tangent;
+	}
 
-    public void setTangent(Vec3 tangent, float w) {
-        this.tangent = new Vec4(tangent, w);
-    }
+	public void setTangent(Vec3 tangent, float w) {
+		this.tangent = new Vec4(tangent, w);
+	}
 
-    public void setGeoset(final Geoset geoset) {
-        this.geoset = geoset;
-    }
+	@Deprecated()
+	public Matrix getMatrixRef() {
+		return matrixRef;
+	}
 
-    @Deprecated()
-    public Matrix getMatrixRef() {
-        return matrixRef;
-    }
+	@Override
+	public Vec3 rotate(double centerX, double centerY, double centerZ, double radians,
+	                   byte firstXYZ, byte secondXYZ) {
+		super.rotate(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ);
+		normal.rotate(0, 0, 0, radians, firstXYZ, secondXYZ);
+		if (tangent != null) {
+			tangent.set(tangent.getVec3().rotate(0, 0, 0, radians, firstXYZ, secondXYZ));
+		}
+		return this;
+	}
 
-    @Override
-    public Vec3 rotate(final double centerX, final double centerY, final double centerZ, final double radians,
-                       final byte firstXYZ, final byte secondXYZ) {
-        super.rotate(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ);
-        normal.rotate(0, 0, 0, radians, firstXYZ, secondXYZ);
-        if (tangent != null) {
-            tangent.set(tangent.getVec3().rotate(0, 0, 0, radians, firstXYZ, secondXYZ));
-        }
-        return this;
-    }
-
-    @Override
-    public Vec3 rotate(Vec3 center, final double radians,
-                       final byte firstXYZ, final byte secondXYZ) {
-        super.rotate(center, radians, firstXYZ, secondXYZ);
-        normal.rotate(0, 0, 0, radians, firstXYZ, secondXYZ);
-        if (tangent != null) {
+	@Override
+	public Vec3 rotate(Vec3 center, double radians,
+	                   byte firstXYZ, byte secondXYZ) {
+		super.rotate(center, radians, firstXYZ, secondXYZ);
+		normal.rotate(0, 0, 0, radians, firstXYZ, secondXYZ);
+		if (tangent != null) {
 //            rotateTangent(0, 0, 0, radians, firstXYZ, secondXYZ, tangent);
-            tangent.set(tangent.getVec3().rotate(0, 0, 0, radians, firstXYZ, secondXYZ));
-        }
-        return this;
-    }
+			tangent.set(tangent.getVec3().rotate(0, 0, 0, radians, firstXYZ, secondXYZ));
+		}
+		return this;
+	}
 
-//    public static void rotateTangent(final double centerX, final double centerY, final double centerZ,
-//                                     final double radians,
-//                                     final byte firstXYZ, final byte secondXYZ,
-//                                     final float[] vertex) {
-//        final double x1 = getVertexCoord(firstXYZ, vertex);
-//        final double y1 = getVertexCoord(secondXYZ, vertex);
-//        final double cx = getCenter(centerX, centerY, centerZ, firstXYZ);// = coordinateSystem.geomX(centerX);
-//        final double dx = x1 - cx;
-//        final double cy = getCenter(centerX, centerY, centerZ, secondXYZ);// = coordinateSystem.geomY(centerY);
-//        final double dy = y1 - cy;
-//        final double r = Math.sqrt((dx * dx) + (dy * dy));
-//        double verAng = Math.acos(dx / r);
-//        if (dy < 0) {
-//            verAng = -verAng;
-//        }
-//        // if( getDimEditable(dim1) )
-//        double newFirstCoord = (Math.cos(verAng + radians) * r) + cx;
-//        if (!Double.isNaN(newFirstCoord)) {
-//            setVertexCoord(firstXYZ, vertex, (float) newFirstCoord);
-//        }
-//        // if( getDimEditable(dim2) )
-//        double newSecondCoord = (Math.sin(verAng + radians) * r) + cy;
-//        if (!Double.isNaN(newSecondCoord)) {
-//            setVertexCoord(secondXYZ, vertex, (float) newSecondCoord);
-//        }
-//    }
-//
-//    private static void setVertexCoord(byte firstXYZ, float[] vertex, float nextDim) {
-//        if (firstXYZ < 0) {
-//            firstXYZ = (byte) (-firstXYZ - 1);
-//            nextDim = -nextDim;
-//        }
-//        vertex[firstXYZ] = nextDim;
-//    }
-//
-//    private static float getVertexCoord(byte firstXYZ, float[] vertex) {
-//        if(firstXYZ < 0) {
-//            firstXYZ = (byte)(-firstXYZ-1);
-//            return -vertex[firstXYZ];
-//        }
-//        return vertex[firstXYZ];
-//    }
+	public Vec3 createNormal() {
+		Vec3 sum = new Vec3();
 
-    public Vec3 createNormal() {
-        final Vec3 sum = new Vec3();
+		for (Triangle triangle : triangles) {
+			sum.add(triangle.getNormal());
+		}
 
-        for (final Triangle triangle : triangles) {
-            sum.add(triangle.getNormal());
-        }
+		sum.normalize();
 
-        sum.normalize();
+		return sum;
+	}
 
-        return sum;
-    }
+	public Vec3 createNormal(List<GeosetVertex> matches) {
+		Vec3 sum = new Vec3();
 
-    public Vec3 createNormal(final List<GeosetVertex> matches) {
-        final Vec3 sum = new Vec3();
+		for (GeosetVertex match : matches) {
+			for (Triangle triangle : match.triangles) {
+				sum.add(triangle.getNormal());
+			}
+		}
 
-        for (final GeosetVertex match : matches) {
-            for (final Triangle triangle : match.triangles) {
-                sum.add(triangle.getNormal());
-            }
-        }
+		return sum.normalize();
+	}
 
-        return sum.normalize();
-    }
+	public Vec3 createNormal(List<GeosetVertex> matches, double maxAngle) {
+		Vec3 sum = new Vec3();
+		Vec3 normal = createNormal();
+		List<Vec3> uniqueNormals = new ArrayList<>();
+		for (GeosetVertex match : matches) {
+			Vec3 matchNormal = match.createNormal();
+			uniqueNormals.add(matchNormal);
+		}
+		uniqueNormals.stream().filter(n -> normal.degAngleTo(n) < maxAngle).forEach(sum::add);
 
-    public Vec3 createNormal(final List<GeosetVertex> matches, double maxAngle) {
-        final Vec3 sum = new Vec3();
-        Vec3 normal = createNormal();
-        List<Vec3> uniqueNormals = new ArrayList<>();
-        for (final GeosetVertex match : matches) {
-            Vec3 matchNormal = match.createNormal();
-            uniqueNormals.add(matchNormal);
-        }
-        uniqueNormals.stream().filter(n -> normal.degAngleTo(n) < maxAngle).forEach(sum::add);
-
-        return sum.normalize();
-    }
+		return sum.normalize();
+	}
 
 
-    public Vec3 createNormalFromFaces(final List<GeosetVertex> matches, double maxAngle) {
-        final Vec3 sum = new Vec3();
-        Vec3 normal = createNormal();
-        for (final GeosetVertex match : matches) {
-            for (final Triangle triangle : match.triangles) {
-                Vec3 matchNormal = triangle.getNormal().normalize();
-                double angle = normal.degAngleTo(matchNormal);
-                if (angle < maxAngle) {
-                    sum.add(matchNormal);
-                }
-            }
-        }
+	public Vec3 createNormalFromFaces(List<GeosetVertex> matches, double maxAngle) {
+		Vec3 sum = new Vec3();
+		Vec3 normal = createNormal();
+		for (GeosetVertex match : matches) {
+			for (Triangle triangle : match.triangles) {
+				Vec3 matchNormal = triangle.getNormal().normalize();
+				double angle = normal.degAngleTo(matchNormal);
+				if (angle < maxAngle) {
+					sum.add(matchNormal);
+				}
+			}
+		}
 
-        return sum.normalize();
-    }
+		return sum.normalize();
+	}
 
-//    public void rigBones(List<Bone> matrixBones) {
-//        if (skinBones == null) {
-//            clearBoneAttachments();
-//            addBoneAttachments(matrixBones);
-//        } else {
-//            Arrays.fill(skinBones, null);
-//            Arrays.fill(skinBoneWeights, (short) 0);
-//            final int basicWeighting = 255 / matrixBones.size();
-//            final int offset = 255 - (basicWeighting * matrixBones.size());
-//            for (int i = 0; (i < matrixBones.size()) && (i < 4); i++) {
-//                skinBones[i] = matrixBones.get(i);
-//                skinBoneWeights[i] = (short) basicWeighting;
-//                if (i == 0) {
-//                    skinBoneWeights[i] += offset;
-//                }
-//            }
-//        }
-//    }
-
-    public void rigBones(List<Bone> matrixBones) {
-        if (sskinBones == null) {
-            clearBoneAttachments();
-            addBoneAttachments(matrixBones);
-        } else {
+	public void rigBones(List<Bone> matrixBones) {
+		if (skinBones == null) {
+			clearBoneAttachments();
+			addBoneAttachments(matrixBones);
+		} else {
 //            Arrays.fill(skinBones, null);
 //            Arrays.fill(skinBoneWeights, (short) 0);
 
 
-            final int weight = 255 / matrixBones.size();
-            final int offset = 255 - (weight * matrixBones.size());
-            for (int i = 1; i < 4; i++) {
-                if (i < matrixBones.size()) {
-                    setSkinBone(matrixBones.get(i), (short) weight, i);
-                } else {
-                    setSkinBone((short) 0, i);
-                }
-            }
-            setSkinBone(matrixBones.get(0), (short) (weight + offset), 0);
-        }
-    }
+			int weight = 255 / matrixBones.size();
+			int offset = 255 - (weight * matrixBones.size());
+			for (int i = 1; i < 4; i++) {
+				if (i < matrixBones.size()) {
+					setSkinBone(matrixBones.get(i), (short) weight, i);
+				} else {
+					setSkinBone((short) 0, i);
+				}
+			}
+			setSkinBone(matrixBones.get(0), (short) (weight + offset), 0);
+		}
+	}
 
-    public short[] getSkinBoneEntry() {
-        short[] skinEntry = {0, 0, 0, 0, 0, 0, 0, 0};
+	public short[] getSkinBoneEntry() {
+		short[] skinEntry = {0, 0, 0, 0, 0, 0, 0, 0};
 
-        for (int i = 0; i < sskinBones.length && i < 4; i++) {
-            skinEntry[i] = sskinBones[i].weight;
-            skinEntry[i + 4] = (short) sskinBones[i].getBoneId(geoset.getParentModel());
-        }
-        return skinEntry;
-    }
+		for (int i = 0; i < skinBones.length && i < 4; i++) {
+			skinEntry[i] = skinBones[i].weight;
+			skinEntry[i + 4] = (short) skinBones[i].getBoneId(geoset.getParentModel());
+		}
+		return skinEntry;
+	}
 
-    public static class SkinBone {
-        short weight;
-        Bone bone;
+	public static class SkinBone {
+		short weight;
+		Bone bone;
 
-        SkinBone() {
-        }
+		SkinBone() {
+		}
 
-        SkinBone(SkinBone skinBone) {
-            this.weight = skinBone.weight;
-            this.bone = skinBone.bone;
-        }
+		SkinBone(SkinBone skinBone) {
+			this.weight = skinBone.weight;
+			this.bone = skinBone.bone;
+		}
 
-        SkinBone(short weight, Bone bone) {
-            this.weight = weight;
-            this.bone = bone;
-        }
+		SkinBone(short weight, Bone bone) {
+			this.weight = weight;
+			this.bone = bone;
+		}
 
-        SkinBone(short weight) {
-            this.weight = weight;
-            this.bone = null;
-        }
+		SkinBone(short weight) {
+			this.weight = weight;
+			this.bone = null;
+		}
 
-        SkinBone(Bone bone) {
-            this.weight = 0;
-            this.bone = bone;
-        }
+		SkinBone(Bone bone) {
+			this.weight = 0;
+			this.bone = bone;
+		}
 
-        public SkinBone set(short weight, Bone bone) {
-            this.bone = bone;
-            this.weight = weight;
-            return this;
-        }
+		public SkinBone set(short weight, Bone bone) {
+			this.bone = bone;
+			this.weight = weight;
+			return this;
+		}
 
-        public Bone getBone() {
-            return bone;
-        }
+		public Bone getBone() {
+			return bone;
+		}
 
-        public SkinBone setBone(Bone bone) {
-            this.bone = bone;
-            return this;
-        }
+		public SkinBone setBone(Bone bone) {
+			this.bone = bone;
+			return this;
+		}
 
-        public short getWeight() {
-            return weight;
-        }
+		public short getWeight() {
+			return weight;
+		}
 
-        public SkinBone setWeight(short weight) {
-            this.weight = weight;
-            return this;
-        }
+		public SkinBone setWeight(short weight) {
+			this.weight = weight;
+			return this;
+		}
 
-        int getBoneId(EditableModel model) {
-            return model.getObjectId(bone);
-        }
-    }
+		int getBoneId(EditableModel model) {
+			return model.getObjectId(bone);
+		}
+
+		public SkinBone copy() {
+			return new SkinBone(weight, bone);
+		}
+
+		public boolean equals(SkinBone otherSkinBone) {
+//            return weight == otherSkinBone.weight && bone.equals(otherSkinBone.bone);
+			return weight == otherSkinBone.weight && bone == otherSkinBone.bone;
+		}
+	}
 }

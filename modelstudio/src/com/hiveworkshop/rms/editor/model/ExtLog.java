@@ -72,6 +72,12 @@ public class ExtLog {
 		}
 	}
 
+	public ExtLog setDefault() {
+		minimumExtent = new Vec3(DEFAULT_MINEXT);
+		maximumExtent = new Vec3(DEFAULT_MAXEXT);
+		return this;
+	}
+
 	public void setMinExt(final Vec3 v) {
 		minimumExtent = v;
 	}

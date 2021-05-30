@@ -21,12 +21,12 @@ public final class BasicCoordinateSystem implements CoordinateSystem {
 	}
 
 	@Override
-	public double convertX(final double x) {
+	public double viewX(final double x) {
 		return (x + cameraX) * zoom + width / 2.0;
 	}
 
 	@Override
-	public double convertY(final double y) {
+	public double viewY(final double y) {
 		return ((-y + cameraY) * zoom) + height / 2.0;
 	}
 

@@ -247,7 +247,7 @@ public class Geoset implements Named, VisibilitySource {
 		geoset.lod = getLevelOfDetail();
 		geoset.lodName = getLevelOfDetailName();
 
-		if ((numVertices > 0) && (getVertex(0).getSkinBones() != null)) {
+		if ((numVertices > 0) && (getVertex(0).getSkinBoneBones() != null)) {
 			// v900
 			geoset.skin = new short[8 * numVertices];
 			geoset.tangents = new float[4 * numVertices];
@@ -306,7 +306,7 @@ public class Geoset implements Named, VisibilitySource {
 
 	@Override
 	public void setName(String text) {
-		if (getParentModel().getFormatVersion() > 900) {
+		if (getParentModel() != null && getParentModel().getFormatVersion() > 900) {
 			setLevelOfDetailName(text);
 		}
 	}
@@ -498,7 +498,7 @@ public class Geoset implements Named, VisibilitySource {
 	public List<GeosetVertex> getChildrenOf(final Bone parent) {
 		final List<GeosetVertex> children = new ArrayList<>();
 		for (final GeosetVertex gv : vertices) {
-			if (gv.bones.contains(parent)) {
+			if (gv.bones.contains(parent) || Arrays.stream(gv.getSkinBoneBones()).anyMatch(bone -> bone == parent)) {
 				children.add(gv);
 			}
 		}
@@ -623,6 +623,12 @@ public class Geoset implements Named, VisibilitySource {
 
 	private void setSkinBones(EditableModel mdlr, int i, GeosetVertex gv) {
 		if ((ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) && (tangents != null)) {
+//			if (skinBones == null && model.getModel().getFormatVersion() >= 900) {
+//	            for (Geoset geoset : geosets) {
+//	                geoset.makeHd();
+//
+//	            }
+//	        }
 			gv.initV900();
 			for (int j = 0; j < 4; j++) {
 				short boneLookupId = (short) ((skin.get(i)[j] + 256) % 256);
@@ -709,7 +715,7 @@ public class Geoset implements Named, VisibilitySource {
 		// Clearing matrix list
 		matrix.clear();
 		for (final GeosetVertex geosetVertex : vertices) {
-			if (geosetVertex.getSkinBones() != null) {
+			if (geosetVertex.getSkinBoneBones() != null) {
 				if (matrix.isEmpty()) {
 //					final List<Bone> bones = mdlr.sortedIdObjects(Bone.class);
 					final List<Bone> bones = mdlr.getBones();
@@ -722,7 +728,7 @@ public class Geoset implements Named, VisibilitySource {
 					}
 				}
 				int skinIndex = 0;
-				for (final Bone bone : geosetVertex.getSkinBones()) {
+				for (final Bone bone : geosetVertex.getSkinBoneBones()) {
 					if (bone != null) {
 						final List<Bone> singleBoneList = new ArrayList<>();
 						singleBoneList.add(bone);
@@ -806,6 +812,10 @@ public class Geoset implements Named, VisibilitySource {
 		return vertices;
 	}
 
+	public void addVerticies(List<GeosetVertex> vertex) {
+		this.vertices.addAll(vertex);
+	}
+
 	public void setVertex(final List<GeosetVertex> vertex) {
 		this.vertices = vertex;
 	}
@@ -886,6 +896,10 @@ public class Geoset implements Named, VisibilitySource {
 		triangles.remove(tri);
 	}
 
+	public boolean isHD() {
+		return getParentModel().getFormatVersion() >= 900 && !getVertices().isEmpty() && getVertex(0).getTangent() != null;
+	}
+
 	public ExtLog calculateExtent() {
 		double maximumDistanceFromCenter = 0;
 		Vec3 max = new Vec3(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
@@ -903,10 +917,28 @@ public class Geoset implements Named, VisibilitySource {
 		return new ExtLog(min, max, maximumDistanceFromCenter);
 	}
 
+	public void makeHd() {
+		final List<GeosetVertex> vertices = getVertices();
+		for (final GeosetVertex gv : vertices) {
+			final Vec3 normal = gv.getNormal();
+			gv.initV900();
+			if (normal != null) {
+				gv.setTangent(normal, 1);
+			}
+			gv.magicSkinBones();
+		}
+	}
+
+	public void makeSd() {
+		for (final GeosetVertex vertex : getVertices()) {
+			vertex.un900Heuristic();
+		}
+	}
+
 	public Map<Bone, List<GeosetVertex>> getBoneMap() {
 		Map<Bone, List<GeosetVertex>> boneMap = new HashMap<>();
 		for (GeosetVertex geosetVertex : vertices) {
-			Bone[] sb = geosetVertex.getSkinBones();
+			Bone[] sb = geosetVertex.getSkinBoneBones();
 			short[] bw = geosetVertex.getSkinBoneWeights();
 			if (sb != null && bw != null) {
 				for (int i = 0; i < sb.length; i++) {

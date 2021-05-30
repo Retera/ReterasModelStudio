@@ -24,6 +24,7 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 	JPanel hdPanel;
 	JSpinner lodSpinner;
 	JTextField nameTextField;
+	JButton toggleSdHd;
 	//	private final JLabel selectionGroupLabel;
 	private JSpinner selectionGroupSpinner;
 	private Geoset geoset;
@@ -70,7 +71,9 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 //		selectionGroupLabel = new JLabel("0");
 
 		JButton editUvButton = new JButton("Edit Geoset UVs");
-
+		toggleSdHd = new JButton("Make Geoset HD");
+		toggleSdHd.addActionListener(e -> toggleSdHd());
+		add(toggleSdHd, "wrap");
 	}
 
 	private void createHDPanel(ModelViewManager modelViewManager) {
@@ -82,7 +85,7 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 		hdPanel.add(nameTextField, "spanx 2, wrap");
 
 		hdPanel.add(new JLabel("LevelOfDetail: "));
-		lodSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 1));
+		lodSpinner = new JSpinner(new SpinnerNumberModel(0, -1, 10000, 1));
 		hdPanel.add(lodSpinner, "wrap");
 		lodSpinner.addChangeListener(e -> setLoD());
 
@@ -94,6 +97,7 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 	public void setSelectedItem(final Geoset geoset) {
 		this.geoset = geoset;
 		materialPanelHolder.remove(materialPanel);
+		setToggleButtonText();
 
 		materialPanels.putIfAbsent(geoset, new ComponentGeosetMaterialPanel());
 		materialPanel = materialPanels.get(geoset);
@@ -129,6 +133,26 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 
 	private void setLoD() {
 		geoset.setLevelOfDetail((Integer) lodSpinner.getValue());
+	}
+
+	private void toggleSdHd() {
+		if (geoset != null) {
+			if (geoset.isHD()) {
+				geoset.makeSd();
+			} else {
+				geoset.makeHd();
+			}
+			setToggleButtonText();
+		}
+	}
+
+	private void setToggleButtonText() {
+		toggleSdHd.setVisible(modelViewManager.getModel().getFormatVersion() >= 900);
+		if (geoset.isHD()) {
+			toggleSdHd.setText("Make Geoset SD");
+		} else {
+			toggleSdHd.setText("Make Geoset HD");
+		}
 	}
 
 	private FocusAdapter setLoDName() {

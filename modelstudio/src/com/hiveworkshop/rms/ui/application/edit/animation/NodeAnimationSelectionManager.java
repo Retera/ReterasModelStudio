@@ -29,7 +29,7 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 	@Override
 	public Vec3 getCenter() {
 		Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
-		for (final IdObject object : selection) {
+		for (IdObject object : selection) {
 			Vec4 pivotHeap = new Vec4(object.getPivotPoint(), 1);
 			pivotHeap.transform(renderModel.getRenderNode(object).getWorldMatrix());
 			centerOfGroupSumHeap.add(pivotHeap.getVec3());
@@ -45,8 +45,8 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 		// These reference the MODEL EDITOR pivot points, used only as memory references
 		// so that downstream will know to select those pivots, and therefore those
 		// IdObject nodes, for static editing (hence we do not apply worldMatrix)
-		final List<Vec3> vertices = new ArrayList<>();
-		for (final IdObject obj : selection) {
+		List<Vec3> vertices = new ArrayList<>();
+		for (IdObject obj : selection) {
 			vertices.add(obj.getPivotPoint());
 		}
 		return vertices;
@@ -58,16 +58,14 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 	}
 
 	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
-	                            final ModelView model, final ProgramPreferences programPreferences) {
+	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
+	                            ModelView model, ProgramPreferences programPreferences) {
 		// TODO !!! apply rendering
-		final Set<IdObject> drawnSelection = new HashSet<>();
-		final Set<IdObject> parentedNonSelection = new HashSet<>();
-		for (final IdObject object : model.getEditableIdObjects()) {
+		Set<IdObject> drawnSelection = new HashSet<>();
+		Set<IdObject> parentedNonSelection = new HashSet<>();
+		for (IdObject object : model.getEditableIdObjects()) {
 			if (selection.contains(object)) {
-				renderer.renderIdObject(object, NodeIconPalette.SELECTED,
-						programPreferences.getAnimatedBoneSelectedColor(),
-						programPreferences.getAnimatedBoneSelectedColor());
+				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getAnimatedBoneSelectedColor(), programPreferences.getAnimatedBoneSelectedColor());
 				drawnSelection.add(object);
 			} else {
 				IdObject parent = object.getParent();
@@ -79,31 +77,27 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 				}
 			}
 		}
-		for (final IdObject selectedObject : selection) {
+		for (IdObject selectedObject : selection) {
 			if (!drawnSelection.contains(selectedObject)) {
 				renderBoneDummy.setPivotPoint(selectedObject.getPivotPoint());
-				renderer.renderIdObject(renderBoneDummy, NodeIconPalette.SELECTED,
-						programPreferences.getAnimatedBoneSelectedColor(),
-						programPreferences.getAnimatedBoneSelectedColor());
+				renderer.renderIdObject(renderBoneDummy, NodeIconPalette.SELECTED, programPreferences.getAnimatedBoneSelectedColor(), programPreferences.getAnimatedBoneSelectedColor());
 				drawnSelection.add(selectedObject);
 			}
 		}
-		for (final IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : model.getEditableIdObjects()) {
 			if (parentedNonSelection.contains(object) && !drawnSelection.contains(object)) {
-				renderer.renderIdObject(object, NodeIconPalette.SELECTED,
-						programPreferences.getAnimatedBoneSelectedUpstreamColor(),
-						programPreferences.getAnimatedBoneSelectedUpstreamColor());
+				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getAnimatedBoneSelectedUpstreamColor(), programPreferences.getAnimatedBoneSelectedUpstreamColor());
 			}
 		}
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec3 sphereCenter) {
+	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
 		double radius = 0;
-		for (final IdObject item : selection) {
+		for (IdObject item : selection) {
 			Vec4 pivotHeap = new Vec4(item.getPivotPoint(), 1);
 			pivotHeap.transform(renderModel.getRenderNode(item).getWorldMatrix());
-			final double distance = sphereCenter.distance(pivotHeap);
+			double distance = sphereCenter.distance(pivotHeap);
 			if (distance >= radius) {
 				radius = distance;
 			}
@@ -112,23 +106,23 @@ public final class NodeAnimationSelectionManager extends SelectionManager<IdObje
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
+	public double getCircumscribedSphereRadius(Vec2 center, int tvertexLayerId) {
 		return 0;
 	}
 
 	@Override
-	public Vec2 getUVCenter(final int tvertexLayerId) {
+	public Vec2 getUVCenter(int tvertexLayerId) {
 		return Vec2.ORIGIN;
 	}
 
 	@Override
-	public Collection<? extends Vec2> getSelectedTVertices(final int tvertexLayerId) {
+	public Collection<? extends Vec2> getSelectedTVertices(int tvertexLayerId) {
 		return Collections.emptySet();
 	}
 
 	@Override
-	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
-                                  final ProgramPreferences programPreferences, final int tvertexLayerId) {
+	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView,
+	                              ProgramPreferences programPreferences, int tvertexLayerId) {
 
 	}
 }

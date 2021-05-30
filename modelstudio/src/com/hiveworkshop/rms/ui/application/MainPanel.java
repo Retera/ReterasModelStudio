@@ -51,7 +51,6 @@ public class MainPanel extends JPanel
     MenuBar.UndoMenuItem undo;
     MenuBar.RedoMenuItem redo;
 
-    JFileChooser fc, exportTextureDialog;
     File currentFile;
     ImportPanel importPanel;
     protected static final boolean OLDMODE = false;
@@ -79,7 +78,6 @@ public class MainPanel extends JPanel
     final ViewportTransferHandler viewportTransferHandler;
     final StringViewMap viewMap;
     final RootWindow rootWindow;
-    final ExportTextureDialog.TextureExporterImpl textureExporter = new ExportTextureDialog.TextureExporterImpl(this);
     //    protected ModelEditorActionType actionType;
     public ModelEditorActionType actionType;
     JMenu teamColorMenu;
@@ -207,11 +205,6 @@ public class MainPanel extends JPanel
         startupTabWindow.setSelectedTab(0);
 
         add(rootWindow);
-
-        // Create a file chooser
-        ExportTextureDialog.createFileChooser(this);
-
-        ExportTextureDialog.createExportTextureDialog(this);
 
         selectionItemTypeGroup.addToolbarButtonListener(this::selectionItemTypeGroupActionRes);
 

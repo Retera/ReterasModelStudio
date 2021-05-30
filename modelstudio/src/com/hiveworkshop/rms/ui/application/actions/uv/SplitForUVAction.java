@@ -24,9 +24,9 @@ public final class SplitForUVAction<T> implements UndoAction {
 	private final Collection<Vec3> newVerticesToSelect;
 	private final VertexSelectionHelper vertexSelectionHelper;
 
-	public SplitForUVAction(final Collection<Triangle> trisToSeparate, final EditableModel model,
-                            final ModelStructureChangeListener modelStructureChangeListener, final SelectionManager<T> selectionManager,
-                            final VertexSelectionHelper vertexSelectionHelper) {
+	public SplitForUVAction(Collection<Triangle> trisToSeparate, EditableModel model,
+	                        ModelStructureChangeListener modelStructureChangeListener, SelectionManager<T> selectionManager,
+	                        VertexSelectionHelper vertexSelectionHelper) {
 		this.trisToSeparate = trisToSeparate;
 		this.model = model;
 		this.modelStructureChangeListener = modelStructureChangeListener;
@@ -34,44 +34,44 @@ public final class SplitForUVAction<T> implements UndoAction {
 		this.vertexSelectionHelper = vertexSelectionHelper;
 		this.geosetsModified = new ArrayList<>();
 		this.newVerticesToSelect = new ArrayList<>();
-		final Set<GeosetVertex> verticesInTheTriangles = new HashSet<>();
-		final Set<Geoset> geosetsToCopy = new HashSet<>();
-		for (final Triangle tri : trisToSeparate) {
+		Set<GeosetVertex> verticesInTheTriangles = new HashSet<>();
+		Set<Geoset> geosetsToCopy = new HashSet<>();
+		for (Triangle tri : trisToSeparate) {
 			verticesInTheTriangles.addAll(Arrays.asList(tri.getVerts()));
 			geosetsToCopy.add(tri.getGeoset());
 		}
-		final Map<Geoset, Geoset> oldGeoToNewGeo = new HashMap<>();
-		final Map<GeosetVertex, GeosetVertex> oldVertToNewVert = new HashMap<>();
+		Map<Geoset, Geoset> oldGeoToNewGeo = new HashMap<>();
+		Map<GeosetVertex, GeosetVertex> oldVertToNewVert = new HashMap<>();
 		geosetsModified.addAll(geosetsToCopy);
-		for (final GeosetVertex vertex : verticesInTheTriangles) {
-			final GeosetVertex copy = new GeosetVertex(vertex);
-			final Geoset newGeoset = oldGeoToNewGeo.get(vertex.getGeoset());
+		for (GeosetVertex vertex : verticesInTheTriangles) {
+			GeosetVertex copy = new GeosetVertex(vertex);
+			Geoset newGeoset = oldGeoToNewGeo.get(vertex.getGeoset());
 			copy.setGeoset(newGeoset);
 			newGeoset.add(copy);
 			oldVertToNewVert.put(vertex, copy);
 			newVerticesToSelect.add(copy);
 		}
-		for (final Triangle tri : trisToSeparate) {
-			final GeosetVertex a, b, c;
+		for (Triangle tri : trisToSeparate) {
+			GeosetVertex a, b, c;
 			a = oldVertToNewVert.get(tri.get(0));
 			b = oldVertToNewVert.get(tri.get(1));
 			c = oldVertToNewVert.get(tri.get(2));
-			final Geoset newGeoset = oldGeoToNewGeo.get(tri.getGeoset());
-			final Triangle newTriangle = new Triangle(a, b, c, newGeoset);
+			Geoset newGeoset = oldGeoToNewGeo.get(tri.getGeoset());
+			Triangle newTriangle = new Triangle(a, b, c, newGeoset);
 			newGeoset.add(newTriangle);
-			a.getTriangles().add(newTriangle);
-			b.getTriangles().add(newTriangle);
-			c.getTriangles().add(newTriangle);
+//			a.addTriangle(newTriangle);
+//			b.addTriangle(newTriangle);
+//			c.addTriangle(newTriangle);
 		}
 		selection = new ArrayList<>(selectionManager.getSelection());
 	}
 
 	@Override
 	public void undo() {
-		for (final Triangle tri : trisToSeparate) {
-			final Geoset geoset = tri.getGeoset();
-			for (final GeosetVertex gv : tri.getVerts()) {
-				gv.getTriangles().add(tri);
+		for (Triangle tri : trisToSeparate) {
+			Geoset geoset = tri.getGeoset();
+			for (GeosetVertex gv : tri.getVerts()) {
+				gv.addTriangle(tri);
 				if (!geoset.getVertices().contains(gv)) {
 					geoset.add(gv);
 				}
@@ -83,10 +83,10 @@ public final class SplitForUVAction<T> implements UndoAction {
 
 	@Override
 	public void redo() {
-		for (final Triangle tri : trisToSeparate) {
-			final Geoset geoset = tri.getGeoset();
-			for (final GeosetVertex gv : tri.getVerts()) {
-				gv.getTriangles().remove(tri);
+		for (Triangle tri : trisToSeparate) {
+			Geoset geoset = tri.getGeoset();
+			for (GeosetVertex gv : tri.getVerts()) {
+				gv.removeTriangle(tri);
 				if (gv.getTriangles().isEmpty()) {
 					geoset.remove(gv);
 				}

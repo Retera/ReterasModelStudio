@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
@@ -54,7 +55,7 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 	private final CoordDisplayListener coordDisplayListener;
 	private final ModelView modelView;
 	private final UndoHandler undoHandler;
-	private ModelEditor modelEditor;
+	private ModelEditorManager modelEditorManager;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private Point lastMouseMotion = new Point(0, 0);
 	private final RenderModel renderModel;
@@ -70,7 +71,7 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 	Viewport viewport;
 	JPanel thisPanel;
 
-	public Viewport(byte d1, byte d2, ModelView modelView, ProgramPreferences programPreferences, ViewportActivity activityListener, ModelStructureChangeListener modelStructureChangeListener, UndoActionListener undoListener, CoordDisplayListener coordDisplayListener, UndoHandler undoHandler, ModelEditor modelEditor, ViewportTransferHandler viewportTransferHandler, RenderModel renderModel, ViewportListener viewportListener) {
+	public Viewport(byte d1, byte d2, ModelView modelView, ProgramPreferences programPreferences, ViewportActivity activityListener, ModelStructureChangeListener modelStructureChangeListener, UndoActionListener undoListener, CoordDisplayListener coordDisplayListener, UndoHandler undoHandler, ModelEditorManager modelEditorManager, ViewportTransferHandler viewportTransferHandler, RenderModel renderModel, ViewportListener viewportListener) {
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
 		m_d1 = d1;
@@ -79,7 +80,7 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		this.programPreferences = programPreferences;
 		this.activityListener = activityListener;
 		this.modelStructureChangeListener = modelStructureChangeListener;
-		this.modelEditor = modelEditor;
+		this.modelEditorManager = modelEditorManager;
 		this.undoListener = undoListener;
 		this.coordDisplayListener = coordDisplayListener;
 		this.undoHandler = undoHandler;
@@ -103,7 +104,7 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		viewport = this;
 		thisPanel = this;
 
-		contextMenu = new ViewportPopupMenu(this, undoListener, modelEditor, modelView);
+		contextMenu = new ViewportPopupMenu(this, this.undoListener, this.modelEditorManager, this.modelView);
 		add(contextMenu);
 
 		viewportModelRenderer = new ViewportModelRenderer(programPreferences.getVertexSize());
@@ -127,33 +128,33 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		this.view = view;
 	}
 
-	public void setupViewportBackground(final ProgramPreferences programPreferences) {
+	public void setupViewportBackground(ProgramPreferences programPreferences) {
 		// if (programPreferences.isInvertedDisplay()) {
 		// setBackground(Color.DARK_GRAY.darker());
 		// } else {setBackground(new Color(255, 255, 255));}
 		setBackground(programPreferences.getBackgroundColor());
 	}
 
-	private void setupCopyPaste(final ViewportTransferHandler viewportTransferHandler) {
+	private void setupCopyPaste(ViewportTransferHandler viewportTransferHandler) {
 		setTransferHandler(viewportTransferHandler);
-		final ActionMap map = getActionMap();
+		ActionMap map = getActionMap();
 		map.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
 		map.put(TransferHandler.getCopyAction().getValue(Action.NAME), TransferHandler.getCopyAction());
 		map.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
 		setFocusable(true);
 	}
 
-	public void setPosition(final double a, final double b) {
+	public void setPosition(double a, double b) {
 		m_a = a;
 		m_b = b;
 	}
 
-	public void translate(final double a, final double b) {
+	public void translate(double a, double b) {
 		m_a += a;
 		m_b += b;
 	}
 
-	public void zoom(final double amount) {
+	public void zoom(double amount) {
 		m_zoom *= 1 + amount;
 	}
 
@@ -176,13 +177,13 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 	}
 
 	public BufferedImage getBufferedImage() {
-		final BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+		BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
 		paintComponent(image.getGraphics(), 5);
 		return image;
 	}
 
 	@Override
-	public void paintComponent(final Graphics g) {
+	public void paintComponent(Graphics g) {
 		paintComponent(g, 1);
 	}
 
@@ -192,21 +193,21 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		menu.add(menuItem);
 	}
 
-	public void paintComponent(final Graphics g, final int vertexSize) {
+	public void paintComponent(Graphics g, int vertexSize) {
 		super.paintComponent(g);
-		final long renderStart = System.nanoTime();
+		long renderStart = System.nanoTime();
 		if (programPreferences.show2dGrid()) {
 			drawGrid(g);
 		}
-		final Graphics2D graphics2d = (Graphics2D) g;
+		Graphics2D graphics2d = (Graphics2D) g;
 
 		// dispMDL.drawGeosets(g, this, 1);
 		// dispMDL.drawPivots(g, this, 1);
 		// dispMDL.drawCameras(g, this, 1);
-		if (modelEditor.editorWantsAnimation()) {
-			final Stroke stroke = graphics2d.getStroke();
+		if (modelEditorManager.getModelEditor().editorWantsAnimation()) {
+			Stroke stroke = graphics2d.getStroke();
 			graphics2d.setStroke(new BasicStroke(3));
-			renderModel.updateNodes(true, false);
+			renderModel.updateNodes(false);
 			linkRenderer.reset(this, graphics2d, NodeIconPalette.HIGHLIGHT, renderModel);
 			modelView.visit(linkRenderingVisitorAdapter);
 			graphics2d.setStroke(stroke);
@@ -220,17 +221,17 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		}
 
 		getColor(g, m_d1);
-		g.drawLine((int) Math.round(convertX(0)), (int) Math.round(convertY(0)), (int) Math.round(convertX(5)), (int) Math.round(convertY(0)));
+		g.drawLine((int) Math.round(viewX(0)), (int) Math.round(viewY(0)), (int) Math.round(viewX(5)), (int) Math.round(viewY(0)));
 
 		getColor(g, m_d2);
-		g.drawLine((int) Math.round(convertX(0)), (int) Math.round(convertY(0)), (int) Math.round(convertX(0)), (int) Math.round(convertY(5)));
+		g.drawLine((int) Math.round(viewX(0)), (int) Math.round(viewY(0)), (int) Math.round(viewX(0)), (int) Math.round(viewY(5)));
 
 
 		adjustAndRunPaintTimer(renderStart);
 	}
 
 	public void drawGrid(Graphics g) {
-		final Point2D.Double cameraOrigin = new Point2D.Double(convertX(0), convertY(0));
+		Point2D.Double cameraOrigin = new Point2D.Double(viewX(0), viewY(0));
 
 		float increment = 20 * (float) getZoomAmount();
 		while (increment < 100) {
@@ -240,7 +241,7 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		while (lightIncrement > 100) {
 			lightIncrement /= 10;
 		}
-		final float darkIncrement = increment * 10;
+		float darkIncrement = increment * 10;
 		g.setColor(Color.DARK_GRAY);
 		drawXLines(g, cameraOrigin, lightIncrement);
 		drawYLines(g, cameraOrigin, lightIncrement);
@@ -259,23 +260,23 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 	}
 
 	public void adjustAndRunPaintTimer(long renderStart) {
-		final long renderEnd = System.nanoTime();
-		final long currFrameRenderTime = renderEnd - renderStart;
+		long renderEnd = System.nanoTime();
+		long currFrameRenderTime = renderEnd - renderStart;
 
 //		minRenderTime = Math.min(currFrameRenderTime, minRenderTime);
 //		maxRenderTime = Math.max(currFrameRenderTime, maxRenderTime);
 //		totTempRenderTime += currFrameRenderTime;
 //		renderCount += 1;
 //		if (renderCount >= 100) {
-////			final long millis = ((totTempRenderTime / renderCount) / 1000000L) + 1;
-//			final long millis = ((totTempRenderTime/1000000L) / renderCount);
+////			long millis = ((totTempRenderTime / renderCount) / 1000000L) + 1;
+//			long millis = ((totTempRenderTime/1000000L) / renderCount);
 //			System.out.println("millis: " + millis);
 //			if (millis > paintTimer.getDelay()) {
-//				final int millis2 = (int) (millis * 5);
+//				int millis2 = (int) (millis * 5);
 //				System.out.println("min, delay=" + millis2);
 //				paintTimer.setDelay(millis2);
 //			} else if (millis < paintTimer.getDelay()) {
-//				final int max2 = Math.max(16, (int) (millis * 5));
+//				int max2 = Math.max(16, (int) (millis * 5));
 //				System.out.println("max, delay=" + max2);
 //				paintTimer.setDelay(max2);
 //			}
@@ -287,15 +288,15 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		totTempRenderTime += currFrameRenderTime;
 		renderCount += 1;
 		if (renderCount >= 100) {
-			final long millis = ((totTempRenderTime / 1000000L) / renderCount) + 1;
+			long millis = ((totTempRenderTime / 1000000L) / renderCount) + 1;
 			paintTimer.setDelay(Math.max(16, (int) (millis * 5)));
 //			System.out.println("delay: " + paintTimer.getDelay());
 
 			totTempRenderTime = 0;
 			renderCount = 0;
 		}
-		final boolean showing = isShowing();
-		final boolean running = paintTimer.isRunning();
+		boolean showing = isShowing();
+		boolean running = paintTimer.isRunning();
 		if (showing && !running) {
 			paintTimer.start();
 		} else if (!showing && running) {
@@ -326,22 +327,22 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 	}
 
 	@Override
-	public double convertX(final double x) {
+	public double viewX(double x) {
 		return ((x + m_a) * m_zoom) + (getWidth() / 2.0);
 	}
 
 	@Override
-	public double convertY(final double y) {
+	public double viewY(double y) {
 		return ((-y + m_b) * m_zoom) + (getHeight() / 2.0);
 	}
 
 	@Override
-	public double geomX(final double x) {
+	public double geomX(double x) {
 		return ((x - (getWidth() / 2.0)) / m_zoom) - m_a;
 	}
 
 	@Override
-	public double geomY(final double y) {
+	public double geomY(double y) {
 		return -(((y - (getHeight() / 2.0)) / m_zoom) - m_b);
 	}
 
@@ -359,12 +360,12 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 			temp = temp.getParent();
 			// }
 		}
-		final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+		PointerInfo pointerInfo = MouseInfo.getPointerInfo();
 		if ((pointerInfo == null) || (pointerInfo.getLocation() == null)) {
 			return true;
 		}
-		final double mx = pointerInfo.getLocation().x - xoff;
-		final double my = pointerInfo.getLocation().y - yoff;
+		double mx = pointerInfo.getLocation().x - xoff;
+		double my = pointerInfo.getLocation().y - yoff;
 		// JOptionPane.showMessageDialog(null,mx+","+my+" as mouse,
 		// "+lastClick.x+","+lastClick.y+" as last.");
 		// System.out.println(xoff+" and "+mx);
@@ -381,10 +382,10 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		// TODO update mouse coord display could be used still
 
 		// if (actStart != null) {
-		// final Point actEnd = new Point((int) mx, (int) my);
-		// final Point2D.Double convertedStart = new
+		// Point actEnd = new Point((int) mx, (int) my);
+		// Point2D.Double convertedStart = new
 		// Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-		// final Point2D.Double convertedEnd = new
+		// Point2D.Double convertedEnd = new
 		// Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
 		// dispMDL.updateAction(convertedStart, convertedEnd, m_d1, m_d2);
 		// actStart = actEnd;
@@ -525,15 +526,15 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		};
 	}
 
-	public Rectangle2D.Double pointsToGeomRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min(geomX(a.x), geomX(b.x)), Math.min(geomY(a.y), geomY(b.y)));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)), Math.max(geomY(a.y), geomY(b.y)));
+	public Rectangle2D.Double pointsToGeomRect(Point a, Point b) {
+		Point2D.Double topLeft = new Point2D.Double(Math.min(geomX(a.x), geomX(b.x)), Math.min(geomY(a.y), geomY(b.y)));
+		Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)), Math.max(geomY(a.y), geomY(b.y)));
 		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x, lowRight.y - topLeft.y);
 	}
 
-	public Rectangle2D.Double pointsToRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min(a.x, b.x), Math.min(a.y, b.y));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max(a.x, b.x), Math.max(a.y, b.y));
+	public Rectangle2D.Double pointsToRect(Point a, Point b) {
+		Point2D.Double topLeft = new Point2D.Double(Math.min(a.x, b.x), Math.min(a.y, b.y));
+		Point2D.Double lowRight = new Point2D.Double(Math.max(a.x, b.x), Math.max(a.y, b.y));
 		return new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x, lowRight.y - topLeft.y);
 	}
 
@@ -558,8 +559,8 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 	}
 
 	@Override
-	public void modelEditorChanged(final ModelEditor newModelEditor) {
-		modelEditor = newModelEditor;
+	public void modelEditorChanged(ModelEditor newModelEditor) {
+//		modelEditorManager = newModelEditor;
 		// TODO call from display panel and above
 	}
 
@@ -594,68 +595,12 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		}
 	}
 
-	private final class ModelVisitorImplementation implements ModelVisitor {
-		@Override
-		public void ribbonEmitter(final RibbonEmitter particleEmitter) {
-			linkRenderer.ribbonEmitter(particleEmitter);
-		}
-
-		@Override
-		public void particleEmitter2(final ParticleEmitter2 particleEmitter) {
-			linkRenderer.particleEmitter2(particleEmitter);
-		}
-
-		@Override
-		public void particleEmitter(final ParticleEmitter particleEmitter) {
-			linkRenderer.particleEmitter(particleEmitter);
-		}
-
-		@Override
-		public void popcornFxEmitter(final ParticleEmitterPopcorn popcornFxEmitter) {
-			linkRenderer.popcornFxEmitter(popcornFxEmitter);
-		}
-
-		@Override
-		public void light(final Light light) {
-			linkRenderer.light(light);
-		}
-
-		@Override
-		public void helper(final Helper object) {
-			linkRenderer.helper(object);
-		}
-
-		@Override
-		public void eventObject(final EventObject eventObject) {
-			linkRenderer.eventObject(eventObject);
-		}
-
-		@Override
-		public void collisionShape(final CollisionShape collisionShape) {
-			linkRenderer.collisionShape(collisionShape);
-		}
-
-		@Override
-		public void camera(final Camera camera) { }
-
-		@Override
-		public void bone(final Bone object) {
-			linkRenderer.bone(object);
-		}
-
-		@Override
-		public void attachment(final Attachment attachment) {
-			linkRenderer.attachment(attachment);
-		}
-
-		@Override
-		public GeosetVisitor beginGeoset(final int geosetId, final Material material, final GeosetAnim geosetAnim) {
-			return GeosetVisitor.NO_ACTION;
-		}
+	public ModelEditorManager getModelEditorManager() {
+		return modelEditorManager;
 	}
 
 	public static class DropLocation extends TransferHandler.DropLocation {
-		protected DropLocation(final Point dropPoint) {
+		protected DropLocation(Point dropPoint) {
 			super(dropPoint);
 		}
 	}
@@ -672,8 +617,65 @@ public class Viewport extends JPanel implements CoordinateSystem, ViewportView, 
 		return modelStructureChangeListener;
 	}
 
-	public ModelEditor getModelEditor() {
-		return modelEditor;
+	private final class ModelVisitorImplementation implements ModelVisitor {
+		@Override
+		public void ribbonEmitter(RibbonEmitter particleEmitter) {
+			linkRenderer.ribbonEmitter(particleEmitter);
+		}
+
+		@Override
+		public void particleEmitter2(ParticleEmitter2 particleEmitter) {
+			linkRenderer.particleEmitter2(particleEmitter);
+		}
+
+		@Override
+		public void particleEmitter(ParticleEmitter particleEmitter) {
+			linkRenderer.particleEmitter(particleEmitter);
+		}
+
+		@Override
+		public void popcornFxEmitter(ParticleEmitterPopcorn popcornFxEmitter) {
+			linkRenderer.popcornFxEmitter(popcornFxEmitter);
+		}
+
+		@Override
+		public void light(Light light) {
+			linkRenderer.light(light);
+		}
+
+		@Override
+		public void helper(Helper object) {
+			linkRenderer.helper(object);
+		}
+
+		@Override
+		public void eventObject(EventObject eventObject) {
+			linkRenderer.eventObject(eventObject);
+		}
+
+		@Override
+		public void collisionShape(CollisionShape collisionShape) {
+			linkRenderer.collisionShape(collisionShape);
+		}
+
+		@Override
+		public void camera(Camera camera) {
+		}
+
+		@Override
+		public void bone(Bone object) {
+			linkRenderer.bone(object);
+		}
+
+		@Override
+		public void attachment(Attachment attachment) {
+			linkRenderer.attachment(attachment);
+		}
+
+		@Override
+		public GeosetVisitor beginGeoset(int geosetId, Material material, GeosetAnim geosetAnim) {
+			return GeosetVisitor.NO_ACTION;
+		}
 	}
 
 	public Vec3 getFacingVector() {

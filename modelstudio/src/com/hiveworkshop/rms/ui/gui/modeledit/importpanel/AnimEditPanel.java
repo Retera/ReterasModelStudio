@@ -29,6 +29,7 @@ public class AnimEditPanel extends JPanel {
 		for (Animation anim : mht.receivingModel.getAnims()) {
 			AnimShell animShell = new AnimShell(anim);
 			mht.recModAnims.addElement(animShell);
+			mht.animTabList.addElement(animShell);
 		}
 
 		animPanelCards.add(new JPanel(), "blank");

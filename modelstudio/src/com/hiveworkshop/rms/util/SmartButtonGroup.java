@@ -102,7 +102,7 @@ public class SmartButtonGroup extends ButtonGroup {
 		button.addActionListener(actionListener);
 		add(button);
 		buttonIndexMap.put(index, button);
-		buttonNameMap.put(button.getName(), button);
+		buttonNameMap.put(button.getText(), button);
 	}
 
 	public JPanel getButtonPanel() {

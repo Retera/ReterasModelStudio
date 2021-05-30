@@ -2,6 +2,8 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.editor.model.util.TwiAiIoSys;
+import com.hiveworkshop.rms.editor.model.util.TwiAiSceneParser;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
@@ -19,10 +21,11 @@ import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.ui.util.ExtFilter;
 import com.hiveworkshop.rms.util.Vec2;
-import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.War3ID;
 import jassimp.AiPostProcessSteps;
+import jassimp.AiProgressHandler;
 import jassimp.AiScene;
 import jassimp.Jassimp;
 import net.infonode.docking.SplitWindow;
@@ -57,13 +60,6 @@ public class MPQBrowserView {
 
     private static void loadFileByType(MainPanel mainPanel, String filepath) {
         loadFile(mainPanel, GameDataFileSystem.getDefault().getFile(filepath), true);
-//        if (filepath.toLowerCase().endsWith(".mdx")) {
-//            loadFile(mainPanel, GameDataFileSystem.getDefault().getFile(filepath), true);
-//        } else if (filepath.toLowerCase().endsWith(".blp") || filepath.toLowerCase().endsWith(".png")) {
-//            loadBLPPathAsModel(mainPanel, filepath);
-//        } else if (filepath.toLowerCase().endsWith(".dds")) {
-//            loadBLPPathAsModel(mainPanel, filepath, null, 1000);
-//        }
     }
 
     private static void fetchModelTexture(MainPanel mainPanel, String path) {
@@ -136,7 +132,7 @@ public class MPQBrowserView {
         mainPanel
                 .currentModelPanel()
                 .getEditorRenderModel()
-                .updateNodes(true, false); // update to 0 position
+                .updateNodes(false); // update to 0 position
     }
 
     private static ModelPanel newTempModelPanel(MainPanel mainPanel, ImageIcon icon, EditableModel model) {
@@ -147,48 +143,10 @@ public class MPQBrowserView {
                 mainPanel.modelStructureChangeListener,
                 mainPanel.coordDisplayListener,
                 mainPanel.viewportTransferHandler,
-                mainPanel.viewportListener, icon, false,
-                mainPanel.textureExporter);
+                mainPanel.viewportListener, icon, false
+        );
         return temp;
     }
-
-//    public static void loadBLPPathAsModel(MainPanel mainPanel, final String filepath) {
-//        loadBLPPathAsModel(mainPanel, filepath, null);
-//    }
-//
-//    public static void loadBLPPathAsModel(MainPanel mainPanel, final String filepath, final File workingDirectory) {
-//        int version = 800;
-//        if (filepath.toLowerCase().endsWith(".dds")) {
-//            version = 1000;
-//        }
-//        loadBLPPathAsModel(mainPanel, filepath, workingDirectory, version);
-//    }
-//
-//    public static void loadBLPPathAsModel(MainPanel mainPanel, final String filepath, final File workingDirectory, final int version) {
-//        final EditableModel blankTextureModel = getImagePlaneModel(filepath, workingDirectory, version);
-//
-//        loadModel(mainPanel, workingDirectory == null, true,
-//                new ModelPanel(mainPanel,
-//                        blankTextureModel,
-//                        mainPanel.prefs,
-//                        mainPanel,
-//                        mainPanel.selectionItemTypeGroup,
-//                        mainPanel.selectionModeGroup,
-//                        mainPanel.modelStructureChangeListener,
-//                        mainPanel.coordDisplayListener,
-//                        mainPanel.viewportTransferHandler,
-//                        mainPanel.activeViewportWatcher,
-//                        RMSIcons.orangeIcon,
-//                        true,
-//                        mainPanel.textureExporter
-//                ));
-//    }
-
-//    public static EditableModel getImagePlaneModel(File file, int version) {
-//        String fileName = file.getName();
-//        File fileRef = new File(file.getPath().replaceAll("\\.[^.]+$", "") + ".mdl");
-//        return getImagePlaneModel(fileName, file.getParentFile(), version);
-//    }
 
 
     //    public static EditableModel getImagePlaneModel(String fileName, File workingDirectory, int version) {
@@ -197,52 +155,45 @@ public class MPQBrowserView {
         System.out.println("fileName: " + fileName);
 //        File fileRef = new File(file.getPath().replaceAll("\\.[^.]+$", "") + ".mdl");
         File fileRef = new File(file.getPath());
-        System.out.println("fileRef: " + fileRef);
-        System.out.println("fileRef: " + fileRef.getPath());
+        System.out.println("fileRef: " + fileRef + ", fileRefPath: " + fileRef.getPath());
 
-        final EditableModel blankTextureModel = new EditableModel(fileName);
+        EditableModel blankTextureModel = new EditableModel(fileName);
         blankTextureModel.setFileRef(fileRef);
         blankTextureModel.setFormatVersion(version);
 //        blankTextureModel.setTemp(true);
 
-        final Geoset newGeoset = new Geoset();
-        final Layer layer = new Layer("Blend", new Bitmap(fileName));
+        Geoset newGeoset = new Geoset();
+        if (version == 1000) {
+            newGeoset.setLevelOfDetail(0);
+        }
+        Layer layer = new Layer("Blend", new Bitmap(fileName));
         layer.setUnshaded(true);
-        final Material material = new Material(layer);
+//        layer.setTwoSided(true);
+        Material material = new Material(layer);
         newGeoset.setMaterial(material);
-        final BufferedImage bufferedImage = material.getBufferedImage(blankTextureModel.getWrappedDataSource());
-        final int textureWidth = bufferedImage.getWidth();
-        final int textureHeight = bufferedImage.getHeight();
-        final float aspectRatio = textureWidth / (float) textureHeight;
+        BufferedImage bufferedImage = material.getBufferedImage(blankTextureModel.getWrappedDataSource());
+        int textureWidth = bufferedImage.getWidth();
+        int textureHeight = bufferedImage.getHeight();
+        float aspectRatio = textureWidth / (float) textureHeight;
 
-        final int displayWidth = (int) (aspectRatio > 1 ? 128 : 128 * aspectRatio);
-        final int displayHeight = (int) (aspectRatio < 1 ? 128 : 128 / aspectRatio);
+        int displayWidth = (int) (aspectRatio > 1 ? 128 : 128 * aspectRatio);
+        int displayHeight = (int) (aspectRatio < 1 ? 128 : 128 / aspectRatio);
 
-        final int groundOffset = aspectRatio > 1 ? (128 - displayHeight) / 2 : 0;
+        int groundOffset = aspectRatio > 1 ? (128 - displayHeight) / 2 : 0;
 
-        final GeosetVertex upperLeft = createVertex(newGeoset, displayWidth / 2, displayHeight + groundOffset, 1, 0);
+        Vec2 min = new Vec2(-displayWidth / 2.0, groundOffset);
+        Vec2 max = new Vec2(displayWidth / 2.0, displayHeight + groundOffset);
 
-        final GeosetVertex upperRight = createVertex(newGeoset, -displayWidth / 2, displayHeight + groundOffset, 0, 0);
+        ModelUtils.Mesh planeMesh = ModelUtils.createPlane((byte) 0, true, 0, max, min, 1);
+        newGeoset.addVerticies(planeMesh.getVertices());
+        newGeoset.setTriangles(planeMesh.getTriangles());
 
-        final GeosetVertex lowerLeft = createVertex(newGeoset, displayWidth / 2, groundOffset, 1, 1);
-
-        final GeosetVertex lowerRight = createVertex(newGeoset, -displayWidth / 2, groundOffset, 0, 1);
-
-        newGeoset.add(new Triangle(upperLeft, upperRight, lowerLeft));
-        newGeoset.add(new Triangle(upperRight, lowerRight, lowerLeft));
         blankTextureModel.add(newGeoset);
+        ExtLog extLog = new ExtLog(128).setDefault();
+        blankTextureModel.setExtents(extLog);
         blankTextureModel.add(new Animation("Stand", 0, 1000));
         blankTextureModel.doSavePreps();
         return blankTextureModel;
-    }
-
-    private static GeosetVertex createVertex(Geoset newGeoset, int yValue, int zValue, int tx, int ty) {
-        final GeosetVertex vertex = new GeosetVertex(0, yValue, zValue, new Vec3(0, 0, 1));
-        newGeoset.add(vertex);
-        final Vec2 tVert = new Vec2(tx, ty);
-        vertex.addTVertex(tVert);
-        vertex.setGeoset(newGeoset);
-        return vertex;
     }
 
     public static void loadModel(MainPanel mainPanel, final boolean temporary, final boolean selectNewTab, final ModelPanel modelPanel) {
@@ -282,8 +233,7 @@ public class MPQBrowserView {
         if (selectNewTab && mainPanel.prefs.getQuickBrowse()) {
             for (int i = (mainPanel.modelPanels.size() - 2); i >= 0; i--) {
                 final ModelPanel openModelPanel = mainPanel.modelPanels.get(i);
-                if (openModelPanel.getUndoManager().isRedoListEmpty()
-                        && openModelPanel.getUndoManager().isUndoListEmpty()) {
+                if (openModelPanel.getUndoManager().isRedoListEmpty() && openModelPanel.getUndoManager().isUndoListEmpty()) {
                     if (openModelPanel.close(mainPanel)) {
                         mainPanel.modelPanels.remove(openModelPanel);
 //                        mainPanel.windowMenu.remove(openModelPanel.getMenuItem());
@@ -361,46 +311,24 @@ public class MPQBrowserView {
     public static void loadFile(MainPanel mainPanel, final File f, boolean temporary, final boolean selectNewTab, final ImageIcon icon) {
         System.out.println("loadFile: " + f.getName());
         System.out.println("filePath: " + f.getPath());
+        ExtFilter extFilter = new ExtFilter();
         if (f.exists()) {
             final String pathLow = f.getPath().toLowerCase();
             String ext = pathLow.replaceAll(".+\\.(?=.+)", "");
-            ModelPanel temp = null;
-            if (Arrays.asList("blp", "png", "jpg", "bmp", "tga").contains(ext)) {
-//            final EditableModel model = getImagePlaneModel(f.getName(), f.getParentFile(), 800);
-                final EditableModel model = getImagePlaneModel(f, 800);
+            ModelPanel tempModelPanel = null;
+            if (extFilter.isSupTexture(ext)) {
+                final EditableModel model;
+                if (ext.equals("dds")) {
+                    model = getImagePlaneModel(f, 1000);
+                } else {
+                    model = getImagePlaneModel(f, 800);
+                }
                 model.setTemp(true);
 //            model.setFileRef(f);
                 temporary = false;
-                temp = newTempModelPanel(mainPanel, icon, model);
+                tempModelPanel = newTempModelPanel(mainPanel, icon, model);
 
-            } else if (Arrays.asList("dds").contains(ext)) {
-//            final EditableModel model = getImagePlaneModel(f.getName(), f.getParentFile(), 1000);
-                final EditableModel model = getImagePlaneModel(f, 1000);
-                model.setTemp(true);
-//            model.setFileRef(f);
-                temporary = false;
-                temp = newTempModelPanel(mainPanel, icon, model);
             }
-//        if (Arrays.asList("blp", "png", "jpg", "bmp").contains(ext)) {
-//            loadBLPPathAsModel(mainPanel, f.getName(), f.getParentFile());
-//            return;
-//        }
-//        if (pathLow.endsWith("blp")) {
-//            loadBLPPathAsModel(mainPanel, f.getName(), f.getParentFile());
-//            return;
-//        }
-//        if (pathLow.endsWith("png")) {
-//            loadBLPPathAsModel(mainPanel, f.getName(), f.getParentFile());
-//            return;
-//        }
-//        if (pathLow.endsWith("jpg")) {
-//            loadBLPPathAsModel(mainPanel, f.getName(), f.getParentFile());
-//            return;
-//        }
-//        if (pathLow.endsWith("bmp")) {
-//            loadBLPPathAsModel(mainPanel, f.getName(), f.getParentFile());
-//            return;
-//        }
 
             if (Arrays.asList("mdx", "mdl").contains(ext)) {
                 try {
@@ -408,7 +336,7 @@ public class MPQBrowserView {
                     final EditableModel model = MdxUtils.loadEditable(f);
                     model.setFileRef(f);
 
-                    temp = newTempModelPanel(mainPanel, icon, model);
+                    tempModelPanel = newTempModelPanel(mainPanel, icon, model);
 
                 } catch (final IOException e) {
                     e.printStackTrace();
@@ -417,18 +345,33 @@ public class MPQBrowserView {
                 }
             } else if (Arrays.asList("obj", "fbx").contains(ext)) {
                 try {
-                    AiScene scene = Jassimp.importFile(f.getPath(), new HashSet<>(Collections.singletonList(AiPostProcessSteps.TRIANGULATE)));
-
-                    final EditableModel model = new EditableModel(scene);
+                    System.out.println("importing file \"" + f.getName() + "\" this might take a while...");
+                    long timeStart = System.currentTimeMillis();
+                    AiProgressHandler aiProgressHandler = new AiProgressHandler() {
+                        @Override
+                        public boolean update(float v) {
+//                            System.out.println("progress: " + (int)((v+1)*100) + "%  " + (System.currentTimeMillis()-timeStart) + " ms");
+                            return true;
+                        }
+                    };
+//                    AiClassLoaderIOSystem aiIOSystem = new AiClassLoaderIOSystem();
+                    TwiAiIoSys twiAiIoSys = new TwiAiIoSys();
+                    AiScene scene = Jassimp.importFile(f.getPath(), new HashSet<>(Collections.singletonList(AiPostProcessSteps.TRIANGULATE)), twiAiIoSys, aiProgressHandler);
+                    TwiAiSceneParser twiAiSceneParser = new TwiAiSceneParser(scene);
+//                    final EditableModel model = new EditableModel(scene);
+                    System.out.println("took " + (System.currentTimeMillis() - timeStart) + " ms to load the model");
+                    EditableModel model = twiAiSceneParser.getEditableModel();
                     model.setFileRef(f);
-
-                    temp = newTempModelPanel(mainPanel, icon, model);
+//
+                    tempModelPanel = newTempModelPanel(mainPanel, icon, model);
                 } catch (final Exception e) {
                     ExceptionPopup.display(e);
                     e.printStackTrace();
                 }
             }
-            loadModel(mainPanel, temporary, selectNewTab, temp);
+            if (tempModelPanel != null) {
+                loadModel(mainPanel, temporary, selectNewTab, tempModelPanel);
+            }
         } else if (SaveProfile.get().getRecent().contains(f.getPath())) {
             int option = JOptionPane.showConfirmDialog(mainPanel, "Could not find the file.\nRemove from recent?", "File not found", JOptionPane.YES_NO_OPTION);
             if (option == JOptionPane.YES_OPTION) {
@@ -565,7 +508,7 @@ public class MPQBrowserView {
         if (unitFetched != null) {
 
             final String filepath = ImportFileActions.convertPathToMDX(unitFetched.getField("file"));
-            final ImageIcon icon = unitFetched.getScaledIcon(0.25f);
+            final ImageIcon icon = unitFetched.getScaledIcon(16);
 
             loadFromStream(mainPanel, filepath, icon);
         }

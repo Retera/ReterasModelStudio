@@ -11,7 +11,7 @@ import java.awt.event.MouseEvent;
 public final class DoNothingActivity implements ModelEditorViewportActivity {
 
 	@Override
-	public void onSelectionChanged(final SelectionView newSelection) {
+	public void onSelectionChanged(SelectionView newSelection) {
 	}
 
 	@Override
@@ -19,35 +19,35 @@ public final class DoNothingActivity implements ModelEditorViewportActivity {
 	}
 
 	@Override
-	public void modelEditorChanged(final ModelEditor newModelEditor) {
+	public void modelEditorChanged(ModelEditor newModelEditor) {
 	}
 
 	@Override
-	public void viewportChanged(final CursorManager cursorManager) {
+	public void viewportChanged(CursorManager cursorManager) {
 	}
 
 	@Override
-	public void mousePressed(final MouseEvent e, final CoordinateSystem coordinateSystem) {
+	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
 	}
 
 	@Override
-	public void mouseReleased(final MouseEvent e, final CoordinateSystem coordinateSystem) {
+	public void mouseReleased(MouseEvent e, CoordinateSystem coordinateSystem) {
 	}
 
 	@Override
-	public void mouseMoved(final MouseEvent e, final CoordinateSystem coordinateSystem) {
+	public void mouseMoved(MouseEvent e, CoordinateSystem coordinateSystem) {
 	}
 
 	@Override
-	public void mouseDragged(final MouseEvent e, final CoordinateSystem coordinateSystem) {
+	public void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem) {
 	}
 
 	@Override
-	public void render(final Graphics2D g, final CoordinateSystem coordinateSystem, final RenderModel renderModel) {
+	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel) {
 	}
 
 	@Override
-	public void renderStatic(final Graphics2D g, final CoordinateSystem coordinateSystem) {
+	public void renderStatic(Graphics2D g, CoordinateSystem coordinateSystem) {
 	}
 
 	@Override

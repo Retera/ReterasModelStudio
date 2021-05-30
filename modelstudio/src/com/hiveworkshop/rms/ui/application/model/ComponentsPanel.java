@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.*;
-import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,10 +19,9 @@ public class ComponentsPanel extends JPanel {
 	private final Map<Class<?>, ComponentPanel<?>> panelMap;
 	private final ComponentGlobalSequencePanel globalSeqPanel;
 
-	public ComponentsPanel(final ModelViewManager modelViewManager,
-	                       final UndoActionListener undoActionListener,
-	                       final ModelStructureChangeListener modelStructureChangeListener,
-	                       final TextureExporter textureExporter) {
+	public ComponentsPanel(ModelViewManager modelViewManager,
+	                       UndoActionListener undoActionListener,
+	                       ModelStructureChangeListener modelStructureChangeListener) {
 		panelMap = new HashMap<>();
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
@@ -52,7 +50,7 @@ public class ComponentsPanel extends JPanel {
 //		add(globalSeqPanel, GLOBALSEQ);
 ////		panelMap.put(EditableModel.class, globalSeqPanel);
 
-		ComponentBitmapPanel bitmapPanel = new ComponentBitmapPanel(modelViewManager, undoActionListener, modelStructureChangeListener, textureExporter);
+		ComponentBitmapPanel bitmapPanel = new ComponentBitmapPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
 		add(bitmapPanel, Bitmap.class.getName());
 		panelMap.put(Bitmap.class, bitmapPanel);
 
@@ -142,9 +140,9 @@ public class ComponentsPanel extends JPanel {
 	}
 
 
-	public void selected(final EditableModel model, final Integer globalSequence, final int globalSequenceId,
-	                     final UndoActionListener undoListener,
-	                     final ModelStructureChangeListener changeListener) {
+	public void selected(EditableModel model, Integer globalSequence, int globalSequenceId,
+	                     UndoActionListener undoListener,
+	                     ModelStructureChangeListener changeListener) {
 //		globalSeqPanel.setGlobalSequence(model, globalSequence, globalSequenceId, undoListener, changeListener);
 		globalSeqPanel.setSelectedItem(globalSequence);
 		cardLayout.show(this, GLOBALSEQ);

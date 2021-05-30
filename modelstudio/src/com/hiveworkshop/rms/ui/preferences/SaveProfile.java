@@ -160,7 +160,7 @@ public class SaveProfile implements Serializable {
 		this.dataSources = dataSources;
 		isHD = computeIsHd(dataSources);
 		save();
-		dataSourceChangeNotifier.dataSourcesChanged();
+//		dataSourceChangeNotifier.dataSourcesChanged();
 	}
 
 	public List<DataSourceDescriptor> getDataSources() {

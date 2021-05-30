@@ -29,9 +29,9 @@ public interface GameObject {
 
 	Set<String> keySet();
 
-	ImageIcon getScaledIcon(final double amt);
+	ImageIcon getScaledIcon(int size);
 
-	ImageIcon getScaledTintedIcon(final Color tint, final double amt);
+	ImageIcon getScaledTintedIcon(final Color tint, final int amt);
 
 	Image getImage();
 }

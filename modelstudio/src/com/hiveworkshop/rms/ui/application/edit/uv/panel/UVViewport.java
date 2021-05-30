@@ -123,7 +123,7 @@ public class UVViewport extends JPanel implements CoordinateSystem, ViewportView
 	public void paintComponent(final Graphics g, final int vertexSize) {
 		super.paintComponent(g);
 		if (programPreferences.show2dGrid()) {
-			final Point2D.Double cameraOrigin = new Point2D.Double(convertX(0), convertY(0));
+			final Point2D.Double cameraOrigin = new Point2D.Double(viewX(0), viewY(0));
 
 			drawGrid(g, cameraOrigin);
 		}
@@ -148,11 +148,11 @@ public class UVViewport extends JPanel implements CoordinateSystem, ViewportView
 				final int maxY = (int) Math.ceil(geomMaxY);
 				for (int y = minY; y < maxY; y++) {
 					for (int x = minX; x < maxX; x++) {
-						g.drawImage(background, (int) convertX(x), (int) convertY(y), (int) (convertX(x + 1) - convertX(x)), (int) (convertY(y + 1) - convertY(y)), null);
+						g.drawImage(background, (int) viewX(x), (int) viewY(y), (int) (viewX(x + 1) - viewX(x)), (int) (viewY(y + 1) - viewY(y)), null);
 					}
 				}
 			} else {
-				g.drawImage(background, (int) convertX(0), (int) convertY(0), (int) (convertX(1) - convertX(0)), (int) (convertY(1) - convertY(0)), null);
+				g.drawImage(background, (int) viewX(0), (int) viewY(0), (int) (viewX(1) - viewX(0)), (int) (viewY(1) - viewY(0)), null);
 			}
 		}
 	}
@@ -196,12 +196,12 @@ public class UVViewport extends JPanel implements CoordinateSystem, ViewportView
 	}
 
 	@Override
-	public double convertX(final double x) {
+	public double viewX(final double x) {
 		return ((x + m_a) * m_zoom * aspectRatio) + (getWidth() / 2.0);
 	}
 
 	@Override
-	public double convertY(final double y) {
+	public double viewY(final double y) {
 		return ((y + m_b) * m_zoom) + (getHeight() / 2.0);
 	}
 

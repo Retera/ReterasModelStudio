@@ -125,8 +125,8 @@ public class CollisionShape extends IdObject {
 	public double getClickRadius(final CoordinateSystem coordinateSystem) {
 		final byte xDimension = coordinateSystem.getPortFirstXYZ();
 		final byte yDimension = coordinateSystem.getPortSecondXYZ();
-		final int xCoord = (int) coordinateSystem.convertX(pivotPoint.getCoord(xDimension));
-		final int yCoord = (int) coordinateSystem.convertY(pivotPoint.getCoord(yDimension));
+		final int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(xDimension));
+		final int yCoord = (int) coordinateSystem.viewY(pivotPoint.getCoord(yDimension));
 		if (type == Type.BOX) {
 			if (vertices.size() > 0) {
 				// final Vertex vertex = vertices.get(0);

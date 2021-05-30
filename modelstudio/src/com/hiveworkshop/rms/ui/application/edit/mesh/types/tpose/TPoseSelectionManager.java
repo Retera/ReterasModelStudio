@@ -23,7 +23,7 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 	private final Bone renderBoneDummy = new Bone();
 
 
-	public TPoseSelectionManager(final ModelView modelView, final boolean moveLinked) {
+	public TPoseSelectionManager(ModelView modelView, boolean moveLinked) {
 		this.modelView = modelView;
 		this.moveLinked = moveLinked;
 	}
@@ -31,7 +31,7 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 	@Override
 	public Vec3 getCenter() {
 		Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
-		for (final IdObject object : selection) {
+		for (IdObject object : selection) {
 			centerOfGroupSumHeap.add(object.getPivotPoint());
 		}
 		if (selection.size() > 0) {
@@ -45,10 +45,10 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 		// These reference the MODEL EDITOR pivot points, used only as memory references
 		// so that downstream will know  to select those pivots, and therefore those IdObject nodes,
 		// for static editing (hence we do not apply worldMatrix)
-		final Set<Vec3> vertices = new HashSet<>();
-		final Set<IdObject> nodesToMove = new HashSet<>(selection);
+		Set<Vec3> vertices = new HashSet<>();
+		Set<IdObject> nodesToMove = new HashSet<>(selection);
 		if (moveLinked) {
-			for (final IdObject object : modelView.getEditableIdObjects()) {
+			for (IdObject object : modelView.getEditableIdObjects()) {
 				if (!selection.contains(object)) {
 					IdObject parent = object.getParent();
 					while (parent != null) {
@@ -60,10 +60,10 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 				}
 			}
 		}
-		for (final Geoset geoset : modelView.getEditableGeosets()) {
-			for (final Triangle triangle : geoset.getTriangles()) {
-				for (final GeosetVertex geosetVertex : triangle.getVerts()) {
-					for (final Bone bone : geosetVertex.getBoneAttachments()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Triangle triangle : geoset.getTriangles()) {
+				for (GeosetVertex geosetVertex : triangle.getVerts()) {
+					for (Bone bone : geosetVertex.getBoneAttachments()) {
 						if (nodesToMove.contains(bone)) {
 							vertices.add(geosetVertex);
 						}
@@ -71,7 +71,7 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 				}
 			}
 		}
-		for (final IdObject object : nodesToMove) {
+		for (IdObject object : nodesToMove) {
 			vertices.add(object.getPivotPoint());
 		}
 		return vertices;
@@ -84,16 +84,14 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 
 
 	@Override
-	public void renderSelection(final ModelElementRenderer renderer, final CoordinateSystem coordinateSystem,
-	                            final ModelView model, final ProgramPreferences programPreferences) {
+	public void renderSelection(ModelElementRenderer renderer, CoordinateSystem coordinateSystem,
+	                            ModelView model, ProgramPreferences programPreferences) {
 		// TODO !!! apply rendering
-		final Set<IdObject> drawnSelection = new HashSet<>();
-		final Set<IdObject> parentedNonSelection = new HashSet<>();
-		for (final IdObject object : model.getEditableIdObjects()) {
+		Set<IdObject> drawnSelection = new HashSet<>();
+		Set<IdObject> parentedNonSelection = new HashSet<>();
+		for (IdObject object : model.getEditableIdObjects()) {
 			if (selection.contains(object)) {
-				renderer.renderIdObject(object, NodeIconPalette.SELECTED,
-						programPreferences.getAnimatedBoneSelectedColor(),
-						programPreferences.getAnimatedBoneSelectedColor());
+				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getAnimatedBoneSelectedColor(), programPreferences.getAnimatedBoneSelectedColor());
 				drawnSelection.add(object);
 			} else {
 				IdObject parent = object.getParent();
@@ -105,29 +103,25 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 				}
 			}
 		}
-		for (final IdObject selectedObject : selection) {
+		for (IdObject selectedObject : selection) {
 			if (!drawnSelection.contains(selectedObject)) {
 				renderBoneDummy.setPivotPoint(selectedObject.getPivotPoint());
-				renderer.renderIdObject(renderBoneDummy, NodeIconPalette.SELECTED,
-						programPreferences.getAnimatedBoneSelectedColor(),
-						programPreferences.getAnimatedBoneSelectedColor());
+				renderer.renderIdObject(renderBoneDummy, NodeIconPalette.SELECTED, programPreferences.getAnimatedBoneSelectedColor(), programPreferences.getAnimatedBoneSelectedColor());
 				drawnSelection.add(selectedObject);
 			}
 		}
-		for (final IdObject object : model.getEditableIdObjects()) {
+		for (IdObject object : model.getEditableIdObjects()) {
 			if (parentedNonSelection.contains(object) && !drawnSelection.contains(object)) {
-				renderer.renderIdObject(object, NodeIconPalette.SELECTED,
-						programPreferences.getAnimatedBoneSelectedUpstreamColor(),
-						programPreferences.getAnimatedBoneSelectedUpstreamColor());
+				renderer.renderIdObject(object, NodeIconPalette.SELECTED, programPreferences.getAnimatedBoneSelectedUpstreamColor(), programPreferences.getAnimatedBoneSelectedUpstreamColor());
 			}
 		}
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec3 sphereCenter) {
+	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
 		double radius = 0;
-		for (final IdObject item : selection) {
-			final double distance = sphereCenter.distance(item.getPivotPoint());
+		for (IdObject item : selection) {
+			double distance = sphereCenter.distance(item.getPivotPoint());
 			if (distance >= radius) {
 				radius = distance;
 			}
@@ -136,23 +130,23 @@ public final class TPoseSelectionManager extends SelectionManager<IdObject> {
 	}
 
 	@Override
-	public double getCircumscribedSphereRadius(final Vec2 center, final int tvertexLayerId) {
+	public double getCircumscribedSphereRadius(Vec2 center, int tvertexLayerId) {
 		return 0;
 	}
 
 	@Override
-	public Vec2 getUVCenter(final int tvertexLayerId) {
+	public Vec2 getUVCenter(int tvertexLayerId) {
 		return Vec2.ORIGIN;
 	}
 
 	@Override
-	public Collection<? extends Vec2> getSelectedTVertices(final int tvertexLayerId) {
+	public Collection<? extends Vec2> getSelectedTVertices(int tvertexLayerId) {
 		return Collections.emptySet();
 	}
 
 	@Override
-	public void renderUVSelection(final TVertexModelElementRenderer renderer, final ModelView modelView,
-                                  final ProgramPreferences programPreferences, final int tvertexLayerId) {
+	public void renderUVSelection(TVertexModelElementRenderer renderer, ModelView modelView,
+	                              ProgramPreferences programPreferences, int tvertexLayerId) {
 
 	}
 }

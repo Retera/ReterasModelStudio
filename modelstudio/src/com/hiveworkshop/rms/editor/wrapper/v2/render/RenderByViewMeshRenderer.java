@@ -12,27 +12,28 @@ public final class RenderByViewMeshRenderer implements MeshVisitor {
 	private MeshVisitor fullModelRenderer;
 	private final ModelView modelView;
 
-	public RenderByViewMeshRenderer(final ModelView modelView) {
+	public RenderByViewMeshRenderer(ModelView modelView) {
 		this.modelView = modelView;
 	}
 
-	public RenderByViewMeshRenderer reset(final MeshVisitor fullModelRenderer) {
+	public RenderByViewMeshRenderer reset(MeshVisitor fullModelRenderer) {
 		this.fullModelRenderer = fullModelRenderer;
 		return this;
 
 	}
 
 	@Override
-	public GeosetVisitor beginGeoset(final int geosetId, final Material material, final GeosetAnim geosetAnim) {
-		final Geoset geoset = modelView.getModel().getGeoset(geosetId);
-		if (modelView.getEditableGeosets().contains(geoset) || modelView.getHighlightedGeoset() == geoset
+	public GeosetVisitor beginGeoset(int geosetId, Material material, GeosetAnim geosetAnim) {
+		Geoset geoset = modelView.getModel().getGeoset(geosetId);
+		if (modelView.getEditableGeosets().contains(geoset)
+				|| modelView.getHighlightedGeoset() == geoset
 				|| modelView.getVisibleGeosets().contains(geoset)) {
 			return fullModelRenderer.beginGeoset(geosetId, material, geosetAnim);
 		}
 		return GeosetVisitor.NO_ACTION;
 	}
 
-	private boolean isVisibleNode(final IdObject object) {
+	private boolean isVisibleNode(IdObject object) {
 		return modelView.getEditableIdObjects().contains(object) || object == modelView.getHighlightedNode();
 	}
 

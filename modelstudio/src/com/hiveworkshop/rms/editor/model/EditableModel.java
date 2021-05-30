@@ -1355,7 +1355,7 @@ public class EditableModel implements Named {
 	public boolean isHd(Geoset geoset) {
 		return (ModelUtils.isTangentAndSkinSupported(formatVersion))
 				&& (geoset.getVertices().size() > 0)
-				&& (geoset.getVertex(0).getSkinBones() != null);
+				&& (geoset.getVertex(0).getSkinBoneBones() != null);
 	}
 
 	private void visitVert(Geoset geoset, GeosetVisitor geosetRenderer, boolean isHD) {
@@ -1366,7 +1366,7 @@ public class EditableModel implements Named {
 				// TODO redesign for nullable normals
 				Vec3 normal = vertex.getNormal() == null ? new Vec3(0, 0, 0) : vertex.getNormal();
 				if (isHD) {
-					vertexRenderer = triangleRenderer.hdVertex(vertex, normal, vertex.getSkinBones(), vertex.getSkinBoneWeights());
+					vertexRenderer = triangleRenderer.hdVertex(vertex, normal, vertex.getSkinBoneBones(), vertex.getSkinBoneWeights());
 				} else {
 					vertexRenderer = triangleRenderer.vertex(vertex, normal, vertex.getBoneAttachments());
 				}
@@ -2277,6 +2277,10 @@ public class EditableModel implements Named {
 
 	Map<IdObject, Integer> getIdObjectToIdMap() {
 		return modelIdObjects.getIdObjectToIdMap();
+	}
+
+	public void clearAllIdObjects() {
+		modelIdObjects.clearAll();
 	}
 
 	private static class ModelIdObjects {

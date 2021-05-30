@@ -23,6 +23,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 	float lifeSpan = 0;
 	String path = "";
 	String animVisibilityGuide = "";
+	State always = State.off;
 	Map<Animation, State> animationVisStateMap = new HashMap<>();
 
 	public ParticleEmitterPopcorn(final String name) {
@@ -96,10 +97,96 @@ public class ParticleEmitterPopcorn extends IdObject {
 
 	public String getAnimVisibilityGuide() {
 		if (!animationVisStateMap.isEmpty()) {
+			TreeMap<String, State> stringStateMap = new TreeMap<>();
 			List<String> visStrings = new ArrayList<>();
-			animationVisStateMap.keySet().stream()
-					.filter(s -> !animationVisStateMap.get(s).equals(State.none))
-					.forEach(s -> visStrings.add(s.getName() + "=" + animationVisStateMap.get(s).name()));
+			if (always != State.none) {
+				visStrings.add("Always=" + always.name());
+//				System.out.println("added: " + "Always=" + always.name());
+			}
+			animationVisStateMap.keySet()
+//					.filter(s -> !animationVisStateMap.get(s).equals(State.none))
+					.forEach(s -> stringStateMap.put(s.getName(), animationVisStateMap.get(s)));
+//					.forEach(s -> visStrings.add(s.getName() + "=" + animationVisStateMap.get(s).name()));
+
+
+			TreeMap<String, Set<State>> rootMap = new TreeMap<>();
+			for (String s : stringStateMap.keySet()) {
+				String[] nameParts = s.split(" ");
+				String rootName = "";
+				for (String np : nameParts) {
+					rootName += np;
+					if (rootMap.containsKey(rootName)) {
+						rootMap.get(rootName).add(stringStateMap.get(s));
+					} else {
+						Set<State> stateSet = new HashSet<>();
+						stateSet.add(stringStateMap.get(s));
+						rootMap.put(rootName, stateSet);
+					}
+					rootName += " ";
+				}
+			}
+
+//			System.out.println(name);
+//			for (String s : rootMap.keySet()){
+//				if(rootMap.get(s).size() == 1 && !rootMap.get(s).contains(State.none)){
+//					System.out.println("root: " + s + " "+ rootMap.get(s).toArray(new State[0])[0]);
+//				}
+//			}
+
+			State lastState = State.none;
+			String rootName = ""; //recursive solution?
+			String orgRootName = "";
+			String lastAddedRootName = " ";
+			for (String s : rootMap.keySet()) {
+				if (rootMap.get(s).size() == 1) {
+					State currState = rootMap.get(s).toArray(new State[0])[0];
+					if (currState != lastState || !s.startsWith(rootName)) {
+						if (rootName.length() > 0 && lastState != State.none) {
+//							System.out.println("added: " + rootName + "=" + lastState.name());
+							visStrings.add(rootName + "=" + lastState.name());
+							lastAddedRootName = rootName;
+						}
+						rootName = s;
+//					orgRootName = s;
+//					rootName = s.split(" ")[0];
+						lastState = currState;
+					}
+				}
+
+			}
+
+			if (!rootName.startsWith(lastAddedRootName) && lastState != State.none) {
+//				System.out.println("added: " + rootName + "=" + lastState.name());
+				visStrings.add(rootName + "=" + lastState.name());
+			}
+
+
+//			State lastState = State.none;
+//			String rootName = ""; //recursive solution?
+//			String orgRootName = "";
+//			String lastAddedRootName = "";
+//			for (String s : stringStateMap.keySet()){
+//				State currState = stringStateMap.get(s);
+//				if(currState != lastState || !s.startsWith(rootName)){
+//					if(rootName.length() > 0 && lastState != State.none){
+//						System.out.println("added: " + rootName + "=" + lastState.name());
+//						visStrings.add(rootName + "=" + lastState.name());
+//					}
+//					lastAddedRootName = rootName;
+//					rootName = s;
+////					orgRootName = s;
+////					rootName = s.split(" ")[0];
+//					lastState = currState;
+//				}
+//
+//			}
+//
+//			if(!rootName.startsWith(lastAddedRootName)){
+//				System.out.println("added: " + rootName + "=" + lastState.name());
+//				visStrings.add(rootName + "=" + lastState.name());
+//			}
+
+
 			return String.join(", ", visStrings);
 		}
 		return animVisibilityGuide;
@@ -168,18 +255,31 @@ public class ParticleEmitterPopcorn extends IdObject {
 	}
 
 	public ParticleEmitterPopcorn initAnimsVisStates(List<Animation> anims) {
+//		System.out.println(name);
 		Map<String, String> visGuid = new HashMap<>();
 		for (String vg : animVisibilityGuide.split(",")) {
 			String[] anSt = vg.toLowerCase().split("=");
 			if (anSt.length == 2) {
-				System.out.println(vg);
+//				System.out.println(vg + ", splitted: " + Arrays.toString(anSt));
 				visGuid.put(anSt[0].strip(), anSt[1].strip());
 			}
 		}
+		if (visGuid.containsKey("always")) {
+			always = State.valueOf(visGuid.get("always"));
+		}
 		for (Animation animation : anims) {
 			State state = State.none;
-			if (visGuid.containsKey(animation.getName())) {
-				state = State.valueOf(visGuid.get(animation.getName()));
+//			System.out.println(animation.getName());
+			String[] animName = animation.getName().toLowerCase().split(" ");
+			String namePart = "";
+			for (String s : animName) {
+				namePart += s;
+				if (visGuid.containsKey(namePart)) {
+//					System.out.println("name matched!");
+					state = State.valueOf(visGuid.get(namePart));
+				}
+				namePart += " ";
+
 			}
 			animationVisStateMap.put(animation, state);
 		}

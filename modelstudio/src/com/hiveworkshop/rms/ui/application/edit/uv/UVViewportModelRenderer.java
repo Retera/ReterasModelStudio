@@ -107,7 +107,7 @@ public class UVViewportModelRenderer implements MeshVisitor {
 			@Override
 			public void textureCoords(final double u, final double v) {
 				if (index == uvLayerIndex) {
-					final Point point = new Point((int) coordinateSystem.convertX(u), (int) coordinateSystem.convertY(v));
+					final Point point = new Point((int) coordinateSystem.viewX(u), (int) coordinateSystem.viewY(v));
 					if (previousVertices.size() > 0) {
 						final Point previousPoint = previousVertices.get(previousVertices.size() - 1);
 						graphics.drawLine(previousPoint.x, previousPoint.y, point.x, point.y);

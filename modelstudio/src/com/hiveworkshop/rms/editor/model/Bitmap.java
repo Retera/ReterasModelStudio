@@ -17,10 +17,39 @@ public class Bitmap {
 		return imagePath;
 	}
 
+	public Bitmap(String imagePath, int replaceableId) {
+		this.imagePath = imagePath;
+		this.replaceableId = replaceableId;
+	}
+
+	public int getReplaceableId() {
+		return replaceableId;
+	}
+
+	public Bitmap(Bitmap other) {
+		imagePath = other.imagePath;
+		replaceableId = other.replaceableId;
+		wrapMode = other.wrapMode;
+	}
+
+	public Bitmap() {
+
+	}
+
+	public Bitmap(MdlxTexture texture) {
+		imagePath = texture.path;
+		replaceableId = texture.replaceableId;
+		wrapMode = texture.wrapMode;
+	}
+
+	public Bitmap(String imagePath) {
+		this.imagePath = imagePath;
+	}
+
 	public String getName() {
 		if (!imagePath.equals("")) {
 			try {
-				final String[] bits = imagePath.split("\\\\");
+				String[] bits = imagePath.split("\\\\");
 				return bits[bits.length - 1].split("\\.")[0];
 			} catch (final Exception e) {
 				return "bad blp path";
@@ -36,37 +65,13 @@ public class Bitmap {
 		}
 	}
 
-	public int getReplaceableId() {
-		return replaceableId;
-	}
-
-	public void setReplaceableId(final int replaceableId) {
+	public Bitmap setReplaceableId(int replaceableId) {
 		this.replaceableId = replaceableId;
-	}
-
-	public Bitmap() {
-
-	}
-	
-	public Bitmap(final String imagePath, final int replaceableId) {
-		this.imagePath = imagePath;
-		this.replaceableId = replaceableId;
-	}
-
-	public Bitmap(final Bitmap other) {
-		imagePath = other.imagePath;
-		replaceableId = other.replaceableId;
-		wrapMode = other.wrapMode;
-	}
-
-	public Bitmap(final MdlxTexture texture) {
-		imagePath = texture.path;
-		replaceableId = texture.replaceableId;
-		wrapMode = texture.wrapMode;
+		return this;
 	}
 
 	public MdlxTexture toMdlx() {
-		final MdlxTexture texture = new MdlxTexture();
+		MdlxTexture texture = new MdlxTexture();
 
 		texture.path = imagePath;
 		texture.replaceableId = replaceableId;
@@ -74,14 +79,10 @@ public class Bitmap {
 
 		return texture;
 	}
-	
-	public Bitmap(final String imagePath) {
-		this.imagePath = imagePath;
-	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		int prime = 31;
 		int result = 1;
 		result = (prime * result) + ((imagePath == null) ? 0 : imagePath.hashCode());
 		result = (prime * result) + replaceableId;
@@ -90,7 +91,7 @@ public class Bitmap {
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -100,7 +101,7 @@ public class Bitmap {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final Bitmap other = (Bitmap) obj;
+		Bitmap other = (Bitmap) obj;
 		if (imagePath == null) {
 			if (other.imagePath != null) {
 				return false;
@@ -118,7 +119,7 @@ public class Bitmap {
 		return (wrapMode == WrapMode.WRAP_HEIGHT) || (wrapMode == WrapMode.WRAP_BOTH);
 	}
 
-	public void setWrapHeight(final boolean flag) {
+	public Bitmap setWrapHeight(boolean flag) {
 		if (flag) {
 			if (wrapMode == WrapMode.REPEAT_BOTH) {
 				wrapMode = WrapMode.WRAP_HEIGHT;
@@ -132,13 +133,14 @@ public class Bitmap {
 				wrapMode = WrapMode.REPEAT_BOTH;
 			}
 		}
+		return this;
 	}
 
 	public boolean isWrapWidth() {
 		return (wrapMode == WrapMode.WRAP_WIDTH) || (wrapMode == WrapMode.WRAP_BOTH);
 	}
 
-	public void setWrapWidth(final boolean flag) {
+	public Bitmap setWrapWidth(boolean flag) {
 		if (flag) {
 			if (wrapMode == WrapMode.REPEAT_BOTH) {
 				wrapMode = WrapMode.WRAP_WIDTH;
@@ -152,17 +154,20 @@ public class Bitmap {
 				wrapMode = WrapMode.REPEAT_BOTH;
 			}
 		}
+		return this;
 	}
 
 	public WrapMode getWrapMode() {
 		return wrapMode;
 	}
 
-	public void setWrapMode(final WrapMode wrapMode) {
+	public Bitmap setWrapMode(WrapMode wrapMode) {
 		this.wrapMode = wrapMode;
+		return this;
 	}
 
-	public void setPath(final String imagePath) {
+	public Bitmap setPath(String imagePath) {
 		this.imagePath = imagePath;
+		return this;
 	}
 }

@@ -1,14 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.tools;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+
+import java.util.*;
 
 public final class SetMatrixAction implements UndoAction {
 	private final Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences;
@@ -29,7 +25,7 @@ public final class SetMatrixAction implements UndoAction {
 		vertexToNewSkinBoneReferences = new HashMap<>();
 		vertexToNewSkinBoneWeightReferences = new HashMap<>();
 		for (final Map.Entry<GeosetVertex, Bone[]> entry : vertexToOldSkinBoneReferences.entrySet()) {
-			vertexToNewSkinBoneReferences.put(entry.getKey(), entry.getKey().getSkinBones().clone());
+			vertexToNewSkinBoneReferences.put(entry.getKey(), entry.getKey().getSkinBoneBones().clone());
 		}
 		for (final Map.Entry<GeosetVertex, short[]> entry : vertexToOldSkinBoneWeightReferences.entrySet()) {
 			vertexToNewSkinBoneWeightReferences.put(entry.getKey(), entry.getKey().getSkinBoneWeights().clone());
