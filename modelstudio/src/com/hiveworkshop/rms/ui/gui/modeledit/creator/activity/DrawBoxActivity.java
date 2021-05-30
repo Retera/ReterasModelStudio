@@ -4,14 +4,9 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
@@ -23,21 +18,15 @@ import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.NewGeosetAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.editor.CompoundMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.DoNothingMoveActionAdapter;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 
 public class DrawBoxActivity extends ViewportActivity {
-
-	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
-
-	private final ModelElementRenderer modelElementRenderer;
 	private final ViewportListener viewportListener;
 
 	private DrawingState drawingState = DrawingState.NOTHING;
@@ -49,23 +38,16 @@ public class DrawBoxActivity extends ViewportActivity {
 	private int numSegsZ;
 	private double lastHeightModeZ = 0;
 	private double firstHeightModeZ = 0;
-	ModelEditorManager modelEditorManager;
 
 	public DrawBoxActivity(ModelHandler modelHandler,
 	                       ModelEditorManager modelEditorManager,
 	                       ViewportListener viewportListener,
 	                       int numSegsX, int numSegsY, int numSegsZ) {
-		this.modelHandler = modelHandler;
-		this.undoManager = modelHandler.getUndoManager();
-		this.modelEditorManager = modelEditorManager;
-		this.modelEditor = modelEditorManager.getModelEditor();
-		this.modelView = modelHandler.getModelView();
-		this.selectionManager = modelEditorManager.getSelectionView();
+		super(modelHandler, modelEditorManager);
 		this.viewportListener = viewportListener;
 		this.numSegsX = numSegsX;
 		this.numSegsY = numSegsY;
 		this.numSegsZ = numSegsZ;
-		modelElementRenderer = new ModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
 	}
 
 	public void setNumSegsX(int numSegsX) {
@@ -81,24 +63,9 @@ public class DrawBoxActivity extends ViewportActivity {
 	}
 
 	@Override
-	public void onSelectionChanged(AbstractSelectionManager newSelection) {
-		selectionManager = newSelection;
-	}
-
-	@Override
-	public void modelEditorChanged(ModelEditor newModelEditor) {
-		modelEditor = newModelEditor;
-	}
-
-	@Override
-	public void viewportChanged(CursorManager cursorManager) {
-
-	}
-
-	@Override
 	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
 		if (drawingState == DrawingState.NOTHING) {
-			locationCalculator.set(CoordSysUtils.convertToVec3(coordinateSystem, e.getPoint()));
+			Vec3 locationCalculator = CoordSysUtils.convertToVec3(coordinateSystem, e.getPoint());
 			mouseStart = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			drawingState = DrawingState.WANT_BEGIN_BASE;
 		}
@@ -132,7 +99,7 @@ public class DrawBoxActivity extends ViewportActivity {
 		if (drawingState == DrawingState.WANT_BEGIN_BASE || drawingState == DrawingState.BASE) {
 			drawingState = DrawingState.BASE;
 
-			locationCalculator.set(CoordSysUtils.convertToVec3(coordinateSystem, e.getPoint()));
+			Vec3 locationCalculator = CoordSysUtils.convertToVec3(coordinateSystem, e.getPoint());
 			Vec2 mouseEnd = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 
 			updateBase(mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
@@ -151,18 +118,15 @@ public class DrawBoxActivity extends ViewportActivity {
 				Viewport viewport = viewportListener.getViewport();
 				Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 				try {
-//					boxAction = modelEditor.addBox(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, numSegsZ);
-
-
 					Geoset solidWhiteGeoset = getSolidWhiteGeoset();
 
-					DrawBoxAction drawVertexAction = new DrawBoxAction(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset);
+					DrawBoxAction drawBoxAction = new DrawBoxAction(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset);
 
 					if (!modelView.getModel().contains(solidWhiteGeoset)) {
-						NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView.getModel(), modelEditorManager.getStructureChangeListener());
-						boxAction = new CompoundMoveAction("Add Box", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
+						NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView, modelEditorManager.getStructureChangeListener());
+						boxAction = new CompoundMoveAction("Add Box", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawBoxAction));
 					} else {
-						boxAction = drawVertexAction;
+						boxAction = drawBoxAction;
 					}
 					boxAction.redo();
 
@@ -194,19 +158,6 @@ public class DrawBoxActivity extends ViewportActivity {
 			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
 		}
 		return solidWhiteGeoset;
-	}
-
-	@Override
-	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
-		if (!isAnimated) {
-			modelElementRenderer.reset(g, coordinateSystem, modelHandler.getRenderModel(), false);
-//			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView);
-		}
-	}
-
-	@Override
-	public boolean isEditing() {
-		return false;
 	}
 
 	private enum DrawingState {

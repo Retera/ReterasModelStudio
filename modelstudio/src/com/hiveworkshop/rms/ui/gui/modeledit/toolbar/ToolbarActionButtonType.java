@@ -38,7 +38,7 @@ public class ToolbarActionButtonType implements ToolbarButtonType, ActivityDescr
 	@Override
 	public ViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler) {
 //		mainPanel.actionType = getActivityType();
-		return new MultiManipulatorActivity(getBuilder(modelEditorManager, modelHandler), modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
+		return new MultiManipulatorActivity(getBuilder(modelEditorManager, modelHandler), modelHandler, modelEditorManager);
 	}
 
 	private ModelEditorActionType getActivityType() {

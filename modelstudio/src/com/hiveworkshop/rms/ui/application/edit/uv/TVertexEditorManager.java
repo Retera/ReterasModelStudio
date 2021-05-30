@@ -33,7 +33,7 @@ public final class TVertexEditorManager extends AbstractModelEditorManager {
 		modelEditor = new TVertexEditor(selectionManager, modelHandler.getModelView(), structureChangeListener, transformSelectionMode(selectionMode));
 
 //		viewportSelectionHandler.setModelEditor(modelEditor);
-		viewportSelectionHandler.setModelEditor(selectionManager);
+		viewportSelectionHandler.setSelectionManager(selectionManager);
 		modelEditorChangeListener.modelEditorChanged(modelEditor);
 		selectionListener.onSelectionChanged(selectionManager);
 	}

@@ -26,23 +26,25 @@ public class TVertexEditorManipulatorBuilder extends ManipulatorBuilder {
 		createWidget(currentAction);
 	}
 
-	protected Manipulator getBuilder(AbstractSelectionManager selectionManager, MoveDimension directionByMouse) {
+	protected Manipulator getManipulator(AbstractSelectionManager selectionManager, MoveDimension directionByMouse) {
 		return switch (currentAction) {
-			case TRANSLATION -> new MoveTVertexManipulator(getModelEditor(), directionByMouse);
-			case ROTATION -> new RotateTVertexManipulator(getModelEditor(), selectionManager, directionByMouse);
-			case SCALING -> new ScaleTVertexManipulator(getModelEditor(), selectionManager, directionByMouse);
+			case TRANSLATION -> new MoveTVertexManipulator(modelEditor, directionByMouse);
+			case ROTATION -> new RotateTVertexManipulator(modelEditor, selectionManager, directionByMouse);
+			case SCALING -> new ScaleTVertexManipulator(modelEditor, selectionManager, directionByMouse);
 
 		};
 	}
+
 	private void createWidget(ModelEditorActionType2 action) {
-		if(action == null){
+		if (action == null) {
 			widget = new MoverWidget();
 		} else {
 			switch (action) {
 				case TRANSLATION -> widget = new MoverWidget();
 				case ROTATION -> widget = new RotatorWidget();
 				case SCALING -> widget = new ScalerWidget();
-			};
+			}
+			;
 		}
 	}
 

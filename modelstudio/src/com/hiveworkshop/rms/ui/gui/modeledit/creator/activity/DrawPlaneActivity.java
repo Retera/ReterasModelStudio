@@ -4,12 +4,9 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
@@ -25,14 +22,11 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 
 public class DrawPlaneActivity extends ViewportActivity {
-	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
-	private final ModelElementRenderer modelElementRenderer;
 	private final ViewportListener viewportListener;
 	private DrawingState drawingState = DrawingState.NOTHING;
 	private Vec2 mouseStart;
@@ -40,23 +34,15 @@ public class DrawPlaneActivity extends ViewportActivity {
 	private GenericMoveAction planeAction;
 	private int numSegsX;
 	private int numSegsY;
-	ModelEditorManager modelEditorManager;
 
 	public DrawPlaneActivity(ModelHandler modelHandler,
 	                         ModelEditorManager modelEditorManager,
 	                         ViewportListener viewportListener,
 	                         int numSegsX, int numSegsY, int numSegsZ) {
-		this.modelHandler = modelHandler;
-		this.preferences = ProgramGlobals.getPrefs();
-		this.modelEditorManager = modelEditorManager;
-		this.undoManager = modelHandler.getUndoManager();
-		this.modelEditor = modelEditorManager.getModelEditor();
-		this.modelView = modelHandler.getModelView();
-		this.selectionManager = modelEditorManager.getSelectionView();
+		super(modelHandler, modelEditorManager);
 		this.viewportListener = viewportListener;
 		this.numSegsX = numSegsX;
 		this.numSegsY = numSegsY;
-		modelElementRenderer = new ModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
 	}
 
 	public void setNumSegsX(int numSegsX) {
@@ -70,7 +56,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 	@Override
 	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
 		if (drawingState == DrawingState.NOTHING) {
-			locationCalculator.set(CoordSysUtils.convertToVec3(coordinateSystem, e.getPoint()));
+			Vec3 locationCalculator = CoordSysUtils.convertToVec3(coordinateSystem, e.getPoint());
 			mouseStart = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			drawingState = DrawingState.WANT_BEGIN_BASE;
 		}
@@ -96,7 +82,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 	public void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem) {
 		if (drawingState == DrawingState.WANT_BEGIN_BASE || drawingState == DrawingState.BASE) {
 			drawingState = DrawingState.BASE;
-			locationCalculator.set(CoordSysUtils.convertToVec3(coordinateSystem, e.getPoint()));
+			Vec3 locationCalculator = CoordSysUtils.convertToVec3(coordinateSystem, e.getPoint());
 
 			Vec2 mouseEnd = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			updateBase(mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
@@ -116,7 +102,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 					DrawPlaneAction drawVertexAction = new DrawPlaneAction(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
 
 					if (!modelView.getModel().contains(solidWhiteGeoset)) {
-						NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView.getModel(), modelEditorManager.getStructureChangeListener());
+						NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView, modelEditorManager.getStructureChangeListener());
 						planeAction = new CompoundMoveAction("Add Plane", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
 					} else {
 						planeAction = drawVertexAction;
@@ -152,19 +138,6 @@ public class DrawPlaneActivity extends ViewportActivity {
 			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
 		}
 		return solidWhiteGeoset;
-	}
-
-	@Override
-	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
-		if (!isAnimated) {
-			modelElementRenderer.reset(g, coordinateSystem, modelHandler.getRenderModel(), false);
-//			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView);
-		}
-	}
-
-	@Override
-	public boolean isEditing() {
-		return false;
 	}
 
 	private enum DrawingState {

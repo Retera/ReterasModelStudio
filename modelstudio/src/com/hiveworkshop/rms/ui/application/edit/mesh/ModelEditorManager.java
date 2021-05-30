@@ -49,7 +49,7 @@ public class ModelEditorManager extends AbstractModelEditorManager {
 
 		selectionListener.onSelectionChanged(selectionManager);
 //		viewportSelectionHandler.setModelEditor(modelEditor);
-		viewportSelectionHandler.setModelEditor(selectionManager);
+		viewportSelectionHandler.setSelectionManager(selectionManager);
 		modelEditorChangeListener.modelEditorChanged(modelEditor);
 	}
 }

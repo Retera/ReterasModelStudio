@@ -15,6 +15,8 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
+import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawBoxActivity;
+import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawPlaneActivity;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModeButton2;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
@@ -84,11 +86,12 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 
 		ModeButton planeButton = new ModeButton("Plane");
 //		planeButton.addActionListener(new ActionListenerImplementation(new DrawPlaneActivityDescriptor(viewportListener), programPreferences, listener, planeButton));//todo
+		planeButton.addActionListener(e -> drawPlane(viewportListener, planeButton));
 		drawPrimitivesPanel.add(planeButton);
 //		modeButtons.add(planeButton);
 
 		ModeButton boxButton = new ModeButton("Box");
-//		boxButton.addActionListener(new ActionListenerImplementation(new DrawBoxActivityDescriptor(viewportListener), programPreferences, listener, boxButton));//todo
+		boxButton.addActionListener(e -> drawBox(viewportListener, boxButton));//todo
 		drawPrimitivesPanel.add(boxButton);
 //		modeButtons.add(boxButton);
 
@@ -133,14 +136,14 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 	}
 
 	private JPanel getDrawToolsPanel(ViewportListener viewportListener) {
-		ModeButton2 vertexButton = new ModeButton2("Vertex",programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
-		vertexButton.addActionListener(e -> addVertex(vertexButton));
+		ModeButton2 vertexButton = new ModeButton2("Vertex", programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+		vertexButton.addActionListener(e -> addVertex(vertexButton, viewportListener));
 
-		ModeButton2 faceButton = new ModeButton2("Face from Selection",programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+		ModeButton2 faceButton = new ModeButton2("Face from Selection", programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
 		faceButton.addActionListener(e -> createFace(viewportListener));
 
-		ModeButton2 boneButton = new ModeButton2("Bone",programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
-		boneButton.addActionListener(e -> addBone(boneButton));
+		ModeButton2 boneButton = new ModeButton2("Bone", programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+		boneButton.addActionListener(e -> addBone(boneButton, viewportListener));
 
 		JPanel drawToolsPanel = new JPanel(new GridLayout(2, 1));
 		drawToolsPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
@@ -169,16 +172,44 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 	}
 
-	private void addBone(ModeButton2 boneButton) {
-//	private void addBone(ModelEditorChangeActivityListener listener, ViewportListener viewportListener, ModeButton2 boneButton) {
+	private void addBone(ModeButton2 modeButton, ViewportListener viewportListener) {
+//	private void addBone(ModelEditorChangeActivityListener listener, ViewportListener viewportListener, ModeButton2 modeButton) {
 //		listener.changeActivity(new DrawBoneActivityDescriptor(viewportListener));//ToDo
-		boneButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			DrawVertexActivity activity = new DrawVertexActivity(modelHandler, modelEditorManager, viewportListener);
+			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			modelPanel.changeActivity(activity);
+		}
 	}
 
-	private void addVertex(ModeButton2 vertexButton) {
-//	private void addVertex(ModelEditorChangeActivityListener listener, ViewportListener viewportListener, ModeButton2 vertexButton) {
+	private void addVertex(ModeButton2 modeButton, ViewportListener viewportListener) {
+//	private void addVertex(ModelEditorChangeActivityListener listener, ViewportListener viewportListener, ModeButton2 modeButton) {
 //		listener.changeActivity(new DrawVertexActivityDescriptor(viewportListener));//ToDo
-		vertexButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			DrawVertexActivity activity = new DrawVertexActivity(modelHandler, modelEditorManager, viewportListener);
+			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			modelPanel.changeActivity(activity);
+		}
+	}
+
+	private void drawBox(ViewportListener viewportListener, ModeButton modeButton) {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			DrawBoxActivity activity = new DrawBoxActivity(modelHandler, modelEditorManager, viewportListener, 1, 1, 1);
+			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			modelPanel.changeActivity(activity);
+		}
+	}
+
+	private void drawPlane(ViewportListener viewportListener, ModeButton modeButton) {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			DrawPlaneActivity activity = new DrawPlaneActivity(modelHandler, modelEditorManager, viewportListener, 1, 1, 1);
+			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+			modelPanel.changeActivity(activity);
+		}
 	}
 
 	public void makeAnimationBasicsPanel(ModelEditorChangeActivityListener listener,

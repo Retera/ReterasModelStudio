@@ -50,10 +50,10 @@ public abstract class ManipulatorBuilder implements ModelEditorChangeListener {
 		return null;
 	}
 
-	public Manipulator buildActivityListener(int x, int y,
-	                                         ButtonType clickedButton,
-	                                         CoordinateSystem coordinateSystem,
-	                                         AbstractSelectionManager selectionManager) {
+	public Manipulator buildManipulator(int x, int y,
+	                                    ButtonType clickedButton,
+	                                    CoordinateSystem coordinateSystem,
+	                                    AbstractSelectionManager selectionManager) {
 		if (clickedButton == ButtonType.RIGHT_MOUSE) {
 			return createDefaultManipulator(selectionManager);
 		} else if (!selectionManager.isEmpty()) {
@@ -83,17 +83,17 @@ public abstract class ManipulatorBuilder implements ModelEditorChangeListener {
 
 		widget.setMoveDirection(directionByMouse);
 		if (directionByMouse != MoveDimension.NONE) {
-			return getBuilder(selectionManager, directionByMouse);
+			return getManipulator(selectionManager, directionByMouse);
 		}
 		return null;
 	}
 
 	protected Manipulator createDefaultManipulator(AbstractSelectionManager selectionManager) {
-		return getBuilder(selectionManager, MoveDimension.XYZ);
+		return getManipulator(selectionManager, MoveDimension.XYZ);
 	}
 
-	protected abstract Manipulator getBuilder(AbstractSelectionManager selectionManager,
-	                                          MoveDimension directionByMouse);
+	protected abstract Manipulator getManipulator(AbstractSelectionManager selectionManager,
+	                                              MoveDimension directionByMouse);
 
 	public void render(Graphics2D graphics,
 	                   CoordinateSystem coordinateSystem,

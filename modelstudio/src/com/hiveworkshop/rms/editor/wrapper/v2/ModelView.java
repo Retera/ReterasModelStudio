@@ -157,14 +157,14 @@ public final class ModelView {
 
 	public void makeGeosetVisible(Geoset geoset) {
 		visibleGeosets.add(geoset);
-//		editableGeosets.add(geoset);
+		editableGeosets.add(geoset);
 		hiddenGeosets.remove(geoset);
 		modelViewStateNotifier.geosetVisible(geoset);
 	}
 
 	public void makeGeosetNotVisible(Geoset geoset) {
 		visibleGeosets.remove(geoset);
-//		editableGeosets.remove(geoset);
+		editableGeosets.remove(geoset);
 		hiddenGeosets.add(geoset);
 		modelViewStateNotifier.geosetNotVisible(geoset);
 	}

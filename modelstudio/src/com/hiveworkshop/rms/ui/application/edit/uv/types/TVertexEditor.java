@@ -36,7 +36,7 @@ public class TVertexEditor extends ModelEditor {
 	protected SelectionItemTypes selectionType;
 
 	public TVertexEditor(AbstractSelectionManager selectionManager, ModelView modelView, ModelStructureChangeListener structureChangeListener, SelectionItemTypes selectionTyp) {
-		super(null, modelView);
+		super(selectionManager, modelView);
 		this.modelView = modelView;
 		this.structureChangeListener = structureChangeListener;
 		this.selectionType = selectionTyp;

@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
@@ -148,8 +149,12 @@ public class ModelPanel {
 
 	public void changeActivity(ModelEditorActionType3 action) {
 		ModelEditorManipulatorBuilder builder = new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action);
-		MultiManipulatorActivity manipulatorActivity = new MultiManipulatorActivity(builder, modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
+		MultiManipulatorActivity manipulatorActivity = new MultiManipulatorActivity(builder, modelHandler, modelEditorManager);
 		viewportActivityManager.setCurrentActivity(manipulatorActivity);
+	}
+
+	public void changeActivity(ViewportActivity newActivity) {
+		viewportActivityManager.setCurrentActivity(newActivity);
 	}
 
 	public ModelEditorManager getModelEditorManager() {

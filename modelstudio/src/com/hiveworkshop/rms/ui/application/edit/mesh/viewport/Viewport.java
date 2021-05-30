@@ -30,7 +30,13 @@ public class Viewport extends ViewportView {
 	long renderCount;
 
 
-	public Viewport(byte d1, byte d2, ModelHandler modelHandler, ViewportActivityManager activityListener, ModelStructureChangeListener modelStructureChangeListener, CoordDisplayListener coordDisplayListener, ModelEditorManager modelEditorManager, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener) {
+	public Viewport(byte d1, byte d2, ModelHandler modelHandler,
+	                ViewportActivityManager activityListener,
+	                ModelStructureChangeListener modelStructureChangeListener,
+	                CoordDisplayListener coordDisplayListener,
+	                ModelEditorManager modelEditorManager,
+	                ViewportTransferHandler viewportTransferHandler,
+	                ViewportListener viewportListener) {
 		super(modelHandler, d1, d2, new Dimension(200, 200), activityListener, viewportListener, coordDisplayListener);
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions

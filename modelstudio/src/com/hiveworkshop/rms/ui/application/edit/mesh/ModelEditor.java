@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec3;
 
 /**
@@ -16,18 +16,23 @@ import com.hiveworkshop.rms.util.Vec3;
  */
 public abstract class ModelEditor {
 	protected final ModelView modelView;
-	protected final SelectionManager selectionManager;
+	protected final AbstractSelectionManager selectionManager;
 
-	public ModelEditor(SelectionManager selectionManager, ModelView modelView) {
+	public ModelEditor(AbstractSelectionManager selectionManager, ModelView modelView) {
 		this.selectionManager = selectionManager;
 		this.modelView = modelView;
 	}
 
 	public abstract UndoAction translate(Vec3 v);
+
 	public abstract UndoAction scale(Vec3 center, Vec3 scale);
+
 	public abstract UndoAction setPosition(Vec3 center, Vec3 v);
+
 	public abstract UndoAction rotate(Vec3 center, Vec3 rotate);
+
 	public abstract GenericMoveAction beginTranslation();
+
 	public abstract GenericScaleAction beginScaling(Vec3 center);
 	public abstract GenericRotateAction beginRotation(Vec3 center, byte firstXYZ, byte secondXYZ);
 	public abstract GenericRotateAction beginSquatTool(Vec3 center, byte firstXYZ, byte secondXYZ);

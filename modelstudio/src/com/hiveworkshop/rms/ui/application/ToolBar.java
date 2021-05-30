@@ -70,8 +70,8 @@ public class ToolBar {
 
 	public static ViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler, MainPanel mainPanel, ModelEditorActionType3 action) {
 //        mainPanel.actionType = getActivityType(action);
-		return new MultiManipulatorActivity(new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action), modelHandler.getUndoManager(), modelEditorManager.getSelectionView());
-	}
+        return new MultiManipulatorActivity(new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action), modelHandler, modelEditorManager);
+    }
 
 //    private static ModelEditorActionType2 getActivityType(ModelEditorActionType3 action) {
 //        return switch (action) {

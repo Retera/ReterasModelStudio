@@ -19,14 +19,14 @@ public class ModelEditorManipulatorBuilder extends ManipulatorBuilder {
 		createWidget(currentAction);
 	}
 
-	protected Manipulator getBuilder(AbstractSelectionManager selectionManager, MoveDimension directionByMouse) {
+	protected Manipulator getManipulator(AbstractSelectionManager selectionManager, MoveDimension directionByMouse) {
 		return switch (currentAction) {
-			case TRANSLATION -> new MoveManipulator(getModelEditor(), directionByMouse);
-			case ROTATION -> new RotateManipulator(getModelEditor(), selectionManager, directionByMouse);
-			case SCALING -> new ScaleManipulator(getModelEditor(), selectionManager, directionByMouse);
-			case EXTRUDE -> new ExtrudeManipulator(getModelEditor(), directionByMouse);
-			case EXTEND -> new ExtendManipulator(getModelEditor(), directionByMouse);
-			case SQUAT -> new SquatToolManipulator(getModelEditor(), selectionManager, directionByMouse);
+			case TRANSLATION -> new MoveManipulator(modelEditor, directionByMouse);
+			case ROTATION -> new RotateManipulator(modelEditor, selectionManager, directionByMouse);
+			case SCALING -> new ScaleManipulator(modelEditor, selectionManager, directionByMouse);
+			case EXTRUDE -> new ExtrudeManipulator(modelEditor, directionByMouse);
+			case EXTEND -> new ExtendManipulator(modelEditor, directionByMouse);
+			case SQUAT -> new SquatToolManipulator(modelEditor, selectionManager, directionByMouse);
 		};
 	}
 

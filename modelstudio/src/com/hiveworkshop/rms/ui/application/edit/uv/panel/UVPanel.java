@@ -801,8 +801,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		TVertexEditorManipulatorBuilder manipulatorBuilder = new TVertexEditorManipulatorBuilder(modelEditorManager, modelHandler, editorActionType);
 		return new MultiManipulatorActivity(
 				manipulatorBuilder,
-				modelHandler.getUndoManager(),
-				modelEditorManager.getSelectionView());
+				modelHandler,
+				modelEditorManager);
 	}
 
 

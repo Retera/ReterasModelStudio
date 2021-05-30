@@ -112,7 +112,7 @@ public class Triangle {
 	}
 
 	public int getId(int index) {
-		return vertIds[index];
+		return geoset.getVertexId(verts[index]);
 	}
 
 	public void set(int index, GeosetVertex v) {

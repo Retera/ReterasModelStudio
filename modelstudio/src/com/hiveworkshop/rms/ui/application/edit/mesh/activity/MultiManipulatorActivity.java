@@ -1,12 +1,13 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.ManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
@@ -21,21 +22,15 @@ public class MultiManipulatorActivity extends ViewportActivity {
 	private Vec2 lastDragPoint;
 
 	public MultiManipulatorActivity(ManipulatorBuilder manipulatorBuilder,
-	                                UndoManager undoManager,
-	                                AbstractSelectionManager selectionManager) {
+	                                ModelHandler modelHandler,
+	                                AbstractModelEditorManager modelEditorManager) {
+		super(modelHandler, modelEditorManager);
 		this.manipulatorBuilder = manipulatorBuilder;
-		this.undoManager = undoManager;
-		this.selectionManager = selectionManager;
 	}
 
 	@Override
 	public void modelEditorChanged(ModelEditor newModelEditor) {
 		manipulatorBuilder.modelEditorChanged(newModelEditor);
-	}
-
-	@Override
-	public void onSelectionChanged(AbstractSelectionManager newSelection) {
-		this.selectionManager = newSelection;
 	}
 
 	@Override
@@ -57,7 +52,7 @@ public class MultiManipulatorActivity extends ViewportActivity {
 			finnishAction(e, coordinateSystem, true);
 		}
 		System.out.println("Mouse pressed! selectionView: " + selectionManager);
-		manipulator = manipulatorBuilder.buildActivityListener(e.getX(), e.getY(), buttonType, coordinateSystem, selectionManager);
+		manipulator = manipulatorBuilder.buildManipulator(e.getX(), e.getY(), buttonType, coordinateSystem, selectionManager);
 		if (manipulator != null) {
 			mouseStartPoint = new Vec2(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
 			manipulator.start(e, mouseStartPoint, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());

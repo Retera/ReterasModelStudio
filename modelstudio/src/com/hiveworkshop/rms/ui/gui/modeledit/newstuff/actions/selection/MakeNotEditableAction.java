@@ -31,7 +31,7 @@ public final class MakeNotEditableAction implements UndoAction {
 	public UndoAction redo() {
 		editabilityToggleHandler.makeNotEditable();
 		truncateSelectionRunnable.run();
-//		refreshGUIRunnable.run();
+		refreshGUIRunnable.run();
 		return this;
 	}
 

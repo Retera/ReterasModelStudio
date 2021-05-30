@@ -22,10 +22,8 @@ import java.awt.geom.Point2D.Double;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ViewportTransferHandler extends TransferHandler {
 
@@ -89,37 +87,21 @@ public class ViewportTransferHandler extends TransferHandler {
 
 		// this is the model they're actually working on
 		ModelView currentModelView = viewport.getModelView();
-		List<Geoset> geosetsAdded = new ArrayList<>();
 		for (Geoset pastedGeoset : pastedModel.getGeosets()) {
-			boolean foundMatch = false;
-			for (Geoset currentModelGeoset : currentModelView.getModel().getGeosets()) {
-				if (pastedGeoset.getMaterial().equals(currentModelGeoset.getMaterial())) {
-					// matching materials
-					for (Triangle triangle : pastedGeoset.getTriangles()) {
-						currentModelGeoset.add(triangle);
-						for (GeosetVertex geosetVertex : triangle.getAll()) {
-							currentModelGeoset.add(geosetVertex);
-						}
-					}
-					foundMatch = true;
-					break;
-				}
-			}
-			if (!foundMatch) {
-				currentModelView.getModel().getGeosets().add(pastedGeoset);
-				geosetsAdded.add(pastedGeoset);
-			}
+			currentModelView.getModel().getGeosets().add(pastedGeoset);
 		}
 		for (IdObject idObject : idObjects) {
 			currentModelView.getModel().add(idObject);
 		}
-		modelStructureChangeListener.nodesUpdated();
+		currentModelView.setSelectedIdObjects(idObjects);
 		for (Camera idObject : pastedModel.getCameras()) {
 			currentModelView.getModel().add(idObject);
 		}
-		modelStructureChangeListener.camerasUpdated();
+		currentModelView.setSelectedCameras(pastedModel.getCameras());
+		currentModelView.setSelectedVertices(new HashSet<>());
 		for (Geoset pastedGeoset : pastedModel.getGeosets()) {
 			pastedGeoset.applyVerticesToMatrices(currentModelView.getModel());
+			currentModelView.addSelectedVertices(pastedGeoset.getVertices());
 		}
 		modelStructureChangeListener.geosetsUpdated();
 	}
@@ -134,10 +116,17 @@ public class ViewportTransferHandler extends TransferHandler {
 		stringableModel.setFormatVersion(viewport.getModelView().getModel().getFormatVersion());
 		stringableModel.setExtents(viewport.getModelView().getModel().getExtents());
 
-//		CopiedModelData copySelection = viewport.getModelEditorManager().getModelEditor().copySelection();
 		CopiedModelData copySelection = copySelection(viewport.getModelView());
 		Bone dummyBone = new Bone("CopiedModelDummy");
 		List<Vec3> verticesInNewMesh = new ArrayList<>();
+		for (IdObject object : copySelection.getIdObjects()) {
+			stringableModel.add(object);
+			verticesInNewMesh.add(object.getPivotPoint());
+		}
+		for (Camera camera : copySelection.getCameras()) {
+			stringableModel.add(camera);
+			verticesInNewMesh.add(camera.getPosition());
+		}
 		for (Geoset geoset : copySelection.getGeosets()) {
 			stringableModel.add(geoset);
 			verticesInNewMesh.addAll(geoset.getVertices());
@@ -156,14 +145,7 @@ public class ViewportTransferHandler extends TransferHandler {
 					}
 				}
 			}
-		}
-		for (IdObject object : copySelection.getIdObjects()) {
-			stringableModel.add(object);
-			verticesInNewMesh.add(object.getPivotPoint());
-		}
-		for (Camera camera : copySelection.getCameras()) {
-			stringableModel.add(camera);
-			verticesInNewMesh.add(camera.getPosition());
+			geoset.applyVerticesToMatrices(stringableModel);
 		}
 		dummyBone.setPivotPoint(Vec3.centerOfGroup(verticesInNewMesh));
 		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -211,56 +193,70 @@ public class ViewportTransferHandler extends TransferHandler {
 	}
 
 	public CopiedModelData copySelection(ModelView modelView) {
+		Map<IdObject, IdObject> nodesToClonedNodes = new HashMap<>();
+		for (IdObject b : modelView.getSelectedIdObjects()) {
+			nodesToClonedNodes.put(b, b.copy());
+		}
+		for (IdObject obj : nodesToClonedNodes.keySet()) {
+			if (!nodesToClonedNodes.containsKey(obj.getParent())) {
+				obj.setParent(null);
+			} else {
+				nodesToClonedNodes.get(obj).setParent(obj.getParent());
+			}
+		}
+		Set<Camera> clonedCameras = new HashSet<>(modelView.getSelectedCameras());
+
 		List<Geoset> copiedGeosets = new ArrayList<>();
+
 		for (Geoset geoset : modelView.getEditableGeosets()) {
-			Geoset copy = new Geoset();
-			copy.setSelectionGroup(geoset.getSelectionGroup());
-			copy.setAnims(geoset.getAnims());
-			copy.setMaterial(geoset.getMaterial());
-			Set<Triangle> copiedTriangles = new HashSet<>();
-			Set<GeosetVertex> copiedVertices = new HashSet<>();
-			for (Triangle triangle : geoset.getTriangles()) {
-				boolean triangleIsFullySelected = true;
-				List<GeosetVertex> triangleVertices = new ArrayList<>(3);
-				for (GeosetVertex geosetVertex : triangle.getAll()) {
-					if (modelView.isSelected(geosetVertex)) {
-						GeosetVertex newGeosetVertex = new GeosetVertex(geosetVertex);
-						newGeosetVertex.clearTriangles();
-						copiedVertices.add(newGeosetVertex);
-						triangleVertices.add(newGeosetVertex);
-					} else {
-						triangleIsFullySelected = false;
+			if (geoset.getVertices().stream().anyMatch(modelView::isSelected)) {
+				Geoset newGeoset = new Geoset();
+				newGeoset.setSelectionGroup(geoset.getSelectionGroup());
+				newGeoset.setAnims(geoset.getAnims());
+				newGeoset.setMaterial(geoset.getMaterial());
+				copiedGeosets.add(newGeoset);
+
+				Map<GeosetVertex, GeosetVertex> vertToCopiedVert = new HashMap<>();
+				for (GeosetVertex vertex : geoset.getVertices()) {
+					if (modelView.isSelected(vertex)) {
+						GeosetVertex newVertex = new GeosetVertex(vertex);
+						newVertex.clearTriangles();
+						newVertex.setGeoset(newGeoset);
+						vertToCopiedVert.put(vertex, newVertex);
+						newGeoset.add(newVertex);
 					}
 				}
-				if (triangleIsFullySelected) {
-					Triangle newTriangle = new Triangle(triangleVertices.get(0), triangleVertices.get(1), triangleVertices.get(2), copy);
-					copiedTriangles.add(newTriangle);
+				for (Triangle triangle : geoset.getTriangles()) {
+					if (triangleFullySelected(triangle, modelView)) {
+						Triangle newTriangle = new Triangle(
+								vertToCopiedVert.get(triangle.get(0)),
+								vertToCopiedVert.get(triangle.get(1)),
+								vertToCopiedVert.get(triangle.get(2)));
+						newTriangle.setGeoset(newGeoset);
+						newGeoset.add(newTriangle);
+					}
+				}
+
+				for (GeosetVertex vertex : newGeoset.getVertices()) {
+					if (vertex.getSkinBones() != null) {
+						for (GeosetVertex.SkinBone skinBone : vertex.getSkinBones()) {
+							if (skinBone.getBone() != null) {
+								skinBone.setBone((Bone) nodesToClonedNodes.get(skinBone.getBone()));
+							}
+						}
+					} else if (!vertex.getBones().isEmpty()) {
+						vertex.getBones().replaceAll(bone1 -> (Bone) nodesToClonedNodes.get(bone1));
+					}
 				}
 			}
-			for (Triangle triangle : copiedTriangles) {
-				copy.add(triangle);
-			}
-			for (GeosetVertex geosetVertex : copiedVertices) {
-				copy.add(geosetVertex);
-			}
-			if ((copiedTriangles.size() > 0) || (copiedVertices.size() > 0)) {
-				copiedGeosets.add(copy);
-			}
 		}
 
-		Set<IdObject> clonedNodes = new HashSet<>();
-		for (IdObject b : modelView.getEditableIdObjects()) {
-			if (modelView.isSelected(b)) {
-				clonedNodes.add(b.copy());
-			}
-		}
-		for (IdObject obj : clonedNodes) {
-			if (!clonedNodes.contains(obj.getParent())) {
-				obj.setParent(null);
-			}
-		}
-		Set<Camera> clonedCameras = new HashSet<>(modelView.getEditableCameras());
+		return new CopiedModelData(copiedGeosets, nodesToClonedNodes.values(), clonedCameras);
+	}
 
-		return new CopiedModelData(copiedGeosets, clonedNodes, clonedCameras);
+	private boolean triangleFullySelected(Triangle triangle, ModelView modelView) {
+		return modelView.isSelected(triangle.get(0))
+				&& modelView.isSelected(triangle.get(1))
+				&& modelView.isSelected(triangle.get(2));
 	}
 }

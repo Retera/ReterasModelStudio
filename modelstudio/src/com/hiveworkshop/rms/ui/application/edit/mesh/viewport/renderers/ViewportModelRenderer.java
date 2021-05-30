@@ -15,8 +15,8 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ViewportModelRenderer {
 	private final ViewportRenderableCamera renderableCameraProp = new ViewportRenderableCamera();
@@ -30,9 +30,11 @@ public class ViewportModelRenderer {
 	int index;
 	private Vec2[] triV2 = new Vec2[3];
 	private Vec2[] normalV2 = new Vec2[3];
-	private List<Vec2> verts = new ArrayList<>();
-	private List<Vec2> selectedVerts = new ArrayList<>();
-	private List<Vec2> highlightedVerts = new ArrayList<>();
+	private Map<GeosetVertex, Vec2> vertsMap = new HashMap<>();
+	private Map<GeosetVertex, Vec2> normalMap = new HashMap<>();
+	private Map<GeosetVertex, Vec2> selectedVertsMap = new HashMap<>();
+	private Map<GeosetVertex, Vec2> highlightedVertsMap = new HashMap<>();
+
 
 	public ViewportModelRenderer(int vertexSize) {
 		idObjectRenderer = new ResettableIdObjectRenderer(vertexSize);
@@ -48,26 +50,28 @@ public class ViewportModelRenderer {
 		this.renderModel = modelHandler.getRenderModel();
 //		idObjectRenderer.reset(coordinateSystem, graphics, modelHandler.getRenderModel(), this.isAnimated, false);
 		idObjectRenderer.reset(coordinateSystem, graphics, modelHandler.getRenderModel(), this.isAnimated);
-		verts.clear();
-		selectedVerts.clear();
-		highlightedVerts.clear();
+
+		vertsMap.clear();
+		normalMap.clear();
+		selectedVertsMap.clear();
+		highlightedVertsMap.clear();
 
 		EditableModel model = modelHandler.getModel();
 		for (final Geoset geoset : model.getGeosets()) {
-			if (modelView.isVisible(geoset)) {
+			if (modelView.isVisible(geoset) && modelView.isEditable(geoset)) {
 				renderGeoset(geoset, isHd(model, geoset));
 			}
 		}
 		graphics.setColor(ProgramGlobals.getPrefs().getVertexColor());
-		for (Vec2 v : verts) {
+		for (Vec2 v : vertsMap.values()) {
 			GU.fillCenteredSquare(graphics, v, ProgramGlobals.getPrefs().getVertexSize());
 		}
 		graphics.setColor(ProgramGlobals.getPrefs().getSelectColor());
-		for (Vec2 v : selectedVerts) {
+		for (Vec2 v : selectedVertsMap.values()) {
 			GU.fillCenteredSquare(graphics, v, ProgramGlobals.getPrefs().getVertexSize());
 		}
 		graphics.setColor(ProgramGlobals.getPrefs().getHighlighVertexColor());
-		for (Vec2 v : highlightedVerts) {
+		for (Vec2 v : highlightedVertsMap.values()) {
 			GU.fillCenteredSquare(graphics, v, ProgramGlobals.getPrefs().getVertexSize());
 		}
 		for (IdObject object : model.getAllObjects()) {
@@ -111,40 +115,56 @@ public class ViewportModelRenderer {
 			triangleColor = new Color(1f, 0.75f, 0.45f, 0.3f);
 		}
 
+		for (GeosetVertex vertex : geoset.getVertices()) {
+			Vec3 vertexSumHeap = vertex;
+			Vec3 normal = vertex.getNormal();
+			Vec3 normalSumHeap = normal;
+			if (isAnimated) {
+				Mat4 bonesMatrixSumHeap = ModelUtils.processBones(renderModel, vertex, geoset);
+				vertexSumHeap = Vec3.getTransformed(vertex, bonesMatrixSumHeap);
+				if (normal != null) {
+					normalSumHeap = Vec3.getTransformed(normal, bonesMatrixSumHeap);
+					normalSumHeap.normalize();
+				}
+			}
+
+			Vec2 vert2 = CoordSysUtils.convertToViewVec2(coordinateSystem, vertexSumHeap);
+
+			if (modelView.getHighlightedGeoset() == geoset) {
+				highlightedVertsMap.put(vertex, vert2);
+			} else if (!modelView.isSelected(vertex)) {
+				vertsMap.put(vertex, vert2);
+			} else {
+				selectedVertsMap.put(vertex, vert2);
+			}
+
+			if (ProgramGlobals.getPrefs().showNormals() && normal != null) {
+				Vec3 normalPoint = Vec3.getScaled(normalSumHeap, (float) (12 / coordinateSystem.getZoom())).add(vertexSumHeap);
+
+				normalMap.put(vertex, CoordSysUtils.convertToViewVec2(coordinateSystem, normalPoint));
+//				normalV2[index] = CoordSysUtils.convertToViewVec2(coordinateSystem, normalPoint);
+			}
+
+		}
+
 		for (Triangle triangle : geoset.getTriangles()) {
 			index = 0;
 			triangleColor = new Color(1f, 0.75f, 0.45f, 0.3f);
 
 			for (GeosetVertex vertex : triangle.getVerts()) {
 
-				Vec3 vertexSumHeap = vertex;
-				Vec3 normal = vertex.getNormal();
-				Vec3 normalSumHeap = normal;
-				if (isAnimated) {
-					Mat4 bonesMatrixSumHeap = ModelUtils.processBones(renderModel, vertex, geoset);
-					vertexSumHeap = Vec3.getTransformed(vertex, bonesMatrixSumHeap);
-					if (normal != null) {
-						normalSumHeap = Vec3.getTransformed(normal, bonesMatrixSumHeap);
-						normalSumHeap.normalize();
-					}
-				}
-
-				Vec2 vert2 = CoordSysUtils.convertToViewVec2(coordinateSystem, vertexSumHeap);
-				triV2[index] = vert2;
 				if (modelView.getHighlightedGeoset() == geoset) {
+					triV2[index] = highlightedVertsMap.get(vertex);
 					triangleColor = ProgramGlobals.getPrefs().getHighlighTriangleColor();
-					highlightedVerts.add(vert2);
 				} else if (!modelView.isSelected(vertex)) {
+					triV2[index] = vertsMap.get(vertex);
 					triangleColor = ProgramGlobals.getPrefs().getTriangleColor();
-					verts.add(vert2);
 				} else {
-					selectedVerts.add(vert2);
+					triV2[index] = selectedVertsMap.get(vertex);
 				}
 
-				if (ProgramGlobals.getPrefs().showNormals() && normal != null) {
-					Vec3 normalPoint = Vec3.getScaled(normalSumHeap, (float) (12 / coordinateSystem.getZoom())).add(vertexSumHeap);
-
-					normalV2[index] = CoordSysUtils.convertToViewVec2(coordinateSystem, normalPoint);
+				if (normalMap.containsKey(vertex)) {
+					normalV2[index] = normalMap.get(vertex);
 				}
 				index++;
 

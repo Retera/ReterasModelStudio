@@ -3,19 +3,14 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelElementRenderer;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.actions.DrawBoneAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -27,34 +22,12 @@ import java.util.Set;
 public class DrawBoneActivity extends ViewportActivity {
 
 	private Point lastMousePoint;
-	private final ModelElementRenderer modelElementRenderer;
 	private final ViewportListener viewportListener;
-	ModelEditorManager modelEditorManager;
 
 	public DrawBoneActivity(ModelHandler modelHandler, ModelEditorManager modelEditorManager, ViewportListener viewportListener) {
-		this.modelHandler = modelHandler;
-		this.modelEditorManager = modelEditorManager;
-		this.preferences = ProgramGlobals.getPrefs();
-		this.undoManager = modelHandler.getUndoManager();
-		this.modelEditor = modelEditorManager.getModelEditor();
-		this.modelView = modelHandler.getModelView();
-		this.selectionManager = modelEditorManager.getSelectionView();
+		super(modelHandler, modelEditorManager);
 		this.viewportListener = viewportListener;
-		modelElementRenderer = new ModelElementRenderer(ProgramGlobals.getPrefs().getVertexSize());
 	}
-
-	@Override
-	public void onSelectionChanged(AbstractSelectionManager newSelection) {
-		selectionManager = newSelection;
-	}
-
-	@Override
-	public void modelEditorChanged(ModelEditor newModelEditor) {
-		modelEditor = newModelEditor;
-	}
-
-	@Override
-	public void viewportChanged(CursorManager cursorManager) { }
 
 	@Override
 	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
@@ -91,31 +64,18 @@ public class DrawBoneActivity extends ViewportActivity {
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent e, CoordinateSystem coordinateSystem) { }
-
-	@Override
 	public void mouseMoved(MouseEvent e, CoordinateSystem coordinateSystem) {
 		lastMousePoint = e.getPoint();
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem) { }
-
-	@Override
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
-//			modelElementRenderer.reset(g, coordinateSystem, modelHandler.getRenderModel(), false);
-//			selectionView.renderSelection(modelElementRenderer, coordinateSystem, modelView);
 			g.setColor(preferences.getVertexColor());
 			if (lastMousePoint != null) {
 				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
 			}
 		}
-	}
-
-	@Override
-	public boolean isEditing() {
-		return false;
 	}
 
 }

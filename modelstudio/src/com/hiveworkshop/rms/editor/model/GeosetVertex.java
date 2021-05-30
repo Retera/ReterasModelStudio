@@ -53,6 +53,7 @@ public class GeosetVertex extends Vec3 {
 		geoset = old.geoset;
 		// TODO copy triangles???????
 		triangles.addAll(old.getTriangles());
+		vertexGroup = old.vertexGroup;
 		if (old.skinBoneIndexes != null) {
 			skinBoneIndexes = old.skinBoneIndexes.clone();
 		}

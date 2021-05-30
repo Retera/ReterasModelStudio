@@ -9,30 +9,30 @@ import com.hiveworkshop.rms.util.Vec2;
 
 public final class ViewportSelectionHandler {
 	private final ToolbarButtonGroup2<SelectionMode> modeButtonGroup;
-	private AbstractSelectionManager modelEditor;
+	private AbstractSelectionManager selectionManager;
 
-	public ViewportSelectionHandler(ToolbarButtonGroup2<SelectionMode> modeButtonGroup, AbstractSelectionManager modelEditor) {
+	public ViewportSelectionHandler(ToolbarButtonGroup2<SelectionMode> modeButtonGroup, AbstractSelectionManager selectionManager) {
 		this.modeButtonGroup = modeButtonGroup;
-		this.modelEditor = modelEditor;
+		this.selectionManager = selectionManager;
 	}
 
-	public void setModelEditor(AbstractSelectionManager modelEditor) {
-		this.modelEditor = modelEditor;
+	public void setSelectionManager(AbstractSelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 	public UndoAction selectRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		if (modeButtonGroup.getActiveButtonType() == null) {
-			return modelEditor.setSelectedRegion(min, max, coordinateSystem);
+			return selectionManager.setSelectedRegion(min, max, coordinateSystem);
 		}
 		return switch (modeButtonGroup.getActiveButtonType()) {
-			case ADD -> modelEditor.addSelectedRegion(min, max, coordinateSystem);
-			case DESELECT -> modelEditor.removeSelectedRegion(min, max, coordinateSystem);
-			case SELECT -> modelEditor.setSelectedRegion(min, max, coordinateSystem);
+			case ADD -> selectionManager.addSelectedRegion(min, max, coordinateSystem);
+			case DESELECT -> selectionManager.removeSelectedRegion(min, max, coordinateSystem);
+			case SELECT -> selectionManager.setSelectedRegion(min, max, coordinateSystem);
 		};
 	}
 
 	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes) {
-		return modelEditor.selectableUnderCursor(point, axes);
+		return selectionManager.selectableUnderCursor(point, axes);
 	}
 
 }

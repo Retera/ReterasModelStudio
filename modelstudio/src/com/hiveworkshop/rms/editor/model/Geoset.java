@@ -685,15 +685,14 @@ public class Geoset implements Named, VisibilitySource {
 	public void applyVerticesToMatrices(final EditableModel mdlr) {
 		matrix.clear();
 		for (GeosetVertex vertex : vertices) {
-			Matrix newTemp = new Matrix(vertex.bones);
-			boolean newMatrix = true;
-			for (int m = 0; (m < matrix.size()) && newMatrix; m++) {
-				if (newTemp.equals(matrix.get(m))) {
-					newTemp = matrix.get(m);
-					newMatrix = false;
+			Matrix newTemp = new Matrix(vertex.getBones());
+			for (Matrix m : matrix) {
+				if (newTemp.equals(m)) {
+					newTemp = m;
+					break;
 				}
 			}
-			if (newMatrix) {
+			if (!matrix.contains(newTemp)) {
 				matrix.add(newTemp);
 				newTemp.updateIds(mdlr);
 			}
