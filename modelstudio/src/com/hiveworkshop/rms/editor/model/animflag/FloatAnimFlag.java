@@ -98,18 +98,18 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 
 	@Override
 	public MdlxFloatTimeline toMdlx(final TimelineContainer container) {
-		final MdlxFloatTimeline timeline = new MdlxFloatTimeline();
+		final MdlxFloatTimeline mdlxTimeline = new MdlxFloatTimeline();
 
-		timeline.name = FlagUtils.getWar3ID(name, container);
-		timeline.interpolationType = interpolationType;
-		timeline.globalSequenceId = getGlobalSeqId();
+		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
+		mdlxTimeline.interpolationType = interpolationType;
+		mdlxTimeline.globalSequenceId = getGlobalSeqId();
 
 		long[] tempFrames = new long[entryMap.size()];
 		float[][] tempValues = new float[entryMap.size()][];
 		float[][] tempInTans = new float[entryMap.size()][];
 		float[][] tempOutTans = new float[entryMap.size()][];
 
-		boolean hasTangents = timeline.interpolationType.tangential();
+		boolean hasTangents = mdlxTimeline.interpolationType.tangential();
 
 		for (int i = 0, l = entryMap.size(); i < l; i++) {
 			Float value = getValueFromIndex(i);
@@ -126,12 +126,12 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 			}
 		}
 
-		timeline.frames = tempFrames;
-		timeline.values = tempValues;
-		timeline.inTans = tempInTans;
-		timeline.outTans = tempOutTans;
+		mdlxTimeline.frames = tempFrames;
+		mdlxTimeline.values = tempValues;
+		mdlxTimeline.inTans = tempInTans;
+		mdlxTimeline.outTans = tempOutTans;
 
-		return timeline;
+		return mdlxTimeline;
 	}
 
 	public FloatAnimFlag getMostVisible(final FloatAnimFlag partner) {

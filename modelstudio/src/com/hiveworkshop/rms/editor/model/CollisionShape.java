@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape.Type;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -31,47 +30,7 @@ public class CollisionShape extends IdObject {
 		}
 	}
 
-	public CollisionShape(MdlxCollisionShape shape) {
-		if ((shape.flags & 8192) != 8192) {
-			System.err.println("MDX -> MDL error: A collisionshape '" + shape.name
-					+ "' not flagged as collisionshape in MDX!");
-		}
-
-		loadObject(shape);
-
-		type = shape.type;
-
-		float[][] vertices = shape.vertices;
-
-		this.vertices.add(new Vec3(vertices[0]));
-
-		if (type != Type.SPHERE) {
-			this.vertices.add(new Vec3(vertices[1]));
-		}
-
-		if (type == Type.SPHERE || type == Type.CYLINDER) {
-			extents = new ExtLog(shape.boundsRadius);
-		}
-	}
-
-	public MdlxCollisionShape toMdlx(EditableModel model) {
-		MdlxCollisionShape shape = new MdlxCollisionShape();
-
-		objectToMdlx(shape, model);
-
-		shape.type = type;
-
-		shape.vertices[0] = getVertex(0).toFloatArray();
-
-		if (shape.type != MdlxCollisionShape.Type.SPHERE) {
-			shape.vertices[1] = getVertex(1).toFloatArray();
-		}
-
-		if (shape.type == MdlxCollisionShape.Type.SPHERE || shape.type == MdlxCollisionShape.Type.CYLINDER) {
-			shape.boundsRadius = (float)getExtents().getBoundsRadius();
-		}
-
-		return shape;
+	public CollisionShape() {
 	}
 
 	@Override

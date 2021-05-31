@@ -280,52 +280,52 @@ public class GeosetVertex extends Vec3 {
 //        this.skinBoneWeights = skinBoneWeights;
 //    }
 
-	public void setSkinBones(Bone[] skinBones) {
-//        this.skinBones = skinBones;
+	public void setSkinBones(Bone[] bones) {
+//        this.bones = bones;
 		if (this.skinBones == null) {
 			this.skinBones = new SkinBone[4];
 		}
 		for (int i = 0; i < 4; i++) {
 			if (this.skinBones[i] == null) {
-				this.skinBones[i] = new SkinBone(skinBones[i]);
+				this.skinBones[i] = new SkinBone(bones[i]);
 			} else {
-				this.skinBones[i].setBone(skinBones[i]);
+				this.skinBones[i].setBone(bones[i]);
 			}
 		}
 	}
 
-	public void setSkinBones(Bone[] skinBones, short[] skinBoneWeights) {
-//        this.skinBones = skinBones;
-//        this.skinBoneWeights = skinBoneWeights;
+	public void setSkinBones(Bone[] bones, short[] weights) {
+//        this.bones = bones;
+//        this.weights = weights;
 
 		if (this.skinBones == null) {
 			this.skinBones = new SkinBone[4];
 		}
 		for (int i = 0; i < 4; i++) {
 			if (this.skinBones[i] == null) {
-				this.skinBones[i] = new SkinBone(skinBoneWeights[i], skinBones[i]);
+				this.skinBones[i] = new SkinBone(weights[i], bones[i]);
 			} else {
-				this.skinBones[i].set(skinBoneWeights[i], skinBones[i]);
+				this.skinBones[i].set(weights[i], bones[i]);
 			}
 		}
 	}
 
-	public void setSkinBone(Bone skinBone, short skinBoneWeight, int i) {
-//        this.skinBones[i] = skinBone;
-//        this.skinBoneWeights[i] = skinBoneWeight;
+	public void setSkinBone(Bone bone, short weight, int i) {
+//        this.skinBones[i] = bone;
+//        this.skinBoneWeights[i] = weight;
 		if (this.skinBones[i] == null) {
-			this.skinBones[i] = new SkinBone(skinBoneWeight, skinBone);
+			this.skinBones[i] = new SkinBone(weight, bone);
 		} else {
-			this.skinBones[i].set(skinBoneWeight, skinBone);
+			this.skinBones[i].set(weight, bone);
 		}
 	}
 
-	public void setSkinBone(Bone skinBone, int i) {
-//        this.skinBones[i] = skinBone;
+	public void setSkinBone(Bone bone, int i) {
+//        this.skinBones[i] = bone;
 		if (this.skinBones[i] == null) {
-			this.skinBones[i] = new SkinBone(skinBone);
+			this.skinBones[i] = new SkinBone(bone);
 		} else {
-			this.skinBones[i].setBone(skinBone);
+			this.skinBones[i].setBone(bone);
 		}
 	}
 
@@ -333,12 +333,12 @@ public class GeosetVertex extends Vec3 {
 //        return skinBoneWeights;
 //    }
 
-	public void setSkinBone(short skinBoneWeight, int i) {
-//        this.skinBoneWeights[i] = skinBoneWeight;
+	public void setSkinBone(short weight, int i) {
+//        this.skinBoneWeights[i] = weight;
 		if (this.skinBones[i] == null) {
-			this.skinBones[i] = new SkinBone(skinBoneWeight);
+			this.skinBones[i] = new SkinBone(weight);
 		} else {
-			this.skinBones[i].setWeight(skinBoneWeight);
+			this.skinBones[i].setWeight(weight);
 		}
 	}
 

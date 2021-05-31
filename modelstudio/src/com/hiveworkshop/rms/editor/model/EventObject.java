@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxEventObject;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 
@@ -34,46 +33,6 @@ public class EventObject extends IdObject {
 		globalSeq = object.globalSeq;
 		globalSeqId = object.globalSeqId;
 		hasGlobalSeq = object.hasGlobalSeq;
-	}
-
-	public EventObject(final MdlxEventObject mdlxObject) {
-		if ((mdlxObject.flags & 1024) != 1024) {
-			System.err.println("MDX -> MDL error: An eventobject '" + mdlxObject.name
-					+ "' not flagged as eventobject in MDX!");
-		}
-
-		loadObject((mdlxObject));
-
-		final int globalSequenceId = mdlxObject.globalSequenceId;
-
-		if (globalSequenceId >= 0) {
-			globalSeqId = globalSequenceId;
-			hasGlobalSeq = true;
-		}
-
-		for (final long val : mdlxObject.keyFrames) {
-			eventTrack.add((int) val);
-		}
-	}
-
-	public MdlxEventObject toMdlx(EditableModel model) {
-		final MdlxEventObject object = new MdlxEventObject();
-
-		objectToMdlx(object, model);
-
-		if (isHasGlobalSeq()) {
-			object.globalSequenceId = getGlobalSeqId();
-		}
-
-		final List<Integer> keyframes = getEventTrack();
-
-		object.keyFrames = new long[keyframes.size()];
-
-		for (int i = 0, l = keyframes.size(); i < l; i++) {
-			object.keyFrames[i] = keyframes.get(i).longValue();
-		}
-
-		return object;
 	}
 
 	@Override
@@ -231,6 +190,11 @@ public class EventObject extends IdObject {
 
 	public void setGlobalSeq(final Integer globalSeq) {
 		this.globalSeq = globalSeq;
+	}
+
+	public EventObject addTrack(int track) {
+		eventTrack.add(track);
+		return this;
 	}
 
 	public List<Integer> getEventTrack() {

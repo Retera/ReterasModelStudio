@@ -1,13 +1,8 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
-import jassimp.AiMaterial;
-import jassimp.AiTextureType;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -54,79 +49,6 @@ public class Material {
 		sortPrimsFarZ = material.sortPrimsFarZ;
 		fullResolution = material.fullResolution;
 		twoSided = material.twoSided;
-	}
-
-	public Material(final MdlxMaterial mdlxMaterial, final EditableModel model) {
-		this();
-
-		for (final MdlxLayer mdlxLayer : mdlxMaterial.layers) {
-			final Layer layer = new Layer(mdlxLayer);
-
-			layer.updateRefs(model);
-
-			layers.add(layer);
-		}
-
-		setPriorityPlane(mdlxMaterial.priorityPlane);
-
-		if ((mdlxMaterial.flags & 0x1) != 0) {
-			constantColor = true;
-		}
-
-		if ((mdlxMaterial.flags & 0x10) != 0) {
-			sortPrimsFarZ = true;
-		}
-
-		if ((mdlxMaterial.flags & 0x20) != 0) {
-			fullResolution = true;
-		}
-
-		if (ModelUtils.isShaderStringSupported(model.getFormatVersion()) && ((mdlxMaterial.flags & 0x2) != 0)) {
-			twoSided = true;
-		}
-
-		shaderString = mdlxMaterial.shader;
-	}
-
-	public Material(final AiMaterial material, final EditableModel model) {
-//		System.out.println("IMPLEMENT Material(AiMaterial)");
-
-		final Layer diffuseLayer = new Layer();
-
-		diffuseLayer.setTexture(model.loadTexture(material.getTextureFile(AiTextureType.DIFFUSE, 0)));
-		diffuseLayer.setStaticAlpha(material.getOpacity());
-
-		layers.add(diffuseLayer);
-	}
-
-	public MdlxMaterial toMdlx() {
-		final MdlxMaterial material = new MdlxMaterial();
-
-		for (final Layer layer : getLayers()) {
-			material.layers.add(layer.toMdlx());
-		}
-
-		material.priorityPlane = getPriorityPlane();
-
-		if (constantColor) {
-			material.flags |= 0x1;
-		}
-
-		if (sortPrimsFarZ) {
-			material.flags |= 0x10;
-		}
-
-		if (fullResolution) {
-			material.flags |= 0x20;
-		}
-
-		if (twoSided) {
-			material.flags |= 0x2;
-		}
-
-		material.shader = shaderString;
-
-		return material;
 	}
 
 	public static String getTeamColorNumberString() {

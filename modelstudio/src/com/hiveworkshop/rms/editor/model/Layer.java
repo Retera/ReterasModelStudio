@@ -2,8 +2,6 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -90,46 +88,6 @@ public class Layer extends TimelineContainer implements Named {
 		} else {
 			textures = null;
 		}
-	}
-
-	public Layer(MdlxLayer mdlxLayer) {
-		this(mdlxLayer.filterMode.toString(), mdlxLayer.textureId);
-
-		int shadingFlags = mdlxLayer.flags;
-		if ((shadingFlags & 0x1) != 0) {
-			unshaded = true;
-		}
-		if ((shadingFlags & 0x2) != 0) {
-			sphereEnvMap = true;
-		}
-		if ((shadingFlags & 0x10) != 0) {
-			twoSided = true;
-		}
-		if ((shadingFlags & 0x20) != 0) {
-			unfogged = true;
-		}
-		if ((shadingFlags & 0x40) != 0) {
-			noDepthTest = true;
-		}
-		if ((shadingFlags & 0x80) != 0) {
-			noDepthSet = true;
-		}
-		if ((shadingFlags & 0x100) != 0) {
-			unlit = true;
-		}
-
-		setTVertexAnimId(mdlxLayer.textureAnimationId);
-		setCoordId((int) mdlxLayer.coordId);
-		setStaticAlpha(mdlxLayer.alpha);
-
-		// > 800
-		emissiveGain = mdlxLayer.emissiveGain;
-		// > 900
-		setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
-		fresnelOpacity = mdlxLayer.fresnelOpacity;
-		fresnelTeamColor = mdlxLayer.fresnelTeamColor;
-
-		loadTimelines(mdlxLayer);
 	}
 
 	@Override
@@ -280,56 +238,6 @@ public class Layer extends TimelineContainer implements Named {
 		}
 	}
 
-	public MdlxLayer toMdlx() {
-		MdlxLayer layer = new MdlxLayer();
-
-		layer.filterMode = filterMode;
-
-		if (unshaded) {
-			layer.flags |= 0x1;
-		}
-
-		if (sphereEnvMap) {
-			layer.flags |= 0x2;
-		}
-
-		if (twoSided) {
-			layer.flags |= 0x10;
-		}
-
-		if (unfogged) {
-			layer.flags |= 0x20;
-		}
-
-		if (noDepthTest) {
-			layer.flags |= 0x40;
-		}
-
-		if (noDepthSet) {
-			layer.flags |= 0x80;
-		}
-
-		if (unlit) {
-			layer.flags |= 0x100;
-		}
-
-		layer.textureId = getTextureId();
-		layer.textureAnimationId = getTVertexAnimId();
-		layer.coordId = getCoordId();
-		layer.alpha = (float) getStaticAlpha();
-
-		// > 800
-		layer.emissiveGain = layer.emissiveGain;
-		// > 900
-		layer.fresnelColor = ModelUtils.flipRGBtoBGR(fresnelColor.toFloatArray());
-		layer.fresnelOpacity = (float) fresnelOpacity;
-		layer.fresnelTeamColor = (float) fresnelTeamColor;
-
-		timelinesToMdlx(layer);
-
-		return layer;
-	}
-
 	public Bitmap getRenderTexture(TimeEnvironmentImpl animatedRenderEnvironment,
 	                               EditableModel model) {
 		IntAnimFlag textureFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
@@ -378,31 +286,18 @@ public class Layer extends TimelineContainer implements Named {
 		}
 	}
 
-	public void updateIds(EditableModel mdlr) {
-		textureId = mdlr.getTextureId(texture);
-		TVertexAnimId = mdlr.getTextureAnimId(textureAnim);
-		if (textures != null) {
+	public void updateIds(EditableModel model) {
+		setTextureId(model.getTextureId(getTextureBitmap()));
+		setTVertexAnimId(model.getTextureAnimId(getTextureAnim()));
+		if (getTextures() != null) {
 			IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
 			for (int i = 0; i < txFlag.size(); i++) {
 				Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture.get(txFlag.getValueFromIndex(i));
-				int newerTextureId = mdlr.getTextureId(textureFoundFromDirtyId);
+				int newerTextureId = model.getTextureId(textureFoundFromDirtyId);
 
 				txFlag.getEntryAt(txFlag.getTimeFromIndex(i)).setValue(newerTextureId);
 				ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);
 			}
-		}
-	}
-
-	public void updateRefs(EditableModel mdlr) {
-		if ((textureId >= 0) && (textureId < mdlr.getTextures().size())) {
-			texture = mdlr.getTexture(textureId);
-		}
-		if ((TVertexAnimId >= 0) && (TVertexAnimId < mdlr.texAnims.size())) {
-			textureAnim = mdlr.texAnims.get(TVertexAnimId);
-		}
-		IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
-		if (txFlag != null) {
-			buildTextureList(mdlr);
 		}
 	}
 

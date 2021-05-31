@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
@@ -299,20 +300,20 @@ public class MenuBarActions {
 		}
 	}
 
-	public static void recalculateTangents(EditableModel currentMDL, Component parent) {
+	public static void recalculateTangents(EditableModel model, Component parent) {
 		// copied from
 		// https://github.com/TaylorMouse/MaxScripts/blob/master/Warcraft%203%20Reforged/GriffonStudios/GriffonStudios_Warcraft_3_Reforged_Export.ms#L169
 		int zeroAreaUVTris = 0;
-		currentMDL.doSavePreps(); // I wanted to use VertexId on the triangle
-		for (Geoset theMesh : currentMDL.getGeosets()) {
-			double[][] tan1 = new double[theMesh.getVertices().size()][];
-			double[][] tan2 = new double[theMesh.getVertices().size()][];
-			for (int nFace = 0; nFace < theMesh.getTriangles().size(); nFace++) {
-				Triangle face = theMesh.getTriangle(nFace);
+		TempSaveModelStuff.doSavePreps(model); // I wanted to use VertexId on the triangle
+		for (Geoset geoset : model.getGeosets()) {
+			double[][] tan1 = new double[geoset.getVertices().size()][];
+			double[][] tan2 = new double[geoset.getVertices().size()][];
+			for (int nFace = 0; nFace < geoset.getTriangles().size(); nFace++) {
+				Triangle triangle = geoset.getTriangle(nFace);
 
-				GeosetVertex v1 = face.getVerts()[0];
-				GeosetVertex v2 = face.getVerts()[1];
-				GeosetVertex v3 = face.getVerts()[2];
+				GeosetVertex v1 = triangle.get(0);
+				GeosetVertex v2 = triangle.get(1);
+				GeosetVertex v3 = triangle.get(2);
 
 				Vec3 vv1 = Vec3.getDiff(v2, v1);
 				double x1 = v2.x - v1.x;
@@ -349,16 +350,16 @@ public class MenuBarActions {
 				double[] sdir = {((t2 * x1) - (t1 * x2)) * r, ((t2 * y1) - (t1 * y2)) * r, ((t2 * z1) - (t1 * z2)) * r};
 				double[] tdir = {((s1 * x2) - (s2 * x1)) * r, ((s1 * y2) - (s2 * y1)) * r, ((s1 * z2) - (s2 * z1)) * r};
 
-				tan1[face.getId(0)] = sdir;
-				tan1[face.getId(1)] = sdir;
-				tan1[face.getId(2)] = sdir;
+				tan1[triangle.getId(0)] = sdir;
+				tan1[triangle.getId(1)] = sdir;
+				tan1[triangle.getId(2)] = sdir;
 
-				tan2[face.getId(0)] = tdir;
-				tan2[face.getId(1)] = tdir;
-				tan2[face.getId(2)] = tdir;
+				tan2[triangle.getId(0)] = tdir;
+				tan2[triangle.getId(1)] = tdir;
+				tan2[triangle.getId(2)] = tdir;
 			}
-			for (int vertexId = 0; vertexId < theMesh.getVertices().size(); vertexId++) {
-				GeosetVertex gv = theMesh.getVertex(vertexId);
+			for (int vertexId = 0; vertexId < geoset.getVertices().size(); vertexId++) {
+				GeosetVertex gv = geoset.getVertex(vertexId);
 				Vec3 n = gv.getNormal();
 				Vec3 t = new Vec3(tan1[vertexId]);
 
@@ -380,7 +381,7 @@ public class MenuBarActions {
 		}
 		int goodTangents = 0;
 		int badTangents = 0;
-		for (Geoset theMesh : currentMDL.getGeosets()) {
+		for (Geoset theMesh : model.getGeosets()) {
 			for (GeosetVertex gv : theMesh.getVertices()) {
 				double dotProduct = gv.getNormal().dot(gv.getTang().getVec3());
 //				System.out.println("dotProduct: " + dotProduct);
@@ -490,7 +491,7 @@ public class MenuBarActions {
 			return;
 		}
 
-		mainPanel.currentMDL().doSavePreps();
+		TempSaveModelStuff.doSavePreps(mainPanel.currentMDL());
 
 		final Map<Geoset, Geoset> sourceToDestination = new HashMap<>();
 		final List<Geoset> retainedGeosets = new ArrayList<>();

@@ -51,6 +51,18 @@ public class TwiAiSceneParser {
 
 	}
 
+	public static Material createMaterial(AiMaterial aiMaterial, EditableModel model) {
+		Material material = new Material();
+		final Layer diffuseLayer = new Layer();
+
+		diffuseLayer.setTexture(model.loadTexture(aiMaterial.getTextureFile(AiTextureType.DIFFUSE, 0)));
+		diffuseLayer.setStaticAlpha(aiMaterial.getOpacity());
+
+		material.addLayer(diffuseLayer);
+
+		return material;
+	}
+
 	private void fetchAnims() {
 		int nextStart = 10;
 		List<Animation> animations = new ArrayList<>();
@@ -235,7 +247,7 @@ public class TwiAiSceneParser {
 	private void readMaterials() {
 		for (final AiMaterial aiMaterial : scene.getMaterials()) {
 //			System.out.println("Reading material \"" + aiMaterial.getName() + "\"");
-			final Material material = new Material(aiMaterial, editableModel);
+			final Material material = createMaterial(aiMaterial, editableModel);
 //			materialList.add(aiMaterial);
 			editableModel.add(material);
 

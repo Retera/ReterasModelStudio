@@ -74,18 +74,18 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 
 	@Override
 	public MdlxFloatArrayTimeline toMdlx(final TimelineContainer container) {
-		final MdlxFloatArrayTimeline timeline = new MdlxFloatArrayTimeline(3);
+		final MdlxFloatArrayTimeline mdlxTimeline = new MdlxFloatArrayTimeline(3);
 
-		timeline.name = FlagUtils.getWar3ID(name, container);
-		timeline.interpolationType = interpolationType;
-		timeline.globalSequenceId = getGlobalSeqId();
+		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
+		mdlxTimeline.interpolationType = interpolationType;
+		mdlxTimeline.globalSequenceId = getGlobalSeqId();
 
 		long[] tempFrames = new long[entryMap.size()];
 		float[][] tempValues = new float[entryMap.size()][];
 		float[][] tempInTans = new float[entryMap.size()][];
 		float[][] tempOutTans = new float[entryMap.size()][];
 
-		boolean hasTangents = timeline.interpolationType.tangential();
+		boolean hasTangents = mdlxTimeline.interpolationType.tangential();
 
 		for (int i = 0, l = entryMap.size(); i < l; i++) {
 			tempFrames[i] = getTimeFromIndex(i);
@@ -100,12 +100,12 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 			}
 		}
 
-		timeline.frames = tempFrames;
-		timeline.values = tempValues;
-		timeline.inTans = tempInTans;
-		timeline.outTans = tempOutTans;
+		mdlxTimeline.frames = tempFrames;
+		mdlxTimeline.values = tempValues;
+		mdlxTimeline.inTans = tempInTans;
+		mdlxTimeline.outTans = tempOutTans;
 
-		return timeline;
+		return mdlxTimeline;
 	}
 
 	@Override

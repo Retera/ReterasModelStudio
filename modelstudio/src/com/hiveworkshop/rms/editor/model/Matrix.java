@@ -15,6 +15,7 @@ public class Matrix {
 
 	public Matrix() {
 		m_boneIds = new ArrayList<>();
+		bones = new ArrayList<>();
 	}
 
 	public Matrix(final int id) {
@@ -24,6 +25,7 @@ public class Matrix {
 
 	public Matrix(final List<Bone> newBones) {
 		bones = new ArrayList<>(newBones);
+		m_boneIds = new ArrayList<>();
 	}
 
 	public Matrix(final int[] boneIds) {
@@ -31,6 +33,7 @@ public class Matrix {
 		for (int boneId : boneIds) {
 			m_boneIds.add(boneId);
 		}
+		bones = new ArrayList<>();
 	}
 
 	public String getName() {

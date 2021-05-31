@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.filesystem.sources.FolderDataSource;
-import com.hiveworkshop.rms.parsers.mdlx.*;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -20,7 +19,6 @@ import java.util.*;
  */
 public class EditableModel implements Named {
 	public static boolean RETERA_FORMAT_BPOS_MATRICES = false;
-	public static boolean DISABLE_BONE_GEO_ID_VALIDATOR = false;
 
 	private File fileRef;
 	private String name = "UnnamedModel";
@@ -36,7 +34,6 @@ public class EditableModel implements Named {
 	protected List<TextureAnim> texAnims = new ArrayList<>();
 	protected List<Geoset> geosets = new ArrayList<>();
 	protected List<GeosetAnim> geosetAnims = new ArrayList<>();
-	//	protected List<IdObject> idObjects = new ArrayList<>();
 	protected List<Vec3> pivots = new ArrayList<>();
 	protected List<Camera> cameras = new ArrayList<>();
 	private final List<FaceEffect> faceEffects = new ArrayList<>();
@@ -44,253 +41,13 @@ public class EditableModel implements Named {
 	private boolean temporary;
 	private DataSource wrappedDataSource = GameDataFileSystem.getDefault();
 
-	private ModelIdObjects modelIdObjects;
+	private ModelIdObjects modelIdObjects = new ModelIdObjects();
 
 	public EditableModel() {
-
-		modelIdObjects = new ModelIdObjects();
 	}
 
 	public EditableModel(final String newName) {
 		name = newName;
-
-		modelIdObjects = new ModelIdObjects();
-	}
-
-	public EditableModel(final EditableModel other) {
-		System.out.println("new model from model");
-		setFileRef(other.fileRef);
-		name = other.name;
-		blendTime = other.blendTime;
-		extents = new ExtLog(other.extents);
-		formatVersion = other.formatVersion;
-		header = new ArrayList<>(other.header);
-		anims = new ArrayList<>(other.anims);
-		globalSeqs = new ArrayList<>(other.globalSeqs);
-		textures = new ArrayList<>(other.textures);
-		materials = new ArrayList<>(other.materials);
-		texAnims = new ArrayList<>(other.texAnims);
-		geosets = new ArrayList<>(other.geosets);
-		geosetAnims = new ArrayList<>(other.geosetAnims);
-//		idObjects = new ArrayList<>(other.idObjects);
-		pivots = new ArrayList<>(other.pivots);
-		cameras = new ArrayList<>(other.cameras);
-		modelIdObjects = new ModelIdObjects(); // todo copy from other
-		for (IdObject idObject : other.modelIdObjects.allObjects) {
-			modelIdObjects.addIdObject(idObject);
-		}
-	}
-
-	public EditableModel(final MdlxModel mdlxModel) {
-		// Step 1: Convert the Model Chunk
-		// For MDL api, this is currently embedded right inside the MDL class
-		Map<IdObject, Integer> parentMap = new HashMap<>();
-		Map<Integer, IdObject> idMap = new HashMap<>();
-		Map<IdObject, Integer> objIdMap = new HashMap<>();
-
-		modelIdObjects = new ModelIdObjects();
-		setFormatVersion(mdlxModel.version);
-		setName(mdlxModel.name);
-		setBlendTime((int) mdlxModel.blendTime);
-		setExtents(new ExtLog(mdlxModel.extent));
-
-		// Step 2: Convert the Sequences
-		for (final MdlxSequence sequence : mdlxModel.sequences) {
-			add(new Animation(sequence));
-		}
-
-		// Step 3: Convert any global sequences
-		for (final long sequence : mdlxModel.globalSequences) {
-			add((int) sequence);
-		}
-
-		// Step 4: Convert Texture refs
-		for (final MdlxTexture mdlxTexture : mdlxModel.textures) {
-			add(new Bitmap(mdlxTexture));
-		}
-
-		// Step 6: Convert TVertexAnims
-		for (final MdlxTextureAnimation mdlxTextureAnimation : mdlxModel.textureAnimations) {
-			add(new TextureAnim(mdlxTextureAnimation));
-		}
-
-		// Step 5: Convert Material refs
-		for (final MdlxMaterial mdlxMaterial : mdlxModel.materials) {
-			add(new Material(mdlxMaterial, this));
-		}
-
-		// Step 7: Geoset
-		for (final MdlxGeoset mdlxGeoset : mdlxModel.geosets) {
-			add(new Geoset(mdlxGeoset, this));
-		}
-
-		// Step 8: GeosetAnims
-		for (final MdlxGeosetAnimation mdlxGeosetAnimation : mdlxModel.geosetAnimations) {
-			if (mdlxGeosetAnimation.geosetId != -1) {
-				final GeosetAnim geosetAnim = new GeosetAnim(mdlxGeosetAnimation, this);
-
-				add(geosetAnim);
-
-				if (geosetAnim.geoset != null) {
-					geosetAnim.geoset.geosetAnim = geosetAnim;
-				}
-			}
-		}
-
-		// Step 9:
-		// convert "IdObjects" as I called them in my high school mdl code (nodes)
-
-		// Bones
-		for (final MdlxBone mdlxBone : mdlxModel.bones) {
-//			System.out.println("MdlxBone, id: " + mdlxBone.objectId + " name: " + mdlxBone.name);
-			Bone x = new Bone(mdlxBone);
-			objIdMap.put(x, mdlxBone.objectId);
-			idMap.put(mdlxBone.objectId, x);
-			parentMap.put(x, mdlxBone.parentId);
-			add(x);
-		}
-
-		// Lights
-		for (final MdlxLight mdlxLight : mdlxModel.lights) {
-			Light x = new Light(mdlxLight);
-			objIdMap.put(x, mdlxLight.objectId);
-			idMap.put(mdlxLight.objectId, x);
-			parentMap.put(x, mdlxLight.parentId);
-			add(x);
-		}
-
-		// Helpers
-		for (final MdlxHelper mdlxHelper : mdlxModel.helpers) {
-//			System.out.println("MdlxHelper");
-			Helper x = new Helper(mdlxHelper);
-			objIdMap.put(x, mdlxHelper.objectId);
-			idMap.put(mdlxHelper.objectId, x);
-			parentMap.put(x, mdlxHelper.parentId);
-			add(x);
-		}
-
-		// Attachment
-		for (final MdlxAttachment mdlxAttachment : mdlxModel.attachments) {
-			Attachment x = new Attachment(mdlxAttachment);
-			objIdMap.put(x, mdlxAttachment.objectId);
-			idMap.put(mdlxAttachment.objectId, x);
-			parentMap.put(x, mdlxAttachment.parentId);
-			add(x);
-		}
-
-		// ParticleEmitter (number 1 kind)
-		for (final MdlxParticleEmitter mdlxEmitter : mdlxModel.particleEmitters) {
-			ParticleEmitter x = new ParticleEmitter(mdlxEmitter);
-			objIdMap.put(x, mdlxEmitter.objectId);
-			idMap.put(mdlxEmitter.objectId, x);
-			parentMap.put(x, mdlxEmitter.parentId);
-			add(x);
-		}
-
-		// ParticleEmitter2
-		for (final MdlxParticleEmitter2 mdlxEmitter : mdlxModel.particleEmitters2) {
-			ParticleEmitter2 x = new ParticleEmitter2(mdlxEmitter);
-			objIdMap.put(x, mdlxEmitter.objectId);
-			idMap.put(mdlxEmitter.objectId, x);
-			parentMap.put(x, mdlxEmitter.parentId);
-			add(x);
-		}
-
-		// PopcornFxEmitter
-		for (final MdlxParticleEmitterPopcorn mdlxEmitter : mdlxModel.particleEmittersPopcorn) {
-			ParticleEmitterPopcorn x = new ParticleEmitterPopcorn(mdlxEmitter);
-			objIdMap.put(x, mdlxEmitter.objectId);
-			idMap.put(mdlxEmitter.objectId, x);
-			parentMap.put(x, mdlxEmitter.parentId);
-			add(x);
-		}
-
-		// RibbonEmitter
-		for (final MdlxRibbonEmitter mdlxEmitter : mdlxModel.ribbonEmitters) {
-			RibbonEmitter x = new RibbonEmitter(mdlxEmitter);
-			objIdMap.put(x, mdlxEmitter.objectId);
-			idMap.put(mdlxEmitter.objectId, x);
-			parentMap.put(x, mdlxEmitter.parentId);
-			add(x);
-		}
-
-		// EventObject
-		for (final MdlxEventObject mdlxObject : mdlxModel.eventObjects) {
-			EventObject x = new EventObject(mdlxObject);
-			objIdMap.put(x, mdlxObject.objectId);
-			idMap.put(mdlxObject.objectId, x);
-			parentMap.put(x, mdlxObject.parentId);
-			add(x);
-		}
-
-		for (final MdlxCamera mdlxCamera : mdlxModel.cameras) {
-			add(new Camera(mdlxCamera));
-		}
-
-		// CollisionShape
-		for (final MdlxCollisionShape mdlxShape : mdlxModel.collisionShapes) {
-			CollisionShape x = new CollisionShape(mdlxShape);
-			objIdMap.put(x, mdlxShape.objectId);
-			idMap.put(mdlxShape.objectId, x);
-			parentMap.put(x, mdlxShape.parentId);
-			add(x);
-		}
-
-		for (final float[] point : mdlxModel.pivotPoints) {
-			addPivotPoint(new Vec3(point));
-		}
-
-		for (final MdlxFaceEffect mdlxEffect : mdlxModel.faceEffects) {
-			addFaceEffect(new FaceEffect(mdlxEffect.type, mdlxEffect.path));
-		}
-
-		if (mdlxModel.bindPose.size() > 0) {
-			bindPose = new BindPose(mdlxModel.bindPose);
-		}
-
-		for (IdObject idObject : parentMap.keySet()) {
-			int parentId = parentMap.get(idObject);
-			if (parentId != -1 && idMap.containsKey(parentId)) {
-				idObject.setParent(idMap.get(parentId));
-//				if(bindPose.size()>objIdMap.get(idObject)){
-//					idObject.setPivotPoint(pivots.get(objIdMap.get(idObject)));
-//				}
-			}
-			Integer objId = objIdMap.get(idObject);
-			if (pivots.size() > objId && objId > -1) {
-//				System.out.println("set pivot to: " + pivots.get(objIdMap.get(idObject)));
-				idObject.setPivotPoint(pivots.get(objId));
-			} else {
-				System.out.println("set {0, 0, 0} pivot");
-				idObject.setPivotPoint(new Vec3(0, 0, 0));
-
-			}
-			if (bindPose != null && objId > -1) {
-				idObject.setBindPose(bindPose.bindPose[objId]);
-			}
-//
-		}
-
-		doPostRead(); // fixes all the things
-	}
-
-	public static EditableModel clone(final EditableModel what, final String newName) {
-		final EditableModel newModel = new EditableModel(what);
-
-		newModel.setName(newName);
-
-		return newModel;
-	}
-
-	public static EditableModel deepClone(final EditableModel what, final String newName) {
-		// Need to do a real save, because of strings being passed by reference.
-		// Maybe other objects I didn't think about (or the code does by mistake).
-		final EditableModel newModel = new EditableModel(new MdlxModel(what.toMdlx().saveMdx()));
-
-		newModel.setName(newName);
-		newModel.setFileRef(what.getFile());
-
-		return newModel;
 	}
 
 	public File getFile() {
@@ -350,112 +107,6 @@ public class EditableModel implements Named {
 		name = other.name;
 	}
 
-	public MdlxModel toMdlx() {
-		doSavePreps(); // restores all GeosetID, ObjectID, TextureID,
-		// MaterialID stuff all based on object references in the Java
-		// (this is so that you can write a program that does something like
-		// "mdl.add(new Bone())" without a problem, or even
-		// "mdl.add(otherMdl.getGeoset(5))" and have the geoset's textures and
-		// materials all be carried over with it via object references in java
-
-		// also this re-creates all matrices, which are consumed by the
-		// MatrixEater at runtime in doPostRead() in favor of each vertex
-		// having its own attachments list, no vertex groups)
-
-		final MdlxModel mdlxModel = new MdlxModel();
-
-		mdlxModel.version = getFormatVersion();
-		mdlxModel.name = getName();
-		mdlxModel.blendTime = getBlendTime();
-		mdlxModel.extent = getExtents().toMdlx();
-
-		for (final Animation sequence : getAnims()) {
-			mdlxModel.sequences.add(sequence.toMdlx());
-		}
-
-		for (final Integer sequence : globalSeqs) {
-			mdlxModel.globalSequences.add(sequence.longValue());
-		}
-
-		for (final Bitmap texture : textures) {
-			mdlxModel.textures.add(texture.toMdlx());
-		}
-
-		for (final TextureAnim animation : texAnims) {
-			mdlxModel.textureAnimations.add(animation.toMdlx());
-		}
-
-		for (final Material material : materials) {
-			mdlxModel.materials.add(material.toMdlx());
-		}
-
-		for (final Geoset geoset : geosets) {
-			mdlxModel.geosets.add(geoset.toMdlx(this));
-		}
-
-		for (final GeosetAnim animation : geosetAnims) {
-			mdlxModel.geosetAnimations.add(animation.toMdlx(this));
-		}
-
-		for (final Bone bone : getBones()) {
-			mdlxModel.bones.add(bone.toMdlx(this));
-		}
-
-		for (final Light light : getLights()) {
-			mdlxModel.lights.add(light.toMdlx(this));
-		}
-
-		for (final Helper helper : getHelpers()) {
-			mdlxModel.helpers.add(helper.toMdlxHelper(this));
-		}
-
-		for (final Attachment attachment : getAttachments()) {
-			mdlxModel.attachments.add(attachment.toMdlx(this));
-		}
-
-		for (final ParticleEmitter emitter : getParticleEmitters()) {
-			mdlxModel.particleEmitters.add(emitter.toMdlx(this));
-		}
-
-		for (final ParticleEmitter2 emitter : getParticleEmitter2s()) {
-			mdlxModel.particleEmitters2.add(emitter.toMdlx(this));
-		}
-
-		for (final ParticleEmitterPopcorn emitter : getPopcornEmitters()) {
-			mdlxModel.particleEmittersPopcorn.add(emitter.toMdlx(this));
-		}
-
-		for (final RibbonEmitter emitter : getRibbonEmitters()) {
-			mdlxModel.ribbonEmitters.add(emitter.toMdlx(this));
-		}
-
-		for (final EventObject object : getEvents()) {
-			mdlxModel.eventObjects.add(object.toMdlx(this));
-		}
-
-		for (final Camera camera : getCameras()) {
-			mdlxModel.cameras.add(camera.toMdlx());
-		}
-
-		for (final CollisionShape shape : getColliders()) {
-			mdlxModel.collisionShapes.add(shape.toMdlx(this));
-		}
-
-		for (final Vec3 point : getPivots()) {
-			mdlxModel.pivotPoints.add(point.toFloatArray());
-		}
-
-		for (final FaceEffect effect : faceEffects) {
-			mdlxModel.faceEffects.add(effect.toMdlx());
-		}
-
-		if (bindPose != null) {
-			mdlxModel.bindPose = bindPose.toMdlx();
-		}
-
-		return mdlxModel;
-	}
-
 	public void clearToHeader() {
 		anims.clear();
 		globalSeqs.clear();
@@ -470,390 +121,13 @@ public class EditableModel implements Named {
 		modelIdObjects.clearAll();
 	}
 
-	/**
-	 * Deletes all the animation in the model from the time track.
-	 *
-	 * Might leave behind nice things like global sequences if the code works out.
-	 */
-	public static void deleteAllAnimation(EditableModel model, final boolean clearUnusedNodes) {
-		if (clearUnusedNodes) {
-			// check the emitters
-			final List<ParticleEmitter> particleEmitters = model.getParticleEmitters();
-			final List<ParticleEmitter2> particleEmitters2 = model.getParticleEmitter2s();
-			final List<RibbonEmitter> ribbonEmitters = model.getRibbonEmitters();
-			final List<ParticleEmitterPopcorn> popcornEmitters = model.getPopcornEmitters();
-			final List<IdObject> emitters = new ArrayList<>();
-			emitters.addAll(particleEmitters2);
-			emitters.addAll(particleEmitters);
-			emitters.addAll(ribbonEmitters);
-			emitters.addAll(popcornEmitters);
-
-			for (final IdObject emitter : emitters) {
-				int talliesFor = 0;
-				int talliesAgainst = 0;
-//				final AnimFlag<?> visibility = ((VisibilitySource) emitter).getVisibilityFlag();
-				final AnimFlag<?> visibility = emitter.getVisibilityFlag();
-				for (final Animation anim : model.anims) {
-					final Integer animStartTime = anim.getStart();
-					final Number visible = (Number) visibility.valueAt(animStartTime);
-					if ((visible == null) || (visible.floatValue() > 0)) {
-						talliesFor++;
-					} else {
-						talliesAgainst++;
-					}
-				}
-				if (talliesAgainst > talliesFor) {
-					model.remove(emitter);
-				}
-			}
-		}
-		final List<AnimFlag<?>> flags = model.getAllAnimFlags();
-//		final List<EventObject> evts = (List<EventObject>) sortedIdObjects(EventObject.class);
-		final List<EventObject> evts = model.modelIdObjects.events;
-		for (final Animation anim : model.anims) {
-			anim.clearData(flags, evts);
-		}
-		if (clearUnusedNodes) {
-			for (final EventObject e : evts) {
-				if (e.size() <= 0) {
-					model.modelIdObjects.removeIdObject(e);
-//					idObjects.remove(e);
-				}
-			}
-		}
-		model.clearAnimations();
-	}
-
-	public void copyVisibility(Animation visibilitySource, Animation target) {
-//		final List<VisibilitySource> allVisibilitySources = getAllVisibilitySources();
-		final List<VisibilitySource> allVisibilitySources = getAllVis();
-		for (VisibilitySource source : allVisibilitySources) {
-			AnimFlag<?> visibilityFlag = source.getVisibilityFlag();
-			AnimFlag<?> copyFlag = visibilityFlag.deepCopy();
-			visibilityFlag.deleteAnim(target);
-			visibilityFlag.copyFrom(copyFlag, visibilitySource.getStart(), visibilitySource.getEnd(), target.getStart(), target.getEnd());
-		}
-	}
-
-	public void doPostRead() {
-		System.out.println("doPostRead for model: " + name);
-		updateIdObjectReferences();
-		for (final Geoset geo : geosets) {
-			geo.updateToObjects(this);
-		}
-		final List<GeosetAnim> badAnims = new ArrayList<>();
-		for (final GeosetAnim geoAnim : geosetAnims) {
-			if (geoAnim.geoset == null) {
-				badAnims.add(geoAnim);
-			}
-		}
-		if (badAnims.size() > 0) {
-			JOptionPane.showMessageDialog(null,
-					"We discovered GeosetAnim data pointing to an invalid GeosetID! Bad data will be deleted. Please backup your model file.");
-		}
-		for (final GeosetAnim bad : badAnims) {
-			geosetAnims.remove(bad);
-		}
-		final List<AnimFlag<?>> animFlags = getAllAnimFlags();// laggggg!
-		for (final AnimFlag<?> af : animFlags) {
-			af.updateGlobalSeqRef(this);
-			if (!af.getName().equals("Scaling") && !af.getName().equals("Translation")
-					&& !af.getName().equals("Rotation")) {
-			}
-		}
-
-		final List<EventObject> evtObjs = getEvents();
-		for (final EventObject af : evtObjs) {
-			af.updateGlobalSeqRef(this);
-		}
-
-		for (final ParticleEmitter2 temp : getParticleEmitter2s()) {
-			temp.updateTextureRef(textures);
-		}
-
-		for (final RibbonEmitter emitter : getRibbonEmitters()) {
-			emitter.updateMaterialRef(materials);
-		}
-		for (ParticleEmitterPopcorn popcorn : getPopcornEmitters()) {
-			popcorn.initAnimsVisStates(getAnims());
-		}
-	}
-
-	public void doSavePreps() {
-		rebuildLists();
-		// If rebuilding the lists is to crash, then we want to crash the thread
-		// BEFORE clearing the file
-
-		// Animations
-
-		// Geosets -- delete if empty
-		if (geosets != null) {
-			if (geosets.size() > 0) {
-				for (int i = geosets.size() - 1; i >= 0; i--) {
-					if (geosets.get(i).isEmpty()) {
-						if (geosets.get(i).geosetAnim != null) {
-							geosetAnims.remove(geosets.get(i).geosetAnim);
-						}
-						geosets.remove(i);
-					}
-				}
-			}
-		}
-
-		cureBoneGeoAnimIds();
-		updateObjectIds();
-		// We want to print out the right ObjectIds!
-
-		// Geosets
-		if (geosets != null) {
-			if (geosets.size() > 0) {
-				for (final Geoset geoset : geosets) {
-					geoset.doSavePrep(this);
-				}
-			}
-		}
-
-		// Clearing pivot points
-		pivots.clear();
-//		for (final IdObject idObject : idObjects) {
-		for (final IdObject idObject : modelIdObjects.allObjects) {
-			pivots.add(idObject.pivotPoint);
-		}
-	}
-
 	public void clearTexAnims() {
-		if (texAnims != null) {
-			texAnims.clear();
-		} else {
-			texAnims = new ArrayList<>();
-		}
-	}
-
-	public void rebuildTextureAnimList() {
-		clearTexAnims();
-		for (final Material m : materials) {
-			for (final Layer lay : m.layers) {
-				if ((lay.textureAnim != null) && !texAnims.contains(lay.textureAnim)) {
-					texAnims.add(lay.textureAnim);
-				}
-			}
-		}
-	}
-
-	public void rebuildMaterialList() {
-		materials.clear();
-		for (final Geoset g : geosets) {
-			if ((g.material != null) && !materials.contains(g.material)) {
-				materials.add(g.material);
-			}
-		}
-		final List<RibbonEmitter> ribbons = getRibbonEmitters();
-		for (final RibbonEmitter r : ribbons) {
-			if ((r.material != null) && !materials.contains(r.material)) {
-				materials.add(r.material);
-			} else {
-				// JOptionPane.showMessageDialog(null,"Null material found for
-				// ribbon at temporary object id: "+m_idobjects.indexOf(r));
-			}
-			r.setMaterialId(materials.indexOf(r.material)); // -1 if null
-		}
-	}
-
-	public void rebuildLists() {
-		rebuildMaterialList();
-		rebuildTextureList();// texture anims handled inside textures
-		rebuildGlobalSeqList();
-	}
-
-	public void rebuildTextureList() {
-		rebuildTextureAnimList();
-		textures.clear();
-		for (final Material m : materials) {
-			for (final Layer layer : m.layers) {
-				if ((layer.texture != null) && !textures.contains(layer.texture) && (layer.textures == null)) {
-					textures.add(layer.texture);
-
-//					boolean good = true; // ToDo check that this really is as stupid as it looks...
-//					for (final Bitmap btm : textures) {
-//						if (layer.texture.equals(btm)) {
-//							good = false;
-//							break;
-//						}
-//					}
-//					if (good) {
-//						textures.add(layer.texture);
-//					}
-				} else {
-					final AnimFlag<?> af = layer.find("TextureID");
-					if (af != null) {
-						for (final Bitmap temp : layer.textures) {
-							if (!textures.contains(temp)) {
-								textures.add(temp);
-							}
-//							boolean good = true;
-//							for (final Bitmap btm : textures) {
-//								if (temp.equals(btm)) {
-//									good = false;
-//									break;
-//								}
-//							}
-//							if (good) {
-//								textures.add(temp);
-//							}
-						}
-					}
-				}
-				layer.updateIds(this);
-				// keep those Ids straight, will be -1 if null
-			}
-		}
-		final List<ParticleEmitter2> particles = getParticleEmitter2s();
-		for (final ParticleEmitter2 pe : particles) {
-			boolean good = true;
-			if ((pe.texture != null) && !textures.contains(pe.texture)) {
-				textures.add(pe.texture);
-//				for (final Bitmap btm : textures) {
-//					if (pe.texture.equals(btm)) {
-//						good = false;
-//						break;
-//					}
-//				}
-//				if (good) {
-//					textures.add(pe.texture);
-//				}
-			}
-			pe.setTextureId(getTextureId(pe.texture));
-			// will be -1 if null
-		}
-	}
-
-	public void rebuildGlobalSeqList() {
-		globalSeqs.clear();
-		final List<AnimFlag<?>> animFlags = getAllAnimFlags();// laggggg!
-//		final List<EventObject> evtObjs = (List<EventObject>) sortedIdObjects(EventObject.class);
-		final List<EventObject> evtObjs = getEvents();
-		for (final AnimFlag<?> af : animFlags) {
-			if (!globalSeqs.contains(af.globalSeqLength) && (af.globalSeqLength != null)) {
-				globalSeqs.add(af.globalSeqLength);
-			}
-			af.updateGlobalSeqId(this);// keep the ids straight
-		}
-		for (final EventObject af : evtObjs) {
-			if (!globalSeqs.contains(af.globalSeq) && (af.globalSeq != null)) {
-				globalSeqs.add(af.globalSeq);
-			}
-			af.updateGlobalSeqId(this);// keep the ids straight
-		}
-	}
-
-
-
-	// The below commented stuff is now an internal part of list rebuilding
-	// public void updateIdsAcrossModel()
-	// {
-	// //globalSeq ids update dynamically as the list rebuilds
-	//
-	// //Fixes material/layer TextureID and TVertexAnimIDs, assuming that the
-	// // proper lists are already built for use
-	// for( Material m: m_materials )
-	// {
-	// m.updateReferenceIds(this);
-	// }
-	// }
-	public void updateIdObjectReferences() {
-		final List<Bone> bones = getBones();
-		final List<? extends Bone> helpers = getHelpers();
-		bones.addAll(helpers);
-		boolean canWarnPivot = true;
-		System.out.println("pivots: " + pivots.size());
-		System.out.println("idObjects: " + modelIdObjects.getIdObjectsSize());
-//		for (int i = 0; i < modelIdObjects.getIdObjectsSize(); i++) {
-//			final IdObject obj = modelIdObjects.getIdObject(i);
-////			if (obj.parentId != -1) {
-////				obj.setParent(modelIdObjects.getIdObject(obj.parentId));
-////			}
-//			if (i >= pivots.size()) {
-//				System.out.println("idOb size: " + modelIdObjects.getIdObjectsSize() + ", pivots: " + pivots.size() + ", i: " + i);
-//				if (canWarnPivot) {
-//					JOptionPane.showMessageDialog(null,
-//							"Error: More objects than PivotPoints were found." +
-//									"\nAdditional pivot at {0,0,0} will be added.");
-//					System.out.println("Error: More objects than PivotPoints were found." +
-//							"\nAdditional pivot at {0,0,0} will be added.");
-//					canWarnPivot = false;
-//				}
-//				pivots.add(new Vec3(0, 0, 0));
-//			}
-////			obj.setPivotPoint(pivots.get(i));
-////			if (bindPose != null) {
-////				obj.bindPose = bindPose.bindPose[i];
-////			}
+		texAnims.clear();
+//		if (texAnims != null) {
+//			texAnims.clear();
+//		} else {
+//			texAnims = new ArrayList<>();
 //		}
-		for (final Bone b : bones) {
-			if ((b.geosetId != -1) && (b.geosetId < geosets.size())) {
-				b.geoset = geosets.get(b.geosetId);
-			}
-			if ((b.geosetAnimId != -1) && (b.geosetAnimId < geosetAnims.size())) {
-				b.geosetAnim = geosetAnims.get(b.geosetAnimId);
-			}
-		}
-		for (int i = 0; i < cameras.size(); i++) {
-			final Camera camera = cameras.get(i);
-			if (bindPose != null) {
-				camera.setBindPose(bindPose.bindPose[i + modelIdObjects.getIdObjectsSize()]);
-			}
-		}
-	}
-
-	public void updateObjectIds() {
-		sortIdObjects();
-
-		// -- Injected in save prep --
-		// Delete empty rotation/translation/scaling
-		bindPose = null;
-		for (final IdObject obj : modelIdObjects.allObjects) {
-			final Collection<AnimFlag<?>> animFlags = obj.getAnimFlags();
-			final List<AnimFlag<?>> bad = new ArrayList<>();
-			for (final AnimFlag<?> flag : animFlags) {
-				if (flag.size() <= 0) {
-					bad.add(flag);
-				}
-			}
-			for (final AnimFlag<?> badFlag : bad) {
-				System.err.println("Gleaning out " + badFlag.getName() + " chunk with size of 0");
-				animFlags.remove(badFlag);
-			}
-		}
-		// -- end injected ---
-
-		final List<Bone> bones = getBones();
-		final List<? extends Bone> helpers = getHelpers();
-		bones.addAll(helpers);
-
-		for (int i = 0; i < modelIdObjects.getIdObjectsSize(); i++) {
-			final IdObject obj = modelIdObjects.getIdObject(i);
-			obj.objectId = modelIdObjects.getObjectId(obj);
-			obj.parentId = modelIdObjects.getObjectId(obj.getParent());
-			if (obj.getBindPose() != null) {
-				if (bindPose == null) {
-					bindPose = new BindPose(modelIdObjects.getIdObjectsSize() + cameras.size());
-				}
-				bindPose.bindPose[i] = obj.getBindPose();
-			}
-		}
-		for (final Bone b : bones) {
-			b.geosetId = geosets.indexOf(b.geoset);
-			b.geosetAnimId = geosetAnims.indexOf(b.geosetAnim);
-		}
-		for (int i = 0; i < cameras.size(); i++) {
-			final Camera obj = cameras.get(i);
-			if (obj.getBindPose() != null) {
-				if (bindPose == null) {
-					bindPose = new BindPose(modelIdObjects.getIdObjectsSize() + cameras.size());
-				}
-				bindPose.bindPose[i + modelIdObjects.getIdObjectsSize()] = obj.getBindPose();
-			}
-		}
 	}
 
 	public <T extends IdObject> List<? extends IdObject> sortedIdObjects(final Class<T> objectClass) {
@@ -863,25 +137,25 @@ public class EditableModel implements Named {
 	public List<AnimFlag<?>> getAllAnimFlags() {
 		// Probably will cause a bunch of lag, be wary
 		final List<AnimFlag<?>> allFlags = Collections.synchronizedList(new ArrayList<>());
-		for (final Material m : materials) {
-			for (final Layer lay : m.layers) {
-				allFlags.addAll(lay.animFlags.values());
+		for (final Material m : getMaterials()) {
+			for (final Layer lay : m.getLayers()) {
+				allFlags.addAll(lay.getAnimFlags());
 			}
 		}
-		if (texAnims != null) {
-			for (final TextureAnim texa : texAnims) {
+		if (getTexAnims() != null) {
+			for (final TextureAnim texa : getTexAnims()) {
 				if (texa != null) {
-					allFlags.addAll(texa.animFlags.values());
+					allFlags.addAll(texa.getAnimFlags());
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
 				}
 			}
 		}
-		if (geosetAnims != null) {
-			for (final GeosetAnim ga : geosetAnims) {
+		if (getGeosetAnims() != null) {
+			for (final GeosetAnim ga : getGeosetAnims()) {
 				if (ga != null) {
-					allFlags.addAll(ga.animFlags.values());
+					allFlags.addAll(ga.getAnimFlags());
 				} else {
 					JOptionPane.showMessageDialog(null,
 							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
@@ -889,11 +163,11 @@ public class EditableModel implements Named {
 			}
 		}
 //		for (final IdObject idObject : idObjects) {
-		for (final IdObject idObject : modelIdObjects.allObjects) {
+		for (final IdObject idObject : getAllObjects()) {
 			allFlags.addAll(idObject.getAnimFlags());
 		}
-		if (cameras != null) {
-			for (final Camera x : cameras) {
+		if (getCameras() != null) {
+			for (final Camera x : getCameras()) {
 				allFlags.addAll(x.getSourceNode().getAnimFlags());
 				allFlags.addAll(x.getTargetNode().getAnimFlags());
 			}
@@ -905,8 +179,8 @@ public class EditableModel implements Named {
 	public List<VisibilitySource> getAllVis() {
 		// Probably will cause a bunch of lag, be wary
 		final List<VisibilitySource> allVis = Collections.synchronizedList(new ArrayList<>());
-		for (final Material m : materials) {
-			for (final Layer lay : m.layers) {
+		for (final Material m : getMaterials()) {
+			for (final Layer lay : m.getLayers()) {
 //				allVis.add(lay.getVisibilitySource());
 				VisibilitySource vs = lay.getVisibilitySource();
 				if (vs != null) {
@@ -914,8 +188,8 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		if (texAnims != null) {
-			for (final TextureAnim texa : texAnims) {
+		if (getTexAnims() != null) {
+			for (final TextureAnim texa : getTexAnims()) {
 				if (texa != null) {
 					VisibilitySource vs = texa.getVisibilitySource();
 					if (vs != null) {
@@ -927,8 +201,8 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		if (geosetAnims != null) {
-			for (final GeosetAnim ga : geosetAnims) {
+		if (getGeosetAnims() != null) {
+			for (final GeosetAnim ga : getGeosetAnims()) {
 				if (ga != null) {
 					VisibilitySource vs = ga.getVisibilitySource();
 					if (vs != null) {
@@ -941,14 +215,14 @@ public class EditableModel implements Named {
 			}
 		}
 //		for (final IdObject idObject : idObjects) {
-		for (final IdObject idObject : modelIdObjects.allObjects) {
+		for (final IdObject idObject : getAllObjects()) {
 			VisibilitySource vs = idObject.getVisibilitySource();
 			if (vs != null) {
 				allVis.add(vs);
 			}
 		}
-		if (cameras != null) {
-			for (final Camera x : cameras) {
+		if (getCameras() != null) {
+			for (final Camera x : getCameras()) {
 				VisibilitySource vs1 = x.getSourceNode().getVisibilitySource();
 				if (vs1 != null) {
 					allVis.add(vs1);
@@ -963,132 +237,9 @@ public class EditableModel implements Named {
 		return allVis;
 	}
 
-	public Object getAnimFlagSource(final AnimFlag<?> animFlag) {
-		// Probably will cause a bunch of lag, be wary
-		for (final Material m : materials) {
-			for (final Layer lay : m.layers) {
-				final AnimFlag<?> timeline = lay.find(animFlag.getName());
-				if (timeline != null) {
-					return lay;
-				}
-			}
-		}
-		if (texAnims != null) {
-			for (final TextureAnim textureAnim : texAnims) {
-				final AnimFlag<?> timeline = textureAnim.find(animFlag.getName());
-				if (timeline != null) {
-					return textureAnim;
-				}
-			}
-		}
-		if (geosetAnims != null) {
-			for (final GeosetAnim geosetAnim : geosetAnims) {
-				final AnimFlag<?> timeline = geosetAnim.find(animFlag.getName());
-				if (timeline != null) {
-					return geosetAnim;
-				}
-			}
-		}
-
-//		for (final IdObject object : idObjects) {
-		for (final IdObject object : modelIdObjects.allObjects) {
-			final AnimFlag<?> timeline = object.find(animFlag.getName());
-			if (timeline != null) {
-				return object;
-			}
-		}
-
-		if (cameras != null) {
-			for (final Camera x : cameras) {
-				AnimFlag<?> timeline = x.getSourceNode().find(animFlag.getName());
-				if (timeline != null) {
-					return x;
-				}
-
-				timeline = x.getTargetNode().find(animFlag.getName());
-				if (timeline != null) {
-					return x;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	public void buildGlobSeqFrom(final Animation anim) {
-		buildGlobSeqFrom(anim, getAllAnimFlags());
-	}
-
-	public void addFlagToParent(final AnimFlag<?> aflg, final AnimFlag<?> added)
-	// aflg is the parent
-	{
-		// ADDS "added" TO THE PARENT OF "aflg"
-		for (final Material m : materials) {
-			for (final Layer layer : m.layers) {
-				if (layer.has(aflg.getName())) {
-					layer.add(added);
-				}
-			}
-		}
-
-		if (texAnims != null) {
-			for (final TextureAnim textureAnim : texAnims) {
-				if (textureAnim.has(aflg.getName())) {
-					textureAnim.add(added);
-				}
-			}
-		}
-
-		if (geosetAnims != null) {
-			for (final GeosetAnim geosetAnim : geosetAnims) {
-				if (geosetAnim.has(aflg.getName())) {
-					geosetAnim.add(added);
-				}
-			}
-		}
-
-//		for (final IdObject object : idObjects) {
-		for (final IdObject object : modelIdObjects.allObjects) {
-			if (object.has(aflg.getName())) {
-				object.add(added);
-			}
-		}
-
-		if (cameras != null) {
-			for (final Camera x : cameras) {
-				if (x.getSourceNode().has(aflg.getName()) || x.targetAnimFlags.contains(aflg)) {
-					x.getSourceNode().add(added);
-				}
-			}
-		}
-	}
-
-	public void buildGlobSeqFrom(Animation anim, List<AnimFlag<?>> flags) {
-		final Integer newSeq = anim.length();
-		for (AnimFlag<?> af : flags) {
-			if (!af.hasGlobalSeq) {
-				AnimFlag<?> copy = af.deepCopy();
-				copy.setGlobSeq(newSeq);
-				copy.copyFrom(af, anim.getStart(), anim.getEnd(), 0, anim.length());
-				addFlagToParent(af, copy);
-			}
-		}
-	}
-
-	public List<VisibilitySource> getAllVisibilitySources() {
-		final List<AnimFlag<?>> animFlags = getAllAnimFlags();// laggggg!
-		final List<VisibilitySource> out = new ArrayList<>();
-		for (final AnimFlag<?> af : animFlags) {
-			if (af.getName().equals("Visibility") || af.getName().equals("Alpha")) {
-				out.add((VisibilitySource) getAnimFlagSource(af));
-			}
-		}
-		return out;
-	}
-
 	public int animTrackEnd() {
 		int highestEnd = 0;
-		for (final Animation a : anims) {
+		for (final Animation a : getAnims()) {
 			if (a.getStart() > highestEnd) {
 				highestEnd = a.getStart();
 			}
@@ -1099,108 +250,15 @@ public class EditableModel implements Named {
 		return highestEnd;
 	}
 
-	public GeosetAnim getGeosetAnimOfGeoset(final Geoset g) {
-		if (g.geosetAnim == null) {
-			boolean noIds = geosetAnims.stream().noneMatch(ga -> ga.geoset != null);
-
-			if (noIds) {
-				if (geosetAnims.size() > geosets.indexOf(g)) {
-					g.geosetAnim = geosetAnims.get(geosets.indexOf(g));
-				} else {
-					return null;
-				}
-			} else {
-				for (final GeosetAnim ga : geosetAnims) {
-					if (ga.geoset == g) {
-						g.geosetAnim = ga;
-						break;
-					}
-				}
-			}
-		}
-		return g.geosetAnim;
-	}
-
-	public void cureBoneGeoAnimIds() {
-		if (DISABLE_BONE_GEO_ID_VALIDATOR) {
-			return;
-		}
-//		final List<Bone> bones = (List<Bone>) sortedIdObjects(Bone.class);
-		final List<Bone> bones = getBones();
-		for (final Bone b : bones) {
-			b.multiGeoId = false;
-			b.geoset = null;
-			b.geosetAnim = null;
-		}
-		for (final Geoset g : geosets) {
-			final GeosetAnim ga = getGeosetAnimOfGeoset(g);
-			for (final Matrix m : g.matrix) {
-				for (final Bone bone : m.bones) {
-					if (!bone.multiGeoId) {
-						if (bone.geoset == null) {
-							// The bone has been found by no prior matrices
-							bone.geosetAnim = ga;
-							bone.geoset = g;
-						} else if (bone.geoset != g) {
-							// The bone has only been found by ONE matrix
-							bone.multiGeoId = true;
-							bone.geoset = null;
-							if (ga != null) {
-								bone.geosetAnim = ga.getMostVisible(bone.geosetAnim);
-							} else {
-								bone.geosetAnim = null;
-							}
-
-						}
-					} else if (ga != null) {
-						if (ga != bone.geosetAnim) {
-							bone.geosetAnim = ga.getMostVisible(bone.geosetAnim);
-						}
-					} else {
-						bone.geosetAnim = null;
-					}
-					IdObject boneParent = bone.getParent();
-					while (boneParent != null) {
-						if (boneParent.getClass() == Bone.class) {
-							final Bone b2 = (Bone) boneParent;
-							if (!b2.multiGeoId) {
-								if (b2.geoset == null) {
-									// The bone has been found by no prior matrices
-									b2.geosetAnim = ga;
-									b2.geoset = g;
-								} else if (b2.geoset != g) {
-									// The bone has only been found by ONE matrix
-									b2.multiGeoId = true;
-									b2.geoset = null;
-									if (ga != null) {
-										b2.geosetAnim = ga.getMostVisible(b2.geosetAnim);
-										if (b2.geosetAnim != null) {
-											b2.geoset = b2.geosetAnim.geoset;
-											b2.multiGeoId = false;
-										}
-									}
-
-								}
-							} else if ((ga != null) && (ga != b2.geosetAnim)) {
-								b2.geosetAnim = ga.getMostVisible(b2.geosetAnim);
-							}
-						}
-						boneParent = boneParent.getParent();
-					}
-				}
-			}
-		}
-	}
-
 
 	public void removeAllTimelinesForGlobalSeq(final Integer selectedValue) {
-		for (final Material m : materials) {
-			for (final Layer lay : m.layers) {
+		for (final Material m : getMaterials()) {
+			for (final Layer lay : m.getLayers()) {
 				lay.removeAllTimelinesForGlobalSeq(selectedValue);
 			}
 		}
-		if (texAnims != null) {
-			for (final TextureAnim texa : texAnims) {
+		if (getTexAnims() != null) {
+			for (final TextureAnim texa : getTexAnims()) {
 				if (texa != null) {
 					texa.removeAllTimelinesForGlobalSeq(selectedValue);
 				} else {
@@ -1209,8 +267,8 @@ public class EditableModel implements Named {
 				}
 			}
 		}
-		if (geosetAnims != null) {
-			for (final GeosetAnim ga : geosetAnims) {
+		if (getGeosetAnims() != null) {
+			for (final GeosetAnim ga : getGeosetAnims()) {
 				if (ga != null) {
 					ga.removeAllTimelinesForGlobalSeq(selectedValue);
 				} else {
@@ -1220,103 +278,16 @@ public class EditableModel implements Named {
 			}
 		}
 
-//		for (final IdObject object : idObjects) {
-		for (final IdObject object : modelIdObjects.allObjects) {
+		for (final IdObject object : getAllObjects()) {
 			object.removeAllTimelinesForGlobalSeq(selectedValue);
 		}
 
-		if (cameras != null) {
-			for (final Camera x : cameras) {
+		if (getCameras() != null) {
+			for (final Camera x : getCameras()) {
 				x.getSourceNode().removeAllTimelinesForGlobalSeq(selectedValue);
 				x.getTargetNode().removeAllTimelinesForGlobalSeq(selectedValue);
 			}
 		}
-	}
-
-	/**
-	 * Copies the animations from another model into this model. Specifically,
-	 * copies all motion from similarly named bones and copies in the "Anim" blocks
-	 * at the top of the MDL for the newly added sections.
-	 *
-	 * In addition, any bones with significant amounts of motion that were not found
-	 * to correlate with the contents of this model get added to this model's list
-	 * of bones.
-	 */
-	public void addAnimationsFrom(EditableModel other) {
-		// this process destroys the "other" model inside memory, so destroy a copy instead
-		other = EditableModel.deepClone(other, "animation source file");
-
-		final List<AnimFlag<?>> flags = getAllAnimFlags();
-		final List<EventObject> eventObjs = getEvents();
-
-		final List<AnimFlag<?>> othersFlags = other.getAllAnimFlags();
-		final List<EventObject> othersEventObjs = other.getEvents();
-
-		// ------ Duplicate the time track in the other model -------------
-		//
-		// On this new, separate time track, we want to be able to the information specific to
-		// each node about how it will move if it gets translated into or onto the current model
-
-		final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
-		for (final AnimFlag<?> af : othersFlags) {
-			if (!af.hasGlobalSeq) {
-				newImpFlags.add(af.getEmptyCopy());
-			} else {
-				newImpFlags.add(af.deepCopy());
-			}
-		}
-		final List<EventObject> newImpEventObjs = new ArrayList<>();
-		for (final Object e : othersEventObjs) {
-			newImpEventObjs.add(EventObject.buildEmptyFrom((EventObject) e));
-		}
-
-		// Fill the newly created time track with the exact same data, but shifted
-		// forward relative to wherever the current model's last animation starts
-		for (final Animation anim : other.anims) {
-			final int animTrackEnd = animTrackEnd();
-			final int newStart = animTrackEnd + 300;
-			final int newEnd = newStart + anim.length();
-			final Animation newAnim = new Animation(anim);
-			// clone the animation from the other model
-			newAnim.copyToInterval(newStart, newEnd, othersFlags, othersEventObjs, newImpFlags, newImpEventObjs);
-			newAnim.setInterval(newStart, newEnd);
-			add(newAnim); // add the new animation to this model
-		}
-
-		// destroy the other model's animations, filling them in with the new stuff
-		for (final AnimFlag<?> af : othersFlags) {
-			af.setValuesTo(newImpFlags.get(othersFlags.indexOf(af)));
-		}
-		for (final Object e : othersEventObjs) {
-			((EventObject) e).setValuesTo(newImpEventObjs.get(othersEventObjs.indexOf(e)));
-		}
-
-		// Now, map the bones in the other model onto the bones in the current
-		// model
-		final List<Bone> leftBehind = new ArrayList<>();
-		// the bones that don't find matches in current model
-//		for (final IdObject object : other.idObjects) {
-		for (final IdObject object : other.modelIdObjects.allObjects) {
-			if (object instanceof Bone) {
-				// the bone from the other model
-				final Bone bone = (Bone) object;
-				// the object in this model of similar name
-				final Object localObject = getObject(bone.getName());
-				if ((localObject instanceof Bone)) {
-					final Bone localBone = (Bone) localObject;
-					localBone.copyMotionFrom(bone); // if it's a match, take the data
-				} else {
-					leftBehind.add(bone);
-				}
-			}
-		}
-		for (final Bone bone : leftBehind) {
-			if (bone.animates()) {
-				add(bone);
-			}
-		}
-
-		// i think we're done????
 	}
 
 
@@ -1652,8 +623,8 @@ public class EditableModel implements Named {
 		return globalSeqs;
 	}
 
-	public void setGlobalSeqs(final List<Integer> globalSeqs) {
-		this.globalSeqs = globalSeqs;
+	public void clearGlobalSeqs() {
+		globalSeqs.clear();
 	}
 
 	public List<Bitmap> getTextures() {
@@ -1672,20 +643,16 @@ public class EditableModel implements Named {
 		this.materials = materials;
 	}
 
+	public void clearMaterials() {
+		materials.clear();
+	}
+
 	public List<TextureAnim> getTexAnims() {
 		return texAnims;
 	}
 
-	public void setTexAnims(final List<TextureAnim> texAnims) {
-		this.texAnims = texAnims;
-	}
-
 	public List<Geoset> getGeosets() {
 		return geosets;
-	}
-
-	public void setGeosets(final List<Geoset> geosets) {
-		this.geosets = geosets;
 	}
 
 	public List<GeosetAnim> getGeosetAnims() {
@@ -1708,8 +675,8 @@ public class EditableModel implements Named {
 		return pivots;
 	}
 
-	public void setPivots(final List<Vec3> pivots) {
-		this.pivots = pivots;
+	public void clearPivots() {
+		pivots.clear();
 	}
 
 	public List<Camera> getCameras() {
@@ -1787,6 +754,10 @@ public class EditableModel implements Named {
 
 	public void addTexture(final Bitmap b) {
 		textures.add(b);
+	}
+
+	public void clearTextures() {
+		textures.clear();
 	}
 
 	public Bitmap getTexture(final int index) {

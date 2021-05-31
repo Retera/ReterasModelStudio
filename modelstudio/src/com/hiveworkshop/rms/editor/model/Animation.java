@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxSequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.util.Vec3;
@@ -22,15 +21,14 @@ public class Animation implements TimeBoundProvider {
 	boolean nonLooping = false;
 	float rarity = 0;
 
-	public Animation(final String name, final int intervalStart, final int intervalEnd) {
+	public Animation(String name, int intervalStart, int intervalEnd) {
 		this.name = name;
 		this.intervalStart = intervalStart;
 		this.intervalEnd = intervalEnd;
 		extents = new ExtLog(ExtLog.DEFAULT_MINEXT, ExtLog.DEFAULT_MAXEXT, ExtLog.DEFAULT_BOUNDSRADIUS);
 	}
 
-	public Animation(final String name, final int intervalStart, final int intervalEnd, final Vec3 minimumExt,
-			final Vec3 maximumExt, final double boundsRad) {
+	public Animation(String name, int intervalStart, int intervalEnd, Vec3 minimumExt, Vec3 maximumExt, double boundsRad) {
 		this.name = name;
 		this.intervalStart = intervalStart;
 		this.intervalEnd = intervalEnd;
@@ -38,12 +36,12 @@ public class Animation implements TimeBoundProvider {
 	}
 
 	// construct for simple animation object, within geoset
-	public Animation(final ExtLog extents) {
+	public Animation(ExtLog extents) {
 		name = "";
 		this.extents = extents;
 	}
 
-	public Animation(final Animation other) {
+	public Animation(Animation other) {
 		name = other.name;
 		intervalStart = other.intervalStart;
 		intervalEnd = other.intervalEnd;
@@ -51,40 +49,6 @@ public class Animation implements TimeBoundProvider {
 		nonLooping = other.nonLooping;
 		rarity = other.rarity;
 		extents = new ExtLog(other.extents);
-	}
-
-	public Animation(final MdlxSequence sequence) {
-		final long[] interval = sequence.interval;
-
-		name = sequence.name;
-		intervalStart = (int)interval[0];
-		intervalEnd = (int)interval[1];
-		extents = new ExtLog(sequence.extent);
-		moveSpeed = sequence.moveSpeed;
-
-		if (sequence.flags == 1) {
-			nonLooping = true;
-		}
-
-		rarity = sequence.rarity;
-	}
-
-	public MdlxSequence toMdlx() {
-		final MdlxSequence sequence = new MdlxSequence();
-
-		sequence.name = name;
-		sequence.interval[0] = intervalStart;
-		sequence.interval[1] = intervalEnd;
-		sequence.extent = extents.toMdlx();
-		sequence.moveSpeed = moveSpeed;
-
-		if (nonLooping) {
-			sequence.flags = 1;
-		}
-
-		sequence.rarity = rarity;
-
-		return sequence;
 	}
 
 	public boolean equals(final Animation other) {

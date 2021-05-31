@@ -1,9 +1,11 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.actions.mesh.DeleteGeosetAction;
+import com.hiveworkshop.rms.editor.actions.mesh.MergeGeosetsAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.util.ModelFactory.GeosetFactory;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
@@ -12,13 +14,11 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.scripts.ChangeAnimationLengthFrame;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.Mat4;
-import com.hiveworkshop.rms.util.Vec2;
-import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec4;
+import com.hiveworkshop.rms.util.*;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -27,10 +27,39 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ScriptActions {
-	public static void mergeGeosetActionRes(MainPanel mainPanel) throws IOException {
+	public static void mergeGeosetActionRes2(MainPanel mainPanel) {
+		EditableModel current = mainPanel.currentMDL();
+		if (current != null) {
+			JPanel geosetChoosingPanel = new JPanel(new MigLayout("ins 0"));
+
+			SmartButtonGroup donGeosetGroup = new SmartButtonGroup();
+			SmartButtonGroup recGeosetGroup = new SmartButtonGroup();
+			Map<Integer, Geoset> geoMap = new HashMap<>();
+
+			for (Geoset geoset : current.getGeosets()) {
+				donGeosetGroup.addJRadioButton(geoset.getName(), e -> geoMap.put(0, geoset));
+				recGeosetGroup.addJRadioButton(geoset.getName(), e -> geoMap.put(1, geoset));
+			}
+
+			geosetChoosingPanel.add(donGeosetGroup.getButtonPanel());
+			geosetChoosingPanel.add(recGeosetGroup.getButtonPanel());
+
+			int option = JOptionPane.showConfirmDialog(mainPanel, geosetChoosingPanel, "Merge Geoset into Geoset", JOptionPane.OK_CANCEL_OPTION);
+			if (option == JOptionPane.OK_OPTION && geoMap.containsKey(0) && geoMap.containsKey(1) && geoMap.get(0) != geoMap.get(1)) {
+				ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+				ModelHandler modelHandler = modelPanel.getModelHandler();
+				MergeGeosetsAction action = new MergeGeosetsAction(geoMap.get(0), geoMap.get(1), modelHandler.getModelView(), modelPanel.getModelStructureChangeListener());
+				modelHandler.getUndoManager().pushAction(action.redo());
+			}
+		}
+	}
+
+	public static void mergeGeosetActionRes(MainPanel mainPanel) {
 		FileDialog fileDialog = new FileDialog(mainPanel);
 //
 		EditableModel current = mainPanel.currentMDL();
@@ -55,8 +84,7 @@ public class ScriptActions {
 			Geoset newGeoset = null;
 			going = true;
 			while (going) {
-				String s = JOptionPane.showInputDialog(mainPanel,
-						"Geoset to Import: (1 to " + geoSource.getGeosetsSize() + ")");
+				String s = JOptionPane.showInputDialog(mainPanel, "Geoset to Import: (1 to " + geoSource.getGeosetsSize() + ")");
 				try {
 					int x = Integer.parseInt(s);
 					if ((x >= 1) && x <= geoSource.getGeosetsSize()) {
@@ -67,7 +95,7 @@ public class ScriptActions {
 
 				}
 			}
-			newGeoset.updateToObjects(current);
+			GeosetFactory.updateToObjects(newGeoset, current);
 			System.out.println("putting " + newGeoset.numUVLayers() + " into a nice " + host.numUVLayers());
 			for (int i = 0; i < newGeoset.numVerteces(); i++) {
 				GeosetVertex ver = newGeoset.getVertex(i);
@@ -153,7 +181,7 @@ public class ScriptActions {
 		if (currentAnimation instanceof Animation) {
 			s = ((Animation) currentAnimation).getName() + s;
 		}
-		EditableModel frozenModel = EditableModel.deepClone(model, model.getHeaderName() + s);
+		EditableModel frozenModel = TempStuffFromEditableModel.deepClone(model, model.getHeaderName() + s);
 		if (frozenModel.getFileRef() != null) {
 			frozenModel.setFileRef(new File(frozenModel.getFileRef().getPath().replaceFirst("(?<=\\w)\\.(?=md[lx])", s + ".")));
 		}
@@ -359,7 +387,7 @@ public class ScriptActions {
 			while (newModel.getFile().exists()) {
 				newModel.setFileRef(new File(currentMDL.getFile().getParent() + "/" + incName(newModel.getName()) + ".mdl"));
 			}
-			ImportPanel importPanel = new ImportPanel(newModel, EditableModel.deepClone(currentMDL, "CurrentModel"));
+			ImportPanel importPanel = new ImportPanel(newModel, TempStuffFromEditableModel.deepClone(currentMDL, "CurrentModel"));
 
 			final Thread watcher = new Thread(() -> {
 				while (importPanel.getParentFrame().isVisible()

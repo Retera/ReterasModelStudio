@@ -37,14 +37,6 @@ public class TextureAnim extends TimelineContainer {
 		loadTimelines(animation);
 	}
 
-	public MdlxTextureAnimation toMdlx() {
-		final MdlxTextureAnimation animation = new MdlxTextureAnimation();
-
-		timelinesToMdlx(animation);
-
-		return animation;
-	}
-
 	public String getFlagNames() {
 		Map<String, AnimFlag<?>> flags = this.animFlags;
 		//TODO figure out what this should return

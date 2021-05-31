@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 
@@ -42,51 +41,6 @@ public class ParticleEmitter extends EmitterIdObject {
 		initVelocity = emitter.initVelocity;
 		MDLEmitter = emitter.MDLEmitter;
 		path = emitter.path;
-	}
-
-	public ParticleEmitter(MdlxParticleEmitter mdlxEmitter) {
-		if ((mdlxEmitter.flags & 4096) != 4096) {
-			System.err.println("MDX -> MDL error: A particle emitter '" + mdlxEmitter.name
-					+ "' not flagged as particle emitter in MDX!");
-		}
-
-		loadObject(mdlxEmitter);
-
-		setEmissionRate(mdlxEmitter.emissionRate);
-		setGravity(mdlxEmitter.gravity);
-		setInitVelocity(mdlxEmitter.speed);
-		setLatitude(mdlxEmitter.latitude);
-		setLifeSpan(mdlxEmitter.lifeSpan);
-		setLongitude(mdlxEmitter.longitude);
-		setPath(mdlxEmitter.path);
-
-		setMDLEmitter(((mdlxEmitter.flags >> 15) & 1) == 1);
-		if (!isMDLEmitter() && (((mdlxEmitter.flags >> 8) & 1) == 1)) {
-			System.err.println(
-					"WARNING in MDX -> MDL: ParticleEmitter of unknown type! Defaults to EmitterUsesTGA in my MDL code!");
-		}
-	}
-
-	public MdlxParticleEmitter toMdlx(EditableModel model) {
-		MdlxParticleEmitter emitter = new MdlxParticleEmitter();
-
-		objectToMdlx(emitter, model);
-
-		emitter.emissionRate = (float) getEmissionRate();
-		emitter.gravity = (float) getGravity();
-		emitter.speed = (float) getInitVelocity();
-		emitter.latitude = (float) getLatitude();
-		emitter.lifeSpan = (float) getLifeSpan();
-		emitter.longitude = (float) getLongitude();
-		emitter.path = getPath();
-
-		if (isMDLEmitter()) {
-			emitter.flags |= 0x8000;
-		} else {
-			emitter.flags |= 0x10000;
-		}
-		
-		return emitter;
 	}
 
 	@Override

@@ -2,8 +2,6 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -38,36 +36,6 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		staticColor = other.staticColor;
 		this.geoset = geoset;
 		dropShadow = other.dropShadow;
-	}
-
-	public GeosetAnim(MdlxGeosetAnimation mdlxAnimation, EditableModel model) {
-		geoset = model.getGeoset(mdlxAnimation.geosetId);
-		staticAlpha = mdlxAnimation.alpha;
-		staticColor = new Vec3(ModelUtils.flipRGBtoBGR(mdlxAnimation.color));
-
-		int flags = mdlxAnimation.flags;
-		dropShadow = ((flags & 1) == 1);
-
-		loadTimelines(mdlxAnimation);
-	}
-
-	public MdlxGeosetAnimation toMdlx(EditableModel model) {
-		MdlxGeosetAnimation animation = new MdlxGeosetAnimation();
-
-		animation.geosetId = model.computeGeosetID(geoset);
-
-		if (dropShadow) {
-			animation.flags |= 1;
-		}
-		if (find("Color") != null || !staticColor.equals(new Vec3(1, 1, 1))) {
-			animation.flags |= 0x2;
-		}
-
-		animation.color = ModelUtils.flipRGBtoBGR(getStaticColor().toFloatArray());
-
-		timelinesToMdlx(animation);
-
-		return animation;
 	}
 
 	public String getVisTagname() {

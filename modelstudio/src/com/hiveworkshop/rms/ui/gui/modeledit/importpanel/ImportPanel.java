@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
+import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -61,7 +62,7 @@ public class ImportPanel extends JTabbedPane {
 		} else {
 			frame = new JFrame("Importing " + mht.donatingModel.getName() + " into " + mht.receivingModel.getName());
 		}
-		mht.receivingModel.doSavePreps();
+		TempSaveModelStuff.doSavePreps(mht.receivingModel);
 		try {
 			frame.setIconImage(RMSIcons.MDLIcon.getImage());
 		} catch (final Exception e) {
@@ -109,6 +110,62 @@ public class ImportPanel extends JTabbedPane {
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		// frame.pack();
 		frame.setVisible(visibleOnStart);
+	}
+
+	public static void buildGlobSeqFrom(EditableModel model, Animation anim, List<AnimFlag<?>> flags) {
+		final Integer newSeq = anim.length();
+		for (AnimFlag<?> af : flags) {
+			if (!af.hasGlobalSeq) {
+				AnimFlag<?> copy = af.deepCopy();
+				copy.setGlobSeq(newSeq);
+				copy.copyFrom(af, anim.getStart(), anim.getEnd(), 0, anim.length());
+				addFlagToParent(model, af, copy);
+			}
+		}
+	}
+
+	public static void addFlagToParent(EditableModel model, final AnimFlag<?> aflg, final AnimFlag<?> added)
+	// aflg is the parent
+	{
+		// ADDS "added" TO THE PARENT OF "aflg"
+		for (final Material m : model.getMaterials()) {
+			for (final Layer layer : m.getLayers()) {
+				if (layer.has(aflg.getName())) {
+					layer.add(added);
+				}
+			}
+		}
+
+		if (model.getTexAnims() != null) {
+			for (final TextureAnim textureAnim : model.getTexAnims()) {
+				if (textureAnim.has(aflg.getName())) {
+					textureAnim.add(added);
+				}
+			}
+		}
+
+		if (model.getGeosetAnims() != null) {
+			for (final GeosetAnim geosetAnim : model.getGeosetAnims()) {
+				if (geosetAnim.has(aflg.getName())) {
+					geosetAnim.add(added);
+				}
+			}
+		}
+
+		for (final IdObject object : model.getAllObjects()) {
+			if (object.has(aflg.getName())) {
+				object.add(added);
+			}
+		}
+
+		if (model.getCameras() != null) {
+			for (final Camera x : model.getCameras()) {
+//				if (x.getSourceNode().has(aflg.getName()) || x.targetAnimFlags.contains(aflg)) {
+				if (x.getSourceNode().has(aflg.getName())) {
+					x.getSourceNode().add(added);
+				}
+			}
+		}
 	}
 
 	private JPanel getFooterPanel() {
@@ -511,7 +568,7 @@ public class ImportPanel extends JTabbedPane {
 						// handled by animShells
 						break;
 					case GLOBALSEQ:
-						mht.donatingModel.buildGlobSeqFrom(animShell.getAnim(), donModFlags);
+						buildGlobSeqFrom(mht.donatingModel, animShell.getAnim(), donModFlags);
 						break;
 				}
 			}

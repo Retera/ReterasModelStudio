@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitterPopcorn;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
@@ -17,7 +16,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 	int replaceableId = 0;
 	float alpha = 0;
 	Vec3 color = new Vec3();
-	float speed = 0;
+	float initVelocity = 0;
 	float emissionRate = 0;
 	float lifeSpan = 0;
 	String path = "";
@@ -29,52 +28,20 @@ public class ParticleEmitterPopcorn extends IdObject {
 		this.name = name;
 	}
 
+	public ParticleEmitterPopcorn() {
+	}
+
 	public ParticleEmitterPopcorn(ParticleEmitterPopcorn emitter) {
 		copyObject(emitter);
 
 		replaceableId = emitter.replaceableId;
 		alpha = emitter.alpha;
 		color = new Vec3(emitter.color);
-		speed = emitter.speed;
+		initVelocity = emitter.initVelocity;
 		emissionRate = emitter.emissionRate;
 		lifeSpan = emitter.lifeSpan;
 		path = emitter.path;
 		animVisibilityGuide = emitter.animVisibilityGuide;
-	}
-
-	public ParticleEmitterPopcorn(MdlxParticleEmitterPopcorn mdlxEmitter) {
-		loadObject(mdlxEmitter);
-
-		lifeSpan = mdlxEmitter.lifeSpan;
-		emissionRate = mdlxEmitter.emissionRate;
-		speed = mdlxEmitter.speed;
-		System.out.println("emitter color: " + Arrays.toString(mdlxEmitter.color));
-		color = new Vec3(mdlxEmitter.color);
-//		color = new Vec3(ModelUtils.flipRGBtoBGR(emitter.color));
-		alpha = mdlxEmitter.alpha;
-		replaceableId = mdlxEmitter.replaceableId;
-		path = mdlxEmitter.path;
-		animVisibilityGuide = mdlxEmitter.animationVisiblityGuide;
-		System.out.println(mdlxEmitter.animationVisiblityGuide);
-	}
-
-	public MdlxParticleEmitterPopcorn toMdlx(EditableModel model) {
-		MdlxParticleEmitterPopcorn emitter = new MdlxParticleEmitterPopcorn();
-
-		objectToMdlx(emitter, model);
-
-		emitter.lifeSpan = lifeSpan;
-		emitter.emissionRate = emissionRate;
-		emitter.speed = speed;
-		emitter.color = color.toFloatArray();
-//		emitter.color = ModelUtils.flipRGBtoBGR(color.toFloatArray());
-		emitter.alpha = alpha;
-		emitter.replaceableId = replaceableId;
-		emitter.path = path;
-//		emitter.animationVisiblityGuide = animVisibilityGuide;
-		emitter.animationVisiblityGuide = getAnimVisibilityGuide();
-
-		return emitter;
 	}
 
 	@Override
@@ -232,12 +199,12 @@ public class ParticleEmitterPopcorn extends IdObject {
 		this.lifeSpan = lifeSpan;
 	}
 
-	public float getSpeed() {
-		return speed;
+	public float getInitVelocity() {
+		return initVelocity;
 	}
 
-	public void setSpeed(float speed) {
-		this.speed = speed;
+	public void setInitVelocity(float initVelocity) {
+		this.initVelocity = initVelocity;
 	}
 
 	public int getReplaceableId() {

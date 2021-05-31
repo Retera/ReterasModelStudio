@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxAttachment;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 
 /**
@@ -13,7 +12,7 @@ public class Attachment extends IdObject {
 	String path = null;
 	int attachmentID = 0;
 
-	private Attachment() {
+	public Attachment() {
 
 	}
 
@@ -26,31 +25,6 @@ public class Attachment extends IdObject {
 
 		path = attachment.path;
 		attachmentID = attachment.attachmentID;
-	}
-
-	public Attachment(MdlxAttachment mdlxAttachment) {
-		if ((mdlxAttachment.flags & 2048) != 2048) {
-			System.err.println("MDX -> MDL error: A light '" + mdlxAttachment.name + "' not flagged as light in MDX!");
-		}
-
-		loadObject(mdlxAttachment);
-
-		setAttachmentID(mdlxAttachment.attachmentId);
-		setPath(mdlxAttachment.path);
-	}
-
-	public MdlxAttachment toMdlx(EditableModel model) {
-		MdlxAttachment attachment = new MdlxAttachment();
-
-		objectToMdlx(attachment, model);
-
-		attachment.attachmentId = getAttachmentID();
-
-		if (getPath() != null) {
-			attachment.path = getPath();
-		}
-
-		return attachment;
 	}
 
 	@Override

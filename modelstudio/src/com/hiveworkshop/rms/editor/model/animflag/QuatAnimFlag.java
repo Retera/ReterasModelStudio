@@ -74,18 +74,18 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 
 	@Override
 	public MdlxFloatArrayTimeline toMdlx(final TimelineContainer container) {
-		final MdlxFloatArrayTimeline timeline = new MdlxFloatArrayTimeline(4);
+		final MdlxFloatArrayTimeline mdlxTimeline = new MdlxFloatArrayTimeline(4);
 
-		timeline.name = FlagUtils.getWar3ID(name, container);
-		timeline.interpolationType = interpolationType;
-		timeline.globalSequenceId = getGlobalSeqId();
+		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
+		mdlxTimeline.interpolationType = interpolationType;
+		mdlxTimeline.globalSequenceId = getGlobalSeqId();
 
 		final long[] tempFrames = new long[entryMap.size()];
 		final float[][] tempValues = new float[entryMap.size()][];
 		final float[][] tempInTans = new float[entryMap.size()][];
 		final float[][] tempOutTans = new float[entryMap.size()][];
 
-		boolean hasTangents = timeline.interpolationType.tangential();
+		boolean hasTangents = mdlxTimeline.interpolationType.tangential();
 
 
 		for (int i = 0, l = entryMap.size(); i < l; i++) {
@@ -101,12 +101,12 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 			}
 		}
 
-		timeline.frames = tempFrames;
-		timeline.values = tempValues;
-		timeline.inTans = tempInTans;
-		timeline.outTans = tempOutTans;
+		mdlxTimeline.frames = tempFrames;
+		mdlxTimeline.values = tempValues;
+		mdlxTimeline.inTans = tempInTans;
+		mdlxTimeline.outTans = tempOutTans;
 
-		return timeline;
+		return mdlxTimeline;
 	}
 
 	protected Quat getIdentity(int typeId) {

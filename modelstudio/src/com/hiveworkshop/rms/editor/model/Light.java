@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLight;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLight.Type;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
@@ -41,38 +39,6 @@ public class Light extends IdObject {
 		staticAmbColor = light.staticAmbColor;
 	}
 
-	public Light(final MdlxLight mdlxLight) {
-		if ((mdlxLight.flags & 512) != 512) {
-			System.err.println("MDX -> MDL error: A light '" + mdlxLight.name + "' not flagged as light in MDX!");
-		}
-
-		loadObject(mdlxLight);
-
-		type = mdlxLight.type;
-		setAttenuationStart(mdlxLight.attenuation[0]);
-		setAttenuationEnd(mdlxLight.attenuation[1]);
-		setStaticColor(new Vec3(mdlxLight.color, true));
-		setIntensity(mdlxLight.intensity);
-		setStaticAmbColor(new Vec3(mdlxLight.ambientColor, true));
-		setAmbIntensity(mdlxLight.ambientIntensity);
-	}
-
-	public MdlxLight toMdlx(EditableModel model) {
-		final MdlxLight light = new MdlxLight();
-
-		objectToMdlx(light, model);
-
-		light.type = type;
-		light.attenuation[0] = getAttenuationStart();
-		light.attenuation[1] = getAttenuationEnd();
-		light.color = ModelUtils.flipRGBtoBGR(getStaticColor().toFloatArray());
-		light.intensity = (float) getIntensity();
-		light.ambientColor = ModelUtils.flipRGBtoBGR(getStaticAmbColor().toFloatArray());
-		light.ambientIntensity = (float) getAmbIntensity();
-
-		return light;
-	}
-
 	@Override
 	public Light copy() {
 		return new Light(this);
@@ -80,6 +46,15 @@ public class Light extends IdObject {
 
 	public String getVisTagname() {
 		return "light";// geoset.getName();
+	}
+
+	public Type getType() {
+		return type;
+	}
+
+	public Light setType(Type type) {
+		this.type = type;
+		return this;
 	}
 
 	public float getAttenuationStart() {

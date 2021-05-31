@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxRibbonEmitter;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -52,47 +50,6 @@ public class RibbonEmitter extends IdObject {
 		materialID = emitter.materialID;
 		material = emitter.material;
 		staticColor = new Vec3(emitter.staticColor);
-	}
-
-	public RibbonEmitter(final MdlxRibbonEmitter mdlxEmitter) {
-		if ((mdlxEmitter.flags & 16384) != 16384) {
-			System.err.println("MDX -> MDL error: A ribbon emitter '" + mdlxEmitter.name
-					+ "' not flagged as ribbon emitter in MDX!");
-		}
-
-		loadObject(mdlxEmitter);
-
-		setTextureSlot(mdlxEmitter.textureSlot);
-		setHeightAbove(mdlxEmitter.heightAbove);
-		setHeightBelow(mdlxEmitter.heightBelow);
-		setAlpha(mdlxEmitter.alpha);
-		setStaticColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxEmitter.color)));
-		setLifeSpan(mdlxEmitter.lifeSpan);
-		setEmissionRate((int) mdlxEmitter.emissionRate);
-		setRows((int) mdlxEmitter.rows);
-		setColumns((int) mdlxEmitter.columns);
-		setMaterialId(mdlxEmitter.materialId);
-		setGravity(mdlxEmitter.gravity);
-	}
-
-	public MdlxRibbonEmitter toMdlx(EditableModel model) {
-		final MdlxRibbonEmitter emitter = new MdlxRibbonEmitter();
-
-		objectToMdlx(emitter, model);
-
-		emitter.textureSlot = (long) getTextureSlot();
-		emitter.heightAbove = (float) getHeightAbove();
-		emitter.heightBelow = (float) getHeightBelow();
-		emitter.alpha = (float) getAlpha();
-		emitter.color = ModelUtils.flipRGBtoBGR(getStaticColor().toFloatArray());
-		emitter.lifeSpan = (float) getLifeSpan();
-		emitter.emissionRate = getEmissionRate();
-		emitter.rows = getRows();
-		emitter.columns = getColumns();
-		emitter.materialId = getMaterialId();
-		emitter.gravity = (float)getGravity();
-
-		return emitter;
 	}
 
 	@Override

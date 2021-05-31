@@ -51,7 +51,7 @@ public class AddSingleAnimationActions {
         }
 		List<Animation> animationsAdded = addAnimationsFrom(current, animationSourceModel, Collections.singletonList(choice));
 		for (Animation anim : animationsAdded) {
-			current.copyVisibility(visibilitySource, anim);
+			copyVisibility(current, visibilitySource, anim);
 		}
 		JOptionPane.showMessageDialog(mainPanel, "Added " + animationSourceModel.getName() + "'s " + choice.getName()
 				+ " with " + visibilitySource.getName() + "'s visibility  OK!");
@@ -195,7 +195,7 @@ public class AddSingleAnimationActions {
 	public static List<Animation> addAnimationsFrom(EditableModel model, EditableModel other, final List<Animation> anims) {
 		// this process destroys the "other" model inside memory, so destroy
 		// a copy instead
-		other = EditableModel.deepClone(other, "animation source file");
+		other = TempStuffFromEditableModel.deepClone(other, "animation source file");
 
 		final List<AnimFlag<?>> flags = model.getAllAnimFlags();
 //		final List<EventObject> eventObjs = (List<EventObject>) sortedIdObjects(EventObject.class);
@@ -275,5 +275,16 @@ public class AddSingleAnimationActions {
 
 		return newAnimations;
 		// i think we're done????
+	}
+
+	public static void copyVisibility(EditableModel model, Animation visibilitySource, Animation target) {
+//		final List<VisibilitySource> allVisibilitySources = getAllVisibilitySources();
+		final List<VisibilitySource> allVisibilitySources = model.getAllVis();
+		for (VisibilitySource source : allVisibilitySources) {
+			AnimFlag<?> visibilityFlag = source.getVisibilityFlag();
+			AnimFlag<?> copyFlag = visibilityFlag.deepCopy();
+			visibilityFlag.deleteAnim(target);
+			visibilityFlag.copyFrom(copyFlag, visibilitySource.getStart(), visibilitySource.getEnd(), target.getStart(), target.getEnd());
+		}
 	}
 }

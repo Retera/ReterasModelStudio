@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.TempStuffFromEditableModel;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
@@ -74,7 +75,7 @@ public class ImportFileActions {
                 "Choose a workspace item to import data from:", "Import from Workspace",
                 JOptionPane.OK_CANCEL_OPTION, null, optionNames.toArray(), optionNames.get(0));
         if (choice != null) {
-            importFile(mainPanel, EditableModel.deepClone(choice, choice.getHeaderName()));
+            importFile(mainPanel, TempStuffFromEditableModel.deepClone(choice, choice.getHeaderName()));
         }
         repaintModelTrees();
     }

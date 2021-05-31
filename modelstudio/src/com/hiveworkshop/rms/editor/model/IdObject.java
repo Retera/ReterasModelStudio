@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxGenericObject;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -32,83 +31,10 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	protected float[] bindPose;
 
 	public IdObject() {
-
 	}
 
 	public IdObject(final IdObject host) {
 		copyObject(host);
-	}
-
-	public void loadObject(final MdlxGenericObject object) {
-		name = object.name;
-		objectId = object.objectId;
-		parentId = object.parentId;
-
-		if ((object.flags & 0x1) != 0) {
-			dontInheritTranslation = true;
-		}
-
-		if ((object.flags & 0x2) != 0) {
-			dontInheritRotation = true;
-		}
-
-		if ((object.flags & 0x4) != 0) {
-			dontInheritScaling = true;
-		}
-
-		if ((object.flags & 0x8) != 0) {
-			billboarded = true;
-		}
-
-		if ((object.flags & 0x10) != 0) {
-			billboardLockX = true;
-		}
-
-		if ((object.flags & 0x20) != 0) {
-			billboardLockY = true;
-		}
-
-		if ((object.flags & 0x40) != 0) {
-			billboardLockZ = true;
-		}
-
-		loadTimelines(object);
-	}
-
-	public void objectToMdlx(final MdlxGenericObject object, EditableModel model) {
-		object.name = getName();
-		object.objectId = getObjectId(model);
-		object.parentId = getParentId(model);
-
-		if (dontInheritTranslation) {
-			object.flags |= 0x1;
-		}
-
-		if (dontInheritRotation) {
-			object.flags |= 0x2;
-		}
-
-		if (dontInheritScaling) {
-			object.flags |= 0x4;
-		}
-
-		if (billboarded) {
-			object.flags |= 0x8;
-		}
-
-		if (billboardLockX) {
-			object.flags |= 0x10;
-		}
-
-		if (billboardLockY) {
-			object.flags |= 0x20;
-		}
-
-		if (billboardLockZ) {
-			object.flags |= 0x40;
-		}
-
-		timelinesToMdlx(object);
 	}
 	
 	public void setName(final String text) {
@@ -169,7 +95,17 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return model.getObjectId(this);
 	}
 
-//	/**
+	public IdObject setObjectId(int objectId) {
+		this.objectId = objectId;
+		return this;
+	}
+
+	public IdObject setParentId(int parentId) {
+		this.parentId = parentId;
+		return this;
+	}
+
+	//	/**
 //	 * @param objectId New object ID value
 //	 * @deprecated Note that all object IDs are deleted and regenerated at save
 //	 */

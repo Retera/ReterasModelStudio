@@ -101,18 +101,18 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 
 	@Override
 	public MdlxUInt32Timeline toMdlx(final TimelineContainer container) {
-		final MdlxUInt32Timeline timeline = new MdlxUInt32Timeline();
+		final MdlxUInt32Timeline mdlxTimeline = new MdlxUInt32Timeline();
 
-		timeline.name = FlagUtils.getWar3ID(name, container);
-		timeline.interpolationType = interpolationType;
-		timeline.globalSequenceId = getGlobalSeqId();
+		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
+		mdlxTimeline.interpolationType = interpolationType;
+		mdlxTimeline.globalSequenceId = getGlobalSeqId();
 
 		long[] tempFrames = new long[entryMap.size()];
 		long[][] tempValues = new long[entryMap.size()][];
 		long[][] tempInTans = new long[entryMap.size()][];
 		long[][] tempOutTans = new long[entryMap.size()][];
 
-		boolean hasTangents = timeline.interpolationType.tangential();
+		boolean hasTangents = mdlxTimeline.interpolationType.tangential();
 
 		for (int i = 0, l = entryMap.size(); i < l; i++) {
 			Integer value = getValueFromIndex(i);
@@ -129,11 +129,11 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 			}
 		}
 
-		timeline.frames = tempFrames;
-		timeline.values = tempValues;
-		timeline.inTans = tempInTans;
-		timeline.outTans = tempOutTans;
+		mdlxTimeline.frames = tempFrames;
+		mdlxTimeline.values = tempValues;
+		mdlxTimeline.inTans = tempInTans;
+		mdlxTimeline.outTans = tempOutTans;
 
-		return timeline;
+		return mdlxTimeline;
 	}
 }

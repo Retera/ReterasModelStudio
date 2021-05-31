@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.ui.application.tools.KeyframeCopyPanel;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
 
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenuItem;
 
@@ -26,14 +25,14 @@ public class ScriptsMenu extends JMenu {
 		JMenuItem mergeGeoset = new JMenuItem("Oinkerwinkle-Style Merge Geoset");
 		mergeGeoset.setMnemonic(KeyEvent.VK_M);
 		mergeGeoset.setAccelerator(KeyStroke.getKeyStroke("control M"));
-		mergeGeoset.addActionListener(e -> {
-			try {
-				ScriptActions.mergeGeosetActionRes(mainPanel);
-			} catch (IOException ioException) {
-				ioException.printStackTrace();
-			}
-		});
+		mergeGeoset.addActionListener(e -> ScriptActions.mergeGeosetActionRes(mainPanel));
 		add(mergeGeoset);
+
+		JMenuItem mergeGeoset2 = new JMenuItem("Twilac-Style Merge Geoset");
+		mergeGeoset2.setMnemonic(KeyEvent.VK_M);
+		mergeGeoset2.setAccelerator(KeyStroke.getKeyStroke("control T"));
+		mergeGeoset2.addActionListener(e -> ScriptActions.mergeGeosetActionRes2(mainPanel));
+		add(mergeGeoset2);
 
 		JMenuItem nullmodelButton = new JMenuItem("Edit/delete model components");
 		nullmodelButton.setMnemonic(KeyEvent.VK_E);

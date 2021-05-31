@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.editor.model.util.TwiAiIoSys;
 import com.hiveworkshop.rms.editor.model.util.TwiAiSceneParser;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -140,7 +141,7 @@ public class ModelLoader {
 		ExtLog extLog = new ExtLog(128).setDefault();
 		blankTextureModel.setExtents(extLog);
 		blankTextureModel.add(new Animation("Stand", 0, 1000));
-		blankTextureModel.doSavePreps();
+		TempSaveModelStuff.doSavePreps(blankTextureModel);
 		return blankTextureModel;
 	}
 

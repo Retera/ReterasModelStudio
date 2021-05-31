@@ -50,9 +50,12 @@ public class ModelScale {
 				scale(centerX, centerY, centerZ, x, y, z, anim.getExtents());
 			}
 		}
-		for (final Vec3 vertex : mdl.getPivots()) {
-			vertex.scale(centerX, centerY, centerZ, x, y, z);
+		for (final IdObject object : mdl.getAllObjects()) {
+			object.getPivotPoint().scale(centerX, centerY, centerZ, x, y, z);
 		}
+//		for (final Vec3 vertex : mdl.getPivots()) {
+//			vertex.scale(centerX, centerY, centerZ, x, y, z);
+//		}
 		for (final Camera camera : mdl.getCameras()) {
 			camera.getPosition().scale(centerX, centerY, centerZ, x, y, z);
 			camera.getTargetPosition().scale(centerX, centerY, centerZ, x, y, z);

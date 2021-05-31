@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.browsers.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.util.TempOpenModelStuff;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
@@ -567,8 +568,8 @@ public class ModelOptionPanel extends JPanel {
 				filepath = filepath.concat(".mdx");
 			}
 			final InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
-			final MdlxModel model = MdxUtils.loadMdlx(modelStream);
-			toLoad = new EditableModel(model);
+			final MdlxModel mdlxModel = MdxUtils.loadMdlx(modelStream);
+			toLoad = TempOpenModelStuff.createEditableModel(mdlxModel);
 			modelDisp = new ModelView(toLoad);
 		} catch (final Exception exc) {
 			exc.printStackTrace();

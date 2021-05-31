@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture.WrapMode;
 
 /**
@@ -22,8 +21,8 @@ public class Bitmap {
 		this.replaceableId = replaceableId;
 	}
 
-	public int getReplaceableId() {
-		return replaceableId;
+	public Bitmap(String imagePath) {
+		this.imagePath = imagePath;
 	}
 
 	public Bitmap(Bitmap other) {
@@ -36,14 +35,8 @@ public class Bitmap {
 
 	}
 
-	public Bitmap(MdlxTexture texture) {
-		imagePath = texture.path;
-		replaceableId = texture.replaceableId;
-		wrapMode = texture.wrapMode;
-	}
-
-	public Bitmap(String imagePath) {
-		this.imagePath = imagePath;
+	public int getReplaceableId() {
+		return replaceableId;
 	}
 
 	public String getName() {
@@ -68,16 +61,6 @@ public class Bitmap {
 	public Bitmap setReplaceableId(int replaceableId) {
 		this.replaceableId = replaceableId;
 		return this;
-	}
-
-	public MdlxTexture toMdlx() {
-		MdlxTexture texture = new MdlxTexture();
-
-		texture.path = imagePath;
-		texture.replaceableId = replaceableId;
-		texture.wrapMode = wrapMode;
-
-		return texture;
 	}
 
 	@Override

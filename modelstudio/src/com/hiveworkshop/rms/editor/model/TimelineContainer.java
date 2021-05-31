@@ -22,9 +22,9 @@ public abstract class TimelineContainer implements VisibilitySource {
 		}
 	}
 
-	public void timelinesToMdlx(MdlxAnimatedObject object) {
+	public void timelinesToMdlx(MdlxAnimatedObject mdlxObject) {
 		for (AnimFlag<?> timeline : animFlags.values()) {
-			object.timelines.add(timeline.toMdlx(this));
+			mdlxObject.timelines.add(timeline.toMdlx(this));
 		}
 	}
 

@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxBone;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
@@ -12,12 +11,12 @@ import com.hiveworkshop.rms.util.Vec3;
  * Eric Theller 11/10/2011
  */
 public class Bone extends IdObject {
-	int geosetId = -1;
-	boolean multiGeoId;
-	Geoset geoset;
-	int geosetAnimId = -1;
-	GeosetAnim geosetAnim;
-	boolean hasGeoAnim;// Sometimes its "None," sometimes it's not used
+	private int geosetId = -1;
+	private boolean multiGeoId;
+	private Geoset geoset;
+	private int geosetAnimId = -1;
+	private GeosetAnim geosetAnim;
+	private boolean hasGeoAnim;// Sometimes its "None," sometimes it's not used
 
 	public Bone() {
 
@@ -39,37 +38,15 @@ public class Bone extends IdObject {
 		hasGeoAnim = b.hasGeoAnim;
 	}
 
-	public Bone(MdlxBone mdlxBone) {
-		if ((mdlxBone.flags & 256) != 256) {
-			System.err.println("MDX -> MDL error: A bone '" + mdlxBone.name + "' not flagged as bone in MDX!");
-		}
-
-		loadObject(mdlxBone);
-
-		geosetId = mdlxBone.geosetId;
-		geosetAnimId = mdlxBone.geosetAnimationId;
-	}
-
-	public MdlxBone toMdlx(EditableModel model) {
-		MdlxBone bone = new MdlxBone();
-
-		objectToMdlx(bone, model);
-
-		bone.geosetId = geosetId;
-		bone.geosetAnimationId = geosetAnimId;
-
-		return bone;
-	}
-
 	@Override
 	public Bone copy() {
 		return new Bone(this);
 	}
 	
 	public void copyMotionFrom(Bone b) {
-		for (AnimFlag<?> baf : b.animFlags.values()) {
+		for (AnimFlag<?> baf : b.getAnimFlags()) {
 			boolean foundMatch = false;
-			for (AnimFlag<?> af : animFlags.values()) {
+			for (AnimFlag<?> af : getAnimFlags()) {
 				boolean sameSeq = false;
 				if (baf.globalSeqLength == null && af.globalSeqLength == null) {
 					sameSeq = true;
@@ -89,7 +66,7 @@ public class Bone extends IdObject {
 	}
 
 	public void clearAnimation(Animation a) {
-		for (AnimFlag<?> af : animFlags.values()) {
+		for (AnimFlag<?> af : getAnimFlags()) {
 			af.deleteAnim(a);
 		}
 	}
@@ -99,7 +76,7 @@ public class Bone extends IdObject {
 	 * the time track.
 	 */
 	public boolean animates() {
-		for (AnimFlag<?> af : animFlags.values()) {
+		for (AnimFlag<?> af : getAnimFlags()) {
 			if (af.size() > 1) {
 				return true;
 			}
@@ -107,8 +84,49 @@ public class Bone extends IdObject {
 		return false;
 	}
 
+	public Geoset getGeoset() {
+		return geoset;
+	}
+
+	public Bone setGeoset(Geoset geoset) {
+		this.geoset = geoset;
+		return this;
+	}
+
+	public int getGeosetId() {
+		return geosetId;
+	}
+
+	public Bone setGeosetId(int geosetId) {
+		this.geosetId = geosetId;
+		return this;
+	}
+
+	public GeosetAnim getGeosetAnim() {
+		return geosetAnim;
+	}
+
+	public Bone setGeosetAnim(GeosetAnim geosetAnim) {
+		this.geosetAnim = geosetAnim;
+		return this;
+	}
+
+	public int getGeosetAnimId() {
+		return geosetAnimId;
+	}
+
+	public Bone setGeosetAnimId(int geosetAnimId) {
+		this.geosetAnimId = geosetAnimId;
+		return this;
+	}
+
 	public boolean isMultiGeo() {
 		return multiGeoId;
+	}
+
+	public Bone setMultiGeoId(boolean multiGeoId) {
+		this.multiGeoId = multiGeoId;
+		return this;
 	}
 
 	public boolean controlsGeoset(Geoset geoset) {

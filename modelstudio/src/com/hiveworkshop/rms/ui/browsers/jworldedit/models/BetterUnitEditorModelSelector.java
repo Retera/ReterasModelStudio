@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.util.TempOpenModelStuff;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
@@ -93,7 +94,7 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 				filepath = filepath.concat(".mdx");
 			}
 			try (InputStream reader = GameDataFileSystem.getDefault().getResourceAsStream(filepath)) {
-				mdl = new EditableModel(MdxUtils.loadMdlx(reader));
+				mdl = TempOpenModelStuff.createEditableModel(MdxUtils.loadMdlx(reader));
 //				modelDisp = new ModelView(mdl);
 				modelHandler = new ModelHandler(mdl, null);
 				modelPanel.setViewport(modelHandler);

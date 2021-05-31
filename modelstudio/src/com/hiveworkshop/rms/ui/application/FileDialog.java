@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
@@ -295,7 +296,7 @@ public class FileDialog {
 
     private void saveModel(EditableModel model, File modelFile, String ext, boolean updateCurrent) throws IOException {
 
-        final MdlxModel mdlx = model.toMdlx();
+        final MdlxModel mdlx = TempSaveModelStuff.toMdlx(model);
         final FileOutputStream stream = new FileOutputStream(modelFile);
 
         if (ext.equals("mdl")) {

@@ -162,7 +162,7 @@ public class ComponentPopcornPanel extends ComponentPanel<ParticleEmitterPopcorn
 
 		lifeSpanPanel.reloadNewValue(popcorn.getLifeSpan(), (FloatAnimFlag) popcorn.find("LifeSpan"), popcorn, "LifeSpan", popcorn::setLifeSpan);
 		emissionRatePanel.reloadNewValue(popcorn.getEmissionRate(), (FloatAnimFlag) popcorn.find("EmissionRate"), popcorn, "EmissionRate", popcorn::setEmissionRate);
-		speedPanel.reloadNewValue(popcorn.getSpeed(), (FloatAnimFlag) popcorn.find("Speed"), popcorn, "Speed", popcorn::setSpeed);
+		speedPanel.reloadNewValue(popcorn.getInitVelocity(), (FloatAnimFlag) popcorn.find("Speed"), popcorn, "Speed", popcorn::setInitVelocity);
 		alphaPanel.reloadNewValue(popcorn.getAlpha(), (FloatAnimFlag) popcorn.find("Alpha"), popcorn, "Alpha", popcorn::setAlpha);
 		visPanel.reloadNewValue(1f, (FloatAnimFlag) popcorn.find("Visibility"), popcorn, "Visibility", null);
 //		transPanel.reloadNewValue(0f, popcorn.find("Tran"), popcorn, "Trans", popcorn::setPivotPoint);
