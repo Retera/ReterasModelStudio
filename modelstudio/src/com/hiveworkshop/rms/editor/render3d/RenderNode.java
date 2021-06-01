@@ -88,23 +88,24 @@ public final class RenderNode {
 				Vec3 computedScaling = new Vec3();
 
 				if (dontInheritScaling) {
-					final Vec3 parentInverseScale = model.getRenderNode(((IdObject) idObject).getParent()).inverseWorldScale;
-					computedScaling.set(parentInverseScale);
-					computedScaling.multiply(localScale);
+					Vec3 parentInverseScale = model.getRenderNode(((IdObject) idObject).getParent()).inverseWorldScale;
+					computedScaling.set(parentInverseScale).multiply(localScale);
 
 					worldScale.set(localScale);
 				} else {
 					computedScaling = localScale;
 
-					final Vec3 parentScale = model.getRenderNode(((IdObject) idObject).getParent()).worldScale;
-					worldScale.set(parentScale);
-					worldScale.multiply(localScale);
+					Vec3 parentScale = model.getRenderNode(((IdObject) idObject).getParent()).worldScale;
+					worldScale.set(parentScale).multiply(localScale);
 				}
 
 				localMatrix.fromRotationTranslationScaleOrigin(localRotation, computedLocation, computedScaling, idObject.getPivotPoint());
 
-				worldMatrix.set(Mat4.getProd(model.getRenderNode(((IdObject) idObject).getParent()).worldMatrix, localMatrix));
-				worldRotation.set(Quat.getProd(model.getRenderNode(((IdObject) idObject).getParent()).worldRotation, localRotation));
+				Mat4 parentWorldMatrix = model.getRenderNode(((IdObject) idObject).getParent()).worldMatrix;
+				this.worldMatrix.set(parentWorldMatrix).mul(localMatrix);
+
+				Quat parentWorldRotation = model.getRenderNode(((IdObject) idObject).getParent()).worldRotation;
+				this.worldRotation.set(parentWorldRotation).mul(localRotation);
 			} else {
 
 				localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, localScale, idObject.getPivotPoint());
@@ -113,14 +114,14 @@ public final class RenderNode {
 				worldScale.set(localScale);
 			}
 			if (worldMatrix != finalMatrix) {
-				finalMatrix.set(Mat4.getProd(worldMatrix, bindPose));
+				finalMatrix.set(worldMatrix).mul(bindPose);
 			}
 
 			// Inverse world rotation
-			inverseWorldRotation.set(Quat.getInverseRotation(worldRotation));
+			inverseWorldRotation.set(worldRotation).invertRotation();
 
 			// Inverse world scale
-			inverseWorldScale = Vec3.getQuotient(new Vec3(1, 1, 1), worldScale);
+			inverseWorldScale.set(1, 1, 1).divide(worldScale);
 
 			// World location
 			worldLocation.set(worldMatrix.m30, worldMatrix.m31, worldMatrix.m32);

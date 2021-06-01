@@ -10,7 +10,11 @@ public class FlagUtils {
 		AnimationMap id = getAnimationMap(name, container);
 
 		if (id == null) {
-			throw new RuntimeException("Got an unknown timeline name: " + name);
+			String type = "" + container;
+			if (container instanceof IdObject) {
+				type += " (" + ((IdObject) container).getName() + ")";
+			}
+			throw new RuntimeException("Got an unknown timeline name: " + name + " for " + type);
 		}
 
 		return id.getWar3id();
@@ -50,12 +54,12 @@ public class FlagUtils {
 				case MdlUtils.TOKEN_AMB_INTENSITY -> AnimationMap.KLBI;
 				case MdlUtils.TOKEN_AMB_COLOR -> AnimationMap.KLBC;
 				case MdlUtils.TOKEN_VISIBILITY -> AnimationMap.KLAV;
-				default -> null;
+				default -> getIdObjectAnimationMap(name);
 			};
 		} else if (container instanceof Attachment) {
 			return switch (name) {
 				case MdlUtils.TOKEN_VISIBILITY -> AnimationMap.KATV;
-				default -> null;
+				default -> getIdObjectAnimationMap(name);
 			};
 		} else if (container instanceof ParticleEmitter) {
 			return switch (name) {
@@ -66,7 +70,7 @@ public class FlagUtils {
 				case MdlUtils.TOKEN_LIFE_SPAN -> AnimationMap.KPEL;
 				case MdlUtils.TOKEN_INIT_VELOCITY -> AnimationMap.KPES;
 				case MdlUtils.TOKEN_VISIBILITY -> AnimationMap.KPEV;
-				default -> null;
+				default -> getIdObjectAnimationMap(name);
 			};
 		} else if (container instanceof ParticleEmitter2) {
 			return switch (name) {
@@ -78,7 +82,7 @@ public class FlagUtils {
 				case MdlUtils.TOKEN_LENGTH -> AnimationMap.KP2N;
 				case MdlUtils.TOKEN_WIDTH -> AnimationMap.KP2W;
 				case MdlUtils.TOKEN_VISIBILITY -> AnimationMap.KP2V;
-				default -> null;
+				default -> getIdObjectAnimationMap(name);
 			};
 		} else if (container instanceof ParticleEmitterPopcorn) {
 			return switch (name) {
@@ -88,7 +92,7 @@ public class FlagUtils {
 				case MdlUtils.TOKEN_LIFE_SPAN -> AnimationMap.KPPL;
 				case MdlUtils.TOKEN_SPEED -> AnimationMap.KPPS;
 				case MdlUtils.TOKEN_VISIBILITY -> AnimationMap.KPPV;
-				default -> null;
+				default -> getIdObjectAnimationMap(name);
 			};
 		} else if (container instanceof RibbonEmitter) {
 			return switch (name) {
@@ -98,7 +102,7 @@ public class FlagUtils {
 				case MdlUtils.TOKEN_COLOR -> AnimationMap.KRCO;
 				case MdlUtils.TOKEN_TEXTURE_SLOT -> AnimationMap.KRTX;
 				case MdlUtils.TOKEN_VISIBILITY -> AnimationMap.KRVS;
-				default -> null;
+				default -> getIdObjectAnimationMap(name);
 			};
 		} else if (container instanceof Camera.SourceNode) {
 			return switch (name) {
@@ -114,14 +118,18 @@ public class FlagUtils {
 		}
 
 		if (container instanceof IdObject) {
-			return switch (name) {
-				case MdlUtils.TOKEN_TRANSLATION -> AnimationMap.KGTR;
-				case MdlUtils.TOKEN_ROTATION -> AnimationMap.KGRT;
-				case MdlUtils.TOKEN_SCALING -> AnimationMap.KGSC;
-				default -> null;
-			};
+			return getIdObjectAnimationMap(name);
 		}
 
 		return null;
+	}
+
+	public static AnimationMap getIdObjectAnimationMap(String name) {
+		return switch (name) {
+			case MdlUtils.TOKEN_TRANSLATION -> AnimationMap.KGTR;
+			case MdlUtils.TOKEN_ROTATION -> AnimationMap.KGRT;
+			case MdlUtils.TOKEN_SCALING -> AnimationMap.KGSC;
+			default -> null;
+		};
 	}
 }

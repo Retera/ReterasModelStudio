@@ -39,6 +39,8 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class PerspectiveViewport extends BetterAWTGLCanvas {
+	Vec3 Y_AXIS = new Vec3(0, 1, 0);
+	Vec3 Z_AXIS = new Vec3(0, 0, 1);
 	private static final int BYTES_PER_PIXEL = 4;
 	private final float[] whiteDiffuse = {1f, 1f, 1f, 1f};
 	private final float[] posSun = {0.0f, 10.0f, 0.0f, 1.0f};
@@ -74,8 +76,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 	private float xRatio;
 	private float yRatio;
-	private float xangle;
-	private float yangle;
+	private float xAngle;
+	private float yAngle;
 	private boolean ortho = false;
 	Timer clickTimer = new Timer(16, e -> clickTimerAction());
 
@@ -223,7 +225,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 //		m_zoom = 128 / (boundsRadius * 1.3) * getWidth()/200;
 		m_zoom = 128 / (boundsRadius * 1.3);
 		cameraPos.y -= boundsRadius / 4;
-		yangle += 35;
+		yAngle += 35;
 
 		calculateCameraRotation();
 	}
@@ -293,8 +295,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		cameraSpinStartPoint = null;
 		actStart = null;
 
-		xangle = rX;
-		yangle = rY;
+		xAngle = rX;
+		yAngle = rY;
 
 		calculateCameraRotation();
 
@@ -623,8 +625,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		Vec3 dynCamPos = Vec3.getScaled(cameraPos, (float) m_zoom).sub(statCamPos);
 
 		glTranslatef(dynCamPos.x, -dynCamPos.y, -dynCamPos.z);
-		glRotatef(yangle, 1f, 0f, 0f);
-		glRotatef(xangle, 0f, 1f, 0f);
+		glRotatef(yAngle, 1f, 0f, 0f);
+		glRotatef(xAngle, 0f, 1f, 0f);
 		glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
 	}
 
@@ -845,8 +847,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			}
 			if (cameraSpinStartPoint != null) {
 				// rotate Viewport Camera
-				xangle += mx - cameraSpinStartPoint.x;
-				yangle += my - cameraSpinStartPoint.y;
+				xAngle += mx - cameraSpinStartPoint.x;
+				yAngle += my - cameraSpinStartPoint.y;
 
 				calculateCameraRotation();
 
@@ -866,13 +868,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	private void calculateCameraRotation() {
-		Vec4 yAxisHeap = new Vec4(0, 1, 0, Math.toRadians(yangle));
-		inverseCameraRotationYSpin.setFromAxisAngle(yAxisHeap).invertRotation();
+		inverseCameraRotationYSpin.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(yAngle)).invertRotation();
+		inverseCameraRotationZSpin.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(xAngle)).invertRotation();
 
-		Vec4 zAxisHeap = new Vec4(0, 0, 1, Math.toRadians(xangle));
-		inverseCameraRotationZSpin.setFromAxisAngle(zAxisHeap).invertRotation();
-
-		inverseCameraRotation.set(Quat.getProd(inverseCameraRotationYSpin, inverseCameraRotationZSpin)).invertRotation();
+		inverseCameraRotation.set(inverseCameraRotationYSpin).mul(inverseCameraRotationZSpin).invertRotation();
 	}
 
 	public Rectangle2D.Double pointsToGeomRect(final Point a, final Point b) {

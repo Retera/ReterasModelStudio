@@ -127,7 +127,8 @@ public final class RenderModel {
 
 		for (int i = 0; i < billboardVectors.length; i++) {
 //			inverseCameraRotation.transform(billboardBaseVectors[i], billboardVectors[i]);
-			billboardVectors[i].set(Vec4.getTransformed(billboardBaseVectors[i], inverseCameraRotation));
+//			billboardVectors[i].set(Vec4.getTransformed(billboardBaseVectors[i], inverseCameraRotation));
+			billboardVectors[i].set(billboardBaseVectors[i]).transform(inverseCameraRotation);
 		}
 
 		sortedNodes.clear();
@@ -388,7 +389,7 @@ public final class RenderModel {
 	private void updateParticles() {
 		for (int i = 0; i < billboardVectors.length; i++) {
 //			inverseCameraRotation.transform(billboardBaseVectors[i], billboardVectors[i]);
-			billboardVectors[i].set(Vec4.getTransformed(billboardBaseVectors[i], inverseCameraRotation));
+			billboardVectors[i].set(billboardBaseVectors[i]).transform(inverseCameraRotation);
 		}
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 			// not animating

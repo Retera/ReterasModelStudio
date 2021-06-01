@@ -5,7 +5,9 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.*;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class IdObjectFactory {
 	public static Bone createBone(MdlxBone mdlxBone) {
@@ -73,6 +75,8 @@ public class IdObjectFactory {
 		}
 
 		loadObject(attachment, mdlxAttachment);
+		List<String> ugg = new ArrayList<>(attachment.animFlags.keySet());
+		System.out.println("attatchment timelines: " + (Arrays.toString(ugg.toArray(new String[0]))));
 
 		attachment.setAttachmentID(mdlxAttachment.attachmentId);
 		attachment.setPath(mdlxAttachment.path);

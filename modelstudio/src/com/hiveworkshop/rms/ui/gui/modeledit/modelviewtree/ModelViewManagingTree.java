@@ -28,10 +28,8 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 	JCheckBoxTreeNode cameras;
 	Map<IdObject, JCheckBoxTreeNode> nodeToTreeElement = new HashMap<>();
 
-	public ModelViewManagingTree(
-			ModelHandler modelHandler,
-			ModelEditorManager modelEditorManager) {
-		super();
+	public ModelViewManagingTree(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
+		super(modelHandler);
 		cameras = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, "Cameras"));
 		root = new JCheckBoxTreeNode(new CheckableModelElement(modelHandler)).setChecked(true);
 		meshes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, "Mesh")).setChecked(true);

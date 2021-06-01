@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -11,7 +12,7 @@ import java.awt.*;
 import java.util.TreeMap;
 
 public class TSpline extends JPanel {
-	private final TTan der; // in mdlvis this was just called der, and whatever, I'm copying them right now
+	private final TTan ttDeriv; // in mdlvis this was just called der, and whatever, I'm copying them right now
 	private int currentFrame;
 	private final CurveRenderer curveRenderer;
 	private final JSpinner tensionSpinner;
@@ -19,13 +20,13 @@ public class TSpline extends JPanel {
 	private final JSpinner biasSpinner;
 	private AnimFlag timeline;
 
-	public TSpline(final TTan der) {
-		super(new MigLayout("fillx, filly", "[grow][]", "[][grow][][][]"));
-		this.der = der;
+	public TSpline() {
+		super(new MigLayout("fill", "[grow][]", "[][grow][][][]"));
+		ttDeriv = new TTan();
 		add(new JLabel("Curve properties"), "growx");
 		add(new JButton("-"), "wrap");
 
-		curveRenderer = new CurveRenderer();
+		curveRenderer = new CurveRenderer(ttDeriv, timeline);
 		curveRenderer.setBackground(Color.WHITE);
 		add(curveRenderer, "wrap");
 
@@ -42,10 +43,6 @@ public class TSpline extends JPanel {
 		add(biasSpinner, "wrap");
 	}
 
-	public void setTimeline(final AnimFlag timeline) {
-		this.timeline = timeline;
-	}
-
 	public void initFromKF() {
 		if (timeline == null) {
 			setVisible(false);
@@ -60,15 +57,16 @@ public class TSpline extends JPanel {
 			return;
 		}
 
-		der.tang = timeline.getEntryAt(currentFrame);
-		der.cur = timeline.getEntryAt(currentFrame);
-		der.prev = timeline.getEntryAt(entryMap.lowerKey(currentFrame));
-		der.next = timeline.getEntryAt(entryMap.higherKey(currentFrame));
-		der.calcSplineParameters(entryMap.firstEntry().getValue().getValue() instanceof Quat, 4);
+		ttDeriv.tang = timeline.getEntryAt(currentFrame);
+		ttDeriv.cur = timeline.getEntryAt(currentFrame);
+		ttDeriv.prev = timeline.getEntryAt(entryMap.lowerKey(currentFrame));
+		ttDeriv.next = timeline.getEntryAt(entryMap.higherKey(currentFrame));
 
-		tensionSpinner.setValue(Math.round(der.tension * 100));
-		continuitySpinner.setValue(Math.round(der.continuity * 100));
-		biasSpinner.setValue(Math.round(der.bias * 100));
+		ttDeriv.calcSplineParameters(entryMap.firstEntry().getValue().getValue() instanceof Quat, 4);
+
+		tensionSpinner.setValue(Math.round(ttDeriv.tension * 100));
+		continuitySpinner.setValue(Math.round(ttDeriv.continuity * 100));
+		biasSpinner.setValue(Math.round(ttDeriv.bias * 100));
 
 		setVisible(true);
 
@@ -76,36 +74,35 @@ public class TSpline extends JPanel {
 	}
 
 	public float getTension() {
-		return der.tension;
+		return ttDeriv.tension;
 	}
 
 	public float getContinuity() {
-		return der.continuity;
+		return ttDeriv.continuity;
 	}
 
 	public float getBias() {
-		return der.bias;
+		return ttDeriv.bias;
 	}
 
-	public void setTCB(final float tension, final float continuity, final float bias) {
-		final Entry it;
-		final int i;
-
-		der.tension = tension;
-		der.continuity = continuity;
-		der.bias = bias;
+	public void setTCB(float tension, float continuity, float bias) {
+		ttDeriv.tension = tension;
+		ttDeriv.continuity = continuity;
+		ttDeriv.bias = bias;
 
 		TreeMap<Integer, Entry> entryMap = timeline.getEntryMap();
 
-		der.cur = timeline.getEntryAt(currentFrame);
-		der.prev = timeline.getEntryAt(entryMap.lowerKey(currentFrame));
-		der.next = timeline.getEntryAt(entryMap.higherKey(currentFrame));
+		ttDeriv.cur = timeline.getEntryAt(currentFrame);
+		ttDeriv.prev = timeline.getEntryAt(entryMap.lowerKey(currentFrame));
+		ttDeriv.next = timeline.getEntryAt(entryMap.higherKey(currentFrame));
 
-		der.isLogsReady = false;
+		ttDeriv.isLogsReady = false;
 		if (timeline.getValueFromIndex(0) instanceof Quat) {
-			der.calcDerivative4D();
+			ttDeriv.calcDerivative4D();
+		} else if (timeline.getValueFromIndex(0) instanceof Vec3) {
+			ttDeriv.calcDerivative3D();
 		} else {
-			der.calcDerivativeXD(TTan.getSizeOfElement(timeline.getValueFromIndex(0)));
+			ttDeriv.calcDerivativeXD(TTan.getSizeOfElement(timeline.getValueFromIndex(0)));
 //			der.calcDerivativeXD(TTan.getSizeOfElement(entryMap.firstEntry().getValue().getValue()));
 		}
 
@@ -113,87 +110,15 @@ public class TSpline extends JPanel {
 				"Not finished here, need to have shared access to storing keyframe data and UndoManager");
 	}
 
-	private final class CurveRenderer extends JPanel {
-
-		private final Entry itd = new Entry(0, 0.0, 0.0, 0.0);
-		private final Entry its = new Entry(0, 0.0, 0.0, 0.0);
-
-		@Override
-		protected void paintComponent(final Graphics g) {
-			super.paintComponent(g);
-			final Rectangle rect = getBounds();
-			int i;
-			final float pixPerUnitX = 0.005f * rect.width;
-			final float pixPerUnitY = rect.height / 130f;
-			float renderX = rect.x, renderY = rect.y + rect.height;
-
-			g.setColor(Color.BLUE);
-			g.drawRect(rect.x, rect.y, rect.width, rect.height);
-
-			TTan.assignSubscript(der.prev.value, 0, 0);
-			TTan.assignSubscript(der.cur.value, 0, 100);
-			TTan.assignSubscript(der.next.value, 0, 0);
-			der.calcDerivativeXD(1);
-			g.setColor(Color.BLACK);
-			i = 0;
-			final InterpolationType interpType = timeline.getInterpolationType();
-			do {
-				itd.set(der.tang);
-				TTan.assignSubscript(itd.value, 0, 100);
-				itd.time = 100;
-
-				its.time = 0;
-				TTan.assignSubscript(its.value, 0, 0);
-				TTan.assignSubscript(its.inTan, 0, 0);
-				TTan.assignSubscript(its.outTan, 0, 0);
-
-				TTan_doStuff(i, interpType);
-				final float newRenderX = Math.round(pixPerUnitX * i);
-				final float newRenderY = rect.height - Math.round(pixPerUnitY * TTan.getSubscript(itd.value, 0).floatValue());
-				g.drawLine((int) renderX, (int) renderY, (int) newRenderX, (int) newRenderY);
-				renderX = newRenderX;
-				renderY = newRenderY;
-				i += 2;
-			} while (i <= 100);
-
-			// Second half of the Curve (Spline?)
-
-			i = 100;
-			do {
-				TTan.assignSubscript(itd.value, 0, 0);
-				itd.time = 200;
-				TTan.assignSubscript(itd.inTan, 0, 0);
-				TTan.assignSubscript(itd.outTan, 0, 0);
-
-				its.set(der.tang);
-				its.time = 100;
-				TTan.assignSubscript(its.value, 0, 100);
-
-				TTan_doStuff(i, interpType);
-				final float newRenderX = Math.round(pixPerUnitX * i);
-				final float newRenderY = rect.height - Math.round(pixPerUnitY * TTan.getSubscript(itd.value, 0).floatValue());
-				g.drawLine((int) renderX, (int) renderY, (int) newRenderX, (int) newRenderY);
-				renderX = newRenderX;
-				renderY = newRenderY;
-				i += 2;
-			} while (i <= 100);
-
-			// Central line
-			g.setColor(Color.RED);
-			g.drawLine((Math.round(pixPerUnitX * 100)), rect.height, Math.round(pixPerUnitX * 100), rect.height - Math.round(pixPerUnitY * 100));
-		}
-
-		private void TTan_doStuff(int i, InterpolationType interpType) {
-			switch (interpType) {
-				case HERMITE -> TTan.spline(i, its, itd);
-				case BEZIER -> TTan.bezInterp(i, its, itd);
-			}
-		}
+	public void setTimeline(AnimFlag timeline) {
+		this.timeline = timeline;
+		curveRenderer.setTTder(new TTan());
 	}
 
-	public void setSelection(final int currentTime, final AnimFlag timeline) {
+	public void setSelection(int currentTime, AnimFlag timeline) {
 		currentFrame = currentTime;
 		this.timeline = timeline;
+		curveRenderer.setTTder(new TTan());
 		initFromKF();
 	}
 

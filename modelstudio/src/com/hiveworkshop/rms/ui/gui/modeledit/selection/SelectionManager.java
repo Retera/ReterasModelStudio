@@ -117,13 +117,17 @@ public class SelectionManager extends AbstractSelectionManager {
 
 	public SelectoinUgg genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		if (selectionMode == SelectionItemTypes.VERTEX) {
-			Set<GeosetVertex> selectedItems = addVertsFromArea(min, max, coordinateSystem);
-			return new SelectoinUgg(selectedItems);
+			Set<GeosetVertex> selectedVerts = addVertsFromArea(min, max, coordinateSystem);
+			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
+			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
+			return new SelectoinUgg(selectedVerts, selectedObjs, selectedCams);
 		}
 
 		if (selectionMode == SelectionItemTypes.FACE) {
-			Set<GeosetVertex> newSel = addTrisFromArea(min, max, coordinateSystem);
-			return new SelectoinUgg(newSel);
+			Set<GeosetVertex> selectedVerts = addTrisFromArea(min, max, coordinateSystem);
+			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
+			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
+			return new SelectoinUgg(selectedVerts, selectedObjs, selectedCams);
 		}
 
 		if (selectionMode == SelectionItemTypes.CLUSTER) {
@@ -144,11 +148,13 @@ public class SelectionManager extends AbstractSelectionManager {
 			for (GeosetVertex vertex : geosetVerticesSelected) {
 				newSelection.add(new VertexGroupBundle(vertex.getGeoset(), vertexClusterDefinitions.getClusterId(vertex)));
 			}
-			Set<GeosetVertex> selectedItems = new HashSet<>();
+			Set<GeosetVertex> selectedVerts = new HashSet<>();
 			for (VertexGroupBundle bundle : newSelection) {
-				selectedItems.addAll(bundle.getGeoset().getVertices());
+				selectedVerts.addAll(bundle.getGeoset().getVertices());
 			}
-			return new SelectoinUgg(selectedItems);
+			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
+			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
+			return new SelectoinUgg(selectedVerts, selectedObjs, selectedCams);
 		}
 
 		if (selectionMode == SelectionItemTypes.GROUP) {
@@ -170,21 +176,23 @@ public class SelectionManager extends AbstractSelectionManager {
 				newSelection.add(new VertexGroupBundle(vertex.getGeoset(), vertex.getVertexGroup()));
 			}
 
-			Set<GeosetVertex> selectedItems = new HashSet<>();
+			Set<GeosetVertex> selectedVerts = new HashSet<>();
 			for (VertexGroupBundle bundle : newSelection) {
-				selectedItems.addAll(bundle.getGeoset().getVertices());
+				selectedVerts.addAll(bundle.getGeoset().getVertices());
 			}
-			return new SelectoinUgg(selectedItems);
+			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
+			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
+			return new SelectoinUgg(selectedVerts, selectedObjs, selectedCams);
 		}
 
-		if (selectionMode == SelectionItemTypes.VERTEX
-				|| selectionMode == SelectionItemTypes.FACE
-				|| selectionMode == SelectionItemTypes.GROUP
-				|| selectionMode == SelectionItemTypes.CLUSTER) {
-			Set<IdObject> selectedItems = getIdObjectsFromArea(min, max, coordinateSystem);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
-			return new SelectoinUgg(selectedItems, selectedCams);
-		}
+//		if (selectionMode == SelectionItemTypes.VERTEX
+//				|| selectionMode == SelectionItemTypes.FACE
+//				|| selectionMode == SelectionItemTypes.GROUP
+//				|| selectionMode == SelectionItemTypes.CLUSTER) {
+//			Set<IdObject> selectedItems = getIdObjectsFromArea(min, max, coordinateSystem);
+//			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
+//			return new SelectoinUgg(selectedItems, selectedCams);
+//		}
 
 		if (selectionMode == SelectionItemTypes.TPOSE) {
 			List<IdObject> selectedItems = new ArrayList<>();

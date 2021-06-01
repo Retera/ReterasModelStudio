@@ -23,6 +23,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
+import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
@@ -152,9 +153,9 @@ public class NodeAnimationModelEditor extends ModelEditor {
 
 	private Entry<?> getEntry(ModelEditorActionType3 actionType, int trackTime, RenderNode renderNode) {
 		return switch (actionType) {
-			case ROTATION, SQUAT -> new Entry<>(trackTime, renderNode.getLocalRotation());
-			case SCALING -> new Entry<>(trackTime, renderNode.getLocalScale());
-			case TRANSLATION, EXTEND, EXTRUDE -> new Entry<>(trackTime, renderNode.getLocalLocation());
+			case ROTATION, SQUAT -> new Entry<>(trackTime, new Quat(renderNode.getLocalRotation()));
+			case SCALING -> new Entry<>(trackTime, new Vec3(renderNode.getLocalScale()));
+			case TRANSLATION, EXTEND, EXTRUDE -> new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation()));
 		};
 	}
 

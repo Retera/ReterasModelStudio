@@ -257,6 +257,14 @@ public class Vec4 {
 		return this;
 	}
 
+	public Vec4 addScaled(Vec4 vec, float scale) {
+		x += scale * vec.x;
+		y += scale * vec.y;
+		z += scale * vec.z;
+		w += scale * vec.w;
+		return this;
+	}
+
 	public Vec4 normalize() {
 		float len = lengthSquared();
 

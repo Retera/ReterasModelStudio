@@ -133,7 +133,7 @@ public class Vec3 {
 	}
 
 	public static Vec3 centerOfGroup(final Collection<? extends Vec3> group) {
-		final Vec3 center = new Vec3();
+		final Vec3 center = new Vec3(0, 0, 0);
 
 		for (final Vec3 v : group) {
 			center.add(v);
@@ -356,6 +356,13 @@ public class Vec3 {
 		x = x - a.x;
 		y = y - a.y;
 		z = z - a.z;
+		return this;
+	}
+
+	public Vec3 addScaled(Vec3 vec, float scale) {
+		x += scale * vec.x;
+		y += scale * vec.y;
+		z += scale * vec.z;
 		return this;
 	}
 

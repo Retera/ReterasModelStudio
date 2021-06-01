@@ -1,5 +1,9 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.util;
 
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableNodeElement;
+
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeExpansionEvent;
@@ -27,15 +31,19 @@ public class JCheckBoxTree extends JTree {
 
 	HashSet<TreeNode> checkedPaths = new HashSet<>();
 	private boolean controlDown = false;
+	ModelHandler modelHandler;
+	ModelView modelView;
 
-	public JCheckBoxTree() {
+	public JCheckBoxTree(ModelHandler modelHandler) {
 		super();
 		// Disabling toggling by double-click
+		this.modelHandler = modelHandler;
+		this.modelView = modelHandler.getModelView();
 		setToggleClickCount(0);
 		setOpaque(false);
 
 		// Overriding cell renderer by new one defined above
-		CheckBoxCellRenderer cellRenderer = new CheckBoxCellRenderer();
+		CheckBoxCellRenderer cellRenderer = new CheckBoxCellRenderer(modelView);
 		setCellRenderer(cellRenderer);
 
 		// Overriding selection model by an empty one
@@ -357,9 +365,11 @@ public class JCheckBoxTree extends JTree {
 		private static final long serialVersionUID = -7341833835878991719L;
 		JCheckBox checkBox;
 		JLabel label;
+		ModelView modelView;
 
-		public CheckBoxCellRenderer() {
+		public CheckBoxCellRenderer(ModelView modelView) {
 			super();
+			this.modelView = modelView;
 			this.setLayout(new BorderLayout());
 			checkBox = new JCheckBox();
 			label = new JLabel();
@@ -376,6 +386,16 @@ public class JCheckBoxTree extends JTree {
 				final Object obj = node.getUserObject();
 				checkBox.setSelected(node.isChecked());
 				label.setText(obj.toString());
+
+				if (obj instanceof CheckableNodeElement) {
+					if (modelView.isSelected(((CheckableNodeElement) obj).getItem())) {
+						label.setOpaque(true);
+						label.setBackground(new Color(255, 0, 0, 15));
+					} else {
+						label.setOpaque(false);
+						label.setBackground(new Color(255, 255, 255, 0));
+					}
+				}
 //				checkBox.setText(obj.toString());
 
 				// This is not working as intended (the render update seems to lag in a lot of instances)

@@ -15,6 +15,8 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
+import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,9 +73,9 @@ public class AddKeyframeAction2 implements UndoAction {
 			RenderNode renderNode = modelHandler.getRenderModel().getRenderNode(node);
 
 			AddKeyframeAction keyframeAction = switch (actionType) {
-				case ROTATION, SQUAT -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, renderNode.getLocalRotation()));
-				case SCALING -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, renderNode.getLocalScale()));
-				case TRANSLATION, EXTEND, EXTRUDE -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, renderNode.getLocalLocation()));
+				case ROTATION, SQUAT -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, new Quat(renderNode.getLocalRotation())));
+				case SCALING -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, new Vec3(renderNode.getLocalScale())));
+				case TRANSLATION, EXTEND, EXTRUDE -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation())));
 			};
 			if (keyframeAction != null) {
 				actions.add(keyframeAction);
@@ -81,6 +83,14 @@ public class AddKeyframeAction2 implements UndoAction {
 		}
 
 		return new CompoundAction("create keyframe", actions);
+	}
+
+	private Entry<?> getEntry(ModelEditorActionType3 actionType, int trackTime, RenderNode renderNode) {
+		return switch (actionType) {
+			case ROTATION, SQUAT -> new Entry<>(trackTime, new Quat(renderNode.getLocalRotation()));
+			case SCALING -> new Entry<>(trackTime, new Vec3(renderNode.getLocalScale()));
+			case TRANSLATION, EXTEND, EXTRUDE -> new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation()));
+		};
 	}
 
 	private int getTrackTime(RenderModel renderModel) {

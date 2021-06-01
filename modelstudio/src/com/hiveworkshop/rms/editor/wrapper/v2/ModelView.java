@@ -56,6 +56,7 @@ public final class ModelView {
 			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() == 0)) {
 				editableGeosets.add(geoset);
 				visibleGeosets.add(geoset);
+				editableVertices.addAll(geoset.getVertices());
 			} else {
 				hiddenGeosets.add(geoset);
 			}
@@ -75,6 +76,7 @@ public final class ModelView {
 			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() == 0)) {
 				editableGeosets.add(geoset);
 				visibleGeosets.add(geoset);
+				editableVertices.addAll(geoset.getVertices());
 			} else {
 				hiddenGeosets.add(geoset);
 			}
@@ -248,6 +250,7 @@ public final class ModelView {
 
 	public void updateElements() {
 		Set<Geoset> modelGeosets = new HashSet<>(model.getGeosets());
+		editableVertices.clear();
 		if (!modelGeosets.containsAll(visibleGeosets)) {
 			visibleGeosets.removeIf(geoset -> !modelGeosets.contains(geoset));
 		}
@@ -258,6 +261,9 @@ public final class ModelView {
 		modelGeosets.removeAll(hiddenGeosets);
 		visibleGeosets.addAll(modelGeosets);
 		editableGeosets.addAll(modelGeosets);
+		for (Geoset geoset : editableGeosets) {
+			editableVertices.addAll(geoset.getVertices());
+		}
 
 		Set<IdObject> modelIdObjects = new HashSet<>(model.getIdObjects());
 		if (!modelIdObjects.containsAll(visibleIdObjects)) {
@@ -359,6 +365,7 @@ public final class ModelView {
 	public Vec3 getSelectionCenter(){
 		Set<Vec3> selectedPoints = new HashSet<>();
 		selectedVertices.stream().filter(editableVertices::contains).forEach(selectedPoints::add);
+//		selectedVertices.stream().forEach(selectedPoints::add);
 		selectedIdObjects.stream().filter(editableIdObjects::contains).forEach(o -> selectedPoints.add(o.getPivotPoint()));
 		selectedCameras.stream().filter(editableCameras::contains).forEach(c -> selectedPoints.add(c.getPosition()));
 

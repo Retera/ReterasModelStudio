@@ -60,6 +60,7 @@ public class GeosetFactory {
 		for (int i = 0; i < vertices.length / 3; i++) {
 			GeosetVertex gv = new GeosetVertex(vertices[(i * 3)], vertices[(i * 3) + 1], vertices[(i * 3) + 2]);
 			vertexList.add(gv);
+			gv.setGeoset(geoset);
 
 			geoset.add(gv);
 
