@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TSpline;
-import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TTan;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorChangeActivityListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
@@ -250,7 +249,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 //		modeButtons.add(squatButton);
 
 		if (false) {
-			TSpline tSpline = new TSpline(new TTan());
+			TSpline tSpline = new TSpline();
 			editToolsPanel.add(tSpline);
 		}
 
