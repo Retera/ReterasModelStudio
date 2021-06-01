@@ -145,7 +145,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 	}
 
 	public void splitGeoset(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
-		SplitGeosetAction splitGeosetAction = new SplitGeosetAction(modelHandler.getModelView().getSelectedVertices(), modelHandler.getModel(), modelEditorManager.getStructureChangeListener(), modelHandler.getModelView());
+		SplitGeosetAction splitGeosetAction = new SplitGeosetAction(modelHandler.getModel(), modelEditorManager.getStructureChangeListener(), modelHandler.getModelView());
 		splitGeosetAction.redo();
 		modelHandler.getUndoManager().pushAction(splitGeosetAction);
 	}
