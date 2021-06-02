@@ -126,7 +126,9 @@ public class DrawPlaneActivity extends ViewportActivity {
 		Geoset solidWhiteGeoset = null;
 		for (Geoset geoset : geosets) {
 			Layer firstLayer = geoset.getMaterial().firstLayer();
-			if ((geoset.getMaterial() != null) && (firstLayer != null)
+			if (modelView.isEditable(solidWhiteGeoset)
+					&& geoset.getMaterial() != null
+					&& firstLayer != null
 					&& (firstLayer.getFilterMode() == MdlxLayer.FilterMode.NONE)
 					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
 				solidWhiteGeoset = geoset;

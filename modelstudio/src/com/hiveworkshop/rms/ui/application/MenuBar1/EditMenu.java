@@ -14,6 +14,8 @@ public class EditMenu extends JMenu {
 
 	public EditMenu(MainPanel mainPanel) {
 		super("Edit");
+		MainPanelLinkActions linkActions = mainPanel.getMainPanelLinkActions();
+
 //		setToolTipText("Allows the user to use various tools to edit the currently selected model.");
 		getAccessibleContext().setAccessibleDescription("Allows the user to use various tools to edit the currently selected model.");
 		setMnemonic(KeyEvent.VK_E);
@@ -37,7 +39,7 @@ public class EditMenu extends JMenu {
 		add(createMenuItem("Copy", KeyStroke.getKeyStroke("control C"), (String) TransferHandler.getCopyAction().getValue(Action.NAME), copyActionListener));
 		add(createMenuItem("Paste", KeyStroke.getKeyStroke("control V"), (String) TransferHandler.getPasteAction().getValue(Action.NAME), copyActionListener));
 //		add(createMenuItem("Duplicate", -1, KeyStroke.getKeyStroke("control D"), mainPanel.cloneAction));
-		add(createMenuItem("Duplicate", -1, KeyStroke.getKeyStroke("control D"), e -> MainPanelLinkActions.cloneActionRes(mainPanel)));
+		add(createMenuItem("Duplicate", -1, KeyStroke.getKeyStroke("control D"), e -> linkActions.cloneActionRes(mainPanel)));
 
 		add(new JSeparator());
 
@@ -47,16 +49,16 @@ public class EditMenu extends JMenu {
 
 		add(new JSeparator());
 
-		add(createMenuItem("Select All", -1, KeyStroke.getKeyStroke("control A"), e -> MainPanelLinkActions.selectAllActionRes(ProgramGlobals.getCurrentModelPanel())));
-		add(createMenuItem("Invert Selection", -1, KeyStroke.getKeyStroke("control I"), e -> MainPanelLinkActions.invertSelectActionRes(ProgramGlobals.getCurrentModelPanel())));
-		add(createMenuItem("Expand Selection", -1, KeyStroke.getKeyStroke("control E"), e -> MainPanelLinkActions.getExpandSelectionActionRes(ProgramGlobals.getCurrentModelPanel())));
+		add(createMenuItem("Select All", -1, KeyStroke.getKeyStroke("control A"), e -> linkActions.selectAllActionRes(ProgramGlobals.getCurrentModelPanel())));
+		add(createMenuItem("Invert Selection", -1, KeyStroke.getKeyStroke("control I"), e -> linkActions.invertSelectActionRes(ProgramGlobals.getCurrentModelPanel())));
+		add(createMenuItem("Expand Selection", -1, KeyStroke.getKeyStroke("control E"), e -> linkActions.getExpandSelectionActionRes(ProgramGlobals.getCurrentModelPanel())));
 //		add(createMenuItem("Select All", -1, KeyStroke.getKeyStroke("control A"), mainPanel.selectAllAction));
 //		add(createMenuItem("Invert Selection", -1, KeyStroke.getKeyStroke("control I"), mainPanel.invertSelectAction));
 //		add(createMenuItem("Expand Selection", -1, KeyStroke.getKeyStroke("control E"), mainPanel.expandSelectionAction));
 
 		addSeparator();
 
-		add(createMenuItem("Delete", KeyEvent.VK_D, e -> MainPanelLinkActions.deleteActionRes(mainPanel)));
+		add(createMenuItem("Delete", KeyEvent.VK_D, e -> linkActions.deleteActionRes(mainPanel)));
 //		add(createMenuItem("Delete", KeyEvent.VK_D, mainPanel.deleteAction));
 
 		addSeparator();

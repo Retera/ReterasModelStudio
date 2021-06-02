@@ -13,6 +13,8 @@ public class ToolsMenu extends JMenu {
 
 	public ToolsMenu(MainPanel mainPanel) {
 		super("Tools");
+		MainPanelLinkActions linkActions = mainPanel.getMainPanelLinkActions();
+
 		setMnemonic(KeyEvent.VK_T);
 		getAccessibleContext().setAccessibleDescription("Allows the user to use various model editing tools. (You must open a model before you may use this menu.)");
 
@@ -40,7 +42,7 @@ public class ToolsMenu extends JMenu {
 		editTextures.addActionListener(e -> EditTexturesPopupPanel.show(mainPanel));
 		add(editTextures);
 
-		add(createMenuItem("Rig Selection", KeyEvent.VK_R, KeyStroke.getKeyStroke("control W"), e -> MainPanelLinkActions.rigActionRes(ProgramGlobals.getCurrentModelPanel())));
+		add(createMenuItem("Rig Selection", KeyEvent.VK_R, KeyStroke.getKeyStroke("control W"), e -> linkActions.rigActionRes(ProgramGlobals.getCurrentModelPanel())));
 //		add(createMenuItem("Rig Selection", KeyEvent.VK_R, KeyStroke.getKeyStroke("control W"), mainPanel.rigAction));
 
 		JMenu tweaksSubmenu = new JMenu("Tweaks");

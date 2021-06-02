@@ -87,7 +87,7 @@ public class WindowHandler {
 					if (dockingWindow instanceof View) {
 						final Component component = ((View) dockingWindow).getComponent();
 						if (component instanceof JComponent) {
-							MainPanelLinkActions.linkActions(mainPanel, ((JComponent) component).getRootPane());
+							mainPanel.linkActions(((JComponent) component).getRootPane());
 						}
 					}
 				}));

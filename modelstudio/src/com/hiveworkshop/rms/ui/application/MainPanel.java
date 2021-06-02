@@ -33,6 +33,7 @@ import java.util.Enumeration;
 
 public class MainPanel extends JPanel implements ModelEditorChangeActivityListener {
     UndoHandler undoHandler;
+    MainPanelLinkActions mainPanelLinkActions;
 
 //    ModelPanel currentModelPanel;
     public final View timeSliderView;
@@ -65,13 +66,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     View modelComponentView;
     ModelEditorActionType3 currentActivity;
 
-    AbstractAction expandSelectionAction = MainPanelLinkActions.getExpandSelectionAction();
-    AbstractAction selectAllAction = MainPanelLinkActions.getSelectAllAction();
-    AbstractAction invertSelectAction = MainPanelLinkActions.getInvertSelectAction();
-    AbstractAction rigAction = MainPanelLinkActions.getRigAction();
-    AbstractAction cloneAction = MainPanelLinkActions.getCloneAction(this);
-    AbstractAction deleteAction = MainPanelLinkActions.getDeleteAction(this);
-
     TimeSliderPanel timeSliderPanel;
 
     boolean animationModeState = false;
@@ -85,6 +79,8 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         undoHandler = new UndoHandler(this);
         setLayout(new MigLayout("fill, ins 0, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
         add(ToolBar.createJToolBar(this));
+
+        mainPanelLinkActions = new MainPanelLinkActions();
 
 
         TimeSliderView.createMouseCoordDisp(mouseCoordDisplay);
@@ -140,7 +136,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
         selectionItemTypeGroup.addToolbarButtonListener(this::selectionItemTypeGroupActionRes);
 
-        actionTypeGroup.addToolbarButtonListener(newType -> MainPanelLinkActions.actionTypeGroupActionRes(MainPanel.this, newType));
+        actionTypeGroup.addToolbarButtonListener(newType -> mainPanelLinkActions.changeTransformMode(MainPanel.this, newType));
         actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
 
         viewportTransferHandler = new ViewportTransferHandler();
@@ -301,11 +297,16 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     }
 
     public void init() {
-        final JRootPane root = getRootPane();
-        MainPanelLinkActions.linkActions(this, root);
-
+        linkActions(getRootPane());
     }
 
+    public void linkActions(JRootPane rootPane) {
+        mainPanelLinkActions.linkActions(this, rootPane);
+    }
+
+    public MainPanelLinkActions getMainPanelLinkActions() {
+        return mainPanelLinkActions;
+    }
 
     public static void repaintSelfAndChildren(MainPanel mainPanel) {
         mainPanel.repaint();

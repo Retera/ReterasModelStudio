@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.actions.uv;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexUtils;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -9,16 +10,17 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.util.Collection;
 
 public class StaticMeshUVScaleAction implements GenericScaleAction {
-	private final Collection<? extends Vec3> selectedVertices;
+	private final Collection<GeosetVertex> selectedVertices;
 	private final Vec2 center;
-	private final Vec2 scale = new Vec2(1,1);
+	private final Vec2 scale = new Vec2(1, 1);
+	private final Vec2 dScale = new Vec2(1, 1);
 	int uvLayerIndex;
 
 
-	public StaticMeshUVScaleAction(Collection<? extends Vec3> selectedVertices, int uvLayerIndex, Vec2 center) {
+	public StaticMeshUVScaleAction(Collection<GeosetVertex> selectedVertices, int uvLayerIndex, Vec2 center) {
 		this.selectedVertices = selectedVertices;
 		this.uvLayerIndex = uvLayerIndex;
-		this.center = center;
+		this.center = new Vec2(center);
 	}
 
 	@Override
@@ -45,10 +47,10 @@ public class StaticMeshUVScaleAction implements GenericScaleAction {
 
 	@Override
 	public GenericScaleAction updateScale(Vec3 scale) {
-		this.scale.x *= scale.x;
-		this.scale.y *= scale.y;
+		dScale.set(scale.x, scale.y);
+		this.scale.mul(dScale);
 		for (Vec2 vertex : TVertexUtils.getTVertices(selectedVertices, uvLayerIndex)) {
-			vertex.scale(center, this.scale);
+			vertex.scale(center, dScale);
 		}
 		return this;
 	}

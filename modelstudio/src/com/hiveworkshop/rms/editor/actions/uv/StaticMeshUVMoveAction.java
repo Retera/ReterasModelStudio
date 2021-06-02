@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.actions.uv;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexUtils;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -9,11 +10,11 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.util.Collection;
 
 public final class StaticMeshUVMoveAction implements GenericMoveAction {
-	private Collection<? extends Vec3> selectedVertices;
+	private Collection<GeosetVertex> selectedVertices;
 	private final Vec2 moveVector;
 	int uvLayerIndex;
 
-	public StaticMeshUVMoveAction(Collection<? extends Vec3> selectedVertices, int uvLayerIndex, Vec2 moveVector) {
+	public StaticMeshUVMoveAction(Collection<GeosetVertex> selectedVertices, int uvLayerIndex, Vec2 moveVector) {
 		this.selectedVertices = selectedVertices;
 		this.moveVector = new Vec2(moveVector);
 		this.uvLayerIndex = uvLayerIndex;

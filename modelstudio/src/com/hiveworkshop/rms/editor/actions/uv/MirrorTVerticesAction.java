@@ -8,14 +8,13 @@ import java.util.Collection;
 import java.util.List;
 
 public final class MirrorTVerticesAction implements UndoAction {
-	private final char[] DIMENSION_NAMES = { 'X', 'Y' };
+	private final char[] DIMENSION_NAMES = {'X', 'Y'};
 	private final List<Vec2> selection;
 	private final byte mirrorDim;
 	private final double centerX;
 	private final double centerY;
 
-	public MirrorTVerticesAction(final Collection<? extends Vec2> selection, final byte mirrorDim,
-			final double centerX, final double centerY) {
+	public MirrorTVerticesAction(Collection<Vec2> selection, byte mirrorDim, double centerX, double centerY) {
 		this.centerX = centerX;
 		this.centerY = centerY;
 		this.selection = new ArrayList<>(selection);

@@ -40,7 +40,8 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 				|| selectionMode == SelectionItemTypes.GROUP
 				|| selectionMode == SelectionItemTypes.CLUSTER
 				|| selectionMode == SelectionItemTypes.TPOSE) {
-			return modelView.getSelectionCenter();
+			return new Vec3().setCoords((byte) 0, (byte) 1, modelView.getTSelectionCenter());
+//			return modelView.getSelectionCenter();
 		}
 		if (selectionMode == SelectionItemTypes.ANIMATE) {
 			Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
@@ -199,7 +200,7 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		return Vec2.ORIGIN;
 	}
 
-	public Collection<? extends Vec2> getSelectedTVertices(int tvertexLayerId) {
+	public Collection<Vec2> getSelectedTVertices(int tvertexLayerId) {
 		if (selectionMode == SelectionItemTypes.VERTEX || selectionMode == SelectionItemTypes.FACE || selectionMode == SelectionItemTypes.CLUSTER || selectionMode == SelectionItemTypes.GROUP) {
 			Set<Vec2> selectedTVertices = new HashSet<>();
 			for (GeosetVertex vertex : modelView.getSelectedVertices()) {

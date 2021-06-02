@@ -115,10 +115,11 @@ public class Vec2 {
 	}
 
 	public Vec2 scale(Vec2 center, Vec2 a) {
-		final float dx = this.x - center.x;
-		final float dy = this.y - center.y;
-		this.x = center.x + (dx * a.x);
-		this.y = center.y + (dy * a.y);
+		this.sub(center).mul(a).add(center);
+//		final float dx = this.x - center.x;
+//		final float dy = this.y - center.y;
+//		this.x = center.x + (dx * a.x);
+//		this.y = center.y + (dy * a.y);
 		return this;
 	}
 

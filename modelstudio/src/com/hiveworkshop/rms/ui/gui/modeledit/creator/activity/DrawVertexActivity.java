@@ -53,7 +53,7 @@ public class DrawVertexActivity extends ViewportActivity {
 			geosetVertex.addTVertex(new Vec2(0, 0));
 			UndoAction action2;
 			DrawVertexAction drawVertexAction = new DrawVertexAction(geosetVertex);
-			if (!modelView.getModel().contains(solidWhiteGeoset)) {
+			if (!modelView.getModel().contains(solidWhiteGeoset) || !modelView.isEditable(solidWhiteGeoset)) {
 				NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView, modelEditorManager.getStructureChangeListener());
 				action2 = new CompoundAction("add vertex", Arrays.asList(newGeosetAction, drawVertexAction));
 			} else {
@@ -72,7 +72,9 @@ public class DrawVertexActivity extends ViewportActivity {
 		Geoset solidWhiteGeoset = null;
 		for (Geoset geoset : geosets) {
 			Layer firstLayer = geoset.getMaterial().firstLayer();
-			if ((geoset.getMaterial() != null) && (firstLayer != null)
+			if (modelView.isEditable(solidWhiteGeoset)
+					&& geoset.getMaterial() != null
+					&& (firstLayer != null)
 					&& (firstLayer.getFilterMode() == MdlxLayer.FilterMode.NONE)
 					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
 				solidWhiteGeoset = geoset;

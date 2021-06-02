@@ -17,8 +17,7 @@ public class UVSnapAction implements UndoAction {
 	private final List<Vec2> selection;
 	private final Vec2 snapPoint;
 
-	public UVSnapAction(final Collection<? extends Vec2> selection, final List<Vec2> oldSelLocs,
-			final Vec2 snapPoint) {
+	public UVSnapAction(Collection<Vec2> selection, List<Vec2> oldSelLocs, Vec2 snapPoint) {
 		this.selection = new ArrayList<>(selection);
 		this.oldSelLocs = oldSelLocs;
 		this.snapPoint = new Vec2(snapPoint);
