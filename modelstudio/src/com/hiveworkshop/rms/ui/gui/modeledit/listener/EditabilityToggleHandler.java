@@ -93,9 +93,9 @@ public class EditabilityToggleHandler {
 
 		};
 		Runnable unTruncateSelectionRunnable = () -> {
-			geosetsToHide.forEach(modelView::makeGeosetVisible);
-			objsToHide.forEach(modelView::makeIdObjectVisible);
-			camsToHide.forEach(modelView::makeCameraVisible);
+			geosetsToHide.forEach(modelView::makeGeosetEditable);
+			objsToHide.forEach(modelView::makeIdObjectEditable);
+			camsToHide.forEach(modelView::makeCameraEditable);
 
 //			geosetsToHide.forEach(modelView::makeGeosetEditable);
 //			objsToHide.forEach(modelView::makeIdObjectEditable);
@@ -137,9 +137,9 @@ public class EditabilityToggleHandler {
 			}
 		}
 		Runnable truncateSelectionRunnable = () -> {
-			geosetsToShow.forEach(modelView::makeGeosetVisible);
-			objsToShow.forEach(modelView::makeIdObjectVisible);
-			camsToShow.forEach(modelView::makeCameraVisible);
+			geosetsToShow.forEach(modelView::makeGeosetEditable);
+			objsToShow.forEach(modelView::makeIdObjectEditable);
+			camsToShow.forEach(modelView::makeCameraEditable);
 
 //			geosetsToShow.forEach(modelView::makeGeosetEditable);
 //			objsToShow.forEach(modelView::makeIdObjectEditable);

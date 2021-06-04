@@ -17,6 +17,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.util.ActionMapActions;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.TabWindow;
@@ -38,10 +39,10 @@ public class MainPanelLinkActions {
 		ActionMap actionMap = root.getActionMap();
 
 		inputMap.put(KeyStroke.getKeyStroke("control Z"), "Undo");
-		actionMap.put("Undo", mainPanel.getUndoHandler().getUndoAction());
+		actionMap.put("Undo", ProgramGlobals.getUndoHandler().getUndoAction());
 
 		inputMap.put(KeyStroke.getKeyStroke("control Y"), "Redo");
-		actionMap.put("Redo", mainPanel.getUndoHandler().getRedoAction());
+		actionMap.put("Redo", ProgramGlobals.getUndoHandler().getRedoAction());
 
 		inputMap.put(KeyStroke.getKeyStroke("DELETE"), "Delete");
 		actionMap.put("Delete", getAsAction("Delete", () -> deleteActionRes(mainPanel)));
@@ -56,10 +57,10 @@ public class MainPanelLinkActions {
 		actionMap.put("MaximizeSpacebar", getAsAction(() -> maximizeFocusedWindow(mainPanel)));
 
 		inputMap.put(KeyStroke.getKeyStroke("RIGHT"), "PressRight");
-		actionMap.put("PressRight", pressRightAction(mainPanel));
+		actionMap.put("PressRight", nextKeyframe(mainPanel));
 
 		inputMap.put(KeyStroke.getKeyStroke("LEFT"), "PressLeft");
-		actionMap.put("PressLeft", pressLeftAction(mainPanel));
+		actionMap.put("PressLeft", previousKeyframe(mainPanel));
 
 		inputMap.put(KeyStroke.getKeyStroke("UP"), "PressUp");
 		actionMap.put("PressUp", jumpFramesAction(mainPanel, 1));
@@ -92,19 +93,19 @@ public class MainPanelLinkActions {
 		actionMap.put("YKeyboardKey", setTransformMode(mainPanel, ModelEditorActionType3.EXTEND));
 
 		inputMap.put(KeyStroke.getKeyStroke("A"), "AKeyboardKey");
-		actionMap.put("AKeyboardKey", itemShortcutAction(mainPanel, SelectionItemTypes.ANIMATE));
+		actionMap.put("AKeyboardKey", setSelectionType(mainPanel, SelectionItemTypes.ANIMATE));
 
 		inputMap.put(KeyStroke.getKeyStroke("S"), "SKeyboardKey");
-		actionMap.put("SKeyboardKey", itemShortcutAction(mainPanel, SelectionItemTypes.VERTEX));
+		actionMap.put("SKeyboardKey", setSelectionType(mainPanel, SelectionItemTypes.VERTEX));
 
 		inputMap.put(KeyStroke.getKeyStroke("D"), "DKeyboardKey");
-		actionMap.put("DKeyboardKey", itemShortcutAction(mainPanel, SelectionItemTypes.CLUSTER));
+		actionMap.put("DKeyboardKey", setSelectionType(mainPanel, SelectionItemTypes.CLUSTER));
 
 		inputMap.put(KeyStroke.getKeyStroke("F"), "FKeyboardKey");
-		actionMap.put("FKeyboardKey", itemShortcutAction(mainPanel, SelectionItemTypes.FACE));
+		actionMap.put("FKeyboardKey", setSelectionType(mainPanel, SelectionItemTypes.FACE));
 
 		inputMap.put(KeyStroke.getKeyStroke("G"), "GKeyboardKey");
-		actionMap.put("GKeyboardKey", itemShortcutAction(mainPanel, SelectionItemTypes.GROUP));
+		actionMap.put("GKeyboardKey", setSelectionType(mainPanel, SelectionItemTypes.GROUP));
 
 		inputMap.put(KeyStroke.getKeyStroke("Z"), "ZKeyboardKey");
 		actionMap.put("ZKeyboardKey", toggleWireFrame());
@@ -214,7 +215,7 @@ public class MainPanelLinkActions {
 		});
 	}
 
-	private AbstractAction itemShortcutAction(MainPanel mainPanel, SelectionItemTypes t) {
+	private AbstractAction setSelectionType(MainPanel mainPanel, SelectionItemTypes t) {
 		return getAsAction(() ->
 		{
 			if (!isTextField())
@@ -250,7 +251,7 @@ public class MainPanelLinkActions {
 		});
 	}
 
-	private AbstractAction pressLeftAction(MainPanel mainPanel) {
+	private AbstractAction previousKeyframe(MainPanel mainPanel) {
 		return getAsAction(() -> {
 			if (!isTextField() && mainPanel.animationModeState) {
 				mainPanel.timeSliderPanel.jumpToPreviousTime();
@@ -258,7 +259,7 @@ public class MainPanelLinkActions {
 		});
 	}
 
-	private AbstractAction pressRightAction(MainPanel mainPanel) {
+	private AbstractAction nextKeyframe(MainPanel mainPanel) {
 		return getAsAction(() -> {
 			if (!isTextField() && mainPanel.animationModeState) mainPanel.timeSliderPanel.jumpToNextTime();
 		});
@@ -359,8 +360,8 @@ public class MainPanelLinkActions {
 			} catch (final Exception exc) {
 				ExceptionPopup.display(exc);
 			}
-			mainPanel.getUndoHandler().refreshUndo();
-			MainPanel.repaintSelfAndChildren(mainPanel);
+			ProgramGlobals.getUndoHandler().refreshUndo();
+			mainPanel.repaintSelfAndChildren();
 			modelPanel.repaintSelfAndRelatedChildren();
 		}
 	}
@@ -378,7 +379,7 @@ public class MainPanelLinkActions {
 				compoundAction.redo();
 				modelPanel.getUndoManager().pushAction(compoundAction);
 			}
-			MainPanel.repaintSelfAndChildren(mainPanel);
+			mainPanel.repaintSelfAndChildren();
 			modelPanel.repaintSelfAndRelatedChildren();
 		}
 	}

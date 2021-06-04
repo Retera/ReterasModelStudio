@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.RedoActionImplementation;
 import com.hiveworkshop.rms.ui.application.edit.UndoActionImplementation;
@@ -14,16 +13,16 @@ public class UndoHandler {
 	AbstractAction undoAction;
 	AbstractAction redoAction;
 
-	public UndoHandler(MainPanel mainPanel) {
-		undoAction = new UndoActionImplementation("Undo", mainPanel);
-		redoAction = new RedoActionImplementation("Redo", mainPanel);
+	public UndoHandler() {
+		undoAction = new UndoActionImplementation("Undo");
+		redoAction = new RedoActionImplementation("Redo");
 
-		undo = new UndoMenuItem(mainPanel, "Undo");
+		undo = new UndoMenuItem("Undo");
 		undo.addActionListener(undoAction);
 		undo.setAccelerator(KeyStroke.getKeyStroke("control Z"));
 		undo.setEnabled(undo.funcEnabled());
 
-		redo = new RedoMenuItem(mainPanel, "Redo");
+		redo = new RedoMenuItem("Redo");
 		redo.addActionListener(redoAction);
 		redo.setAccelerator(KeyStroke.getKeyStroke("control Y"));
 		redo.setEnabled(redo.funcEnabled());
@@ -51,11 +50,9 @@ public class UndoHandler {
 	}
 
 	static class UndoMenuItem extends JMenuItem {
-		private final MainPanel mainPanel;
 
-		public UndoMenuItem(MainPanel mainPanel, final String text) {
+		public UndoMenuItem(final String text) {
 			super(text);
-			this.mainPanel = mainPanel;
 		}
 
 		@Override
@@ -78,11 +75,9 @@ public class UndoHandler {
 	}
 
 	static class RedoMenuItem extends JMenuItem {
-		private final MainPanel mainPanel;
 
-		public RedoMenuItem(MainPanel mainPanel, final String text) {
+		public RedoMenuItem(final String text) {
 			super(text);
-			this.mainPanel = mainPanel;
 		}
 
 		@Override

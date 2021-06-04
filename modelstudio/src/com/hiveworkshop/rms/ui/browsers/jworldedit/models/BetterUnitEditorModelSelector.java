@@ -42,8 +42,8 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 
 	EditableModel mdl = new EditableModel();
 	// MDL mdl;
-	ModelHandler modelHandler = new ModelHandler(mdl, null);
-//	ModelView modelDisp = new ModelView(mdl);
+	ModelHandler modelHandler = new ModelHandler(mdl);
+	//	ModelView modelDisp = new ModelView(mdl);
 	PerspDisplayPanel modelPanel;
 	DefaultTableModel tableModel;
 	DefaultMutableTreeNode defaultSelection = null;
@@ -96,7 +96,7 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 			try (InputStream reader = GameDataFileSystem.getDefault().getResourceAsStream(filepath)) {
 				mdl = TempOpenModelStuff.createEditableModel(MdxUtils.loadMdlx(reader));
 //				modelDisp = new ModelView(mdl);
-				modelHandler = new ModelHandler(mdl, null);
+				modelHandler = new ModelHandler(mdl);
 				modelPanel.setViewport(modelHandler);
 				modelPanel.setTitle(currentUnit.getName());
 			} catch (final IOException e) {

@@ -45,10 +45,10 @@ public class FileMenu extends JMenu {
 		add(importMenu);
 
 		importMenu.add(createMenuItem("From File", KeyEvent.VK_I, KeyStroke.getKeyStroke("control shift I"), e -> ImportFileActions.importButtonActionRes(mainPanel)));
-		importMenu.add(createMenuItem("From Unit", KeyEvent.VK_U, KeyStroke.getKeyStroke("control shift U"), e -> ImportFileActions.importUnitActionRes(mainPanel)));
-		importMenu.add(createMenuItem("From WC3 Model", KeyEvent.VK_M, e -> ImportFileActions.importGameModelActionRes(mainPanel)));
-		importMenu.add(createMenuItem("From Object Editor", KeyEvent.VK_O, e -> ImportFileActions.importGameObjectActionRes(mainPanel)));
-		importMenu.add(createMenuItem("From Workspace", KeyEvent.VK_O, e -> ImportFileActions.importFromWorkspaceActionRes(mainPanel)));
+		importMenu.add(createMenuItem("From Unit", KeyEvent.VK_U, KeyStroke.getKeyStroke("control shift U"), e -> ImportFileActions.importUnitActionRes()));
+		importMenu.add(createMenuItem("From WC3 Model", KeyEvent.VK_M, e -> ImportFileActions.importGameModelActionRes()));
+		importMenu.add(createMenuItem("From Object Editor", KeyEvent.VK_O, e -> ImportFileActions.importGameObjectActionRes()));
+		importMenu.add(createMenuItem("From Workspace", KeyEvent.VK_O, e -> ImportFileActions.importFromWorkspaceActionRes()));
 
 
 		add(createMenuItem("Save", KeyEvent.VK_S, KeyStroke.getKeyStroke("control S"), e -> fileDialog.onClickSave()));

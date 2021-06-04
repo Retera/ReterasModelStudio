@@ -2,12 +2,14 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.actions.mesh.DeleteGeosetAction;
 import com.hiveworkshop.rms.editor.actions.mesh.MergeGeosetsAction;
+import com.hiveworkshop.rms.editor.actions.mesh.SmoothVertsAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelFactory.GeosetFactory;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -32,6 +34,14 @@ import java.util.List;
 import java.util.Map;
 
 public class ScriptActions {
+
+	public static void smoothSelection() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		ModelView modelView = modelPanel.getModelView();
+		SmoothVertsAction action = new SmoothVertsAction(modelView.getSelectedVertices(), false, 0.5f);
+		modelPanel.getUndoManager().pushAction(action.redo());
+	}
+
 	public static void mergeGeosetActionRes2(MainPanel mainPanel) {
 		EditableModel current = mainPanel.currentMDL();
 		if (current != null) {

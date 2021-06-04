@@ -12,7 +12,7 @@ public class CheckableNodeElement extends CheckableDisplayElement<IdObject> {
 	@Override
 	protected void setChecked(IdObject item, ModelView modelViewManager, boolean checked) {
 		if (checked) {
-			modelViewManager.makeIdObjectVisible(item);
+			modelViewManager.makeIdObjectEditable(item);
 		} else {
 			modelViewManager.makeIdObjectNotVisible(item);
 		}

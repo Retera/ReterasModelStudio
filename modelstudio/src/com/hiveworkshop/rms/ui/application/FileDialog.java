@@ -43,7 +43,7 @@ public class FileDialog {
     private final ExtFilter extFilter;
 
     public FileDialog(MainPanel mainPanel) {
-        this.mainPanel = mainPanel;
+        FileDialog.mainPanel = ProgramGlobals.getMainPanel();
         this.fileChooser = getFileChooser();
         this.fileChooser.setAcceptAllFileFilterUsed(false);
         extFilter = new ExtFilter();
@@ -417,13 +417,16 @@ public class FileDialog {
     }
 
     public EditableModel getModel() {
-        if (mainPanel != null) {
-            return mainPanel.currentMDL();
-        } else if (modelPanel != null) {
+        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+        if (modelPanel != null && modelPanel.getModel() != null) {
             return modelPanel.getModel();
-        } else {
-            return null;
         }
+//        if (mainPanel != null) {
+//            return mainPanel.currentMDL();
+//        } else if (this.modelPanel != null) {
+//            return this.modelPanel.getModel();
+//        }
+        return null;
     }
 
     private ModelPanel getModelPanel() {

@@ -10,16 +10,15 @@ import java.awt.event.ActionEvent;
 import java.util.NoSuchElementException;
 
 public final class RedoActionImplementation extends AbstractAction {
-    private final MainPanel mainPanel;
 
-    public RedoActionImplementation(final String name, final MainPanel mainPanel) {
+    public RedoActionImplementation(final String name) {
         super(name);
-        this.mainPanel = mainPanel;
     }
 
     @Override
     public void actionPerformed(final ActionEvent e) {
         final ModelPanel mpanel = ProgramGlobals.getCurrentModelPanel();
+        final MainPanel mainPanel = ProgramGlobals.getMainPanel();
         if (mpanel != null) {
             try {
                 mpanel.getUndoManager().redo();
@@ -29,8 +28,8 @@ public final class RedoActionImplementation extends AbstractAction {
                 ExceptionPopup.display(exc);
             }
         }
-        mainPanel.getUndoHandler().refreshUndo();
-        MainPanel.repaintSelfAndChildren(mainPanel);
+        ProgramGlobals.getUndoHandler().refreshUndo();
+        mainPanel.repaintSelfAndChildren();
         mpanel.repaintSelfAndRelatedChildren();
     }
 }

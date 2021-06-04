@@ -45,7 +45,7 @@ public class ViewMenu extends JMenu {
 		newDirectory.setAccelerator(KeyStroke.getKeyStroke("control shift D"));
 		newDirectory.setToolTipText("Changes the directory from which to load texture files for the 3D display.");
 		newDirectory.setMnemonic(KeyEvent.VK_D);
-		newDirectory.addActionListener(e -> mainPanel.getUndoHandler().refreshUndo());
+		newDirectory.addActionListener(e -> ProgramGlobals.getUndoHandler().refreshUndo());
 //		viewMenu.add(newDirectory);
 
 		add(new JSeparator());

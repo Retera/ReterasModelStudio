@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec3SpinnerArray;
@@ -69,12 +70,12 @@ public class AddParticlePanel {
 	};
 
 	public static void addEmptyPopcorn(MainPanel mainPanel) {
-		final EditableModel current = mainPanel.currentMDL();
-		if (current != null) {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null && modelPanel.getModel() != null) {
 			System.out.println("added popcorn!");
 			ParticleEmitterPopcorn new_popcornEmitter = new ParticleEmitterPopcorn("New PopcornEmitter");
 			new_popcornEmitter.setPivotPoint(new Vec3(0, 0, 0));
-			current.add(new_popcornEmitter);
+			modelPanel.getModel().add(new_popcornEmitter);
 			mainPanel.modelStructureChangeListener.nodesUpdated();
 		}
 	}
@@ -114,7 +115,9 @@ public class AddParticlePanel {
 			e1.printStackTrace();
 			return;
 		}
-		if (mainPanel.currentMDL() != null) {
+
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null && modelPanel.getModel() != null) {
 			final JPanel particlePanel = new JPanel(new MigLayout());
 
 			final JLabel imageLabel = new JLabel(new ImageIcon(particleInformation.getImage().getScaledInstance(128, 128, Image.SCALE_SMOOTH)));
@@ -133,7 +136,7 @@ public class AddParticlePanel {
 
 			optionsPanel.add(new JLabel("Parent:"), "spanx, split 2");
 
-			java.util.List<IdObject> idObjects = new ArrayList<>(mainPanel.currentMDL().getIdObjects());
+			java.util.List<IdObject> idObjects = new ArrayList<>(modelPanel.getModel().getIdObjects());
 			Bone nullBone = new Bone("No parent");
 			idObjects.add(0, nullBone);
 
@@ -147,7 +150,7 @@ public class AddParticlePanel {
 			parentBone.addActionListener(e14 -> spinnerArray.setValues(((IdObject) parentBone.getSelectedItem()).getPivotPoint()));
 
 			Map<Animation, Boolean> animVisStatus = new HashMap<>();
-			mainPanel.currentMDL().getAnims().forEach(a -> animVisStatus.put(a, true));
+			modelPanel.getModel().getAnims().forEach(a -> animVisStatus.put(a, true));
 
 			final JPanel animPanel = animVisPanel(animVisStatus);
 
@@ -201,7 +204,7 @@ public class AddParticlePanel {
 		}
 		particle.setVisibilityFlag(visFlag);
 		particle.setName(name);
-		mainPanel.currentMDL().add(particle);
+		ProgramGlobals.getCurrentModelPanel().getModel().add(particle);
 		mainPanel.modelStructureChangeListener.nodesUpdated();
 	}
 

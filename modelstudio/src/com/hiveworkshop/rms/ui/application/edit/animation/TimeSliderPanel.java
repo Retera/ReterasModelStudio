@@ -197,9 +197,9 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 			UndoAction undoAction = new AddKeyframeAction2(mpanel.getModelStructureChangeListener(), mpanel.getModelHandler(), mainPanel.actionTypeGroup.getActiveButtonType());
 			mpanel.getUndoManager().pushAction(undoAction);
+			mpanel.repaintSelfAndRelatedChildren();
 		}
-		MainPanel.repaintSelfAndChildren(mainPanel);
-		mpanel.repaintSelfAndRelatedChildren();
+		mainPanel.repaintSelfAndChildren();
 	}
 
 	public void setModel(EditableModel model) {

@@ -29,10 +29,16 @@ public class ScriptsMenu extends JMenu {
 		add(mergeGeoset);
 
 		JMenuItem mergeGeoset2 = new JMenuItem("Twilac-Style Merge Geoset");
-		mergeGeoset2.setMnemonic(KeyEvent.VK_M);
+		mergeGeoset2.setMnemonic(KeyEvent.VK_T);
 		mergeGeoset2.setAccelerator(KeyStroke.getKeyStroke("control T"));
 		mergeGeoset2.addActionListener(e -> ScriptActions.mergeGeosetActionRes2(mainPanel));
 		add(mergeGeoset2);
+
+		JMenuItem smoothVerts = new JMenuItem("Twilac-Style SmoothVerts");
+//		smoothVerts.setMnemonic(KeyEvent.VK_M);
+//		smoothVerts.setAccelerator(KeyStroke.getKeyStroke("control T"));
+		smoothVerts.addActionListener(e -> ScriptActions.smoothSelection());
+		add(smoothVerts);
 
 		JMenuItem nullmodelButton = new JMenuItem("Edit/delete model components");
 		nullmodelButton.setMnemonic(KeyEvent.VK_E);

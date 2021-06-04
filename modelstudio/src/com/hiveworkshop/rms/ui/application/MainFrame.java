@@ -15,12 +15,12 @@ public class MainFrame extends JFrame {
 	public static Image MAIN_PROGRAM_ICON;
 
 	public static MainFrame frame;
-	public static MainPanel panel;
+	public static MainPanel mainPanel;
 	//	public static JMenuBar menuBar;
 	public static com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar menuBar2;
 
-	public static MainPanel getPanel() {
-		return panel;
+	public static MainPanel getMainPanel() {
+		return mainPanel;
 	}
 
 	public MainFrame(final String title) {
@@ -28,10 +28,10 @@ public class MainFrame extends JFrame {
 		MAIN_PROGRAM_ICON = new ImageIcon(RMSIcons.loadProgramImage("retera.jpg")).getImage();
 
 		setBounds(0, 0, 1000, 650);
-		panel = new MainPanel();
-		setContentPane(panel);
+		mainPanel = ProgramGlobals.getMainPanel();
+		setContentPane(mainPanel);
 //		menuBar = MenuBar.createMenuBar(panel);
-		menuBar2 = new com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar(panel);
+		menuBar2 = new com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar(mainPanel);
 //		setJMenuBar(menuBar);// MainFrame.class.getResource("ImageBin/DDChicken2.png")
 		setJMenuBar(com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.getMenuBar());// MainFrame.class.getResource("ImageBin/DDChicken2.png")
 		setIconImage(MAIN_PROGRAM_ICON);
@@ -52,8 +52,8 @@ public class MainFrame extends JFrame {
 
 	public static void create(final List<String> startupModelPaths) {
 		frame = new MainFrame("Retera Model Studio " + getVersion());
-		panel.init();
-		FileDialog fileDialog = new FileDialog(panel);
+		mainPanel.init();
+		FileDialog fileDialog = new FileDialog(mainPanel);
 		if (!startupModelPaths.isEmpty()) {
 			for (final String path : startupModelPaths) {
 				fileDialog.openFile(new File(path));

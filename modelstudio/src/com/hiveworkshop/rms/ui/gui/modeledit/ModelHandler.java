@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 
@@ -16,10 +17,10 @@ public class ModelHandler {
 	private TimeEnvironmentImpl editTimeEnv;
 	private TimeEnvironmentImpl previewTimeEnv;
 
-	public ModelHandler(EditableModel model, UndoHandler undoHandler) {
+	public ModelHandler(EditableModel model) {
 		this.model = model;
-		this.undoHandler = undoHandler;
-		if (undoHandler != null) {
+		this.undoHandler = ProgramGlobals.getUndoHandler();
+		if (this.undoHandler != null) {
 			undoManager = new UndoManager(this.undoHandler);
 		}
 		editTimeEnv = new TimeEnvironmentImpl();

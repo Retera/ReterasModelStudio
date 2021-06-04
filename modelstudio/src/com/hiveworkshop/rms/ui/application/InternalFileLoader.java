@@ -111,7 +111,7 @@ public class InternalFileLoader {
 	}
 
 	public static void fetchObject(MainPanel mainPanel) {
-		MutableObjectData.MutableGameObject objectFetched = ImportFileActions.fetchObject(mainPanel);
+		MutableObjectData.MutableGameObject objectFetched = ImportFileActions.fetchObject();
 		if (objectFetched != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));
@@ -122,7 +122,7 @@ public class InternalFileLoader {
 	}
 
 	public static void fetchModel(MainPanel mainPanel) {
-		ModelOptionPane.ModelElement model = ImportFileActions.fetchModel(mainPanel);
+		ModelOptionPane.ModelElement model = ImportFileActions.fetchModel();
 		if (model != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(model.getFilepath());
@@ -133,7 +133,7 @@ public class InternalFileLoader {
 	}
 
 	public static void fetchUnit(MainPanel mainPanel) {
-		GameObject unitFetched = ImportFileActions.fetchUnit(mainPanel);
+		GameObject unitFetched = ImportFileActions.fetchUnit();
 		if (unitFetched != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(unitFetched.getField("file"));

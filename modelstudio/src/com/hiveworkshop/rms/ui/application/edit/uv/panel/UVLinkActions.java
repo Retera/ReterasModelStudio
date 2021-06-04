@@ -32,8 +32,8 @@ public class UVLinkActions {
 	public UVLinkActions(UVPanel uvPanel, MainPanel mainPanel) {
 		this.uvPanel = uvPanel;
 		this.modelPanel = ProgramGlobals.getCurrentModelPanel();
-		undoAction = mainPanel.getUndoHandler().getUndoAction();
-		redoAction = mainPanel.getUndoHandler().getRedoAction();
+		undoAction = ProgramGlobals.getUndoHandler().getUndoAction();
+		redoAction = ProgramGlobals.getUndoHandler().getRedoAction();
 
 	}
 

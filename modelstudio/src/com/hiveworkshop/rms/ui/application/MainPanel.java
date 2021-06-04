@@ -9,10 +9,8 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorChangeA
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.CreatorModelingPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.listener.ClonedNodeNamePicker;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType2;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
@@ -32,10 +30,8 @@ import java.awt.*;
 import java.util.Enumeration;
 
 public class MainPanel extends JPanel implements ModelEditorChangeActivityListener {
-    UndoHandler undoHandler;
     MainPanelLinkActions mainPanelLinkActions;
 
-//    ModelPanel currentModelPanel;
     public final View timeSliderView;
     public final View previewView;
     public final View creatorView;
@@ -55,7 +51,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     final RootWindow rootWindow;
 
     public ModelEditorActionType2 actionType;
-    //    JMenu teamColorMenu;
     JButton snapButton;
     ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeGroup;
     ToolbarButtonGroup2<SelectionMode> selectionModeGroup;
@@ -64,7 +59,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     public View toolView;
     public View modelDataView;
     View modelComponentView;
-    ModelEditorActionType3 currentActivity;
 
     TimeSliderPanel timeSliderPanel;
 
@@ -72,11 +66,8 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
     final ViewportListener viewportListener = new ViewportListener();
 
-    ClonedNodeNamePicker namePicker = new ClonedNodeNamePicker(this);
-
     public MainPanel() {
         super();
-        undoHandler = new UndoHandler(this);
         setLayout(new MigLayout("fill, ins 0, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
         add(ToolBar.createJToolBar(this));
 
@@ -85,7 +76,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
         TimeSliderView.createMouseCoordDisp(mouseCoordDisplay);
 
-        modelStructureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener(this);
+        modelStructureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener();
         animatedRenderEnvironment = new TimeEnvironmentImpl(0, 1);
 
         TimeSliderView.createTimeSliderPanel(this);
@@ -118,10 +109,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
         timeSliderView = TimeSliderView.createTimeSliderView(timeSliderPanel);
 
-        creatorPanel = new CreatorModelingPanel(newType -> {
-            actionTypeGroup.setActiveButton(newType);
-            changeActivity(newType);
-        }, actionTypeGroup, viewportListener);
+        creatorPanel = new CreatorModelingPanel(this::changeActivity, actionTypeGroup, viewportListener);
 
         creatorView = new View("Modeling", null, creatorPanel);
 
@@ -238,10 +226,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         return t;
     }
 
-    public UndoHandler getUndoHandler() {
-        return undoHandler;
-    }
-
     public CreatorModelingPanel getCreatorPanel() {
         return creatorPanel;
     }
@@ -289,11 +273,10 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
     @Override
     public void changeActivity(ModelEditorActionType3 newType) {
-//        currentActivity = newType;
+        actionTypeGroup.setActiveButton(newType);
         for (ModelPanel modelPanel : ProgramGlobals.getModelPanels()) {
             modelPanel.changeActivity(newType);
         }
-//        creatorPanel.changeActivity(newType);
     }
 
     public void init() {
@@ -308,9 +291,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         return mainPanelLinkActions;
     }
 
-    public static void repaintSelfAndChildren(MainPanel mainPanel) {
-        mainPanel.repaint();
-//        mainPanel.mEditingTP.repaint();
-//        mainPanel.compBrowserTP.repaint();
+    public void repaintSelfAndChildren() {
+        repaint();
     }
 }

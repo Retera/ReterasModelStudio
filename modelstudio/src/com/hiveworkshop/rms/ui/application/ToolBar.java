@@ -33,8 +33,8 @@ public class ToolBar {
         toolbar.addSeparator();
 
 
-        addToolbarIcon(toolbar, "Undo", "undo.png", mainPanel.getUndoHandler().getUndoAction());
-        addToolbarIcon(toolbar, "Redo", "redo.png", mainPanel.getUndoHandler().getRedoAction());
+        addToolbarIcon(toolbar, "Undo", "undo.png", ProgramGlobals.getUndoHandler().getUndoAction());
+        addToolbarIcon(toolbar, "Redo", "redo.png", ProgramGlobals.getUndoHandler().getRedoAction());
 
         toolbar.addSeparator();
         mainPanel.selectionModeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionMode.values());
@@ -57,8 +57,6 @@ public class ToolBar {
 //                        new ToolbarActionButtonType("extrude", "extrude.png", "Select and Extrude", mainPanel),
 //                        new ToolbarActionButtonType("extend", "extend.png", "Select and Extend", mainPanel),
 //                });
-
-//        mainPanel.currentActivity = mainPanel.actionTypeGroup.getActiveButtonType();
 
 	    toolbar.addSeparator();
 

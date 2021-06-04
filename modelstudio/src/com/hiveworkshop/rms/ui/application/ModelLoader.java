@@ -86,7 +86,7 @@ public class ModelLoader {
 
 	public static ModelPanel newTempModelPanel(MainPanel mainPanel, ImageIcon icon, EditableModel model) {
 		ModelPanel temp;
-		ModelHandler modelHandler = new ModelHandler(model, mainPanel.getUndoHandler());
+		ModelHandler modelHandler = new ModelHandler(model);
 		temp = new ModelPanel(mainPanel, modelHandler, ProgramGlobals.getPrefs(),
 				mainPanel.selectionItemTypeGroup,
 				mainPanel.selectionModeGroup,

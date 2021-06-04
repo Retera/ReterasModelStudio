@@ -225,7 +225,7 @@ public class MenuBarActions {
 				mdl.setExtents(new ExtLog(128).setDefault());
 			}
 
-			ModelHandler modelHandler = new ModelHandler(mdl, mainPanel.getUndoHandler());
+			ModelHandler modelHandler = new ModelHandler(mdl);
 			ModelPanel temp = new ModelPanel(mainPanel, modelHandler, ProgramGlobals.getPrefs(),
 					mainPanel.selectionItemTypeGroup, mainPanel.selectionModeGroup,
 					mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,

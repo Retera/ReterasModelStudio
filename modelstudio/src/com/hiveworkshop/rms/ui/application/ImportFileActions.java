@@ -15,36 +15,33 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ImportFileActions {
-    public static void importFile(MainPanel mainPanel, final File f){
-        final EditableModel currentModel = mainPanel.currentMDL();
-        if (currentModel != null) {
-            try {
-                importFile(mainPanel, MdxUtils.loadEditable(f));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    public static void importFile(final File f) {
+        try {
+            importFile(MdxUtils.loadEditable(f));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public static void importFile(final MainPanel mainPanel, final EditableModel model) {
-        final EditableModel currentModel = mainPanel.currentMDL();
-        if (currentModel != null) {
-	        ImportPanel importPanel = new ImportPanel(currentModel, model);
-	        importPanel.setCallback(new ModelStructureChangeListener(mainPanel, new ModelStructureChangeListener.ModelReference() {
-		        private final EditableModel model = mainPanel.currentMDL();
-
-		        @Override
-		        public EditableModel getModel() {
-			        return model;
-		        }
-	        }));
+    public static void importFile(final EditableModel model) {
+        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+        if (modelPanel != null && modelPanel.getModel() != null) {
+            ImportPanel importPanel = new ImportPanel(modelPanel.getModel(), model);
+            importPanel.setCallback(new ModelStructureChangeListener());
+//	        importPanel.setCallback(new ModelStructureChangeListener(new ModelStructureChangeListener.ModelReference() {
+//		        private final EditableModel model = mainPanel.currentMDL();
+//
+//		        @Override
+//		        public EditableModel getModel() {
+//			        return model;
+//		        }
+//	        }));
 
         }
     }
@@ -60,22 +57,22 @@ public class ImportFileActions {
 
         final EditableModel model = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
         if (model != null) {
-            importFile(mainPanel, model);
+            importFile(model);
         }
         repaintModelTrees();
     }
 
-    public static void importFromWorkspaceActionRes(MainPanel mainPanel) {
+    public static void importFromWorkspaceActionRes() {
         final List<EditableModel> optionNames = new ArrayList<>();
         for (final ModelPanel modelPanel : ProgramGlobals.getModelPanels()) {
             final EditableModel model = modelPanel.getModel();
             optionNames.add(model);
         }
-        final EditableModel choice = (EditableModel) JOptionPane.showInputDialog(mainPanel,
+        final EditableModel choice = (EditableModel) JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
                 "Choose a workspace item to import data from:", "Import from Workspace",
                 JOptionPane.OK_CANCEL_OPTION, null, optionNames.toArray(), optionNames.get(0));
         if (choice != null) {
-            importFile(mainPanel, TempStuffFromEditableModel.deepClone(choice, choice.getHeaderName()));
+            importFile(TempStuffFromEditableModel.deepClone(choice, choice.getHeaderName()));
         }
         repaintModelTrees();
     }
@@ -89,21 +86,19 @@ public class ImportFileActions {
         return filepath;
     }
 
-    static void importMdxObject(MainPanel mainPanel, String path) {
+    static void importMdxObject(String path) {
         final String filepath = convertPathToMDX(path);
-        final EditableModel current = mainPanel.currentMDL();
         if (filepath != null) {
             final File animationSource = GameDataFileSystem.getDefault().getFile(filepath);
-            importFile(mainPanel, animationSource);
+            importFile(animationSource);
         }
         repaintModelTrees();
     }
 
-    public static MutableObjectData.MutableGameObject fetchObject(Component parent) {
+    public static MutableObjectData.MutableGameObject fetchObject() {
         final BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(MainLayoutCreator.getUnitData(),
                 MainLayoutCreator.getUnitEditorSettings());
-        final int x = JOptionPane.showConfirmDialog(parent, selector,
-                "Object Editor - Select Unit",
+        int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), selector, "Object Editor - Select Unit",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         final MutableObjectData.MutableGameObject choice = selector.getSelection();
         if ((choice == null) || (x != JOptionPane.OK_OPTION)) {
@@ -116,17 +111,17 @@ public class ImportFileActions {
         return null;
     }
 
-    public static void importGameObjectActionRes(MainPanel mainPanel) {
-        final MutableObjectData.MutableGameObject fetchObjectResult = fetchObject(mainPanel);
+    public static void importGameObjectActionRes() {
+        final MutableObjectData.MutableGameObject fetchObjectResult = fetchObject();
         if (fetchObjectResult != null) {
             String path = fetchObjectResult.getFieldAsString(UnitFields.MODEL_FILE, 0);
 
-            importMdxObject(mainPanel, path);
+            importMdxObject(path);
         }
     }
 
-    public static ModelOptionPane.ModelElement fetchModel(Component parent) {
-        final ModelOptionPane.ModelElement model = ModelOptionPane.showAndLogIcon(parent);
+    public static ModelOptionPane.ModelElement fetchModel() {
+        final ModelOptionPane.ModelElement model = ModelOptionPane.showAndLogIcon(ProgramGlobals.getMainPanel());
         if (model == null) {
             return null;
         }
@@ -135,16 +130,16 @@ public class ImportFileActions {
         return null;
     }
 
-    public static void importGameModelActionRes(MainPanel mainPanel) {
-        final ModelOptionPane.ModelElement fetchModelResult = fetchModel(mainPanel);
+    public static void importGameModelActionRes() {
+        final ModelOptionPane.ModelElement fetchModelResult = fetchModel();
         if (fetchModelResult != null) {
             String path = fetchModelResult.getFilepath();
-            importMdxObject(mainPanel, path);
+            importMdxObject(path);
         }
     }
 
-    public static GameObject fetchUnit(MainPanel mainPanel) {
-        final GameObject choice = UnitOptionPane.show(mainPanel);
+    public static GameObject fetchUnit() {
+        final GameObject choice = UnitOptionPane.show(ProgramGlobals.getMainPanel());
 
         if (choice != null) {
             String filepath = choice.getField("file");
@@ -168,11 +163,11 @@ public class ImportFileActions {
         return true;
     }
 
-    public static void importUnitActionRes(MainPanel mainPanel) {
-        final GameObject fetchUnitResult = fetchUnit(mainPanel);
+    public static void importUnitActionRes() {
+        final GameObject fetchUnitResult = fetchUnit();
         if (fetchUnitResult != null) {
             String path = fetchUnitResult.getField("file");
-            importMdxObject(mainPanel, path);
+            importMdxObject(path);
         }
     }
 }

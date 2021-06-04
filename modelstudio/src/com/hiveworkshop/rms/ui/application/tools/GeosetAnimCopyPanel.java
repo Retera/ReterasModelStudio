@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import net.miginfocom.swing.MigLayout;
@@ -88,7 +89,7 @@ public class GeosetAnimCopyPanel extends JPanel {
 
 	private static void fetchAndAddSingleAnimation(MainPanel mainPanel, String path) {
 		final String filepath = ImportFileActions.convertPathToMDX(path);
-		final EditableModel current = mainPanel.currentMDL();
+		final EditableModel current = ProgramGlobals.getCurrentModelPanel().getModel();
 		if (filepath != null) {
 			final EditableModel animationSource;
 //			try {

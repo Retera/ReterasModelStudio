@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 
@@ -12,14 +13,26 @@ public class ProgramGlobals {
 	private static ProgramPreferences prefs;
 	private static List<ModelPanel> modelPanels;
 	private static ModelPanel currentModelPanel;
+	private static MainPanel mainPanel;
+	private static UndoHandler undoHandler;
 
 	static {
 		profile = SaveProfile.get();
 		prefs = profile.getPreferences();
 		modelPanels = new ArrayList<>();
+		mainPanel = new MainPanel();
+		undoHandler = new UndoHandler();
 	}
 
-	public static ModelPanel getCurrentModelPanel(){
+	public static MainPanel getMainPanel() {
+		return mainPanel;
+	}
+
+	public static UndoHandler getUndoHandler() {
+		return undoHandler;
+	}
+
+	public static ModelPanel getCurrentModelPanel() {
 		return currentModelPanel;
 	}
 

@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
@@ -14,7 +15,10 @@ public class ExportTextureDialog {
 
     //ToDo figure out why these throw errors sometimes (might have to do with non-existing texture files)
     public static void exportMaterialAsTextures(MainPanel mainPanel) {
-        exportMaterialAsTextures(mainPanel, mainPanel.currentMDL());
+        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+        if (modelPanel != null && modelPanel.getModel() != null) {
+            exportMaterialAsTextures(mainPanel, modelPanel.getModel());
+        }
     }
 
     static void exportMaterialAsTextures(JComponent mainPanel, EditableModel model) {
@@ -58,7 +62,10 @@ public class ExportTextureDialog {
     }
 
     public static void exportTextures(MainPanel mainPanel) {
-        exportTextures(mainPanel, mainPanel.currentMDL());
+        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+        if (modelPanel != null && modelPanel.getModel() != null) {
+            exportTextures(mainPanel, modelPanel.getModel());
+        }
     }
 
     static void exportTextures(JComponent mainPanel, EditableModel model) {

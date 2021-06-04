@@ -19,9 +19,9 @@ public class EditMenu extends JMenu {
 //		setToolTipText("Allows the user to use various tools to edit the currently selected model.");
 		getAccessibleContext().setAccessibleDescription("Allows the user to use various tools to edit the currently selected model.");
 		setMnemonic(KeyEvent.VK_E);
-		add(mainPanel.getUndoHandler().getUndo());
+		add(ProgramGlobals.getUndoHandler().getUndo());
 
-		add(mainPanel.getUndoHandler().getRedo());
+		add(ProgramGlobals.getUndoHandler().getRedo());
 
 
 		add(new JSeparator());

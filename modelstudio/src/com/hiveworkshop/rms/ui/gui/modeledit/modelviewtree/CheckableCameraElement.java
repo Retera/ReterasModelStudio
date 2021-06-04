@@ -12,7 +12,7 @@ public class CheckableCameraElement extends CheckableDisplayElement<Camera> {
 	@Override
 	protected void setChecked(Camera item, ModelView modelViewManager, boolean checked) {
 		if (checked) {
-			modelViewManager.makeCameraVisible(item);
+			modelViewManager.makeCameraEditable(item);
 		} else {
 			modelViewManager.makeCameraNotVisible(item);
 		}

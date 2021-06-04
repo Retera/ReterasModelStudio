@@ -65,16 +65,16 @@ public class ViewportTransferHandler extends TransferHandler {
 	}
 
 	private void pasteModelIntoViewport(EditableModel pastedModel, Viewport viewport, Point dropPoint, ModelStructureChangeListener modelStructureChangeListener) {
-		ModelHandler modelHandler = new ModelHandler(pastedModel, null);
+		ModelHandler modelHandler = new ModelHandler(pastedModel);
 		ModelView pastedModelView = modelHandler.getModelView();
 		pastedModelView.setIdObjectsVisible(true);
 		pastedModelView.setCamerasVisible(true);
 		List<IdObject> idObjects = pastedModel.getIdObjects();
 		for (IdObject object : idObjects) {
-			pastedModelView.makeIdObjectVisible(object);
+			pastedModelView.makeIdObjectEditable(object);
 		}
 		for (Camera object : pastedModel.getCameras()) {
-			pastedModelView.makeCameraVisible(object);
+			pastedModelView.makeCameraEditable(object);
 		}
 		// ToDo needs access to modelView...
 		final AbstractModelEditor listener = new AbstractModelEditor(new SelectionManager(pastedModelView, SelectionItemTypes.VERTEX), viewport.getModelStructureChangeListener(), modelHandler, SelectionItemTypes.VERTEX);

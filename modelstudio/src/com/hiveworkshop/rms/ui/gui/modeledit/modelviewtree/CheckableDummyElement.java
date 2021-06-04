@@ -37,7 +37,7 @@ public class CheckableDummyElement extends CheckableDisplayElement<String> {
 		for (IdObject idObject : tempIdObjectList) {
 			if (checked) {
 				System.out.println("object visible: " + idObject.getName());
-				modelViewManager.makeIdObjectVisible(idObject);
+				modelViewManager.makeIdObjectEditable(idObject);
 			} else {
 				modelViewManager.makeIdObjectNotVisible(idObject);
 			}

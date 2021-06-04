@@ -145,7 +145,7 @@ public class AddBirthDeathSequences {
     // most of the code below are modified versions of code from AnimatedNode and NodeAnimationModelEditor
     public static void createKeyframes(MainPanel mainPanel, EditableModel model, int trackTime1, int trackTime2, Vec3 startVec, Vec3 endVec) {
 	    RenderModel renderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
-	    ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener(mainPanel);
+	    ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener();
 
 	    ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
 

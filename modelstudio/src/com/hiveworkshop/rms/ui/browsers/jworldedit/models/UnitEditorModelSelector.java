@@ -45,11 +45,11 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 	JLabel debugLabel = new JLabel("debug");
 
 	EditableModel mdl = new EditableModel();
-	ModelHandler modelHandler = new ModelHandler(mdl, null);
+	ModelHandler modelHandler = new ModelHandler(mdl);
 	// MDL mdl;
 //	ModelView modelDisp = new ModelView(mdl);
 	PerspDisplayPanel modelPanel;
-//	DefaultTableModel tableModel;
+	//	DefaultTableModel tableModel;
 	DefaultMutableTreeNode defaultSelection = null;
 
 	public UnitEditorModelSelector() {
@@ -143,7 +143,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 
 			try (InputStream reader = GameDataFileSystem.getDefault().getResourceAsStream(filepath)) {
 				mdl = TempOpenModelStuff.createEditableModel(MdxUtils.loadMdlx(reader));
-				modelHandler = new ModelHandler(mdl, null);
+				modelHandler = new ModelHandler(mdl);
 //				modelDisp = new ModelView(mdl);
 				modelPanel.setViewport(modelHandler);
 				modelPanel.setTitle(currentUnit.getName());

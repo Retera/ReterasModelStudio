@@ -87,7 +87,7 @@ public class KeyframeCopyPanel extends JPanel {
 
 	private static void fetchAndAddSingleAnimation(MainPanel mainPanel, String path) {
 		final String filepath = ImportFileActions.convertPathToMDX(path);
-		final EditableModel current = mainPanel.currentMDL();
+		final EditableModel current = ProgramGlobals.getCurrentModelPanel().getModel();
 		if (filepath != null) {
 			final EditableModel animationSource;
 //			try {

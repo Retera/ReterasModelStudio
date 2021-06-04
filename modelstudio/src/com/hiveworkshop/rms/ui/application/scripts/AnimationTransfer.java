@@ -3,9 +3,9 @@ package com.hiveworkshop.rms.ui.application.scripts;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.ui.application.MainFrame;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
@@ -39,10 +39,9 @@ public class AnimationTransfer extends JPanel {
 
 	public AnimationTransfer() {
 		setLayout(new MigLayout("gap 0"));
-		final MainPanel panel = MainFrame.getPanel();
-		final EditableModel current;// ;
-		if (panel != null && (current = panel.currentMDL()) != null && current.getFile() != null) {
-			fc.setCurrentDirectory(current.getFile().getParentFile());
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null && modelPanel.getModel() != null && modelPanel.getModel().getFile() != null) {
+			fc.setCurrentDirectory(modelPanel.getModel().getFile().getParentFile());
 		} else if (SaveProfile.get().getPath() != null) {
 			fc.setCurrentDirectory(new File(SaveProfile.get().getPath()));
 		}

@@ -9,6 +9,10 @@ public class HashableVector {
 		z = vertex.z;
 	}
 
+	public float[] getValues() {
+		return new float[] {x, y, z};
+	}
+
 	@Override
 	public int hashCode() {
 		int prime = 31;
