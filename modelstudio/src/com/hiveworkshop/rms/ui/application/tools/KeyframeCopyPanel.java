@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.util.FramePopup;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -72,16 +73,10 @@ public class KeyframeCopyPanel extends JPanel {
 	public static void show(MainPanel mainPanel) {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			final KeyframeCopyPanel textureManager = new KeyframeCopyPanel(modelPanel.getModelView(),
+			final KeyframeCopyPanel copyPanel = new KeyframeCopyPanel(modelPanel.getModelView(),
 					mainPanel.getModelStructureChangeListener());
-			final JFrame frame = new JFrame("Copy Keyframes");
-//			textureManager.setSize(new Dimension(600, 450));
-			frame.setContentPane(textureManager);
-			frame.pack();
-//			frame.setSize(textureManager.getSize());
-			frame.setLocationRelativeTo(null);
-			frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-			frame.setVisible(true);
+////			copyPanel.setSize(new Dimension(600, 450));
+			FramePopup.show(copyPanel, mainPanel, "Copy Keyframes");
 		}
 	}
 

@@ -8,8 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class CurveRenderer extends JPanel {
-	private final Entry itd = new Entry(0, 0.0, 0.0, 0.0);
-	private final Entry its = new Entry(0, 0.0, 0.0, 0.0);
+	private final Entry entryD = new Entry(0, 0.0, 0.0, 0.0);
+	private final Entry entryS = new Entry(0, 0.0, 0.0, 0.0);
 	private TTan der;
 	private AnimFlag timeline;
 
@@ -41,18 +41,18 @@ public class CurveRenderer extends JPanel {
 		InterpolationType interpType = timeline.getInterpolationType();
 
 		for (int i = 0; i <= 100; i += 2) {
-			itd.set(der.tang);
-			TTan.setObjToNewValue(itd.value, 0, 100);
-			itd.time = 100;
+			entryD.set(der.tang);
+			TTan.setObjToNewValue(entryD.value, 0, 100);
+			entryD.time = 100;
 
-			its.time = 0;
-			TTan.setObjToNewValue(its.value, 0, 0);
-			TTan.setObjToNewValue(its.inTan, 0, 0);
-			TTan.setObjToNewValue(its.outTan, 0, 0);
+			entryS.time = 0;
+			TTan.setObjToNewValue(entryS.value, 0, 0);
+			TTan.setObjToNewValue(entryS.inTan, 0, 0);
+			TTan.setObjToNewValue(entryS.outTan, 0, 0);
 
 			TTan_doStuff(i, interpType);
 			float newRenderX = Math.round(pixPerUnitX * i);
-			float newRenderY = rect.height - Math.round(pixPerUnitY * TTan.getSubValue(itd.value, 0).floatValue());
+			float newRenderY = rect.height - Math.round(pixPerUnitY * TTan.getSubValue(entryD.value, 0).floatValue());
 			g.drawLine((int) renderX, (int) renderY, (int) newRenderX, (int) newRenderY);
 			renderX = newRenderX;
 			renderY = newRenderY;
@@ -61,18 +61,18 @@ public class CurveRenderer extends JPanel {
 		// Second half of the Curve (Spline?)
 
 		for (int i = 100; i <= 101; i += 2) {
-			TTan.setObjToNewValue(itd.value, 0, 0);
-			itd.time = 200;
-			TTan.setObjToNewValue(itd.inTan, 0, 0);
-			TTan.setObjToNewValue(itd.outTan, 0, 0);
+			TTan.setObjToNewValue(entryD.value, 0, 0);
+			entryD.time = 200;
+			TTan.setObjToNewValue(entryD.inTan, 0, 0);
+			TTan.setObjToNewValue(entryD.outTan, 0, 0);
 
-			its.set(der.tang);
-			its.time = 100;
-			TTan.setObjToNewValue(its.value, 0, 100);
+			entryS.set(der.tang);
+			entryS.time = 100;
+			TTan.setObjToNewValue(entryS.value, 0, 100);
 
 			TTan_doStuff(i, interpType);
 			float newRenderX = Math.round(pixPerUnitX * i);
-			float newRenderY = rect.height - Math.round(pixPerUnitY * TTan.getSubValue(itd.value, 0).floatValue());
+			float newRenderY = rect.height - Math.round(pixPerUnitY * TTan.getSubValue(entryD.value, 0).floatValue());
 			g.drawLine((int) renderX, (int) renderY, (int) newRenderX, (int) newRenderY);
 			renderX = newRenderX;
 			renderY = newRenderY;
@@ -85,8 +85,8 @@ public class CurveRenderer extends JPanel {
 
 	private void TTan_doStuff(int i, InterpolationType interpType) {
 		switch (interpType) {
-			case HERMITE -> TTan.spline(i, its, itd);
-			case BEZIER -> TTan.bezInterp(i, its, itd);
+			case HERMITE -> TTan.spline(i, entryS, entryD);
+			case BEZIER -> TTan.bezInterp(i, entryS, entryD);
 		}
 	}
 }

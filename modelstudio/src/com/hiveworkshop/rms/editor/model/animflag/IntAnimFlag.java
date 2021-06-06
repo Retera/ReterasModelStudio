@@ -73,12 +73,19 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 	}
 
 	@Override
-	protected Integer getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
-		Integer floorValue = entryMap.get(floorTime).getValue();
-		Integer floorOutTan = entryMap.get(floorTime).getOutTan();
+	public Integer getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
+		Entry<Integer> entryFloor = entryMap.get(floorTime);
+		Entry<Integer> entryCeil = entryMap.get(ceilTime);
+		return getInterpolatedValue(entryFloor, entryCeil, 1);
+	}
 
-		Integer ceilValue = entryMap.get(ceilTime).getValue();
-		Integer ceilInTan = entryMap.get(ceilTime).getInTan();
+	@Override
+	public Integer getInterpolatedValue(Entry<Integer> entryFloor, Entry<Integer> entryCeil, float timeFactor) {
+		Integer floorValue = entryFloor.getValue();
+		Integer floorOutTan = entryFloor.getOutTan();
+
+		Integer ceilValue = entryCeil.getValue();
+		Integer ceilInTan = entryCeil.getInTan();
 
 		switch (typeid) {
 //			case TRANSLATION, SCALING, COLOR -> {
@@ -94,6 +101,7 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 		}
 		throw new IllegalStateException();
 	}
+
 	@Override
 	public void setInterpType(final InterpolationType interpolationType) {
 		this.interpolationType = InterpolationType.DONT_INTERP;

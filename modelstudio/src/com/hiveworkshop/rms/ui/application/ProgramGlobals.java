@@ -20,8 +20,8 @@ public class ProgramGlobals {
 		profile = SaveProfile.get();
 		prefs = profile.getPreferences();
 		modelPanels = new ArrayList<>();
-		mainPanel = new MainPanel();
 		undoHandler = new UndoHandler();
+		mainPanel = new MainPanel();
 	}
 
 	public static MainPanel getMainPanel() {

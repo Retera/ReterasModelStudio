@@ -113,12 +113,20 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		return (Vec3) identity(typeid);
 	}
 
-	protected Vec3 getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
-		Vec3 floorValue = entryMap.get(floorTime).getValue();
-		Vec3 floorOutTan = entryMap.get(floorTime).getOutTan();
+	public Vec3 getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
+		Entry<Vec3> entryFloor = entryMap.get(floorTime);
+		Entry<Vec3> entryCeil = entryMap.get(ceilTime);
 
-		Vec3 ceilValue = entryMap.get(ceilTime).getValue();
-		Vec3 ceilInTan = entryMap.get(ceilTime).getInTan();
+		return getInterpolatedValue(entryFloor, entryCeil, timeFactor);
+	}
+
+	@Override
+	public Vec3 getInterpolatedValue(Entry<Vec3> entryFloor, Entry<Vec3> entryCeil, float timeFactor) {
+		Vec3 floorValue = entryFloor.getValue();
+		Vec3 floorOutTan = entryFloor.getOutTan();
+
+		Vec3 ceilValue = entryCeil.getValue();
+		Vec3 ceilInTan = entryCeil.getInTan();
 
 		switch (typeid) {
 			case TRANSLATION, SCALING, COLOR -> {

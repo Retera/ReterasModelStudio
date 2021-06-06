@@ -78,12 +78,19 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 	}
 
 	@Override
-	protected Float getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
-		Float floorValue = entryMap.get(floorTime).getValue();
-		Float floorOutTan = entryMap.get(floorTime).getOutTan();
+	public Float getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
+		Entry<Float> entryFloor = entryMap.get(floorTime);
+		Entry<Float> entryCeil = entryMap.get(ceilTime);
+		return getInterpolatedValue(entryFloor, entryCeil, timeFactor);
+	}
 
-		Float ceilValue = entryMap.get(ceilTime).getValue();
-		Float ceilInTan = entryMap.get(ceilTime).getInTan();
+	@Override
+	public Float getInterpolatedValue(Entry<Float> entryFloor, Entry<Float> entryCeil, float timeFactor) {
+		Float floorValue = entryFloor.getValue();
+		Float floorOutTan = entryFloor.getOutTan();
+
+		Float ceilValue = entryCeil.getValue();
+		Float ceilInTan = entryCeil.getInTan();
 
 		if (typeid == ALPHA) {
 			return switch (interpolationType) {

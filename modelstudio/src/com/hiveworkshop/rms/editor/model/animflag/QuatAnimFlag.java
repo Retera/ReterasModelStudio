@@ -114,12 +114,20 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 	}
 
 	@Override
-	protected Quat getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
-		Quat floorValue = entryMap.get(floorTime).getValue();
-		Quat floorOutTan = entryMap.get(floorTime).getOutTan();
+	public Quat getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
+		Entry<Quat> entryFloor = entryMap.get(floorTime);
+		Entry<Quat> entryCeil = entryMap.get(ceilTime);
 
-		Quat ceilValue = entryMap.get(ceilTime).getValue();
-		Quat ceilInTan = entryMap.get(ceilTime).getInTan();
+		return getInterpolatedValue(entryFloor, entryCeil, timeFactor);
+	}
+
+	@Override
+	public Quat getInterpolatedValue(Entry<Quat> entryFloor, Entry<Quat> entryCeil, float timeFactor) {
+		Quat floorValue = entryFloor.getValue();
+		Quat floorOutTan = entryFloor.getOutTan();
+
+		Quat ceilValue = entryCeil.getValue();
+		Quat ceilInTan = entryCeil.getInTan();
 
 //		System.out.println(typeid);
 		if (typeid == ROTATION) {

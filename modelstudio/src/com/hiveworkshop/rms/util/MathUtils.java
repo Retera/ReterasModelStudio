@@ -11,6 +11,12 @@ public class MathUtils {
 		return (min < value) && (value < max);
 	}
 
+	public static boolean isBetween2(double endPoint1, double endPoint2, double value) {
+		double min = Math.min(endPoint1, endPoint2);
+		double max = Math.max(endPoint1, endPoint2);
+		return (min <= value) && (value <= max);
+	}
+
 	public static float lerp(float value1, float value2, float t) {
 		return value1 + (t * (value2 - value1));
 	}

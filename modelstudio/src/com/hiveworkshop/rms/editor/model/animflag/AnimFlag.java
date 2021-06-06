@@ -583,7 +583,9 @@ public abstract class AnimFlag<T> {
 		return getInterpolatedValue(floorTime, ceilTime, timeFactor);
 	}
 
-	protected abstract T getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor);
+	public abstract T getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor);
+
+	public abstract T getInterpolatedValue(Entry<T> entryFloor, Entry<T> entryCeil, float timeFactor);
 
 	protected abstract T getIdentity(int typeId);
 

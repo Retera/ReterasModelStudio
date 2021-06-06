@@ -11,10 +11,10 @@ import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.util.FramePopup;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,16 +75,9 @@ public class GeosetAnimCopyPanel extends JPanel {
 		add(copyButton, "spanx, align center, wrap");
 	}
 
-	public static void show(Component parent, ModelView modelView, GeosetAnim geosetAnim, ModelStructureChangeListener listener, UndoManager undoManager) {
+	public static void show(JComponent parent, ModelView modelView, GeosetAnim geosetAnim, ModelStructureChangeListener listener, UndoManager undoManager) {
 		final GeosetAnimCopyPanel textureManager = new GeosetAnimCopyPanel(modelView, geosetAnim, listener, undoManager);
-		final JFrame frame = new JFrame(geosetAnim.getName());
-//			textureManager.setSize(new Dimension(600, 450));
-		frame.setContentPane(textureManager);
-		frame.pack();
-//			frame.setSize(textureManager.getSize());
-		frame.setLocationRelativeTo(parent);
-		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		frame.setVisible(true);
+		FramePopup.show(textureManager, parent, geosetAnim.getName());
 	}
 
 	private static void fetchAndAddSingleAnimation(MainPanel mainPanel, String path) {

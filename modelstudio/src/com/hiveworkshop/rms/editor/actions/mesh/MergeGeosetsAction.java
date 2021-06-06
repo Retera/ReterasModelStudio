@@ -38,11 +38,15 @@ public class MergeGeosetsAction implements UndoAction {
 		}
 		recGeoset.remove(donVerts);
 		recGeoset.removeTriangles(donTris);
+
 		modelView.getModel().add(donGeoset);
+
 		if (donGeoset.getGeosetAnim() != null) {
 			modelView.getModel().add(donGeoset.getGeosetAnim());
 		}
-		changeListener.geosetsUpdated();
+		if (changeListener != null) {
+			changeListener.geosetsUpdated();
+		}
 		return this;
 	}
 
@@ -58,10 +62,13 @@ public class MergeGeosetsAction implements UndoAction {
 		recGeoset.addTriangles(donTris);
 
 		modelView.getModel().remove(donGeoset);
+
 		if (donGeoset.getGeosetAnim() != null) {
 			modelView.getModel().remove(donGeoset.getGeosetAnim());
 		}
-		changeListener.geosetsUpdated();
+		if (changeListener != null) {
+			changeListener.geosetsUpdated();
+		}
 		return this;
 	}
 

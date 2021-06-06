@@ -426,7 +426,7 @@ public class Geoset implements Named, VisibilitySource {
 				matrix.add(newTemp);
 				newTemp.updateIds(mdlr);
 			}
-			vertex.vertexGroup = matrix.indexOf(newTemp);
+			vertex.setVertexGroup(matrix.indexOf(newTemp));
 			vertex.setMatrix(newTemp);
 		}
 	}
@@ -557,6 +557,20 @@ public class Geoset implements Named, VisibilitySource {
 
 	public void remove(final Triangle tri) {
 		triangles.remove(tri);
+	}
+
+	public void removeExtended(final Triangle tri) {
+		triangles.remove(tri);
+		for (GeosetVertex vertex : tri.getVerts()) {
+			vertex.removeTriangle(tri);
+		}
+	}
+
+	public void addExtended(final Triangle tri) {
+		triangles.add(tri);
+		for (GeosetVertex vertex : tri.getVerts()) {
+			vertex.addTriangle(tri);
+		}
 	}
 
 	public boolean isHD() {
