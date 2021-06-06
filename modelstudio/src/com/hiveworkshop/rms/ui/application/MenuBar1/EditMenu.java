@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.ui.application.*;
+import com.hiveworkshop.rms.ui.application.tools.SimplifyKeyframesPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
 
 import javax.swing.*;
@@ -72,7 +73,11 @@ public class EditMenu extends JMenu {
 
 		optimizeMenu.add(createMenuItem("Simplify Keyframes (Experimental)", KeyEvent.VK_K, e -> ModelEditActions.simplifyKeyframes(mainPanel)));
 
+		optimizeMenu.add(createMenuItem("Simplify Keyframes tool", KeyEvent.VK_K, e -> SimplifyKeyframesPanel.showPopup(mainPanel)));
+
 		optimizeMenu.add(createMenuItem("Minimize Geosets", KeyEvent.VK_K, e -> MenuBarActions.minimizeGeoset(mainPanel)));
+
+		optimizeMenu.add(createMenuItem("Simplify Selected Geometry", KeyEvent.VK_K, e -> ModelEditActions.simplifyGeometry()));
 
 		optimizeMenu.add(createMenuItem("Sort Nodes", KeyEvent.VK_S, e -> MenuBarActions.sortBones(mainPanel)));
 

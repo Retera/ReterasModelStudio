@@ -17,8 +17,8 @@ import java.util.*;
  * Eric Theller 3/9/2012
  */
 public class GeosetVertex extends Vec3 {
-	public int vertexGroup = -1;
-	Matrix matrixRef;
+	private int vertexGroup = -1;
+	private Matrix matrixRef;
 	List<Vec2> tverts = new ArrayList<>();
 	List<Bone> bones = new ArrayList<>();
 	Set<Triangle> triangles = new HashSet<>();
@@ -220,6 +220,11 @@ public class GeosetVertex extends Vec3 {
 
 	public GeosetVertex removeTriangle(Triangle triangle) {
 		triangles.remove(triangle);
+		return this;
+	}
+
+	public GeosetVertex removeTriangles(Collection<Triangle> triangles) {
+		this.triangles.removeAll(triangles);
 		return this;
 	}
 

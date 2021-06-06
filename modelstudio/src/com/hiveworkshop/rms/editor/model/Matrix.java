@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -10,30 +11,28 @@ import java.util.List;
  * Eric Theller 11/10/2011
  */
 public class Matrix {
-	List<Integer> m_boneIds;
-	List<Bone> bones;
+	List<Integer> m_boneIds = new ArrayList<>();
+	List<Bone> bones = new ArrayList<>();
 
 	public Matrix() {
-		m_boneIds = new ArrayList<>();
-		bones = new ArrayList<>();
 	}
 
 	public Matrix(final int id) {
-		m_boneIds = new ArrayList<>();
 		m_boneIds.add(id);
 	}
 
-	public Matrix(final List<Bone> newBones) {
-		bones = new ArrayList<>(newBones);
-		m_boneIds = new ArrayList<>();
+	public Matrix(final Collection<Bone> newBones) {
+		bones.addAll(newBones);
+	}
+
+	public Matrix(Bone newBones) {
+		bones.add(newBones);
 	}
 
 	public Matrix(final int[] boneIds) {
-		m_boneIds = new ArrayList<>();
 		for (int boneId : boneIds) {
 			m_boneIds.add(boneId);
 		}
-		bones = new ArrayList<>();
 	}
 
 	public String getName() {
@@ -96,22 +95,18 @@ public class Matrix {
 		}
 	}
 
-	public void updateBones(final EditableModel mdlr) {
-		if (bones == null) {
-			bones = new ArrayList<>();
-		} else {
-			bones.clear();
-		}
-        for (Integer m_boneId : m_boneIds) {
-	        final Bone b = mdlr.getBone(m_boneId);
-	        // if( b.getClass() == Helper.class ) { JOptionPane.showMessageDialog(null,"Error: Holy fo shizzle my grizzle! There's geometry attached to Helper "+b.getName()+" and that is very bad!"); }
-	        if (b != null) {
-		        bones.add(b);
-	        } else {
+	public void updateBones(final EditableModel model) {
+		bones.clear();
+		for (Integer m_boneId : m_boneIds) {
+			final Bone b = model.getBone(m_boneId);
+			// if( b.getClass() == Helper.class ) { JOptionPane.showMessageDialog(null,"Error: Holy fo shizzle my grizzle! There's geometry attached to Helper "+b.getName()+" and that is very bad!"); }
+			if (b != null) {
+				bones.add(b);
+			} else {
 //				JOptionPane.showMessageDialog(null, "Error: A matrix's bone id was not referencing a real bone!");
-		        System.err.println("Error: A matrix's bone id was not referencing a real bone! " + m_boneId);
-	        }
-        }
+				System.err.println("Error: A matrix's bone id was not referencing a real bone! " + m_boneId);
+			}
+		}
 	}
 
 	public void add(final Bone b) {

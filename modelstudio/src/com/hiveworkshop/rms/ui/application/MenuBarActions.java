@@ -1,5 +1,8 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.mesh.MergeGeosetsAction;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
@@ -11,6 +14,7 @@ import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
@@ -483,55 +487,42 @@ public class MenuBarActions {
 	}
 
 	public static void minimizeGeoset(MainPanel mainPanel) {
-		final int confirm = JOptionPane.showConfirmDialog(mainPanel,
-				"This is experimental and I did not code the Undo option for it yet. Continue?" +
-						"\nMy advice is to click cancel and save once first.",
-				"Confirmation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-		if (confirm != JOptionPane.OK_OPTION) {
-			return;
-		}
+//		final int confirm = JOptionPane.showConfirmDialog(mainPanel,
+//				"This is experimental and I did not code the Undo option for it yet. Continue?" +
+//						"\nMy advice is to click cancel and save once first.",
+//				"Confirmation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+//		if (confirm != JOptionPane.OK_OPTION) {
+//			return;
+//		}
 
-		TempSaveModelStuff.doSavePreps(mainPanel.currentMDL());
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		EditableModel model = modelPanel.getModel();
+//		TempSaveModelStuff.doSavePreps(model);
 
-		final Map<Geoset, Geoset> sourceToDestination = new HashMap<>();
-		final List<Geoset> retainedGeosets = new ArrayList<>();
-		for (final Geoset geoset : mainPanel.currentMDL().getGeosets()) {
-			boolean alreadyRetained = false;
-			for (final Geoset retainedGeoset : retainedGeosets) {
+		List<MergeGeosetsAction> mergeActions = new ArrayList<>();
+		Set<Geoset> geosetsToMerge = new HashSet<>();
+		Set<Geoset> geosetsToKeep = new HashSet<>();
+
+		for (Geoset geoset : model.getGeosets()) {
+			for (Geoset retainedGeoset : geosetsToKeep) {
 				if (retainedGeoset.getMaterial().equals(geoset.getMaterial())
 						&& (retainedGeoset.getSelectionGroup() == geoset.getSelectionGroup())
 						&& (retainedGeoset.getUnselectable() == geoset.getUnselectable())
 						&& isGeosetAnimationsMergable(retainedGeoset.getGeosetAnim(), geoset.getGeosetAnim())) {
-					alreadyRetained = true;
-					for (final GeosetVertex gv : geoset.getVertices()) {
-						retainedGeoset.add(gv);
-					}
-					for (final Triangle t : geoset.getTriangles()) {
-						retainedGeoset.add(t);
-					}
+
+					geosetsToMerge.add(geoset);
+					mergeActions.add(new MergeGeosetsAction(retainedGeoset, geoset, modelPanel.getModelView(), null));
 					break;
 				}
 			}
-			if (!alreadyRetained) {
-				retainedGeosets.add(geoset);
+			if (!geosetsToMerge.contains(geoset)) {
+				geosetsToKeep.add(geoset);
 			}
 		}
-		final EditableModel currentMDL = mainPanel.currentMDL();
-		final List<Geoset> geosets = currentMDL.getGeosets();
-		final List<Geoset> geosetsRemoved = new ArrayList<>();
-		final Iterator<Geoset> iterator = geosets.iterator();
-		while (iterator.hasNext()) {
-			final Geoset geoset = iterator.next();
-			if (!retainedGeosets.contains(geoset)) {
-				iterator.remove();
-				final GeosetAnim geosetAnim = geoset.getGeosetAnim();
-				if (geosetAnim != null) {
-					currentMDL.remove(geosetAnim);
-				}
-				geosetsRemoved.add(geoset);
-			}
-		}
-		mainPanel.modelStructureChangeListener.geosetsUpdated();
+
+		ModelStructureChangeListener changeListener = mainPanel.modelStructureChangeListener;
+		UndoAction undoAction = new CompoundAction("Minimize Geosets", mergeActions, changeListener::geosetsUpdated);
+		modelPanel.getUndoManager().pushAction(undoAction.redo());
 	}
 
 	private static boolean isGeosetAnimationsMergable(final GeosetAnim first, final GeosetAnim second) {

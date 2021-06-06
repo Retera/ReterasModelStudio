@@ -1,11 +1,8 @@
-package com.hiveworkshop.rms.editor.model.util;
+package com.hiveworkshop.rms.editor.model.util.ModelFactory;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.util.ModelFactory.GeosetFactory;
-import com.hiveworkshop.rms.editor.model.util.ModelFactory.IdObjectFactory;
-import com.hiveworkshop.rms.editor.model.util.ModelFactory.MaterialFactory;
-import com.hiveworkshop.rms.editor.model.util.ModelFactory.ModelInfoHolder;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.*;
 import com.hiveworkshop.rms.util.Vec3;
 

@@ -149,9 +149,20 @@ public class Triangle {
 		return true;
 	}
 
-	public boolean sameVerts(Triangle t) {
+	public boolean sameLocVerts(Triangle t) {
 		for (int i = 0; i < 3; i++) {
 			if (!contains(t.verts[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean sameVerts(Triangle t) {
+		for (int i = 0; i < 3; i++) {
+			if (!(verts[0] == t.verts[i]
+					|| verts[1] == t.verts[i]
+					|| verts[2] == t.verts[i])) {
 				return false;
 			}
 		}
