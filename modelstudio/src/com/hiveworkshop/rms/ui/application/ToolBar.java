@@ -20,9 +20,9 @@ public class ToolBar {
     public static JToolBar createJToolBar(MainPanel mainPanel) {
         JToolBar toolbar = new JToolBar(JToolBar.HORIZONTAL);
         toolbar.setFloatable(false);
-        FileDialog fileDialog = new FileDialog(mainPanel);
+        FileDialog fileDialog = new FileDialog();
 
-        addToolbarIcon(toolbar, "New", "new.png", () -> MenuBarActions.newModel(mainPanel));
+        addToolbarIcon(toolbar, "New", "new.png", () -> MenuBarActions.newModel());
 
 //        addToolbarIcon(toolbar, "Open", "open.png", () -> MenuBarActions.onClickOpen(mainPanel));
         addToolbarIcon(toolbar, "Open", "open.png", fileDialog::onClickOpen);
@@ -58,12 +58,12 @@ public class ToolBar {
 //                        new ToolbarActionButtonType("extend", "extend.png", "Select and Extend", mainPanel),
 //                });
 
-	    toolbar.addSeparator();
+        toolbar.addSeparator();
 
-	    mainPanel.snapButton = addToolbarIcon(toolbar, "Snap", "snap.png", () -> ModelEditActions.snapVertices(mainPanel));
+        mainPanel.snapButton = addToolbarIcon(toolbar, "Snap", "snap.png", () -> ModelEditActions.snapVertices());
 
-	    toolbar.setMaximumSize(new Dimension(80000, 48));
-	    return toolbar;
+        toolbar.setMaximumSize(new Dimension(80000, 48));
+        return toolbar;
     }
 
 	public static ViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler, MainPanel mainPanel, ModelEditorActionType3 action) {

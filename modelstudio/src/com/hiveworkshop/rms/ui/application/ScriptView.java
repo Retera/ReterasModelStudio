@@ -15,15 +15,15 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ScriptView {
-	public static void openScriptView(MainPanel mainPanel) {
-		View hackerView = new ScriptView().createHackerView(mainPanel);
-		FloatingWindowFactory.openNewWindow(hackerView, mainPanel.getRootWindow());
+	public static void openScriptView() {
+		View hackerView = new ScriptView().createHackerView();
+		FloatingWindowFactory.openNewWindow(hackerView, ProgramGlobals.getMainPanel().getRootWindow());
 //		FloatingWindowFactory.openNewWindow("Matrix Eater Script", new ScriptView().createHackerPanel(mainPanel), mainPanel.getRootWindow());
 //		OpenViewAction openViewAction = OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Matrix Eater Script", hackerView);
 
 	}
 
-	public View createHackerView(final MainPanel mainPanel) {
+	public View createHackerView() {
 		View hackerView;
 		JPanel hackerPanel = new JPanel(new BorderLayout());
 
@@ -38,7 +38,7 @@ public class ScriptView {
 
 		JButton runScriptButton = new JButton("Run", icon);
 		ScriptEngineManager factory = new ScriptEngineManager();
-		runScriptButton.addActionListener(e -> runScript(factory, scriptTextArea, mainPanel));
+		runScriptButton.addActionListener(e -> runScript(factory, scriptTextArea));
 		hackerPanel.add(runScriptButton, BorderLayout.NORTH);
 
 		hackerView = new View("Matrix Eater Script", null, hackerPanel);
@@ -46,7 +46,7 @@ public class ScriptView {
 	}
 
 
-	public JPanel createHackerPanel(final MainPanel mainPanel) {
+	public JPanel createHackerPanel() {
 		JPanel hackerPanel = new JPanel(new BorderLayout());
 
 		RSyntaxTextArea scriptTextArea = new RSyntaxTextArea(20, 60);
@@ -60,15 +60,16 @@ public class ScriptView {
 
 		JButton runScriptButton = new JButton("Run", icon);
 		ScriptEngineManager factory = new ScriptEngineManager();
-		runScriptButton.addActionListener(e -> runScript(factory, scriptTextArea, mainPanel));
+		runScriptButton.addActionListener(e -> runScript(factory, scriptTextArea));
 
 		hackerPanel.add(runScriptButton, BorderLayout.NORTH);
 		return hackerPanel;
 	}
 
-	private void runScript(ScriptEngineManager factory, RSyntaxTextArea matrixEaterScriptTextArea, MainPanel mainPanel) {
+	private void runScript(ScriptEngineManager factory, RSyntaxTextArea matrixEaterScriptTextArea) {
 		String text = matrixEaterScriptTextArea.getText();
 		ScriptEngine engine = factory.getEngineByName("JavaScript");
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 
 		if (modelPanel != null) {

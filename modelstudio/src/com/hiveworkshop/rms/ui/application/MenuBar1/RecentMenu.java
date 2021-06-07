@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.MenuBarActions;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 
@@ -15,16 +14,14 @@ import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenuIt
 
 public class RecentMenu extends JMenu {
 	List<RecentItem> recentItems = new ArrayList<>();
-	MainPanel mainPanel;
 
-	public RecentMenu(MainPanel mainPanel) {
+	public RecentMenu() {
 		super("Open Recent");
 		setMnemonic(KeyEvent.VK_R);
 		getAccessibleContext().setAccessibleDescription("Allows you to access recently opened files.");
 
 		add(new JSeparator());
-		add(createMenuItem("Clear", KeyEvent.VK_C, e -> MenuBarActions.clearRecent(mainPanel)));
-		this.mainPanel = mainPanel;
+		add(createMenuItem("Clear", KeyEvent.VK_C, e -> MenuBarActions.clearRecent()));
 	}
 
 	public void updateRecent() {
@@ -36,7 +33,7 @@ public class RecentMenu extends JMenu {
 		for (int i = 0; i < recent.size(); i++) {
 			final String fp = recent.get(recent.size() - i - 1);
 			if ((recentItems.size() <= i) || (!recentItems.get(i).filepath.equals(fp))) {
-				FileDialog fileDialog = new FileDialog(mainPanel);
+				FileDialog fileDialog = new FileDialog();
 
 				RecentItem item = new RecentItem(new File(fp).getName());
 				item.filepath = fp;

@@ -5,10 +5,10 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
+import com.hiveworkshop.rms.util.FramePopup;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -228,15 +228,16 @@ public class EditTexturesPopupPanel extends JPanel {
 		}
 	}
 
-	public static void show(MainPanel mainPanel) {
+	public static void showPanel() {
 		final EditTexturesPopupPanel textureManager = new EditTexturesPopupPanel(ProgramGlobals.getCurrentModelPanel().getModelView(),
-				mainPanel.getModelStructureChangeListener());
-		final JFrame frame = new JFrame("Edit Textures");
+				ProgramGlobals.getMainPanel().getModelStructureChangeListener());
 		textureManager.setSize(new Dimension(800, 650));
-		frame.setContentPane(textureManager);
-		frame.setSize(textureManager.getSize());
-		frame.setLocationRelativeTo(null);
-		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		frame.setVisible(true);
+		FramePopup.show(textureManager, ProgramGlobals.getMainPanel(), "Edit Textures");
+//		final JFrame frame = new JFrame("Edit Textures");
+//		frame.setContentPane(textureManager);
+//		frame.setSize(textureManager.getSize());
+//		frame.setLocationRelativeTo(null);
+//		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+//		frame.setVisible(true);
 	}
 }

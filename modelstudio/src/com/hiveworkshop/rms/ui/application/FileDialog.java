@@ -42,7 +42,7 @@ public class FileDialog {
     private final JFileChooser fileChooser;
     private final ExtFilter extFilter;
 
-    public FileDialog(MainPanel mainPanel) {
+    public FileDialog() {
         FileDialog.mainPanel = ProgramGlobals.getMainPanel();
         this.fileChooser = getFileChooser();
         this.fileChooser.setAcceptAllFileFilterUsed(false);
@@ -417,37 +417,26 @@ public class FileDialog {
     }
 
     public EditableModel getModel() {
-        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null && modelPanel.getModel() != null) {
             return modelPanel.getModel();
+        } else {
+            return ProgramGlobals.getCurrentModelPanel().getModel();
         }
-//        if (mainPanel != null) {
-//            return mainPanel.currentMDL();
-//        } else if (this.modelPanel != null) {
-//            return this.modelPanel.getModel();
-//        }
-        return null;
     }
 
     private ModelPanel getModelPanel() {
-        if (mainPanel != null) {
-            return ProgramGlobals.getCurrentModelPanel();
-        } else if (modelPanel != null) {
+        if (modelPanel != null) {
             return modelPanel;
         } else {
-            return null;
+            return ProgramGlobals.getCurrentModelPanel();
         }
     }
 
     private JComponent getParent() {
         if (parent != null) {
             return parent;
-        } else if (mainPanel != null) {
-            return mainPanel;
-        } else if (modelPanel != null) {
-            return modelPanel.getParent();
         } else {
-            return null;
+            return ProgramGlobals.getMainPanel();
         }
     }
 
@@ -465,7 +454,7 @@ public class FileDialog {
             MenuBar.setToolsMenuEnabled(true);
             SaveProfile.get().addRecent(getCurrentFile().getPath());
             MenuBar.updateRecent();
-            ModelLoader.loadFile(mainPanel, getCurrentFile());
+            ModelLoader.loadFile(getCurrentFile());
         }
     }
 }

@@ -7,11 +7,11 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.util.FramePopup;
+import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -76,11 +76,14 @@ public class GeosetAnimCopyPanel extends JPanel {
 	}
 
 	public static void show(JComponent parent, ModelView modelView, GeosetAnim geosetAnim, ModelStructureChangeListener listener, UndoManager undoManager) {
-		final GeosetAnimCopyPanel textureManager = new GeosetAnimCopyPanel(modelView, geosetAnim, listener, undoManager);
-		FramePopup.show(textureManager, parent, geosetAnim.getName());
+		final GeosetAnimCopyPanel animCopyPanel = new GeosetAnimCopyPanel(modelView, geosetAnim, listener, undoManager);
+		JScrollPane scrollPane = new JScrollPane(animCopyPanel);
+		scrollPane.setPreferredSize(ScreenInfo.getSmallWindow());
+//		FramePopup.show(animCopyPanel, parent, geosetAnim.getName());
+		FramePopup.show(scrollPane, parent, geosetAnim.getName());
 	}
 
-	private static void fetchAndAddSingleAnimation(MainPanel mainPanel, String path) {
+	private static void fetchAndAddSingleAnimation(String path) {
 		final String filepath = ImportFileActions.convertPathToMDX(path);
 		final EditableModel current = ProgramGlobals.getCurrentModelPanel().getModel();
 		if (filepath != null) {
@@ -218,8 +221,8 @@ public class GeosetAnimCopyPanel extends JPanel {
 		}
 	}
 
-	private void openModel(MainPanel mainPanel) {
-		FileDialog fileDialog = new FileDialog(mainPanel);
+	private void openModel() {
+		FileDialog fileDialog = new FileDialog();
 
 		final EditableModel model = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
 	}

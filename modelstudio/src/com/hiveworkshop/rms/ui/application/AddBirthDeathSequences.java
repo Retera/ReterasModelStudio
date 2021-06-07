@@ -22,76 +22,76 @@ import java.util.*;
 
 public class AddBirthDeathSequences {
 
-    public static void riseFallBirthActionRes(MainPanel mainPanel) {
-        final int confirmed = JOptionPane.showConfirmDialog(mainPanel,
-                "This will permanently alter model. Are you sure?", "Confirmation",
-                JOptionPane.OK_CANCEL_OPTION);
-        if (confirmed != JOptionPane.OK_OPTION) {
-            return;
-        }
+	public static void riseFallBirthActionRes() {
+		final int confirmed = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
+				"This will permanently alter model. Are you sure?", "Confirmation",
+				JOptionPane.OK_CANCEL_OPTION);
+		if (confirmed != JOptionPane.OK_OPTION) {
+			return;
+		}
 
-        replaceOrUseOldAnimation(mainPanel, "Birth", -300, 0);
+		replaceOrUseOldAnimation("Birth", -300, 0);
 
-        replaceOrUseOldAnimation(mainPanel, "Death", 0, -300);
+		replaceOrUseOldAnimation("Death", 0, -300);
 
-        JOptionPane.showMessageDialog(mainPanel, "Done!");
+		JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), "Done!");
     }
 
-    private static void replaceOrUseOldAnimation(MainPanel mainPanel, String name, int offsetStart, int offsetEnd) {
-        final EditableModel model = ProgramGlobals.getCurrentModelPanel().getModelView().getModel();
-        final Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
+	private static void replaceOrUseOldAnimation(String name, int offsetStart, int offsetEnd) {
+		final EditableModel model = ProgramGlobals.getCurrentModelPanel().getModelView().getModel();
+		final Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
 
-        Animation animation = getAnimationToUse(mainPanel, name, model, lastAnim);
-        if (animation == null) return;
-        setNewAnimation(model, animation, mainPanel, offsetStart, offsetEnd);
+		Animation animation = getAnimationToUse(name, model, lastAnim);
+		if (animation == null) return;
+		setNewAnimation(model, animation, offsetStart, offsetEnd);
 
-        final Animation stand = model.findAnimByName("stand");
-        if (stand != null) {
-            setAnimationVisibilityFlag(model, stand, animation);
-        }
+		final Animation stand = model.findAnimByName("stand");
+		if (stand != null) {
+			setAnimationVisibilityFlag(model, stand, animation);
+		}
 
-        if (!animation.isNonLooping()) {
-            animation.setNonLooping(true);
-        }
-        if (!model.contains(animation)) {
-            model.add(animation);
-        }
-    }
+		if (!animation.isNonLooping()) {
+			animation.setNonLooping(true);
+		}
+		if (!model.contains(animation)) {
+			model.add(animation);
+		}
+	}
 
-    private static Animation getAnimationToUse(MainPanel mainPanel, String name, EditableModel model, Animation lastAnim) {
-        final Animation oldAnimation = model.findAnimByName(name);
-        Animation animation = new Animation(name, lastAnim.getEnd() + 300, lastAnim.getEnd() + 2300);
+	private static Animation getAnimationToUse(String name, EditableModel model, Animation lastAnim) {
+		Animation oldAnimation = model.findAnimByName(name);
+		Animation animation = new Animation(name, lastAnim.getEnd() + 300, lastAnim.getEnd() + 2300);
 
-        boolean removeOldAnimation = false;
-        if (oldAnimation != null) {
-            final String[] choices = {"Ignore", "Delete", "Overwrite"};
-            final Object x = JOptionPane.showInputDialog(mainPanel,
-                    "Existing " + name.toLowerCase() + " detected. What should be done with it?", "Question",
-                    JOptionPane.PLAIN_MESSAGE, null, choices, choices[0]);
-            if (x == choices[1]) {
-                removeOldAnimation = true;
-            } else if (x == choices[2]) {
-                animation = oldAnimation;
-            } else {
-                return null;
-            }
-        }
+		boolean removeOldAnimation = false;
+		if (oldAnimation != null) {
+			String[] choices = {"Ignore", "Delete", "Overwrite"};
+			Object x = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
+					"Existing " + name.toLowerCase() + " detected. What should be done with it?", "Question",
+					JOptionPane.PLAIN_MESSAGE, null, choices, choices[0]);
+			if (x == choices[1]) {
+				removeOldAnimation = true;
+			} else if (x == choices[2]) {
+				animation = oldAnimation;
+			} else {
+				return null;
+			}
+		}
         if (removeOldAnimation) {
-            // del keys
-            oldAnimation.clearData(model.getAllAnimFlags(), model.getEvents());
-            model.remove(oldAnimation);
-            mainPanel.modelStructureChangeListener.animationsRemoved(Collections.singletonList(oldAnimation));
+	        // del keys
+	        oldAnimation.clearData(model.getAllAnimFlags(), model.getEvents());
+	        model.remove(oldAnimation);
+	        ProgramGlobals.getMainPanel().modelStructureChangeListener.animationsRemoved(Collections.singletonList(oldAnimation));
         }
         return animation;
     }
 
-    private static void setNewAnimation(EditableModel model, Animation animation, MainPanel mainPanel, int startOffset, int endOffset) {
-        Vec3 startVec = new Vec3(0, 0, startOffset);
-        Vec3 endVec = new Vec3(0, 0, endOffset);
-        model.add(animation);
-        mainPanel.modelStructureChangeListener.animationsAdded(Collections.singletonList(animation));
-        createKeyframes(mainPanel, model, animation.getStart(), animation.getEnd(), startVec, endVec);
-    }
+	private static void setNewAnimation(EditableModel model, Animation animation, int startOffset, int endOffset) {
+		Vec3 startVec = new Vec3(0, 0, startOffset);
+		Vec3 endVec = new Vec3(0, 0, endOffset);
+		model.add(animation);
+		ProgramGlobals.getMainPanel().modelStructureChangeListener.animationsAdded(Collections.singletonList(animation));
+		createKeyframes(model, animation.getStart(), animation.getEnd(), startVec, endVec);
+	}
 
     private static List<IdObject> getRootObjects(EditableModel model) {
         final List<IdObject> roots = new ArrayList<>();
@@ -142,17 +142,17 @@ public class AddBirthDeathSequences {
 	    }
     }
 
-    // most of the code below are modified versions of code from AnimatedNode and NodeAnimationModelEditor
-    public static void createKeyframes(MainPanel mainPanel, EditableModel model, int trackTime1, int trackTime2, Vec3 startVec, Vec3 endVec) {
-	    RenderModel renderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
-	    ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener();
+	// most of the code below are modified versions of code from AnimatedNode and NodeAnimationModelEditor
+	public static void createKeyframes(EditableModel model, int trackTime1, int trackTime2, Vec3 startVec, Vec3 endVec) {
+		RenderModel renderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
+		ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener();
 
-	    ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
+		ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
 
-	    final Set<IdObject> selection = new HashSet<>(getRootObjects(model));
-	    // TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
+		final Set<IdObject> selection = new HashSet<>(getRootObjects(model));
+		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 
-	    final TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+		final TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
 	    List<UndoAction> actions1 = generateKeyframes(trackTime1, selection, timeEnvironmentImpl, "Translation", renderModel, startVec);
 	    TranslationKeyframeAction setup1 = new TranslationKeyframeAction(new CompoundAction("setup", actions1, structureChangeListener::keyframesUpdated), trackTime1, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);

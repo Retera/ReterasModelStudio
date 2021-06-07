@@ -12,39 +12,40 @@ import java.awt.*;
 
 public class MPQBrowserView {
 
-    public static View createMPQBrowser(MainPanel mainPanel, final ImageIcon imageIcon) {
-        final MPQBrowser mpqBrowser = new MPQBrowser(GameDataFileSystem.getDefault(),
-                filepath -> loadFileByType(mainPanel, filepath),
-                path -> fetchModelTexture(mainPanel, path));
-        final View view = new View("Data Browser", imageIcon, mpqBrowser);
-        view.getWindowProperties().setCloseEnabled(true);
-        return view;
-    }
+	public static View createMPQBrowser(final ImageIcon imageIcon) {
+		final MPQBrowser mpqBrowser = new MPQBrowser(GameDataFileSystem.getDefault(),
+				filepath -> loadFileByType(filepath),
+				path -> fetchModelTexture(path));
+		final View view = new View("Data Browser", imageIcon, mpqBrowser);
+		view.getWindowProperties().setCloseEnabled(true);
+		return view;
+	}
 
-    public static void openMPQViewer(MainPanel mainPanel) {
-        final View view = createMPQBrowser(mainPanel, new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)));
-        mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(), view));
-    }
+	public static void openMPQViewer() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+		final View view = createMPQBrowser(new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)));
+		mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(), view));
+	}
 
-    private static void loadFileByType(MainPanel mainPanel, String filepath) {
-        ModelLoader.loadFile(mainPanel, GameDataFileSystem.getDefault().getFile(filepath), true);
-    }
+	private static void loadFileByType(String filepath) {
+		ModelLoader.loadFile(GameDataFileSystem.getDefault().getFile(filepath), true);
+	}
 
-    private static void fetchModelTexture(MainPanel mainPanel, String path) {
-        final int modIndex = Math.max(path.lastIndexOf(".w3mod/"), path.lastIndexOf(".w3mod\\"));
-        String finalPath;
-        if (modIndex == -1) {
-            finalPath = path;
-        } else {
-            finalPath = path.substring(modIndex + ".w3mod/".length());
-        }
-        final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-        if (modelPanel != null) {
-            if (modelPanel.getModel().getFormatVersion() > 800) {
+	private static void fetchModelTexture(String path) {
+		final int modIndex = Math.max(path.lastIndexOf(".w3mod/"), path.lastIndexOf(".w3mod\\"));
+		String finalPath;
+		if (modIndex == -1) {
+			finalPath = path;
+		} else {
+			finalPath = path.substring(modIndex + ".w3mod/".length());
+		}
+		final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			if (modelPanel.getModel().getFormatVersion() > 800) {
                 finalPath = finalPath.replace("\\", "/"); // Reforged prefers forward slash
             }
-            modelPanel.getModel().add(new Bitmap(finalPath));
-            mainPanel.modelStructureChangeListener.texturesChanged();
+			modelPanel.getModel().add(new Bitmap(finalPath));
+			ProgramGlobals.getMainPanel().modelStructureChangeListener.texturesChanged();
         }
     }
 }

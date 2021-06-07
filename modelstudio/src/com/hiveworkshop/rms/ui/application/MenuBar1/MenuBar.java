@@ -4,8 +4,9 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.ui.application.MainLayoutCreator;
-import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
 import com.hiveworkshop.rms.ui.application.MenuBarActions;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
@@ -23,7 +24,6 @@ import java.awt.*;
 
 public class MenuBar {
     static JMenuBar menuBar;
-    static MainPanel mainPanel;
 
     static FileMenu fileMenu;
     static RecentMenu recentMenu;
@@ -37,24 +37,23 @@ public class MenuBar {
     static AboutMenu aboutMenu;
     static WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier directoryChangeNotifier = new WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier();
 
-    public MenuBar(MainPanel mainPanel) {
-        this.mainPanel = mainPanel;
+    public MenuBar(MainPanelLinkActions linkActions) {
         menuBar = new JMenuBar();
 
-        recentMenu = new RecentMenu(mainPanel);
-        fileMenu = new FileMenu(mainPanel, recentMenu);
-        editMenu = new EditMenu(mainPanel);
-        toolsMenu = new ToolsMenu(mainPanel);
+        recentMenu = new RecentMenu();
+        fileMenu = new FileMenu(recentMenu);
+        editMenu = new EditMenu(linkActions);
+        toolsMenu = new ToolsMenu(linkActions);
         toolsMenu.setEnabled(false);
-        viewMenu = new ViewMenu(mainPanel);
-        teamColorMenu = new TeamColorMenu(mainPanel);
-        windowMenu = new WindowsMenu(mainPanel);
-        addMenu = new AddMenu(mainPanel);
-        scriptsMenu = new ScriptsMenu(mainPanel);
+        viewMenu = new ViewMenu();
+        teamColorMenu = new TeamColorMenu();
+        windowMenu = new WindowsMenu();
+        addMenu = new AddMenu();
+        scriptsMenu = new ScriptsMenu();
         aboutMenu = new AboutMenu();
 
         directoryChangeNotifier.subscribe(() -> {
-            updateDataSource(mainPanel);
+            updateDataSource();
         });
 
         menuBar.add(fileMenu);
@@ -83,7 +82,7 @@ public class MenuBar {
     }
 
     public static boolean closeAll() {
-        return fileMenu.closeAll(mainPanel);
+        return fileMenu.closeAll();
     }
 
     public static void setToolsMenuEnabled(boolean enabled) {
@@ -99,7 +98,7 @@ public class MenuBar {
     }
 
 
-    public static void updateDataSource(MainPanel mainPanel) {
+    public static void updateDataSource() {
         GameDataFileSystem.refresh(SaveProfile.get().getDataSources());
         // cache priority order...
         UnitOptionPanel.dropRaceCache();
@@ -108,7 +107,7 @@ public class MenuBar {
         WEString.dropCache();
         BLPHandler.get().dropCache();
         MenuBar.teamColorMenu.updateTeamColors();
-        traverseAndReloadData(mainPanel.getRootWindow());
+        traverseAndReloadData(ProgramGlobals.getMainPanel().getRootWindow());
     }
 
 

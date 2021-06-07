@@ -5,11 +5,14 @@ import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTreeBrowser;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.gui.modeledit.creator.CreatorModelingPanel;
 import de.wc3data.stream.BlizzardDataInputStream;
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.SplitWindow;
@@ -21,28 +24,82 @@ import java.awt.*;
 import java.io.IOException;
 
 public class MainLayoutCreator {
-    static TabWindow createMainLayout(MainPanel mainPanel) {
+    public View viewportControllerWindowView;
+    public View toolView;
+    public View frontView;
+    public View leftView;
+    public View bottomView;
+    public View perspectiveView;
+    public View modelDataView;
+    public View modelComponentView;
+    public View previewView;
+    public View animationControllerView;
+
+    public View timeSliderView;
+    public View creatorView;
+
+    TimeSliderPanel timeSliderPanel;
+    CreatorModelingPanel creatorPanel;
+
+    public MainLayoutCreator(MainPanel mainPanel) {
+        timeSliderPanel = createTimeSliderPanel(mainPanel);
+        timeSliderView = TimeSliderView.createTimeSliderView(timeSliderPanel);
+
+        creatorPanel = new CreatorModelingPanel(mainPanel::changeActivity, mainPanel.actionTypeGroup, mainPanel.viewportListener);
+        creatorView = new View("Modeling", null, creatorPanel);
+
+        JPanel contentsDummy = new JPanel();
+        contentsDummy.add(new JLabel("..."));
+
+        modelDataView = new View("Contents", null, contentsDummy);
+        modelComponentView = new View("Component", null, new JPanel());
+
+
+        previewView = new View("Preview", null, new JPanel());
+        animationControllerView = new View("Animation Controller", null, new JPanel());
+
 
         JPanel jPanel = new JPanel();
         jPanel.add(new JLabel("..."));
-        mainPanel.viewportControllerWindowView = new View("Outliner", null, jPanel);// GlobalIcons.geoIcon
+        viewportControllerWindowView = new View("Outliner", null, jPanel);// GlobalIcons.geoIcon
 //		viewportControllerWindowView.getWindowProperties().setCloseEnabled(false);
 //		viewportControllerWindowView.getWindowProperties().setMaximizeEnabled(true);
 //		viewportControllerWindowView.getWindowProperties().setMinimizeEnabled(true);
 //		viewportControllerWindowView.getWindowProperties().setRestoreEnabled(true);
-        mainPanel.toolView = new View("Tools", null, new JPanel());
+        toolView = new View("Tools", null, new JPanel());
 
-        mainPanel.leftView = new View("Side", null, new JPanel());
-        mainPanel.frontView = new View("Front", null, new JPanel());
-        mainPanel.bottomView = new View("Bottom", null, new JPanel());
-        mainPanel.perspectiveView = new View("Perspective", null, new JPanel());
+        leftView = new View("Side", null, new JPanel());
+        frontView = new View("Front", null, new JPanel());
+        bottomView = new View("Bottom", null, new JPanel());
+        perspectiveView = new View("Perspective", null, new JPanel());
+    }
+//    static TabWindow createMainLayout() {
+//
+//        JPanel jPanel = new JPanel();
+//        jPanel.add(new JLabel("..."));
+//        MainPanel mainPanel = ProgramGlobals.getMainPanel();
+//        mainPanel.setViewportControllerWindowView(new View("Outliner", null, jPanel));// GlobalIcons.geoIcon
+////		viewportControllerWindowView.getWindowProperties().setCloseEnabled(false);
+////		viewportControllerWindowView.getWindowProperties().setMaximizeEnabled(true);
+////		viewportControllerWindowView.getWindowProperties().setMinimizeEnabled(true);
+////		viewportControllerWindowView.getWindowProperties().setRestoreEnabled(true);
+//        mainPanel.setToolView(new View("Tools", null, new JPanel()));
+//
+//        mainPanel.setLeftView(new View("Side", null, new JPanel()));
+//        mainPanel.setFrontView(new View("Front", null, new JPanel()));
+//        mainPanel.setBottomView(new View("Bottom", null, new JPanel()));
+//        mainPanel.setPerspectiveView(new View("Perspective", null, new JPanel()));
+//
+//
+//        return getStartupTabWindow(mainPanel);
+//    }
 
+    public TabWindow getStartupTabWindow() {
+        SplitWindow editingTab = getEditTab();
 
-        SplitWindow editingTab = getEditTab(mainPanel);
+        SplitWindow viewingTab = getViewTab();
 
-        SplitWindow viewingTab = getViewTab(mainPanel);
-
-        SplitWindow modelTab = new SplitWindow(true, 0.2f, mainPanel.modelDataView, mainPanel.modelComponentView);
+        SplitWindow modelTab = new SplitWindow(true, 0.2f, getModelDataView(), getModelComponentView());
         modelTab.getWindowProperties().setTitleProvider(arg0 -> "Model");
 
         TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
@@ -51,13 +108,13 @@ public class MainLayoutCreator {
         return startupTabWindow;
     }
 
-    private static SplitWindow getViewTab(MainPanel mainPanel) {
+    private SplitWindow getViewTab() {
         ImageIcon imageIcon;
         imageIcon = new ImageIcon(MainFrame.MAIN_PROGRAM_ICON.getScaledInstance(16, 16, Image.SCALE_FAST));
 
-        View mpqBrowserView = MPQBrowserView.createMPQBrowser(mainPanel, imageIcon);
+        View mpqBrowserView = MPQBrowserView.createMPQBrowser(imageIcon);
 
-        UnitEditorTree unitEditorTree = createUnitEditorTree(mainPanel);
+        UnitEditorTree unitEditorTree = createUnitEditorTree();
         View view = new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree));
         DockingWindow[] dockingWindow = new DockingWindow[] {view, mpqBrowserView};
 
@@ -65,7 +122,7 @@ public class MainLayoutCreator {
 
         tabWindow.setSelectedTab(0);
 
-        SplitWindow animPersp = new SplitWindow(true, 0.8f, mainPanel.previewView, mainPanel.animationControllerView);
+        SplitWindow animPersp = new SplitWindow(true, 0.8f, getPreviewView(), getAnimationControllerView());
         SplitWindow viewingTab = new SplitWindow(true, 0.8f, animPersp, tabWindow);
 
         viewingTab.getWindowProperties().setTitleProvider(arg0 -> "View");
@@ -73,32 +130,35 @@ public class MainLayoutCreator {
         return viewingTab;
     }
 
-    private static SplitWindow getEditTab(MainPanel mainPanel) {
-        TabWindow leftHandTabWindow = new TabWindow(new DockingWindow[] {mainPanel.viewportControllerWindowView, mainPanel.toolView});
+    private SplitWindow getEditTab() {
+        TabWindow leftHandTabWindow = new TabWindow(new DockingWindow[] {getViewportControllerWindowView(), getToolView()});
         leftHandTabWindow.setSelectedTab(0);
 
-        SplitWindow frBt = new SplitWindow(true, mainPanel.frontView, mainPanel.bottomView);
-        SplitWindow lfPs = new SplitWindow(true, mainPanel.leftView, mainPanel.perspectiveView);
+        SplitWindow frBt = new SplitWindow(true, getFrontView(), getBottomView());
+        SplitWindow lfPs = new SplitWindow(true, getLeftView(), getPerspectiveView());
         SplitWindow quadView = new SplitWindow(false, frBt, lfPs);
 
-        SplitWindow splitWindow = new SplitWindow(true, 0.2f, leftHandTabWindow, new SplitWindow(true, 0.8f, quadView, mainPanel.creatorView));
+        SplitWindow splitWindow = new SplitWindow(true, 0.2f, leftHandTabWindow, new SplitWindow(true, 0.8f, quadView, getCreatorView()));
 
-        SplitWindow editingTab = new SplitWindow(false, 0.875f, splitWindow, mainPanel.timeSliderView);
+        SplitWindow editingTab = new SplitWindow(false, 0.875f, splitWindow, getTimeSliderView());
 
         editingTab.getWindowProperties().setCloseEnabled(false);
         editingTab.getWindowProperties().setTitleProvider(arg0 -> "Edit");
         return editingTab;
     }
 
-    static UnitEditorTree createUnitEditorTree(MainPanel mainPanel) {
-        return new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(),
-                getUnitEditorSettings(), MutableObjectData.WorldEditorDataType.UNITS, (mdxFilePath, b, c, icon) -> InternalFileLoader.loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(mdxFilePath), b, c, icon));
+    static UnitEditorTree createUnitEditorTree() {
+        return new UnitEditorTreeBrowser(getUnitData(),
+                new UnitTabTreeBrowserBuilder(),
+                getUnitEditorSettings(),
+                MutableObjectData.WorldEditorDataType.UNITS,
+                (mdxFilePath, b, c, icon) -> InternalFileLoader.loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(mdxFilePath), b, c, icon));
     }
 
     /**
-     * Right now this is a plug to the statics to load unit data. However, it's a
-     * non-static method so that we can have it load from an opened map in the
-     * future -- the MutableObjectData class can parse map unit data!
+     * Right now this is a plug to the statics to load unit data.
+     * However, it's a non-static method so that we can have it load from an opened map
+     * in the future -- the MutableObjectData class can parse map unit data!
      */
     public static MutableObjectData getUnitData() {
         War3ObjectDataChangeset editorData = new War3ObjectDataChangeset('u');
@@ -114,13 +174,145 @@ public class MainLayoutCreator {
         } catch (IOException e) {
             e.printStackTrace();
         }
-	    return new MutableObjectData(MutableObjectData.WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
-			    StandardObjectData.getStandardUnitMeta(), editorData);
+        return new MutableObjectData(MutableObjectData.WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
+                StandardObjectData.getStandardUnitMeta(), editorData);
     }
 
-	public static UnitEditorSettings getUnitEditorSettings() {
-		return new UnitEditorSettings();
-	}
+    public static UnitEditorSettings getUnitEditorSettings() {
+        return new UnitEditorSettings();
+    }
+
+    private TimeSliderPanel createTimeSliderPanel(MainPanel mainPanel) {
+        TimeSliderPanel timeSliderPanel = new TimeSliderPanel(mainPanel, mainPanel.animatedRenderEnvironment, mainPanel.modelStructureChangeListener, ProgramGlobals.getPrefs());
+        timeSliderPanel.setDrawing(false);
+        TimeSliderTimeListener timeSliderTimeListener = currentTime -> {
+//			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime);
+//			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime - mainPanel.animatedRenderEnvironment.getStart());
+            if (ProgramGlobals.getCurrentModelPanel() != null) {
+                ProgramGlobals.getCurrentModelPanel().getEditorRenderModel().updateNodes(false);
+                ProgramGlobals.getCurrentModelPanel().repaintSelfAndRelatedChildren();
+            }
+        };
+        timeSliderPanel.addListener(timeSliderTimeListener);
+        //		timeSliderPanel.addListener(creatorPanel);
+        return timeSliderPanel;
+    }
+
+    public View getViewportControllerWindowView() {
+        return viewportControllerWindowView;
+    }
+
+    public MainLayoutCreator setViewportControllerWindowView(View viewportControllerWindowView) {
+        this.viewportControllerWindowView = viewportControllerWindowView;
+        return this;
+    }
+
+    public View getToolView() {
+        return toolView;
+    }
+
+    public MainLayoutCreator setToolView(View toolView) {
+        this.toolView = toolView;
+        return this;
+    }
+
+    public View getFrontView() {
+        return frontView;
+    }
+
+    public MainLayoutCreator setFrontView(View frontView) {
+        this.frontView = frontView;
+        return this;
+    }
+
+    public View getLeftView() {
+        return leftView;
+    }
+
+    public MainLayoutCreator setLeftView(View leftView) {
+        this.leftView = leftView;
+        return this;
+    }
+
+    public View getBottomView() {
+        return bottomView;
+    }
+
+    public MainLayoutCreator setBottomView(View bottomView) {
+        this.bottomView = bottomView;
+        return this;
+    }
+
+    public View getPerspectiveView() {
+        return perspectiveView;
+    }
+
+    public MainLayoutCreator setPerspectiveView(View perspectiveView) {
+        this.perspectiveView = perspectiveView;
+        return this;
+    }
+
+    public View getModelDataView() {
+        return modelDataView;
+    }
+
+    public MainLayoutCreator setModelDataView(View modelDataView) {
+        this.modelDataView = modelDataView;
+        return this;
+    }
+
+    public View getModelComponentView() {
+        return modelComponentView;
+    }
+
+    public MainLayoutCreator setModelComponentView(View modelComponentView) {
+        this.modelComponentView = modelComponentView;
+        return this;
+    }
+
+    public View getPreviewView() {
+        return previewView;
+    }
+
+    public MainLayoutCreator setPreviewView(View previewView) {
+        this.previewView = previewView;
+        return this;
+    }
+
+    public View getAnimationControllerView() {
+        return animationControllerView;
+    }
+
+    public MainLayoutCreator setAnimationControllerView(View animationControllerView) {
+        this.animationControllerView = animationControllerView;
+        return this;
+    }
+
+    public View getTimeSliderView() {
+        return timeSliderView;
+    }
+
+    public MainLayoutCreator setTimeSliderView(View timeSliderView) {
+        this.timeSliderView = timeSliderView;
+        return this;
+    }
+
+    public View getCreatorView() {
+        return creatorView;
+    }
+
+    public MainLayoutCreator setCreatorView(View creatorView) {
+        this.creatorView = creatorView;
+        return this;
+    }
+
+    public TimeSliderPanel getTimeSliderPanel() {
+        return timeSliderPanel;
+    }
+
+    public CreatorModelingPanel getCreatorPanel() {
+        return creatorPanel;
+    }
 
 
 ////        TempBonePanel tempBonePanel = new TempBonePanel();

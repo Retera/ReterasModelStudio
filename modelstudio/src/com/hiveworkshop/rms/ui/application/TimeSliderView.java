@@ -60,8 +60,8 @@ public class TimeSliderView {
 	}
 
 	static void createTimeSliderPanel(MainPanel mainPanel) {
-		mainPanel.timeSliderPanel = new TimeSliderPanel(mainPanel, mainPanel.animatedRenderEnvironment, mainPanel.modelStructureChangeListener, ProgramGlobals.getPrefs());
-		mainPanel.timeSliderPanel.setDrawing(false);
+//		mainPanel.getTimeSliderPanel() = new TimeSliderPanel(mainPanel, mainPanel.animatedRenderEnvironment, mainPanel.modelStructureChangeListener, ProgramGlobals.getPrefs());
+		mainPanel.getTimeSliderPanel().setDrawing(false);
 		TimeSliderTimeListener timeSliderTimeListener = currentTime -> {
 //			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime);
 //			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime - mainPanel.animatedRenderEnvironment.getStart());
@@ -70,7 +70,7 @@ public class TimeSliderView {
 				ProgramGlobals.getCurrentModelPanel().repaintSelfAndRelatedChildren();
 			}
 		};
-		mainPanel.timeSliderPanel.addListener(timeSliderTimeListener);
+		mainPanel.getTimeSliderPanel().addListener(timeSliderTimeListener);
 		//		timeSliderPanel.addListener(creatorPanel);
 	}
 

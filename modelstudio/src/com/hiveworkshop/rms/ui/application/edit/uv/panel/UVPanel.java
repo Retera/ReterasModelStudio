@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.editor.actions.uv.UVSnapAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
@@ -58,7 +57,6 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		UVIcon = new ImageIcon(IconUtils.worldEditStyleIcon(RMSIcons.loadTabImage("UVMap.png")));
 	}
 
-	final MainPanel mainPanel;
 	private final ModelPanel modelPanel;
 	private final JTextField[] mouseCoordDisplay = new JTextField[2];
 	private final ViewportActivityManager viewportActivityManager;
@@ -73,9 +71,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	private UVViewport vp;
 	private UVLinkActions uvLinkActions;
 
-	public UVPanel(MainPanel mainPanel, ModelStructureChangeListener modelStructureChangeListener) {
-		this.mainPanel = mainPanel;
-		this.uvLinkActions = new UVLinkActions(this, mainPanel);
+	public UVPanel(ModelStructureChangeListener modelStructureChangeListener) {
+		this.uvLinkActions = new UVLinkActions(this);
 		JToolBar toolbar = createJToolBar();
 
 		modelPanel = ProgramGlobals.getCurrentModelPanel();
@@ -415,8 +412,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		JFrame frame = (JFrame) view.getTopLevelAncestor();
 		if (frame != null) {
 			frame.pack();
-//			frame.setLocationRelativeTo(null);
-			frame.setLocationRelativeTo(mainPanel);
+			frame.setLocationRelativeTo(ProgramGlobals.getMainPanel());
 		}
 	}
 

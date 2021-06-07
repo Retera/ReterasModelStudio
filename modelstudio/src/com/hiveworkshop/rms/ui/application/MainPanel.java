@@ -32,17 +32,16 @@ import java.util.Enumeration;
 public class MainPanel extends JPanel implements ModelEditorChangeActivityListener {
     MainPanelLinkActions mainPanelLinkActions;
 
-    public final View timeSliderView;
-    public final View previewView;
-    public final View creatorView;
-    public final View animationControllerView;
-    public View frontView, leftView, bottomView, perspectiveView;
+//    private final View timeSliderView;
+//    private final View creatorView;
+
+    private MainLayoutCreator mainLayoutCreator;
 
     JTextField[] mouseCoordDisplay = new JTextField[3];
     boolean cheatShift = false;
     boolean cheatAlt = false;
 
-    final CreatorModelingPanel creatorPanel;
+    private final CreatorModelingPanel creatorPanel;
     final TimeEnvironmentImpl animatedRenderEnvironment;
     final CoordDisplayListener coordDisplayListener;
     final ModelStructureChangeListener modelStructureChangeListener;
@@ -55,12 +54,8 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeGroup;
     ToolbarButtonGroup2<SelectionMode> selectionModeGroup;
     public ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup;
-    public View viewportControllerWindowView;
-    public View toolView;
-    public View modelDataView;
-    View modelComponentView;
 
-    TimeSliderPanel timeSliderPanel;
+//    private TimeSliderPanel timeSliderPanel;
 
     boolean animationModeState = false;
 
@@ -79,12 +74,12 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         modelStructureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener();
         animatedRenderEnvironment = new TimeEnvironmentImpl(0, 1);
 
-        TimeSliderView.createTimeSliderPanel(this);
+//        TimeSliderView.createTimeSliderPanel(this);
 
 //        animatedRenderEnvironment.addChangeListener((start, end) -> MainPanelLinkActions.animatedRenderEnvChangeResult(MainPanel.this, start, end));
 
 
-        ClosePopup.createContextMenuPopup(this);
+        ClosePopup.createContextMenuPopup();
 
         viewMap = new StringViewMap();
 
@@ -99,24 +94,18 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         setRootProps(rootWindow);
 
 
-        JPanel contentsDummy = new JPanel();
-        contentsDummy.add(new JLabel("..."));
-        modelDataView = new View("Contents", null, contentsDummy);
-        modelComponentView = new View("Component", null, new JPanel());
+//        JPanel contentsDummy = new JPanel();
+//        contentsDummy.add(new JLabel("..."));
 
-
-        previewView = new View("Preview", null, new JPanel());
-
-        timeSliderView = TimeSliderView.createTimeSliderView(timeSliderPanel);
 
         creatorPanel = new CreatorModelingPanel(this::changeActivity, actionTypeGroup, viewportListener);
 
-        creatorView = new View("Modeling", null, creatorPanel);
+//        timeSliderView = TimeSliderView.createTimeSliderView(timeSliderPanel);
+//        creatorView = new View("Modeling", null, creatorPanel);
 
-
-        animationControllerView = new View("Animation Controller", null, new JPanel());
-
-        final TabWindow startupTabWindow = MainLayoutCreator.createMainLayout(this);
+        mainLayoutCreator = new MainLayoutCreator(this);
+//        final TabWindow startupTabWindow = MainLayoutCreator.createMainLayout();
+        final TabWindow startupTabWindow = mainLayoutCreator.getStartupTabWindow();
         rootWindow.setWindow(startupTabWindow);
         startupTabWindow.setSelectedTab(0);
 
@@ -124,12 +113,13 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
         selectionItemTypeGroup.addToolbarButtonListener(this::selectionItemTypeGroupActionRes);
 
-        actionTypeGroup.addToolbarButtonListener(newType -> mainPanelLinkActions.changeTransformMode(MainPanel.this, newType));
+        actionTypeGroup.addToolbarButtonListener(newType -> mainPanelLinkActions.changeTransformMode(newType, this));
         actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
 
         viewportTransferHandler = new ViewportTransferHandler();
         coordDisplayListener = (dim1, dim2, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
     }
+
 
     private static void setRootProps(RootWindow rootWindow) {
 
@@ -227,11 +217,11 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     }
 
     public CreatorModelingPanel getCreatorPanel() {
-        return creatorPanel;
+        return mainLayoutCreator.getCreatorPanel();
     }
 
     public TimeSliderPanel getTimeSliderPanel() {
-        return timeSliderPanel;
+        return mainLayoutCreator.getTimeSliderPanel();
     }
 
     public ModelStructureChangeListener getModelStructureChangeListener() {
@@ -259,7 +249,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         animationModeState = newType == SelectionItemTypes.ANIMATE;
         // we need to refresh the state of stuff AFTER the ModelPanels, this is a pretty signficant design flaw,
         // so we're just going to post to the EDT to get behind them (they're called on the same notifier as this method)
-        SwingUtilities.invokeLater(() -> ModelLoader.refreshAnimationModeState(MainPanel.this));
+        SwingUtilities.invokeLater(() -> ModelLoader.refreshAnimationModeState());
 
         if (newType == SelectionItemTypes.TPOSE) {
 
@@ -273,7 +263,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
     @Override
     public void changeActivity(ModelEditorActionType3 newType) {
-        actionTypeGroup.setActiveButton(newType);
+//        actionTypeGroup.setActiveButton(newType);
         for (ModelPanel modelPanel : ProgramGlobals.getModelPanels()) {
             modelPanel.changeActivity(newType);
         }
@@ -284,7 +274,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     }
 
     public void linkActions(JRootPane rootPane) {
-        mainPanelLinkActions.linkActions(this, rootPane);
+        mainPanelLinkActions.linkActions(rootPane);
     }
 
     public MainPanelLinkActions getMainPanelLinkActions() {
@@ -293,5 +283,98 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
     public void repaintSelfAndChildren() {
         repaint();
+    }
+
+    public View getFrontView() {
+        return mainLayoutCreator.getFrontView();
+    }
+
+    public View getLeftView() {
+        return mainLayoutCreator.getLeftView();
+    }
+
+    public View getBottomView() {
+        return mainLayoutCreator.getBottomView();
+    }
+
+    public View getPerspectiveView() {
+        return mainLayoutCreator.getPerspectiveView();
+    }
+
+    public View getViewportControllerWindowView() {
+        return mainLayoutCreator.getViewportControllerWindowView();
+    }
+
+    public View getToolView() {
+        return mainLayoutCreator.getToolView();
+    }
+
+    public MainPanel setFrontView(View frontView) {
+        mainLayoutCreator.setFrontView(frontView);
+        return this;
+    }
+
+    public MainPanel setLeftView(View leftView) {
+        mainLayoutCreator.setLeftView(leftView);
+        return this;
+    }
+
+    public MainPanel setBottomView(View bottomView) {
+        mainLayoutCreator.setBottomView(bottomView);
+        return this;
+    }
+
+    public MainPanel setPerspectiveView(View perspectiveView) {
+        mainLayoutCreator.setPerspectiveView(perspectiveView);
+        return this;
+    }
+
+    public MainPanel setViewportControllerWindowView(View viewportControllerWindowView) {
+        mainLayoutCreator.setViewportControllerWindowView(viewportControllerWindowView);
+        return this;
+    }
+
+    public MainPanel setToolView(View toolView) {
+        mainLayoutCreator.setToolView(toolView);
+        return this;
+    }
+
+    public MainLayoutCreator getMainLayoutCreator() {
+        return mainLayoutCreator;
+    }
+
+
+    public View getPreviewView() {
+        return mainLayoutCreator.getPreviewView();
+    }
+
+    public View getAnimationControllerView() {
+        return mainLayoutCreator.getAnimationControllerView();
+    }
+
+    public View getModelDataView() {
+        return mainLayoutCreator.getModelDataView();
+    }
+
+    public View getModelComponentView() {
+        return mainLayoutCreator.getModelComponentView();
+    }
+
+    public MainPanel setModelDataView(View modelDataView) {
+        mainLayoutCreator.setModelDataView(modelDataView);
+        return this;
+    }
+
+    public MainPanel setModelComponentView(View modelComponentView) {
+        mainLayoutCreator.setModelComponentView(modelComponentView);
+        return this;
+    }
+
+    public View getTimeSliderView() {
+        return mainLayoutCreator.getTimeSliderView();
+    }
+
+    public View getCreatorView() {
+        return mainLayoutCreator.getCreatorView();
     }
 }

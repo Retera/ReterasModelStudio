@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
 
@@ -9,7 +8,7 @@ import java.awt.event.KeyEvent;
 
 public class ViewMenu extends JMenu {
 
-	public ViewMenu(MainPanel mainPanel) {
+	public ViewMenu() {
 		super("View");
 		getAccessibleContext().setAccessibleDescription("Allows the user to control view settings.");
 

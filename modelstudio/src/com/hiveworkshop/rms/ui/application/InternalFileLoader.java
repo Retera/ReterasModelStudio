@@ -29,36 +29,36 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class InternalFileLoader {
-	public static void loadStreamMdx(MainPanel mainPanel, InputStream f, boolean temporary, boolean selectNewTab, ImageIcon icon) {
+	public static void loadStreamMdx(InputStream f, boolean temporary, boolean selectNewTab, ImageIcon icon) {
 		ModelPanel temp;
 		try {
 			final EditableModel model = MdxUtils.loadEditable(f);
 			model.setFileRef(null);
-			temp = ModelLoader.newTempModelPanel(mainPanel, icon, model);
+			temp = ModelLoader.newTempModelPanel(icon, model);
 		} catch (final IOException e) {
 			e.printStackTrace();
 			ExceptionPopup.display(e);
 			throw new RuntimeException("Reading mdx failed");
 		}
 
-		ModelLoader.loadModel(mainPanel, temporary, selectNewTab, temp);
+		ModelLoader.loadModel(temporary, selectNewTab, temp);
 	}
 
-	static void loadMdxStream(MutableObjectData.MutableGameObject obj, String prePath, MainPanel mainPanel, boolean b) {
+	static void loadMdxStream(MutableObjectData.MutableGameObject obj, String prePath, boolean b) {
 		final String path = ImportFileActions.convertPathToMDX(prePath);
 		final String portrait = ModelUtils.getPortrait(path);
 		final ImageIcon icon = new ImageIcon(IconUtils
 				.getIcon(obj, MutableObjectData.WorldEditorDataType.DOODADS)
 				.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 
-		loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(path), true, b, icon);
+		loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(path), true, b, icon);
 
 		if (ProgramGlobals.getPrefs().isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
-			loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
+			loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
 		}
 	}
 
-	public static void OpenDoodadViewer(MainPanel mainPanel) {
+	public static void OpenDoodadViewer() {
 		UnitEditorTree unitEditorTree = new UnitEditorTree(
 				MenuBarActions.getDoodadData(),
 				new DoodadTabTreeBrowserBuilder(),
@@ -70,7 +70,7 @@ public class InternalFileLoader {
 			@Override
 			public void mouseClicked(final MouseEvent e) {
 				try {
-					dodadViewerMouseClick(e, unitEditorTree, mainPanel);
+					dodadViewerMouseClick(e, unitEditorTree);
 				} catch (final Exception exc) {
 					exc.printStackTrace();
 					ExceptionPopup.display(exc);
@@ -78,10 +78,11 @@ public class InternalFileLoader {
 			}
 		});
 		View doodadBrowserView = new View("Doodad Browser", new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)), new JScrollPane(unitEditorTree));
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(), doodadBrowserView));
 	}
 
-	private static void dodadViewerMouseClick(MouseEvent e, UnitEditorTree unitEditorTree, MainPanel mainPanel) {
+	private static void dodadViewerMouseClick(MouseEvent e, UnitEditorTree unitEditorTree) {
 		if (e.getClickCount() >= 2) {
 			TreePath currentUnitTreePath = unitEditorTree.getSelectionPath();
 			if (currentUnitTreePath != null) {
@@ -94,11 +95,11 @@ public class InternalFileLoader {
 					if (numberOfVariations > 1) {
 						for (int i = 0; i < numberOfVariations; i++) {
 							String prePath = obj.getFieldAsString(War3ID.fromString("dfil"), 0) + i + ".mdl";
-							loadMdxStream(obj, prePath, mainPanel, i == 0);
+							loadMdxStream(obj, prePath, i == 0);
 						}
 					} else {
 						String prePath = obj.getFieldAsString(War3ID.fromString("dfil"), 0);
-						loadMdxStream(obj, prePath, mainPanel, true);
+						loadMdxStream(obj, prePath, true);
 					}
 					//                    mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
 //					MenuBar.toolsMenu.getAccessibleContext().setAccessibleDescription(
@@ -110,48 +111,48 @@ public class InternalFileLoader {
 		}
 	}
 
-	public static void fetchObject(MainPanel mainPanel) {
+	public static void fetchObject() {
 		MutableObjectData.MutableGameObject objectFetched = ImportFileActions.fetchObject();
 		if (objectFetched != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));
 			ImageIcon icon = new ImageIcon(BLPHandler.get().getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0)).getScaledInstance(16, 16, Image.SCALE_FAST));
 
-			loadFromStream(mainPanel, filepath, icon);
+			loadFromStream(filepath, icon);
 		}
 	}
 
-	public static void fetchModel(MainPanel mainPanel) {
+	public static void fetchModel() {
 		ModelOptionPane.ModelElement model = ImportFileActions.fetchModel();
 		if (model != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(model.getFilepath());
 			ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get().getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST)) : ModelLoader.MDLIcon;
 
-			loadFromStream(mainPanel, filepath, icon);
+			loadFromStream(filepath, icon);
 		}
 	}
 
-	public static void fetchUnit(MainPanel mainPanel) {
+	public static void fetchUnit() {
 		GameObject unitFetched = ImportFileActions.fetchUnit();
 		if (unitFetched != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(unitFetched.getField("file"));
 			ImageIcon icon = unitFetched.getScaledIcon(16);
 
-			loadFromStream(mainPanel, filepath, icon);
+			loadFromStream(filepath, icon);
 		}
 	}
 
-	private static void loadFromStream(MainPanel mainPanel, String filepath, ImageIcon icon) {
+	private static void loadFromStream(String filepath, ImageIcon icon) {
 		if (filepath != null) {
 
-			loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true, icon);
+			loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true, icon);
 
 			String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait" + filepath.substring(filepath.lastIndexOf('.'));
 
 			if (ProgramGlobals.getPrefs().isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
-				loadStreamMdx(mainPanel, GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
+				loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
 			}
 			//            mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
 //			MenuBar.toolsMenu.getAccessibleContext().setAccessibleDescription(

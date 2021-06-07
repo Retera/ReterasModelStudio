@@ -46,24 +46,24 @@ public class ImportFileActions {
         }
     }
 
-    public static void repaintModelTrees() {
-        if (ProgramGlobals.getCurrentModelPanel() != null) {
-            ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
-        }
-    }
+	public static void repaintModelTrees() {
+		if (ProgramGlobals.getCurrentModelPanel() != null) {
+			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
+		}
+	}
 
-    public static void importButtonActionRes(MainPanel mainPanel) {
-        FileDialog fileDialog = new FileDialog(mainPanel);
+	public static void importButtonActionRes() {
+		FileDialog fileDialog = new FileDialog();
 
-        final EditableModel model = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
-        if (model != null) {
-            importFile(model);
-        }
-        repaintModelTrees();
-    }
+		final EditableModel model = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+		if (model != null) {
+			importFile(model);
+		}
+		repaintModelTrees();
+	}
 
-    public static void importFromWorkspaceActionRes() {
-        final List<EditableModel> optionNames = new ArrayList<>();
+	public static void importFromWorkspaceActionRes() {
+		final List<EditableModel> optionNames = new ArrayList<>();
         for (final ModelPanel modelPanel : ProgramGlobals.getModelPanels()) {
             final EditableModel model = modelPanel.getModel();
             optionNames.add(model);

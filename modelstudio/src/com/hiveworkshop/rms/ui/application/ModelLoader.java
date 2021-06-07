@@ -33,7 +33,8 @@ import java.util.HashSet;
 public class ModelLoader {
 	static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
 
-	public static void refreshAnimationModeState(MainPanel mainPanel) {
+	public static void refreshAnimationModeState() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (mainPanel.animationModeState) {
 			if ((modelPanel != null) && (modelPanel.getModel() != null)) {
@@ -66,11 +67,10 @@ public class ModelLoader {
 //			buttons.get(i).getButton().setVisible(!mainPanel.animationModeState);
 //		}
 		mainPanel.snapButton.setVisible(!mainPanel.animationModeState);
-		mainPanel.timeSliderPanel.setDrawing(mainPanel.animationModeState);
-		mainPanel.timeSliderPanel.setKeyframeModeActive(mainPanel.animationModeState);
-
-		mainPanel.timeSliderPanel.repaint();
-		mainPanel.creatorPanel.setAnimationModeState(mainPanel.animationModeState);
+		mainPanel.getTimeSliderPanel().setDrawing(mainPanel.animationModeState);
+		mainPanel.getTimeSliderPanel().setKeyframeModeActive(mainPanel.animationModeState);
+		mainPanel.getTimeSliderPanel().repaint();
+		mainPanel.getCreatorPanel().setAnimationModeState(mainPanel.animationModeState);
 	}
 
 	private static void refreshAndUpdateRenderModel() {
@@ -84,10 +84,10 @@ public class ModelLoader {
 		editorRenderModel.updateNodes(false); // update to 0 position
 	}
 
-	public static ModelPanel newTempModelPanel(MainPanel mainPanel, ImageIcon icon, EditableModel model) {
-		ModelPanel temp;
+	public static ModelPanel newTempModelPanel(ImageIcon icon, EditableModel model) {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		ModelHandler modelHandler = new ModelHandler(model);
-		temp = new ModelPanel(mainPanel, modelHandler, ProgramGlobals.getPrefs(),
+		return new ModelPanel(modelHandler, ProgramGlobals.getPrefs(),
 				mainPanel.selectionItemTypeGroup,
 				mainPanel.selectionModeGroup,
 				mainPanel.modelStructureChangeListener,
@@ -95,7 +95,6 @@ public class ModelLoader {
 				mainPanel.viewportTransferHandler,
 				mainPanel.viewportListener, icon, false
 		);
-		return temp;
 	}
 
 
@@ -145,13 +144,14 @@ public class ModelLoader {
 		return blankTextureModel;
 	}
 
-	public static void loadModel(MainPanel mainPanel, boolean temporary, boolean selectNewTab, ModelPanel modelPanel) {
+	public static void loadModel(boolean temporary, boolean selectNewTab, ModelPanel modelPanel) {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if (temporary) {
 			modelPanel.getModelView().getModel().setTemp(true);
 		}
 		JMenuItem menuItem = new JMenuItem(modelPanel.getModel().getName());
 		menuItem.setIcon(modelPanel.getIcon());
-		menuItem.addActionListener(e -> setCurrentModel(mainPanel, modelPanel));
+		menuItem.addActionListener(e -> setCurrentModel(modelPanel));
 		modelPanel.setJMenuItem(menuItem);
 
 		modelPanel.getModelView().addStateListener(new RepaintingModelStateListener(mainPanel));
@@ -161,12 +161,12 @@ public class ModelLoader {
 
 		if (ProgramGlobals.getCurrentModelPanel() == modelPanel) {
 //			mainPanel.geoControl = new JScrollPane(modelPanel.getModelViewManagingTree());
-			mainPanel.viewportControllerWindowView.setComponent(modelPanel.getModelEditingTreePane());
-			mainPanel.viewportControllerWindowView.repaint();
+			mainPanel.getViewportControllerWindowView().setComponent(modelPanel.getModelEditingTreePane());
+			mainPanel.getViewportControllerWindowView().repaint();
 //			mainPanel.geoControlModelData = new JScrollPane(modelPanel.getModelComponentBrowserTree());
-			mainPanel.modelDataView.setComponent(modelPanel.getComponentBrowserTreePane());
-			mainPanel.modelComponentView.setComponent(modelPanel.getComponentsPanel());
-			mainPanel.modelDataView.repaint();
+			mainPanel.getModelDataView().setComponent(modelPanel.getComponentBrowserTreePane());
+			mainPanel.getModelComponentView().setComponent(modelPanel.getComponentsPanel());
+			mainPanel.getModelDataView().repaint();
 		}
 		if (selectNewTab) {
 			modelPanel.getMenuItem().doClick();
@@ -192,57 +192,58 @@ public class ModelLoader {
 		}
 	}
 
-	public static void setCurrentModel(MainPanel mainPanel, ModelPanel modelPanel) {
+	public static void setCurrentModel(ModelPanel modelPanel) {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		ProgramGlobals.setCurrentModelPanel(modelPanel);
 		if (ProgramGlobals.getCurrentModelPanel() == null) {
 			JPanel jPanel = new JPanel();
 			jPanel.add(new JLabel("..."));
-			mainPanel.viewportControllerWindowView.setComponent(jPanel);
+			mainPanel.getViewportControllerWindowView().setComponent(jPanel);
 
-			mainPanel.frontView.setComponent(new JPanel());
-			mainPanel.bottomView.setComponent(new JPanel());
-			mainPanel.leftView.setComponent(new JPanel());
-			mainPanel.perspectiveView.setComponent(new JPanel());
-			mainPanel.previewView.setComponent(new JPanel());
-			mainPanel.animationControllerView.setComponent(new JPanel());
-			refreshAnimationModeState(mainPanel);
+			mainPanel.getFrontView().setComponent(new JPanel());
+			mainPanel.getBottomView().setComponent(new JPanel());
+			mainPanel.getLeftView().setComponent(new JPanel());
+			mainPanel.getPerspectiveView().setComponent(new JPanel());
+			mainPanel.getPreviewView().setComponent(new JPanel());
+			mainPanel.getAnimationControllerView().setComponent(new JPanel());
+			refreshAnimationModeState();
 
-			mainPanel.timeSliderPanel.setModelHandler(null);
-			mainPanel.creatorPanel.setModelEditorManager(null);
-			mainPanel.creatorPanel.setCurrentModel(null);
+			mainPanel.getTimeSliderPanel().setModelHandler(null);
+			mainPanel.getCreatorPanel().setModelEditorManager(null);
+			mainPanel.getCreatorPanel().setCurrentModel(null);
 
-			mainPanel.modelDataView.setComponent(new JPanel());
-			mainPanel.modelComponentView.setComponent(new JPanel());
+			mainPanel.getModelDataView().setComponent(new JPanel());
+			mainPanel.getModelComponentView().setComponent(new JPanel());
 		} else {
-			mainPanel.viewportControllerWindowView.setComponent(modelPanel.getModelEditingTreePane());
+			mainPanel.getViewportControllerWindowView().setComponent(modelPanel.getModelEditingTreePane());
 
-			mainPanel.frontView.setComponent(modelPanel.getFrontArea());
-			mainPanel.bottomView.setComponent(modelPanel.getBotArea());
-			mainPanel.leftView.setComponent(modelPanel.getSideArea());
-			mainPanel.perspectiveView.setComponent(modelPanel.getPerspArea());
-			mainPanel.previewView.setComponent(modelPanel.getAnimationViewer());
-			mainPanel.animationControllerView.setComponent(modelPanel.getAnimationController());
-			refreshAnimationModeState(mainPanel);
+			mainPanel.getFrontView().setComponent(modelPanel.getFrontArea());
+			mainPanel.getBottomView().setComponent(modelPanel.getBotArea());
+			mainPanel.getLeftView().setComponent(modelPanel.getSideArea());
+			mainPanel.getPerspectiveView().setComponent(modelPanel.getPerspArea());
+			mainPanel.getPreviewView().setComponent(modelPanel.getAnimationViewer());
+			mainPanel.getAnimationControllerView().setComponent(modelPanel.getAnimationController());
+			refreshAnimationModeState();
 
-			mainPanel.timeSliderPanel.setModelHandler(ProgramGlobals.getCurrentModelPanel().getModelHandler());
-			mainPanel.creatorPanel.setModelEditorManager(ProgramGlobals.getCurrentModelPanel().getModelEditorManager());
-			mainPanel.creatorPanel.setCurrentModel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
+			mainPanel.getTimeSliderPanel().setModelHandler(ProgramGlobals.getCurrentModelPanel().getModelHandler());
+			mainPanel.getCreatorPanel().setModelEditorManager(ProgramGlobals.getCurrentModelPanel().getModelEditorManager());
+			mainPanel.getCreatorPanel().setCurrentModel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
 
-			mainPanel.modelDataView.setComponent(modelPanel.getComponentBrowserTreePane());
-			mainPanel.modelComponentView.setComponent(modelPanel.getComponentsPanel());
+			mainPanel.getModelDataView().setComponent(modelPanel.getComponentBrowserTreePane());
+			mainPanel.getModelComponentView().setComponent(modelPanel.getComponentsPanel());
 
 			ProgramGlobals.getCurrentModelPanel().reloadComponentBrowser();
 			ProgramGlobals.getCurrentModelPanel().reloadModelEditingTree();
 		}
 		mainPanel.viewportListener.viewportChanged(null);
-		mainPanel.timeSliderPanel.revalidateKeyframeDisplay();
+		mainPanel.getTimeSliderPanel().revalidateKeyframeDisplay();
 	}
 
-	public static void loadFile(MainPanel mainPanel, final File f) {
-		loadFile(mainPanel, f, false, true, MDLIcon);
+	public static void loadFile(final File f) {
+		loadFile(f, false, true, MDLIcon);
 	}
 
-	public static void loadFile(MainPanel mainPanel, final File f, boolean temporary, final boolean selectNewTab, final ImageIcon icon) {
+	public static void loadFile(final File f, boolean temporary, final boolean selectNewTab, final ImageIcon icon) {
 		System.out.println("loadFile: " + f.getName());
 		System.out.println("filePath: " + f.getPath());
 		ExtFilter extFilter = new ExtFilter();
@@ -260,7 +261,7 @@ public class ModelLoader {
 				model.setTemp(true);
 				//            model.setFileRef(f);
 				temporary = false;
-				tempModelPanel = newTempModelPanel(mainPanel, icon, model);
+				tempModelPanel = newTempModelPanel(icon, model);
 
 			}
 
@@ -270,7 +271,7 @@ public class ModelLoader {
 					final EditableModel model = MdxUtils.loadEditable(f);
 					model.setFileRef(f);
 
-					tempModelPanel = newTempModelPanel(mainPanel, icon, model);
+					tempModelPanel = newTempModelPanel(icon, model);
 
 				} catch (final IOException e) {
 					e.printStackTrace();
@@ -297,17 +298,17 @@ public class ModelLoader {
 					EditableModel model = twiAiSceneParser.getEditableModel();
 					model.setFileRef(f);
 					//
-					tempModelPanel = newTempModelPanel(mainPanel, icon, model);
+					tempModelPanel = newTempModelPanel(icon, model);
 				} catch (final Exception e) {
 					ExceptionPopup.display(e);
 					e.printStackTrace();
 				}
 			}
 			if (tempModelPanel != null) {
-				loadModel(mainPanel, temporary, selectNewTab, tempModelPanel);
+				loadModel(temporary, selectNewTab, tempModelPanel);
 			}
 		} else if (SaveProfile.get().getRecent().contains(f.getPath())) {
-			int option = JOptionPane.showConfirmDialog(mainPanel, "Could not find the file.\nRemove from recent?", "File not found", JOptionPane.YES_NO_OPTION);
+			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), "Could not find the file.\nRemove from recent?", "File not found", JOptionPane.YES_NO_OPTION);
 			if (option == JOptionPane.YES_OPTION) {
 				SaveProfile.get().removeFromRecent(f.getPath());
 				MenuBar.updateRecent();
@@ -315,7 +316,7 @@ public class ModelLoader {
 		}
 	}
 
-	public static void revert(MainPanel mainPanel) {
+	public static void revert() {
 		final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		final int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
 		if (modelPanel != null) {
@@ -324,18 +325,18 @@ public class ModelLoader {
 				MenuBar.removeModelPanel(modelPanel);
 				if (ProgramGlobals.getModelPanels().size() > 0) {
 					final int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);
-					setCurrentModel(mainPanel, ProgramGlobals.getModelPanels().get(newIndex));
+					setCurrentModel(ProgramGlobals.getModelPanels().get(newIndex));
 				} else {
 					// TODO remove from notifiers to fix leaks
-					setCurrentModel(mainPanel, null);
+					setCurrentModel(null);
 				}
 				final File fileToRevert = modelPanel.getModel().getFile();
-				loadFile(mainPanel, fileToRevert);
+				loadFile(fileToRevert);
 			}
 		}
 	}
 
-	public static void loadFile(MainPanel mainPanel, File f, boolean temporary) {
-		loadFile(mainPanel, f, temporary, true, MDLIcon);
+	public static void loadFile(File f, boolean temporary) {
+		loadFile(f, temporary, true, MDLIcon);
 	}
 }

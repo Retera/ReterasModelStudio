@@ -12,7 +12,6 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.scripts.ChangeAnimationLengthFrame;
@@ -42,9 +41,10 @@ public class ScriptActions {
 		modelPanel.getUndoManager().pushAction(action.redo());
 	}
 
-	public static void mergeGeosetActionRes2(MainPanel mainPanel) {
-		EditableModel current = mainPanel.currentMDL();
-		if (current != null) {
+	public static void mergeGeosetActionRes2() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			EditableModel current = modelPanel.getModel();
 			JPanel geosetChoosingPanel = new JPanel(new MigLayout("ins 0"));
 
 			SmartButtonGroup donGeosetGroup = new SmartButtonGroup();
@@ -59,9 +59,8 @@ public class ScriptActions {
 			geosetChoosingPanel.add(donGeosetGroup.getButtonPanel());
 			geosetChoosingPanel.add(recGeosetGroup.getButtonPanel());
 
-			int option = JOptionPane.showConfirmDialog(mainPanel, geosetChoosingPanel, "Merge Geoset into Geoset", JOptionPane.OK_CANCEL_OPTION);
+			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), geosetChoosingPanel, "Merge Geoset into Geoset", JOptionPane.OK_CANCEL_OPTION);
 			if (option == JOptionPane.OK_OPTION && geoMap.containsKey(0) && geoMap.containsKey(1) && geoMap.get(0) != geoMap.get(1)) {
-				ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 				ModelHandler modelHandler = modelPanel.getModelHandler();
 				MergeGeosetsAction action = new MergeGeosetsAction(geoMap.get(0), geoMap.get(1), modelHandler.getModelView(), modelPanel.getModelStructureChangeListener());
 				modelHandler.getUndoManager().pushAction(action.redo());
@@ -69,17 +68,17 @@ public class ScriptActions {
 		}
 	}
 
-	public static void mergeGeosetActionRes(MainPanel mainPanel) {
-		FileDialog fileDialog = new FileDialog(mainPanel);
+	public static void mergeGeosetActionRes() {
+		FileDialog fileDialog = new FileDialog();
 //
-		EditableModel current = mainPanel.currentMDL();
+		EditableModel current = ProgramGlobals.getCurrentModelPanel().getModel();
 		EditableModel geoSource = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
 
 		if (geoSource != null) {
 			boolean going = true;
 			Geoset host = null;
 			while (going) {
-				String s = JOptionPane.showInputDialog(mainPanel,
+				String s = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
 						"Geoset into which to Import: (1 to " + current.getGeosetsSize() + ")");
 				try {
 					int x = Integer.parseInt(s);
@@ -94,7 +93,7 @@ public class ScriptActions {
 			Geoset newGeoset = null;
 			going = true;
 			while (going) {
-				String s = JOptionPane.showInputDialog(mainPanel, "Geoset to Import: (1 to " + geoSource.getGeosetsSize() + ")");
+				String s = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(), "Geoset to Import: (1 to " + geoSource.getGeosetsSize() + ")");
 				try {
 					int x = Integer.parseInt(s);
 					if ((x >= 1) && x <= geoSource.getGeosetsSize()) {
@@ -172,7 +171,8 @@ public class ScriptActions {
 //        }
 //    }
 
-	public static void exportAnimatedToStaticMesh(MainPanel mainPanel) {
+	public static void exportAnimatedToStaticMesh() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if (!mainPanel.animationModeState) {
 			JOptionPane.showMessageDialog(mainPanel, "You must be in the Animation Editor to use that!",
 					"Error", JOptionPane.ERROR_MESSAGE);
@@ -265,29 +265,31 @@ public class ScriptActions {
 			}
 		}
 
-		FileDialog fileDialog = new FileDialog(mainPanel);
+		FileDialog fileDialog = new FileDialog();
 		fileDialog.onClickSaveAs(frozenModel, FileDialog.SAVE_MODEL, false);
 	}
 
-	public static void combineAnimations(MainPanel mainPanel) {
-		List<Animation> anims = mainPanel.currentMDL().getAnims();
+	public static void combineAnimations() {
+		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
+		List<Animation> anims = model.getAnims();
 		Animation[] array = anims.toArray(new Animation[0]);
-		Object choice = JOptionPane.showInputDialog(mainPanel, "Pick the first animation",
+		Object choice = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
+				"Pick the first animation",
 				"Choose 1st Anim", JOptionPane.PLAIN_MESSAGE, null, array, array[0]);
 		Animation animation = (Animation) choice;
 
-		Object choice2 = JOptionPane.showInputDialog(mainPanel, "Pick the second animation",
+		Object choice2 = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
+				"Pick the second animation",
 				"Choose 2nd Anim", JOptionPane.PLAIN_MESSAGE, null, array, array[0]);
 		Animation animation2 = (Animation) choice2;
 
-		String nameChoice = JOptionPane.showInputDialog(mainPanel,
+		String nameChoice = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
 				"What should the combined animation be called?");
 		if (nameChoice != null) {
 			int anim1Length = animation.getEnd() - animation.getStart();
 			int anim2Length = animation2.getEnd() - animation2.getStart();
 			int totalLength = anim1Length + anim2Length;
 
-			EditableModel model = mainPanel.currentMDL();
 			int animTrackEnd = model.animTrackEnd();
 			int start = animTrackEnd + 1000;
 			animation.copyToInterval(start, start + anim1Length, model.getAllAnimFlags(), model.getEvents());
@@ -297,19 +299,19 @@ public class ScriptActions {
 			model.add(newAnimation);
 			newAnimation.setNonLooping(true);
 			newAnimation.setExtents(new ExtLog(animation.getExtents()));
-			JOptionPane.showMessageDialog(mainPanel,
+			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(),
 					"DONE! Made a combined animation called " + newAnimation.getName(), "Success",
 					JOptionPane.PLAIN_MESSAGE);
 		}
 	}
 
-	public static void scaleAnimations(MainPanel mainPanel) {
-		ChangeAnimationLengthFrame aFrame = new ChangeAnimationLengthFrame(ProgramGlobals.getCurrentModelPanel(), () -> mainPanel.timeSliderPanel.revalidateKeyframeDisplay());
+	public static void scaleAnimations() {
+		ChangeAnimationLengthFrame aFrame = new ChangeAnimationLengthFrame(ProgramGlobals.getCurrentModelPanel(), () -> ProgramGlobals.getMainPanel().getTimeSliderPanel().revalidateKeyframeDisplay());
 		aFrame.setVisible(true);
 	}
 
-	public static void nullmodelButtonActionRes(MainPanel mainPanel) {
-		nullModelFile(mainPanel);
+	public static void nullmodelButtonActionRes() {
+		nullModelFile();
 		if (ProgramGlobals.getCurrentModelPanel() != null) {
 			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
 		}
@@ -384,20 +386,21 @@ public class ScriptActions {
 		return output;
 	}
 
-	public static void nullModelFile(MainPanel mainPanel) {
-		EditableModel currentMDL = mainPanel.currentMDL();
-		if (currentMDL != null) {
+	public static void nullModelFile() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null && modelPanel.getModel() != null) {
+			EditableModel model = modelPanel.getModel();
 			EditableModel newModel = new EditableModel();
-			newModel.copyHeaders(currentMDL);
+			newModel.copyHeaders(model);
 			if (newModel.getFileRef() == null) {
 				newModel.setFileRef(
 						new File(System.getProperty("java.io.tmpdir") + "MatrixEaterExtract/matrixeater_anonymousMDL",
 								"" + (int) (Math.random() * Integer.MAX_VALUE) + ".mdl"));
 			}
 			while (newModel.getFile().exists()) {
-				newModel.setFileRef(new File(currentMDL.getFile().getParent() + "/" + incName(newModel.getName()) + ".mdl"));
+				newModel.setFileRef(new File(model.getFile().getParent() + "/" + incName(newModel.getName()) + ".mdl"));
 			}
-			ImportPanel importPanel = new ImportPanel(newModel, TempStuffFromEditableModel.deepClone(currentMDL, "CurrentModel"));
+			ImportPanel importPanel = new ImportPanel(newModel, TempStuffFromEditableModel.deepClone(model, "CurrentModel"));
 
 			final Thread watcher = new Thread(() -> {
 				while (importPanel.getParentFrame().isVisible()
@@ -417,7 +420,7 @@ public class ScriptActions {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						ModelLoader.loadFile(mainPanel, newModel.getFile());
+						ModelLoader.loadFile(newModel.getFile());
 					}
 				}
 			});
@@ -433,7 +436,7 @@ public class ScriptActions {
 		}
 	}
 
-	public static void jokeButtonClickResponse(MainPanel mainPanel) {
+	public static void jokeButtonClickResponse() {
 		StringBuilder sb = new StringBuilder();
 		for (File file : new File(
 				"C:\\Users\\micro\\OneDrive\\Documents\\Warcraft III\\CustomMapData\\LuaFpsMap\\Maps\\MultiplayerFun004")
@@ -454,10 +457,11 @@ public class ScriptActions {
 					e1.printStackTrace();
 				}
 				String dataString = sb.toString();
+				EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
 				for (int i = 0; (i + 23) < dataString.length(); i += 24) {
 					Geoset geo = new Geoset();
-					mainPanel.currentMDL().addGeoset(geo);
-					geo.setParentModel(mainPanel.currentMDL());
+					model.addGeoset(geo);
+					geo.setParentModel(model);
 					geo.setMaterial(new Material(new Layer("Blend", new Bitmap("textures\\white.blp"))));
 					String data = dataString.substring(i, i + 24);
 					int x = Integer.parseInt(data.substring(0, 3));
@@ -483,13 +487,14 @@ public class ScriptActions {
 			}
 
 		}
-		mainPanel.modelStructureChangeListener.geosetsUpdated();
+		ProgramGlobals.getMainPanel().modelStructureChangeListener.geosetsUpdated();
 	}
 
 	/**
 	 * Please, for the love of Pete, don't actually do this.
 	 */
-	public static void convertToV800(int targetLevelOfDetail, EditableModel model) {
+	public static void convertToV800(int targetLevelOfDetail) {
+		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
 		// Things to fix:
 		// 1.) format version
 		model.setFormatVersion(800);
@@ -630,24 +635,24 @@ public class ScriptActions {
 	}
 
 
-	public static void removeLoDs(MainPanel mainPanel) {
+	public static void removeLoDs() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			JPanel panel = new JPanel(new MigLayout());
 			panel.add(new JLabel("LoD to remove"));
 			JSpinner spinner = new JSpinner(new SpinnerNumberModel(2, -2, 10, 1));
 			panel.add(spinner, "wrap");
-			int option = JOptionPane.showConfirmDialog(mainPanel, panel, "Remove LoDs", JOptionPane.OK_CANCEL_OPTION);
+			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), panel, "Remove LoDs", JOptionPane.OK_CANCEL_OPTION);
 			if (option == JOptionPane.OK_OPTION) {
-				removeLoDGeoset(modelPanel, (int) spinner.getValue(), mainPanel.getModelStructureChangeListener());
+				removeLoDGeoset(modelPanel, (int) spinner.getValue());
 
 //				modelPanel.getUndoManager().pushAction(modelPanel.getModelEditorManager().getModelEditor().recalcNormals(lastNormalMaxAngle, useTris));
 			}
 		}
-		mainPanel.repaint();
+		ProgramGlobals.getMainPanel().repaint();
 	}
 
-	public static void removeLoDGeoset(ModelPanel modelPanel, int lodToRemove, ModelStructureChangeListener changeListener) {
+	public static void removeLoDGeoset(ModelPanel modelPanel, int lodToRemove) {
 		EditableModel model = modelPanel.getModel();
 		List<Geoset> lodGeosToRemove = new ArrayList<>();
 		for (Geoset geo : model.getGeosets()) {
@@ -656,14 +661,16 @@ public class ScriptActions {
 			}
 		}
 		if (model.getGeosets().size() > lodGeosToRemove.size()) {
-			DeleteGeosetAction deleteGeosetAction = new DeleteGeosetAction(lodGeosToRemove, changeListener);
+			DeleteGeosetAction deleteGeosetAction = new DeleteGeosetAction(lodGeosToRemove, modelPanel.getModelStructureChangeListener());
 			CompoundAction deletActions = new CompoundAction("Delete LoD=" + lodToRemove + " geosets", deleteGeosetAction);
 			modelPanel.getUndoManager().pushAction(deletActions);
 			deletActions.redo();
 		}
 	}
 
-	public static void makeItHD(EditableModel model) {
+	public static void makeItHD() {
+		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
+
 		for (Geoset geo : model.getGeosets()) {
 			geo.makeHd();
 		}

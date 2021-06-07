@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.ui.application.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import net.infonode.docking.RootWindow;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -10,28 +11,28 @@ import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.*;
 
 public class WindowsMenu extends JMenu {
 
-	public WindowsMenu(MainPanel mainPanel) {
+	public WindowsMenu() {
 		super("Window");
 		setMnemonic(KeyEvent.VK_W);
 		getAccessibleContext().setAccessibleDescription("Allows the user to open various windows containing the program features.");
 
 		JMenuItem resetViewButton = new JMenuItem("Reset Layout");
-		resetViewButton.addActionListener(e -> WindowHandler.resetView(mainPanel));
+		resetViewButton.addActionListener(e -> WindowHandler.resetView());
 		add(resetViewButton);
 
-		JMenu viewsMenu = getViewsMenu(mainPanel);
+		JMenu viewsMenu = getViewsMenu();
 		add(viewsMenu);
 
 		JMenu browsersMenu = createMenu("Browsers", KeyEvent.VK_B);
 		add(browsersMenu);
 
-		createAndAddMenuItem("Data Browser", browsersMenu, KeyEvent.VK_A, e -> MPQBrowserView.openMPQViewer(mainPanel));
-		createAndAddMenuItem("Unit Browser", browsersMenu, KeyEvent.VK_U, e -> MenuBarActions.openUnitViewer(mainPanel));
-		createAndAddMenuItem("Doodad Browser", browsersMenu, KeyEvent.VK_D, e -> InternalFileLoader.OpenDoodadViewer(mainPanel));
+		createAndAddMenuItem("Data Browser", browsersMenu, KeyEvent.VK_A, e -> MPQBrowserView.openMPQViewer());
+		createAndAddMenuItem("Unit Browser", browsersMenu, KeyEvent.VK_U, e -> MenuBarActions.openUnitViewer());
+		createAndAddMenuItem("Doodad Browser", browsersMenu, KeyEvent.VK_D, e -> InternalFileLoader.OpenDoodadViewer());
 
 		JMenuItem hiveViewer = new JMenuItem("Hive Browser");
 		hiveViewer.setMnemonic(KeyEvent.VK_H);
-		hiveViewer.addActionListener(e -> MenuBarActions.openHiveViewer(mainPanel));
+		hiveViewer.addActionListener(e -> MenuBarActions.openHiveViewer());
 
 		addSeparator();
 	}
@@ -44,21 +45,23 @@ public class WindowsMenu extends JMenu {
 		remove(modelPanel.getMenuItem());
 	}
 
-	private JMenu getViewsMenu(MainPanel mainPanel) {
+	private JMenu getViewsMenu() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		JMenu viewsMenu = createMenu("Views", KeyEvent.VK_V);
 
-		viewsMenu.add(createMenuItem("Animation Preview", KeyEvent.VK_A, OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Animation Preview", mainPanel.previewView)));
-		viewsMenu.add(createMenuItem("Animation Controller", KeyEvent.VK_C, OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Animation Controller", mainPanel.animationControllerView)));
-		viewsMenu.add(createMenuItem("Modeling", KeyEvent.VK_M, OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Modeling", mainPanel.creatorView)));
-		viewsMenu.add(createMenuItem("Outliner", KeyEvent.VK_O, OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Outliner", mainPanel.viewportControllerWindowView)));
-		viewsMenu.add(createMenuItem("Perspective", KeyEvent.VK_P, OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Perspective", mainPanel.perspectiveView)));
-		viewsMenu.add(createMenuItem("Front", KeyEvent.VK_F, OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Front", mainPanel.frontView)));
-		viewsMenu.add(createMenuItem("Side", KeyEvent.VK_S, OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Side", mainPanel.leftView)));
-		viewsMenu.add(createMenuItem("Bottom", KeyEvent.VK_B, OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Bottom", mainPanel.bottomView)));
-		viewsMenu.add(createMenuItem("Tools", KeyEvent.VK_T, OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Tools", mainPanel.toolView)));
-		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_C, OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Model", mainPanel.modelDataView)));
-		viewsMenu.add(createMenuItem("Footer", OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Footer", mainPanel.timeSliderView)));
-		viewsMenu.add(createMenuItem("Matrix Eater Script", KeyEvent.VK_H, KeyStroke.getKeyStroke("control P"), e -> ScriptView.openScriptView(mainPanel)));
+		RootWindow rootWindow = mainPanel.getRootWindow();
+		viewsMenu.add(createMenuItem("Animation Preview", KeyEvent.VK_A, OpenViewAction.getOpenViewAction(rootWindow, "Animation Preview", mainPanel.getPreviewView())));
+		viewsMenu.add(createMenuItem("Animation Controller", KeyEvent.VK_C, OpenViewAction.getOpenViewAction(rootWindow, "Animation Controller", mainPanel.getAnimationControllerView())));
+		viewsMenu.add(createMenuItem("Modeling", KeyEvent.VK_M, OpenViewAction.getOpenViewAction(rootWindow, "Modeling", mainPanel.getCreatorView())));
+		viewsMenu.add(createMenuItem("Outliner", KeyEvent.VK_O, OpenViewAction.getOpenViewAction(rootWindow, "Outliner", mainPanel.getViewportControllerWindowView())));
+		viewsMenu.add(createMenuItem("Perspective", KeyEvent.VK_P, OpenViewAction.getOpenViewAction(rootWindow, "Perspective", mainPanel.getPerspectiveView())));
+		viewsMenu.add(createMenuItem("Front", KeyEvent.VK_F, OpenViewAction.getOpenViewAction(rootWindow, "Front", mainPanel.getFrontView())));
+		viewsMenu.add(createMenuItem("Side", KeyEvent.VK_S, OpenViewAction.getOpenViewAction(rootWindow, "Side", mainPanel.getLeftView())));
+		viewsMenu.add(createMenuItem("Bottom", KeyEvent.VK_B, OpenViewAction.getOpenViewAction(rootWindow, "Bottom", mainPanel.getBottomView())));
+		viewsMenu.add(createMenuItem("Tools", KeyEvent.VK_T, OpenViewAction.getOpenViewAction(rootWindow, "Tools", mainPanel.getToolView())));
+		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_C, OpenViewAction.getOpenViewAction(rootWindow, "Model", mainPanel.getModelDataView())));
+		viewsMenu.add(createMenuItem("Footer", OpenViewAction.getOpenViewAction(rootWindow, "Footer", mainPanel.getTimeSliderView())));
+		viewsMenu.add(createMenuItem("Matrix Eater Script", KeyEvent.VK_H, KeyStroke.getKeyStroke("control P"), e -> ScriptView.openScriptView()));
 		return viewsMenu;
 	}
 }

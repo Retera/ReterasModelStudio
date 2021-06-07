@@ -7,14 +7,14 @@ import javax.swing.*;
 public class ClosePopup {
 	static JPopupMenu contextMenu;
 
-	static void createContextMenuPopup(MainPanel mainPanel) {
+	static void createContextMenuPopup() {
 		contextMenu = new JPopupMenu();
 		JMenuItem contextClose = new JMenuItem("Close");
 		contextClose.addActionListener(e -> ProgramGlobals.getUndoHandler().refreshUndo());
 		contextMenu.add(contextClose);
 
 		JMenuItem contextCloseOthers = new JMenuItem("Close Others");
-		contextCloseOthers.addActionListener(e -> MenuBarActions.closeOthers(mainPanel));
+		contextCloseOthers.addActionListener(e -> MenuBarActions.closeOthers());
 		contextMenu.add(contextCloseOthers);
 
 		JMenuItem contextCloseAll = new JMenuItem("Close All");

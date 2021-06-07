@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -10,12 +9,10 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import javax.swing.*;
 
 public class TeamColorMenu extends JMenu {
-	private MainPanel mainPanel;
 
-	public TeamColorMenu(MainPanel mainPanel) {
+	public TeamColorMenu() {
 		super("Team Color");
 		getAccessibleContext().setAccessibleDescription("Allows the user to control team color settings.");
-		this.mainPanel = mainPanel;
 		createTeamColorMenuItems();
 	}
 

@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application.tools;
 import com.hiveworkshop.rms.editor.actions.animation.SimplifyKeyframesAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.CheckSpinner;
@@ -30,9 +29,9 @@ public class SimplifyKeyframesPanel extends JPanel {
 
 		transCheckSpinner = new CheckSpinner("Translation keyframes", allowed);
 		add(transCheckSpinner, "wrap");
-		scaleCheckSpinner = new CheckSpinner("Translation keyframes", allowed);
+		scaleCheckSpinner = new CheckSpinner("Scaling keyframes", allowed);
 		add(scaleCheckSpinner, "wrap");
-		rotCheckSpinner = new CheckSpinner("Translation keyframes", allowed);
+		rotCheckSpinner = new CheckSpinner("Rotation keyframes", allowed);
 		add(rotCheckSpinner, "wrap");
 
 		JButton simplifyButton = new JButton("Simplify");
@@ -59,15 +58,21 @@ public class SimplifyKeyframesPanel extends JPanel {
 		FramePopup.show(new SimplifyKeyframesPanel(), parent, "Simplyfy keyframes");
 	}
 
-	public static void simplifyKeyframes(MainPanel mainPanel) {
-		final int x = JOptionPane.showConfirmDialog(mainPanel,
+	public static void simplifyKeyframes() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		final int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
 				"This is an irreversible process that will lose some of your model data," +
 						"\nin exchange for making it a smaller storage size." +
 						"\n\nContinue and simplify keyframes?",
 				"Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
-		if (x == JOptionPane.OK_OPTION) {
-			final EditableModel currentMDL = mainPanel.currentMDL();
+		if (x == JOptionPane.OK_OPTION && modelPanel != null) {
+			final EditableModel currentMDL = modelPanel.getModel();
 			simplifyKeyframes(currentMDL);
+		} else if (modelPanel != null) {
+			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(),
+					"No open model found",
+					"No model",
+					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

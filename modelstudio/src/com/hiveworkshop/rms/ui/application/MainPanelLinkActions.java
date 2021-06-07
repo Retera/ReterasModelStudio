@@ -17,7 +17,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.ActionMapActions;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.TabWindow;
@@ -33,7 +32,7 @@ import java.util.Set;
 public class MainPanelLinkActions {
 
 
-	public void linkActions(final MainPanel mainPanel, final JComponent root) {
+	public void linkActions(final JComponent root) {
 		int isAncestor = JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT;
 		InputMap inputMap = root.getInputMap(isAncestor);
 		ActionMap actionMap = root.getActionMap();
@@ -45,106 +44,107 @@ public class MainPanelLinkActions {
 		actionMap.put("Redo", ProgramGlobals.getUndoHandler().getRedoAction());
 
 		inputMap.put(KeyStroke.getKeyStroke("DELETE"), "Delete");
-		actionMap.put("Delete", getAsAction("Delete", () -> deleteActionRes(mainPanel)));
+		actionMap.put("Delete", getAsAction("Delete", () -> deleteActionRes()));
 
-		actionMap.put("CloneSelection", getAsAction("CloneSelection", () -> cloneActionRes(mainPanel)));
+		actionMap.put("CloneSelection", getAsAction("CloneSelection", () -> cloneActionRes()));
 
 //		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("shift pressed SHIFT"), "shiftSelect");
 ////		root.getActionMap().put("shiftSelect", shiftSelectAction(mainPanel));
 //		root.getActionMap().put("shiftSelect", new AcAd(e -> shiftSelectActionRes(mainPanel)));
 
 		inputMap.put(KeyStroke.getKeyStroke("SPACE"), "MaximizeSpacebar");
-		actionMap.put("MaximizeSpacebar", getAsAction(() -> maximizeFocusedWindow(mainPanel)));
+		actionMap.put("MaximizeSpacebar", getAsAction(() -> maximizeFocusedWindow()));
 
 		inputMap.put(KeyStroke.getKeyStroke("RIGHT"), "PressRight");
-		actionMap.put("PressRight", nextKeyframe(mainPanel));
+		actionMap.put("PressRight", nextKeyframe());
 
 		inputMap.put(KeyStroke.getKeyStroke("LEFT"), "PressLeft");
-		actionMap.put("PressLeft", previousKeyframe(mainPanel));
+		actionMap.put("PressLeft", previousKeyframe());
 
 		inputMap.put(KeyStroke.getKeyStroke("UP"), "PressUp");
-		actionMap.put("PressUp", jumpFramesAction(mainPanel, 1));
+		actionMap.put("PressUp", jumpFramesAction(1));
 
 		inputMap.put(KeyStroke.getKeyStroke("shift UP"), "PressShiftUp");
-		actionMap.put("PressShiftUp", jumpFramesAction(mainPanel, 10));
+		actionMap.put("PressShiftUp", jumpFramesAction(10));
 
 		inputMap.put(KeyStroke.getKeyStroke("DOWN"), "PressDown");
-		actionMap.put("PressDown", jumpFramesAction(mainPanel, -1));
+		actionMap.put("PressDown", jumpFramesAction(-1));
 
 		inputMap.put(KeyStroke.getKeyStroke("shift DOWN"), "PressShiftDown");
-		actionMap.put("PressShiftDown", jumpFramesAction(mainPanel, -10));
+		actionMap.put("PressShiftDown", jumpFramesAction(-10));
 
 		inputMap.put(KeyStroke.getKeyStroke("control SPACE"), "PlayKeyboardKey");
-		actionMap.put("PlayKeyboardKey", playKeyboardKeyAction(mainPanel));
+		actionMap.put("PlayKeyboardKey", playKeyboardKeyAction());
 
 		inputMap.put(KeyStroke.getKeyStroke("W"), "WKeyboardKey");
-		actionMap.put("WKeyboardKey", setTransformModeAnim(mainPanel, ModelEditorActionType3.TRANSLATION));
+		actionMap.put("WKeyboardKey", setTransformModeAnim(ModelEditorActionType3.TRANSLATION));
 
 		inputMap.put(KeyStroke.getKeyStroke("E"), "EKeyboardKey");
-		actionMap.put("EKeyboardKey", setTransformModeAnim(mainPanel, ModelEditorActionType3.SCALING));
+		actionMap.put("EKeyboardKey", setTransformModeAnim(ModelEditorActionType3.SCALING));
 
 		inputMap.put(KeyStroke.getKeyStroke("R"), "RKeyboardKey");
-		actionMap.put("RKeyboardKey", setTransformModeAnim(mainPanel, ModelEditorActionType3.ROTATION));
+		actionMap.put("RKeyboardKey", setTransformModeAnim(ModelEditorActionType3.ROTATION));
 
 		inputMap.put(KeyStroke.getKeyStroke("T"), "TKeyboardKey");
-		actionMap.put("TKeyboardKey", setTransformMode(mainPanel, ModelEditorActionType3.EXTRUDE));
+		actionMap.put("TKeyboardKey", setTransformMode(ModelEditorActionType3.EXTRUDE));
 
 		inputMap.put(KeyStroke.getKeyStroke("Y"), "YKeyboardKey");
-		actionMap.put("YKeyboardKey", setTransformMode(mainPanel, ModelEditorActionType3.EXTEND));
+		actionMap.put("YKeyboardKey", setTransformMode(ModelEditorActionType3.EXTEND));
 
 		inputMap.put(KeyStroke.getKeyStroke("A"), "AKeyboardKey");
-		actionMap.put("AKeyboardKey", setSelectionType(mainPanel, SelectionItemTypes.ANIMATE));
+		actionMap.put("AKeyboardKey", setSelectionType(SelectionItemTypes.ANIMATE));
 
 		inputMap.put(KeyStroke.getKeyStroke("S"), "SKeyboardKey");
-		actionMap.put("SKeyboardKey", setSelectionType(mainPanel, SelectionItemTypes.VERTEX));
+		actionMap.put("SKeyboardKey", setSelectionType(SelectionItemTypes.VERTEX));
 
 		inputMap.put(KeyStroke.getKeyStroke("D"), "DKeyboardKey");
-		actionMap.put("DKeyboardKey", setSelectionType(mainPanel, SelectionItemTypes.CLUSTER));
+		actionMap.put("DKeyboardKey", setSelectionType(SelectionItemTypes.CLUSTER));
 
 		inputMap.put(KeyStroke.getKeyStroke("F"), "FKeyboardKey");
-		actionMap.put("FKeyboardKey", setSelectionType(mainPanel, SelectionItemTypes.FACE));
+		actionMap.put("FKeyboardKey", setSelectionType(SelectionItemTypes.FACE));
 
 		inputMap.put(KeyStroke.getKeyStroke("G"), "GKeyboardKey");
-		actionMap.put("GKeyboardKey", setSelectionType(mainPanel, SelectionItemTypes.GROUP));
+		actionMap.put("GKeyboardKey", setSelectionType(SelectionItemTypes.GROUP));
 
 		inputMap.put(KeyStroke.getKeyStroke("Z"), "ZKeyboardKey");
 		actionMap.put("ZKeyboardKey", toggleWireFrame());
 
 		inputMap.put(KeyStroke.getKeyStroke("control F"), "CreateFaceShortcut");
-		actionMap.put("CreateFaceShortcut", getAsAction(() -> createFace(mainPanel)));
+		actionMap.put("CreateFaceShortcut", getAsAction(() -> createFace()));
 
 		for (int i = 1; i <= 9; i++) {
 			inputMap.put(KeyStroke.getKeyStroke("alt pressed " + i), i + "KeyboardKey");
 			final int index = i;
-			actionMap.put(i + "KeyboardKey", getAsAction(() -> keyPressedAction(mainPanel, index)));
+			actionMap.put(i + "KeyboardKey", getAsAction(() -> keyPressedAction(index)));
 		}
 
 		inputMap.put(KeyStroke.getKeyStroke("shift pressed SHIFT"), "shiftSelect");
-		actionMap.put("shiftSelect", getAsAction("shiftSelect", () -> shiftSelectActionRes(mainPanel)));
+		actionMap.put("shiftSelect", getAsAction("shiftSelect", () -> shiftSelectActionRes()));
 
 		inputMap.put(KeyStroke.getKeyStroke("alt pressed ALT"), "altSelect");
-		actionMap.put("altSelect", getAsAction("altSelect", () -> altSelectActionRes(mainPanel)));
+		actionMap.put("altSelect", getAsAction("altSelect", () -> altSelectActionRes()));
 
 		inputMap.put(KeyStroke.getKeyStroke("released SHIFT"), "unShiftSelect");
-		actionMap.put("unShiftSelect", getAsAction("unShiftSelect", () -> unShiftSelectActionRes(mainPanel)));
+		actionMap.put("unShiftSelect", getAsAction("unShiftSelect", () -> unShiftSelectActionRes()));
 
 		inputMap.put(KeyStroke.getKeyStroke("released ALT"), "unAltSelect");
-		actionMap.put("unAltSelect", getAsAction("unAltSelect", () -> unAltSelect(mainPanel)));
+		actionMap.put("unAltSelect", getAsAction("unAltSelect", () -> unAltSelect()));
 
 		inputMap.put(KeyStroke.getKeyStroke("control A"), "Select All");
-		actionMap.put("Select All", getAsAction("Select All", () -> selectAllActionRes(ProgramGlobals.getCurrentModelPanel())));
+		actionMap.put("Select All", getAsAction("Select All", () -> selectAllActionRes()));
 
 		inputMap.put(KeyStroke.getKeyStroke("control I"), "Invert Selection");
-		actionMap.put("Invert Selection", getAsAction("Invert Selection", () -> invertSelectActionRes(ProgramGlobals.getCurrentModelPanel())));
+		actionMap.put("Invert Selection", getAsAction("Invert Selection", () -> invertSelectActionRes()));
 
 		inputMap.put(KeyStroke.getKeyStroke("control E"), "Expand Selection");
-		actionMap.put("Expand Selection", getAsAction("Expand Selection", () -> getExpandSelectionActionRes(ProgramGlobals.getCurrentModelPanel())));
+		actionMap.put("Expand Selection", getAsAction("Expand Selection", () -> getExpandSelectionActionRes()));
 
 		inputMap.put(KeyStroke.getKeyStroke("control W"), "RigAction");
-		actionMap.put("RigAction", getAsAction("Rig", () -> rigActionRes(ProgramGlobals.getCurrentModelPanel())));
+		actionMap.put("RigAction", getAsAction("Rig", () -> rigActionRes()));
 	}
 
-	private void unAltSelect(MainPanel mainPanel) {
+	private void unAltSelect() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if ((mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.DESELECT) && mainPanel.cheatAlt) {
 //					mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
 			mainPanel.selectionModeGroup.setActiveButton(SelectionMode.SELECT);
@@ -152,7 +152,8 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	private void unShiftSelectActionRes(MainPanel mainPanel) {
+	private void unShiftSelectActionRes() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if (isTextField()) return;
 		if ((mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.ADD) && mainPanel.cheatShift) {
 //			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
@@ -161,7 +162,8 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	private void altSelectActionRes(MainPanel mainPanel) {
+	private void altSelectActionRes() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if (mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
 //			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.DESELECT);
 			mainPanel.selectionModeGroup.setActiveButton(SelectionMode.DESELECT);
@@ -169,7 +171,8 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	private void shiftSelectActionRes(MainPanel mainPanel) {
+	private void shiftSelectActionRes() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if (isTextField()) return;
 		if (mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
 //			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.ADD);
@@ -178,8 +181,8 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	private void keyPressedAction(MainPanel mainPanel, int index) {
-		final DockingWindow window = mainPanel.rootWindow.getWindow();
+	private void keyPressedAction(int index) {
+		final DockingWindow window = ProgramGlobals.getMainPanel().rootWindow.getWindow();
 		if (window instanceof TabWindow) {
 			final TabWindow tabWindow = (TabWindow) window;
 			final int tabCount = tabWindow.getChildWindowCount();
@@ -189,7 +192,8 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	private void createFace(MainPanel mainPanel) {
+	private void createFace() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if (!isTextField() && !mainPanel.animationModeState) {
 			try {
 				ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
@@ -215,7 +219,8 @@ public class MainPanelLinkActions {
 		});
 	}
 
-	private AbstractAction setSelectionType(MainPanel mainPanel, SelectionItemTypes t) {
+	private AbstractAction setSelectionType(SelectionItemTypes t) {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		return getAsAction(() ->
 		{
 			if (!isTextField())
@@ -223,7 +228,8 @@ public class MainPanelLinkActions {
 		});
 	}
 
-	private AbstractAction setTransformMode(MainPanel mainPanel, ModelEditorActionType3 t) {
+	private AbstractAction setTransformMode(ModelEditorActionType3 t) {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		return getAsAction(() -> {
 			if (!isTextField() && !mainPanel.animationModeState) {
 				mainPanel.actionTypeGroup.setActiveButton(t);
@@ -231,37 +237,42 @@ public class MainPanelLinkActions {
 		});
 	}
 
-	private AbstractAction setTransformModeAnim(MainPanel mainPanel, ModelEditorActionType3 t) {
+	private AbstractAction setTransformModeAnim(ModelEditorActionType3 t) {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		return getAsAction(() -> {
 			if (!isTextField()) mainPanel.actionTypeGroup.setActiveButton(t);
 		});
 	}
 
-	private AbstractAction playKeyboardKeyAction(MainPanel mainPanel) {
+	private AbstractAction playKeyboardKeyAction() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		return getAsAction(() -> {
-			if (!isTextField()) mainPanel.timeSliderPanel.play();
+			if (!isTextField()) mainPanel.getTimeSliderPanel().play();
 		});
 	}
 
-	private AbstractAction jumpFramesAction(MainPanel mainPanel, int i) {
+	private AbstractAction jumpFramesAction(int i) {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		return getAsAction(() -> {
 			if (!isTextField() && mainPanel.animationModeState) {
-				mainPanel.timeSliderPanel.jumpFrames(i);
+				mainPanel.getTimeSliderPanel().jumpFrames(i);
 			}
 		});
 	}
 
-	private AbstractAction previousKeyframe(MainPanel mainPanel) {
+	private AbstractAction previousKeyframe() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		return getAsAction(() -> {
 			if (!isTextField() && mainPanel.animationModeState) {
-				mainPanel.timeSliderPanel.jumpToPreviousTime();
+				mainPanel.getTimeSliderPanel().jumpToPreviousTime();
 			}
 		});
 	}
 
-	private AbstractAction nextKeyframe(MainPanel mainPanel) {
+	private AbstractAction nextKeyframe() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		return getAsAction(() -> {
-			if (!isTextField() && mainPanel.animationModeState) mainPanel.timeSliderPanel.jumpToNextTime();
+			if (!isTextField() && mainPanel.animationModeState) mainPanel.getTimeSliderPanel().jumpToNextTime();
 		});
 	}
 
@@ -285,7 +296,8 @@ public class MainPanelLinkActions {
 		return kfm.getFocusOwner();
 	}
 
-	private void maximizeFocusedWindow(MainPanel mainPanel) {
+	private void maximizeFocusedWindow() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if (isTextField()) return;
 		final View focusedView = mainPanel.rootWindow.getFocusedView();
 		if (focusedView != null) {
@@ -297,7 +309,8 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	public void selectAllActionRes(ModelPanel modelPanel) {
+	public void selectAllActionRes() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			UndoAction action = ModelEditActions.selectAll(modelPanel.getModelView());
 			action.redo();
@@ -305,7 +318,8 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	public void invertSelectActionRes(ModelPanel modelPanel) {
+	public void invertSelectActionRes() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			InvertSelectionAction2 invertSelectionAction = new InvertSelectionAction2(modelPanel.getModelView());
 			invertSelectionAction.redo();
@@ -314,7 +328,8 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	public void getExpandSelectionActionRes(ModelPanel modelPanel) {
+	public void getExpandSelectionActionRes() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		// ToDo this should be renamed select linked, and a real "expand selection" should be implemented (ie this without the recursive call)
 		//  also, maybe care about collision shape vertices...
 		if (modelPanel != null) {
@@ -342,13 +357,15 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	public void changeTransformMode(MainPanel mainPanel, ModelEditorActionType3 newType) {
+	public void changeTransformMode(ModelEditorActionType3 newType, MainPanel mainPanel) {
 		if (newType != null) {
+//			ProgramGlobals.getMainPanel().changeActivity(newType);
 			mainPanel.changeActivity(newType);
 		}
 	}
 
-	public void cloneActionRes(MainPanel mainPanel) {
+	public void cloneActionRes() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			try {
@@ -366,11 +383,12 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	public void deleteActionRes(MainPanel mainPanel) {
+	public void deleteActionRes() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			if (mainPanel.animationModeState) {
-				mainPanel.timeSliderPanel.deleteSelectedKeyframes();
+				mainPanel.getTimeSliderPanel().deleteSelectedKeyframes();
 			} else {
 				ModelView modelView = modelPanel.getModelView();
 				DeleteAction deleteAction = new DeleteAction(modelView.getSelectedVertices(), modelPanel.getModelStructureChangeListener(), modelView);
@@ -384,7 +402,8 @@ public class MainPanelLinkActions {
 		}
 	}
 
-	public void rigActionRes(ModelPanel modelPanel) {
+	public void rigActionRes() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			final ModelView modelView = modelPanel.getModelView();
 			if (!modelView.getSelectedIdObjects().isEmpty() && !modelView.getSelectedVertices().isEmpty()) {

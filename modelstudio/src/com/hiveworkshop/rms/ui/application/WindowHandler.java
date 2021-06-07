@@ -103,12 +103,14 @@ public class WindowHandler {
 		}
 	}
 
-	public static void resetView(MainPanel mainPanel) {
+	public static void resetView() {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		traverseAndReset(mainPanel.rootWindow);
-		final TabWindow startupTabWindow = MainLayoutCreator.createMainLayout(mainPanel);
+//		final TabWindow startupTabWindow = MainLayoutCreator.createMainLayout();
+		final TabWindow startupTabWindow = mainPanel.getMainLayoutCreator().getStartupTabWindow();
 		startupTabWindow.setSelectedTab(0);
 		mainPanel.rootWindow.setWindow(startupTabWindow);
-		ModelLoader.setCurrentModel(mainPanel, ProgramGlobals.getCurrentModelPanel());
+		ModelLoader.setCurrentModel(ProgramGlobals.getCurrentModelPanel());
 		mainPanel.rootWindow.revalidate();
 		traverseAndFix(mainPanel.rootWindow);
 	}

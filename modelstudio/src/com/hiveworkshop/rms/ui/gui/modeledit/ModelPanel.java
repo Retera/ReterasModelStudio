@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
@@ -63,8 +64,7 @@ public class ModelPanel {
 	private final AnimationController animationController;
 	private final ComponentsPanel componentsPanel;
 
-	public ModelPanel(MainPanel parent,
-	                  ModelHandler modelHandler,
+	public ModelPanel(ModelHandler modelHandler,
 	                  ProgramPreferences prefs,
 	                  ToolbarButtonGroup2<SelectionItemTypes> notifier,
 	                  ToolbarButtonGroup2<SelectionMode> modeNotifier,
@@ -75,7 +75,7 @@ public class ModelPanel {
 	                  Icon icon,
 	                  boolean specialBLPModel) {
 		this.modelHandler = modelHandler;
-		this.parent = parent;
+		this.parent = ProgramGlobals.getMainPanel();
 		selectionItemTypeNotifier = notifier;
 		this.icon = icon;
 		viewportActivityManager = new ViewportActivityManager(null);

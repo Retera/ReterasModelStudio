@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType2;
@@ -29,7 +28,7 @@ public class UVLinkActions {
 	boolean cheatShift = false;
 	boolean cheatAlt = false;
 
-	public UVLinkActions(UVPanel uvPanel, MainPanel mainPanel) {
+	public UVLinkActions(UVPanel uvPanel) {
 		this.uvPanel = uvPanel;
 		this.modelPanel = ProgramGlobals.getCurrentModelPanel();
 		undoAction = ProgramGlobals.getUndoHandler().getUndoAction();

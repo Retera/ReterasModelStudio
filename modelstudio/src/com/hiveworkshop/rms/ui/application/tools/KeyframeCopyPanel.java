@@ -9,9 +9,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.FramePopup;
 import net.miginfocom.swing.MigLayout;
@@ -37,7 +35,7 @@ public class KeyframeCopyPanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public KeyframeCopyPanel(final ModelView modelView, final ModelStructureChangeListener listener) {
+	public KeyframeCopyPanel(final ModelView modelView) {
 		fileDialog = new FileDialog(this);
 		setLayout(new MigLayout("fill", "[grow][grow]"));
 
@@ -70,17 +68,16 @@ public class KeyframeCopyPanel extends JPanel {
 		add(copyButton, "spanx, align center, wrap");
 	}
 
-	public static void show(MainPanel mainPanel) {
+	public static void showPanel() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			final KeyframeCopyPanel copyPanel = new KeyframeCopyPanel(modelPanel.getModelView(),
-					mainPanel.getModelStructureChangeListener());
+			KeyframeCopyPanel copyPanel = new KeyframeCopyPanel(modelPanel.getModelView());
 ////			copyPanel.setSize(new Dimension(600, 450));
-			FramePopup.show(copyPanel, mainPanel, "Copy Keyframes");
+			FramePopup.show(copyPanel, ProgramGlobals.getMainPanel(), "Copy Keyframes");
 		}
 	}
 
-	private static void fetchAndAddSingleAnimation(MainPanel mainPanel, String path) {
+	private static void fetchAndAddSingleAnimation(String path) {
 		final String filepath = ImportFileActions.convertPathToMDX(path);
 		final EditableModel current = ProgramGlobals.getCurrentModelPanel().getModel();
 		if (filepath != null) {
@@ -215,8 +212,8 @@ public class KeyframeCopyPanel extends JPanel {
 		}
 	}
 
-	private void openModel(MainPanel mainPanel) {
-		FileDialog fileDialog = new FileDialog(mainPanel);
+	private void openModel() {
+		FileDialog fileDialog = new FileDialog();
 
 		final EditableModel model = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
 	}

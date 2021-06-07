@@ -36,10 +36,10 @@ public class AddParticlePanel {
 			{"WeaponMagicFlatEmitter.mdx", "WeaponMagicFlatEmitter.png"}
 	};
 
-	public static void addParticleButtons(MainPanel mainPanel, JMenu addParticle) {
+	public static void addParticleButtons(JMenu addParticle) {
 		List<ParticleInformation> particleInformationList = fetchIncludedParticles();
 		for (ParticleInformation particleInformation : particleInformationList) {
-			makeAndAddParticleButtons(mainPanel, addParticle, particleInformation);
+			makeAndAddParticleButtons(addParticle, particleInformation);
 		}
 
 	}
@@ -69,20 +69,20 @@ public class AddParticlePanel {
 			"FireSmallOrange.png",
 	};
 
-	public static void addEmptyPopcorn(MainPanel mainPanel) {
+	public static void addEmptyPopcorn() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null && modelPanel.getModel() != null) {
 			System.out.println("added popcorn!");
 			ParticleEmitterPopcorn new_popcornEmitter = new ParticleEmitterPopcorn("New PopcornEmitter");
 			new_popcornEmitter.setPivotPoint(new Vec3(0, 0, 0));
 			modelPanel.getModel().add(new_popcornEmitter);
-			mainPanel.modelStructureChangeListener.nodesUpdated();
+			ProgramGlobals.getMainPanel().modelStructureChangeListener.nodesUpdated();
 		}
 	}
 
-	private static void makeAndAddParticleButtons(MainPanel mainPanel, JMenu addParticle, ParticleInformation particleInformation) {
+	private static void makeAndAddParticleButtons(JMenu addParticle, ParticleInformation particleInformation) {
 		final JMenuItem particleItem = new JMenuItem(particleInformation.getName(), new ImageIcon(particleInformation.getImage().getScaledInstance(28, 28, Image.SCALE_DEFAULT)));
-		particleItem.addActionListener(e -> makeAddParticlePanel(mainPanel, particleInformation));
+		particleItem.addActionListener(e -> makeAddParticlePanel(particleInformation));
 		addParticle.add(particleItem);
 	}
 
@@ -106,7 +106,7 @@ public class AddParticlePanel {
 		}
 	}
 
-	private static void makeAddParticlePanel(MainPanel mainPanel, ParticleInformation particleInformation) {
+	private static void makeAddParticlePanel(ParticleInformation particleInformation) {
 		final ParticleEmitter2 particle;
 		try {
 			InputStream is = GameDataFileSystem.getDefault().getResourceAsStream(particleInformation.filePath);
@@ -168,18 +168,18 @@ public class AddParticlePanel {
 			optionsPanel.add(colorPanel, "spanx, wrap");
 
 			particlePanel.add(optionsPanel);
-			final int x = JOptionPane.showConfirmDialog(mainPanel, particlePanel, "Add " + particleInformation.getName(), JOptionPane.OK_CANCEL_OPTION);
+			final int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), particlePanel, "Add " + particleInformation.getName(), JOptionPane.OK_CANCEL_OPTION);
 			if (x == JOptionPane.OK_OPTION) {
 				IdObject parent = (IdObject) parentBone.getSelectedItem();
 				if (parent == nullBone) {
 					parent = null;
 				}
-				addParticleEmitter2(mainPanel, particle, parent, nameField.getText(), spinnerArray.getValue(), animVisStatus, colors);
+				addParticleEmitter2(particle, parent, nameField.getText(), spinnerArray.getValue(), animVisStatus, colors);
 			}
 		}
 	}
 
-	private static void addParticleEmitter2(MainPanel mainPanel, ParticleEmitter2 particle, IdObject parent, String name, Vec3 pivot, Map<Animation, Boolean> animVisMap, Color[] colors) {
+	private static void addParticleEmitter2(ParticleEmitter2 particle, IdObject parent, String name, Vec3 pivot, Map<Animation, Boolean> animVisMap, Color[] colors) {
 		particle.setPivotPoint(pivot);
 		for (int i = 0; i < colors.length; i++) {
 			particle.setSegmentColor(i, new Vec3(
@@ -205,7 +205,7 @@ public class AddParticlePanel {
 		particle.setVisibilityFlag(visFlag);
 		particle.setName(name);
 		ProgramGlobals.getCurrentModelPanel().getModel().add(particle);
-		mainPanel.modelStructureChangeListener.nodesUpdated();
+		ProgramGlobals.getMainPanel().modelStructureChangeListener.nodesUpdated();
 	}
 
 

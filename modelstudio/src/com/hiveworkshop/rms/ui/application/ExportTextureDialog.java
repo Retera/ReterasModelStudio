@@ -14,40 +14,40 @@ import java.awt.image.BufferedImage;
 public class ExportTextureDialog {
 
     //ToDo figure out why these throw errors sometimes (might have to do with non-existing texture files)
-    public static void exportMaterialAsTextures(MainPanel mainPanel) {
-        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-        if (modelPanel != null && modelPanel.getModel() != null) {
-            exportMaterialAsTextures(mainPanel, modelPanel.getModel());
-        }
+    public static void exportMaterialAsTextures() {
+	    ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+	    if (modelPanel != null && modelPanel.getModel() != null) {
+		    exportMaterialAsTextures(modelPanel.getModel());
+	    }
     }
 
-    static void exportMaterialAsTextures(JComponent mainPanel, EditableModel model) {
-        IterableListModel<Material> materials = new IterableListModel<>();
-        for (Material mat : model.getMaterials()) {
-            materials.addElement(mat);
-        }
-        for (ParticleEmitter2 emitter2 : model.getParticleEmitter2s()) {
-            Material dummyMaterial = new Material(new Layer("Blend", model.getTexture(emitter2.getTextureID())));
-        }
+	static void exportMaterialAsTextures(EditableModel model) {
+		IterableListModel<Material> materials = new IterableListModel<>();
+		for (Material mat : model.getMaterials()) {
+			materials.addElement(mat);
+		}
+		for (ParticleEmitter2 emitter2 : model.getParticleEmitter2s()) {
+			Material dummyMaterial = new Material(new Layer("Blend", model.getTexture(emitter2.getTextureID())));
+		}
 
-        JList<Material> materialsList = new JList<>(materials);
-        materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); //TODO would be nice to be able to batch save
+		JList<Material> materialsList = new JList<>(materials);
+		materialsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); //TODO would be nice to be able to batch save
         materialsList.setCellRenderer(new MaterialListRenderer(model));
 
         JScrollPane texturePane = new JScrollPane(materialsList);
         JPanel panel = new JPanel(new MigLayout("fill, ins 0"));
         panel.add(texturePane, "wrap");
 
-        FileDialog fileDialog = new FileDialog(mainPanel);
-        JButton exportButton = new JButton("Export");
+		FileDialog fileDialog = new FileDialog();
+		JButton exportButton = new JButton("Export");
         exportButton.addActionListener(e -> exportChosenMaterial(model, materialsList, fileDialog));
         panel.add(exportButton);
 
         JOptionPane.showOptionDialog(
-                mainPanel, panel,
-                "Export Material as Texture",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
-                null, new String[] {"Close"}, "Close");
+		        ProgramGlobals.getMainPanel(), panel,
+		        "Export Material as Texture",
+		        JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+		        null, new String[] {"Close"}, "Close");
 //        }
     }
 
@@ -61,38 +61,38 @@ public class ExportTextureDialog {
         }
     }
 
-    public static void exportTextures(MainPanel mainPanel) {
-        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-        if (modelPanel != null && modelPanel.getModel() != null) {
-            exportTextures(mainPanel, modelPanel.getModel());
-        }
-    }
+	public static void exportTextures() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null && modelPanel.getModel() != null) {
+			exportTextures(modelPanel.getModel());
+		}
+	}
 
-    static void exportTextures(JComponent mainPanel, EditableModel model) {
-        IterableListModel<Bitmap> bitmaps = new IterableListModel<>();
-        for (Bitmap texture : model.getTextures()) {
-            bitmaps.addElement(texture);
-        }
+	static void exportTextures(EditableModel model) {
+		IterableListModel<Bitmap> bitmaps = new IterableListModel<>();
+		for (Bitmap texture : model.getTextures()) {
+			bitmaps.addElement(texture);
+		}
 
-        JList<Bitmap> bitmapJList = new JList<>(bitmaps);
-        bitmapJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); //TODO would be nice to be able to batch save
-        bitmapJList.setCellRenderer(new TextureListRenderer(model));
+		JList<Bitmap> bitmapJList = new JList<>(bitmaps);
+		bitmapJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); //TODO would be nice to be able to batch save
+		bitmapJList.setCellRenderer(new TextureListRenderer(model));
 
 
         JScrollPane texturePane = new JScrollPane(bitmapJList);
         JPanel panel = new JPanel(new MigLayout("fill, ins 0"));
         panel.add(texturePane, "growx, wrap");
 
-        FileDialog fileDialog = new FileDialog(mainPanel);
-        JButton exportButton = new JButton("Export");
+		FileDialog fileDialog = new FileDialog();
+		JButton exportButton = new JButton("Export");
         exportButton.addActionListener(e -> exportChosenTexture(model, bitmapJList, fileDialog));
         panel.add(exportButton);
 
         JOptionPane.showOptionDialog(
-                mainPanel, panel,
-                "Export Texture",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
-                null, new String[] {"Close"}, "Close");
+		        ProgramGlobals.getMainPanel(), panel,
+		        "Export Texture",
+		        JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+		        null, new String[] {"Close"}, "Close");
     }
 
     private static void exportChosenTexture(EditableModel model, JList<Bitmap> bitmapJList, FileDialog fileDialog) {

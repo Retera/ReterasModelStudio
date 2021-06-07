@@ -127,8 +127,6 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 
 		buttonPanel.add(allKF, "wrap");
 		buttonPanel.setOpaque(true);
-//		buttonPanel.setBackground(Color.magenta);
-//		add(buttonPanel, "cell 0 0, shrink, gap 0, pad -5");
 		add(buttonPanel, "aligny top, shrink");
 
 

@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.animation.SimplifyKeyframesAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeInterpTypeAction;
 import com.hiveworkshop.rms.editor.actions.mesh.*;
 import com.hiveworkshop.rms.editor.actions.model.RecalculateExtentsAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionAction;
@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -21,18 +22,16 @@ import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.List;
 import java.util.*;
 
 public class ModelEditActions {
     static double lastNormalMaxAngle = 90;
     static boolean useTris = false;
 
-    public static void viewMatrices(Component parent) {
+    public static void viewMatrices() {
         final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
-            InfoPopup.show(parent, getSelectedMatricesDescription(modelPanel.getModelView()));
+            InfoPopup.show(ProgramGlobals.getMainPanel(), getSelectedMatricesDescription(modelPanel.getModelView()));
         }
     }
 
@@ -193,75 +192,84 @@ public class ModelEditActions {
         for (Geoset geo : modelView.getEditableGeosets()) {
             allSelection.addAll(geo.getVertices());
         }
-	    return new SetSelectionAction(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras(), modelView, "select all");
+        return new SetSelectionAction(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras(), modelView, "select all");
     }
 
-    public static void inverseAllUVs(MainPanel mainPanel) {
-        for (final Geoset geo : mainPanel.currentMDL().getGeosets()) {
-            for (final GeosetVertex vertex : geo.getVertices()) {
-                for (final Vec2 tvert : vertex.getTverts()) {
-                    final float temp = tvert.x;
-                    tvert.x = tvert.y;
-                    tvert.y = temp;
+    public static void inverseAllUVs() {
+        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+        if (modelPanel != null) {
+            for (final Geoset geo : ProgramGlobals.getCurrentModelPanel().getModel().getGeosets()) {
+                for (final GeosetVertex vertex : geo.getVertices()) {
+                    for (final Vec2 tvert : vertex.getTverts()) {
+                        final float temp = tvert.x;
+                        tvert.x = tvert.y;
+                        tvert.y = temp;
+                    }
                 }
             }
         }
-        mainPanel.repaint();
+        ProgramGlobals.getMainPanel().repaint();
     }
 
-    public static void flipAllUVsV(MainPanel mainPanel) {
-        for (final Geoset geo : mainPanel.currentMDL().getGeosets()) {
-            for (final GeosetVertex vertex : geo.getVertices()) {
-                for (final Vec2 tvert : vertex.getTverts()) {
-                    tvert.y = 1.0f - tvert.y;
+    public static void flipAllUVsV() {
+        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+        if (modelPanel != null) {
+            for (final Geoset geo : ProgramGlobals.getCurrentModelPanel().getModel().getGeosets()) {
+                for (final GeosetVertex vertex : geo.getVertices()) {
+                    for (final Vec2 tvert : vertex.getTverts()) {
+                        tvert.y = 1.0f - tvert.y;
+                    }
                 }
             }
         }
-        mainPanel.repaint();
+        ProgramGlobals.getMainPanel().repaint();
     }
 
-    public static void flipAllUVsU(MainPanel mainPanel) {
-        for (final Geoset geo : mainPanel.currentMDL().getGeosets()) {
-            for (final GeosetVertex vertex : geo.getVertices()) {
-                for (final Vec2 tvert : vertex.getTverts()) {
-                    tvert.x = 1.0f - tvert.x;
+    public static void flipAllUVsU() {
+        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+        if (modelPanel != null) {
+            for (final Geoset geo : modelPanel.getModel().getGeosets()) {
+                for (final GeosetVertex vertex : geo.getVertices()) {
+                    for (final Vec2 tvert : vertex.getTverts()) {
+                        tvert.x = 1.0f - tvert.x;
+                    }
                 }
             }
         }
-        mainPanel.repaint();
+        ProgramGlobals.getMainPanel().repaint();
     }
 
-    public static void insideOutNormals(MainPanel mainPanel) {
+    public static void insideOutNormals() {
         ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             FlipNormalsAction flipNormalsAction = new FlipNormalsAction(modelPanel.getModelView().getSelectedVertices());
             flipNormalsAction.redo();
             modelPanel.getUndoManager().pushAction(flipNormalsAction);
         }
-        mainPanel.repaint();
+        ProgramGlobals.getMainPanel().repaint();
     }
 
-    public static void insideOut(MainPanel mainPanel) {
+    public static void insideOut() {
         final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             FlipFacesAction flipFacesAction = new FlipFacesAction(modelPanel.getModelView().getSelectedVertices());
             flipFacesAction.redo();
             modelPanel.getUndoManager().pushAction(flipFacesAction);
         }
-        mainPanel.repaint();
+        ProgramGlobals.getMainPanel().repaint();
     }
 
-    public static void snapVertices(MainPanel mainPanel) {
+    public static void snapVertices() {
         ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             SnapAction snapAction = new SnapAction(modelPanel.getModelView().getSelectedVertices());
             snapAction.redo();
             modelPanel.getUndoManager().pushAction(snapAction);
         }
-        mainPanel.repaint();
+        ProgramGlobals.getMainPanel().repaint();
     }
 
-    public static void snapNormals(MainPanel mainPanel) {
+    public static void snapNormals() {
         ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             ModelView modelView = modelPanel.getModelView();
@@ -270,10 +278,10 @@ public class ModelEditActions {
             modelPanel.getUndoManager().pushAction(snapNormalsAction);
 
         }
-        mainPanel.repaint();
+        ProgramGlobals.getMainPanel().repaint();
     }
 
-    public static void recalculateNormals(MainPanel mainPanel) {
+    public static void recalculateNormals() {
         ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             JPanel panel = new JPanel(new MigLayout());
@@ -284,7 +292,7 @@ public class ModelEditActions {
             JCheckBox useTries = new JCheckBox();
             useTries.setSelected(useTris);
             panel.add(useTries);
-            int option = JOptionPane.showConfirmDialog(mainPanel, panel, "Recalculate Normals", JOptionPane.OK_CANCEL_OPTION);
+            int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), panel, "Recalculate Normals", JOptionPane.OK_CANCEL_OPTION);
             if (option == JOptionPane.OK_OPTION) {
                 lastNormalMaxAngle = (double) spinner.getValue();
                 useTris = useTries.isSelected();
@@ -301,10 +309,10 @@ public class ModelEditActions {
                 modelPanel.getUndoManager().pushAction(recalcNormals);
             }
         }
-        mainPanel.repaint();
+        ProgramGlobals.getMainPanel().repaint();
     }
 
-    public static void recalculateExtents(MainPanel mainPanel) {
+    public static void recalculateExtents() {
         ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             JPanel messagePanel = new JPanel(new MigLayout());
@@ -327,7 +335,7 @@ public class ModelEditActions {
 //            messagePanel.add(considerAllBtn, "wrap");
 //            messagePanel.add(considerCurrentBtn, "wrap");
 
-            int userChoice = JOptionPane.showConfirmDialog(mainPanel, messagePanel, "Message",
+            int userChoice = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), messagePanel, "Message",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             if (userChoice == JOptionPane.YES_OPTION) {
                 ModelView modelView = modelPanel.getModelView();
@@ -339,15 +347,13 @@ public class ModelEditActions {
                     recalculateExtentsAction = new RecalculateExtentsAction(modelView, modelView.getModel().getGeosets());
                 }
 
-                recalculateExtentsAction.redo();
-
-                modelPanel.getUndoManager().pushAction(recalculateExtentsAction);
+                modelPanel.getUndoManager().pushAction(recalculateExtentsAction.redo());
             }
         }
-        mainPanel.repaint();
+        ProgramGlobals.getMainPanel().repaint();
     }
 
-    public static void mirrorAxis(MainPanel mainPanel, byte i, boolean mirrorFlip) {
+    public static void mirrorAxis(byte i, boolean mirrorFlip) {
         final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
 //            final Vec3 selectionCenter = modelPanel.getModelEditorManager().getModelEditor().getSelectionCenter();
@@ -369,7 +375,7 @@ public class ModelEditActions {
 
             modelPanel.getUndoManager().pushAction(mirrorAction);
         }
-        mainPanel.repaint();
+        ProgramGlobals.getMainPanel().repaint();
     }
 
     public static UndoAction flipSelectedFaces(ModelView modelView) {
@@ -379,39 +385,45 @@ public class ModelEditActions {
         return flipFacesAction;
     }
 
-    public static void linearizeAnimations(MainPanel mainPanel) {
-        final int x = JOptionPane.showConfirmDialog(mainPanel,
+    public static void linearizeAnimations() {
+        final int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
                 "This is an irreversible process that will lose some of your model data," +
                         "\nin exchange for making it a smaller storage size." +
                         "\n\nContinue and simplify animations?",
                 "Warning: Linearize Animations", JOptionPane.OK_CANCEL_OPTION);
         if (x == JOptionPane.OK_OPTION) {
-            final List<AnimFlag<?>> allAnimFlags = mainPanel.currentMDL().getAllAnimFlags();
+            ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+            final List<AnimFlag<?>> allAnimFlags = modelPanel.getModel().getAllAnimFlags();
+            List<UndoAction> interpTypActions = new ArrayList<>();
             for (final AnimFlag<?> flag : allAnimFlags) {
-                flag.linearize();
+                interpTypActions.add(new ChangeInterpTypeAction<>(flag, InterpolationType.LINEAR, null));
+//                flag.linearize();
             }
+
+            UndoAction action = new CompoundAction("Liniarize Animations", interpTypActions, () -> modelPanel.getModelStructureChangeListener().materialsListChanged());
+            modelPanel.getUndoManager().pushAction(action.redo());
         }
     }
 
-	public static void simplifyKeyframes(MainPanel mainPanel) {
-        final int x = JOptionPane.showConfirmDialog(mainPanel,
-                "This is an irreversible process that will lose some of your model data," +
-                        "\nin exchange for making it a smaller storage size." +
-                        "\n\nContinue and simplify keyframes?",
-                "Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
-        if (x == JOptionPane.OK_OPTION) {
-            simplifyKeyframes();
-        }
-    }
-
-    public static void simplifyKeyframes() {
-        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-        EditableModel model = modelPanel.getModel();
-        List<AnimFlag<?>> allAnimFlags = model.getAllAnimFlags();
-
-        SimplifyKeyframesAction action = new SimplifyKeyframesAction(allAnimFlags, model, 0.1f);
-        modelPanel.getUndoManager().pushAction(action.redo());
-    }
+//	public static void simplifyKeyframes() {
+//        final int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
+//                "This is an irreversible process that will lose some of your model data," +
+//                        "\nin exchange for making it a smaller storage size." +
+//                        "\n\nContinue and simplify keyframes?",
+//                "Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
+//        if (x == JOptionPane.OK_OPTION) {
+//            simplifyKeyframes1();
+//        }
+//    }
+//
+//    public static void simplifyKeyframes1() {
+//        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//        EditableModel model = modelPanel.getModel();
+//        List<AnimFlag<?>> allAnimFlags = model.getAllAnimFlags();
+//
+//        SimplifyKeyframesAction action = new SimplifyKeyframesAction(allAnimFlags, model, 0.1f);
+//        modelPanel.getUndoManager().pushAction(action.redo());
+//    }
 
     public static void simplifyGeometry() {
         ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();

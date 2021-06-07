@@ -30,6 +30,7 @@ import com.hiveworkshop.rms.util.SmartButtonGroup;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import de.wc3data.stream.BlizzardDataInputStream;
+import net.infonode.docking.DockingWindow;
 import net.infonode.docking.SplitWindow;
 import net.infonode.docking.View;
 import net.miginfocom.swing.MigLayout;
@@ -62,41 +63,41 @@ public class MenuBarActions {
 		try {
 			CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
 			if (gameDataFileSystem.has("war3map.w3d")) {
-				editorData.load(new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream("war3map.w3d")),
-						gameDataFileSystem.has("war3map.wts")
-								? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null, true);
+				editorData.load(
+						new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream("war3map.w3d")),
+						gameDataFileSystem.has("war3map.wts") ?
+								new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null,
+						true);
 			}
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
-		return new MutableObjectData(MutableObjectData.WorldEditorDataType.DOODADS, StandardObjectData.getStandardDoodads(),
-				StandardObjectData.getStandardDoodadMeta(), editorData);
+		return new MutableObjectData(
+				MutableObjectData.WorldEditorDataType.DOODADS,
+				StandardObjectData.getStandardDoodads(),
+				StandardObjectData.getStandardDoodadMeta(),
+				editorData);
 	}
 
-	public static void openUnitViewer(MainPanel mainPanel) {
-		UnitEditorTree unitEditorTree = MainLayoutCreator.createUnitEditorTree(mainPanel);
-		mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(),
-				new View("Unit Browser",
-						new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
-						new JScrollPane(unitEditorTree))));
+	public static void openUnitViewer() {
+		UnitEditorTree unitEditorTree = MainLayoutCreator.createUnitEditorTree();
+
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+		DockingWindow rootWindowWindow = mainPanel.rootWindow.getWindow();
+
+		ImageIcon icon = new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST));
+		View unit_browser = new View("Unit Browser", icon, new JScrollPane(unitEditorTree));
+
+		mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindowWindow, unit_browser));
 	}
 
-	public static void openHiveViewer(MainPanel mainPanel) {
+	public static void openHiveViewer() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.add(BorderLayout.BEFORE_FIRST_LINE, new JLabel(POWERED_BY_HIVE));
 
 		JList<String> view = new JList<>(new String[] {"Bongo Bongo (Phantom Shadow Beast)", "Other Model", "Other Model"});
-		view.setCellRenderer(new DefaultListCellRenderer() {
-			@Override
-			public Component getListCellRendererComponent(final JList<?> list, final Object value,
-			                                              final int index, final boolean isSelected, final boolean cellHasFocus) {
-				Component listCellRendererComponent = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				ImageIcon icon = new ImageIcon(MainPanel.class.getResource("ImageBin/deleteme.png"));
-				setIcon(new ImageIcon(icon.getImage().getScaledInstance(48, 32, Image.SCALE_DEFAULT)));
-				return listCellRendererComponent;
-			}
-		});
+		view.setCellRenderer(getCellRenderer());
 		panel.add(BorderLayout.BEFORE_LINE_BEGINS, new JScrollPane(view));
 
 		JPanel tags = new JPanel();
@@ -112,20 +113,46 @@ public class MenuBarActions {
 		tags.add(new JCheckBox("User Interface"));
 		panel.add(BorderLayout.CENTER, tags);
 
-		mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(),
-				new View("Hive Browser",
-						new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)),
-						panel)));
+
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+		DockingWindow rootWindowWindow = mainPanel.rootWindow.getWindow();
+
+		ImageIcon icon = new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST));
+		View hive_browser = new View("Hive Browser", icon, panel);
+
+		mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindowWindow, hive_browser));
 	}
 
-	public static void openPreferences(MainPanel mainPanel) {
+	private static DefaultListCellRenderer getCellRenderer() {
+		return new DefaultListCellRenderer() {
+			@Override
+			public Component getListCellRendererComponent(final JList<?> list,
+			                                              final Object value,
+			                                              final int index,
+			                                              final boolean isSelected,
+			                                              final boolean cellHasFocus) {
+				Component cellRendererComp = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				ImageIcon icon = new ImageIcon(MainPanel.class.getResource("ImageBin/deleteme.png"));
+				ImageIcon scaledIcon = new ImageIcon(icon.getImage().getScaledInstance(48, 32, Image.SCALE_DEFAULT));
+				setIcon(scaledIcon);
+				return cellRendererComp;
+			}
+		};
+	}
+
+	public static void openPreferences() {
 		ProgramPreferences programPreferences = new ProgramPreferences();
 		programPreferences.loadFrom(ProgramGlobals.getPrefs());
 		List<DataSourceDescriptor> priorDataSources = SaveProfile.get().getDataSources();
 		ProgramPreferencesPanel programPreferencesPanel = new ProgramPreferencesPanel(programPreferences, priorDataSources);
 
-		int ret = JOptionPane.showConfirmDialog(mainPanel, programPreferencesPanel, "Preferences",
-				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		int ret = JOptionPane.showConfirmDialog(
+				ProgramGlobals.getMainPanel(),
+				programPreferencesPanel,
+				"Preferences",
+				JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE);
+
 		if (ret == JOptionPane.OK_OPTION) {
 			ProgramGlobals.getPrefs().loadFrom(programPreferences);
 			List<DataSourceDescriptor> dataSources = programPreferencesPanel.getDataSources();
@@ -135,7 +162,7 @@ public class MenuBarActions {
 			}
 			SaveProfile.save();
 			if (changedDataSources) {
-				com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.updateDataSource(mainPanel);
+				com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.updateDataSource();
 //				dataSourcesChanged(MenuBar.directoryChangeNotifier, mainPanel.modelPanels);
 			}
 		}
@@ -161,8 +188,8 @@ public class MenuBarActions {
 		frame.setVisible(true);
 	}
 
-	public static void clearRecent(MainPanel mainPanel) {
-		int dialogResult = JOptionPane.showConfirmDialog(mainPanel,
+	public static void clearRecent() {
+		int dialogResult = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
 				"Are you sure you want to clear the Recent history?", "Confirm Clear",
 				JOptionPane.YES_NO_OPTION);
 		if (dialogResult == JOptionPane.YES_OPTION) {
@@ -171,7 +198,7 @@ public class MenuBarActions {
 		}
 	}
 
-	public static void closeModelPanel(MainPanel mainPanel) {
+	public static void closeModelPanel() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
 		if (modelPanel != null) {
@@ -180,16 +207,16 @@ public class MenuBarActions {
 				com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.removeModelPanel(modelPanel);
 				if (ProgramGlobals.getModelPanels().size() > 0) {
 					int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);
-					ModelLoader.setCurrentModel(mainPanel, ProgramGlobals.getModelPanels().get(newIndex));
+					ModelLoader.setCurrentModel(ProgramGlobals.getModelPanels().get(newIndex));
 				} else {
 					// TODO remove from notifiers to fix leaks
-					ModelLoader.setCurrentModel(mainPanel, null);
+					ModelLoader.setCurrentModel(null);
 				}
 			}
 		}
 	}
 
-	public static void newModel(MainPanel mainPanel) {
+	public static void newModel() {
 		JPanel newModelPanel = new JPanel();
 		newModelPanel.setLayout(new MigLayout("fill, ins 0"));
 		newModelPanel.add(new JLabel("Model Name: "), "");
@@ -202,6 +229,8 @@ public class MenuBarActions {
 		typeGroup.addJRadioButton("Create Box", null);
 		typeGroup.setSelectedIndex(0);
 		newModelPanel.add(typeGroup.getButtonPanel());
+
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 
 		int userDialogResult = JOptionPane.showConfirmDialog(mainPanel, newModelPanel, "New Model", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (userDialogResult == JOptionPane.OK_OPTION) {
@@ -230,16 +259,16 @@ public class MenuBarActions {
 			}
 
 			ModelHandler modelHandler = new ModelHandler(mdl);
-			ModelPanel temp = new ModelPanel(mainPanel, modelHandler, ProgramGlobals.getPrefs(),
+			ModelPanel temp = new ModelPanel(modelHandler, ProgramGlobals.getPrefs(),
 					mainPanel.selectionItemTypeGroup, mainPanel.selectionModeGroup,
 					mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
 					mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false);
-			ModelLoader.loadModel(mainPanel, true, true, temp);
+			ModelLoader.loadModel(true, true, temp);
 		}
 
 	}
 
-	public static boolean closeOthers(MainPanel mainPanel) {
+	public static boolean closeOthers() {
 		boolean success = true;
 		Iterator<ModelPanel> iterator = ProgramGlobals.getModelPanels().iterator();
 		boolean closedCurrentPanel = false;
@@ -263,7 +292,7 @@ public class MenuBarActions {
 			}
 		}
 		if (closedCurrentPanel) {
-			ModelLoader.setCurrentModel(mainPanel, lastUnclosedModelPanel);
+			ModelLoader.setCurrentModel(lastUnclosedModelPanel);
 		}
 		return success;
 	}
@@ -288,8 +317,8 @@ public class MenuBarActions {
 //		return new View("Test", null, testPanel);
 //	}
 
-	public static void addNewMaterial(MainPanel mainPanel) {
-		EditableModel current = mainPanel.currentMDL();
+	public static void addNewMaterial() {
+		EditableModel current = ProgramGlobals.getCurrentModelPanel().getModel();
 		if (current != null) {
 			// ToDo make this undo-able and use first texture of model if avalible
 			Material material = new Material();
@@ -300,11 +329,12 @@ public class MenuBarActions {
 			}
 			current.add(white);
 			current.add(material);
-			mainPanel.modelStructureChangeListener.materialsListChanged();
+			ProgramGlobals.getMainPanel().modelStructureChangeListener.materialsListChanged();
 		}
 	}
 
-	public static void recalculateTangents(EditableModel model, Component parent) {
+	public static void recalculateTangents() {
+		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
 		// copied from
 		// https://github.com/TaylorMouse/MaxScripts/blob/master/Warcraft%203%20Reforged/GriffonStudios/GriffonStudios_Warcraft_3_Reforged_Export.ms#L169
 		int zeroAreaUVTris = 0;
@@ -396,17 +426,17 @@ public class MenuBarActions {
 				}
 			}
 		}
-		if (parent != null) {
-			JOptionPane.showMessageDialog(parent,
-					"Tangent generation completed." +
-							"\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents + "" +
-							"\nFound " + zeroAreaUVTris + " uv triangles with no area");
-		} else {
-			System.out.println(
-					"Tangent generation completed." +
-							"\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents +
-							"\nFound " + zeroAreaUVTris + " uv triangles with no area");
-		}
+		JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(),
+				"Tangent generation completed." +
+						"\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents + "" +
+						"\nFound " + zeroAreaUVTris + " uv triangles with no area");
+//		if (parent != null) {
+//		} else {
+//			System.out.println(
+//					"Tangent generation completed." +
+//							"\nGood tangents: " + goodTangents + ", bad tangents: " + badTangents +
+//							"\nFound " + zeroAreaUVTris + " uv triangles with no area");
+//		}
 	}
 
 	public static void recalculateTangentsOld(EditableModel currentMDL) {
@@ -446,22 +476,23 @@ public class MenuBarActions {
 		}
 	}
 
-	public static void copyCutPast(MainPanel mainPanel, TransferActionListener transferActionListener, ActionEvent e) {
+	public static void copyCutPast(TransferActionListener transferActionListener, ActionEvent e) {
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if (!mainPanel.animationModeState) {
 			transferActionListener.actionPerformed(e);
 		} else {
 			if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
-				mainPanel.timeSliderPanel.cut();
+				mainPanel.getTimeSliderPanel().cut();
 			} else if (e.getActionCommand().equals(TransferHandler.getCopyAction().getValue(Action.NAME))) {
-				mainPanel.timeSliderPanel.copy();
+				mainPanel.getTimeSliderPanel().copy();
 			} else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
-				mainPanel.timeSliderPanel.paste();
+				mainPanel.getTimeSliderPanel().paste();
 			}
 		}
 	}
 
-	public static void sortBones(MainPanel mainPanel) {
-		final EditableModel model = mainPanel.currentMDL();
+	public static void sortBones() {
+		final EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
 		final List<IdObject> roots = new ArrayList<>();
 		final List<IdObject> modelList = model.getIdObjects();
 		for (final IdObject object : modelList) {
@@ -479,6 +510,7 @@ public class MenuBarActions {
 		for (final IdObject node : result) {
 			model.remove(node);
 		}
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		mainPanel.modelStructureChangeListener.nodesUpdated();
 		for (final IdObject node : result) {
 			model.add(node);
@@ -486,7 +518,7 @@ public class MenuBarActions {
 		mainPanel.modelStructureChangeListener.nodesUpdated();
 	}
 
-	public static void minimizeGeoset(MainPanel mainPanel) {
+	public static void minimizeGeoset() {
 //		final int confirm = JOptionPane.showConfirmDialog(mainPanel,
 //				"This is experimental and I did not code the Undo option for it yet. Continue?" +
 //						"\nMy advice is to click cancel and save once first.",
@@ -520,7 +552,7 @@ public class MenuBarActions {
 			}
 		}
 
-		ModelStructureChangeListener changeListener = mainPanel.modelStructureChangeListener;
+		ModelStructureChangeListener changeListener = ProgramGlobals.getMainPanel().modelStructureChangeListener;
 		UndoAction undoAction = new CompoundAction("Minimize Geosets", mergeActions, changeListener::geosetsUpdated);
 		modelPanel.getUndoManager().pushAction(undoAction.redo());
 	}
@@ -560,9 +592,10 @@ public class MenuBarActions {
 		return (firstAnimatedColor == null) || firstAnimatedColor.equals(secondAnimatedColor);
 	}
 
-	public static void removeMaterialDuplicates(MainPanel mainPanel) {
+	public static void removeMaterialDuplicates() {
 		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
 		List<Material> materials = model.getMaterials();
+
 		Map<Material, Material> sameMaterialMap = new HashMap<>();
 		for (int i = 0; i < materials.size(); i++) {
 			Material material1 = materials.get(i);
@@ -585,6 +618,6 @@ public class MenuBarActions {
 		}
 
 		materials.removeAll(sameMaterialMap.keySet());
-		mainPanel.modelStructureChangeListener.materialsListChanged();
+		ProgramGlobals.getMainPanel().modelStructureChangeListener.materialsListChanged();
 	}
 }
