@@ -110,7 +110,9 @@ public class Matrix {
 	}
 
 	public void add(final Bone b) {
-		bones.add(b);
+		if (b != null) {
+			bones.add(b);
+		}
 	}
 
 	public void addId(final int id) {

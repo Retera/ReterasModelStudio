@@ -172,7 +172,11 @@ public abstract class AnimFlag<T> {
 	public abstract MdlxTimeline<?> toMdlx(TimelineContainer container);
 
 	public void addEntry(Integer time, T value) {
-		entryMap.put(time, new Entry<>(time, value));
+		Entry<T> entry = new Entry<>(time, value);
+		entryMap.put(time, entry);
+		if (tans()) {
+			entry.unLinearize();
+		}
 	}
 
 	protected void addEntry(Integer time, T value, T inTan, T outTan) {

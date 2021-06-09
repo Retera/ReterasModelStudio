@@ -8,13 +8,11 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 public class AddFlagEntryAction implements UndoAction {
 	private final ModelStructureChangeListener structureChangeListener;
-	private final TimelineContainer timelineContainer;
 	AnimFlag<?> animFlag;
 	Entry<?> entry;
 
 	public AddFlagEntryAction(AnimFlag<?> animFlag, Entry<?> entry, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
-		this.timelineContainer = timelineContainer;
 		this.animFlag = animFlag;
 		this.entry = entry;
 	}
@@ -22,16 +20,18 @@ public class AddFlagEntryAction implements UndoAction {
 	@Override
 	public UndoAction undo() {
 		animFlag.removeKeyframe(entry.time);
-//		structureChangeListener.keyframeRemoved(timelineContainer, animFlag, entry.time);
-		structureChangeListener.materialsListChanged();
+		if (structureChangeListener != null) {
+			structureChangeListener.materialsListChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		animFlag.setOrAddEntryT(entry.time, entry);
-//		structureChangeListener.keyframeAdded(timelineContainer, animFlag, entry.time);
-		structureChangeListener.materialsListChanged();
+		if (structureChangeListener != null) {
+			structureChangeListener.materialsListChanged();
+		}
 		return this;
 	}
 

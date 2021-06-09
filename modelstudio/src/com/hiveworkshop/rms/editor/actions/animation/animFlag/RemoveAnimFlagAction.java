@@ -19,7 +19,9 @@ public class RemoveAnimFlagAction implements UndoAction {
 	@Override
 	public UndoAction undo() {
 		timelineContainer.add(animFlag);
-		structureChangeListener.materialsListChanged();
+		if (structureChangeListener != null) {
+			structureChangeListener.materialsListChanged();
+		}
 		return this;
 
 	}
@@ -27,7 +29,9 @@ public class RemoveAnimFlagAction implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		timelineContainer.remove(animFlag);
-		structureChangeListener.materialsListChanged();
+		if (structureChangeListener != null) {
+			structureChangeListener.materialsListChanged();
+		}
 		return this;
 	}
 

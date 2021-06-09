@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.actions.addactions;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -14,9 +15,11 @@ public class DrawBoneAction implements UndoAction {
 	private final Bone bone;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final List<IdObject> boneAsList;
+	EditableModel model;
 
 	public DrawBoneAction(final ModelView modelView, final ModelStructureChangeListener modelStructureChangeListener,
-			final Bone bone) {
+	                      final Bone bone) {
+		model = modelView.getModel();
 		this.modelView = modelView;
 		this.bone = bone;
 		this.modelStructureChangeListener = modelStructureChangeListener;
@@ -26,15 +29,19 @@ public class DrawBoneAction implements UndoAction {
 
 	@Override
 	public UndoAction undo() {
-		modelView.getModel().remove(bone);
-		modelStructureChangeListener.nodesUpdated();
+		model.remove(bone);
+		if (modelStructureChangeListener != null) {
+			modelStructureChangeListener.nodesUpdated();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
-		modelView.getModel().add(bone);
-		modelStructureChangeListener.nodesUpdated();
+		model.add(bone);
+		if (modelStructureChangeListener != null) {
+			modelStructureChangeListener.nodesUpdated();
+		}
 		return this;
 	}
 

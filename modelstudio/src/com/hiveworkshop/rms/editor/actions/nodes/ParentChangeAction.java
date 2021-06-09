@@ -29,14 +29,18 @@ public class ParentChangeAction implements UndoAction {
 	@Override
 	public UndoAction undo() {
 		this.idObject.setParent(oldParent);
-		structureChangeListener.nodeHierarchyChanged();
+		if (structureChangeListener != null) {
+			structureChangeListener.nodeHierarchyChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		this.idObject.setParent(newParent);
-		structureChangeListener.nodeHierarchyChanged();
+		if (structureChangeListener != null) {
+			structureChangeListener.nodeHierarchyChanged();
+		}
 		return this;
 	}
 

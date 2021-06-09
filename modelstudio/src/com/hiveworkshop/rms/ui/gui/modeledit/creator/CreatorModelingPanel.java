@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawBoneActivity;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawBoxActivity;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawPlaneActivity;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawVertexActivity;
@@ -172,7 +173,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 //		listener.changeActivity(new DrawBoneActivityDescriptor(viewportListener));//ToDo
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			DrawVertexActivity activity = new DrawVertexActivity(modelHandler, modelEditorManager, viewportListener);
+			DrawBoneActivity activity = new DrawBoneActivity(modelHandler, modelEditorManager, viewportListener);
 			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
 			modelPanel.changeActivity(activity);
 		}
