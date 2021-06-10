@@ -13,17 +13,13 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class ComponentCameraPanel extends ComponentPanel<Camera> {
-	private final ModelHandler modelHandler;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	JLabel title;
 	JTextField nameField;
 	private Camera camera;
 
 
-	public ComponentCameraPanel(ModelHandler modelHandler,
-	                            ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentCameraPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 
 		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][grow]"));
 		title = new JLabel("Select a Bone");
@@ -55,7 +51,7 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 			public void focusLost(FocusEvent e) {
 				String newName = nameField.getText();
 				if (!newName.equals("")) {
-					NameChangeAction action = new NameChangeAction(camera, newName, modelStructureChangeListener);
+					NameChangeAction action = new NameChangeAction(camera, newName, changeListener);
 					action.redo();
 					modelHandler.getUndoManager().pushAction(action);
 				}

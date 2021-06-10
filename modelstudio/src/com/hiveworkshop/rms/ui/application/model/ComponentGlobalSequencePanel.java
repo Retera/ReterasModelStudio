@@ -11,17 +11,13 @@ import javax.swing.*;
 
 //public class ComponentGlobalSequencePanel extends JPanel implements ComponentPanel<EditableModel> {
 public class ComponentGlobalSequencePanel extends ComponentPanel<Integer> {
-	private final ModelHandler modelHandler;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final JLabel indexLabel;
 	private final JSpinner lengthSpinner;
 	private int globalSequenceId;
 	private Integer value;
 
-	public ComponentGlobalSequencePanel(ModelHandler modelHandler,
-	                                    ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentGlobalSequencePanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 
 		setLayout(new MigLayout());
 //		lengthSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
@@ -45,7 +41,7 @@ public class ComponentGlobalSequencePanel extends ComponentPanel<Integer> {
 	private void lengthSpinner() {
 		SetGlobalSequenceLengthAction setGlobalSequenceLengthAction = new SetGlobalSequenceLengthAction(
 				modelHandler.getModel(), globalSequenceId, value, (Integer) lengthSpinner.getValue(),
-				modelStructureChangeListener);
+				changeListener);
 		setGlobalSequenceLengthAction.redo();
 		modelHandler.getUndoManager().pushAction(setGlobalSequenceLengthAction);
 	}

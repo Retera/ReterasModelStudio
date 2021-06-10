@@ -17,8 +17,6 @@ import javax.swing.*;
 
 
 public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
-	private final ModelHandler modelHandler;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final boolean listenersEnabled = true;
 	private final JPanel animsPanelHolder;
 	private FloatValuePanel alphaPanel;
@@ -28,10 +26,8 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 	private JLabel geosetLabel;
 
 
-	public ComponentGeosetAnimPanel(ModelHandler modelHandler,
-	                                ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentGeosetAnimPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
 
 		JPanel labelPanel = new JPanel(new MigLayout());
@@ -49,11 +45,11 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 		button.addActionListener(e -> copyFromOther());
 		animsPanelHolder.add(button, "wrap");
 
-		alphaPanel = new FloatValuePanel("Alpha", modelHandler.getUndoManager(), modelStructureChangeListener);
+		alphaPanel = new FloatValuePanel("Alpha", modelHandler.getUndoManager(), changeListener);
 		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		animsPanelHolder.add(alphaPanel, "wrap, span 2");
 
-		colorPanel = new ColorValuePanel("Color", modelHandler.getUndoManager(), modelStructureChangeListener);
+		colorPanel = new ColorValuePanel("Color", modelHandler.getUndoManager(), changeListener);
 		colorPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		animsPanelHolder.add(colorPanel, "wrap, span 2");
 
@@ -88,7 +84,7 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 	}
 
 	private void copyFromOther() {
-		GeosetAnimCopyPanel.show(this, modelHandler.getModelView(), geosetAnim, modelStructureChangeListener, modelHandler.getUndoManager());
+		GeosetAnimCopyPanel.show(this, modelHandler.getModelView(), geosetAnim, changeListener, modelHandler.getUndoManager());
 		repaint();
 	}
 

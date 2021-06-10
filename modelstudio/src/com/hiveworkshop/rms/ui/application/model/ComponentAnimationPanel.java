@@ -22,13 +22,9 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 	private final JCheckBox nonLoopingChooser;
 	private final JButton deleteButton;
 	private Animation animation;
-	private final ModelHandler modelHandler;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 
-	public ComponentAnimationPanel(ModelHandler modelHandler,
-	                               ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentAnimationPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 		nameField = new ComponentEditorTextField(24);
 		nameField.addEditingStoppedListener(this::nameField);
 //		nameField.addActionListener(e -> nameField());
@@ -76,48 +72,48 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 
 	private void nonLoopingChooser() {
 		SetAnimationNonLoopingAction setAnimationNonLoopingAction = new SetAnimationNonLoopingAction(
-				animation.isNonLooping(), nonLoopingChooser.isSelected(), animation, modelStructureChangeListener);
+				animation.isNonLooping(), nonLoopingChooser.isSelected(), animation, changeListener);
 		setAnimationNonLoopingAction.redo();
 		modelHandler.getUndoManager().pushAction(setAnimationNonLoopingAction);
 	}
 
 	private void moveSpeedChooser() {
 		SetAnimationMoveSpeedAction setAnimationMoveSpeedAction = new SetAnimationMoveSpeedAction(
-				animation.getMoveSpeed(), moveSpeedChooser.getFloatValue(), animation, modelStructureChangeListener);
+				animation.getMoveSpeed(), moveSpeedChooser.getFloatValue(), animation, changeListener);
 		setAnimationMoveSpeedAction.redo();
 		modelHandler.getUndoManager().pushAction(setAnimationMoveSpeedAction);
 	}
 
 	private void rarityChooser() {
 		SetAnimationRarityAction setAnimationRarityAction = new SetAnimationRarityAction(
-				animation.getRarity(), rarityChooser.getFloatValue(), animation, modelStructureChangeListener);
+				animation.getRarity(), rarityChooser.getFloatValue(), animation, changeListener);
 		setAnimationRarityAction.redo();
 		modelHandler.getUndoManager().pushAction(setAnimationRarityAction);
 	}
 
 	private void newAnimTimeEnd() {
 		SetAnimationIntervalEndAction setAnimationIntervalEndAction = new SetAnimationIntervalEndAction(
-				animation.getEnd(), newAnimTimeEnd.getIntValue(), animation, modelStructureChangeListener);
+				animation.getEnd(), newAnimTimeEnd.getIntValue(), animation, changeListener);
 		setAnimationIntervalEndAction.redo();
 		modelHandler.getUndoManager().pushAction(setAnimationIntervalEndAction);
 	}
 
 	private void nameField() {
 		SetAnimationNameAction setAnimationNameAction = new SetAnimationNameAction(
-				animation.getName(), nameField.getText(), animation, modelStructureChangeListener);
+				animation.getName(), nameField.getText(), animation, changeListener);
 		setAnimationNameAction.redo();
 		modelHandler.getUndoManager().pushAction(setAnimationNameAction);
 	}
 
 	private void newAnimTimeStart() {
 		SetAnimationIntervalStartAction setAnimationIntervalStartAction = new SetAnimationIntervalStartAction(
-				animation.getStart(), newAnimTimeStart.getIntValue(), animation, modelStructureChangeListener);
+				animation.getStart(), newAnimTimeStart.getIntValue(), animation, changeListener);
 		setAnimationIntervalStartAction.redo();
 		modelHandler.getUndoManager().pushAction(setAnimationIntervalStartAction);
 	}
 
 	private void deleteAnim() {
-		DeleteAnimationAction deleteAnimationAction = new DeleteAnimationAction(modelHandler.getModel(), animation, modelStructureChangeListener);
+		DeleteAnimationAction deleteAnimationAction = new DeleteAnimationAction(modelHandler.getModel(), animation, changeListener);
 		modelHandler.getUndoManager().pushAction(deleteAnimationAction);
 		deleteAnimationAction.redo();
 	}

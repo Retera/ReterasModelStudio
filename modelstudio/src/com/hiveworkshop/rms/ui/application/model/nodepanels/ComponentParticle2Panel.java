@@ -16,8 +16,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class ComponentParticle2Panel extends ComponentPanel<ParticleEmitter2> {
-	private final ModelHandler modelHandler;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	ParticleEmitter2 idObject;
 
 	JLabel title;
@@ -26,10 +24,8 @@ public class ComponentParticle2Panel extends ComponentPanel<ParticleEmitter2> {
 	ParentChooser parentChooser;
 
 
-	public ComponentParticle2Panel(ModelHandler modelHandler,
-	                               ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentParticle2Panel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 
 		parentChooser = new ParentChooser(modelHandler.getModelView());
 
@@ -70,7 +66,7 @@ public class ComponentParticle2Panel extends ComponentPanel<ParticleEmitter2> {
 
 	private void chooseParent() {
 		IdObject newParent = parentChooser.chooseParent(idObject, this.getRootPane());
-		ParentChangeAction action = new ParentChangeAction(idObject, newParent, modelStructureChangeListener);
+		ParentChangeAction action = new ParentChangeAction(idObject, newParent, changeListener);
 		action.redo();
 		repaint();
 		modelHandler.getUndoManager().pushAction(action);
@@ -82,7 +78,7 @@ public class ComponentParticle2Panel extends ComponentPanel<ParticleEmitter2> {
 			public void focusLost(FocusEvent e) {
 				String newName = nameField.getText();
 				if (!newName.equals("")) {
-					NameChangeAction action = new NameChangeAction(idObject, newName, modelStructureChangeListener);
+					NameChangeAction action = new NameChangeAction(idObject, newName, changeListener);
 					action.redo();
 					modelHandler.getUndoManager().pushAction(action);
 				}

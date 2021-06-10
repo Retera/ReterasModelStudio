@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ComponentNodePanel extends ComponentPanel<AnimatedNode> {
-	private final ModelHandler modelHandler;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final Map<AnimatedNode, ComponentGeosetMaterialPanel> nodePanels;
 	private final boolean listenersEnabled = true;
 	//	private final JLabel trisLabel;
@@ -22,10 +20,8 @@ public class ComponentNodePanel extends ComponentPanel<AnimatedNode> {
 	private ComponentGeosetMaterialPanel nodePanel;
 
 
-	public ComponentNodePanel(ModelHandler modelHandler,
-	                          ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentNodePanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
 
 		nodePanels = new HashMap<>();

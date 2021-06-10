@@ -22,8 +22,6 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 	private static final String SD = "SD";
 	private static final String HD = "HD";
 	private Material material;
-	private final ModelStructureChangeListener modelStructureChangeListener;
-	private final ModelHandler modelHandler;
 
 	private final JComboBox<String> shaderOptionComboBox;
 	private final ComponentEditorJSpinner priorityPlaneSpinner;
@@ -31,10 +29,8 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 	private boolean listenForChanges = true;
 	private final ComponentMaterialLayersPanel multipleLayersPanel;
 
-	public ComponentMaterialPanel(ModelHandler modelHandler,
-	                              ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentMaterialPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 
 		shaderOptionComboBox = getShaderComboBox();
 
@@ -70,7 +66,7 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 			listenForChanges = true;
 		}
 
-		multipleLayersPanel.setMaterial(material, modelHandler.getModelView(), modelHandler.getUndoManager(), modelStructureChangeListener);
+		multipleLayersPanel.setMaterial(material, modelHandler.getModelView(), modelHandler.getUndoManager(), changeListener);
 	}
 
 	private JComboBox<String> getShaderComboBox() {
@@ -87,7 +83,7 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 	private void priorityPlaneSpinnerListener() {
 		final SetMaterialPriorityPlaneAction setMaterialPriorityPlaneAction = new SetMaterialPriorityPlaneAction(
 				material, material.getPriorityPlane(), ((Number) priorityPlaneSpinner.getValue()).intValue(),
-				modelStructureChangeListener);
+				changeListener);
 		setMaterialPriorityPlaneAction.redo();
 		modelHandler.getUndoManager().pushAction(setMaterialPriorityPlaneAction);
 	}
@@ -96,7 +92,7 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 		if (listenForChanges) {
 			final SetMaterialShaderStringAction setMaterialShaderStringAction = new SetMaterialShaderStringAction(
 					material, material.getShaderString(), (String) shaderOptionComboBox.getSelectedItem(),
-					modelStructureChangeListener);
+					changeListener);
 			setMaterialShaderStringAction.redo();
 			modelHandler.getUndoManager().pushAction(setMaterialShaderStringAction);
 		}

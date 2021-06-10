@@ -16,8 +16,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class ComponentEventPanel extends ComponentPanel<EventObject> {
-	private final ModelHandler modelHandler;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	JLabel title;
 	JTextField nameField;
 	JLabel parentName;
@@ -25,10 +23,8 @@ public class ComponentEventPanel extends ComponentPanel<EventObject> {
 	private EventObject idObject;
 
 
-	public ComponentEventPanel(ModelHandler modelHandler,
-	                           ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentEventPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 
 		parentChooser = new ParentChooser(modelHandler.getModelView());
 
@@ -69,7 +65,7 @@ public class ComponentEventPanel extends ComponentPanel<EventObject> {
 
 	private void chooseParent() {
 		IdObject newParent = parentChooser.chooseParent(idObject, this.getRootPane());
-		ParentChangeAction action = new ParentChangeAction(idObject, newParent, modelStructureChangeListener);
+		ParentChangeAction action = new ParentChangeAction(idObject, newParent, changeListener);
 		action.redo();
 		repaint();
 		modelHandler.getUndoManager().pushAction(action);
@@ -82,7 +78,7 @@ public class ComponentEventPanel extends ComponentPanel<EventObject> {
 			public void focusLost(FocusEvent e) {
 				String newName = nameField.getText();
 				if (!newName.equals("")) {
-					NameChangeAction action = new NameChangeAction(idObject, newName, modelStructureChangeListener);
+					NameChangeAction action = new NameChangeAction(idObject, newName, changeListener);
 					action.redo();
 					modelHandler.getUndoManager().pushAction(action);
 				}

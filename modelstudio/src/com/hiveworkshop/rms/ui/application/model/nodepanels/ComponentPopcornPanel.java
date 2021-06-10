@@ -22,8 +22,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ComponentPopcornPanel extends ComponentPanel<ParticleEmitterPopcorn> {
-	private final ModelHandler modelHandler;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	//	private final Map<AnimatedNode, ComponentGeosetMaterialPanel> nodePanels;
 	private final boolean listenersEnabled = true;
 	//	private final JLabel trisLabel;
@@ -47,10 +45,8 @@ public class ComponentPopcornPanel extends ComponentPanel<ParticleEmitterPopcorn
 	ParentChooser parentChooser;
 
 
-	public ComponentPopcornPanel(ModelHandler modelHandler,
-	                             ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentPopcornPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 
 		parentChooser = new ParentChooser(modelHandler.getModelView());
 
@@ -115,7 +111,7 @@ public class ComponentPopcornPanel extends ComponentPanel<ParticleEmitterPopcorn
 	}
 
 	private ColorValuePanel getColorValuePanel(JPanel panel, String title) {
-		ColorValuePanel colorPanel1 = new ColorValuePanel(title, modelHandler.getUndoManager(), modelStructureChangeListener);
+		ColorValuePanel colorPanel1 = new ColorValuePanel(title, modelHandler.getUndoManager(), changeListener);
 		colorPanel1.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		JScrollPane colorScrollPane = new JScrollPane(colorPanel1);
 		colorScrollPane.setMaximumSize(new Dimension(700, 300));
@@ -125,7 +121,7 @@ public class ComponentPopcornPanel extends ComponentPanel<ParticleEmitterPopcorn
 	}
 
 	private FloatValuePanel getFloatValuePanel(JPanel panel1, String title) {
-		FloatValuePanel panel = new FloatValuePanel(title, modelHandler.getUndoManager(), modelStructureChangeListener);
+		FloatValuePanel panel = new FloatValuePanel(title, modelHandler.getUndoManager(), changeListener);
 		panel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		JScrollPane scrollPane = new JScrollPane(panel);
 		scrollPane.setMaximumSize(new Dimension(700, 300));
@@ -216,7 +212,7 @@ public class ComponentPopcornPanel extends ComponentPanel<ParticleEmitterPopcorn
 	private void chooseParent() {
 		System.out.println(this.getRootPane());
 		IdObject newParent = parentChooser.chooseParent(popcorn, this.getRootPane());
-		ParentChangeAction action = new ParentChangeAction(popcorn, newParent, modelStructureChangeListener);
+		ParentChangeAction action = new ParentChangeAction(popcorn, newParent, changeListener);
 		action.redo();
 		repaint();
 		modelHandler.getUndoManager().pushAction(action);

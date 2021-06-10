@@ -15,8 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
-	private final ModelHandler modelHandler;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	private ComponentGeosetMaterialPanel materialPanel;
 	private final Map<Geoset, ComponentGeosetMaterialPanel> materialPanels;
 	private final JLabel trisLabel;
@@ -34,10 +32,8 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	private final JPanel materialPanelHolder;
 
 
-	public ComponentGeosetPanel(ModelHandler modelHandler,
-	                            ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentGeosetPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 		setLayout(new MigLayout("fill", "[][grow][grow]", "[][][][grow]"));
 
 		geosetLabel = new JLabel("geoset name");
@@ -105,7 +101,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		materialPanels.putIfAbsent(geoset, new ComponentGeosetMaterialPanel());
 		materialPanel = materialPanels.get(geoset);
 
-		materialPanel.setMaterialChooser(geoset, modelHandler.getModelView(), modelHandler.getUndoManager(), modelStructureChangeListener);
+		materialPanel.setMaterialChooser(geoset, modelHandler.getModelView(), modelHandler.getUndoManager(), changeListener);
 		materialPanelHolder.add(materialPanel);
 		materialPanelHolder.revalidate();
 		materialPanelHolder.repaint();

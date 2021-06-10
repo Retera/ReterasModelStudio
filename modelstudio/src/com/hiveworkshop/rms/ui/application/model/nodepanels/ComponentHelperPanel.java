@@ -22,8 +22,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class ComponentHelperPanel extends ComponentPanel<Helper> {
-	private final ModelHandler modelHandler;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	JLabel title;
 	JTextField nameField;
 	JLabel parentName;
@@ -34,10 +32,8 @@ public class ComponentHelperPanel extends ComponentPanel<Helper> {
 	private QuatValuePanel rotPanel;
 
 
-	public ComponentHelperPanel(ModelHandler modelHandler,
-	                            ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentHelperPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 
 		parentChooser = new ParentChooser(modelHandler.getModelView());
 
@@ -53,11 +49,11 @@ public class ComponentHelperPanel extends ComponentPanel<Helper> {
 		JButton chooseParentButton = new JButton("change");
 		chooseParentButton.addActionListener(e -> chooseParent());
 		add(chooseParentButton, "wrap");
-		transPanel = new Vec3ValuePanel("Translation", modelHandler.getUndoManager(), modelStructureChangeListener);
+		transPanel = new Vec3ValuePanel("Translation", modelHandler.getUndoManager(), changeListener);
 		add(transPanel, "spanx, growx, wrap");
-		scalePanel = new Vec3ValuePanel("Scaling", modelHandler.getUndoManager(), modelStructureChangeListener);
+		scalePanel = new Vec3ValuePanel("Scaling", modelHandler.getUndoManager(), changeListener);
 		add(scalePanel, "spanx, growx, wrap");
-		rotPanel = new QuatValuePanel("Rotation", modelHandler.getUndoManager(), modelStructureChangeListener);
+		rotPanel = new QuatValuePanel("Rotation", modelHandler.getUndoManager(), changeListener);
 		add(rotPanel, "spanx, growx, wrap");
 	}
 
@@ -90,7 +86,7 @@ public class ComponentHelperPanel extends ComponentPanel<Helper> {
 
 	private void chooseParent() {
 		IdObject newParent = parentChooser.chooseParent(idObject, this.getRootPane());
-		ParentChangeAction action = new ParentChangeAction(idObject, newParent, modelStructureChangeListener);
+		ParentChangeAction action = new ParentChangeAction(idObject, newParent, changeListener);
 		action.redo();
 		repaint();
 		modelHandler.getUndoManager().pushAction(action);
@@ -102,7 +98,7 @@ public class ComponentHelperPanel extends ComponentPanel<Helper> {
 			public void focusLost(FocusEvent e) {
 				String newName = nameField.getText();
 				if (!newName.equals("")) {
-					NameChangeAction action = new NameChangeAction(idObject, newName, modelStructureChangeListener);
+					NameChangeAction action = new NameChangeAction(idObject, newName, changeListener);
 					action.redo();
 					modelHandler.getUndoManager().pushAction(action);
 				}

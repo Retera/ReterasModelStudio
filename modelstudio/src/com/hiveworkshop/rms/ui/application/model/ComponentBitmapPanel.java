@@ -30,14 +30,10 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	private final JCheckBox wrapWidthBox;
 	private final JCheckBox wrapHeightBox;
 	private final JPanel previewPanel;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final FileDialog fileDialog;
-	private final ModelHandler modelHandler;
 
-	public ComponentBitmapPanel(ModelHandler modelHandler,
-	                            ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentBitmapPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 		texturePathField = new ComponentEditorTextField(24);
 		texturePathField.addEditingStoppedListener(this::texturePathField);
 		fileDialog = new FileDialog(this);
@@ -82,14 +78,14 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 
 	private void wrapHeightBox() {
 		SetBitmapWrapHeightAction setBitmapWrapHeightAction = new SetBitmapWrapHeightAction(bitmap,
-				bitmap.isWrapHeight(), wrapHeightBox.isSelected(), modelStructureChangeListener);
+				bitmap.isWrapHeight(), wrapHeightBox.isSelected(), changeListener);
 		setBitmapWrapHeightAction.redo();
 		modelHandler.getUndoManager().pushAction(setBitmapWrapHeightAction);
 	}
 
 	private void wrapWidthBox() {
 		SetBitmapWrapWidthAction setBitmapWrapWidthAction = new SetBitmapWrapWidthAction(bitmap,
-				bitmap.isWrapWidth(), wrapWidthBox.isSelected(), modelStructureChangeListener);
+				bitmap.isWrapWidth(), wrapWidthBox.isSelected(), changeListener);
 		setBitmapWrapWidthAction.redo();
 		modelHandler.getUndoManager().pushAction(setBitmapWrapWidthAction);
 	}
@@ -97,14 +93,14 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	private void replaceableIdSpinner() {
 		SetBitmapReplaceableIdAction setBitmapReplaceableIdAction = new SetBitmapReplaceableIdAction(
 				bitmap, bitmap.getReplaceableId(), ((Number) replaceableIdSpinner.getValue()).intValue(),
-				modelStructureChangeListener);
+				changeListener);
 		setBitmapReplaceableIdAction.redo();
 		modelHandler.getUndoManager().pushAction(setBitmapReplaceableIdAction);
 	}
 
 	private void texturePathField() {
 		SetBitmapPathAction setBitmapPathAction = new SetBitmapPathAction(bitmap, bitmap.getPath(),
-				texturePathField.getText(), modelStructureChangeListener);
+				texturePathField.getText(), changeListener);
 		setBitmapPathAction.redo();
 		modelHandler.getUndoManager().pushAction(setBitmapPathAction);
 	}

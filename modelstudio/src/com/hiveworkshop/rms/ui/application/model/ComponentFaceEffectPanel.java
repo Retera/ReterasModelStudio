@@ -12,18 +12,14 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class ComponentFaceEffectPanel extends ComponentPanel<FaceEffect> {
-	private final ModelHandler modelHandler;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	FaceEffect faceEffect;
 
 	JTextField targetField;
 	JTextField effectField;
 
 
-	public ComponentFaceEffectPanel(ModelHandler modelHandler,
-	                                ModelStructureChangeListener modelStructureChangeListener) {
-		this.modelHandler = modelHandler;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentFaceEffectPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+		super(modelHandler, changeListener);
 		setLayout(new MigLayout("fill", "[][50%:50%:50%, grow][grow]", "[][][grow]"));
 		targetField = new JTextField();
 		targetField.addFocusListener(setEffectTarget());
