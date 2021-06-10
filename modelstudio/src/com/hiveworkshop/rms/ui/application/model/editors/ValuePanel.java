@@ -26,10 +26,6 @@ import java.util.function.Consumer;
 public abstract class ValuePanel<T> extends JPanel {
 	protected static final Color LIGHT_GREEN = new Color(128, 255, 128);
 	protected static final Color LIGHT_YELLOW = new Color(255, 255, 128);
-	protected final JLabel typeLabel;
-	protected final JButton makeStaticButton;
-	protected final JButton makeDynamicButton;
-	protected final JButton addButton;
 	//	protected final ComponentEditorJSpinner staticSpinner;
 	protected final JComponent staticComponent;
 	protected final JComboBox<InterpolationType> interpTypeBox;
@@ -46,6 +42,8 @@ public abstract class ValuePanel<T> extends JPanel {
 	protected TimelineKeyNamer timelineKeyNamer;
 	protected boolean doSave;
 	protected String preEditValue;
+	JPanel dynStatPanel;
+	private final CardLayout dynStatLayout;
 
 	protected Map<Integer, Integer> columnSizes = new HashMap<>();
 
@@ -54,7 +52,6 @@ public abstract class ValuePanel<T> extends JPanel {
 	protected Consumer<T> valueSettingFunction;
 
 	JScrollPane tableScrollPane = new JScrollPane();
-	JPanel tablePanel;
 
 	public ValuePanel(final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
 		this(title, Double.MAX_VALUE, -Double.MAX_VALUE, undoManager, modelStructureChangeListener);
@@ -73,46 +70,51 @@ public abstract class ValuePanel<T> extends JPanel {
 		setBorder(BorderFactory.createTitledBorder(title));
 		setLayout(new MigLayout("fill, hidemode 1", "[]", "[][][]0[][]"));
 
-
-		JPanel dynStatPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[]"));
-
-		typeLabel = new JLabel("");
-		dynStatPanel.add(typeLabel, "al 0% 0%");
-
-		makeStaticButton = new JButton("Make Static");
-		makeStaticButton.addActionListener(e -> makeStatic());
-		makeStaticButton.setVisible(true);
-		dynStatPanel.add(makeStaticButton, "al 100% 0%");
-
-		makeDynamicButton = new JButton("Make Dynamic");
-		makeDynamicButton.addActionListener(e -> makeDynamic());
-		makeDynamicButton.setVisible(false);
-		dynStatPanel.add(makeDynamicButton, "al 100% 0%");
-
+		dynStatLayout = new CardLayout();
+		dynStatPanel = new JPanel(dynStatLayout);
 		add(dynStatPanel, "align center, growx, wrap");
 
+		JPanel dynamicPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[][][][]"));
+		dynamicPanel.add(new JLabel("Dynamic"), "al 0% 0%");
+		dynStatPanel.add("dynamic", dynamicPanel);
+
+		JButton makeStaticButton = new JButton("Make Static");
+		makeStaticButton.addActionListener(e -> makeStatic());
+		makeStaticButton.setVisible(true);
+		dynamicPanel.add(makeStaticButton, "al 100% 0%, wrap");
 
 		JPanel spinInterpPanel = new JPanel(new MigLayout("ins 0, gap 0, hidemode 3", "[]", "[]"));
-		add(spinInterpPanel, "wrap");
+		dynamicPanel.add(spinInterpPanel, "wrap");
 
-		staticComponent = this.getStaticComponent();
-		spinInterpPanel.add(staticComponent);
-
+		spinInterpPanel.add(new JLabel("Interpolation:"));
 		interpTypeBox = new JComboBox<>(InterpolationType.values());
-		interpTypeBox.addActionListener(e -> setInterpolationType());
+		interpTypeBox.addItemListener(this::setInterpolationType);
 		spinInterpPanel.add(interpTypeBox);
 
-//		add(getTablePanel(), "growx, wrap");
+		dynamicPanel.add(getTablePanel(), "spanx, growx, wrap");
 
-		add(getTablePanel(), "spanx, growx, wrap");
-
-		addButton = new JButton("add");
+		JButton addButton = new JButton("add");
 		addButton.addActionListener(e -> addEntry(keyframeTable.getRowCount() - 1));
-		add(addButton, "wrap");
+		dynamicPanel.add(addButton, "wrap");
+
+
+		JPanel staticPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[]"));
+		staticPanel.add(new JLabel("Static"), "al 0% 0%");
+		JButton makeDynamicButton = new JButton("Make Dynamic");
+		makeDynamicButton.addActionListener(e -> makeDynamic());
+//		makeDynamicButton.setVisible(false);
+		staticPanel.add(makeDynamicButton, "al 100% 0%, wrap");
+
+		staticComponent = this.getStaticComponent();
+		staticPanel.add(staticComponent);
+
+		dynStatPanel.add("static", staticPanel);
+
+//		add(getTablePanel(), "growx, wrap");
 	}
 
 	private JPanel getTablePanel() {
-		tablePanel = new JPanel(new MigLayout("gap 0, ins 0, fill, hidemode 2", "[grow][][grow, 1%:50%:80%]", "[][]"));
+		JPanel tablePanel = new JPanel(new MigLayout("gap 0, ins 0, fill, hidemode 2", "[grow][][grow, 1%:50%:80%]", "[][]"));
 		JPanel tablePanel2 = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow]", "[]"));
 
 		keyframeTable = new JTable();
@@ -156,13 +158,13 @@ public abstract class ValuePanel<T> extends JPanel {
 	private void makeDynamic() {
 //		if (oldAnimFlag == null && timelineContainer != null && !flagName.equals("")) {
 		if (animFlag == null && timelineContainer != null && !flagName.equals("")) {
-			toggleStaticDynamicPanel(false);
 			if (staticValue == null) {
 				staticValue = getZeroValue();
 			}
 			AnimFlag<T> newAnimFlag = getNewAnimFlag();
 
 			if (newAnimFlag != null) {
+				toggleStaticDynamicPanel(false);
 				newAnimFlag.addEntry(0, staticValue);
 				AddAnimFlagAction addAnimFlagAction = new AddAnimFlagAction(timelineContainer, newAnimFlag, modelStructureChangeListener);
 				undoManager.pushAction(addAnimFlagAction);
@@ -171,6 +173,7 @@ public abstract class ValuePanel<T> extends JPanel {
 //		} else if (oldAnimFlag != null){
 		} else if (animFlag != null) {
 			toggleStaticDynamicPanel(false);
+			animFlag.addEntry(0, staticValue);
 			AddAnimFlagAction addAnimFlagAction = new AddAnimFlagAction(timelineContainer, animFlag, modelStructureChangeListener);
 			undoManager.pushAction(addAnimFlagAction);
 			addAnimFlagAction.redo();
@@ -200,20 +203,10 @@ public abstract class ValuePanel<T> extends JPanel {
 
 	private void toggleStaticDynamicPanel(boolean isStatic) {
 		boolean isDynamic = !isStatic;
-
-		tablePanel.setVisible(isDynamic);
-		keyframeTable.setVisible(isDynamic);
-		interpTypeBox.setVisible(isDynamic);
-		makeStaticButton.setVisible(isDynamic && this.valueSettingFunction != null);
-		keyframeTable.getTableHeader().setVisible(isDynamic);
-		addButton.setVisible(isDynamic);
-
-		makeDynamicButton.setVisible(isStatic);
-		staticComponent.setVisible(isStatic);
 		if (isDynamic) {
-			typeLabel.setText("Dynamic");
+			dynStatLayout.show(dynStatPanel, "dynamic");
 		} else {
-			typeLabel.setText("Static");
+			dynStatLayout.show(dynStatPanel, "static");
 		}
 	}
 
@@ -366,10 +359,8 @@ public abstract class ValuePanel<T> extends JPanel {
 			toggleStaticDynamicPanel(false);
 //			List<InterpolationType> types =  animFlag.getForbiddenInterpolationTypes();
 //			types.forEach(t -> interpTypeBox.remove());
-			ActionListener actionListener = interpTypeBox.getActionListeners()[0];
-			interpTypeBox.removeActionListener(actionListener);
+
 			interpTypeBox.setSelectedItem(animFlag.getInterpolationType());
-			interpTypeBox.addActionListener(actionListener);
 		}
 
 		reloadStaticValue(value);
@@ -384,11 +375,13 @@ public abstract class ValuePanel<T> extends JPanel {
 
 	abstract void reloadStaticValue(T value);
 
-	private void setInterpolationType() {
-		if (interpTypeBox.getSelectedItem() != null) {
-			UndoAction undoAction = new ChangeInterpTypeAction(animFlag, InterpolationType.getType(interpTypeBox.getSelectedItem().toString()), modelStructureChangeListener);
-			undoManager.pushAction(undoAction);
-			undoAction.redo();
+	private void setInterpolationType(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED
+				&& e.getItem() instanceof InterpolationType
+				&& e.getItem() != animFlag.getInterpolationType()) {
+//			UndoAction undoAction = new ChangeInterpTypeAction<>(animFlag, InterpolationType.getType(interpTypeBox.getSelectedItem().toString()), modelStructureChangeListener);
+			UndoAction undoAction = new ChangeInterpTypeAction<>(animFlag, (InterpolationType) e.getItem(), modelStructureChangeListener);
+			undoManager.pushAction(undoAction.redo());
 
 			setTableModel();
 		}
