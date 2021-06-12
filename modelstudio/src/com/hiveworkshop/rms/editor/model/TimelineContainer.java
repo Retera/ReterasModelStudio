@@ -38,6 +38,12 @@ public abstract class TimelineContainer implements VisibilitySource {
 		}
 	}
 
+	public void copyTimelines(TimelineContainer other) {
+		for (AnimFlag<?> timeline : other.getAnimFlags()) {
+			add(timeline.deepCopy());
+		}
+	}
+
 	public boolean has(String name) {
 		return animFlags.containsKey(name);
 	}

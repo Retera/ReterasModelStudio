@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.FilteredTextField;
 import com.hiveworkshop.rms.util.Quat;
 
@@ -17,12 +18,12 @@ public class QuatValuePanel extends ValuePanel<Quat> {
 	private Quat quat;
 
 
-	public QuatValuePanel(final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
-		super(title, undoManager, modelStructureChangeListener);
+	public QuatValuePanel(ModelHandler modelHandler, final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
+		super(modelHandler, title, undoManager, modelStructureChangeListener);
 
 		quat = new Quat(QUAT);
-		allowedCharacters += "\\{}, ";
-		floatTrackTableModel.setValueClass(String.class);
+		keyframePanel.addAllowedCharatcters("\\{}, ");
+		keyframePanel.getFloatTrackTableModel().setValueClass(String.class);
 	}
 
 

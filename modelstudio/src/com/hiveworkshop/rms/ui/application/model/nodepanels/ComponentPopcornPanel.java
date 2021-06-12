@@ -111,7 +111,7 @@ public class ComponentPopcornPanel extends ComponentPanel<ParticleEmitterPopcorn
 	}
 
 	private ColorValuePanel getColorValuePanel(JPanel panel, String title) {
-		ColorValuePanel colorPanel1 = new ColorValuePanel(title, modelHandler.getUndoManager(), changeListener);
+		ColorValuePanel colorPanel1 = new ColorValuePanel(modelHandler, title, modelHandler.getUndoManager(), changeListener);
 		colorPanel1.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		JScrollPane colorScrollPane = new JScrollPane(colorPanel1);
 		colorScrollPane.setMaximumSize(new Dimension(700, 300));
@@ -121,7 +121,7 @@ public class ComponentPopcornPanel extends ComponentPanel<ParticleEmitterPopcorn
 	}
 
 	private FloatValuePanel getFloatValuePanel(JPanel panel1, String title) {
-		FloatValuePanel panel = new FloatValuePanel(title, modelHandler.getUndoManager(), changeListener);
+		FloatValuePanel panel = new FloatValuePanel(modelHandler, title, modelHandler.getUndoManager(), changeListener);
 		panel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		JScrollPane scrollPane = new JScrollPane(panel);
 		scrollPane.setMaximumSize(new Dimension(700, 300));

@@ -418,9 +418,11 @@ public class FileDialog {
 
     public EditableModel getModel() {
         if (modelPanel != null && modelPanel.getModel() != null) {
-            return modelPanel.getModel();
+	        return modelPanel.getModel();
+        } else if (ProgramGlobals.getCurrentModelPanel() != null) {
+	        return ProgramGlobals.getCurrentModelPanel().getModel();
         } else {
-            return ProgramGlobals.getCurrentModelPanel().getModel();
+	        return null;
         }
     }
 

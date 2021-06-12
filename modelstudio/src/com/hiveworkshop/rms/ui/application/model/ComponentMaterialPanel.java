@@ -66,7 +66,7 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 			listenForChanges = true;
 		}
 
-		multipleLayersPanel.setMaterial(material, modelHandler.getModelView(), modelHandler.getUndoManager(), changeListener);
+		multipleLayersPanel.setMaterial(material, modelHandler, changeListener);
 	}
 
 	private JComboBox<String> getShaderComboBox() {

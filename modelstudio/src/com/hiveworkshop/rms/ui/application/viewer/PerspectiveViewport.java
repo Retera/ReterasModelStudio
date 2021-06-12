@@ -189,34 +189,37 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			public void keyPressed(KeyEvent e) {
 				super.keyPressed(e);
 
-				Vec3 maxExt = currentExt.getMaximumExtent();
-//				double boundsRadius = currentExt.getMaximumExtent().distance(currentExt.getMinimumExtent()) / 2;
-//				m_zoom = 128 / (boundsRadius*1.5);
-//				m_zoom = 128 / (maxExt.length()) * 200/getWidth();
-				m_zoom = 128 / (maxExt.length());
-
 				if (e.getKeyCode() == KeyEvent.VK_NUMPAD7) {
 					// Top view
 					System.out.println("VK_NUMPAD7");
+					Vec3 maxExt = resetZoom();
 					setViewportCamera(0, (int) -(maxExt.length() * .54), 0, 0, 90);
 				}
 				if (e.getKeyCode() == KeyEvent.VK_NUMPAD1) {
 					// Front view
 					System.out.println("VK_NUMPAD1");
+					Vec3 maxExt = resetZoom();
 					setViewportCamera(0, (int) -(maxExt.length() / 6), 0, 0, 0);
 				}
 				if (e.getKeyCode() == KeyEvent.VK_NUMPAD3) {
 					// Side view
 					System.out.println("VK_NUMPAD3");
+					Vec3 maxExt = resetZoom();
 					setViewportCamera(0, (int) -(maxExt.length() / 6), 0, 90, 0);
 				}
 				if (e.getKeyCode() == KeyEvent.VK_O) {
-					// Side view
+					// Orto Mode
 					ortho = !ortho;
 					System.out.println("VK_O");
 				}
 			}
 		});
+	}
+
+	public Vec3 resetZoom() {
+		Vec3 maxExt = currentExt.getMaximumExtent();
+		m_zoom = 128 / (maxExt.length());
+		return maxExt;
 	}
 
 	void loadDefaultCameraFor(final ModelView modelView) {
@@ -487,7 +490,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			for (final Geoset geo : modelView.getModel().getGeosets()) {
 				processMesh(geo);
 			}
-			renderGeosets(modelView.getEditableGeosets(), formatVersion, false);
+//			renderGeosets(modelView.getEditableGeosets(), formatVersion, false);
+			renderGeosets(modelView.getVisibleGeosets(), formatVersion, false);
 
 			if (modelView.getHighlightedGeoset() != null) {
 				drawHighlightedGeosets(formatVersion);

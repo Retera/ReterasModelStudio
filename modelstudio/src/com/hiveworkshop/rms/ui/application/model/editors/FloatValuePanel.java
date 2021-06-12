@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 import javax.swing.*;
 
@@ -10,12 +11,12 @@ public class FloatValuePanel extends ValuePanel<Float> {
 	private ComponentEditorJSpinner staticSpinner;
 
 
-	public FloatValuePanel(final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
-		this(title, Double.MAX_VALUE, -Double.MAX_VALUE, undoManager, modelStructureChangeListener);
+	public FloatValuePanel(ModelHandler modelHandler, final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
+		this(modelHandler, title, Double.MAX_VALUE, -Double.MAX_VALUE, undoManager, modelStructureChangeListener);
 	}
 
-	public FloatValuePanel(final String title, double maxValue, double minValue, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
-		super(title, maxValue, minValue, undoManager, modelStructureChangeListener);
+	public FloatValuePanel(ModelHandler modelHandler, final String title, double maxValue, double minValue, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
+		super(modelHandler, title, maxValue, minValue, undoManager, modelStructureChangeListener);
 	}
 
 	@Override

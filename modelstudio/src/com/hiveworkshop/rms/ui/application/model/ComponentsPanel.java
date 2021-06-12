@@ -1,160 +1,97 @@
 package com.hiveworkshop.rms.ui.application.model;
 
-import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.*;
+import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.DisplayElementType;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ComponentsPanel extends JPanel {
 	private static final String BLANK = "BLANK";
-	private static final String GLOBALSEQ = "GLOBALSEQ";
 	private final CardLayout cardLayout;
-	private final Map<Class<?>, ComponentPanel<?>> panelMap;
-	private final ComponentGlobalSequencePanel globalSeqPanel;
+	private final Map<DisplayElementType, ComponentPanel<?>> componentPanelMap;
+	private final Map<DisplayElementType, JPanel> overviewPanelMap;
 
-	public ComponentsPanel(ModelHandler modelHandler,
-	                       ModelStructureChangeListener modelStructureChangeListener) {
-		panelMap = new HashMap<>();
+	public ComponentsPanel(ModelHandler modelHandler, ModelStructureChangeListener modelStructureChangeListener) {
+		componentPanelMap = new HashMap<>();
+		overviewPanelMap = new HashMap<>();
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 
 		JPanel blankPanel = new JPanel();
 		blankPanel.add(new JLabel("Select a model component to get started..."));
 		add(blankPanel, BLANK);
-//		panelMap.put(null, blankPanel);
 
-		ComponentHeaderPanel headerPanel = new ComponentHeaderPanel(modelHandler, modelStructureChangeListener);
-		add(headerPanel, EditableModel.class.getName());
-		panelMap.put(EditableModel.class, headerPanel);
+		addPanelToMap(new ComponentHeaderPanel(modelHandler, modelStructureChangeListener), DisplayElementType.MODEL_ROOT);
+		addPanelToMap(new ComponentHeaderPanel(modelHandler, modelStructureChangeListener), DisplayElementType.HEADER);
 
-		ComponentCommentPanel commentPanel = new ComponentCommentPanel(modelHandler, modelStructureChangeListener);
-		add(commentPanel, ArrayList.class.getName());
-		panelMap.put(ArrayList.class, commentPanel);
+		addPanelToMap(new ComponentCommentPanel(modelHandler, modelStructureChangeListener), DisplayElementType.COMMENT);
 
-		ComponentAnimationPanel animationPanel = new ComponentAnimationPanel(modelHandler, modelStructureChangeListener);
-		add(animationPanel, Animation.class.getName());
-		panelMap.put(Animation.class, animationPanel);
+		addPanelToMap(new ComponentAnimationPanel(modelHandler, modelStructureChangeListener), DisplayElementType.ANIMATION);
+
+		addPanelToMap(new ComponentGlobalSequencePanel(modelHandler, modelStructureChangeListener), DisplayElementType.GLOBAL_SEQ);
+
+		addPanelToMap(new ComponentBitmapPanel(modelHandler, modelStructureChangeListener), DisplayElementType.TEXTURE);
+
+		JPanel editTexturesPanel = new EditTexturesPopupPanel(modelHandler.getModelView(), modelStructureChangeListener);
+//		JScrollPane scrollPane = new JScrollPane(editTexturesPanel);
+//		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+//		add(scrollPane, DisplayElementType.TEXTURE.getName());
+		add(editTexturesPanel, DisplayElementType.TEXTURE.getName());
+		overviewPanelMap.put(DisplayElementType.TEXTURE, editTexturesPanel);
 
 
-		globalSeqPanel = new ComponentGlobalSequencePanel(modelHandler, modelStructureChangeListener);
-		add(globalSeqPanel, Integer.class.getName());
-		panelMap.put(Integer.class, globalSeqPanel);
-//		add(globalSeqPanel, GLOBALSEQ);
-////		panelMap.put(EditableModel.class, globalSeqPanel);
+		addPanelToMap(new ComponentMaterialPanel(modelHandler, modelStructureChangeListener), DisplayElementType.MATERIAL);
 
-		ComponentBitmapPanel bitmapPanel = new ComponentBitmapPanel(modelHandler, modelStructureChangeListener);
-		add(bitmapPanel, Bitmap.class.getName());
-		panelMap.put(Bitmap.class, bitmapPanel);
+		addPanelToMap(new ComponentGeosetPanel(modelHandler, modelStructureChangeListener), DisplayElementType.GEOSET_ITEM);
 
-		ComponentMaterialPanel materialPanel = new ComponentMaterialPanel(modelHandler, modelStructureChangeListener);
-		JScrollPane materialScrollPane = new JScrollPane(materialPanel);
-		materialScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(materialScrollPane, Material.class.getName());
-		panelMap.put(Material.class, materialPanel);
+		addPanelToMap(new ComponentGeosetAnimPanel(modelHandler, modelStructureChangeListener), DisplayElementType.GEOSET_ANIM);
 
-		ComponentGeosetPanel geosetPanel = new ComponentGeosetPanel(modelHandler, modelStructureChangeListener);
-		add(geosetPanel, Geoset.class.getName());
-		panelMap.put(Geoset.class, geosetPanel);
+		addPanelToMap(new ComponentPopcornPanel(modelHandler, modelStructureChangeListener), DisplayElementType.POPCORN);
 
-		ComponentGeosetAnimPanel geosetAnimPanel = new ComponentGeosetAnimPanel(modelHandler, modelStructureChangeListener);
-		JScrollPane geosetAnimScrollPane = new JScrollPane(geosetAnimPanel);
-		geosetAnimScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(geosetAnimScrollPane, GeosetAnim.class.getName());
-		panelMap.put(GeosetAnim.class, geosetAnimPanel);
+		addPanelToMap(new ComponentBonePanel(modelHandler, modelStructureChangeListener), DisplayElementType.BONE);
 
-		ComponentNodePanel nodePanel = new ComponentNodePanel(modelHandler, modelStructureChangeListener);
-		add(nodePanel, AnimatedNode.class.getName());
-		panelMap.put(AnimatedNode.class, nodePanel);
+		addPanelToMap(new ComponentHelperPanel(modelHandler, modelStructureChangeListener), DisplayElementType.HELPER);
 
-		ComponentPopcornPanel popcornPanel = new ComponentPopcornPanel(modelHandler, modelStructureChangeListener);
-		JScrollPane popcornScrollPane = new JScrollPane(popcornPanel);
-		popcornScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(popcornScrollPane, ParticleEmitterPopcorn.class.getName());
-		panelMap.put(ParticleEmitterPopcorn.class, popcornPanel);
+		addPanelToMap(new ComponentParticle2Panel(modelHandler, modelStructureChangeListener), DisplayElementType.PARTICLE2);
 
-		ComponentBonePanel bonePanel = new ComponentBonePanel(modelHandler, modelStructureChangeListener);
-		JScrollPane boneScrollPane = new JScrollPane(bonePanel);
-		boneScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(boneScrollPane, Bone.class.getName());
-		panelMap.put(Bone.class, bonePanel);
+		addPanelToMap(new ComponentCollisionPanel(modelHandler, modelStructureChangeListener), DisplayElementType.COLLISION_SHAPE);
 
-		ComponentHelperPanel helperPanel = new ComponentHelperPanel(modelHandler, modelStructureChangeListener);
-		JScrollPane helperScrollPane = new JScrollPane(helperPanel);
-		helperScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(helperScrollPane, Helper.class.getName());
-		panelMap.put(Helper.class, helperPanel);
+		addPanelToMap(new ComponentEventPanel(modelHandler, modelStructureChangeListener), DisplayElementType.EVENT_OBJECT);
 
-		ComponentParticle2Panel particle2Panel = new ComponentParticle2Panel(modelHandler, modelStructureChangeListener);
-		JScrollPane particle2ScrollPane = new JScrollPane(particle2Panel);
-		particle2ScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(particle2ScrollPane, ParticleEmitter2.class.getName());
-		panelMap.put(ParticleEmitter2.class, particle2Panel);
+		addPanelToMap(new ComponentRibbonPanel(modelHandler, modelStructureChangeListener), DisplayElementType.RIBBON);
 
-		ComponentCollisionPanel collisionPanel = new ComponentCollisionPanel(modelHandler, modelStructureChangeListener);
-		JScrollPane collosionScrollPane = new JScrollPane(collisionPanel);
-		collosionScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(collosionScrollPane, CollisionShape.class.getName());
-		panelMap.put(CollisionShape.class, collisionPanel);
+		addPanelToMap(new ComponentAttatchmentPanel(modelHandler, modelStructureChangeListener), DisplayElementType.ATTACHMENT);
 
-		ComponentEventPanel eventPanel = new ComponentEventPanel(modelHandler, modelStructureChangeListener);
-		JScrollPane eventScrollPane = new JScrollPane(eventPanel);
-		eventScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(eventScrollPane, EventObject.class.getName());
-		panelMap.put(EventObject.class, eventPanel);
+		addPanelToMap(new ComponentFaceEffectPanel(modelHandler, modelStructureChangeListener), DisplayElementType.FACEFX);
 
-		ComponentRibbonPanel ribbonPanel = new ComponentRibbonPanel(modelHandler, modelStructureChangeListener);
-		JScrollPane ribbonScrollPane = new JScrollPane(ribbonPanel);
-		ribbonScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(ribbonScrollPane, RibbonEmitter.class.getName());
-		panelMap.put(RibbonEmitter.class, ribbonPanel);
-
-		ComponentAttatchmentPanel attachmentPanel = new ComponentAttatchmentPanel(modelHandler, modelStructureChangeListener);
-		JScrollPane attachmentScrollPane = new JScrollPane(attachmentPanel);
-		attachmentScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(attachmentScrollPane, Attachment.class.getName());
-		panelMap.put(Attachment.class, attachmentPanel);
-
-//		ComponentPopcornPanel popcornPanel = new ComponentPopcornPanel(modelHandler, modelStructureChangeListener);
-//		JScrollPane popcornScrollPane = new JScrollPane(popcornPanel);
-//		popcornScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-//		add(popcornScrollPane, ParticleEmitterPopcorn.class.getName());
-//		panelMap.put(ParticleEmitterPopcorn.class, popcornPanel);
-
-		ComponentFaceEffectPanel faceEffectPanel = new ComponentFaceEffectPanel(modelHandler, modelStructureChangeListener);
-		add(faceEffectPanel, FaceEffect.class.getName());
-		panelMap.put(FaceEffect.class, faceEffectPanel);
-
-		ComponentCameraPanel cameraPanel = new ComponentCameraPanel(modelHandler, modelStructureChangeListener);
-		add(cameraPanel, Camera.class.getName());
-		panelMap.put(Camera.class, cameraPanel);
+		addPanelToMap(new ComponentCameraPanel(modelHandler, modelStructureChangeListener), DisplayElementType.CAMERA);
 
 		cardLayout.show(this, BLANK);
 	}
 
-
-	public void selected(EditableModel model, Integer globalSequence, int globalSequenceId,
-	                     UndoManager undoManager,
-	                     ModelStructureChangeListener changeListener) {
-//		globalSeqPanel.setGlobalSequence(model, globalSequence, globalSequenceId, undoListener, changeListener);
-		globalSeqPanel.setSelectedItem(globalSequence);
-		cardLayout.show(this, GLOBALSEQ);
+	public void addPanelToMap(ComponentPanel<?> panel, DisplayElementType type) {
+		JScrollPane scrollPane = new JScrollPane(panel);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(scrollPane, String.valueOf(type));
+		componentPanelMap.put(type, panel);
 	}
 
-
-	public <T> void setSelectedPanel(T selectedItem) {
-		if (selectedItem != null && panelMap.containsKey(selectedItem.getClass())) {
+	public <T> void setSelectedPanel(T selectedItem, DisplayElementType type) {
+		if (selectedItem != null && !(selectedItem instanceof String) && componentPanelMap.containsKey(type)) {
 			// Typing of this would be nice, if ever possible...
-			ComponentPanel<T> componentPanel = (ComponentPanel<T>) panelMap.get(selectedItem.getClass());
+			ComponentPanel<T> componentPanel = (ComponentPanel<T>) componentPanelMap.get(type);
 			componentPanel.setSelectedItem(selectedItem);
-			cardLayout.show(this, selectedItem.getClass().getName());
+			cardLayout.show(this, String.valueOf(type));
+		} else if (selectedItem instanceof String && overviewPanelMap.containsKey(type)) {
+			cardLayout.show(this, type.getName());
 		} else {
+			System.out.println("selectedItem: " + selectedItem);
 			selectedBlank();
 		}
 	}

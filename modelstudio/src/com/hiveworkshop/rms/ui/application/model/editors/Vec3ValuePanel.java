@@ -2,11 +2,11 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.FilteredTextField;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
-import javax.swing.event.CaretListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
@@ -19,12 +19,12 @@ public class Vec3ValuePanel extends ValuePanel<Vec3> {
 	private Vec3 vec3;
 
 
-	public Vec3ValuePanel(final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
-		super(title, undoManager, modelStructureChangeListener);
+	public Vec3ValuePanel(ModelHandler modelHandler, final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
+		super(modelHandler, title, undoManager, modelStructureChangeListener);
 
 		vec3 = new Vec3(VEC_3);
-		allowedCharacters += "\\{}, ";
-		floatTrackTableModel.setValueClass(String.class);
+		keyframePanel.addAllowedCharatcters("\\{}, ");
+		keyframePanel.getFloatTrackTableModel().setValueClass(String.class);
 	}
 
 
@@ -46,16 +46,6 @@ public class Vec3ValuePanel extends ValuePanel<Vec3> {
 				}
 			}
 		};
-	}
-
-	private void applyFilteredText(String newText) {
-		CaretListener listener = staticValueField.getCaretListeners()[0];
-		staticValueField.removeCaretListener(listener);
-		int carPos = staticValueField.getCaretPosition();
-		staticValueField.setText(newText);
-		int newCarPos = Math.max(0, Math.min(newText.length(), carPos - 1));
-		staticValueField.setCaretPosition(newCarPos);
-		staticValueField.addCaretListener(listener);
 	}
 
 	@Override

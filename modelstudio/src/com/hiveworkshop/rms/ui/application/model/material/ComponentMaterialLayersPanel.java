@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -15,12 +16,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ComponentMaterialLayersPanel extends JPanel {
-	public static final String[] REFORGED_LAYER_DEFINITIONS = {"Diffuse", "Vertex", "ORM", "Emissive", "Team Color",
-			"Reflections"};
+	public static final String[] REFORGED_LAYER_DEFINITIONS = {"Diffuse", "Vertex", "ORM", "Emissive", "Team Color", "Reflections"};
 	private static final Color HIGHLIGHT_BUTTON_BACKGROUND_COLOR = new Color(100, 118, 135);
 	private Material material;
 	private UndoManager undoManager;
-	private ModelView modelViewManager;
+	private ModelView modelView;
+	private ModelHandler modelHandler;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private final JPanel layerPanelsHolder;
 	private final Map<String, ComponentLayerPanel> layerPanelMap;
@@ -43,12 +44,10 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		deleteMaterialButton.addActionListener(e -> deleteMaterial());
 		twoSidedBoxHolder.add(deleteMaterialButton, "right");
 
-//		add(twoSided, "wrap");
 		layerPanelMap = new HashMap<>();
 		layerPanelsHolder = new JPanel(new MigLayout("fill", "[grow]"));
-//		layerPanelsHolder.setOpaque(true);
-//		layerPanelsHolder.setBackground(Color.magenta);
 		add(layerPanelsHolder, "growx, span 3, wrap");
+
 		JButton addLayerButton = getAddLayerButton();
 		add(addLayerButton);
 	}
@@ -62,12 +61,12 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		return addLayerButton;
 	}
 
-	public void setMaterial(Material material, ModelView modelViewManager,
-	                        UndoManager undoManager,
+	public void setMaterial(Material material, ModelHandler modelHandler,
 	                        ModelStructureChangeListener modelStructureChangeListener) {
 		this.material = material;
-		this.undoManager = undoManager;
-		this.modelViewManager = modelViewManager;
+		this.modelHandler = modelHandler;
+		this.undoManager = modelHandler.getUndoManager();
+		this.modelView = modelHandler.getModelView();
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		final boolean hdShader = Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString());
 		twoSided.setVisible(hdShader);
@@ -78,14 +77,14 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		}
 
 		layerPanelsHolder.removeAll();
-		createLayerPanels(material, modelViewManager, undoManager, modelStructureChangeListener, hdShader);
+		createLayerPanels(material, modelHandler, modelStructureChangeListener, hdShader);
 		revalidate();
 		repaint();
 
 	}
 
 
-	private void createLayerPanels(Material material, ModelView modelViewManager, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener, boolean hdShader) {
+	private void createLayerPanels(Material material, ModelHandler modelHandler, ModelStructureChangeListener modelStructureChangeListener, boolean hdShader) {
 		for (int i = 0; i < material.getLayers().size(); i++) {
 			final Layer layer = material.getLayers().get(i);
 			ComponentLayerPanel panel;
@@ -94,10 +93,10 @@ public class ComponentMaterialLayersPanel extends JPanel {
 			if (layerPanelMap.containsKey(keyString)) {
 				panel = layerPanelMap.get(keyString);
 			} else {
-				panel = new ComponentLayerPanel(material, modelViewManager, i, hdShader, undoManager, modelStructureChangeListener);
+				panel = new ComponentLayerPanel(material, modelHandler, i, hdShader, modelStructureChangeListener);
 				layerPanelMap.put(keyString, panel);
 			}
-			panel.setLayer(modelViewManager.getModel(), layer, modelViewManager.getModel().getFormatVersion(), hdShader, undoManager);
+			panel.setLayer(modelView.getModel(), layer, modelView.getModel().getFormatVersion(), hdShader, undoManager);
 			layerPanelsHolder.add(panel, "growx, wrap");
 		}
 	}
@@ -114,8 +113,8 @@ public class ComponentMaterialLayersPanel extends JPanel {
 	}
 
 	private void deleteMaterial() {
-		if (!modelViewManager.getModel().getMaterials().isEmpty()) {
-			RemoveMaterialAction removeMaterialAction = new RemoveMaterialAction(material, modelViewManager, modelStructureChangeListener);
+		if (!modelView.getModel().getMaterials().isEmpty()) {
+			RemoveMaterialAction removeMaterialAction = new RemoveMaterialAction(material, modelView, modelStructureChangeListener);
 			undoManager.pushAction(removeMaterialAction);
 			removeMaterialAction.redo();
 		}

@@ -49,11 +49,11 @@ public class ComponentHelperPanel extends ComponentPanel<Helper> {
 		JButton chooseParentButton = new JButton("change");
 		chooseParentButton.addActionListener(e -> chooseParent());
 		add(chooseParentButton, "wrap");
-		transPanel = new Vec3ValuePanel("Translation", modelHandler.getUndoManager(), changeListener);
+		transPanel = new Vec3ValuePanel(modelHandler, "Translation", modelHandler.getUndoManager(), changeListener);
 		add(transPanel, "spanx, growx, wrap");
-		scalePanel = new Vec3ValuePanel("Scaling", modelHandler.getUndoManager(), changeListener);
+		scalePanel = new Vec3ValuePanel(modelHandler, "Scaling", modelHandler.getUndoManager(), changeListener);
 		add(scalePanel, "spanx, growx, wrap");
-		rotPanel = new QuatValuePanel("Rotation", modelHandler.getUndoManager(), changeListener);
+		rotPanel = new QuatValuePanel(modelHandler, "Rotation", modelHandler.getUndoManager(), changeListener);
 		add(rotPanel, "spanx, growx, wrap");
 	}
 

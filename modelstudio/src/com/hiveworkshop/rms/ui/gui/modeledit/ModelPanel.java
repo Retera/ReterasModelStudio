@@ -89,7 +89,7 @@ public class ModelPanel {
 		modelViewManagingTree = new ModelViewManagingTree(modelHandler, modelEditorManager);
 		modelEditingTreePane = new JScrollPane(modelViewManagingTree);
 
-		modelComponentBrowserTree = new ModelComponentBrowserTree(modelHandler, modelEditorManager, modelStructureChangeListener);
+		modelComponentBrowserTree = new ModelComponentBrowserTree(modelHandler, modelStructureChangeListener);
 		componentBrowserTreePane = new JScrollPane(modelComponentBrowserTree);
 
 		selectionItemTypeNotifier.addToolbarButtonListener(modelEditorManager::setSelectionItemType);

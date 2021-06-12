@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
@@ -40,16 +39,16 @@ public class TimeSliderView {
 
 	private static void timeBoundsChooserPanel(MainPanel mainPanel) {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		ModelView modelView = modelPanel == null ? null : modelPanel.getModelView();
-		TimeBoundChooserPanel tbcPanel = new TimeBoundChooserPanel(modelView, mainPanel.modelStructureChangeListener);
-		int confirmDialogResult = JOptionPane.showConfirmDialog(mainPanel, tbcPanel, "Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
 
-		if (confirmDialogResult == JOptionPane.OK_OPTION) {
-//			tbcPanel.applyTo(mainPanel.animatedRenderEnvironment);
-			if (modelPanel != null) {
+		if (modelPanel != null) {
+			TimeBoundChooserPanel tbcPanel = new TimeBoundChooserPanel(modelPanel.getModelHandler(), modelPanel.getModelStructureChangeListener());
+			int confirmDialogResult = JOptionPane.showConfirmDialog(mainPanel, tbcPanel, "Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
+
+			if (confirmDialogResult == JOptionPane.OK_OPTION) {
+				//			tbcPanel.applyTo(mainPanel.animatedRenderEnvironment);
 				tbcPanel.applyTo(modelPanel.getModelHandler().getEditTimeEnv());
 				modelPanel.getEditorRenderModel().refreshFromEditor(
-//						mainPanel.animatedRenderEnvironment,
+						//						mainPanel.animatedRenderEnvironment,
 						ModelStructureChangeListener.IDENTITY,
 						ModelStructureChangeListener.IDENTITY,
 						ModelStructureChangeListener.IDENTITY,

@@ -54,16 +54,6 @@ public class ComponentHeaderPanel extends ComponentPanel<EditableModel> {
 		add(new JLabel("Blend Time:"), "wrap");
 		add(blendTimeSpinner, "wrap, growx");
 		add(extLogEditor, "wrap, growx");
-
-		GroupLayout layout = new GroupLayout(this);
-
-//		layout.setHorizontalGroup(layout.createParallelGroup().addComponent(modelNameLabel).addComponent(modelNameField)
-//				.addComponent(versionLabel).addComponent(formatVersionSpinner).addComponent(blendTimeLabel)
-//				.addComponent(blendTimeSpinner).addComponent(extLogEditor));
-//		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(modelNameLabel).addComponent(modelNameField)
-//				.addComponent(versionLabel).addComponent(formatVersionSpinner).addComponent(blendTimeLabel)
-//				.addComponent(blendTimeSpinner).addComponent(extLogEditor));
-//		setLayout(layout);
 	}
 
 	private void setExtLog() {

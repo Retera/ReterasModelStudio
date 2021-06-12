@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboPopup;
@@ -29,8 +30,8 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 	private int selectedRow;
 
 
-	public TextureValuePanel(final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener, EditableModel model) {
-		super(title, undoManager, modelStructureChangeListener);
+	public TextureValuePanel(ModelHandler modelHandler, String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener, EditableModel model) {
+		super(modelHandler, title, undoManager, modelStructureChangeListener);
 
 		textureChooser = new JComboBox<>(getTextures(model));
 		textureChooser.setModel(new DefaultComboBoxModel<>(getTextures(model)));
@@ -39,7 +40,7 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 
 		staticTextureChooser.setModel(new DefaultComboBoxModel<>(getTextures(model)));
 
-		floatTrackTableModel.addExtraColumn("Texture", "", String.class);  // 🎨 \uD83C\uDFA8
+		keyframePanel.getFloatTrackTableModel().addExtraColumn("Texture", "", String.class);  // 🎨 \uD83C\uDFA8
 
 		addBitmapChangeListeners();
 	}
@@ -103,7 +104,8 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 		listenersEnabled = true;
 
 		if (animFlag != null) {
-			floatTrackTableModel.updateExtraButtonValues(getBitmapNameList());
+//			floatTrackTableModel.updateExtraButtonValues(getBitmapNameList());
+			keyframePanel.getFloatTrackTableModel().updateExtraButtonValues(getBitmapNameList());
 		}
 	}
 
@@ -135,7 +137,7 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 	}
 
 	private void addBitmapChangeListeners() {
-		keyframeTable.addMouseListener(new MouseAdapter() {
+		keyframePanel.getTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				System.out.println("mouseClicked");
@@ -143,7 +145,7 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 			}
 		});
 
-		keyframeTable.addKeyListener(new KeyAdapter() {
+		keyframePanel.getTable().addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				System.out.println("CVP keyReleased! " + e.getKeyCode());
@@ -161,20 +163,20 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 	private void checkChangeBitmapPressed(Point point, int keyCode) {
 		System.out.println("checkChangeBitmapPressed");
 
-		int colorChangeColumnIndex = keyframeTable.getColumnCount() - 2;
-		if (keyCode == KeyEvent.VK_T || keyCode == KeyEvent.VK_ENTER && keyframeTable.getSelectedColumn() == colorChangeColumnIndex) {
-			selectedRow = keyframeTable.getSelectedRow();
+		int colorChangeColumnIndex = keyframePanel.getTable().getColumnCount() - 2;
+		if (keyCode == KeyEvent.VK_T || keyCode == KeyEvent.VK_ENTER && keyframePanel.getTable().getSelectedColumn() == colorChangeColumnIndex) {
+			selectedRow = keyframePanel.getTable().getSelectedRow();
 			listenersEnabled = false;
-			textureChooser.setSelectedIndex((Integer) floatTrackTableModel.getValueAt(selectedRow, 1));
+			textureChooser.setSelectedIndex((Integer) keyframePanel.getFloatTrackTableModel().getValueAt(selectedRow, 1));
 			listenersEnabled = true;
-			chooseTextureComboPopup.show(keyframeTable, point.x, point.y);
+			chooseTextureComboPopup.show(keyframePanel.getTable(), point.x, point.y);
 		}
 	}
 
 	private void changeTexture() {
 //		bitmapId = textureChooser.getSelectedIndex();
 
-		changeEntry(selectedRow, 1, "Value", Integer.toString(textureChooser.getSelectedIndex()));
+		changeEntry(selectedRow, "Value", Integer.toString(textureChooser.getSelectedIndex()));
 	}
 
 

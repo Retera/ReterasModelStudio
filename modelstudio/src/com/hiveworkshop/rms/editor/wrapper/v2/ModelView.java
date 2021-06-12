@@ -359,6 +359,10 @@ public final class ModelView {
 		geosetsVisible = visible;
 	}
 
+	public void setGeosetsEditable(boolean editable) {
+		geosetsEditable = editable;
+	}
+
 	public void setIdObjectsVisible(boolean visible) {
 		idObjectsVisible = visible;
 	}
@@ -547,7 +551,7 @@ public final class ModelView {
 	}
 
 	public boolean isHidden(GeosetVertex vertex) {
-		return hiddenVertices.contains(vertex);
+		return hiddenVertices.contains(vertex) || hiddenGeosets.contains(vertex.getGeoset());
 	}
 
 	public void addSelectedCamera(Camera camera) {
@@ -637,6 +641,17 @@ public final class ModelView {
 
 	public void addSelectedTVertices(Collection<GeosetVertex> geosetVertices) {
 		selectedTVertices.addAll(geosetVertices);
+	}
+
+	public void hideVertices(Collection<GeosetVertex> geosetVertices) {
+		hiddenVertices.addAll(geosetVertices);
+	}
+
+	public void unHideVertices() {
+		hiddenVertices.clear();
+		for (Geoset geoset : hiddenGeosets) {
+			hiddenVertices.addAll(geoset.getVertices());
+		}
 	}
 
 	public void clearSelectedTVertices() {

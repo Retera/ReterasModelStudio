@@ -9,13 +9,16 @@ import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
-import com.hiveworkshop.rms.ui.application.model.editors.*;
+import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
+import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
+import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
+import com.hiveworkshop.rms.ui.application.model.editors.TextureValuePanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import net.miginfocom.swing.MigLayout;
 
@@ -40,25 +43,25 @@ public class ComponentLayerPanel extends JPanel {
 	private JPanel titlePanel;
 	private Layer layer;
 	private Material material;
-	private ModelView modelViewManager;
 
 	private FloatValuePanel fresnelOpacityPanel;
 	private FloatValuePanel fresnelTeamColor;
 	private ColorValuePanel fresnelColorPanel;
 
 	private UndoManager undoActionListener;
+	private ModelHandler modelHandler;
 	private ModelStructureChangeListener modelStructureChangeListener;
 	private boolean listenersEnabled = true;
 	DefaultListModel<Bitmap> bitmapListModel;
 
-	public ComponentLayerPanel(Material material, ModelView modelViewManager, int i, boolean hdShader, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
+	public ComponentLayerPanel(Material material, ModelHandler modelHandler, int i, boolean hdShader, ModelStructureChangeListener modelStructureChangeListener) {
 		setLayout(new MigLayout("fill", "[][][grow]", "[][fill][fill]"));
 		setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 //		setOpaque(true);
 //		setBackground(Color.cyan);
 
-		this.modelViewManager = modelViewManager;
-		this.undoActionListener = undoManager;
+		this.modelHandler = modelHandler;
+		this.undoActionListener = modelHandler.getUndoManager();
 		this.modelStructureChangeListener = modelStructureChangeListener;
 		this.material = material;
 		titlePanel = new JPanel();
@@ -88,7 +91,7 @@ public class ComponentLayerPanel extends JPanel {
 		}
 
 		final JPanel leftHandSettingsPanel = new JPanel(new MigLayout());
-		fillLeftHandPanel(modelViewManager.getModel(), leftHandSettingsPanel);
+		fillLeftHandPanel(modelHandler.getModel(), leftHandSettingsPanel);
 		add(leftHandSettingsPanel);
 
 
@@ -142,28 +145,22 @@ public class ComponentLayerPanel extends JPanel {
 		coordIdSpinner.addEditingStoppedListener(this::setCoordId);
 		leftHandSettingsPanel.add(coordIdSpinner, "wrap, growx");
 
-		texturePanel = new TextureValuePanel("Texture", undoActionListener, modelStructureChangeListener, model);
-		texturePanel.setKeyframeHelper(new TimelineKeyNamer(model));
+		texturePanel = new TextureValuePanel(modelHandler, "Texture", undoActionListener, modelStructureChangeListener, model);
 		leftHandSettingsPanel.add(texturePanel, "wrap, span 2, growx");
 
-		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
-		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(model));
+		alphaPanel = new FloatValuePanel(modelHandler, "Alpha", undoActionListener, modelStructureChangeListener);
 		leftHandSettingsPanel.add(alphaPanel, "wrap, span 2, growx, hidemode 2");
 
-		emissiveGainPanel = new FloatValuePanel("Emissive Gain", undoActionListener, modelStructureChangeListener);
-		emissiveGainPanel.setKeyframeHelper(new TimelineKeyNamer(model));
+		emissiveGainPanel = new FloatValuePanel(modelHandler, "Emissive Gain", undoActionListener, modelStructureChangeListener);
 		leftHandSettingsPanel.add(emissiveGainPanel, "wrap, span 2, growx, hidemode 2");
 
-		fresnelColorPanel = new ColorValuePanel("Fresnel Color", undoActionListener, modelStructureChangeListener);
-		fresnelColorPanel.setKeyframeHelper(new TimelineKeyNamer(model));
+		fresnelColorPanel = new ColorValuePanel(modelHandler, "Fresnel Color", undoActionListener, modelStructureChangeListener);
 		leftHandSettingsPanel.add(fresnelColorPanel, "wrap, span 2, growx, hidemode 2");
 
-		fresnelOpacityPanel = new FloatValuePanel("Fresnel Opacity", undoActionListener, modelStructureChangeListener);
-		fresnelOpacityPanel.setKeyframeHelper(new TimelineKeyNamer(model));
+		fresnelOpacityPanel = new FloatValuePanel(modelHandler, "Fresnel Opacity", undoActionListener, modelStructureChangeListener);
 		leftHandSettingsPanel.add(fresnelOpacityPanel, "wrap, span 2, growx, hidemode 2");
 
-		fresnelTeamColor = new FloatValuePanel("Fresnel Team Color", undoActionListener, modelStructureChangeListener);
-		fresnelTeamColor.setKeyframeHelper(new TimelineKeyNamer(model));
+		fresnelTeamColor = new FloatValuePanel(modelHandler, "Fresnel Team Color", undoActionListener, modelStructureChangeListener);
 		leftHandSettingsPanel.add(fresnelTeamColor, "wrap, span 2, growx, hidemode 2");
 	}
 
@@ -255,7 +252,7 @@ public class ComponentLayerPanel extends JPanel {
 
 	private void removeLayer(Layer layer) {
 		if (material.getLayers().size() <= 1) {
-			List<Geoset> geosetList = modelViewManager.getModel().getGeosets();
+			List<Geoset> geosetList = modelHandler.getModel().getGeosets();
 			int numUses = 0;
 			for (Geoset geoset : geosetList) {
 				if (geoset.getMaterial() == material) {
@@ -278,7 +275,7 @@ public class ComponentLayerPanel extends JPanel {
 	}
 
 	private void removeMaterial() {
-		RemoveMaterialAction removeMaterialAction = new RemoveMaterialAction(material, modelViewManager, modelStructureChangeListener);
+		RemoveMaterialAction removeMaterialAction = new RemoveMaterialAction(material, modelHandler.getModelView(), modelStructureChangeListener);
 		undoActionListener.pushAction(removeMaterialAction);
 		removeMaterialAction.redo();
 	}
