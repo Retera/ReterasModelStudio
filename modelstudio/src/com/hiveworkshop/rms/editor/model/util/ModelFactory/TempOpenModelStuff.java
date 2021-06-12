@@ -148,7 +148,6 @@ public class TempOpenModelStuff {
 		for (final MdlxGeosetAnimation mdlxGeosetAnimation : mdlxModel.geosetAnimations) {
 			if (mdlxGeosetAnimation.geosetId != -1) {
 				GeosetAnim geosetAnim = createGeosetAnim(mdlxGeosetAnimation, infoHolder);
-
 				model.add(geosetAnim);
 			}
 		}

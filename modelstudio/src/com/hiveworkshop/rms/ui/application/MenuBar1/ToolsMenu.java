@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.ui.application.EditUVsPanel;
 import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
 import com.hiveworkshop.rms.ui.application.ModelEditActions;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
+import com.hiveworkshop.rms.ui.application.tools.TwilacPanel;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -18,6 +19,12 @@ public class ToolsMenu extends JMenu {
 
 		setMnemonic(KeyEvent.VK_T);
 		getAccessibleContext().setAccessibleDescription("Allows the user to use various model editing tools. (You must open a model before you may use this menu.)");
+
+
+		JMenuItem twilacPanel = new JMenuItem("Show Twilac's ToolPanel");
+		// showMatrices.setMnemonic(KeyEvent.VK_V);
+		twilacPanel.addActionListener(e -> TwilacPanel.showPopup());
+		add(twilacPanel);
 
 		JMenuItem showMatrices = new JMenuItem("View Selected \"Matrices\"");
 		// showMatrices.setMnemonic(KeyEvent.VK_V);

@@ -3,8 +3,10 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * A class for EventObjects, which include such things as craters, footprints,
@@ -13,7 +15,9 @@ import java.util.List;
  * Eric Theller 3/10/2012 3:52 PM
  */
 public class EventObject extends IdObject {
-	List<Integer> eventTrack = new ArrayList<>();
+	//	List<Integer> eventTrack = new ArrayList<>();
+	//ToDo ask GW if event tracks should only have one entry at any time
+	TreeSet<Integer> eventTrack2 = new TreeSet<>();
 	Integer globalSeq;
 	int globalSeqId = -1;
 	boolean hasGlobalSeq = false;
@@ -29,7 +33,7 @@ public class EventObject extends IdObject {
 	public EventObject(final EventObject object) {
 		super(object);
 
-		eventTrack = new ArrayList<>(object.eventTrack);
+		eventTrack2.addAll(object.eventTrack2);
 		globalSeq = object.globalSeq;
 		globalSeqId = object.globalSeqId;
 		hasGlobalSeq = object.hasGlobalSeq;
@@ -41,7 +45,7 @@ public class EventObject extends IdObject {
 	}
 
 	public int size() {
-		return eventTrack.size();
+		return eventTrack2.size();
 	}
 
 	public static EventObject buildEmptyFrom(final EventObject source) {
@@ -50,36 +54,45 @@ public class EventObject extends IdObject {
 	}
 
 	public void setValuesTo(final EventObject source) {
-		eventTrack = source.eventTrack;
+		eventTrack2.clear();
+		eventTrack2.addAll(source.eventTrack2);
 	}
 
 	public void deleteAnim(final Animation anim) {
 		// Timescales a part of the AnimFlag from section "start" to "end" into
 		// the new time "newStart" to "newEnd"
-		for (int index = eventTrack.size() - 1; index >= 0; index--) {
-			final int i = eventTrack.get(index);
-			if ((i >= anim.getStart()) && (i <= anim.getEnd())) {
-				// If this "i" is a part of the anim being removed
-				eventTrack.remove(index);
-			}
-		}
-
+//		for (int index = eventTrack.size() - 1; index >= 0; index--) {
+//			final int i = eventTrack.get(index);
+//			if (i >= anim.getStart() && i <= anim.getEnd()) {
+//				// If this "i" is a part of the anim being removed
+//				eventTrack.remove(index);
+//			}
+//		}
 		// BOOM magic happens
+
+		eventTrack2.removeIf(i -> i >= anim.getStart() && i <= anim.getEnd());
+
 	}
 
 	public void timeScale(final int start, final int end, final int newStart, final int newEnd) {
 		// Timescales a part of the AnimFlag from section "start" to "end" into
 		// the new time "newStart" to "newEnd"
-		for (final Integer integer : eventTrack) {
-			final int i = integer;
-			if ((i >= start) && (i <= end)) {
-				// If this "i" is a part of the anim being rescaled
-				final double ratio = (double) (i - start) / (double) (end - start);
-				eventTrack.set(eventTrack.indexOf(integer), (int) (newStart + (ratio * (newEnd - newStart))));
-			}
-		}
+//		for (Integer integer : eventTrack) {
+//			int i = integer;
+//			if ((i >= start) && (i <= end)) {
+//				// If this "i" is a part of the anim being rescaled
+//				double ratio = (double) (i - start) / (double) (end - start);
+//				eventTrack.set(eventTrack.indexOf(integer), (int) (newStart + (ratio * (newEnd - newStart))));
+//			}
+//		}
+//		sort();
 
-		sort();
+		Set<Integer> eventsToChange = new HashSet<>(eventTrack2.subSet(start, true, end, true));
+		for (Integer i : eventsToChange) {
+			eventTrack2.remove(i);
+			double ratio = (double) (i - start) / (double) (end - start);
+			eventTrack2.add((int) (newStart + (ratio * (newEnd - newStart))));
+		}
 
 		// BOOM magic happens
 	}
@@ -88,65 +101,70 @@ public class EventObject extends IdObject {
 						 final int newEnd) {
 		// Timescales a part of the AnimFlag from section "start" to "end" into
 		// the new time "newStart" to "newEnd"
-		for (final Integer integer : source.eventTrack) {
-			final int i = integer;
-			if ((i >= start) && (i <= end)) {
-				// If this "i" is a part of the anim being rescaled
-				final double ratio = (double) (i - start) / (double) (end - start);
-				eventTrack.add((int) (newStart + (ratio * (newEnd - newStart))));
-			}
+//		for (final Integer integer : source.eventTrack) {
+//			final int i = integer;
+//			if ((i >= start) && (i <= end)) {
+//				// If this "i" is a part of the anim being rescaled
+//				final double ratio = (double) (i - start) / (double) (end - start);
+//				eventTrack.add((int) (newStart + (ratio * (newEnd - newStart))));
+//			}
+//		}
+//		sort();
+
+		for (Integer i : source.eventTrack2.subSet(start, true, end, true)) {
+			double ratio = (double) (i - start) / (double) (end - start);
+			eventTrack2.add((int) (newStart + (ratio * (newEnd - newStart))));
 		}
 
-		sort();
 
 		// BOOM magic happens
 	}
 
-	public void sort() {
-		final int low = 0;
-		final int high = eventTrack.size() - 1;
+//	public void sort() {
+//		final int low = 0;
+//		final int high = eventTrack.size() - 1;
+//
+//		if (eventTrack.size() > 0) {
+//			quicksort(low, high);
+//		}
+//	}
 
-		if (eventTrack.size() > 0) {
-			quicksort(low, high);
-		}
-	}
+//	private void quicksort(final int low, final int high) {
+//		// Thanks to Lars Vogel for the quicksort concept code (something to
+//		// look at), found on google
+//		// (re-written by Eric "Retera" for use in AnimFlags)
+//		int i = low, j = high;
+//		final Integer pivot = eventTrack.get(low + ((high - low) / 2));
+//
+//		while (i <= j) {
+//			while (eventTrack.get(i) < pivot) {
+//				i++;
+//			}
+//			while (eventTrack.get(j) > pivot) {
+//				j--;
+//			}
+//			if (i <= j) {
+//				exchange(i, j);
+//				i++;
+//				j--;
+//			}
+//		}
+//
+//		if (low < j) {
+//			quicksort(low, j);
+//		}
+//		if (i < high) {
+//			quicksort(i, high);
+//		}
+//	}
 
-	private void quicksort(final int low, final int high) {
-		// Thanks to Lars Vogel for the quicksort concept code (something to
-		// look at), found on google
-		// (re-written by Eric "Retera" for use in AnimFlags)
-		int i = low, j = high;
-		final Integer pivot = eventTrack.get(low + ((high - low) / 2));
-
-		while (i <= j) {
-			while (eventTrack.get(i) < pivot) {
-				i++;
-			}
-			while (eventTrack.get(j) > pivot) {
-				j--;
-			}
-			if (i <= j) {
-				exchange(i, j);
-				i++;
-				j--;
-			}
-		}
-
-		if (low < j) {
-			quicksort(low, j);
-		}
-		if (i < high) {
-			quicksort(i, high);
-		}
-	}
-
-	private void exchange(final int i, final int j) {
-		final Integer iTime = eventTrack.get(i);
-
-		eventTrack.set(i, eventTrack.get(j));
-
-		eventTrack.set(j, iTime);
-	}
+//	private void exchange(final int i, final int j) {
+//		final Integer iTime = eventTrack.get(i);
+//
+//		eventTrack.set(i, eventTrack.get(j));
+//
+//		eventTrack.set(j, iTime);
+//	}
 
 	public void updateGlobalSeqRef(final EditableModel mdlr) {
 		if (hasGlobalSeq) {
@@ -193,16 +211,23 @@ public class EventObject extends IdObject {
 	}
 
 	public EventObject addTrack(int track) {
-		eventTrack.add(track);
+		eventTrack2.add(track);
 		return this;
 	}
 
-	public List<Integer> getEventTrack() {
-		return eventTrack;
+	public EventObject addTracks(Collection<Integer> tracks) {
+		eventTrack2.addAll(tracks);
+		return this;
 	}
 
-	public void setEventTrack(final List<Integer> eventTrack) {
-		this.eventTrack = eventTrack;
+
+	public EventObject removeTracks(Collection<Integer> tracks) {
+		eventTrack2.removeAll(tracks);
+		return this;
+	}
+
+	public TreeSet<Integer> getEventTrack() {
+		return eventTrack2;
 	}
 
 	@Override

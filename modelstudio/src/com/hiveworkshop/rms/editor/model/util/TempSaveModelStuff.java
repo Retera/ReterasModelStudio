@@ -649,11 +649,11 @@ public class TempSaveModelStuff {
 			object.globalSequenceId = eventObject.getGlobalSeqId();
 		}
 
-		final List<Integer> keyframes = eventObject.getEventTrack();
+		final List<Integer> keyframes = new ArrayList<>(eventObject.getEventTrack());
 
 		object.keyFrames = new long[keyframes.size()];
 
-		for (int i = 0, l = keyframes.size(); i < l; i++) {
+		for (int i = 0; i < keyframes.size(); i++) {
 			object.keyFrames[i] = keyframes.get(i).longValue();
 		}
 

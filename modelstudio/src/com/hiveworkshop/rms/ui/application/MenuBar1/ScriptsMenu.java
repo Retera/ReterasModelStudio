@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.ScriptActions;
 import com.hiveworkshop.rms.ui.application.scripts.AnimationTransfer;
 import com.hiveworkshop.rms.ui.application.tools.KeyframeCopyPanel;
+import com.hiveworkshop.rms.ui.application.tools.MergeGeosetsPanel;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -31,7 +32,7 @@ public class ScriptsMenu extends JMenu {
 		JMenuItem mergeGeoset2 = new JMenuItem("Twilac-Style Merge Geoset");
 		mergeGeoset2.setMnemonic(KeyEvent.VK_T);
 		mergeGeoset2.setAccelerator(KeyStroke.getKeyStroke("control T"));
-		mergeGeoset2.addActionListener(e -> ScriptActions.mergeGeosetActionRes2());
+		mergeGeoset2.addActionListener(e -> MergeGeosetsPanel.mergeGeosetActionRes2());
 		add(mergeGeoset2);
 
 		JMenuItem smoothVerts = new JMenuItem("Twilac-Style SmoothVerts");
