@@ -31,7 +31,7 @@ public class ParticleEmitter extends EmitterIdObject {
 	}
 
 	public ParticleEmitter(ParticleEmitter emitter) {
-		copyObject(emitter);
+		super(emitter);
 
 		emissionRate = emitter.emissionRate;
 		gravity = emitter.gravity;

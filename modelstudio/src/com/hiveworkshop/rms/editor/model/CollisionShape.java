@@ -19,7 +19,7 @@ public class CollisionShape extends IdObject {
 	List<Vec3> vertices = new ArrayList<>();
 
 	public CollisionShape(CollisionShape shape) {
-		copyObject(shape);
+		super(shape);
 
 		type = shape.type;
 

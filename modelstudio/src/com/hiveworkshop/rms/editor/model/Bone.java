@@ -28,7 +28,7 @@ public class Bone extends IdObject {
 	}
 
 	public Bone(Bone b) {
-		copyObject(b);
+		super(b);
 
 		geosetId = b.geosetId;
 		multiGeoId = b.multiGeoId;

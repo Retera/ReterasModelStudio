@@ -27,7 +27,7 @@ public class EventObject extends IdObject {
 	}
 
 	public EventObject(final EventObject object) {
-		copyObject(object);
+		super(object);
 
 		eventTrack = new ArrayList<>(object.eventTrack);
 		globalSeq = object.globalSeq;

@@ -21,7 +21,7 @@ public class Attachment extends IdObject {
 	}
 
 	public Attachment(Attachment attachment) {
-		copyObject(attachment);
+		super(attachment);
 
 		path = attachment.path;
 		attachmentID = attachment.attachmentID;

@@ -61,7 +61,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public ParticleEmitter2(ParticleEmitter2 emitter) {
-		copyObject(emitter);
+		super(emitter);
 
 		filterMode = emitter.filterMode;
 		headOrTail = emitter.headOrTail;

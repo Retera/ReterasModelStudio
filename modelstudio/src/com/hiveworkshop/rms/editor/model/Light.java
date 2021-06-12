@@ -28,7 +28,7 @@ public class Light extends IdObject {
 	}
 
 	public Light(final Light light) {
-		copyObject(light);
+		super(light);
 
 		type = light.type;
 		attenuationStart = light.attenuationStart;

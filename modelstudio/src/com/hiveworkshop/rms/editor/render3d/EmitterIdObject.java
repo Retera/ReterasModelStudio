@@ -7,6 +7,13 @@ public abstract class EmitterIdObject extends IdObject {
     double lifeSpan = 0;
     float initVelocity = 0;
 
+    public EmitterIdObject() {
+    }
+
+    public EmitterIdObject(EmitterIdObject emitter) {
+        super(emitter);
+    }
+
     public abstract int getBlendSrc();
 
     public abstract int getBlendDst();

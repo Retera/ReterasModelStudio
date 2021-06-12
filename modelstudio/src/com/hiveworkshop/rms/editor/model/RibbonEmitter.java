@@ -36,8 +36,8 @@ public class RibbonEmitter extends IdObject {
 	}
 
 	public RibbonEmitter(final RibbonEmitter emitter) {
-		copyObject(emitter);
-		
+		super(emitter);
+
 		heightAbove = emitter.heightAbove;
 		heightBelow = emitter.heightBelow;
 		alpha = emitter.alpha;

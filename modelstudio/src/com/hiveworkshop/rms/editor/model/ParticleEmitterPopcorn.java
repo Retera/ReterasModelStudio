@@ -32,7 +32,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 	}
 
 	public ParticleEmitterPopcorn(ParticleEmitterPopcorn emitter) {
-		copyObject(emitter);
+		super(emitter);
 
 		replaceableId = emitter.replaceableId;
 		alpha = emitter.alpha;
