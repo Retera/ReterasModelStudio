@@ -8,27 +8,31 @@ public class SetAnimationNameAction implements UndoAction {
 	private final String prevName;
 	private final String newName;
 	private final Animation animation;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetAnimationNameAction(final String prevName, final String newName, final Animation animation,
-			final ModelStructureChangeListener structureChangeListener) {
-		this.prevName = prevName;
+	public SetAnimationNameAction(String newName, Animation animation,
+	                              ModelStructureChangeListener changeListener) {
+		this.prevName = animation.getName();
 		this.newName = newName;
 		this.animation = animation;
-		this.structureChangeListener = structureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		animation.setName(prevName);
-		structureChangeListener.animationParamsChanged(animation);
+		if (changeListener != null) {
+			changeListener.animationParamsChanged(animation);
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		animation.setName(newName);
-		structureChangeListener.animationParamsChanged(animation);
+		if (changeListener != null) {
+			changeListener.animationParamsChanged(animation);
+		}
 		return this;
 	}
 

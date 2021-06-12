@@ -13,12 +13,14 @@ public class ChangeFlagEntryAction<T> implements UndoAction {
 	int time;
 	Entry<T> orgEntry;
 	Entry<T> entry;
+	AnimFlag<T> animFlag;
 
 
 	public ChangeFlagEntryAction(AnimFlag<T> animFlag, Entry<T> newEntry, int orgTime, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
 		this.newEntry = newEntry;
 		this.orgTime = orgTime;
+		this.animFlag = animFlag;
 		time = newEntry.time;
 		orgEntry = animFlag.getEntryAt(orgTime).deepCopy();
 		entry = animFlag.getEntryAt(orgTime);
@@ -26,7 +28,10 @@ public class ChangeFlagEntryAction<T> implements UndoAction {
 
 	@Override
 	public UndoAction undo() {
-		entry.set(orgEntry);
+//		entry.set(orgEntry);
+//		animFlag.removeKeyframe(newEntry.getTime());
+//		animFlag.setOrAddEntryT(entry.getTime(), entry);
+		animFlag.changeEntryAt(entry.getTime(), orgEntry);
 		if (structureChangeListener != null) {
 			structureChangeListener.materialsListChanged();
 		}
@@ -35,7 +40,10 @@ public class ChangeFlagEntryAction<T> implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		entry.set(newEntry);
+		animFlag.changeEntryAt(orgEntry.getTime(), newEntry);
+//		entry.set(newEntry);
+//		animFlag.removeKeyframe(orgTime);
+//		animFlag.setOrAddEntryT(entry.getTime(), entry);
 		if (structureChangeListener != null) {
 			structureChangeListener.materialsListChanged();
 		}

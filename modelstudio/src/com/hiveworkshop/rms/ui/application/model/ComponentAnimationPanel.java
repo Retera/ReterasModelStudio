@@ -72,50 +72,48 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 
 	private void nonLoopingChooser() {
 		SetAnimationNonLoopingAction setAnimationNonLoopingAction = new SetAnimationNonLoopingAction(
-				animation.isNonLooping(), nonLoopingChooser.isSelected(), animation, changeListener);
-		setAnimationNonLoopingAction.redo();
-		modelHandler.getUndoManager().pushAction(setAnimationNonLoopingAction);
+				nonLoopingChooser.isSelected(), animation, changeListener);
+		modelHandler.getUndoManager().pushAction(setAnimationNonLoopingAction.redo());
 	}
 
 	private void moveSpeedChooser() {
 		SetAnimationMoveSpeedAction setAnimationMoveSpeedAction = new SetAnimationMoveSpeedAction(
-				animation.getMoveSpeed(), moveSpeedChooser.getFloatValue(), animation, changeListener);
-		setAnimationMoveSpeedAction.redo();
-		modelHandler.getUndoManager().pushAction(setAnimationMoveSpeedAction);
+				moveSpeedChooser.getFloatValue(), animation, changeListener);
+		modelHandler.getUndoManager().pushAction(setAnimationMoveSpeedAction.redo());
 	}
 
 	private void rarityChooser() {
 		SetAnimationRarityAction setAnimationRarityAction = new SetAnimationRarityAction(
-				animation.getRarity(), rarityChooser.getFloatValue(), animation, changeListener);
-		setAnimationRarityAction.redo();
-		modelHandler.getUndoManager().pushAction(setAnimationRarityAction);
+				rarityChooser.getFloatValue(), animation, changeListener);
+		modelHandler.getUndoManager().pushAction(setAnimationRarityAction.redo());
 	}
 
 	private void newAnimTimeEnd() {
 		SetAnimationIntervalEndAction setAnimationIntervalEndAction = new SetAnimationIntervalEndAction(
-				animation.getEnd(), newAnimTimeEnd.getIntValue(), animation, changeListener);
-		setAnimationIntervalEndAction.redo();
-		modelHandler.getUndoManager().pushAction(setAnimationIntervalEndAction);
+				newAnimTimeEnd.getIntValue(), animation, changeListener);
+		modelHandler.getUndoManager().pushAction(setAnimationIntervalEndAction.redo());
 	}
 
 	private void nameField() {
 		SetAnimationNameAction setAnimationNameAction = new SetAnimationNameAction(
-				animation.getName(), nameField.getText(), animation, changeListener);
-		setAnimationNameAction.redo();
-		modelHandler.getUndoManager().pushAction(setAnimationNameAction);
+				nameField.getText(), animation, changeListener);
+		modelHandler.getUndoManager().pushAction(setAnimationNameAction.redo());
 	}
 
 	private void newAnimTimeStart() {
 		SetAnimationIntervalStartAction setAnimationIntervalStartAction = new SetAnimationIntervalStartAction(
 				animation.getStart(), newAnimTimeStart.getIntValue(), animation, changeListener);
-		setAnimationIntervalStartAction.redo();
-		modelHandler.getUndoManager().pushAction(setAnimationIntervalStartAction);
+		modelHandler.getUndoManager().pushAction(setAnimationIntervalStartAction.redo());
 	}
 
 	private void deleteAnim() {
-		DeleteAnimationAction deleteAnimationAction = new DeleteAnimationAction(modelHandler.getModel(), animation, changeListener);
-		modelHandler.getUndoManager().pushAction(deleteAnimationAction);
-		deleteAnimationAction.redo();
+		int option = JOptionPane.showConfirmDialog(this,
+				"Deleting \"" + animation.getName() + "\"\nAlso clear keyframes?",
+				"Delete Animation", JOptionPane.YES_NO_CANCEL_OPTION);
+		if (option != JOptionPane.CANCEL_OPTION) {
+			DeleteAnimationAction deleteAnimationAction = new DeleteAnimationAction(modelHandler.getModel(), animation, changeListener, option == JOptionPane.YES_OPTION);
+			modelHandler.getUndoManager().pushAction(deleteAnimationAction.redo());
+		}
 	}
 
 	public Animation getAnimation() {

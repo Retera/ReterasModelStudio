@@ -8,27 +8,26 @@ public class SetAnimationNonLoopingAction implements UndoAction {
 	private final boolean prevValue;
 	private final boolean newValue;
 	private final Animation animation;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetAnimationNonLoopingAction(final boolean prevValue, final boolean newValue, final Animation animation,
-			final ModelStructureChangeListener structureChangeListener) {
-		this.prevValue = prevValue;
-		this.newValue = newValue;
+	public SetAnimationNonLoopingAction(boolean newValue, Animation animation, ModelStructureChangeListener changeListener) {
 		this.animation = animation;
-		this.structureChangeListener = structureChangeListener;
+		this.prevValue = animation.isNonLooping();
+		this.newValue = newValue;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		animation.setNonLooping(prevValue);
-		structureChangeListener.animationParamsChanged(animation);
+		changeListener.animationParamsChanged(animation);
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		animation.setNonLooping(newValue);
-		structureChangeListener.animationParamsChanged(animation);
+		changeListener.animationParamsChanged(animation);
 		return this;
 	}
 

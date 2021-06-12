@@ -179,6 +179,13 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
+	public void addEntry(Entry<T> entry) {
+		entryMap.put(entry.getTime(), entry);
+		if (tans()) {
+			entry.unLinearize();
+		}
+	}
+
 	protected void addEntry(Integer time, T value, T inTan, T outTan) {
 		entryMap.put(time, new Entry<>(time, value, inTan, outTan));
 	}
@@ -217,6 +224,15 @@ public abstract class AnimFlag<T> {
 			for (Integer time : tSource.getEntryMap().keySet()) {
 				entryMap.put(time, tSource.getEntryMap().get(time).deepCopy());
 			}
+		}
+	}
+
+
+	public void changeEntryAt(Integer time, Entry<T> entry) {
+		entryMap.remove(time);
+		entryMap.put(entry.getTime(), entry);
+		if (tans()) {
+			entry.unLinearize();
 		}
 	}
 
@@ -495,7 +511,11 @@ public abstract class AnimFlag<T> {
 	}
 
 	public T getValueFromIndex(int index) {
-		return entryMap.get(getTimeFromIndex(index)).getValue();
+		Entry<T> entry = entryMap.get(getTimeFromIndex(index));
+		if (entry == null) {
+			return null;
+		}
+		return entry.getValue();
 	}
 
 	public T getInTanFromIndex(int index) {

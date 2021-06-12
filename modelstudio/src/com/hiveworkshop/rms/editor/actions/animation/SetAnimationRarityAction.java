@@ -8,27 +8,30 @@ public class SetAnimationRarityAction implements UndoAction {
 	private final float prevRarity;
 	private final float newRarity;
 	private final Animation animation;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetAnimationRarityAction(final float prevRarity, final float newRarity, final Animation animation,
-			final ModelStructureChangeListener structureChangeListener) {
-		this.prevRarity = prevRarity;
-		this.newRarity = newRarity;
+	public SetAnimationRarityAction(float newRarity, Animation animation, ModelStructureChangeListener changeListener) {
 		this.animation = animation;
-		this.structureChangeListener = structureChangeListener;
+		this.prevRarity = animation.getRarity();
+		this.newRarity = newRarity;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		animation.setRarity(prevRarity);
-		structureChangeListener.animationParamsChanged(animation);
+		if (changeListener != null) {
+			changeListener.animationParamsChanged(animation);
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		animation.setRarity(newRarity);
-		structureChangeListener.animationParamsChanged(animation);
+		if (changeListener != null) {
+			changeListener.animationParamsChanged(animation);
+		}
 		return this;
 	}
 

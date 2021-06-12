@@ -8,27 +8,30 @@ public class SetAnimationMoveSpeedAction implements UndoAction {
 	private final float prevMoveSpeed;
 	private final float newMoveSpeed;
 	private final Animation animation;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetAnimationMoveSpeedAction(final float prevMoveSpeed, final float newMoveSpeed, final Animation animation,
-			final ModelStructureChangeListener structureChangeListener) {
-		this.prevMoveSpeed = prevMoveSpeed;
-		this.newMoveSpeed = newMoveSpeed;
+	public SetAnimationMoveSpeedAction(float newMoveSpeed, Animation animation, ModelStructureChangeListener changeListener) {
 		this.animation = animation;
-		this.structureChangeListener = structureChangeListener;
+		this.prevMoveSpeed = animation.getMoveSpeed();
+		this.newMoveSpeed = newMoveSpeed;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		animation.setMoveSpeed(prevMoveSpeed);
-		structureChangeListener.animationParamsChanged(animation);
+		if (changeListener != null) {
+			changeListener.animationParamsChanged(animation);
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		animation.setMoveSpeed(newMoveSpeed);
-		structureChangeListener.animationParamsChanged(animation);
+		if (changeListener != null) {
+			changeListener.animationParamsChanged(animation);
+		}
 		return this;
 	}
 
