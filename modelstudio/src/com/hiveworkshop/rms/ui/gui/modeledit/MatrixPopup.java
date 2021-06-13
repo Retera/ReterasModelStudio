@@ -2,17 +2,21 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.MatrixEditListRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The panel to handle re-assigning Matrices.
@@ -23,7 +27,7 @@ import java.util.List;
 public class MatrixPopup extends JPanel {
 
 	// New refs
-	public IterableListModel<BoneShell> newRefs;
+	public IterableListModel<BoneShell> newRefs = new IterableListModel<>();
 	JList<BoneShell> newRefsJList;
 
 	// Bones (all available -- NEW AND OLD)
@@ -34,11 +38,18 @@ public class MatrixPopup extends JPanel {
 
 	EditableModel model;
 
-	public MatrixPopup(final EditableModel model) {
-		setLayout(new MigLayout("gap 0", "[grow][][grow]", "[align center][grow][align center]"));
-		this.model = model;
+	Set<Bone> bonesInAll = new HashSet<>();
+	Set<Bone> allBones = new HashSet<>();
+	Set<BoneShell> bonesShellInAll = new HashSet<>();
+	Set<BoneShell> bonesShellNotInAll = new HashSet<>();
+	Set<BoneShell> allBonesShell = new HashSet<>();
+	MatrixEditListRenderer renderer;
 
-		BoneShellListCellRenderer renderer = new BoneShellListCellRenderer(new ModelView(model), null).setShowClass(false);
+	public MatrixPopup(ModelHandler modelHandler) {
+		setLayout(new MigLayout("gap 0", "[grow][][grow]", "[align center][grow][align center]"));
+		this.model = modelHandler.getModel();
+
+		renderer = new MatrixEditListRenderer(new ModelView(model), null).setShowClass(false);
 
 		JCheckBox displayParents = new JCheckBox("Display parents", false);
 		displayParents.addActionListener(e -> showParents(renderer, displayParents));
@@ -53,6 +64,7 @@ public class MatrixPopup extends JPanel {
 
 		// Built before oldBoneRefs, so that the MatrixShells can default to using New Refs with the same name as their first bone
 		buildBonesList();
+		getBoneLists(modelHandler.getModelView());
 
 		bonesList = new JList<>(bones);
 		bonesList.setCellRenderer(renderer);
@@ -69,7 +81,6 @@ public class MatrixPopup extends JPanel {
 		JPanel newRefsPanel = new JPanel(new MigLayout("gap 0, ins 0", "[grow, align center]", "[][grow][]"));
 		newRefsPanel.add(new JLabel("New Refs"), "wrap");
 
-		newRefs = new IterableListModel<>();
 		newRefsJList = new JList<>(newRefs);
 		newRefsJList.setCellRenderer(renderer);
 		JScrollPane newRefsPane = new JScrollPane(newRefsJList);
@@ -99,9 +110,36 @@ public class MatrixPopup extends JPanel {
 
 	}
 
-	private void showParents(BoneShellListCellRenderer renderer, JCheckBox checkBox) {
+	private void showParents(MatrixEditListRenderer renderer, JCheckBox checkBox) {
 		renderer.setShowParent(checkBox.isSelected());
 		repaint();
+	}
+
+	private void getBoneLists(ModelView modelView) {
+		Set<GeosetVertex> selectedVertices = modelView.getSelectedVertices();
+		if (!selectedVertices.isEmpty()) {
+			bonesInAll.addAll(selectedVertices.stream().findFirst().get().getBones());
+			for (GeosetVertex vertex : selectedVertices) {
+				allBones.addAll(vertex.getBones());
+				bonesInAll.removeIf(b -> !vertex.getBones().contains(b));
+			}
+		}
+
+		for (BoneShell boneShell : bones) {
+			if (allBones.contains(boneShell.getBone())) {
+				newRefs.addElement(boneShell);
+				allBonesShell.add(boneShell);
+				if (bonesInAll.contains(boneShell.getBone())) {
+//					renderer.addInAllBone(boneShell);
+					bonesShellInAll.add(boneShell);
+				}
+			}
+		}
+
+		bonesShellNotInAll.addAll(allBonesShell);
+		bonesShellNotInAll.removeAll(bonesShellInAll);
+
+		renderer.addNotInAllBone(bonesShellNotInAll);
 	}
 
 
@@ -136,7 +174,14 @@ public class MatrixPopup extends JPanel {
 	}
 
 	private void removeNewRef() {
+		allBonesShell.removeAll(newRefsJList.getSelectedValuesList());
+		bonesShellInAll.removeAll(newRefsJList.getSelectedValuesList());
+		renderer.removeNotInAllBone(newRefsJList.getSelectedValuesList());
+
 		newRefs.removeAll(newRefsJList.getSelectedValuesList());
+
+
+		repaint();
 	}
 
 	private void filterBones() {
@@ -155,11 +200,16 @@ public class MatrixPopup extends JPanel {
 	}
 
 	private void useBone() {
+//		renderer.removeNotInAllBone(newRefsJList.getSelectedValuesList());
 		for (final Object o : bonesList.getSelectedValuesList()) {
+			renderer.removeNotInAllBone((BoneShell) o);
 			if (!newRefs.contains(o)) {
 				newRefs.addElement((BoneShell) o);
+				allBonesShell.add((BoneShell) o);
+				bonesShellInAll.add((BoneShell) o);
 			}
 		}
+		repaint();
 	}
 
 	public void buildBonesList() {
@@ -176,5 +226,13 @@ public class MatrixPopup extends JPanel {
 			bones.add(bs.getBone());
 		}
 		return bones;
+	}
+
+	public Set<Bone> getBonesInAll() {
+		return bonesShellInAll.stream().map(BoneShell::getBone).collect(Collectors.toSet());
+	}
+
+	public Set<Bone> getBonesNotInAll() {
+		return bonesShellNotInAll.stream().map(BoneShell::getBone).collect(Collectors.toSet());
 	}
 }

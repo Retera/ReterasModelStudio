@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
 
 /**
@@ -138,9 +137,8 @@ public class Bone extends IdObject {
 	}
 
 	@Override
-	public double getClickRadius(CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
-//		return DEFAULT_CLICK_RADIUS * 3 / coordinateSystem.getZoom();
+	public double getClickRadius() {
+		return DEFAULT_CLICK_RADIUS;
 	}
 
 	@Override

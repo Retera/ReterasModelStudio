@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -231,8 +230,9 @@ public class EventObject extends IdObject {
 	}
 
 	@Override
-	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+	public double getClickRadius() {
+		// return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+		return DEFAULT_CLICK_RADIUS;
 	}
 
 	@Override

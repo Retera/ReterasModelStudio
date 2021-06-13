@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ViewportModelRenderer {
+	private static final Color FACE_NOT_SELECTED_COLOR = new Color(0.45f, 0.45f, 1f, 0.3f);
 	private final ViewportRenderableCamera renderableCameraProp = new ViewportRenderableCamera();
 	private Graphics2D graphics;
 	private CoordinateSystem coordinateSystem;
@@ -31,6 +32,7 @@ public class ViewportModelRenderer {
 	private Vec2[] triV2 = new Vec2[3];
 	private Vec2[] normalV2 = new Vec2[3];
 	private Map<GeosetVertex, Vec2> vertsMap = new HashMap<>();
+	private Map<GeosetVertex, Vec2> vertsMap2 = new HashMap<>();
 	private Map<GeosetVertex, Vec2> normalMap = new HashMap<>();
 	private Map<GeosetVertex, Vec2> selectedVertsMap = new HashMap<>();
 	private Map<GeosetVertex, Vec2> highlightedVertsMap = new HashMap<>();
@@ -52,13 +54,14 @@ public class ViewportModelRenderer {
 		idObjectRenderer.reset(coordinateSystem, graphics, modelHandler.getRenderModel(), this.isAnimated);
 
 		vertsMap.clear();
+		vertsMap2.clear();
 		normalMap.clear();
 		selectedVertsMap.clear();
 		highlightedVertsMap.clear();
 
 		EditableModel model = modelHandler.getModel();
 		for (final Geoset geoset : model.getGeosets()) {
-			if (modelView.isVisible(geoset) && modelView.isEditable(geoset)) {
+			if (modelView.isVisible(geoset)) {
 				renderGeoset(geoset, isHd(model, geoset));
 			}
 		}
@@ -90,7 +93,9 @@ public class ViewportModelRenderer {
 		}
 		for (final Camera camera : model.getCameras()) {
 //			idObjectRenderer.camera(camera);
-			renderCamera(camera);
+			if (modelView.isVisible(camera)) {
+				renderCamera(camera);
+			}
 		}
 	}
 
@@ -132,10 +137,12 @@ public class ViewportModelRenderer {
 
 			if (modelView.getHighlightedGeoset() == geoset) {
 				highlightedVertsMap.put(vertex, vert2);
-			} else if (!modelView.isSelected(vertex)) {
-				vertsMap.put(vertex, vert2);
-			} else {
+			} else if (modelView.isHidden(vertex) || !modelView.isEditable(vertex.getGeoset())) {
+				vertsMap2.put(vertex, vert2);
+			} else if (modelView.isSelected(vertex)) {
 				selectedVertsMap.put(vertex, vert2);
+			} else {
+				vertsMap.put(vertex, vert2);
 			}
 
 			if (ProgramGlobals.getPrefs().showNormals() && normal != null) {
@@ -153,15 +160,31 @@ public class ViewportModelRenderer {
 
 			for (GeosetVertex vertex : triangle.getVerts()) {
 
+
 				if (modelView.getHighlightedGeoset() == geoset) {
 					triV2[index] = highlightedVertsMap.get(vertex);
 					triangleColor = ProgramGlobals.getPrefs().getHighlighTriangleColor();
-				} else if (!modelView.isSelected(vertex)) {
-					triV2[index] = vertsMap.get(vertex);
-					triangleColor = ProgramGlobals.getPrefs().getTriangleColor();
-				} else {
+				} else if (modelView.isHidden(vertex) || !modelView.isEditable(vertex.getGeoset())) {
+					triV2[index] = vertsMap2.get(vertex);
+					triangleColor = FACE_NOT_SELECTED_COLOR;
+				} else if (modelView.isSelected(vertex)) {
 					triV2[index] = selectedVertsMap.get(vertex);
+				} else {
+					triV2[index] = vertsMap.get(vertex);
 				}
+
+//				if (modelView.getHighlightedGeoset() == geoset) {
+//					triV2[index] = highlightedVertsMap.get(vertex);
+//					triangleColor = ProgramGlobals.getPrefs().getHighlighTriangleColor();
+//				} else if (!modelView.isSelected(vertex)) {
+//					triV2[index] = vertsMap.get(vertex);
+//					triangleColor = ProgramGlobals.getPrefs().getTriangleColor();
+//				} else if (modelView.isHidden(vertex) || !modelView.isEditable(vertex.getGeoset())) {
+//					triV2[index] = vertsMap2.get(vertex);
+//					triangleColor = FACE_NOT_SELECTED_COLOR;
+//				} else {
+//					triV2[index] = selectedVertsMap.get(vertex);
+//				}
 
 				if (normalMap.containsKey(vertex)) {
 					normalV2[index] = normalMap.get(vertex);

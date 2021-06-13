@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec4;
 
 public final class RenderNode {
 	private final AnimatedNode idObject;
@@ -234,8 +233,9 @@ public final class RenderNode {
 	}
 
 	public Vec3 getPivot() {
-		Vec4 vector4Heap = new Vec4(idObject.getPivotPoint(), 1);
-		vector4Heap.transform(worldMatrix);
-		return vector4Heap.getVec3();
+		return Vec3.getTransformed(idObject.getPivotPoint(), worldMatrix);
+//		Vec4 vector4Heap = new Vec4(idObject.getPivotPoint(), 1);
+//		vector4Heap.transform(worldMatrix);
+//		return vector4Heap.getVec3();
 	}
 }

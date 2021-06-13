@@ -198,7 +198,7 @@ public class SelectionManager extends AbstractSelectionManager {
 			List<IdObject> selectedItems = new ArrayList<>();
 
 			for (IdObject object : modelView.getEditableIdObjects()) {
-				double vertexSize = object.getClickRadius(coordinateSystem) * coordinateSystem.getZoom();
+				double vertexSize = object.getClickRadius();
 				if (HitTestStuff.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize)) {
 					selectedItems.add(object);
 				}
@@ -217,8 +217,10 @@ public class SelectionManager extends AbstractSelectionManager {
 			List<IdObject> selectedItems = new ArrayList<>();
 
 			for (IdObject object : modelView.getEditableIdObjects()) {
-				double vertexSize = object.getClickRadius(coordinateSystem) * coordinateSystem.getZoom() * 2;
-				HitTestStuff.hitTest(selectedItems, min, max, coordinateSystem, vertexSize, object, modelView.getEditorRenderModel());
+				double vertexSize = object.getClickRadius() * 2;
+				if (HitTestStuff.hitTest(min, max, coordinateSystem, vertexSize, modelView.getEditorRenderModel().getRenderNode(object))) {
+					selectedItems.add(object);
+				}
 			}
 			return new SelectoinUgg(selectedItems);
 		}
@@ -242,7 +244,7 @@ public class SelectionManager extends AbstractSelectionManager {
 	private Set<IdObject> getIdObjectsFromArea(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		Set<IdObject> selectedItems = new HashSet<>();
 		for (IdObject object : modelView.getEditableIdObjects()) {
-			double vertexSize1 = object.getClickRadius(coordinateSystem) * coordinateSystem.getZoom() * 2;
+			double vertexSize1 = object.getClickRadius() * 2;
 			if (HitTestStuff.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize1)) {
 				System.out.println("selected " + object.getName());
 				selectedItems.add(object);
@@ -488,7 +490,7 @@ public class SelectionManager extends AbstractSelectionManager {
 
 	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes) {
 		for (IdObject object : modelView.getEditableIdObjects()) {
-			double vertexSize1 = object.getClickRadius(axes) * axes.getZoom() * 2;
+			double vertexSize1 = object.getClickRadius() * 2;
 			if (HitTestStuff.hitTest(object.getPivotPoint(), CoordSysUtils.geomV2(axes, point), axes, vertexSize1)) {
 				return true;
 			}
@@ -564,7 +566,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		if(selectionMode == SelectionItemTypes.ANIMATE){
 			for (IdObject object : modelView.getEditableIdObjects()) {
 				Mat4 worldMatrix = modelView.getEditorRenderModel().getRenderNode(object).getWorldMatrix();
-				double vertexSize = object.getClickRadius(axes) * axes.getZoom() * 2;
+				double vertexSize = object.getClickRadius() * 2;
 				if (HitTestStuff.hitTest(object.getPivotPoint(), CoordSysUtils.geomV2(axes, point), axes, vertexSize, worldMatrix)) {
 					return true;
 				}

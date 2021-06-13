@@ -1,17 +1,13 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
-
-import java.util.List;
 
 public class HitTestStuff {
 	public static boolean hitTest(Vec2 min, Vec2 max, Vec3 vec3, CoordinateSystem coordinateSystem, double vertexSize) {
@@ -24,14 +20,16 @@ public class HitTestStuff {
 		Vec2 vertexV2 = vec3.getProjected(dim1, dim2);
 
 
-		return (vertexV2.distance(min) <= (vertexSize / 2.0))
-				|| (vertexV2.distance(max) <= (vertexSize / 2.0))
+		double vertSize = vertexSize / 2.0 / coordinateSystem.getZoom();
+		return (vertexV2.distance(min) <= vertSize)
+				|| (vertexV2.distance(max) <= vertSize)
 				|| within(vertexV2, min, max);
 	}
 
 	public static boolean hitTest(Vec3 vec3, Vec2 point, CoordinateSystem coordinateSystem, double vertexSize) {
 		Vec2 vertexV2 = CoordSysUtils.convertToViewVec2(coordinateSystem, vec3);
-		return vertexV2.distance(point) <= (vertexSize / 2.0);
+		double vertSize = vertexSize / 2.0 / coordinateSystem.getZoom();
+		return vertexV2.distance(point) <= vertSize;
 	}
 
 	private static boolean within(Vec2 point, Vec2 min, Vec2 max) {
@@ -76,20 +74,17 @@ public class HitTestStuff {
 
 	public static boolean hitTest(Vec3 pivotPoint, Vec2 point, CoordinateSystem coordinateSystem, double vertexSize, Mat4 worldMatrix) {
 		Vec3 pivotHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
-		pivotHeap.transform(worldMatrix);
+//		pivotHeap.transform(worldMatrix);
 		Vec2 vertexV2 = CoordSysUtils.convertToViewVec2(coordinateSystem, pivotHeap);
-		return vertexV2.distance(point) <= (vertexSize / 2.0);
+		double vertSize = vertexSize / 2.0 / coordinateSystem.getZoom();
+		return vertexV2.distance(point) <= vertSize;
 	}
 
-	public static void hitTest(List<IdObject> selectedItems,
-	                           Vec2 min,
-	                           Vec2 max,
-	                           CoordinateSystem coordinateSystem,
-	                           double vertexSize,
-	                           IdObject object,
-	                           RenderModel renderModel) {
-		RenderNode renderNode = renderModel.getRenderNode(object);
-		Vec3 pivotHeap = Vec3.getTransformed(object.getPivotPoint(), renderNode.getWorldMatrix());
+	public static boolean hitTest(Vec2 min, Vec2 max,
+	                              CoordinateSystem coordinateSystem,
+	                              double vertexSize,
+	                              RenderNode renderNode) {
+		Vec3 pivotHeap = renderNode.getPivot();
 
 		byte dim1 = coordinateSystem.getPortFirstXYZ();
 		byte dim2 = coordinateSystem.getPortSecondXYZ();
@@ -100,9 +95,8 @@ public class HitTestStuff {
 		Vec2 vertexV2 = pivotHeap.getProjected(dim1, dim2);
 
 		vertexV2.distance(max);
-		if ((vertexV2.distance(min) <= (vertexSize / 2.0)) || (vertexV2.distance(max) <= (vertexSize / 2.0)) || within(vertexV2, min, max)) {
-			selectedItems.add(object);
-		}
+		double vertSize = vertexSize / 2.0 / coordinateSystem.getZoom();
+		return vertexV2.distance(min) <= vertSize || vertexV2.distance(max) <= vertSize || within(vertexV2, min, max);
 	}
 
 
@@ -127,7 +121,7 @@ public class HitTestStuff {
 	}
 
 	public static boolean hitTest(Vec2 vertex, Vec2 point, CoordinateSystem coordinateSystem, double vertexSize) {
-		double vSizeView = vertexSize / coordinateSystem.getZoom();
-		return vertex.distance(point) <= vSizeView / 2.0;
+		double vSizeView = vertexSize / 2.0 / coordinateSystem.getZoom();
+		return vertex.distance(point) <= vSizeView;
 	}
 }

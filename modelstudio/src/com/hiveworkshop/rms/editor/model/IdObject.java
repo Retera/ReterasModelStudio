@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
@@ -77,7 +76,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 
 	public abstract IdObject copy();
 
-	public abstract double getClickRadius(CoordinateSystem coordinateSystem);
+	public abstract double getClickRadius();
 
 	/**
 	 * @return The Object ID

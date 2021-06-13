@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.editor.actions.nodes.RenameBoneAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetParentAction;
 import com.hiveworkshop.rms.editor.actions.tools.AutoCenterBonesAction;
 import com.hiveworkshop.rms.editor.actions.tools.SetHdSkinAction;
-import com.hiveworkshop.rms.editor.actions.tools.SetMatrixAction2;
+import com.hiveworkshop.rms.editor.actions.tools.SetMatrixAction3;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.Geoset;
@@ -167,13 +167,12 @@ public class ViewportPopupMenu extends JPopupMenu {
 	}
 
 	void reAssignMatrix(Viewport viewport) {
-		MatrixPopup matrixPopup = new MatrixPopup(modelHandler.getModel());
+		MatrixPopup matrixPopup = new MatrixPopup(modelHandler);
 		String[] words = {"Accept", "Cancel"};
 		int i = JOptionPane.showOptionDialog(viewport, matrixPopup, "Rebuild Matrix", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
-			SetMatrixAction2 matrixAction2 = new SetMatrixAction2(modelHandler.getModelView().getSelectedVertices(), matrixPopup.getNewBoneList());
-			matrixAction2.redo();
-			modelHandler.getUndoManager().pushAction(matrixAction2);
+			UndoAction matrixAction2 = new SetMatrixAction3(modelHandler.getModelView().getSelectedVertices(), matrixPopup.getNewBoneList(), matrixPopup.getBonesNotInAll());
+			modelHandler.getUndoManager().pushAction(matrixAction2.redo());
 		}
 	}
 

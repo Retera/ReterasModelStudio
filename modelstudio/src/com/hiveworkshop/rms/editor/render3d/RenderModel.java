@@ -152,18 +152,22 @@ public final class RenderModel {
 			}
 		}
 
-		for (ParticleEmitter2 particleEmitter : model.getParticleEmitter2s()) {
-			particleEmitters2.add(new RenderParticleEmitter2(particleEmitter, renderResourceAllocator.generate(particleEmitter.getTexture(), particleEmitter)));
-		}
-		particleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
+		if (renderResourceAllocator != null) {
+			for (ParticleEmitter2 particleEmitter : model.getParticleEmitter2s()) {
+				particleEmitters2.add(new RenderParticleEmitter2(particleEmitter, renderResourceAllocator.generate(particleEmitter.getTexture(), particleEmitter)));
+			}
+			particleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
 //		System.out.println("refresh from renderer, partEm: " + particleEmitters2.size());
 
-		for (RenderParticleEmitter2 particleEmitter : particleEmitters2) {
-			RenderParticleEmitter2View emitterView = new RenderParticleEmitter2View(this, particleEmitter);
+			for (RenderParticleEmitter2 particleEmitter : particleEmitters2) {
+				RenderParticleEmitter2View emitterView = new RenderParticleEmitter2View(this, particleEmitter);
 //			System.out.println("emitterView: " + emitterView + " emitterView.em: " + emitterView.getEmitter());
-			particleEmitterViews2.add(emitterView);
-			emitterToRenderer.put(emitterView.getEmitter(), emitterView);
+				particleEmitterViews2.add(emitterView);
+				emitterToRenderer.put(emitterView.getEmitter(), emitterView);
+			}
 		}
+
+
 		for (AnimatedNode node : sortedNodes) {
 			getRenderNode(node).refreshFromEditor();
 		}

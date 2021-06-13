@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-
 /**
  * Write a description of class Attachment here.
  *
@@ -51,7 +49,7 @@ public class Attachment extends IdObject {
 	}
 
 	@Override
-	public double getClickRadius(CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+	public double getClickRadius() {
+		return DEFAULT_CLICK_RADIUS;
 	}
 }
