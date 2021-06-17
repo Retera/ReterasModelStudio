@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Vertex motion matrices.
@@ -13,6 +14,7 @@ import java.util.List;
 public class Matrix {
 	List<Integer> m_boneIds = new ArrayList<>();
 	List<Bone> bones = new ArrayList<>();
+	long identityHash = 0;
 
 	public Matrix() {
 	}
@@ -23,10 +25,12 @@ public class Matrix {
 
 	public Matrix(final Collection<Bone> newBones) {
 		bones.addAll(newBones);
+		recalculateId();
 	}
 
-	public Matrix(Bone newBones) {
-		bones.add(newBones);
+	public Matrix(Bone newBone) {
+		bones.add(newBone);
+		recalculateId();
 	}
 
 	public Matrix(final int[] boneIds) {
@@ -63,11 +67,7 @@ public class Matrix {
 
 	public void updateIds(final EditableModel mdlr) {
 		mdlr.sortIdObjects();
-		if (m_boneIds == null) {
-			m_boneIds = new ArrayList<>();
-		} else {
-			m_boneIds.clear();
-		}
+		m_boneIds.clear();
 		List<Bone> bonesToRemove = new ArrayList<>();
 		for (Bone bone : bones) {
 			final int newId = mdlr.getObjectId(bone);
@@ -93,6 +93,7 @@ public class Matrix {
 				lastPopupTimeHack = System.currentTimeMillis();
 			}
 		}
+		recalculateId();
 	}
 
 	public void updateBones(final EditableModel model) {
@@ -107,16 +108,67 @@ public class Matrix {
 				System.err.println("Error: A matrix's bone id was not referencing a real bone! " + m_boneId);
 			}
 		}
+		recalculateId();
 	}
 
-	public void add(final Bone b) {
-		if (b != null) {
-			bones.add(b);
+	public Bone get(int i) {
+		return bones.get(i);
+	}
+
+	public void add(final Bone bone) {
+		if (bone != null) {
+			bones.add(bone);
 		}
+		recalculateId();
+	}
+
+	public void add(int i, final Bone bone) {
+		if (bone != null) {
+			bones.add(i, bone);
+		}
+		recalculateId();
+	}
+
+	public void set(int i, final Bone bone) {
+		if (bone != null) {
+			bones.set(i, bone);
+		}
+		recalculateId();
+	}
+
+	public void addAll(Collection<Bone> bones) {
+		this.bones.addAll(bones);
+		this.bones.remove(null);
+		recalculateId();
+	}
+
+	public void remove(int i) {
+		bones.remove(i);
+		recalculateId();
+	}
+
+	public void remove(final Bone bone) {
+		bones.remove(bone);
+		recalculateId();
+	}
+
+	public void removeAll(Collection<Bone> bones) {
+		this.bones.removeAll(bones);
+		recalculateId();
+	}
+
+	public void clear() {
+		bones.clear();
+		recalculateId();
 	}
 
 	public void addId(final int id) {
 		m_boneIds.add(id);
+	}
+
+	public void replaceBones(Map<IdObject, IdObject> newBoneMap) {
+		bones.replaceAll(b -> (Bone) newBoneMap.get(b));
+		recalculateId();
 	}
 
 	public int getBoneId(final int index) {
@@ -138,15 +190,11 @@ public class Matrix {
 	}
 
 	public boolean equals(final Matrix other) {
-		if (other.size() != size()) {
-			return false;
-		}
-		for (int i = 0; i < size(); i++) {
-			if (bones.get(i) != other.bones.get(i)) {
-				return false;
-			}
-		}
-		return true;
+		return identityHash == other.identityHash;
+	}
+
+	public boolean isEmpty() {
+		return bones == null || bones.isEmpty();
 	}
 
 	public List<Bone> getBones() {
@@ -155,5 +203,13 @@ public class Matrix {
 
 	public void setBones(final List<Bone> bones) {
 		this.bones = bones;
+		recalculateId();
+	}
+
+	private void recalculateId() {
+//		for(Bone b : bones){
+//			identityHash = identityHash * 31 + b.hashCode();
+//		}
+		identityHash = bones.hashCode();
 	}
 }

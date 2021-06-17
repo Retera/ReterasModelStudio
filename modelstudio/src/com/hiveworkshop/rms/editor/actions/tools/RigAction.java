@@ -45,7 +45,7 @@ public class RigAction implements UndoAction {
 					vertexToOldSkinBoneReferences.put(geosetVertex, geosetVertex.getSkinBoneBones().clone());
 					vertexToOldSkinBoneWeightReferences.put(geosetVertex, geosetVertex.getSkinBoneWeights().clone());
 				} else {
-					List<Bone> boneAttachments = geosetVertex.getBoneAttachments();
+					List<Bone> boneAttachments = geosetVertex.getBones();
 					vertexToPriorBoneAttachment.put(vertex, new ArrayList<>(boneAttachments));
 				}
 			}

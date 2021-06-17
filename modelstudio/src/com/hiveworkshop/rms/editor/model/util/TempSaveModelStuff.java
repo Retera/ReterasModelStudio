@@ -456,20 +456,21 @@ public class TempSaveModelStuff {
 				}
 				geosetVertex.setVertexGroup(-1);
 			} else {
-				Matrix newTemp = new Matrix(geosetVertex.getBones());
-				boolean newMatrix = true;
-				for (int m = 0; (m < geoset.getMatrix().size()) && newMatrix; m++) {
-					if (newTemp.equals(geoset.getMatrix().get(m))) {
-						newTemp = geoset.getMatrix().get(m);
-						newMatrix = false;
-					}
-				}
+				Matrix newTemp = geosetVertex.getMatrix();
+//				Matrix newTemp = new Matrix(geosetVertex.getBones());
+//				boolean newMatrix = true;
+//				for (int m = 0; (m < geoset.getMatrix().size()) && newMatrix; m++) {
+//					if (newTemp.equals(geoset.getMatrix().get(m))) {
+//						newTemp = geoset.getMatrix().get(m);
+//						newMatrix = false;
+//					}
+//				}
 				if (!geoset.getMatrix().contains(newTemp)) {
 					geoset.getMatrix().add(newTemp);
 					newTemp.updateIds(mdlr);
 				}
 				geosetVertex.setVertexGroup(geoset.getMatrix().indexOf(newTemp));
-				geosetVertex.setMatrix(newTemp);
+//				geosetVertex.setMatrix(newTemp);
 			}
 		}
 		for (Triangle triangle : geoset.getTriangles()) {

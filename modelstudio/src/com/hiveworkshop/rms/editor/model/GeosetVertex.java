@@ -18,11 +18,10 @@ import java.util.*;
  */
 public class GeosetVertex extends Vec3 {
 	private int vertexGroup = -1;
-	private Matrix matrixRef;
-	List<Vec2> tverts = new ArrayList<>();
-	List<Bone> bones = new ArrayList<>();
-	Set<Triangle> triangles = new HashSet<>();
-	Geoset geoset;
+	private Matrix matrix = new Matrix();
+	private List<Vec2> tverts = new ArrayList<>();
+	private Set<Triangle> triangles = new HashSet<>();
+	private Geoset geoset;
 	private Vec3 normal = new Vec3();
 	private byte[] skinBoneIndexes;
 	private Vec4 tangent;
@@ -44,7 +43,7 @@ public class GeosetVertex extends Vec3 {
 	public GeosetVertex(GeosetVertex old) {
 		super(old.x, old.y, old.z);
 		normal.set(old.getNormal());
-		bones.addAll(old.bones);
+		matrix.addAll(old.matrix.getBones());
 		tverts = new ArrayList<>();
 		for (Vec2 tv : old.tverts) {
 			tverts.add(new Vec2(tv));
@@ -81,7 +80,7 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public void magicSkinBones() {
-		int bonesNum = Math.min(4, bones.size());
+		int bonesNum = Math.min(4, matrix.size());
 		short weight = 0;
 		if (bonesNum > 0) {
 			weight = (short) (255 / bonesNum);
@@ -89,13 +88,13 @@ public class GeosetVertex extends Vec3 {
 
 		for (int i = 0; i < 4; i++) {
 			if (i < bonesNum) {
-				setSkinBone(bones.get(i), weight, i);
+				setSkinBone(matrix.get(i), weight, i);
 			} else {
 				setSkinBone((short) 0, i);
 			}
 		}
-		if (!bones.isEmpty()) {
-			setSkinBone(bones.get(0), (short) (weight + (255 % bonesNum)), 0);
+		if (!matrix.isEmpty()) {
+			setSkinBone(matrix.get(0), (short) (weight + (255 % bonesNum)), 0);
 		}
 	}
 
@@ -104,20 +103,20 @@ public class GeosetVertex extends Vec3 {
 			tangent = null;
 		}
 		if (skinBones != null) {
-			bones.clear();
+			matrix.clear();
 			boolean fallback = false;
 			for (SkinBone skinBone : skinBones) {
 				if (skinBone != null && skinBone.getBone() != null) {
 					fallback = true;
 					if (skinBone.getWeight() > 110) {
-						bones.add(skinBone.getBone());
+						matrix.add(skinBone.getBone());
 					}
 				}
 			}
-			if (bones.isEmpty() && fallback) {
+			if (matrix.isEmpty() && fallback) {
 				for (SkinBone skinBone : skinBones) {
 					if (skinBone != null && skinBone.getBone() != null) {
-						bones.add(skinBone.getBone());
+						matrix.add(skinBone.getBone());
 					}
 				}
 			}
@@ -139,6 +138,10 @@ public class GeosetVertex extends Vec3 {
 		}
 	}
 
+	public void clearTVerts() {
+		tverts.clear();
+	}
+
 	public int getVertexGroup() {
 		return vertexGroup;
 	}
@@ -148,27 +151,51 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public void clearBoneAttachments() {
-		bones.clear();
-	}
-
-	public void clearTVerts() {
-		tverts.clear();
+		matrix.clear();
 	}
 
 	public void addBoneAttachment(Bone b) {
-		bones.add(b);
+		matrix.add(b);
+	}
+
+	public void addBoneAttachment(int i, Bone b) {
+		matrix.add(i, b);
 	}
 
 	public void addBoneAttachments(Collection<Bone> b) {
-		bones.addAll(b);
+		matrix.addAll(b);
 	}
 
-	public List<Bone> getBoneAttachments() {
-		return bones;
+	public List<Bone> getBones() {
+		return matrix.getBones();
 	}
 
-	public void setMatrix(Matrix ref) {
-		matrixRef = ref;
+
+	public void setBone(int i, final Bone bone) {
+		matrix.set(i, bone);
+	}
+
+	public void removeBone(Bone b) {
+		matrix.remove(b);
+	}
+
+	public GeosetVertex removeBones(Collection<Bone> bones) {
+		matrix.removeAll(bones);
+		return this;
+	}
+
+	public GeosetVertex replaceBones(Map<IdObject, IdObject> newBoneMap) {
+		matrix.replaceBones(newBoneMap);
+		return this;
+	}
+
+	public Matrix getMatrix() {
+		return matrix;
+	}
+
+	public void setBones(List<Bone> bones) {
+		matrix.clear();
+		matrix.addAll(bones);
 	}
 
 	public Vec3 getNormal() {
@@ -195,14 +222,6 @@ public class GeosetVertex extends Vec3 {
 
 	public void setTverts(List<Vec2> tverts) {
 		this.tverts = tverts;
-	}
-
-	public List<Bone> getBones() {
-		return bones;
-	}
-
-	public void setBones(List<Bone> bones) {
-		this.bones = bones;
 	}
 
 	public Set<Triangle> getTriangles() {
@@ -248,10 +267,6 @@ public class GeosetVertex extends Vec3 {
 	public void setGeoset(Geoset geoset) {
 		this.geoset = geoset;
 	}
-
-//    public Bone[] getSkinBones() {
-//        return skinBones;
-//    }
 
 	/**
 	 * @deprecated for use only with saving functionalities inside the system
@@ -394,11 +409,6 @@ public class GeosetVertex extends Vec3 {
 
 	public void setTangent(Vec3 tangent, float w) {
 		this.tangent = new Vec4(tangent, w);
-	}
-
-	@Deprecated()
-	public Matrix getMatrixRef() {
-		return matrixRef;
 	}
 
 	@Override

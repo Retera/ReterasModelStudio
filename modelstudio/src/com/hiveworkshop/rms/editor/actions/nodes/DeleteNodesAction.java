@@ -168,10 +168,10 @@ public class DeleteNodesAction implements UndoAction {
 				if (relink) {
 					IdObject replacedParent = topParentMap.get(oldBone);
 					if (replacedParent instanceof Bone) {
-						vertex.getBones().remove(replacedParent);
+						vertex.removeBone((Bone) replacedParent);
 					}
 				}
-				vertex.getBones().add(i, oldBone);
+				vertex.addBoneAttachment(i, oldBone);
 			}
 			return this;
 		}
@@ -182,12 +182,12 @@ public class DeleteNodesAction implements UndoAction {
 				for (Integer i : integerBoneMap.keySet()) {
 					IdObject potParent = topParentMap.get(integerBoneMap.get(i));
 					if (potParent instanceof Bone && !(potParent instanceof Helper)) {
-						vertex.getBones().remove(integerBoneMap.get(i));
-						vertex.getBones().add(i, (Bone) potParent);
+						vertex.removeBone(integerBoneMap.get(i));
+						vertex.addBoneAttachment(i, (Bone) potParent);
 					}
 				}
 			}
-			vertex.getBones().removeAll(integerBoneMap.values());
+			vertex.removeBones(integerBoneMap.values());
 			return this;
 		}
 

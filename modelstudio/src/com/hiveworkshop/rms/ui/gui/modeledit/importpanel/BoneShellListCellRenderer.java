@@ -96,7 +96,7 @@ public class BoneShellListCellRenderer extends AbstractSnapshottingListCellRende
 
 		@Override
 		public boolean isAccepted(final GeosetVertex vertex) {
-			return vertex.getBoneAttachments().contains(boneShell.getBone());
+			return vertex.getBones().contains(boneShell.getBone());
 		}
 
 		@Override

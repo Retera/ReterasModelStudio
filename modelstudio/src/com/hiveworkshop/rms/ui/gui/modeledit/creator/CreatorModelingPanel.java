@@ -24,6 +24,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.util.Vec3;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -211,21 +212,26 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 	                                     ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup,
 	                                     ViewportListener viewportListener, DefaultComboBoxModel<String> modeChooserBoxModel,
 	                                     JPanel cardPanel) {
-		JPanel meshBasicsPanel = new JPanel(new BorderLayout());
+//		JPanel meshBasicsPanel = new JPanel(new BorderLayout());
+		JPanel meshBasicsPanel = new JPanel(new MigLayout("fill"));
 		cardPanel.add(meshBasicsPanel, ANIMATIONBASICS);
-		JPanel editToolsPanel = new JPanel(new GridLayout(16, 1));
-		editToolsPanel.setBorder(BorderFactory.createTitledBorder("Manipulate"));
-		editToolsPanel.add(actionTypeGroup.getModeButton(ModelEditorActionType3.TRANSLATION));
-		editToolsPanel.add(actionTypeGroup.getModeButton(ModelEditorActionType3.ROTATION));
-		editToolsPanel.add(actionTypeGroup.getModeButton(ModelEditorActionType3.SCALING));
-		editToolsPanel.add(actionTypeGroup.getModeButton(ModelEditorActionType3.SQUAT));
 
-		if (false) {
+		JPanel editToolsPanel = new JPanel(new MigLayout("debug, fill"));
+		editToolsPanel.setBorder(BorderFactory.createTitledBorder("Manipulate"));
+		editToolsPanel.add(actionTypeGroup.getModeButton(ModelEditorActionType3.TRANSLATION), "wrap");
+		editToolsPanel.add(actionTypeGroup.getModeButton(ModelEditorActionType3.ROTATION), "wrap");
+		editToolsPanel.add(actionTypeGroup.getModeButton(ModelEditorActionType3.SCALING), "wrap");
+		editToolsPanel.add(actionTypeGroup.getModeButton(ModelEditorActionType3.SQUAT), "wrap");
+
+//		boolean temp = false;
+		boolean temp = true;
+		if (temp) {
 			TSpline tSpline = new TSpline();
-			editToolsPanel.add(tSpline);
+			editToolsPanel.add(tSpline, "wrap, growy");
 		}
 
-		meshBasicsPanel.add(editToolsPanel, BorderLayout.CENTER);
+		editToolsPanel.add(new JLabel("UGG"), "wrap");
+		meshBasicsPanel.add(editToolsPanel, "growx, growy");
 	}
 
 	public void setAnimationModeState(boolean animationModeState) {

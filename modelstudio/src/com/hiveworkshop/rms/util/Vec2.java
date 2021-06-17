@@ -167,8 +167,8 @@ public class Vec2 {
 		return (float) Math.sqrt(lengthSquared());
 	}
 
-	public Float[] toFloatArray() {
-		return new Float[] {x, y};
+	public float[] toFloatArray() {
+		return new float[] {x, y};
 	}
 
 	public float[] toArray() {

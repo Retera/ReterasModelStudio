@@ -33,7 +33,7 @@ class BonePanelListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 
 			@Override
 			public boolean isAccepted(final GeosetVertex vertex) {
-				return vertex.getBoneAttachments().contains(bone);
+				return vertex.getBones().contains(bone);
 			}
 
 			@Override

@@ -1,92 +1,84 @@
 package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.Entry;
-import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
+import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class CurveRenderer extends JPanel {
-	private final Entry entryD = new Entry(0, 0.0, 0.0, 0.0);
-	private final Entry entryS = new Entry(0, 0.0, 0.0, 0.0);
-	private TTan der;
-	private AnimFlag timeline;
+	SplineTracker<?> splineTracker;
+	Vec2 renderStartPoint = new Vec2();
+	Vec2 renderEndPoint = new Vec2();
+	float pixPerUnitX;
+	float pixPerUnitY;
 
-	public CurveRenderer(TTan der, AnimFlag timeline) {
-		this.der = der;
-		this.timeline = timeline;
+	public CurveRenderer() {
 	}
 
-	public void setTTder(TTan newDer) {
-		der = newDer;
+	public void setSplineTracker(SplineTracker<?> splineTracker) {
+		this.splineTracker = splineTracker;
 	}
 
 	@Override
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
 		final Rectangle rect = getBounds();
-		float pixPerUnitX = 0.005f * rect.width;
-		float pixPerUnitY = rect.height / 130f;
-		float renderX = rect.x, renderY = rect.y + rect.height;
+		int height = rect.height;
+		pixPerUnitX = 0.005f * rect.width;
+		pixPerUnitY = height / 130f;
+		renderStartPoint.set(rect.x, rect.y + height);
 
 		g.setColor(Color.BLUE);
-		g.drawRect(rect.x, rect.y, rect.width, rect.height);
+		g.drawRect(rect.x, rect.y, rect.width, height);
 
-		TTan.setObjToNewValue(der.prev.value, 0, 0);
-		TTan.setObjToNewValue(der.cur.value, 0, 100);
-		TTan.setObjToNewValue(der.next.value, 0, 0);
-		der.calcDerivativeXD(1);
 		g.setColor(Color.BLACK);
-		InterpolationType interpType = timeline.getInterpolationType();
 
-		for (int i = 0; i <= 100; i += 2) {
-			entryD.set(der.tang);
-			TTan.setObjToNewValue(entryD.value, 0, 100);
-			entryD.time = 100;
+		if (splineTracker != null && splineTracker.hasDer()) {
+			splineTracker.prepareTTan();
 
-			entryS.time = 0;
-			TTan.setObjToNewValue(entryS.value, 0, 0);
-			TTan.setObjToNewValue(entryS.inTan, 0, 0);
-			TTan.setObjToNewValue(entryS.outTan, 0, 0);
-
-			TTan_doStuff(i, interpType);
-			float newRenderX = Math.round(pixPerUnitX * i);
-			float newRenderY = rect.height - Math.round(pixPerUnitY * TTan.getSubValue(entryD.value, 0).floatValue());
-			g.drawLine((int) renderX, (int) renderY, (int) newRenderX, (int) newRenderY);
-			renderX = newRenderX;
-			renderY = newRenderY;
-		}
-
-		// Second half of the Curve (Spline?)
-
-		for (int i = 100; i <= 101; i += 2) {
-			TTan.setObjToNewValue(entryD.value, 0, 0);
-			entryD.time = 200;
-			TTan.setObjToNewValue(entryD.inTan, 0, 0);
-			TTan.setObjToNewValue(entryD.outTan, 0, 0);
-
-			entryS.set(der.tang);
-			entryS.time = 100;
-			TTan.setObjToNewValue(entryS.value, 0, 100);
-
-			TTan_doStuff(i, interpType);
-			float newRenderX = Math.round(pixPerUnitX * i);
-			float newRenderY = rect.height - Math.round(pixPerUnitY * TTan.getSubValue(entryD.value, 0).floatValue());
-			g.drawLine((int) renderX, (int) renderY, (int) newRenderX, (int) newRenderY);
-			renderX = newRenderX;
-			renderY = newRenderY;
+			drawFirstSpline(g);
+			drawSecondSpline(g);
 		}
 
 		// Central line
 		g.setColor(Color.RED);
-		g.drawLine((Math.round(pixPerUnitX * 100)), rect.height, Math.round(pixPerUnitX * 100), rect.height - Math.round(pixPerUnitY * 100));
+
+		int x1 = getEndX(100);
+		g.drawLine(x1, height, x1, height - Math.round(pixPerUnitY * 100));
 	}
 
-	private void TTan_doStuff(int i, InterpolationType interpType) {
-		switch (interpType) {
-			case HERMITE -> TTan.spline(i, entryS, entryD);
-			case BEZIER -> TTan.bezInterp(i, entryS, entryD);
+	private void drawFirstSpline(Graphics g) {
+		for (int i = 0; i <= 100; i += 2) {
+			splineTracker.calcSplineStepStart(0);
+
+			splineTracker.interpolate(i);
+			drawSplineLine(g, i);
 		}
+	}
+
+	private void drawSecondSpline(Graphics g) {
+//		for (int i = 100; i <= 101; i += 2) {
+		for (int i = 100; i <= 200; i += 2) {
+			splineTracker.calcSplineStepEnd(200);
+
+			splineTracker.interpolate(i);
+			drawSplineLine(g, i);
+		}
+	}
+
+
+	private void drawSplineLine(Graphics g, int time) {
+		renderEndPoint.set(getEndX(time), getEndY());
+		GU.drawLines(g, renderStartPoint, renderEndPoint);
+		renderStartPoint.set(renderEndPoint);
+	}
+
+	private int getEndX(int time) {
+		return Math.round(pixPerUnitX * time);
+	}
+
+	private int getEndY() {
+		return getHeight() - Math.round(pixPerUnitY * splineTracker.getEndX());
 	}
 }

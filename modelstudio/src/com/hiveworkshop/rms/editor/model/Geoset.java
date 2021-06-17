@@ -267,25 +267,11 @@ public class Geoset implements Named, VisibilitySource {
 		vertices.removeAll(v);
 	}
 
-	public boolean containsReference(final IdObject obj) {
-		// boolean does = false;
-		for (GeosetVertex vertex : vertices) {
-			if (vertex.bones.contains(obj)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	public boolean contains(final Triangle t) {
 		return triangles.contains(t);
 	}
 
-	public boolean contains(final Vec3 v) {
-		return vertices.contains(v);
-	}
-
-	public boolean containsVert(final GeosetVertex v) {
+	public boolean contains(final GeosetVertex v) {
 		return vertices.contains(v);
 	}
 
@@ -330,7 +316,7 @@ public class Geoset implements Named, VisibilitySource {
 	public List<GeosetVertex> getChildrenOf(final Bone parent) {
 		final List<GeosetVertex> children = new ArrayList<>();
 		for (final GeosetVertex gv : vertices) {
-			if (gv.bones.contains(parent) || Arrays.stream(gv.getSkinBoneBones()).anyMatch(bone -> bone == parent)) {
+			if (gv.getBones().contains(parent) || Arrays.stream(gv.getSkinBoneBones()).anyMatch(bone -> bone == parent)) {
 				children.add(gv);
 			}
 		}
@@ -415,19 +401,20 @@ public class Geoset implements Named, VisibilitySource {
 	public void applyVerticesToMatrices(EditableModel mdlr) {
 		matrix.clear();
 		for (GeosetVertex vertex : vertices) {
-			Matrix newTemp = new Matrix(vertex.getBones());
-			for (Matrix m : matrix) {
-				if (newTemp.equals(m)) {
-					newTemp = m;
-					break;
-				}
-			}
+			Matrix newTemp = vertex.getMatrix();
+//			Matrix newTemp = new Matrix(vertex.getBones());
+//			for (Matrix m : matrix) {
+//				if (newTemp.equals(m)) {
+//					newTemp = m;
+//					break;
+//				}
+//			}
 			if (!matrix.contains(newTemp)) {
 				matrix.add(newTemp);
 				newTemp.updateIds(mdlr);
 			}
 			vertex.setVertexGroup(matrix.indexOf(newTemp));
-			vertex.setMatrix(newTemp);
+//			vertex.setMatrix(newTemp);
 		}
 	}
 

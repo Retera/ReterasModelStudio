@@ -51,6 +51,47 @@ public class Entry<T> {
 		}
 	}
 
+	private void setValue(T value, T otherValue) {
+		if (value instanceof Integer || value instanceof Float) {
+			value = otherValue;
+		} else if (value instanceof Vec3 && otherValue instanceof Vec3) {
+			((Vec3) value).set((Vec3) otherValue);
+		} else if (value instanceof Quat && otherValue instanceof Quat) {
+			((Quat) value).set((Quat) otherValue);
+		} else {
+			throw new IllegalStateException(value.getClass().getName());
+		}
+	}
+
+	public void setValues(Entry<T> other) {
+		time = other.time;
+		if (value instanceof Integer || value instanceof Float) {
+			value = other.value;
+			inTan = other.inTan;
+			outTan = other.outTan;
+		} else if (value instanceof Vec3 && other.value instanceof Vec3) {
+			((Vec3) value).set((Vec3) other.value);
+			if (inTan != null && outTan != null && other.inTan != null && other.outTan != null) {
+				((Vec3) inTan).set((Vec3) other.inTan);
+				((Vec3) outTan).set((Vec3) other.outTan);
+			} else if (inTan == null && outTan == null && other.inTan != null && other.outTan != null) {
+				inTan = cloneEntryValue(other.inTan);
+				outTan = cloneEntryValue(other.outTan);
+			}
+		} else if (value instanceof Quat && other.value instanceof Quat) {
+			((Quat) value).set((Quat) other.value);
+			if (inTan != null && outTan != null && other.inTan != null && other.outTan != null) {
+				((Quat) inTan).set((Quat) other.inTan);
+				((Quat) outTan).set((Quat) other.outTan);
+			} else if (inTan == null && outTan == null && other.inTan != null && other.outTan != null) {
+				inTan = cloneEntryValue(other.inTan);
+				outTan = cloneEntryValue(other.outTan);
+			}
+		} else {
+			throw new IllegalStateException(value.getClass().getName());
+		}
+	}
+
 	public Integer getTime() {
 		return time;
 	}

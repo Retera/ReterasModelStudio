@@ -77,15 +77,9 @@ public class Triangle {
 	}
 
 	public void forceVertsUpdate() {
-		if (!verts[0].triangles.contains(this)) {
-			verts[0].triangles.add(this);
-		}
-		if (!verts[1].triangles.contains(this)) {
-			verts[1].triangles.add(this);
-		}
-		if (!verts[2].triangles.contains(this)) {
-			verts[2].triangles.add(this);
-		}
+		verts[0].addTriangle(this);
+		verts[1].addTriangle(this);
+		verts[2].addTriangle(this);
 	}
 
 	public void updateVertexIds(Geoset geoRef) {

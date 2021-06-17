@@ -96,7 +96,7 @@ public class CloneContextHelper {
 				for (int i = 0; i < vert.getBones().size(); i++) {
 					Bone b = vert.getBones().get(i);
 					if (selBones.contains(b)) {
-						vert.getBones().set(i, (Bone) newBones.get(selBones.indexOf(b)));
+						vert.setBone(i, (Bone) newBones.get(selBones.indexOf(b)));
 					}
 				}
 			}

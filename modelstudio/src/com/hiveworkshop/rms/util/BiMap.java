@@ -128,4 +128,41 @@ public class BiMap<K, V> implements Map<K, V> {
 	public Set<Entry<K, V>> entrySet() {
 		return keyToValueMap.entrySet();
 	}
+
+	public BiMap<K, V> removeIfKeyNotIn(Collection<?> collection) {
+		Set<K> tempSet = new HashSet<>(keyToValueMap.keySet());
+		tempSet.removeAll(collection);
+		for (K key : tempSet) {
+			V value = keyToValueMap.remove(key);
+			valueToKeyMap.remove(value);
+		}
+		return this;
+	}
+
+	public BiMap<K, V> removeIfValueNotIn(Collection<?> collection) {
+		Set<V> tempSet = new HashSet<>(valueToKeyMap.keySet());
+		tempSet.removeAll(collection);
+		for (V value : tempSet) {
+			K key = valueToKeyMap.remove(value);
+			keyToValueMap.remove(key);
+		}
+		return this;
+	}
+
+	public BiMap<K, V> removeAllByKey(Collection<?> collection) {
+		for (Object possibleKey : collection) {
+			V value = keyToValueMap.remove(possibleKey);
+			valueToKeyMap.remove(value);
+		}
+		return this;
+	}
+
+	public BiMap<K, V> removeAllByValue(Collection<?> collection) {
+		for (Object possibleValue : collection) {
+			K key = valueToKeyMap.remove(possibleValue);
+			keyToValueMap.remove(key);
+		}
+		return this;
+	}
+
 }

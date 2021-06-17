@@ -223,8 +223,8 @@ public class ScriptActions {
 				if (vertex.getSkinBones() != null) {
 					vertex.setSkinBones(new Bone[] {boneRoot, null, null, null}, new short[] {255, 0, 0, 0});
 				} else {
-					vertex.getBones().clear();
-					vertex.getBones().add(boneRoot);
+					vertex.clearBoneAttachments();
+					vertex.addBoneAttachment(boneRoot);
 				}
 			}
 		}
@@ -234,10 +234,10 @@ public class ScriptActions {
 			GeosetAnim geosetAnim = geoset.getGeosetAnim();
 
 			if (geosetAnim != null && geosetAnim.getVisibilityFlag() != null) {
-				Object visibilityValue = geosetAnim.getVisibilityFlag().interpolateAt(renderEnv);
+				Float visibilityValue = geosetAnim.getVisibilityFlag().interpolateAt(renderEnv);
 
-				if (visibilityValue instanceof Float) {
-					double visValue = (Float) visibilityValue;
+				if (visibilityValue != null) {
+					double visValue = visibilityValue;
 
 					if (visValue < 0.01) {
 						geosetsToRemove.add(geoset);
@@ -555,8 +555,8 @@ public class ScriptActions {
 					heroGlow.getVertices().addAll(heroGlowPlane.getVertices());
 					for (GeosetVertex gv : heroGlow.getVertices()) {
 						gv.setGeoset(heroGlow);
-						gv.getBones().clear();
-						gv.getBones().add(dummyHeroGlowNode);
+						gv.clearBoneAttachments();
+						gv.addBoneAttachment(dummyHeroGlowNode);
 					}
 					heroGlow.getTriangles().addAll(heroGlowPlane.getTriangles());
 					heroGlow.setUnselectable(true);
@@ -617,13 +617,13 @@ public class ScriptActions {
 					gv.initV900();
 					gv.setTangent(normal, 1);
 				}
-				int bones = Math.min(4, gv.getBoneAttachments().size());
+				int bones = Math.min(4, gv.getBones().size());
 				short weight = (short) (255 / bones);
 				for (int i = 0; i < bones; i++) {
 					if (i == 0) {
-						gv.setSkinBone(gv.getBoneAttachments().get(i), (short) (weight + (255 % bones)), i);
+						gv.setSkinBone(gv.getBones().get(i), (short) (weight + (255 % bones)), i);
 					} else {
-						gv.setSkinBone(gv.getBoneAttachments().get(i), weight, i);
+						gv.setSkinBone(gv.getBones().get(i), weight, i);
 
 					}
 				}

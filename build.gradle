@@ -21,7 +21,7 @@ allprojects {
     version = '0.5'
     ext {
         appName = "retera-jwc3"
-        jtattooVersion = '1.6.11'
+        jtattooVersion = '1.6.12'
         miglayoutVersion = '4.2'
 		lwjglVersion = '2.9.3'
 		image4jVersion = '0.7'

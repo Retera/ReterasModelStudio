@@ -121,9 +121,7 @@ public class CloneAction implements UndoAction {
 					List<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
 					moveTriangle(cgv, gv, ctris);
 					cgv.getGeoset().remove(cgv);
-					if (!gv.getGeoset().contains(gv)) {
-						gv.getGeoset().addVertex(gv);
-					}
+					gv.getGeoset().add(gv);
 				}
 			}
 		} else {
@@ -135,9 +133,7 @@ public class CloneAction implements UndoAction {
 					List<Triangle> ctris = new ArrayList<>(cgv.getTriangles());
 					moveTriangle(cgv, gv, ctris);
 					cgv.getGeoset().remove(cgv);
-					if (!gv.getGeoset().contains(gv)) {
-						gv.getGeoset().addVertex(gv);
-					}
+					gv.getGeoset().add(gv);
 				}
 			}
 		}

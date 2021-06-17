@@ -29,7 +29,7 @@ public final class SetMatrixAction2 implements UndoAction {
 				vertexToOldSkinBoneReferences.put(gv, gv.getSkinBoneBones());
 				vertexToOldSkinBoneWeightReferences.put(gv, gv.getSkinBoneWeights());
 			} else {
-				vertexToOldBoneReferences.put(gv, new ArrayList<>(gv.getBoneAttachments()));
+				vertexToOldBoneReferences.put(gv, new ArrayList<>(gv.getBones()));
 			}
 		}
 	}
