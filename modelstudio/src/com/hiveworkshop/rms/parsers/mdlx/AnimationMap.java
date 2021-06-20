@@ -26,19 +26,19 @@ public enum AnimationMap {
 	/**
 	 * Layer emissive gain
 	 */
-	KMTE("EmissiveGain", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KMTE(MdlUtils.TOKEN_EMISSIVE_GAIN, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Layer fresnel color
 	 */
-	KFC3("FresnelColor", MdlxTimelineDescriptor.VECTOR3_TIMELINE),
+	KFC3(MdlUtils.TOKEN_FRESNEL_COLOR, MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	/**
 	 * Layer fresnel opacity
 	 */
-	KFCA("FresnelOpacity", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KFCA(MdlUtils.TOKEN_FRESNEL_OPACITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Layer fresnel team color
 	 */
-	KFTC("FresnelTeamColor", MdlxTimelineDescriptor.UINT32_TIMELINE),
+	KFTC(MdlUtils.TOKEN_FRESNEL_TEAM_COLOR, MdlxTimelineDescriptor.UINT32_TIMELINE),
 	// TextureAnimation
 	/**
 	 * Texture animation translation
@@ -128,85 +128,85 @@ public enum AnimationMap {
 	/**
 	 * Particle emitter 2 speed
 	 */
-	KP2S("Speed", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KP2S(MdlUtils.TOKEN_SPEED, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Particle emitter 2 variation
 	 */
-	KP2R("Variation", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KP2R(MdlUtils.TOKEN_VARIATION, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Particle emitter 2 latitude
 	 */
-	KP2L("Latitude", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KP2L(MdlUtils.TOKEN_LATITUDE, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Particle emitter 2 gravity
 	 */
-	KP2G("Gravity", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KP2G(MdlUtils.TOKEN_GRAVITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Particle emitter 2 emission rate
 	 */
-	KP2E("EmissionRate", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KP2E(MdlUtils.TOKEN_EMISSION_RATE, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Particle emitter 2 length
 	 */
-	KP2N("Length", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KP2N(MdlUtils.TOKEN_LENGTH, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Particle emitter 2 width
 	 */
-	KP2W("Width", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KP2W(MdlUtils.TOKEN_WIDTH, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Particle emitter 2 visibility
 	 */
-	KP2V("Visibility", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KP2V(MdlUtils.TOKEN_VISIBILITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	// ParticleEmitterCorn
 	/**
 	 * Popcorn emitter alpha
 	 */
-	KPPA("Alpha", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KPPA(MdlUtils.TOKEN_ALPHA, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Popcorn emitter color
 	 */
-	KPPC("Color", MdlxTimelineDescriptor.VECTOR3_TIMELINE),
+	KPPC(MdlUtils.TOKEN_COLOR, MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	/**
 	 * Popcorn emitter emission rate
 	 */
-	KPPE("EmissionRate", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KPPE(MdlUtils.TOKEN_EMISSION_RATE, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Popcorn emitter lifespan
 	 */
-	KPPL("LifeSpan", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KPPL(MdlUtils.TOKEN_LIFE_SPAN, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Popcorn emitter speed
 	 */
-	KPPS("Speed", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KPPS(MdlUtils.TOKEN_SPEED, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Popcorn emitter visibility
 	 */
-	KPPV("Visibility", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KPPV(MdlUtils.TOKEN_VISIBILITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	// RibbonEmitter
 	/**
 	 * Ribbon emitter height above
 	 */
-	KRHA("HeightAbove", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KRHA(MdlUtils.TOKEN_HEIGHT_ABOVE, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Ribbon emitter height below
 	 */
-	KRHB("HeightBelow", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KRHB(MdlUtils.TOKEN_HEIGHT_BELOW, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Ribbon emitter alpha
 	 */
-	KRAL("Alpha", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KRAL(MdlUtils.TOKEN_ALPHA, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	/**
 	 * Ribbon emitter color
 	 */
-	KRCO("Color", MdlxTimelineDescriptor.VECTOR3_TIMELINE),
+	KRCO(MdlUtils.TOKEN_COLOR, MdlxTimelineDescriptor.VECTOR3_TIMELINE),
 	/**
 	 * Ribbon emitter texture slot
 	 */
-	KRTX("TextureSlot", MdlxTimelineDescriptor.UINT32_TIMELINE),
+	KRTX(MdlUtils.TOKEN_TEXTURE_SLOT, MdlxTimelineDescriptor.UINT32_TIMELINE),
 	/**
 	 * Ribbon emitter visibility
 	 */
-	KRVS("Visibility", MdlxTimelineDescriptor.FLOAT_TIMELINE),
+	KRVS(MdlUtils.TOKEN_VISIBILITY, MdlxTimelineDescriptor.FLOAT_TIMELINE),
 	// Camera
 	/**
 	 * Camera source translation

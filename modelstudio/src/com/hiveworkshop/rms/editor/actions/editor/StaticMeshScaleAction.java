@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.HashSet;
@@ -74,7 +75,7 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	// Scales the translation animations of scaled bones (and helpers)
 	// is this correct to do...?
 	public void translateBone(Bone object, Vec3 scale) {
-		Vec3AnimFlag translation = (Vec3AnimFlag) object.find("Translation");
+		Vec3AnimFlag translation = (Vec3AnimFlag) object.find(MdlUtils.TOKEN_TRANSLATION);
 		if (translation != null) {
 			TreeMap<Integer, Entry<Vec3>> entryMap = translation.getEntryMap();
 			for (Entry<Vec3> entry : entryMap.values()) {

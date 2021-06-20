@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.util.MathUtils;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
@@ -20,14 +21,14 @@ public class SimplifyKeyframesAction implements UndoAction {
 		List<AnimFlag<?>> scaleFlags = new ArrayList<>();
 		List<AnimFlag<?>> rotFlags = new ArrayList<>();
 		for (IdObject idObject : modelView.getSelectedIdObjects()) {
-			if (trans >= 0 && idObject.has("Translation")) {
-				transFlags.add(idObject.find("Translation"));
+			if (trans >= 0 && idObject.has(MdlUtils.TOKEN_TRANSLATION)) {
+				transFlags.add(idObject.find(MdlUtils.TOKEN_TRANSLATION));
 			}
-			if (scale >= 0 && idObject.has("Scaling")) {
-				scaleFlags.add(idObject.find("Scaling"));
+			if (scale >= 0 && idObject.has(MdlUtils.TOKEN_SCALING)) {
+				scaleFlags.add(idObject.find(MdlUtils.TOKEN_SCALING));
 			}
-			if (rot >= 0 && idObject.has("Rotation")) {
-				rotFlags.add(idObject.find("Rotation"));
+			if (rot >= 0 && idObject.has(MdlUtils.TOKEN_ROTATION)) {
+				rotFlags.add(idObject.find(MdlUtils.TOKEN_ROTATION));
 			}
 		}
 		findFramedToRemove(transFlags, modelView.getModel(), trans);

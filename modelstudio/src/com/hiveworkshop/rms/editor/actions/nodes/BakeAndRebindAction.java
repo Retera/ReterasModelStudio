@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Quat;
@@ -100,21 +101,21 @@ public class BakeAndRebindAction implements UndoAction {
 				SortedSet<Integer> animTimes = allKF.subSet(animation.getStart(), animation.getEnd());
 				for (Integer t : animTimes) {
 					timeEnvironment.setAnimationTime(t);
-					AnimFlag<?> translation = idObject.find("Translation");
+					AnimFlag<?> translation = idObject.find(MdlUtils.TOKEN_TRANSLATION);
 					if (translation != null) {
 						Vec3 vec3 = newTransKF.computeIfAbsent(t, v -> new Vec3(0, 0, 0));
 						vec3.add(((Vec3AnimFlag) translation).interpolateAt(timeEnvironment));
 //						Vec3 value = ((Vec3AnimFlag) translation).interpolateAt(timeEnvironment);
 //						newTransKF.put(t, value);
 					}
-					AnimFlag<?> scaling = idObject.find("Scaling");
+					AnimFlag<?> scaling = idObject.find(MdlUtils.TOKEN_SCALING);
 					if (scaling != null) {
 						Vec3 vec3 = newScaleKF.computeIfAbsent(t, v -> new Vec3(1, 1, 1));
 						vec3.multiply(((Vec3AnimFlag) scaling).interpolateAt(timeEnvironment));
 //						Vec3 value = ((Vec3AnimFlag) scaling).interpolateAt(timeEnvironment);
 //						newScaleKF.put(t, value);
 					}
-					AnimFlag<?> rotation = idObject.find("Rotation");
+					AnimFlag<?> rotation = idObject.find(MdlUtils.TOKEN_ROTATION);
 					if (rotation != null) {
 						Quat quat = newRotKF.computeIfAbsent(t, v -> new Quat(0, 0, 0, 1));
 						quat.mul(((QuatAnimFlag) rotation).interpolateAt(timeEnvironment));
@@ -137,30 +138,30 @@ public class BakeAndRebindAction implements UndoAction {
 	}
 
 	private void saveOrg(IdObject obj) {
-		AnimFlag<?> translation = obj.find("Translation");
+		AnimFlag<?> translation = obj.find(MdlUtils.TOKEN_TRANSLATION);
 		if (translation != null) {
 			orgTransEntries.addAll(((Vec3AnimFlag) translation).getEntryMap().values());
 		}
-		AnimFlag<?> scaling = obj.find("Scaling");
+		AnimFlag<?> scaling = obj.find(MdlUtils.TOKEN_SCALING);
 		if (scaling != null) {
 			orgScaleEntries.addAll(((Vec3AnimFlag) scaling).getEntryMap().values());
 		}
-		AnimFlag<?> rotation = obj.find("Rotation");
+		AnimFlag<?> rotation = obj.find(MdlUtils.TOKEN_ROTATION);
 		if (rotation != null) {
 			orgRotEntries.addAll(((QuatAnimFlag) rotation).getEntryMap().values());
 		}
 	}
 
 	private void getParentKfTimes(IdObject obj, IdObject lastParent) {
-		AnimFlag<?> translation = obj.find("Translation");
+		AnimFlag<?> translation = obj.find(MdlUtils.TOKEN_TRANSLATION);
 		if (translation != null) {
 			transKF.addAll(translation.getEntryMap().keySet());
 		}
-		AnimFlag<?> scaling = obj.find("Scaling");
+		AnimFlag<?> scaling = obj.find(MdlUtils.TOKEN_SCALING);
 		if (scaling != null) {
 			scaleKF.addAll(scaling.getEntryMap().keySet());
 		}
-		AnimFlag<?> rotation = obj.find("Rotation");
+		AnimFlag<?> rotation = obj.find(MdlUtils.TOKEN_ROTATION);
 		if (rotation != null) {
 			rotKF.addAll(rotation.getEntryMap().keySet());
 		}
@@ -180,7 +181,7 @@ public class BakeAndRebindAction implements UndoAction {
 //			Vec3 localScale = new Vec3(1, 1, 1);
 //
 //			// Translation
-//			Vec3AnimFlag timelineTrans = (Vec3AnimFlag) idObject.find("Translation");
+//			Vec3AnimFlag timelineTrans = (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_TRANSLATION);
 //
 //			if (timelineTrans != null) {
 //				Vec3 renderTranslation = timelineTrans.interpolateAt(animatedRenderEnvironment);
@@ -190,7 +191,7 @@ public class BakeAndRebindAction implements UndoAction {
 //			}
 //
 //			// Rotation
-//			QuatAnimFlag timelineRot = (QuatAnimFlag) idObject.find("Rotation");
+//			QuatAnimFlag timelineRot = (QuatAnimFlag) idObject.find(MdlUtils.TOKEN_ROTATION);
 //			if (timelineRot != null) {
 //				Quat renderRotation = timelineRot.interpolateAt(animatedRenderEnvironment);
 //				if (renderRotation != null) {
@@ -199,7 +200,7 @@ public class BakeAndRebindAction implements UndoAction {
 //			}
 //
 //			// Scale
-//			Vec3AnimFlag timeline = (Vec3AnimFlag) idObject.find("Scaling");
+//			Vec3AnimFlag timeline = (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_SCALING);
 //			if (timeline != null) {
 //				Vec3 renderScale = timeline.interpolateAt(animatedRenderEnvironment);
 //				if (renderScale != null) {
@@ -236,10 +237,10 @@ public class BakeAndRebindAction implements UndoAction {
 		List<AnimFlag<?>> replacementFlags = new ArrayList<>();
 		if (!newTransKF.isEmpty()) {
 			System.out.println("fixing translation");
-			AnimFlag<?> translationOrg = obj.find("Translation");
+			AnimFlag<?> translationOrg = obj.find(MdlUtils.TOKEN_TRANSLATION);
 			Vec3AnimFlag translation;
 			if (translationOrg == null) {
-				translation = new Vec3AnimFlag("Translation");
+				translation = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION);
 				UndoAction action = new AddAnimFlagAction(obj, translation, null);
 				keyframeActions.add(action);
 			} else {
@@ -255,10 +256,10 @@ public class BakeAndRebindAction implements UndoAction {
 
 		if (!newScaleKF.isEmpty()) {
 			System.out.println("fixing scaling");
-			AnimFlag<?> scalingOrg = obj.find("Scaling");
+			AnimFlag<?> scalingOrg = obj.find(MdlUtils.TOKEN_SCALING);
 			Vec3AnimFlag scaling;
 			if (scalingOrg == null) {
-				scaling = new Vec3AnimFlag("Scaling");
+				scaling = new Vec3AnimFlag(MdlUtils.TOKEN_SCALING);
 				UndoAction action = new AddAnimFlagAction(obj, scaling, null);
 				keyframeActions.add(action);
 			} else {
@@ -273,10 +274,10 @@ public class BakeAndRebindAction implements UndoAction {
 
 		if (!newRotKF.isEmpty()) {
 			System.out.println("fixing rotation");
-			AnimFlag<?> rotationOrg = obj.find("Rotation");
+			AnimFlag<?> rotationOrg = obj.find(MdlUtils.TOKEN_ROTATION);
 			QuatAnimFlag rotation;
 			if (rotationOrg == null) {
-				rotation = new QuatAnimFlag("Rotation");
+				rotation = new QuatAnimFlag(MdlUtils.TOKEN_ROTATION);
 				UndoAction action = new AddAnimFlagAction(obj, rotation, null);
 				keyframeActions.add(action);
 			} else {

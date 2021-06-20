@@ -17,6 +17,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -111,17 +112,17 @@ public class NodeAnimationModelEditor extends ModelEditor {
 
 	private AnimFlag<?> getNewAnimFlag(TimeEnvironmentImpl timeEnvironmentImpl, ModelEditorActionType3 actionType) {
 		return switch (actionType) {
-			case ROTATION, SQUAT -> new QuatAnimFlag("Rotation", InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
-			case SCALING -> new Vec3AnimFlag("Scaling", InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
-			case TRANSLATION, EXTEND, EXTRUDE -> new Vec3AnimFlag("Translation", InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+			case ROTATION, SQUAT -> new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+			case SCALING -> new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+			case TRANSLATION, EXTEND, EXTRUDE -> new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 		};
 	}
 
 	private AnimFlag<?> findAnimFlag(TimeEnvironmentImpl timeEnvironmentImpl, IdObject node, ModelEditorActionType3 actionType) {
 		return switch (actionType) {
-			case ROTATION, SQUAT -> node.find("Rotation", timeEnvironmentImpl.getGlobalSeq());
-			case SCALING -> node.find("Scaling", timeEnvironmentImpl.getGlobalSeq());
-			case TRANSLATION, EXTEND, EXTRUDE -> node.find("Translation", timeEnvironmentImpl.getGlobalSeq());
+			case ROTATION, SQUAT -> node.find(MdlUtils.TOKEN_ROTATION, timeEnvironmentImpl.getGlobalSeq());
+			case SCALING -> node.find(MdlUtils.TOKEN_SCALING, timeEnvironmentImpl.getGlobalSeq());
+			case TRANSLATION, EXTEND, EXTRUDE -> node.find(MdlUtils.TOKEN_TRANSLATION, timeEnvironmentImpl.getGlobalSeq());
 		};
 	}
 
@@ -165,7 +166,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
-		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, "Translation", ModelEditorActionType3.TRANSLATION, selection);
+		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, MdlUtils.TOKEN_TRANSLATION, ModelEditorActionType3.TRANSLATION, selection);
 
 		int trackTime = timeEnvironmentImpl.getTrackTime();
 		return new TranslationKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
@@ -176,7 +177,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
-		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, "Scaling", ModelEditorActionType3.SCALING, selection);
+		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, MdlUtils.TOKEN_SCALING, ModelEditorActionType3.SCALING, selection);
 
 
 		int trackTime = timeEnvironmentImpl.getTrackTime();
@@ -189,7 +190,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
-		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, "Rotation", ModelEditorActionType3.ROTATION, selection);
+		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, MdlUtils.TOKEN_ROTATION, ModelEditorActionType3.ROTATION, selection);
 
 		int trackTime = timeEnvironmentImpl.getTrackTime();
 		return new RotationKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView, center, firstXYZ, secondXYZ);
@@ -206,7 +207,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		}
 
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
-		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, "Rotation", ModelEditorActionType3.SQUAT, selection);
+		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, MdlUtils.TOKEN_ROTATION, ModelEditorActionType3.SQUAT, selection);
 
 		int trackTime = timeEnvironmentImpl.getTrackTime();
 		return new SquatToolKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView, center, firstXYZ, secondXYZ);

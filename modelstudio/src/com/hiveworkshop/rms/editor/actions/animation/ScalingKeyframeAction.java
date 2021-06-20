@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -50,7 +51,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 		RenderModel renderModel = modelView.getEditorRenderModel();
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
-//		generateKeyframes(selection, actions, timeEnvironmentImpl, "Scaling", (node, translationTimeline) -> createScalingKeyframe(node, renderModel, (Vec3AnimFlag) translationTimeline, structureChangeListener));
+//		generateKeyframes(selection, actions, timeEnvironmentImpl, MdlUtils.TOKEN_SCALING, (node, translationTimeline) -> createScalingKeyframe(node, renderModel, (Vec3AnimFlag) translationTimeline, structureChangeListener));
 
 
 //		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
@@ -102,7 +103,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	public void updateScalingKeyframe(AnimatedNode animatedNode, RenderModel renderModel, Vec3 scale, Vec3 savedLocalScaling) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
-		Vec3AnimFlag translationFlag = (Vec3AnimFlag) animatedNode.find("Scaling", timeEnvironmentImpl.getGlobalSeq());
+		Vec3AnimFlag translationFlag = (Vec3AnimFlag) animatedNode.find(MdlUtils.TOKEN_SCALING, timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
@@ -131,7 +132,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 
 	public void updateLocalScalingKeyframe(AnimatedNode animatedNode, int trackTime, Integer trackGlobalSeq, Vec3 localScaling) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		Vec3AnimFlag translationFlag = (Vec3AnimFlag) animatedNode.find("Scaling", trackGlobalSeq);
+		Vec3AnimFlag translationFlag = (Vec3AnimFlag) animatedNode.find(MdlUtils.TOKEN_SCALING, trackGlobalSeq);
 		if (translationFlag == null) {
 			return;
 		}

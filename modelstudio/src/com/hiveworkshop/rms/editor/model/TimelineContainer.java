@@ -176,7 +176,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 
 	@Override
 	public String visFlagName() {
-		return "Visibility";
+		return MdlUtils.TOKEN_VISIBILITY;
 	}
 
 	public VisibilitySource getVisibilitySource() {

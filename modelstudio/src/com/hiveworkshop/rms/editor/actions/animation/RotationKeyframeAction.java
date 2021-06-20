@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.util.Mat4;
@@ -87,7 +88,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		// we would like to be able to undo the action of rotating the animation data
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		QuatAnimFlag rotationTimeline = (QuatAnimFlag) animatedNode.find("Rotation", trackGlobalSeq);
+		QuatAnimFlag rotationTimeline = (QuatAnimFlag) animatedNode.find(MdlUtils.TOKEN_ROTATION, trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -106,7 +107,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		// we would like to be able to undo the action of rotating the animation data
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		QuatAnimFlag rotationTimeline = (QuatAnimFlag) animatedNode.find("Rotation", trackGlobalSeq);
+		QuatAnimFlag rotationTimeline = (QuatAnimFlag) animatedNode.find(MdlUtils.TOKEN_ROTATION, trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -129,7 +130,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be  constructed from
 		//  a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
-		QuatAnimFlag rotationTimeline = (QuatAnimFlag) animatedNode.find("Rotation", timeEnvironmentImpl.getGlobalSeq());
+		QuatAnimFlag rotationTimeline = (QuatAnimFlag) animatedNode.find(MdlUtils.TOKEN_ROTATION, timeEnvironmentImpl.getGlobalSeq());
 		if (rotationTimeline == null) {
 			return;
 		}

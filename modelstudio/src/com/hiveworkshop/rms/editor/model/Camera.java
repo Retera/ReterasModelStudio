@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCamera;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Quat;
@@ -190,7 +191,7 @@ public class Camera implements Named {
 
 		public float getRenderRotationScalar(TimeEnvironmentImpl animatedRenderEnvironment) {
 //			return getInterpolatedFloat(animatedRenderEnvironment, "Rotation", 0);
-			return getInterpolatedInteger(animatedRenderEnvironment, "Rotation", 0);
+			return getInterpolatedInteger(animatedRenderEnvironment, MdlUtils.TOKEN_ROTATION, 0);
 		}
 
 		@Override

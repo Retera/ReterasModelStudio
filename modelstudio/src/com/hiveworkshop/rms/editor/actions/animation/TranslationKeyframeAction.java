@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
@@ -84,7 +85,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 
 	public void updateLocalTranslationKeyframe(AnimatedNode animatedNode, int trackTime, Integer trackGlobalSeq, Vec3 localTranslation) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		Vec3AnimFlag translationFlag = (Vec3AnimFlag) animatedNode.find("Translation", trackGlobalSeq);
+		Vec3AnimFlag translationFlag = (Vec3AnimFlag) animatedNode.find(MdlUtils.TOKEN_TRANSLATION, trackGlobalSeq);
 		if (translationFlag == null) {
 			return;
 		}
@@ -105,7 +106,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must  make AnimFlag.find seek on globalSeqId
 
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
-		Vec3AnimFlag translationFlag = (Vec3AnimFlag) animatedNode.find("Translation", timeEnvironmentImpl.getGlobalSeq());
+		Vec3AnimFlag translationFlag = (Vec3AnimFlag) animatedNode.find(MdlUtils.TOKEN_TRANSLATION, timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}

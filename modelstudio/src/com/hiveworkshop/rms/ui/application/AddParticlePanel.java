@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
@@ -192,7 +193,7 @@ public class AddParticlePanel {
 
 		FloatAnimFlag oldFlag = (FloatAnimFlag) particle.getVisibilityFlag();
 		if (oldFlag == null) {
-			oldFlag = new FloatAnimFlag("Visibility");
+			oldFlag = new FloatAnimFlag(MdlUtils.TOKEN_VISIBILITY);
 		}
 
 		FloatAnimFlag visFlag = (FloatAnimFlag) oldFlag.getEmptyCopy();
