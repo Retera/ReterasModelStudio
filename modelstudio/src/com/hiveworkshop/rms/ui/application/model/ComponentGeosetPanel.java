@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
@@ -209,16 +210,16 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 			button.addActionListener(e -> copyFromOther());
 			panel.add(button, "wrap");
 
-			FloatValuePanel alphaPanel = new FloatValuePanel(modelHandler, "Alpha", modelHandler.getUndoManager(), changeListener);
+			FloatValuePanel alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager(), changeListener);
 			alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 			panel.add(alphaPanel, "wrap, span 2");
 
-			ColorValuePanel colorPanel = new ColorValuePanel(modelHandler, "Color", modelHandler.getUndoManager(), changeListener);
+			ColorValuePanel colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR, modelHandler.getUndoManager(), changeListener);
 			colorPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 			panel.add(colorPanel, "wrap, span 2");
 
-			alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), (FloatAnimFlag) geosetAnim.find("Alpha"), geosetAnim, "Alpha", geosetAnim::setStaticAlpha);
-			colorPanel.reloadNewValue(geosetAnim.getStaticColor(), (Vec3AnimFlag) geosetAnim.find("Color"), geosetAnim, "Color", geosetAnim::setStaticColor);
+			alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), (FloatAnimFlag) geosetAnim.find(MdlUtils.TOKEN_ALPHA), geosetAnim, MdlUtils.TOKEN_ALPHA, geosetAnim::setStaticAlpha);
+			colorPanel.reloadNewValue(geosetAnim.getStaticColor(), (Vec3AnimFlag) geosetAnim.find(MdlUtils.TOKEN_COLOR), geosetAnim, MdlUtils.TOKEN_COLOR, geosetAnim::setStaticColor);
 		} else {
 			JButton addAnim = new JButton("Add GeosetAnim");
 			addAnim.addActionListener(e -> modelHandler.getUndoManager().pushAction(new SetGeosetAnimAction(modelHandler.getModel(), geoset, changeListener).redo()));
@@ -290,7 +291,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 				List<UndoAction> actions = new ArrayList<>();
 				for (Entry<Float> entry : animSubMap.values()) {
 					Entry<Float> newEntry = new Entry<>(entry.getTime(), 0f);
-					actions.add(new ChangeFlagEntryAction<>(visibilityFlag, newEntry, entry.getTime(), geoset.getGeosetAnim(), null));
+					actions.add(new ChangeFlagEntryAction<>(visibilityFlag, newEntry, entry, null));
 				}
 				UndoAction action = new CompoundAction("Set visible", actions, changeListener::geosetsUpdated);
 				modelHandler.getUndoManager().pushAction(action.redo());
@@ -302,7 +303,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 				List<UndoAction> actions = new ArrayList<>();
 				for (Entry<Float> entry : animSubMap.values()) {
 					Entry<Float> newEntry = new Entry<>(entry.getTime(), 1f);
-					actions.add(new ChangeFlagEntryAction<>(visibilityFlag, newEntry, entry.getTime(), geoset.getGeosetAnim(), null));
+					actions.add(new ChangeFlagEntryAction<>(visibilityFlag, newEntry, entry, null));
 				}
 				UndoAction action = new CompoundAction("Set invisible", actions, changeListener::geosetsUpdated);
 				modelHandler.getUndoManager().pushAction(action.redo());

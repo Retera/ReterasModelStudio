@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
@@ -148,7 +149,7 @@ public class ComponentLayerPanel extends JPanel {
 		texturePanel = new TextureValuePanel(modelHandler, "Texture", undoActionListener, modelStructureChangeListener, model);
 		leftHandSettingsPanel.add(texturePanel, "wrap, span 2, growx");
 
-		alphaPanel = new FloatValuePanel(modelHandler, "Alpha", undoActionListener, modelStructureChangeListener);
+		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, undoActionListener, modelStructureChangeListener);
 		leftHandSettingsPanel.add(alphaPanel, "wrap, span 2, growx, hidemode 2");
 
 		emissiveGainPanel = new FloatValuePanel(modelHandler, "Emissive Gain", undoActionListener, modelStructureChangeListener);
@@ -213,25 +214,25 @@ public class ComponentLayerPanel extends JPanel {
 		coordIdSpinner.reloadNewValue(layer.getCoordId());
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().getFlagNames());
 
-		texturePanel.reloadNewValue(layer.getTextureId(), (IntAnimFlag) layer.find("TextureID"), layer, "TextureID", layer::setTextureId);
+		texturePanel.reloadNewValue(layer.getTextureId(), (IntAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID), layer, MdlUtils.TOKEN_TEXTURE_ID, layer::setTextureId);
 
-		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), (FloatAnimFlag) layer.find("Alpha"), layer, "Alpha", layer::setStaticAlpha);
+		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), (FloatAnimFlag) layer.find(MdlUtils.TOKEN_ALPHA), layer, MdlUtils.TOKEN_ALPHA, layer::setStaticAlpha);
 
 
 		emissiveGainPanel.setVisible(ModelUtils.isEmissiveLayerSupported(formatVersion) && hdShader);
-		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), (FloatAnimFlag) layer.find("EmissiveGain"), layer, "EmissiveGain", layer::setEmissive);
+		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), (FloatAnimFlag) layer.find(MdlUtils.TOKEN_EMISSIVE_GAIN), layer, MdlUtils.TOKEN_EMISSIVE_GAIN, layer::setEmissive);
 
 		final boolean fresnelColorLayerSupported = ModelUtils.isFresnelColorLayerSupported(formatVersion) && hdShader;
 
 		fresnelColorPanel.setVisible(fresnelColorLayerSupported);
 
-		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), (Vec3AnimFlag) layer.find("FresnelColor"), layer, "FresnelColor", layer::setFresnelColor);
+		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), (Vec3AnimFlag) layer.find(MdlUtils.TOKEN_FRESNEL_COLOR), layer, MdlUtils.TOKEN_FRESNEL_COLOR, layer::setFresnelColor);
 
 		fresnelOpacityPanel.setVisible(fresnelColorLayerSupported);
-		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), (FloatAnimFlag) layer.find("FresnelOpacity"), layer, "FresnelOpacity", layer::setFresnelOpacity);
+		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), (FloatAnimFlag) layer.find(MdlUtils.TOKEN_FRESNEL_OPACITY), layer, MdlUtils.TOKEN_FRESNEL_OPACITY, layer::setFresnelOpacity);
 
 		fresnelTeamColor.setVisible(fresnelColorLayerSupported);
-		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), (FloatAnimFlag) layer.find("FresnelTeamColor"), layer, "FresnelTeamColor", layer::setFresnelTeamColor);
+		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), (FloatAnimFlag) layer.find(MdlUtils.TOKEN_FRESNEL_TEAM_COLOR), layer, MdlUtils.TOKEN_FRESNEL_TEAM_COLOR, layer::setFresnelTeamColor);
 
 		listenersEnabled = true;
 	}

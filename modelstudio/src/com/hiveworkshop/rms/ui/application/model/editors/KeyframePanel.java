@@ -64,7 +64,7 @@ public class KeyframePanel<T> extends JPanel {
 
 		keyframeTable = new JTable();
 		keyframeTable.addPropertyChangeListener(getPropertyChangeListener());
-		addDeleteListeners();
+		addInteractionListeners();
 
 		JScrollPane tableScrollPane = new JScrollPane(tablePanel);
 		tableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -165,7 +165,7 @@ public class KeyframePanel<T> extends JPanel {
 		};
 	}
 
-	private void addDeleteListeners() {
+	private void addInteractionListeners() {
 		keyframeTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {

@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
@@ -45,11 +46,11 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 		button.addActionListener(e -> copyFromOther());
 		animsPanelHolder.add(button, "wrap");
 
-		alphaPanel = new FloatValuePanel(modelHandler, "Alpha", modelHandler.getUndoManager(), changeListener);
+		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager(), changeListener);
 		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		animsPanelHolder.add(alphaPanel, "wrap, span 2");
 
-		colorPanel = new ColorValuePanel(modelHandler, "Color", modelHandler.getUndoManager(), changeListener);
+		colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR, modelHandler.getUndoManager(), changeListener);
 		colorPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		animsPanelHolder.add(colorPanel, "wrap, span 2");
 
@@ -70,8 +71,8 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 		geosetLabel.setText(geosetAnim.getGeoset().getName());
 		animsPanelHolder.revalidate();
 		animsPanelHolder.repaint();
-		alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), (FloatAnimFlag) geosetAnim.find("Alpha"), geosetAnim, "Alpha", geosetAnim::setStaticAlpha);
-		colorPanel.reloadNewValue(geosetAnim.getStaticColor(), (Vec3AnimFlag) geosetAnim.find("Color"), geosetAnim, "Color", geosetAnim::setStaticColor);
+		alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), (FloatAnimFlag) geosetAnim.find(MdlUtils.TOKEN_ALPHA), geosetAnim, MdlUtils.TOKEN_ALPHA, geosetAnim::setStaticAlpha);
+		colorPanel.reloadNewValue(geosetAnim.getStaticColor(), (Vec3AnimFlag) geosetAnim.find(MdlUtils.TOKEN_COLOR), geosetAnim, MdlUtils.TOKEN_COLOR, geosetAnim::setStaticColor);
 
 		revalidate();
 		repaint();

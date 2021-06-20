@@ -65,7 +65,7 @@ public class QuatValuePanel extends ValuePanel<Quat> {
 	Quat parseValue(String valueString) {
 		Quat vecValue;
 		String polishedString;
-		if (valueString != null && valueString.matches("\\{? ?(\\d*\\.?\\d+)( ?, ?(\\d*\\.?\\d+))* ?}?")) {
+		if (valueString != null && valueString.matches("\\{? ?(-?\\d*\\.?\\d+)( ?, ?(-?\\d*\\.?\\d+))* ?}?")) {
 //			System.out.println("match");
 			polishedString = valueString.replaceAll("[\\{} ]", "");
 //			System.out.println("polishedString pre: " + polishedString);
@@ -103,9 +103,9 @@ public class QuatValuePanel extends ValuePanel<Quat> {
 					String s = split[i];
 					if (s.equals("") || s.equals(".")) {
 						split[i] = "0";
-					} else if (s.matches("\\d+\\.")) {
+					} else if (s.matches("-?\\d+\\.")) {
 						split[i] += "0";
-					} else if (s.matches("\\d*\\.\\d+\\..*")) {
+					} else if (s.matches("-?\\d*\\.\\d+\\..*")) {
 						split[i] = s.substring(0, s.indexOf(".", s.indexOf(".") + 1));
 					}
 					newS.append(split[i]);

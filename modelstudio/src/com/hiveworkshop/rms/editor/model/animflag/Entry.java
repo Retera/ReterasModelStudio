@@ -35,6 +35,13 @@ public class Entry<T> {
 		outTan = other.outTan;
 	}
 
+	public void cloneFrom(Entry<T> other) {
+		time = other.time;
+		value = cloneEntryValue(other.value);
+		inTan = cloneEntryValue(other.inTan);
+		outTan = cloneEntryValue(other.outTan);
+	}
+
 	private T cloneEntryValue(T value) {
 		if (value == null) {
 			return null;
@@ -63,7 +70,7 @@ public class Entry<T> {
 		}
 	}
 
-	public void setValues(Entry<T> other) {
+	public Entry<T> setValues(Entry<T> other) {
 		time = other.time;
 		if (value instanceof Integer || value instanceof Float) {
 			value = other.value;
@@ -90,6 +97,7 @@ public class Entry<T> {
 		} else {
 			throw new IllegalStateException(value.getClass().getName());
 		}
+		return this;
 	}
 
 	public Integer getTime() {
@@ -135,9 +143,17 @@ public class Entry<T> {
 	}
 
 	public Entry<T> unLinearize() {
-		inTan = cloneEntryValue(value);
-		outTan = cloneEntryValue(value);
+		if (inTan == null) {
+			inTan = cloneEntryValue(value);
+		}
+		if (outTan == null) {
+			outTan = cloneEntryValue(value);
+		}
 		return this;
+	}
+
+	public boolean isTangential() {
+		return inTan != null && outTan != null;
 	}
 
 	@Override
@@ -153,7 +169,11 @@ public class Entry<T> {
 		return Objects.hash(time, value, inTan, outTan);
 	}
 
-	public Entry<T> deepCopy(){
+	public Entry<T> deepCopy() {
 		return new Entry<>(this);
+	}
+
+	public String toString() {
+		return "time: " + time + "\nvalue: " + value + "\ninTan: " + inTan + "\noutTan: " + outTan;
 	}
 }

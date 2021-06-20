@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.actions.animation.animFlag;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -9,29 +8,24 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 public class ChangeFlagEntryAction<T> implements UndoAction {
 	private final ModelStructureChangeListener structureChangeListener;
 	Entry<T> newEntry;
-	int orgTime;
-	int time;
 	Entry<T> orgEntry;
-	Entry<T> entry;
 	AnimFlag<T> animFlag;
 
 
-	public ChangeFlagEntryAction(AnimFlag<T> animFlag, Entry<T> newEntry, int orgTime, TimelineContainer timelineContainer, ModelStructureChangeListener structureChangeListener) {
+	public ChangeFlagEntryAction(AnimFlag<T> animFlag, Entry<T> newEntry, int orgTime, ModelStructureChangeListener structureChangeListener) {
+		this(animFlag, newEntry, animFlag.getEntryAt(orgTime), structureChangeListener);
+	}
+
+	public ChangeFlagEntryAction(AnimFlag<T> animFlag, Entry<T> newEntry, Entry<T> oldEntry, ModelStructureChangeListener structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
 		this.newEntry = newEntry;
-		this.orgTime = orgTime;
 		this.animFlag = animFlag;
-		time = newEntry.time;
-		orgEntry = animFlag.getEntryAt(orgTime).deepCopy();
-		entry = animFlag.getEntryAt(orgTime);
+		orgEntry = oldEntry;
 	}
 
 	@Override
 	public UndoAction undo() {
-//		entry.set(orgEntry);
-//		animFlag.removeKeyframe(newEntry.getTime());
-//		animFlag.setOrAddEntryT(entry.getTime(), entry);
-		animFlag.changeEntryAt(entry.getTime(), orgEntry);
+		animFlag.changeEntryAt(orgEntry.getTime(), orgEntry);
 		if (structureChangeListener != null) {
 			structureChangeListener.materialsListChanged();
 		}
@@ -41,9 +35,6 @@ public class ChangeFlagEntryAction<T> implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		animFlag.changeEntryAt(orgEntry.getTime(), newEntry);
-//		entry.set(newEntry);
-//		animFlag.removeKeyframe(orgTime);
-//		animFlag.setOrAddEntryT(entry.getTime(), entry);
 		if (structureChangeListener != null) {
 			structureChangeListener.materialsListChanged();
 		}

@@ -1,88 +1,53 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
-import com.hiveworkshop.rms.editor.actions.nodes.NameChangeAction;
-import com.hiveworkshop.rms.editor.actions.nodes.ParentChangeAction;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
-import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
+import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmitter2> {
 
-public class ComponentParticle2Panel extends ComponentPanel<ParticleEmitter2> {
-	ParticleEmitter2 idObject;
-
-	JLabel title;
-	JTextField nameField;
-	JLabel parentName;
-	ParentChooser parentChooser;
-
+	private final FloatValuePanel widthPanel;
+	private final FloatValuePanel lengthPanel;
+	private final FloatValuePanel latitudePanel;
+	private final FloatValuePanel variationPanel;
+	private final FloatValuePanel speedPanel;
+	private final FloatValuePanel gravityPanel;
+	private final FloatValuePanel emissionPanel;
+//	private final FloatValuePanel visibilityPanel;
 
 	public ComponentParticle2Panel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
 		super(modelHandler, changeListener);
 
-		parentChooser = new ParentChooser(modelHandler.getModelView());
-
-		setLayout(new MigLayout("fill, gap 0", "[][][grow]", "[][][grow]"));
-		title = new JLabel("Select an Emitter");
-		add(title, "wrap");
-		nameField = new JTextField(24);
-		nameField.addFocusListener(changeName());
-		add(nameField, "wrap");
-		add(new JLabel("Parent: "));
-		parentName = new JLabel("Parent");
-		add(parentName);
-		JButton chooseParentButton = new JButton("change");
-		chooseParentButton.addActionListener(e -> chooseParent());
-		add(chooseParentButton, "wrap");
+		widthPanel = new FloatValuePanel(modelHandler, "Width", modelHandler.getUndoManager(), changeListener);
+		lengthPanel = new FloatValuePanel(modelHandler, "Length", modelHandler.getUndoManager(), changeListener);
+		latitudePanel = new FloatValuePanel(modelHandler, "Latitude", modelHandler.getUndoManager(), changeListener);
+		variationPanel = new FloatValuePanel(modelHandler, "Variation", modelHandler.getUndoManager(), changeListener);
+		speedPanel = new FloatValuePanel(modelHandler, "Speed", modelHandler.getUndoManager(), changeListener);
+		gravityPanel = new FloatValuePanel(modelHandler, "Gravity", modelHandler.getUndoManager(), changeListener);
+		emissionPanel = new FloatValuePanel(modelHandler, "EmissionRate", modelHandler.getUndoManager(), changeListener);
+//		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility", modelHandler.getUndoManager(), changeListener);
+		add(widthPanel, "spanx, growx, wrap");
+		add(lengthPanel, "spanx, growx, wrap");
+		add(latitudePanel, "spanx, growx, wrap");
+		add(variationPanel, "spanx, growx, wrap");
+		add(speedPanel, "spanx, growx, wrap");
+		add(gravityPanel, "spanx, growx, wrap");
+		add(emissionPanel, "spanx, growx, wrap");
+//		add(visibilityPanel, "spanx, growx, wrap");
 	}
 
 	@Override
-	public void setSelectedItem(ParticleEmitter2 itemToSelect) {
-		idObject = itemToSelect;
-		title.setText(idObject.getName());
-		nameField.setText(idObject.getName());
-		IdObject parent = idObject.getParent();
-		if (parent != null) {
-			this.parentName.setText(parent.getName());
-		} else {
-			parentName.setText("no parent");
-		}
-		revalidate();
-		repaint();
-
-	}
-
-	@Override
-	public void save(EditableModel model, UndoManager undoManager, ModelStructureChangeListener changeListener) {
-
-	}
-
-	private void chooseParent() {
-		IdObject newParent = parentChooser.chooseParent(idObject, this.getRootPane());
-		ParentChangeAction action = new ParentChangeAction(idObject, newParent, changeListener);
-		action.redo();
-		repaint();
-		modelHandler.getUndoManager().pushAction(action);
-	}
-
-	private FocusAdapter changeName() {
-		return new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				String newName = nameField.getText();
-				if (!newName.equals("")) {
-					NameChangeAction action = new NameChangeAction(idObject, newName, changeListener);
-					action.redo();
-					modelHandler.getUndoManager().pushAction(action);
-				}
-			}
-		};
+	public void updatePanels() {
+		widthPanel.reloadNewValue((float) idObject.getWidth(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_WIDTH), idObject, MdlUtils.TOKEN_WIDTH, idObject::setWidth);
+		lengthPanel.reloadNewValue((float) idObject.getLength(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LENGTH), idObject, MdlUtils.TOKEN_LENGTH, idObject::setLength);
+		latitudePanel.reloadNewValue((float) idObject.getLatitude(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LATITUDE), idObject, MdlUtils.TOKEN_LATITUDE, idObject::setLatitude);
+		variationPanel.reloadNewValue((float) idObject.getVariation(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_VARIATION), idObject, MdlUtils.TOKEN_VARIATION, idObject::setVariation);
+		speedPanel.reloadNewValue((float) idObject.getSpeed(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_SPEED), idObject, MdlUtils.TOKEN_SPEED, idObject::setSpeed);
+		gravityPanel.reloadNewValue((float) idObject.getGravity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_GRAVITY), idObject, MdlUtils.TOKEN_GRAVITY, idObject::setGravity);
+		emissionPanel.reloadNewValue((float) idObject.getEmissionRate(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, idObject::setEmissionRate);
+//		visibilityPanel.reloadNewValue( 1f, (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, null);
 	}
 }

@@ -58,7 +58,11 @@ public class ComponentsPanel extends JPanel {
 
 		addPanelToMap(new ComponentHelperPanel(modelHandler, modelStructureChangeListener), DisplayElementType.HELPER);
 
+		addPanelToMap(new ComponentLightPanel(modelHandler, modelStructureChangeListener), DisplayElementType.LIGHT);
+
 		addPanelToMap(new ComponentParticle2Panel(modelHandler, modelStructureChangeListener), DisplayElementType.PARTICLE2);
+
+		addPanelToMap(new ComponentParticlePanel(modelHandler, modelStructureChangeListener), DisplayElementType.PARTICLE);
 
 		addPanelToMap(new ComponentCollisionPanel(modelHandler, modelStructureChangeListener), DisplayElementType.COLLISION_SHAPE);
 

@@ -231,8 +231,13 @@ public abstract class AnimFlag<T> {
 	public void changeEntryAt(Integer time, Entry<T> entry) {
 		entryMap.remove(time);
 		entryMap.put(entry.getTime(), entry);
-		if (tans()) {
+		if (!time.equals(entry.getTime())) {
+			timeKeys = null;
+		}
+		if (tans() && !entry.isTangential()) {
 			entry.unLinearize();
+		} else if (!tans() && entry.isTangential()) {
+			entry.linearize();
 		}
 	}
 
