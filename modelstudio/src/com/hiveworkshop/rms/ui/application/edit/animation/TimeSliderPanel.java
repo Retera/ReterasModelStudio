@@ -564,19 +564,28 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		copuKeyframes(object, flag, trackTime);
 	}
 
-	private void copuKeyframes(IdObject object, AnimFlag<?> flag, int trackTime) {
+	private <Q> void copuKeyframes(IdObject object, AnimFlag<Q> flag, int trackTime) {
 		if (flag.getEntryMap().containsKey(trackTime)) {
-
-			copiedKeyframes.add(new CopiedKeyFrame(object, flag, flag.getEntryAt(trackTime).deepCopy()));
-
+			copiedKeyframes.add(new CopiedKeyFrame<>(object, flag, flag.getEntryAt(trackTime).deepCopy()));
 		} else {
-			Object value = flag.interpolateAt(timeEnvironment);
+			Entry<Q> entry = new Entry<>(trackTime, flag.interpolateAt(timeEnvironment));
+
 			if (flag.tans()) {
-				copiedKeyframes.add(new CopiedKeyFrame(object, flag, flag.cloneValue(value), flag.cloneValue(value), flag.cloneValue(value)));
-			} else {
-				copiedKeyframes.add(new CopiedKeyFrame(object, flag, flag.cloneValue(value), null, null));
+				Entry<Q> entryIn = flag.getFloorEntry(trackTime, timeEnvironment);
+				Entry<Q> entryOut = flag.getCeilEntry(trackTime, timeEnvironment);
+				int animationLength = timeEnvironment.getCurrentAnimation().length();
+//				float factor = getTimeFactor(trackTime, animationLength, entryIn.time, entryOut.time);
+				float[] tbcFactor = flag.getTbcFactor(0, 0.5f, 0);
+				flag.calcNewTans(tbcFactor, entryOut, entryIn, entry, animationLength);
 			}
+			copiedKeyframes.add(new CopiedKeyFrame<>(object, flag, entry));
 		}
+	}
+
+	private float getTimeFactor(int time, int animationLength, Integer floorTime, Integer ceilTime) {
+		int timeFromPrevFrame = (time - floorTime + animationLength) % animationLength;
+		int timeBetweenFrame = (ceilTime - floorTime + animationLength) % animationLength;
+		return timeFromPrevFrame / (float) timeBetweenFrame;
 	}
 
 	private void copyAllKeyframes(final int trackTime) {
@@ -999,23 +1008,6 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 //		final Object newInTan = AnimFlag.cloneValue(frame.inTan);
 //		final Object newOutTan = AnimFlag.cloneValue(frame.outTan);
 		if (sourceTimeline.hasEntryAt(mouseClickAnimationTime)) {
-//			if (sourceTimeline.tans()) {
-//				final Object oldValue = sourceTimeline.valueAt(mouseClickAnimationTime);
-//				final Object oldInTan = sourceTimeline.valueAt(mouseClickAnimationTime);
-//				final Object oldOutTan = sourceTimeline.valueAt(mouseClickAnimationTime);
-//				sourceTimeline.setKeyframe(mouseClickAnimationTime, newValue, newInTan, newOutTan);
-//				action = new SetKeyframeAction(frame.node, sourceTimeline, mouseClickAnimationTime, newValue, newInTan, newOutTan, oldValue, oldInTan, oldOutTan, () -> {
-//					// TODO this is a hack to refresh screen while dragging
-//					notifier.timeChanged(currentTime);
-//				});
-//			} else {
-//				final Object oldValue = sourceTimeline.valueAt(mouseClickAnimationTime);
-//				sourceTimeline.setKeyframe(mouseClickAnimationTime, newValue);
-//				action = new SetKeyframeAction(frame.node, sourceTimeline, mouseClickAnimationTime, newValue, oldValue, () -> {
-//					// TODO this is a hack to refresh screen while dragging
-//					notifier.timeChanged(currentTime);
-//				});
-//			}
 			newEntry.setTime(mouseClickAnimationTime);
 			sourceTimeline.setOrAddEntryT(mouseClickAnimationTime, newEntry);
 			action = new SetKeyframeAction(frame.node, sourceTimeline, newEntry, () -> {
@@ -1138,19 +1130,19 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		};
 	}
 
-	private static final class CopiedKeyFrame {
+	private static final class CopiedKeyFrame<T> {
 		private final TimelineContainer node;
-		private final AnimFlag<?> sourceTimeline;
-		private final Entry<?> entry;
+		private final AnimFlag<T> sourceTimeline;
+		private final Entry<T> entry;
 
-		public CopiedKeyFrame(TimelineContainer node, AnimFlag<?> sourceTimeline, Object value,
-		                      Object inTan, Object outTan) {
+		public CopiedKeyFrame(TimelineContainer node, AnimFlag<T> sourceTimeline, T value,
+		                      T inTan, T outTan) {
 			this.node = node;
 			this.sourceTimeline = sourceTimeline;
 			entry = new Entry<>(0, value, inTan, outTan);
 		}
 
-		public CopiedKeyFrame(TimelineContainer node, AnimFlag<?> sourceTimeline, Entry<?> entry) {
+		public CopiedKeyFrame(TimelineContainer node, AnimFlag<T> sourceTimeline, Entry<T> entry) {
 			this.node = node;
 			this.sourceTimeline = sourceTimeline;
 			this.entry = entry;

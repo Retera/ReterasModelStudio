@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.util;
 
 import com.hiveworkshop.rms.ui.application.MainFrame;
+import com.hiveworkshop.rms.ui.application.MenuBar1.FileMenu;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
@@ -39,7 +41,23 @@ public class ExceptionPopup {
 		jScrollPane.setPreferredSize(ScreenInfo.getSmallWindow());
 		jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-		JOptionPane.showMessageDialog(null, jScrollPane, "Warning (" + MainFrame.getVersion() + ")", JOptionPane.WARNING_MESSAGE, null);
+		JPanel panel = new JPanel(new MigLayout("fill, ins 0,"));
+		panel.add(jScrollPane, "spanx, growx, growy, wrap");
+
+		// Some QoL buttons:
+		// Undo so that users that get stuck in a error-loop has a
+		// chance to get out of it without loosing their progress
+		JButton tryToUndo = new JButton("try to undo");
+		tryToUndo.addActionListener(ProgramGlobals.getUndoHandler().getUndoAction());
+		panel.add(tryToUndo);
+		// And a way to exit RMS without going through the Task Manager
+		// This will also trigger the save-prompt
+		JButton exitRms = new JButton("exit RMS");
+		exitRms.addActionListener(a -> FileMenu.closeAll());
+		panel.add(exitRms);
+
+
+		JOptionPane.showMessageDialog(null, panel, "Warning (" + MainFrame.getVersion() + ")", JOptionPane.WARNING_MESSAGE, null);
 	}
 
 

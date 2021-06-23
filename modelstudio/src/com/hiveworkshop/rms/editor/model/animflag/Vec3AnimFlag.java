@@ -140,4 +140,36 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		}
 		throw new IllegalStateException();
 	}
+
+	@Override
+	public float[] getTbcFactor(float bias, float tension, float continuity) {
+		return getTCB(-1, bias, tension, continuity);
+	}
+
+	@Override
+	public void calcNewTans(float factor[], Entry<Vec3> next, Entry<Vec3> prev, Entry<Vec3> cur, int animationLength) {
+		// Calculating the derivatives in point Cur (for count cells)
+		if (cur.inTan == null) {
+			cur.inTan = new Vec3(0, 0, 0);
+			cur.outTan = new Vec3(0, 0, 0);
+		}
+
+		Vec3 currPrev = new Vec3(cur.value).sub(prev.value);
+		Vec3 nextCurr = new Vec3(next.value).sub(cur.value);
+
+		cur.inTan.set(currPrev).scale(factor[0]).addScaled(nextCurr, factor[1]);
+		cur.outTan.set(currPrev).scale(factor[2]).addScaled(nextCurr, factor[3]);
+
+		if (!next.time.equals(prev.time)) {
+			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
+			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
+			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;
+
+			float inAdj = 2 * timeToPrevFrame / timeBetweenFrames;
+			float outAdj = 2 * timeToNextFrame / timeBetweenFrames;
+			cur.inTan.scale(inAdj);
+			cur.outTan.scale(outAdj);
+		}
+
+	}
 }

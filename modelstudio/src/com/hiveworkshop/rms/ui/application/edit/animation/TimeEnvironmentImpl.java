@@ -143,6 +143,16 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return 0;
 	}
 
+	public int getAnimStart(boolean hasGlobalSeq, Integer globalSeqLength) {
+		if (globalSeqLength == null || globalSeqLength < 0 || !hasGlobalSeq) {
+			if (animation != null) {
+				return animation.getStart();
+			}
+			return start;
+		}
+		return 0;
+	}
+
 	public TimeEnvironmentImpl setStart(final int startTime) {
 		start = startTime;
 
@@ -167,12 +177,31 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return (int) (lastUpdateMillis % globalSeqLength);
 	}
 
+	public int getRenderTime(boolean hasGlobalSeq, Integer globalSeqLength) {
+		if (globalSeqLength == null || globalSeqLength < 0 || !hasGlobalSeq) {
+			return animationTime;
+		} else if (globalSeqLength == 0) {
+			return 0;
+		}
+		return (int) (lastUpdateMillis % globalSeqLength);
+	}
+
 	@Override
 	public int getEnd() {
 		if (globalSequenceLength == -1) {
 			return end;
 		}
 		return globalSequenceLength;
+	}
+
+	public int getAnimEnd(boolean hasGlobalSeq, Integer globalSeqLength) {
+		if (globalSeqLength == null || globalSeqLength < 0 || !hasGlobalSeq) {
+			if (animation != null) {
+				return animation.getEnd();
+			}
+			return end;
+		}
+		return globalSeqLength;
 	}
 
 	public TimeEnvironmentImpl setEnd(final int endTime) {

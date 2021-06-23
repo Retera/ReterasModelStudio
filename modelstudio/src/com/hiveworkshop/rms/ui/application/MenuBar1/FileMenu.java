@@ -75,7 +75,7 @@ public class FileMenu extends JMenu {
 		}
 	}
 
-	public boolean closeAll() {
+	public static boolean closeAll() {
 		boolean success = true;
 		final Iterator<ModelPanel> iterator = ProgramGlobals.getModelPanels().iterator();
 		boolean closedCurrentPanel = false;

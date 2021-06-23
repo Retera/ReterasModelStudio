@@ -82,7 +82,7 @@ public class MenuBar {
     }
 
     public static boolean closeAll() {
-        return fileMenu.closeAll();
+        return FileMenu.closeAll();
     }
 
     public static void setToolsMenuEnabled(boolean enabled) {

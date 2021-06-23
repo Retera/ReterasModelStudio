@@ -220,4 +220,31 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 
 		return mostVisible;
 	}
+
+	@Override
+	public float[] getTbcFactor(float bias, float tension, float continuity) {
+		return getTCB(-1, bias, tension, continuity);
+	}
+
+	@Override
+	public void calcNewTans(float[] factor, Entry<Float> next, Entry<Float> prev, Entry<Float> cur, int animationLength) {
+		// Calculating the derivatives in point Cur (for count cells)
+
+		float currPrev = cur.value - prev.value;
+		float nextCurr = next.value - cur.value;
+
+		cur.inTan = currPrev * factor[0] + nextCurr * factor[1];
+		cur.outTan = currPrev * factor[2] + nextCurr * factor[3];
+
+		if (!next.time.equals(prev.time)) {
+			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
+			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
+			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;
+
+			float inAdj = 2 * timeToPrevFrame / timeBetweenFrames;
+			float outAdj = 2 * timeToNextFrame / timeBetweenFrames;
+			cur.inTan *= inAdj;
+			cur.outTan *= outAdj;
+		}
+	}
 }

@@ -140,4 +140,64 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		}
 		throw new IllegalStateException();
 	}
+
+	@Override
+	public float[] getTbcFactor(float bias, float tension, float continuity) {
+		return getTCB(-1, bias, tension, continuity);
+	}
+
+	@Override
+	public void calcNewTans(float factor[], Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
+		Quat logNNP = new Quat(cur.value).invertQuat().mul(next.value);
+		calcLogQ(logNNP);
+
+		Quat logNMN = new Quat(prev.value).mul(cur.value);
+		calcLogQ(logNMN);
+
+		cur.inTan.set(logNNP).scale(factor[0]).addScaled(logNMN, factor[1]);
+		cur.outTan.set(logNNP).scale(factor[2]).addScaled(logNMN, factor[3]);
+
+		cur.outTan.sub(logNNP).scale(0.5f);
+		cur.outTan.w = 0;
+		calcExpQ(cur.outTan);
+		cur.outTan.mulLeft(cur.value);
+
+		cur.inTan.scale(-1).add(logNMN).scale(0.5f);
+		cur.inTan.w = cur.outTan.w;
+		calcExpQ(cur.inTan);
+		cur.inTan.mulLeft(cur.value);
+
+		if (!next.time.equals(prev.time)) {
+			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
+			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
+			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;
+
+			float inAdj = 2 * timeToPrevFrame / timeBetweenFrames;
+			float outAdj = 2 * timeToNextFrame / timeBetweenFrames;
+			cur.inTan.scale(inAdj);
+			cur.outTan.scale(outAdj);
+		}
+
+	}
+
+	private Quat calcLogQ(Quat q) {
+		if (q.w > 0.99999) {
+			q.w = 0.99999f;
+		}
+		float sinT = (float) (Math.acos(q.w) / Math.sqrt(1 - (q.w * q.w)));
+		q.scale(sinT);
+		q.w = 0;
+		return q;
+	}
+
+	private Quat calcExpQ(Quat q) {
+		float t = q.length();
+		if (t < 1e-5) {
+			return (Quat) q.set(1, 0, 0, 0);
+		}
+
+		q.scale((float) Math.sin(t) / t);
+		q.w = (float) Math.cos(t);
+		return q;
+	}
 }

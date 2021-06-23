@@ -45,6 +45,10 @@ public class ComponentsPanel extends JPanel {
 		add(editTexturesPanel, DisplayElementType.TEXTURE.getName());
 		overviewPanelMap.put(DisplayElementType.TEXTURE, editTexturesPanel);
 
+		GeosetOverviewPanel geosetOverviewPanel = new GeosetOverviewPanel(modelHandler);
+		add(geosetOverviewPanel, DisplayElementType.GEOSET_ITEM.getName());
+		overviewPanelMap.put(DisplayElementType.GEOSET_ITEM, geosetOverviewPanel);
+
 
 		addPanelToMap(new ComponentMaterialPanel(modelHandler, modelStructureChangeListener), DisplayElementType.MATERIAL);
 

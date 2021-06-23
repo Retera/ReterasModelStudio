@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatTimeline;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Quat;
@@ -150,15 +151,6 @@ public abstract class AnimFlag<T> {
 
 	public void setHasGlobalSeq(boolean hasGlobalSeq) {
 		this.hasGlobalSeq = hasGlobalSeq;
-	}
-
-	public void setInterpType(InterpolationType interpolationType) {
-		if (interpolationType.tangential()) {
-			unLinearize();
-		} else {
-			linearize();
-		}
-		this.interpolationType = interpolationType;
 	}
 
 	public InterpolationType getInterpolationType() {
@@ -358,6 +350,51 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
+	public void unLinearize2() {
+		if (!interpolationType.tangential()) {
+			interpolationType = InterpolationType.BEZIER;
+			for (Entry<T> entry : entryMap.values()) {
+				entry.unLinearize();
+			}
+		}
+		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
+		List<Animation> anims = model.getAnims();
+		if (hasGlobalSeq && globalSeqId >= 0 && model.getGlobalSeqs().size() > globalSeqId) {
+
+			Integer globalSeq = model.getGlobalSeq(globalSeqId);
+			if (globalSeq >= 0) {
+				NavigableMap<Integer, Entry<T>> subMap = entryMap.subMap(0, true, globalSeq, true);
+				for (Integer time : subMap.keySet()) {
+					Integer prevTime = subMap.lowerKey(time) == null ? subMap.lastKey() : subMap.lowerKey(time);
+					Integer nextTime = subMap.higherKey(time) == null ? subMap.firstKey() : subMap.higherKey(time);
+
+					Entry<T> prevValue = subMap.get(prevTime);
+					Entry<T> nextValue = subMap.get(nextTime);
+
+					float[] factor = getTbcFactor(0, 0.5f, 0);
+					calcNewTans(factor, nextValue, prevValue, subMap.get(time), globalSeq);
+				}
+			}
+
+		}
+		for (Animation animation : anims) {
+			NavigableMap<Integer, Entry<T>> subMap = entryMap.subMap(animation.getStart(), true, animation.getEnd(), true);
+			int animationLength = animation.length();
+			for (Integer time : subMap.keySet()) {
+				if (!hasGlobalSeq || globalSeqLength == null || time > globalSeqLength) {
+					Integer prevTime = subMap.lowerKey(time) == null ? subMap.lastKey() : subMap.lowerKey(time);
+					Integer nextTime = subMap.higherKey(time) == null ? subMap.firstKey() : subMap.higherKey(time);
+
+					Entry<T> prevValue = subMap.get(prevTime);
+					Entry<T> nextValue = subMap.get(nextTime);
+
+					float[] factor = getTbcFactor(0, 0.5f, 0);
+					calcNewTans(factor, nextValue, prevValue, subMap.get(time), animationLength);
+				}
+			}
+		}
+	}
+
 	public void setInterpolationType(InterpolationType interpolationType) {
 		this.interpolationType = interpolationType;
 		if (interpolationType.tangential()) {
@@ -365,6 +402,15 @@ public abstract class AnimFlag<T> {
 		} else {
 			linearize();
 		}
+	}
+
+	public void setInterpType(InterpolationType interpolationType) {
+		if (interpolationType.tangential()) {
+			unLinearize2();
+		} else {
+			linearize();
+		}
+		this.interpolationType = interpolationType;
 	}
 
 	public void deleteAnim(Animation anim) {
@@ -524,6 +570,9 @@ public abstract class AnimFlag<T> {
 	}
 
 	public T getInTanFromIndex(int index) {
+		if (entryMap.get(getTimeFromIndex(index)) == null) {
+			timeKeys = null;
+		}
 		return entryMap.get(getTimeFromIndex(index)).getInTan();
 	}
 
@@ -541,25 +590,13 @@ public abstract class AnimFlag<T> {
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 			return entryMap.firstEntry().getValue().getValue(); // Correct?
 		}
-		int time;
-		int animationStart;
-		int animationEnd;
+		int time = animatedRenderEnvironment.getRenderTime(hasGlobalSeq, globalSeqLength);
+		int animationStart = animatedRenderEnvironment.getAnimStart(hasGlobalSeq, globalSeqLength);
+		int animationEnd = animatedRenderEnvironment.getAnimEnd(hasGlobalSeq, globalSeqLength);
 
-		if (hasGlobalSeq() && (getGlobalSeqLength() >= 0)) {
-			time = animatedRenderEnvironment.getGlobalSeqTime(getGlobalSeqLength());
-
-			// no keyframes at nor after time
-			if (entryMap.ceilingKey(time) == null) {
-				return getIdentity(typeid);
-			}
-			animationStart = 0;
-			animationEnd = getGlobalSeqLength();
-
-		} else {
-			TimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
-			time = animatedRenderEnvironment.getAnimationTime();
-			animationStart = animation.getStart();
-			animationEnd = animation.getEnd();
+		// no keyframes at nor after time
+		if (hasGlobalSeq() && getGlobalSeqLength() >= 0 && entryMap.ceilingKey(time) == null) {
+			return getIdentity(typeid);
 		}
 
 		Integer lastKeyframeTime = entryMap.floorKey(animationEnd);
@@ -585,6 +622,7 @@ public abstract class AnimFlag<T> {
 		if (floorTime == null || floorTime < animationStart) {
 			floorTime = lastKeyframeTime;
 		}
+
 		Integer ceilTime = entryMap.ceilingKey(time);
 		if (ceilTime == null || ceilTime > animationEnd) {
 			ceilTime = firstKeyframeTime;
@@ -594,22 +632,42 @@ public abstract class AnimFlag<T> {
 			return entryMap.get(floorTime).getValue();
 		}
 
+		float timeFactor = getTimeFactor(time, animationEnd - animationStart, floorTime, ceilTime);
+
+		return getInterpolatedValue(floorTime, ceilTime, timeFactor);
+	}
+
+	protected float getTimeFactor(int time, int animationLength, Integer floorTime, Integer ceilTime) {
 		int timeBetweenFrames = ceilTime - floorTime;
 
 		// if ceilTime wrapped, add animation length
 		if (timeBetweenFrames < 0) {
-			timeBetweenFrames = timeBetweenFrames + animationEnd - animationStart;
+			timeBetweenFrames = timeBetweenFrames + animationLength;
 		}
 
 		int timeFromKF = time - floorTime;
 		// if floorTime wrapped, add animation length
 		if (timeFromKF < 0) {
-			timeFromKF = timeFromKF + animationEnd - animationStart;
+			timeFromKF = timeFromKF + animationLength;
 		}
 
-		float timeFactor = timeFromKF / (float) timeBetweenFrames;
+		return timeFromKF / (float) timeBetweenFrames;
+	}
 
-		return getInterpolatedValue(floorTime, ceilTime, timeFactor);
+	public Entry<T> getFloorEntry(int time, TimeBoundProvider anim) {
+		Integer floorTime = entryMap.floorKey(time);
+		if (floorTime == null || floorTime < anim.getStart()) {
+			return entryMap.get(entryMap.floorKey(anim.getEnd()));
+		}
+		return entryMap.get(floorTime);
+	}
+
+	public Entry<T> getCeilEntry(int time, TimeBoundProvider anim) {
+		Integer ceilTime = entryMap.ceilingKey(time);
+		if (ceilTime == null || ceilTime > anim.getEnd()) {
+			return entryMap.get(entryMap.ceilingKey(anim.getStart()));
+		}
+		return entryMap.get(ceilTime);
 	}
 
 	public abstract T getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor);
@@ -643,6 +701,7 @@ public abstract class AnimFlag<T> {
 		Entry<T> entryToSlide = getEntryAt(startTrackTime);
 		if (entryToSlide != null) {
 			entryMap.put(endTrackTime, entryMap.remove(startTrackTime).setTime(endTrackTime));
+			timeKeys = null;
 		}
 	}
 
@@ -660,5 +719,27 @@ public abstract class AnimFlag<T> {
 			timeKeys = entryMap.keySet().toArray(new Integer[0]);
 		}
 		return timeKeys;
+	}
+
+//	public abstract void calcNewTans(float factor, T curValue, T nextValue, T prevValue, Entry<T> entry);
+
+	public abstract void calcNewTans(float[] factor, Entry<T> next, Entry<T> prev, Entry<T> cur, int animationLength);
+
+	public abstract float[] getTbcFactor(float bias, float tension, float continuity);
+
+	public float[] getTCB(int i, float bias, float tension, float continuity) {
+		float[] factor = new float[4];
+
+		float contP = i * continuity;
+		float biasP = i * bias;
+
+		float contN = -contP;
+		float biasN = -biasP;
+
+		factor[0] = (1 - tension) * (1 + contN) * (1 + biasP) * 0.5f;
+		factor[1] = (1 - tension) * (1 + contP) * (1 + biasN) * 0.5f;
+		factor[2] = (1 - tension) * (1 + contP) * (1 + biasP) * 0.5f;
+		factor[3] = (1 - tension) * (1 + contN) * (1 + biasN) * 0.5f;
+		return factor;
 	}
 }
