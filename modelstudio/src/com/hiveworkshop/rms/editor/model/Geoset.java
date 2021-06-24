@@ -58,7 +58,8 @@ public class Geoset implements Named, VisibilitySource {
 					Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
 //					matrix.get(0).getName();
 				}
-				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
+//				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
+				return "# " + (parentModel.getGeosetId(this)) + ": " + name;
 			} else {
 				Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
 				if (!boneMap.isEmpty()) {
@@ -68,13 +69,16 @@ public class Geoset implements Named, VisibilitySource {
 //						matrix.get(0).getName();
 //					}
 //				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + matrix.get(0).getName();
-					return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
+//					return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
+					return "# " + (parentModel.getGeosetId(this)) + ": " + name;
 				}
 			}
 		} else {
-			return "Geoset " + (parentModel.getGeosetId(this)) + ": " + levelOfDetailName;
+//			return "Geoset " + (parentModel.getGeosetId(this)) + ": " + levelOfDetailName;
+			return "# " + (parentModel.getGeosetId(this)) + ": " + levelOfDetailName;
 		}
-		return "Geoset " + (parentModel.getGeosetId(this));// parentModel.getName() // + "
+//		return "Geoset " + (parentModel.getGeosetId(this));// parentModel.getName() // + "
+		return "# " + (parentModel.getGeosetId(this));// parentModel.getName() // + "
 	}
 
 	@Override

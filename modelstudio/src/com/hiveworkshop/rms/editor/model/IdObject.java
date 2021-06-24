@@ -45,7 +45,9 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		billboardLockZ = other.billboardLockZ;
 		pivotPoint = new Vec3(other.pivotPoint);
 		setParent(other.parent);
-		bindPose = other.bindPose.clone();
+		if (other.bindPose != null) {
+			bindPose = other.bindPose.clone();
+		}
 		copyTimelines(other);
 	}
 

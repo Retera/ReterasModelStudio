@@ -29,58 +29,40 @@ public class ComponentsPanel extends JPanel {
 
 		addPanelToMap(new ComponentHeaderPanel(modelHandler, modelStructureChangeListener), DisplayElementType.MODEL_ROOT);
 		addPanelToMap(new ComponentHeaderPanel(modelHandler, modelStructureChangeListener), DisplayElementType.HEADER);
-
 		addPanelToMap(new ComponentCommentPanel(modelHandler, modelStructureChangeListener), DisplayElementType.COMMENT);
 
+		addPanelToMap(new ComponentGlobalSequencePanel(modelHandler, modelStructureChangeListener), DisplayElementType.GLOBAL_SEQ);
 		addPanelToMap(new ComponentAnimationPanel(modelHandler, modelStructureChangeListener), DisplayElementType.ANIMATION);
 
-		addPanelToMap(new ComponentGlobalSequencePanel(modelHandler, modelStructureChangeListener), DisplayElementType.GLOBAL_SEQ);
-
 		addPanelToMap(new ComponentBitmapPanel(modelHandler, modelStructureChangeListener), DisplayElementType.TEXTURE);
-
-		JPanel editTexturesPanel = new EditTexturesPopupPanel(modelHandler.getModelView(), modelStructureChangeListener);
-//		JScrollPane scrollPane = new JScrollPane(editTexturesPanel);
-//		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-//		add(scrollPane, DisplayElementType.TEXTURE.getName());
-		add(editTexturesPanel, DisplayElementType.TEXTURE.getName());
-		overviewPanelMap.put(DisplayElementType.TEXTURE, editTexturesPanel);
-
-		GeosetOverviewPanel geosetOverviewPanel = new GeosetOverviewPanel(modelHandler);
-		add(geosetOverviewPanel, DisplayElementType.GEOSET_ITEM.getName());
-		overviewPanelMap.put(DisplayElementType.GEOSET_ITEM, geosetOverviewPanel);
-
-
 		addPanelToMap(new ComponentMaterialPanel(modelHandler, modelStructureChangeListener), DisplayElementType.MATERIAL);
-
 		addPanelToMap(new ComponentGeosetPanel(modelHandler, modelStructureChangeListener), DisplayElementType.GEOSET_ITEM);
-
 		addPanelToMap(new ComponentGeosetAnimPanel(modelHandler, modelStructureChangeListener), DisplayElementType.GEOSET_ANIM);
 
-		addPanelToMap(new ComponentPopcornPanel(modelHandler, modelStructureChangeListener), DisplayElementType.POPCORN);
-
 		addPanelToMap(new ComponentBonePanel(modelHandler, modelStructureChangeListener), DisplayElementType.BONE);
-
 		addPanelToMap(new ComponentHelperPanel(modelHandler, modelStructureChangeListener), DisplayElementType.HELPER);
-
 		addPanelToMap(new ComponentLightPanel(modelHandler, modelStructureChangeListener), DisplayElementType.LIGHT);
-
-		addPanelToMap(new ComponentParticle2Panel(modelHandler, modelStructureChangeListener), DisplayElementType.PARTICLE2);
-
 		addPanelToMap(new ComponentParticlePanel(modelHandler, modelStructureChangeListener), DisplayElementType.PARTICLE);
-
-		addPanelToMap(new ComponentCollisionPanel(modelHandler, modelStructureChangeListener), DisplayElementType.COLLISION_SHAPE);
-
-		addPanelToMap(new ComponentEventPanel(modelHandler, modelStructureChangeListener), DisplayElementType.EVENT_OBJECT);
-
+		addPanelToMap(new ComponentParticle2Panel(modelHandler, modelStructureChangeListener), DisplayElementType.PARTICLE2);
 		addPanelToMap(new ComponentRibbonPanel(modelHandler, modelStructureChangeListener), DisplayElementType.RIBBON);
-
+		addPanelToMap(new ComponentPopcornPanel(modelHandler, modelStructureChangeListener), DisplayElementType.POPCORN);
+		addPanelToMap(new ComponentCollisionPanel(modelHandler, modelStructureChangeListener), DisplayElementType.COLLISION_SHAPE);
+		addPanelToMap(new ComponentEventPanel(modelHandler, modelStructureChangeListener), DisplayElementType.EVENT_OBJECT);
 		addPanelToMap(new ComponentAttatchmentPanel(modelHandler, modelStructureChangeListener), DisplayElementType.ATTACHMENT);
-
 		addPanelToMap(new ComponentFaceEffectPanel(modelHandler, modelStructureChangeListener), DisplayElementType.FACEFX);
 
 		addPanelToMap(new ComponentCameraPanel(modelHandler, modelStructureChangeListener), DisplayElementType.CAMERA);
 
+		addOverviewPanel(DisplayElementType.TEXTURE, new EditTexturesPopupPanel(modelHandler.getModelView(), modelStructureChangeListener));
+		addOverviewPanel(DisplayElementType.GEOSET_ITEM, new GeosetOverviewPanel(modelHandler));
+		addOverviewPanel(DisplayElementType.ANIMATION, new AnimationOverviewPanel(modelHandler));
+
 		cardLayout.show(this, BLANK);
+	}
+
+	public void addOverviewPanel(DisplayElementType type, JPanel panel) {
+		add(panel, type.getName());
+		overviewPanelMap.put(type, panel);
 	}
 
 	public void addPanelToMap(ComponentPanel<?> panel, DisplayElementType type) {
