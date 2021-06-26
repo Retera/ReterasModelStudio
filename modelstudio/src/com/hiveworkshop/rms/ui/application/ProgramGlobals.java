@@ -4,17 +4,19 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
+import com.hiveworkshop.rms.util.sound.SoundMappings;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProgramGlobals {
-	private static SaveProfile profile;
-	private static ProgramPreferences prefs;
-	private static List<ModelPanel> modelPanels;
+	private static final SaveProfile profile;
+	private static final ProgramPreferences prefs;
+	private static final List<ModelPanel> modelPanels;
 	private static ModelPanel currentModelPanel;
-	private static MainPanel mainPanel;
-	private static UndoHandler undoHandler;
+	private static final MainPanel mainPanel;
+	private static final UndoHandler undoHandler;
+	private static final SoundMappings soundMappings;
 
 	static {
 		profile = SaveProfile.get();
@@ -22,6 +24,7 @@ public class ProgramGlobals {
 		modelPanels = new ArrayList<>();
 		undoHandler = new UndoHandler();
 		mainPanel = new MainPanel();
+		soundMappings = new SoundMappings();
 	}
 
 	public static MainPanel getMainPanel() {
@@ -54,5 +57,9 @@ public class ProgramGlobals {
 
 	public static ProgramPreferences getPrefs() {
 		return prefs;
+	}
+
+	public static SoundMappings getSoundMappings() {
+		return soundMappings;
 	}
 }
