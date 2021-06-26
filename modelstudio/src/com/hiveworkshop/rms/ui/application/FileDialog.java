@@ -94,7 +94,8 @@ public class FileDialog {
             case OPEN_FILE -> setFilter(extFilter.getOpenFilesExtensions());
             case OPEN_MODEL -> setFilter(extFilter.getOpenModelExtensions());
             case SAVE_MODEL, OPEN_WC_MODEL -> setFilter(extFilter.getSaveModelExtensions());
-            case OPEN_TEXTURE, SAVE_TEXTURE -> setFilter(extFilter.getTextureExtensions());
+            case OPEN_TEXTURE -> setFilter(extFilter.getOpenTextureExtensions());
+            case SAVE_TEXTURE -> setFilter(extFilter.getSaveTextureExtensions());
             case SAVE -> setFilter(extFilter.getSavableExtensions());
         }
     }
@@ -336,7 +337,7 @@ public class FileDialog {
         final boolean write = ImageIO.write(bufferedImage, fileExtension, modelFile);
         SaveProfile.get().addRecent(modelFile.getPath());
         if (!write) {
-            JOptionPane.showMessageDialog(getParent(), "File type unknown or unavailable");
+            JOptionPane.showMessageDialog(getParent(), "Could not write file.\nFile type unknown or unavailable");
         }
     }
 

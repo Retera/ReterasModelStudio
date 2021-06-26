@@ -9,7 +9,8 @@ public class ExtFilter {
 	private final List<FileNameExtensionFilter> openModelExtensions;
 	private final List<FileNameExtensionFilter> saveModelExtensions;
 	private final List<FileNameExtensionFilter> savableExtensions;
-	private final List<FileNameExtensionFilter> textureExtensions;
+	private final List<FileNameExtensionFilter> openTextureExtensions;
+	private final List<FileNameExtensionFilter> saveTextureExtensions;
 	private final Set<String> savableModelExtensions = new HashSet<>();
 	private final Set<String> savableTextureExtensions = new HashSet<>();
 	private final Set<String> supModelExtensions = new HashSet<>();
@@ -18,7 +19,7 @@ public class ExtFilter {
 			new ExtInfo("Warcraft III Binary Model", FileType.MODEL, true, true, "mdx"),
 			new ExtInfo("Warcraft III Text Model", FileType.MODEL, true, true, "mdl"),
 			new ExtInfo("Warcraft III BLP Image", FileType.IMAGE, true, true, "blp"),
-			new ExtInfo("DDS Image", FileType.IMAGE, true, true, "dds"),
+			new ExtInfo("DDS Image", FileType.IMAGE, false, true, "dds"),
 			new ExtInfo("TGA Image", FileType.IMAGE, true, true, "tga"),
 			new ExtInfo("Autodesk FBX Model", FileType.MODEL, false, false, "fbx"),
 			new ExtInfo("Wavefront OBJ Model", FileType.MODEL, false, false, "obj"),
@@ -33,18 +34,19 @@ public class ExtFilter {
 		openModelExtensions = getFilterList(Collections.singletonList(FileType.MODEL), false, false);
 		saveModelExtensions = getFilterList(Collections.singletonList(FileType.MODEL), true, false);
 		savableExtensions = getFilterList(Arrays.asList(FileType.MODEL, FileType.IMAGE), true, false);
-		textureExtensions = getFilterList(Collections.singletonList(FileType.IMAGE), false, false);
+		openTextureExtensions = getFilterList(Collections.singletonList(FileType.IMAGE), false, false);
+		saveTextureExtensions = getFilterList(Collections.singletonList(FileType.IMAGE), true, false);
 
 		for (FileNameExtensionFilter filter : saveModelExtensions) {
 			savableModelExtensions.addAll(Arrays.asList(filter.getExtensions()));
 		}
-		for (FileNameExtensionFilter filter : textureExtensions) {
+		for (FileNameExtensionFilter filter : saveTextureExtensions) {
 			savableTextureExtensions.addAll(Arrays.asList(filter.getExtensions()));
 		}
 		for (FileNameExtensionFilter filter : openModelExtensions) {
 			supModelExtensions.addAll(Arrays.asList(filter.getExtensions()));
 		}
-		for (FileNameExtensionFilter filter : textureExtensions) {
+		for (FileNameExtensionFilter filter : openTextureExtensions) {
 			supTextureExtensions.addAll(Arrays.asList(filter.getExtensions()));
 		}
 	}
@@ -132,8 +134,12 @@ public class ExtFilter {
 		return savableExtensions;
 	}
 
-	public List<FileNameExtensionFilter> getTextureExtensions() {
-		return textureExtensions;
+	public List<FileNameExtensionFilter> getOpenTextureExtensions() {
+		return openTextureExtensions;
+	}
+
+	public List<FileNameExtensionFilter> getSaveTextureExtensions() {
+		return saveTextureExtensions;
 	}
 
 	public boolean isSavableModelExt(String ext) {
