@@ -11,14 +11,13 @@ import java.awt.*;
 import java.util.List;
 
 public class AnimationController extends JPanel {
-	private ModelHandler modelHandler;
-//	private ModelView modelView;
+	private final ModelHandler modelHandler;
 	private DefaultComboBoxModel<Animation> animations;
 	private JComboBox<Animation> animationBox;
 	private final boolean allowUnanimated;
 
 	public AnimationController(ModelHandler modelHandler, boolean allowUnanimated,
-	                           AnimationControllerListener listener, Animation defaultAnimation) {
+	                           PreviewPanel listener, Animation defaultAnimation) {
 		this.modelHandler = modelHandler;
 		this.allowUnanimated = allowUnanimated;
 		setLayout(new MigLayout("fillx"));
@@ -30,49 +29,43 @@ public class AnimationController extends JPanel {
 		playAnimationButton.addActionListener(e -> listener.playAnimation());
 		add(playAnimationButton, "wrap, gapbottom 16");
 
-		SmartButtonGroup smartButtonGroup = new SmartButtonGroup();
-		smartButtonGroup.addJRadioButton("Default Loop", e -> listener.setLoop(AnimationControllerListener.LoopType.DEFAULT_LOOP));
-		smartButtonGroup.addJRadioButton("Always Loop", e -> listener.setLoop(AnimationControllerListener.LoopType.ALWAYS_LOOP));
-		smartButtonGroup.addJRadioButton("Never Loop", e -> listener.setLoop(AnimationControllerListener.LoopType.NEVER_LOOP));
-		smartButtonGroup.setSelectedIndex(0);
 
-		add(smartButtonGroup.getButtonPanel(), "wrap");
+		add(getLoopTypoPanel(listener).getButtonPanel(), "wrap");
 
-//		ButtonGroup buttonGroup = new ButtonGroup();
-//
-//		JRadioButton defaultLoopButton = new JRadioButton("Default Loop");
-//		defaultLoopButton.addActionListener(e -> listener.setLoop(AnimationControllerListener.LoopType.DEFAULT_LOOP));
-//		buttonGroup.add(defaultLoopButton);
-//		defaultLoopButton.setSelected(true);
-//		add(defaultLoopButton, "wrap");
-//
-//		JRadioButton alwaysLoopButton = new JRadioButton("Always Loop");
-//		alwaysLoopButton.addActionListener(e -> listener.setLoop(AnimationControllerListener.LoopType.ALWAYS_LOOP));
-//		buttonGroup.add(alwaysLoopButton);
-//		add(alwaysLoopButton, "wrap");
-//
-//		JRadioButton neverLoopButton = new JRadioButton("Never Loop");
-//		neverLoopButton.addActionListener(e -> listener.setLoop(AnimationControllerListener.LoopType.NEVER_LOOP));
-//		buttonGroup.add(neverLoopButton);
-//		add(neverLoopButton, "wrap, gapbottom 16");
+		add(getSpeedSlider(listener), "wrap, w 90%:90%:90%, gapbottom 16");
 
+		add(new JLabel("Level of Detail"), "wrap");
+		add(getLodSpinner(listener), "wrap, w 90%:90%:90%");
+
+		animationBox.setSelectedItem(defaultAnimation);
+		listener.setLoop(PreviewPanel.LoopType.DEFAULT_LOOP);
+	}
+
+	private JSpinner getLodSpinner(PreviewPanel listener) {
+		JSpinner levelOfDetailSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 5, 1));
+		levelOfDetailSpinner.addChangeListener(e -> listener.setLevelOfDetail(((Number) levelOfDetailSpinner.getValue()).intValue()));
+		levelOfDetailSpinner.setMaximumSize(new Dimension(99999, 25));
+		return levelOfDetailSpinner;
+	}
+
+	private JSlider getSpeedSlider(PreviewPanel listener) {
 		JSlider speedSlider = new JSlider(0, 100, 50);
 		JLabel speedSliderLabel = new JLabel("Speed: 100%");
 		add(speedSliderLabel, "wrap");
 		speedSlider.addChangeListener(e -> changeAnimationSpeed(listener, speedSlider, speedSliderLabel));
-		add(speedSlider, "wrap, w 90%:90%:90%, gapbottom 16");
-
-		add(new JLabel("Level of Detail"), "wrap");
-		JSpinner levelOfDetailSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 5, 1));
-		levelOfDetailSpinner.addChangeListener(e -> listener.setLevelOfDetail(((Number) levelOfDetailSpinner.getValue()).intValue()));
-		levelOfDetailSpinner.setMaximumSize(new Dimension(99999, 25));
-		add(levelOfDetailSpinner, "wrap, w 90%:90%:90%");
-
-		animationBox.setSelectedItem(defaultAnimation);
-		listener.setLoop(AnimationControllerListener.LoopType.DEFAULT_LOOP);
+		return speedSlider;
 	}
 
-	public void createAnimationChooser(ModelHandler modelHandler, boolean allowUnanimated, AnimationControllerListener listener) {
+	private SmartButtonGroup getLoopTypoPanel(PreviewPanel previewPanel) {
+		SmartButtonGroup smartButtonGroup = new SmartButtonGroup();
+		smartButtonGroup.addJRadioButton("Default Loop", e -> previewPanel.setLoop(PreviewPanel.LoopType.DEFAULT_LOOP));
+		smartButtonGroup.addJRadioButton("Always Loop", e -> previewPanel.setLoop(PreviewPanel.LoopType.ALWAYS_LOOP));
+		smartButtonGroup.addJRadioButton("Never Loop", e -> previewPanel.setLoop(PreviewPanel.LoopType.NEVER_LOOP));
+		smartButtonGroup.setSelectedIndex(0);
+		return smartButtonGroup;
+	}
+
+	public void createAnimationChooser(ModelHandler modelHandler, boolean allowUnanimated, PreviewPanel previewPanel) {
 		animations = new DefaultComboBoxModel<>();
 		if (allowUnanimated || (modelHandler.getModel().getAnims().size() == 0)) {
 			animations.addElement(null);
@@ -82,7 +75,7 @@ public class AnimationController extends JPanel {
 		}
 		animationBox = new JComboBox<>(animations);
 		animationBox.setRenderer(getComboBoxRenderer());
-		animationBox.addActionListener(e -> playSelectedAnimation(listener));
+		animationBox.addActionListener(e -> playSelectedAnimation(previewPanel));
 
 		animationBox.setMaximumSize(new Dimension(99999999, 35));
 		animationBox.setFocusable(true);
@@ -103,9 +96,9 @@ public class AnimationController extends JPanel {
 		};
 	}
 
-	public void playSelectedAnimation(AnimationControllerListener listener) {
-		listener.setAnimation((Animation) animationBox.getSelectedItem());
-		listener.playAnimation();
+	public void playSelectedAnimation(PreviewPanel previewPanel) {
+		previewPanel.setAnimation((Animation) animationBox.getSelectedItem());
+		previewPanel.playAnimation();
 	}
 
 	public void changeAnimation(java.awt.event.MouseWheelEvent e) {
@@ -128,16 +121,16 @@ public class AnimationController extends JPanel {
 		}
 	}
 
-	public void changeAnimationSpeed(AnimationControllerListener listener, JSlider speedSlider, JLabel speedSliderLabel) {
+	public void changeAnimationSpeed(PreviewPanel previewPanel, JSlider speedSlider, JLabel speedSliderLabel) {
 		speedSliderLabel.setText("Speed: " + (speedSlider.getValue() * 2) + "%");
-		listener.setSpeed(speedSlider.getValue() / 50f);
+		previewPanel.setSpeed(speedSlider.getValue() / 50f);
 	}
 
-	public void setLoopType(AnimationControllerListener listener, String loopType) {
+	public void setLoopType(PreviewPanel previewPanel, String loopType) {
 		switch (loopType) {
-			case "always" -> listener.setLoop(AnimationControllerListener.LoopType.ALWAYS_LOOP);
-			case "never" -> listener.setLoop(AnimationControllerListener.LoopType.NEVER_LOOP);
-			default -> listener.setLoop(AnimationControllerListener.LoopType.DEFAULT_LOOP);
+			case "always" -> previewPanel.setLoop(PreviewPanel.LoopType.ALWAYS_LOOP);
+			case "never" -> previewPanel.setLoop(PreviewPanel.LoopType.NEVER_LOOP);
+			default -> previewPanel.setLoop(PreviewPanel.LoopType.DEFAULT_LOOP);
 		}
 	}
 
@@ -159,13 +152,4 @@ public class AnimationController extends JPanel {
 			animationBox.setSelectedItem(anims.get(0));
 		}
 	}
-
-//	public Animation getCurrentAnimation() {
-//		return (Animation) animationBox.getSelectedItem();
-//	}
-
-//	public void setModel(ModelView modelView) {
-//		this.modelView = modelView;
-//		reload();
-//	}
 }

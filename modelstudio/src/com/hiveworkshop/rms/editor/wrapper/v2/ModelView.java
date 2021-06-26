@@ -12,7 +12,7 @@ import java.util.*;
 public final class ModelView {
 	private final EditableModel model;
 	private RenderModel editorRenderModel;
-	private final ModelViewStateNotifier modelViewStateNotifier;
+	private final ModelViewStateListener modelViewStateNotifier;
 
 	private final Set<GeosetVertex> selectedTVertices = new HashSet<>();
 	private final Set<GeosetVertex> selectedVertices = new HashSet<>();
@@ -60,7 +60,7 @@ public final class ModelView {
 		this.model = model;
 //		editorRenderModel = new RenderModel(this.model, this);
 
-		modelViewStateNotifier = new ModelViewStateNotifier();
+		modelViewStateNotifier = new ModelViewStateListener();
 		for (Geoset geoset : model.getGeosets()) {
 			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() == 0)) {
 				editableGeosets.add(geoset);
@@ -80,7 +80,7 @@ public final class ModelView {
 		this.model = model;
 		editorRenderModel = new RenderModel(this.model, this, timeEnvironment);
 
-		modelViewStateNotifier = new ModelViewStateNotifier();
+		modelViewStateNotifier = new ModelViewStateListener();
 		for (Geoset geoset : model.getGeosets()) {
 			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() == 0)) {
 				editableGeosets.add(geoset);
@@ -101,7 +101,7 @@ public final class ModelView {
 	}
 
 	public void addStateListener(ModelViewStateListener listener) {
-		modelViewStateNotifier.subscribe(listener);
+//		modelViewStateNotifier.subscribe(listener);
 	}
 
 	public Set<Geoset> getVisibleGeosets() {
@@ -160,7 +160,7 @@ public final class ModelView {
 		hiddenVertices.removeAll(geoset.getVertices());
 		editableVertices.addAll(geoset.getVertices());
 		notEditableVertices.removeAll(geoset.getVertices());
-		modelViewStateNotifier.geosetEditable(geoset);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void makeGeosetNotEditable(Geoset geoset) {
@@ -168,14 +168,14 @@ public final class ModelView {
 		notEditableGeosets.add(geoset);
 		editableVertices.removeAll(geoset.getVertices());
 		notEditableVertices.addAll(geoset.getVertices());
-		modelViewStateNotifier.geosetNotEditable(geoset);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void makeGeosetVisible(Geoset geoset) {
 		visibleGeosets.add(geoset);
 		hiddenGeosets.remove(geoset);
 		hiddenVertices.removeAll(geoset.getVertices());
-		modelViewStateNotifier.geosetVisible(geoset);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void makeGeosetNotVisible(Geoset geoset) {
@@ -183,13 +183,13 @@ public final class ModelView {
 		editableGeosets.remove(geoset);
 		hiddenGeosets.add(geoset);
 		hiddenVertices.addAll(geoset.getVertices());
-		modelViewStateNotifier.geosetNotVisible(geoset);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void makeIdObjectVisible(IdObject bone) {
 		visibleIdObjects.add(bone);
 		hiddenIdObjects.remove(bone);
-		modelViewStateNotifier.idObjectVisible(bone);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void makeIdObjectEditable(IdObject bone) {
@@ -197,7 +197,7 @@ public final class ModelView {
 		editableIdObjects.add(bone);
 		hiddenIdObjects.remove(bone);
 		notEditableIdObjects.remove(bone);
-		modelViewStateNotifier.idObjectVisible(bone);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void makeIdObjectNotVisible(IdObject bone) {
@@ -205,19 +205,19 @@ public final class ModelView {
 		visibleIdObjects.remove(bone);
 		hiddenIdObjects.add(bone);
 		notEditableIdObjects.add(bone);
-		modelViewStateNotifier.idObjectNotVisible(bone);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void makeIdObjectNotEditable(IdObject bone) {
 		editableIdObjects.remove(bone);
 		notEditableIdObjects.add(bone);
-		modelViewStateNotifier.idObjectNotVisible(bone);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void makeCameraVisible(Camera camera) {
 		visibleCameras.add(camera);
 		hiddenCameras.remove(camera);
-		modelViewStateNotifier.cameraVisible(camera);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void makeCameraEditable(Camera camera) {
@@ -225,7 +225,7 @@ public final class ModelView {
 		visibleCameras.add(camera);
 		hiddenCameras.remove(camera);
 		notEditableCameras.remove(camera);
-		modelViewStateNotifier.cameraVisible(camera);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void makeCameraNotVisible(Camera camera) {
@@ -233,37 +233,37 @@ public final class ModelView {
 		visibleCameras.remove(camera);
 		hiddenCameras.add(camera);
 		notEditableCameras.add(camera);
-		modelViewStateNotifier.cameraNotVisible(camera);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void makeCameraNotEditable(Camera camera) {
 		editableCameras.remove(camera);
 		notEditableCameras.add(camera);
-		modelViewStateNotifier.cameraNotVisible(camera);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void highlightGeoset(Geoset geoset) {
 		highlightedGeoset = geoset;
-		modelViewStateNotifier.highlightGeoset(geoset);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void unhighlightGeoset(Geoset geoset) {
 		if (highlightedGeoset == geoset) {
 			highlightedGeoset = null;
 		}
-		modelViewStateNotifier.unhighlightGeoset(geoset);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void highlightNode(IdObject node) {
 		highlightedNode = node;
-		modelViewStateNotifier.highlightNode(node);
+		modelViewStateNotifier.repaintComponent();
 	}
 
 	public void unhighlightNode(IdObject node) {
 		if (highlightedNode == node) {
 			highlightedNode = null;
 		}
-		modelViewStateNotifier.unhighlightNode(node);
+		modelViewStateNotifier.repaintComponent();
 
 	}
 

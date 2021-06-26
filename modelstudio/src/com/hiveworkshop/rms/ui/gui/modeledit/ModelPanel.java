@@ -18,7 +18,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayL
 import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
 import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.viewer.AnimationController;
-import com.hiveworkshop.rms.ui.application.viewer.AnimationControllerListener;
+import com.hiveworkshop.rms.ui.application.viewer.PreviewPanel;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
@@ -60,7 +60,7 @@ public class ModelPanel {
 	private final MainPanel parent;
 	private final Icon icon;
 	private JMenuItem menuItem;
-	private final AnimationControllerListener animationViewer;
+	private final PreviewPanel previewPanel;
 	private final AnimationController animationController;
 	private final ComponentsPanel componentsPanel;
 
@@ -98,9 +98,9 @@ public class ModelPanel {
 		botArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Bottom", (byte) 1, (byte) 0);
 		sideArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Side", (byte) 0, (byte) 2);
 
-		animationViewer = new AnimationControllerListener(modelHandler, prefs, !specialBLPModel);
+		previewPanel = new PreviewPanel(modelHandler, prefs, !specialBLPModel);
 
-		animationController = new AnimationController(modelHandler, true, animationViewer, animationViewer.getCurrentAnimation());
+		animationController = new AnimationController(modelHandler, true, previewPanel, previewPanel.getCurrentAnimation());
 
 		frontArea.setControlsVisible(prefs.showVMControls());
 		botArea.setControlsVisible(prefs.showVMControls());
@@ -123,8 +123,8 @@ public class ModelPanel {
 		return modelHandler.getRenderModel();
 	}
 
-	public AnimationControllerListener getAnimationViewer() {
-		return animationViewer;
+	public PreviewPanel getAnimationViewer() {
+		return previewPanel;
 	}
 
 	public AnimationController getAnimationController() {
@@ -229,7 +229,7 @@ public class ModelPanel {
 		sideArea.repaint();
 		frontArea.repaint();
 		perspArea.repaint();
-		animationViewer.repaint();
+		previewPanel.repaint();
 		animationController.repaint();
 		modelViewManagingTree.repaint();
 		if (editUVPanel != null) {

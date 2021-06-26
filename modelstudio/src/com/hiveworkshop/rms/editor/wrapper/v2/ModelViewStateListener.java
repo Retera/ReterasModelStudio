@@ -1,32 +1,14 @@
 package com.hiveworkshop.rms.editor.wrapper.v2;
 
-import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 
-public interface ModelViewStateListener {
-	void geosetEditable(Geoset geoset);
+public class ModelViewStateListener {
 
-	void geosetNotEditable(Geoset geoset);
+	public ModelViewStateListener() {
+	}
 
-	void geosetVisible(Geoset geoset);
-
-	void geosetNotVisible(Geoset geoset);
-
-	void idObjectVisible(IdObject bone);
-
-	void idObjectNotVisible(IdObject bone);
-
-	void cameraVisible(Camera camera);
-
-	void cameraNotVisible(Camera camera);
-
-	void highlightGeoset(Geoset geoset);
-
-	void unhighlightGeoset(Geoset geoset);
-
-	void highlightNode(IdObject node);
-
-	void unhighlightNode(IdObject node);
+	public void repaintComponent() {
+		ProgramGlobals.getMainPanel().repaint();
+	}
 
 }

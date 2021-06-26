@@ -154,7 +154,6 @@ public class ModelLoader {
 		menuItem.addActionListener(e -> setCurrentModel(modelPanel));
 		modelPanel.setJMenuItem(menuItem);
 
-		modelPanel.getModelView().addStateListener(new RepaintingModelStateListener(mainPanel));
 		modelPanel.changeActivity(mainPanel.actionTypeGroup.getActiveButtonType());
 
 		MenuBar.addModelPanel(modelPanel);

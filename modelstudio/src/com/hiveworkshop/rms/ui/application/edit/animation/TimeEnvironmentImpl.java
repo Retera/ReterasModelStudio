@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.ui.application.viewer.AnimationControllerListener;
+import com.hiveworkshop.rms.ui.application.viewer.PreviewPanel;
 
 public class TimeEnvironmentImpl implements TimeBoundProvider {
 
@@ -10,7 +10,7 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 	boolean live = false;
 	private int animationTime;
 	private Animation animation;
-	private AnimationControllerListener.LoopType loopType = AnimationControllerListener.LoopType.DEFAULT_LOOP;
+	private PreviewPanel.LoopType loopType = PreviewPanel.LoopType.DEFAULT_LOOP;
 
 	protected float animationSpeed = 1f;
 	private int start;
@@ -57,7 +57,7 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 			setBounds(animation);
 		}
 		updateLastMillis();
-		if (loopType == AnimationControllerListener.LoopType.DEFAULT_LOOP) {
+		if (loopType == PreviewPanel.LoopType.DEFAULT_LOOP) {
 			looping = animation != null && !animation.isNonLooping();
 		}
 		return this.animation;
@@ -228,7 +228,7 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 	}
 
 
-	public TimeEnvironmentImpl setLoopType(final AnimationControllerListener.LoopType loopType) {
+	public TimeEnvironmentImpl setLoopType(final PreviewPanel.LoopType loopType) {
 		this.loopType = loopType;
 		switch (loopType) {
 			case ALWAYS_LOOP -> looping = true;
@@ -239,19 +239,19 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 	}
 
 	public TimeEnvironmentImpl setAlwaysLooping() {
-		this.loopType = AnimationControllerListener.LoopType.ALWAYS_LOOP;
+		this.loopType = PreviewPanel.LoopType.ALWAYS_LOOP;
 		looping = true;
 		return this;
 	}
 
 	public TimeEnvironmentImpl setDefaultLooping() {
-		this.loopType = AnimationControllerListener.LoopType.DEFAULT_LOOP;
+		this.loopType = PreviewPanel.LoopType.DEFAULT_LOOP;
 		looping = looping = animation != null && !animation.isNonLooping();
 		return this;
 	}
 
 	public TimeEnvironmentImpl setNeverLooping() {
-		this.loopType = AnimationControllerListener.LoopType.NEVER_LOOP;
+		this.loopType = PreviewPanel.LoopType.NEVER_LOOP;
 		looping = false;
 		return this;
 	}
