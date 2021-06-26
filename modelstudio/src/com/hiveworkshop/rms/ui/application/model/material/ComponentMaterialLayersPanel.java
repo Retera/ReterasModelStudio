@@ -4,32 +4,27 @@ import com.hiveworkshop.rms.editor.actions.model.material.AddLayerAction;
 import com.hiveworkshop.rms.editor.actions.model.material.RemoveMaterialAction;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ComponentMaterialLayersPanel extends JPanel {
 	public static final String[] REFORGED_LAYER_DEFINITIONS = {"Diffuse", "Vertex", "ORM", "Emissive", "Team Color", "Reflections"};
 	private static final Color HIGHLIGHT_BUTTON_BACKGROUND_COLOR = new Color(100, 118, 135);
 	private Material material;
-	private UndoManager undoManager;
-	private ModelView modelView;
-	private ModelHandler modelHandler;
-	private ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelHandler modelHandler;
+	private final ModelStructureChangeListener changeListener;
 	private final JPanel layerPanelsHolder;
-	private final Map<String, ComponentLayerPanel> layerPanelMap;
 
 	private final JCheckBox twoSided;
 
-	public ComponentMaterialLayersPanel() {
+	public ComponentMaterialLayersPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
 		setLayout(new MigLayout("fill", "[][][grow]"));
+		this.modelHandler = modelHandler;
+		this.changeListener = changeListener;
 
 		JPanel twoSidedBoxHolder = new JPanel(new MigLayout("fill", "[grow]"));
 		add(twoSidedBoxHolder, "growx, span 3, wrap");
@@ -38,37 +33,33 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		twoSided.addActionListener(e -> setTwoSided());
 		twoSidedBoxHolder.add(twoSided);
 
+		twoSidedBoxHolder.add(getDeleteMaterialButton(), "right");
+
+		layerPanelsHolder = new JPanel(new MigLayout("fill", "[grow]"));
+		add(layerPanelsHolder, "growx, span 3, wrap");
+
+		add(getAddLayerButton());
+	}
+
+	private JButton getDeleteMaterialButton() {
 		JButton deleteMaterialButton = new JButton("Delete");
 		deleteMaterialButton.setBackground(Color.RED);
 		deleteMaterialButton.setForeground(Color.WHITE);
 		deleteMaterialButton.addActionListener(e -> deleteMaterial());
-		twoSidedBoxHolder.add(deleteMaterialButton, "right");
-
-		layerPanelMap = new HashMap<>();
-		layerPanelsHolder = new JPanel(new MigLayout("fill", "[grow]"));
-		add(layerPanelsHolder, "growx, span 3, wrap");
-
-		JButton addLayerButton = getAddLayerButton();
-		add(addLayerButton);
+		return deleteMaterialButton;
 	}
 
 	private JButton getAddLayerButton() {
-		final JButton addLayerButton;
-		addLayerButton = new JButton("Add Layer");
+		JButton addLayerButton = new JButton("Add Layer");
 		addLayerButton.setBackground(HIGHLIGHT_BUTTON_BACKGROUND_COLOR);
 		addLayerButton.setForeground(Color.WHITE);
 		addLayerButton.addActionListener(e -> addLayer());
 		return addLayerButton;
 	}
 
-	public void setMaterial(Material material, ModelHandler modelHandler,
-	                        ModelStructureChangeListener modelStructureChangeListener) {
+	public void setMaterial(Material material) {
 		this.material = material;
-		this.modelHandler = modelHandler;
-		this.undoManager = modelHandler.getUndoManager();
-		this.modelView = modelHandler.getModelView();
-		this.modelStructureChangeListener = modelStructureChangeListener;
-		final boolean hdShader = Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString());
+		boolean hdShader = Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString());
 		twoSided.setVisible(hdShader);
 		if (hdShader) {
 			twoSided.setSelected(material.getTwoSided());
@@ -77,35 +68,25 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		}
 
 		layerPanelsHolder.removeAll();
-		createLayerPanels(material, modelHandler, modelStructureChangeListener, hdShader);
+		createLayerPanels(material, modelHandler, changeListener);
 		revalidate();
 		repaint();
 
 	}
 
 
-	private void createLayerPanels(Material material, ModelHandler modelHandler, ModelStructureChangeListener modelStructureChangeListener, boolean hdShader) {
+	private void createLayerPanels(Material material, ModelHandler modelHandler, ModelStructureChangeListener modelStructureChangeListener) {
 		for (int i = 0; i < material.getLayers().size(); i++) {
 			final Layer layer = material.getLayers().get(i);
-			ComponentLayerPanel panel;
-
-			String keyString = material.toString() + layer.toString();
-			if (layerPanelMap.containsKey(keyString)) {
-				panel = layerPanelMap.get(keyString);
-			} else {
-				panel = new ComponentLayerPanel(material, modelHandler, i, hdShader, modelStructureChangeListener);
-				layerPanelMap.put(keyString, panel);
-			}
-			panel.setLayer(modelView.getModel(), layer, modelView.getModel().getFormatVersion(), hdShader, undoManager);
+			ComponentLayerPanel panel = new ComponentLayerPanel(layer, material, modelHandler, i, modelStructureChangeListener);
 			layerPanelsHolder.add(panel, "growx, wrap");
 		}
 	}
 
 
 	private void addLayer() {
-		AddLayerAction addLayerAction = new AddLayerAction(new Layer("None", 0), material, modelStructureChangeListener);
-		undoManager.pushAction(addLayerAction);
-		addLayerAction.redo();
+		AddLayerAction addLayerAction = new AddLayerAction(new Layer("None", 0), material, changeListener);
+		modelHandler.getUndoManager().pushAction(addLayerAction.redo());
 	}
 
 	private void setTwoSided() {
@@ -113,10 +94,9 @@ public class ComponentMaterialLayersPanel extends JPanel {
 	}
 
 	private void deleteMaterial() {
-		if (!modelView.getModel().getMaterials().isEmpty()) {
-			RemoveMaterialAction removeMaterialAction = new RemoveMaterialAction(material, modelView, modelStructureChangeListener);
-			undoManager.pushAction(removeMaterialAction);
-			removeMaterialAction.redo();
+		if (!modelHandler.getModel().getMaterials().isEmpty()) {
+			RemoveMaterialAction removeMaterialAction = new RemoveMaterialAction(material, modelHandler.getModel(), changeListener);
+			modelHandler.getUndoManager().pushAction(removeMaterialAction.redo());
 		}
 	}
 

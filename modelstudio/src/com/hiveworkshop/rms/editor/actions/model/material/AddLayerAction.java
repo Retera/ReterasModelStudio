@@ -8,27 +8,29 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 public class AddLayerAction implements UndoAction {
 	private final Material material;
 	private final Layer layer;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public AddLayerAction(final Layer layer,
-	                      final Material material,
-	                      final ModelStructureChangeListener modelStructureChangeListener) {
+	public AddLayerAction(Layer layer, Material material, ModelStructureChangeListener changeListener) {
 		this.layer = layer;
 		this.material = material;
-		this.structureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		material.removeLayer(layer);
-		structureChangeListener.materialsListChanged();
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		material.addLayer(layer);
-		structureChangeListener.materialsListChanged();
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
+		}
 		return this;
 	}
 

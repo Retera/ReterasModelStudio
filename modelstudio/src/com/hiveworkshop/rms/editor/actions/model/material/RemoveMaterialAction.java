@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.editor.actions.model.material;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 import java.util.ArrayList;
@@ -11,25 +11,27 @@ import java.util.List;
 
 public class RemoveMaterialAction implements UndoAction {
 	private final Material material;
-	private final ModelView modelViewManager;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final EditableModel model;
+	private final ModelStructureChangeListener changeListener;
 	private int index;
 	private final List<Geoset> affectedGeosets;
 
 	public RemoveMaterialAction(final Material material,
-	                            final ModelView modelViewManager,
-	                            final ModelStructureChangeListener modelStructureChangeListener) {
+	                            final EditableModel model,
+	                            final ModelStructureChangeListener changeListener) {
 		this.material = material;
-		this.modelViewManager = modelViewManager;
-		this.structureChangeListener = modelStructureChangeListener;
+		this.model = model;
+		this.changeListener = changeListener;
 		affectedGeosets = new ArrayList<>();
 	}
 
 	@Override
 	public UndoAction undo() {
-		modelViewManager.getModel().getMaterials().add(index, material);
+		model.getMaterials().add(index, material);
 		setMaterialForAffectedGeosets(material);
-		structureChangeListener.materialsListChanged();
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
+		}
 		return this;
 	}
 
@@ -37,7 +39,7 @@ public class RemoveMaterialAction implements UndoAction {
 	public UndoAction redo() {
 		// To remove the chosen instance of the material, if clones exists.
 		// This keeps the expected order of the material list in the model view
-		List<Material> materials = modelViewManager.getModel().getMaterials();
+		List<Material> materials = model.getMaterials();
 		getAffectedGeosets();
 
 		boolean materialRemoved = false;
@@ -50,18 +52,20 @@ public class RemoveMaterialAction implements UndoAction {
 			}
 		}
 		if (!materialRemoved) {
-			index = modelViewManager.getModel().getMaterials().indexOf(material);
-			modelViewManager.getModel().getMaterials().remove(material);
+			index = model.getMaterials().indexOf(material);
+			model.getMaterials().remove(material);
 		}
 
 		removeGeosetUsers();
 
-		structureChangeListener.materialsListChanged();
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
+		}
 		return this;
 	}
 
 	private void getAffectedGeosets() {
-		List<Geoset> geosets = modelViewManager.getModel().getGeosets();
+		List<Geoset> geosets = model.getGeosets();
 		for (Geoset geoset : geosets) {
 			if (geoset.getMaterial() == material) {
 				affectedGeosets.add(geoset);
@@ -74,11 +78,11 @@ public class RemoveMaterialAction implements UndoAction {
 		// if found sets material of affected geosets to the duplicate material,
 		// else sets geoset materials to the first material
 		Material replacementMaterial;
-		int materialCopyIndex = modelViewManager.getModel().getMaterials().indexOf(material);
+		int materialCopyIndex = model.getMaterials().indexOf(material);
 		if (materialCopyIndex != -1) {
-			replacementMaterial = modelViewManager.getModel().getMaterials().get(materialCopyIndex);
+			replacementMaterial = model.getMaterials().get(materialCopyIndex);
 		} else {
-			replacementMaterial = modelViewManager.getModel().getMaterials().get(0);
+			replacementMaterial = model.getMaterials().get(0);
 		}
 		setMaterialForAffectedGeosets(replacementMaterial);
 	}

@@ -11,28 +11,28 @@ public class ChangeLayerStaticTextureAction implements UndoAction {
 	private final int textureId;
 	private final int oldTextureId;
 	private final Layer layer;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public ChangeLayerStaticTextureAction(final Bitmap bitmap, final Layer layer,
-	                                      final ModelStructureChangeListener modelStructureChangeListener) {
-		this(bitmap, -1, layer, modelStructureChangeListener);
+	public ChangeLayerStaticTextureAction(Bitmap bitmap, Layer layer, ModelStructureChangeListener changeListener) {
+		this(bitmap, -1, layer, changeListener);
 	}
 
-	public ChangeLayerStaticTextureAction(final Bitmap bitmap, final int textureId, final Layer layer,
-	                                      final ModelStructureChangeListener modelStructureChangeListener) {
+	public ChangeLayerStaticTextureAction(Bitmap bitmap, int textureId, Layer layer, ModelStructureChangeListener changeListener) {
 		this.bitmap = bitmap;
 		this.layer = layer;
 		this.textureId = textureId;
 		oldBitmap = layer.getTextureBitmap();
 		oldTextureId = layer.getTextureId();
-		this.structureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		layer.setTexture(oldBitmap);
 		layer.setTextureId(oldTextureId);
-		structureChangeListener.materialsListChanged();
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
+		}
 		return this;
 	}
 
@@ -40,7 +40,9 @@ public class ChangeLayerStaticTextureAction implements UndoAction {
 	public UndoAction redo() {
 		layer.setTexture(bitmap);
 		layer.setTextureId(textureId);
-		structureChangeListener.materialsListChanged();
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
+		}
 		return this;
 	}
 

@@ -23,7 +23,7 @@ public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitt
 
 		pathField = new ComponentEditorTextField(24);
 		pathField.addEditingStoppedListener(this::texturePathField);
-		add(pathField, "wrap");
+		topPanel.add(pathField, "wrap");
 
 		longitudePanel = new FloatValuePanel(modelHandler, "Longitude", modelHandler.getUndoManager(), changeListener);
 		latitudePanel = new FloatValuePanel(modelHandler, "Latitude", modelHandler.getUndoManager(), changeListener);
@@ -31,12 +31,12 @@ public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitt
 		gravityPanel = new FloatValuePanel(modelHandler, "Gravity", modelHandler.getUndoManager(), changeListener);
 		emissionPanel = new FloatValuePanel(modelHandler, "EmissionRate", modelHandler.getUndoManager(), changeListener);
 		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility", modelHandler.getUndoManager(), changeListener);
-		add(longitudePanel, "spanx, growx, wrap");
-		add(latitudePanel, "spanx, growx, wrap");
-		add(speedPanel, "spanx, growx, wrap");
-		add(gravityPanel, "spanx, growx, wrap");
-		add(emissionPanel, "spanx, growx, wrap");
-		add(visibilityPanel, "spanx, growx, wrap");
+		topPanel.add(longitudePanel, "spanx, growx, wrap");
+		topPanel.add(latitudePanel, "spanx, growx, wrap");
+		topPanel.add(speedPanel, "spanx, growx, wrap");
+		topPanel.add(gravityPanel, "spanx, growx, wrap");
+		topPanel.add(emissionPanel, "spanx, growx, wrap");
+		topPanel.add(visibilityPanel, "spanx, growx, wrap");
 	}
 
 	@Override

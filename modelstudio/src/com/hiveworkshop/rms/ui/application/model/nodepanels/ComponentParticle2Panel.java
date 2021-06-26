@@ -29,13 +29,13 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		gravityPanel = new FloatValuePanel(modelHandler, "Gravity", modelHandler.getUndoManager(), changeListener);
 		emissionPanel = new FloatValuePanel(modelHandler, "EmissionRate", modelHandler.getUndoManager(), changeListener);
 //		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility", modelHandler.getUndoManager(), changeListener);
-		add(widthPanel, "spanx, growx, wrap");
-		add(lengthPanel, "spanx, growx, wrap");
-		add(latitudePanel, "spanx, growx, wrap");
-		add(variationPanel, "spanx, growx, wrap");
-		add(speedPanel, "spanx, growx, wrap");
-		add(gravityPanel, "spanx, growx, wrap");
-		add(emissionPanel, "spanx, growx, wrap");
+		topPanel.add(emissionPanel, "spanx, growx, wrap");
+		topPanel.add(speedPanel, "spanx, growx, wrap");
+		topPanel.add(gravityPanel, "spanx, growx, wrap");
+		topPanel.add(variationPanel, "spanx, growx, wrap");
+		topPanel.add(widthPanel, "spanx, growx, wrap");
+		topPanel.add(lengthPanel, "spanx, growx, wrap");
+		topPanel.add(latitudePanel, "spanx, growx, wrap");
 //		add(visibilityPanel, "spanx, growx, wrap");
 	}
 

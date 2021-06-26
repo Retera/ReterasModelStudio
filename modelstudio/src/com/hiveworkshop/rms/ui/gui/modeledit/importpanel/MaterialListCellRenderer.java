@@ -9,13 +9,15 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
-class MaterialListCellRenderer extends DefaultListCellRenderer {
+public class MaterialListCellRenderer extends DefaultListCellRenderer {
 	protected static final Vec3 recModelColor = new Vec3(200, 255, 255);
 	protected static final Vec3 donModelColor = new Vec3(220, 180, 255);
+	protected static final Color bgColor = new Color(130, 230, 170);
+
 	EditableModel myModel;
 	Object myMaterial;
 	private static final int SIZE = 64;
-	Font theFont = new Font("Arial", Font.BOLD, 32);
+	Font theFont = new Font("Arial", Font.BOLD, 16);
 	HashMap<Material, ImageIcon> map = new HashMap<>();
 	private static final int EIGHTH_SIZE = SIZE / 8;
 	private static final int SIXTEENTH_SIZE = SIZE / 16;
@@ -50,6 +52,9 @@ class MaterialListCellRenderer extends DefaultListCellRenderer {
 			setIcon(makeMaterialIcon(material, materialImage, donModelColor.asIntColor()));
 		}
 		setFont(theFont);
+		if (myMaterial == material) {
+			setBackground(bgColor);
+		}
 		return this;
 	}
 

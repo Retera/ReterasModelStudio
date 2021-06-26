@@ -9,27 +9,30 @@ public class SetLayerFilterModeAction implements UndoAction {
 	private final Layer layer;
 	private final FilterMode prevFilterMode;
 	private final FilterMode newFilterMode;
-	private final ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetLayerFilterModeAction(final Layer layer, final FilterMode prevFilterMode, final FilterMode newFilterMode,
-			final ModelStructureChangeListener modelStructureChangeListener) {
+	public SetLayerFilterModeAction(Layer layer, FilterMode newFilterMode, ModelStructureChangeListener changeListener) {
 		this.layer = layer;
-		this.prevFilterMode = prevFilterMode;
+		this.prevFilterMode = layer.getFilterMode();
 		this.newFilterMode = newFilterMode;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		layer.setFilterMode(prevFilterMode);
-		modelStructureChangeListener.texturesChanged();
+		if (changeListener != null) {
+			changeListener.texturesChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		layer.setFilterMode(newFilterMode);
-		modelStructureChangeListener.texturesChanged();
+		if (changeListener != null) {
+			changeListener.texturesChanged();
+		}
 		return this;
 	}
 

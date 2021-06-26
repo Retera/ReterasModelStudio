@@ -37,7 +37,7 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 		priorityPlaneSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(-1, -1, Integer.MAX_VALUE, 1));
 		priorityPlaneSpinner.addActionListener(this::priorityPlaneSpinnerListener);
 
-		multipleLayersPanel = new ComponentMaterialLayersPanel();
+		multipleLayersPanel = new ComponentMaterialLayersPanel(modelHandler, changeListener);
 
 		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
 		add(new JLabel("Shader:"));
@@ -66,7 +66,7 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 			listenForChanges = true;
 		}
 
-		multipleLayersPanel.setMaterial(material, modelHandler, changeListener);
+		multipleLayersPanel.setMaterial(material);
 	}
 
 	private JComboBox<String> getShaderComboBox() {
@@ -81,20 +81,16 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 	}
 
 	private void priorityPlaneSpinnerListener() {
-		final SetMaterialPriorityPlaneAction setMaterialPriorityPlaneAction = new SetMaterialPriorityPlaneAction(
-				material, material.getPriorityPlane(), ((Number) priorityPlaneSpinner.getValue()).intValue(),
-				changeListener);
-		setMaterialPriorityPlaneAction.redo();
-		modelHandler.getUndoManager().pushAction(setMaterialPriorityPlaneAction);
+		int newPriorityPlane = ((Number) priorityPlaneSpinner.getValue()).intValue();
+		modelHandler.getUndoManager()
+				.pushAction(new SetMaterialPriorityPlaneAction(material, newPriorityPlane, changeListener).redo());
 	}
 
 	private void shaderOptionComboBoxListener() {
 		if (listenForChanges) {
-			final SetMaterialShaderStringAction setMaterialShaderStringAction = new SetMaterialShaderStringAction(
-					material, material.getShaderString(), (String) shaderOptionComboBox.getSelectedItem(),
-					changeListener);
-			setMaterialShaderStringAction.redo();
-			modelHandler.getUndoManager().pushAction(setMaterialShaderStringAction);
+			String newShader = (String) shaderOptionComboBox.getSelectedItem();
+			modelHandler.getUndoManager()
+					.pushAction(new SetMaterialShaderStringAction(material, newShader, changeListener).redo());
 		}
 	}
 

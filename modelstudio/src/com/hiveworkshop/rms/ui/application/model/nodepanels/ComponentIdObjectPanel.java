@@ -23,12 +23,12 @@ import java.awt.event.FocusEvent;
 
 
 public abstract class ComponentIdObjectPanel<T extends IdObject> extends ComponentPanel<T> {
-	private final ModelStructureChangeListener changeListener1;
 	JLabel title;
 	JTextField nameField;
 	JLabel parentName;
 	ParentChooser parentChooser;
 	protected T idObject;
+	protected JPanel topPanel;
 	protected Vec3ValuePanel transPanel;
 	protected Vec3ValuePanel scalePanel;
 	protected QuatValuePanel rotPanel;
@@ -38,11 +38,10 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	public ComponentIdObjectPanel(ModelHandler modelHandler,
 	                              ModelStructureChangeListener changeListener) {
 		super(modelHandler, changeListener);
-		this.changeListener1 = changeListener;
 
 		parentChooser = new ParentChooser(modelHandler.getModelView());
 
-		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][grow]"));
+		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][][grow]"));
 		title = new JLabel("Select a IdObject");
 		add(title, "wrap");
 		nameField = new JTextField(24);
@@ -58,6 +57,9 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		pivot = new JLabel("(0.0,0.0,0.0)");
 		add(new JLabel("pivot: "));
 		add(pivot, "wrap");
+
+		topPanel = new JPanel(new MigLayout("fill, ins 0", "[]5[]5[grow]"));
+		add(topPanel, "spanx, wrap");
 
 		transPanel = new Vec3ValuePanel(modelHandler, MdlUtils.TOKEN_TRANSLATION, modelHandler.getUndoManager(), changeListener);
 		scalePanel = new Vec3ValuePanel(modelHandler, MdlUtils.TOKEN_SCALING, modelHandler.getUndoManager(), changeListener);
@@ -98,7 +100,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 
 	private void chooseParent() {
 		IdObject newParent = parentChooser.chooseParent(idObject, this.getRootPane());
-		ParentChangeAction action = new ParentChangeAction(idObject, newParent, changeListener1);
+		ParentChangeAction action = new ParentChangeAction(idObject, newParent, changeListener);
 		action.redo();
 		repaint();
 		modelHandler.getUndoManager().pushAction(action);
@@ -110,7 +112,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 			public void focusLost(FocusEvent e) {
 				String newName = nameField.getText();
 				if (!newName.equals("")) {
-					NameChangeAction action = new NameChangeAction(idObject, newName, changeListener1);
+					NameChangeAction action = new NameChangeAction(idObject, newName, changeListener);
 					action.redo();
 					modelHandler.getUndoManager().pushAction(action);
 				}

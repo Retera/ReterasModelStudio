@@ -16,7 +16,7 @@ public class ComponentRibbonPanel extends ComponentIdObjectPanel<RibbonEmitter> 
 		super(modelHandler, changeListener);
 
 		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager(), changeListener);
-		add(alphaPanel, "spanx, growx, wrap");
+		topPanel.add(alphaPanel, "spanx, growx, wrap");
 	}
 
 	@Override

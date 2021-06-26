@@ -30,15 +30,15 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 	private int selectedRow;
 
 
-	public TextureValuePanel(ModelHandler modelHandler, String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener, EditableModel model) {
+	public TextureValuePanel(ModelHandler modelHandler, String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
 		super(modelHandler, title, undoManager, modelStructureChangeListener);
 
-		textureChooser = new JComboBox<>(getTextures(model));
-		textureChooser.setModel(new DefaultComboBoxModel<>(getTextures(model)));
+		textureChooser = new JComboBox<>(getTextures(modelHandler.getModel()));
+		textureChooser.setModel(new DefaultComboBoxModel<>(getTextures(modelHandler.getModel())));
 		textureChooser.addActionListener(this::setTextureId);
 		chooseTextureComboPopup = new BasicComboPopup(textureChooser);
 
-		staticTextureChooser.setModel(new DefaultComboBoxModel<>(getTextures(model)));
+		staticTextureChooser.setModel(new DefaultComboBoxModel<>(getTextures(modelHandler.getModel())));
 
 		keyframePanel.getFloatTrackTableModel().addExtraColumn("Texture", "", String.class);  // 🎨 \uD83C\uDFA8
 

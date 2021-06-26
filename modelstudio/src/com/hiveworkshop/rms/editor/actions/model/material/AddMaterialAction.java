@@ -1,36 +1,40 @@
 package com.hiveworkshop.rms.editor.actions.model.material;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 public class AddMaterialAction implements UndoAction {
 	private final Material material;
-	private final ModelView modelViewManager;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final EditableModel model;
+	private final ModelStructureChangeListener changeListener;
 
 	public AddMaterialAction(final Material material,
-	                         final ModelView modelViewManager,
+	                         final EditableModel model,
 	                         final ModelStructureChangeListener modelStructureChangeListener) {
 		this.material = material;
 		this.material.setShaderString(material.getShaderString());
 //		this.material.setShaderString(material.getShaderString() + "_copy");
-		this.modelViewManager = modelViewManager;
-		this.structureChangeListener = modelStructureChangeListener;
+		this.model = model;
+		this.changeListener = modelStructureChangeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
-		modelViewManager.getModel().getMaterials().remove(material);
-		structureChangeListener.materialsListChanged();
+		model.getMaterials().remove(material);
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
-		modelViewManager.getModel().addMaterial(material);
-		structureChangeListener.materialsListChanged();
+		model.addMaterial(material);
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
+		}
 		return this;
 	}
 

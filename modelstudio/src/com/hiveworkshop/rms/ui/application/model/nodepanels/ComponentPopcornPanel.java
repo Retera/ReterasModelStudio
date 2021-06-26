@@ -30,11 +30,11 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 
 		popcornPathField = new ComponentEditorTextField(24);
 		popcornPathField.addEditingStoppedListener(this::texturePathField);
-		add(popcornPathField, "wrap");
+		topPanel.add(popcornPathField, "wrap");
 
 		visGuidPanel = new JPanel(new MigLayout("gap 0", "[]8[]"));
-		add(visGuidPanel, "wrap");
-		add(valuePanelsPanel(), "wrap");
+		topPanel.add(visGuidPanel, "wrap");
+		topPanel.add(valuePanelsPanel(), "wrap");
 	}
 
 	private JPanel valuePanelsPanel() {

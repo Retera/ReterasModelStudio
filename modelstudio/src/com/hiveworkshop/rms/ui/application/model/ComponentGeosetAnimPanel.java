@@ -18,13 +18,11 @@ import javax.swing.*;
 
 
 public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
-	private final boolean listenersEnabled = true;
+	private GeosetAnim geosetAnim;
 	private final JPanel animsPanelHolder;
-	private FloatValuePanel alphaPanel;
-	private ColorValuePanel colorPanel;
-	private ComponentGeosetMaterialPanel geosetAnimPanel;
-	GeosetAnim geosetAnim;
-	private JLabel geosetLabel;
+	private final FloatValuePanel alphaPanel;
+	private final ColorValuePanel colorPanel;
+	private final JLabel geosetLabel;
 
 
 	public ComponentGeosetAnimPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
@@ -59,14 +57,6 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 
 	@Override
 	public void setSelectedItem(final GeosetAnim geosetAnim) {
-
-//		animsPanelHolder.remove(geosetAnimPanel);
-
-//		animPanels.putIfAbsent(geosetAnim, new ComponentGeosetMaterialPanel());
-//		geosetAnimPanel = animPanels.get(geosetAnim);
-
-//		geosetAnimPanel.setMaterialChooser(geosetAnim, modelViewManager, undoActionListener, modelStructureChangeListener);
-//		animsPanelHolder.add(geosetAnimPanel);
 		this.geosetAnim = geosetAnim;
 		geosetLabel.setText(geosetAnim.getGeoset().getName());
 		animsPanelHolder.revalidate();

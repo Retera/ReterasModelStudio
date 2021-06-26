@@ -8,27 +8,30 @@ public class SetMaterialShaderStringAction implements UndoAction {
 	private final Material material;
 	private final String prevShader;
 	private final String newShader;
-	private final ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetMaterialShaderStringAction(final Material material, final String prevShader, final String newShader,
-			final ModelStructureChangeListener modelStructureChangeListener) {
+	public SetMaterialShaderStringAction(Material material, String newShader, ModelStructureChangeListener changeListener) {
 		this.material = material;
-		this.prevShader = prevShader;
+		this.prevShader = material.getShaderString();
 		this.newShader = newShader;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		material.setShaderString(prevShader);
-		modelStructureChangeListener.texturesChanged();
+		if (changeListener != null) {
+			changeListener.texturesChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		material.setShaderString(newShader);
-		modelStructureChangeListener.texturesChanged();
+		if (changeListener != null) {
+			changeListener.texturesChanged();
+		}
 		return this;
 	}
 

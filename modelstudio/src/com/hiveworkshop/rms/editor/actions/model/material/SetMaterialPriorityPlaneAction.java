@@ -8,27 +8,30 @@ public class SetMaterialPriorityPlaneAction implements UndoAction {
 	private final Material material;
 	private final int prevPriorityPlane;
 	private final int newPriorityPlane;
-	private final ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetMaterialPriorityPlaneAction(final Material material, final int prevPriorityPlane,
-			final int newPriorityPlane, final ModelStructureChangeListener modelStructureChangeListener) {
+	public SetMaterialPriorityPlaneAction(Material material, int newPriorityPlane, ModelStructureChangeListener changeListener) {
 		this.material = material;
-		this.prevPriorityPlane = prevPriorityPlane;
+		this.prevPriorityPlane = material.getPriorityPlane();
 		this.newPriorityPlane = newPriorityPlane;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		material.setPriorityPlane(prevPriorityPlane);
-		modelStructureChangeListener.texturesChanged();
+		if (changeListener != null) {
+			changeListener.texturesChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		material.setPriorityPlane(newPriorityPlane);
-		modelStructureChangeListener.texturesChanged();
+		if (changeListener != null) {
+			changeListener.texturesChanged();
+		}
 		return this;
 	}
 

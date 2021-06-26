@@ -27,9 +27,5 @@ public class AnimationOverviewPanel extends JPanel {
 			add(new JLabel("" + animation.getMoveSpeed()));
 			add(new JLabel("" + animation.isNonLooping()));
 		}
-//
-//		add(new JLabel("Total"), "gapy 10");
-//		add(new JLabel("" + verts));
-//		add(new JLabel("" + tris));
 	}
 }
