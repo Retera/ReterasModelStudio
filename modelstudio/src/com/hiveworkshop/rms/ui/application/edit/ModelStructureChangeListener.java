@@ -12,9 +12,6 @@ import java.util.List;
 public class ModelStructureChangeListener {
 	public static final Quat IDENTITY = new Quat();
 
-	public ModelStructureChangeListener(final ModelReference modelReference) {
-	}
-
 	public ModelStructureChangeListener() {
 	}
 

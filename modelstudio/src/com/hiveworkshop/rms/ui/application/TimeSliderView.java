@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import net.infonode.docking.View;
@@ -73,11 +74,13 @@ public class TimeSliderView {
 		//		timeSliderPanel.addListener(creatorPanel);
 	}
 
-	public static void setMouseCoordDisplay(JTextField[] mouseCoordDisplay, byte dim1, byte dim2, double value1, double value2) {
+	public static void setMouseCoordDisplay(JTextField[] mouseCoordDisplay, CoordinateSystem coordinateSystem, double value1, double value2) {
 		for (final JTextField jTextField : mouseCoordDisplay) {
 			jTextField.setText("");
 		}
-		if (dim1 < 0) {
+		byte dim1 = coordinateSystem.getPortFirstXYZ();
+		byte dim2 = coordinateSystem.getPortSecondXYZ();
+		if (coordinateSystem.getPortFirstXYZ() < 0) {
 			dim1 = (byte) (-dim1 - 1);
 			value1 = -value1;
 		}

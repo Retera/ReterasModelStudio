@@ -117,7 +117,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
 
         viewportTransferHandler = new ViewportTransferHandler();
-        coordDisplayListener = (dim1, dim2, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, dim1, dim2, value1, value2);
+        coordDisplayListener = (coordSys, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, coordSys, value1, value2);
     }
 
 

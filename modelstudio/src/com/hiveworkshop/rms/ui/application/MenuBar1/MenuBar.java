@@ -52,9 +52,7 @@ public class MenuBar {
         scriptsMenu = new ScriptsMenu();
         aboutMenu = new AboutMenu();
 
-        directoryChangeNotifier.subscribe(() -> {
-            updateDataSource();
-        });
+        directoryChangeNotifier.subscribe(MenuBar::updateDataSource);
 
         menuBar.add(fileMenu);
         menuBar.add(editMenu);

@@ -15,6 +15,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -503,7 +504,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	@Override
-	public void notifyUpdate(byte dimension1, byte dimension2, double coord1, double coord2) {
+	public void notifyUpdate(CoordinateSystem coordinateSystem, double coord1, double coord2) {
 		setMouseCoordDisplay(coord1, coord2);
 	}
 

@@ -85,7 +85,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 	int ugg = 0;
 
-	public PerspectiveViewport(final ModelView modelView, RenderModel renderModel, final ProgramPreferences programPreferences, TimeEnvironmentImpl renderEnvironment, boolean loadDefaultCamera) throws LWJGLException {
+	public PerspectiveViewport(ModelView modelView, RenderModel renderModel, ProgramPreferences programPreferences, TimeEnvironmentImpl renderEnvironment, boolean loadDefaultCamera) throws LWJGLException {
 		super();
 		this.programPreferences = programPreferences;
 
@@ -136,11 +136,12 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	public Particle2TextureInstance getParticleTextureInstance(ModelView modelView, ProgramPreferences programPreferences) {
 		return new Particle2TextureInstance(textureMap, modelView, programPreferences);
 	}
+
 	public Particle2TextureInstance getParticleTextureInstance() {
 		return new Particle2TextureInstance(textureMap, modelView, programPreferences);
 	}
 
-	public void setLevelOfDetail(final int levelOfDetail) {
+	public void setLevelOfDetail(int levelOfDetail) {
 		this.levelOfDetail = levelOfDetail;
 	}
 

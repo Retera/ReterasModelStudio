@@ -145,7 +145,7 @@ public abstract class ViewportView extends JPanel {
 			lastClick.y = (int) my;
 		}
 
-		coordDisplayListener.notifyUpdate(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomX(mx), coordinateSystem.geomY(my));
+		coordDisplayListener.notifyUpdate(coordinateSystem, coordinateSystem.geomX(mx), coordinateSystem.geomY(my));
 
 		repaint();
 		return false;
