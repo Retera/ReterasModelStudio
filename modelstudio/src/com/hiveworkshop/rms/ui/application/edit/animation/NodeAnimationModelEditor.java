@@ -33,10 +33,10 @@ public class NodeAnimationModelEditor extends ModelEditor {
 	private final RenderModel renderModel;
 	private final ModelStructureChangeListener changeListener;
 
-	public NodeAnimationModelEditor(SelectionManager selectionManager, ModelStructureChangeListener changeListener, ModelHandler modelHandler,
+	public NodeAnimationModelEditor(SelectionManager selectionManager, ModelHandler modelHandler,
 	                                SelectionItemTypes selectionMode) {
 		super(selectionManager, modelHandler.getModelView());
-		this.changeListener = changeListener;
+		this.changeListener = ModelStructureChangeListener.changeListener;
 		this.renderModel = modelHandler.getRenderModel();
 	}
 

@@ -16,7 +16,6 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class TimeBoundChooserPanel extends JPanel {
@@ -27,9 +26,9 @@ public class TimeBoundChooserPanel extends JPanel {
 	private JList<Integer> globalSeqBox;
 	private JTabbedPane tabs;
 
-	public TimeBoundChooserPanel(ModelHandler modelHandler, ModelStructureChangeListener structureChangeListener) {
+	public TimeBoundChooserPanel(ModelHandler modelHandler) {
 		makeAnimationBox(modelHandler.getModelView());
-		final JPanel animationPanel = getAnimationPanel(modelHandler, structureChangeListener);
+		final JPanel animationPanel = getAnimationPanel(modelHandler);
 
 		final JPanel globSeqPanel = getGlobSeqPanel(modelHandler.getModel());
 
@@ -46,7 +45,7 @@ public class TimeBoundChooserPanel extends JPanel {
 		add(tabs);
 	}
 
-	private JPanel getAnimationPanel(ModelHandler modelHandler, ModelStructureChangeListener structureChangeListener) {
+	private JPanel getAnimationPanel(ModelHandler modelHandler) {
 		final JPanel animationPanel = new JPanel(new MigLayout("fill", "[]", "[grow][]"));
 
 		JScrollPane animationScrollPane = new JScrollPane(animationBox);
@@ -55,20 +54,20 @@ public class TimeBoundChooserPanel extends JPanel {
 
 		JPanel buttonPanel = new JPanel(new MigLayout("ins 0"));
 		final JButton createAnimation = new JButton("Create");
-		createAnimation.addActionListener(e -> createAnimation(modelHandler.getModel(), structureChangeListener));
+		createAnimation.addActionListener(e -> createAnimation(modelHandler.getModel()));
 		buttonPanel.add(createAnimation);
 
 		final JButton duplicateAnimation = new JButton("Duplicate");
-		duplicateAnimation.addActionListener(e -> duplicateAnimation(modelHandler.getModel(), structureChangeListener));
+		duplicateAnimation.addActionListener(e -> duplicateAnimation(modelHandler.getModel()));
 		buttonPanel.add(duplicateAnimation);
 
 
 		final JButton editAnimation = new JButton("Edit");
-		editAnimation.addActionListener(e -> editAnimation(modelHandler.getModel(), structureChangeListener));
+		editAnimation.addActionListener(e -> editAnimation(modelHandler.getModel()));
 		buttonPanel.add(editAnimation);
 
 		final JButton deleteAnimation = new JButton("Delete");
-		deleteAnimation.addActionListener(e -> deleteAnimation(modelHandler, structureChangeListener));
+		deleteAnimation.addActionListener(e -> deleteAnimation(modelHandler));
 		buttonPanel.add(deleteAnimation);
 		animationPanel.add(buttonPanel);
 		return animationPanel;
@@ -170,7 +169,7 @@ public class TimeBoundChooserPanel extends JPanel {
 		}
 	}
 
-	private void deleteAnimation(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+	private void deleteAnimation(ModelHandler modelHandler) {
 		int option = JOptionPane.showConfirmDialog(TimeBoundChooserPanel.this, "Also delete keyframes?",
 				"Delete Animation(s)", JOptionPane.YES_NO_CANCEL_OPTION);
 		if (option != JOptionPane.CANCEL_OPTION) {
@@ -181,7 +180,7 @@ public class TimeBoundChooserPanel extends JPanel {
 				DeleteAnimationAction deleteAnimationAction = new DeleteAnimationAction(modelHandler.getModel(), animation, null, clearKeyframes);
 				deleteActions.add(deleteAnimationAction);
 			}
-			UndoAction undoAction = new CompoundAction("Delete " + deleteActions.size() + " Animation(s)", deleteActions, () -> changeListener.animationParamsChanged(null));
+			UndoAction undoAction = new CompoundAction("Delete " + deleteActions.size() + " Animation(s)", deleteActions, ModelStructureChangeListener.changeListener::animationParamsChanged);
 			modelHandler.getUndoManager().pushAction(undoAction.redo());
 		}
 	}
@@ -222,7 +221,7 @@ public class TimeBoundChooserPanel extends JPanel {
 		}
 	}
 
-	private void createAnimation(EditableModel model, ModelStructureChangeListener structureChangeListener) {
+	private void createAnimation(EditableModel model) {
 		final JPanel createAnimQuestionPanel = new JPanel(new MigLayout());
 		final JSpinner newAnimLength = new JSpinner(new SpinnerNumberModel(1000, 0, Integer.MAX_VALUE, 1));
 		final Animation lastAnimation = model.getAnimsSize() == 0 ? null : model.getAnim(model.getAnimsSize() - 1);
@@ -285,7 +284,8 @@ public class TimeBoundChooserPanel extends JPanel {
 			final int rarityValue = (Integer) rarityChooser.getValue();
 			final int moveValue = (Integer) moveSpeedChooser.getValue();
 			model.add(newAnimation);
-			structureChangeListener.animationsAdded(Collections.singletonList(newAnimation));
+			//todo this should be undoable
+			ModelStructureChangeListener.changeListener.animationParamsChanged();
 			animations.addElement(newAnimation);
 			if (rarityValue != 0) {
 				newAnimation.setRarity(rarityValue);
@@ -311,14 +311,14 @@ public class TimeBoundChooserPanel extends JPanel {
 		timeRangeButton(lengthButton, newAnimLength, timeRangeButton, newAnimTimeStart, newAnimTimeEnd);
 	}
 
-	private void editAnimation(EditableModel model, ModelStructureChangeListener structureChangeListener) {
+	private void editAnimation(EditableModel model) {
 		final Animation selectedValue = animationBox.getSelectedValue();
 		if (selectedValue != null) {
-			createAnimation(model, structureChangeListener);
+			createAnimation(model);
 		}
 	}
 
-	private void duplicateAnimation(EditableModel model, ModelStructureChangeListener structureChangeListener) {
+	private void duplicateAnimation(EditableModel model) {
 		final Animation selectedAnimation = animationBox.getSelectedValue();
 //		final List<Animation> selectedValues = animationBox.getSelectedValuesList();
 		final String userChosenName = JOptionPane.showInputDialog(TimeBoundChooserPanel.this,
@@ -334,7 +334,7 @@ public class TimeBoundChooserPanel extends JPanel {
 			selectedAnimation.copyToInterval(copyAnimation.getStart(), copyAnimation.getEnd(), model.getAllAnimFlags(), model.getEvents());
 
 			animations.addElement(copyAnimation);
-			structureChangeListener.animationsAdded(Collections.singletonList(copyAnimation));
+			ModelStructureChangeListener.changeListener.animationParamsChanged();
 		}
 	}
 }

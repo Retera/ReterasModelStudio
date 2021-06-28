@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ModelEditActions;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.gui.modeledit.MatrixPopup;
@@ -81,8 +82,8 @@ public class ViewportPopupMenu extends JPopupMenu {
 		createFace.addActionListener(e -> createFace(viewport));
 		meshMenu.add(createFace);
 
-		addMenuItem("Split Geoset and Add Team Color", e -> modelHandler.getUndoManager().pushAction(ModelEditActions.addTeamColor(modelHandler.getModelView(), modelEditorManager.getStructureChangeListener())), meshMenu);
-		addMenuItem("Split Geoset", e -> splitGeoset(modelHandler, modelEditorManager), meshMenu);
+		addMenuItem("Split Geoset and Add Team Color", e -> modelHandler.getUndoManager().pushAction(ModelEditActions.addTeamColor(modelHandler.getModelView(), ModelStructureChangeListener.changeListener)), meshMenu);
+		addMenuItem("Split Geoset", e -> splitGeoset(modelHandler), meshMenu);
 
 		JMenu editMenu = new JMenu("Edit");
 		add(editMenu);
@@ -144,8 +145,8 @@ public class ViewportPopupMenu extends JPopupMenu {
 		return new AutoCenterBonesAction(boneToOldPosition);
 	}
 
-	public void splitGeoset(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
-		SplitGeosetAction splitGeosetAction = new SplitGeosetAction(modelHandler.getModel(), modelEditorManager.getStructureChangeListener(), modelHandler.getModelView());
+	public void splitGeoset(ModelHandler modelHandler) {
+		SplitGeosetAction splitGeosetAction = new SplitGeosetAction(modelHandler.getModel(), ModelStructureChangeListener.changeListener, modelHandler.getModelView());
 		splitGeosetAction.redo();
 		modelHandler.getUndoManager().pushAction(splitGeosetAction);
 	}
@@ -264,7 +265,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 //		MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
 		if (result != null) {
 			// JOptionPane.showMessageDialog(null,"action approved");
-			SetParentAction setParentAction = new SetParentAction(modelHandler.getModelView().getSelectedIdObjects(), result.getNode(), modelEditorManager.getStructureChangeListener());
+			SetParentAction setParentAction = new SetParentAction(modelHandler.getModelView().getSelectedIdObjects(), result.getNode(), ModelStructureChangeListener.changeListener);
 			setParentAction.redo();
 			modelHandler.getUndoManager().pushAction(setParentAction);
 		}

@@ -21,7 +21,7 @@ public class SetAnimationRarityAction implements UndoAction {
 	public UndoAction undo() {
 		animation.setRarity(prevRarity);
 		if (changeListener != null) {
-			changeListener.animationParamsChanged(animation);
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}
@@ -30,7 +30,7 @@ public class SetAnimationRarityAction implements UndoAction {
 	public UndoAction redo() {
 		animation.setRarity(newRarity);
 		if (changeListener != null) {
-			changeListener.animationParamsChanged(animation);
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}

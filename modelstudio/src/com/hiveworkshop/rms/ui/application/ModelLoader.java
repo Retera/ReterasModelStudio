@@ -66,11 +66,12 @@ public class ModelLoader {
 //		for (int i = 3; i < numberOfButtons; i++) {
 //			buttons.get(i).getButton().setVisible(!mainPanel.animationModeState);
 //		}
+		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		mainPanel.snapButton.setVisible(!mainPanel.animationModeState);
-		mainPanel.getTimeSliderPanel().setDrawing(mainPanel.animationModeState);
-		mainPanel.getTimeSliderPanel().setKeyframeModeActive(mainPanel.animationModeState);
-		mainPanel.getTimeSliderPanel().repaint();
-		mainPanel.getCreatorPanel().setAnimationModeState(mainPanel.animationModeState);
+		mainLayoutCreator.getTimeSliderPanel().setDrawing(mainPanel.animationModeState);
+		mainLayoutCreator.getTimeSliderPanel().setKeyframeModeActive(mainPanel.animationModeState);
+		mainLayoutCreator.getTimeSliderPanel().repaint();
+		mainLayoutCreator.getCreatorPanel().setAnimationModeState(mainPanel.animationModeState);
 	}
 
 	private static void refreshAndUpdateRenderModel() {
@@ -90,7 +91,6 @@ public class ModelLoader {
 		return new ModelPanel(modelHandler, ProgramGlobals.getPrefs(),
 				mainPanel.selectionItemTypeGroup,
 				mainPanel.selectionModeGroup,
-				mainPanel.modelStructureChangeListener,
 				mainPanel.coordDisplayListener,
 				mainPanel.viewportTransferHandler,
 				mainPanel.viewportListener, icon, false
@@ -158,14 +158,14 @@ public class ModelLoader {
 
 		MenuBar.addModelPanel(modelPanel);
 
+		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
+
 		if (ProgramGlobals.getCurrentModelPanel() == modelPanel) {
-//			mainPanel.geoControl = new JScrollPane(modelPanel.getModelViewManagingTree());
-			mainPanel.getViewportControllerWindowView().setComponent(modelPanel.getModelEditingTreePane());
-			mainPanel.getViewportControllerWindowView().repaint();
-//			mainPanel.geoControlModelData = new JScrollPane(modelPanel.getModelComponentBrowserTree());
-			mainPanel.getModelDataView().setComponent(modelPanel.getComponentBrowserTreePane());
-			mainPanel.getModelComponentView().setComponent(modelPanel.getComponentsPanel());
-			mainPanel.getModelDataView().repaint();
+			mainLayoutCreator.getViewportControllerWindowView().setComponent(modelPanel.getModelEditingTreePane());
+			mainLayoutCreator.getViewportControllerWindowView().repaint();
+			mainLayoutCreator.getModelDataView().setComponent(modelPanel.getComponentBrowserTreePane());
+			mainLayoutCreator.getModelComponentView().setComponent(modelPanel.getComponentsPanel());
+			mainLayoutCreator.getModelDataView().repaint();
 		}
 		if (selectNewTab) {
 			modelPanel.getMenuItem().doClick();
@@ -194,48 +194,50 @@ public class ModelLoader {
 	public static void setCurrentModel(ModelPanel modelPanel) {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		ProgramGlobals.setCurrentModelPanel(modelPanel);
+		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		if (ProgramGlobals.getCurrentModelPanel() == null) {
 			JPanel jPanel = new JPanel();
 			jPanel.add(new JLabel("..."));
-			mainPanel.getViewportControllerWindowView().setComponent(jPanel);
+			mainLayoutCreator.getViewportControllerWindowView().setComponent(jPanel);
 
-			mainPanel.getFrontView().setComponent(new JPanel());
-			mainPanel.getBottomView().setComponent(new JPanel());
-			mainPanel.getLeftView().setComponent(new JPanel());
-			mainPanel.getPerspectiveView().setComponent(new JPanel());
-			mainPanel.getPreviewView().setComponent(new JPanel());
-			mainPanel.getAnimationControllerView().setComponent(new JPanel());
+
+			mainLayoutCreator.getFrontView().setComponent(new JPanel());
+			mainLayoutCreator.getBottomView().setComponent(new JPanel());
+			mainLayoutCreator.getLeftView().setComponent(new JPanel());
+			mainLayoutCreator.getPerspectiveView().setComponent(new JPanel());
+			mainLayoutCreator.getPreviewView().setComponent(new JPanel());
+			mainLayoutCreator.getAnimationControllerView().setComponent(new JPanel());
 			refreshAnimationModeState();
 
-			mainPanel.getTimeSliderPanel().setModelHandler(null);
-			mainPanel.getCreatorPanel().setModelEditorManager(null);
-			mainPanel.getCreatorPanel().setCurrentModel(null);
+			mainLayoutCreator.getTimeSliderPanel().setModelHandler(null);
+			mainLayoutCreator.getCreatorPanel().setModelEditorManager(null);
+			mainLayoutCreator.getCreatorPanel().setCurrentModel(null);
 
-			mainPanel.getModelDataView().setComponent(new JPanel());
-			mainPanel.getModelComponentView().setComponent(new JPanel());
+			mainLayoutCreator.getModelDataView().setComponent(new JPanel());
+			mainLayoutCreator.getModelComponentView().setComponent(new JPanel());
 		} else {
-			mainPanel.getViewportControllerWindowView().setComponent(modelPanel.getModelEditingTreePane());
+			mainLayoutCreator.getViewportControllerWindowView().setComponent(modelPanel.getModelEditingTreePane());
 
-			mainPanel.getFrontView().setComponent(modelPanel.getFrontArea());
-			mainPanel.getBottomView().setComponent(modelPanel.getBotArea());
-			mainPanel.getLeftView().setComponent(modelPanel.getSideArea());
-			mainPanel.getPerspectiveView().setComponent(modelPanel.getPerspArea());
-			mainPanel.getPreviewView().setComponent(modelPanel.getAnimationViewer());
-			mainPanel.getAnimationControllerView().setComponent(modelPanel.getAnimationController());
+			mainLayoutCreator.getFrontView().setComponent(modelPanel.getFrontArea());
+			mainLayoutCreator.getBottomView().setComponent(modelPanel.getBotArea());
+			mainLayoutCreator.getLeftView().setComponent(modelPanel.getSideArea());
+			mainLayoutCreator.getPerspectiveView().setComponent(modelPanel.getPerspArea());
+			mainLayoutCreator.getPreviewView().setComponent(modelPanel.getAnimationViewer());
+			mainLayoutCreator.getAnimationControllerView().setComponent(modelPanel.getAnimationController());
 			refreshAnimationModeState();
 
-			mainPanel.getTimeSliderPanel().setModelHandler(ProgramGlobals.getCurrentModelPanel().getModelHandler());
-			mainPanel.getCreatorPanel().setModelEditorManager(ProgramGlobals.getCurrentModelPanel().getModelEditorManager());
-			mainPanel.getCreatorPanel().setCurrentModel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
+			mainLayoutCreator.getTimeSliderPanel().setModelHandler(ProgramGlobals.getCurrentModelPanel().getModelHandler());
+			mainLayoutCreator.getCreatorPanel().setModelEditorManager(ProgramGlobals.getCurrentModelPanel().getModelEditorManager());
+			mainLayoutCreator.getCreatorPanel().setCurrentModel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
 
-			mainPanel.getModelDataView().setComponent(modelPanel.getComponentBrowserTreePane());
-			mainPanel.getModelComponentView().setComponent(modelPanel.getComponentsPanel());
+			mainLayoutCreator.getModelDataView().setComponent(modelPanel.getComponentBrowserTreePane());
+			mainLayoutCreator.getModelComponentView().setComponent(modelPanel.getComponentsPanel());
 
 			ProgramGlobals.getCurrentModelPanel().reloadComponentBrowser();
 			ProgramGlobals.getCurrentModelPanel().reloadModelEditingTree();
 		}
 		mainPanel.viewportListener.viewportChanged(null);
-		mainPanel.getTimeSliderPanel().revalidateKeyframeDisplay();
+		mainLayoutCreator.getTimeSliderPanel().revalidateKeyframeDisplay();
 	}
 
 	public static void loadFile(final File f) {

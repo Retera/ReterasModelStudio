@@ -3,14 +3,13 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
-public final class ViewportActivityManager implements SelectionListener, ModelEditorChangeListener {
+public final class ViewportActivityManager implements SelectionListener {
 	private ViewportActivity currentActivity;
 	private CursorManager cursorManager;
 	private ModelEditor newModelEditor;
@@ -36,7 +35,6 @@ public final class ViewportActivityManager implements SelectionListener, ModelEd
 		}
 	}
 
-	@Override
 	public void modelEditorChanged(ModelEditor newModelEditor) {
 		this.newModelEditor = newModelEditor;
 		if (currentActivity != null) {

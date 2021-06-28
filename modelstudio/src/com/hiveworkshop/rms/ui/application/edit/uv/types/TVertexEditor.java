@@ -35,10 +35,10 @@ public class TVertexEditor extends ModelEditor {
 	protected int uvLayerIndex;
 	protected SelectionItemTypes selectionType;
 
-	public TVertexEditor(AbstractSelectionManager selectionManager, ModelView modelView, ModelStructureChangeListener structureChangeListener, SelectionItemTypes selectionTyp) {
+	public TVertexEditor(AbstractSelectionManager selectionManager, ModelView modelView, SelectionItemTypes selectionTyp) {
 		super(selectionManager, modelView);
 		this.modelView = modelView;
-		this.structureChangeListener = structureChangeListener;
+		this.structureChangeListener = ModelStructureChangeListener.changeListener;
 		this.selectionType = selectionTyp;
 	}
 

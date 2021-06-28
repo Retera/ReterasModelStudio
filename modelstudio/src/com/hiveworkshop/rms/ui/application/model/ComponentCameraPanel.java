@@ -18,8 +18,8 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 	private Camera camera;
 
 
-	public ComponentCameraPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentCameraPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 
 		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][grow]"));
 		title = new JLabel("Select a Bone");

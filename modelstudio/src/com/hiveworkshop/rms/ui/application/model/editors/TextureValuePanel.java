@@ -31,7 +31,7 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 
 
 	public TextureValuePanel(ModelHandler modelHandler, String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
-		super(modelHandler, title, undoManager, modelStructureChangeListener);
+		super(modelHandler, title, undoManager);
 
 		textureChooser = new JComboBox<>(getTextures(modelHandler.getModel()));
 		textureChooser.setModel(new DefaultComboBoxModel<>(getTextures(modelHandler.getModel())));

@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.FilteredTextField;
@@ -19,8 +18,8 @@ public class Vec3ValuePanel extends ValuePanel<Vec3> {
 	private Vec3 vec3;
 
 
-	public Vec3ValuePanel(ModelHandler modelHandler, final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
-		super(modelHandler, title, undoManager, modelStructureChangeListener);
+	public Vec3ValuePanel(ModelHandler modelHandler, final String title, UndoManager undoManager) {
+		super(modelHandler, title, undoManager);
 
 		vec3 = new Vec3(VEC_3);
 		keyframePanel.addAllowedCharatcters("\\{}, ");

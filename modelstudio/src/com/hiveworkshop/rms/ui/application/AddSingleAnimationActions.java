@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
@@ -48,16 +49,16 @@ public class AddSingleAnimationActions {
 		Animation visibilitySource = (Animation) JOptionPane.showInputDialog(mainPanel,
 				"Which animation from THIS model to copy visiblity from?", "Add Animation",
 				JOptionPane.QUESTION_MESSAGE, null, current.getAnims().toArray(), current.getAnims().get(0));
-        if (visibilitySource == null) {
-            JOptionPane.showMessageDialog(mainPanel, "No visibility will be copied.");
-        }
+		if (visibilitySource == null) {
+			JOptionPane.showMessageDialog(mainPanel, "No visibility will be copied.");
+		}
 		List<Animation> animationsAdded = addAnimationsFrom(current, animationSourceModel, Collections.singletonList(choice));
 		for (Animation anim : animationsAdded) {
 			copyVisibility(current, visibilitySource, anim);
 		}
 		JOptionPane.showMessageDialog(mainPanel, "Added " + animationSourceModel.getName() + "'s " + choice.getName()
 				+ " with " + visibilitySource.getName() + "'s visibility  OK!");
-		mainPanel.modelStructureChangeListener.animationsAdded(animationsAdded);
+		ModelStructureChangeListener.changeListener.animationParamsChanged();
 	}
 
 	public static void addAnimationFromObject() {
@@ -168,7 +169,7 @@ public class AddSingleAnimationActions {
         if (option == 0 && start < end) {
 	        Animation animation = new Animation(nameField.getText(), start, end);
 	        current.addAnimation(animation);
-	        ProgramGlobals.getMainPanel().modelStructureChangeListener.animationsAdded(Collections.singletonList(animation));
+	        ModelStructureChangeListener.changeListener.animationParamsChanged();
         } else if (option == 0 && start >= end) {
 //            JPanel newEndPanel = new JPanel();
 //            JSpinner newEndSpinner = new JSpinner(new SpinnerNumberModel(start + 1,start+1,Integer.MAX_VALUE, 1));

@@ -22,7 +22,7 @@ public class SetAnimationNameAction implements UndoAction {
 	public UndoAction undo() {
 		animation.setName(prevName);
 		if (changeListener != null) {
-			changeListener.animationParamsChanged(animation);
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}
@@ -31,7 +31,7 @@ public class SetAnimationNameAction implements UndoAction {
 	public UndoAction redo() {
 		animation.setName(newName);
 		if (changeListener != null) {
-			changeListener.animationParamsChanged(animation);
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}

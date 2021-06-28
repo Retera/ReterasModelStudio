@@ -9,15 +9,14 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
-//public class ComponentGlobalSequencePanel extends JPanel implements ComponentPanel<EditableModel> {
 public class ComponentGlobalSequencePanel extends ComponentPanel<Integer> {
 	private final JLabel indexLabel;
 	private final JSpinner lengthSpinner;
 	private int globalSequenceId;
 	private Integer value;
 
-	public ComponentGlobalSequencePanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentGlobalSequencePanel(ModelHandler modelHandler) {
+		super(modelHandler);
 
 		setLayout(new MigLayout());
 //		lengthSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));

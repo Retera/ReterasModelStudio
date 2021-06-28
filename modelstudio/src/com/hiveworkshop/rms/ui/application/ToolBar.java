@@ -1,10 +1,5 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.ModelEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
@@ -66,28 +61,11 @@ public class ToolBar {
         return toolbar;
     }
 
-	public static ViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler, MainPanel mainPanel, ModelEditorActionType3 action) {
-//        mainPanel.actionType = getActivityType(action);
-        return new MultiManipulatorActivity(new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action), modelHandler, modelEditorManager);
-    }
-
-//    private static ModelEditorActionType2 getActivityType(ModelEditorActionType3 action) {
-//        return switch (action) {
-//            case TRANSLATION, EXTRUDE, EXTEND -> ModelEditorActionType2.TRANSLATION;
-//            case SCALING -> ModelEditorActionType2.SCALING;
-//            case ROTATION -> ModelEditorActionType2.ROTATION;
-//        };
+//	public static ViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler, MainPanel mainPanel, ModelEditorActionType3 action) {
+////        mainPanel.actionType = getActivityType(action);
+//        return new MultiManipulatorActivity(new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action), modelHandler, modelEditorManager);
 //    }
 
-//    private static ModelEditorManipulatorBuilder getBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler, ModelEditorActionType3 action) {
-//        return switch (action) {
-//            case TRANSLATION -> new MoverWidgetManipulatorBuilder(modelEditorManager, modelHandler);
-//            case ROTATION -> new RotatorWidgetManipulatorBuilder(modelEditorManager, modelHandler);
-//            case SCALING -> new ScaleWidgetManipulatorBuilder(modelEditorManager, modelHandler);
-//            case EXTRUDE -> new ExtrudeWidgetManipulatorBuilder(modelEditorManager, modelHandler);
-//            case EXTEND -> new ExtendWidgetManipulatorBuilder(modelEditorManager, modelHandler);
-//        };
-//    }
 
     static JButton addToolbarIcon(JToolBar toolbar, String hooverText, String icon, AbstractAction action) {
         JButton button = new JButton(RMSIcons.loadToolBarImageIcon(icon));

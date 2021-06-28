@@ -2,25 +2,21 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
-public interface TimeSliderTimeListener {
-	void timeChanged(int currentTime);
-	Set<TimeSliderTimeListener> listenerSet = new HashSet<>();
+public class TimeSliderTimeListener {
 
-	final class TimeSliderTimeNotifier implements TimeSliderTimeListener {
+	Set<Consumer<Integer>> listenerSet2 = new HashSet<>();
 
-		public void subscribe(final TimeSliderTimeListener listener) {
-			listenerSet.add(listener);
-		}
+	public void subscribe(Consumer<Integer> listener) {
+		listenerSet2.add(listener);
+	}
 
-		public void unsubscribe(final TimeSliderTimeListener listener) {
-			listenerSet.remove(listener);
-		}
-		@Override
-		public void timeChanged(int currentTime) {
-			for (TimeSliderTimeListener listener : listenerSet) {
-				listener.timeChanged(currentTime);
-			}
+	public void timeChanged(int currentTime) {
+
+		for (Consumer<Integer> listener : listenerSet2) {
+			listener.accept(currentTime);
 		}
 	}
+
 }

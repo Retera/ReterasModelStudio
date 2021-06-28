@@ -11,9 +11,9 @@ public abstract class ComponentPanel<T> extends JPanel {
 	protected final ModelHandler modelHandler;
 	protected final ModelStructureChangeListener changeListener;
 
-	public ComponentPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+	public ComponentPanel(ModelHandler modelHandler) {
 		this.modelHandler = modelHandler;
-		this.changeListener = changeListener;
+		this.changeListener = ModelStructureChangeListener.changeListener;
 	}
 
 	public abstract void setSelectedItem(T itemToSelect);

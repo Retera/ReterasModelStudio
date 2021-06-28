@@ -77,7 +77,7 @@ public class ViewportTransferHandler extends TransferHandler {
 			pastedModelView.makeCameraEditable(object);
 		}
 		// ToDo needs access to modelView...
-		final AbstractModelEditor listener = new AbstractModelEditor(new SelectionManager(pastedModelView, SelectionItemTypes.VERTEX), viewport.getModelStructureChangeListener(), modelHandler, SelectionItemTypes.VERTEX);
+		final AbstractModelEditor listener = new AbstractModelEditor(new SelectionManager(pastedModelView, SelectionItemTypes.VERTEX), modelHandler, SelectionItemTypes.VERTEX);
 		pastedModelView.selectAll();
 		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
 		Vec3 vertex = new Vec3(0, 0, 0);

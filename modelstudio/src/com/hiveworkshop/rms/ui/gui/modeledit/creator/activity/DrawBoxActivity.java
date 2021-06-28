@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
@@ -123,7 +124,7 @@ public class DrawBoxActivity extends ViewportActivity {
 					DrawBoxAction drawBoxAction = new DrawBoxAction(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset);
 
 					if (!modelView.getModel().contains(solidWhiteGeoset)) {
-						NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView, modelEditorManager.getStructureChangeListener());
+						NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView, ModelStructureChangeListener.changeListener);
 						boxAction = new CompoundMoveAction("Add Box", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawBoxAction));
 					} else {
 						boxAction = drawBoxAction;

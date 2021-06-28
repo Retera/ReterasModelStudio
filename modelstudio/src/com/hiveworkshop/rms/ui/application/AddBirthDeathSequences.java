@@ -18,7 +18,10 @@ import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class AddBirthDeathSequences {
 
@@ -80,7 +83,7 @@ public class AddBirthDeathSequences {
 	        // del keys
 	        oldAnimation.clearData(model.getAllAnimFlags(), model.getEvents());
 	        model.remove(oldAnimation);
-	        ProgramGlobals.getMainPanel().modelStructureChangeListener.animationsRemoved(Collections.singletonList(oldAnimation));
+	        ModelStructureChangeListener.changeListener.animationParamsChanged();
         }
         return animation;
     }
@@ -89,7 +92,7 @@ public class AddBirthDeathSequences {
 		Vec3 startVec = new Vec3(0, 0, startOffset);
 		Vec3 endVec = new Vec3(0, 0, endOffset);
 		model.add(animation);
-		ProgramGlobals.getMainPanel().modelStructureChangeListener.animationsAdded(Collections.singletonList(animation));
+		ModelStructureChangeListener.changeListener.animationParamsChanged();
 		createKeyframes(model, animation.getStart(), animation.getEnd(), startVec, endVec);
 	}
 
@@ -145,7 +148,7 @@ public class AddBirthDeathSequences {
 	// most of the code below are modified versions of code from AnimatedNode and NodeAnimationModelEditor
 	public static void createKeyframes(EditableModel model, int trackTime1, int trackTime2, Vec3 startVec, Vec3 endVec) {
 		RenderModel renderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
-		ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener();
+		ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.changeListener;
 
 		ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
 
@@ -154,8 +157,8 @@ public class AddBirthDeathSequences {
 
 		final TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
-	    List<UndoAction> actions1 = generateKeyframes(trackTime1, selection, timeEnvironmentImpl, "Translation", renderModel, startVec);
-	    TranslationKeyframeAction setup1 = new TranslationKeyframeAction(new CompoundAction("setup", actions1, structureChangeListener::keyframesUpdated), trackTime1, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
+		List<UndoAction> actions1 = generateKeyframes(trackTime1, selection, timeEnvironmentImpl, "Translation", renderModel, startVec);
+		TranslationKeyframeAction setup1 = new TranslationKeyframeAction(new CompoundAction("setup", actions1, structureChangeListener::keyframesUpdated), trackTime1, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
 
 	    List<UndoAction> actions2 = generateKeyframes(trackTime2, selection, timeEnvironmentImpl, "Translation", renderModel, endVec);
 	    TranslationKeyframeAction setup2 = new TranslationKeyframeAction(new CompoundAction("setup", actions2, structureChangeListener::keyframesUpdated), trackTime2, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);

@@ -23,8 +23,8 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 	private final JButton deleteButton;
 	private Animation animation;
 
-	public ComponentAnimationPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentAnimationPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 		nameField = new ComponentEditorTextField(24);
 		nameField.addEditingStoppedListener(this::nameField);
 //		nameField.addActionListener(e -> nameField());
@@ -102,7 +102,7 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 
 	private void newAnimTimeStart() {
 		SetAnimationIntervalStartAction setAnimationIntervalStartAction = new SetAnimationIntervalStartAction(
-				animation.getStart(), newAnimTimeStart.getIntValue(), animation, changeListener);
+				newAnimTimeStart.getIntValue(), animation, changeListener);
 		modelHandler.getUndoManager().pushAction(setAnimationIntervalStartAction.redo());
 	}
 

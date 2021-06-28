@@ -32,14 +32,14 @@ public class DisplayPanel extends JPanel {
 	private final ViewportListener viewportListener;
 
 	public DisplayPanel(String title, byte a, byte b, ModelHandler modelHandler,
-	                    ModelEditorManager modelEditorManager, ModelStructureChangeListener modelStructureChangeListener,
+	                    ModelEditorManager modelEditorManager,
 	                    ViewportActivityManager activityListener,
 	                    CoordDisplayListener coordDisplayListener,
 	                    ModelEditorChangeNotifier modelEditorChangeNotifier,
 	                    ViewportTransferHandler viewportTransferHandler,
 	                    ViewportListener viewportListener) {
 		super();
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.modelStructureChangeListener = ModelStructureChangeListener.changeListener;
 		this.activityListener = activityListener;
 		this.modelEditorChangeNotifier = modelEditorChangeNotifier;
 		this.viewportListener = viewportListener;

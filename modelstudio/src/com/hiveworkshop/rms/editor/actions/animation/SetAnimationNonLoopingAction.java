@@ -20,14 +20,18 @@ public class SetAnimationNonLoopingAction implements UndoAction {
 	@Override
 	public UndoAction undo() {
 		animation.setNonLooping(prevValue);
-		changeListener.animationParamsChanged(animation);
+		if (changeListener != null) {
+			changeListener.animationParamsChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		animation.setNonLooping(newValue);
-		changeListener.animationParamsChanged(animation);
+		if (changeListener != null) {
+			changeListener.animationParamsChanged();
+		}
 		return this;
 	}
 

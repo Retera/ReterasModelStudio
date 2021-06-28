@@ -21,10 +21,10 @@ public class ComponentMaterialLayersPanel extends JPanel {
 
 	private final JCheckBox twoSided;
 
-	public ComponentMaterialLayersPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
+	public ComponentMaterialLayersPanel(ModelHandler modelHandler) {
 		setLayout(new MigLayout("fill", "[][][grow]"));
 		this.modelHandler = modelHandler;
-		this.changeListener = changeListener;
+		this.changeListener = ModelStructureChangeListener.changeListener;
 
 		JPanel twoSidedBoxHolder = new JPanel(new MigLayout("fill", "[grow]"));
 		add(twoSidedBoxHolder, "growx, span 3, wrap");

@@ -16,7 +16,6 @@ import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.TimeSliderView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener.TimeSliderTimeNotifier;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -36,9 +35,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, SelectionListener {
+public class TimeSliderPanel extends JPanel implements SelectionListener {
 	private static final Color GLASS_TICK_COVER_COLOR = new Color(100, 190, 255, 100);
 	private static final Color GLASS_TICK_COVER_BORDER_COLOR = new Color(0, 80, 255, 220);
 	private static final int SLIDER_SIDE_BUTTON_SIZE = 15;
@@ -63,9 +63,9 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	private boolean draggingSlider = false;
 	private Robot robot;
 
-	private final TimeSliderTimeNotifier notifier;
+	private final TimeSliderTimeListener notifier;
 
-//	private SelectionManager<IdObject> nodeSelectionManager;
+	//	private SelectionManager<IdObject> nodeSelectionManager;
 	private final GradientPaint keyframePaint;
 	private final GradientPaint keyframePaintBlue;
 	private final GradientPaint keyframePaintRed;
@@ -98,16 +98,14 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	MainPanel mainPanel;
 
 	public TimeSliderPanel(MainPanel mainPanel,
-	                       TimeEnvironmentImpl timeEnvironment,
-	                       ModelStructureChangeListener structureChangeListener,
 	                       ProgramPreferences preferences) {
 		this.mainPanel = mainPanel;
-		//mainPanel.animatedRenderEnvironment, mainPanel.modelStructureChangeListener, mainPanel.prefs
-		this.timeEnvironment = timeEnvironment;
-		this.structureChangeListener = structureChangeListener;
+//		this.timeEnvironment = timeEnvironment;
+		this.structureChangeListener = ModelStructureChangeListener.changeListener;
 		this.preferences = preferences;
 		theme = preferences.getTheme();
-		notifier = new TimeSliderTimeNotifier();
+//		notifier = new TimeSliderTimeNotifier();
+		notifier = new TimeSliderTimeListener();
 		setLayout(new MigLayout("fill, gap 0, ins 0, aligny top", "3[]3[grow]3", "[]"));
 		JPanel buttonPanel = new JPanel(new MigLayout("ins 0"));
 		playButton = new JButton(RMSIcons.PLAY);
@@ -146,8 +144,6 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 //		add(Box.createVerticalStrut(VERTICAL_SLIDER_HEIGHT + VERTICAL_TICKS_HEIGHT));
 
 //		setMaximumSize(new Dimension(Integer.MAX_VALUE, VERTICAL_SLIDER_HEIGHT + VERTICAL_TICKS_HEIGHT + 9999));
-
-		timeEnvironment.addChangeListener(this);
 
 //		start = timeEnvironment.getStart();
 //		end = timeEnvironment.getEnd();
@@ -193,7 +189,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		if (mpanel != null) {
 //			UndoAction undoAction = mpanel.getModelEditorManager().getModelEditor().createKeyframe(mainPanel.actionTypeGroup.getActiveButtonType());
 
-			UndoAction undoAction = new AddKeyframeAction2(mpanel.getModelStructureChangeListener(), mpanel.getModelHandler(), mainPanel.actionTypeGroup.getActiveButtonType());
+			UndoAction undoAction = new AddKeyframeAction2(ModelStructureChangeListener.changeListener, mpanel.getModelHandler(), mainPanel.actionTypeGroup.getActiveButtonType());
 			mpanel.getUndoManager().pushAction(undoAction);
 			mpanel.repaintSelfAndRelatedChildren();
 		}
@@ -209,7 +205,9 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 			@Override
 			public void componentResized(final ComponentEvent e) {
 				slideExistingKeyFramesForResize();
-				timeChooserRect.x = computeSliderXFromTime();
+				if (timeEnvironment != null) {
+					timeChooserRect.x = computeSliderXFromTime();
+				}
 			}
 		};
 	}
@@ -445,7 +443,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	}
 
 	private void liveAnimationTimerListener() {
-		if (!drawing || !timeEnvironment.isLive()) {
+		if (!drawing || timeEnvironment == null || !timeEnvironment.isLive()) {
 			return;
 		}
 		timeEnvironment.updateAnimationTime();
@@ -707,7 +705,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 				&& (mousePoint.getX() < ((timeChooserRect.x + timeChooserRect.width) - SLIDER_SIDE_BUTTON_SIZE));
 	}
 
-	public void addListener(final TimeSliderTimeListener listener) {
+	public void addListener(Consumer<Integer> listener) {
 		notifier.subscribe(listener);
 	}
 
@@ -895,7 +893,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		g.drawString(timeChooserLabel, (timeChooserRect.x + timeChooserRect.width) - ((SLIDER_SIDE_BUTTON_SIZE + fontMetrics.stringWidth(timeChooserLabel)) / 2), y);
 	}
 
-	@Override
+	//	@Override
 	public void timeBoundsChanged(final int start, final int end) {
 		liveAnimationTimer.stop();
 		playButton.setIcon(RMSIcons.PLAY);
@@ -1034,7 +1032,7 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 			@Override
 			protected void paintComponent(final Graphics g) {
 				super.paintComponent(g);
-				if (!drawing) {
+				if (!drawing || timeEnvironment == null) {
 					return;
 				}
 				final int width = getWidth();
@@ -1181,14 +1179,19 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 	}
 
 	private void pausePlayAnimation() {
-		if (liveAnimationTimer.isRunning()) {
+		if (timeEnvironment != null) {
+			if (liveAnimationTimer.isRunning()) {
+				liveAnimationTimer.stop();
+				playButton.setIcon(RMSIcons.PLAY);
+				timeEnvironment.setLive(false);
+			} else {
+				timeEnvironment.setLive(true);
+				liveAnimationTimer.start();
+				playButton.setIcon(RMSIcons.PAUSE);
+			}
+		} else {
 			liveAnimationTimer.stop();
 			playButton.setIcon(RMSIcons.PLAY);
-			timeEnvironment.setLive(false);
-		} else {
-			timeEnvironment.setLive(true);
-			liveAnimationTimer.start();
-			playButton.setIcon(RMSIcons.PAUSE);
 		}
 		repaint();
 	}

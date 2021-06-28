@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -211,11 +210,6 @@ public class Animation implements TimeBoundProvider {
 		final List<AnimFlag<?>> aniFlags = mdlr.getAllAnimFlags();
 		final List<EventObject> eventObjs = mdlr.getEvents();
 		setInterval(start, end, aniFlags, eventObjs);
-	}
-
-	@Override
-	public void addChangeListener(TimeBoundChangeListener listener) {
-
 	}
 
 	@Override

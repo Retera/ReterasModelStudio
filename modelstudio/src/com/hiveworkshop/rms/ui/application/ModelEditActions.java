@@ -400,7 +400,7 @@ public class ModelEditActions {
 //                flag.linearize();
             }
 
-            UndoAction action = new CompoundAction("Liniarize Animations", interpTypActions, () -> modelPanel.getModelStructureChangeListener().materialsListChanged());
+            UndoAction action = new CompoundAction("Liniarize Animations", interpTypActions, ModelStructureChangeListener.changeListener::materialsListChanged);
             modelPanel.getUndoManager().pushAction(action.redo());
         }
     }
@@ -429,8 +429,8 @@ public class ModelEditActions {
         ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 
         UndoAction action = new SimplifyGeometryAction2(modelPanel.getModelView().getSelectedVertices());
-        modelPanel.getUndoManager().pushAction(action.redo());
-        ProgramGlobals.getMainPanel().getModelStructureChangeListener().geosetsUpdated();
+	    modelPanel.getUndoManager().pushAction(action.redo());
+	    ModelStructureChangeListener.changeListener.geosetsUpdated();
     }
 
 }

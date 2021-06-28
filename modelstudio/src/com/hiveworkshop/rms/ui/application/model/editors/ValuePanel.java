@@ -34,13 +34,13 @@ public abstract class ValuePanel<T> extends JPanel {
 
 	protected Consumer<T> valueSettingFunction;
 
-	public ValuePanel(ModelHandler modelHandler, final String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
-		this(modelHandler, title, Double.MAX_VALUE, -Double.MAX_VALUE, undoManager, modelStructureChangeListener);
+	public ValuePanel(ModelHandler modelHandler, final String title, UndoManager undoManager) {
+		this(modelHandler, title, Double.MAX_VALUE, -Double.MAX_VALUE, undoManager);
 	}
 
-	public ValuePanel(ModelHandler modelHandler, final String title, double maxValue, double minValue, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
+	public ValuePanel(ModelHandler modelHandler, final String title, double maxValue, double minValue, UndoManager undoManager) {
 		this.undoManager = undoManager;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.modelStructureChangeListener = ModelStructureChangeListener.changeListener;
 		setFocusable(true);
 		timelineKeyNamer = null;
 		animFlag = null;

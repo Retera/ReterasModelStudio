@@ -18,6 +18,11 @@ public abstract class AbstractSelectionManager {
 		this.selectionMode = selectionMode;
 	}
 
+	public AbstractSelectionManager setSelectionMode(SelectionItemTypes selectionMode) {
+		this.selectionMode = selectionMode;
+		return this;
+	}
+
 	public Collection<GeosetVertex> getSelectedVertices() {
 		return modelView.getSelectedVertices();
 	}
@@ -25,7 +30,9 @@ public abstract class AbstractSelectionManager {
 	public abstract Vec3 getCenter();
 
 	public abstract SelectoinUgg genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+
 	public abstract UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+
 	public abstract UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 	public abstract UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 

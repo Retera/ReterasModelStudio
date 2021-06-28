@@ -18,8 +18,8 @@ public class ComponentFaceEffectPanel extends ComponentPanel<FaceEffect> {
 	JTextField effectField;
 
 
-	public ComponentFaceEffectPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentFaceEffectPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 		setLayout(new MigLayout("fill", "[][50%:50%:50%, grow][grow]", "[][][grow]"));
 		targetField = new JTextField();
 		targetField.addFocusListener(setEffectTarget());

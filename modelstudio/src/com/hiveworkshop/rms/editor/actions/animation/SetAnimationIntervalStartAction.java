@@ -8,27 +8,32 @@ public class SetAnimationIntervalStartAction implements UndoAction {
 	private final int prevIntervalStart;
 	private final int newIntervalStart;
 	private final Animation animation;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetAnimationIntervalStartAction(final int prevIntervalStart, final int newIntervalStart,
-			final Animation animation, final ModelStructureChangeListener structureChangeListener) {
-		this.prevIntervalStart = prevIntervalStart;
+	public SetAnimationIntervalStartAction(int newIntervalStart,
+	                                       Animation animation,
+	                                       ModelStructureChangeListener changeListener) {
+		this.prevIntervalStart = animation.getStart();
 		this.newIntervalStart = newIntervalStart;
 		this.animation = animation;
-		this.structureChangeListener = structureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		animation.setIntervalStart(prevIntervalStart);
-		structureChangeListener.animationParamsChanged(animation);
+		if (changeListener != null) {
+			changeListener.animationParamsChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		animation.setIntervalStart(newIntervalStart);
-		structureChangeListener.animationParamsChanged(animation);
+		if (changeListener != null) {
+			changeListener.animationParamsChanged();
+		}
 		return this;
 	}
 

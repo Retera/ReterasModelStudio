@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTreeBrowser;
@@ -22,6 +21,7 @@ import net.infonode.docking.View;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class MainLayoutCreator {
     public View viewportControllerWindowView;
@@ -183,9 +183,9 @@ public class MainLayoutCreator {
     }
 
     private TimeSliderPanel createTimeSliderPanel(MainPanel mainPanel) {
-        TimeSliderPanel timeSliderPanel = new TimeSliderPanel(mainPanel, mainPanel.animatedRenderEnvironment, mainPanel.modelStructureChangeListener, ProgramGlobals.getPrefs());
+        TimeSliderPanel timeSliderPanel = new TimeSliderPanel(mainPanel, ProgramGlobals.getPrefs());
         timeSliderPanel.setDrawing(false);
-        TimeSliderTimeListener timeSliderTimeListener = currentTime -> {
+        Consumer<Integer> timeSliderTimeListener = currentTime -> {
 //			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime);
 //			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime - mainPanel.animatedRenderEnvironment.getStart());
             if (ProgramGlobals.getCurrentModelPanel() != null) {

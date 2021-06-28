@@ -153,19 +153,19 @@ public class ComponentLayerPanel extends JPanel {
 		texturePanel = new TextureValuePanel(modelHandler, "Texture", undoManager, changeListener);
 		leftHandSettingsPanel.add(texturePanel, "wrap, span 2, growx");
 
-		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, undoManager, changeListener);
+		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, undoManager);
 		leftHandSettingsPanel.add(alphaPanel, "wrap, span 2, growx, hidemode 2");
 
-		emissiveGainPanel = new FloatValuePanel(modelHandler, "Emissive Gain", undoManager, changeListener);
+		emissiveGainPanel = new FloatValuePanel(modelHandler, "Emissive Gain", undoManager);
 		leftHandSettingsPanel.add(emissiveGainPanel, "wrap, span 2, growx, hidemode 2");
 
-		fresnelColorPanel = new ColorValuePanel(modelHandler, "Fresnel Color", undoManager, changeListener);
+		fresnelColorPanel = new ColorValuePanel(modelHandler, "Fresnel Color", undoManager);
 		leftHandSettingsPanel.add(fresnelColorPanel, "wrap, span 2, growx, hidemode 2");
 
-		fresnelOpacityPanel = new FloatValuePanel(modelHandler, "Fresnel Opacity", undoManager, changeListener);
+		fresnelOpacityPanel = new FloatValuePanel(modelHandler, "Fresnel Opacity", undoManager);
 		leftHandSettingsPanel.add(fresnelOpacityPanel, "wrap, span 2, growx, hidemode 2");
 
-		fresnelTeamColor = new FloatValuePanel(modelHandler, "Fresnel Team Color", undoManager, changeListener);
+		fresnelTeamColor = new FloatValuePanel(modelHandler, "Fresnel Team Color", undoManager);
 		leftHandSettingsPanel.add(fresnelTeamColor, "wrap, span 2, growx, hidemode 2");
 	}
 

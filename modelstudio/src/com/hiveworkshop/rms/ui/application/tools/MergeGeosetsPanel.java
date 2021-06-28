@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.mesh.MergeGeosetsAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.FramePopup;
@@ -38,7 +39,7 @@ public class MergeGeosetsPanel extends JPanel {
 
 	private void merge(ModelPanel modelPanel, Map<Integer, Geoset> geoMap) {
 		ModelHandler modelHandler = modelPanel.getModelHandler();
-		MergeGeosetsAction action = new MergeGeosetsAction(geoMap.get(0), geoMap.get(1), modelHandler.getModelView(), modelPanel.getModelStructureChangeListener());
+		MergeGeosetsAction action = new MergeGeosetsAction(geoMap.get(0), geoMap.get(1), modelHandler.getModelView(), ModelStructureChangeListener.changeListener);
 		modelHandler.getUndoManager().pushAction(action.redo());
 	}
 
@@ -81,7 +82,7 @@ public class MergeGeosetsPanel extends JPanel {
 			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), scrollPane, "Merge Geoset into Geoset", JOptionPane.OK_CANCEL_OPTION);
 			if (option == JOptionPane.OK_OPTION && geoMap.containsKey(0) && geoMap.containsKey(1) && geoMap.get(0) != geoMap.get(1)) {
 				ModelHandler modelHandler = modelPanel.getModelHandler();
-				MergeGeosetsAction action = new MergeGeosetsAction(geoMap.get(0), geoMap.get(1), modelHandler.getModelView(), modelPanel.getModelStructureChangeListener());
+				MergeGeosetsAction action = new MergeGeosetsAction(geoMap.get(0), geoMap.get(1), modelHandler.getModelView(), ModelStructureChangeListener.changeListener);
 				modelHandler.getUndoManager().pushAction(action.redo());
 			}
 		}

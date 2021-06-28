@@ -375,7 +375,6 @@ public final class MPQBrowser extends JPanel {
 		checkChildren(root);
 		refreshTree();
 	}
-
 	private void searchFilter(String searchText) {
 		currentSearch = searchText;
 		checkChildren(root);

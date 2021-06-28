@@ -35,9 +35,8 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	protected JLabel pivot;
 
 
-	public ComponentIdObjectPanel(ModelHandler modelHandler,
-	                              ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentIdObjectPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 
 		parentChooser = new ParentChooser(modelHandler.getModelView());
 
@@ -61,9 +60,9 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		topPanel = new JPanel(new MigLayout("fill, ins 0", "[]5[]5[grow]"));
 		add(topPanel, "spanx, wrap");
 
-		transPanel = new Vec3ValuePanel(modelHandler, MdlUtils.TOKEN_TRANSLATION, modelHandler.getUndoManager(), changeListener);
-		scalePanel = new Vec3ValuePanel(modelHandler, MdlUtils.TOKEN_SCALING, modelHandler.getUndoManager(), changeListener);
-		rotPanel = new QuatValuePanel(modelHandler, MdlUtils.TOKEN_ROTATION, modelHandler.getUndoManager(), changeListener);
+		transPanel = new Vec3ValuePanel(modelHandler, MdlUtils.TOKEN_TRANSLATION, modelHandler.getUndoManager());
+		scalePanel = new Vec3ValuePanel(modelHandler, MdlUtils.TOKEN_SCALING, modelHandler.getUndoManager());
+		rotPanel = new QuatValuePanel(modelHandler, MdlUtils.TOKEN_ROTATION, modelHandler.getUndoManager());
 		add(transPanel, "spanx, growx, wrap");
 		add(scalePanel, "spanx, growx, wrap");
 		add(rotPanel, "spanx, growx, wrap");

@@ -7,28 +7,26 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.Widget;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
 
-public abstract class ManipulatorBuilder implements ModelEditorChangeListener {
+public abstract class ManipulatorBuilder {
 	protected final ViewportSelectionHandler viewportSelectionHandler;
 	protected final ModelHandler modelHandler;
 	protected final ModelView modelView;
 	protected ModelEditor modelEditor;
 	protected Widget widget;
 
-	public ManipulatorBuilder(ModelEditor modelEditor, ViewportSelectionHandler viewportSelectionHandler, ModelHandler modelHandler){
+	public ManipulatorBuilder(ModelEditor modelEditor, ViewportSelectionHandler viewportSelectionHandler, ModelHandler modelHandler) {
 		this.viewportSelectionHandler = viewportSelectionHandler;
 		this.modelEditor = modelEditor;
 		this.modelHandler = modelHandler;
 		this.modelView = modelHandler.getModelView();
 	}
 
-	@Override
 	public void modelEditorChanged(ModelEditor newModelEditor) {
 		modelEditor = newModelEditor;
 	}

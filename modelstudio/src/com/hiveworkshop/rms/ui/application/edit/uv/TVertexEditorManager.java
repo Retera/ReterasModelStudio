@@ -1,10 +1,9 @@
 package com.hiveworkshop.rms.ui.application.edit.uv;
 
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertSelectionManager;
@@ -13,28 +12,29 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 
 public final class TVertexEditorManager extends AbstractModelEditorManager {
-//public final class TVertexEditorManager {
 	public static boolean MOVE_LINKED;
+	TVertexEditor tVertexEditor;
 
 	public TVertexEditorManager(ModelHandler modelHandler,
 	                            ToolbarButtonGroup2<SelectionMode> modeButtonGroup,
-	                            ModelEditorChangeListener modelEditorChangeListener,
-	                            SelectionListener selectionListener,
-	                            ModelStructureChangeListener structureChangeListener) {
-		super(modelHandler, modeButtonGroup, modelEditorChangeListener, selectionListener, structureChangeListener);
+	                            ModelEditorChangeNotifier changeNotifier,
+	                            SelectionListener selectionListener) {
+		super(modelHandler, modeButtonGroup, changeNotifier, selectionListener);
+		selectionManager = new TVertSelectionManager(modelHandler.getModelView(), transformSelectionMode(TVertexSelectionItemTypes.VERTEX));
+		tVertexEditor = new TVertexEditor(selectionManager, modelHandler.getModelView(), transformSelectionMode(TVertexSelectionItemTypes.VERTEX));
 		setSelectionItemType(TVertexSelectionItemTypes.VERTEX);
+
 	}
 
 	public void setSelectionItemType(TVertexSelectionItemTypes selectionMode) {
 		switch (selectionMode) {
-			case FACE, VERTEX -> selectionManager = new TVertSelectionManager(modelHandler.getModelView(), transformSelectionMode(selectionMode));
+			case FACE, VERTEX -> selectionManager.setSelectionMode(transformSelectionMode(selectionMode));
 		}
 
-		modelEditor = new TVertexEditor(selectionManager, modelHandler.getModelView(), structureChangeListener, transformSelectionMode(selectionMode));
+		modelEditor = tVertexEditor;
 
-//		viewportSelectionHandler.setModelEditor(modelEditor);
 		viewportSelectionHandler.setSelectionManager(selectionManager);
-		modelEditorChangeListener.modelEditorChanged(modelEditor);
+		changeNotifier.modelEditorChanged(modelEditor);
 		selectionListener.onSelectionChanged(selectionManager);
 	}
 

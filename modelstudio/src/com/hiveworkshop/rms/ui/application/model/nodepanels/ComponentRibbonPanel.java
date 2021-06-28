@@ -3,19 +3,18 @@ package com.hiveworkshop.rms.ui.application.model.nodepanels;
 import com.hiveworkshop.rms.editor.model.RibbonEmitter;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 public class ComponentRibbonPanel extends ComponentIdObjectPanel<RibbonEmitter> {
 
-	private FloatValuePanel alphaPanel;
+	private final FloatValuePanel alphaPanel;
 
 
-	public ComponentRibbonPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentRibbonPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 
-		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager(), changeListener);
+		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager());
 		topPanel.add(alphaPanel, "spanx, growx, wrap");
 	}
 

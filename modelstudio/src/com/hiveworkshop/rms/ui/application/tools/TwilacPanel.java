@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.FramePopup;
 import net.miginfocom.swing.MigLayout;
@@ -40,12 +41,12 @@ public class TwilacPanel extends JPanel {
 
 		JButton snapCloseVerts = new JButton("Snap Close Verts");
 		snapCloseVerts.addActionListener(e ->
-				ProgramGlobals.getCurrentModelPanel().getUndoManager().pushAction(new SnapCloseVertsAction(ProgramGlobals.getCurrentModelPanel().getModelView().getSelectedVertices(), 1, ProgramGlobals.getCurrentModelPanel().getModelStructureChangeListener()).redo()));
+				ProgramGlobals.getCurrentModelPanel().getUndoManager().pushAction(new SnapCloseVertsAction(ProgramGlobals.getCurrentModelPanel().getModelView().getSelectedVertices(), 1, ModelStructureChangeListener.changeListener).redo()));
 		add(snapCloseVerts, "wrap");
 
 		JButton weldCloseVerts = new JButton("Weld Close Verts");
 		weldCloseVerts.addActionListener(e ->
-				ProgramGlobals.getCurrentModelPanel().getUndoManager().pushAction(new WeldVertsAction(ProgramGlobals.getCurrentModelPanel().getModelView().getSelectedVertices(), 1, ProgramGlobals.getCurrentModelPanel().getModelStructureChangeListener()).redo()));
+				ProgramGlobals.getCurrentModelPanel().getUndoManager().pushAction(new WeldVertsAction(ProgramGlobals.getCurrentModelPanel().getModelView().getSelectedVertices(), 1, ModelStructureChangeListener.changeListener).redo()));
 		add(weldCloseVerts, "wrap");
 
 		JButton button = new JButton("button");
@@ -69,7 +70,7 @@ public class TwilacPanel extends JPanel {
 			UndoAction action = new BakeAndRebindAction(idObject, null, modelPanel.getModelHandler());
 			rebindActions.add(action);
 		}
-		modelPanel.getUndoManager().pushAction(new CompoundAction("Baked and changed Parent", rebindActions, () -> modelPanel.getModelStructureChangeListener().nodesUpdated()).redo());
+		modelPanel.getUndoManager().pushAction(new CompoundAction("Baked and changed Parent", rebindActions, ModelStructureChangeListener.changeListener::nodesUpdated).redo());
 	}
 
 	//	public void snapClose(){

@@ -57,8 +57,8 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 	MaterialListCellRenderer renderer;
 
-	public ComponentGeosetPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentGeosetPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 		setLayout(new MigLayout("", "[][grow][grow]", "[]"));
 
 		geosetLabel = new JLabel("geoset name");
@@ -280,11 +280,11 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 			button.addActionListener(e -> copyFromOther());
 			panel.add(button, "wrap");
 
-			FloatValuePanel alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager(), changeListener);
+			FloatValuePanel alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager());
 			alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 			panel.add(alphaPanel, "wrap, span 2");
 
-			ColorValuePanel colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR, modelHandler.getUndoManager(), changeListener);
+			ColorValuePanel colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR, modelHandler.getUndoManager());
 			colorPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 			panel.add(colorPanel, "wrap, span 2");
 

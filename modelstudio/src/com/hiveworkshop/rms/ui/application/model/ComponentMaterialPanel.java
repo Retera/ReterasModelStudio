@@ -29,15 +29,15 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 	private boolean listenForChanges = true;
 	private final ComponentMaterialLayersPanel multipleLayersPanel;
 
-	public ComponentMaterialPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentMaterialPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 
 		shaderOptionComboBox = getShaderComboBox();
 
 		priorityPlaneSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(-1, -1, Integer.MAX_VALUE, 1));
 		priorityPlaneSpinner.addActionListener(this::priorityPlaneSpinnerListener);
 
-		multipleLayersPanel = new ComponentMaterialLayersPanel(modelHandler, changeListener);
+		multipleLayersPanel = new ComponentMaterialLayersPanel(modelHandler);
 
 		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
 		add(new JLabel("Shader:"));

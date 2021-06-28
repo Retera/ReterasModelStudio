@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import net.infonode.docking.SplitWindow;
@@ -42,10 +43,10 @@ public class MPQBrowserView {
 		final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			if (modelPanel.getModel().getFormatVersion() > 800) {
-                finalPath = finalPath.replace("\\", "/"); // Reforged prefers forward slash
-            }
+				finalPath = finalPath.replace("\\", "/"); // Reforged prefers forward slash
+			}
 			modelPanel.getModel().add(new Bitmap(finalPath));
-			ProgramGlobals.getMainPanel().modelStructureChangeListener.texturesChanged();
-        }
+			ModelStructureChangeListener.changeListener.texturesChanged();
+		}
     }
 }

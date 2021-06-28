@@ -24,24 +24,29 @@ public class AbstractModelEditor extends ModelEditor {
     protected SelectionItemTypes selectionMode;
 
 	public AbstractModelEditor(SelectionManager selectionManager,
-                               ModelStructureChangeListener structureChangeListener,
-                               ModelHandler modelHandler, SelectionItemTypes selectionMode) {
+	                           ModelHandler modelHandler,
+	                           SelectionItemTypes selectionMode) {
 		super(selectionManager, modelHandler.getModelView());
 		this.modelHandler = modelHandler;
-		this.structureChangeListener = structureChangeListener;
+		this.structureChangeListener = ModelStructureChangeListener.changeListener;
 		this.selectionMode = selectionMode;
 	}
 
-    @Override
-    public UndoAction translate(Vec3 v) {
-        Vec3 delta = new Vec3(v);
-	    return new StaticMeshMoveAction(modelView, delta).redo();
-    }
+	public AbstractModelEditor setSelectionMode(SelectionItemTypes selectionMode) {
+		this.selectionMode = selectionMode;
+		return this;
+	}
 
-    @Override
-    public UndoAction scale(Vec3 center, Vec3 scale) {
-	    return new StaticMeshScaleAction(modelView, center).updateScale(scale).redo();
-    }
+	@Override
+	public UndoAction translate(Vec3 v) {
+		Vec3 delta = new Vec3(v);
+		return new StaticMeshMoveAction(modelView, delta).redo();
+	}
+
+	@Override
+	public UndoAction scale(Vec3 center, Vec3 scale) {
+		return new StaticMeshScaleAction(modelView, center).updateScale(scale).redo();
+	}
 
     @Override
     public UndoAction setPosition(Vec3 center, Vec3 v) {

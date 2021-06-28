@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderTimeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -42,7 +41,7 @@ public class TimeSliderView {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 
 		if (modelPanel != null) {
-			TimeBoundChooserPanel tbcPanel = new TimeBoundChooserPanel(modelPanel.getModelHandler(), modelPanel.getModelStructureChangeListener());
+			TimeBoundChooserPanel tbcPanel = new TimeBoundChooserPanel(modelPanel.getModelHandler());
 			int confirmDialogResult = JOptionPane.showConfirmDialog(mainPanel, tbcPanel, "Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
 
 			if (confirmDialogResult == JOptionPane.OK_OPTION) {
@@ -57,21 +56,6 @@ public class TimeSliderView {
 				modelPanel.getEditorRenderModel().updateNodes(false);
 			}
 		}
-	}
-
-	static void createTimeSliderPanel(MainPanel mainPanel) {
-//		mainPanel.getTimeSliderPanel() = new TimeSliderPanel(mainPanel, mainPanel.animatedRenderEnvironment, mainPanel.modelStructureChangeListener, ProgramGlobals.getPrefs());
-		mainPanel.getTimeSliderPanel().setDrawing(false);
-		TimeSliderTimeListener timeSliderTimeListener = currentTime -> {
-//			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime);
-//			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime - mainPanel.animatedRenderEnvironment.getStart());
-			if (ProgramGlobals.getCurrentModelPanel() != null) {
-				ProgramGlobals.getCurrentModelPanel().getEditorRenderModel().updateNodes(false);
-				ProgramGlobals.getCurrentModelPanel().repaintSelfAndRelatedChildren();
-			}
-		};
-		mainPanel.getTimeSliderPanel().addListener(timeSliderTimeListener);
-		//		timeSliderPanel.addListener(creatorPanel);
 	}
 
 	public static void setMouseCoordDisplay(JTextField[] mouseCoordDisplay, CoordinateSystem coordinateSystem, double value1, double value2) {

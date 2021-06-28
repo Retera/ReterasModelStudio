@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
@@ -102,7 +103,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 					DrawPlaneAction drawVertexAction = new DrawPlaneAction(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
 
 					if (!modelView.getModel().contains(solidWhiteGeoset)) {
-						NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView, modelEditorManager.getStructureChangeListener());
+						NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView, ModelStructureChangeListener.changeListener);
 						planeAction = new CompoundMoveAction("Add Plane", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
 					} else {
 						planeAction = drawVertexAction;

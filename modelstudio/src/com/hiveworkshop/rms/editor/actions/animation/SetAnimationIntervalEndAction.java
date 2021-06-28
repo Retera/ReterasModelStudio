@@ -21,7 +21,7 @@ public class SetAnimationIntervalEndAction implements UndoAction {
 	public UndoAction undo() {
 		animation.setIntervalEnd(prevIntervalEnd);
 		if (changeListener != null) {
-			changeListener.animationParamsChanged(animation);
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}
@@ -30,7 +30,7 @@ public class SetAnimationIntervalEndAction implements UndoAction {
 	public UndoAction redo() {
 		animation.setIntervalEnd(newIntervalEnd);
 		if (changeListener != null) {
-			changeListener.animationParamsChanged(animation);
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}

@@ -72,7 +72,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	private UVViewport vp;
 	private UVLinkActions uvLinkActions;
 
-	public UVPanel(ModelStructureChangeListener modelStructureChangeListener) {
+	public UVPanel() {
 		this.uvLinkActions = new UVLinkActions(this);
 		JToolBar toolbar = createJToolBar();
 
@@ -83,7 +83,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		ModelEditorChangeNotifier modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
-		modelEditorManager = new TVertexEditorManager(modelPanel.getModelHandler(), uvLinkActions.selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager, modelStructureChangeListener);
+		modelEditorManager = new TVertexEditorManager(modelPanel.getModelHandler(), uvLinkActions.selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager);
 
 		setBorder(BorderFactory.createLineBorder(Color.black));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)));
@@ -340,7 +340,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 
 	private void splitVertex() {
 		if (modelPanel != null) {
-			new SplitVertexAction(modelEditorManager.getStructureChangeListener(), modelPanel.getModelView());
+			new SplitVertexAction(ModelStructureChangeListener.changeListener, modelPanel.getModelView());
 		}
 		repaint();
 	}
@@ -426,7 +426,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	public void setViewport(ModelPanel dispModel) {
-		vp = new UVViewport(dispModel.getModelHandler(), this, viewportActivityManager, this, modelEditorManager.getModelEditor());
+		vp = new UVViewport(dispModel.getModelHandler(), this, viewportActivityManager, this);
 		add(vp);
 	}
 
@@ -510,7 +510,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 
 	//	@Override
 	public void changeActivity(ModelEditorActionType2 newType) {
-		viewportActivityManager.setCurrentActivity(createActivity(modelEditorManager, modelPanel.getModelHandler(), newType));
+		ViewportActivity activity = createActivity(modelEditorManager, modelPanel.getModelHandler(), newType);
+		viewportActivityManager.setCurrentActivity(activity);
 	}
 
 	public ViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelHandler modelHandler, ModelEditorActionType2 editorActionType) {

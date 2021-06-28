@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
@@ -48,7 +47,6 @@ public class ModelPanel {
 	private final ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeNotifier;
 	private final ViewportActivityManager viewportActivityManager;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final ModelEditorManager modelEditorManager;
 	private UVPanel editUVPanel;
 	private final JScrollPane modelEditingTreePane;
@@ -68,7 +66,6 @@ public class ModelPanel {
 	                  ProgramPreferences prefs,
 	                  ToolbarButtonGroup2<SelectionItemTypes> notifier,
 	                  ToolbarButtonGroup2<SelectionMode> modeNotifier,
-	                  ModelStructureChangeListener modelStructureChangeListener,
 	                  CoordDisplayListener coordDisplayListener,
 	                  ViewportTransferHandler viewportTransferHandler,
 	                  ViewportListener viewportListener,
@@ -79,24 +76,23 @@ public class ModelPanel {
 		selectionItemTypeNotifier = notifier;
 		this.icon = icon;
 		viewportActivityManager = new ViewportActivityManager(null);
-		this.modelStructureChangeListener = modelStructureChangeListener;
 
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
-		modelEditorManager = new ModelEditorManager(modelHandler, modeNotifier, modelEditorChangeNotifier, viewportActivityManager, modelStructureChangeListener);
+		modelEditorManager = new ModelEditorManager(modelHandler, modeNotifier, modelEditorChangeNotifier, viewportActivityManager);
 
 		modelViewManagingTree = new ModelViewManagingTree(modelHandler, modelEditorManager);
 		modelEditingTreePane = new JScrollPane(modelViewManagingTree);
 
-		modelComponentBrowserTree = new ModelComponentBrowserTree(modelHandler, modelStructureChangeListener);
+		modelComponentBrowserTree = new ModelComponentBrowserTree(modelHandler);
 		componentBrowserTreePane = new JScrollPane(modelComponentBrowserTree);
 
 		selectionItemTypeNotifier.addToolbarButtonListener(modelEditorManager::setSelectionItemType);
 
-		frontArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Front", (byte) 1, (byte) 2);
-		botArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Bottom", (byte) 1, (byte) 0);
-		sideArea = getDisplayPanel(modelStructureChangeListener, coordDisplayListener, viewportTransferHandler, viewportListener, "Side", (byte) 0, (byte) 2);
+		frontArea = getDisplayPanel(coordDisplayListener, viewportTransferHandler, viewportListener, "Front", (byte) 1, (byte) 2);
+		botArea = getDisplayPanel(coordDisplayListener, viewportTransferHandler, viewportListener, "Bottom", (byte) 1, (byte) 0);
+		sideArea = getDisplayPanel(coordDisplayListener, viewportTransferHandler, viewportListener, "Side", (byte) 0, (byte) 2);
 
 		previewPanel = new PreviewPanel(modelHandler, prefs, !specialBLPModel);
 
@@ -108,13 +104,13 @@ public class ModelPanel {
 
 		perspArea = new PerspDisplayPanel("Perspective", modelHandler, prefs);
 
-		componentsPanel = new ComponentsPanel(modelHandler, modelStructureChangeListener);
+		componentsPanel = new ComponentsPanel(modelHandler);
 
 		modelComponentBrowserTree.addSelectListener(componentsPanel);
 	}
 
-	private DisplayPanel getDisplayPanel(ModelStructureChangeListener modelStructureChangeListener, CoordDisplayListener coordDisplayListener, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener, String side, byte i, byte i2) {
-		return new DisplayPanel(side, i, i2, modelHandler, modelEditorManager, modelStructureChangeListener,
+	private DisplayPanel getDisplayPanel(CoordDisplayListener coordDisplayListener, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener, String side, byte i, byte i2) {
+		return new DisplayPanel(side, i, i2, modelHandler, modelEditorManager,
 				viewportActivityManager, coordDisplayListener,
 				modelEditorChangeNotifier, viewportTransferHandler, viewportListener);
 	}
@@ -269,10 +265,6 @@ public class ModelPanel {
 		return componentBrowserTreePane;
 	}
 
-	public ModelStructureChangeListener getModelStructureChangeListener() {
-		return modelStructureChangeListener;
-	}
-
 	public void reloadComponentBrowser() {
 		componentBrowserTreePane.setViewportView(modelComponentBrowserTree.reloadFromModelView());
 		modelComponentBrowserTree.repaint();
@@ -302,7 +294,7 @@ public class ModelPanel {
 		getPerspArea().reloadTextures();
 		getAnimationViewer().reload();
 		getAnimationController().reload();
-		parent.getCreatorPanel().reloadAnimationList();
+		parent.getMainLayoutCreator().getCreatorPanel().reloadAnimationList();
 
 		Quat IDENTITY = new Quat();
 		getEditorRenderModel().refreshFromEditor(

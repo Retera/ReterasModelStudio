@@ -50,17 +50,18 @@ public class WindowsMenu extends JMenu {
 		JMenu viewsMenu = createMenu("Views", KeyEvent.VK_V);
 
 		RootWindow rootWindow = mainPanel.getRootWindow();
-		viewsMenu.add(createMenuItem("Animation Preview", KeyEvent.VK_A, OpenViewAction.getOpenViewAction(rootWindow, "Animation Preview", mainPanel.getPreviewView())));
-		viewsMenu.add(createMenuItem("Animation Controller", KeyEvent.VK_C, OpenViewAction.getOpenViewAction(rootWindow, "Animation Controller", mainPanel.getAnimationControllerView())));
-		viewsMenu.add(createMenuItem("Modeling", KeyEvent.VK_M, OpenViewAction.getOpenViewAction(rootWindow, "Modeling", mainPanel.getCreatorView())));
-		viewsMenu.add(createMenuItem("Outliner", KeyEvent.VK_O, OpenViewAction.getOpenViewAction(rootWindow, "Outliner", mainPanel.getViewportControllerWindowView())));
-		viewsMenu.add(createMenuItem("Perspective", KeyEvent.VK_P, OpenViewAction.getOpenViewAction(rootWindow, "Perspective", mainPanel.getPerspectiveView())));
-		viewsMenu.add(createMenuItem("Front", KeyEvent.VK_F, OpenViewAction.getOpenViewAction(rootWindow, "Front", mainPanel.getFrontView())));
-		viewsMenu.add(createMenuItem("Side", KeyEvent.VK_S, OpenViewAction.getOpenViewAction(rootWindow, "Side", mainPanel.getLeftView())));
-		viewsMenu.add(createMenuItem("Bottom", KeyEvent.VK_B, OpenViewAction.getOpenViewAction(rootWindow, "Bottom", mainPanel.getBottomView())));
-		viewsMenu.add(createMenuItem("Tools", KeyEvent.VK_T, OpenViewAction.getOpenViewAction(rootWindow, "Tools", mainPanel.getToolView())));
-		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_C, OpenViewAction.getOpenViewAction(rootWindow, "Model", mainPanel.getModelDataView())));
-		viewsMenu.add(createMenuItem("Footer", OpenViewAction.getOpenViewAction(rootWindow, "Footer", mainPanel.getTimeSliderView())));
+		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
+		viewsMenu.add(createMenuItem("Animation Preview", KeyEvent.VK_A, OpenViewAction.getOpenViewAction(rootWindow, "Animation Preview", mainLayoutCreator.getPreviewView())));
+		viewsMenu.add(createMenuItem("Animation Controller", KeyEvent.VK_C, OpenViewAction.getOpenViewAction(rootWindow, "Animation Controller", mainLayoutCreator.getAnimationControllerView())));
+		viewsMenu.add(createMenuItem("Modeling", KeyEvent.VK_M, OpenViewAction.getOpenViewAction(rootWindow, "Modeling", mainLayoutCreator.getCreatorView())));
+		viewsMenu.add(createMenuItem("Outliner", KeyEvent.VK_O, OpenViewAction.getOpenViewAction(rootWindow, "Outliner", mainLayoutCreator.getViewportControllerWindowView())));
+		viewsMenu.add(createMenuItem("Perspective", KeyEvent.VK_P, OpenViewAction.getOpenViewAction(rootWindow, "Perspective", mainLayoutCreator.getPerspectiveView())));
+		viewsMenu.add(createMenuItem("Front", KeyEvent.VK_F, OpenViewAction.getOpenViewAction(rootWindow, "Front", mainLayoutCreator.getFrontView())));
+		viewsMenu.add(createMenuItem("Side", KeyEvent.VK_S, OpenViewAction.getOpenViewAction(rootWindow, "Side", mainLayoutCreator.getLeftView())));
+		viewsMenu.add(createMenuItem("Bottom", KeyEvent.VK_B, OpenViewAction.getOpenViewAction(rootWindow, "Bottom", mainLayoutCreator.getBottomView())));
+		viewsMenu.add(createMenuItem("Tools", KeyEvent.VK_T, OpenViewAction.getOpenViewAction(rootWindow, "Tools", mainLayoutCreator.getToolView())));
+		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_C, OpenViewAction.getOpenViewAction(rootWindow, "Model", mainLayoutCreator.getModelDataView())));
+		viewsMenu.add(createMenuItem("Footer", OpenViewAction.getOpenViewAction(rootWindow, "Footer", mainLayoutCreator.getTimeSliderView())));
 		viewsMenu.add(createMenuItem("Matrix Eater Script", KeyEvent.VK_H, KeyStroke.getKeyStroke("control P"), e -> ScriptView.openScriptView()));
 		return viewsMenu;
 	}

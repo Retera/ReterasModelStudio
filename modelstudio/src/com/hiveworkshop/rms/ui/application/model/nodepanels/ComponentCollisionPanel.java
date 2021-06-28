@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
 import com.hiveworkshop.rms.editor.model.CollisionShape;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 public class ComponentCollisionPanel extends ComponentIdObjectPanel<CollisionShape> {
@@ -12,8 +11,8 @@ public class ComponentCollisionPanel extends ComponentIdObjectPanel<CollisionSha
 //	private CollisionShape idObject;
 
 
-	public ComponentCollisionPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentCollisionPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 
 //		parentChooser = new ParentChooser(modelHandler.getModelView());
 //

@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
@@ -54,7 +55,7 @@ public class DrawVertexActivity extends ViewportActivity {
 			UndoAction action2;
 			DrawVertexAction drawVertexAction = new DrawVertexAction(geosetVertex);
 			if (!modelView.getModel().contains(solidWhiteGeoset) || !modelView.isEditable(solidWhiteGeoset)) {
-				NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView, modelEditorManager.getStructureChangeListener());
+				NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView, ModelStructureChangeListener.changeListener);
 				action2 = new CompoundAction("add vertex", Arrays.asList(newGeosetAction, drawVertexAction));
 			} else {
 				action2 = drawVertexAction;

@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.scripts.ChangeAnimationLengthFrame;
@@ -62,7 +63,7 @@ public class ScriptActions {
 			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), geosetChoosingPanel, "Merge Geoset into Geoset", JOptionPane.OK_CANCEL_OPTION);
 			if (option == JOptionPane.OK_OPTION && geoMap.containsKey(0) && geoMap.containsKey(1) && geoMap.get(0) != geoMap.get(1)) {
 				ModelHandler modelHandler = modelPanel.getModelHandler();
-				MergeGeosetsAction action = new MergeGeosetsAction(geoMap.get(0), geoMap.get(1), modelHandler.getModelView(), modelPanel.getModelStructureChangeListener());
+				MergeGeosetsAction action = new MergeGeosetsAction(geoMap.get(0), geoMap.get(1), modelHandler.getModelView(), ModelStructureChangeListener.changeListener);
 				modelHandler.getUndoManager().pushAction(action.redo());
 			}
 		}
@@ -257,7 +258,7 @@ public class ScriptActions {
 		for (AnimFlag flag : allAnimFlags) {
 			if (!flag.hasGlobalSeq()) {
 				if (flag.size() > 0) {
-					Object value = flag.interpolateAt(mainPanel.animatedRenderEnvironment);
+					Object value = flag.interpolateAt(renderEnv);
 					flag.setInterpType(InterpolationType.DONT_INTERP);
 					flag.clear();
 					flag.addEntry(333, value);
@@ -306,7 +307,7 @@ public class ScriptActions {
 	}
 
 	public static void scaleAnimations() {
-		ChangeAnimationLengthFrame aFrame = new ChangeAnimationLengthFrame(ProgramGlobals.getCurrentModelPanel(), () -> ProgramGlobals.getMainPanel().getTimeSliderPanel().revalidateKeyframeDisplay());
+		ChangeAnimationLengthFrame aFrame = new ChangeAnimationLengthFrame(ProgramGlobals.getCurrentModelPanel(), () -> ProgramGlobals.getMainPanel().getMainLayoutCreator().getTimeSliderPanel().revalidateKeyframeDisplay());
 		aFrame.setVisible(true);
 	}
 
@@ -487,7 +488,7 @@ public class ScriptActions {
 			}
 
 		}
-		ProgramGlobals.getMainPanel().modelStructureChangeListener.geosetsUpdated();
+		ModelStructureChangeListener.changeListener.geosetsUpdated();
 	}
 
 	/**
@@ -661,10 +662,9 @@ public class ScriptActions {
 			}
 		}
 		if (model.getGeosets().size() > lodGeosToRemove.size()) {
-			DeleteGeosetAction deleteGeosetAction = new DeleteGeosetAction(lodGeosToRemove, modelPanel.getModelStructureChangeListener());
+			DeleteGeosetAction deleteGeosetAction = new DeleteGeosetAction(lodGeosToRemove, ModelStructureChangeListener.changeListener);
 			CompoundAction deletActions = new CompoundAction("Delete LoD=" + lodToRemove + " geosets", deleteGeosetAction);
-			modelPanel.getUndoManager().pushAction(deletActions);
-			deletActions.redo();
+			modelPanel.getUndoManager().pushAction(deletActions.redo());
 		}
 	}
 

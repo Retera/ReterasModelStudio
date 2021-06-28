@@ -1,15 +1,11 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorChangeActivityListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.creator.CreatorModelingPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType2;
@@ -18,7 +14,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
-import net.infonode.docking.View;
 import net.infonode.docking.util.StringViewMap;
 import net.infonode.tabbedpanel.TabAreaVisiblePolicy;
 import net.infonode.tabbedpanel.titledtab.TitledTabBorderSizePolicy;
@@ -35,16 +30,13 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 //    private final View timeSliderView;
 //    private final View creatorView;
 
-    private MainLayoutCreator mainLayoutCreator;
+    private final MainLayoutCreator mainLayoutCreator;
 
     JTextField[] mouseCoordDisplay = new JTextField[3];
     boolean cheatShift = false;
     boolean cheatAlt = false;
 
-    private final CreatorModelingPanel creatorPanel;
-    final TimeEnvironmentImpl animatedRenderEnvironment;
     final CoordDisplayListener coordDisplayListener;
-    final ModelStructureChangeListener modelStructureChangeListener;
     final ViewportTransferHandler viewportTransferHandler;
     final StringViewMap viewMap;
     final RootWindow rootWindow;
@@ -71,14 +63,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
         TimeSliderView.createMouseCoordDisp(mouseCoordDisplay);
 
-        modelStructureChangeListener = ModelStructureChangeListener.getModelStructureChangeListener();
-        animatedRenderEnvironment = new TimeEnvironmentImpl(0, 1);
-
-//        TimeSliderView.createTimeSliderPanel(this);
-
-//        animatedRenderEnvironment.addChangeListener((start, end) -> MainPanelLinkActions.animatedRenderEnvChangeResult(MainPanel.this, start, end));
-
-
         ClosePopup.createContextMenuPopup();
 
         viewMap = new StringViewMap();
@@ -98,7 +82,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 //        contentsDummy.add(new JLabel("..."));
 
 
-        creatorPanel = new CreatorModelingPanel(this::changeActivity, actionTypeGroup, viewportListener);
+//        CreatorModelingPanel creatorPanel = new CreatorModelingPanel(this::changeActivity, actionTypeGroup, viewportListener);
 
 //        timeSliderView = TimeSliderView.createTimeSliderView(timeSliderPanel);
 //        creatorView = new View("Modeling", null, creatorPanel);
@@ -216,18 +200,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         return t;
     }
 
-    public CreatorModelingPanel getCreatorPanel() {
-        return mainLayoutCreator.getCreatorPanel();
-    }
-
-    public TimeSliderPanel getTimeSliderPanel() {
-        return mainLayoutCreator.getTimeSliderPanel();
-    }
-
-    public ModelStructureChangeListener getModelStructureChangeListener() {
-        return modelStructureChangeListener;
-    }
-
     public RootWindow getRootWindow() {
         return rootWindow;
     }
@@ -285,96 +257,7 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         repaint();
     }
 
-    public View getFrontView() {
-        return mainLayoutCreator.getFrontView();
-    }
-
-    public View getLeftView() {
-        return mainLayoutCreator.getLeftView();
-    }
-
-    public View getBottomView() {
-        return mainLayoutCreator.getBottomView();
-    }
-
-    public View getPerspectiveView() {
-        return mainLayoutCreator.getPerspectiveView();
-    }
-
-    public View getViewportControllerWindowView() {
-        return mainLayoutCreator.getViewportControllerWindowView();
-    }
-
-    public View getToolView() {
-        return mainLayoutCreator.getToolView();
-    }
-
-    public MainPanel setFrontView(View frontView) {
-        mainLayoutCreator.setFrontView(frontView);
-        return this;
-    }
-
-    public MainPanel setLeftView(View leftView) {
-        mainLayoutCreator.setLeftView(leftView);
-        return this;
-    }
-
-    public MainPanel setBottomView(View bottomView) {
-        mainLayoutCreator.setBottomView(bottomView);
-        return this;
-    }
-
-    public MainPanel setPerspectiveView(View perspectiveView) {
-        mainLayoutCreator.setPerspectiveView(perspectiveView);
-        return this;
-    }
-
-    public MainPanel setViewportControllerWindowView(View viewportControllerWindowView) {
-        mainLayoutCreator.setViewportControllerWindowView(viewportControllerWindowView);
-        return this;
-    }
-
-    public MainPanel setToolView(View toolView) {
-        mainLayoutCreator.setToolView(toolView);
-        return this;
-    }
-
     public MainLayoutCreator getMainLayoutCreator() {
         return mainLayoutCreator;
-    }
-
-
-    public View getPreviewView() {
-        return mainLayoutCreator.getPreviewView();
-    }
-
-    public View getAnimationControllerView() {
-        return mainLayoutCreator.getAnimationControllerView();
-    }
-
-    public View getModelDataView() {
-        return mainLayoutCreator.getModelDataView();
-    }
-
-    public View getModelComponentView() {
-        return mainLayoutCreator.getModelComponentView();
-    }
-
-    public MainPanel setModelDataView(View modelDataView) {
-        mainLayoutCreator.setModelDataView(modelDataView);
-        return this;
-    }
-
-    public MainPanel setModelComponentView(View modelComponentView) {
-        mainLayoutCreator.setModelComponentView(modelComponentView);
-        return this;
-    }
-
-    public View getTimeSliderView() {
-        return mainLayoutCreator.getTimeSliderView();
-    }
-
-    public View getCreatorView() {
-        return mainLayoutCreator.getCreatorView();
     }
 }

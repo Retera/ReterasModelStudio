@@ -1,16 +1,14 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.ui.application.MainLayoutCreator;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.Quat;
 
-import java.util.List;
-
 public class ModelStructureChangeListener {
 	public static final Quat IDENTITY = new Quat();
+	public static final ModelStructureChangeListener changeListener = new ModelStructureChangeListener();
 
 	public ModelStructureChangeListener() {
 	}
@@ -21,10 +19,11 @@ public class ModelStructureChangeListener {
 		modelPanel.reloadComponentBrowser();
 		modelPanel.getComponentBrowserTreePane().repaint();
 
+		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		modelPanel.getPerspArea().reloadTextures();
 		modelPanel.getAnimationViewer().reload();
 		modelPanel.getAnimationController().reload();
-		mainPanel.getCreatorPanel().reloadAnimationList();
+		mainLayoutCreator.getCreatorPanel().reloadAnimationList();
 
 		modelPanel.getEditorRenderModel().refreshFromEditor(
 				IDENTITY, IDENTITY, IDENTITY,
@@ -32,8 +31,14 @@ public class ModelStructureChangeListener {
 	}
 
 	public static ModelStructureChangeListener getModelStructureChangeListener() {
-		return new ModelStructureChangeListener();
+		return changeListener;
 	}
+
+	// The methods below is not static to make it less confusing where
+	// UndoActions take a nullable ModelStructureChangeListener as parameter.
+	// This is done to allow for compound actions where the inner actions
+	// takes does not call any update function
+	// It would be possible to let those actions take a boolean instead...
 
 	public void nodesUpdated() {
 		// Tell program to set visibility after import
@@ -63,17 +68,10 @@ public class ModelStructureChangeListener {
 	}
 
 	public void keyframesUpdated() {
-		ProgramGlobals.getMainPanel().getTimeSliderPanel().revalidateKeyframeDisplay();
+		ProgramGlobals.getMainPanel().getMainLayoutCreator().getTimeSliderPanel().revalidateKeyframeDisplay();
 	}
 
-	public void animationsAdded(List<Animation> animation) {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			modelPanel.reloadGeosetManagers();
-		}
-	}
-
-	public void animationsRemoved(List<Animation> animation) {
+	public void animationParamsChanged() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			modelPanel.reloadGeosetManagers();
@@ -95,14 +93,7 @@ public class ModelStructureChangeListener {
 		}
 	}
 
-	public void animationParamsChanged(Animation animation) {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			modelPanel.reloadGeosetManagers();
-		}
-	}
-
-	public void globalSequenceLengthChanged(int index, Integer newLength) {
+	public void globalSequenceLengthChanged() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			modelPanel.reloadGeosetManagers();
@@ -125,9 +116,5 @@ public class ModelStructureChangeListener {
 			modelPanel.reloadModelEditingTree();
 			modelPanel.reloadComponentBrowser();
 		}
-	}
-
-	public interface ModelReference {
-		EditableModel getModel();
 	}
 }

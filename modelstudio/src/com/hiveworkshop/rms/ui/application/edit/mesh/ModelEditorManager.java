@@ -1,9 +1,8 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
@@ -12,44 +11,29 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 
 public class ModelEditorManager extends AbstractModelEditorManager {
 	public static boolean MOVE_LINKED;
+	AbstractModelEditor abstractModelEditor;
+	NodeAnimationModelEditor nodeAnimationModelEditor;
 
 	public ModelEditorManager(ModelHandler modelHandler,
 	                          ToolbarButtonGroup2<SelectionMode> modeButtonGroup,
-	                          ModelEditorChangeListener modelEditorChangeListener,
-	                          SelectionListener selectionListener,
-	                          ModelStructureChangeListener structureChangeListener) {
-		super(modelHandler, modeButtonGroup, modelEditorChangeListener, selectionListener, structureChangeListener);
+	                          ModelEditorChangeNotifier changeNotifier,
+	                          SelectionListener selectionListener) {
+		super(modelHandler, modeButtonGroup, changeNotifier, selectionListener);
+		selectionManager = new SelectionManager(modelHandler.getModelView(), MOVE_LINKED, SelectionItemTypes.VERTEX);
+		abstractModelEditor = new AbstractModelEditor((SelectionManager) selectionManager, modelHandler, SelectionItemTypes.VERTEX);
+		nodeAnimationModelEditor = new NodeAnimationModelEditor((SelectionManager) selectionManager, modelHandler, SelectionItemTypes.ANIMATE);
 		setSelectionItemType(SelectionItemTypes.VERTEX);
 	}
 
 	public void setSelectionItemType(SelectionItemTypes selectionMode) {
+		selectionManager.setSelectionMode(selectionMode);
 		switch (selectionMode) {
-			case VERTEX, FACE, GROUP, CLUSTER -> {
-
-				SelectionManager selectionManager = new SelectionManager(modelHandler.getModelView(), selectionMode);
-				this.modelEditor = new AbstractModelEditor(selectionManager, structureChangeListener, modelHandler, selectionMode);
-
-				this.selectionManager = selectionManager;
-			}
-			case ANIMATE -> {
-				SelectionManager selectionManager = new SelectionManager(modelHandler.getModelView(), selectionMode);
-				modelEditor = new NodeAnimationModelEditor(selectionManager, structureChangeListener, modelHandler, selectionMode);
-
-				this.selectionManager = selectionManager;
-			}
-			case TPOSE -> {
-				boolean moveLinked = MOVE_LINKED;// dialog == settings[0];
-				SelectionManager tposeSelectionManager = new SelectionManager(modelHandler.getModelView(), moveLinked, selectionMode);
-
-				modelEditor = new AbstractModelEditor(tposeSelectionManager, structureChangeListener, modelHandler, selectionMode);
-
-				selectionManager = tposeSelectionManager;
-			}
+			case VERTEX, FACE, GROUP, CLUSTER, TPOSE -> modelEditor = abstractModelEditor.setSelectionMode(selectionMode);
+			case ANIMATE -> modelEditor = nodeAnimationModelEditor;
 		}
 
 		selectionListener.onSelectionChanged(selectionManager);
-//		viewportSelectionHandler.setModelEditor(modelEditor);
 		viewportSelectionHandler.setSelectionManager(selectionManager);
-		modelEditorChangeListener.modelEditorChanged(modelEditor);
+		changeNotifier.modelEditorChanged(modelEditor);
 	}
 }

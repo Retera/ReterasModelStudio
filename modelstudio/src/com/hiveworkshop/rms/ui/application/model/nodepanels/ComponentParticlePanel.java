@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application.model.nodepanels;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -18,19 +17,19 @@ public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitt
 	private final FloatValuePanel emissionPanel;
 	private final FloatValuePanel visibilityPanel;
 
-	public ComponentParticlePanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentParticlePanel(ModelHandler modelHandler) {
+		super(modelHandler);
 
 		pathField = new ComponentEditorTextField(24);
 		pathField.addEditingStoppedListener(this::texturePathField);
 		topPanel.add(pathField, "wrap");
 
-		longitudePanel = new FloatValuePanel(modelHandler, "Longitude", modelHandler.getUndoManager(), changeListener);
-		latitudePanel = new FloatValuePanel(modelHandler, "Latitude", modelHandler.getUndoManager(), changeListener);
-		speedPanel = new FloatValuePanel(modelHandler, "Speed", modelHandler.getUndoManager(), changeListener);
-		gravityPanel = new FloatValuePanel(modelHandler, "Gravity", modelHandler.getUndoManager(), changeListener);
-		emissionPanel = new FloatValuePanel(modelHandler, "EmissionRate", modelHandler.getUndoManager(), changeListener);
-		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility", modelHandler.getUndoManager(), changeListener);
+		longitudePanel = new FloatValuePanel(modelHandler, "Longitude", modelHandler.getUndoManager());
+		latitudePanel = new FloatValuePanel(modelHandler, "Latitude", modelHandler.getUndoManager());
+		speedPanel = new FloatValuePanel(modelHandler, "Speed", modelHandler.getUndoManager());
+		gravityPanel = new FloatValuePanel(modelHandler, "Gravity", modelHandler.getUndoManager());
+		emissionPanel = new FloatValuePanel(modelHandler, "EmissionRate", modelHandler.getUndoManager());
+		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility", modelHandler.getUndoManager());
 		topPanel.add(longitudePanel, "spanx, growx, wrap");
 		topPanel.add(latitudePanel, "spanx, growx, wrap");
 		topPanel.add(speedPanel, "spanx, growx, wrap");

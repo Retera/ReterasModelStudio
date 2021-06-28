@@ -56,7 +56,7 @@ public class DeleteAnimationAction implements UndoAction {
 			eventObject.addTracks(eventTracksToRemove.get(eventObject));
 		}
 		if (changeListener != null) {
-			changeListener.animationParamsChanged(animation);
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}
@@ -73,7 +73,7 @@ public class DeleteAnimationAction implements UndoAction {
 			eventObject.removeTracks(eventTracksToRemove.get(eventObject));
 		}
 		if (changeListener != null) {
-			changeListener.animationParamsChanged(animation);
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}

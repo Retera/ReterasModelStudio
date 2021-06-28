@@ -9,28 +9,32 @@ public class SetGlobalSequenceLengthAction implements UndoAction {
 	private final int globalSequenceId;
 	private final Integer previousLength;
 	private final Integer newLength;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
 	public SetGlobalSequenceLengthAction(final EditableModel model, final int globalSequenceId, final Integer previousLength,
-			final Integer newLength, final ModelStructureChangeListener structureChangeListener) {
+	                                     final Integer newLength, final ModelStructureChangeListener changeListener) {
 		this.model = model;
 		this.globalSequenceId = globalSequenceId;
 		this.previousLength = previousLength;
 		this.newLength = newLength;
-		this.structureChangeListener = structureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		model.setGlobalSequenceLength(globalSequenceId, previousLength);
-		structureChangeListener.globalSequenceLengthChanged(globalSequenceId, previousLength);
+		if (changeListener != null) {
+			changeListener.globalSequenceLengthChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		model.setGlobalSequenceLength(globalSequenceId, newLength);
-		structureChangeListener.globalSequenceLengthChanged(globalSequenceId, newLength);
+		if (changeListener != null) {
+			changeListener.globalSequenceLengthChanged();
+		}
 		return this;
 	}
 

@@ -261,7 +261,7 @@ public class MenuBarActions {
 			ModelHandler modelHandler = new ModelHandler(mdl);
 			ModelPanel temp = new ModelPanel(modelHandler, ProgramGlobals.getPrefs(),
 					mainPanel.selectionItemTypeGroup, mainPanel.selectionModeGroup,
-					mainPanel.modelStructureChangeListener, mainPanel.coordDisplayListener,
+					mainPanel.coordDisplayListener,
 					mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false);
 			ModelLoader.loadModel(true, true, temp);
 		}
@@ -329,7 +329,7 @@ public class MenuBarActions {
 			}
 			current.add(white);
 			current.add(material);
-			ProgramGlobals.getMainPanel().modelStructureChangeListener.materialsListChanged();
+			ModelStructureChangeListener.changeListener.materialsListChanged();
 		}
 	}
 
@@ -478,15 +478,16 @@ public class MenuBarActions {
 
 	public static void copyCutPast(TransferActionListener transferActionListener, ActionEvent e) {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		if (!mainPanel.animationModeState) {
 			transferActionListener.actionPerformed(e);
 		} else {
 			if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
-				mainPanel.getTimeSliderPanel().cut();
+				mainLayoutCreator.getTimeSliderPanel().cut();
 			} else if (e.getActionCommand().equals(TransferHandler.getCopyAction().getValue(Action.NAME))) {
-				mainPanel.getTimeSliderPanel().copy();
+				mainLayoutCreator.getTimeSliderPanel().copy();
 			} else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
-				mainPanel.getTimeSliderPanel().paste();
+				mainLayoutCreator.getTimeSliderPanel().paste();
 			}
 		}
 	}
@@ -510,12 +511,11 @@ public class MenuBarActions {
 		for (final IdObject node : result) {
 			model.remove(node);
 		}
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		mainPanel.modelStructureChangeListener.nodesUpdated();
+		ModelStructureChangeListener.changeListener.nodesUpdated();
 		for (final IdObject node : result) {
 			model.add(node);
 		}
-		mainPanel.modelStructureChangeListener.nodesUpdated();
+		ModelStructureChangeListener.changeListener.nodesUpdated();
 	}
 
 	public static void minimizeGeoset() {
@@ -552,7 +552,7 @@ public class MenuBarActions {
 			}
 		}
 
-		ModelStructureChangeListener changeListener = ProgramGlobals.getMainPanel().modelStructureChangeListener;
+		ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
 		UndoAction undoAction = new CompoundAction("Minimize Geosets", mergeActions, changeListener::geosetsUpdated);
 		modelPanel.getUndoManager().pushAction(undoAction.redo());
 	}
@@ -618,6 +618,6 @@ public class MenuBarActions {
 		}
 
 		materials.removeAll(sameMaterialMap.keySet());
-		ProgramGlobals.getMainPanel().modelStructureChangeListener.materialsListChanged();
+		ModelStructureChangeListener.changeListener.materialsListChanged();
 	}
 }

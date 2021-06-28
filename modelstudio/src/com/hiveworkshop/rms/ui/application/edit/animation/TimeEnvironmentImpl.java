@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.ui.application.viewer.PreviewPanel;
 
 public class TimeEnvironmentImpl implements TimeBoundProvider {
 
-
 	public static int FRAMES_PER_UPDATE = 1000 / 60;
 	boolean live = false;
 	private int animationTime;
@@ -20,7 +19,7 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 	private int end;
 	private long lastUpdateMillis = System.currentTimeMillis();
 
-	private final TimeBoundChangeListener.TimeBoundChangeNotifier notifier = new TimeBoundChangeListener.TimeBoundChangeNotifier();
+	private final TimeBoundChangeListener notifier = new TimeBoundChangeListener();
 
 
 	public TimeEnvironmentImpl() {
@@ -213,8 +212,7 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return this;
 	}
 
-	@Override
-	public void addChangeListener(final TimeBoundChangeListener listener) {
+	public void addChangeListener(final TimeSliderPanel listener) {
 		notifier.subscribe(listener);
 	}
 

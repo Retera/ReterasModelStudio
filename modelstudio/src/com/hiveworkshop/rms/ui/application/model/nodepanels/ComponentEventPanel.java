@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.sound.Sound;
 import com.hiveworkshop.rms.util.sound.SoundPlayer;
@@ -13,8 +12,8 @@ import javax.swing.*;
 public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 	JPanel soundsPanel;
 
-	public ComponentEventPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentEventPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 		soundsPanel = new JPanel(new MigLayout());
 		topPanel.add(soundsPanel, "wrap");
 	}

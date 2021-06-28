@@ -22,12 +22,12 @@ public final class ModelComponentBrowserTree extends JTree {
 	private Map<IdObject, DefaultMutableTreeNode> nodeToTreeElement;
 	private boolean controlDown = false;
 
-	public ModelComponentBrowserTree(ModelHandler modelHandler, ModelStructureChangeListener modelStructureChangeListener) {
+	public ModelComponentBrowserTree(ModelHandler modelHandler) {
 		super();
 		this.modelHandler = modelHandler;
-		setModel(buildTreeModel(modelHandler, modelStructureChangeListener));
+		setModel(buildTreeModel(modelHandler));
 
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.modelStructureChangeListener = ModelStructureChangeListener.changeListener;
 
 
 		addKeyListener(getKeyAdapter());
@@ -102,7 +102,7 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 	}
 
-	private DefaultTreeModel buildTreeModel(ModelHandler modelHandler, ModelStructureChangeListener modelStructureChangeListener) {
+	private DefaultTreeModel buildTreeModel(ModelHandler modelHandler) {
 
 		EditableModel model = modelHandler.getModel();
 		ModelView modelView = modelHandler.getModelView();
@@ -283,7 +283,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 
 			Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
-			setModel(buildTreeModel(modelHandler, modelStructureChangeListener));
+			setModel(buildTreeModel(modelHandler));
 
 			TreePath newRootPath = new TreePath(getModel().getRoot());
 			System.out.println("newRootPath: " + newRootPath);

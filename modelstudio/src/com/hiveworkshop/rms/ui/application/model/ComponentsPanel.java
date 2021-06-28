@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.model;
 
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.*;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -17,7 +16,7 @@ public class ComponentsPanel extends JPanel {
 	private final Map<DisplayElementType, ComponentPanel<?>> componentPanelMap;
 	private final Map<DisplayElementType, JPanel> overviewPanelMap;
 
-	public ComponentsPanel(ModelHandler modelHandler, ModelStructureChangeListener modelStructureChangeListener) {
+	public ComponentsPanel(ModelHandler modelHandler) {
 		componentPanelMap = new HashMap<>();
 		overviewPanelMap = new HashMap<>();
 		cardLayout = new CardLayout();
@@ -27,33 +26,33 @@ public class ComponentsPanel extends JPanel {
 		blankPanel.add(new JLabel("Select a model component to get started..."));
 		add(blankPanel, BLANK);
 
-		addPanelToMap(new ComponentHeaderPanel(modelHandler, modelStructureChangeListener), DisplayElementType.MODEL_ROOT);
-		addPanelToMap(new ComponentHeaderPanel(modelHandler, modelStructureChangeListener), DisplayElementType.HEADER);
-		addPanelToMap(new ComponentCommentPanel(modelHandler, modelStructureChangeListener), DisplayElementType.COMMENT);
+		addPanelToMap(new ComponentHeaderPanel(modelHandler), DisplayElementType.MODEL_ROOT);
+		addPanelToMap(new ComponentHeaderPanel(modelHandler), DisplayElementType.HEADER);
+		addPanelToMap(new ComponentCommentPanel(modelHandler), DisplayElementType.COMMENT);
 
-		addPanelToMap(new ComponentGlobalSequencePanel(modelHandler, modelStructureChangeListener), DisplayElementType.GLOBAL_SEQ);
-		addPanelToMap(new ComponentAnimationPanel(modelHandler, modelStructureChangeListener), DisplayElementType.ANIMATION);
+		addPanelToMap(new ComponentGlobalSequencePanel(modelHandler), DisplayElementType.GLOBAL_SEQ);
+		addPanelToMap(new ComponentAnimationPanel(modelHandler), DisplayElementType.ANIMATION);
 
-		addPanelToMap(new ComponentBitmapPanel(modelHandler, modelStructureChangeListener), DisplayElementType.TEXTURE);
-		addPanelToMap(new ComponentMaterialPanel(modelHandler, modelStructureChangeListener), DisplayElementType.MATERIAL);
-		addPanelToMap(new ComponentGeosetPanel(modelHandler, modelStructureChangeListener), DisplayElementType.GEOSET_ITEM);
-		addPanelToMap(new ComponentGeosetAnimPanel(modelHandler, modelStructureChangeListener), DisplayElementType.GEOSET_ANIM);
+		addPanelToMap(new ComponentBitmapPanel(modelHandler), DisplayElementType.TEXTURE);
+		addPanelToMap(new ComponentMaterialPanel(modelHandler), DisplayElementType.MATERIAL);
+		addPanelToMap(new ComponentGeosetPanel(modelHandler), DisplayElementType.GEOSET_ITEM);
+		addPanelToMap(new ComponentGeosetAnimPanel(modelHandler), DisplayElementType.GEOSET_ANIM);
 
-		addPanelToMap(new ComponentBonePanel(modelHandler, modelStructureChangeListener), DisplayElementType.BONE);
-		addPanelToMap(new ComponentHelperPanel(modelHandler, modelStructureChangeListener), DisplayElementType.HELPER);
-		addPanelToMap(new ComponentLightPanel(modelHandler, modelStructureChangeListener), DisplayElementType.LIGHT);
-		addPanelToMap(new ComponentParticlePanel(modelHandler, modelStructureChangeListener), DisplayElementType.PARTICLE);
-		addPanelToMap(new ComponentParticle2Panel(modelHandler, modelStructureChangeListener), DisplayElementType.PARTICLE2);
-		addPanelToMap(new ComponentRibbonPanel(modelHandler, modelStructureChangeListener), DisplayElementType.RIBBON);
-		addPanelToMap(new ComponentPopcornPanel(modelHandler, modelStructureChangeListener), DisplayElementType.POPCORN);
-		addPanelToMap(new ComponentCollisionPanel(modelHandler, modelStructureChangeListener), DisplayElementType.COLLISION_SHAPE);
-		addPanelToMap(new ComponentEventPanel(modelHandler, modelStructureChangeListener), DisplayElementType.EVENT_OBJECT);
-		addPanelToMap(new ComponentAttatchmentPanel(modelHandler, modelStructureChangeListener), DisplayElementType.ATTACHMENT);
-		addPanelToMap(new ComponentFaceEffectPanel(modelHandler, modelStructureChangeListener), DisplayElementType.FACEFX);
+		addPanelToMap(new ComponentBonePanel(modelHandler), DisplayElementType.BONE);
+		addPanelToMap(new ComponentHelperPanel(modelHandler), DisplayElementType.HELPER);
+		addPanelToMap(new ComponentLightPanel(modelHandler), DisplayElementType.LIGHT);
+		addPanelToMap(new ComponentParticlePanel(modelHandler), DisplayElementType.PARTICLE);
+		addPanelToMap(new ComponentParticle2Panel(modelHandler), DisplayElementType.PARTICLE2);
+		addPanelToMap(new ComponentRibbonPanel(modelHandler), DisplayElementType.RIBBON);
+		addPanelToMap(new ComponentPopcornPanel(modelHandler), DisplayElementType.POPCORN);
+		addPanelToMap(new ComponentCollisionPanel(modelHandler), DisplayElementType.COLLISION_SHAPE);
+		addPanelToMap(new ComponentEventPanel(modelHandler), DisplayElementType.EVENT_OBJECT);
+		addPanelToMap(new ComponentAttatchmentPanel(modelHandler), DisplayElementType.ATTACHMENT);
+		addPanelToMap(new ComponentFaceEffectPanel(modelHandler), DisplayElementType.FACEFX);
 
-		addPanelToMap(new ComponentCameraPanel(modelHandler, modelStructureChangeListener), DisplayElementType.CAMERA);
+		addPanelToMap(new ComponentCameraPanel(modelHandler), DisplayElementType.CAMERA);
 
-		addOverviewPanel(DisplayElementType.TEXTURE, new EditTexturesPopupPanel(modelHandler.getModelView(), modelStructureChangeListener));
+		addOverviewPanel(DisplayElementType.TEXTURE, new EditTexturesPopupPanel(modelHandler.getModelView()));
 		addOverviewPanel(DisplayElementType.GEOSET_ITEM, new GeosetOverviewPanel(modelHandler));
 		addOverviewPanel(DisplayElementType.ANIMATION, new AnimationOverviewPanel(modelHandler));
 		addOverviewPanel(DisplayElementType.NODES, new NodesOverviewPanel(modelHandler));

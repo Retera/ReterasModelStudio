@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -246,33 +247,37 @@ public class MainPanelLinkActions {
 
 	private AbstractAction playKeyboardKeyAction() {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		return getAsAction(() -> {
-			if (!isTextField()) mainPanel.getTimeSliderPanel().play();
+			if (!isTextField()) mainLayoutCreator.getTimeSliderPanel().play();
 		});
 	}
 
 	private AbstractAction jumpFramesAction(int i) {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		return getAsAction(() -> {
 			if (!isTextField() && mainPanel.animationModeState) {
-				mainPanel.getTimeSliderPanel().jumpFrames(i);
+				mainLayoutCreator.getTimeSliderPanel().jumpFrames(i);
 			}
 		});
 	}
 
 	private AbstractAction previousKeyframe() {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		return getAsAction(() -> {
 			if (!isTextField() && mainPanel.animationModeState) {
-				mainPanel.getTimeSliderPanel().jumpToPreviousTime();
+				mainLayoutCreator.getTimeSliderPanel().jumpToPreviousTime();
 			}
 		});
 	}
 
 	private AbstractAction nextKeyframe() {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		return getAsAction(() -> {
-			if (!isTextField() && mainPanel.animationModeState) mainPanel.getTimeSliderPanel().jumpToNextTime();
+			if (!isTextField() && mainPanel.animationModeState) mainLayoutCreator.getTimeSliderPanel().jumpToNextTime();
 		});
 	}
 
@@ -370,7 +375,7 @@ public class MainPanelLinkActions {
 		if (modelPanel != null) {
 			try {
 				ModelView modelView = modelPanel.getModelView();
-				CloneAction2 cloneAction = new CloneAction2(modelView, modelPanel.getModelStructureChangeListener(), modelView.getSelectedVertices(), modelView.getSelectedIdObjects(), modelView.getSelectedCameras());
+				CloneAction2 cloneAction = new CloneAction2(modelView, ModelStructureChangeListener.changeListener, modelView.getSelectedVertices(), modelView.getSelectedIdObjects(), modelView.getSelectedCameras());
 				cloneAction.redo();
 
 				modelPanel.getUndoManager().pushAction(cloneAction);
@@ -388,11 +393,11 @@ public class MainPanelLinkActions {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			if (mainPanel.animationModeState) {
-				mainPanel.getTimeSliderPanel().deleteSelectedKeyframes();
+				mainPanel.getMainLayoutCreator().getTimeSliderPanel().deleteSelectedKeyframes();
 			} else {
 				ModelView modelView = modelPanel.getModelView();
-				DeleteAction deleteAction = new DeleteAction(modelView.getSelectedVertices(), modelPanel.getModelStructureChangeListener(), modelView);
-				DeleteNodesAction deleteNodesAction = new DeleteNodesAction(modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), modelPanel.getModelStructureChangeListener(), modelView);
+				DeleteAction deleteAction = new DeleteAction(modelView.getSelectedVertices(), ModelStructureChangeListener.changeListener, modelView);
+				DeleteNodesAction deleteNodesAction = new DeleteNodesAction(modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), ModelStructureChangeListener.changeListener, modelView);
 				CompoundAction compoundAction = new CompoundAction("deleted components", Arrays.asList(deleteAction, deleteNodesAction));
 				compoundAction.redo();
 				modelPanel.getUndoManager().pushAction(compoundAction);

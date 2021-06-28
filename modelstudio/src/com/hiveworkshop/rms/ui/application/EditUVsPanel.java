@@ -12,8 +12,8 @@ public class EditUVsPanel {
         final ModelPanel currentModelPanel = ProgramGlobals.getCurrentModelPanel();
         UVPanel panel = currentModelPanel.getEditUVPanel();
         if (panel == null) {
-            panel = new UVPanel(mainPanel.modelStructureChangeListener);
-            currentModelPanel.setEditUVPanel(panel);
+            panel = new UVPanel();
+	        currentModelPanel.setEditUVPanel(panel);
 
             panel.initViewport();
 

@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
 import com.hiveworkshop.rms.editor.model.Attachment;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 public class ComponentAttatchmentPanel extends ComponentIdObjectPanel<Attachment> {
@@ -13,8 +12,8 @@ public class ComponentAttatchmentPanel extends ComponentIdObjectPanel<Attachment
 //	ParentChooser parentChooser;
 
 
-	public ComponentAttatchmentPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentAttatchmentPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 
 //		parentChooser = new ParentChooser(modelHandler.getModelView());
 

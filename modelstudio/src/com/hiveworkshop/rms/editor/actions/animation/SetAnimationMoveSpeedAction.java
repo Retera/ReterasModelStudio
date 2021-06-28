@@ -21,7 +21,7 @@ public class SetAnimationMoveSpeedAction implements UndoAction {
 	public UndoAction undo() {
 		animation.setMoveSpeed(prevMoveSpeed);
 		if (changeListener != null) {
-			changeListener.animationParamsChanged(animation);
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}
@@ -30,7 +30,7 @@ public class SetAnimationMoveSpeedAction implements UndoAction {
 	public UndoAction redo() {
 		animation.setMoveSpeed(newMoveSpeed);
 		if (changeListener != null) {
-			changeListener.animationParamsChanged(animation);
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}

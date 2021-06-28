@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.util.Vec3;
@@ -77,7 +78,7 @@ public class AddParticlePanel {
 			ParticleEmitterPopcorn new_popcornEmitter = new ParticleEmitterPopcorn("New PopcornEmitter");
 			new_popcornEmitter.setPivotPoint(new Vec3(0, 0, 0));
 			modelPanel.getModel().add(new_popcornEmitter);
-			ProgramGlobals.getMainPanel().modelStructureChangeListener.nodesUpdated();
+			ModelStructureChangeListener.changeListener.nodesUpdated();
 		}
 	}
 
@@ -206,7 +207,7 @@ public class AddParticlePanel {
 		particle.setVisibilityFlag(visFlag);
 		particle.setName(name);
 		ProgramGlobals.getCurrentModelPanel().getModel().add(particle);
-		ProgramGlobals.getMainPanel().modelStructureChangeListener.nodesUpdated();
+		ModelStructureChangeListener.changeListener.nodesUpdated();
 	}
 
 

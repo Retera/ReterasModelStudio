@@ -32,8 +32,8 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	private final JPanel previewPanel;
 	private final FileDialog fileDialog;
 
-	public ComponentBitmapPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentBitmapPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 		texturePathField = new ComponentEditorTextField(24);
 		texturePathField.addEditingStoppedListener(this::texturePathField);
 		fileDialog = new FileDialog(this);

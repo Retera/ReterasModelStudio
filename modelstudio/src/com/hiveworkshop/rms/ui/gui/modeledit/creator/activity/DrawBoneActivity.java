@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.addactions.DrawBoneAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
@@ -49,7 +50,7 @@ public class DrawBoneActivity extends ViewportActivity {
 			}
 			Bone bone = new Bone(getNumberName("Bone", nameNumber));
 			bone.setPivotPoint(new Vec3(worldPressLocation));
-			DrawBoneAction drawBoneAction = new DrawBoneAction(modelView, modelEditorManager.getStructureChangeListener(), bone);
+			DrawBoneAction drawBoneAction = new DrawBoneAction(modelView, ModelStructureChangeListener.changeListener, bone);
 			drawBoneAction.redo();
 
 

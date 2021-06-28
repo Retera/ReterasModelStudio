@@ -1,32 +1,28 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.UVViewportModelRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeListener;
 import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class UVViewport extends ViewportView implements ModelEditorChangeListener {
+public class UVViewport extends ViewportView {
 	ArrayList<Image> backgrounds = new ArrayList<>();
 
 	JMenuItem placeholderButton;
 	UVPanel uvPanel;
 	private final UVViewportModelRenderer viewportModelRenderer;
-	private ModelEditor editor;
 
-	public UVViewport(ModelHandler modelHandler, UVPanel uvPanel, ViewportActivityManager viewportActivity, CoordDisplayListener coordDisplayListener, ModelEditor editor) {
+	public UVViewport(ModelHandler modelHandler, UVPanel uvPanel, ViewportActivityManager viewportActivity, CoordDisplayListener coordDisplayListener) {
 		super(modelHandler, (byte) 0, (byte) 1, new Dimension(400, 400), viewportActivity, new ViewportListener(), coordDisplayListener);
 
-		this.editor = editor;
 		this.viewportListener = new ViewportListener();
 		coordinateSystem.setYFlip(1);
 
@@ -100,10 +96,5 @@ public class UVViewport extends ViewportView implements ModelEditorChangeListene
 
 	public void clearBackgroundImage() {
 		backgrounds.clear();
-	}
-
-	@Override
-	public void modelEditorChanged(final ModelEditor newModelEditor) {
-		editor = newModelEditor;
 	}
 }

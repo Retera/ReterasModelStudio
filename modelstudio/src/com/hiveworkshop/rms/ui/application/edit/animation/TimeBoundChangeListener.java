@@ -3,26 +3,21 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 import java.util.HashSet;
 import java.util.Set;
 
-public interface TimeBoundChangeListener {
-	void timeBoundsChanged(int start, int end);
+public class TimeBoundChangeListener {
 
-	Set<TimeBoundChangeListener> listenerSet = new HashSet<>();
+	Set<TimeSliderPanel> listenerSet = new HashSet<>();
 
-	final class TimeBoundChangeNotifier implements TimeBoundChangeListener {
+	public void subscribe(final TimeSliderPanel listener) {
+		listenerSet.add(listener);
+	}
 
-		public void subscribe(final TimeBoundChangeListener listener) {
-			listenerSet.add(listener);
-		}
+	public void unsubscribe(final TimeSliderPanel listener) {
+		listenerSet.remove(listener);
+	}
 
-		public void unsubscribe(final TimeBoundChangeListener listener) {
-			listenerSet.remove(listener);
-		}
-
-		@Override
-		public void timeBoundsChanged(int start, int end) {
-			for (TimeBoundChangeListener listener : listenerSet) {
-				listener.timeBoundsChanged(start, end);
-			}
+	public void timeBoundsChanged(int start, int end) {
+		for (TimeSliderPanel listener : listenerSet) {
+			listener.timeBoundsChanged(start, end);
 		}
 	}
 }

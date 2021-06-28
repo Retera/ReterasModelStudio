@@ -23,8 +23,8 @@ public class ComponentHeaderPanel extends ComponentPanel<EditableModel> {
 	private final ComponentEditorJSpinner blendTimeSpinner;
 	private final ExtLogEditor extLogEditor;
 
-	public ComponentHeaderPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentHeaderPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 
 		setLayout(new MigLayout("fill", "[]", "[][][][][][][][grow]"));
 

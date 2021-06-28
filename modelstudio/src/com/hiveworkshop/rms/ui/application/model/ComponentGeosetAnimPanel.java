@@ -25,8 +25,8 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 	private final JLabel geosetLabel;
 
 
-	public ComponentGeosetAnimPanel(ModelHandler modelHandler, ModelStructureChangeListener changeListener) {
-		super(modelHandler, changeListener);
+	public ComponentGeosetAnimPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
 
 		JPanel labelPanel = new JPanel(new MigLayout());
@@ -44,11 +44,11 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 		button.addActionListener(e -> copyFromOther());
 		animsPanelHolder.add(button, "wrap");
 
-		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager(), changeListener);
+		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager());
 		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		animsPanelHolder.add(alphaPanel, "wrap, span 2");
 
-		colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR, modelHandler.getUndoManager(), changeListener);
+		colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR, modelHandler.getUndoManager());
 		colorPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		animsPanelHolder.add(colorPanel, "wrap, span 2");
 
