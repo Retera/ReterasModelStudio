@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -85,9 +86,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 	int ugg = 0;
 
-	public PerspectiveViewport(ModelView modelView, RenderModel renderModel, ProgramPreferences programPreferences, TimeEnvironmentImpl renderEnvironment, boolean loadDefaultCamera) throws LWJGLException {
+	public PerspectiveViewport(ModelView modelView, RenderModel renderModel, TimeEnvironmentImpl renderEnvironment, boolean loadDefaultCamera) throws LWJGLException {
 		super();
-		this.programPreferences = programPreferences;
+		this.programPreferences = ProgramGlobals.getPrefs();
 
 		renderEnv = renderEnvironment;
 

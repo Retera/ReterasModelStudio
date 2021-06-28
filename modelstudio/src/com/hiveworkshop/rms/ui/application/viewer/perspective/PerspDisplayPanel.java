@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application.viewer.perspective;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import net.infonode.docking.View;
 import org.lwjgl.LWJGLException;
 
@@ -24,13 +23,11 @@ public class PerspDisplayPanel extends JPanel {
 	//	private PerspectiveViewport vp;
 	private PerspectiveViewport vp;
 	private String title;
-	private final ProgramPreferences programPreferences;
 	private final View view;
 
 	// private JCheckBox wireframe;
-	public PerspDisplayPanel(String title, ModelHandler modelHandler, ProgramPreferences programPreferences) {
+	public PerspDisplayPanel(String title, ModelHandler modelHandler) {
 		super();
-		this.programPreferences = programPreferences;
 		setOpaque(true);
 
 		this.modelHandler = modelHandler;
@@ -102,7 +99,7 @@ public class PerspDisplayPanel extends JPanel {
 			}
 			removeAll();
 //			vp = new PerspectiveViewport(modelView, renderModel, programPreferences, renderEnvironment);
-			vp = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), programPreferences, modelHandler.getEditTimeEnv(), false);
+			vp = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), modelHandler.getEditTimeEnv(), false);
 			vp.setIgnoreRepaint(false);
 			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
 

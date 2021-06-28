@@ -28,7 +28,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Quat;
 
 import javax.swing.*;
@@ -63,7 +62,6 @@ public class ModelPanel {
 	private final ComponentsPanel componentsPanel;
 
 	public ModelPanel(ModelHandler modelHandler,
-	                  ProgramPreferences prefs,
 	                  ToolbarButtonGroup2<SelectionItemTypes> notifier,
 	                  ToolbarButtonGroup2<SelectionMode> modeNotifier,
 	                  CoordDisplayListener coordDisplayListener,
@@ -93,26 +91,29 @@ public class ModelPanel {
 		frontArea = getDisplayPanel(coordDisplayListener, viewportTransferHandler, viewportListener, "Front", (byte) 1, (byte) 2);
 		botArea = getDisplayPanel(coordDisplayListener, viewportTransferHandler, viewportListener, "Bottom", (byte) 1, (byte) 0);
 		sideArea = getDisplayPanel(coordDisplayListener, viewportTransferHandler, viewportListener, "Side", (byte) 0, (byte) 2);
+		setShowControlls();
 
-		previewPanel = new PreviewPanel(modelHandler, prefs, !specialBLPModel);
+		previewPanel = new PreviewPanel(modelHandler, !specialBLPModel);
 
 		animationController = new AnimationController(modelHandler, true, previewPanel, previewPanel.getCurrentAnimation());
 
-		frontArea.setControlsVisible(prefs.showVMControls());
-		botArea.setControlsVisible(prefs.showVMControls());
-		sideArea.setControlsVisible(prefs.showVMControls());
-
-		perspArea = new PerspDisplayPanel("Perspective", modelHandler, prefs);
+		perspArea = new PerspDisplayPanel("Perspective", modelHandler);
 
 		componentsPanel = new ComponentsPanel(modelHandler);
 
 		modelComponentBrowserTree.addSelectListener(componentsPanel);
 	}
 
+	private void setShowControlls() {
+		frontArea.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
+		botArea.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
+		sideArea.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
+	}
+
 	private DisplayPanel getDisplayPanel(CoordDisplayListener coordDisplayListener, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener, String side, byte i, byte i2) {
 		return new DisplayPanel(side, i, i2, modelHandler, modelEditorManager,
 				viewportActivityManager, coordDisplayListener,
-				modelEditorChangeNotifier, viewportTransferHandler, viewportListener);
+				viewportTransferHandler, viewportListener);
 	}
 
 	public RenderModel getEditorRenderModel() {

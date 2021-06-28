@@ -17,7 +17,6 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.WarcraftObjectTreeCel
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.UnitComparator;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -93,7 +92,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		temp.add(debugLabel);
 
 		// TODO null prefs
-		modelPanel = new PerspDisplayPanel("blank", modelHandler, new ProgramPreferences());
+		modelPanel = new PerspDisplayPanel("blank", modelHandler);
 		fillTable();
 
 		setRightComponent(modelPanel);

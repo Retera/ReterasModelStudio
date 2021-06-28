@@ -40,8 +40,8 @@ public class ViewportTransferHandler extends TransferHandler {
 			return false;
 		}
 
-		Viewport list = (Viewport) info.getComponent();
-//		ModelView modelView = list.getModelView();
+		Viewport viewport = (Viewport) info.getComponent();
+//		ModelView modelView = viewport.getModelView();
 		// Fetch the data -- bail if this fails
 		try {
 			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
@@ -57,14 +57,14 @@ public class ViewportTransferHandler extends TransferHandler {
 		if (info.isDrop()) { // This is a drop
 			Viewport.DropLocation dl = (Viewport.DropLocation) info.getDropLocation();
 			Point dropPoint = dl.getDropPoint();
-			pasteModelIntoViewport(pastedModel, list, dropPoint, list.getModelStructureChangeListener());
+			pasteModelIntoViewport(pastedModel, viewport, dropPoint);
 		} else { // This is a paste
-			pasteModelIntoViewport(pastedModel, list, list.getLastMouseMotion(), list.getModelStructureChangeListener());
+			pasteModelIntoViewport(pastedModel, viewport, viewport.getLastMouseMotion());
 		}
 		return true;
 	}
 
-	private void pasteModelIntoViewport(EditableModel pastedModel, Viewport viewport, Point dropPoint, ModelStructureChangeListener modelStructureChangeListener) {
+	private void pasteModelIntoViewport(EditableModel pastedModel, Viewport viewport, Point dropPoint) {
 		ModelHandler modelHandler = new ModelHandler(pastedModel);
 		ModelView pastedModelView = modelHandler.getModelView();
 		pastedModelView.setIdObjectsVisible(true);
@@ -103,7 +103,7 @@ public class ViewportTransferHandler extends TransferHandler {
 			pastedGeoset.applyVerticesToMatrices(currentModelView.getModel());
 			currentModelView.addSelectedVertices(pastedGeoset.getVertices());
 		}
-		modelStructureChangeListener.geosetsUpdated();
+		ModelStructureChangeListener.changeListener.geosetsUpdated();
 	}
 
 	/**

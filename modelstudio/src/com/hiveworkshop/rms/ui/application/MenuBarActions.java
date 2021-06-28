@@ -259,7 +259,7 @@ public class MenuBarActions {
 			}
 
 			ModelHandler modelHandler = new ModelHandler(mdl);
-			ModelPanel temp = new ModelPanel(modelHandler, ProgramGlobals.getPrefs(),
+			ModelPanel temp = new ModelPanel(modelHandler,
 					mainPanel.selectionItemTypeGroup, mainPanel.selectionModeGroup,
 					mainPanel.coordDisplayListener,
 					mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false);

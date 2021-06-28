@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTreeBrowser;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.CreatorModelingPanel;
 import de.wc3data.stream.BlizzardDataInputStream;
 import net.infonode.docking.DockingWindow;
@@ -196,6 +197,59 @@ public class MainLayoutCreator {
         timeSliderPanel.addListener(timeSliderTimeListener);
         //		timeSliderPanel.addListener(creatorPanel);
         return timeSliderPanel;
+    }
+
+    public MainLayoutCreator setModelPanel(ModelPanel modelPanel) {
+        if (modelPanel == null) {
+            JPanel jPanel = new JPanel();
+            jPanel.add(new JLabel("..."));
+            viewportControllerWindowView.setComponent(jPanel);
+            frontView.setComponent(new JPanel());
+            bottomView.setComponent(new JPanel());
+            leftView.setComponent(new JPanel());
+            perspectiveView.setComponent(new JPanel());
+            previewView.setComponent(new JPanel());
+            animationControllerView.setComponent(new JPanel());
+            timeSliderPanel.setModelHandler(null);
+            creatorPanel.setModelEditorManager(null);
+            creatorPanel.setCurrentModel(null);
+            modelDataView.setComponent(new JPanel());
+            modelComponentView.setComponent(new JPanel());
+        } else {
+            viewportControllerWindowView.setComponent(modelPanel.getModelEditingTreePane());
+            frontView.setComponent(modelPanel.getFrontArea());
+            bottomView.setComponent(modelPanel.getBotArea());
+            leftView.setComponent(modelPanel.getSideArea());
+            perspectiveView.setComponent(modelPanel.getPerspArea());
+            previewView.setComponent(modelPanel.getAnimationViewer());
+            animationControllerView.setComponent(modelPanel.getAnimationController());
+            timeSliderPanel.setModelHandler(modelPanel.getModelHandler());
+            creatorPanel.setModelEditorManager(modelPanel.getModelEditorManager());
+            creatorPanel.setCurrentModel(modelPanel.getModelHandler());
+            modelDataView.setComponent(modelPanel.getComponentBrowserTreePane());
+            modelComponentView.setComponent(modelPanel.getComponentsPanel());
+
+            modelPanel.reloadComponentBrowser();
+            modelPanel.reloadModelEditingTree();
+        }
+        return this;
+    }
+
+    public MainLayoutCreator showModelPanel(ModelPanel modelPanel) {
+        viewportControllerWindowView.setComponent(modelPanel.getModelEditingTreePane());
+        viewportControllerWindowView.repaint();
+        modelDataView.setComponent(modelPanel.getComponentBrowserTreePane());
+        modelComponentView.setComponent(modelPanel.getComponentsPanel());
+        modelDataView.repaint();
+        return this;
+    }
+
+    public MainLayoutCreator setAnimationMode(boolean animationModeState) {
+        timeSliderPanel.setDrawing(animationModeState);
+        timeSliderPanel.setKeyframeModeActive(animationModeState);
+        timeSliderPanel.repaint();
+        creatorPanel.setAnimationModeState(animationModeState);
+        return this;
     }
 
     public View getViewportControllerWindowView() {

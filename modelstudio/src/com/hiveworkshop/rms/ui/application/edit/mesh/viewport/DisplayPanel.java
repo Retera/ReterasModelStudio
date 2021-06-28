@@ -1,12 +1,11 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import net.infonode.docking.View;
 import net.miginfocom.swing.MigLayout;
@@ -26,8 +25,6 @@ public class DisplayPanel extends JPanel {
 	private Viewport vp;
 	JPanel buttonPanel;
 	private final ViewportActivityManager activityListener;
-	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	private final View view;
 	private final ViewportListener viewportListener;
 
@@ -35,16 +32,11 @@ public class DisplayPanel extends JPanel {
 	                    ModelEditorManager modelEditorManager,
 	                    ViewportActivityManager activityListener,
 	                    CoordDisplayListener coordDisplayListener,
-	                    ModelEditorChangeNotifier modelEditorChangeNotifier,
 	                    ViewportTransferHandler viewportTransferHandler,
 	                    ViewportListener viewportListener) {
-		super();
-		this.modelStructureChangeListener = ModelStructureChangeListener.changeListener;
+		super(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
 		this.activityListener = activityListener;
-		this.modelEditorChangeNotifier = modelEditorChangeNotifier;
 		this.viewportListener = viewportListener;
-
-		setLayout(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
 
 		setOpaque(true);
 		vp = getViewport(a, b, modelHandler, coordDisplayListener, modelEditorManager, viewportTransferHandler);
@@ -101,7 +93,7 @@ public class DisplayPanel extends JPanel {
 	                            CoordDisplayListener coordDisplayListener,
 	                            ModelEditorManager modelEditorManager,
 	                            ViewportTransferHandler viewportTransferHandler) {
-		return new Viewport(a, b, modelHandler, activityListener, modelStructureChangeListener, coordDisplayListener, modelEditorManager, viewportTransferHandler, viewportListener);
+		return new Viewport(a, b, modelHandler, activityListener, coordDisplayListener, modelEditorManager, viewportTransferHandler, viewportListener);
 	}
 
 	@Override
@@ -130,7 +122,7 @@ public class DisplayPanel extends JPanel {
 	}
 
 	public void panUpDown(int i) {
-		vp.getCoordinateSystem().translateZoomed(0, 1);
+		vp.getCoordinateSystem().translateZoomed(0, i);
 //		vp.translate(0, (i / vp.getZoom()));
 		vp.repaint();
 	}

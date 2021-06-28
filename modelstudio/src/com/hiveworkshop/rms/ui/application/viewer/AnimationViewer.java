@@ -70,7 +70,7 @@ public class AnimationViewer extends JPanel {
 			}
 			this.modelView.setVetoOverrideParticles(true);
 			RenderModel renderModel = new RenderModel(this.modelView.getModel(), this.modelView, renderEnv);
-			perspectiveViewport = new PerspectiveViewport(this.modelView, renderModel, programPreferences, renderEnv, true);
+			perspectiveViewport = new PerspectiveViewport(this.modelView, renderModel, renderEnv, true);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);
