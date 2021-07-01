@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.util;
 
+import net.miginfocom.swing.MigLayout;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -11,14 +13,21 @@ public class ZoomableImagePreviewPanel extends JPanel {
 	private float scale = 1.0f;
 	private int offsetX = 0;
 	private int offsetY = 0;
+	private boolean alignTop = false;
 
 	public ZoomableImagePreviewPanel(final Image image) {
+		super(new MigLayout("fill"));
 		this.image = image;
 
 		MouseAdapter mouseAdapter = getMouseAdapter(image);
 		addMouseWheelListener(mouseAdapter);
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
+	}
+
+	public ZoomableImagePreviewPanel(final Image image, boolean alignTop) {
+		this(image);
+		this.alignTop = alignTop;
 	}
 
 	private MouseAdapter getMouseAdapter(Image image) {
@@ -45,7 +54,8 @@ public class ZoomableImagePreviewPanel extends JPanel {
 
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
-				scale *= Math.pow(1.05, -e.getPreciseWheelRotation());
+				double pow = Math.pow(1.05, -e.getPreciseWheelRotation());
+				scale *= pow;
 				adjustOffset(image);
 				repaint();
 			}
@@ -62,8 +72,8 @@ public class ZoomableImagePreviewPanel extends JPanel {
 
 	private void adjustOffset(Image image) {
 		if (image != null) {
-			double offX = image.getWidth(null) * scale * .2;
-			double offY = image.getHeight(null) * scale * .2;
+			double offX = scale * image.getWidth(null);
+			double offY = scale * image.getHeight(null);
 			offsetX = (int) Math.max(Math.min(offsetX, offX), -offX);
 			offsetY = (int) Math.max(Math.min(offsetY, offY), -offY);
 		}
@@ -73,15 +83,24 @@ public class ZoomableImagePreviewPanel extends JPanel {
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
 		if (image != null) {
-			int size = (int) (Math.min(getWidth(), getHeight()) * scale);
 			int imageWidth = image.getWidth(null);
 			int imageHeight = image.getHeight(null);
-			float scale = size / (float) Math.max(imageWidth, imageHeight);
-			int renderWidth = (int) (scale * imageWidth);
-			int x = (getWidth() - renderWidth) / 2 - offsetX;
-			int renderHeight = (int) (scale * imageHeight);
-			int y = (getHeight() - renderHeight) / 2 - offsetY;
-			g.drawImage(image, x, y, renderWidth, renderHeight, null);
+
+			float scale = getScale(imageWidth, imageHeight);
+
+			int scaledWidth = (int) (scale * imageWidth);
+			int x = ((getWidth() - scaledWidth) / 2) - offsetX;
+
+			int scaledHeight = (int) (scale * imageHeight);
+			int y = alignTop ? -offsetY : (((getHeight() - scaledHeight) / 2) - offsetY);
+
+			g.drawImage(image, x, y, scaledWidth, scaledHeight, null);
 		}
+	}
+
+	private float getScale(int imageWidth, int imageHeight) {
+		float scaleX = getWidth() / (float) imageWidth;
+		float scaleY = getHeight() / (float) imageHeight;
+		return Math.min(scaleX, scaleY) * scale;
 	}
 }

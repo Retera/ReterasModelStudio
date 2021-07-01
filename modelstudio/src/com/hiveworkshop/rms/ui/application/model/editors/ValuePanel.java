@@ -81,7 +81,7 @@ public abstract class ValuePanel<T> extends JPanel {
 		staticPanel.add(makeDynamicButton, "al 100% 0%, wrap, hidemode 3");
 
 		staticComponent = this.getStaticComponent();
-		staticPanel.add(staticComponent, "wrap, hidemode 3");
+		staticPanel.add(staticComponent, "spanx, wrap, hidemode 3");
 
 		dynStatPanel.add("static", staticPanel);
 	}

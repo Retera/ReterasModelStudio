@@ -49,6 +49,10 @@ public class TwilacPanel extends JPanel {
 				ProgramGlobals.getCurrentModelPanel().getUndoManager().pushAction(new WeldVertsAction(ProgramGlobals.getCurrentModelPanel().getModelView().getSelectedVertices(), 1, ModelStructureChangeListener.changeListener).redo()));
 		add(weldCloseVerts, "wrap");
 
+		JButton renameBoneChain = new JButton("Rename Bone Chain");
+		renameBoneChain.addActionListener(e -> RenameBoneChainPanel.show(ProgramGlobals.getMainPanel()));
+		add(renameBoneChain, "wrap");
+
 		JButton button = new JButton("button");
 		button.addActionListener(e -> ProgramGlobals.getCurrentModelPanel().getModelView().setGeosetsEditable(true));
 		add(button, "wrap");

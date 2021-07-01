@@ -353,16 +353,32 @@ public final class ModelView {
 		geosetsVisible = visible;
 	}
 
+	public boolean isGeosetsVisible() {
+		return geosetsVisible;
+	}
+
 	public void setGeosetsEditable(boolean editable) {
 		geosetsEditable = editable;
+	}
+
+	public boolean isGeosetsEditable() {
+		return geosetsEditable;
 	}
 
 	public void setIdObjectsVisible(boolean visible) {
 		idObjectsVisible = visible;
 	}
 
+	public boolean isIdObjectsVisible() {
+		return idObjectsVisible;
+	}
+
 	public void setCamerasVisible(boolean visible) {
 		camerasVisible = visible;
+	}
+
+	public boolean isCamerasVisible() {
+		return camerasVisible;
 	}
 
 	public boolean isVisible(Geoset ob) {
@@ -681,5 +697,89 @@ public final class ModelView {
 	public void setSelectedTVertices(Collection<GeosetVertex> geosetVertices) {
 		selectedTVertices.clear();
 		selectedTVertices.addAll(geosetVertices);
+	}
+
+	public <T> boolean isInEditable(T obj) {
+		if (obj instanceof GeosetVertex) {
+			return editableVertices.contains(obj);
+		} else if (obj instanceof Geoset) {
+			return editableGeosets.contains(obj);
+		} else if (obj instanceof IdObject) {
+			return editableIdObjects.contains(obj);
+		} else if (obj instanceof Camera) {
+			return editableCameras.contains(obj);
+		}
+		return false;
+	}
+
+	public <T> boolean isInVisible(T obj) {
+		if (obj instanceof GeosetVertex) {
+			System.out.println("GeosetVertex inVissible:" + hiddenVertices.contains(obj));
+			return !hiddenVertices.contains(obj);
+		} else if (obj instanceof Geoset) {
+			System.out.println("Geoset inVissible:" + visibleGeosets.contains(obj));
+			return visibleGeosets.contains(obj);
+		} else if (obj instanceof IdObject) {
+			System.out.println("IdObject inVissible:" + visibleIdObjects.contains(obj));
+			return visibleIdObjects.contains(obj);
+		} else if (obj instanceof Camera) {
+			System.out.println("Camera inVissible:" + visibleCameras.contains(obj));
+			return visibleCameras.contains(obj);
+		}
+		return false;
+	}
+
+	public <T> ModelView makeVisible(T obj, boolean b) {
+		if (b) {
+			if (obj instanceof Geoset) {
+				System.out.println("Geoset Visible!");
+				makeGeosetVisible((Geoset) obj);
+			} else if (obj instanceof IdObject) {
+				System.out.println("IdObject Visible!");
+				makeIdObjectVisible((IdObject) obj);
+			} else if (obj instanceof Camera) {
+				System.out.println("Camera Visible!");
+				makeCameraVisible((Camera) obj);
+			}
+		} else {
+			if (obj instanceof Geoset) {
+				System.out.println("Geoset NotVisible!");
+				makeGeosetNotVisible((Geoset) obj);
+			} else if (obj instanceof IdObject) {
+				System.out.println("IdObject NotVisible!");
+				makeIdObjectNotVisible((IdObject) obj);
+			} else if (obj instanceof Camera) {
+				System.out.println("Camera NotVisible!");
+				makeCameraNotVisible((Camera) obj);
+			}
+		}
+		return this;
+	}
+
+	public <T> ModelView makeEditable(T obj, boolean b) {
+		if (b) {
+			if (obj instanceof Geoset) {
+				System.out.println("Geoset Editable!");
+				makeGeosetEditable((Geoset) obj);
+			} else if (obj instanceof IdObject) {
+				System.out.println("IdObject Editable!");
+				makeIdObjectEditable((IdObject) obj);
+			} else if (obj instanceof Camera) {
+				System.out.println("Camera Editable!");
+				makeCameraEditable((Camera) obj);
+			}
+		} else {
+			if (obj instanceof Geoset) {
+				System.out.println("Geoset NotEditable!");
+				makeGeosetNotEditable((Geoset) obj);
+			} else if (obj instanceof IdObject) {
+				System.out.println("IdObject NotEditable!");
+				makeIdObjectNotEditable((IdObject) obj);
+			} else if (obj instanceof Camera) {
+				System.out.println("Camera NotEditable!");
+				makeCameraNotEditable((Camera) obj);
+			}
+		}
+		return this;
 	}
 }

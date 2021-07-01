@@ -205,9 +205,10 @@ public class MatrixPopup extends JPanel {
 			renderer.removeNotInAllBone((BoneShell) o);
 			if (!newRefs.contains(o)) {
 				newRefs.addElement((BoneShell) o);
-				allBonesShell.add((BoneShell) o);
-				bonesShellInAll.add((BoneShell) o);
 			}
+			allBonesShell.add((BoneShell) o);
+			bonesShellInAll.add((BoneShell) o);
+			bonesShellNotInAll.remove(o);
 		}
 		repaint();
 	}

@@ -36,7 +36,7 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		twoSidedBoxHolder.add(getDeleteMaterialButton(), "right");
 
 		layerPanelsHolder = new JPanel(new MigLayout("fill", "[grow]"));
-		add(layerPanelsHolder, "growx, span 3, wrap");
+		add(layerPanelsHolder, "growx, spanx, wrap");
 
 		add(getAddLayerButton());
 	}
@@ -68,17 +68,17 @@ public class ComponentMaterialLayersPanel extends JPanel {
 		}
 
 		layerPanelsHolder.removeAll();
-		createLayerPanels(material, modelHandler, changeListener);
+		createLayerPanels(material, modelHandler);
 		revalidate();
 		repaint();
 
 	}
 
 
-	private void createLayerPanels(Material material, ModelHandler modelHandler, ModelStructureChangeListener modelStructureChangeListener) {
+	private void createLayerPanels(Material material, ModelHandler modelHandler) {
 		for (int i = 0; i < material.getLayers().size(); i++) {
 			final Layer layer = material.getLayers().get(i);
-			ComponentLayerPanel panel = new ComponentLayerPanel(layer, material, modelHandler, i, modelStructureChangeListener);
+			ComponentLayerPanel panel = new ComponentLayerPanel(layer, material, modelHandler, i);
 			layerPanelsHolder.add(panel, "growx, wrap");
 		}
 	}

@@ -5,7 +5,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 
-final class UnsavedChangesDocumentListener implements DocumentListener {
+public final class UnsavedChangesDocumentListener implements DocumentListener {
 	public static final Color SAVED_FOREGROUND_COLOR = Color.BLACK;
 	public static final Color UNSAVED_FOREGROUND_COLOR = Color.MAGENTA.darker();
 	public static final Color SAVED_BACKGROUND_COLOR = Color.WHITE;

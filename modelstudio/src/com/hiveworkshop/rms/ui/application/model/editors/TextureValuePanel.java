@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
@@ -30,7 +29,7 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 	private int selectedRow;
 
 
-	public TextureValuePanel(ModelHandler modelHandler, String title, UndoManager undoManager, ModelStructureChangeListener modelStructureChangeListener) {
+	public TextureValuePanel(ModelHandler modelHandler, String title, UndoManager undoManager) {
 		super(modelHandler, title, undoManager);
 
 		textureChooser = new JComboBox<>(getTextures(modelHandler.getModel()));

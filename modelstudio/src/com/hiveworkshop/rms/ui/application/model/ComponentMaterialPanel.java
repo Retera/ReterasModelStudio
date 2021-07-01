@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.model.material.SetMaterialPriorityPla
 import com.hiveworkshop.rms.editor.actions.model.material.SetMaterialShaderStringAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
@@ -24,6 +25,7 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 	private Material material;
 
 	private final JComboBox<String> shaderOptionComboBox;
+	private final JLabel shaderLabel;
 	private final ComponentEditorJSpinner priorityPlaneSpinner;
 	private ComponentEditorTextField comboBoxEditor;
 	private boolean listenForChanges = true;
@@ -39,8 +41,9 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 
 		multipleLayersPanel = new ComponentMaterialLayersPanel(modelHandler);
 
-		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
-		add(new JLabel("Shader:"));
+		setLayout(new MigLayout("fill, hidemode 2", "[][][grow]", "[][][grow]"));
+		shaderLabel = new JLabel("Shader:");
+		add(shaderLabel);
 		add(shaderOptionComboBox, "wrap, growx, span 2");
 		add(new JLabel("Priority Plane:"));
 		add(priorityPlaneSpinner, "wrap, growx, span 2");
@@ -60,6 +63,8 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 		listenForChanges = false;
 		try {
 			shaderOptionComboBox.setSelectedItem(shaderString);
+			shaderOptionComboBox.setVisible(ModelUtils.isShaderStringSupported(modelHandler.getModel().getFormatVersion()));
+			shaderLabel.setVisible(ModelUtils.isShaderStringSupported(modelHandler.getModel().getFormatVersion()));
 			comboBoxEditor.setColorToSaved();
 			priorityPlaneSpinner.reloadNewValue(material.getPriorityPlane());
 		} finally {

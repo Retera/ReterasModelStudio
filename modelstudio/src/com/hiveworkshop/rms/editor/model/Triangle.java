@@ -248,10 +248,11 @@ public class Triangle {
 		GeosetVertex tempVert;
 		int tempVertId;
 		tempVert = verts[2];
-		tempVertId = vertIds[2];
 		verts[2] = verts[1];
-		vertIds[2] = vertIds[1];
 		verts[1] = tempVert;
+
+		tempVertId = vertIds[2];
+		vertIds[2] = vertIds[1];
 		vertIds[1] = tempVertId;
 		if (flipNormals) {
 			for (GeosetVertex geosetVertex : verts) {

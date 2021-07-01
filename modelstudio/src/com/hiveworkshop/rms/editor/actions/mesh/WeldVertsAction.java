@@ -53,6 +53,7 @@ public class WeldVertsAction implements UndoAction {
 						vertex.getGeoset().remove(vertex);
 						for (Triangle triangle : vertex.getTriangles()) {
 							triangle.replace(vertex, vertexToKeep);
+							vertexToKeep.addTriangle(triangle);
 						}
 
 					}
@@ -69,8 +70,10 @@ public class WeldVertsAction implements UndoAction {
 	@Override
 	public UndoAction undo() {
 		for (GeosetVertex vertex : orgVertToAffTris.keySet()) {
+			vertex.clearTriangles();
 			for (Triangle triangle : orgVertToAffTris.get(vertex)) {
 				triangle.replace(oldToNew.get(vertex), vertex);
+				vertex.addTriangle(triangle);
 			}
 			vertex.getGeoset().add(vertex);
 		}

@@ -1,50 +1,66 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
+import com.hiveworkshop.rms.editor.actions.model.material.SetLayerFlagAction;
 import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
 public class LayerFlagsPanel extends JPanel {
-	private final JCheckBox unshaded;
-	private final JCheckBox sphereEnvMap;
-	private final JCheckBox twoSided;
-	private final JCheckBox unfogged;
-	private final JCheckBox noDepthTest;
-	private final JCheckBox noDepthSet;
-	private final JCheckBox unlit;
 
-	public LayerFlagsPanel() {
-		setLayout(new MigLayout());
-		unshaded = new JCheckBox("Unshaded");
+	private final ModelHandler modelHandler;
+	private final Layer layer;
+
+	public LayerFlagsPanel(ModelHandler modelHandler, Layer layer) {
+		super(new MigLayout());
+		setBorder(BorderFactory.createTitledBorder("Flags"));
+		this.modelHandler = modelHandler;
+		this.layer = layer;
+
+//		setOpaque(true);
+//		setBackground(Color.MAGENTA);
+
+		JCheckBox unshaded = new JCheckBox("Unshaded");
+		unshaded.setSelected(layer.getUnshaded());
+		unshaded.addActionListener(e -> toggleFlag("Unshaded"));
 		add(unshaded, "wrap");
 
-		sphereEnvMap = new JCheckBox("SphereEnvMap");
+		JCheckBox sphereEnvMap = new JCheckBox("SphereEnvMap");
+		sphereEnvMap.setSelected(layer.getSphereEnvMap());
+		sphereEnvMap.addActionListener(e -> toggleFlag("SphereEnvMap"));
 		add(sphereEnvMap, "wrap");
 
-		twoSided = new JCheckBox("TwoSided");
+		JCheckBox twoSided = new JCheckBox("TwoSided");
+		twoSided.setSelected(layer.getTwoSided());
+		twoSided.addActionListener(e -> toggleFlag("TwoSided"));
 		add(twoSided, "wrap");
 
-		unfogged = new JCheckBox("Unfogged");
+		JCheckBox unfogged = new JCheckBox("Unfogged");
+		unfogged.setSelected(layer.getUnfogged());
+		unfogged.addActionListener(e -> toggleFlag("Unfogged"));
 		add(unfogged, "wrap");
 
-		noDepthTest = new JCheckBox("NoDepthTest");
+		JCheckBox noDepthTest = new JCheckBox("NoDepthTest");
+		noDepthTest.setSelected(layer.getNoDepthTest());
+		noDepthTest.addActionListener(e -> toggleFlag("NoDepthTest"));
 		add(noDepthTest, "wrap");
 
-		noDepthSet = new JCheckBox("NoDepthSet");
+		JCheckBox noDepthSet = new JCheckBox("NoDepthSet");
+		noDepthSet.setSelected(layer.getNoDepthSet());
+		noDepthSet.addActionListener(e -> toggleFlag("NoDepthSet"));
 		add(noDepthSet, "wrap");
 
-		unlit = new JCheckBox("Unlit");
+		JCheckBox unlit = new JCheckBox("Unlit");
+		unlit.setSelected(layer.getUnlit());
+		unlit.addActionListener(e -> toggleFlag("Unlit"));
 		add(unlit, "wrap");
 	}
 
-	public void setLayer(final Layer layer) {
-		unshaded.setSelected(layer.getUnshaded());
-		sphereEnvMap.setSelected(layer.getSphereEnvMap());
-		twoSided.setSelected(layer.getTwoSided());
-		unfogged.setSelected(layer.getUnfogged());
-		noDepthTest.setSelected(layer.getNoDepthTest());
-		noDepthSet.setSelected(layer.getNoDepthSet());
-		unlit.setSelected(layer.getUnlit());
+	private void toggleFlag(String flag) {
+		if (layer != null) {
+			modelHandler.getUndoManager().pushAction(new SetLayerFlagAction(layer, flag, ModelStructureChangeListener.changeListener).redo());
+		}
 	}
 }

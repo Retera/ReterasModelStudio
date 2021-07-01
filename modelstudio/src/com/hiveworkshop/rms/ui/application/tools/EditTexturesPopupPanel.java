@@ -103,9 +103,11 @@ public class EditTexturesPopupPanel extends JPanel {
 			public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index,
 			                                              final boolean isSelected, final boolean cellHasFocus) {
 				if (value instanceof Bitmap) {
-					final String path = ((Bitmap) value).getPath();
+					String path = ((Bitmap) value).getPath();
 					if (!chckbxDisplayPath.isSelected()) {
-						final String displayName = path.substring(path.lastIndexOf("\\") + 1);
+//						String displayName = path.substring(path.lastIndexOf("\\") + 1);
+						String[] bits = path.split("[\\\\/]");
+						String displayName = bits[bits.length - 1];
 						return super.getListCellRendererComponent(list, displayName, index, isSelected, cellHasFocus);
 					} else {
 						return super.getListCellRendererComponent(list, path, index, isSelected, cellHasFocus);

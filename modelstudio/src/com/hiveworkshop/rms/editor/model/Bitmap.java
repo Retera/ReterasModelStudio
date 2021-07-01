@@ -42,7 +42,7 @@ public class Bitmap {
 	public String getName() {
 		if (!imagePath.equals("")) {
 			try {
-				String[] bits = imagePath.split("\\\\");
+				String[] bits = imagePath.split("[\\\\/]");
 				return bits[bits.length - 1].split("\\.")[0];
 			} catch (final Exception e) {
 				return "bad blp path";
