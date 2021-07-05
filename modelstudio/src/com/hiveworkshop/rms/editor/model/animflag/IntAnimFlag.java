@@ -154,13 +154,19 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 	public void calcNewTans(float[] factor, Entry<Integer> next, Entry<Integer> prev, Entry<Integer> cur, int animationLength) {
 		// Calculating the derivatives in point Cur (for count cells)
 
-		int currPrev = cur.value - prev.value;
-		int nextCurr = next.value - cur.value;
+		int currPrev = cur.value;
+		if (prev != null) {
+			currPrev -= prev.value;
+		}
+		int nextCurr = -cur.value;
+		if (next != null) {
+			nextCurr += next.value;
+		}
 
 		cur.inTan = (int) (currPrev * factor[0] + nextCurr * factor[1]);
 		cur.outTan = (int) (currPrev * factor[2] + nextCurr * factor[3]);
 
-		if (!next.time.equals(prev.time)) {
+		if (next != null && prev != null && !next.time.equals(prev.time)) {
 			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
 			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
 			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;

@@ -66,7 +66,7 @@ public class Matrix {
 	long lastPopupTimeHack = 0;
 
 	public void updateIds(final EditableModel mdlr) {
-		mdlr.sortIdObjects();
+//		mdlr.sortIdObjects();
 		m_boneIds.clear();
 		List<Bone> bonesToRemove = new ArrayList<>();
 		for (Bone bone : bones) {
@@ -84,7 +84,7 @@ public class Matrix {
 				}
 			}
 		}
-		if (((bones.size() != 0) && (m_boneIds.size() == 0)) || (m_boneIds.size() < bones.size())) {
+		if ((bones.size() != 0 && m_boneIds.size() == 0) || (m_boneIds.size() < bones.size())) {
 			bones.removeAll(bonesToRemove);
 			new Exception("Matrix error").printStackTrace();
 			if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
@@ -92,8 +92,8 @@ public class Matrix {
 				System.out.println("Error: bad sizes in matrix (" + (bones.size() - m_boneIds.size()) + " as difference, should be same size)");
 				lastPopupTimeHack = System.currentTimeMillis();
 			}
+			recalculateId();
 		}
-		recalculateId();
 	}
 
 	public void updateBones(final EditableModel model) {
@@ -118,22 +118,22 @@ public class Matrix {
 	public void add(final Bone bone) {
 		if (bone != null) {
 			bones.add(bone);
+			recalculateId();
 		}
-		recalculateId();
 	}
 
 	public void add(int i, final Bone bone) {
 		if (bone != null) {
 			bones.add(i, bone);
+			recalculateId();
 		}
-		recalculateId();
 	}
 
 	public void set(int i, final Bone bone) {
 		if (bone != null) {
 			bones.set(i, bone);
+			recalculateId();
 		}
-		recalculateId();
 	}
 
 	public void addAll(Collection<Bone> bones) {
@@ -189,8 +189,12 @@ public class Matrix {
 		return -1;// bad stuff
 	}
 
-	public boolean equals(final Matrix other) {
-		return identityHash == other.identityHash;
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof Matrix) {
+			return identityHash == ((Matrix) other).identityHash;
+		}
+		return false;
 	}
 
 	public boolean isEmpty() {

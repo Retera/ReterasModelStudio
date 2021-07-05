@@ -148,11 +148,25 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 
 	@Override
 	public void calcNewTans(float factor[], Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
-		Quat logNNP = new Quat(cur.value).invertQuat().mul(next.value);
+
+		Quat logNNP = new Quat(cur.value).invertQuat();
+		if (next != null) {
+			logNNP.mul(next.value);
+		}
 		calcLogQ(logNNP);
 
-		Quat logNMN = new Quat(prev.value).mul(cur.value);
+
+		Quat logNMN = new Quat(0, 0, 0, 1);
+		if (prev != null) {
+			logNMN.set(prev.value);
+		}
+		logNMN.mul(cur.value);
 		calcLogQ(logNMN);
+
+		if (cur.inTan == null) {
+			cur.inTan = new Quat(0, 0, 0, 1);
+			cur.outTan = new Quat(0, 0, 0, 1);
+		}
 
 		cur.inTan.set(logNNP).scale(factor[0]).addScaled(logNMN, factor[1]);
 		cur.outTan.set(logNNP).scale(factor[2]).addScaled(logNMN, factor[3]);
@@ -167,7 +181,7 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		calcExpQ(cur.inTan);
 		cur.inTan.mulLeft(cur.value);
 
-		if (!next.time.equals(prev.time)) {
+		if (next != null && prev != null && !next.time.equals(prev.time)) {
 			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
 			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
 			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;

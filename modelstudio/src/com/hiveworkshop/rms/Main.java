@@ -68,10 +68,16 @@ public class Main {
 		}
 	}
 
+	private static boolean hasOpenPopup = false;
+
 	private static void setupExceptionHandling() {
 		SwingUtilities.invokeLater(() -> Thread.currentThread().setUncaughtExceptionHandler((thread, exception) -> {
-			exception.printStackTrace();
-			ExceptionPopup.display(exception);
+			if (!hasOpenPopup) {
+				hasOpenPopup = true;
+				exception.printStackTrace();
+				ExceptionPopup.display(exception);
+				hasOpenPopup = false;
+			}
 		}));
 	}
 

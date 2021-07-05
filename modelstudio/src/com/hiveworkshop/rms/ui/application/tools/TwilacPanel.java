@@ -4,18 +4,26 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.mesh.SnapCloseVertsAction;
 import com.hiveworkshop.rms.editor.actions.mesh.WeldVertsAction;
 import com.hiveworkshop.rms.editor.actions.nodes.BakeAndRebindAction;
+import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectoinUgg;
 import com.hiveworkshop.rms.util.FramePopup;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TwilacPanel extends JPanel {
 	public TwilacPanel() {
@@ -53,10 +61,13 @@ public class TwilacPanel extends JPanel {
 		renameBoneChain.addActionListener(e -> RenameBoneChainPanel.show(ProgramGlobals.getMainPanel()));
 		add(renameBoneChain, "wrap");
 
-		JButton button = new JButton("button");
-		button.addActionListener(e -> ProgramGlobals.getCurrentModelPanel().getModelView().setGeosetsEditable(true));
-		add(button, "wrap");
+		JButton selectNodeGeometry = new JButton("selectNodeGeometry");
+		selectNodeGeometry.addActionListener(e -> selectNodeGeometry());
+		add(selectNodeGeometry, "wrap");
 
+		JButton button = new JButton("button");
+		button.addActionListener(e -> button.setText(button.getText().equalsIgnoreCase("butt-on") ? "Butt-Off" : "Butt-On"));
+		add(button, "wrap");
 
 	}
 
@@ -89,5 +100,32 @@ public class TwilacPanel extends JPanel {
 
 	public static void showPopup() {
 		FramePopup.show(new TwilacPanel(), ProgramGlobals.getMainPanel(), "Twilac's new tools");
+	}
+
+	private void selectNodeGeometry() {
+		if (ProgramGlobals.getCurrentModelPanel() != null) {
+			ModelHandler modelHandler = ProgramGlobals.getCurrentModelPanel().getModelHandler();
+			ModelView modelView = modelHandler.getModelView();
+
+			Set<Bone> selectedBones = new HashSet<>();
+			Set<GeosetVertex> vertexList = new HashSet<>();
+			for (IdObject idObject : modelView.getSelectedIdObjects()) {
+				if (idObject instanceof Bone) {
+					selectedBones.add((Bone) idObject);
+				}
+			}
+			for (Geoset geoset : modelView.getEditableGeosets()) {
+				for (Bone bone : selectedBones) {
+					List<GeosetVertex> vertices = geoset.getBoneMap().get(bone);
+					if (vertices != null) {
+						vertexList.addAll(vertices);
+					}
+				}
+			}
+			if (!vertexList.isEmpty()) {
+				UndoAction action = new SetSelectionUggAction(new SelectoinUgg(vertexList), modelView, "Select");
+				modelHandler.getUndoManager().pushAction(action.redo());
+			}
+		}
 	}
 }

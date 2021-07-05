@@ -232,7 +232,7 @@ public abstract class ValuePanel<T> extends JPanel {
 
 	private void removeEntry(int orgTime) {
 		if (animFlag.hasEntryAt(orgTime)) {
-			UndoAction undoAction = new RemoveFlagEntryAction(animFlag, orgTime, timelineContainer, modelStructureChangeListener);
+			UndoAction undoAction = new RemoveFlagEntryAction(animFlag, orgTime, modelStructureChangeListener);
 			undoManager.pushAction(undoAction.redo());
 		}
 	}

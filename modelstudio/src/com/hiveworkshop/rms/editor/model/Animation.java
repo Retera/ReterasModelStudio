@@ -47,7 +47,7 @@ public class Animation implements TimeBoundProvider {
 		moveSpeed = other.moveSpeed;
 		nonLooping = other.nonLooping;
 		rarity = other.rarity;
-		extents = new ExtLog(other.extents);
+		extents = other.extents.deepCopy();
 	}
 
 	public boolean equals(final Animation other) {

@@ -247,10 +247,13 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		toolbar.addSeparator();
 
 		uvLinkActions.selectionModeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionMode.values());
+		uvLinkActions.selectionModeGroup.setActiveButton(SelectionMode.SELECT);
 		toolbar.addSeparator();
 		uvLinkActions.selectionItemTypeGroup = new ToolbarButtonGroup2<>(toolbar, TVertexSelectionItemTypes.values());
+		uvLinkActions.selectionItemTypeGroup.setActiveButton(TVertexSelectionItemTypes.VERTEX);
 		toolbar.addSeparator();
 		uvLinkActions.actionTypeGroup = new ToolbarButtonGroup2<>(toolbar, ModelEditorActionType2.values());
+		uvLinkActions.actionTypeGroup.setActiveButton(ModelEditorActionType2.TRANSLATION);
 
 		JButton snapButton = toolbar.add(new AbstractAction("Snap", RMSIcons.loadToolBarImageIcon("snap.png")) {
 			@Override

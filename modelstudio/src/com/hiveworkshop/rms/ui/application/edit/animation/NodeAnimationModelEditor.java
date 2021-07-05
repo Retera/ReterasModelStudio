@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Helper;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
@@ -80,28 +79,20 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		return new StaticMeshMoveAction(modelView, delta).redo();
 	}
 
-	private List<UndoAction> generateKeyframes(TimeEnvironmentImpl timeEnvironmentImpl, String name, ModelEditorActionType3 actionType, Set<IdObject> selection) {
+	private List<UndoAction> generateKeyframes(TimeEnvironmentImpl timeEnvironmentImpl, ModelEditorActionType3 actionType, Set<IdObject> selection) {
 		List<UndoAction> actions = new ArrayList<>();
+
+		int trackTime = timeEnvironmentImpl.getTrackTime();
+
 		for (IdObject node : selection) {
-			AnimFlag<?> timeline = node.find(name, timeEnvironmentImpl.getGlobalSeq());
-
-			if (timeline == null) {
-				timeline = getNewAnimFlag(timeEnvironmentImpl, actionType);
-
+			AnimFlag<?> timeline = getTimeline(timeEnvironmentImpl, actionType, actions, node);
+			if (!node.has(timeline.getName())) {
 				actions.add(new AddTimelineAction(node, timeline));
 			}
 
-			int trackTime = timeEnvironmentImpl.getTrackTime();
 			RenderNode renderNode = renderModel.getRenderNode(node);
 
-			Entry<?> newEntry = getEntry(actionType, trackTime, renderNode);
-			AddKeyframeAction keyframeAction = getAddKeyframeAction(timeline, trackTime, newEntry);
-
-//			AddKeyframeAction keyframeAction = switch (actionType) {
-//				case ROTATION, SQUAT -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, renderNode.getLocalRotation()));
-//				case SCALING -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, renderNode.getLocalScale()));
-//				case TRANSLATION, EXTEND, EXTRUDE -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, renderNode.getLocalLocation()));
-//			};
+			AddKeyframeAction keyframeAction = getAddKeyframeAction(timeline, trackTime, getEntry(actionType, trackTime, renderNode));
 
 			if (keyframeAction != null) {
 				actions.add(keyframeAction);
@@ -110,46 +101,22 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		return actions;
 	}
 
-	private AnimFlag<?> getNewAnimFlag(TimeEnvironmentImpl timeEnvironmentImpl, ModelEditorActionType3 actionType) {
-		return switch (actionType) {
-			case ROTATION, SQUAT -> new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
-			case SCALING -> new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
-			case TRANSLATION, EXTEND, EXTRUDE -> new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+	private AnimFlag<?> getTimeline(TimeEnvironmentImpl timeEnvironmentImpl, ModelEditorActionType3 actionType, List<UndoAction> actions, IdObject node) {
+		AnimFlag<?> timeline = switch (actionType) {
+			case ROTATION, SQUAT -> node.getRotationFlag(timeEnvironmentImpl.getGlobalSeq());
+			case SCALING -> node.getScalingFlag(timeEnvironmentImpl.getGlobalSeq());
+			case TRANSLATION, EXTEND, EXTRUDE -> node.getTranslationFlag(timeEnvironmentImpl.getGlobalSeq());
 		};
-	}
 
-	private AnimFlag<?> findAnimFlag(TimeEnvironmentImpl timeEnvironmentImpl, IdObject node, ModelEditorActionType3 actionType) {
-		return switch (actionType) {
-			case ROTATION, SQUAT -> node.find(MdlUtils.TOKEN_ROTATION, timeEnvironmentImpl.getGlobalSeq());
-			case SCALING -> node.find(MdlUtils.TOKEN_SCALING, timeEnvironmentImpl.getGlobalSeq());
-			case TRANSLATION, EXTEND, EXTRUDE -> node.find(MdlUtils.TOKEN_TRANSLATION, timeEnvironmentImpl.getGlobalSeq());
-		};
-	}
-
-	private List<UndoAction> generateKeyframes2(TimeEnvironmentImpl timeEnvironmentImpl, ModelEditorActionType3 actionType, Set<IdObject> selection) {
-		List<UndoAction> actions = new ArrayList<>();
-		for (IdObject node : selection) {
-			AnimFlag<?> timeline = findAnimFlag(timeEnvironmentImpl, node, actionType);
-
-			if (timeline == null) {
-				timeline = getNewAnimFlag(timeEnvironmentImpl, actionType);
-
-				AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline);
-				addTimelineAction.redo();
-				actions.add(addTimelineAction);
-			}
-
-			RenderNode renderNode = renderModel.getRenderNode(node);
-			int trackTime = timeEnvironmentImpl.getTrackTime();
-			Entry<?> newEntry = getEntry(actionType, trackTime, renderNode);
-
-			AddKeyframeAction keyframeAction = getAddKeyframeAction(timeline, trackTime, newEntry);
-
-			if (keyframeAction != null) {
-				actions.add(keyframeAction);
-			}
+		if (timeline == null) {
+			timeline = switch (actionType) {
+				case ROTATION, SQUAT -> new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+				case SCALING -> new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+				case TRANSLATION, EXTEND, EXTRUDE -> new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+			};
+//			actions.add(new AddTimelineAction(node, timeline));
 		}
-		return actions;
+		return timeline;
 	}
 
 	private Entry<?> getEntry(ModelEditorActionType3 actionType, int trackTime, RenderNode renderNode) {
@@ -166,7 +133,8 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
-		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, MdlUtils.TOKEN_TRANSLATION, ModelEditorActionType3.TRANSLATION, selection);
+//		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, ModelEditorActionType3.TRANSLATION, selection);
+		List<UndoAction> actions = createKeyframe(timeEnvironmentImpl, ModelEditorActionType3.TRANSLATION, selection);
 
 		int trackTime = timeEnvironmentImpl.getTrackTime();
 		return new TranslationKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
@@ -177,7 +145,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
-		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, MdlUtils.TOKEN_SCALING, ModelEditorActionType3.SCALING, selection);
+		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, ModelEditorActionType3.SCALING, selection);
 
 
 		int trackTime = timeEnvironmentImpl.getTrackTime();
@@ -190,7 +158,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
 
-		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, MdlUtils.TOKEN_ROTATION, ModelEditorActionType3.ROTATION, selection);
+		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, ModelEditorActionType3.ROTATION, selection);
 
 		int trackTime = timeEnvironmentImpl.getTrackTime();
 		return new RotationKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView, center, firstXYZ, secondXYZ);
@@ -201,15 +169,105 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		Set<IdObject> selection = new HashSet<>(modelView.getSelectedIdObjects());
 
 		for (IdObject idObject : modelView.getModel().getIdObjects()) {
-			if (modelView.getSelectedIdObjects().contains(idObject.getParent()) && (((idObject.getClass() == Bone.class) && (idObject.getParent().getClass() == Bone.class)) || ((idObject.getClass() == Helper.class) && (idObject.getParent().getClass() == Helper.class)))) {
+			if (modelView.getSelectedIdObjects().contains(idObject.getParent())
+					&& isBoneAndSameClass(idObject, idObject.getParent())) {
 				selection.add(idObject);
 			}
 		}
 
 		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
-		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, MdlUtils.TOKEN_ROTATION, ModelEditorActionType3.SQUAT, selection);
+		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, ModelEditorActionType3.SQUAT, selection);
 
 		int trackTime = timeEnvironmentImpl.getTrackTime();
 		return new SquatToolKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView, center, firstXYZ, secondXYZ);
+	}
+
+	private boolean isBoneAndSameClass(IdObject idObject1, IdObject idObject2) {
+		return idObject1 instanceof Bone
+				&& idObject2 instanceof Bone
+				&& idObject1.getClass() == idObject2.getClass();
+	}
+
+	public List<UndoAction> createKeyframe(TimeEnvironmentImpl timeEnvironmentImpl, ModelEditorActionType3 actionType, Set<IdObject> selection) {
+//		Set<IdObject> selection = modelView.getSelectedIdObjects();
+		List<UndoAction> actions = new ArrayList<>();
+		int trackTime = timeEnvironmentImpl.getTrackTime();
+		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
+		for (IdObject node : selection) {
+			UndoAction keyframeAction = switch (actionType) {
+				case ROTATION, SQUAT -> createRotationKeyframe(node, globalSeq, actions, trackTime, timeEnvironmentImpl);
+				case SCALING -> createScalingKeyframe(node, globalSeq, actions, trackTime, timeEnvironmentImpl);
+				case TRANSLATION, EXTEND, EXTRUDE -> createTranslationKeyframe(node, globalSeq, actions, trackTime, timeEnvironmentImpl);
+			};
+			if (keyframeAction != null) {
+				actions.add(keyframeAction);
+			}
+		}
+
+		return actions;
+	}
+
+	private <T> AddKeyframeAction_T<T> getAddKeyframeAction(AnimFlag<T> timeline, Entry<T> entry, int trackTime, TimeEnvironmentImpl timeEnvironmentImpl) {
+		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
+		if (timeline.tans()) {
+			Entry<T> entryIn = timeline.getFloorEntry(trackTime, timeEnvironmentImpl);
+			Entry<T> entryOut = timeline.getCeilEntry(trackTime, timeEnvironmentImpl);
+			if (entryIn != null && entryOut != null) {
+
+			}
+			int animationLength = timeEnvironmentImpl.getCurrentAnimation().length();
+//				float factor = getTimeFactor(trackTime, animationLength, entryIn.time, entryOut.time);
+			float[] tbcFactor = timeline.getTbcFactor(0, 0.5f, 0);
+			timeline.calcNewTans(tbcFactor, entryOut, entryIn, entry, animationLength);
+			System.out.println("calc tans! " + entryIn + entryOut + entry);
+
+			AddKeyframeAction_T<T> addKeyframeAction = new AddKeyframeAction_T<>(timeline, entry);
+			addKeyframeAction.redo();
+			return addKeyframeAction;
+		}
+		if (!timeline.hasEntryAt(trackTime)) {
+			if (timeline.getInterpolationType().tangential()) {
+				entry.unLinearize();
+			}
+
+			AddKeyframeAction_T<T> addKeyframeAction = new AddKeyframeAction_T<>(timeline, entry);
+			addKeyframeAction.redo();
+			return addKeyframeAction;
+		}
+		return null;
+	}
+
+
+	public UndoAction createTranslationKeyframe(IdObject node, Integer globalSeq, List<UndoAction> actions, int trackTime, TimeEnvironmentImpl timeEnvironmentImpl) {
+		AnimFlag<Vec3> timeline = node.getTranslationFlag(globalSeq);
+		if (timeline == null) {
+			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, globalSeq);
+
+			actions.add(new AddTimelineAction(node, timeline));
+		}
+		RenderNode renderNode = renderModel.getRenderNode(node);
+		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation())), trackTime, timeEnvironmentImpl);
+	}
+
+	public UndoAction createScalingKeyframe(IdObject node, Integer globalSeq, List<UndoAction> actions, int trackTime, TimeEnvironmentImpl timeEnvironmentImpl) {
+		AnimFlag<Vec3> timeline = node.getScalingFlag(globalSeq);
+		if (timeline == null) {
+			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.HERMITE, globalSeq);
+
+			actions.add(new AddTimelineAction(node, timeline));
+		}
+		RenderNode renderNode = renderModel.getRenderNode(node);
+		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalScale())), trackTime, timeEnvironmentImpl);
+	}
+
+	public UndoAction createRotationKeyframe(IdObject node, Integer globalSeq, List<UndoAction> actions, int trackTime, TimeEnvironmentImpl timeEnvironmentImpl) {
+		AnimFlag<Quat> timeline = node.getRotationFlag(globalSeq);
+		if (timeline == null) {
+			timeline = new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.HERMITE, globalSeq);
+
+			actions.add(new AddTimelineAction(node, timeline));
+		}
+		RenderNode renderNode = renderModel.getRenderNode(node);
+		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Quat(renderNode.getLocalRotation())), trackTime, timeEnvironmentImpl);
 	}
 }

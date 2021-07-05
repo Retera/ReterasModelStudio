@@ -146,8 +146,9 @@ public class MdlxModel {
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			ExceptionPopup.display(e);
-			throw new RuntimeException(e);
+//			throw new RuntimeException(e);
 		}
 	}
 

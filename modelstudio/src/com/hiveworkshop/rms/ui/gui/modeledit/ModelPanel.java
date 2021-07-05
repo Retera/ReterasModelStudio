@@ -189,9 +189,9 @@ public class ModelPanel {
 						editUVPanel.getView().setVisible(false);
 					}
 					break;
-			case JOptionPane.CANCEL_OPTION:
-				canceled = true;
-				break;
+				case JOptionPane.CANCEL_OPTION:
+					canceled = true;
+					break;
 			}
 		} else {
 			if (editUVPanel != null) {

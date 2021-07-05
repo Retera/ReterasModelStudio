@@ -208,6 +208,16 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
+	public void setOrAddEntry(Integer time, Entry<T> entry) {
+		if (entry.getValue() instanceof Integer && this instanceof IntAnimFlag
+				|| entry.getValue() instanceof Float && this instanceof FloatAnimFlag
+				|| entry.getValue() instanceof Vec3 && this instanceof Vec3AnimFlag
+				|| entry.getValue() instanceof Quat && this instanceof QuatAnimFlag) {
+			Entry<T> tEntry = entry.setTime(time);
+			entryMap.put(time, tEntry);
+		}
+	}
+
 	public void setValuesTo(AnimFlag<?> source) {
 		AnimFlag<T> tSource = getAsTypedOrNull(source);
 		if (tSource != null) {
@@ -657,7 +667,11 @@ public abstract class AnimFlag<T> {
 	public Entry<T> getFloorEntry(int time, TimeBoundProvider anim) {
 		Integer floorTime = entryMap.floorKey(time);
 		if (floorTime == null || floorTime < anim.getStart()) {
-			return entryMap.get(entryMap.floorKey(anim.getEnd()));
+			Integer key = entryMap.floorKey(anim.getEnd());
+			if (key == null) {
+				return null;
+			}
+			return entryMap.get(key);
 		}
 		return entryMap.get(floorTime);
 	}
@@ -665,7 +679,12 @@ public abstract class AnimFlag<T> {
 	public Entry<T> getCeilEntry(int time, TimeBoundProvider anim) {
 		Integer ceilTime = entryMap.ceilingKey(time);
 		if (ceilTime == null || ceilTime > anim.getEnd()) {
-			return entryMap.get(entryMap.ceilingKey(anim.getStart()));
+			Integer key = entryMap.ceilingKey(anim.getStart());
+			return key == null ? null : entryMap.get(key);
+//			if(key == null){
+//				return null;
+//			}
+//			return entryMap.get(key);
 		}
 		return entryMap.get(ceilTime);
 	}

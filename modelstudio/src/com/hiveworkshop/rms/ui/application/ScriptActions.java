@@ -299,7 +299,7 @@ public class ScriptActions {
 			Animation newAnimation = new Animation(nameChoice, start, start + totalLength);
 			model.add(newAnimation);
 			newAnimation.setNonLooping(true);
-			newAnimation.setExtents(new ExtLog(animation.getExtents()));
+			newAnimation.setExtents(animation.getExtents().deepCopy());
 			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(),
 					"DONE! Made a combined animation called " + newAnimation.getName(), "Success",
 					JOptionPane.PLAIN_MESSAGE);

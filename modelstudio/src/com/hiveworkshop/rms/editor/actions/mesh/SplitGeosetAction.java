@@ -199,7 +199,7 @@ public final class SplitGeosetAction implements UndoAction {
 		for (Geoset geoset : geosetsToCopy) {
 			Geoset geosetCreated = new Geoset();
 			if (geoset.getExtents() != null) {
-				geosetCreated.setExtents(new ExtLog(geoset.getExtents()));
+				geosetCreated.setExtents(geoset.getExtents().deepCopy());
 			}
 			for (Animation anim : geoset.getAnims()) {
 				geosetCreated.add(new Animation(anim));

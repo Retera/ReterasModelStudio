@@ -194,7 +194,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 			if (name != null && !modelHandler.getModelView().getSelectedIdObjects().isEmpty()) {
 //			modelEditorManager.getModelEditor().addSelectedBoneSuffix(name);
 
-				List<RenameBoneAction> actions = new ArrayList<>();
+				List<UndoAction> actions = new ArrayList<>();
 				for (IdObject bone : modelHandler.getModelView().getSelectedIdObjects()) {
 					RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName() + name, bone);
 //				renameBoneAction.redo();

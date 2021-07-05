@@ -241,17 +241,18 @@ public class EventObject extends IdObject {
 	}
 
 	public static String getEventName(String code) {
-		String typeCode = code.substring(0, code.length() - 4);
+		String typeCode = code.substring(0, 3);
 		String eventCode = code.substring(code.length() - 4);
 		return switch (typeCode.toUpperCase()) {
-			case "SNDX" -> "Sound - " + getSoundNameString(eventCode);
-			case "SPNX" -> {
+			case "SND" -> "Sound - " + getSoundNameString(eventCode);
+			case "SPN" -> {
 				String objName = getSpawnObjectName(eventCode).replace(".*\\", "");
 				yield "Spawned Object - " + objName;
 			}
-			case "UBRX" -> "UberSplat - " + getUberSplatName(eventCode);
-			case "SPLX" -> "Splat - " + getSplatName(eventCode);
-			case "FTPX" -> "Footprint - " + getSplatName(eventCode);
+			case "UBR" -> "UberSplat - " + getUberSplatName(eventCode);
+			case "SPL" -> "Splat - " + getSplatName(eventCode);
+//			case "FTP" -> "Footprint - " + getSplatName(eventCode);
+			case "FPT" -> "Footprint - " + getSplatName(eventCode);
 //			case "SND" -> "Sound";
 //			case "FTP" -> "Footprint";
 //			case "SPN" -> "Spawned Object";

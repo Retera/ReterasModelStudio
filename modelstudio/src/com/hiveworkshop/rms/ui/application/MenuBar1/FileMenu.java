@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
-import java.util.Iterator;
+import java.util.List;
 
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenuItem;
@@ -77,25 +77,21 @@ public class FileMenu extends JMenu {
 
 	public static boolean closeAll() {
 		boolean success = true;
-		final Iterator<ModelPanel> iterator = ProgramGlobals.getModelPanels().iterator();
-		boolean closedCurrentPanel = false;
+		List<ModelPanel> modelPanels = ProgramGlobals.getModelPanels();
 		ModelPanel lastUnclosedModelPanel = null;
-		while (iterator.hasNext()) {
-			final ModelPanel panel = iterator.next();
+		for (int i = modelPanels.size() - 1; i > 0; i--) {
+			ModelPanel panel = modelPanels.get(i);
 			if (success = panel.close()) {
 				if (MenuBar.windowMenu != null) {
 					MenuBar.windowMenu.remove(panel.getMenuItem());
 				}
-				iterator.remove();
-				if (panel == ProgramGlobals.getCurrentModelPanel()) {
-					closedCurrentPanel = true;
-				}
+				ProgramGlobals.removeModelPanel(panel);
 			} else {
 				lastUnclosedModelPanel = panel;
 				break;
 			}
 		}
-		if (closedCurrentPanel) {
+		if (ProgramGlobals.getCurrentModelPanel() == null && lastUnclosedModelPanel != null) {
 			ModelLoader.setCurrentModel(lastUnclosedModelPanel);
 		}
 		return success;

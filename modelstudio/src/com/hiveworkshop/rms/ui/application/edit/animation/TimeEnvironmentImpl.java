@@ -15,7 +15,7 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 	private int start;
 	private boolean looping = true;
 	private boolean staticViewMode;
-	private int globalSequenceLength = -1;
+	private int globalSequenceLength = -1; // I think this is used to view a models global sequences (w/o animating other things)
 	private int end;
 	private long lastUpdateMillis = System.currentTimeMillis();
 

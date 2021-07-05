@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.mesh.MergeGeosetsAction;
+import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
@@ -203,7 +204,7 @@ public class MenuBarActions {
 		int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
 		if (modelPanel != null) {
 			if (modelPanel.close()) {
-				ProgramGlobals.getModelPanels().remove(modelPanel);
+				ProgramGlobals.removeModelPanel(modelPanel);
 				com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.removeModelPanel(modelPanel);
 				if (ProgramGlobals.getModelPanels().size() > 0) {
 					int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);
@@ -270,28 +271,19 @@ public class MenuBarActions {
 
 	public static boolean closeOthers() {
 		boolean success = true;
-		Iterator<ModelPanel> iterator = ProgramGlobals.getModelPanels().iterator();
-		boolean closedCurrentPanel = false;
+		List<ModelPanel> modelPanels = ProgramGlobals.getModelPanels();
 		ModelPanel lastUnclosedModelPanel = null;
-		while (iterator.hasNext()) {
-			ModelPanel panel = iterator.next();
-			if (panel == ProgramGlobals.getCurrentModelPanel()) {
-				lastUnclosedModelPanel = panel;
-				continue;
-			}
-			if (success = panel.close()) {
-//                mainPanel.windowMenu.remove(panel.getMenuItem());
+		for (int i = modelPanels.size() - 1; i > 0; i--) {
+			ModelPanel panel = modelPanels.get(i);
+			if (panel.close()) {
 				MenuBar.removeModelPanel(panel);
-				iterator.remove();
-				if (panel == ProgramGlobals.getCurrentModelPanel()) {
-					closedCurrentPanel = true;
-				}
+				ProgramGlobals.removeModelPanel(panel);
 			} else {
 				lastUnclosedModelPanel = panel;
 				break;
 			}
 		}
-		if (closedCurrentPanel) {
+		if (ProgramGlobals.getCurrentModelPanel() == null && lastUnclosedModelPanel != null) {
 			ModelLoader.setCurrentModel(lastUnclosedModelPanel);
 		}
 		return success;
@@ -317,9 +309,38 @@ public class MenuBarActions {
 //		return new View("Test", null, testPanel);
 //	}
 
+	public static void addAttachment() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			EditableModel current = modelPanel.getModel();
+			Attachment attachment = new Attachment("New Attatchment");
+			modelPanel.getModelHandler().getUndoManager().pushAction(new AddNodeAction(current, attachment, ModelStructureChangeListener.changeListener).redo());
+		}
+	}
+
+	public static void addLight() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			EditableModel current = modelPanel.getModel();
+			Light light = new Light("New Light");
+			modelPanel.getModelHandler().getUndoManager().pushAction(new AddNodeAction(current, light, ModelStructureChangeListener.changeListener).redo());
+		}
+	}
+
+	public static void addCollision() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			EditableModel current = modelPanel.getModel();
+			CollisionShape collisionShape = new CollisionShape();
+			collisionShape.setName("New CollisionShape");
+			modelPanel.getModelHandler().getUndoManager().pushAction(new AddNodeAction(current, collisionShape, ModelStructureChangeListener.changeListener).redo());
+		}
+	}
+
 	public static void addNewMaterial() {
-		EditableModel current = ProgramGlobals.getCurrentModelPanel().getModel();
-		if (current != null) {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			EditableModel current = modelPanel.getModel();
 			// ToDo make this undo-able and use first texture of model if avalible
 			Material material = new Material();
 			Bitmap white = new Bitmap("Textures\\White.dds").setWrapHeight(true).setWrapWidth(true);
@@ -531,7 +552,7 @@ public class MenuBarActions {
 		EditableModel model = modelPanel.getModel();
 //		TempSaveModelStuff.doSavePreps(model);
 
-		List<MergeGeosetsAction> mergeActions = new ArrayList<>();
+		List<UndoAction> mergeActions = new ArrayList<>();
 		Set<Geoset> geosetsToMerge = new HashSet<>();
 		Set<Geoset> geosetsToKeep = new HashSet<>();
 

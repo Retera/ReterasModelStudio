@@ -9,12 +9,12 @@ import java.util.*;
 
 public final class SetMatrixAction3 implements UndoAction {
 	List<GeosetVertex> selectedVertices = new ArrayList<>();
-	private Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences = new HashMap<>();
-	private List<Bone> newBoneReferences = new ArrayList<>();
-	private Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences = new HashMap<>();
-	private Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences = new HashMap<>();
+	private final Map<GeosetVertex, List<Bone>> vertexToOldBoneReferences = new HashMap<>();
+	private final List<Bone> newBoneReferences = new ArrayList<>();
+	private final Map<GeosetVertex, Bone[]> vertexToOldSkinBoneReferences = new HashMap<>();
+	private final Map<GeosetVertex, short[]> vertexToOldSkinBoneWeightReferences = new HashMap<>();
+	private final Set<Bone> bonesNotAffect;
 	private Matrix mx;
-	private Set<Bone> bonesNotAffect;
 
 	public SetMatrixAction3(Collection<GeosetVertex> vertices, Collection<Bone> bones, Set<Bone> bonesNotAffect) {
 		selectedVertices.addAll(vertices);

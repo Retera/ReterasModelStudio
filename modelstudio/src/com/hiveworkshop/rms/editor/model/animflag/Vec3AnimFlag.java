@@ -154,13 +154,19 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 			cur.outTan = new Vec3(0, 0, 0);
 		}
 
-		Vec3 currPrev = new Vec3(cur.value).sub(prev.value);
-		Vec3 nextCurr = new Vec3(next.value).sub(cur.value);
+		Vec3 currPrev = new Vec3(cur.value);
+		Vec3 nextCurr = new Vec3(0, 0, 0).sub(cur.value);
+		if (prev != null) {
+			currPrev.sub(prev.value);
+		}
+		if (next != null) {
+			nextCurr.add(next.value);
+		}
 
 		cur.inTan.set(currPrev).scale(factor[0]).addScaled(nextCurr, factor[1]);
 		cur.outTan.set(currPrev).scale(factor[2]).addScaled(nextCurr, factor[3]);
 
-		if (!next.time.equals(prev.time)) {
+		if (next != null && prev != null && !next.time.equals(prev.time)) {
 			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
 			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
 			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;

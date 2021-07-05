@@ -406,16 +406,11 @@ public class Geoset implements Named, VisibilitySource {
 		matrix.clear();
 		for (GeosetVertex vertex : vertices) {
 			Matrix newTemp = vertex.getMatrix();
-//			Matrix newTemp = new Matrix(vertex.getBones());
-//			for (Matrix m : matrix) {
-//				if (newTemp.equals(m)) {
-//					newTemp = m;
-//					break;
-//				}
-//			}
+
+			newTemp.updateIds(mdlr);
 			if (!matrix.contains(newTemp)) {
 				matrix.add(newTemp);
-				newTemp.updateIds(mdlr);
+//				newTemp.updateIds(mdlr);
 			}
 			vertex.setVertexGroup(matrix.indexOf(newTemp));
 //			vertex.setMatrix(newTemp);

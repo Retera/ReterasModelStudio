@@ -19,6 +19,7 @@ public class ExtLog {
 
 	public ExtLog(final double boundsRadius) {
 		this.boundsRadius = boundsRadius;
+		setDefault();
 	}
 
 	public ExtLog(final MdlxExtent extent) {
@@ -54,9 +55,13 @@ public class ExtLog {
 		boundsRadius = boundsRad;
 	}
 
-	public ExtLog(final ExtLog other) {
-		minimumExtent = new Vec3(other.minimumExtent);
-		maximumExtent = new Vec3(other.maximumExtent);
+	private ExtLog(final ExtLog other) {
+		if (other.minimumExtent != null) {
+			minimumExtent = new Vec3(other.minimumExtent);
+		}
+		if (other.maximumExtent != null) {
+			maximumExtent = new Vec3(other.maximumExtent);
+		}
 		boundsRadius = other.boundsRadius;
 	}
 
@@ -116,6 +121,10 @@ public class ExtLog {
 
 	public void setBoundsRadius(final double boundsRadius) {
 		this.boundsRadius = boundsRadius;
+	}
+
+	public ExtLog deepCopy() {
+		return new ExtLog(this);
 	}
 
 	public String toString() {

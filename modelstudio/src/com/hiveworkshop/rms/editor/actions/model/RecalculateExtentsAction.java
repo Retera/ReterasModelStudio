@@ -46,14 +46,14 @@ public class RecalculateExtentsAction implements UndoAction {
 			Map<Animation, ExtLog> animationToNewExtents = new HashMap<>();
 			for (Animation anim : modelGeoset.getAnims()) {
 				animationToOldExtents.put(anim, anim.getExtents());
-				animationToNewExtents.put(anim, new ExtLog(newModelExtents));
+				animationToNewExtents.put(anim, newModelExtents.deepCopy());
 			}
 			geosetToAnimationToOldExtents.put(modelGeoset, animationToOldExtents);
 			geosetToAnimationToNewExtents.put(modelGeoset, animationToNewExtents);
 		}
 		for (Animation sequence : modelView.getModel().getAnims()) {
 			modelSequenceToOldExtents.put(sequence, sequence.getExtents());
-			modelSequenceToNewExtents.put(sequence, new ExtLog(newModelExtents));
+			modelSequenceToNewExtents.put(sequence, newModelExtents.deepCopy());
 		}
 		oldModelExtents = modelView.getModel().getExtents();
 

@@ -1,15 +1,26 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.cutpaste;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.addactions.AddCameraAction;
+import com.hiveworkshop.rms.editor.actions.addactions.NewGeosetAction;
+import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
+import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectoinUgg;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -32,8 +43,8 @@ public class ViewportTransferHandler extends TransferHandler {
 	 */
 	@Override
 	public boolean importData(TransferHandler.TransferSupport info) {
-		String data = null;
-		EditableModel pastedModel = null;
+		String data;
+		EditableModel pastedModel;
 
 		// If we can't handle the import, bail now.
 		if (!canImport(info)) {
@@ -41,11 +52,12 @@ public class ViewportTransferHandler extends TransferHandler {
 		}
 
 		Viewport viewport = (Viewport) info.getComponent();
-//		ModelView modelView = viewport.getModelView();
 		// Fetch the data -- bail if this fails
 		try {
 			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
-			pastedModel = MdxUtils.loadEditable(new ByteArrayInputStream(data.getBytes()));
+			ByteArrayInputStream inputStream = new ByteArrayInputStream(data.getBytes());
+			pastedModel = MdxUtils.loadEditable(inputStream);
+			inputStream.close();
 		} catch (final UnsupportedFlavorException ufe) {
 			System.out.println("importData: unsupported data flavor");
 			return false;
@@ -76,8 +88,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		for (Camera object : pastedModel.getCameras()) {
 			pastedModelView.makeCameraEditable(object);
 		}
-		// ToDo needs access to modelView...
-		final AbstractModelEditor listener = new AbstractModelEditor(new SelectionManager(pastedModelView, SelectionItemTypes.VERTEX), modelHandler, SelectionItemTypes.VERTEX);
+		AbstractModelEditor listener = new AbstractModelEditor(new SelectionManager(pastedModelView, SelectionItemTypes.VERTEX), modelHandler, SelectionItemTypes.VERTEX);
 		pastedModelView.selectAll();
 		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
 		Vec3 vertex = new Vec3(0, 0, 0);
@@ -87,23 +98,29 @@ public class ViewportTransferHandler extends TransferHandler {
 
 		// this is the model they're actually working on
 		ModelView currentModelView = viewport.getModelView();
+		List<UndoAction> undoActions = new ArrayList<>();
+		List<GeosetVertex> pastedVerts = new ArrayList<>();
 		for (Geoset pastedGeoset : pastedModel.getGeosets()) {
-			currentModelView.getModel().getGeosets().add(pastedGeoset);
+			pastedGeoset.setParentModel(currentModelView.getModel());
+			pastedVerts.addAll(pastedGeoset.getVertices());
+			undoActions.add(new NewGeosetAction(pastedGeoset, currentModelView, null));
 		}
 		for (IdObject idObject : idObjects) {
-			currentModelView.getModel().add(idObject);
+			undoActions.add(new AddNodeAction(currentModelView.getModel(), idObject, null));
 		}
 		currentModelView.setSelectedIdObjects(idObjects);
 		for (Camera idObject : pastedModel.getCameras()) {
-			currentModelView.getModel().add(idObject);
+			undoActions.add(new AddCameraAction(currentModelView.getModel(), idObject, null));
 		}
-		currentModelView.setSelectedCameras(pastedModel.getCameras());
-		currentModelView.setSelectedVertices(new HashSet<>());
-		for (Geoset pastedGeoset : pastedModel.getGeosets()) {
-			pastedGeoset.applyVerticesToMatrices(currentModelView.getModel());
-			currentModelView.addSelectedVertices(pastedGeoset.getVertices());
-		}
-		ModelStructureChangeListener.changeListener.geosetsUpdated();
+
+		UndoAction pasteAction = new CompoundAction("Paste", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated);
+
+		SelectoinUgg pastedSelection = new SelectoinUgg(pastedVerts, pastedModel.getIdObjects(), pastedModel.getCameras());
+		UndoAction selectPasted = new SetSelectionUggAction(pastedSelection, currentModelView, "select pasted");
+
+		UndoManager undoManager = ProgramGlobals.getCurrentModelPanel().getModelHandler().getUndoManager();
+		UndoAction pasteAndSelectAction = new CompoundAction("Paste", ModelStructureChangeListener.changeListener::geosetsUpdated, pasteAction, selectPasted);
+		undoManager.pushAction(pasteAndSelectAction.redo());
 	}
 
 	/**
@@ -112,51 +129,65 @@ public class ViewportTransferHandler extends TransferHandler {
 	@Override
 	protected Transferable createTransferable(JComponent c) {
 		Viewport viewport = (Viewport) c;
-		EditableModel stringableModel = new EditableModel("CopyPastedModelData");
-		stringableModel.setFormatVersion(viewport.getModelView().getModel().getFormatVersion());
-		stringableModel.setExtents(viewport.getModelView().getModel().getExtents());
+		ModelView currentModelView = viewport.getModelView();
+		EditableModel currentModel = currentModelView.getModel();
 
-		CopiedModelData copySelection = copySelection(viewport.getModelView());
-		Bone dummyBone = new Bone("CopiedModelDummy");
-		List<Vec3> verticesInNewMesh = new ArrayList<>();
+		EditableModel stringableModel = new EditableModel("CopyPastedModelData");
+		stringableModel.setFormatVersion(currentModel.getFormatVersion());
+		stringableModel.setExtents(currentModel.getExtents());
+
+		CopiedModelData copySelection = copySelection(currentModelView);
+
+		Bone dummyBone = null;
+		Vec3 dummyPivot = new Vec3(0, 0, 0);
+		int count = 0;
+
 		for (IdObject object : copySelection.getIdObjects()) {
 			stringableModel.add(object);
-			verticesInNewMesh.add(object.getPivotPoint());
+			dummyPivot.add(object.getPivotPoint());
+			count++;
 		}
 		for (Camera camera : copySelection.getCameras()) {
 			stringableModel.add(camera);
-			verticesInNewMesh.add(camera.getPosition());
+			dummyPivot.add(camera.getPosition());
+			count++;
 		}
 		for (Geoset geoset : copySelection.getGeosets()) {
 			stringableModel.add(geoset);
-			verticesInNewMesh.addAll(geoset.getVertices());
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
+				dummyPivot.add(geosetVertex);
+				count++;
 				List<Bone> bones = geosetVertex.getBones();
 				for (int i = bones.size() - 1; i >= 0; i--) {
 					Bone bone = bones.get(i);
 					if (!copySelection.getIdObjects().contains(bone)) {
-						bones.remove(i);
+						geosetVertex.removeBone(bone);
 					}
 				}
-				if (bones.isEmpty()) {
-					bones.add(dummyBone);
-					if (!stringableModel.contains(dummyBone)) {
+				if (geosetVertex.getMatrix().isEmpty()) {
+					if (dummyBone == null) {
+						dummyBone = new Bone("CopiedModelDummy");
 						stringableModel.add(dummyBone);
 					}
+					geosetVertex.addBoneAttachment(dummyBone);
 				}
 			}
 			geoset.applyVerticesToMatrices(stringableModel);
 		}
-		dummyBone.setPivotPoint(Vec3.centerOfGroup(verticesInNewMesh));
-		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		try {
-			MdxUtils.saveMdx(stringableModel, outputStream);
+		if (dummyBone != null) {
+			dummyPivot.scale(1f / count);
+			dummyBone.setPivotPoint(dummyPivot);
+		}
+
+		String value = "";
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+			final MdlxModel mdlx = TempSaveModelStuff.toMdlx(stringableModel);
+			MdxUtils.saveMdl(mdlx, outputStream);
+			value = outputStream.toString();
 		} catch (final IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("failed to create output stream from copied model");
 			e.printStackTrace();
 		}
-		byte[] byteArray = outputStream.toByteArray();
-		String value = new String(byteArray);
 		return new StringSelection(value);
 	}
 
@@ -174,9 +205,9 @@ public class ViewportTransferHandler extends TransferHandler {
 	 */
 	@Override
 	protected void exportDone(JComponent c, Transferable data, int action) {
-		if (action != MOVE) {
-			return;
-		}
+//		if (action != MOVE) {
+//			return;
+//		}
 		// JList list = (JList) c;
 		// DefaultListModel model = (DefaultListModel) list.getModel();
 		// int index = list.getSelectedIndex();
@@ -197,12 +228,8 @@ public class ViewportTransferHandler extends TransferHandler {
 		for (IdObject b : modelView.getSelectedIdObjects()) {
 			nodesToClonedNodes.put(b, b.copy());
 		}
-		for (IdObject obj : nodesToClonedNodes.keySet()) {
-			if (!nodesToClonedNodes.containsKey(obj.getParent())) {
-				obj.setParent(null);
-			} else {
-				nodesToClonedNodes.get(obj).setParent(obj.getParent());
-			}
+		for (IdObject obj : nodesToClonedNodes.values()) {
+			obj.setParent(nodesToClonedNodes.getOrDefault(obj.getParent(), null));
 		}
 		Set<Camera> clonedCameras = new HashSet<>(modelView.getSelectedCameras());
 
@@ -210,48 +237,56 @@ public class ViewportTransferHandler extends TransferHandler {
 
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			if (geoset.getVertices().stream().anyMatch(modelView::isSelected)) {
-				Geoset newGeoset = new Geoset();
-				newGeoset.setSelectionGroup(geoset.getSelectionGroup());
-				newGeoset.setAnims(geoset.getAnims());
-				newGeoset.setMaterial(geoset.getMaterial());
+				Geoset newGeoset = copySelectedFromGeoset(modelView, geoset);
 				copiedGeosets.add(newGeoset);
-
-				Map<GeosetVertex, GeosetVertex> vertToCopiedVert = new HashMap<>();
-				for (GeosetVertex vertex : geoset.getVertices()) {
-					if (modelView.isSelected(vertex)) {
-						GeosetVertex newVertex = new GeosetVertex(vertex);
-						newVertex.clearTriangles();
-						newVertex.setGeoset(newGeoset);
-						vertToCopiedVert.put(vertex, newVertex);
-						newGeoset.add(newVertex);
-					}
-				}
-				for (Triangle triangle : geoset.getTriangles()) {
-					if (triangleFullySelected(triangle, modelView)) {
-						Triangle newTriangle = new Triangle(
-								vertToCopiedVert.get(triangle.get(0)),
-								vertToCopiedVert.get(triangle.get(1)),
-								vertToCopiedVert.get(triangle.get(2)));
-						newTriangle.setGeoset(newGeoset);
-						newGeoset.add(newTriangle);
-					}
-				}
-
-				for (GeosetVertex vertex : newGeoset.getVertices()) {
-					if (vertex.getSkinBones() != null) {
-						for (GeosetVertex.SkinBone skinBone : vertex.getSkinBones()) {
-							if (skinBone.getBone() != null) {
-								skinBone.setBone((Bone) nodesToClonedNodes.get(skinBone.getBone()));
-							}
-						}
-					} else if (!vertex.getBones().isEmpty()) {
-						vertex.replaceBones(nodesToClonedNodes);
-					}
-				}
+				replaceBonesWithNewBones(nodesToClonedNodes, newGeoset.getVertices());
 			}
 		}
 
 		return new CopiedModelData(copiedGeosets, nodesToClonedNodes.values(), clonedCameras);
+	}
+
+	private Geoset copySelectedFromGeoset(ModelView modelView, Geoset geoset) {
+		Geoset newGeoset = new Geoset();
+		newGeoset.setSelectionGroup(geoset.getSelectionGroup());
+		newGeoset.setAnims(geoset.getAnims());
+		newGeoset.setMaterial(geoset.getMaterial());
+
+		Map<GeosetVertex, GeosetVertex> vertToCopiedVert = new HashMap<>();
+		for (GeosetVertex vertex : geoset.getVertices()) {
+			if (modelView.isSelected(vertex)) {
+				GeosetVertex newVertex = new GeosetVertex(vertex);
+				newVertex.clearTriangles();
+				newVertex.setGeoset(newGeoset);
+				vertToCopiedVert.put(vertex, newVertex);
+				newGeoset.add(newVertex);
+			}
+		}
+		for (Triangle triangle : geoset.getTriangles()) {
+			if (triangleFullySelected(triangle, modelView)) {
+				Triangle newTriangle = new Triangle(
+						vertToCopiedVert.get(triangle.get(0)),
+						vertToCopiedVert.get(triangle.get(1)),
+						vertToCopiedVert.get(triangle.get(2)));
+				newTriangle.setGeoset(newGeoset);
+				newGeoset.add(newTriangle);
+			}
+		}
+		return newGeoset;
+	}
+
+	private void replaceBonesWithNewBones(Map<IdObject, IdObject> nodesToClonedNodes, List<GeosetVertex> vertices) {
+		for (GeosetVertex vertex : vertices) {
+			if (vertex.getSkinBones() != null) {
+				for (GeosetVertex.SkinBone skinBone : vertex.getSkinBones()) {
+					if (skinBone.getBone() != null) {
+						skinBone.setBone((Bone) nodesToClonedNodes.get(skinBone.getBone()));
+					}
+				}
+			} else if (!vertex.getBones().isEmpty()) {
+				vertex.replaceBones(nodesToClonedNodes);
+			}
+		}
 	}
 
 	private boolean triangleFullySelected(Triangle triangle, ModelView modelView) {

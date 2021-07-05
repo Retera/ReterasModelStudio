@@ -11,7 +11,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
@@ -23,60 +23,38 @@ import java.util.List;
 import java.util.Set;
 
 public class AddKeyframeAction2 implements UndoAction {
-	//	private final AnimFlag timeline;
-	private final ModelStructureChangeListener changeListener;
 	private final ModelView modelView;
 	private final ModelHandler modelHandler;
 	private final ModelEditorActionType3 actionType;
 
 	private final UndoAction createKeyframeCompoundAction;
 
-	public AddKeyframeAction2(ModelStructureChangeListener changeListener,
-	                          ModelHandler modelHandler,
+	public AddKeyframeAction2(ModelHandler modelHandler,
 	                          ModelEditorActionType3 actionType) {
 		this.actionType = actionType;
 		this.modelHandler = modelHandler;
 		this.modelView = modelHandler.getModelView();
 
-		this.changeListener = changeListener;
-
 		createKeyframeCompoundAction = createKeyframe();
 	}
 
 	public UndoAction createKeyframe() {
-		String keyframeMdlTypeName = switch (actionType) {
-			case ROTATION, SQUAT -> "Rotation";
-			case SCALING -> "Scaling";
-			case TRANSLATION, EXTEND, EXTRUDE -> "Translation";
-		};
-
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		List<UndoAction> actions = new ArrayList<>();
 
 		TimeEnvironmentImpl timeEnvironmentImpl = modelHandler.getEditTimeEnv();
+		int trackTime = getTrackTime(modelHandler.getRenderModel());
+
 		for (IdObject node : selection) {
-			AnimFlag<?> timeline = node.find(keyframeMdlTypeName, timeEnvironmentImpl.getGlobalSeq());
-
-			if (timeline == null) {
-				if (keyframeMdlTypeName.equals("Rotation")) {
-					timeline = new QuatAnimFlag(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
-				} else {
-					timeline = new Vec3AnimFlag(keyframeMdlTypeName, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
-				}
-				node.add(timeline);
-
-				AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline);
-
-				actions.add(addTimelineAction);
+			AnimFlag<?> timeline = getAnimFlag(actions, timeEnvironmentImpl, node);
+			if (!node.has(timeline.getName())) {
+				actions.add(new AddTimelineAction(node, timeline));
 			}
-			int trackTime = getTrackTime(modelHandler.getRenderModel());
+
 			RenderNode renderNode = modelHandler.getRenderModel().getRenderNode(node);
 
-			AddKeyframeAction keyframeAction = switch (actionType) {
-				case ROTATION, SQUAT -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, new Quat(renderNode.getLocalRotation())));
-				case SCALING -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, new Vec3(renderNode.getLocalScale())));
-				case TRANSLATION, EXTEND, EXTRUDE -> getAddKeyframeAction(timeline, trackTime, new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation())));
-			};
+			AddKeyframeAction keyframeAction = getAddKeyframeAction(timeline, trackTime, getEntry(actionType, trackTime, renderNode));
+			;
 			if (keyframeAction != null) {
 				actions.add(keyframeAction);
 			}
@@ -91,6 +69,24 @@ public class AddKeyframeAction2 implements UndoAction {
 			case SCALING -> new Entry<>(trackTime, new Vec3(renderNode.getLocalScale()));
 			case TRANSLATION, EXTEND, EXTRUDE -> new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation()));
 		};
+	}
+
+
+	private AnimFlag<?> getAnimFlag(List<UndoAction> actions, TimeEnvironmentImpl timeEnvironmentImpl, IdObject node) {
+		AnimFlag<?> timeline = switch (actionType) {
+			case ROTATION, SQUAT -> node.getRotationFlag(timeEnvironmentImpl.getGlobalSeq());
+			case SCALING -> node.getScalingFlag(timeEnvironmentImpl.getGlobalSeq());
+			case TRANSLATION, EXTEND, EXTRUDE -> node.getTranslationFlag(timeEnvironmentImpl.getGlobalSeq());
+		};
+
+		if (timeline == null) {
+			timeline = switch (actionType) {
+				case ROTATION, SQUAT -> new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+				case SCALING -> new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+				case TRANSLATION, EXTEND, EXTRUDE -> new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
+			};
+		}
+		return timeline;
 	}
 
 	private int getTrackTime(RenderModel renderModel) {
@@ -112,7 +108,6 @@ public class AddKeyframeAction2 implements UndoAction {
 			}
 
 			AddKeyframeAction addKeyframeAction = new AddKeyframeAction(timeline, entry);
-			addKeyframeAction.redo();
 			return addKeyframeAction;
 		}
 		return null;

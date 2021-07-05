@@ -53,7 +53,13 @@ public class ExceptionPopup {
 		// And a way to exit RMS without going through the Task Manager
 		// This will also trigger the save-prompt
 		JButton exitRms = new JButton("exit RMS");
-		exitRms.addActionListener(a -> FileMenu.closeAll());
+		exitRms.addActionListener(a -> {
+			ProgramGlobals.getMainPanel().setVisible(false);
+			if (FileMenu.closeAll()) {
+				System.exit(-1);
+			}
+			ProgramGlobals.getMainPanel().setVisible(true);
+		});
 		panel.add(exitRms);
 
 

@@ -100,7 +100,7 @@ public class EditableModel implements Named {
 		setFileRef(other.fileRef);
 		blendTime = other.blendTime;
 		if (other.extents != null) {
-			extents = new ExtLog(other.extents);
+			extents = other.extents.deepCopy();
 		}
 		formatVersion = other.formatVersion;
 		header = new ArrayList<>(other.header);

@@ -10,32 +10,34 @@ import java.util.List;
 
 public class NewGeosetAction implements UndoAction {
 	private final Geoset geoset;
-	private final ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 	private final List<Geoset> geosetAsList;
 	private final ModelView modelView;
 
 	public NewGeosetAction(Geoset geoset,
 	                       ModelView modelView,
-	                       ModelStructureChangeListener modelStructureChangeListener) {
+	                       ModelStructureChangeListener changeListener) {
 		this.geoset = geoset;
 		this.modelView = modelView;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 		geosetAsList = Collections.singletonList(geoset);
 	}
 
 	@Override
 	public UndoAction undo() {
 		modelView.getModel().remove(geoset);
-		modelView.updateElements();
-		modelStructureChangeListener.geosetsUpdated();
+		if (changeListener != null) {
+			changeListener.nodesUpdated();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		modelView.getModel().add(geoset);
-		modelView.updateElements();
-		modelStructureChangeListener.geosetsUpdated();
+		if (changeListener != null) {
+			changeListener.nodesUpdated();
+		}
 		return this;
 	}
 

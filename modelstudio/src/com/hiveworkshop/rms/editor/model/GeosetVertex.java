@@ -17,8 +17,8 @@ import java.util.*;
  * Eric Theller 3/9/2012
  */
 public class GeosetVertex extends Vec3 {
+	private final Matrix matrix = new Matrix();
 	private int vertexGroup = -1;
-	private Matrix matrix = new Matrix();
 	private List<Vec2> tverts = new ArrayList<>();
 	private Set<Triangle> triangles = new HashSet<>();
 	private Geoset geoset;
@@ -41,14 +41,14 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public GeosetVertex(GeosetVertex old) {
-		super(old.x, old.y, old.z);
+		super(old);
 		normal.set(old.getNormal());
 		matrix.addAll(old.matrix.getBones());
 		tverts = new ArrayList<>();
 		for (Vec2 tv : old.tverts) {
 			tverts.add(new Vec2(tv));
 		}
-		// odd, but when writing
+
 		geoset = old.geoset;
 		// TODO copy triangles???????
 		triangles.addAll(old.getTriangles());
@@ -56,14 +56,7 @@ public class GeosetVertex extends Vec3 {
 		if (old.skinBoneIndexes != null) {
 			skinBoneIndexes = old.skinBoneIndexes.clone();
 		}
-//        if (old.skinBones != null) {
-//            skinBones = old.skinBones.clone();
-//        }
-//        if (old.skinBoneWeights != null) {
-//            skinBoneWeights = old.skinBoneWeights.clone();
-//        }
 		if (old.skinBones != null) {
-//            sskinBones = old.sskinBones.clone();
 			setSkinBones(old.getSkinBoneBones(), old.getSkinBoneWeights());
 		}
 		if (old.tangent != null) {
@@ -120,8 +113,6 @@ public class GeosetVertex extends Vec3 {
 					}
 				}
 			}
-//            skinBones = null;
-//            skinBoneWeights = null;
 			skinBoneIndexes = null;
 		}
 	}

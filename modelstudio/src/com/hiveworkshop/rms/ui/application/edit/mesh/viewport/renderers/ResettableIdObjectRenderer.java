@@ -190,17 +190,15 @@ public final class ResettableIdObjectRenderer {
 
                 graphics.drawRoundRect((int) minCoord.x, (int) minCoord.y, (int) diff.x, (int) diff.y, vertexSize, vertexSize);
             }
-        } else {
-            if (collisionShape.getExtents() != null) {
-                Vec3 vertexHeap = new Vec3(collisionShape.getPivotPoint());
-                if (worldMatrix != null) {
-                    vertexHeap.transform(worldMatrix);
-                }
-                Vec2 coord = CoordSysUtils.convertToViewVec2(coordinateSystem, vertexHeap);
-
-                double boundsRadius = collisionShape.getExtents().getBoundsRadius() * coordinateSystem.getZoom();
-                graphics.drawOval((int) (coord.x - boundsRadius), (int) (coord.y - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
+        } else if (collisionShape.getExtents() != null) {
+            Vec3 vertexHeap = new Vec3(collisionShape.getPivotPoint());
+            if (worldMatrix != null) {
+                vertexHeap.transform(worldMatrix);
             }
+            Vec2 coord = CoordSysUtils.convertToViewVec2(coordinateSystem, vertexHeap);
+
+            double boundsRadius = collisionShape.getExtents().getBoundsRadius() * coordinateSystem.getZoom();
+            graphics.drawOval((int) (coord.x - boundsRadius), (int) (coord.y - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
         }
 
         for (Vec3 vertex : vertices) {

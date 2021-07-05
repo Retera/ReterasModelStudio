@@ -47,7 +47,14 @@ public class ProgramGlobals {
 		return modelPanels;
 	}
 
-	public static void addModelPanel(ModelPanel modelPanel){
+	public static void removeModelPanel(ModelPanel modelPanel) {
+		if (currentModelPanel == modelPanel) {
+			currentModelPanel = null;
+		}
+		modelPanels.remove(modelPanel);
+	}
+
+	public static void addModelPanel(ModelPanel modelPanel) {
 		modelPanels.add(modelPanel);
 	}
 

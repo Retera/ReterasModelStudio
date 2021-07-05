@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.nodes.RenameBoneAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Bone;
@@ -96,7 +97,7 @@ public class RenameBoneChainPanel extends JPanel {
 				Map<Integer, List<Bone>> depthMap = new HashMap<>();
 				fillDepthMap(bone, depthLimit, 0, depthMap);
 
-				List<RenameBoneAction> actions = new ArrayList<>();
+				List<UndoAction> actions = new ArrayList<>();
 				int depthStringSize = ("" + depthMap.size()).length();
 				int countRenamedBones = 0;
 				for (int depth : depthMap.keySet()) {
@@ -149,16 +150,16 @@ public class RenameBoneChainPanel extends JPanel {
 				Map<Integer, Bone> depthMap = new HashMap<>();
 				fillDepthMap2(modelHandler, bone, depthLimit, 0, false, false, 0, depthMap);
 
-				List<RenameBoneAction> actions = new ArrayList<>();
+				List<UndoAction> actions = new ArrayList<>();
 				int countRenamedBones = 0;
 				for (int depth : depthMap.keySet()) {
 					Bone nodeToRename = depthMap.get(depth);
 
 					String prefix = doTypePrefix ? nodeToRename.getClass().getSimpleName() + "_" : "";
 
-					getIndexString(depth);
+					String indexString = depthMap.size() > 1 ? getIndexString(depth) : "";
 
-					String newName = prefix + name + getIndexString(depth) + subfix;
+					String newName = prefix + name + indexString + subfix;
 					actions.add(new RenameBoneAction(newName, nodeToRename));
 					countRenamedBones++;
 				}
@@ -198,7 +199,7 @@ public class RenameBoneChainPanel extends JPanel {
 		Map<Integer, List<Bone>> depthMap = new HashMap<>();
 		fillDepthMap(bone, depthLimit, 0, depthMap);
 
-		List<RenameBoneAction> actions = new ArrayList<>();
+		List<UndoAction> actions = new ArrayList<>();
 		int depthStringSize = ("" + depthMap.size()).length();
 		int countRenamedBones = 0;
 		for (int depth : depthMap.keySet()) {

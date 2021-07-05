@@ -25,7 +25,7 @@ public class CollisionShape extends IdObject {
 		vertices = new ArrayList<>(shape.vertices);
 
 		if (shape.extents != null) {
-			extents = new ExtLog(shape.extents);
+			extents = shape.extents.deepCopy();
 		}
 	}
 

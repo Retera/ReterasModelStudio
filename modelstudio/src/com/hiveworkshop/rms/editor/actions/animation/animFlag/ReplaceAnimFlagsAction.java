@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReplaceAnimFlagsAction implements UndoAction {
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 	TimelineContainer timelineContainer;
 	List<AnimFlag<?>> animFlags;
 	List<AnimFlag<?>> oldAnimFlags;
 
-	public ReplaceAnimFlagsAction(TimelineContainer timelineContainer, List<AnimFlag<?>> animFlagsToCopy, ModelStructureChangeListener structureChangeListener) {
-		this.structureChangeListener = structureChangeListener;
+	public ReplaceAnimFlagsAction(TimelineContainer timelineContainer, List<AnimFlag<?>> animFlagsToCopy, ModelStructureChangeListener changeListener) {
+		this.changeListener = changeListener;
 		this.timelineContainer = timelineContainer;
 		this.animFlags = new ArrayList<>();
 		for (AnimFlag<?> animFlag : animFlagsToCopy) {
@@ -27,8 +27,8 @@ public class ReplaceAnimFlagsAction implements UndoAction {
 	@Override
 	public UndoAction undo() {
 		timelineContainer.setAnimFlags(oldAnimFlags);
-		if (structureChangeListener != null) {
-			structureChangeListener.materialsListChanged();
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
 		}
 		return this;
 	}
@@ -36,8 +36,8 @@ public class ReplaceAnimFlagsAction implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		timelineContainer.setAnimFlags(animFlags);
-		if (structureChangeListener != null) {
-			structureChangeListener.materialsListChanged();
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
 		}
 		return this;
 	}

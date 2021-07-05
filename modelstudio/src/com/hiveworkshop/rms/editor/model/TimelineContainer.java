@@ -79,8 +79,9 @@ public abstract class TimelineContainer implements VisibilitySource {
 	public AnimFlag<?> find(String name, Integer globalSeq) {
 		AnimFlag<?> timeline = animFlags.get(name);
 
-		if (timeline != null && (((globalSeq == null) && (timeline.getGlobalSeqLength() == null))
-				|| ((globalSeq != null) && globalSeq.equals(timeline.getGlobalSeqLength())))) {
+		if (timeline != null &&
+				(globalSeq == null && timeline.getGlobalSeqLength() == null
+						|| globalSeq != null && globalSeq.equals(timeline.getGlobalSeqLength()))) {
 			return timeline;
 		}
 
@@ -182,6 +183,33 @@ public abstract class TimelineContainer implements VisibilitySource {
 	public VisibilitySource getVisibilitySource() {
 		if (getVisibilityFlag() != null) {
 			return this;
+		}
+		return null;
+	}
+
+	public AnimFlag<Vec3> getTranslationFlag(Integer globalSeq) {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_TRANSLATION, globalSeq);
+
+		if (timeline instanceof Vec3AnimFlag) {
+			return (Vec3AnimFlag) timeline;
+		}
+		return null;
+	}
+
+	public AnimFlag<Vec3> getScalingFlag(Integer globalSeq) {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_SCALING, globalSeq);
+
+		if (timeline instanceof Vec3AnimFlag) {
+			return (Vec3AnimFlag) timeline;
+		}
+		return null;
+	}
+
+	public AnimFlag<Quat> getRotationFlag(Integer globalSeq) {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_ROTATION, globalSeq);
+
+		if (timeline instanceof QuatAnimFlag) {
+			return (QuatAnimFlag) timeline;
 		}
 		return null;
 	}

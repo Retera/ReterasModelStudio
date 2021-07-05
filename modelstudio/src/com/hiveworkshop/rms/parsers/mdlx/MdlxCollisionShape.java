@@ -11,8 +11,8 @@ public class MdlxCollisionShape extends MdlxGenericObject {
 	public enum Type {
 		BOX,
 		PLANE,
-		SPHERE,
-		CYLINDER;
+		SPHERE(true),
+		CYLINDER(true);
 
 		private static final Type[] VALUES = values();
 

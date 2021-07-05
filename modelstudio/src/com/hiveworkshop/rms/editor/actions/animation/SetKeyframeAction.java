@@ -1,21 +1,18 @@
 package com.hiveworkshop.rms.editor.actions.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 
 public class SetKeyframeAction implements UndoAction {
-	private final TimelineContainer node;
 	private final AnimFlag<?> timeline;
 	private final Runnable structureChangeListener;
 	private final Entry<?> entry;
 	private final Entry<?> orgEntry;
 	private final int time;
 
-	public SetKeyframeAction(TimelineContainer node, AnimFlag<?> timeline, Entry<?> entry, Runnable structureChangeListener) {
+	public SetKeyframeAction(AnimFlag<?> timeline, Entry<?> entry, Runnable structureChangeListener) {
 		this.structureChangeListener = structureChangeListener;
-		this.node = node;
 		this.timeline = timeline;
 		this.entry = entry;
 		time = entry.time;
@@ -31,7 +28,9 @@ public class SetKeyframeAction implements UndoAction {
 			}
 		}
 		timeline.setOrAddEntryT(time, orgEntry);
-		structureChangeListener.run();
+		if (structureChangeListener != null) {
+			structureChangeListener.run();
+		}
 		return this;
 	}
 
@@ -44,7 +43,9 @@ public class SetKeyframeAction implements UndoAction {
 			}
 		}
 		timeline.setOrAddEntryT(time, entry);
-		structureChangeListener.run();
+		if (structureChangeListener != null) {
+			structureChangeListener.run();
+		}
 		return this;
 	}
 

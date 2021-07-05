@@ -38,5 +38,6 @@ public class AddMenu extends JMenu {
 		singleAnimationMenu.add(createMenuItem("From Object", KeyEvent.VK_O, e -> AddSingleAnimationActions.addAnimationFromObject()));
 
 		add(createMenuItem("Material", KeyEvent.VK_M, e -> MenuBarActions.addNewMaterial()));
+		add(createMenuItem("Attachment", KeyEvent.VK_C, e -> MenuBarActions.addAttachment()));
 	}
 }

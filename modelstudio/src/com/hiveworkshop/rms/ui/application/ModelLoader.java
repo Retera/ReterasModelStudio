@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 public class ModelLoader {
 	static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
@@ -171,11 +172,12 @@ public class ModelLoader {
 	}
 
 	private static void closeUnalteredModels() {
-		for (int i = (ProgramGlobals.getModelPanels().size() - 2); i >= 0; i--) {
-			ModelPanel openModelPanel = ProgramGlobals.getModelPanels().get(i);
+		List<ModelPanel> modelPanels = ProgramGlobals.getModelPanels();
+		for (int i = (modelPanels.size() - 2); i >= 0; i--) {
+			ModelPanel openModelPanel = modelPanels.get(i);
 			if (openModelPanel.getUndoManager().isRedoListEmpty() && openModelPanel.getUndoManager().isUndoListEmpty()) {
 				if (openModelPanel.close()) {
-					ProgramGlobals.getModelPanels().remove(openModelPanel);
+					ProgramGlobals.removeModelPanel(openModelPanel);
 					MenuBar.removeModelPanel(openModelPanel);
 				}
 			}
@@ -275,7 +277,7 @@ public class ModelLoader {
 		final int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
 		if (modelPanel != null) {
 			if (modelPanel.close()) {
-				ProgramGlobals.getModelPanels().remove(modelPanel);
+				ProgramGlobals.removeModelPanel(modelPanel);
 				MenuBar.removeModelPanel(modelPanel);
 				if (ProgramGlobals.getModelPanels().size() > 0) {
 					final int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);

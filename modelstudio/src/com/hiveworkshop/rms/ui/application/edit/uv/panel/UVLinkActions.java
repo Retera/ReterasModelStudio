@@ -117,10 +117,15 @@ public class UVLinkActions {
 		inputMap.put(KeyStroke.getKeyStroke("S"), "AddSelectKeyboardKey");
 		actionMap.put("AddSelectKeyboardKey", getAsAction(() -> selectionItemTypeGroup.setActiveButton(TVertexSelectionItemTypes.FACE)));
 
+
+		inputMap.put(KeyStroke.getKeyStroke("shift pressed SHIFT"), "shiftSelect");
 		actionMap.put("shiftSelect", getAsAction("shiftSelect", this::shiftSelect));
+		inputMap.put(KeyStroke.getKeyStroke("alt pressed ALT"), "altSelect");
 		actionMap.put("altSelect", getAsAction("altSelect", this::altSelect));
 
+		inputMap.put(KeyStroke.getKeyStroke("released SHIFT"), "unShiftSelect");
 		actionMap.put("unShiftSelect", getAsAction("unShiftSelect", this::unShiftSelect));
+		inputMap.put(KeyStroke.getKeyStroke("released ALT"), "unAltSelect");
 		actionMap.put("unAltSelect", getAsAction("unAltSelect", this::unAltSelect));
 
 		inputMap.put(KeyStroke.getKeyStroke("control A"), "Select All");

@@ -13,7 +13,6 @@ public class DeleteNodesAction implements UndoAction {
 	private final Set<IdObject> selectedObjects;
 	private final ModelStructureChangeListener changeListener;
 	private final ModelView model;
-	private List<GeosetVertexNodeDeleteOperation> meshLinkDeleteOps;
 	private final Set<IdObject> quickHashSetRemovedObjects;
 	private final Set<Camera> selectedCameras;
 
@@ -83,8 +82,9 @@ public class DeleteNodesAction implements UndoAction {
 		}
 		meshLinkDelete.undo();
 
-		changeListener.nodesUpdated();
-		changeListener.camerasUpdated();
+		if (changeListener != null) {
+			changeListener.nodesUpdated();
+		}
 		return this;
 	}
 
@@ -100,8 +100,9 @@ public class DeleteNodesAction implements UndoAction {
 
 		getMeshLinkDeleteAction().redo();
 
-		changeListener.nodesUpdated();
-		changeListener.camerasUpdated();
+		if (changeListener != null) {
+			changeListener.nodesUpdated();
+		}
 		return this;
 	}
 
@@ -112,8 +113,8 @@ public class DeleteNodesAction implements UndoAction {
 			Map<Bone, Set<GeosetVertex>> boneVertMap = new HashMap<>();
 			for (Geoset geoset : model.getModel().getGeosets()) {
 				Map<Bone, List<GeosetVertex>> boneMap = geoset.getBoneMap();
-				for (Bone bone : boneMap.keySet()){
-					if(selectedObjects.contains(bone)){
+				for (Bone bone : boneMap.keySet()) {
+					if (selectedObjects.contains(bone)) {
 						boneVertMap.computeIfAbsent(bone, k -> new HashSet<>());
 						boneVertMap.get(bone).addAll(boneMap.get(bone));
 						affectedVerts.addAll(boneMap.get(bone));
@@ -121,9 +122,9 @@ public class DeleteNodesAction implements UndoAction {
 					}
 				}
 			}
-			List<GeosetVertexNodeDeleteOperation> nodeDeleteOperations = new ArrayList<>();
-			for (GeosetVertex vertex : affectedVerts){
-				nodeDeleteOperations.add(new GeosetVertexNodeDeleteOperation(vertex, vertBones, relink, topParentMap));
+			List<UndoAction> nodeDeleteOperations = new ArrayList<>();
+			for (GeosetVertex vertex : affectedVerts) {
+				nodeDeleteOperations.add(new GeosetVertexNodeDeleteOperation1(vertex, vertBones, relink, topParentMap));
 			}
 			meshLinkDelete = new CompoundAction("remove geoset attachments", nodeDeleteOperations);
 		}
@@ -133,67 +134,5 @@ public class DeleteNodesAction implements UndoAction {
 	@Override
 	public String actionName() {
 		return "delete nodes";
-	}
-
-	private static class GeosetVertexNodeDeleteOperation implements UndoAction {
-		private final GeosetVertex vertex;
-		private final Map<Integer, Bone> integerBoneMap;
-		boolean relink;
-		Map<IdObject, IdObject> topParentMap;
-
-
-		public GeosetVertexNodeDeleteOperation(GeosetVertex vertex, Set<Bone> bones, boolean relink, Map<IdObject, IdObject> topParentMap) {
-			this.vertex = vertex;
-			this.relink = relink;
-			this.topParentMap = topParentMap;
-
-			integerBoneMap = new TreeMap<>();
-			// ToDo SkinBones
-
-			List<Bone> vertexBones = vertex.getBones();
-			for (Bone bone : vertexBones){
-				if(bones.contains(bone)){
-					int key = vertexBones.indexOf(bone);
-					if(key != -1){
-						integerBoneMap.put(key, bone);
-					}
-				}
-			}
-		}
-
-		@Override
-		public UndoAction undo() {
-			for (Integer i : integerBoneMap.keySet()) {
-				Bone oldBone = integerBoneMap.get(i);
-				if (relink) {
-					IdObject replacedParent = topParentMap.get(oldBone);
-					if (replacedParent instanceof Bone) {
-						vertex.removeBone((Bone) replacedParent);
-					}
-				}
-				vertex.addBoneAttachment(i, oldBone);
-			}
-			return this;
-		}
-
-		@Override
-		public UndoAction redo() {
-			if (relink) {
-				for (Integer i : integerBoneMap.keySet()) {
-					IdObject potParent = topParentMap.get(integerBoneMap.get(i));
-					if (potParent instanceof Bone && !(potParent instanceof Helper)) {
-						vertex.removeBone(integerBoneMap.get(i));
-						vertex.addBoneAttachment(i, (Bone) potParent);
-					}
-				}
-			}
-			vertex.removeBones(integerBoneMap.values());
-			return this;
-		}
-
-		@Override
-		public String actionName() {
-			return "remove vertex bone binding";
-		}
 	}
 }

@@ -434,7 +434,7 @@ public class ImportPanel extends JTabbedPane {
 		for (GeosetShell geosetShell : mht.allGeoShells) {
 			if (geosetShell.isDoImport()) {
 				for (MatrixShell ms : geosetShell.getMatrixShells()) {
-					ms.getMatrix().getBones().clear();
+					ms.getMatrix().clear();
 					for (final BoneShell bs : ms.getNewBones()) {
 						if (mht.receivingModel.contains(bs.getBone())) {
 							if (bs.getBone().getClass() == Helper.class) {

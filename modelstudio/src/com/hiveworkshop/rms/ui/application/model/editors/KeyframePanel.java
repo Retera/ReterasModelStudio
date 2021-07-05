@@ -96,6 +96,7 @@ public class KeyframePanel<T> extends JPanel {
 
 	public void updateFlag(AnimFlag<T> animFlag) {
 		this.animFlag = animFlag;
+		timelineKeyNamer.update();
 		setTableModel();
 		if (selectNewIndex != -1 && selectNewIndex < keyframeTable.getRowCount()) {
 			keyframeTable.setRowSelectionInterval(selectNewIndex, selectNewIndex);
@@ -261,7 +262,8 @@ public class KeyframePanel<T> extends JPanel {
 								bgColor = LIGHT_YELLOW;
 							}
 							this.createToolTip();
-							this.setToolTipText(animationMarker.name);
+							this.setToolTipText(animationMarker.toString());
+//							this.setToolTipText(animationMarker.name + " (" + animationMarker.start + "-" + animationMarker.end +")");
 						}
 						if (isSelected) {
 							tableCellRendererComponent.setBackground(bgColor.darker().darker());
