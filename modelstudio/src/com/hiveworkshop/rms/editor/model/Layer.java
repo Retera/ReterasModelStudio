@@ -54,6 +54,11 @@ public class Layer extends TimelineContainer implements Named {
 		this.texture = texture;
 	}
 
+	public Layer(FilterMode filterMode, Bitmap texture) {
+		this.filterMode = filterMode;
+		this.texture = texture;
+	}
+
 	public Layer(Layer other) {
 		filterMode = other.filterMode;
 		textureId = other.textureId;

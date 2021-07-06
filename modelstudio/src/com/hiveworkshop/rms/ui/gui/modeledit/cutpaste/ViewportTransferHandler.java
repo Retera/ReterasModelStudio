@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.cutpaste;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.addactions.AddCameraAction;
-import com.hiveworkshop.rms.editor.actions.addactions.NewGeosetAction;
+import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
@@ -103,7 +103,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		for (Geoset pastedGeoset : pastedModel.getGeosets()) {
 			pastedGeoset.setParentModel(currentModelView.getModel());
 			pastedVerts.addAll(pastedGeoset.getVertices());
-			undoActions.add(new NewGeosetAction(pastedGeoset, currentModelView, null));
+			undoActions.add(new AddGeosetAction(pastedGeoset, currentModelView, null));
 		}
 		for (IdObject idObject : idObjects) {
 			undoActions.add(new AddNodeAction(currentModelView.getModel(), idObject, null));

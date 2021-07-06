@@ -2,24 +2,23 @@ package com.hiveworkshop.rms.editor.actions.model.bitmap;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
-public class SetBitmapPathAction implements UndoAction {
+public class AddBitmapAction implements UndoAction {
 	private final Bitmap bitmap;
-	private final String prevPath;
-	private final String newPath;
+	private final EditableModel model;
 	private final ModelStructureChangeListener changeListener;
 
-	public SetBitmapPathAction(Bitmap bitmap, String newPath, ModelStructureChangeListener changeListener) {
+	public AddBitmapAction(Bitmap bitmap, EditableModel model, ModelStructureChangeListener changeListener) {
 		this.bitmap = bitmap;
-		this.prevPath = bitmap.getPath();
-		this.newPath = newPath;
+		this.model = model;
 		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
-		bitmap.setPath(prevPath);
+		model.remove(bitmap);
 		if (changeListener != null) {
 			changeListener.texturesChanged();
 		}
@@ -28,7 +27,7 @@ public class SetBitmapPathAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		bitmap.setPath(newPath);
+		model.add(bitmap);
 		if (changeListener != null) {
 			changeListener.texturesChanged();
 		}

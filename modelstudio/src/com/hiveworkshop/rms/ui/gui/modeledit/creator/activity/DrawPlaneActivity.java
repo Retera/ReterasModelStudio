@@ -1,16 +1,14 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
+import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
 import com.hiveworkshop.rms.editor.actions.addactions.DrawPlaneAction;
-import com.hiveworkshop.rms.editor.actions.addactions.NewGeosetAction;
 import com.hiveworkshop.rms.editor.actions.editor.CompoundMoveAction;
+import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.util.DoNothingMoveActionAdapter;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
@@ -24,7 +22,7 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DrawPlaneActivity extends ViewportActivity {
@@ -96,18 +94,21 @@ public class DrawPlaneActivity extends ViewportActivity {
 				Viewport viewport = viewportListener.getViewport();
 				Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 				try {
-//					planeAction = modelEditor.addPlane(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY);
+					List<GenericMoveAction> moveActions = new ArrayList<>();
 
-					Geoset solidWhiteGeoset = getSolidWhiteGeoset();
+					Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(modelView.getModel());
+					Geoset solidWhiteGeoset = getSolidWhiteGeoset(solidWhiteMaterial);
 
-					DrawPlaneAction drawVertexAction = new DrawPlaneAction(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
-
-					if (!modelView.getModel().contains(solidWhiteGeoset)) {
-						NewGeosetAction newGeosetAction = new NewGeosetAction(solidWhiteGeoset, modelView, ModelStructureChangeListener.changeListener);
-						planeAction = new CompoundMoveAction("Add Plane", Arrays.asList(new DoNothingMoveActionAdapter(newGeosetAction), drawVertexAction));
-					} else {
-						planeAction = drawVertexAction;
+					if (!modelView.getModel().contains(solidWhiteMaterial) || !modelView.getModel().contains(solidWhiteGeoset) || !modelView.isEditable(solidWhiteGeoset)) {
+						moveActions.add(new DoNothingMoveActionAdapter(new AddGeosetAction(solidWhiteGeoset, modelView, null)));
+						if (!modelHandler.getModel().getMaterials().contains(solidWhiteMaterial)) {
+							moveActions.add(new DoNothingMoveActionAdapter(new AddMaterialAction(solidWhiteMaterial, modelHandler.getModel(), null)));
+						}
 					}
+
+					moveActions.add(new DrawPlaneAction(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, solidWhiteGeoset));
+
+					planeAction = new CompoundMoveAction("Add Plane", moveActions);
 					planeAction.redo();
 
 
@@ -120,27 +121,6 @@ public class DrawPlaneActivity extends ViewportActivity {
 			}
 			lastMousePoint = mouseEnd;
 		}
-	}
-
-	public Geoset getSolidWhiteGeoset() {
-		List<Geoset> geosets = modelView.getModel().getGeosets();
-		Geoset solidWhiteGeoset = null;
-		for (Geoset geoset : geosets) {
-			Layer firstLayer = geoset.getMaterial().firstLayer();
-			if (modelView.isEditable(solidWhiteGeoset)
-					&& geoset.getMaterial() != null
-					&& firstLayer != null
-					&& (firstLayer.getFilterMode() == MdlxLayer.FilterMode.NONE)
-					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
-				solidWhiteGeoset = geoset;
-			}
-		}
-
-		if (solidWhiteGeoset == null) {
-			solidWhiteGeoset = new Geoset();
-			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
-		}
-		return solidWhiteGeoset;
 	}
 
 	private enum DrawingState {

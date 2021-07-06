@@ -99,8 +99,7 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	}
 
 	private void texturePathField() {
-		SetBitmapPathAction setBitmapPathAction = new SetBitmapPathAction(bitmap, bitmap.getPath(),
-				texturePathField.getText(), changeListener);
+		SetBitmapPathAction setBitmapPathAction = new SetBitmapPathAction(bitmap, texturePathField.getText(), changeListener);
 		setBitmapPathAction.redo();
 		modelHandler.getUndoManager().pushAction(setBitmapPathAction);
 	}

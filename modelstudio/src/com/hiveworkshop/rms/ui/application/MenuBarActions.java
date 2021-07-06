@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.mesh.MergeGeosetsAction;
+import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
@@ -340,17 +341,22 @@ public class MenuBarActions {
 	public static void addNewMaterial() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			EditableModel current = modelPanel.getModel();
-			// ToDo make this undo-able and use first texture of model if avalible
-			Material material = new Material();
-			Bitmap white = new Bitmap("Textures\\White.dds").setWrapHeight(true).setWrapWidth(true);
-			material.getLayers().add(new Layer("None", white));
-			if (current.getFormatVersion() == 1000) {
+			EditableModel model = modelPanel.getModel();
+			Bitmap texture;
+			if (model.getTextures().isEmpty()) {
+				String path = model.getFormatVersion() == 1000 ? "Textures\\White.dds" : "Textures\\White.blp";
+				texture = new Bitmap(path);
+			} else {
+				texture = model.getTexture(0);
+			}
+
+			Material material = new Material(new Layer("None", texture));
+
+			if (model.getFormatVersion() == 1000) {
 				material.makeHD();
 			}
-			current.add(white);
-			current.add(material);
-			ModelStructureChangeListener.changeListener.materialsListChanged();
+			UndoAction action = new AddMaterialAction(material, model, ModelStructureChangeListener.changeListener);
+			modelPanel.getModelHandler().getUndoManager().pushAction(action.redo());
 		}
 	}
 

@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.Arrays;
 import java.util.List;
 
 public final class CompoundMoveAction implements GenericMoveAction {
@@ -13,6 +14,11 @@ public final class CompoundMoveAction implements GenericMoveAction {
 	public CompoundMoveAction(final String name, final List<? extends GenericMoveAction> actions) {
 		this.name = name;
 		this.actions = actions;
+	}
+
+	public CompoundMoveAction(final String name, final GenericMoveAction... actions) {
+		this.name = name;
+		this.actions = Arrays.asList(actions);
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -15,6 +17,7 @@ import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 public abstract class ViewportActivity implements SelectionListener {
 
@@ -68,5 +71,23 @@ public abstract class ViewportActivity implements SelectionListener {
 
 	public boolean isEditing() {
 		return false;
+	}
+
+
+	public Geoset getSolidWhiteGeoset(Material solidWhiteMaterial) {
+		List<Geoset> geosets = modelView.getModel().getGeosets();
+		Geoset solidWhiteGeoset = null;
+		for (Geoset geoset : geosets) {
+			if (geoset.getMaterial().equals(solidWhiteMaterial)) {
+				solidWhiteGeoset = geoset;
+				break;
+			}
+		}
+
+		if (solidWhiteGeoset == null) {
+			solidWhiteGeoset = new Geoset();
+			solidWhiteGeoset.setMaterial(solidWhiteMaterial);
+		}
+		return solidWhiteGeoset;
 	}
 }

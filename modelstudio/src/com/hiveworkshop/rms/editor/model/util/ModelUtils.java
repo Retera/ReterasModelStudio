@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model.util;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Pair;
@@ -84,7 +85,8 @@ public final class ModelUtils {
 
 	public static void createBox(EditableModel model, Vec3 min, Vec3 max, int segments) {
 		Geoset geoset = new Geoset();
-		geoset.setMaterial(new Material(new Layer("None", new Bitmap("textures\\white.blp"))));
+		Material whiteMaterial = getWhiteMaterial(model);
+		geoset.setMaterial(whiteMaterial);
 
 		Mesh box = getBoxMesh(min, max, segments, segments, segments);
 
@@ -104,6 +106,18 @@ public final class ModelUtils {
 		geoset.setName("Box");
 
 		model.add(geoset);
+		if (!model.contains(whiteMaterial)) {
+			model.add(whiteMaterial);
+		}
+	}
+
+	public static Material getWhiteMaterial(EditableModel model) {
+		Material material = new Material(new Layer(MdlxLayer.FilterMode.NONE, new Bitmap("Textures\\White.blp")));
+		if (model.getMaterials().contains(material)) {
+			int i = model.getMaterials().indexOf(material);
+			return model.getMaterial(i);
+		}
+		return material;
 	}
 
 	/**
@@ -163,7 +177,8 @@ public final class ModelUtils {
 
 	public static void createGroundPlane(EditableModel model, Vec3 max, Vec3 min, int segments) {
 		Geoset geoset = new Geoset();
-		geoset.setMaterial(new Material(new Layer("None", new Bitmap("textures\\white.blp"))));
+		Material whiteMaterial = getWhiteMaterial(model);
+		geoset.setMaterial(whiteMaterial);
 
 		Vec2 minP = min.getProjected((byte) 0, (byte) 1);
 		Vec2 maxP = max.getProjected((byte) 0, (byte) 1);
@@ -181,6 +196,9 @@ public final class ModelUtils {
 //			}
 		}
 		model.add(geoset);
+		if (!model.contains(whiteMaterial)) {
+			model.add(whiteMaterial);
+		}
 	}
 
 	public static float[] flipRGBtoBGR(float[] rgb) {

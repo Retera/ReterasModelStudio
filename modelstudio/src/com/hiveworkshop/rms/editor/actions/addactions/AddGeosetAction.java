@@ -5,22 +5,18 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
-import java.util.Collections;
-import java.util.List;
-
-public class NewGeosetAction implements UndoAction {
+public class AddGeosetAction implements UndoAction {
 	private final Geoset geoset;
 	private final ModelStructureChangeListener changeListener;
-	private final List<Geoset> geosetAsList;
+	//	private final List<Geoset> geosetAsList;
 	private final ModelView modelView;
 
-	public NewGeosetAction(Geoset geoset,
-	                       ModelView modelView,
-	                       ModelStructureChangeListener changeListener) {
+	//ToDo change name to "AddGeosetAction"
+	public AddGeosetAction(Geoset geoset, ModelView modelView, ModelStructureChangeListener changeListener) {
 		this.geoset = geoset;
 		this.modelView = modelView;
 		this.changeListener = changeListener;
-		geosetAsList = Collections.singletonList(geoset);
+//		geosetAsList = Collections.singletonList(geoset);
 	}
 
 	@Override
