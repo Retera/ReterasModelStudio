@@ -11,10 +11,13 @@ import javax.swing.*;
 
 public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 	JPanel soundsPanel;
+	JLabel eventName;
 
 	public ComponentEventPanel(ModelHandler modelHandler) {
 		super(modelHandler);
 		soundsPanel = new JPanel(new MigLayout());
+		eventName = new JLabel("");
+		topPanel.add(eventName, "wrap");
 		topPanel.add(soundsPanel, "wrap");
 	}
 
@@ -31,6 +34,7 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 				makeSoundButton(soundPaths[i], soundNames[i]);
 			}
 		}
+		eventName.setText(EventObject.getEventName(idObject.getName()));
 	}
 
 	private void makeSoundButton(String path, String name) {

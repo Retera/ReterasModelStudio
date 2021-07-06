@@ -161,7 +161,7 @@ public final class RenderModel {
 
 			for (RenderParticleEmitter2 particleEmitter : particleEmitters2) {
 				RenderParticleEmitter2View emitterView = new RenderParticleEmitter2View(this, particleEmitter);
-//			System.out.println("emitterView: " + emitterView + " emitterView.em: " + emitterView.getEmitter());
+//				System.out.println("emitterView: " + emitterView + " emitterView.em: " + emitterView.getEmitter().getName());
 				particleEmitterViews2.add(emitterView);
 				emitterToRenderer.put(emitterView.getEmitter(), emitterView);
 			}
@@ -286,7 +286,7 @@ public final class RenderModel {
 						if (lastConsoleLogTime < currentTime) {
 //							e.printStackTrace();
 							System.out.println("RenderModel#updateNodes: failed to update rotation for " + idObject.getName());
-							lastConsoleLogTime = currentTime + 500;
+							lastConsoleLogTime = currentTime + 1000;
 						}
 					}
 

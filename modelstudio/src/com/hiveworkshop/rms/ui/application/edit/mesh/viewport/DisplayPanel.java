@@ -105,9 +105,9 @@ public class DisplayPanel extends JPanel {
 	}
 
 	public void zoom(double v) {
-		if (v>0){
+		if (v > 0) {
 			vp.getCoordinateSystem().zoomIn(v);
-		}else {
+		} else {
 			vp.getCoordinateSystem().zoomOut(-v);
 
 		}

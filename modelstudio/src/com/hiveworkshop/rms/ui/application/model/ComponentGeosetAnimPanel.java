@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
-import com.hiveworkshop.rms.ui.application.model.editors.TimelineKeyNamer;
 import com.hiveworkshop.rms.ui.application.tools.GeosetAnimCopyPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
@@ -45,11 +44,9 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 		animsPanelHolder.add(button, "wrap");
 
 		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager());
-		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		animsPanelHolder.add(alphaPanel, "wrap, span 2");
 
 		colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR, modelHandler.getUndoManager());
-		colorPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 		animsPanelHolder.add(colorPanel, "wrap, span 2");
 
 

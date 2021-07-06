@@ -15,7 +15,7 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 	private final FloatValuePanel speedPanel;
 	private final FloatValuePanel gravityPanel;
 	private final FloatValuePanel emissionPanel;
-//	private final FloatValuePanel visibilityPanel;
+	private final FloatValuePanel visibilityPanel;
 
 	public ComponentParticle2Panel(ModelHandler modelHandler) {
 		super(modelHandler);
@@ -27,7 +27,7 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		speedPanel = new FloatValuePanel(modelHandler, "Speed", modelHandler.getUndoManager());
 		gravityPanel = new FloatValuePanel(modelHandler, "Gravity", modelHandler.getUndoManager());
 		emissionPanel = new FloatValuePanel(modelHandler, "EmissionRate", modelHandler.getUndoManager());
-//		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility", modelHandler.getUndoManager(), changeListener);
+		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility", modelHandler.getUndoManager());
 		topPanel.add(emissionPanel, "spanx, growx, wrap");
 		topPanel.add(speedPanel, "spanx, growx, wrap");
 		topPanel.add(gravityPanel, "spanx, growx, wrap");
@@ -35,7 +35,7 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		topPanel.add(widthPanel, "spanx, growx, wrap");
 		topPanel.add(lengthPanel, "spanx, growx, wrap");
 		topPanel.add(latitudePanel, "spanx, growx, wrap");
-//		add(visibilityPanel, "spanx, growx, wrap");
+		add(visibilityPanel, "spanx, growx, wrap");
 	}
 
 	@Override
@@ -47,6 +47,6 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		speedPanel.reloadNewValue((float) idObject.getSpeed(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_SPEED), idObject, MdlUtils.TOKEN_SPEED, idObject::setSpeed);
 		gravityPanel.reloadNewValue((float) idObject.getGravity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_GRAVITY), idObject, MdlUtils.TOKEN_GRAVITY, idObject::setGravity);
 		emissionPanel.reloadNewValue((float) idObject.getEmissionRate(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, idObject::setEmissionRate);
-//		visibilityPanel.reloadNewValue( 1f, (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, null);
+		visibilityPanel.reloadNewValue(1f, idObject.getVisibilityFlag(), idObject, MdlUtils.TOKEN_VISIBILITY, null);
 	}
 }

@@ -18,7 +18,6 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
-import com.hiveworkshop.rms.ui.application.model.editors.TimelineKeyNamer;
 import com.hiveworkshop.rms.ui.application.tools.GeosetAnimCopyPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.MaterialListCellRenderer;
@@ -281,11 +280,9 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 			panel.add(button, "wrap");
 
 			FloatValuePanel alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager());
-			alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 			panel.add(alphaPanel, "wrap, span 2");
 
 			ColorValuePanel colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR, modelHandler.getUndoManager());
-			colorPanel.setKeyframeHelper(new TimelineKeyNamer(modelHandler.getModel()));
 			panel.add(colorPanel, "wrap, span 2");
 
 			alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), (FloatAnimFlag) geosetAnim.find(MdlUtils.TOKEN_ALPHA), geosetAnim, MdlUtils.TOKEN_ALPHA, geosetAnim::setStaticAlpha);
@@ -296,11 +293,6 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 			panel.add(addAnim);
 		}
 		return panel;
-	}
-
-	private void addAnim() {
-		UndoAction action = new SetGeosetAnimAction(modelHandler.getModel(), geoset, changeListener);
-		modelHandler.getUndoManager().pushAction(new SetGeosetAnimAction(modelHandler.getModel(), geoset, changeListener).redo());
 	}
 
 	private void copyFromOther() {
