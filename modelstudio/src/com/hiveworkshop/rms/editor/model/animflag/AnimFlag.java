@@ -67,22 +67,13 @@ public abstract class AnimFlag<T> {
 	private long lastConsoleLogTime = 0;
 
 	public static AnimFlag<?> createFromTimeline(MdlxTimeline<?> timeline) {
-		Object firstValue = timeline.values[0];
-		if (firstValue instanceof float[]) {
-			final int length = ((float[]) firstValue).length;
-			return switch (length){
-				case 1 -> new FloatAnimFlag((MdlxFloatTimeline) timeline);
-				case 3 -> new Vec3AnimFlag((MdlxFloatArrayTimeline) timeline);
-				case 4 -> new QuatAnimFlag((MdlxFloatArrayTimeline) timeline);
-				default -> null;
-			};
-		} else if (firstValue instanceof long[]) {
-			if (timeline.name.toString().equalsIgnoreCase("rotation")) {
-				return new QuatAnimFlag((MdlxFloatArrayTimeline) timeline);
-			}
-			return new IntAnimFlag((MdlxUInt32Timeline) timeline);
-		}
-		return null;
+		return switch (AnimationMap.valueOf(timeline.name.asStringValue()).getImplementation()) {
+			case UINT32_TIMELINE -> new IntAnimFlag((MdlxUInt32Timeline) timeline);
+			case FLOAT_TIMELINE -> new FloatAnimFlag((MdlxFloatTimeline) timeline);
+			case VECTOR3_TIMELINE -> new Vec3AnimFlag((MdlxFloatArrayTimeline) timeline);
+			case VECTOR4_TIMELINE -> new QuatAnimFlag((MdlxFloatArrayTimeline) timeline);
+			default -> null;
+		};
 	}
 
 	public abstract T cloneValue(Object value);

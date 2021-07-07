@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
+import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
@@ -43,7 +44,8 @@ public class FloatValuePanel extends ValuePanel<Float> {
 		float newValue = staticSpinner.getFloatValue();
 
 		if (valueSettingFunction != null) {
-			valueSettingFunction.accept(newValue);
+			undoManager.pushAction(new ConsumerAction<>(valueSettingFunction, newValue, staticValue, title).redo());
+//			valueSettingFunction.accept(newValue);
 			staticSpinner.reloadNewValue(newValue);
 		}
 	}

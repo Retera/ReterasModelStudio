@@ -29,6 +29,7 @@ public abstract class ValuePanel<T> extends JPanel {
 	protected TimelineKeyNamer timelineKeyNamer;
 	JPanel dynStatPanel;
 	private final CardLayout dynStatLayout;
+	protected String title;
 
 	KeyframePanel<T> keyframePanel;
 
@@ -41,6 +42,7 @@ public abstract class ValuePanel<T> extends JPanel {
 	public ValuePanel(ModelHandler modelHandler, final String title, double maxValue, double minValue, UndoManager undoManager) {
 		this.undoManager = undoManager;
 		this.modelStructureChangeListener = ModelStructureChangeListener.changeListener;
+		this.title = title;
 		setFocusable(true);
 		timelineKeyNamer = null;
 		animFlag = null;

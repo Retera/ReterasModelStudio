@@ -8,35 +8,31 @@ public class NameChangeAction implements UndoAction {
 	private final Named idObject;
 	private final String oldName;
 	private final String newName;
-	private final ModelStructureChangeListener structureChangeListener;
-
-	public NameChangeAction(Named idObject, String oldName, String newName,
-	                        final ModelStructureChangeListener modelStructureChangeListener) {
-		this.idObject = idObject;
-		this.oldName = oldName;
-		this.newName = newName;
-		this.structureChangeListener = modelStructureChangeListener;
-	}
+	private final ModelStructureChangeListener changeListener;
 
 	public NameChangeAction(Named idObject, String newName,
-	                        final ModelStructureChangeListener modelStructureChangeListener) {
+	                        ModelStructureChangeListener changeListener) {
 		this.idObject = idObject;
 		this.oldName = idObject.getName();
 		this.newName = newName;
-		this.structureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		this.idObject.setName(oldName);
-		structureChangeListener.nodeHierarchyChanged();
+		if (changeListener != null) {
+			changeListener.nodeHierarchyChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		this.idObject.setName(newName);
-		structureChangeListener.nodeHierarchyChanged();
+		if (changeListener != null) {
+			changeListener.nodeHierarchyChanged();
+		}
 		return this;
 	}
 

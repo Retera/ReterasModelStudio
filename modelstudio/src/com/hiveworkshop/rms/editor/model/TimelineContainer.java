@@ -24,7 +24,9 @@ public abstract class TimelineContainer implements VisibilitySource {
 
 	public void timelinesToMdlx(MdlxAnimatedObject mdlxObject) {
 		for (AnimFlag<?> timeline : animFlags.values()) {
-			mdlxObject.timelines.add(timeline.toMdlx(this));
+			if (!timeline.getEntryMap().isEmpty()) {
+				mdlxObject.timelines.add(timeline.toMdlx(this));
+			}
 		}
 	}
 

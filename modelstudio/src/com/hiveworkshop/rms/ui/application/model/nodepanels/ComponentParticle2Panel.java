@@ -1,10 +1,19 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
+import com.hiveworkshop.rms.editor.actions.nodes.ChangeParticleTextureAction;
+import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
+import com.hiveworkshop.rms.ui.application.tools.ParticleEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
+import com.hiveworkshop.rms.util.FramePopup;
+
+import javax.swing.*;
+import java.awt.event.ItemEvent;
 
 public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmitter2> {
 
@@ -17,8 +26,19 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 	private final FloatValuePanel emissionPanel;
 	private final FloatValuePanel visibilityPanel;
 
+
+	private JComboBox<Bitmap> textureChooser = new JComboBox<>();
+
 	public ComponentParticle2Panel(ModelHandler modelHandler) {
 		super(modelHandler);
+
+		textureChooser.setRenderer(new TextureListRenderer(modelHandler.getModel()));
+		textureChooser.addItemListener(e -> changeTexture(e));
+		topPanel.add(textureChooser);
+
+		JButton editParticle = new JButton("editParticle");
+		editParticle.addActionListener(e -> viewParticlePanel());
+		topPanel.add(editParticle, "spanx, growx, wrap");
 
 		widthPanel = new FloatValuePanel(modelHandler, "Width", modelHandler.getUndoManager());
 		lengthPanel = new FloatValuePanel(modelHandler, "Length", modelHandler.getUndoManager());
@@ -48,5 +68,26 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		gravityPanel.reloadNewValue((float) idObject.getGravity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_GRAVITY), idObject, MdlUtils.TOKEN_GRAVITY, idObject::setGravity);
 		emissionPanel.reloadNewValue((float) idObject.getEmissionRate(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, idObject::setEmissionRate);
 		visibilityPanel.reloadNewValue(1f, idObject.getVisibilityFlag(), idObject, MdlUtils.TOKEN_VISIBILITY, null);
+		updateTextureChooser();
+	}
+
+	private void viewParticlePanel() {
+		ParticleEditPanel panel = new ParticleEditPanel(idObject);
+		FramePopup.show(panel, null, "Editing " + idObject.getName());
+	}
+
+	private void updateTextureChooser() {
+		DefaultComboBoxModel<Bitmap> bitmapModel = new DefaultComboBoxModel<>(modelHandler.getModel().getTextures().toArray(new Bitmap[0]));
+		bitmapModel.setSelectedItem(idObject.getTexture());
+		textureChooser.setModel(bitmapModel);
+	}
+
+	private void changeTexture(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			System.out.println("Chose texture!");
+			Bitmap itemAt = textureChooser.getItemAt(textureChooser.getSelectedIndex());
+			ChangeParticleTextureAction action = new ChangeParticleTextureAction(idObject, itemAt, ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
 	}
 }

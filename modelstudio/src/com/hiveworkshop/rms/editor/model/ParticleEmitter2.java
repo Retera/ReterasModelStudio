@@ -43,7 +43,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	int textureID = 0;
 	int replaceableId = 0;
 	int priorityPlane = 0;
-	Vec3[] segmentColor = new Vec3[3];
+	Vec3[] segmentColor = {new Vec3(1, 1, 1), new Vec3(1, 1, 1), new Vec3(1, 1, 1)};
 	Vec3 alphas = new Vec3(1, 1, 1);
 	Vec3 particleScaling = new Vec3(1, 1, 1);
 	Vec3 headUVAnim = new Vec3(0, 0, 1);
@@ -53,7 +53,6 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	Bitmap texture;
 
 	public ParticleEmitter2() {
-
 	}
 
 	public ParticleEmitter2(String name) {
@@ -88,8 +87,11 @@ public class ParticleEmitter2 extends EmitterIdObject {
 		textureID = emitter.textureID;
 		replaceableId = emitter.replaceableId;
 		priorityPlane = emitter.priorityPlane;
-	
-		segmentColor = emitter.segmentColor.clone();
+
+//		segmentColor = emitter.segmentColor.clone(); //todo clone for real
+		segmentColor[0].set(emitter.segmentColor[0]);
+		segmentColor[1].set(emitter.segmentColor[1]);
+		segmentColor[2].set(emitter.segmentColor[2]);
 		alphas = new Vec3(emitter.alphas);
 		particleScaling = new Vec3(emitter.particleScaling);
 		headUVAnim = new Vec3(emitter.headUVAnim);
@@ -385,7 +387,7 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public void setAlpha(Vec3 alphas) {
-		this.alphas = alphas;
+		this.alphas.set(alphas);
 	}
 
 	public Vec3 getParticleScaling() {
@@ -429,7 +431,11 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public void setSegmentColor(int index, Vec3 color) {
-		segmentColor[index] = color;
+		segmentColor[index].set(color);
+	}
+
+	public void setSegmentColor(int index, float[] color) {
+		segmentColor[index].set(color);
 	}
 
 	public Vec3 getSegmentColor(int index) {

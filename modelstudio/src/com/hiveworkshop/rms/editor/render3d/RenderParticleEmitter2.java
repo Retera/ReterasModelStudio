@@ -13,11 +13,11 @@ public class RenderParticleEmitter2 extends RenderSharedGeometryEmitter<Particle
 
 	@Override
 	protected void emit(final RenderParticleEmitter2View emitterView) {
-		if (modelObject.isHead()) {
+		if (modelObject.isHead() || modelObject.isBoth()) {
 			emitObject(emitterView, true);
 		}
 
-		if (modelObject.isTail()) {
+		if (modelObject.isTail() || modelObject.isBoth()) {
 			emitObject(emitterView, false);
 		}
 	}

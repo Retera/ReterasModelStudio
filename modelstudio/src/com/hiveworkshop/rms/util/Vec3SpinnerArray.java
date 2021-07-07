@@ -4,6 +4,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
+import java.util.function.Consumer;
 
 public class Vec3SpinnerArray {
 	private JSpinner[] spinners = new JSpinner[3];
@@ -109,15 +110,31 @@ public class Vec3SpinnerArray {
 	}
 
 	boolean ugg;
+
 	public Vec3SpinnerArray addActionListener(Runnable actionListener){
 //		spinners[0].addChangeListener(e -> System.out.println("ChangeListener"));
 //		spinners[0].addPropertyChangeListener(e -> System.out.println("PropertyChange"));
 		ChangeListener changeListener = e -> {
-			if(!isUpdating){
-				if(ugg){
+			if (!isUpdating) {
+				if (ugg) {
 					actionListener.run();
 				}
 				ugg = !ugg; // this is just an ugly temporary hack to run the actionListener only on the second change event fire
+			}
+		};
+		spinners[0].addChangeListener(changeListener);
+		spinners[1].addChangeListener(changeListener);
+		spinners[2].addChangeListener(changeListener);
+		return this;
+	}
+
+	public Vec3SpinnerArray addActionListener(Consumer<Vec3> consumer) {
+		ChangeListener changeListener = e -> {
+			if (!isUpdating) {
+				if (ugg) {
+					consumer.accept(getValue()); // this is just an ugly temporary hack to run the actionListener only on the second change event fire
+				}
+				ugg = !ugg;
 			}
 		};
 		spinners[0].addChangeListener(changeListener);

@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
+import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.FilteredTextField;
@@ -40,7 +41,8 @@ public class QuatValuePanel extends ValuePanel<Quat> {
 			public void focusLost(FocusEvent e) {
 				Quat value = parseValue(staticValueField.getText());
 				if (valueSettingFunction != null) {
-					valueSettingFunction.accept(value);
+					undoManager.pushAction(new ConsumerAction<>(valueSettingFunction, value, staticValue, title).redo());
+//					valueSettingFunction.accept(value);
 				}
 			}
 		};

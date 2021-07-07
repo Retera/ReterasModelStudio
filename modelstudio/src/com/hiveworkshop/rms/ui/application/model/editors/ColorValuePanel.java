@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
+import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
@@ -242,7 +243,9 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		if (animFlag == null) {
 			color = new Vec3(selectedColor);
 			if (valueSettingFunction != null) {
-				valueSettingFunction.accept(color);
+
+				undoManager.pushAction(new ConsumerAction<>(valueSettingFunction, color, staticValue, title).redo());
+//				valueSettingFunction.accept(color);
 			}
 			staticColorButton.setIcon(new ImageIcon(IconUtils.createColorImage(color, 48, 48)));
 		} else {

@@ -9,10 +9,12 @@ import javax.swing.*;
 public class GeosetOverviewPanel extends JPanel {
 
 	public GeosetOverviewPanel(ModelHandler modelHandler) {
-		super(new MigLayout("wrap 3", "[]10[Right]10[Right]", ""));
-		add(new JLabel("Geoset"));
-		add(new JLabel("Vertices"));
-		add(new JLabel("Triangles"));
+		super(new MigLayout("fill, ins 0", "[grow]", "[grow]"));
+		JPanel panel = new JPanel(new MigLayout("wrap 3", "[]10[Right]10[Right]", ""));
+
+		panel.add(new JLabel("Geoset"));
+		panel.add(new JLabel("Vertices"));
+		panel.add(new JLabel("Triangles"));
 		int verts = 0;
 		int tris = 0;
 		for (Geoset geoset : modelHandler.getModel().getGeosets()) {
@@ -20,13 +22,18 @@ public class GeosetOverviewPanel extends JPanel {
 			verts += vSize;
 			int tSize = geoset.getTriangles().size();
 			tris += tSize;
-			add(new JLabel(geoset.getName()));
-			add(new JLabel("" + vSize));
-			add(new JLabel("" + tSize));
+			panel.add(new JLabel(geoset.getName()));
+			panel.add(new JLabel("" + vSize));
+			panel.add(new JLabel("" + tSize));
 		}
 
-		add(new JLabel("Total"), "gapy 10");
-		add(new JLabel("" + verts));
-		add(new JLabel("" + tris));
+		panel.add(new JLabel("Total"), "gapy 10");
+		panel.add(new JLabel("" + verts));
+		panel.add(new JLabel("" + tris));
+
+
+		JScrollPane scrollPane = new JScrollPane(panel);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(scrollPane, "growx, growy");
 	}
 }

@@ -146,7 +146,7 @@ public class IdObjectFactory {
 		float[][] colors = mdlxEmitter.segmentColors;
 		// SegmentColor - Inverse order for MDL!
 		for (int i = 0; i < 3; i++) {
-			particleEmitter2.setSegmentColor(i, new Vec3(colors[i]));
+			particleEmitter2.setSegmentColor(i, colors[i]);
 //			setSegmentColor(i, new Vec3(ModelUtils.flipRGBtoBGR(colors[i])));
 		}
 

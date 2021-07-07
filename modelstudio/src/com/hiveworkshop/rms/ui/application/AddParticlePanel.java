@@ -204,7 +204,9 @@ public class AddParticlePanel {
 				visFlag.addEntry(anim.getStart(), 0f);
 			}
 		}
-		particle.setVisibilityFlag(visFlag);
+		if (!visFlag.getEntryMap().isEmpty()) {
+			particle.setVisibilityFlag(visFlag);
+		}
 		particle.setName(name);
 		ProgramGlobals.getCurrentModelPanel().getModel().add(particle);
 		ModelStructureChangeListener.changeListener.nodesUpdated();
