@@ -8,10 +8,12 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
+import com.hiveworkshop.rms.ui.application.viewer.ViewportRenderExporter;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
+import net.miginfocom.swing.MigLayout;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -45,22 +47,25 @@ public class FileDialog {
     public FileDialog() {
         FileDialog.mainPanel = ProgramGlobals.getMainPanel();
         this.fileChooser = getFileChooser();
+//        fileChooser.setAccessory(getAccessoryPanel("Ugg!"));
         this.fileChooser.setAcceptAllFileFilterUsed(false);
         extFilter = new ExtFilter();
+    }
+
+    public JPanel getAccessoryPanel(String s) {
+        JPanel ugg = new JPanel(new MigLayout("ins 0, gap 0"));
+        ugg.add(new JButton(s));
+        return ugg;
     }
 
     public FileDialog(ModelPanel modelPanel) {
+        this();
         this.modelPanel = modelPanel;
-        this.fileChooser = getFileChooser();
-        this.fileChooser.setAcceptAllFileFilterUsed(false);
-        extFilter = new ExtFilter();
     }
 
     public FileDialog(JComponent parent) {
+        this();
         this.parent = parent;
-        this.fileChooser = getFileChooser();
-        this.fileChooser.setAcceptAllFileFilterUsed(false);
-        extFilter = new ExtFilter();
     }
 
     public static void setCurrentPath(File modelFile) {
@@ -288,7 +293,7 @@ public class FileDialog {
 
     public void exportAnimatedFramePNG() {
         if (getModelPanel() != null) {
-            final BufferedImage fBufferedImage = getModelPanel().getPerspArea().getViewport().getBufferedImage();
+            final BufferedImage fBufferedImage = ViewportRenderExporter.getBufferedImage(getModelPanel().getPerspArea().getViewport());
             if (fBufferedImage != null) {
                 onClickSaveAs(null, fBufferedImage, SAVE_TEXTURE, false);
             }

@@ -22,7 +22,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.TVertexEditorManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType2;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorWidgetType;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
@@ -106,7 +106,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 				changeActivity(newType);
 			}
 		});
-		uvLinkActions.actionTypeGroup.setActiveButton(ModelEditorActionType2.TRANSLATION);
+		uvLinkActions.actionTypeGroup.setActiveButton(ModelEditorWidgetType.TRANSLATION);
 
 		JPanel menuHolderPanel = new JPanel(new BorderLayout());
 		menuHolderPanel.add(this, BorderLayout.CENTER);
@@ -178,9 +178,9 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		stuffPanel.add(uvLinkActions.selectionModeGroup.getModeButton(SelectionMode.ADD));
 		stuffPanel.add(uvLinkActions.selectionModeGroup.getModeButton(SelectionMode.DESELECT));
 		stuffPanel.add(divider[1]);
-		stuffPanel.add(uvLinkActions.actionTypeGroup.getModeButton(ModelEditorActionType2.TRANSLATION));
-		stuffPanel.add(uvLinkActions.actionTypeGroup.getModeButton(ModelEditorActionType2.ROTATION));
-		stuffPanel.add(uvLinkActions.actionTypeGroup.getModeButton(ModelEditorActionType2.SCALING));
+		stuffPanel.add(uvLinkActions.actionTypeGroup.getModeButton(ModelEditorWidgetType.TRANSLATION));
+		stuffPanel.add(uvLinkActions.actionTypeGroup.getModeButton(ModelEditorWidgetType.ROTATION));
+		stuffPanel.add(uvLinkActions.actionTypeGroup.getModeButton(ModelEditorWidgetType.SCALING));
 		stuffPanel.add(divider[2]);
 		stuffPanel.add(unwrapDirectionBox);
 		stuffPanel.add(unwrapButton);
@@ -252,8 +252,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		uvLinkActions.selectionItemTypeGroup = new ToolbarButtonGroup2<>(toolbar, TVertexSelectionItemTypes.values());
 		uvLinkActions.selectionItemTypeGroup.setActiveButton(TVertexSelectionItemTypes.VERTEX);
 		toolbar.addSeparator();
-		uvLinkActions.actionTypeGroup = new ToolbarButtonGroup2<>(toolbar, ModelEditorActionType2.values());
-		uvLinkActions.actionTypeGroup.setActiveButton(ModelEditorActionType2.TRANSLATION);
+		uvLinkActions.actionTypeGroup = new ToolbarButtonGroup2<>(toolbar, ModelEditorWidgetType.values());
+		uvLinkActions.actionTypeGroup.setActiveButton(ModelEditorWidgetType.TRANSLATION);
 
 		JButton snapButton = toolbar.add(new AbstractAction("Snap", RMSIcons.loadToolBarImageIcon("snap.png")) {
 			@Override
@@ -512,12 +512,12 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	//	@Override
-	public void changeActivity(ModelEditorActionType2 newType) {
+	public void changeActivity(ModelEditorWidgetType newType) {
 		ViewportActivity activity = createActivity(modelEditorManager, modelPanel.getModelHandler(), newType);
 		viewportActivityManager.setCurrentActivity(activity);
 	}
 
-	public ViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelHandler modelHandler, ModelEditorActionType2 editorActionType) {
+	public ViewportActivity createActivity(TVertexEditorManager modelEditorManager, ModelHandler modelHandler, ModelEditorWidgetType editorActionType) {
 		TVertexEditorManipulatorBuilder manipulatorBuilder = new TVertexEditorManipulatorBuilder(modelEditorManager, modelHandler, editorActionType);
 		return new MultiManipulatorActivity(manipulatorBuilder, modelHandler, modelEditorManager);
 	}

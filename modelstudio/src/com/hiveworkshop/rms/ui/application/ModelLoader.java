@@ -8,11 +8,10 @@ import com.hiveworkshop.rms.editor.model.util.TwiAiSceneParser;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -41,38 +40,32 @@ public class ModelLoader {
 
 		if ((modelPanel != null) && (modelPanel.getModel() != null)) {
 			Animation anim;
-			if (mainPanel.animationModeState && modelPanel.getModel().getAnimsSize() > 0) {
+			if ((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) && modelPanel.getModel().getAnimsSize() > 0) {
 				anim = modelPanel.getModel().getAnim(0);
 			} else {
 				anim = null;
 			}
 			refreshAndUpdateRenderModel();
 			modelPanel.getModelHandler().getEditTimeEnv().setAnimation(anim);
-			modelPanel.getModelHandler().getEditTimeEnv().setStaticViewMode(!mainPanel.animationModeState);
+			modelPanel.getModelHandler().getEditTimeEnv().setStaticViewMode(!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE));
 		}
 
-		if (mainPanel.animationModeState) {
-			ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup = mainPanel.actionTypeGroup;
-			if ((actionTypeGroup.getActiveButtonType() == ModelEditorActionType3.EXTRUDE)
-					|| (actionTypeGroup.getActiveButtonType() == ModelEditorActionType3.EXTEND)) {
-				actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
+		if ((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
+			if ((ProgramGlobals.getEditorActionType() == ModelEditorActionType3.EXTRUDE)
+					|| (ProgramGlobals.getEditorActionType() == ModelEditorActionType3.EXTEND)) {
+				ProgramGlobals.setEditorActionTypeButton(ModelEditorActionType3.TRANSLATION);
 			}
 		}
 
-		mainPanel.snapButton.setVisible(!mainPanel.animationModeState);
+//		mainPanel.snapButton.setVisible(!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE);
 
-		mainPanel.getMainLayoutCreator().setAnimationMode(mainPanel.animationModeState);
+		mainPanel.getMainLayoutCreator().setAnimationMode((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE));
 	}
 
 	private static void refreshAndUpdateRenderModel() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		RenderModel editorRenderModel = modelPanel.getEditorRenderModel();
-		editorRenderModel
-				.refreshFromEditor(
-						ModelStructureChangeListener.IDENTITY,
-						ModelStructureChangeListener.IDENTITY,
-						ModelStructureChangeListener.IDENTITY,
-						modelPanel.getPerspArea().getViewport().getParticleTextureInstance());
+		editorRenderModel.refreshFromEditor(modelPanel.getPerspArea().getViewport().getParticleTextureInstance());
 		editorRenderModel.updateNodes(false); // update to 0 position
 	}
 
@@ -80,8 +73,6 @@ public class ModelLoader {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		ModelHandler modelHandler = new ModelHandler(model);
 		return new ModelPanel(modelHandler,
-				mainPanel.selectionItemTypeGroup,
-				mainPanel.selectionModeGroup,
 				mainPanel.coordDisplayListener,
 				mainPanel.viewportTransferHandler,
 				mainPanel.viewportListener, icon, false
@@ -145,7 +136,7 @@ public class ModelLoader {
 		menuItem.addActionListener(e -> setCurrentModel(modelPanel));
 		modelPanel.setJMenuItem(menuItem);
 
-		modelPanel.changeActivity(mainPanel.actionTypeGroup.getActiveButtonType());
+//		modelPanel.changeActivity(mainPanel.actionTypeGroup.getActiveButtonType());
 
 		MenuBar.addModelPanel(modelPanel);
 
@@ -158,7 +149,6 @@ public class ModelLoader {
 			setCurrentModel(modelPanel);
 //			modelPanel.getMenuItem().doClick();
 		}
-		ProgramGlobals.getModelPanels().add(modelPanel);
 
 		if (temporary) {
 			modelPanel.getModelView().getModel().setFileRef(null);

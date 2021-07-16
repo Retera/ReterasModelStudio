@@ -112,6 +112,7 @@ public abstract class AnimFlag<T> {
 
 	public AnimFlag<T> setFromOther(AnimFlag<T> other) {
 		entryMap = other.getEntryMap(); // ToDo copy entries!
+		timeKeys = null;
 		return this;
 	}
 
@@ -463,18 +464,22 @@ public abstract class AnimFlag<T> {
 
 			TreeMap<Integer, Entry<T>> scaledMap = new TreeMap<>();
 			final TreeMap<Integer, Entry<T>> sourceEntryMap = tSource.getEntryMap();
-			for (int time = sourceEntryMap.ceilingKey(sourceStart); time <= sourceEntryMap.floorKey(sourceEnd); time = sourceEntryMap.higherKey(time)) {
-				double ratio = (double) (time - sourceStart) / (double) (sourceEnd - sourceStart);
-				int newTime = (int) (newStart + (ratio * (newEnd - newStart)));
-				final Entry<T> copiedEntry = sourceEntryMap.get(time).deepCopy().setTime(newTime);
-				if (linearizeEntries) {
-					copiedEntry.linearize();
-				} else if (unlinearizeEntries){
-					copiedEntry.unLinearize();
+			Integer lastKF = sourceEntryMap.floorKey(sourceEnd);
+			Integer firstKF = sourceEntryMap.ceilingKey(sourceStart);
+			if (firstKF != null && lastKF != null){
+				for (Integer time = firstKF; time != null && time <= lastKF; time = sourceEntryMap.higherKey(time)) {
+					double ratio = (double) (time - sourceStart) / (double) (sourceEnd - sourceStart);
+					int newTime = (int) (newStart + (ratio * (newEnd - newStart)));
+					final Entry<T> copiedEntry = sourceEntryMap.get(time).deepCopy().setTime(newTime);
+					if (linearizeEntries) {
+						copiedEntry.linearize();
+					} else if (unlinearizeEntries){
+						copiedEntry.unLinearize();
+					}
+					scaledMap.put(newTime, copiedEntry);
 				}
-				scaledMap.put(newTime, copiedEntry);
+				this.entryMap.putAll(scaledMap);
 			}
-			this.entryMap.putAll(scaledMap);
 		}
 	}
 

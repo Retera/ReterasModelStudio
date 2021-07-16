@@ -28,18 +28,6 @@ public class TTanQuat extends TTan<Quat> {
 		logNMN = new Quat();
 	}
 
-	public void setFromKF(int time, AnimFlag<Quat> timeline) {
-		setFromKF2(time, timeline);
-	}
-
-
-	private void initTang() {
-		if (tang.inTan == null) {
-			tang.inTan = new Quat(0, 0, 0, 0);
-			tang.outTan = new Quat(0, 0, 0, 0);
-		}
-	}
-
 	public void calculateInterp(Entry<Quat> itStart, Entry<Quat> itEnd, float[] f) {
 		itEnd.value.scale(f[3]).addScaled(itStart.value, f[0]).addScaled(itStart.outTan, f[1]).addScaled(itEnd.inTan, f[2]);
 	}
@@ -75,14 +63,6 @@ public class TTanQuat extends TTan<Quat> {
 
 	}
 
-	private Quat getQuat(float w, Quat quat1, Quat quat2, Quat qcur) {
-		Quat q = new Quat(quat1);
-		q.sub(quat2).scale(.5f);
-		q.w = w;
-		calcExpQ(q).mulLeft(qcur);
-		return q;
-	}
-
 	private Quat calcLogQ(Quat q) {
 		if (q.w > 0.99999) {
 			q.w = 0.99999f;
@@ -90,6 +70,14 @@ public class TTanQuat extends TTan<Quat> {
 		float sinT = (float) (Math.acos(q.w) / Math.sqrt(1 - (q.w * q.w)));
 		q.scale(sinT);
 		q.w = 0;
+		return q;
+	}
+
+	private Quat getQuat(float w, Quat quat1, Quat quat2, Quat qcur) {
+		Quat q = new Quat(quat1);
+		q.sub(quat2).scale(.5f);
+		q.w = w;
+		calcExpQ(q).mulLeft(qcur);
 		return q;
 	}
 

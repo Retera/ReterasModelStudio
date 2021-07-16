@@ -15,21 +15,21 @@ public final class RenderNode {
 	boolean billboardedY;
 	boolean billboardedZ;
 
-	protected final Vec3 localLocation = new Vec3(0, 0, 0);
-	protected final Quat localRotation = new Quat(0, 0, 0, 1);
-	protected final Vec3 localScale = new Vec3(1, 1, 1);
+	private final Vec3 localLocation = new Vec3(0, 0, 0);
+	private final Quat localRotation = new Quat(0, 0, 0, 1);
+	private final Vec3 localScale = new Vec3(1, 1, 1);
 	private final Mat4 localMatrix = new Mat4();
 
 	private final Vec3 worldLocation = new Vec3();
 	private final Quat worldRotation = new Quat();
 	private final Vec3 worldScale = new Vec3(1, 1, 1);
 	private final Mat4 worldMatrix = new Mat4();
-	private final Mat4 finalMatrix;
-	private Mat4 bindPose;
+//	private final Mat4 finalMatrix;
+//	private Mat4 bindPose;
 
-	protected Vec3 inverseWorldLocation = new Vec3();
-	protected Quat inverseWorldRotation = new Quat();
-	protected Vec3 inverseWorldScale = new Vec3();
+	private final Vec3 inverseWorldLocation = new Vec3();
+	private final Quat inverseWorldRotation = new Quat();
+	private final Vec3 inverseWorldScale = new Vec3();
 
 	protected boolean visible;
 
@@ -41,30 +41,33 @@ public final class RenderNode {
 	public RenderNode(final RenderModel model, final AnimatedNode idObject) {
 		this.model = model;
 		this.idObject = idObject;
-		if (idObject instanceof IdObject) {
-			final float[] bindPose = ((IdObject) idObject).getBindPose();
-			if (bindPose != null) {
-				finalMatrix = new Mat4();
-				this.bindPose = new Mat4();
-				this.bindPose.m00 = bindPose[0];
-				this.bindPose.m01 = bindPose[1];
-				this.bindPose.m02 = bindPose[2];
-				this.bindPose.m10 = bindPose[3];
-				this.bindPose.m11 = bindPose[4];
-				this.bindPose.m12 = bindPose[5];
-				this.bindPose.m20 = bindPose[6];
-				this.bindPose.m21 = bindPose[7];
-				this.bindPose.m22 = bindPose[8];
-				this.bindPose.m30 = bindPose[9];
-				this.bindPose.m31 = bindPose[10];
-				this.bindPose.m32 = bindPose[11];
-				this.bindPose.m33 = 1;
-			} else {
-				finalMatrix = worldMatrix;
-			}
-		} else {
-			finalMatrix = worldMatrix;
-		}
+//		if (idObject instanceof IdObject) {
+//			final float[] bindPose = ((IdObject) idObject).getBindPose();
+//			if (bindPose != null) {
+////				finalMatrix = new Mat4();
+//				this.bindPose = new Mat4().setFromBindPose(bindPose);
+////				this.bindPose.m00 = bindPose[0];
+////				this.bindPose.m01 = bindPose[1];
+////				this.bindPose.m02 = bindPose[2];
+////
+////				this.bindPose.m10 = bindPose[3];
+////				this.bindPose.m11 = bindPose[4];
+////				this.bindPose.m12 = bindPose[5];
+////
+////				this.bindPose.m20 = bindPose[6];
+////				this.bindPose.m21 = bindPose[7];
+////				this.bindPose.m22 = bindPose[8];
+////
+////				this.bindPose.m30 = bindPose[9];
+////				this.bindPose.m31 = bindPose[10];
+////				this.bindPose.m32 = bindPose[11];
+////				this.bindPose.m33 = 1;
+//			} else {
+////				finalMatrix = worldMatrix;
+//			}
+//		} else {
+////			finalMatrix = worldMatrix;
+//		}
 	}
 
 	public void refreshFromEditor() {
@@ -112,9 +115,9 @@ public final class RenderNode {
 				worldRotation.set(localRotation);
 				worldScale.set(localScale);
 			}
-			if (worldMatrix != finalMatrix) {
-				finalMatrix.set(worldMatrix).mul(bindPose);
-			}
+//			if (worldMatrix != finalMatrix) {
+//				finalMatrix.set(worldMatrix).mul(bindPose);
+//			}
 
 			// Inverse world rotation
 			inverseWorldRotation.set(worldRotation).invertRotation();
@@ -148,15 +151,8 @@ public final class RenderNode {
 	public void updateChildren() {
 		for (final AnimatedNode childNode : idObject.getChildrenNodes()) {
 			if (model.getRenderNode(childNode) == null) {
-				if (childNode instanceof IdObject) {
-//					throw new NullPointerException("Cannot find child \"" + childNode.getName() + ":"
-//							+ ((IdObject) childNode).getObjectId() + "\" of \"" + idObject.getName() + "\"");
-					throw new NullPointerException("Cannot find child \"" + childNode.getName()
-							+ "\" of \"" + idObject.getName() + "\"");
-				} else {
-					throw new NullPointerException(
-							"Cannot find child \"" + childNode.getName() + "\" of \"" + idObject.getName() + "\"");
-				}
+				throw new NullPointerException(
+						"Cannot find child \"" + childNode.getName() + "\" of \"" + idObject.getName() + "\"");
 			}
 			model.getRenderNode(childNode).update();
 		}
@@ -166,16 +162,21 @@ public final class RenderNode {
 		localLocation.set(0, 0, 0);
 		localRotation.set(0, 0, 0, 1);
 		localScale.set(1, 1, 1);
+		worldMatrix.setIdentity();
+
 		dirty = true;
 	}
 
 	public void setTransformation(final Vec3 location, final Quat rotation, final Vec3 scale) {
 		localLocation.set(location);
-
 		localRotation.set(rotation);
-
 		localScale.set(scale);
 
+		dirty = true;
+	}
+
+	public void setRotation(Quat rotation) {
+		localRotation.set(rotation);
 		dirty = true;
 	}
 
@@ -188,9 +189,6 @@ public final class RenderNode {
 	 * this yet, I'm not even sure it's computed correctly. Graphically, based on my
 	 * tests, it looked like maybe we do not need it.
 	 */
-	public Mat4 getFinalMatrix() {
-		return finalMatrix;
-	}
 
 	public Quat getInverseWorldRotation() {
 		return inverseWorldRotation;

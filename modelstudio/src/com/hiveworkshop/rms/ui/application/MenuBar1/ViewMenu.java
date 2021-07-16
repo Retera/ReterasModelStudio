@@ -26,6 +26,13 @@ public class ViewMenu extends JMenu {
 		showNormals.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 		add(showNormals);
 
+		JCheckBoxMenuItem show3dVerts = new JCheckBoxMenuItem("Show 3D Vertices", true);
+		show3dVerts.setMnemonic(KeyEvent.VK_V);
+		show3dVerts.setSelected(ProgramGlobals.getPrefs().show3dVerts());
+		show3dVerts.addActionListener(e -> ProgramGlobals.getPrefs().setShow3dVerts(show3dVerts.isSelected()));
+		show3dVerts.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
+		add(show3dVerts);
+
 		JCheckBoxMenuItem renderParticles = new JCheckBoxMenuItem("Render Particles", true);
 		renderParticles.setMnemonic(KeyEvent.VK_P);
 		renderParticles.setSelected(ProgramGlobals.getPrefs().getRenderParticles());

@@ -105,6 +105,11 @@ public class Animation implements TimeBoundProvider {
 		intervalEnd = end;
 	}
 
+	public void moveStartTo(int start) {
+		intervalEnd = start + length();
+		intervalStart = start;
+	}
+
 	public void setIntervalStart(final int intervalStart) {
 		this.intervalStart = intervalStart;
 	}
@@ -113,9 +118,9 @@ public class Animation implements TimeBoundProvider {
 		this.intervalEnd = intervalEnd;
 	}
 
-	public void copyToInterval(final int newStart, final int newEnd,
-	                           final List<AnimFlag<?>> sourceFlags, final List<EventObject> sourceEventObjs,
-	                           final List<AnimFlag<?>> newFlags, final List<EventObject> newEventObjs) {
+	public void copyToInterval(int newStart, int newEnd,
+	                           List<AnimFlag<?>> sourceFlags, List<EventObject> sourceEventObjs,
+	                           List<AnimFlag<?>> newFlags, List<EventObject> newEventObjs) {
 		for (final AnimFlag<?> af : newFlags) {
 			if (!af.hasGlobalSeq()) {
 				af.copyFrom(sourceFlags.get(newFlags.indexOf(af)), intervalStart, intervalEnd, newStart, newEnd);
@@ -128,13 +133,13 @@ public class Animation implements TimeBoundProvider {
 		}
 	}
 
-	public void copyToInterval(final int start, final int end, final List<AnimFlag<?>> flags, final List<EventObject> eventObjs) {
-		for (final AnimFlag<?> af : flags) {
+	public void copyToInterval(int start, int end, List<AnimFlag<?>> flags, List<EventObject> eventObjs) {
+		for (AnimFlag<?> af : flags) {
 			if (!af.hasGlobalSeq()) {
 				af.copyFrom(af, intervalStart, intervalEnd, start, end);
 			}
 		}
-		for (final EventObject e : eventObjs) {
+		for (EventObject e : eventObjs) {
 			if (!e.hasGlobalSeq) {
 				e.copyFrom(e.copy(), intervalStart, intervalEnd, start, end);
 			}
@@ -225,5 +230,9 @@ public class Animation implements TimeBoundProvider {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	public Animation deepCopy(){
+		return new Animation(this);
 	}
 }

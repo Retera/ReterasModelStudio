@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.util;
 
+import java.awt.*;
+
 public class Vec4 {
 	public float x = 0;
 	public float y = 0;
@@ -372,4 +374,28 @@ public class Vec4 {
 		w = a[3];
 		return this;
 	}
+
+
+
+	public Color asIntColor() {
+//		float toInt = 0<=x && x<=1 && 0<=y && y<=1 && 0<=z && z<=1 &&
+		float max = Math.max(x, Math.max(y, z));
+		float scale = max <= 255 ? 1 : 255 / max;
+		int red = (int) (x * scale);
+		int green = (int) (y * scale);
+		int blue = (int) (z * scale);
+		int alpha = (int) (x * scale);
+		return new Color(red, green, blue, alpha);
+	}
+	public Color asFloatColor() {
+		float max = Math.max(x, Math.max(y, z));
+		float scale = max <= 1 ? 1 : 1 / max;
+		float red = x * scale;
+		float green = y * scale;
+		float blue = z * scale;
+		float alpha = x * scale;
+		return new Color(red, green, blue, alpha);
+	}
+
+
 }

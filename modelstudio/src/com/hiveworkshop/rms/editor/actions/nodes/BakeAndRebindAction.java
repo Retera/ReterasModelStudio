@@ -61,7 +61,7 @@ public class BakeAndRebindAction implements UndoAction {
 
 
 	private void calcWorldThings(RenderModel renderModel, TimeEnvironmentImpl timeEnvironment, ModelHandler modelHandler, IdObject idObject) {
-		renderModel.refreshFromEditor(new Quat(0, 0, 0, 1), new Quat(0, 0, 0, 1), new Quat(0, 0, 0, 1), null);
+		renderModel.refreshFromEditor(null);
 		for (Animation animation : modelHandler.getModel().getAnims()) {
 			timeEnvironment.setAnimation(animation);
 			for (Integer i = allKF.ceiling(animation.getStart()); i != null && allKF.floor(animation.getEnd()) != null && i <= allKF.floor(animation.getEnd()); i = allKF.higher(i)) {

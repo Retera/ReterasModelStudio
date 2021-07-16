@@ -127,11 +127,11 @@ public class ComponentLayerPanel extends JPanel {
 
 		leftHandSettingsPanel.add(topSettingsPanel, "wrap, growx");
 
-		TextureValuePanel texturePanel = new TextureValuePanel(modelHandler, "Texture", undoManager);
+		TextureValuePanel texturePanel = new TextureValuePanel(modelHandler, "Texture");
 		texturePanel.reloadNewValue(layer.getTextureId(), (IntAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID), layer, MdlUtils.TOKEN_TEXTURE_ID, layer::setTextureId);
 		leftHandSettingsPanel.add(texturePanel, "wrap, growx");
 
-		FloatValuePanel alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, undoManager);
+		FloatValuePanel alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA);
 		alphaPanel.reloadNewValue((float) layer.getStaticAlpha(), (FloatAnimFlag) layer.find(MdlUtils.TOKEN_ALPHA), layer, MdlUtils.TOKEN_ALPHA, layer::setStaticAlpha);
 		leftHandSettingsPanel.add(alphaPanel, "wrap, growx, hidemode 2");
 
@@ -175,21 +175,21 @@ public class ComponentLayerPanel extends JPanel {
 
 	private void addHD1000Panels(JPanel leftHandSettingsPanel) {
 
-		ColorValuePanel fresnelColorPanel = new ColorValuePanel(modelHandler, "Fresnel Color", undoManager);
+		ColorValuePanel fresnelColorPanel = new ColorValuePanel(modelHandler, "Fresnel Color");
 		fresnelColorPanel.reloadNewValue(layer.getFresnelColor(), (Vec3AnimFlag) layer.find(MdlUtils.TOKEN_FRESNEL_COLOR), layer, MdlUtils.TOKEN_FRESNEL_COLOR, layer::setFresnelColor);
 		leftHandSettingsPanel.add(fresnelColorPanel, "wrap, growx, hidemode 2");
 
-		FloatValuePanel fresnelOpacityPanel = new FloatValuePanel(modelHandler, "Fresnel Opacity", undoManager);
+		FloatValuePanel fresnelOpacityPanel = new FloatValuePanel(modelHandler, "Fresnel Opacity");
 		fresnelOpacityPanel.reloadNewValue((float) layer.getFresnelOpacity(), (FloatAnimFlag) layer.find(MdlUtils.TOKEN_FRESNEL_OPACITY), layer, MdlUtils.TOKEN_FRESNEL_OPACITY, layer::setFresnelOpacity);
 		leftHandSettingsPanel.add(fresnelOpacityPanel, "wrap, growx, hidemode 2");
 
-		FloatValuePanel fresnelTeamColor = new FloatValuePanel(modelHandler, "Fresnel Team Color", undoManager);
+		FloatValuePanel fresnelTeamColor = new FloatValuePanel(modelHandler, "Fresnel Team Color");
 		fresnelTeamColor.reloadNewValue((float) layer.getFresnelTeamColor(), (FloatAnimFlag) layer.find(MdlUtils.TOKEN_FRESNEL_TEAM_COLOR), layer, MdlUtils.TOKEN_FRESNEL_TEAM_COLOR, layer::setFresnelTeamColor);
 		leftHandSettingsPanel.add(fresnelTeamColor, "wrap, growx, hidemode 2");
 	}
 
 	private void addHD900Panels(JPanel leftHandSettingsPanel) {
-		FloatValuePanel emissiveGainPanel = new FloatValuePanel(modelHandler, "Emissive Gain", undoManager);
+		FloatValuePanel emissiveGainPanel = new FloatValuePanel(modelHandler, "Emissive Gain");
 		emissiveGainPanel.reloadNewValue((float) layer.getEmissive(), (FloatAnimFlag) layer.find(MdlUtils.TOKEN_EMISSIVE_GAIN), layer, MdlUtils.TOKEN_EMISSIVE_GAIN, layer::setEmissive);
 		leftHandSettingsPanel.add(emissiveGainPanel, "wrap, growx, hidemode 2");
 	}

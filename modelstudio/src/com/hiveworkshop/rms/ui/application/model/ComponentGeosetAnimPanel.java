@@ -43,10 +43,10 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 		button.addActionListener(e -> copyFromOther());
 		animsPanelHolder.add(button, "wrap");
 
-		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager());
+		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA);
 		animsPanelHolder.add(alphaPanel, "wrap, span 2");
 
-		colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR, modelHandler.getUndoManager());
+		colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR);
 		animsPanelHolder.add(colorPanel, "wrap, span 2");
 
 

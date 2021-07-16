@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType2;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorWidgetType;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.TVertexSelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
@@ -22,7 +22,7 @@ public class UVLinkActions {
 	UVPanel uvPanel;
 	ToolbarButtonGroup2<TVertexSelectionItemTypes> selectionItemTypeGroup;
 	ToolbarButtonGroup2<SelectionMode> selectionModeGroup;
-	ToolbarButtonGroup2<ModelEditorActionType2> actionTypeGroup;
+	ToolbarButtonGroup2<ModelEditorWidgetType> actionTypeGroup;
 	AbstractAction undoAction;
 	AbstractAction redoAction;
 	boolean cheatShift = false;
@@ -103,13 +103,13 @@ public class UVLinkActions {
 		inputMap.put(KeyStroke.getKeyStroke("control Y"), "Redo");
 
 		inputMap.put(KeyStroke.getKeyStroke("W"), "MoveKeyboardKey");
-		actionMap.put("MoveKeyboardKey", getAsAction(() -> actionTypeGroup.setActiveButton(ModelEditorActionType2.TRANSLATION)));
+		actionMap.put("MoveKeyboardKey", getAsAction(() -> actionTypeGroup.setActiveButton(ModelEditorWidgetType.TRANSLATION)));
 
 		inputMap.put(KeyStroke.getKeyStroke("E"), "RotateKeyboardKey");
-		actionMap.put("RotateKeyboardKey", getAsAction(() -> actionTypeGroup.setActiveButton(ModelEditorActionType2.ROTATION)));
+		actionMap.put("RotateKeyboardKey", getAsAction(() -> actionTypeGroup.setActiveButton(ModelEditorWidgetType.ROTATION)));
 
 		inputMap.put(KeyStroke.getKeyStroke("R"), "ScaleKeyboardKey");
-		actionMap.put("ScaleKeyboardKey", getAsAction(() -> actionTypeGroup.setActiveButton(ModelEditorActionType2.SCALING)));
+		actionMap.put("ScaleKeyboardKey", getAsAction(() -> actionTypeGroup.setActiveButton(ModelEditorWidgetType.SCALING)));
 
 		inputMap.put(KeyStroke.getKeyStroke("A"), "SelectKeyboardKey");
 		actionMap.put("SelectKeyboardKey", getAsAction(() -> selectionItemTypeGroup.setActiveButton(TVertexSelectionItemTypes.VERTEX)));

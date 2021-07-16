@@ -17,6 +17,11 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 
 	private RenderNode node;
 
+	Vec4 color1Heap = new Vec4();
+	Vec4 color2Heap = new Vec4();
+	Vec4 color3Heap = new Vec4();
+	Vec4 colorHeap = new Vec4();
+
 	public RenderParticle2(final RenderParticleEmitter2 emitter) {
 		this.emitter = emitter;
 		emitterView = null;
@@ -27,7 +32,8 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		gravity = 0;
 		nodeScale = new Vec3();
 
-		verticesV = new Vec3[4];
+//		verticesV = new Vec3[4];
+		verticesV = new Vec3[] {new Vec3(), new Vec3(), new Vec3(), new Vec3()};
 		lta = 0;
 		lba = 0;
 		rta = 0;
@@ -39,10 +45,15 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 	public void reset(final RenderParticleEmitter2View emitterView, final boolean isHead) {
 		double latitude = Math.toRadians(emitterView.getLatitude());
 
-		final ParticleEmitter2 particleEmitter2 = emitter.modelObject;
+		ParticleEmitter2 particleEmitter2 = emitter.modelObject;
 
 		node = emitterView.instance.getRenderNode(particleEmitter2);
-		final Vec3 scale = node.getWorldScale();
+		Vec3 scale = node.getWorldScale();
+
+
+		color1Heap.set(particleEmitter2.getSegmentColors()[0], particleEmitter2.getAlpha().x);
+		color2Heap.set(particleEmitter2.getSegmentColors()[1], particleEmitter2.getAlpha().y);
+		color3Heap.set(particleEmitter2.getSegmentColors()[2], particleEmitter2.getAlpha().z);
 
 		this.emitterView = emitterView;
 		health = (float) particleEmitter2.getLifeSpan();
@@ -92,7 +103,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		velocity.set(vec4Z);
 
 		// Apply speed
-		velocity.scale((float) emitterView.getSpeed() + MathUtils.randomInRange(-emitterView.getVariation(), emitterView.getVariation()));
+		velocity.scale((float) emitterView.getSpeed() * (1 + MathUtils.randomInRange(-emitterView.getVariation(), emitterView.getVariation())));
 
 		// Apply the parent's scale
 		velocity.multiply(scale);
@@ -100,21 +111,23 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 
 	@Override
 	public void update() {
-		final ParticleEmitter2 modelObject = emitter.modelObject;
-		final float dt = (float) (TimeEnvironmentImpl.FRAMES_PER_UPDATE * 0.001f * emitterView.getTimeScale());
+		ParticleEmitter2 modelObject = emitter.modelObject;
+		float dt = (float) (TimeEnvironmentImpl.FRAMES_PER_UPDATE * 0.001f * emitterView.getTimeScale());
 
 		health -= dt;
 		velocity.z -= gravity * dt;
 		location.add(Vec3.getScaled(velocity, dt));
 
-		final float lifeFactor = (float) ((modelObject.getLifeSpan() - health) / modelObject.getLifeSpan());
-		final float timeMiddle = (float) modelObject.getTime();
+		float lifeFactor = (float) ((modelObject.getLifeSpan() - health) / modelObject.getLifeSpan());
+		float timeMiddle = (float) modelObject.getTime();
 		float factor;
 		int firstColor = 0;
-		final Vec3 interval;
+		Vec3 interval;
 
 		if (lifeFactor < timeMiddle) {
 			factor = lifeFactor / timeMiddle;
+
+			colorHeap = Vec4.getLerped(color1Heap, color2Heap, factor);
 
 			if (head) {
 				interval = modelObject.getHeadUVAnim();
@@ -124,6 +137,7 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		} else {
 			firstColor = 1;
 			factor = (lifeFactor - timeMiddle) / (1 - timeMiddle);
+			colorHeap = Vec4.getLerped(color2Heap, color3Heap, factor);
 
 			if (head) {
 				interval = modelObject.getHeadDecayUVAnim();
@@ -141,16 +155,16 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		// Otherwise do normal texture atlas handling.
 		// except that Matrix Eater has no such atlas and we are simply copying from Ghostwolf
 		if (!modelObject.isTeamColored()) {
-			final int columns = modelObject.getCols();
+			int columns = modelObject.getCols();
 			float index = 0;
 
-			final float start = interval.x;
-			final float end = interval.y;
-			final float spriteCount = end - start;
+			float start = interval.x;
+			float end = interval.y;
+			float spriteCount = end - start;
 			if ((spriteCount > 0) && ((columns > 1) || (modelObject.getRows() > 1))) {
 				// Repeating speeds up the sprite animation, which makes it effectively run N times in its interval.
 				// E.g. if repeat is 4, the sprite animation will be seen 4 times, and thus also run 4 times as fast
-				final float repeat = interval.z;
+				float repeat = interval.z;
 				index = (float) (start + (Math.floor(spriteCount * repeat * factor) % spriteCount));
 			}
 
@@ -165,12 +179,12 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 //		color1Heap.set(firstColorVertexME.x, firstColorVertexME.y, firstColorVertexME.z, modelObject.getAlpha().getCoord((byte) firstColor));
 //		color2Heap.set(secondColorVertexME.x, secondColorVertexME.y, secondColorVertexME.z, modelObject.getAlpha().getCoord((byte) (firstColor + 1)));
 //		color1Heap.lerp(color2Heap, factor, colorHeap);
-		final Vec3[] colors = modelObject.getSegmentColors();
-		Vec4 color1Heap = new Vec4(colors[firstColor], modelObject.getAlpha().getCoord((byte) firstColor));
-		Vec4 color2Heap = new Vec4(colors[firstColor + 1], modelObject.getAlpha().getCoord((byte) (firstColor + 1)));
-		Vec4 colorHeap = Vec4.getLerped(color1Heap, color2Heap, factor);
+		Vec3[] colors = modelObject.getSegmentColors();
+//		Vec4 color1Heap = new Vec4(colors[firstColor], modelObject.getAlpha().getCoord((byte) firstColor));
+//		Vec4 color2Heap = new Vec4(colors[firstColor + 1], modelObject.getAlpha().getCoord((byte) (firstColor + 1)));
+//		Vec4 colorHeap = Vec4.getLerped(color1Heap, color2Heap, factor);
 
-		final int a = ((int) colorHeap.w) & 0xFF;
+		int a = ((int) colorHeap.w) & 0xFF;
 
 		lta = MathUtils.uint8ToUint24((byte) right, (byte) bottom, (byte) a);
 		lba = MathUtils.uint8ToUint24((byte) left, (byte) bottom, (byte) a);
@@ -189,10 +203,10 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			vectors = instance.getBillboardVectors();
 		}
 
-		final Vec3 scaling = modelObject.getParticleScaling();
-		final float scale = MathUtils.lerp(scaling.getCoord((byte) firstColor), scaling.getCoord((byte) (firstColor + 1)), factor);
+		Vec3 scaling = modelObject.getParticleScaling();
+		float scale = MathUtils.lerp(scaling.getCoord((byte) firstColor), scaling.getCoord((byte) (firstColor + 1)), factor);
 
-		Vec3 scaleV = Vec3.getScaled(this.nodeScale, scale);
+//		Vec3 scaleV = Vec3.getScaled(this.nodeScale, scale);
 
 		Vec4 worldLocation4f = new Vec4(location, 1);
 
@@ -205,43 +219,55 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 
 			Vec3 p = worldLocation4f.getVec3();
 
-			final Vec3 pv1 = vectors[0].getVec3();
-			final Vec3 pv2 = vectors[1].getVec3();
-			final Vec3 pv3 = vectors[2].getVec3();
-			final Vec3 pv4 = vectors[3].getVec3();
+//			final Vec3 pv1 = vectors[0].getVec3();
+//			final Vec3 pv2 = vectors[1].getVec3();
+//			final Vec3 pv3 = vectors[2].getVec3();
+//			final Vec3 pv4 = vectors[3].getVec3();
 
-			verticesV[0] = Vec3.getSum(p, Vec3.getProd(pv1, scaleV));
-			verticesV[1] = Vec3.getSum(p, Vec3.getProd(pv2, scaleV));
-			verticesV[2] = Vec3.getSum(p, Vec3.getProd(pv3, scaleV));
-			verticesV[3] = Vec3.getSum(p, Vec3.getProd(pv4, scaleV));
+//			verticesV[0].set(vectors[0]).multiply(scaleV).add(p);
+//			verticesV[1].set(vectors[1]).multiply(scaleV).add(p);
+//			verticesV[2].set(vectors[2]).multiply(scaleV).add(p);
+//			verticesV[3].set(vectors[3]).multiply(scaleV).add(p);
+
+			verticesV[0].set(vectors[0]).multiply(this.nodeScale).scale(scale).add(p);
+			verticesV[1].set(vectors[1]).multiply(this.nodeScale).scale(scale).add(p);
+			verticesV[2].set(vectors[2]).multiply(this.nodeScale).scale(scale).add(p);
+			verticesV[3].set(vectors[3]).multiply(this.nodeScale).scale(scale).add(p);
+//			verticesV[0] = Vec3.getSum(p, Vec3.getProd(pv1, scaleV));
+//			verticesV[1] = Vec3.getSum(p, Vec3.getProd(pv2, scaleV));
+//			verticesV[2] = Vec3.getSum(p, Vec3.getProd(pv3, scaleV));
+//			verticesV[3] = Vec3.getSum(p, Vec3.getProd(pv4, scaleV));
 		} else {
-			final double tailLength = modelObject.getTailLength();
+			double tailLength = modelObject.getTailLength();
 			Vec3 offsetV = Vec3.getScaled(velocity, (float) tailLength);
 
 			// The start and end of the tail
-			Vec4 startHeap = new Vec4(worldLocation4f.getVec3().sub(offsetV), 1);
-			Vec4 endHeap = new Vec4(worldLocation4f.getVec3(), 1);
+			Vec3 startHeap = worldLocation4f.getVec3().sub(offsetV);
+			Vec3 endHeap = worldLocation4f.getVec3();
 
 			// If this is a model space emitter, the start and end are in local space, so
 			// convert them to world space.
 			if (modelObject.getModelSpace()) {
+
 				startHeap.transform(node.getWorldMatrix());
 				endHeap.transform(node.getWorldMatrix());
 			}
 
-			Vec3 startV = startHeap.getVec3();
-			Vec3 endV = endHeap.getVec3();
-
 			// Get the normal to the tail in camera space
 			// This allows to build a 2D rectangle around the 3D tail
-			Vec3 tailHeap = Vec3.getDiff(endV, startV).normalize();
+			Vec3 tailHeap = Vec3.getDiff(endHeap, startHeap).normalize();
 
-			Vec3 normal = instance.getBillboardVectors()[6].getVec3().cross(tailHeap).normalize().multiply(scaleV);
+//			Vec3 normal = instance.getBillboardVectors()[6].getVec3().cross(tailHeap).normalize().multiply(scaleV);
+			Vec3 normal = instance.getBillboardVectors()[6].getVec3().cross(tailHeap).normalize().multiply(this.nodeScale).scale(scale);
 
-			verticesV[0] = Vec3.getDiff(startV, normal);
-			verticesV[1] = Vec3.getSum(endV, normal);
-			verticesV[2] = Vec3.getDiff(endV, normal);
-			verticesV[3] = Vec3.getSum(scaleV, normal);
+			verticesV[0].set(startHeap).sub(normal);
+			verticesV[1].set(endHeap).add(normal);
+			verticesV[2].set(endHeap).sub(normal);
+			verticesV[3].set(startHeap).add(normal);
+//			verticesV[0] = Vec3.getDiff(startV, normal);
+//			verticesV[1] = Vec3.getSum(endV, normal);
+//			verticesV[2] = Vec3.getDiff(endV, normal);
+//			verticesV[3] = Vec3.getSum(scaleV, normal);
 		}
 	}
 }

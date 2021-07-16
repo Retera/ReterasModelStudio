@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.viewer.perspective;
 
-import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
+import com.hiveworkshop.rms.ui.application.viewer.ViewportRenderExporter;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.infonode.docking.View;
 import org.lwjgl.LWJGLException;
@@ -10,7 +10,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.util.List;
 
 /**
  * Write a description of class DisplayPanel here.
@@ -74,10 +73,6 @@ public class PerspDisplayPanel extends JPanel {
 
 	public View getView() {
 		return view;
-	}
-
-	public void addGeosets(List<Geoset> list) {
-		vp.addGeosets(list);
 	}
 
 	public void reloadTextures() {
@@ -147,11 +142,11 @@ public class PerspDisplayPanel extends JPanel {
 	}
 
 	public ImageIcon getImageIcon() {
-		return new ImageIcon(vp.getBufferedImage());
+		return new ImageIcon(ViewportRenderExporter.getBufferedImage(vp));
 	}
 
 	public BufferedImage getBufferedImage() {
-		return vp.getBufferedImage();
+		return ViewportRenderExporter.getBufferedImage(vp);
 	}
 
 

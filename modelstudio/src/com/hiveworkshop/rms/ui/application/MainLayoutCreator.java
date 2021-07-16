@@ -46,7 +46,7 @@ public class MainLayoutCreator {
         timeSliderPanel = createTimeSliderPanel(mainPanel);
         timeSliderView = TimeSliderView.createTimeSliderView(timeSliderPanel);
 
-        creatorPanel = new CreatorModelingPanel(mainPanel::changeActivity, mainPanel.actionTypeGroup, mainPanel.viewportListener);
+        creatorPanel = new CreatorModelingPanel(mainPanel.viewportListener);
         creatorView = new View("Modeling", null, creatorPanel);
 
         JPanel contentsDummy = new JPanel();

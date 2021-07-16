@@ -55,6 +55,57 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		return this;
 	}
 
+	//	private DefaultTreeModel buildTreeModel(ModelHandler modelHandler) {
+//		System.out.println("new tree model");
+//		root.removeAllChildren();
+//		meshes.removeAllChildren();
+//		nodes.removeAllChildren();
+//		cameras.removeAllChildren();
+//
+//		for (Geoset geoset : modelHandler.getModel().getGeosets()) {
+////			boolean contains = modelHandler.getModelView().isEditable(geoset);
+//			meshes.add(new JCheckBoxTreeNode(new CheckableGeosetElement(modelHandler.getModelView(), geoset)));
+//		}
+//
+//		if (meshes.getChildCount() > 0) {
+//			root.add(meshes);
+//		}
+//
+//		nodeToTreeElement.clear();
+//
+//		nodeToTreeElement.put(null, nodes);
+//
+//		for (IdObject object : modelHandler.getModel().getIdObjects()) {
+////			boolean checked = modelHandler.getModelView().isEditable(object);
+//			JCheckBoxTreeNode treeNode = new JCheckBoxTreeNode(new CheckableNodeElement(modelHandler, object));
+//			nodeToTreeElement.put(object, treeNode);
+//
+//		}
+//		for (IdObject object : modelHandler.getModel().getIdObjects()) {
+//			IdObject parent = object.getParent();
+//			if (parent == object) {
+//				parent = null;
+//			}
+//			JCheckBoxTreeNode parentTreeNode = nodeToTreeElement.get(parent);
+//			if (parentTreeNode != null) {
+//				parentTreeNode.add(nodeToTreeElement.get(object));
+//			}
+//		}
+//		if (nodes.getChildCount() > 0) {
+//			root.add(nodes);
+//		}
+//
+//		for (final Camera camera : modelHandler.getModel().getCameras()) {
+////			boolean checked = modelHandler.getModelView().isEditable(camera);
+//			cameras.add(new JCheckBoxTreeNode(new CheckableCameraElement(modelHandler, camera)));
+//		}
+//
+//		if (cameras.getChildCount() > 0) {
+//			root.add(cameras);
+//		}
+//
+//		return new DefaultTreeModel(root);
+//	}
 	private DefaultTreeModel buildTreeModel(ModelHandler modelHandler) {
 		root.removeAllChildren();
 		meshes.removeAllChildren();
@@ -249,6 +300,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 		@Override
 		public void mouseDragged(final MouseEvent e) {
+//			System.out.println("dragged: " + getPathForLocation(e.getX(), e.getY()));
 		}
 
 		@Override
@@ -257,6 +309,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 		@Override
 		public void mousePressed(final MouseEvent e) {
+//			System.out.println("pressed: " + getPathForLocation(e.getX(), e.getY()));
 		}
 
 		@Override
@@ -272,6 +325,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 		@Override
 		public void mouseClicked(final MouseEvent e) {
+//			System.out.println("clicked: " + getPathForLocation(e.getX(), e.getY()));
 		}
 	}
 }

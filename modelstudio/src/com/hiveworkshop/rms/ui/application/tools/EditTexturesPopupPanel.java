@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.model.bitmap.AddBitmapAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
@@ -149,13 +151,15 @@ public class EditTexturesPopupPanel extends JPanel {
 	}
 
 	private void btnAddTexture(ModelView modelView, DefaultListModel<Bitmap> bitmapListModel) {
-		final String path = JOptionPane.showInputDialog(EditTexturesPopupPanel.this, "Enter texture path:",
+		String path = JOptionPane.showInputDialog(EditTexturesPopupPanel.this, "Enter texture path:",
 				"Add Texture", JOptionPane.PLAIN_MESSAGE);
 		if (path != null) {
-			final Bitmap newBitmap = new Bitmap(path);
-			modelView.getModel().add(newBitmap);
-			bitmapListModel.addElement(newBitmap);
-			ModelStructureChangeListener.changeListener.texturesChanged();
+			Bitmap newBitmap = new Bitmap(path);
+			UndoAction action = new AddBitmapAction(newBitmap, modelView.getModel(), ModelStructureChangeListener.changeListener);
+			ProgramGlobals.getCurrentModelPanel().getModelHandler().getUndoManager().pushAction(action.redo());
+//			modelView.getModel().add(newBitmap);
+//			bitmapListModel.addElement(newBitmap);
+//			ModelStructureChangeListener.changeListener.texturesChanged();
 		}
 	}
 

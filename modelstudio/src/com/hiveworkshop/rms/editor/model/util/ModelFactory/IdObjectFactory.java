@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.editor.model.util.ModelFactory;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.*;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -51,9 +51,11 @@ public class IdObjectFactory {
 		light.setType(mdlxLight.type);
 		light.setAttenuationStart(mdlxLight.attenuation[0]);
 		light.setAttenuationEnd(mdlxLight.attenuation[1]);
-		light.setStaticColor(new Vec3(mdlxLight.color, true));
+//		light.setStaticColor(new Vec3(mdlxLight.color, true));
+		light.setStaticColor(new Vec3(mdlxLight.color));
 		light.setIntensity(mdlxLight.intensity);
-		light.setStaticAmbColor(new Vec3(mdlxLight.ambientColor, true));
+//		light.setStaticAmbColor(new Vec3(mdlxLight.ambientColor, true));
+		light.setStaticAmbColor(new Vec3(mdlxLight.ambientColor));
 		light.setAmbIntensity(mdlxLight.ambientIntensity);
 		return light;
 	}
@@ -104,6 +106,10 @@ public class IdObjectFactory {
 		if (!particleEmitter.isMDLEmitter() && (((mdlxEmitter.flags >> 8) & 1) == 1)) {
 			System.err.println(
 					"WARNING in MDX -> MDL: ParticleEmitter of unknown type! Defaults to EmitterUsesTGA in my MDL code!");
+		}
+		System.out.println("pEmitter: " + particleEmitter.getName());
+		for (AnimFlag<?> animFlag : particleEmitter.getAnimFlags()) {
+			System.out.println("___" + animFlag.getName() + ", " + animFlag.getValueFromIndex(0));
 		}
 		return particleEmitter;
 	}
@@ -168,6 +174,11 @@ public class IdObjectFactory {
 
 		particleEmitter2.setPriorityPlane(mdlxEmitter.priorityPlane);
 		particleEmitter2.setReplaceableId((int) mdlxEmitter.replaceableId);
+
+		System.out.println("p2Emitter: " + particleEmitter2.getName());
+		for (AnimFlag<?> animFlag : particleEmitter2.getAnimFlags()) {
+			System.out.println("___" + animFlag.getName() + ", " + animFlag.valueAt(0));
+		}
 		return particleEmitter2;
 	}
 
@@ -202,13 +213,20 @@ public class IdObjectFactory {
 		ribbonEmitter.setHeightAbove(mdlxEmitter.heightAbove);
 		ribbonEmitter.setHeightBelow(mdlxEmitter.heightBelow);
 		ribbonEmitter.setAlpha(mdlxEmitter.alpha);
-		ribbonEmitter.setStaticColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxEmitter.color)));
+//		ribbonEmitter.setStaticColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxEmitter.color)));
+		ribbonEmitter.setStaticColor(new Vec3(mdlxEmitter.color));
 		ribbonEmitter.setLifeSpan(mdlxEmitter.lifeSpan);
 		ribbonEmitter.setEmissionRate((int) mdlxEmitter.emissionRate);
 		ribbonEmitter.setRows((int) mdlxEmitter.rows);
 		ribbonEmitter.setColumns((int) mdlxEmitter.columns);
 		ribbonEmitter.setMaterialId(mdlxEmitter.materialId);
 		ribbonEmitter.setGravity(mdlxEmitter.gravity);
+
+
+		System.out.println("riEmitter: " + ribbonEmitter.getName());
+		for (AnimFlag<?> animFlag : ribbonEmitter.getAnimFlags()) {
+			System.out.println("___" + animFlag.getName() + ", " + animFlag.valueAt(0));
+		}
 		return ribbonEmitter;
 	}
 
@@ -251,6 +269,10 @@ public class IdObjectFactory {
 
 		if (collisionShape.getType() != MdlxCollisionShape.Type.SPHERE) {
 			collisionShape.addVertex(new Vec3(vertices[1]));
+		}
+
+		if (collisionShape.getType() == MdlxCollisionShape.Type.CYLINDER) {
+			System.out.println("CYLINDER!!!____________________________________");
 		}
 
 		if (collisionShape.getType() == MdlxCollisionShape.Type.SPHERE || collisionShape.getType() == MdlxCollisionShape.Type.CYLINDER) {

@@ -49,7 +49,7 @@ task dist(type: Jar) {
 
 task setVersion(){
     def path = sourceSets.main.resources.srcDirs.path[0]
-    def versionString = """${version}.${new SimpleDateFormat("yyyy.MM.dd").format(new Date())}"""
+    def versionString = """${version}.HelpTwilacFindBugs_5.${new SimpleDateFormat("yyyy.MM.dd").format(new Date())}"""
     println "writing version \"" + versionString +  "\" to path: " + path
     new File(path, "version.txt").text = versionString
 }

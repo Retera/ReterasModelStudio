@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
@@ -26,11 +27,9 @@ import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.ModelComponentBr
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.ModelViewManagingTree;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
-import com.hiveworkshop.rms.util.Quat;
 
 import javax.swing.*;
+import java.util.function.Consumer;
 
 /**
  * The ModelPanel is a pane holding the display of a given MDL model. I plan to tab between them.
@@ -43,13 +42,15 @@ public class ModelPanel {
 	private final DisplayPanel botArea;
 	private final PerspDisplayPanel perspArea;
 	private final ModelHandler modelHandler;
-	private final ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeNotifier;
 	private final ViewportActivityManager viewportActivityManager;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelEditorManager modelEditorManager;
 	private UVPanel editUVPanel;
 	private final JScrollPane modelEditingTreePane;
 	private final JScrollPane componentBrowserTreePane;
+
+	private SelectionItemTypes selectionType = SelectionItemTypes.VERTEX;
+	private ModelEditorActionType3 editorActionType = ModelEditorActionType3.TRANSLATION;
 
 
 	private final ModelViewManagingTree modelViewManagingTree;
@@ -61,9 +62,9 @@ public class ModelPanel {
 	private final AnimationController animationController;
 	private final ComponentsPanel componentsPanel;
 
+	Consumer<SelectionItemTypes> selectionItemTypeListener;
+
 	public ModelPanel(ModelHandler modelHandler,
-	                  ToolbarButtonGroup2<SelectionItemTypes> notifier,
-	                  ToolbarButtonGroup2<SelectionMode> modeNotifier,
 	                  CoordDisplayListener coordDisplayListener,
 	                  ViewportTransferHandler viewportTransferHandler,
 	                  ViewportListener viewportListener,
@@ -71,22 +72,19 @@ public class ModelPanel {
 	                  boolean specialBLPModel) {
 		this.modelHandler = modelHandler;
 		this.parent = ProgramGlobals.getMainPanel();
-		selectionItemTypeNotifier = notifier;
 		this.icon = icon;
 		viewportActivityManager = new ViewportActivityManager(null);
 
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
-		modelEditorManager = new ModelEditorManager(modelHandler, modeNotifier, modelEditorChangeNotifier, viewportActivityManager);
+		modelEditorManager = new ModelEditorManager(modelHandler, modelEditorChangeNotifier, viewportActivityManager);
 
 		modelViewManagingTree = new ModelViewManagingTree(modelHandler, modelEditorManager);
 		modelEditingTreePane = new JScrollPane(modelViewManagingTree);
 
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelHandler);
 		componentBrowserTreePane = new JScrollPane(modelComponentBrowserTree);
-
-		selectionItemTypeNotifier.addToolbarButtonListener(modelEditorManager::setSelectionItemType);
 
 		frontArea = getDisplayPanel(coordDisplayListener, viewportTransferHandler, viewportListener, "Front", (byte) 1, (byte) 2);
 		botArea = getDisplayPanel(coordDisplayListener, viewportTransferHandler, viewportListener, "Bottom", (byte) 1, (byte) 0);
@@ -297,9 +295,35 @@ public class ModelPanel {
 		getAnimationController().reload();
 		parent.getMainLayoutCreator().getCreatorPanel().reloadAnimationList();
 
-		Quat IDENTITY = new Quat();
-		getEditorRenderModel().refreshFromEditor(
-				IDENTITY, IDENTITY, IDENTITY,
-				getPerspArea().getViewport().getParticleTextureInstance());
+		getEditorRenderModel().refreshFromEditor(getPerspArea().getViewport().getParticleTextureInstance());
 	}
+
+	public void setSelectionType(SelectionItemTypes selectionType){
+		this.selectionType = selectionType;
+		modelEditorManager.setSelectionItemType(selectionType);
+		ModelLoader.refreshAnimationModeState();
+	}
+
+	public SelectionItemTypes getSelectionType(){
+		return selectionType;
+	}
+
+	public void setEditorActionType(ModelEditorActionType3 editorActionType){
+		this.editorActionType = editorActionType;
+		changeActivity(editorActionType);
+	}
+
+	public ModelEditorActionType3 getEditorActionType(){
+		return editorActionType;
+	}
+
+//	public void setSelectionMode(SelectionItemTypes selectionType){
+//		this.selectionType = selectionType;
+//		modelEditorManager.setSelectionItemType(selectionType);
+//		ModelLoader.refreshAnimationModeState();
+//	}
+//
+//	public SelectionItemTypes getSelectionMode(){
+//		return selectionType;
+//	}
 }

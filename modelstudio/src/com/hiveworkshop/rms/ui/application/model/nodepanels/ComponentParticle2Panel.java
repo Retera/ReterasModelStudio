@@ -40,14 +40,14 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		editParticle.addActionListener(e -> viewParticlePanel());
 		topPanel.add(editParticle, "spanx, growx, wrap");
 
-		widthPanel = new FloatValuePanel(modelHandler, "Width", modelHandler.getUndoManager());
-		lengthPanel = new FloatValuePanel(modelHandler, "Length", modelHandler.getUndoManager());
-		latitudePanel = new FloatValuePanel(modelHandler, "Latitude", modelHandler.getUndoManager());
-		variationPanel = new FloatValuePanel(modelHandler, "Variation", modelHandler.getUndoManager());
-		speedPanel = new FloatValuePanel(modelHandler, "Speed", modelHandler.getUndoManager());
-		gravityPanel = new FloatValuePanel(modelHandler, "Gravity", modelHandler.getUndoManager());
-		emissionPanel = new FloatValuePanel(modelHandler, "EmissionRate", modelHandler.getUndoManager());
-		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility", modelHandler.getUndoManager());
+		widthPanel = new FloatValuePanel(modelHandler, "Width");
+		lengthPanel = new FloatValuePanel(modelHandler, "Length");
+		latitudePanel = new FloatValuePanel(modelHandler, "Latitude");
+		variationPanel = new FloatValuePanel(modelHandler, "Variation");
+		speedPanel = new FloatValuePanel(modelHandler, "Speed");
+		gravityPanel = new FloatValuePanel(modelHandler, "Gravity");
+		emissionPanel = new FloatValuePanel(modelHandler, "EmissionRate");
+		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility");
 		topPanel.add(emissionPanel, "spanx, growx, wrap");
 		topPanel.add(speedPanel, "spanx, growx, wrap");
 		topPanel.add(gravityPanel, "spanx, growx, wrap");

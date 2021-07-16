@@ -58,6 +58,35 @@ public class ZoomableImagePreviewPanel extends JPanel {
 				scale *= pow;
 				adjustOffset(image);
 				repaint();
+
+
+////				double offX = image.getWidth(null) * scale * .2;
+////				double offY = image.getHeight(null) * scale * .2;
+////				offsetX = (int) Math.max(Math.min(offsetX, offX), -offX);
+////				offsetY = (int) Math.max(Math.min(offsetY, offY), -offY);
+//
+////				double wr = e.getPreciseWheelRotation();
+////
+//				int dir = e.getPreciseWheelRotation() < 0 ? -1 : 1;
+//
+////				double mouseX = e.getX();
+////				double mouseY = e.getY();
+//
+//				if(dir<0){
+//					double zoomAdjust = (1-pow) * dir / pow;
+////				double zoomAdjust = 1;
+//
+//					double w = e.getX() - (getWidth() / 1.0) ;
+//					double h = e.getY() - (getHeight() / 1.0);
+//
+//					offsetX += w * zoomAdjust / scale / (getWidth()/(float)getHeight());
+//					offsetY += h * zoomAdjust / scale;
+//				} else {
+//					offsetX -= offsetX/scale;
+//					offsetY -= offsetY/scale;
+//				}
+//				adjustOffset(image);
+//				repaint();
 			}
 
 			@Override

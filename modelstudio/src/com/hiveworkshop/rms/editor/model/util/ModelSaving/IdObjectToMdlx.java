@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model.util.ModelSaving;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.*;
 
 import java.util.ArrayList;
@@ -90,9 +89,11 @@ public class IdObjectToMdlx {
 		mdlxLight.type = light.getType();
 		mdlxLight.attenuation[0] = light.getAttenuationStart();
 		mdlxLight.attenuation[1] = light.getAttenuationEnd();
-		mdlxLight.color = ModelUtils.flipRGBtoBGR(light.getStaticColor().toFloatArray());
+//		mdlxLight.color = ModelUtils.flipRGBtoBGR(light.getStaticColor().toFloatArray());
+		mdlxLight.color = light.getStaticColor().toFloatArray();
 		mdlxLight.intensity = (float) light.getIntensity();
-		mdlxLight.ambientColor = ModelUtils.flipRGBtoBGR(light.getStaticAmbColor().toFloatArray());
+//		mdlxLight.ambientColor = ModelUtils.flipRGBtoBGR(light.getStaticAmbColor().toFloatArray());
+		mdlxLight.ambientColor = light.getStaticAmbColor().toFloatArray();
 		mdlxLight.ambientIntensity = (float) light.getAmbIntensity();
 
 		return mdlxLight;
@@ -213,7 +214,8 @@ public class IdObjectToMdlx {
 		mdlxEmitter.heightAbove = (float) ribbonEmitter.getHeightAbove();
 		mdlxEmitter.heightBelow = (float) ribbonEmitter.getHeightBelow();
 		mdlxEmitter.alpha = (float) ribbonEmitter.getAlpha();
-		mdlxEmitter.color = ModelUtils.flipRGBtoBGR(ribbonEmitter.getStaticColor().toFloatArray());
+//		mdlxEmitter.color = ModelUtils.flipRGBtoBGR(ribbonEmitter.getStaticColor().toFloatArray());
+		mdlxEmitter.color = ribbonEmitter.getStaticColor().toFloatArray();
 		mdlxEmitter.lifeSpan = (float) ribbonEmitter.getLifeSpan();
 		mdlxEmitter.emissionRate = ribbonEmitter.getEmissionRate();
 		mdlxEmitter.rows = ribbonEmitter.getRows();

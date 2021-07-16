@@ -76,8 +76,7 @@ public final class StaticMeshMoveAction implements GenericMoveAction {
 	}
 
 	@Override
-	public GenericMoveAction updateTranslation(Vec3 delta1) {
-		Vec3 delta = new Vec3(delta1);
+	public GenericMoveAction updateTranslation(Vec3 delta) {
 		moveVector.add(delta);
 //		moveVector.x += deltaX;
 //		moveVector.y += deltaY;

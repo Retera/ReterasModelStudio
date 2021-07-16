@@ -118,6 +118,10 @@ public class GeosetFactory {
 
 		for (int i = 0; i < facesVertIndices.length; i += 3) {
 //			Triangle triangle = new Triangle(facesVertIndices[i], facesVertIndices[i + 1], facesVertIndices[i + 2], geoset);
+			if(facesVertIndices[i] < 0 || facesVertIndices[i + 1] < 0 || facesVertIndices[i + 2] < 0 ||
+					facesVertIndices[i] > vertexList.size() || facesVertIndices[i + 1] > vertexList.size() || facesVertIndices[i + 2] > vertexList.size()){
+				continue;
+			}
 			Triangle triangle = new Triangle(
 					vertexList.get(facesVertIndices[i]),
 					vertexList.get(facesVertIndices[i + 1]),

@@ -20,10 +20,11 @@ public abstract class TTan<T> {
 	public float bias;
 	public float tension;
 	public float continuity; // Spline parameters
-	public Entry<T> prev;
+	protected Entry<T> prev;
 	public Entry<T> tang; // storage for tangents
+	private Entry<T> tang2; // storage for tangents
 	public Entry<T> cur;
-	public Entry<T> next; // Values in KK
+	protected Entry<T> next; // Values in KK
 	protected T deltaOut;
 	protected T deltaIn;
 	protected T logNNP;
@@ -35,13 +36,10 @@ public abstract class TTan<T> {
 		this.timeline = timeline;
 		Entry<T> value = timeline.getEntryMap().firstEntry().getValue();
 		tang = new Entry<>(value);
+		tang2 = new Entry<>(value);
 		cur = new Entry<>(value);
 		prev = new Entry<>(value);
 		next = new Entry<>(value);
-	}
-
-	public void setFromKF(int time) {
-		setFromKF2(time, timeline);
 	}
 
 	public static <Q> TTan<Q> getNewTTan(AnimFlag<Q> timeline) {
@@ -70,7 +68,7 @@ public abstract class TTan<T> {
 		return timeline;
 	}
 
-	public void setFromKF2(int time, AnimFlag<T> timeline) {
+	public void setFromKF(int time) {
 		TreeMap<Integer, Entry<T>> entryMap = timeline.getEntryMap();
 		if (timeline.getEntryAt(time) != null && entryMap.lowerKey(time) != null && entryMap.higherKey(time) != null) {
 			tang.setValues(timeline.getEntryAt(time));
@@ -102,20 +100,17 @@ public abstract class TTan<T> {
 		float[] f = getSplineF(t);
 
 		calculateInterp(itStart, itEnd, f);
+//		itEnd.value.scale(f[3]).addScaled(itStart.value, f[0]).addScaled(itStart.outTan, f[1]).addScaled(itEnd.inTan, f[2]);
 	}
 
 	protected float[] getSplineF(float t) {
 		float[] f = new float[4];
 
-//		float f1 = ((2 * t * t * t) - (3 * t * t)) + 1;
-//		float f2 = (t * t * t) - (2 * t * t * t);
-//		float f3 = (t * t * t) - (t * t);
-//		float f4 = (-2 * t * t * t) + (3 * t * t);
-//
-//		float f1b = ((2 * t - 3) * (t * t)) + 1;
-//		float f2b = (1 - 2) * (t * t * t);
-//		float f3b = (t - 1) * (t * t);
-//		float f4b = (3 - 2 * t) * (t * t);
+//		float[] fb = new float[4];
+//		fb[0] = ((2 * t - 3) * (t * t)) + 1;
+//		fb[1] = (1 - 2) * (t * t * t);
+//		fb[2] = (t - 1) * (t * t);
+//		fb[3] = (3 - 2 * t) * (t * t);
 
 		f[0] = ((2 * t * t * t) - (3 * t * t)) + 1;
 		f[1] = (t * t * t) - (2 * t * t * t);
@@ -124,8 +119,14 @@ public abstract class TTan<T> {
 		return f;
 	}
 
-	public float getTimeFactor(int currTime, Integer timeStart, Integer timeEnd) {
-		return (currTime - timeStart) / (float) (timeEnd - timeStart);
+	public float getTimeFactor(int time, Integer timeStart, Integer timeEnd) {
+		return (time - timeStart) / (float) (timeEnd - timeStart);
+	}
+
+	public void setTBC(float tension, float continuity, float bias){
+		this.tension = tension;
+		this.continuity = continuity;
+		this.bias = bias;
 	}
 
 	public float[] getTCB(int i) {
@@ -144,9 +145,6 @@ public abstract class TTan<T> {
 		return g;
 	}
 
-	private void initTang(int count) {
-	}
-
 	public void calcSplineParameters() {
 		float bMid = 0;
 		float bStart = -1;
@@ -158,10 +156,10 @@ public abstract class TTan<T> {
 			bMid = ((bEnd - bStart) * 0.5f) + bStart;
 
 			bias = bStart;
-			float vStart = calcWithConstBias(tang.deepCopy());
+			float vStart = calcWithConstBias();
 
 			bias = bEnd;
-			float vEnd = calcWithConstBias(tang.deepCopy());
+			float vEnd = calcWithConstBias();
 
 			if (vStart < vEnd) {
 				bEnd = bMid;
@@ -176,7 +174,7 @@ public abstract class TTan<T> {
 	public abstract void calcDerivative();
 
 
-	public float calcWithConstBias(Entry<T> tang2) {
+	public float calcWithConstBias() {
 		float cMin = 0;
 		float tMin = 0;
 		float cCur;
@@ -186,11 +184,12 @@ public abstract class TTan<T> {
 		float cCurEnd = 1;
 		float tCurBeg = -1;
 		float tCurEnd = 1;
-		float step = 0.1f;
 
 		float ds = 1e6f;
 
-		while (step > 0.001) {
+		tang2.setValues(tang);
+
+		for(float step = 0.1f; step>0.001; step *=0.1f){
 			cCur = cCurBeg;
 			do {
 				tCur = tCurBeg;
@@ -213,13 +212,49 @@ public abstract class TTan<T> {
 
 			tCurBeg = Math.max(tMin - step, -1);
 			tCurEnd = Math.min(tMin + step, 1);
-
-			step = step * 0.1f;
 		}
 
 		continuity = cMin;
 		tension = tMin;
-		tang.set(tang2);
+		tang.setValues(tang2);
+		return ds;
+	}
+	public float calcWithConstBias2() {
+		float contMin = 0;
+		float tensMin = 0;
+		float contCurBeg = -1;
+		float tensCurBeg = -1;
+		float contCurEnd = 1;
+		float tensCurEnd = 1;
+
+		float ds = 1e6f;
+
+		tang2.setValues(tang);
+
+		for(float step = 0.1f; step>0.001; step *=0.1f){
+			for(float cCur = contCurBeg; cCur <= contCurEnd; cCur += step){
+				for(float tCur = tensCurBeg; tCur <= tensCurEnd; tCur += step){
+					continuity = cCur;
+					tension = tCur;
+					float delta = getDelta(tang2);
+					if (delta < ds) {
+						ds = delta;
+						contMin = cCur;
+						tensMin = tCur;
+					}
+				}
+			}
+
+			contCurBeg = Math.max(contMin - step, -1);
+			tensCurBeg = Math.max(tensMin - step, -1);
+
+			contCurEnd = Math.min(contMin + step, 1);
+			tensCurEnd = Math.min(tensMin + step, 1);
+		}
+
+		continuity = contMin;
+		tension = tensMin;
+		tang.setValues(tang2);
 		return ds;
 	}
 

@@ -78,7 +78,7 @@ public class PreviewPanel extends JPanel {
 	}
 
 	public BufferedImage getBufferedImage() {
-		return perspectiveViewport.getBufferedImage();
+		return ViewportRenderExporter.getBufferedImage(perspectiveViewport);
 	}
 
 	public enum LoopType {

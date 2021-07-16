@@ -16,6 +16,8 @@ public class CollisionShape extends IdObject {
 	ExtLog extents;
 	Type type = Type.BOX;
 	List<Vec3> vertices = new ArrayList<>();
+	Vec3 vertex1 = new Vec3();
+	Vec3 vertex2 = new Vec3();
 
 	public CollisionShape(CollisionShape shape) {
 		super(shape);
@@ -23,6 +25,8 @@ public class CollisionShape extends IdObject {
 		type = shape.type;
 
 		vertices = new ArrayList<>(shape.vertices);
+		vertex1.set(shape.vertex1);
+		vertex2.set(shape.vertex2);
 
 		if (shape.extents != null) {
 			extents = shape.extents.deepCopy();

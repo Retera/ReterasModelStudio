@@ -126,6 +126,7 @@ public class JCheckBoxTree extends JTree {
 		return new MouseAdapter() {
 			@Override
 			public void mouseClicked(final MouseEvent e) {
+//				System.out.println("click: " + JCheckBoxTree.this.getPathForLocation(e.getX(), e.getY()));
 			}
 
 			@Override
@@ -138,6 +139,12 @@ public class JCheckBoxTree extends JTree {
 
 			@Override
 			public void mousePressed(final MouseEvent e) {
+//				System.out.println("press: " + JCheckBoxTree.this.getPathForLocation(e.getX(), e.getY()));
+			}
+
+			@Override
+			public void mouseDragged(final MouseEvent e) {
+//				System.out.println("drag: " + JCheckBoxTree.this.getPathForLocation(e.getX(), e.getY()));
 			}
 
 			@Override

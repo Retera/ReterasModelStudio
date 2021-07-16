@@ -239,10 +239,10 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 			button.addActionListener(e -> copyFromOther());
 			panel.add(button, "wrap");
 
-			FloatValuePanel alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager());
+			FloatValuePanel alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA);
 			panel.add(alphaPanel, "wrap, span 2");
 
-			ColorValuePanel colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR, modelHandler.getUndoManager());
+			ColorValuePanel colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR);
 			panel.add(colorPanel, "wrap, span 2");
 
 			alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), (FloatAnimFlag) geosetAnim.find(MdlUtils.TOKEN_ALPHA), geosetAnim, MdlUtils.TOKEN_ALPHA, geosetAnim::setStaticAlpha);

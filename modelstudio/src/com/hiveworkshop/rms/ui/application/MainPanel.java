@@ -8,10 +8,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayL
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType2;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.util.StringViewMap;
@@ -41,11 +38,11 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     final StringViewMap viewMap;
     final RootWindow rootWindow;
 
-    public ModelEditorActionType2 actionType;
-    JButton snapButton;
-    ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeGroup;
-    ToolbarButtonGroup2<SelectionMode> selectionModeGroup;
-    public ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup;
+//    public ModelEditorWidgetType actionType;
+//    JButton snapButton;
+//    ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeGroup;
+//    ToolbarButtonGroup2<SelectionMode> selectionModeGroup;
+//    public ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup;
 
 //    private TimeSliderPanel timeSliderPanel;
 
@@ -53,10 +50,11 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
     final ViewportListener viewportListener = new ViewportListener();
 
-    public MainPanel() {
+    public MainPanel(JToolBar toolBar) {
         super();
         setLayout(new MigLayout("fill, ins 0, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
-        add(ToolBar.createJToolBar(this));
+//        add(ToolBar.createJToolBar(this));
+        add(toolBar);
 
         mainPanelLinkActions = new MainPanelLinkActions();
 
@@ -95,10 +93,10 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
         add(rootWindow);
 
-        selectionItemTypeGroup.addToolbarButtonListener(this::selectionItemTypeGroupActionRes);
-
-        actionTypeGroup.addToolbarButtonListener(newType -> mainPanelLinkActions.changeTransformMode(newType, this));
-        actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
+//        selectionItemTypeGroup.addToolbarButtonListener(this::selectionItemTypeGroupActionRes);
+//
+//        actionTypeGroup.addToolbarButtonListener(newType -> mainPanelLinkActions.changeTransformMode(newType, this));
+//        actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
 
         viewportTransferHandler = new ViewportTransferHandler();
         coordDisplayListener = (coordSys, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, coordSys, value1, value2);
@@ -217,8 +215,8 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         return super.getRootPane();
     }
 
-    private void selectionItemTypeGroupActionRes(SelectionItemTypes newType) {
-        animationModeState = newType == SelectionItemTypes.ANIMATE;
+    public void selectionItemTypeGroupActionRes(SelectionItemTypes newType) {
+//        animationModeState = newType == SelectionItemTypes.ANIMATE;
         // we need to refresh the state of stuff AFTER the ModelPanels, this is a pretty signficant design flaw,
         // so we're just going to post to the EDT to get behind them (they're called on the same notifier as this method)
         SwingUtilities.invokeLater(() -> ModelLoader.refreshAnimationModeState());

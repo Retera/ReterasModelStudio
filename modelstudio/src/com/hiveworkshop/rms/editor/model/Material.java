@@ -3,6 +3,8 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
+import com.hiveworkshop.rms.util.ImageCreator;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -298,7 +300,17 @@ public class Material {
                     theImage = newImage;
                 } else {
                     if (newImage != null) {
-                        theImage = mergeImage(theImage, newImage);
+                    	if (tex != null) System.out.println(tex.getName());
+                    	if(lay.getFilterMode() == MdlxLayer.FilterMode.MODULATE){
+		                    System.out.println("modulate!");
+                    		theImage = ImageCreator.modulate(theImage, newImage);
+	                    } else if(lay.getFilterMode() == MdlxLayer.FilterMode.MODULATE2X) {
+		                    theImage = ImageCreator.modulateX2(theImage, newImage);
+	                    } else if(lay.getFilterMode() == MdlxLayer.FilterMode.ADDITIVE) {
+		                    theImage = ImageCreator.additative(theImage, newImage);
+	                    } else {
+		                    theImage = mergeImage(theImage, newImage);
+	                    }
                     }
                 }
             }

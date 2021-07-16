@@ -190,7 +190,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 //			UndoAction undoAction = mpanel.getModelEditorManager().getModelEditor().createKeyframe(mainPanel.actionTypeGroup.getActiveButtonType());
 
 //			UndoAction undoAction = new AddKeyframeAction2(mpanel.getModelHandler(), mainPanel.actionTypeGroup.getActiveButtonType());
-			UndoAction undoAction = new AddKeyframeAction3(mpanel.getModelHandler(), mainPanel.actionTypeGroup.getActiveButtonType());
+			UndoAction undoAction = new AddKeyframeAction3(mpanel.getModelHandler(), mpanel.getEditorActionType());
 			mpanel.getUndoManager().pushAction(undoAction.redo());
 			mpanel.repaintSelfAndRelatedChildren();
 		}

@@ -1,11 +1,16 @@
 package com.hiveworkshop.rms.util;
 
 public class Mat4 {
+//	public float
+//			m00 = 1.0f, m01 = 0.0f, m02 = 0.0f, m03 = 0.0f,
+//			m10 = 0.0f, m11 = 1.0f, m12 = 0.0f, m13 = 0.0f,
+//			m20 = 0.0f, m21 = 0.0f, m22 = 1.0f, m23 = 0.0f,
+//			m30 = 0.0f, m31 = 0.0f, m32 = 0.0f, m33 = 1.0f;
 	public float
-			m00 = 1.0f, m01 = 0.0f, m02 = 0.0f, m03 = 0.0f,
-			m10 = 0.0f, m11 = 1.0f, m12 = 0.0f, m13 = 0.0f,
-			m20 = 0.0f, m21 = 0.0f, m22 = 1.0f, m23 = 0.0f,
-			m30 = 0.0f, m31 = 0.0f, m32 = 0.0f, m33 = 1.0f;
+		m00 = 1.0f, m10 = 0.0f, m20 = 0.0f, m30 = 0.0f,
+		m01 = 0.0f, m11 = 1.0f, m21 = 0.0f, m31 = 0.0f,
+		m02 = 0.0f, m12 = 0.0f, m22 = 1.0f, m32 = 0.0f,
+		m03 = 0.0f, m13 = 0.0f, m23 = 0.0f, m33 = 1.0f;
 
 	public Mat4() {
 	}
@@ -55,6 +60,16 @@ public class Mat4 {
 		return this;
 	}
 
+
+	public Mat4 setFromBindPose(final float[] a) {
+		set(
+				a[0], a[ 1], a[ 2], m03,
+				a[3], a[ 4], a[ 5], m13,
+				a[6], a[ 7], a[ 8], m23,
+				a[9], a[10], a[11], m33);
+		return this;
+	}
+
 	public Mat4 set(final float m00, final float m01, final float m02, final float m03,
 	                final float m10, final float m11, final float m12, final float m13,
 	                final float m20, final float m21, final float m22, final float m23,
@@ -63,14 +78,17 @@ public class Mat4 {
 		this.m01 = m01;
 		this.m02 = m02;
 		this.m03 = m03;
+
 		this.m10 = m10;
 		this.m11 = m11;
 		this.m12 = m12;
 		this.m13 = m13;
+
 		this.m20 = m20;
 		this.m21 = m21;
 		this.m22 = m22;
 		this.m23 = m23;
+
 		this.m30 = m30;
 		this.m31 = m31;
 		this.m32 = m32;
@@ -418,5 +436,39 @@ public class Mat4 {
 				m10, m11, m12, m13,
 				m20, m21, m22, m23,
 				m30, m31, m32, m33};
+	}
+
+	public void printMatrix(){
+		String s = "" +
+		"\u23A1" + m00 + "\t" + m01 + "\t" + m02 + "\t" + m03 + "\u23A4\n" +
+		"\u23A2" + m10 + "\t" + m11 + "\t" + m12 + "\t" + m13 + "\u23A5\n" +
+		"\u23A2" + m20 + "\t" + m21 + "\t" + m22 + "\t" + m23 + "\u23A5\n" +
+		"\u23A3" + m30 + "\t" + m31 + "\t" + m32 + "\t" + m33 + "\u23A6\n";
+		String s2 = "" +
+		"\u23A1" + m00 + "\t" + m10 + "\t" + m20 + "\t" + m30 + "\u23A4\n" +
+		"\u23A2" + m01 + "\t" + m11 + "\t" + m21 + "\t" + m31 + "\u23A5\n" +
+		"\u23A2" + m02 + "\t" + m12 + "\t" + m22 + "\t" + m32 + "\u23A5\n" +
+		"\u23A3" + m03 + "\t" + m13 + "\t" + m23 + "\t" + m33 + "\u23A6\n";
+		System.out.println(s);
+	}
+
+	public Mat4 setAsProjection(Vec4 v){
+		m00 = v.x * v.x;
+		m01 = v.y * v.x;
+		m02 = v.z * v.x;
+		m03 = v.w * v.x;
+		m10 = v.x * v.y;
+		m11 = v.y * v.y;
+		m12 = v.z * v.y;
+		m13 = v.w * v.y;
+		m20 = v.x * v.z;
+		m21 = v.y * v.z;
+		m22 = v.z * v.z;
+		m23 = v.w * v.z;
+		m30 = v.x * v.w;
+		m31 = v.y * v.w;
+		m32 = v.z * v.w;
+		m33 = v.w * v.w;
+		return this;
 	}
 }

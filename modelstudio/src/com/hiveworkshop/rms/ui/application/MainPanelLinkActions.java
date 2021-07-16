@@ -146,9 +146,9 @@ public class MainPanelLinkActions {
 
 	private void unAltSelect() {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		if ((mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.DESELECT) && mainPanel.cheatAlt) {
+		if ((ProgramGlobals.getSelectionMode() == SelectionMode.DESELECT) && mainPanel.cheatAlt) {
 //					mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
-			mainPanel.selectionModeGroup.setActiveButton(SelectionMode.SELECT);
+			ProgramGlobals.setSelectionModeButton(SelectionMode.SELECT);
 			mainPanel.cheatAlt = false;
 		}
 	}
@@ -156,18 +156,18 @@ public class MainPanelLinkActions {
 	private void unShiftSelectActionRes() {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if (isTextField()) return;
-		if ((mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.ADD) && mainPanel.cheatShift) {
+		if ((ProgramGlobals.getSelectionMode() == SelectionMode.ADD) && mainPanel.cheatShift) {
 //			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.SELECT);
-			mainPanel.selectionModeGroup.setActiveButton(SelectionMode.SELECT);
+			ProgramGlobals.setSelectionModeButton(SelectionMode.SELECT);
 			mainPanel.cheatShift = false;
 		}
 	}
 
 	private void altSelectActionRes() {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		if (mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
+		if (ProgramGlobals.getSelectionMode() == SelectionMode.SELECT) {
 //			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.DESELECT);
-			mainPanel.selectionModeGroup.setActiveButton(SelectionMode.DESELECT);
+			ProgramGlobals.setSelectionModeButton(SelectionMode.DESELECT);
 			mainPanel.cheatAlt = true;
 		}
 	}
@@ -175,9 +175,9 @@ public class MainPanelLinkActions {
 	private void shiftSelectActionRes() {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if (isTextField()) return;
-		if (mainPanel.selectionModeGroup.getActiveButtonType() == SelectionMode.SELECT) {
+		if (ProgramGlobals.getSelectionMode() == SelectionMode.SELECT) {
 //			mainPanel.selectionModeGroup.setToolbarButtonType(SelectionMode.ADD);
-			mainPanel.selectionModeGroup.setActiveButton(SelectionMode.ADD);
+			ProgramGlobals.setSelectionModeButton(SelectionMode.ADD);
 			mainPanel.cheatShift = true;
 		}
 	}
@@ -195,7 +195,7 @@ public class MainPanelLinkActions {
 
 	private void createFace() {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		if (!isTextField() && !mainPanel.animationModeState) {
+		if (!isTextField() && !isAnimationModeState(mainPanel)) {
 			try {
 				ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 				if (modelPanel != null) {
@@ -213,6 +213,10 @@ public class MainPanelLinkActions {
 		}
 	}
 
+	private boolean isAnimationModeState(MainPanel mainPanel) {
+		return ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE;
+	}
+
 	private AbstractAction toggleWireFrame() {
 		return getAsAction(() -> {
 			if (!isTextField())
@@ -225,15 +229,15 @@ public class MainPanelLinkActions {
 		return getAsAction(() ->
 		{
 			if (!isTextField())
-				mainPanel.selectionItemTypeGroup.setActiveButton(t);
+				ProgramGlobals.setSelectionTypeButton(t);
 		});
 	}
 
 	private AbstractAction setTransformMode(ModelEditorActionType3 t) {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		return getAsAction(() -> {
-			if (!isTextField() && !mainPanel.animationModeState) {
-				mainPanel.actionTypeGroup.setActiveButton(t);
+			if (!isTextField() && !isAnimationModeState(mainPanel)) {
+				ProgramGlobals.setEditorActionTypeButton(t);
 			}
 		});
 	}
@@ -241,7 +245,7 @@ public class MainPanelLinkActions {
 	private AbstractAction setTransformModeAnim(ModelEditorActionType3 t) {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		return getAsAction(() -> {
-			if (!isTextField()) mainPanel.actionTypeGroup.setActiveButton(t);
+			if (!isTextField()) ProgramGlobals.setEditorActionTypeButton(t);
 		});
 	}
 
@@ -257,7 +261,7 @@ public class MainPanelLinkActions {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		return getAsAction(() -> {
-			if (!isTextField() && mainPanel.animationModeState) {
+			if (!isTextField() && isAnimationModeState(mainPanel)) {
 				mainLayoutCreator.getTimeSliderPanel().jumpFrames(i);
 			}
 		});
@@ -267,7 +271,7 @@ public class MainPanelLinkActions {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		return getAsAction(() -> {
-			if (!isTextField() && mainPanel.animationModeState) {
+			if (!isTextField() && isAnimationModeState(mainPanel)) {
 				mainLayoutCreator.getTimeSliderPanel().jumpToPreviousTime();
 			}
 		});
@@ -277,7 +281,7 @@ public class MainPanelLinkActions {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		return getAsAction(() -> {
-			if (!isTextField() && mainPanel.animationModeState) mainLayoutCreator.getTimeSliderPanel().jumpToNextTime();
+			if (!isTextField() && isAnimationModeState(mainPanel)) mainLayoutCreator.getTimeSliderPanel().jumpToNextTime();
 		});
 	}
 
@@ -392,7 +396,7 @@ public class MainPanelLinkActions {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			if (mainPanel.animationModeState) {
+			if (isAnimationModeState(mainPanel)) {
 				mainPanel.getMainLayoutCreator().getTimeSliderPanel().deleteSelectedKeyframes();
 			} else {
 				ModelView modelView = modelPanel.getModelView();

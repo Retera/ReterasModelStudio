@@ -108,6 +108,7 @@ public final class ModelUtils {
 		model.add(geoset);
 		if (!model.contains(whiteMaterial)) {
 			model.add(whiteMaterial);
+			model.add(whiteMaterial.getLayers().get(0).getTextureBitmap());
 		}
 	}
 
@@ -198,6 +199,7 @@ public final class ModelUtils {
 		model.add(geoset);
 		if (!model.contains(whiteMaterial)) {
 			model.add(whiteMaterial);
+			model.add(whiteMaterial.getLayers().get(0).getTextureBitmap());
 		}
 	}
 

@@ -5,6 +5,8 @@ import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.Arrays;
+
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
  * Rotation. AnimFlags are not "real" things from an MDL and are given this name
@@ -165,11 +167,16 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 
 		cur.inTan.set(currPrev).scale(factor[0]).addScaled(nextCurr, factor[1]);
 		cur.outTan.set(currPrev).scale(factor[2]).addScaled(nextCurr, factor[3]);
+		System.out.println("currPrev: " + currPrev);
+		System.out.println("nextCurr: " + nextCurr);
+		System.out.println("factor: " + Arrays.toString(factor));
 
 		if (next != null && prev != null && !next.time.equals(prev.time)) {
 			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
 			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
 			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;
+
+			System.out.println("timeBetweenFrames: " + timeBetweenFrames);
 
 			float inAdj = 2 * timeToPrevFrame / timeBetweenFrames;
 			float outAdj = 2 * timeToNextFrame / timeBetweenFrames;

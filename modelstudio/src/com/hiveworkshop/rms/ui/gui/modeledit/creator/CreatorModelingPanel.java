@@ -43,9 +43,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 	private final CardLayout northCardLayout;
 	private final JPanel northCardPanel;
 
-	public CreatorModelingPanel(ModelEditorChangeActivityListener listener,
-	                            ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup,
-	                            ViewportListener viewportListener) {
+	public CreatorModelingPanel(ViewportListener viewportListener) {
 		this.programPreferences = ProgramGlobals.getPrefs();
 
 		setLayout(new BorderLayout());
@@ -73,7 +71,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		modeCardPanel = new JPanel(modeCardLayout);
 		add(modeCardPanel, BorderLayout.CENTER);
 
-		makeMeshBasicsPanel(actionTypeGroup, viewportListener, modeChooserBoxModel, modeCardPanel);
+		makeMeshBasicsPanel(viewportListener, modeChooserBoxModel, modeCardPanel);
 
 		JPanel drawPrimitivesPanel = new JPanel(new GridLayout(16, 1));
 		drawPrimitivesPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
@@ -97,7 +95,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 
 		modeChooserBox.addActionListener(e -> modeCardLayout.show(modeCardPanel, modeChooserBox.getSelectedItem().toString()));
 
-		makeAnimationBasicsPanel(listener, actionTypeGroup, viewportListener, modeChooserBoxModel, modeCardPanel);
+		makeAnimationBasicsPanel(modeCardPanel);
 
 		modeCardLayout.show(modeCardPanel, modeChooserBoxModel.getElementAt(0));
 	}
@@ -110,8 +108,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 	}
 
-	public void makeMeshBasicsPanel(ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup,
-	                                ViewportListener viewportListener,
+	public void makeMeshBasicsPanel(ViewportListener viewportListener,
 	                                DefaultComboBoxModel<String> modeChooserBoxModel,
 	                                JPanel cardPanel) {
 		JPanel meshBasicsPanel = new JPanel(new BorderLayout());
@@ -124,7 +121,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		editToolsPanel.setBorder(BorderFactory.createTitledBorder("Manipulate"));
 
 
-		for (ModeButton2 modeButton2 : actionTypeGroup.getModeButtons()) {
+		for (ModeButton2 modeButton2 : ProgramGlobals.getActionTypeGroup().getModeButtons()) {
 			editToolsPanel.add(modeButton2);
 		}
 
@@ -208,13 +205,12 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 	}
 
-	public void makeAnimationBasicsPanel(ModelEditorChangeActivityListener listener,
-	                                     ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup,
-	                                     ViewportListener viewportListener, DefaultComboBoxModel<String> modeChooserBoxModel,
-	                                     JPanel cardPanel) {
+	public void makeAnimationBasicsPanel(JPanel cardPanel) {
 //		JPanel meshBasicsPanel = new JPanel(new BorderLayout());
 		JPanel meshBasicsPanel = new JPanel(new MigLayout("fill"));
 		cardPanel.add(meshBasicsPanel, ANIMATIONBASICS);
+
+		ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup = ProgramGlobals.getActionTypeGroup();
 
 		JPanel editToolsPanel = new JPanel(new MigLayout("debug, fill"));
 		editToolsPanel.setBorder(BorderFactory.createTitledBorder("Manipulate"));

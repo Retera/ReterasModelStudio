@@ -19,6 +19,7 @@ import com.hiveworkshop.rms.ui.application.scripts.ChangeAnimationLengthFrame;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.*;
 import net.miginfocom.swing.MigLayout;
@@ -174,7 +175,7 @@ public class ScriptActions {
 
 	public static void exportAnimatedToStaticMesh() {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		if (!mainPanel.animationModeState) {
+		if (!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
 			JOptionPane.showMessageDialog(mainPanel, "You must be in the Animation Editor to use that!",
 					"Error", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -307,7 +308,7 @@ public class ScriptActions {
 	}
 
 	public static void scaleAnimations() {
-		ChangeAnimationLengthFrame aFrame = new ChangeAnimationLengthFrame(ProgramGlobals.getCurrentModelPanel(), () -> ProgramGlobals.getMainPanel().getMainLayoutCreator().getTimeSliderPanel().revalidateKeyframeDisplay());
+		ChangeAnimationLengthFrame aFrame = new ChangeAnimationLengthFrame(ProgramGlobals.getCurrentModelPanel());
 		aFrame.setVisible(true);
 	}
 

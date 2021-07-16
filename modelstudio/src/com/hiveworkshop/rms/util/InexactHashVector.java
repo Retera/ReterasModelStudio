@@ -16,6 +16,11 @@ public class InexactHashVector {
 		z = vertex.z;
 		this.precision = precision;
 	}
+	public InexactHashVector(Vec3 vertex, float precision) {
+		x = ((int)(vertex.x / precision)) * precision;
+		y = ((int)(vertex.y / precision)) * precision;
+		z = ((int)(vertex.z / precision)) * precision;
+	}
 
 	public float[] getValues() {
 		return new float[] {x, y, z};

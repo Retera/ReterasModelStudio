@@ -26,7 +26,7 @@ public abstract class RenderSharedGeometryEmitter<MODEL_OBJECT extends EmitterId
 
 	@Override
 	public void updateData() {
-		final int sizeNeeded = alive * elementsPerEmit;
+		int sizeNeeded = alive * elementsPerEmit;
 
 		if (data.length < sizeNeeded) {
 			data = new float[powerOfTwo(sizeNeeded)];
@@ -37,28 +37,48 @@ public abstract class RenderSharedGeometryEmitter<MODEL_OBJECT extends EmitterId
 		}
 
 		for (int i = 0, offset = 0; i < alive; i += 1, offset += 30) {
-			final EmittedObject<EMITTER_VIEW> object = objects.get(i);
-			final Vec3[] verticesV = object.verticesV;
-			final float lta = object.lta;
-			final float lba = object.lba;
-			final float rta = object.rta;
-			final float rba = object.rba;
-			final float rgb = object.rgb;
+			EmittedObject<EMITTER_VIEW> object = objects.get(i);
+			Vec3[] verticesV = object.verticesV;
+			float lta = object.lta;
+			float lba = object.lba;
+			float rta = object.rta;
+			float rba = object.rba;
+			float rgb = object.rgb;
 
+			fillRenderData(offset, verticesV, lta, lba, rta, rba, rgb);
+		}
+	}
+
+	private void fillRenderData(int offset, Vec3[] verticesV, float lta, float lba, float rta, float rba, float rgb) {
+		if(renderData[(offset / 5) + 5] == null){
 			renderData[(offset / 5) + 0] = new RenderData(verticesV[0], lta, rgb);
 			renderData[(offset / 5) + 1] = new RenderData(verticesV[1], lba, rgb);
 			renderData[(offset / 5) + 2] = new RenderData(verticesV[2], rba, rgb);
 			renderData[(offset / 5) + 3] = new RenderData(verticesV[0], lta, rgb);
 			renderData[(offset / 5) + 4] = new RenderData(verticesV[2], rba, rgb);
 			renderData[(offset / 5) + 5] = new RenderData(verticesV[3], rta, rgb);
+		} else {
+			renderData[(offset / 5) + 0].set(verticesV[0], lta, rgb);
+			renderData[(offset / 5) + 1].set(verticesV[1], lba, rgb);
+			renderData[(offset / 5) + 2].set(verticesV[2], rba, rgb);
+			renderData[(offset / 5) + 3].set(verticesV[0], lta, rgb);
+			renderData[(offset / 5) + 4].set(verticesV[2], rba, rgb);
+			renderData[(offset / 5) + 5].set(verticesV[3], rta, rgb);
 		}
 	}
 
 	@Override
-	public void render(final RenderModel modelView, final ParticleEmitterShader shader) {
+	public void render(RenderModel modelView, ParticleEmitterShader shader) {
 		if ((internalResource != null) && (alive > 0)) {
-			shader.renderParticles(modelObject.getBlendSrc(), modelObject.getBlendDst(), modelObject.getRows(),
-					modelObject.getCols(), internalResource, renderData, modelObject.isRibbonEmitter(), alive * 6);
+//			shader.renderParticles(modelObject.getBlendSrc(),
+//					modelObject.getBlendDst(),
+//					modelObject.getRows(),
+//					modelObject.getCols(),
+//					internalResource,
+//					renderData,
+//					modelObject.isRibbonEmitter(),
+//					alive * 6);
+			shader.renderParticles(modelObject, internalResource, renderData, alive * 6);
 		}
 	}
 
@@ -84,6 +104,13 @@ public abstract class RenderSharedGeometryEmitter<MODEL_OBJECT extends EmitterId
 			this.v = v;
 			this.uv = uv;
 			this.color = color;
+		}
+
+		RenderData set(Vec3 v, float uv, float color) {
+			this.v = v;
+			this.uv = uv;
+			this.color = color;
+			return this;
 		}
 
 		@Override

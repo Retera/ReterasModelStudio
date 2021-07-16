@@ -102,6 +102,26 @@ public class Quat extends Vec4 {
 		return this;
 	}
 
+	public Vec3 wikiToEuler(){
+		// roll (x-axis rotation)
+		double sinr_cosp = 2 * (w * x + y * z);
+		double cosr_cosp = 1 - 2 * (x * x + y * y);
+		double roll = Math.atan2(sinr_cosp, cosr_cosp);
+
+		// pitch (y-axis rotation)
+		double sinp = 2 * (w * y - z * x);
+		// use 90 degrees if out of range
+		double pitch = Math.abs(sinp) >= 1 ? Math.copySign(Math.PI / 2, sinp) : Math.asin(sinp);
+
+
+		// yaw (z-axis rotation)
+		double siny_cosp = 2 * (w * z + x * y);
+		double cosy_cosp = 1 - 2 * (y * y + z * z);
+		double yaw = Math.atan2(siny_cosp, cosy_cosp);
+
+		return new Vec3(roll, pitch, yaw);
+	}
+
 	public Vec3 toEuler() {
 		// Wikipedia formula
 		double roll = (Math.atan2(2.0 * ((x * y) + (z * w)), 1 - (2.0 * ((y * y) + (z * z)))));
@@ -123,6 +143,8 @@ public class Quat extends Vec4 {
 		// double roll = (Math.atan2( 2.0 * ( d * a + b * c ), 1 - 2.0 * ( a * a + b * b ) ) );
 		// double pitch = (Math.asin( 2.0 * ( d * b - c * a ) ) );
 		// double yaw = (Math.atan2( 2.0 * ( d * c + a * b ), 1 - 2.0 * ( b * b + c * c) ) );
+
+
 
 		// //www.eulideanspace.com formula
 		// double bank = (Math.atan2( 2.0 * ( a * b - c * d ), 1 - 2.0 * ( b * b + d * d ) ) );
@@ -153,14 +175,6 @@ public class Quat extends Vec4 {
 
 		slerp(toward, t);
 		return slerp(temp, 2 * t * (1 - t));
-	}
-
-	public Quat mul(final Quat a) {
-		float newX = (x * a.w) + (w * a.x) + (y * a.z) - (z * a.y);
-		float newY = (y * a.w) + (w * a.y) + (z * a.x) - (x * a.z);
-		float newZ = (z * a.w) + (w * a.z) + (x * a.y) - (y * a.x);
-		float newW = (w * a.w) - (x * a.x) - (y * a.y) - (z * a.z);
-		return (Quat) set(newX, newY, newZ, newW);
 	}
 
 	public Quat slerp(Quat toward, float t) {
@@ -206,6 +220,15 @@ public class Quat extends Vec4 {
 		return (Quat) new Quat(a).invertRotation().scale(len);
 	}
 
+
+	public Quat mul(final Quat a) {
+		float newX = (x * a.w) + (w * a.x) + (y * a.z) - (z * a.y);
+		float newY = (y * a.w) + (w * a.y) + (z * a.x) - (x * a.z);
+		float newZ = (z * a.w) + (w * a.z) + (x * a.y) - (y * a.x);
+		float newW = (w * a.w) - (x * a.x) - (y * a.y) - (z * a.z);
+		return (Quat) set(newX, newY, newZ, newW);
+	}
+
 	public Quat mulLeft(Quat quat) {
 		float newX = (quat.x * w) + (quat.w * x) + (quat.y * z) - (quat.z * y);
 		float newY = (quat.y * w) + (quat.w * y) + (quat.z * x) - (quat.x * z);
@@ -248,6 +271,10 @@ public class Quat extends Vec4 {
 		z = -z;
 		return this;
 	}
+	public Quat invertRotation2() {
+		w = -w;
+		return this;
+	}
 
 	public Quat setFromAxisAngle(final Vec3 axis, final float angle) {
 		return setFromAxisAngle(axis.x, axis.y, axis.z, angle);
@@ -257,7 +284,7 @@ public class Quat extends Vec4 {
 		return setFromAxisAngle(axis.x, axis.y, axis.z, axis.w);
 	}
 
-	public Quat setFromAxisAngle(final float ax, final float ay, final float az, final float angle) {
+	public Quat setFromAxisAngle(float ax, float ay, float az, float angle) {
 		float halfAngle = angle / 2;
 		float sinOfHalfAngle = (float) Math.sin(halfAngle);
 		x = ax * sinOfHalfAngle;
@@ -265,6 +292,23 @@ public class Quat extends Vec4 {
 		z = az * sinOfHalfAngle;
 		w = (float) Math.cos(halfAngle);
 		return this;
+	}
+
+	public Quat setFromAxisAngle2(float ax, float ay, float az, float angle) {
+		float sinOfHalfAngle = (float) Math.sin(angle / 2);
+		x = ax * sinOfHalfAngle;
+		y = ay * sinOfHalfAngle;
+		z = az * sinOfHalfAngle;
+		w = (float) Math.cos(angle / 2);
+		return this;
+	}
+	public Vec4 toAxisWithAngle() {
+		float angle = (float) Math.acos(w) * 2;
+		float sinOfHalfAngle = (float) Math.sin(angle / 2);
+		float ax = x / sinOfHalfAngle;
+		float ay = y / sinOfHalfAngle;
+		float az = z / sinOfHalfAngle;
+		return new Vec4(ax, ay, az, angle);
 	}
 
 	public Quat setIdentity() {

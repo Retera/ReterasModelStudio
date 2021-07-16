@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.editor.model.util.ModelSaving;
 
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
 
@@ -79,7 +78,8 @@ public class MaterialToMdlx {
 		// > 800
 		mdlxLayer.emissiveGain = (float) layer.getEmissive();
 		// > 900
-		mdlxLayer.fresnelColor = ModelUtils.flipRGBtoBGR(layer.getFresnelColor().toFloatArray());
+//		mdlxLayer.fresnelColor = ModelUtils.flipRGBtoBGR(layer.getFresnelColor().toFloatArray());
+		mdlxLayer.fresnelColor = layer.getFresnelColor().toFloatArray();
 		mdlxLayer.fresnelOpacity = (float) layer.getFresnelOpacity();
 		mdlxLayer.fresnelTeamColor = (float) layer.getFresnelTeamColor();
 

@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.editor.model.util.ModelSaving;
 
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeoset;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeosetAnimation;
 import com.hiveworkshop.rms.util.Vec2;
@@ -34,6 +33,9 @@ public class GeosetToMdlx {
 
 		for (int vId = 0; vId < numVertices; vId++) {
 			final GeosetVertex vertex = geoset.getVertex(vId);
+			if(!vertex.isValid()){
+				vertex.set(0,0,0);
+			}
 
 			mdlxGeoset.vertices[(vId * 3) + 0] = vertex.x;
 			mdlxGeoset.vertices[(vId * 3) + 1] = vertex.y;
@@ -65,6 +67,9 @@ public class GeosetToMdlx {
 		for (final Triangle tri : geoset.getTriangles()) {
 			for (int v = 0; v < /* tri.size() */3; v++) {
 				mdlxGeoset.faces[faceIndex++] = tri.getId(v);
+				if(tri.getId(v) < 0){
+					mdlxGeoset.faces[faceIndex-1] = 0;
+				}
 			}
 		}
 
@@ -141,7 +146,8 @@ public class GeosetToMdlx {
 			animation.flags |= 0x2;
 		}
 
-		animation.color = ModelUtils.flipRGBtoBGR(geosetAnim.getStaticColor().toFloatArray());
+//		animation.color = ModelUtils.flipRGBtoBGR(geosetAnim.getStaticColor().toFloatArray());
+		animation.color = geosetAnim.getStaticColor().toFloatArray();
 
 		geosetAnim.timelinesToMdlx(animation);
 

@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 
 public abstract class ViewportView extends JPanel {
 
+	private final double ZOOM_FACTOR = 1.15;
 	protected CoordinateSystem coordinateSystem;
 
 	protected boolean mouseInBounds = false;
@@ -253,7 +254,7 @@ public abstract class ViewportView extends JPanel {
 				double mouseY = e.getY();
 
 				for (int i = 0; i < wr * dir; i++) {
-					double zoomAdjust = .15 * dir / 1.15;
+					double zoomAdjust = (ZOOM_FACTOR - 1) * dir / ZOOM_FACTOR;
 
 					double w = mouseX - (getWidth() / 2.0) ;
 					double h = mouseY - (getHeight() / 2.0);
@@ -261,9 +262,9 @@ public abstract class ViewportView extends JPanel {
 					coordinateSystem.translateZoomed(w * zoomAdjust, h * zoomAdjust);
 
 					if (dir == -1) {
-						coordinateSystem.zoomIn(1.15);
+						coordinateSystem.zoomIn(ZOOM_FACTOR);
 					} else {
-						coordinateSystem.zoomOut(1.15);
+						coordinateSystem.zoomOut(ZOOM_FACTOR);
 					}
 				}
 			}

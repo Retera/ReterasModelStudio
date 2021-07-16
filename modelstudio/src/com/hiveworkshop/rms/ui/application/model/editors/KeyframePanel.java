@@ -256,11 +256,12 @@ public class KeyframePanel<T> extends JPanel {
 						int time = (int) value;
 						TimelineKeyNamer.AnimationMarker animationMarker = timelineKeyNamer.getAnimationMarker(time);
 						if (animationMarker != null && animationMarker.contains(time)) {
-							if (animationMarker.isEndPoint(time)) {
-								bgColor = LIGHT_GREEN;
-							} else {
-								bgColor = LIGHT_YELLOW;
-							}
+							bgColor = animationMarker.getColor(time);
+//							if (animationMarker.isEndPoint(time)) {
+//								bgColor = LIGHT_GREEN;
+//							} else {
+//								bgColor = LIGHT_YELLOW;
+//							}
 							this.createToolTip();
 							this.setToolTipText(animationMarker.toString());
 //							this.setToolTipText(animationMarker.name + " (" + animationMarker.start + "-" + animationMarker.end +")");

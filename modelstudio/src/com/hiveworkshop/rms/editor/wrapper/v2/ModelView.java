@@ -9,6 +9,8 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class ModelView {
 	private final EditableModel model;
@@ -78,6 +80,7 @@ public final class ModelView {
 	public ModelView(EditableModel model, TimeEnvironmentImpl timeEnvironment) {
 		this.model = model;
 		editorRenderModel = new RenderModel(this.model, this, timeEnvironment);
+		editorRenderModel.setShouldForceAnimation(true);
 
 		for (Geoset geoset : model.getGeosets()) {
 			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() == 0)) {
@@ -263,81 +266,89 @@ public final class ModelView {
 
 	public void updateElements() {
 		Set<Geoset> modelGeosets = new HashSet<>(model.getGeosets());
-		editableVertices.clear();
-		if (!modelGeosets.containsAll(visibleGeosets)) {
-			visibleGeosets.removeIf(geoset -> !modelGeosets.contains(geoset));
-		}
-		if (!modelGeosets.containsAll(hiddenGeosets)) {
-			hiddenGeosets.removeIf(geoset -> !modelGeosets.contains(geoset));
-		}
-		if (!modelGeosets.containsAll(notEditableGeosets)) {
-			notEditableGeosets.removeIf(geoset -> !modelGeosets.contains(geoset));
-		}
-		if (!modelGeosets.containsAll(editableGeosets)) {
-			editableGeosets.removeIf(geoset -> !modelGeosets.contains(geoset));
-		}
-		modelGeosets.removeAll(visibleGeosets);
-		modelGeosets.removeAll(hiddenGeosets);
-		visibleGeosets.addAll(modelGeosets);
-		editableGeosets.addAll(modelGeosets);
 
-		editableVertices.clear();
-		hiddenVertices.clear();
-		notEditableVertices.clear();
-		for (Geoset geoset : editableGeosets) {
-			editableVertices.addAll(geoset.getVertices());
-		}
-		for (Geoset geoset : hiddenGeosets) {
-			hiddenVertices.addAll(geoset.getVertices());
-		}
-		for (Geoset geoset : notEditableGeosets) {
-			notEditableVertices.addAll(geoset.getVertices());
+		Set<Geoset> geosetsToRemove = Stream.of(visibleGeosets, hiddenGeosets, notEditableGeosets, editableGeosets)
+				.flatMap(Collection::stream)
+				.filter(g -> !modelGeosets.contains(g))
+				.collect(Collectors.toSet());
+		visibleGeosets.removeAll(geosetsToRemove);
+		hiddenGeosets.removeAll(geosetsToRemove);
+		notEditableGeosets.removeAll(geosetsToRemove);
+		editableGeosets.removeAll(geosetsToRemove);
+
+		for (Geoset geoset : geosetsToRemove) {
+			hiddenVertices.removeAll(geoset.getVertices());
+			editableVertices.removeAll(geoset.getVertices());
+			notEditableVertices.removeAll(geoset.getVertices());
+			selectedVertices.removeAll(geoset.getVertices());
 		}
 
-		selectedVertices.removeIf(v -> !editableVertices.contains(v) && !notEditableVertices.contains(v));
+		for (Geoset geoset : modelGeosets) {
+			if (!visibleGeosets.contains(geoset) && !hiddenGeosets.contains(geoset) && !notEditableGeosets.contains(geoset) && !editableGeosets.contains(geoset)){
+				visibleGeosets.add(geoset);
+				editableGeosets.add(geoset);
+				editableVertices.addAll(geoset.getVertices());
+			}
+		}
+
+//		editableVertices.clear();
+//		hiddenVertices.clear();
+//		notEditableVertices.clear();
+//		for (Geoset geoset : editableGeosets) {
+//			editableVertices.addAll(geoset.getVertices());
+//		}
+//		for (Geoset geoset : hiddenGeosets) {
+//			hiddenVertices.addAll(geoset.getVertices());
+//		}
+//		for (Geoset geoset : notEditableGeosets) {
+//			notEditableVertices.addAll(geoset.getVertices());
+//		}
+//
+//		selectedVertices.removeIf(v -> !editableVertices.contains(v) && !notEditableVertices.contains(v));
 
 		Set<IdObject> modelIdObjects = new HashSet<>(model.getIdObjects());
-		if (!modelIdObjects.containsAll(visibleIdObjects)) {
-			visibleIdObjects.removeIf(object -> !modelIdObjects.contains(object));
+		visibleIdObjects.removeIf(object -> !modelIdObjects.contains(object));
+		hiddenIdObjects.removeIf(object -> !modelIdObjects.contains(object));
+		editableIdObjects.removeIf(object -> !modelIdObjects.contains(object));
+		notEditableIdObjects.removeIf(object -> !modelIdObjects.contains(object));
+		selectedIdObjects.removeIf(object -> !modelIdObjects.contains(object));
+
+
+		for (IdObject object : modelIdObjects) {
+			if (!visibleIdObjects.contains(object)
+					&& !hiddenIdObjects.contains(object)
+					&& !editableIdObjects.contains(object)
+					&& !notEditableIdObjects.contains(object)){
+				visibleIdObjects.add(object);
+				editableIdObjects.add(object);
+			}
 		}
-		if (!modelIdObjects.containsAll(hiddenIdObjects)) {
-			hiddenIdObjects.removeIf(object -> !modelIdObjects.contains(object));
-		}
-		if (!modelIdObjects.containsAll(editableIdObjects)) {
-			editableIdObjects.removeIf(object -> !modelIdObjects.contains(object));
-		}
-		if (!modelIdObjects.containsAll(notEditableIdObjects)) {
-			notEditableIdObjects.removeIf(object -> !modelIdObjects.contains(object));
-		}
-		if (!modelIdObjects.containsAll(selectedIdObjects)) {
-			selectedIdObjects.removeIf(object -> !modelIdObjects.contains(object));
-		}
-		modelIdObjects.removeAll(visibleIdObjects);
-		modelIdObjects.removeAll(hiddenIdObjects);
-		visibleIdObjects.addAll(modelIdObjects);
-		editableIdObjects.addAll(modelIdObjects);
+
+//		modelIdObjects.removeAll(visibleIdObjects);
+//		modelIdObjects.removeAll(hiddenIdObjects);
+//		visibleIdObjects.addAll(modelIdObjects);
+//		editableIdObjects.addAll(modelIdObjects);
 
 		Set<Camera> modelCameras = new HashSet<>(model.getCameras());
-		if (!modelCameras.containsAll(visibleCameras)) {
-			visibleCameras.removeIf(camera -> !modelCameras.contains(camera));
-		}
-		if (!modelCameras.containsAll(hiddenCameras)) {
-			hiddenCameras.removeIf(camera -> !modelCameras.contains(camera));
-		}
-		if (!modelCameras.containsAll(editableCameras)) {
-			editableCameras.removeIf(camera -> !modelCameras.contains(camera));
-		}
-		if (!modelCameras.containsAll(notEditableCameras)) {
-			notEditableCameras.removeIf(camera -> !modelCameras.contains(camera));
-		}
-		if (!modelCameras.containsAll(selectedCameras)) {
-			selectedCameras.removeIf(camera -> !modelCameras.contains(camera));
-		}
+		visibleCameras.removeIf(camera -> !modelCameras.contains(camera));
+		hiddenCameras.removeIf(camera -> !modelCameras.contains(camera));
+		editableCameras.removeIf(camera -> !modelCameras.contains(camera));
+		notEditableCameras.removeIf(camera -> !modelCameras.contains(camera));
+		selectedCameras.removeIf(camera -> !modelCameras.contains(camera));
 
-		modelCameras.removeAll(visibleCameras);
-		modelCameras.removeAll(hiddenCameras);
-		visibleCameras.addAll(modelCameras);
-		editableCameras.addAll(modelCameras);
+		for (Camera camera : modelCameras) {
+			if (!visibleCameras.contains(camera)
+					&& !hiddenCameras.contains(camera)
+					&& !editableCameras.contains(camera)
+					&& !notEditableCameras.contains(camera)){
+				visibleCameras.add(camera);
+				editableCameras.add(camera);
+			}
+		}
+//		modelCameras.removeAll(visibleCameras);
+//		modelCameras.removeAll(hiddenCameras);
+//		visibleCameras.addAll(modelCameras);
+//		editableCameras.addAll(modelCameras);
 
 	}
 

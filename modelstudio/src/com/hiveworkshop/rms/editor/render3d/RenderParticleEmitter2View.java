@@ -6,15 +6,15 @@ import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.Particle2TextureInstance;
 
 public class RenderParticleEmitter2View extends EmitterView {
-	private final ParticleEmitter2 emitter;
+	private final ParticleEmitter2 particleEmitter2;
 	private double lastEmissionRate;
 	private final int lastAnimationTime = Integer.MIN_VALUE;
 	private final RenderParticleEmitter2 renderEmitter;
 
-	public RenderParticleEmitter2View(final RenderModel instance, final RenderParticleEmitter2 emitter) {
+	public RenderParticleEmitter2View(RenderModel instance, RenderParticleEmitter2 emitter) {
 		this.instance = instance;
-		renderEmitter = emitter;
-		this.emitter = emitter.getEmitter();
+		this.renderEmitter = emitter;
+		this.particleEmitter2 = emitter.getEmitter();
 		currentEmission = 0;
 		lastEmissionRate = -1;
 		AnimFlag<?> emissionRateFlag = emitter.getEmitter().find("EmissionRate");
@@ -25,13 +25,28 @@ public class RenderParticleEmitter2View extends EmitterView {
 		}
 	}
 
+	public RenderParticleEmitter2View(RenderModel instance, ParticleEmitter2 particleEmitter, Particle2TextureInstance textureInstance) {
+		this.instance = instance;
+		this.renderEmitter = new RenderParticleEmitter2(particleEmitter, textureInstance);
+		this.particleEmitter2 = particleEmitter;
+		currentEmission = 0;
+		lastEmissionRate = -1;
+		AnimFlag<?> emissionRateFlag = particleEmitter.find("EmissionRate");
+		if (emissionRateFlag != null) {
+			if (emissionRateFlag.size() > 0) {
+				lastEmissionRate = (Float) emissionRateFlag.getValueFromIndex(0);
+			}
+		}
+	}
+
 	public void update() {
+		renderEmitter.update();
 	}
 
 	public void fill() {
 		if (instance.allowParticleSpawn()) {
 			final double emissionRate = getEmissionRate();
-			if (emitter.getSquirt()) {
+			if (particleEmitter2.getSquirt()) {
 				// TODO TODO TODO not correct for any interp type other than "DontInterp",
 				//  ghostwolf did this differently
 				if (emissionRate != lastEmissionRate) {
@@ -46,17 +61,21 @@ public class RenderParticleEmitter2View extends EmitterView {
 		}
 	}
 
-	public ParticleEmitter2 getEmitter() {
-		return emitter;
+	public ParticleEmitter2 getParticleEmitter2() {
+		return particleEmitter2;
+	}
+
+	public RenderParticleEmitter2 getRenderEmitter(){
+		return renderEmitter;
 	}
 
 	@Override
-	public void addToScene(final Particle2TextureInstance internalInstance) {
+	public void addToScene(Particle2TextureInstance internalInstance) {
 		throw new UnsupportedOperationException();
 	}
 
 	public double getSpeed() {
-		return emitter.getRenderSpeed(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderSpeed(instance.getAnimatedRenderEnvironment());
 	}
 
 	public double getTimeScale() {
@@ -64,30 +83,30 @@ public class RenderParticleEmitter2View extends EmitterView {
 	}
 
 	public double getLatitude() {
-		return emitter.getRenderLatitude(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderLatitude(instance.getAnimatedRenderEnvironment());
 	}
 
 	public double getGravity() {
-		return emitter.getRenderGravity(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderGravity(instance.getAnimatedRenderEnvironment());
 	}
 
 	public double getEmissionRate() {
-		return emitter.getRenderEmissionRate(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderEmissionRate(instance.getAnimatedRenderEnvironment());
 	}
 
 	public double getVisibility() {
-		return emitter.getRenderVisibility(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderVisibility(instance.getAnimatedRenderEnvironment());
 	}
 
 	public double getWidth() {
-		return emitter.getRenderWidth(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderWidth(instance.getAnimatedRenderEnvironment());
 	}
 
 	public double getLength() {
-		return emitter.getRenderLength(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderLength(instance.getAnimatedRenderEnvironment());
 	}
 
 	public double getVariation() {
-		return emitter.getRenderVariation(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderVariation(instance.getAnimatedRenderEnvironment());
 	}
 }

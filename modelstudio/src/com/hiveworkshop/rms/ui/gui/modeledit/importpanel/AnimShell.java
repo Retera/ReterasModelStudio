@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-class AnimShell {
+public class AnimShell {
 	private Animation anim;
 	private Animation importAnim;
 	private List<AnimShell> animShellList = new ArrayList<>();

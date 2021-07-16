@@ -266,8 +266,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		if (result != null) {
 			// JOptionPane.showMessageDialog(null,"action approved");
 			SetParentAction setParentAction = new SetParentAction(modelHandler.getModelView().getSelectedIdObjects(), result.getNode(), ModelStructureChangeListener.changeListener);
-			setParentAction.redo();
-			modelHandler.getUndoManager().pushAction(setParentAction);
+			modelHandler.getUndoManager().pushAction(setParentAction.redo());
 		}
 	}
 

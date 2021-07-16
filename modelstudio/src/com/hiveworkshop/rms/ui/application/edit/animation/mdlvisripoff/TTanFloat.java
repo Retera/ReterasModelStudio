@@ -23,17 +23,6 @@ public class TTanFloat extends TTan<Float> {
 		deltaIn = 0f;
 	}
 
-	public void setFromKF(int time, AnimFlag<Float> timeline) {
-
-	}
-
-	private void initTang(int count) {
-		if (tang.inTan == null) {
-			tang.inTan = 0f;
-			tang.outTan = 0f;
-		}
-	}
-
 	public float getSubValue(Float value, int i) {
 		return value;
 	}

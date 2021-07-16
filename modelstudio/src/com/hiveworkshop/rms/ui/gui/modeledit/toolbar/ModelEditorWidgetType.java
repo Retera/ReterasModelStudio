@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 
 import javax.swing.*;
 
-public enum ModelEditorActionType2 implements ToolbarButtonType {
+public enum ModelEditorWidgetType implements ToolbarButtonType {
 	TRANSLATION("Move", RMSIcons.loadToolBarImageIcon("move2.png")),
 	ROTATION("Rotate", RMSIcons.loadToolBarImageIcon("rotate.png")),
 	SCALING("Scale", RMSIcons.loadToolBarImageIcon("scale.png"));
@@ -12,7 +12,7 @@ public enum ModelEditorActionType2 implements ToolbarButtonType {
 	private final String name;
 	private final ImageIcon imageIcon;
 
-	ModelEditorActionType2(final String name, final ImageIcon imageIcon) {
+	ModelEditorWidgetType(final String name, final ImageIcon imageIcon) {
 		this.name = name;
 		this.imageIcon = imageIcon;
 	}

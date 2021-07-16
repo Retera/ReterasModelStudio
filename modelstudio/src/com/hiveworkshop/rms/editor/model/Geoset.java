@@ -250,7 +250,7 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public void add(final GeosetVertex v) {
-		if (!vertices.contains(v)) {
+		if (!vertices.contains(v) && v.isValid()) {
 			vertices.add(v);
 		}
 	}
@@ -386,8 +386,9 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public void applyMatricesToVertices(EditableModel mdlr) {
+//		System.out.println("applyMatricesToVertices");
 		for (GeosetVertex gv : getVertices()) {
-			gv.clearBoneAttachments();
+			gv.clearBoneAttachments(); //Todo check if this is broken
 			Matrix mx = getMatrix(gv.getVertexGroup());
 			if (((gv.getVertexGroup() == -1) || (mx == null))) {
 				if (!ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) {
@@ -568,15 +569,16 @@ public class Geoset implements Named, VisibilitySource {
 		Vec3 max = new Vec3(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
 		Vec3 min = new Vec3(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
 
-		for (final GeosetVertex geosetVertex : vertices) {
+		for (GeosetVertex geosetVertex : vertices) {
 			max.maximize(geosetVertex);
 			min.minimize(geosetVertex);
 
-			final double distanceFromCenter = geosetVertex.length();
+			double distanceFromCenter = geosetVertex.length();
 			if (distanceFromCenter > maximumDistanceFromCenter) {
 				maximumDistanceFromCenter = distanceFromCenter;
 			}
 		}
+		System.out.println(new ExtLog(min, max, maximumDistanceFromCenter));
 		return new ExtLog(min, max, maximumDistanceFromCenter);
 	}
 

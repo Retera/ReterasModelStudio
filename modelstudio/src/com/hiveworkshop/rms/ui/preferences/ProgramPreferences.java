@@ -13,6 +13,7 @@ public class ProgramPreferences implements Serializable {
 	Integer teamColor = 6;
 	private Integer viewMode = 1;
 	private Boolean showNormals = false;
+	private Boolean show3dVerts = false;
 	private Boolean showPerspectiveGrid = true;
 	private Boolean showVertexModifierControls = false;
 	private Boolean textureModels = true;
@@ -114,6 +115,9 @@ public class ProgramPreferences implements Serializable {
 	public boolean showNormals() {
 		return showNormals;
 	}
+	public boolean show3dVerts() {
+		return show3dVerts;
+	}
 
 	public boolean showPerspectiveGrid() {
 		return showPerspectiveGrid;
@@ -161,6 +165,12 @@ public class ProgramPreferences implements Serializable {
 
 	public void setShowNormals(final boolean showNormals) {
 		this.showNormals = showNormals;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public void setShow3dVerts(final boolean show3dVerts) {
+		this.show3dVerts = show3dVerts;
 		SaveProfile.save();
 		firePrefsChanged();
 	}

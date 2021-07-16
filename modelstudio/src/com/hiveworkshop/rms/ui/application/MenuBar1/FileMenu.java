@@ -79,7 +79,7 @@ public class FileMenu extends JMenu {
 		boolean success = true;
 		List<ModelPanel> modelPanels = ProgramGlobals.getModelPanels();
 		ModelPanel lastUnclosedModelPanel = null;
-		for (int i = modelPanels.size() - 1; i > 0; i--) {
+		for (int i = modelPanels.size() - 1; i >= 0; i--) {
 			ModelPanel panel = modelPanels.get(i);
 			if (success = panel.close()) {
 				if (MenuBar.windowMenu != null) {

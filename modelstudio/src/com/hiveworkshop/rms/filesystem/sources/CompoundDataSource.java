@@ -8,6 +8,13 @@ import java.util.*;
 
 public class CompoundDataSource implements DataSource {
 	private final List<DataSource> mpqList = new ArrayList<>();
+	Map<String, File> cache = new HashMap<>();
+
+	public CompoundDataSource(final List<DataSource> dataSources) {
+		if (dataSources != null) {
+			mpqList.addAll(dataSources);
+		}
+	}
 
 	@Override
 	public boolean allowDownstreamCaching(final String filepath) {
@@ -19,14 +26,6 @@ public class CompoundDataSource implements DataSource {
 		}
 		return false;
 	}
-
-	public CompoundDataSource(final List<DataSource> dataSources) {
-		if (dataSources != null) {
-            mpqList.addAll(dataSources);
-		}
-	}
-
-	Map<String, File> cache = new HashMap<>();
 
 	@Override
 	public File getFile(final String filepath) {
@@ -116,8 +115,8 @@ public class CompoundDataSource implements DataSource {
 
 	public Set<String> getMergedListfile() {
 		final Set<String> listfile = new HashSet<>();
-		for (final DataSource mpqGuy : mpqList) {
-			final Collection<String> dataSourceListfile = mpqGuy.getListfile();
+		for (DataSource mpqGuy : mpqList) {
+			Collection<String> dataSourceListfile = mpqGuy.getListfile();
 			if (dataSourceListfile != null) {
                 listfile.addAll(dataSourceListfile);
 			}

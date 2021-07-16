@@ -79,7 +79,8 @@ public class MaterialFactory {
 		// > 800
 		layer.setEmissive(mdlxLayer.emissiveGain);
 		// > 900
-		layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
+//		layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
+		layer.setFresnelColor(new Vec3(mdlxLayer.fresnelColor));
 		layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
 		layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
 
@@ -139,7 +140,8 @@ public class MaterialFactory {
 		// > 800
 		layer.setEmissive(mdlxLayer.emissiveGain);
 		// > 900
-		layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
+//		layer.setFresnelColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxLayer.fresnelColor)));
+		layer.setFresnelColor(new Vec3(mdlxLayer.fresnelColor));
 		layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
 		layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
 

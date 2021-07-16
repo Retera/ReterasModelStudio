@@ -5,8 +5,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 
 public abstract class AbstractModelEditorManager {
 	protected ModelHandler modelHandler;
@@ -17,13 +15,12 @@ public abstract class AbstractModelEditorManager {
 	protected final SelectionListener selectionListener;
 
 	public AbstractModelEditorManager(ModelHandler modelHandler,
-	                                  ToolbarButtonGroup2<SelectionMode> modeButtonGroup,
 	                                  ModelEditorChangeNotifier changeNotifier,
 	                                  SelectionListener selectionListener) {
 		this.modelHandler = modelHandler;
 		this.changeNotifier = changeNotifier;
 		this.selectionListener = selectionListener;
-		this.viewportSelectionHandler = new ViewportSelectionHandler(modeButtonGroup, null);
+		this.viewportSelectionHandler = new ViewportSelectionHandler(null);
 	}
 
 	public ModelEditor getModelEditor() {

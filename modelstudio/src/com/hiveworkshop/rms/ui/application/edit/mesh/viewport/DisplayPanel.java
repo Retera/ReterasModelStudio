@@ -111,6 +111,12 @@ public class DisplayPanel extends JPanel {
 			vp.getCoordinateSystem().zoomOut(-v);
 
 		}
+		System.out.println("ugg");
+		view.setName("ugg");
+		view.getViewProperties().setTitle("tugg");
+		View frontView = ProgramGlobals.getMainPanel().getMainLayoutCreator().getFrontView();
+//		frontView.getViewProperties().setTitle("puss");
+		frontView.setName("woop");
 //		vp.zoom(v);
 		vp.repaint();
 	}

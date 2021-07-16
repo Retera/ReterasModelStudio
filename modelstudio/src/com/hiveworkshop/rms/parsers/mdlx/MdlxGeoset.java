@@ -62,17 +62,57 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		final long size = reader.readUInt32();
 
 		reader.readInt32(); // skip VRTX
-		vertices = reader.readFloat32Array(reader.readInt32() * 3);
+		int vertexCount = reader.readInt32();
+		vertices = reader.readFloat32Array(vertexCount * 3);
 		reader.readInt32(); // skip NRMS
-		normals = reader.readFloat32Array(reader.readInt32() * 3);
+		int normalCount = reader.readInt32();
+		normals = reader.readFloat32Array(normalCount * 3);
 		reader.readInt32(); // skip PTYP
-		faceTypeGroups = reader.readUInt32Array(reader.readInt32());
-		reader.readInt32(); // skip PCNT
-		faceGroups = reader.readUInt32Array(reader.readInt32());
-		reader.readInt32(); // skip PVTX
-		faces = reader.readUInt16Array(reader.readInt32());
+		int faceTypeGroupsCount = reader.readInt32();
+		faceTypeGroups = reader.readUInt32Array(faceTypeGroupsCount);
+		int pcnt = reader.readInt32();// skip PCNT
+		int faceGroupCount = reader.readInt32();
+		faceGroups = reader.readUInt32Array(faceGroupCount);
+		int pvtx = reader.readInt32(); // skip PVTX
+		int faceCount = reader.readInt32();
+		faces = reader.readUInt16Array(faceCount);
 		reader.readInt32(); // skip GNDX
 		vertexGroups = reader.readUInt8Array(reader.readInt32());
+
+//		reader.readInt32(); // skip VRTX
+//		int vertexCount = reader.readInt32();
+//		vertices = reader.readFloat32Array(vertexCount * 3);
+//		reader.readInt32(); // skip NRMS
+//		int normalCount = reader.readInt32();
+//		normals = reader.readFloat32Array(normalCount * 3);
+//		int ptyp = reader.readInt32();// skip PTYP
+//		int faceTypeGroupsCount = reader.readInt32();
+//		faceTypeGroups = reader.readUInt32Array(faceTypeGroupsCount);
+//		int pcnt = reader.readInt32();// skip PCNT
+////		int faceGroupCount = reader.readInt32();
+//		int faceGroupCount = (int) reader.readUInt32();
+//		faceGroups = reader.readUInt32Array(faceGroupCount);
+//		int pvtx = reader.readInt32(); // skip PVTX
+//		int faceCount = reader.readInt32();
+//		faces = reader.readUInt16Array(faceCount);
+//		reader.readInt32(); // skip GNDX
+//
+//		int geosetVertexGroupsCount = reader.readInt32();
+//		System.out.println("Read: vertexCount: " + vertexCount);
+//		System.out.println("Read: normalCount: " + normalCount);
+//		System.out.println("Read: ptyp: " + Integer.reverseBytes(ptyp));
+//		System.out.println("Read: faceTypeGroupsCount: " + faceTypeGroupsCount);
+//		System.out.println("Read: faceTypeGroups: " + Arrays.toString(faceTypeGroups));
+//		System.out.println("Read: pcnt: " + Integer.reverseBytes(pcnt));
+//		System.out.println("Read: faceGroupCount: " + faceGroupCount);
+//		System.out.println("Read: faceGroups: " + Arrays.toString(faceGroups));
+//		System.out.println("Read: pvtx: " + Integer.reverseBytes(pvtx));
+//		System.out.println("Read: faceCount: " + faceCount);
+//		System.out.println("Read: faces: " + Arrays.toString(faces));
+//		System.out.println("Read: geosetVGCount: " + geosetVertexGroupsCount);
+//		vertexGroups = reader.readUInt8Array(geosetVertexGroupsCount);
+
+
 		reader.readInt32(); // skip MTGC
 		matrixGroups = reader.readUInt32Array(reader.readInt32());
 		reader.readInt32(); // skip MATS
@@ -80,6 +120,11 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		materialId = reader.readUInt32();
 		selectionGroup = reader.readUInt32();
 		selectionFlags = reader.readUInt32();
+
+//		System.out.println("Read: vertexCount: " + vertexCount);
+//		System.out.println("Read: faceGroupCount: " + faceGroupCount);
+//		System.out.println("Read: faceCount: " + faceCount);
+//		System.out.println("Read: geosetVGCount: " + geosetVertexGroupsCount);
 
 		if (version > 800) {
 			lod = reader.readInt32();
@@ -150,6 +195,21 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		writer.writeUInt32(materialId);
 		writer.writeUInt32(selectionGroup);
 		writer.writeUInt32(selectionFlags);
+
+//		System.out.println("Save: vertexCount: " + vertices.length / 3);
+//		System.out.println("Save: normalCount: " + normals.length / 3);
+//		System.out.println("Save: PTYP.getValue(): " + PTYP.getValue());
+//		System.out.println("Save: faceTypeGroupsCount: " + faceTypeGroups.length);
+//		System.out.println("Save: faceTypeGroups: " + Arrays.toString(faceTypeGroups));
+//		System.out.println("Save: PCNT.getValue(): " + PCNT.getValue());
+//		System.out.println("Save: faceGroupsCount: " + faceGroups.length);
+//		System.out.println("Save: faceGroupsCount: " + Arrays.toString(faceGroups));
+//		System.out.println("Save: PVTX.getValue(): " + PVTX.getValue());
+//		System.out.println("Save: faceCount: " + faces.length);
+//		System.out.println("Save: faceCount: " + (int)((long)faces.length));
+//		System.out.println("Save: faces: " + Arrays.toString(faces));
+//
+//		System.out.println("Save: VG len: " + vertexGroups.length);
 
 		if (version > 800) {
 			writer.writeInt32(lod);

@@ -243,8 +243,7 @@ public class Layer extends TimelineContainer implements Named {
 		}
 	}
 
-	public Bitmap getRenderTexture(TimeEnvironmentImpl animatedRenderEnvironment,
-	                               EditableModel model) {
+	public Bitmap getRenderTexture(TimeEnvironmentImpl animatedRenderEnvironment, EditableModel model) {
 		IntAnimFlag textureFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
 		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
 			if (animatedRenderEnvironment.getCurrentAnimation() == null) {

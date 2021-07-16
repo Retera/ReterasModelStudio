@@ -1,9 +1,5 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
@@ -17,45 +13,41 @@ public class ToolBar {
         toolbar.setFloatable(false);
         FileDialog fileDialog = new FileDialog();
 
-        addToolbarIcon(toolbar, "New", "new.png", () -> MenuBarActions.newModel());
-
-//        addToolbarIcon(toolbar, "Open", "open.png", () -> MenuBarActions.onClickOpen(mainPanel));
+        addToolbarIcon(toolbar, "New", "new.png", MenuBarActions::newModel);
         addToolbarIcon(toolbar, "Open", "open.png", fileDialog::onClickOpen);
-
-//        addToolbarIcon(toolbar, "Save", "save.png", () -> MenuBarActions.onClickSave(mainPanel));
         addToolbarIcon(toolbar, "Save", "save.png", fileDialog::onClickSave);
 
         toolbar.addSeparator();
 
-
         addToolbarIcon(toolbar, "Undo", "undo.png", ProgramGlobals.getUndoHandler().getUndoAction());
         addToolbarIcon(toolbar, "Redo", "redo.png", ProgramGlobals.getUndoHandler().getRedoAction());
-
-        toolbar.addSeparator();
-        mainPanel.selectionModeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionMode.values());
-        mainPanel.selectionModeGroup.setActiveButton(SelectionMode.SELECT);
-
-        toolbar.addSeparator();
-
-        mainPanel.selectionItemTypeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionItemTypes.values());
-        mainPanel.selectionItemTypeGroup.setActiveButton(SelectionItemTypes.VERTEX);
-
-        toolbar.addSeparator();
-
-        mainPanel.actionTypeGroup = new ToolbarButtonGroup2<>(toolbar, ModelEditorActionType3.values());
-        mainPanel.actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
-//        mainPanel.actionTypeGroup = new ToolbarButtonGroup<>(toolbar,
-//                new ToolbarActionButtonType[] {
-//                        new ToolbarActionButtonType("move", "move2.png", "Select and Move", mainPanel),
-//                        new ToolbarActionButtonType("rotate", "rotate.png", "Select and Rotate", mainPanel),
-//                        new ToolbarActionButtonType("scale", "scale.png", "Select and Scale", mainPanel),
-//                        new ToolbarActionButtonType("extrude", "extrude.png", "Select and Extrude", mainPanel),
-//                        new ToolbarActionButtonType("extend", "extend.png", "Select and Extend", mainPanel),
-//                });
-
-        toolbar.addSeparator();
-
-        mainPanel.snapButton = addToolbarIcon(toolbar, "Snap", "snap.png", () -> ModelEditActions.snapVertices());
+//
+//        toolbar.addSeparator();
+//        mainPanel.selectionModeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionMode.values());
+//        mainPanel.selectionModeGroup.setActiveButton(SelectionMode.SELECT);
+//
+//        toolbar.addSeparator();
+//
+//        mainPanel.selectionItemTypeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionItemTypes.values());
+//        mainPanel.selectionItemTypeGroup.setActiveButton(SelectionItemTypes.VERTEX);
+//
+//        toolbar.addSeparator();
+//
+//        mainPanel.actionTypeGroup = new ToolbarButtonGroup2<>(toolbar, ModelEditorActionType3.values());
+//        mainPanel.actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
+//
+////        mainPanel.actionTypeGroup = new ToolbarButtonGroup<>(toolbar,
+////                new ToolbarActionButtonType[] {
+////                        new ToolbarActionButtonType("move", "move2.png", "Select and Move", mainPanel),
+////                        new ToolbarActionButtonType("rotate", "rotate.png", "Select and Rotate", mainPanel),
+////                        new ToolbarActionButtonType("scale", "scale.png", "Select and Scale", mainPanel),
+////                        new ToolbarActionButtonType("extrude", "extrude.png", "Select and Extrude", mainPanel),
+////                        new ToolbarActionButtonType("extend", "extend.png", "Select and Extend", mainPanel),
+////                });
+//
+//        toolbar.addSeparator();
+//
+//        JButton snapButton = addToolbarIcon(toolbar, "Snap", "snap.png", () -> ModelEditActions.snapVertices());
 
         toolbar.setMaximumSize(new Dimension(80000, 48));
         return toolbar;

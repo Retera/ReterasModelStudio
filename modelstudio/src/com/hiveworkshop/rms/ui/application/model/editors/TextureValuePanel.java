@@ -5,8 +5,8 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboPopup;
@@ -21,33 +21,39 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 	private final BasicComboPopup chooseTextureComboPopup;
 	private final JComboBox<Object> textureChooser;
 	DefaultListModel<Bitmap> bitmapListModel;
-	private JComboBox<String> staticTextureChooser;
-	private boolean listenersEnabled = true;
+	private JComboBox<Bitmap> staticTextureChooser;
+//	private boolean listenersEnabled = true;
 
 	private Bitmap bitmap;
 
 	private int selectedRow;
 
 
-	public TextureValuePanel(ModelHandler modelHandler, String title, UndoManager undoManager) {
-		super(modelHandler, title, undoManager);
+	public TextureValuePanel(ModelHandler modelHandler, String title) {
+		super(modelHandler, title);
 
-		textureChooser = new JComboBox<>(getTextures(modelHandler.getModel()));
-		textureChooser.setModel(new DefaultComboBoxModel<>(getTextures(modelHandler.getModel())));
-		textureChooser.addActionListener(this::setTextureId);
+		getTextures(modelHandler.getModel());
+
+		textureChooser = new JComboBox<>();
+		Bitmap[] bitmaps = modelHandler.getModel().getTextures().toArray(new Bitmap[0]);
+		textureChooser.setModel(new DefaultComboBoxModel<>(bitmaps));
+		textureChooser.setRenderer(new TextureListRenderer(modelHandler.getModel()));
+		textureChooser.addItemListener(this::setTextureId);
 		chooseTextureComboPopup = new BasicComboPopup(textureChooser);
 
-		staticTextureChooser.setModel(new DefaultComboBoxModel<>(getTextures(modelHandler.getModel())));
+		staticTextureChooser.setRenderer(new TextureListRenderer(modelHandler.getModel()));
+		staticTextureChooser.setModel(new DefaultComboBoxModel<>(bitmaps));
+		//todo
 
 		keyframePanel.getFloatTrackTableModel().addExtraColumn("Texture", "", String.class);  // 🎨 \uD83C\uDFA8
 
 		addBitmapChangeListeners();
 	}
 
-	private void setTextureId(ActionEvent e) {
-		System.out.println("ActionEvent: " + e);
-		if (listenersEnabled) {
-			changeTexture();
+	private void setTextureId(ItemEvent e) {
+
+		if (e.getStateChange() == ItemEvent.SELECTED && !((Layer) timelineContainer).getTextures().get(selectedRow).equals(e.getItem())) {
+			changeEntry(selectedRow, "Value", Integer.toString(textureChooser.getSelectedIndex()));
 		}
 	}
 
@@ -73,37 +79,27 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 
 	@Override
 	JComponent getStaticComponent() {
-//		System.out.println("getStaticComponent");
 		staticTextureChooser = new JComboBox<>();
-		staticTextureChooser.addActionListener(e -> changeStaticBitmap());
+		staticTextureChooser.addItemListener(this::changeStaticBitmap);
 		return staticTextureChooser;
 	}
 
 	@Override
 	void reloadStaticValue(Integer bitmapId) {
-//		System.out.println("reloadStaticValue");
-		listenersEnabled = false;
 		bitmap = ((Layer) timelineContainer).getTextureBitmap();
-//		this.bitmapId = bitmapId;
 		staticValue = bitmapId;
 		if (bitmapId == -1) {
-//			ActionListener[] actionListeners = staticTextureChooser.getActionListeners();
-			ActionListener actionListener = staticTextureChooser.getActionListeners()[0];
-			staticTextureChooser.removeActionListener(actionListener);
-			staticTextureChooser.setSelectedItem(bitmap.getName());
+			staticTextureChooser.setSelectedItem(bitmap);
 			staticValue = staticTextureChooser.getSelectedIndex();
 			if (staticValue != -1) {
 				this.bitmap = bitmapListModel.get(staticValue);
 			}
-			staticTextureChooser.addActionListener(actionListener);
 		} else if (bitmapId < bitmapListModel.size()) {
-			staticTextureChooser.setSelectedIndex(bitmapId);
 			this.bitmap = bitmapListModel.get(bitmapId);
+			staticTextureChooser.setSelectedItem(bitmap);
 		}
-		listenersEnabled = true;
 
 		if (animFlag != null) {
-//			floatTrackTableModel.updateExtraButtonValues(getBitmapNameList());
 			keyframePanel.getFloatTrackTableModel().updateExtraButtonValues(getBitmapNameList());
 		}
 	}
@@ -165,29 +161,23 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 		int colorChangeColumnIndex = keyframePanel.getTable().getColumnCount() - 2;
 		if (keyCode == KeyEvent.VK_T || keyCode == KeyEvent.VK_ENTER && keyframePanel.getTable().getSelectedColumn() == colorChangeColumnIndex) {
 			selectedRow = keyframePanel.getTable().getSelectedRow();
-			listenersEnabled = false;
 			textureChooser.setSelectedIndex((Integer) keyframePanel.getFloatTrackTableModel().getValueAt(selectedRow, 1));
-			listenersEnabled = true;
 			chooseTextureComboPopup.show(keyframePanel.getTable(), point.x, point.y);
 		}
 	}
 
-	private void changeTexture() {
-//		bitmapId = textureChooser.getSelectedIndex();
 
-		changeEntry(selectedRow, "Value", Integer.toString(textureChooser.getSelectedIndex()));
-	}
+	private void changeStaticBitmap(ItemEvent e) {
 
-
-	private void changeStaticBitmap() {
-		System.out.println("ActionListener");
-		if (listenersEnabled) {
+		if(e.getStateChange() == ItemEvent.SELECTED
+				&& (((Layer) timelineContainer).getTextureBitmap() != null
+				&& !((Layer) timelineContainer).getTextureBitmap().equals(e.getItem())
+				|| ((Layer) timelineContainer).getTextureBitmap() == null && e.getItem() != null)){
 			int bitmapId = staticTextureChooser.getSelectedIndex();
 			Bitmap bitmap = bitmapListModel.get(staticTextureChooser.getSelectedIndex());
 
-			ChangeLayerStaticTextureAction changeLayerStaticTextureAction = new ChangeLayerStaticTextureAction(bitmap, bitmapId, (Layer) timelineContainer, modelStructureChangeListener);
-			changeLayerStaticTextureAction.redo();
-			undoManager.pushAction(changeLayerStaticTextureAction);
+			ChangeLayerStaticTextureAction changeLayerStaticTextureAction = new ChangeLayerStaticTextureAction(bitmap, bitmapId, (Layer) timelineContainer, changeListener);
+			undoManager.pushAction(changeLayerStaticTextureAction.redo());
 		}
 	}
 

@@ -13,10 +13,10 @@ import java.util.List;
  * Eric Theller 11/10/2011
  */
 public class GeosetAnim extends TimelineContainer implements Named {
-	double staticAlpha = 1;
-	Vec3 staticColor = new Vec3(1, 1, 1);
-	Geoset geoset;
-	boolean dropShadow = false;
+	private double staticAlpha = 1;
+	private Vec3 staticColor = new Vec3(1, 1, 1);
+	private Geoset geoset;
+	private boolean dropShadow = false;
 
 	public GeosetAnim(AnimFlag<?> flag) {
 		add(flag);

@@ -20,6 +20,7 @@ public class ToolbarButtonGroup2<T extends ToolbarButtonType> {
 //			buttonMap.put(type, new ToolbarButton2(type, this::setActiveButton));
 			buttonMap.put(type, new ToolbarButton2<>(type, (t) -> setActiveButton(type)));
 		}
+		toolBar.addSeparator();
 		for (ToolbarButton2<?> button2 : buttonMap.values()) {
 			toolBar.add(button2.getToolbarButton());
 		}
@@ -51,6 +52,9 @@ public class ToolbarButtonGroup2<T extends ToolbarButtonType> {
 
 	public void addToolbarButtonListener(Consumer<T> listener) {
 		listeners2.add(listener);
+	}
+	public void removeToolbarButtonListener(Consumer<T> listener) {
+		listeners2.remove(listener);
 	}
 
 	public T getActiveButtonType() {

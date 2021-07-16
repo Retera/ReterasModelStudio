@@ -6,10 +6,7 @@ import com.hiveworkshop.rms.editor.actions.mesh.WeldVertsAction;
 import com.hiveworkshop.rms.editor.actions.nodes.BakeAndRebindAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -64,6 +61,14 @@ public class TwilacPanel extends JPanel {
 		JButton selectNodeGeometry = new JButton("selectNodeGeometry");
 		selectNodeGeometry.addActionListener(e -> selectNodeGeometry());
 		add(selectNodeGeometry, "wrap");
+
+//		JButton editParticle = new JButton("editParticle");
+//		editParticle.addActionListener(e -> viewParticlePanel());
+//		add(editParticle, "wrap");
+
+		JButton reorder_animations = new JButton("Reorder Animations");
+		reorder_animations.addActionListener(e -> viewReOrderAnimsPanel());
+		add(reorder_animations, "wrap");
 
 		JButton button = new JButton("button");
 		button.addActionListener(e -> button.setText(button.getText().equalsIgnoreCase("butt-on") ? "Butt-Off" : "Butt-On"));
@@ -126,6 +131,24 @@ public class TwilacPanel extends JPanel {
 				UndoAction action = new SetSelectionUggAction(new SelectoinUgg(vertexList), modelView, "Select");
 				modelHandler.getUndoManager().pushAction(action.redo());
 			}
+		}
+	}
+
+	private void viewParticlePanel(){
+		ModelPanel currentModelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (currentModelPanel != null) {
+			List<ParticleEmitter2> particleEmitter2s = currentModelPanel.getModel().getParticleEmitter2s();
+			if(!particleEmitter2s.isEmpty()) {
+				ParticleEditPanel panel = new ParticleEditPanel(particleEmitter2s.get(particleEmitter2s.size()/2));
+				FramePopup.show(panel, null, "Edit Particle2 Emitter");
+			}
+		}
+	}
+	private void viewReOrderAnimsPanel(){
+		ModelPanel currentModelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (currentModelPanel != null) {
+			ReorderAnimationsPanel panel = new ReorderAnimationsPanel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
+			FramePopup.show(panel, null, "Edit Particle2 Emitter");
 		}
 	}
 }

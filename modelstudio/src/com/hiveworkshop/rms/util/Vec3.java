@@ -384,6 +384,13 @@ public class Vec3 {
 		return set(newX, newY, newZ);
 	}
 
+	public Vec3 transform(float w, final Mat4 mat4) {
+		float newX = (mat4.m00 * x) + (mat4.m10 * y) + (mat4.m20 * z) + w * mat4.m30;
+		float newY = (mat4.m01 * x) + (mat4.m11 * y) + (mat4.m21 * z) + w * mat4.m31;
+		float newZ = (mat4.m02 * x) + (mat4.m12 * y) + (mat4.m22 * z) + w * mat4.m32;
+		return set(newX, newY, newZ);
+	}
+
 	public double degAngleTo(Vec3 a) {
 
 		return (radAngleTo(a) * 180 / Math.PI);
@@ -506,6 +513,16 @@ public class Vec3 {
 		return this;
 	}
 
+
+	public boolean isValid() {
+		return !(Float.isNaN(this.x)
+				|| Float.isNaN(this.y)
+				|| Float.isNaN(this.z)
+				|| Float.isInfinite(this.x)
+				|| Float.isInfinite(this.y)
+				|| Float.isInfinite(this.z));
+	}
+
 	public Vec3 lerp(final Vec3 a, final float t) {
 		x = MathUtils.lerp(x, a.x, t);
 		y = MathUtils.lerp(y, a.y, t);
@@ -540,6 +557,26 @@ public class Vec3 {
 		y = (y * factor1) + (outTan.y * factor2) + (inTan.y * factor3) + (toward.y * factor4);
 		z = (z * factor1) + (outTan.z * factor2) + (inTan.z * factor3) + (toward.z * factor4);
 		return this;
+	}
+
+	public Vec3 wikiToEuler(Quat q){
+		// roll (x-axis rotation)
+		double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+		double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+		double roll = Math.atan2(sinr_cosp, cosr_cosp);
+
+		// pitch (y-axis rotation)
+		double sinp = 2 * (q.w * q.y - q.z * q.x);
+		// use 90 degrees if out of range
+		double pitch = Math.abs(sinp) >= 1 ? Math.copySign(Math.PI / 2, sinp) : Math.asin(sinp);
+
+
+		// yaw (z-axis rotation)
+		double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+		double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+		double yaw = Math.atan2(siny_cosp, cosy_cosp);
+
+		return set(roll, pitch, yaw);
 	}
 
 	public Vec4 getVec4() {

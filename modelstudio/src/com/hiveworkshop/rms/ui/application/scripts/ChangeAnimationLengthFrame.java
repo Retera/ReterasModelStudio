@@ -6,13 +6,12 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import javax.swing.*;
 
 public class ChangeAnimationLengthFrame extends JFrame {
-	public ChangeAnimationLengthFrame(final ModelPanel mdlDisp, final Runnable onFinish) {
-		super("Animation Editor: " + mdlDisp.getModel().getName());
+	public ChangeAnimationLengthFrame(ModelPanel modelPanel) {
+		super("Animation Editor: " + modelPanel.getModel().getName());
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setIconImage(RMSIcons.animIcon.getImage());
-		setContentPane(new JScrollPane(
-				new ChangeAnimationLengthPanel(mdlDisp.getModelView(), this, mdlDisp.getUndoManager(), onFinish)));
+		setContentPane(new JScrollPane(new ChangeAnimationLengthPanel(modelPanel.getModelHandler(), this)));
 		pack();
-		setLocationRelativeTo(mdlDisp.getParent());
+		setLocationRelativeTo(modelPanel.getParent());
 	}
 }

@@ -4,10 +4,8 @@ import com.hiveworkshop.rms.ui.application.MainLayoutCreator;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.util.Quat;
 
 public class ModelStructureChangeListener {
-	public static final Quat IDENTITY = new Quat();
 	public static final ModelStructureChangeListener changeListener = new ModelStructureChangeListener();
 
 	public ModelStructureChangeListener() {
@@ -25,9 +23,7 @@ public class ModelStructureChangeListener {
 		modelPanel.getAnimationController().reload();
 		mainLayoutCreator.getCreatorPanel().reloadAnimationList();
 
-		modelPanel.getEditorRenderModel().refreshFromEditor(
-				IDENTITY, IDENTITY, IDENTITY,
-				modelPanel.getPerspArea().getViewport().getParticleTextureInstance());
+		modelPanel.getEditorRenderModel().refreshFromEditor(modelPanel.getPerspArea().getViewport().getParticleTextureInstance());
 	}
 
 	public static ModelStructureChangeListener getModelStructureChangeListener() {

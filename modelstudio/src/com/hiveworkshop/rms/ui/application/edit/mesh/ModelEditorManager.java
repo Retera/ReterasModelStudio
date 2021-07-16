@@ -6,8 +6,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 
 public class ModelEditorManager extends AbstractModelEditorManager {
 	public static boolean MOVE_LINKED;
@@ -15,10 +13,9 @@ public class ModelEditorManager extends AbstractModelEditorManager {
 	NodeAnimationModelEditor nodeAnimationModelEditor;
 
 	public ModelEditorManager(ModelHandler modelHandler,
-	                          ToolbarButtonGroup2<SelectionMode> modeButtonGroup,
 	                          ModelEditorChangeNotifier changeNotifier,
 	                          SelectionListener selectionListener) {
-		super(modelHandler, modeButtonGroup, changeNotifier, selectionListener);
+		super(modelHandler, changeNotifier, selectionListener);
 		selectionManager = new SelectionManager(modelHandler.getModelView(), MOVE_LINKED, SelectionItemTypes.VERTEX);
 		abstractModelEditor = new AbstractModelEditor((SelectionManager) selectionManager, modelHandler, SelectionItemTypes.VERTEX);
 		nodeAnimationModelEditor = new NodeAnimationModelEditor((SelectionManager) selectionManager, modelHandler, SelectionItemTypes.ANIMATE);

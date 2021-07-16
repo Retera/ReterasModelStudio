@@ -38,13 +38,13 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 
 	private JPanel valuePanelsPanel() {
 		JPanel panel = new JPanel(new MigLayout("gap 0, ins 0, fill"));
-		lifeSpanPanel = new FloatValuePanel(modelHandler, "LifeSpan", modelHandler.getUndoManager());
-		emissionRatePanel = new FloatValuePanel(modelHandler, "EmissionRate", modelHandler.getUndoManager());
-		speedPanel = new FloatValuePanel(modelHandler, "Speed", modelHandler.getUndoManager());
-		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA, modelHandler.getUndoManager());
-		visPanel = new FloatValuePanel(modelHandler, "Visibility", modelHandler.getUndoManager());
+		lifeSpanPanel = new FloatValuePanel(modelHandler, "LifeSpan");
+		emissionRatePanel = new FloatValuePanel(modelHandler, "EmissionRate");
+		speedPanel = new FloatValuePanel(modelHandler, "Speed");
+		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA);
+		visPanel = new FloatValuePanel(modelHandler, "Visibility");
 
-		colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR, modelHandler.getUndoManager());
+		colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR);
 
 		return panel;
 	}

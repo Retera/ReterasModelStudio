@@ -10,26 +10,50 @@ public class CheckableNodeElement extends CheckableDisplayElement<IdObject> {
 	}
 
 	@Override
-	protected void setChecked(IdObject item, ModelView modelViewManager, boolean checked) {
+	protected void setChecked(IdObject item, ModelView modelView, boolean checked) {
 		if (checked) {
-			modelViewManager.makeIdObjectEditable(item);
+			modelView.makeIdObjectEditable(item);
 		} else {
-			modelViewManager.makeIdObjectNotVisible(item);
+			modelView.makeIdObjectNotVisible(item);
 		}
 	}
+	@Override
+	public void setEditable(boolean editable){
+		if(editable){
+			modelView.makeIdObjectEditable(item);
+		} else {
+			modelView.makeIdObjectNotEditable(item);
+		}
+	}
+	@Override
+	public void setVisible(boolean visible){
+		if(visible){
+			modelView.makeIdObjectVisible(item);
+		} else {
+			modelView.makeIdObjectNotVisible(item);
+		}
+	}
+//	@Override
+//	public boolean isEditable(){
+//		return modelView.isEditable(item);
+//	}
+//	@Override
+//	public boolean isVisible(){
+//		return modelView.isVisible(item);
+//	}
 
 	@Override
-	protected String getName(IdObject item, ModelView modelViewManager) {
+	protected String getName(IdObject item, ModelView modelView) {
 		return item.getClass().getSimpleName() + " \"" + item.getName() + "\"";
 	}
 
 	@Override
 	public void mouseEntered() {
-		modelViewManager.highlightNode(item);
+		modelView.highlightNode(item);
 	}
 
 	@Override
 	public void mouseExited() {
-		modelViewManager.unhighlightNode(item);
+		modelView.unhighlightNode(item);
 	}
 }

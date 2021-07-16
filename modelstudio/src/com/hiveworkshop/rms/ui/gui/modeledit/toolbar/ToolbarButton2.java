@@ -15,12 +15,13 @@ public class ToolbarButton2 <T extends ToolbarButtonType> {
 
 
 	public ToolbarButton2(T buttonType, Consumer<T> typeConsumer){
-		toolbarButton = new JButton();
+		toolbarButton = new JButton(buttonType.getImageIcon());
 		toolbarButton.setHideActionText(true);
 		toolbarButton.setHorizontalTextPosition(JButton.CENTER);
 		toolbarButton.setVerticalTextPosition(JButton.BOTTOM);
+		toolbarButton.setToolTipText(buttonType.getName());
 //		toolbarButton.setToolTipText(buttonType.getName());
-		toolbarButton.setIcon(buttonType.getImageIcon());
+//		toolbarButton.setIcon(buttonType.getImageIcon());
 		toolbarButton.setDisabledIcon(buttonType.getImageIcon());
 		toolbarButton.addActionListener(e -> typeConsumer.accept(buttonType));
 		toolbarButton.setBorder(defaultBorder);

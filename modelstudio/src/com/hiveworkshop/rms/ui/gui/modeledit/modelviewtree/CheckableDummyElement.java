@@ -19,14 +19,47 @@ public class CheckableDummyElement extends CheckableDisplayElement<String> {
 	}
 
 	@Override
-	protected void setChecked(String item, ModelView modelViewManager, boolean checked) {
+	protected void setChecked(String item, ModelView modelView, boolean checked) {
 		System.out.println(item + " set checked: " + checked);
-		if (item.equals("Mesh")) {
-//			updateMeshState(modelViewManager, checked);
-		}
+		//			updateMeshState(modelViewManager, checked);
 		if (item.equals("Nodes")) {
 //			updateNodesState(modelViewManager, checked);
 		}
+	}
+	@Override
+	public void setEditable(boolean editable){
+		switch (item) {
+			case "Mesh" -> modelView.setGeosetsEditable(editable);
+			case "Nodes" -> modelView.setIdObjectsVisible(editable);
+			case "Cameras" -> modelView.setCamerasVisible(editable);
+		}
+	}
+	@Override
+	public void setVisible(boolean visible){
+		switch (item) {
+			case "Mesh" -> modelView.setGeosetsVisible(visible);
+			case "Nodes" -> modelView.setIdObjectsVisible(visible);
+			case "Cameras" -> modelView.setCamerasVisible(visible);
+		}
+	}
+
+	@Override
+	public boolean isEditable(){
+		return switch (item) {
+			case "Mesh" -> modelView.isGeosetsEditable();
+			case "Nodes" -> modelView.isIdObjectsVisible();
+			case "Cameras" -> modelView.isCamerasVisible();
+			default -> false;
+		};
+	}
+	@Override
+	public boolean isVisible(){
+		return switch (item) {
+			case "Mesh" -> modelView.isGeosetsVisible();
+			case "Nodes" -> modelView.isIdObjectsVisible();
+			case "Cameras" -> modelView.isCamerasVisible();
+			default -> false;
+		};
 	}
 
 	private void updateNodesState(ModelView modelViewManager, boolean checked) {
@@ -84,7 +117,7 @@ public class CheckableDummyElement extends CheckableDisplayElement<String> {
 	}
 
 	@Override
-	protected String getName(String item, ModelView modelViewManager) {
+	protected String getName(String item, ModelView modelView) {
 		return item;
 	}
 }

@@ -55,6 +55,7 @@ public class ComponentsPanel extends JPanel {
 		addOverviewPanel(DisplayElementType.TEXTURE, new EditTexturesPopupPanel(modelHandler.getModelView()));
 		addOverviewPanel(DisplayElementType.GEOSET_ITEM, new GeosetOverviewPanel(modelHandler));
 		addOverviewPanel(DisplayElementType.ANIMATION, new AnimationOverviewPanel(modelHandler));
+		addOverviewPanel(DisplayElementType.GLOBAL_SEQ, new GlobalSeqOverviewPanel(modelHandler));
 		addOverviewPanel(DisplayElementType.NODES, new NodesOverviewPanel(modelHandler));
 
 		cardLayout.show(this, BLANK);

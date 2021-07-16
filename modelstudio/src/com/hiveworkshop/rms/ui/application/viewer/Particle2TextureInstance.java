@@ -7,31 +7,29 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.HashMap;
-
 public class Particle2TextureInstance {
 	private Bitmap bitmap;
 	private ParticleEmitter2 particle;
 	private boolean loaded = false;
-	private ProgramPreferences programPreferences;
-	private HashMap<Bitmap, Integer> textureMap;
-	private ModelView modelView;
+	private final ProgramPreferences programPreferences;
+	private final TextureThing textureThing;
+	private final ModelView modelView;
 
-	public Particle2TextureInstance(Bitmap bitmap, ParticleEmitter2 particle, HashMap<Bitmap, Integer> textureMap, ModelView modelView, ProgramPreferences programPreferences) {
+	public Particle2TextureInstance(Bitmap bitmap, ParticleEmitter2 particle, TextureThing textureThing, ModelView modelView, ProgramPreferences programPreferences) {
 		this.bitmap = bitmap;
 		this.particle = particle;
-		this.textureMap = textureMap;
+		this.textureThing = textureThing;
 		this.modelView = modelView;
 		this.programPreferences = programPreferences;
 	}
-	public Particle2TextureInstance(HashMap<Bitmap, Integer> textureMap, ModelView modelView, ProgramPreferences programPreferences) {
-		this.textureMap = textureMap;
+	public Particle2TextureInstance(TextureThing textureThing, ModelView modelView, ProgramPreferences programPreferences) {
+		this.textureThing = textureThing;
 		this.modelView = modelView;
 		this.programPreferences = programPreferences;
 	}
 
 	public Particle2TextureInstance generate(Bitmap bitmap, ParticleEmitter2 particle){
-		return new Particle2TextureInstance(bitmap, particle, textureMap, modelView, programPreferences);
+		return new Particle2TextureInstance(bitmap, particle, textureThing, modelView, programPreferences);
 	}
 
 	public void setTransformation(Vec3 worldLocation, Quat rotation, Vec3 worldScale) {
@@ -54,11 +52,10 @@ public class Particle2TextureInstance {
 
 	public void bind() {
 		if (!loaded) {
-			TextureThing.loadToTexMap(modelView, programPreferences, textureMap, bitmap);
+			textureThing.loadToTexMap(bitmap);
 			loaded = true;
 		}
-		Integer texture = textureMap.get(bitmap);
-		TextureThing.bindParticleTexture(textureMap, particle, bitmap, texture);
+		textureThing.bindParticleTexture(particle, bitmap);
 	}
 
 	public Particle2TextureInstance addInstance() {

@@ -15,16 +15,10 @@ import java.util.Set;
 public class FolderDataSource implements DataSource {
 
 	private final Path folderPath;
-	private final Set<String> listfile;
+	private Set<String> listfile;
 
 	public FolderDataSource(final Path folderPath) {
 		this.folderPath = folderPath;
-		listfile = new HashSet<>();
-		try {
-			Files.walk(folderPath).filter(Files::isRegularFile).forEach(t -> listfile.add(folderPath.relativize(t).toString()));
-		} catch (final IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	@Override
@@ -70,11 +64,22 @@ public class FolderDataSource implements DataSource {
 
 	@Override
 	public Collection<String> getListfile() {
-		return listfile;
+		return getListFile();
 	}
 
 	@Override
 	public void close() {
 	}
 
+	private Set<String> getListFile(){
+		if(listfile == null){
+			listfile = new HashSet<>();
+			try {
+				Files.walk(folderPath).filter(Files::isRegularFile).forEach(t -> listfile.add(folderPath.relativize(t).toString()));
+			} catch (final IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return listfile;
+	}
 }

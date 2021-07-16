@@ -30,28 +30,30 @@ public class TextureListRenderer extends DefaultListCellRenderer {
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 	                                              final boolean iss, final boolean chf) {
-		final String name = ((Bitmap) value).getName();
-		Color fgColor = orgFgColor;
-		ImageIcon myIcon = map.get(value);
-		if (myIcon == null) {
-			BufferedImage bufferedImage = BLPHandler.getImage(((Bitmap) value), model.getWrappedDataSource());
-			if (bufferedImage == null) {
-				System.out.println("could not load icon for \"" + name + "\"");
-				bufferedImage = noImage;
-				validImageMap.put((Bitmap) value, false);
-			} else {
-				validImageMap.put((Bitmap) value, true);
+		if(value instanceof Bitmap){
+			final String name = ((Bitmap) value).getName();
+			Color fgColor = orgFgColor;
+			ImageIcon myIcon = map.get(value);
+			if (myIcon == null) {
+				BufferedImage bufferedImage = BLPHandler.getImage(((Bitmap) value), model.getWrappedDataSource());
+				if (bufferedImage == null) {
+					System.out.println("could not load icon for \"" + name + "\"");
+					bufferedImage = noImage;
+					validImageMap.put((Bitmap) value, false);
+				} else {
+					validImageMap.put((Bitmap) value, true);
+				}
+				myIcon = new ImageIcon(bufferedImage.getScaledInstance(imageSize, imageSize, Image.SCALE_SMOOTH));
+				map.put((Bitmap) value, myIcon);
 			}
-			myIcon = new ImageIcon(bufferedImage.getScaledInstance(imageSize, imageSize, Image.SCALE_SMOOTH));
-			map.put((Bitmap) value, myIcon);
+			if (!validImageMap.get(value)) {
+				fgColor = Color.gray;
+			}
+			super.getListCellRendererComponent(list, name, index, iss, chf);
+			setIcon(myIcon);
+			setFont(theFont);
+			setForeground(fgColor);
 		}
-		if (!validImageMap.get(value)) {
-			fgColor = Color.gray;
-		}
-		super.getListCellRendererComponent(list, name, index, iss, chf);
-		setIcon(myIcon);
-		setFont(theFont);
-		setForeground(fgColor);
 
 		return this;
 	}

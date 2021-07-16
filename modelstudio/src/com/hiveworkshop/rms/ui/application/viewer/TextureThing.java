@@ -1,9 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
-import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.editor.model.Layer;
-import com.hiveworkshop.rms.editor.model.Material;
-import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
@@ -15,23 +12,32 @@ import org.lwjgl.opengl.GL12;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_LIGHTING;
 import static org.lwjgl.opengl.GL11.glEnable;
 
 public class TextureThing {
 	public static final boolean LOG_EXCEPTIONS = true;
+	ModelView modelView;
+	ProgramPreferences programPreferences;
+	HashMap<Bitmap, Integer> textureMap = new HashMap<>();
+
+	public TextureThing(ModelView modelView, ProgramPreferences programPreferences){
+		this.modelView = modelView;
+		this.programPreferences = programPreferences;
+	}
 
 	public static int loadTexture(final GPUReadyTexture texture, final Bitmap bitmap) {
 		if (texture == null) {
 			return -1;
 		}
-		final ByteBuffer buffer = texture.getBuffer();
+		ByteBuffer buffer = texture.getBuffer();
 		// You now have a ByteBuffer filled with the color data of each pixel.
 		// Now just create a texture ID and bind it. Then you can load it using
 		// whatever OpenGL method you want, for example:
 
-		final int textureID = GL11.glGenTextures(); // Generate texture ID
+		int textureID = GL11.glGenTextures(); // Generate texture ID
 		bindTexture(bitmap, textureID);
 
 		// Setup texture scaling filtering
@@ -51,7 +57,7 @@ public class TextureThing {
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 	}
 
-	public static void loadToTexMap(ModelView modelView, ProgramPreferences programPreferences, HashMap<Bitmap, Integer> textureMap, final Bitmap tex) {
+	public void loadToTexMap(Bitmap tex) {
 		if (textureMap.get(tex) == null) {
 			String path = tex.getPath();
 			if (!path.isEmpty() && !programPreferences.getAllowLoadingNonBlpTextures()) {
@@ -59,7 +65,7 @@ public class TextureThing {
 			}
 			Integer texture = null;
 			try {
-				final DataSource workingDirectory = modelView.getModel().getWrappedDataSource();
+				DataSource workingDirectory = modelView.getModel().getWrappedDataSource();
 				texture = loadTexture(BLPHandler.get().loadTexture2(workingDirectory, path, tex), tex);
 			} catch (final Exception exc) {
 				if (LOG_EXCEPTIONS) {
@@ -72,6 +78,34 @@ public class TextureThing {
 		}
 	}
 
+
+	public void reMakeTextureMap() {
+		deleteAllTextures(textureMap);
+		loadGeosetMaterials();
+	}
+	public void loadGeosetMaterials() {
+		final List<Geoset> geosets = modelView.getModel().getGeosets();
+		for (final Geoset geo : geosets) {
+			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
+				if (ModelUtils.isShaderStringSupported(modelView.getModel().getFormatVersion())) {
+					if ((geo.getMaterial().getShaderString() != null) && (geo.getMaterial().getShaderString().length() > 0)) {
+						if (i > 0) {
+							break;
+						}
+					}
+				}
+				final Layer layer = geo.getMaterial().getLayers().get(i);
+				if (layer.getTextureBitmap() != null) {
+					loadToTexMap(layer.getTextureBitmap());
+				}
+				if (layer.getTextures() != null) {
+					for (final Bitmap tex : layer.getTextures()) {
+						loadToTexMap(tex);
+					}
+				}
+			}
+		}
+	}
 	public static void deleteAllTextures(HashMap<Bitmap, Integer> textureMap) {
 		for (final Integer textureId : textureMap.values()) {
 			GL11.glDeleteTextures(textureId);
@@ -79,14 +113,14 @@ public class TextureThing {
 		textureMap.clear();
 	}
 
-	public static void bindLayerTexture(int textureMapSize, final Layer layer, final Bitmap tex, final Integer texture, final int formatVersion, final Material parent) {
+	public void bindLayerTexture(Layer layer, Bitmap tex, int formatVersion, Material parent) {
+		Integer texture = textureMap.get(tex);
 		if (texture != null) {
 			bindTexture(tex, texture);
-		} else {
-			if (textureMapSize > 0) {
-				bindTexture(tex, 0);
-			}
+		} else if (textureMap.size() > 0){
+			bindTexture(tex, 0);
 		}
+
 		boolean depthMask = false;
 		switch (layer.getFilterMode()) {
 			case BLEND -> setBlendWOAlpha(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -127,7 +161,8 @@ public class TextureThing {
 		}
 	}
 
-	public static void bindParticleTexture(HashMap<Bitmap, Integer> textureMap, final ParticleEmitter2 particle2, final Bitmap tex, final Integer texture) {
+	public void bindParticleTexture(ParticleEmitter2 particle2, Bitmap tex) {
+		Integer texture = textureMap.get(tex);
 		if (texture != null) {
 			bindTexture(tex, texture);
 		} else if (textureMap.size() > 0) {

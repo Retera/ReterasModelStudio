@@ -72,9 +72,9 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		topPanel = new JPanel(new MigLayout("fill, ins 0", "[]5[]5[grow]"));
 		add(topPanel, "spanx, wrap");
 
-		transPanel = new Vec3ValuePanel(modelHandler, MdlUtils.TOKEN_TRANSLATION, modelHandler.getUndoManager());
-		scalePanel = new Vec3ValuePanel(modelHandler, MdlUtils.TOKEN_SCALING, modelHandler.getUndoManager());
-		rotPanel = new QuatValuePanel(modelHandler, MdlUtils.TOKEN_ROTATION, modelHandler.getUndoManager());
+		transPanel = new Vec3ValuePanel(modelHandler, MdlUtils.TOKEN_TRANSLATION);
+		scalePanel = new Vec3ValuePanel(modelHandler, MdlUtils.TOKEN_SCALING);
+		rotPanel = new QuatValuePanel(modelHandler, MdlUtils.TOKEN_ROTATION);
 		add(transPanel, "spanx, growx, wrap");
 		add(scalePanel, "spanx, growx, wrap");
 		add(rotPanel, "spanx, growx, wrap");
@@ -161,6 +161,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	private void setThing(Consumer<Boolean> consumer, boolean b) {
 		if (idObject != null) {
 			consumer.accept(b);
+			ModelStructureChangeListener.changeListener.nodesUpdated();
 		}
 	}
 

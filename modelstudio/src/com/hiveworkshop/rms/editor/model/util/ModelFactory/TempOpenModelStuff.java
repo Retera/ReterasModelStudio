@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.editor.model.util.ModelFactory;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.*;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -262,7 +261,8 @@ public class TempOpenModelStuff {
 
 		GeosetAnim geosetAnim = new GeosetAnim(geoset);
 		geosetAnim.setStaticAlpha(mdlxAnimation.alpha);
-		geosetAnim.setStaticColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxAnimation.color)));
+//		geosetAnim.setStaticColor(new Vec3(ModelUtils.flipRGBtoBGR(mdlxAnimation.color)));
+		geosetAnim.setStaticColor(new Vec3(mdlxAnimation.color));
 
 		geosetAnim.setDropShadow(((mdlxAnimation.flags & 1) == 1));
 

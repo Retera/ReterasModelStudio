@@ -24,12 +24,12 @@ public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitt
 		pathField.addEditingStoppedListener(this::texturePathField);
 		topPanel.add(pathField, "wrap");
 
-		longitudePanel = new FloatValuePanel(modelHandler, "Longitude", modelHandler.getUndoManager());
-		latitudePanel = new FloatValuePanel(modelHandler, "Latitude", modelHandler.getUndoManager());
-		speedPanel = new FloatValuePanel(modelHandler, "Speed", modelHandler.getUndoManager());
-		gravityPanel = new FloatValuePanel(modelHandler, "Gravity", modelHandler.getUndoManager());
-		emissionPanel = new FloatValuePanel(modelHandler, "EmissionRate", modelHandler.getUndoManager());
-		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility", modelHandler.getUndoManager());
+		longitudePanel = new FloatValuePanel(modelHandler, "Longitude");
+		latitudePanel = new FloatValuePanel(modelHandler, "Latitude");
+		speedPanel = new FloatValuePanel(modelHandler, "Speed");
+		gravityPanel = new FloatValuePanel(modelHandler, "Gravity");
+		emissionPanel = new FloatValuePanel(modelHandler, "EmissionRate");
+		visibilityPanel = new FloatValuePanel(modelHandler, "Visibility");
 		topPanel.add(longitudePanel, "spanx, growx, wrap");
 		topPanel.add(latitudePanel, "spanx, growx, wrap");
 		topPanel.add(speedPanel, "spanx, growx, wrap");

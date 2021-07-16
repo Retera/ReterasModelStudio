@@ -9,15 +9,15 @@ import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.uv.MoveTVertexManipulat
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.uv.RotateTVertexManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.uv.ScaleTVertexManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType2;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorWidgetType;
 
 public class TVertexEditorManipulatorBuilder extends ManipulatorBuilder {
-	ModelEditorActionType2 currentAction;
+	ModelEditorWidgetType currentAction;
 
 
 	public TVertexEditorManipulatorBuilder(TVertexEditorManager modelEditorManager,
 	                                       ModelHandler modelHandler,
-	                                       ModelEditorActionType2 currentAction) {
+	                                       ModelEditorWidgetType currentAction) {
 		super(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), modelHandler);
 		this.currentAction = currentAction;
 		createWidget(currentAction);
@@ -32,7 +32,7 @@ public class TVertexEditorManipulatorBuilder extends ManipulatorBuilder {
 		};
 	}
 
-	private void createWidget(ModelEditorActionType2 action) {
+	private void createWidget(ModelEditorWidgetType action) {
 		if (action == null) {
 			widget = new MoverWidget();
 		} else {

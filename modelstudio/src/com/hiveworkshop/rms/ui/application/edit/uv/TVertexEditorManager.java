@@ -19,7 +19,7 @@ public final class TVertexEditorManager extends AbstractModelEditorManager {
 	                            ToolbarButtonGroup2<SelectionMode> modeButtonGroup,
 	                            ModelEditorChangeNotifier changeNotifier,
 	                            SelectionListener selectionListener) {
-		super(modelHandler, modeButtonGroup, changeNotifier, selectionListener);
+		super(modelHandler, changeNotifier, selectionListener);
 		selectionManager = new TVertSelectionManager(modelHandler.getModelView(), transformSelectionMode(TVertexSelectionItemTypes.VERTEX));
 		tVertexEditor = new TVertexEditor(selectionManager, modelHandler.getModelView(), transformSelectionMode(TVertexSelectionItemTypes.VERTEX));
 		setSelectionItemType(TVertexSelectionItemTypes.VERTEX);

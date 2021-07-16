@@ -23,6 +23,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObje
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ProgramPreferencesPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -262,7 +263,6 @@ public class MenuBarActions {
 
 			ModelHandler modelHandler = new ModelHandler(mdl);
 			ModelPanel temp = new ModelPanel(modelHandler,
-					mainPanel.selectionItemTypeGroup, mainPanel.selectionModeGroup,
 					mainPanel.coordDisplayListener,
 					mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false);
 			ModelLoader.loadModel(true, true, temp);
@@ -506,7 +506,7 @@ public class MenuBarActions {
 	public static void copyCutPast(TransferActionListener transferActionListener, ActionEvent e) {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
-		if (!mainPanel.animationModeState) {
+		if (!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
 			transferActionListener.actionPerformed(e);
 		} else {
 			if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
