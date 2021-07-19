@@ -8,7 +8,7 @@ package com.hiveworkshop.rms.editor.model;
  */
 public class Attachment extends IdObject {
 	String path = null;
-	int attachmentID = 0;
+	int attachmentID = -1;
 
 	public Attachment() {
 
@@ -40,8 +40,12 @@ public class Attachment extends IdObject {
 		}
 	}
 
-	public int getAttachmentID() {
-		return attachmentID;
+	public int getAttachmentID(EditableModel model) {
+		return model.getAttachments().indexOf(this);
+//		if(attachmentID == -1){
+//			return model.getAttachments().indexOf(this);
+//		}
+//		return attachmentID;
 	}
 
 	public void setAttachmentID(int attachmentID) {

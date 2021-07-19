@@ -227,6 +227,119 @@ public class SelectionManager extends AbstractSelectionManager {
 		return new SelectoinUgg(Collections.emptySet());
 	}
 
+	public SelectoinUgg genericSelect3D(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
+		if (selectionMode == SelectionItemTypes.VERTEX) {
+			Set<GeosetVertex> selectedVerts = addVertsFromArea(min, max, viewPortMat, zoom);
+//			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
+//			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
+//			return new SelectoinUgg(selectedVerts, selectedObjs, selectedCams);
+			return new SelectoinUgg(selectedVerts);
+		}
+
+//		if (selectionMode == SelectionItemTypes.FACE) {
+//			Set<GeosetVertex> selectedVerts = addTrisFromArea(min, max, coordinateSystem);
+//			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
+//			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
+//			return new SelectoinUgg(selectedVerts, selectedObjs, selectedCams);
+//		}
+
+//		if (selectionMode == SelectionItemTypes.CLUSTER) {
+//			List<VertexGroupBundle> newSelection = new ArrayList<>();
+//			for (Geoset geoset : modelView.getEditableGeosets()) {
+//				for (Triangle triangle : geoset.getTriangles()) {
+//					if (HitTestStuff.triHitTest(triangle, min, coordinateSystem)
+//							|| HitTestStuff.triHitTest(triangle, max, coordinateSystem)
+//							|| HitTestStuff.triHitTest(triangle, min, max, coordinateSystem)) {
+//						for (GeosetVertex vertex : triangle.getAll()) {
+//							newSelection.add(new VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(vertex)));
+//						}
+//					}
+//				}
+//			}
+//
+//			Set<GeosetVertex> geosetVerticesSelected = addVertsFromArea(min, max, coordinateSystem);
+//			for (GeosetVertex vertex : geosetVerticesSelected) {
+//				newSelection.add(new VertexGroupBundle(vertex.getGeoset(), vertexClusterDefinitions.getClusterId(vertex)));
+//			}
+//			Set<GeosetVertex> selectedVerts = new HashSet<>();
+//			for (VertexGroupBundle bundle : newSelection) {
+//				selectedVerts.addAll(bundle.getGeoset().getVertices());
+//			}
+//			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
+//			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
+//			return new SelectoinUgg(selectedVerts, selectedObjs, selectedCams);
+//		}
+
+//		if (selectionMode == SelectionItemTypes.GROUP) {
+//			List<VertexGroupBundle> newSelection = new ArrayList<>();
+//
+//			for (Geoset geoset : modelView.getEditableGeosets()) {
+//				for (Triangle triangle : geoset.getTriangles()) {
+//					if (HitTestStuff.triHitTest(triangle, min, coordinateSystem)
+//							|| HitTestStuff.triHitTest(triangle, max, coordinateSystem)
+//							|| HitTestStuff.triHitTest(triangle, min, max, coordinateSystem)) {
+//						for (GeosetVertex vertex : triangle.getAll()) {
+//							newSelection.add(new VertexGroupBundle(geoset, vertex.getVertexGroup()));
+//						}
+//					}
+//				}
+//			}
+//			Set<GeosetVertex> geosetVerticesSelected = addVertsFromArea(min, max, coordinateSystem);
+//			for (GeosetVertex vertex : geosetVerticesSelected) {
+//				newSelection.add(new VertexGroupBundle(vertex.getGeoset(), vertex.getVertexGroup()));
+//			}
+//
+//			Set<GeosetVertex> selectedVerts = new HashSet<>();
+//			for (VertexGroupBundle bundle : newSelection) {
+//				selectedVerts.addAll(bundle.getGeoset().getVertices());
+//			}
+//			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
+//			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
+//			return new SelectoinUgg(selectedVerts, selectedObjs, selectedCams);
+//		}
+
+//		if (selectionMode == SelectionItemTypes.VERTEX
+//				|| selectionMode == SelectionItemTypes.FACE
+//				|| selectionMode == SelectionItemTypes.GROUP
+//				|| selectionMode == SelectionItemTypes.CLUSTER) {
+//			Set<IdObject> selectedItems = getIdObjectsFromArea(min, max, coordinateSystem);
+//			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
+//			return new SelectoinUgg(selectedItems, selectedCams);
+//		}
+//
+//		if (selectionMode == SelectionItemTypes.TPOSE) {
+//			List<IdObject> selectedItems = new ArrayList<>();
+//
+//			for (IdObject object : modelView.getEditableIdObjects()) {
+//				double vertexSize = object.getClickRadius();
+//				if (HitTestStuff.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+//					selectedItems.add(object);
+//				}
+//				if (object instanceof CollisionShape) {
+//					for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+//						if (HitTestStuff.hitTest(min, max, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
+//							selectedItems.add(object);
+//						}
+//					}
+//				}
+//			}
+//			return new SelectoinUgg(selectedItems);
+//		}
+//
+//		if (selectionMode == SelectionItemTypes.ANIMATE) {
+//			List<IdObject> selectedItems = new ArrayList<>();
+//
+//			for (IdObject object : modelView.getEditableIdObjects()) {
+//				double vertexSize = object.getClickRadius() * 2;
+//				if (HitTestStuff.hitTest(min, max, coordinateSystem, vertexSize, modelView.getEditorRenderModel().getRenderNode(object))) {
+//					selectedItems.add(object);
+//				}
+//			}
+//			return new SelectoinUgg(selectedItems);
+//		}
+		return new SelectoinUgg(Collections.emptySet());
+	}
+
 	private Set<Camera> getCamerasFromArea(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		Set<Camera> selectedCams = new HashSet<>();
 		for (Camera camera : modelView.getEditableCameras()) {
@@ -287,6 +400,17 @@ public class SelectionManager extends AbstractSelectionManager {
 		return newSelection;
 	}
 
+	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
+		Set<GeosetVertex> newSelection = new HashSet<>();
+		for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (GeosetVertex geosetVertex : geoset.getVertices()) {
+				if (HitTestStuff.hitTest(min, max, geosetVertex, viewPortMat, ProgramGlobals.getPrefs().getVertexSize(), zoom))
+					newSelection.add(geosetVertex);
+			}
+		}
+		return newSelection;
+	}
+
 	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		SelectoinUgg newSelection = genericSelect(min, max, coordinateSystem);
 		UndoAction select = new SetSelectionUggAction(newSelection, modelView, "select").redo();
@@ -303,6 +427,27 @@ public class SelectionManager extends AbstractSelectionManager {
 
 	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		SelectoinUgg newSelection = genericSelect(min, max, coordinateSystem);
+		UndoAction addSelectionUggAction = new AddSelectionUggAction(newSelection, modelView).redo();
+		fireChangeListeners();
+		return addSelectionUggAction;
+	}
+
+	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
+		SelectoinUgg newSelection = genericSelect3D(min, max, viewPortMat, zoom);
+		UndoAction select = new SetSelectionUggAction(newSelection, modelView, "select").redo();
+		fireChangeListeners();
+		return select;
+	}
+
+	public final UndoAction removeSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
+		SelectoinUgg newSelection = genericSelect3D(min, max, viewPortMat, zoom);
+		UndoAction removeSelectionUggAction = new RemoveSelectionUggAction(newSelection, modelView).redo();
+		fireChangeListeners();
+		return removeSelectionUggAction;
+	}
+
+	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
+		SelectoinUgg newSelection = genericSelect3D(min, max, viewPortMat, zoom);
 		UndoAction addSelectionUggAction = new AddSelectionUggAction(newSelection, modelView).redo();
 		fireChangeListeners();
 		return addSelectionUggAction;

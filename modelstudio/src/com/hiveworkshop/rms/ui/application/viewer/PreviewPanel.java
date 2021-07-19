@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import org.lwjgl.LWJGLException;
 
@@ -23,6 +24,23 @@ public class PreviewPanel extends JPanel {
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);
+		} catch (LWJGLException e) {
+			throw new RuntimeException(e);
+		}
+		setLayout(new BorderLayout());
+		add(perspectiveViewport, BorderLayout.CENTER);
+	}
+
+	public PreviewPanel(ModelHandler modelHandler, boolean doDefaultCamera, ViewportActivityManager activityManager) {
+		this.modelHandler = modelHandler;
+		try {
+			renderEnv = modelHandler.getPreviewTimeEnv();
+			modelHandler.getModelView().setVetoOverrideParticles(true);
+			perspectiveViewport = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getPreviewRenderModel(), renderEnv, doDefaultCamera);
+			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
+			renderEnv.setAnimationTime(0);
+			renderEnv.setLive(true);
+			perspectiveViewport.getCameraHandler().setActivityManager(activityManager);
 		} catch (LWJGLException e) {
 			throw new RuntimeException(e);
 		}

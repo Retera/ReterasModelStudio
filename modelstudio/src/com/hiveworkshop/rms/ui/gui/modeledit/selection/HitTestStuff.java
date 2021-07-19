@@ -26,6 +26,20 @@ public class HitTestStuff {
 				|| within(vertexV2, min, max);
 	}
 
+	public static boolean hitTest(Vec2 min, Vec2 max, Vec3 vec3, Mat4 viewPortMat, double vertexSize, double zoom) {
+//
+//		Vec3 minView = new Vec3(min).minimize(max);
+//		Vec3 maxView = new Vec3(max).maximize(min);
+//
+		Vec3 viewPAdj = new Vec3(vec3).transform(viewPortMat);
+		Vec2 vertexV2 = viewPAdj.getProjected((byte) 1, (byte) 2);
+
+		double vertSize = vertexSize / 2.0 * zoom;
+		return (vertexV2.distance(min) <= vertSize)
+				|| (vertexV2.distance(max) <= vertSize)
+				|| within(vertexV2, min, max);
+	}
+
 	public static boolean hitTest(Vec3 vec3, Vec2 point, CoordinateSystem coordinateSystem, double vertexSize) {
 		Vec2 vertexV2 = CoordSysUtils.convertToViewVec2(coordinateSystem, vec3);
 		double vertSize = vertexSize / 2.0 / coordinateSystem.getZoom();
@@ -36,6 +50,13 @@ public class HitTestStuff {
 		boolean xIn = max.x >= point.x && point.x >= min.x;
 		boolean yIn = max.y >= point.y && point.y >= min.y;
 		return xIn && yIn;
+	}
+
+	private static boolean within(Vec3 point, Vec3 min, Vec3 max) {
+		boolean xIn = max.x >= point.x && point.x >= min.x;
+		boolean yIn = max.y >= point.y && point.y >= min.y;
+		boolean zIn = max.z >= point.z && point.z >= min.z;
+		return xIn && yIn && zIn;
 	}
 
 	public static boolean triHitTest(Triangle triangle, Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {

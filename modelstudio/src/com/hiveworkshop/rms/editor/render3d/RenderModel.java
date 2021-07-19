@@ -391,7 +391,7 @@ public final class RenderModel {
 			wasDirty = true;
 
 			if (node.billboarded) {
-				localRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()); // WORKS!
+				localRotation.mul(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()); // WORKS!
 			} else if (node.billboardedX) {
 
 //				localRotation.mulInverse(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX());
@@ -502,7 +502,18 @@ public final class RenderModel {
 //				localRotation.setFromAxisAngle2(0,0,1,(float)Math.PI/2);//Almost Works!
 //				localRotation.invertRotation2().mulLeft(getInverseCameraRotYSpinY());//Almost Works!
 			} else if (node.billboardedZ) {
-				localRotation.mul(getInverseCameraRotZSpinX()); // WORKS!
+//				localRotation.mul(getInverseCameraRotXSpinX()); //Nope
+//				localRotation.mul(getInverseCameraRotXSpinY()); //Nope (Maybe X or Y)
+//				localRotation.mul(getInverseCameraRotXSpinZ()); //Nope (Maybe X or Y)
+
+//				localRotation.mul(getInverseCameraRotYSpinX()); //Nope
+//				localRotation.mul(getInverseCameraRotYSpinY()); // X_axis?
+//				localRotation.mul(getInverseCameraRotYSpinZ());  //Nope
+
+//				localRotation.mul(getInverseCameraRotZSpinX()); //Nope
+//				localRotation.mul(getInverseCameraRotZSpinY()); //Nope
+				localRotation.mul(getInverseCameraRotZSpinZ());
+
 			}
 			localRotation.normalize();
 
@@ -754,37 +765,59 @@ public final class RenderModel {
 		}
 		return IDENTITY;
 	}
+
 	private Quat getInverseCameraRotXSpinX() {
-		if(cameraHandler != null){
+		if (cameraHandler != null) {
 			return cameraHandler.getInverseCameraRotXSpinX();
 		}
 		return IDENTITY;
 	}
 
-	private Quat getInverseCameraRotZSpinX() {
-		if(cameraHandler != null){
-			return cameraHandler.getInverseCameraRotZSpinX();
+	private Quat getInverseCameraRotXSpinY() {
+		if (cameraHandler != null) {
+			return cameraHandler.getInverseCameraRotXSpinY();
 		}
 		return IDENTITY;
 	}
 
-	private Quat getInverseCameraRotYSpinY() {
-		if(cameraHandler != null){
-			return cameraHandler.getInverseCameraRotYSpinY();
+	private Quat getInverseCameraRotXSpinZ() {
+		if (cameraHandler != null) {
+			return cameraHandler.getInverseCameraRotXSpinZ();
 		}
 		return IDENTITY;
 	}
 
 	private Quat getInverseCameraRotYSpinX() {
-		if(cameraHandler != null){
+		if (cameraHandler != null) {
 			return cameraHandler.getInverseCameraRotYSpinX();
 		}
 		return IDENTITY;
 	}
 
-	private Quat getInverseCameraRotXSpinY() {
-		if(cameraHandler != null){
-			return cameraHandler.getInverseCameraRotXSpinY();
+	private Quat getInverseCameraRotYSpinY() {
+		if (cameraHandler != null) {
+			return cameraHandler.getInverseCameraRotYSpinY();
+		}
+		return IDENTITY;
+	}
+
+	private Quat getInverseCameraRotYSpinZ() {
+		if (cameraHandler != null) {
+			return cameraHandler.getInverseCameraRotYSpinZ();
+		}
+		return IDENTITY;
+	}
+
+	private Quat getInverseCameraRotZSpinX() {
+		if (cameraHandler != null) {
+			return cameraHandler.getInverseCameraRotZSpinX();
+		}
+		return IDENTITY;
+	}
+
+	private Quat getInverseCameraRotZSpinZ() {
+		if (cameraHandler != null) {
+			return cameraHandler.getInverseCameraRotZSpinZ();
 		}
 		return IDENTITY;
 	}

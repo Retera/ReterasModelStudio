@@ -91,7 +91,8 @@ public class ModelPanel {
 		sideArea = getDisplayPanel(coordDisplayListener, viewportTransferHandler, viewportListener, "Side", (byte) 0, (byte) 2);
 		setShowControlls();
 
-		previewPanel = new PreviewPanel(modelHandler, !specialBLPModel);
+//		previewPanel = new PreviewPanel(modelHandler, !specialBLPModel);
+		previewPanel = new PreviewPanel(modelHandler, !specialBLPModel, viewportActivityManager);
 
 		animationController = new AnimationController(modelHandler, true, previewPanel, previewPanel.getCurrentAnimation());
 

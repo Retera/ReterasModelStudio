@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -34,7 +35,14 @@ public abstract class AbstractSelectionManager {
 	public abstract UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 
 	public abstract UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+
 	public abstract UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+
+	public abstract UndoAction setSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom);
+
+	public abstract UndoAction removeSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom);
+
+	public abstract UndoAction addSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom);
 
 	public void setSelection(SelectoinUgg selectionItem) {
 		if (selectionMode == SelectionItemTypes.VERTEX

@@ -68,10 +68,10 @@ public class ProgramGlobals {
 
 	public static void setCurrentModelPanel(ModelPanel currentModelPanel) {
 		ProgramGlobals.currentModelPanel = currentModelPanel;
-		if(!modelPanels.contains(currentModelPanel)){
+		if (!modelPanels.contains(currentModelPanel) && currentModelPanel != null) {
 			modelPanels.add(currentModelPanel);
 		}
-		if(currentModelPanel != null){
+		if (currentModelPanel != null) {
 			selectionItemTypeGroup.setActiveButton(currentModelPanel.getSelectionType());
 			actionTypeGroup.setActiveButton(currentModelPanel.getEditorActionType());
 		}

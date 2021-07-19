@@ -4,11 +4,14 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
+import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import net.infonode.docking.View;
 import net.miginfocom.swing.MigLayout;
+import org.lwjgl.LWJGLException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +26,7 @@ import java.awt.image.BufferedImage;
  */
 public class DisplayPanel extends JPanel {
 	private Viewport vp;
+	private PerspectiveViewport vp2;
 	JPanel buttonPanel;
 	private final ViewportActivityManager activityListener;
 	private final View view;
@@ -40,7 +44,20 @@ public class DisplayPanel extends JPanel {
 
 		setOpaque(true);
 		vp = getViewport(a, b, modelHandler, coordDisplayListener, modelEditorManager, viewportTransferHandler);
-		add(vp, "spany, growy, growx");
+//		add(vp, "spany, growy, growx");
+
+		try {
+			vp2 = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), modelHandler.getEditTimeEnv(), false);
+			vp2.setMinimumSize(new Dimension(200, 200));
+			CameraHandler cameraHandler = vp2.getCameraHandler();
+			cameraHandler.toggleOrtho().setAllowRotation(false).setAllowToggleOrtho(false);
+			cameraHandler.setCameraTop(300);
+			cameraHandler.setActivityManager(activityListener);
+			add(vp2, "spany, growy, growx");
+		} catch (LWJGLException e) {
+			e.printStackTrace();
+			add(vp, "spany, growy, growx");
+		}
 
 		buttonPanel = getButtonPanel();
 		add(buttonPanel, "gapy 16, top");
@@ -89,10 +106,10 @@ public class DisplayPanel extends JPanel {
 		buttonPanel.setVisible(flag);
 	}
 
-	public Viewport getViewport(byte a, byte b, ModelHandler modelHandler,
-	                            CoordDisplayListener coordDisplayListener,
-	                            ModelEditorManager modelEditorManager,
-	                            ViewportTransferHandler viewportTransferHandler) {
+	private Viewport getViewport(byte a, byte b, ModelHandler modelHandler,
+	                             CoordDisplayListener coordDisplayListener,
+	                             ModelEditorManager modelEditorManager,
+	                             ViewportTransferHandler viewportTransferHandler) {
 		return new Viewport(a, b, modelHandler, activityListener, coordDisplayListener, modelEditorManager, viewportTransferHandler, viewportListener);
 	}
 
@@ -101,7 +118,91 @@ public class DisplayPanel extends JPanel {
 		super.paintComponent(g);
 		revalidate();
 		// g.drawString(title,3,3);
+
+//		g.setColor(ProgramGlobals.getPrefs().getSelectColor());
+
+//		try {
+//
+//				vp2.paint(vp2.getGraphics());
+//			if(!vp2.isCurrent()){
+//				vp2.makeCurrent();
+//			}
+//			if(vp2.isCurrent()){
+//				System.out.println("Painted square!");
+////				vp2.paint(vp2.getGraphics());
+////				vp2.paint(vp2.getGraphics());
+////				GL11.glDepthMask(false);
+//				GL11.glEnable(GL11.GL_BLEND);
+//				GL11.glDisable(GL_CULL_FACE);
+//				GL11.glDisable(GL_DEPTH_TEST);
+//				GL11.glDisable(GL_ALPHA_TEST);
+//				GL11.glDisable(GL_TEXTURE_2D);
+//				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+//
+//				glColor4f(1f, .2f, 1f, .4f);
+//				glBegin(GL11.GL_LINES);
+//				GL11.glNormal3f(0, 0, 0);
+//
+//				int ySize = 50;
+//				int xSize = 10;
+//
+//
+//				int height = -310;
+//
+//				GL11.glVertex3f(xSize, height, ySize);
+//				GL11.glVertex3f(xSize, height, -ySize);
+//
+//				GL11.glVertex3f(xSize, height, -ySize);
+//				GL11.glVertex3f(-xSize, height, -ySize);
+//
+//				GL11.glVertex3f(-xSize, height, -ySize);
+//				GL11.glVertex3f(-xSize, height, ySize);
+//
+//				GL11.glVertex3f(-xSize, height, ySize);
+//				GL11.glVertex3f(xSize, height, ySize);
+//
+//
+//				glEnd();
+//				vp2.releaseContext();
+//			}
+//		} catch (LWJGLException e) {
+//			e.printStackTrace();
+//		}
+//		vp2.getContext();
+//
+//		vp2.paint(vp2.getGraphics());
+//		GL11.glDepthMask(false);
+//		GL11.glDisable(GL_CULL_FACE);
+//		GL11.glDisable(GL_DEPTH_TEST);
+//		GL11.glDisable(GL_ALPHA_TEST);
+//		GL11.glDisable(GL_TEXTURE_2D);
+//
+//		glColor4f(1f, .2f, 1f, .4f);
+//		glBegin(GL11.GL_LINES);
+//		GL11.glNormal3f(0, 0, 0);
+//
+//		int ySize = 50;
+//		int xSize = 50;
+//
+//
+//
+//		GL11.glVertex3f(xSize, 0, ySize);
+//		GL11.glVertex3f(xSize, 0, -ySize);
+//
+//		GL11.glVertex3f(xSize, 0, -ySize);
+//		GL11.glVertex3f(-xSize, 0, -ySize);
+//
+//		GL11.glVertex3f(-xSize, 0, -ySize);
+//		GL11.glVertex3f(-xSize, 0, ySize);
+//
+//		GL11.glVertex3f(-xSize, 0, ySize);
+//		GL11.glVertex3f(xSize, 0, ySize);
+//
+//
+//		glEnd();
 		vp.repaint();
+//		vp2.getGraphics().setColor(Color.MAGENTA);
+//		vp2.getGraphics().fillRect((int) 00, (int) 00, (int) (3000), (int) (3000));
 	}
 
 	public void zoom(double v) {

@@ -55,7 +55,7 @@ public abstract class ViewportView extends JPanel {
 
 		setBorder(BorderFactory.createBevelBorder(1));
 		setBackground(ProgramGlobals.getPrefs().getBackgroundColor());
-		ProgramGlobals.getPrefs().addChangeListener(() -> setBackground(ProgramGlobals.getPrefs().getBackgroundColor()));
+//		ProgramGlobals.getPrefs().addChangeListener(() -> setBackground(ProgramGlobals.getPrefs().getBackgroundColor()));
 
 		// Viewport border
 		setMinimumSize(minDim);

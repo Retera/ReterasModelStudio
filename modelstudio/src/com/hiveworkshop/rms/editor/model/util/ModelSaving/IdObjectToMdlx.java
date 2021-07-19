@@ -32,7 +32,7 @@ public class IdObjectToMdlx {
 
 		objectToMdlx(attachment, mdlxAttachment, model);
 
-		mdlxAttachment.attachmentId = attachment.getAttachmentID();
+		mdlxAttachment.attachmentId = attachment.getAttachmentID(model);
 
 		if (attachment.getPath() != null) {
 			mdlxAttachment.path = attachment.getPath();

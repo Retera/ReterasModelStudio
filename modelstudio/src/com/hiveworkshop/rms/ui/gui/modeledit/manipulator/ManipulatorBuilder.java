@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ButtonType;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.Widget;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
@@ -45,6 +46,17 @@ public abstract class ManipulatorBuilder {
 		return null;
 	}
 
+	public Cursor getCursorAt(int x, int y, CameraHandler cameraHandler, AbstractSelectionManager selectionManager) {
+		Vec2 mousePoint = new Vec2(x, y);
+		if (!selectionManager.isEmpty() && widgetOffersEdit(mousePoint, cameraHandler, selectionManager)) {
+			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
+		}
+//		else if (viewportSelectionHandler.selectableUnderCursor(mousePoint, cameraHandler)) {
+//			return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+//		}
+		return null;
+	}
+
 	public Manipulator buildManipulator(int x, int y,
 	                                    ButtonType clickedButton,
 	                                    CoordinateSystem coordinateSystem,
@@ -61,11 +73,37 @@ public abstract class ManipulatorBuilder {
 		return new SelectManipulator(viewportSelectionHandler, coordinateSystem);
 	}
 
+	public Manipulator buildManipulator(int x, int y,
+	                                    ButtonType clickedButton,
+	                                    CameraHandler cameraHandler,
+	                                    AbstractSelectionManager selectionManager) {
+//		if (clickedButton == ButtonType.RIGHT_MOUSE) {
+//			return createDefaultManipulator(selectionManager);
+//		} else if (!selectionManager.isEmpty()) {
+//			Vec2 mousePoint = new Vec2(x, y);
+//			Manipulator manipulatorFromWidget = createManipulatorFromWidget(mousePoint, coordinateSystem, selectionManager);
+//			if (manipulatorFromWidget != null) {
+//				return manipulatorFromWidget;
+//			}
+//		}
+		return new SelectManipulator(viewportSelectionHandler, cameraHandler);
+	}
+
 	protected boolean widgetOffersEdit(Vec2 mousePoint,
 	                                   CoordinateSystem coordinateSystem,
 	                                   AbstractSelectionManager selectionManager) {
 		setWidgetPoint(selectionManager);
 		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, coordinateSystem);
+		widget.setMoveDirection(directionByMouse);
+		return directionByMouse != MoveDimension.NONE;
+	}
+
+	protected boolean widgetOffersEdit(Vec2 mousePoint,
+	                                   CameraHandler cameraHandler,
+	                                   AbstractSelectionManager selectionManager) {
+		setWidgetPoint(selectionManager);
+//		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, cameraHandler);
+		MoveDimension directionByMouse = MoveDimension.NONE;
 		widget.setMoveDirection(directionByMouse);
 		return directionByMouse != MoveDimension.NONE;
 	}

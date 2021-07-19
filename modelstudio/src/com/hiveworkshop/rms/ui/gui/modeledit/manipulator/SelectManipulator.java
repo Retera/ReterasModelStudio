@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
@@ -12,13 +13,20 @@ import java.awt.event.MouseEvent;
 public class SelectManipulator extends Manipulator {
 	private final ViewportSelectionHandler viewportSelectionHandler;
 	private Vec2 mouseEnd;
-	private final CoordinateSystem coordinateSystem;
+	private CoordinateSystem coordinateSystem;
 	private byte currentDim1;
 	private byte currentDim2;
+//	private Mat4 viewPortMat;
+//	double zoom;
 
 	public SelectManipulator(ViewportSelectionHandler viewportSelectionHandler, CoordinateSystem coordinateSystem) {
 		this.viewportSelectionHandler = viewportSelectionHandler;
 		this.coordinateSystem = coordinateSystem;
+	}
+
+	public SelectManipulator(ViewportSelectionHandler viewportSelectionHandler, CameraHandler cameraHandler) {
+		this.viewportSelectionHandler = viewportSelectionHandler;
+//		this.coordinateSystem = coordinateSystem;
 	}
 
 	@Override
@@ -28,7 +36,18 @@ public class SelectManipulator extends Manipulator {
 	}
 
 	@Override
+	protected void onStart(MouseEvent e, Vec2 mouseStart, CameraHandler cameraHandler) {
+//		currentDim1 = dim1;
+//		currentDim2 = dim2;
+	}
+
+	@Override
 	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
+		this.mouseEnd = mouseEnd;
+	}
+
+	@Override
+	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
 		this.mouseEnd = mouseEnd;
 	}
 
@@ -37,6 +56,13 @@ public class SelectManipulator extends Manipulator {
 		Vec2 min = new Vec2(activityStart).minimize(mouseEnd);
 		Vec2 max = new Vec2(activityStart).maximize(mouseEnd);
 		return viewportSelectionHandler.selectRegion(min, max, coordinateSystem);
+	}
+
+	@Override
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+		Vec2 min = new Vec2(activityStart).minimize(mouseEnd);
+		Vec2 max = new Vec2(activityStart).maximize(mouseEnd);
+		return viewportSelectionHandler.selectRegion(min, max, cameraHandler);
 	}
 
 	@Override

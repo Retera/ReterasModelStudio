@@ -16,7 +16,8 @@ public class GeosetToMdlx {
 			mdlxGeoset.extent = geoset.getExtents().toMdlx();
 		}
 
-		for (int i = 0, l = geoset.getAnims().size(); i < l; i++) {
+		for (int i = 0; i < geoset.getAnims().size() && i < model.getAnims().size(); i++) {
+			System.out.println("Geoset anim " + i + ": " + geoset.getAnim(i) + "(" + geoset.getAnim(i).getStart() + " - " + geoset.getAnim(i).getEnd() + ")");
 			mdlxGeoset.sequenceExtents.add(geoset.getAnim(i).getExtents().toMdlx());
 		}
 

@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
@@ -65,6 +66,20 @@ public abstract class ViewportActivity implements SelectionListener {
 
 	public void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem) {
 	}
+
+
+	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
+	}
+
+	public void mouseReleased(MouseEvent e, CameraHandler cameraHandler) {
+	}
+
+	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
+	}
+
+	public void mouseDragged(MouseEvent e, CameraHandler cameraHandler) {
+	}
+
 
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 	}

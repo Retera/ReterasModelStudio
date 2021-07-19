@@ -29,7 +29,8 @@ public class ParticleEmitterShader {
 				uv_v /= rows;
 			}
 			GL11.glTexCoord2f(uv_u, uv_v);
-			GL11.glVertex3f(bufferData[i].v.y, bufferData[i].v.z, bufferData[i].v.x);
+//			GL11.glVertex3f(bufferData[i].v.y, bufferData[i].v.z, bufferData[i].v.x);
+			GL11.glVertex3f(bufferData[i].v.x, bufferData[i].v.y, bufferData[i].v.z);
 		}
 		GL11.glEnd();
 	}
@@ -62,7 +63,7 @@ public class ParticleEmitterShader {
 				uv_v /= rows;
 			}
 			GL11.glTexCoord2f(uv_u, uv_v);
-			GL11.glVertex3f(bufferData[i].v.y, bufferData[i].v.z, bufferData[i].v.x);
+			GL11.glVertex3f(bufferData[i].v.x, bufferData[i].v.y, bufferData[i].v.z);
 		}
 		GL11.glEnd();
 	}

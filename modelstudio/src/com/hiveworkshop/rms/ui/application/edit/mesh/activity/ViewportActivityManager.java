@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 
@@ -79,6 +80,37 @@ public final class ViewportActivityManager implements SelectionListener {
 			currentActivity.render(g, coordinateSystem, renderModel, isAnimated);
 		}
 	}
+
+
+	public void mousePressed(MouseEvent e, CameraHandler coordinateSystem) {
+		if (this.currentActivity != null) {
+			currentActivity.mousePressed(e, coordinateSystem);
+		}
+	}
+
+	public void mouseReleased(MouseEvent e, CameraHandler coordinateSystem) {
+		if (this.currentActivity != null) {
+			currentActivity.mouseReleased(e, coordinateSystem);
+		}
+	}
+
+	public void mouseMoved(MouseEvent e, CameraHandler coordinateSystem) {
+		if (this.currentActivity != null) {
+			currentActivity.mouseMoved(e, coordinateSystem);
+		}
+	}
+
+	public void mouseDragged(MouseEvent e, CameraHandler coordinateSystem) {
+		if (this.currentActivity != null) {
+			currentActivity.mouseDragged(e, coordinateSystem);
+		}
+	}
+
+//	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
+//		if (this.currentActivity != null) {
+//			currentActivity.render(g, coordinateSystem, renderModel, isAnimated);
+//		}
+//	}
 
 	public boolean isEditing() {
 		if (this.currentActivity != null) {
