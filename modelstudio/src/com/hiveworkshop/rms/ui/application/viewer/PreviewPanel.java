@@ -41,6 +41,7 @@ public class PreviewPanel extends JPanel {
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);
 			perspectiveViewport.getCameraHandler().setActivityManager(activityManager);
+			perspectiveViewport.getMouseListenerThing().setActivityManager(activityManager);
 		} catch (LWJGLException e) {
 			throw new RuntimeException(e);
 		}

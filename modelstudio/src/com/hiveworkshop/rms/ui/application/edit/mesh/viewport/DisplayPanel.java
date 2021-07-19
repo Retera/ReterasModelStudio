@@ -43,7 +43,7 @@ public class DisplayPanel extends JPanel {
 		this.viewportListener = viewportListener;
 
 		setOpaque(true);
-		vp = getViewport(a, b, modelHandler, coordDisplayListener, modelEditorManager, viewportTransferHandler);
+		vp = new Viewport(a, b, modelHandler, activityListener, coordDisplayListener, modelEditorManager, viewportTransferHandler, viewportListener);
 //		add(vp, "spany, growy, growx");
 
 		try {
@@ -104,13 +104,6 @@ public class DisplayPanel extends JPanel {
 
 	public void setControlsVisible(boolean flag) {
 		buttonPanel.setVisible(flag);
-	}
-
-	private Viewport getViewport(byte a, byte b, ModelHandler modelHandler,
-	                             CoordDisplayListener coordDisplayListener,
-	                             ModelEditorManager modelEditorManager,
-	                             ViewportTransferHandler viewportTransferHandler) {
-		return new Viewport(a, b, modelHandler, activityListener, coordDisplayListener, modelEditorManager, viewportTransferHandler, viewportListener);
 	}
 
 	@Override

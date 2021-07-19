@@ -9,10 +9,11 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.function.Consumer;
 
 public final class ViewportActivityManager implements SelectionListener {
 	private ViewportActivity currentActivity;
-	private CursorManager cursorManager;
+	private Consumer<Cursor> cursorManager;
 	private ModelEditor newModelEditor;
 	private AbstractSelectionManager newSelection;
 
@@ -29,7 +30,7 @@ public final class ViewportActivityManager implements SelectionListener {
 		}
 	}
 
-	public void viewportChanged(CursorManager cursorManager) {
+	public void viewportChanged(Consumer<Cursor> cursorManager) {
 		this.cursorManager = cursorManager;
 		if (currentActivity != null) {
 			currentActivity.viewportChanged(cursorManager);

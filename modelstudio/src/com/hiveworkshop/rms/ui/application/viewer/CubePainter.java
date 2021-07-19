@@ -249,6 +249,33 @@ public class CubePainter {
 		glEnd();
 	}
 
+
+	public static void paintRekt(Vec3 start, Vec3 end1, Vec3 end2, Vec3 end3, CameraHandler cameraHandler) {
+
+//		glBegin(GL11.GL_TRIANGLES);
+//		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glBegin(GL11.GL_LINES);
+
+		float frnt = 1;
+
+		glColor4f(1f, .2f, 1f, .7f);
+
+		GL11.glNormal3f(0, frnt, 0);
+		GL11.glVertex3f(start.x, start.y, start.z);
+		GL11.glVertex3f(end1.x, end1.y, end1.z);
+
+		GL11.glVertex3f(end1.x, end1.y, end1.z);
+		GL11.glVertex3f(end2.x, end2.y, end2.z);
+
+		GL11.glVertex3f(end2.x, end2.y, end2.z);
+		GL11.glVertex3f(end3.x, end3.y, end3.z);
+
+		GL11.glVertex3f(end3.x, end3.y, end3.z);
+		GL11.glVertex3f(start.x, start.y, start.z);
+
+		glEnd();
+	}
+
 	public static void paintVertCubes2(ModelView modelView, RenderModel renderModel, Geoset geo, CameraHandler cameraHandler) {
 
 //		glBegin(GL11.GL_TRIANGLES);

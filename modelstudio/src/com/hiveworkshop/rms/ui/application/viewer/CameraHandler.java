@@ -109,11 +109,6 @@ public class CameraHandler {
 		cameraPos.y = (float) b;
 	}
 
-	public void translate(double a, double b) {
-		cameraPos.x += a;
-		cameraPos.y += b;
-	}
-
 	private void calculateCameraRotation() {
 		inverseCameraRotXSpinX.setFromAxisAngle(X_AXIS, (float) Math.toRadians(xAngle)).normalize();
 		inverseCameraRotXSpinX.invertRotation();
@@ -289,38 +284,62 @@ public class CameraHandler {
 			final double my = pointerInfo.getLocation().y - yoff;
 
 			if (cameraPanStartPoint2 != null) {
-				// translate Viewport Camera
-				double cameraPointX = ((int) mx - cameraPanStartPoint2.x);// / m_zoom;
-				double cameraPointY = ((int) my - cameraPanStartPoint2.y);// / m_zoom;
-
-				Vec3 vertexHeap = new Vec3(0, -cameraPointX, cameraPointY);
-				cameraPos.add(vertexHeap);
-				cameraPanStartPoint2.x = (int) mx;
-				cameraPanStartPoint2.y = (int) my;
+				panCamera((int) mx, (int) my);
 			}
 			if (cameraSpinStartPoint2 != null && allowRotation) {
-				// rotate Viewport Camera
-				zAngle += mx - cameraSpinStartPoint2.x;
-				yAngle += my - cameraSpinStartPoint2.y;
-
-				calculateCameraRotation();
-
-				cameraSpinStartPoint2.x = (int) mx;
-				cameraSpinStartPoint2.y = (int) my;
+				rotateCamera(mx, my);
 			}
 			// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
 
 			if (actStart != null) {
-				Point locationOnScreen = viewport.getLocationOnScreen();
-				Vec2 actEnd = new Vec2((int) mx - locationOnScreen.x, (int) my - locationOnScreen.y);
-				Vec2 convertedStart = new Vec2(geomX(actStart.x), geomY(actStart.y));
-				Vec2 convertedEnd = new Vec2(geomX(actEnd.x), geomY(actEnd.y));
-				// dispMDL.updateAction(convertedStart,convertedEnd,m_d1,m_d2);
-				actStart = actEnd;
+				somethingSelect((int) mx, (int) my);
 
 
 			}
 		}
+	}
+
+	private void somethingSelect(int mx, int my) {
+		Point locationOnScreen = viewport.getLocationOnScreen();
+		Vec2 actEnd = new Vec2(mx - locationOnScreen.x, my - locationOnScreen.y);
+		Vec2 convertedStart = new Vec2(geomX(actStart.x), geomY(actStart.y));
+		Vec2 convertedEnd = new Vec2(geomX(actEnd.x), geomY(actEnd.y));
+		// dispMDL.updateAction(convertedStart,convertedEnd,m_d1,m_d2);
+		actStart = actEnd;
+	}
+
+	private void rotateCamera(double mx, double my) {
+		// rotate Viewport Camera
+		zAngle += mx - cameraSpinStartPoint2.x;
+		yAngle += my - cameraSpinStartPoint2.y;
+
+		calculateCameraRotation();
+
+		cameraSpinStartPoint2.x = (int) mx;
+		cameraSpinStartPoint2.y = (int) my;
+	}
+
+	public void rotate(double right, double up) {
+		zAngle += right;
+		yAngle += up;
+		calculateCameraRotation();
+	}
+
+	private void panCamera(int mx, int my) {
+		// translate Viewport Camera
+		double cameraPointX = (mx - cameraPanStartPoint2.x);// / m_zoom;
+		double cameraPointY = (my - cameraPanStartPoint2.y);// / m_zoom;
+
+		translate(-cameraPointX, cameraPointY);
+//		Vec3 vertexHeap = new Vec3(0, -cameraPointX, cameraPointY);
+//		cameraPos.add(vertexHeap);
+		cameraPanStartPoint2.x = mx;
+		cameraPanStartPoint2.y = my;
+	}
+
+	public void translate(double left, double up) {
+		cameraPos.y += left;
+		cameraPos.z += up;
 	}
 
 
@@ -451,16 +470,16 @@ public class CameraHandler {
 	}
 
 	public void finnishSpinn(MouseEvent e) {
-		Vec2 selectEnd = new Vec2(e.getX(), e.getY());
-		Rectangle2D.Double area = pointsToGeomRect(cameraSpinStartPoint2, selectEnd);
-		// System.out.println(area);
-		// dispMDL.selectVerteces(area,m_d1,m_d2,MainFrame.panel.currentSelectionType());
+//		Vec2 selectEnd = new Vec2(e.getX(), e.getY());
+//		Rectangle2D.Double area = pointsToGeomRect(cameraSpinStartPoint2, selectEnd);
+//		// System.out.println(area);
+//		// dispMDL.selectVerteces(area,m_d1,m_d2,MainFrame.panel.currentSelectionType());
 		cameraSpinStartPoint2 = null;
 	}
 
 	public void finnishPan(MouseEvent e) {
-		cameraPos.y += (e.getXOnScreen() - cameraPanStartPoint2.x) / m_zoom;
-		cameraPos.z += (e.getYOnScreen() - cameraPanStartPoint2.y) / m_zoom;
+//		cameraPos.y += (e.getXOnScreen() - cameraPanStartPoint2.x) / m_zoom;
+//		cameraPos.z += (e.getYOnScreen() - cameraPanStartPoint2.y) / m_zoom;
 		cameraPanStartPoint2 = null;
 	}
 

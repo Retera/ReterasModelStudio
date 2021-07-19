@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -14,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.function.Consumer;
 
 public abstract class ViewportView extends JPanel {
 
@@ -28,7 +28,7 @@ public abstract class ViewportView extends JPanel {
 	protected Component boxX, boxY;
 
 	protected Point lastMouseMotion = new Point(0, 0);
-	protected CursorManager cursorManager;
+	Consumer<Cursor> cursorManager;
 
 	protected ModelHandler modelHandler;
 	protected ViewportActivityManager viewportActivity;
@@ -69,6 +69,7 @@ public abstract class ViewportView extends JPanel {
 		addMouseMotionListener(mouseAdapter);
 
 
+//		cursorManager = this::setCursor;
 		cursorManager = this::setCursor;
 	}
 

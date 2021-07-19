@@ -73,6 +73,7 @@ public class ProgramPreferences implements Serializable {
 				}
 
 			} catch (Exception e) {
+				System.out.println("failed on field: " + field.getName());
 				e.printStackTrace();
 			}
 		}

@@ -55,6 +55,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private float xRatio;
 	private float yRatio;
 	private final Timer clickTimer;
+	private final MouseListenerThing mouseAdapter;
 
 	ExtLog currentExt = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
@@ -66,7 +67,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		cameraHandler = new CameraHandler(this);
 		renderEnv = renderEnvironment;
 
-		MouseAdapter mouseAdapter = getMouseAdapter();
+//		MouseAdapter mouseAdapter = getMouseAdapter();
+		mouseAdapter = new MouseListenerThing(cameraHandler, programPreferences);
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
 		addMouseWheelListener(mouseAdapter);
@@ -156,6 +158,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 	public CameraHandler getCameraHandler() {
 		return cameraHandler;
+	}
+
+	public MouseListenerThing getMouseListenerThing() {
+		return mouseAdapter;
 	}
 
 	public PerspectiveViewport setAllowRotation(boolean allow) {
@@ -312,10 +318,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			GL11.glDepthFunc(GL11.GL_LEQUAL);
 			GL11.glDepthMask(true);
 			if ((programPreferences != null) && (programPreferences.getPerspectiveBackgroundColor() != null)) {
-				Color backgroundColor = programPreferences.getPerspectiveBackgroundColor();
-				glClearColor(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), autoRepainting ? 1.0f : 1.0f);
+				float[] colorComponents = programPreferences.getPerspectiveBackgroundColor().getColorComponents(null);
+				glClearColor(colorComponents[0], colorComponents[1], colorComponents[2], autoRepainting ? 1.0f : 1.0f);
 			} else {
-				glClearColor(80, 80, 80, autoRepainting ? 1.0f : 1.0f);
+				glClearColor(.3f, .3f, .3f, autoRepainting ? 1.0f : 1.0f);
 			}
 //			glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, autoRepainting ? 1.0f : 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -639,15 +645,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		GL11.glTexCoord2f(vertex.getTverts().get(coordId).x, vertex.getTverts().get(coordId).y);
 		GL11.glVertex3f(vert.x, vert.y, vert.z);
 	}
-//	private void paintVert(Layer layer, GeosetVertex vertex, Vec3 vert, Vec3 normal) {
-//		GL11.glNormal3f(normal.y, normal.z, normal.x);
-//		int coordId = layer.getCoordId();
-//		if (coordId >= vertex.getTverts().size()) {
-//			coordId = vertex.getTverts().size() - 1;
-//		}
-//		GL11.glTexCoord2f(vertex.getTverts().get(coordId).x, vertex.getTverts().get(coordId).y);
-//		GL11.glVertex3f(vert.y, vert.z, vert.x);
-//	}
 
 
 	private void renderNormals(int formatVersion) {
@@ -687,18 +684,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 				vertexSumHeap.y + (normalSumHeap.y * factor),
 				vertexSumHeap.z + (normalSumHeap.z * factor));
 	}
-//	private void paintNormal(Vec3 vertexSumHeap, Vec3 normalSumHeap) {
-//		GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-//		GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
-//
-//		float factor = (float) (6 / cameraHandler.getZoom());
-//
-//		GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-//		GL11.glVertex3f(
-//				vertexSumHeap.y + (normalSumHeap.y * factor),
-//				vertexSumHeap.z +  (normalSumHeap.z * factor),
-//				vertexSumHeap.x + (normalSumHeap.x * factor));
-//	}
 
 	public boolean renderTextures() {
 		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
@@ -809,8 +794,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	Vec3 ccc2 = null;
 
 	private void cameraMarkerPainter() {
-		if (ccc2 != null) {
-			CubePainter.paintVertCubes3(ccc2, cameraHandler);
+		if (mouseAdapter.isActing()) {
+			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(), mouseAdapter.getEndPGeo3(), cameraHandler);
 		}
 	}
 }

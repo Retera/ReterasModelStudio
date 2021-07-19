@@ -14,11 +14,12 @@ import com.hiveworkshop.rms.util.Vec2;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.function.Consumer;
 
 public class MultiManipulatorActivity extends ViewportActivity {
 	private final ManipulatorBuilder manipulatorBuilder;
 	private Manipulator manipulator;
-	private CursorManager cursorManager;
+	private Consumer<Cursor> cursorManager;
 	private Vec2 mouseStartPoint;
 	private Vec2 lastDragPoint;
 
@@ -35,7 +36,7 @@ public class MultiManipulatorActivity extends ViewportActivity {
 	}
 
 	@Override
-	public void viewportChanged(CursorManager cursorManager) {
+	public void viewportChanged(Consumer<Cursor> cursorManager) {
 		this.cursorManager = cursorManager;
 	}
 
@@ -83,7 +84,7 @@ public class MultiManipulatorActivity extends ViewportActivity {
 
 	@Override
 	public void mouseMoved(MouseEvent e, CoordinateSystem coordinateSystem) {
-		cursorManager.setCursor(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), coordinateSystem, selectionManager));
+		cursorManager.accept(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), coordinateSystem, selectionManager));
 	}
 
 	@Override
@@ -140,7 +141,7 @@ public class MultiManipulatorActivity extends ViewportActivity {
 
 	@Override
 	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
-		cursorManager.setCursor(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), cameraHandler, selectionManager));
+		cursorManager.accept(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), cameraHandler, selectionManager));
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import com.hiveworkshop.rms.util.Vec2;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class ViewportActivity implements SelectionListener {
 
@@ -53,7 +54,7 @@ public abstract class ViewportActivity implements SelectionListener {
 		modelEditor = newModelEditor;
 	}
 
-	public void viewportChanged(CursorManager cursorManager) {
+	public void viewportChanged(Consumer<Cursor> cursorManager) {
 	}
 
 	public abstract void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem);
