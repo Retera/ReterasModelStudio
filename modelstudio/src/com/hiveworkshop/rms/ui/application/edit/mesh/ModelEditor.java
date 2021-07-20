@@ -34,8 +34,14 @@ public abstract class ModelEditor {
 	public abstract GenericMoveAction beginTranslation();
 
 	public abstract GenericScaleAction beginScaling(Vec3 center);
+
 	public abstract GenericRotateAction beginRotation(Vec3 center, byte firstXYZ, byte secondXYZ);
+
 	public abstract GenericRotateAction beginSquatTool(Vec3 center, byte firstXYZ, byte secondXYZ);
+
+	public abstract GenericRotateAction beginRotation(Vec3 center, Vec3 axis);
+
+	public abstract GenericRotateAction beginSquatTool(Vec3 center, Vec3 axis);
 
 	// true if we conceptually are editing/operating on top of an animated model,
 	// instead of a static one

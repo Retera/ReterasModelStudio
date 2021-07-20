@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -60,7 +61,38 @@ public abstract class AbstractScaleManipulator extends Manipulator {
 		}
 	}
 
+	@Override
+	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+		resetScaleVector();
+		buildScaleVector(mouseStart, mouseEnd, cameraHandler);
+		scaleAction.updateScale(scaleVector);
+	}
+
+	@Override
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+		update(e, mouseStart, mouseEnd, cameraHandler);
+		resetScaleVector();
+		isNeg = false;
+		return scaleAction;
+	}
+
+	protected final void buildScaleVector(Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+		double scaleFactor = computeScaleFactor(mouseStart, mouseEnd, cameraHandler);
+		if (dir == MoveDimension.XYZ) {
+			scaleVector.set(scaleFactor, scaleFactor, scaleFactor);
+		} else {
+//			if (dir.containDirection(dim1)) {
+//				scaleVector.setCoord(dim1, scaleFactor);
+//			}
+//			if (dir.containDirection(dim2)) {
+//				scaleVector.setCoord(dim2, scaleFactor);
+//			}
+		}
+	}
+
 	protected abstract double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2);
+
+	protected abstract double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler);
 
 	protected int getFlipNeg(double dEnd) {
 		int flipNeg;

@@ -637,6 +637,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	private void paintVert(Layer layer, GeosetVertex vertex, Vec3 vert, Vec3 normal) {
+		if (programPreferences != null && programPreferences.viewMode() == 0 && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
+			if (modelView.isSelected(vertex)) {
+				GL11.glColor4f(.95f, .2f, .2f, 1f);
+			} else if (modelView.isEditable(vertex)) {
+				GL11.glColor4f(1f, 1f, 1f, 1f);
+			} else {
+				GL11.glColor4f(.5f, .5f, .5f, 1f);
+			}
+		}
 		GL11.glNormal3f(normal.x, normal.y, normal.z);
 		int coordId = layer.getCoordId();
 		if (coordId >= vertex.getTverts().size()) {
@@ -796,6 +805,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private void cameraMarkerPainter() {
 		if (mouseAdapter.isActing()) {
 			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(), mouseAdapter.getEndPGeo3(), cameraHandler);
+//			renderModel.updateGeosets();
 		}
 	}
 }

@@ -56,12 +56,21 @@ public class TVertexEditor extends ModelEditor {
 		return new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, dim1, dim2);
 	}
 
+	public GenericRotateAction beginRotation(Vec3 center, Vec3 axis) {
+		return new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 0, (byte) 1);
+	}
+
 	public GenericScaleAction beginScaling(Vec3 center) {
 		return new StaticMeshUVScaleAction(modelView.getSelectedVertices(), uvLayerIndex, center.getProjected((byte) 0, (byte) 1));
 	}
 
 	@Override
 	public GenericRotateAction beginSquatTool(Vec3 center, byte firstXYZ, byte secondXYZ) {
+		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
+	}
+
+	@Override
+	public GenericRotateAction beginSquatTool(Vec3 center, Vec3 axis) {
 		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
 	}
 

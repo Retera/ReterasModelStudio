@@ -243,12 +243,16 @@ public class CameraHandler {
 		glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
 	}
 
-	public Vec3 getCameraPos() {
+	public Vec3 getActualCameraPos() {
 		Vec3 statCamPos = new Vec3(0f, -70f, -200f);
 		Vec3 dynCamPos = Vec3.getScaled(cameraPos, (float) m_zoom).sub(statCamPos);
 		dynCamPos.rotate(0, 0, 0, Math.toRadians(yAngle), (byte) 1, (byte) 2);
 		dynCamPos.rotate(0, 0, 0, Math.toRadians(yAngle), (byte) 0, (byte) 2);
 		return dynCamPos;
+	}
+
+	public Vec3 getCameraPos() {
+		return cameraPos;
 	}
 
 	public void setCameraSide(double modelRadius) {
@@ -338,8 +342,14 @@ public class CameraHandler {
 	}
 
 	public void translate(double left, double up) {
-		cameraPos.y += left;
-		cameraPos.z += up;
+//		cameraPos.y += left;
+//		cameraPos.z += up;
+//		cameraPos.y += left * (1f / m_zoom);
+//		cameraPos.z += up * (1f / m_zoom);
+//		cameraPos.y += left * (1f / m_zoom) * cameraPos.x / 600f;
+//		cameraPos.z += up * (1f / m_zoom) * cameraPos.x / 600f;
+		cameraPos.y -= left * cameraPos.x / 600f;
+		cameraPos.z -= up * cameraPos.x / 600f;
 	}
 
 
@@ -528,15 +538,21 @@ public class CameraHandler {
 	}
 
 	public double geomX(double x) {
-		double x_real = (-(x - (viewport.getWidth() / 2.0)) * cameraPos.x / 600f + cameraPos.y) / m_zoom;
-		return x_real;
+		return (-(x - (viewport.getWidth() / 2.0)) * cameraPos.x / 600f + cameraPos.y) / m_zoom;
 	}
 
 	public double geomY(double y) {
 
-		double y_real = ((y - (viewport.getHeight() / 2.0)) * cameraPos.x / 600f + cameraPos.z) / m_zoom;
-		return y_real;
+		return ((y - (viewport.getHeight() / 2.0)) * cameraPos.x / 600f + cameraPos.z) / m_zoom;
 	}
+
+//	public double geomDistX(double x1, double x2) {
+//		return (-(x1 - (viewport.getWidth() / 2.0)) * cameraPos.x / 600f + cameraPos.y) / m_zoom;
+//	}
+//
+//	public double geomDistY(double y1, double y2) {
+//		return (y1 - y2) * cameraPos.x / 600f / m_zoom;
+//	}
 
 	public Vec3 getGeoPoint(double viewX, double viewY) {
 		double x_real = -(viewX - (viewport.getWidth() / 2.0)) * cameraPos.x / 600f + cameraPos.y;
@@ -567,5 +583,9 @@ public class CameraHandler {
 	public CameraHandler setAllowToggleOrtho(boolean allowToggleOrtho) {
 		this.allowToggleOrtho = allowToggleOrtho;
 		return this;
+	}
+
+	public boolean isOrtho() {
+		return ortho;
 	}
 }

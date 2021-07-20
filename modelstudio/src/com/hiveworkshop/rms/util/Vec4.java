@@ -177,13 +177,13 @@ public class Vec4 {
 	}
 
 	public Vec4 transform(Quat quat) {
-		final float uvx = quat.y * z - quat.z * y;
-		final float uvy = quat.z * x - quat.x * z;
-		final float uvz = quat.x * y - quat.y * x;
-		final float uuvx = quat.y * uvz - quat.z * uvy;
-		final float uuvy = quat.z * uvx - quat.x * uvz;
-		final float uuvz = quat.x * uvy - quat.y * uvx;
-		final float w2 = quat.w * 2;
+		float uvx = quat.y * z - quat.z * y;
+		float uvy = quat.z * x - quat.x * z;
+		float uvz = quat.x * y - quat.y * x;
+		float uuvx = quat.y * uvz - quat.z * uvy;
+		float uuvy = quat.z * uvx - quat.x * uvz;
+		float uuvz = quat.x * uvy - quat.y * uvx;
+		float w2 = quat.w * 2;
 
 		float newX = x + (uvx * w2) + (uuvx * 2);
 		float newY = y + (uvy * w2) + (uuvy * 2);

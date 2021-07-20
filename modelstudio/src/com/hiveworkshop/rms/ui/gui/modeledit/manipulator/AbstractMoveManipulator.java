@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -48,6 +49,36 @@ public abstract class AbstractMoveManipulator extends Manipulator {
 			moveVector.setCoord(dim2, mouseEnd.y - mouseStart.y);
 		}
 	}
+
+
+	@Override
+	protected void onStart(MouseEvent e, Vec2 mouseStart, CameraHandler cameraHandler) {
+		resetMoveVector();
+		translationAction = modelEditor.beginTranslation();
+	}
+
+	@Override
+	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+		resetMoveVector();
+		buildMoveVector(mouseStart, mouseEnd, cameraHandler);
+		translationAction.updateTranslation(moveVector);
+	}
+
+	@Override
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+		update(e, mouseStart, mouseEnd, cameraHandler);
+		resetMoveVector();
+		return translationAction;
+	}
+
+	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+		moveVector.y = (mouseEnd.x - mouseStart.x);
+		moveVector.z = (mouseEnd.y - mouseStart.y);
+
+		moveVector.transform(cameraHandler.getViewPortAntiRotMat2());
+
+	}
+
 
 	private void resetMoveVector() {
 		moveVector.set(0, 0, 0);

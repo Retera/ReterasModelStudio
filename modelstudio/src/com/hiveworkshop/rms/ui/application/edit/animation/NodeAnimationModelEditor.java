@@ -182,6 +182,36 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		return new SquatToolKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView, center, firstXYZ, secondXYZ);
 	}
 
+	@Override
+	public GenericRotateAction beginRotation(Vec3 center, Vec3 axis) {
+		Set<IdObject> selection = modelView.getSelectedIdObjects();
+
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+
+		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, ModelEditorActionType3.ROTATION, selection);
+
+		int trackTime = timeEnvironmentImpl.getTrackTime();
+		return new RotationKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView, center, (byte) 0, (byte) 1);
+	}
+
+	@Override
+	public GenericRotateAction beginSquatTool(Vec3 center, Vec3 axis) {
+		Set<IdObject> selection = new HashSet<>(modelView.getSelectedIdObjects());
+
+		for (IdObject idObject : modelView.getModel().getIdObjects()) {
+			if (modelView.getSelectedIdObjects().contains(idObject.getParent())
+					&& isBoneAndSameClass(idObject, idObject.getParent())) {
+				selection.add(idObject);
+			}
+		}
+
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, ModelEditorActionType3.SQUAT, selection);
+
+		int trackTime = timeEnvironmentImpl.getTrackTime();
+		return new SquatToolKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView, center, (byte) 0, (byte) 1);
+	}
+
 	private boolean isBoneAndSameClass(IdObject idObject1, IdObject idObject2) {
 		return idObject1 instanceof Bone
 				&& idObject2 instanceof Bone

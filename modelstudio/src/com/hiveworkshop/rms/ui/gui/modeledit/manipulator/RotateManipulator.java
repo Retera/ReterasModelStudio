@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -33,6 +34,27 @@ public class RotateManipulator extends AbstractRotateManipulator {
 		}
 
 		rotationAction = modelEditor.beginRotation(center, planeDim1, planeDim2);
+	}
+
+	@Override
+	protected void onStart(MouseEvent e, Vec2 mouseStart, CameraHandler cameraHandler) {
+		Vec3 center = selectionManager.getCenter();
+		nonRotAngle = 0;
+		Vec3 axis = new Vec3(1, 0, 0);
+		axis.transform(cameraHandler.getViewPortAntiRotMat2());
+
+//		if (dir != MoveDimension.XYZ && dir.containDirection(dim1)) {
+//			planeDim1 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
+//			planeDim2 = dim2;
+//		} else if (dir != MoveDimension.XYZ && dir.containDirection(dim2)) {
+//			planeDim1 = dim1;
+//			planeDim2 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
+//		} else {
+//			planeDim1 = dim1;
+//			planeDim2 = dim2;
+//		}
+//
+		rotationAction = modelEditor.beginRotation(center, axis);
 	}
 
 	protected Vec2 getVec2Center(byte portFirstXYZ, byte portSecondXYZ) {

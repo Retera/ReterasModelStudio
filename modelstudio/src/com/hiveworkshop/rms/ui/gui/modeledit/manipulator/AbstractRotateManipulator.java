@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 
@@ -15,6 +16,7 @@ public abstract class AbstractRotateManipulator extends Manipulator {
 	protected GenericRotateAction rotationAction;
 	protected MoveDimension dir;
 	protected double nonRotAngle;
+	protected double totRotAngle;
 
 	public AbstractRotateManipulator(ModelEditor modelEditor, AbstractSelectionManager selectionManager, MoveDimension dir) {
 		this.modelEditor = modelEditor;
@@ -32,6 +34,7 @@ public abstract class AbstractRotateManipulator extends Manipulator {
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		update(e, mouseStart, mouseEnd, dim1, dim2);
 		nonRotAngle = 0;
+		totRotAngle = 0;
 		return rotationAction;
 	}
 
@@ -67,6 +70,12 @@ public abstract class AbstractRotateManipulator extends Manipulator {
 			}
 		}
 		if (e.isControlDown()) {
+//			double angleDiff = totRotAngle%Math.toDegrees(15);
+//			totRotAngle -= angleDiff;
+//			nonRotAngle += deltaAngle;
+//			deltaAngle = getSnappedAngle(nonRotAngle, 15) - angleDiff;
+//			double angleDiff = totRotAngle%Math.toDegrees(15);
+//			totRotAngle -= angleDiff;
 			nonRotAngle += deltaAngle;
 			deltaAngle = getSnappedAngle(nonRotAngle, 15);
 			nonRotAngle -= deltaAngle;
@@ -74,6 +83,74 @@ public abstract class AbstractRotateManipulator extends Manipulator {
 //			deltaAngle += nonRotAngle;
 			nonRotAngle = 0;
 		}
+		totRotAngle += deltaAngle;
+		return deltaAngle;
+	}
+
+
+	@Override
+	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+		double radians = computeRotateRadians(e, mouseStart, mouseEnd, cameraHandler);
+		rotationAction.updateRotation(radians);
+	}
+
+	@Override
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+		update(e, mouseStart, mouseEnd, cameraHandler);
+		nonRotAngle = 0;
+		totRotAngle = 0;
+		return rotationAction;
+	}
+
+	protected double computeRotateRadians(MouseEvent e, Vec2 startingClick, Vec2 endingClick, CameraHandler cameraHandler) {
+		double deltaAngle = 0;
+//		Vec2 center = getVec2Center(portFirstXYZ, portSecondXYZ);
+		if (dir == MoveDimension.XYZ) {
+//			Vec2 startingDelta = Vec2.getDif(startingClick, center);
+//			Vec2 endingDelta = Vec2.getDif(endingClick, center);
+//
+//			double startingAngle = Math.atan2(startingDelta.y, startingDelta.x);
+//			double endingAngle = Math.atan2(endingDelta.y, endingDelta.x);
+//
+//			deltaAngle = endingAngle - startingAngle;
+
+			double radius = getRadius();
+			deltaAngle = (endingClick.x - startingClick.x) / radius;
+//
+		} else {
+//			if (dir.containDirection(portFirstXYZ)) {
+//				double radius = getRadius();
+//				deltaAngle = (endingClick.y - startingClick.y) / radius;
+//			}
+//			if (dir.containDirection(portSecondXYZ)) {
+//				double radius = getRadius();
+//				deltaAngle = (endingClick.x - startingClick.x) / radius;
+//			}
+//			if (dir.containDirection(CoordSysUtils.getUnusedXYZ(portFirstXYZ, portSecondXYZ))) {
+//				Vec2 startingDelta = Vec2.getDif(startingClick, center);
+//				Vec2 endingDelta = Vec2.getDif(endingClick, center);
+//
+//				double startingAngle = Math.atan2(startingDelta.y, startingDelta.x);
+//				double endingAngle = Math.atan2(endingDelta.y, endingDelta.x);
+//
+//				deltaAngle = endingAngle - startingAngle;
+//			}
+		}
+		if (e.isControlDown()) {
+//			double angleDiff = totRotAngle%Math.toDegrees(15);
+//			totRotAngle -= angleDiff;
+//			nonRotAngle += deltaAngle;
+//			deltaAngle = getSnappedAngle(nonRotAngle, 15) - angleDiff;
+//			double angleDiff = totRotAngle%Math.toDegrees(15);
+//			totRotAngle -= angleDiff;
+			nonRotAngle += deltaAngle;
+			deltaAngle = getSnappedAngle(nonRotAngle, 15);
+			nonRotAngle -= deltaAngle;
+		} else {
+//			deltaAngle += nonRotAngle;
+			nonRotAngle = 0;
+		}
+		totRotAngle += deltaAngle;
 		return deltaAngle;
 	}
 

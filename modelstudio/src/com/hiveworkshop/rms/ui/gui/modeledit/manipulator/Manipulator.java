@@ -24,6 +24,8 @@ public abstract class Manipulator {
 	public abstract UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2);
 
 	public final void start(MouseEvent e, Vec2 mouseStart, CameraHandler cameraHandler) {
+		// this should maybe pass along a flag for "model or view space" (ie if the action should be rotated to
+		// match the view or if it should be locked to the worlds axes)
 		activityStart.set(mouseStart);
 		onStart(e, mouseStart, cameraHandler);
 	}
@@ -34,15 +36,11 @@ public abstract class Manipulator {
 	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
 	}
 
-	;
-
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
 		return null;
 	}
 
-	;
 
 	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
-
 	}
 }

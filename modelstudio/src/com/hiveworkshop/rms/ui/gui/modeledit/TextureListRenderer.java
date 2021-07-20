@@ -37,7 +37,7 @@ public class TextureListRenderer extends DefaultListCellRenderer {
 			if (myIcon == null) {
 				BufferedImage bufferedImage = BLPHandler.getImage(((Bitmap) value), model.getWrappedDataSource());
 				if (bufferedImage == null) {
-					System.out.println("could not load icon for \"" + name + "\"");
+//					System.out.println("could not load icon for \"" + name + "\"");
 					bufferedImage = noImage;
 					validImageMap.put((Bitmap) value, false);
 				} else {

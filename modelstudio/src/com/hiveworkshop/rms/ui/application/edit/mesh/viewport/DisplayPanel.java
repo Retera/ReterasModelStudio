@@ -47,12 +47,13 @@ public class DisplayPanel extends JPanel {
 //		add(vp, "spany, growy, growx");
 
 		try {
-			vp2 = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), modelHandler.getEditTimeEnv(), false);
+			vp2 = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), modelHandler.getEditTimeEnv(), true);
 			vp2.setMinimumSize(new Dimension(200, 200));
 			CameraHandler cameraHandler = vp2.getCameraHandler();
 			cameraHandler.toggleOrtho().setAllowRotation(false).setAllowToggleOrtho(false);
 			cameraHandler.setCameraTop(300);
 			cameraHandler.setActivityManager(activityListener);
+			vp2.getMouseListenerThing().setActivityManager(activityListener);
 			add(vp2, "spany, growy, growx");
 		} catch (LWJGLException e) {
 			e.printStackTrace();

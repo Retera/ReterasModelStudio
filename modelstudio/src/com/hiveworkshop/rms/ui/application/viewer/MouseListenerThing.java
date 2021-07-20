@@ -124,7 +124,9 @@ public class MouseListenerThing extends MouseAdapter {
 			} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
 				cameraHandler.rotate((e.getX() - endP.y), (e.getY() - endP.z));
 			} else if ((e.getButton() == MouseEvent.BUTTON3)) {
+			} else if (isActing && activityManager != null) {
 				// "act"? should maybe do geometry transformations
+				activityManager.mouseDragged(e, cameraHandler);
 			}
 
 

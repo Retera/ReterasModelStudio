@@ -56,30 +56,6 @@ public class Vec3 {
 		}
 	}
 
-	protected static double getCenterDimCoord(double centerX, double centerY, double centerZ, byte dim) {
-		return switch (dim) {
-			case 0 -> centerX;
-			case 1 -> centerY;
-			case -1 -> -centerX;
-			case -2 -> -centerY;
-			case -3 -> -centerZ;
-			case 2 -> centerZ;
-			default -> centerZ;
-		};
-	}
-
-	protected static double getCenterDimCoord(Vec3 center, byte dim) {
-		return switch (dim) {
-			case 0 -> center.x;
-			case 1 -> center.y;
-			case -1 -> -center.x;
-			case -2 -> -center.y;
-			case -3 -> -center.z;
-			case 2 -> center.z;
-			default -> center.z;
-		};
-	}
-
 	public static void rotateVertex(final Vec3 center, final Vec3 axis, final double radians, final Vec3 vertex) {
 //        final double centerX = center.x;
 //        final double centerY = center.y;
@@ -201,6 +177,31 @@ public class Vec3 {
 		return new Vec3(from).hermite(outTan, inTan, toward, t);
 	}
 
+
+	protected static double getCenterDimCoord(double centerX, double centerY, double centerZ, byte dim) {
+		return switch (dim) {
+			case 0 -> centerX;
+			case 1 -> centerY;
+			case 2 -> centerZ;
+			case -1 -> -centerX;
+			case -2 -> -centerY;
+			case -3 -> -centerZ;
+			default -> centerZ;
+		};
+	}
+
+	protected static double getCenterDimCoord(Vec3 center, byte dim) {
+		return switch (dim) {
+			case 0 -> center.x;
+			case 1 -> center.y;
+			case 2 -> center.z;
+			case -1 -> -center.x;
+			case -2 -> -center.y;
+			case -3 -> -center.z;
+			default -> center.z;
+		};
+	}
+
 	public float getCoord(final byte dim) {
 		return switch (dim) {
 			case 0 -> x;
@@ -242,15 +243,16 @@ public class Vec3 {
 		return distance(other.getVec3());
 	}
 
-	public Vec3 rotate(final double centerX, final double centerY, final double centerZ, final double radians,
-	                   final byte firstXYZ, final byte secondXYZ) {
-		final double x1 = getCoord(firstXYZ);
-		final double y1 = getCoord(secondXYZ);
-		final double cx = getCenterDimCoord(centerX, centerY, centerZ, firstXYZ);// = coordinateSystem.geomX(centerX);
-		final double dx = x1 - cx;
-		final double cy = getCenterDimCoord(centerX, centerY, centerZ, secondXYZ);// = coordinateSystem.geomY(centerY);
-		final double dy = y1 - cy;
-		final double r = Math.sqrt((dx * dx) + (dy * dy));
+	public Vec3 rotate(double centerX, double centerY, double centerZ, double radians,
+	                   byte firstXYZ, byte secondXYZ) {
+		double x1 = getCoord(firstXYZ);
+		double y1 = getCoord(secondXYZ);
+		double cx = getCenterDimCoord(centerX, centerY, centerZ, firstXYZ);// = coordinateSystem.geomX(centerX);
+		double dx = x1 - cx;
+		double cy = getCenterDimCoord(centerX, centerY, centerZ, secondXYZ);// = coordinateSystem.geomY(centerY);
+		double dy = y1 - cy;
+		double r = Math.sqrt((dx * dx) + (dy * dy));
+
 		double verAng = Math.acos(dx / r);
 		if (dy < 0) {
 			verAng = -verAng;
@@ -268,15 +270,16 @@ public class Vec3 {
 		return this;
 	}
 
-	public Vec3 rotate(Vec3 center, final double radians,
-	                   final byte firstXYZ, final byte secondXYZ) {
-		final double x1 = getCoord(firstXYZ);
-		final double y1 = getCoord(secondXYZ);
-		final double cx = getCenterDimCoord(center, firstXYZ);
-		final double dx = x1 - cx;
-		final double cy = getCenterDimCoord(center, secondXYZ);
-		final double dy = y1 - cy;
-		final double r = Math.sqrt((dx * dx) + (dy * dy));
+	public Vec3 rotate(Vec3 center, double radians, byte firstXYZ, byte secondXYZ) {
+		double x1 = getCoord(firstXYZ);
+		double y1 = getCoord(secondXYZ);
+//		double cx = getCenterDimCoord(center, firstXYZ);
+		double cx = center.getCoord(firstXYZ);
+		double dx = x1 - cx;
+//		double cy = getCenterDimCoord(center, secondXYZ);
+		double cy = center.getCoord(secondXYZ);
+		double dy = y1 - cy;
+		double r = Math.sqrt((dx * dx) + (dy * dy));
 		double verAng = Math.acos(dx / r);
 		if (dy < 0) {
 			verAng = -verAng;
@@ -290,6 +293,49 @@ public class Vec3 {
 			setCoord(secondXYZ, newSecondCoord);
 		}
 		return this;
+	}
+
+	public Vec3 rotate(Vec3 center, Quat quat) {
+		float px = x;
+		float py = y;
+		float pz = z;
+		sub(center);
+//		double dx = x - center.x;
+//		double dy = y - center.y;
+//		double dZ = z - center.z;
+		transform(quat);
+		add(center);
+//		double r = Math.sqrt((dx * dx) + (dy * dy));
+//		double verAng = Math.acos(dx / r);
+//		if (dy < 0) {
+//			verAng = -verAng;
+//		}
+//		double newFirstCoord = (Math.cos(verAng + radians) * r) + center.x;
+//		if (!Double.isNaN(newFirstCoord)) {
+//			setCoord(firstXYZ, newFirstCoord);
+//		}
+//		double newSecondCoord = (Math.sin(verAng + radians) * r) + center.y;
+//		if (!Double.isNaN(newSecondCoord)) {
+//			setCoord(secondXYZ, newSecondCoord);
+//		}
+		return this;
+	}
+
+
+	public Vec3 transform(Quat quat) {
+		float uvx = quat.y * z - quat.z * y;
+		float uvy = quat.z * x - quat.x * z;
+		float uvz = quat.x * y - quat.y * x;
+		float uuvx = quat.y * uvz - quat.z * uvy;
+		float uuvy = quat.z * uvx - quat.x * uvz;
+		float uuvz = quat.x * uvy - quat.y * uvx;
+		float w2 = quat.w * 2;
+
+		float newX = x + (uvx * w2) + (uuvx * 2);
+		float newY = y + (uvy * w2) + (uuvy * 2);
+		float newZ = z + (uvz * w2) + (uuvz * 2);
+
+		return set(newX, newY, newZ);
 	}
 
 	public float[] toArray() {

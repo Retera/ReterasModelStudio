@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes;
 
+import com.hiveworkshop.rms.util.Quat;
+
 import javax.swing.*;
 
 public final class CoordinateSystem {
@@ -116,6 +118,27 @@ public final class CoordinateSystem {
 			dimension2 = (byte) (-dimension2 - 1);
 		}
 		return (byte) (3 - dimension1 - dimension2);
+	}
+
+	public Quat viewportRotation() {
+		return switch (getUnusedXYZ()) {
+			case 0 -> new Quat().setFromAxisAngle(1, 0, 0, 0);
+			case 1 -> new Quat().setFromAxisAngle(0, 1, 0, 0);
+			case 2 -> new Quat().setFromAxisAngle(0, 0, 1, 0);
+			case -1 -> new Quat().setFromAxisAngle(-1, 0, 0, 0);
+			case -2 -> new Quat().setFromAxisAngle(0, -1, 0, 0);
+			case -3 -> new Quat().setFromAxisAngle(0, 0, -1, 0);
+			default -> throw new IllegalStateException("Unexpected value: " + getUnusedXYZ());
+		};
+//		return switch (dim) {
+//			case 0 -> centerX;
+//			case 1 -> centerY;
+//			case -1 -> -centerX;
+//			case -2 -> -centerY;
+//			case -3 -> -centerZ;
+//			case 2 -> centerZ;
+//			default -> centerZ;
+//		};
 	}
 
 }

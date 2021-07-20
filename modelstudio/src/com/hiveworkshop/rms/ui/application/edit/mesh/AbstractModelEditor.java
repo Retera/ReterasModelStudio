@@ -1,10 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.editor.SimpleRotateAction;
-import com.hiveworkshop.rms.editor.actions.editor.StaticMeshMoveAction;
-import com.hiveworkshop.rms.editor.actions.editor.StaticMeshRotateAction;
-import com.hiveworkshop.rms.editor.actions.editor.StaticMeshScaleAction;
+import com.hiveworkshop.rms.editor.actions.editor.*;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
@@ -73,18 +70,28 @@ public class AbstractModelEditor extends ModelEditor {
         return new StaticMeshMoveAction(modelView, Vec3.ORIGIN);
     }
 
-    @Override
-    public GenericRotateAction beginRotation(Vec3 center, byte dim1, byte dim2) {
-        return new StaticMeshRotateAction(modelView, new Vec3(center), dim1, dim2);
-    }
+	@Override
+	public GenericRotateAction beginRotation(Vec3 center, byte dim1, byte dim2) {
+		return new StaticMeshRotateAction(modelView, new Vec3(center), dim1, dim2);
+	}
 
-    @Override
-    public GenericRotateAction beginSquatTool(Vec3 center, byte firstXYZ, byte secondXYZ) {
-        throw new WrongModeException("Unable to use squat tool outside animation editor mode");
-    }
+	@Override
+	public GenericRotateAction beginSquatTool(Vec3 center, byte firstXYZ, byte secondXYZ) {
+		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
+	}
 
-    @Override
-    public GenericScaleAction beginScaling(Vec3 center) {
-        return new StaticMeshScaleAction(modelView, center);
-    }
+	@Override
+	public GenericRotateAction beginRotation(Vec3 center, Vec3 axis) {
+		return new StaticMeshRotateAction2(modelView, new Vec3(center), axis);
+	}
+
+	@Override
+	public GenericRotateAction beginSquatTool(Vec3 center, Vec3 axis) {
+		throw new WrongModeException("Unable to use squat tool outside animation editor mode");
+	}
+
+	@Override
+	public GenericScaleAction beginScaling(Vec3 center) {
+		return new StaticMeshScaleAction(modelView, center);
+	}
 }
