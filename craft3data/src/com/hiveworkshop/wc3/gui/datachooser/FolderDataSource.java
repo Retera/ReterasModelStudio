@@ -16,21 +16,9 @@ import java.util.function.Consumer;
 public class FolderDataSource implements DataSource {
 
 	private final Path folderPath;
-	private final Set<String> listfile;
 
 	public FolderDataSource(final Path folderPath) {
 		this.folderPath = folderPath;
-		this.listfile = new HashSet<>();
-		try {
-			Files.walk(folderPath).filter(Files::isRegularFile).forEach(new Consumer<Path>() {
-				@Override
-				public void accept(final Path t) {
-					listfile.add(folderPath.relativize(t).toString());
-				}
-			});
-		} catch (final IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	@Override
@@ -76,6 +64,18 @@ public class FolderDataSource implements DataSource {
 
 	@Override
 	public Collection<String> getListfile() {
+		final Set<String> listfile;
+		listfile = new HashSet<>();
+		try {
+			Files.walk(folderPath).filter(Files::isRegularFile).forEach(new Consumer<Path>() {
+				@Override
+				public void accept(final Path t) {
+					listfile.add(folderPath.relativize(t).toString());
+				}
+			});
+		} catch (final IOException e) {
+			throw new RuntimeException(e);
+		}
 		return listfile;
 	}
 
