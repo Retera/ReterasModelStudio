@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.TempStuffFromEditableModel;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
@@ -21,28 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImportFileActions {
-    public static void importFile(final File f) {
-        try {
-            importFile(MdxUtils.loadEditable(f));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void importFile(final EditableModel model) {
         ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null && modelPanel.getModel() != null) {
             ImportPanel importPanel = new ImportPanel(modelPanel.getModel(), model);
             importPanel.setCallback(new ModelStructureChangeListener());
-//	        importPanel.setCallback(new ModelStructureChangeListener(new ModelStructureChangeListener.ModelReference() {
-//		        private final EditableModel model = mainPanel.currentMDL();
-//
-//		        @Override
-//		        public EditableModel getModel() {
-//			        return model;
-//		        }
-//	        }));
-
         }
     }
 
@@ -87,32 +69,37 @@ public class ImportFileActions {
     }
 
     static void importMdxObject(String path) {
-        final String filepath = convertPathToMDX(path);
-        if (filepath != null) {
-            final File animationSource = GameDataFileSystem.getDefault().getFile(filepath);
-            importFile(animationSource);
+        if (path != null) {
+            String filepath = convertPathToMDX(path);
+            if (filepath != null) {
+                File animationSource = GameDataFileSystem.getDefault().getFile(filepath);
+                try {
+                    importFile(MdxUtils.loadEditable(animationSource));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         repaintModelTrees();
     }
 
     public static MutableObjectData.MutableGameObject fetchObject() {
-        final BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(MainLayoutCreator.getUnitData(),
-                MainLayoutCreator.getUnitEditorSettings());
+        BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(MainLayoutCreator.getUnitData(), MainLayoutCreator.getUnitEditorSettings());
         int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), selector, "Object Editor - Select Unit",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        final MutableObjectData.MutableGameObject choice = selector.getSelection();
-        if ((choice == null) || (x != JOptionPane.OK_OPTION)) {
-            return null;
+
+        MutableObjectData.MutableGameObject choice = selector.getSelection();
+
+        if ((x == JOptionPane.OK_OPTION)) {
+            String filepath = choice.getFieldAsString(UnitFields.MODEL_FILE, 0);
+            if (isValidFilepath(filepath)) return choice;
         }
 
-        String filepath = choice.getFieldAsString(UnitFields.MODEL_FILE, 0);
-
-        if (isValidFilepath(filepath)) return choice;
         return null;
     }
 
     public static void importGameObjectActionRes() {
-        final MutableObjectData.MutableGameObject fetchObjectResult = fetchObject();
+        MutableObjectData.MutableGameObject fetchObjectResult = fetchObject();
         if (fetchObjectResult != null) {
             String path = fetchObjectResult.getFieldAsString(UnitFields.MODEL_FILE, 0);
 
@@ -120,32 +107,9 @@ public class ImportFileActions {
         }
     }
 
-    public static ModelOptionPane.ModelElement fetchModel() {
-        final ModelOptionPane.ModelElement model = ModelOptionPane.showAndLogIcon(ProgramGlobals.getMainPanel());
-        if (model == null) {
-            return null;
-        }
-        String filepath = model.getFilepath();
-        if (isValidFilepath(filepath)) return model;
-        return null;
-    }
-
     public static void importGameModelActionRes() {
-        final ModelOptionPane.ModelElement fetchModelResult = fetchModel();
-        if (fetchModelResult != null) {
-            String path = fetchModelResult.getFilepath();
-            importMdxObject(path);
-        }
-    }
+        importMdxObject(ModelOptionPane.fetchModel1(ProgramGlobals.getMainPanel()));
 
-    public static GameObject fetchUnit() {
-        final GameObject choice = UnitOptionPane.show(ProgramGlobals.getMainPanel());
-
-        if (choice != null) {
-            String filepath = choice.getField("file");
-            if (isValidFilepath(filepath)) return choice;
-        }
-        return null;
     }
 
     private static boolean isValidFilepath(String filepath) {
@@ -164,10 +128,6 @@ public class ImportFileActions {
     }
 
     public static void importUnitActionRes() {
-        final GameObject fetchUnitResult = fetchUnit();
-        if (fetchUnitResult != null) {
-            String path = fetchUnitResult.getField("file");
-            importMdxObject(path);
-        }
+        importMdxObject(UnitOptionPane.fetchUnit1(ProgramGlobals.getMainPanel()));
     }
 }

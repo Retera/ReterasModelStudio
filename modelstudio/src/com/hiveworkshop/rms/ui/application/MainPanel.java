@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.util.StringViewMap;
@@ -30,8 +31,6 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     private final MainLayoutCreator mainLayoutCreator;
 
     JTextField[] mouseCoordDisplay = new JTextField[3];
-    boolean cheatShift = false;
-    boolean cheatAlt = false;
 
     final CoordDisplayListener coordDisplayListener;
     final ViewportTransferHandler viewportTransferHandler;
@@ -102,6 +101,9 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         coordDisplayListener = (coordSys, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, coordSys, value1, value2);
     }
 
+    public ViewportListener getViewportListener() {
+        return viewportListener;
+    }
 
     private static void setRootProps(RootWindow rootWindow) {
 
@@ -181,6 +183,14 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
         rootWindow.setBackground(Color.GREEN.darker());
         rootWindow.setForeground(Color.GREEN.darker());
 //    getjTable(UIManager.getDefaults());
+
+        KeyBindingPrefs keyBindingPrefs = new KeyBindingPrefs();
+        keyBindingPrefs.makeMap();
+        System.out.println("V_______________keyBindingPrefs_________________V");
+        keyBindingPrefs.parseString("KEYBOARDKEY=released ALT");
+        System.out.println(keyBindingPrefs.toString());
+
+        System.out.println("^_______________keyBindingPrefs_________________^");
     }
 
     private static JTable getjTable(UIDefaults defaults) {
@@ -244,7 +254,8 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
     }
 
     public void linkActions(JRootPane rootPane) {
-        mainPanelLinkActions.linkActions(rootPane);
+//        mainPanelLinkActions.linkActions(rootPane);
+        mainPanelLinkActions.linkActions2(rootPane);
     }
 
     public MainPanelLinkActions getMainPanelLinkActions() {
@@ -257,5 +268,13 @@ public class MainPanel extends JPanel implements ModelEditorChangeActivityListen
 
     public MainLayoutCreator getMainLayoutCreator() {
         return mainLayoutCreator;
+    }
+
+    public CoordDisplayListener getCoordDisplayListener() {
+        return coordDisplayListener;
+    }
+
+    public ViewportTransferHandler getViewportTransferHandler() {
+        return viewportTransferHandler;
     }
 }

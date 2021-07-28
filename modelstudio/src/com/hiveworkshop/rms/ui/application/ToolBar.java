@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.ui.application.actionfunctions.CreateNewModel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
@@ -8,19 +9,25 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class ToolBar {
-    public static JToolBar createJToolBar(MainPanel mainPanel) {
+    public static JToolBar createJToolBar() {
         JToolBar toolbar = new JToolBar(JToolBar.HORIZONTAL);
         toolbar.setFloatable(false);
         FileDialog fileDialog = new FileDialog();
 
-        addToolbarIcon(toolbar, "New", "new.png", MenuBarActions::newModel);
+        addToolbarIcon(toolbar, "New", "new.png", CreateNewModel::newModel);
         addToolbarIcon(toolbar, "Open", "open.png", fileDialog::onClickOpen);
         addToolbarIcon(toolbar, "Save", "save.png", fileDialog::onClickSave);
 
         toolbar.addSeparator();
 
-        addToolbarIcon(toolbar, "Undo", "undo.png", ProgramGlobals.getUndoHandler().getUndoAction());
-        addToolbarIcon(toolbar, "Redo", "redo.png", ProgramGlobals.getUndoHandler().getRedoAction());
+//        addToolbarIcon(toolbar, "Undo", "undo.png", ProgramGlobals.getUndoHandler().getUndoAction());
+//        addToolbarIcon(toolbar, "Redo", "redo.png", ProgramGlobals.getUndoHandler().getRedoAction());
+        addToolbarIcon(toolbar, "Undo", "undo.png", () -> ProgramGlobals.getUndoHandler().undo());
+        addToolbarIcon(toolbar, "Redo", "redo.png", () -> ProgramGlobals.getUndoHandler().redo());
+
+        toolbar.addSeparator();
+        addToolbarIcon(toolbar, "Lock Layout", "save.png", () -> toggleLockLayout());
+        toolbar.addSeparator();
 //
 //        toolbar.addSeparator();
 //        mainPanel.selectionModeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionMode.values());
@@ -85,6 +92,11 @@ public class ToolBar {
         button.addActionListener(action);
         toolbar.add(button);
         return button;
+    }
+
+    static void toggleLockLayout(){
+        ProgramGlobals.setLockLayout(!ProgramGlobals.isLockLayout());
+        WindowHandler.traverseAndFix(ProgramGlobals.getMainPanel().getRootWindow());
     }
 
 }

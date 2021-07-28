@@ -17,6 +17,10 @@ public final class UndoActionImplementation extends AbstractAction {
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
+		undo();
+	}
+
+	public void undo() {
 		final ModelPanel mpanel = ProgramGlobals.getCurrentModelPanel();
 		final MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if (mpanel != null) {

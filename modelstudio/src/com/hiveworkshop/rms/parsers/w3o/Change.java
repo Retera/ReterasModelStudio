@@ -16,75 +16,84 @@ public final class Change {
 		return id;
 	}
 
-	public void setId(final War3ID id) {
+	public Change setId(final War3ID id) {
 		this.id = id;
+		return this;
 	}
 
 	public int getVartype() {
 		return vartype;
 	}
 
-	public void setVartype(final int vartype) {
+	public Change setVartype(final int vartype) {
 		this.vartype = vartype;
+		return this;
 	}
 
 	public int getLevel() {
 		return level;
 	}
 
-	public void setLevel(final int level) {
+	public Change setLevel(final int level) {
 		this.level = level;
+		return this;
 	}
 
 	public int getDataptr() {
 		return dataptr;
 	}
 
-	public void setDataptr(final int dataptr) {
+	public Change setDataptr(final int dataptr) {
 		this.dataptr = dataptr;
+		return this;
 	}
 
 	public int getLongval() {
 		return longval;
 	}
 
-	public void setLongval(final int longval) {
+	public Change setLongval(final int longval) {
 		this.longval = longval;
+		return this;
 	}
 
 	public float getRealval() {
 		return realval;
 	}
 
-	public void setRealval(final float realval) {
+	public Change setRealval(final float realval) {
 		this.realval = realval;
+		return this;
 	}
 
 	public String getStrval() {
 		return strval;
 	}
 
-	public void setStrval(final String strval) {
+	public Change setStrval(final String strval) {
 		this.strval = strval;
+		return this;
 	}
 
 	public boolean isBoolval() {
 		return boolval;
 	}
 
-	public void setBoolval(final boolean boolval) {
+	public Change setBoolval(final boolean boolval) {
 		this.boolval = boolval;
+		return this;
 	}
 
-	public void setJunkDNA(final War3ID junkDNA) {
+	public Change setJunkDNA(final War3ID junkDNA) {
 		this.junkDNA = junkDNA;
+		return this;
 	}
 
 	public War3ID getJunkDNA() {
 		return junkDNA;
 	}
 
-	public void copyFrom(final Change other) {
+	public Change copyFrom(final Change other) {
 		id = other.id;
 		level = other.level;
 		dataptr = other.dataptr;
@@ -94,6 +103,7 @@ public final class Change {
 		strval = other.strval;
 		boolval = other.boolval;
 		junkDNA = other.junkDNA;
+		return this;
 	}
 
 	@Override

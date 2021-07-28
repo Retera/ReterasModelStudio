@@ -224,6 +224,10 @@ public class EventObject extends IdObject {
 		eventTrack2.removeAll(tracks);
 		return this;
 	}
+	public EventObject removeTrack(int track) {
+		eventTrack2.remove(track);
+		return this;
+	}
 
 	public TreeSet<Integer> getEventTrack() {
 		return eventTrack2;

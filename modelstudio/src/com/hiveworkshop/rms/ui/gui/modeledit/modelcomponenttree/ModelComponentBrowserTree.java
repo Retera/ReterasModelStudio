@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
@@ -18,17 +17,14 @@ import java.util.*;
 
 public final class ModelComponentBrowserTree extends JTree {
 	private final ModelHandler modelHandler;
-	private final ModelStructureChangeListener modelStructureChangeListener;
 	private Map<IdObject, DefaultMutableTreeNode> nodeToTreeElement;
 	private boolean controlDown = false;
+	private final ComponentsPanel componentsPanel;
 
 	public ModelComponentBrowserTree(ModelHandler modelHandler) {
 		super();
 		this.modelHandler = modelHandler;
 		setModel(buildTreeModel(modelHandler));
-
-		this.modelStructureChangeListener = ModelStructureChangeListener.changeListener;
-
 
 		addKeyListener(getKeyAdapter());
 
@@ -42,6 +38,14 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
 		basicTreeUI.setRightChildIndent(8);
+
+
+		componentsPanel = new ComponentsPanel(modelHandler);
+		addSelectListener(componentsPanel);
+	}
+
+	public ComponentsPanel getComponentsPanel() {
+		return componentsPanel;
 	}
 
 	private KeyAdapter getKeyAdapter() {

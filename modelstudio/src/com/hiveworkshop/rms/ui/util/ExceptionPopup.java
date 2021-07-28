@@ -9,6 +9,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import java.awt.*;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -30,6 +31,8 @@ public class ExceptionPopup {
 
 	public static void display(Throwable e, String s) {
 		final JTextPane pane = new JTextPane();
+		pane.setBackground(new Color(30,30,30));
+		pane.setForeground(new Color(240, 80, 60));
 
 		final OutputStream stream = getOutputStream(pane);
 		final PrintStream ps = new PrintStream(stream);
@@ -43,6 +46,9 @@ public class ExceptionPopup {
 
 		JPanel panel = new JPanel(new MigLayout("fill, ins 0,"));
 		panel.add(jScrollPane, "spanx, growx, growy, wrap");
+		SwingUtilities.invokeLater(() -> jScrollPane.getVerticalScrollBar().setValue(0));
+//		jScrollPane.getVerticalScrollBar().setValue(0);
+
 
 		// Some QoL buttons:
 		// Undo so that users that get stuck in a error-loop has a

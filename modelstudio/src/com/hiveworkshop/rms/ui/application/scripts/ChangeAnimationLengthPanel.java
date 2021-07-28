@@ -19,11 +19,11 @@ public class ChangeAnimationLengthPanel extends JPanel {
 	List<SliderBarHandler> bars = new ArrayList<>();
 	JButton okay, cancel;
 	ModelHandler modelHandler;
-	ChangeAnimationLengthFrame parentFrame;
+	JFrame parentFrame;
 	private final UndoManager undoManager;
 	private final Runnable onFinish;
 
-	public ChangeAnimationLengthPanel(ModelHandler modelHandler, ChangeAnimationLengthFrame frame) {
+	public ChangeAnimationLengthPanel(ModelHandler modelHandler, JFrame frame) {
 		this.modelHandler = modelHandler;
 		parentFrame = frame;
 		this.undoManager = modelHandler.getUndoManager();

@@ -5,9 +5,11 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ActionFunction;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
+import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import net.miginfocom.swing.MigLayout;
@@ -123,14 +125,6 @@ public class AnimationTransfer extends JPanel {
 			// handle exception
 		}
 		new AnimationTransfer().showWindow();
-//		final JFrame frame = new JFrame();
-//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		frame.setIconImage((new ImageIcon(MainFrame.class.getResource("ImageBin/Anim.png"))).getImage());
-//		final AnimationTransfer transfer = new AnimationTransfer(frame);
-//		frame.setContentPane(transfer);
-//		frame.pack();
-//		frame.setLocationRelativeTo(null);
-//		frame.setVisible(true);
 	}
 
 	public void showWindow() {
@@ -372,5 +366,16 @@ public class AnimationTransfer extends JPanel {
 	private void done() {
 		parentFrame.setVisible(false);
 		parentFrame.dispose();
+	}
+
+	private static class AnimTransfer extends ActionFunction {
+		AnimTransfer(){
+			super(TextKey.IMPORT_ANIM, () -> new AnimationTransfer().showWindow());
+			setMenuItemMnemonic(KeyEvent.VK_I);
+		}
+	}
+
+	public static JMenuItem getMenuItem(){
+		return new AnimTransfer().getMenuItem();
 	}
 }

@@ -55,13 +55,12 @@ public abstract class HashedGameObject implements GameObject {
 
 	@Override
 	public int getFieldValue(final String field) {
-		int i = 0;
 		try {
-			i = Integer.parseInt(getField(field));
+			return Integer.parseInt(getField(field));
 		} catch (final NumberFormatException e) {
 
 		}
-		return i;
+		return 0;
 	}
 
 	@Override
@@ -101,23 +100,20 @@ public abstract class HashedGameObject implements GameObject {
 
 	@Override
 	public int getFieldValue(final String field, final int index) {
-		int i = 0;
 		try {
-			i = Integer.parseInt(getField(field, index));
+			return Integer.parseInt(getField(field, index));
 		} catch (final NumberFormatException e) {
 
 		}
-		return i;
+		return 0;
 	}
 
 	@Override
 	public List<GameObject> getFieldAsList(final String field, final ObjectData parentTable) {
-		final List<GameObject> fieldAsList;// = hashedLists.get(field);
-		// if( fieldAsList == null ) {
-		fieldAsList = new ArrayList<>();
+		final List<GameObject> fieldAsList = new ArrayList<>();
 		final String stringList = getField(field);
 		final String[] listAsArray = stringList.split(",");
-		if (listAsArray != null && listAsArray.length > 0) {
+		if (listAsArray.length > 0) {
 			for (final String buildingId : listAsArray) {
 				final GameObject referencedUnit = parentTable.get(buildingId);
 				if (referencedUnit != null) {

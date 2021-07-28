@@ -1,10 +1,14 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
+import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.RedoActionImplementation;
 import com.hiveworkshop.rms.ui.application.edit.UndoActionImplementation;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.util.ActionMapActions;
 
 import javax.swing.*;
+import java.util.NoSuchElementException;
 
 public class UndoHandler {
 	UndoMenuItem undo;
@@ -18,17 +22,21 @@ public class UndoHandler {
 		redoAction = new RedoActionImplementation("Redo");
 
 		undo = new UndoMenuItem("Undo");
-		undo.addActionListener(undoAction);
-		undo.setAccelerator(KeyStroke.getKeyStroke("control Z"));
+//		undo.addActionListener(undoAction);
+		undo.addActionListener(e -> undo());
+//		undo.setAccelerator(KeyStroke.getKeyStroke("control Z"));
 		undo.setEnabled(undo.funcEnabled());
 
 		redo = new RedoMenuItem("Redo");
-		redo.addActionListener(redoAction);
-		redo.setAccelerator(KeyStroke.getKeyStroke("control Y"));
+//		redo.addActionListener(redoAction);
+		redo.addActionListener(e -> redo());
+//		redo.setAccelerator(KeyStroke.getKeyStroke("control Y"));
 		redo.setEnabled(redo.funcEnabled());
 	}
 
 	public void refreshUndo() {
+		undo.setAccelerator(ProgramGlobals.getKeyBindingPrefs().getKeyStroke(ActionMapActions.UNDO));
+		redo.setAccelerator(ProgramGlobals.getKeyBindingPrefs().getKeyStroke(ActionMapActions.REDO));
 		undo.setEnabled(undo.funcEnabled());
 		redo.setEnabled(redo.funcEnabled());
 	}
@@ -58,10 +66,9 @@ public class UndoHandler {
 		@Override
 		public String getText() {
 			if (funcEnabled()) {
-				return "Undo " + ProgramGlobals.getCurrentModelPanel().getUndoManager().getUndoText();// +"
-				// Ctrl+Z";
+				return "Undo " + ProgramGlobals.getCurrentModelPanel().getUndoManager().getUndoText();
 			} else {
-				return "Can't undo";// +" Ctrl+Z";
+				return "Can't undo";
 			}
 		}
 
@@ -83,10 +90,9 @@ public class UndoHandler {
 		@Override
 		public String getText() {
 			if (funcEnabled()) {
-				return "Redo " + ProgramGlobals.getCurrentModelPanel().getUndoManager().getRedoText();// +"
-				// Ctrl+Y";
+				return "Redo " + ProgramGlobals.getCurrentModelPanel().getUndoManager().getRedoText();
 			} else {
-				return "Can't redo";// +" Ctrl+Y";
+				return "Can't redo";
 			}
 		}
 
@@ -97,5 +103,39 @@ public class UndoHandler {
 				return false;
 			}
 		}
+	}
+
+	public void undo() {
+		final ModelPanel mpanel = ProgramGlobals.getCurrentModelPanel();
+		final MainPanel mainPanel = ProgramGlobals.getMainPanel();
+		if (mpanel != null) {
+			try {
+				mpanel.getUndoManager().undo();
+			} catch (final NoSuchElementException exc) {
+				JOptionPane.showMessageDialog(mainPanel, "Nothing to undo!");
+			} catch (final Exception exc) {
+				ExceptionPopup.display(exc);
+			}
+			mpanel.repaintSelfAndRelatedChildren();
+		}
+		ProgramGlobals.getUndoHandler().refreshUndo();
+		mainPanel.repaintSelfAndChildren();
+	}
+
+	public void redo() {
+		final ModelPanel mpanel = ProgramGlobals.getCurrentModelPanel();
+		final MainPanel mainPanel = ProgramGlobals.getMainPanel();
+		if (mpanel != null) {
+			try {
+				mpanel.getUndoManager().redo();
+			} catch (final NoSuchElementException exc) {
+				JOptionPane.showMessageDialog(mainPanel, "Nothing to redo!");
+			} catch (final Exception exc) {
+				ExceptionPopup.display(exc);
+			}
+			mpanel.repaintSelfAndRelatedChildren();
+		}
+		ProgramGlobals.getUndoHandler().refreshUndo();
+		mainPanel.repaintSelfAndChildren();
 	}
 }

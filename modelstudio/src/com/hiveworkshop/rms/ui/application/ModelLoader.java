@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public class ModelLoader {
-	static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
+	public static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
 
 	public static void refreshAnimationModeState() {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
@@ -263,14 +263,14 @@ public class ModelLoader {
 	}
 
 	public static void revert() {
-		final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		final int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
 		if (modelPanel != null) {
 			if (modelPanel.close()) {
 				ProgramGlobals.removeModelPanel(modelPanel);
 				MenuBar.removeModelPanel(modelPanel);
 				if (ProgramGlobals.getModelPanels().size() > 0) {
-					final int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);
+					int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);
 					setCurrentModel(ProgramGlobals.getModelPanels().get(newIndex));
 				} else {
 					// TODO remove from notifiers to fix leaks

@@ -4,12 +4,15 @@ import com.hiveworkshop.rms.editor.actions.animation.SimplifyKeyframesAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ActionFunction;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.util.CheckSpinner;
 import com.hiveworkshop.rms.util.FramePopup;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 public class SimplifyKeyframesPanel extends JPanel {
@@ -81,5 +84,17 @@ public class SimplifyKeyframesPanel extends JPanel {
 
 		SimplifyKeyframesAction action = new SimplifyKeyframesAction(allAnimFlags, model, 0.1f);
 		ProgramGlobals.getCurrentModelPanel().getUndoManager().pushAction(action.redo());
+	}
+
+	private static class SimplifyKeyframes extends ActionFunction {
+
+		SimplifyKeyframes(){
+			super(TextKey.SIMPLIFY_KEYFRAMES, () -> showPopup());
+			setMenuItemMnemonic(KeyEvent.VK_K);
+		}
+	}
+
+	public static JMenuItem getMenuItem(){
+		return new SimplifyKeyframes().getMenuItem();
 	}
 }

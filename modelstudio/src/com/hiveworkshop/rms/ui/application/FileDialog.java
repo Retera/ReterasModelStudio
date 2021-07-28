@@ -177,7 +177,7 @@ public class FileDialog {
         }
     }
 
-    void onClickSaveAs(final EditableModel model, int operationType, boolean updateCurrent) {
+    public void onClickSaveAs(final EditableModel model, int operationType, boolean updateCurrent) {
         BufferedImage bufferedImage = null;
         if (operationType == SAVE_TEXTURE || operationType == SAVE) {
             if (model != null && model.getMaterial(0) != null) {
@@ -187,7 +187,7 @@ public class FileDialog {
         onClickSaveAs(model, bufferedImage, operationType, updateCurrent);
     }
 
-    void onClickSaveAs(final EditableModel model, BufferedImage bufferedImage, int operationType, boolean updateCurrent) {
+    public void onClickSaveAs(final EditableModel model, BufferedImage bufferedImage, int operationType, boolean updateCurrent) {
         fileChooser.setDialogTitle("Save as");
         setFilter(operationType);
         setCurrentDirectory(model);

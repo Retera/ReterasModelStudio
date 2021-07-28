@@ -31,6 +31,8 @@ public class UVLinkActions {
 	public UVLinkActions(UVPanel uvPanel) {
 		this.uvPanel = uvPanel;
 		this.modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		undoAction = ProgramGlobals.getUndoHandler().getUndoAction();
+//		redoAction = ProgramGlobals.getUndoHandler().getRedoAction();
 		undoAction = ProgramGlobals.getUndoHandler().getUndoAction();
 		redoAction = ProgramGlobals.getUndoHandler().getRedoAction();
 
@@ -96,11 +98,17 @@ public class UVLinkActions {
 		ActionMap actionMap = root.getActionMap();
 		InputMap inputMap = root.getInputMap(isAncestor);
 
-		actionMap.put("Undo", undoAction);
+		actionMap.put("Undo", getAsAction(() -> ProgramGlobals.getUndoHandler().undo()));
 		inputMap.put(KeyStroke.getKeyStroke("control Z"), "Undo");
 
-		actionMap.put("Redo", redoAction);
+		actionMap.put("Redo", getAsAction(() -> ProgramGlobals.getUndoHandler().redo()));
 		inputMap.put(KeyStroke.getKeyStroke("control Y"), "Redo");
+//
+//		actionMap.put("Undo", undoAction);
+//		inputMap.put(KeyStroke.getKeyStroke("control Z"), "Undo");
+//
+//		actionMap.put("Redo", redoAction);
+//		inputMap.put(KeyStroke.getKeyStroke("control Y"), "Redo");
 
 		inputMap.put(KeyStroke.getKeyStroke("W"), "MoveKeyboardKey");
 		actionMap.put("MoveKeyboardKey", getAsAction(() -> actionTypeGroup.setActiveButton(ModelEditorWidgetType.TRANSLATION)));

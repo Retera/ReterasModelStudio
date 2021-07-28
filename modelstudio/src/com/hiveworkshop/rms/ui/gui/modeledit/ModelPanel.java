@@ -29,6 +29,9 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 
 import javax.swing.*;
+import java.awt.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -45,7 +48,7 @@ public class ModelPanel {
 	private final ViewportActivityManager viewportActivityManager;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelEditorManager modelEditorManager;
-	private UVPanel editUVPanel;
+	private Set<UVPanel> editUVPanels = new HashSet<>();
 	private final JScrollPane modelEditingTreePane;
 	private final JScrollPane componentBrowserTreePane;
 
@@ -60,7 +63,10 @@ public class ModelPanel {
 	private JMenuItem menuItem;
 	private final PreviewPanel previewPanel;
 	private final AnimationController animationController;
-	private final ComponentsPanel componentsPanel;
+	private final CoordDisplayListener coordDisplayListener;
+	private final ViewportTransferHandler viewportTransferHandler;
+	private final ViewportListener viewportListener;
+//	private final ComponentsPanel componentsPanel;
 
 	Consumer<SelectionItemTypes> selectionItemTypeListener;
 
@@ -73,6 +79,9 @@ public class ModelPanel {
 		this.modelHandler = modelHandler;
 		this.parent = ProgramGlobals.getMainPanel();
 		this.icon = icon;
+		this.coordDisplayListener = coordDisplayListener;
+		this.viewportTransferHandler = viewportTransferHandler;
+		this.viewportListener = viewportListener;
 		viewportActivityManager = new ViewportActivityManager(null);
 
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
@@ -86,9 +95,9 @@ public class ModelPanel {
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelHandler);
 		componentBrowserTreePane = new JScrollPane(modelComponentBrowserTree);
 
-		frontArea = getDisplayPanel(coordDisplayListener, viewportTransferHandler, viewportListener, "Front", (byte) 1, (byte) 2);
-		botArea = getDisplayPanel(coordDisplayListener, viewportTransferHandler, viewportListener, "Bottom", (byte) 1, (byte) 0);
-		sideArea = getDisplayPanel(coordDisplayListener, viewportTransferHandler, viewportListener, "Side", (byte) 0, (byte) 2);
+		frontArea = getDisplayPanel("Front", (byte) 1, (byte) 2);
+		botArea = getDisplayPanel("Bottom", (byte) 1, (byte) 0);
+		sideArea = getDisplayPanel("Side", (byte) 0, (byte) 2);
 		setShowControlls();
 
 //		previewPanel = new PreviewPanel(modelHandler, !specialBLPModel);
@@ -98,9 +107,9 @@ public class ModelPanel {
 
 		perspArea = new PerspDisplayPanel("Perspective", modelHandler);
 
-		componentsPanel = new ComponentsPanel(modelHandler);
-
-		modelComponentBrowserTree.addSelectListener(componentsPanel);
+//		componentsPanel = new ComponentsPanel(modelHandler);
+//
+//		modelComponentBrowserTree.addSelectListener(componentsPanel);
 	}
 
 	private void setShowControlls() {
@@ -109,7 +118,7 @@ public class ModelPanel {
 		sideArea.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 	}
 
-	private DisplayPanel getDisplayPanel(CoordDisplayListener coordDisplayListener, ViewportTransferHandler viewportTransferHandler, ViewportListener viewportListener, String side, byte i, byte i2) {
+	public DisplayPanel getDisplayPanel(String side, byte i, byte i2) {
 		return new DisplayPanel(side, i, i2, modelHandler, modelEditorManager,
 				viewportActivityManager, coordDisplayListener,
 				viewportTransferHandler, viewportListener);
@@ -157,14 +166,6 @@ public class ModelPanel {
 		return modelEditorManager;
 	}
 
-	public UVPanel getEditUVPanel() {
-		return editUVPanel;
-	}
-
-	public void setEditUVPanel(final UVPanel editUVPanel) {
-		this.editUVPanel = editUVPanel;
-	}
-
 	public boolean close() {
 		// returns true if closed successfully
 		boolean canceled = false;
@@ -179,13 +180,17 @@ public class ModelPanel {
 				case JOptionPane.YES_OPTION:
 					FileDialog fileDialog = new FileDialog(this);
 					fileDialog.onClickSaveAs();
-					if (editUVPanel != null) {
-						editUVPanel.getView().setVisible(false);
+					if (!editUVPanels.isEmpty()) {
+						for(UVPanel uVpanel : editUVPanels){
+							uVpanel.getView().setVisible(false);
+						}
 					}
 					break;
 				case JOptionPane.NO_OPTION:
-					if (editUVPanel != null) {
-						editUVPanel.getView().setVisible(false);
+					if (!editUVPanels.isEmpty()) {
+						for(UVPanel uVpanel : editUVPanels){
+							uVpanel.getView().setVisible(false);
+						}
 					}
 					break;
 				case JOptionPane.CANCEL_OPTION:
@@ -193,8 +198,10 @@ public class ModelPanel {
 					break;
 			}
 		} else {
-			if (editUVPanel != null) {
-				editUVPanel.getView().setVisible(false);
+			if (!editUVPanels.isEmpty()) {
+				for(UVPanel uVpanel : editUVPanels){
+					uVpanel.getView().setVisible(false);
+				}
 			}
 		}
 		return !canceled;
@@ -228,9 +235,15 @@ public class ModelPanel {
 		previewPanel.repaint();
 		animationController.repaint();
 		modelViewManagingTree.repaint();
-		if (editUVPanel != null) {
-			editUVPanel.repaint();
+		if (!editUVPanels.isEmpty()) {
+			editUVPanels.removeIf(p -> !p.isVisible());
+			editUVPanels.forEach(Component::repaint);
 		}
+	}
+
+	public ModelPanel addUVPanel(UVPanel uvPanel){
+		editUVPanels.add(uvPanel);
+		return this;
 	}
 
 	public EditableModel getModel() {
@@ -244,17 +257,17 @@ public class ModelPanel {
 	public ModelHandler getModelHandler() {
 		return modelHandler;
 	}
-
-	public ModelViewManagingTree getModelViewManagingTree() {
-		return modelViewManagingTree;
-	}
-
-	public ModelComponentBrowserTree getModelComponentBrowserTree() {
-		return modelComponentBrowserTree;
-	}
+//
+//	public ModelViewManagingTree getModelViewManagingTree() {
+//		return modelViewManagingTree;
+//	}
+//
+//	public ModelComponentBrowserTree getModelComponentBrowserTree() {
+//		return modelComponentBrowserTree;
+//	}
 
 	public ComponentsPanel getComponentsPanel() {
-		return componentsPanel;
+		return modelComponentBrowserTree.getComponentsPanel();
 	}
 
 	public JScrollPane getModelEditingTreePane() {

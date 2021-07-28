@@ -8,7 +8,8 @@ import com.hiveworkshop.rms.ui.application.MenuBarActions;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 
-import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.*;
+import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
+import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenuItem;
 
 public class AddMenu extends JMenu {
 
@@ -26,8 +27,10 @@ public class AddMenu extends JMenu {
 		JMenu animationMenu = createMenu("Animation", KeyEvent.VK_A);
 		add(animationMenu);
 
-		createAndAddMenuItem("Empty", animationMenu, KeyEvent.VK_F, e -> AddSingleAnimationActions.addEmptyAnimation());
-		createAndAddMenuItem("Rising/Falling Birth/Death", animationMenu, KeyEvent.VK_R, e -> AddBirthDeathSequences.riseFallBirthActionRes());
+		animationMenu.add(createMenuItem("Empty", KeyEvent.VK_F, e -> AddSingleAnimationActions.addEmptyAnimation()));
+		animationMenu.add(createMenuItem("Rising/Falling Birth/Death", KeyEvent.VK_R, e -> AddBirthDeathSequences.riseFallBirthActionRes()));
+//		createAndAddMenuItem("Empty", animationMenu, KeyEvent.VK_F, e -> AddSingleAnimationActions.addEmptyAnimation());
+//		createAndAddMenuItem("Rising/Falling Birth/Death", animationMenu, KeyEvent.VK_R, e -> AddBirthDeathSequences.riseFallBirthActionRes());
 
 		JMenu singleAnimationMenu = createMenu("Single", KeyEvent.VK_S);
 		animationMenu.add(singleAnimationMenu);

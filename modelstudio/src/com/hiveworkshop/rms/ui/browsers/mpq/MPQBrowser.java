@@ -325,7 +325,7 @@ public final class MPQBrowser extends JPanel {
 			node.setVisible(node.hasVisibleChildren());
 		} else {
 			Boolean filtered = currentlyFiltered.get(node.getExtension());
-			boolean fitsSearch = (currentSearch.equals("") || (node.isLeaf() && node.getSubPathName().contains(currentSearch)));
+			boolean fitsSearch = (currentSearch.equals("") || (node.isLeaf() && node.getSubPathName().toLowerCase(Locale.ROOT).contains(currentSearch.toLowerCase(Locale.ROOT))));
 //			node.setVisible(filtered != null && filtered
 //					|| filtered == null && otherFilter.getFilterCheckBoxItem().isSelected());
 			node.setVisible(filtered != null && filtered && fitsSearch

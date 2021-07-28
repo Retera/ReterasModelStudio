@@ -26,10 +26,6 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 	// DefaultComboBoxModel<String> playerBoxModel = new
 	// DefaultComboBoxModel<String>();
 	DefaultComboBoxModel<String> raceBoxModel = new DefaultComboBoxModel<>();
-	DefaultComboBoxModel<String> raceBoxModelNeutral = new DefaultComboBoxModel<>();
-	DefaultComboBoxModel<String> meleeBoxModel = new DefaultComboBoxModel<>();
-	DefaultComboBoxModel<String> tilesetBoxModel = new DefaultComboBoxModel<>();
-	DefaultComboBoxModel<String> levelBoxModel = new DefaultComboBoxModel<>();
 
 	JLabel unitsLabel, heroesLabel, buildingsLabel, buildingsUprootedLabel, specialLabel;
 
@@ -67,23 +63,28 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		fillModel(raceBoxModel, raceStrings);
 
 		String[] neutralRaceStrings = {"WESTRING_RACE_NEUTRAL", "WESTRING_RACE_NEUTRAL_NAGA"};
-		fillModel(raceBoxModelNeutral, neutralRaceStrings);
+//		fillModel(raceBoxModelNeutral, neutralRaceStrings);
+		DefaultComboBoxModel<String> raceBoxModelNeutral = getBoxModelOf(neutralRaceStrings);
 
 		String[] meleeStrings = {"WESTRING_MELEE", "WESTRING_CAMPAIGN", "WESTRING_CUSTOM"};
-		fillModel(meleeBoxModel, meleeStrings);
+//		fillModel(meleeBoxModel, meleeStrings);
+		DefaultComboBoxModel<String> meleeBoxModel = getBoxModelOf(meleeStrings);
 		meleeBoxModel.addElement(WEString.getString("WESTRING_ITEMSTATUS_HIDDEN").replace("\"", ""));
 
-		String[] tilesetStrings = {"WESTRING_LOCALE_ASHENVALE", "WESTRING_LOCALE_BARRENS",
-				"WESTRING_LOCALE_BLACKCITADEL", "WESTRING_LOCALE_CITYSCAPE",
-				"WESTRING_LOCALE_DALARAN", "WESTRING_LOCALE_DALARANRUINS",
-				"WESTRING_LOCALE_DUNGEON", "WESTRING_LOCALE_FELWOOD",
-				"WESTRING_LOCALE_ICECROWN", "WESTRING_LOCALE_LORDAERON_FALL",
-				"WESTRING_LOCALE_LORDAERON_SUMMER", "WESTRING_LOCALE_LORDAERON_WINTER",
-				"WESTRING_LOCALE_NORTHREND", "WESTRING_LOCALE_OUTLAND",
-				"WESTRING_LOCALE_RUINS", "WESTRING_LOCALE_DUNGEON2",
-				"WESTRING_LOCALE_VILLAGE", "WESTRING_LOCALE_VILLAGEFALL"};
-		fillModel(tilesetBoxModel, tilesetStrings);
 
+//		String[] tilesetStrings = {"WESTRING_LOCALE_ASHENVALE", "WESTRING_LOCALE_BARRENS",
+//				"WESTRING_LOCALE_BLACKCITADEL", "WESTRING_LOCALE_CITYSCAPE",
+//				"WESTRING_LOCALE_DALARAN", "WESTRING_LOCALE_DALARANRUINS",
+//				"WESTRING_LOCALE_DUNGEON", "WESTRING_LOCALE_FELWOOD",
+//				"WESTRING_LOCALE_ICECROWN", "WESTRING_LOCALE_LORDAERON_FALL",
+//				"WESTRING_LOCALE_LORDAERON_SUMMER", "WESTRING_LOCALE_LORDAERON_WINTER",
+//				"WESTRING_LOCALE_NORTHREND", "WESTRING_LOCALE_OUTLAND",
+//				"WESTRING_LOCALE_RUINS", "WESTRING_LOCALE_DUNGEON2",
+//				"WESTRING_LOCALE_VILLAGE", "WESTRING_LOCALE_VILLAGEFALL"};
+//		fillModel(tilesetBoxModel, tilesetStrings);
+		DefaultComboBoxModel<String> tilesetBoxModel = getBoxModelOf(WE_LOC.values());
+
+		DefaultComboBoxModel<String> levelBoxModel = new DefaultComboBoxModel<>();
 		levelBoxModel.addElement(WEString.getString("WESTRING_ANYLEVEL"));
 		for (int i = 0; i <= 20; i++) {
 			levelBoxModel.addElement(WEString.getString("WESTRING_LEVEL") + String.format(" %d", i));
@@ -390,6 +391,36 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		for (String string : strings) {
 			boxModel.addElement(WEString.getString(string));
 		}
+//		for (WE_LOC loc : WE_LOC.values()) {
+//			boxModel.addElement(WEString.getString(loc.getString()));
+//		}
+	}
+	private DefaultComboBoxModel<String> getBoxModelOf(String[] strings) {
+		DefaultComboBoxModel<String> boxModel = new DefaultComboBoxModel<>();
+		for (String string : strings) {
+			boxModel.addElement(WEString.getString(string));
+		}
+		return boxModel;
+	}
+	private DefaultComboBoxModel<String> getBoxModelOf(Enum<?>[] e) {
+		DefaultComboBoxModel<String> boxModel = new DefaultComboBoxModel<>();
+		for (Object o : e) {
+			boxModel.addElement(WEString.getString(o.toString()));
+		}
+		return boxModel;
+//		for (WE_LOC loc : WE_LOC.values()) {
+//			boxModel.addElement(WEString.getString(loc.getString()));
+//		}
+	}
+	private DefaultComboBoxModel fillModel1(DefaultComboBoxModel<String> boxModel, String[] strings) {
+//		for (String string : strings) {
+//			boxModel.addElement(WEString.getString(string));
+//		}
+		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+		for (WE_LOC loc : WE_LOC.values()) {
+			model.addElement(WEString.getString(loc.getString()));
+		}
+		return model;
 	}
 
 	class UnitButton extends JButton {
@@ -480,6 +511,41 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 				}
 				g2.dispose();
 			}
+		}
+	}
+
+	private enum WE_LOC{
+		ASHENVALE("WESTRING_LOCALE_ASHENVALE"),
+		BARRENS("WESTRING_LOCALE_BARRENS"),
+		BLACKCITADEL("WESTRING_LOCALE_BLACKCITADEL"),
+		CITYSCAPE("WESTRING_LOCALE_CITYSCAPE"),
+		DALARAN("WESTRING_LOCALE_DALARAN"),
+		DALARANRUINS("WESTRING_LOCALE_DALARANRUINS"),
+		DUNGEON("WESTRING_LOCALE_DUNGEON"),
+		FELWOOD("WESTRING_LOCALE_FELWOOD"),
+		ICECROWN("WESTRING_LOCALE_ICECROWN"),
+		LORDAERON_FALL("WESTRING_LOCALE_LORDAERON_FALL"),
+		LORDAERON_SUMMER("WESTRING_LOCALE_LORDAERON_SUMMER"),
+		LORDAERON_WINTER("WESTRING_LOCALE_LORDAERON_WINTER"),
+		NORTHREND("WESTRING_LOCALE_NORTHREND"),
+		OUTLAND("WESTRING_LOCALE_OUTLAND"),
+		RUINS("WESTRING_LOCALE_RUINS"),
+		DUNGEON2("WESTRING_LOCALE_DUNGEON2"),
+		VILLAGE("WESTRING_LOCALE_VILLAGE"),
+		VILLAGEFALL("WESTRING_LOCALE_VILLAGEFALL");
+
+		String string;
+
+		WE_LOC(String s){
+			string = s;
+		}
+
+		String getString(){
+			return string;
+		}
+		@Override
+		public String toString(){
+			return string;
 		}
 	}
 }

@@ -20,13 +20,13 @@ public class DeleteAction implements UndoAction {
 	private final Set<Triangle> affectedTris;
 	private final List<Geoset> emptyGeosets;
 	private final ModelView modelView;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 	private final EditableModel model;
 
 
-	public DeleteAction(Collection<GeosetVertex> selection, ModelStructureChangeListener structureChangeListener, ModelView modelView) {
+	public DeleteAction(Collection<GeosetVertex> selection, ModelStructureChangeListener changeListener, ModelView modelView) {
 		this.model = modelView.getModel();
-		this.structureChangeListener = structureChangeListener;
+		this.changeListener = changeListener;
 		this.modelView = modelView;
 
 		this.affectedVerts = new HashSet<>(selection);
@@ -55,7 +55,9 @@ public class DeleteAction implements UndoAction {
 				model.remove(geoset.getGeosetAnim());
 			}
 		}
-		structureChangeListener.geosetsUpdated();
+		if(changeListener != null){
+			changeListener.geosetsUpdated();
+		}
 		return this;
 	}
 
@@ -76,7 +78,9 @@ public class DeleteAction implements UndoAction {
 				model.add(geoset.getGeosetAnim());
 			}
 		}
-		structureChangeListener.geosetsUpdated();
+		if(changeListener != null){
+			changeListener.geosetsUpdated();
+		}
 
 		modelView.setSelectedVertices(affectedVerts);
 		return this;

@@ -3,14 +3,39 @@ package com.hiveworkshop.rms.ui.application;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import net.infonode.docking.View;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.function.Consumer;
 
-public class TimeSliderView {
+public class TimeSliderView extends View {
+	private TimeSliderPanel timeSliderPanel;
+
+	public TimeSliderView(){
+		super("Timeline", null, new JPanel());
+		timeSliderPanel = createTimeSliderPanel();
+		setComponent(timeSliderPanel);
+	}
+
+	public TimeSliderView setModelHandler(ModelHandler modelHandler){
+		timeSliderPanel.setModelHandler(modelHandler);
+		return this;
+	}
+
+	public TimeSliderView setAnimationMode(boolean animationModeState) {
+		timeSliderPanel.setDrawing(animationModeState);
+		timeSliderPanel.setKeyframeModeActive(animationModeState);
+		timeSliderPanel.repaint();
+		return this;
+	}
+
+	public TimeSliderPanel getTimeSliderPanel() {
+		return timeSliderPanel;
+	}
 
 	static View createTimeSliderView(TimeSliderPanel timeSliderPanel) {
 		final View timeSliderView;
@@ -27,21 +52,21 @@ public class TimeSliderView {
 		}
 	}
 
-	public static JButton createSetTimeBoundsButton(MainPanel mainPanel) {
+	public static JButton createSetTimeBoundsButton() {
 		final JButton setTimeBounds;
 		setTimeBounds = new JButton(RMSIcons.setTimeBoundsIcon);
 		setTimeBounds.setMargin(new Insets(0, 0, 0, 0));
 		setTimeBounds.setToolTipText("Choose Time Bounds");
-		setTimeBounds.addActionListener(e -> timeBoundsChooserPanel(mainPanel));
+		setTimeBounds.addActionListener(e -> timeBoundsChooserPanel());
 		return setTimeBounds;
 	}
 
-	private static void timeBoundsChooserPanel(MainPanel mainPanel) {
+	private static void timeBoundsChooserPanel() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 
 		if (modelPanel != null) {
 			TimeBoundChooserPanel tbcPanel = new TimeBoundChooserPanel(modelPanel.getModelHandler());
-			int confirmDialogResult = JOptionPane.showConfirmDialog(mainPanel, tbcPanel, "Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
+			int confirmDialogResult = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), tbcPanel, "Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
 
 			if (confirmDialogResult == JOptionPane.OK_OPTION) {
 				//			tbcPanel.applyTo(mainPanel.animatedRenderEnvironment);
@@ -68,5 +93,21 @@ public class TimeSliderView {
 		}
 		mouseCoordDisplay[dim1].setText((float) value1 + "");
 		mouseCoordDisplay[dim2].setText((float) value2 + "");
+	}
+
+	private TimeSliderPanel createTimeSliderPanel() {
+		timeSliderPanel = new TimeSliderPanel(ProgramGlobals.getPrefs());
+		timeSliderPanel.setDrawing(false);
+		Consumer<Integer> timeSliderTimeListener = currentTime -> {
+//			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime);
+//			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime - mainPanel.animatedRenderEnvironment.getStart());
+			if (ProgramGlobals.getCurrentModelPanel() != null) {
+				ProgramGlobals.getCurrentModelPanel().getEditorRenderModel().updateNodes(false);
+				ProgramGlobals.getCurrentModelPanel().repaintSelfAndRelatedChildren();
+			}
+		};
+		timeSliderPanel.addListener(timeSliderTimeListener);
+		//		timeSliderPanel.addListener(creatorPanel);
+		return timeSliderPanel;
 	}
 }

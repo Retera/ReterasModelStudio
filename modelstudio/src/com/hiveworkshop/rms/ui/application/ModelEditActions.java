@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeInterpTypeAction;
 import com.hiveworkshop.rms.editor.actions.mesh.*;
 import com.hiveworkshop.rms.editor.actions.model.RecalculateExtentsAction;
-import com.hiveworkshop.rms.editor.actions.selection.SetSelectionAction;
 import com.hiveworkshop.rms.editor.actions.tools.MirrorModelAction;
 import com.hiveworkshop.rms.editor.actions.tools.RigAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
@@ -25,11 +24,9 @@ import javax.swing.*;
 import java.util.*;
 
 public class ModelEditActions {
-    static double lastNormalMaxAngle = 90;
-    static boolean useTris = false;
 
     public static void viewMatrices() {
-        final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
             InfoPopup.show(ProgramGlobals.getMainPanel(), getSelectedMatricesDescription(modelPanel.getModelView()));
         }
@@ -187,14 +184,6 @@ public class ModelEditActions {
         return rigAction;
     }
 
-    public static UndoAction selectAll(ModelView modelView) {
-        Set<GeosetVertex> allSelection = new HashSet<>();
-        for (Geoset geo : modelView.getEditableGeosets()) {
-            allSelection.addAll(geo.getVertices());
-        }
-        return new SetSelectionAction(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras(), modelView, "select all");
-    }
-
     public static void inverseAllUVs() {
         ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
@@ -277,37 +266,6 @@ public class ModelEditActions {
             snapNormalsAction.redo();// a handy way to do the snapping!
             modelPanel.getUndoManager().pushAction(snapNormalsAction);
 
-        }
-        ProgramGlobals.getMainPanel().repaint();
-    }
-
-    public static void recalculateNormals() {
-        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-        if (modelPanel != null) {
-            JPanel panel = new JPanel(new MigLayout());
-            panel.add(new JLabel("Limiting angle"));
-            JSpinner spinner = new JSpinner(new SpinnerNumberModel(lastNormalMaxAngle, -180.0, 180.0, 1));
-            panel.add(spinner, "wrap");
-            panel.add(new JLabel("Use triangles instead of vertices"));
-            JCheckBox useTries = new JCheckBox();
-            useTries.setSelected(useTris);
-            panel.add(useTries);
-            int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), panel, "Recalculate Normals", JOptionPane.OK_CANCEL_OPTION);
-            if (option == JOptionPane.OK_OPTION) {
-                lastNormalMaxAngle = (double) spinner.getValue();
-                useTris = useTries.isSelected();
-
-                ModelView modelView = modelPanel.getModelView();
-
-                Set<GeosetVertex> selectedVertices = new HashSet<>(modelView.getSelectedVertices());
-                if (selectedVertices.isEmpty()) {
-                    modelView.getEditableGeosets().forEach(geoset -> selectedVertices.addAll(geoset.getVertices()));
-                }
-
-                RecalculateNormalsAction recalcNormals = new RecalculateNormalsAction(selectedVertices, lastNormalMaxAngle, useTris);
-                recalcNormals.redo();
-                modelPanel.getUndoManager().pushAction(recalcNormals);
-            }
         }
         ProgramGlobals.getMainPanel().repaint();
     }

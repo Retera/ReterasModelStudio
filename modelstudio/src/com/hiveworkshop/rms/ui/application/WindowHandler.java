@@ -115,19 +115,24 @@ public class WindowHandler {
 		traverseAndFix(mainPanel.rootWindow);
 	}
 
-	public static void traverseAndReset(final DockingWindow window) {
-		final int childWindowCount = window.getChildWindowCount();
+	public static void traverseAndReset(DockingWindow window) {
+		int childWindowCount = window.getChildWindowCount();
 		for (int i = 0; i < childWindowCount; i++) {
-			final DockingWindow childWindow = window.getChildWindow(i);
+			DockingWindow childWindow = window.getChildWindow(i);
+//			childWindow.getWindowProperties().setDragEnabled(!ProgramGlobals.isLockLayout());
+//			if(childWindow instanceof SplitWindow){
+//				((SplitWindow)childWindow).getSplitWindowProperties().setDividerLocationDragEnabled(!ProgramGlobals.isLockLayout());
+//			}
+
 			traverseAndReset(childWindow);
 			if (childWindow instanceof View) {
-				final View view = (View) childWindow;
+				View view = (View) childWindow;
 				view.getViewProperties().getViewTitleBarProperties().setVisible(true);
 			}
 		}
 	}
 
-	public static void traverseAndReset(final DockingWindow window, Vec3 color) {
+	public static void traverseAndReset(DockingWindow window, Vec3 color) {
 		final int childWindowCount = window.getChildWindowCount();
 		for (int i = 0; i < childWindowCount; i++) {
 			final DockingWindow childWindow = window.getChildWindow(i);
@@ -146,6 +151,12 @@ public class WindowHandler {
 		for (int i = 0; i < childWindowCount; i++) {
 			final DockingWindow childWindow = window.getChildWindow(i);
 			traverseAndFix(childWindow);
+
+			childWindow.getWindowProperties().setDragEnabled(!ProgramGlobals.isLockLayout());
+			if(childWindow instanceof SplitWindow){
+				((SplitWindow)childWindow).getSplitWindowProperties().setDividerLocationDragEnabled(!ProgramGlobals.isLockLayout());
+			}
+
 			if (tabWindow && (childWindowCount != 1) && (childWindow instanceof View)) {
 				final View view = (View) childWindow;
 				view.getViewProperties().getViewTitleBarProperties().setVisible(false);

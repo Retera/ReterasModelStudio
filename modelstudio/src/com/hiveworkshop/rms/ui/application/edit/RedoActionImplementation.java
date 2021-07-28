@@ -17,6 +17,10 @@ public final class RedoActionImplementation extends AbstractAction {
 
     @Override
     public void actionPerformed(final ActionEvent e) {
+        redo();
+    }
+
+    public void redo() {
         final ModelPanel mpanel = ProgramGlobals.getCurrentModelPanel();
         final MainPanel mainPanel = ProgramGlobals.getMainPanel();
         if (mpanel != null) {
@@ -27,9 +31,9 @@ public final class RedoActionImplementation extends AbstractAction {
             } catch (final Exception exc) {
                 ExceptionPopup.display(exc);
             }
+            mpanel.repaintSelfAndRelatedChildren();
         }
         ProgramGlobals.getUndoHandler().refreshUndo();
         mainPanel.repaintSelfAndChildren();
-        mpanel.repaintSelfAndRelatedChildren();
     }
 }

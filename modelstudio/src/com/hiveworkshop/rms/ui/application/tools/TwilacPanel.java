@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.KeybindingPrefPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectoinUgg;
@@ -69,6 +70,10 @@ public class TwilacPanel extends JPanel {
 		JButton reorder_animations = new JButton("Reorder Animations");
 		reorder_animations.addActionListener(e -> viewReOrderAnimsPanel());
 		add(reorder_animations, "wrap");
+
+		JButton edit_keybindings = new JButton("Edit Keybindings");
+		edit_keybindings.addActionListener(e -> viewKBPanel());
+		add(edit_keybindings, "wrap");
 
 		JButton button = new JButton("button");
 		button.addActionListener(e -> button.setText(button.getText().equalsIgnoreCase("butt-on") ? "Butt-Off" : "Butt-On"));
@@ -150,5 +155,10 @@ public class TwilacPanel extends JPanel {
 			ReorderAnimationsPanel panel = new ReorderAnimationsPanel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
 			FramePopup.show(panel, null, "Edit Particle2 Emitter");
 		}
+	}
+	private void viewKBPanel(){
+		KeybindingPrefPanel keybindingPrefPanel = new KeybindingPrefPanel();
+//		keybindingPrefPanel.setPreferredSize(ScreenInfo.getSmallWindow());
+		FramePopup.show(keybindingPrefPanel, null, "Edit Particle2 Emitter");
 	}
 }

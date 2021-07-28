@@ -18,7 +18,6 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -93,6 +92,165 @@ public class ModelOptionPanel extends JPanel {
 	}
 
 	boolean choosingModel;
+
+
+
+	JComboBox<ModelGroup> groupBox;
+	JComboBox<Model> modelBox;
+	JTextField filePathField;
+	String cachedIconPath;
+	DefaultComboBoxModel<ModelGroup> groupsModel = new DefaultComboBoxModel<>();
+	List<DefaultComboBoxModel<Model>> groupModels = new ArrayList<>();
+
+	AnimationViewer viewer;
+
+	final EditableModel blank = new EditableModel();
+
+	private static void addModelsToList(Map<String, NamedList<String>> modelsData, Element unit, String artName, String weStringTypeSuffix) {
+		String filepath = unit.getField(artName);
+		if (filepath.length() > 0) {
+			if (filepath.contains(",")) {
+				filepath = filepath.split(",")[0];
+			}
+			NamedList<String> unitList = getUnitList(modelsData, unit, filepath);
+			unitList.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
+		}
+	}
+
+	public ModelOptionPanel() {
+		preload();
+
+		for (final ModelGroup group : groups) {
+			groupsModel.addElement(group);
+			final DefaultComboBoxModel<Model> groupModel = new DefaultComboBoxModel<>();
+
+			for (final Model model : group.models) {
+				groupModel.addElement(model);
+			}
+			groupModels.add(groupModel);
+		}
+		groupBox = new JComboBox<>(groupsModel);
+		modelBox = new JComboBox<>(groupModels.get(0));
+		filePathField = new JTextField(18);
+		filePathField.setMaximumSize(new Dimension(4000, 25));
+		groupBox.addActionListener(e -> groupBoxListener());
+		modelBox.addActionListener(e -> modelBoxListener());
+
+		filePathField.getDocument().addDocumentListener(getFilepathDocumentListener(this));
+
+		groupBox.setMaximumRowCount(11);
+		modelBox.setMaximumRowCount(36);
+
+		groupBox.setMaximumSize(new Dimension(200, 25));
+		modelBox.setMaximumSize(new Dimension(4000, 25));
+
+		viewer = new AnimationViewer(null, new ProgramPreferences(), false);
+		modelBox.setSelectedIndex(0);
+
+		setLayout(new MigLayout("fill", "", "[grow]"));
+		JPanel rightPanel = new JPanel(new MigLayout("fill", "[]", "[][][][grow]"));
+		rightPanel.add(groupBox, "wrap, growx");
+		rightPanel.add(modelBox, "wrap, growx");
+		rightPanel.add(filePathField, "wrap, growx");
+
+		add(viewer, "growx");
+		add(rightPanel, "growx, growy");
+	}
+
+	private static DocumentListener getFilepathDocumentListener(final ModelOptionPanel modelOptionPanel) {
+		return new DocumentListener() {
+			@Override
+			public void removeUpdate(final DocumentEvent e) {
+				refresh();
+			}
+
+			@Override
+			public void insertUpdate(final DocumentEvent e) {
+				refresh();
+			}
+
+			@Override
+			public void changedUpdate(final DocumentEvent e) {
+				refresh();
+			}
+
+			void refresh() {
+				if (!modelOptionPanel.choosingModel) {
+					String filepath = modelOptionPanel.filePathField.getText();
+					modelOptionPanel.cachedIconPath = null;
+					modelOptionPanel.showModel(filepath);
+				}
+			}
+		};
+	}
+
+	private void groupBoxListener() {
+		modelBox.setModel(groupModels.get(groupBox.getSelectedIndex()));
+		modelBox.setSelectedIndex(0);
+	}
+
+	private void modelBoxListener() {
+		choosingModel = true;
+		Model model = (Model) modelBox.getSelectedItem();
+		String filepath = model != null ? model.filepath : null;
+		filePathField.setText(filepath);
+		cachedIconPath = ((Model) modelBox.getSelectedItem()).cachedIcon;
+		showModel(filepath);
+		choosingModel = false;
+	}
+
+	public String getSelection() {
+		return filePathField.getText();
+		// if( modelBox.getSelectedItem() != null ) {
+		// return ((Model)modelBox.getSelectedItem()).filepath;
+		// } else {
+		// return null;
+		// }
+	}
+
+	public String getCachedIconPath() {
+		return cachedIconPath;
+	}
+
+	public void setSelection(final String path) {
+		if (path != null) {
+			ItemFinder: for (final ModelGroup group : groups) {
+				for (final Model model : group.models) {
+					if (model.filepath.equals(path)) {
+						groupBox.setSelectedItem(group);
+						modelBox.setSelectedItem(model);
+						cachedIconPath = model.cachedIcon;
+						break ItemFinder;
+					}
+				}
+			}
+			filePathField.setText(path);
+		} else {
+			filePathField.setText("");
+		}
+	}
+
+	private void showModel(String filepath) {
+		EditableModel toLoad = blank;
+		ModelView modelDisp;
+		try {
+			if (filepath.endsWith(".mdl")) {
+				filepath = filepath.replace(".mdl", ".mdx");
+			} else if (!filepath.endsWith(".mdx")) {
+				filepath = filepath.concat(".mdx");
+			}
+			final InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
+			final MdlxModel mdlxModel = MdxUtils.loadMdlx(modelStream);
+			toLoad = TempOpenModelStuff.createEditableModel(mdlxModel);
+			modelDisp = new ModelView(toLoad);
+		} catch (final Exception exc) {
+			exc.printStackTrace();
+			// bad model!
+			modelDisp = null;
+		}
+		viewer.setModel(modelDisp);
+		viewer.setTitle(toLoad.getName());
+	}
 
 	static void preload() {
 		if (preloaded) {
@@ -211,35 +369,21 @@ public class ModelOptionPanel extends JPanel {
 		}
 
 		fillItemData(itemsModelData);
-
 		fillUnitList(destModelData, destData);
-
 		fillUnitList(doodModelData, doodData);
-
 		fillSpawnData(spawnModelData);
-
 		fillGinterData(ginterModelData);
 
 		addNewModelGroup(unitsModelData, "WESTRING_OE_TYPECAT_UNIT");
-
 		addNewModelGroup(unitsMissileData, "WESTRING_OE_TYPECAT_UNIT_MSSL");
-
 		addNewModelGroup(unitsSpecialData, "WESTRING_OE_TYPECAT_UNIT_SPEC");
-
 		addNewModelGroup(itemsModelData, "WESTRING_OE_TYPECAT_ITEM");
-
 		addNewModelGroup(abilityModelData, "WESTRING_OE_TYPECAT_ABIL");
-
 		addNewModelGroup(buffModelData, "WESTRING_OE_TYPECAT_BUFF");
-
 		addNewModelGroup(destModelData, "WESTRING_OE_TYPECAT_DEST");
-
 		addNewModelGroup(doodModelData, "WESTRING_OE_TYPECAT_DOOD");
-
 		addNewModelGroup(spawnModelData, "WESTRING_OE_TYPECAT_SPWN");
-
 		addNewModelGroup(ginterModelData, "WESTRING_OE_TYPECAT_SKIN");
-
 		addExtraModelGroup();
 
 		// new JFrame().setVisible(true);
@@ -336,19 +480,24 @@ public class ModelOptionPanel extends JPanel {
 			if (filepath.contains(",")) {
 				final String[] filepaths = filepath.split(",");
 				for (final String fp : filepaths) {
-					NamedList<String> unitList = unitsMissileData.get(fp.toLowerCase());
-					if (unitList == null) {
-						unitList = new NamedList<>(filepath);
-						unitList.setCachedIconPath(unit.getIconPath());
-						unitsMissileData.put(fp.toLowerCase(), unitList);
-					}
+					NamedList<String> unitList = getMissileNamedList(unitsMissileData, unit, filepath, fp);
 					unitList.add(unit.getName());
 				}
 			} else {
-				NamedList<String> unitList = getUnitList(unitsMissileData, unit, filepath);
+				NamedList<String> unitList = getMissileNamedList(unitsMissileData, unit, filepath, filepath);
 				unitList.add(unit.getName());
 			}
 		}
+	}
+
+	private static NamedList<String> getMissileNamedList(Map<String, NamedList<String>> unitsMissileData, Element unit, String filepath, String fp) {
+		NamedList<String> unitList = unitsMissileData.get(fp.toLowerCase());
+		if (unitList == null) {
+			unitList = new NamedList<>(filepath);
+			unitList.setCachedIconPath(unit.getIconPath());
+			unitsMissileData.put(fp.toLowerCase(), unitList);
+		}
+		return unitList;
 	}
 
 	private static void addNewModelGroup(Map<String, NamedList<String>> modelData, String weStringType) {
@@ -359,31 +508,24 @@ public class ModelOptionPanel extends JPanel {
 	}
 
 	private static NamedList<String> getUnitList(Map<String, NamedList<String>> spawnModelData, Element unit, String filepath) {
-		NamedList<String> unitList = spawnModelData.get(filepath.toLowerCase());
-		if (unitList == null) {
-			unitList = new NamedList<>(filepath);
-			unitList.setCachedIconPath(unit.getIconPath());
-			spawnModelData.put(filepath.toLowerCase(), unitList);
-		}
-		return unitList;
+		return getMissileNamedList(spawnModelData, unit, filepath, filepath);
 	}
 
 	private static void fillUnitList(Map<String, NamedList<String>> modelData, DataTable dataTable) {
-		for (final String str : dataTable.keySet()) {
+		for (String str : dataTable.keySet()) {
 			// ITEMS
-			final Element unit = dataTable.get(str);
-			final String filepath = unit.getField("file");
+			Element unit = dataTable.get(str);
+			String filepath = unit.getField("file");
 			if (filepath.length() > 0) {
 				NamedList<String> unitList = getUnitList(modelData, unit, filepath);
 				unitList.add(unit.getName() + " <Base>");
 
-				final int numVar = unit.getFieldValue("numVar");
+				int numVar = unit.getFieldValue("numVar");
 				if (numVar > 1) {
 					for (int i = 0; i < numVar; i++) {
-						final String filepath2 = filepath + i + ".mdl";
+						String filepath2 = filepath + i + ".mdl";
 						NamedList<String> unitList2 = getUnitList(modelData, unit, filepath2);
-						unitList2.add(unit.getName() + " <" + WEString.getString("WESTRING_PREVIEWER_VAR") + " "
-								+ (i + 1) + ">");
+						unitList2.add(unit.getName() + " <" + WEString.getString("WESTRING_PREVIEWER_VAR") + " " + (i + 1) + ">");
 
 					}
 				}
@@ -421,162 +563,5 @@ public class ModelOptionPanel extends JPanel {
 			NamedList<String> unitList = getUnitList(unitsData, unit, filepath);
 			unitList.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
 		}
-	}
-
-	JComboBox<ModelGroup> groupBox;
-	JComboBox<Model> modelBox;
-	JTextField filePathField;
-	String cachedIconPath;
-	DefaultComboBoxModel<ModelGroup> groupsModel = new DefaultComboBoxModel<>();
-	List<DefaultComboBoxModel<Model>> groupModels = new ArrayList<>();
-
-	AnimationViewer viewer;
-
-	final EditableModel blank = new EditableModel();
-
-	private static void addModelsToList(Map<String, NamedList<String>> modelsData, Element unit, String artName, String weStringTypeSuffix) {
-		String filepath = unit.getField(artName);
-		if (filepath.length() > 0) {
-			if (filepath.contains(",")) {
-				filepath = filepath.split(",")[0];
-			}
-			NamedList<String> unitList = getUnitList(modelsData, unit, filepath);
-			unitList.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
-		}
-	}
-
-	public ModelOptionPanel() {
-		preload();
-
-		for (final ModelGroup group : groups) {
-			groupsModel.addElement(group);
-			final DefaultComboBoxModel<Model> groupModel = new DefaultComboBoxModel<>();
-
-			for (final Model model : group.models) {
-				groupModel.addElement(model);
-			}
-			groupModels.add(groupModel);
-		}
-		groupBox = new JComboBox<>(groupsModel);
-		modelBox = new JComboBox<>(groupModels.get(0));
-		filePathField = new JTextField(18);
-		filePathField.setMaximumSize(new Dimension(4000, 25));
-		groupBox.addActionListener(e -> groupBoxListener(e));
-		modelBox.addActionListener(e -> modelBoxListener(e));
-
-		filePathField.getDocument().addDocumentListener(getFilepathDocumentListener(this));
-
-		groupBox.setMaximumRowCount(11);
-		modelBox.setMaximumRowCount(36);
-
-		groupBox.setMaximumSize(new Dimension(200, 25));
-		modelBox.setMaximumSize(new Dimension(4000, 25));
-
-		viewer = new AnimationViewer(null, new ProgramPreferences(), false);
-		modelBox.setSelectedIndex(0);
-
-		setLayout(new MigLayout("fill", "", "[grow]"));
-		JPanel rightPanel = new JPanel(new MigLayout("fill", "[]", "[][][][grow]"));
-		rightPanel.add(groupBox, "wrap, growx");
-		rightPanel.add(modelBox, "wrap, growx");
-		rightPanel.add(filePathField, "wrap, growx");
-
-		add(viewer, "growx");
-		add(rightPanel, "growx, growy");
-	}
-
-	private static DocumentListener getFilepathDocumentListener(final ModelOptionPanel modelOptionPanel) {
-		return new DocumentListener() {
-			@Override
-			public void removeUpdate(final DocumentEvent e) {
-				refresh();
-			}
-
-			@Override
-			public void insertUpdate(final DocumentEvent e) {
-				refresh();
-			}
-
-			@Override
-			public void changedUpdate(final DocumentEvent e) {
-				refresh();
-			}
-
-			void refresh() {
-				if (!modelOptionPanel.choosingModel) {
-					String filepath = modelOptionPanel.filePathField.getText();
-					modelOptionPanel.cachedIconPath = null;
-					modelOptionPanel.showModel(filepath);
-				}
-			}
-		};
-	}
-
-	private void groupBoxListener(ActionEvent e) {
-		modelBox.setModel(groupModels.get(groupBox.getSelectedIndex()));
-		modelBox.setSelectedIndex(0);
-	}
-
-	private void modelBoxListener(ActionEvent e) {
-		choosingModel = true;
-		Model model = (Model) modelBox.getSelectedItem();
-		String filepath = model != null ? model.filepath : null;
-		filePathField.setText(filepath);
-		cachedIconPath = ((Model) modelBox.getSelectedItem()).cachedIcon;
-		showModel(filepath);
-		choosingModel = false;
-	}
-
-	public String getSelection() {
-		return filePathField.getText();
-		// if( modelBox.getSelectedItem() != null ) {
-		// return ((Model)modelBox.getSelectedItem()).filepath;
-		// } else {
-		// return null;
-		// }
-	}
-
-	public String getCachedIconPath() {
-		return cachedIconPath;
-	}
-
-	public void setSelection(final String path) {
-		if (path != null) {
-			ItemFinder: for (final ModelGroup group : groups) {
-				for (final Model model : group.models) {
-					if (model.filepath.equals(path)) {
-						groupBox.setSelectedItem(group);
-						modelBox.setSelectedItem(model);
-						cachedIconPath = model.cachedIcon;
-						break ItemFinder;
-					}
-				}
-			}
-			filePathField.setText(path);
-		} else {
-			filePathField.setText("");
-		}
-	}
-
-	private void showModel(String filepath) {
-		EditableModel toLoad = blank;
-		ModelView modelDisp;
-		try {
-			if (filepath.endsWith(".mdl")) {
-				filepath = filepath.replace(".mdl", ".mdx");
-			} else if (!filepath.endsWith(".mdx")) {
-				filepath = filepath.concat(".mdx");
-			}
-			final InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
-			final MdlxModel mdlxModel = MdxUtils.loadMdlx(modelStream);
-			toLoad = TempOpenModelStuff.createEditableModel(mdlxModel);
-			modelDisp = new ModelView(toLoad);
-		} catch (final Exception exc) {
-			exc.printStackTrace();
-			// bad model!
-			modelDisp = null;
-		}
-		viewer.setModel(modelDisp);
-		viewer.setTitle(toLoad.getName());
 	}
 }

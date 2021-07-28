@@ -10,11 +10,14 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ActionFunction;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.util.FramePopup;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -216,5 +219,18 @@ public class KeyframeCopyPanel extends JPanel {
 		FileDialog fileDialog = new FileDialog();
 
 		final EditableModel model = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+	}
+
+
+
+	private static class CopyKeyframes extends ActionFunction {
+		CopyKeyframes(){
+			super(TextKey.COPY_KFS_BETWEEN_ANIMS, () -> KeyframeCopyPanel.showPanel());
+			setMenuItemMnemonic(KeyEvent.VK_K);
+		}
+	}
+
+	public static JMenuItem getMenuItem(){
+		return new CopyKeyframes().getMenuItem();
 	}
 }

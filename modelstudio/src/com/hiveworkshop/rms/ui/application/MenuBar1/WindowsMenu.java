@@ -7,7 +7,8 @@ import net.infonode.docking.RootWindow;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 
-import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.*;
+import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
+import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenuItem;
 
 public class WindowsMenu extends JMenu {
 
@@ -26,9 +27,9 @@ public class WindowsMenu extends JMenu {
 		JMenu browsersMenu = createMenu("Browsers", KeyEvent.VK_B);
 		add(browsersMenu);
 
-		createAndAddMenuItem("Data Browser", browsersMenu, KeyEvent.VK_A, e -> MPQBrowserView.openMPQViewer());
-		createAndAddMenuItem("Unit Browser", browsersMenu, KeyEvent.VK_U, e -> MenuBarActions.openUnitViewer());
-		createAndAddMenuItem("Doodad Browser", browsersMenu, KeyEvent.VK_D, e -> InternalFileLoader.OpenDoodadViewer());
+		browsersMenu.add(createMenuItem("Data Browser", KeyEvent.VK_A, e -> MPQBrowserView.openMPQViewer()));
+		browsersMenu.add(createMenuItem("Unit Browser", KeyEvent.VK_U, e -> MenuBarActions.openUnitViewer()));
+		browsersMenu.add(createMenuItem("Doodad Browser", KeyEvent.VK_D, e -> InternalFileLoader.OpenDoodadViewer()));
 
 		JMenuItem hiveViewer = new JMenuItem("Hive Browser");
 		hiveViewer.setMnemonic(KeyEvent.VK_H);
@@ -54,14 +55,14 @@ public class WindowsMenu extends JMenu {
 		viewsMenu.add(createMenuItem("Animation Preview", KeyEvent.VK_A, OpenViewAction.getOpenViewAction(rootWindow, "Animation Preview", mainLayoutCreator.getPreviewView())));
 		viewsMenu.add(createMenuItem("Animation Controller", KeyEvent.VK_C, OpenViewAction.getOpenViewAction(rootWindow, "Animation Controller", mainLayoutCreator.getAnimationControllerView())));
 		viewsMenu.add(createMenuItem("Modeling", KeyEvent.VK_M, OpenViewAction.getOpenViewAction(rootWindow, "Modeling", mainLayoutCreator.getCreatorView())));
-		viewsMenu.add(createMenuItem("Outliner", KeyEvent.VK_O, OpenViewAction.getOpenViewAction(rootWindow, "Outliner", mainLayoutCreator.getViewportControllerWindowView())));
+		viewsMenu.add(createMenuItem("Outliner", KeyEvent.VK_O, OpenViewAction.getOpenViewAction(rootWindow, "Outliner", mainLayoutCreator.getModelEditingTreeView())));
 		viewsMenu.add(createMenuItem("Perspective", KeyEvent.VK_P, OpenViewAction.getOpenViewAction(rootWindow, "Perspective", mainLayoutCreator.getPerspectiveView())));
 		viewsMenu.add(createMenuItem("Front", KeyEvent.VK_F, OpenViewAction.getOpenViewAction(rootWindow, "Front", mainLayoutCreator.getFrontView())));
 		viewsMenu.add(createMenuItem("Side", KeyEvent.VK_S, OpenViewAction.getOpenViewAction(rootWindow, "Side", mainLayoutCreator.getLeftView())));
 		viewsMenu.add(createMenuItem("Bottom", KeyEvent.VK_B, OpenViewAction.getOpenViewAction(rootWindow, "Bottom", mainLayoutCreator.getBottomView())));
 		viewsMenu.add(createMenuItem("Tools", KeyEvent.VK_T, OpenViewAction.getOpenViewAction(rootWindow, "Tools", mainLayoutCreator.getToolView())));
 		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_C, OpenViewAction.getOpenViewAction(rootWindow, "Model", mainLayoutCreator.getModelDataView())));
-		viewsMenu.add(createMenuItem("Footer", OpenViewAction.getOpenViewAction(rootWindow, "Footer", mainLayoutCreator.getTimeSliderView())));
+		viewsMenu.add(createMenuItem("Footer", -1, OpenViewAction.getOpenViewAction(rootWindow, "Footer", mainLayoutCreator.getTimeSliderView())));
 		viewsMenu.add(createMenuItem("Matrix Eater Script", KeyEvent.VK_H, KeyStroke.getKeyStroke("control P"), e -> ScriptView.openScriptView()));
 		return viewsMenu;
 	}

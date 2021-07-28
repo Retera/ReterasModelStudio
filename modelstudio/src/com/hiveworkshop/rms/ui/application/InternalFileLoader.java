@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
+import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -101,10 +102,6 @@ public class InternalFileLoader {
 						String prePath = obj.getFieldAsString(War3ID.fromString("dfil"), 0);
 						loadMdxStream(obj, prePath, true);
 					}
-					//                    mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
-//					MenuBar.toolsMenu.getAccessibleContext().setAccessibleDescription(
-//							"Allows the user to control which parts of the model are displayed for editing.");
-					//                    mainPanel.toolsMenu.setEnabled(true);
 					MenuBar.setToolsMenuEnabled(true);
 				}
 			}
@@ -123,7 +120,8 @@ public class InternalFileLoader {
 	}
 
 	public static void fetchModel() {
-		ModelOptionPane.ModelElement model = ImportFileActions.fetchModel();
+//		ModelOptionPane.ModelElement model = ImportFileActions.fetchModel();
+		ModelOptionPane.ModelElement model = ModelOptionPane.fetchModel(ProgramGlobals.getMainPanel());
 		if (model != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(model.getFilepath());
@@ -134,7 +132,8 @@ public class InternalFileLoader {
 	}
 
 	public static void fetchUnit() {
-		GameObject unitFetched = ImportFileActions.fetchUnit();
+//		GameObject unitFetched = ImportFileActions.fetchUnit();
+		GameObject unitFetched = UnitOptionPane.fetchUnit(ProgramGlobals.getMainPanel());;
 		if (unitFetched != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(unitFetched.getField("file"));
@@ -144,7 +143,7 @@ public class InternalFileLoader {
 		}
 	}
 
-	private static void loadFromStream(String filepath, ImageIcon icon) {
+	public static void loadFromStream(String filepath, ImageIcon icon) {
 		if (filepath != null) {
 
 			loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true, icon);
@@ -154,11 +153,7 @@ public class InternalFileLoader {
 			if (ProgramGlobals.getPrefs().isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
 				loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
 			}
-			//            mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
-//			MenuBar.toolsMenu.getAccessibleContext().setAccessibleDescription(
-//					"Allows the user to control which parts of the model are displayed for editing.");
-			//            mainPanel.toolsMenu.setEnabled(true);
-			com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.setToolsMenuEnabled(true);
+			MenuBar.setToolsMenuEnabled(true);
 		}
 	}
 }

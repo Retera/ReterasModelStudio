@@ -76,7 +76,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		this.uvLinkActions = new UVLinkActions(this);
 		JToolBar toolbar = createJToolBar();
 
-		modelPanel = ProgramGlobals.getCurrentModelPanel();
+		modelPanel = ProgramGlobals.getCurrentModelPanel().addUVPanel(this);
 		undoListener = ProgramGlobals.getCurrentModelPanel().getUndoManager();
 		viewportActivityManager = new ViewportActivityManager(null);
 
@@ -88,13 +88,14 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		setBorder(BorderFactory.createLineBorder(Color.black));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)));
 		setOpaque(true);
-		setViewport(modelPanel);
+		setViewport(modelPanel.getModelHandler());
 
 		setLayout(new MigLayout("fill", "[grow][]", "[][grow][]"));
 		add(toolbar, "wrap, spanx");
 		add(vp, "grow");
 		add(getStuffPanel(), "growy, wrap");
 		add(getBotomPanel());
+		setMinimumSize(new Dimension(200, 200));
 
 		uvLinkActions.selectionItemTypeGroup.addToolbarButtonListener(newType -> {
 			modelEditorManager.setSelectionItemType(newType);
@@ -428,8 +429,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 //		mouseCoordDisplay[1].setText((float) y + "");
 	}
 
-	public void setViewport(ModelPanel dispModel) {
-		vp = new UVViewport(dispModel.getModelHandler(), this, viewportActivityManager, this);
+	public void setViewport(ModelHandler modelHandler) {
+		vp = new UVViewport(modelHandler, this, viewportActivityManager, this);
 		add(vp);
 	}
 

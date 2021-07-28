@@ -25,26 +25,27 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 public class MainLayoutCreator {
-    public View viewportControllerWindowView;
-    public View toolView;
-    public View frontView;
-    public View leftView;
-    public View bottomView;
-    public View perspectiveView;
-    public View modelDataView;
-    public View modelComponentView;
-    public View previewView;
-    public View animationControllerView;
+    private View modelEditingTreeView;
+    private View toolView;
+    private View frontView;
+    private View leftView;
+    private View bottomView;
+    private View perspectiveView;
+    private View modelDataView;
+    private View modelComponentView;
+    private View previewView;
+    private View animationControllerView;
 
-    public View timeSliderView;
-    public View creatorView;
+    private TimeSliderView timeSliderView;
+    private View creatorView;
 
-    TimeSliderPanel timeSliderPanel;
-    CreatorModelingPanel creatorPanel;
+//    private TimeSliderPanel timeSliderPanel;
+    private CreatorModelingPanel creatorPanel;
 
     public MainLayoutCreator(MainPanel mainPanel) {
-        timeSliderPanel = createTimeSliderPanel(mainPanel);
-        timeSliderView = TimeSliderView.createTimeSliderView(timeSliderPanel);
+//        timeSliderPanel = createTimeSliderPanel();
+//        timeSliderView = TimeSliderView.createTimeSliderView(timeSliderPanel);
+        timeSliderView = new TimeSliderView();
 
         creatorPanel = new CreatorModelingPanel(mainPanel.viewportListener);
         creatorView = new View("Modeling", null, creatorPanel);
@@ -62,7 +63,7 @@ public class MainLayoutCreator {
 
         JPanel jPanel = new JPanel();
         jPanel.add(new JLabel("..."));
-        viewportControllerWindowView = new View("Outliner", null, jPanel);// GlobalIcons.geoIcon
+        modelEditingTreeView = new View("Outliner", null, jPanel);// GlobalIcons.geoIcon
 //		viewportControllerWindowView.getWindowProperties().setCloseEnabled(false);
 //		viewportControllerWindowView.getWindowProperties().setMaximizeEnabled(true);
 //		viewportControllerWindowView.getWindowProperties().setMinimizeEnabled(true);
@@ -128,11 +129,13 @@ public class MainLayoutCreator {
 
         viewingTab.getWindowProperties().setTitleProvider(arg0 -> "View");
         viewingTab.getWindowProperties().setCloseEnabled(false);
+        viewingTab.getWindowProperties().setDragEnabled(false);
+        viewingTab.getSplitWindowProperties().setDividerLocationDragEnabled(false);
         return viewingTab;
     }
 
     private SplitWindow getEditTab() {
-        TabWindow leftHandTabWindow = new TabWindow(new DockingWindow[] {getViewportControllerWindowView(), getToolView()});
+        TabWindow leftHandTabWindow = new TabWindow(new DockingWindow[] {getModelEditingTreeView(), getToolView()});
         leftHandTabWindow.setSelectedTab(0);
 
         SplitWindow frBt = new SplitWindow(true, getFrontView(), getBottomView());
@@ -183,8 +186,8 @@ public class MainLayoutCreator {
         return new UnitEditorSettings();
     }
 
-    private TimeSliderPanel createTimeSliderPanel(MainPanel mainPanel) {
-        TimeSliderPanel timeSliderPanel = new TimeSliderPanel(mainPanel, ProgramGlobals.getPrefs());
+    private TimeSliderPanel createTimeSliderPanel() {
+        TimeSliderPanel timeSliderPanel = new TimeSliderPanel(ProgramGlobals.getPrefs());
         timeSliderPanel.setDrawing(false);
         Consumer<Integer> timeSliderTimeListener = currentTime -> {
 //			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime);
@@ -203,27 +206,27 @@ public class MainLayoutCreator {
         if (modelPanel == null) {
             JPanel jPanel = new JPanel();
             jPanel.add(new JLabel("..."));
-            viewportControllerWindowView.setComponent(jPanel);
+            modelEditingTreeView.setComponent(jPanel);
             frontView.setComponent(new JPanel());
             bottomView.setComponent(new JPanel());
             leftView.setComponent(new JPanel());
             perspectiveView.setComponent(new JPanel());
             previewView.setComponent(new JPanel());
             animationControllerView.setComponent(new JPanel());
-            timeSliderPanel.setModelHandler(null);
+            timeSliderView.setModelHandler(null);
             creatorPanel.setModelEditorManager(null);
             creatorPanel.setCurrentModel(null);
             modelDataView.setComponent(new JPanel());
             modelComponentView.setComponent(new JPanel());
         } else {
-            viewportControllerWindowView.setComponent(modelPanel.getModelEditingTreePane());
+            modelEditingTreeView.setComponent(modelPanel.getModelEditingTreePane());
             frontView.setComponent(modelPanel.getFrontArea());
             bottomView.setComponent(modelPanel.getBotArea());
             leftView.setComponent(modelPanel.getSideArea());
             perspectiveView.setComponent(modelPanel.getPerspArea());
             previewView.setComponent(modelPanel.getAnimationViewer());
             animationControllerView.setComponent(modelPanel.getAnimationController());
-            timeSliderPanel.setModelHandler(modelPanel.getModelHandler());
+            timeSliderView.setModelHandler(modelPanel.getModelHandler());
             creatorPanel.setModelEditorManager(modelPanel.getModelEditorManager());
             creatorPanel.setCurrentModel(modelPanel.getModelHandler());
             modelDataView.setComponent(modelPanel.getComponentBrowserTreePane());
@@ -236,8 +239,8 @@ public class MainLayoutCreator {
     }
 
     public MainLayoutCreator showModelPanel(ModelPanel modelPanel) {
-        viewportControllerWindowView.setComponent(modelPanel.getModelEditingTreePane());
-        viewportControllerWindowView.repaint();
+        modelEditingTreeView.setComponent(modelPanel.getModelEditingTreePane());
+        modelEditingTreeView.repaint();
         modelDataView.setComponent(modelPanel.getComponentBrowserTreePane());
         modelComponentView.setComponent(modelPanel.getComponentsPanel());
         modelDataView.repaint();
@@ -245,19 +248,17 @@ public class MainLayoutCreator {
     }
 
     public MainLayoutCreator setAnimationMode(boolean animationModeState) {
-        timeSliderPanel.setDrawing(animationModeState);
-        timeSliderPanel.setKeyframeModeActive(animationModeState);
-        timeSliderPanel.repaint();
+        timeSliderView.setAnimationMode(animationModeState);
         creatorPanel.setAnimationModeState(animationModeState);
         return this;
     }
 
-    public View getViewportControllerWindowView() {
-        return viewportControllerWindowView;
+    public View getModelEditingTreeView() {
+        return modelEditingTreeView;
     }
 
-    public MainLayoutCreator setViewportControllerWindowView(View viewportControllerWindowView) {
-        this.viewportControllerWindowView = viewportControllerWindowView;
+    public MainLayoutCreator setModelEditingTreeView(View modelEditingTreeView) {
+        this.modelEditingTreeView = modelEditingTreeView;
         return this;
     }
 
@@ -342,14 +343,14 @@ public class MainLayoutCreator {
         return this;
     }
 
-    public View getTimeSliderView() {
+    public TimeSliderView getTimeSliderView() {
         return timeSliderView;
     }
 
-    public MainLayoutCreator setTimeSliderView(View timeSliderView) {
-        this.timeSliderView = timeSliderView;
-        return this;
-    }
+//    public MainLayoutCreator setTimeSliderView(View timeSliderView) {
+//        this.timeSliderView = timeSliderView;
+//        return this;
+//    }
 
     public View getCreatorView() {
         return creatorView;
@@ -361,7 +362,7 @@ public class MainLayoutCreator {
     }
 
     public TimeSliderPanel getTimeSliderPanel() {
-        return timeSliderPanel;
+        return timeSliderView.getTimeSliderPanel();
     }
 
     public CreatorModelingPanel getCreatorPanel() {

@@ -53,6 +53,8 @@ public class ProgramPreferences implements Serializable {
 	private Integer vertexSize = 3;
 	private Boolean quickBrowse = true;
 
+	private String keyBindings = new KeyBindingPrefs().makeMap().toString();
+
 
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
@@ -585,5 +587,26 @@ public class ProgramPreferences implements Serializable {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public String getKeyBindings() {
+		return keyBindings;
+	}
+
+	public KeyBindingPrefs getKeyBindingPrefs() {
+		return new KeyBindingPrefs().makeMap().parseString(keyBindings);
+	}
+
+	public ProgramPreferences setKeyBindings(String keyBindings) {
+		this.keyBindings = keyBindings;
+		return this;
+	}
+	public ProgramPreferences setKeyBindings(KeyBindingPrefs keyBindingPrefs) {
+		this.keyBindings = keyBindingPrefs.toString();
+		System.out.println("Saved keybindings!");
+		System.out.println(keyBindings);
+		SaveProfile.save();
+		firePrefsChanged();
+		return this;
 	}
 }

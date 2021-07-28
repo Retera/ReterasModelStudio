@@ -6,6 +6,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
+import com.hiveworkshop.rms.ui.language.Translator;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.util.sound.SoundMappings;
@@ -23,6 +25,14 @@ public class ProgramGlobals {
 	private static final JToolBar toolbar;
 	private static final UndoHandler undoHandler;
 	private static final SoundMappings soundMappings;
+	private static boolean cheatShift = false;
+	private static boolean cheatAlt = false;
+	private static boolean lockLayout = false;
+
+	private static final Translator translator;
+
+
+	private static KeyBindingPrefs keyBindingPrefs;
 
 	private static final ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeGroup;
 	private static final ToolbarButtonGroup2<SelectionMode> selectionModeGroup;
@@ -32,10 +42,13 @@ public class ProgramGlobals {
 	static {
 		profile = SaveProfile.get();
 		prefs = profile.getPreferences();
+		keyBindingPrefs = prefs.getKeyBindingPrefs();
 		modelPanels = new ArrayList<>();
 		undoHandler = new UndoHandler();
 
-		toolbar = ToolBar.createJToolBar(null);
+		translator = new Translator();
+
+		toolbar = ToolBar.createJToolBar();
 
 		selectionItemTypeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionItemTypes.values());
 		selectionItemTypeGroup.setActiveButton(SelectionItemTypes.VERTEX);
@@ -48,9 +61,7 @@ public class ProgramGlobals {
 		mainPanel = new MainPanel(toolbar);
 		soundMappings = new SoundMappings();
 
-//		selectionItemTypeGroup.addToolbarButtonListener(mainPanel::selectionItemTypeGroupActionRes);
 		selectionItemTypeGroup.addToolbarButtonListener(ProgramGlobals::setSelectionItemType);
-//		actionTypeGroup.addToolbarButtonListener(newType -> mainPanel.mainPanelLinkActions.changeTransformMode(newType, mainPanel));
 		actionTypeGroup.addToolbarButtonListener(ProgramGlobals::setEditorActionType);
 	}
 
@@ -162,5 +173,39 @@ public class ProgramGlobals {
 
 	public static ToolbarButtonGroup2<ModelEditorActionType3> getActionTypeGroup() {
 		return actionTypeGroup;
+	}
+
+	public static void setCheatAlt(boolean cheatAlt) {
+		ProgramGlobals.cheatAlt = cheatAlt;
+	}
+
+	public static void setCheatShift(boolean cheatShift) {
+		ProgramGlobals.cheatShift = cheatShift;
+	}
+
+	public static boolean isCheatAlt() {
+		return cheatAlt;
+	}
+
+	public static boolean isCheatShift() {
+		return cheatShift;
+	}
+
+	public static boolean isLockLayout() {
+//		System.out.println("isLockLayout: " + lockLayout);
+		return lockLayout;
+	}
+
+	public static void setLockLayout(boolean lockLayout) {
+//		System.out.println("setLockLayout: " + lockLayout);
+		ProgramGlobals.lockLayout = lockLayout;
+	}
+
+	public static KeyBindingPrefs getKeyBindingPrefs() {
+		return keyBindingPrefs;
+	}
+
+	public static Translator getTranslator() {
+		return translator;
 	}
 }

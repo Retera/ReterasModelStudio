@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.CollapsablePanel;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
@@ -38,6 +39,8 @@ public abstract class ValuePanel<T> extends JPanel {
 
 	protected Consumer<T> valueSettingFunction;
 
+	protected CollapsablePanel collapsablePanel;
+
 	public ValuePanel(ModelHandler modelHandler, final String title) {
 		this(modelHandler, title, Double.MAX_VALUE, -Double.MAX_VALUE);
 	}
@@ -55,12 +58,17 @@ public abstract class ValuePanel<T> extends JPanel {
 		keyframePanel = new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, this::changeEntry, this::parseValue);
 
 		titledBorder = BorderFactory.createTitledBorder(title);
-		setBorder(titledBorder);
-		setLayout(new MigLayout("fill, hidemode 1", "[]", "[][][]0[][]"));
+//		setBorder(titledBorder);
+//		setLayout(new MigLayout("fill, hidemode 1", "[]", "[][][]0[][]"));
+		setLayout(new MigLayout("fill, hidemode 1, ins 0", "[grow]", "[grow]"));
+
+		JPanel collapsablePCont = new JPanel(new MigLayout("fill, hidemode 1", "[]", "[][][]0[][]"));
+		collapsablePanel = new CollapsablePanel(title, collapsablePCont);
+		add(collapsablePanel, "growx, spanx");
 
 		dynStatLayout = new CardLayout();
 		dynStatPanel = new JPanel(dynStatLayout);
-		add(dynStatPanel, "align center, growx, wrap");
+		collapsablePCont.add(dynStatPanel, "align center, growx, wrap");
 
 		JPanel dynamicPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[][][][]"));
 		dynamicPanel.add(new JLabel("Dynamic"), "al 0% 0%, hidemode 3");
