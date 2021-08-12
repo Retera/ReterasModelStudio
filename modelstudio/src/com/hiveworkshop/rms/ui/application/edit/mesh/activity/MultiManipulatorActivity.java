@@ -111,7 +111,7 @@ public class MultiManipulatorActivity extends ViewportActivity {
 			finnishAction(e, cameraHandler, true);
 		}
 		System.out.println("Mouse pressed! selectionView: " + selectionManager);
-		manipulator = manipulatorBuilder.buildManipulator(e.getX(), e.getY(), buttonType, cameraHandler, selectionManager);
+		manipulator = manipulatorBuilder.buildManipulator(e, e.getX(), e.getY(), buttonType, cameraHandler, selectionManager);
 		if (manipulator != null) {
 			mouseStartPoint = new Vec2(cameraHandler.geomX(e.getX()), cameraHandler.geomY(e.getY()));
 			manipulator.start(e, mouseStartPoint, cameraHandler);

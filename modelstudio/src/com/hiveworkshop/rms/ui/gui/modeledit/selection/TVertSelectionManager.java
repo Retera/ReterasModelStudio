@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -250,6 +251,28 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 					if (HitTestStuff.triHitTest(triangle, point, axes, 0)) {
 						return true;
 					}
+				}
+			}
+		}
+		return false;
+	}
+	public boolean selectableUnderCursor(Vec2 point, CameraHandler axes) {
+		if (selectionMode == SelectionItemTypes.VERTEX) {
+			for (Geoset geoset : modelView.getEditableGeosets()) {
+				for (GeosetVertex geosetVertex : geoset.getVertices()) {
+					if (geosetVertex.getTverts().size() > 0) {
+//						if (HitTestStuff.hitTest(geosetVertex.getTVertex(0), point, axes, ProgramGlobals.getPrefs().getVertexSize())) {
+//							return true;
+//						}
+					}
+				}
+			}
+		} else if (selectionMode == SelectionItemTypes.FACE) {
+			for (Geoset geoset : modelView.getEditableGeosets()) {
+				for (Triangle triangle : geoset.getTriangles()) {
+//					if (HitTestStuff.triHitTest(triangle, point, axes, 0)) {
+//						return true;
+//					}
 				}
 			}
 		}

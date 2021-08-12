@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -43,6 +44,14 @@ public class HitTestStuff {
 	public static boolean hitTest(Vec3 vec3, Vec2 point, CoordinateSystem coordinateSystem, double vertexSize) {
 		Vec2 vertexV2 = CoordSysUtils.convertToViewVec2(coordinateSystem, vec3);
 		double vertSize = vertexSize / 2.0 / coordinateSystem.getZoom();
+		return vertexV2.distance(point) <= vertSize;
+	}
+	public static boolean hitTest(Vec3 vec3, Vec2 point, CameraHandler cameraHandler, double vertexSize) {
+//		Vec2 vertexV2 = CoordSysUtils.convertToViewVec2(coordinateSystem, vec3);
+		Vec3 viewPAdj = new Vec3(vec3).transform(cameraHandler.getViewPortAntiRotMat());
+		Vec2 vertexV2 = viewPAdj.getProjected((byte) 1, (byte) 2);
+		double vertSize = vertexSize / 6.0 / cameraHandler.getZoom();
+		System.out.println(vertSize + " >= " + vertexV2.distance(point) + " (" + vertexV2 + " to " + point + ")");
 		return vertexV2.distance(point) <= vertSize;
 	}
 
@@ -98,6 +107,16 @@ public class HitTestStuff {
 //		pivotHeap.transform(worldMatrix);
 		Vec2 vertexV2 = CoordSysUtils.convertToViewVec2(coordinateSystem, pivotHeap);
 		double vertSize = vertexSize / 2.0 / coordinateSystem.getZoom();
+		return vertexV2.distance(point) <= vertSize;
+	}
+	public static boolean hitTest(Vec3 pivotPoint, Vec2 point, CameraHandler cameraHandler, double vertexSize, Mat4 worldMatrix) {
+		Vec3 pivotHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
+//		pivotHeap.transform(worldMatrix);
+//		Vec2 vertexV2 = CoordSysUtils.convertToViewVec2(coordinateSystem, pivotHeap);
+//		Vec3 viewPAdj = new Vec3(pivotHeap).transform(worldMatrix);
+		Vec2 vertexV2 = pivotHeap.getProjected((byte) 1, (byte) 2);
+
+		double vertSize = vertexSize / 2.0 / cameraHandler.getZoom();
 		return vertexV2.distance(point) <= vertSize;
 	}
 

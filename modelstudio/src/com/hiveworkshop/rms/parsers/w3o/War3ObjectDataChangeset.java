@@ -543,8 +543,7 @@ public final class War3ObjectDataChangeset {
 		return Integer.parseInt(numberAsText);
 	}
 
-	public boolean load(final BlizzardDataInputStream stream, final WTS wts, final boolean inlineWTS)
-			throws IOException {
+	public boolean load(final BlizzardDataInputStream stream, final WTS wts, final boolean inlineWTS) throws IOException {
 		detected = false;
 		version = stream.readInt();
 		if ((version != 1) && (version != 2)) {
@@ -605,7 +604,8 @@ public final class War3ObjectDataChangeset {
 
 	public boolean saveTable(final BlizzardDataOutputStream outputStream, final ObjectMap map, final boolean isOriginal)
 			throws IOException {
-		final CharsetEncoder encoder = StandardCharsets.UTF_8.newEncoder().onMalformedInput(CodingErrorAction.REPLACE)
+		final CharsetEncoder encoder = StandardCharsets.UTF_8.newEncoder()
+				.onMalformedInput(CodingErrorAction.REPLACE)
 				.onUnmappableCharacter(CodingErrorAction.REPLACE);
 		final CharBuffer charBuffer = CharBuffer.allocate(1024);
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
@@ -669,7 +669,6 @@ public final class War3ObjectDataChangeset {
 
 	private void saveWriteChars(final BlizzardDataOutputStream outputStream, final char[] charArray)
 			throws IOException {
-		// TODO Auto-generated method stub
 		outputStream.writeChars(charArray);
 		for (int i = charArray.length; i < 4; i++) {
 			outputStream.writeByte(0);
@@ -700,6 +699,10 @@ public final class War3ObjectDataChangeset {
 	}
 
 	private static void debugprint(final String s) {
+		boolean debug = false;
+		if(debug){
+			System.out.println(s);
+		}
 
 	}
 }

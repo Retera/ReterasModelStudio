@@ -59,7 +59,6 @@ public class CompoundDataSource implements DataSource {
 				}
 			}
 		} catch (final IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -76,7 +75,6 @@ public class CompoundDataSource implements DataSource {
 				}
 			}
 		} catch (final IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;

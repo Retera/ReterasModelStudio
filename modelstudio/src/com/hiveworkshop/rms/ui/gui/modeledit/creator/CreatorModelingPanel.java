@@ -249,6 +249,16 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 			reloadAnimationList();
 		}
 	}
+	public void setModelPanel(ModelPanel modelPanel) {
+		if (modelPanel != null) {
+			this.modelHandler = modelPanel.getModelHandler();
+			this.modelEditorManager = modelPanel.getModelEditorManager();
+			reloadAnimationList();
+		} else {
+			this.modelHandler = null;
+			this.modelEditorManager = null;
+		}
+	}
 
 	public void reloadAnimationList() {
 		ChooseableTimeRange<?> selectedItem = (ChooseableTimeRange<?>) animationChooserBox.getSelectedItem();

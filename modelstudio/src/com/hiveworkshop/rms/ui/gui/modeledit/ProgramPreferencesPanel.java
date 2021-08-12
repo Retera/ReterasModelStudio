@@ -13,6 +13,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class ProgramPreferencesPanel extends JTabbedPane {
 	private final ProgramPreferences programPreferences;
@@ -33,7 +34,7 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 	}
 
 	private void createAndAddGeneralPrefsPanel(ProgramPreferences pref) {
-		final JPanel generalPrefsPanel = new JPanel(new MigLayout());
+		JPanel generalPrefsPanel = new JPanel(new MigLayout());
 		generalPrefsPanel.add(new JLabel("3D View Mode"), "wrap");
 
 		SmartButtonGroup viewModeGroup = new SmartButtonGroup();
@@ -42,28 +43,21 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		viewModeGroup.setSelectedIndex(pref.viewMode());
 		generalPrefsPanel.add(viewModeGroup.getButtonPanel(), "wrap");
 
-		final JCheckBox grid2d = new JCheckBox();
-		grid2d.addActionListener(e -> pref.setShow2dGrid(grid2d.isSelected()));
-		grid2d.setSelected(pref.show2dGrid());
+
+		JCheckBox grid2d = getCheckBox(pref::setShow2dGrid, pref.show2dGrid());
 		generalPrefsPanel.add(new JLabel("Show 2D Viewport Gridlines:"));
 		generalPrefsPanel.add(grid2d, "wrap");
 
-		final JCheckBox useBoxesForNodes = new JCheckBox();
-		useBoxesForNodes.addActionListener(e -> pref.setUseBoxesForPivotPoints(useBoxesForNodes.isSelected()));
-		useBoxesForNodes.setSelected(pref.getUseBoxesForPivotPoints());
+		JCheckBox useBoxesForNodes = getCheckBox(pref::setUseBoxesForPivotPoints, pref.getUseBoxesForPivotPoints());
 		generalPrefsPanel.add(new JLabel("Use Boxes for Nodes:"));
 		generalPrefsPanel.add(useBoxesForNodes, "wrap");
 
-		final JCheckBox quickBrowse = new JCheckBox();
-		quickBrowse.addActionListener(e -> pref.setQuickBrowse(quickBrowse.isSelected()));
-		quickBrowse.setSelected(pref.getQuickBrowse());
+		JCheckBox quickBrowse = getCheckBox(pref::setQuickBrowse, pref.getQuickBrowse());
 		generalPrefsPanel.add(new JLabel("Quick Browse:"));
 		quickBrowse.setToolTipText("When opening a new model, close old ones if they have not been modified.");
 		generalPrefsPanel.add(quickBrowse, "wrap");
 
-		final JCheckBox allowLoadingNonBlpTextures = new JCheckBox();
-		allowLoadingNonBlpTextures.addActionListener(e -> pref.setAllowLoadingNonBlpTextures(allowLoadingNonBlpTextures.isSelected()));
-		allowLoadingNonBlpTextures.setSelected(pref.getAllowLoadingNonBlpTextures());
+		JCheckBox allowLoadingNonBlpTextures = getCheckBox(pref::setAllowLoadingNonBlpTextures, pref.getAllowLoadingNonBlpTextures());
 		generalPrefsPanel.add(new JLabel("Allow Loading Non BLP Textures:"));
 		allowLoadingNonBlpTextures.setToolTipText("Needed for opening PNGs with standard File Open");
 		generalPrefsPanel.add(allowLoadingNonBlpTextures, "wrap");
@@ -73,6 +67,13 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		// BoxLayout.PAGE_AXIS);
 
 		addTab("General", generalPrefsPanel);
+	}
+
+	private JCheckBox getCheckBox(Consumer<Boolean> checkboxConsumer, Boolean initialValue) {
+		JCheckBox checkBox = new JCheckBox();
+		checkBox.addActionListener(e -> checkboxConsumer.accept(checkBox.isSelected()));
+		checkBox.setSelected(initialValue);
+		return checkBox;
 	}
 
 

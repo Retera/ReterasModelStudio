@@ -1,12 +1,16 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
-import com.hiveworkshop.rms.ui.application.MainLayoutCreator;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 
+import java.util.Map;
+import java.util.function.Consumer;
+
 public class ModelStructureChangeListener {
 	public static final ModelStructureChangeListener changeListener = new ModelStructureChangeListener();
+
+	private Map<ModelPanel, Consumer<Boolean>> changeListeners;
 
 	public ModelStructureChangeListener() {
 	}
@@ -17,11 +21,11 @@ public class ModelStructureChangeListener {
 		modelPanel.reloadComponentBrowser();
 		modelPanel.getComponentBrowserTreePane().repaint();
 
-		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		modelPanel.getPerspArea().reloadTextures();
 		modelPanel.getAnimationViewer().reload();
 		modelPanel.getAnimationController().reload();
-		mainLayoutCreator.getCreatorPanel().reloadAnimationList();
+//		mainPanel.getMainLayoutCreator().getCreatorView().reloadAnimationList();
+		mainPanel.getWindowHandler2().reloadAnimationList();
 
 		modelPanel.getEditorRenderModel().refreshFromEditor(modelPanel.getPerspArea().getViewport().getParticleTextureInstance());
 	}
@@ -64,7 +68,9 @@ public class ModelStructureChangeListener {
 	}
 
 	public void keyframesUpdated() {
-		ProgramGlobals.getMainPanel().getMainLayoutCreator().getTimeSliderPanel().revalidateKeyframeDisplay();
+//		ProgramGlobals.getMainPanel().getMainLayoutCreator().getTimeSliderView().getTimeSliderPanel().revalidateKeyframeDisplay();
+//		ProgramGlobals.getMainPanel().getWindowHandler2().reValidateKeyframes();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reValidateKeyframes();
 	}
 
 	public void animationParamsChanged() {

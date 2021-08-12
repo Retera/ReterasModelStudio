@@ -1,13 +1,9 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.mesh.MergeGeosetsAction;
 import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
-import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
@@ -17,35 +13,21 @@ import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ProgramPreferencesPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener;
-import com.hiveworkshop.rms.util.SmartButtonGroup;
-import com.hiveworkshop.rms.util.Vec3;
 import de.wc3data.stream.BlizzardDataInputStream;
-import net.infonode.docking.DockingWindow;
 import net.infonode.docking.SplitWindow;
 import net.infonode.docking.View;
-import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.rtf.RTFEditorKit;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.List;
-import java.util.Queue;
-import java.util.*;
 
 public class MenuBarActions {
 	static final ImageIcon POWERED_BY_HIVE = RMSIcons.loadHiveBrowserImageIcon("powered_by_hive.png");
@@ -80,18 +62,6 @@ public class MenuBarActions {
 				editorData);
 	}
 
-	public static void openUnitViewer() {
-		UnitEditorTree unitEditorTree = MainLayoutCreator.createUnitEditorTree();
-
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		DockingWindow rootWindowWindow = mainPanel.rootWindow.getWindow();
-
-		ImageIcon icon = new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST));
-		View unit_browser = new View("Unit Browser", icon, new JScrollPane(unitEditorTree));
-
-		mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindowWindow, unit_browser));
-	}
-
 	public static void openHiveViewer() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -115,13 +85,12 @@ public class MenuBarActions {
 		panel.add(BorderLayout.CENTER, tags);
 
 
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		DockingWindow rootWindowWindow = mainPanel.rootWindow.getWindow();
+		RootWindowUgg rootWindowUgg = ProgramGlobals.getRootWindowUgg();
 
 		ImageIcon icon = new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST));
 		View hive_browser = new View("Hive Browser", icon, panel);
 
-		mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, rootWindowWindow, hive_browser));
+		rootWindowUgg.setWindow(new SplitWindow(true, 0.75f, rootWindowUgg.getWindow(), hive_browser));
 	}
 
 	private static DefaultListCellRenderer getCellRenderer() {
@@ -163,31 +132,32 @@ public class MenuBarActions {
 			}
 			SaveProfile.save();
 			if (changedDataSources) {
-				com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.updateDataSource();
+				MenuBar.updateDataSource();
+				ProgramGlobals.getRootWindowUgg().getWindowHandler2().dataSourcesChanged();
 //				dataSourcesChanged(MenuBar.directoryChangeNotifier, mainPanel.modelPanels);
 			}
 		}
 	}
 
-	public static void createAndShowRtfPanel(String filePath, String title) {
-		DefaultStyledDocument document = new DefaultStyledDocument();
-		JTextPane textPane = new JTextPane();
-		textPane.setForeground(Color.BLACK);
-		textPane.setBackground(Color.WHITE);
-		RTFEditorKit rtfk = new RTFEditorKit();
-		try {
-			rtfk.read(GameDataFileSystem.getDefault().getResourceAsStream(filePath), document, 0);
-		} catch (final BadLocationException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		textPane.setDocument(document);
-		JFrame frame = new JFrame(title);
-		frame.setContentPane(new JScrollPane(textPane));
-		frame.setSize(650, 500);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-	}
+//	public static void createAndShowRtfPanel(String filePath, String title) {
+//		DefaultStyledDocument document = new DefaultStyledDocument();
+//		JTextPane textPane = new JTextPane();
+//		textPane.setForeground(Color.BLACK);
+//		textPane.setBackground(Color.WHITE);
+//		RTFEditorKit rtfk = new RTFEditorKit();
+//		try {
+//			rtfk.read(GameDataFileSystem.getDefault().getResourceAsStream(filePath), document, 0);
+//		} catch (final BadLocationException | IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		textPane.setDocument(document);
+//		JFrame frame = new JFrame(title);
+//		frame.setContentPane(new JScrollPane(textPane));
+//		frame.setSize(650, 500);
+//		frame.setLocationRelativeTo(null);
+//		frame.setVisible(true);
+//	}
 
 	public static void clearRecent() {
 		int dialogResult = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
@@ -199,74 +169,74 @@ public class MenuBarActions {
 		}
 	}
 
-	public static void closeModelPanel() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
-		if (modelPanel != null) {
-			if (modelPanel.close()) {
-				ProgramGlobals.removeModelPanel(modelPanel);
-				com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.removeModelPanel(modelPanel);
-				if (ProgramGlobals.getModelPanels().size() > 0) {
-					int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);
-					ModelLoader.setCurrentModel(ProgramGlobals.getModelPanels().get(newIndex));
-				} else {
-					// TODO remove from notifiers to fix leaks
-					ModelLoader.setCurrentModel(null);
-				}
-			}
-		}
-	}
-
-	public static void newModel() {
-		JPanel newModelPanel = new JPanel();
-		newModelPanel.setLayout(new MigLayout("fill, ins 0"));
-		newModelPanel.add(new JLabel("Model Name: "), "");
-		JTextField newModelNameField = new JTextField("MrNew", 25);
-		newModelPanel.add(newModelNameField, "wrap");
-
-		SmartButtonGroup typeGroup = new SmartButtonGroup();
-		typeGroup.addJRadioButton("Create Empty", null);
-		typeGroup.addJRadioButton("Create Plane", null);
-		typeGroup.addJRadioButton("Create Box", null);
-		typeGroup.setSelectedIndex(0);
-		newModelPanel.add(typeGroup.getButtonPanel());
-
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-
-		int userDialogResult = JOptionPane.showConfirmDialog(mainPanel, newModelPanel, "New Model", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (userDialogResult == JOptionPane.OK_OPTION) {
-			EditableModel mdl = new EditableModel(newModelNameField.getText());
-			if (typeGroup.getButton("Create Box").isSelected()) {
-				SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
-				JSpinner spinner = new JSpinner(sModel);
-				int userChoice = JOptionPane.showConfirmDialog(mainPanel, spinner, "Box: Choose Segments",
-						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-				if (userChoice != JOptionPane.OK_OPTION) {
-					return;
-				}
-				ModelUtils.createBox(mdl, new Vec3(-64, -64, 0), new Vec3(64, 64, 128), ((Number) spinner.getValue()).intValue());
-				mdl.setExtents(new ExtLog(128).setDefault());
-			} else if (typeGroup.getButton("Create Plane").isSelected()) {
-				SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
-				JSpinner spinner = new JSpinner(sModel);
-				int userChoice = JOptionPane.showConfirmDialog(mainPanel, spinner, "Plane: Choose Segments",
-						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-				if (userChoice != JOptionPane.OK_OPTION) {
-					return;
-				}
-				ModelUtils.createGroundPlane(mdl, new Vec3(64, 64, 0), new Vec3(-64, -64, 0),
-						((Number) spinner.getValue()).intValue());
-				mdl.setExtents(new ExtLog(128).setDefault());
-			}
-
-			ModelHandler modelHandler = new ModelHandler(mdl);
-			ModelPanel temp = new ModelPanel(modelHandler,
-					mainPanel.coordDisplayListener,
-					mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false);
-			ModelLoader.loadModel(true, true, temp);
-		}
-
-	}
+//	public static void closeModelPanel() {
+//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
+//		if (modelPanel != null) {
+//			if (modelPanel.close()) {
+//				ProgramGlobals.removeModelPanel(modelPanel);
+//				com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.removeModelPanel(modelPanel);
+//				if (ProgramGlobals.getModelPanels().size() > 0) {
+//					int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);
+//					ModelLoader.setCurrentModel(ProgramGlobals.getModelPanels().get(newIndex));
+//				} else {
+//					// TODO remove from notifiers to fix leaks
+//					ModelLoader.setCurrentModel(null);
+//				}
+//			}
+//		}
+//	}
+//
+//	public static void newModel() {
+//		JPanel newModelPanel = new JPanel();
+//		newModelPanel.setLayout(new MigLayout("fill, ins 0"));
+//		newModelPanel.add(new JLabel("Model Name: "), "");
+//		JTextField newModelNameField = new JTextField("MrNew", 25);
+//		newModelPanel.add(newModelNameField, "wrap");
+//
+//		SmartButtonGroup typeGroup = new SmartButtonGroup();
+//		typeGroup.addJRadioButton("Create Empty", null);
+//		typeGroup.addJRadioButton("Create Plane", null);
+//		typeGroup.addJRadioButton("Create Box", null);
+//		typeGroup.setSelectedIndex(0);
+//		newModelPanel.add(typeGroup.getButtonPanel());
+//
+//		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+//
+//		int userDialogResult = JOptionPane.showConfirmDialog(mainPanel, newModelPanel, "New Model", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+//		if (userDialogResult == JOptionPane.OK_OPTION) {
+//			EditableModel mdl = new EditableModel(newModelNameField.getText());
+//			if (typeGroup.getButton("Create Box").isSelected()) {
+//				SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
+//				JSpinner spinner = new JSpinner(sModel);
+//				int userChoice = JOptionPane.showConfirmDialog(mainPanel, spinner, "Box: Choose Segments",
+//						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+//				if (userChoice != JOptionPane.OK_OPTION) {
+//					return;
+//				}
+//				ModelUtils.createBox(mdl, new Vec3(-64, -64, 0), new Vec3(64, 64, 128), ((Number) spinner.getValue()).intValue());
+//				mdl.setExtents(new ExtLog(128).setDefault());
+//			} else if (typeGroup.getButton("Create Plane").isSelected()) {
+//				SpinnerNumberModel sModel = new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1);
+//				JSpinner spinner = new JSpinner(sModel);
+//				int userChoice = JOptionPane.showConfirmDialog(mainPanel, spinner, "Plane: Choose Segments",
+//						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+//				if (userChoice != JOptionPane.OK_OPTION) {
+//					return;
+//				}
+//				ModelUtils.createGroundPlane(mdl, new Vec3(64, 64, 0), new Vec3(-64, -64, 0),
+//						((Number) spinner.getValue()).intValue());
+//				mdl.setExtents(new ExtLog(128).setDefault());
+//			}
+//
+//			ModelHandler modelHandler = new ModelHandler(mdl);
+//			ModelPanel temp = new ModelPanel(modelHandler,
+//					mainPanel.coordDisplayListener,
+//					mainPanel.viewportTransferHandler, mainPanel.viewportListener, RMSIcons.MDLIcon, false);
+//			ModelLoader.loadModel(true, true, temp);
+//		}
+//
+//	}
 
 	public static boolean closeOthers() {
 		boolean success = true;
@@ -358,163 +328,163 @@ public class MenuBarActions {
 		}
 	}
 
-	static TransferActionListener transferActionListener = new TransferActionListener();
+//	static TransferActionListener transferActionListener = new TransferActionListener();
 
-	public static void copyCutPast(ActionEvent e) {
-		if (!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
-			transferActionListener.actionPerformed(e);
-		} else {
-			MainLayoutCreator mainLayoutCreator = ProgramGlobals.getMainPanel().getMainLayoutCreator();
-			if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
-				mainLayoutCreator.getTimeSliderPanel().cut();
-			} else if (e.getActionCommand().equals(TransferHandler.getCopyAction().getValue(Action.NAME))) {
-				mainLayoutCreator.getTimeSliderPanel().copy();
-			} else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
-				mainLayoutCreator.getTimeSliderPanel().paste();
-			}
-		}
-	}
-	public static void copyCutPast(TransferActionListener transferActionListener, ActionEvent e) {
-		if (!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
-			transferActionListener.actionPerformed(e);
-		} else {
-			MainLayoutCreator mainLayoutCreator = ProgramGlobals.getMainPanel().getMainLayoutCreator();
-			if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
-				mainLayoutCreator.getTimeSliderPanel().cut();
-			} else if (e.getActionCommand().equals(TransferHandler.getCopyAction().getValue(Action.NAME))) {
-				mainLayoutCreator.getTimeSliderPanel().copy();
-			} else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
-				mainLayoutCreator.getTimeSliderPanel().paste();
-			}
-		}
-	}
-
-	public static void sortBones() {
-		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
-		List<IdObject> roots = new ArrayList<>();
-		List<IdObject> modelList = model.getIdObjects();
-		for (IdObject object : modelList) {
-			if (object.getParent() == null) {
-				roots.add(object);
-			}
-		}
-		Queue<IdObject> bfsQueue = new LinkedList<>(roots);
-		List<IdObject> result = new ArrayList<>();
-		while (!bfsQueue.isEmpty()) {
-			IdObject nextItem = bfsQueue.poll();
-			bfsQueue.addAll(nextItem.getChildrenNodes());
-			result.add(nextItem);
-		}
-		for (IdObject node : result) {
-			model.remove(node);
-		}
-		ModelStructureChangeListener.changeListener.nodesUpdated();
-		for (IdObject node : result) {
-			model.add(node);
-		}
-		ModelStructureChangeListener.changeListener.nodesUpdated();
-	}
-
-	public static void minimizeGeoset() {
-//		final int confirm = JOptionPane.showConfirmDialog(mainPanel,
-//				"This is experimental and I did not code the Undo option for it yet. Continue?" +
-//						"\nMy advice is to click cancel and save once first.",
-//				"Confirmation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-//		if (confirm != JOptionPane.OK_OPTION) {
-//			return;
+//	public static void copyCutPast(ActionEvent e) {
+//		if (!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
+//			transferActionListener.actionPerformed(e);
+//		} else {
+//			MainLayoutCreator mainLayoutCreator = ProgramGlobals.getMainPanel().getMainLayoutCreator();
+//			if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
+//				mainLayoutCreator.getTimeSliderPanel().getKeyframeHandler().cut();
+//			} else if (e.getActionCommand().equals(TransferHandler.getCopyAction().getValue(Action.NAME))) {
+//				mainLayoutCreator.getTimeSliderPanel().getKeyframeHandler().copy();
+//			} else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
+//				mainLayoutCreator.getTimeSliderPanel().getKeyframeHandler().paste();
+//			}
 //		}
-
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		EditableModel model = modelPanel.getModel();
-//		TempSaveModelStuff.doSavePreps(model);
-
-		List<UndoAction> mergeActions = new ArrayList<>();
-		Set<Geoset> geosetsToMerge = new HashSet<>();
-		Set<Geoset> geosetsToKeep = new HashSet<>();
-
-		for (Geoset geoset : model.getGeosets()) {
-			for (Geoset retainedGeoset : geosetsToKeep) {
-				if (retainedGeoset.getMaterial().equals(geoset.getMaterial())
-						&& (retainedGeoset.getSelectionGroup() == geoset.getSelectionGroup())
-						&& (retainedGeoset.getUnselectable() == geoset.getUnselectable())
-						&& isGeosetAnimationsMergable(retainedGeoset.getGeosetAnim(), geoset.getGeosetAnim())) {
-
-					geosetsToMerge.add(geoset);
-					mergeActions.add(new MergeGeosetsAction(retainedGeoset, geoset, modelPanel.getModelView(), null));
-					break;
-				}
-			}
-			if (!geosetsToMerge.contains(geoset)) {
-				geosetsToKeep.add(geoset);
-			}
-		}
-
-		ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
-		UndoAction undoAction = new CompoundAction("Minimize Geosets", mergeActions, changeListener::geosetsUpdated);
-		modelPanel.getUndoManager().pushAction(undoAction.redo());
-	}
-
-	private static boolean isGeosetAnimationsMergable(final GeosetAnim first, final GeosetAnim second) {
-		if ((first == null) && (second == null)) {
-			return true;
-		}
-		if ((first == null) || (second == null)) {
-			return false;
-		}
-		final AnimFlag<?> firstVisibilityFlag = first.getVisibilityFlag();
-		final AnimFlag<?> secondVisibilityFlag = second.getVisibilityFlag();
-		if ((firstVisibilityFlag == null) != (secondVisibilityFlag == null)) {
-			return false;
-		}
-		if ((firstVisibilityFlag != null) && !firstVisibilityFlag.equals(secondVisibilityFlag)) {
-			return false;
-		}
-		if (first.isDropShadow() != second.isDropShadow()) {
-			return false;
-		}
-		if (Math.abs(first.getStaticAlpha() - second.getStaticAlpha()) > 0.001) {
-			return false;
-		}
-		if ((first.getStaticColor() == null) != (second.getStaticColor() == null)) {
-			return false;
-		}
-		if ((first.getStaticColor() != null) && !first.getStaticColor().equalLocs(second.getStaticColor())) {
-			return false;
-		}
-		final AnimFlag<?> firstAnimatedColor = first.find("Color");
-		final AnimFlag<?> secondAnimatedColor = second.find("Color");
-		if ((firstAnimatedColor == null) != (secondAnimatedColor == null)) {
-			return false;
-		}
-		return (firstAnimatedColor == null) || firstAnimatedColor.equals(secondAnimatedColor);
-	}
-
-	public static void removeMaterialDuplicates() {
-		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
-		List<Material> materials = model.getMaterials();
-
-		Map<Material, Material> sameMaterialMap = new HashMap<>();
-		for (int i = 0; i < materials.size(); i++) {
-			Material material1 = materials.get(i);
-			for (int j = i + 1; j < materials.size(); j++) {
-				Material material2 = materials.get(j);
-				System.out.println(material1.getName() + " == " + material2.getName());
-				if (material1.equals(material2)) {
-					if (!sameMaterialMap.containsKey(material2)) {
-						sameMaterialMap.put(material2, material1);
-					}
-				}
-			}
-		}
-
-		List<Geoset> geosets = model.getGeosets();
-		for (Geoset geoset : geosets) {
-			if (sameMaterialMap.containsKey(geoset.getMaterial())) {
-				geoset.setMaterial(sameMaterialMap.get(geoset.getMaterial()));
-			}
-		}
-
-		materials.removeAll(sameMaterialMap.keySet());
-		ModelStructureChangeListener.changeListener.materialsListChanged();
-	}
+//	}
+//	public static void copyCutPast(TransferActionListener transferActionListener, ActionEvent e) {
+//		if (!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
+//			transferActionListener.actionPerformed(e);
+//		} else {
+//			MainLayoutCreator mainLayoutCreator = ProgramGlobals.getMainPanel().getMainLayoutCreator();
+//			if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
+//				mainLayoutCreator.getTimeSliderPanel().getKeyframeHandler().cut();
+//			} else if (e.getActionCommand().equals(TransferHandler.getCopyAction().getValue(Action.NAME))) {
+//				mainLayoutCreator.getTimeSliderPanel().getKeyframeHandler().copy();
+//			} else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
+//				mainLayoutCreator.getTimeSliderPanel().getKeyframeHandler().paste();
+//			}
+//		}
+//	}
+//
+//	public static void sortBones() {
+//		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
+//		List<IdObject> roots = new ArrayList<>();
+//		List<IdObject> modelList = model.getIdObjects();
+//		for (IdObject object : modelList) {
+//			if (object.getParent() == null) {
+//				roots.add(object);
+//			}
+//		}
+//		Queue<IdObject> bfsQueue = new LinkedList<>(roots);
+//		List<IdObject> result = new ArrayList<>();
+//		while (!bfsQueue.isEmpty()) {
+//			IdObject nextItem = bfsQueue.poll();
+//			bfsQueue.addAll(nextItem.getChildrenNodes());
+//			result.add(nextItem);
+//		}
+//		for (IdObject node : result) {
+//			model.remove(node);
+//		}
+//		ModelStructureChangeListener.changeListener.nodesUpdated();
+//		for (IdObject node : result) {
+//			model.add(node);
+//		}
+//		ModelStructureChangeListener.changeListener.nodesUpdated();
+//	}
+//
+//	public static void minimizeGeoset() {
+////		final int confirm = JOptionPane.showConfirmDialog(mainPanel,
+////				"This is experimental and I did not code the Undo option for it yet. Continue?" +
+////						"\nMy advice is to click cancel and save once first.",
+////				"Confirmation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+////		if (confirm != JOptionPane.OK_OPTION) {
+////			return;
+////		}
+//
+//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		EditableModel model = modelPanel.getModel();
+////		TempSaveModelStuff.doSavePreps(model);
+//
+//		List<UndoAction> mergeActions = new ArrayList<>();
+//		Set<Geoset> geosetsToMerge = new HashSet<>();
+//		Set<Geoset> geosetsToKeep = new HashSet<>();
+//
+//		for (Geoset geoset : model.getGeosets()) {
+//			for (Geoset retainedGeoset : geosetsToKeep) {
+//				if (retainedGeoset.getMaterial().equals(geoset.getMaterial())
+//						&& (retainedGeoset.getSelectionGroup() == geoset.getSelectionGroup())
+//						&& (retainedGeoset.getUnselectable() == geoset.getUnselectable())
+//						&& isGeosetAnimationsMergable(retainedGeoset.getGeosetAnim(), geoset.getGeosetAnim())) {
+//
+//					geosetsToMerge.add(geoset);
+//					mergeActions.add(new MergeGeosetsAction(retainedGeoset, geoset, modelPanel.getModelView(), null));
+//					break;
+//				}
+//			}
+//			if (!geosetsToMerge.contains(geoset)) {
+//				geosetsToKeep.add(geoset);
+//			}
+//		}
+//
+//		ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+//		UndoAction undoAction = new CompoundAction("Minimize Geosets", mergeActions, changeListener::geosetsUpdated);
+//		modelPanel.getUndoManager().pushAction(undoAction.redo());
+//	}
+//
+//	private static boolean isGeosetAnimationsMergable(final GeosetAnim first, final GeosetAnim second) {
+//		if ((first == null) && (second == null)) {
+//			return true;
+//		}
+//		if ((first == null) || (second == null)) {
+//			return false;
+//		}
+//		final AnimFlag<?> firstVisibilityFlag = first.getVisibilityFlag();
+//		final AnimFlag<?> secondVisibilityFlag = second.getVisibilityFlag();
+//		if ((firstVisibilityFlag == null) != (secondVisibilityFlag == null)) {
+//			return false;
+//		}
+//		if ((firstVisibilityFlag != null) && !firstVisibilityFlag.equals(secondVisibilityFlag)) {
+//			return false;
+//		}
+//		if (first.isDropShadow() != second.isDropShadow()) {
+//			return false;
+//		}
+//		if (Math.abs(first.getStaticAlpha() - second.getStaticAlpha()) > 0.001) {
+//			return false;
+//		}
+//		if ((first.getStaticColor() == null) != (second.getStaticColor() == null)) {
+//			return false;
+//		}
+//		if ((first.getStaticColor() != null) && !first.getStaticColor().equalLocs(second.getStaticColor())) {
+//			return false;
+//		}
+//		final AnimFlag<?> firstAnimatedColor = first.find("Color");
+//		final AnimFlag<?> secondAnimatedColor = second.find("Color");
+//		if ((firstAnimatedColor == null) != (secondAnimatedColor == null)) {
+//			return false;
+//		}
+//		return (firstAnimatedColor == null) || firstAnimatedColor.equals(secondAnimatedColor);
+//	}
+//
+//	public static void removeMaterialDuplicates() {
+//		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
+//		List<Material> materials = model.getMaterials();
+//
+//		Map<Material, Material> sameMaterialMap = new HashMap<>();
+//		for (int i = 0; i < materials.size(); i++) {
+//			Material material1 = materials.get(i);
+//			for (int j = i + 1; j < materials.size(); j++) {
+//				Material material2 = materials.get(j);
+//				System.out.println(material1.getName() + " == " + material2.getName());
+//				if (material1.equals(material2)) {
+//					if (!sameMaterialMap.containsKey(material2)) {
+//						sameMaterialMap.put(material2, material1);
+//					}
+//				}
+//			}
+//		}
+//
+//		List<Geoset> geosets = model.getGeosets();
+//		for (Geoset geoset : geosets) {
+//			if (sameMaterialMap.containsKey(geoset.getMaterial())) {
+//				geoset.setMaterial(sameMaterialMap.get(geoset.getMaterial()));
+//			}
+//		}
+//
+//		materials.removeAll(sameMaterialMap.keySet());
+//		ModelStructureChangeListener.changeListener.materialsListChanged();
+//	}
 }

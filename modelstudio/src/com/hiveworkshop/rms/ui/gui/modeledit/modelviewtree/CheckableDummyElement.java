@@ -12,6 +12,10 @@ public class CheckableDummyElement extends CheckableDisplayElement<String> {
 	Set<Geoset> tempGeosetList = new HashSet<>();
 	Set<IdObject> tempIdObjectList = new HashSet<>();
 
+	private static final String MESH = "Mesh";
+	private static final String NODES = "Nodes";
+	private static final String CAMERAS = "Cameras";
+
 	//	List<Geoset> tempGeosetList = new ArrayList<>();
 //	List<IdObject> tempIdObjectList = new ArrayList<>();
 	public CheckableDummyElement(ModelHandler modelHandler, String name) {
@@ -29,35 +33,35 @@ public class CheckableDummyElement extends CheckableDisplayElement<String> {
 	@Override
 	public void setEditable(boolean editable){
 		switch (item) {
-			case "Mesh" -> modelView.setGeosetsEditable(editable);
-			case "Nodes" -> modelView.setIdObjectsVisible(editable);
-			case "Cameras" -> modelView.setCamerasVisible(editable);
+			case MESH -> modelView.setGeosetsEditable(editable);
+			case NODES -> modelView.setIdObjectsVisible(editable);
+			case CAMERAS -> modelView.setCamerasVisible(editable);
 		}
 	}
 	@Override
 	public void setVisible(boolean visible){
 		switch (item) {
-			case "Mesh" -> modelView.setGeosetsVisible(visible);
-			case "Nodes" -> modelView.setIdObjectsVisible(visible);
-			case "Cameras" -> modelView.setCamerasVisible(visible);
+			case MESH -> modelView.setGeosetsVisible(visible);
+			case NODES -> modelView.setIdObjectsVisible(visible);
+			case CAMERAS -> modelView.setCamerasVisible(visible);
 		}
 	}
 
 	@Override
 	public boolean isEditable(){
 		return switch (item) {
-			case "Mesh" -> modelView.isGeosetsEditable();
-			case "Nodes" -> modelView.isIdObjectsVisible();
-			case "Cameras" -> modelView.isCamerasVisible();
+			case MESH -> modelView.isGeosetsEditable();
+			case NODES -> modelView.isIdObjectsVisible();
+			case CAMERAS -> modelView.isCamerasVisible();
 			default -> false;
 		};
 	}
 	@Override
 	public boolean isVisible(){
 		return switch (item) {
-			case "Mesh" -> modelView.isGeosetsVisible();
-			case "Nodes" -> modelView.isIdObjectsVisible();
-			case "Cameras" -> modelView.isCamerasVisible();
+			case MESH -> modelView.isGeosetsVisible();
+			case NODES -> modelView.isIdObjectsVisible();
+			case CAMERAS -> modelView.isCamerasVisible();
 			default -> false;
 		};
 	}

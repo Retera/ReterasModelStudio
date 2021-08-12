@@ -65,7 +65,7 @@ public class CameraHandler {
 	public CameraHandler loadDefaultCameraFor(double boundsRadius) {
 		m_zoom = .2f;
 
-		System.out.println("boundsRadius: " + boundsRadius + " (zoom : 128/" + boundsRadius + "/1.3=" + m_zoom + ", X-pos: " + boundsRadius + "/4=" + (boundsRadius / 4) + ")");
+//		System.out.println("boundsRadius: " + boundsRadius + " (zoom : 128/" + boundsRadius + "/1.3=" + m_zoom + ", X-pos: " + boundsRadius + "/4=" + (boundsRadius / 4) + ")");
 
 		setViewportCamera((int) -(boundsRadius / 3), (int) (boundsRadius / 20), 0, 20, -25);
 		return this;
@@ -258,7 +258,8 @@ public class CameraHandler {
 	public void setCameraSide(double modelRadius) {
 		System.out.println("SIDE, modelRadius: " + modelRadius + ", xAngl: " + xAngle + ", yAng: " + yAngle + ", zAng: " + zAngle + ", zoom: " + m_zoom + ", pos: " + cameraPos + ", glTrans: " + glCamTrans);
 //		resetZoom();
-		setViewportCamera((int) -(modelRadius / 3), (int) (modelRadius / 9), 0, 0, 90);
+//		setViewportCamera((int) -(modelRadius / 3), (int) (modelRadius / 9), 0, 0, 90);
+		setViewportCamera((int) cameraPos.x, (int) (modelRadius / 9), 0, 0, 90);
 	}
 
 	public void setCameraFront(double modelRadius) {
@@ -268,14 +269,16 @@ public class CameraHandler {
 //				+ "\ninvZS: " + inverseCameraRotZSpinX.toAxisWithAngle() + " (" + (inverseCameraRotZSpinX.toAxisWithAngle().w*57.3) + ")"
 		);
 //		resetZoom();
-		setViewportCamera((int) -(modelRadius / 3), (int) (modelRadius / 9), 0, 0, 0);
+//		setViewportCamera((int) -(modelRadius / 3), (int) (modelRadius / 9), 0, 0, 0);
+		setViewportCamera((int) cameraPos.x, (int) (modelRadius / 9), 0, 0, 0);
 	}
 
 	public void setCameraTop(double modelRadius) {
 		System.out.println("TOP, modelRadius: " + modelRadius + ", xAngl: " + xAngle + ", yAng: " + yAngle + ", zAng: " + zAngle + ", zoom: " + m_zoom + ", pos: " + cameraPos + ", glTrans: " + glCamTrans);
 //		resetZoom();
 //		setViewportCamera((int) -(modelRadius * .54), 00, 90, 0);
-		setViewportCamera((int) -(modelRadius / 3), 0, 0, 90, 0);
+//		setViewportCamera((int) -(modelRadius / 3), 0, 0, 90, 0);
+		setViewportCamera((int) cameraPos.x, 0, 0, 90, 0);
 	}
 
 
@@ -533,6 +536,10 @@ public class CameraHandler {
 		return ((x + cameraPos.x) * m_zoom) + (viewport.getWidth() / 2.0);
 	}
 
+	public double uggX(double x) {
+		return (((x * m_zoom * -1) - cameraPos.y) * 600f / cameraPos.x) + ( viewport.getWidth() / 2.0);
+	}
+
 	public double convertY(double y) {
 		return ((-y + cameraPos.y) * m_zoom) + (viewport.getHeight() / 2.0);
 	}
@@ -561,7 +568,7 @@ public class CameraHandler {
 		Vec3 vec3 = new Vec3(0, x_real, y_real);
 		vec3.scale((float) (1f / m_zoom));
 
-		System.out.println("Mouse: [" + viewX + ", " + viewY + "], " + "zoom: " + m_zoom + "vec3: " + vec3 + ", camPos: " + cameraPos);
+//		System.out.println("Mouse: [" + viewX + ", " + viewY + "], " + "zoom: " + m_zoom + "vec3: " + vec3 + ", camPos: " + cameraPos);
 		vec3.transform(getViewPortAntiRotMat2());
 
 		return vec3;

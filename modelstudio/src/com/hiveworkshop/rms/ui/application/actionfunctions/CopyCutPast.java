@@ -1,7 +1,8 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
-import com.hiveworkshop.rms.ui.application.MainLayoutCreator;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.WindowHandler2;
+import com.hiveworkshop.rms.ui.application.edit.animation.KeyframeHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.rms.ui.language.TextKey;
@@ -53,13 +54,16 @@ public class CopyCutPast {
 		if (!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
 			transferActionListener.actionPerformed(e);
 		} else {
-			MainLayoutCreator mainLayoutCreator = ProgramGlobals.getMainPanel().getMainLayoutCreator();
+//			MainLayoutCreator mainLayoutCreator = ProgramGlobals.getMainPanel().getMainLayoutCreator();
+//			KeyframeHandler keyframeHandler = mainLayoutCreator.getTimeSliderView().getTimeSliderPanel().getKeyframeHandler();
+			WindowHandler2 windowHandler2 = ProgramGlobals.getRootWindowUgg().getWindowHandler2();
+			KeyframeHandler keyframeHandler = windowHandler2.getTimeSliderView().getTimeSliderPanel().getKeyframeHandler();
 			if (e.getActionCommand().equals(TransferHandler.getCutAction().getValue(Action.NAME))) {
-				mainLayoutCreator.getTimeSliderPanel().cut();
+				keyframeHandler.cut();
 			} else if (e.getActionCommand().equals(TransferHandler.getCopyAction().getValue(Action.NAME))) {
-				mainLayoutCreator.getTimeSliderPanel().copy();
+				keyframeHandler.copy();
 			} else if (e.getActionCommand().equals(TransferHandler.getPasteAction().getValue(Action.NAME))) {
-				mainLayoutCreator.getTimeSliderPanel().paste();
+				keyframeHandler.paste();
 			}
 		}
 	}

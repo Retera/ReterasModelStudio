@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.scripts;
 import com.hiveworkshop.rms.editor.actions.animation.EditAnimationLengthsAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.SliderBarHandler;
@@ -26,8 +26,9 @@ public class ChangeAnimationLengthPanel extends JPanel {
 	public ChangeAnimationLengthPanel(ModelHandler modelHandler, JFrame frame) {
 		this.modelHandler = modelHandler;
 		parentFrame = frame;
-		this.undoManager = modelHandler.getUndoManager();
-		this.onFinish = () -> ProgramGlobals.getMainPanel().getMainLayoutCreator().getTimeSliderPanel().revalidateKeyframeDisplay();
+		undoManager = modelHandler.getUndoManager();
+//		onFinish = () -> ProgramGlobals.getMainPanel().getMainLayoutCreator().getTimeSliderPanel().revalidateKeyframeDisplay();
+		onFinish = () -> ModelStructureChangeListener.changeListener.keyframesUpdated();
 		GridLayout layout = new GridLayout(
 				(modelHandler.getModel().getAnimsSize() + modelHandler.getModel().getGlobalSeqs().size()) * 2 + 2, 2);
 		setLayout(layout);

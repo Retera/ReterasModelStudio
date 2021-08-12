@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -718,6 +719,94 @@ public class SelectionManager extends AbstractSelectionManager {
 			}
 			return false;
 		}
+
+		return false;
+	}
+	public boolean selectableUnderCursor(Vec2 point, CameraHandler axes) {
+//		for (IdObject object : modelView.getEditableIdObjects()) {
+//			double vertexSize1 = object.getClickRadius() * 2;
+//			if (HitTestStuff.hitTest(object.getPivotPoint(), axes.getViewPortAntiRotMat(), vertexSize1, axes.getZoom())) {
+//				return true;
+//			}
+//			if (object instanceof CollisionShape) {
+//				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+//					int vertexSize = IdObject.DEFAULT_CLICK_RADIUS;
+//					if (HitTestStuff.hitTest(vertex, axes.getViewPortAntiRotMat(), axes, vertexSize)) {
+//						return true;
+//					}
+//				}
+//			}
+//		}
+//		for (Camera camera : modelView.getEditableCameras()) {
+//			int vertexSize = ProgramGlobals.getPrefs().getVertexSize();
+//			if (HitTestStuff.hitTest(camera.getPosition(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
+//				return true;
+//			}
+//			if (HitTestStuff.hitTest(camera.getTargetPosition(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
+//				return true;
+//			}
+//		}
+
+		if (selectionMode == SelectionItemTypes.VERTEX){
+			for (Geoset geoset : modelView.getEditableGeosets()) {
+				for (GeosetVertex geosetVertex : geoset.getVertices()) {
+					if (HitTestStuff.hitTest(geosetVertex, point, axes, ProgramGlobals.getPrefs().getVertexSize())) {
+						return true;
+					}
+				}
+			}
+		}
+
+
+//		if(selectionMode == SelectionItemTypes.CLUSTER){
+//			for (Geoset geoset : modelView.getEditableGeosets()) {
+//				for (Triangle triangle : geoset.getTriangles()) {
+//					if (HitTestStuff.triHitTest(triangle, CoordSysUtils.geomV2(axes, point), axes)) {
+//						return true;
+//					}
+//				}
+//				for (GeosetVertex geosetVertex : geoset.getVertices()) {
+//					if (HitTestStuff.hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, ProgramGlobals.getPrefs().getVertexSize())) {
+//						return true;
+//					}
+//				}
+//			}
+//		}
+//
+//		if(selectionMode == SelectionItemTypes.GROUP){
+//			for (Geoset geoset : modelView.getEditableGeosets()) {
+//				for (Triangle triangle : geoset.getTriangles()) {
+//					if (HitTestStuff.triHitTest(triangle, CoordSysUtils.geomV2(axes, point), axes)) {
+//						return true;
+//					}
+//				}
+//				for (GeosetVertex geosetVertex : geoset.getVertices()) {
+//					if (HitTestStuff.hitTest(geosetVertex, CoordSysUtils.geomV2(axes, point), axes, ProgramGlobals.getPrefs().getVertexSize())) {
+//						return true;
+//					}
+//				}
+//			}
+//		}
+//
+//		if(selectionMode == SelectionItemTypes.FACE){
+//			for (Geoset geoset : modelView.getEditableGeosets()) {
+//				for (Triangle triangle : geoset.getTriangles()) {
+//					if (HitTestStuff.triHitTest(triangle, CoordSysUtils.geomV2(axes, point), axes)) {
+//						return true;
+//					}
+//				}
+//			}
+//		}
+//		if(selectionMode == SelectionItemTypes.ANIMATE){
+//			for (IdObject object : modelView.getEditableIdObjects()) {
+//				Mat4 worldMatrix = modelView.getEditorRenderModel().getRenderNode(object).getWorldMatrix();
+//				double vertexSize = object.getClickRadius() * 2;
+//				if (HitTestStuff.hitTest(object.getPivotPoint(), CoordSysUtils.geomV2(axes, point), axes, vertexSize, worldMatrix)) {
+//					return true;
+//				}
+//			}
+//			return false;
+//		}
 
 		return false;
 	}

@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -115,5 +116,6 @@ public abstract class AbstractSelectionManager {
 	public abstract Collection<? extends Vec2> getSelectedTVertices(int tvertexLayerId);
 
 	public abstract boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes);
+	public abstract boolean selectableUnderCursor(Vec2 point, CameraHandler axes);
 
 }

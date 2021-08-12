@@ -187,15 +187,15 @@ public class UnitEditorTree extends JTree {
 	}
 
 	public void selectFirstUnit() {
-		TreePath topTreePath = new TreePath(root);
-		while (((TreeNode) topTreePath.getLastPathComponent()).getChildCount() > 0) {
-			topTreePath = topTreePath.pathByAddingChild(((TreeNode) topTreePath.getLastPathComponent()).getChildAt(0));
-		}
-		setSelectionPath(topTreePath);
+//		TreePath topTreePath = new TreePath(root);
+//		while (((TreeNode) topTreePath.getLastPathComponent()).getChildCount() > 0) {
+//			topTreePath = topTreePath.pathByAddingChild(((TreeNode) topTreePath.getLastPathComponent()).getChildAt(0));
+//		}
+//		setSelectionPath(topTreePath);
+		setSelectionPath(new TreePath(root.getFirstLeaf().getPath()));
 	}
 
-	public boolean matches(DefaultMutableTreeNode node, String text, boolean displayAsRawData,
-	                       boolean caseSensitive) {
+	public boolean matches(DefaultMutableTreeNode node, String text, boolean displayAsRawData, boolean caseSensitive) {
 		if ((node != null) && (node.getUserObject() instanceof MutableGameObject)) {
 			MutableGameObject obj = (MutableGameObject) node.getUserObject();
 			String name = displayAsRawData ? MutableObjectData.getDisplayAsRawDataName(obj) : obj.getName();
@@ -244,9 +244,9 @@ public class UnitEditorTree extends JTree {
 	}
 
 	public MutableGameObject getSelectedGameObject() {
-		DefaultMutableTreeNode o = (DefaultMutableTreeNode) getLastSelectedPathComponent();
-		if ((o != null) && (o.getUserObject() instanceof MutableGameObject)) {
-			return (MutableGameObject) o.getUserObject();
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode) getLastSelectedPathComponent();
+		if ((node != null) && (node.getUserObject() instanceof MutableGameObject)) {
+			return (MutableGameObject) node.getUserObject();
 		}
 		return null;
 	}

@@ -76,7 +76,7 @@ public class KeyframeHandler {
 		return useAllKFs ? modelHandler.getModel().getIdObjects() : modelHandler.getModelView().getSelectedIdObjects();
 	}
 
-	private void updateKeyframeDisplay() {
+	public void updateKeyframeDisplay() {
 		timeToKey.clear();
 
 		Iterable<IdObject> selection = getSelectionToUse();
@@ -104,12 +104,12 @@ public class KeyframeHandler {
 		}
 	}
 
-	private void cutSpecificItem(Integer time, IdObject object, AnimFlag<?> flag) {
+	public void cutSpecificItem(Integer time, IdObject object, AnimFlag<?> flag) {
 		copyKeyframes(object, flag, time);
 		deleteKeyframe(flag, time);
 	}
 
-	private void cutItem(Integer time) {
+	public void cutItem(Integer time) {
 		copyKeyframes(time);
 		deleteKeyframes("cut keyframe", time, timeToKey.get(time).objects);
 	}
@@ -122,7 +122,7 @@ public class KeyframeHandler {
 		revalidateKeyframeDisplay();
 	}
 
-	private void deleteKeyframes(String actionName, int trackTime, Collection<IdObject> objects) {
+	public void deleteKeyframes(String actionName, int trackTime, Collection<IdObject> objects) {
 		List<UndoAction> actions = new ArrayList<>();
 		for (IdObject object : objects) {
 			for (AnimFlag<?> flag : object.getAnimFlags()) {
@@ -135,14 +135,14 @@ public class KeyframeHandler {
 		CompoundAction action = new CompoundAction(actionName, actions, () -> structureChangeListener.keyframesUpdated());
 		undoManager.pushAction(action.redo());
 	}
-	private void deleteKeyframe(AnimFlag<?> flag, int trackTime) {
+	public void deleteKeyframe(AnimFlag<?> flag, int trackTime) {
 		if (flag.getEntryMap().containsKey(trackTime)) {
 			UndoAction deleteFrameAction = new RemoveFlagEntryAction(flag, trackTime, structureChangeListener);
 			undoManager.pushAction(deleteFrameAction.redo());
 		}
 	}
 
-	private void copyKeyframes(int trackTime) {
+	public void copyKeyframes(int trackTime) {
 		copiedKeyframes.clear();
 		useAllCopiedKeyframes = false;
 		for (IdObject object : getSelectionToUse()) {
@@ -155,7 +155,7 @@ public class KeyframeHandler {
 		}
 	}
 
-	private void copyKeyframes(IdObject object, AnimFlag<?> flag, int trackTime) {
+	public void copyKeyframes(IdObject object, AnimFlag<?> flag, int trackTime) {
 		copiedKeyframes.clear();
 		useAllCopiedKeyframes = false;
 		copuKeyframes(object, flag, trackTime);
@@ -198,7 +198,7 @@ public class KeyframeHandler {
 		pasteToAllSelected(timeEnvironment.getAnimationTime());
 	}
 
-	private void pasteToAllSelected(int trackTime) {
+	public void pasteToAllSelected(int trackTime) {
 		List<UndoAction> actions = new ArrayList<>();
 		for (CopiedKeyFrame<?> frame : copiedKeyframes) {
 			if (getSelectionToUse().contains(frame.node) || useAllCopiedKeyframes) {
@@ -208,6 +208,38 @@ public class KeyframeHandler {
 		}
 		undoManager.pushAction(new CompoundAction("paste keyframe", actions, structureChangeListener::keyframesUpdated));
 		revalidateKeyframeDisplay();
+	}
+
+	public void pasteToSpecificTimeline(Integer time, AnimFlag<?> flag) {
+		boolean foundCopiedMatch = false;
+		int mouseClickAnimationTime = time;// computeTimeFromX(e.getX());
+		for (CopiedKeyFrame<?> frame : copiedKeyframes) {
+			if (frame.sourceTimeline == flag) {
+				// only paste to selected nodes
+				UndoAction action = getUndoAction(mouseClickAnimationTime, frame);
+				undoManager.pushAction(action);
+				foundCopiedMatch = true;
+				break;
+			}
+		}
+		if (!foundCopiedMatch) {
+			JOptionPane.showMessageDialog(timelinePanel,
+					"Tell Retera to code in the ability to paste cross-node data!");
+		}
+		revalidateKeyframeDisplay();
+	}
+
+	public void copyAllKeyframes(int trackTime) {
+		copiedKeyframes.clear();
+		useAllCopiedKeyframes = true;
+		for (IdObject object : modelHandler.getModel().getIdObjects()) {
+			for (AnimFlag<?> flag : object.getAnimFlags()) {
+				Integer currentEditorGlobalSeq = timeEnvironment.getGlobalSeq();
+				if (((flag.getGlobalSeqLength() == null) && (currentEditorGlobalSeq == null)) || ((currentEditorGlobalSeq != null) && currentEditorGlobalSeq.equals(flag.getGlobalSeqLength()))) {
+					copuKeyframes(object, flag, trackTime);
+				}
+			}
+		}
 	}
 
 	private <T> UndoAction getUndoAction(int mouseClickAnimationTime, CopiedKeyFrame<T> frame) {

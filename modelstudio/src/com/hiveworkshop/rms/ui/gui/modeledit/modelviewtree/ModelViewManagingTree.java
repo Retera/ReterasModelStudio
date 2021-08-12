@@ -21,19 +21,25 @@ import java.awt.event.MouseMotionListener;
 import java.util.*;
 
 public final class ModelViewManagingTree extends JCheckBoxTree {
-	private ModelHandler modelHandler;
+	private final ModelHandler modelHandler;
 	JCheckBoxTreeNode root;
 	JCheckBoxTreeNode meshes;
 	JCheckBoxTreeNode nodes;
 	JCheckBoxTreeNode cameras;
+
+	private static final String MESH = "Mesh";
+	private static final String NODES = "Nodes";
+	private static final String CAMERAS = "Cameras";
+
 	Map<IdObject, JCheckBoxTreeNode> nodeToTreeElement = new HashMap<>();
 
 	public ModelViewManagingTree(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
 		super(modelHandler);
 		root = new JCheckBoxTreeNode(new CheckableModelElement(modelHandler)).setChecked(true);
-		meshes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, "Mesh")).setChecked(true);
-		nodes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, "Nodes")).setChecked(false);
-		cameras = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, "Cameras"));
+//		nodes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, "Nodes")).setChecked(false);
+		meshes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, MESH)).setChecked(true);
+		nodes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, NODES)).setChecked(true);
+		cameras = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, CAMERAS));
 
 		setModel(buildTreeModel(modelHandler));
 		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();

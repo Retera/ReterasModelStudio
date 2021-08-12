@@ -3,11 +3,11 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
-import com.hiveworkshop.rms.ui.application.MainLayoutCreator;
 import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
 import com.hiveworkshop.rms.ui.application.MenuBarActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
@@ -105,7 +105,8 @@ public class MenuBar {
         WEString.dropCache();
         BLPHandler.get().dropCache();
         MenuBar.teamColorMenu.updateTeamColors();
-        traverseAndReloadData(ProgramGlobals.getMainPanel().getRootWindow());
+//        traverseAndReloadData(ProgramGlobals.getMainPanel().getRootWindow());
+        traverseAndReloadData(ProgramGlobals.getRootWindowUgg());
     }
 
 
@@ -125,7 +126,7 @@ public class MenuBar {
                         MutableObjectData.WorldEditorDataType dataType = unitEditorTree.getDataType();
                         if (dataType == MutableObjectData.WorldEditorDataType.UNITS) {
                             System.out.println("saw unit tree");
-                            unitEditorTree.setUnitDataAndReloadVerySlowly(MainLayoutCreator.getUnitData());
+                            unitEditorTree.setUnitDataAndReloadVerySlowly(UnitBrowserView.getUnitData());
                         } else if (dataType == MutableObjectData.WorldEditorDataType.DOODADS) {
                             System.out.println("saw doodad tree");
                             unitEditorTree.setUnitDataAndReloadVerySlowly(MenuBarActions.getDoodadData());

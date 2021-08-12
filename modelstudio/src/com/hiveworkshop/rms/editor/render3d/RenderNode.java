@@ -24,6 +24,8 @@ public final class RenderNode {
 	private final Quat worldRotation = new Quat();
 	private final Vec3 worldScale = new Vec3(1, 1, 1);
 	private final Mat4 worldMatrix = new Mat4();
+
+	private final Vec3 renderPivot = new Vec3(0, 0, 0);
 //	private final Mat4 finalMatrix;
 //	private Mat4 bindPose;
 
@@ -41,6 +43,7 @@ public final class RenderNode {
 	public RenderNode(final RenderModel model, final AnimatedNode idObject) {
 		this.model = model;
 		this.idObject = idObject;
+		renderPivot.set(idObject.getPivotPoint());
 //		if (idObject instanceof IdObject) {
 //			final float[] bindPose = ((IdObject) idObject).getBindPose();
 //			if (bindPose != null) {
@@ -130,6 +133,8 @@ public final class RenderNode {
 
 			// Inverse world location
 			inverseWorldLocation.set(worldLocation).negate();
+
+			renderPivot.set(idObject.getPivotPoint()).transform(worldMatrix);
 		}
 	}
 
@@ -231,7 +236,9 @@ public final class RenderNode {
 	}
 
 	public Vec3 getPivot() {
-		return Vec3.getTransformed(idObject.getPivotPoint(), worldMatrix);
+		return renderPivot;
+//		return Vec3.getTransformed(idObject.getPivotPoint(), worldMatrix);
+
 //		Vec4 vector4Heap = new Vec4(idObject.getPivotPoint(), 1);
 //		vector4Heap.transform(worldMatrix);
 //		return vector4Heap.getVec3();

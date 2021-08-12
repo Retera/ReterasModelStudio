@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ButtonType;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -11,10 +10,10 @@ import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
 
 public abstract class ManipulatorBuilder {
 	protected final ViewportSelectionHandler viewportSelectionHandler;
@@ -75,18 +74,31 @@ public abstract class ManipulatorBuilder {
 		return new SelectManipulator(viewportSelectionHandler, coordinateSystem);
 	}
 
-	public Manipulator buildManipulator(int x, int y,
+	public Manipulator buildManipulator(MouseEvent e, int x, int y,
 	                                    ButtonType clickedButton,
 	                                    CameraHandler cameraHandler,
 	                                    AbstractSelectionManager selectionManager) {
-		if (clickedButton == ButtonType.RIGHT_MOUSE && !selectionManager.isEmpty()
-//				&& ProgramGlobals.getEditorActionType() == ModelEditorActionType3.TRANSLATION) {
-				&& ProgramGlobals.getEditorActionType() == ModelEditorActionType3.ROTATION) {
+//		if (clickedButton == ButtonType.RIGHT_MOUSE && !selectionManager.isEmpty()
+////				&& ProgramGlobals.getEditorActionType() == ModelEditorActionType3.TRANSLATION) {
+//				&& ProgramGlobals.getEditorActionType() == ModelEditorActionType3.ROTATION) {
+////			return createDefaultManipulator(selectionManager);
+//			Vec2 mousePoint = new Vec2(x, y);
+//			Manipulator manipulatorFromWidget = createManipulatorFromUgg(mousePoint, cameraHandler, selectionManager);
+//			if (manipulatorFromWidget != null) {
+//				return manipulatorFromWidget;
+//			}
+//		}
+		if (clickedButton == ButtonType.RIGHT_MOUSE && !selectionManager.isEmpty() && !e.isShiftDown()) {
 //			return createDefaultManipulator(selectionManager);
-			Vec2 mousePoint = new Vec2(x, y);
-			Manipulator manipulatorFromWidget = createManipulatorFromUgg(mousePoint, cameraHandler, selectionManager);
-			if (manipulatorFromWidget != null) {
-				return manipulatorFromWidget;
+			Vec2 mousePoint = new Vec2(cameraHandler.geomX(x), cameraHandler.geomY(y));
+			System.out.println("maybe manipulator...");
+			if(selectionManager.selectableUnderCursor(mousePoint, cameraHandler)){
+				System.out.println("found selectable...");
+				Manipulator manipulatorFromWidget = createManipulatorFromUgg(mousePoint, cameraHandler, selectionManager);
+				if (manipulatorFromWidget != null) {
+					System.out.println("should be manipulator...");
+					return manipulatorFromWidget;
+				}
 			}
 		}
 		return new SelectManipulator(viewportSelectionHandler, cameraHandler);
@@ -129,8 +141,9 @@ public abstract class ManipulatorBuilder {
 	                                               AbstractSelectionManager selectionManager) {
 		setWidgetPoint(selectionManager);
 //		if(ProgramGlobals.getEditorActionType() == ModelEditorActionType3.TRANSLATION){
-		if (ProgramGlobals.getEditorActionType() == ModelEditorActionType3.ROTATION) {
-
+//		if (ProgramGlobals.getEditorActionType() == ModelEditorActionType3.ROTATION) {
+		if (!selectionManager.isEmpty() && selectionManager.selectableUnderCursor(mousePoint, cameraHandler)) {
+			System.out.println("getting manipulator");
 			MoveDimension directionByMouse = MoveDimension.XYZ;
 			widget.setMoveDirection(directionByMouse);
 			if (directionByMouse != MoveDimension.NONE) {

@@ -21,7 +21,8 @@ public class Delete extends ActionFunction {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			if (ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
-				ProgramGlobals.getMainPanel().getMainLayoutCreator().getTimeSliderPanel().deleteSelectedKeyframes();
+//				ProgramGlobals.getMainPanel().getMainLayoutCreator().getTimeSliderView().getTimeSliderPanel().getKeyframeHandler().deleteSelectedKeyframes();
+				ProgramGlobals.getRootWindowUgg().getWindowHandler2().getTimeSliderView().getTimeSliderPanel().getKeyframeHandler().deleteSelectedKeyframes();
 			} else {
 				ModelView modelView = modelPanel.getModelView();
 				DeleteAction deleteAction = new DeleteAction(modelView.getSelectedVertices(), ModelStructureChangeListener.changeListener, modelView);

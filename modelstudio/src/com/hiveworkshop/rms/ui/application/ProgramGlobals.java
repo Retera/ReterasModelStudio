@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.language.Translator;
-import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs2;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.util.sound.SoundMappings;
@@ -21,6 +21,7 @@ public class ProgramGlobals {
 	private static final ProgramPreferences prefs;
 	private static final List<ModelPanel> modelPanels;
 	private static ModelPanel currentModelPanel;
+	private static final RootWindowUgg rootWindowUgg;
 	private static final MainPanel mainPanel;
 	private static final JToolBar toolbar;
 	private static final UndoHandler undoHandler;
@@ -32,7 +33,8 @@ public class ProgramGlobals {
 	private static final Translator translator;
 
 
-	private static KeyBindingPrefs keyBindingPrefs;
+//	private static KeyBindingPrefs keyBindingPrefs;
+	private static KeyBindingPrefs2 keyBindingPrefs;
 
 	private static final ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeGroup;
 	private static final ToolbarButtonGroup2<SelectionMode> selectionModeGroup;
@@ -40,16 +42,22 @@ public class ProgramGlobals {
 
 
 	static {
+		System.out.println("loading SaveProfile");
 		profile = SaveProfile.get();
+		System.out.println("loading Preferences");
 		prefs = profile.getPreferences();
+		System.out.println("loading Translator");
+		translator = new Translator();
+		System.out.println("loading KeyBindingPrefs");
 		keyBindingPrefs = prefs.getKeyBindingPrefs();
 		modelPanels = new ArrayList<>();
 		undoHandler = new UndoHandler();
 
-		translator = new Translator();
 
+		System.out.println("loading ToolBar");
 		toolbar = ToolBar.createJToolBar();
 
+		System.out.println("setting up ButtonGroups");
 		selectionItemTypeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionItemTypes.values());
 		selectionItemTypeGroup.setActiveButton(SelectionItemTypes.VERTEX);
 		selectionModeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionMode.values());
@@ -57,8 +65,11 @@ public class ProgramGlobals {
 		actionTypeGroup = new ToolbarButtonGroup2<>(toolbar, ModelEditorActionType3.values());
 		actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
 
-
-		mainPanel = new MainPanel(toolbar);
+		System.out.println("loading RootWindowUgg");
+		rootWindowUgg = new RootWindowUgg(prefs.getViewMap());
+		System.out.println("loading MainPanel");
+		mainPanel = new MainPanel(toolbar, rootWindowUgg);
+		System.out.println("loading SoundMappings");
 		soundMappings = new SoundMappings();
 
 		selectionItemTypeGroup.addToolbarButtonListener(ProgramGlobals::setSelectionItemType);
@@ -67,6 +78,10 @@ public class ProgramGlobals {
 
 	public static MainPanel getMainPanel() {
 		return mainPanel;
+	}
+
+	public static RootWindowUgg getRootWindowUgg(){
+		return rootWindowUgg;
 	}
 
 	public static UndoHandler getUndoHandler() {
@@ -201,7 +216,7 @@ public class ProgramGlobals {
 		ProgramGlobals.lockLayout = lockLayout;
 	}
 
-	public static KeyBindingPrefs getKeyBindingPrefs() {
+	public static KeyBindingPrefs2 getKeyBindingPrefs() {
 		return keyBindingPrefs;
 	}
 

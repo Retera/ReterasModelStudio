@@ -6,15 +6,15 @@ import java.util.function.Consumer;
 
 public class TimeSliderTimeListener {
 
-	Set<Consumer<Integer>> listenerSet2 = new HashSet<>();
+	Set<Consumer<Integer>> listenerSet = new HashSet<>();
 
 	public void subscribe(Consumer<Integer> listener) {
-		listenerSet2.add(listener);
+		listenerSet.add(listener);
 	}
 
 	public void timeChanged(int currentTime) {
 
-		for (Consumer<Integer> listener : listenerSet2) {
+		for (Consumer<Integer> listener : listenerSet) {
 			listener.accept(currentTime);
 		}
 	}

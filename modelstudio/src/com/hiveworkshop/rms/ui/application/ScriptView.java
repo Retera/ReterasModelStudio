@@ -17,7 +17,8 @@ import java.awt.*;
 public class ScriptView {
 	public static void openScriptView() {
 		View hackerView = new ScriptView().createHackerView();
-		FloatingWindowFactory.openNewWindow(hackerView, ProgramGlobals.getMainPanel().getRootWindow());
+//		FloatingWindowFactory.openNewWindow(hackerView, ProgramGlobals.getMainPanel().getRootWindow());
+		FloatingWindowFactory.openNewWindow(hackerView, ProgramGlobals.getRootWindowUgg());
 //		FloatingWindowFactory.openNewWindow("Matrix Eater Script", new ScriptView().createHackerPanel(mainPanel), mainPanel.getRootWindow());
 //		OpenViewAction openViewAction = OpenViewAction.getOpenViewAction(mainPanel.getRootWindow(), "Matrix Eater Script", hackerView);
 

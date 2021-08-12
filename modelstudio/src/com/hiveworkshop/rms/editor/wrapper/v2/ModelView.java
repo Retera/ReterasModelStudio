@@ -50,7 +50,7 @@ public final class ModelView {
 	private boolean vetoParticles = false;
 
 	private boolean geosetsVisible = true;
-	private boolean idObjectsVisible = false;
+	private boolean idObjectsVisible = true;
 	private boolean camerasVisible = false;
 	private boolean geosetsEditable = true;
 	private boolean idObjectsEditable = true;

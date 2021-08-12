@@ -6,13 +6,14 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
+import com.hiveworkshop.rms.util.ModelDependentView;
 import net.infonode.docking.View;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
 
-public class TimeSliderView extends View {
+public class TimeSliderView extends ModelDependentView {
 	private TimeSliderPanel timeSliderPanel;
 
 	public TimeSliderView(){
@@ -23,6 +24,16 @@ public class TimeSliderView extends View {
 
 	public TimeSliderView setModelHandler(ModelHandler modelHandler){
 		timeSliderPanel.setModelHandler(modelHandler);
+		return this;
+	}
+
+	@Override
+	public TimeSliderView setModelPanel(ModelPanel modelPanel){
+		if(modelPanel != null){
+			timeSliderPanel.setModelHandler(modelPanel.getModelHandler());
+		} else {
+			timeSliderPanel.setModelHandler(null);
+		}
 		return this;
 	}
 

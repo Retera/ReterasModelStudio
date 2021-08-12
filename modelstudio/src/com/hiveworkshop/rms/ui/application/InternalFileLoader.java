@@ -7,8 +7,6 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadTabTreeBrowserBuilder;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
@@ -16,16 +14,9 @@ import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.War3ID;
-import net.infonode.docking.SplitWindow;
-import net.infonode.docking.View;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -45,7 +36,7 @@ public class InternalFileLoader {
 		ModelLoader.loadModel(temporary, selectNewTab, temp);
 	}
 
-	static void loadMdxStream(MutableObjectData.MutableGameObject obj, String prePath, boolean b) {
+	public static void loadMdxStream(MutableObjectData.MutableGameObject obj, String prePath, boolean b) {
 		final String path = ImportFileActions.convertPathToMDX(prePath);
 		final String portrait = ModelUtils.getPortrait(path);
 		final ImageIcon icon = new ImageIcon(IconUtils
@@ -59,54 +50,6 @@ public class InternalFileLoader {
 		}
 	}
 
-	public static void OpenDoodadViewer() {
-		UnitEditorTree unitEditorTree = new UnitEditorTree(
-				MenuBarActions.getDoodadData(),
-				new DoodadTabTreeBrowserBuilder(),
-				MainLayoutCreator.getUnitEditorSettings(),
-				MutableObjectData.WorldEditorDataType.DOODADS);
-		unitEditorTree.selectFirstUnit();
-
-		unitEditorTree.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(final MouseEvent e) {
-				try {
-					dodadViewerMouseClick(e, unitEditorTree);
-				} catch (final Exception exc) {
-					exc.printStackTrace();
-					ExceptionPopup.display(exc);
-				}
-			}
-		});
-		View doodadBrowserView = new View("Doodad Browser", new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST)), new JScrollPane(unitEditorTree));
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		mainPanel.rootWindow.setWindow(new SplitWindow(true, 0.75f, mainPanel.rootWindow.getWindow(), doodadBrowserView));
-	}
-
-	private static void dodadViewerMouseClick(MouseEvent e, UnitEditorTree unitEditorTree) {
-		if (e.getClickCount() >= 2) {
-			TreePath currentUnitTreePath = unitEditorTree.getSelectionPath();
-			if (currentUnitTreePath != null) {
-
-				DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath.getLastPathComponent();
-				if (o.getUserObject() instanceof MutableObjectData.MutableGameObject) {
-
-					MutableObjectData.MutableGameObject obj = (MutableObjectData.MutableGameObject) o.getUserObject();
-					int numberOfVariations = obj.getFieldAsInteger(War3ID.fromString("dvar"), 0);
-					if (numberOfVariations > 1) {
-						for (int i = 0; i < numberOfVariations; i++) {
-							String prePath = obj.getFieldAsString(War3ID.fromString("dfil"), 0) + i + ".mdl";
-							loadMdxStream(obj, prePath, i == 0);
-						}
-					} else {
-						String prePath = obj.getFieldAsString(War3ID.fromString("dfil"), 0);
-						loadMdxStream(obj, prePath, true);
-					}
-					MenuBar.setToolsMenuEnabled(true);
-				}
-			}
-		}
-	}
 
 	public static void fetchObject() {
 		MutableObjectData.MutableGameObject objectFetched = ImportFileActions.fetchObject();

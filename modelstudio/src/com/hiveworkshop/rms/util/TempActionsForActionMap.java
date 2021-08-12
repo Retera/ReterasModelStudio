@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.util;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import net.infonode.docking.RootWindow;
 import net.infonode.docking.View;
 
 import javax.swing.*;
@@ -10,10 +11,12 @@ public class TempActionsForActionMap {
 
 	public static void maximizeFocusedWindow() {
 		if (isTextField()) return;
-		View focusedView = ProgramGlobals.getMainPanel().getRootWindow().getFocusedView();
+//		RootWindow rootWindow = ProgramGlobals.getMainPanel().getRootWindow();
+		RootWindow rootWindow = ProgramGlobals.getRootWindowUgg();
+		View focusedView = rootWindow.getFocusedView();
 		if (focusedView != null) {
 			if (focusedView.isMaximized()) {
-				ProgramGlobals.getMainPanel().getRootWindow().setMaximizedWindow(null);
+				rootWindow.setMaximizedWindow(null);
 			} else {
 				focusedView.maximize();
 			}

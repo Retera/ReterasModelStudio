@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs2;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.*;
 
@@ -79,15 +80,19 @@ public class WindowHandler {
 		};
 	}
 
-	static DockingWindowListener getDockingWindowListener(final MainPanel mainPanel) {
+	static DockingWindowListener getDockingWindowListener() {
 		return new DockingWindowAdapter() {
 			@Override
 			public void windowUndocked(final DockingWindow dockingWindow) {
 				SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> {
+					KeyBindingPrefs2 keyBindingPrefs = ProgramGlobals.getPrefs().getKeyBindingPrefs();
 					if (dockingWindow instanceof View) {
 						final Component component = ((View) dockingWindow).getComponent();
 						if (component instanceof JComponent) {
-							mainPanel.linkActions(((JComponent) component).getRootPane());
+							JRootPane rootPane = ((JComponent) component).getRootPane();
+//							mainPanel.linkActions(rootPane);
+							rootPane.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+							rootPane.setActionMap(keyBindingPrefs.getActionMap());
 						}
 					}
 				}));
@@ -104,15 +109,27 @@ public class WindowHandler {
 	}
 
 	public static void resetView() {
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		traverseAndReset(mainPanel.rootWindow);
+		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
+		traverseAndReset(rootWindow);
 //		final TabWindow startupTabWindow = MainLayoutCreator.createMainLayout();
-		final TabWindow startupTabWindow = mainPanel.getMainLayoutCreator().getStartupTabWindow();
+//		final TabWindow startupTabWindow = mainPanel.getMainLayoutCreator().getStartupTabWindow();
+		final TabWindow startupTabWindow = rootWindow.getWindowHandler2().getStartupTabWindow();
 		startupTabWindow.setSelectedTab(0);
-		mainPanel.rootWindow.setWindow(startupTabWindow);
+		rootWindow.setWindow(startupTabWindow);
 		ModelLoader.setCurrentModel(ProgramGlobals.getCurrentModelPanel());
-		mainPanel.rootWindow.revalidate();
-		traverseAndFix(mainPanel.rootWindow);
+		rootWindow.revalidate();
+		traverseAndFix(rootWindow);
+
+//		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+//		traverseAndReset(mainPanel.rootWindow);
+////		final TabWindow startupTabWindow = MainLayoutCreator.createMainLayout();
+////		final TabWindow startupTabWindow = mainPanel.getMainLayoutCreator().getStartupTabWindow();
+//		final TabWindow startupTabWindow = mainPanel.getWindowHandler2().getStartupTabWindow();
+//		startupTabWindow.setSelectedTab(0);
+//		mainPanel.rootWindow.setWindow(startupTabWindow);
+//		ModelLoader.setCurrentModel(ProgramGlobals.getCurrentModelPanel());
+//		mainPanel.rootWindow.revalidate();
+//		traverseAndFix(mainPanel.rootWindow);
 	}
 
 	public static void traverseAndReset(DockingWindow window) {

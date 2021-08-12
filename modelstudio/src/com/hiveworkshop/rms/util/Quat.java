@@ -64,12 +64,12 @@ public class Quat extends Vec4 {
 		// yaw -= Math.PI; }
 		// eulerRotation.z = yaw;
 		// eulerRotation.y = -eulerRotation.y;
-		double sinX = Math.sin(eulerRotation.x / 2);
-		double sinY = Math.sin(eulerRotation.y / 2);
-		double sinZ = Math.sin(eulerRotation.z / 2);
-		double cosX = Math.cos(eulerRotation.x / 2);
-		double cosY = Math.cos(eulerRotation.y / 2);
-		double cosZ = Math.cos(eulerRotation.z / 2);
+		double sinX = Math.sin(eulerRotation.x / 2.0);
+		double sinY = Math.sin(eulerRotation.y / 2.0);
+		double sinZ = Math.sin(eulerRotation.z / 2.0);
+		double cosX = Math.cos(eulerRotation.x / 2.0);
+		double cosY = Math.cos(eulerRotation.y / 2.0);
+		double cosZ = Math.cos(eulerRotation.z / 2.0);
 		x = (float) ((cosX * cosY * cosZ) + (sinX * sinY * sinZ));
 		y = (float) ((sinX * cosY * cosZ) - (cosX * sinY * sinZ));
 		z = (float) ((cosX * sinY * cosZ) + (sinX * cosY * sinZ));
@@ -111,7 +111,7 @@ public class Quat extends Vec4 {
 		// pitch (y-axis rotation)
 		double sinp = 2 * (w * y - z * x);
 		// use 90 degrees if out of range
-		double pitch = Math.abs(sinp) >= 1 ? Math.copySign(Math.PI / 2, sinp) : Math.asin(sinp);
+		double pitch = Math.abs(sinp) >= 1 ? Math.copySign(Math.PI / 2.0, sinp) : Math.asin(sinp);
 
 
 		// yaw (z-axis rotation)
@@ -241,7 +241,7 @@ public class Quat extends Vec4 {
 		float len = a.lengthSquared();
 
 		if (len > 0) {
-			len = 1 / len;
+			len = 1.0f / len;
 		}
 
 		float newX = ((x * a.w) - (w * a.x) - (y * a.z) + (z * a.y)) * len;
@@ -256,7 +256,7 @@ public class Quat extends Vec4 {
 		float len = lengthSquared();
 
 		if (len > 0) {
-			len = 1 / len;
+			len = 1.0f / len;
 		}
 		return (Quat) invertRotation().scale(len);
 	}
@@ -285,7 +285,7 @@ public class Quat extends Vec4 {
 	}
 
 	public Quat setFromAxisAngle(float ax, float ay, float az, float angle) {
-		float halfAngle = angle / 2;
+		float halfAngle = angle / 2.0f;
 		float sinOfHalfAngle = (float) Math.sin(halfAngle);
 		x = ax * sinOfHalfAngle;
 		y = ay * sinOfHalfAngle;
@@ -295,16 +295,16 @@ public class Quat extends Vec4 {
 	}
 
 	public Quat setFromAxisAngle2(float ax, float ay, float az, float angle) {
-		float sinOfHalfAngle = (float) Math.sin(angle / 2);
+		float sinOfHalfAngle = (float) Math.sin(angle / 2.0);
 		x = ax * sinOfHalfAngle;
 		y = ay * sinOfHalfAngle;
 		z = az * sinOfHalfAngle;
-		w = (float) Math.cos(angle / 2);
+		w = (float) Math.cos(angle / 2.0);
 		return this;
 	}
 	public Vec4 toAxisWithAngle() {
 		float angle = (float) Math.acos(w) * 2;
-		float sinOfHalfAngle = (float) Math.sin(angle / 2);
+		float sinOfHalfAngle = (float) Math.sin(angle / 2.0);
 		float ax = x / sinOfHalfAngle;
 		float ay = y / sinOfHalfAngle;
 		float az = z / sinOfHalfAngle;
@@ -333,6 +333,16 @@ public class Quat extends Vec4 {
 		z = a.z;
 		w = a.w;
 		return this;
+	}
+
+	@Override
+	public Quat normalize(){
+		float len = lengthSquared();
+
+		if (len > 0) {
+			len = 1.0f / (float) Math.sqrt(len);
+		}
+		return (Quat) scale(len);
 	}
 
 	public static Quat parseQuat(String s) {

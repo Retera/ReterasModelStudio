@@ -609,6 +609,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 				CubePainter.paintVertSquares(modelView, renderModel, geo, cameraHandler);
 			}
 		}
+		for (final IdObject idObject : modelView.getVisibleIdObjects()) {
+			CubePainter.paintBones1(modelView, renderModel, idObject, cameraHandler);
+		}
 
 		GL11.glEnable(GL_SHADE_MODEL);
 	}

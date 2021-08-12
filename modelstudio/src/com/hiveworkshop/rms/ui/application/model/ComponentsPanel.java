@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.ui.application.model.nodepanels.*;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.DisplayElementType;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,7 +23,7 @@ public class ComponentsPanel extends JPanel {
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 
-		JPanel blankPanel = new JPanel();
+		JPanel blankPanel = new JPanel(new MigLayout(""));
 		blankPanel.add(new JLabel("Select a model component to get started..."));
 		add(blankPanel, BLANK);
 
@@ -52,7 +53,7 @@ public class ComponentsPanel extends JPanel {
 
 		addPanelToMap(new ComponentCameraPanel(modelHandler), DisplayElementType.CAMERA);
 
-		addOverviewPanel(DisplayElementType.TEXTURE, new EditTexturesPopupPanel(modelHandler.getModelView()));
+		addOverviewPanel(DisplayElementType.TEXTURE, new EditTexturesPopupPanel(modelHandler));
 		addOverviewPanel(DisplayElementType.GEOSET_ITEM, new GeosetOverviewPanel(modelHandler));
 		addOverviewPanel(DisplayElementType.ANIMATION, new AnimationOverviewPanel(modelHandler));
 		addOverviewPanel(DisplayElementType.GLOBAL_SEQ, new GlobalSeqOverviewPanel(modelHandler));

@@ -16,7 +16,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
-import com.hiveworkshop.rms.ui.application.model.ComponentsPanel;
 import com.hiveworkshop.rms.ui.application.viewer.AnimationController;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewPanel;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
@@ -40,9 +39,7 @@ import java.util.function.Consumer;
  * Eric Theller 6/7/2012
  */
 public class ModelPanel {
-	private final DisplayPanel frontArea;
-	private final DisplayPanel sideArea;
-	private final DisplayPanel botArea;
+	private final Set<DisplayPanel> displayPanels = new HashSet<>();
 	private final PerspDisplayPanel perspArea;
 	private final ModelHandler modelHandler;
 	private final ViewportActivityManager viewportActivityManager;
@@ -95,33 +92,19 @@ public class ModelPanel {
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelHandler);
 		componentBrowserTreePane = new JScrollPane(modelComponentBrowserTree);
 
-		frontArea = getDisplayPanel("Front", (byte) 1, (byte) 2);
-		botArea = getDisplayPanel("Bottom", (byte) 1, (byte) 0);
-		sideArea = getDisplayPanel("Side", (byte) 0, (byte) 2);
-		setShowControlls();
-
-//		previewPanel = new PreviewPanel(modelHandler, !specialBLPModel);
 		previewPanel = new PreviewPanel(modelHandler, !specialBLPModel, viewportActivityManager);
 
 		animationController = new AnimationController(modelHandler, true, previewPanel, previewPanel.getCurrentAnimation());
 
 		perspArea = new PerspDisplayPanel("Perspective", modelHandler);
-
-//		componentsPanel = new ComponentsPanel(modelHandler);
-//
-//		modelComponentBrowserTree.addSelectListener(componentsPanel);
-	}
-
-	private void setShowControlls() {
-		frontArea.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
-		botArea.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
-		sideArea.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 	}
 
 	public DisplayPanel getDisplayPanel(String side, byte i, byte i2) {
-		return new DisplayPanel(side, i, i2, modelHandler, modelEditorManager,
+		DisplayPanel displayPanel = new DisplayPanel(side, i, i2, modelHandler, modelEditorManager,
 				viewportActivityManager, coordDisplayListener,
 				viewportTransferHandler, viewportListener);
+		displayPanels.add(displayPanel);
+		return displayPanel;
 	}
 
 	public RenderModel getEditorRenderModel() {
@@ -207,18 +190,6 @@ public class ModelPanel {
 		return !canceled;
 	}
 
-	public DisplayPanel getFrontArea() {
-		return frontArea;
-	}
-
-	public DisplayPanel getSideArea() {
-		return sideArea;
-	}
-
-	public DisplayPanel getBotArea() {
-		return botArea;
-	}
-
 	public PerspDisplayPanel getPerspArea() {
 		return perspArea;
 	}
@@ -228,9 +199,11 @@ public class ModelPanel {
 	}
 
 	public void repaintSelfAndRelatedChildren() {
-		botArea.repaint();
-		sideArea.repaint();
-		frontArea.repaint();
+//		botArea.repaint();
+//		sideArea.repaint();
+//		frontArea.repaint();
+		displayPanels.removeIf(displayPanel -> !displayPanel.isValid());
+		displayPanels.forEach(displayPanel -> displayPanel.repaint());
 		perspArea.repaint();
 		previewPanel.repaint();
 		animationController.repaint();
@@ -239,6 +212,7 @@ public class ModelPanel {
 			editUVPanels.removeIf(p -> !p.isVisible());
 			editUVPanels.forEach(Component::repaint);
 		}
+		System.out.println("displayPanels: " + displayPanels.size());
 	}
 
 	public ModelPanel addUVPanel(UVPanel uvPanel){
@@ -265,10 +239,6 @@ public class ModelPanel {
 //	public ModelComponentBrowserTree getModelComponentBrowserTree() {
 //		return modelComponentBrowserTree;
 //	}
-
-	public ComponentsPanel getComponentsPanel() {
-		return modelComponentBrowserTree.getComponentsPanel();
-	}
 
 	public JScrollPane getModelEditingTreePane() {
 		return modelEditingTreePane;
@@ -307,7 +277,8 @@ public class ModelPanel {
 		getPerspArea().reloadTextures();
 		getAnimationViewer().reload();
 		getAnimationController().reload();
-		parent.getMainLayoutCreator().getCreatorPanel().reloadAnimationList();
+//		parent.getMainLayoutCreator().getCreatorView().reloadAnimationList();
+		parent.getWindowHandler2().reloadAnimationList();
 
 		getEditorRenderModel().refreshFromEditor(getPerspArea().getViewport().getParticleTextureInstance());
 	}

@@ -47,6 +47,12 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 		}
 	}
 
+	public void movePrefix(final int index, int dir) {
+		if (index + dir >= 0 && index+dir < prefixes.size()) {
+			Collections.swap(prefixes, index, index + dir);
+		}
+	}
+
 	public String getGameInstallPath() {
 		return gameInstallPath;
 	}

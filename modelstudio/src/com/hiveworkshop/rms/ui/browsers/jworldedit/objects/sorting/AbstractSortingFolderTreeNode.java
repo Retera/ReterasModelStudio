@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
+
+import javax.swing.tree.DefaultMutableTreeNode;
 
 public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNode {
 	private boolean hasExpandedFirstTime = false;
@@ -42,7 +42,7 @@ public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNod
 	public SortingFolderTreeNode getNextNode(final MutableGameObject object, final TreeNodeLinker treeModel) {
 		final SortingFolderTreeNode sortingFolderTreeNode = getNextNode(object);
 		if (sortingFolderTreeNode == null) {
-			return sortingFolderTreeNode;
+			return null;
 		}
 		int sortedInsertionIndex = 0;
 		for (int childIndex = 0; childIndex < getChildCount(); childIndex++) {

@@ -443,18 +443,161 @@ public class Vec3 {
 	}
 
 	public double radAngleTo(Vec3 a) {
-		float dot = dot(a);
-		float length = length();
-		float lengthA = a.length();
-		double cos = dot / (length * lengthA);
+		double cos = dot(a) / (length() * a.length());
 		if (cos > 1) {
 			cos = cos % (1.0);
 			return (Math.acos(1 - cos));
 		} else if (cos < -1) {
 			cos = cos % (1.0);
-			return (Math.acos(cos) + 2 * Math.PI); //ToDo check if stuff behaves correct when this is made positive by rotating 360 degrees
+			return (Math.acos(cos) + 2.0 * Math.PI); //ToDo check if stuff behaves correct when this is made positive by rotating 360 degrees
 		}
 		return Math.acos(cos);
+	}
+
+	public double radAngleTo2(Vec3 a) {
+		double cos = dot(a) / (length() * a.length());
+//		cos = cos % (1.0);
+//		if (cos > 1) {
+//			return (Math.acos(1 - cos));
+//		} else if (cos < -1) {
+//			cos = cos % (1.0);
+//			return (Math.acos(cos) + 2 * Math.PI); //ToDo check if stuff behaves correct when this is made positive by rotating 360 degrees
+//		}
+		if (cos > 1) {
+			cos = 1 - cos;
+		}else if (cos < -1) {
+			cos = cos % (1.0);
+			return (Math.acos(cos) + 2 * Math.PI); //ToDo check if stuff behaves correct when this is made positive by rotating 360 degrees
+		}
+		double rads = Math.acos(cos);
+		rads = Math.copySign(rads, y);
+		return rads;
+	}
+
+	public double getZrotToYaxis() {
+		double cos = y / (Math.sqrt(x*x+y*y));
+		double sin = x / (Math.sqrt(x*x+y*y));
+		double radAdj = 0;
+//		cos = cos % (1.0);
+//		if (cos > 1) {
+//			return (Math.acos(1 - cos));
+//		} else if (cos < -1) {
+//			cos = cos % (1.0);
+//			return (Math.acos(cos) + 2 * Math.PI); //ToDo check if stuff behaves correct when this is made positive by rotating 360 degrees
+//		}
+
+//		if (cos > 1) {
+//			cos = 1.0 - cos;
+//			radAdj += Math.PI/2.0;
+//		}else if (cos < -1) {
+////			cos = cos % (1.0);
+//			cos = cos + 1.0;
+//			radAdj += - Math.PI/2.0;
+//		}
+
+
+		if(false){
+			radAdj += - Math.PI/2.0;
+		} else if (cos>0 && sin>0){
+			radAdj += Math.PI/2.0;
+		} else if (cos>0 && sin<0){
+			radAdj += Math.PI;
+		} else if (cos<0 && sin>0){
+			radAdj += Math.PI * 1.5;
+		} else if (cos<0 && sin<0){
+			radAdj += -Math.PI;
+		} else if (cos == 0 && sin<0){
+			radAdj += Math.PI;
+		} else if (cos == 0 && sin>0){
+			radAdj += 0;
+		} else if (sin == 0 && cos<0){
+			radAdj += -Math.PI/2.0;
+		} else if (sin == 0 && cos>0){
+			radAdj += 0;
+		} else {
+			radAdj += 0;
+		}
+
+//		if(cos>0){
+//			radAdj += - Math.PI;
+//		} else if (cos == 0){
+//
+//		} else {
+//			radAdj += 0;
+//		}
+//		double rads = Math.PI - (Math.acos(cos) + radAdj);
+		double rads = (Math.acos(cos) + radAdj);
+//		double rads = (Math.acos(Math.abs(cos)) + radAdj);
+//		rads = Math.copySign(rads, y);
+		return rads;
+	}
+	public double getAngleToZaxis() {
+		double cos = z / length();
+		double radAdj = 0;
+//		cos = cos % (1.0);
+//		if (cos > 1) {
+//			return (Math.acos(1 - cos));
+//		} else if (cos < -1) {
+//			cos = cos % (1.0);
+//			return (Math.acos(cos) + 2 * Math.PI); //ToDo check if stuff behaves correct when this is made positive by rotating 360 degrees
+//		}
+
+//		if (cos > 1) {
+//			cos = 1.0 - cos;
+//			radAdj += Math.PI/2.0;
+//		}else if (cos < -1) {
+////			cos = cos % (1.0);
+//			cos = cos + 1.0;
+//			radAdj += - Math.PI/2.0;
+//		}
+
+
+		if(false){
+			radAdj += - Math.PI/2.0;
+		} else if (cos>0){
+			radAdj +=0;
+		} else if (cos<0){
+			radAdj += 0;
+		} else if (cos == 0){
+			radAdj += 0;
+		} else {
+			radAdj += 0;
+		}
+//		if(false){
+//			radAdj += - Math.PI/2.0;
+//		} else if (cos>0 && sin>0){
+//			radAdj += Math.PI/2.0;
+//		} else if (cos>0 && sin<0){
+//			radAdj += Math.PI;
+//		} else if (cos<0 && sin>0){
+//			radAdj += Math.PI * 1.5;
+//		} else if (cos<0 && sin<0){
+//			radAdj += -Math.PI;
+//		} else if (cos == 0 && sin<0){
+//			radAdj += Math.PI;
+//		} else if (cos == 0 && sin>0){
+//			radAdj += 0;
+//		} else if (sin == 0 && cos<0){
+//			radAdj += -Math.PI/2.0;
+//		} else if (sin == 0 && cos>0){
+//			radAdj += 0;
+//		} else {
+//			radAdj += 0;
+//		}
+
+//		if(cos>0){
+//			radAdj += - Math.PI;
+//		} else if (cos == 0){
+//
+//		} else {
+//			radAdj += 0;
+//		}
+//		double rads = Math.PI - (Math.acos(cos) + radAdj);
+//		double rads = Math.PI/2.0 - (Math.acos(cos) + radAdj);
+		double rads = (Math.acos(cos) + radAdj) - Math.PI/2.0;
+//		double rads = (Math.acos(Math.abs(cos)) + radAdj);
+//		rads = Math.copySign(rads, y);
+		return rads;
 	}
 
 	public Vec3 scale(final double centerX, final double centerY, final double centerZ,
@@ -545,7 +688,7 @@ public class Vec3 {
 		float len = length();
 
 		if (len != 0) {
-			len = 1 / len;
+			len = 1.0f / len;
 		}
 		return scale(len);
 	}

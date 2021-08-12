@@ -62,7 +62,7 @@ public class Select {
 				allSelection.addAll(geo.getVertices());
 			}
 			UndoAction action = new SetSelectionAction(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras(), modelView, "select all");
-			modelPanel.getUndoManager().pushAction(action);
+			modelPanel.getUndoManager().pushAction(action.redo());
 		}
 	}
 
@@ -85,9 +85,8 @@ public class Select {
 				expandSelection(v, expandedSelection);
 			}
 			SetSelectionAction setSelectionAction = new SetSelectionAction(expandedSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), modelView, "expand selection");
-			setSelectionAction.redo();
 
-			modelPanel.getUndoManager().pushAction(setSelectionAction);
+			modelPanel.getUndoManager().pushAction(setSelectionAction.redo());
 		}
 	}
 

@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.editor.model.util.TwiAiSceneParser;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -35,7 +36,6 @@ public class ModelLoader {
 	public static final ImageIcon MDLIcon = RMSIcons.MDLIcon;
 
 	public static void refreshAnimationModeState() {
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 
 		if ((modelPanel != null) && (modelPanel.getModel() != null)) {
@@ -58,8 +58,10 @@ public class ModelLoader {
 		}
 
 //		mainPanel.snapButton.setVisible(!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE);
-
-		mainPanel.getMainLayoutCreator().setAnimationMode((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE));
+//		ProgramGlobals.getMainPanel().getWindowHandler2().setAnimationMode();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().setAnimationMode();
+//		mainPanel.getMainLayoutCreator().getCreatorView().setAnimationModeState((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE));
+//		mainPanel.getMainLayoutCreator().getTimeSliderView().setAnimationMode((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE));
 	}
 
 	private static void refreshAndUpdateRenderModel() {
@@ -75,7 +77,7 @@ public class ModelLoader {
 		return new ModelPanel(modelHandler,
 				mainPanel.coordDisplayListener,
 				mainPanel.viewportTransferHandler,
-				mainPanel.viewportListener, icon, false
+				mainPanel.getWindowHandler2().getViewportListener(), icon, false
 		);
 	}
 
@@ -140,10 +142,11 @@ public class ModelLoader {
 
 		MenuBar.addModelPanel(modelPanel);
 
-		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
+//		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 
 		if (ProgramGlobals.getCurrentModelPanel() == modelPanel) {
-			mainLayoutCreator.showModelPanel(modelPanel);
+//			mainPanel.getMainLayoutCreator().showModelPanel(modelPanel);
+			mainPanel.getWindowHandler2().showModelPanel(modelPanel);
 		}
 		if (selectNewTab) {
 			setCurrentModel(modelPanel);
@@ -175,14 +178,14 @@ public class ModelLoader {
 	}
 
 	public static void setCurrentModel(ModelPanel modelPanel) {
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
 		ProgramGlobals.setCurrentModelPanel(modelPanel);
-		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
 		refreshAnimationModeState();
-		mainLayoutCreator.setModelPanel(ProgramGlobals.getCurrentModelPanel());
+//		mainPanel.getMainLayoutCreator().setModelPanel(ProgramGlobals.getCurrentModelPanel());
+		rootWindow.getWindowHandler2().setModelPanel(ProgramGlobals.getCurrentModelPanel());
 
-		mainPanel.viewportListener.viewportChanged(null);
-		mainLayoutCreator.getTimeSliderPanel().revalidateKeyframeDisplay();
+		rootWindow.getWindowHandler2().getViewportListener().viewportChanged(null);
+		ModelStructureChangeListener.changeListener.keyframesUpdated();
 	}
 
 	public static void loadFile(final File f) {

@@ -75,6 +75,7 @@ public class ToolBar {
     }
 
     static JButton addToolbarIcon(JToolBar toolbar, String hooverText, String icon, Runnable function) {
+        System.out.println("adding Toolbar button: " + icon + " (" + hooverText + ")");
         AbstractAction action = new AbstractAction(hooverText) {
             @Override
             public void actionPerformed(final ActionEvent e) {
@@ -96,7 +97,8 @@ public class ToolBar {
 
     static void toggleLockLayout(){
         ProgramGlobals.setLockLayout(!ProgramGlobals.isLockLayout());
-        WindowHandler.traverseAndFix(ProgramGlobals.getMainPanel().getRootWindow());
+//        WindowHandler.traverseAndFix(ProgramGlobals.getMainPanel().getRootWindow());
+        WindowHandler.traverseAndFix(ProgramGlobals.getRootWindowUgg());
     }
 
 }

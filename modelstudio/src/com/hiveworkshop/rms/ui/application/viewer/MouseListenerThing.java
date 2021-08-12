@@ -119,7 +119,7 @@ public class MouseListenerThing extends MouseAdapter {
 	public void mouseDragged(MouseEvent e) {
 		if (endP != null) {
 			if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
-				System.out.println("transl x: " + (e.getX() - endP.y) + " (" + e.getX() + "-" + endP.y + ")" + ", transl y: " + (e.getY() - endP.z) + " (" + e.getY() + "-" + endP.z + ")");
+//				System.out.println("transl x: " + (e.getX() - endP.y) + " (" + e.getX() + "-" + endP.y + ")" + ", transl y: " + (e.getY() - endP.z) + " (" + e.getY() + "-" + endP.z + ")");
 				cameraHandler.translate(-(e.getX() - endP.y), (e.getY() - endP.z));
 			} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
 				cameraHandler.rotate((e.getX() - endP.y), (e.getY() - endP.z));

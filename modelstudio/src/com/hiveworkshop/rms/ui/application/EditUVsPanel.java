@@ -23,7 +23,7 @@ public class EditUVsPanel {
         int wPos = mainPanel.getX() + mainPanel.getWidth() / 2;
         int hPos = mainPanel.getY() + mainPanel.getHeight() / 2;
         Point point = new Point(wPos, hPos);
-        return mainPanel.rootWindow.createFloatingWindow(point, panel.getSize(), panel.getView());
+        return ProgramGlobals.getRootWindowUgg().createFloatingWindow(point, panel.getSize(), panel.getView());
     }
 
 

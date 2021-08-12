@@ -15,15 +15,14 @@ import java.util.Map;
  * @author Deaod
  */
 public class WTSFile implements WTS {
-	private final InputStream source;
 	private final Map<Integer, String> trigStrings = new Hashtable<>();
 
 	private enum ParseState {
 		NEXT_TRIGSTR, START_OF_DATA, END_OF_DATA
 	}
 
-	private void parse() throws IOException {
-		final BufferedReader sourceReader = new BufferedReader(new InputStreamReader(source, StandardCharsets.UTF_8));
+	private void parse(InputStream inputStream) throws IOException {
+		final BufferedReader sourceReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 		ParseState state = ParseState.NEXT_TRIGSTR;
 
 		// WTS files may start with a Byte Order Mark, which we will have to skip.
@@ -68,8 +67,7 @@ public class WTSFile implements WTS {
 	}
 
 	public WTSFile(final InputStream inputStream) throws IOException {
-		source = inputStream;
-		parse();
+		parse(inputStream);
 	}
 
 	public WTSFile(final Path source) throws IOException {

@@ -1,10 +1,15 @@
 package com.hiveworkshop.rms.ui.preferences;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.RootWindowUgg;
 import com.hiveworkshop.rms.ui.preferences.listeners.ProgramPreferencesChangeListener;
+import net.infonode.docking.View;
 
 import java.awt.*;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProgramPreferences implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -53,11 +58,18 @@ public class ProgramPreferences implements Serializable {
 	private Integer vertexSize = 3;
 	private Boolean quickBrowse = true;
 
-	private String keyBindings = new KeyBindingPrefs().makeMap().toString();
+//	private String keyBindings = new KeyBindingPrefs().makeMap().toString();
+	private String keyBindings = new KeyBindingPrefs2().toString();
 
 
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
+
+
+
+//	private ViewMap viewMap = new ViewMap();
+	byte[] viewMap = new byte[]{};
+	private List<View> viewList = new ArrayList<>();
 
 	public void loadFrom(ProgramPreferences other) {
 		setFromOther(other);
@@ -593,20 +605,47 @@ public class ProgramPreferences implements Serializable {
 		return keyBindings;
 	}
 
-	public KeyBindingPrefs getKeyBindingPrefs() {
-		return new KeyBindingPrefs().makeMap().parseString(keyBindings);
+	public KeyBindingPrefs2 getKeyBindingPrefs() {
+		return new KeyBindingPrefs2().parseString(keyBindings);
 	}
 
 	public ProgramPreferences setKeyBindings(String keyBindings) {
 		this.keyBindings = keyBindings;
 		return this;
 	}
-	public ProgramPreferences setKeyBindings(KeyBindingPrefs keyBindingPrefs) {
+	public ProgramPreferences setKeyBindings(KeyBindingPrefs2 keyBindingPrefs) {
 		this.keyBindings = keyBindingPrefs.toString();
 		System.out.println("Saved keybindings!");
 		System.out.println(keyBindings);
 		SaveProfile.save();
 		firePrefsChanged();
 		return this;
+	}
+
+	public ProgramPreferences saveViewMap(){
+////		ViewMap viewMap = new ViewMap();
+//		viewList.clear();
+//		for(JComponent component : ProgramGlobals.getRootWindowUgg().getDockingWindows()){
+//			if (component instanceof View){
+//				WindowHandler2.traverseAndStuff((View) component, viewMap, viewList);
+//				viewMap.addView(viewList.size(), (View) component);
+//				viewList.add((View) component);
+//			}
+//		}
+		RootWindowUgg rootWindowUgg = ProgramGlobals.getRootWindowUgg();
+		rootWindowUgg.compileViewMap();
+		viewMap = rootWindowUgg.ugg();
+
+		SaveProfile.save();
+		firePrefsChanged();
+		return this;
+	}
+
+	public byte[] getViewMap() {
+		return viewMap;
+	}
+
+	public List<View> getViewList() {
+		return viewList;
 	}
 }

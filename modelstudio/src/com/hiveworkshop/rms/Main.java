@@ -3,16 +3,8 @@ package com.hiveworkshop.rms;
 import com.badlogic.gdx.backends.lwjgl.LwjglNativesLoader;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
-import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
-import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.ui.application.MainFrame;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
-import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
-import com.hiveworkshop.rms.ui.preferences.DataSourceChooserPanel;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -54,82 +46,49 @@ public class Main {
 
 			final ProgramPreferences preferences = SaveProfile.get().getPreferences();
 			ThemeLoadingUtils.setTheme(preferences);
-			setupExceptionHandling();
 			SwingUtilities.invokeLater(() -> tryStartup(startupModelPaths, dataPromptForced));
+			SwingUtilities.invokeLater(() -> Thread.currentThread().setUncaughtExceptionHandler(Main::exceptionCatcher));
 		} catch (final Throwable th) {
 			th.printStackTrace();
 			SwingUtilities.invokeLater(() -> ExceptionPopup.display(th));
-			if (!dataPromptForced) {
-				startRealRMS(null, true);
-//                main(new String[] {"-forcedataprompt"});
-			} else {
-				SwingUtilities.invokeLater(() -> startupFailDialog());
-			}
+//			if (!dataPromptForced) {
+//				startRealRMS(null, true);
+////                main(new String[] {"-forcedataprompt"});
+//			} else {
+//				SwingUtilities.invokeLater(() -> startupFailDialog());
+//			}
 		}
 	}
 
-	private static boolean hasOpenPopup = false;
 
-	private static void setupExceptionHandling() {
-		SwingUtilities.invokeLater(() -> Thread.currentThread().setUncaughtExceptionHandler((thread, exception) -> {
-			if (!hasOpenPopup) {
-				hasOpenPopup = true;
-				exception.printStackTrace();
-				ExceptionPopup.display(exception);
-				hasOpenPopup = false;
-			}
-		}));
+	private static boolean hasOpenPopup = false;
+	private static void exceptionCatcher(Thread thread, Throwable exception) {
+		if (!hasOpenPopup) {
+			hasOpenPopup = true;
+			exception.printStackTrace();
+			ExceptionPopup.display(exception);
+			hasOpenPopup = false;
+		}
 	}
 
 	private static void tryStartup(List<String> startupModelPaths, boolean dataPromptForced) {
 		try {
-			final List<DataSourceDescriptor> dataSources = SaveProfile.get().getDataSources();
-
-			if ((dataSources == null) || dataPromptForced) {
-				if (!showDataSourceChooser(dataSources)) return;
-			}
-
-//                    JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-			MainFrame.create(startupModelPaths);
+			MainFrame.create(startupModelPaths, dataPromptForced);
 		} catch (final Throwable th) {
 			th.printStackTrace();
 			ExceptionPopup.display(th);
-			if (!dataPromptForced) {
-				new Thread(() -> {
-					try {
-						startRealRMS(null, true);
-//                        main(new String[]{"-forcedataprompt"});
-					} catch (final IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}).start();
-			} else {
-				startupFailDialog();
-			}
-		}
-	}
-
-	private static boolean showDataSourceChooser(List<DataSourceDescriptor> dataSources) {
-		final DataSourceChooserPanel dataSourceChooserPanel = new DataSourceChooserPanel(dataSources);
-
-		int opt = JOptionPane.showConfirmDialog(null, dataSourceChooserPanel,
-				"Retera Model Studio " + MainFrame.getVersion() + ": Setup", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-		if (opt == JOptionPane.OK_OPTION) {
-			SaveProfile.get().setDataSources(dataSourceChooserPanel.getDataSourceDescriptors());
-			SaveProfile.save();
-			GameDataFileSystem.refresh(SaveProfile.get().getDataSources());
-
-			// cache priority order...
-			UnitOptionPanel.dropRaceCache();
-			DataTable.dropCache();
-			ModelOptionPanel.dropCache();
-			WEString.dropCache();
-			BLPHandler.get().dropCache();
-			return true;
-		} else {
-			return false;
+//			if (!dataPromptForced) {
+//				new Thread(() -> {
+//					try {
+//						startRealRMS(null, true);
+////                        main(new String[]{"-forcedataprompt"});
+//					} catch (final IOException e) {
+//						e.printStackTrace();
+//					}
+//				}).start();
+//			} else {
+//				startupFailDialog();
+//			}
 		}
 	}
 
@@ -150,7 +109,7 @@ public class Main {
 							"Once you press OK on that error popup, you can probably still use" +
 							"\nRetera Model Studio just fine for everything else.";
 			JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
-			ExceptionPopup.display(e);
+//			ExceptionPopup.display(e);
 		}
 	}
 

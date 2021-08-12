@@ -4,12 +4,11 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.scripts.AnimationTransfer;
 import com.hiveworkshop.rms.ui.application.tools.KeyframeCopyPanel;
-import com.hiveworkshop.rms.util.ActionMapActions;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 
-import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.getMenuItem;
+//import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.getMenuItem;
 
 public class ScriptsMenu extends JMenu {
 
@@ -25,7 +24,7 @@ public class ScriptsMenu extends JMenu {
 		add(new SmoothSelection().setMenuItemMnemonic(KeyEvent.VK_S).getMenuItem());
 
 
-		add(getMenuItem(ActionMapActions.EDIT_MODEL_COMPS, KeyEvent.VK_C));
+//		add(getMenuItem(ActionMapActions.EDIT_MODEL_COMPS, KeyEvent.VK_C));
 
 
 		add(new ExportStaticMesh().setMenuItemMnemonic(KeyEvent.VK_X).getMenuItem());
@@ -34,8 +33,8 @@ public class ScriptsMenu extends JMenu {
 //		add(getMenuItem(ActionMapActions.BACK2BACK_ANIMATION, KeyEvent.VK_B));
 		add(new CombineAnimations().setMenuItemMnemonic(KeyEvent.VK_B).getMenuItem());
 		add(new ScaleAnimationLength().setMenuItemMnemonic(KeyEvent.VK_A).getMenuItem());
-		add(getMenuItem(ActionMapActions.ASSIGN_800, KeyEvent.VK_G));
-		add(getMenuItem(ActionMapActions.ASSIGN_1000, KeyEvent.VK_N));
+//		add(getMenuItem(ActionMapActions.ASSIGN_800, KeyEvent.VK_G));
+//		add(getMenuItem(ActionMapActions.ASSIGN_1000, KeyEvent.VK_N));
 		add(new MakeModelHD().setMenuItemMnemonic(KeyEvent.VK_H).getMenuItem());
 		add(new MakeModelSD().setMenuItemMnemonic(KeyEvent.VK_D).getMenuItem());
 		add(new RemoveLODs().setMenuItemMnemonic(KeyEvent.VK_L).getMenuItem());

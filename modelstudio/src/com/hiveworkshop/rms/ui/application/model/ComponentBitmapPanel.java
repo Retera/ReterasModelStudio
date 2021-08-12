@@ -79,29 +79,25 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	private void wrapHeightBox() {
 		SetBitmapWrapHeightAction setBitmapWrapHeightAction = new SetBitmapWrapHeightAction(bitmap,
 				bitmap.isWrapHeight(), wrapHeightBox.isSelected(), changeListener);
-		setBitmapWrapHeightAction.redo();
-		modelHandler.getUndoManager().pushAction(setBitmapWrapHeightAction);
+		modelHandler.getUndoManager().pushAction(setBitmapWrapHeightAction.redo());
 	}
 
 	private void wrapWidthBox() {
 		SetBitmapWrapWidthAction setBitmapWrapWidthAction = new SetBitmapWrapWidthAction(bitmap,
 				bitmap.isWrapWidth(), wrapWidthBox.isSelected(), changeListener);
-		setBitmapWrapWidthAction.redo();
-		modelHandler.getUndoManager().pushAction(setBitmapWrapWidthAction);
+		modelHandler.getUndoManager().pushAction(setBitmapWrapWidthAction.redo());
 	}
 
 	private void replaceableIdSpinner() {
 		SetBitmapReplaceableIdAction setBitmapReplaceableIdAction = new SetBitmapReplaceableIdAction(
 				bitmap, bitmap.getReplaceableId(), ((Number) replaceableIdSpinner.getValue()).intValue(),
 				changeListener);
-		setBitmapReplaceableIdAction.redo();
-		modelHandler.getUndoManager().pushAction(setBitmapReplaceableIdAction);
+		modelHandler.getUndoManager().pushAction(setBitmapReplaceableIdAction.redo());
 	}
 
 	private void texturePathField() {
 		SetBitmapPathAction setBitmapPathAction = new SetBitmapPathAction(bitmap, texturePathField.getText(), changeListener);
-		setBitmapPathAction.redo();
-		modelHandler.getUndoManager().pushAction(setBitmapPathAction);
+		modelHandler.getUndoManager().pushAction(setBitmapPathAction.redo());
 	}
 
 	@Override

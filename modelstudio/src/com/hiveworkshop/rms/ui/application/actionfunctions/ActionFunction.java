@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.language.TextKey;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs2;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -23,18 +24,21 @@ public abstract class ActionFunction {
 		this.name = name;
 		this.action = getAsAction(runnable);
 		actionFunctionMap.put(name, this);
+		KeyBindingPrefs2.addActionFunction(name, this);
 		menuItem = new JMenuItem(this.action);
 	}
 	public ActionFunction(TextKey name, Consumer<ModelPanel> consumer){
 		this.name = name;
 		this.action = getAsAction(consumer);
 		actionFunctionMap.put(name, this);
+		KeyBindingPrefs2.addActionFunction(name, this);
 		menuItem = new JMenuItem(this.action);
 	}
 	public ActionFunction(TextKey name, AbstractAction action){
 		this.name = name;
 		this.action = action;
 		actionFunctionMap.put(name, this);
+		KeyBindingPrefs2.addActionFunction(name, this);
 		menuItem = new JMenuItem(this.action);
 	}
 	public ActionFunction(TextKey name, Runnable runnable, KeyStroke keyStroke){
@@ -68,12 +72,20 @@ public abstract class ActionFunction {
 		return setKeyStroke(KeyStroke.getKeyStrokeForEvent(keyEvent));
 	}
 
+	public TextKey getName() {
+		return name;
+	}
+
 	public KeyStroke getKeyStroke() {
 		return keyStroke;
 	}
 
 	public JMenuItem getMenuItem() {
 		return menuItem;
+	}
+
+	public AbstractAction getAction() {
+		return action;
 	}
 
 	private AbstractAction getAsAction(Runnable runnable) {

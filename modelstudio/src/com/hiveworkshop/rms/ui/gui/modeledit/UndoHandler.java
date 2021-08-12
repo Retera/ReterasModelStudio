@@ -2,10 +2,11 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ActionFunction;
 import com.hiveworkshop.rms.ui.application.edit.RedoActionImplementation;
 import com.hiveworkshop.rms.ui.application.edit.UndoActionImplementation;
+import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.ActionMapActions;
 
 import javax.swing.*;
 import java.util.NoSuchElementException;
@@ -13,30 +14,38 @@ import java.util.NoSuchElementException;
 public class UndoHandler {
 	UndoMenuItem undo;
 	RedoMenuItem redo;
+	UndoActionFunction undoFunc;
+	RedoActionFunction redoFunc;
 
 	AbstractAction undoAction;
 	AbstractAction redoAction;
 
 	public UndoHandler() {
-		undoAction = new UndoActionImplementation("Undo");
-		redoAction = new RedoActionImplementation("Redo");
+		undoAction = new UndoActionImplementation(TextKey.UNDO.toString());
+		redoAction = new RedoActionImplementation(TextKey.REDO.toString());
 
-		undo = new UndoMenuItem("Undo");
-//		undo.addActionListener(undoAction);
-		undo.addActionListener(e -> undo());
-//		undo.setAccelerator(KeyStroke.getKeyStroke("control Z"));
+		undoFunc = new UndoActionFunction();
+		redoFunc = new RedoActionFunction();
+
+		undo = (UndoMenuItem) undoFunc.getMenuItem();
+
+//		undo = new UndoMenuItem("Undo");
+////		undo.addActionListener(undoAction);
+//		undo.addActionListener(e -> undo());
+////		undo.setAccelerator(KeyStroke.getKeyStroke("control Z"));
 		undo.setEnabled(undo.funcEnabled());
 
-		redo = new RedoMenuItem("Redo");
-//		redo.addActionListener(redoAction);
-		redo.addActionListener(e -> redo());
-//		redo.setAccelerator(KeyStroke.getKeyStroke("control Y"));
+		redo = (RedoMenuItem) redoFunc.getMenuItem();
+//		redo = new RedoMenuItem("Redo");
+////		redo.addActionListener(redoAction);
+//		redo.addActionListener(e -> redo());
+////		redo.setAccelerator(KeyStroke.getKeyStroke("control Y"));
 		redo.setEnabled(redo.funcEnabled());
 	}
 
 	public void refreshUndo() {
-		undo.setAccelerator(ProgramGlobals.getKeyBindingPrefs().getKeyStroke(ActionMapActions.UNDO));
-		redo.setAccelerator(ProgramGlobals.getKeyBindingPrefs().getKeyStroke(ActionMapActions.REDO));
+		undo.setAccelerator(ProgramGlobals.getKeyBindingPrefs().getKeyStroke(TextKey.UNDO));
+		redo.setAccelerator(ProgramGlobals.getKeyBindingPrefs().getKeyStroke(TextKey.REDO));
 		undo.setEnabled(undo.funcEnabled());
 		redo.setEnabled(redo.funcEnabled());
 	}
@@ -102,6 +111,27 @@ public class UndoHandler {
 			} catch (final NullPointerException e) {
 				return false;
 			}
+		}
+	}
+	class UndoActionFunction extends ActionFunction {
+
+		public UndoActionFunction() {
+			super(TextKey.UNDO, () -> undo());
+			this.menuItem = new UndoMenuItem(TextKey.UNDO.toString());
+			menuItem.addActionListener(e -> undo());
+//			menuItem.setAccelerator(getKeyStroke());
+			setKeyStroke("control Z");
+		}
+	}
+
+	class RedoActionFunction extends ActionFunction {
+
+		public RedoActionFunction() {
+			super(TextKey.REDO, () -> redo());
+			this.menuItem = new RedoMenuItem(TextKey.REDO.toString());
+			menuItem.addActionListener(e -> redo());
+//			menuItem.setAccelerator(getKeyStroke());
+			setKeyStroke("control Y");
 		}
 	}
 

@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.util.ActionMapActions;
+//import com.hiveworkshop.rms.util.ActionMapActions;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -41,15 +41,15 @@ public class MenuCreationUtils {
         return menuItem;
     }
 
-    public static JMenuItem getMenuItem(ActionMapActions action, int keyEvent) {
-        JMenuItem menuItem = ProgramGlobals.getKeyBindingPrefs().getMenuItem(action);
-        menuItem.setMnemonic(keyEvent);
-        return menuItem;
-    }
-
-    public static JMenuItem getMenuItem(ActionMapActions action, String actionCommand) {
-        JMenuItem menuItem = ProgramGlobals.getKeyBindingPrefs().getMenuItem(action);
-        menuItem.setActionCommand(actionCommand);
-        return menuItem;
-    }
+//    public static JMenuItem getMenuItem(ActionMapActions action, int keyEvent) {
+//        JMenuItem menuItem = ProgramGlobals.getKeyBindingPrefs().getMenuItem(action);
+//        menuItem.setMnemonic(keyEvent);
+//        return menuItem;
+//    }
+//
+//    public static JMenuItem getMenuItem(ActionMapActions action, String actionCommand) {
+//        JMenuItem menuItem = ProgramGlobals.getKeyBindingPrefs().getMenuItem(action);
+//        menuItem.setActionCommand(actionCommand);
+//        return menuItem;
+//    }
 }

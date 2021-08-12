@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
-import com.hiveworkshop.rms.ui.application.MainLayoutCreator;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.TimeSliderView;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
@@ -71,28 +71,30 @@ public class TimeSkip {
 
 
 	public static void playAnimation() {
-		MainLayoutCreator mainLayoutCreator = ProgramGlobals.getMainPanel().getMainLayoutCreator();
-		if (!isTextField()) mainLayoutCreator.getTimeSliderPanel().play();
+		if (!isTextField()) getTimeSliderView().getTimeSliderPanel().play();
+	}
+
+	private static TimeSliderView getTimeSliderView() {
+//		return ProgramGlobals.getMainPanel().getMainLayoutCreator().getTimeSliderView();
+		return ProgramGlobals.getRootWindowUgg().getWindowHandler2().getTimeSliderView();
 	}
 
 	public static void previousKeyframe() {
-		MainLayoutCreator mainLayoutCreator = ProgramGlobals.getMainPanel().getMainLayoutCreator();
 		if (!isTextField() && ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
-			mainLayoutCreator.getTimeSliderPanel().jumpToPreviousTime();
+			getTimeSliderView().getTimeSliderPanel().jumpToPreviousTime();
 		}
 	}
 
 	public static void nextKeyframe() {
-		MainLayoutCreator mainLayoutCreator = ProgramGlobals.getMainPanel().getMainLayoutCreator();
-		if (!isTextField() && ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) mainLayoutCreator.getTimeSliderPanel().jumpToNextTime();
+		if (!isTextField() && ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)
+			getTimeSliderView().getTimeSliderPanel().jumpToNextTime();
 	}
 
 
 
 	public static void jumpFrames(int i) {
-		MainLayoutCreator mainLayoutCreator = ProgramGlobals.getMainPanel().getMainLayoutCreator();
 		if (!isTextField() && ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
-			mainLayoutCreator.getTimeSliderPanel().jumpFrames(i);
+			getTimeSliderView().getTimeSliderPanel().jumpFrames(i);
 		}
 	}
 
