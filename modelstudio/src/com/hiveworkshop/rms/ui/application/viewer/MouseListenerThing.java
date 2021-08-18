@@ -53,10 +53,14 @@ public class MouseListenerThing extends MouseAdapter {
 	public void mousePressed(final MouseEvent e) {
 		startP = new Vec3(0, e.getX(), e.getY());
 		endP = new Vec3(0, e.getX(), e.getY());
-		if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
+		int modifiersEx = e.getModifiersEx();
+//		if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
+		if (programPreferences.getThreeDCameraPanMouseEx() == modifiersEx) {
 //			cameraHandler.startPan(e);
-		} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
+//		} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
+		} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
 //			cameraHandler.startSpinn(e);
+//		} else if (e.getButton() == MouseEvent.BUTTON3) {
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
 //			cameraHandler.startAct(e);
 			isActing = true;
@@ -112,16 +116,20 @@ public class MouseListenerThing extends MouseAdapter {
 
 	@Override
 	public void mouseWheelMoved(final MouseWheelEvent e) {
-		cameraHandler.doZoom3(e);
+		cameraHandler.doZoom4(e);
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if (endP != null) {
-			if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
+			int modifiersEx = e.getModifiersEx();
+//			System.out.println("prefPan: " + programPreferences.getThreeDCameraPanMouseEx() + ", prefSpin: " + programPreferences.getThreeDCameraSpinMouseEx() + ", mouseEx: " + modifiersEx);
+//			if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
+			if (programPreferences.getThreeDCameraPanMouseEx() == modifiersEx) {
 //				System.out.println("transl x: " + (e.getX() - endP.y) + " (" + e.getX() + "-" + endP.y + ")" + ", transl y: " + (e.getY() - endP.z) + " (" + e.getY() + "-" + endP.z + ")");
 				cameraHandler.translate(-(e.getX() - endP.y), (e.getY() - endP.z));
-			} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
+//			} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
+			} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
 				cameraHandler.rotate((e.getX() - endP.y), (e.getY() - endP.z));
 			} else if ((e.getButton() == MouseEvent.BUTTON3)) {
 			} else if (isActing && activityManager != null) {

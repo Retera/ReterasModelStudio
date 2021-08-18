@@ -2,9 +2,7 @@ package com.hiveworkshop.rms.editor.wrapper.v2;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -14,7 +12,6 @@ import java.util.stream.Stream;
 
 public final class ModelView {
 	private final EditableModel model;
-	private RenderModel editorRenderModel;
 
 	private final Set<GeosetVertex> selectedTVertices = new HashSet<>();
 	private final Set<GeosetVertex> selectedVertices = new HashSet<>();
@@ -60,7 +57,6 @@ public final class ModelView {
 	// CollosionShapes got some kind of verts (or points) that might should get selected together with them...
 	public ModelView(EditableModel model) {
 		this.model = model;
-//		editorRenderModel = new RenderModel(this.model, this);
 
 		for (Geoset geoset : model.getGeosets()) {
 			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() == 0)) {
@@ -75,30 +71,6 @@ public final class ModelView {
 		visibleIdObjects.addAll(model.getIdObjects());
 		editableCameras.addAll(model.getCameras());
 		visibleCameras.addAll(model.getCameras());
-	}
-
-	public ModelView(EditableModel model, TimeEnvironmentImpl timeEnvironment) {
-		this.model = model;
-		editorRenderModel = new RenderModel(this.model, this, timeEnvironment);
-		editorRenderModel.setShouldForceAnimation(true);
-
-		for (Geoset geoset : model.getGeosets()) {
-			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() == 0)) {
-				editableGeosets.add(geoset);
-				visibleGeosets.add(geoset);
-				editableVertices.addAll(geoset.getVertices());
-			} else {
-				hiddenGeosets.add(geoset);
-			}
-		}
-		editableIdObjects.addAll(model.getIdObjects());
-		visibleIdObjects.addAll(model.getIdObjects());
-		editableCameras.addAll(model.getCameras());
-		visibleCameras.addAll(model.getCameras());
-	}
-
-	public RenderModel getEditorRenderModel() {
-		return editorRenderModel;
 	}
 
 	public Set<Geoset> getVisibleGeosets() {
@@ -792,5 +764,15 @@ public final class ModelView {
 			}
 		}
 		return this;
+	}
+
+	public boolean sameSelection(Collection<GeosetVertex> verts, Collection<IdObject> objs, Collection<Camera> cams) {
+		return (selectedVertices.size() == verts.size() && selectedVertices.containsAll(verts)
+				&& selectedIdObjects.size() == objs.size() && selectedIdObjects.containsAll(objs)
+				&& selectedCameras.size() == cams.size() && selectedCameras.containsAll(cams));
+	}
+
+	public boolean isEmpty() {
+		return selectedVertices.isEmpty() && selectedIdObjects.isEmpty() && selectedCameras.isEmpty();
 	}
 }

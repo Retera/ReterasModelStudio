@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.language.TextKey;
-import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs2;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -20,25 +20,25 @@ public abstract class ActionFunction {
 
 	private static final Map<TextKey, ActionFunction> actionFunctionMap = new HashMap<>();
 
-	public ActionFunction(TextKey name, Runnable runnable){
+	public ActionFunction(TextKey name, Runnable runnable) {
 		this.name = name;
 		this.action = getAsAction(runnable);
 		actionFunctionMap.put(name, this);
-		KeyBindingPrefs2.addActionFunction(name, this);
+		KeyBindingPrefs.addActionFunction(name, this);
 		menuItem = new JMenuItem(this.action);
 	}
-	public ActionFunction(TextKey name, Consumer<ModelPanel> consumer){
+	public ActionFunction(TextKey name, Consumer<ModelPanel> consumer) {
 		this.name = name;
 		this.action = getAsAction(consumer);
 		actionFunctionMap.put(name, this);
-		KeyBindingPrefs2.addActionFunction(name, this);
+		KeyBindingPrefs.addActionFunction(name, this);
 		menuItem = new JMenuItem(this.action);
 	}
-	public ActionFunction(TextKey name, AbstractAction action){
+	public ActionFunction(TextKey name, AbstractAction action) {
 		this.name = name;
 		this.action = action;
 		actionFunctionMap.put(name, this);
-		KeyBindingPrefs2.addActionFunction(name, this);
+		KeyBindingPrefs.addActionFunction(name, this);
 		menuItem = new JMenuItem(this.action);
 	}
 	public ActionFunction(TextKey name, Runnable runnable, KeyStroke keyStroke){

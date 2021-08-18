@@ -41,7 +41,7 @@ public class DisplayPanel extends JPanel {
 		setOpaque(true);
 
 		try {
-			vp2 = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), modelHandler.getEditTimeEnv(), true);
+			vp2 = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), true);
 			vp2.setMinimumSize(new Dimension(200, 200));
 			CameraHandler cameraHandler = vp2.getCameraHandler();
 			cameraHandler.toggleOrtho().setAllowRotation(false).setAllowToggleOrtho(false);

@@ -10,8 +10,8 @@ public class ModelComponentsView extends ModelDependentView {
 	private final JPanel contentPanel;
 	private final JSplitPane splitPane;
 	private final JScrollPane componentBrowserTreePane;
-	private ModelComponentBrowserTree modelComponentBrowserTree;
 	private ModelPanel modelPanel;
+	private ModelComponentBrowserTree modelComponentBrowserTree;
 	private final JPanel contentsDummy;
 
 	public ModelComponentsView() {
@@ -49,6 +49,14 @@ public class ModelComponentsView extends ModelDependentView {
 //		splitPane.revalidate();
 		splitPane.setDividerLocation(0.2);
 		splitPane.repaint();
+		return this;
+	}
+
+	@Override
+	public ModelComponentsView reload() {
+		if (modelComponentBrowserTree != null) {
+			modelComponentBrowserTree.reloadFromModelView().repaint();
+		}
 		return this;
 	}
 }

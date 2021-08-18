@@ -14,8 +14,8 @@ public class ModelHandler {
 	private UndoManager undoManager;
 	private RenderModel renderModel;
 	private RenderModel previewRenderModel;
-	private TimeEnvironmentImpl editTimeEnv;
-	private TimeEnvironmentImpl previewTimeEnv;
+//	private TimeEnvironmentImpl editTimeEnv;
+//	private TimeEnvironmentImpl previewTimeEnv;
 
 	public ModelHandler(EditableModel model) {
 		this.model = model;
@@ -23,12 +23,21 @@ public class ModelHandler {
 		if (this.undoHandler != null) {
 			undoManager = new UndoManager(this.undoHandler);
 		}
-		editTimeEnv = new TimeEnvironmentImpl();
-		modelView = new ModelView(model, editTimeEnv);
-		renderModel = modelView.getEditorRenderModel();
+//		editTimeEnv = new TimeEnvironmentImpl();
+		modelView = new ModelView(model);
+//		renderModel = modelView.getEditorRenderModel();
 
-		previewTimeEnv = new TimeEnvironmentImpl();
-		previewRenderModel = new RenderModel(model, modelView, previewTimeEnv);
+//		renderModel = new RenderModel(this.model, modelView, editTimeEnv);
+//		renderModel.setShouldForceAnimation(true);
+//
+//		previewTimeEnv = new TimeEnvironmentImpl();
+//		previewRenderModel = new RenderModel(model, modelView, previewTimeEnv);
+
+		renderModel = new RenderModel(this.model, modelView);
+		renderModel.setShouldForceAnimation(true);
+
+//		previewTimeEnv = new TimeEnvironmentImpl();
+		previewRenderModel = new RenderModel(model, modelView);
 	}
 
 	public EditableModel getModel() {
@@ -48,7 +57,7 @@ public class ModelHandler {
 	}
 
 	public RenderModel getRenderModel() {
-		return modelView.getEditorRenderModel();
+		return renderModel;
 	}
 
 	public RenderModel getPreviewRenderModel() {
@@ -56,10 +65,12 @@ public class ModelHandler {
 	}
 
 	public TimeEnvironmentImpl getEditTimeEnv() {
-		return editTimeEnv;
+//		return editTimeEnv;
+		return renderModel.getTimeEnvironment();
 	}
 
 	public TimeEnvironmentImpl getPreviewTimeEnv() {
-		return previewTimeEnv;
+//		return previewTimeEnv;
+		return previewRenderModel.getTimeEnvironment();
 	}
 }

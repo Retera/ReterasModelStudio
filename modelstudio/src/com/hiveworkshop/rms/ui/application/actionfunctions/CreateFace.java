@@ -31,7 +31,7 @@ public class CreateFace extends ActionFunction {
 					Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 					UndoAction createFaceFromSelection = ModelEditActions.createFaceFromSelection(modelPanel.getModelView(), facingVector);
 
-					modelPanel.getUndoManager().pushAction(createFaceFromSelection);
+					modelPanel.getUndoManager().pushAction(createFaceFromSelection.redo());
 				}
 			} catch (final FaceCreationException exc) {
 				JOptionPane.showMessageDialog(mainPanel, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

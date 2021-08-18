@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
@@ -31,18 +30,17 @@ public class RotationKeyframeAction implements GenericRotateAction {
 	private final RenderModel editorRenderModel;
 
 	public RotationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
-	                              int trackTime,
-	                              Integer trackGlobalSeq,
 	                              Collection<IdObject> nodeSelection,
-	                              ModelView modelView,
+	                              RenderModel editorRenderModel,
 	                              Vec3 center,
 	                              byte dim1, byte dim2) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
-		this.trackTime = trackTime;
-		this.trackGlobalSeq = trackGlobalSeq;
+		this.editorRenderModel = editorRenderModel;
+		this.trackTime = editorRenderModel.getTimeEnvironment().getTrackTime();
+		this.trackGlobalSeq = editorRenderModel.getTimeEnvironment().getGlobalSeq();
+		;
 		this.dim1 = dim1;
 		this.dim2 = dim2;
-		editorRenderModel = modelView.getEditorRenderModel();
 		nodeToLocalRotation = new HashMap<>();
 		for (IdObject node : nodeSelection) {
 			nodeToLocalRotation.put(node, new Quat());
@@ -129,12 +127,12 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be  constructed from
 		//  a TimeEnvironmentImpl render environment, and never from the anim previewer impl
-		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getTimeEnvironment();
 		QuatAnimFlag rotationTimeline = (QuatAnimFlag) animatedNode.find(MdlUtils.TOKEN_ROTATION, timeEnvironmentImpl.getGlobalSeq());
 		if (rotationTimeline == null) {
 			return;
 		}
-		int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
+		int animationTime = renderModel.getTimeEnvironment().getAnimationTime();
 		int trackTime = animationTime;
 		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
 		if (globalSeq != null) {

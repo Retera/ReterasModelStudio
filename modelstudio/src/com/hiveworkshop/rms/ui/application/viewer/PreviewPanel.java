@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -15,29 +16,14 @@ public class PreviewPanel extends JPanel {
 	TimeEnvironmentImpl renderEnv;
 	private ModelHandler modelHandler;
 
-	public PreviewPanel(ModelHandler modelHandler, boolean doDefaultCamera) {
-		this.modelHandler = modelHandler;
-		try {
-			renderEnv = modelHandler.getPreviewTimeEnv();
-			modelHandler.getModelView().setVetoOverrideParticles(true);
-			perspectiveViewport = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getPreviewRenderModel(), renderEnv, doDefaultCamera);
-			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
-			renderEnv.setAnimationTime(0);
-			renderEnv.setLive(true);
-		} catch (LWJGLException e) {
-			throw new RuntimeException(e);
-		}
-		setLayout(new BorderLayout());
-		add(perspectiveViewport, BorderLayout.CENTER);
-	}
-
 	public PreviewPanel(ModelHandler modelHandler, boolean doDefaultCamera, ViewportActivityManager activityManager) {
 		this.modelHandler = modelHandler;
 		try {
-			renderEnv = modelHandler.getPreviewTimeEnv();
 			modelHandler.getModelView().setVetoOverrideParticles(true);
-			perspectiveViewport = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getPreviewRenderModel(), renderEnv, doDefaultCamera);
+			RenderModel previewRenderModel = modelHandler.getPreviewRenderModel();
+			perspectiveViewport = new PerspectiveViewport(modelHandler.getModelView(), previewRenderModel, doDefaultCamera);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
+			renderEnv = previewRenderModel.getTimeEnvironment();
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);
 			perspectiveViewport.getCameraHandler().setActivityManager(activityManager);
@@ -63,8 +49,9 @@ public class PreviewPanel extends JPanel {
 		perspectiveViewport.reloadAllTextures();
 	}
 
-	public void reload() {
+	public PreviewPanel reload() {
 		perspectiveViewport.reloadTextures();
+		return this;
 	}
 
 	public void setAnimation(Animation animation) {

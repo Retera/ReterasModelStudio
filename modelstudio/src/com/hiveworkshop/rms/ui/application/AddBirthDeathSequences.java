@@ -11,7 +11,6 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -150,19 +149,19 @@ public class AddBirthDeathSequences {
 		RenderModel renderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
 		ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.changeListener;
 
-		ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
-
 		final Set<IdObject> selection = new HashSet<>(getRootObjects(model));
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 
-		final TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+		final TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getTimeEnvironment();
+		timeEnvironmentImpl.setAnimationTime(trackTime1);
 
 		List<UndoAction> actions1 = generateKeyframes(trackTime1, selection, timeEnvironmentImpl, "Translation", renderModel, startVec);
-		TranslationKeyframeAction setup1 = new TranslationKeyframeAction(new CompoundAction("setup", actions1, structureChangeListener::keyframesUpdated), trackTime1, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
+		TranslationKeyframeAction setup1 = new TranslationKeyframeAction(new CompoundAction("setup", actions1, structureChangeListener::keyframesUpdated), selection, renderModel);
 
-	    List<UndoAction> actions2 = generateKeyframes(trackTime2, selection, timeEnvironmentImpl, "Translation", renderModel, endVec);
-	    TranslationKeyframeAction setup2 = new TranslationKeyframeAction(new CompoundAction("setup", actions2, structureChangeListener::keyframesUpdated), trackTime2, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
-    }
+		timeEnvironmentImpl.setAnimationTime(trackTime2);
+		List<UndoAction> actions2 = generateKeyframes(trackTime2, selection, timeEnvironmentImpl, "Translation", renderModel, endVec);
+		TranslationKeyframeAction setup2 = new TranslationKeyframeAction(new CompoundAction("setup", actions2, structureChangeListener::keyframesUpdated), selection, renderModel);
+	}
 
 	//
 	public static List<UndoAction> generateKeyframes(int time, Set<IdObject> selection, TimeEnvironmentImpl timeEnvironmentImpl, String name, RenderModel renderModel, Vec3 vec3) {

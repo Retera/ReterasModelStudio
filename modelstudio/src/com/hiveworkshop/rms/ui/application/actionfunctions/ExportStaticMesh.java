@@ -40,7 +40,7 @@ public class ExportStaticMesh extends ActionFunction {
 		RenderModel editorRenderModel = modelContext.getEditorRenderModel();
 		EditableModel model = modelContext.getModel();
 
-		TimeEnvironmentImpl renderEnv = editorRenderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl renderEnv = editorRenderModel.getTimeEnvironment();
 		Animation currentAnimation = renderEnv.getCurrentAnimation();
 
 		String s = "At" + renderEnv.getAnimationTime();

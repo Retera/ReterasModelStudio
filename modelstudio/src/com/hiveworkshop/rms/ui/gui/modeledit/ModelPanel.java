@@ -22,7 +22,6 @@ import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.ModelEditorManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.ModelComponentBrowserTree;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.ModelViewManagingTree;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
@@ -46,15 +45,12 @@ public class ModelPanel {
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelEditorManager modelEditorManager;
 	private Set<UVPanel> editUVPanels = new HashSet<>();
-	private final JScrollPane modelEditingTreePane;
-	private final JScrollPane componentBrowserTreePane;
 
 	private SelectionItemTypes selectionType = SelectionItemTypes.VERTEX;
 	private ModelEditorActionType3 editorActionType = ModelEditorActionType3.TRANSLATION;
 
 
 	private final ModelViewManagingTree modelViewManagingTree;
-	private final ModelComponentBrowserTree modelComponentBrowserTree;
 	private final MainPanel parent;
 	private final Icon icon;
 	private JMenuItem menuItem;
@@ -63,7 +59,6 @@ public class ModelPanel {
 	private final CoordDisplayListener coordDisplayListener;
 	private final ViewportTransferHandler viewportTransferHandler;
 	private final ViewportListener viewportListener;
-//	private final ComponentsPanel componentsPanel;
 
 	Consumer<SelectionItemTypes> selectionItemTypeListener;
 
@@ -87,10 +82,6 @@ public class ModelPanel {
 		modelEditorManager = new ModelEditorManager(modelHandler, modelEditorChangeNotifier, viewportActivityManager);
 
 		modelViewManagingTree = new ModelViewManagingTree(modelHandler, modelEditorManager);
-		modelEditingTreePane = new JScrollPane(modelViewManagingTree);
-
-		modelComponentBrowserTree = new ModelComponentBrowserTree(modelHandler);
-		componentBrowserTreePane = new JScrollPane(modelComponentBrowserTree);
 
 		previewPanel = new PreviewPanel(modelHandler, !specialBLPModel, viewportActivityManager);
 
@@ -215,9 +206,13 @@ public class ModelPanel {
 		System.out.println("displayPanels: " + displayPanels.size());
 	}
 
-	public ModelPanel addUVPanel(UVPanel uvPanel){
+	public ModelPanel addUVPanel(UVPanel uvPanel) {
 		editUVPanels.add(uvPanel);
 		return this;
+	}
+
+	public Set<DisplayPanel> getDisplayPanels() {
+		return displayPanels;
 	}
 
 	public EditableModel getModel() {
@@ -240,39 +235,36 @@ public class ModelPanel {
 //		return modelComponentBrowserTree;
 //	}
 
-	public JScrollPane getModelEditingTreePane() {
-		return modelEditingTreePane;
+	public ModelViewManagingTree getModelEditingTree() {
+		return modelViewManagingTree;
 	}
 
-	public JScrollPane getComponentBrowserTreePane() {
-		return componentBrowserTreePane;
-	}
+//	public JScrollPane getComponentBrowserTreePane() {
+//		return componentBrowserTreePane;
+//	}
 
-	public void reloadComponentBrowser() {
-		componentBrowserTreePane.setViewportView(modelComponentBrowserTree.reloadFromModelView());
-		modelComponentBrowserTree.repaint();
-		componentBrowserTreePane.repaint();
-	}
+//	public void reloadComponentBrowser() {
+////		componentBrowserTreePane.setViewportView(modelComponentBrowserTree.reloadFromModelView());
+//		modelComponentBrowserTree.reloadFromModelView().repaint();
+////		componentBrowserTreePane.repaint();
+//	}
 
 	public void reloadModelEditingTree() {
-		modelEditingTreePane.setViewportView(modelViewManagingTree.reloadFromModelView());
-		modelViewManagingTree.repaint();
-		modelEditingTreePane.repaint();
+		modelViewManagingTree.reloadFromModelView().repaint();
 	}
 
 	public void repaintModelTrees() {
-		if (modelEditingTreePane != null) {
+		if (modelViewManagingTree != null) {
 			modelViewManagingTree.repaint();
-			modelEditingTreePane.repaint();
 		}
-		if (componentBrowserTreePane != null) {
-			componentBrowserTreePane.repaint();
-		}
+//		if (modelComponentBrowserTree != null) {
+//			modelComponentBrowserTree.repaint();
+//		}
 	}
 
 	public void reloadGeosetManagers() {
 		reloadModelEditingTree();
-		reloadComponentBrowser();
+//		reloadComponentBrowser();
 
 		getPerspArea().reloadTextures();
 		getAnimationViewer().reload();

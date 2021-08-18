@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Mat4;
@@ -26,14 +25,13 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	private final RenderModel editorRenderModel;
 
 	public TranslationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
-	                                 int trackTime,
-	                                 Integer trackGlobalSeq,
 	                                 Collection<IdObject> nodeSelection,
-	                                 ModelView modelView) {
+	                                 RenderModel editorRenderModel) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
-		this.trackTime = trackTime;
-		this.trackGlobalSeq = trackGlobalSeq;
-		editorRenderModel = modelView.getEditorRenderModel();
+		this.editorRenderModel = editorRenderModel;
+		this.trackTime = editorRenderModel.getTimeEnvironment().getTrackTime();
+		this.trackGlobalSeq = editorRenderModel.getTimeEnvironment().getGlobalSeq();
+		;
 		nodeToLocalTranslation = new HashMap<>();
 		for (IdObject node : nodeSelection) {
 			nodeToLocalTranslation.put(node, new Vec3());
@@ -105,13 +103,13 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	                                      Vec3 savedLocalTranslation) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must  make AnimFlag.find seek on globalSeqId
 
-		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getTimeEnvironment();
 		Vec3AnimFlag translationFlag = (Vec3AnimFlag) animatedNode.find(MdlUtils.TOKEN_TRANSLATION, timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
 
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
+		int trackTime = renderModel.getTimeEnvironment().getAnimationTime();
 		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
 		if (globalSeq != null) {
 			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);

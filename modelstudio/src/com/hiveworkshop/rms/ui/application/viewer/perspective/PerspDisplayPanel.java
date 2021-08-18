@@ -30,7 +30,7 @@ public class PerspDisplayPanel extends JPanel {
 		setOpaque(true);
 
 		this.modelHandler = modelHandler;
-		setViewport(modelHandler);
+		setModel(modelHandler);
 		getViewport().setMinimumSize(new Dimension(200, 200));
 		this.title = title;
 
@@ -63,14 +63,6 @@ public class PerspDisplayPanel extends JPanel {
 		return button;
 	}
 
-	public void setViewportBackground(Color background) {
-//		vp.setViewportBackground(background);
-	}
-
-	public Color getViewportBackground() {
-		return vp.getBackground();
-	}
-
 	public View getView() {
 		return view;
 	}
@@ -83,18 +75,17 @@ public class PerspDisplayPanel extends JPanel {
 		vp.reloadAllTextures();
 	}
 
-	public void setViewport(ModelHandler modelHandler) {
-		setViewport(modelHandler, 200);
+	public void setModel(ModelHandler modelHandler) {
+		setModel(modelHandler, 200);
 	}
 
-	public void setViewport(ModelHandler modelHandler, int viewerSize) {
+	public void setModel(ModelHandler modelHandler, int viewerSize) {
 		try {
 			if (vp != null) {
 				vp.destroy();
 			}
 			removeAll();
-//			vp = new PerspectiveViewport(modelView, renderModel, programPreferences, renderEnvironment);
-			vp = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), modelHandler.getEditTimeEnv(), false);
+			vp = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), false);
 			vp.setIgnoreRepaint(false);
 			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
 
@@ -111,9 +102,6 @@ public class PerspDisplayPanel extends JPanel {
 		setBorder(BorderFactory.createTitledBorder(title));
 	}
 
-	//	public PerspectiveViewport getViewport() {
-//		return vp;
-//	}
 	public PerspectiveViewport getViewport() {
 		return vp;
 	}

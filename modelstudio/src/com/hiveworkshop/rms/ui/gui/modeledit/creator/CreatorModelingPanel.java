@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorChangeA
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportPopupMenu;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawBoneActivity;
@@ -42,10 +43,14 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 	private ModelHandler modelHandler;
 	private final CardLayout northCardLayout;
 	private final JPanel northCardPanel;
+	private final ViewportListener viewportListener;
+
+
+	private JPopupMenu contextMenu;
 
 	public CreatorModelingPanel(ViewportListener viewportListener) {
 		this.programPreferences = ProgramGlobals.getPrefs();
-
+		this.viewportListener = viewportListener;
 		setLayout(new BorderLayout());
 
 		DefaultComboBoxModel<String> modeChooserBoxModel = new DefaultComboBoxModel<>();
@@ -62,17 +67,30 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 
 		northCardLayout = new CardLayout();
 		northCardPanel = new JPanel(northCardLayout);
-		add(northCardPanel, BorderLayout.NORTH);
 		northCardPanel.add(animationChooserBox, "ANIM");
 		northCardPanel.add(modeChooserBox, "MESH");
+
+		add(northCardPanel, BorderLayout.NORTH);
 		northCardLayout.show(northCardPanel, "MESH");
 
 		modeCardLayout = new CardLayout();
 		modeCardPanel = new JPanel(modeCardLayout);
+
+		modeCardPanel.add(getMeshBasicsPanel(viewportListener), modeChooserBoxModel.getElementAt(0));
+		modeCardPanel.add(getStandardPrimitivesPanel(viewportListener), modeChooserBoxModel.getElementAt(1));
+		modeCardPanel.add(getAnimationBasicsPanel(), ANIMATIONBASICS);
+
+		modeChooserBox.addActionListener(e -> modeCardLayout.show(modeCardPanel, modeChooserBox.getSelectedItem().toString()));
+
 		add(modeCardPanel, BorderLayout.CENTER);
+		modeCardLayout.show(modeCardPanel, modeChooserBoxModel.getElementAt(0));
 
-		makeMeshBasicsPanel(viewportListener, modeChooserBoxModel, modeCardPanel);
+		JButton button = new JButton("show popup menu");
+		button.addActionListener(e -> showVPPopup(button));
+		add(button, BorderLayout.SOUTH);
+	}
 
+	private JPanel getStandardPrimitivesPanel(ViewportListener viewportListener) {
 		JPanel drawPrimitivesPanel = new JPanel(new GridLayout(16, 1));
 		drawPrimitivesPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
 
@@ -90,14 +108,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		JPanel standardPrimitivesPanel = new JPanel(new BorderLayout());
 		standardPrimitivesPanel.add(drawPrimitivesPanel, BorderLayout.NORTH);
 		standardPrimitivesPanel.add(spOptionsPanel, BorderLayout.CENTER);
-
-		modeCardPanel.add(standardPrimitivesPanel, modeChooserBoxModel.getElementAt(1));
-
-		modeChooserBox.addActionListener(e -> modeCardLayout.show(modeCardPanel, modeChooserBox.getSelectedItem().toString()));
-
-		makeAnimationBasicsPanel(modeCardPanel);
-
-		modeCardLayout.show(modeCardPanel, modeChooserBoxModel.getElementAt(0));
+		return standardPrimitivesPanel;
 	}
 
 	private void chooseAnimation() {
@@ -108,9 +119,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 	}
 
-	public void makeMeshBasicsPanel(ViewportListener viewportListener,
-	                                DefaultComboBoxModel<String> modeChooserBoxModel,
-	                                JPanel cardPanel) {
+	public JPanel getMeshBasicsPanel(ViewportListener viewportListener) {
 		JPanel meshBasicsPanel = new JPanel(new BorderLayout());
 
 		JPanel drawToolsPanel = getDrawToolsPanel(viewportListener);
@@ -126,8 +135,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 
 		meshBasicsPanel.add(editToolsPanel, BorderLayout.CENTER);
-
-		cardPanel.add(meshBasicsPanel, modeChooserBoxModel.getElementAt(0));
+		return meshBasicsPanel;
 
 	}
 
@@ -158,7 +166,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 			Viewport viewport = viewportListener.getViewport();
 			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 			UndoAction createFaceFromSelection = ModelEditActions.createFaceFromSelection(modelHandler.getModelView(), facingVector);
-			modelHandler.getUndoManager().pushAction(createFaceFromSelection);
+			modelHandler.getUndoManager().pushAction(createFaceFromSelection.redo());
 		} catch (WrongModeException exc) {
 			JOptionPane.showMessageDialog(CreatorModelingPanel.this,
 					"Unable to create face, wrong selection mode", "Error", JOptionPane.ERROR_MESSAGE);
@@ -205,10 +213,8 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 	}
 
-	public void makeAnimationBasicsPanel(JPanel cardPanel) {
-//		JPanel meshBasicsPanel = new JPanel(new BorderLayout());
-		JPanel meshBasicsPanel = new JPanel(new MigLayout("fill"));
-		cardPanel.add(meshBasicsPanel, ANIMATIONBASICS);
+	public JPanel getAnimationBasicsPanel() {
+		JPanel animationBasicsPanel = new JPanel(new MigLayout("fill"));
 
 		ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup = ProgramGlobals.getActionTypeGroup();
 
@@ -227,7 +233,17 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 
 		editToolsPanel.add(new JLabel("UGG"), "wrap");
-		meshBasicsPanel.add(editToolsPanel, "growx, growy");
+		animationBasicsPanel.add(editToolsPanel, "growx, growy");
+		return animationBasicsPanel;
+	}
+
+	private void showVPPopup(JButton button) {
+		if (contextMenu != null) {
+			contextMenu.show(button, 0, 0);
+		}
+		for (ModelPanel modelPanel : ProgramGlobals.getModelPanels()) {
+			System.out.println(modelPanel.getModel().getName() + ", dispP: " + modelPanel.getDisplayPanels().size());
+		}
 	}
 
 	public void setAnimationModeState(boolean animationModeState) {
@@ -253,10 +269,12 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		if (modelPanel != null) {
 			this.modelHandler = modelPanel.getModelHandler();
 			this.modelEditorManager = modelPanel.getModelEditorManager();
+			contextMenu = new ViewportPopupMenu(viewportListener.getViewport(), ProgramGlobals.getMainPanel(), modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
 			reloadAnimationList();
 		} else {
 			this.modelHandler = null;
 			this.modelEditorManager = null;
+			contextMenu = null;
 		}
 	}
 

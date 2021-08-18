@@ -13,7 +13,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.KeybindingPrefPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectoinUgg;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.util.FramePopup;
 import net.miginfocom.swing.MigLayout;
 
@@ -133,7 +133,7 @@ public class TwilacPanel extends JPanel {
 				}
 			}
 			if (!vertexList.isEmpty()) {
-				UndoAction action = new SetSelectionUggAction(new SelectoinUgg(vertexList), modelView, "Select");
+				UndoAction action = new SetSelectionUggAction(new SelectionBundle(vertexList), modelView, "Select");
 				modelHandler.getUndoManager().pushAction(action.redo());
 			}
 		}

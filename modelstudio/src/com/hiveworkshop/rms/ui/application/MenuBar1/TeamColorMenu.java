@@ -46,7 +46,7 @@ public class TeamColorMenu extends JMenu {
 			modelPanel.getAnimationViewer().reloadAllTextures();
 			modelPanel.getPerspArea().reloadAllTextures();
 
-			modelPanel.reloadComponentBrowser();
+//			modelPanel.reloadComponentBrowser();
 		}
 		ProgramGlobals.getPrefs().setTeamColor(teamColor);
 	}

@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectoinUgg;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,7 +20,7 @@ public final class RemoveSelectionUggAction implements UndoAction {
 	private final Set<IdObject> affectedIdObjects;
 	private final Set<Camera> affectedCameras;
 
-	public RemoveSelectionUggAction(SelectoinUgg newSelection, ModelView modelView) {
+	public RemoveSelectionUggAction(SelectionBundle newSelection, ModelView modelView) {
 		this.modelView = modelView;
 
 		this.previousVerts = new HashSet<>(modelView.getSelectedVertices());

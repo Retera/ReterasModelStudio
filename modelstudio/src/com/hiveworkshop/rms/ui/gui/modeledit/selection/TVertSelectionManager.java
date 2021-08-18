@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.actions.selection.AddSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.selection.RemoveSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -32,8 +33,8 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 
 	private VertexClusterDefinitions vertexClusterDefinitions;
 
-	public TVertSelectionManager(ModelView modelView, SelectionItemTypes selectionMode) {
-		super(modelView, selectionMode);
+	public TVertSelectionManager(RenderModel editorRenderModel, ModelView modelView, SelectionItemTypes selectionMode) {
+		super(editorRenderModel, modelView, selectionMode);
 	}
 
 
@@ -66,30 +67,31 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		}
 		if (selectionMode == SelectionItemTypes.ANIMATE) {
 			Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
-			for (IdObject object : modelView.getSelectedIdObjects()) {
+			Set<IdObject> selectedIdObjects = modelView.getSelectedIdObjects();
+			for (IdObject object : selectedIdObjects) {
 				Vec4 pivotHeap = new Vec4(object.getPivotPoint(), 1);
-				pivotHeap.transform(modelView.getEditorRenderModel().getRenderNode(object).getWorldMatrix());
+				pivotHeap.transform(editorRenderModel.getRenderNode(object).getWorldMatrix());
 				centerOfGroupSumHeap.add(pivotHeap.getVec3());
 			}
-			if (modelView.getSelectedIdObjects().size() > 0) {
-				centerOfGroupSumHeap.scale(1f / modelView.getSelectedIdObjects().size());
+			if (selectedIdObjects.size() > 0) {
+				centerOfGroupSumHeap.scale(1f / selectedIdObjects.size());
 			}
 			return centerOfGroupSumHeap;
 		}
 		return new Vec3();
 	}
 
-	public SelectoinUgg genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
+	public SelectionBundle genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			Set<GeosetVertex> selectedItems = addVertsFromArea(min, max, coordinateSystem, 0);
-			return new SelectoinUgg(selectedItems);
+			return new SelectionBundle(selectedItems);
 		}
 
 		if (selectionMode == SelectionItemTypes.FACE) {
 			Set<GeosetVertex> newSel = addTrisFromArea(min, max, coordinateSystem, 0);
-			return new SelectoinUgg(newSel);
+			return new SelectionBundle(newSel);
 		}
-		return new SelectoinUgg(Collections.emptySet());
+		return new SelectionBundle(Collections.emptySet());
 	}
 
 	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem, int uvLayerIndex) {
@@ -122,17 +124,17 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 	}
 
 	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		SelectoinUgg newSelection = genericSelect(min, max, coordinateSystem);
+		SelectionBundle newSelection = genericSelect(min, max, coordinateSystem);
 		return new SetSelectionUggAction(newSelection, modelView, "select").redo();
 	}
 
 	public final UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		SelectoinUgg newSelection = genericSelect(min, max, coordinateSystem);
+		SelectionBundle newSelection = genericSelect(min, max, coordinateSystem);
 		return new RemoveSelectionUggAction(newSelection, modelView).redo();
 	}
 
 	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		SelectoinUgg newSelection = genericSelect(min, max, coordinateSystem);
+		SelectionBundle newSelection = genericSelect(min, max, coordinateSystem);
 		return new AddSelectionUggAction(newSelection, modelView).redo();
 	}
 
@@ -256,7 +258,8 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		}
 		return false;
 	}
-	public boolean selectableUnderCursor(Vec2 point, CameraHandler axes) {
+
+	public boolean selectableUnderCursor(Vec2 point, CameraHandler cameraHandler) {
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (GeosetVertex geosetVertex : geoset.getVertices()) {

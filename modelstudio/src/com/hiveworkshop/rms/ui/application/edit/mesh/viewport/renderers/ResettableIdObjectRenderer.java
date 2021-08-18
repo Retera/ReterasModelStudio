@@ -98,7 +98,7 @@ public final class ResettableIdObjectRenderer {
 //        this.pivotPointColor = isHighLighted ? ProgramGlobals.getPrefs().getHighlighVertexColor() : pivotPointColor1;
 
         this.nodeIconPalette = isHighLighted ? NodeIconPalette.HIGHLIGHT : NodeIconPalette.UNSELECTED;
-        this.nodeIconPalette = isSelected ? this.nodeIconPalette : NodeIconPalette.SELECTED;
+	    this.nodeIconPalette = isSelected ? NodeIconPalette.SELECTED : this.nodeIconPalette;
 
         this.crosshairIsBox = ProgramGlobals.getPrefs().isUseBoxesForPivotPoints();
         renderIdObject1(object);
@@ -265,21 +265,21 @@ public final class ResettableIdObjectRenderer {
         Vec3 vec3Start = new Vec3(camera.getPosition());
         Mat4 worldMatrix = getWorldMatrix(camera.getSourceNode());
         if (worldMatrix != null) {
-            vec3Start.transform(worldMatrix);
+	        vec3Start.transform(worldMatrix);
         }
 
-        Vec3 vec3End = new Vec3(camera.getTargetPosition());
-        worldMatrix = getWorldMatrix(camera.getTargetNode());
-        if (worldMatrix != null) {
-            vec3Start.transform(worldMatrix);
-        }
+	    Vec3 vec3End = new Vec3(camera.getTargetPosition());
+	    worldMatrix = getWorldMatrix(camera.getTargetNode());
+	    if (worldMatrix != null) {
+		    vec3Start.transform(worldMatrix);
+	    }
 
-        float renderRotationScalar = 0;
-        if (renderModel != null && renderModel.getAnimatedRenderEnvironment() != null) {
-            renderRotationScalar = camera.getSourceNode().getRenderRotationScalar(renderModel.getAnimatedRenderEnvironment());
-        }
+	    float renderRotationScalar = 0;
+	    if (renderModel != null && renderModel.getTimeEnvironment() != null) {
+		    renderRotationScalar = camera.getSourceNode().getRenderRotationScalar(renderModel.getTimeEnvironment());
+	    }
 
-        renderableCameraProp.render(g2, coordinateSystem, vec3Start, vec3End, renderRotationScalar);
+	    renderableCameraProp.render(g2, coordinateSystem, vec3Start, vec3End, renderRotationScalar);
 
 //		Point start = CoordSysUtils.convertToViewPoint(coordinateSystem, position);
 //		Point end = CoordSysUtils.convertToViewPoint(coordinateSystem, targetPosition);
@@ -307,21 +307,21 @@ public final class ResettableIdObjectRenderer {
         Vec3 vec3Start = new Vec3(camera.getPosition());
         Mat4 worldMatrix = getWorldMatrix(camera.getSourceNode());
         if (worldMatrix != null) {
-            vec3Start.transform(worldMatrix);
+	        vec3Start.transform(worldMatrix);
         }
 
-        Vec3 vec3End = new Vec3(camera.getTargetPosition());
-        worldMatrix = getWorldMatrix(camera.getTargetNode());
-        if (worldMatrix != null) {
-            vec3Start.transform(worldMatrix);
-        }
+	    Vec3 vec3End = new Vec3(camera.getTargetPosition());
+	    worldMatrix = getWorldMatrix(camera.getTargetNode());
+	    if (worldMatrix != null) {
+		    vec3Start.transform(worldMatrix);
+	    }
 
-        float renderRotationScalar = 0;
-        if (renderModel != null && renderModel.getAnimatedRenderEnvironment() != null) {
-            renderRotationScalar = camera.getSourceNode().getRenderRotationScalar(renderModel.getAnimatedRenderEnvironment());
-        }
+	    float renderRotationScalar = 0;
+	    if (renderModel != null && renderModel.getTimeEnvironment() != null) {
+		    renderRotationScalar = camera.getSourceNode().getRenderRotationScalar(renderModel.getTimeEnvironment());
+	    }
 
-        renderableCameraProp.render(g2, coordinateSystem, vec3Start, vec3End, renderRotationScalar);
+	    renderableCameraProp.render(g2, coordinateSystem, vec3Start, vec3End, renderRotationScalar);
 
 //		Point start = CoordSysUtils.convertToViewPoint(coordinateSystem, position);
 //		Point end = CoordSysUtils.convertToViewPoint(coordinateSystem, targetPosition);

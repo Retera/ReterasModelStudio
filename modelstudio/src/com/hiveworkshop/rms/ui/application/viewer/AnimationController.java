@@ -134,7 +134,7 @@ public class AnimationController extends JPanel {
 		}
 	}
 
-	public void reload() {
+	public AnimationController reload() {
 		Animation selectedItem = (Animation) animationBox.getSelectedItem();
 		animations.removeAllElements();
 		List<Animation> anims = modelHandler.getModel().getAnims();
@@ -151,5 +151,6 @@ public class AnimationController extends JPanel {
 		} else if (!allowUnanimated && (anims.size() > 0)) {
 			animationBox.setSelectedItem(anims.get(0));
 		}
+		return this;
 	}
 }

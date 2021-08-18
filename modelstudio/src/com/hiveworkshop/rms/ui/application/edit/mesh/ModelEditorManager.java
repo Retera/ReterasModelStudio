@@ -9,15 +9,15 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 
 public class ModelEditorManager extends AbstractModelEditorManager {
 	public static boolean MOVE_LINKED;
-	AbstractModelEditor abstractModelEditor;
+	GeometryModelEditor geometryModelEditor;
 	NodeAnimationModelEditor nodeAnimationModelEditor;
 
 	public ModelEditorManager(ModelHandler modelHandler,
 	                          ModelEditorChangeNotifier changeNotifier,
 	                          SelectionListener selectionListener) {
 		super(modelHandler, changeNotifier, selectionListener);
-		selectionManager = new SelectionManager(modelHandler.getModelView(), MOVE_LINKED, SelectionItemTypes.VERTEX);
-		abstractModelEditor = new AbstractModelEditor((SelectionManager) selectionManager, modelHandler, SelectionItemTypes.VERTEX);
+		selectionManager = new SelectionManager(modelHandler.getRenderModel(), modelHandler.getModelView(), MOVE_LINKED, SelectionItemTypes.VERTEX);
+		geometryModelEditor = new GeometryModelEditor((SelectionManager) selectionManager, modelHandler, SelectionItemTypes.VERTEX);
 		nodeAnimationModelEditor = new NodeAnimationModelEditor((SelectionManager) selectionManager, modelHandler, SelectionItemTypes.ANIMATE);
 		setSelectionItemType(SelectionItemTypes.VERTEX);
 	}
@@ -25,7 +25,7 @@ public class ModelEditorManager extends AbstractModelEditorManager {
 	public void setSelectionItemType(SelectionItemTypes selectionMode) {
 		selectionManager.setSelectionMode(selectionMode);
 		switch (selectionMode) {
-			case VERTEX, FACE, GROUP, CLUSTER, TPOSE -> modelEditor = abstractModelEditor.setSelectionMode(selectionMode);
+			case VERTEX, FACE, GROUP, CLUSTER, TPOSE -> modelEditor = geometryModelEditor.setSelectionMode(selectionMode);
 			case ANIMATE -> modelEditor = nodeAnimationModelEditor;
 		}
 

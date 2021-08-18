@@ -64,13 +64,13 @@ public class AnimationViewer extends JPanel {
 		try {
 			renderEnv = new TimeEnvironmentImpl();
 			if (modelView == null) {
-				this.modelView = new ModelView(blank, renderEnv);
+				this.modelView = new ModelView(blank);
 			} else {
 				this.modelView = modelView;
 			}
 			this.modelView.setVetoOverrideParticles(true);
 			RenderModel renderModel = new RenderModel(this.modelView.getModel(), this.modelView, renderEnv);
-			perspectiveViewport = new PerspectiveViewport(this.modelView, renderModel, renderEnv, true);
+			perspectiveViewport = new PerspectiveViewport(this.modelView, renderModel, true);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);
@@ -81,7 +81,7 @@ public class AnimationViewer extends JPanel {
 
 	public void setModel(ModelView modelView) {
 		if (modelView == null) {
-			modelView = new ModelView(blank, renderEnv);
+			modelView = new ModelView(blank);
 		}
 		this.modelView = modelView;
 		perspectiveViewport.setModel(modelView);

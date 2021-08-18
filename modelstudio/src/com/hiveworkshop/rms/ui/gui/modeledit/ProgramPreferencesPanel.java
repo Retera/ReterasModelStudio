@@ -1,39 +1,41 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
-import com.hiveworkshop.rms.ui.preferences.DataSourceChooserPanel;
-import com.hiveworkshop.rms.ui.preferences.GUITheme;
-import com.hiveworkshop.rms.ui.preferences.MouseButtonPreference;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.ui.language.TextKey;
+import com.hiveworkshop.rms.ui.preferences.*;
 import com.hiveworkshop.rms.ui.util.ColorChooserIcon;
+import com.hiveworkshop.rms.util.ScreenInfo;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.function.Consumer;
 
 public final class ProgramPreferencesPanel extends JTabbedPane {
 	private final ProgramPreferences programPreferences;
 	private final DataSourceChooserPanel dataSourceChooserPanel;
+	private EditorColorPrefs colorPrefs;
 
 	public ProgramPreferencesPanel(final ProgramPreferences programPreferences,
 	                               final List<DataSourceDescriptor> dataSources) {
 		this.programPreferences = programPreferences;
+		setPreferredSize(ScreenInfo.getSmallWindow());
 
-		createAndAddGeneralPrefsPanel(programPreferences);
-
-		createAndAddModelEditorPanel(programPreferences);
-
-		createAndAddHotkeysPanel(programPreferences);
+		addTab("General", getGeneralPrefsPanel(programPreferences));
+//		addTab("Colors/Theme", new JScrollPane(getModelEditorPanel(programPreferences)));
+		addTab("Colors/Theme", getModelEditorPanel(programPreferences));
+		addTab("Hotkeys", getHotkeysPanel2(programPreferences));
 
 		dataSourceChooserPanel = new DataSourceChooserPanel(dataSources);
 		addTab("Warcraft Data", dataSourceChooserPanel);
 	}
 
-	private void createAndAddGeneralPrefsPanel(ProgramPreferences pref) {
+	private JPanel getGeneralPrefsPanel(ProgramPreferences pref) {
 		JPanel generalPrefsPanel = new JPanel(new MigLayout());
 		generalPrefsPanel.add(new JLabel("3D View Mode"), "wrap");
 
@@ -66,7 +68,7 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
 
-		addTab("General", generalPrefsPanel);
+		return generalPrefsPanel;
 	}
 
 	private JCheckBox getCheckBox(Consumer<Boolean> checkboxConsumer, Boolean initialValue) {
@@ -76,24 +78,30 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		return checkBox;
 	}
 
+	public EditorColorPrefs getColorPrefs() {
+		return colorPrefs;
+	}
 
-	private void createAndAddModelEditorPanel(ProgramPreferences pref) {
-		final JPanel modelEditorPanel = new JPanel();
-		modelEditorPanel.setLayout(new MigLayout("gap 0"));
+	private JPanel getModelEditorPanel(ProgramPreferences pref) {
+		final JPanel modelEditorPanel = new JPanel(new MigLayout("gap 0"));
+
+		EditorColorsPrefPanel colorsPrefPanel = new EditorColorsPrefPanel();
+		this.colorPrefs = colorsPrefPanel.getColorPrefs();
+		modelEditorPanel.add(colorsPrefPanel, "wrap");
 
 		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getBackgroundColor(), pref::setBackgroundColor), "Background Color:");
-		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getPerspectiveBackgroundColor(), pref::setPerspectiveBackgroundColor), "Perspective Background Color:");
-		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getVertexColor(), pref::setVertexColor), "Vertex Color:");
-		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getHighlighVertexColor(), pref::setHighlighVertexColor), "Vertex Highlight Color:");
-		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getTriangleColor(), pref::setTriangleColor), "Triangle Color:");
-		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getHighlighTriangleColor(), pref::setHighlighTriangleColor), "Triangle Highlight Color:");
-		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getSelectColor(), pref::setSelectColor), "Select Color:");
-		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getVisibleUneditableColor(), pref::setVisibleUneditableColor), "Visible Uneditable Mesh Color:");
-		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getAnimatedBoneUnselectedColor(), pref::setAnimatedBoneUnselectedColor), "Animation Editor Bone Color:");
-		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getAnimatedBoneSelectedColor(), pref::setAnimatedBoneSelectedColor), "Animation Editor Selected Bone Color:");
-		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getAnimatedBoneSelectedUpstreamColor(), pref::setAnimatedBoneSelectedUpstreamColor), "Animation Editor Selected Upstream Color:");
-		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getPivotPointsColor(), pref::setPivotPointsColor), "Pivot Point Color:");
-		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getPivotPointsSelectedColor(), pref::setPivotPointsSelectedColor), "Pivot Point Selected Color:");
+//		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getPerspectiveBackgroundColor(), pref::setPerspectiveBackgroundColor), "Perspective Background Color:");
+//		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getVertexColor(), pref::setVertexColor), "Vertex Color:");
+//		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getHighlighVertexColor(), pref::setHighlighVertexColor), "Vertex Highlight Color:");
+//		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getTriangleColor(), pref::setTriangleColor), "Triangle Color:");
+//		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getHighlighTriangleColor(), pref::setHighlighTriangleColor), "Triangle Highlight Color:");
+//		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getSelectColor(), pref::setSelectColor), "Select Color:");
+//		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getVisibleUneditableColor(), pref::setVisibleUneditableColor), "Visible Uneditable Mesh Color:");
+//		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getAnimatedBoneUnselectedColor(), pref::setAnimatedBoneUnselectedColor), "Animation Editor Bone Color:");
+//		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getAnimatedBoneSelectedColor(), pref::setAnimatedBoneSelectedColor), "Animation Editor Selected Bone Color:");
+//		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getAnimatedBoneSelectedUpstreamColor(), pref::setAnimatedBoneSelectedUpstreamColor), "Animation Editor Selected Upstream Color:");
+//		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getPivotPointsColor(), pref::setPivotPointsColor), "Pivot Point Color:");
+//		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getPivotPointsSelectedColor(), pref::setPivotPointsSelectedColor), "Pivot Point Selected Color:");
 		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getActiveBColor1(), pref::setActiveBColor1), "Button B Color 1:");
 		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getActiveBColor2(), pref::setActiveBColor2), "Button B Color 2:");
 		addAtRow(modelEditorPanel, new ColorChooserIcon(pref.getActiveColor1(), pref::setActiveColor1), "Button Color 1:");
@@ -108,7 +116,15 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		themeCheckBox.addActionListener(getSettingsChanged(pref, themeCheckBox));
 		modelEditorPanel.add(themeCheckBox, "wrap");
 
-		addTab("Colors/Theme", new JScrollPane(modelEditorPanel));
+		JScrollPane scrollPane = new JScrollPane(modelEditorPanel);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		scrollPane.setBorder(null);
+		final JPanel wrapPanel = new JPanel(new MigLayout("gap 0, ins 0, fill"));
+		wrapPanel.add(scrollPane, "growx, growy");
+		modelEditorPanel.add(new JLabel("4"), "wrap");
+		modelEditorPanel.add(new JLabel("4"), "wrap");
+
+		return wrapPanel;
 	}
 
 	public void addAtRow(JPanel modelEditorPanel, ColorChooserIcon colorIcon, String s) {
@@ -116,7 +132,7 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		modelEditorPanel.add(colorIcon, "wrap");
 	}
 
-	private void createAndAddHotkeysPanel(ProgramPreferences pref) {
+	private JPanel getHotkeysPanel(ProgramPreferences pref) {
 		final JPanel hotkeysPanel = new JPanel();
 		hotkeysPanel.setLayout(new MigLayout());
 
@@ -133,7 +149,109 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		cameraPanBox.addActionListener(e -> pref.setThreeDCameraPanButton((MouseButtonPreference) cameraPanBox.getSelectedItem()));
 		hotkeysPanel.add(cameraPanBox, "wrap");
 
-		addTab("Hotkeys", hotkeysPanel);
+		return hotkeysPanel;
+	}
+
+	private JPanel getHotkeysPanel2(ProgramPreferences pref) {
+		final JPanel hotkeysPanel = new JPanel();
+		hotkeysPanel.setLayout(new MigLayout());
+
+		String spinTextKey = "Camera Spin";
+		hotkeysPanel.add(new JLabel(spinTextKey));
+		JButton spinButton = new JButton(MouseEvent.getModifiersExText(pref.getThreeDCameraSpinMouseEx()));
+		spinButton.addActionListener(e -> pref.setThreeDCameraSpinMouseEx(editMouseButtonBinding(spinTextKey, spinButton, pref.getThreeDCameraSpinMouseEx(), false)));
+		hotkeysPanel.add(spinButton, "wrap");
+
+		String panTextKey = "Camera Pan";
+		hotkeysPanel.add(new JLabel(panTextKey));
+		JButton panButton = new JButton(MouseEvent.getModifiersExText(pref.getThreeDCameraPanMouseEx()));
+		panButton.addActionListener(e -> pref.setThreeDCameraPanMouseEx(editMouseButtonBinding(panTextKey, panButton, pref.getThreeDCameraPanMouseEx(), false)));
+		hotkeysPanel.add(panButton, "wrap");
+
+		String modifyTextKey = "Manipulate";
+		hotkeysPanel.add(new JLabel(modifyTextKey));
+		JButton modifyButton = new JButton(MouseEvent.getModifiersExText(pref.getModifyMouseButton()));
+		modifyButton.addActionListener(e -> pref.setModifyMouseButton(editMouseButtonBinding(modifyTextKey, modifyButton, pref.getModifyMouseButton(), true)));
+		hotkeysPanel.add(modifyButton, "wrap");
+
+		String selectTextKey = "Select";
+		hotkeysPanel.add(new JLabel(selectTextKey));
+		JButton selectButton = new JButton(MouseEvent.getModifiersExText(pref.getSelectMouseButton()));
+		selectButton.addActionListener(e -> pref.setSelectMouseButton(editMouseButtonBinding(selectTextKey, selectButton, pref.getSelectMouseButton(), true)));
+		hotkeysPanel.add(selectButton, "wrap");
+
+		return hotkeysPanel;
+	}
+
+
+	private int editMouseButtonBinding(TextKey textKey, JButton button, int mouseModEx) {
+		JPanel panel = new JPanel(new MigLayout());
+		JLabel bindingLabel = new JLabel(MouseEvent.getModifiersExText(mouseModEx));
+		panel.add(bindingLabel);
+		final int[] newModEx = {mouseModEx};
+		JButton mouseListenButton = new JButton("Click to change binding");
+		mouseListenButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				newModEx[0] = e.getModifiersEx();
+				bindingLabel.setText(MouseEvent.getModifiersExText(newModEx[0]));
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				super.mouseReleased(e);
+			}
+		});
+
+		panel.add(mouseListenButton);
+//		JButton resetButton = new JButton("Edit");
+//		resetButton.addActionListener(e -> {event[0] = null; textField.setText(""); textField.requestFocus();});
+//		panel.add(resetButton);
+
+		int change = JOptionPane.showConfirmDialog(this, panel, "Edit mouse-binding for " + textKey.toString(), JOptionPane.OK_CANCEL_OPTION);
+
+		if (change == JOptionPane.OK_OPTION) {
+			button.setText(MouseEvent.getModifiersExText(newModEx[0]));
+			return newModEx[0];
+		}
+		return mouseModEx;
+	}
+
+	private int editMouseButtonBinding(String textKey, JButton button, int mouseModEx, boolean ignoreModifiers) {
+		JPanel panel = new JPanel(new MigLayout());
+		JLabel bindingLabel = new JLabel(MouseEvent.getModifiersExText(mouseModEx));
+		panel.add(bindingLabel);
+		final int[] newModEx = {mouseModEx};
+		JButton mouseListenButton = new JButton("Click to change binding");
+		mouseListenButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (ignoreModifiers) {
+					newModEx[0] = MouseEvent.getMaskForButton(e.getButton());
+				} else {
+					newModEx[0] = e.getModifiersEx();
+				}
+				bindingLabel.setText(MouseEvent.getModifiersExText(newModEx[0]));
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				super.mouseReleased(e);
+			}
+		});
+
+		panel.add(mouseListenButton);
+//		JButton resetButton = new JButton("Edit");
+//		resetButton.addActionListener(e -> {event[0] = null; textField.setText(""); textField.requestFocus();});
+//		panel.add(resetButton);
+
+		int change = JOptionPane.showConfirmDialog(this, panel, "Edit mouse-binding for " + textKey.toString(), JOptionPane.OK_CANCEL_OPTION);
+
+		if (change == JOptionPane.OK_OPTION) {
+			button.setText(MouseEvent.getModifiersExText(newModEx[0]));
+			return newModEx[0];
+		}
+		return mouseModEx;
 	}
 
 	private ActionListener getSettingsChanged(ProgramPreferences pref, JComboBox<GUITheme> themeCheckBox) {

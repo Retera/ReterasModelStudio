@@ -71,9 +71,9 @@ public class MultiManipulatorActivity extends ViewportActivity {
 		if (manipulator != null) {
 			Vec2 mouseEnd = new Vec2(coordinateSystem.geomX(e.getX()), coordinateSystem.geomY(e.getY()));
 			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-			if (wasCanceled) {
+			if (wasCanceled && undoAction != null) {
 				undoAction.undo();
-			} else {
+			} else if (undoAction != null) {
 				undoManager.pushAction(undoAction);
 			}
 			mouseStartPoint = null;
@@ -128,9 +128,9 @@ public class MultiManipulatorActivity extends ViewportActivity {
 		if (manipulator != null) {
 			Vec2 mouseEnd = new Vec2(cameraHandler.geomX(e.getX()), cameraHandler.geomY(e.getY()));
 			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, cameraHandler);
-			if (wasCanceled) {
+			if (wasCanceled && undoAction != null) {
 				undoAction.undo();
-			} else {
+			} else if (undoAction != null) {
 				undoManager.pushAction(undoAction);
 			}
 			mouseStartPoint = null;

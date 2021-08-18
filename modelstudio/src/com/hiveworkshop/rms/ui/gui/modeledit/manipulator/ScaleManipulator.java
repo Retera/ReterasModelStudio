@@ -59,12 +59,16 @@ public final class ScaleManipulator extends AbstractScaleManipulator {
 
 	protected double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
 		System.out.println("computeScaleFactor!");
-		Vec3 center = selectionManager.getCenter();
+//		Vec3 center = selectionManager.getCenter().transform(cameraHandler.getViewPortAntiRotMat());
+		Vec2 center = selectionManager.getCenter().transform(cameraHandler.getViewPortAntiRotMat()).getProjected((byte) 1, (byte) 2);
 		double dxEnd = 0;
 		double dyEnd = 0;
 		double dxStart = 0;
 		double dyStart = 0;
 		int flipNeg = 1;
+
+		Vec2 dStart = new Vec2(mouseStart).sub(center);
+		Vec2 dEnd = new Vec2(mouseEnd).sub(center);
 
 //		if (dir.containDirection(dim1)) {
 //			dxEnd = mouseEnd.x - center.getCoord(dim1);
@@ -80,8 +84,10 @@ public final class ScaleManipulator extends AbstractScaleManipulator {
 //				flipNeg = getFlipNeg(dyEnd);
 //			}
 //		}
-		double endDist = Math.sqrt((dxEnd * dxEnd) + (dyEnd * dyEnd));
-		double startDist = Math.sqrt((dxStart * dxStart) + (dyStart * dyStart));
+//		double endDist = Math.sqrt((dxEnd * dxEnd) + (dyEnd * dyEnd));
+//		double startDist = Math.sqrt((dxStart * dxStart) + (dyStart * dyStart));
+		double endDist = dEnd.length();
+		double startDist = dStart.length();
 
 		return flipNeg * endDist / startDist;
 	}

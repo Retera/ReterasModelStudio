@@ -124,6 +124,8 @@ public class MenuBarActions {
 				JOptionPane.PLAIN_MESSAGE);
 
 		if (ret == JOptionPane.OK_OPTION) {
+			ProgramGlobals.getEditorColorPrefs().setFrom(programPreferencesPanel.getColorPrefs());
+			programPreferences.setEditorColors(ProgramGlobals.getEditorColorPrefs());
 			ProgramGlobals.getPrefs().loadFrom(programPreferences);
 			List<DataSourceDescriptor> dataSources = programPreferencesPanel.getDataSources();
 			boolean changedDataSources = (dataSources != null) && !dataSources.equals(priorDataSources);

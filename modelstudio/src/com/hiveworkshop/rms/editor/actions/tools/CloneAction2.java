@@ -74,6 +74,7 @@ public final class CloneAction2 implements UndoAction {
 							oldToNewVertMap.get(triangle.get(0)),
 							oldToNewVertMap.get(triangle.get(1)),
 							oldToNewVertMap.get(triangle.get(2)));
+					newTriangle.setGeoset(oldToNewVertMap.get(triangle.get(0)).getGeoset());
 					newTriangles.add(newTriangle);
 				}
 			}

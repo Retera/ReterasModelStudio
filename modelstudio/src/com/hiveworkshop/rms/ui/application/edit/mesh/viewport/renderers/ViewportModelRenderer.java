@@ -242,8 +242,8 @@ public class ViewportModelRenderer {
 		}
 
 		float renderRotationScalar = 0;
-		if (renderModel != null && renderModel.getAnimatedRenderEnvironment() != null) {
-			renderRotationScalar = camera.getSourceNode().getRenderRotationScalar(renderModel.getAnimatedRenderEnvironment());
+		if (renderModel != null && renderModel.getTimeEnvironment() != null) {
+			renderRotationScalar = camera.getSourceNode().getRenderRotationScalar(renderModel.getTimeEnvironment());
 		}
 
 		renderableCameraProp.render(g2, coordinateSystem, vec3Start, vec3End, renderRotationScalar);

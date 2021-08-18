@@ -449,6 +449,23 @@ public class CameraHandler {
 		}
 	}
 
+	public void doZoom4(MouseWheelEvent e) {
+		int wr = e.getWheelRotation();
+		int dir = wr < 0 ? -1 : 1;
+
+		for (int i = 0; i < wr * dir; i++) {
+			if (dir == -1) {
+				m_zoom *= ZOOM_FACTOR;
+				cameraPos.y *= ZOOM_FACTOR;
+				cameraPos.z *= ZOOM_FACTOR;
+			} else {
+				m_zoom /= ZOOM_FACTOR;
+				cameraPos.y /= ZOOM_FACTOR;
+				cameraPos.z /= ZOOM_FACTOR;
+			}
+		}
+	}
+
 	public Vec2 getActStart() {
 		return actStart;
 	}

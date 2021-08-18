@@ -14,7 +14,11 @@ public abstract class ModelDependentView extends View {
 
 	public abstract ModelDependentView setModelPanel(ModelPanel modelPanel);
 
-	public ModelDependentView preferencesUpdated(){
+	public ModelDependentView preferencesUpdated() {
+		return this;
+	}
+
+	public ModelDependentView reload() {
 		return this;
 	}
 }

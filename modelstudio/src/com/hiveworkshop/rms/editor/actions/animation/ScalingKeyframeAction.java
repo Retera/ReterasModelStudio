@@ -7,12 +7,12 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
 
 public class ScalingKeyframeAction implements GenericScaleAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
@@ -20,44 +20,15 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	private final HashMap<IdObject, Vec3> nodeToLocalScale;
 	private final Vec3 center;
 	private final Integer trackGlobalSeq;
-	ModelView modelView;
+	private final RenderModel editorRenderModel;
 
 	public ScalingKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
-	                             int trackTime,
-	                             Integer trackGlobalSeq,
 	                             Collection<IdObject> nodeSelection,
-	                             Vec3 center, ModelView modelView) {
+	                             Vec3 center, RenderModel editorRenderModel) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
-		this.trackTime = trackTime;
-		this.trackGlobalSeq = trackGlobalSeq;
-		this.modelView = modelView;
-		nodeToLocalScale = new HashMap<>();
-		for (IdObject node : nodeSelection) {
-			nodeToLocalScale.put(node, new Vec3());
-		}
-		this.center = new Vec3(center);
-	}
-	public ScalingKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
-	                             int trackTime,
-	                             Integer trackGlobalSeq,
-	                             Collection<IdObject> nodeSelection,
-	                             Vec3 center, ModelView modelView, int i) {
-		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
-		this.trackTime = trackTime;
-		this.trackGlobalSeq = trackGlobalSeq;
-		this.modelView = modelView;
-		Set<IdObject> selection = modelView.getSelectedIdObjects();
-		List<UndoAction> actions = new ArrayList<>();
-		RenderModel renderModel = modelView.getEditorRenderModel();
-		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
-
-//		generateKeyframes(selection, actions, timeEnvironmentImpl, MdlUtils.TOKEN_SCALING, (node, translationTimeline) -> createScalingKeyframe(node, renderModel, (Vec3AnimFlag) translationTimeline, structureChangeListener));
-
-
-//		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
-		int trackTimeToUse = timeEnvironmentImpl.getGlobalSeq() == null ? trackTime : timeEnvironmentImpl.getGlobalSeqTime(timeEnvironmentImpl.getGlobalSeq());
-
-
+		this.editorRenderModel = editorRenderModel;
+		this.trackTime = editorRenderModel.getTimeEnvironment().getTrackTime();
+		this.trackGlobalSeq = editorRenderModel.getTimeEnvironment().getGlobalSeq();
 		nodeToLocalScale = new HashMap<>();
 		for (IdObject node : nodeSelection) {
 			nodeToLocalScale.put(node, new Vec3());
@@ -68,8 +39,8 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	@Override
 	public UndoAction undo() {
 		for (IdObject node : nodeToLocalScale.keySet()) {
-			Vec3 localTranslation = nodeToLocalScale.get(node);
-			Vec3 tempInverse = new Vec3(1, 1, 1).divide(localTranslation);
+			Vec3 localScale = nodeToLocalScale.get(node);
+			Vec3 tempInverse = new Vec3(1, 1, 1).divide(localScale);
 			updateLocalScalingKeyframe(node, trackTime, trackGlobalSeq, tempInverse);
 		}
 		addingTimelinesOrKeyframesAction.undo();
@@ -80,8 +51,8 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	public UndoAction redo() {
 		addingTimelinesOrKeyframesAction.redo();
 		for (IdObject node : nodeToLocalScale.keySet()) {
-			Vec3 localTranslation = nodeToLocalScale.get(node);
-			updateLocalScalingKeyframe(node, trackTime, trackGlobalSeq, localTranslation);
+			Vec3 localScale = nodeToLocalScale.get(node);
+			updateLocalScalingKeyframe(node, trackTime, trackGlobalSeq, localScale);
 		}
 		return this;
 	}
@@ -94,21 +65,21 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	@Override
 	public GenericScaleAction updateScale(Vec3 scale) {
 //		modelEditor.rawScale(center, scale, nodeToLocalScale);
-		for (IdObject idObject : modelView.getSelectedIdObjects()) {
-			updateScalingKeyframe(idObject, modelView.getEditorRenderModel(), scale, nodeToLocalScale.get(idObject));
+		for (IdObject idObject : nodeToLocalScale.keySet()) {
+			updateScalingKeyframe(idObject, editorRenderModel, scale, nodeToLocalScale.get(idObject));
 		}
 		return this;
 	}
 
 	public void updateScalingKeyframe(AnimatedNode animatedNode, RenderModel renderModel, Vec3 scale, Vec3 savedLocalScaling) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getTimeEnvironment();
 		Vec3AnimFlag translationFlag = (Vec3AnimFlag) animatedNode.find(MdlUtils.TOKEN_SCALING, timeEnvironmentImpl.getGlobalSeq());
 		if (translationFlag == null) {
 			return;
 		}
 
-		int animationTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
+		int animationTime = renderModel.getTimeEnvironment().getAnimationTime();
 		int trackTime = animationTime;
 
 		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();

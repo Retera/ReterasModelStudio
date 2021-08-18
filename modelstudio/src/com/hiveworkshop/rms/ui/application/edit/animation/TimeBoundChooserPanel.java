@@ -119,7 +119,7 @@ public class TimeBoundChooserPanel extends JPanel {
 	private TimeBoundProvider getTimeBound(ModelHandler modelHandler) {
 		RenderModel editorRenderModel = modelHandler.getRenderModel();
 		if (editorRenderModel != null) {
-			TimeEnvironmentImpl renderEnvironment = editorRenderModel.getAnimatedRenderEnvironment();
+			TimeEnvironmentImpl renderEnvironment = editorRenderModel.getTimeEnvironment();
 			if (renderEnvironment != null) {
 				return renderEnvironment.getCurrentAnimation();
 			}

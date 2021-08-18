@@ -15,12 +15,12 @@ import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.Arrays;
 
-public class AbstractModelEditor extends ModelEditor {
-    protected final ModelStructureChangeListener structureChangeListener;
-    protected ModelHandler modelHandler;
-    protected SelectionItemTypes selectionMode;
+public class GeometryModelEditor extends ModelEditor {
+	protected final ModelStructureChangeListener structureChangeListener;
+	protected ModelHandler modelHandler;
+	protected SelectionItemTypes selectionMode;
 
-	public AbstractModelEditor(SelectionManager selectionManager,
+	public GeometryModelEditor(SelectionManager selectionManager,
 	                           ModelHandler modelHandler,
 	                           SelectionItemTypes selectionMode) {
 		super(selectionManager, modelHandler.getModelView());
@@ -29,7 +29,7 @@ public class AbstractModelEditor extends ModelEditor {
 		this.selectionMode = selectionMode;
 	}
 
-	public AbstractModelEditor setSelectionMode(SelectionItemTypes selectionMode) {
+	public GeometryModelEditor setSelectionMode(SelectionItemTypes selectionMode) {
 		this.selectionMode = selectionMode;
 		return this;
 	}

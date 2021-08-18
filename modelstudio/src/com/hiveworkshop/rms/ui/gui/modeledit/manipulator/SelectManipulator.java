@@ -55,14 +55,14 @@ public class SelectManipulator extends Manipulator {
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		Vec2 min = new Vec2(activityStart).minimize(mouseEnd);
 		Vec2 max = new Vec2(activityStart).maximize(mouseEnd);
-		return viewportSelectionHandler.selectRegion(min, max, coordinateSystem);
+		return viewportSelectionHandler.selectRegion(e, min, max, coordinateSystem);
 	}
 
 	@Override
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
 		Vec2 min = new Vec2(activityStart).minimize(mouseEnd);
 		Vec2 max = new Vec2(activityStart).maximize(mouseEnd);
-		return viewportSelectionHandler.selectRegion(min, max, cameraHandler);
+		return viewportSelectionHandler.selectRegion(e, min, max, cameraHandler);
 	}
 
 	@Override

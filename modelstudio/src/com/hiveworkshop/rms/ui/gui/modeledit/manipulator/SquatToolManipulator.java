@@ -39,9 +39,9 @@ public class SquatToolManipulator extends AbstractRotateManipulator {
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, CameraHandler cameraHandler) {
 		Vec3 center = selectionManager.getCenter();
-		byte planeDim1;
-		byte planeDim2;
 		nonRotAngle = 0;
+		Vec3 axis = new Vec3(1, 0, 0);
+		axis.transform(cameraHandler.getViewPortAntiRotMat2());
 
 //		if (dir != MoveDimension.XYZ && dir.containDirection(dim1)) {
 //			planeDim1 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
@@ -55,7 +55,7 @@ public class SquatToolManipulator extends AbstractRotateManipulator {
 //		}
 
 //		rotationAction = modelEditor.beginSquatTool(center, planeDim1, planeDim2);
-		rotationAction = modelEditor.beginSquatTool(center, (byte) 0, (byte) 1);
+		rotationAction = modelEditor.beginSquatTool(center, axis);
 	}
 
 	protected Vec2 getVec2Center(byte portFirstXYZ, byte portSecondXYZ) {

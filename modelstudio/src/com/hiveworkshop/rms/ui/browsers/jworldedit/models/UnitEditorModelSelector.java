@@ -47,7 +47,7 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 	ModelHandler modelHandler = new ModelHandler(mdl);
 	// MDL mdl;
 //	ModelView modelDisp = new ModelView(mdl);
-	PerspDisplayPanel modelPanel;
+	PerspDisplayPanel perspDisplayPanel;
 	//	DefaultTableModel tableModel;
 	DefaultMutableTreeNode defaultSelection = null;
 
@@ -92,14 +92,14 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		temp.add(debugLabel);
 
 		// TODO null prefs
-		modelPanel = new PerspDisplayPanel("blank", modelHandler);
+		perspDisplayPanel = new PerspDisplayPanel("blank", modelHandler);
 		fillTable();
 
-		setRightComponent(modelPanel);
+		setRightComponent(perspDisplayPanel);
 
 		tree.addTreeSelectionListener(this);
 		treePane.setPreferredSize(new Dimension(350, 600));
-		modelPanel.setPreferredSize(new Dimension(800, 600));
+		perspDisplayPanel.setPreferredSize(new Dimension(800, 600));
 		if (defaultSelection != null) {
 			tree.getSelectionModel().setSelectionPath(getPath(defaultSelection));
 		}
@@ -144,8 +144,8 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 				mdl = TempOpenModelStuff.createEditableModel(MdxUtils.loadMdlx(reader));
 				modelHandler = new ModelHandler(mdl);
 //				modelDisp = new ModelView(mdl);
-				modelPanel.setViewport(modelHandler);
-				modelPanel.setTitle(currentUnit.getName());
+				perspDisplayPanel.setModel(modelHandler);
+				perspDisplayPanel.setTitle(currentUnit.getName());
 			} catch (final IOException e) {
 				e.printStackTrace();
 				// bad model!

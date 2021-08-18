@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.language.TextKey;
-import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs2;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
@@ -12,15 +12,15 @@ import java.awt.event.KeyEvent;
 
 public class KeybindingPrefPanel extends JPanel {
 
-	public KeybindingPrefPanel(){
+	public KeybindingPrefPanel() {
 		super(new MigLayout("fill", "[][][]"));
-		KeyBindingPrefs2 keyBindingPrefs = ProgramGlobals.getPrefs().getKeyBindingPrefs();
+		KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getPrefs().getKeyBindingPrefs();
 
 		JPanel settingsPanel = new JPanel(new MigLayout("fill, wrap 2", "[left][right]"));
-		for(TextKey textKey : KeyBindingPrefs2.getActionFunctionMap().keySet()){
+		for (TextKey textKey : KeyBindingPrefs.getActionFunctionMap().keySet()) {
 			settingsPanel.add(new JLabel(textKey.toString()));
 			String kbString = "None";
-			if(keyBindingPrefs.getKeyStroke(textKey) != null){
+			if (keyBindingPrefs.getKeyStroke(textKey) != null) {
 				kbString = keyBindingPrefs.getKeyStroke(textKey).toString();
 			}
 			JButton editButton = new JButton(kbString);
@@ -51,16 +51,17 @@ public class KeybindingPrefPanel extends JPanel {
 
 	}
 
-	private void editKeyBinding(TextKey textKey, JButton button, KeyBindingPrefs2 keyBindingPrefs){
+	private void editKeyBinding(TextKey textKey, JButton button, KeyBindingPrefs keyBindingPrefs) {
 		JPanel panel = new JPanel(new MigLayout());
 		JTextField textField = new JTextField(24);
-		if(keyBindingPrefs.getKeyStroke(textKey) != null){
+		if (keyBindingPrefs.getKeyStroke(textKey) != null) {
 			textField.setText(keyBindingPrefs.getKeyStroke(textKey).toString());
 		}
 		textField.setEditable(false);
 		final KeyEvent[] event = {null};
 		textField.addKeyListener(new KeyAdapter() {
 			KeyEvent lastPressedEvent;
+
 			@Override
 			public void keyPressed(KeyEvent e) {
 				lastPressedEvent = e;
@@ -140,7 +141,7 @@ public class KeybindingPrefPanel extends JPanel {
 //		}
 //	}
 
-	private void saveKeybindings(KeyBindingPrefs2 keyBindingPrefs){
+	private void saveKeybindings(KeyBindingPrefs keyBindingPrefs) {
 		ProgramGlobals.getKeyBindingPrefs().parseString(keyBindingPrefs.toString());
 		ProgramGlobals.getPrefs().setKeyBindings(ProgramGlobals.getKeyBindingPrefs());
 		ProgramGlobals.getMainPanel().linkActions(ProgramGlobals.getMainPanel().getRootPane());

@@ -55,4 +55,15 @@ public class PreviewView extends ModelDependentView {
 		panel.add(scrollPane, "growx, growy");
 		return panel;
 	}
+
+	@Override
+	public PreviewView reload() {
+		if (animationController != null) {
+			animationController.reload().repaint();
+		}
+		if (previewPanel != null) {
+			previewPanel.reload().repaint();
+		}
+		return this;
+	}
 }

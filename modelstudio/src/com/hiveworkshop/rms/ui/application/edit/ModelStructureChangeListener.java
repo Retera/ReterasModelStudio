@@ -18,8 +18,8 @@ public class ModelStructureChangeListener {
 	public static void reloadGeosetManagers(MainPanel mainPanel, ModelPanel modelPanel) {
 
 		modelPanel.reloadModelEditingTree();
-		modelPanel.reloadComponentBrowser();
-		modelPanel.getComponentBrowserTreePane().repaint();
+//		modelPanel.reloadComponentBrowser();
+//		modelPanel.getComponentBrowserTreePane().repaint();
 
 		modelPanel.getPerspArea().reloadTextures();
 		modelPanel.getAnimationViewer().reload();
@@ -91,7 +91,7 @@ public class ModelStructureChangeListener {
 //		reloadComponentBrowser(mainPanel.getGeoControlModelData(), modelPanel);
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			modelPanel.reloadComponentBrowser();
+//			modelPanel.reloadComponentBrowser();
 		}
 	}
 
@@ -116,7 +116,7 @@ public class ModelStructureChangeListener {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			modelPanel.reloadModelEditingTree();
-			modelPanel.reloadComponentBrowser();
+//			modelPanel.reloadComponentBrowser();
 		}
 	}
 }

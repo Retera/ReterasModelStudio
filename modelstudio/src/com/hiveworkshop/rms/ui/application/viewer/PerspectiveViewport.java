@@ -10,12 +10,14 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.renderparts.RenderGeoset;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
+import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
@@ -23,7 +25,8 @@ import org.lwjgl.opengl.GL11;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -34,50 +37,60 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private final float[] posSun = {0.0f, 10.0f, 0.0f, 1.0f};
 	private RenderModel renderModel;
 	private ModelView modelView;
+	private TimeEnvironmentImpl renderEnv;
+
+	private TextureThing textureThing;
 
 	private final CameraHandler cameraHandler;
 	private Timer paintTimer;
 	private boolean mouseInBounds = false;
 	private boolean texLoaded = false;
 
-	private final TextureThing textureThing;
 	private Class<? extends Throwable> lastThrownErrorClass;
 	private boolean wantReload = false;
 	private boolean wantReloadAll = false;
 	private int popupCount = 0;
-	private final TimeEnvironmentImpl renderEnv;
 	private final ProgramPreferences programPreferences;
 
 	private long lastExceptionTimeMillis = 0;
-	private final Vec4 backgroundColor = new Vec4();
 	private int levelOfDetail = -1;
 
 	private float xRatio;
 	private float yRatio;
-	private final Timer clickTimer;
 	private final MouseListenerThing mouseAdapter;
 
 	ExtLog currentExt = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 
-	public PerspectiveViewport(ModelView modelView, RenderModel renderModel, TimeEnvironmentImpl renderEnvironment, boolean loadDefaultCamera) throws LWJGLException {
+	public PerspectiveViewport(ModelView modelView, RenderModel renderModel, boolean loadDefaultCamera) throws LWJGLException {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();
-		textureThing = new TextureThing(modelView, programPreferences);
 		cameraHandler = new CameraHandler(this);
-		renderEnv = renderEnvironment;
 
-//		MouseAdapter mouseAdapter = getMouseAdapter();
 		mouseAdapter = new MouseListenerThing(cameraHandler, programPreferences);
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
 		addMouseWheelListener(mouseAdapter);
+		addKeyListener(getShortcutKeyListener());
 
-		backgroundColor.set(programPreferences == null ? new float[] {80, 80, 80, 1} : programPreferences.getPerspectiveBackgroundColor().getColorComponents(new float[] {0, 255, 0, 1}));
-		setBackground(backgroundColor.asFloatColor());
-		System.out.println("(1) backgroundColor: " + backgroundColor);
-//		setBackground(new Color(80, 80, 80, 0));
+		setBackground(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.BACKGROUND_COLOR));
 		setMinimumSize(new Dimension(200, 200));
+
+		setModel(modelView, renderModel, loadDefaultCamera);
+
+		paintTimer = new Timer(16, e -> {
+			repaint();
+			if (!isShowing()) {
+				paintTimer.stop();
+			}
+		});
+		paintTimer.start();
+//		Timer clickTimer = new Timer(16, e -> cameraHandler.clickTimerAction());
+	}
+
+	private PerspectiveViewport setModel(ModelView modelView, RenderModel renderModel, boolean loadDefaultCamera) {
+		textureThing = new TextureThing(modelView, programPreferences);
+		renderEnv = renderModel.getTimeEnvironment();
 
 		this.modelView = modelView;
 		modelExtent.setMinMax(modelView.getModel().getExtents());
@@ -87,23 +100,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			cameraHandler.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderEnv, modelExtent));
 		}
 
-//		if (programPreferences != null) {
-//			programPreferences.addChangeListener(() -> updateBackgroundColor(programPreferences));
-//		}
-
-		paintTimer = new Timer(16, e -> {
-			repaint();
-			if (!isShowing()) {
-				paintTimer.stop();
-			}
-		});
-		paintTimer.start();
-		clickTimer = new Timer(16, e -> cameraHandler.clickTimerAction());
-		shortcutKeyListener();
-
 		this.renderModel = renderModel;
 		this.renderModel.setCameraHandler(cameraHandler);
 		this.renderModel.refreshFromEditor(getParticleTextureInstance());
+		return this;
 	}
 
 	public Particle2TextureInstance getParticleTextureInstance() {
@@ -140,21 +140,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		reloadAllTextures();
 	}
 
-	protected void updateBackgroundColor(ProgramPreferences programPreferences) {
-		Color backgroundColor = programPreferences.getPerspectiveBackgroundColor();
-		this.backgroundColor.set(programPreferences == null ? new float[]{80, 80, 80, 1} : backgroundColor.getColorComponents(new float[]{255, 0, 0, 1}));
-		setBackground(this.backgroundColor.asFloatColor());
-		System.out.println("updateBackgroundColor: " + this.backgroundColor.asFloatColor() + "(" + this.backgroundColor + ")" );
-//		setBackground(new Color(80, 80, 80, 0));
-//		loadBackgroundColors();
-	}
-
-//	protected void loadBackgroundColors() {
-//		backgroundRed = programPreferences.getPerspectiveBackgroundColor().getRed() / 255f;
-//		backgroundGreen = programPreferences.getPerspectiveBackgroundColor().getGreen() / 255f;
-//		backgroundBlue = programPreferences.getPerspectiveBackgroundColor().getBlue() / 255f;
-//	}
-
 
 	public CameraHandler getCameraHandler() {
 		return cameraHandler;
@@ -179,15 +164,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		return this;
 	}
 
-	protected void shortcutKeyListener() {
-		addKeyListener(new KeyAdapter() {
+	protected KeyAdapter getShortcutKeyListener() {
+		return new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				super.keyPressed(e);
 
 				setCurrentExtent();
-				System.out.println(modelExtent);
-				System.out.println(currentExt);
+//				System.out.println(modelExtent);
+//				System.out.println(currentExt);
 				double rad = ViewportHelpers.getBoundsRadius(renderEnv, modelExtent);
 				if (e.getKeyCode() == KeyEvent.VK_NUMPAD7) {
 					// Top view
@@ -234,11 +219,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 					}
 				}
 			}
-		});
+		};
 	}
 
 	private void setCurrentExtent() {
-		if ((renderEnv.getCurrentAnimation() != null) && renderEnv.getCurrentAnimation().getExtents() != null) {
+		if (renderEnv != null && (renderEnv.getCurrentAnimation() != null) && renderEnv.getCurrentAnimation().getExtents() != null) {
 			currentExt = renderEnv.getCurrentAnimation().getExtents();
 		}
 		if (currentExt.getMaximumExtent().distance(new Vec3(0, 0, 0)) < 1) {
@@ -252,12 +237,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 	protected void forceReloadTextures() {
 		texLoaded = true;
-		textureThing.reMakeTextureMap();
-		renderModel.refreshFromEditor(
-//				Quat.getInverseRotation(cameraHandler.getInverseCameraRotation()),
-//				cameraHandler.getInverseCameraRotationYSpin(),
-//				cameraHandler.getInverseCameraRotationZSpin(),
-				getParticleTextureInstance());
+		if (textureThing != null && renderModel != null) {
+			textureThing.reMakeTextureMap();
+			renderModel.refreshFromEditor(getParticleTextureInstance());
+		}
 	}
 
 
@@ -304,67 +287,65 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		}
 		reloadIfNeeded();
 		try {
-			int formatVersion = modelView.getModel().getFormatVersion();
-			if (renderEnv.isLive()) {
-				renderEnv.updateAnimationTime();
-				renderModel.updateNodes(false, programPreferences.getRenderParticles());
-			}
-			if (modelView.isGeosetsVisible()) {
-				renderModel.updateGeosets();
-			}
-			glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
-			enableGlThings(GL_DEPTH_TEST, GL_COLOR_MATERIAL, GL_LIGHTING, GL_LIGHT0, GL_LIGHT1, GL_NORMALIZE);
+			if (renderModel != null) {
+				updateRenderModel();
+				glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
+				enableGlThings(GL_DEPTH_TEST, GL_COLOR_MATERIAL, GL_LIGHTING, GL_LIGHT0, GL_LIGHT1, GL_NORMALIZE);
 
-			GL11.glDepthFunc(GL11.GL_LEQUAL);
-			GL11.glDepthMask(true);
-			if ((programPreferences != null) && (programPreferences.getPerspectiveBackgroundColor() != null)) {
-				float[] colorComponents = programPreferences.getPerspectiveBackgroundColor().getColorComponents(null);
-				glClearColor(colorComponents[0], colorComponents[1], colorComponents[2], autoRepainting ? 1.0f : 1.0f);
-			} else {
-				glClearColor(.3f, .3f, .3f, autoRepainting ? 1.0f : 1.0f);
-			}
-//			glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, autoRepainting ? 1.0f : 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				GL11.glDepthFunc(GL11.GL_LEQUAL);
+				GL11.glDepthMask(true);
+				if ((programPreferences != null) && (programPreferences.getPerspectiveBackgroundColor() != null)) {
+					float[] colorComponents = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.BACKGROUND_COLOR);
+					glClearColor(colorComponents[0], colorComponents[1], colorComponents[2], autoRepainting ? 1.0f : 1.0f);
+				} else {
+					glClearColor(.3f, .3f, .3f, autoRepainting ? 1.0f : 1.0f);
+				}
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 //			glMatrixMode(GL_MODELVIEW);
+				glMatrixMode(GL_PROJECTION);
+				glLoadIdentity();
 
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
+				cameraHandler.setUpCamera();
 
-			cameraHandler.setUpCamera();
-
-			FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
-			ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();
-			glLightModel(GL_LIGHT_MODEL_AMBIENT, ambientColor);
+				FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
+				ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();
+				glLightModel(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 //			addLamp(0.8f, 40.0f, 200.0f, 80.0f, GL_LIGHT0);
 //			addLamp(0.2f, -100.0f, 200.5f, 0.5f, GL_LIGHT1);
-			addLamp(0.8f, 80.0f, 40.0f, 200.0f, GL_LIGHT0);
-			addLamp(0.2f, 0.5f, -100.0f, 200.5f, GL_LIGHT1);
+				addLamp(0.8f, 80.0f, 40.0f, 200.0f, GL_LIGHT0);
+				addLamp(0.2f, 0.5f, -100.0f, 200.5f, GL_LIGHT1);
 
-			if (programPreferences != null && programPreferences.showPerspectiveGrid()) {
-				paintGridFloor();
-			}
-
-			renderGeosets(modelView.getVisibleGeosets(), formatVersion, false);
-
-			if (modelView.getHighlightedGeoset() != null) {
-				drawHighlightedGeosets(formatVersion);
-			}
-
-			if ((programPreferences != null)) {
-				if (programPreferences.showNormals()) {
-					renderNormals(formatVersion);
+				if (programPreferences != null && programPreferences.showPerspectiveGrid()) {
+					paintGridFloor();
 				}
-				if (programPreferences.show3dVerts()) {
-					renderVertDots(formatVersion);
+
+				int formatVersion = modelView.getModel().getFormatVersion();
+				renderGeosets(modelView.getVisibleGeosets(), formatVersion, false);
+
+				if (modelView.getHighlightedGeoset() != null) {
+					drawHighlightedGeosets(formatVersion);
 				}
-				if (programPreferences.getRenderParticles()) {
-					renderParticles();
+
+				if ((programPreferences != null)) {
+					if (programPreferences.showNormals()) {
+						renderNormals(formatVersion);
+					}
+					if (programPreferences.show3dVerts()) {
+						renderVertDots(formatVersion);
+					}
+					if (programPreferences.getRenderParticles()) {
+						renderParticles();
+					}
+
+
+//				drawUglyTestLine();
+
 				}
-			}
-			GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
-			if (autoRepainting) {
-				paintAndUpdate();
+				GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
+				if (autoRepainting) {
+					paintAndUpdate();
+				}
 			}
 		} catch (final Throwable e) {
 			paintTimer.stop();
@@ -378,6 +359,30 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			}
 			System.out.println("Failed to render");
 			throw new RuntimeException(e);
+		}
+	}
+
+	private void drawUglyTestLine() {
+		glPolygonMode(GL_FRONT_FACE, GL_FILL);
+		glColor4f(1, 0, 0, 1);
+		glBegin(GL_LINES);
+		Vec3 RT = new Vec3(100, 0, 0).transform(cameraHandler.getViewPortAntiRotMat2());
+
+		GL11.glVertex3f(0, 0, 0);
+		GL11.glVertex3f(RT.x, RT.y, RT.z);
+//				GL11.glVertex3f(LT.x, LT.y, LT.z);
+		glEnd();
+	}
+
+	private void updateRenderModel() {
+		if (renderEnv.isLive()) {
+			renderEnv.updateAnimationTime();
+			renderModel.updateNodes(false, programPreferences.getRenderParticles());
+		} else if (ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
+			renderModel.updateNodes(false, programPreferences.getRenderParticles());
+		}
+		if (modelView.isGeosetsVisible()) {
+			renderModel.updateGeosets();
 		}
 	}
 
@@ -516,6 +521,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 	private void renderGeosets(Iterable<Geoset> geosets, int formatVersion, boolean overriddenColors) {
 		GL11.glDepthMask(true);
+		glShadeModel(GL11.GL_FLAT);
 		if ((programPreferences != null) && (programPreferences.viewMode() == 0)) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		} else if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
@@ -524,6 +530,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		if (renderTextures()) {
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 			glEnable(GL11.GL_TEXTURE_2D);
+			glShadeModel(GL_SMOOTH);
 		}
 		for (Geoset geo : geosets) {
 			if (modelView.getEditableGeosets().contains(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
@@ -606,11 +613,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			if (correctLoD(geo, formatVersion)) {
 //				CubePainter.paintVertCubes(modelView, renderModel, geo);
 //				CubePainter.paintVertCubes2(modelView, renderModel, geo, cameraHandler);
-				CubePainter.paintVertSquares(modelView, renderModel, geo, cameraHandler);
+				CubePainter.paintVertSquares2(modelView, renderModel, geo, cameraHandler);
 			}
 		}
 		for (final IdObject idObject : modelView.getVisibleIdObjects()) {
-			CubePainter.paintBones1(modelView, renderModel, idObject, cameraHandler);
+			CubePainter.paintBones4(modelView, renderModel, idObject, cameraHandler);
 		}
 
 		GL11.glEnable(GL_SHADE_MODEL);
@@ -640,14 +647,24 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	private void paintVert(Layer layer, GeosetVertex vertex, Vec3 vert, Vec3 normal) {
-		if (programPreferences != null && programPreferences.viewMode() == 0 && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
-			if (modelView.isSelected(vertex)) {
-				GL11.glColor4f(.95f, .2f, .2f, 1f);
+//		if (programPreferences != null && programPreferences.viewMode() == 0 && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
+		if (programPreferences != null && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
+			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
+			float[] color;
+			if (vertex.getGeoset() == modelView.getHighlightedGeoset()) {
+				color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_HIGHLIGHTED);
+//				GL11.glColor4f(.95f, .2f, .2f, 1f);
+			} else if (modelView.isSelected(vertex)) {
+				color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_SELECTED);
 			} else if (modelView.isEditable(vertex)) {
-				GL11.glColor4f(1f, 1f, 1f, 1f);
+				color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE);
+//				GL11.glColor4f(1f, 1f, 1f, 1f);
 			} else {
-				GL11.glColor4f(.5f, .5f, .5f, 1f);
+				color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_UNEDITABLE);
+//				GL11.glColor4f(.5f, .5f, .5f, 1f);
 			}
+
+			glColor4f(color[0], color[1], color[2], color[3]);
 		}
 		GL11.glNormal3f(normal.x, normal.y, normal.z);
 		int coordId = layer.getCoordId();
@@ -729,78 +746,78 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		}
 	}
 
-	public MouseAdapter getMouseAdapter() {
-		return new MouseAdapter() {
-			@Override
-			public void mouseEntered(final MouseEvent e) {
-				clickTimer.setRepeats(true);
-				clickTimer.start();
-				mouseInBounds = true;
-			}
-
-			@Override
-			public void mouseExited(final MouseEvent e) {
-				if ((cameraHandler.getCameraSpinStartPoint() == null) && (cameraHandler.getActStart() == null) && (cameraHandler.getCameraPanStartPoint() == null)) {
-					clickTimer.stop();
-				}
-				mouseInBounds = false;
-			}
-
-			@Override
-			public void mousePressed(final MouseEvent e) {
-				if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
-					cameraHandler.startPan(e);
-				} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
-					cameraHandler.startSpinn(e);
-				} else if (e.getButton() == MouseEvent.BUTTON3) {
-					cameraHandler.startAct(e);
-				} else {
-					cameraHandler.startAct(e);
-				}
-				ccc2 = new Vec3();
-//				System.out.println("camPos: " + cameraPos + ", invQ: " + inverseCameraRotation + ", invYspin: " + inverseCameraRotationYSpin + ", invZspin: " + inverseCameraRotationZSpin);
-			}
-
-			@Override
-			public void mouseReleased(final MouseEvent e) {
-				if (programPreferences.getThreeDCameraPanButton().isButton(e) && (cameraHandler.getCameraPanStartPoint() != null)) {
-					cameraHandler.finnishPan(e);
-				} else if (programPreferences.getThreeDCameraSpinButton().isButton(e) && (cameraHandler.getCameraSpinStartPoint() != null)) {
-					cameraHandler.finnishSpinn(e);
-				} else if ((e.getButton() == MouseEvent.BUTTON3) && (cameraHandler.getActStart() != null)) {
-					cameraHandler.finnishAct(e);
-				}
-				if (!mouseInBounds && (cameraHandler.getCameraSpinStartPoint() == null) && (cameraHandler.getActStart() == null) && (cameraHandler.getCameraPanStartPoint() == null)) {
-					clickTimer.stop();
-				}
-				ccc2 = null;
-				/*
-				 * if( dispMDL != null ) dispMDL.refreshUndo();
-				 */
-			}
-
-			@Override
-			public void mouseClicked(final MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON3) {
-				}
-			}
-
-			@Override
-			public void mouseWheelMoved(final MouseWheelEvent e) {
-				cameraHandler.doZoom3(e);
-			}
-
-			@Override
-			public void mouseDragged(MouseEvent e) {
-
-				if (ccc2 != null && cameraHandler.getActStart() != null) {
-					System.out.println("mouseDragged!");
-
-					ccc2.set(cameraHandler.getGeoPoint(e.getX(), e.getY()));
-				}
-			}
-		};
-	}
+//	public MouseAdapter getMouseAdapter() {
+//		return new MouseAdapter() {
+//			@Override
+//			public void mouseEntered(final MouseEvent e) {
+//				clickTimer.setRepeats(true);
+//				clickTimer.start();
+//				mouseInBounds = true;
+//			}
+//
+//			@Override
+//			public void mouseExited(final MouseEvent e) {
+//				if ((cameraHandler.getCameraSpinStartPoint() == null) && (cameraHandler.getActStart() == null) && (cameraHandler.getCameraPanStartPoint() == null)) {
+//					clickTimer.stop();
+//				}
+//				mouseInBounds = false;
+//			}
+//
+//			@Override
+//			public void mousePressed(final MouseEvent e) {
+//				if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
+//					cameraHandler.startPan(e);
+//				} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
+//					cameraHandler.startSpinn(e);
+//				} else if (e.getButton() == MouseEvent.BUTTON3) {
+//					cameraHandler.startAct(e);
+//				} else {
+//					cameraHandler.startAct(e);
+//				}
+//				ccc2 = new Vec3();
+////				System.out.println("camPos: " + cameraPos + ", invQ: " + inverseCameraRotation + ", invYspin: " + inverseCameraRotationYSpin + ", invZspin: " + inverseCameraRotationZSpin);
+//			}
+//
+//			@Override
+//			public void mouseReleased(final MouseEvent e) {
+//				if (programPreferences.getThreeDCameraPanButton().isButton(e) && (cameraHandler.getCameraPanStartPoint() != null)) {
+//					cameraHandler.finnishPan(e);
+//				} else if (programPreferences.getThreeDCameraSpinButton().isButton(e) && (cameraHandler.getCameraSpinStartPoint() != null)) {
+//					cameraHandler.finnishSpinn(e);
+//				} else if ((e.getButton() == MouseEvent.BUTTON3) && (cameraHandler.getActStart() != null)) {
+//					cameraHandler.finnishAct(e);
+//				}
+//				if (!mouseInBounds && (cameraHandler.getCameraSpinStartPoint() == null) && (cameraHandler.getActStart() == null) && (cameraHandler.getCameraPanStartPoint() == null)) {
+//					clickTimer.stop();
+//				}
+//				ccc2 = null;
+//				/*
+//				 * if( dispMDL != null ) dispMDL.refreshUndo();
+//				 */
+//			}
+//
+//			@Override
+//			public void mouseClicked(final MouseEvent e) {
+//				if (e.getButton() == MouseEvent.BUTTON3) {
+//				}
+//			}
+//
+//			@Override
+//			public void mouseWheelMoved(final MouseWheelEvent e) {
+//				cameraHandler.doZoom3(e);
+//			}
+//
+//			@Override
+//			public void mouseDragged(MouseEvent e) {
+//
+//				if (ccc2 != null && cameraHandler.getActStart() != null) {
+//					System.out.println("mouseDragged!");
+//
+//					ccc2.set(cameraHandler.getGeoPoint(e.getX(), e.getY()));
+//				}
+//			}
+//		};
+//	}
 
 	Vec2 ccc = null;
 	Vec3 ccc2 = null;

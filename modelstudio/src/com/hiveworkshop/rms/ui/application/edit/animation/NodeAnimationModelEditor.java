@@ -131,37 +131,37 @@ public class NodeAnimationModelEditor extends ModelEditor {
 	public GenericMoveAction beginTranslation() {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
-		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getTimeEnvironment();
 
 //		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, ModelEditorActionType3.TRANSLATION, selection);
 		List<UndoAction> actions = createKeyframe(timeEnvironmentImpl, ModelEditorActionType3.TRANSLATION, selection);
 
-		int trackTime = timeEnvironmentImpl.getTrackTime();
-		return new TranslationKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView);
+		CompoundAction setup = new CompoundAction("setup", actions, changeListener::keyframesUpdated);
+		return new TranslationKeyframeAction(setup.redo(), selection, renderModel);
 	}
 
 	@Override
 	public GenericScaleAction beginScaling(Vec3 center) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
-		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getTimeEnvironment();
 
 		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, ModelEditorActionType3.SCALING, selection);
 
 
-		int trackTime = timeEnvironmentImpl.getTrackTime();
-		return new ScalingKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, center, modelView);
+		CompoundAction setup = new CompoundAction("setup", actions, changeListener::keyframesUpdated);
+		return new ScalingKeyframeAction(setup.redo(), selection, center, renderModel);
 	}
 
 	@Override
 	public GenericRotateAction beginRotation(Vec3 center, byte firstXYZ, byte secondXYZ) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 
-		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getTimeEnvironment();
 
 		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, ModelEditorActionType3.ROTATION, selection);
 
-		int trackTime = timeEnvironmentImpl.getTrackTime();
-		return new RotationKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView, center, firstXYZ, secondXYZ);
+		CompoundAction setup = new CompoundAction("setup", actions, changeListener::keyframesUpdated);
+		return new RotationKeyframeAction(setup.redo(), selection, renderModel, center, firstXYZ, secondXYZ);
 	}
 
 	@Override
@@ -175,23 +175,23 @@ public class NodeAnimationModelEditor extends ModelEditor {
 			}
 		}
 
-		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getTimeEnvironment();
 		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, ModelEditorActionType3.SQUAT, selection);
 
-		int trackTime = timeEnvironmentImpl.getTrackTime();
-		return new SquatToolKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView, center, firstXYZ, secondXYZ);
+		CompoundAction setup = new CompoundAction("setup", actions, changeListener::keyframesUpdated);
+		return new SquatToolKeyframeAction(setup.redo(), selection, renderModel, modelView.getModel().getIdObjects(), center, firstXYZ, secondXYZ);
 	}
 
 	@Override
 	public GenericRotateAction beginRotation(Vec3 center, Vec3 axis) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
 
-		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getTimeEnvironment();
 
 		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, ModelEditorActionType3.ROTATION, selection);
 
-		int trackTime = timeEnvironmentImpl.getTrackTime();
-		return new RotationKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView, center, (byte) 0, (byte) 1);
+		CompoundAction setup = new CompoundAction("setup", actions, changeListener::keyframesUpdated);
+		return new RotationKeyframeAction2(setup.redo(), selection, renderModel, center, axis);
 	}
 
 	@Override
@@ -205,11 +205,11 @@ public class NodeAnimationModelEditor extends ModelEditor {
 			}
 		}
 
-		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getAnimatedRenderEnvironment();
+		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getTimeEnvironment();
 		List<UndoAction> actions = generateKeyframes(timeEnvironmentImpl, ModelEditorActionType3.SQUAT, selection);
 
-		int trackTime = timeEnvironmentImpl.getTrackTime();
-		return new SquatToolKeyframeAction(new CompoundAction("setup", actions, changeListener::keyframesUpdated).redo(), trackTime, timeEnvironmentImpl.getGlobalSeq(), selection, modelView, center, (byte) 0, (byte) 1);
+		CompoundAction setup = new CompoundAction("setup", actions, changeListener::keyframesUpdated);
+		return new SquatToolKeyframeAction2(setup.redo(), selection, renderModel, modelView.getModel().getIdObjects(), center, axis);
 	}
 
 	private boolean isBoneAndSameClass(IdObject idObject1, IdObject idObject2) {

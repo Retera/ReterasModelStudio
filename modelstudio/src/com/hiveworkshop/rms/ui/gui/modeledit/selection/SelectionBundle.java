@@ -8,12 +8,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SelectoinUgg {
+public class SelectionBundle {
 	private final Set<GeosetVertex> selectedVertices = new HashSet<>();
 	private final Set<IdObject> selectedIdObjects = new HashSet<>();
 	private final Set<Camera> selectedCameras = new HashSet<>();
 
-	public SelectoinUgg(Collection<?>... selected) {
+	public SelectionBundle(Collection<?>... selected) {
 		for (Collection<?> c : selected) {
 			addSelection(c);
 		}

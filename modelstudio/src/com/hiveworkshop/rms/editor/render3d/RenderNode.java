@@ -2,6 +2,8 @@ package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
@@ -169,6 +171,8 @@ public final class RenderNode {
 		localScale.set(1, 1, 1);
 		worldMatrix.setIdentity();
 
+		renderPivot.set(idObject.getPivotPoint()).transform(worldMatrix);
+
 		dirty = true;
 	}
 
@@ -236,7 +240,10 @@ public final class RenderNode {
 	}
 
 	public Vec3 getPivot() {
-		return renderPivot;
+		if (model.getTimeEnvironment().isLive() || ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
+			return renderPivot;
+		}
+		return idObject.getPivotPoint();
 //		return Vec3.getTransformed(idObject.getPivotPoint(), worldMatrix);
 
 //		Vec4 vector4Heap = new Vec4(idObject.getPivotPoint(), 1);

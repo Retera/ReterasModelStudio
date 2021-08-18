@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs2;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 
 import javax.swing.*;
 
@@ -126,7 +126,7 @@ public class MainPanelLinkActions {
 //		KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getPrefs().getKeyBindingPrefs();
 //		root.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
 //		root.setActionMap(keyBindingPrefs.getActionMap());
-		KeyBindingPrefs2 keyBindingPrefs = ProgramGlobals.getPrefs().getKeyBindingPrefs();
+		KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
 		root.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
 		root.setActionMap(keyBindingPrefs.getActionMap());
 	}

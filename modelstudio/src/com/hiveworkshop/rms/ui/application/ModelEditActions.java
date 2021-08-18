@@ -94,9 +94,7 @@ public class ModelEditActions {
             newTriangle.flip(false);
         }
 
-        AddTriangleAction addTriangleAction = new AddTriangleAction(geoset, Collections.singletonList(newTriangle));
-        addTriangleAction.redo();
-        return addTriangleAction;
+        return new AddTriangleAction(geoset, Collections.singletonList(newTriangle));
     }
 
     public static String getSelectedHDSkinningDescription(ModelView modelView) {

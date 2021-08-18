@@ -25,7 +25,7 @@ public final class RenderModel {
 	private final EditableModel model;
 	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.75;
 	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
-	private final TimeEnvironmentImpl animatedRenderEnvironment;
+	private final TimeEnvironmentImpl timeEnvironment;
 
 	private final Map<AnimatedNode, RenderNode> objectToRenderNode = new HashMap<>();
 	private final Map<Geoset, RenderGeoset> renderGeosetMap = new HashMap<>();
@@ -77,19 +77,34 @@ public final class RenderModel {
 		this.model = model;
 		this.modelView = modelView;
 		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
-		this.animatedRenderEnvironment = timeEnvironment;
+		this.timeEnvironment = timeEnvironment;
 		// Some classes doesn't call refreshFromEditor which leads to null-pointers when these in nor initialised
-		for (final Geoset geoset : modelView.getModel().getGeosets()) {
+//		for (final Geoset geoset : modelView.getModel().getGeosets()) {
+		for (final Geoset geoset : model.getGeosets()) {
 			RenderGeoset renderGeoset = renderGeosetMap.computeIfAbsent(geoset, k -> new RenderGeoset(geoset, this, modelView));
 			renderGeoset.updateTransforms(false);
 		}
 	}
 
-	public RenderModel updateGeosets(){
-		if(renderGeosetMap.size() != model.getGeosets().size()){
+	public RenderModel(EditableModel model, ModelView modelView) {
+		this.model = model;
+		this.modelView = modelView;
+		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
+		this.timeEnvironment = new TimeEnvironmentImpl();
+		// Some classes doesn't call refreshFromEditor which leads to null-pointers when these in nor initialised
+//		for (final Geoset geoset : modelView.getModel().getGeosets()) {
+		for (final Geoset geoset : model.getGeosets()) {
+			RenderGeoset renderGeoset = renderGeosetMap.computeIfAbsent(geoset, k -> new RenderGeoset(geoset, this, modelView));
+			renderGeoset.updateTransforms(false);
+		}
+	}
+
+	public RenderModel updateGeosets() {
+		if (renderGeosetMap.size() != model.getGeosets().size()) {
 			renderGeosetMap.clear();
 		}
-		for (final Geoset geoset : modelView.getModel().getGeosets()) {
+//		for (final Geoset geoset : modelView.getModel().getGeosets()) {
+		for (final Geoset geoset : model.getGeosets()) {
 			RenderGeoset renderGeoset = renderGeosetMap.computeIfAbsent(geoset, k -> new RenderGeoset(geoset, this, modelView));
 			renderGeoset.updateTransforms(shouldForceAnimation && ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE);
 		}
@@ -118,9 +133,10 @@ public final class RenderModel {
 	}
 
 	public RenderGeoset getRenderGeoset(Geoset geoset){
-		if(renderGeosetMap.size() != model.getGeosets().size()){
+		if(renderGeosetMap.size() != model.getGeosets().size()) {
 			renderGeosetMap.clear();
-			for (Geoset geo : modelView.getModel().getGeosets()) {
+//			for (Geoset geo : modelView.getModel().getGeosets()) {
+			for (Geoset geo : model.getGeosets()) {
 				RenderGeoset renderGeoset = renderGeosetMap.computeIfAbsent(geo, k -> new RenderGeoset(geoset, this, modelView));
 				renderGeoset.updateTransforms(shouldForceAnimation && ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE);
 			}
@@ -132,8 +148,8 @@ public final class RenderModel {
 		return getRenderNode(model.getIdObject(objectId));
 	}
 
-	public TimeEnvironmentImpl getAnimatedRenderEnvironment() {
-		return animatedRenderEnvironment;
+	public TimeEnvironmentImpl getTimeEnvironment() {
+		return timeEnvironment;
 	}
 
 	public void refreshFromEditor(Particle2TextureInstance renderResourceAllocator) {
@@ -172,9 +188,12 @@ public final class RenderModel {
 			renderParticleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
 		}
 
-
 		for (AnimatedNode node : sortedNodes) {
 			getRenderNode(node).refreshFromEditor();
+		}
+
+		if (shouldForceAnimation && ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
+			updateNodes(false);
 		}
 	}
 
@@ -246,7 +265,7 @@ public final class RenderModel {
 
 	// Soft is to only update billborded
 	public void updateNodes(boolean forced, boolean soft, boolean renderParticles) {
-		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
+		if ((timeEnvironment == null) || (timeEnvironment.getCurrentAnimation() == null)) {
 			for (AnimatedNode idObject : sortedNodes) {
 				getRenderNode(idObject).resetTransformation();
 			}
@@ -271,7 +290,7 @@ public final class RenderModel {
 			idObjectParent = ((IdObject) idObject).getParent();
 		}
 		RenderNode parent = idObjectParent == null ? null : getRenderNode(idObjectParent);
-		boolean objectVisible = idObject.getRenderVisibility(animatedRenderEnvironment) >= MAGIC_RENDER_SHOW_CONSTANT;
+		boolean objectVisible = idObject.getRenderVisibility(timeEnvironment) >= MAGIC_RENDER_SHOW_CONSTANT;
 		boolean nodeVisible = forced || objectVisible;
 //		boolean nodeVisible = forced || (((parent == null) || parent.visible) && objectVisible);
 		node.visible = nodeVisible;
@@ -293,14 +312,14 @@ public final class RenderModel {
 				dirty = true;
 
 				// Translation
-				Vec3 renderTranslation = idObject.getRenderTranslation(animatedRenderEnvironment);
+				Vec3 renderTranslation = idObject.getRenderTranslation(timeEnvironment);
 				if (renderTranslation != null) {
 					localLocation.set(renderTranslation);
 				}
 
 				// Rotation
 				try {
-					Quat renderRotation = idObject.getRenderRotation(animatedRenderEnvironment);
+					Quat renderRotation = idObject.getRenderRotation(timeEnvironment);
 					if (renderRotation != null) {
 						localRotation.set(renderRotation);
 					}
@@ -314,7 +333,7 @@ public final class RenderModel {
 				}
 
 				// Scale
-				Vec3 renderScale = idObject.getRenderScale(animatedRenderEnvironment);
+				Vec3 renderScale = idObject.getRenderScale(timeEnvironment);
 				if (renderScale != null) {
 					localScale.set(renderScale);
 				}
@@ -711,7 +730,7 @@ public final class RenderModel {
 
 		for (RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
 			if (allowInanimateParticles // not animating
-					&& (animatedRenderEnvironment == null || animatedRenderEnvironment.getCurrentAnimation() == null)
+					&& (timeEnvironment == null || timeEnvironment.getCurrentAnimation() == null)
 					&& (modelView == null || modelView.getEditableIdObjects().contains(renderParticleEmitter2View.getParticleEmitter2()))) {
 				renderParticleEmitter2View.fill();
 			}

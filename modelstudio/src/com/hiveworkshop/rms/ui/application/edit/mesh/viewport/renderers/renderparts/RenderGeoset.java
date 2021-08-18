@@ -92,7 +92,7 @@ public class RenderGeoset {
 	}
 
 	private Mat4 getTransform(GeosetVertex vertex, boolean forceAnimated) {
-		if (renderModel.getAnimatedRenderEnvironment().isLive() || forceAnimated) {
+		if (renderModel.getTimeEnvironment().isLive() || forceAnimated) {
 			if (isHD) {
 				GeosetVertex.SkinBone[] skinBones = vertex.getSkinBones();
 				return transformMapHD.computeIfAbsent(skinBones, k -> ModelUtils.processHdBones(renderModel, skinBones));

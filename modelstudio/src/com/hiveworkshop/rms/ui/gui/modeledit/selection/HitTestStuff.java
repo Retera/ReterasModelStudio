@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
@@ -15,29 +14,21 @@ public class HitTestStuff {
 		byte dim1 = coordinateSystem.getPortFirstXYZ();
 		byte dim2 = coordinateSystem.getPortSecondXYZ();
 
-		Vec2 minView = new Vec2(min).minimize(max);
-		Vec2 maxView = new Vec2(max).maximize(min);
-
 		Vec2 vertexV2 = vec3.getProjected(dim1, dim2);
 
-
 		double vertSize = vertexSize / 2.0 / coordinateSystem.getZoom();
-		return (vertexV2.distance(min) <= vertSize)
-				|| (vertexV2.distance(max) <= vertSize)
+		return vertexV2.distance(min) <= vertSize
+				|| vertexV2.distance(max) <= vertSize
 				|| within(vertexV2, min, max);
 	}
 
 	public static boolean hitTest(Vec2 min, Vec2 max, Vec3 vec3, Mat4 viewPortMat, double vertexSize, double zoom) {
-//
-//		Vec3 minView = new Vec3(min).minimize(max);
-//		Vec3 maxView = new Vec3(max).maximize(min);
-//
 		Vec3 viewPAdj = new Vec3(vec3).transform(viewPortMat);
 		Vec2 vertexV2 = viewPAdj.getProjected((byte) 1, (byte) 2);
 
 		double vertSize = vertexSize / 2.0 * zoom;
-		return (vertexV2.distance(min) <= vertSize)
-				|| (vertexV2.distance(max) <= vertSize)
+		return vertexV2.distance(min) <= vertSize
+				|| vertexV2.distance(max) <= vertSize
 				|| within(vertexV2, min, max);
 	}
 
@@ -47,11 +38,11 @@ public class HitTestStuff {
 		return vertexV2.distance(point) <= vertSize;
 	}
 	public static boolean hitTest(Vec3 vec3, Vec2 point, CameraHandler cameraHandler, double vertexSize) {
-//		Vec2 vertexV2 = CoordSysUtils.convertToViewVec2(coordinateSystem, vec3);
 		Vec3 viewPAdj = new Vec3(vec3).transform(cameraHandler.getViewPortAntiRotMat());
 		Vec2 vertexV2 = viewPAdj.getProjected((byte) 1, (byte) 2);
-		double vertSize = vertexSize / 6.0 / cameraHandler.getZoom();
-		System.out.println(vertSize + " >= " + vertexV2.distance(point) + " (" + vertexV2 + " to " + point + ")");
+
+		double vertSize = vertexSize / 2.0 / cameraHandler.getZoom();
+//		System.out.println(vertSize + " >= " + vertexV2.distance(point) + " (" + vertexV2 + " to " + point + ")");
 		return vertexV2.distance(point) <= vertSize;
 	}
 
@@ -68,7 +59,7 @@ public class HitTestStuff {
 		return xIn && yIn && zIn;
 	}
 
-	public static boolean triHitTest(Triangle triangle, Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
+	public static boolean triHitTest1(Triangle triangle, Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		byte dim1 = coordinateSystem.getPortFirstXYZ();
 		byte dim2 = coordinateSystem.getPortSecondXYZ();
 
@@ -77,6 +68,47 @@ public class HitTestStuff {
 		return within(verts[0].getProjected(dim1, dim2), min, max)
 				|| within(verts[1].getProjected(dim1, dim2), min, max)
 				|| within(verts[2].getProjected(dim1, dim2), min, max);
+	}
+
+	public static boolean triHitTest(Triangle triangle, Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
+		byte dim1 = coordinateSystem.getPortFirstXYZ();
+		byte dim2 = coordinateSystem.getPortSecondXYZ();
+
+		Vec2[] triPoints = triangle.getProjectedVerts(dim1, dim2);
+		Vec2 corner1 = new Vec2(min.x, max.y);
+		Vec2 corner2 = new Vec2(max.x, min.y);
+
+		boolean triPointWithinArea = within(triPoints[0], min, max)
+				|| within(triPoints[1], min, max)
+				|| within(triPoints[2], min, max);
+
+		boolean cornerWithinArea = pointInTriangle(min, triPoints[0], triPoints[1], triPoints[2])
+				|| pointInTriangle(max, triPoints[0], triPoints[1], triPoints[2])
+				|| pointInTriangle(corner1, triPoints[0], triPoints[1], triPoints[2])
+				|| pointInTriangle(corner2, triPoints[0], triPoints[1], triPoints[2]);
+
+		return triPointWithinArea || cornerWithinArea;
+	}
+
+	public static boolean triHitTest(Triangle triangle, Vec2 min, Vec2 max, Mat4 viewPortMat) {
+		Vec2[] triPoints = new Vec2[] {
+				new Vec3(triangle.get(0)).transform(viewPortMat).getProjected((byte) 1, (byte) 2),
+				new Vec3(triangle.get(1)).transform(viewPortMat).getProjected((byte) 1, (byte) 2),
+				new Vec3(triangle.get(2)).transform(viewPortMat).getProjected((byte) 1, (byte) 2),
+		};
+
+		Vec2 corner1 = new Vec2(min.x, max.y);
+		Vec2 corner2 = new Vec2(max.x, min.y);
+
+		boolean triPointWithinArea = within(triPoints[0], min, max)
+				|| within(triPoints[1], min, max)
+				|| within(triPoints[2], min, max);
+
+		boolean cornerWithinArea = pointInTriangle(min, triPoints[0], triPoints[1], triPoints[2])
+				|| pointInTriangle(max, triPoints[0], triPoints[1], triPoints[2])
+				|| pointInTriangle(corner1, triPoints[0], triPoints[1], triPoints[2])
+				|| pointInTriangle(corner2, triPoints[0], triPoints[1], triPoints[2]);
+		return triPointWithinArea || cornerWithinArea;
 	}
 
 	public static boolean triHitTest(Triangle triangle, Vec2 point, CoordinateSystem coordinateSystem) {
@@ -88,7 +120,17 @@ public class HitTestStuff {
 		return pointInTriangle(point, triPoints[0], triPoints[1], triPoints[2]);
 	}
 
-	private static boolean pointInTriangle (Vec2 point, Vec2 v1, Vec2 v2, Vec2 v3) {
+	public static boolean triHitTest(Triangle triangle, Vec2 point, Mat4 viewPortMat) {
+		Vec2[] triPoints = new Vec2[] {
+				new Vec3(triangle.get(0)).transform(viewPortMat).getProjected((byte) 1, (byte) 2),
+				new Vec3(triangle.get(1)).transform(viewPortMat).getProjected((byte) 1, (byte) 2),
+				new Vec3(triangle.get(2)).transform(viewPortMat).getProjected((byte) 1, (byte) 2),
+		};
+
+		return pointInTriangle(point, triPoints[0], triPoints[1], triPoints[2]);
+	}
+
+	private static boolean pointInTriangle(Vec2 point, Vec2 v1, Vec2 v2, Vec2 v3) {
 		float d1 = (point.x - v2.x) * (v1.y - v2.y) - (v1.x - v2.x) * (point.y - v2.y);
 		float d2 = (point.x - v3.x) * (v2.y - v3.y) - (v2.x - v3.x) * (point.y - v3.y);
 		float d3 = (point.x - v1.x) * (v3.y - v1.y) - (v3.x - v1.x) * (point.y - v1.y);
@@ -102,43 +144,19 @@ public class HitTestStuff {
 		return !(has_neg && has_pos);
 	}
 
-	public static boolean hitTest(Vec3 pivotPoint, Vec2 point, CoordinateSystem coordinateSystem, double vertexSize, Mat4 worldMatrix) {
-		Vec3 pivotHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
-//		pivotHeap.transform(worldMatrix);
-		Vec2 vertexV2 = CoordSysUtils.convertToViewVec2(coordinateSystem, pivotHeap);
-		double vertSize = vertexSize / 2.0 / coordinateSystem.getZoom();
-		return vertexV2.distance(point) <= vertSize;
+	public static boolean hitTest222(Vec2 min, Vec2 max, Vec3 vec3, Mat4 viewPortMat, double vertexSize, double zoom) {
+//
+//		Vec3 minView = new Vec3(min).minimize(max);
+//		Vec3 maxView = new Vec3(max).maximize(min);
+//
+		Vec3 viewPAdj = new Vec3(vec3).transform(viewPortMat);
+		Vec2 vertexV2 = viewPAdj.getProjected((byte) 1, (byte) 2);
+
+		double vertSize = vertexSize / 2.0 * zoom;
+		return (vertexV2.distance(min) <= vertSize)
+				|| (vertexV2.distance(max) <= vertSize)
+				|| within(vertexV2, min, max);
 	}
-	public static boolean hitTest(Vec3 pivotPoint, Vec2 point, CameraHandler cameraHandler, double vertexSize, Mat4 worldMatrix) {
-		Vec3 pivotHeap = Vec3.getTransformed(pivotPoint, worldMatrix);
-//		pivotHeap.transform(worldMatrix);
-//		Vec2 vertexV2 = CoordSysUtils.convertToViewVec2(coordinateSystem, pivotHeap);
-//		Vec3 viewPAdj = new Vec3(pivotHeap).transform(worldMatrix);
-		Vec2 vertexV2 = pivotHeap.getProjected((byte) 1, (byte) 2);
-
-		double vertSize = vertexSize / 2.0 / cameraHandler.getZoom();
-		return vertexV2.distance(point) <= vertSize;
-	}
-
-	public static boolean hitTest(Vec2 min, Vec2 max,
-	                              CoordinateSystem coordinateSystem,
-	                              double vertexSize,
-	                              RenderNode renderNode) {
-		Vec3 pivotHeap = renderNode.getPivot();
-
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-
-		Vec2 minView = new Vec2(min).minimize(max);
-		Vec2 maxView = new Vec2(max).maximize(min);
-
-		Vec2 vertexV2 = pivotHeap.getProjected(dim1, dim2);
-
-		vertexV2.distance(max);
-		double vertSize = vertexSize / 2.0 / coordinateSystem.getZoom();
-		return vertexV2.distance(min) <= vertSize || vertexV2.distance(max) <= vertSize || within(vertexV2, min, max);
-	}
-
 
 
 	public static boolean triHitTest(Triangle triangle, Vec2 point, CoordinateSystem coordinateSystem, int uvLayerIndex) {

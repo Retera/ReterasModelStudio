@@ -7,6 +7,7 @@ import javax.swing.*;
 
 public class ModelViewManagingView extends ModelDependentView {
 //	ModelViewManagingTree modelViewManagingTree;
+ModelViewManagingTree modelViewManagingTree;
 	JScrollPane modelEditingTreePane;
 	ModelPanel modelPanel;
 	JPanel jPanel;
@@ -17,21 +18,32 @@ public class ModelViewManagingView extends ModelDependentView {
 		this.name = "Outliner";
 		jPanel = new JPanel();
 		jPanel.add(new JLabel("..."));
-		setComponent(jPanel);
+		modelEditingTreePane = new JScrollPane(jPanel);
+
+		setComponent(modelEditingTreePane);
 	}
 
 	@Override
 	public ModelViewManagingView setModelPanel(ModelPanel modelPanel){
 		this.modelPanel = modelPanel;
-		if(modelPanel == null){
-			this.setComponent(jPanel);
+		if(modelPanel == null) {
+			modelViewManagingTree = null;
+			modelEditingTreePane.setViewportView(jPanel);
 		} else {
 //			modelViewManagingTree = new ModelViewManagingTree(modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
 //			modelEditingTreePane = new JScrollPane(modelViewManagingTree);
-			modelEditingTreePane = modelPanel.getModelEditingTreePane();
-			this.setComponent(modelEditingTreePane);
+			modelViewManagingTree = modelPanel.getModelEditingTree();
+			modelEditingTreePane.setViewportView(modelViewManagingTree);
 		}
 		System.out.println("name: " + name + ", panel: " + modelPanel);
+		return this;
+	}
+
+	@Override
+	public ModelViewManagingView reload() {
+		if (modelViewManagingTree != null) {
+			modelViewManagingTree.reloadFromModelView().repaint();
+		}
 		return this;
 	}
 }

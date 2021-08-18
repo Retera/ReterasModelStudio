@@ -16,7 +16,7 @@ public class VertexClusterDefinitions {
 	private final Map<Vec3, Integer> vertexToClusterId = new HashMap<>();
 	private final int maxClusterIdKnown;
 
-	public VertexClusterDefinitions(EditableModel model, SelectionItemTypes selectionMode) {
+	public VertexClusterDefinitions(EditableModel model) {
 		Map<HashableVector, List<GeosetVertex>> positionToVertices = new HashMap<>();
 		for (Geoset geoset : model.getGeosets()) {
 			for (GeosetVertex vertex : geoset.getVertices()) {

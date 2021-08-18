@@ -90,11 +90,11 @@ public class AddKeyframeAction2 implements UndoAction {
 	}
 
 	private int getTrackTime(RenderModel renderModel) {
-		int trackTime = renderModel.getAnimatedRenderEnvironment().getAnimationTime();
+		int trackTime = renderModel.getTimeEnvironment().getAnimationTime();
 
-		Integer globalSeq = renderModel.getAnimatedRenderEnvironment().getGlobalSeq();
+		Integer globalSeq = renderModel.getTimeEnvironment().getGlobalSeq();
 		if (globalSeq != null) {
-			trackTime = renderModel.getAnimatedRenderEnvironment().getGlobalSeqTime(globalSeq);
+			trackTime = renderModel.getTimeEnvironment().getGlobalSeqTime(globalSeq);
 		}
 		return trackTime;
 	}

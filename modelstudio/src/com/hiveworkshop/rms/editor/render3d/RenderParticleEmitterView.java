@@ -16,30 +16,30 @@ public class RenderParticleEmitterView extends EmitterView {
     }
 
     public double getSpeed() {
-        return emitter.getRenderSpeed(instance.getAnimatedRenderEnvironment());
+        return emitter.getRenderSpeed(instance.getTimeEnvironment());
     }
 
     public double getLatitude() {
-        return emitter.getRenderLatitude(instance.getAnimatedRenderEnvironment());
+	    return emitter.getRenderLatitude(instance.getTimeEnvironment());
     }
 
     public double getLongitude() {
-        return emitter.getRenderLongitude(instance.getAnimatedRenderEnvironment());
+	    return emitter.getRenderLongitude(instance.getTimeEnvironment());
     }
 
     public double getLifeSpan() {
-        return emitter.getRenderLifeSpan(instance.getAnimatedRenderEnvironment());
+	    return emitter.getRenderLifeSpan(instance.getTimeEnvironment());
     }
 
     public double getGravity() {
-        return emitter.getRenderGravity(instance.getAnimatedRenderEnvironment());
+	    return emitter.getRenderGravity(instance.getTimeEnvironment());
     }
 
     public double getEmissionRate() {
-        return emitter.getRenderEmissionRate(instance.getAnimatedRenderEnvironment());
+	    return emitter.getRenderEmissionRate(instance.getTimeEnvironment());
     }
 
     public double getVisibility() {
-        return emitter.getRenderVisibility(instance.getAnimatedRenderEnvironment());
+	    return emitter.getRenderVisibility(instance.getTimeEnvironment());
     }
 }

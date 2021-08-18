@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs2;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.*;
 
@@ -85,7 +85,7 @@ public class WindowHandler {
 			@Override
 			public void windowUndocked(final DockingWindow dockingWindow) {
 				SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> {
-					KeyBindingPrefs2 keyBindingPrefs = ProgramGlobals.getPrefs().getKeyBindingPrefs();
+					KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
 					if (dockingWindow instanceof View) {
 						final Component component = ((View) dockingWindow).getComponent();
 						if (component instanceof JComponent) {

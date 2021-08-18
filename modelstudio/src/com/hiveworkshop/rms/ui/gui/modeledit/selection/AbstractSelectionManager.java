@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
@@ -14,10 +15,12 @@ import java.util.Collection;
 public abstract class AbstractSelectionManager {
 	protected ModelView modelView;
 	protected SelectionItemTypes selectionMode;
+	protected RenderModel editorRenderModel;
 
-	public AbstractSelectionManager(ModelView modelView, SelectionItemTypes selectionMode) {
+	public AbstractSelectionManager(RenderModel editorRenderModel, ModelView modelView, SelectionItemTypes selectionMode) {
 		this.modelView = modelView;
 		this.selectionMode = selectionMode;
+		this.editorRenderModel = editorRenderModel;
 	}
 
 	public AbstractSelectionManager setSelectionMode(SelectionItemTypes selectionMode) {
@@ -31,7 +34,7 @@ public abstract class AbstractSelectionManager {
 
 	public abstract Vec3 getCenter();
 
-	public abstract SelectoinUgg genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+	public abstract SelectionBundle genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 
 	public abstract UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 
@@ -45,7 +48,7 @@ public abstract class AbstractSelectionManager {
 
 	public abstract UndoAction addSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom);
 
-	public void setSelection(SelectoinUgg selectionItem) {
+	public void setSelection(SelectionBundle selectionItem) {
 		if (selectionMode == SelectionItemTypes.VERTEX
 				|| selectionMode == SelectionItemTypes.FACE
 				|| selectionMode == SelectionItemTypes.GROUP
@@ -61,7 +64,7 @@ public abstract class AbstractSelectionManager {
 	}
 
 
-	public void addSelection(SelectoinUgg selectionItem) {
+	public void addSelection(SelectionBundle selectionItem) {
 		if (selectionMode == SelectionItemTypes.VERTEX
 				|| selectionMode == SelectionItemTypes.FACE
 				|| selectionMode == SelectionItemTypes.GROUP
@@ -76,7 +79,7 @@ public abstract class AbstractSelectionManager {
 		}
 	}
 
-	public void removeSelection(SelectoinUgg selectionItem) {
+	public void removeSelection(SelectionBundle selectionItem) {
 		if (selectionMode == SelectionItemTypes.VERTEX
 				|| selectionMode == SelectionItemTypes.FACE
 				|| selectionMode == SelectionItemTypes.GROUP
@@ -116,6 +119,7 @@ public abstract class AbstractSelectionManager {
 	public abstract Collection<? extends Vec2> getSelectedTVertices(int tvertexLayerId);
 
 	public abstract boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes);
-	public abstract boolean selectableUnderCursor(Vec2 point, CameraHandler axes);
+
+	public abstract boolean selectableUnderCursor(Vec2 point, CameraHandler cameraHandler);
 
 }

@@ -55,7 +55,7 @@ public class RenderParticleEmitter2View extends EmitterView {
 
 				lastEmissionRate = emissionRate;
 			} else {
-				currentEmission += emissionRate * TimeEnvironmentImpl.FRAMES_PER_UPDATE * 0.001 * instance.getAnimatedRenderEnvironment().getAnimationSpeed();
+				currentEmission += emissionRate * TimeEnvironmentImpl.FRAMES_PER_UPDATE * 0.001 * instance.getTimeEnvironment().getAnimationSpeed();
 			}
 			renderEmitter.fill(this);
 		}
@@ -75,38 +75,38 @@ public class RenderParticleEmitter2View extends EmitterView {
 	}
 
 	public double getSpeed() {
-		return particleEmitter2.getRenderSpeed(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderSpeed(instance.getTimeEnvironment());
 	}
 
 	public double getTimeScale() {
-		return instance.getAnimatedRenderEnvironment().getAnimationSpeed();
+		return instance.getTimeEnvironment().getAnimationSpeed();
 	}
 
 	public double getLatitude() {
-		return particleEmitter2.getRenderLatitude(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderLatitude(instance.getTimeEnvironment());
 	}
 
 	public double getGravity() {
-		return particleEmitter2.getRenderGravity(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderGravity(instance.getTimeEnvironment());
 	}
 
 	public double getEmissionRate() {
-		return particleEmitter2.getRenderEmissionRate(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderEmissionRate(instance.getTimeEnvironment());
 	}
 
 	public double getVisibility() {
-		return particleEmitter2.getRenderVisibility(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderVisibility(instance.getTimeEnvironment());
 	}
 
 	public double getWidth() {
-		return particleEmitter2.getRenderWidth(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderWidth(instance.getTimeEnvironment());
 	}
 
 	public double getLength() {
-		return particleEmitter2.getRenderLength(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderLength(instance.getTimeEnvironment());
 	}
 
 	public double getVariation() {
-		return particleEmitter2.getRenderVariation(instance.getAnimatedRenderEnvironment());
+		return particleEmitter2.getRenderVariation(instance.getTimeEnvironment());
 	}
 }

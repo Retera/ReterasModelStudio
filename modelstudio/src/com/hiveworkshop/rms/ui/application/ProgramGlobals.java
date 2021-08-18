@@ -7,7 +7,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.language.Translator;
-import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs2;
+import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.util.sound.SoundMappings;
@@ -33,8 +34,8 @@ public class ProgramGlobals {
 	private static final Translator translator;
 
 
-//	private static KeyBindingPrefs keyBindingPrefs;
-	private static KeyBindingPrefs2 keyBindingPrefs;
+	private static KeyBindingPrefs keyBindingPrefs;
+	private static EditorColorPrefs editorColorPrefs;
 
 	private static final ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeGroup;
 	private static final ToolbarButtonGroup2<SelectionMode> selectionModeGroup;
@@ -50,6 +51,7 @@ public class ProgramGlobals {
 		translator = new Translator();
 		System.out.println("loading KeyBindingPrefs");
 		keyBindingPrefs = prefs.getKeyBindingPrefs();
+		editorColorPrefs = prefs.getEditorColorPrefs();
 		modelPanels = new ArrayList<>();
 		undoHandler = new UndoHandler();
 
@@ -216,8 +218,12 @@ public class ProgramGlobals {
 		ProgramGlobals.lockLayout = lockLayout;
 	}
 
-	public static KeyBindingPrefs2 getKeyBindingPrefs() {
+	public static KeyBindingPrefs getKeyBindingPrefs() {
 		return keyBindingPrefs;
+	}
+
+	public static EditorColorPrefs getEditorColorPrefs() {
+		return editorColorPrefs;
 	}
 
 	public static Translator getTranslator() {

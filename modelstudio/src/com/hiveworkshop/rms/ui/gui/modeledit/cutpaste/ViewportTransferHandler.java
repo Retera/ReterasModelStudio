@@ -13,14 +13,14 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditor;
+import com.hiveworkshop.rms.ui.application.edit.mesh.GeometryModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectoinUgg;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -88,7 +88,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		for (Camera object : pastedModel.getCameras()) {
 			pastedModelView.makeCameraEditable(object);
 		}
-		AbstractModelEditor listener = new AbstractModelEditor(new SelectionManager(pastedModelView, SelectionItemTypes.VERTEX), modelHandler, SelectionItemTypes.VERTEX);
+		GeometryModelEditor listener = new GeometryModelEditor(new SelectionManager(modelHandler.getRenderModel(), pastedModelView, SelectionItemTypes.VERTEX), modelHandler, SelectionItemTypes.VERTEX);
 		pastedModelView.selectAll();
 		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
 		Vec3 vertex = new Vec3(0, 0, 0);
@@ -115,7 +115,7 @@ public class ViewportTransferHandler extends TransferHandler {
 
 		UndoAction pasteAction = new CompoundAction("Paste", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated);
 
-		SelectoinUgg pastedSelection = new SelectoinUgg(pastedVerts, pastedModel.getIdObjects(), pastedModel.getCameras());
+		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, pastedModel.getIdObjects(), pastedModel.getCameras());
 		UndoAction selectPasted = new SetSelectionUggAction(pastedSelection, currentModelView, "select pasted");
 
 		UndoManager undoManager = ProgramGlobals.getCurrentModelPanel().getModelHandler().getUndoManager();

@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.creator.ModelingCreatorToolsView;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.ModelComponentsView;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.ModelViewManagingView;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs2;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 import com.hiveworkshop.rms.util.ModelDependentView;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.*;
@@ -28,9 +28,9 @@ import java.util.Set;
 
 public class WindowHandler2 {
 	protected static final boolean OLDMODE = false;
-	private static final Set<DisplayViewUgg> displayPanelViews = new HashSet<>();
-	private static final Set<PerspectiveViewUgg> perspectivePanelViews = new HashSet<>();
-	private static final Set<PreviewView> previewPanelViews = new HashSet<>();
+	//	private static final Set<DisplayViewUgg> displayPanelViews = new HashSet<>();
+//	private static final Set<PerspectiveViewUgg> perspectivePanelViews = new HashSet<>();
+//	private static final Set<PreviewView> previewPanelViews = new HashSet<>();
 	private static final Set<TimeSliderView> timeSliders = new HashSet<>();
 	private static final Set<ModelViewManagingView> modelViewManagingTrees = new HashSet<>();
 	private static final Set<ModelingCreatorToolsView> editingToolChooserViews = new HashSet<>();
@@ -100,12 +100,14 @@ public class WindowHandler2 {
 //		for(ModelComponentsView componentBrowserTreeView : componentBrowserTreeViews){
 //			componentBrowserTreeView.setModelPanel(modelPanel);
 //		}
-		for(ModelDependentView view : allViews){
+
+		allViews.removeIf(view -> !view.isValid());
+		for (ModelDependentView view : allViews) {
 			view.setModelPanel(modelPanel);
 		}
 
 		if (modelPanel != null) {
-			modelPanel.reloadComponentBrowser();
+//			modelPanel.reloadComponentBrowser();
 			modelPanel.reloadModelEditingTree();
 		}
 
@@ -163,7 +165,7 @@ public class WindowHandler2 {
 
 //		View preview = getTitledView("Preview");
 		PreviewView previewView = new PreviewView();
-		previewPanelViews.add(previewView);
+//		previewPanelViews.add(previewView);
 		allViews.add(previewView);
 //		View animation_controller = getTitledView("Animation Controller");
 //		animationControllerViews.add(animation_controller);
@@ -189,15 +191,15 @@ public class WindowHandler2 {
 		DisplayViewUgg front = new DisplayViewUgg("Front");
 		DisplayViewUgg bottom = new DisplayViewUgg("Bottom");
 		DisplayViewUgg side = new DisplayViewUgg("Side");
-		displayPanelViews.add(front);
-		displayPanelViews.add(bottom);
-		displayPanelViews.add(side);
+//		displayPanelViews.add(front);
+//		displayPanelViews.add(bottom);
+//		displayPanelViews.add(side);
 		allViews.add(front);
 		allViews.add(bottom);
 		allViews.add(side);
 
 		PerspectiveViewUgg perspective = new PerspectiveViewUgg();
-		perspectivePanelViews.add(perspective);
+//		perspectivePanelViews.add(perspective);
 		allViews.add(perspective);
 		SplitWindow frBt = new SplitWindow(true, front, bottom);
 		SplitWindow lfPs = new SplitWindow(true, side, perspective);
@@ -307,7 +309,7 @@ public class WindowHandler2 {
 			@Override
 			public void windowUndocked(final DockingWindow dockingWindow) {
 				SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> {
-					KeyBindingPrefs2 keyBindingPrefs = ProgramGlobals.getPrefs().getKeyBindingPrefs();
+					KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
 					if (dockingWindow instanceof View) {
 						final Component component = ((View) dockingWindow).getComponent();
 						if (component instanceof JComponent) {
@@ -373,12 +375,12 @@ public class WindowHandler2 {
 //		for(ModelComponentsView componentBrowserTreeView : componentBrowserTreeViews){
 //			componentBrowserTreeView.setVisible(false);
 //		}
-		for(ModelDependentView view : allViews){
+		for (ModelDependentView view : allViews) {
 			view.setVisible(false);
 		}
-		displayPanelViews.clear();
-		perspectivePanelViews.clear();
-		previewPanelViews.clear();
+//		displayPanelViews.clear();
+//		perspectivePanelViews.clear();
+//		previewPanelViews.clear();
 		timeSliders.clear();
 		modelViewManagingTrees.clear();
 		editingToolChooserViews.clear();

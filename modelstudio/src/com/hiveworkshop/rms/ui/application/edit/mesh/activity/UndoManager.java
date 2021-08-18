@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 
 import java.util.ArrayDeque;
@@ -32,6 +33,10 @@ public class UndoManager {
 	public void pushAction(UndoAction action) {
 		availableUndoActions.push(action);
 		availableRedoActions.clear();
+		if (availableUndoActions.size() > ProgramGlobals.getPrefs().getMaxNumbersOfUndo()) {
+			availableUndoActions.removeLast();
+//			availableUndoActions.pollLast();
+		}
 		undoHandler.refreshUndo();
 	}
 

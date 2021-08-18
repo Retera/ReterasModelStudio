@@ -38,7 +38,9 @@ public final class CompoundAction implements UndoAction {
 	public UndoAction undo() {
 		for (int i = actions.size() - 1; i >= 0; i--) {
 			final UndoAction action = actions.get(i);
-			action.undo();
+			if (action != null) {
+				action.undo();
+			}
 		}
 		if (updater != null) {
 			updater.run();
@@ -49,7 +51,9 @@ public final class CompoundAction implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		for (final UndoAction action : actions) {
-			action.redo();
+			if (action != null) {
+				action.redo();
+			}
 		}
 		if (updater != null) {
 			updater.run();

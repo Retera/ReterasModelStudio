@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs2;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 import net.infonode.docking.FloatingWindow;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.View;
@@ -22,7 +22,7 @@ public class FloatingWindowFactory {
                     = rootWindow.createFloatingWindow(rootWindow.getLocation(), new Dimension(640, 480), view);
             createFloatingWindow.getTopLevelAncestor().setVisible(true);
 
-            KeyBindingPrefs2 keyBindingPrefs = ProgramGlobals.getPrefs().getKeyBindingPrefs();
+	        KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
 //            view.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
             createFloatingWindow.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
             createFloatingWindow.setActionMap(keyBindingPrefs.getActionMap());

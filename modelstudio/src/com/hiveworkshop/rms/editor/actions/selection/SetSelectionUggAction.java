@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectoinUgg;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -22,7 +22,7 @@ public final class SetSelectionUggAction implements UndoAction {
 	private final ModelView modelView;
 	private final String actionName;
 
-	public SetSelectionUggAction(SelectoinUgg newSelection,
+	public SetSelectionUggAction(SelectionBundle newSelection,
 	                             ModelView modelView, String actionName) {
 		this.modelView = modelView;
 

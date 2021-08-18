@@ -43,7 +43,7 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 	// MDL mdl;
 	ModelHandler modelHandler = new ModelHandler(mdl);
 	//	ModelView modelDisp = new ModelView(mdl);
-	PerspDisplayPanel modelPanel;
+	PerspDisplayPanel perspDisplayPanel;
 	DefaultTableModel tableModel;
 	DefaultMutableTreeNode defaultSelection = null;
 	JScrollPane treePane;
@@ -59,14 +59,14 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 		final JPanel temp = new JPanel();
 		temp.add(debugLabel);
 
-		modelPanel = new PerspDisplayPanel("blank", modelHandler);
+		perspDisplayPanel = new PerspDisplayPanel("blank", modelHandler);
 		fillTable();
 
-		setRightComponent(modelPanel);
+		setRightComponent(perspDisplayPanel);
 
 		tree.addTreeSelectionListener(this);
 		treePane.setPreferredSize(new Dimension(350, 600));
-		modelPanel.setPreferredSize(new Dimension(800, 600));
+		perspDisplayPanel.setPreferredSize(new Dimension(800, 600));
 		if (defaultSelection != null) {
 			tree.getSelectionModel().setSelectionPath(getPath(defaultSelection));
 		}
@@ -96,8 +96,8 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 				mdl = TempOpenModelStuff.createEditableModel(MdxUtils.loadMdlx(reader));
 //				modelDisp = new ModelView(mdl);
 				modelHandler = new ModelHandler(mdl);
-				modelPanel.setViewport(modelHandler);
-				modelPanel.setTitle(currentUnit.getName());
+				perspDisplayPanel.setModel(modelHandler);
+				perspDisplayPanel.setTitle(currentUnit.getName());
 			} catch (final IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

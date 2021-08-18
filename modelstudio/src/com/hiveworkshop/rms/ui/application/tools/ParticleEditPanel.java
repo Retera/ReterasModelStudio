@@ -297,7 +297,7 @@ public class ParticleEditPanel extends JPanel {
 	private PerspectiveViewport getViewport(ModelHandler modelHandler) {
 		try {
 			modelHandler.getPreviewRenderModel().updateNodes(true);
-			PerspectiveViewport perspectiveViewport = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getPreviewRenderModel(), modelHandler.getPreviewTimeEnv(), true);
+			PerspectiveViewport perspectiveViewport = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getPreviewRenderModel(), true);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			return perspectiveViewport;
 		} catch (LWJGLException e) {

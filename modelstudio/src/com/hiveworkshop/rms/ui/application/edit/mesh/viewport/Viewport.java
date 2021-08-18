@@ -43,7 +43,7 @@ public class Viewport extends ViewportView {
 
 		viewport = this;
 
-		contextMenu = new ViewportPopupMenu(this, this.modelHandler, this.modelEditorManager);
+		contextMenu = new ViewportPopupMenu(this, this.getRootPane(), this.modelHandler, this.modelEditorManager);
 		add(contextMenu);
 
 		viewportModelRenderer = new ViewportModelRenderer(ProgramGlobals.getPrefs().getVertexSize());

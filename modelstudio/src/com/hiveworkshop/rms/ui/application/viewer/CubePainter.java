@@ -6,7 +6,10 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.renderparts.RenderGeoset;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
+import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
@@ -229,6 +232,7 @@ public class CubePainter {
 
 //		glBegin(GL11.GL_TRIANGLES);
 //		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		GL11.glDepthMask(false);
 		glBegin(GL11.GL_LINES);
 
 		float frnt = 1;
@@ -353,6 +357,7 @@ public class CubePainter {
 		}
 		glEnd();
 	}
+
 	public static void paintBones1(ModelView modelView, RenderModel renderModel, IdObject idObject, CameraHandler cameraHandler) {
 		RenderNode renderNode = renderModel.getRenderNode(idObject);
 		if (renderNode != null) {
@@ -370,8 +375,6 @@ public class CubePainter {
 			float rght = -left;
 			float down = -uppp;
 
-			Vec3 ugg = new Vec3(0,0,20);
-
 			Vec3 upBackRght_adj = new Vec3(frnt * boxRadLength, rght * boxRadWidth, uppp * boxRadHeight);
 			Vec3 dwBackRght_adj = new Vec3(frnt * boxRadLength, rght * boxRadWidth, down * boxRadHeight);
 			Vec3 upFrntRght_adj = new Vec3(back * boxRadLength, rght * boxRadWidth, uppp * boxRadHeight);
@@ -381,14 +384,14 @@ public class CubePainter {
 			Vec3 upFrntLeft_adj = new Vec3(back * boxRadLength, left * boxRadWidth, uppp * boxRadHeight);
 			Vec3 dwFrntLeft_adj = new Vec3(back * boxRadLength, left * boxRadWidth, down * boxRadHeight);
 
-	//		Vec3 upBackRght_adj = new Vec3(frnt * boxRadLength, rght * boxRadWidth, 0 * uppp * boxRadHeight);
-	//		Vec3 dwBackRght_adj = new Vec3(frnt * boxRadLength, rght * boxRadWidth, down * boxRadHeight);
-	//		Vec3 upFrntRght_adj = new Vec3(back * boxRadLength, rght * boxRadWidth, 0 * uppp * boxRadHeight);
-	//		Vec3 dwFrntRght_adj = new Vec3(back * boxRadLength, rght * boxRadWidth, down * boxRadHeight);
-	//		Vec3 upBackLeft_adj = new Vec3(frnt * boxRadLength, left * boxRadWidth, 0 * uppp * boxRadHeight);
-	//		Vec3 dwBackLeft_adj = new Vec3(frnt * boxRadLength, left * boxRadWidth, down * boxRadHeight);
-	//		Vec3 upFrntLeft_adj = new Vec3(back * boxRadLength, left * boxRadWidth, 0 * uppp * boxRadHeight);
-	//		Vec3 dwFrntLeft_adj = new Vec3(back * boxRadLength, left * boxRadWidth, down * boxRadHeight);
+			//		Vec3 upBackRght_adj = new Vec3(frnt * boxRadLength, rght * boxRadWidth, 0 * uppp * boxRadHeight);
+			//		Vec3 dwBackRght_adj = new Vec3(frnt * boxRadLength, rght * boxRadWidth, down * boxRadHeight);
+			//		Vec3 upFrntRght_adj = new Vec3(back * boxRadLength, rght * boxRadWidth, 0 * uppp * boxRadHeight);
+			//		Vec3 dwFrntRght_adj = new Vec3(back * boxRadLength, rght * boxRadWidth, down * boxRadHeight);
+			//		Vec3 upBackLeft_adj = new Vec3(frnt * boxRadLength, left * boxRadWidth, 0 * uppp * boxRadHeight);
+			//		Vec3 dwBackLeft_adj = new Vec3(frnt * boxRadLength, left * boxRadWidth, down * boxRadHeight);
+			//		Vec3 upFrntLeft_adj = new Vec3(back * boxRadLength, left * boxRadWidth, 0 * uppp * boxRadHeight);
+			//		Vec3 dwFrntLeft_adj = new Vec3(back * boxRadLength, left * boxRadWidth, down * boxRadHeight);
 
 
 			Vec3 upFrntRght = new Vec3(0, 0, 0);
@@ -401,106 +404,30 @@ public class CubePainter {
 			Vec3 dwBackLeft = new Vec3(0, 0, 0);
 
 
-
-//			Vec3 renderPosNode = new Vec3(idObject.getPivotPoint()).transform(renderNode.getWorldMatrix());
-			Vec3 renderPosNode = new Vec3(renderNode.getPivot());
+			Vec3 renderPosNode = renderNode.getPivot();
 
 			RenderNode parentNode = renderModel.getRenderNode(idObject.getParent());
-			Vec3 parentPivot = new Vec3(0,0,0);
-			if(idObject.getParent() != null && parentNode != null){
-//				parentPivot.set(-1,1,1).multiply(parentNode.getPivot()).transform(parentNode.getWorldMatrix());
-//				parentPivot.set(renderModel.getRenderNode(idObject.getParent()).getWorldLocation());
-//				parentPivot.set(idObject.getParent().getPivotPoint()).transform(parentNode.getWorldMatrix());
+			Vec3 parentPivot = new Vec3(0, 0, 0);
+			if (idObject.getParent() != null && parentNode != null) {
 				parentPivot.set(parentNode.getPivot());
 			} else {
-				parentPivot.set(renderPosNode).add(zAxis);
+				parentPivot.set(renderPosNode).addScaled(zAxis, 0.01f);
 			}
 
 
-//			Vec3 diffVec = new Vec3(renderPosNode).sub(parentPivot);
 			Vec3 diffVec = new Vec3(parentPivot).sub(renderPosNode);
 			Vec3 tempVec = new Vec3();
-			Vec3 tempAxis = new Vec3();
 
-//			tempVec.set(diffVec).multiply(xAxis_isolate).normalize();
-////			Quat difRotX = new Quat().setFromAxisAngle(xAxis, (float) (Math.PI/2 - tempVec.radAngleTo(xAxis)));
-//			Quat difRotX = new Quat().setFromAxisAngle(xAxis, (float) (tempVec.radAngleTo(xAxis)));
-//			difRotX.normalize();
-//			tempVec.set(diffVec).cross(zAxis).normalize();
 			tempVec.set(zAxis).cross(diffVec).normalize();
 
-//			tempVec.set(diffVec).multiply(xAxis_isolate).normalize();
-//			Quat difRotX = new Quat().setFromAxisAngle(xAxis, (float) (Math.PI/2 - tempVec.radAngleTo(xAxis)));
-//			Quat difRotX = new Quat().setFromAxisAngle(tempVec, (float) (tempVec.radAngleTo(zAxis)));
-			Quat difRotX = new Quat().setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
-			Quat difRotX2 = new Quat().setFromAxisAngle(tempVec, (float) (Math.PI/2)).normalize();
-			difRotX.mul(difRotX2).normalize();
-
-
-//			tempVec.set(diffVec).multiply(yAxis_isolate).normalize();
-			tempVec.set(diffVec).normalize();
-			tempAxis.set(diffVec).multiply(zAxis_isolate).normalize();
-//			Quat difRotY = new Quat().setFromAxisAngle(yAxis, (float) (Math.PI/2 - tempVec.radAngleTo(yAxis)));
-//			Quat difRotY = new Quat().setFromAxisAngle(yAxis, (float) (tempVec.radAngleTo(zAxis)));
-//			Quat difRotY = new Quat().setFromAxisAngle(-tempVec.y, tempVec.x, 0, (float) (tempVec.radAngleTo(tempAxis)));
-//			Quat difRotY = new Quat().setFromAxisAngle(-tempVec.y, tempVec.x, 0, (float) (tempVec.getAngleToZaxis()));
-			Quat difRotY = new Quat().setFromAxisAngle(-tempVec.y, tempVec.x, 0, (float) (tempVec.radAngleTo(zAxis)));
-//			Quat difRotY = new Quat().setFromAxisAngle(-tempVec.y, tempVec.x, 0, (float) (Math.min(A90*2.0-tempVec.radAngleTo(tempAxis),tempVec.radAngleTo(tempAxis))));
-			difRotY.normalize();
-
-
-			tempVec.set(diffVec).multiply(zAxis_isolate).normalize();
-			tempAxis.set(diffVec).normalize();
-//			tempVec.set(diffVec).normalize();
-//			Quat difRotZ = new Quat().setFromAxisAngle(zAxis, (float) (Math.PI/2 - tempVec.radAngleTo(zAxis)));
-//			Quat difRotZ = new Quat().setFromAxisAngle(zAxis, (float) (Math.min(A90*2-tempVec.radAngleTo(yAxis),tempVec.radAngleTo(yAxis))));
-//			Quat difRotZ = new Quat().setFromAxisAngle(zAxis, (float) (tempVec.radAngleTo(yAxis)));
-//			Quat difRotZ = new Quat().setFromAxisAngle(zAxis, (float) (tempVec.radAngleTo2(yAxis)));
-//			Quat difRotZ = new Quat().setFromAxisAngle(zAxis, (float) (tempAxis.getZrotToYaxis()));
-			Quat difRotZ = new Quat().setFromAxisAngle(zAxis, (float) (tempVec.getZrotToYaxis()));
-			difRotZ.normalize();
-
-//			Quat temp1 = new Quat().setFromAxisAngle(diffVec, (float) (Math.PI/2 - tempVec.radAngleTo(zAxis))).invertRotation();
-//			Quat temp2 = new Quat().setFromAxisAngle(zAxis, (float) 0);
-//			temp1.normalize();
-//			temp2.normalize();
-//			System.out.println("axis angle: " + temp1.toAxisWithAngle());
-
-//			Quat difRotR = new Quat().setFromAxisAngle(zAxis, (float) 0).mul(difRotX).mul(difRotY).mul(difRotZ);
-//			Quat difRotR = new Quat().setFromAxisAngle(zAxis, (float) A90).mul(difRotZ);//.mul(difRot2);
-//			Quat difRotR = new Quat().setFromAxisAngle(yAxis, (float) 0.0).mul(difRotY).mul(difRotZ);
-//			Quat difRotR = new Quat(difRotY).mul(difRotZ);
-//			Quat difRotR = new Quat(difRotZ).mul(difRotY);
-//			Quat difRotR = new Quat(difRotY);
-			Quat difRotR = new Quat(difRotX);
-//			difRotR.set(temp1);
-			difRotR.normalize();
-
-
-//			upBackRght.set(upBackRght_adj).transform(difRotR).add(renderPosNode);
-//			upBackLeft.set(upBackLeft_adj).transform(difRotR).add(renderPosNode);
-//			upFrntRght.set(upFrntRght_adj).transform(difRotR).add(renderPosNode);
-//			upFrntLeft.set(upFrntLeft_adj).transform(difRotR).add(renderPosNode);
-
-//			upBackRght.set(upBackRght_adj).transform(difRotR).add(parentPivot);
-//			upBackLeft.set(upBackLeft_adj).transform(difRotR).add(parentPivot);
-//			upFrntRght.set(upFrntRght_adj).transform(difRotR).add(parentPivot);
-//			upFrntLeft.set(upFrntLeft_adj).transform(difRotR).add(parentPivot);
-
-//			upBackRght.set(upBackRght_adj).add(ugg).transform(difRotR).add(renderPosNode);
-//			upBackLeft.set(upBackLeft_adj).add(ugg).transform(difRotR).add(renderPosNode);
-//			upFrntRght.set(upFrntRght_adj).add(ugg).transform(difRotR).add(renderPosNode);
-//			upFrntLeft.set(upFrntLeft_adj).add(ugg).transform(difRotR).add(renderPosNode);
+			Quat difRotR = new Quat().setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
+			Quat rot90 = new Quat().setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
+			difRotR.mul(rot90).normalize();
 
 			dwBackRght.set(dwBackRght_adj).transform(difRotR).add(renderPosNode);
 			dwBackLeft.set(dwBackLeft_adj).transform(difRotR).add(renderPosNode);
 			dwFrntRght.set(dwFrntRght_adj).transform(difRotR).add(renderPosNode);
 			dwFrntLeft.set(dwFrntLeft_adj).transform(difRotR).add(renderPosNode);
-
-//			dwBackRght.set(dwBackRght_adj).transform(difRotR).add(renderPosNode);
-//			dwBackLeft.set(dwBackLeft_adj).transform(difRotR).add(renderPosNode);
-//			dwFrntRght.set(dwFrntRght_adj).transform(difRotR).add(renderPosNode);
-//			dwFrntLeft.set(dwFrntLeft_adj).transform(difRotR).add(renderPosNode);
 
 			upBackRght.set(upBackRght_adj).transform(difRotR).add(parentPivot);
 			upBackLeft.set(upBackLeft_adj).transform(difRotR).add(parentPivot);
@@ -508,25 +435,34 @@ public class CubePainter {
 			upFrntLeft.set(upFrntLeft_adj).transform(difRotR).add(parentPivot);
 
 
-			if (true){
+			if (true) {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				glBegin(GL_QUADS);
+//				if (modelView.isSelected(idObject)) {
+//					glColor4f(1f, .0f, .0f, .7f);
+//				} else {
+//					glColor4f(.5f, .3f, .7f, .7f);
+//				}
+
 				if (modelView.isSelected(idObject)) {
 					glColor4f(1f, .0f, .0f, .7f);
-				} else {
+				} else if (modelView.isEditable(idObject)) {
 					glColor4f(.5f, .3f, .7f, .7f);
+				} else {
+					glColor4f(.4f, .3f, .7f, .4f);
 				}
+
 				//Up
 				GL11.glNormal3f(0, uppp, 0);
 				doGlQuad(upBackRght, upBackLeft, upFrntRght, upFrntLeft);
 
-				glColor4f(.0f, .0f, .7f, .7f);
+//				glColor4f(.0f, .0f, .7f, .7f);
 				//Down
 				GL11.glNormal3f(0, down, 0);
 				doGlQuad(dwFrntRght, dwFrntLeft, dwBackRght, dwBackLeft);
 
 
-				glColor4f(.7f, .7f, .0f, .4f);
+//				glColor4f(.7f, .7f, .0f, .4f);
 				//Back
 				GL11.glNormal3f(0, 0, back);
 				doGlQuad(upFrntRght, upFrntLeft, dwFrntRght, dwFrntLeft);
@@ -547,17 +483,12 @@ public class CubePainter {
 			}
 
 
-
 			if (idObject.getParent() != null) {
 
 				glBegin(GL_LINES);
 				glColor4f(.9f, .7f, 1f, .9f);
-				Vec3 renderPos2 = new Vec3(renderNode.getPivot());//.transform(renderNode.getWorldMatrix());
-//				GL11.glVertex3f(renderPos2.x, renderPos2.y, renderPos2.z);
 				GL11.glVertex3f(renderPosNode.x, renderPosNode.y, renderPosNode.z);
 				GL11.glVertex3f(parentPivot.x, parentPivot.y, parentPivot.z);
-//				GL11.glVertex3f(idObject.getPivotPoint().x, idObject.getPivotPoint().y, idObject.getPivotPoint().z);
-//				GL11.glVertex3f(idObject.getParent().getPivotPoint().x, idObject.getParent().getPivotPoint().y, idObject.getParent().getPivotPoint().z);
 
 				glEnd();
 			}
@@ -611,6 +542,223 @@ public class CubePainter {
 
 //				glEnd();
 //			}
+		}
+	}
+
+	public static void paintBones3(ModelView modelView, RenderModel renderModel, IdObject idObject, CameraHandler cameraHandler) {
+		RenderNode renderNode = renderModel.getRenderNode(idObject);
+		if (renderNode != null) {
+			float boxRadLength = 1.5f;
+			float boxRadHeight = 1.5f;
+			float boxRadWidth = 1.5f;
+			float frnt = 1;
+			float left = 1;
+			float uppp = 1;
+			float back = -frnt;
+			float rght = -left;
+			float down = -uppp;
+
+			Vec3 upBackRght_adj = new Vec3(frnt * boxRadLength, rght * boxRadWidth, uppp * boxRadHeight);
+			Vec3 dwBackRght_adj = new Vec3(frnt * boxRadLength, rght * boxRadWidth, down * boxRadHeight);
+			Vec3 upFrntRght_adj = new Vec3(back * boxRadLength, rght * boxRadWidth, uppp * boxRadHeight);
+			Vec3 dwFrntRght_adj = new Vec3(back * boxRadLength, rght * boxRadWidth, down * boxRadHeight);
+			Vec3 upBackLeft_adj = new Vec3(frnt * boxRadLength, left * boxRadWidth, uppp * boxRadHeight);
+			Vec3 dwBackLeft_adj = new Vec3(frnt * boxRadLength, left * boxRadWidth, down * boxRadHeight);
+			Vec3 upFrntLeft_adj = new Vec3(back * boxRadLength, left * boxRadWidth, uppp * boxRadHeight);
+			Vec3 dwFrntLeft_adj = new Vec3(back * boxRadLength, left * boxRadWidth, down * boxRadHeight);
+
+
+			Vec3 upFrntRght = new Vec3(0, 0, 0);
+			Vec3 upBackRght = new Vec3(0, 0, 0);
+			Vec3 dwFrntRght = new Vec3(0, 0, 0);
+			Vec3 dwBackRght = new Vec3(0, 0, 0);
+			Vec3 upFrntLeft = new Vec3(0, 0, 0);
+			Vec3 upBackLeft = new Vec3(0, 0, 0);
+			Vec3 dwFrntLeft = new Vec3(0, 0, 0);
+			Vec3 dwBackLeft = new Vec3(0, 0, 0);
+
+
+			Vec3 renderPosNode = idObject.getPivotPoint();
+
+			RenderNode parentNode = renderModel.getRenderNode(idObject.getParent());
+			Vec3 parentPivot = new Vec3(0, 0, 0);
+			if (idObject.getParent() != null && parentNode != null) {
+				parentPivot.set(idObject.getParent().getPivotPoint());
+			} else {
+				parentPivot.set(renderPosNode).addScaled(zAxis, 0.01f);
+			}
+
+
+			Vec3 diffVec = new Vec3(parentPivot).sub(renderPosNode);
+			Vec3 tempVec = new Vec3();
+
+			tempVec.set(zAxis).cross(diffVec).normalize();
+
+			Quat difRotR = new Quat().setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
+			Quat rot90 = new Quat().setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
+			difRotR.mul(rot90).normalize();
+
+			dwBackRght.set(dwBackRght_adj).add(renderPosNode).transform(renderNode.getWorldMatrix());
+			dwBackLeft.set(dwBackLeft_adj).add(renderPosNode).transform(renderNode.getWorldMatrix());
+			dwFrntRght.set(dwFrntRght_adj).add(renderPosNode).transform(renderNode.getWorldMatrix());
+			dwFrntLeft.set(dwFrntLeft_adj).add(renderPosNode).transform(renderNode.getWorldMatrix());
+
+			upBackRght.set(upBackRght_adj).add(parentPivot).transform(renderNode.getWorldMatrix());
+			upBackLeft.set(upBackLeft_adj).add(parentPivot).transform(renderNode.getWorldMatrix());
+			upFrntRght.set(upFrntRght_adj).add(parentPivot).transform(renderNode.getWorldMatrix());
+			upFrntLeft.set(upFrntLeft_adj).add(parentPivot).transform(renderNode.getWorldMatrix());
+
+
+			if (true) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glBegin(GL_QUADS);
+//				if (modelView.isSelected(idObject)) {
+//					glColor4f(1f, .0f, .0f, .7f);
+//				} else {
+//					glColor4f(.5f, .3f, .7f, .7f);
+//				}
+
+				if (modelView.isSelected(idObject)) {
+					glColor4f(1f, .0f, .0f, .7f);
+				} else if (modelView.isEditable(idObject)) {
+					glColor4f(.5f, .3f, .7f, .7f);
+				} else {
+					glColor4f(.4f, .3f, .7f, .4f);
+				}
+
+				//Up
+				GL11.glNormal3f(0, uppp, 0);
+				doGlQuad(upBackRght, upBackLeft, upFrntRght, upFrntLeft);
+
+//				glColor4f(.0f, .0f, .7f, .7f);
+				//Down
+				GL11.glNormal3f(0, down, 0);
+				doGlQuad(dwFrntRght, dwFrntLeft, dwBackRght, dwBackLeft);
+
+
+//				glColor4f(.7f, .7f, .0f, .4f);
+				//Back
+				GL11.glNormal3f(0, 0, back);
+				doGlQuad(upFrntRght, upFrntLeft, dwFrntRght, dwFrntLeft);
+
+				//Front
+				GL11.glNormal3f(0, 0, frnt);
+				doGlQuad(dwBackRght, dwBackLeft, upBackRght, upBackLeft);
+
+				//Right
+				GL11.glNormal3f(rght, 0, 0);
+				doGlQuad(dwFrntRght, dwBackRght, upFrntRght, upBackRght);
+
+				//Left
+				GL11.glNormal3f(left, 0, 0);
+				doGlQuad(upFrntLeft, upBackLeft, dwFrntLeft, dwBackLeft);
+
+				glEnd();
+			}
+
+
+			if (idObject.getParent() != null) {
+
+				glBegin(GL_LINES);
+				glColor4f(.9f, .7f, 1f, .9f);
+				GL11.glVertex3f(renderPosNode.x, renderPosNode.y, renderPosNode.z);
+				GL11.glVertex3f(parentPivot.x, parentPivot.y, parentPivot.z);
+
+				glEnd();
+			}
+		}
+	}
+
+
+	public static void paintBones2(ModelView modelView, RenderModel renderModel, IdObject idObject, CameraHandler cameraHandler) {
+		RenderNode renderNode = renderModel.getRenderNode(idObject);
+		if (renderNode != null) {
+			BoneRenderThing boneRenderThing = new BoneRenderThing();
+
+			Vec3 renderPosNode = renderNode.getPivot();
+			RenderNode parentNode = renderModel.getRenderNode(idObject.getParent());
+			if (idObject.getParent() != null && parentNode != null) {
+				boneRenderThing.transform2(renderPosNode, parentNode.getPivot());
+			} else {
+				boneRenderThing.transform2(renderPosNode, renderPosNode);
+			}
+
+			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
+
+//			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glPolygonMode(GL_FRONT_FACE, GL_FILL);
+//			glPolygonMode(GL_CULL_FACE, GL_FILL);
+			glBegin(GL_QUADS);
+
+			float[] components;
+			if (modelView.getHighlightedNode() == idObject) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_HIGHLIGHTED);
+			} else if (modelView.isSelected(idObject)) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_SELECTED);
+			} else if (modelView.isEditable(idObject)) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE);
+			} else {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_UNEDITABLE);
+			}
+			glColor4f(components[0], components[1], components[2], components[3]);
+
+//			if (modelView.isSelected(idObject)) {
+//				glColor4f(1f, .0f, .0f, .7f);
+//			} else if (modelView.isEditable(idObject)){
+//				glColor4f(.5f, .3f, .7f, .7f);
+//			} else {
+//				glColor4f(.4f, .3f, .7f, .4f);
+//			}
+
+			boneRenderThing.doGlGeom();
+
+			glEnd();
+		}
+	}
+
+	public static void paintBones4(ModelView modelView, RenderModel renderModel, IdObject idObject, CameraHandler cameraHandler) {
+		RenderNode renderNode = renderModel.getRenderNode(idObject);
+		if (renderNode != null) {
+			BoneRenderThing2 boneRenderThing = new BoneRenderThing2();
+
+			Vec3 renderPosNode = renderNode.getPivot();
+			RenderNode parentNode = renderModel.getRenderNode(idObject.getParent());
+			if (idObject.getParent() != null && parentNode != null) {
+				boneRenderThing.transform2(renderPosNode, parentNode.getPivot());
+			} else {
+				boneRenderThing.transform2(renderPosNode, renderPosNode);
+			}
+
+			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
+
+////			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//			glPolygonMode(GL_FRONT_FACE, GL_FILL);
+////			glPolygonMode(GL_CULL_FACE, GL_FILL);
+//			glBegin(GL_QUADS);
+
+			float[] components;
+			if (modelView.getHighlightedNode() == idObject) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_HIGHLIGHTED);
+			} else if (modelView.isSelected(idObject)) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_SELECTED);
+			} else if (modelView.isEditable(idObject)) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE);
+			} else {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_UNEDITABLE);
+			}
+//			glColor4f(components[0], components[1], components[2], components[3]);
+
+//			if (modelView.isSelected(idObject)) {
+//				glColor4f(1f, .0f, .0f, .7f);
+//			} else if (modelView.isEditable(idObject)){
+//				glColor4f(.5f, .3f, .7f, .7f);
+//			} else {
+//				glColor4f(.4f, .3f, .7f, .4f);
+//			}
+
+			boneRenderThing.doGlGeom(components);
+
+//			glEnd();
 		}
 	}
 
@@ -702,6 +850,43 @@ public class CubePainter {
 					GL11.glNormal3f(frnt, 0, 0);
 					doGlQuad(dwFrntRght, dwFrntLeft, upFrntRght, upFrntLeft);
 //
+				}
+			}
+		}
+		glEnd();
+	}
+
+	public static void paintVertSquares2(ModelView modelView, RenderModel renderModel, Geoset geo, CameraHandler cameraHandler) {
+		float v = (float) ((cameraHandler.geomX(4) - cameraHandler.geomX(0)));//*cameraHandler.getZoom());
+		VertRendererThing vertRendererThing = new VertRendererThing(v);
+//		glBegin(GL11.GL_TRIANGLES);
+
+//		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glPolygonMode(GL_FRONT, GL_FILL);
+//		glPolygonMode(GL_COLOR, GL_FILL);
+//		glBegin(GL_QUADS);
+		glBegin(GL11.GL_TRIANGLES);
+		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
+		EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
+
+		if (renderGeoset != null) {
+			for (GeosetVertex vertex : geo.getVertices()) {
+				float[] components;
+				if (modelView.isSelected(vertex)) {
+					components = colorPrefs.getColorComponents(ColorThing.VERTEX_SELECTED);
+//					glColor4f(1f, .0f, .0f, .7f);
+//					glColor4f(components[0], components[1], components[2], components[3]);
+				} else if (modelView.isEditable(vertex)) {
+					components = colorPrefs.getColorComponents(ColorThing.VERTEX);
+//					glColor4f(.5f, .3f, .7f, .7f);
+				} else {
+					components = colorPrefs.getColorComponents(ColorThing.VERTEX_UNEDITABLE);
+//					glColor4f(.4f, .3f, .7f, .4f);
+				}
+				glColor4f(components[0], components[1], components[2], components[3]);
+				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(vertex);
+				if (renderVert != null) {
+					vertRendererThing.transform(cameraHandler.getInverseCameraRotation(), renderVert.getRenderPos()).doGlGeom();
 				}
 			}
 		}
