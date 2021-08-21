@@ -235,4 +235,12 @@ public class Animation implements TimeBoundProvider {
 	public Animation deepCopy(){
 		return new Animation(this);
 	}
+
+	@Override
+	public int compareTo(TimeBoundProvider o) {
+		if(o instanceof GlobalSeq){
+			return 1;
+		}
+		return getStart() - o.getStart();
+	}
 }

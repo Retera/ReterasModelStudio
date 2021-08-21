@@ -24,6 +24,10 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 	public IntAnimFlag(final MdlxUInt32Timeline timeline) {
 		super(timeline);
 
+		if(timeline.interpolationType != InterpolationType.DONT_INTERP){
+			System.out.println("(IntAnimFlag) timeline \"" + name + "\" has interpolation type: " + timeline.interpolationType.name());
+		}
+
 		final long[] frames = timeline.frames;
 		final Object[] values = timeline.values;
 		final Object[] inTans = timeline.inTans;

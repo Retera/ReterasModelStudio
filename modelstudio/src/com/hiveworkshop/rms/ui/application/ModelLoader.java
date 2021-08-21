@@ -67,7 +67,7 @@ public class ModelLoader {
 	private static void refreshAndUpdateRenderModel() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		RenderModel editorRenderModel = modelPanel.getEditorRenderModel();
-		editorRenderModel.refreshFromEditor(modelPanel.getPerspArea().getViewport().getParticleTextureInstance());
+		ModelStructureChangeListener.refreshFromEditor(modelPanel);
 		editorRenderModel.updateNodes(false); // update to 0 position
 	}
 
@@ -75,9 +75,10 @@ public class ModelLoader {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		ModelHandler modelHandler = new ModelHandler(model);
 		return new ModelPanel(modelHandler,
-				mainPanel.coordDisplayListener,
-				mainPanel.viewportTransferHandler,
-				mainPanel.getWindowHandler2().getViewportListener(), icon, false
+//				mainPanel.coordDisplayListener,
+//				mainPanel.viewportTransferHandler,
+//				mainPanel.getWindowHandler2().getViewportListener(),
+				icon
 		);
 	}
 
@@ -129,7 +130,6 @@ public class ModelLoader {
 	}
 
 	public static void loadModel(boolean temporary, boolean selectNewTab, ModelPanel modelPanel) {
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		if (temporary) {
 			modelPanel.getModelView().getModel().setTemp(true);
 		}
@@ -138,19 +138,15 @@ public class ModelLoader {
 		menuItem.addActionListener(e -> setCurrentModel(modelPanel));
 		modelPanel.setJMenuItem(menuItem);
 
-//		modelPanel.changeActivity(mainPanel.actionTypeGroup.getActiveButtonType());
-
 		MenuBar.addModelPanel(modelPanel);
 
-//		MainLayoutCreator mainLayoutCreator = mainPanel.getMainLayoutCreator();
-
 		if (ProgramGlobals.getCurrentModelPanel() == modelPanel) {
-//			mainPanel.getMainLayoutCreator().showModelPanel(modelPanel);
-			mainPanel.getWindowHandler2().showModelPanel(modelPanel);
+			ProgramGlobals.getRootWindowUgg().getWindowHandler2().showModelPanel(modelPanel);
 		}
 		if (selectNewTab) {
 			setCurrentModel(modelPanel);
-//			modelPanel.getMenuItem().doClick();
+		} else {
+			ProgramGlobals.addModelPanel(modelPanel);
 		}
 
 		if (temporary) {

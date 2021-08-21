@@ -45,8 +45,7 @@ public abstract class ViewportView extends JPanel {
 	                    ViewportActivityManager viewportActivity,
 	                    ViewportListener viewportListener,
 	                    CoordDisplayListener coordDisplayListener) {
-		this.modelHandler = modelHandler;
-		this.viewportActivity = viewportActivity;
+		setModel(modelHandler, viewportActivity);
 		this.viewportListener = viewportListener;
 		this.coordDisplayListener = coordDisplayListener;
 
@@ -71,6 +70,40 @@ public abstract class ViewportView extends JPanel {
 
 //		cursorManager = this::setCursor;
 		cursorManager = this::setCursor;
+	}
+	public ViewportView(byte d1, byte d2,
+	                    Dimension minDim,
+	                    ViewportListener viewportListener,
+	                    CoordDisplayListener coordDisplayListener) {
+		this.viewportListener = viewportListener;
+		this.coordDisplayListener = coordDisplayListener;
+
+		coordinateSystem = new CoordinateSystem(d1, d2, this);
+		popupParent = this;
+
+		setBorder(BorderFactory.createBevelBorder(1));
+		setBackground(ProgramGlobals.getPrefs().getBackgroundColor());
+//		ProgramGlobals.getPrefs().addChangeListener(() -> setBackground(ProgramGlobals.getPrefs().getBackgroundColor()));
+
+		// Viewport border
+		setMinimumSize(minDim);
+		add(boxX = Box.createHorizontalStrut(minDim.width));
+		add(boxY = Box.createVerticalStrut(minDim.height));
+		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+
+		MouseAdapter mouseAdapter = getMouseAdapter();
+		addMouseListener(mouseAdapter);
+		addMouseWheelListener(mouseAdapter);
+		addMouseMotionListener(mouseAdapter);
+
+
+//		cursorManager = this::setCursor;
+		cursorManager = this::setCursor;
+	}
+
+	public void setModel(ModelHandler modelHandler, ViewportActivityManager viewportActivity) {
+		this.modelHandler = modelHandler;
+		this.viewportActivity = viewportActivity;
 	}
 
 	public CoordinateSystem getCoordinateSystem() {
@@ -217,24 +250,26 @@ public abstract class ViewportView extends JPanel {
 //					clickTimer.stop();
 //					repaint();
 //				}
-				modelHandler.getUndoHandler().refreshUndo();
-				// TODO fix, refresh undo
-				if ((e.getButton() == MouseEvent.BUTTON2) && (lastClick != null)) {
-					double translateX = (e.getX() - lastClick.x);
-					double translateY = (e.getY() - lastClick.y);
-					coordinateSystem.translateZoomed(translateX, translateY);
-					lastClick = null;
-				} else if (e.getButton() == MouseEvent.BUTTON1) {
-					viewportActivity.mouseReleased(e, coordinateSystem);
-				} else if (e.getButton() == MouseEvent.BUTTON3) {
-					viewportActivity.mouseReleased(e, coordinateSystem);
-				}
-				if (!mouseInBounds && (selectStart == null) && (actStart == null) && (lastClick == null)) {
-					clickTimer.stop();
-					repaint();
-				}
-				if (mouseInBounds && !getBounds().contains(e.getPoint()) && !viewportActivity.isEditing()) {
-					mouseExited(e);
+				if(modelHandler != null){
+					modelHandler.getUndoHandler().refreshUndo();
+					// TODO fix, refresh undo
+					if ((e.getButton() == MouseEvent.BUTTON2) && (lastClick != null)) {
+						double translateX = (e.getX() - lastClick.x);
+						double translateY = (e.getY() - lastClick.y);
+						coordinateSystem.translateZoomed(translateX, translateY);
+						lastClick = null;
+					} else if (e.getButton() == MouseEvent.BUTTON1) {
+						viewportActivity.mouseReleased(e, coordinateSystem);
+					} else if (e.getButton() == MouseEvent.BUTTON3) {
+						viewportActivity.mouseReleased(e, coordinateSystem);
+					}
+					if (!mouseInBounds && (selectStart == null) && (actStart == null) && (lastClick == null)) {
+						clickTimer.stop();
+						repaint();
+					}
+					if (mouseInBounds && !getBounds().contains(e.getPoint()) && !viewportActivity.isEditing()) {
+						mouseExited(e);
+					}
 				}
 			}
 

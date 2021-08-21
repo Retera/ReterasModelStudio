@@ -18,7 +18,8 @@ public class ImportFromFile extends ActionFunction{
 			ImportFileActions.importFile(model);
 		}
 		if (ProgramGlobals.getCurrentModelPanel() != null) {
-			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
+//			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
+			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 		}
 	}
 }

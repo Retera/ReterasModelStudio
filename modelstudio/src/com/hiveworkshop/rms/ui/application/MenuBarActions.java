@@ -12,7 +12,6 @@ import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ProgramPreferencesPanel;
@@ -33,11 +32,12 @@ public class MenuBarActions {
 	static final ImageIcon POWERED_BY_HIVE = RMSIcons.loadHiveBrowserImageIcon("powered_by_hive.png");
 
 	private static void dataSourcesChanged(WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier directoryChangeNotifier, List<ModelPanel> modelPanels) {
-		for (ModelPanel modelPanel : modelPanels) {
-			PerspDisplayPanel pdp = modelPanel.getPerspArea();
-			pdp.reloadAllTextures();
-			modelPanel.getAnimationViewer().reloadAllTextures();
-		}
+//		for (ModelPanel modelPanel : modelPanels) {
+//			PerspDisplayPanel pdp = modelPanel.getPerspArea();
+//			pdp.reloadAllTextures();
+//			modelPanel.getAnimationViewer().reloadAllTextures();
+//		}
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 		directoryChangeNotifier.dataSourcesChanged();
 	}
 

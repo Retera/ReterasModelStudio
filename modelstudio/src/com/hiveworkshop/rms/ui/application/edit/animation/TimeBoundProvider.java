@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
-public interface TimeBoundProvider {
+public interface TimeBoundProvider extends Comparable<TimeBoundProvider> {
 
 	int getStart();
 

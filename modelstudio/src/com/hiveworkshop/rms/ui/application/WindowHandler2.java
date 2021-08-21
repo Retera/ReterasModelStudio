@@ -74,6 +74,10 @@ public class WindowHandler2 {
 		return this;
 	}
 
+	public static Set<ModelDependentView> getAllViews() {
+		return allViews;
+	}
+
 	public ViewportListener getViewportListener() {
 		return viewportListener;
 	}
@@ -106,13 +110,22 @@ public class WindowHandler2 {
 			view.setModelPanel(modelPanel);
 		}
 
-		if (modelPanel != null) {
-//			modelPanel.reloadComponentBrowser();
-			modelPanel.reloadModelEditingTree();
-		}
+//		if (modelPanel != null) {
+////			modelPanel.reloadComponentBrowser();
+//			modelPanel.reloadModelEditingTree();
+//		}
 
 		return this;
 	}
+
+	public WindowHandler2 reloadThings() {
+		allViews.removeIf(view -> !view.isValid());
+		for (ModelDependentView view : allViews) {
+			view.reload();
+		}
+		return this;
+	}
+
 
 	public WindowHandler2 showModelPanel(ModelPanel modelPanel) {
 		for(ModelViewManagingView modelViewManagingTree : modelViewManagingTrees){

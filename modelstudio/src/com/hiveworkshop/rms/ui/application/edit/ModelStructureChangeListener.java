@@ -2,6 +2,10 @@ package com.hiveworkshop.rms.ui.application.edit;
 
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.WindowHandler2;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
+import com.hiveworkshop.rms.ui.application.viewer.Particle2TextureInstance;
+import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 
 import java.util.Map;
@@ -17,17 +21,19 @@ public class ModelStructureChangeListener {
 
 	public static void reloadGeosetManagers(MainPanel mainPanel, ModelPanel modelPanel) {
 
-		modelPanel.reloadModelEditingTree();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+//		modelPanel.reloadModelEditingTree();
 //		modelPanel.reloadComponentBrowser();
 //		modelPanel.getComponentBrowserTreePane().repaint();
 
-		modelPanel.getPerspArea().reloadTextures();
-		modelPanel.getAnimationViewer().reload();
-		modelPanel.getAnimationController().reload();
+//		modelPanel.getPerspArea().reloadTextures();
+//		modelPanel.getAnimationViewer().reload();
+//		modelPanel.getAnimationController().reload();
 //		mainPanel.getMainLayoutCreator().getCreatorView().reloadAnimationList();
 		mainPanel.getWindowHandler2().reloadAnimationList();
 
-		modelPanel.getEditorRenderModel().refreshFromEditor(modelPanel.getPerspArea().getViewport().getParticleTextureInstance());
+//		Particle2TextureInstance particleTextureInstance = modelPanel.getPerspArea().getViewport().getParticleTextureInstance();
+		refreshFromEditor(modelPanel);
 	}
 
 	public static ModelStructureChangeListener getModelStructureChangeListener() {
@@ -42,29 +48,39 @@ public class ModelStructureChangeListener {
 
 	public void nodesUpdated() {
 		// Tell program to set visibility after import
+		updateElementsAndRefreshFromEditor();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+	}
+
+	private void updateElementsAndRefreshFromEditor() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			modelPanel.getModelView().updateElements();
-			modelPanel.reloadGeosetManagers();
+			refreshFromEditor(modelPanel);
+		}
+	}
+
+	public static void refreshFromEditor(ModelPanel modelPanel) {
+
+		PerspectiveViewUgg modelDependentView = (PerspectiveViewUgg) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PerspectiveViewUgg).findFirst().orElse(null);
+		if(modelDependentView != null && modelDependentView.getPerspectiveViewport() != null){
+			PerspectiveViewport viewport = modelDependentView.getPerspectiveViewport();
+//		    PerspectiveViewport viewport = modelPanel.getPerspArea().getViewport();
+			Particle2TextureInstance particleTextureInstance = new Particle2TextureInstance(viewport.getTextureThing(), modelPanel.getModelView(), ProgramGlobals.getPrefs());
+			modelPanel.getEditorRenderModel().refreshFromEditor(particleTextureInstance);
 		}
 	}
 
 	public void geosetsUpdated() {
 		// Tell program to set visibility after import
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			modelPanel.getModelView().updateElements();
-			modelPanel.reloadGeosetManagers();
-		}
+		updateElementsAndRefreshFromEditor();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
 	public void camerasUpdated() {
 		// Tell program to set visibility after import
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			modelPanel.getModelView().updateElements();
-			modelPanel.reloadGeosetManagers();
-		}
+		updateElementsAndRefreshFromEditor();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
 	public void keyframesUpdated() {
@@ -76,47 +92,54 @@ public class ModelStructureChangeListener {
 	public void animationParamsChanged() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			modelPanel.reloadGeosetManagers();
+			refreshFromEditor(modelPanel);
 		}
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
 	public void texturesChanged() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			modelPanel.reloadGeosetManagers();
+			refreshFromEditor(modelPanel);
 		}
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
 	public void headerChanged() {
 //		reloadComponentBrowser(mainPanel.getGeoControlModelData(), modelPanel);
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-//			modelPanel.reloadComponentBrowser();
-		}
+//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		if (modelPanel != null) {
+////			modelPanel.reloadComponentBrowser();
+//		}
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
 	public void globalSequenceLengthChanged() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			modelPanel.reloadGeosetManagers();
+			refreshFromEditor(modelPanel);
 		}
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
 	public void materialsListChanged() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			modelPanel.getAnimationViewer().reloadAllTextures();
-			modelPanel.getPerspArea().reloadAllTextures();
-			modelPanel.repaintSelfAndRelatedChildren();
-			modelPanel.reloadGeosetManagers();
-		}
+//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		if (modelPanel != null) {
+////			modelPanel.getAnimationViewer().reloadAllTextures();
+////			modelPanel.getPerspArea().reloadAllTextures();
+//			modelPanel.repaintSelfAndRelatedChildren();
+//			modelPanel.reloadGeosetManagers();
+//		}
+		updateElementsAndRefreshFromEditor();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
 	public void nodeHierarchyChanged() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			modelPanel.reloadModelEditingTree();
-//			modelPanel.reloadComponentBrowser();
-		}
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		if (modelPanel != null) {
+//			modelPanel.reloadModelEditingTree();
+////			modelPanel.reloadComponentBrowser();
+//		}
 	}
 }

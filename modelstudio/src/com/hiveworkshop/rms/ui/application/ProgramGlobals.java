@@ -117,7 +117,9 @@ public class ProgramGlobals {
 	}
 
 	public static void addModelPanel(ModelPanel modelPanel) {
-		modelPanels.add(modelPanel);
+		if(modelPanel != null && !modelPanels.contains(modelPanel)){
+			modelPanels.add(modelPanel);
+		}
 	}
 
 	public static SaveProfile getProfile() {

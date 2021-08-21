@@ -215,7 +215,8 @@ public class ScriptActions {
 			watcher.start();
 		}
 		if (ProgramGlobals.getCurrentModelPanel() != null) {
-			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
+//			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
+			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 		}
 	}
 

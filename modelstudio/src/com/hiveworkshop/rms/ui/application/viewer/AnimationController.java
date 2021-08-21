@@ -8,37 +8,42 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
+import java.awt.event.MouseWheelEvent;
 import java.util.List;
 
 public class AnimationController extends JPanel {
-	private final ModelHandler modelHandler;
-	private DefaultComboBoxModel<Animation> animations;
-	private JComboBox<Animation> animationBox;
-	private final boolean allowUnanimated;
+	private ModelHandler modelHandler;
+	private final DefaultComboBoxModel<Animation> animations;
+	private final JComboBox<Animation> animationBox;
+	private boolean allowUnanimated;
 
-	public AnimationController(ModelHandler modelHandler, boolean allowUnanimated,
-	                           PreviewPanel listener, Animation defaultAnimation) {
-		this.modelHandler = modelHandler;
-		this.allowUnanimated = allowUnanimated;
-		setLayout(new MigLayout("fillx"));
+	public AnimationController(PreviewPanel previewPanel) {
+		super(new MigLayout("fillx"));
 
-		createAnimationChooser(modelHandler, allowUnanimated, listener);
+		animations = getAnimationsBoxModel();
+		animationBox = getAnimationChooser(animations, previewPanel);
 		add(animationBox, "wrap, w 90%:90%:90%, gapbottom 16");
 
 		JButton playAnimationButton = new JButton("Play Animation");
-		playAnimationButton.addActionListener(e -> listener.playAnimation());
+		playAnimationButton.addActionListener(e -> previewPanel.playAnimation());
 		add(playAnimationButton, "wrap, gapbottom 16");
 
 
-		add(getLoopTypoPanel(listener).getButtonPanel(), "wrap");
+		add(getLoopTypoPanel(previewPanel).getButtonPanel(), "wrap");
 
-		add(getSpeedSlider(listener), "wrap, w 90%:90%:90%, gapbottom 16");
+		add(getSpeedSlider(previewPanel), "wrap, w 90%:90%:90%, gapbottom 16");
 
 		add(new JLabel("Level of Detail"), "wrap");
-		add(getLodSpinner(listener), "wrap, w 90%:90%:90%");
+		add(getLodSpinner(previewPanel), "wrap, w 90%:90%:90%");
 
+		previewPanel.setLoop(PreviewPanel.LoopType.DEFAULT_LOOP);
+	}
+
+	public AnimationController setModel(ModelHandler modelHandler, boolean allowUnanimated, Animation defaultAnimation) {
+		this.modelHandler = modelHandler;
+		updateAnimationList(modelHandler, allowUnanimated, animations);
 		animationBox.setSelectedItem(defaultAnimation);
-		listener.setLoop(PreviewPanel.LoopType.DEFAULT_LOOP);
+		return this;
 	}
 
 	private JSpinner getLodSpinner(PreviewPanel listener) {
@@ -65,21 +70,33 @@ public class AnimationController extends JPanel {
 		return smartButtonGroup;
 	}
 
-	public void createAnimationChooser(ModelHandler modelHandler, boolean allowUnanimated, PreviewPanel previewPanel) {
-		animations = new DefaultComboBoxModel<>();
-		if (allowUnanimated || (modelHandler.getModel().getAnims().size() == 0)) {
-			animations.addElement(null);
-		}
-		for (Animation animation : modelHandler.getModel().getAnims()) {
-			animations.addElement(animation);
-		}
-		animationBox = new JComboBox<>(animations);
+	public JComboBox<Animation> getAnimationChooser(DefaultComboBoxModel<Animation> animations, PreviewPanel previewPanel) {
+		JComboBox<Animation> animationBox = new JComboBox<>(animations);
 		animationBox.setRenderer(getComboBoxRenderer());
 		animationBox.addActionListener(e -> playSelectedAnimation(previewPanel));
 
 		animationBox.setMaximumSize(new Dimension(99999999, 35));
 		animationBox.setFocusable(true);
 		animationBox.addMouseWheelListener(this::changeAnimation);
+		return animationBox;
+	}
+
+	private DefaultComboBoxModel<Animation> getAnimationsBoxModel() {
+		DefaultComboBoxModel<Animation> animations = new DefaultComboBoxModel<>();
+//		updateAnimationList(modelHandler, allowUnanimated, animations);
+		return animations;
+	}
+
+	private void updateAnimationList(ModelHandler modelHandler, boolean allowUnanimated, DefaultComboBoxModel<Animation> animations) {
+		animations.removeAllElements();
+		if(modelHandler != null){
+			if (allowUnanimated || (modelHandler.getModel().getAnims().size() == 0)) {
+				animations.addElement(null);
+			}
+			for (Animation animation : modelHandler.getModel().getAnims()) {
+				animations.addElement(animation);
+			}
+		}
 	}
 
 	private BasicComboBoxRenderer getComboBoxRenderer() {
@@ -88,7 +105,7 @@ public class AnimationController extends JPanel {
 			public Component getListCellRendererComponent(JList list, Object value, int index,
 			                                              boolean isSelected, boolean cellHasFocus) {
 				Object display = value == null ? "(Unanimated)" : value;
-				if (value != null) {
+				if (value != null && modelHandler != null) {
 					display = "(" + modelHandler.getModel().getAnims().indexOf(value) + ") " + display;
 				}
 				return super.getListCellRendererComponent(list, display, index, isSelected, cellHasFocus);
@@ -101,7 +118,7 @@ public class AnimationController extends JPanel {
 		previewPanel.playAnimation();
 	}
 
-	public void changeAnimation(java.awt.event.MouseWheelEvent e) {
+	public void changeAnimation(MouseWheelEvent e) {
 		int wheelRotation = e.getWheelRotation();
 		int previousSelectedIndex = animationBox.getSelectedIndex();
 		if (previousSelectedIndex < 0) {

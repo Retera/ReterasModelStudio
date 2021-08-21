@@ -289,4 +289,9 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		lastUpdateMillis = System.currentTimeMillis();
 		return this;
 	}
+
+	@Override
+	public int compareTo(TimeBoundProvider o) {
+		return 0;
+	}
 }

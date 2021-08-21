@@ -18,6 +18,8 @@ public class PreviewView extends ModelDependentView {
 //		scrollPane = new JScrollPane(new JPanel());
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JPanel(), getSpecialPane());
 //		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JPanel(), new JPanel());
+		previewPanel = new PreviewPanel();
+		animationController = new AnimationController(previewPanel);
 		this.setComponent(splitPane);
 		splitPane.setDividerLocation(0.8);
 	}
@@ -25,8 +27,11 @@ public class PreviewView extends ModelDependentView {
 	@Override
 	public PreviewView setModelPanel(ModelPanel modelPanel){
 		if(modelPanel != null){
-			animationController = modelPanel.getAnimationController();
-			previewPanel = modelPanel.getAnimationViewer();
+//			animationController = modelPanel.getAnimationController();
+//			previewPanel = modelPanel.getAnimationViewer();
+			previewPanel.setModel(modelPanel.getModelHandler(), true, modelPanel.getViewportActivityManager());
+//			animationController = new AnimationController(previewPanel).setModel(modelPanel.getModelHandler(), true, previewPanel.getCurrentAnimation());
+			animationController.setModel(modelPanel.getModelHandler(), true, previewPanel.getCurrentAnimation());
 			splitPane.setLeftComponent(previewPanel);
 			scrollPane.setViewportView(animationController);
 //			splitPane.setRightComponent(animationController);

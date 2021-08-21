@@ -43,6 +43,7 @@ public abstract class AnimFlag<T> {
 	int globalSeqId = -1;
 	public boolean hasGlobalSeq = false;
 	protected TreeMap<Integer, Entry<T>> entryMap = new TreeMap<>();
+	protected TreeMap<TimeBoundProvider, TreeMap<Integer, Entry<T>>> sequenceMap = new TreeMap<>();
 	int typeid = 0;
 	Integer[] timeKeys;
 

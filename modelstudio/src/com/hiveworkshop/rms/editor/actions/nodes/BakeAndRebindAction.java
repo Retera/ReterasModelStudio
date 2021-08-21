@@ -44,8 +44,8 @@ public class BakeAndRebindAction implements UndoAction {
 	public BakeAndRebindAction(IdObject objToRebind, IdObject newParent, ModelHandler modelHandler) {
 		this.modelHandler = modelHandler;
 		IdObject commonParent = findCommonParent(objToRebind.getParent(), newParent);
-		TimeEnvironmentImpl timeEnvironment = new TimeEnvironmentImpl(0, 1);
-		RenderModel renderModel = new RenderModel(modelHandler.getModel(), modelHandler.getModelView(), timeEnvironment);
+		RenderModel renderModel = new RenderModel(modelHandler.getModel(), modelHandler.getModelView());
+		TimeEnvironmentImpl timeEnvironment = renderModel.getTimeEnvironment();
 		getParentKfTimes(objToRebind.getParent(), newParent);
 
 		allKF.addAll(transKF);

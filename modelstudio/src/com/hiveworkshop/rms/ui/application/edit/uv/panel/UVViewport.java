@@ -1,12 +1,10 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.UVViewportModelRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
@@ -20,10 +18,9 @@ public class UVViewport extends ViewportView {
 	UVPanel uvPanel;
 	private final UVViewportModelRenderer viewportModelRenderer;
 
-	public UVViewport(ModelHandler modelHandler, UVPanel uvPanel, ViewportActivityManager viewportActivity, CoordDisplayListener coordDisplayListener) {
-		super(modelHandler, (byte) 0, (byte) 1, new Dimension(400, 400), viewportActivity, new ViewportListener(), coordDisplayListener);
+	public UVViewport(UVPanel uvPanel, CoordDisplayListener coordDisplayListener) {
+		super((byte) 0, (byte) 1, new Dimension(400, 400), new ViewportListener(), coordDisplayListener);
 
-		this.viewportListener = new ViewportListener();
 		coordinateSystem.setYFlip(1);
 
 		viewport = null;
@@ -58,7 +55,7 @@ public class UVViewport extends ViewportView {
 
 	private void PaintBackgroundImage(Graphics g) {
 		for (Image background : backgrounds) {
-			if (uvPanel.wrapImage.isSelected()) {
+			if (uvPanel.isWrapImage()) {
 				Vec2 geomMin = new Vec2(coordinateSystem.geomX(0), coordinateSystem.geomY(0));
 				Vec2 geomMax = new Vec2(coordinateSystem.geomX(getWidth()), coordinateSystem.geomY(getHeight()));
 
@@ -86,7 +83,7 @@ public class UVViewport extends ViewportView {
 		setMinimumSize(new Dimension((int) (400 * ratio), 400));
 		remove(boxX);
 		add(boxX = Box.createHorizontalStrut((int) (400 * ratio)));
-		uvPanel.packFrame();
+//		uvPanel.packFrame();
 	}
 
 	public void addBackgroundImage(final Image i) {

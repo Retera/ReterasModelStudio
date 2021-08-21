@@ -26,6 +26,6 @@ public class ScaleAnimationLength extends ActionFunction {
 		frame.setIconImage(RMSIcons.animIcon.getImage());
 		frame.setContentPane(new JScrollPane(new ChangeAnimationLengthPanel(modelPanel.getModelHandler(), frame)));
 		frame.pack();
-		frame.setLocationRelativeTo(modelPanel.getParent());
+		frame.setLocationRelativeTo(ProgramGlobals.getMainPanel());
 	}
 }

@@ -241,9 +241,6 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		if (contextMenu != null) {
 			contextMenu.show(button, 0, 0);
 		}
-		for (ModelPanel modelPanel : ProgramGlobals.getModelPanels()) {
-			System.out.println(modelPanel.getModel().getName() + ", dispP: " + modelPanel.getDisplayPanels().size());
-		}
 	}
 
 	public void setAnimationModeState(boolean animationModeState) {

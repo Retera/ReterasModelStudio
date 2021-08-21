@@ -49,6 +49,7 @@ public class ModelComponentsView extends ModelDependentView {
 //		splitPane.revalidate();
 		splitPane.setDividerLocation(0.2);
 		splitPane.repaint();
+		reload();
 		return this;
 	}
 

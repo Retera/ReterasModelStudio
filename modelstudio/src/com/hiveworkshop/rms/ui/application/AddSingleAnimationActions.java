@@ -32,7 +32,8 @@ public class AddSingleAnimationActions {
 
 //        MenuBarActions.refreshController(mainPanel.currentModelPanel.getGeoControl(), mainPanel.currentModelPanel.getGeoControlModelData());
 		if (ProgramGlobals.getCurrentModelPanel() != null) {
-			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
+			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+//			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
 		}
 	}
 

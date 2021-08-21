@@ -23,11 +23,19 @@ public class DisplayViewUgg extends ModelDependentView {
 	@Override
 	public DisplayViewUgg setModelPanel(ModelPanel modelPanel){
 		this.modelPanel = modelPanel;
+		if(displayPanel == null){
+			displayPanel = new DisplayPanel();
+		}
 		if(modelPanel == null){
 			this.setComponent(dudPanel);
-			displayPanel = null;
+//			displayPanel = null;
+			displayPanel.setModel(null, null);
 		} else {
-			displayPanel = modelPanel.getDisplayPanel(name, (byte) 1, (byte) 2);
+//			displayPanel = modelPanel.getDisplayPanel(name, (byte) 1, (byte) 2);
+//			displayPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
+//			this.setComponent(displayPanel);
+//			displayPanel =  new DisplayPanel();
+			displayPanel.setModel(modelPanel.getModelHandler(), modelPanel.getViewportActivityManager());
 			displayPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 			this.setComponent(displayPanel);
 		}
@@ -39,6 +47,14 @@ public class DisplayViewUgg extends ModelDependentView {
 	public DisplayViewUgg preferencesUpdated(){
 		if(displayPanel != null){
 			displayPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
+		}
+		return this;
+	}
+
+	@Override
+	public DisplayViewUgg reload() {
+		if (modelPanel != null) {
+			displayPanel.reload().repaint();
 		}
 		return this;
 	}

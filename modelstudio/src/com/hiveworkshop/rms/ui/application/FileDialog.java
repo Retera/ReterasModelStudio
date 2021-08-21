@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
-import com.hiveworkshop.rms.ui.application.viewer.ViewportRenderExporter;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -289,15 +288,6 @@ public class FileDialog {
             return new Bitmap(selectedFile.toPath().toString());
         }
         return null;
-    }
-
-    public void exportAnimatedFramePNG() {
-        if (getModelPanel() != null) {
-            final BufferedImage fBufferedImage = ViewportRenderExporter.getBufferedImage(getModelPanel().getPerspArea().getViewport());
-            if (fBufferedImage != null) {
-                onClickSaveAs(null, fBufferedImage, SAVE_TEXTURE, false);
-            }
-        }
     }
 
     private void saveModel(EditableModel model, File modelFile, String ext, boolean updateCurrent) throws IOException {

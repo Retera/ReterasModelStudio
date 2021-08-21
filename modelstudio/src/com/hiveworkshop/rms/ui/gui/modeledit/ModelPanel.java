@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
@@ -12,24 +11,13 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorAc
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayPanel;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
-import com.hiveworkshop.rms.ui.application.viewer.AnimationController;
-import com.hiveworkshop.rms.ui.application.viewer.PreviewPanel;
-import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.ModelEditorManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.ModelViewManagingTree;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -38,80 +26,37 @@ import java.util.function.Consumer;
  * Eric Theller 6/7/2012
  */
 public class ModelPanel {
-	private final Set<DisplayPanel> displayPanels = new HashSet<>();
-	private final PerspDisplayPanel perspArea;
 	private final ModelHandler modelHandler;
 	private final ViewportActivityManager viewportActivityManager;
 	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelEditorManager modelEditorManager;
-	private Set<UVPanel> editUVPanels = new HashSet<>();
 
 	private SelectionItemTypes selectionType = SelectionItemTypes.VERTEX;
 	private ModelEditorActionType3 editorActionType = ModelEditorActionType3.TRANSLATION;
 
 
-	private final ModelViewManagingTree modelViewManagingTree;
-	private final MainPanel parent;
 	private final Icon icon;
 	private JMenuItem menuItem;
-	private final PreviewPanel previewPanel;
-	private final AnimationController animationController;
-	private final CoordDisplayListener coordDisplayListener;
-	private final ViewportTransferHandler viewportTransferHandler;
-	private final ViewportListener viewportListener;
 
 	Consumer<SelectionItemTypes> selectionItemTypeListener;
 
 	public ModelPanel(ModelHandler modelHandler,
-	                  CoordDisplayListener coordDisplayListener,
-	                  ViewportTransferHandler viewportTransferHandler,
-	                  ViewportListener viewportListener,
-	                  Icon icon,
-	                  boolean specialBLPModel) {
+	                  Icon icon) {
 		this.modelHandler = modelHandler;
-		this.parent = ProgramGlobals.getMainPanel();
 		this.icon = icon;
-		this.coordDisplayListener = coordDisplayListener;
-		this.viewportTransferHandler = viewportTransferHandler;
-		this.viewportListener = viewportListener;
 		viewportActivityManager = new ViewportActivityManager(null);
 
 		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
 		modelEditorManager = new ModelEditorManager(modelHandler, modelEditorChangeNotifier, viewportActivityManager);
-
-		modelViewManagingTree = new ModelViewManagingTree(modelHandler, modelEditorManager);
-
-		previewPanel = new PreviewPanel(modelHandler, !specialBLPModel, viewportActivityManager);
-
-		animationController = new AnimationController(modelHandler, true, previewPanel, previewPanel.getCurrentAnimation());
-
-		perspArea = new PerspDisplayPanel("Perspective", modelHandler);
 	}
-
-	public DisplayPanel getDisplayPanel(String side, byte i, byte i2) {
-		DisplayPanel displayPanel = new DisplayPanel(side, i, i2, modelHandler, modelEditorManager,
-				viewportActivityManager, coordDisplayListener,
-				viewportTransferHandler, viewportListener);
-		displayPanels.add(displayPanel);
-		return displayPanel;
+	public ViewportActivityManager getViewportActivityManager() {
+		return viewportActivityManager;
 	}
 
 	public RenderModel getEditorRenderModel() {
 		return modelHandler.getRenderModel();
-	}
-
-	public PreviewPanel getAnimationViewer() {
-		return previewPanel;
-	}
-
-	public AnimationController getAnimationController() {
-		return animationController;
-	}
-
-	public JComponent getParent() {
-		return parent;
 	}
 
 	public void setJMenuItem(final JMenuItem item) {
@@ -145,7 +90,7 @@ public class ModelPanel {
 		boolean canceled = false;
 		if (!modelHandler.getUndoManager().isUndoListEmpty()) {
 			final Object[] options = {"Yes", "No", "Cancel"};
-			final int n = JOptionPane.showOptionDialog(parent,
+			final int n = JOptionPane.showOptionDialog(ProgramGlobals.getMainPanel(),
 					"Would you like to save " + modelHandler.getModel().getName() + " (\""
 							+ modelHandler.getModel().getHeaderName() + "\") before closing?",
 					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
@@ -154,35 +99,15 @@ public class ModelPanel {
 				case JOptionPane.YES_OPTION:
 					FileDialog fileDialog = new FileDialog(this);
 					fileDialog.onClickSaveAs();
-					if (!editUVPanels.isEmpty()) {
-						for(UVPanel uVpanel : editUVPanels){
-							uVpanel.getView().setVisible(false);
-						}
-					}
 					break;
 				case JOptionPane.NO_OPTION:
-					if (!editUVPanels.isEmpty()) {
-						for(UVPanel uVpanel : editUVPanels){
-							uVpanel.getView().setVisible(false);
-						}
-					}
 					break;
 				case JOptionPane.CANCEL_OPTION:
 					canceled = true;
 					break;
 			}
-		} else {
-			if (!editUVPanels.isEmpty()) {
-				for(UVPanel uVpanel : editUVPanels){
-					uVpanel.getView().setVisible(false);
-				}
-			}
 		}
 		return !canceled;
-	}
-
-	public PerspDisplayPanel getPerspArea() {
-		return perspArea;
 	}
 
 	public UndoManager getUndoManager() {
@@ -190,29 +115,22 @@ public class ModelPanel {
 	}
 
 	public void repaintSelfAndRelatedChildren() {
-//		botArea.repaint();
-//		sideArea.repaint();
-//		frontArea.repaint();
-		displayPanels.removeIf(displayPanel -> !displayPanel.isValid());
-		displayPanels.forEach(displayPanel -> displayPanel.repaint());
-		perspArea.repaint();
-		previewPanel.repaint();
-		animationController.repaint();
-		modelViewManagingTree.repaint();
-		if (!editUVPanels.isEmpty()) {
-			editUVPanels.removeIf(p -> !p.isVisible());
-			editUVPanels.forEach(Component::repaint);
-		}
-		System.out.println("displayPanels: " + displayPanels.size());
+
+//		displayPanels.removeIf(displayPanel -> !displayPanel.isValid());
+//		displayPanels.forEach(displayPanel -> displayPanel.repaint());
+//		perspArea.repaint();
+//		previewPanel.repaint();
+//		animationController.repaint();
+//		modelViewManagingTree.repaint();
+//		if (!editUVPanels.isEmpty()) {
+//			editUVPanels.removeIf(p -> !p.isVisible());
+//			editUVPanels.forEach(Component::repaint);
+//		}
 	}
 
 	public ModelPanel addUVPanel(UVPanel uvPanel) {
-		editUVPanels.add(uvPanel);
+//		editUVPanels.add(uvPanel);
 		return this;
-	}
-
-	public Set<DisplayPanel> getDisplayPanels() {
-		return displayPanels;
 	}
 
 	public EditableModel getModel() {
@@ -235,9 +153,9 @@ public class ModelPanel {
 //		return modelComponentBrowserTree;
 //	}
 
-	public ModelViewManagingTree getModelEditingTree() {
-		return modelViewManagingTree;
-	}
+//	public ModelViewManagingTree getModelEditingTree() {
+//		return modelViewManagingTree;
+//	}
 
 //	public JScrollPane getComponentBrowserTreePane() {
 //		return componentBrowserTreePane;
@@ -249,31 +167,33 @@ public class ModelPanel {
 ////		componentBrowserTreePane.repaint();
 //	}
 
-	public void reloadModelEditingTree() {
-		modelViewManagingTree.reloadFromModelView().repaint();
-	}
+//	public void reloadModelEditingTree() {
+//		modelViewManagingTree.reloadFromModelView().repaint();
+//	}
 
-	public void repaintModelTrees() {
-		if (modelViewManagingTree != null) {
-			modelViewManagingTree.repaint();
-		}
-//		if (modelComponentBrowserTree != null) {
-//			modelComponentBrowserTree.repaint();
+//	public void repaintModelTrees() {
+//		if (modelViewManagingTree != null) {
+//			modelViewManagingTree.repaint();
 //		}
-	}
+////		if (modelComponentBrowserTree != null) {
+////			modelComponentBrowserTree.repaint();
+////		}
+//	}
 
-	public void reloadGeosetManagers() {
-		reloadModelEditingTree();
-//		reloadComponentBrowser();
-
-		getPerspArea().reloadTextures();
-		getAnimationViewer().reload();
-		getAnimationController().reload();
-//		parent.getMainLayoutCreator().getCreatorView().reloadAnimationList();
-		parent.getWindowHandler2().reloadAnimationList();
-
-		getEditorRenderModel().refreshFromEditor(getPerspArea().getViewport().getParticleTextureInstance());
-	}
+//	public void reloadGeosetManagers() {
+////		reloadModelEditingTree();
+////		reloadComponentBrowser();
+//
+////		getPerspArea().reloadTextures();
+////		getAnimationViewer().reload();
+////		getAnimationController().reload();
+////		parent.getMainLayoutCreator().getCreatorView().reloadAnimationList();
+////		parent.getWindowHandler2().reloadAnimationList();
+//
+////		getEditorRenderModel().refreshFromEditor(getPerspArea().getViewport().getParticleTextureInstance());
+//		Particle2TextureInstance particleTextureInstance = new Particle2TextureInstance(getPerspArea().getViewport().getTextureThing(), modelHandler.getModelView(), ProgramGlobals.getPrefs());
+//		getEditorRenderModel().refreshFromEditor(particleTextureInstance);
+//	}
 
 	public void setSelectionType(SelectionItemTypes selectionType){
 		this.selectionType = selectionType;

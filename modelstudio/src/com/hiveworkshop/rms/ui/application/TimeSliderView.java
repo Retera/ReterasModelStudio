@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -82,7 +83,7 @@ public class TimeSliderView extends ModelDependentView {
 			if (confirmDialogResult == JOptionPane.OK_OPTION) {
 				//			tbcPanel.applyTo(mainPanel.animatedRenderEnvironment);
 				tbcPanel.applyTo(modelPanel.getModelHandler().getEditTimeEnv());
-				modelPanel.getEditorRenderModel().refreshFromEditor(modelPanel.getPerspArea().getViewport().getParticleTextureInstance());
+				ModelStructureChangeListener.refreshFromEditor(modelPanel);
 				modelPanel.getEditorRenderModel().updateNodes(false);
 			}
 		}

@@ -51,6 +51,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private boolean wantReloadAll = false;
 	private int popupCount = 0;
 	private final ProgramPreferences programPreferences;
+	private final EditorColorPrefs colorPrefs;
 
 	private long lastExceptionTimeMillis = 0;
 	private int levelOfDetail = -1;
@@ -65,6 +66,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	public PerspectiveViewport(ModelView modelView, RenderModel renderModel, boolean loadDefaultCamera) throws LWJGLException {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();
+		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
 		cameraHandler = new CameraHandler(this);
 
 		mouseAdapter = new MouseListenerThing(cameraHandler, programPreferences);
@@ -87,27 +89,60 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		paintTimer.start();
 //		Timer clickTimer = new Timer(16, e -> cameraHandler.clickTimerAction());
 	}
+	public PerspectiveViewport() throws LWJGLException {
+		super();
+		this.programPreferences = ProgramGlobals.getPrefs();
+		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
+		cameraHandler = new CameraHandler(this);
 
-	private PerspectiveViewport setModel(ModelView modelView, RenderModel renderModel, boolean loadDefaultCamera) {
-		textureThing = new TextureThing(modelView, programPreferences);
-		renderEnv = renderModel.getTimeEnvironment();
+		mouseAdapter = new MouseListenerThing(cameraHandler, programPreferences);
+		addMouseListener(mouseAdapter);
+		addMouseMotionListener(mouseAdapter);
+		addMouseWheelListener(mouseAdapter);
+		addKeyListener(getShortcutKeyListener());
 
-		this.modelView = modelView;
-		modelExtent.setMinMax(modelView.getModel().getExtents());
-		setCurrentExtent();
-		if (loadDefaultCamera) {
-			ViewportHelpers.findDefaultAnimation(modelView, renderEnv);
-			cameraHandler.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderEnv, modelExtent));
-		}
+		setBackground(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.BACKGROUND_COLOR));
+		setMinimumSize(new Dimension(200, 200));
 
+
+		paintTimer = new Timer(16, e -> {
+			repaint();
+			if (!isShowing()) {
+				paintTimer.stop();
+			}
+		});
+		paintTimer.start();
+//		Timer clickTimer = new Timer(16, e -> cameraHandler.clickTimerAction());
+	}
+
+	public PerspectiveViewport setModel(ModelView modelView, RenderModel renderModel, boolean loadDefaultCamera) {
 		this.renderModel = renderModel;
-		this.renderModel.setCameraHandler(cameraHandler);
-		this.renderModel.refreshFromEditor(getParticleTextureInstance());
+		if(renderModel != null){
+			textureThing = new TextureThing(modelView, programPreferences);
+			renderEnv = renderModel.getTimeEnvironment();
+
+			this.modelView = modelView;
+			modelExtent.setMinMax(modelView.getModel().getExtents());
+			setCurrentExtent();
+			if (loadDefaultCamera) {
+				ViewportHelpers.findDefaultAnimation(modelView, renderEnv);
+				cameraHandler.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderEnv, modelExtent));
+			}
+
+			this.renderModel.setCameraHandler(cameraHandler);
+			this.renderModel.refreshFromEditor(getParticleTextureInstance());
+		} else {
+			renderEnv = null;
+		}
 		return this;
 	}
 
 	public Particle2TextureInstance getParticleTextureInstance() {
 		return new Particle2TextureInstance(textureThing, modelView, programPreferences);
+	}
+
+	public TextureThing getTextureThing() {
+		return textureThing;
 	}
 
 	public void setLevelOfDetail(int levelOfDetail) {
@@ -117,7 +152,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	public void setModel(final ModelView modelView) {
 		renderEnv.setAnimation(null);
 		this.modelView = modelView;
-		renderModel = new RenderModel(modelView.getModel(), modelView, renderEnv);
+//		renderModel = new RenderModel(modelView.getModel(), modelView, renderEnv);
+		renderModel = new RenderModel(modelView.getModel(), modelView);
+		renderEnv = renderModel.getTimeEnvironment();
 		renderModel.setCameraHandler(cameraHandler);
 		modelExtent.setDefault().setMinMax(modelView.getModel().getExtents());
 		setCurrentExtent();
@@ -522,6 +559,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private void renderGeosets(Iterable<Geoset> geosets, int formatVersion, boolean overriddenColors) {
 		GL11.glDepthMask(true);
 		glShadeModel(GL11.GL_FLAT);
+//		glDisable(GL_SHADE_MODEL);
 		if ((programPreferences != null) && (programPreferences.viewMode() == 0)) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		} else if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
@@ -530,6 +568,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		if (renderTextures()) {
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 			glEnable(GL11.GL_TEXTURE_2D);
+//			glEnable(GL_SHADE_MODEL);
 			glShadeModel(GL_SMOOTH);
 		}
 		for (Geoset geo : geosets) {
@@ -600,12 +639,14 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 //		GL11.glDisable(GL11.GL_TEXTURE_2D);
 
 		GL11.glDepthMask(true);
-		GL11.glEnable(GL11.GL_BLEND);
+//		GL11.glEnable(GL11.GL_BLEND);
 //		GL11.glEnable(GL_SHADE_MODEL);
 		GL11.glEnable(GL11.GL_CULL_FACE);
 //		disableGlThings(GL_ALPHA_TEST, GL_TEXTURE_2D, GL_CULL_FACE);
 		disableGlThings(GL_ALPHA_TEST, GL_TEXTURE_2D, GL_SHADE_MODEL);
+//		disableGlThings(GL_ALPHA_TEST, GL_TEXTURE_2D);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GL11.glEnable(GL11.GL_BLEND);
 
 //		glColor3f(255f, 1f, 255f);
 		glColor4f(.7f, .0f, .0f, .4f);
@@ -634,8 +675,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 		if (renderGeoset != null) {
 			for (Triangle tri : geo.getTriangles()) {
+				if (programPreferences != null && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
+					getTriAreaColor(tri);
+				}
 				for (GeosetVertex vertex : tri.getVerts()) {
-					if(renderGeoset.getRenderVert(vertex) != null){
+					if(!modelView.isHidden(vertex) && renderGeoset.getRenderVert(vertex) != null){
 						Vec3 renderPos = renderGeoset.getRenderVert(vertex).getRenderPos();
 						Vec3 renderNorm = renderGeoset.getRenderVert(vertex).getRenderNorm();
 
@@ -645,27 +689,47 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			}
 		}
 	}
+	private void getTriAreaColor(Triangle triangle) {
+		float[] color;
+//		if (triangle.getGeoset() == modelView.getHighlightedGeoset()) {
+//			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_AREA_HIGHLIGHTED);
+////				GL11.glColor4f(.95f, .2f, .2f, 1f);
+//		} else if (triFullySelected(triangle)) {
+//			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_AREA_SELECTED);
+//		} else if (triFullyEditable(triangle)) {
+//			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_AREA);
+////				GL11.glColor4f(1f, 1f, 1f, 1f);
+//		} else {
+//			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_AREA_UNEDITABLE);
+////				GL11.glColor4f(.5f, .5f, .5f, 1f);
+//		}
+		if (triangle.getGeoset() == modelView.getHighlightedGeoset()) {
+			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_HIGHLIGHTED);
+//				GL11.glColor4f(.95f, .2f, .2f, 1f);
+		} else if (triFullySelected(triangle)) {
+			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_SELECTED);
+		} else if (triFullyEditable(triangle)) {
+			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE);
+//				GL11.glColor4f(1f, 1f, 1f, 1f);
+		} else {
+			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_UNEDITABLE);
+//				GL11.glColor4f(.5f, .5f, .5f, 1f);
+		}
+
+		glColor4f(color[0], color[1], color[2], color[3]);
+	}
+
+	private boolean triFullySelected(Triangle triangle){
+		return modelView.isSelected(triangle.get(0)) && modelView.isSelected(triangle.get(1)) && modelView.isSelected(triangle.get(2));
+	}
+	private boolean triFullyEditable(Triangle triangle){
+		return modelView.isEditable(triangle.get(0)) && modelView.isEditable(triangle.get(1)) && modelView.isEditable(triangle.get(2));
+	}
 
 	private void paintVert(Layer layer, GeosetVertex vertex, Vec3 vert, Vec3 normal) {
-//		if (programPreferences != null && programPreferences.viewMode() == 0 && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
-		if (programPreferences != null && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
-			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
-			float[] color;
-			if (vertex.getGeoset() == modelView.getHighlightedGeoset()) {
-				color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_HIGHLIGHTED);
-//				GL11.glColor4f(.95f, .2f, .2f, 1f);
-			} else if (modelView.isSelected(vertex)) {
-				color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_SELECTED);
-			} else if (modelView.isEditable(vertex)) {
-				color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE);
-//				GL11.glColor4f(1f, 1f, 1f, 1f);
-			} else {
-				color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_UNEDITABLE);
-//				GL11.glColor4f(.5f, .5f, .5f, 1f);
-			}
-
-			glColor4f(color[0], color[1], color[2], color[3]);
-		}
+//		if (programPreferences != null && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
+//			getTriLineColor(vertex);
+//		}
 		GL11.glNormal3f(normal.x, normal.y, normal.z);
 		int coordId = layer.getCoordId();
 		if (coordId >= vertex.getTverts().size()) {
@@ -673,6 +737,24 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		}
 		GL11.glTexCoord2f(vertex.getTverts().get(coordId).x, vertex.getTverts().get(coordId).y);
 		GL11.glVertex3f(vert.x, vert.y, vert.z);
+	}
+
+	private void getTriLineColor(GeosetVertex vertex) {
+		float[] color;
+		if (vertex.getGeoset() == modelView.getHighlightedGeoset()) {
+			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_HIGHLIGHTED);
+//				GL11.glColor4f(.95f, .2f, .2f, 1f);
+		} else if (modelView.isSelected(vertex)) {
+			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_SELECTED);
+		} else if (modelView.isEditable(vertex)) {
+			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE);
+//				GL11.glColor4f(1f, 1f, 1f, 1f);
+		} else {
+			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_UNEDITABLE);
+//				GL11.glColor4f(.5f, .5f, .5f, 1f);
+		}
+
+		glColor4f(color[0], color[1], color[2], color[3]);
 	}
 
 

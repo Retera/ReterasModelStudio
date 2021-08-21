@@ -30,11 +30,12 @@ ModelViewManagingTree modelViewManagingTree;
 			modelViewManagingTree = null;
 			modelEditingTreePane.setViewportView(jPanel);
 		} else {
-//			modelViewManagingTree = new ModelViewManagingTree(modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
-//			modelEditingTreePane = new JScrollPane(modelViewManagingTree);
-			modelViewManagingTree = modelPanel.getModelEditingTree();
+//			modelViewManagingTree = modelPanel.getModelEditingTree();
+//			modelEditingTreePane.setViewportView(modelViewManagingTree);
+			modelViewManagingTree = new ModelViewManagingTree().setModel(modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
 			modelEditingTreePane.setViewportView(modelViewManagingTree);
 		}
+		reload();
 		System.out.println("name: " + name + ", panel: " + modelPanel);
 		return this;
 	}

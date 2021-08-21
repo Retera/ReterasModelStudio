@@ -62,15 +62,15 @@ public class AnimationViewer extends JPanel {
 
 	private void getModelViewport(ModelView modelView, ProgramPreferences programPreferences) {
 		try {
-			renderEnv = new TimeEnvironmentImpl();
 			if (modelView == null) {
 				this.modelView = new ModelView(blank);
 			} else {
 				this.modelView = modelView;
 			}
 			this.modelView.setVetoOverrideParticles(true);
-			RenderModel renderModel = new RenderModel(this.modelView.getModel(), this.modelView, renderEnv);
-			perspectiveViewport = new PerspectiveViewport(this.modelView, renderModel, true);
+			RenderModel renderModel = new RenderModel(this.modelView.getModel(), this.modelView);
+			renderEnv = renderModel.getTimeEnvironment();
+			perspectiveViewport = new PerspectiveViewport().setModel(this.modelView, renderModel, true);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);

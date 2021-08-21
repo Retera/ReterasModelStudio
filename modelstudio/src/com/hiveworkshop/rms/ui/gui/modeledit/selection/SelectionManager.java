@@ -35,7 +35,7 @@ public class SelectionManager extends AbstractSelectionManager {
 	//	protected final Set<T> selection = new HashSet<>();
 	private boolean moveLinked;
 
-	private VertexClusterDefinitions2 vertexClusterDefinitions;
+	private VertexClusterDefinitions vertexClusterDefinitions;
 
 	public SelectionManager(RenderModel editorRenderModel, ModelView modelView, SelectionItemTypes selectionMode) {
 		super(editorRenderModel, modelView, selectionMode);
@@ -45,13 +45,13 @@ public class SelectionManager extends AbstractSelectionManager {
 ////			vertexClusterDefinitions = new VertexClusterDefinitions(modelView.getModel(), selectionMode);
 //			addSelectionListener(newSelection -> modelView.setSelectedVertices(getClusterBundle(vertexClusterDefinitions, modelView)));
 //		}
-		vertexClusterDefinitions = new VertexClusterDefinitions2(modelView.getModel());
+		vertexClusterDefinitions = new VertexClusterDefinitions(modelView.getModel());
 	}
 
 	public SelectionManager(RenderModel editorRenderModel, ModelView modelView, boolean moveLinked, SelectionItemTypes selectionMode) {
 		super(editorRenderModel, modelView, selectionMode);
 		this.moveLinked = moveLinked;
-		vertexClusterDefinitions = new VertexClusterDefinitions2(modelView.getModel());
+		vertexClusterDefinitions = new VertexClusterDefinitions(modelView.getModel());
 	}
 
 	private Set<GeosetVertex> getGroupBundle(Collection<GeosetVertex> selectedVertices) {
@@ -73,7 +73,7 @@ public class SelectionManager extends AbstractSelectionManager {
 //		modelView.setSelectedVertices(verticesSelected);
 	}
 
-	private Set<GeosetVertex> getClusterBundle(VertexClusterDefinitions2 vertexClusterDefinitions, Collection<GeosetVertex> selectedVertices) {
+	private Set<GeosetVertex> getClusterBundle(VertexClusterDefinitions vertexClusterDefinitions, Collection<GeosetVertex> selectedVertices) {
 		Set<VertexGroupBundle> bundleSet = new HashSet<>();
 		Set<GeosetVertex> verticesSelected = new HashSet<>();
 //		Collection<GeosetVertex> selectedVertices = modelView.getSelectedVertices();

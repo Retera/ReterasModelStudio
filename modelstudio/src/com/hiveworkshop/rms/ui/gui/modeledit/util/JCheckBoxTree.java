@@ -37,8 +37,7 @@ public class JCheckBoxTree extends JTree {
 	public JCheckBoxTree(ModelHandler modelHandler) {
 		super();
 		// Disabling toggling by double-click
-		this.modelHandler = modelHandler;
-		this.modelView = modelHandler.getModelView();
+		setModel(modelHandler);
 		setToggleClickCount(0);
 		setOpaque(false);
 
@@ -53,6 +52,32 @@ public class JCheckBoxTree extends JTree {
 		addMouseListener(getMouseListener());
 		addKeyListener(getKeyAdapter());
 		addTreeExpansionListener(getExpansionListener());
+	}
+	public JCheckBoxTree() {
+		super();
+		// Disabling toggling by double-click
+		setToggleClickCount(0);
+		setOpaque(false);
+
+		// Overriding cell renderer by new one defined above
+//		CheckBoxCellRenderer cellRenderer = new CheckBoxCellRenderer(modelView);
+//		setCellRenderer(cellRenderer);
+
+		// Overriding selection model by an empty one
+		DefaultTreeSelectionModel dtsm = getDisabledSelectionModel();
+		setSelectionModel(dtsm);
+
+		addMouseListener(getMouseListener());
+		addKeyListener(getKeyAdapter());
+		addTreeExpansionListener(getExpansionListener());
+	}
+
+	public void setModel(ModelHandler modelHandler) {
+		this.modelHandler = modelHandler;
+		this.modelView = modelHandler.getModelView();
+
+		CheckBoxCellRenderer cellRenderer = new CheckBoxCellRenderer(modelView);
+		setCellRenderer(cellRenderer);
 	}
 
 	private TreeExpansionListener getExpansionListener() {

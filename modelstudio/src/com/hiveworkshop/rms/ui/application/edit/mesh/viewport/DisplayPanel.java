@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
+import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
@@ -8,12 +10,16 @@ import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
+import com.hiveworkshop.rms.ui.language.TextKey;
 import net.miginfocom.swing.MigLayout;
 import org.lwjgl.LWJGLException;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.function.Consumer;
 
 /**
  * Write a description of class DisplayPanel here.
@@ -24,8 +30,9 @@ import java.awt.event.ActionListener;
 public class DisplayPanel extends JPanel {
 	private PerspectiveViewport vp2;
 	private final JPanel buttonPanel;
-	private final ViewportActivityManager activityListener;
+	private ViewportActivityManager activityListener;
 	private final ViewportListener viewportListener;
+	Consumer<Cursor> cursorManager;
 
 	public DisplayPanel(String title, byte a, byte b, ModelHandler modelHandler,
 	                    ModelEditorManager modelEditorManager,
@@ -36,18 +43,23 @@ public class DisplayPanel extends JPanel {
 		super(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
 		this.activityListener = activityListener;
 		this.viewportListener = viewportListener;
+		setupCopyPaste(viewportTransferHandler);
+
+//		addMouseMotionListener(getMouseAdapter());
+
+		cursorManager = this::setCursor;
 
 		JPanel viewHolderPanel = new JPanel(new MigLayout("fill, gap 0, ins 0", "[grow]", "[grow]"));
 		setOpaque(true);
 
 		try {
-			vp2 = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), true);
+			vp2 = new PerspectiveViewport();
 			vp2.setMinimumSize(new Dimension(200, 200));
 			CameraHandler cameraHandler = vp2.getCameraHandler();
-			cameraHandler.toggleOrtho().setAllowRotation(false).setAllowToggleOrtho(false);
+			cameraHandler.toggleOrtho().setAllowToggleOrtho(false);
 			cameraHandler.setCameraTop(300);
-			cameraHandler.setActivityManager(activityListener);
-			vp2.getMouseListenerThing().setActivityManager(activityListener);
+
+			setModel(modelHandler, activityListener);
 			viewHolderPanel.add(vp2, "spany, growy, growx");
 			add(viewHolderPanel, "spany, growy, growx");
 //			add(vp2, "spany, growy, growx");
@@ -57,6 +69,47 @@ public class DisplayPanel extends JPanel {
 
 		buttonPanel = getButtonPanel();
 		add(buttonPanel, "gapy 16, top");
+	}
+	public DisplayPanel() {
+		super(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
+		MainPanel mainPanel = ProgramGlobals.getMainPanel();
+		this.viewportListener = mainPanel.getWindowHandler2().getViewportListener();
+		setupCopyPaste(mainPanel.getViewportTransferHandler());
+//		addMouseMotionListener(getMouseAdapter());
+
+		cursorManager = this::setCursor;
+
+		JPanel viewHolderPanel = new JPanel(new MigLayout("fill, gap 0, ins 0", "[grow]", "[grow]"));
+		setOpaque(true);
+
+		try {
+			vp2 = new PerspectiveViewport();
+			vp2.setMinimumSize(new Dimension(200, 200));
+			CameraHandler cameraHandler = vp2.getCameraHandler();
+			cameraHandler.toggleOrtho().setAllowToggleOrtho(false);
+			cameraHandler.setCameraTop(300);
+
+			viewHolderPanel.add(vp2, "spany, growy, growx");
+			add(viewHolderPanel, "spany, growy, growx");
+//			add(vp2, "spany, growy, growx");
+		} catch (LWJGLException e) {
+			e.printStackTrace();
+		}
+
+		buttonPanel = getButtonPanel();
+		add(buttonPanel, "gapy 16, top");
+	}
+
+	public DisplayPanel setModel(ModelHandler modelHandler, ViewportActivityManager activityListener) {
+		this.activityListener = activityListener;
+		if(modelHandler != null){
+			vp2.getCameraHandler().setActivityManager(activityListener);
+			vp2.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), true);
+			vp2.getMouseListenerThing().setActivityManager(activityListener);
+		} else {
+			vp2.setModel(null, null, false);
+		}
+		return this;
 	}
 
 	private JPanel getButtonPanel() {
@@ -91,14 +144,26 @@ public class DisplayPanel extends JPanel {
 		return button;
 	}
 
-//	public View getView() {
-//		return view;
-//	}
+	protected MouseAdapter getMouseAdapter() {
+		return new MouseAdapter() {
+			@Override
+			public void mouseEntered(final MouseEvent e) {
+				if (activityListener != null && !activityListener.isEditing()) {
+					activityListener.viewportChanged(cursorManager);
+					requestFocus();
+				}
+			}
+		};
+	}
 
 	public void setControlsVisible(boolean flag) {
 		buttonPanel.setVisible(flag);
 	}
 
+	public DisplayPanel reload() {
+		vp2.reloadTextures();
+		return this;
+	}
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -111,5 +176,17 @@ public class DisplayPanel extends JPanel {
 	public void pan(int x, int y) {
 		CameraHandler ch = vp2.getCameraHandler();
 		ch.translate(x * ch.getZoom(),y * ch.getZoom());
+	}
+
+	private void setupCopyPaste(ViewportTransferHandler viewportTransferHandler) {
+		setTransferHandler(viewportTransferHandler);
+		ActionMap map = getActionMap();
+		map.put(TextKey.CUT, TransferHandler.getCutAction());
+		map.put(TextKey.COPY, TransferHandler.getCopyAction());
+		map.put(TextKey.PASTE, TransferHandler.getPasteAction());
+//		map.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
+//		map.put(TransferHandler.getCopyAction().getValue(Action.NAME), TransferHandler.getCopyAction());
+//		map.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
+		setFocusable(true);
 	}
 }

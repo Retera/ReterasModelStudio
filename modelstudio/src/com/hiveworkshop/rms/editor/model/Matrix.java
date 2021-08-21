@@ -1,10 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Vertex motion matrices.
@@ -168,6 +165,21 @@ public class Matrix {
 
 	public void replaceBones(Map<IdObject, IdObject> newBoneMap) {
 		bones.replaceAll(b -> (Bone) newBoneMap.get(b));
+		bones.removeIf(Objects::isNull);
+		recalculateId();
+	}
+	public void replaceBones(Map<IdObject, IdObject> newBoneMap, boolean removeIfNull) {
+		bones.replaceAll(b -> removeIfNull || newBoneMap.get(b) != null ? (Bone) newBoneMap.get(b) : b);
+		bones.removeIf(Objects::isNull);
+		recalculateId();
+	}
+	public void replaceBone(Bone oldBone, Bone newBone, boolean removeIfNull) {
+		if(newBone != null){
+			int i = bones.indexOf(oldBone);
+			bones.set(i, newBone);
+		} else if(removeIfNull){
+			bones.remove(oldBone);
+		}
 		recalculateId();
 	}
 

@@ -144,20 +144,6 @@ public class HitTestStuff {
 		return !(has_neg && has_pos);
 	}
 
-	public static boolean hitTest222(Vec2 min, Vec2 max, Vec3 vec3, Mat4 viewPortMat, double vertexSize, double zoom) {
-//
-//		Vec3 minView = new Vec3(min).minimize(max);
-//		Vec3 maxView = new Vec3(max).maximize(min);
-//
-		Vec3 viewPAdj = new Vec3(vec3).transform(viewPortMat);
-		Vec2 vertexV2 = viewPAdj.getProjected((byte) 1, (byte) 2);
-
-		double vertSize = vertexSize / 2.0 * zoom;
-		return (vertexV2.distance(min) <= vertSize)
-				|| (vertexV2.distance(max) <= vertSize)
-				|| within(vertexV2, min, max);
-	}
-
 
 	public static boolean triHitTest(Triangle triangle, Vec2 point, CoordinateSystem coordinateSystem, int uvLayerIndex) {
 		GeosetVertex[] verts = triangle.getVerts();

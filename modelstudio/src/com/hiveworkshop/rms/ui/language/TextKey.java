@@ -68,6 +68,7 @@ public enum TextKey {
 	RECALCULATE_EXTENTS("Recalculate Extents"),
 	SNAP_VERTICES("Snap Vertices"),
 	SNAP_NORMALS("Snap Normals"),
+	SCALE_MODEL("Scale Model"),
 	LINEARIZE_ANIMATIONS("Linearize Animations"),
 	SIMPLIFY_KEYFRAMES("Simplify Keyframes"),
 	MINIMIZE_GEOSETS("Minimize Geosets"),

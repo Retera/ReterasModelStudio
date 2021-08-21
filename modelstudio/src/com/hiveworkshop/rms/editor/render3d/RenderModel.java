@@ -73,19 +73,6 @@ public final class RenderModel {
 
 	private final ModelView modelView;
 
-	public RenderModel(EditableModel model, ModelView modelView, TimeEnvironmentImpl timeEnvironment) {
-		this.model = model;
-		this.modelView = modelView;
-		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
-		this.timeEnvironment = timeEnvironment;
-		// Some classes doesn't call refreshFromEditor which leads to null-pointers when these in nor initialised
-//		for (final Geoset geoset : modelView.getModel().getGeosets()) {
-		for (final Geoset geoset : model.getGeosets()) {
-			RenderGeoset renderGeoset = renderGeosetMap.computeIfAbsent(geoset, k -> new RenderGeoset(geoset, this, modelView));
-			renderGeoset.updateTransforms(false);
-		}
-	}
-
 	public RenderModel(EditableModel model, ModelView modelView) {
 		this.model = model;
 		this.modelView = modelView;

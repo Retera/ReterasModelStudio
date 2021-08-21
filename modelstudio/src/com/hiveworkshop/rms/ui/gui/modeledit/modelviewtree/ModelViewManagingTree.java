@@ -21,7 +21,7 @@ import java.awt.event.MouseMotionListener;
 import java.util.*;
 
 public final class ModelViewManagingTree extends JCheckBoxTree {
-	private final ModelHandler modelHandler;
+	private ModelHandler modelHandler;
 	JCheckBoxTreeNode root;
 	JCheckBoxTreeNode meshes;
 	JCheckBoxTreeNode nodes;
@@ -35,6 +35,27 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 	public ModelViewManagingTree(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
 		super(modelHandler);
+		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
+		basicTreeUI.setRightChildIndent(5);
+
+		setModel(modelHandler, modelEditorManager);
+
+		final HighlightOnMouseoverListenerImpl mouseListener = new HighlightOnMouseoverListenerImpl();
+		addMouseMotionListener(mouseListener);
+		addMouseListener(mouseListener);
+	}
+	public ModelViewManagingTree() {
+		super();
+		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
+		basicTreeUI.setRightChildIndent(5);
+
+		final HighlightOnMouseoverListenerImpl mouseListener = new HighlightOnMouseoverListenerImpl();
+		addMouseMotionListener(mouseListener);
+		addMouseListener(mouseListener);
+	}
+
+	public ModelViewManagingTree setModel(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
+		setModel(modelHandler);
 		root = new JCheckBoxTreeNode(new CheckableModelElement(modelHandler)).setChecked(true);
 //		nodes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, "Nodes")).setChecked(false);
 		meshes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, MESH)).setChecked(true);
@@ -42,16 +63,10 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		cameras = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, CAMERAS));
 
 		setModel(buildTreeModel(modelHandler));
-		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
-		basicTreeUI.setRightChildIndent(5);
-
 		this.modelHandler = modelHandler;
 
 		listenerList.add(CheckChangeEventListener.class, changeEventListener(modelHandler.getUndoManager(), modelEditorManager));
-
-		final HighlightOnMouseoverListenerImpl mouseListener = new HighlightOnMouseoverListenerImpl();
-		addMouseMotionListener(mouseListener);
-		addMouseListener(mouseListener);
+		return this;
 	}
 
 

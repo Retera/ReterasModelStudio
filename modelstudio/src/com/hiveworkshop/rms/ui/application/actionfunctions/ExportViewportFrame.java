@@ -2,6 +2,9 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.WindowHandler2;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
+import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.application.viewer.ViewportRenderExporter;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.language.TextKey;
@@ -18,9 +21,14 @@ public class ExportViewportFrame extends ActionFunction{
 	public static void exportAnimatedFramePNG() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			final BufferedImage fBufferedImage = ViewportRenderExporter.getBufferedImage(modelPanel.getPerspArea().getViewport());
-			if (fBufferedImage != null) {
-				fileDialog.onClickSaveAs(null, fBufferedImage, FileDialog.SAVE_TEXTURE, false);
+//			PerspectiveViewport viewport = modelPanel.getPerspArea().getViewport();
+			PerspectiveViewUgg modelDependentView = (PerspectiveViewUgg) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PerspectiveViewUgg).findFirst().orElse(null);
+			if(modelDependentView != null && modelDependentView.getPerspectiveViewport() != null){
+				PerspectiveViewport viewport = modelDependentView.getPerspectiveViewport();
+				final BufferedImage fBufferedImage = ViewportRenderExporter.getBufferedImage(viewport);
+				if (fBufferedImage != null) {
+					fileDialog.onClickSaveAs(null, fBufferedImage, FileDialog.SAVE_TEXTURE, false);
+				}
 			}
 		}
 	}

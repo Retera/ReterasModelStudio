@@ -179,6 +179,10 @@ public class GeosetVertex extends Vec3 {
 		matrix.replaceBones(newBoneMap);
 		return this;
 	}
+	public GeosetVertex replaceBones(Map<IdObject, IdObject> newBoneMap, boolean removeIfNull) {
+		matrix.replaceBones(newBoneMap, removeIfNull);
+		return this;
+	}
 
 	public Matrix getMatrix() {
 		return matrix;

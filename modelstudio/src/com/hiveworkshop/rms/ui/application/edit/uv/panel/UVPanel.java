@@ -19,7 +19,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.types.TVertexUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.TVertexEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorWidgetType;
@@ -30,7 +30,6 @@ import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.util.Vec2;
-import net.infonode.docking.View;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -58,37 +57,34 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		UVIcon = new ImageIcon(IconUtils.worldEditStyleIcon(RMSIcons.loadTabImage("UVMap.png")));
 	}
 
-	private final ModelPanel modelPanel;
+	private ModelHandler modelHandler;
 	private final JTextField[] mouseCoordDisplay = new JTextField[2];
-	private final ViewportActivityManager viewportActivityManager;
-	private final TVertexEditorManager modelEditorManager;
-	UndoManager undoListener;
-	JCheckBoxMenuItem wrapImage;
-	ArrayList<ModeButton> buttons = new ArrayList<>();
-	View view;
-	JPanel zoomPanel;
-	JPanel navPanel;
+	private ViewportActivityManager viewportActivityManager;
+	private TVertexEditorManager modelEditorManager;
+	private UndoManager undoManager;
+	private JCheckBoxMenuItem wrapImage;
+	private ArrayList<ModeButton> buttons = new ArrayList<>();
+	private JPanel zoomPanel;
+	private JPanel navPanel;
 
-	private UVViewport vp;
-	private UVLinkActions uvLinkActions;
+	DefaultComboBoxModel<Bitmap> comboBoxModel;
+	JComboBox<Bitmap> textureComboBox;
+
+
+	private final UVViewport vp;
+	private final UVLinkActions uvLinkActions;
 
 	public UVPanel() {
 		this.uvLinkActions = new UVLinkActions(this);
 		JToolBar toolbar = createJToolBar();
 
-		modelPanel = ProgramGlobals.getCurrentModelPanel().addUVPanel(this);
-		undoListener = ProgramGlobals.getCurrentModelPanel().getUndoManager();
-		viewportActivityManager = new ViewportActivityManager(null);
-
-		ModelEditorChangeNotifier modelEditorChangeNotifier = new ModelEditorChangeNotifier();
-		modelEditorChangeNotifier.subscribe(viewportActivityManager);
-
-		modelEditorManager = new TVertexEditorManager(modelPanel.getModelHandler(), uvLinkActions.selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager);
-
 		setBorder(BorderFactory.createLineBorder(Color.black));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)));
 		setOpaque(true);
-		setViewport(modelPanel.getModelHandler());
+		vp = new UVViewport(this, this);
+		add(vp);
+//		setViewport(modelPanel.getModelHandler());
+//		setModel(modelPanel.getModelHandler());
 
 		setLayout(new MigLayout("fill", "[grow][]", "[][grow][]"));
 		add(toolbar, "wrap, spanx");
@@ -103,16 +99,21 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		});
 
 		uvLinkActions.actionTypeGroup.addToolbarButtonListener(newType -> {
-			if (newType != null) {
+			if (newType != null && modelEditorManager != null) {
 				changeActivity(newType);
 			}
 		});
 		uvLinkActions.actionTypeGroup.setActiveButton(ModelEditorWidgetType.TRANSLATION);
 
+		getMenuHolderPanel();
+	}
+
+	public JPanel getMenuHolderPanel() {
 		JPanel menuHolderPanel = new JPanel(new BorderLayout());
 		menuHolderPanel.add(this, BorderLayout.CENTER);
 		menuHolderPanel.add(createMenuBar(), BorderLayout.BEFORE_FIRST_LINE);
-		view = new View("Texture Coordinate Editor: " + currentModelPanel().getModel().getName(), UVIcon, menuHolderPanel);
+//		view = new View("Texture Coordinate Editor: " + modelHandler.getModel().getName(), UVIcon, menuHolderPanel);
+		return menuHolderPanel;
 	}
 
 	private JPanel getBotomPanel() {
@@ -170,10 +171,14 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		unwrapDirectionBox.setMaximumSize(new Dimension(100, 35));
 		unwrapDirectionBox.setMinimumSize(new Dimension(90, 15));
 
+
+		comboBoxModel = new DefaultComboBoxModel<>();
+		textureComboBox = getTextureComboBox(comboBoxModel);
+
 		// ToDo the texture combo box should maybe be limited in size and/or moved to a better spot to allow to view longer strings
 		JPanel stuffPanel = new JPanel(new MigLayout("wrap 1, gap 0"));
 		stuffPanel.add(loadImage);
-		stuffPanel.add(getTextureCombobox());
+		stuffPanel.add(textureComboBox);
 		stuffPanel.add(divider[0]);
 		stuffPanel.add(uvLinkActions.selectionModeGroup.getModeButton(SelectionMode.SELECT));
 		stuffPanel.add(uvLinkActions.selectionModeGroup.getModeButton(SelectionMode.ADD));
@@ -189,13 +194,12 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	private void mirror(byte i) {
-		ModelPanel mpanel = currentModelPanel();
-		if (mpanel != null) {
+		if (modelHandler != null) {
 			Vec2 selectionCenter = modelEditorManager.getSelectionView().getUVCenter(0);
 
-			Collection<Vec2> tVertices = TVertexUtils.getTVertices(modelPanel.getModelView().getSelectedVertices(), 0);
+			Collection<Vec2> tVertices = TVertexUtils.getTVertices(modelHandler.getModelView().getSelectedVertices(), 0);
 			UndoAction mirror = new MirrorTVerticesAction(tVertices, i, selectionCenter.x, selectionCenter.y).redo();
-			mpanel.getUndoManager().pushAction(mirror);
+			modelHandler.getUndoManager().pushAction(mirror);
 		}
 		repaint();
 	}
@@ -218,11 +222,14 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	protected void remap(byte xDim, byte yDim, UnwrapDirection direction) {
-		ModelPanel mpanel = currentModelPanel();
-		if (mpanel != null) {
-			mpanel.getUndoManager().pushAction(new UVRemapAction(modelPanel.getModelView().getSelectedVertices(), 0, xDim, yDim, direction).redo());
+		if (modelHandler != null) {
+			modelHandler.getUndoManager().pushAction(new UVRemapAction(modelHandler.getModelView().getSelectedVertices(), 0, xDim, yDim, direction).redo());
 		}
 		repaint();
+	}
+
+	public boolean isWrapImage() {
+		return wrapImage.isSelected();
 	}
 
 	private JButton addButton(int width, int height, String iconPath, ActionListener actionListener) {
@@ -259,8 +266,9 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		JButton snapButton = toolbar.add(new AbstractAction("Snap", RMSIcons.loadToolBarImageIcon("snap.png")) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				modelPanel.getUndoManager().pushAction(snapSelectedVertices());
-
+				if(modelHandler != null){
+					modelHandler.getUndoManager().pushAction(snapSelectedVertices());
+				}
 			}
 		});
 
@@ -272,7 +280,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 
 
 	public UndoAction snapSelectedVertices() {
-		Collection<Vec2> selection = TVertexUtils.getTVertices(modelPanel.getModelView().getSelectedVertices(), 0);
+		Collection<Vec2> selection = TVertexUtils.getTVertices(modelHandler.getModelView().getSelectedVertices(), 0);
 		List<Vec2> oldLocations = new ArrayList<>();
 		Vec2 cog = Vec2.centerOfGroup(selection);
 		for (Vec2 vertex : selection) {
@@ -343,8 +351,8 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	private void splitVertex() {
-		if (modelPanel != null) {
-			new SplitVertexAction(ModelStructureChangeListener.changeListener, modelPanel.getModelView());
+		if (modelHandler != null) {
+			new SplitVertexAction(ModelStructureChangeListener.changeListener, modelHandler.getModelView());
 		}
 		repaint();
 	}
@@ -369,57 +377,43 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 	}
 
-	private JComboBox<String> getTextureCombobox() {
-		System.out.println("getComboBox!");
-		DefaultListModel<Bitmap> bitmapListModel;
-
-		List<Bitmap> bitmaps = new ArrayList<>(modelPanel.getModel().getTextures());
-		List<String> bitmapNames = new ArrayList<>();
-
-		for (Bitmap bitmap : bitmaps) {
-			bitmapNames.add(bitmap.getName());
-		}
-		bitmaps.add(0, null);
-		bitmapNames.add(0, "no image");
-
-		JComboBox<String> jComboBox = new JComboBox<>(bitmapNames.toArray(String[]::new));
-		jComboBox.setSelectedIndex(0);
-		jComboBox.addActionListener(e -> chooseImage(bitmaps, jComboBox));
-
+	private JComboBox<Bitmap> getTextureComboBox(DefaultComboBoxModel<Bitmap> comboBoxModel) {
+		JComboBox<Bitmap> jComboBox = new JComboBox<>(comboBoxModel);
+		jComboBox.addActionListener(e -> chooseImage(comboBoxModel));
 		return jComboBox;
 	}
 
-	private void chooseImage(List<Bitmap> bitmaps, JComboBox<String> jComboBox) {
+	private void chooseImage(DefaultComboBoxModel<Bitmap> comboBoxModel) {
 		BufferedImage image = null;
-		if (jComboBox.getSelectedItem() != null) {
-			Bitmap bitmap = bitmaps.get(jComboBox.getSelectedIndex());
+		if (comboBoxModel.getSelectedItem() != null) {
+			Bitmap bitmap = (Bitmap) comboBoxModel.getSelectedItem();
 			if (bitmap != null) {
-				image = BLPHandler.getImage(bitmap, modelPanel.getModel().getWrappedDataSource());
+				image = BLPHandler.getImage(bitmap, modelHandler.getModel().getWrappedDataSource());
 			}
 		}
 		setTextureAsBackground(image);
 	}
 
 
-	protected boolean animationModeState() {
-		return false;
-	}
+//	protected boolean animationModeState() {
+//		return false;
+//	}
+//
+//	public boolean frameVisible() {
+//		return view.isVisible() && view.isShowing() && (view.getWindowParent() != null);
+//	}
 
-	public boolean frameVisible() {
-		return view.isVisible() && view.isShowing() && (view.getWindowParent() != null);
-	}
+//	public View getView() {
+//		return view;
+//	}
 
-	public View getView() {
-		return view;
-	}
-
-	public void packFrame() {
-		JFrame frame = (JFrame) view.getTopLevelAncestor();
-		if (frame != null) {
-			frame.pack();
-			frame.setLocationRelativeTo(ProgramGlobals.getMainPanel());
-		}
-	}
+//	public void packFrame() {
+//		JFrame frame = (JFrame) view.getTopLevelAncestor();
+//		if (frame != null) {
+//			frame.pack();
+//			frame.setLocationRelativeTo(ProgramGlobals.getMainPanel());
+//		}
+//	}
 
 	public void setMouseCoordDisplay(double x, double y) {
 //		String.format(Locale.US,"", x)
@@ -429,9 +423,52 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 //		mouseCoordDisplay[1].setText((float) y + "");
 	}
 
-	public void setViewport(ModelHandler modelHandler) {
-		vp = new UVViewport(modelHandler, this, viewportActivityManager, this);
-		add(vp);
+//	public void setViewport(ModelHandler modelHandler) {
+//		vp = new UVViewport(this, this);
+//		add(vp);
+//		setModel(modelHandler);
+//	}
+
+//	private JComboBox<String> getTextureCombobox1() {
+//		System.out.println("getComboBox!");
+//		List<Bitmap> bitmaps = new ArrayList<>(modelHandler.getModel().getTextures());
+//		List<String> bitmapNames = new ArrayList<>();
+//		DefaultComboBoxModel<Bitmap> comboBoxModel = new DefaultComboBoxModel<>();
+//		comboBoxModel.addAll(modelHandler.getModel().getTextures());
+//
+//		for (Bitmap bitmap : bitmaps) {
+//			bitmapNames.add(bitmap.getName());
+//		}
+//		bitmaps.add(0, null);
+//		bitmapNames.add(0, "no image");
+//
+//		String[] strings = bitmapNames.toArray(String[]::new);
+////		JComboBox<String> jComboBox = new JComboBox<>(strings);
+////		JComboBox<String> jComboBox = getComboBox(bitmaps, strings);
+//		jComboBox.setRenderer(new TextureListRenderer());
+//
+//		return jComboBox;
+//	}
+
+	public UVPanel setModel(ModelHandler modelHandler) {
+		this.modelHandler = modelHandler;
+		undoManager = modelHandler.getUndoManager();
+		viewportActivityManager = new ViewportActivityManager(null);
+
+		ModelEditorChangeNotifier modelEditorChangeNotifier = new ModelEditorChangeNotifier();
+		modelEditorChangeNotifier.subscribe(viewportActivityManager);
+
+		modelEditorManager = new TVertexEditorManager(this.modelHandler, uvLinkActions.selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager);
+		vp.setModel(this.modelHandler, viewportActivityManager);
+
+		comboBoxModel.removeAllElements();
+		comboBoxModel.addAll(modelHandler.getModel().getTextures());
+		textureComboBox.setRenderer(new TextureListRenderer(modelHandler.getModel()));
+		if(comboBoxModel.getSize() > 0){
+			textureComboBox.setSelectedIndex(0);
+		}
+
+		return this;
 	}
 
 	@Override
@@ -475,7 +512,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		FileDialog fileDialog = new FileDialog(this);
 		Bitmap bitmap = fileDialog.importImage();
 		if (bitmap != null) {
-			setTextureAsBackground(BLPHandler.getImage(bitmap, modelPanel.getModel().getWrappedDataSource()));
+			setTextureAsBackground(BLPHandler.getImage(bitmap, modelHandler.getModel().getWrappedDataSource()));
 		}
 	}
 
@@ -503,9 +540,9 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		return uvLayerIndex;
 	}
 
-	private ModelPanel currentModelPanel() {
-		return modelPanel;
-	}
+//	private ModelPanel currentModelPanel() {
+//		return modelPanel;
+//	}
 
 	@Override
 	public void notifyUpdate(CoordinateSystem coordinateSystem, double coord1, double coord2) {
@@ -514,7 +551,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 
 	//	@Override
 	public void changeActivity(ModelEditorWidgetType newType) {
-		ViewportActivity activity = createActivity(modelEditorManager, modelPanel.getModelHandler(), newType);
+		ViewportActivity activity = createActivity(modelEditorManager, modelHandler, newType);
 		viewportActivityManager.setCurrentActivity(activity);
 	}
 

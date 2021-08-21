@@ -3,10 +3,7 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 import com.hiveworkshop.rms.ui.application.EditUVsPanel;
 import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
 import com.hiveworkshop.rms.ui.application.ModelEditActions;
-import com.hiveworkshop.rms.ui.application.actionfunctions.FlipFaces;
-import com.hiveworkshop.rms.ui.application.actionfunctions.FlipNormals;
-import com.hiveworkshop.rms.ui.application.actionfunctions.RigSelection;
-import com.hiveworkshop.rms.ui.application.actionfunctions.ViewMatrices;
+import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
 import com.hiveworkshop.rms.ui.application.tools.TwilacPanel;
 
@@ -28,6 +25,7 @@ public class ToolsMenu extends JMenu {
 		// showMatrices.setMnemonic(KeyEvent.VK_V);
 		twilacPanel.addActionListener(e -> TwilacPanel.showPopup());
 		add(twilacPanel);
+		add(new ScaleModel().getMenuItem());
 
 		add(new ViewMatrices().getMenuItem());
 		add(new FlipFaces().getMenuItem());

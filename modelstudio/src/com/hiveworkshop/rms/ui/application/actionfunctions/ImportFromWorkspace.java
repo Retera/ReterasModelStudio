@@ -31,7 +31,8 @@ public class ImportFromWorkspace extends ActionFunction{
 			ImportFileActions.importFile(TempStuffFromEditableModel.deepClone(choice, choice.getHeaderName()));
 		}
 		if (ProgramGlobals.getCurrentModelPanel() != null) {
-			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
+//			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
+			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 		}
 	}
 }

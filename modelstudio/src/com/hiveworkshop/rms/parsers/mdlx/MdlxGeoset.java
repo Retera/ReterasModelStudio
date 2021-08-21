@@ -253,6 +253,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 
 		for (final String token : stream.readBlock()) {
 			// For now hardcoded for triangles, until I see a model with something different.
+//			System.out.println("Token: " + token);
 			switch (token) {
 				case MdlUtils.TOKEN_VERTICES -> vertices = stream.readVectorArray(new float[stream.readInt() * 3], 3);
 				case MdlUtils.TOKEN_NORMALS -> normals = stream.readVectorArray(new float[stream.readInt() * 3], 3);
@@ -289,12 +290,46 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 					final int count = stream.readInt();
 					stream.read(); // {
 					stream.read(); // Triangles
-//					stream.read(); // {
-					faces = stream.readUInt16Array(new int[count], 3);
-					faceGroups = new long[] {count};
-//					stream.read(); // }
+					if(count > 0){
+						faces = stream.readUInt16Array(new int[count], 3);
+						faceGroups = new long[] {count};
+					} else {
+						faces = new int[]{};
+						faceGroups = new long[]{};
+						if (stream.read().equals("{")){
+							if (stream.read().equals("{")){
+								stream.read(); // }
+							}
+							stream.read(); // }
+						}
+					}
 					stream.read(); // }
 				}
+//				case MdlUtils.TOKEN_FACES -> {
+//					faceTypeGroups = new long[] {4L};
+//					stream.readInt(); // number of groups
+//					final int count = stream.readInt();
+//					System.out.println("\"{\"? " + stream.read()); // {
+//					System.out.println("\"Triangles\"? " + stream.read()); // Triangles
+////					stream.read(); // {
+//					System.out.println("count: " + count);
+//					if(count > 0){
+//						faces = stream.readUInt16Array(new int[count], 3);
+//						faceGroups = new long[] {count};
+//					} else {
+//						faces = new int[]{};
+//						faceGroups = new long[]{};
+//						if (stream.read().equals("{")){
+//							if (stream.read().equals("{")){
+//								stream.read(); // }
+//							}
+//							stream.read(); // }
+//						}
+//					}
+//					System.out.println("faces: " + faces);
+//					System.out.println("faceGroups: " + faceGroups);
+//					System.out.println("\"}\"? " + stream.read()); // }
+//				}
 				case MdlUtils.TOKEN_GROUPS -> {
 					final List<Integer> indices = new ArrayList<>();
 					final List<Integer> groups = new ArrayList<>();

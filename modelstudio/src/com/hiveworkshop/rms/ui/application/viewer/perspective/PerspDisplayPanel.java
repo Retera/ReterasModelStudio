@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.viewer.perspective;
 import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.application.viewer.ViewportRenderExporter;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import net.infonode.docking.View;
+import net.miginfocom.swing.MigLayout;
 import org.lwjgl.LWJGLException;
 
 import javax.swing.*;
@@ -18,53 +18,25 @@ import java.awt.image.BufferedImage;
  * @version (a version number or a date)
  */
 public class PerspDisplayPanel extends JPanel {
-	private ModelHandler modelHandler;
-	//	private PerspectiveViewport vp;
 	private PerspectiveViewport vp;
 	private String title;
-	private final View view;
 
-	// private JCheckBox wireframe;
-	public PerspDisplayPanel(String title, ModelHandler modelHandler) {
-		super();
+	public PerspDisplayPanel(String title) {
+		super(new BorderLayout());
 		setOpaque(true);
 
-		this.modelHandler = modelHandler;
-		setModel(modelHandler);
-		getViewport().setMinimumSize(new Dimension(200, 200));
+		try {
+			vp = new PerspectiveViewport();
+			vp.setIgnoreRepaint(false);
+			vp.setMinimumSize(new Dimension(200, 200));
+		} catch (LWJGLException e) {
+			e.printStackTrace();
+		}
 		this.title = title;
 
-		JButton plusZoom = getButton(e -> zoom(.15), 20, 20);
-		// add(plusZoom);
-		JButton minusZoom = getButton(e -> zoom(-.15), 20, 20);
-		// add(minusZoom);
-		JButton up = getButton(e -> translateViewUpDown(20), 32, 16);
-		// add(up);
-		JButton down = getButton(e -> translateViewUpDown(-20), 32, 16);
-		// add(down);
-		JButton left = getButton(e -> translateViewLeftRight(20), 16, 32);
-		// add(left);
-		JButton right = getButton(e -> translateViewLeftRight(-20), 16, 32);
-		// add(right);
+//		getButtonPanel();
 
-		setLayout(new BorderLayout());
 		add(vp);
-
-		view = new View(title, null, this);
-	}
-
-	private static JButton getButton(ActionListener actionListener, int width, int height) {
-		Dimension dim = new Dimension(width, height);
-		JButton button = new JButton("");
-		button.setMaximumSize(dim);
-		button.setMinimumSize(dim);
-		button.setPreferredSize(dim);
-		button.addActionListener(actionListener);
-		return button;
-	}
-
-	public View getView() {
-		return view;
 	}
 
 	public void reloadTextures() {
@@ -75,27 +47,28 @@ public class PerspDisplayPanel extends JPanel {
 		vp.reloadAllTextures();
 	}
 
-	public void setModel(ModelHandler modelHandler) {
-		setModel(modelHandler, 200);
+	public PerspDisplayPanel setModel(ModelHandler modelHandler) {
+		vp.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), false);
+//		setModel(modelHandler, 200);
+		return this;
 	}
 
-	public void setModel(ModelHandler modelHandler, int viewerSize) {
-		try {
-			if (vp != null) {
-				vp.destroy();
-			}
-			removeAll();
-			vp = new PerspectiveViewport(modelHandler.getModelView(), modelHandler.getRenderModel(), false);
-			vp.setIgnoreRepaint(false);
-			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
-
-			setLayout(new BorderLayout());
-		} catch (LWJGLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		add(vp, BorderLayout.CENTER);
-	}
+//	public void setModel(ModelHandler modelHandler, int viewerSize) {
+//		vp.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), false);
+////		try {
+////			if (vp != null) {
+////				vp.destroy();
+////			}
+////			removeAll();
+////			vp = new PerspectiveViewport();
+////			vp.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), false);
+//////			vp.setIgnoreRepaint(false);
+//////			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
+////		} catch (LWJGLException e) {
+////			// TODO Auto-generated catch block
+////			e.printStackTrace();
+////		}
+//	}
 
 	public void setTitle(String what) {
 		title = what;
@@ -114,6 +87,32 @@ public class PerspDisplayPanel extends JPanel {
 		// vp.repaint();
 	}
 
+
+	private void getButtonPanel() {
+		JPanel buttonPanel = new JPanel(new MigLayout(""));
+		JButton plusZoom = getButton(e -> zoom(.15), 20, 20);
+		buttonPanel.add(plusZoom, "wrap");
+		JButton minusZoom = getButton(e -> zoom(-.15), 20, 20);
+		buttonPanel.add(minusZoom, "wrap");
+		JButton up = getButton(e -> translateViewUpDown(20), 32, 16);
+		buttonPanel.add(up, "wrap");
+		JButton down = getButton(e -> translateViewUpDown(-20), 32, 16);
+		buttonPanel.add(down, "wrap");
+		JButton left = getButton(e -> translateViewLeftRight(20), 16, 32);
+		buttonPanel.add(left, "wrap");
+		JButton right = getButton(e -> translateViewLeftRight(-20), 16, 32);
+		buttonPanel.add(right, "wrap");
+	}
+
+	private static JButton getButton(ActionListener actionListener, int width, int height) {
+		Dimension dim = new Dimension(width, height);
+		JButton button = new JButton("");
+		button.setMaximumSize(dim);
+		button.setMinimumSize(dim);
+		button.setPreferredSize(dim);
+		button.addActionListener(actionListener);
+		return button;
+	}
 	public void zoom(double v) {
 		vp.zoom(v);
 		vp.repaint();
@@ -135,23 +134,5 @@ public class PerspDisplayPanel extends JPanel {
 
 	public BufferedImage getBufferedImage() {
 		return ViewportRenderExporter.getBufferedImage(vp);
-	}
-
-
-	private void makeContextMenu() {
-		JPopupMenu contextMenu = new JPopupMenu();
-
-		JMenuItem reAssignMatrix = new JMenuItem("Re-assign Matrix");
-//		reAssignMatrix.addActionListener(this);
-		contextMenu.add(reAssignMatrix);
-
-		JMenuItem cogBone = new JMenuItem("Auto-Center Bone(s)");
-		cogBone.addActionListener(e -> cogBone());
-		contextMenu.add(cogBone);
-	}
-
-	private void cogBone() {
-		JOptionPane.showMessageDialog(this,
-				"Please use other viewport, this action is not implemented for this viewport.");
 	}
 }

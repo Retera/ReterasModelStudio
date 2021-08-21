@@ -62,7 +62,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	}
 
 	public void setPivotPoint(final Vec3 p) {
-		pivotPoint = p;
+		pivotPoint.set(p);
 	}
 
 	public void setParent(final IdObject p) {

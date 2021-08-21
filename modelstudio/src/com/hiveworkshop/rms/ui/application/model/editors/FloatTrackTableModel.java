@@ -151,9 +151,9 @@ public class FloatTrackTableModel extends AbstractTableModel {
 	}
 
 	private String getLbtValue(int i, int index) {
-		if (lastButtons[i].getClass() == String.class) {
+		if (lastButtons[i] != null && lastButtons[i].getClass() == String.class) {
 			return (String) lastButtons[i];
-		} else if (lastButtons[i].getClass() == String[].class) {
+		} else if (lastButtons[i] != null && lastButtons[i].getClass() == String[].class) {
 			String[] bv = (String[]) lastButtons[i];
 			if (bv.length > index) {
 				return bv[index];

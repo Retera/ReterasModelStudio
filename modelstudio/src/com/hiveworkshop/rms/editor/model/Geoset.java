@@ -25,7 +25,7 @@ public class Geoset implements Named, VisibilitySource {
 	public Geoset() {
 	}
 
-	@Override
+//	@Override
 //	public String getName() {
 //		if (levelOfDetailName.equals("")) {
 //			if (skin != null) {
@@ -50,6 +50,7 @@ public class Geoset implements Named, VisibilitySource {
 //		}
 //		return "Geoset " + (parentModel.getGeosetId(this));// parentModel.getName() // + "
 //	}
+	@Override
 	public String getName() {
 		if (levelOfDetailName.equals("")) {
 			if (skin != null && !skin.isEmpty()) {

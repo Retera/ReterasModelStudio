@@ -14,25 +14,33 @@ import java.awt.image.BufferedImage;
 public class PreviewPanel extends JPanel {
 	private final PerspectiveViewport perspectiveViewport;
 	TimeEnvironmentImpl renderEnv;
-	private ModelHandler modelHandler;
 
-	public PreviewPanel(ModelHandler modelHandler, boolean doDefaultCamera, ViewportActivityManager activityManager) {
-		this.modelHandler = modelHandler;
+	public PreviewPanel() {
 		try {
-			modelHandler.getModelView().setVetoOverrideParticles(true);
-			RenderModel previewRenderModel = modelHandler.getPreviewRenderModel();
-			perspectiveViewport = new PerspectiveViewport(modelHandler.getModelView(), previewRenderModel, doDefaultCamera);
+			perspectiveViewport = new PerspectiveViewport();
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
-			renderEnv = previewRenderModel.getTimeEnvironment();
-			renderEnv.setAnimationTime(0);
-			renderEnv.setLive(true);
-			perspectiveViewport.getCameraHandler().setActivityManager(activityManager);
-			perspectiveViewport.getMouseListenerThing().setActivityManager(activityManager);
 		} catch (LWJGLException e) {
 			throw new RuntimeException(e);
 		}
 		setLayout(new BorderLayout());
 		add(perspectiveViewport, BorderLayout.CENTER);
+	}
+
+	public PreviewPanel setModel(ModelHandler modelHandler, boolean doDefaultCamera, ViewportActivityManager activityManager) {
+		if(modelHandler != null){
+			modelHandler.getModelView().setVetoOverrideParticles(true);
+			RenderModel previewRenderModel = modelHandler.getPreviewRenderModel();
+			perspectiveViewport.setModel(modelHandler.getModelView(), previewRenderModel, doDefaultCamera);
+			renderEnv = previewRenderModel.getTimeEnvironment();
+			renderEnv.setAnimationTime(0);
+			renderEnv.setLive(true);
+			perspectiveViewport.getCameraHandler().setActivityManager(activityManager);
+			perspectiveViewport.getMouseListenerThing().setActivityManager(activityManager);
+		} else {
+			perspectiveViewport.setModel(null, null, doDefaultCamera);
+			renderEnv = null;
+		}
+		return this;
 	}
 
 	public void setTitle(String title) {
@@ -55,28 +63,41 @@ public class PreviewPanel extends JPanel {
 	}
 
 	public void setAnimation(Animation animation) {
-		renderEnv.setAnimation(animation);
+		if(renderEnv != null){
+			renderEnv.setAnimation(animation);
+		}
 	}
 
 	public void setAnimationTime(int time) {
-		renderEnv.setAnimationTime(time);
+		if(renderEnv != null){
+			renderEnv.setAnimationTime(time);
+		}
 	}
 
 	public void playAnimation() {
-		renderEnv.setRelativeAnimationTime(0);
-		renderEnv.setLive(true);
+		if(renderEnv != null){
+			renderEnv.setRelativeAnimationTime(0);
+			renderEnv.setLive(true);
+		}
 	}
 
 	public void setLoop(PreviewPanel.LoopType loopType) {
-		renderEnv.setLoopType(loopType);
+		if(renderEnv != null){
+			renderEnv.setLoopType(loopType);
+		}
 	}
 
 	public void setSpeed(float speed) {
-		renderEnv.setAnimationSpeed(speed);
+		if(renderEnv != null){
+			renderEnv.setAnimationSpeed(speed);
+		}
 	}
 
 	public Animation getCurrentAnimation() {
-		return renderEnv.getCurrentAnimation();
+		if(renderEnv != null){
+			return renderEnv.getCurrentAnimation();
+		}
+		return null;
 	}
 
 	public void setLevelOfDetail(int levelOfDetail) {

@@ -153,7 +153,7 @@ public class TwilacPanel extends JPanel {
 		ModelPanel currentModelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (currentModelPanel != null) {
 			ReorderAnimationsPanel panel = new ReorderAnimationsPanel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
-			FramePopup.show(panel, null, "Edit Particle2 Emitter");
+			FramePopup.show(panel, null, "Re-order Animations");
 		}
 	}
 	private void viewKBPanel(){

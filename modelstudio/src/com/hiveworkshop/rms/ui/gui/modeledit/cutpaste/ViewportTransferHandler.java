@@ -15,8 +15,10 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.GeometryModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayPanel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
+import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -38,6 +40,7 @@ import java.util.*;
 
 public class ViewportTransferHandler extends TransferHandler {
 
+	private static final String PLACEHOLDER_TAG = "_COPYPLACEHOLDER";
 	/**
 	 * Perform the actual data import.
 	 */
@@ -45,19 +48,38 @@ public class ViewportTransferHandler extends TransferHandler {
 	public boolean importData(TransferHandler.TransferSupport info) {
 		String data;
 		EditableModel pastedModel;
+//		System.out.println("imorpt daga_______________________________________________________");
 
 		// If we can't handle the import, bail now.
 		if (!canImport(info)) {
+
+//			System.out.println("cant Imp");
 			return false;
 		}
+		Viewport viewport = null;
+		PerspectiveViewport pv = null;
+		DisplayPanel dp = null;
+//		System.out.println("info.getComponent(): " + info.getComponent());
+		if(info.getComponent() instanceof Viewport){
+			viewport = (Viewport) info.getComponent();
+//			System.out.println("found Viewport");
+		}
+		if(info.getComponent() instanceof PerspectiveViewport){
+//			System.out.println("found PerspectiveViewport");
+			pv = (PerspectiveViewport) info.getComponent();
+		}
+		if(info.getComponent() instanceof DisplayPanel){
+//			System.out.println("found DisplayPanel");
+			dp = (DisplayPanel) info.getComponent();
+		}
 
-		Viewport viewport = (Viewport) info.getComponent();
 		// Fetch the data -- bail if this fails
 		try {
 			data = (String) info.getTransferable().getTransferData(DataFlavor.stringFlavor);
 			ByteArrayInputStream inputStream = new ByteArrayInputStream(data.getBytes());
 			pastedModel = MdxUtils.loadEditable(inputStream);
 			inputStream.close();
+//			System.out.println("done reading model_______________________________________________________");
 		} catch (final UnsupportedFlavorException ufe) {
 			System.out.println("importData: unsupported data flavor");
 			return false;
@@ -66,13 +88,32 @@ public class ViewportTransferHandler extends TransferHandler {
 			return false;
 		}
 
-		if (info.isDrop()) { // This is a drop
-			Viewport.DropLocation dl = (Viewport.DropLocation) info.getDropLocation();
-			Point dropPoint = dl.getDropPoint();
-			pasteModelIntoViewport(pastedModel, viewport, dropPoint);
-		} else { // This is a paste
-			pasteModelIntoViewport(pastedModel, viewport, viewport.getLastMouseMotion());
+		if(viewport != null){
+			if (info.isDrop()) { // This is a drop
+//				System.out.println("drop Viewport_______________________________________________________");
+				Viewport.DropLocation dl = (Viewport.DropLocation) info.getDropLocation();
+				Point dropPoint = dl.getDropPoint();
+				pasteModelIntoViewport(pastedModel, viewport, dropPoint);
+			} else { // This is a paste
+//				System.out.println("paste Viewport_______________________________________________________");
+				pasteModelIntoViewport(pastedModel, viewport, viewport.getLastMouseMotion());
+			}
 		}
+		if(pv != null || dp != null){
+			Point point = new Point(0,0);
+			if (info.isDrop()) { // This is a drop
+//				System.out.println("drop PerspectiveViewport_______________________________________________________");
+				Viewport.DropLocation dl = (Viewport.DropLocation) info.getDropLocation();
+				Point dropPoint = dl.getDropPoint();
+				pasteModelIntoViewport(pastedModel, dropPoint);
+			} else { // This is a paste
+
+//				System.out.println("paste PerspectiveViewport_______________________________________________________");
+				pasteModelIntoViewport(pastedModel, point);
+			}
+		}
+
+//		System.out.println("done?_______________________________________________________");
 		return true;
 	}
 
@@ -122,14 +163,92 @@ public class ViewportTransferHandler extends TransferHandler {
 		UndoAction pasteAndSelectAction = new CompoundAction("Paste", ModelStructureChangeListener.changeListener::geosetsUpdated, pasteAction, selectPasted);
 		undoManager.pushAction(pasteAndSelectAction.redo());
 	}
+	private void pasteModelIntoViewport(EditableModel pastedModel, Point dropPoint) {
+//		System.out.println("pasting model!");
+		ModelHandler modelHandler = new ModelHandler(pastedModel);
+		ModelView pastedModelView = modelHandler.getModelView();
+		pastedModelView.setIdObjectsVisible(true);
+		pastedModelView.setCamerasVisible(true);
+		List<IdObject> idObjects = pastedModel.getIdObjects();
+		for (IdObject object : idObjects) {
+			pastedModelView.makeIdObjectEditable(object);
+		}
+		for (Camera object : pastedModel.getCameras()) {
+			pastedModelView.makeCameraEditable(object);
+		}
+		GeometryModelEditor listener = new GeometryModelEditor(new SelectionManager(modelHandler.getRenderModel(), pastedModelView, SelectionItemTypes.VERTEX), modelHandler, SelectionItemTypes.VERTEX);
+		pastedModelView.selectAll();
+//		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
+		Vec3 pasteCenter = new Vec3(0, 0, 0);
+//		pasteCenter.setCoord(viewport.getCoordinateSystem().getPortFirstXYZ(), geomPoint.x);
+//		pasteCenter.setCoord(viewport.getCoordinateSystem().getPortSecondXYZ(), geomPoint.y);
+		listener.setPosition(pastedModelView.getSelectionCenter(), pasteCenter);
+
+		// this is the model they're actually working on
+		ModelView currentModelView = ProgramGlobals.getCurrentModelPanel().getModelView();
+		List<UndoAction> undoActions = new ArrayList<>();
+		Map<String, IdObject> placeHolderBones = new HashMap<>();
+		Map<IdObject, IdObject> placeHolderBonesToModelBones = new HashMap<>();
+
+		Set<IdObject> validIdObjects = new HashSet<>();
+		for (IdObject idObject : idObjects) {
+			if(!idObject.getName().endsWith(PLACEHOLDER_TAG)){
+				undoActions.add(new AddNodeAction(currentModelView.getModel(), idObject, null));
+				placeHolderBonesToModelBones.put(idObject, idObject);
+				validIdObjects.add(idObject);
+			} else {
+				placeHolderBones.put(idObject.getName().replaceAll(PLACEHOLDER_TAG, ""), idObject);
+			}
+		}
+		for(Bone bone : currentModelView.getModel().getBones()){
+			if(placeHolderBones.containsKey(bone.getName())){
+				placeHolderBonesToModelBones.put(placeHolderBones.get(bone.getName()), bone);
+			}
+		}
+
+		List<GeosetVertex> pastedVerts = new ArrayList<>();
+		for (Geoset pastedGeoset : pastedModel.getGeosets()) {
+			pastedGeoset.setParentModel(currentModelView.getModel());
+			for (GeosetVertex vertex : pastedGeoset.getVertices()){
+				if (vertex.getSkinBones() != null) {
+					for (GeosetVertex.SkinBone skinBone : vertex.getSkinBones()) {
+						Bone bone = skinBone.getBone();
+						if (bone != null && bone.getName().endsWith(PLACEHOLDER_TAG)) {
+							skinBone.setBone((Bone) placeHolderBonesToModelBones.get(bone));
+						}
+					}
+				} else if (!vertex.getBones().isEmpty()) {
+					vertex.replaceBones(placeHolderBonesToModelBones);
+				}
+			}
+			pastedVerts.addAll(pastedGeoset.getVertices());
+			undoActions.add(new AddGeosetAction(pastedGeoset, currentModelView, null));
+		}
+//		currentModelView.setSelectedIdObjects(idObjects);
+		for (Camera idObject : pastedModel.getCameras()) {
+			undoActions.add(new AddCameraAction(currentModelView.getModel(), idObject, null));
+		}
+
+		UndoAction pasteAction = new CompoundAction("Paste", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated);
+
+//		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, pastedModel.getIdObjects(), pastedModel.getCameras());
+		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, validIdObjects, pastedModel.getCameras());
+		UndoAction selectPasted = new SetSelectionUggAction(pastedSelection, currentModelView, "select pasted");
+
+		UndoManager undoManager = ProgramGlobals.getCurrentModelPanel().getModelHandler().getUndoManager();
+		UndoAction pasteAndSelectAction = new CompoundAction("Paste", ModelStructureChangeListener.changeListener::geosetsUpdated, pasteAction, selectPasted);
+		undoManager.pushAction(pasteAndSelectAction.redo());
+	}
 
 	/**
 	 * Bundle up the data for export.
 	 */
 	@Override
 	protected Transferable createTransferable(JComponent c) {
-		Viewport viewport = (Viewport) c;
-		ModelView currentModelView = viewport.getModelView();
+//		System.out.println("createTransf_______________________________________________________");
+//		Viewport viewport = (Viewport) c;
+//		ModelView currentModelView = viewport.getModelView();
+		ModelView currentModelView = ProgramGlobals.getCurrentModelPanel().getModelView();
 		EditableModel currentModel = currentModelView.getModel();
 
 		EditableModel stringableModel = new EditableModel("CopyPastedModelData");
@@ -138,46 +257,28 @@ public class ViewportTransferHandler extends TransferHandler {
 
 		CopiedModelData copySelection = copySelection(currentModelView);
 
-		Bone dummyBone = null;
-		Vec3 dummyPivot = new Vec3(0, 0, 0);
+		Bone dummyBone = new Bone("CopiedModelDummy");
 		int count = 0;
 
+		count += copySelection.getIdObjects().size();
 		for (IdObject object : copySelection.getIdObjects()) {
 			stringableModel.add(object);
-			dummyPivot.add(object.getPivotPoint());
-			count++;
+			dummyBone.getPivotPoint().add(object.getPivotPoint());
 		}
+		count += copySelection.getCameras().size();
 		for (Camera camera : copySelection.getCameras()) {
 			stringableModel.add(camera);
-			dummyPivot.add(camera.getPosition());
-			count++;
+			dummyBone.getPivotPoint().add(camera.getPosition());
 		}
 		for (Geoset geoset : copySelection.getGeosets()) {
 			stringableModel.add(geoset);
-			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				dummyPivot.add(geosetVertex);
-				count++;
-				List<Bone> bones = geosetVertex.getBones();
-				for (int i = bones.size() - 1; i >= 0; i--) {
-					Bone bone = bones.get(i);
-					if (!copySelection.getIdObjects().contains(bone)) {
-						geosetVertex.removeBone(bone);
-					}
-				}
-				if (geosetVertex.getMatrix().isEmpty()) {
-					if (dummyBone == null) {
-						dummyBone = new Bone("CopiedModelDummy");
-						stringableModel.add(dummyBone);
-					}
-					geosetVertex.addBoneAttachment(dummyBone);
-				}
-			}
+			stringableModel.add(geoset.getMaterial());
+			count += geoset.getVertices().size();
+
+			dummyBone.getPivotPoint().add(fixVertBones(stringableModel, dummyBone, geoset));
 			geoset.applyVerticesToMatrices(stringableModel);
 		}
-		if (dummyBone != null) {
-			dummyPivot.scale(1f / count);
-			dummyBone.setPivotPoint(dummyPivot);
-		}
+		dummyBone.getPivotPoint().scale(1f / count);
 
 		String value = "";
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -189,6 +290,27 @@ public class ViewportTransferHandler extends TransferHandler {
 			e.printStackTrace();
 		}
 		return new StringSelection(value);
+	}
+
+	private Vec3 fixVertBones(EditableModel stringableModel, Bone dummyBone, Geoset geoset) {
+		Vec3 vertPosSum = new Vec3(0,0,0);
+		for (GeosetVertex geosetVertex : geoset.getVertices()) {
+			vertPosSum.add(geosetVertex);
+			List<Bone> bones = geosetVertex.getBones();
+			for (int i = bones.size() - 1; i >= 0; i--) {
+				Bone bone = bones.get(i);
+				if (!stringableModel.contains(bone)) {
+					geosetVertex.removeBone(bone);
+				}
+			}
+			if (geosetVertex.getMatrix().isEmpty()) {
+				if (!stringableModel.contains(dummyBone)) {
+					stringableModel.add(dummyBone);
+				}
+				geosetVertex.addBoneAttachment(dummyBone);
+			}
+		}
+		return vertPosSum;
 	}
 
 	/**
@@ -205,6 +327,7 @@ public class ViewportTransferHandler extends TransferHandler {
 	 */
 	@Override
 	protected void exportDone(JComponent c, Transferable data, int action) {
+//		System.out.println("expDone_______________________________________________________");
 //		if (action != MOVE) {
 //			return;
 //		}
@@ -220,6 +343,7 @@ public class ViewportTransferHandler extends TransferHandler {
 	@Override
 	public boolean canImport(TransferHandler.TransferSupport support) {
 		// we only import Strings
+//		System.out.println("canImp_______________________________________________________");
 		return support.isDataFlavorSupported(DataFlavor.stringFlavor);
 	}
 
@@ -279,14 +403,29 @@ public class ViewportTransferHandler extends TransferHandler {
 		for (GeosetVertex vertex : vertices) {
 			if (vertex.getSkinBones() != null) {
 				for (GeosetVertex.SkinBone skinBone : vertex.getSkinBones()) {
-					if (skinBone.getBone() != null) {
-						skinBone.setBone((Bone) nodesToClonedNodes.get(skinBone.getBone()));
+					Bone bone = skinBone.getBone();
+					if (bone != null) {
+						if(nodesToClonedNodes.get(bone) != null){
+							skinBone.setBone((Bone) nodesToClonedNodes.get(bone));
+						}else {
+							Bone copy = getPlaceholderBone(bone);
+							nodesToClonedNodes.put(bone, copy);
+						}
 					}
 				}
 			} else if (!vertex.getBones().isEmpty()) {
+				for (Bone bone : vertex.getBones()){
+					nodesToClonedNodes.computeIfAbsent(bone, k -> getPlaceholderBone(bone));
+				}
 				vertex.replaceBones(nodesToClonedNodes);
 			}
 		}
+	}
+
+	private Bone getPlaceholderBone(Bone bone) {
+		Bone copy = bone.copy();
+		copy.setName(copy.getName() + PLACEHOLDER_TAG);
+		return copy;
 	}
 
 	private boolean triangleFullySelected(Triangle triangle, ModelView modelView) {
