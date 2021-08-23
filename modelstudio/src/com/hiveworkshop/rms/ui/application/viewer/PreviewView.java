@@ -13,10 +13,13 @@ public class PreviewView extends ModelDependentView {
 	private AnimationController animationController;
 	private JScrollPane scrollPane;
 	private PreviewPanel previewPanel;
+	private JPanel dudPanel;
+
 	public PreviewView() {
 		super("Preview", null, new JPanel());
 //		scrollPane = new JScrollPane(new JPanel());
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JPanel(), getSpecialPane());
+		dudPanel = new JPanel(new MigLayout());
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dudPanel, getSpecialPane());
 //		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JPanel(), new JPanel());
 		previewPanel = new PreviewPanel();
 		animationController = new AnimationController(previewPanel);
@@ -25,22 +28,23 @@ public class PreviewView extends ModelDependentView {
 	}
 
 	@Override
-	public PreviewView setModelPanel(ModelPanel modelPanel){
-		if(modelPanel != null){
-//			animationController = modelPanel.getAnimationController();
-//			previewPanel = modelPanel.getAnimationViewer();
+	public PreviewView setModelPanel(ModelPanel modelPanel) {
+		System.out.println("update PreviewView!");
+		if (modelPanel == null) {
+			splitPane.setLeftComponent(dudPanel);
+			scrollPane.setViewportView(new JPanel());
+			previewPanel.setModel(null, false, null);
+			animationController.setModel(null, true, null);
+//			splitPane.setRightComponent(new JPanel());
+		} else {
+			System.out.println("update PreviewView! " + modelPanel.getModel().getName());
 			previewPanel.setModel(modelPanel.getModelHandler(), true, modelPanel.getViewportActivityManager());
-//			animationController = new AnimationController(previewPanel).setModel(modelPanel.getModelHandler(), true, previewPanel.getCurrentAnimation());
 			animationController.setModel(modelPanel.getModelHandler(), true, previewPanel.getCurrentAnimation());
 			splitPane.setLeftComponent(previewPanel);
 			scrollPane.setViewportView(animationController);
-//			splitPane.setRightComponent(animationController);
-		} else {
-			splitPane.setLeftComponent(new JPanel());
-			scrollPane.setViewportView(new JPanel());
-//			splitPane.setRightComponent(new JPanel());
 		}
 		splitPane.setDividerLocation(0.8);
+		reload();
 		return this;
 	}
 

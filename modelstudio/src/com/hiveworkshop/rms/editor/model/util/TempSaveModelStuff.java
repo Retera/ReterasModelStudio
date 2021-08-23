@@ -41,8 +41,8 @@ public class TempSaveModelStuff {
 			mdlxModel.sequences.add(AnimToMdlx.toMdlx(sequence));
 		}
 
-		for (final Integer sequence : model.getGlobalSeqs()) {
-			mdlxModel.globalSequences.add(sequence.longValue());
+		for (final GlobalSeq sequence : model.getGlobalSeqs()) {
+			mdlxModel.globalSequences.add((long) sequence.getLength());
 		}
 
 		for (final Bitmap texture : model.getTextures()) {
@@ -50,11 +50,11 @@ public class TempSaveModelStuff {
 		}
 
 		for (final TextureAnim animation : model.getTexAnims()) {
-			mdlxModel.textureAnimations.add(toMdlx(animation));
+			mdlxModel.textureAnimations.add(toMdlx(animation, model));
 		}
 
 		for (final Material material : model.getMaterials()) {
-			mdlxModel.materials.add(MaterialToMdlx.toMdlx(material));
+			mdlxModel.materials.add(MaterialToMdlx.toMdlx(material, model));
 		}
 
 		for (final Geoset geoset : model.getGeosets()) {
@@ -102,7 +102,7 @@ public class TempSaveModelStuff {
 		}
 
 		for (final Camera camera : model.getCameras()) {
-			mdlxModel.cameras.add(camera.toMdlx());
+			mdlxModel.cameras.add(camera.toMdlx(model));
 		}
 
 		for (final CollisionShape shape : model.getColliders()) {
@@ -195,7 +195,7 @@ public class TempSaveModelStuff {
 	public static void rebuildLists(EditableModel model) {
 		rebuildMaterialList(model);
 		rebuildTextureList(model);// texture anims handled inside textures
-		rebuildGlobalSeqList(model);
+//		rebuildGlobalSeqList(model);
 	}
 
 	public static void rebuildTextureList(EditableModel model) {
@@ -242,19 +242,18 @@ public class TempSaveModelStuff {
 	public static void rebuildGlobalSeqList(EditableModel model) {
 		model.clearGlobalSeqs();
 		final List<AnimFlag<?>> animFlags = model.getAllAnimFlags();// laggggg!
-//		final List<EventObject> evtObjs = (List<EventObject>) sortedIdObjects(EventObject.class);
 		final List<EventObject> evtObjs = model.getEvents();
 		for (final AnimFlag<?> af : animFlags) {
-			if (!model.contains(af.globalSeqLength) && (af.globalSeqLength != null)) {
-				model.add(af.globalSeqLength);
-			}
-			af.updateGlobalSeqId(model);// keep the ids straight
-		}
-		for (final EventObject af : evtObjs) {
-			if (!model.contains(af.getGlobalSeq()) && (af.getGlobalSeq() != null)) {
+			if (af.getGlobalSeq() != null && !model.contains(af.getGlobalSeq())) {
 				model.add(af.getGlobalSeq());
 			}
-			af.updateGlobalSeqId(model);// keep the ids straight
+//			af.updateGlobalSeqId(model);// keep the ids straight
+		}
+		for (final EventObject af : evtObjs) {
+			if (af.getGlobalSeq() != null && !model.contains(af.getGlobalSeq())) {
+				model.add(af.getGlobalSeq());
+			}
+//			af.updateGlobalSeqId(model);// keep the ids straight
 		}
 	}
 
@@ -489,10 +488,10 @@ public class TempSaveModelStuff {
 		return mdlxTexture;
 	}
 
-	public static MdlxTextureAnimation toMdlx(TextureAnim textureAnim) {
+	public static MdlxTextureAnimation toMdlx(TextureAnim textureAnim, EditableModel model) {
 		final MdlxTextureAnimation animation = new MdlxTextureAnimation();
 
-		textureAnim.timelinesToMdlx(animation);
+		textureAnim.timelinesToMdlx(animation, model);
 
 		return animation;
 	}

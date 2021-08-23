@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.editor.actions.animation;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
@@ -26,7 +27,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 	private final Vec3 center;
 	private final byte dim1;
 	private final byte dim2;
-	private final Integer trackGlobalSeq;
+	private final GlobalSeq trackGlobalSeq;
 	private final RenderModel editorRenderModel;
 
 	public RotationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
@@ -36,7 +37,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 	                              byte dim1, byte dim2) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 		this.editorRenderModel = editorRenderModel;
-		this.trackTime = editorRenderModel.getTimeEnvironment().getTrackTime();
+		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
 		this.trackGlobalSeq = editorRenderModel.getTimeEnvironment().getGlobalSeq();
 		;
 		this.dim1 = dim1;
@@ -81,7 +82,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		return this;
 	}
 
-	public void updateLocalRotationKeyframe(AnimatedNode animatedNode, int trackTime, Integer trackGlobalSeq, Quat localRotation) {
+	public void updateLocalRotationKeyframe(AnimatedNode animatedNode, int trackTime, GlobalSeq trackGlobalSeq, Quat localRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
@@ -100,7 +101,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		}
 	}
 
-	public void updateLocalRotationKeyframeInverse(AnimatedNode animatedNode, int trackTime, Integer trackGlobalSeq, Quat localRotation) {
+	public void updateLocalRotationKeyframeInverse(AnimatedNode animatedNode, int trackTime, GlobalSeq trackGlobalSeq, Quat localRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
@@ -132,12 +133,8 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		if (rotationTimeline == null) {
 			return;
 		}
-		int animationTime = renderModel.getTimeEnvironment().getAnimationTime();
-		int trackTime = animationTime;
-		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
-		if (globalSeq != null) {
-			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
-		}
+		int trackTime = renderModel.getTimeEnvironment().getEnvTrackTime();
+
 		byte unusedXYZ = CoordSysUtils.getUnusedXYZ(firstXYZ, secondXYZ);
 		AnimatedNode parent = null;// = getParent();
 		if (animatedNode instanceof IdObject) {

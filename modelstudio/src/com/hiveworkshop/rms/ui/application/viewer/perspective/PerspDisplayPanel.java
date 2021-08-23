@@ -11,12 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
-/**
- * Write a description of class DisplayPanel here.
- *
- * @author (your name)
- * @version (a version number or a date)
- */
+
 public class PerspDisplayPanel extends JPanel {
 	private PerspectiveViewport vp;
 	private String title;
@@ -27,7 +22,7 @@ public class PerspDisplayPanel extends JPanel {
 
 		try {
 			vp = new PerspectiveViewport();
-			vp.setIgnoreRepaint(false);
+//			vp.setIgnoreRepaint(false);
 			vp.setMinimumSize(new Dimension(200, 200));
 		} catch (LWJGLException e) {
 			e.printStackTrace();
@@ -48,27 +43,13 @@ public class PerspDisplayPanel extends JPanel {
 	}
 
 	public PerspDisplayPanel setModel(ModelHandler modelHandler) {
-		vp.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), false);
-//		setModel(modelHandler, 200);
+		if (modelHandler == null) {
+			vp.setModel(null, null, false);
+		} else {
+			vp.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), false);
+		}
 		return this;
 	}
-
-//	public void setModel(ModelHandler modelHandler, int viewerSize) {
-//		vp.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), false);
-////		try {
-////			if (vp != null) {
-////				vp.destroy();
-////			}
-////			removeAll();
-////			vp = new PerspectiveViewport();
-////			vp.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), false);
-//////			vp.setIgnoreRepaint(false);
-//////			vp.setMinimumSize(new Dimension(viewerSize, viewerSize));
-////		} catch (LWJGLException e) {
-////			// TODO Auto-generated catch block
-////			e.printStackTrace();
-////		}
-//	}
 
 	public void setTitle(String what) {
 		title = what;
@@ -82,7 +63,7 @@ public class PerspDisplayPanel extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		vp.paint(vp.getGraphics());
+//		vp.paint(vp.getGraphics());
 		// g.drawString(title,3,3);
 		// vp.repaint();
 	}

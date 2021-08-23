@@ -116,7 +116,7 @@ public class UndoHandler {
 	class UndoActionFunction extends ActionFunction {
 
 		public UndoActionFunction() {
-			super(TextKey.UNDO, () -> undo());
+			super(TextKey.UNDO, UndoHandler.this::undo);
 			this.menuItem = new UndoMenuItem(TextKey.UNDO.toString());
 			menuItem.addActionListener(e -> undo());
 //			menuItem.setAccelerator(getKeyStroke());
@@ -127,7 +127,7 @@ public class UndoHandler {
 	class RedoActionFunction extends ActionFunction {
 
 		public RedoActionFunction() {
-			super(TextKey.REDO, () -> redo());
+			super(TextKey.REDO, UndoHandler.this::redo);
 			this.menuItem = new RedoMenuItem(TextKey.REDO.toString());
 			menuItem.addActionListener(e -> redo());
 //			menuItem.setAccelerator(getKeyStroke());

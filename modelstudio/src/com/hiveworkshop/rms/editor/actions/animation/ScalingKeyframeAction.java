@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.editor.actions.animation;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
@@ -19,7 +20,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	private final int trackTime;
 	private final HashMap<IdObject, Vec3> nodeToLocalScale;
 	private final Vec3 center;
-	private final Integer trackGlobalSeq;
+	private final GlobalSeq trackGlobalSeq;
 	private final RenderModel editorRenderModel;
 
 	public ScalingKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
@@ -27,7 +28,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	                             Vec3 center, RenderModel editorRenderModel) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 		this.editorRenderModel = editorRenderModel;
-		this.trackTime = editorRenderModel.getTimeEnvironment().getTrackTime();
+		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
 		this.trackGlobalSeq = editorRenderModel.getTimeEnvironment().getGlobalSeq();
 		nodeToLocalScale = new HashMap<>();
 		for (IdObject node : nodeSelection) {
@@ -79,13 +80,8 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 			return;
 		}
 
-		int animationTime = renderModel.getTimeEnvironment().getAnimationTime();
-		int trackTime = animationTime;
+		int trackTime = renderModel.getTimeEnvironment().getEnvTrackTime();
 
-		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
-		if (globalSeq != null) {
-			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
-		}
 		if (translationFlag.hasEntryAt(trackTime)) {
 			Entry<Vec3> entry = translationFlag.getEntryAt(trackTime);
 			entry.getValue().multiply(scale);
@@ -101,7 +97,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 		}
 	}
 
-	public void updateLocalScalingKeyframe(AnimatedNode animatedNode, int trackTime, Integer trackGlobalSeq, Vec3 localScaling) {
+	public void updateLocalScalingKeyframe(AnimatedNode animatedNode, int trackTime, GlobalSeq trackGlobalSeq, Vec3 localScaling) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		Vec3AnimFlag translationFlag = (Vec3AnimFlag) animatedNode.find(MdlUtils.TOKEN_SCALING, trackGlobalSeq);
 		if (translationFlag == null) {

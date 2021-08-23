@@ -1,17 +1,18 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
-public class ChooseableGlobalSeq implements CreatorModelingPanel.ChooseableTimeRange<Integer> {
-	private final Integer globalSeq;
+public class ChooseableGlobalSeq implements CreatorModelingPanel.ChooseableTimeRange<GlobalSeq> {
+	private final GlobalSeq globalSeq;
 
-	public ChooseableGlobalSeq(Integer globalSeq) {
+	public ChooseableGlobalSeq(GlobalSeq globalSeq) {
 		this.globalSeq = globalSeq;
 	}
 
 	@Override
 	public void applyTo(TimeEnvironmentImpl timeEnvironment) {
-		if(timeEnvironment != null){
+		if (timeEnvironment != null) {
 			timeEnvironment.setGlobalSeq(globalSeq);
 		}
 	}
@@ -22,7 +23,7 @@ public class ChooseableGlobalSeq implements CreatorModelingPanel.ChooseableTimeR
 	}
 
 	@Override
-	public Integer getThing() {
+	public GlobalSeq getThing() {
 		return globalSeq;
 	}
 

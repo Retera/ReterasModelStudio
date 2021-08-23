@@ -17,16 +17,17 @@ public class DisplayViewUgg extends ModelDependentView {
 		super(s, null, new JPanel());
 		this.name = s;
 		dudPanel = new JPanel(new MigLayout());
+		displayPanel = new DisplayPanel();
 		this.setComponent(dudPanel);
 	}
 
 	@Override
 	public DisplayViewUgg setModelPanel(ModelPanel modelPanel){
 		this.modelPanel = modelPanel;
-		if(displayPanel == null){
-			displayPanel = new DisplayPanel();
-		}
-		if(modelPanel == null){
+//		if(displayPanel == null){
+//			displayPanel = new DisplayPanel();
+//		}
+		if (modelPanel == null) {
 			this.setComponent(dudPanel);
 //			displayPanel = null;
 			displayPanel.setModel(null, null);

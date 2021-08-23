@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model.util.ModelSaving;
 
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
@@ -7,11 +8,11 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
 
 public class MaterialToMdlx {
 
-	public static MdlxMaterial toMdlx(Material material) {
+	public static MdlxMaterial toMdlx(Material material, EditableModel model) {
 		final MdlxMaterial mdlxMaterial = new MdlxMaterial();
 
 		for (final Layer layer : material.getLayers()) {
-			mdlxMaterial.layers.add(toMdlx(layer));
+			mdlxMaterial.layers.add(toMdlx(layer, model));
 		}
 
 		mdlxMaterial.priorityPlane = material.getPriorityPlane();
@@ -37,7 +38,7 @@ public class MaterialToMdlx {
 		return mdlxMaterial;
 	}
 
-	public static MdlxLayer toMdlx(Layer layer) {
+	public static MdlxLayer toMdlx(Layer layer, EditableModel model) {
 		MdlxLayer mdlxLayer = new MdlxLayer();
 
 		mdlxLayer.filterMode = layer.getFilterMode();
@@ -83,7 +84,7 @@ public class MaterialToMdlx {
 		mdlxLayer.fresnelOpacity = (float) layer.getFresnelOpacity();
 		mdlxLayer.fresnelTeamColor = (float) layer.getFresnelTeamColor();
 
-		layer.timelinesToMdlx(mdlxLayer);
+		layer.timelinesToMdlx(mdlxLayer, model);
 
 		return mdlxLayer;
 	}

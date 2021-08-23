@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
-import com.hiveworkshop.rms.ui.application.scripts.AnimationTransfer;
+import com.hiveworkshop.rms.ui.application.tools.AnimationTransfer;
 import com.hiveworkshop.rms.ui.application.tools.KeyframeCopyPanel;
 
 import javax.swing.*;

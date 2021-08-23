@@ -90,13 +90,7 @@ public class AddKeyframeAction2 implements UndoAction {
 	}
 
 	private int getTrackTime(RenderModel renderModel) {
-		int trackTime = renderModel.getTimeEnvironment().getAnimationTime();
-
-		Integer globalSeq = renderModel.getTimeEnvironment().getGlobalSeq();
-		if (globalSeq != null) {
-			trackTime = renderModel.getTimeEnvironment().getGlobalSeqTime(globalSeq);
-		}
-		return trackTime;
+		return renderModel.getTimeEnvironment().getEnvTrackTime();
 	}
 
 	private AddKeyframeAction getAddKeyframeAction(AnimFlag<?> timeline,
@@ -107,8 +101,7 @@ public class AddKeyframeAction2 implements UndoAction {
 				entry.unLinearize();
 			}
 
-			AddKeyframeAction addKeyframeAction = new AddKeyframeAction(timeline, entry);
-			return addKeyframeAction;
+			return new AddKeyframeAction(timeline, entry);
 		}
 		return null;
 	}

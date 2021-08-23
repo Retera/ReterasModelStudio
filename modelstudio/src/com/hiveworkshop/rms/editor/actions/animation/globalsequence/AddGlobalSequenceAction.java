@@ -1,25 +1,24 @@
 package com.hiveworkshop.rms.editor.actions.animation.globalsequence;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
-public class SetGlobalSequenceLengthAction implements UndoAction {
+public class AddGlobalSequenceAction implements UndoAction {
+	private final EditableModel model;
 	private final GlobalSeq globalSeq;
-	private final Integer oldLength;
-	private final Integer newLength;
 	private final ModelStructureChangeListener changeListener;
 
-	public SetGlobalSequenceLengthAction(GlobalSeq globalSeq, Integer newLength, ModelStructureChangeListener changeListener) {
+	public AddGlobalSequenceAction(EditableModel model, GlobalSeq globalSeq, ModelStructureChangeListener changeListener) {
+		this.model = model;
 		this.globalSeq = globalSeq;
-		this.oldLength = globalSeq.getLength();
-		this.newLength = newLength;
 		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
-		globalSeq.setLength(oldLength);
+		model.remove(globalSeq);
 		if (changeListener != null) {
 			changeListener.globalSequenceLengthChanged();
 		}
@@ -28,7 +27,7 @@ public class SetGlobalSequenceLengthAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		globalSeq.setLength(newLength);
+		model.add(globalSeq);
 		if (changeListener != null) {
 			changeListener.globalSequenceLengthChanged();
 		}
@@ -37,6 +36,6 @@ public class SetGlobalSequenceLengthAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "change GlobalSequence length to " + newLength;
+		return "added Global sequence with length " + globalSeq.getLength();
 	}
 }

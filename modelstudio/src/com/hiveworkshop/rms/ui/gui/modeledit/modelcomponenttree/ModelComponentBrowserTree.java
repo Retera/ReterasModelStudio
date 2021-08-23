@@ -125,9 +125,8 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		DefaultMutableTreeNode globalSequences = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GLOBAL_SEQ, modelView, "GlobalSequences").setNameFunc(() -> "GlobalSequences"));
 		root.add(globalSequences);
-		for (int globalSeqId = 0; globalSeqId < model.getGlobalSeqs().size(); globalSeqId++) {
-			int globalSeqId1 = globalSeqId;
-			globalSequences.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GLOBAL_SEQ, modelView, globalSeqId1).setNameFunc(() -> "GlobalSequence " + globalSeqId1 + ": Duration " + model.getGlobalSeq(globalSeqId1))));
+		for (GlobalSeq globalSeq : model.getGlobalSeqs()) {
+			globalSequences.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GLOBAL_SEQ, modelView, globalSeq).setNameFunc(() -> "GlobalSequence " + model.getGlobalSeqId(globalSeq) + ": Duration " + globalSeq.getLength())));
 		}
 
 		DefaultMutableTreeNode textures = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE, modelView, "Textures").setNameFunc(() -> "Textures"));

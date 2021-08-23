@@ -27,7 +27,7 @@ public class EditableModel implements Named {
 	private int formatVersion = 800;
 	protected ArrayList<String> header = new ArrayList<>();
 	protected List<Animation> anims = new ArrayList<>();
-	protected List<Integer> globalSeqs = new ArrayList<>();
+	protected List<GlobalSeq> globalSeqs = new ArrayList<>();
 	protected List<Bitmap> textures = new ArrayList<>();
 	protected List<SoundFile> sounds = new ArrayList<>();
 	protected List<Material> materials = new ArrayList<>();
@@ -251,72 +251,6 @@ public class EditableModel implements Named {
 	}
 
 
-	public void removeAllTimelinesForGlobalSeq(final Integer selectedValue) {
-		for (final Material m : getMaterials()) {
-			for (final Layer lay : m.getLayers()) {
-				lay.removeAllTimelinesForGlobalSeq(selectedValue);
-			}
-		}
-		if (getTexAnims() != null) {
-			for (final TextureAnim texa : getTexAnims()) {
-				if (texa != null) {
-					texa.removeAllTimelinesForGlobalSeq(selectedValue);
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
-				}
-			}
-		}
-		if (getGeosetAnims() != null) {
-			for (final GeosetAnim ga : getGeosetAnims()) {
-				if (ga != null) {
-					ga.removeAllTimelinesForGlobalSeq(selectedValue);
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
-				}
-			}
-		}
-
-		for (final IdObject object : getAllObjects()) {
-			object.removeAllTimelinesForGlobalSeq(selectedValue);
-		}
-
-		if (getCameras() != null) {
-			for (final Camera x : getCameras()) {
-				x.getSourceNode().removeAllTimelinesForGlobalSeq(selectedValue);
-				x.getTargetNode().removeAllTimelinesForGlobalSeq(selectedValue);
-			}
-		}
-	}
-
-
-	public void setGlobalSequenceLength(final int globalSequenceId, final Integer newLength) {
-		if (globalSequenceId < globalSeqs.size()) {
-			final Integer prevLength = globalSeqs.get(globalSequenceId);
-			final List<AnimFlag<?>> allAnimFlags = getAllAnimFlags();
-			for (final AnimFlag<?> af : allAnimFlags) {
-				if ((af.getGlobalSeqLength() != null) && af.hasGlobalSeq()) {// TODO eliminate redundant structure
-					if (af.getGlobalSeqLength().equals(prevLength)) {
-						af.setGlobalSeqLength(newLength);
-					}
-				}
-			}
-//			final List<EventObject> sortedEventObjects = (List<EventObject>) sortedIdObjects(EventObject.class);
-			final List<EventObject> sortedEventObjects = getEvents();
-			for (final EventObject eventObject : sortedEventObjects) {
-				// TODO eliminate redundant structure
-				if (eventObject.isHasGlobalSeq() && (eventObject.getGlobalSeq() != null)) {
-					if (eventObject.getGlobalSeq().equals(prevLength)) {
-						eventObject.setGlobalSeq(newLength);
-					}
-				}
-			}
-			globalSeqs.set(globalSequenceId, newLength);
-		}
-	}
-
-
 	public Bone getBone(final int index) {
 		try {
 			if (index < modelIdObjects.getIdObjectsSize()) {
@@ -420,7 +354,7 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public void add(final Integer x) {
+	public void add(final GlobalSeq x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
 					"Tried to add null GlobalSeq component to model, which is really bad. Tell Retera you saw this once you have errors.");
@@ -521,7 +455,7 @@ public class EditableModel implements Named {
 		return anims.contains(x);
 	}
 
-	public boolean contains(final Integer x) {
+	public boolean contains(final GlobalSeq x) {
 		return globalSeqs.contains(x);
 	}
 
@@ -559,6 +493,10 @@ public class EditableModel implements Named {
 
 	public void remove(final GeosetAnim g) {
 		geosetAnims.remove(g);
+	}
+
+	public void remove(final GlobalSeq g) {
+		globalSeqs.remove(g);
 	}
 
 	public void remove(final Animation a) {
@@ -619,7 +557,7 @@ public class EditableModel implements Named {
 		this.anims = anims;
 	}
 
-	public List<Integer> getGlobalSeqs() {
+	public List<GlobalSeq> getGlobalSeqs() {
 		return globalSeqs;
 	}
 
@@ -740,16 +678,15 @@ public class EditableModel implements Named {
 		return null;
 	}
 
-	public void addGlobalSeq(final int i) {
-		globalSeqs.add(i);
-	}
-
-	public int getGlobalSeqId(final Integer inte) {
+	public int getGlobalSeqId(final GlobalSeq inte) {
 		return globalSeqs.indexOf(inte);
 	}
 
-	public Integer getGlobalSeq(final int id) {
-		return globalSeqs.get(id);
+	public GlobalSeq getGlobalSeq(final int id) {
+		if (id > 0 && globalSeqs.size() > id) {
+			return globalSeqs.get(id);
+		}
+		return null;
 	}
 
 	public void addTexture(final Bitmap b) {

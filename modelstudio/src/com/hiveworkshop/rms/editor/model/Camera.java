@@ -33,7 +33,7 @@ public class Camera implements Named {
 	final TargetNode targetNode = new TargetNode(this);
 	float[] bindPose;
 
-	public Camera(MdlxCamera camera) {
+	public Camera(MdlxCamera camera, EditableModel model) {
 		name = camera.name;
 		position = new Vec3(camera.position);
 		fieldOfView = camera.fieldOfView;
@@ -43,14 +43,14 @@ public class Camera implements Named {
 
 		for (MdlxTimeline<?> timeline : camera.timelines) {
 			if (timeline.name == AnimationMap.KTTR.getWar3id()) {
-				targetNode.add(AnimFlag.createFromTimeline(timeline));
+				targetNode.add(AnimFlag.createFromTimeline(timeline, model));
 			} else {
-				sourceNode.add(AnimFlag.createFromTimeline(timeline));
+				sourceNode.add(AnimFlag.createFromTimeline(timeline, model));
 			}
 		}
 	}
 
-	public MdlxCamera toMdlx() {
+	public MdlxCamera toMdlx(EditableModel model) {
 		MdlxCamera camera = new MdlxCamera();
 
 		camera.name = getName();
@@ -60,8 +60,8 @@ public class Camera implements Named {
 		camera.nearClippingPlane = (float) getNearClip();
 		camera.targetPosition = getTargetPosition().toFloatArray();
 
-		sourceNode.timelinesToMdlx(camera);
-		targetNode.timelinesToMdlx(camera);
+		sourceNode.timelinesToMdlx(camera, model);
+		targetNode.timelinesToMdlx(camera, model);
 
 		return camera;
 	}

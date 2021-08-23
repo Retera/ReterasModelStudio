@@ -8,24 +8,21 @@ import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public abstract class TimelineContainer implements VisibilitySource {
-	public Map<String, AnimFlag<?>> animFlags = new HashMap<>();
+	protected Map<String, AnimFlag<?>> animFlags = new HashMap<>();
 
-	public void loadTimelines(MdlxAnimatedObject object) {
+	public void loadTimelines(MdlxAnimatedObject object, EditableModel model) {
 		for (MdlxTimeline<?> timeline : object.timelines) {
-			add(AnimFlag.createFromTimeline(timeline));
+			add(AnimFlag.createFromTimeline(timeline, model));
 		}
 	}
 
-	public void timelinesToMdlx(MdlxAnimatedObject mdlxObject) {
+	public void timelinesToMdlx(MdlxAnimatedObject mdlxObject, EditableModel model) {
 		for (AnimFlag<?> timeline : animFlags.values()) {
 			if (!timeline.getEntryMap().isEmpty()) {
-				mdlxObject.timelines.add(timeline.toMdlx(this));
+				mdlxObject.timelines.add(timeline.toMdlx(this, model));
 			}
 		}
 	}
@@ -78,24 +75,16 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return animFlags.get(name);
 	}
 
-	public AnimFlag<?> find(String name, Integer globalSeq) {
+	public AnimFlag<?> find(String name, GlobalSeq globalSeq) {
 		AnimFlag<?> timeline = animFlags.get(name);
 
 		if (timeline != null &&
-				(globalSeq == null && timeline.getGlobalSeqLength() == null
-						|| globalSeq != null && globalSeq.equals(timeline.getGlobalSeqLength()))) {
+				(globalSeq == null && timeline.getGlobalSeq() == null
+						|| globalSeq == timeline.getGlobalSeq())) {
 			return timeline;
 		}
 
 		return null;
-	}
-
-	public void removeAllTimelinesForGlobalSeq(Integer selectedValue) {
-		for (AnimFlag<?> timeline : animFlags.values()) {
-			if (selectedValue.equals(timeline.getGlobalSeqLength())) {
-				remove(timeline);
-			}
-		}
 	}
 
 	public int getInterpolatedInteger(TimeEnvironmentImpl animatedRenderEnvironment, String tag, int defaultValue) {
@@ -189,7 +178,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return null;
 	}
 
-	public AnimFlag<Vec3> getTranslationFlag(Integer globalSeq) {
+	public AnimFlag<Vec3> getTranslationFlag(GlobalSeq globalSeq) {
 		AnimFlag<?> timeline = find(MdlUtils.TOKEN_TRANSLATION, globalSeq);
 
 		if (timeline instanceof Vec3AnimFlag) {
@@ -198,7 +187,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return null;
 	}
 
-	public AnimFlag<Vec3> getScalingFlag(Integer globalSeq) {
+	public AnimFlag<Vec3> getScalingFlag(GlobalSeq globalSeq) {
 		AnimFlag<?> timeline = find(MdlUtils.TOKEN_SCALING, globalSeq);
 
 		if (timeline instanceof Vec3AnimFlag) {
@@ -207,12 +196,16 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return null;
 	}
 
-	public AnimFlag<Quat> getRotationFlag(Integer globalSeq) {
+	public AnimFlag<Quat> getRotationFlag(GlobalSeq globalSeq) {
 		AnimFlag<?> timeline = find(MdlUtils.TOKEN_ROTATION, globalSeq);
 
 		if (timeline instanceof QuatAnimFlag) {
 			return (QuatAnimFlag) timeline;
 		}
 		return null;
+	}
+
+	public Set<String> getFlagNameSet() {
+		return animFlags.keySet();
 	}
 }

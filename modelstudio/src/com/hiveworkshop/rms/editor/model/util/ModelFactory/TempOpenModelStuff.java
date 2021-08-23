@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model.util.ModelFactory;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.*;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -22,6 +21,16 @@ public class TempOpenModelStuff {
 		model.setExtents(new ExtLog(mdlxModel.extent));
 
 
+		// Step 4: Convert any global sequences
+		for (final long sequence : mdlxModel.globalSequences) {
+			model.add(new GlobalSeq((int) sequence));
+		}
+
+		// Step 3: Convert the Sequences
+		for (final MdlxSequence sequence : mdlxModel.sequences) {
+			model.add(createAnimation(sequence));
+		}
+
 		// Step 2: fetch pivot points and bindPose
 		for (final float[] point : mdlxModel.pivotPoints) {
 			infoHolder.addPivot(new Vec3(point));
@@ -38,63 +47,63 @@ public class TempOpenModelStuff {
 		// Bones
 		for (final MdlxBone mdlxBone : mdlxModel.bones) {
 //			System.out.println("MdlxBone, id: " + mdlxBone.objectId + " name: " + mdlxBone.name);
-			Bone x = IdObjectFactory.createBone(mdlxBone);
+			Bone x = IdObjectFactory.createBone(mdlxBone, model);
 			infoHolder.add(mdlxBone, x);
 			model.add(x);
 		}
 
 		// Lights
 		for (final MdlxLight mdlxLight : mdlxModel.lights) {
-			Light x = IdObjectFactory.createLight(mdlxLight);
+			Light x = IdObjectFactory.createLight(mdlxLight, model);
 			infoHolder.add(mdlxLight, x);
 			model.add(x);
 		}
 
 		// Helpers
 		for (final MdlxHelper mdlxHelper : mdlxModel.helpers) {
-			Helper x = IdObjectFactory.createHelper(mdlxHelper);
+			Helper x = IdObjectFactory.createHelper(mdlxHelper, model);
 			infoHolder.add(mdlxHelper, x);
 			model.add(x);
 		}
 
 		// Attachment
 		for (final MdlxAttachment mdlxAttachment : mdlxModel.attachments) {
-			Attachment x = IdObjectFactory.createAttachment(mdlxAttachment);
+			Attachment x = IdObjectFactory.createAttachment(mdlxAttachment, model);
 			infoHolder.add(mdlxAttachment, x);
 			model.add(x);
 		}
 
 		// ParticleEmitter (number 1 kind)
 		for (final MdlxParticleEmitter mdlxEmitter : mdlxModel.particleEmitters) {
-			ParticleEmitter x = IdObjectFactory.createParticleEmitter(mdlxEmitter);
+			ParticleEmitter x = IdObjectFactory.createParticleEmitter(mdlxEmitter, model);
 			infoHolder.add(mdlxEmitter, x);
 			model.add(x);
 		}
 
 		// ParticleEmitter2
 		for (final MdlxParticleEmitter2 mdlxEmitter : mdlxModel.particleEmitters2) {
-			ParticleEmitter2 x = IdObjectFactory.createParticleEmitter2(mdlxEmitter);
+			ParticleEmitter2 x = IdObjectFactory.createParticleEmitter2(mdlxEmitter, model);
 			infoHolder.add(mdlxEmitter, x);
 			model.add(x);
 		}
 
 		// PopcornFxEmitter
 		for (final MdlxParticleEmitterPopcorn mdlxEmitter : mdlxModel.particleEmittersPopcorn) {
-			ParticleEmitterPopcorn x = IdObjectFactory.createParticleEmitterPopcorn(mdlxEmitter);
+			ParticleEmitterPopcorn x = IdObjectFactory.createParticleEmitterPopcorn(mdlxEmitter, model);
 			infoHolder.add(mdlxEmitter, x);
 			model.add(x);
 		}
 
 		// RibbonEmitter
 		for (final MdlxRibbonEmitter mdlxEmitter : mdlxModel.ribbonEmitters) {
-			RibbonEmitter x = IdObjectFactory.createRibbonEmitter(mdlxEmitter);
+			RibbonEmitter x = IdObjectFactory.createRibbonEmitter(mdlxEmitter, model);
 			infoHolder.add(mdlxEmitter, x);
 			model.add(x);
 		}
 
 		// EventObject
 		for (final MdlxEventObject mdlxObject : mdlxModel.eventObjects) {
-			com.hiveworkshop.rms.editor.model.EventObject x = IdObjectFactory.createEventObject(mdlxObject);
+			com.hiveworkshop.rms.editor.model.EventObject x = IdObjectFactory.createEventObject(mdlxObject, model);
 			infoHolder.add(mdlxObject, x);
 			model.add(x);
 		}
@@ -102,20 +111,9 @@ public class TempOpenModelStuff {
 
 		// CollisionShape
 		for (final MdlxCollisionShape mdlxShape : mdlxModel.collisionShapes) {
-			CollisionShape x = IdObjectFactory.createCollisionShape(mdlxShape);
+			CollisionShape x = IdObjectFactory.createCollisionShape(mdlxShape, model);
 			infoHolder.add(mdlxShape, x);
 			model.add(x);
-		}
-
-
-		// Step 3: Convert the Sequences
-		for (final MdlxSequence sequence : mdlxModel.sequences) {
-			model.add(createAnimation(sequence));
-		}
-
-		// Step 4: Convert any global sequences
-		for (final long sequence : mdlxModel.globalSequences) {
-			model.add((int) sequence);
 		}
 
 		// Step 5: Convert Texture refs
@@ -125,7 +123,7 @@ public class TempOpenModelStuff {
 
 		// Step 6: Convert TVertexAnims
 		for (final MdlxTextureAnimation mdlxTextureAnimation : mdlxModel.textureAnimations) {
-			model.add(new TextureAnim(mdlxTextureAnimation));
+			model.add(new TextureAnim(mdlxTextureAnimation, model));
 		}
 
 		// Step 7: Convert Material refs
@@ -146,7 +144,7 @@ public class TempOpenModelStuff {
 		// Step 9: GeosetAnims
 		for (final MdlxGeosetAnimation mdlxGeosetAnimation : mdlxModel.geosetAnimations) {
 			if (mdlxGeosetAnimation.geosetId != -1) {
-				GeosetAnim geosetAnim = createGeosetAnim(mdlxGeosetAnimation, infoHolder);
+				GeosetAnim geosetAnim = createGeosetAnim(mdlxGeosetAnimation, infoHolder, model);
 				model.add(geosetAnim);
 			}
 		}
@@ -158,7 +156,7 @@ public class TempOpenModelStuff {
 		// Cameras last! Since they have no Id the number of IdObjects + number of Cameras
 		// is used to fetch the correct BindPose
 		for (final MdlxCamera mdlxCamera : mdlxModel.cameras) {
-			Camera x = new Camera(mdlxCamera);
+			Camera x = new Camera(mdlxCamera, model);
 			model.add(x);
 			infoHolder.add(x);
 		}
@@ -178,19 +176,19 @@ public class TempOpenModelStuff {
 //		}
 		removeGeosetAnimsWOGeoset(model);
 
-		final List<AnimFlag<?>> animFlags = model.getAllAnimFlags();// laggggg!
-		for (final AnimFlag<?> af : animFlags) {
-			af.updateGlobalSeqRef(model);
-			if (!af.getName().equals("Scaling")
-					&& !af.getName().equals("Translation")
-					&& !af.getName().equals("Rotation")) {
-			}
-		}
+//		final List<AnimFlag<?>> animFlags = model.getAllAnimFlags();// laggggg!
+//		for (final AnimFlag<?> af : animFlags) {
+//			af.updateGlobalSeqRef(model);
+//			if (!af.getName().equals("Scaling")
+//					&& !af.getName().equals("Translation")
+//					&& !af.getName().equals("Rotation")) {
+//			}
+//		}
 
-		final List<com.hiveworkshop.rms.editor.model.EventObject> evtObjs = model.getEvents();
-		for (final com.hiveworkshop.rms.editor.model.EventObject af : evtObjs) {
-			af.updateGlobalSeqRef(model);
-		}
+//		final List<EventObject> evtObjs = model.getEvents();
+//		for (final EventObject af : evtObjs) {
+//			af.updateGlobalSeqRef(model);
+//		}
 
 		for (final ParticleEmitter2 temp : model.getParticleEmitter2s()) {
 			temp.updateTextureRef(model.getTextures());
@@ -256,7 +254,7 @@ public class TempOpenModelStuff {
 		return animation;
 	}
 
-	public static GeosetAnim createGeosetAnim(MdlxGeosetAnimation mdlxAnimation, ModelInfoHolder infoHolder) {
+	public static GeosetAnim createGeosetAnim(MdlxGeosetAnimation mdlxAnimation, ModelInfoHolder infoHolder, EditableModel model) {
 		Geoset geoset = infoHolder.geosets.get(mdlxAnimation.geosetId);
 
 		GeosetAnim geosetAnim = new GeosetAnim(geoset);
@@ -266,7 +264,7 @@ public class TempOpenModelStuff {
 
 		geosetAnim.setDropShadow(((mdlxAnimation.flags & 1) == 1));
 
-		geosetAnim.loadTimelines(mdlxAnimation);
+		geosetAnim.loadTimelines(mdlxAnimation, model);
 		if (geoset != null) {
 			geoset.setGeosetAnim(geosetAnim);
 		}

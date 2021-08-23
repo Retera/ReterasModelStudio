@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.application.scripts;
+package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;

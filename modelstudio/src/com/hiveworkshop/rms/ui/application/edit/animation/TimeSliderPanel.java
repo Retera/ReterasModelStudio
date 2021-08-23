@@ -795,13 +795,13 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 			Iterable<IdObject> selection = getSelectionToUse();
 			for (IdObject object : selection) {
 				for (AnimFlag<?> flag : object.getAnimFlags()) {
-					if (((flag.getGlobalSeqLength() == null) && (timeEnvironment.getGlobalSeq() == null))
-							|| ((timeEnvironment.getGlobalSeq() != null) && timeEnvironment.getGlobalSeq().equals(flag.getGlobalSeqLength()))) {
+					if (((flag.getGlobalSeq() == null) && (timeEnvironment.getGlobalSeq() == null))
+							|| ((timeEnvironment.getGlobalSeq() != null) && timeEnvironment.getGlobalSeq().equals(flag.getGlobalSeq()))) {
 						if (flag.size() > 0) {
 							TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap();
 							Integer startTime = entryMap.ceilingKey(timeEnvironment.getStart());
 							Integer endTime = entryMap.floorKey(timeEnvironment.getEnd());
-							if(endTime == null) endTime = startTime;
+							if (endTime == null) endTime = startTime;
 							for (Integer time = startTime; time != null && time <= endTime; time = entryMap.higherKey(time)) {
 								KeyFrame keyFrame = timeToKey.get(time);
 								if (keyFrame == null) {

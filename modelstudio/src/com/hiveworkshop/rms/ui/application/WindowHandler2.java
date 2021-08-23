@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.ModelingCreatorToolsView;
+import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.ModelComponentsView;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.ModelViewManagingView;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -31,6 +32,9 @@ public class WindowHandler2 {
 	//	private static final Set<DisplayViewUgg> displayPanelViews = new HashSet<>();
 //	private static final Set<PerspectiveViewUgg> perspectivePanelViews = new HashSet<>();
 //	private static final Set<PreviewView> previewPanelViews = new HashSet<>();
+
+	final ViewportTransferHandler viewportTransferHandler = new ViewportTransferHandler();
+
 	private static final Set<TimeSliderView> timeSliders = new HashSet<>();
 	private static final Set<ModelViewManagingView> modelViewManagingTrees = new HashSet<>();
 	private static final Set<ModelingCreatorToolsView> editingToolChooserViews = new HashSet<>();
@@ -46,16 +50,20 @@ public class WindowHandler2 {
 	}
 
 	//http://www.infonode.net/documentation/idw/guide/IDW%20Developer%27s%20Guide%201.3.pdf
-	public static void resetRMSViews(){
+	public static void resetRMSViews() {
 
 	}
 
-	public WindowHandler2 setAnimationMode(){
+	public ViewportTransferHandler getViewportTransferHandler() {
+		return viewportTransferHandler;
+	}
+
+	public WindowHandler2 setAnimationMode() {
 		boolean b = ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE;
-		for(ModelingCreatorToolsView editingToolChooserView : editingToolChooserViews){
+		for (ModelingCreatorToolsView editingToolChooserView : editingToolChooserViews) {
 			editingToolChooserView.setAnimationModeState(b);
 		}
-		for(TimeSliderView timeSlider : timeSliders){
+		for (TimeSliderView timeSlider : timeSliders) {
 			timeSlider.setAnimationMode(b);
 		}
 		return this;
@@ -105,8 +113,13 @@ public class WindowHandler2 {
 //			componentBrowserTreeView.setModelPanel(modelPanel);
 //		}
 
-		allViews.removeIf(view -> !view.isValid());
+		System.out.println("allViews.size()1: " + allViews.size());
+//		allViews.removeIf(view -> !view.isVisible().isValid());
+		allViews.removeIf(view -> !view.getComponent().isVisible());
+		System.out.println("allViews.size()2: " + allViews.size());
+
 		for (ModelDependentView view : allViews) {
+			System.out.println("updating: " + view);
 			view.setModelPanel(modelPanel);
 		}
 
@@ -158,7 +171,7 @@ public class WindowHandler2 {
 
 		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
 //        TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, viewingTab, modelTab});
-		WindowHandler.traverseAndFix(startupTabWindow);
+		traverseAndFix(startupTabWindow);
 		return startupTabWindow;
 	}
 
@@ -350,6 +363,7 @@ public class WindowHandler2 {
 
 		final TabWindow startupTabWindow = getStartupTabWindow();
 		startupTabWindow.setSelectedTab(0);
+		setModelPanel(ProgramGlobals.getCurrentModelPanel());
 		return startupTabWindow;
 	}
 

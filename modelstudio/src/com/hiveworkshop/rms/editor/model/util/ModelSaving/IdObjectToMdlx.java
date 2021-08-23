@@ -66,8 +66,8 @@ public class IdObjectToMdlx {
 
 		objectToMdlx(eventObject, object, model);
 
-		if (eventObject.isHasGlobalSeq()) {
-			object.globalSequenceId = eventObject.getGlobalSeqId();
+		if (eventObject.hasGlobalSeq()) {
+			object.globalSequenceId = eventObject.getGlobalSeqId(model);
 		}
 
 		final List<Integer> keyframes = new ArrayList<>(eventObject.getEventTrack());
@@ -260,6 +260,6 @@ public class IdObjectToMdlx {
 			mdlxObject.flags |= 0x40;
 		}
 
-		idObject.timelinesToMdlx(mdlxObject);
+		idObject.timelinesToMdlx(mdlxObject, model);
 	}
 }

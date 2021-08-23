@@ -16,10 +16,8 @@ import java.util.TreeSet;
 public class EventObject extends IdObject {
 	//	List<Integer> eventTrack = new ArrayList<>();
 	//ToDo ask GW if event tracks should only have one entry at any time
-	TreeSet<Integer> eventTrack2 = new TreeSet<>();
-	Integer globalSeq;
-	int globalSeqId = -1;
-	boolean hasGlobalSeq = false;
+	private final TreeSet<Integer> eventTrack2 = new TreeSet<>();
+	private GlobalSeq globalSeq;
 
 	public EventObject() {
 
@@ -34,8 +32,6 @@ public class EventObject extends IdObject {
 
 		eventTrack2.addAll(object.eventTrack2);
 		globalSeq = object.globalSeq;
-		globalSeqId = object.globalSeqId;
-		hasGlobalSeq = object.hasGlobalSeq;
 	}
 
 	@Override
@@ -165,47 +161,26 @@ public class EventObject extends IdObject {
 //		eventTrack.set(j, iTime);
 //	}
 
-	public void updateGlobalSeqRef(final EditableModel mdlr) {
-		if (hasGlobalSeq) {
-			globalSeq = mdlr.getGlobalSeq(globalSeqId);
-		}
+//	public void updateGlobalSeqRef(final EditableModel mdlr) {
+//		if (globalSeq != null) {
+//			globalSeq = mdlr.getGlobalSeq(globalSeqId);
+//		}
+//	}
+
+
+	public int getGlobalSeqId(EditableModel model) {
+		return model.getGlobalSeqId(globalSeq);
 	}
 
-	public void updateGlobalSeqId(final EditableModel mdlr) {
-		if (hasGlobalSeq) {
-			globalSeqId = mdlr.getGlobalSeqId(globalSeq);
-		}
+	public boolean hasGlobalSeq() {
+		return globalSeq != null;
 	}
 
-	/**
-	 * @deprecated Use getGlobalSeq
-	 */
-	@Deprecated
-	public int getGlobalSeqId() {
-		return globalSeqId;
-	}
-
-	/**
-	 * @deprecated Use setGlobalSeq
-	 */
-	@Deprecated
-	public void setGlobalSeqId(final int globalSeqId) {
-		this.globalSeqId = globalSeqId;
-	}
-
-	public boolean isHasGlobalSeq() {
-		return hasGlobalSeq;
-	}
-
-	public void setHasGlobalSeq(final boolean hasGlobalSeq) {
-		this.hasGlobalSeq = hasGlobalSeq;
-	}
-
-	public Integer getGlobalSeq() {
+	public GlobalSeq getGlobalSeq() {
 		return globalSeq;
 	}
 
-	public void setGlobalSeq(final Integer globalSeq) {
+	public void setGlobalSeq(final GlobalSeq globalSeq) {
 		this.globalSeq = globalSeq;
 	}
 

@@ -47,12 +47,12 @@ public class Bone extends IdObject {
 			boolean foundMatch = false;
 			for (AnimFlag<?> af : getAnimFlags()) {
 				boolean sameSeq = false;
-				if (baf.globalSeqLength == null && af.globalSeqLength == null) {
+				if (baf.getGlobalSeq() == null && af.getGlobalSeq() == null) {
 					sameSeq = true;
-				} else if (baf.globalSeqLength != null && af.globalSeqLength != null) {
-					sameSeq = baf.globalSeqLength.equals(af.globalSeqLength);
+				} else if (baf.getGlobalSeq() != null && af.getGlobalSeq() != null) {
+					sameSeq = baf.getGlobalSeq().equals(af.getGlobalSeq()); // todo check if this should be equals or identical (==)
 				}
-				if (baf.getName().equals(af.getName()) && sameSeq && baf.hasGlobalSeq == af.hasGlobalSeq) {
+				if (baf.getName().equals(af.getName()) && sameSeq && baf.hasGlobalSeq() == af.hasGlobalSeq()) {
 					// if( && baf.tags.equals(af.tags)
 					foundMatch = true;
 					af.copyFrom(baf);

@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.editor.actions.animation;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
@@ -21,7 +22,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
 	private final int trackTime;
 	private final HashMap<IdObject, Vec3> nodeToLocalTranslation;
-	private final Integer trackGlobalSeq;
+	private final GlobalSeq trackGlobalSeq;
 	private final RenderModel editorRenderModel;
 
 	public TranslationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
@@ -29,7 +30,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	                                 RenderModel editorRenderModel) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 		this.editorRenderModel = editorRenderModel;
-		this.trackTime = editorRenderModel.getTimeEnvironment().getTrackTime();
+		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
 		this.trackGlobalSeq = editorRenderModel.getTimeEnvironment().getGlobalSeq();
 		;
 		nodeToLocalTranslation = new HashMap<>();
@@ -81,7 +82,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		return this;
 	}
 
-	public void updateLocalTranslationKeyframe(AnimatedNode animatedNode, int trackTime, Integer trackGlobalSeq, Vec3 localTranslation) {
+	public void updateLocalTranslationKeyframe(AnimatedNode animatedNode, int trackTime, GlobalSeq trackGlobalSeq, Vec3 localTranslation) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		Vec3AnimFlag translationFlag = (Vec3AnimFlag) animatedNode.find(MdlUtils.TOKEN_TRANSLATION, trackGlobalSeq);
 		if (translationFlag == null) {
@@ -109,12 +110,8 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 			return;
 		}
 
-		int trackTime = renderModel.getTimeEnvironment().getAnimationTime();
-		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
-		if (globalSeq != null) {
-			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
-		}
-		//final RenderNode renderNode = renderModel.getRenderNode(this);
+		int trackTime = renderModel.getTimeEnvironment().getEnvTrackTime();
+
 		AnimatedNode parent = null;// = getParent();
 		if (animatedNode instanceof IdObject) {
 			parent = ((IdObject) animatedNode).getParent();

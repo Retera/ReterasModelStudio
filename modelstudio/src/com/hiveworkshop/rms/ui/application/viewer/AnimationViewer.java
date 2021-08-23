@@ -16,17 +16,17 @@ import java.util.List;
 
 public class AnimationViewer extends JPanel {
 	private ModelView modelView;
-	final EditableModel blank = new EditableModel();
+	private final EditableModel blank = new EditableModel();
 	private final DefaultComboBoxModel<Animation> animations;
 	private final JComboBox<Animation> animationBox;
 	private final boolean allowUnanimated;
-	TimeEnvironmentImpl renderEnv;
+	private TimeEnvironmentImpl renderEnv;
 	private PerspectiveViewport perspectiveViewport;
 
-	public AnimationViewer(ModelView modelView, ProgramPreferences programPreferences, boolean allowUnanimated) {
+	public AnimationViewer(ProgramPreferences programPreferences, boolean allowUnanimated) {
 		this.allowUnanimated = allowUnanimated;
 
-		getModelViewport(modelView, programPreferences);
+		getModelViewport();
 		JPanel viewportPanel = new JPanel(new BorderLayout());
 		setLayout(new MigLayout());
 
@@ -35,18 +35,17 @@ public class AnimationViewer extends JPanel {
 
 		animations = new DefaultComboBoxModel<>();
 
-		if (allowUnanimated || (this.modelView.getModel().getAnims().size() == 0)) {
-			animations.addElement(null);
-		}
-		for (Animation animation : this.modelView.getModel().getAnims()) {
-			animations.addElement(animation);
-		}
+		setModel(null);
 		animationBox = new JComboBox<>(animations);
 		animationBox.setRenderer(getBoxRenderer());
-		animationBox.addActionListener(e -> renderEnv.setAnimation((Animation) animationBox.getSelectedItem()));
+		animationBox.addActionListener(e -> getAnimation());
 
 		add(animationBox);
 
+	}
+
+	private Animation getAnimation() {
+		return renderEnv.setAnimation((Animation) animationBox.getSelectedItem());
 	}
 
 	private BasicComboBoxRenderer getBoxRenderer() {
@@ -60,26 +59,38 @@ public class AnimationViewer extends JPanel {
 		};
 	}
 
-	private void getModelViewport(ModelView modelView, ProgramPreferences programPreferences) {
+	private void getModelViewport() {
 		try {
-			if (modelView == null) {
-				this.modelView = new ModelView(blank);
-			} else {
-				this.modelView = modelView;
-			}
-			this.modelView.setVetoOverrideParticles(true);
-			RenderModel renderModel = new RenderModel(this.modelView.getModel(), this.modelView);
-			renderEnv = renderModel.getTimeEnvironment();
-			perspectiveViewport = new PerspectiveViewport().setModel(this.modelView, renderModel, true);
+			perspectiveViewport = new PerspectiveViewport();
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
-			renderEnv.setAnimationTime(0);
-			renderEnv.setLive(true);
 		} catch (LWJGLException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	public void setModel(ModelView modelView) {
+		animations.removeAllElements();
+		if (modelView == null) {
+			this.modelView = new ModelView(blank);
+		} else {
+			this.modelView = modelView;
+		}
+		if (allowUnanimated || (this.modelView.getModel().getAnims().size() == 0)) {
+			animations.addElement(null);
+		}
+		for (Animation animation : this.modelView.getModel().getAnims()) {
+			animations.addElement(animation);
+		}
+		this.modelView.setVetoOverrideParticles(true);
+		RenderModel renderModel = new RenderModel(this.modelView.getModel(), this.modelView);
+		renderEnv = renderModel.getTimeEnvironment();
+		perspectiveViewport.setModel(this.modelView, renderModel, true);
+		renderEnv.setAnimationTime(0);
+		renderEnv.setLive(true);
+		reload();
+	}
+
+	public void setModel1(ModelView modelView) {
 		if (modelView == null) {
 			modelView = new ModelView(blank);
 		}

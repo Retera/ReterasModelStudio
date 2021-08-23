@@ -144,7 +144,7 @@ public class ModelOptionPanel extends JPanel {
 		groupBox.setMaximumSize(new Dimension(200, 25));
 		modelBox.setMaximumSize(new Dimension(4000, 25));
 
-		viewer = new AnimationViewer(null, new ProgramPreferences(), false);
+		viewer = new AnimationViewer(new ProgramPreferences(), false);
 		modelBox.setSelectedIndex(0);
 
 		setLayout(new MigLayout("fill", "", "[grow]"));

@@ -5,8 +5,11 @@ import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
 import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 
+import javax.swing.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TempStuffFromEditableModel {
 	public static EditableModel deepClone(final EditableModel what, final String newName) {
@@ -46,7 +49,7 @@ public class TempStuffFromEditableModel {
 
 		final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
 		for (final AnimFlag<?> af : othersFlags) {
-			if (!af.hasGlobalSeq) {
+			if (!af.hasGlobalSeq()) {
 				newImpFlags.add(af.getEmptyCopy());
 			} else {
 				newImpFlags.add(af.deepCopy());
@@ -210,5 +213,85 @@ public class TempStuffFromEditableModel {
 			}
 		}
 		model.clearAnimations();
+	}
+
+
+	public static void setGlobalSequenceLength(EditableModel model, final int globalSequenceId, final Integer newLength) {
+		if (globalSequenceId < model.globalSeqs.size()) {
+			GlobalSeq globalSeq = model.globalSeqs.get(globalSequenceId);
+			final Integer prevLength = globalSeq.getLength();
+			final List<AnimFlag<?>> allAnimFlags = model.getAllAnimFlags();
+			for (final AnimFlag<?> af : allAnimFlags) {
+				if (af.hasGlobalSeq() && af.getGlobalSeq() == (globalSeq)) {// TODO eliminate redundant structure
+					// todo maybe check if user wants to scale animation?
+					if (af.getGlobalSeq().equals(prevLength)) {
+//						af.setGlobalSeqLength(newLength);
+					}
+				}
+			}
+//			final List<EventObject> sortedEventObjects = (List<EventObject>) sortedIdObjects(EventObject.class);
+			final List<EventObject> sortedEventObjects = model.getEvents();
+			for (final EventObject eventObject : sortedEventObjects) {
+				// TODO eliminate redundant structure
+				if (eventObject.hasGlobalSeq() && (eventObject.getGlobalSeq() == globalSeq)) {
+					if (eventObject.getGlobalSeq().equals(prevLength)) {
+//						eventObject.setGlobalSeq(newLength);
+					}
+				}
+			}
+			globalSeq.setLength(newLength);
+		}
+	}
+
+
+	public static void removeAllTimelinesForGlobalSeq(EditableModel model, final GlobalSeq selectedValue) {
+		for (final Material m : model.getMaterials()) {
+			for (final Layer lay : m.getLayers()) {
+				removeAllTimelinesForGlobalSeq(lay, selectedValue);
+			}
+		}
+		if (model.getTexAnims() != null) {
+			for (final TextureAnim texa : model.getTexAnims()) {
+				if (texa != null) {
+					removeAllTimelinesForGlobalSeq(texa, selectedValue);
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
+				}
+			}
+		}
+		if (model.getGeosetAnims() != null) {
+			for (final GeosetAnim ga : model.getGeosetAnims()) {
+				if (ga != null) {
+					removeAllTimelinesForGlobalSeq(ga, selectedValue);
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
+				}
+			}
+		}
+
+		for (final IdObject object : model.getAllObjects()) {
+			removeAllTimelinesForGlobalSeq(object, selectedValue);
+		}
+
+		if (model.getCameras() != null) {
+			for (final Camera x : model.getCameras()) {
+				removeAllTimelinesForGlobalSeq(x.getSourceNode(), selectedValue);
+				removeAllTimelinesForGlobalSeq(x.getTargetNode(), selectedValue);
+			}
+		}
+	}
+
+	public static void removeAllTimelinesForGlobalSeq(TimelineContainer timelineContainer, GlobalSeq selectedValue) {
+		Set<AnimFlag<?>> toRemove = new HashSet<>();
+		for (AnimFlag<?> timeline : timelineContainer.animFlags.values()) {
+			if (selectedValue.equals(timeline.getGlobalSeq())) {
+				toRemove.add(timeline);
+			}
+		}
+		for (AnimFlag<?> timeline : toRemove) {
+			timelineContainer.remove(timeline);
+		}
 	}
 }

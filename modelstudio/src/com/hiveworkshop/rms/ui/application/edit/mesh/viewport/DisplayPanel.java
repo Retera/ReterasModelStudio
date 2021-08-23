@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
-import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
@@ -31,7 +30,7 @@ public class DisplayPanel extends JPanel {
 	private PerspectiveViewport vp2;
 	private final JPanel buttonPanel;
 	private ViewportActivityManager activityListener;
-	private final ViewportListener viewportListener;
+	private ViewportListener viewportListener;
 	Consumer<Cursor> cursorManager;
 
 	public DisplayPanel(String title, byte a, byte b, ModelHandler modelHandler,
@@ -42,7 +41,7 @@ public class DisplayPanel extends JPanel {
 	                    ViewportListener viewportListener) {
 		super(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
 		this.activityListener = activityListener;
-		this.viewportListener = viewportListener;
+//		this.viewportListener = viewportListener;
 		setupCopyPaste(viewportTransferHandler);
 
 //		addMouseMotionListener(getMouseAdapter());
@@ -72,9 +71,8 @@ public class DisplayPanel extends JPanel {
 	}
 	public DisplayPanel() {
 		super(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		this.viewportListener = mainPanel.getWindowHandler2().getViewportListener();
-		setupCopyPaste(mainPanel.getViewportTransferHandler());
+//		this.viewportListener = windowHandler2.getViewportListener();
+		setupCopyPaste(ProgramGlobals.getViewportTransferHandler());
 //		addMouseMotionListener(getMouseAdapter());
 
 		cursorManager = this::setCursor;

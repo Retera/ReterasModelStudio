@@ -28,10 +28,12 @@ public class SoundMappings {
 		String animLookUpsPath = "war3.w3mod\\ui\\soundinfo\\animlookups.slk";
 		CompoundDataSource source = GameDataFileSystem.getDefault();
 
-		try (BufferedReader r = new BufferedReader(new InputStreamReader(source.getResourceAsStream(animLookUpsPath)))) {
-			r.lines().forEach(this::processMappingLine);
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (source.has(animLookUpsPath)) {
+			try (BufferedReader r = new BufferedReader(new InputStreamReader(source.getResourceAsStream(animLookUpsPath)))) {
+				r.lines().forEach(this::processMappingLine);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

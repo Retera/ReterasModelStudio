@@ -214,7 +214,7 @@ public class AddSingleAnimationActions {
 
 		final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
 		for (final AnimFlag<?> af : othersFlags) {
-			if (!af.hasGlobalSeq) {
+			if (!af.hasGlobalSeq()) {
 				newImpFlags.add(af.getEmptyCopy());
 			} else {
 				newImpFlags.add(af.deepCopy());

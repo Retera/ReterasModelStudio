@@ -17,7 +17,7 @@ public class MaterialFactory {
 		Material material = new Material();
 
 		for (final MdlxLayer mdlxLayer : mdlxMaterial.layers) {
-			final Layer layer = makeLayer(mdlxLayer);
+			final Layer layer = makeLayer(mdlxLayer, model);
 
 			updateRefs(layer, model);
 
@@ -46,7 +46,7 @@ public class MaterialFactory {
 		return material;
 	}
 
-	public static Layer makeLayer(MdlxLayer mdlxLayer) {
+	public static Layer makeLayer(MdlxLayer mdlxLayer, EditableModel model) {
 		Layer layer = new Layer(mdlxLayer.filterMode.toString(), mdlxLayer.textureId);
 
 		int shadingFlags = mdlxLayer.flags;
@@ -84,14 +84,14 @@ public class MaterialFactory {
 		layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
 		layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
 
-		layer.loadTimelines(mdlxLayer);
+		layer.loadTimelines(mdlxLayer, model);
 		return layer;
 	}
 
 	public static Material createMaterial(MdlxMaterial mdlxMaterial, EditableModel model) {
 		Material material = new Material();
 		for (final MdlxLayer mdlxLayer : mdlxMaterial.layers) {
-			final Layer layer = createLayer(mdlxLayer);
+			final Layer layer = createLayer(mdlxLayer, model);
 
 			updateRefs(layer, model);
 
@@ -121,7 +121,7 @@ public class MaterialFactory {
 		return material;
 	}
 
-	static Layer createLayer(MdlxLayer mdlxLayer) {
+	static Layer createLayer(MdlxLayer mdlxLayer, EditableModel model) {
 		Layer layer = new Layer(mdlxLayer.filterMode.toString(), mdlxLayer.textureId);
 		int shadingFlags = mdlxLayer.flags;
 
@@ -145,7 +145,7 @@ public class MaterialFactory {
 		layer.setFresnelOpacity(mdlxLayer.fresnelOpacity);
 		layer.setFresnelTeamColor(mdlxLayer.fresnelTeamColor);
 
-		layer.loadTimelines(mdlxLayer);
+		layer.loadTimelines(mdlxLayer, model);
 		return layer;
 	}
 

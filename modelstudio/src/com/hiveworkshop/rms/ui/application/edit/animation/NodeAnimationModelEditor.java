@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
@@ -82,7 +83,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 	private List<UndoAction> generateKeyframes(TimeEnvironmentImpl timeEnvironmentImpl, ModelEditorActionType3 actionType, Set<IdObject> selection) {
 		List<UndoAction> actions = new ArrayList<>();
 
-		int trackTime = timeEnvironmentImpl.getTrackTime();
+		int trackTime = timeEnvironmentImpl.getEnvTrackTime();
 
 		for (IdObject node : selection) {
 			AnimFlag<?> timeline = getTimeline(timeEnvironmentImpl, actionType, actions, node);
@@ -219,18 +220,15 @@ public class NodeAnimationModelEditor extends ModelEditor {
 	}
 
 	public List<UndoAction> createKeyframe(TimeEnvironmentImpl timeEnvironmentImpl, ModelEditorActionType3 actionType, Set<IdObject> selection) {
-//		Set<IdObject> selection = modelView.getSelectedIdObjects();
 		List<UndoAction> actions = new ArrayList<>();
-		int trackTime = timeEnvironmentImpl.getTrackTime();
-		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
 		for (IdObject node : selection) {
 			UndoAction keyframeAction = switch (actionType) {
-				case ROTATION, SQUAT -> createRotationKeyframe(node, globalSeq, actions, trackTime, timeEnvironmentImpl);
-				case SCALING -> createScalingKeyframe(node, globalSeq, actions, trackTime, timeEnvironmentImpl);
-				case TRANSLATION, EXTEND, EXTRUDE -> createTranslationKeyframe(node, globalSeq, actions, trackTime, timeEnvironmentImpl);
+				case ROTATION, SQUAT -> createRotationKeyframe(node, actions, timeEnvironmentImpl);
+				case SCALING -> createScalingKeyframe(node, actions, timeEnvironmentImpl);
+				case TRANSLATION, EXTEND, EXTRUDE -> createTranslationKeyframe(node, actions, timeEnvironmentImpl);
 			};
 			if (keyframeAction != null) {
-				actions.add(keyframeAction);
+				actions.add(keyframeAction.redo());
 			}
 		}
 
@@ -251,24 +249,26 @@ public class NodeAnimationModelEditor extends ModelEditor {
 			timeline.calcNewTans(tbcFactor, entryOut, entryIn, entry, animationLength);
 			System.out.println("calc tans! " + entryIn + entryOut + entry);
 
-			AddKeyframeAction_T<T> addKeyframeAction = new AddKeyframeAction_T<>(timeline, entry);
-			addKeyframeAction.redo();
-			return addKeyframeAction;
+//			AddKeyframeAction_T<T> addKeyframeAction = new AddKeyframeAction_T<>(timeline, entry);
+//			addKeyframeAction.redo();
+			return new AddKeyframeAction_T<>(timeline, entry);
 		}
 		if (!timeline.hasEntryAt(trackTime)) {
 			if (timeline.getInterpolationType().tangential()) {
 				entry.unLinearize();
 			}
 
-			AddKeyframeAction_T<T> addKeyframeAction = new AddKeyframeAction_T<>(timeline, entry);
-			addKeyframeAction.redo();
-			return addKeyframeAction;
+//			AddKeyframeAction_T<T> addKeyframeAction = new AddKeyframeAction_T<>(timeline, entry);
+//			addKeyframeAction.redo();
+			return new AddKeyframeAction_T<>(timeline, entry);
 		}
 		return null;
 	}
 
 
-	public UndoAction createTranslationKeyframe(IdObject node, Integer globalSeq, List<UndoAction> actions, int trackTime, TimeEnvironmentImpl timeEnvironmentImpl) {
+	public UndoAction createTranslationKeyframe(IdObject node, List<UndoAction> actions, TimeEnvironmentImpl timeEnvironmentImpl) {
+		GlobalSeq globalSeq = timeEnvironmentImpl.getGlobalSeq();
+		int trackTime = timeEnvironmentImpl.getEnvTrackTime();
 		AnimFlag<Vec3> timeline = node.getTranslationFlag(globalSeq);
 		if (timeline == null) {
 			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, globalSeq);
@@ -279,7 +279,9 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation())), trackTime, timeEnvironmentImpl);
 	}
 
-	public UndoAction createScalingKeyframe(IdObject node, Integer globalSeq, List<UndoAction> actions, int trackTime, TimeEnvironmentImpl timeEnvironmentImpl) {
+	public UndoAction createScalingKeyframe(IdObject node, List<UndoAction> actions, TimeEnvironmentImpl timeEnvironmentImpl) {
+		GlobalSeq globalSeq = timeEnvironmentImpl.getGlobalSeq();
+		int trackTime = timeEnvironmentImpl.getEnvTrackTime();
 		AnimFlag<Vec3> timeline = node.getScalingFlag(globalSeq);
 		if (timeline == null) {
 			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.HERMITE, globalSeq);
@@ -290,7 +292,9 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalScale())), trackTime, timeEnvironmentImpl);
 	}
 
-	public UndoAction createRotationKeyframe(IdObject node, Integer globalSeq, List<UndoAction> actions, int trackTime, TimeEnvironmentImpl timeEnvironmentImpl) {
+	public UndoAction createRotationKeyframe(IdObject node, List<UndoAction> actions, TimeEnvironmentImpl timeEnvironmentImpl) {
+		GlobalSeq globalSeq = timeEnvironmentImpl.getGlobalSeq();
+		int trackTime = timeEnvironmentImpl.getEnvTrackTime();
 		AnimFlag<Quat> timeline = node.getRotationFlag(globalSeq);
 		if (timeline == null) {
 			timeline = new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.HERMITE, globalSeq);

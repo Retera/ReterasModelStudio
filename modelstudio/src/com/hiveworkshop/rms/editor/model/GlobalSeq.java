@@ -22,11 +22,21 @@ public class GlobalSeq implements TimeBoundProvider{
 		return length;
 	}
 
+	public GlobalSeq setLength(int length) {
+		this.length = length;
+		return this;
+	}
+
 	@Override
 	public int compareTo(TimeBoundProvider o) {
-		if(o instanceof GlobalSeq){
+		if (o instanceof GlobalSeq) {
 			return length - o.getEnd();
 		}
 		return -1;
+	}
+
+	@Override
+	public String toString() {
+		return "Global Sequence " + length;
 	}
 }

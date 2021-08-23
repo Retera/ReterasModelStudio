@@ -72,14 +72,8 @@ public class ModelLoader {
 	}
 
 	public static ModelPanel newTempModelPanel(ImageIcon icon, EditableModel model) {
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
 		ModelHandler modelHandler = new ModelHandler(model);
-		return new ModelPanel(modelHandler,
-//				mainPanel.coordDisplayListener,
-//				mainPanel.viewportTransferHandler,
-//				mainPanel.getWindowHandler2().getViewportListener(),
-				icon
-		);
+		return new ModelPanel(modelHandler, icon);
 	}
 
 
@@ -178,7 +172,7 @@ public class ModelLoader {
 		ProgramGlobals.setCurrentModelPanel(modelPanel);
 		refreshAnimationModeState();
 //		mainPanel.getMainLayoutCreator().setModelPanel(ProgramGlobals.getCurrentModelPanel());
-		rootWindow.getWindowHandler2().setModelPanel(ProgramGlobals.getCurrentModelPanel());
+//		rootWindow.getWindowHandler2().setModelPanel(ProgramGlobals.getCurrentModelPanel());
 
 		rootWindow.getWindowHandler2().getViewportListener().viewportChanged(null);
 		ModelStructureChangeListener.changeListener.keyframesUpdated();

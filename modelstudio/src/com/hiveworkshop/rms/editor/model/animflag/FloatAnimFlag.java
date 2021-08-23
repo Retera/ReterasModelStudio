@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatTimeline;
 import com.hiveworkshop.rms.util.MathUtils;
@@ -25,8 +26,8 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		super(af);
 	}
 
-	public FloatAnimFlag(final MdlxFloatTimeline timeline) {
-		super(timeline);
+	public FloatAnimFlag(final MdlxFloatTimeline timeline, EditableModel model) {
+		super(timeline, model);
 
 		final long[] frames = timeline.frames;
 		final Object[] values = timeline.values;
@@ -104,12 +105,12 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 	}
 
 	@Override
-	public MdlxFloatTimeline toMdlx(final TimelineContainer container) {
+	public MdlxFloatTimeline toMdlx(final TimelineContainer container, EditableModel model) {
 		final MdlxFloatTimeline mdlxTimeline = new MdlxFloatTimeline();
 
 		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
 		mdlxTimeline.interpolationType = interpolationType;
-		mdlxTimeline.globalSequenceId = getGlobalSeqId();
+		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
 
 		long[] tempFrames = new long[entryMap.size()];
 		float[][] tempValues = new float[entryMap.size()][];

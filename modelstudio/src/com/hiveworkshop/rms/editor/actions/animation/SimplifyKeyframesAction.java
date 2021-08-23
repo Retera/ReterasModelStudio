@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.editor.actions.animation;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -50,8 +51,8 @@ public class SimplifyKeyframesAction implements UndoAction {
 					removeTransitionalKeyframes2(animFlag, anim.getStart(), valueDiff);
 				}
 			}
-			for (Integer globalSeq : model.getGlobalSeqs()) {
-				if (animFlag.hasGlobalSeq() && animFlag.getGlobalSeqLength().equals(globalSeq)) {
+			for (GlobalSeq globalSeq : model.getGlobalSeqs()) {
+				if (animFlag.hasGlobalSeq() && animFlag.getGlobalSeq() == globalSeq) {
 					removeTransitionalKeyframes2(animFlag, 0, valueDiff);
 				}
 			}

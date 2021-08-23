@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewPanel;
 
 public class TimeEnvironmentImpl implements TimeBoundProvider {
@@ -15,7 +16,7 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 	private int start;
 	private boolean looping = true;
 	private boolean staticViewMode;
-	private int globalSequenceLength = -1; // I think this is used to view a models global sequences (w/o animating other things)
+	private GlobalSeq globalSeq = null; // I think this is used to view a models global sequences (w/o animating other things)
 	private int end;
 	private long lastUpdateMillis = System.currentTimeMillis();
 
@@ -41,7 +42,7 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		start = startTime;
 		end = endTime;
 		//		globalSequenceLength = -1;
-		if (globalSequenceLength == -1) {
+		if (globalSeq == null) {
 			animationTime = Math.min(endTime, animationTime);
 			animationTime = Math.max(startTime, animationTime);
 
@@ -62,26 +63,26 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return this.animation;
 	}
 
-
-	//	public int getAnimationTime() {
-//		if (globalSequenceLength == -1) {
-////			System.out.println("currentTime: " + currentTime);
-//			return currentTime;
-//		}
-//		return 0;
-//	}
-
-	public int getTrackTime() {
-		if (globalSequenceLength == -1) {
+	public int getEnvTrackTime() {
+		if (globalSeq == null) {
 			return animationTime;
-		} else if (globalSequenceLength > 0) {
-			return (int) (lastUpdateMillis % globalSequenceLength);
+		} else if (globalSeq.getLength() > 0) {
+			return (int) (lastUpdateMillis % globalSeq.getLength());
+		}
+		return 0;
+	}
+
+	public int getTrackTime(GlobalSeq globalSeq) {
+		if (globalSeq == null && this.globalSeq == null) {
+			return animationTime;
+		} else if ((globalSeq != null && this.globalSeq == null || globalSeq == this.globalSeq) && globalSeq.getLength() > 0) {
+			return (int) (lastUpdateMillis % globalSeq.getLength());
 		}
 		return 0;
 	}
 
 	public int getAnimationTime() {
-		if (globalSequenceLength == -1) {
+		if (globalSeq == null) {
 			return animationTime;
 		}
 		return 0;
@@ -96,25 +97,20 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return this;
 	}
 
-	public TimeEnvironmentImpl setGlobalSeq(final int globalSeq) {
-		globalSequenceLength = globalSeq;
-		if (globalSequenceLength != -1) {
-//			currentTime = 0;
-//			animationTime = 0;
+	public TimeEnvironmentImpl setGlobalSeq(final GlobalSeq globalSeq) {
+		this.globalSeq = globalSeq;
+		if (globalSeq != null) {
+			notifier.timeBoundsChanged(0, globalSeq.getLength());
 		}
-		notifier.timeBoundsChanged(0, globalSequenceLength);
 		return this;
 	}
 
 	public int getGlobalSequenceLength() {
-		return globalSequenceLength;
+		return globalSeq.getLength();
 	}
 
-	public Integer getGlobalSeq() {
-		if (globalSequenceLength == -1) {
-			return null;
-		}
-		return globalSequenceLength;
+	public GlobalSeq getGlobalSeq() {
+		return globalSeq;
 	}
 
 	public int setAnimationTime(int newTime) {
@@ -136,7 +132,7 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 
 	@Override
 	public int getStart() {
-		if (globalSequenceLength == -1) {
+		if (globalSeq == null) {
 			return start;
 		}
 		return 0;
@@ -152,10 +148,20 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return 0;
 	}
 
+	public int getAnimStart(GlobalSeq globalSeq) {
+		if (globalSeq == null || globalSeq.getLength() < 0) {
+			if (animation != null) {
+				return animation.getStart();
+			}
+			return start;
+		}
+		return 0;
+	}
+
 	public TimeEnvironmentImpl setStart(final int startTime) {
 		start = startTime;
 
-		if (globalSequenceLength == -1) {
+		if (globalSeq == null) {
 			animationTime = Math.max(startTime, animationTime);
 
 			notifier.timeBoundsChanged(getStart(), getEnd());
@@ -163,12 +169,6 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return this;
 	}
 
-	//	public int getGlobalSeqTime(final int globalSeqId) {
-//		if (globalSequenceLength == globalSeqId) {
-//			return currentTime;
-//		}
-//		return 0;
-//	}
 	public int getGlobalSeqTime(final int globalSeqLength) {
 		if (globalSeqLength == 0) {
 			return 0;
@@ -185,12 +185,21 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return (int) (lastUpdateMillis % globalSeqLength);
 	}
 
+	public int getRenderTime(GlobalSeq globalSeq) {
+		if (globalSeq == null || globalSeq.getLength() < 0) {
+			return animationTime;
+		} else if (globalSeq.getLength() == 0) {
+			return 0;
+		}
+		return (int) (lastUpdateMillis % globalSeq.getLength());
+	}
+
 	@Override
 	public int getEnd() {
-		if (globalSequenceLength == -1) {
+		if (globalSeq == null) {
 			return end;
 		}
-		return globalSequenceLength;
+		return globalSeq.getLength();
 	}
 
 	public int getAnimEnd(boolean hasGlobalSeq, Integer globalSeqLength) {
@@ -203,9 +212,19 @@ public class TimeEnvironmentImpl implements TimeBoundProvider {
 		return globalSeqLength;
 	}
 
+	public int getAnimEnd(GlobalSeq globalSeq) {
+		if (globalSeq == null || globalSeq.getLength() < 0) {
+			if (animation != null) {
+				return animation.getEnd();
+			}
+			return end;
+		}
+		return globalSeq.getLength();
+	}
+
 	public TimeEnvironmentImpl setEnd(final int endTime) {
 		end = endTime;
-		if (globalSequenceLength == -1) {
+		if (globalSeq == null) {
 			animationTime = Math.min(endTime, animationTime);
 			notifier.timeBoundsChanged(getStart(), getEnd());
 		}

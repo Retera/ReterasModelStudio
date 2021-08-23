@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
@@ -32,6 +33,7 @@ public class ProgramGlobals {
 	private static boolean lockLayout = false;
 
 	private static final Translator translator;
+	private static final ViewportTransferHandler viewportTransferHandler = new ViewportTransferHandler();
 
 
 	private static KeyBindingPrefs keyBindingPrefs;
@@ -96,6 +98,7 @@ public class ProgramGlobals {
 
 	public static void setCurrentModelPanel(ModelPanel currentModelPanel) {
 		ProgramGlobals.currentModelPanel = currentModelPanel;
+		rootWindowUgg.getWindowHandler2().setModelPanel(currentModelPanel);
 		if (!modelPanels.contains(currentModelPanel) && currentModelPanel != null) {
 			modelPanels.add(currentModelPanel);
 		}
@@ -230,5 +233,9 @@ public class ProgramGlobals {
 
 	public static Translator getTranslator() {
 		return translator;
+	}
+
+	public static ViewportTransferHandler getViewportTransferHandler() {
+		return viewportTransferHandler;
 	}
 }

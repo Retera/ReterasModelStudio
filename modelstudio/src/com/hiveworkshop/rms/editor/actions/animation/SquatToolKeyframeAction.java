@@ -2,10 +2,7 @@ package com.hiveworkshop.rms.editor.actions.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
-import com.hiveworkshop.rms.editor.model.AnimatedNode;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -29,7 +26,7 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 	private final Vec3 center;
 	private final byte dim1;
 	private final byte dim2;
-	private final Integer trackGlobalSeq;
+	private final GlobalSeq trackGlobalSeq;
 	private final RenderModel editorRenderModel;
 	private final List<IdObject> idObjects;
 
@@ -41,7 +38,7 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 	                               byte dim1, byte dim2) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
 		this.editorRenderModel = editorRenderModel;
-		this.trackTime = editorRenderModel.getTimeEnvironment().getTrackTime();
+		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
 		this.trackGlobalSeq = editorRenderModel.getTimeEnvironment().getGlobalSeq();
 		this.idObjects = idObjects;
 		this.dim1 = dim1;
@@ -80,7 +77,6 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 
 	@Override
 	public GenericRotateAction updateRotation(double radians) {
-//		modelEditor.rawSquatToolRotate2d(center, radians, dim1, dim2, nodeToLocalRotation);
 		for (IdObject idObject : nodeToLocalRotation.keySet()) {
 			updateRotationKeyframe(idObject, editorRenderModel, center, radians, dim1, dim2, nodeToLocalRotation.get(idObject));
 		}
@@ -95,13 +91,12 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		return this;
 	}
 
-	public void updateLocalRotationKeyframe(AnimatedNode animatedNode, int trackTime, Integer trackGlobalSeq, Quat localRotation) {
+	public void updateLocalRotationKeyframe(AnimatedNode animatedNode, int trackTime, GlobalSeq trackGlobalSeq, Quat localRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		QuatAnimFlag rotationTimeline = (QuatAnimFlag) animatedNode.find(MdlUtils.TOKEN_ROTATION, trackGlobalSeq);
-//		final AnimFlag rotationTimeline = find(MdlUtils.TOKEN_ROTATION, trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
 		}
@@ -115,7 +110,7 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		}
 	}
 
-	public void updateLocalRotationKeyframeInverse(AnimatedNode animatedNode, int trackTime, Integer trackGlobalSeq, Quat localRotation) {
+	public void updateLocalRotationKeyframeInverse(AnimatedNode animatedNode, int trackTime, GlobalSeq trackGlobalSeq, Quat localRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
@@ -147,15 +142,8 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		if (rotationTimeline == null) {
 			return;
 		}
-		int animationTime = renderModel.getTimeEnvironment().getAnimationTime();
-//		int trackTime = renderModel.getAnimatedRenderEnvironment().getCurrentAnimation().getStart() + animationTime;
-//		int trackTime = renderModel.getAnimatedRenderEnvironment().getStart() + animationTime;
-		int trackTime = animationTime;
-		Integer globalSeq = timeEnvironmentImpl.getGlobalSeq();
-		if (globalSeq != null) {
-			trackTime = timeEnvironmentImpl.getGlobalSeqTime(globalSeq);
-		}
-		//final RenderNode renderNode = renderModel.getRenderNode(this);
+		int trackTime = renderModel.getTimeEnvironment().getEnvTrackTime();
+
 		byte unusedXYZ = CoordSysUtils.getUnusedXYZ(firstXYZ, secondXYZ);
 		AnimatedNode parent = null;// = getParent();
 		if (animatedNode instanceof IdObject) {

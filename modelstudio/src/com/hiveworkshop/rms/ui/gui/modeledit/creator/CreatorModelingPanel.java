@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.ui.application.ModelEditActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -290,7 +291,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 			animationChooserBoxModel.addElement(choosableItem);
 		}
 
-		for (Integer integer : modelHandler.getModel().getGlobalSeqs()) {
+		for (GlobalSeq integer : modelHandler.getModel().getGlobalSeqs()) {
 			ChooseableGlobalSeq chooseableItem = new ChooseableGlobalSeq(integer);
 			animationChooserBoxModel.addElement(chooseableItem);
 		}

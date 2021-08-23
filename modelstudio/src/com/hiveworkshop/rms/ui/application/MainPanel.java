@@ -9,15 +9,12 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
-//public class MainPanel extends JPanel implements ModelEditorChangeActivityListener {
 public class MainPanel extends JPanel {
-    MainPanelLinkActions mainPanelLinkActions;
-
-    JTextField[] mouseCoordDisplay = new JTextField[3];
-
-    final CoordDisplayListener coordDisplayListener;
-    final ViewportTransferHandler viewportTransferHandler;
-    final RootWindowUgg rootWindowUgg;
+    private final MainPanelLinkActions mainPanelLinkActions;
+    private final JTextField[] mouseCoordDisplay = new JTextField[3];
+    private final CoordDisplayListener coordDisplayListener;
+    private final ViewportTransferHandler viewportTransferHandler = new ViewportTransferHandler();
+    private final RootWindowUgg rootWindowUgg;
 
     public MainPanel(JToolBar toolBar, RootWindowUgg rootWindowUgg) {
         super(new MigLayout("fill, ins 0, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
@@ -33,7 +30,6 @@ public class MainPanel extends JPanel {
         this.rootWindowUgg = rootWindowUgg;
         add(rootWindowUgg);
 
-        viewportTransferHandler = new ViewportTransferHandler();
         coordDisplayListener = (coordSys, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, coordSys, value1, value2);
     }
 

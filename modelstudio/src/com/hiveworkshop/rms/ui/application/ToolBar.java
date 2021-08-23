@@ -98,7 +98,7 @@ public class ToolBar {
     static void toggleLockLayout(){
         ProgramGlobals.setLockLayout(!ProgramGlobals.isLockLayout());
 //        WindowHandler.traverseAndFix(ProgramGlobals.getMainPanel().getRootWindow());
-        WindowHandler.traverseAndFix(ProgramGlobals.getRootWindowUgg());
+        WindowHandler2.traverseAndFix(ProgramGlobals.getRootWindowUgg());
     }
 
 }

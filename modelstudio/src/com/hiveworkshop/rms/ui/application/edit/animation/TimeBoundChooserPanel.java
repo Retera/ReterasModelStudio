@@ -2,9 +2,12 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.DeleteAnimationAction;
+import com.hiveworkshop.rms.editor.actions.animation.globalsequence.AddGlobalSequenceAction;
+import com.hiveworkshop.rms.editor.actions.animation.globalsequence.RemoveGlobalSequenceAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -22,15 +25,15 @@ public class TimeBoundChooserPanel extends JPanel {
 	private JSpinner timeStart, timeEnd;
 	private IterableListModel<Animation> animations;
 	private JList<Animation> animationBox;
-	private IterableListModel<Integer> globalSeqs;
-	private JList<Integer> globalSeqBox;
+	private IterableListModel<GlobalSeq> globalSeqList;
+	private JList<GlobalSeq> globalSeqBox;
 	private JTabbedPane tabs;
 
 	public TimeBoundChooserPanel(ModelHandler modelHandler) {
 		makeAnimationBox(modelHandler.getModelView());
 		final JPanel animationPanel = getAnimationPanel(modelHandler);
 
-		final JPanel globSeqPanel = getGlobSeqPanel(modelHandler.getModel());
+		final JPanel globSeqPanel = getGlobSeqPanel(modelHandler);
 
 		final JPanel customTimePanel = getCustomTimePanel(modelHandler);
 
@@ -73,24 +76,24 @@ public class TimeBoundChooserPanel extends JPanel {
 		return animationPanel;
 	}
 
-	private JPanel getGlobSeqPanel(EditableModel model) {
+	private JPanel getGlobSeqPanel(ModelHandler modelHandler) {
 		final JPanel globSeqPanel = new JPanel(new MigLayout("fill"));
 
-		globalSeqs = new IterableListModel<>();
-		for (final Integer animation : model.getGlobalSeqs()) {
-			globalSeqs.addElement(animation);
+		globalSeqList = new IterableListModel<>();
+		for (final GlobalSeq animation : modelHandler.getModel().getGlobalSeqs()) {
+			globalSeqList.addElement(animation);
 		}
 
-		globalSeqBox = new JList<>(globalSeqs);
+		globalSeqBox = new JList<>(globalSeqList);
 		JScrollPane globalSeqScrollPane = new JScrollPane(globalSeqBox);
 		globalSeqScrollPane.setPreferredSize(new Dimension(500, 320));
 		globSeqPanel.add(globalSeqScrollPane, "spanx, growx, growy");
 
 		final JButton createGlobalSeq = new JButton("Create");
-		createGlobalSeq.addActionListener(e -> createGlobalSeq(model));
+		createGlobalSeq.addActionListener(e -> createGlobalSeq(modelHandler));
 
 		final JButton deleteGlobalSeq = new JButton("Delete");
-		deleteGlobalSeq.addActionListener(e -> deleteGlobalSeq(model));
+		deleteGlobalSeq.addActionListener(e -> deleteGlobalSeq(modelHandler));
 
 		globSeqPanel.add(createGlobalSeq);
 		globSeqPanel.add(deleteGlobalSeq);
@@ -159,7 +162,7 @@ public class TimeBoundChooserPanel extends JPanel {
 		} else if (tabs.getSelectedIndex() == 1) {
 			timeEnvironmentImpl.setBounds(((Integer) timeStart.getValue()), ((Integer) timeEnd.getValue()));
 		} else if (tabs.getSelectedIndex() == 2) {
-			final Integer selectedValue = globalSeqBox.getSelectedValue();
+			final GlobalSeq selectedValue = globalSeqBox.getSelectedValue();
 			if (selectedValue != null) {
 				timeEnvironmentImpl.setGlobalSeq(selectedValue);
 			} else {
@@ -185,23 +188,20 @@ public class TimeBoundChooserPanel extends JPanel {
 		}
 	}
 
-	private void deleteGlobalSeq(EditableModel model) {
+	private void deleteGlobalSeq(ModelHandler modelHandler) {
 		final int result = JOptionPane.showConfirmDialog(TimeBoundChooserPanel.this,
 				"Also delete linked timelines and their keyframes?", "Delete Animation",
 				JOptionPane.YES_NO_CANCEL_OPTION);
-		final Integer selectedValue = globalSeqBox.getSelectedValue();
-		if (result == JOptionPane.YES_OPTION) {
-			// del keys
-			model.removeAllTimelinesForGlobalSeq(selectedValue);
-		}
+		final GlobalSeq selectedValue = globalSeqBox.getSelectedValue();
 		if (result != JOptionPane.CANCEL_OPTION) {
 			// del anim
-			model.getGlobalSeqs().remove(selectedValue);
-			globalSeqs.removeElement(selectedValue);
+			UndoAction action = new RemoveGlobalSequenceAction(modelHandler.getModel(), selectedValue, ModelStructureChangeListener.changeListener, result == JOptionPane.YES_OPTION);
+			modelHandler.getUndoManager().pushAction(action.redo());
+			globalSeqList.removeElement(selectedValue);
 		}
 	}
 
-	private void createGlobalSeq(EditableModel model) {
+	private void createGlobalSeq(ModelHandler modelHandler) {
 		final SpinnerNumberModel sModel = new SpinnerNumberModel(1000, 1, Integer.MAX_VALUE, 1);
 		final JSpinner spinner = new JSpinner(sModel);
 		final int userChoice = JOptionPane.showConfirmDialog(TimeBoundChooserPanel.this, spinner,
@@ -209,15 +209,15 @@ public class TimeBoundChooserPanel extends JPanel {
 		if (userChoice != JOptionPane.OK_OPTION) {
 			return;
 		}
-		if (globalSeqs.contains(spinner.getValue())) {
+		if (globalSeqList.contains(spinner.getValue())) {
 			JOptionPane.showMessageDialog(TimeBoundChooserPanel.this,
 					"A Global Sequence with that length already exists." +
 							"\nThis program does not support multiple Global Sequences of the same length." +
 							"\nInstead, simply add animation data to the sequence of that length which already exists.",
 					"Error", JOptionPane.ERROR_MESSAGE);
 		} else {
-			globalSeqs.addElement((Integer) spinner.getValue());
-			model.add((Integer) spinner.getValue());
+			AddGlobalSequenceAction action = new AddGlobalSequenceAction(modelHandler.getModel(), new GlobalSeq((Integer) spinner.getValue()), ModelStructureChangeListener.getModelStructureChangeListener());
+			modelHandler.getUndoManager().pushAction(action.redo());
 		}
 	}
 

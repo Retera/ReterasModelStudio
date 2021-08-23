@@ -113,9 +113,9 @@ public class ImportPanel extends JTabbedPane {
 	}
 
 	public static void buildGlobSeqFrom(EditableModel model, Animation anim, List<AnimFlag<?>> flags) {
-		final Integer newSeq = anim.length();
+		GlobalSeq newSeq = new GlobalSeq(anim.length());
 		for (AnimFlag<?> af : flags) {
-			if (!af.hasGlobalSeq) {
+			if (!af.hasGlobalSeq()) {
 				AnimFlag<?> copy = af.deepCopy();
 				copy.setGlobSeq(newSeq);
 				copy.copyFrom(af, anim.getStart(), anim.getEnd(), 0, anim.length());

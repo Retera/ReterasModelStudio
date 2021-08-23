@@ -181,8 +181,8 @@ public abstract class ValuePanel<T> extends JPanel {
 			toggleStaticDynamicPanel(true);
 			keyframePanel.updateFlag(null);
 		} else {
-			if(animFlag.hasGlobalSeq){
-				titledBorder.setTitle(title + " (GlobalSeq: " + animFlag.globalSeqLength + ")");
+			if (animFlag.hasGlobalSeq()) {
+				titledBorder.setTitle(title + " (GlobalSeq: " + animFlag.getGlobalSeq() + ")");
 			} else {
 				titledBorder.setTitle(title);
 			}

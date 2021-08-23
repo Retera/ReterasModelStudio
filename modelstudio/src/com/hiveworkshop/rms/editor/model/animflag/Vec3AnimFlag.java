@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
@@ -24,8 +26,8 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		super(af);
 	}
 
-	public Vec3AnimFlag(final MdlxFloatArrayTimeline timeline) {
-		super(timeline);
+	public Vec3AnimFlag(final MdlxFloatArrayTimeline timeline, EditableModel model) {
+		super(timeline, model);
 
 		final long[] frames = timeline.frames;
 		final Object[] values = timeline.values;
@@ -52,13 +54,13 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		}
 	}
 
-	public Vec3AnimFlag(String title, InterpolationType interpolationType, Integer globalSeq){
+	public Vec3AnimFlag(String title, InterpolationType interpolationType, GlobalSeq globalSeq) {
 		super(title);
 		this.interpolationType = interpolationType;
 		setGlobSeq(globalSeq);
 	}
 
-	public AnimFlag<Vec3> getEmptyCopy(){
+	public AnimFlag<Vec3> getEmptyCopy() {
 		Vec3AnimFlag newFlag = new Vec3AnimFlag(name);
 		newFlag.setSettingsFrom(this);
 		return newFlag;
@@ -75,12 +77,12 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 	}
 
 	@Override
-	public MdlxFloatArrayTimeline toMdlx(final TimelineContainer container) {
+	public MdlxFloatArrayTimeline toMdlx(final TimelineContainer container, EditableModel model) {
 		final MdlxFloatArrayTimeline mdlxTimeline = new MdlxFloatArrayTimeline(3);
 
 		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
 		mdlxTimeline.interpolationType = interpolationType;
-		mdlxTimeline.globalSequenceId = getGlobalSeqId();
+		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
 
 		long[] tempFrames = new long[entryMap.size()];
 		float[][] tempValues = new float[entryMap.size()][];

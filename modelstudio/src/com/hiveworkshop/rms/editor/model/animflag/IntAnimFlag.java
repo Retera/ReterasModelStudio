@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
@@ -21,10 +22,10 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 		super(af);
 	}
 
-	public IntAnimFlag(final MdlxUInt32Timeline timeline) {
-		super(timeline);
+	public IntAnimFlag(final MdlxUInt32Timeline timeline, EditableModel model) {
+		super(timeline, model);
 
-		if(timeline.interpolationType != InterpolationType.DONT_INTERP){
+		if (timeline.interpolationType != InterpolationType.DONT_INTERP) {
 			System.out.println("(IntAnimFlag) timeline \"" + name + "\" has interpolation type: " + timeline.interpolationType.name());
 		}
 
@@ -112,12 +113,12 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 	}
 
 	@Override
-	public MdlxUInt32Timeline toMdlx(final TimelineContainer container) {
+	public MdlxUInt32Timeline toMdlx(final TimelineContainer container, EditableModel model) {
 		final MdlxUInt32Timeline mdlxTimeline = new MdlxUInt32Timeline();
 
 		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
 		mdlxTimeline.interpolationType = interpolationType;
-		mdlxTimeline.globalSequenceId = getGlobalSeqId();
+		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
 
 		long[] tempFrames = new long[entryMap.size()];
 		long[][] tempValues = new long[entryMap.size()][];

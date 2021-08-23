@@ -127,7 +127,7 @@ public class Animation implements TimeBoundProvider {
 			}
 		}
 		for (final EventObject e : newEventObjs) {
-			if (!e.hasGlobalSeq) {
+			if (!e.hasGlobalSeq()) {
 				e.copyFrom(sourceEventObjs.get(newEventObjs.indexOf(e)), intervalStart, intervalEnd, newStart, newEnd);
 			}
 		}
@@ -140,7 +140,7 @@ public class Animation implements TimeBoundProvider {
 			}
 		}
 		for (EventObject e : eventObjs) {
-			if (!e.hasGlobalSeq) {
+			if (!e.hasGlobalSeq()) {
 				e.copyFrom(e.copy(), intervalStart, intervalEnd, start, end);
 			}
 		}
@@ -168,7 +168,7 @@ public class Animation implements TimeBoundProvider {
 			}
 		}
 		for (final EventObject e : eventObjs) {
-			if (!e.hasGlobalSeq) {
+			if (!e.hasGlobalSeq()) {
 				e.timeScale(intervalStart, intervalEnd, start, end);
 			}
 		}

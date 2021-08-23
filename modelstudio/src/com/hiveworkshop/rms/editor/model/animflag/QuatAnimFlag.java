@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
@@ -22,8 +24,8 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		super(af);
 	}
 
-	public QuatAnimFlag(final MdlxFloatArrayTimeline timeline) {
-		super(timeline);
+	public QuatAnimFlag(final MdlxFloatArrayTimeline timeline, EditableModel model) {
+		super(timeline, model);
 
 		final long[] frames = timeline.frames;
 		final Object[] values = timeline.values;
@@ -50,13 +52,13 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		}
 	}
 
-	public QuatAnimFlag(String title, InterpolationType interpolationType, Integer globalSeq){
+	public QuatAnimFlag(String title, InterpolationType interpolationType, GlobalSeq globalSeq) {
 		super(title);
 		this.interpolationType = interpolationType;
 		setGlobSeq(globalSeq);
 	}
 
-	public AnimFlag<Quat> getEmptyCopy(){
+	public AnimFlag<Quat> getEmptyCopy() {
 		QuatAnimFlag newFlag = new QuatAnimFlag(name);
 		newFlag.setSettingsFrom(this);
 		return newFlag;
@@ -73,12 +75,12 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 	}
 
 	@Override
-	public MdlxFloatArrayTimeline toMdlx(final TimelineContainer container) {
+	public MdlxFloatArrayTimeline toMdlx(final TimelineContainer container, EditableModel model) {
 		final MdlxFloatArrayTimeline mdlxTimeline = new MdlxFloatArrayTimeline(4);
 
 		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
 		mdlxTimeline.interpolationType = interpolationType;
-		mdlxTimeline.globalSequenceId = getGlobalSeqId();
+		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
 
 		final long[] tempFrames = new long[entryMap.size()];
 		final float[][] tempValues = new float[entryMap.size()][];

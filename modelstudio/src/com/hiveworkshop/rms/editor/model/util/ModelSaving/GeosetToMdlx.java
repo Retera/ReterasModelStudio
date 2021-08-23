@@ -150,7 +150,7 @@ public class GeosetToMdlx {
 //		animation.color = ModelUtils.flipRGBtoBGR(geosetAnim.getStaticColor().toFloatArray());
 		animation.color = geosetAnim.getStaticColor().toFloatArray();
 
-		geosetAnim.timelinesToMdlx(animation);
+		geosetAnim.timelinesToMdlx(animation, model);
 
 		return animation;
 	}

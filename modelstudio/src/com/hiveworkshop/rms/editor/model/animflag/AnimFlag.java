@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model.animflag;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
@@ -37,42 +38,36 @@ public abstract class AnimFlag<T> {
 	public static final Quat ROTATE_IDENTITY = new Quat(0, 0, 0, 1);
 	public static final Vec3 SCALE_IDENTITY = new Vec3(1, 1, 1);
 	public static final Vec3 TRANSLATE_IDENTITY = new Vec3(0, 0, 0);
-	String name;
-	public InterpolationType interpolationType = InterpolationType.DONT_INTERP;
-	public Integer globalSeqLength;
-	int globalSeqId = -1;
-	public boolean hasGlobalSeq = false;
+	protected String name;
+	protected InterpolationType interpolationType = InterpolationType.DONT_INTERP;
+	protected GlobalSeq globalSeq;
 	protected TreeMap<Integer, Entry<T>> entryMap = new TreeMap<>();
 	protected TreeMap<TimeBoundProvider, TreeMap<Integer, Entry<T>>> sequenceMap = new TreeMap<>();
-	int typeid = 0;
-	Integer[] timeKeys;
+	protected int typeid = 0;
+	protected Integer[] timeKeys;
 
 	public AnimFlag(String title) {
 		name = title;
 		generateTypeId();
 	}
 
-	public AnimFlag(MdlxTimeline<?> timeline) {
+	public AnimFlag(MdlxTimeline<?> timeline, EditableModel model) {
 		name = AnimationMap.ID_TO_TAG.get(timeline.name).getMdlToken();
 		generateTypeId();
 
 		interpolationType = timeline.interpolationType;
 
-		int globalSequenceId = timeline.globalSequenceId;
-		if (globalSequenceId >= 0) {
-			setGlobalSeqId(globalSequenceId);
-			setHasGlobalSeq(true);
-		}
+		setGlobSeq(model.getGlobalSeq(timeline.globalSequenceId));
 	}
 
 	private long lastConsoleLogTime = 0;
 
-	public static AnimFlag<?> createFromTimeline(MdlxTimeline<?> timeline) {
+	public static AnimFlag<?> createFromTimeline(MdlxTimeline<?> timeline, EditableModel model) {
 		return switch (AnimationMap.valueOf(timeline.name.asStringValue()).getImplementation()) {
-			case UINT32_TIMELINE -> new IntAnimFlag((MdlxUInt32Timeline) timeline);
-			case FLOAT_TIMELINE -> new FloatAnimFlag((MdlxFloatTimeline) timeline);
-			case VECTOR3_TIMELINE -> new Vec3AnimFlag((MdlxFloatArrayTimeline) timeline);
-			case VECTOR4_TIMELINE -> new QuatAnimFlag((MdlxFloatArrayTimeline) timeline);
+			case UINT32_TIMELINE -> new IntAnimFlag((MdlxUInt32Timeline) timeline, model);
+			case FLOAT_TIMELINE -> new FloatAnimFlag((MdlxFloatTimeline) timeline, model);
+			case VECTOR3_TIMELINE -> new Vec3AnimFlag((MdlxFloatArrayTimeline) timeline, model);
+			case VECTOR4_TIMELINE -> new QuatAnimFlag((MdlxFloatArrayTimeline) timeline, model);
 			default -> null;
 		};
 	}
@@ -92,9 +87,7 @@ public abstract class AnimFlag<T> {
 
 	protected void setSettingsFrom(AnimFlag<?> af) {
 		name = af.name;
-		globalSeqLength = af.globalSeqLength;
-		globalSeqId = af.globalSeqId;
-		hasGlobalSeq = af.hasGlobalSeq;
+		globalSeq = af.globalSeq;
 		interpolationType = af.interpolationType;
 		typeid = af.typeid;
 	}
@@ -105,8 +98,7 @@ public abstract class AnimFlag<T> {
 		}
 		return name.equals(animFlag.getName())
 				|| entryMap.equals(animFlag.entryMap)
-				|| hasGlobalSeq == animFlag.hasGlobalSeq
-				|| (Objects.equals(globalSeqLength, animFlag.globalSeqLength)
+				|| (Objects.equals(globalSeq, animFlag.globalSeq)
 				&& interpolationType == animFlag.interpolationType
 				&& typeid == animFlag.typeid);
 	}
@@ -118,32 +110,28 @@ public abstract class AnimFlag<T> {
 	}
 
 	public Integer getGlobalSeqLength() {
-		return globalSeqLength;
+		return globalSeq.getLength();
 	}
 
-	public void setGlobalSeqLength(Integer globalSeqLength) {
-		this.globalSeqLength = globalSeqLength;
+	public GlobalSeq getGlobalSeq() {
+		return globalSeq;
 	}
 
-	public void setGlobSeq(Integer integer) {
-		globalSeqLength = integer;
-		hasGlobalSeq = integer != null;
+	public void setGlobalSeq(GlobalSeq globalSeq) {
+		this.globalSeq = globalSeq;
 	}
 
-	public int getGlobalSeqId() {
-		return globalSeqId;
+	public void setGlobSeq(GlobalSeq globalSeq) {
+		this.globalSeq = globalSeq;
 	}
 
-	public void setGlobalSeqId(int globalSeqId) {
-		this.globalSeqId = globalSeqId;
+	public int getGlobalSeqId(EditableModel model) {
+		return model.getGlobalSeqId(globalSeq);
 	}
+
 
 	public boolean hasGlobalSeq() {
-		return hasGlobalSeq;
-	}
-
-	public void setHasGlobalSeq(boolean hasGlobalSeq) {
-		this.hasGlobalSeq = hasGlobalSeq;
+		return this.globalSeq != null;
 	}
 
 	public InterpolationType getInterpolationType() {
@@ -154,7 +142,7 @@ public abstract class AnimFlag<T> {
 		return entryMap.size();
 	}
 
-	public abstract MdlxTimeline<?> toMdlx(TimelineContainer container);
+	public abstract MdlxTimeline<?> toMdlx(TimelineContainer container, EditableModel model);
 
 	public void addEntry(Integer time, T value) {
 		Entry<T> entry = new Entry<>(time, value);
@@ -277,18 +265,6 @@ public abstract class AnimFlag<T> {
 		};
 	}
 
-	public void updateGlobalSeqRef(EditableModel mdlr) {
-		if (hasGlobalSeq) {
-			globalSeqLength = mdlr.getGlobalSeq(globalSeqId);
-		}
-	}
-
-	public void updateGlobalSeqId(EditableModel mdlr) {
-		if (hasGlobalSeq) {
-			globalSeqId = mdlr.getGlobalSeqId(globalSeqLength);
-		}
-	}
-
 	public void flipOver(byte axis) {
 		Collection<Entry<T>> entries = entryMap.values();
 		if (typeid == ROTATION && this instanceof QuatAnimFlag) {
@@ -362,11 +338,11 @@ public abstract class AnimFlag<T> {
 		}
 		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
 		List<Animation> anims = model.getAnims();
-		if (hasGlobalSeq && globalSeqId >= 0 && model.getGlobalSeqs().size() > globalSeqId) {
+		if (hasGlobalSeq() && model.getGlobalSeqs().contains(globalSeq)) {
 
-			Integer globalSeq = model.getGlobalSeq(globalSeqId);
-			if (globalSeq >= 0) {
-				NavigableMap<Integer, Entry<T>> subMap = entryMap.subMap(0, true, globalSeq, true);
+			int globalSeqLength = globalSeq.getLength();
+			if (globalSeqLength >= 0) {
+				NavigableMap<Integer, Entry<T>> subMap = entryMap.subMap(0, true, globalSeqLength, true);
 				for (Integer time : subMap.keySet()) {
 					Integer prevTime = subMap.lowerKey(time) == null ? subMap.lastKey() : subMap.lowerKey(time);
 					Integer nextTime = subMap.higherKey(time) == null ? subMap.firstKey() : subMap.higherKey(time);
@@ -375,7 +351,7 @@ public abstract class AnimFlag<T> {
 					Entry<T> nextValue = subMap.get(nextTime);
 
 					float[] factor = getTbcFactor(0, 0.5f, 0);
-					calcNewTans(factor, nextValue, prevValue, subMap.get(time), globalSeq);
+					calcNewTans(factor, nextValue, prevValue, subMap.get(time), globalSeqLength);
 				}
 			}
 
@@ -384,7 +360,7 @@ public abstract class AnimFlag<T> {
 			NavigableMap<Integer, Entry<T>> subMap = entryMap.subMap(animation.getStart(), true, animation.getEnd(), true);
 			int animationLength = animation.length();
 			for (Integer time : subMap.keySet()) {
-				if (!hasGlobalSeq || globalSeqLength == null || time > globalSeqLength) {
+				if (globalSeq == null || time > globalSeq.getLength()) {
 					Integer prevTime = subMap.lowerKey(time) == null ? subMap.lastKey() : subMap.lowerKey(time);
 					Integer nextTime = subMap.higherKey(time) == null ? subMap.firstKey() : subMap.higherKey(time);
 
@@ -417,7 +393,7 @@ public abstract class AnimFlag<T> {
 	}
 
 	public void deleteAnim(Animation anim) {
-		if (!hasGlobalSeq) {
+		if (!hasGlobalSeq()) {
 			for (int time = entryMap.ceilingKey(anim.getStart()); time <= entryMap.floorKey(anim.getEnd()); time = entryMap.higherKey(time)) {
 				entryMap.remove(time);
 			}
@@ -597,12 +573,12 @@ public abstract class AnimFlag<T> {
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 			return entryMap.firstEntry().getValue().getValue(); // Correct?
 		}
-		int time = animatedRenderEnvironment.getRenderTime(hasGlobalSeq, globalSeqLength);
-		int animationStart = animatedRenderEnvironment.getAnimStart(hasGlobalSeq, globalSeqLength);
-		int animationEnd = animatedRenderEnvironment.getAnimEnd(hasGlobalSeq, globalSeqLength);
+		int time = animatedRenderEnvironment.getRenderTime(globalSeq);
+		int animationStart = animatedRenderEnvironment.getAnimStart(globalSeq);
+		int animationEnd = animatedRenderEnvironment.getAnimEnd(globalSeq);
 
 		// no keyframes at nor after time
-		if (hasGlobalSeq() && getGlobalSeqLength() >= 0 && entryMap.ceilingKey(time) == null) {
+		if (hasGlobalSeq() && globalSeq.getLength() >= 0 && entryMap.ceilingKey(time) == null) {
 			return getIdentity(typeid);
 		}
 

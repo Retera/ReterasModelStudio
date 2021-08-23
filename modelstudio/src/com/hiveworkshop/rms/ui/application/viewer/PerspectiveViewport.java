@@ -63,32 +63,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	ExtLog currentExt = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 
-	public PerspectiveViewport(ModelView modelView, RenderModel renderModel, boolean loadDefaultCamera) throws LWJGLException {
-		super();
-		this.programPreferences = ProgramGlobals.getPrefs();
-		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
-		cameraHandler = new CameraHandler(this);
-
-		mouseAdapter = new MouseListenerThing(cameraHandler, programPreferences);
-		addMouseListener(mouseAdapter);
-		addMouseMotionListener(mouseAdapter);
-		addMouseWheelListener(mouseAdapter);
-		addKeyListener(getShortcutKeyListener());
-
-		setBackground(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.BACKGROUND_COLOR));
-		setMinimumSize(new Dimension(200, 200));
-
-		setModel(modelView, renderModel, loadDefaultCamera);
-
-		paintTimer = new Timer(16, e -> {
-			repaint();
-			if (!isShowing()) {
-				paintTimer.stop();
-			}
-		});
-		paintTimer.start();
-//		Timer clickTimer = new Timer(16, e -> cameraHandler.clickTimerAction());
-	}
 	public PerspectiveViewport() throws LWJGLException {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();

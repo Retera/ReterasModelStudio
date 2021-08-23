@@ -29,7 +29,7 @@ public class MainFrame extends JFrame {
 		setContentPane(mainPanel);
 //		menuBar = MenuBar.createMenuBar(panel);
 		menuBar2 = new MenuBar(mainPanel.getMainPanelLinkActions());
-		setJMenuBar(com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar.getMenuBar());// MainFrame.class.getResource("ImageBin/DDChicken2.png")
+		setJMenuBar(MenuBar.getMenuBar());// MainFrame.class.getResource("ImageBin/DDChicken2.png")
 		setIconImage(MAIN_PROGRAM_ICON);
 
 		addWindowListener(new WindowAdapter() {
@@ -57,7 +57,7 @@ public class MainFrame extends JFrame {
 		}
 //		fileDialog.openFile(new File("C:\\Users\\twilac\\Desktop\\WC3\\troubleShootingStuff\\LxXDijin\\BillBoarding models\\BB_All_2.mdx"));
 //		fileDialog.openFile(new File("C:\\Users\\twilac\\Desktop\\WC3\\ElfFemale.mdl"));
-		fileDialog.openFile(new File("C:\\Users\\twilac\\Desktop\\WC3\\Bone_test3.mdl"));
+//		fileDialog.openFile(new File("C:\\Users\\twilac\\Desktop\\WC3\\Bone_test3.mdl"));
 	}
 	public static void create(final List<String> startupModelPaths, boolean dataPromptForced) {
 		frame = new MainFrame("Retera Model Studio " + getVersion());

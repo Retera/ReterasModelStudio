@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.actions.animation.AddKeyframeAction_T;
 import com.hiveworkshop.rms.editor.actions.animation.SetKeyframeAction_T;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
@@ -82,13 +83,13 @@ public class KeyframeHandler {
 		Iterable<IdObject> selection = getSelectionToUse();
 		for (IdObject object : selection) {
 			for (AnimFlag<?> flag : object.getAnimFlags()) {
-				if ((flag.getGlobalSeqLength() == null && timeEnvironment.getGlobalSeq() == null)
-						|| (timeEnvironment.getGlobalSeq() != null && timeEnvironment.getGlobalSeq().equals(flag.getGlobalSeqLength()))) {
+				if ((flag.getGlobalSeq() == null && timeEnvironment.getGlobalSeq() == null)
+						|| (timeEnvironment.getGlobalSeq() != null && timeEnvironment.getGlobalSeq().equals(flag.getGlobalSeq()))) {
 					if (flag.size() > 0) {
 						TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap();
 						Integer startTime = entryMap.ceilingKey(timeEnvironment.getStart());
 						Integer endTime = entryMap.floorKey(timeEnvironment.getEnd());
-						if(endTime == null) endTime = startTime;
+						if (endTime == null) endTime = startTime;
 						for (Integer time = startTime; time != null && time <= endTime; time = entryMap.higherKey(time)) {
 							KeyFrame keyFrame = timeToKey.get(time);
 							if (keyFrame == null) {
@@ -147,8 +148,9 @@ public class KeyframeHandler {
 		useAllCopiedKeyframes = false;
 		for (IdObject object : getSelectionToUse()) {
 			for (AnimFlag<?> flag : object.getAnimFlags()) {
-				Integer currentEditorGlobalSeq = timeEnvironment.getGlobalSeq();
-				if (((flag.getGlobalSeqLength() == null) && (currentEditorGlobalSeq == null)) || ((currentEditorGlobalSeq != null) && currentEditorGlobalSeq.equals(flag.getGlobalSeqLength()))) {
+				GlobalSeq currentEditorGlobalSeq = timeEnvironment.getGlobalSeq();
+				if ((flag.getGlobalSeq() == null && currentEditorGlobalSeq == null)
+						|| (currentEditorGlobalSeq != null && currentEditorGlobalSeq == flag.getGlobalSeq())) {
 					copuKeyframes(object, flag, trackTime);
 				}
 			}
@@ -234,8 +236,9 @@ public class KeyframeHandler {
 		useAllCopiedKeyframes = true;
 		for (IdObject object : modelHandler.getModel().getIdObjects()) {
 			for (AnimFlag<?> flag : object.getAnimFlags()) {
-				Integer currentEditorGlobalSeq = timeEnvironment.getGlobalSeq();
-				if (((flag.getGlobalSeqLength() == null) && (currentEditorGlobalSeq == null)) || ((currentEditorGlobalSeq != null) && currentEditorGlobalSeq.equals(flag.getGlobalSeqLength()))) {
+				GlobalSeq currentEditorGlobalSeq = timeEnvironment.getGlobalSeq();
+				if ((flag.getGlobalSeq() == null && currentEditorGlobalSeq == null)
+						|| (currentEditorGlobalSeq != null && currentEditorGlobalSeq == flag.getGlobalSeq())) {
 					copuKeyframes(object, flag, trackTime);
 				}
 			}

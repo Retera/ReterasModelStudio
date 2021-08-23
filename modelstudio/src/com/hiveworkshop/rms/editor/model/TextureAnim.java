@@ -33,8 +33,8 @@ public class TextureAnim extends TimelineContainer {
 		setAnimFlags(flags);
 	}
 
-	public TextureAnim(final MdlxTextureAnimation animation) {
-		loadTimelines(animation);
+	public TextureAnim(final MdlxTextureAnimation animation, EditableModel model) {
+		loadTimelines(animation, model);
 	}
 
 	public String getFlagNames() {

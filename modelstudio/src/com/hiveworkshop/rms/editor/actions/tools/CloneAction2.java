@@ -81,7 +81,7 @@ public final class CloneAction2 implements UndoAction {
 		}
 
 		for (Camera camera : selectedCameras) {
-			newCameras.add(new Camera(camera.toMdlx()));
+			newCameras.add(new Camera(camera.toMdlx(modelView.getModel()), modelView.getModel()));
 		}
 	}
 

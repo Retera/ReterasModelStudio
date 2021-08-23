@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model;
 
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
@@ -14,10 +15,10 @@ public class GlobalSeqOverviewPanel extends JPanel {
 		panel.add(new JLabel("Number"));
 		panel.add(new JLabel("Duration"));
 
-		for (int globalSeqId = 0; globalSeqId < modelHandler.getModel().getGlobalSeqs().size(); globalSeqId++) {
+		for (GlobalSeq globalSeq : modelHandler.getModel().getGlobalSeqs()) {
 
-			panel.add(new JLabel("GlobalSequence " + globalSeqId));
-			panel.add(new JLabel("" + modelHandler.getModel().getGlobalSeq(globalSeqId)));
+			panel.add(new JLabel("GlobalSequence " + modelHandler.getModel().getGlobalSeqId(globalSeq)));
+			panel.add(new JLabel("" + globalSeq.getLength()));
 		}
 
 		JScrollPane scrollPane = new JScrollPane(panel);
