@@ -6,15 +6,15 @@ import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 public class ChangeInterpTypeAction<T> implements UndoAction {
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 	private final AnimFlag<T> animFlag;
-	InterpolationType newInterpType;
-	InterpolationType oldInterpType;
-	AnimFlag<T> oldAnimFlag;
+	private final InterpolationType newInterpType;
+	private final InterpolationType oldInterpType;
+	private final AnimFlag<T> oldAnimFlag;
 
 
-	public ChangeInterpTypeAction(AnimFlag<T> animFlag, InterpolationType newInterpType, ModelStructureChangeListener structureChangeListener) {
-		this.structureChangeListener = structureChangeListener;
+	public ChangeInterpTypeAction(AnimFlag<T> animFlag, InterpolationType newInterpType, ModelStructureChangeListener changeListener) {
+		this.changeListener = changeListener;
 		this.animFlag = animFlag;
 		this.newInterpType = newInterpType;
 		oldInterpType = animFlag.getInterpolationType();
@@ -24,10 +24,10 @@ public class ChangeInterpTypeAction<T> implements UndoAction {
 	@Override
 	public UndoAction undo() {
 		animFlag.setInterpType(oldInterpType);
-		animFlag.setEntryMap(oldAnimFlag.getEntryMap());
+		animFlag.setSequenceMap(oldAnimFlag.getAnimMap());
 //		animFlag.setFromOther(oldAnimFlag);
-		if (structureChangeListener != null) {
-			structureChangeListener.materialsListChanged();
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
 		}
 		return this;
 	}
@@ -35,8 +35,8 @@ public class ChangeInterpTypeAction<T> implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		animFlag.setInterpType(newInterpType);
-		if (structureChangeListener != null) {
-			structureChangeListener.materialsListChanged();
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
 		}
 		return this;
 	}

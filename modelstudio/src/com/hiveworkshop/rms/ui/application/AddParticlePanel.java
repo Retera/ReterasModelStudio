@@ -201,10 +201,10 @@ public class AddParticlePanel {
 
 		for (Animation anim : animVisMap.keySet()) {
 			if (!animVisMap.get(anim)) {
-				visFlag.addEntry(anim.getStart(), 0f);
+				visFlag.addEntry(0, 0f, anim);
 			}
 		}
-		if (!visFlag.getEntryMap().isEmpty()) {
+		if (!visFlag.getAnimMap().isEmpty()) {
 			particle.setVisibilityFlag(visFlag);
 		}
 		particle.setName(name);

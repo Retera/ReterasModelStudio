@@ -81,14 +81,13 @@ public final class IconUtils {
 				if (!iconPath.toLowerCase().endsWith(".blp")) {
 					iconPath += ".blp";
 				}
-            }
+			}
 			case ITEM -> iconPath = gameObject.getFieldAsString(War3ID.fromString("iico"), 0);
 			case UPGRADES -> iconPath = gameObject.getFieldAsString(War3ID.fromString("gar1"), 1);
 			case UNITS -> iconPath = gameObject.getFieldAsString(War3ID.fromString("uico"), 0);
 			default -> iconPath = gameObject.getFieldAsString(War3ID.fromString("uico"), 0);
 		}
-		final BufferedImage gameTex = BLPHandler.get().getGameTex(iconPath);
-		return gameTex;
+		return BLPHandler.getGameTex(iconPath);
 	}
 
 	public static BufferedImage createBlank(final Color color, final int width, final int height) {

@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ModelThumbnailMaker;
 import com.hiveworkshop.rms.ui.gui.modeledit.VertexFilter;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
@@ -34,16 +33,16 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 	private static final int EIGHTH_SIZE = SIZE / 8;
 	private final Map<TYPE, ImageIcon> matrixShellToCachedRenderer = new HashMap<>();
 	private final ResettableVertexFilter<TYPE> matrixFilter;
-	private final ModelView modelDisplay;
-	private final ModelView otherDisplay;
+	private final EditableModel model;
+	private final EditableModel other;
 	private static Map<EditableModel, BufferedImage> modelOutlineImageMap;
 	private static Map<EditableModel, Vec2[]> modelBoundsSizeMap;
 
 	private static Map<EditableModel, Map<Geoset, Map<Bone, List<GeosetVertex>>>> geosetBoneMap;
 
-	public AbstractSnapshottingListCellRenderer2D(final ModelView modelDisplay, final ModelView otherDisplay) {
-		this.modelDisplay = modelDisplay;
-		this.otherDisplay = otherDisplay;
+	public AbstractSnapshottingListCellRenderer2D(EditableModel model, EditableModel other) {
+		this.model = model;
+		this.other = other;
 		matrixFilter = createFilter();
 		modelOutlineImageMap = new HashMap<>();
 		modelBoundsSizeMap = new HashMap<>();
@@ -89,8 +88,8 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 				if (valueType == null) {
 					System.out.println("valueType Null! value: " + value);
 				} else {
-					makeBoneIcon(backgroundColor, valueType, graphics, otherDisplay, value);
-					makeBoneIcon(backgroundColor, valueType, graphics, modelDisplay, value);
+					makeBoneIcon(backgroundColor, valueType, graphics, other, value);
+					makeBoneIcon(backgroundColor, valueType, graphics, model, value);
 				}
 
 				graphics.dispose();
@@ -103,9 +102,8 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 		return myIcon;
 	}
 
-	public void makeBoneIcon(Color backgroundColor, TYPE matrixShell, Graphics graphics, ModelView modelDisplay, Object value) {
-		if (modelDisplay != null && contains(modelDisplay, matrixShell)) {
-			EditableModel model = modelDisplay.getModel();
+	public void makeBoneIcon(Color backgroundColor, TYPE matrixShell, Graphics graphics, EditableModel model, Object value) {
+		if (model != null && contains(model, matrixShell)) {
 			BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
 			graphics.drawImage(modelOutline, 0, 0, null);
 //			ViewportModelRenderer.drawFilteredTriangles(model, graphics, new Rectangle(SIZE, SIZE), (byte) 1, (byte) 2, modelBoundsSizeMap.get(model), matrixFilter.reset(matrixShell));
@@ -173,7 +171,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 
 	protected abstract Vec3 getRenderVertex(TYPE value);
 
-	protected abstract boolean contains(ModelView modelDisp, TYPE object);
+	protected abstract boolean contains(EditableModel model, TYPE object);
 
 	protected interface ResettableVertexFilter<TYPE> extends VertexFilter<GeosetVertex> {
 		ResettableVertexFilter<TYPE> reset(final TYPE matrix);

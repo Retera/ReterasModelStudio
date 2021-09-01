@@ -8,6 +8,7 @@ public enum TextKey {
 	OBJECT_EDITOR("Object Editor"),
 	NEW("New"),
 	CLOSE("Close"),
+	CLOSE_CURRENT("Close current model"),
 	REVERT("Revert"),
 	OPEN("Open"),
 	SAVE("Save"),
@@ -19,6 +20,8 @@ public enum TextKey {
 	CUT("Cut"),
 	COPY("Copy"),
 	PASTE("Paste"),
+	EDIT("Edit"),
+	OTHER("Other"),
 	DUPLICATE("Duplicate"),
 	MAXIMIZE_FOCUSED_WINDOW("Maximize Focused Window"),
 	NEXT_KEYFRAME("Jump to next keyframe"),
@@ -44,6 +47,7 @@ public enum TextKey {
 	UNMOD_ADD_SELECT("unShiftSelect"),
 	MOD_REMOVE_SELECT("Remove Selection Modifier"),
 	UNMOD_REMOVE_SELECT("unAltSelect"),
+	SELECTION("Selection"),
 	SELECT_ALL("Select All"),
 	INVERT_SELECTION("Invert Selection"),
 	EXPAND_SELECTION("Expand Selection"),
@@ -63,7 +67,6 @@ public enum TextKey {
 	IMP_GEOSET_INTO_GEOSET("Import Geoset into Existing Geoset"),
 	SMOOTH_VERTS("Twilac-Style SmoothVerts"),
 	EDIT_MODEL_COMPS("Edit/delete model components"),
-	IMPORT_ANIM("Import Animation"),
 	RECALCULATE_NORMALS("Recalculate Normals"),
 	RECALCULATE_EXTENTS("Recalculate Extents"),
 	SNAP_VERTICES("Snap Vertices"),
@@ -78,17 +81,21 @@ public enum TextKey {
 	VIEW_MATRICES("View Selected \"Matrices\""),
 	FLIP_FACES("Flip all selected faces"),
 	FLIP_NORMALS("Flip all selected normals"),
+	IMPORT("Import"),
+	IMPORT_ANIM("Import Animation"),
 	IMPORT_FROM_FILE("From File"),
 	IMPORT_FROM_UNIT("From Unit"),
 	IMPORT_FROM_WC3_MODEL("From WC3 Model"),
 	IMPORT_FROM_OBJECT_EDITOR("From Object Editor"),
 	IMPORT_FROM_WORKSPACE("From Workspace"),
 	EXPORT_TEXTURE("Export Texture"),
+	NONE("None"),
 	KEYBOARDKEY(""),
 
 	;
 	String defaultTranslation;
-	TextKey(String s){
+
+	TextKey(String s) {
 		defaultTranslation = s;
 	}
 

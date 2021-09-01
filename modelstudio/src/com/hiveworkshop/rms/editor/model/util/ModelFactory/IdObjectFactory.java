@@ -1,13 +1,14 @@
 package com.hiveworkshop.rms.editor.model.util.ModelFactory;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.*;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TreeMap;
 
 public class IdObjectFactory {
 	public static Bone createBone(MdlxBone mdlxBone, EditableModel model) {
@@ -108,9 +109,9 @@ public class IdObjectFactory {
 					"WARNING in MDX -> MDL: ParticleEmitter of unknown type! Defaults to EmitterUsesTGA in my MDL code!");
 		}
 		System.out.println("pEmitter: " + particleEmitter.getName());
-		for (AnimFlag<?> animFlag : particleEmitter.getAnimFlags()) {
-			System.out.println("___" + animFlag.getName() + ", " + animFlag.getValueFromIndex(0));
-		}
+//		for (AnimFlag<?> animFlag : particleEmitter.getAnimFlags()) {
+//			System.out.println("___" + animFlag.getName() + ", " + animFlag.getValueFromIndex(0));
+//		}
 		return particleEmitter;
 	}
 
@@ -176,9 +177,6 @@ public class IdObjectFactory {
 		particleEmitter2.setReplaceableId((int) mdlxEmitter.replaceableId);
 
 		System.out.println("p2Emitter: " + particleEmitter2.getName());
-		for (AnimFlag<?> animFlag : particleEmitter2.getAnimFlags()) {
-			System.out.println("___" + animFlag.getName() + ", " + animFlag.valueAt(0));
-		}
 		return particleEmitter2;
 	}
 
@@ -224,9 +222,9 @@ public class IdObjectFactory {
 
 
 		System.out.println("riEmitter: " + ribbonEmitter.getName());
-		for (AnimFlag<?> animFlag : ribbonEmitter.getAnimFlags()) {
-			System.out.println("___" + animFlag.getName() + ", " + animFlag.valueAt(0));
-		}
+//		for (AnimFlag<?> animFlag : ribbonEmitter.getAnimFlags()) {
+//			System.out.println("___" + animFlag.getName() + ", " + animFlag.valueAt(0));
+//		}
 		return ribbonEmitter;
 	}
 
@@ -246,8 +244,17 @@ public class IdObjectFactory {
 			eventObject.setGlobalSeq(globalSeq);
 		}
 
+
+		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
+		model.getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
+
 		for (final long val : mdlxObject.keyFrames) {
-			eventObject.addTrack((int) val);
+			if(globalSeq != null){
+				eventObject.addTrack(globalSeq, (int) val - globalSeq.getStart());
+			}else if(animationTreeMap.floorEntry((int) val) != null){
+				Sequence sequence = animationTreeMap.floorEntry((int) val).getValue();
+				eventObject.addTrack(sequence, (int) val - sequence.getStart());
+			}
 		}
 		return eventObject;
 	}

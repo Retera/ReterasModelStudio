@@ -31,7 +31,7 @@ public class ObjectEditPanel extends JPanel {
 
 		mht.getFutureBoneListExtended(false);
 
-		bonePanelRenderer = new BoneShellListCellRenderer(mht.recModelManager, mht.donModelManager);
+		bonePanelRenderer = new BoneShellListCellRenderer(mht.receivingModel, mht.donatingModel);
 		final ObjPanelListCellRenderer objectPanelRenderer = new ObjPanelListCellRenderer();
 
 		objectPanelCards.add(new JPanel(), "blank");

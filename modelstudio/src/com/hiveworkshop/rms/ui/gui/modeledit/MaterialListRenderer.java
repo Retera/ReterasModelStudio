@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.util.ImageCreator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +34,7 @@ public class MaterialListRenderer extends DefaultListCellRenderer {
 		ImageIcon myIcon = map.get(value);
 
 		if (myIcon == null) {
-			BufferedImage bufferedImage = ((Material) value).getBufferedImage(model.getWrappedDataSource());
+			BufferedImage bufferedImage = ImageCreator.getBufferedImage(((Material) value), model.getWrappedDataSource());
 			if (bufferedImage == null) {
 				System.out.println("could not load icon for \"" + name + "\"");
 				bufferedImage = noImage;

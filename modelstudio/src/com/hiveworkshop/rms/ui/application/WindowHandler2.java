@@ -115,11 +115,15 @@ public class WindowHandler2 {
 
 		System.out.println("allViews.size()1: " + allViews.size());
 //		allViews.removeIf(view -> !view.isVisible().isValid());
-		allViews.removeIf(view -> !view.getComponent().isVisible());
+//		allViews.removeIf(view -> !view.getComponent().isVisible());
+		allViews.removeIf(view -> !isStillInUse(view));
 		System.out.println("allViews.size()2: " + allViews.size());
 
 		for (ModelDependentView view : allViews) {
 			System.out.println("updating: " + view);
+//			System.out.println(view + "#ViewProp: " + view.getViewProperties());
+//			System.out.println(view + "#toString: " + view.toString());
+//			System.out.println(view + "#WindowPar: " + view.getWindowParent());
 			view.setModelPanel(modelPanel);
 		}
 
@@ -131,8 +135,46 @@ public class WindowHandler2 {
 		return this;
 	}
 
+	private boolean isStillInUse(ModelDependentView view){
+		if(view.getWindowParent() == null){
+			view.close();
+			return false;
+		}
+		return true;
+	}
+
+	public void openNewWindowWithKB(ModelDependentView view, RootWindow rootWindow) {
+		if ((view.getTopLevelAncestor() == null) || !view.getTopLevelAncestor().isVisible()) {
+			addView(view);
+			FloatingWindow createFloatingWindow
+					= rootWindow.createFloatingWindow(rootWindow.getLocation(), new Dimension(640, 480), view);
+			createFloatingWindow.getTopLevelAncestor().setVisible(true);
+
+			KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
+//            view.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+			createFloatingWindow.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+			createFloatingWindow.setActionMap(keyBindingPrefs.getActionMap());
+		}
+	}
+	private void addView(ModelDependentView view){
+		if(view != null){
+			allViews.add(view);
+			if(view instanceof TimeSliderView) {
+				timeSliders.add((TimeSliderView)view);
+			} else if(view instanceof ModelViewManagingView) {
+				modelViewManagingTrees.add((ModelViewManagingView)view);
+			} else if(view instanceof ModelingCreatorToolsView) {
+				editingToolChooserViews.add((ModelingCreatorToolsView)view);
+			} else if(view instanceof ModelComponentsView) {
+				componentBrowserTreeViews.add((ModelComponentsView)view);
+			}
+		}
+	}
+
 	public WindowHandler2 reloadThings() {
-		allViews.removeIf(view -> !view.isValid());
+//		System.out.println("WindowHandler2#reloadThings: allViews.size()1: " + allViews.size());
+//		allViews.removeIf(view -> !view.isValid());
+//		System.out.println("WindowHandler2#reloadThings: allViews.size()2: " + allViews.size());
 		for (ModelDependentView view : allViews) {
 			view.reload();
 		}
@@ -246,19 +288,9 @@ public class WindowHandler2 {
 		return editingTab;
 	}
 
-//	public static View getPlaceholderView(String title) {
-//		JPanel jPanel = new JPanel();
-//		jPanel.add(new JLabel("..."));
-//		return new View(title, null, jPanel);
-//	}
 	public static View getTitledView(String title) {
 		return new View(title, null, new JPanel());
 	}
-
-//	public static View getCreatorView() {
-//		CreatorModelingPanel creatorPanel = new CreatorModelingPanel(ProgramGlobals.getMainPanel().viewportListener);
-//		return new View("Modeling", null, creatorPanel);
-//	}
 
 	static DockingWindowListener getDockingWindowListener2(Runnable fixit) {
 		return new DockingWindowAdapter() {
@@ -361,23 +393,10 @@ public class WindowHandler2 {
 	public TabWindow resetView() {
 		clearAll();
 
-		final TabWindow startupTabWindow = getStartupTabWindow();
+		TabWindow startupTabWindow = getStartupTabWindow();
 		startupTabWindow.setSelectedTab(0);
 		setModelPanel(ProgramGlobals.getCurrentModelPanel());
 		return startupTabWindow;
-	}
-
-	public void resetView1() {
-		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
-//		traverseAndReset(rootWindow);
-		clearAll();
-
-		final TabWindow startupTabWindow = getStartupTabWindow();
-		startupTabWindow.setSelectedTab(0);
-		rootWindow.setWindow(startupTabWindow);
-		ModelLoader.setCurrentModel(ProgramGlobals.getCurrentModelPanel());
-		rootWindow.revalidate();
-		traverseAndFix(rootWindow);
 	}
 
 	public WindowHandler2 clearAll() {
@@ -418,6 +437,7 @@ public class WindowHandler2 {
 	}
 
 	public static void traverseAndReset(DockingWindow window) {
+//		System.out.println("WindowHandler2#traverseAndReset");
 		int childWindowCount = window.getChildWindowCount();
 		for (int i = 0; i < childWindowCount; i++) {
 			DockingWindow childWindow = window.getChildWindow(i);
@@ -447,6 +467,7 @@ public class WindowHandler2 {
 	}
 
 	public static void traverseAndFix(final DockingWindow window) {
+//		System.out.println("WindowHandler2#traverseAndFix");
 		final int childWindowCount = window.getChildWindowCount();
 		for (int i = 0; i < childWindowCount; i++) {
 			final DockingWindow childWindow = window.getChildWindow(i);

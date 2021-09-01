@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -41,12 +42,16 @@ public class ExportStaticMesh extends ActionFunction {
 		EditableModel model = modelContext.getModel();
 
 		TimeEnvironmentImpl renderEnv = editorRenderModel.getTimeEnvironment();
-		Animation currentAnimation = renderEnv.getCurrentAnimation();
+		Sequence currentAnimation = renderEnv.getCurrentSequence();
 
 		String s = "At" + renderEnv.getAnimationTime();
 		System.out.println(currentAnimation);
 		if (currentAnimation != null) {
-			s = currentAnimation.getName() + s;
+			if(currentAnimation instanceof Animation){
+				s = ((Animation) currentAnimation).getName() + s;
+			} else {
+				s = "GlobalSeq" + model.getGlobalSeqId((GlobalSeq) currentAnimation) + s;
+			}
 		}
 		EditableModel frozenModel = TempStuffFromEditableModel.deepClone(model, model.getHeaderName() + s);
 		if (frozenModel.getFileRef() != null) {
@@ -109,20 +114,23 @@ public class ExportStaticMesh extends ActionFunction {
 		}
 
 		frozenModel.getAnims().clear();
-		frozenModel.add(new Animation("Stand", 333, 1333));
+		Animation stand = new Animation("Stand", 333, 1333);
+		frozenModel.add(stand);
 		List<AnimFlag<?>> allAnimFlags = frozenModel.getAllAnimFlags();
-		for (AnimFlag flag : allAnimFlags) {
-			if (!flag.hasGlobalSeq()) {
-				if (flag.size() > 0) {
-					Object value = flag.interpolateAt(renderEnv);
-					flag.setInterpType(InterpolationType.DONT_INTERP);
-					flag.clear();
-					flag.addEntry(333, value);
-				}
+		for (AnimFlag<?> flag : allAnimFlags) {
+			if (!flag.hasGlobalSeq() && flag.size() > 0) {
+				addFlagEntry(renderEnv, stand, flag);
 			}
 		}
 
 		FileDialog fileDialog = new FileDialog();
 		fileDialog.onClickSaveAs(frozenModel, FileDialog.SAVE_MODEL, false);
+	}
+
+	private static <T> void addFlagEntry(TimeEnvironmentImpl renderEnv, Animation stand, AnimFlag<T> flag) {
+		T value = flag.interpolateAt(renderEnv);
+		flag.setInterpType(InterpolationType.DONT_INTERP);
+		flag.clear();
+		flag.addEntry(0, value, stand);
 	}
 }

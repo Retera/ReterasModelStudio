@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.animation.AddKeyframeAction;
 import com.hiveworkshop.rms.editor.actions.animation.AddTimelineAction;
 import com.hiveworkshop.rms.editor.actions.animation.TranslationKeyframeAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -79,8 +80,15 @@ public class AddBirthDeathSequences {
 			}
 		}
         if (removeOldAnimation) {
-	        // del keys
-	        oldAnimation.clearData(model.getAllAnimFlags(), model.getEvents());
+	        for (AnimFlag<?> af : model.getAllAnimFlags()) {
+		        if (((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
+			        af.deleteAnim(oldAnimation);
+		        }
+	        }
+	        for (EventObject e : model.getEvents()) {
+		        e.deleteAnim(oldAnimation);
+	        }
+
 	        model.remove(oldAnimation);
 	        ModelStructureChangeListener.changeListener.animationParamsChanged();
         }
@@ -92,7 +100,7 @@ public class AddBirthDeathSequences {
 		Vec3 endVec = new Vec3(0, 0, endOffset);
 		model.add(animation);
 		ModelStructureChangeListener.changeListener.animationParamsChanged();
-		createKeyframes(model, animation.getStart(), animation.getEnd(), startVec, endVec);
+		createKeyframes(model, animation, startVec, endVec);
 	}
 
     private static List<IdObject> getRootObjects(EditableModel model) {
@@ -107,29 +115,29 @@ public class AddBirthDeathSequences {
 
     private static void addAnimationFlags(Animation animation, IdObject obj, int startOffset, int endOffset) {
         if (obj instanceof Bone) {
-            final Bone b = (Bone) obj;
-            Vec3AnimFlag trans = null;
-            boolean globalSeq = false;
+	        final Bone b = (Bone) obj;
+	        Vec3AnimFlag translation = null;
+	        boolean globalSeq = false;
             for (final AnimFlag<?> af : b.getAnimFlags()) {
                 if (af.getTypeId() == AnimFlag.TRANSLATION) {
                     if (af.hasGlobalSeq()) {
-                        globalSeq = true;
-                        break;
+	                    globalSeq = true;
+	                    break;
                     } else {
-                        trans = (Vec3AnimFlag) af;
+	                    translation = (Vec3AnimFlag) af;
                     }
                 }
             }
-            if (globalSeq) {
-                return;
-            }
-            if (trans == null) {
-                trans = new Vec3AnimFlag("Translation");
-                trans.setInterpType(InterpolationType.LINEAR);
-                b.add(trans);
-            }
-            trans.addEntry(animation.getStart(), new Vec3(0, 0, startOffset));
-            trans.addEntry(animation.getEnd(), new Vec3(0, 0, endOffset));
+	        if (globalSeq) {
+		        return;
+	        }
+	        if (translation == null) {
+		        translation = new Vec3AnimFlag("Translation");
+		        translation.setInterpType(InterpolationType.LINEAR);
+		        b.add(translation);
+	        }
+	        translation.addEntry(0, new Vec3(0, 0, startOffset), animation);
+	        translation.addEntry(animation.getLength(), new Vec3(0, 0, endOffset), animation);
         }
     }
 
@@ -140,12 +148,12 @@ public class AddBirthDeathSequences {
 		    final AnimFlag<?> af = source.getVisibilityFlag();
 		    dummy.copyFrom(af);
 		    af.deleteAnim(animation);
-		    af.copyFrom(dummy, stand.getStart(), stand.getEnd(), animation.getStart(), animation.getEnd());
+		    af.copyFrom(dummy, stand, animation);
 	    }
     }
 
 	// most of the code below are modified versions of code from AnimatedNode and NodeAnimationModelEditor
-	public static void createKeyframes(EditableModel model, int trackTime1, int trackTime2, Vec3 startVec, Vec3 endVec) {
+	public static void createKeyframes(EditableModel model, Animation animation, Vec3 startVec, Vec3 endVec) {
 		RenderModel renderModel = ProgramGlobals.getCurrentModelPanel().getEditorRenderModel();
 		ModelStructureChangeListener structureChangeListener = ModelStructureChangeListener.changeListener;
 
@@ -153,18 +161,18 @@ public class AddBirthDeathSequences {
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 
 		final TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getTimeEnvironment();
-		timeEnvironmentImpl.setAnimationTime(trackTime1);
+		timeEnvironmentImpl.setAnimationTime(0);
 
-		List<UndoAction> actions1 = generateKeyframes(trackTime1, selection, timeEnvironmentImpl, "Translation", renderModel, startVec);
+		List<UndoAction> actions1 = generateKeyframes(0, selection, timeEnvironmentImpl, "Translation", startVec);
 		TranslationKeyframeAction setup1 = new TranslationKeyframeAction(new CompoundAction("setup", actions1, structureChangeListener::keyframesUpdated), selection, renderModel);
 
-		timeEnvironmentImpl.setAnimationTime(trackTime2);
-		List<UndoAction> actions2 = generateKeyframes(trackTime2, selection, timeEnvironmentImpl, "Translation", renderModel, endVec);
+		timeEnvironmentImpl.setAnimationTime(animation.getLength());
+		List<UndoAction> actions2 = generateKeyframes(animation.getLength(), selection, timeEnvironmentImpl, "Translation", endVec);
 		TranslationKeyframeAction setup2 = new TranslationKeyframeAction(new CompoundAction("setup", actions2, structureChangeListener::keyframesUpdated), selection, renderModel);
 	}
 
 	//
-	public static List<UndoAction> generateKeyframes(int time, Set<IdObject> selection, TimeEnvironmentImpl timeEnvironmentImpl, String name, RenderModel renderModel, Vec3 vec3) {
+	public static List<UndoAction> generateKeyframes(int time, Set<IdObject> selection, TimeEnvironmentImpl timeEnvironmentImpl, String name, Vec3 vec3) {
 		List<UndoAction> actions = new ArrayList<>();
 		for (final IdObject node : selection) {
 			Vec3AnimFlag timeline = (Vec3AnimFlag) node.find(name, timeEnvironmentImpl.getGlobalSeq());
@@ -172,32 +180,30 @@ public class AddBirthDeathSequences {
 			if (timeline == null) {
 				timeline = new Vec3AnimFlag(name, InterpolationType.HERMITE, timeEnvironmentImpl.getGlobalSeq());
 
-				final AddTimelineAction addTimelineAction = new AddTimelineAction(node, timeline);
+				final UndoAction addTimelineAction = new AddTimelineAction(node, timeline);
 				actions.add(addTimelineAction);
 			}
 
-			final AddKeyframeAction keyframeAction = getAddKeyframeAction(timeline, time, vec3);
+			final UndoAction keyframeAction = getAddKeyframeAction(timeline, time, vec3, timeEnvironmentImpl.getCurrentSequence());
 			if (keyframeAction != null) {
-				actions.add(keyframeAction);
+				actions.add(keyframeAction.redo());
 			}
 		}
 		return actions;
 	}
 
 
-	private static AddKeyframeAction getAddKeyframeAction(Vec3AnimFlag timeline, int trackTime, Vec3 vec3) {
-		if (timeline.hasEntryAt(trackTime)) {
+	private static UndoAction getAddKeyframeAction(Vec3AnimFlag timeline, int trackTime, Vec3 vec3, Sequence animation) {
+		if (timeline.hasEntryAt(animation, trackTime)) {
 			Entry<Vec3> entry = new Entry<>(trackTime, vec3);
 
 			if (timeline.getInterpolationType().tangential()) {
 				entry.unLinearize();
 			}
 
-			AddKeyframeAction addKeyframeAction = new AddKeyframeAction(timeline, entry);
-			addKeyframeAction.redo();
-			return addKeyframeAction;
+			return new AddFlagEntryAction<>(timeline, entry, animation, null);
 		}
 		return null;
-    }
+	}
 
 }

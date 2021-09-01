@@ -24,7 +24,7 @@ public class AnimationOverviewPanel extends JPanel {
 			panel.add(new JLabel(animation.getName()));
 			panel.add(new JLabel("" + animation.getStart()));
 			panel.add(new JLabel("" + animation.getEnd()));
-			panel.add(new JLabel("" + animation.length()));
+			panel.add(new JLabel("" + animation.getLength()));
 			panel.add(new JLabel("" + animation.getRarity()));
 			panel.add(new JLabel("" + animation.getMoveSpeed()));
 			panel.add(new JLabel("" + animation.isNonLooping()));

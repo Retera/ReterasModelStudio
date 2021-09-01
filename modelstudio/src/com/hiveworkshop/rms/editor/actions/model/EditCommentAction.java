@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.editor.actions.model;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 import java.util.ArrayList;
@@ -10,30 +10,32 @@ import java.util.Arrays;
 public class EditCommentAction implements UndoAction {
 	private final String stringOld;
 	private final String stringNew;
-	private final ModelView modelViewManager;
-	private final ModelStructureChangeListener structureChangeListener;
+	private final EditableModel model;
+	private final ModelStructureChangeListener changeListener;
 
-	public EditCommentAction(final String stringOld,
-	                         String stringNew,
-	                         final ModelView modelViewManager,
-	                         final ModelStructureChangeListener modelStructureChangeListener) {
+	public EditCommentAction(String stringOld, String stringNew, EditableModel model,
+	                         ModelStructureChangeListener changeListener) {
 		this.stringOld = stringOld;
 		this.stringNew = stringNew;
-		this.modelViewManager = modelViewManager;
-		this.structureChangeListener = modelStructureChangeListener;
+		this.model = model;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
-		modelViewManager.getModel().setHeader(getCommentContent(stringOld));
-		structureChangeListener.headerChanged();
+		model.setHeader(getCommentContent(stringOld));
+		if (changeListener != null) {
+			changeListener.headerChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
-		modelViewManager.getModel().setHeader(getCommentContent(stringNew));
-		structureChangeListener.headerChanged();
+		model.setHeader(getCommentContent(stringNew));
+		if (changeListener != null) {
+			changeListener.headerChanged();
+		}
 		return this;
 	}
 

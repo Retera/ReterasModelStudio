@@ -11,20 +11,6 @@ public class RenderParticleEmitter2View extends EmitterView {
 	private final int lastAnimationTime = Integer.MIN_VALUE;
 	private final RenderParticleEmitter2 renderEmitter;
 
-	public RenderParticleEmitter2View(RenderModel instance, RenderParticleEmitter2 emitter) {
-		this.instance = instance;
-		this.renderEmitter = emitter;
-		this.particleEmitter2 = emitter.getEmitter();
-		currentEmission = 0;
-		lastEmissionRate = -1;
-		AnimFlag<?> emissionRateFlag = emitter.getEmitter().find("EmissionRate");
-		if (emissionRateFlag != null) {
-			if (emissionRateFlag.size() > 0) {
-				lastEmissionRate = (Float) emissionRateFlag.getValueFromIndex(0);
-			}
-		}
-	}
-
 	public RenderParticleEmitter2View(RenderModel instance, ParticleEmitter2 particleEmitter, Particle2TextureInstance textureInstance) {
 		this.instance = instance;
 		this.renderEmitter = new RenderParticleEmitter2(particleEmitter, textureInstance);
@@ -32,9 +18,9 @@ public class RenderParticleEmitter2View extends EmitterView {
 		currentEmission = 0;
 		lastEmissionRate = -1;
 		AnimFlag<?> emissionRateFlag = particleEmitter.find("EmissionRate");
-		if (emissionRateFlag != null) {
+		if (emissionRateFlag != null && instance.getTimeEnvironment().getCurrentSequence() != null && emissionRateFlag.getCeilEntry(0, instance.getTimeEnvironment().getCurrentSequence()) != null) {
 			if (emissionRateFlag.size() > 0) {
-				lastEmissionRate = (Float) emissionRateFlag.getValueFromIndex(0);
+				lastEmissionRate = (Float) emissionRateFlag.getValueFromIndex(instance.getTimeEnvironment().getCurrentSequence(), 0);
 			}
 		}
 	}

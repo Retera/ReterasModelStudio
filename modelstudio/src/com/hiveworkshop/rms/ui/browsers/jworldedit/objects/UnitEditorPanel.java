@@ -445,9 +445,9 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 	}
 
 	private ImageIcon niceIcon(final String filepath) {
-		BufferedImage gameTex = BLPHandler.get().getGameTex(filepath);
+		BufferedImage gameTex = BLPHandler.getGameTex(filepath);
 		if (gameTex == null) {
-			gameTex = BLPHandler.get().getGameTex("Textures\\black32.blp");
+			gameTex = BLPHandler.getGameTex("Textures\\black32.blp");
 		}
 		return new ImageIcon(IconUtils.worldEditStyleIcon(gameTex.getScaledInstance(16, 16, Image.SCALE_FAST)));
 	}

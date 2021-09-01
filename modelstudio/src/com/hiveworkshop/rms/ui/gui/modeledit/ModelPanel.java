@@ -42,6 +42,7 @@ public class ModelPanel {
 
 	public ModelPanel(ModelHandler modelHandler,
 	                  Icon icon) {
+		ModelTextureThings.setModel(modelHandler.getModel());
 		this.modelHandler = modelHandler;
 		this.icon = icon;
 		viewportActivityManager = new ViewportActivityManager(null);

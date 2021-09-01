@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -25,8 +25,8 @@ public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer
 	}
 
 	@Override
-	protected boolean contains(final ModelView modelDisp, final BoneShell object) {
-		return modelDisp.getModel().contains(object.getBone());
+	protected boolean contains(EditableModel model, final BoneShell object) {
+		return model.contains(object.getBone());
 	}
 
 	@Override
@@ -66,8 +66,8 @@ public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer
 		bonesNotInAllMatricies.removeAll(boneShells);
 	}
 
-	public MatrixEditListRenderer(final ModelView recDisplay, final ModelView donDisplay) {
-		super(recDisplay, donDisplay);
+	public MatrixEditListRenderer(EditableModel recModel, EditableModel donModel) {
+		super(recModel, donModel);
 	}
 
 	public MatrixEditListRenderer setShowClass(boolean b) {

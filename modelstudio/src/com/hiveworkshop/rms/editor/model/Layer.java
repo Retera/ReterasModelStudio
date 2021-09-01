@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -246,7 +247,7 @@ public class Layer extends TimelineContainer implements Named {
 	public Bitmap getRenderTexture(TimeEnvironmentImpl animatedRenderEnvironment, EditableModel model) {
 		IntAnimFlag textureFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
 		if ((textureFlag != null) && (animatedRenderEnvironment != null)) {
-			if (animatedRenderEnvironment.getCurrentAnimation() == null) {
+			if (animatedRenderEnvironment.getCurrentSequence() == null) {
 				if (textures.size() > 0) {
 					return textures.get(0);
 				} else {
@@ -254,6 +255,7 @@ public class Layer extends TimelineContainer implements Named {
 				}
 			}
 			Integer textureIdAtTime = textureFlag.interpolateAt(animatedRenderEnvironment);
+//			System.out.println("layer texId: " + textureIdAtTime);
 			if (textureIdAtTime >= model.getTextures().size()) {
 				return texture;
 			}
@@ -282,11 +284,13 @@ public class Layer extends TimelineContainer implements Named {
 		textures = new ArrayList<>();
 		IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
 
-		for (int i = 0; i < txFlag.size(); i++) {
-			int txId = txFlag.getValueFromIndex(i);
-			Bitmap texture2 = mdlr.getTexture(txId);
-			textures.add(texture2);
-			ridiculouslyWrongTextureIDToTexture.put(txId, texture2);
+		for (Sequence anim : txFlag.getAnimMap().keySet()){
+			for (int i = 0; i < txFlag.size(); i++) {
+				int txId = txFlag.getValueFromIndex(anim, i);
+				Bitmap texture2 = mdlr.getTexture(txId);
+				textures.add(texture2);
+				ridiculouslyWrongTextureIDToTexture.put(txId, texture2);
+			}
 		}
 	}
 
@@ -295,12 +299,14 @@ public class Layer extends TimelineContainer implements Named {
 		setTVertexAnimId(model.getTextureAnimId(getTextureAnim()));
 		if (getTextures() != null) {
 			IntAnimFlag txFlag = (IntAnimFlag) find(MdlUtils.TOKEN_TEXTURE_ID);
-			for (int i = 0; i < txFlag.size(); i++) {
-				Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture.get(txFlag.getValueFromIndex(i));
-				int newerTextureId = model.getTextureId(textureFoundFromDirtyId);
+			for (Sequence anim : txFlag.getAnimMap().keySet()){
+				for (int i = 0; i < txFlag.size(); i++) {
+					Bitmap textureFoundFromDirtyId = ridiculouslyWrongTextureIDToTexture.get(txFlag.getValueFromIndex(anim, i));
+					int newerTextureId = model.getTextureId(textureFoundFromDirtyId);
 
-				txFlag.getEntryAt(txFlag.getTimeFromIndex(i)).setValue(newerTextureId);
-				ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);
+					txFlag.getEntryAt(anim, txFlag.getTimeFromIndex(anim, i)).setValue(newerTextureId);
+					ridiculouslyWrongTextureIDToTexture.put(newerTextureId, textureFoundFromDirtyId);
+				}
 			}
 		}
 	}

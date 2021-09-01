@@ -1,10 +1,8 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -37,21 +35,21 @@ public class MainPanel extends JPanel {
         return rootWindowUgg.getWindowHandler2().getViewportListener();
     }
 
-    public void selectionItemTypeGroupActionRes(SelectionItemTypes newType) {
-//        animationModeState = newType == SelectionItemTypes.ANIMATE;
-        // we need to refresh the state of stuff AFTER the ModelPanels, this is a pretty signficant design flaw,
-        // so we're just going to post to the EDT to get behind them (they're called on the same notifier as this method)
-        SwingUtilities.invokeLater(() -> ModelLoader.refreshAnimationModeState());
-
-        if (newType == SelectionItemTypes.TPOSE) {
-
-            final Object[] settings = {"Move Linked", "Move Single"};
-            final Object dialogResult = JOptionPane.showInputDialog(null, "Choose settings:", "T-Pose Settings",
-                    JOptionPane.PLAIN_MESSAGE, null, settings, settings[0]);
-            ModelEditorManager.MOVE_LINKED = dialogResult == settings[0];
-        }
-        repaint();
-    }
+//    public void selectionItemTypeGroupActionRes(SelectionItemTypes newType) {
+////        animationModeState = newType == SelectionItemTypes.ANIMATE;
+//        // we need to refresh the state of stuff AFTER the ModelPanels, this is a pretty signficant design flaw,
+//        // so we're just going to post to the EDT to get behind them (they're called on the same notifier as this method)
+//        SwingUtilities.invokeLater(() -> ModelLoader.refreshAnimationModeState());
+//
+//        if (newType == SelectionItemTypes.TPOSE) {
+//
+//            final Object[] settings = {"Move Linked", "Move Single"};
+//            final Object dialogResult = JOptionPane.showInputDialog(null, "Choose settings:", "T-Pose Settings",
+//                    JOptionPane.PLAIN_MESSAGE, null, settings, settings[0]);
+//            ModelEditorManager.MOVE_LINKED = dialogResult == settings[0];
+//        }
+//        repaint();
+//    }
 
 //    @Override
 //    public void changeActivity(ModelEditorActionType3 newType) {

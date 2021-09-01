@@ -14,6 +14,7 @@ public class TempOpenModelStuff {
 		EditableModel model = new EditableModel(mdlxModel.name);
 		// Step 1: Convert the Model Chunk
 		// For MDL api, this is currently embedded right inside the MDL class
+		System.out.println("version: " + mdlxModel.version);
 		ModelInfoHolder infoHolder = new ModelInfoHolder(mdlxModel.version);
 
 		model.setFormatVersion(mdlxModel.version);
@@ -135,7 +136,7 @@ public class TempOpenModelStuff {
 
 		// Step 8: Geoset
 		for (final MdlxGeoset mdlxGeoset : mdlxModel.geosets) {
-			Geoset x = GeosetFactory.createGeoset(mdlxGeoset, infoHolder);
+			Geoset x = GeosetFactory.createGeoset(mdlxGeoset, infoHolder, model);
 			x.setParentModel(model);
 			infoHolder.add(x);
 			model.add(x);

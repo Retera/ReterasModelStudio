@@ -4,12 +4,16 @@ import com.hiveworkshop.rms.editor.actions.model.material.ChangeLayerStaticTextu
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelTextureThings;
+import com.hiveworkshop.rms.util.TwiComboBoxModel;
+import com.hiveworkshop.rms.util.TwiComboPopup;
 
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicComboPopup;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -18,8 +22,9 @@ import java.util.TreeMap;
 
 public class TextureValuePanel extends ValuePanel<Integer> {
 
-	private final BasicComboPopup chooseTextureComboPopup;
-	private final JComboBox<Object> textureChooser;
+//	private final BasicComboPopup chooseTextureComboPopup;
+	private final TwiComboPopup<Bitmap> chooseTextureComboPopup3;
+	private final JComboBox<Bitmap> textureChooser;
 	DefaultListModel<Bitmap> bitmapListModel;
 	private JComboBox<Bitmap> staticTextureChooser;
 //	private boolean listenersEnabled = true;
@@ -36,24 +41,25 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 
 		textureChooser = new JComboBox<>();
 		Bitmap[] bitmaps = modelHandler.getModel().getTextures().toArray(new Bitmap[0]);
-		textureChooser.setModel(new DefaultComboBoxModel<>(bitmaps));
-		textureChooser.setRenderer(new TextureListRenderer(modelHandler.getModel()));
+		textureChooser.setModel(new TwiComboBoxModel<>(bitmaps));
+		textureChooser.setRenderer(ModelTextureThings.getTextureListRenderer());
 		textureChooser.addItemListener(this::setTextureId);
-		chooseTextureComboPopup = new BasicComboPopup(textureChooser);
+//		chooseTextureComboPopup = new BasicComboPopup(textureChooser);
+		chooseTextureComboPopup3 = new TwiComboPopup<>(textureChooser, new Bitmap("Textures\\White.dds"));
 
-		staticTextureChooser.setRenderer(new TextureListRenderer(modelHandler.getModel()));
+		staticTextureChooser.setRenderer(ModelTextureThings.getTextureListRenderer());
 		staticTextureChooser.setModel(new DefaultComboBoxModel<>(bitmaps));
 		//todo
 
-		keyframePanel.getFloatTrackTableModel().addExtraColumn("Texture", "", String.class);  // 🎨 \uD83C\uDFA8
+//		keyframePanel.getFloatTrackTableModel().addExtraColumn("Texture", "", String.class);  // 🎨 \uD83C\uDFA8
 
 		addBitmapChangeListeners();
 	}
 
 	private void setTextureId(ItemEvent e) {
 
-		if (e.getStateChange() == ItemEvent.SELECTED && !((Layer) timelineContainer).getTextures().get(selectedRow).equals(e.getItem())) {
-			changeEntry(selectedRow, "Value", Integer.toString(textureChooser.getSelectedIndex()));
+		if (e.getStateChange() == ItemEvent.SELECTED && ((Layer) timelineContainer).getTextures() != null && !((Layer) timelineContainer).getTextures().get(selectedRow).equals(e.getItem())) {
+			changeEntry(keyframePanel.getSequence(), selectedRow, "Value", Integer.toString(textureChooser.getSelectedIndex()));
 		}
 	}
 
@@ -99,9 +105,16 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 			staticTextureChooser.setSelectedItem(bitmap);
 		}
 
-		if (animFlag != null) {
-			keyframePanel.getFloatTrackTableModel().updateExtraButtonValues(getBitmapNameList());
+		if(animFlag != null){
+			for(KeyframePanel<Integer> kfp : keyframePanelMap.values()){
+//				kfp.addAllowedCharatcters("");
+				kfp.getFloatTrackTableModel().addExtraColumn("Texture", "", String.class);  // 🎨 \uD83C\uDFA8
+				kfp.getFloatTrackTableModel().updateExtraButtonValues(getBitmapNameList());
+			}
 		}
+//		if (animFlag != null) {
+//			keyframePanel.getFloatTrackTableModel().updateExtraButtonValues(getBitmapNameList());
+//		}
 	}
 
 
@@ -121,11 +134,18 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 
 	private String[] getBitmapNameList() {
 		List<String> bitmapNames = new ArrayList<>();
-		TreeMap<Integer, Entry<Integer>> entryMap = animFlag.getEntryMap();
-		for (Entry<Integer> entry : entryMap.values()) {
-			int tId = entry.getValue();
-			if (tId < bitmapListModel.size()) {
-				bitmapNames.add(bitmapListModel.get(tId).getName());
+		for (Sequence anim : animFlag.getAnimMap().keySet()){
+			TreeMap<Integer, Entry<Integer>> entryMap = animFlag.getEntryMap(anim);
+			if(entryMap != null){
+				for (Entry<Integer> entry : entryMap.values()) {
+					int tId = entry.getValue();
+					if (tId < bitmapListModel.size()) {
+						bitmapNames.add(bitmapListModel.get(tId).getName());
+					}
+//			if (tId < bitmapListModel.size()) {
+//				bitmapNames.add(bitmapListModel.get(tId).getName());
+//			}
+				}
 			}
 		}
 		return bitmapNames.toArray(String[]::new);
@@ -162,7 +182,8 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 		if (keyCode == KeyEvent.VK_T || keyCode == KeyEvent.VK_ENTER && keyframePanel.getTable().getSelectedColumn() == colorChangeColumnIndex) {
 			selectedRow = keyframePanel.getTable().getSelectedRow();
 			textureChooser.setSelectedIndex((Integer) keyframePanel.getFloatTrackTableModel().getValueAt(selectedRow, 1));
-			chooseTextureComboPopup.show(keyframePanel.getTable(), point.x, point.y);
+//			chooseTextureComboPopup.show(keyframePanel.getTable(), point.x, point.y);
+			chooseTextureComboPopup3.show(keyframePanel.getTable(), point.x, point.y);
 		}
 	}
 
@@ -179,6 +200,10 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 			ChangeLayerStaticTextureAction changeLayerStaticTextureAction = new ChangeLayerStaticTextureAction(bitmap, bitmapId, (Layer) timelineContainer, changeListener);
 			undoManager.pushAction(changeLayerStaticTextureAction.redo());
 		}
+	}
+
+	protected AnimFlag<Integer> getNewAnimFlag() {
+		return new IntAnimFlag(flagName);
 	}
 
 }

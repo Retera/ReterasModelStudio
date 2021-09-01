@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter2;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
@@ -61,9 +60,9 @@ public class ParticleEditPanel extends JPanel {
 		});
 		chooseColor.add(colorChooser);
 
-		for (AnimFlag<?> animFlag : particleEmitter2.getAnimFlags()) {
-			System.out.println("got flag: " + animFlag.getName() + " (" + animFlag.getEntryMap().size() + ")");
-		}
+//		for (AnimFlag<?> animFlag : particleEmitter2.getAnimFlags()) {
+//			System.out.println("got flag: " + animFlag.getName() + " (" + animFlag.getEntryMap().size() + ")");
+//		}
 
 
 		TimeEnvironmentImpl renderEnv = tempModelHandler.getPreviewTimeEnv();
@@ -133,13 +132,13 @@ public class ParticleEditPanel extends JPanel {
 		spinnerPanel.add(getColorPanel(), SPINNER_CONSTRAINTS);
 
 		JPanel alphaPanel = new Vec3SpinnerArray(copy.getAlpha(), "", "", "")
-				.addActionListener((v) -> copy.setAlpha(v))
+				.setVec3Consumer((v) -> copy.setAlpha(v))
 				.spinnerPanel();
 		alphaPanel.setBorder(BorderFactory.createTitledBorder("Alpha"));
 		spinnerPanel.add(alphaPanel, SPINNER_CONSTRAINTS);
 
 		JPanel scalingPanel = new Vec3SpinnerArray(copy.getParticleScaling(), "", "", "")
-				.addActionListener((v) -> copy.setParticleScaling(v))
+				.setVec3Consumer((v) -> copy.setParticleScaling(v))
 				.spinnerPanel();
 		scalingPanel.setBorder(BorderFactory.createTitledBorder("Particle Scaling"));
 		spinnerPanel.add(scalingPanel, SPINNER_CONSTRAINTS);
@@ -147,17 +146,17 @@ public class ParticleEditPanel extends JPanel {
 		JPanel headPanel = new JPanel(new MigLayout("ins 0"));
 		headPanel.setBorder(BorderFactory.createTitledBorder("Head UV (sub-texture index)"));
 		headPanel.add(new JLabel("Life Span"));
-		headPanel.add(new Vec3SpinnerArray(copy.getHeadUVAnim(), "start", "end", "repeat").addActionListener((v) -> copy.setHeadUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
+		headPanel.add(new Vec3SpinnerArray(copy.getHeadUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setHeadUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
 		headPanel.add(new JLabel("Decay"));
-		headPanel.add(new Vec3SpinnerArray(copy.getHeadDecayUVAnim(), "start", "end", "repeat").addActionListener((v) -> copy.setHeadDecayUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
+		headPanel.add(new Vec3SpinnerArray(copy.getHeadDecayUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setHeadDecayUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
 		spinnerPanel.add(headPanel, SPINNER_CONSTRAINTS);
 
 		JPanel tailPanel = new JPanel(new MigLayout("ins 0"));
 		tailPanel.setBorder(BorderFactory.createTitledBorder("Tail UV (sub-texture index)"));
 		tailPanel.add(new JLabel("Life Span"));
-		tailPanel.add(new Vec3SpinnerArray(copy.getTailUVAnim(), "start", "end", "repeat").addActionListener((v) -> copy.setTailUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
+		tailPanel.add(new Vec3SpinnerArray(copy.getTailUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setTailUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
 		tailPanel.add(new JLabel("Decay"));
-		tailPanel.add(new Vec3SpinnerArray(copy.getTailDecayUVAnim(), "start", "end", "repeat").addActionListener((v) -> copy.setTailDecayUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
+		tailPanel.add(new Vec3SpinnerArray(copy.getTailDecayUVAnim(), "start", "end", "repeat").setVec3Consumer((v) -> copy.setTailDecayUVAnim(v)).spinnerPanel(), SPINNER_CONSTRAINTS);
 		spinnerPanel.add(tailPanel, SPINNER_CONSTRAINTS);
 
 //		add(new SmartNumberSlider("Textureid", copy.getTextureID(), 50, (i) -> copy.setTextureID(i)), sliderConstraints);
@@ -263,6 +262,11 @@ public class ParticleEditPanel extends JPanel {
 	private ModelHandler getModelHandler(ParticleEmitter2 particleEmitter2) {
 		EditableModel tempModel = new EditableModel();
 
+		tempModel.setExtents(new ExtLog(100));
+		Animation animation = new Animation("stand", 100, 1100);
+		animation.setNonLooping(false);
+		tempModel.add(animation);
+
 //		Bone bone = new Bone("noBone");
 //		tempModel.add(bone);
 
@@ -271,21 +275,16 @@ public class ParticleEditPanel extends JPanel {
 		copy.setParent(null);
 		if (copy.getVisibilityFlag() != null) {
 			FloatAnimFlag flag = new FloatAnimFlag(MdlUtils.TOKEN_VISIBILITY);
-			flag.addEntry(100, 1f);
-			flag.addEntry(1100, 1f);
+			flag.addEntry(100, 1f, animation);
+			flag.addEntry(1100, 1f, animation);
 			copy.setVisibilityFlag(flag);
 		}
 		System.out.println("copy name: " + copy.getName());
-		for (AnimFlag<?> animFlag : copy.getAnimFlags()) {
-			System.out.println("copy got flag: " + animFlag.getName() + " (" + animFlag.getEntryMap().size() + ")");
-		}
+//		for (AnimFlag<?> animFlag : copy.getAnimFlags()) {
+//			System.out.println("copy got flag: " + animFlag.getName() + " (" + animFlag.getEntryMap().size() + ")");
+//		}
 		tempModel.add(copy.getTexture());
 		tempModel.add(copy);
-
-		tempModel.setExtents(new ExtLog(100));
-		Animation animation = new Animation("stand", 100, 1100);
-		animation.setNonLooping(false);
-		tempModel.add(animation);
 
 		ModelHandler modelHandler = new ModelHandler(tempModel);
 		modelHandler.getPreviewTimeEnv().setAnimation(animation);

@@ -19,23 +19,23 @@ public class DeleteGeosetAction implements UndoAction {
 	private final List<Geoset> geosets;
 	private final EditableModel model;
 	private final List<GeosetAnim> geosetAnims;
-	ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public DeleteGeosetAction(Geoset geoset, ModelStructureChangeListener modelStructureChangeListener) {
+	public DeleteGeosetAction(EditableModel model, Geoset geoset, ModelStructureChangeListener changeListener) {
 		this.geosets = Collections.singletonList(geoset);
-		model = geoset.getParentModel();
+		this.model = model;
 		geosetAnims = Collections.singletonList(geoset.getGeosetAnim());
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 	}
 
-	public DeleteGeosetAction(List<Geoset> geosets, ModelStructureChangeListener modelStructureChangeListener) {
+	public DeleteGeosetAction(EditableModel model, List<Geoset> geosets, ModelStructureChangeListener changeListener) {
 		this.geosets = geosets;
-		model = geosets.get(0).getParentModel();
+		this.model = model;
 		geosetAnims = new ArrayList<>();
 		for (Geoset geoset : geosets) {
 			geosetAnims.add(geoset.getGeosetAnim());
 		}
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
@@ -48,7 +48,9 @@ public class DeleteGeosetAction implements UndoAction {
 				model.remove(geosetAnim);
 			}
 		}
-		modelStructureChangeListener.geosetsUpdated();
+		if (changeListener != null) {
+			changeListener.geosetsUpdated();
+		}
 		return this;
 	}
 
@@ -62,7 +64,9 @@ public class DeleteGeosetAction implements UndoAction {
 				model.add(geosetAnim);
 			}
 		}
-		modelStructureChangeListener.geosetsUpdated();
+		if (changeListener != null) {
+			changeListener.geosetsUpdated();
+		}
 		return this;
 	}
 

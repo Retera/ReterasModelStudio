@@ -6,13 +6,15 @@ import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
 public class VertRendererThing {
-	Vec3 normal = new Vec3(1,0,0);
+	Vec3 normal = new Vec3(1, 0, 0);
 	Vec3 renderNormal = new Vec3();
+	Vec3 baseSize = new Vec3(1, 1, 1);
+	Vec3[] orgPoints;
 	Vec3[] points;
 	Vec3[] renderPoints;
 
 
-	public VertRendererThing(float v){
+	public VertRendererThing(float v) {
 		float boxRadLength = .001f;
 		float boxRadHeight = .5f * v;
 		float boxRadWidth = .5f * v;
@@ -23,18 +25,32 @@ public class VertRendererThing {
 		float rght = -left;
 		float down = -uppp;
 
-		points = new Vec3[]{
+		orgPoints = new Vec3[] {
+				new Vec3(frnt, rght, down),
+				new Vec3(frnt, left, down),
+				new Vec3(frnt, rght, uppp),
+				new Vec3(frnt, left, uppp),
+		};
+		points = new Vec3[] {
 				new Vec3(frnt * boxRadLength, rght * boxRadWidth, down * boxRadHeight),
 				new Vec3(frnt * boxRadLength, left * boxRadWidth, down * boxRadHeight),
 				new Vec3(frnt * boxRadLength, rght * boxRadWidth, uppp * boxRadHeight),
 				new Vec3(frnt * boxRadLength, left * boxRadWidth, uppp * boxRadHeight),
 		};
-		renderPoints = new Vec3[]{
+		renderPoints = new Vec3[] {
 				new Vec3(),
 				new Vec3(),
 				new Vec3(),
 				new Vec3(),
 		};
+	}
+
+	public VertRendererThing updateSquareSize(float v) {
+		baseSize.set(.001f, .5f * v, .5f * v);
+		for (int i = 0; i < points.length; i++) {
+			points[i].set(orgPoints[i]).multiply(baseSize);
+		}
+		return this;
 	}
 
 	public VertRendererThing doGlGeom() {
@@ -44,7 +60,7 @@ public class VertRendererThing {
 	}
 
 	public VertRendererThing transform(Mat4 wM, Vec3 renderPos) {
-		for(int i = 0; i<points.length; i++){
+		for (int i = 0; i < points.length; i++) {
 			renderPoints[i].set(points[i]).transform(wM).add(renderPos);
 		}
 		renderNormal.set(normal).transform(wM);

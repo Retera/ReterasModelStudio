@@ -27,7 +27,8 @@ public class PreviewPanel extends JPanel {
 	}
 
 	public PreviewPanel setModel(ModelHandler modelHandler, boolean doDefaultCamera, ViewportActivityManager activityManager) {
-		if(modelHandler != null){
+		System.out.println("PreviewPanel#setModel");
+		if (modelHandler != null) {
 			modelHandler.getModelView().setVetoOverrideParticles(true);
 			RenderModel previewRenderModel = modelHandler.getPreviewRenderModel();
 			perspectiveViewport.setModel(modelHandler.getModelView(), previewRenderModel, doDefaultCamera);
@@ -63,26 +64,26 @@ public class PreviewPanel extends JPanel {
 	}
 
 	public void setAnimation(Animation animation) {
-		if(renderEnv != null){
+		if (renderEnv != null) {
 			renderEnv.setAnimation(animation);
 		}
 	}
 
-	public void setAnimationTime(int time) {
-		if(renderEnv != null){
-			renderEnv.setAnimationTime(time);
-		}
-	}
+//	public void setAnimationTime(int time) {
+//		if(renderEnv != null){
+//			renderEnv.setAnimationTime(time);
+//		}
+//	}
 
 	public void playAnimation() {
-		if(renderEnv != null){
+		if (renderEnv != null) {
 			renderEnv.setRelativeAnimationTime(0);
 			renderEnv.setLive(true);
 		}
 	}
 
 	public void setLoop(PreviewPanel.LoopType loopType) {
-		if(renderEnv != null){
+		if (renderEnv != null) {
 			renderEnv.setLoopType(loopType);
 		}
 	}

@@ -716,10 +716,9 @@ public class CubePainter {
 		}
 	}
 
-	public static void paintBones4(ModelView modelView, RenderModel renderModel, IdObject idObject, CameraHandler cameraHandler) {
+	public static void paintBones4(ModelView modelView, RenderModel renderModel, IdObject idObject, CameraHandler cameraHandler, BoneRenderThing2 boneRenderThing) {
 		RenderNode renderNode = renderModel.getRenderNode(idObject);
 		if (renderNode != null) {
-			BoneRenderThing2 boneRenderThing = new BoneRenderThing2();
 
 			Vec3 renderPosNode = renderNode.getPivot();
 			RenderNode parentNode = renderModel.getRenderNode(idObject.getParent());
@@ -856,9 +855,8 @@ public class CubePainter {
 		glEnd();
 	}
 
-	public static void paintVertSquares2(ModelView modelView, RenderModel renderModel, Geoset geo, CameraHandler cameraHandler) {
-		float v = (float) ((cameraHandler.geomX(4) - cameraHandler.geomX(0)));//*cameraHandler.getZoom());
-		VertRendererThing vertRendererThing = new VertRendererThing(v);
+	public static void paintVertSquares2(ModelView modelView, RenderModel renderModel, Geoset geo, CameraHandler cameraHandler, VertRendererThing vertRendererThing) {
+//		float v = (float) ((cameraHandler.geomX(4) - cameraHandler.geomX(0)));//*cameraHandler.getZoom());
 //		glBegin(GL11.GL_TRIANGLES);
 
 //		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

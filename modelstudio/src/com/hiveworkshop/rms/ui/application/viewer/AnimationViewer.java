@@ -38,14 +38,16 @@ public class AnimationViewer extends JPanel {
 		setModel(null);
 		animationBox = new JComboBox<>(animations);
 		animationBox.setRenderer(getBoxRenderer());
-		animationBox.addActionListener(e -> getAnimation());
+		animationBox.addActionListener(e -> setAnimation());
 
 		add(animationBox);
 
 	}
 
-	private Animation getAnimation() {
-		return renderEnv.setAnimation((Animation) animationBox.getSelectedItem());
+	private void setAnimation() {
+		if (renderEnv != null) {
+			renderEnv.setAnimation((Animation) animationBox.getSelectedItem());
+		}
 	}
 
 	private BasicComboBoxRenderer getBoxRenderer() {
@@ -116,19 +118,13 @@ public class AnimationViewer extends JPanel {
 	public void reload() {
 		Animation selectedItem = (Animation) animationBox.getSelectedItem();
 		animations.removeAllElements();
-//		boolean sawLast = selectedItem == null;
+
 		List<Animation> anims = modelView.getModel().getAnims();
 		if (allowUnanimated || (anims.size() == 0)) {
 			animations.addElement(null);
 		}
-//		for (Animation animation : anims) {
-//			animations.addElement(animation);
-//			if (animation == selectedItem) {
-//				sawLast = true;
-//			}
-//		}
-//		System.out.println("allow unanimated: " + allowUnanimated);
 		animations.addAll(anims);
+
 		boolean sawLast = (selectedItem == null || anims.contains(selectedItem));
 		perspectiveViewport.reloadTextures();
 		if (sawLast && ((selectedItem != null) || allowUnanimated)) {

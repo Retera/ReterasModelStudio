@@ -34,14 +34,6 @@ public class TimelineKeyNamer {
 		}
 	}
 
-	public String getAnimationName(int time) {
-		AnimationMarker animationMarker = animationMarkers.stream().filter(am -> am.contains(time)).findAny().orElse(null);
-		if (animationMarker != null) {
-			return animationMarker.name;
-		}
-		return "";
-	}
-
 	public AnimationMarker getAnimationMarker(int time) {
 //		return animationMarkers.stream().filter(am -> am.contains(time)).findAny().orElse(null);
 		Integer ceilingKey = animMap.ceilingKey(time);
@@ -53,23 +45,6 @@ public class TimelineKeyNamer {
 	}
 
 	public Animation getAnimation(int time) {
-		Integer floorKey = animationTreeMap.floorKey(time);
-		if (floorKey != null) {
-			Animation animation = animationTreeMap.get(floorKey);
-			if (animation.getStart() <= time && time <= animation.getEnd()) {
-				return animation;
-			}
-		}
-		Integer ceilingKey = animationTreeMap.ceilingKey(time);
-		if (ceilingKey != null) {
-			Animation animation = animationTreeMap.get(ceilingKey);
-			if (animation.getStart() <= time && time <= animation.getEnd()) {
-				return animation;
-			}
-		}
-		return null;
-	}
-	public Animation getAnimationM(int time) {
 		Integer floorKey = animationTreeMap.floorKey(time);
 		if (floorKey != null) {
 			Animation animation = animationTreeMap.get(floorKey);
@@ -99,10 +74,6 @@ public class TimelineKeyNamer {
 		boolean odd;
 
 
-		AnimationMarker(Animation animation) {
-			this.animation = animation;
-			update();
-		}
 		AnimationMarker(Animation animation, boolean odd) {
 			this.animation = animation;
 			this.odd = odd;

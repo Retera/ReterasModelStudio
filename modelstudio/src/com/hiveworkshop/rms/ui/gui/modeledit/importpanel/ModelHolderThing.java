@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.util.BiMap;
 import com.hiveworkshop.rms.util.IterableListModel;
 
@@ -85,9 +84,6 @@ public class ModelHolderThing {
 	VisibilityShell alwaysVisible = new VisibilityShell(true);
 	VisibilityShell multipleVisible = new VisibilityShell(false).setMultiple();
 
-	public ModelView recModelManager;
-	public ModelView donModelManager;
-
 
 	public ModelHolderThing(EditableModel receivingModel, EditableModel donatingModel) {
 		this.receivingModel = receivingModel;
@@ -97,9 +93,7 @@ public class ModelHolderThing {
 		initiateGeosetLists();
 		initObjectLists();
 
-		recModelManager = new ModelView(receivingModel);
-		donModelManager = new ModelView(donatingModel);
-		boneShellRenderer = new BoneShellListCellRenderer(recModelManager, donModelManager);
+		boneShellRenderer = new BoneShellListCellRenderer(this.receivingModel, this.donatingModel);
 	}
 
 	public IterableListModel<BoneShell> getFutureBoneList() {
@@ -308,7 +302,7 @@ public class ModelHolderThing {
 
 	private IterableListModel<MatrixShell> createMatrixShells(Geoset geoset, BiMap<IdObject, BoneShell> boneShells, boolean isFromDonating) {
 		IterableListModel<MatrixShell> matrixShells = new IterableListModel<>();
-		for (final Matrix matrix : geoset.getMatrix()) {
+		for (final Matrix matrix : geoset.getMatrices()) {
 			ArrayList<BoneShell> orgBones = new ArrayList<>();
 			// For look to find similarly named stuff and add it
 			for (Bone bone : matrix.getBones()) {

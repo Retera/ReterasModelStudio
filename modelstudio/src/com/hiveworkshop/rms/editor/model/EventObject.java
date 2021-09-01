@@ -1,10 +1,10 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -14,9 +14,7 @@ import java.util.TreeSet;
  * Eric Theller 3/10/2012 3:52 PM
  */
 public class EventObject extends IdObject {
-	//	List<Integer> eventTrack = new ArrayList<>();
-	//ToDo ask GW if event tracks should only have one entry at any time
-	private final TreeSet<Integer> eventTrack2 = new TreeSet<>();
+	private final TreeMap<Sequence, TreeSet<Integer>> eventTrackAnimMap = new TreeMap<>();
 	private GlobalSeq globalSeq;
 
 	public EventObject() {
@@ -27,11 +25,12 @@ public class EventObject extends IdObject {
 		this.name = name;
 	}
 
-	public EventObject(final EventObject object) {
-		super(object);
-
-		eventTrack2.addAll(object.eventTrack2);
-		globalSeq = object.globalSeq;
+	private EventObject(final EventObject source) {
+		super(source);
+		for(Sequence sequence : source.eventTrackAnimMap.keySet()){
+			eventTrackAnimMap.put(sequence, new TreeSet<>(source.getEventTrackAnimMap().get(sequence)));
+		}
+		globalSeq = source.globalSeq;
 	}
 
 	@Override
@@ -40,133 +39,78 @@ public class EventObject extends IdObject {
 	}
 
 	public int size() {
-		return eventTrack2.size();
+		int size = 0;
+		for(Sequence animation : eventTrackAnimMap.keySet()){
+			size += eventTrackAnimMap.get(animation).size();
+		}
+		return size;
 	}
 
 	public static EventObject buildEmptyFrom(final EventObject source) {
 		return new EventObject(source);
-
 	}
 
 	public void setValuesTo(final EventObject source) {
-		eventTrack2.clear();
-		eventTrack2.addAll(source.eventTrack2);
+		eventTrackAnimMap.clear();
+		for(Sequence sequence : source.eventTrackAnimMap.keySet()){
+			eventTrackAnimMap.put(sequence, new TreeSet<>(source.getEventTrackAnimMap().get(sequence)));
+		}
 	}
 
 	public void deleteAnim(final Animation anim) {
-		// Timescales a part of the AnimFlag from section "start" to "end" into
-		// the new time "newStart" to "newEnd"
-//		for (int index = eventTrack.size() - 1; index >= 0; index--) {
-//			final int i = eventTrack.get(index);
-//			if (i >= anim.getStart() && i <= anim.getEnd()) {
-//				// If this "i" is a part of the anim being removed
-//				eventTrack.remove(index);
-//			}
-//		}
-		// BOOM magic happens
-
-		eventTrack2.removeIf(i -> i >= anim.getStart() && i <= anim.getEnd());
+		eventTrackAnimMap.remove(anim);
 
 	}
 
-	public void timeScale(final int start, final int end, final int newStart, final int newEnd) {
-		// Timescales a part of the AnimFlag from section "start" to "end" into
-		// the new time "newStart" to "newEnd"
-//		for (Integer integer : eventTrack) {
-//			int i = integer;
-//			if ((i >= start) && (i <= end)) {
-//				// If this "i" is a part of the anim being rescaled
-//				double ratio = (double) (i - start) / (double) (end - start);
-//				eventTrack.set(eventTrack.indexOf(integer), (int) (newStart + (ratio * (newEnd - newStart))));
-//			}
-//		}
-//		sort();
-
-		Set<Integer> eventsToChange = new HashSet<>(eventTrack2.subSet(start, true, end, true));
-		for (Integer i : eventsToChange) {
-			eventTrack2.remove(i);
-			double ratio = (double) (i - start) / (double) (end - start);
-			eventTrack2.add((int) (newStart + (ratio * (newEnd - newStart))));
+	public void timeScale(Sequence anim, int newLength, int offsetFromStart) {
+		// Timescales a part of the AnimFlag from section "start" to "end" into the new time "newStart" to "newEnd"
+		TreeSet<Integer> trackSet = eventTrackAnimMap.get(anim);
+		if(trackSet != null){
+			double ratio = (double) (newLength) / (double) (anim.getLength());
+			TreeSet<Integer> scaledSet = getScaledSet(ratio, trackSet);
+			trackSet.clear();
+			for(Integer time : scaledSet){
+				trackSet.add(time + offsetFromStart);
+			}
 		}
-
-		// BOOM magic happens
 	}
 
-	public void copyFrom(final EventObject source, final int start, final int end, final int newStart,
-						 final int newEnd) {
+	private TreeSet<Integer> getScaledSet(double ratio, TreeSet<Integer> trackSet) {
+		TreeSet<Integer> scaledSet = new TreeSet<>();
+		for(Integer time : trackSet){
+			int newTime = (int) (time * ratio);
+			scaledSet.add(newTime);
+		}
+		return scaledSet;
+	}
+
+	public void copyFrom(EventObject source, Sequence srcSequence, Sequence newSequence) {
 		// Timescales a part of the AnimFlag from section "start" to "end" into
 		// the new time "newStart" to "newEnd"
-//		for (final Integer integer : source.eventTrack) {
-//			final int i = integer;
-//			if ((i >= start) && (i <= end)) {
-//				// If this "i" is a part of the anim being rescaled
-//				final double ratio = (double) (i - start) / (double) (end - start);
-//				eventTrack.add((int) (newStart + (ratio * (newEnd - newStart))));
-//			}
-//		}
-//		sort();
 
-		for (Integer i : source.eventTrack2.subSet(start, true, end, true)) {
-			double ratio = (double) (i - start) / (double) (end - start);
-			eventTrack2.add((int) (newStart + (ratio * (newEnd - newStart))));
+		TreeSet<Integer> sourceTrackSet = source.eventTrackAnimMap.get(srcSequence);
+		TreeSet<Integer> trackSet = eventTrackAnimMap.computeIfAbsent(newSequence, k -> new TreeSet<>());
+
+		if(srcSequence.getLength() != newSequence.getLength()){
+			double ratio = (newSequence.getLength())/((double)srcSequence.getLength());
+			for(Integer time : sourceTrackSet){
+				trackSet.add((int) (time * ratio));
+			}
+		} else {
+			trackSet.addAll(sourceTrackSet);
 		}
+	}
+	public void copySequenceToSequence(Sequence sequence, Sequence newSequence) {
+		// Timescales a part of the AnimFlag from section "start" to "end" into
+		// the new time "newStart" to "newEnd"
 
-
-		// BOOM magic happens
+		TreeSet<Integer> integers = eventTrackAnimMap.get(sequence);
+		eventTrackAnimMap.computeIfAbsent(newSequence, k -> new TreeSet<>()).addAll(integers);
 	}
 
-//	public void sort() {
-//		final int low = 0;
-//		final int high = eventTrack.size() - 1;
-//
-//		if (eventTrack.size() > 0) {
-//			quicksort(low, high);
-//		}
-//	}
-
-//	private void quicksort(final int low, final int high) {
-//		// Thanks to Lars Vogel for the quicksort concept code (something to
-//		// look at), found on google
-//		// (re-written by Eric "Retera" for use in AnimFlags)
-//		int i = low, j = high;
-//		final Integer pivot = eventTrack.get(low + ((high - low) / 2));
-//
-//		while (i <= j) {
-//			while (eventTrack.get(i) < pivot) {
-//				i++;
-//			}
-//			while (eventTrack.get(j) > pivot) {
-//				j--;
-//			}
-//			if (i <= j) {
-//				exchange(i, j);
-//				i++;
-//				j--;
-//			}
-//		}
-//
-//		if (low < j) {
-//			quicksort(low, j);
-//		}
-//		if (i < high) {
-//			quicksort(i, high);
-//		}
-//	}
-
-//	private void exchange(final int i, final int j) {
-//		final Integer iTime = eventTrack.get(i);
-//
-//		eventTrack.set(i, eventTrack.get(j));
-//
-//		eventTrack.set(j, iTime);
-//	}
-
-//	public void updateGlobalSeqRef(final EditableModel mdlr) {
-//		if (globalSeq != null) {
-//			globalSeq = mdlr.getGlobalSeq(globalSeqId);
-//		}
-//	}
-
+	public TreeMap<Sequence, TreeSet<Integer>> getEventTrackAnimMap() {
+		return eventTrackAnimMap;
+	}
 
 	public int getGlobalSeqId(EditableModel model) {
 		return model.getGlobalSeqId(globalSeq);
@@ -184,28 +128,53 @@ public class EventObject extends IdObject {
 		this.globalSeq = globalSeq;
 	}
 
-	public EventObject addTrack(int track) {
-		eventTrack2.add(track);
+	public EventObject addTrack(Sequence sequence, int track) {
+		eventTrackAnimMap.computeIfAbsent(sequence, k -> new TreeSet<>()).add(track);
+		if(sequence instanceof GlobalSeq){
+			this.globalSeq = (GlobalSeq) sequence;
+		}
 		return this;
 	}
 
-	public EventObject addTracks(Collection<Integer> tracks) {
-		eventTrack2.addAll(tracks);
+	public EventObject addSequence(Sequence sequence, Collection<Integer> tracks) {
+		eventTrackAnimMap.computeIfAbsent(sequence, k -> new TreeSet<>()).addAll(tracks);
+		if(sequence instanceof GlobalSeq){
+			this.globalSeq = (GlobalSeq) sequence;
+		}
+		return this;
+	}
+	public EventObject setSequence(Sequence sequence, Collection<Integer> tracks) {
+		TreeSet<Integer> treeSet = new TreeSet<>();
+		eventTrackAnimMap.put(sequence, treeSet);
+		treeSet.addAll(tracks);
 		return this;
 	}
 
 
-	public EventObject removeTracks(Collection<Integer> tracks) {
-		eventTrack2.removeAll(tracks);
-		return this;
-	}
-	public EventObject removeTrack(int track) {
-		eventTrack2.remove(track);
+	public EventObject removeSequence(Sequence sequence) {
+		eventTrackAnimMap.remove(sequence);
+		if(sequence instanceof GlobalSeq){
+			this.globalSeq = null;
+		}
 		return this;
 	}
 
-	public TreeSet<Integer> getEventTrack() {
-		return eventTrack2;
+	public EventObject removeTrack(Sequence sequence, int track) {
+		if (sequence != null && eventTrackAnimMap.get(sequence) != null) {
+			eventTrackAnimMap.get(sequence).remove(track);
+		}
+		return this;
+	}
+
+	public boolean hasSequence(Sequence sequence){
+		return eventTrackAnimMap.containsKey(sequence);
+	}
+
+	public TreeSet<Integer> getEventTrack(Sequence sequence) {
+		if (sequence != null) {
+			return eventTrackAnimMap.get(sequence);
+		}
+		return null;
 	}
 
 	@Override

@@ -1,6 +1,9 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
-import com.hiveworkshop.rms.editor.actions.model.material.*;
+import com.hiveworkshop.rms.editor.actions.model.material.ChangeLayerOrderAction;
+import com.hiveworkshop.rms.editor.actions.model.material.RemoveLayerAction;
+import com.hiveworkshop.rms.editor.actions.model.material.RemoveMaterialAction;
+import com.hiveworkshop.rms.editor.actions.model.material.SetLayerFilterModeAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
@@ -13,8 +16,8 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
-import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.TextureValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
@@ -24,7 +27,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ComponentLayerPanel extends JPanel {
@@ -34,13 +36,11 @@ public class ComponentLayerPanel extends JPanel {
 	private final Layer layer;
 	private final Material material;
 
-	private ComponentEditorJSpinner coordIdSpinner;
-	private JComboBox<String> textureChooser;
+//	private ComponentEditorJSpinner coordIdSpinner;
 
 	private final UndoManager undoManager;
 	private final ModelHandler modelHandler;
 	private final ModelStructureChangeListener changeListener;
-	DefaultListModel<Bitmap> bitmapListModel;
 
 	public ComponentLayerPanel(Layer layer, Material material, ModelHandler modelHandler, int i) {
 		setLayout(new MigLayout("fill", "[][][grow]", "[][fill]"));
@@ -155,20 +155,13 @@ public class ComponentLayerPanel extends JPanel {
 		filterModeDropdown.addItemListener(this::filterModeDropdownListener);
 		topSettingsPanel.add(filterModeDropdown, "wrap, growx");
 
-//		topSettingsPanel.add(new JLabel("Texture:"));
-//		textureChooser = new JComboBox<String>(getTextures());
-//		textureChooser.setSelectedIndex(layer.getTextureId());
-//		textureChooser.addItemListener(this::chooseTexture);
-//		topSettingsPanel.add(textureChooser, "wrap, growx");
-
 		topSettingsPanel.add(new JLabel("TVertex Anim:"));
 		JButton tVertexAnimButton = new JButton("Choose TVertex Anim");
 		tVertexAnimButton.setText(layer.getTextureAnim() == null ? "None" : layer.getTextureAnim().getFlagNames());
 		topSettingsPanel.add(tVertexAnimButton, "wrap, growx");
 
 		topSettingsPanel.add(new JLabel("CoordID:"));
-		coordIdSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(layer.getCoordId(), Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
-		coordIdSpinner.addEditingStoppedListener(this::setCoordId);
+		IntEditorJSpinner coordIdSpinner = new IntEditorJSpinner(layer.getCoordId(), Integer.MIN_VALUE, this::setCoordId);
 		topSettingsPanel.add(coordIdSpinner, "wrap, growx");
 		return topSettingsPanel;
 	}
@@ -194,32 +187,10 @@ public class ComponentLayerPanel extends JPanel {
 		leftHandSettingsPanel.add(emissiveGainPanel, "wrap, growx, hidemode 2");
 	}
 
-
-	private String[] getTextures() {
-		bitmapListModel = new DefaultListModel<>();
-		List<String> bitmapNames = new ArrayList<>();
-
-		for (final Bitmap bitmap : modelHandler.getModel().getTextures()) {
-			bitmapNames.add(bitmap.getName());
-			bitmapListModel.addElement(bitmap);
-		}
-
-		return bitmapNames.toArray(new String[0]);
-	}
-
 	private void filterModeDropdownListener(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED) {
 			FilterMode selectedItem = (FilterMode) e.getItem();
 			undoManager.pushAction(new SetLayerFilterModeAction(layer, selectedItem, changeListener).redo());
-		}
-	}
-
-	private void chooseTexture(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			System.out.println("selecdet item equals event Item: " + e.getItem().equals(textureChooser.getSelectedItem()));
-			System.out.println("selecdet index equals event Id: " + (e.getID() == textureChooser.getSelectedIndex()));
-			Bitmap bitmap = bitmapListModel.get(textureChooser.getSelectedIndex());
-			undoManager.pushAction(new ChangeLayerStaticTextureAction(bitmap, layer, changeListener).redo());
 		}
 	}
 
@@ -232,9 +203,9 @@ public class ComponentLayerPanel extends JPanel {
 		return layerDeleteButton;
 	}
 
-	private void setCoordId() {
-		layer.setCoordId(coordIdSpinner.getIntValue());
-		coordIdSpinner.reloadNewValue(coordIdSpinner.getIntValue());
+	private void setCoordId(int value) {
+		layer.setCoordId(value);
+//		coordIdSpinner.reloadNewValue(coordIdSpinner.getIntValue());
 	}
 
 	private void removeLayer(Layer layer) {

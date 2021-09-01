@@ -26,7 +26,7 @@ public class ToolBar {
         addToolbarIcon(toolbar, "Redo", "redo.png", () -> ProgramGlobals.getUndoHandler().redo());
 
         toolbar.addSeparator();
-        addToolbarIcon(toolbar, "Lock Layout", "save.png", () -> toggleLockLayout());
+        addToolbarIcon(toolbar, "Lock Layout", "lockLayout.png", () -> toggleLockLayout());
         toolbar.addSeparator();
 //
 //        toolbar.addSeparator();

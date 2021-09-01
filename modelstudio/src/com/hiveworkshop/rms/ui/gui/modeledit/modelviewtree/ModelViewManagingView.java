@@ -19,6 +19,7 @@ ModelViewManagingTree modelViewManagingTree;
 		jPanel = new JPanel();
 		jPanel.add(new JLabel("..."));
 		modelEditingTreePane = new JScrollPane(jPanel);
+		modelViewManagingTree = new ModelViewManagingTree();
 
 		setComponent(modelEditingTreePane);
 	}
@@ -27,24 +28,28 @@ ModelViewManagingTree modelViewManagingTree;
 	public ModelViewManagingView setModelPanel(ModelPanel modelPanel){
 		this.modelPanel = modelPanel;
 		if(modelPanel == null) {
-			modelViewManagingTree = null;
+//			modelViewManagingTree = null;
 			modelEditingTreePane.setViewportView(jPanel);
 		} else {
 //			modelViewManagingTree = modelPanel.getModelEditingTree();
 //			modelEditingTreePane.setViewportView(modelViewManagingTree);
-			modelViewManagingTree = new ModelViewManagingTree().setModel(modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
+//			modelViewManagingTree = new ModelViewManagingTree().setModel(modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
+			modelViewManagingTree.setModel(modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
 			modelEditingTreePane.setViewportView(modelViewManagingTree);
 		}
-		reload();
+//		reload();
 		System.out.println("name: " + name + ", panel: " + modelPanel);
 		return this;
 	}
 
 	@Override
 	public ModelViewManagingView reload() {
-		if (modelViewManagingTree != null) {
+		if (modelPanel != null) {
 			modelViewManagingTree.reloadFromModelView().repaint();
 		}
+//		if (modelViewManagingTree != null) {
+//			modelViewManagingTree.reloadFromModelView().repaint();
+//		}
 		return this;
 	}
 }

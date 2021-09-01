@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
 import com.hiveworkshop.rms.editor.model.animflag.*;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
 import java.util.TreeMap;
 
@@ -32,9 +33,9 @@ public abstract class TTan<T> {
 
 	public boolean isLogsReady; // "true" if Logarithms are ready
 
-	public TTan(AnimFlag<T> timeline) {
+	public TTan(AnimFlag<T> timeline, Sequence anim) {
 		this.timeline = timeline;
-		Entry<T> value = timeline.getEntryMap().firstEntry().getValue();
+		Entry<T> value = timeline.getEntryMap(anim).firstEntry().getValue();
 		tang = new Entry<>(value);
 		tang2 = new Entry<>(value);
 		cur = new Entry<>(value);
@@ -42,24 +43,24 @@ public abstract class TTan<T> {
 		next = new Entry<>(value);
 	}
 
-	public static <Q> TTan<Q> getNewTTan(AnimFlag<Q> timeline) {
+	public static <Q> TTan<Q> getNewTTan(AnimFlag<Q> timeline, Sequence anim) {
 		if (timeline instanceof FloatAnimFlag) {
-			return (TTan<Q>) new TTanFloat((FloatAnimFlag) timeline);
+			return (TTan<Q>) new TTanFloat((FloatAnimFlag) timeline, anim);
 		} else if (timeline instanceof Vec3AnimFlag) {
-			return (TTan<Q>) new TTanVec3((Vec3AnimFlag) timeline);
+			return (TTan<Q>) new TTanVec3((Vec3AnimFlag) timeline, anim);
 		} else if (timeline instanceof QuatAnimFlag) {
-			return (TTan<Q>) new TTanQuat((QuatAnimFlag) timeline);
+			return (TTan<Q>) new TTanQuat((QuatAnimFlag) timeline, anim);
 		}
 		return null;
 	}
 
-	public static TTan<?> getNewTTan2(AnimFlag<?> timeline) {
+	public static TTan<?> getNewTTan2(AnimFlag<?> timeline, Sequence anim) {
 		if (timeline instanceof FloatAnimFlag) {
-			return new TTanFloat((FloatAnimFlag) timeline);
+			return new TTanFloat((FloatAnimFlag) timeline, anim);
 		} else if (timeline instanceof Vec3AnimFlag) {
-			return new TTanVec3((Vec3AnimFlag) timeline);
+			return new TTanVec3((Vec3AnimFlag) timeline, anim);
 		} else if (timeline instanceof QuatAnimFlag) {
-			return new TTanQuat((QuatAnimFlag) timeline);
+			return new TTanQuat((QuatAnimFlag) timeline, anim);
 		}
 		return null;
 	}
@@ -68,13 +69,13 @@ public abstract class TTan<T> {
 		return timeline;
 	}
 
-	public void setFromKF(int time) {
-		TreeMap<Integer, Entry<T>> entryMap = timeline.getEntryMap();
-		if (timeline.getEntryAt(time) != null && entryMap.lowerKey(time) != null && entryMap.higherKey(time) != null) {
-			tang.setValues(timeline.getEntryAt(time));
-			cur.setValues(timeline.getEntryAt(time));
-			prev.setValues(timeline.getEntryAt(entryMap.lowerKey(time)));
-			next.setValues(timeline.getEntryAt(entryMap.higherKey(time)));
+	public void setFromKF(int time, Sequence anim) {
+		TreeMap<Integer, Entry<T>> entryMap = timeline.getEntryMap(anim);
+		if (timeline.getEntryAt(anim, time) != null && entryMap.lowerKey(time) != null && entryMap.higherKey(time) != null) {
+			tang.setValues(timeline.getEntryAt(anim, time));
+			cur.setValues(timeline.getEntryAt(anim, time));
+			prev.setValues(timeline.getEntryAt(anim, entryMap.lowerKey(time)));
+			next.setValues(timeline.getEntryAt(anim, entryMap.higherKey(time)));
 		}
 	}
 

@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,9 +11,9 @@ public class ParentToggleRenderer extends BoneShellListCellRenderer {
 	boolean showParent;
 	boolean showClass = true;
 
-	public ParentToggleRenderer(final JCheckBox toggleBox, final ModelView recModelDisp,
-	                            final ModelView donModelDisp) {
-		super(recModelDisp, donModelDisp);
+	public ParentToggleRenderer(JCheckBox toggleBox, EditableModel recModel,
+	                            EditableModel donModel) {
+		super(recModel, donModel);
 		this.toggleBox = toggleBox;
 	}
 

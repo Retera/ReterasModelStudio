@@ -90,7 +90,11 @@ public class TVertexEditor extends ModelEditor {
 		return new CompoundAction("rotate", Arrays.asList(
 				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 2, (byte) 1),
 				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 0, (byte) 2)))
-				.redo();
+				.redo(); // ToDo fix this? not sure if this is used or what it should rotate...
+//		return new CompoundAction("rotate", Arrays.asList(
+//				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 2, (byte) 1).updateRotation(Math.toRadians(rotate.x)),
+//				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 0, (byte) 2).updateRotation(Math.toRadians(rotate.y))))
+//				.redo();
 	}
 
 	@Override

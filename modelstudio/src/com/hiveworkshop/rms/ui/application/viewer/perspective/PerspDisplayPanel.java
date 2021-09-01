@@ -43,10 +43,11 @@ public class PerspDisplayPanel extends JPanel {
 	}
 
 	public PerspDisplayPanel setModel(ModelHandler modelHandler) {
+		System.out.println("PerspDisplayPanel#setModel");
 		if (modelHandler == null) {
 			vp.setModel(null, null, false);
 		} else {
-			vp.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), false);
+			vp.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), true);
 		}
 		return this;
 	}

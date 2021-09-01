@@ -1,13 +1,17 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.TreeMap;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
@@ -22,7 +26,7 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		super(title);
 	}
 
-	public Vec3AnimFlag(AnimFlag<Vec3> af) {
+	protected Vec3AnimFlag(AnimFlag<Vec3> af) {
 		super(af);
 	}
 
@@ -33,6 +37,9 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		final Object[] values = timeline.values;
 		final Object[] inTans = timeline.inTans;
 		final Object[] outTans = timeline.outTans;
+
+		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
+		model.getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
 
 		if (frames.length > 0) {
 			final boolean hasTangents = interpolationType.tangential();
@@ -49,7 +56,12 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 					outTanAsObject = new Vec3((float[]) outTans[i]);
 				}
 
-				addEntry((int) frames[i], valueAsObject, inTanAsObject, outTanAsObject);
+				if (hasGlobalSeq()) {
+					addEntry((int) frames[i] - globalSeq.getStart(), valueAsObject, inTanAsObject, outTanAsObject, globalSeq);
+				} else if (animationTreeMap.floorEntry((int) frames[i]) != null) {
+					Sequence sequence = animationTreeMap.floorEntry((int) frames[i]).getValue();
+					addEntry((int) frames[i] - sequence.getStart(), valueAsObject, inTanAsObject, outTanAsObject, sequence);
+				}
 			}
 		}
 	}
@@ -84,24 +96,45 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		mdlxTimeline.interpolationType = interpolationType;
 		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
 
-		long[] tempFrames = new long[entryMap.size()];
-		float[][] tempValues = new float[entryMap.size()][];
-		float[][] tempInTans = new float[entryMap.size()][];
-		float[][] tempOutTans = new float[entryMap.size()][];
 
-		boolean hasTangents = mdlxTimeline.interpolationType.tangential();
+		ArrayList<Integer> tempFrames2 = new ArrayList<>();
+		ArrayList<float[]> tempValues2 = new ArrayList<>();
+		ArrayList<float[]> tempInTans2 = new ArrayList<>();
+		ArrayList<float[]> tempOutTans2 = new ArrayList<>();
 
-		for (int i = 0, l = entryMap.size(); i < l; i++) {
-			tempFrames[i] = getTimeFromIndex(i);
-			tempValues[i] = getValueFromIndex(i).toFloatArray();
-
-			if (hasTangents) {
-				tempInTans[i] = getInTanFromIndex(i).toFloatArray();
-				tempOutTans[i] = getOutTanFromIndex(i).toFloatArray();
-			} else {
-				tempInTans[i] = (new Vec3()).toFloatArray();
-				tempOutTans[i] = (new Vec3()).toFloatArray();
+		for (Sequence anim : sequenceMap.keySet()) {
+			if (globalSeq == null || anim == globalSeq) {
+				TreeMap<Integer, Entry<Vec3>> entryTreeMap = sequenceMap.get(anim);
+				for (Integer time : entryTreeMap.keySet()) {
+					if (time > anim.getLength()) {
+						break;
+					}
+					Entry<Vec3> entry = entryTreeMap.get(time);
+//					tempFrames2.add(time + Math.max(anim.getStart(), tempFrames2.get(tempFrames2.size()-1) + 10));
+					tempFrames2.add(time + anim.getStart());
+					tempValues2.add(entry.getValue().toFloatArray());
+					if (tans()) {
+						tempInTans2.add(entry.getInTan().toFloatArray());
+						tempOutTans2.add(entry.getOutTan().toFloatArray());
+					} else {
+						tempInTans2.add(new float[] {0});
+						tempOutTans2.add(new float[] {0});
+					}
+				}
 			}
+		}
+
+		int size = tempFrames2.size();
+		long[] tempFrames = new long[size];
+		float[][] tempValues = new float[size][];
+		float[][] tempInTans = new float[size][];
+		float[][] tempOutTans = new float[size][];
+
+		for (int i = 0; i < size; i++) {
+			tempFrames[i] = tempFrames2.get(i);
+			tempValues[i] = tempValues2.get(i);
+			tempInTans[i] = tempInTans2.get(i);
+			tempOutTans[i] = tempOutTans2.get(i);
 		}
 
 		mdlxTimeline.frames = tempFrames;
@@ -117,7 +150,8 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		return (Vec3) identity(typeid);
 	}
 
-	public Vec3 getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
+	public Vec3 getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor, Sequence anim) {
+		TreeMap<Integer, Entry<Vec3>> entryMap = sequenceMap.get(anim);
 		Entry<Vec3> entryFloor = entryMap.get(floorTime);
 		Entry<Vec3> entryCeil = entryMap.get(ceilTime);
 
@@ -151,7 +185,7 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 	}
 
 	@Override
-	public void calcNewTans(float factor[], Entry<Vec3> next, Entry<Vec3> prev, Entry<Vec3> cur, int animationLength) {
+	public void calcNewTans(float[] factor, Entry<Vec3> next, Entry<Vec3> prev, Entry<Vec3> cur, int animationLength) {
 		// Calculating the derivatives in point Cur (for count cells)
 		if (cur.inTan == null) {
 			cur.inTan = new Vec3(0, 0, 0);

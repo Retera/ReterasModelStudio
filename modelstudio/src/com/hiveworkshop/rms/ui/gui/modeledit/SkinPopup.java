@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShellListCellRenderer;
@@ -56,22 +57,23 @@ public class SkinPopup extends JPanel {
     }
 
     private JPanel boneChooserPanel(ModelView modelView) {
-        JPanel panel = new JPanel(new MigLayout("fill, gap 0", "[grow]", "[][][grow]"));
+	    JPanel panel = new JPanel(new MigLayout("fill, gap 0", "[grow]", "[][][grow]"));
 
-        BoneShellListCellRenderer renderer = new BoneShellListCellRenderer(modelView, null).setShowClass(false);
-        JCheckBox showParents = new JCheckBox("Show Parents");
-        showParents.addActionListener(e -> showParents(renderer, showParents, panel));
-        panel.add(showParents, "wrap");
+	    EditableModel model = modelView.getModel();
+	    BoneShellListCellRenderer renderer = new BoneShellListCellRenderer(model, null).setShowClass(false);
+	    JCheckBox showParents = new JCheckBox("Show Parents");
+	    showParents.addActionListener(e -> showParents(renderer, showParents, panel));
+	    panel.add(showParents, "wrap");
 
-        boneSearch = new JTextField();
-        boneSearch.addCaretListener(e -> filterBones());
-        panel.add(boneSearch, "growx, wrap");
+	    boneSearch = new JTextField();
+	    boneSearch.addCaretListener(e -> filterBones());
+	    panel.add(boneSearch, "growx, wrap");
 
-        boneList = new IterableListModel<>();
-        for (Bone bone : modelView.getModel().getBones()) {
-            BoneShell boneShell = new BoneShell(bone);
-            boneList.addElement(boneShell);
-        }
+	    boneList = new IterableListModel<>();
+	    for (Bone bone : model.getBones()) {
+		    BoneShell boneShell = new BoneShell(bone);
+		    boneList.addElement(boneShell);
+	    }
 
         bonesJList = new JList<>(boneList);
         bonesJList.setCellRenderer(renderer);

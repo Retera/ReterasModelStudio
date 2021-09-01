@@ -1,9 +1,15 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
@@ -18,7 +24,7 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 		super(title);
 	}
 
-	public IntAnimFlag(AnimFlag<Integer> af) {
+	protected IntAnimFlag(AnimFlag<Integer> af) {
 		super(af);
 	}
 
@@ -34,7 +40,12 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 		final Object[] inTans = timeline.inTans;
 		final Object[] outTans = timeline.outTans;
 
+		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
+		model.getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
+
+
 		if (frames.length > 0) {
+			List<Integer> outsideKFs = new ArrayList<>();
 			boolean hasTangents = interpolationType.tangential();
 
 			for (int i = 0, l = frames.length; i < l; i++) {
@@ -50,8 +61,17 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 					outTanAsObject = (int) ((long[]) outTans[i])[0];
 				}
 
-				addEntry((int) frames[i], valueAsObject, inTanAsObject, outTanAsObject);
+				if (hasGlobalSeq()) {
+					System.out.println("Global seq! " + globalSeq);
+					addEntry((int) frames[i] - globalSeq.getStart(), valueAsObject, inTanAsObject, outTanAsObject, globalSeq);
+				} else if (animationTreeMap.floorEntry((int) frames[i]) != null) {
+					Sequence sequence = animationTreeMap.floorEntry((int) frames[i]).getValue();
+					addEntry((int) frames[i] - sequence.getStart(), valueAsObject, inTanAsObject, outTanAsObject, sequence);
+				} else {
+					outsideKFs.add((int) frames[i]);
+				}
 			}
+			System.out.println(name + " has " + outsideKFs.size() + " frames outside of animations");
 		}
 	}
 
@@ -78,7 +98,8 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 	}
 
 	@Override
-	public Integer getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
+	public Integer getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor, Sequence anim) {
+		TreeMap<Integer, Entry<Integer>> entryMap = sequenceMap.get(anim);
 		Entry<Integer> entryFloor = entryMap.get(floorTime);
 		Entry<Integer> entryCeil = entryMap.get(ceilTime);
 		return getInterpolatedValue(entryFloor, entryCeil, 1);
@@ -120,26 +141,45 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 		mdlxTimeline.interpolationType = interpolationType;
 		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
 
-		long[] tempFrames = new long[entryMap.size()];
-		long[][] tempValues = new long[entryMap.size()][];
-		long[][] tempInTans = new long[entryMap.size()][];
-		long[][] tempOutTans = new long[entryMap.size()][];
 
-		boolean hasTangents = mdlxTimeline.interpolationType.tangential();
+		ArrayList<Integer> tempFrames2 = new ArrayList<>();
+		ArrayList<long[]> tempValues2 = new ArrayList<>();
+		ArrayList<long[]> tempInTans2 = new ArrayList<>();
+		ArrayList<long[]> tempOutTans2 = new ArrayList<>();
 
-		for (int i = 0, l = entryMap.size(); i < l; i++) {
-			Integer value = getValueFromIndex(i);
-
-			tempFrames[i] = getTimeFromIndex(i);
-			tempValues[i] = (new long[] {value.longValue()});
-
-			if (hasTangents) {
-				tempInTans[i] = new long[] {getInTanFromIndex(i).longValue()};
-				tempOutTans[i] = new long[] {getOutTanFromIndex(i).longValue()};
-			} else {
-				tempInTans[i] = new long[] {0};
-				tempOutTans[i] = new long[] {0};
+		for (Sequence anim : sequenceMap.keySet()) {
+			if (globalSeq == null || anim == globalSeq) {
+				TreeMap<Integer, Entry<Integer>> entryTreeMap = sequenceMap.get(anim);
+				for (Integer time : entryTreeMap.keySet()) {
+					if (time > anim.getLength()) {
+						break;
+					}
+					Entry<Integer> entry = entryTreeMap.get(time);
+//					tempFrames2.add(time + Math.max(anim.getStart(), tempFrames2.get(tempFrames2.size()-1) + 10));
+					tempFrames2.add(time + anim.getStart());
+					tempValues2.add(new long[] {entry.getValue()});
+					if (tans()) {
+						tempInTans2.add(new long[] {entry.getInTan()});
+						tempOutTans2.add(new long[] {entry.getOutTan()});
+					} else {
+						tempInTans2.add(new long[] {0});
+						tempOutTans2.add(new long[] {0});
+					}
+				}
 			}
+		}
+
+		int size = tempFrames2.size();
+		long[] tempFrames = new long[size];
+		long[][] tempValues = new long[size][];
+		long[][] tempInTans = new long[size][];
+		long[][] tempOutTans = new long[size][];
+
+		for (int i = 0; i < size; i++) {
+			tempFrames[i] = tempFrames2.get(i);
+			tempValues[i] = tempValues2.get(i);
+			tempInTans[i] = tempInTans2.get(i);
+			tempOutTans[i] = tempOutTans2.get(i);
 		}
 
 		mdlxTimeline.frames = tempFrames;

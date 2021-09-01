@@ -17,6 +17,7 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
+import com.hiveworkshop.rms.util.ImageCreator;
 import com.hiveworkshop.rms.util.Vec2;
 import jassimp.AiPostProcessSteps;
 import jassimp.AiProgressHandler;
@@ -98,7 +99,7 @@ public class ModelLoader {
 		//        layer.setTwoSided(true);
 		Material material = new Material(layer);
 		newGeoset.setMaterial(material);
-		BufferedImage bufferedImage = material.getBufferedImage(blankTextureModel.getWrappedDataSource());
+		BufferedImage bufferedImage = ImageCreator.getBufferedImage(material, blankTextureModel.getWrappedDataSource());
 		int textureWidth = bufferedImage.getWidth();
 		int textureHeight = bufferedImage.getHeight();
 		float aspectRatio = textureWidth / (float) textureHeight;
@@ -171,8 +172,6 @@ public class ModelLoader {
 		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
 		ProgramGlobals.setCurrentModelPanel(modelPanel);
 		refreshAnimationModeState();
-//		mainPanel.getMainLayoutCreator().setModelPanel(ProgramGlobals.getCurrentModelPanel());
-//		rootWindow.getWindowHandler2().setModelPanel(ProgramGlobals.getCurrentModelPanel());
 
 		rootWindow.getWindowHandler2().getViewportListener().viewportChanged(null);
 		ModelStructureChangeListener.changeListener.keyframesUpdated();

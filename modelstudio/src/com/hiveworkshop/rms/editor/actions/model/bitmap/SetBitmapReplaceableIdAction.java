@@ -8,27 +8,30 @@ public class SetBitmapReplaceableIdAction implements UndoAction {
 	private final Bitmap bitmap;
 	private final int prevId;
 	private final int newId;
-	private final ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetBitmapReplaceableIdAction(final Bitmap bitmap, final int prevId, final int newId,
-			final ModelStructureChangeListener modelStructureChangeListener) {
+	public SetBitmapReplaceableIdAction(Bitmap bitmap, int newId, ModelStructureChangeListener changeListener) {
 		this.bitmap = bitmap;
-		this.prevId = prevId;
+		this.prevId = bitmap.getReplaceableId();
 		this.newId = newId;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		bitmap.setReplaceableId(prevId);
-		modelStructureChangeListener.texturesChanged();
+		if (changeListener != null) {
+			changeListener.texturesChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		bitmap.setReplaceableId(newId);
-		modelStructureChangeListener.texturesChanged();
+		if (changeListener != null) {
+			changeListener.texturesChanged();
+		}
 		return this;
 	}
 

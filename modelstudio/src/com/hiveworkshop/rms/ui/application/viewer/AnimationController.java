@@ -15,7 +15,7 @@ public class AnimationController extends JPanel {
 	private ModelHandler modelHandler;
 	private final DefaultComboBoxModel<Animation> animations;
 	private final JComboBox<Animation> animationBox;
-	private boolean allowUnanimated;
+	private boolean allowUnanimated = true;
 
 	public AnimationController(PreviewPanel previewPanel) {
 		super(new MigLayout("fillx"));
@@ -40,6 +40,7 @@ public class AnimationController extends JPanel {
 	}
 
 	public AnimationController setModel(ModelHandler modelHandler, boolean allowUnanimated, Animation defaultAnimation) {
+		System.out.println("AnimationController#setModel");
 		this.modelHandler = modelHandler;
 		updateAnimationList(modelHandler, allowUnanimated, animations);
 		animationBox.setSelectedItem(defaultAnimation);
@@ -72,6 +73,8 @@ public class AnimationController extends JPanel {
 
 	public JComboBox<Animation> getAnimationChooser(DefaultComboBoxModel<Animation> animations, PreviewPanel previewPanel) {
 		JComboBox<Animation> animationBox = new JComboBox<>(animations);
+		// this prototype is to work around a weird bug where some components take for ever to load
+		animationBox.setPrototypeDisplayValue(new Animation("Stand and work for me", 0, 1));
 		animationBox.setRenderer(getComboBoxRenderer());
 		animationBox.addActionListener(e -> playSelectedAnimation(previewPanel));
 
@@ -88,8 +91,9 @@ public class AnimationController extends JPanel {
 	}
 
 	private void updateAnimationList(ModelHandler modelHandler, boolean allowUnanimated, DefaultComboBoxModel<Animation> animations) {
+		System.out.println("AnimationController#updateAnimationList");
 		animations.removeAllElements();
-		if(modelHandler != null){
+		if (modelHandler != null) {
 			if (allowUnanimated || (modelHandler.getModel().getAnims().size() == 0)) {
 				animations.addElement(null);
 			}
@@ -154,19 +158,21 @@ public class AnimationController extends JPanel {
 	public AnimationController reload() {
 		Animation selectedItem = (Animation) animationBox.getSelectedItem();
 		animations.removeAllElements();
-		List<Animation> anims = modelHandler.getModel().getAnims();
-		if (allowUnanimated || (anims.size() == 0)) {
-			animations.addElement(null);
-		}
-		animations.addAll(anims);
+		if (modelHandler != null) {
+			List<Animation> anims = modelHandler.getModel().getAnims();
+			if (allowUnanimated || (anims.size() == 0)) {
+				animations.addElement(null);
+			}
+			animations.addAll(anims);
 
 
-		System.out.println("AC allow unanimated: " + allowUnanimated);
+			System.out.println("AC allow unanimated: " + allowUnanimated);
 
-		if (anims.contains(selectedItem) && ((selectedItem != null) || allowUnanimated)) {
-			animationBox.setSelectedItem(selectedItem);
-		} else if (!allowUnanimated && (anims.size() > 0)) {
-			animationBox.setSelectedItem(anims.get(0));
+			if (anims.contains(selectedItem) && ((selectedItem != null) || allowUnanimated)) {
+				animationBox.setSelectedItem(selectedItem);
+			} else if (!allowUnanimated && (anims.size() > 0)) {
+				animationBox.setSelectedItem(anims.get(0));
+			}
 		}
 		return this;
 	}

@@ -219,7 +219,8 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 
 		ToolbarButtonGroup2<ModelEditorActionType3> actionTypeGroup = ProgramGlobals.getActionTypeGroup();
 
-		JPanel editToolsPanel = new JPanel(new MigLayout("debug, fill"));
+//		JPanel editToolsPanel = new JPanel(new MigLayout("debug, fill"));
+		JPanel editToolsPanel = new JPanel(new MigLayout("fill"));
 		editToolsPanel.setBorder(BorderFactory.createTitledBorder("Manipulate"));
 		editToolsPanel.add(actionTypeGroup.getModeButton(ModelEditorActionType3.TRANSLATION), "wrap");
 		editToolsPanel.add(actionTypeGroup.getModeButton(ModelEditorActionType3.ROTATION), "wrap");

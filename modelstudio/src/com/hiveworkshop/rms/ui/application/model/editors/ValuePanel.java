@@ -3,20 +3,22 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.*;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
-import com.hiveworkshop.rms.editor.model.animflag.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.CollapsablePanel;
-import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 
 public abstract class ValuePanel<T> extends JPanel {
@@ -31,10 +33,12 @@ public abstract class ValuePanel<T> extends JPanel {
 	protected AnimFlag<T> animFlag;
 	protected TimelineKeyNamer timelineKeyNamer;
 	JPanel dynStatPanel;
+	JPanel dynamicPanel;
 	private final CardLayout dynStatLayout;
 	protected String title;
 	protected TitledBorder titledBorder;
 
+	protected TreeMap<Sequence, KeyframePanel<T>> keyframePanelMap = new TreeMap<>();
 	KeyframePanel<T> keyframePanel;
 
 	protected Consumer<T> valueSettingFunction;
@@ -55,7 +59,8 @@ public abstract class ValuePanel<T> extends JPanel {
 		animFlag = null;
 		timelineContainer = null;
 		flagName = "";
-		keyframePanel = new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, this::changeEntry, this::parseValue);
+//		keyframePanel = new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, this::changeEntry, this::parseValue);
+		keyframePanel = new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, (time, entry) -> changeEntry(keyframePanel.getSequence(), time, entry), this::parseValue);
 
 		titledBorder = BorderFactory.createTitledBorder(title);
 //		setBorder(titledBorder);
@@ -70,7 +75,7 @@ public abstract class ValuePanel<T> extends JPanel {
 		dynStatPanel = new JPanel(dynStatLayout);
 		collapsablePCont.add(dynStatPanel, "align center, growx, wrap");
 
-		JPanel dynamicPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[][][][]"));
+		dynamicPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[][][][]"));
 		dynamicPanel.add(new JLabel("Dynamic"), "al 0% 0%, hidemode 3");
 		dynStatPanel.add("dynamic", dynamicPanel);
 
@@ -87,7 +92,7 @@ public abstract class ValuePanel<T> extends JPanel {
 		interpTypeBox.addItemListener(this::setInterpolationType);
 		spinInterpPanel.add(interpTypeBox, "wrap, hidemode 3");
 
-		dynamicPanel.add(keyframePanel, "spanx, growx, wrap, hidemode 3");
+//		dynamicPanel.add(keyframePanel, "spanx, growx, wrap, hidemode 3");
 
 		JPanel staticPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[]"));
 		staticPanel.add(new JLabel("Static"), "al 0% 0%");
@@ -116,14 +121,12 @@ public abstract class ValuePanel<T> extends JPanel {
 
 			if (newAnimFlag != null) {
 				toggleStaticDynamicPanel(false);
-				newAnimFlag.addEntry(0, staticValue);
-				AddAnimFlagAction addAnimFlagAction = new AddAnimFlagAction(timelineContainer, newAnimFlag, changeListener);
+				AddAnimFlagAction<T> addAnimFlagAction = new AddAnimFlagAction<>(timelineContainer, newAnimFlag, changeListener);
 				undoManager.pushAction(addAnimFlagAction.redo());
 			}
 		} else if (animFlag != null) {
 			toggleStaticDynamicPanel(false);
-			animFlag.addEntry(0, staticValue);
-			AddAnimFlagAction addAnimFlagAction = new AddAnimFlagAction(timelineContainer, animFlag, changeListener);
+			AddAnimFlagAction<T> addAnimFlagAction = new AddAnimFlagAction<>(timelineContainer, animFlag, changeListener);
 			undoManager.pushAction(addAnimFlagAction.redo());
 		}
 //		System.out.println("ftt: "+ floatTrackTableModel.getColumnCount());
@@ -135,19 +138,7 @@ public abstract class ValuePanel<T> extends JPanel {
 //		System.out.println("kftM_a: " + keyframeTable.getModel().getColumnCount());
 	}
 
-	private AnimFlag<T> getNewAnimFlag() {
-		if (staticValue instanceof Integer) {
-			return (AnimFlag<T>) new IntAnimFlag(flagName);
-		} else if (staticValue instanceof Float) {
-			return (AnimFlag<T>) new FloatAnimFlag(flagName);
-		} else if (staticValue instanceof Vec3) {
-			return (AnimFlag<T>) new Vec3AnimFlag(flagName);
-		} else if (staticValue instanceof Quat) {
-			return (AnimFlag<T>) new QuatAnimFlag(flagName);
-		} else {
-			return null;
-		}
-	}
+	protected abstract AnimFlag<T> getNewAnimFlag();
 
 	private void toggleStaticDynamicPanel(boolean isStatic) {
 		boolean isDynamic = !isStatic;
@@ -156,10 +147,6 @@ public abstract class ValuePanel<T> extends JPanel {
 		} else {
 			dynStatLayout.show(dynStatPanel, "static");
 		}
-	}
-
-	public void setKeyframeHelper(TimelineKeyNamer timelineKeyNamer) {
-		this.timelineKeyNamer = timelineKeyNamer;
 	}
 
 	public void reloadNewValue(final T value, final AnimFlag<T> animFlag) {
@@ -177,16 +164,41 @@ public abstract class ValuePanel<T> extends JPanel {
 		this.flagName = flagName;
 		staticValue = value;
 
+		dynamicPanel.removeAll();
 		if (animFlag == null) {
 			toggleStaticDynamicPanel(true);
-			keyframePanel.updateFlag(null);
+			for(KeyframePanel<T> kfp : keyframePanelMap.values()){
+				kfp.updateFlag(null, null);
+			}
+			if(valueSettingFunction == null){
+				staticComponent.setVisible(false);
+			} else {
+				staticComponent.setVisible(true);
+			}
+//			keyframePanel.updateFlag(null, null);
 		} else {
+			TreeSet<Sequence> tempSet = new TreeSet<>(modelHandler.getModel().getAnims());
+			tempSet.addAll(modelHandler.getModel().getGlobalSeqs());
+			keyframePanelMap.keySet().removeIf(anim -> !tempSet.contains(anim));
+			for(Sequence sequence : tempSet){
+//				KeyframePanel<T> keyframePanel1 = keyframePanelMap.computeIfAbsent(sequence, k -> new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, (time, entry) -> changeEntry(sequence, time, entry), this::parseValue));
+				KeyframePanel<T> keyframePanel = keyframePanelMap.computeIfAbsent(sequence, k -> getKeyframePanel(sequence));
+				keyframePanel.updateFlag(animFlag, sequence);
+
+				int size = animFlag.size(sequence);
+				CollapsablePanel collapsablePanel = new CollapsablePanel(sequence + " " + size + " keyframes", keyframePanel);
+				if(size == 0){
+					collapsablePanel.toggleCollapsed();
+				}
+				dynamicPanel.add(collapsablePanel, "spanx, growx, wrap, hidemode 3");
+			}
 			if (animFlag.hasGlobalSeq()) {
 				titledBorder.setTitle(title + " (GlobalSeq: " + animFlag.getGlobalSeq() + ")");
+				collapsablePanel.setTitle(title + " (GlobalSeq: " + animFlag.getGlobalSeq() + ")");
 			} else {
+				collapsablePanel.setTitle(title);
 				titledBorder.setTitle(title);
 			}
-			keyframePanel.updateFlag(animFlag);
 			toggleStaticDynamicPanel(false);
 			interpTypeBox.setSelectedItem(animFlag.getInterpolationType());
 		}
@@ -194,6 +206,14 @@ public abstract class ValuePanel<T> extends JPanel {
 		reloadStaticValue(value);
 		revalidate();
 		repaint();
+	}
+
+	private KeyframePanel<T> getKeyframePanel(Sequence sequence) {
+		return new KeyframePanel<>(modelHandler.getModel(),
+				this::addEntry,
+				this::removeEntry,
+				(time, entry) -> changeEntry(sequence, time, entry),
+				this::parseValue);
 	}
 
 	abstract JComponent getStaticComponent();
@@ -210,13 +230,11 @@ public abstract class ValuePanel<T> extends JPanel {
 		}
 	}
 
-	private void addEntry(int row) {
+	private void addEntry(Sequence sequence, int row) {
 		if (animFlag == null && timelineContainer != null && !flagName.equals("")) {
 			AnimFlag<T> flag = getNewAnimFlag();
 			if (flag != null) {
-				Entry<T> entry = new Entry<>(0, staticValue);
-				flag.setOrAddEntryT(0, entry);
-				UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flag, changeListener);
+				UndoAction undoAction = new AddAnimFlagAction<>(timelineContainer, flag, changeListener);
 				undoManager.pushAction(undoAction.redo());
 			}
 		} else if (animFlag != null) {
@@ -225,22 +243,22 @@ public abstract class ValuePanel<T> extends JPanel {
 			if (staticValue == null) {
 				staticValue = zeroValue;
 			}
-			if (animFlag.getEntryMap().isEmpty()) {
+			if (animFlag.getEntryMap(sequence).isEmpty()) {
 				if (animFlag.getInterpolationType().tangential()) {
 					newEntry = new Entry<>(0, staticValue, zeroValue, zeroValue);
 				} else {
 					newEntry = new Entry<>(0, staticValue);
 				}
 			} else {
-				int time = animFlag.getTimeFromIndex(row);
-				newEntry = animFlag.getEntryAt(time).deepCopy();
+				int time = animFlag.getTimeFromIndex(sequence, row);
+				newEntry = animFlag.getEntryAt(sequence, time).deepCopy();
 
-				while (animFlag.hasEntryAt(newEntry.getTime())) {
+				while (animFlag.hasEntryAt(sequence, newEntry.getTime())) {
 					newEntry.setTime(newEntry.getTime() + 1);
 				}
 			}
 
-			UndoAction undoAction = new AddFlagEntryAction(animFlag, newEntry, timelineContainer, changeListener);
+			UndoAction undoAction = new AddFlagEntryAction<>(animFlag, newEntry, sequence, changeListener);
 			undoManager.pushAction(undoAction.redo());
 
 		}
@@ -250,16 +268,17 @@ public abstract class ValuePanel<T> extends JPanel {
 
 	abstract T parseValue(String valueString);
 
-	private void removeEntry(int orgTime) {
-		if (animFlag.hasEntryAt(orgTime)) {
-			UndoAction undoAction = new RemoveFlagEntryAction(animFlag, orgTime, changeListener);
+	private void removeEntry(Sequence sequence, int orgTime) {
+		if (animFlag.hasEntryAt(sequence, orgTime)) {
+			UndoAction undoAction = new RemoveFlagEntryAction<>(animFlag, orgTime, sequence, changeListener);
 			undoManager.pushAction(undoAction.redo());
 		}
 	}
 
-	protected void changeEntry(int row, String field, String val) {
-		int orgTime = (int) keyframePanel.getFloatTrackTableModel().getValueAt(row, 0);
-		Entry<T> newEntry = animFlag.getEntryAt(orgTime).deepCopy();
+	protected void changeEntry(Sequence sequence, int row, String field, String val) {
+//		int orgTime = (int) keyframePanel.getFloatTrackTableModel().getValueAt(row, 0);
+		int orgTime = (int) keyframePanelMap.get(sequence).getFloatTrackTableModel().getValueAt(row, 0);
+		Entry<T> newEntry = animFlag.getEntryAt(sequence, orgTime).deepCopy();
 		T tValue = parseValue(val);
 		System.out.println(val);
 		System.out.println(tValue);
@@ -272,12 +291,12 @@ public abstract class ValuePanel<T> extends JPanel {
 		}
 		System.out.println(newEntry.getTime());
 
-		UndoAction undoAction = new ChangeFlagEntryAction<>(animFlag, newEntry, orgTime, changeListener);
+		UndoAction undoAction = new ChangeFlagEntryAction<>(animFlag, newEntry, orgTime, sequence, changeListener);
 		undoManager.pushAction(undoAction.redo());
 	}
 
-	protected void changeEntry(Integer orgTime, Entry<T> newEntry) {
-		UndoAction undoAction = new ChangeFlagEntryAction<>(animFlag, newEntry, orgTime, changeListener);
+	protected void changeEntry(Sequence sequence, Integer orgTime, Entry<T> newEntry) {
+		UndoAction undoAction = new ChangeFlagEntryAction<>(animFlag, newEntry, orgTime, sequence, changeListener);
 		undoManager.pushAction(undoAction.redo());
 	}
 

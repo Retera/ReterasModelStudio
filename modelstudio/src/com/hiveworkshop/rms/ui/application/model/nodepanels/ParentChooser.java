@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
 import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Helper;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -17,10 +18,10 @@ public class ParentChooser {
 	JList<BoneShell> bonesJList;
 	JTextField boneSearch;
 
-	ModelView modelView;
+	EditableModel model;
 
 	public ParentChooser(ModelView modelView) {
-		this.modelView = modelView;
+		this.model = modelView.getModel();
 		posibleParentList = new IterableListModel<>();
 	}
 
@@ -29,14 +30,14 @@ public class ParentChooser {
 		BoneShell parentBoneShell = null;
 		posibleParentList.clear();
 		posibleParentList.addElement(new BoneShell(null));
-		for (Bone bone : modelView.getModel().getBones()) {
+		for (Bone bone : model.getBones()) {
 			BoneShell boneShell = new BoneShell(bone);
 			posibleParentList.addElement(boneShell);
 			if (bone == idObject.getParent()) {
 				parentBoneShell = boneShell;
 			}
 		}
-		for (Helper bone : modelView.getModel().getHelpers()) {
+		for (Helper bone : model.getHelpers()) {
 			BoneShell boneShell = new BoneShell(bone);
 			posibleParentList.addElement(boneShell);
 			if (bone == idObject.getParent()) {
@@ -61,7 +62,7 @@ public class ParentChooser {
 	private JPanel boneChooserPanel() {
 		JPanel panel = new JPanel(new MigLayout("fill, gap 0", "[grow]", "[][][grow]"));
 
-		BoneShellListCellRenderer renderer = new BoneShellListCellRenderer(modelView, null).setShowClass(false);
+		BoneShellListCellRenderer renderer = new BoneShellListCellRenderer(model, null).setShowClass(false);
 
 		JCheckBox showParents = new JCheckBox("Show Parents");
 		showParents.addActionListener(e -> showParents(renderer, showParents, panel));

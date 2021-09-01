@@ -53,7 +53,7 @@ public class BonePanel extends JPanel {
 	public BonePanel(ModelHolderThing mht, final BoneShellListCellRenderer renderer) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0, fill", "[grow][grow]", "[][grow]"));
-		oneShellRenderer = new BoneShellMotionListCellRenderer(mht.recModelManager, mht.donModelManager);
+		oneShellRenderer = new BoneShellMotionListCellRenderer(mht.receivingModel, mht.donatingModel);
 
 		leftSearchField = new JTextField();
 		rightSearchField = new JTextField();

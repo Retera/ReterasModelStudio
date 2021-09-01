@@ -22,7 +22,9 @@ public class OpenInternalObject extends ActionFunction {
 		if (objectFetched != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));
-			ImageIcon icon = new ImageIcon(BLPHandler.get().getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0)).getScaledInstance(16, 16, Image.SCALE_FAST));
+			String fieldAsString = objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0);
+			Image scaledInstance = BLPHandler.getGameTex(fieldAsString).getScaledInstance(16, 16, Image.SCALE_FAST);
+			ImageIcon icon = new ImageIcon(scaledInstance);
 
 			InternalFileLoader.loadFromStream(filepath, icon);
 		}

@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Quat;
 
 /**
@@ -20,8 +21,8 @@ public class TTanQuat extends TTan<Quat> {
 //	private Quat logNNP = new Quat();
 //	private Quat logNMN = new Quat(); // Logarithms and current quaternion
 
-	public TTanQuat(AnimFlag<Quat> timeline) {
-		super(timeline);
+	public TTanQuat(AnimFlag<Quat> timeline, Sequence anim) {
+		super(timeline, anim);
 		deltaOut = new Quat();
 		deltaIn = new Quat();
 		logNNP = new Quat();

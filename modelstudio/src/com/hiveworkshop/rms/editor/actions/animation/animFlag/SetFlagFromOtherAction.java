@@ -14,7 +14,7 @@ public class SetFlagFromOtherAction<T> implements UndoAction {
 		this.changeListener = changeListener;
 		this.animFlag = animFlag;
 		this.oldFlag = animFlag.deepCopy();
-		this.otherFlag = otherFlag;
+		this.otherFlag = otherFlag.deepCopy();
 	}
 
 	@Override

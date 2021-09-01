@@ -194,23 +194,27 @@ public class KeyframeCopyPanel extends JPanel {
 
 		for (Bone bone : bones) {
 			ArrayList<AnimFlag<?>> animFlags = bone.getAnimFlags();
-			setKeyframes(donKeyframe, recKeyframe, times, animFlags);
+			setKeyframes(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags);
 		}
 		for (Helper helper : helpers) {
 			ArrayList<AnimFlag<?>> animFlags = helper.getAnimFlags();
-			setKeyframes(donKeyframe, recKeyframe, times, animFlags);
+			setKeyframes(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags);
 		}
 	}
 
-	private void setKeyframes(int donKeyframe, int recKeyframe, int times, ArrayList<AnimFlag<?>> animFlags) {
+	private void setKeyframes(Animation donAnimation, int donKeyframe, Animation recAnimation, int recKeyframe, int times, ArrayList<AnimFlag<?>> animFlags) {
 		for (AnimFlag<?> animFlag : animFlags) {
-			for (int j = 0; j < times; j++) {
-				animFlag.removeKeyframe(recKeyframe + j);
-				Entry<?> entryAt = animFlag.getEntryAt(donKeyframe + j);
-				if (entryAt != null) {
-					Entry<?> entry = entryAt.deepCopy();
-					animFlag.setOrAddEntryT(recKeyframe + j, entry);
-				}
+			setAnimFlagKeyframe(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlag);
+		}
+	}
+
+	private <T> void setAnimFlagKeyframe(Animation donAnimation, int donKeyframe, Animation recAnimation, int recKeyframe, int times, AnimFlag<T> animFlag) {
+		for (int j = 0; j < times; j++) {
+			animFlag.removeKeyframe(recKeyframe + j, recAnimation);
+			Entry<T> entryAt = animFlag.getEntryAt(donAnimation, donKeyframe + j);
+			if (entryAt != null) {
+				Entry<T> entry = entryAt.deepCopy();
+				animFlag.setOrAddEntry(recKeyframe + j, entry, recAnimation);
 			}
 		}
 	}

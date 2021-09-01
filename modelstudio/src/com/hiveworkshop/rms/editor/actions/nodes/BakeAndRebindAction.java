@@ -64,7 +64,7 @@ public class BakeAndRebindAction implements UndoAction {
 		renderModel.refreshFromEditor(null);
 		for (Animation animation : modelHandler.getModel().getAnims()) {
 			timeEnvironment.setAnimation(animation);
-			for (Integer i = allKF.ceiling(animation.getStart()); i != null && allKF.floor(animation.getEnd()) != null && i <= allKF.floor(animation.getEnd()); i = allKF.higher(i)) {
+			for (Integer i = allKF.ceiling(0); i != null && allKF.floor(animation.getLength()) != null && i <= allKF.floor(animation.getLength()); i = allKF.higher(i)) {
 				timeEnvironment.setAnimationTime(i);
 				renderModel.updateNodes(true, false, false);
 				System.out.println("time: " + i + "; Local loc: " + renderModel.getRenderNode(idObject).getLocalLocation() + ", World loc: " + renderModel.getRenderNode(idObject).getWorldLocation());
@@ -98,7 +98,8 @@ public class BakeAndRebindAction implements UndoAction {
 			IdObject idObject = parentChain1.get(i);
 			for (Animation animation : modelHandler.getModel().getAnims()) {
 				timeEnvironment.setAnimation(animation);
-				SortedSet<Integer> animTimes = allKF.subSet(animation.getStart(), animation.getEnd());
+//				SortedSet<Integer> animTimes = allKF.subSet(animation.getStart(), animation.getEnd());
+				SortedSet<Integer> animTimes = allKF.subSet(0, animation.getLength());
 				for (Integer t : animTimes) {
 					timeEnvironment.setAnimationTime(t);
 					AnimFlag<?> translation = idObject.find(MdlUtils.TOKEN_TRANSLATION);
@@ -137,36 +138,90 @@ public class BakeAndRebindAction implements UndoAction {
 		}
 	}
 
+//	private void saveOrg(IdObject obj) {
+//		AnimFlag<?> translation = obj.find(MdlUtils.TOKEN_TRANSLATION);
+//		if (translation != null) {
+//			orgTransEntries.addAll(((Vec3AnimFlag) translation).getEntryMap().values());
+//		}
+//		AnimFlag<?> scaling = obj.find(MdlUtils.TOKEN_SCALING);
+//		if (scaling != null) {
+//			orgScaleEntries.addAll(((Vec3AnimFlag) scaling).getEntryMap().values());
+//		}
+//		AnimFlag<?> rotation = obj.find(MdlUtils.TOKEN_ROTATION);
+//		if (rotation != null) {
+//			orgRotEntries.addAll(((QuatAnimFlag) rotation).getEntryMap().values());
+//		}
+//	}
+
+//	private void getParentKfTimes(IdObject obj, IdObject lastParent) {
+//		AnimFlag<?> translation = obj.find(MdlUtils.TOKEN_TRANSLATION);
+//		if (translation != null) {
+//			transKF.addAll(translation.getEntryMap().keySet());
+//		}
+//		AnimFlag<?> scaling = obj.find(MdlUtils.TOKEN_SCALING);
+//		if (scaling != null) {
+//			scaleKF.addAll(scaling.getEntryMap().keySet());
+//		}
+//		AnimFlag<?> rotation = obj.find(MdlUtils.TOKEN_ROTATION);
+//		if (rotation != null) {
+//			rotKF.addAll(rotation.getEntryMap().keySet());
+//		}
+//		if (obj.getParent() != lastParent) {
+//			getParentKfTimes(obj.getParent(), lastParent);
+//		}
+//	}
+
+
 	private void saveOrg(IdObject obj) {
 		AnimFlag<?> translation = obj.find(MdlUtils.TOKEN_TRANSLATION);
 		if (translation != null) {
-			orgTransEntries.addAll(((Vec3AnimFlag) translation).getEntryMap().values());
+			for (Animation animation : modelHandler.getModel().getAnims()) {
+				TreeMap<Integer, ? extends Entry<?>> entryMap = translation.getEntryMap(animation);
+				if (entryMap != null) {
+					orgTransEntries.addAll(((Vec3AnimFlag) translation).getEntryMap(animation).values());
+				}
+			}
 		}
 		AnimFlag<?> scaling = obj.find(MdlUtils.TOKEN_SCALING);
 		if (scaling != null) {
-			orgScaleEntries.addAll(((Vec3AnimFlag) scaling).getEntryMap().values());
+			for (Animation animation : modelHandler.getModel().getAnims()) {
+				TreeMap<Integer, ? extends Entry<?>> entryMap = scaling.getEntryMap(animation);
+				if (entryMap != null) {
+					orgScaleEntries.addAll(((Vec3AnimFlag) scaling).getEntryMap(animation).values());
+				}
+			}
 		}
 		AnimFlag<?> rotation = obj.find(MdlUtils.TOKEN_ROTATION);
 		if (rotation != null) {
-			orgRotEntries.addAll(((QuatAnimFlag) rotation).getEntryMap().values());
+			for (Animation animation : modelHandler.getModel().getAnims()) {
+				TreeMap<Integer, ? extends Entry<?>> entryMap = rotation.getEntryMap(animation);
+				if (entryMap != null) {
+					orgRotEntries.addAll(((QuatAnimFlag) rotation).getEntryMap(animation).values());
+				}
+			}
 		}
 	}
 
 	private void getParentKfTimes(IdObject obj, IdObject lastParent) {
 		AnimFlag<?> translation = obj.find(MdlUtils.TOKEN_TRANSLATION);
-		if (translation != null) {
-			transKF.addAll(translation.getEntryMap().keySet());
-		}
+		getAllEntries(translation, transKF);
 		AnimFlag<?> scaling = obj.find(MdlUtils.TOKEN_SCALING);
-		if (scaling != null) {
-			scaleKF.addAll(scaling.getEntryMap().keySet());
-		}
+		getAllEntries(scaling, scaleKF);
 		AnimFlag<?> rotation = obj.find(MdlUtils.TOKEN_ROTATION);
-		if (rotation != null) {
-			rotKF.addAll(rotation.getEntryMap().keySet());
-		}
+		getAllEntries(rotation, rotKF);
 		if (obj.getParent() != lastParent) {
 			getParentKfTimes(obj.getParent(), lastParent);
+		}
+	}
+
+	private void getAllEntries(AnimFlag<?> flag, TreeSet<Integer> timeSet) {
+		if (flag != null) {
+			for (Animation animation : modelHandler.getModel().getAnims()) {
+				TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap(animation);
+				if (entryMap != null) {
+					timeSet.addAll(entryMap.keySet());
+				}
+			}
 		}
 	}
 
@@ -233,6 +288,9 @@ public class BakeAndRebindAction implements UndoAction {
 		UndoAction addBoneAction = new DrawBoneAction(modelHandler.getModelView(), null, obj);
 		keyframeActions.add(addBoneAction);
 
+		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
+		modelHandler.getModel().getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
+
 //		Bone bone = new Bone();
 		List<AnimFlag<?>> replacementFlags = new ArrayList<>();
 		if (!newTransKF.isEmpty()) {
@@ -249,7 +307,7 @@ public class BakeAndRebindAction implements UndoAction {
 
 			for (int i : newTransKF.keySet()) {
 				System.out.println("new entry at " + i + ": " + newTransKF.get(i));
-				translation.addEntry(i, newTransKF.get(i));
+				translation.addEntry(i, newTransKF.get(i), animationTreeMap.floorEntry(i).getValue());
 			}
 			replacementFlags.add(translation);
 		}
@@ -267,7 +325,7 @@ public class BakeAndRebindAction implements UndoAction {
 			}
 
 			for (int i : newScaleKF.keySet()) {
-				scaling.addEntry(i, newScaleKF.get(i));
+				scaling.addEntry(i, newScaleKF.get(i), animationTreeMap.floorEntry(i).getValue());
 			}
 			replacementFlags.add(scaling);
 		}
@@ -285,7 +343,7 @@ public class BakeAndRebindAction implements UndoAction {
 			}
 
 			for (int i : newRotKF.keySet()) {
-				rotation.addEntry(i, newRotKF.get(i));
+				rotation.addEntry(i, newRotKF.get(i), animationTreeMap.floorEntry(i).getValue());
 			}
 			replacementFlags.add(rotation);
 		}

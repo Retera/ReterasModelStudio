@@ -10,7 +10,7 @@ public class Geoset implements Named, VisibilitySource {
 	ExtLog extents;
 	List<GeosetVertex> vertices = new ArrayList<>();
 	List<Triangle> triangles = new ArrayList<>();
-	List<Matrix> matrix = new ArrayList<>();
+	List<Matrix> matrices = new ArrayList<>();
 	List<Animation> anims = new ArrayList<>();
 	Material material;
 	int selectionGroup = 0;
@@ -18,7 +18,6 @@ public class Geoset implements Named, VisibilitySource {
 	GeosetAnim geosetAnim = null;
 	int levelOfDetail = -1;
 	String levelOfDetailName = "";
-	List<short[]> skin;
 	List<float[]> tangents;
 	boolean unselectable = false;
 
@@ -53,26 +52,37 @@ public class Geoset implements Named, VisibilitySource {
 	@Override
 	public String getName() {
 		if (levelOfDetailName.equals("")) {
-			if (skin != null && !skin.isEmpty()) {
-				String name = hdGetMostCommonUniqueBoneName();
-				if (name.equals("")) {
-					Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
-//					matrix.get(0).getName();
-				}
-//				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
-				return "# " + (parentModel.getGeosetId(this)) + ": " + name;
-			} else {
-				Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
-				if (!boneMap.isEmpty()) {
-					Set<Bone> bones = boneMap.keySet();
-					String name = sdGetMostCommonUniqueBoneName(bones);
+//			if (skin != null && !skin.isEmpty()) {
+//				String name = hdGetMostCommonUniqueBoneName();
+//				if (name.equals("")) {
+//					Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
+////					matrix.get(0).getName();
+//				}
+////				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
+//				return "# " + (parentModel.getGeosetId(this)) + ": " + name;
+//			} else {
+//				Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
+//				if (!boneMap.isEmpty()) {
+//					Set<Bone> bones = boneMap.keySet();
+//					String name = sdGetMostCommonUniqueBoneName(bones);
+////					if (name.equals("")) {
+////						matrix.get(0).getName();
+////					}
+////				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + matrix.get(0).getName();
+////					return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
+//					return "# " + (parentModel.getGeosetId(this)) + ": " + name;
+//				}
+//			}
+			Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
+			if (!boneMap.isEmpty()) {
+				Set<Bone> bones = boneMap.keySet();
+				String name = sdGetMostCommonUniqueBoneName(bones);
 //					if (name.equals("")) {
 //						matrix.get(0).getName();
 //					}
 //				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + matrix.get(0).getName();
 //					return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
-					return "# " + (parentModel.getGeosetId(this)) + ": " + name;
-				}
+				return "# " + (parentModel.getGeosetId(this)) + ": " + name;
 			}
 		} else {
 //			return "Geoset " + (parentModel.getGeosetId(this)) + ": " + levelOfDetailName;
@@ -136,8 +146,8 @@ public class Geoset implements Named, VisibilitySource {
 	public String sdGetMostCommonUniqueBoneName() {
 		List<Bone> nonSharedParentBones = new ArrayList<>();
 		List<Bone> mBones = new ArrayList<>();
-		if (!matrix.isEmpty()) {
-			for (Matrix m : matrix) {
+		if (!matrices.isEmpty()) {
+			for (Matrix m : matrices) {
 				mBones.addAll(m.getBones());
 			}
 
@@ -202,49 +212,49 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 
-	public String hdGetMostCommonUniqueBoneName() {
-		List<Bone> nonSharedParentBones = new ArrayList<>();
-		List<Bone> mBones = new ArrayList<>();
-		Set<Short> parentIds = new HashSet<>();
-		Set<Short> prioParentIds = new HashSet<>();
-		if (skin != null) {
-			for (short[] vert : skin) {
-				for (int i = 0; i < 4; i++) {
-					if (vert[i + 4] > 60) {
-						parentIds.add(vert[i]);
-						if (vert[i + 4] > 250) {
-							prioParentIds.add(vert[i]);
-						}
-					}
-				}
-			}
-			if (prioParentIds.isEmpty()) {
-				for (short s : parentIds) {
-					mBones.add(parentModel.getBone(s));
-				}
-			} else {
-				for (short s : prioParentIds) {
-					mBones.add(parentModel.getBone(s));
-				}
-			}
-
-			if (mBones.size() == 1) {
-				return mBones.get(0).getName().replaceAll("[Bb][Oo][Nn][Ee]_*", "");
-			}
-			for (Bone bone : mBones) {
-				Bone lp = lastParentIn(bone, mBones);
-				if (lp.getGeoset() == this && !nonSharedParentBones.contains(lp)) {
-					nonSharedParentBones.add(lp);
-				}
-			}
-			List<String> nameParts = new ArrayList<>();
-			for (Bone bone : nonSharedParentBones) {
-				nameParts.add(bone.getName().replaceAll("[Bb][Oo][Nn][Ee]_*", ""));
-			}
-			return String.join(", ", nameParts);
-		}
-		return "";
-	}
+//	public String hdGetMostCommonUniqueBoneName() {
+//		List<Bone> nonSharedParentBones = new ArrayList<>();
+//		List<Bone> mBones = new ArrayList<>();
+//		Set<Short> parentIds = new HashSet<>();
+//		Set<Short> prioParentIds = new HashSet<>();
+//		if (skin != null) {
+//			for (short[] vert : skin) {
+//				for (int i = 0; i < 4; i++) {
+//					if (vert[i + 4] > 60) {
+//						parentIds.add(vert[i]);
+//						if (vert[i + 4] > 250) {
+//							prioParentIds.add(vert[i]);
+//						}
+//					}
+//				}
+//			}
+//			if (prioParentIds.isEmpty()) {
+//				for (short s : parentIds) {
+//					mBones.add(parentModel.getBone(s));
+//				}
+//			} else {
+//				for (short s : prioParentIds) {
+//					mBones.add(parentModel.getBone(s));
+//				}
+//			}
+//
+//			if (mBones.size() == 1) {
+//				return mBones.get(0).getName().replaceAll("[Bb][Oo][Nn][Ee]_*", "");
+//			}
+//			for (Bone bone : mBones) {
+//				Bone lp = lastParentIn(bone, mBones);
+//				if (lp.getGeoset() == this && !nonSharedParentBones.contains(lp)) {
+//					nonSharedParentBones.add(lp);
+//				}
+//			}
+//			List<String> nameParts = new ArrayList<>();
+//			for (Bone bone : nonSharedParentBones) {
+//				nameParts.add(bone.getName().replaceAll("[Bb][Oo][Nn][Ee]_*", ""));
+//			}
+//			return String.join(", ", nameParts);
+//		}
+//		return "";
+//	}
 
 	public void addVertex(final GeosetVertex v) {
 		add(v);
@@ -341,21 +351,25 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public void addMatrix(final Matrix v) {
-		matrix.add(v);
+		matrices.add(v);
 	}
 
 	public Matrix getMatrix(final int vertId) {
 		if ((vertId < 0) && (vertId >= -128)) {
 			return getMatrix(256 + vertId);
 		}
-		if (vertId >= matrix.size()) {
+		if (vertId >= matrices.size()) {
 			return null;
 		}
-		return matrix.get(vertId);
+		return matrices.get(vertId);
+	}
+
+	public int getMatrixId(Matrix matrix){
+		return matrices.indexOf(matrix);
 	}
 
 	public int numMatrices() {
-		return matrix.size();
+		return matrices.size();
 	}
 
 	public void setMaterial(final Material m) {
@@ -405,17 +419,26 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public void applyVerticesToMatrices(EditableModel mdlr) {
-		matrix.clear();
+		matrices.clear();
 		for (GeosetVertex vertex : vertices) {
 			Matrix newTemp = vertex.getMatrix();
 
 			newTemp.updateIds(mdlr);
-			if (!matrix.contains(newTemp)) {
-				matrix.add(newTemp);
+			if (!matrices.contains(newTemp)) {
+				matrices.add(newTemp);
 //				newTemp.updateIds(mdlr);
 			}
-			vertex.setVertexGroup(matrix.indexOf(newTemp));
+			vertex.setVertexGroup(matrices.indexOf(newTemp));
 //			vertex.setMatrix(newTemp);
+		}
+	}
+
+	public void reMakeMatrixList(){
+		matrices.clear();
+		for (GeosetVertex vertex : vertices) {
+			if (!matrices.contains(vertex.getMatrix())) {
+				matrices.add(vertex.getMatrix());
+			}
 		}
 	}
 
@@ -479,12 +502,12 @@ public class Geoset implements Named, VisibilitySource {
 		triangles = triangle;
 	}
 
-	public List<Matrix> getMatrix() {
-		return matrix;
+	public List<Matrix> getMatrices() {
+		return matrices;
 	}
 
-	public void setMatrix(final List<Matrix> matrix) {
-		this.matrix = matrix;
+	public void setMatrices(final List<Matrix> matrices) {
+		this.matrices = matrices;
 	}
 
 	public List<Animation> getAnims() {
@@ -629,11 +652,7 @@ public class Geoset implements Named, VisibilitySource {
 	}
 
 	public void setSkin(List<short[]> skin) {
-		this.skin = skin;
-	}
-
-	public List<short[]> getSkin() {
-		return skin;
+//		this.skin = skin;
 	}
 
 	public void setTangents(List<float[]> tangents) {
@@ -643,4 +662,9 @@ public class Geoset implements Named, VisibilitySource {
 	public List<float[]> getTangents() {
 		return tangents;
 	}
+
+//	public Geoset deepCopy(){
+//		Geoset geoset = new Geoset();
+//		return geoset;
+//	}
 }

@@ -1,49 +1,42 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
-
-import java.util.List;
 
 /**
  * A java object to represent MDL "Sequences" ("Animations").
  *
  * Eric Theller 11/5/2011
  */
-public class Animation implements TimeBoundProvider {
+public class Animation extends Sequence {
 	private String name = "";
-	private int intervalStart = 0;
-	private int intervalEnd = -1;
 	private ExtLog extents;
-	float moveSpeed = 0;
-	boolean nonLooping = false;
-	float rarity = 0;
+	private float moveSpeed = 0;
+	private boolean nonLooping = false;
+	private float rarity = 0;
 
-	public Animation(String name, int intervalStart, int intervalEnd) {
+	public Animation(String name, int start, int end) {
+		super(start, end - start);
 		this.name = name;
-		this.intervalStart = intervalStart;
-		this.intervalEnd = intervalEnd;
 		extents = new ExtLog(ExtLog.DEFAULT_MINEXT, ExtLog.DEFAULT_MAXEXT, ExtLog.DEFAULT_BOUNDSRADIUS);
 	}
 
-	public Animation(String name, int intervalStart, int intervalEnd, Vec3 minimumExt, Vec3 maximumExt, double boundsRad) {
+	public Animation(String name, int start, int end, Vec3 minimumExt, Vec3 maximumExt, double boundsRad) {
+		super(start, end - start);
 		this.name = name;
-		this.intervalStart = intervalStart;
-		this.intervalEnd = intervalEnd;
 		extents = new ExtLog(minimumExt, maximumExt, boundsRad);
 	}
 
 	// construct for simple animation object, within geoset
 	public Animation(ExtLog extents) {
+		super(0);
 		name = "";
 		this.extents = extents;
 	}
 
-	public Animation(Animation other) {
+	private Animation(Animation other) {
+		super(other.start, other.length);
 		name = other.name;
-		intervalStart = other.intervalStart;
-		intervalEnd = other.intervalEnd;
 		moveSpeed = other.moveSpeed;
 		nonLooping = other.nonLooping;
 		rarity = other.rarity;
@@ -51,8 +44,8 @@ public class Animation implements TimeBoundProvider {
 	}
 
 	public boolean equals(final Animation other) {
-		return other.name.equals(name) && (other.intervalStart == intervalStart)
-				&& (other.intervalEnd == intervalEnd) && (other.moveSpeed == moveSpeed)
+		return other.name.equals(name) && (other.start == start)
+				&& (other.length == length) && (other.moveSpeed == moveSpeed)
 				&& (other.nonLooping == nonLooping) && (other.rarity == rarity);
 	}
 
@@ -96,149 +89,125 @@ public class Animation implements TimeBoundProvider {
 		this.nonLooping = nonLooping;
 	}
 
-	public int length() {
-		return intervalEnd - intervalStart;
+	public void setInterval(int start, int end) {
+		this.start = start;
+		this.length = end - start;
 	}
 
-	public void setInterval(final int start, final int end) {
-		intervalStart = start;
-		intervalEnd = end;
+	public void setAnimStuff(int start, int length) {
+		this.start = start;
+		this.length = length;
 	}
 
-	public void moveStartTo(int start) {
-		intervalEnd = start + length();
-		intervalStart = start;
-	}
-
-	public void setIntervalStart(final int intervalStart) {
-		this.intervalStart = intervalStart;
-	}
-
-	public void setIntervalEnd(final int intervalEnd) {
-		this.intervalEnd = intervalEnd;
-	}
-
-	public void copyToInterval(int newStart, int newEnd,
-	                           List<AnimFlag<?>> sourceFlags, List<EventObject> sourceEventObjs,
-	                           List<AnimFlag<?>> newFlags, List<EventObject> newEventObjs) {
-		for (final AnimFlag<?> af : newFlags) {
-			if (!af.hasGlobalSeq()) {
-				af.copyFrom(sourceFlags.get(newFlags.indexOf(af)), intervalStart, intervalEnd, newStart, newEnd);
-			}
-		}
-		for (final EventObject e : newEventObjs) {
-			if (!e.hasGlobalSeq()) {
-				e.copyFrom(sourceEventObjs.get(newEventObjs.indexOf(e)), intervalStart, intervalEnd, newStart, newEnd);
-			}
-		}
-	}
-
-	public void copyToInterval(int start, int end, List<AnimFlag<?>> flags, List<EventObject> eventObjs) {
-		for (AnimFlag<?> af : flags) {
-			if (!af.hasGlobalSeq()) {
-				af.copyFrom(af, intervalStart, intervalEnd, start, end);
-			}
-		}
-		for (EventObject e : eventObjs) {
-			if (!e.hasGlobalSeq()) {
-				e.copyFrom(e.copy(), intervalStart, intervalEnd, start, end);
-			}
-		}
-	}
-
-//	public <T> void copyToInterval(final int start, final int end, final List<AnimFlag<T>> flags,
-//			final List<EventObject> eventObjs) {
-//		for (final AnimFlag<T> af : flags) {
-//			if (!af.hasGlobalSeq) {
-//				af.copyFrom(af, intervalStart, intervalEnd, start, end);
+//	public void copyToInterval(int newStart, int newEnd, Animation animation,
+//	                           List<AnimFlag<?>> sourceFlags, List<EventObject> sourceEventObjs,
+//	                           List<AnimFlag<?>> newFlags, List<EventObject> newEventObjs) {
+//		for (final AnimFlag<?> af : newFlags) {
+//			if (!af.hasGlobalSeq()) {
+//				AnimFlag<?> source = sourceFlags.get(newFlags.indexOf(af));
+//				af.copyFrom(source, this, start, end, animation, newStart, newEnd);
 //			}
 //		}
-//		for (final EventObject e : eventObjs) {
-//			if (!e.hasGlobalSeq) {
-//				e.copyFrom(e.copy(), intervalStart, intervalEnd, start, end);
+//		for (final EventObject e : newEventObjs) {
+//			if (!e.hasGlobalSeq()) {
+//				e.copyFrom(sourceEventObjs.get(newEventObjs.indexOf(e)), start, end, newStart, newEnd);
 //			}
 //		}
 //	}
 
-	public void setInterval(final int start, final int end, final List<AnimFlag<?>> flags,
-	                        final List<EventObject> eventObjs) {
-		for (final AnimFlag<?> af : flags) {
-			if (!af.hasGlobalSeq()) {
-				af.timeScale(intervalStart, intervalEnd, start, end);
-			}
-		}
-		for (final EventObject e : eventObjs) {
-			if (!e.hasGlobalSeq()) {
-				e.timeScale(intervalStart, intervalEnd, start, end);
-			}
-		}
-		intervalStart = start;
-		intervalEnd = end;
-	}
+//	public void copyFromInterval(Animation animation, int offset, List<AnimFlag<?>> flags, List<EventObject> eventObjs) {
+//		for (AnimFlag<?> af : flags) {
+//			if (!af.hasGlobalSeq()) {
+//				af.copyFrom(af, animation, 0, animation.length, this, offset, length + offset);
+//			}
+//		}
+//		for (EventObject e : eventObjs) {
+//			if (!e.hasGlobalSeq()) {
+//				e.copyFrom(e.copy(), animation, this);
+//			}
+//		}
+//	}
 
-	public void reverse(final List<AnimFlag<?>> flags, final List<EventObject> eventObjs) {
-		for (final AnimFlag<?> af : flags) {
-			if (!af.hasGlobalSeq() && ((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
-				af.timeScale(intervalStart, intervalEnd, intervalEnd, intervalStart);
-			}
-		}
-		for (final EventObject e : eventObjs) {
-			e.timeScale(intervalStart, intervalEnd, intervalEnd, intervalStart);
-		}
-		// for( AnimFlag af: flags )
-		// {
-		// if( !af.hasGlobalSeq && (af.getTypeId() == 1 || af.getTypeId() == 2
-		// || af.getTypeId() == 3 ) ) // wouldn't want to mess THAT up...
-		// af.timeScale(m_intervalStart, m_intervalEnd, m_intervalStart+30,
-		// m_intervalStart+2);
-		// }
-		// for( EventObject e: eventObjs )
-		// {
-		// e.timeScale(m_intervalStart, m_intervalEnd, m_intervalStart+30,
-		// m_intervalStart+2);
-		// }
-	}
+//	public void copyToInterval(Animation animation, List<EventObject> eventObjs) {
+//		for (EventObject e : eventObjs) {
+//			if (!e.hasGlobalSeq()) {
+//				e.copyFrom(e.copy(), this.start, this.end, animation.getStart(), animation.getEnd());
+//			}
+//		}
+//	}
+//	public void copyFromAnimation(Animation animation, List<EventObject> eventObjs) {
+//		for (EventObject e : eventObjs) {
+//			if (!e.hasGlobalSeq()) {
+//				e.copyFrom(e.copy(), animation, this);
+//			}
+//		}
+//	}
 
-	public void clearData(final List<AnimFlag<?>> flags, final List<EventObject> eventObjs) {
-		for (final AnimFlag<?> af : flags) {
-			if (((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
-				// !af.hasGlobalSeq && was above before
-				af.deleteAnim(this);
-			}
-		}
-		for (final EventObject e : eventObjs) {
-			e.deleteAnim(this);
-		}
-	}
+//	public void reverse(List<AnimFlag<?>> flags, List<EventObject> eventObjs) {
+//		for (AnimFlag<?> af : flags) {
+//			if (!af.hasGlobalSeq() && ((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
+//				af.timeScale(this, length, 0);
+//			}
+//		}
+//		for (EventObject e : eventObjs) {
+//			e.timeScale(start, end, end, start);
+//		}
+//		// for( AnimFlag af: flags )
+//		// {
+//		// if( !af.hasGlobalSeq && (af.getTypeId() == 1 || af.getTypeId() == 2
+//		// || af.getTypeId() == 3 ) ) // wouldn't want to mess THAT up...
+//		// af.timeScale(m_intervalStart, m_intervalEnd, m_intervalStart+30,
+//		// m_intervalStart+2);
+//		// }
+//		// for( EventObject e: eventObjs )
+//		// {
+//		// e.timeScale(m_intervalStart, m_intervalEnd, m_intervalStart+30,
+//		// m_intervalStart+2);
+//		// }
+//	}
+//
+//	public void clearData(List<AnimFlag<?>> flags, List<EventObject> eventObjs) {
+//		for (AnimFlag<?> af : flags) {
+//			if (((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
+//				// !af.hasGlobalSeq && was above before
+//				af.deleteAnim(this);
+//			}
+//		}
+//		for (EventObject e : eventObjs) {
+//			e.deleteAnim(this);
+//		}
+//	}
 
-	public void setInterval(final int start, final int end, final EditableModel mdlr) {
-		final List<AnimFlag<?>> aniFlags = mdlr.getAllAnimFlags();
-		final List<EventObject> eventObjs = mdlr.getEvents();
-		setInterval(start, end, aniFlags, eventObjs);
-	}
-
-	@Override
-	public int getStart() {
-		return intervalStart;
-	}
-
-	@Override
-	public int getEnd() {
-		return intervalEnd;
-	}
+//	public static void setInterval(Animation anim, int start, int end, EditableModel mdl) {
+//		List<AnimFlag<?>> animFlags = mdl.getAllAnimFlags();
+//		List<EventObject> eventObjs = mdl.getEvents();
+//
+//		for (final AnimFlag<?> af : animFlags) {
+//			if (!af.hasGlobalSeq()) {
+//				af.timeScale2(anim, end - start, 0);
+//			}
+//		}
+//		for (final EventObject e : eventObjs) {
+//			if (!e.hasGlobalSeq()) {
+//				e.timeScale(anim.start, anim.end, start, end);
+//			}
+//		}
+//		anim.start = start;
+//		anim.end = end;
+//	}
 
 	@Override
 	public String toString() {
 		return getName();
 	}
 
-	public Animation deepCopy(){
+	public Animation deepCopy() {
 		return new Animation(this);
 	}
 
 	@Override
-	public int compareTo(TimeBoundProvider o) {
-		if(o instanceof GlobalSeq){
+	public int compareTo(Sequence o) {
+		if (o instanceof GlobalSeq) {
 			return 1;
 		}
 		return getStart() - o.getStart();

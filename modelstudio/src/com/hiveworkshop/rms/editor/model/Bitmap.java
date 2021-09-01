@@ -153,4 +153,18 @@ public class Bitmap {
 		this.imagePath = imagePath;
 		return this;
 	}
+
+	public String getRenderableTexturePath() {
+		if (imagePath.length() == 0) {
+			String tcString = ("" + (100 + Material.teamColor)).substring(1);
+			return switch (replaceableId) {
+				case 0 -> "";
+				case 1 -> "ReplaceableTextures\\TeamColor\\TeamColor" + tcString + ".blp";
+				case 2 -> "ReplaceableTextures\\TeamGlow\\TeamGlow" + tcString + ".blp";
+				case 11 -> "ReplaceableTextures\\Cliff\\Cliff0" + ".blp";
+				default -> "replaceabletextures\\lordaerontree\\lordaeronsummertree" + ".blp";
+			};
+		}
+		return imagePath;
+	}
 }

@@ -1,9 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model;
 
-import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.FaceEffect;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
@@ -42,11 +39,6 @@ public class ComponentFaceEffectPanel extends ComponentPanel<FaceEffect> {
 
 		revalidate();
 		repaint();
-	}
-
-	@Override
-	public void save(EditableModel model, UndoManager undoManager, ModelStructureChangeListener changeListener) {
-
 	}
 
 	private FocusAdapter setEffectTarget() {

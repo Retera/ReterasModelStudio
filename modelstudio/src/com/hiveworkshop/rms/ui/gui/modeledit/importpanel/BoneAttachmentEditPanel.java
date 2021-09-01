@@ -23,7 +23,7 @@ public class BoneAttachmentEditPanel extends JPanel {
 		setLayout(new MigLayout("gap 0, fill", "[grow]", "[][grow]"));
 		this.mht = mht;
 
-		renderer = new BoneShellListCellRenderer(mht.recModelManager, mht.donModelManager);
+		renderer = new BoneShellListCellRenderer(mht.receivingModel, mht.donatingModel);
 
 		add(getTopPanel(), "align center, wrap");
 

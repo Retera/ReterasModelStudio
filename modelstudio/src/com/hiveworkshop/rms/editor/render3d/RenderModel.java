@@ -252,7 +252,7 @@ public final class RenderModel {
 
 	// Soft is to only update billborded
 	public void updateNodes(boolean forced, boolean soft, boolean renderParticles) {
-		if ((timeEnvironment == null) || (timeEnvironment.getCurrentAnimation() == null)) {
+		if ((timeEnvironment == null) || (timeEnvironment.getCurrentSequence() == null)) {
 			for (AnimatedNode idObject : sortedNodes) {
 				getRenderNode(idObject).resetTransformation();
 			}
@@ -717,7 +717,7 @@ public final class RenderModel {
 
 		for (RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
 			if (allowInanimateParticles // not animating
-					&& (timeEnvironment == null || timeEnvironment.getCurrentAnimation() == null)
+					&& (timeEnvironment == null || timeEnvironment.getCurrentSequence() == null)
 					&& (modelView == null || modelView.getEditableIdObjects().contains(renderParticleEmitter2View.getParticleEmitter2()))) {
 				renderParticleEmitter2View.fill();
 			}

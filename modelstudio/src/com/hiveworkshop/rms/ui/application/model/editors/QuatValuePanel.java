@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
 import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.FilteredTextField;
 import com.hiveworkshop.rms.util.Quat;
@@ -21,8 +23,9 @@ public class QuatValuePanel extends ValuePanel<Quat> {
 		super(modelHandler, title);
 
 		quat = new Quat(QUAT);
-		keyframePanel.addAllowedCharatcters("\\{}, ");
-		keyframePanel.getFloatTrackTableModel().setValueClass(String.class);
+
+//		keyframePanel.addAllowedCharatcters("\\{}, ");
+//		keyframePanel.getFloatTrackTableModel().setValueClass(String.class);
 	}
 
 
@@ -51,6 +54,12 @@ public class QuatValuePanel extends ValuePanel<Quat> {
 	void reloadStaticValue(Quat vec3) {
 		if (vec3 != null) {
 			this.quat = vec3;
+		}
+		if (animFlag != null) {
+			for (KeyframePanel<Quat> kfp : keyframePanelMap.values()) {
+				kfp.addAllowedCharatcters("\\{}, ");
+				kfp.getFloatTrackTableModel().setValueClass(String.class);
+			}
 		}
 		staticValueField.setText(this.quat.toString());
 	}
@@ -128,4 +137,7 @@ public class QuatValuePanel extends ValuePanel<Quat> {
 //		return vecValue;
 	}
 
+	protected AnimFlag<Quat> getNewAnimFlag() {
+		return new QuatAnimFlag(flagName);
+	}
 }

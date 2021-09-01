@@ -26,7 +26,7 @@ public class TeamColorMenu extends JMenu {
 			try {
 				String colorName = WEString.getString("WESTRING_UNITCOLOR_" + colorNumber);
 				String iconTexturePath = "ReplaceableTextures\\TeamColor\\TeamColor" + colorNumber + ".blp";
-				ImageIcon icon = new ImageIcon(BLPHandler.get().getGameTex(iconTexturePath));
+				ImageIcon icon = new ImageIcon(BLPHandler.getGameTex(iconTexturePath));
 				JMenuItem menuItem = new JMenuItem(colorName, icon);
 				add(menuItem);
 				int teamColor = i;

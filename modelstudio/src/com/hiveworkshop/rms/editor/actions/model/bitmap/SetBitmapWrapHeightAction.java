@@ -8,27 +8,30 @@ public class SetBitmapWrapHeightAction implements UndoAction {
 	private final Bitmap bitmap;
 	private final boolean prevState;
 	private final boolean newState;
-	private final ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetBitmapWrapHeightAction(final Bitmap bitmap, final boolean prevState, final boolean newState,
-			final ModelStructureChangeListener modelStructureChangeListener) {
+	public SetBitmapWrapHeightAction(Bitmap bitmap, boolean newState, ModelStructureChangeListener changeListener) {
 		this.bitmap = bitmap;
-		this.prevState = prevState;
+		this.prevState = bitmap.isWrapHeight();
 		this.newState = newState;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		bitmap.setWrapHeight(prevState);
-		modelStructureChangeListener.texturesChanged();
+		if (changeListener != null) {
+			changeListener.texturesChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		bitmap.setWrapHeight(newState);
-		modelStructureChangeListener.texturesChanged();
+		if (changeListener != null) {
+			changeListener.texturesChanged();
+		}
 		return this;
 	}
 

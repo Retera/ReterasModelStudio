@@ -1,9 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.actions.model.EditCommentAction;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 import javax.swing.*;
@@ -26,12 +23,6 @@ public class ComponentCommentPanel extends ComponentPanel<List<String>> {
 		textPane.addFocusListener(commentEditListener());
 	}
 
-//	private void commentEdited(){
-//		final EditCommentAction editCommentAction = new EditCommentAction("ugg", "ugg", modelViewManager, changeListener);
-//		editCommentAction.redo();
-//		undoActionListener.pushAction(editCommentAction);
-//	}
-
 	// The type of this listener should maybe be something else, but still something that doesn't fire on every keypress
 	private FocusListener commentEditListener() {
 		return new FocusListener() {
@@ -41,9 +32,8 @@ public class ComponentCommentPanel extends ComponentPanel<List<String>> {
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				final EditCommentAction editCommentAction = new EditCommentAction("ugg", "ugg", modelHandler.getModelView(), changeListener);
-				editCommentAction.redo();
-				modelHandler.getUndoManager().pushAction(editCommentAction);
+				final EditCommentAction editCommentAction = new EditCommentAction("ugg", "ugg", model, changeListener);
+				undoManager.pushAction(editCommentAction.redo());
 			}
 		};
 	}
@@ -60,12 +50,6 @@ public class ComponentCommentPanel extends ComponentPanel<List<String>> {
 		textPane.setText(sb.toString());
 		revalidate();
 		repaint();
-	}
-
-	@Override
-	public void save(final EditableModel model, final UndoManager undoManager,
-	                 final ModelStructureChangeListener changeListener) {
-//		model.setHeader(getCommentContents());
 	}
 
 	public ArrayList<String> getCommentContents() {

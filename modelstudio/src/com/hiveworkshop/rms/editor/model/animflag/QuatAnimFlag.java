@@ -1,11 +1,16 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Quat;
+
+import java.util.ArrayList;
+import java.util.TreeMap;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
@@ -20,7 +25,7 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		super(title);
 	}
 
-	public QuatAnimFlag(AnimFlag<Quat> af) {
+	protected QuatAnimFlag(AnimFlag<Quat> af) {
 		super(af);
 	}
 
@@ -31,6 +36,9 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		final Object[] values = timeline.values;
 		final Object[] inTans = timeline.inTans;
 		final Object[] outTans = timeline.outTans;
+
+		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
+		model.getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
 
 		if (frames.length > 0) {
 			boolean hasTangents = interpolationType.tangential();
@@ -47,7 +55,12 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 					outTanAsObject = new Quat((float[]) outTans[i]);
 				}
 
-				addEntry((int) frames[i], valueAsObject, inTanAsObject, outTanAsObject);
+				if (hasGlobalSeq()) {
+					addEntry((int) frames[i] - globalSeq.getStart(), valueAsObject, inTanAsObject, outTanAsObject, globalSeq);
+				} else if (animationTreeMap.floorEntry((int) frames[i]) != null) {
+					Sequence sequence = animationTreeMap.floorEntry((int) frames[i]).getValue();
+					addEntry((int) frames[i] - sequence.getStart(), valueAsObject, inTanAsObject, outTanAsObject, sequence);
+				}
 			}
 		}
 	}
@@ -82,25 +95,45 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		mdlxTimeline.interpolationType = interpolationType;
 		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
 
-		final long[] tempFrames = new long[entryMap.size()];
-		final float[][] tempValues = new float[entryMap.size()][];
-		final float[][] tempInTans = new float[entryMap.size()][];
-		final float[][] tempOutTans = new float[entryMap.size()][];
 
-		boolean hasTangents = mdlxTimeline.interpolationType.tangential();
+		ArrayList<Integer> tempFrames2 = new ArrayList<>();
+		ArrayList<float[]> tempValues2 = new ArrayList<>();
+		ArrayList<float[]> tempInTans2 = new ArrayList<>();
+		ArrayList<float[]> tempOutTans2 = new ArrayList<>();
 
-
-		for (int i = 0, l = entryMap.size(); i < l; i++) {
-			tempFrames[i] = getTimeFromIndex(i);
-			tempValues[i] = getValueFromIndex(i).toFloatArray();
-
-			if (hasTangents) {
-				tempInTans[i] = getInTanFromIndex(i).toFloatArray();
-				tempOutTans[i] = getOutTanFromIndex(i).toFloatArray();
-			} else {
-				tempInTans[i] = (new Quat()).toFloatArray();
-				tempOutTans[i] = (new Quat()).toFloatArray();
+		for (Sequence anim : sequenceMap.keySet()) {
+			if (globalSeq == null || anim == globalSeq) {
+				TreeMap<Integer, Entry<Quat>> entryTreeMap = sequenceMap.get(anim);
+				for (Integer time : entryTreeMap.keySet()) {
+					if (time > anim.getLength()) {
+						break;
+					}
+					Entry<Quat> entry = entryTreeMap.get(time);
+//					tempFrames2.add(time + Math.max(anim.getStart(), tempFrames2.get(tempFrames2.size()-1) + 10));
+					tempFrames2.add(time + anim.getStart());
+					tempValues2.add(entry.getValue().toFloatArray());
+					if (tans()) {
+						tempInTans2.add(entry.getInTan().toFloatArray());
+						tempOutTans2.add(entry.getOutTan().toFloatArray());
+					} else {
+						tempInTans2.add(new float[] {0});
+						tempOutTans2.add(new float[] {0});
+					}
+				}
 			}
+		}
+
+		int size = tempFrames2.size();
+		long[] tempFrames = new long[size];
+		float[][] tempValues = new float[size][];
+		float[][] tempInTans = new float[size][];
+		float[][] tempOutTans = new float[size][];
+
+		for (int i = 0; i < size; i++) {
+			tempFrames[i] = tempFrames2.get(i);
+			tempValues[i] = tempValues2.get(i);
+			tempInTans[i] = tempInTans2.get(i);
+			tempOutTans[i] = tempOutTans2.get(i);
 		}
 
 		mdlxTimeline.frames = tempFrames;
@@ -116,7 +149,8 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 	}
 
 	@Override
-	public Quat getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
+	public Quat getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor, Sequence anim) {
+		TreeMap<Integer, Entry<Quat>> entryMap = sequenceMap.get(anim);
 		Entry<Quat> entryFloor = entryMap.get(floorTime);
 		Entry<Quat> entryCeil = entryMap.get(ceilTime);
 
@@ -149,7 +183,7 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 	}
 
 	@Override
-	public void calcNewTans(float factor[], Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
+	public void calcNewTans(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
 
 		Quat logNNP = new Quat(cur.value).invertQuat();
 		if (next != null) {

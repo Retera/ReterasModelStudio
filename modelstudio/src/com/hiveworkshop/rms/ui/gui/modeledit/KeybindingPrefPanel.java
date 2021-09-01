@@ -19,7 +19,7 @@ public class KeybindingPrefPanel extends JPanel {
 		JPanel settingsPanel = new JPanel(new MigLayout("fill, wrap 2", "[left][right]"));
 		for (TextKey textKey : KeyBindingPrefs.getActionFunctionMap().keySet()) {
 			settingsPanel.add(new JLabel(textKey.toString()));
-			String kbString = "None";
+			String kbString = TextKey.NONE.toString();
 			if (keyBindingPrefs.getKeyStroke(textKey) != null) {
 				kbString = keyBindingPrefs.getKeyStroke(textKey).toString();
 			}

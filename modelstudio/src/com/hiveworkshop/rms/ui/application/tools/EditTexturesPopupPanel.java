@@ -209,20 +209,27 @@ public class EditTexturesPopupPanel extends JPanel {
 		}
 	}
 
-	private void loadBitmap(Bitmap defaultTexture) {
-		if (defaultTexture != null) {
+	private void loadBitmap(Bitmap bitmap) {
+		if (bitmap != null) {
 			final DataSource workingDirectory = model.getWrappedDataSource();
 			imageViewerPanel.removeAll();
-			try {
-				imageViewerPanel.add(new ZoomableImagePreviewPanel(BLPHandler.get().getTexture(workingDirectory, defaultTexture.getPath())));
-			} catch (final Exception exc) {
-				final BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
-				final Graphics2D g2 = image.createGraphics();
-				g2.setColor(Color.RED);
-				g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
-				imageViewerPanel.add(new ZoomableImagePreviewPanel(image));
-			}
+			ZoomableImagePreviewPanel comp = getZoomableImagePreviewPanel(bitmap, workingDirectory);
+			imageViewerPanel.add(comp);
 			imageViewerPanel.revalidate();
+		}
+	}
+
+	private ZoomableImagePreviewPanel getZoomableImagePreviewPanel(Bitmap bitmap, DataSource workingDirectory) {
+		try {
+//			BufferedImage texture = BLPHandler.get().getTexture(workingDirectory, bitmap.getPath());
+			BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory);
+			return new ZoomableImagePreviewPanel(texture);
+		} catch (final Exception exc) {
+			final BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
+			final Graphics2D g2 = image.createGraphics();
+			g2.setColor(Color.RED);
+			g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
+			return new ZoomableImagePreviewPanel(image);
 		}
 	}
 

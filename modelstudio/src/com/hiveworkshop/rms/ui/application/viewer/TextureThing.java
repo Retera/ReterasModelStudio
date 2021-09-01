@@ -59,14 +59,14 @@ public class TextureThing {
 
 	public void loadToTexMap(Bitmap tex) {
 		if (textureMap.get(tex) == null) {
-			String path = tex.getPath();
+			String path = tex.getRenderableTexturePath();
 			if (!path.isEmpty() && !programPreferences.getAllowLoadingNonBlpTextures()) {
 				path = path.replaceAll("\\.\\w+", "") + ".blp";
 			}
 			Integer texture = null;
 			try {
 				DataSource workingDirectory = modelView.getModel().getWrappedDataSource();
-				texture = loadTexture(BLPHandler.get().loadTexture2(workingDirectory, path, tex), tex);
+				texture = loadTexture(BLPHandler.get().loadTexture2(workingDirectory, path), tex);
 			} catch (final Exception exc) {
 				if (LOG_EXCEPTIONS) {
 					exc.printStackTrace();

@@ -1,20 +1,24 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
 import javax.swing.table.AbstractTableModel;
 
-public class FloatTrackTableModel extends AbstractTableModel {
-	private AnimFlag<?> track;
+public class FloatTrackTableModel<T> extends AbstractTableModel {
+	private AnimFlag<T> track;
 	private Object[] lastButtons = {"X", null};
 	private String[] lastButtonsTitle = {"", null};
 	private Class<?>[] lastButtonsClazz = {Integer.class, null};
 	private Class<?> valueClazz = Float.class;
 
+	private Sequence sequence;
+
 	private Class<?>[] columnClassList = {Integer.class, String.class, getLbtClass(0), getLbtClass(1)};
 
-	public FloatTrackTableModel(final AnimFlag<?> track) {
+	public FloatTrackTableModel(final AnimFlag<T> track, Sequence sequence) {
 		this.track = track;
+		this.sequence = sequence;
 		setClassList();
 	}
 
@@ -52,10 +56,10 @@ public class FloatTrackTableModel extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		if (track == null) {
+		if (track == null || sequence == null || track.getEntryMap(sequence) == null) {
 			return 0;
 		}
-		return track.size();
+		return track.getEntryMap(sequence).size();
 	}
 
 	@Override
@@ -75,23 +79,24 @@ public class FloatTrackTableModel extends AbstractTableModel {
 		}
 		if (track.tans()) {
 			return switch (columnIndex) {
-				case 0 -> track.getTimeFromIndex(rowIndex);
-				case 1 -> track.getValueFromIndex(rowIndex);
-				case 2 -> track.getInTanFromIndex(rowIndex);
-				case 3 -> track.getOutTanFromIndex(rowIndex);
+				case 0 -> track.getTimeFromIndex(sequence, rowIndex);
+				case 1 -> track.getValueFromIndex(sequence, rowIndex);
+				case 2 -> track.getInTanFromIndex(sequence, rowIndex);
+				case 3 -> track.getOutTanFromIndex(sequence, rowIndex);
 				case 4 -> lastButtons[0];
 				case 5 -> lastButtons[1];
 				default -> null;
 			};
 		} else {
 			return switch (columnIndex) {
-				case 0 -> track.getTimeFromIndex(rowIndex);
-				case 1 -> track.getValueFromIndex(rowIndex);
+				case 0 -> track.getTimeFromIndex(sequence, rowIndex);
+				case 1 -> track.getValueFromIndex(sequence, rowIndex);
 				case 2 -> getLbtValue(0, rowIndex);
 				case 3 -> getLbtValue(1, rowIndex);
 				default -> null;
 			};
 		}
+//		return null;
 	}
 
 	@Override
@@ -103,8 +108,9 @@ public class FloatTrackTableModel extends AbstractTableModel {
 		}
 	}
 
-	public void setTrack(AnimFlag<?> track) {
+	public void setTrack(AnimFlag<T> track, Sequence sequence) {
 		this.track = track;
+		this.sequence = sequence;
 		setClassList();
 		fireTableDataChanged();
 	}

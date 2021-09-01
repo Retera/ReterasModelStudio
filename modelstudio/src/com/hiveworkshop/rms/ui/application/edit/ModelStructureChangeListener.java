@@ -47,6 +47,7 @@ public class ModelStructureChangeListener {
 	// It would be possible to let those actions take a boolean instead...
 
 	public void nodesUpdated() {
+		System.out.println("nodesUpdated");
 		// Tell program to set visibility after import
 		updateElementsAndRefreshFromEditor();
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
@@ -61,9 +62,9 @@ public class ModelStructureChangeListener {
 	}
 
 	public static void refreshFromEditor(ModelPanel modelPanel) {
-
+		System.out.println("refreshFromEditor");
 		PerspectiveViewUgg modelDependentView = (PerspectiveViewUgg) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PerspectiveViewUgg).findFirst().orElse(null);
-		if(modelDependentView != null && modelDependentView.getPerspectiveViewport() != null){
+		if (modelDependentView != null && modelDependentView.getPerspectiveViewport() != null) {
 			PerspectiveViewport viewport = modelDependentView.getPerspectiveViewport();
 //		    PerspectiveViewport viewport = modelPanel.getPerspArea().getViewport();
 			Particle2TextureInstance particleTextureInstance = new Particle2TextureInstance(viewport.getTextureThing(), modelPanel.getModelView(), ProgramGlobals.getPrefs());
@@ -90,6 +91,7 @@ public class ModelStructureChangeListener {
 	}
 
 	public void animationParamsChanged() {
+		System.out.println("animationParamsChanged");
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			refreshFromEditor(modelPanel);

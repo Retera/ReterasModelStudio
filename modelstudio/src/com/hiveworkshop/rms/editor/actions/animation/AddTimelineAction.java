@@ -4,11 +4,11 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 
-public class AddTimelineAction implements UndoAction {
-	private final AnimFlag<?> timeline;
+public class AddTimelineAction<T> implements UndoAction {
+	private final AnimFlag<T> timeline;
 	private final TimelineContainer container;
 
-	public AddTimelineAction(TimelineContainer container, AnimFlag<?> timeline) {
+	public AddTimelineAction(TimelineContainer container, AnimFlag<T> timeline) {
 		this.container = container;
 		this.timeline = timeline;
 	}

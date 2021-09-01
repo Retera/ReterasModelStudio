@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
@@ -24,25 +24,26 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 	private final int trackTime;
 	private final HashMap<IdObject, Quat> nodeToLocalRotation;
 	private final Vec3 center;
-	private final byte dim1;
-	private final byte dim2;
+	private final Vec3 axis;
 	private final GlobalSeq trackGlobalSeq;
+	private final Sequence anim;
 	private final RenderModel editorRenderModel;
-	private final List<IdObject> idObjects;
+	private final Collection<IdObject> allIdObjects;
 
 	public SquatToolKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
 	                               Collection<IdObject> nodeSelection,
 	                               RenderModel editorRenderModel,
-	                               List<IdObject> idObjects,
+	                               Collection<IdObject> allIdObjects,
 	                               Vec3 center,
-	                               byte dim1, byte dim2) {
+	                               Vec3 axis) {
 		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
-		this.editorRenderModel = editorRenderModel;
 		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
 		this.trackGlobalSeq = editorRenderModel.getTimeEnvironment().getGlobalSeq();
-		this.idObjects = idObjects;
-		this.dim1 = dim1;
-		this.dim2 = dim2;
+		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
+
+		this.editorRenderModel = editorRenderModel;
+		this.allIdObjects = allIdObjects;
+		this.axis = axis;
 		nodeToLocalRotation = new HashMap<>();
 		for (IdObject node : nodeSelection) {
 			nodeToLocalRotation.put(node, new Quat());
@@ -50,11 +51,32 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		this.center = new Vec3(center);
 	}
 
+	public SquatToolKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
+	                               Collection<IdObject> nodeSelection,
+	                               RenderModel editorRenderModel,
+	                               List<IdObject> allIdObjects,
+	                               Vec3 center,
+	                               byte dim1, byte dim2) {
+		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
+		this.editorRenderModel = editorRenderModel;
+		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
+		this.trackGlobalSeq = editorRenderModel.getTimeEnvironment().getGlobalSeq();
+		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
+		this.allIdObjects = allIdObjects;
+		nodeToLocalRotation = new HashMap<>();
+		for (IdObject node : nodeSelection) {
+			nodeToLocalRotation.put(node, new Quat());
+		}
+		this.center = new Vec3(center);
+		this.axis = getUnusedAxis(CoordSysUtils.getUnusedXYZ(dim1, dim2));
+	}
+
 	@Override
 	public UndoAction undo() {
+		Quat localRotation = new Quat();
 		for (IdObject node : nodeToLocalRotation.keySet()) {
-			Quat localTranslation = nodeToLocalRotation.get(node);
-			updateLocalRotationKeyframeInverse(node, trackTime, trackGlobalSeq, localTranslation);
+			localRotation.set(nodeToLocalRotation.get(node)).invertRotation();
+			updateLocalRotationKeyframe(node, localRotation);
 		}
 		addingTimelinesOrKeyframesAction.undo();
 		return this;
@@ -64,8 +86,8 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 	public UndoAction redo() {
 		addingTimelinesOrKeyframesAction.redo();
 		for (IdObject node : nodeToLocalRotation.keySet()) {
-			Quat localTranslation = nodeToLocalRotation.get(node);
-			updateLocalRotationKeyframe(node, trackTime, trackGlobalSeq, localTranslation);
+			Quat localRotation = nodeToLocalRotation.get(node);
+			updateLocalRotationKeyframe(node, localRotation);
 		}
 		return this;
 	}
@@ -78,20 +100,20 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 	@Override
 	public GenericRotateAction updateRotation(double radians) {
 		for (IdObject idObject : nodeToLocalRotation.keySet()) {
-			updateRotationKeyframe(idObject, editorRenderModel, center, radians, dim1, dim2, nodeToLocalRotation.get(idObject));
+			updateRotationKeyframe(idObject, radians, nodeToLocalRotation.get(idObject));
 		}
 		//todo check if this should be here....
-		for (IdObject idObject : idObjects) {
+		for (IdObject idObject : allIdObjects) {
 			if (nodeToLocalRotation.containsKey(idObject.getParent())
 					&& (((idObject.getClass() == Bone.class) && (idObject.getParent().getClass() == Bone.class))
 					|| ((idObject.getClass() == Helper.class) && (idObject.getParent().getClass() == Helper.class)))) {
-				updateRotationKeyframe(idObject, editorRenderModel, center, -radians, dim1, dim2, nodeToLocalRotation.get(idObject));
+				updateRotationKeyframe(idObject, -radians, nodeToLocalRotation.get(idObject));
 			}
 		}
 		return this;
 	}
 
-	public void updateLocalRotationKeyframe(AnimatedNode animatedNode, int trackTime, GlobalSeq trackGlobalSeq, Quat localRotation) {
+	public void updateLocalRotationKeyframe(AnimatedNode animatedNode, Quat localRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
@@ -100,8 +122,9 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		if (rotationTimeline == null) {
 			return;
 		}
-		if (rotationTimeline.hasEntryAt(trackTime)) {
-			Entry<Quat> entry = rotationTimeline.getEntryAt(trackTime);
+		Sequence anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
+		if (rotationTimeline.hasEntryAt(anim, trackTime)) {
+			Entry<Quat> entry = rotationTimeline.getEntryAt(anim, trackTime);
 			entry.getValue().mul(localRotation);
 			if (rotationTimeline.tans()) {
 				entry.getInTan().mul(localRotation);
@@ -110,41 +133,18 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		}
 	}
 
-	public void updateLocalRotationKeyframeInverse(AnimatedNode animatedNode, int trackTime, GlobalSeq trackGlobalSeq, Quat localRotation) {
-		// Note to future author: the reason for saved local rotation is that
-		// we would like to be able to undo the action of rotating the animation data
-
-		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-		QuatAnimFlag rotationTimeline = (QuatAnimFlag) animatedNode.find(MdlUtils.TOKEN_ROTATION, trackGlobalSeq);
-		if (rotationTimeline == null) {
-			return;
-		}
-		if (rotationTimeline.hasEntryAt(trackTime)) {
-			Entry<Quat> entry = rotationTimeline.getEntryAt(trackTime);
-			entry.getValue().mulLeft(localRotation);
-			if (rotationTimeline.tans()) {
-				entry.getInTan().mulLeft(localRotation);
-				entry.getOutTan().mulLeft(localRotation);
-			}
-		}
-	}
-
-	public void updateRotationKeyframe(AnimatedNode animatedNode, RenderModel renderModel, Vec3 center,
-	                                   double radians, byte firstXYZ, byte secondXYZ, Quat savedLocalRotation) {
+	public void updateRotationKeyframe(AnimatedNode animatedNode, double radians, Quat savedLocalRotation) {
 		// Note to future author: the reason for saved local rotation is that
 		// we would like to be able to undo the action of rotating the animation data
 
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be  constructed from
 		//  a TimeEnvironmentImpl render environment, and never from the anim previewer impl
-		TimeEnvironmentImpl timeEnvironmentImpl = renderModel.getTimeEnvironment();
-		QuatAnimFlag rotationTimeline = (QuatAnimFlag) animatedNode.find(MdlUtils.TOKEN_ROTATION, timeEnvironmentImpl.getGlobalSeq());
+		QuatAnimFlag rotationTimeline = (QuatAnimFlag) animatedNode.find(MdlUtils.TOKEN_ROTATION, trackGlobalSeq);
 		if (rotationTimeline == null) {
 			return;
 		}
-		int trackTime = renderModel.getTimeEnvironment().getEnvTrackTime();
 
-		byte unusedXYZ = CoordSysUtils.getUnusedXYZ(firstXYZ, secondXYZ);
 		AnimatedNode parent = null;// = getParent();
 		if (animatedNode instanceof IdObject) {
 			parent = ((IdObject) animatedNode).getParent();
@@ -153,20 +153,20 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 		Vec4 rotationAxis = new Vec4(0, 0, 0, 1);
 
 		if (parent != null) {
-			RenderNode parentRenderNode = renderModel.getRenderNode(parent);
+			RenderNode parentRenderNode = editorRenderModel.getRenderNode(parent);
 
 			rotationAxis.transform(parentRenderNode.getWorldMatrix());
-			rotationAxis.add(getUnusedAxis(unusedXYZ));
+			rotationAxis.add(axis);
 			rotationAxis.transform(Mat4.getInverted(parentRenderNode.getWorldMatrix()));
 		} else {
-			rotationAxis.add(getUnusedAxis(unusedXYZ));
+			rotationAxis.add(axis);
 		}
 		rotationAxis.w = (float) radians;
 		Quat rotation = new Quat().setFromAxisAngle(rotationAxis);
 
 
-		if (rotationTimeline.hasEntryAt(trackTime)) {
-			Entry<Quat> entry = rotationTimeline.getEntryAt(trackTime);
+		if (rotationTimeline.hasEntryAt(anim, trackTime)) {
+			Entry<Quat> entry = rotationTimeline.getEntryAt(anim, trackTime);
 			entry.getValue().mulLeft(rotation);
 
 			if (savedLocalRotation != null) {

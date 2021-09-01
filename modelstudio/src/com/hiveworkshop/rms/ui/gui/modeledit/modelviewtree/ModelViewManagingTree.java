@@ -46,6 +46,7 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 	}
 	public ModelViewManagingTree() {
 		super();
+		System.out.println("ModelViewManagingTree");
 		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
 		basicTreeUI.setRightChildIndent(5);
 
@@ -55,16 +56,22 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 	}
 
 	public ModelViewManagingTree setModel(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
+		System.out.println("ModelViewManagingTree#setModel: setModel");
 		setModel(modelHandler);
+		this.modelHandler = modelHandler;
+		System.out.println("ModelViewManagingTree#setModel: creating checkboxNodes");
 		root = new JCheckBoxTreeNode(new CheckableModelElement(modelHandler)).setChecked(true);
 //		nodes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, "Nodes")).setChecked(false);
 		meshes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, MESH)).setChecked(true);
 		nodes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, NODES)).setChecked(true);
 		cameras = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, CAMERAS));
 
-		setModel(buildTreeModel(modelHandler));
-		this.modelHandler = modelHandler;
+		System.out.println("ModelViewManagingTree#setModel: buildTreeModel");
+		DefaultTreeModel treeModel = buildTreeModel(modelHandler);
+		System.out.println("ModelViewManagingTree#setModel: setTreeModel");
+		setModel(treeModel);
 
+		System.out.println("ModelViewManagingTree#setModel: addListListener");
 		listenerList.add(CheckChangeEventListener.class, changeEventListener(modelHandler.getUndoManager(), modelEditorManager));
 		return this;
 	}

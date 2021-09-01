@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.util.ImageCreator;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -43,7 +44,7 @@ public class MaterialListCellRenderer extends DefaultListCellRenderer {
 		if (geosetShell != null && geosetShell.getOldMaterial() == material) {
 			name = name + " (Original)";
 		}
-		BufferedImage materialImage = (material).getBufferedImage(myModel.getWrappedDataSource());
+		BufferedImage materialImage = ImageCreator.getBufferedImage((material), myModel.getWrappedDataSource());
 		if (myModel.contains(material)) {
 			super.getListCellRendererComponent(list, name, index, iss, chf);
 			setIcon(makeMaterialIcon(material, materialImage, recModelColor.asIntColor()));

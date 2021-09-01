@@ -9,100 +9,12 @@ import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
 
-import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
 
 public class ScriptActions {
-
-//    static void exportAnimatedFramePNG(MainPanel mainPanel) {
-//        BufferedImage fBufferedImage = mainPanel.currentModelPanel().getAnimationViewer().getBufferedImage();
-//
-//        if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-//            EditableModel current = mainPanel.currentMDL();
-//            if ((current != null) && !current.isTemp() && (current.getFile() != null)) {
-//                mainPanel.fc.setCurrentDirectory(current.getFile().getParentFile());
-//            } else if (mainPanel.profile.getPath() != null) {
-//                mainPanel.fc.setCurrentDirectory(new File(mainPanel.profile.getPath()));
-//            }
-//        }
-//        if (mainPanel.exportTextureDialog.getCurrentDirectory() == null) {
-//            mainPanel.exportTextureDialog.setSelectedFile(new File(mainPanel.exportTextureDialog.getCurrentDirectory() + File.separator));
-//        }
-//
-//        int x = mainPanel.exportTextureDialog.showSaveDialog(mainPanel);
-//        if (x == JFileChooser.APPROVE_OPTION) {
-//            File file = mainPanel.exportTextureDialog.getSelectedFile();
-//            if (file != null) {
-//                try {
-//                    if (file.getName().lastIndexOf('.') >= 0) {
-//                        BufferedImage bufferedImage = fBufferedImage;
-//                        String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1)
-//                                .toUpperCase();
-//                        if (fileExtension.equals("BMP") || fileExtension.equals("JPG")
-//                                || fileExtension.equals("JPEG")) {
-//                            JOptionPane.showMessageDialog(mainPanel,
-//                                    "Warning: Alpha channel was converted to black. Some data will be lost\nif you convert this texture back to Warcraft BLP.");
-//                            bufferedImage = BLPHandler.removeAlphaChannel(bufferedImage);
-//                        }
-//                        if (fileExtension.equals("BLP")) {
-//                            fileExtension = "blp";
-//                        }
-//                        boolean write = ImageIO.write(bufferedImage, fileExtension, file);
-//                        if (!write) {
-//                            JOptionPane.showMessageDialog(mainPanel, "File type unknown or unavailable");
-//                        }
-//                    } else {
-//                        JOptionPane.showMessageDialog(mainPanel, "No file type was specified");
-//                    }
-//                } catch (final Exception e1) {
-//                    ExceptionPopup.display(e1);
-//                    e1.printStackTrace();
-//                }
-//            } else {
-//                JOptionPane.showMessageDialog(mainPanel, "No output file was specified");
-//            }
-//        }
-//    }
-
-	public static void combineAnimations() {
-		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
-		List<Animation> anims = model.getAnims();
-		Animation[] array = anims.toArray(new Animation[0]);
-		Object choice = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
-				"Pick the first animation",
-				"Choose 1st Anim", JOptionPane.PLAIN_MESSAGE, null, array, array[0]);
-		Animation animation = (Animation) choice;
-
-		Object choice2 = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
-				"Pick the second animation",
-				"Choose 2nd Anim", JOptionPane.PLAIN_MESSAGE, null, array, array[0]);
-		Animation animation2 = (Animation) choice2;
-
-		String nameChoice = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
-				"What should the combined animation be called?");
-		if (nameChoice != null) {
-			int anim1Length = animation.getEnd() - animation.getStart();
-			int anim2Length = animation2.getEnd() - animation2.getStart();
-			int totalLength = anim1Length + anim2Length;
-
-			int animTrackEnd = model.animTrackEnd();
-			int start = animTrackEnd + 1000;
-			animation.copyToInterval(start, start + anim1Length, model.getAllAnimFlags(), model.getEvents());
-			animation2.copyToInterval(start + anim1Length, start + totalLength, model.getAllAnimFlags(), model.getEvents());
-
-			Animation newAnimation = new Animation(nameChoice, start, start + totalLength);
-			model.add(newAnimation);
-			newAnimation.setNonLooping(true);
-			newAnimation.setExtents(animation.getExtents().deepCopy());
-			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(),
-					"DONE! Made a combined animation called " + newAnimation.getName(), "Success",
-					JOptionPane.PLAIN_MESSAGE);
-		}
-	}
 
 
 	public static String incName(String name) {

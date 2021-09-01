@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.util;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.util.function.Consumer;
 
@@ -13,31 +14,30 @@ public class Vec3SpinnerArray {
 	private String spinnerWrap = "";
 	private String labelConst = "";
 	private String spinnerConst = "";
+	private boolean isEnabled = true;
+
+	Consumer<Vec3> vec3Consumer;
 
 	boolean isUpdating = false;
 
 	public Vec3SpinnerArray() {
-		spinners[0] = getStandardSpinner(0);
-		spinners[1] = getStandardSpinner(0);
-		spinners[2] = getStandardSpinner(0);
-		labels[0] = new JLabel("");
-		labels[1] = new JLabel("");
-		labels[2] = new JLabel("");
+		this(new Vec3(), "", "", "");
+	}
+
+	public Vec3SpinnerArray(String l1, String l2, String l3) {
+		this(new Vec3(), l1, l2, l3);
 	}
 
 	public Vec3SpinnerArray(Vec3 startV, String l1, String l2, String l3) {
 		spinners[0] = getStandardSpinner(startV.x);
 		spinners[1] = getStandardSpinner(startV.y);
 		spinners[2] = getStandardSpinner(startV.z);
-		labels[0] = new JLabel(l1);
-		labels[1] = new JLabel(l2);
-		labels[2] = new JLabel(l3);
-	}
 
-	public Vec3SpinnerArray(String l1, String l2, String l3) {
-		spinners[0] = getStandardSpinner(0);
-		spinners[1] = getStandardSpinner(0);
-		spinners[2] = getStandardSpinner(0);
+
+		spinners[0].addChangeListener(this::runConsumer);
+		spinners[1].addChangeListener(this::runConsumer);
+		spinners[2].addChangeListener(this::runConsumer);
+
 		labels[0] = new JLabel(l1);
 		labels[1] = new JLabel(l2);
 		labels[2] = new JLabel(l3);
@@ -83,10 +83,15 @@ public class Vec3SpinnerArray {
 	}
 
 	public Vec3SpinnerArray setEnabled(boolean b) {
+		isEnabled = b;
 		spinners[0].setEnabled(b);
 		spinners[1].setEnabled(b);
 		spinners[2].setEnabled(b);
 		return this;
+	}
+
+	public boolean isEnabled() {
+		return isEnabled;
 	}
 
 	public Vec3SpinnerArray setLabelWrap(boolean b) {
@@ -111,22 +116,22 @@ public class Vec3SpinnerArray {
 
 	boolean ugg;
 
-	public Vec3SpinnerArray addActionListener(Runnable actionListener){
-//		spinners[0].addChangeListener(e -> System.out.println("ChangeListener"));
-//		spinners[0].addPropertyChangeListener(e -> System.out.println("PropertyChange"));
-		ChangeListener changeListener = e -> {
-			if (!isUpdating) {
-				if (ugg) {
-					actionListener.run();
-				}
-				ugg = !ugg; // this is just an ugly temporary hack to run the actionListener only on the second change event fire
-			}
-		};
-		spinners[0].addChangeListener(changeListener);
-		spinners[1].addChangeListener(changeListener);
-		spinners[2].addChangeListener(changeListener);
-		return this;
-	}
+//	public Vec3SpinnerArray addActionListener(Runnable actionListener){
+////		spinners[0].addChangeListener(e -> System.out.println("ChangeListener"));
+////		spinners[0].addPropertyChangeListener(e -> System.out.println("PropertyChange"));
+//		ChangeListener changeListener = e -> {
+//			if (!isUpdating) {
+//				if (ugg) {
+//					actionListener.run();
+//				}
+//				ugg = !ugg; // this is just an ugly temporary hack to run the actionListener only on the second change event fire
+//			}
+//		};
+//		spinners[0].addChangeListener(changeListener);
+//		spinners[1].addChangeListener(changeListener);
+//		spinners[2].addChangeListener(changeListener);
+//		return this;
+//	}
 
 	public Vec3SpinnerArray addActionListener(Consumer<Vec3> consumer) {
 		ChangeListener changeListener = e -> {
@@ -141,5 +146,28 @@ public class Vec3SpinnerArray {
 		spinners[1].addChangeListener(changeListener);
 		spinners[2].addChangeListener(changeListener);
 		return this;
+	}
+
+	public Vec3SpinnerArray setVec3Consumer(Consumer<Vec3> consumer) {
+		this.vec3Consumer = consumer;
+		return this;
+	}
+
+
+	private void runConsumer() {
+		if (vec3Consumer != null) {
+			vec3Consumer.accept(getValue());
+		}
+	}
+
+	private void runConsumer(ChangeEvent e) {
+		if (vec3Consumer != null) {
+			if (!isUpdating) {
+				if (ugg) {
+					vec3Consumer.accept(getValue());
+				}
+				ugg = !ugg;
+			}
+		}
 	}
 }

@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
 /**
@@ -18,8 +19,8 @@ import com.hiveworkshop.rms.util.Vec3;
 public class TTanVec3 extends TTan<Vec3> {
 	public boolean isLogsReady; // "true" if Logarithms are ready
 
-	public TTanVec3(AnimFlag<Vec3> timeline) {
-		super(timeline);
+	public TTanVec3(AnimFlag<Vec3> timeline, Sequence anim) {
+		super(timeline, anim);
 		deltaOut = new Vec3();
 		deltaIn = new Vec3();
 		logNNP = new Vec3();

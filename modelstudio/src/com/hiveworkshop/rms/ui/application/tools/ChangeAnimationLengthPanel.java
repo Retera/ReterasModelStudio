@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
-import com.hiveworkshop.rms.editor.actions.animation.EditAnimationLengthsAction;
+import com.hiveworkshop.rms.editor.actions.animation.ScaleSequencesLengthsAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.SliderBarHandler;
@@ -16,26 +16,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChangeAnimationLengthPanel extends JPanel {
-	private final Map<TimeBoundProvider, SliderBarHandler> animationBarMap = new HashMap<>();
+	private final Map<Sequence, SliderBarHandler> animationBarMap = new HashMap<>();
 	private final ModelHandler modelHandler;
 	private final JFrame parentFrame;
 	private final UndoManager undoManager;
-	private final Runnable onFinish;
 
 	public ChangeAnimationLengthPanel(ModelHandler modelHandler, JFrame frame) {
 		super(new MigLayout("fill", "", ""));
 		this.modelHandler = modelHandler;
 		parentFrame = frame;
 		undoManager = modelHandler.getUndoManager();
-		onFinish = () -> ModelStructureChangeListener.changeListener.keyframesUpdated();
 		EditableModel model = modelHandler.getModel();
 		JPanel animationsPanel = new JPanel(new MigLayout("fill"));
 
 		for (Animation anim : model.getAnims()) {
-			SliderBarHandler handler = new SliderBarHandler(anim.length());
+			SliderBarHandler handler = new SliderBarHandler(anim.getLength());
 			animationBarMap.put(anim, handler);
 
-			animationsPanel.add(new JLabel(anim.getName() + " (" + anim.length() / 1000.00 + " s)"), "wrap");
+			animationsPanel.add(new JLabel(anim.getName() + " (" + anim.getLength() / 1000.00 + " s)"), "wrap");
 			animationsPanel.add(handler.getBar(), "growx");
 			animationsPanel.add(handler.getSpinner(), "wrap");
 		}
@@ -61,17 +59,15 @@ public class ChangeAnimationLengthPanel extends JPanel {
 
 	private void applyNewAnimationLength() {
 		EditableModel mdl = modelHandler.getModel();
-		Map<Animation, Integer> animationToNewLength = new HashMap<>();
+		Map<Sequence, Integer> sequenceToNewLength = new HashMap<>();
 		for (Animation myAnimation : mdl.getAnims()) {
-			animationToNewLength.put(myAnimation, animationBarMap.get(myAnimation).getValue());
+			sequenceToNewLength.put(myAnimation, animationBarMap.get(myAnimation).getValue());
 		}
 
-		Map<GlobalSeq, Integer> newGlobalSeqLengths = new HashMap<>();
 		for (GlobalSeq myAnimation : mdl.getGlobalSeqs()) {
-			newGlobalSeqLengths.put(myAnimation, animationBarMap.get(myAnimation).getValue());
+			sequenceToNewLength.put(myAnimation, animationBarMap.get(myAnimation).getValue());
 		}
-		undoManager.pushAction(new EditAnimationLengthsAction(mdl, animationToNewLength, newGlobalSeqLengths).redo());
+		undoManager.pushAction(new ScaleSequencesLengthsAction(mdl, sequenceToNewLength, ModelStructureChangeListener.changeListener).redo());
 		parentFrame.setVisible(false);
-		onFinish.run();
 	}
 }

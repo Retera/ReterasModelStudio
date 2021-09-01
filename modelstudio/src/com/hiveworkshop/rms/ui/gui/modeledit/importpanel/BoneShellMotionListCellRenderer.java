@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -14,8 +14,8 @@ import java.util.Set;
 class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRenderer2D<BoneShell> {
 	Set<BoneShell> selectedBones = new HashSet<>();
 
-	public BoneShellMotionListCellRenderer(final ModelView modelDisplay, final ModelView otherDisplay) {
-		super(modelDisplay, otherDisplay);
+	public BoneShellMotionListCellRenderer(EditableModel model, EditableModel other) {
+		super(model, other);
 	}
 
 	@Override
@@ -29,8 +29,8 @@ class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRender
 	}
 
 	@Override
-	protected boolean contains(final ModelView modelDisp, final BoneShell object) {
-		return modelDisp.getModel().contains(object.getBone());
+	protected boolean contains(EditableModel model, final BoneShell object) {
+		return model.contains(object.getBone());
 	}
 
 	@Override

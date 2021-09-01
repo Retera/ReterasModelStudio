@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
@@ -19,7 +20,6 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class KeyframePanel<T> extends JPanel {
@@ -27,15 +27,16 @@ public class KeyframePanel<T> extends JPanel {
 	protected static final Color LIGHT_YELLOW = new Color(255, 255, 128);
 	protected JTable keyframeTable;
 	protected String allowedCharacters = "-1234567890.eE";
-	protected FloatTrackTableModel floatTrackTableModel;
+	protected FloatTrackTableModel<T> floatTrackTableModel;
 	protected AnimFlag<T> animFlag;
-	protected AnimFlag<T> oldAnimFlag;
+	protected Sequence sequence;
+//	protected AnimFlag<T> oldAnimFlag;
 	protected boolean doSave;
 	protected String preEditValue;
 	protected TimelineKeyNamer timelineKeyNamer;
 
-	Consumer<Integer> addAction;
-	Consumer<Integer> removeAction;
+	BiConsumer<Sequence, Integer> addAction;
+	BiConsumer<Sequence, Integer> removeAction;
 	BiConsumer<Integer, Entry<T>> changeAction;
 	Function<String, T> parseFunction;
 
@@ -48,7 +49,12 @@ public class KeyframePanel<T> extends JPanel {
 
 	protected Map<Integer, Integer> columnSizes = new HashMap<>();
 
-	public KeyframePanel(EditableModel model, Consumer<Integer> addAction, Consumer<Integer> removeAction, BiConsumer<Integer, Entry<T>> changeAction, Function<String, T> parseFunction) {
+	public KeyframePanel(EditableModel model,
+	                     BiConsumer<Sequence, Integer> addAction,
+	                     BiConsumer<Sequence, Integer> removeAction,
+	                     BiConsumer<Integer, Entry<T>> changeAction,
+	                     Function<String, T> parseFunction) {
+		super(new MigLayout("gap 0, ins 0, fill, hidemode 3", "[grow]", "[][]"));
 		timelineKeyNamer = new TimelineKeyNamer(model);
 
 		this.addAction = addAction;
@@ -56,7 +62,6 @@ public class KeyframePanel<T> extends JPanel {
 		this.changeAction = changeAction;
 		this.parseFunction = parseFunction;
 
-		setLayout(new MigLayout("gap 0, ins 0, fill, hidemode 3", "[grow]", "[][]"));
 		JPanel tablePanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow]", "[]"));
 //		JPanel tableAndScrollPanel = new JPanel(new MigLayout("gap 0, ins 0, fill, hidemode 3", "[grow][][grow, 1%:50%:80%]", "[][]"));
 //		JPanel tableAndScrollPanel = new JPanel(new MigLayout("gap 0, ins 0, fill, hidemode 3", "[grow 150][grow 70]", "[][]"));
@@ -94,8 +99,9 @@ public class KeyframePanel<T> extends JPanel {
 		add(addButton, "wrap, hidemode 3");
 	}
 
-	public void updateFlag(AnimFlag<T> animFlag) {
+	public void updateFlag(AnimFlag<T> animFlag, Sequence sequence) {
 		this.animFlag = animFlag;
+		this.sequence = sequence;
 		timelineKeyNamer.update();
 		setTableModel();
 		if (selectNewIndex != -1 && selectNewIndex < keyframeTable.getRowCount()) {
@@ -108,7 +114,8 @@ public class KeyframePanel<T> extends JPanel {
 
 	private void setTableModel() {
 		if (floatTrackTableModel == null) {
-			floatTrackTableModel = new FloatTrackTableModel(animFlag);
+
+			floatTrackTableModel = new FloatTrackTableModel<>(animFlag, sequence);
 
 			keyframeTable.setModel(floatTrackTableModel);
 			keyframeTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -116,7 +123,7 @@ public class KeyframePanel<T> extends JPanel {
 		}
 
 		if (floatTrackTableModel != null) {
-			floatTrackTableModel.setTrack(animFlag);
+			floatTrackTableModel.setTrack(animFlag, sequence);
 
 			keyframeTable.setModel(floatTrackTableModel);
 			keyframeTable.createDefaultColumnsFromModel();
@@ -195,12 +202,12 @@ public class KeyframePanel<T> extends JPanel {
 	private void addEntry(int row) {
 //		System.out.println("addEntry");
 		if (addAction != null) {
-			addAction.accept(row);
+			addAction.accept(sequence, row);
 //			setTableModel();
 		}
 	}
 
-	public FloatTrackTableModel getFloatTrackTableModel() {
+	public FloatTrackTableModel<T> getFloatTrackTableModel() {
 		return floatTrackTableModel;
 	}
 
@@ -251,21 +258,16 @@ public class KeyframePanel<T> extends JPanel {
 					tableCellRendererComponent.setBackground(Color.RED);
 					tableCellRendererComponent.setForeground(Color.WHITE);
 				} else if (column == 0) {
-					if (timelineKeyNamer != null) {
+					if (value!=null) {
 						Color bgColor = Color.WHITE;
 						int time = (int) value;
-						TimelineKeyNamer.AnimationMarker animationMarker = timelineKeyNamer.getAnimationMarker(time);
-						if (animationMarker != null && animationMarker.contains(time)) {
-							bgColor = animationMarker.getColor(time);
-//							if (animationMarker.isEndPoint(time)) {
-//								bgColor = LIGHT_GREEN;
-//							} else {
-//								bgColor = LIGHT_YELLOW;
-//							}
-							this.createToolTip();
-							this.setToolTipText(animationMarker.toString());
-//							this.setToolTipText(animationMarker.name + " (" + animationMarker.start + "-" + animationMarker.end +")");
+						if (time == 0 || time == sequence.getLength()) {
+							bgColor = LIGHT_GREEN;
+						} else if (0 < time && time < sequence.getLength()) {
+							bgColor = LIGHT_YELLOW;
 						}
+						this.createToolTip();
+						this.setToolTipText(sequence.toString());
 						if (isSelected) {
 							tableCellRendererComponent.setBackground(bgColor.darker().darker());
 						} else {
@@ -294,9 +296,9 @@ public class KeyframePanel<T> extends JPanel {
 	private void removeEntry(int row) {
 //		System.out.println("removeEntry");
 		if (removeAction != null) {
-			oldAnimFlag = animFlag;
+//			oldAnimFlag = animFlag;
 			int orgTime = (int) floatTrackTableModel.getValueAt(row, 0);
-			removeAction.accept(orgTime);
+			removeAction.accept(sequence, orgTime);
 //			setTableModel();
 		}
 //
@@ -312,9 +314,9 @@ public class KeyframePanel<T> extends JPanel {
 	}
 
 	protected void changeEntry(int row, String field, String val) {
-		if (parseFunction != null && changeAction != null && animFlag != null) {
+		if (parseFunction != null && changeAction != null && animFlag != null && sequence != null) {
 			int orgTime = (int) floatTrackTableModel.getValueAt(row, 0);
-			Entry<T> newEntry = animFlag.getEntryAt(orgTime).deepCopy();
+			Entry<T> newEntry = animFlag.getEntryAt(sequence, orgTime).deepCopy();
 
 
 			switch (field) {
@@ -325,7 +327,7 @@ public class KeyframePanel<T> extends JPanel {
 			}
 
 			changeAction.accept(orgTime, newEntry);
-			selectNewIndex = animFlag.getIndexOfTime(newEntry.time);
+			selectNewIndex = animFlag.getIndexOfTime(sequence, newEntry.time);
 			setTableModel();
 		}
 	}
@@ -338,6 +340,10 @@ public class KeyframePanel<T> extends JPanel {
 	public KeyframePanel<T> addAllowedCharatcters(String chars) {
 		allowedCharacters += chars;
 		return this;
+	}
+
+	public Sequence getSequence() {
+		return sequence;
 	}
 
 	public int getTableRowHeight() {

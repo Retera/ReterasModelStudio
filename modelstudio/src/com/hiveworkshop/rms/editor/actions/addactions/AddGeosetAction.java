@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.actions.addactions;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -8,20 +9,24 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 public class AddGeosetAction implements UndoAction {
 	private final Geoset geoset;
 	private final ModelStructureChangeListener changeListener;
-	//	private final List<Geoset> geosetAsList;
-	private final ModelView modelView;
+	private final EditableModel model;
 
 	//ToDo change name to "AddGeosetAction"
 	public AddGeosetAction(Geoset geoset, ModelView modelView, ModelStructureChangeListener changeListener) {
 		this.geoset = geoset;
-		this.modelView = modelView;
+		this.model = modelView.getModel();
 		this.changeListener = changeListener;
-//		geosetAsList = Collections.singletonList(geoset);
+	}
+
+	public AddGeosetAction(Geoset geoset, EditableModel model, ModelStructureChangeListener changeListener) {
+		this.geoset = geoset;
+		this.model = model;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
-		modelView.getModel().remove(geoset);
+		model.remove(geoset);
 		if (changeListener != null) {
 			changeListener.nodesUpdated();
 		}
@@ -30,7 +35,7 @@ public class AddGeosetAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		modelView.getModel().add(geoset);
+		model.add(geoset);
 		if (changeListener != null) {
 			changeListener.nodesUpdated();
 		}

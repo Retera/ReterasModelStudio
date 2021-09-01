@@ -49,7 +49,7 @@ public class MatrixPopup extends JPanel {
 		setLayout(new MigLayout("gap 0", "[grow][][grow]", "[align center][grow][align center]"));
 		this.model = modelHandler.getModel();
 
-		renderer = new MatrixEditListRenderer(new ModelView(model), null).setShowClass(false);
+		renderer = new MatrixEditListRenderer(model, null).setShowClass(false);
 
 		JCheckBox displayParents = new JCheckBox("Display parents", false);
 		displayParents.addActionListener(e -> showParents(renderer, displayParents));

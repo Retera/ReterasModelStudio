@@ -18,7 +18,7 @@ public class RecalculateNormals extends ActionFunction{
 
 	public RecalculateNormals(){
 		super(TextKey.RECALCULATE_NORMALS, () -> recalculateNormals());
-		setKeyStroke(KeyStroke.getKeyStroke("control N"));
+		setKeyStroke(KeyStroke.getKeyStroke("control shift N"));
 	}
 
 	public static void recalculateNormals() {
@@ -35,18 +35,17 @@ public class RecalculateNormals extends ActionFunction{
 	        int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), panel, TextKey.RECALCULATE_NORMALS.toString(), JOptionPane.OK_CANCEL_OPTION);
 	        if (option == JOptionPane.OK_OPTION) {
 	            lastNormalMaxAngle = (double) spinner.getValue();
-	            useTris = useTries.isSelected();
+		        useTris = useTries.isSelected();
 
-	            ModelView modelView = modelPanel.getModelView();
+		        ModelView modelView = modelPanel.getModelView();
 
-	            Set<GeosetVertex> selectedVertices = new HashSet<>(modelView.getSelectedVertices());
-	            if (selectedVertices.isEmpty()) {
-	                modelView.getEditableGeosets().forEach(geoset -> selectedVertices.addAll(geoset.getVertices()));
-	            }
+		        Set<GeosetVertex> selectedVertices = new HashSet<>(modelView.getSelectedVertices());
+		        if (selectedVertices.isEmpty()) {
+			        modelView.getEditableGeosets().forEach(geoset -> selectedVertices.addAll(geoset.getVertices()));
+		        }
 
-	            RecalculateNormalsAction recalcNormals = new RecalculateNormalsAction(selectedVertices, lastNormalMaxAngle, useTris);
-	            recalcNormals.redo();
-	            modelPanel.getUndoManager().pushAction(recalcNormals);
+		        RecalculateNormalsAction recalcNormals = new RecalculateNormalsAction(selectedVertices, lastNormalMaxAngle, useTris);
+		        modelPanel.getUndoManager().pushAction(recalcNormals.redo());
 	        }
 	    }
 	    ProgramGlobals.getMainPanel().repaint();

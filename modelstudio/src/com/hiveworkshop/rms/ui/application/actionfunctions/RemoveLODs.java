@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import net.miginfocom.swing.MigLayout;
@@ -28,14 +29,14 @@ public class RemoveLODs extends ActionFunction {
 			panel.add(spinner, "wrap");
 			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), panel, "Remove LoDs", JOptionPane.OK_CANCEL_OPTION);
 			if (option == JOptionPane.OK_OPTION) {
-				removeLoDGeoset(modelPanel, (int) spinner.getValue());
+				removeLoDGeoset(modelPanel.getModelHandler(), (int) spinner.getValue());
 			}
 		}
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
-	public static void removeLoDGeoset(ModelPanel modelPanel, int lodToRemove) {
-		EditableModel model = modelPanel.getModel();
+	public static void removeLoDGeoset(ModelHandler modelHandler, int lodToRemove) {
+		EditableModel model = modelHandler.getModel();
 		List<Geoset> lodGeosToRemove = new ArrayList<>();
 		for (Geoset geo : model.getGeosets()) {
 			if (geo.getLevelOfDetail() == lodToRemove) {
@@ -43,9 +44,9 @@ public class RemoveLODs extends ActionFunction {
 			}
 		}
 		if (model.getGeosets().size() > lodGeosToRemove.size()) {
-			DeleteGeosetAction deleteGeosetAction = new DeleteGeosetAction(lodGeosToRemove, ModelStructureChangeListener.changeListener);
+			DeleteGeosetAction deleteGeosetAction = new DeleteGeosetAction(model, lodGeosToRemove, ModelStructureChangeListener.changeListener);
 			CompoundAction deletActions = new CompoundAction("Delete LoD=" + lodToRemove + " geosets", deleteGeosetAction);
-			modelPanel.getUndoManager().pushAction(deletActions.redo());
+			modelHandler.getUndoManager().pushAction(deletActions.redo());
 		}
 	}
 }

@@ -14,12 +14,18 @@ public class ZoomableImagePreviewPanel extends JPanel {
 	private int offsetX = 0;
 	private int offsetY = 0;
 	private boolean alignTop = false;
+	int imageWidth = 100;
+	int imageHeight = 100;
 
 	public ZoomableImagePreviewPanel(final Image image) {
 		super(new MigLayout("fill"));
 		this.image = image;
+		if (image != null) {
+			imageWidth = image.getWidth(null);
+			imageHeight = image.getHeight(null);
+		}
 
-		MouseAdapter mouseAdapter = getMouseAdapter(image);
+		MouseAdapter mouseAdapter = getMouseAdapter();
 		addMouseWheelListener(mouseAdapter);
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
@@ -30,7 +36,7 @@ public class ZoomableImagePreviewPanel extends JPanel {
 		this.alignTop = alignTop;
 	}
 
-	private MouseAdapter getMouseAdapter(Image image) {
+	private MouseAdapter getMouseAdapter() {
 		return new MouseAdapter() {
 			Point start;
 			boolean mouseDown;
@@ -101,8 +107,8 @@ public class ZoomableImagePreviewPanel extends JPanel {
 
 	private void adjustOffset(Image image) {
 		if (image != null) {
-			double offX = scale * image.getWidth(null);
-			double offY = scale * image.getHeight(null);
+			double offX = scale * imageWidth;
+			double offY = scale * imageHeight;
 			offsetX = (int) Math.max(Math.min(offsetX, offX), -offX);
 			offsetY = (int) Math.max(Math.min(offsetY, offY), -offY);
 		}
@@ -112,10 +118,7 @@ public class ZoomableImagePreviewPanel extends JPanel {
 	protected void paintComponent(final Graphics g) {
 		super.paintComponent(g);
 		if (image != null) {
-			int imageWidth = image.getWidth(null);
-			int imageHeight = image.getHeight(null);
-
-			float scale = getScale(imageWidth, imageHeight);
+			float scale = getScale();
 
 			int scaledWidth = (int) (scale * imageWidth);
 			int x = ((getWidth() - scaledWidth) / 2) - offsetX;
@@ -127,7 +130,7 @@ public class ZoomableImagePreviewPanel extends JPanel {
 		}
 	}
 
-	private float getScale(int imageWidth, int imageHeight) {
+	private float getScale() {
 		float scaleX = getWidth() / (float) imageWidth;
 		float scaleY = getHeight() / (float) imageHeight;
 		return Math.min(scaleX, scaleY) * scale;

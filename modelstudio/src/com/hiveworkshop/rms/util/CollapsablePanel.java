@@ -11,7 +11,7 @@ import java.awt.event.MouseEvent;
 public class CollapsablePanel extends JPanel{
 //	private static final String ARROW_RIGHT = "\u25BA";
 //	private static final String ARROW_DOWN = "\u25BC";
-	private static final String ARROW_RIGHT = "\u2BC8";
+private static final String ARROW_RIGHT = "\u2BC8";
 	private static final String ARROW_DOWN = "\u2BC6";
 
 	private final JLabel collapseArrowLabel;
@@ -21,6 +21,9 @@ public class CollapsablePanel extends JPanel{
 
 	private final JPanel collapsableContent;
 
+	String title;
+	JLabel titleLabel;
+
 	public CollapsablePanel(String title, JPanel collapsableContent) {
 		this(title, collapsableContent, new JPanel());
 	}
@@ -29,8 +32,9 @@ public class CollapsablePanel extends JPanel{
 		this.collapsedAdditionalInfoPanel = collapsedAdditionalInfoPanel;
 		this.collapsableContent = collapsableContent;
 		this.setLayout(new MigLayout("fill, hidemode 1, ins 0", "[grow]", "[][grow]"));
+		this.title = title;
 
-		JLabel titleLabel = new JLabel(title);
+		titleLabel = new JLabel(title);
 		collapseArrowLabel = new JLabel(ARROW_DOWN);
 		JPanel titlePanel = new JPanel(new MigLayout("fill", "[][][grow][right]", "[]"));
 		setBorder(new BevelBorder(BevelBorder.RAISED));
@@ -76,7 +80,14 @@ public class CollapsablePanel extends JPanel{
 		return collapsableContent;
 	}
 
-	public boolean isCollapsed(){
+	public boolean isCollapsed() {
 		return collapsableContent.isVisible();
+	}
+
+	public CollapsablePanel setTitle(String title) {
+		this.title = title;
+		titleLabel.setText(title);
+		repaint();
+		return this;
 	}
 }

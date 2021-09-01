@@ -30,8 +30,7 @@ public class AnimListCellRenderer extends DefaultListCellRenderer {
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
 	                                              final boolean iss, final boolean chf) {
-		super.getListCellRendererComponent(list, ((AnimShell) value).getOldName() + " " + ((AnimShell) value).getAnim().length(), index, iss, chf);
-//		super.getListCellRendererComponent(list, ((AnimShell) value).displName(), index, iss, chf);
+		super.getListCellRendererComponent(list, ((AnimShell) value).getOldName() + " " + ((AnimShell) value).getAnim().getLength(), index, iss, chf);
 		AnimShell importAnimShell = ((AnimShell) value).getImportAnimShell();
 		Vec3 bg;
 		Vec3 fg;
@@ -55,8 +54,8 @@ public class AnimListCellRenderer extends DefaultListCellRenderer {
 	}
 
 	private String getAnimName(AnimShell value){
-		if(showLength){
-			return value.getOldName() + " (" + value.getAnim().length() + ")";
+		if(showLength) {
+			return value.getOldName() + " (" + value.getAnim().getLength() + ")";
 		}
 		return value.getOldName();
 	}

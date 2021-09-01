@@ -144,10 +144,12 @@ public class Entry<T> {
 
 	public Entry<T> unLinearize() {
 		if (inTan == null) {
-			inTan = cloneEntryValue(value);
+//			inTan = cloneEntryValue(value);
+			inTan = getZeroValue();
 		}
 		if (outTan == null) {
-			outTan = cloneEntryValue(value);
+//			outTan = cloneEntryValue(value);
+			outTan = getZeroValue();
 		}
 		return this;
 	}
@@ -176,4 +178,27 @@ public class Entry<T> {
 	public String toString() {
 		return "time: " + time + "\nvalue: " + value + "\ninTan: " + inTan + "\noutTan: " + outTan;
 	}
+
+	private T getZeroValue(){
+		if (value == null) {
+			return null;
+		}
+
+		if (value instanceof Integer) {
+			return (T) Integer.valueOf(0);
+		} else if (value instanceof Float) {
+			return (T) Float.valueOf(0);
+		} else if (value instanceof Vec3) {
+			return (T) new Vec3(0,0,0);
+		} else if (value instanceof Quat) {
+			return (T) new Quat(0,0,0,1);
+		} else {
+			throw new IllegalStateException(value.getClass().getName());
+		}
+	}
+
+//	@Override
+//	public int compareTo(Entry<?> o) {
+//		return time - o.time;
+//	}
 }

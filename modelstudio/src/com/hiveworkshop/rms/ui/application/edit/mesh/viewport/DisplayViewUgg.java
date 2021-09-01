@@ -22,7 +22,8 @@ public class DisplayViewUgg extends ModelDependentView {
 	}
 
 	@Override
-	public DisplayViewUgg setModelPanel(ModelPanel modelPanel){
+	public DisplayViewUgg setModelPanel(ModelPanel modelPanel) {
+		System.out.println("update DisplayViewUgg!");
 		this.modelPanel = modelPanel;
 //		if(displayPanel == null){
 //			displayPanel = new DisplayPanel();
@@ -32,6 +33,7 @@ public class DisplayViewUgg extends ModelDependentView {
 //			displayPanel = null;
 			displayPanel.setModel(null, null);
 		} else {
+			System.out.println("update DisplayViewUgg! " + modelPanel.getModel().getName());
 //			displayPanel = modelPanel.getDisplayPanel(name, (byte) 1, (byte) 2);
 //			displayPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 //			this.setComponent(displayPanel);

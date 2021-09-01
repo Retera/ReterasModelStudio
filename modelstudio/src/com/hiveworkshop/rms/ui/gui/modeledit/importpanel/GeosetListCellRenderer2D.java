@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ModelThumbnailMaker;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -30,13 +29,13 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 	private static Map<EditableModel, BufferedImage> modelOutlineImageMap;
 	private static Map<EditableModel, Vec2[]> modelBoundsSizeMap;
 	private final Map<GeosetShell, ImageIcon> matrixShellToCachedRenderer = new HashMap<>();
-	private final ModelView modelDisplay;
-	private final ModelView otherDisplay;
+	private final EditableModel model;
+	private final EditableModel other;
 
 
-	public GeosetListCellRenderer2D(final ModelView modelDisplay, final ModelView otherDisplay) {
-		this.modelDisplay = modelDisplay;
-		this.otherDisplay = otherDisplay;
+	public GeosetListCellRenderer2D(EditableModel model, EditableModel other) {
+		this.model = model;
+		this.other = other;
 		modelOutlineImageMap = new HashMap<>();
 		modelBoundsSizeMap = new HashMap<>();
 	}
@@ -76,8 +75,8 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 				graphics.setColor(backgroundColor.brighter());
 
 				if (geosetShell != null) {
-					makeGeosetIcon(backgroundColor, geosetShell, graphics, otherDisplay);
-					makeGeosetIcon(backgroundColor, geosetShell, graphics, modelDisplay);
+					makeGeosetIcon(backgroundColor, geosetShell, graphics, other);
+					makeGeosetIcon(backgroundColor, geosetShell, graphics, model);
 				}
 
 				graphics.dispose();
@@ -90,9 +89,8 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 		return myIcon;
 	}
 
-	public void makeGeosetIcon(Color backgroundColor, GeosetShell geoset, Graphics graphics, ModelView modelDisplay) {
-		if (modelDisplay != null && contains(modelDisplay, geoset.getGeoset())) {
-			EditableModel model = modelDisplay.getModel();
+	public void makeGeosetIcon(Color backgroundColor, GeosetShell geoset, Graphics graphics, EditableModel model) {
+		if (model != null && contains(model, geoset.getGeoset())) {
 			BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
 			graphics.drawImage(modelOutline, 0, 0, null);
 			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
@@ -133,7 +131,7 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 		}
 	}
 
-	protected boolean contains(ModelView modelDisp, Geoset object) {
-		return modelDisp.getModel().getGeosets().contains(object);
+	protected boolean contains(EditableModel model, Geoset object) {
+		return model.getGeosets().contains(object);
 	}
 }

@@ -1,12 +1,10 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.animation.SetAnimationIntervalAction;
+import com.hiveworkshop.rms.editor.actions.animation.SetAnimationStartAction;
 import com.hiveworkshop.rms.editor.actions.animation.SortAnimationsAction;
-import com.hiveworkshop.rms.editor.actions.animation.animFlag.SetFlagFromOtherAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.AnimListCellRenderer;
@@ -115,54 +113,28 @@ public class ReorderAnimationsPanel extends JPanel {
 		}
 	}
 
-	private void applyOrder(){
-		List<AnimFlag<?>> allAnimFlags = modelHandler.getModel().getAllAnimFlags();
-		TreeMap<Animation, Animation> newAnimationsMap = getNewAnimationsMap();
+	private void applyOrder() {
+		TreeMap<Animation, Integer> newAnimationsStartMap = getNewAnimationsMap();
 		List<UndoAction> setFlagActions = new ArrayList<>();
-		for(AnimFlag<?> animFlag : allAnimFlags){
-			if(!animFlag.hasGlobalSeq()){
-				SetFlagFromOtherAction<?> action = getSetFlagAction(animFlag, newAnimationsMap);
-				setFlagActions.add(action);
-			}
 
-		}
-
-		for(Animation newAnim : newAnimationsMap.keySet()){
-			setFlagActions.add(new SetAnimationIntervalAction(newAnim.getStart(), newAnim.getEnd(), newAnimationsMap.get(newAnim), null));
+		for (Animation animation : newAnimationsStartMap.keySet()) {
+			setFlagActions.add(new SetAnimationStartAction(animation, animation.getStart(), null));
 		}
 		setFlagActions.add(new SortAnimationsAction(modelHandler.getModel()));
 		UndoAction action = new CompoundAction("Reorder Animations", setFlagActions, ModelStructureChangeListener.changeListener::animationParamsChanged);
 		modelHandler.getUndoManager().pushAction(action.redo());
 	}
 
-	private TreeMap<Animation, Animation> getNewAnimationsMap(){
-		TreeMap<Animation, Animation> newToOldAnimations = new TreeMap<>(Comparator.comparingInt(Animation::getStart));
+	private TreeMap<Animation, Integer> getNewAnimationsMap() {
+		TreeMap<Animation, Integer> animationsToNewStarts = new TreeMap<>(Comparator.comparingInt(Animation::getStart));
 		int framesBetween = numberModel.getNumber().intValue();
 		int lastEnd = 0;
-		for(AnimShell animShell : animations){
-			Animation newAnimation = animShell.getAnim().deepCopy();
-			newAnimation.moveStartTo(lastEnd + framesBetween);
-			newToOldAnimations.put(newAnimation, animShell.getAnim());
-			lastEnd = newAnimation.getEnd();
+		for (AnimShell animShell : animations) {
+			Animation animation = animShell.getAnim();
+			animationsToNewStarts.put(animation, lastEnd + framesBetween);
+			lastEnd = animation.getEnd();
 		}
 
-		return newToOldAnimations;
-	}
-
-	private <Q> AnimFlag<Q> getNewAnimflag(AnimFlag<Q> animFlag, TreeMap<Animation, Animation> animationTreeMap){
-		AnimFlag<Q> copy = animFlag.getEmptyCopy();
-		for (Animation newAnim : animationTreeMap.keySet()){
-			Animation oldAnim = animationTreeMap.get(newAnim);
-			copy.copyFrom(animFlag, oldAnim.getStart(), oldAnim.getEnd(), newAnim.getStart(), newAnim.getEnd());
-		}
-		return animFlag;
-	}
-	private <Q> SetFlagFromOtherAction<Q> getSetFlagAction(AnimFlag<Q> animFlag, TreeMap<Animation, Animation> animationTreeMap){
-		AnimFlag<Q> copy = animFlag.getEmptyCopy();
-		for (Animation newAnim : animationTreeMap.keySet()){
-			Animation oldAnim = animationTreeMap.get(newAnim);
-			copy.copyFrom(animFlag, oldAnim.getStart(), oldAnim.getEnd(), newAnim.getStart(), newAnim.getEnd());
-		}
-		return new SetFlagFromOtherAction<>(animFlag, copy, null);
+		return animationsToNewStarts;
 	}
 }

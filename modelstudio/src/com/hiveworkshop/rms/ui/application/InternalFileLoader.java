@@ -56,7 +56,7 @@ public class InternalFileLoader {
 		if (objectFetched != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));
-			ImageIcon icon = new ImageIcon(BLPHandler.get().getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0)).getScaledInstance(16, 16, Image.SCALE_FAST));
+			ImageIcon icon = new ImageIcon(BLPHandler.getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0)).getScaledInstance(16, 16, Image.SCALE_FAST));
 
 			loadFromStream(filepath, icon);
 		}
@@ -68,7 +68,7 @@ public class InternalFileLoader {
 		if (model != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(model.getFilepath());
-			ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get().getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST)) : ModelLoader.MDLIcon;
+			ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST)) : ModelLoader.MDLIcon;
 
 			loadFromStream(filepath, icon);
 		}

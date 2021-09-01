@@ -19,12 +19,11 @@ public class OpenInternalModel extends ActionFunction {
 
 
 	public static void fetchModel() {
-//		ModelOptionPane.ModelElement model = ImportFileActions.fetchModel();
 		ModelOptionPane.ModelElement model = ModelOptionPane.fetchModel(ProgramGlobals.getMainPanel());
 		if (model != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(model.getFilepath());
-			ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get().getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST)) : ModelLoader.MDLIcon;
+			ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST)) : ModelLoader.MDLIcon;
 
 			InternalFileLoader.loadFromStream(filepath, icon);
 		}

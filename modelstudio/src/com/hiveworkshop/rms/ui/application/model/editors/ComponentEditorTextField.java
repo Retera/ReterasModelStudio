@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.beans.PropertyChangeEvent;
@@ -13,6 +14,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ComponentEditorTextField extends JTextField {
+	public static final Color SAVED_FG = Color.BLACK;
+	public static final Color SAVED_BG = Color.WHITE;
+	public static final Color UNSAVED_FG = Color.MAGENTA.darker();
+	public static final Color UNSAVED_BG = Color.LIGHT_GRAY;
 
 	public ComponentEditorTextField() {
 		super();
@@ -49,8 +54,8 @@ public class ComponentEditorTextField extends JTextField {
 	}
 
 	public void setColorToSaved() {
-		setForeground(UnsavedChangesDocumentListener.SAVED_FOREGROUND_COLOR);
-		setBackground(UnsavedChangesDocumentListener.SAVED_BACKGROUND_COLOR);
+		setForeground(SAVED_FG);
+		setBackground(SAVED_BG);
 	}
 
 	/**

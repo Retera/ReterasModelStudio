@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.ui.language.TextKey;
 
 public class CloseModel extends ActionFunction {
 	public CloseModel(){
-		super(TextKey.CLOSE, () -> closeModelPanel(), "control E");
+		super(TextKey.CLOSE_CURRENT, () -> closeModelPanel(), "shift ESCAPE");
 	}
 
 	public static void closeModelPanel() {

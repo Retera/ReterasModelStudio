@@ -29,7 +29,7 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class MDLSnapshot {
 
-	ModelView dispMDL;
+	ModelView modelView;
 	Vec3 cameraPos = new Vec3(0, 0, 0);
 	double zoom = 1;
 	boolean enabled = false;
@@ -56,8 +56,8 @@ public class MDLSnapshot {
 	private float yangle;
 	private boolean drawBackground;
 
-	public MDLSnapshot(final ModelView dispMDL, final int width, final int height, final ProgramPreferences programPreferences) throws LWJGLException {
-		this.dispMDL = dispMDL;
+	public MDLSnapshot(final ModelView modelView, final int width, final int height, final ProgramPreferences programPreferences) throws LWJGLException {
+		this.modelView = modelView;
 		this.width = width;
 		this.height = height;
 		this.programPreferences = programPreferences;
@@ -94,7 +94,7 @@ public class MDLSnapshot {
 	public void forceReloadTextures() {
 		texLoaded = true;
 
-		for (final Geoset geo : dispMDL.getModel().getGeosets()) {// .getModel().getGeosets()
+		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getModel().getGeosets()
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 				final Layer layer = geo.getMaterial().getLayers().get(i);
 				final Bitmap tex = layer.firstTexture();
@@ -106,30 +106,18 @@ public class MDLSnapshot {
 	}
 
 	private void getGetTex(Layer layer, Bitmap tex) {
-		String path = tex.getPath();
-		if (path.length() == 0) {
-			if (tex.getReplaceableId() == 1) {
-				path = "ReplaceableTextures\\TeamColor\\TeamColor00";
-			} else if (tex.getReplaceableId() == 2) {
-				path = "ReplaceableTextures\\TeamGlow\\TeamGlow00";
-			} else {
-				path = "textures\\white";
-			}
-		} else {
-			path = path.substring(0, path.length() - 4);
-		}
-		Integer texture = null;
+		String path = tex.getRenderableTexturePath();
+		path = path.substring(0, path.length() - 4);
+		int texture;
 		try {
-			final BufferedImage gameTex = BLPHandler.get().getGameTex(path + ".blp");
+			final BufferedImage gameTex = BLPHandler.getGameTex(path + ".blp");
 			texture = loadTexture(layer, gameTex);
 		} catch (final Exception exc) {
 			exc.printStackTrace();
-			final BufferedImage customTex = BLPHandler.get().getCustomTex(dispMDL.getModel().getWorkingDirectory().getPath() + "\\" + path + ".blp");
+			final BufferedImage customTex = BLPHandler.getImage(tex, modelView.getModel().getWrappedDataSource());
 			texture = loadTexture(layer, customTex);
 		}
-		if (texture != null) {
-			textureMap.put(tex, texture);
-		}
+		textureMap.put(tex, texture);
 	}
 
 	public void addGeosets(final List<Geoset> geosets) {
@@ -146,7 +134,7 @@ public class MDLSnapshot {
 		try {
 			if ((programPreferences == null) || programPreferences.textureModels()) {
 				texLoaded = true;
-				for (final Geoset geo : dispMDL.getModel().getGeosets()) {// .getModel().getGeosets()
+				for (final Geoset geo : modelView.getModel().getGeosets()) {// .getModel().getGeosets()
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 						final Layer layer = geo.getMaterial().getLayers().get(i);
 						final Bitmap tex = layer.firstTexture();
@@ -270,7 +258,7 @@ public class MDLSnapshot {
 		// (float)(45-model.getExtents().getMaximumExtent().getZ()/400*45));
 		double width = 128;
 		double depth = 64;
-		final EditableModel model = dispMDL.getModel();
+		final EditableModel model = modelView.getModel();
 		final ExtLog exts = model.getExtents();
 		boolean loadedWidth = false;
 		final List<CollisionShape> sortedIdObjects = model.getColliders();
@@ -317,15 +305,15 @@ public class MDLSnapshot {
 	public void zoomToFit(final VertexFilter<? super GeosetVertex> filter) {
 
 		setYangle(35);
-		final EditableModel model = dispMDL.getModel();
+		final EditableModel model = modelView.getModel();
 		final List<Vec3> shapeData = new ArrayList<>();
-		for (final Geoset geo : dispMDL.getVisibleGeosets()) {
+		for (final Geoset geo : modelView.getVisibleGeosets()) {
 			boolean isOnlyAdditive = true;
 			for (final Layer layer : geo.getMaterial().getLayers()) {
-                if (!layer.getFilterMode().toString().contains("Add")) {
-                    isOnlyAdditive = false;
-                    break;
-                }
+				if (!layer.getFilterMode().toString().contains("Add")) {
+					isOnlyAdditive = false;
+					break;
+				}
 			}
 			if (!isOnlyAdditive) {
 				for (final GeosetVertex vertex : geo.getVertices()) {
@@ -499,7 +487,7 @@ public class MDLSnapshot {
 			GL11.glDepthMask(true);
 			// System.out.println("max:
 			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
-			if (dispMDL.getHighlightedGeoset() != null) {
+			if (modelView.getHighlightedGeoset() != null) {
 				// for( int i = 0; i < dispMDL.highlight.material.layers.size();
 				// i++ )
 				// {
@@ -527,8 +515,8 @@ public class MDLSnapshot {
 	}
 
 	private void drawEditibleGeosets(VertexFilter<? super GeosetVertex> renderMask) {
-		for (final Geoset geo : dispMDL.getEditableGeosets()) {// .getModel().getGeosets()
-			if (dispMDL.getHighlightedGeoset() != geo) {
+		for (final Geoset geo : modelView.getEditableGeosets()) {// .getModel().getGeosets()
+			if (modelView.getHighlightedGeoset() != geo) {
 				for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 					final Layer layer = geo.getMaterial().getLayers().get(i);
 					final Bitmap tex = layer.firstTexture();
@@ -561,8 +549,8 @@ public class MDLSnapshot {
 	}
 
 	private void drawProtectedGeosets(VertexFilter<? super GeosetVertex> renderMask) {
-		for (final Geoset geo : dispMDL.getVisibleGeosets()) {// .getModel().getGeosets()
-			if (!dispMDL.getEditableGeosets().contains(geo) && (dispMDL.getHighlightedGeoset() != geo)) {
+		for (final Geoset geo : modelView.getVisibleGeosets()) {// .getModel().getGeosets()
+			if (!modelView.getEditableGeosets().contains(geo) && (modelView.getHighlightedGeoset() != geo)) {
 				for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
 					final Layer layer = geo.getMaterial().getLayers().get(i);
 					final Bitmap tex = layer.firstTexture();
@@ -651,7 +639,7 @@ public class MDLSnapshot {
 		glBegin(GL11.GL_LINES);
 		glColor3f(1f, 1f, 3f);
 		// if( wireframe.isSelected() )
-		for (final Geoset geo : dispMDL.getVisibleGeosets()) {// .getModel().getGeosets()
+		for (final Geoset geo : modelView.getVisibleGeosets()) {// .getModel().getGeosets()
 			for (final Triangle tri : geo.getTriangles()) {
 				for (final GeosetVertex v : tri.getVerts()) {
 					if (renderMask.isAccepted(v)) {
@@ -726,7 +714,7 @@ public class MDLSnapshot {
 		// }
 		glColor3f(1f, 3f, 1f);
 		glBegin(GL11.GL_TRIANGLES);
-		for (final Triangle tri : dispMDL.getHighlightedGeoset().getTriangles()) {
+		for (final Triangle tri : modelView.getHighlightedGeoset().getTriangles()) {
 			for (final GeosetVertex v : tri.getVerts()) {
 				if (renderMask.isAccepted(v)) {
 					if (v.getNormal() != null) {

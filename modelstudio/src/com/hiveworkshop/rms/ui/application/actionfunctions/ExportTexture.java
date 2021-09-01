@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
 import com.hiveworkshop.rms.ui.language.TextKey;
+import com.hiveworkshop.rms.util.ImageCreator;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -77,8 +78,8 @@ public class ExportTexture extends ActionFunction {
 
 	private static void exportChosenMaterial(EditableModel model, JList<Material> materialsList, FileDialog fileDialog) {
         if (materialsList.getSelectedValue() != null) {
-            BufferedImage bufferedImage = materialsList.getSelectedValue().getBufferedImage(model.getWrappedDataSource());
-            String name = materialsList.getSelectedValue().getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
+	        BufferedImage bufferedImage = ImageCreator.getBufferedImage(materialsList.getSelectedValue(), model.getWrappedDataSource());
+	        String name = materialsList.getSelectedValue().getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
             System.out.println(name);
 
             fileDialog.exportTexture(bufferedImage, name);

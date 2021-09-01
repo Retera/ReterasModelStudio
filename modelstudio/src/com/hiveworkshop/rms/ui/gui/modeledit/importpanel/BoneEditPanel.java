@@ -24,7 +24,7 @@ public class BoneEditPanel extends JPanel {
 
 		add(getTopPanel(), "align center, wrap");
 
-		BoneShellListCellRenderer bonePanelRenderer = new BoneShellListCellRenderer(mht.recModelManager, mht.donModelManager);
+		BoneShellListCellRenderer bonePanelRenderer = new BoneShellListCellRenderer(mht.receivingModel, mht.donatingModel);
 
 		mht.donModBoneShellJList.setCellRenderer(bonePanelRenderer);
 		mht.donModBoneShellJList.addListSelectionListener(e -> showBoneCard(mht, e));

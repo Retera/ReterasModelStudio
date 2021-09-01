@@ -54,9 +54,9 @@ public class GeometryModelEditor extends ModelEditor {
     @Override
     public UndoAction rotate(Vec3 center, Vec3 rotate) {
 	    return new CompoundAction("rotate", Arrays.asList(
-			    new SimpleRotateAction(modelView, center, rotate.x, (byte) 2, (byte) 1),
-			    new SimpleRotateAction(modelView, center, rotate.y, (byte) 0, (byte) 2),
-			    new SimpleRotateAction(modelView, center, rotate.z, (byte) 1, (byte) 0)))
+			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.x), (byte) 2, (byte) 1),
+			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.y), (byte) 0, (byte) 2),
+			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.z), (byte) 1, (byte) 0)))
 			    .redo();
     }
 

@@ -1,13 +1,16 @@
 package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.animation.DeleteAnimationAction;
-import com.hiveworkshop.rms.editor.actions.animation.globalsequence.AddGlobalSequenceAction;
-import com.hiveworkshop.rms.editor.actions.animation.globalsequence.RemoveGlobalSequenceAction;
+import com.hiveworkshop.rms.editor.actions.animation.AddSequenceAction;
+import com.hiveworkshop.rms.editor.actions.animation.RemoveSequenceAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryMapAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -20,6 +23,7 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 public class TimeBoundChooserPanel extends JPanel {
 	private JSpinner timeStart, timeEnd;
@@ -57,16 +61,16 @@ public class TimeBoundChooserPanel extends JPanel {
 
 		JPanel buttonPanel = new JPanel(new MigLayout("ins 0"));
 		final JButton createAnimation = new JButton("Create");
-		createAnimation.addActionListener(e -> createAnimation(modelHandler.getModel()));
+		createAnimation.addActionListener(e -> createAnimation(modelHandler));
 		buttonPanel.add(createAnimation);
 
 		final JButton duplicateAnimation = new JButton("Duplicate");
-		duplicateAnimation.addActionListener(e -> duplicateAnimation(modelHandler.getModel()));
+		duplicateAnimation.addActionListener(e -> duplicateAnimation(modelHandler));
 		buttonPanel.add(duplicateAnimation);
 
 
 		final JButton editAnimation = new JButton("Edit");
-		editAnimation.addActionListener(e -> editAnimation(modelHandler.getModel()));
+		editAnimation.addActionListener(e -> editAnimation(modelHandler));
 		buttonPanel.add(editAnimation);
 
 		final JButton deleteAnimation = new JButton("Delete");
@@ -101,7 +105,7 @@ public class TimeBoundChooserPanel extends JPanel {
 	}
 
 	private JPanel getCustomTimePanel(ModelHandler modelHandler) {
-		TimeBoundProvider timeBound = getTimeBound(modelHandler);
+		Sequence timeBound = getTimeBound(modelHandler);
 		int startTime = 0;
 		int endTime = 1000;
 		if (timeBound != null) {
@@ -119,12 +123,12 @@ public class TimeBoundChooserPanel extends JPanel {
 		return customTimePanel;
 	}
 
-	private TimeBoundProvider getTimeBound(ModelHandler modelHandler) {
+	private Sequence getTimeBound(ModelHandler modelHandler) {
 		RenderModel editorRenderModel = modelHandler.getRenderModel();
 		if (editorRenderModel != null) {
 			TimeEnvironmentImpl renderEnvironment = editorRenderModel.getTimeEnvironment();
 			if (renderEnvironment != null) {
-				return renderEnvironment.getCurrentAnimation();
+				return renderEnvironment.getCurrentSequence();
 			}
 		}
 		return null;
@@ -157,7 +161,7 @@ public class TimeBoundChooserPanel extends JPanel {
 		if (tabs.getSelectedIndex() == 0) {
 			final Animation selectedAnimation = animationBox.getSelectedValue();
 			if (selectedAnimation != null) {
-				timeEnvironmentImpl.setBounds(selectedAnimation);
+				timeEnvironmentImpl.setAnimation(selectedAnimation);
 			}
 		} else if (tabs.getSelectedIndex() == 1) {
 			timeEnvironmentImpl.setBounds(((Integer) timeStart.getValue()), ((Integer) timeEnd.getValue()));
@@ -178,9 +182,8 @@ public class TimeBoundChooserPanel extends JPanel {
 		if (option != JOptionPane.CANCEL_OPTION) {
 			List<Animation> selectedValues = animationBox.getSelectedValuesList();
 			List<UndoAction> deleteActions = new ArrayList<>();
-			boolean clearKeyframes = option == JOptionPane.YES_OPTION;
 			for (Animation animation : selectedValues) {
-				DeleteAnimationAction deleteAnimationAction = new DeleteAnimationAction(modelHandler.getModel(), animation, null, clearKeyframes);
+				UndoAction deleteAnimationAction = new RemoveSequenceAction(modelHandler.getModel(), animation, null);
 				deleteActions.add(deleteAnimationAction);
 			}
 			UndoAction undoAction = new CompoundAction("Delete " + deleteActions.size() + " Animation(s)", deleteActions, ModelStructureChangeListener.changeListener::animationParamsChanged);
@@ -195,7 +198,7 @@ public class TimeBoundChooserPanel extends JPanel {
 		final GlobalSeq selectedValue = globalSeqBox.getSelectedValue();
 		if (result != JOptionPane.CANCEL_OPTION) {
 			// del anim
-			UndoAction action = new RemoveGlobalSequenceAction(modelHandler.getModel(), selectedValue, ModelStructureChangeListener.changeListener, result == JOptionPane.YES_OPTION);
+			UndoAction action = new RemoveSequenceAction(modelHandler.getModel(), selectedValue, ModelStructureChangeListener.changeListener);
 			modelHandler.getUndoManager().pushAction(action.redo());
 			globalSeqList.removeElement(selectedValue);
 		}
@@ -216,12 +219,13 @@ public class TimeBoundChooserPanel extends JPanel {
 							"\nInstead, simply add animation data to the sequence of that length which already exists.",
 					"Error", JOptionPane.ERROR_MESSAGE);
 		} else {
-			AddGlobalSequenceAction action = new AddGlobalSequenceAction(modelHandler.getModel(), new GlobalSeq((Integer) spinner.getValue()), ModelStructureChangeListener.getModelStructureChangeListener());
+			UndoAction action = new AddSequenceAction(modelHandler.getModel(), new GlobalSeq((Integer) spinner.getValue()), ModelStructureChangeListener.getModelStructureChangeListener());
 			modelHandler.getUndoManager().pushAction(action.redo());
 		}
 	}
 
-	private void createAnimation(EditableModel model) {
+	private void createAnimation(ModelHandler modelHandler) {
+		EditableModel model = modelHandler.getModel();
 		final JPanel createAnimQuestionPanel = new JPanel(new MigLayout());
 		final JSpinner newAnimLength = new JSpinner(new SpinnerNumberModel(1000, 0, Integer.MAX_VALUE, 1));
 		final Animation lastAnimation = model.getAnimsSize() == 0 ? null : model.getAnim(model.getAnimsSize() - 1);
@@ -278,15 +282,11 @@ public class TimeBoundChooserPanel extends JPanel {
 		final int result = JOptionPane.showConfirmDialog(TimeBoundChooserPanel.this, createAnimQuestionPanel,
 				"Create Animation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
-			final Animation newAnimation = new Animation(nameField.getText(),
+			Animation newAnimation = new Animation(nameField.getText(),
 					(Integer) newAnimTimeStart.getValue(),
 					(Integer) newAnimTimeEnd.getValue());
-			final int rarityValue = (Integer) rarityChooser.getValue();
-			final int moveValue = (Integer) moveSpeedChooser.getValue();
-			model.add(newAnimation);
-			//todo this should be undoable
-			ModelStructureChangeListener.changeListener.animationParamsChanged();
-			animations.addElement(newAnimation);
+			int rarityValue = (Integer) rarityChooser.getValue();
+			int moveValue = (Integer) moveSpeedChooser.getValue();
 			if (rarityValue != 0) {
 				newAnimation.setRarity(rarityValue);
 			}
@@ -296,6 +296,9 @@ public class TimeBoundChooserPanel extends JPanel {
 			if (nonLoopingChooser.isSelected()) {
 				newAnimation.setNonLooping(true);
 			}
+			UndoAction action = new AddSequenceAction(modelHandler.getModel(), newAnimation, ModelStructureChangeListener.getModelStructureChangeListener());
+			animations.addElement(newAnimation);
+			modelHandler.getUndoManager().pushAction(action.redo());
 		}
 	}
 
@@ -311,30 +314,55 @@ public class TimeBoundChooserPanel extends JPanel {
 		timeRangeButton(lengthButton, newAnimLength, timeRangeButton, newAnimTimeStart, newAnimTimeEnd);
 	}
 
-	private void editAnimation(EditableModel model) {
+	private void editAnimation(ModelHandler modelHandler) {
 		final Animation selectedValue = animationBox.getSelectedValue();
 		if (selectedValue != null) {
-			createAnimation(model);
+			createAnimation(modelHandler);
 		}
 	}
 
-	private void duplicateAnimation(EditableModel model) {
-		final Animation selectedAnimation = animationBox.getSelectedValue();
-//		final List<Animation> selectedValues = animationBox.getSelectedValuesList();
-		final String userChosenName = JOptionPane.showInputDialog(TimeBoundChooserPanel.this,
+	private void duplicateAnimation(ModelHandler modelHandler) {
+		EditableModel model = modelHandler.getModel();
+		Animation selectedAnimation = animationBox.getSelectedValue();
+//		List<Animation> selectedValues = animationBox.getSelectedValuesList();
+		String userChosenName = JOptionPane.showInputDialog(TimeBoundChooserPanel.this,
 				"Choose new animation name:", selectedAnimation.getName() + " Second");
 		if (userChosenName != null) {
 //			for (Animation animation : selectedValues){
 //			}
-			final Animation copyAnimation = new Animation(selectedAnimation);
-			final Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
-			copyAnimation.setInterval(lastAnim.getEnd() + 300, lastAnim.getEnd() + 300 + selectedAnimation.length());
+			Animation copyAnimation = selectedAnimation.deepCopy();
+			Animation lastAnim = model.getAnim(model.getAnimsSize() - 1);
+			copyAnimation.setAnimStuff(lastAnim.getEnd() + 300, selectedAnimation.getLength());
 			copyAnimation.setName(userChosenName);
-			model.add(copyAnimation);
-			selectedAnimation.copyToInterval(copyAnimation.getStart(), copyAnimation.getEnd(), model.getAllAnimFlags(), model.getEvents());
 
+			List<UndoAction> undoActions = new ArrayList<>();
+
+			for (AnimFlag<?> animFlag : model.getAllAnimFlags()) {
+				AddFlagEntryMapAction<?> e = getAddFlagEntryMapAction(selectedAnimation, copyAnimation, animFlag);
+				if(e != null){
+					undoActions.add(e);
+				}
+			}
+
+			undoActions.add(new AddSequenceAction(model, copyAnimation, null));
+			CompoundAction action = new CompoundAction("Added Animation " + copyAnimation.getName(), undoActions, ModelStructureChangeListener.changeListener::animationParamsChanged);
 			animations.addElement(copyAnimation);
-			ModelStructureChangeListener.changeListener.animationParamsChanged();
+			modelHandler.getUndoManager().pushAction(action.redo());
+//			copyAnimation.copyFromAnimation(selectedAnimation, model.getEvents());
+			for (EventObject e : model.getEvents()) {
+				if (!e.hasGlobalSeq()) {
+					e.copyFrom(e.copy(), selectedAnimation, copyAnimation);
+				}
+			}
+
 		}
+	}
+
+	private <Q> AddFlagEntryMapAction<Q> getAddFlagEntryMapAction(Animation selectedAnimation, Animation copyAnimation, AnimFlag<Q> animFlag) {
+		if(animFlag.hasSequence(selectedAnimation)){
+			TreeMap<Integer, Entry<Q>> sequenceEntryMapCopy = animFlag.getSequenceEntryMapCopy(selectedAnimation);
+			return new AddFlagEntryMapAction<>(animFlag, copyAnimation, sequenceEntryMapCopy, null);
+		}
+		return null;
 	}
 }

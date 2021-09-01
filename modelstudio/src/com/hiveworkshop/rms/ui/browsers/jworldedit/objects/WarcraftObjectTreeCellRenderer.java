@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.ui.icons.IconUtils;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
+import com.hiveworkshop.rms.ui.icons.IconUtils;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -52,7 +52,7 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 				}
 				if (img == null) {
 					img = IconUtils.worldEditStyleIcon(
-							BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp")
+							BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp")
 									.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_FAST));
 				}
 				setIcon(new ImageIcon(toBufferedImage(img.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_DEFAULT))
@@ -74,10 +74,10 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 					false, row, hasFocus);
 			if (expanded) {
 				setIcon(new ImageIcon(
-						BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
+						BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
 			} else {
 				setIcon(new ImageIcon(
-						BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
+						BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
 			}
 			if (((node instanceof SortingFolderTreeNode) && ((SortingFolderTreeNode) node).hasEditedChildren())
 					&& !selected) {

@@ -1,8 +1,11 @@
 package com.hiveworkshop.rms.util;
 
 import com.hiveworkshop.rms.editor.model.Bitmap;
+import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.opengl.PixelFormat;
 
@@ -17,6 +20,82 @@ public class ImageCreator {
 
 	public ImageCreator(int width, int height){
 		image = new BufferedImage(width, height, ColorSpace.CS_sRGB);
+	}
+
+	public static BufferedImage getBufferedImage(Material material, final DataSource workingDirectory) {
+//		System.out.println("getBufferedImage");
+		BufferedImage theImage = null;
+		if (Material.SHADER_HD_DEFAULT_UNIT.equals(material.getShaderString()) && (material.getLayers().size() > 0)) {
+			final Layer firstLayer = material.getLayer(0);
+			final Bitmap tex = firstLayer.firstTexture();
+			final String path = getRenderableTexturePath(tex);
+			BufferedImage newImage;
+			try {
+//				newImage = BLPHandler.get().getTexture(workingDirectory, path);
+				newImage = BLPHandler.getImage(tex, workingDirectory);
+			} catch (final Exception exc) {
+				// newImage = null;
+				newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+			}
+			return newImage;
+		} else {
+            for (final Layer lay : material.getLayers()) {
+                final Bitmap tex = lay.firstTexture();
+                final String path = getRenderableTexturePath(tex);
+                BufferedImage newImage;
+                try {
+//                    newImage = BLPHandler.get().getTexture(workingDirectory, path);
+                    newImage = BLPHandler.getImage(tex, workingDirectory);
+                } catch (final Exception exc) {
+                    // newImage = null;
+                    newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+                }
+                if (theImage == null) {
+                    theImage = newImage;
+                } else {
+                    if (newImage != null) {
+                    	if (tex != null) System.out.println(tex.getName());
+                    	if(lay.getFilterMode() == MdlxLayer.FilterMode.MODULATE){
+		                    System.out.println("modulate!");
+                    		theImage = modulate(theImage, newImage);
+	                    } else if(lay.getFilterMode() == MdlxLayer.FilterMode.MODULATE2X) {
+		                    theImage = modulateX2(theImage, newImage);
+	                    } else if(lay.getFilterMode() == MdlxLayer.FilterMode.ADDITIVE) {
+		                    theImage = additative(theImage, newImage);
+	                    } else {
+		                    theImage = mergeImage(theImage, newImage);
+	                    }
+                    }
+                }
+            }
+		}
+
+		return theImage;
+	}
+
+	public static BufferedImage mergeImage(final BufferedImage source, final BufferedImage overlay) {
+		final int w = Math.max(source.getWidth(), overlay.getWidth());
+		final int h = Math.max(source.getHeight(), overlay.getHeight());
+		final BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+		final Graphics g = combined.getGraphics();
+		g.drawImage(source, 0, 0, w, h, null);
+		g.drawImage(overlay, 0, 0, w, h, null);
+
+		return combined;
+	}
+
+	public static BufferedImage mergeImageScaled(final Image source, final Image overlay, final int w1, final int h1,
+	                                             final int w2, final int h2) {
+		final int w = Math.max(w1, w2);
+		final int h = Math.max(h1, h2);
+		final BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+		final Graphics g = combined.getGraphics();
+		g.drawImage(source, 0, 0, w1, h1, null);
+		g.drawImage(overlay, (w1 - w2) / 2, (h1 - h2) / 2, w2, h2, null);
+
+		return combined;
 	}
 
 	private void ugg(BufferedImage in, BufferedImage in2){
@@ -74,7 +153,8 @@ public class ImageCreator {
 				String path = getRenderableTexturePath(tex);
 				BufferedImage newImage;
 				try {
-					newImage = BLPHandler.get().getTexture(workingDirectory, path);
+//					newImage = BLPHandler.get().getTexture(workingDirectory, path);
+					newImage = BLPHandler.getImage(tex,workingDirectory);
 				} catch (final Exception exc) {
 					// newImage = null;
 					newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
@@ -92,23 +172,6 @@ public class ImageCreator {
 		return theImage;
 	}
 
-
-
-	public static BufferedImage mergeImage(BufferedImage source, BufferedImage overlay) {
-		int w = Math.max(source.getWidth(), overlay.getWidth());
-		int h = Math.max(source.getHeight(), overlay.getHeight());
-		BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-
-		Raster data = source.getData();
-		WritableRaster raster = source.getRaster();
-//		raster.setPixel();
-
-		Graphics g = combined.getGraphics();
-		g.drawImage(source, 0, 0, w, h, null);
-		g.drawImage(overlay, 0, 0, w, h, null);
-
-		return combined;
-	}
 
 	public static BufferedImage ugg(WritableRaster raster1, WritableRaster raster2){
 		if(raster1.getHeight() == raster2.getHeight() && raster1.getWidth() == raster2.getWidth()){
@@ -248,21 +311,49 @@ public class ImageCreator {
 	}
 
 
-	private String getRenderableTexturePath(final Bitmap tex) {
-//		System.out.println("getRenderableTexturePath");
+	/**
+	 * Intended to handle resolving ReplaceableIds into paths
+	 */
+	private static String getRenderableTexturePath(final Bitmap tex) {
 		if (tex == null) {
 			return "Textures\\white.blp";
 		}
-		String path = tex.getPath();
-		if (path.length() == 0) {
-			if (tex.getReplaceableId() == 1) {
-				path = "ReplaceableTextures\\TeamColor\\TeamColor0" + 0 + ".blp";
-			} else if (tex.getReplaceableId() == 2) {
-				path = "ReplaceableTextures\\TeamGlow\\TeamGlow0" + 0 + ".blp";
-			}
+		if (tex.getPath().length() == 0) {
+			return getReplaceableTexturePath(tex);
 		}
-		return path;
+		return tex.getPath();
 	}
+	private static String getRenderableTexturePath1(final Bitmap tex) {
+		if (tex == null) {
+			return "Textures\\white.blp";
+		}
+		if (tex.getPath().length() == 0) {
+			String tcString = ("" + (100 + Material.teamColor)).substring(1);
+			return switch (tex.getReplaceableId()){
+				case 0 -> "";
+				case 1 -> "ReplaceableTextures\\TeamColor\\TeamColor" + tcString + ".blp";
+				case 2 -> "ReplaceableTextures\\TeamGlow\\TeamGlow" + tcString + ".blp";
+				case 11 -> "ReplaceableTextures\\Cliff\\Cliff0" + ".blp";
+				default -> "replaceabletextures\\lordaerontree\\lordaeronsummertree" + ".blp";
+			};
+		}
+		return tex.getPath();
+	}
+
+
+
+	private static String getReplaceableTexturePath(Bitmap bitmap) {
+		String tcString = ("" + (100 + Material.teamColor)).substring(1);
+		return switch (bitmap.getReplaceableId()){
+			case 0 -> "";
+			case 1 -> "ReplaceableTextures\\TeamColor\\TeamColor" + tcString + ".blp";
+			case 2 -> "ReplaceableTextures\\TeamGlow\\TeamGlow" + tcString + ".blp";
+			case 11 -> "ReplaceableTextures\\Cliff\\Cliff0" + ".blp";
+			default -> "replaceabletextures\\lordaerontree\\lordaeronsummertree" + ".blp";
+		};
+	}
+
+
 	public BufferedImage getBufferedImage(int width, int height, BufferedImage image1, BufferedImage image2 ) {
 		try {
 			final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);

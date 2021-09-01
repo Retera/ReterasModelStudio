@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,9 +14,7 @@ public class ComponentBonePanel extends ComponentIdObjectPanel<Bone> {
 
 	public ComponentBonePanel(ModelHandler modelHandler) {
 		super(modelHandler);
-		JButton removeGeoBindings = new JButton("Remove from all vertices");
-		removeGeoBindings.addActionListener(e -> removeGeoBindings());
-		topPanel.add(removeGeoBindings);
+		topPanel.add(getButton("Remove from all vertices", e -> removeGeoBindings()));
 	}
 
 	private void removeGeoBindings() {

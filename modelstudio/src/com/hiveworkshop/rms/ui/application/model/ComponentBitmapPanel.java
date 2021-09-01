@@ -5,14 +5,11 @@ import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapReplaceableIdAc
 import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapWrapHeightAction;
 import com.hiveworkshop.rms.editor.actions.model.bitmap.SetBitmapWrapWidthAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
-import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
 import net.miginfocom.swing.MigLayout;
@@ -26,7 +23,7 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 
 	private Bitmap bitmap;
 	private final ComponentEditorTextField texturePathField;
-	private final ComponentEditorJSpinner replaceableIdSpinner;
+	private final IntEditorJSpinner replaceableIdSpinner;
 	private final JCheckBox wrapWidthBox;
 	private final JCheckBox wrapHeightBox;
 	private final JPanel previewPanel;
@@ -37,11 +34,8 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		texturePathField = new ComponentEditorTextField(24);
 		texturePathField.addEditingStoppedListener(this::texturePathField);
 		fileDialog = new FileDialog(this);
-//		texturePathField.addActionListener(e -> texturePathField());
 
-		replaceableIdSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(-1, -1, Integer.MAX_VALUE, 1));
-		replaceableIdSpinner.addEditingStoppedListener(this::replaceableIdSpinner);
-//		replaceableIdSpinner.addActionListener(this::replaceableIdSpinner);
+		replaceableIdSpinner = new IntEditorJSpinner(-1, -1, this::replaceableIdSpinner);
 
 		wrapWidthBox = new JCheckBox("Wrap Width");
 		wrapWidthBox.addActionListener(e -> wrapWidthBox());
@@ -61,9 +55,8 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		add(wrapWidthBox, "cell 0 2 3");
 		add(wrapHeightBox, "cell 0 3");
 
-		final JButton exportTextureImageFile = new JButton("Export Texture Image File");
-		exportTextureImageFile.addActionListener(e -> exportTextureImageFile());
-		add(exportTextureImageFile, "cell 2 3, pushx");
+
+		add(getButton("Export Texture Image File", e -> exportTextureImageFile()), "cell 2 3, pushx");
 		add(previewPanel, "cell 0 4 3, growx, growy");
 	}
 
@@ -77,27 +70,19 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	}
 
 	private void wrapHeightBox() {
-		SetBitmapWrapHeightAction setBitmapWrapHeightAction = new SetBitmapWrapHeightAction(bitmap,
-				bitmap.isWrapHeight(), wrapHeightBox.isSelected(), changeListener);
-		modelHandler.getUndoManager().pushAction(setBitmapWrapHeightAction.redo());
+		undoManager.pushAction(new SetBitmapWrapHeightAction(bitmap, wrapHeightBox.isSelected(), changeListener).redo());
 	}
 
 	private void wrapWidthBox() {
-		SetBitmapWrapWidthAction setBitmapWrapWidthAction = new SetBitmapWrapWidthAction(bitmap,
-				bitmap.isWrapWidth(), wrapWidthBox.isSelected(), changeListener);
-		modelHandler.getUndoManager().pushAction(setBitmapWrapWidthAction.redo());
+		undoManager.pushAction(new SetBitmapWrapWidthAction(bitmap, wrapWidthBox.isSelected(), changeListener).redo());
 	}
 
-	private void replaceableIdSpinner() {
-		SetBitmapReplaceableIdAction setBitmapReplaceableIdAction = new SetBitmapReplaceableIdAction(
-				bitmap, bitmap.getReplaceableId(), ((Number) replaceableIdSpinner.getValue()).intValue(),
-				changeListener);
-		modelHandler.getUndoManager().pushAction(setBitmapReplaceableIdAction.redo());
+	private void replaceableIdSpinner(int newValue) {
+		undoManager.pushAction(new SetBitmapReplaceableIdAction(bitmap, newValue, changeListener).redo());
 	}
 
 	private void texturePathField() {
-		SetBitmapPathAction setBitmapPathAction = new SetBitmapPathAction(bitmap, texturePathField.getText(), changeListener);
-		modelHandler.getUndoManager().pushAction(setBitmapPathAction.redo());
+		undoManager.pushAction(new SetBitmapPathAction(bitmap, texturePathField.getText(), changeListener).redo());
 	}
 
 	@Override
@@ -111,25 +96,26 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		loadBitmapPreview(bitmap);
 	}
 
-	@Override
-	public void save(EditableModel model, UndoManager undoManager, ModelStructureChangeListener changeListener) {
-	}
-
 	private void loadBitmapPreview(Bitmap defaultTexture) {
 		if (defaultTexture != null) {
 			DataSource workingDirectory = modelHandler.getModel().getWrappedDataSource();
 			previewPanel.removeAll();
-			try {
-				BufferedImage texture = BLPHandler.getImage(defaultTexture, workingDirectory);
-				previewPanel.add(new ZoomableImagePreviewPanel(texture));
-			} catch (final Exception exc) {
-				BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
-				Graphics2D g2 = image.createGraphics();
-				g2.setColor(Color.RED);
-				g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
-				previewPanel.add(new ZoomableImagePreviewPanel(image));
-			}
+			previewPanel.add(getZoomableImagePreviewPanel(defaultTexture, workingDirectory));
 			previewPanel.revalidate();
 		}
+	}
+
+	private ZoomableImagePreviewPanel getZoomableImagePreviewPanel(Bitmap defaultTexture, DataSource workingDirectory) {
+		ZoomableImagePreviewPanel comp;
+		try {
+			comp = new ZoomableImagePreviewPanel(BLPHandler.getImage(defaultTexture, workingDirectory));
+		} catch (final Exception exc) {
+			BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g2 = image.createGraphics();
+			g2.setColor(Color.RED);
+			g2.drawString(exc.getClass().getSimpleName() + ": " + exc.getMessage(), 15, 15);
+			comp = new ZoomableImagePreviewPanel(image);
+		}
+		return comp;
 	}
 }

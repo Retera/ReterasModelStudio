@@ -3,18 +3,20 @@ package com.hiveworkshop.rms.ui.application.model;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeFlagEntryAction;
+import com.hiveworkshop.rms.editor.actions.mesh.DeleteGeosetAction;
 import com.hiveworkshop.rms.editor.actions.model.SetGeosetAnimAction;
 import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.model.material.ChangeMaterialAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetAnim;
+import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.tools.GeosetAnimCopyPanel;
@@ -37,11 +39,11 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	private final JLabel geosetLabel = new JLabel("geoset name");
 	private final JLabel trisLabel = new JLabel("0");
 	private final JLabel vertLabel = new JLabel("0");
-	JPanel lodPanel;
-	JPanel hdNamePanel;
-	JSpinner lodSpinner;
-	JTextField nameTextField;
-	JButton toggleSdHd;
+	private JPanel lodPanel;
+	private JPanel hdNamePanel;
+	private JSpinner lodSpinner;
+	private JTextField nameTextField;
+	private JButton toggleSdHd;
 	private JSpinner selectionGroupSpinner;
 	private Geoset geoset;
 
@@ -54,7 +56,8 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		super(modelHandler);
 		setLayout(new MigLayout("hidemode 1", "[][grow][grow]", "[]"));
 
-		add(geosetLabel, "wrap");
+		add(geosetLabel, "");
+		add(getDeleteButton(e -> removeGeoset()), "skip 1, wrap");
 		hdNamePanel = getHdNamePanel();
 		add(hdNamePanel, "wrap, growx, spanx");
 
@@ -115,7 +118,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 			Material itemAt = materialChooser.getItemAt(materialChooser.getSelectedIndex());
 
 			ChangeMaterialAction action = new ChangeMaterialAction(geoset, itemAt, changeListener);
-			modelHandler.getUndoManager().pushAction(action.redo());
+			undoManager.pushAction(action.redo());
 		}
 	}
 
@@ -128,7 +131,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 	private void cloneMaterial() {
 		AddMaterialAction addMaterialAction = new AddMaterialAction(new Material(geoset.getMaterial()), modelHandler.getModel(), changeListener);
-		modelHandler.getUndoManager().pushAction(addMaterialAction.redo());
+		undoManager.pushAction(addMaterialAction.redo());
 	}
 
 	private JPanel getHdNamePanel() {
@@ -179,13 +182,6 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		revalidate();
 		repaint();
 	}
-
-
-	@Override
-	public void save(final EditableModel model, final UndoManager undoManager,
-	                 final ModelStructureChangeListener changeListener) {
-	}
-
 
 	private void setSelectionGroup() {
 		geoset.setSelectionGroup((Integer) selectionGroupSpinner.getValue());
@@ -249,7 +245,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 			colorPanel.reloadNewValue(geosetAnim.getStaticColor(), (Vec3AnimFlag) geosetAnim.find(MdlUtils.TOKEN_COLOR), geosetAnim, MdlUtils.TOKEN_COLOR, geosetAnim::setStaticColor);
 		} else {
 			JButton addAnim = new JButton("Add GeosetAnim");
-			addAnim.addActionListener(e -> modelHandler.getUndoManager().pushAction(new SetGeosetAnimAction(modelHandler.getModel(), geoset, changeListener).redo()));
+			addAnim.addActionListener(e -> undoManager.pushAction(new SetGeosetAnimAction(modelHandler.getModel(), geoset, changeListener).redo()));
 			panel.add(addAnim);
 		}
 		return panel;
@@ -265,19 +261,21 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		GeosetAnim geosetAnim = geoset.getGeosetAnim();
 
 		if (geosetAnim != null && geosetAnim.getVisibilityFlag() != null) {
-			TreeMap<Integer, Entry<Float>> entryMap = geosetAnim.getVisibilityFlag().getEntryMap();
 			Map<Animation, String> animVisMap = new HashMap<>();
 			for (Animation animation : modelHandler.getModel().getAnims()) {
-				NavigableMap<Integer, Entry<Float>> animSubMap = entryMap.subMap(animation.getStart(), true, animation.getEnd(), true);
-				if (animSubMap.isEmpty() || animSubMap.values().stream().allMatch(e -> e.getValue() >= 1)) {
+				TreeMap<Integer, Entry<Float>> entryMap = geosetAnim.getVisibilityFlag().getEntryMap(animation);
+				if (entryMap != null && !entryMap.isEmpty()) {
+					float firstValue = entryMap.get(entryMap.firstKey()).getValue();
+					Collection<Entry<Float>> visEntries = entryMap.values();
+					if (visEntries.stream().allMatch(e -> e.getValue() >= 1)) {
+						animVisMap.put(animation, "visible");
+					} else if (visEntries.stream().allMatch(e -> e.getValue() == 0)) {
+						animVisMap.put(animation, "invisible");
+					} else if (visEntries.stream().anyMatch(e -> e.getValue() != firstValue)) {
+						animVisMap.put(animation, "animated");
+					}
+				} else {
 					animVisMap.put(animation, "visible");
-				} else if (animSubMap.values().stream().allMatch(e -> e.getValue() == 0)) {
-					animVisMap.put(animation, "invisible");
-				} else if (animSubMap.values().stream().anyMatch(e -> e.getValue() == 0)
-						&& animSubMap.values().stream().anyMatch(e -> e.getValue() > 0)
-						|| animSubMap.values().stream().anyMatch(e -> e.getValue() >= 1)
-						&& animSubMap.values().stream().anyMatch(e -> e.getValue() < 1)) {
-					animVisMap.put(animation, "animated");
 				}
 			}
 			for (Animation animation : modelHandler.getModel().getAnims()) {
@@ -302,30 +300,30 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 	private void toggleVisibility(Animation animation, String currVis) {
 		AnimFlag<Float> visibilityFlag = geoset.getGeosetAnim().getVisibilityFlag();
-		NavigableMap<Integer, Entry<Float>> animSubMap = visibilityFlag.getEntryMap().subMap(animation.getStart(), true, animation.getEnd(), true);
+		TreeMap<Integer, Entry<Float>> entryMap = visibilityFlag.getEntryMap(animation);
 		if (currVis.equals("visible")) {
 			System.out.println("going invis!");
-			if (animSubMap.isEmpty()) {
+			if (entryMap == null || entryMap.isEmpty()) {
 				Entry<Float> entry = new Entry<>(animation.getStart(), 0f);
-				UndoAction action = new AddFlagEntryAction(visibilityFlag, entry, geoset.getGeosetAnim(), changeListener);
+				UndoAction action = new AddFlagEntryAction<>(visibilityFlag, entry, animation, changeListener);
 				modelHandler.getUndoManager().pushAction(action.redo());
 			} else {
 				List<UndoAction> actions = new ArrayList<>();
-				for (Entry<Float> entry : animSubMap.values()) {
+				for (Entry<Float> entry : entryMap.values()) {
 					Entry<Float> newEntry = new Entry<>(entry.getTime(), 0f);
-					actions.add(new ChangeFlagEntryAction<>(visibilityFlag, newEntry, entry, null));
+					actions.add(new ChangeFlagEntryAction<>(visibilityFlag, newEntry, entry, animation, null));
 				}
 				UndoAction action = new CompoundAction("Set visible", actions, changeListener::geosetsUpdated);
 				modelHandler.getUndoManager().pushAction(action.redo());
 			}
 		} else if (currVis.equals("invisible")) {
 			System.out.println("going vis!");
-			if (!animSubMap.isEmpty()) {
+			if (!entryMap.isEmpty()) {
 				System.out.println("woop!");
 				List<UndoAction> actions = new ArrayList<>();
-				for (Entry<Float> entry : animSubMap.values()) {
+				for (Entry<Float> entry : entryMap.values()) {
 					Entry<Float> newEntry = new Entry<>(entry.getTime(), 1f);
-					actions.add(new ChangeFlagEntryAction<>(visibilityFlag, newEntry, entry, null));
+					actions.add(new ChangeFlagEntryAction<>(visibilityFlag, newEntry, entry, animation, null));
 				}
 				UndoAction action = new CompoundAction("Set invisible", actions, changeListener::geosetsUpdated);
 				modelHandler.getUndoManager().pushAction(action.redo());
@@ -393,7 +391,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		if (!e.getValueIsAdjusting() && material != null) {
 			if (material != geoset.getMaterial()) {
 				ChangeMaterialAction action = new ChangeMaterialAction(geoset, material, changeListener);
-				modelHandler.getUndoManager().pushAction(action.redo());
+				undoManager.pushAction(action.redo());
 			}
 		}
 	}
@@ -404,4 +402,8 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		renderer.setMaterial(geoset.getMaterial());
 	}
 
+	private void removeGeoset() {
+		UndoAction action = new DeleteGeosetAction(modelHandler.getModel(), geoset, changeListener);
+		undoManager.pushAction(action.redo());
+	}
 }

@@ -2,9 +2,12 @@ package com.hiveworkshop.rms.editor.model.util.ModelSaving;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.parsers.mdlx.*;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class IdObjectToMdlx {
 
@@ -70,9 +73,22 @@ public class IdObjectToMdlx {
 			object.globalSequenceId = eventObject.getGlobalSeqId(model);
 		}
 
-		final List<Integer> keyframes = new ArrayList<>(eventObject.getEventTrack());
+		List<Integer> keyframes = new ArrayList<>();
 
-		object.keyFrames = new long[keyframes.size()];
+		TreeMap<Sequence, TreeSet<Integer>> animMap = eventObject.getEventTrackAnimMap();
+		for(Sequence sequence : animMap.keySet()){
+			TreeSet<Integer> tracks = animMap.get(sequence);
+			if(tracks != null){
+				for (int track : tracks){
+					if(track > sequence.getLength()){
+						break;
+					}
+					keyframes.add(track + sequence.getStart());
+				}
+			}
+		}
+
+		object.keyFrames = new long[eventObject.size()];
 
 		for (int i = 0; i < keyframes.size(); i++) {
 			object.keyFrames[i] = keyframes.get(i).longValue();

@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.Collection;
@@ -101,12 +102,16 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	public void translateBone(IdObject object, Vec3 scale) {
 		Vec3AnimFlag translation = (Vec3AnimFlag) object.find(MdlUtils.TOKEN_TRANSLATION);
 		if (translation != null) {
-			TreeMap<Integer, Entry<Vec3>> entryMap = translation.getEntryMap();
-			for (Entry<Vec3> entry : entryMap.values()) {
-				entry.getValue().multiply(scale);
-				if (translation.tans()) {
-					entry.getInTan().multiply(scale);
-					entry.getOutTan().multiply(scale);
+			for (Sequence anim : translation.getAnimMap().keySet()) {
+				TreeMap<Integer, Entry<Vec3>> entryMap = translation.getAnimMap().get(anim);
+				if (entryMap != null) {
+					for (Entry<Vec3> entry : entryMap.values()) {
+						entry.getValue().multiply(scale);
+						if (translation.tans()) {
+							entry.getInTan().multiply(scale);
+							entry.getOutTan().multiply(scale);
+						}
+					}
 				}
 			}
 		}
@@ -114,12 +119,16 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	public void translateNode(AnimatedNode node, Vec3 scale) {
 		Vec3AnimFlag translation = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_TRANSLATION);
 		if (translation != null) {
-			TreeMap<Integer, Entry<Vec3>> entryMap = translation.getEntryMap();
-			for (Entry<Vec3> entry : entryMap.values()) {
-				entry.getValue().multiply(scale);
-				if (translation.tans()) {
-					entry.getInTan().multiply(scale);
-					entry.getOutTan().multiply(scale);
+			for (Sequence anim : translation.getAnimMap().keySet()) {
+				TreeMap<Integer, Entry<Vec3>> entryMap = translation.getAnimMap().get(anim);
+				if (entryMap != null) {
+					for (Entry<Vec3> entry : entryMap.values()) {
+						entry.getValue().multiply(scale);
+						if (translation.tans()) {
+							entry.getInTan().multiply(scale);
+							entry.getOutTan().multiply(scale);
+						}
+					}
 				}
 			}
 		}

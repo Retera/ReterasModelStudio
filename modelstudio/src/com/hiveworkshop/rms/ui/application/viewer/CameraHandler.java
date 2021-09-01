@@ -612,4 +612,8 @@ public class CameraHandler {
 	public boolean isOrtho() {
 		return ortho;
 	}
+
+	public float getPixelSize() {
+		return (float) ((geomX(4) - geomX(0)));
+	}
 }

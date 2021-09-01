@@ -4,22 +4,23 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
-public class SetAnimationIntervalEndAction implements UndoAction {
-	private final int prevIntervalEnd;
-	private final int newIntervalEnd;
+public class SetAnimationStartAction implements UndoAction {
+	private final int prevIntervalStart;
+	private final int newIntervalStart;
 	private final Animation animation;
 	private final ModelStructureChangeListener changeListener;
 
-	public SetAnimationIntervalEndAction(int newIntervalEnd, Animation animation, ModelStructureChangeListener changeListener) {
-		this.prevIntervalEnd = animation.getEnd();
-		this.newIntervalEnd = newIntervalEnd;
+	public SetAnimationStartAction(Animation animation, int newIntervalStart,
+	                               ModelStructureChangeListener changeListener) {
+		this.prevIntervalStart = animation.getStart();
+		this.newIntervalStart = newIntervalStart;
 		this.animation = animation;
 		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
-		animation.setIntervalEnd(prevIntervalEnd);
+		animation.setStart(prevIntervalStart);
 		if (changeListener != null) {
 			changeListener.animationParamsChanged();
 		}
@@ -28,7 +29,7 @@ public class SetAnimationIntervalEndAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		animation.setIntervalEnd(newIntervalEnd);
+		animation.setStart(newIntervalStart);
 		if (changeListener != null) {
 			changeListener.animationParamsChanged();
 		}
@@ -37,6 +38,6 @@ public class SetAnimationIntervalEndAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "set animation IntervalEnd to " + newIntervalEnd;
+		return "set start of Animation " + animation.getName() + " to " + newIntervalStart;
 	}
 }

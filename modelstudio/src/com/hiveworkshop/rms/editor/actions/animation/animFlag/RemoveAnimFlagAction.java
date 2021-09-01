@@ -6,12 +6,12 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 public class RemoveAnimFlagAction implements UndoAction {
-	private final ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 	TimelineContainer timelineContainer;
-	AnimFlag animFlag;
+	AnimFlag<?> animFlag;
 
-	public RemoveAnimFlagAction(TimelineContainer timelineContainer, AnimFlag animFlag, ModelStructureChangeListener structureChangeListener) {
-		this.structureChangeListener = structureChangeListener;
+	public RemoveAnimFlagAction(TimelineContainer timelineContainer, AnimFlag<?> animFlag, ModelStructureChangeListener changeListener) {
+		this.changeListener = changeListener;
 		this.timelineContainer = timelineContainer;
 		this.animFlag = animFlag;
 	}
@@ -19,8 +19,8 @@ public class RemoveAnimFlagAction implements UndoAction {
 	@Override
 	public UndoAction undo() {
 		timelineContainer.add(animFlag);
-		if (structureChangeListener != null) {
-			structureChangeListener.materialsListChanged();
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
 		}
 		return this;
 
@@ -29,8 +29,8 @@ public class RemoveAnimFlagAction implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		timelineContainer.remove(animFlag);
-		if (structureChangeListener != null) {
-			structureChangeListener.materialsListChanged();
+		if (changeListener != null) {
+			changeListener.materialsListChanged();
 		}
 		return this;
 	}

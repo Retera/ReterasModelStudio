@@ -1,16 +1,10 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.filesystem.sources.DataSource;
-import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
-import com.hiveworkshop.rms.util.ImageCreator;
+import com.hiveworkshop.rms.editor.model.util.HD_Material_Layer;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A class for MDL materials.
@@ -51,14 +45,6 @@ public class Material {
 		sortPrimsFarZ = material.sortPrimsFarZ;
 		fullResolution = material.fullResolution;
 		twoSided = material.twoSided;
-	}
-
-	public static String getTeamColorNumberString() {
-		final String string = Integer.toString(teamColor);
-		if (string.length() < 2) {
-			return '0' + string;
-		}
-		return string;
 	}
 
 	public String getName2() {
@@ -157,6 +143,13 @@ public class Material {
 
 	public List<Layer> getLayers() {
 		return layers;
+	}
+
+	public Layer getLayer(int i){
+		if(i<layers.size()){
+			return layers.get(i);
+		}
+		return null;
 	}
 
 	public void clearLayers() {
@@ -270,147 +263,33 @@ public class Material {
 		this.twoSided = twoSided;
 	}
 
-	public BufferedImage getBufferedImage(final DataSource workingDirectory) {
-//		System.out.println("getBufferedImage");
-		BufferedImage theImage = null;
-		if (SHADER_HD_DEFAULT_UNIT.equals(shaderString) && (layers.size() > 0)) {
-			final Layer firstLayer = layers.get(0);
-			final Bitmap tex = firstLayer.firstTexture();
-			final String path = getRenderableTexturePath(tex);
-			BufferedImage newImage;
-			try {
-				newImage = BLPHandler.get().getTexture(workingDirectory, path);
-			} catch (final Exception exc) {
-				// newImage = null;
-				newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
-			}
-			return newImage;
-		} else {
-            for (final Layer lay : layers) {
-                final Bitmap tex = lay.firstTexture();
-                final String path = getRenderableTexturePath(tex);
-                BufferedImage newImage;
-                try {
-                    newImage = BLPHandler.get().getTexture(workingDirectory, path);
-                } catch (final Exception exc) {
-                    // newImage = null;
-                    newImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
-                }
-                if (theImage == null) {
-                    theImage = newImage;
-                } else {
-                    if (newImage != null) {
-                    	if (tex != null) System.out.println(tex.getName());
-                    	if(lay.getFilterMode() == MdlxLayer.FilterMode.MODULATE){
-		                    System.out.println("modulate!");
-                    		theImage = ImageCreator.modulate(theImage, newImage);
-	                    } else if(lay.getFilterMode() == MdlxLayer.FilterMode.MODULATE2X) {
-		                    theImage = ImageCreator.modulateX2(theImage, newImage);
-	                    } else if(lay.getFilterMode() == MdlxLayer.FilterMode.ADDITIVE) {
-		                    theImage = ImageCreator.additative(theImage, newImage);
-	                    } else {
-		                    theImage = mergeImage(theImage, newImage);
-	                    }
-                    }
-                }
-            }
-		}
-
-		return theImage;
-	}
-
-	/**
-	 * Intended to handle resolving ReplaceableIds into paths
-	 */
-	private String getRenderableTexturePath(final Bitmap tex) {
-//		System.out.println("getRenderableTexturePath");
-		if (tex == null) {
-			return "Textures\\white.blp";
-		}
-		String path = tex.getPath();
-		if (path.length() == 0) {
-			if (tex.getReplaceableId() == 1) {
-				path = "ReplaceableTextures\\TeamColor\\TeamColor0" + teamColor + ".blp";
-			} else if (tex.getReplaceableId() == 2) {
-				path = "ReplaceableTextures\\TeamGlow\\TeamGlow0" + teamColor + ".blp";
-			}
-		}
-		return path;
-	}
-
-	public static BufferedImage mergeImage(final BufferedImage source, final BufferedImage overlay) {
-		final int w = Math.max(source.getWidth(), overlay.getWidth());
-		final int h = Math.max(source.getHeight(), overlay.getHeight());
-		final BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-
-		final Graphics g = combined.getGraphics();
-		g.drawImage(source, 0, 0, w, h, null);
-		g.drawImage(overlay, 0, 0, w, h, null);
-
-		return combined;
-	}
-
-	public static BufferedImage mergeImageScaled(final Image source, final Image overlay, final int w1, final int h1,
-			final int w2, final int h2) {
-		final int w = Math.max(w1, w2);
-		final int h = Math.max(h1, h2);
-		final BufferedImage combined = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-
-		final Graphics g = combined.getGraphics();
-		g.drawImage(source, 0, 0, w1, h1, null);
-		g.drawImage(overlay, (w1 - w2) / 2, (h1 - h2) / 2, w2, h2, null);
-
-		return combined;
-	}
-
 	public void makeHD() {
 		setShaderString("Shader_HD_DefaultUnit");
-		List<Layer> tempList = new ArrayList<>(getLayers());
-		if (getLayers().size() > 1) {
-			layers.removeAll(tempList);
-//			List<Layer> temp2 = tempList.stream().filter(l -> !l.getTextureBitmap().getName().equals("Team Color")).collect(Collectors.toList());
-			List<Layer> temp2 = tempList.stream().filter(l -> !l.getTextureBitmap().getPath().equals("")).collect(Collectors.toList());
-			if (temp2.isEmpty()) {
-				layers.add(tempList.get(0));
-			} else {
-				layers.add(temp2.get(0));
-			}
-		} else if (getLayers().size() == 0) {
-			final Bitmap white = new Bitmap("Textures\\White.dds");
-			white.setWrapHeight(true);
-			white.setWrapWidth(true);
-			addLayer(new Layer("None", white));
+		Layer diffuseLayer;
+		if (!layers.isEmpty()){
+			diffuseLayer = layers.stream().filter(layer -> !layer.getTextureBitmap().getPath().equals("")).findFirst().orElse(layers.get(0));
+		} else {
+			diffuseLayer = new Layer("None", getBitmap("Textures\\White.dds"));
 		}
-		if (getLayers().size() == 0) {
-			final Bitmap white = new Bitmap("Textures\\White.dds");
-			white.setWrapHeight(true);
-			white.setWrapWidth(true);
-			addLayer(new Layer("None", white));
-		}
-//		final Bitmap normTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor09.dds");
-		final Bitmap normTex = new Bitmap("Textures\\normal.dds");
-		normTex.setWrapHeight(true);
-		normTex.setWrapWidth(true);
-		addLayer(1, new Layer("None", normTex));
-//		final Bitmap ormTex = new Bitmap("ReplaceableTextures\\TeamColor\\TeamColor18.dds");
-		final Bitmap ormTex = new Bitmap("Textures\\orm.dds");
-		ormTex.setWrapHeight(true);
-		ormTex.setWrapWidth(true);
-		addLayer(2, new Layer("None", ormTex));
+		layers.clear();
 
-		final Bitmap black32 = new Bitmap("Textures\\Black32.dds");
-		black32.setWrapHeight(true);
-		black32.setWrapWidth(true);
-		addLayer(3, new Layer("None", black32));
-		addLayer(4, new Layer("None", new Bitmap("", 1)));
+		addLayer(HD_Material_Layer.DIFFUSE.ordinal(), diffuseLayer);
+		addLayer(HD_Material_Layer.VERTEX.ordinal(), new Layer("None", getBitmap("Textures\\normal.dds")));
+		addLayer(HD_Material_Layer.ORM.ordinal(), new Layer("None", getBitmap("Textures\\orm.dds")));
+		addLayer(HD_Material_Layer.EMISSIVE.ordinal(), new Layer("None", getBitmap("Textures\\Black32.dds")));
+		addLayer(HD_Material_Layer.TEAM_COLOR.ordinal(), new Layer("None", new Bitmap("", 1)));
+		addLayer(HD_Material_Layer.REFLECTIONS.ordinal(), new Layer("None", getBitmap("ReplaceableTextures\\EnvironmentMap.dds")));
 
-		final Bitmap envTex = new Bitmap("ReplaceableTextures\\EnvironmentMap.dds");
-		envTex.setWrapHeight(true);
-		envTex.setWrapWidth(true);
-		addLayer(5, new Layer("None", envTex));
 		for (final Layer l : getLayers()) {
 			l.setEmissive(1.0);
 		}
+	}
+
+	private Bitmap getBitmap(String s) {
+		final Bitmap ormTex = new Bitmap(s);
+		ormTex.setWrapHeight(true);
+		ormTex.setWrapWidth(true);
+		return ormTex;
 	}
 
 	public void makeSD() {

@@ -3,13 +3,25 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
 import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
+import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
+import com.hiveworkshop.rms.filesystem.sources.DataSource;
+import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
+import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.util.ImageUtils;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TempStuffFromEditableModel {
 	public static EditableModel deepClone(final EditableModel what, final String newName) {
@@ -21,92 +33,6 @@ public class TempStuffFromEditableModel {
 		newModel.setFileRef(what.getFile());
 
 		return newModel;
-	}
-
-	/**
-	 * Copies the animations from another model into this model. Specifically,
-	 * copies all motion from similarly named bones and copies in the "Anim" blocks
-	 * at the top of the MDL for the newly added sections.
-	 *
-	 * In addition, any bones with significant amounts of motion that were not found
-	 * to correlate with the contents of this model get added to this model's list
-	 * of bones.
-	 */
-	public static void addAnimationsFrom(EditableModel model, EditableModel other) {
-		// this process destroys the "other" model inside memory, so destroy a copy instead
-		other = deepClone(other, "animation source file");
-
-		final List<AnimFlag<?>> flags = model.getAllAnimFlags();
-		final List<EventObject> eventObjs = model.getEvents();
-
-		final List<AnimFlag<?>> othersFlags = other.getAllAnimFlags();
-		final List<EventObject> othersEventObjs = other.getEvents();
-
-		// ------ Duplicate the time track in the other model -------------
-		//
-		// On this new, separate time track, we want to be able to the information specific to
-		// each node about how it will move if it gets translated into or onto the current model
-
-		final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
-		for (final AnimFlag<?> af : othersFlags) {
-			if (!af.hasGlobalSeq()) {
-				newImpFlags.add(af.getEmptyCopy());
-			} else {
-				newImpFlags.add(af.deepCopy());
-			}
-		}
-		final List<EventObject> newImpEventObjs = new ArrayList<>();
-		for (final Object e : othersEventObjs) {
-			newImpEventObjs.add(EventObject.buildEmptyFrom((EventObject) e));
-		}
-
-		// Fill the newly created time track with the exact same data, but shifted
-		// forward relative to wherever the current model's last animation starts
-		for (final Animation anim : other.anims) {
-			final int animTrackEnd = model.animTrackEnd();
-			final int newStart = animTrackEnd + 300;
-			final int newEnd = newStart + anim.length();
-			final Animation newAnim = new Animation(anim);
-			// clone the animation from the other model
-			newAnim.copyToInterval(newStart, newEnd, othersFlags, othersEventObjs, newImpFlags, newImpEventObjs);
-			newAnim.setInterval(newStart, newEnd);
-			model.add(newAnim); // add the new animation to this model
-		}
-
-		// destroy the other model's animations, filling them in with the new stuff
-		for (final AnimFlag<?> af : othersFlags) {
-			af.setValuesTo(newImpFlags.get(othersFlags.indexOf(af)));
-		}
-		for (final Object e : othersEventObjs) {
-			((EventObject) e).setValuesTo(newImpEventObjs.get(othersEventObjs.indexOf(e)));
-		}
-
-		// Now, map the bones in the other model onto the bones in the current
-		// model
-		final List<Bone> leftBehind = new ArrayList<>();
-		// the bones that don't find matches in current model
-//		for (final IdObject object : other.idObjects) {
-		for (final IdObject object : other.getAllObjects()) {
-			if (object instanceof Bone) {
-				// the bone from the other model
-				final Bone bone = (Bone) object;
-				// the object in this model of similar name
-				final Object localObject = model.getObject(bone.getName());
-				if ((localObject instanceof Bone)) {
-					final Bone localBone = (Bone) localObject;
-					localBone.copyMotionFrom(bone); // if it's a match, take the data
-				} else {
-					leftBehind.add(bone);
-				}
-			}
-		}
-		for (final Bone bone : leftBehind) {
-			if (bone.animates()) {
-				model.add(bone);
-			}
-		}
-
-		// i think we're done????
 	}
 
 	public static Object getAnimFlagSource(EditableModel model, final AnimFlag<?> animFlag) {
@@ -186,7 +112,7 @@ public class TempStuffFromEditableModel {
 				final AnimFlag<?> visibility = emitter.getVisibilityFlag();
 				for (final Animation anim : model.getAnims()) {
 					final Integer animStartTime = anim.getStart();
-					final Number visible = (Number) visibility.valueAt(animStartTime);
+					final Number visible = (Number) visibility.valueAt(anim, animStartTime);
 					if ((visible == null) || (visible.floatValue() > 0)) {
 						talliesFor++;
 					} else {
@@ -202,7 +128,16 @@ public class TempStuffFromEditableModel {
 //		final List<EventObject> evts = (List<EventObject>) sortedIdObjects(EventObject.class);
 		final List<EventObject> evts = model.getEvents();
 		for (final Animation anim : model.getAnims()) {
-			anim.clearData(flags, evts);
+//			anim.clearData(flags, evts);
+			for (AnimFlag<?> af : flags) {
+				if (((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
+					// !af.hasGlobalSeq && was above before
+					af.deleteAnim(anim);
+				}
+			}
+			for (EventObject e : evts) {
+				e.deleteAnim(anim);
+			}
 		}
 		if (clearUnusedNodes) {
 			for (final EventObject e : evts) {
@@ -292,6 +227,70 @@ public class TempStuffFromEditableModel {
 		}
 		for (AnimFlag<?> timeline : toRemove) {
 			timelineContainer.remove(timeline);
+		}
+	}
+
+	public static void exportBitmapTextureFile(Component component, EditableModel model, Bitmap selectedValue, File file) {
+		if (file.exists()) {
+			final int confirmOption = JOptionPane.showConfirmDialog(component,
+					"File \"" + file.getPath() + "\" already exists. Continue?", "Confirm Export",
+					JOptionPane.YES_NO_OPTION);
+			if (confirmOption == JOptionPane.NO_OPTION) {
+				return;
+			}
+		}
+		final DataSource wrappedDataSource = model.getWrappedDataSource();
+		final File workingDirectory = model.getWorkingDirectory();
+		BufferedImage bufferedImage = BLPHandler.getImage(selectedValue, wrappedDataSource);
+		String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1).toUpperCase();
+		if (fileExtension.equals("BMP") || fileExtension.equals("JPG") || fileExtension.equals("JPEG")) {
+			JOptionPane.showMessageDialog(component,
+					"Warning: Alpha channel was converted to black. Some data will be lost" +
+							"\nif you convert this texture back to Warcraft BLP.");
+			bufferedImage = ImageUtils.removeAlphaChannel(bufferedImage);
+		}
+		if (fileExtension.equals("BLP")) {
+			fileExtension = "blp";
+		}
+		boolean directExport = false;
+		if (selectedValue.getPath().toLowerCase(Locale.US).endsWith(fileExtension)) {
+			final CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
+			if (gameDataFileSystem.has(selectedValue.getPath())) {
+				final InputStream mpqFile = gameDataFileSystem.getResourceAsStream(selectedValue.getPath());
+				try {
+					Files.copy(mpqFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+					directExport = true;
+				} catch (final IOException e) {
+					e.printStackTrace();
+					ExceptionPopup.display(e);
+				}
+			} else {
+				if (workingDirectory != null) {
+					final File wantedFile = new File(workingDirectory.getPath() + File.separatorChar + selectedValue.getPath());
+					if (wantedFile.exists()) {
+						try {
+							Files.copy(wantedFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+							directExport = true;
+						} catch (final IOException e) {
+							e.printStackTrace();
+							ExceptionPopup.display(e);
+						}
+					}
+				}
+
+			}
+		}
+		if (!directExport) {
+			final boolean write;
+			try {
+				write = ImageIO.write(bufferedImage, fileExtension, file);
+				if (!write) {
+					JOptionPane.showMessageDialog(component, "File type unknown or unavailable");
+				}
+			} catch (final IOException e) {
+				e.printStackTrace();
+				ExceptionPopup.display(e);
+			}
 		}
 	}
 }

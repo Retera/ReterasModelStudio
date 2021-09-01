@@ -2,6 +2,8 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 
 
 import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 import javax.swing.*;
@@ -9,25 +11,24 @@ import javax.swing.*;
 public class IntegerValuePanel extends ValuePanel<Integer> {
 
 	private int selectedRow;
-	private ComponentEditorJSpinner staticSpinner;
+	private IntEditorJSpinner staticSpinner;
 
 	public IntegerValuePanel(ModelHandler modelHandler, String title) {
 		super(modelHandler, title);
 
-		staticSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(1, -Integer.MAX_VALUE, Integer.MAX_VALUE, 1));
+		staticSpinner = new IntEditorJSpinner(1, Integer.MIN_VALUE, this::setStaticValue);
 		keyframePanel.getFloatTrackTableModel().addExtraColumn("Track", "", String.class);  // 🎨 \uD83C\uDFA8
 	}
 
 
 	@Override
-	ComponentEditorJSpinner getStaticComponent() {
+	IntEditorJSpinner getStaticComponent() {
 //		staticSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(1.0, minValue, maxValue, 0.01));
-		staticSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(1, -Integer.MAX_VALUE, Integer.MAX_VALUE, 1));
-		staticSpinner.addEditingStoppedListener(this::setStaticValue);
+		staticSpinner = new IntEditorJSpinner(1, Integer.MIN_VALUE, this::setStaticValue);
 
 		((JSpinner.NumberEditor) staticSpinner.getEditor()).getFormat().setMinimumFractionDigits(2);
 
-		JSpinner standinGuiSpinner = new JSpinner(new SpinnerNumberModel(1, -Integer.MAX_VALUE, Integer.MAX_VALUE, 1));
+		JSpinner standinGuiSpinner = new JSpinner(new SpinnerNumberModel(1, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
 		staticSpinner.setPreferredSize(standinGuiSpinner.getPreferredSize());
 		staticSpinner.setMaximumSize(standinGuiSpinner.getMaximumSize());
 		staticSpinner.setMinimumSize(standinGuiSpinner.getMinimumSize());
@@ -36,9 +37,7 @@ public class IntegerValuePanel extends ValuePanel<Integer> {
 	}
 
 
-
-	void setStaticValue() {
-		int newValue = staticSpinner.getIntValue();
+	void setStaticValue(int newValue) {
 
 		if (valueSettingFunction != null) {
 			undoManager.pushAction(new ConsumerAction<>(valueSettingFunction, newValue, staticValue, title).redo());
@@ -65,6 +64,10 @@ public class IntegerValuePanel extends ValuePanel<Integer> {
 		String polishedString = valueString.replaceAll("[\\D]", "");
 
 		return Integer.parseInt(polishedString);
+	}
+
+	protected AnimFlag<Integer> getNewAnimFlag() {
+		return new IntAnimFlag(flagName);
 	}
 
 }

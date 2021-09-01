@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.KeybindingPrefPanel;
@@ -75,10 +76,23 @@ public class TwilacPanel extends JPanel {
 		edit_keybindings.addActionListener(e -> viewKBPanel());
 		add(edit_keybindings, "wrap");
 
+		JButton importModelPart = new JButton("importModelPart");
+		importModelPart.addActionListener(e -> impModPart());
+		add(importModelPart, "wrap");
+
 		JButton button = new JButton("button");
 		button.addActionListener(e -> button.setText(button.getText().equalsIgnoreCase("butt-on") ? "Butt-Off" : "Butt-On"));
 		add(button, "wrap");
 
+	}
+
+	private void impModPart() {
+		FileDialog fileDialog = new FileDialog();
+		EditableModel donModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+		if (donModel != null) {
+			ImportModelPartPanel panel = new ImportModelPartPanel(donModel, ProgramGlobals.getCurrentModelPanel().getModelHandler());
+			FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Twilac's new tools");
+		}
 	}
 
 	public void makeGeosetUneditable() {

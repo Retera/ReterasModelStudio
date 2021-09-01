@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.actions.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.IdObject;
@@ -68,7 +69,7 @@ public class AddKeyframeAction3 implements UndoAction {
 		if (timeline == null) {
 			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, globalSeq);
 
-			actions.add(new AddTimelineAction(node, timeline));
+			actions.add(new AddTimelineAction<>(node, timeline));
 		}
 		RenderNode renderNode = modelHandler.getRenderModel().getRenderNode(node);
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation())));
@@ -79,7 +80,7 @@ public class AddKeyframeAction3 implements UndoAction {
 		if (timeline == null) {
 			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.HERMITE, globalSeq);
 
-			actions.add(new AddTimelineAction(node, timeline));
+			actions.add(new AddTimelineAction<>(node, timeline));
 		}
 		RenderNode renderNode = modelHandler.getRenderModel().getRenderNode(node);
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalScale())));
@@ -90,56 +91,34 @@ public class AddKeyframeAction3 implements UndoAction {
 		if (timeline == null) {
 			timeline = new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.HERMITE, globalSeq);
 
-			actions.add(new AddTimelineAction(node, timeline));
+			actions.add(new AddTimelineAction<>(node, timeline));
 		}
 		RenderNode renderNode = modelHandler.getRenderModel().getRenderNode(node);
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Quat(renderNode.getLocalRotation())));
 	}
 
-
-//	private String getKeyframeMdlTypeName() {
-//		return switch (actionType) {
-//			case ROTATION, SQUAT -> MdlUtils.TOKEN_ROTATION;
-//			case SCALING -> MdlUtils.TOKEN_SCALING;
-//			case TRANSLATION, EXTEND, EXTRUDE -> MdlUtils.TOKEN_TRANSLATION;
-//		};
-//	}
-
-	private <T>AddKeyframeAction_T<T> getAddKeyframeAction(AnimFlag<T> timeline, Entry<T> entry) {
+	private <T> UndoAction getAddKeyframeAction(AnimFlag<T> timeline, Entry<T> entry) {
 		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
 		if (timeline.tans()) {
-			Entry<T> entryIn = timeline.getFloorEntry(trackTime, timeEnvironmentImpl);
-			Entry<T> entryOut = timeline.getCeilEntry(trackTime, timeEnvironmentImpl);
-			int animationLength = timeEnvironmentImpl.getCurrentAnimation().length();
+			Entry<T> entryIn = timeline.getFloorEntry(trackTime, timeEnvironmentImpl.getCurrentSequence());
+			Entry<T> entryOut = timeline.getCeilEntry(trackTime, timeEnvironmentImpl.getCurrentSequence());
+			int animationLength = timeEnvironmentImpl.getCurrentSequence().getLength();
 
 			float[] tbcFactor = timeline.getTbcFactor(0, 0.5f, 0);
 			timeline.calcNewTans(tbcFactor, entryOut, entryIn, entry, animationLength);
 			System.out.println("calc tans! " + entryIn + entryOut + entry);
 
-			return new AddKeyframeAction_T<>(timeline, entry);
+			return new AddFlagEntryAction<>(timeline, entry, timeEnvironmentImpl.getCurrentSequence(), null);
 		}
-		if (!timeline.hasEntryAt(trackTime)) {
+		if (!timeline.hasEntryAt(timeEnvironmentImpl.getCurrentSequence(), trackTime)) {
 			if (timeline.getInterpolationType().tangential()) {
 				entry.unLinearize();
 			}
 
-			return new AddKeyframeAction_T<>(timeline, entry);
+			return new AddFlagEntryAction<>(timeline, entry, timeEnvironmentImpl.getCurrentSequence(), null);
 		}
 		return null;
 	}
-//	private <T>AddKeyframeAction_T<T> getAddKeyframeAction(AnimFlag<T> timeline, Entry<T> entry) {
-//		// TODO global seqs, needs separate check on AnimRendEnv, and also we must make AnimFlag.find seek on globalSeqId
-//		if (!timeline.hasEntryAt(trackTime)) {
-//			if (timeline.getInterpolationType().tangential()) {
-//				entry.unLinearize();
-//			}
-//
-//			AddKeyframeAction_T<T> addKeyframeAction = new AddKeyframeAction_T<>(timeline, entry);
-//			addKeyframeAction.redo();
-//			return addKeyframeAction;
-//		}
-//		return null;
-//	}
 
 
 	@Override
@@ -156,7 +135,15 @@ public class AddKeyframeAction3 implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "add keyframe";
+		return "add " + getKFTypeName() + " keyframe";
+	}
+
+	private String getKFTypeName() {
+		return switch (actionType) {
+			case ROTATION, SQUAT -> MdlUtils.TOKEN_ROTATION;
+			case SCALING -> MdlUtils.TOKEN_SCALING;
+			case TRANSLATION, EXTEND, EXTRUDE -> MdlUtils.TOKEN_TRANSLATION;
+		};
 	}
 
 }

@@ -13,7 +13,7 @@ class MultiBonePanel extends BonePanel {
 	BoneShellMotionListCellRenderer oneShellRenderer;
 
 	public MultiBonePanel(ModelHolderThing mht, final BoneShellListCellRenderer renderer) {
-		BoneShellMotionListCellRenderer oneShellRenderer = new BoneShellMotionListCellRenderer(mht.recModelManager, mht.donModelManager);
+		BoneShellMotionListCellRenderer oneShellRenderer = new BoneShellMotionListCellRenderer(mht.receivingModel, mht.donatingModel);
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		selectedBone = null;

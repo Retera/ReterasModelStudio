@@ -2,6 +2,8 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.EventObject;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
@@ -30,22 +32,36 @@ public class CombineAnimations extends ActionFunction {
 		String nameChoice = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
 				"What should the combined animation be called?");
 		if (nameChoice != null) {
-			int anim1Length = animation.getEnd() - animation.getStart();
-			int anim2Length = animation2.getEnd() - animation2.getStart();
+			int anim1Length = animation.getLength();
+			int anim2Length = animation2.getLength();
 			int totalLength = anim1Length + anim2Length;
 
 			int animTrackEnd = model.animTrackEnd();
-			int start = animTrackEnd + 1000;
-			animation.copyToInterval(start, start + anim1Length, model.getAllAnimFlags(), model.getEvents());
-			animation2.copyToInterval(start + anim1Length, start + totalLength, model.getAllAnimFlags(), model.getEvents());
+			int newStart = animTrackEnd + 1000;
+			Animation newAnimation = new Animation(nameChoice, newStart, newStart + totalLength);
+			copyFromInterval(animation, newAnimation, 0, model.getAllAnimFlags(), model.getEvents());
+			copyFromInterval(animation2, newAnimation, anim1Length, model.getAllAnimFlags(), model.getEvents());
 
-			Animation newAnimation = new Animation(nameChoice, start, start + totalLength);
 			model.add(newAnimation);
 			newAnimation.setNonLooping(true);
 			newAnimation.setExtents(animation.getExtents().deepCopy());
 			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(),
 					"DONE! Made a combined animation called " + newAnimation.getName(), "Success",
 					JOptionPane.PLAIN_MESSAGE);
+		}
+	}
+
+	private static void copyFromInterval(Animation source, Animation animation, int offset, List<AnimFlag<?>> flags, List<EventObject> eventObjs) {
+		for (AnimFlag<?> af : flags) {
+			if (!af.hasGlobalSeq()) {
+//				af.copyFrom(af, source, animation, offset, animation.getLength() + offset);
+				af.copyFrom(af, source, animation, offset);
+			}
+		}
+		for (EventObject e : eventObjs) {
+			if (!e.hasGlobalSeq()) {
+				e.copyFrom(e.copy(), source, animation);
+			}
 		}
 	}
 }

@@ -1,21 +1,23 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
+import com.hiveworkshop.rms.editor.actions.animation.*;
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.sound.Sound;
 import com.hiveworkshop.rms.util.sound.SoundPlayer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.util.TreeSet;
+import java.util.function.Consumer;
 
 public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
-	JPanel soundsPanel;
-	JLabel eventName;
-
-//	private final IntegerValuePanel trackPanel;
-	JPanel tracksPanel;
+	private JPanel soundsPanel;
+	private JLabel eventName;
+	private JPanel tracksPanel;
 
 	public ComponentEventPanel(ModelHandler modelHandler) {
 		super(modelHandler);
@@ -50,32 +52,69 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 
 	private void makeSoundButton(String path, String name) {
 		soundsPanel.add(new JLabel(name));
-		JButton soundButton = new JButton("play");
-		soundsPanel.add(soundButton, "wrap");
-
-		soundButton.addActionListener(e -> {
-			SoundPlayer.play(path);
-		});
+		soundsPanel.add(getButton("play", e -> SoundPlayer.play(path)), "wrap");
 		soundsPanel.repaint();
 		System.out.println("got sound: " + path);
 	}
 
-	ComponentEditorJSpinner staticSpinner;
-	private void updateTracksPanel(){
+	private void updateTracksPanel() {
 		tracksPanel.removeAll();
-		for(int track : idObject.getEventTrack()){
-			staticSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(track, -Integer.MAX_VALUE, Integer.MAX_VALUE, 1));
-			staticSpinner.addEditingStoppedListener(() -> editingStoppedListener(track));
-			tracksPanel.add(staticSpinner, "wrap");
+//		tracksPanel.add(new JLabel("Animation"));
+//		tracksPanel.add(new JLabel("Event Start Time"), "wrap");
+		for (Sequence sequence : idObject.getEventTrackAnimMap().keySet()) {
+			TreeSet<Integer> eventTrack = idObject.getEventTrack(sequence);
+			if (eventTrack != null) {
+				JPanel sequencePanel = getSequencePanel(sequence, eventTrack);
+				tracksPanel.add(sequencePanel, "wrap");
+			}
 		}
 	}
 
-	private void editingStoppedListener(int track){
-		editTrack(staticSpinner.getIntValue(), track);
+	private JPanel getSequencePanel(Sequence sequence, TreeSet<Integer> eventTrack) {
+		JPanel sequenceTrackPanel = new JPanel(new MigLayout("ins 0"));
+		for (int track : eventTrack) {
+			Consumer<Integer> integerConsumer = (i) -> editingStoppedListener(sequence, track, i);
+			IntEditorJSpinner trackSpinner = new IntEditorJSpinner(track, Integer.MIN_VALUE, integerConsumer);
+			sequenceTrackPanel.add(trackSpinner, "");
+			sequenceTrackPanel.add(getXButton(e -> removeTrack(sequence, track)), "wrap");
+		}
+		int newTrackTime = eventTrack.last() == null ? 0 : eventTrack.last() + 1;
+		sequenceTrackPanel.add(getButton("Add", e -> addTrack(sequence, newTrackTime)), "wrap");
+
+		JPanel sequencePanel = new JPanel(new MigLayout("ins 0"));
+		sequencePanel.setBorder(BorderFactory.createTitledBorder("" + sequence));
+//		sequencePanel.add(new JLabel("" + sequence));
+		sequencePanel.add(getDeleteButton(e -> removeSequence(sequence)), "wrap");
+		sequencePanel.add(sequenceTrackPanel);
+
+		return sequencePanel;
 	}
 
-	private void editTrack(int track, int trackOrg){
-		idObject.removeTrack(trackOrg);
-		idObject.addTrack(track);
+	private void editingStoppedListener(Sequence sequence, int track, int newValue) {
+		editTrack(sequence, track, newValue);
+	}
+
+	private void editTrack(Sequence sequence, int track, int newValue) {
+		undoManager.pushAction(new EditEventTrackAction(idObject, sequence, track, newValue, changeListener).redo());
+	}
+
+	private void addTrack(Sequence sequence, int track) {
+		undoManager.pushAction(new AddEventTrackAction(idObject, sequence, track, changeListener).redo());
+	}
+
+	private void addSequence(Sequence sequence) {
+		undoManager.pushAction(new AddEventSequenceAction(idObject, sequence, changeListener).redo());
+	}
+
+	private void removeTrack(Sequence sequence, int track) {
+		if (idObject.getEventTrack(sequence).size() <= 1) {
+			removeSequence(sequence);
+		} else {
+			undoManager.pushAction(new RemoveEventTrackAction(idObject, sequence, track, changeListener).redo());
+		}
+	}
+
+	private void removeSequence(Sequence sequence) {
+		undoManager.pushAction(new RemoveEventSequenceAction(idObject, sequence, changeListener).redo());
 	}
 }

@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -20,9 +21,9 @@ public class SplineTracker<T> {
 	int interEndTime;
 
 
-	public SplineTracker(AnimFlag<T> timeline) {
+	public SplineTracker(AnimFlag<T> timeline, Sequence anim) {
 		this.timeline = timeline;
-		tTanDer = TTan.getNewTTan(timeline);
+		tTanDer = TTan.getNewTTan(timeline, anim);
 		if (tTanDer != null) {
 			entryInEnd = tTanDer.cur.deepCopy();
 			entryInStart = tTanDer.cur.deepCopy();
@@ -42,9 +43,9 @@ public class SplineTracker<T> {
 		}
 	}
 
-	public void setTime(int time) {
+	public void setTime(int time, Sequence anim) {
 		this.time = time;
-		tTanDer.setFromKF(time);
+		tTanDer.setFromKF(time, anim);
 	}
 
 
@@ -63,7 +64,7 @@ public class SplineTracker<T> {
 		entryOutEnd.setTime(200);
 
 		System.out.println("tang: " + tTanDer.tang);
-		System.out.println("orgEntry: " + timeline.getEntryAt(time));
+//		System.out.println("orgEntry: " + timeline.getEntryAt(time));
 	}
 
 	public void resetEntriesOut(int time) {
@@ -314,7 +315,7 @@ public class SplineTracker<T> {
 
 	public void initFromKF() {
 		if (timeline.tans()) {
-			TreeMap<Integer, Entry<T>> entryMap = timeline.getEntryMap();
+			TreeMap<Integer, Entry<T>> entryMap = timeline.getEntryMap(null);
 
 			if (entryMap.ceilingKey(time) != null
 					&& (timeline.getInterpolationType() == InterpolationType.HERMITE)) {

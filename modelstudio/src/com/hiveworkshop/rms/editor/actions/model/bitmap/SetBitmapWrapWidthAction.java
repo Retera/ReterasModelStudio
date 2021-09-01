@@ -8,27 +8,30 @@ public class SetBitmapWrapWidthAction implements UndoAction {
 	private final Bitmap bitmap;
 	private final boolean prevState;
 	private final boolean newState;
-	private final ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetBitmapWrapWidthAction(final Bitmap bitmap, final boolean prevState, final boolean newState,
-			final ModelStructureChangeListener modelStructureChangeListener) {
+	public SetBitmapWrapWidthAction(Bitmap bitmap, boolean newState, ModelStructureChangeListener changeListener) {
 		this.bitmap = bitmap;
-		this.prevState = prevState;
+		this.prevState = bitmap.isWrapWidth();
 		this.newState = newState;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
 		bitmap.setWrapWidth(prevState);
-		modelStructureChangeListener.texturesChanged();
+		if (changeListener != null) {
+			changeListener.texturesChanged();
+		}
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
 		bitmap.setWrapWidth(newState);
-		modelStructureChangeListener.texturesChanged();
+		if (changeListener != null) {
+			changeListener.texturesChanged();
+		}
 		return this;
 	}
 

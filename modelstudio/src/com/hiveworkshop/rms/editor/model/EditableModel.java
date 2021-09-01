@@ -683,7 +683,7 @@ public class EditableModel implements Named {
 	}
 
 	public GlobalSeq getGlobalSeq(final int id) {
-		if (id > 0 && globalSeqs.size() > id) {
+		if (id >= 0 && globalSeqs.size() > id) {
 			return globalSeqs.get(id);
 		}
 		return null;

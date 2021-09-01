@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.ReplaceAnimFlagsAction;
+import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
@@ -78,18 +79,22 @@ public class GeosetAnimCopyPanel extends JPanel {
 	private void doCopy(GeosetAnim geosetAnim, List<GeosetAnim> geosetAnims) {
 		ArrayList<AnimFlag<?>> animFlags = donGeosetAnim.getAnimFlags();
 		ReplaceAnimFlagsAction replaceAnimFlagsAction = new ReplaceAnimFlagsAction(recGeosetAnim, animFlags, listener);
-		replaceAnimFlagsAction.redo();
-		undoManager.pushAction(replaceAnimFlagsAction);
+		undoManager.pushAction(replaceAnimFlagsAction.redo());
 	}
 
-	private void setKeyframes(int donKeyframe, int recKeyframe, int times, ArrayList<AnimFlag<?>> animFlags) {
+	private void setKeyframes(Animation donAnimation, int donKeyframe, Animation recAnimation, int recKeyframe, int times, ArrayList<AnimFlag<?>> animFlags) {
 		for (AnimFlag<?> animFlag : animFlags) {
-			for (int j = 0; j < times; j++) {
-				animFlag.removeKeyframe(recKeyframe + j);
-				Entry<?> entryAt = animFlag.getEntryAt(donKeyframe + j);
-				if (entryAt != null) {
-					animFlag.setOrAddEntryT(recKeyframe + j, entryAt.deepCopy());
-				}
+			setAnimFlagKeyframes(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlag);
+		}
+	}
+
+	private <Q> void setAnimFlagKeyframes(Animation donAnimation, int donKeyframe, Animation recAnimation, int recKeyframe, int times, AnimFlag<Q> animFlag) {
+		for (int j = 0; j < times; j++) {
+			animFlag.removeKeyframe(recKeyframe + j, recAnimation);
+			Entry<Q> entryAt = animFlag.getEntryAt(donAnimation, donKeyframe + j);
+			if (entryAt != null) {
+				Entry<Q> entry = entryAt.deepCopy();
+				animFlag.setOrAddEntry(recKeyframe + j, entry, recAnimation);
 			}
 		}
 	}

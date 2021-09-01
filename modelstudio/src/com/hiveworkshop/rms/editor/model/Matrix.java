@@ -16,10 +16,6 @@ public class Matrix {
 	public Matrix() {
 	}
 
-	public Matrix(final int id) {
-		m_boneIds.add(id);
-	}
-
 	public Matrix(final Collection<Bone> newBones) {
 		bones.addAll(newBones);
 		recalculateId();
@@ -28,12 +24,6 @@ public class Matrix {
 	public Matrix(Bone newBone) {
 		bones.add(newBone);
 		recalculateId();
-	}
-
-	public Matrix(final int[] boneIds) {
-		for (int boneId : boneIds) {
-			m_boneIds.add(boneId);
-		}
 	}
 
 	public String getName() {
@@ -73,17 +63,17 @@ public class Matrix {
 				m_boneIds.add(newId);
 			} else {
 				bonesToRemove.add(bone);
-				new Exception("Matrix error").printStackTrace();
+//				new Exception("Matrix error").printStackTrace();
 				if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
 //					JOptionPane.showMessageDialog(null, "Error: A matrix's bone reference was missing in the model!" + "\nDid you move geometry between models and forget to update bones?");
-					System.out.println("Error: A matrix's bone reference was missing in the model!" + "\nDid you move geometry between models and forget to update bones?");
+					System.out.println("Error: A matrix's bone (" + bone.getName() + ") reference was missing in the model!" + "\nDid you move geometry between models and forget to update bones?");
 					lastPopupTimeHack = System.currentTimeMillis();
 				}
 			}
 		}
 		if ((bones.size() != 0 && m_boneIds.size() == 0) || (m_boneIds.size() < bones.size())) {
 			bones.removeAll(bonesToRemove);
-			new Exception("Matrix error").printStackTrace();
+//			new Exception("Matrix error").printStackTrace();
 			if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
 				JOptionPane.showMessageDialog(null, "Error: bad sizes in matrix (" + (bones.size() - m_boneIds.size()) + " as difference, should be same size)\n Bad bones was removed from the matrix.");
 				System.out.println("Error: bad sizes in matrix (" + (bones.size() - m_boneIds.size()) + " as difference, should be same size)");
@@ -91,6 +81,18 @@ public class Matrix {
 			}
 			recalculateId();
 		}
+	}
+
+	public void cureBones(EditableModel model) {
+		bones.removeIf(b -> !model.getBones().contains(b));
+	}
+
+	public List<Integer> getBoneIdList(EditableModel model) {
+		List<Integer> idList = new ArrayList<>();
+		for (Bone bone : bones) {
+			idList.add(model.getObjectId(bone));
+		}
+		return idList;
 	}
 
 	public void updateBones(final EditableModel model) {

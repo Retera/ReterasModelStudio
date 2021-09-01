@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
@@ -88,8 +89,9 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		if (translationFlag == null) {
 			return;
 		}
-		if (translationFlag.hasEntryAt(trackTime)) {
-			Entry<Vec3> entry = translationFlag.getEntryAt(trackTime);
+		Sequence anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
+		if (translationFlag.hasEntryAt(anim, trackTime)) {
+			Entry<Vec3> entry = translationFlag.getEntryAt(anim, trackTime);
 			entry.getValue().add(localTranslation);
 			if (translationFlag.tans()) {
 				entry.getInTan().add(localTranslation);
@@ -128,8 +130,9 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 			translationHeap.set(newDelta, 1);
 		}
 
-		if (translationFlag.hasEntryAt(trackTime)) {
-			Entry<Vec3> entry = translationFlag.getEntryAt(trackTime);
+		Sequence anim = renderModel.getTimeEnvironment().getCurrentSequence();
+		if (translationFlag.hasEntryAt(anim, trackTime)) {
+			Entry<Vec3> entry = translationFlag.getEntryAt(anim, trackTime);
 			entry.getValue().add(translationHeap.getVec3());
 
 			if (savedLocalTranslation != null) {

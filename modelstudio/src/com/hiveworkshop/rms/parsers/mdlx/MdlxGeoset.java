@@ -381,6 +381,9 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 				default -> ExceptionPopup.addStringToShow("Line " + stream.getLineNumber() + ": Unknown token in Geoset: " + token);
 			}
 		}
+		if(vertexGroups == null){
+			vertexGroups = new short[0];
+		}
 	}
 
 	@Override

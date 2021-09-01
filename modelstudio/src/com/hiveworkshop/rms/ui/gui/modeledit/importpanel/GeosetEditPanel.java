@@ -22,7 +22,7 @@ public class GeosetEditPanel extends JPanel {
 
 		add(getTopPanel(), "spanx, align center, wrap");
 
-		GeosetListCellRenderer2D geosetListCellRenderer = new GeosetListCellRenderer2D(mht.recModelManager, mht.donModelManager);
+		GeosetListCellRenderer2D geosetListCellRenderer = new GeosetListCellRenderer2D(mht.receivingModel, mht.donatingModel);
 		mht.geosetShellJList.setCellRenderer(geosetListCellRenderer);
 		mht.geosetShellJList.addListSelectionListener(e -> showGeosetCard(mht, e));
 //		mht.geosetShellJList.setSelectedIndex(0);

@@ -1,36 +1,17 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
-public class GlobalSeq implements TimeBoundProvider{
-	int length = 0;
+public class GlobalSeq extends Sequence {
 
-	public GlobalSeq(int length){
-		this.length = length;
-	}
-	@Override
-	public int getStart() {
-		return 0;
+	public GlobalSeq(int length) {
+		super(length);
 	}
 
 	@Override
-	public int getEnd() {
-		return length;
-	}
-
-	public int getLength() {
-		return length;
-	}
-
-	public GlobalSeq setLength(int length) {
-		this.length = length;
-		return this;
-	}
-
-	@Override
-	public int compareTo(TimeBoundProvider o) {
+	public int compareTo(Sequence o) {
 		if (o instanceof GlobalSeq) {
-			return length - o.getEnd();
+			return length - o.getLength();
 		}
 		return -1;
 	}

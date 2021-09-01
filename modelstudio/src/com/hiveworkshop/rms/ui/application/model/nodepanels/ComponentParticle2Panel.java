@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.tools.ParticleEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelTextureThings;
 import com.hiveworkshop.rms.util.FramePopup;
 
 import javax.swing.*;
@@ -32,7 +32,8 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 	public ComponentParticle2Panel(ModelHandler modelHandler) {
 		super(modelHandler);
 
-		textureChooser.setRenderer(new TextureListRenderer(modelHandler.getModel()));
+//		textureChooser.setRenderer(new TextureListRenderer(modelHandler.getModel()));
+		textureChooser.setRenderer(ModelTextureThings.getTextureListRenderer());
 		textureChooser.addItemListener(e -> changeTexture(e));
 		topPanel.add(textureChooser);
 

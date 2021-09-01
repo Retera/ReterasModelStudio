@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -10,8 +10,8 @@ import javax.swing.*;
 import java.awt.*;
 
 class BonePanelListCellRenderer extends AbstractSnapshottingListCellRenderer2D<Bone> {
-	public BonePanelListCellRenderer(final ModelView modelDisplay, final ModelView otherDisplay) {
-		super(modelDisplay, otherDisplay);
+	public BonePanelListCellRenderer(EditableModel model, EditableModel other) {
+		super(model, other);
 	}
 
 	@Override
@@ -55,7 +55,7 @@ class BonePanelListCellRenderer extends AbstractSnapshottingListCellRenderer2D<B
 	}
 
 	@Override
-	protected boolean contains(final ModelView modelDisp, final Bone object) {
-		return modelDisp.getModel().contains(object);
+	protected boolean contains(EditableModel model, final Bone object) {
+		return model.contains(object);
 	}
 }

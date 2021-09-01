@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.renderparts.RenderGeoset;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -59,6 +59,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private float xRatio;
 	private float yRatio;
 	private final MouseListenerThing mouseAdapter;
+	private final VertRendererThing vertRendererThing;
+	private final BoneRenderThing2 boneRenderThing;
+
 
 	ExtLog currentExt = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
@@ -68,6 +71,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		this.programPreferences = ProgramGlobals.getPrefs();
 		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
 		cameraHandler = new CameraHandler(this);
+		vertRendererThing = new VertRendererThing(cameraHandler.getPixelSize());
+		boneRenderThing = new BoneRenderThing2();
 
 		mouseAdapter = new MouseListenerThing(cameraHandler, programPreferences);
 		addMouseListener(mouseAdapter);
@@ -234,8 +239,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	private void setCurrentExtent() {
-		if (renderEnv != null && (renderEnv.getCurrentAnimation() != null) && renderEnv.getCurrentAnimation().getExtents() != null) {
-			currentExt = renderEnv.getCurrentAnimation().getExtents();
+		if (renderEnv != null) {
+			Animation animation = renderEnv.getCurrentAnimation();
+			if ((animation != null) && animation.getExtents() != null) {
+				currentExt = animation.getExtents();
+			}
 		}
 		if (currentExt.getMaximumExtent().distance(new Vec3(0, 0, 0)) < 1) {
 			currentExt = modelExtent;
@@ -387,6 +395,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 	private void updateRenderModel() {
 		if (renderEnv.isLive()) {
+			Sequence currentSequence = renderEnv.getCurrentSequence();
+//			System.out.println("update renderEnv! at " + renderEnv.getEnvTrackTime() + " " + currentSequence + " " + currentSequence.getStart() + " - " + currentSequence.getEnd() +  " (" + currentSequence.getLength() + ") ");
+
 			renderEnv.updateAnimationTime();
 			renderModel.updateNodes(false, programPreferences.getRenderParticles());
 		} else if (ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
@@ -494,7 +505,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	private void setStandardColors(GeosetAnim geosetAnim, float geosetAnimVisibility, TimeEnvironmentImpl timeEnvironment, Layer layer) {
-		if (timeEnvironment != null && timeEnvironment.getCurrentAnimation() != null) {
+		if (timeEnvironment != null && timeEnvironment.getCurrentSequence() != null) {
 			float layerVisibility = layer.getRenderVisibility(timeEnvironment);
 			float alphaValue = geosetAnimVisibility * layerVisibility;
 			if (/* geo.getMaterial().isConstantColor() && */ geosetAnim != null) {
@@ -562,7 +573,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		GeosetAnim geosetAnim = geo.getGeosetAnim();
 		float geosetAnimVisibility = 1;
 
-		TimeBoundProvider animation = renderEnv == null ? null : renderEnv.getCurrentAnimation();
+		Sequence animation = renderEnv == null ? null : renderEnv.getCurrentSequence();
 		if ((animation != null) && (geosetAnim != null)) {
 			geosetAnimVisibility = geosetAnim.getRenderVisibility(renderEnv);
 			// do not show invisible geosets
@@ -606,6 +617,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		}
 	}
 
+
 	private void renderVertDots(int formatVersion) {
 		GL11.glDepthMask(true);
 //		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -628,11 +640,12 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			if (correctLoD(geo, formatVersion)) {
 //				CubePainter.paintVertCubes(modelView, renderModel, geo);
 //				CubePainter.paintVertCubes2(modelView, renderModel, geo, cameraHandler);
-				CubePainter.paintVertSquares2(modelView, renderModel, geo, cameraHandler);
+				vertRendererThing.updateSquareSize(cameraHandler.getPixelSize());
+				CubePainter.paintVertSquares2(modelView, renderModel, geo, cameraHandler, vertRendererThing);
 			}
 		}
 		for (final IdObject idObject : modelView.getVisibleIdObjects()) {
-			CubePainter.paintBones4(modelView, renderModel, idObject, cameraHandler);
+			CubePainter.paintBones4(modelView, renderModel, idObject, cameraHandler, boneRenderThing);
 		}
 
 		GL11.glEnable(GL_SHADE_MODEL);

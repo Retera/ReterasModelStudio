@@ -110,7 +110,7 @@ public class Element extends HashedGameObject {
 
 	public ImageIcon getIcon() {
 		String artField = getIconPath();
-		return new ImageIcon(BLPHandler.get().getGameTex(artField));
+		return new ImageIcon(BLPHandler.getGameTex(artField));
 	}
 
 	public String getIconPath() {
@@ -125,9 +125,9 @@ public class Element extends HashedGameObject {
 	public Image getImage() {
 		String artField = getIconPath();
 		try {
-			return BLPHandler.get().getGameTex(artField);
+			return BLPHandler.getGameTex(artField);
 		} catch (final NullPointerException exc) {
-			return BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
+			return BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
 		}
 	}
 
@@ -141,7 +141,7 @@ public class Element extends HashedGameObject {
 	public ImageIcon getScaledIcon(int size) {
 		Image img = getImage();
 		if (img == null) {
-			img = BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
+			img = BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
 		}
 		return new ImageIcon(img.getScaledInstance(size, size, Image.SCALE_SMOOTH));
 	}
@@ -150,7 +150,7 @@ public class Element extends HashedGameObject {
 	public ImageIcon getScaledTintedIcon(Color tint, int size) {
 		Image img = getTintedImage(tint);
 		if (img == null) {
-			img = BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
+			img = BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
 		}
 		return new ImageIcon(img.getScaledInstance(size, size, Image.SCALE_SMOOTH));
 	}
@@ -158,7 +158,7 @@ public class Element extends HashedGameObject {
 	public Image getTintedImage(Color tint) {
 		Image img = getImage();
 		if (img == null) {
-			return BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
+			return BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
 		}
 		BufferedImage out = new BufferedImage(img.getWidth(null), img.getHeight(null),
 				BufferedImage.TYPE_4BYTE_ABGR);

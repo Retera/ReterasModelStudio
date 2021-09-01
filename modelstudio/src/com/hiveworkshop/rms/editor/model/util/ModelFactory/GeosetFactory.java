@@ -11,10 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GeosetFactory {
-	public static Geoset createGeoset(MdlxGeoset mdlxGeoset, ModelInfoHolder infoHolder) {
+	public static Geoset createGeoset(MdlxGeoset mdlxGeoset, ModelInfoHolder infoHolder, EditableModel model) {
 		Geoset geoset = new Geoset();
 		geoset.setExtLog(new ExtLog(mdlxGeoset.extent));
 
+//		for(Animation animation : model.getAnims()){
+//
+//		}
+//		for(int i = 0; i<model.getAnims().size() && i< mdlxGeoset.sequenceExtents.size(); i++){
+//			geoset
+//		}
 		for (final MdlxExtent extent : mdlxGeoset.sequenceExtents) {
 			final ExtLog extents = new ExtLog(extent);
 			final Animation anim = new Animation(extents);
@@ -33,6 +39,7 @@ public class GeosetFactory {
 		geoset.setLevelOfDetailName(mdlxGeoset.lodName);
 
 		int index = 0;
+		System.out.println("MaingGeoset! " + mdlxGeoset.matrixGroups);
 		for (long size : mdlxGeoset.matrixGroups) {
 			Matrix m = new Matrix();
 			for (int i = 0; i < size; i++) {
@@ -42,6 +49,7 @@ public class GeosetFactory {
 			}
 			geoset.addMatrix(m);
 		}
+		System.out.println("GeosetMade!");
 
 
 		final short[] vertexGroups = mdlxGeoset.vertexGroups;
@@ -64,10 +72,17 @@ public class GeosetFactory {
 
 			geoset.add(gv);
 
-			if (i >= vertexGroups.length) {
+			if (vertexGroups == null || i >= vertexGroups.length) {
 				gv.setVertexGroup(-1);
 			} else {
 				gv.setVertexGroup((256 + vertexGroups[i]) % 256);
+				Matrix matrix = geoset.getMatrix((256 + vertexGroups[i]) % 256);
+				if (matrix != null) {
+					for (Bone bone : matrix.getBones()) {
+						gv.addBoneAttachment(bone);
+					}
+				}
+
 			}
 			// this is an unsigned byte, the other guys java code will read as signed
 			if (normals.length > 0) {
@@ -91,7 +106,12 @@ public class GeosetFactory {
 						(Bone) infoHolder.idObjMap.get(((skin[(i * 8) + 2] + 256) % 256)),
 						(Bone) infoHolder.idObjMap.get(((skin[(i * 8) + 3] + 256) % 256))};
 
-				short[] weights = {skin[(i * 8) + 4], skin[(i * 8) + 5], skin[(i * 8) + 6], skin[(i * 8) + 7]};
+//				short[] weights = {skin[(i * 8) + 4], skin[(i * 8) + 5], skin[(i * 8) + 6], skin[(i * 8) + 7]};
+				short[] weights = {
+						(short)((skin[(i * 8) + 4] + 256) % 256),
+						(short)((skin[(i * 8) + 5] + 256) % 256),
+						(short)((skin[(i * 8) + 6] + 256) % 256),
+						(short)((skin[(i * 8) + 7] + 256) % 256)};
 
 				gv.setSkinBones(bones, weights);
 
@@ -100,18 +120,18 @@ public class GeosetFactory {
 
 			}
 
-			if (!(gv.getVertexGroup() == -1 && infoHolder.isTangentAndSkinSupported())) {
-				Matrix matrix = geoset.getMatrix(gv.getVertexGroup());
-				if (matrix != null) {
-					for (Bone bone : matrix.getBones()) {
-						gv.addBoneAttachment(bone);
-					}
-				}
-			}
+//			if (!(gv.getVertexGroup() == -1 && infoHolder.isTangentAndSkinSupported())) {
+//				Matrix matrix = geoset.getMatrix(gv.getVertexGroup());
+//				if (matrix != null) {
+//					for (Bone bone : matrix.getBones()) {
+//						gv.addBoneAttachment(bone);
+//					}
+//				}
+//			}
 
 		}
 		geoset.setTangents(tangentList);
-		geoset.setSkin(skinList);
+//		geoset.setSkin(skinList);
 		// guys I didn't code this to allow experimental non-triangle faces that were suggested to exist
 		// on the web (i.e. quads). if you wanted to fix that, you'd want to do it below
 		final int[] facesVertIndices = mdlxGeoset.faces;
@@ -134,28 +154,30 @@ public class GeosetFactory {
 		return geoset;
 	}
 
-	private static void setSkinBones(Geoset geoset, EditableModel model, int i, GeosetVertex gv) {
-		if ((ModelUtils.isTangentAndSkinSupported(model.getFormatVersion())) && (geoset.getTangents() != null)) {
-			gv.initV900();
-			for (int j = 0; j < 4; j++) {
-				short boneLookupId = (short) ((geoset.getSkin().get(i)[j] + 256) % 256);
-
-				short boneWeight = (short) ((geoset.getSkin().get(i)[j + 4] + 256) % 256);
-
-				final IdObject idObject = model.getIdObject(boneLookupId);
-				if (idObject instanceof Bone) {
-					gv.setSkinBone((Bone) idObject, boneWeight, j);
-				} else {
-					gv.setSkinBone(null, boneWeight, j);
-				}
-			}
-			gv.setTangent(geoset.getTangents().get(i));
-		}
-	}
+//	private static void setSkinBones(Geoset geoset, EditableModel model, int i, GeosetVertex gv) {
+//		if ((ModelUtils.isTangentAndSkinSupported(model.getFormatVersion())) && (geoset.getTangents() != null)) {
+//			gv.initV900();
+//			for (int j = 0; j < 4; j++) {
+//				short boneLookupId = (short) ((geoset.getSkin().get(i)[j] + 256) % 256);
+//
+//				short boneWeight = (short) ((geoset.getSkin().get(i)[j + 4] + 256) % 256);
+//
+//				final IdObject idObject = model.getIdObject(boneLookupId);
+//				if (idObject instanceof Bone) {
+//					gv.setSkinBone((Bone) idObject, boneWeight, j);
+//				} else {
+//					gv.setSkinBone(null, boneWeight, j);
+//				}
+//			}
+//			gv.setTangent(geoset.getTangents().get(i));
+//		}
+//	}
 
 	public static void updateToObjects(Geoset geoset, final EditableModel model) {
 		// upload the temporary UVLayer and Matrix objects into the vertices themselves
-		for (final Matrix m : geoset.getMatrix()) {
+		System.out.println(geoset + ", " + model.getName());
+		for (final Matrix m : geoset.getMatrices()) {
+			System.out.println(m.size());
 			m.updateBones(model);
 		}
 		List<GeosetVertex> vertices = geoset.getVertices();

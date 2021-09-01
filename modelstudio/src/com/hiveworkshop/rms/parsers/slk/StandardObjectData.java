@@ -598,7 +598,7 @@ public class StandardObjectData {
 			if (artField.indexOf(',') != -1) {
 				artField = artField.substring(0, artField.indexOf(','));
 			}
-			return new ImageIcon(BLPHandler.get().getGameTex(artField));
+			return new ImageIcon(BLPHandler.getGameTex(artField));
 		}
 
 		BufferedImage storedImage = null;
@@ -612,32 +612,32 @@ public class StandardObjectData {
 			}
 			if ((storedImage == null) || (storedImagePath == null) || !storedImagePath.equals(artField)) {
 				try {
-					storedImage = BLPHandler.get().getGameTex(artField);
+					storedImage = BLPHandler.getGameTex(artField);
 					storedImagePath = artField;
 					if (storedImage == null) {
 						return IconUtils.scale(
-								BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"),
+								BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"),
 								64, 64);
 					}
 					return storedImage;
 				} catch (final Exception exc) {
 					// artField =
 					// "ReplaceableTextures\\CommandButtons\\BTNTemp.blp";
-					storedImage = BLPHandler.get().getGameTex(artField);
+					storedImage = BLPHandler.getGameTex(artField);
 					storedImagePath = artField;
 					if (storedImage == null) {
 						return IconUtils.scale(
-								BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"),
+								BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"),
 								64, 64);
 					}
 					return storedImage;
 					// return
-					// BLPHandler.get().getGameTex("ReplaceableTextures\\CommandButtons\\BTNAcolyte.blp");
+					// BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNAcolyte.blp");
 				}
 			} else {
 				if (storedImage == null) {
 					return IconUtils.scale(
-							BLPHandler.get().getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"), 64,
+							BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"), 64,
 							64);
 				}
 				return storedImage;

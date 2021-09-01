@@ -32,10 +32,11 @@ public class WindowsMenu extends JMenu {
 		resetViewButton.addActionListener(e -> ProgramGlobals.getRootWindowUgg().resetView());
 		add(resetViewButton);
 
-		JMenuItem saveViewButton = new JMenuItem("Save Layout");
-//		resetViewButton.addActionListener(e -> WindowHandler.resetView());
-		saveViewButton.addActionListener(e -> ProgramGlobals.getPrefs().saveViewMap());
-		add(saveViewButton);
+//		JMenuItem saveViewButton = new JMenuItem("Save Layout");
+////		resetViewButton.addActionListener(e -> WindowHandler.resetView());
+//		saveViewButton.addActionListener(e -> ProgramGlobals.getPrefs().saveViewMap());
+//		add(saveViewButton);
+		add(createMenuItem("Preview of current model", KeyEvent.VK_P, e -> FloatingWindowFactory.openNewWindowWithKB(new PreviewView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), ProgramGlobals.getRootWindowUgg())));
 
 		JMenu viewsMenu = getViewsMenu();
 		add(viewsMenu);
@@ -74,15 +75,15 @@ public class WindowsMenu extends JMenu {
 		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
 		WindowHandler2 windowHandler2 = rootWindow.getWindowHandler2();
 
-		viewsMenu.add(createMenuItem("Animation Preview", KeyEvent.VK_A, e -> FloatingWindowFactory.openNewWindowWithKB(new PreviewView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
-		viewsMenu.add(createMenuItem("Modeling", KeyEvent.VK_M, e -> FloatingWindowFactory.openNewWindowWithKB(new ModelingCreatorToolsView(windowHandler2.getViewportListener()).setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
-		viewsMenu.add(createMenuItem("Outliner", KeyEvent.VK_O, e -> FloatingWindowFactory.openNewWindowWithKB(new ModelViewManagingView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
-		viewsMenu.add(createMenuItem("Perspective", KeyEvent.VK_P, e -> FloatingWindowFactory.openNewWindowWithKB(new PerspectiveViewUgg().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
-		viewsMenu.add(createMenuItem("Front", KeyEvent.VK_F, e -> FloatingWindowFactory.openNewWindowWithKB(new DisplayViewUgg("Front").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
-		viewsMenu.add(createMenuItem("Side", KeyEvent.VK_S, e -> FloatingWindowFactory.openNewWindowWithKB(new DisplayViewUgg("Side").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
-		viewsMenu.add(createMenuItem("Bottom", KeyEvent.VK_B, e -> FloatingWindowFactory.openNewWindowWithKB(new DisplayViewUgg("Bottom").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		viewsMenu.add(createMenuItem("Animation Preview", KeyEvent.VK_A, e -> windowHandler2.openNewWindowWithKB(new PreviewView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		viewsMenu.add(createMenuItem("Modeling", KeyEvent.VK_M, e -> windowHandler2.openNewWindowWithKB(new ModelingCreatorToolsView(windowHandler2.getViewportListener()).setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		viewsMenu.add(createMenuItem("Outliner", KeyEvent.VK_O, e -> windowHandler2.openNewWindowWithKB(new ModelViewManagingView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		viewsMenu.add(createMenuItem("Perspective", KeyEvent.VK_P, e -> windowHandler2.openNewWindowWithKB(new PerspectiveViewUgg().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		viewsMenu.add(createMenuItem("Front", KeyEvent.VK_F, e -> windowHandler2.openNewWindowWithKB(new DisplayViewUgg("Front").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		viewsMenu.add(createMenuItem("Side", KeyEvent.VK_S, e -> windowHandler2.openNewWindowWithKB(new DisplayViewUgg("Side").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		viewsMenu.add(createMenuItem("Bottom", KeyEvent.VK_B, e -> windowHandler2.openNewWindowWithKB(new DisplayViewUgg("Bottom").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 
-		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_C, e -> FloatingWindowFactory.openNewWindowWithKB(new ModelComponentsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_C, e -> windowHandler2.openNewWindowWithKB(new ModelComponentsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 		viewsMenu.add(createMenuItem("Footer", KeyEvent.VK_F, e -> FloatingWindowFactory.openNewWindowWithKB(windowHandler2.getTimeSliderView(), rootWindow)));
 //
 //		viewsMenu.add(createMenuItem("Animation Preview", KeyEvent.VK_A, e -> FloatingWindowFactory.openNewWindow(new PreviewView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));

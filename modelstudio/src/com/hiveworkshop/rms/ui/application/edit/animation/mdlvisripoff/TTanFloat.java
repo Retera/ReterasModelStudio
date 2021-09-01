@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
 /**
  * Aiming to copy some behaviors from Mdlvis with this
@@ -17,8 +18,8 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 public class TTanFloat extends TTan<Float> {
 	public boolean isLogsReady; // "true" if Logarithms are ready
 
-	public TTanFloat(AnimFlag<Float> timeline) {
-		super(timeline);
+	public TTanFloat(AnimFlag<Float> timeline, Sequence anim) {
+		super(timeline, anim);
 		deltaOut = 0f;
 		deltaIn = 0f;
 	}

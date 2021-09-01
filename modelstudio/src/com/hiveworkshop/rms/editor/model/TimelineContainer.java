@@ -21,7 +21,7 @@ public abstract class TimelineContainer implements VisibilitySource {
 
 	public void timelinesToMdlx(MdlxAnimatedObject mdlxObject, EditableModel model) {
 		for (AnimFlag<?> timeline : animFlags.values()) {
-			if (!timeline.getEntryMap().isEmpty()) {
+			if (!timeline.getAnimMap().isEmpty()) {
 				mdlxObject.timelines.add(timeline.toMdlx(this, model));
 			}
 		}
@@ -198,6 +198,33 @@ public abstract class TimelineContainer implements VisibilitySource {
 
 	public AnimFlag<Quat> getRotationFlag(GlobalSeq globalSeq) {
 		AnimFlag<?> timeline = find(MdlUtils.TOKEN_ROTATION, globalSeq);
+
+		if (timeline instanceof QuatAnimFlag) {
+			return (QuatAnimFlag) timeline;
+		}
+		return null;
+	}
+
+	public AnimFlag<Vec3> getTranslationFlag() {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_TRANSLATION);
+
+		if (timeline instanceof Vec3AnimFlag) {
+			return (Vec3AnimFlag) timeline;
+		}
+		return null;
+	}
+
+	public AnimFlag<Vec3> getScalingFlag() {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_SCALING);
+
+		if (timeline instanceof Vec3AnimFlag) {
+			return (Vec3AnimFlag) timeline;
+		}
+		return null;
+	}
+
+	public AnimFlag<Quat> getRotationFlag() {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_ROTATION);
 
 		if (timeline instanceof QuatAnimFlag) {
 			return (QuatAnimFlag) timeline;

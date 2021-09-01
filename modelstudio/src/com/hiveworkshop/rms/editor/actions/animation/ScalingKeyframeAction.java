@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -21,6 +22,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 	private final HashMap<IdObject, Vec3> nodeToLocalScale;
 	private final Vec3 center;
 	private final GlobalSeq trackGlobalSeq;
+	private final Sequence anim;
 	private final RenderModel editorRenderModel;
 
 	public ScalingKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
@@ -30,6 +32,7 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 		this.editorRenderModel = editorRenderModel;
 		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
 		this.trackGlobalSeq = editorRenderModel.getTimeEnvironment().getGlobalSeq();
+		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
 		nodeToLocalScale = new HashMap<>();
 		for (IdObject node : nodeSelection) {
 			nodeToLocalScale.put(node, new Vec3());
@@ -82,8 +85,8 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 
 		int trackTime = renderModel.getTimeEnvironment().getEnvTrackTime();
 
-		if (translationFlag.hasEntryAt(trackTime)) {
-			Entry<Vec3> entry = translationFlag.getEntryAt(trackTime);
+		if (translationFlag.hasEntryAt(anim, trackTime)) {
+			Entry<Vec3> entry = translationFlag.getEntryAt(anim, trackTime);
 			entry.getValue().multiply(scale);
 
 			if (savedLocalScaling != null) {
@@ -103,8 +106,9 @@ public class ScalingKeyframeAction implements GenericScaleAction {
 		if (translationFlag == null) {
 			return;
 		}
-		if (translationFlag.hasEntryAt(trackTime)) {
-			Entry<Vec3> entry = translationFlag.getEntryAt(trackTime);
+
+		if (translationFlag.hasEntryAt(anim, trackTime)) {
+			Entry<Vec3> entry = translationFlag.getEntryAt(anim, trackTime);
 			entry.getValue().multiply(localScaling);
 			if (translationFlag.tans()) {
 				entry.getInTan().multiply(localScaling);

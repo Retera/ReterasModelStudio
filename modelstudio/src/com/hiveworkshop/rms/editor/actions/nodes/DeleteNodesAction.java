@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.editor.actions.nodes;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.util.BiMap;
 
@@ -12,31 +11,32 @@ import java.util.*;
 public class DeleteNodesAction implements UndoAction {
 	private final Set<IdObject> selectedObjects;
 	private final ModelStructureChangeListener changeListener;
-	private final ModelView model;
+	private final EditableModel model;
 	private final Set<IdObject> quickHashSetRemovedObjects;
 	private final Set<Camera> selectedCameras;
 
 	private CompoundAction meshLinkDelete;
 
-	private BiMap<IdObject, IdObject> parentMap = new BiMap<>();
-	private Map<IdObject, IdObject> topParentMap = new HashMap<>();
-	private Map<IdObject, Set<IdObject>> childMap = new HashMap<>();
+	private final BiMap<IdObject, IdObject> parentMap = new BiMap<>();
+	private final Map<IdObject, IdObject> topParentMap = new HashMap<>();
+	private final Map<IdObject, Set<IdObject>> childMap = new HashMap<>();
 
 	private boolean relink = true;
 
 	public DeleteNodesAction(Collection<IdObject> selectedObjects,
 	                         Collection<Camera> selectedCameras,
 	                         ModelStructureChangeListener changeListener,
-	                         ModelView modelView) {
+	                         EditableModel model) {
 		this.selectedObjects = new HashSet<>(selectedObjects);
 		this.selectedCameras = new HashSet<>(selectedCameras);
 		this.changeListener = changeListener;
-		this.model = modelView;
+
+		this.model = model;
 
 		this.quickHashSetRemovedObjects = new HashSet<>();
 		quickHashSetRemovedObjects.addAll(selectedObjects);
 
-		for (IdObject idObject : selectedObjects){
+		for (IdObject idObject : selectedObjects) {
 			parentMap.put(idObject, idObject.getParent());
 			topParentMap.put(idObject, topParent(idObject));
 			childMap.put(idObject, new HashSet<>(idObject.getChildrenNodes()));
@@ -73,12 +73,12 @@ public class DeleteNodesAction implements UndoAction {
 	@Override
 	public UndoAction undo() {
 		for (IdObject object : selectedObjects) {
-			model.getModel().add(object);
+			model.add(object);
 		}
 		addBackParent();
 
 		for (Camera camera : selectedCameras) {
-			model.getModel().add(camera);
+			model.add(camera);
 		}
 		meshLinkDelete.undo();
 
@@ -91,11 +91,11 @@ public class DeleteNodesAction implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		for (IdObject object : selectedObjects) {
-			model.getModel().remove(object);
+			model.remove(object);
 		}
 		removeFromParent();
 		for (Camera camera : selectedCameras) {
-			model.getModel().remove(camera);
+			model.remove(camera);
 		}
 
 		getMeshLinkDeleteAction().redo();
@@ -107,11 +107,11 @@ public class DeleteNodesAction implements UndoAction {
 	}
 
 	private UndoAction getMeshLinkDeleteAction() {
-		if(meshLinkDelete == null){
+		if(meshLinkDelete == null) {
 			Set<GeosetVertex> affectedVerts = new HashSet<>();
 			Set<Bone> vertBones = new HashSet<>();
 			Map<Bone, Set<GeosetVertex>> boneVertMap = new HashMap<>();
-			for (Geoset geoset : model.getModel().getGeosets()) {
+			for (Geoset geoset : model.getGeosets()) {
 				Map<Bone, List<GeosetVertex>> boneMap = geoset.getBoneMap();
 				for (Bone bone : boneMap.keySet()) {
 					if (selectedObjects.contains(bone)) {

@@ -26,7 +26,7 @@ public class Delete extends ActionFunction {
 			} else {
 				ModelView modelView = modelPanel.getModelView();
 				DeleteAction deleteAction = new DeleteAction(modelView.getSelectedVertices(), ModelStructureChangeListener.changeListener, modelView);
-				DeleteNodesAction deleteNodesAction = new DeleteNodesAction(modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), ModelStructureChangeListener.changeListener, modelView);
+				DeleteNodesAction deleteNodesAction = new DeleteNodesAction(modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), ModelStructureChangeListener.changeListener, modelView.getModel());
 				CompoundAction compoundAction = new CompoundAction("deleted components", Arrays.asList(deleteAction, deleteNodesAction));
 				compoundAction.redo();
 				modelPanel.getUndoManager().pushAction(compoundAction);

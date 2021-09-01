@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit;
 
-import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
+import com.hiveworkshop.rms.parsers.slk.DataTable;
 
 import javax.swing.*;
 
@@ -17,6 +17,6 @@ public class WorldEditArt {
 		if (!iconTexturePath.endsWith(".blp")) {
 			iconTexturePath += ".blp";
 		}
-		return new ImageIcon(BLPHandler.get().getGameTex(iconTexturePath));
+		return new ImageIcon(BLPHandler.getGameTex(iconTexturePath));
 	}
 }

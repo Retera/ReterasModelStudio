@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.animation.AddSequenceAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
@@ -9,6 +11,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObje
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import net.miginfocom.swing.MigLayout;
 
@@ -30,10 +33,8 @@ public class AddSingleAnimationActions {
 			addSingleAnimation(fileDialog.getModel(), animationSourceModel);
 		}
 
-//        MenuBarActions.refreshController(mainPanel.currentModelPanel.getGeoControl(), mainPanel.currentModelPanel.getGeoControlModelData());
 		if (ProgramGlobals.getCurrentModelPanel() != null) {
 			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
-//			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
 		}
 	}
 
@@ -81,12 +82,12 @@ public class AddSingleAnimationActions {
 
 	public static void addEmptyAnimation() {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null && modelPanel.getModel() != null) {
-			addEmptyAnimation(modelPanel.getModel());
+		if (modelPanel != null && modelPanel.getModelHandler() != null) {
+			addEmptyAnimation(modelPanel.getModelHandler());
 		}
 	}
 
-	public static void addEmptyAnimation(EditableModel current) {
+	public static void addEmptyAnimation(ModelHandler modelHandler) {
 		JPanel creationPanel = new JPanel(new MigLayout());
 
 		JPanel newAnimationPanel = new JPanel(new MigLayout());
@@ -94,84 +95,69 @@ public class AddSingleAnimationActions {
 		newAnimationPanel.add(new JLabel("Name"));
 		JTextField nameField = new JTextField();
 		nameField.setText("newAnimation");
-//        nameField.setText("");
 		newAnimationPanel.add(nameField, "wrap, grow");
 		newAnimationPanel.add(new JLabel("Start"));
-        JSpinner startSpinner = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
-        newAnimationPanel.add(startSpinner, "wrap");
-        newAnimationPanel.add(new JLabel("End"));
-        JSpinner endSpinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-        newAnimationPanel.add(endSpinner, "wrap");
-        creationPanel.add(newAnimationPanel, "cell 0 0");
+		JSpinner startSpinner = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
+		newAnimationPanel.add(startSpinner, "wrap");
+		newAnimationPanel.add(new JLabel("Length"));
+		JSpinner lengthSpinner = new JSpinner(new SpinnerNumberModel(500, 0, Integer.MAX_VALUE, 1));
+		newAnimationPanel.add(lengthSpinner, "wrap");
+		creationPanel.add(newAnimationPanel, "cell 0 0");
 
-        JTable existingAnimationTable = new JTable();
-        JPanel existingAnimationsPanel = new JPanel(new MigLayout());
-        JScrollPane animScrollPane = new JScrollPane(existingAnimationTable);
-        animScrollPane.setPreferredSize(new Dimension(250, 300));
-        existingAnimationsPanel.add(animScrollPane, "wrap, span 2");
-        creationPanel.add(existingAnimationsPanel, "cell 1 0");
+		JTable existingAnimationTable = new JTable();
+		JPanel existingAnimationsPanel = new JPanel(new MigLayout());
+		JScrollPane animScrollPane = new JScrollPane(existingAnimationTable);
+		animScrollPane.setPreferredSize(new Dimension(250, 300));
+		existingAnimationsPanel.add(animScrollPane, "wrap, span 2");
+		creationPanel.add(existingAnimationsPanel, "cell 1 0");
 
-        List<Animation> currAnim = current.getAnims();
-        List<Integer> startTimes = new ArrayList<>();
-        List<Integer> endTimes = new ArrayList<>();
-        List<String> animationNames = new ArrayList<>();
+		List<Animation> currAnim = modelHandler.getModel().getAnims();
+		List<Integer> startTimes = new ArrayList<>();
+		List<Integer> lengths = new ArrayList<>();
+		List<String> animationNames = new ArrayList<>();
         for (Animation a : currAnim) {
-            startTimes.add(a.getStart());
-            endTimes.add(a.getEnd());
-            animationNames.add(a.getName());
+	        startTimes.add(a.getStart());
+	        lengths.add(a.getLength());
+	        animationNames.add(a.getName());
         }
 
         DefaultTableModel animationTableModel = new DefaultTableModel();
-        animationTableModel.addColumn("start", startTimes.toArray());
-        animationTableModel.addColumn("end", endTimes.toArray());
-        animationTableModel.addColumn("name", animationNames.toArray());
+		animationTableModel.addColumn("start", startTimes.toArray());
+		animationTableModel.addColumn("length", lengths.toArray());
+		animationTableModel.addColumn("name", animationNames.toArray());
 
         existingAnimationTable.setModel(animationTableModel);
 
         JButton setStartAfter = new JButton("Start After");
         setStartAfter.addActionListener(e -> {
-            int end = (Integer) endSpinner.getValue();
-            int duration = end - (Integer) startSpinner.getValue();
-            int newStart = ((Integer) existingAnimationTable.getValueAt(existingAnimationTable.getSelectedRow(), 1)) + 1;
-            if (newStart > end) {
-                end = newStart + duration;
-            }
-            startSpinner.setValue(newStart);
-            endSpinner.setValue(end);
+	        int length = (Integer) lengthSpinner.getValue();
+	        int newStart = ((Integer) existingAnimationTable.getValueAt(existingAnimationTable.getSelectedRow(), 1)) + 1;
+	        startSpinner.setValue(newStart);
+	        lengthSpinner.setValue(length);
         });
         JButton setEndBefore = new JButton("End Before");
-//        setEndBefore.addActionListener(e -> endSpinner.setValue(existingAnimationTable.getValueAt(existingAnimationTable.getSelectedRow(), 0)));
+//        setEndBefore.addActionListener(e -> lengthSpinner.setValue(existingAnimationTable.getValueAt(existingAnimationTable.getSelectedRow(), 0)));
         setEndBefore.addActionListener(e -> {
-            int start = (Integer) startSpinner.getValue();
-            int duration = (Integer) endSpinner.getValue() - start;
-            int newEnd = ((Integer) existingAnimationTable.getValueAt(existingAnimationTable.getSelectedRow(), 0)) - 1;
-            if (newEnd < start) {
-                start = newEnd - duration;
-            }
-            startSpinner.setValue(start);
-            endSpinner.setValue(newEnd);
+	        int duration = (Integer) lengthSpinner.getValue();
+	        int selectedRow = existingAnimationTable.getSelectedRow();
+	        int start = ((Integer) existingAnimationTable.getValueAt(selectedRow, 0)) - 1 - duration;
+	        startSpinner.setValue(start);
         });
 
-        existingAnimationsPanel.add(setStartAfter);
-        existingAnimationsPanel.add(setEndBefore);
+		existingAnimationsPanel.add(setStartAfter);
+		existingAnimationsPanel.add(setEndBefore);
 
 //        optionPane.setOptions();
 		int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), creationPanel, "Create Empty Animation", JOptionPane.OK_CANCEL_OPTION);
-        System.out.println("option \"" + option + "\"");
-        int start = (Integer) startSpinner.getValue();
-        int end = (Integer) endSpinner.getValue();
-        if (option == 0 && start < end) {
-	        Animation animation = new Animation(nameField.getText(), start, end);
-	        current.addAnimation(animation);
-	        ModelStructureChangeListener.changeListener.animationParamsChanged();
-        } else if (option == 0 && start >= end) {
-//            JPanel newEndPanel = new JPanel();
-//            JSpinner newEndSpinner = new JSpinner(new SpinnerNumberModel(start + 1,start+1,Integer.MAX_VALUE, 1));
-//            newEndPanel.add(newEndSpinner);
-	        JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), "End needs to be after start", "Choose valid end time", JOptionPane.DEFAULT_OPTION);
-        }
-
-    }
+		System.out.println("option \"" + option + "\"");
+		int start = (Integer) startSpinner.getValue();
+		int end = (Integer) lengthSpinner.getValue();
+		if (option == 0) {
+			Animation animation = new Animation(nameField.getText(), start, end);
+			UndoAction action = new AddSequenceAction(modelHandler.getModel(), animation, ModelStructureChangeListener.getModelStructureChangeListener());
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
+	}
 
 	private static void fetchAndAddSingleAnimation(String path) {
 		if(path != null){
@@ -196,15 +182,10 @@ public class AddSingleAnimationActions {
 		// a copy instead
 		other = TempStuffFromEditableModel.deepClone(other, "animation source file");
 
-		final List<AnimFlag<?>> flags = model.getAllAnimFlags();
-//		final List<EventObject> eventObjs = (List<EventObject>) sortedIdObjects(EventObject.class);
-		final List<EventObject> eventObjs = model.getEvents();
+		List<AnimFlag<?>> othersFlags = other.getAllAnimFlags();
+		List<EventObject> othersEventObjs = other.getEvents();
 
-		final List<AnimFlag<?>> othersFlags = other.getAllAnimFlags();
-//		final List<EventObject> othersEventObjs = (List<EventObject>) other.sortedIdObjects(EventObject.class);
-		final List<EventObject> othersEventObjs = other.getEvents();
-
-		final List<Animation> newAnimations = new ArrayList<>();
+		List<Animation> newAnimations = new ArrayList<>();
 
 		// ------ Duplicate the time track in the other model -------------
 		//
@@ -212,29 +193,43 @@ public class AddSingleAnimationActions {
 		// the information specific to each node about how it will
 		// move if it gets translated into or onto the current model
 
-		final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
-		for (final AnimFlag<?> af : othersFlags) {
+		List<AnimFlag<?>> newImpFlags = new ArrayList<>();
+		for (AnimFlag<?> af : othersFlags) {
 			if (!af.hasGlobalSeq()) {
 				newImpFlags.add(af.getEmptyCopy());
 			} else {
 				newImpFlags.add(af.deepCopy());
 			}
 		}
-		final List<EventObject> newImpEventObjs = new ArrayList<>();
+		List<EventObject> newImpEventObjs = new ArrayList<>();
 		for (final Object e : othersEventObjs) {
 			newImpEventObjs.add(EventObject.buildEmptyFrom((EventObject) e));
 		}
 
 		// Fill the newly created time track with the exact same data, but shifted forward
 		// relative to wherever the current model's last animation starts
-		for (final Animation anim : anims) {
-			final int animTrackEnd = model.animTrackEnd();
-			final int newStart = animTrackEnd + 300;
-			final int newEnd = newStart + anim.length();
-			final Animation newAnim = new Animation(anim);
+		for (Animation anim : anims) {
+			int animTrackEnd = model.animTrackEnd();
+			int newStart = animTrackEnd + 300;
+			int length = anim.getLength();
+			Animation newAnim = anim.deepCopy();
 			// clone the animation from the other model
-			newAnim.copyToInterval(newStart, newEnd, othersFlags, othersEventObjs, newImpFlags, newImpEventObjs);
-			newAnim.setInterval(newStart, newEnd);
+			newAnim.setAnimStuff(newStart, length);
+//			newAnim.copyToInterval(newStart, newStart + length, newAnim, othersFlags, othersEventObjs, newImpFlags, newImpEventObjs);
+
+			for (final AnimFlag<?> af : newImpFlags) {
+				if (!af.hasGlobalSeq()) {
+					AnimFlag<?> source = othersFlags.get(newImpFlags.indexOf(af));
+					af.copyFrom(source, anim, newAnim);
+				}
+			}
+			for (final EventObject e : newImpEventObjs) {
+				if (!e.hasGlobalSeq()) {
+					EventObject source = othersEventObjs.get(newImpEventObjs.indexOf(e));
+					e.copyFrom(source, anim, newAnim);
+				}
+			}
+
 			model.add(newAnim); // add the new animation to this model
 			newAnimations.add(newAnim);
 		}
@@ -283,7 +278,7 @@ public class AddSingleAnimationActions {
 			AnimFlag<?> visibilityFlag = source.getVisibilityFlag();
 			AnimFlag<?> copyFlag = visibilityFlag.deepCopy();
 			visibilityFlag.deleteAnim(target);
-			visibilityFlag.copyFrom(copyFlag, visibilitySource.getStart(), visibilitySource.getEnd(), target.getStart(), target.getEnd());
+			visibilityFlag.copyFrom(copyFlag, visibilitySource, target);
 		}
 	}
 }

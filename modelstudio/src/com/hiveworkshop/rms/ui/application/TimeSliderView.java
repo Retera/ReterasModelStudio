@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.util.ModelDependentView;
+import com.hiveworkshop.rms.ztempteststuff.TestTimeline.TimeLineHolder;
 import net.infonode.docking.View;
 
 import javax.swing.*;
@@ -16,14 +17,17 @@ import java.util.function.Consumer;
 
 public class TimeSliderView extends ModelDependentView {
 	private TimeSliderPanel timeSliderPanel;
+	private TimeLineHolder timeLineHolder;
 
-	public TimeSliderView(){
+	public TimeSliderView() {
 		super("Timeline", null, new JPanel());
 		timeSliderPanel = createTimeSliderPanel();
 		setComponent(timeSliderPanel);
+//		timeLineHolder = createTimeLineHolder();
+//		setComponent(timeLineHolder);
 	}
 
-	public TimeSliderView setModelHandler(ModelHandler modelHandler){
+	public TimeSliderView setModelHandler(ModelHandler modelHandler) {
 		timeSliderPanel.setModelHandler(modelHandler);
 		return this;
 	}
@@ -32,16 +36,22 @@ public class TimeSliderView extends ModelDependentView {
 	public TimeSliderView setModelPanel(ModelPanel modelPanel){
 		if(modelPanel != null){
 			timeSliderPanel.setModelHandler(modelPanel.getModelHandler());
+//			timeLineHolder.setModelHandler(modelPanel.getModelHandler());
 		} else {
 			timeSliderPanel.setModelHandler(null);
+//			timeLineHolder.setModelHandler(null);
 		}
 		return this;
 	}
 
 	public TimeSliderView setAnimationMode(boolean animationModeState) {
+//		System.out.println("TimeSliderView: setAnimationMode");
 		timeSliderPanel.setDrawing(animationModeState);
+//		System.out.println("TimeSliderView: setting KF-Mode");
 		timeSliderPanel.setKeyframeModeActive(animationModeState);
+//		System.out.println("TimeSliderView: repainting timeSliderPanel");
 		timeSliderPanel.repaint();
+//		System.out.println("TimeSliderView: done");
 		return this;
 	}
 
@@ -111,15 +121,25 @@ public class TimeSliderView extends ModelDependentView {
 		timeSliderPanel = new TimeSliderPanel(ProgramGlobals.getPrefs());
 		timeSliderPanel.setDrawing(false);
 		Consumer<Integer> timeSliderTimeListener = currentTime -> {
-//			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime);
-//			mainPanel.animatedRenderEnvironment.setCurrentTime(currentTime - mainPanel.animatedRenderEnvironment.getStart());
 			if (ProgramGlobals.getCurrentModelPanel() != null) {
 				ProgramGlobals.getCurrentModelPanel().getEditorRenderModel().updateNodes(false);
 				ProgramGlobals.getCurrentModelPanel().repaintSelfAndRelatedChildren();
 			}
 		};
 		timeSliderPanel.addListener(timeSliderTimeListener);
-		//		timeSliderPanel.addListener(creatorPanel);
 		return timeSliderPanel;
+	}
+
+	private TimeLineHolder createTimeLineHolder() {
+		timeLineHolder = new TimeLineHolder(null);
+//		timeLineHolder.setDrawing(false);
+		Consumer<Integer> timeSliderTimeListener = currentTime -> {
+			if (ProgramGlobals.getCurrentModelPanel() != null) {
+				ProgramGlobals.getCurrentModelPanel().getEditorRenderModel().updateNodes(false);
+				ProgramGlobals.getCurrentModelPanel().repaintSelfAndRelatedChildren();
+			}
+		};
+		timeLineHolder.addListener(timeSliderTimeListener);
+		return timeLineHolder;
 	}
 }

@@ -17,7 +17,8 @@ public class GeosetToMdlx {
 		}
 
 		for (int i = 0; i < geoset.getAnims().size() && i < model.getAnims().size(); i++) {
-			System.out.println("Geoset anim " + i + ": " + geoset.getAnim(i) + "(" + geoset.getAnim(i).getStart() + " - " + geoset.getAnim(i).getEnd() + ")");
+			Animation anim = geoset.getAnim(i);
+			System.out.println("Geoset anim " + i + ": " + anim + "(" + anim.getStart() + " - " + anim.getEnd() + ")");
 			mdlxGeoset.sequenceExtents.add(geoset.getAnim(i).getExtents().toMdlx());
 		}
 
@@ -55,7 +56,8 @@ public class GeosetToMdlx {
 				mdlxGeoset.uvSets[uvLayerIndex][(vId * 2) + 1] = uv.y;
 			}
 
-			mdlxGeoset.vertexGroups[vId] = (byte) vertex.getVertexGroup();
+//			mdlxGeoset.vertexGroups[vId] = (byte) vertex.getVertexGroup();
+			mdlxGeoset.vertexGroups[vId] = (short) (geoset.getMatrixId(vertex.getMatrix())%256);
 		}
 
 		// Again, the current implementation of my mdl code is that it only handles triangle face types
@@ -81,10 +83,10 @@ public class GeosetToMdlx {
 		mdlxGeoset.selectionGroup = geoset.getSelectionGroup();
 
 		mdlxGeoset.matrixIndices = new long[getMatrixIndexesSize(geoset)];
-		mdlxGeoset.matrixGroups = new long[geoset.getMatrix().size()];
+		mdlxGeoset.matrixGroups = new long[geoset.getMatrices().size()];
 		int matrixIndex = 0;
 		int groupIndex = 0;
-		for (final Matrix matrix : geoset.getMatrix()) {
+		for (final Matrix matrix : geoset.getMatrices()) {
 			for (int index = 0; index < matrix.size(); index++) {
 				mdlxGeoset.matrixIndices[matrixIndex++] = matrix.getBoneId(index);
 			}
@@ -103,14 +105,21 @@ public class GeosetToMdlx {
 
 		if ((numVertices > 0) && (geoset.getVertex(0).getSkinBoneBones() != null)) {
 			// v900
+			mdlxGeoset.vertexGroups = new short[0];
 			mdlxGeoset.skin = new short[8 * numVertices];
 			mdlxGeoset.tangents = new float[4 * numVertices];
 
 			for (int i = 0; i < numVertices; i++) {
+				final GeosetVertex vertex = geoset.getVertex(i);
+				short[] skinBoneWeights = vertex.getSkinBoneWeights();
+				Bone[] skinBoneBones = vertex.getSkinBoneBones();
 				for (int j = 0; j < 4; j++) {
-					final GeosetVertex vertex = geoset.getVertex(i);
-					mdlxGeoset.skin[(i * 8) + j] = vertex.getSkinBoneIndexes()[j];
-					mdlxGeoset.skin[(i * 8) + j + 4] = (byte) (vertex.getSkinBoneWeights()[j]);
+					if(((byte) (skinBoneWeights[j])) < 0){
+						System.out.println("found failed Byte weight! " + model.getObjectId(skinBoneBones[j]) + ": " + (byte) (skinBoneWeights[j]));
+					}
+//					mdlxGeoset.skin[(i * 8) + j] = vertex.getSkinBoneIndexes()[j];
+					mdlxGeoset.skin[(i * 8) + j] = (short) model.getObjectId(skinBoneBones[j]);
+					mdlxGeoset.skin[(i * 8) + j + 4] = (short) (skinBoneWeights[j]);
 					mdlxGeoset.tangents[(i * 4) + j] = vertex.getTangent().toFloatArray()[j];
 				}
 			}
@@ -121,7 +130,7 @@ public class GeosetToMdlx {
 
 	public static int getMatrixIndexesSize(Geoset geoset) {
 		int matrixIndexesSize = 0;
-		for (final Matrix matrix : geoset.getMatrix()) {
+		for (final Matrix matrix : geoset.getMatrices()) {
 			int size = matrix.size();
 			if (size == -1) {
 				size = 1;

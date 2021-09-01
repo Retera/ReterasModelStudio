@@ -12,6 +12,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
+import com.hiveworkshop.rms.util.ImageCreator;
+import com.hiveworkshop.rms.util.ImageUtils;
 import net.miginfocom.swing.MigLayout;
 
 import javax.imageio.ImageIO;
@@ -180,7 +182,7 @@ public class FileDialog {
         BufferedImage bufferedImage = null;
         if (operationType == SAVE_TEXTURE || operationType == SAVE) {
             if (model != null && model.getMaterial(0) != null) {
-                bufferedImage = model.getMaterial(0).getBufferedImage(getModel().getWrappedDataSource());
+	            bufferedImage = ImageCreator.getBufferedImage(model.getMaterial(0), getModel().getWrappedDataSource());
             }
         }
         onClickSaveAs(model, bufferedImage, operationType, updateCurrent);
@@ -324,10 +326,10 @@ public class FileDialog {
     private void saveTexture(BufferedImage bufferedImage, File modelFile, String ext) throws IOException {
         String fileExtension = ext.toLowerCase();
         if (fileExtension.equals("bmp") || fileExtension.equals("jpg") || fileExtension.equals("jpeg")) {
-            JOptionPane.showMessageDialog(getParent(),
-                    "Warning: Alpha channel was converted to black. Some data will be lost" +
-                            "\nif you convert this texture back to Warcraft BLP.");
-            bufferedImage = BLPHandler.removeAlphaChannel(bufferedImage);
+	        JOptionPane.showMessageDialog(getParent(),
+			        "Warning: Alpha channel was converted to black. Some data will be lost" +
+					        "\nif you convert this texture back to Warcraft BLP.");
+	        bufferedImage = ImageUtils.removeAlphaChannel(bufferedImage);
         }
         final boolean write = ImageIO.write(bufferedImage, fileExtension, modelFile);
         SaveProfile.get().addRecent(modelFile.getPath());
@@ -398,7 +400,8 @@ public class FileDialog {
                 setCurrentPath(file);
                 if (extFilter.isSavableModelExt(ext)) {
                     try {
-                        model = MdxUtils.loadEditable(file);
+	                    model = MdxUtils.loadEditable(file);
+	                    model.setFileRef(file);
                     } catch (IOException ioException) {
                         ioException.printStackTrace();
                     }

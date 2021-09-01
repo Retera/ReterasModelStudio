@@ -29,7 +29,7 @@ public class PreviewView extends ModelDependentView {
 
 	@Override
 	public PreviewView setModelPanel(ModelPanel modelPanel) {
-		System.out.println("update PreviewView!");
+//		System.out.println("update PreviewView!");
 		if (modelPanel == null) {
 			splitPane.setLeftComponent(dudPanel);
 			scrollPane.setViewportView(new JPanel());
@@ -37,7 +37,7 @@ public class PreviewView extends ModelDependentView {
 			animationController.setModel(null, true, null);
 //			splitPane.setRightComponent(new JPanel());
 		} else {
-			System.out.println("update PreviewView! " + modelPanel.getModel().getName());
+//			System.out.println("update PreviewView! " + modelPanel.getModel().getName());
 			previewPanel.setModel(modelPanel.getModelHandler(), true, modelPanel.getViewportActivityManager());
 			animationController.setModel(modelPanel.getModelHandler(), true, previewPanel.getCurrentAnimation());
 			splitPane.setLeftComponent(previewPanel);

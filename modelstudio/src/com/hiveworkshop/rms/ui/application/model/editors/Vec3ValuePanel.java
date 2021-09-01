@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
 import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.FilteredTextField;
 import com.hiveworkshop.rms.util.Vec3;
@@ -22,8 +24,8 @@ public class Vec3ValuePanel extends ValuePanel<Vec3> {
 		super(modelHandler, title);
 
 		vec3 = new Vec3(VEC_3);
-		keyframePanel.addAllowedCharatcters("\\{}, ");
-		keyframePanel.getFloatTrackTableModel().setValueClass(String.class);
+//		keyframePanel.addAllowedCharatcters("\\{}, ");
+//		keyframePanel.getFloatTrackTableModel().setValueClass(String.class);
 	}
 
 
@@ -52,6 +54,12 @@ public class Vec3ValuePanel extends ValuePanel<Vec3> {
 	void reloadStaticValue(Vec3 vec3) {
 		if (vec3 != null) {
 			this.vec3 = vec3;
+		}
+		if (animFlag != null) {
+			for (KeyframePanel<Vec3> kfp : keyframePanelMap.values()) {
+				kfp.addAllowedCharatcters("\\{}, ");
+				kfp.getFloatTrackTableModel().setValueClass(String.class);
+			}
 		}
 		staticValueField.setText(this.vec3.toString());
 	}
@@ -123,4 +131,7 @@ public class Vec3ValuePanel extends ValuePanel<Vec3> {
 //		return vecValue;
 	}
 
+	protected AnimFlag<Vec3> getNewAnimFlag() {
+		return new Vec3AnimFlag(flagName);
+	}
 }

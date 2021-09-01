@@ -1,11 +1,14 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatTimeline;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.MathUtils;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -22,7 +25,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		super(title);
 	}
 
-	public FloatAnimFlag(AnimFlag<Float> af) {
+	protected FloatAnimFlag(AnimFlag<Float> af) {
 		super(af);
 	}
 
@@ -33,6 +36,9 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		final Object[] values = timeline.values;
 		final Object[] inTans = timeline.inTans;
 		final Object[] outTans = timeline.outTans;
+
+		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
+		model.getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
 
 		if (frames.length > 0) {
 			final boolean hasTangents = interpolationType.tangential();
@@ -49,7 +55,12 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 					outTanAsObject = ((float[]) outTans[i])[0];
 				}
 
-				addEntry((int) frames[i], valueAsObject, inTanAsObject, outTanAsObject);
+				if (hasGlobalSeq()) {
+					addEntry((int) frames[i] - globalSeq.getStart(), valueAsObject, inTanAsObject, outTanAsObject, globalSeq);
+				} else if (animationTreeMap.floorEntry((int) frames[i]) != null) {
+					Sequence sequence = animationTreeMap.floorEntry((int) frames[i]).getValue();
+					addEntry((int) frames[i] - sequence.getStart(), valueAsObject, inTanAsObject, outTanAsObject, sequence);
+				}
 			}
 		}
 	}
@@ -72,14 +83,15 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 
 	@Override
 	protected Float getIdentity(int typeId) {
-		if ((typeId == ROTATION) && !entryMap.isEmpty() && entryMap.firstEntry().getValue().getValue() != null) {
+		if ((typeId == ROTATION) && !sequenceMap.isEmpty() && sequenceMap.firstEntry() != null && sequenceMap.firstEntry().getValue().firstEntry().getValue().getValue() != null) {
 			return (float) identity(ALPHA); // magic Camera rotation!
 		}
 		return (float) identity(typeId);
 	}
 
 	@Override
-	public Float getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor) {
+	public Float getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor, Sequence anim) {
+		TreeMap<Integer, Entry<Float>> entryMap = sequenceMap.get(anim);
 		Entry<Float> entryFloor = entryMap.get(floorTime);
 		Entry<Float> entryCeil = entryMap.get(ceilTime);
 		return getInterpolatedValue(entryFloor, entryCeil, timeFactor);
@@ -112,26 +124,45 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		mdlxTimeline.interpolationType = interpolationType;
 		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
 
-		long[] tempFrames = new long[entryMap.size()];
-		float[][] tempValues = new float[entryMap.size()][];
-		float[][] tempInTans = new float[entryMap.size()][];
-		float[][] tempOutTans = new float[entryMap.size()][];
 
-		boolean hasTangents = mdlxTimeline.interpolationType.tangential();
+		ArrayList<Integer> tempFrames2 = new ArrayList<>();
+		ArrayList<float[]> tempValues2 = new ArrayList<>();
+		ArrayList<float[]> tempInTans2 = new ArrayList<>();
+		ArrayList<float[]> tempOutTans2 = new ArrayList<>();
 
-		for (int i = 0, l = entryMap.size(); i < l; i++) {
-			Float value = getValueFromIndex(i);
-			tempFrames[i] = getTimeFromIndex(i);
-
-			tempValues[i] = new float[] {value};
-
-			if (hasTangents) {
-				tempInTans[i] = new float[] {getInTanFromIndex(i)};
-				tempOutTans[i] = new float[] {getOutTanFromIndex(i)};
-			} else {
-				tempInTans[i] = new float[] {0};
-				tempOutTans[i] = new float[] {0};
+		for (Sequence anim : sequenceMap.keySet()) {
+			if (globalSeq == null || anim == globalSeq) {
+				TreeMap<Integer, Entry<Float>> entryTreeMap = sequenceMap.get(anim);
+				for (Integer time : entryTreeMap.keySet()) {
+					if (time > anim.getLength()) {
+						break;
+					}
+					Entry<Float> entry = entryTreeMap.get(time);
+//					tempFrames2.add(time + Math.max(anim.getStart(), tempFrames2.get(tempFrames2.size()-1) + 10));
+					tempFrames2.add(time + anim.getStart());
+					tempValues2.add(new float[] {entry.getValue()});
+					if (tans()) {
+						tempInTans2.add(new float[] {entry.getInTan()});
+						tempOutTans2.add(new float[] {entry.getOutTan()});
+					} else {
+						tempInTans2.add(new float[] {0});
+						tempOutTans2.add(new float[] {0});
+					}
+				}
 			}
+		}
+
+		int size = tempFrames2.size();
+		long[] tempFrames = new long[size];
+		float[][] tempValues = new float[size][];
+		float[][] tempInTans = new float[size][];
+		float[][] tempOutTans = new float[size][];
+
+		for (int i = 0; i < size; i++) {
+			tempFrames[i] = tempFrames2.get(i);
+			tempValues[i] = tempValues2.get(i);
+			tempInTans[i] = tempInTans2.get(i);
+			tempOutTans[i] = tempOutTans2.get(i);
 		}
 
 		mdlxTimeline.frames = tempFrames;
@@ -164,30 +195,36 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 	}
 
 	private FloatAnimFlag getMostVissibleAnimFlag(FloatAnimFlag aFlag, FloatAnimFlag bFlag, FloatAnimFlag mostVisible) {
-		final TreeMap<Integer, Entry<Float>> aEntryMap = aFlag.entryMap;
-		final TreeMap<Integer, Entry<Float>> bEntryMap = bFlag.entryMap;
+		for (Sequence anim : aFlag.getAnimMap().keySet()) {
+			final TreeMap<Integer, Entry<Float>> aEntryMap = aFlag.getEntryMap(anim);
+			final TreeMap<Integer, Entry<Float>> bEntryMap = bFlag.getEntryMap(anim);
 
-		TreeSet<Integer> timeSet = new TreeSet<>();
-		timeSet.addAll(aEntryMap.keySet());
-		timeSet.addAll(bEntryMap.keySet());
+			TreeSet<Integer> timeSet = new TreeSet<>();
+			if (aEntryMap != null) {
+				timeSet.addAll(aEntryMap.keySet());
+			}
+			if (bEntryMap != null) {
+				timeSet.addAll(bEntryMap.keySet());
+			}
 
-		for (int time : timeSet) {
-			Float aVal = aFlag.valueAt(time);
-			Float bVal = bFlag.valueAt(time);
+			for (int time : timeSet) {
+				Float aVal = aFlag.valueAt(anim, time);
+				Float bVal = bFlag.valueAt(anim, time);
 
-			if (bVal == null && aVal != null && aVal < 1
-					|| aVal != null && bVal != null && bVal > aVal) {
-				if (mostVisible == null) {
-					mostVisible = bFlag;
-				} else if (mostVisible == aFlag) {
-					return null;
-				}
-			} else if (aVal == null && bVal != null && bVal < 1
-					|| aVal != null && bVal != null && bVal < aVal) {
-				if (mostVisible == null) {
-					mostVisible = aFlag;
-				} else if (mostVisible == bFlag) {
-					return null;
+				if (bVal == null && aVal != null && aVal < 1
+						|| aVal != null && bVal != null && bVal > aVal) {
+					if (mostVisible == null) {
+						mostVisible = bFlag;
+					} else if (mostVisible == aFlag) {
+						return null;
+					}
+				} else if (aVal == null && bVal != null && bVal < 1
+						|| aVal != null && bVal != null && bVal < aVal) {
+					if (mostVisible == null) {
+						mostVisible = aFlag;
+					} else if (mostVisible == bFlag) {
+						return null;
+					}
 				}
 			}
 		}

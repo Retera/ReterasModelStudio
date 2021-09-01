@@ -222,10 +222,10 @@ public final class MPQBrowser extends JPanel {
 					}
 				} else {
 					if (expanded) {
-						setIcon(new ImageIcon(BLPHandler.get()
+						setIcon(new ImageIcon(BLPHandler
 								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
 					} else {
-						setIcon(new ImageIcon(BLPHandler.get()
+						setIcon(new ImageIcon(BLPHandler
 								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
 					}
 				}
