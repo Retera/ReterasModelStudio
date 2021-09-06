@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.gui.modeledit;
+package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;

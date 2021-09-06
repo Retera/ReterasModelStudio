@@ -102,30 +102,54 @@ public class BoneRenderThing2 {
 		for(int i = 0; i< pointsJoint.length; i++){
 			renderPointsJoint[i].set(pointsJoint[i]).transform(rot).add(p1);
 		}
-		for(int i = 0; i< pointsStemTop.length; i++){
+		for (int i = 0; i < pointsStemTop.length; i++) {
 			renderPointsStemTop[i].set(pointsStemTop[i]).transform(rot).add(p2);
 		}
-		for(int i = 0; i< pointsStemBot.length; i++){
+		for (int i = 0; i < pointsStemBot.length; i++) {
 			renderPointsStemBot[i].set(pointsStemBot[i]).transform(rot).add(p1);
 		}
 
-		for(int i = 0; i<normals.length; i++){
+		for (int i = 0; i < normals.length; i++) {
 			renderNormals[i].set(normals[i]).transform(rot);
 		}
 
 		return this;
 	}
-	public BoneRenderThing2 transform2(Vec3 p1, Vec3 p2){
+
+	public BoneRenderThing2 transform(Quat rot, Vec3 p1, Vec3 p2, float scale) {
+		for (int i = 0; i < pointsJoint.length; i++) {
+			renderPointsJoint[i].set(pointsJoint[i]).scale(scale).transform(rot).add(p1);
+		}
+		for (int i = 0; i < pointsStemTop.length; i++) {
+			renderPointsStemTop[i].set(pointsStemTop[i]).scale(scale).transform(rot).add(p2);
+		}
+		for (int i = 0; i < pointsStemBot.length; i++) {
+			renderPointsStemBot[i].set(pointsStemBot[i]).scale(scale).transform(rot).add(p1);
+		}
+
+		for (int i = 0; i < normals.length; i++) {
+			renderNormals[i].set(normals[i]).transform(rot);
+		}
+
+		return this;
+	}
+
+	public BoneRenderThing2 transform2(Vec3 p1, Vec3 p2) {
 		diffVec.set(p2).sub(p1);
-		if(diffVec.x==0 && diffVec.y == 0 && diffVec.z == 0){
+		float scale = 1;
+//		System.out.println("dist to par: " + diffVec.length());
+		if (diffVec.x == 0 && diffVec.y == 0 && diffVec.z == 0) {
 			diffVec.set(zAxis).scale(0.01f);
+		} else {
+			scale = diffVec.length() / 10;
 		}
 		tempVec.set(zAxis).cross(diffVec).normalize();
 
 		difRotR.setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
-		rot90.setFromAxisAngle(tempVec, (float) (Math.PI/2)).normalize();
+		rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
 		difRotR.mul(rot90).normalize();
 
+//		transform(difRotR, p1, p2, scale);
 		transform(difRotR, p1, p2);
 
 		return this;

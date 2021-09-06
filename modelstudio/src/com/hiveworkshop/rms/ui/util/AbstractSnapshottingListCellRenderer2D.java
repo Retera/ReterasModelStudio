@@ -52,7 +52,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 	protected abstract ResettableVertexFilter<TYPE> createFilter();
 
 	@Override
-	public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean chf) {
+	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSel, boolean hasFoc) {
 
 		Color backgroundColor = noOwnerBgCol.asIntColor();
 
@@ -68,7 +68,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 
 		final TYPE valueType = valueToType(value);
 
-		super.getListCellRendererComponent(list, valueType.toString(), index, isSelected, chf);
+		super.getListCellRendererComponent(list, valueType.toString(), index, isSel, hasFoc);
 
 		ImageIcon myIcon = getImageIcon(value, backgroundColor, valueType);
 		setIcon(myIcon);

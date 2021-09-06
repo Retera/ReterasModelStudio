@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;

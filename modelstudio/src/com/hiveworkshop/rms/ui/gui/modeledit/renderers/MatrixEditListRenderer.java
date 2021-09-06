@@ -1,7 +1,9 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
+package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ObjectShell;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -90,9 +92,8 @@ public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer
 
 
 	@Override
-	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-	                                              final boolean isSelected, final boolean chf) {
-		super.getListCellRendererComponent(list, value, index, isSelected, chf);
+	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSel, boolean hasFoc) {
+		super.getListCellRendererComponent(list, value, index, isSel, hasFoc);
 
 		Vec3 bg = noOwnerBgCol;
 		Vec3 fg = noOwnerFgCol;
@@ -116,7 +117,7 @@ public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer
 			fg = Vec3.getProd(bg, otherOwnerFgCol).normalize().scale(60);
 		}
 
-		if (isSelected) {
+		if (isSel) {
 			bg = Vec3.getSum(bg, hLAdjBgCol);
 		}
 

@@ -1,6 +1,7 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
+package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,9 +29,8 @@ public class ParentToggleRenderer extends BoneShellListCellRenderer {
 	}
 
 	@Override
-	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-	                                              final boolean isSelected, final boolean chf) {
-		final BoneShellListCellRenderer comp = (BoneShellListCellRenderer) super.getListCellRendererComponent(list, value, index, isSelected, chf);
+	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSel, boolean hasFoc) {
+		BoneShellListCellRenderer comp = (BoneShellListCellRenderer) super.getListCellRendererComponent(list, value, index, isSel, hasFoc);
 		comp.setText(((BoneShell) value).toString(showClass, toggleBox.isSelected()));
 		return this;
 	}

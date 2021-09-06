@@ -16,7 +16,7 @@ public class BoneShell {
 	private IdObject oldParent;
 	private BoneShell oldParentBs;
 	private BoneShell newParentBs;
-	boolean isFromDonating;
+	private boolean isFromDonating;
 
 	public BoneShell(final Bone b) {
 		bone = b;

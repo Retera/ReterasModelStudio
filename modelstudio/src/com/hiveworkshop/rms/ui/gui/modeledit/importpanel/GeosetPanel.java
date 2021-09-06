@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.MaterialListCellRenderer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;

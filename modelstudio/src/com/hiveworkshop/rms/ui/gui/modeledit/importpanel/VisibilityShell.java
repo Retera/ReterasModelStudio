@@ -5,11 +5,11 @@ import com.hiveworkshop.rms.editor.model.Named;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.VisibilitySource;
 
-class VisibilityShell {
-	Named source;
-	VisibilitySource visibilitySource;
-	EditableModel model;
-	boolean isFromDonating;
+public class VisibilityShell {
+	private Named source;
+	private VisibilitySource visibilitySource;
+	private EditableModel model;
+	private boolean isFromDonating;
 	private boolean favorOld = true;
 	private VisibilityShell newVisSource;
 	private VisibilityShell oldVisSource;

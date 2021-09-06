@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.GeosetListCellRenderer2D;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;

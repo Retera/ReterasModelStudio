@@ -1,5 +1,7 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
+package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.AnimShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -28,9 +30,8 @@ public class AnimListCellRenderer extends DefaultListCellRenderer {
 	}
 
 	@Override
-	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-	                                              final boolean iss, final boolean chf) {
-		super.getListCellRendererComponent(list, ((AnimShell) value).getOldName() + " " + ((AnimShell) value).getAnim().getLength(), index, iss, chf);
+	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSel, boolean hasFoc) {
+		super.getListCellRendererComponent(list, ((AnimShell) value).getOldName() + " " + ((AnimShell) value).getAnim().getLength(), index, isSel, hasFoc);
 		AnimShell importAnimShell = ((AnimShell) value).getImportAnimShell();
 		Vec3 bg;
 		Vec3 fg;
@@ -44,7 +45,7 @@ public class AnimListCellRenderer extends DefaultListCellRenderer {
 			bg = noOwnerBgCol;
 			fg = noOwnerFgCol;
 		}
-		if (iss) {
+		if (isSel) {
 			bg = Vec3.getSum(bg, hLAdjBgCol);
 		}
 		this.setBackground(bg.asIntColor());

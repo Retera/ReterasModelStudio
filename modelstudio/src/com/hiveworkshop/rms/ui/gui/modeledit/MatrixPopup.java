@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.MatrixEditListRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.MatrixEditListRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 

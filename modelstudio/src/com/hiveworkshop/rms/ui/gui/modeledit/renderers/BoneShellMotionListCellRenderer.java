@@ -1,7 +1,8 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
+package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRenderer2D<BoneShell> {
+public class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRenderer2D<BoneShell> {
 	Set<BoneShell> selectedBones = new HashSet<>();
 
 	public BoneShellMotionListCellRenderer(EditableModel model, EditableModel other) {
@@ -63,8 +64,8 @@ class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRender
 
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-	                                              final boolean isSelected, final boolean chf) {
-		super.getListCellRendererComponent(list, value, index, isSelected, chf);
+	                                              final boolean isSel, final boolean hasFoc) {
+		super.getListCellRendererComponent(list, value, index, isSel, hasFoc);
 
 		setText(value.toString());
 
@@ -82,7 +83,7 @@ class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRender
 			}
 		}
 
-		if (isSelected) {
+		if (isSel) {
 			bg = Vec3.getSum(bg, hLAdjBgCol);
 		}
 

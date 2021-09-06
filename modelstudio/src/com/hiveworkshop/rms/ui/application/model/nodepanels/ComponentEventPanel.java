@@ -1,11 +1,13 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
 import com.hiveworkshop.rms.editor.actions.animation.*;
+import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.SequenceComboBoxRenderer;
 import com.hiveworkshop.rms.util.sound.Sound;
 import com.hiveworkshop.rms.util.sound.SoundPlayer;
 import net.miginfocom.swing.MigLayout;
@@ -68,6 +70,9 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 				tracksPanel.add(sequencePanel, "wrap");
 			}
 		}
+		JButton addEventActionButton = new JButton("Add Sequence");
+		addEventActionButton.addActionListener(e -> addEventAction());
+		tracksPanel.add(addEventActionButton, "wrap");
 	}
 
 	private JPanel getSequencePanel(Sequence sequence, TreeSet<Integer> eventTrack) {
@@ -88,6 +93,26 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 		sequencePanel.add(sequenceTrackPanel);
 
 		return sequencePanel;
+	}
+
+	private void addEventAction() {
+		JPanel panel = new JPanel(new MigLayout());
+		DefaultComboBoxModel<Sequence> animations = new DefaultComboBoxModel<>();
+		for (Sequence animation : model.getAnims()) {
+			animations.addElement(animation);
+		}
+		for (Sequence animation : model.getGlobalSeqs()) {
+			animations.addElement(animation);
+		}
+
+		JComboBox<Sequence> animationBox = new JComboBox<>(animations);
+		animationBox.setPrototypeDisplayValue(new Animation("Stand and work for me", 0, 1));
+		animationBox.setRenderer(new SequenceComboBoxRenderer(modelHandler));
+		panel.add(animationBox);
+		int opt = JOptionPane.showConfirmDialog(this, panel, "Add Event Track", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		if (opt == JOptionPane.OK_OPTION && animationBox.getSelectedItem() != null) {
+			undoManager.pushAction(new AddEventSequenceAction(idObject, (Sequence) animationBox.getSelectedItem(), changeListener).redo());
+		}
 	}
 
 	private void editingStoppedListener(Sequence sequence, int track, int newValue) {

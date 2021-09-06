@@ -34,6 +34,7 @@ public abstract class ValuePanel<T> extends JPanel {
 	protected TimelineKeyNamer timelineKeyNamer;
 	JPanel dynStatPanel;
 	JPanel dynamicPanel;
+	JPanel dynamicContentPanel;
 	private final CardLayout dynStatLayout;
 	protected String title;
 	protected TitledBorder titledBorder;
@@ -91,6 +92,9 @@ public abstract class ValuePanel<T> extends JPanel {
 		interpTypeBox = new JComboBox<>(InterpolationType.values());
 		interpTypeBox.addItemListener(this::setInterpolationType);
 		spinInterpPanel.add(interpTypeBox, "wrap, hidemode 3");
+
+		dynamicContentPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[][][][]"));
+		dynamicPanel.add(dynamicContentPanel, "spanx, growx, wrap, hidemode 3");
 
 //		dynamicPanel.add(keyframePanel, "spanx, growx, wrap, hidemode 3");
 
@@ -164,13 +168,14 @@ public abstract class ValuePanel<T> extends JPanel {
 		this.flagName = flagName;
 		staticValue = value;
 
-		dynamicPanel.removeAll();
+//		dynamicPanel.removeAll();
+		dynamicContentPanel.removeAll();
 		if (animFlag == null) {
 			toggleStaticDynamicPanel(true);
-			for(KeyframePanel<T> kfp : keyframePanelMap.values()){
+			for (KeyframePanel<T> kfp : keyframePanelMap.values()) {
 				kfp.updateFlag(null, null);
 			}
-			if(valueSettingFunction == null){
+			if (valueSettingFunction == null) {
 				staticComponent.setVisible(false);
 			} else {
 				staticComponent.setVisible(true);
@@ -180,17 +185,18 @@ public abstract class ValuePanel<T> extends JPanel {
 			TreeSet<Sequence> tempSet = new TreeSet<>(modelHandler.getModel().getAnims());
 			tempSet.addAll(modelHandler.getModel().getGlobalSeqs());
 			keyframePanelMap.keySet().removeIf(anim -> !tempSet.contains(anim));
-			for(Sequence sequence : tempSet){
+			for(Sequence sequence : tempSet) {
 //				KeyframePanel<T> keyframePanel1 = keyframePanelMap.computeIfAbsent(sequence, k -> new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, (time, entry) -> changeEntry(sequence, time, entry), this::parseValue));
 				KeyframePanel<T> keyframePanel = keyframePanelMap.computeIfAbsent(sequence, k -> getKeyframePanel(sequence));
 				keyframePanel.updateFlag(animFlag, sequence);
 
 				int size = animFlag.size(sequence);
 				CollapsablePanel collapsablePanel = new CollapsablePanel(sequence + " " + size + " keyframes", keyframePanel);
-				if(size == 0){
+				if (size == 0) {
 					collapsablePanel.toggleCollapsed();
 				}
-				dynamicPanel.add(collapsablePanel, "spanx, growx, wrap, hidemode 3");
+//				dynamicPanel.add(collapsablePanel, "spanx, growx, wrap, hidemode 3");
+				dynamicContentPanel.add(collapsablePanel, "spanx, growx, wrap, hidemode 3");
 			}
 			if (animFlag.hasGlobalSeq()) {
 				titledBorder.setTitle(title + " (GlobalSeq: " + animFlag.getGlobalSeq() + ")");

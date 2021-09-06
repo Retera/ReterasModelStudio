@@ -17,7 +17,7 @@ public class GeosetShell {
 	private Material oldMaterial;
 	private Material newMaterial;
 	private boolean isEnabled = true;
-	IterableListModel<MatrixShell> matrixShells;
+	private IterableListModel<MatrixShell> matrixShells;
 
 	public GeosetShell(Geoset geoset, EditableModel model, boolean isFromDonating) {
 		this.geoset = geoset;

@@ -706,8 +706,8 @@ public class ImportPanel extends JTabbedPane {
 
 		// Iterate through new visibility sources, find a geoset with gutz material
 		for (VisibilityShell vs : mht.donModVisSourcesNew) {
-			if (vs.source instanceof Geoset) {
-				final Geoset g = (Geoset) vs.source;
+			if (vs.getSource() instanceof Geoset) {
+				final Geoset g = (Geoset) vs.getSource();
 				if ((g.getGeosetAnim() != null) && g.getMaterial().firstLayer().firstTexture().getPath().equalsIgnoreCase("textures\\gutz.blp")) {
 					corpseShell = vs;
 					break;

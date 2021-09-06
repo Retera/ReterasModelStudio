@@ -1,9 +1,9 @@
-package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
+package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import javax.swing.*;
 import java.awt.*;
 
-class VisShellBoxCellRenderer extends javax.swing.plaf.basic.BasicComboBoxRenderer {
+public class VisShellBoxCellRenderer extends javax.swing.plaf.basic.BasicComboBoxRenderer {
 	public VisShellBoxCellRenderer() {
 	}
 

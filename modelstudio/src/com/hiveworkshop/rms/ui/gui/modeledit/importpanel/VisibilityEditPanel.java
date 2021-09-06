@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.VisPaneListCellRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.VisShellBoxCellRenderer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;

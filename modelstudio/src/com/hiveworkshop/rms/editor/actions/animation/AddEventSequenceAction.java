@@ -36,6 +36,6 @@ public class AddEventSequenceAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "removed EventObject track";
+		return "add EventObject track for " + sequence;
 	}
 }

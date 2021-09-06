@@ -13,14 +13,13 @@ import java.util.List;
 
 public class AnimationController extends JPanel {
 	private ModelHandler modelHandler;
-	private final DefaultComboBoxModel<Animation> animations;
+	private final DefaultComboBoxModel<Animation> animations = new DefaultComboBoxModel<>();
 	private final JComboBox<Animation> animationBox;
 	private boolean allowUnanimated = true;
 
 	public AnimationController(PreviewPanel previewPanel) {
 		super(new MigLayout("fillx"));
 
-		animations = getAnimationsBoxModel();
 		animationBox = getAnimationChooser(animations, previewPanel);
 		add(animationBox, "wrap, w 90%:90%:90%, gapbottom 16");
 
@@ -82,12 +81,6 @@ public class AnimationController extends JPanel {
 		animationBox.setFocusable(true);
 		animationBox.addMouseWheelListener(this::changeAnimation);
 		return animationBox;
-	}
-
-	private DefaultComboBoxModel<Animation> getAnimationsBoxModel() {
-		DefaultComboBoxModel<Animation> animations = new DefaultComboBoxModel<>();
-//		updateAnimationList(modelHandler, allowUnanimated, animations);
-		return animations;
 	}
 
 	private void updateAnimationList(ModelHandler modelHandler, boolean allowUnanimated, DefaultComboBoxModel<Animation> animations) {

@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.util.BiMap;
 import com.hiveworkshop.rms.util.IterableListModel;
 
@@ -201,13 +202,13 @@ public class ModelHolderThing {
 		for (final VisibilityShell visibilityShell : allVisShellPanes) {
 			for (VisibilityShell vs : donModVisSourcesNew) {
 				if (visibilityShell.getSource().getName().equals(vs.getSource().getName())) {
-					System.out.println(visibilityShell.source.getName());
+					System.out.println(visibilityShell.getSource().getName());
 					visibilityShell.setNewVisSource(vs);
 				}
 			}
 			for (VisibilityShell vs : recModVisSourcesOld) {
 				if (visibilityShell.getSource().getName().equals(vs.getSource().getName())) {
-					System.out.println(visibilityShell.source.getName());
+					System.out.println(visibilityShell.getSource().getName());
 					visibilityShell.setNewVisSource(vs);
 				}
 			}
