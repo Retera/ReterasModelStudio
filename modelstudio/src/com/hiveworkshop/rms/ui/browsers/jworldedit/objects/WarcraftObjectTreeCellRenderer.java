@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
+import com.hiveworkshop.rms.editor.model.Bitmap;
+import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
@@ -14,13 +16,14 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
+	private String replWEUI = "ReplaceableTextures\\WorldEditUI\\";
 	private static final int ICON_SIZE = 16;
 	UnitEditorSettings settings = new UnitEditorSettings();
 	private final WorldEditorDataType worldEditorDataType;
 	private Color defaultBackgroundSelectionColor = null;
 
 	public WarcraftObjectTreeCellRenderer(final UnitEditorSettings settings,
-			final WorldEditorDataType worldEditorDataType) {
+	                                      final WorldEditorDataType worldEditorDataType) {
 		super();
 		this.settings = settings;
 		this.worldEditorDataType = worldEditorDataType;
@@ -51,12 +54,14 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 					// img = BLPHandler.get().getGameTex("Textures\\BTNTemp.blp");
 				}
 				if (img == null) {
-					img = IconUtils.worldEditStyleIcon(
-							BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp")
-									.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_FAST));
+					BufferedImage gameTex = BLPHandler.getGameTex(replWEUI + "DoodadPlaceholder.blp");
+					Image scaledInstance = gameTex.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_FAST);
+					img = IconUtils.worldEditStyleIcon(scaledInstance);
 				}
-				setIcon(new ImageIcon(toBufferedImage(img.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_DEFAULT))
-						.getSubimage(1, 1, ICON_SIZE - 2, ICON_SIZE - 2)));
+				BufferedImage image = toBufferedImage(img.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_DEFAULT));
+				BufferedImage subimage = image.getSubimage(1, 1, ICON_SIZE - 2, ICON_SIZE - 2);
+				ImageIcon icon = getImageIcon(subimage);
+				setIcon(icon);
 			} catch (final Exception exc) {
 				exc.printStackTrace();
 			}
@@ -70,14 +75,16 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 			if (node.isLeaf()) {
 				leafCount = 0;
 			}
-			super.getTreeCellRendererComponent(tree, value.toString() + " (" + leafCount + ")", selected, expanded,
-					false, row, hasFocus);
+			String value1 = value.toString() + " (" + leafCount + ")";
+			super.getTreeCellRendererComponent(tree, value1, selected, expanded, false, row, hasFocus);
 			if (expanded) {
-				setIcon(new ImageIcon(
-						BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
+				BufferedImage gameTex = BLPHandler.getGameTex(replWEUI + "Editor-TriggerGroup-Open.blp");
+				ImageIcon icon = getImageIcon(gameTex);
+				setIcon(icon);
 			} else {
-				setIcon(new ImageIcon(
-						BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
+				BufferedImage gameTex = BLPHandler.getGameTex(replWEUI + "Editor-TriggerGroup.blp");
+				ImageIcon icon = getImageIcon(gameTex);
+				setIcon(icon);
 			}
 			if (((node instanceof SortingFolderTreeNode) && ((SortingFolderTreeNode) node).hasEditedChildren())
 					&& !selected) {
@@ -96,6 +103,17 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 			}
 		}
 		return this;
+	}
+
+	private ImageIcon getImageIcon(BufferedImage image) {
+		if (image != null) {
+			return new ImageIcon(image);
+		} else {
+			System.out.println("failed to load image");
+			BufferedImage bi = BLPHandler.getImage(new Bitmap("Textures\\white.blp"), GameDataFileSystem.getDefault());
+			Image scaledInstance = bi.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_FAST);
+			return new ImageIcon(scaledInstance);
+		}
 	}
 
 	public static BufferedImage toBufferedImage(final Image img) {

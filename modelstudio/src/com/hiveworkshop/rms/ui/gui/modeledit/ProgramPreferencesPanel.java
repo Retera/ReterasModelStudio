@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.ui.preferences.*;
 import com.hiveworkshop.rms.ui.util.ColorChooserIcon;
+import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
 import net.miginfocom.swing.MigLayout;
@@ -180,6 +181,10 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		selectButton.addActionListener(e -> pref.setSelectMouseButton(editMouseButtonBinding(selectTextKey, selectButton, pref.getSelectMouseButton(), true)));
 		hotkeysPanel.add(selectButton, "wrap");
 
+		JButton edit_keybindings = new JButton("Edit Keybindings");
+		edit_keybindings.addActionListener(e -> viewKBPanel());
+		hotkeysPanel.add(edit_keybindings, "wrap");
+
 		return hotkeysPanel;
 	}
 
@@ -273,5 +278,12 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 
 	public List<DataSourceDescriptor> getDataSources() {
 		return dataSourceChooserPanel.getDataSourceDescriptors();
+	}
+
+
+	private void viewKBPanel() {
+		KeybindingPrefPanel keybindingPrefPanel = new KeybindingPrefPanel();
+//		keybindingPrefPanel.setPreferredSize(ScreenInfo.getSmallWindow());
+		FramePopup.show(keybindingPrefPanel, this, "Edit Keybindings");
 	}
 }

@@ -6,8 +6,8 @@ import com.hiveworkshop.rms.util.ModelDependentView;
 import javax.swing.*;
 
 public class ModelViewManagingView extends ModelDependentView {
-//	ModelViewManagingTree modelViewManagingTree;
-ModelViewManagingTree modelViewManagingTree;
+	ModelViewManagingTree modelViewManagingTree;
+	ComponentThingTree modelViewManagingTree2;
 	JScrollPane modelEditingTreePane;
 	ModelPanel modelPanel;
 	JPanel jPanel;
@@ -20,6 +20,7 @@ ModelViewManagingTree modelViewManagingTree;
 		jPanel.add(new JLabel("..."));
 		modelEditingTreePane = new JScrollPane(jPanel);
 		modelViewManagingTree = new ModelViewManagingTree();
+		modelViewManagingTree2 = new ComponentThingTree();
 
 		setComponent(modelEditingTreePane);
 	}
@@ -34,8 +35,11 @@ ModelViewManagingTree modelViewManagingTree;
 //			modelViewManagingTree = modelPanel.getModelEditingTree();
 //			modelEditingTreePane.setViewportView(modelViewManagingTree);
 //			modelViewManagingTree = new ModelViewManagingTree().setModel(modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
-			modelViewManagingTree.setModel(modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
-			modelEditingTreePane.setViewportView(modelViewManagingTree);
+//			modelViewManagingTree.setModel(modelPanel.getModelHandler());
+			modelViewManagingTree2.setModel(modelPanel.getModelHandler());
+
+//			modelEditingTreePane.setViewportView(modelViewManagingTree);
+			modelEditingTreePane.setViewportView(modelViewManagingTree2);
 		}
 //		reload();
 		System.out.println("name: " + name + ", panel: " + modelPanel);
@@ -45,7 +49,8 @@ ModelViewManagingTree modelViewManagingTree;
 	@Override
 	public ModelViewManagingView reload() {
 		if (modelPanel != null) {
-			modelViewManagingTree.reloadFromModelView().repaint();
+//			modelViewManagingTree.reloadFromModelView().repaint();
+			modelViewManagingTree2.setModel(modelPanel.getModelHandler()).repaint();
 		}
 //		if (modelViewManagingTree != null) {
 //			modelViewManagingTree.reloadFromModelView().repaint();

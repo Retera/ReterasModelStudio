@@ -26,6 +26,7 @@ public class ImportModelPartPanel extends JPanel {
 	EditableModel donModel;
 	EditableModel recModel;
 	ModelHandler recModelHandler;
+	BoneChooser boneChooser;
 
 
 	AnimListCellRenderer donRenderer = new AnimListCellRenderer(true); //ToDo: make a new renderer and only use Animation
@@ -42,23 +43,37 @@ public class ImportModelPartPanel extends JPanel {
 	IterableListModel<BoneShell> donBones = new IterableListModel<>();
 	JList<BoneShell> donBoneList = new JList<>(donBones);
 	JScrollPane donBonePane = new JScrollPane(donBoneList);
+	Bone choosenBone = null;
 
 	public ImportModelPartPanel(EditableModel donModel, ModelHandler recModelHandler) {
 		super(new MigLayout());
 		this.donModel = donModel;
 		this.recModel = recModelHandler.getModel();
 		this.recModelHandler = recModelHandler;
+		boneChooser = new BoneChooser(donModel);
 
 		fillLists(donModel, recModel);
 
 		JButton chooseBone = new JButton("Choose Bone");
-		chooseBone.addActionListener(e -> showStartBonePanel(chooseBone));
+//		chooseBone.addActionListener(e -> showStartBonePanel(chooseBone));
+		chooseBone.addActionListener(e -> chooseParent(chooseBone));
 		add(chooseBone, "wrap");
 		add(getAnimMapPanel(), "wrap");
 
 		JButton importButton = new JButton("Import!");
-		importButton.addActionListener(e -> doImport(donBoneList.getSelectedValue()));
+//		importButton.addActionListener(e -> doImport(donBoneList.getSelectedValue()));
+		importButton.addActionListener(e -> doImport(choosenBone));
 		add(importButton, "wrap");
+	}
+
+	private void chooseParent(JButton chooseBone) {
+		choosenBone = boneChooser.chooseBone(choosenBone, this);
+		if (choosenBone != null) {
+			chooseBone.setText(choosenBone.getName());
+		} else {
+			chooseBone.setText("Choose Bone");
+		}
+		repaint();
 	}
 
 	private void fillLists(EditableModel donModel, EditableModel recModel) {
@@ -126,9 +141,8 @@ public class ImportModelPartPanel extends JPanel {
 		return beforeBone;
 	}
 
-	private void doImport(BoneShell boneShell) {
-		if (boneShell != null) {
-			Bone bone = boneShell.getBone();
+	private void doImport(Bone bone) {
+		if (bone != null) {
 			bone.setParent(null);
 			Set<IdObject> selectedObjects = new HashSet<>();
 			addToList(bone, selectedObjects);

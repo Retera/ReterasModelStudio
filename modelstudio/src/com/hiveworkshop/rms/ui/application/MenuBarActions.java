@@ -19,9 +19,11 @@ import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener;
+import com.hiveworkshop.rms.util.FramePopup;
 import de.wc3data.stream.BlizzardDataInputStream;
 import net.infonode.docking.SplitWindow;
 import net.infonode.docking.View;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -115,29 +117,51 @@ public class MenuBarActions {
 		programPreferences.loadFrom(ProgramGlobals.getPrefs());
 		List<DataSourceDescriptor> priorDataSources = SaveProfile.get().getDataSources();
 		ProgramPreferencesPanel programPreferencesPanel = new ProgramPreferencesPanel(programPreferences, priorDataSources);
+		JPanel prefPanel = new JPanel(new MigLayout("fill"));
+		prefPanel.add(programPreferencesPanel, "growx, growy, spanx, wrap");
 
-		int ret = JOptionPane.showConfirmDialog(
-				ProgramGlobals.getMainPanel(),
-				programPreferencesPanel,
-				"Preferences",
-				JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE);
 
-		if (ret == JOptionPane.OK_OPTION) {
-			ProgramGlobals.getEditorColorPrefs().setFrom(programPreferencesPanel.getColorPrefs());
-			programPreferences.setEditorColors(ProgramGlobals.getEditorColorPrefs());
-			ProgramGlobals.getPrefs().loadFrom(programPreferences);
-			List<DataSourceDescriptor> dataSources = programPreferencesPanel.getDataSources();
-			boolean changedDataSources = (dataSources != null) && !dataSources.equals(priorDataSources);
-			if (changedDataSources) {
-				SaveProfile.get().setDataSources(dataSources);
-			}
-			SaveProfile.save();
-			if (changedDataSources) {
-				MenuBar.updateDataSource();
-				ProgramGlobals.getRootWindowUgg().getWindowHandler2().dataSourcesChanged();
+		JButton okButton = new JButton("OK");
+		prefPanel.add(okButton);
+
+		JButton cancelButton = new JButton("Cancel");
+		prefPanel.add(cancelButton);
+
+		JFrame frame = FramePopup.get(prefPanel, ProgramGlobals.getMainPanel(), "Preferences");
+		okButton.addActionListener(e -> {
+			frame.setVisible(false);
+			saveSettings(programPreferences, priorDataSources, programPreferencesPanel);
+		});
+		cancelButton.addActionListener(e -> {frame.setVisible(false);});
+
+		frame.setVisible(true);
+
+//		int ret = JOptionPane.showConfirmDialog(
+//				ProgramGlobals.getMainPanel(),
+//				programPreferencesPanel,
+//				"Preferences",
+//				JOptionPane.OK_CANCEL_OPTION,
+//				JOptionPane.PLAIN_MESSAGE);
+//
+//		if (ret == JOptionPane.OK_OPTION) {
+//			saveSettings(programPreferences, priorDataSources, programPreferencesPanel);
+//		}
+	}
+
+	private static void saveSettings(ProgramPreferences programPreferences, List<DataSourceDescriptor> priorDataSources, ProgramPreferencesPanel programPreferencesPanel) {
+		ProgramGlobals.getEditorColorPrefs().setFrom(programPreferencesPanel.getColorPrefs());
+		programPreferences.setEditorColors(ProgramGlobals.getEditorColorPrefs());
+		ProgramGlobals.getPrefs().loadFrom(programPreferences);
+		List<DataSourceDescriptor> dataSources = programPreferencesPanel.getDataSources();
+		boolean changedDataSources = (dataSources != null) && !dataSources.equals(priorDataSources);
+		if (changedDataSources) {
+			SaveProfile.get().setDataSources(dataSources);
+		}
+		SaveProfile.save();
+		if (changedDataSources) {
+			MenuBar.updateDataSource();
+			ProgramGlobals.getRootWindowUgg().getWindowHandler2().dataSourcesChanged();
 //				dataSourcesChanged(MenuBar.directoryChangeNotifier, mainPanel.modelPanels);
-			}
 		}
 	}
 

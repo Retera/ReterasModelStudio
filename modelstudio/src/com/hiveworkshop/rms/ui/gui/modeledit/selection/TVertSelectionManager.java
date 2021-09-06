@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
-import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -37,24 +36,18 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		super(editorRenderModel, modelView, selectionMode);
 	}
 
-
-	public UndoAction setSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
+	public UndoAction setSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
 		return null;
 	}
 
-	;
-
-	public UndoAction removeSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
+	public UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
 		return null;
 	}
 
-	;
-
-	public UndoAction addSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
+	public UndoAction addSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
 		return null;
 	}
 
-	;
 
 	public Vec3 getCenter() {
 		if (selectionMode == SelectionItemTypes.VERTEX

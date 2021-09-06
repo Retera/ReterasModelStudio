@@ -60,19 +60,11 @@ public final class ViewportSelectionHandler {
 			tempSelectMode = SelectionMode.SELECT;
 		}
 
-//		if (ProgramGlobals.getSelectionMode() == null) {
-//			return selectionManager.setSelectedRegion(min, max, viewPortMat, cameraHandler.getZoom());
-//		}
 		return switch (tempSelectMode) {
-			case ADD -> selectionManager.addSelectedRegion(min, max, viewPortMat, cameraHandler.getZoom());
-			case DESELECT -> selectionManager.removeSelectedRegion(min, max, viewPortMat, cameraHandler.getZoom());
-			case SELECT -> selectionManager.setSelectedRegion(min, max, viewPortMat, cameraHandler.getZoom());
+			case ADD -> selectionManager.addSelectedRegion(min, max, cameraHandler);
+			case DESELECT -> selectionManager.removeSelectedRegion(min, max, cameraHandler);
+			case SELECT -> selectionManager.setSelectedRegion(min, max, cameraHandler);
 		};
-//		return switch (ProgramGlobals.getSelectionMode()) {
-//			case ADD -> selectionManager.addSelectedRegion(min, max, viewPortMat, cameraHandler.getZoom());
-//			case DESELECT -> selectionManager.removeSelectedRegion(min, max, viewPortMat, cameraHandler.getZoom());
-//			case SELECT -> selectionManager.setSelectedRegion(min, max, viewPortMat, cameraHandler.getZoom());
-//		};
 	}
 
 	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes) {

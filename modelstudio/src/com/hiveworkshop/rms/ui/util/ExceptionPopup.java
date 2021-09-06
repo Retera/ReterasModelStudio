@@ -67,6 +67,12 @@ public class ExceptionPopup {
 			ProgramGlobals.getMainPanel().setVisible(true);
 		});
 		panel.add(exitRms);
+		JButton forceExitRms = new JButton("force exit RMS");
+		forceExitRms.addActionListener(a -> {
+			ProgramGlobals.getMainPanel().setVisible(false);
+			System.exit(-1);
+		});
+		panel.add(forceExitRms);
 
 
 		JOptionPane.showMessageDialog(null, panel, "Warning (" + MainFrame.getVersion() + ")", JOptionPane.WARNING_MESSAGE, null);

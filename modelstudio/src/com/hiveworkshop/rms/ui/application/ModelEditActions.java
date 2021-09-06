@@ -295,12 +295,13 @@ public class ModelEditActions {
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             if (userChoice == JOptionPane.YES_OPTION) {
                 ModelView modelView = modelPanel.getModelView();
+	            EditableModel model = modelView.getModel();
 
                 RecalculateExtentsAction recalculateExtentsAction;
                 if (buttonGroup2.getSelectedIndex()==0) {
-                    recalculateExtentsAction = new RecalculateExtentsAction(modelView, modelView.getEditableGeosets());
+	                recalculateExtentsAction = new RecalculateExtentsAction(model, modelView.getEditableGeosets());
                 } else {
-                    recalculateExtentsAction = new RecalculateExtentsAction(modelView, modelView.getModel().getGeosets());
+	                recalculateExtentsAction = new RecalculateExtentsAction(model, model.getGeosets());
                 }
 
                 modelPanel.getUndoManager().pushAction(recalculateExtentsAction.redo());

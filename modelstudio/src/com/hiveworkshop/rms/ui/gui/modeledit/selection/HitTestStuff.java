@@ -26,7 +26,9 @@ public class HitTestStuff {
 		Vec3 viewPAdj = new Vec3(vec3).transform(viewPortMat);
 		Vec2 vertexV2 = viewPAdj.getProjected((byte) 1, (byte) 2);
 
-		double vertSize = vertexSize / 2.0 * zoom;
+//		double vertSize = vertexSize / 2.0 / zoom;
+		double vertSize = vertexSize;
+//		System.out.println(vertSize + " >= " + vertexV2.distance(max) + "\t (" + vertexV2 + " to " + max + ") \tvertexSize:" + vertexSize);
 		return vertexV2.distance(min) <= vertSize
 				|| vertexV2.distance(max) <= vertSize
 				|| within(vertexV2, min, max);
@@ -37,12 +39,13 @@ public class HitTestStuff {
 		double vertSize = vertexSize / 2.0 / coordinateSystem.getZoom();
 		return vertexV2.distance(point) <= vertSize;
 	}
+
 	public static boolean hitTest(Vec3 vec3, Vec2 point, CameraHandler cameraHandler, double vertexSize) {
 		Vec3 viewPAdj = new Vec3(vec3).transform(cameraHandler.getViewPortAntiRotMat());
 		Vec2 vertexV2 = viewPAdj.getProjected((byte) 1, (byte) 2);
 
 		double vertSize = vertexSize / 2.0 / cameraHandler.getZoom();
-//		System.out.println(vertSize + " >= " + vertexV2.distance(point) + " (" + vertexV2 + " to " + point + ")");
+//		System.out.println(vertSize + " >= " + vertexV2.distance(point) + " (" + vertexV2 + " to " + point + ") vertexSize:" + vertexSize);
 		return vertexV2.distance(point) <= vertSize;
 	}
 

@@ -145,8 +145,6 @@ public class SelectionManager extends AbstractSelectionManager {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
 					if (HitTestStuff.triHitTest(triangle, min, max, coordinateSystem)
-//							|| HitTestStuff.triHitTest(triangle, min, coordinateSystem)
-//							|| HitTestStuff.triHitTest(triangle, max, coordinateSystem)
 					) {
 						for (GeosetVertex vertex : triangle.getAll()) {
 							newSelection.add(new VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(vertex)));
@@ -174,8 +172,6 @@ public class SelectionManager extends AbstractSelectionManager {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
 					if (HitTestStuff.triHitTest(triangle, min, max, coordinateSystem)
-//							|| HitTestStuff.triHitTest(triangle, min, coordinateSystem)
-//							|| HitTestStuff.triHitTest(triangle, max, coordinateSystem)
 					) {
 						for (GeosetVertex vertex : triangle.getAll()) {
 							newSelection.add(new VertexGroupBundle(geoset, vertex.getVertexGroup()));
@@ -241,32 +237,34 @@ public class SelectionManager extends AbstractSelectionManager {
 	}
 
 
-	public SelectionBundle genericSelect3D(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
+	public SelectionBundle genericSelect3D(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
+		Mat4 viewPortMat = cameraHandler.getViewPortAntiRotMat();
+		double zoom = cameraHandler.getZoom();
 		if (selectionMode == SelectionItemTypes.VERTEX) {
-			Set<GeosetVertex> selectedVerts = addVertsFromArea(min, max, viewPortMat, zoom);
-			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, viewPortMat, zoom);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, viewPortMat, zoom);
+			Set<GeosetVertex> selectedVerts = addVertsFromArea(min, max, cameraHandler);
+			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, cameraHandler);
+			Set<Camera> selectedCams = getCamerasFromArea(min, max, cameraHandler);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
 		}
 
 		if (selectionMode == SelectionItemTypes.FACE) {
 			Set<GeosetVertex> selectedVerts = addTrisFromArea(min, max, viewPortMat, zoom);
-			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, viewPortMat, zoom);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, viewPortMat, zoom);
+			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, cameraHandler);
+			Set<Camera> selectedCams = getCamerasFromArea(min, max, cameraHandler);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
 		}
 
 		if (selectionMode == SelectionItemTypes.CLUSTER) {
 			Set<GeosetVertex> selectedVerts = getClusterBundle(vertexClusterDefinitions, addTrisFromArea(min, max, viewPortMat, zoom));
-			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, viewPortMat, zoom);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, viewPortMat, zoom);
+			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, cameraHandler);
+			Set<Camera> selectedCams = getCamerasFromArea(min, max, cameraHandler);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
 		}
 
 		if (selectionMode == SelectionItemTypes.GROUP) {
 			Set<GeosetVertex> selectedVerts = getGroupBundle(addTrisFromArea(min, max, viewPortMat, zoom));
-			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, viewPortMat, zoom);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, viewPortMat, zoom);
+			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, cameraHandler);
+			Set<Camera> selectedCams = getCamerasFromArea(min, max, cameraHandler);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
 		}
 
@@ -308,7 +306,7 @@ public class SelectionManager extends AbstractSelectionManager {
 					selectedItems.add(object);
 				}
 			}
-			Set<GeosetVertex> selectedVerts = addVertsFromArea(min, max, viewPortMat, zoom);
+			Set<GeosetVertex> selectedVerts = addVertsFromArea(min, max, cameraHandler);
 			return new SelectionBundle(selectedItems, selectedVerts);
 		}
 		return new SelectionBundle(Collections.emptySet());
@@ -354,8 +352,6 @@ public class SelectionManager extends AbstractSelectionManager {
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
 				if (HitTestStuff.triHitTest(triangle, min, max, coordinateSystem)
-//							|| HitTestStuff.triHitTest(triangle, min, coordinateSystem)
-//							|| HitTestStuff.triHitTest(triangle, max, coordinateSystem)
 				) {
 					newSelection.addAll(Arrays.asList(triangle.getAll()));
 				}
@@ -376,28 +372,32 @@ public class SelectionManager extends AbstractSelectionManager {
 	}
 // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓  3D  ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
-	private Set<Camera> getCamerasFromArea(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
+	private Set<Camera> getCamerasFromArea(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
 		Set<Camera> selectedCams = new HashSet<>();
+		double vertSize = cameraHandler.geomDist(ProgramGlobals.getPrefs().getVertexSize() / 2.0);
+		Mat4 viewPortMat = cameraHandler.getViewPortAntiRotMat();
+		double zoom = cameraHandler.getZoom();
 		for (Camera camera : modelView.getEditableCameras()) {
 			int vertexSize = ProgramGlobals.getPrefs().getVertexSize();
-//			if (HitTestStuff.hitTest(min, max, camera.getPosition(), coordinateSystem, vertexSize)) {
-			if (HitTestStuff.hitTest(min, max, camera.getPosition(), viewPortMat, ProgramGlobals.getPrefs().getVertexSize(), zoom)) {
+			if (HitTestStuff.hitTest(min, max, camera.getPosition(), viewPortMat, vertSize, zoom)) {
 				selectedCams.add(camera);
 			}
-//			if (HitTestStuff.hitTest(min, max, camera.getTargetPosition(), coordinateSystem, vertexSize)) {
-			if (HitTestStuff.hitTest(min, max, camera.getTargetPosition(), viewPortMat, ProgramGlobals.getPrefs().getVertexSize(), zoom)) {
+			if (HitTestStuff.hitTest(min, max, camera.getTargetPosition(), viewPortMat, vertSize, zoom)) {
 				selectedCams.add(camera);
 			}
 		}
 		return selectedCams;
 	}
 
-	private Set<IdObject> getIdObjectsFromArea(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
+	private Set<IdObject> getIdObjectsFromArea(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
+
 		Set<IdObject> selectedItems = new HashSet<>();
+		double vertSize = cameraHandler.geomDist(ProgramGlobals.getPrefs().getVertexSize() / 2.0);
+		Mat4 viewPortMat = cameraHandler.getViewPortAntiRotMat();
+		double zoom = cameraHandler.getZoom();
 		for (IdObject object : modelView.getEditableIdObjects()) {
 			double vertexSize1 = object.getClickRadius() * 2;
-//			if (HitTestStuff.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize1)) {
-			if (HitTestStuff.hitTest(min, max, object.getPivotPoint(), viewPortMat, ProgramGlobals.getPrefs().getVertexSize(), zoom)) {
+			if (HitTestStuff.hitTest(min, max, object.getPivotPoint(), viewPortMat, vertSize, zoom)) {
 				System.out.println("selected " + object.getName());
 				selectedItems.add(object);
 			}
@@ -419,8 +419,6 @@ public class SelectionManager extends AbstractSelectionManager {
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
 				if (HitTestStuff.triHitTest(triangle, min, max, viewPortMat)
-//							|| HitTestStuff.triHitTest(triangle, min, coordinateSystem)
-//							|| HitTestStuff.triHitTest(triangle, max, coordinateSystem)
 				) {
 					newSelection.addAll(Arrays.asList(triangle.getAll()));
 				}
@@ -429,25 +427,18 @@ public class SelectionManager extends AbstractSelectionManager {
 		return newSelection;
 	}
 
-	public Set<GeosetVertex> addVertsFromArea1(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
+	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
-			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (HitTestStuff.hitTest(min, max, geosetVertex, viewPortMat, ProgramGlobals.getPrefs().getVertexSize(), zoom))
-					newSelection.add(geosetVertex);
-			}
-		}
-		return newSelection;
-	}
+		Mat4 viewPortMat = cameraHandler.getViewPortAntiRotMat();
+		double zoom = cameraHandler.getZoom();
 
-	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
-		Set<GeosetVertex> newSelection = new HashSet<>();
+		double vertSize = cameraHandler.geomDist(ProgramGlobals.getPrefs().getVertexSize() / 2.0);
 
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
 
-				if (HitTestStuff.hitTest(min, max, renderGeoset.getRenderVert(geosetVertex).getRenderPos(), viewPortMat, ProgramGlobals.getPrefs().getVertexSize(), zoom))
+				if (HitTestStuff.hitTest(min, max, renderGeoset.getRenderVert(geosetVertex).getRenderPos(), viewPortMat, vertSize, zoom))
 					newSelection.add(geosetVertex);
 			}
 		}
@@ -484,8 +475,8 @@ public class SelectionManager extends AbstractSelectionManager {
 		return addSelectionUggAction;
 	}
 
-	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
-		SelectionBundle newSelection = genericSelect3D(min, max, viewPortMat, zoom);
+	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
+		SelectionBundle newSelection = genericSelect3D(min, max, cameraHandler);
 //		if (modelView.getSelectedVertices().size() == newSelection.getSelectedVertices().size() && modelView.getSelectedVertices().containsAll(newSelection.getSelectedVertices())
 //				&& modelView.getSelectedIdObjects().size() == newSelection.getSelectedIdObjects().size() && modelView.getSelectedIdObjects().containsAll(newSelection.getSelectedIdObjects())
 //				&& modelView.getSelectedCameras().size() == newSelection.getSelectedCameras().size() && modelView.getSelectedCameras().containsAll(newSelection.getSelectedCameras())){
@@ -499,8 +490,8 @@ public class SelectionManager extends AbstractSelectionManager {
 		return select;
 	}
 
-	public final UndoAction removeSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
-		SelectionBundle newSelection = genericSelect3D(min, max, viewPortMat, zoom);
+	public final UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
+		SelectionBundle newSelection = genericSelect3D(min, max, cameraHandler);
 		if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
 			return null;
 		}
@@ -509,8 +500,8 @@ public class SelectionManager extends AbstractSelectionManager {
 		return removeSelectionUggAction;
 	}
 
-	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, Mat4 viewPortMat, double zoom) {
-		SelectionBundle newSelection = genericSelect3D(min, max, viewPortMat, zoom);
+	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
+		SelectionBundle newSelection = genericSelect3D(min, max, cameraHandler);
 		if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
 			return null;
 		}

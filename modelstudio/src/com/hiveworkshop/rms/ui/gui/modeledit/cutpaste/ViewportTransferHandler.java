@@ -129,13 +129,13 @@ public class ViewportTransferHandler extends TransferHandler {
 		for (Camera object : pastedModel.getCameras()) {
 			pastedModelView.makeCameraEditable(object);
 		}
-		GeometryModelEditor listener = new GeometryModelEditor(new SelectionManager(modelHandler.getRenderModel(), pastedModelView, SelectionItemTypes.VERTEX), modelHandler, SelectionItemTypes.VERTEX);
+		GeometryModelEditor modelEditor = new GeometryModelEditor(new SelectionManager(modelHandler.getRenderModel(), pastedModelView, SelectionItemTypes.VERTEX), modelHandler, SelectionItemTypes.VERTEX);
 		pastedModelView.selectAll();
 		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
 		Vec3 vertex = new Vec3(0, 0, 0);
 		vertex.setCoord(viewport.getCoordinateSystem().getPortFirstXYZ(), geomPoint.x);
 		vertex.setCoord(viewport.getCoordinateSystem().getPortSecondXYZ(), geomPoint.y);
-		listener.setPosition(pastedModelView.getSelectionCenter(), vertex);
+		modelEditor.setPosition(pastedModelView.getSelectionCenter(), vertex);
 
 		// this is the model they're actually working on
 		ModelView currentModelView = viewport.getModelView();

@@ -1,9 +1,8 @@
-package com.hiveworkshop.rms.ui.application.model.nodepanels;
+package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
@@ -11,7 +10,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
-public class ParentChooser {
+public class BoneChooser {
 	IterableListModel<BoneShell> filteredBones = new IterableListModel<>();
 	IterableListModel<BoneShell> posibleParentList;
 	JList<BoneShell> bonesJList;
@@ -19,33 +18,32 @@ public class ParentChooser {
 
 	EditableModel model;
 
-	public ParentChooser(EditableModel model) {
+	public BoneChooser(EditableModel model) {
 		this.model = model;
 		posibleParentList = new IterableListModel<>();
 	}
 
-	public IdObject chooseParent(IdObject idObject, JComponent parent) {
-//		BoneShell idObjBoneShell;
-		BoneShell parentBoneShell = null;
+	public Bone chooseBone(Bone currentBone, JComponent parent) {
+		BoneShell currentBoneShell = null;
 		posibleParentList.clear();
 		posibleParentList.addElement(new BoneShell(null));
 		for (Bone bone : model.getBones()) {
 			BoneShell boneShell = new BoneShell(bone);
 			posibleParentList.addElement(boneShell);
-			if (bone == idObject.getParent()) {
-				parentBoneShell = boneShell;
+			if (bone == currentBone) {
+				currentBoneShell = boneShell;
 			}
 		}
 		for (Helper bone : model.getHelpers()) {
 			BoneShell boneShell = new BoneShell(bone);
 			posibleParentList.addElement(boneShell);
-			if (bone == idObject.getParent()) {
-				parentBoneShell = boneShell;
+			if (bone == currentBone) {
+				currentBoneShell = boneShell;
 			}
 		}
 
 		JPanel boneChooserPanel = boneChooserPanel();
-		bonesJList.setSelectedValue(parentBoneShell, true);
+		bonesJList.setSelectedValue(currentBoneShell, true);
 
 
 		int option = JOptionPane.showConfirmDialog(parent, boneChooserPanel, "Choose Bone", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
@@ -55,7 +53,7 @@ public class ParentChooser {
 				return selectedValue.getBone();
 			}
 		}
-		return idObject.getParent();
+		return currentBone;
 	}
 
 	private JPanel boneChooserPanel() {

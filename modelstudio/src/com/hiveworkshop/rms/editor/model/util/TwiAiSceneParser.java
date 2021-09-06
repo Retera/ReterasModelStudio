@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.model.util;
 
+import com.hiveworkshop.rms.editor.actions.model.RecalculateExtentsAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -8,10 +9,7 @@ import jassimp.*;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 // Should probably get a better name.. Just thought "AiSceneParser" sounded a bit too much like it were
 // form the jassimp lib...
@@ -24,6 +22,7 @@ public class TwiAiSceneParser {
 
 	EditableModel editableModel;
 	Map<String, Bone> nameBoneMap = new HashMap<>();
+	Map<String, Bone> nameBoneMap2 = new HashMap<>();
 	AiBuiltInWrapperProvider aiBuiltInWrapperProvider = new AiBuiltInWrapperProvider();
 
 
@@ -31,24 +30,51 @@ public class TwiAiSceneParser {
 		System.out.println("AiMeshHandler got the scene");
 		this.scene = scene;
 		editableModel = new EditableModel();
+		editableModel.setFormatVersion(1000);
 		readMaterials();
+
+//		AiNode sceneRoot = scene.getSceneRoot(aiBuiltInWrapperProvider);
+//		collectAllBones(sceneRoot);
+//		setCorrectPivotsAndParents(sceneRoot);
+
+
 		for (AiMesh am : scene.getMeshes()) {
 			makeGeoset(am);
 		}
 
 		AiNode sceneRoot = scene.getSceneRoot(aiBuiltInWrapperProvider);
-
 		checkAllNodes(sceneRoot);
-		fetchAnims();
 
-//		for(Bone bone : nameBoneMap.values()){
-//			editableModel.add(bone);
-//		}
+//		collectAndAddGeosetBones();
+
+		fetchAnims();
 
 		System.out.println("\n");
 
 		System.out.println("sceneRoot: " + sceneRoot);
 
+		new RecalculateExtentsAction(editableModel, editableModel.getGeosets()).redo();
+
+	}
+
+	private void collectAndAddGeosetBones() {
+		Set<Bone> geosetBones = new HashSet<>();
+		for (Geoset geoset : editableModel.getGeosets()) {
+			for (GeosetVertex vertex : geoset.getVertices()) {
+				Bone[] skinBoneBones = vertex.getSkinBoneBones();
+				if (skinBoneBones != null) {
+					geosetBones.addAll(Arrays.asList(skinBoneBones));
+				}
+			}
+		}
+		for (Bone bone : geosetBones) {
+			if (bone != null) {
+				editableModel.add(bone);
+				if (!geosetBones.contains(bone.getParent())) {
+					bone.setParent(null);
+				}
+			}
+		}
 	}
 
 	public static Material createMaterial(AiMaterial aiMaterial, EditableModel model) {
@@ -57,6 +83,11 @@ public class TwiAiSceneParser {
 
 		diffuseLayer.setTexture(model.loadTexture(aiMaterial.getTextureFile(AiTextureType.DIFFUSE, 0)));
 		diffuseLayer.setStaticAlpha(aiMaterial.getOpacity());
+
+//		String textureFile = aiMaterial.getTextureFile(AiTextureType.NORMALS, 0);
+//		if(textureFile != null){
+//
+//		}
 
 		material.addLayer(diffuseLayer);
 
@@ -88,6 +119,7 @@ public class TwiAiSceneParser {
 //		}
 	}
 
+
 	private void checkAllNodes(AiNode node) {
 		for (AiNode childNode : node.getChildren()) {
 //			checkAllNodes(childNode);
@@ -110,6 +142,37 @@ public class TwiAiSceneParser {
 				editableModel.add(bone);
 			}
 			checkAllNodes(childNode);
+		}
+	}
+
+	private void collectAllBones(AiNode node) {
+		Bone bone = new Bone(node.getName());
+		nameBoneMap2.put(node.getName(), bone);
+		for (AiNode childNode : node.getChildren()) {
+			collectAllBones(childNode);
+		}
+	}
+
+	private void setCorrectPivotsAndParents(AiNode node) {
+//		if (nameBoneMap2.containsKey(node.getName())) {
+//
+//		}
+
+		for (AiNode childNode : node.getChildren()) {
+			if (nameBoneMap2.containsKey(childNode.getName())) {
+				Bone bone = nameBoneMap2.get(childNode.getName());
+
+				AiMatrix4f aiMatrix4f = childNode.getTransform(aiBuiltInWrapperProvider);
+				Vec3 pivotPoint = new Vec3(aiMatrix4f.get(0, 3), aiMatrix4f.get(1, 3), aiMatrix4f.get(2, 3));
+
+				if (nameBoneMap2.containsKey(node.getName())) {
+					Bone parent = nameBoneMap2.get(node.getName());
+					bone.setParent(parent);
+					pivotPoint.add(parent.getPivotPoint());
+				}
+				bone.setPivotPoint(pivotPoint);
+			}
+			setCorrectPivotsAndParents(childNode);
 		}
 	}
 
@@ -152,8 +215,7 @@ public class TwiAiSceneParser {
 		Map<Integer, Map<Bone, Float>> vertToBone = new HashMap<>();
 		if (mesh.hasBones()) {
 			for (AiBone aiBone : mesh.getBones()) {
-				Bone bone = new Bone(aiBone.getName());
-				nameBoneMap.put(aiBone.getName(), bone);
+				Bone bone = nameBoneMap.computeIfAbsent(aiBone.getName(), k -> new Bone(aiBone.getName()));
 //				editableModel.add(bone);
 				if (aiBone.getNumWeights() != 0) {
 					for (AiBoneWeight aiBoneWeight : aiBone.getBoneWeights()) {
@@ -195,8 +257,10 @@ public class TwiAiSceneParser {
 		List<GeosetVertex> geosetVertices = new ArrayList<>();
 		Map<GeosetVertex, List<GeosetVertex.SkinBone>> geosetVertexSkinBoneMap = new HashMap<>();
 
-		for (int i = 0, l = mesh.getNumVertices(); i < l; i++) {
+		Geoset geoset = new Geoset();
+		for (int i = 0; i < mesh.getNumVertices(); i++) {
 			GeosetVertex gv = new GeosetVertex(vertices.get(), vertices.get(), vertices.get());
+			gv.setGeoset(geoset);
 
 			gv.setVertexGroup(-1);
 			geosetVertices.add(gv);
@@ -205,11 +269,16 @@ public class TwiAiSceneParser {
 			List<GeosetVertex.SkinBone> skinBoneList = new ArrayList<>();
 			Map<Bone, Float> boneWeightMap = vertToBone.get(i);
 //			short[] weights = new short[boneWeightMap.keySet().size()];
-			int j = 0;
-			for (Bone bone : boneWeightMap.keySet()) {
-				gv.setSkinBone(bone, (short) (boneWeightMap.get(bone) * 255), j);
-				j++;
+			if (boneWeightMap != null) {
+				int j = 0;
+				for (Bone bone : boneWeightMap.keySet()) {
+					if (j < 4) { //todo fix this when fixing GeosetVertex#SkinBone
+						gv.setSkinBone(bone, (short) (boneWeightMap.get(bone) * 255), j);
+					}
+					j++;
 //				skinBoneList.add(new GeosetVertex.SkinBone((short) (boneWeightMap.get(bone) * 255), bone));
+				}
+				if (j > 4) System.out.println("bones size: " + j);
 			}
 //			System.out.println("skinBoneList.size(): " + skinBoneList.size());
 //			geosetVertexSkinBoneMap.put(gv, skinBoneList);
@@ -230,15 +299,119 @@ public class TwiAiSceneParser {
 				gv.addTVertex(coord);
 			}
 		}
-
-		Geoset geoset = new Geoset();
 		geoset.addVerticies(geosetVertices);
+		geoset.setLevelOfDetail(0);
+		geoset.setLevelOfDetailName(mesh.getName());
 		editableModel.add(geoset);
 
 		final IntBuffer indices = mesh.getFaceBuffer();
 
 		for (int i = 0, l = mesh.getNumFaces(); i < l; i++) {
-			geoset.add(new Triangle(indices.get(), indices.get(), indices.get(), geoset));
+//			geoset.add(new Triangle(indices.get(), indices.get(), indices.get(), geoset));
+			geoset.add(new Triangle(geosetVertices.get(indices.get()), geosetVertices.get(indices.get()), geosetVertices.get(indices.get()), geoset));
+		}
+//
+		geoset.setMaterial(editableModel.getMaterial(mesh.getMaterialIndex()));
+	}
+
+	public void makeGeoset2(final AiMesh mesh) {
+//		System.out.println("IMPLEMENT Geoset(AiMesh)");
+//		System.out.println("reading mesh \""+ mesh.getName() + "\" (" + mesh.getNumVertices() + " vertices)");
+
+		Map<Integer, Map<Bone, Float>> vertToBone = new HashMap<>();
+		if (mesh.hasBones()) {
+			for (AiBone aiBone : mesh.getBones()) {
+				Bone bone = nameBoneMap2.get(aiBone.getName());
+				if (bone != null && aiBone.getNumWeights() != 0) {
+					for (AiBoneWeight aiBoneWeight : aiBone.getBoneWeights()) {
+//						System.out.println(aiBoneWeight);
+						if (!vertToBone.containsKey(aiBoneWeight.getVertexId())) {
+//							System.out.println("weights (" + aiBone.getName() + ") :" + aiBoneWeight.getVertexId());
+							List<AiBone> boneList = new ArrayList<>();
+							Map<Bone, Float> boneWeightMap = new HashMap<>();
+							boneWeightMap.put(bone, aiBoneWeight.getWeight());
+							vertToBone.put(aiBoneWeight.getVertexId(), boneWeightMap);
+						} else {
+							vertToBone.get(aiBoneWeight.getVertexId()).put(bone, aiBoneWeight.getWeight());
+						}
+//						if(mesh.getName().equals("grunt.001")){
+//							System.out.println("weights (" + aiBone.getName() + ") :" + aiBoneWeight.getVertexId());
+//						}
+					}
+				}
+			}
+		}
+
+
+////		this.name = mesh.getName();
+
+		List<FloatBuffer> uvSets = new ArrayList<>();
+
+		for (int i = 0; i < 8; i++) {
+			if (mesh.hasTexCoords(i)) {
+				uvSets.add(mesh.getTexCoordBuffer(i));
+			}
+		}
+
+		int uvSetCount = Math.max(uvSets.size(), 1);
+		boolean hasUVs = uvSets.size() > 0;
+
+		FloatBuffer vertices = mesh.getPositionBuffer();
+		FloatBuffer normals = mesh.getNormalBuffer();
+
+		List<GeosetVertex> geosetVertices = new ArrayList<>();
+		Map<GeosetVertex, List<GeosetVertex.SkinBone>> geosetVertexSkinBoneMap = new HashMap<>();
+
+		Geoset geoset = new Geoset();
+		for (int i = 0; i < mesh.getNumVertices(); i++) {
+			GeosetVertex gv = new GeosetVertex(vertices.get(), vertices.get(), vertices.get());
+			gv.setGeoset(geoset);
+
+			gv.setVertexGroup(-1);
+			geosetVertices.add(gv);
+			gv.initV900();
+			gv.magicSkinBones();
+			List<GeosetVertex.SkinBone> skinBoneList = new ArrayList<>();
+			Map<Bone, Float> boneWeightMap = vertToBone.get(i);
+//			short[] weights = new short[boneWeightMap.keySet().size()];
+			int j = 0;
+			for (Bone bone : boneWeightMap.keySet()) {
+				if (j < 4) { //todo fix this when fixing GeosetVertex#SkinBone
+					gv.setSkinBone(bone, (short) (boneWeightMap.get(bone) * 255), j);
+				}
+				j++;
+//				skinBoneList.add(new GeosetVertex.SkinBone((short) (boneWeightMap.get(bone) * 255), bone));
+			}
+			if (j > 4) System.out.println("bones size: " + j);
+//			System.out.println("skinBoneList.size(): " + skinBoneList.size());
+//			geosetVertexSkinBoneMap.put(gv, skinBoneList);
+//			gv.setSkinBones(boneWeightMap.keySet().toArray(Bone[]::new));
+
+			if (normals != null) {
+				gv.setNormal(new Vec3(normals.get(), normals.get(), normals.get()));
+			}
+
+			for (int uvId = 0; uvId < uvSetCount; uvId++) {
+				Vec2 coord = new Vec2();
+
+				if (hasUVs) {
+					coord.x = uvSets.get(uvId).get();
+					coord.y = uvSets.get(uvId).get();
+				}
+
+				gv.addTVertex(coord);
+			}
+		}
+		geoset.addVerticies(geosetVertices);
+		geoset.setLevelOfDetail(0);
+		geoset.setLevelOfDetailName(mesh.getName());
+		editableModel.add(geoset);
+
+		final IntBuffer indices = mesh.getFaceBuffer();
+
+		for (int i = 0, l = mesh.getNumFaces(); i < l; i++) {
+//			geoset.add(new Triangle(indices.get(), indices.get(), indices.get(), geoset));
+			geoset.add(new Triangle(geosetVertices.get(indices.get()), geosetVertices.get(indices.get()), geosetVertices.get(indices.get()), geoset));
 		}
 //
 		geoset.setMaterial(editableModel.getMaterial(mesh.getMaterialIndex()));

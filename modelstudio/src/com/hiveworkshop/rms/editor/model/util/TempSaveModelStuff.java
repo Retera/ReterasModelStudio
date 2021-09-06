@@ -464,8 +464,6 @@ public class TempSaveModelStuff {
 								index = m;
 							}
 						}
-//						geosetVertex.getSkinBoneIndexes()[skinIndex++] = (byte) index;
-						geosetVertex.getSkinBoneIndexes()[skinIndex++] = (byte) mdlr.getObjectId(bone);
 					}
 				}
 				geosetVertex.setVertexGroup(-1);

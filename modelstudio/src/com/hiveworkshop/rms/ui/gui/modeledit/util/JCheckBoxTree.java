@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.util;
 
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableNodeElement;
 
@@ -30,29 +31,11 @@ public class JCheckBoxTree extends JTree {
 	protected EventListenerList listenerList = new EventListenerList();
 
 	HashSet<TreeNode> checkedPaths = new HashSet<>();
-	private boolean controlDown = false;
-	ModelHandler modelHandler;
-	ModelView modelView;
+	protected boolean controlDown = false;
+	protected ModelHandler modelHandler;
+	protected ModelView modelView;
+	protected UndoManager undoManager;
 
-	public JCheckBoxTree(ModelHandler modelHandler) {
-		super();
-		// Disabling toggling by double-click
-		setModel(modelHandler);
-		setToggleClickCount(0);
-		setOpaque(false);
-
-		// Overriding cell renderer by new one defined above
-		CheckBoxCellRenderer cellRenderer = new CheckBoxCellRenderer(modelView);
-		setCellRenderer(cellRenderer);
-
-		// Overriding selection model by an empty one
-		DefaultTreeSelectionModel dtsm = getDisabledSelectionModel();
-		setSelectionModel(dtsm);
-
-		addMouseListener(getMouseListener());
-		addKeyListener(getKeyAdapter());
-		addTreeExpansionListener(getExpansionListener());
-	}
 	public JCheckBoxTree() {
 		super();
 		// Disabling toggling by double-click
@@ -72,12 +55,18 @@ public class JCheckBoxTree extends JTree {
 		addTreeExpansionListener(getExpansionListener());
 	}
 
-	public void setModel(ModelHandler modelHandler) {
+	public JCheckBoxTree setModel(ModelHandler modelHandler) {
 		this.modelHandler = modelHandler;
-		this.modelView = modelHandler.getModelView();
-
+		if (modelHandler != null) {
+			this.modelView = modelHandler.getModelView();
+			this.undoManager = modelHandler.getUndoManager();
+		} else {
+			this.modelView = null;
+			this.undoManager = null;
+		}
 		CheckBoxCellRenderer cellRenderer = new CheckBoxCellRenderer(modelView);
 		setCellRenderer(cellRenderer);
+		return this;
 	}
 
 	private TreeExpansionListener getExpansionListener() {
@@ -225,11 +214,6 @@ public class JCheckBoxTree extends JTree {
 	public void updateModel(final TreeModel newModel) {
 		super.setModel(newModel);
 		resetCheckingState();
-	}
-
-	// New method that returns only the checked paths (totally ignores original "selection" mechanism)
-	public TreeNode[] getCheckedPaths() {
-		return checkedPaths.toArray(new TreeNode[0]);
 	}
 
 	public boolean isSelected(final JCheckBoxTreeNode node) {

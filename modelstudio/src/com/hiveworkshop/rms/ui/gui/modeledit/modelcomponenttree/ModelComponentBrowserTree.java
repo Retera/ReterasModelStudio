@@ -11,7 +11,10 @@ import javax.swing.event.TreeExpansionListener;
 import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.*;
 
@@ -28,13 +31,12 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		addKeyListener(getKeyAdapter());
 
-		HighlightOnMouseoverListenerImpl mouseListener = new HighlightOnMouseoverListenerImpl();
+		MouseAdapter mouseListener = getMouseAdapter();
 		addMouseMotionListener(mouseListener);
 		addMouseListener(mouseListener);
 		addTreeExpansionListener(getExpansionListener());
 
 		setCellRenderer(getComponentBrowserCellRenderer());
-//		setFocusable(false);
 
 		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
 		basicTreeUI.setRightChildIndent(8);
@@ -345,62 +347,6 @@ public final class ModelComponentBrowserTree extends JTree {
 		return compoundPath;
 	}
 
-	private class HighlightOnMouseoverListenerImpl implements MouseMotionListener, MouseListener {
-		private ChoosableDisplayElement<?> lastMouseOverNode = null;
-
-		@Override
-		public void mouseMoved(MouseEvent e) {
-//			controlDown = e.isControlDown();
-			TreePath pathForLocation = getPathForLocation(e.getX(), e.getY());
-			ChoosableDisplayElement<?> element;
-			if (pathForLocation == null) {
-				element = null;
-			} else {
-				DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) pathForLocation.getLastPathComponent();
-				element = (ChoosableDisplayElement<?>) lastPathComponent.getUserObject();
-			}
-			if (element != lastMouseOverNode) {
-				if (lastMouseOverNode != null) {
-					lastMouseOverNode.mouseExited();
-				}
-				if (element != null) {
-					element.mouseEntered();
-				}
-				lastMouseOverNode = element;
-			}
-		}
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-//			controlDown = e.isControlDown();
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-//			controlDown = e.isControlDown();
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			if (lastMouseOverNode != null) {
-				lastMouseOverNode.mouseExited();
-			}
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-//			controlDown = e.isControlDown();
-		}
-	}
-
 
 	public static ChoosableDisplayElement<?> getIdObjectElement(ModelView modelView, IdObject idObject) {
 		return switch (idObject.getClass().getSimpleName()) {
@@ -418,6 +364,30 @@ public final class ModelComponentBrowserTree extends JTree {
 		};
 	}
 
+
+	private MouseAdapter getMouseAdapter() {
+		return new MouseAdapter() {
+			@Override
+			public void mouseExited(final MouseEvent e) {
+				System.out.println("mouseExited");
+				modelHandler.getModelView().higthlight(null);
+			}
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				TreePath pathForLocation = getPathForLocation(e.getX(), e.getY());
+				if (pathForLocation == null) {
+					modelHandler.getModelView().higthlight(null);
+				} else {
+					DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) pathForLocation.getLastPathComponent();
+					ChoosableDisplayElement<?> element = (ChoosableDisplayElement<?>) lastPathComponent.getUserObject();
+					if (element != null) {
+						modelHandler.getModelView().higthlight(element.getItem());
+					}
+				}
+			}
+		};
+	}
 //	Image attachmentImage = IconUtils.loadNodeImage("/attachment" + template + ".png");
 //	Image eventImage = IconUtils.loadNodeImage("/event" + template + ".png");
 //	Image lightImage = IconUtils.loadNodeImage("/light" + template + ".png");

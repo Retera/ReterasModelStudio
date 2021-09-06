@@ -2,10 +2,10 @@ package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.listener.EditabilityToggleHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.JCheckBoxTree;
@@ -15,13 +15,11 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.*;
 
 public final class ModelViewManagingTree extends JCheckBoxTree {
-	private ModelHandler modelHandler;
 	JCheckBoxTreeNode root;
 	JCheckBoxTreeNode meshes;
 	JCheckBoxTreeNode nodes;
@@ -33,32 +31,20 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 
 	Map<IdObject, JCheckBoxTreeNode> nodeToTreeElement = new HashMap<>();
 
-	public ModelViewManagingTree(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
-		super(modelHandler);
-		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
-		basicTreeUI.setRightChildIndent(5);
-
-		setModel(modelHandler, modelEditorManager);
-
-		final HighlightOnMouseoverListenerImpl mouseListener = new HighlightOnMouseoverListenerImpl();
-		addMouseMotionListener(mouseListener);
-		addMouseListener(mouseListener);
-	}
 	public ModelViewManagingTree() {
 		super();
 		System.out.println("ModelViewManagingTree");
 		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
 		basicTreeUI.setRightChildIndent(5);
 
-		final HighlightOnMouseoverListenerImpl mouseListener = new HighlightOnMouseoverListenerImpl();
+		MouseAdapter mouseListener = getMouseAdapter();
 		addMouseMotionListener(mouseListener);
 		addMouseListener(mouseListener);
 	}
 
-	public ModelViewManagingTree setModel(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
+	public ModelViewManagingTree setModel(ModelHandler modelHandler) {
 		System.out.println("ModelViewManagingTree#setModel: setModel");
-		setModel(modelHandler);
-		this.modelHandler = modelHandler;
+		super.setModel(modelHandler);
 		System.out.println("ModelViewManagingTree#setModel: creating checkboxNodes");
 		root = new JCheckBoxTreeNode(new CheckableModelElement(modelHandler)).setChecked(true);
 //		nodes = new JCheckBoxTreeNode(new CheckableDummyElement(modelHandler, "Nodes")).setChecked(false);
@@ -72,93 +58,55 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		setModel(treeModel);
 
 		System.out.println("ModelViewManagingTree#setModel: addListListener");
-		listenerList.add(CheckChangeEventListener.class, changeEventListener(modelHandler.getUndoManager(), modelEditorManager));
+		listenerList.add(CheckChangeEventListener.class, e -> updateCheckedState(e));
 		return this;
 	}
 
-
-	public ModelViewManagingTree reloadFromModelView() {
-		System.out.println("reloadFromModelView");
-		SwingUtilities.invokeLater(this::reloadFromModelView2);
-		return this;
-	}
-
-	//	private DefaultTreeModel buildTreeModel(ModelHandler modelHandler) {
-//		System.out.println("new tree model");
-//		root.removeAllChildren();
-//		meshes.removeAllChildren();
-//		nodes.removeAllChildren();
-//		cameras.removeAllChildren();
-//
-//		for (Geoset geoset : modelHandler.getModel().getGeosets()) {
-////			boolean contains = modelHandler.getModelView().isEditable(geoset);
-//			meshes.add(new JCheckBoxTreeNode(new CheckableGeosetElement(modelHandler.getModelView(), geoset)));
-//		}
-//
-//		if (meshes.getChildCount() > 0) {
-//			root.add(meshes);
-//		}
-//
-//		nodeToTreeElement.clear();
-//
-//		nodeToTreeElement.put(null, nodes);
-//
-//		for (IdObject object : modelHandler.getModel().getIdObjects()) {
-////			boolean checked = modelHandler.getModelView().isEditable(object);
-//			JCheckBoxTreeNode treeNode = new JCheckBoxTreeNode(new CheckableNodeElement(modelHandler, object));
-//			nodeToTreeElement.put(object, treeNode);
-//
-//		}
-//		for (IdObject object : modelHandler.getModel().getIdObjects()) {
-//			IdObject parent = object.getParent();
-//			if (parent == object) {
-//				parent = null;
-//			}
-//			JCheckBoxTreeNode parentTreeNode = nodeToTreeElement.get(parent);
-//			if (parentTreeNode != null) {
-//				parentTreeNode.add(nodeToTreeElement.get(object));
-//			}
-//		}
-//		if (nodes.getChildCount() > 0) {
-//			root.add(nodes);
-//		}
-//
-//		for (final Camera camera : modelHandler.getModel().getCameras()) {
-////			boolean checked = modelHandler.getModelView().isEditable(camera);
-//			cameras.add(new JCheckBoxTreeNode(new CheckableCameraElement(modelHandler, camera)));
-//		}
-//
-//		if (cameras.getChildCount() > 0) {
-//			root.add(cameras);
-//		}
-//
-//		return new DefaultTreeModel(root);
-//	}
 	private DefaultTreeModel buildTreeModel(ModelHandler modelHandler) {
 		root.removeAllChildren();
 		meshes.removeAllChildren();
-		nodes.removeAllChildren();
 		cameras.removeAllChildren();
+		nodes.removeAllChildren();
 
+		if (modelHandler != null) {
+			buildGeosetTree(modelHandler);
+			if (meshes.getChildCount() > 0) {
+				root.add(meshes);
+			}
+
+			buildNodeTree(modelHandler);
+			if (nodes.getChildCount() > 0) {
+				root.add(nodes);
+			}
+
+			buildCameraTree(modelHandler);
+			if (cameras.getChildCount() > 0) {
+				root.add(cameras);
+			}
+		}
+
+		return new DefaultTreeModel(root);
+	}
+
+	private void buildGeosetTree(ModelHandler modelHandler) {
+		ModelView modelView = modelHandler.getModelView();
 		for (Geoset geoset : modelHandler.getModel().getGeosets()) {
-			boolean contains = modelHandler.getModelView().isEditable(geoset);
-			meshes.add(new JCheckBoxTreeNode(new CheckableGeosetElement(modelHandler.getModelView(), geoset), contains));
+			boolean contains = modelView.isEditable(geoset);
+			meshes.add(new JCheckBoxTreeNode(new CheckableGeosetElement(modelView, geoset), contains));
 		}
+	}
 
-		if (meshes.getChildCount() > 0) {
-			root.add(meshes);
+	private void buildCameraTree(ModelHandler modelHandler) {
+		ModelView modelView = modelHandler.getModelView();
+		for (final Camera camera : modelHandler.getModel().getCameras()) {
+			boolean checked = modelView.isEditable(camera);
+			cameras.add(new JCheckBoxTreeNode(new CheckableCameraElement(modelView, camera), checked));
 		}
+	}
 
-		nodeToTreeElement.clear();
+	private void buildNodeTree(ModelHandler modelHandler) {
+		updateNodeToElement(modelHandler);
 
-		nodeToTreeElement.put(null, nodes);
-
-		for (IdObject object : modelHandler.getModel().getIdObjects()) {
-			boolean checked = modelHandler.getModelView().isEditable(object);
-			JCheckBoxTreeNode treeNode = new JCheckBoxTreeNode(new CheckableNodeElement(modelHandler, object), checked);
-			nodeToTreeElement.put(object, treeNode);
-
-		}
 		for (IdObject object : modelHandler.getModel().getIdObjects()) {
 			IdObject parent = object.getParent();
 			if (parent == object) {
@@ -169,20 +117,21 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 				parentTreeNode.add(nodeToTreeElement.get(object));
 			}
 		}
-		if (nodes.getChildCount() > 0) {
-			root.add(nodes);
-		}
+	}
 
-		for (final Camera camera : modelHandler.getModel().getCameras()) {
-			boolean checked = modelHandler.getModelView().isEditable(camera);
-			cameras.add(new JCheckBoxTreeNode(new CheckableCameraElement(modelHandler, camera), checked));
-		}
+	private void updateNodeToElement(ModelHandler modelHandler) {
+		nodeToTreeElement.clear();
 
-		if (cameras.getChildCount() > 0) {
-			root.add(cameras);
-		}
+		nodeToTreeElement.put(null, nodes);
 
-		return new DefaultTreeModel(root);
+		ModelView modelView = modelHandler.getModelView();
+		EditableModel model = modelHandler.getModel();
+		for (IdObject object : model.getIdObjects()) {
+			boolean checked = modelView.isEditable(object);
+			JCheckBoxTreeNode treeNode = new JCheckBoxTreeNode(new CheckableNodeElement(modelView, object), checked);
+			nodeToTreeElement.put(object, treeNode);
+
+		}
 	}
 
 	private TreePath getTreePath(TreePath nextPathToExpand, TreePath newPathWithNewObjects, JCheckBoxTreeNode currentNode) {
@@ -202,6 +151,13 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 			}
 		}
 		return newPathWithNewObjects;
+	}
+
+
+	public ModelViewManagingTree reloadFromModelView() {
+		System.out.println("reloadFromModelView");
+		SwingUtilities.invokeLater(this::reloadFromModelView2);
+		return this;
 	}
 
 	private void reloadFromModelView2() {
@@ -231,129 +187,92 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		return (CheckableDisplayElement<?>) userObject;
 	}
 
-	private CheckChangeEventListener changeEventListener(UndoManager undoManager, ModelEditorManager editorManager) {
-		return new CheckChangeEventListener() {
-			@Override
-			public void checkStateChanged(final CheckChangeEvent event) {
-				JCheckBoxTreeNode sourceNode = (JCheckBoxTreeNode) event.getSource();
-				JCheckBoxTreeNode baseNode = null;
-				List<CheckableDisplayElement<?>> components = new ArrayList<>();
+	private void updateCheckedState(CheckChangeEvent event) {
+		JCheckBoxTreeNode sourceNode = (JCheckBoxTreeNode) event.getSource();
+		JCheckBoxTreeNode baseNode = null;
+		List<CheckableDisplayElement<?>> components = new ArrayList<>();
 
 
-				if (sourceNode == meshes || meshes.isNodeDescendant(sourceNode)) {
-					baseNode = meshes;
-				} else if (sourceNode == nodes || nodes.isNodeDescendant(sourceNode)) {
-					baseNode = nodes;
-				}
+		if (sourceNode == meshes || meshes.isNodeDescendant(sourceNode)) {
+			baseNode = meshes;
+		} else if (sourceNode == nodes || nodes.isNodeDescendant(sourceNode)) {
+			baseNode = nodes;
+		}
 
-				if (baseNode != null) {
-					if (sourceNode == meshes || sourceNode == nodes || !baseNode.isChecked()) {
-						baseNode.setChecked(sourceNode.isChecked());
-						modelHandler.getModelView().setIdObjectsVisible(nodes.isChecked());
-						modelHandler.getModelView().setGeosetsVisible(meshes.isChecked());
-						modelHandler.getModelView().setCamerasVisible(cameras.isChecked());
+		if (baseNode != null) {
+			if (sourceNode == meshes || sourceNode == nodes || !baseNode.isChecked()) {
+				baseNode.setChecked(sourceNode.isChecked());
+				modelView.setIdObjectsVisible(nodes.isChecked());
+				modelView.setGeosetsVisible(meshes.isChecked());
+				modelView.setCamerasVisible(cameras.isChecked());
 //						hideOrUnhideTemporary(baseNode, !baseNode.isChecked(), components);
+			}
+			handleNodeRecursively(baseNode);
+		} else {
+			components.add((CheckableDisplayElement<?>) sourceNode.getUserObject());
+			handleNodeRecursively(sourceNode);
+			modelView.setCamerasVisible(cameras.isChecked());
+		}
+
+		EditabilityToggleHandler toggleHandler = new EditabilityToggleHandler(components);
+
+		undoManager.pushAction(getShowHideUndo(sourceNode, toggleHandler));
+	}
+
+	private void handleNodeRecursively(JCheckBoxTreeNode parent) {
+//				notifyModelViewManagerStateChanged(parent);
+		CheckableDisplayElement<?> element = (CheckableDisplayElement<?>) parent.getUserObject();
+		element.setChecked(parent.isChecked() && !parent.isTempHidden());
+		for (int i = 0; i < parent.getChildCount(); i++) {
+			final JCheckBoxTreeNode childAt = (JCheckBoxTreeNode) parent.getChildAt(i);
+			handleNodeRecursively(childAt);
+		}
+	}
+
+	private void hideOrUnhideTemporary(JCheckBoxTreeNode parent, boolean hidden, List<CheckableDisplayElement<?>> elements) {
+		if (parent.isChecked() && !hidden || !parent.isChecked() && hidden) {
+			elements.add((CheckableDisplayElement<?>) parent.getUserObject());
+		}
+		for (int i = 0; i < parent.getChildCount(); i++) {
+			final JCheckBoxTreeNode childAt = (JCheckBoxTreeNode) parent.getChildAt(i);
+			hideOrUnhideTemporary(childAt, hidden, elements);
+			childAt.setTempHidden(childAt.isChecked() && hidden);
+		}
+	}
+
+	private UndoAction getShowHideUndo(JCheckBoxTreeNode sourceNode, EditabilityToggleHandler toggleHandler) {
+		if (isSelected(sourceNode)) {
+			return toggleHandler.showComponent(modelView, this::reloadFromModelView);
+		} else {
+			return toggleHandler.hideComponent(modelView, this::reloadFromModelView);
+		}
+	}
+
+	private MouseAdapter getMouseAdapter() {
+		return new MouseAdapter() {
+			@Override
+			public void mouseExited(final MouseEvent e) {
+				System.out.println("mouseExited");
+				if (modelView != null) {
+					modelView.higthlight(null);
+				}
+			}
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				if (modelView != null) {
+					TreePath pathForLocation = getPathForLocation(e.getX(), e.getY());
+					if (pathForLocation == null) {
+						modelView.higthlight(null);
+					} else {
+						JCheckBoxTreeNode lastPathComponent = (JCheckBoxTreeNode) pathForLocation.getLastPathComponent();
+						CheckableDisplayElement<?> element = (CheckableDisplayElement<?>) lastPathComponent.getUserObject();
+						if (element != null) {
+							modelView.higthlight(element.item);
+						}
 					}
-					handleNodeRecursively(baseNode);
-				} else {
-					components.add((CheckableDisplayElement<?>) sourceNode.getUserObject());
-					handleNodeRecursively(sourceNode);
-					modelHandler.getModelView().setCamerasVisible(cameras.isChecked());
-				}
-
-				EditabilityToggleHandler toggleHandler = new EditabilityToggleHandler(components);
-
-				UndoAction showHideUndo;
-				if (isSelected(sourceNode)) {
-					Runnable refreshGUI = () -> reloadFromModelView();
-					showHideUndo = toggleHandler.showComponent(modelHandler.getModelView(), refreshGUI);
-//					showHideUndo = editorManager.getModelEditor().showComponent(toggleHandler);
-				} else {
-					Runnable refreshGUI = () -> reloadFromModelView();
-					showHideUndo = toggleHandler.hideComponent(modelHandler.getModelView(), refreshGUI);
-//					showHideUndo = editorManager.getModelEditor().hideComponent(components, toggleHandler, refreshGUI);
-				}
-				undoManager.pushAction(showHideUndo);
-			}
-
-			private void handleNodeRecursively(JCheckBoxTreeNode parent) {
-				notifyModelViewManagerStateChanged(parent);
-				for (int i = 0; i < parent.getChildCount(); i++) {
-					final JCheckBoxTreeNode childAt = (JCheckBoxTreeNode) parent.getChildAt(i);
-					handleNodeRecursively(childAt);
-				}
-			}
-
-			private void notifyModelViewManagerStateChanged(JCheckBoxTreeNode sourceNode) {
-				CheckableDisplayElement<?> element = (CheckableDisplayElement<?>) sourceNode.getUserObject();
-				element.setChecked(sourceNode.isChecked() && !sourceNode.isTempHidden());
-			}
-
-			private void hideOrUnhideTemporary(JCheckBoxTreeNode parent, boolean hidden, List<CheckableDisplayElement<?>> elements) {
-				if (parent.isChecked() && !hidden || !parent.isChecked() && hidden) {
-					elements.add((CheckableDisplayElement<?>) parent.getUserObject());
-				}
-				for (int i = 0; i < parent.getChildCount(); i++) {
-					final JCheckBoxTreeNode childAt = (JCheckBoxTreeNode) parent.getChildAt(i);
-					hideOrUnhideTemporary(childAt, hidden, elements);
-					childAt.setTempHidden(childAt.isChecked() && hidden);
 				}
 			}
 		};
-	}
-
-	private final class HighlightOnMouseoverListenerImpl implements MouseMotionListener, MouseListener {
-		private CheckableDisplayElement<?> lastMouseOverNode = null;
-
-		@Override
-		public void mouseMoved(final MouseEvent mouseEvent) {
-			TreePath pathForLocation = getPathForLocation(mouseEvent.getX(), mouseEvent.getY());
-			CheckableDisplayElement<?> element;
-			if (pathForLocation == null) {
-				element = null;
-			} else {
-				final JCheckBoxTreeNode lastPathComponent = (JCheckBoxTreeNode) pathForLocation.getLastPathComponent();
-				element = (CheckableDisplayElement<?>) lastPathComponent.getUserObject();
-			}
-			if (element != lastMouseOverNode) {
-				if (lastMouseOverNode != null) {
-					lastMouseOverNode.mouseExited();
-				}
-				if (element != null) {
-					element.mouseEntered();
-				}
-				lastMouseOverNode = element;
-			}
-		}
-
-		@Override
-		public void mouseDragged(final MouseEvent e) {
-//			System.out.println("dragged: " + getPathForLocation(e.getX(), e.getY()));
-		}
-
-		@Override
-		public void mouseReleased(final MouseEvent e) {
-		}
-
-		@Override
-		public void mousePressed(final MouseEvent e) {
-//			System.out.println("pressed: " + getPathForLocation(e.getX(), e.getY()));
-		}
-
-		@Override
-		public void mouseExited(final MouseEvent e) {
-			if (lastMouseOverNode != null) {
-				lastMouseOverNode.mouseExited();
-			}
-		}
-
-		@Override
-		public void mouseEntered(final MouseEvent e) {
-		}
-
-		@Override
-		public void mouseClicked(final MouseEvent e) {
-//			System.out.println("clicked: " + getPathForLocation(e.getX(), e.getY()));
-		}
 	}
 }

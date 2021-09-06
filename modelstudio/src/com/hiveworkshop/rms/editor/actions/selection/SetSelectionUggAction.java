@@ -22,8 +22,11 @@ public final class SetSelectionUggAction implements UndoAction {
 	private final ModelView modelView;
 	private final String actionName;
 
-	public SetSelectionUggAction(SelectionBundle newSelection,
-	                             ModelView modelView, String actionName) {
+	public SetSelectionUggAction(SelectionBundle newSelection, ModelView modelView) {
+		this(newSelection, modelView, "select");
+	}
+
+	public SetSelectionUggAction(SelectionBundle newSelection, ModelView modelView, String actionName) {
 		this.modelView = modelView;
 
 		this.previousVerts = new HashSet<>(modelView.getSelectedVertices());
@@ -65,17 +68,6 @@ public final class SetSelectionUggAction implements UndoAction {
 		modelView.setSelectedCameras(affectedCameras);
 		return this;
 	}
-
-//	@Override
-//	public void undo() {
-//		selectionManager.setSelection(previousSelection);
-//
-//	}
-//
-//	@Override
-//	public void redo() {
-//		selectionManager.setSelection(selection);
-//	}
 
 	@Override
 	public String actionName() {

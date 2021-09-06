@@ -557,19 +557,20 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			glShadeModel(GL_SMOOTH);
 		}
 		for (Geoset geo : geosets) {
-			if (modelView.getEditableGeosets().contains(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
+			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
 				renderGeosets(geo, true, formatVersion, overriddenColors);
 			}
 		}
 		for (Geoset geo : geosets) {
-			if (modelView.getEditableGeosets().contains(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
+			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
+//			if (modelView.getEditableGeosets().contains(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
 				renderGeosets(geo, false, formatVersion, overriddenColors);
 			}
 		}
 	}
 
 	private void renderGeosets(Geoset geo, boolean renderOpaque, int formatVersion, boolean overriddenColors) {
-		if (!correctLoD(geo, formatVersion)) return;
+		if (!correctLoD(geo, formatVersion) || geo.getVertices().isEmpty()) return;
 		GeosetAnim geosetAnim = geo.getGeosetAnim();
 		float geosetAnimVisibility = 1;
 
@@ -636,8 +637,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 //		glColor3f(255f, 1f, 255f);
 		glColor4f(.7f, .0f, .0f, .4f);
-		for (final Geoset geo : modelView.getVisibleGeosets()) {
-			if (correctLoD(geo, formatVersion)) {
+		for (final Geoset geo : modelView.getEditableGeosets()) {
+			if (correctLoD(geo, formatVersion) && modelView.shouldRender(geo)) {
 //				CubePainter.paintVertCubes(modelView, renderModel, geo);
 //				CubePainter.paintVertCubes2(modelView, renderModel, geo, cameraHandler);
 				vertRendererThing.updateSquareSize(cameraHandler.getPixelSize());

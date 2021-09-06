@@ -570,13 +570,10 @@ public class CameraHandler {
 		return ((y - (viewport.getHeight() / 2.0)) * cameraPos.x / 600f + cameraPos.z) / m_zoom;
 	}
 
-//	public double geomDistX(double x1, double x2) {
-//		return (-(x1 - (viewport.getWidth() / 2.0)) * cameraPos.x / 600f + cameraPos.y) / m_zoom;
-//	}
-//
-//	public double geomDistY(double y1, double y2) {
-//		return (y1 - y2) * cameraPos.x / 600f / m_zoom;
-//	}
+	public double geomDist(double x1) {
+//		return geomX(x1) - geomX(0);
+		return -x1 * cameraPos.x / 600f / m_zoom;
+	}
 
 	public Vec3 getGeoPoint(double viewX, double viewY) {
 		double x_real = -(viewX - (viewport.getWidth() / 2.0)) * cameraPos.x / 600f + cameraPos.y;
@@ -590,14 +587,6 @@ public class CameraHandler {
 
 		return vec3;
 	}
-//
-//	public double geomX(double x) {
-//		return ((x - (viewport.getWidth() / 2.0)) / m_zoom) - cameraPos.x;
-//	}
-//
-//	public double geomY(double y) {
-//		return -(((y - (viewport.getHeight() / 2.0)) / m_zoom) - cameraPos.y);
-//	}
 
 	public CameraHandler setAllowRotation(boolean allowRotation) {
 		this.allowRotation = allowRotation;

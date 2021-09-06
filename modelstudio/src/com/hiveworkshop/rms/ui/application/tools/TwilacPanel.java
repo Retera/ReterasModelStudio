@@ -173,6 +173,6 @@ public class TwilacPanel extends JPanel {
 	private void viewKBPanel(){
 		KeybindingPrefPanel keybindingPrefPanel = new KeybindingPrefPanel();
 //		keybindingPrefPanel.setPreferredSize(ScreenInfo.getSmallWindow());
-		FramePopup.show(keybindingPrefPanel, null, "Edit Particle2 Emitter");
+		FramePopup.show(keybindingPrefPanel, null, "Edit Keybindings");
 	}
 }

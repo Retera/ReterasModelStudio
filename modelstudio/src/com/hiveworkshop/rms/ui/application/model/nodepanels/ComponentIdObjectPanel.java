@@ -46,7 +46,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	public ComponentIdObjectPanel(ModelHandler modelHandler) {
 		super(modelHandler);
 
-		parentChooser = new ParentChooser(modelHandler.getModelView());
+		parentChooser = new ParentChooser(model);
 
 //		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][][][grow]"));
 		setLayout(new MigLayout("fillx, gap 0", "[]5[]5[grow]", "[]"));

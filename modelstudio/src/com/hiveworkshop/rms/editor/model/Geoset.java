@@ -76,6 +76,7 @@ public class Geoset implements Named, VisibilitySource {
 			Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
 			if (!boneMap.isEmpty()) {
 				Set<Bone> bones = boneMap.keySet();
+				bones.removeIf(Objects::isNull);
 				String name = sdGetMostCommonUniqueBoneName(bones);
 //					if (name.equals("")) {
 //						matrix.get(0).getName();
@@ -89,7 +90,10 @@ public class Geoset implements Named, VisibilitySource {
 			return "# " + (parentModel.getGeosetId(this)) + ": " + levelOfDetailName;
 		}
 //		return "Geoset " + (parentModel.getGeosetId(this));// parentModel.getName() // + "
-		return "# " + (parentModel.getGeosetId(this));// parentModel.getName() // + "
+		if (parentModel != null) {
+			return "# " + (parentModel.getGeosetId(this));// parentModel.getName() // + "
+		}
+		return "Geosets";
 	}
 
 	@Override
@@ -109,7 +113,7 @@ public class Geoset implements Named, VisibilitySource {
 			for (Bone bone : mBones) {
 				Bone lp = lastParentIn(bone, mBones);
 
-				if ((lp.getGeoset() == this || lp instanceof Helper) && !nonSharedParentBones.contains(lp)) {
+				if ((lp != null && lp.getGeoset() == this || lp instanceof Helper) && !nonSharedParentBones.contains(lp)) {
 					nonSharedParentBones.add(lp);
 				}
 			}

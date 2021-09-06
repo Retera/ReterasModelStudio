@@ -2,13 +2,14 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.selection.InvertSelectionAction2;
-import com.hiveworkshop.rms.editor.actions.selection.SetSelectionAction;
+import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.ui.language.TextKey;
@@ -61,7 +62,8 @@ public class Select {
 			for (Geoset geo : modelView.getEditableGeosets()) {
 				allSelection.addAll(geo.getVertices());
 			}
-			UndoAction action = new SetSelectionAction(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras(), modelView, "select all");
+			SelectionBundle bundle = new SelectionBundle(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras());
+			UndoAction action = new SetSelectionUggAction(bundle, modelView, "select all");
 			modelPanel.getUndoManager().pushAction(action.redo());
 		}
 	}
@@ -84,9 +86,9 @@ public class Select {
 			for (GeosetVertex v : modelView.getSelectedVertices()) {
 				expandSelection(v, expandedSelection);
 			}
-			SetSelectionAction setSelectionAction = new SetSelectionAction(expandedSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameras(), modelView, "expand selection");
-
-			modelPanel.getUndoManager().pushAction(setSelectionAction.redo());
+			SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras());
+			UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection");
+			modelPanel.getUndoManager().pushAction(action.redo());
 		}
 	}
 

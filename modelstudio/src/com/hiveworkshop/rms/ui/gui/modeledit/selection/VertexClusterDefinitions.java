@@ -17,7 +17,6 @@ public class VertexClusterDefinitions {
 	private final int maxClusterIdKnown;
 
 	public VertexClusterDefinitions(EditableModel model) {
-//		Map<HashableVector, List<GeosetVertex>> positionToVertices = new HashMap<>();
 		Map<Geoset, Map<HashableVector, List<GeosetVertex>>> geosetMapMap = new HashMap<>();
 		for (Geoset geoset : model.getGeosets()) {
 			Map<HashableVector, List<GeosetVertex>> positionToVertices = geosetMapMap.computeIfAbsent(geoset, k -> new HashMap<>());
@@ -61,10 +60,12 @@ public class VertexClusterDefinitions {
 		vertexToClusterId.put(vertex, clusterId);
 		for (Triangle triangle : vertex.getTriangles()) {
 			for (GeosetVertex neighborPosition : triangle.getVerts()) {
-				List<GeosetVertex> neighbors = positionToVertices.get(new HashableVector(neighborPosition));
-				for (GeosetVertex neighbor : neighbors) {
-					if (vertexToClusterId.get(neighbor) == null) {
-						assignConnected(neighbor, clusterId, positionToVertices);
+				if (neighborPosition != vertex) {
+					List<GeosetVertex> neighbors = positionToVertices.get(new HashableVector(neighborPosition));
+					for (GeosetVertex neighbor : neighbors) {
+						if (vertexToClusterId.get(neighbor) == null) {
+							assignConnected(neighbor, clusterId, positionToVertices);
+						}
 					}
 				}
 			}

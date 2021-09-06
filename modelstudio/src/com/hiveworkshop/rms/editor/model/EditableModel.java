@@ -883,7 +883,7 @@ public class EditableModel implements Named {
 			} else if (idObject instanceof Helper) {
 				helpers.add((Helper) idObject);
 			} else if (idObject instanceof Bone) {
-//				System.out.println("adding Bone");
+//				System.out.println("adding Bone: " + idObject.getName());
 				bones.add((Bone) idObject);
 			} else if (idObject instanceof Attachment) {
 				attachments.add((Attachment) idObject);

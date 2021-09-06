@@ -2,10 +2,9 @@ package com.hiveworkshop.rms.editor.actions.model;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.Collection;
@@ -13,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RecalculateExtentsAction implements UndoAction {
-	private final ModelView modelView;
+	private final EditableModel model;
 	private final Map<Geoset, Map<Animation, ExtLog>> geosetToAnimationToOldExtents = new HashMap<>();
 	private final Map<Animation, ExtLog> modelSequenceToOldExtents = new HashMap<>();
 	private final ExtLog oldModelExtents;
@@ -21,9 +20,9 @@ public class RecalculateExtentsAction implements UndoAction {
 	private final Map<Animation, ExtLog> modelSequenceToNewExtents = new HashMap<>();
 	private final ExtLog newModelExtents;
 
-	public RecalculateExtentsAction(ModelView modelView, Collection<Geoset> geosetsIncludedForCalculation) {
+	public RecalculateExtentsAction(EditableModel model, Collection<Geoset> geosetsIncludedForCalculation) {
 //		this.modelView = modelView;
-		this.modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
+		this.model = model;
 		double maximumBoundsRadius = 0;
 		Vec3 max = new Vec3(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
 		Vec3 min = new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
@@ -40,7 +39,8 @@ public class RecalculateExtentsAction implements UndoAction {
 		}
 		newModelExtents = new ExtLog(new Vec3(min), new Vec3(max), maximumBoundsRadius);
 
-		for (Geoset modelGeoset : modelView.getModel().getGeosets()) {
+
+		for (Geoset modelGeoset : model.getGeosets()) {
 //		for (Geoset modelGeoset : geosetsIncludedForCalculation) {
 			Map<Animation, ExtLog> animationToOldExtents = new HashMap<>();
 			Map<Animation, ExtLog> animationToNewExtents = new HashMap<>();
@@ -51,11 +51,11 @@ public class RecalculateExtentsAction implements UndoAction {
 			geosetToAnimationToOldExtents.put(modelGeoset, animationToOldExtents);
 			geosetToAnimationToNewExtents.put(modelGeoset, animationToNewExtents);
 		}
-		for (Animation sequence : modelView.getModel().getAnims()) {
+		for (Animation sequence : model.getAnims()) {
 			modelSequenceToOldExtents.put(sequence, sequence.getExtents());
 			modelSequenceToNewExtents.put(sequence, newModelExtents.deepCopy());
 		}
-		oldModelExtents = modelView.getModel().getExtents();
+		oldModelExtents = model.getExtents();
 
 	}
 
@@ -74,7 +74,7 @@ public class RecalculateExtentsAction implements UndoAction {
 			animation.setExtents(modelSequenceToOldExtents.get(animation));
 		}
 
-		modelView.getModel().setExtents(oldModelExtents);
+		model.setExtents(oldModelExtents);
 		return this;
 	}
 
@@ -93,7 +93,7 @@ public class RecalculateExtentsAction implements UndoAction {
 			animation.setExtents(modelSequenceToNewExtents.get(animation));
 		}
 
-		modelView.getModel().setExtents(newModelExtents);
+		model.setExtents(newModelExtents);
 		return this;
 	}
 

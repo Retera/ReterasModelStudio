@@ -2,11 +2,10 @@ package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 public class CheckableCameraElement extends CheckableDisplayElement<Camera> {
-	public CheckableCameraElement(ModelHandler modelHandler, Camera item) {
-		super(modelHandler.getModelView(), item);
+	public CheckableCameraElement(ModelView modelView, Camera item) {
+		super(modelView, item);
 	}
 
 	@Override

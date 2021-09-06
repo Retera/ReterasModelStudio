@@ -124,9 +124,9 @@ public final class ModelView {
 	public void makeGeosetEditable(Geoset geoset) {
 		editableGeosets.add(geoset);
 		notEditableGeosets.remove(geoset);
-		visibleGeosets.add(geoset);
-		hiddenGeosets.remove(geoset);
-		hiddenVertices.removeAll(geoset.getVertices());
+//		visibleGeosets.add(geoset);
+//		hiddenGeosets.remove(geoset);
+//		hiddenVertices.removeAll(geoset.getVertices());
 		editableVertices.addAll(geoset.getVertices());
 		notEditableVertices.removeAll(geoset.getVertices());
 		ProgramGlobals.getMainPanel().repaint();
@@ -149,7 +149,7 @@ public final class ModelView {
 
 	public void makeGeosetNotVisible(Geoset geoset) {
 		visibleGeosets.remove(geoset);
-		editableGeosets.remove(geoset);
+//		editableGeosets.remove(geoset);
 		hiddenGeosets.add(geoset);
 		hiddenVertices.addAll(geoset.getVertices());
 		ProgramGlobals.getMainPanel().repaint();
@@ -162,7 +162,7 @@ public final class ModelView {
 	}
 
 	public void makeIdObjectEditable(IdObject bone) {
-		visibleIdObjects.add(bone);
+//		visibleIdObjects.add(bone);
 		editableIdObjects.add(bone);
 		hiddenIdObjects.remove(bone);
 		notEditableIdObjects.remove(bone);
@@ -170,10 +170,10 @@ public final class ModelView {
 	}
 
 	public void makeIdObjectNotVisible(IdObject bone) {
-		editableIdObjects.remove(bone);
+//		editableIdObjects.remove(bone);
 		visibleIdObjects.remove(bone);
 		hiddenIdObjects.add(bone);
-		notEditableIdObjects.add(bone);
+//		notEditableIdObjects.add(bone);
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
@@ -191,17 +191,17 @@ public final class ModelView {
 
 	public void makeCameraEditable(Camera camera) {
 		editableCameras.add(camera);
-		visibleCameras.add(camera);
-		hiddenCameras.remove(camera);
+//		visibleCameras.add(camera);
+//		hiddenCameras.remove(camera);
 		notEditableCameras.remove(camera);
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
 	public void makeCameraNotVisible(Camera camera) {
-		editableCameras.remove(camera);
+//		editableCameras.remove(camera);
 		visibleCameras.remove(camera);
 		hiddenCameras.add(camera);
-		notEditableCameras.add(camera);
+//		notEditableCameras.add(camera);
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
@@ -409,19 +409,19 @@ public final class ModelView {
 	}
 
 	public boolean canSelect(IdObject ob) {
-		return editableIdObjects.contains(ob) && idObjectsVisible && idObjectsEditable;
+		return idObjectsVisible && idObjectsEditable && editableIdObjects.contains(ob) && visibleIdObjects.contains(ob);
 	}
 
 	public boolean canSelect(Camera ob) {
-		return editableCameras.contains(ob) && camerasVisible;
+		return camerasEditable && camerasVisible && editableCameras.contains(ob) && visibleCameras.contains(ob);
 	}
 
-	public Vec3 getSelectionCenter(){
+	public Vec3 getSelectionCenter() {
 		Set<Vec3> selectedPoints = new HashSet<>();
-		selectedVertices.stream().filter(editableVertices::contains).forEach(selectedPoints::add);
+		selectedVertices.stream().filter(editableVertices::contains).filter(v -> !hiddenVertices.contains(v)).forEach(selectedPoints::add);
 //		selectedVertices.stream().forEach(selectedPoints::add);
-		selectedIdObjects.stream().filter(editableIdObjects::contains).forEach(o -> selectedPoints.add(o.getPivotPoint()));
-		selectedCameras.stream().filter(editableCameras::contains).forEach(c -> selectedPoints.add(c.getPosition()));
+		selectedIdObjects.stream().filter(editableIdObjects::contains).filter(visibleIdObjects::contains).forEach(o -> selectedPoints.add(o.getPivotPoint()));
+		selectedCameras.stream().filter(editableCameras::contains).filter(visibleCameras::contains).forEach(c -> selectedPoints.add(c.getPosition()));
 
 		return Vec3.centerOfGroup(selectedPoints);
 	}
@@ -621,11 +621,20 @@ public final class ModelView {
 	}
 
 	public void selectAll() {
-		for (Geoset geoset : editableGeosets) {
-			selectedVertices.addAll(geoset.getVertices());
+		if (geosetsVisible && geosetsEditable) {
+			for (Geoset geoset : editableGeosets) {
+				if (isEditable(geoset)) {
+					selectedVertices.addAll(geoset.getVertices());
+					selectedVertices.removeIf(this::isHidden);
+				}
+			}
 		}
-		selectedIdObjects.addAll(editableIdObjects);
-		selectedCameras.addAll(editableCameras);
+		if (idObjectsVisible && idObjectsEditable) {
+			selectedIdObjects.addAll(editableIdObjects);
+		}
+		if (camerasVisible && camerasEditable) {
+			selectedCameras.addAll(editableCameras);
+		}
 	}
 
 	public void addSelectedTVertex(GeosetVertex geosetVertex) {
@@ -697,22 +706,23 @@ public final class ModelView {
 
 	public <T> boolean isInVisible(T obj) {
 		if (obj instanceof GeosetVertex) {
-			System.out.println("GeosetVertex inVissible:" + hiddenVertices.contains(obj));
+//			System.out.println("GeosetVertex inVissible:" + hiddenVertices.contains(obj));
 			return !hiddenVertices.contains(obj);
 		} else if (obj instanceof Geoset) {
 			System.out.println("Geoset inVissible:" + visibleGeosets.contains(obj));
 			return visibleGeosets.contains(obj);
 		} else if (obj instanceof IdObject) {
-			System.out.println("IdObject inVissible:" + visibleIdObjects.contains(obj));
+//			System.out.println("IdObject inVissible:" + visibleIdObjects.contains(obj));
 			return visibleIdObjects.contains(obj);
 		} else if (obj instanceof Camera) {
-			System.out.println("Camera inVissible:" + visibleCameras.contains(obj));
+//			System.out.println("Camera inVissible:" + visibleCameras.contains(obj));
 			return visibleCameras.contains(obj);
 		}
 		return false;
 	}
 
 	public <T> ModelView makeVisible(T obj, boolean b) {
+		System.out.println("ModelView#makeVisible: " + b);
 		if (b) {
 			if (obj instanceof Geoset) {
 				System.out.println("Geoset Visible!");
@@ -763,6 +773,27 @@ public final class ModelView {
 				makeCameraNotEditable((Camera) obj);
 			}
 		}
+		return this;
+	}
+
+	public <T> ModelView higthlight(T obj) {
+		if (obj instanceof Geoset) {
+			System.out.println("Geoset Higlighted!");
+			highlightedGeoset = (Geoset) obj;
+			highlightedNode = null;
+		} else if (obj instanceof IdObject) {
+			System.out.println("IdObject Higlighted!");
+			highlightedGeoset = null;
+			highlightedNode = (IdObject) obj;
+		} else if (obj instanceof Camera) {
+			System.out.println("Camera (not) Higlighted!");
+			highlightedGeoset = null;
+			highlightedNode = null;
+		} else {
+			highlightedGeoset = null;
+			highlightedNode = null;
+		}
+		ProgramGlobals.getMainPanel().repaint();
 		return this;
 	}
 
