@@ -45,18 +45,19 @@ public class SelectionManager extends AbstractSelectionManager {
 ////			vertexClusterDefinitions = new VertexClusterDefinitions(modelView.getModel(), selectionMode);
 //			addSelectionListener(newSelection -> modelView.setSelectedVertices(getClusterBundle(vertexClusterDefinitions, modelView)));
 //		}
-		vertexClusterDefinitions = new VertexClusterDefinitions(modelView.getModel());
+//		vertexClusterDefinitions = new VertexClusterDefinitions(modelView.getModel());
+		vertexClusterDefinitions = new VertexClusterDefinitions();
 	}
 
 	public SelectionManager(RenderModel editorRenderModel, ModelView modelView, boolean moveLinked, SelectionItemTypes selectionMode) {
 		super(editorRenderModel, modelView, selectionMode);
 		this.moveLinked = moveLinked;
-		vertexClusterDefinitions = new VertexClusterDefinitions(modelView.getModel());
+//		vertexClusterDefinitions = new VertexClusterDefinitions(modelView.getModel());
+		vertexClusterDefinitions = new VertexClusterDefinitions();
 	}
 
 	private Set<GeosetVertex> getGroupBundle(Collection<GeosetVertex> selectedVertices) {
 		Set<VertexGroupBundle> bundleSet = new HashSet<>();
-//		Collection<GeosetVertex> selectedVertices = modelView.getSelectedVertices();
 		for (GeosetVertex vertex : selectedVertices) {
 			bundleSet.add(new VertexGroupBundle(vertex.getGeoset(), vertex.getVertexGroup()));
 		}
@@ -70,26 +71,18 @@ public class SelectionManager extends AbstractSelectionManager {
 			}
 		}
 		return verticesSelected;
-//		modelView.setSelectedVertices(verticesSelected);
 	}
 
 	private Set<GeosetVertex> getClusterBundle(VertexClusterDefinitions vertexClusterDefinitions, Collection<GeosetVertex> selectedVertices) {
-		Set<VertexGroupBundle> bundleSet = new HashSet<>();
 		Set<GeosetVertex> verticesSelected = new HashSet<>();
-//		Collection<GeosetVertex> selectedVertices = modelView.getSelectedVertices();
-		for (GeosetVertex vertex : selectedVertices) {
-			bundleSet.add(new VertexGroupBundle(vertex.getGeoset(), vertexClusterDefinitions.getClusterId(vertex)));
-		}
 
-		for (VertexGroupBundle bundle : bundleSet) {
-			for (GeosetVertex geosetVertex : bundle.getGeoset().getVertices()) {
-				if (vertexClusterDefinitions.getClusterId(geosetVertex) == bundle.getVertexGroupId()) {
-					verticesSelected.add(geosetVertex);
-				}
+		for (GeosetVertex vertex : selectedVertices) {
+			if (!verticesSelected.contains(vertex)) {
+				verticesSelected.addAll(vertexClusterDefinitions.getVertexBundle(vertex));
 			}
 		}
+
 		return verticesSelected;
-//		modelView.setSelectedVertices(verticesSelected);
 	}
 
 	protected void fireChangeListeners() {
@@ -141,53 +134,14 @@ public class SelectionManager extends AbstractSelectionManager {
 		}
 
 		if (selectionMode == SelectionItemTypes.CLUSTER) {
-			List<VertexGroupBundle> newSelection = new ArrayList<>();
-			for (Geoset geoset : modelView.getEditableGeosets()) {
-				for (Triangle triangle : geoset.getTriangles()) {
-					if (HitTestStuff.triHitTest(triangle, min, max, coordinateSystem)
-					) {
-						for (GeosetVertex vertex : triangle.getAll()) {
-							newSelection.add(new VertexGroupBundle(geoset, vertexClusterDefinitions.getClusterId(vertex)));
-						}
-					}
-				}
-			}
-
-			Set<GeosetVertex> geosetVerticesSelected = addVertsFromArea(min, max, coordinateSystem);
-			for (GeosetVertex vertex : geosetVerticesSelected) {
-				newSelection.add(new VertexGroupBundle(vertex.getGeoset(), vertexClusterDefinitions.getClusterId(vertex)));
-			}
-			Set<GeosetVertex> selectedVerts = new HashSet<>();
-			for (VertexGroupBundle bundle : newSelection) {
-				selectedVerts.addAll(bundle.getGeoset().getVertices());
-			}
+			Set<GeosetVertex> selectedVerts = getClusterBundle(vertexClusterDefinitions, addTrisFromArea(min, max, coordinateSystem));
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
 			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
 		}
 
 		if (selectionMode == SelectionItemTypes.GROUP) {
-			List<VertexGroupBundle> newSelection = new ArrayList<>();
-
-			for (Geoset geoset : modelView.getEditableGeosets()) {
-				for (Triangle triangle : geoset.getTriangles()) {
-					if (HitTestStuff.triHitTest(triangle, min, max, coordinateSystem)
-					) {
-						for (GeosetVertex vertex : triangle.getAll()) {
-							newSelection.add(new VertexGroupBundle(geoset, vertex.getVertexGroup()));
-						}
-					}
-				}
-			}
-			Set<GeosetVertex> geosetVerticesSelected = addVertsFromArea(min, max, coordinateSystem);
-			for (GeosetVertex vertex : geosetVerticesSelected) {
-				newSelection.add(new VertexGroupBundle(vertex.getGeoset(), vertex.getVertexGroup()));
-			}
-
-			Set<GeosetVertex> selectedVerts = new HashSet<>();
-			for (VertexGroupBundle bundle : newSelection) {
-				selectedVerts.addAll(bundle.getGeoset().getVertices());
-			}
+			Set<GeosetVertex> selectedVerts = getGroupBundle(addTrisFromArea(min, max, coordinateSystem));
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
 			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
@@ -351,8 +305,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		Set<GeosetVertex> newSelection = new HashSet<>();
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (HitTestStuff.triHitTest(triangle, min, max, coordinateSystem)
-				) {
+				if (HitTestStuff.triHitTest(triangle, min, max, coordinateSystem)) {
 					newSelection.addAll(Arrays.asList(triangle.getAll()));
 				}
 			}
