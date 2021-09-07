@@ -209,7 +209,18 @@ public class Animation extends Sequence {
 	public int compareTo(Sequence o) {
 		if (o instanceof GlobalSeq) {
 			return 1;
+		} else if (o instanceof Animation) {
+			int startDiff = getStart() - o.getStart();
+			if (startDiff != 0) {
+				return startDiff;
+			}
+			int nameDiff = getName().compareTo(((Animation) o).getName());
+			if (nameDiff != 0) {
+				return nameDiff;
+			}
+			return System.identityHashCode(this) - System.identityHashCode(o);
 		}
-		return getStart() - o.getStart();
+
+		return -1;
 	}
 }

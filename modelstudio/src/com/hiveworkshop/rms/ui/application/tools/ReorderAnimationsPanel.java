@@ -118,7 +118,8 @@ public class ReorderAnimationsPanel extends JPanel {
 		List<UndoAction> setFlagActions = new ArrayList<>();
 
 		for (Animation animation : newAnimationsStartMap.keySet()) {
-			setFlagActions.add(new SetAnimationStartAction(animation, animation.getStart(), null));
+//			setFlagActions.add(new SetAnimationStartAction(animation, animation.getStart(), null));
+			setFlagActions.add(new SetAnimationStartAction(animation, newAnimationsStartMap.get(animation), null));
 		}
 		setFlagActions.add(new SortAnimationsAction(modelHandler.getModel()));
 		UndoAction action = new CompoundAction("Reorder Animations", setFlagActions, ModelStructureChangeListener.changeListener::animationParamsChanged);
@@ -128,11 +129,11 @@ public class ReorderAnimationsPanel extends JPanel {
 	private TreeMap<Animation, Integer> getNewAnimationsMap() {
 		TreeMap<Animation, Integer> animationsToNewStarts = new TreeMap<>(Comparator.comparingInt(Animation::getStart));
 		int framesBetween = numberModel.getNumber().intValue();
-		int lastEnd = 0;
+		int lastEnd = framesBetween;
 		for (AnimShell animShell : animations) {
 			Animation animation = animShell.getAnim();
-			animationsToNewStarts.put(animation, lastEnd + framesBetween);
-			lastEnd = animation.getEnd();
+			animationsToNewStarts.put(animation, lastEnd);
+			lastEnd += (animation.getLength() + framesBetween);
 		}
 
 		return animationsToNewStarts;

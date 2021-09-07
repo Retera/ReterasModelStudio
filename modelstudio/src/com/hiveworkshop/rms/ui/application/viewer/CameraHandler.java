@@ -332,6 +332,11 @@ public class CameraHandler {
 		calculateCameraRotation();
 	}
 
+	public void setCameraRotation(float right, float up) {
+		zAngle = right;
+		yAngle = up;
+	}
+
 	private void panCamera(int mx, int my) {
 		// translate Viewport Camera
 		double cameraPointX = (mx - cameraPanStartPoint2.x);// / m_zoom;

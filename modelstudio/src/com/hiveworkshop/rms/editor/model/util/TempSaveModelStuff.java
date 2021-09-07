@@ -178,12 +178,13 @@ public class TempSaveModelStuff {
 		int animSpacing = 100;
 		int lastAnimEndWs = animSpacing;
 		boolean forceRespacing = false;
-		for (Animation animation : model.getAnims()){
-			if(animation.getStart() < lastAnimEndWs || forceRespacing){
+		for (Animation animation : model.getAnims()) {
+			if (animation.getStart() < lastAnimEndWs || forceRespacing) {
 				animation.setStart(lastAnimEndWs);
 			}
 			lastAnimEndWs = animation.getEnd() + animSpacing;
 		}
+		model.getAnims().sort(Animation::compareTo);
 	}
 
 	public static void rebuildMaterialList(EditableModel model) {

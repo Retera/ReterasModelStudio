@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
@@ -147,7 +148,7 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 		ArrayList<long[]> tempInTans2 = new ArrayList<>();
 		ArrayList<long[]> tempOutTans2 = new ArrayList<>();
 
-		for (Sequence anim : sequenceMap.keySet()) {
+		for (Sequence anim : new TreeSet<>(sequenceMap.keySet())) {
 			if (globalSeq == null || anim == globalSeq) {
 				TreeMap<Integer, Entry<Integer>> entryTreeMap = sequenceMap.get(anim);
 				for (Integer time : entryTreeMap.keySet()) {

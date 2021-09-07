@@ -4,7 +4,8 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
 import java.util.Collection;
-import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeSet;
 
 /**
@@ -14,7 +15,7 @@ import java.util.TreeSet;
  * Eric Theller 3/10/2012 3:52 PM
  */
 public class EventObject extends IdObject {
-	private final TreeMap<Sequence, TreeSet<Integer>> eventTrackAnimMap = new TreeMap<>();
+	private final Map<Sequence, TreeSet<Integer>> eventTrackAnimMap = new HashMap<>();
 	private GlobalSeq globalSeq;
 
 	public EventObject() {
@@ -102,6 +103,7 @@ public class EventObject extends IdObject {
 			trackSet.addAll(sourceTrackSet);
 		}
 	}
+
 	public void copySequenceToSequence(Sequence sequence, Sequence newSequence) {
 		// Timescales a part of the AnimFlag from section "start" to "end" into
 		// the new time "newStart" to "newEnd"
@@ -110,7 +112,7 @@ public class EventObject extends IdObject {
 		eventTrackAnimMap.computeIfAbsent(newSequence, k -> new TreeSet<>()).addAll(integers);
 	}
 
-	public TreeMap<Sequence, TreeSet<Integer>> getEventTrackAnimMap() {
+	public Map<Sequence, TreeSet<Integer>> getEventTrackAnimMap() {
 		return eventTrackAnimMap;
 	}
 

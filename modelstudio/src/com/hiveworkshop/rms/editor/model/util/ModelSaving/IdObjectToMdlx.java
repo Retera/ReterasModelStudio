@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
+import java.util.Map;
 import java.util.TreeSet;
 
 public class IdObjectToMdlx {
@@ -75,12 +75,12 @@ public class IdObjectToMdlx {
 
 		List<Integer> keyframes = new ArrayList<>();
 
-		TreeMap<Sequence, TreeSet<Integer>> animMap = eventObject.getEventTrackAnimMap();
-		for(Sequence sequence : animMap.keySet()){
+		Map<Sequence, TreeSet<Integer>> animMap = eventObject.getEventTrackAnimMap();
+		for (Sequence sequence : new TreeSet<>(animMap.keySet())) {
 			TreeSet<Integer> tracks = animMap.get(sequence);
-			if(tracks != null){
-				for (int track : tracks){
-					if(track > sequence.getLength()){
+			if (tracks != null) {
+				for (int track : tracks) {
+					if (track > sequence.getLength()) {
 						break;
 					}
 					keyframes.add(track + sequence.getStart());

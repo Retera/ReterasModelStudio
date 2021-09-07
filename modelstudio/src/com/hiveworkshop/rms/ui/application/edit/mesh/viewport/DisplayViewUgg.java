@@ -19,6 +19,15 @@ public class DisplayViewUgg extends ModelDependentView {
 		dudPanel = new JPanel(new MigLayout());
 		displayPanel = new DisplayPanel();
 		this.setComponent(dudPanel);
+		setUpViewAngle();
+	}
+
+	private void setUpViewAngle() {
+		switch (name) {
+			case "Front" -> displayPanel.setFrontView();
+			case "Side" -> displayPanel.setLeftView();
+			case "Top" -> displayPanel.setTopView();
+		}
 	}
 
 	@Override
@@ -40,6 +49,7 @@ public class DisplayViewUgg extends ModelDependentView {
 //			displayPanel =  new DisplayPanel();
 			displayPanel.setModel(modelPanel.getModelHandler(), modelPanel.getViewportActivityManager());
 			displayPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
+			setUpViewAngle();
 			this.setComponent(displayPanel);
 		}
 		System.out.println("name: " + name + ", panel: " + modelPanel);

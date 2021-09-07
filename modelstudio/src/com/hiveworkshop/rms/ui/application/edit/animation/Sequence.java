@@ -37,11 +37,13 @@ public abstract class Sequence implements Comparable<Sequence> {
 	}
 
 	@Override
-	public int compareTo(Sequence o) {
-		int startDiff = getStart() - o.getStart();
-		if (startDiff == 0) {
-			return getLength() - o.getLength();
-		}
-		return startDiff;
-	}
+	public abstract int compareTo(Sequence o);
+//	@Override
+//	public int compareTo(Sequence o) {
+//		int startDiff = getStart() - o.getStart();
+//		if (startDiff == 0) {
+//			return getLength() - o.getLength();
+//		}
+//		return startDiff;
+//	}
 }

@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.util.Quat;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
@@ -101,7 +102,7 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		ArrayList<float[]> tempInTans2 = new ArrayList<>();
 		ArrayList<float[]> tempOutTans2 = new ArrayList<>();
 
-		for (Sequence anim : sequenceMap.keySet()) {
+		for (Sequence anim : new TreeSet<>(sequenceMap.keySet())) {
 			if (globalSeq == null || anim == globalSeq) {
 				TreeMap<Integer, Entry<Quat>> entryTreeMap = sequenceMap.get(anim);
 				for (Integer time : entryTreeMap.keySet()) {

@@ -39,7 +39,7 @@ public abstract class AnimFlag<T> {
 	protected String name;
 	protected InterpolationType interpolationType = InterpolationType.DONT_INTERP;
 	protected GlobalSeq globalSeq;
-	protected TreeMap<Sequence, TreeMap<Integer, Entry<T>>> sequenceMap = new TreeMap<>();
+	protected Map<Sequence, TreeMap<Integer, Entry<T>>> sequenceMap = new HashMap<>();
 	protected int typeid = 0;
 	protected Map<Sequence, Integer[]> timeKeysMap = new HashMap<>();
 
@@ -841,11 +841,11 @@ public abstract class AnimFlag<T> {
 		return sequenceMap.get(anim);
 	}
 
-	public TreeMap<Sequence, TreeMap<Integer, Entry<T>>> getAnimMap() {
+	public Map<Sequence, TreeMap<Integer, Entry<T>>> getAnimMap() {
 		return sequenceMap;
 	}
 
-	public AnimFlag<T> setSequenceMap(TreeMap<Sequence, TreeMap<Integer, Entry<T>>> otherMap) {
+	public AnimFlag<T> setSequenceMap(Map<Sequence, TreeMap<Integer, Entry<T>>> otherMap) {
 		sequenceMap = otherMap; // ToDo copy entries!
 		return this;
 	}

@@ -257,19 +257,19 @@ public class WindowHandler2 {
 		leftHandTabWindow.setSelectedTab(0);
 
 		DisplayViewUgg front = new DisplayViewUgg("Front");
-		DisplayViewUgg bottom = new DisplayViewUgg("Bottom");
+		DisplayViewUgg top = new DisplayViewUgg("Top");
 		DisplayViewUgg side = new DisplayViewUgg("Side");
 //		displayPanelViews.add(front);
-//		displayPanelViews.add(bottom);
+//		displayPanelViews.add(top);
 //		displayPanelViews.add(side);
 		allViews.add(front);
-		allViews.add(bottom);
+		allViews.add(top);
 		allViews.add(side);
 
 		PerspectiveViewUgg perspective = new PerspectiveViewUgg();
 //		perspectivePanelViews.add(perspective);
 		allViews.add(perspective);
-		SplitWindow frBt = new SplitWindow(true, front, bottom);
+		SplitWindow frBt = new SplitWindow(true, front, top);
 		SplitWindow lfPs = new SplitWindow(true, side, perspective);
 		SplitWindow quadView = new SplitWindow(false, frBt, lfPs);
 

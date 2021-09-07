@@ -83,7 +83,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 
 	@Override
 	protected Float getIdentity(int typeId) {
-		if ((typeId == ROTATION) && !sequenceMap.isEmpty() && sequenceMap.firstEntry() != null && sequenceMap.firstEntry().getValue().firstEntry().getValue().getValue() != null) {
+		if ((typeId == ROTATION) && !sequenceMap.isEmpty()) {//&& sequenceMap.firstEntry() != null && sequenceMap.firstEntry().getValue().firstEntry().getValue().getValue() != null) {
 			return (float) identity(ALPHA); // magic Camera rotation!
 		}
 		return (float) identity(typeId);
@@ -130,7 +130,9 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		ArrayList<float[]> tempInTans2 = new ArrayList<>();
 		ArrayList<float[]> tempOutTans2 = new ArrayList<>();
 
-		for (Sequence anim : sequenceMap.keySet()) {
+//		for (Sequence anim : sequenceMap.keySet()) {
+		for (Sequence anim : new TreeSet<>(sequenceMap.keySet())) {
+			System.out.println(anim);
 			if (globalSeq == null || anim == globalSeq) {
 				TreeMap<Integer, Entry<Float>> entryTreeMap = sequenceMap.get(anim);
 				for (Integer time : entryTreeMap.keySet()) {

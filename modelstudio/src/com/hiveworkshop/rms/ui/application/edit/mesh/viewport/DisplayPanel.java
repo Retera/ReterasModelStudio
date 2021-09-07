@@ -187,4 +187,16 @@ public class DisplayPanel extends JPanel {
 //		map.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
 		setFocusable(true);
 	}
+
+	public void setFrontView() {
+		vp2.getCameraHandler().setCameraRotation(0, 0);
+	}
+
+	public void setLeftView() {
+		vp2.getCameraHandler().setCameraRotation(90, 0);
+	}
+
+	public void setTopView() {
+		vp2.getCameraHandler().setCameraRotation(0, 90);
+	}
 }

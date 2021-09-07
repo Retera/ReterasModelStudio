@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
@@ -102,7 +103,7 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		ArrayList<float[]> tempInTans2 = new ArrayList<>();
 		ArrayList<float[]> tempOutTans2 = new ArrayList<>();
 
-		for (Sequence anim : sequenceMap.keySet()) {
+		for (Sequence anim : new TreeSet<>(sequenceMap.keySet())) {
 			if (globalSeq == null || anim == globalSeq) {
 				TreeMap<Integer, Entry<Vec3>> entryTreeMap = sequenceMap.get(anim);
 				for (Integer time : entryTreeMap.keySet()) {

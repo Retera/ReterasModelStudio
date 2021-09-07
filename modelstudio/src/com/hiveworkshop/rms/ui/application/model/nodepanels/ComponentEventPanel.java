@@ -63,7 +63,7 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 		tracksPanel.removeAll();
 //		tracksPanel.add(new JLabel("Animation"));
 //		tracksPanel.add(new JLabel("Event Start Time"), "wrap");
-		for (Sequence sequence : idObject.getEventTrackAnimMap().keySet()) {
+		for (Sequence sequence : new TreeSet<>(idObject.getEventTrackAnimMap().keySet())) {
 			TreeSet<Integer> eventTrack = idObject.getEventTrack(sequence);
 			if (eventTrack != null) {
 				JPanel sequencePanel = getSequencePanel(sequence, eventTrack);
