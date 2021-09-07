@@ -145,7 +145,9 @@ public abstract class AnimFlag<T> {
 	public int size() {
 		int size = 0;
 		for (Sequence animation : sequenceMap.keySet()) {
-			size += sequenceMap.get(animation).size();
+			if (sequenceMap.get(animation) != null) {
+				size += sequenceMap.get(animation).size();
+			}
 		}
 		return size;
 	}

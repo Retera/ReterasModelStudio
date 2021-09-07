@@ -41,7 +41,9 @@ public class EventObject extends IdObject {
 	public int size() {
 		int size = 0;
 		for(Sequence animation : eventTrackAnimMap.keySet()){
-			size += eventTrackAnimMap.get(animation).size();
+			if (eventTrackAnimMap.get(animation) != null) {
+				size += eventTrackAnimMap.get(animation).size();
+			}
 		}
 		return size;
 	}
