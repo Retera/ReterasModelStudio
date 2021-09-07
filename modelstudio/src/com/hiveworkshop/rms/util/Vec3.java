@@ -819,4 +819,13 @@ public class Vec3 {
 		int blue = (int) (z * scale);
 		return new Color(red, green, blue);
 	}
+
+	public int getPositionHash() {
+		int prime = 31;
+		int result = 1;
+		result = prime * result + Float.floatToIntBits(x);
+		result = prime * result + Float.floatToIntBits(y);
+		result = prime * result + Float.floatToIntBits(z);
+		return result;
+	}
 }
