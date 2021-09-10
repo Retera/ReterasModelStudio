@@ -262,10 +262,9 @@ public class TwiAiSceneParser {
 			GeosetVertex gv = new GeosetVertex(vertices.get(), vertices.get(), vertices.get());
 			gv.setGeoset(geoset);
 
-			gv.setVertexGroup(-1);
+//			gv.setVertexGroup(-1);
 			geosetVertices.add(gv);
 			gv.initV900();
-			gv.magicSkinBones();
 			List<GeosetVertex.SkinBone> skinBoneList = new ArrayList<>();
 			Map<Bone, Float> boneWeightMap = vertToBone.get(i);
 //			short[] weights = new short[boneWeightMap.keySet().size()];
@@ -367,10 +366,10 @@ public class TwiAiSceneParser {
 			GeosetVertex gv = new GeosetVertex(vertices.get(), vertices.get(), vertices.get());
 			gv.setGeoset(geoset);
 
-			gv.setVertexGroup(-1);
+//			gv.setVertexGroup(-1);
 			geosetVertices.add(gv);
 			gv.initV900();
-			gv.magicSkinBones();
+//			gv.magicSkinBones();
 			List<GeosetVertex.SkinBone> skinBoneList = new ArrayList<>();
 			Map<Bone, Float> boneWeightMap = vertToBone.get(i);
 //			short[] weights = new short[boneWeightMap.keySet().size()];

@@ -21,10 +21,10 @@ public class BoneRenderThing2 {
 	private Vec3[] pointsStemBot;
 	private Vec3[] renderPointsStemBot;
 	public BoneRenderThing2(){
-		float boxRadLength = 1.5f;
-		float boxRadHeight = 1.5f;
+		float boxRadLength = 1.0f;
+		float boxRadHeight = 1.0f;
 //			float boxRadHeight = 0f;
-		float boxRadWidth = 1.5f;
+		float boxRadWidth = 1.0f;
 		float stemTopSize = .4f;
 		float stemBotSize = .15f;
 		float frnt = 1;
@@ -140,17 +140,18 @@ public class BoneRenderThing2 {
 //		System.out.println("dist to par: " + diffVec.length());
 		if (diffVec.x == 0 && diffVec.y == 0 && diffVec.z == 0) {
 			diffVec.set(zAxis).scale(0.01f);
-		} else {
-			scale = diffVec.length() / 10;
 		}
+//		else {
+//			scale = diffVec.length() / 10;
+//		}
 		tempVec.set(zAxis).cross(diffVec).normalize();
 
 		difRotR.setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
 		rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
 		difRotR.mul(rot90).normalize();
 
-//		transform(difRotR, p1, p2, scale);
-		transform(difRotR, p1, p2);
+		transform(difRotR, p1, p2, scale);
+//		transform(difRotR, p1, p2);
 
 		return this;
 	}
@@ -167,6 +168,25 @@ public class BoneRenderThing2 {
 
 		transform(difRotR, p1, p2);
 
+		return this;
+	}
+	public BoneRenderThing2 transform2(Vec3 p1, Vec3 p2, float nodeSize){
+		diffVec.set(p2).sub(p1);
+//		System.out.println("dist to par: " + diffVec.length());
+		if (diffVec.x == 0 && diffVec.y == 0 && diffVec.z == 0) {
+			diffVec.set(zAxis).scale(0.01f);
+		}
+//		else {
+//			nodeSize = diffVec.length() / 10;
+//		}
+		tempVec.set(zAxis).cross(diffVec).normalize();
+
+		difRotR.setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
+		rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
+		difRotR.mul(rot90).normalize();
+
+		transform(difRotR, p1, p2, nodeSize);
+//		transform(difRotR, p1, p2);
 		return this;
 	}
 

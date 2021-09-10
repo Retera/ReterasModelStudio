@@ -64,6 +64,10 @@ public class GeosetVertex extends Vec3 {
 		}
 	}
 
+	public GeosetVertex deepCopy(){
+		return new GeosetVertex(this);
+	}
+
 	public void initV900() {
 		skinBoneIndexes = new byte[4];
 //        skinBones = new Bone[4];
@@ -398,6 +402,10 @@ public class GeosetVertex extends Vec3 {
 		this.tangent = tangent;
 	}
 
+	public void removeTangent(){
+		this.tangent = null;
+	}
+
 	public Vec4 getTang() {
 		return tangent;
 	}
@@ -506,6 +514,9 @@ public class GeosetVertex extends Vec3 {
 
 		public short getWeight() {
 			return weight;
+		}
+		public float getWeightFraction() {
+			return weight/255f;
 		}
 
 		public SkinBone setWeight(short weight) {

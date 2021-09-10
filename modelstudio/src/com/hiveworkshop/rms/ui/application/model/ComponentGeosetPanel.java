@@ -17,6 +17,8 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.actionfunctions.MakeModelHD;
+import com.hiveworkshop.rms.ui.application.actionfunctions.MakeModelSD;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.tools.GeosetAnimCopyPanel;
@@ -194,9 +196,9 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	private void toggleSdHd() {
 		if (geoset != null) {
 			if (geoset.isHD()) {
-				geoset.makeSd();
+				MakeModelSD.makeSd(geoset);
 			} else {
-				geoset.makeHd();
+				MakeModelHD.makeHd(geoset);
 			}
 			setToggleButtonText();
 		}

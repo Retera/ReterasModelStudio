@@ -155,7 +155,7 @@ public class ViewportModelRenderer {
 //	private void renderGeoset2(Geoset geoset, Function<GeosetVertex, Boolean> passFunction) {
 	private void renderGeoset2(Geoset geoset) {
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geoset);
-		for (RenderGeoset.RenderVert vertex : renderGeoset.getRenderVertexMap().values()) {
+		for (RenderGeoset.RenderVert vertex : renderGeoset.getRenderVerts()) {
 
 			Vec2 vert2 = CoordSysUtils.convertToViewVec2(coordinateSystem, vertex.getRenderPos());
 			vertsMap.put(vertex.getVertex(), vert2);

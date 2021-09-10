@@ -34,7 +34,7 @@ public class CloneContextHelper {
 
 		List<GeosetVertex> newVertices = new ArrayList<>();
 		for (GeosetVertex vert : sourceNonPivots) {
-			newVertices.add(new GeosetVertex(vert));
+			newVertices.add(vert.deepCopy());
 		}
 
 		List<IdObject> selBones = new ArrayList<>();

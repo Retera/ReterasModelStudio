@@ -91,7 +91,7 @@ public class GeosetToMdlx {
 		int groupIndex = 0;
 		for (final Matrix matrix : geoset.getMatrices()) {
 			for (int index = 0; index < matrix.size(); index++) {
-				mdlxGeoset.matrixIndices[matrixIndex++] = matrix.getBoneId(index);
+				mdlxGeoset.matrixIndices[matrixIndex++] = matrix.get(index).getObjectId(model);
 			}
 			if (matrix.size() <= 0) {
 				mdlxGeoset.matrixIndices[matrixIndex++] = -1;
@@ -117,22 +117,7 @@ public class GeosetToMdlx {
 				short[] skinBoneWeights = vertex.getSkinBoneWeights();
 				Bone[] skinBoneBones = vertex.getSkinBoneBones();
 				for (int j = 0; j < 4; j++) {
-//					if(((byte) (skinBoneWeights[j])) < 0){
-//						System.out.println("found failed Byte weight! " + model.getObjectId(skinBoneBones[j]) + ": " + (byte) (skinBoneWeights[j]));
-//					}
-//					mdlxGeoset.skin[(i * 8) + j] = vertex.getSkinBoneIndexes()[j];
-//					if(model.getObjectId(skinBoneBones[j]) <0 ){
-//						String name = skinBoneBones[j] == null ? "null" : skinBoneBones[j].getName();
-//						System.out.println("skinbone index ("+j+"): " + model.getObjectId(skinBoneBones[j]) + " (" + name + ")");
-//					}
-
 					int index = skinBoneBones[j] == null ? 0 : skinBoneBones[j].getObjectId(model);
-//					if(index <0 ){
-//						String name = skinBoneBones[j] == null ? "null" : skinBoneBones[j].getName();
-//						System.out.println("skinbone index ("+j+"): " + index + " (" + name + ")");
-//					}
-
-//					mdlxGeoset.skin[(i * 8) + j] = (short) model.getObjectId(skinBoneBones[j]);
 					mdlxGeoset.skin[(i * 8) + j] = (short) index;
 					mdlxGeoset.skin[(i * 8) + j + 4] = (short) (skinBoneWeights[j]);
 					mdlxGeoset.tangents[(i * 4) + j] = vertex.getTangent().toFloatArray()[j];

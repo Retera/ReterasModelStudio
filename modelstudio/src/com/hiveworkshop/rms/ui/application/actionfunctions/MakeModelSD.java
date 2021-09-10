@@ -45,9 +45,7 @@ public class MakeModelSD extends ActionFunction {
 		// - Convert skin to matrices & vertex groups
 		List<Geoset> wrongLOD = new ArrayList<>();
 		for (Geoset geo : model.getGeosets()) {
-			for (GeosetVertex vertex : geo.getVertices()) {
-				vertex.un900Heuristic();
-			}
+			makeSd(geo);
 			if (geo.getLevelOfDetail() != targetLevelOfDetail) {
 				// wrong lod
 				wrongLOD.add(geo);
@@ -132,5 +130,36 @@ public class MakeModelSD extends ActionFunction {
 
 		model.setBindPoseChunk(null);
 		model.getFaceEffects().clear();
+	}
+
+	public static void makeSd(Geoset geoset) {
+		for (GeosetVertex vertex : geoset.getVertices()) {
+			un900Heuristic(vertex);
+		}
+	}
+
+	public static void un900Heuristic(GeosetVertex geosetVertex) {
+		if (geosetVertex.getTang() != null) {
+			geosetVertex.removeTangent();
+		}
+		if (geosetVertex.getSkinBones() != null) {
+			geosetVertex.clearBoneAttachments();
+			boolean fallback = false;
+			for (GeosetVertex.SkinBone skinBone : geosetVertex.getSkinBones()) {
+				if (skinBone != null && skinBone.getBone() != null) {
+					fallback = true;
+					if (skinBone.getWeight() > 110) {
+						geosetVertex.addBoneAttachment(skinBone.getBone());
+					}
+				}
+			}
+			if (geosetVertex.getMatrix().isEmpty() && fallback) {
+				for (GeosetVertex.SkinBone skinBone : geosetVertex.getSkinBones()) {
+					if (skinBone != null && skinBone.getBone() != null) {
+						geosetVertex.addBoneAttachment(skinBone.getBone());
+					}
+				}
+			}
+		}
 	}
 }

@@ -55,8 +55,7 @@ public class ExtrudeAction implements UndoAction {
 
 	private void makeVertCopies() {
 		for (GeosetVertex geosetVertex : orgEdgeVertices) {
-			GeosetVertex newVertex = new GeosetVertex(geosetVertex);
-			oldToNew.put(geosetVertex, newVertex);
+			oldToNew.put(geosetVertex, geosetVertex.deepCopy());
 		}
 	}
 

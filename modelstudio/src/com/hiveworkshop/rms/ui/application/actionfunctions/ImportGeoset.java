@@ -1,15 +1,14 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Triangle;
-import com.hiveworkshop.rms.editor.model.util.ModelFactory.GeosetFactory;
+import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
 import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ImportGeoset extends ActionFunction {
 	public ImportGeoset(){
@@ -52,7 +51,7 @@ public class ImportGeoset extends ActionFunction {
 
 				}
 			}
-			GeosetFactory.updateToObjects(newGeoset, current);
+			updateToObjects(newGeoset, current);
 			System.out.println("putting " + newGeoset.numUVLayers() + " into a nice " + host.numUVLayers());
 			for (int i = 0; i < newGeoset.numVerteces(); i++) {
 				GeosetVertex ver = newGeoset.getVertex(i);
@@ -67,5 +66,36 @@ public class ImportGeoset extends ActionFunction {
 				tri.setGeoRef(host);
 			}
 		}
+	}
+
+	public static void updateToObjects(Geoset geoset, final EditableModel model) {
+		// upload the temporary UVLayer and Matrix objects into the vertices themselves
+		System.out.println(geoset + ", " + model.getName());
+		Map<String, IdObject> nameBoneMap = new HashMap<>();
+		for(Bone bone : model.getBones()){
+			nameBoneMap.put(bone.getName(), bone);
+		}
+		Map<IdObject, IdObject> boneToBoneMap = new HashMap<>();
+		geoset.reMakeMatrixList();
+		for (final Matrix m : geoset.getMatrices()) {
+			System.out.println(m.size());
+			for (Bone bone : m.getBones()){
+				boneToBoneMap.put(bone, nameBoneMap.get(bone.getName()));
+			}
+		}
+
+		for (GeosetVertex gv : geoset.getVertices()) {
+			if (!(gv.getMatrix().getBones().isEmpty() && ModelUtils.isTangentAndSkinSupported(model.getFormatVersion()))) {
+				gv.getMatrix().replaceBones(boneToBoneMap);
+			}
+//			for (final Triangle triangle : geoset.getTriangles()) {
+//				if (triangle.containsRef(gv)) {
+//					gv.addTriangle(triangle);
+//				}
+//				triangle.setGeoset(geoset);
+//			}
+			gv.setGeoset(geoset);
+		}
+		geoset.setParentModel(model);
 	}
 }

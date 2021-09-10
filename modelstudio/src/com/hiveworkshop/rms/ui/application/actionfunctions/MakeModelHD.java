@@ -22,7 +22,7 @@ public class MakeModelHD extends ActionFunction {
 			EditableModel model = currentModelPanel.getModel();
 
 			for (Geoset geo : model.getGeosets()) {
-				geo.makeHd();
+				makeHd(geo);
 			}
 			for (Material m : model.getMaterials()) {
 				m.makeHD();
@@ -54,6 +54,37 @@ public class MakeModelHD extends ActionFunction {
 		}
 		for (Material m : model.getMaterials()) {
 			m.makeHD();
+		}
+	}
+
+	public static void makeHd(Geoset geoset) {
+		List<GeosetVertex> vertices = geoset.getVertices();
+		for (GeosetVertex gv : vertices) {
+			Vec3 normal = gv.getNormal();
+			gv.initV900();
+			if (normal != null) {
+				gv.setTangent(normal, 1);
+			}
+			magicSkinBones(gv);
+		}
+	}
+
+	public static void magicSkinBones(GeosetVertex geosetVertex) {
+		int bonesNum = Math.min(4, geosetVertex.getMatrix().size());
+		short weight = 0;
+		if (bonesNum > 0) {
+			weight = (short) (255 / bonesNum);
+		}
+
+		for (int i = 0; i < 4; i++) {
+			if (i < bonesNum) {
+				geosetVertex.setSkinBone(geosetVertex.getMatrix().get(i), weight, i);
+			} else {
+				geosetVertex.setSkinBone((short) 0, i);
+			}
+		}
+		if (!geosetVertex.getMatrix().isEmpty()) {
+			geosetVertex.setSkinBone(geosetVertex.getMatrix().get(0), (short) (weight + (255 % bonesNum)), 0);
 		}
 	}
 }

@@ -617,6 +617,12 @@ public class Vec3 {
 		set(scaleRes.add(center));
 		return this;
 	}
+	public Vec3 scale(final Vec3 center, float scale) {
+		Vec3 delta = this.sub(center);
+		Vec3 scaleRes = delta.scale(scale);
+		set(scaleRes.add(center));
+		return this;
+	}
 
 	public Vec3 scaleCentered(final Vec3 center, final Vec3 scale) {
 		return sub(center).multiply(scale).add(center);

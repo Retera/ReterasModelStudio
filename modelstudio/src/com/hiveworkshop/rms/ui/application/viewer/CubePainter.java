@@ -65,13 +65,13 @@ public class CubePainter {
 		Vec3 dwFrntLeft = new Vec3(0, 0, 0);
 		Vec3 dwBackLeft = new Vec3(0, 0, 0);
 		if (renderGeoset != null) {
-			for (GeosetVertex vertex : geo.getVertices()) {
-				if (modelView.isSelected(vertex)) {
+//			for (GeosetVertex vertex : geo.getVertices()) {
+			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
+				if (modelView.isSelected(renderVert.getVertex())) {
 					glColor4f(1f, .0f, .0f, .7f);
 				} else {
 					glColor4f(.5f, .3f, .7f, .7f);
 				}
-				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(vertex);
 				if (renderVert != null) {
 					Vec3 renderPos = renderVert.getRenderPos();
 
@@ -289,13 +289,14 @@ public class CubePainter {
 		Vec3 dwFrntLeft = new Vec3(0, 0, 0);
 		Vec3 dwBackLeft = new Vec3(0, 0, 0);
 		if (renderGeoset != null) {
-			for (GeosetVertex vertex : geo.getVertices()) {
-				if (modelView.isSelected(vertex)) {
+//			for (GeosetVertex vertex : geo.getVertices()) {
+			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
+				if (modelView.isSelected(renderVert.getVertex())) {
 					glColor4f(1f, .0f, .0f, .7f);
 				} else {
 					glColor4f(.5f, .3f, .7f, .7f);
 				}
-				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(vertex);
+//				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(vertex);
 				if (renderVert != null) {
 					Vec3 renderPos = renderVert.getRenderPos();
 
@@ -723,9 +724,9 @@ public class CubePainter {
 			Vec3 renderPosNode = renderNode.getPivot();
 			RenderNode parentNode = renderModel.getRenderNode(idObject.getParent());
 			if (idObject.getParent() != null && parentNode != null) {
-				boneRenderThing.transform2(renderPosNode, parentNode.getPivot());
+				boneRenderThing.transform2(renderPosNode, parentNode.getPivot(), (float) cameraHandler.geomDist( idObject.getClickRadius()/2f));
 			} else {
-				boneRenderThing.transform2(renderPosNode, renderPosNode);
+				boneRenderThing.transform2(renderPosNode, renderPosNode, (float) cameraHandler.geomDist( idObject.getClickRadius()/2f));
 			}
 
 			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
@@ -814,15 +815,14 @@ public class CubePainter {
 		Vec3 dwBackLeft = new Vec3(0, 0, 0);
 		Vec3 dwFrntLeft = new Vec3(0, 0, 0);
 		if (renderGeoset != null) {
-			for (GeosetVertex vertex : geo.getVertices()) {
-				if (modelView.isSelected(vertex)) {
+			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
+				if (modelView.isSelected(renderVert.getVertex())) {
 					glColor4f(1f, .0f, .0f, .7f);
-				} else if (modelView.isEditable(vertex)){
+				} else if (modelView.isEditable(renderVert.getVertex())){
 					glColor4f(.5f, .3f, .7f, .7f);
 				} else {
 					glColor4f(.4f, .3f, .7f, .4f);
 				}
-				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(vertex);
 				if (renderVert != null) {
 					Vec3 renderPos = renderVert.getRenderPos();
 
@@ -868,13 +868,14 @@ public class CubePainter {
 		EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
 
 		if (renderGeoset != null) {
-			for (GeosetVertex vertex : geo.getVertices()) {
+//			for (GeosetVertex vertex : geo.getVertices()) {
+			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
 				float[] components;
-				if (modelView.isSelected(vertex)) {
+				if (modelView.isSelected(renderVert.getVertex())) {
 					components = colorPrefs.getColorComponents(ColorThing.VERTEX_SELECTED);
 //					glColor4f(1f, .0f, .0f, .7f);
 //					glColor4f(components[0], components[1], components[2], components[3]);
-				} else if (modelView.isEditable(vertex)) {
+				} else if (modelView.isEditable(renderVert.getVertex())) {
 					components = colorPrefs.getColorComponents(ColorThing.VERTEX);
 //					glColor4f(.5f, .3f, .7f, .7f);
 				} else {
@@ -882,7 +883,6 @@ public class CubePainter {
 //					glColor4f(.4f, .3f, .7f, .4f);
 				}
 				glColor4f(components[0], components[1], components[2], components[3]);
-				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(vertex);
 				if (renderVert != null) {
 					vertRendererThing.transform(cameraHandler.getInverseCameraRotation(), renderVert.getRenderPos()).doGlGeom();
 				}

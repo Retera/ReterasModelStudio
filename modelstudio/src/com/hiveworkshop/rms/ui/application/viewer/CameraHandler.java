@@ -6,8 +6,6 @@ import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.awt.*;
-import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Rectangle2D;
 
@@ -19,31 +17,33 @@ public class CameraHandler {
 	private final Vec3 Y_AXIS = new Vec3(0, 1, 0);
 	private final Vec3 Z_AXIS = new Vec3(0, 0, 1);
 	private final double ZOOM_FACTOR = 1.07;
+//	private final Vec3 cameraPos1 = new Vec3(0, 0, 0);
 	private final Vec3 cameraPos = new Vec3(0, 0, 0);
+//	private final Vec3 cameraLookAt = new Vec3(0, 0, 0);
 	private final Vec3 glCamTrans = new Vec3();
 	private final Quat inverseCameraRotation = new Quat();
-	private final Quat inverseCameraRotXSpinX = new Quat();
 	private final Quat inverseCameraRotXSpinY = new Quat();
-	private final Quat inverseCameraRotXSpinZ = new Quat();
-	private final Quat inverseCameraRotYSpinX = new Quat();
 	private final Quat inverseCameraRotYSpinY = new Quat();
-	private final Quat inverseCameraRotYSpinZ = new Quat();
 	private final Quat inverseCameraRotZSpinX = new Quat();
-	private final Quat inverseCameraRotZSpinY = new Quat();
 	private final Quat inverseCameraRotZSpinZ = new Quat();
-	private final Quat inverseCameraRot_XY_mulZX = new Quat();
+
+//	private final Quat inverseCameraRotation = new Quat();
+//	private final Quat inverseCameraRotXSpinX = new Quat();
+//	private final Quat inverseCameraRotXSpinY = new Quat();
+//	private final Quat inverseCameraRotXSpinZ = new Quat();
+//	private final Quat inverseCameraRotYSpinX = new Quat();
+//	private final Quat inverseCameraRotYSpinY = new Quat();
+//	private final Quat inverseCameraRotYSpinZ = new Quat();
+//	private final Quat inverseCameraRotZSpinX = new Quat();
+//	private final Quat inverseCameraRotZSpinY = new Quat();
+//	private final Quat inverseCameraRotZSpinZ = new Quat();
+//	private final Quat inverseCameraRot_XY_mulZX = new Quat();
+
 	private double m_zoom = 1;
-	private Vec2 cameraPanStartPoint2;
-	private Vec2 cameraSpinStartPoint2;
 
-	private Vec2 actStart;
+	private final Mat4 viewPortAntiRotMat = new Mat4();
 
-	Mat4 viewPortAntiRotMat = new Mat4();
-
-	ViewportActivityManager activityManager;
-
-	private float xRatio;
-	private float yRatio;
+	private ViewportActivityManager activityManager;
 	private float xAngle;
 	private float yAngle;
 	private float zAngle;
@@ -71,12 +71,6 @@ public class CameraHandler {
 		return this;
 	}
 
-	public CameraHandler setRatios(float xRatio, float yRatio){
-		this.xRatio = xRatio;
-		this.yRatio = yRatio;
-		return this;
-	}
-
 	public CameraHandler setOrtho(boolean ortho) {
 		this.ortho = ortho;
 		return this;
@@ -91,17 +85,15 @@ public class CameraHandler {
 	}
 
 	public void setViewportCamera(int dist, int height, int rX, int rY, int rZ) {
-		cameraPanStartPoint2 = null;
-		cameraSpinStartPoint2 = null;
-		actStart = null;
-
 		xAngle = rX;
 		yAngle = rY;
 		zAngle = rZ;
 
+//		cameraLookAt.set(0,0,height);
+		cameraPos.set(dist, 0, height);
+//		cameraPos1.set(dist, 0, 0);
 		calculateCameraRotation();
 
-		cameraPos.set(dist, 0, height);
 	}
 
 	public void setPosition(double a, double b) {
@@ -110,29 +102,44 @@ public class CameraHandler {
 	}
 
 	private void calculateCameraRotation() {
-		inverseCameraRotXSpinX.setFromAxisAngle(X_AXIS, (float) Math.toRadians(xAngle)).normalize();
-		inverseCameraRotXSpinX.invertRotation();
 		inverseCameraRotXSpinY.setFromAxisAngle(X_AXIS, (float) Math.toRadians(yAngle)).normalize();
 		inverseCameraRotXSpinY.invertRotation();
-		inverseCameraRotXSpinZ.setFromAxisAngle(X_AXIS, (float) Math.toRadians(zAngle)).normalize();
-		inverseCameraRotXSpinZ.invertRotation();
-
-		inverseCameraRotYSpinX.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(xAngle)).normalize();
-		inverseCameraRotYSpinX.invertRotation();
 		inverseCameraRotYSpinY.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(yAngle)).normalize();
 		inverseCameraRotYSpinY.invertRotation();
-		inverseCameraRotYSpinZ.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(zAngle)).normalize();
-		inverseCameraRotYSpinZ.invertRotation();
-
 		inverseCameraRotZSpinX.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(xAngle)).normalize();
 		inverseCameraRotZSpinX.invertRotation();
-		inverseCameraRotZSpinY.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(yAngle)).normalize();
-		inverseCameraRotZSpinY.invertRotation();
 		inverseCameraRotZSpinZ.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(zAngle)).normalize();
 		inverseCameraRotZSpinZ.invertRotation();
-
-//		inverseCameraRotation.set(getInverseCameraRotXSpinZ()).normalize();
 		inverseCameraRotation.set(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()).normalize();
+
+//		cameraPos.rotate(cameraLookAt, inverseCameraRotation);
+//		cameraPos.rotate(cameraLookAt, inverseCameraRotation);
+	}
+//	private void calculateCameraRotation() {
+//		inverseCameraRotXSpinX.setFromAxisAngle(X_AXIS, (float) Math.toRadians(xAngle)).normalize();
+//		inverseCameraRotXSpinX.invertRotation();
+//		inverseCameraRotXSpinY.setFromAxisAngle(X_AXIS, (float) Math.toRadians(yAngle)).normalize();
+//		inverseCameraRotXSpinY.invertRotation();
+//		inverseCameraRotXSpinZ.setFromAxisAngle(X_AXIS, (float) Math.toRadians(zAngle)).normalize();
+//		inverseCameraRotXSpinZ.invertRotation();
+//
+//		inverseCameraRotYSpinX.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(xAngle)).normalize();
+//		inverseCameraRotYSpinX.invertRotation();
+//		inverseCameraRotYSpinY.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(yAngle)).normalize();
+//		inverseCameraRotYSpinY.invertRotation();
+//		inverseCameraRotYSpinZ.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(zAngle)).normalize();
+//		inverseCameraRotYSpinZ.invertRotation();
+//
+//		inverseCameraRotZSpinX.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(xAngle)).normalize();
+//		inverseCameraRotZSpinX.invertRotation();
+//		inverseCameraRotZSpinY.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(yAngle)).normalize();
+//		inverseCameraRotZSpinY.invertRotation();
+//		inverseCameraRotZSpinZ.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(zAngle)).normalize();
+//		inverseCameraRotZSpinZ.invertRotation();
+//
+//		inverseCameraRotation.set(getInverseCameraRotXSpinZ()).normalize();
+//		inverseCameraRotation.set(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()).normalize();
+
 
 //		inverseCameraRotation.set(getInverseCameraRotZSpinY()).mul(getInverseCameraRotXSpinZ()).normalize();
 //		inverseCameraRotation.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(yAngle)).mul(getInverseCameraRotXSpinZ()).invertRotation().normalize();
@@ -146,73 +153,24 @@ public class CameraHandler {
 //		inverseCameraRotation.set(inverseCameraRotYSpinZ).mul(inverseCameraRotXSpinX).normalize();
 //		inverseCameraRotation.setFromAxisAngle(Z_AXIS, 0).normalize();
 
-		inverseCameraRot_XY_mulZX.set(inverseCameraRotXSpinY).mul(inverseCameraRotZSpinX).normalize();
-		inverseCameraRot_XY_mulZX.invertRotation();
-	}
-//	private void calculateCameraRotation() {
-//		inverseCameraRotXSpinY.setFromAxisAngle(X_AXIS, (float) Math.toRadians(yAngle)).normalize();
-//		inverseCameraRotXSpinY.invertRotation();
-//
-//		inverseCameraRotXSpinX.setFromAxisAngle(X_AXIS, (float) Math.toRadians(xAngle)).normalize();
-//		inverseCameraRotXSpinX.invertRotation();
-//
-//		inverseCameraRotYSpinX.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(xAngle)).normalize();
-//		inverseCameraRotYSpinX.invertRotation();
-//
-//		inverseCameraRotZSpinY.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(yAngle)).normalize();
-//		inverseCameraRotZSpinY.invertRotation();
-//
-//
-//		inverseCameraRotYSpinY.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(yAngle)).normalize();
-//		inverseCameraRotYSpinY.invertRotation();
-//		inverseCameraRotZSpinX.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(xAngle)).normalize();
-//		inverseCameraRotZSpinX.invertRotation();
-//
-//		inverseCameraRotation.set(inverseCameraRotZSpinX).mul(inverseCameraRotYSpinY).normalize();
-//
 //		inverseCameraRot_XY_mulZX.set(inverseCameraRotXSpinY).mul(inverseCameraRotZSpinX).normalize();
 //		inverseCameraRot_XY_mulZX.invertRotation();
 //	}
 
 	public Quat getInverseCameraRotation() {
-//		return inverseCameraRotation.invertRotation();
 		return inverseCameraRotation;
-	}
-
-	public Quat getInverseCameraRot_XY_mulZX() {
-		return inverseCameraRot_XY_mulZX;
-	}
-
-	public Quat getInverseCameraRotXSpinX() {
-		return inverseCameraRotXSpinX;
 	}
 
 	public Quat getInverseCameraRotXSpinY() {
 		return inverseCameraRotXSpinY;
 	}
 
-	public Quat getInverseCameraRotXSpinZ() {
-		return inverseCameraRotXSpinZ;
-	}
-
-	public Quat getInverseCameraRotYSpinX() {
-		return inverseCameraRotYSpinX;
-	}
-
 	public Quat getInverseCameraRotYSpinY() {
 		return inverseCameraRotYSpinY;
 	}
 
-	public Quat getInverseCameraRotYSpinZ() {
-		return inverseCameraRotYSpinZ;
-	}
-
 	public Quat getInverseCameraRotZSpinX() {
 		return inverseCameraRotZSpinX;
-	}
-
-	public Quat getInverseCameraRotZSpinY() {
-		return inverseCameraRotZSpinY;
 	}
 
 	public Quat getInverseCameraRotZSpinZ() {
@@ -235,8 +193,11 @@ public class CameraHandler {
 		glRotatef(-90, 1f, 0f, 0f);
 		glRotatef(-90, 0f, 0f, 1f);
 
-		glTranslatef(cameraPos.x, -cameraPos.y, -cameraPos.z);
 
+//		GLU.gluLookAt(cameraPos.x, -cameraPos.y, -cameraPos.z, cameraLookAt.x, -cameraLookAt.y, -cameraLookAt.z, 0,0,1);
+
+		glTranslatef(cameraPos.x, -cameraPos.y, -cameraPos.z);
+//
 		glRotatef(xAngle, 1f, 0f, 0f);
 		glRotatef(yAngle, 0f, 1f, 0f);
 		glRotatef(zAngle, 0f, 0f, 1f);
@@ -246,8 +207,8 @@ public class CameraHandler {
 	public Vec3 getActualCameraPos() {
 		Vec3 statCamPos = new Vec3(0f, -70f, -200f);
 		Vec3 dynCamPos = Vec3.getScaled(cameraPos, (float) m_zoom).sub(statCamPos);
-		dynCamPos.rotate(0, 0, 0, Math.toRadians(yAngle), (byte) 1, (byte) 2);
 		dynCamPos.rotate(0, 0, 0, Math.toRadians(yAngle), (byte) 0, (byte) 2);
+		dynCamPos.rotate(0, 0, 0, Math.toRadians(zAngle), (byte) 1, (byte) 2);
 		return dynCamPos;
 	}
 
@@ -255,98 +216,22 @@ public class CameraHandler {
 		return cameraPos;
 	}
 
-	public void setCameraSide(double modelRadius) {
-		System.out.println("SIDE, modelRadius: " + modelRadius + ", xAngl: " + xAngle + ", yAng: " + yAngle + ", zAng: " + zAngle + ", zoom: " + m_zoom + ", pos: " + cameraPos + ", glTrans: " + glCamTrans);
-//		resetZoom();
-//		setViewportCamera((int) -(modelRadius / 3), (int) (modelRadius / 9), 0, 0, 90);
-		setViewportCamera((int) cameraPos.x, (int) (modelRadius / 9), 0, 0, 90);
-	}
-
-	public void setCameraFront(double modelRadius) {
-		System.out.println("FRONT, modelRadius: " + modelRadius + ", xAngl: " + xAngle + ", yAng: " + yAngle + ", zAng: " + zAngle + ", zoom: " + m_zoom + ", pos: " + cameraPos + ", glTrans: " + glCamTrans
-//				+ "\ninvCS: " + inverseCameraRotation.toAxisWithAngle() + " (" + (inverseCameraRotation.toAxisWithAngle().w*57.3) + ") " + new Vec3().wikiToEuler(getInverseCameraRotation()).scale(57.3f)
-//				+ "\ninvYS: " + inverseCameraRotYSpinY.toAxisWithAngle() + " (" + (inverseCameraRotYSpinY.toAxisWithAngle().w*57.3) + ")"
-//				+ "\ninvZS: " + inverseCameraRotZSpinX.toAxisWithAngle() + " (" + (inverseCameraRotZSpinX.toAxisWithAngle().w*57.3) + ")"
-		);
-//		resetZoom();
-//		setViewportCamera((int) -(modelRadius / 3), (int) (modelRadius / 9), 0, 0, 0);
-		setViewportCamera((int) cameraPos.x, (int) (modelRadius / 9), 0, 0, 0);
-	}
-
-	public void setCameraTop(double modelRadius) {
-		System.out.println("TOP, modelRadius: " + modelRadius + ", xAngl: " + xAngle + ", yAng: " + yAngle + ", zAng: " + zAngle + ", zoom: " + m_zoom + ", pos: " + cameraPos + ", glTrans: " + glCamTrans);
-//		resetZoom();
-//		setViewportCamera((int) -(modelRadius * .54), 00, 90, 0);
-//		setViewportCamera((int) -(modelRadius / 3), 0, 0, 90, 0);
-		setViewportCamera((int) cameraPos.x, 0, 0, 90, 0);
-	}
-
-
-	public void clickTimerAction() {
-		final int xoff = 0;
-		final int yoff = 0;
-		PointerInfo pointerInfo = MouseInfo.getPointerInfo();
-		if (pointerInfo != null) {
-			final double mx = pointerInfo.getLocation().x - xoff;
-			final double my = pointerInfo.getLocation().y - yoff;
-
-			if (cameraPanStartPoint2 != null) {
-				panCamera((int) mx, (int) my);
-			}
-			if (cameraSpinStartPoint2 != null && allowRotation) {
-				rotateCamera(mx, my);
-			}
-			// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
-
-			if (actStart != null) {
-				somethingSelect((int) mx, (int) my);
-
-
-			}
-		}
-	}
-
-	private void somethingSelect(int mx, int my) {
-		Point locationOnScreen = viewport.getLocationOnScreen();
-		Vec2 actEnd = new Vec2(mx - locationOnScreen.x, my - locationOnScreen.y);
-		Vec2 convertedStart = new Vec2(geomX(actStart.x), geomY(actStart.y));
-		Vec2 convertedEnd = new Vec2(geomX(actEnd.x), geomY(actEnd.y));
-		// dispMDL.updateAction(convertedStart,convertedEnd,m_d1,m_d2);
-		actStart = actEnd;
-	}
-
-	private void rotateCamera(double mx, double my) {
-		// rotate Viewport Camera
-		zAngle += mx - cameraSpinStartPoint2.x;
-		yAngle += my - cameraSpinStartPoint2.y;
-
-		calculateCameraRotation();
-
-		cameraSpinStartPoint2.x = (int) mx;
-		cameraSpinStartPoint2.y = (int) my;
-	}
-
 	public void rotate(double right, double up) {
-		zAngle += right;
-		yAngle += up;
-		calculateCameraRotation();
+		if(allowRotation){
+			zAngle += right;
+			yAngle += up;
+
+
+//			cameraPos.rotate(cameraPos, Math.toRadians(up), (byte) 0, (byte) 2);
+//			cameraPos.rotate(cameraPos, Math.toRadians(right), (byte) 1, (byte) 2);
+			calculateCameraRotation();
+		}
 	}
 
 	public void setCameraRotation(float right, float up) {
 		zAngle = right;
 		yAngle = up;
-	}
-
-	private void panCamera(int mx, int my) {
-		// translate Viewport Camera
-		double cameraPointX = (mx - cameraPanStartPoint2.x);// / m_zoom;
-		double cameraPointY = (my - cameraPanStartPoint2.y);// / m_zoom;
-
-		translate(-cameraPointX, cameraPointY);
-//		Vec3 vertexHeap = new Vec3(0, -cameraPointX, cameraPointY);
-//		cameraPos.add(vertexHeap);
-		cameraPanStartPoint2.x = mx;
-		cameraPanStartPoint2.y = my;
+		calculateCameraRotation();
 	}
 
 	public void translate(double left, double up) {
@@ -358,6 +243,10 @@ public class CameraHandler {
 //		cameraPos.z += up * (1f / m_zoom) * cameraPos.x / 600f;
 		cameraPos.y -= left * cameraPos.x / 600f;
 		cameraPos.z -= up * cameraPos.x / 600f;
+
+//		cameraLookAt.y -= left * cameraPos.x / 600f;
+//		cameraLookAt.z -= up * cameraPos.x / 600f;
+
 	}
 
 
@@ -463,78 +352,24 @@ public class CameraHandler {
 				m_zoom *= ZOOM_FACTOR;
 				cameraPos.y *= ZOOM_FACTOR;
 				cameraPos.z *= ZOOM_FACTOR;
+//				cameraPos.scale(cameraLookAt, (float) ZOOM_FACTOR);
 			} else {
 				m_zoom /= ZOOM_FACTOR;
 				cameraPos.y /= ZOOM_FACTOR;
 				cameraPos.z /= ZOOM_FACTOR;
+//				cameraPos.scale(cameraLookAt, (float) (1/ZOOM_FACTOR));
 			}
 		}
 	}
-
-	public Vec2 getActStart() {
-		return actStart;
-	}
-
-	public Vec2 getCameraPanStartPoint() {
-		return cameraPanStartPoint2;
-	}
-
-	public Vec2 getCameraSpinStartPoint() {
-		return cameraSpinStartPoint2;
-	}
-
-	public void finnishAct(MouseEvent e) {
-		if ((actStart != null)) {
-			Vec2 actEnd = new Vec2(e.getX(), e.getY());
-			Vec2 convertedStart = new Vec2(geomX(actStart.x), geomY(actStart.y));
-			Vec2 convertedEnd = new Vec2(geomX(actEnd.x), geomY(actEnd.y));
-			System.out.println("act Finished! " + actStart + " to " + actEnd);
-			// dispMDL.finishAction(convertedStart,convertedEnd,m_d1,m_d2);
-			actStart = null;
-
-			if (activityManager != null) {
-				activityManager.mouseReleased(e, this);
-			}
-		}
-	}
-
 	public void rot(float rx, float ry, float rz) {
 		xAngle += rx;
 		yAngle += ry;
 		zAngle += rz;
+
+//		cameraPos.rotate(cameraPos, Math.toRadians(ry), (byte) 0, (byte) 2);
+//		cameraPos.rotate(cameraPos, Math.toRadians(rz), (byte) 1, (byte) 2);
 	}
 
-	public void finnishSpinn(MouseEvent e) {
-//		Vec2 selectEnd = new Vec2(e.getX(), e.getY());
-//		Rectangle2D.Double area = pointsToGeomRect(cameraSpinStartPoint2, selectEnd);
-//		// System.out.println(area);
-//		// dispMDL.selectVerteces(area,m_d1,m_d2,MainFrame.panel.currentSelectionType());
-		cameraSpinStartPoint2 = null;
-	}
-
-	public void finnishPan(MouseEvent e) {
-//		cameraPos.y += (e.getXOnScreen() - cameraPanStartPoint2.x) / m_zoom;
-//		cameraPos.z += (e.getYOnScreen() - cameraPanStartPoint2.y) / m_zoom;
-		cameraPanStartPoint2 = null;
-	}
-
-	public void startAct(MouseEvent e) {
-		System.out.println("actStart");
-		actStart = new Vec2(e.getX(), e.getY());
-		Vec2 convertedStart = new Vec2(geomX(actStart.x), geomY(actStart.y));
-		if (activityManager != null) {
-			activityManager.mousePressed(e, this);
-		}
-		// dispMDL.startAction(convertedStart,m_d1,m_d2,MainFrame.panel.currentActionType());
-	}
-
-	public void startSpinn(MouseEvent e) {
-		cameraSpinStartPoint2 = new Vec2(e.getXOnScreen(), e.getYOnScreen());
-	}
-
-	public void startPan(MouseEvent e) {
-		cameraPanStartPoint2 = new Vec2(e.getXOnScreen(), e.getYOnScreen());
-	}
 
 	public Rectangle2D.Double pointsToGeomRect(Vec2 p1, Vec2 p2) {
 		Vec2 min = new Vec2(p1).minimize(p2);
@@ -610,4 +445,30 @@ public class CameraHandler {
 	public float getPixelSize() {
 		return (float) ((geomX(4) - geomX(0)));
 	}
+
+
+
+//	public Quat getInverseCameraRot_XY_mulZX() {
+//		return inverseCameraRot_XY_mulZX;
+//	}
+//
+//	public Quat getInverseCameraRotXSpinX() {
+//		return inverseCameraRotXSpinX;
+//	}
+//
+//	public Quat getInverseCameraRotXSpinZ() {
+//		return inverseCameraRotXSpinZ;
+//	}
+//
+//	public Quat getInverseCameraRotYSpinX() {
+//		return inverseCameraRotYSpinX;
+//	}
+//
+//	public Quat getInverseCameraRotYSpinZ() {
+//		return inverseCameraRotYSpinZ;
+//	}
+//
+//	public Quat getInverseCameraRotZSpinY() {
+//		return inverseCameraRotZSpinY;
+//	}
 }

@@ -435,22 +435,23 @@ public class TempSaveModelStuff {
 		}
 	}
 
-	public static void doSavePrep(Geoset geoset, final EditableModel mdlr) {
+	public static void doSavePrep(Geoset geoset, final EditableModel model) {
 		purifyFaces(geoset);
 
 		// Clearing matrix list
 		geoset.getMatrices().clear();
-		System.out.println(mdlr.getName() + ": " + geoset.getName());
+		System.out.println(model.getName() + ": " + geoset.getName());
 		for (final GeosetVertex geosetVertex : geoset.getVertices()) {
 			if (geosetVertex.getSkinBoneBones() != null) {
 				if (geoset.getMatrices().isEmpty()) {
-					List<Bone> bones = mdlr.getBones();
+					List<Bone> bones = model.getBones();
 					for (int j = 0; (j < bones.size()) && (j < 256); j++) {
 						List<Bone> singleBoneList = new ArrayList<>();
 						singleBoneList.add(bones.get(j));
-						Matrix matrix1 = new Matrix(singleBoneList);
-						matrix1.updateIds(mdlr);
-						geoset.getMatrices().add(matrix1);
+						Matrix matrix = new Matrix(singleBoneList);
+//						matrix.cureBones(model);
+//						matrix.updateIds(model);
+						geoset.getMatrices().add(matrix);
 					}
 				}
 				int skinIndex = 0;
@@ -467,18 +468,19 @@ public class TempSaveModelStuff {
 						}
 					}
 				}
-				geosetVertex.setVertexGroup(-1);
+//				geosetVertex.setVertexGroup(-1);
 			} else {
-				Matrix newTemp = geosetVertex.getMatrix();
+				Matrix matrix = geosetVertex.getMatrix();
+				matrix.cureBones(model);
 
-				newTemp.updateIds(mdlr);
-				if (!geoset.getMatrices().contains(newTemp)) {
-					System.out.println(newTemp.size());
-					geoset.getMatrices().add(newTemp);
-//					newTemp.updateIds(mdlr);
+//				matrix.updateIds(model);
+				if (!geoset.getMatrices().contains(matrix)) {
+					System.out.println(matrix.size());
+					geoset.getMatrices().add(matrix);
+//					matrix.updateIds(model);
 				}
-				geosetVertex.setVertexGroup(geoset.getMatrices().indexOf(newTemp));
-//				geosetVertex.setMatrix(newTemp);
+//				geosetVertex.setVertexGroup(geoset.getMatrices().indexOf(matrix));
+//				geosetVertex.setMatrix(matrix);
 			}
 		}
 		for (Triangle triangle : geoset.getTriangles()) {
@@ -489,7 +491,7 @@ public class TempSaveModelStuff {
 			boneRefCount += matrix.getBones().size();
 		}
 		for (Matrix matrix : geoset.getMatrices()) {
-			matrix.updateIds(mdlr);
+			matrix.cureBones(model);
 		}
 	}
 

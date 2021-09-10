@@ -44,7 +44,7 @@ public final class CloneAction2 implements UndoAction {
 		}
 
 		for (GeosetVertex vertex : selectedVertices) {
-			GeosetVertex newVert = new GeosetVertex(vertex);
+			GeosetVertex newVert = vertex.deepCopy();
 			newVertices.add(newVert);
 			newVert.clearTriangles();
 			oldToNewVertMap.put(vertex, newVert);

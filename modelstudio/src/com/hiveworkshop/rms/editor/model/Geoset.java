@@ -24,74 +24,21 @@ public class Geoset implements Named, VisibilitySource {
 	public Geoset() {
 	}
 
-//	@Override
-//	public String getName() {
-//		if (levelOfDetailName.equals("")) {
-//			if (skin != null) {
-//				String name = hdGetMostCommonUniqueBoneName();
-//				if (name.equals("")) {
-//					Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
-//					matrix.get(0).getName();
-//				}
-//				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
-//			} else if (!matrix.isEmpty()) {
-//				Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
-//
-//				String name = sdGetMostCommonUniqueBoneName();
-//				if (name.equals("")) {
-//					matrix.get(0).getName();
-//				}
-////				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + matrix.get(0).getName();
-//				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
-//			}
-//		} else {
-//			return "Geoset " + (parentModel.getGeosetId(this)) + ": " + levelOfDetailName;
-//		}
-//		return "Geoset " + (parentModel.getGeosetId(this));// parentModel.getName() // + "
-//	}
 	@Override
 	public String getName() {
 		if (levelOfDetailName.equals("")) {
-//			if (skin != null && !skin.isEmpty()) {
-//				String name = hdGetMostCommonUniqueBoneName();
-//				if (name.equals("")) {
-//					Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
-////					matrix.get(0).getName();
-//				}
-////				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
-//				return "# " + (parentModel.getGeosetId(this)) + ": " + name;
-//			} else {
-//				Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
-//				if (!boneMap.isEmpty()) {
-//					Set<Bone> bones = boneMap.keySet();
-//					String name = sdGetMostCommonUniqueBoneName(bones);
-////					if (name.equals("")) {
-////						matrix.get(0).getName();
-////					}
-////				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + matrix.get(0).getName();
-////					return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
-//					return "# " + (parentModel.getGeosetId(this)) + ": " + name;
-//				}
-//			}
 			Map<Bone, List<GeosetVertex>> boneMap = getBoneMap();
 			if (!boneMap.isEmpty()) {
 				Set<Bone> bones = boneMap.keySet();
 				bones.removeIf(Objects::isNull);
 				String name = sdGetMostCommonUniqueBoneName(bones);
-//					if (name.equals("")) {
-//						matrix.get(0).getName();
-//					}
-//				return "Geoset " + (parentModel.getGeosetId(this)) + ": " + matrix.get(0).getName();
-//					return "Geoset " + (parentModel.getGeosetId(this)) + ": " + name;
 				return "# " + (parentModel.getGeosetId(this)) + ": " + name;
 			}
 		} else {
-//			return "Geoset " + (parentModel.getGeosetId(this)) + ": " + levelOfDetailName;
 			return "# " + (parentModel.getGeosetId(this)) + ": " + levelOfDetailName;
 		}
-//		return "Geoset " + (parentModel.getGeosetId(this));// parentModel.getName() // + "
 		if (parentModel != null) {
-			return "# " + (parentModel.getGeosetId(this));// parentModel.getName() // + "
+			return "# " + (parentModel.getGeosetId(this));
 		}
 		return "Geosets";
 	}
@@ -130,11 +77,6 @@ public class Geoset implements Named, VisibilitySource {
 					}
 				}
 			}
-//			for (Bone bone : nonSharedParentBones) {
-//				if(!nonSharedParentBones.contains(bone.getParent())){
-//					curatedBones.add(bone);
-//				}
-//			}
 			List<String> nameParts = new ArrayList<>();
 //			for (Bone bone : nonSharedParentBones) {
 //				nameParts.add(bone.getName().replaceAll("(?i)bone_*", ""));
@@ -214,52 +156,6 @@ public class Geoset implements Named, VisibilitySource {
 		}
 		return bone;
 	}
-
-
-//	public String hdGetMostCommonUniqueBoneName() {
-//		List<Bone> nonSharedParentBones = new ArrayList<>();
-//		List<Bone> mBones = new ArrayList<>();
-//		Set<Short> parentIds = new HashSet<>();
-//		Set<Short> prioParentIds = new HashSet<>();
-//		if (skin != null) {
-//			for (short[] vert : skin) {
-//				for (int i = 0; i < 4; i++) {
-//					if (vert[i + 4] > 60) {
-//						parentIds.add(vert[i]);
-//						if (vert[i + 4] > 250) {
-//							prioParentIds.add(vert[i]);
-//						}
-//					}
-//				}
-//			}
-//			if (prioParentIds.isEmpty()) {
-//				for (short s : parentIds) {
-//					mBones.add(parentModel.getBone(s));
-//				}
-//			} else {
-//				for (short s : prioParentIds) {
-//					mBones.add(parentModel.getBone(s));
-//				}
-//			}
-//
-//			if (mBones.size() == 1) {
-//				return mBones.get(0).getName().replaceAll("[Bb][Oo][Nn][Ee]_*", "");
-//			}
-//			for (Bone bone : mBones) {
-//				Bone lp = lastParentIn(bone, mBones);
-//				if (lp.getGeoset() == this && !nonSharedParentBones.contains(lp)) {
-//					nonSharedParentBones.add(lp);
-//				}
-//			}
-//			List<String> nameParts = new ArrayList<>();
-//			for (Bone bone : nonSharedParentBones) {
-//				nameParts.add(bone.getName().replaceAll("[Bb][Oo][Nn][Ee]_*", ""));
-//			}
-//			return String.join(", ", nameParts);
-//		}
-//		return "";
-//	}
-
 	public void addVertex(final GeosetVertex v) {
 		add(v);
 	}

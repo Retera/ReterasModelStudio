@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.ui.preferences.*;
 import com.hiveworkshop.rms.ui.util.ColorChooserIcon;
@@ -46,14 +47,18 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		viewModeGroup.setSelectedIndex(pref.viewMode());
 		generalPrefsPanel.add(viewModeGroup.getButtonPanel(), "wrap");
 
-
-		JCheckBox grid2d = getCheckBox(pref::setShow2dGrid, pref.show2dGrid());
 		generalPrefsPanel.add(new JLabel("Show 2D Viewport Gridlines:"));
-		generalPrefsPanel.add(grid2d, "wrap");
+		generalPrefsPanel.add(getCheckBox(pref::setShow2dGrid, pref.show2dGrid()), "wrap");
 
-		JCheckBox useBoxesForNodes = getCheckBox(pref::setUseBoxesForPivotPoints, pref.getUseBoxesForPivotPoints());
 		generalPrefsPanel.add(new JLabel("Use Boxes for Nodes:"));
-		generalPrefsPanel.add(useBoxesForNodes, "wrap");
+		generalPrefsPanel.add(getCheckBox(pref::setUseBoxesForPivotPoints, pref.getUseBoxesForPivotPoints()), "wrap");
+
+		generalPrefsPanel.add(new JLabel("Bone Box Size:"));
+		generalPrefsPanel.add(new IntEditorJSpinner(pref.getNodeBoxSize(), 1, pref::setNodeBoxSize), "wrap");
+
+		generalPrefsPanel.add(new JLabel("Vertex Square Size:"));
+		generalPrefsPanel.add(new IntEditorJSpinner(pref.getVertexSize(), 1, pref::setVertexSize), "wrap");
+
 
 		JCheckBox quickBrowse = getCheckBox(pref::setQuickBrowse, pref.getQuickBrowse());
 		generalPrefsPanel.add(new JLabel("Quick Browse:"));
@@ -122,8 +127,8 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		scrollPane.setBorder(null);
 		final JPanel wrapPanel = new JPanel(new MigLayout("gap 0, ins 0, fill"));
 		wrapPanel.add(scrollPane, "growx, growy");
-		modelEditorPanel.add(new JLabel("4"), "wrap");
-		modelEditorPanel.add(new JLabel("4"), "wrap");
+//		modelEditorPanel.add(new JLabel("4"), "wrap");
+//		modelEditorPanel.add(new JLabel("4"), "wrap");
 
 		return wrapPanel;
 	}

@@ -1,8 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.renderparts;
 
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Matrix;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -20,8 +18,8 @@ public class RenderGeoset {
 	private final Geoset geoset;
 	private final ModelView modelView;
 	private final RenderModel renderModel;
-	private final BiMap<GeosetVertex, RenderVert> renderVertexMap = new BiMap<>();
-	private final BiMap<Integer, GeosetVertex> vertexMap = new BiMap<>();
+	private final Map<GeosetVertex, RenderVert> renderVertexMap = new HashMap<>();
+	private final ArrayList<RenderVert> renderVerts = new ArrayList<>();
 
 //	private Vec3[] vertexBuffer;
 //	private Vec3[] triangleBuffer;
@@ -47,14 +45,15 @@ public class RenderGeoset {
 	}
 
 	private void rebuildVertexMap() {
-		vertexMap.clear();
 		checkHD();
 //		renderVertexMap.removeIfKeyNotIn(geoset.getVertices());
+		renderVerts.clear();
 		renderVertexMap.clear();
 		for (GeosetVertex vertex : geoset.getVertices()) {
-			renderVertexMap.computeIfAbsent(vertex, v -> new RenderVert(vertex));
-//			vertexMap.put(vertexMap.size(), renderVertexMap.get(vertex));
-			vertexMap.put(vertexMap.size(), vertex);
+			RenderVert renderVert = new RenderVert(vertex);
+			renderVerts.add(renderVert);
+//			renderVertexMap.computeIfAbsent(vertex, v -> new RenderVert(vertex));
+			renderVertexMap.put(vertex, renderVert);
 		}
 
 	}
@@ -62,10 +61,10 @@ public class RenderGeoset {
 	public RenderGeoset updateTransforms(boolean forceAnimated){
 		transformMapSD.clear();
 		transformMapHD.clear();
-		if(renderVertexMap.size() != geoset.getVertices().size()){
+		if(renderVerts.size() != geoset.getVertices().size()){
 			rebuildVertexMap();
 		}
-		for(RenderVert renderVert : renderVertexMap.valueSet()){
+		for(RenderVert renderVert : renderVerts){
 			renderVert.update(getTransform(renderVert.vertex, forceAnimated));
 		}
 		return this;
@@ -77,15 +76,19 @@ public class RenderGeoset {
 //		return renderVertexMap;
 //	}
 
-	public BiMap<GeosetVertex, RenderVert> getRenderVertexMap() {
-		if(renderVertexMap.size() != geoset.getVertices().size()){
-			updateTransforms(false);
-		}
-		return renderVertexMap;
+//	public BiMap<GeosetVertex, RenderVert> getRenderVertexMap() {
+//		if(renderVerts.size() != geoset.getVertices().size()){
+//			updateTransforms(false);
+//		}
+//		return renderVertexMap;
+//	}
+
+	public ArrayList<RenderVert> getRenderVerts() {
+		return renderVerts;
 	}
 
 	public RenderVert getRenderVert(GeosetVertex vertex){
-		if(renderVertexMap.size() != geoset.getVertices().size()){
+		if(renderVerts.size() != geoset.getVertices().size()){
 			updateTransforms(false);
 		}
 		return renderVertexMap.get(vertex);
@@ -94,11 +97,9 @@ public class RenderGeoset {
 	private Mat4 getTransform(GeosetVertex vertex, boolean forceAnimated) {
 		if (renderModel.getTimeEnvironment().isLive() || forceAnimated) {
 			if (isHD) {
-				GeosetVertex.SkinBone[] skinBones = vertex.getSkinBones();
-				return transformMapHD.computeIfAbsent(skinBones, k -> ModelUtils.processHdBones(renderModel, skinBones));
+				return processHdBones(renderModel, vertex.getSkinBones());
 			} else {
-				Matrix matrix = vertex.getMatrix();
-				return transformMapSD.computeIfAbsent(matrix, k -> ModelUtils.processSdBones(renderModel, matrix.getBones()));
+				return processSdBones(renderModel, vertex.getMatrix().getBones());
 			}
 		}
 		return null;
@@ -161,5 +162,36 @@ public class RenderGeoset {
 		public Vec2 getTVert() {
 			return tVert;
 		}
+	}
+
+	public static Mat4 processHdBones(RenderModel renderModel, GeosetVertex.SkinBone[] skinBones) {
+		boolean foundValidBones = false;
+		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();
+
+		for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
+			Bone bone = skinBones[boneIndex].getBone();
+			if (bone == null) {
+				continue;
+			}
+			foundValidBones = true;
+			Mat4 worldMatrix = renderModel.getRenderNode(bone).getWorldMatrix();
+
+			skinBonesMatrixSumHeap.addScaled(worldMatrix,skinBones[boneIndex].getWeightFraction());
+		}
+		if (!foundValidBones) {
+			skinBonesMatrixSumHeap.setIdentity();
+		}
+		return skinBonesMatrixSumHeap;
+	}
+
+	public static Mat4 processSdBones(RenderModel renderModel, List<Bone> bones) {
+		Mat4 bonesMatrixSumHeap = new Mat4().setZero();
+		if (bones.size() > 0) {
+			for (Bone bone : bones) {
+				bonesMatrixSumHeap.add(renderModel.getRenderNode(bone).getWorldMatrix());
+			}
+			return bonesMatrixSumHeap.uniformScale(1f / bones.size());
+		}
+		return bonesMatrixSumHeap.setIdentity();
 	}
 }

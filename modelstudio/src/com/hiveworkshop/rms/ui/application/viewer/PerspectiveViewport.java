@@ -25,8 +25,6 @@ import org.lwjgl.opengl.GL11;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -59,6 +57,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private float xRatio;
 	private float yRatio;
 	private final MouseListenerThing mouseAdapter;
+	private final KeylistenerThing keyAdapter;
 	private final VertRendererThing vertRendererThing;
 	private final BoneRenderThing2 boneRenderThing;
 
@@ -78,7 +77,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
 		addMouseWheelListener(mouseAdapter);
-		addKeyListener(getShortcutKeyListener());
+		keyAdapter = new KeylistenerThing(cameraHandler, programPreferences, this);
+		addKeyListener(keyAdapter);
 
 		setBackground(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.BACKGROUND_COLOR));
 		setMinimumSize(new Dimension(200, 200));
@@ -102,10 +102,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 			this.modelView = modelView;
 			modelExtent.setMinMax(modelView.getModel().getExtents());
-			setCurrentExtent();
 			if (loadDefaultCamera) {
 				ViewportHelpers.findDefaultAnimation(modelView, renderEnv);
-				cameraHandler.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderEnv, modelExtent));
+				cameraHandler.loadDefaultCameraFor(getCurrentModelRadius());
 			}
 
 			this.renderModel.setCameraHandler(cameraHandler);
@@ -136,12 +135,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		renderEnv = renderModel.getTimeEnvironment();
 		renderModel.setCameraHandler(cameraHandler);
 		modelExtent.setDefault().setMinMax(modelView.getModel().getExtents());
-		setCurrentExtent();
 		if (modelView.getModel().getAnims().size() > 0) {
 			renderEnv.setAnimation(modelView.getModel().getAnim(0));
 		}
+		double boundsRadius = getCurrentModelRadius();
 		Vec3 maxExt = currentExt.getMaximumExtent();
-		double boundsRadius = ViewportHelpers.getBoundsRadius(renderEnv, modelExtent);
 		double radius;
 		if (modelView.getModel().getAnims().size() < 2) {
 			System.out.println("model? maxExt: " + maxExt.length() + ", boundsR: " + boundsRadius);
@@ -180,62 +178,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		return this;
 	}
 
-	protected KeyAdapter getShortcutKeyListener() {
-		return new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				super.keyPressed(e);
-
-				setCurrentExtent();
-//				System.out.println(modelExtent);
-//				System.out.println(currentExt);
-				double rad = ViewportHelpers.getBoundsRadius(renderEnv, modelExtent);
-				if (e.getKeyCode() == KeyEvent.VK_NUMPAD7) {
-					// Top view
-					System.out.println("VK_NUMPAD7");
-//					cameraHandler.setCameraTop(currentExt.getMaximumExtent().length());
-					cameraHandler.setCameraTop(rad);
-				}
-				if (e.getKeyCode() == KeyEvent.VK_NUMPAD1) {
-					// Front view
-					System.out.println("VK_NUMPAD1");
-//					cameraHandler.setCameraFront(currentExt.getMaximumExtent().length());
-					cameraHandler.setCameraFront(rad);
-				}
-				if (e.getKeyCode() == KeyEvent.VK_NUMPAD3) {
-					// Side view
-					System.out.println("VK_NUMPAD3");
-//					cameraHandler.setCameraSide(currentExt.getMaximumExtent().length());
-					cameraHandler.setCameraSide(rad);
-				}
-				if (e.getKeyCode() == KeyEvent.VK_O) {
-					// Orto Mode
-					cameraHandler.toggleOrtho();
-					System.out.println("VK_O");
-				}
-				if (e.getKeyCode() == KeyEvent.VK_X) {
-					if (e.isControlDown()) {
-						cameraHandler.rot(-45, 0, 0);
-					} else {
-						cameraHandler.rot(45, 0, 0);
-					}
-				}
-				if (e.getKeyCode() == KeyEvent.VK_Y) {
-					if (e.isControlDown()) {
-						cameraHandler.rot(0, -45, 0);
-					} else {
-						cameraHandler.rot(0, 45, 0);
-					}
-				}
-				if (e.getKeyCode() == KeyEvent.VK_Q) {
-					if (e.isControlDown()) {
-						cameraHandler.rot(0, 0, -45);
-					} else {
-						cameraHandler.rot(0, 0, 45);
-					}
-				}
-			}
-		};
+	public double getCurrentModelRadius() {
+		setCurrentExtent();
+		return ViewportHelpers.getBoundsRadius(renderEnv, modelExtent);
 	}
 
 	private void setCurrentExtent() {
@@ -667,9 +612,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 					getTriAreaColor(tri);
 				}
 				for (GeosetVertex vertex : tri.getVerts()) {
-					if(!modelView.isHidden(vertex) && renderGeoset.getRenderVert(vertex) != null){
-						Vec3 renderPos = renderGeoset.getRenderVert(vertex).getRenderPos();
-						Vec3 renderNorm = renderGeoset.getRenderVert(vertex).getRenderNorm();
+					RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(vertex);
+					if(!modelView.isHidden(vertex) && renderVert != null){
+						Vec3 renderPos = renderVert.getRenderPos();
+						Vec3 renderNorm = renderVert.getRenderNorm();
 
 						paintVert(layer, vertex, renderPos, renderNorm);
 					}
@@ -758,13 +704,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		for (Geoset geo : modelView.getVisibleGeosets()) {
 			RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 			if (correctLoD(geo, formatVersion) && renderGeoset != null) {
-				for(GeosetVertex vertex : geo.getVertices()){
-					if(renderGeoset.getRenderVert(vertex) != null){
-						Vec3 renderPos = renderGeoset.getRenderVert(vertex).getRenderPos();
-						Vec3 renderNorm = renderGeoset.getRenderVert(vertex).getRenderNorm();
+				for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
+					Vec3 renderPos = renderVert.getRenderPos();
+					Vec3 renderNorm = renderVert.getRenderNorm();
 
-						paintNormal(renderPos, renderNorm);
-					}
+					paintNormal(renderPos, renderNorm);
 				}
 			}
 		}
@@ -815,79 +759,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			glDisable(t);
 		}
 	}
-
-//	public MouseAdapter getMouseAdapter() {
-//		return new MouseAdapter() {
-//			@Override
-//			public void mouseEntered(final MouseEvent e) {
-//				clickTimer.setRepeats(true);
-//				clickTimer.start();
-//				mouseInBounds = true;
-//			}
-//
-//			@Override
-//			public void mouseExited(final MouseEvent e) {
-//				if ((cameraHandler.getCameraSpinStartPoint() == null) && (cameraHandler.getActStart() == null) && (cameraHandler.getCameraPanStartPoint() == null)) {
-//					clickTimer.stop();
-//				}
-//				mouseInBounds = false;
-//			}
-//
-//			@Override
-//			public void mousePressed(final MouseEvent e) {
-//				if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
-//					cameraHandler.startPan(e);
-//				} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
-//					cameraHandler.startSpinn(e);
-//				} else if (e.getButton() == MouseEvent.BUTTON3) {
-//					cameraHandler.startAct(e);
-//				} else {
-//					cameraHandler.startAct(e);
-//				}
-//				ccc2 = new Vec3();
-////				System.out.println("camPos: " + cameraPos + ", invQ: " + inverseCameraRotation + ", invYspin: " + inverseCameraRotationYSpin + ", invZspin: " + inverseCameraRotationZSpin);
-//			}
-//
-//			@Override
-//			public void mouseReleased(final MouseEvent e) {
-//				if (programPreferences.getThreeDCameraPanButton().isButton(e) && (cameraHandler.getCameraPanStartPoint() != null)) {
-//					cameraHandler.finnishPan(e);
-//				} else if (programPreferences.getThreeDCameraSpinButton().isButton(e) && (cameraHandler.getCameraSpinStartPoint() != null)) {
-//					cameraHandler.finnishSpinn(e);
-//				} else if ((e.getButton() == MouseEvent.BUTTON3) && (cameraHandler.getActStart() != null)) {
-//					cameraHandler.finnishAct(e);
-//				}
-//				if (!mouseInBounds && (cameraHandler.getCameraSpinStartPoint() == null) && (cameraHandler.getActStart() == null) && (cameraHandler.getCameraPanStartPoint() == null)) {
-//					clickTimer.stop();
-//				}
-//				ccc2 = null;
-//				/*
-//				 * if( dispMDL != null ) dispMDL.refreshUndo();
-//				 */
-//			}
-//
-//			@Override
-//			public void mouseClicked(final MouseEvent e) {
-//				if (e.getButton() == MouseEvent.BUTTON3) {
-//				}
-//			}
-//
-//			@Override
-//			public void mouseWheelMoved(final MouseWheelEvent e) {
-//				cameraHandler.doZoom3(e);
-//			}
-//
-//			@Override
-//			public void mouseDragged(MouseEvent e) {
-//
-//				if (ccc2 != null && cameraHandler.getActStart() != null) {
-//					System.out.println("mouseDragged!");
-//
-//					ccc2.set(cameraHandler.getGeoPoint(e.getX(), e.getY()));
-//				}
-//			}
-//		};
-//	}
 
 	Vec2 ccc = null;
 	Vec3 ccc2 = null;

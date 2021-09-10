@@ -14,9 +14,6 @@ public class MouseListenerThing extends MouseAdapter {
 	private final ProgramPreferences programPreferences;
 	private ViewportActivityManager activityManager;
 
-//	private Timer clickTimer;
-//	private boolean mouseInBounds = false;
-
 	//	Vec3 ccc2 = null;
 	private Vec3 startP = null;
 	private Vec3 endP = null;
@@ -54,13 +51,10 @@ public class MouseListenerThing extends MouseAdapter {
 		startP = new Vec3(0, e.getX(), e.getY());
 		endP = new Vec3(0, e.getX(), e.getY());
 		int modifiersEx = e.getModifiersEx();
-//		if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
 		if (programPreferences.getThreeDCameraPanMouseEx() == modifiersEx) {
 //			cameraHandler.startPan(e);
-//		} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
 		} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
 //			cameraHandler.startSpinn(e);
-//		} else if (e.getButton() == MouseEvent.BUTTON3) {
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
 //			cameraHandler.startAct(e);
 			isActing = true;
@@ -73,10 +67,9 @@ public class MouseListenerThing extends MouseAdapter {
 			if (activityManager != null) {
 				activityManager.mousePressed(e, cameraHandler);
 			}
-//			cameraHandler.startAct(e);
 		}
 //		ccc2 = new Vec3();
-//				System.out.println("camPos: " + cameraPos + ", invQ: " + inverseCameraRotation + ", invYspin: " + inverseCameraRotationYSpin + ", invZspin: " + inverseCameraRotationZSpin);
+//		System.out.println("camPos: " + cameraPos + ", invQ: " + inverseCameraRotation + ", invYspin: " + inverseCameraRotationYSpin + ", invZspin: " + inverseCameraRotationZSpin);
 	}
 
 	@Override
@@ -124,11 +117,9 @@ public class MouseListenerThing extends MouseAdapter {
 		if (endP != null) {
 			int modifiersEx = e.getModifiersEx();
 //			System.out.println("prefPan: " + programPreferences.getThreeDCameraPanMouseEx() + ", prefSpin: " + programPreferences.getThreeDCameraSpinMouseEx() + ", mouseEx: " + modifiersEx);
-//			if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
 			if (programPreferences.getThreeDCameraPanMouseEx() == modifiersEx) {
 //				System.out.println("transl x: " + (e.getX() - endP.y) + " (" + e.getX() + "-" + endP.y + ")" + ", transl y: " + (e.getY() - endP.z) + " (" + e.getY() + "-" + endP.z + ")");
 				cameraHandler.translate(-(e.getX() - endP.y), (e.getY() - endP.z));
-//			} else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
 			} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
 				cameraHandler.rotate((e.getX() - endP.y), (e.getY() - endP.z));
 			} else if ((e.getButton() == MouseEvent.BUTTON3)) {

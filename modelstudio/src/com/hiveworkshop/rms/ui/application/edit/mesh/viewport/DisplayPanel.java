@@ -56,7 +56,6 @@ public class DisplayPanel extends JPanel {
 			vp2.setMinimumSize(new Dimension(200, 200));
 			CameraHandler cameraHandler = vp2.getCameraHandler();
 			cameraHandler.toggleOrtho().setAllowToggleOrtho(false);
-			cameraHandler.setCameraTop(300);
 
 			setModel(modelHandler, activityListener);
 			viewHolderPanel.add(vp2, "spany, growy, growx");
@@ -85,7 +84,6 @@ public class DisplayPanel extends JPanel {
 			vp2.setMinimumSize(new Dimension(200, 200));
 			CameraHandler cameraHandler = vp2.getCameraHandler();
 			cameraHandler.toggleOrtho().setAllowToggleOrtho(false);
-			cameraHandler.setCameraTop(300);
 
 			viewHolderPanel.add(vp2, "spany, growy, growx");
 			add(viewHolderPanel, "spany, growy, growx");

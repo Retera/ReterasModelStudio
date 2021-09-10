@@ -325,8 +325,7 @@ public final class ModelUtils {
 			processedBones = true;
 			Mat4 worldMatrix = renderModel.getRenderNode(bone).getWorldMatrix();
 
-			float skinBoneWeight = skinBones[boneIndex].getWeight() / 255f;
-			skinBonesMatrixSumHeap.add(worldMatrix.getUniformlyScaled(skinBoneWeight));
+			skinBonesMatrixSumHeap.addScaled(worldMatrix,skinBones[boneIndex].getWeightFraction());
 		}
 		if (!processedBones) {
 			skinBonesMatrixSumHeap.setIdentity();

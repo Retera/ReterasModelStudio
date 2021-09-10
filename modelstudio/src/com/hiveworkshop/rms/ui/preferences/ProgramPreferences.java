@@ -60,6 +60,7 @@ public class ProgramPreferences implements Serializable {
 	private GUITheme theme = GUITheme.ALUMINIUM;
 	private transient Boolean[] dimLocks = new Boolean[3];
 	private Integer vertexSize = 3;
+	private Integer nodeBoxSize = 5;
 	private Boolean quickBrowse = true;
 
 	//	private String keyBindings = new KeyBindingPrefs().makeMap().toString();
@@ -126,9 +127,16 @@ public class ProgramPreferences implements Serializable {
 	public int getVertexSize() {
 		return vertexSize;
 	}
-
 	public void setVertexSize(final int vertexSize) {
 		this.vertexSize = vertexSize;
+		saveAndFireListeners();
+	}
+
+	public int getNodeBoxSize() {
+		return nodeBoxSize;
+	}
+	public void setNodeBoxSize(final int vertexSize) {
+		this.nodeBoxSize = vertexSize;
 		saveAndFireListeners();
 	}
 

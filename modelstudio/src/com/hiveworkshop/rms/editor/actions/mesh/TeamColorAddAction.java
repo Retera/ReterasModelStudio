@@ -71,7 +71,8 @@ public final class TeamColorAddAction implements UndoAction {
 			geosetsCreated.add(geosetCreated);
 		}
 		for (GeosetVertex vertex : verticesInTheTriangles) {
-			GeosetVertex copy = new GeosetVertex(vertex);
+			//ToDo VertexCopy code duplication
+			GeosetVertex copy = vertex.deepCopy();
 			Geoset newGeoset = oldGeoToNewGeo.get(vertex.getGeoset());
 			copy.setGeoset(newGeoset);
 			newGeoset.add(copy);

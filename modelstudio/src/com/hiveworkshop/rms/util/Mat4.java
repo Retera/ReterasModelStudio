@@ -135,6 +135,25 @@ public class Mat4 {
 		matrixToScale.m33 *= v;
 		return matrixToScale;
 	}
+	public Mat4 scale(float v) {
+		m00 *= v;
+		m01 *= v;
+		m02 *= v;
+		m03 *= v;
+		m10 *= v;
+		m11 *= v;
+		m12 *= v;
+		m13 *= v;
+		m20 *= v;
+		m21 *= v;
+		m22 *= v;
+		m23 *= v;
+		m30 *= v;
+		m31 *= v;
+		m32 *= v;
+		m33 *= v;
+		return this;
+	}
 
 	public Mat4 setZero() {
 		m00 = 0.0f;
@@ -231,6 +250,26 @@ public class Mat4 {
 		m31 += matToAdd.m31;
 		m32 += matToAdd.m32;
 		m33 += matToAdd.m33;
+		return this;
+	}
+
+	public Mat4 addScaled(Mat4 matToAdd, float scale) {
+		m00 += (matToAdd.m00 * scale);
+		m01 += (matToAdd.m01 * scale);
+		m02 += (matToAdd.m02 * scale);
+		m03 += (matToAdd.m03 * scale);
+		m10 += (matToAdd.m10 * scale);
+		m11 += (matToAdd.m11 * scale);
+		m12 += (matToAdd.m12 * scale);
+		m13 += (matToAdd.m13 * scale);
+		m20 += (matToAdd.m20 * scale);
+		m21 += (matToAdd.m21 * scale);
+		m22 += (matToAdd.m22 * scale);
+		m23 += (matToAdd.m23 * scale);
+		m30 += (matToAdd.m30 * scale);
+		m31 += (matToAdd.m31 * scale);
+		m32 += (matToAdd.m32 * scale);
+		m33 += (matToAdd.m33 * scale);
 		return this;
 	}
 

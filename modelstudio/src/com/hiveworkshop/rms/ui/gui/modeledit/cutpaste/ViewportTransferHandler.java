@@ -276,7 +276,7 @@ public class ViewportTransferHandler extends TransferHandler {
 			count += geoset.getVertices().size();
 
 			dummyBone.getPivotPoint().add(fixVertBones(stringableModel, dummyBone, geoset));
-			geoset.applyVerticesToMatrices(stringableModel);
+			applyVerticesToMatrices(geoset, stringableModel);
 		}
 		dummyBone.getPivotPoint().scale(1f / count);
 
@@ -290,6 +290,25 @@ public class ViewportTransferHandler extends TransferHandler {
 			e.printStackTrace();
 		}
 		return new StringSelection(value);
+	}
+
+
+
+	public void applyVerticesToMatrices(Geoset geoset, EditableModel model) {
+		geoset.getMatrices().clear();
+		for (GeosetVertex vertex : geoset.getVertices()) {
+			Matrix matrix = vertex.getMatrix();
+
+
+			matrix.cureBones(model);
+//			matrix.updateIds(model);
+			if (!geoset.getMatrices().contains(matrix)) {
+				geoset.getMatrices().add(matrix);
+//				matrix.updateIds(model);
+			}
+//			vertex.setVertexGroup(geoset.getMatrices().indexOf(matrix));
+//			vertex.setMatrix(matrix);
+		}
 	}
 
 	private Vec3 fixVertBones(EditableModel stringableModel, Bone dummyBone, Geoset geoset) {
@@ -379,7 +398,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		Map<GeosetVertex, GeosetVertex> vertToCopiedVert = new HashMap<>();
 		for (GeosetVertex vertex : geoset.getVertices()) {
 			if (modelView.isSelected(vertex)) {
-				GeosetVertex newVertex = new GeosetVertex(vertex);
+				GeosetVertex newVertex = vertex.deepCopy();
 				newVertex.clearTriangles();
 				newVertex.setGeoset(newGeoset);
 				vertToCopiedVert.put(vertex, newVertex);

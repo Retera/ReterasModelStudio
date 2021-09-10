@@ -59,13 +59,15 @@ public class SelectionManager extends AbstractSelectionManager {
 	private Set<GeosetVertex> getGroupBundle(Collection<GeosetVertex> selectedVertices) {
 		Set<VertexGroupBundle> bundleSet = new HashSet<>();
 		for (GeosetVertex vertex : selectedVertices) {
-			bundleSet.add(new VertexGroupBundle(vertex.getGeoset(), vertex.getVertexGroup()));
+//			bundleSet.add(new VertexGroupBundle(vertex.getGeoset(), vertex.getVertexGroup()));
+			bundleSet.add(new VertexGroupBundle(vertex.getGeoset(), vertex.getMatrixIndex()));
 		}
 
 		Set<GeosetVertex> verticesSelected = new HashSet<>();
 		for (VertexGroupBundle bundle : bundleSet) {
 			for (GeosetVertex geosetVertex : bundle.getGeoset().getVertices()) {
-				if (geosetVertex.getVertexGroup() == bundle.getVertexGroupId()) {
+//				if (geosetVertex.getVertexGroup() == bundle.getVertexGroupId()) {
+				if (geosetVertex.getMatrixIndex() == bundle.getVertexGroupId()) {
 					verticesSelected.add(geosetVertex);
 				}
 			}
@@ -345,11 +347,11 @@ public class SelectionManager extends AbstractSelectionManager {
 	private Set<IdObject> getIdObjectsFromArea(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
 
 		Set<IdObject> selectedItems = new HashSet<>();
-		double vertSize = cameraHandler.geomDist(ProgramGlobals.getPrefs().getVertexSize() / 2.0);
 		Mat4 viewPortMat = cameraHandler.getViewPortAntiRotMat();
 		double zoom = cameraHandler.getZoom();
 		for (IdObject object : modelView.getEditableIdObjects()) {
-			double vertexSize1 = object.getClickRadius() * 2;
+			double vertSize = cameraHandler.geomDist(object.getClickRadius() / 2.0);
+//			double vertexSize1 = object.getClickRadius() * 2;
 			if (HitTestStuff.hitTest(min, max, object.getPivotPoint(), viewPortMat, vertSize, zoom)) {
 				System.out.println("selected " + object.getName());
 				selectedItems.add(object);
@@ -389,10 +391,11 @@ public class SelectionManager extends AbstractSelectionManager {
 
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
-			for (GeosetVertex geosetVertex : geoset.getVertices()) {
+			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
+//			for (GeosetVertex geosetVertex : geoset.getVertices()) {
 
-				if (HitTestStuff.hitTest(min, max, renderGeoset.getRenderVert(geosetVertex).getRenderPos(), viewPortMat, vertSize, zoom))
-					newSelection.add(geosetVertex);
+				if (HitTestStuff.hitTest(min, max, renderVert.getRenderPos(), viewPortMat, vertSize, zoom))
+					newSelection.add(renderVert.getVertex());
 			}
 		}
 		return newSelection;
