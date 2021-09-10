@@ -16,7 +16,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The panel to handle the import function.
@@ -280,7 +282,7 @@ public class ImportPanel extends JTabbedPane {
 				copyMotionFromBones();
 			}
 			// IteratableListModel<BoneShell> bones = getFutureBoneList();
-			aplyNewMatrixBones();
+			applyNewMatrixBones();
 
 			// Objects!
 			final List<Camera> camerasAdded = addChosenObjects(objectsAdded);
@@ -434,12 +436,18 @@ public class ImportPanel extends JTabbedPane {
 		return camerasAdded;
 	}
 
-	private void aplyNewMatrixBones() {
+	private void applyNewMatrixBones() {
 		boolean shownEmpty = false;
 		Bone dummyBone = null;
+		// ToDo this needs a map matrices to vertices or something to update vertex-bones correctly...
 		for (GeosetShell geosetShell : mht.allGeoShells) {
 			if (geosetShell.isDoImport()) {
+				Map<Matrix, List<GeosetVertex>> matrixVertexMap = new HashMap<>();
+				for (GeosetVertex vertex : geosetShell.getGeoset().getVertices()){
+					matrixVertexMap.computeIfAbsent(vertex.getMatrix(), k -> new ArrayList<>()).add(vertex);
+				}
 				for (MatrixShell ms : geosetShell.getMatrixShells()) {
+					List<GeosetVertex> vertexList = matrixVertexMap.get(ms.getMatrix());
 					ms.getMatrix().clear();
 					for (final BoneShell bs : ms.getNewBones()) {
 						if (mht.receivingModel.contains(bs.getBone())) {
@@ -476,14 +484,41 @@ public class ImportPanel extends JTabbedPane {
 							ms.getMatrix().getBones().add(dummyBone);
 						}
 					}
+					ms.getMatrix().cureBones(mht.receivingModel);
+					for(GeosetVertex vertex : vertexList){
+						vertex.clearBoneAttachments();
+						for (Bone bone : ms.getMatrix().getBones()) {
+							vertex.addBoneAttachment(bone);
+						}
+					}
 				}
 			}
 		}
-//			mht.receivingModel.updateObjectIds();
-		for (final Geoset g : mht.receivingModel.getGeosets()) {
-			g.applyMatricesToVertices(mht.receivingModel);
-		}
+////			mht.receivingModel.updateObjectIds();
+//		for (Geoset g : mht.receivingModel.getGeosets()) {
+//			applyMatricesToVertices(g, mht.receivingModel);
+//		}
 	}
+
+//	public void applyMatricesToVertices(Geoset geoset, EditableModel mdlr) {
+////		System.out.println("applyMatricesToVertices");
+//		for (GeosetVertex gv : geoset.getVertices()) {
+//			gv.clearBoneAttachments(); //Todo check if this is broken
+//			int vertexGroup = gv.getVertexGroup();
+//			Matrix mx = geoset.getMatrix(vertexGroup);
+//			if (((vertexGroup == -1) || (mx == null))) {
+//				if (!ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) {
+//					throw new IllegalStateException("You have empty vertex groupings but FormatVersion is 800. Did you load HD mesh into an SD model?");
+//				}
+//			} else {
+////				mx.updateIds(mdlr);
+//				mx.cureBones(mdlr);
+//				for (Bone bone : mx.getBones()) {
+//					gv.addBoneAttachment(bone);
+//				}
+//			}
+//		}
+//	}
 
 	private void copyMotionFromBones() {
 		for (BoneShell bs : mht.recModBoneShells) {

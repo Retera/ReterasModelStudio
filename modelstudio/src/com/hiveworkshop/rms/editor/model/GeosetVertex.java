@@ -18,12 +18,12 @@ import java.util.*;
  */
 public class GeosetVertex extends Vec3 {
 	private final Matrix matrix = new Matrix();
-	private int vertexGroup = -1;
+//	private int vertexGroup = -1;
 	private List<Vec2> tverts = new ArrayList<>();
 	private Set<Triangle> triangles = new HashSet<>();
 	private Geoset geoset;
 	private Vec3 normal = new Vec3();
-	private byte[] skinBoneIndexes;
+//	private byte[] skinBoneIndexes;
 	private Vec4 tangent;
 	private SkinBone[] skinBones;
 
@@ -40,7 +40,7 @@ public class GeosetVertex extends Vec3 {
 		normal = n;
 	}
 
-	public GeosetVertex(GeosetVertex old) {
+	private GeosetVertex(GeosetVertex old) {
 		super(old);
 		normal.set(old.getNormal());
 		matrix.addAll(old.matrix.getBones());
@@ -52,10 +52,7 @@ public class GeosetVertex extends Vec3 {
 		geoset = old.geoset;
 		// TODO copy triangles???????
 		triangles.addAll(old.getTriangles());
-		vertexGroup = old.vertexGroup;
-		if (old.skinBoneIndexes != null) {
-			skinBoneIndexes = old.skinBoneIndexes.clone();
-		}
+//		vertexGroup = old.vertexGroup;
 		if (old.skinBones != null) {
 			setSkinBones(old.getSkinBoneBones(), old.getSkinBoneWeights());
 		}
@@ -69,56 +66,8 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public void initV900() {
-		skinBoneIndexes = new byte[4];
-//        skinBones = new Bone[4];
-//        skinBoneWeights = new short[4];
 		skinBones = new SkinBone[4];
 		tangent = new Vec4(0, 0, 0, 0);
-	}
-
-	public void magicSkinBones() {
-		int bonesNum = Math.min(4, matrix.size());
-		short weight = 0;
-		if (bonesNum > 0) {
-			weight = (short) (255 / bonesNum);
-		}
-
-		for (int i = 0; i < 4; i++) {
-			if (i < bonesNum) {
-				setSkinBone(matrix.get(i), weight, i);
-			} else {
-				setSkinBone((short) 0, i);
-			}
-		}
-		if (!matrix.isEmpty()) {
-			setSkinBone(matrix.get(0), (short) (weight + (255 % bonesNum)), 0);
-		}
-	}
-
-	public void un900Heuristic() {
-		if (tangent != null) {
-			tangent = null;
-		}
-		if (skinBones != null) {
-			matrix.clear();
-			boolean fallback = false;
-			for (SkinBone skinBone : skinBones) {
-				if (skinBone != null && skinBone.getBone() != null) {
-					fallback = true;
-					if (skinBone.getWeight() > 110) {
-						matrix.add(skinBone.getBone());
-					}
-				}
-			}
-			if (matrix.isEmpty() && fallback) {
-				for (SkinBone skinBone : skinBones) {
-					if (skinBone != null && skinBone.getBone() != null) {
-						matrix.add(skinBone.getBone());
-					}
-				}
-			}
-			skinBoneIndexes = null;
-		}
 	}
 
 	public void addTVertex(Vec2 v) {
@@ -137,13 +86,17 @@ public class GeosetVertex extends Vec3 {
 		tverts.clear();
 	}
 
-	public int getVertexGroup() {
-		return vertexGroup;
+//	public int getVertexGroup() {
+//		return vertexGroup;
+//	}
+
+	public int getMatrixIndex(){
+		return geoset.getMatrices().indexOf(matrix);
 	}
 
-	public void setVertexGroup(int k) {
-		vertexGroup = k;
-	}
+//	public void setVertexGroup(int k) {
+//		vertexGroup = k;
+//	}
 
 	public void clearBoneAttachments() {
 		matrix.clear();
@@ -267,13 +220,13 @@ public class GeosetVertex extends Vec3 {
 		this.geoset = geoset;
 	}
 
-	/**
-	 * @deprecated for use only with saving functionalities inside the system
-	 */
-	@Deprecated
-	public byte[] getSkinBoneIndexes() {
-		return skinBoneIndexes;
-	}
+//	/**
+//	 * @deprecated for use only with saving functionalities inside the system
+//	 */
+//	@Deprecated
+//	public byte[] getSkinBoneIndexes() {
+//		return skinBoneIndexes;
+//	}
 
 	public Bone[] getSkinBoneBones() {
 		if (this.skinBones == null) {

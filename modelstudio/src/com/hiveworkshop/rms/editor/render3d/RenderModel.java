@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.renderpa
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.application.viewer.Particle2TextureInstance;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -78,8 +77,6 @@ public final class RenderModel {
 		this.modelView = modelView;
 		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
 		this.timeEnvironment = new TimeEnvironmentImpl();
-		// Some classes doesn't call refreshFromEditor which leads to null-pointers when these in nor initialised
-//		for (final Geoset geoset : modelView.getModel().getGeosets()) {
 		for (final Geoset geoset : model.getGeosets()) {
 			RenderGeoset renderGeoset = renderGeosetMap.computeIfAbsent(geoset, k -> new RenderGeoset(geoset, this, modelView));
 			renderGeoset.updateTransforms(false);
@@ -90,7 +87,6 @@ public final class RenderModel {
 		if (renderGeosetMap.size() != model.getGeosets().size()) {
 			renderGeosetMap.clear();
 		}
-//		for (final Geoset geoset : modelView.getModel().getGeosets()) {
 		for (final Geoset geoset : model.getGeosets()) {
 			RenderGeoset renderGeoset = renderGeosetMap.computeIfAbsent(geoset, k -> new RenderGeoset(geoset, this, modelView));
 			renderGeoset.updateTransforms(shouldForceAnimation && ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE);
@@ -122,17 +118,12 @@ public final class RenderModel {
 	public RenderGeoset getRenderGeoset(Geoset geoset){
 		if(renderGeosetMap.size() != model.getGeosets().size()) {
 			renderGeosetMap.clear();
-//			for (Geoset geo : modelView.getModel().getGeosets()) {
 			for (Geoset geo : model.getGeosets()) {
 				RenderGeoset renderGeoset = renderGeosetMap.computeIfAbsent(geo, k -> new RenderGeoset(geoset, this, modelView));
 				renderGeoset.updateTransforms(shouldForceAnimation && ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE);
 			}
 		}
 		return renderGeosetMap.get(geoset);
-	}
-
-	public RenderNode getRenderNodeByObjectId(int objectId) {
-		return getRenderNode(model.getIdObject(objectId));
 	}
 
 	public TimeEnvironmentImpl getTimeEnvironment() {
@@ -147,22 +138,8 @@ public final class RenderModel {
 
 		sortedNodes.clear();
 		fetchCameraSourceNodes();
-		setupHierarchy2(null);
+		setupHierarchy(null);
 		fetchCameraTargetNodes();
-
-//		if (renderResourceAllocator != null) {
-//			for (ParticleEmitter2 particleEmitter : model.getParticleEmitter2s()) {
-//				Particle2TextureInstance textureInstance = renderResourceAllocator.generate(particleEmitter.getTexture(), particleEmitter);
-//				renderParticleEmitters2.add(new RenderParticleEmitter2(particleEmitter, textureInstance));
-//			}
-//			renderParticleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
-//
-//			for (RenderParticleEmitter2 renderParticleEmitter2 : renderParticleEmitters2) {
-//				RenderParticleEmitter2View emitterView = new RenderParticleEmitter2View(this, renderParticleEmitter2);
-//				particleEmitterViews2.add(emitterView);
-//				emitterToRenderer.put(emitterView.getParticleEmitter2(), emitterView);
-//			}
-//		}
 
 		if (renderResourceAllocator != null) {
 			for (ParticleEmitter2 particleEmitter2 : model.getParticleEmitter2s()) {
@@ -207,33 +184,19 @@ public final class RenderModel {
 	}
 
 	private void setupHierarchy(IdObject parent) {
-		for (IdObject object : model.getIdObjects()) {
-			if (object.getParent() == parent) {
-				sortedNodes.add(object);
-				RenderNode renderNode = objectToRenderNode.get(object);
-				if (renderNode == null) {
-					renderNode = new RenderNode(this, object);
-					objectToRenderNode.put(object, renderNode);
-				}
-				setupHierarchy(object);
-			}
-		}
-	}
-
-	private void setupHierarchy2(IdObject parent) {
 		if (parent == null) {
 			for (IdObject object : model.getIdObjects()) {
 				if (object.getParent() == null) {
 					sortedNodes.add(object);
 					objectToRenderNode.computeIfAbsent(object, k -> new RenderNode(this, object));
-					setupHierarchy2(object);
+					setupHierarchy(object);
 				}
 			}
 		} else {
 			for (IdObject object : parent.getChildrenNodes()) {
 				sortedNodes.add(object);
 				objectToRenderNode.computeIfAbsent(object, k -> new RenderNode(this, object));
-				setupHierarchy2(object);
+				setupHierarchy(object);
 			}
 		}
 	}
@@ -356,10 +319,6 @@ public final class RenderModel {
 		}
 	}
 
-//	Quat camRotationX = new Quat().setFromAxisAngle(1,0,0,0f*1.57f);
-//	Quat camRotationY = new Quat().setFromAxisAngle(0,1,0,0*1.57f);
-//	Quat camRotationZ = new Quat().setFromAxisAngle(0,0,1,0*1.57f);
-
 	public boolean RotateAndStuffBillboarding3(RenderNode node, RenderNode parent) {
 		boolean wasDirty = false;
 		// If the instance is not attached to any scene, this is meaningless
@@ -388,136 +347,15 @@ public final class RenderModel {
 		if(node.billboarded || node.billboardedX || node.billboardedY || node.billboardedZ){
 
 			Quat localRotation = new Quat(0, 0, 0, 1);
-			Quat camRotation = new Quat(0, 0, 0, 1);
-			Vec4 camNormal = new Vec4(0,0,1, 1);
-			Vec4 xNormal = new Vec4(1,0,0, 1);
-			Vec4 yNormal = new Vec4(0,1,0, 1);
-			Vec4 zNormal = new Vec4(0,0,1, 1);
-			Mat4 proj = new Mat4();
 			wasDirty = true;
 
 			if (node.billboarded) {
 				localRotation.mul(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()); // WORKS!
 			} else if (node.billboardedX) {
-
-//				localRotation.mulInverse(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX());
-//				localRotation.mulInverse(getInverseCameraRotYSpinY());
-//				localRotation.invertRotation2().mulLeft(getInverseCameraRotXSpinY());
-//				localRotation.mulInverse(getInverseCameraRotYSpinY()).invertRotation2().mulLeft(getInverseCameraRotZSpinX());
-//				localRotation.mulInverse(getInverseCameraRotZSpinX()).mulLeft(getInverseCameraRotYSpinY());
-//				localRotation.mulLeft(getInverseCameraRotYSpinY());
-//				localRotation.mul(getInverseCameraRotYSpinY());
-//				localRotation.mul(getInverseCameraRotXSpinY()).invertRotation2().mulLeft(getInverseCameraRotZSpinX());
-//				localRotation.mul(getInverseCameraRotXSpinY()).invertRotation2();//Close!
-//				localRotation.mul(getInverseCameraRotXSpinY()).invertRotation2().mulLeft(getInverseCameraRot_XY_mulZX());
-//				localRotation.mul(getInverseCameraRotXSpinY()).invertRotation2().mulLeft(getInverseCameraRotZSpinX());
-//				localRotation.mul(getInverseCameraRotXSpinY()).invertRotation2().mulLeft(getInverseCameraRotYSpinX()).invertRotation();
-//				localRotation.mul(getInverseCameraRotXSpinY()).mul(getInverseCameraRotYSpinX()).invertRotation();;
-//				localRotation.mul(getInverseCameraRotXSpinY()).mulInverse(getInverseCameraRotYSpinX());;
-//				localRotation.mul(getInverseCameraRotYSpinX()).mulInverse(getInverseCameraRotXSpinY());;
-//				localRotation.mul(getInverseCameraRotZSpinX()).invertRotation().mul(getInverseCameraRotYSpinY());
-//				localRotation.mul(getInverseCameraRotZSpinX()).invertRotation().mul(getInverseCameraRotYSpinY()).invertRotation();
-//				localRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()).invertRotation();
-//				localRotation.mul(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX()).invertRotation();
-//				localRotation.invertRotation2().mulLeft(getInverseCameraRotation0090());
 				localRotation.invertRotation2().mulLeft(getInverseCameraRotZSpinX());
 			} else if (node.billboardedY) {
-
-//				localRotation.mulInverse(getInverseCameraRotYSpinY());//Nope
-//				localRotation.mul(getInverseCameraRotYSpinY()); //NOPE
-//				localRotation.mulLeft(getInverseCameraRotYSpinY()); //NOPE
-//				localRotation.mul(getInverseCameraRotZSpinX()); //NOPE
-//				localRotation.mulInverse(getInverseCameraRotZSpinX()); //NOPE
-//				localRotation.mulLeft(getInverseCameraRotZSpinX()); //NOPE
-
-//				localRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()).mulInverse(getInverseCameraRotZSpinX()); //Nope
-//				localRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()).mulLeft(getInverseCameraRotZSpinX()); //Nope
-//				localRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()).invertRotation().mulLeft(getInverseCameraRotZSpinX()); //Nope
-//				localRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()).invertRotation().mulLeft(getInverseCameraRotYSpinY()); //Nope
-//				localRotation.mul(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX()).invertRotation().mulLeft(getInverseCameraRotYSpinY()); //Nope
-//				localRotation.mul(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-
-//				localRotation.mul(getInverseCameraRotYSpinY()).invertRotation().mul(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-//				localRotation.mulLeft(getInverseCameraRotYSpinY()).invertRotation().mul(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-//				localRotation.mulInverse(getInverseCameraRotYSpinY()).invertRotation().mul(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-//				localRotation.mul(getInverseCameraRotYSpinY()).invertRotation().mulLeft(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-//				localRotation.mulLeft(getInverseCameraRotYSpinY()).invertRotation().mulLeft(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-//				localRotation.mulInverse(getInverseCameraRotYSpinY()).invertRotation().mulLeft(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-//
-//				localRotation.mul(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-//				localRotation.mulLeft(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-//				localRotation.mulInverse(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-//				localRotation.mul(getInverseCameraRotYSpinY()).mulLeft(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-//				localRotation.mulLeft(getInverseCameraRotYSpinY()).mulLeft(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-//				localRotation.mulInverse(getInverseCameraRotYSpinY()).mulLeft(getInverseCameraRotZSpinX()).invertRotation(); //Nope
-//
-//				localRotation.mul(getInverseCameraRotZSpinX()).invertRotation().mul(getInverseCameraRotYSpinY()).invertRotation(); //Nope
-//				localRotation.mulLeft(getInverseCameraRotZSpinX()).invertRotation().mul(getInverseCameraRotYSpinY()).invertRotation(); //Nope
-//				localRotation.mulInverse(getInverseCameraRotZSpinX()).invertRotation().mul(getInverseCameraRotYSpinY()).invertRotation(); //Nope
-//				localRotation.mul(getInverseCameraRotZSpinX()).invertRotation().mulLeft(getInverseCameraRotYSpinY()).invertRotation(); //Nope
-//				localRotation.mulLeft(getInverseCameraRotZSpinX()).invertRotation().mulLeft(getInverseCameraRotYSpinY()).invertRotation(); //Nope
-//				localRotation.mulInverse(getInverseCameraRotZSpinX()).invertRotation().mulLeft(getInverseCameraRotYSpinY()).invertRotation(); //Nope
-//
-//				localRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()).invertRotation(); //Nope
-//				localRotation.mulLeft(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()).invertRotation(); //Nope
-//				localRotation.mulInverse(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()).invertRotation(); //Nope
-//				localRotation.mul(getInverseCameraRotZSpinX()).mulLeft(getInverseCameraRotYSpinY()).invertRotation(); //Nope
-//				localRotation.mulLeft(getInverseCameraRotZSpinX()).mulLeft(getInverseCameraRotYSpinY()).invertRotation(); //Nope
-//				localRotation.mulInverse(getInverseCameraRotZSpinX()).mulLeft(getInverseCameraRotYSpinY()).invertRotation(); //Nope
-
-				//////////
-//				localRotation.mul(getInverseCameraRotYSpinY()).invertRotation().mul(getInverseCameraRotZSpinX());
-//				localRotation.mulLeft(getInverseCameraRotYSpinY()).invertRotation().mul(getInverseCameraRotZSpinX());
-//				localRotation.mulInverse(getInverseCameraRotYSpinY()).invertRotation().mul(getInverseCameraRotZSpinX());
-//				localRotation.mul(getInverseCameraRotYSpinY()).invertRotation().mulLeft(getInverseCameraRotZSpinX());
-//				localRotation.mulLeft(getInverseCameraRotYSpinY()).invertRotation().mulLeft(getInverseCameraRotZSpinX());
-//				localRotation.mulInverse(getInverseCameraRotYSpinY()).invertRotation().mulLeft(getInverseCameraRotZSpinX());
-//
-//				localRotation.mul(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX()); //Z?
-//				localRotation.mulLeft(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX());
-//				localRotation.mulInverse(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX());
-//				localRotation.mul(getInverseCameraRotYSpinY()).mulLeft(getInverseCameraRotZSpinX()); //GLOB
-//				localRotation.mulLeft(getInverseCameraRotYSpinY()).mulLeft(getInverseCameraRotZSpinX()); //Glob
-//				localRotation.mulInverse(getInverseCameraRotYSpinY()).mulLeft(getInverseCameraRotZSpinX());
-//
-//				localRotation.mul(getInverseCameraRotZSpinX()).invertRotation().mul(getInverseCameraRotYSpinY());
-//				localRotation.mulLeft(getInverseCameraRotZSpinX()).invertRotation().mul(getInverseCameraRotYSpinY());
-//				localRotation.mulInverse(getInverseCameraRotZSpinX()).invertRotation().mul(getInverseCameraRotYSpinY());//Glob?
-//				localRotation.mul(getInverseCameraRotZSpinX()).invertRotation().mulLeft(getInverseCameraRotYSpinY());
-//				localRotation.mulLeft(getInverseCameraRotZSpinX()).invertRotation().mulLeft(getInverseCameraRotYSpinY());
-//				localRotation.mulInverse(getInverseCameraRotZSpinX()).invertRotation().mulLeft(getInverseCameraRotYSpinY());
-//
-//				localRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()); //GLOB
-//				localRotation.mulLeft(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()); //GLOB
-//				localRotation.mulInverse(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY());
-//				localRotation.mul(getInverseCameraRotZSpinX()).mulLeft(getInverseCameraRotYSpinY());
-//				localRotation.mulLeft(getInverseCameraRotZSpinX()).mulLeft(getInverseCameraRotYSpinY());
-//				localRotation.mulInverse(getInverseCameraRotZSpinX()).mulLeft(getInverseCameraRotYSpinY());
-
-//				localRotation.setFromAxisAngle2(0,1,0,0);
-//				localRotation.setFromAxisAngle2(1,0,0,0);
-//				localRotation.setFromAxisAngle2(0,0,1,0);
-
-//				localRotation.setFromAxisAngle2(0,1,0,(float)Math.PI/2);
-//				localRotation.setFromAxisAngle2(1,0,0,(float)Math.PI/2);
-
-//				localRotation.setFromAxisAngle2(0,0,1,(float)Math.PI/2);
-//				localRotation.setFromAxisAngle2(0,0,1,(float)Math.PI/2);
 				localRotation.invertRotation2().mulLeft(getInverseCameraRotXSpinY()); //I Think It Works :O
-
-//				localRotation.setFromAxisAngle2(0,0,1,(float)Math.PI/2);//Almost Works!
-//				localRotation.invertRotation2().mulLeft(getInverseCameraRotYSpinY());//Almost Works!
 			} else if (node.billboardedZ) {
-//				localRotation.mul(getInverseCameraRotXSpinX()); //Nope
-//				localRotation.mul(getInverseCameraRotXSpinY()); //Nope (Maybe X or Y)
-//				localRotation.mul(getInverseCameraRotXSpinZ()); //Nope (Maybe X or Y)
-
-//				localRotation.mul(getInverseCameraRotYSpinX()); //Nope
-//				localRotation.mul(getInverseCameraRotYSpinY()); // X_axis?
-//				localRotation.mul(getInverseCameraRotYSpinZ());  //Nope
-
-//				localRotation.mul(getInverseCameraRotZSpinX()); //Nope
-//				localRotation.mul(getInverseCameraRotZSpinY()); //Nope
 				localRotation.mul(getInverseCameraRotZSpinZ());
 
 			}
@@ -527,193 +365,10 @@ public final class RenderModel {
 		}
 		return wasDirty;
 	}
-	public boolean RotateAndStuffBillboarding2(RenderNode node, RenderNode parent) {
-		boolean wasDirty = false;
-		// If the instance is not attached to any scene, this is meaningless
 
-		// To solve billboard Y, you must rotate to face camera in node local space only
-		// around the node-local version of the Y axis.
-		// Imagine that we have a vector facing outward from the plane that represents
-		// where the front of the plane will face after we apply the node's rotation.
-		// We can easily do "billboarding", which is to say we can construct a rotation
-		// that turns this facing to face the camera.
-		// However, for BillboardLockY, we must instead take the projection of the vector
-		// that would result from this -- "facing camera" vector,
-		// and take the projection of that vector onto the plane perpendicular to the billboard lock axis.
-
-
-		// To solve billboard Y, you must rotate to face camera in node local space
-		// only around the node-local version of the Y axis.
-
-		// Imagine the normal of the plane resulting from apply the node's rotation.
-		// With this we can easily do "billboarding", which is to say we can
-		// construct a quaternation that turns this facing to face the camera.
-
-		// However, for BillboardLockY, we must instead take the projection of the normal of the billboarded plane,
-		// and project it onto the plane perpendicular to the billboard lock axis.
-
-		if(node.billboarded || node.billboardedX || node.billboardedY || node.billboardedZ){
-
-			Quat localRotation = new Quat(0, 0, 0, 1);
-			Quat camRotation = new Quat(0, 0, 0, 1);
-			Vec4 camNormal = new Vec4(0,0,1, 1);
-			Vec4 xNormal = new Vec4(1,0,0, 1);
-			Vec4 yNormal = new Vec4(0,1,0, 1);
-			Vec4 zNormal = new Vec4(0,0,1, 1);
-			Mat4 proj = new Mat4();
-			wasDirty = true;
-
-			if (node.billboarded) {
-				localRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()); // WORKS!
-
-//				System.out.println("invCS: " + localRotation.toAxisWithAngle() + " (" + (localRotation.toAxisWithAngle().w*57.3) + ")");
-//				localRotation.mul(getInverseCameraRot_XY_mulZX());
-//				localRotation.set(new Quat().setFromAxisAngle(-1,0,0,2*1.57f).mul(getInverseCameraRotation())); //Good but inverted?
-//				localRotation.set(new Quat().setFromAxisAngle(1,-1,1,-1*1.57f).normalize());
-//				localRotation.mul(getInverseCameraRotation());
-//				localRotation.mulLeft(getInverseCameraRotation());//.mulInverse(getInverseCameraRotZSpinX());
-//				localRotation.mul(getInverseCameraRotation().invertRotation());
-//				getInverseCameraRotation().invertRotation();
-			} else if (node.billboardedX) {
-//				Vec3 euler = new Vec3().wikiToEuler(getInverseCameraRotation());
-////				camRotation.setFromAxisAngle(1,0,0, getInverseCameraRotation().toEuler().x);
-//				camRotation.setFromAxisAngle(1,0,0, euler.x);
-////				localRotation.setFromAxisAngle(1,0,0,0f*1.57f).invertRotation().mulLeft(getInverseCameraRotation());
-////				localRotation.setFromAxisAngle(1,0,0,0f*1.57f).mul(camRotation);
-//				localRotation.mul(camRotation);
-////				Quat camRotation = new Quat(0, 0, 0, 1);
-////				camRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()).normalize();
-//////				localRotation.set(1,0,0,1).normalize().transform(getInverseCameraRotation());
-////				localRotation.set(1,0,0,1).transform(camRotation).normalize();
-//////				localRotation.mul(camRotation).mulInverse(getInverseCameraRotZSpinX()).normalize();
-////				localRotation.mulInverse(getInverseCameraRotZSpinX()).normalize();
-//////				localRotation.mul(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX()).mulLeft(getInverseCameraRotZSpinX()).normalize();
-//////				localRotation.mulInverse(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()).mulLeft(getInverseCameraRotZSpinX()).normalize();
-////
-//////				localRotation.mul(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX()).mulLeft(getInverseCameraRotYSpinY()).mulLeft(getInverseCameraRotZSpinX()).normalize();
-//////				localRotation.mul(getInverseCameraRotation0090());
-//////				localRotation.mul(getInverseCameraRotation());
-
-//				localRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()).mulInverse(getInverseCameraRotZSpinX()).mulLeft(getInverseCameraRotXSpinY()).normalize();
-				localRotation.mul(getInverseCameraRotXSpinY());
-			} else if (node.billboardedY) {
-//////				localRotation.mul(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinX()).mulLeft(getInverseCameraRotYSpinY()).mulLeft(getInverseCameraRotZSpinX()).normalize();
-////				localRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY()).mulLeft(getInverseCameraRotZSpinX()).mulLeft(getInverseCameraRotYSpinY()).normalize();
-//////				localRotation.mul(getInverseCameraRotYSpinY()).normalize();
-////
-////				Quat camRotation = new Quat().set(localRotation);
-////
-////				localRotation.set(0, 0, 0, 1);
-////				localRotation.mul(getInverseCameraRotZSpinX()).mulInverse(camRotation);
-//
-//				camRotation.mul(getInverseCameraRotZSpinX()).mul(getInverseCameraRotYSpinY());
-//				camNormal.transform(camRotation);
-//
-//				Vec3 look = cameraHandler.getCameraPos().sub(node.getWorldLocation());
-//
-//				Vec3 right = camNormal.getVec3().cross(look);
-//				Vec3 up = look.cross(right);
-//
-//				camNormal.transform(camRotation);
-//				proj.setAsProjection(yNormal);
-//				camNormal.transform(proj);
-//
-//
-//
-//				localRotation.setFromAxisAngle(0,1,0, (float) yNormal.getVec3().radAngleTo(camNormal.getVec3()));
-////				localRotation.mul(getInverseCameraRotXSpinY());
-////				localRotation.mul(getInverseCameraRotZSpinX()).mulInverse(getInverseCameraRotZSpinX());
-				// TODO face camera, TODO have a camera
-
-				localRotation.mulLeft(getInverseCameraRotYSpinY());
-//				camRotation.setFromAxisAngle(0,1,0, (float) Math.atan2(billboardVectors[5].z, -billboardVectors[5].x));
-//				localRotation.mul(camRotation);
-//				Vec3 euler = new Vec3().wikiToEuler(getInverseCameraRotation());
-
-//				camRotation.setFromAxisAngle(0,1,0, -euler.y);
-//				camRotation.setFromAxisAngle(1,0,0, euler.z);
-//				localRotation.setFromAxisAngle(1,0,0,0f*1.57f).invertRotation().mulLeft(getInverseCameraRotation());
-//				localRotation.setFromAxisAngle(1,0,0,0f*1.57f).mul(camRotation);
-//				localRotation.mul(camRotation);
-
-
-			} else if (node.billboardedZ) {
-				localRotation.mul(getInverseCameraRotZSpinX()); // WORKS!
-			}
-			localRotation.normalize();
-
-			node.setRotation(localRotation);
-		}
-		return wasDirty;
-	}
-
-
-	public boolean RotateAndStuffBillboarding(RenderNode node, RenderNode parent) {
-		boolean wasDirty = false;
-		// If the instance is not attached to any scene, this is meaningless
-
-		// To solve billboard Y, you must rotate to face camera in node local space only
-		// around the node-local version of the Y axis. Imagine that we have a vector facing
-		// outward from the plane that represents where the front of the plane will face
-		// after we apply the node's rotation. We can easily do "billboarding", which is
-		// to say we can construct a rotation that turns this facing to face the camera.
-		// However, for BillboardLockY, we must instead take the projection of the vector
-		// that would result from this -- "facing camera" vector, and take the projection
-		// of that vector onto the plane perpendicular to the billboard lock axis.
-
-		if(node.billboarded || node.billboardedX || node.billboardedY || node.billboardedZ){
-
-			Quat localRotation = new Quat(0, 0, 0, 1);
-//			Quat localRotation = node.getLocalRotation();
-			wasDirty = true;
-
-			// Cancel the parent's rotation;
-			if (parent != null) {
-				localRotation.set(parent.getInverseWorldRotation());
-//				localRotation.invertRotation().mul(parent.getInverseWorldRotation());
-			} else {
-				localRotation.setIdentity();
-			}
-
-
-			if (node.billboarded) {
-				localRotation.mul(getInverseCameraRotation());
-			} else if (node.billboardedX) {
-				localRotation.mul(getInverseCameraRotation());
-			} else if (node.billboardedY) {
-				localRotation.mul(getInverseCameraRotYSpinY());
-			} else if (node.billboardedZ) {
-				localRotation.mul(getInverseCameraRotZSpinX());
-				// TODO face camera, TODO have a camera
-			}
-			node.setRotation(localRotation);
-		}
-		return wasDirty;
-	}
 
 	private void updateParticles() {
 		setBilllBoardVectors();
-//		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
-////			 not animating
-//			if (allowInanimateParticles) {
-//				for (RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
-//					if ((modelView == null) || modelView.getEditableIdObjects().contains(renderParticleEmitter2View.getParticleEmitter2())) {
-//						renderParticleEmitter2View.fill();
-//					}
-//					renderParticleEmitter2View.update();
-//				}
-//				for (RenderParticleEmitter2 renderParticleEmitter2 : renderParticleEmitters2) {
-//					renderParticleEmitter2.update();
-//				}
-//			}
-//		} else {
-//			for (RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
-//				renderParticleEmitter2View.update();
-//			}
-//			for (RenderParticleEmitter2 renderParticleEmitter2 : renderParticleEmitters2) {
-//				renderParticleEmitter2.update();
-//			}
-//		}
 
 		for (RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
 			if (allowInanimateParticles // not animating
@@ -723,9 +378,6 @@ public final class RenderModel {
 			}
 			renderParticleEmitter2View.update();
 		}
-//		for (RenderParticleEmitter2 renderParticleEmitter2 : renderParticleEmitters2) {
-//			renderParticleEmitter2.update();
-//		}
 	}
 
 	public Vec4[] getBillboardVectors() {
@@ -738,10 +390,6 @@ public final class RenderModel {
 
 	public List<RenderParticleEmitter2> getRenderParticleEmitters2() {
 		return renderParticleEmitters2;
-	}
-
-	public List<RenderParticleEmitter2View> getParticleEmitterViews2() {
-		return particleEmitterViews2;
 	}
 
 	public ParticleEmitterShader getParticleShader() {
@@ -759,25 +407,6 @@ public final class RenderModel {
 		}
 		return IDENTITY;
 	}
-	private Quat getInverseCameraRotZSpinY() {
-		if(cameraHandler != null){
-			return cameraHandler.getInverseCameraRotZSpinY();
-		}
-		return IDENTITY;
-	}
-	private Quat getInverseCameraRot_XY_mulZX() {
-		if(cameraHandler != null){
-			return cameraHandler.getInverseCameraRot_XY_mulZX();
-		}
-		return IDENTITY;
-	}
-
-	private Quat getInverseCameraRotXSpinX() {
-		if (cameraHandler != null) {
-			return cameraHandler.getInverseCameraRotXSpinX();
-		}
-		return IDENTITY;
-	}
 
 	private Quat getInverseCameraRotXSpinY() {
 		if (cameraHandler != null) {
@@ -786,30 +415,9 @@ public final class RenderModel {
 		return IDENTITY;
 	}
 
-	private Quat getInverseCameraRotXSpinZ() {
-		if (cameraHandler != null) {
-			return cameraHandler.getInverseCameraRotXSpinZ();
-		}
-		return IDENTITY;
-	}
-
-	private Quat getInverseCameraRotYSpinX() {
-		if (cameraHandler != null) {
-			return cameraHandler.getInverseCameraRotYSpinX();
-		}
-		return IDENTITY;
-	}
-
 	private Quat getInverseCameraRotYSpinY() {
 		if (cameraHandler != null) {
 			return cameraHandler.getInverseCameraRotYSpinY();
-		}
-		return IDENTITY;
-	}
-
-	private Quat getInverseCameraRotYSpinZ() {
-		if (cameraHandler != null) {
-			return cameraHandler.getInverseCameraRotYSpinZ();
 		}
 		return IDENTITY;
 	}

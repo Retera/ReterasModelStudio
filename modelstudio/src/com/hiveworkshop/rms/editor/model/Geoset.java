@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
@@ -78,57 +77,6 @@ public class Geoset implements Named, VisibilitySource {
 				}
 			}
 			List<String> nameParts = new ArrayList<>();
-//			for (Bone bone : nonSharedParentBones) {
-//				nameParts.add(bone.getName().replaceAll("(?i)bone_*", ""));
-//			}
-			for (Bone bone : curatedBones) {
-				nameParts.add(bone.getName().replaceAll("(?i)bone_*", ""));
-			}
-			return String.join(", ", nameParts);
-		}
-		return "";
-	}
-
-	public String sdGetMostCommonUniqueBoneName() {
-		List<Bone> nonSharedParentBones = new ArrayList<>();
-		List<Bone> mBones = new ArrayList<>();
-		if (!matrices.isEmpty()) {
-			for (Matrix m : matrices) {
-				mBones.addAll(m.getBones());
-			}
-
-			if (mBones.size() == 1) {
-				return mBones.get(0).getName().replaceAll("(?i)bone_*", "");
-			}
-			for (Bone bone : mBones) {
-				Bone lp = lastParentIn(bone, mBones);
-
-				if ((lp.getGeoset() == this || lp instanceof Helper) && !nonSharedParentBones.contains(lp)) {
-					nonSharedParentBones.add(lp);
-				}
-			}
-			List<Bone> curatedBones = new ArrayList<>();
-			for (Bone bone : nonSharedParentBones) {
-				if (!bone.getName().toLowerCase().startsWith("mesh")) {
-					curatedBones.add(bone);
-				}
-			}
-			if (curatedBones.size() < 3) {
-				for (int i = 0; i < nonSharedParentBones.size() && curatedBones.size() < 3; i++) {
-					if (!curatedBones.contains(nonSharedParentBones.get(i))) {
-						curatedBones.add(nonSharedParentBones.get(i));
-					}
-				}
-			}
-//			for (Bone bone : nonSharedParentBones) {
-//				if(!nonSharedParentBones.contains(bone.getParent())){
-//					curatedBones.add(bone);
-//				}
-//			}
-			List<String> nameParts = new ArrayList<>();
-//			for (Bone bone : nonSharedParentBones) {
-//				nameParts.add(bone.getName().replaceAll("(?i)bone_*", ""));
-//			}
 			for (Bone bone : curatedBones) {
 				nameParts.add(bone.getName().replaceAll("(?i)bone_*", ""));
 			}
@@ -298,39 +246,6 @@ public class Geoset implements Named, VisibilitySource {
 
 	public int numAnims() {
 		return anims.size();
-	}
-
-	public void applyMatricesToVertices(EditableModel mdlr) {
-//		System.out.println("applyMatricesToVertices");
-		for (GeosetVertex gv : getVertices()) {
-			gv.clearBoneAttachments(); //Todo check if this is broken
-			Matrix mx = getMatrix(gv.getVertexGroup());
-			if (((gv.getVertexGroup() == -1) || (mx == null))) {
-				if (!ModelUtils.isTangentAndSkinSupported(mdlr.getFormatVersion())) {
-					throw new IllegalStateException("You have empty vertex groupings but FormatVersion is 800. Did you load HD mesh into an SD model?");
-				}
-			} else {
-				mx.updateIds(mdlr);
-				for (Bone bone : mx.getBones()) {
-					gv.addBoneAttachment(bone);
-				}
-			}
-		}
-	}
-
-	public void applyVerticesToMatrices(EditableModel mdlr) {
-		matrices.clear();
-		for (GeosetVertex vertex : vertices) {
-			Matrix newTemp = vertex.getMatrix();
-
-			newTemp.updateIds(mdlr);
-			if (!matrices.contains(newTemp)) {
-				matrices.add(newTemp);
-//				newTemp.updateIds(mdlr);
-			}
-			vertex.setVertexGroup(matrices.indexOf(newTemp));
-//			vertex.setMatrix(newTemp);
-		}
 	}
 
 	public void reMakeMatrixList(){
@@ -506,24 +421,6 @@ public class Geoset implements Named, VisibilitySource {
 		return new ExtLog(min, max, maximumDistanceFromCenter);
 	}
 
-	public void makeHd() {
-		final List<GeosetVertex> vertices = getVertices();
-		for (final GeosetVertex gv : vertices) {
-			final Vec3 normal = gv.getNormal();
-			gv.initV900();
-			if (normal != null) {
-				gv.setTangent(normal, 1);
-			}
-			gv.magicSkinBones();
-		}
-	}
-
-	public void makeSd() {
-		for (final GeosetVertex vertex : getVertices()) {
-			vertex.un900Heuristic();
-		}
-	}
-
 	public Map<Bone, List<GeosetVertex>> getBoneMap() {
 		Map<Bone, List<GeosetVertex>> boneMap = new HashMap<>();
 		for (GeosetVertex geosetVertex : getVertices()) {
@@ -549,10 +446,6 @@ public class Geoset implements Named, VisibilitySource {
 			}
 		}
 		return boneMap;
-	}
-
-	public void setSkin(List<short[]> skin) {
-//		this.skin = skin;
 	}
 
 	public void setTangents(List<float[]> tangents) {

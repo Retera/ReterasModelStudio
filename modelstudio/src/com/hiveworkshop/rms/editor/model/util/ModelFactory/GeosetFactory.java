@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model.util.ModelFactory;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxExtent;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeoset;
 import com.hiveworkshop.rms.util.Vec2;
@@ -44,7 +43,7 @@ public class GeosetFactory {
 			Matrix m = new Matrix();
 			for (int i = 0; i < size; i++) {
 				m.add((Bone) infoHolder.idObjMap.get((int) mdlxGeoset.matrixIndices[index]));
-				m.addId((int) mdlxGeoset.matrixIndices[index]);
+//				m.addId((int) mdlxGeoset.matrixIndices[index]);
 				index++;
 			}
 			geoset.addMatrix(m);
@@ -72,17 +71,24 @@ public class GeosetFactory {
 
 			geoset.add(gv);
 
-			if (vertexGroups == null || i >= vertexGroups.length) {
-				gv.setVertexGroup(-1);
-			} else {
-				gv.setVertexGroup((256 + vertexGroups[i]) % 256);
+//			if (vertexGroups == null || i >= vertexGroups.length) {
+//				gv.setVertexGroup(-1);
+//			} else {
+//				gv.setVertexGroup((256 + vertexGroups[i]) % 256);
+//				Matrix matrix = geoset.getMatrix((256 + vertexGroups[i]) % 256);
+//				if (matrix != null) {
+//					for (Bone bone : matrix.getBones()) {
+//						gv.addBoneAttachment(bone);
+//					}
+//				}
+//			}
+			if (vertexGroups != null && i < vertexGroups.length) {
 				Matrix matrix = geoset.getMatrix((256 + vertexGroups[i]) % 256);
 				if (matrix != null) {
 					for (Bone bone : matrix.getBones()) {
 						gv.addBoneAttachment(bone);
 					}
 				}
-
 			}
 			// this is an unsigned byte, the other guys java code will read as signed
 			if (normals.length > 0) {
@@ -152,59 +158,5 @@ public class GeosetFactory {
 		}
 
 		return geoset;
-	}
-
-//	private static void setSkinBones(Geoset geoset, EditableModel model, int i, GeosetVertex gv) {
-//		if ((ModelUtils.isTangentAndSkinSupported(model.getFormatVersion())) && (geoset.getTangents() != null)) {
-//			gv.initV900();
-//			for (int j = 0; j < 4; j++) {
-//				short boneLookupId = (short) ((geoset.getSkin().get(i)[j] + 256) % 256);
-//
-//				short boneWeight = (short) ((geoset.getSkin().get(i)[j + 4] + 256) % 256);
-//
-//				final IdObject idObject = model.getIdObject(boneLookupId);
-//				if (idObject instanceof Bone) {
-//					gv.setSkinBone((Bone) idObject, boneWeight, j);
-//				} else {
-//					gv.setSkinBone(null, boneWeight, j);
-//				}
-//			}
-//			gv.setTangent(geoset.getTangents().get(i));
-//		}
-//	}
-
-	public static void updateToObjects(Geoset geoset, final EditableModel model) {
-		// upload the temporary UVLayer and Matrix objects into the vertices themselves
-		System.out.println(geoset + ", " + model.getName());
-		for (final Matrix m : geoset.getMatrices()) {
-			System.out.println(m.size());
-			m.updateBones(model);
-		}
-		List<GeosetVertex> vertices = geoset.getVertices();
-		for (GeosetVertex gv : vertices) {
-			if (!(gv.getVertexGroup() == -1 && ModelUtils.isTangentAndSkinSupported(model.getFormatVersion()))) {
-				Matrix mx = geoset.getMatrix(gv.getVertexGroup());
-				if (mx != null) {
-					int szmx = mx.size();
-					gv.clearBoneAttachments();
-					for (int m = 0; m < szmx; m++) {
-						int boneId = mx.getBoneId(m);
-						if ((boneId >= 0) && (boneId < model.getIdObjectsSize())) {
-							gv.addBoneAttachment((Bone) model.getIdObject(boneId));
-						}
-					}
-				}
-			}
-			for (final Triangle triangle : geoset.getTriangles()) {
-				if (triangle.containsRef(gv)) {
-					gv.addTriangle(triangle);
-				}
-				triangle.setGeoset(geoset);
-			}
-			gv.setGeoset(geoset);
-
-			// gv.addBoneAttachment(null);//Why was this here?
-		}
-		geoset.setParentModel(model);
 	}
 }
