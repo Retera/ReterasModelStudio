@@ -30,4 +30,14 @@ public final class MdlxFloatTimeline extends MdlxTimeline<float[]> {
 	protected void writeMdlValue(final MdlTokenOutputStream stream, final String prefix, final float[] value) {
 		stream.writeKeyframe(prefix, value[0]);
 	}
+
+	@Override
+	public void initLists(int size){
+		frames = new long[size];
+		values = new float[size][];
+		if(interpolationType.tangential()){
+			inTans = new float[size][];
+			outTans = new float[size][];
+		}
+	}
 }

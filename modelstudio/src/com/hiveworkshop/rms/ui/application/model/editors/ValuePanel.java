@@ -249,7 +249,7 @@ public abstract class ValuePanel<T> extends JPanel {
 			if (staticValue == null) {
 				staticValue = zeroValue;
 			}
-			if (animFlag.getEntryMap(sequence).isEmpty()) {
+			if (animFlag.getEntryMap(sequence) == null || animFlag.getEntryMap(sequence).isEmpty()) {
 				if (animFlag.getInterpolationType().tangential()) {
 					newEntry = new Entry<>(0, staticValue, zeroValue, zeroValue);
 				} else {

@@ -135,7 +135,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		Vec3 vertex = new Vec3(0, 0, 0);
 		vertex.setCoord(viewport.getCoordinateSystem().getPortFirstXYZ(), geomPoint.x);
 		vertex.setCoord(viewport.getCoordinateSystem().getPortSecondXYZ(), geomPoint.y);
-		modelEditor.setPosition(pastedModelView.getSelectionCenter(), vertex);
+		modelEditor.setPosition(pastedModelView.getSelectionCenter(), vertex).redo();
 
 		// this is the model they're actually working on
 		ModelView currentModelView = viewport.getModelView();
@@ -182,7 +182,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		Vec3 pasteCenter = new Vec3(0, 0, 0);
 //		pasteCenter.setCoord(viewport.getCoordinateSystem().getPortFirstXYZ(), geomPoint.x);
 //		pasteCenter.setCoord(viewport.getCoordinateSystem().getPortSecondXYZ(), geomPoint.y);
-		listener.setPosition(pastedModelView.getSelectionCenter(), pasteCenter);
+		listener.setPosition(pastedModelView.getSelectionCenter(), pasteCenter).redo();
 
 		// this is the model they're actually working on
 		ModelView currentModelView = ProgramGlobals.getCurrentModelPanel().getModelView();
@@ -211,7 +211,7 @@ public class ViewportTransferHandler extends TransferHandler {
 			pastedGeoset.setParentModel(currentModelView.getModel());
 			for (GeosetVertex vertex : pastedGeoset.getVertices()){
 				if (vertex.getSkinBones() != null) {
-					for (GeosetVertex.SkinBone skinBone : vertex.getSkinBones()) {
+					for (SkinBone skinBone : vertex.getSkinBones()) {
 						Bone bone = skinBone.getBone();
 						if (bone != null && bone.getName().endsWith(PLACEHOLDER_TAG)) {
 							skinBone.setBone((Bone) placeHolderBonesToModelBones.get(bone));
@@ -421,7 +421,7 @@ public class ViewportTransferHandler extends TransferHandler {
 	private void replaceBonesWithNewBones(Map<IdObject, IdObject> nodesToClonedNodes, List<GeosetVertex> vertices) {
 		for (GeosetVertex vertex : vertices) {
 			if (vertex.getSkinBones() != null) {
-				for (GeosetVertex.SkinBone skinBone : vertex.getSkinBones()) {
+				for (SkinBone skinBone : vertex.getSkinBones()) {
 					Bone bone = skinBone.getBone();
 					if (bone != null) {
 						if(nodesToClonedNodes.get(bone) != null){

@@ -5,11 +5,35 @@ import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class ModelThumbnailMaker {
+
+	public static BufferedImage getBufferedImage(Color backgroundColor, EditableModel model, int SIZE, Vec2[] boundSize) {
+
+		BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
+		Graphics graphics = image.getGraphics();
+		graphics.setColor(backgroundColor);
+		graphics.fill3DRect(0, 0, SIZE, SIZE, true);
+		graphics.setColor(backgroundColor.brighter());
+		graphics.fill3DRect(SIZE / 8, SIZE / 8, SIZE - SIZE / 4, SIZE - SIZE / 4, true);
+//			System.out.println("creating icon for model: " + model.getName());
+//			System.out.println("nr geosets: " + model.getGeosets().size());
+//			System.out.println("bounds: " + Arrays.toString(getModelBoundsSize(model)));
+		if(boundSize == null){
+			boundSize = getBoundBoxSize(model, (byte) 1, (byte) 2);
+		}
+
+		scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), boundSize);
+
+		drawGeosetsFlat(model, graphics, (byte) 1, (byte) 2, Color.GRAY);
+		graphics.dispose();
+		return image;
+	}
+
 	public static void drawGeosetsFlat(EditableModel model, Graphics g, byte a, byte b, Color color) {
 //		g.setColor(color);
 		for (Geoset geo : model.getGeosets()) {
@@ -25,7 +49,7 @@ public class ModelThumbnailMaker {
 	}
 
 	public static void drawFilteredTriangles2(EditableModel model, Graphics g,
-	                                          byte a, byte b, Map<Geoset, Map<Bone, java.util.List<GeosetVertex>>> boneMap, Bone bone) {
+	                                          byte a, byte b, Map<Geoset, Map<Bone, List<GeosetVertex>>> boneMap, Bone bone) {
 		List<Triangle> triangles = getBoneParentedTriangles(model, boneMap, bone);
 
 		g.setColor(Color.RED);

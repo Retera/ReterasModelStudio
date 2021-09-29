@@ -4,6 +4,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 /**
  * A Buttongroup with button creation functionality and a panel creator
@@ -12,6 +13,7 @@ import java.awt.event.ActionListener;
  * To get a row use removeButtonConst("wrap")
  */
 public class SmartButtonGroup extends ButtonGroup {
+	private final HashMap<ButtonModel, Integer> modelIndexMap = new HashMap<>();
 	private final BiMap<Integer, AbstractButton> buttonIndexMap = new BiMap<>();
 	private final BiMap<String, AbstractButton> buttonNameMap = new BiMap<>();
 	private String title = "";
@@ -32,7 +34,7 @@ public class SmartButtonGroup extends ButtonGroup {
 	}
 
 	public int getSelectedIndex() {
-		Integer selectedIndex = buttonIndexMap.getByValue(getSelection());
+		Integer selectedIndex = modelIndexMap.get(getSelection());
 		return selectedIndex == null ? -1 : selectedIndex;
 	}
 
@@ -48,6 +50,7 @@ public class SmartButtonGroup extends ButtonGroup {
 
 	public SmartButtonGroup addButton(AbstractButton button) {
 		add(button);
+		modelIndexMap.put(button.getModel(), buttonIndexMap.size());
 		buttonIndexMap.put(buttonIndexMap.size(), button);
 		buttonNameMap.put(button.getName(), button);
 		return this;
@@ -55,6 +58,7 @@ public class SmartButtonGroup extends ButtonGroup {
 
 	public SmartButtonGroup removeButton(AbstractButton button) {
 		remove(button);
+		modelIndexMap.remove(button.getModel());
 		buttonIndexMap.removeByValue(button);
 		buttonNameMap.removeByValue(button);
 		return this;
@@ -68,14 +72,14 @@ public class SmartButtonGroup extends ButtonGroup {
 		return buttonNameMap.get(name);
 	}
 
-	public SmartButtonGroup addJButton(String text, ActionListener actionListener) {
+	public JButton addJButton(String text, ActionListener actionListener) {
 		return addJButton(text, actionListener, buttonIndexMap.size());
 	}
 
-	private SmartButtonGroup addJButton(String text, ActionListener actionListener, int index) {
+	private JButton addJButton(String text, ActionListener actionListener, int index) {
 		JButton button = new JButton(text);
 		addNewButton(actionListener, index, button);
-		return this;
+		return button;
 	}
 
 	public SmartButtonGroup addJCheckBox(String text, ActionListener actionListener) {
@@ -88,17 +92,17 @@ public class SmartButtonGroup extends ButtonGroup {
 		return this;
 	}
 
-	public SmartButtonGroup addJRadioButton(String text, ActionListener actionListener) {
+	public JRadioButton addJRadioButton(String text, ActionListener actionListener) {
 		return addJRadioButton(text, actionListener, buttonIndexMap.size());
 	}
 
-	private SmartButtonGroup addJRadioButton(String text, ActionListener actionListener, int index) {
+	private JRadioButton addJRadioButton(String text, ActionListener actionListener, int index) {
 		JRadioButton button = new JRadioButton(text);
 		addNewButton(actionListener, index, button);
-		return this;
+		return button;
 	}
 
-	public SmartButtonGroup addJRadioButtonMenuItem(String text, ActionListener actionListener) {
+	public JRadioButton addJRadioButtonMenuItem(String text, ActionListener actionListener) {
 		return addJRadioButton(text, actionListener, buttonIndexMap.size());
 	}
 
@@ -111,17 +115,18 @@ public class SmartButtonGroup extends ButtonGroup {
 	private void addNewButton(ActionListener actionListener, int index, AbstractButton button) {
 		button.addActionListener(actionListener);
 		add(button);
+		modelIndexMap.put(button.getModel(), index);
 		buttonIndexMap.put(index, button);
 		buttonNameMap.put(button.getText(), button);
 	}
 
 	public JPanel getButtonPanel() {
-		JPanel buttonPanel = new JPanel();
+		JPanel buttonPanel = new JPanel(new MigLayout(panelConstraints));
 		if (title.length() != 0) {
 			buttonPanel.setBorder(BorderFactory.createTitledBorder(title));
 			panelConstraints = panelConstraints.replaceFirst("ins 0,", "");
+			buttonPanel.setLayout(new MigLayout(panelConstraints));
 		}
-		buttonPanel.setLayout(new MigLayout(buttonConstraints));
 		int size = buttonIndexMap.size();
 		int maxSearch = buttonIndexMap.size() * 3;
 		for (int i = 0; i < size && i < maxSearch; i++) {

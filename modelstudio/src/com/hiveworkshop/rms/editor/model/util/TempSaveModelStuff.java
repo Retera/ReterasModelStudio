@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model.util;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelSaving.AnimToMdlx;
 import com.hiveworkshop.rms.editor.model.util.ModelSaving.GeosetToMdlx;
 import com.hiveworkshop.rms.editor.model.util.ModelSaving.IdObjectToMdlx;
@@ -9,6 +10,8 @@ import com.hiveworkshop.rms.editor.model.util.ModelSaving.MaterialToMdlx;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTextureAnimation;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
@@ -217,7 +220,10 @@ public class TempSaveModelStuff {
 		model.clearTextures();
 		for (final Material m : model.getMaterials()) {
 			for (final Layer layer : m.getLayers()) {
-				if ((layer.getTextureBitmap() != null) && !model.contains(layer.getTextureBitmap()) && (layer.getTextures() == null)) {
+				if ((layer.getTextureBitmap() != null)
+						&& !model.contains(layer.getTextureBitmap())
+						&& (layer.find(MdlUtils.TOKEN_TEXTURE_ID) == null
+						|| layer.find(MdlUtils.TOKEN_TEXTURE_ID).size() == 0)) {
 					model.add(layer.getTextureBitmap());
 				} else {
 					if (layer.find("TextureID") != null) {
@@ -228,7 +234,7 @@ public class TempSaveModelStuff {
 						}
 					}
 				}
-				layer.updateIds(model);
+				updateLayerTextureIds(model, layer);
 				// keep those Ids straight, will be -1 if null
 			}
 		}
@@ -239,6 +245,24 @@ public class TempSaveModelStuff {
 			}
 			pe.setTextureId(model.getTextureId(pe.getTexture()));
 			// will be -1 if null
+		}
+	}
+
+	public static void updateLayerTextureIds(EditableModel model, Layer layer) {
+//		layer.setTextureId(model.getTextureId(layer.getTextureBitmap()));
+		layer.setTextureId(model.getTextureId(layer.firstTexture()));
+		layer.setTVertexAnimId(model.getTextureAnimId(layer.getTextureAnim()));
+		IntAnimFlag txFlag = (IntAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID);
+		if(txFlag != null){
+			for (Sequence anim : txFlag.getAnimMap().keySet()){
+				for (int i = 0; i < txFlag.size(); i++) {
+					Bitmap tempBitmap = layer.getTexture(txFlag.getValueFromIndex(anim, i));
+					int newerTextureId = model.getTextureId(tempBitmap);
+
+					txFlag.getEntryAt(anim, txFlag.getTimeFromIndex(anim, i)).setValue(newerTextureId);
+					layer.putTexture(newerTextureId, tempBitmap);
+				}
+			}
 		}
 	}
 

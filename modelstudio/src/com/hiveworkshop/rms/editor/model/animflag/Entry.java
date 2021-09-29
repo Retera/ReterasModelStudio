@@ -177,6 +177,15 @@ public class Entry<T> {
 
 	public String toString() {
 		return "time: " + time + "\nvalue: " + value + "\ninTan: " + inTan + "\noutTan: " + outTan;
+//		if(time == 0){
+//			return "\ntime: " + time + "\tvalue: " + value + "\n";
+//		}
+//		else return "";
+//		if(inTan != null){
+//			return "\ntime: " + time + "\tvalue: " + value + "\tinTan: " + inTan + "\toutTan: " + outTan + "\t";
+//		} else {
+//			return "\ntime: " + time + "\tvalue: " + value + "\t";
+//		}
 	}
 
 	private T getZeroValue(){
@@ -201,4 +210,41 @@ public class Entry<T> {
 //	public int compareTo(Entry<?> o) {
 //		return time - o.time;
 //	}
+
+
+
+	public float[] getValueArr() {
+		return getAsArr(value);
+	}
+
+	public float[] getInTanArr() {
+		return getAsArr(inTan);
+	}
+
+	public float[] getOutTanArr() {
+		return getAsArr(outTan);
+	}
+
+	private float[] getAsArr(T o){
+		T o2;
+		if(o == null){
+			o2 = getZeroValue();
+		} else {
+			o2 = o;
+		}
+		if (o2 instanceof Integer) {
+			int oi = (Integer) o2;
+			// this is to account for float accuracy when casting to int or long
+			float of = oi + Math.copySign(0.001f, oi);
+			return new float[]{of};
+		} else if (o2 instanceof Float) {
+			return new float[]{(Float) o2};
+		} else if (o2 instanceof Vec3) {
+			return ((Vec3)o2).toFloatArray();
+		} else if (o2 instanceof Quat) {
+			return ((Quat) o2).toFloatArray();
+		} else {
+			throw new IllegalStateException(value.getClass().getName());
+		}
+	}
 }

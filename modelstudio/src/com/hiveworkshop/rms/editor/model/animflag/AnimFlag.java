@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.util.Pair;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -78,11 +79,20 @@ public abstract class AnimFlag<T> {
 	protected AnimFlag(AnimFlag<T> af) {
 		setSettingsFrom(af);
 		for (Sequence anim : af.getAnimMap().keySet()) {
-			TreeMap<Integer, Entry<T>> entryMap = af.getAnimMap().get(anim);
+			TreeMap<Integer, Entry<T>> entryMap = af.getEntryMap(anim);
+			TreeMap<Integer, Entry<T>> newEntryMap = new TreeMap<>();
 			for (Integer time : entryMap.keySet()) {
-				entryMap.put(time, af.getEntryMap(anim).get(time).deepCopy());
+				newEntryMap.put(time, entryMap.get(time).deepCopy());
+//				addEntry(entryMap.get(time).deepCopy(), anim);
 			}
+			setEntryMap(anim, newEntryMap);
 		}
+//		for (Sequence anim : af.getAnimMap().keySet()) {
+//			TreeMap<Integer, Entry<T>> entryMap = af.getAnimMap().get(anim);
+//			for (Integer time : entryMap.keySet()) {
+//				entryMap.put(time, af.getEntryMap(anim).get(time).deepCopy());
+//			}
+//		}
 	}
 
 	public abstract AnimFlag<T> getEmptyCopy();
@@ -161,6 +171,150 @@ public abstract class AnimFlag<T> {
 	}
 
 	public abstract MdlxTimeline<?> toMdlx(TimelineContainer container, EditableModel model);
+
+	public <Q> MdlxTimeline<Q> toMdlx3(MdlxTimeline<Q> mdlxTimeline, TimelineContainer container, EditableModel model) {
+		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
+		mdlxTimeline.interpolationType = interpolationType;
+		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
+
+		Pair<ArrayList<Integer>, ArrayList<Entry<T>>> entrySavingPair = getEntrySavingPair(model);
+		ArrayList<Integer> tempFrames = entrySavingPair.getFirst();
+		ArrayList<Entry<T>> tempEntries = entrySavingPair.getSecond();
+
+		int size = tempFrames.size();
+
+		mdlxTimeline.initLists(size);
+
+		for (int i = 0; i < size; i++) {
+			Entry<T> entry = tempEntries.get(i);
+			Q[] array = getArray(entry, mdlxTimeline);
+			if(i == 0){
+				System.out.println("(Q): " + (Q) entry.getValueArr() + ", org: " + entry.getValueArr());
+				System.out.println("(Q): " + ", org: " + Arrays.toString(entry.getValueArr()));
+			}
+//			mdlxTimeline.add(i, tempFrames.get(i), (Q)tempEntries.get(i).getValueArr(), (Q)tempEntries.get(i).getInTanArr(), (Q)tempEntries.get(i).getOutTanArr());
+//			mdlxTimeline.add(i, tempFrames.get(i), (Q) entry.getValueArr(), (Q) entry.getInTanArr(), (Q) entry.getOutTanArr());
+			mdlxTimeline.add(i, tempFrames.get(i), array[0], array[1], array[2]);
+		}
+
+
+		return mdlxTimeline;
+	}
+
+	private <Q, W> Q[] getArray(Entry<W> entry, MdlxTimeline<Q> mdlxTimeline){
+		if(entry.getValue() instanceof Integer && mdlxTimeline instanceof MdlxUInt32Timeline){
+			return (Q[]) getArray((Entry<Integer>)entry, (MdlxUInt32Timeline) mdlxTimeline, (int)entry.getValue());
+//			return new Q[][]{new int[]{(int) entry.getValue()}, new int[]{(int) entry.getInTan()}, new int[]{(int) entry.getOutTan()}};
+		} else if(entry.getValue() instanceof Float) {
+			return (Q[]) getArray((Entry<Float>)entry, (MdlxFloatTimeline)mdlxTimeline, (Float)entry.getValue());
+		} else if(entry.getValue() instanceof Vec3) {
+			return (Q[]) getArray((Entry<Vec3>)entry, (MdlxFloatArrayTimeline)mdlxTimeline, (Vec3)entry.getValue());
+		} else if(entry.getValue() instanceof Quat) {
+			return (Q[]) getArray((Entry<Quat>)entry, (MdlxFloatArrayTimeline)mdlxTimeline, (Quat)entry.getValue());
+//		} else if(entry.getValue() instanceof Vec3) {
+		} else {
+//			return (Q[]) getArray(entry, (MdlxFloatArrayTimeline)mdlxTimeline, entry.getValue());
+			return null;
+		}
+//		return getArray(entry, mdlxTimeline);
+	}
+
+	private long[][] getArray(Entry<Integer> entry, MdlxUInt32Timeline line, int i){
+//		return new int[][]{new int[]{entry.getValue()}, new int[]{entry.getInTan()}, new int[]{entry.getOutTan()}};
+		return new long[][]{new long[]{entry.getValue()}, new long[]{0}, new long[]{0}};
+	}
+	private float[][] getArray(Entry<java.lang.Float> entry, MdlxFloatTimeline line, float i){
+//		return new float[][]{entry.getValue().toFloatArray(), entry.getInTan().toFloatArray(), entry.getOutTan().toFloatArray()};
+		return new float[][]{entry.getValueArr(), entry.getInTanArr(), entry.getOutTanArr()};
+	}
+	private float[][] getArray(Entry<Vec3> entry, MdlxFloatArrayTimeline line, Vec3 i){
+//		return new float[][]{entry.getValue().toFloatArray(), entry.getInTan().toFloatArray(), entry.getOutTan().toFloatArray()};
+		return new float[][]{entry.getValueArr(), entry.getInTanArr(), entry.getOutTanArr()};
+	}
+	private float[][] getArray(Entry<Quat> entry, MdlxFloatArrayTimeline line, Quat i){
+//		return new float[][]{entry.getValue().toFloatArray(), entry.getInTan().toFloatArray(), entry.getOutTan().toFloatArray()};
+		return new float[][]{entry.getValueArr(), entry.getInTanArr(), entry.getOutTanArr()};
+	}
+
+	private Pair<ArrayList<Integer>, ArrayList<Entry<T>>> getEntrySavingPair(EditableModel model) {
+		ArrayList<Integer> tempTimes = new ArrayList<>();
+		ArrayList<Entry<T>> tempEntries = new ArrayList<>();
+		for (Sequence anim : model.getAllSequences()) {
+			if (globalSeq == null || anim == globalSeq) {
+				TreeMap<Integer, Entry<T>> entryTreeMap = sequenceMap.get(anim);
+				if(entryTreeMap != null){
+					for (Integer time : entryTreeMap.keySet()) {
+						if (time > anim.getLength()) {
+							break;
+						}
+						tempTimes.add(time + anim.getStart());
+						Entry<T> entry = entryTreeMap.get(time);
+						tempEntries.add(entry);
+					}
+				}
+			}
+		}
+		return new Pair<>(tempTimes, tempEntries);
+	}
+
+//	public MdlxUInt32Timeline toMdlx(final TimelineContainer container, EditableModel model) {
+//		final MdlxUInt32Timeline mdlxTimeline = new MdlxUInt32Timeline();
+//
+//		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
+//		mdlxTimeline.interpolationType = interpolationType;
+//		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
+//
+//
+//		ArrayList<Integer> tempFrames2 = new ArrayList<>();
+//		ArrayList<long[]> tempValues2 = new ArrayList<>();
+//		ArrayList<long[]> tempInTans2 = new ArrayList<>();
+//		ArrayList<long[]> tempOutTans2 = new ArrayList<>();
+//
+////		for (Sequence anim : new TreeSet<>(sequenceMap.keySet())) {
+//		for (Sequence anim : model.getAllSequences()) {
+//			if (globalSeq == null || anim == globalSeq) {
+//				TreeMap<Integer, Entry<Integer>> entryTreeMap = sequenceMap.get(anim);
+//				if(entryTreeMap != null){
+//					for (Integer time : entryTreeMap.keySet()) {
+//						if (time > anim.getLength()) {
+//							break;
+//						}
+//						Entry<Integer> entry = entryTreeMap.get(time);
+////					tempFrames2.add(time + Math.max(anim.getStart(), tempFrames2.get(tempFrames2.size()-1) + 10));
+//						tempFrames2.add(time + anim.getStart());
+//						tempValues2.add(new long[] {entry.getValue()});
+//						if (tans()) {
+//							tempInTans2.add(new long[] {entry.getInTan()});
+//							tempOutTans2.add(new long[] {entry.getOutTan()});
+//						} else {
+//							tempInTans2.add(new long[] {0});
+//							tempOutTans2.add(new long[] {0});
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		int size = tempFrames2.size();
+//		long[] tempFrames = new long[size];
+//		long[][] tempValues = new long[size][];
+//		long[][] tempInTans = new long[size][];
+//		long[][] tempOutTans = new long[size][];
+//
+//		for (int i = 0; i < size; i++) {
+//			tempFrames[i] = tempFrames2.get(i);
+//			tempValues[i] = tempValues2.get(i);
+//			tempInTans[i] = tempInTans2.get(i);
+//			tempOutTans[i] = tempOutTans2.get(i);
+//		}
+//
+//		mdlxTimeline.frames = tempFrames;
+//		mdlxTimeline.values = tempValues;
+//		mdlxTimeline.inTans = tempInTans;
+//		mdlxTimeline.outTans = tempOutTans;
+//
+//		return mdlxTimeline;
+//	}
 
 
 	public void addEntry(Integer time, T value, Sequence animation) {
@@ -504,6 +658,7 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
+	// Does clear existing values
 	public void copyFrom(AnimFlag<?> source, Sequence sourceAnim, Sequence newAnim) {
 		AnimFlag<T> tSource = getAsTypedOrNull(source);
 		if (tSource != null && tSource.getEntryMap(sourceAnim) != null) {
@@ -681,7 +836,7 @@ public abstract class AnimFlag<T> {
 	 */
 	public T interpolateAt(final TimeEnvironmentImpl animatedRenderEnvironment) {
 		if (sequenceMap.isEmpty() || (animatedRenderEnvironment == null) || animatedRenderEnvironment.getCurrentSequence() == null) {
-			System.out.println("Identity 1");
+//			System.out.println("Identity 1, seqMapEmpty: " + sequenceMap.isEmpty());
 			return getIdentity(typeid);
 		}
 
@@ -719,7 +874,7 @@ public abstract class AnimFlag<T> {
 				|| lastKeyframeTime < firstKeyframeTime
 				|| sequenceLength < time
 				|| time < 0) {
-			System.out.println("Identity 4");
+//			System.out.println("Identity 4");
 			return getIdentity(typeid);
 		}
 		// only one keyframe in the animation

@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.util.IterableListModel;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -8,18 +8,20 @@ import java.awt.*;
 import java.util.List;
 
 class MultiObjectPanel extends ObjectPanel {
-	ModelHolderThing mht;
+	List<ObjectShell> selectedValuesList;
 
-	public MultiObjectPanel(ModelHolderThing mht, final IterableListModel<BoneShell> possibleParents) {
+	public MultiObjectPanel(ModelHolderThing mht, BoneShellListCellRenderer bonePanelRenderer) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0", "[grow]", "[][][][][grow]"));
+
 		title = new JLabel("Multiple Selected");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 		add(title, "align center, wrap");
 
+		this.bonePanelRenderer = bonePanelRenderer;
+
 		doImport = new JCheckBox("Import these objects (click to apply to all)");
-		doImport.setSelected(true);
-		doImport.addActionListener(e -> doImportPressed());
+		doImport.addActionListener(e -> doImportPressed(doImport.isSelected()));
 		add(doImport, "left, wrap");
 
 		oldParentLabel = new JLabel("(Old parent can only be displayed for a single object)");
@@ -28,18 +30,24 @@ class MultiObjectPanel extends ObjectPanel {
 		parentLabel = new JLabel("Parent:");
 		add(parentLabel, "left, wrap");
 
-		parents = possibleParents;
-		parentsList = new JList<>(parents);
-		parentsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		parentsPane = new JScrollPane(parentsList);
-		parentsPane.setEnabled(false);
-		add(parentsPane, "growx, growy 200");
+		add(getParentListPane(bonePanelRenderer), "growx, growy 200");
 	}
 
-	public void updateMultiObjectPanel(){
-		List<ObjectShell> selectedValuesList = mht.donModObjectJList.getSelectedValuesList();
+	private JScrollPane getParentListPane(BoneShellListCellRenderer bonePanelRenderer) {
+		parentsList = new JList<>();
+		parentsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		parentsList.setCellRenderer(bonePanelRenderer);
+		parentsPane = new JScrollPane(parentsList);
+		parentsPane.setEnabled(false);
+		return parentsPane;
+	}
+
+	public void setSelectedObjects(List<ObjectShell> selectedValuesList){
+		this.selectedValuesList = selectedValuesList;
 
 		boolean firstShouldImport = selectedValuesList.get(0).getShouldImport();
+		parents = mht.getFutureBoneHelperList();
+		bonePanelRenderer.setSelectedObjectShell(null);
 
 		if (selectedValuesList.stream().anyMatch(objectShell -> objectShell.getShouldImport() != firstShouldImport)){
 			doImport.setSelected(false);
@@ -48,11 +56,12 @@ class MultiObjectPanel extends ObjectPanel {
 			doImport.setSelected(firstShouldImport);
 			doImport.setBackground(this.getBackground());
 		}
+		repaint();
 	}
 
-	private void doImportPressed() {
-		for (ObjectShell op : mht.donModObjectJList.getSelectedValuesList()) {
-			op.setShouldImport(doImport.isSelected());
+	private void doImportPressed(boolean doImport) {
+		for (ObjectShell op : selectedValuesList) {
+			op.setShouldImport(doImport);
 		}
 	}
 }

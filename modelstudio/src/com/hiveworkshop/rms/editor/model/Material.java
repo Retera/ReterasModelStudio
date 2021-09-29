@@ -1,8 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.util.HD_Material_Layer;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,10 +31,10 @@ public class Material {
 		this.layers.addAll(layers);
 	}
 
-	public Material(final Material material) {
+	private Material(final Material material) {
 		// copying the layers so the new material don't have to share them with the old one
 		for (Layer layer : material.layers) {
-			this.layers.add(new Layer(layer));
+			this.layers.add(layer.deepCopy());
 		}
 		priorityPlane = material.priorityPlane;
 		shaderString = material.shaderString;
@@ -52,16 +49,16 @@ public class Material {
 		if (layers.size() > 0) {
 			if (SHADER_HD_DEFAULT_UNIT.equals(shaderString)) {
 				try {
-					name.append(" over ").append(layers.get(0).texture.getName());
+					name.append(" over ").append(layers.get(0).getTextureBitmap().getName());
 					if (layers.get(0).find("Alpha") != null) {
 						name.append(" (animated Alpha)");
 					}
 				} catch (final NullPointerException e) {
-					name.append(" over ").append("animated texture layers (").append(layers.get(0).textures.get(0).getName()).append(")");
+					name.append(" over ").append("animated texture layers (").append(layers.get(0).getTextures().get(0).getName()).append(")");
 				}
 			} else {
-				if (layers.get(layers.size() - 1).texture != null) {
-					name = new StringBuilder(layers.get(layers.size() - 1).texture.getName());
+				if (layers.get(layers.size() - 1).getTextureBitmap() != null) {
+					name = new StringBuilder(layers.get(layers.size() - 1).getTextureBitmap().getName());
 					if (layers.get(layers.size() - 1).find("Alpha") != null) {
 						name.append(" (animated Alpha)");
 					}
@@ -70,12 +67,12 @@ public class Material {
 				}
 				for (int i = layers.size() - 2; i >= 0; i--) {
 					try {
-						name.append(" over ").append(layers.get(i).texture.getName());
+						name.append(" over ").append(layers.get(i).getTextureBitmap().getName());
 						if (layers.get(i).find("Alpha") != null) {
 							name.append(" (animated Alpha)");
 						}
 					} catch (final NullPointerException e) {
-						name.append(" over ").append("animated texture layers (").append(layers.get(i).textures.get(0).getName()).append(")");
+						name.append(" over ").append("animated texture layers (").append(layers.get(i).getTextures().get(0).getName()).append(")");
 					}
 				}
 			}
@@ -93,17 +90,17 @@ public class Material {
 		if (layers.size() > 0) {
 			if (SHADER_HD_DEFAULT_UNIT.equals(shaderString)) {
 				try {
-					name.append(over).append(layers.get(0).texture.getName());
+					name.append(over).append(layers.get(0).getTextureBitmap().getName());
 					if (layers.get(0).find("Alpha") != null) {
 						name.append(animated + alpha);
 					}
 				} catch (final NullPointerException e) {
 //					name.append(over).append(animated + texture).append("animated texture layers (").append(layers.get(0).textures.get(0).getName()).append(")");
-					name.append(over).append(animated + texture).append("(").append(layers.get(0).textures.get(0).getName()).append(")");
+					name.append(over).append(animated + texture).append("(").append(layers.get(0).getTextures().get(0).getName()).append(")");
 				}
 			} else {
-				if (layers.get(layers.size() - 1).texture != null) {
-					name = new StringBuilder(layers.get(layers.size() - 1).texture.getName());
+				if (layers.get(layers.size() - 1).getTextureBitmap() != null) {
+					name = new StringBuilder(layers.get(layers.size() - 1).getTextureBitmap().getName());
 					if (layers.get(layers.size() - 1).find("Alpha") != null) {
 						name.append(animated + alpha);
 					}
@@ -111,14 +108,18 @@ public class Material {
 					name = new StringBuilder(animated + texture);
 				}
 				for (int i = layers.size() - 2; i >= 0; i--) {
+					Layer layer = layers.get(i);
 					try {
-						name.append(over).append(layers.get(i).texture.getName());
-						if (layers.get(i).find("Alpha") != null) {
+						Bitmap textureBitmap = layer.getTextureBitmap();
+						if(textureBitmap != null){
+							name.append(over).append(textureBitmap.getName());
+						}
+						if (layer.find("Alpha") != null) {
 							name.append(animated + alpha);
 						}
 					} catch (final NullPointerException e) {
 //						name.append(over).append(animated + texture).append("animated texture layers (").append(layers.get(i).textures.get(0).getName()).append(")");
-						name.append(over).append(animated + texture).append("(").append(layers.get(i).textures.get(0).getName()).append(")");
+						name.append(over).append(animated + texture).append("(").append(layer.getTextures().get(0).getName()).append(")");
 					}
 				}
 			}
@@ -263,54 +264,7 @@ public class Material {
 		this.twoSided = twoSided;
 	}
 
-	public void makeHD() {
-		setShaderString("Shader_HD_DefaultUnit");
-		Layer diffuseLayer;
-		if (!layers.isEmpty()){
-			diffuseLayer = layers.stream().filter(layer -> !layer.getTextureBitmap().getPath().equals("")).findFirst().orElse(layers.get(0));
-		} else {
-			diffuseLayer = new Layer("None", getBitmap("Textures\\White.dds"));
-		}
-		layers.clear();
-
-		addLayer(HD_Material_Layer.DIFFUSE.ordinal(), diffuseLayer);
-		addLayer(HD_Material_Layer.VERTEX.ordinal(), new Layer("None", getBitmap("Textures\\normal.dds")));
-		addLayer(HD_Material_Layer.ORM.ordinal(), new Layer("None", getBitmap("Textures\\orm.dds")));
-		addLayer(HD_Material_Layer.EMISSIVE.ordinal(), new Layer("None", getBitmap("Textures\\Black32.dds")));
-		addLayer(HD_Material_Layer.TEAM_COLOR.ordinal(), new Layer("None", new Bitmap("", 1)));
-		addLayer(HD_Material_Layer.REFLECTIONS.ordinal(), new Layer("None", getBitmap("ReplaceableTextures\\EnvironmentMap.dds")));
-
-		for (final Layer l : getLayers()) {
-			l.setEmissive(1.0);
-		}
-	}
-
-	private Bitmap getBitmap(String s) {
-		final Bitmap ormTex = new Bitmap(s);
-		ormTex.setWrapHeight(true);
-		ormTex.setWrapWidth(true);
-		return ormTex;
-	}
-
-	public void makeSD() {
-		if (getShaderString() != null) {
-			setShaderString(null);
-			final Layer layerZero = getLayers().get(0);
-			clearLayers();
-			addLayer(layerZero);
-			if (getTwoSided()) {
-				setTwoSided(false);
-				layerZero.setTwoSided(true);
-			}
-		}
-		for (final Layer layer : getLayers()) {
-			if (!Double.isNaN(layer.getEmissive())) {
-				layer.setEmissive(Double.NaN);
-			}
-			final AnimFlag<?> flag = layer.find("Emissive");
-			if (flag != null) {
-				layer.remove(flag);
-			}
-		}
+	public Material deepCopy(){
+		return new Material(this);
 	}
 }

@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.browsers.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
@@ -231,24 +230,22 @@ public class ModelOptionPanel extends JPanel {
 	}
 
 	private void showModel(String filepath) {
-		EditableModel toLoad = blank;
-		ModelView modelDisp;
+		EditableModel toLoad;
 		try {
 			if (filepath.endsWith(".mdl")) {
 				filepath = filepath.replace(".mdl", ".mdx");
 			} else if (!filepath.endsWith(".mdx")) {
 				filepath = filepath.concat(".mdx");
 			}
-			final InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
-			final MdlxModel mdlxModel = MdxUtils.loadMdlx(modelStream);
+			InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
+			MdlxModel mdlxModel = MdxUtils.loadMdlx(modelStream);
 			toLoad = TempOpenModelStuff.createEditableModel(mdlxModel);
-			modelDisp = new ModelView(toLoad);
 		} catch (final Exception exc) {
 			exc.printStackTrace();
+			toLoad = blank;
 			// bad model!
-			modelDisp = null;
 		}
-		viewer.setModel(modelDisp);
+		viewer.setModel(toLoad);
 		viewer.setTitle(toLoad.getName());
 	}
 
@@ -397,7 +394,7 @@ public class ModelOptionPanel extends JPanel {
 			if (filepath.length() > 0) {
 				NamedList<String> unitList = getUnitList(itemsModelData, unit, filepath);
 				unitList.add(unit.getName());
-				System.out.println("unit.fieldValue: " + unit.getFieldValue("numVar"));
+//				System.out.println("unit.fieldValue: " + unit.getFieldValue("numVar"));
 			}
 		}
 	}
@@ -464,7 +461,7 @@ public class ModelOptionPanel extends JPanel {
 		groups.add(extra);
 
 		for (final Model model : extra.models) {
-			System.out.println(model);// + ": \"" + model.filepath + "\"");
+			System.out.println("Extra model: " + model);// + ": \"" + model.filepath + "\"");
 		}
 	}
 

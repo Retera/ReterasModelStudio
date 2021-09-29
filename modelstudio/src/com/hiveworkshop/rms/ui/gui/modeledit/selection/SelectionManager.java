@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.editor.actions.selection.RemoveSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.render3d.RenderNode;
+import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
@@ -182,7 +182,7 @@ public class SelectionManager extends AbstractSelectionManager {
 
 			for (IdObject object : modelView.getEditableIdObjects()) {
 				double vertexSize = object.getClickRadius() * 2;
-				RenderNode renderNode = editorRenderModel.getRenderNode(object);
+				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
 				if (HitTestStuff.hitTest(min, max, renderNode.getPivot(), coordinateSystem, vertexSize)) {
 					selectedItems.add(object);
 				}
@@ -257,8 +257,8 @@ public class SelectionManager extends AbstractSelectionManager {
 
 			for (IdObject object : modelView.getEditableIdObjects()) {
 				double vertexSize = object.getClickRadius() * 2;
-				RenderNode renderNode = editorRenderModel.getRenderNode(object);
-				if (HitTestStuff.hitTest(min, max, renderNode.getPivot(), viewPortMat, ProgramGlobals.getPrefs().getVertexSize(), zoom)) {
+				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
+				if (modelView.isEditable(object) && HitTestStuff.hitTest(min, max, renderNode.getPivot(), viewPortMat, ProgramGlobals.getPrefs().getVertexSize(), zoom)) {
 					selectedItems.add(object);
 				}
 			}
@@ -272,10 +272,10 @@ public class SelectionManager extends AbstractSelectionManager {
 		Set<Camera> selectedCams = new HashSet<>();
 		for (Camera camera : modelView.getEditableCameras()) {
 			int vertexSize = ProgramGlobals.getPrefs().getVertexSize();
-			if (HitTestStuff.hitTest(min, max, camera.getPosition(), coordinateSystem, vertexSize)) {
+			if (modelView.isEditable(camera) && HitTestStuff.hitTest(min, max, camera.getPosition(), coordinateSystem, vertexSize)) {
 				selectedCams.add(camera);
 			}
-			if (HitTestStuff.hitTest(min, max, camera.getTargetPosition(), coordinateSystem, vertexSize)) {
+			if (modelView.isEditable(camera) && HitTestStuff.hitTest(min, max, camera.getTargetPosition(), coordinateSystem, vertexSize)) {
 				selectedCams.add(camera);
 			}
 		}
@@ -286,8 +286,8 @@ public class SelectionManager extends AbstractSelectionManager {
 		Set<IdObject> selectedItems = new HashSet<>();
 		for (IdObject object : modelView.getEditableIdObjects()) {
 			double vertexSize1 = object.getClickRadius() * 2;
-			if (HitTestStuff.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize1)) {
-				System.out.println("selected " + object.getName());
+			if (modelView.isEditable(object) && HitTestStuff.hitTest(min, max, object.getPivotPoint(), coordinateSystem, vertexSize1)) {
+//				System.out.println("selected " + object.getName());
 				selectedItems.add(object);
 			}
 
@@ -312,6 +312,7 @@ public class SelectionManager extends AbstractSelectionManager {
 				}
 			}
 		}
+		newSelection.removeIf(vertex -> !modelView.isEditable(vertex));
 		return newSelection;
 	}
 
@@ -319,7 +320,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		Set<GeosetVertex> newSelection = new HashSet<>();
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (HitTestStuff.hitTest(min, max, geosetVertex, coordinateSystem, ProgramGlobals.getPrefs().getVertexSize()))
+				if (modelView.isEditable(geosetVertex) && HitTestStuff.hitTest(min, max, geosetVertex, coordinateSystem, ProgramGlobals.getPrefs().getVertexSize()))
 					newSelection.add(geosetVertex);
 			}
 		}
@@ -334,10 +335,10 @@ public class SelectionManager extends AbstractSelectionManager {
 		double zoom = cameraHandler.getZoom();
 		for (Camera camera : modelView.getEditableCameras()) {
 			int vertexSize = ProgramGlobals.getPrefs().getVertexSize();
-			if (HitTestStuff.hitTest(min, max, camera.getPosition(), viewPortMat, vertSize, zoom)) {
+			if (modelView.isEditable(camera) && HitTestStuff.hitTest(min, max, camera.getPosition(), viewPortMat, vertSize, zoom)) {
 				selectedCams.add(camera);
 			}
-			if (HitTestStuff.hitTest(min, max, camera.getTargetPosition(), viewPortMat, vertSize, zoom)) {
+			if (modelView.isEditable(camera) && HitTestStuff.hitTest(min, max, camera.getTargetPosition(), viewPortMat, vertSize, zoom)) {
 				selectedCams.add(camera);
 			}
 		}
@@ -352,8 +353,8 @@ public class SelectionManager extends AbstractSelectionManager {
 		for (IdObject object : modelView.getEditableIdObjects()) {
 			double vertSize = cameraHandler.geomDist(object.getClickRadius() / 2.0);
 //			double vertexSize1 = object.getClickRadius() * 2;
-			if (HitTestStuff.hitTest(min, max, object.getPivotPoint(), viewPortMat, vertSize, zoom)) {
-				System.out.println("selected " + object.getName());
+			if (modelView.isEditable(object) && HitTestStuff.hitTest(min, max, object.getPivotPoint(), viewPortMat, vertSize, zoom)) {
+//				System.out.println("selected " + object.getName());
 				selectedItems.add(object);
 			}
 
@@ -379,6 +380,7 @@ public class SelectionManager extends AbstractSelectionManager {
 				}
 			}
 		}
+		newSelection.removeIf(vertex -> !modelView.isEditable(vertex));
 		return newSelection;
 	}
 
@@ -394,7 +396,7 @@ public class SelectionManager extends AbstractSelectionManager {
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
 //			for (GeosetVertex geosetVertex : geoset.getVertices()) {
 
-				if (HitTestStuff.hitTest(min, max, renderVert.getRenderPos(), viewPortMat, vertSize, zoom))
+				if (modelView.isEditable(renderVert.getVertex()) && HitTestStuff.hitTest(min, max, renderVert.getRenderPos(), viewPortMat, vertSize, zoom))
 					newSelection.add(renderVert.getVertex());
 			}
 		}
@@ -723,7 +725,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		}
 		if(selectionMode == SelectionItemTypes.ANIMATE){
 			for (IdObject object : modelView.getEditableIdObjects()) {
-				RenderNode renderNode = editorRenderModel.getRenderNode(object);
+				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
 				double vertexSize = object.getClickRadius() * 2;
 				if (HitTestStuff.hitTest(renderNode.getPivot(), CoordSysUtils.geomV2(axes, point), axes, vertexSize)) {
 					return true;
@@ -737,7 +739,7 @@ public class SelectionManager extends AbstractSelectionManager {
 
 	public boolean selectableUnderCursor(Vec2 point, CameraHandler cameraHandler) {
 		for (IdObject object : modelView.getEditableIdObjects()) {
-			RenderNode renderNode = editorRenderModel.getRenderNode(object);
+			RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
 			double vertexSize = object.getClickRadius() * 2;
 			if (HitTestStuff.hitTest(renderNode.getPivot(), point, cameraHandler, vertexSize)) {
 				return true;
@@ -813,7 +815,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		}
 		if (selectionMode == SelectionItemTypes.ANIMATE) {
 			for (IdObject object : modelView.getEditableIdObjects()) {
-				RenderNode renderNode = editorRenderModel.getRenderNode(object);
+				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
 				double vertexSize = object.getClickRadius() * 2;
 				if (HitTestStuff.hitTest(renderNode.getPivot(), point, cameraHandler, vertexSize)) {
 					return true;

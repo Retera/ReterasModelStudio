@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.WindowHandler2;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
-import com.hiveworkshop.rms.ui.application.viewer.Particle2TextureInstance;
 import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 
@@ -66,9 +65,7 @@ public class ModelStructureChangeListener {
 		PerspectiveViewUgg modelDependentView = (PerspectiveViewUgg) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PerspectiveViewUgg).findFirst().orElse(null);
 		if (modelDependentView != null && modelDependentView.getPerspectiveViewport() != null) {
 			PerspectiveViewport viewport = modelDependentView.getPerspectiveViewport();
-//		    PerspectiveViewport viewport = modelPanel.getPerspArea().getViewport();
-			Particle2TextureInstance particleTextureInstance = new Particle2TextureInstance(viewport.getTextureThing(), modelPanel.getModelView(), ProgramGlobals.getPrefs());
-			modelPanel.getEditorRenderModel().refreshFromEditor(particleTextureInstance);
+			modelPanel.getEditorRenderModel().refreshFromEditor(viewport.getTextureThing());
 		}
 	}
 

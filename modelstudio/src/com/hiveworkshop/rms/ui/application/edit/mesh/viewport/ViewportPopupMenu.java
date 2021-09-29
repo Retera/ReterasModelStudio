@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.mesh.SplitGeosetAction;
-import com.hiveworkshop.rms.editor.actions.nodes.RenameBoneAction;
+import com.hiveworkshop.rms.editor.actions.nodes.NameChangeAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetParentAction;
 import com.hiveworkshop.rms.editor.actions.tools.AutoCenterBonesAction;
 import com.hiveworkshop.rms.editor.actions.tools.SetHdSkinAction;
@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ModelEditActions;
+import com.hiveworkshop.rms.ui.application.actionfunctions.RigSelection;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
@@ -100,7 +101,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		JMenu matrixMenu = new JMenu("Rig");
 		add(matrixMenu);
 
-		addMenuItem("Selected Mesh to Selected Nodes", e -> modelHandler.getUndoManager().pushAction(ModelEditActions.rig(modelHandler.getModelView())), matrixMenu);
+		addMenuItem("Selected Mesh to Selected Nodes", e -> RigSelection.doRig(modelHandler), matrixMenu);
 		addMenuItem("Re-assign Matrix", e -> reAssignMatrix(this.parent), matrixMenu);
 		addMenuItem("View Matrix", e -> ModelEditActions.viewMatrices(), matrixMenu);
 		addMenuItem("Re-assign HD Skin", e -> reAssignSkinning(this.parent), matrixMenu);
@@ -155,8 +156,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 
 	public void splitGeoset(ModelHandler modelHandler) {
 		SplitGeosetAction splitGeosetAction = new SplitGeosetAction(modelHandler.getModel(), ModelStructureChangeListener.changeListener, modelHandler.getModelView());
-		splitGeosetAction.redo();
-		modelHandler.getUndoManager().pushAction(splitGeosetAction);
+		modelHandler.getUndoManager().pushAction(splitGeosetAction.redo());
 	}
 
 
@@ -182,8 +182,9 @@ public class ViewportPopupMenu extends JPopupMenu {
 		String[] words = {"Accept", "Cancel"};
 		int i = JOptionPane.showOptionDialog(parent, matrixPopup, "Rebuild Matrix", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
-			UndoAction matrixAction2 = new SetMatrixAction3(modelHandler.getModelView().getSelectedVertices(), matrixPopup.getNewBoneList(), matrixPopup.getBonesNotInAll());
-			modelHandler.getUndoManager().pushAction(matrixAction2.redo());
+			Set<GeosetVertex> selectedVertices = modelHandler.getModelView().getSelectedVertices();
+			modelHandler.getUndoManager()
+					.pushAction(new SetMatrixAction3(selectedVertices, matrixPopup.getNewBoneList(), matrixPopup.getBonesNotInAll()).redo());
 		}
 	}
 
@@ -193,8 +194,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		int i = JOptionPane.showOptionDialog(parent, skinPopup, "Rebuild Skin", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
 			SetHdSkinAction hdSkinAction = new SetHdSkinAction(modelHandler.getModelView().getSelectedVertices(), skinPopup.getBones(), skinPopup.getSkinWeights());
-			hdSkinAction.redo();
-			modelHandler.getUndoManager().pushAction(hdSkinAction);
+			modelHandler.getUndoManager().pushAction(hdSkinAction.redo());
 		}
 	}
 
@@ -202,17 +202,11 @@ public class ViewportPopupMenu extends JPopupMenu {
 		if (!modelHandler.getModelView().getSelectedIdObjects().isEmpty()) {
 			String name = JOptionPane.showInputDialog(parent, "Enter bone suffix:");
 			if (name != null && !modelHandler.getModelView().getSelectedIdObjects().isEmpty()) {
-//			modelEditorManager.getModelEditor().addSelectedBoneSuffix(name);
-
 				List<UndoAction> actions = new ArrayList<>();
 				for (IdObject bone : modelHandler.getModelView().getSelectedIdObjects()) {
-					RenameBoneAction renameBoneAction = new RenameBoneAction(bone.getName() + name, bone);
-//				renameBoneAction.redo();
-					actions.add(renameBoneAction);
+					actions.add(new NameChangeAction(bone, name, null));
 				}
-				UndoAction undoAction = new CompoundAction("add selected bone suffix", actions);
-				undoAction.redo();
-				modelHandler.getUndoManager().pushAction(undoAction);
+				modelHandler.getUndoManager().pushAction(new CompoundAction("add selected bone suffix", actions, ModelStructureChangeListener.changeListener::nodesUpdated).redo());
 			}
 		} else {
 			JOptionPane.showMessageDialog(parent, "No node(s) selected");
@@ -232,11 +226,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 			}
 			String name = JOptionPane.showInputDialog(parent, "Enter bone name:", node.getName());
 			if (name != null) {
-//			modelEditorManager.getModelEditor().setSelectedBoneName(name);
-
-				RenameBoneAction renameBoneAction = new RenameBoneAction(name, node);
-				renameBoneAction.redo();
-				modelHandler.getUndoManager().pushAction(renameBoneAction);
+				modelHandler.getUndoManager().pushAction(new NameChangeAction(node, name, ModelStructureChangeListener.changeListener).redo());
 			}
 		}
 
@@ -272,11 +262,10 @@ public class ViewportPopupMenu extends JPopupMenu {
 			nodeOptions[i + 1] = new NodeShell(node);
 		}
 		NodeShell result = (NodeShell) JOptionPane.showInputDialog(parent, "Choose a parent node", "Set Parent Node", JOptionPane.PLAIN_MESSAGE, null, nodeOptions, defaultChoice);
-//		MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
 		if (result != null) {
-			// JOptionPane.showMessageDialog(null,"action approved");
-			SetParentAction setParentAction = new SetParentAction(modelHandler.getModelView().getSelectedIdObjects(), result.getNode(), ModelStructureChangeListener.changeListener);
-			modelHandler.getUndoManager().pushAction(setParentAction.redo());
+			Set<IdObject> selectedIdObjects = modelHandler.getModelView().getSelectedIdObjects();
+			modelHandler.getUndoManager()
+					.pushAction(new SetParentAction(selectedIdObjects, result.getNode(), ModelStructureChangeListener.changeListener).redo());
 		}
 	}
 
@@ -291,8 +280,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		}
 
 		if (!modelHandler.getModelView().isEmpty()) {
-			UndoAction translate = modelEditorManager.getModelEditor().translate(spinners.getValue());
-			modelHandler.getUndoManager().pushAction(translate);
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().translate(spinners.getValue()).redo());
 		}
 	}
 
@@ -307,9 +295,8 @@ public class ViewportPopupMenu extends JPopupMenu {
 		}
 
 		if (!modelHandler.getModelView().isEmpty()) {
-//		    UndoAction rotate = modelEditorManager.getModelEditor().rotate(modelEditorManager.getModelEditor().getSelectionCenter(), spinners.getValue());
-			UndoAction rotate = modelEditorManager.getModelEditor().rotate(modelHandler.getModelView().getSelectionCenter(), spinners.getValue());
-			modelHandler.getUndoManager().pushAction(rotate);
+			Vec3 selectionCenter = modelHandler.getModelView().getSelectionCenter();
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().rotate(selectionCenter, spinners.getValue()).redo());
 		}
 	}
 
@@ -322,9 +309,9 @@ public class ViewportPopupMenu extends JPopupMenu {
 			return;
 		}
 		if (!modelHandler.getModelView().isEmpty()) {
-//		    UndoAction setPosition = modelEditorManager.getModelEditor().setPosition(modelEditorManager.getModelEditor().getSelectionCenter(), spinners.getValue());
-			UndoAction setPosition = modelEditorManager.getModelEditor().setPosition(modelHandler.getModelView().getSelectionCenter(), spinners.getValue());
-			modelHandler.getUndoManager().pushAction(setPosition);
+			Vec3 selectionCenter = modelHandler.getModelView().getSelectionCenter();
+			modelHandler.getUndoManager()
+					.pushAction(modelEditorManager.getModelEditor().setPosition(selectionCenter, spinners.getValue()).redo());
 		}
 	}
 
@@ -354,10 +341,8 @@ public class ViewportPopupMenu extends JPopupMenu {
 			center = centerSpinners.getValue();
 		}
 		if (!modelHandler.getModelView().isEmpty()) {
-			UndoAction scalingAction = modelEditorManager.getModelEditor().scale(center, spinners.getValue());
-//		    GenericScaleAction scalingAction = modelEditorManager.getModelEditor().beginScaling(center);
-//		    scalingAction.updateScale(spinners.getValue());
-			modelHandler.getUndoManager().pushAction(scalingAction);
+			modelHandler.getUndoManager()
+					.pushAction(modelEditorManager.getModelEditor().scale(center, spinners.getValue()).redo());
 		}
 	}
 

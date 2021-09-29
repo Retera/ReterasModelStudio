@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.render3d.RenderNode;
+import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
@@ -71,7 +71,7 @@ public class AddKeyframeAction3 implements UndoAction {
 
 			actions.add(new AddTimelineAction<>(node, timeline));
 		}
-		RenderNode renderNode = modelHandler.getRenderModel().getRenderNode(node);
+		RenderNode2 renderNode = modelHandler.getRenderModel().getRenderNode(node);
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation())));
 	}
 
@@ -82,7 +82,7 @@ public class AddKeyframeAction3 implements UndoAction {
 
 			actions.add(new AddTimelineAction<>(node, timeline));
 		}
-		RenderNode renderNode = modelHandler.getRenderModel().getRenderNode(node);
+		RenderNode2 renderNode = modelHandler.getRenderModel().getRenderNode(node);
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalScale())));
 	}
 
@@ -93,7 +93,7 @@ public class AddKeyframeAction3 implements UndoAction {
 
 			actions.add(new AddTimelineAction<>(node, timeline));
 		}
-		RenderNode renderNode = modelHandler.getRenderModel().getRenderNode(node);
+		RenderNode2 renderNode = modelHandler.getRenderModel().getRenderNode(node);
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Quat(renderNode.getLocalRotation())));
 	}
 

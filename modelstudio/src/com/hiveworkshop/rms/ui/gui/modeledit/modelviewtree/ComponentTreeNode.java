@@ -81,6 +81,9 @@ public class ComponentTreeNode<T extends Named> extends DefaultMutableTreeNode {
 		treeRenderComponent.add(itemLabel);
 	}
 
+	public T getItem() {
+		return item;
+	}
 
 	public ComponentTreeNode(final Object userObject) {
 		super(userObject);

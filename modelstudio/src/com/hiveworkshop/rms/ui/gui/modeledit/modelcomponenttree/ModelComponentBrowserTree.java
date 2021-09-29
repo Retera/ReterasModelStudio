@@ -146,11 +146,11 @@ public final class ModelComponentBrowserTree extends JTree {
 			materials.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.MATERIAL, modelView, item, number++).setNameFunc(() -> "# " + number1 + " " + item.getName())));
 		}
 
-		DefaultMutableTreeNode tVertexAnims = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TVERT_ANIM, modelView, "TVertexAnims").setNameFunc(() -> "TVertexAnims"));
-		root.add(tVertexAnims);
+		DefaultMutableTreeNode textureAnims = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE_ANIM, modelView, "TextureAnims").setNameFunc(() -> "TextureAnims"));
+		root.add(textureAnims);
 		number = 0;
 		for (TextureAnim item : model.getTexAnims()) {
-			tVertexAnims.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TVERT_ANIM, modelView, item, number++).setNameFunc(() -> "# " + model.getTexAnims().indexOf(item))));
+			textureAnims.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.TEXTURE_ANIM, modelView, item, number++).setNameFunc(() -> "# " + model.getTexAnims().indexOf(item))));
 		}
 
 		DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ITEM, modelView, "Geosets").setNameFunc(() -> "Geosets"));

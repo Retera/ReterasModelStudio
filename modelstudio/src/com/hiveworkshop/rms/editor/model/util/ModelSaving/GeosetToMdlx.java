@@ -90,7 +90,7 @@ public class GeosetToMdlx {
 		int matrixIndex = 0;
 		int groupIndex = 0;
 		for (final Matrix matrix : geoset.getMatrices()) {
-			for (int index = 0; index < matrix.size(); index++) {
+			for (int index = 0; index < matrix.size() && matrixIndex < mdlxGeoset.matrixIndices.length; index++) {
 				mdlxGeoset.matrixIndices[matrixIndex++] = matrix.get(index).getObjectId(model);
 			}
 			if (matrix.size() <= 0) {

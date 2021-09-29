@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.util.BiMap;
 
 import java.util.*;
 
@@ -12,12 +11,10 @@ public class DeleteNodesAction implements UndoAction {
 	private final Set<IdObject> selectedObjects;
 	private final ModelStructureChangeListener changeListener;
 	private final EditableModel model;
-	private final Set<IdObject> quickHashSetRemovedObjects;
 	private final Set<Camera> selectedCameras;
 
 	private CompoundAction meshLinkDelete;
 
-	private final BiMap<IdObject, IdObject> parentMap = new BiMap<>();
 	private final Map<IdObject, IdObject> topParentMap = new HashMap<>();
 	private final Map<IdObject, Set<IdObject>> childMap = new HashMap<>();
 
@@ -33,14 +30,21 @@ public class DeleteNodesAction implements UndoAction {
 
 		this.model = model;
 
-		this.quickHashSetRemovedObjects = new HashSet<>();
-		quickHashSetRemovedObjects.addAll(selectedObjects);
-
 		for (IdObject idObject : selectedObjects) {
-			parentMap.put(idObject, idObject.getParent());
 			topParentMap.put(idObject, topParent(idObject));
 			childMap.put(idObject, new HashSet<>(idObject.getChildrenNodes()));
 		}
+	}
+	public DeleteNodesAction(Collection<IdObject> selectedObjects,
+	                         ModelStructureChangeListener changeListener,
+	                         EditableModel model) {
+		this(selectedObjects, Collections.emptySet(), changeListener, model);
+	}
+
+	public DeleteNodesAction(IdObject selectedObject,
+	                         ModelStructureChangeListener changeListener,
+	                         EditableModel model) {
+		this(Collections.singleton(selectedObject), Collections.emptySet(), changeListener, model);
 	}
 
 	private IdObject topParent(IdObject idObject){

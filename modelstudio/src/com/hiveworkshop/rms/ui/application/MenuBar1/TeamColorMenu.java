@@ -6,11 +6,13 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 
 import javax.swing.*;
+import java.awt.event.KeyEvent;
 
 public class TeamColorMenu extends JMenu {
 
 	public TeamColorMenu() {
 		super("Team Color");
+		setMnemonic(KeyEvent.VK_C);
 		getAccessibleContext().setAccessibleDescription("Allows the user to control team color settings.");
 		createTeamColorMenuItems();
 	}

@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.filesystem.sources.FolderDataSource;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -301,29 +302,19 @@ public class EditableModel implements Named {
 
 	public void remove(final Bitmap texture) {
 		// remove a texture, replacing with "Textures\\white.blp" if necessary.
-		final Bitmap replacement = new Bitmap("Textures\\white.blp");
 		textures.remove(texture);
-		for (final Material material : materials) {
-			for (final Layer layer : material.getLayers()) {
-				if (layer.getTextureBitmap().equals(texture)) {
-					layer.setTexture(replacement);
-				} else {
-					if ((layer.getTextures() != null) && layer.getTextures().contains(texture)) {
-						for (int i = 0; i < layer.getTextures().size(); i++) {
-							if (layer.getTextures().get(i).equals(texture)) {
-								layer.getTextures().set(i, replacement);
-							}
-						}
-					}
-				}
-			}
-		}
-//		for (final ParticleEmitter2 emitter : (List<ParticleEmitter2>)sortedIdObjects(ParticleEmitter2.class)) {
-		for (final ParticleEmitter2 emitter : getParticleEmitter2s()) {
-			if (emitter.getTexture().equals(texture)) {
-				emitter.setTexture(replacement);
-			}
-		}
+//		final Bitmap replacement = new Bitmap("Textures\\white.blp");
+//		for (final Material material : materials) {
+//			for (final Layer layer : material.getLayers()) {
+//				layer.replaceTexture(texture, replacement);
+//			}
+//		}
+////		for (final ParticleEmitter2 emitter : (List<ParticleEmitter2>)sortedIdObjects(ParticleEmitter2.class)) {
+//		for (final ParticleEmitter2 emitter : getParticleEmitter2s()) {
+//			if (emitter.getTexture().equals(texture)) {
+//				emitter.setTexture(replacement);
+//			}
+//		}
 	}
 
 	public void sortIdObjects() {
@@ -547,6 +538,12 @@ public class EditableModel implements Named {
 
 	public void setHeader(final ArrayList<String> header) {
 		this.header = header;
+	}
+
+	public List<Sequence> getAllSequences() {
+		ArrayList<Sequence> sequences = new ArrayList<>(globalSeqs);
+		sequences.addAll(anims);
+		return sequences;
 	}
 
 	public List<Animation> getAnims() {

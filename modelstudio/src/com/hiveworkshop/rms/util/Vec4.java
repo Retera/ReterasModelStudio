@@ -175,6 +175,53 @@ public class Vec4 {
 
 		return set(newX, newY, newZ, newW);
 	}
+	public Vec4 transformInverted(Mat4 mat4) {
+		float b00 = mat4.m00 * mat4.m11 - mat4.m01 * mat4.m10;
+		float b01 = mat4.m00 * mat4.m12 - mat4.m02 * mat4.m10;
+		float b02 = mat4.m00 * mat4.m13 - mat4.m03 * mat4.m10;
+		float b03 = mat4.m01 * mat4.m12 - mat4.m02 * mat4.m11;
+		float b04 = mat4.m01 * mat4.m13 - mat4.m03 * mat4.m11;
+		float b05 = mat4.m02 * mat4.m13 - mat4.m03 * mat4.m12;
+		float b06 = mat4.m20 * mat4.m31 - mat4.m21 * mat4.m30;
+		float b07 = mat4.m20 * mat4.m32 - mat4.m22 * mat4.m30;
+		float b08 = mat4.m20 * mat4.m33 - mat4.m23 * mat4.m30;
+		float b09 = mat4.m21 * mat4.m32 - mat4.m22 * mat4.m31;
+		float b10 = mat4.m21 * mat4.m33 - mat4.m23 * mat4.m31;
+		float b11 = mat4.m22 * mat4.m33 - mat4.m23 * mat4.m32;
+
+		// Calculate the determinant
+		float det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
+		if (det == 0f) {
+			return null;
+		}
+
+		det = 1f / det;
+
+		float tmp00 = (mat4.m11 * b11) - (mat4.m12 * b10) + (mat4.m13 * b09) * det;
+		float tmp01 = (mat4.m02 * b10) - (mat4.m01 * b11) - (mat4.m03 * b09) * det;
+		float tmp02 = (mat4.m31 * b05) - (mat4.m32 * b04) + (mat4.m33 * b03) * det;
+		float tmp03 = (mat4.m22 * b04) - (mat4.m21 * b05) - (mat4.m23 * b03) * det;
+		float tmp10 = (mat4.m12 * b08) - (mat4.m10 * b11) - (mat4.m13 * b07) * det;
+		float tmp11 = (mat4.m00 * b11) - (mat4.m02 * b08) + (mat4.m03 * b07) * det;
+		float tmp12 = (mat4.m32 * b02) - (mat4.m30 * b05) - (mat4.m33 * b01) * det;
+		float tmp13 = (mat4.m20 * b05) - (mat4.m22 * b02) + (mat4.m23 * b01) * det;
+		float tmp20 = (mat4.m10 * b10) - (mat4.m11 * b08) + (mat4.m13 * b06) * det;
+		float tmp21 = (mat4.m01 * b08) - (mat4.m00 * b10) - (mat4.m03 * b06) * det;
+		float tmp22 = (mat4.m30 * b04) - (mat4.m31 * b02) + (mat4.m33 * b00) * det;
+		float tmp23 = (mat4.m21 * b02) - (mat4.m20 * b04) - (mat4.m23 * b00) * det;
+		float tmp30 = (mat4.m11 * b07) - (mat4.m10 * b09) - (mat4.m12 * b06) * det;
+		float tmp31 = (mat4.m00 * b09) - (mat4.m01 * b07) + (mat4.m02 * b06) * det;
+		float tmp32 = (mat4.m31 * b01) - (mat4.m30 * b03) - (mat4.m32 * b00) * det;
+		float tmp33 = (mat4.m20 * b03) - (mat4.m21 * b01) + (mat4.m22 * b00) * det;
+
+		float newX = (tmp00 * x) + (tmp10 * y) + (tmp20 * z) + (tmp30 * w);
+		float newY = (tmp01 * x) + (tmp11 * y) + (tmp21 * z) + (tmp31 * w);
+		float newZ = (tmp02 * x) + (tmp12 * y) + (tmp22 * z) + (tmp32 * w);
+		float newW = (tmp03 * x) + (tmp13 * y) + (tmp23 * z) + (tmp33 * w);
+
+		return set(newX, newY, newZ, newW);
+	}
 
 	public Vec4 transform(Quat quat) {
 		float uvx = quat.y * z - quat.z * y;

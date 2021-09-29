@@ -9,7 +9,7 @@ import java.util.List;
 public class AnimShell {
 	private Animation anim;
 	private Animation importAnim;
-	private List<AnimShell> animShellList = new ArrayList<>();
+	private List<AnimShell> animShellsToTimeScaleInto = new ArrayList<>();
 	private AnimShell importAnimShell;
 	private boolean reverse = false;
 	private ImportType importType = ImportType.IMPORTBASIC;
@@ -39,12 +39,12 @@ public class AnimShell {
 		return importAnim;
 	}
 
-	public List<AnimShell> getAnimShellList() {
-		return animShellList;
+	public List<AnimShell> getAnimShellsToTimeScaleInto() {
+		return animShellsToTimeScaleInto;
 	}
 
-	public AnimShell setAnimShellList(List<AnimShell> animShellList) {
-		this.animShellList = animShellList;
+	public AnimShell setAnimShellsToTimeScaleInto(List<AnimShell> animShellsToTimeScaleInto) {
+		this.animShellsToTimeScaleInto = animShellsToTimeScaleInto;
 		return this;
 	}
 
@@ -81,24 +81,24 @@ public class AnimShell {
 	}
 
 	public void addToList(AnimShell animShell) {
-		animShellList.add(animShell);
+		animShellsToTimeScaleInto.add(animShell);
 	}
 
 	public void addToList(List<AnimShell> animShells) {
-		animShellList.addAll(animShells);
+		animShellsToTimeScaleInto.addAll(animShells);
 	}
 
 	public void removeFromList(AnimShell animShell) {
-		animShellList.remove(animShell);
+		animShellsToTimeScaleInto.remove(animShell);
 	}
 
 	public void removeFromList(List<AnimShell> animShells) {
-		animShellList.removeAll(animShells);
+		animShellsToTimeScaleInto.removeAll(animShells);
 	}
 
 	public void setList(List<AnimShell> animShells) {
-		animShellList.removeAll(animShells);
-		animShellList.addAll(animShells);
+		animShellsToTimeScaleInto.removeAll(animShells);
+		animShellsToTimeScaleInto.addAll(animShells);
 	}
 
 
@@ -149,6 +149,11 @@ public class AnimShell {
 		}
 
 		public String getDispText() {
+			return dispText;
+		}
+
+		@Override
+		public String toString() {
 			return dispText;
 		}
 	}

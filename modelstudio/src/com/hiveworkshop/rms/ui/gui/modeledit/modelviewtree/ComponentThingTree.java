@@ -23,6 +23,7 @@ import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 import java.util.*;
 
 /**
@@ -114,11 +115,60 @@ public class ComponentThingTree extends JTree {
 //		cameras = new ComponentTreeNode<>(modelView, new Camera());
 	}
 
+	public ComponentThingTree reloadTree() {
+		TreePath rootPath = new TreePath(getModel().getRoot());
+		Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
+		DefaultTreeModel treeModel = buildTreeModel(modelHandler);
+		System.out.println("ComponentThingTree#setModel: setTreeModel");
+		setModel(treeModel);
+
+		expandTree(expandedDescendants);
+		return this;
+	}
+
+	private void expandTree(Enumeration<TreePath> expandedDescendants) {
+		TreePath newRootPath = new TreePath(getModel().getRoot());
+		List<TreePath> pathsToExpand = new ArrayList<>();
+
+		while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
+			TreePath nextPathToExpand = expandedDescendants.nextElement();
+
+			TreePath newPathWithNewObjects = newRootPath;
+			ComponentTreeNode<?> currentNode = (ComponentTreeNode<?>) getModel().getRoot();
+			newPathWithNewObjects = getTreePath(nextPathToExpand, newPathWithNewObjects, currentNode);
+
+			pathsToExpand.add(newPathWithNewObjects);
+		}
+		for (final TreePath path : pathsToExpand) {
+			expandPath(path);
+		}
+	}
+
+	private TreePath getTreePath(TreePath nextPathToExpand, TreePath newPathWithNewObjects, ComponentTreeNode<?> currentNode) {
+		for (int i = 1; i < nextPathToExpand.getPathCount(); i++) {
+			ComponentTreeNode<?> pathComponent = (ComponentTreeNode<?>) nextPathToExpand.getPathComponent(i);
+			boolean foundMatchingChild = false;
+			for (int j = 0; j < currentNode.getChildCount() && foundMatchingChild == false; j++) {
+				ComponentTreeNode<?> childAt = (ComponentTreeNode<?>) currentNode.getChildAt(j);
+				if (childAt.getItem() == pathComponent.getItem()) {
+					currentNode = childAt;
+					newPathWithNewObjects = newPathWithNewObjects.pathByAddingChild(childAt);
+					foundMatchingChild = true;
+				}
+			}
+			if (foundMatchingChild == false) {
+				break;
+			}
+		}
+		return newPathWithNewObjects;
+	}
+
+
 	private DefaultTreeModel buildTreeModel(ModelHandler modelHandler) {
 		root.removeAllChildren();
 		meshes.removeAllChildren();
-//		cameras.removeAllChildren();
 		nodes.removeAllChildren();
+//		cameras.removeAllChildren();
 
 		if (modelHandler != null) {
 			buildGeosetTree(modelHandler);

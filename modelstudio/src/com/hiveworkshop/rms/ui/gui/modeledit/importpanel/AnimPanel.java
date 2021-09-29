@@ -26,7 +26,6 @@ class AnimPanel extends JPanel {
 	JPanel nameCard = new JPanel();
 	JTextField newNameEntry = new JTextField("", 40);
 
-	JPanel animListCard = new JPanel();
 	IterableListModel<AnimShell> recModAnims;
 	IterableListModel<AnimShell> recModAnimListModel;
 	JList<AnimShell> recModAnimJList;
@@ -49,38 +48,48 @@ class AnimPanel extends JPanel {
 
 		title = new JLabel("Select an Animation");
 		title.setFont(new Font("Arial", Font.BOLD, 26));
+
 		add(title, "align center, spanx, wrap");
 
-		inReverse = new JCheckBox("Reverse");
-		inReverse.setSelected(false);
-		inReverse.addActionListener(e -> setInReverse());
-		inReverse.setEnabled(false);
-		add(inReverse, "left, wrap");
-
-		importTypeBox.setEditable(false);
-		importTypeBox.addItemListener(this::showCorrectCard);
-		importTypeBox.setMaximumSize(new Dimension(200, 20));
-		importTypeBox.setEnabled(false);
-		add(importTypeBox, "wrap");
+		add(getReverseCheckBox(), "left, wrap");
+		add(getImportTypeBox(), "wrap");
 
 		nameCard.add(newNameEntry);
 		animRenderer = renderer;
-		recModAnimJList = new JList<>(recModAnimListModel);
-		recModAnimJList.setCellRenderer(animRenderer);
-		recModAnimJList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-
-		recModAnimJList.addListSelectionListener(this::updateList);
-
-		animListPane = new JScrollPane(recModAnimJList);
-		animListCard.add(animListPane);
 
 		cardPane.setLayout(animCardLayout);
 		cardPane.add(blankCardImp, AnimShell.ImportType.DONTIMPORT.getDispText());
 		cardPane.add(blankCardImp, AnimShell.ImportType.IMPORTBASIC.getDispText());
 		cardPane.add(nameCard, AnimShell.ImportType.CHANGENAME.getDispText());
-		cardPane.add(animListPane, AnimShell.ImportType.TIMESCALE.getDispText());
+		cardPane.add(getAnimListPane(), AnimShell.ImportType.TIMESCALE.getDispText());
 		cardPane.add(blankCardGS, AnimShell.ImportType.GLOBALSEQ.getDispText());
 		add(cardPane, "growx, growy");
+	}
+
+	private JCheckBox getReverseCheckBox() {
+		inReverse = new JCheckBox("Reverse");
+		inReverse.setSelected(false);
+		inReverse.addActionListener(e -> setInReverse());
+		inReverse.setEnabled(false);
+		return inReverse;
+	}
+
+	private JComboBox<String> getImportTypeBox() {
+		importTypeBox.setEditable(false);
+		importTypeBox.addItemListener(this::showCorrectCard);
+		importTypeBox.setMaximumSize(new Dimension(200, 20));
+		importTypeBox.setEnabled(false);
+		return importTypeBox;
+	}
+
+	private JScrollPane getAnimListPane() {
+		recModAnimJList = new JList<>(recModAnimListModel);
+		recModAnimJList.setCellRenderer(animRenderer);
+		recModAnimJList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		recModAnimJList.addListSelectionListener(this::selectAnim);
+		recModAnimJList.setSelectedValue(null, false);
+		animListPane = new JScrollPane(recModAnimJList);
+		return animListPane;
 	}
 
 	public void setSelectedAnim(AnimShell animShell) {
@@ -98,11 +107,13 @@ class AnimPanel extends JPanel {
 	}
 
 	private void showCorrectCard(ItemEvent e) {
-		animCardLayout.show(cardPane, (String) e.getItem());
-		System.out.println("StateChange: " + e.getStateChange() + ", selected Index: " + importTypeBox.getSelectedIndex());
-		selectedAnim.setImportType(importTypeBox.getSelectedIndex());
-		inReverse.setEnabled(selectedAnim.getImportType() != AnimShell.ImportType.DONTIMPORT);
-		updateRecModAnimList();
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			animCardLayout.show(cardPane, (String) e.getItem());
+			System.out.println("StateChange: " + e.getStateChange() + ", selected Index: " + importTypeBox.getSelectedIndex());
+			selectedAnim.setImportType(importTypeBox.getSelectedIndex());
+			inReverse.setEnabled(selectedAnim.getImportType() != AnimShell.ImportType.DONTIMPORT);
+			updateRecModAnimList();
+		}
 	}
 
 	private void updateRecModAnimList() {
@@ -121,7 +132,7 @@ class AnimPanel extends JPanel {
 		recModAnimListModel.addAll(usedAnims);
 	}
 
-	private void updateList(ListSelectionEvent e) {
+	private void selectAnim(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
 			for (AnimShell animShell : recModAnimJList.getSelectedValuesList()) {
 				if (animShell.getImportAnimShell() == selectedAnim) {

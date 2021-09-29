@@ -18,17 +18,17 @@ public class RemoveSequenceAction implements UndoAction {
 	private final String name;
 	private final ModelStructureChangeListener changeListener;
 	private final Map<EventObject, Set<Integer>> eventTracksToRemove = new HashMap<>();
-	List<RemoveFlagEntryMapAction<?>> removeFlagEntryMapActions = new ArrayList<>();
+	private final List<RemoveFlagEntryMapAction<?>> removeFlagEntryMapActions = new ArrayList<>();
 
 	public RemoveSequenceAction(EditableModel model, Sequence sequence, ModelStructureChangeListener changeListener) {
 		this.model = model;
 		this.sequence = sequence;
+		this.changeListener = changeListener;
 		if (sequence instanceof GlobalSeq) {
 			this.name = "GlobalSeq " + model.getGlobalSeqId((GlobalSeq) sequence) + " (" + sequence.getLength() + ")";
 		} else {
 			this.name = "Animation " + ((Animation) sequence).getName();
 		}
-		this.changeListener = changeListener;
 
 		for (AnimFlag<?> animFlag : model.getAllAnimFlags()) {
 			if (animFlag.hasSequence(sequence)) {

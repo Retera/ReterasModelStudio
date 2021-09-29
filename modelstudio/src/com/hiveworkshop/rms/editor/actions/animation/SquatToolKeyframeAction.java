@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
-import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -157,7 +156,7 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 
 			rotationAxis.transform(parentRenderNode.getWorldMatrix());
 			rotationAxis.add(axis);
-			rotationAxis.transform(Mat4.getInverted(parentRenderNode.getWorldMatrix()));
+			rotationAxis.transformInverted(parentRenderNode.getWorldMatrix());
 		} else {
 			rotationAxis.add(axis);
 		}

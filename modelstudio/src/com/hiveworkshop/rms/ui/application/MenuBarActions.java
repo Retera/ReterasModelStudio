@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
+import com.hiveworkshop.rms.ui.application.actionfunctions.MakeModelHD;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -129,10 +130,11 @@ public class MenuBarActions {
 
 		JFrame frame = FramePopup.get(prefPanel, ProgramGlobals.getMainPanel(), "Preferences");
 		okButton.addActionListener(e -> {
-			frame.setVisible(false);
 			saveSettings(programPreferences, priorDataSources, programPreferencesPanel);
+			frame.setVisible(false);
+			frame.dispose();
 		});
-		cancelButton.addActionListener(e -> {frame.setVisible(false);});
+		cancelButton.addActionListener(e -> {frame.setVisible(false);frame.dispose();});
 
 		frame.setVisible(true);
 
@@ -347,7 +349,7 @@ public class MenuBarActions {
 			Material material = new Material(new Layer("None", texture));
 
 			if (model.getFormatVersion() == 1000) {
-				material.makeHD();
+				MakeModelHD.makeMaterialHD(material);
 			}
 			UndoAction action = new AddMaterialAction(material, model, ModelStructureChangeListener.changeListener);
 			modelPanel.getModelHandler().getUndoManager().pushAction(action.redo());

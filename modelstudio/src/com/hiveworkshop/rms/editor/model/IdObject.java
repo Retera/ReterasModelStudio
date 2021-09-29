@@ -32,7 +32,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	public IdObject() {
 	}
 
-	public IdObject(final IdObject other) {
+	protected IdObject(final IdObject other) {
 		name = other.name;
 		objectId = other.objectId;
 		parentId = other.parentId;

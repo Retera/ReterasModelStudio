@@ -34,6 +34,7 @@ public class MenuBar {
     static TeamColorMenu teamColorMenu;
     static AddMenu addMenu;
     static ScriptsMenu scriptsMenu;
+    static TwilacsTools twilacsTools;
     static AboutMenu aboutMenu;
     static WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier directoryChangeNotifier = new WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier();
 
@@ -50,6 +51,7 @@ public class MenuBar {
         windowMenu = new WindowsMenu();
         addMenu = new AddMenu();
         scriptsMenu = new ScriptsMenu();
+        twilacsTools = new TwilacsTools();
         aboutMenu = new AboutMenu();
 
         directoryChangeNotifier.subscribe(MenuBar::updateDataSource);
@@ -63,6 +65,7 @@ public class MenuBar {
         menuBar.add(MenuBar.windowMenu);
         menuBar.add(addMenu);
         menuBar.add(scriptsMenu);
+        menuBar.add(twilacsTools);
         menuBar.add(aboutMenu);
 
         for (int i = 0; i < menuBar.getMenuCount(); i++) {

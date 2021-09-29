@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.GPUReadyTexture;
@@ -19,12 +18,12 @@ import static org.lwjgl.opengl.GL11.glEnable;
 
 public class TextureThing {
 	public static final boolean LOG_EXCEPTIONS = true;
-	ModelView modelView;
+	EditableModel model;
 	ProgramPreferences programPreferences;
 	HashMap<Bitmap, Integer> textureMap = new HashMap<>();
 
-	public TextureThing(ModelView modelView, ProgramPreferences programPreferences){
-		this.modelView = modelView;
+	public TextureThing(EditableModel model, ProgramPreferences programPreferences){
+		this.model = model;
 		this.programPreferences = programPreferences;
 	}
 
@@ -51,10 +50,10 @@ public class TextureThing {
 		return textureID;
 	}
 
-	public static void bindTexture(Bitmap tex, Integer texture) {
+	public static void bindTexture(Bitmap bitmap, Integer texture) {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, bitmap.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, bitmap.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 	}
 
 	public void loadToTexMap(Bitmap tex) {
@@ -65,7 +64,7 @@ public class TextureThing {
 			}
 			Integer texture = null;
 			try {
-				DataSource workingDirectory = modelView.getModel().getWrappedDataSource();
+				DataSource workingDirectory = model.getWrappedDataSource();
 				texture = loadTexture(BLPHandler.get().loadTexture2(workingDirectory, path), tex);
 			} catch (final Exception exc) {
 				if (LOG_EXCEPTIONS) {
@@ -84,10 +83,10 @@ public class TextureThing {
 		loadGeosetMaterials();
 	}
 	public void loadGeosetMaterials() {
-		final List<Geoset> geosets = modelView.getModel().getGeosets();
+		final List<Geoset> geosets = model.getGeosets();
 		for (final Geoset geo : geosets) {
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-				if (ModelUtils.isShaderStringSupported(modelView.getModel().getFormatVersion())) {
+				if (ModelUtils.isShaderStringSupported(model.getFormatVersion())) {
 					if ((geo.getMaterial().getShaderString() != null) && (geo.getMaterial().getShaderString().length() > 0)) {
 						if (i > 0) {
 							break;

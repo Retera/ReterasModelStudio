@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxMaterial;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
 public class MaterialFactory {
@@ -166,7 +167,20 @@ public class MaterialFactory {
 		}
 		IntAnimFlag txFlag = (IntAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID);
 		if (txFlag != null) {
-			layer.buildTextureList(model);
+			buildTextureList(model, layer);
+		}
+	}
+
+	public static void buildTextureList(EditableModel model, Layer layer) {
+		IntAnimFlag txFlag = (IntAnimFlag) layer.find(MdlUtils.TOKEN_TEXTURE_ID);
+
+		for (Sequence anim : txFlag.getAnimMap().keySet()){
+			for (int i = 0; i < txFlag.size(); i++) {
+				int txId = txFlag.getValueFromIndex(anim, i);
+				Bitmap texture = model.getTexture(txId);
+				layer.getTextures().add(texture);
+				layer.putTexture(txId, texture);
+			}
 		}
 	}
 }

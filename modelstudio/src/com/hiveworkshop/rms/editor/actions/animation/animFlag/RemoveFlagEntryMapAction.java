@@ -10,9 +10,9 @@ import java.util.TreeMap;
 
 public class RemoveFlagEntryMapAction<T> implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
-	Sequence animation;
-	AnimFlag<T> animFlag;
-	TreeMap<Integer, Entry<T>> entryMap;
+	private final Sequence animation;
+	private final AnimFlag<T> animFlag;
+	private final TreeMap<Integer, Entry<T>> entryMap;
 
 	public RemoveFlagEntryMapAction(AnimFlag<T> animFlag, Sequence animation, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;

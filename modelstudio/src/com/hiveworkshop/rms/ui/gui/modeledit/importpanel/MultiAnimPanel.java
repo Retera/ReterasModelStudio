@@ -9,6 +9,7 @@ import java.util.List;
 
 class MultiAnimPanel extends AnimPanel {
 	ModelHolderThing mht;
+	List<AnimShell> selectedValuesList;
 
 	JComboBox<String> importTypeBox = new JComboBox<>(AnimShell.ImportType.getDispList());
 
@@ -23,25 +24,23 @@ class MultiAnimPanel extends AnimPanel {
 
 		inReverse = new JCheckBox("Reverse");
 		inReverse.setSelected(false);
-		inReverse.addActionListener(e -> setInReverse());
-//		inReverse.setEnabled(false);
+		inReverse.addActionListener(e -> setInReverse(inReverse.isSelected()));
 		add(inReverse, "left, wrap");
 
 		importTypeBox.setEditable(false);
 		importTypeBox.addItemListener(this::showCorrectCard);
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
-//		importTypeBox.setEnabled(false);
 		add(importTypeBox, "wrap");
 	}
 
-	private void setInReverse() {
-		for (AnimShell animShell : mht.animJList.getSelectedValuesList()) {
-			animShell.setReverse(inReverse.isSelected());
+	private void setInReverse(boolean reverse) {
+		for (AnimShell animShell : selectedValuesList) {
+			animShell.setReverse(reverse);
 		}
 	}
 
-	public void updateMultiAnimPanel() {
-		List<AnimShell> selectedValuesList = mht.animJList.getSelectedValuesList();
+	public void updateMultiAnimPanel(List<AnimShell> selectedValuesList) {
+		this.selectedValuesList = selectedValuesList;
 
 		AnimShell.ImportType firstImportStatus = selectedValuesList.get(0).getImportType();
 
@@ -59,9 +58,11 @@ class MultiAnimPanel extends AnimPanel {
 	}
 
 	private void showCorrectCard(ItemEvent e) {
-		System.out.println("StateChange: " + e.getStateChange() + ", selected Index: " + importTypeBox.getSelectedIndex());
-		for (AnimShell animShell : mht.animJList.getSelectedValuesList()) {
-			animShell.setImportType(importTypeBox.getSelectedIndex());
+		if(e.getStateChange() == ItemEvent.SELECTED && selectedValuesList != null){
+			System.out.println("StateChange: " + e.getStateChange() + ", selected Index: " + importTypeBox.getSelectedIndex());
+			for (AnimShell animShell : selectedValuesList) {
+				animShell.setImportType(importTypeBox.getSelectedIndex());
+			}
 		}
 	}
 

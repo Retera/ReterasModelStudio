@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Vec3;
@@ -18,6 +19,7 @@ public class MouseListenerThing extends MouseAdapter {
 	private Vec3 startP = null;
 	private Vec3 endP = null;
 
+	private boolean isSelecting = false;
 	private boolean isActing = false;
 
 	public MouseListenerThing(CameraHandler cameraHandler, ProgramPreferences programPreferences) {
@@ -55,7 +57,12 @@ public class MouseListenerThing extends MouseAdapter {
 //			cameraHandler.startPan(e);
 		} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
 //			cameraHandler.startSpinn(e);
-		} else if (e.getButton() == MouseEvent.BUTTON3) {
+		} else if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
+			isSelecting = true;
+			if (activityManager != null) {
+				activityManager.mousePressed(e, cameraHandler);
+			}
+		} else if ((ProgramGlobals.getPrefs().getModifyMouseButton() & modifiersEx) > 0) {
 //			cameraHandler.startAct(e);
 			isActing = true;
 			if (activityManager != null) {
@@ -87,7 +94,7 @@ public class MouseListenerThing extends MouseAdapter {
 //		if (!mouseInBounds && (cameraHandler.getCameraSpinStartPoint() == null) && (cameraHandler.getActStart() == null) && (cameraHandler.getCameraPanStartPoint() == null)) {
 //			clickTimer.stop();
 //		}
-		if (isActing && activityManager != null) {
+		if ((isActing || isSelecting) && activityManager != null) {
 
 			activityManager.mouseReleased(e, cameraHandler);
 		}
@@ -96,6 +103,7 @@ public class MouseListenerThing extends MouseAdapter {
 		startP = null;
 		endP = null;
 		isActing = false;
+		isSelecting = false;
 		/*
 		 * if( dispMDL != null ) dispMDL.refreshUndo();
 		 */
@@ -122,8 +130,8 @@ public class MouseListenerThing extends MouseAdapter {
 				cameraHandler.translate(-(e.getX() - endP.y), (e.getY() - endP.z));
 			} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
 				cameraHandler.rotate((e.getX() - endP.y), (e.getY() - endP.z));
-			} else if ((e.getButton() == MouseEvent.BUTTON3)) {
-			} else if (isActing && activityManager != null) {
+//			} else if ((e.getButton() == MouseEvent.BUTTON3)) {
+			} else if ((isActing || isSelecting) && activityManager != null) {
 				// "act"? should maybe do geometry transformations
 				activityManager.mouseDragged(e, cameraHandler);
 			}
@@ -142,6 +150,9 @@ public class MouseListenerThing extends MouseAdapter {
 
 	public boolean isActing() {
 		return isActing;
+	}
+	public boolean isSelecting() {
+		return isSelecting;
 	}
 
 	public Vec3 getEndP() {

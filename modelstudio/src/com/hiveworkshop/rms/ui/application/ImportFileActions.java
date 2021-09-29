@@ -26,7 +26,7 @@ public class ImportFileActions {
         ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null && modelPanel.getModel() != null) {
             ImportPanel importPanel = new ImportPanel(modelPanel.getModel(), model);
-            importPanel.setCallback(new ModelStructureChangeListener());
+            importPanel.setModelChangeListener(new ModelStructureChangeListener());
         }
     }
 

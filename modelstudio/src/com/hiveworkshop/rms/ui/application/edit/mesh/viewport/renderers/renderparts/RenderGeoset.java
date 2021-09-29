@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.util.BiMap;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -35,7 +34,7 @@ public class RenderGeoset {
 	boolean isHD = false;
 
 	Map<Matrix, Mat4> transformMapSD = new HashMap<>();
-	Map<GeosetVertex.SkinBone[], Mat4> transformMapHD = new HashMap<>();
+	Map<SkinBone[], Mat4> transformMapHD = new HashMap<>();
 
 	public RenderGeoset(Geoset geoset, RenderModel renderModel, ModelView modelView) {
 		this.geoset = geoset;
@@ -164,9 +163,12 @@ public class RenderGeoset {
 		}
 	}
 
-	public static Mat4 processHdBones(RenderModel renderModel, GeosetVertex.SkinBone[] skinBones) {
+
+	Mat4 matrixSumHeap = new Mat4();
+	public Mat4 processHdBones(RenderModel renderModel, SkinBone[] skinBones) {
 		boolean foundValidBones = false;
-		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();
+//		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();
+		matrixSumHeap.setZero();
 
 		for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
 			Bone bone = skinBones[boneIndex].getBone();
@@ -176,22 +178,29 @@ public class RenderGeoset {
 			foundValidBones = true;
 			Mat4 worldMatrix = renderModel.getRenderNode(bone).getWorldMatrix();
 
-			skinBonesMatrixSumHeap.addScaled(worldMatrix,skinBones[boneIndex].getWeightFraction());
+//			skinBonesMatrixSumHeap.addScaled(worldMatrix,skinBones[boneIndex].getWeightFraction());
+			matrixSumHeap.addScaled(worldMatrix,skinBones[boneIndex].getWeightFraction());
 		}
 		if (!foundValidBones) {
-			skinBonesMatrixSumHeap.setIdentity();
+//			skinBonesMatrixSumHeap.setIdentity();
+			matrixSumHeap.setIdentity();
 		}
-		return skinBonesMatrixSumHeap;
+//		return skinBonesMatrixSumHeap;
+		return matrixSumHeap;
 	}
 
-	public static Mat4 processSdBones(RenderModel renderModel, List<Bone> bones) {
-		Mat4 bonesMatrixSumHeap = new Mat4().setZero();
+	public Mat4 processSdBones(RenderModel renderModel, List<Bone> bones) {
+//		Mat4 bonesMatrixSumHeap = new Mat4().setZero();
+		matrixSumHeap.setZero();
 		if (bones.size() > 0) {
 			for (Bone bone : bones) {
-				bonesMatrixSumHeap.add(renderModel.getRenderNode(bone).getWorldMatrix());
+				matrixSumHeap.add(renderModel.getRenderNode(bone).getWorldMatrix());
+//				bonesMatrixSumHeap.add(renderModel.getRenderNode(bone).getWorldMatrix());
 			}
-			return bonesMatrixSumHeap.uniformScale(1f / bones.size());
+			return matrixSumHeap.uniformScale(1f / bones.size());
+//			return bonesMatrixSumHeap.uniformScale(1f / bones.size());
 		}
-		return bonesMatrixSumHeap.setIdentity();
+		return matrixSumHeap.setIdentity();
+//		return bonesMatrixSumHeap.setIdentity();
 	}
 }

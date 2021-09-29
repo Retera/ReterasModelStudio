@@ -25,50 +25,46 @@ public class BoneEditPanel extends JPanel {
 
 		add(getTopPanel(), "align center, wrap");
 
-		BoneShellListCellRenderer bonePanelRenderer = new BoneShellListCellRenderer(mht.receivingModel, mht.donatingModel);
-
-		mht.donModBoneShellJList.setCellRenderer(bonePanelRenderer);
-		mht.donModBoneShellJList.addListSelectionListener(e -> showBoneCard(mht, e));
-		mht.donModBoneShellJList.setSelectedValue(null, false);
-		JScrollPane boneTabsPane = new JScrollPane(mht.donModBoneShellJList);
-
+		singleBonePanel = new BonePanel(mht, mht.boneShellRenderer);
+		multiBonePane = new MultiBonePanel(mht, mht.boneShellRenderer);
 
 		bonePanelCards.add(blankPane, "blank");
-
-		singleBonePanel = new BonePanel(mht, mht.boneShellRenderer);
 		bonePanelCards.add(singleBonePanel, "single");
-
-		multiBonePane = new MultiBonePanel(mht, mht.boneShellRenderer);
 		bonePanelCards.add(multiBonePane, "multiple");
-
 		bonePanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, boneTabsPane, bonePanelCards);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getBoneListPane(mht), bonePanelCards);
 		add(splitPane, "growx, growy");
+	}
+
+	private JScrollPane getBoneListPane(ModelHolderThing mht) {
+		BoneShellListCellRenderer bonePanelRenderer = new BoneShellListCellRenderer(mht.receivingModel, mht.donatingModel);
+
+		mht.allBoneShellJList.setCellRenderer(bonePanelRenderer);
+		mht.allBoneShellJList.addListSelectionListener(e -> showBoneCard(mht, e));
+		mht.allBoneShellJList.setSelectedValue(null, false);
+		return new JScrollPane(mht.allBoneShellJList);
+//		mht.donModBoneShellJList.setCellRenderer(bonePanelRenderer);
+//		mht.donModBoneShellJList.addListSelectionListener(e -> showBoneCard(mht, e));
+//		mht.donModBoneShellJList.setSelectedValue(null, false);
+//		return new JScrollPane(mht.donModBoneShellJList);
 	}
 
 	private JPanel getTopPanel() {
 		JPanel topPanel = new JPanel(new MigLayout("gap 0, debug", "[][][][]", "[][align center]"));
 		topPanel.setOpaque(true);
 
-		JButton importAllBones = createButton(e -> mht.setImportStatusForAllBones(BoneShell.ImportType.IMPORT), "Import All");
-		topPanel.add(importAllBones);
-
-		JButton motionFromBones = createButton(e -> mht.setImportStatusForAllBones(BoneShell.ImportType.MOTIONFROM), "Motion From All");
-		topPanel.add(motionFromBones);
-
-		JButton uncheckUnusedBones = createButton(e -> uncheckUnusedBones(mht), "Uncheck Unused");
-		topPanel.add(uncheckUnusedBones);
-
-		JButton uncheckAllBones = createButton(e -> mht.setImportStatusForAllBones(BoneShell.ImportType.DONTIMPORT), "Leave All");
-		topPanel.add(uncheckAllBones, "wrap");
+		topPanel.add(createButton("Import All", e -> mht.setImportStatusForAllBones(BoneShell.ImportType.IMPORT)));
+		topPanel.add(createButton("Motion From All", e -> mht.setImportStatusForAllBones(BoneShell.ImportType.MOTIONFROM)));
+		topPanel.add(createButton("Uncheck Unused", e -> uncheckUnusedBones(mht)));
+		topPanel.add(createButton("Leave All", e -> mht.setImportStatusForAllBones(BoneShell.ImportType.DONTIMPORT)), "wrap");
 
 		mht.clearExistingBones = new JCheckBox("Clear pre-existing bones and helpers");
 		topPanel.add(mht.clearExistingBones, "spanx 4, align center");
 		return topPanel;
 	}
 
-	public JButton createButton(ActionListener actionListener, String text) {
+	public JButton createButton(String text, ActionListener actionListener) {
 		JButton jButton = new JButton(text);
 		jButton.addActionListener(actionListener);
 		return jButton;
@@ -76,64 +72,16 @@ public class BoneEditPanel extends JPanel {
 
 	private void showBoneCard(ModelHolderThing mht, ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
-			List<BoneShell> selectedValuesList = mht.donModBoneShellJList.getSelectedValuesList();
+			List<BoneShell> selectedValuesList = mht.allBoneShellJList.getSelectedValuesList();
 			if (selectedValuesList.size() < 1) {
 				mht.boneShellRenderer.setSelectedBoneShell(null);
 				boneCardLayout.show(bonePanelCards, "blank");
 			} else if (selectedValuesList.size() == 1) {
-				mht.boneShellRenderer.setSelectedBoneShell(mht.donModBoneShellJList.getSelectedValue());
-				singleBonePanel.setSelectedBone(mht.donModBoneShellJList.getSelectedValue());
+				singleBonePanel.setSelectedBone(mht.allBoneShellJList.getSelectedValue());
 				boneCardLayout.show(bonePanelCards, "single");
 			} else {
-				mht.boneShellRenderer.setSelectedBoneShell(null);
-				multiBonePane.updateMultiBonePanel();
+				multiBonePane.setSelectedBones(selectedValuesList);
 				boneCardLayout.show(bonePanelCards, "multiple");
-			}
-		}
-	}
-
-	void uncheckUnusedActualBones(ModelHolderThing mht, List<BoneShell> usedBonePanels) {
-		for (BoneShell bonePanel : mht.donModBoneShells) {
-			if (bonePanel.getImportStatus() != BoneShell.ImportType.MOTIONFROM) {
-				if (usedBonePanels.contains(bonePanel)) {
-					BoneShell current = bonePanel;
-					boolean good = true;
-					int k = 0;
-					while (good) {
-						if (current.getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
-							break;
-						}
-						final BoneShell shell = current.getNewParentBs();
-						// If shell is null, then the bone has "No Parent"
-						// If current's selected index is not 2,
-						if (shell == null)// current.getSelectedIndex() != 2
-						{
-							good = false;
-						} else {
-							current = shell;
-							if (usedBonePanels.contains(current)) {
-								good = false;
-							} else {
-								usedBonePanels.add(current);
-							}
-						}
-						k++;
-						if (k > 1000) {
-							JOptionPane.showMessageDialog(null,
-									"Unexpected error has occurred: Bone parent loop, circular logic");
-							break;
-						}
-					}
-				}
-			}
-		}
-		for (BoneShell boneShell : mht.donModBoneShells) {
-			if (boneShell.getImportStatus() != BoneShell.ImportType.MOTIONFROM) {
-				if (usedBonePanels.contains(boneShell)) {
-					boneShell.setImportStatus(BoneShell.ImportType.IMPORT);
-				} else {
-					boneShell.setImportStatus(BoneShell.ImportType.DONTIMPORT);
-				}
 			}
 		}
 	}
@@ -144,9 +92,84 @@ public class BoneEditPanel extends JPanel {
 		// - A matrix
 		// - Another bone
 		// - An IdObject
-		final List<BoneShell> usedBonePanels = new ArrayList<>();
-		ObjectEditPanel.uncheckUnusedObjects(mht, usedBonePanels);
-		BoneAttachmentEditPanel.uncheckUnusedBoneAttatchments(mht, usedBonePanels);
-		uncheckUnusedActualBones(mht, usedBonePanels);
+		List<BoneShell> usedBoneShells = new ArrayList<>();
+
+		collectUsedObjectParents(mht, usedBoneShells);
+		collectUsedBoneAttatchments(mht, usedBoneShells);
+		collectUsedBones(mht, usedBoneShells);
+		uncheckUnusedActualBones(mht, usedBoneShells);
+	}
+
+	void uncheckUnusedActualBones(ModelHolderThing mht, List<BoneShell> usedBoneShells) {
+		for (BoneShell boneShell : mht.donModBoneShells) {
+			if (boneShell.getImportStatus() != BoneShell.ImportType.MOTIONFROM) {
+				if (usedBoneShells.contains(boneShell)) {
+					boneShell.setImportStatus(BoneShell.ImportType.IMPORT);
+				} else {
+					boneShell.setImportStatus(BoneShell.ImportType.DONTIMPORT);
+				}
+			}
+		}
+	}
+
+	private void collectUsedBones(ModelHolderThing mht, List<BoneShell> usedBoneShells) {
+		for (BoneShell boneShell : mht.donModBoneShells) {
+			if (boneShell.getImportStatus() != BoneShell.ImportType.MOTIONFROM) {
+				if (usedBoneShells.contains(boneShell)) {
+					checkIfUsed(usedBoneShells, boneShell);
+				}
+			}
+		}
+	}
+
+	void collectUsedObjectParents(ModelHolderThing mht, List<BoneShell> usedBoneShells) {
+		for (ObjectShell objectShell : mht.donModObjectShells) {
+			if (objectShell.getShouldImport()) {
+				BoneShell shell = objectShell.getNewParentBs();
+				if ((shell != null) && (shell.getBone() != null)) {
+					if (!usedBoneShells.contains(shell)) {
+						usedBoneShells.add(shell);
+					}
+
+					checkIfUsed(usedBoneShells, shell);
+				}
+			}
+		}
+	}
+
+	void collectUsedBoneAttatchments(ModelHolderThing mht, List<BoneShell> usedBonePanels) {
+		for (GeosetShell geosetShell : mht.allGeoShells) {
+			if (geosetShell.isDoImport()) {
+				for (MatrixShell ms : geosetShell.getMatrixShells()) {
+					for (BoneShell boneShell : ms.getNewBones()) {
+						if (!usedBonePanels.contains(boneShell)) {
+							usedBonePanels.add(boneShell);
+						}
+						checkIfUsed(usedBonePanels, boneShell);
+					}
+				}
+			}
+		}
+	}
+
+	private void checkIfUsed(List<BoneShell> usedBoneShells, BoneShell boneShell) {
+		int k = 0;
+
+		BoneShell current = boneShell;
+		for (; k < 1000; k++) {
+			if (current == null
+					|| current.getImportStatus() == BoneShell.ImportType.MOTIONFROM
+					|| current.getNewParentBs() == null
+					|| usedBoneShells.contains(current.getNewParentBs())) {
+				break;
+			}
+			current = current.getNewParentBs();
+			usedBoneShells.add(current);
+		}
+
+		if (k >= 1000) {
+			JOptionPane.showMessageDialog(null, "Unexpected error has occurred: Bone parent loop, circular logic");
+
+		}
 	}
 }

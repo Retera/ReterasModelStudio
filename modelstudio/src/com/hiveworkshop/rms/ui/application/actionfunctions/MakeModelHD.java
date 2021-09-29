@@ -1,9 +1,7 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.HD_Material_Layer;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.language.TextKey;
@@ -25,7 +23,7 @@ public class MakeModelHD extends ActionFunction {
 				makeHd(geo);
 			}
 			for (Material m : model.getMaterials()) {
-				m.makeHD();
+				makeMaterialHD(m);
 			}
 		}
 	}
@@ -53,7 +51,7 @@ public class MakeModelHD extends ActionFunction {
 			}
 		}
 		for (Material m : model.getMaterials()) {
-			m.makeHD();
+			makeMaterialHD(m);
 		}
 	}
 
@@ -86,5 +84,35 @@ public class MakeModelHD extends ActionFunction {
 		if (!geosetVertex.getMatrix().isEmpty()) {
 			geosetVertex.setSkinBone(geosetVertex.getMatrix().get(0), (short) (weight + (255 % bonesNum)), 0);
 		}
+	}
+
+	public static void makeMaterialHD(Material material) {
+		material.setShaderString("Shader_HD_DefaultUnit");
+		Layer diffuseLayer;
+		if (!material.getLayers().isEmpty()){
+			diffuseLayer = material.getLayers().stream().filter(layer -> !layer.getTextureBitmap().getPath().equals("")).findFirst().orElse(material.getLayers().get(0));
+		} else {
+			diffuseLayer = new Layer("None", getBitmap("Textures\\White.dds"));
+		}
+		material.clearLayers();
+
+		material.addLayer(HD_Material_Layer.DIFFUSE.ordinal(), diffuseLayer);
+		material.addLayer(HD_Material_Layer.VERTEX.ordinal(), new Layer("None", getBitmap("Textures\\normal.dds")));
+		material.addLayer(HD_Material_Layer.ORM.ordinal(), new Layer("None", getBitmap("Textures\\orm.dds")));
+		material.addLayer(HD_Material_Layer.EMISSIVE.ordinal(), new Layer("None", getBitmap("Textures\\Black32.dds")));
+		material.addLayer(HD_Material_Layer.TEAM_COLOR.ordinal(), new Layer("None", new Bitmap("", 1)));
+		material.addLayer(HD_Material_Layer.REFLECTIONS.ordinal(), new Layer("None", getBitmap("ReplaceableTextures\\EnvironmentMap.dds")));
+
+		for (final Layer l : material.getLayers()) {
+			l.setEmissive(1.0);
+		}
+	}
+
+
+	private static Bitmap getBitmap(String s) {
+		Bitmap bitmap = new Bitmap(s);
+		bitmap.setWrapHeight(true);
+		bitmap.setWrapWidth(true);
+		return bitmap;
 	}
 }

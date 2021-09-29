@@ -7,36 +7,33 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 
+import javax.swing.*;
+
 public class ModelHandler {
-	private EditableModel model;
-	private UndoHandler undoHandler;
-	private ModelView modelView;
+	private final EditableModel model;
+	private final UndoHandler undoHandler;
+	private final ModelView modelView;
 	private UndoManager undoManager;
-	private RenderModel renderModel;
-	private RenderModel previewRenderModel;
-//	private TimeEnvironmentImpl editTimeEnv;
-//	private TimeEnvironmentImpl previewTimeEnv;
+	private final RenderModel renderModel;
+	private final RenderModel previewRenderModel;
+
+	private final Icon icon;
 
 	public ModelHandler(EditableModel model) {
+		this(model, null);
+	}
+	public ModelHandler(EditableModel model, Icon icon) {
 		this.model = model;
+		this.icon = icon;
 		this.undoHandler = ProgramGlobals.getUndoHandler();
 		if (this.undoHandler != null) {
 			undoManager = new UndoManager(this.undoHandler);
 		}
-//		editTimeEnv = new TimeEnvironmentImpl();
 		modelView = new ModelView(model);
-//		renderModel = modelView.getEditorRenderModel();
-
-//		renderModel = new RenderModel(this.model, modelView, editTimeEnv);
-//		renderModel.setShouldForceAnimation(true);
-//
-//		previewTimeEnv = new TimeEnvironmentImpl();
-//		previewRenderModel = new RenderModel(model, modelView, previewTimeEnv);
 
 		renderModel = new RenderModel(this.model, modelView);
 		renderModel.setShouldForceAnimation(true);
 
-//		previewTimeEnv = new TimeEnvironmentImpl();
 		previewRenderModel = new RenderModel(model, modelView);
 	}
 
@@ -65,12 +62,14 @@ public class ModelHandler {
 	}
 
 	public TimeEnvironmentImpl getEditTimeEnv() {
-//		return editTimeEnv;
 		return renderModel.getTimeEnvironment();
 	}
 
 	public TimeEnvironmentImpl getPreviewTimeEnv() {
-//		return previewTimeEnv;
 		return previewRenderModel.getTimeEnvironment();
+	}
+
+	public Icon getIcon() {
+		return icon;
 	}
 }

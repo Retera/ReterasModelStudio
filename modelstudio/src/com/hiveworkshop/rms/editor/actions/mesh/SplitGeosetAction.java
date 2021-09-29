@@ -207,7 +207,7 @@ public final class SplitGeosetAction implements UndoAction {
 			geosetCreated.setSelectionGroup(geoset.getSelectionGroup());
 			GeosetAnim geosetAnim = geoset.getGeosetAnim();
 			if (geosetAnim != null) {
-				GeosetAnim createdGeosetAnim = new GeosetAnim(geosetCreated, geosetAnim);
+				GeosetAnim createdGeosetAnim = geosetAnim.deepCopy().setGeoset(geosetCreated);
 				geosetCreated.setGeosetAnim(createdGeosetAnim);
 			}
 			geosetCreated.setParentModel(model);

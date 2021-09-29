@@ -27,7 +27,7 @@ public class Bone extends IdObject {
 		pivotPoint = new Vec3(0, 0, 0);
 	}
 
-	public Bone(Bone b) {
+	protected Bone(Bone b) {
 		super(b);
 
 		geosetId = b.geosetId;

@@ -1,8 +1,12 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.mesh.AddTriangleAction;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.MainPanel;
-import com.hiveworkshop.rms.ui.application.ModelEditActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
@@ -15,6 +19,9 @@ import com.hiveworkshop.rms.util.Vec3;
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
 
 public class CreateFace extends ActionFunction {
 	public CreateFace(){
@@ -29,9 +36,11 @@ public class CreateFace extends ActionFunction {
 				if (modelPanel != null) {
 					Viewport viewport = mainPanel.getViewportListener().getViewport();
 					Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
-					UndoAction createFaceFromSelection = ModelEditActions.createFaceFromSelection(modelPanel.getModelView(), facingVector);
+					UndoAction createFaceFromSelection = createFaceFromSelection(modelPanel.getModelView(), facingVector);
 
-					modelPanel.getUndoManager().pushAction(createFaceFromSelection.redo());
+					if (createFaceFromSelection != null) {
+						modelPanel.getUndoManager().pushAction(createFaceFromSelection.redo());
+					}
 				}
 			} catch (final FaceCreationException exc) {
 				JOptionPane.showMessageDialog(mainPanel, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -44,5 +53,30 @@ public class CreateFace extends ActionFunction {
 	private static boolean isTextField() {
 		Component focusedComponent = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
 		return (focusedComponent instanceof JTextComponent);
+	}
+
+	public static UndoAction createFaceFromSelection(ModelView modelView, Vec3 preferredFacingVector) {
+		Set<GeosetVertex> selection = modelView.getSelectedVertices();
+		if (selection.size() != 3) {
+			throw new FaceCreationException(
+					"A face can only be created from exactly 3 vertices (you have " + selection.size() + " selected)");
+		}
+		GeosetVertex[] verticesArray = selection.toArray(new GeosetVertex[0]);
+		Geoset geoset = selection.stream().findAny().orElse(new GeosetVertex(0, 0, 0)).getGeoset();
+
+		boolean sameGeoset = Arrays.stream(verticesArray).allMatch(vertex -> vertex.getGeoset() == geoset);
+		boolean triangleExists = verticesArray[0].getTriangles().stream().noneMatch(triangle -> triangle.containsSameVerts(verticesArray));
+
+		if (sameGeoset && !triangleExists) {
+			Triangle newTriangle = new Triangle(verticesArray[0], verticesArray[1], verticesArray[2], geoset);
+			Vec3 facingVector = newTriangle.getNormal();
+			double cosine = facingVector.dot(preferredFacingVector) / (facingVector.length() * preferredFacingVector.length());
+			if (cosine < 0) {
+				newTriangle.flip(false);
+			}
+
+			return new AddTriangleAction(geoset, Collections.singletonList(newTriangle));
+		}
+		return null;
 	}
 }

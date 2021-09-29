@@ -42,4 +42,14 @@ public final class MdlxFloatArrayTimeline extends MdlxTimeline<float[]> {
 	public int getArraySize() {
 		return arraySize;
 	}
+
+	@Override
+	public void initLists(int size){
+		frames = new long[size];
+		values = new float[size][];
+		if(interpolationType.tangential()){
+			inTans = new float[size][];
+			outTans = new float[size][];
+		}
+	}
 }

@@ -41,12 +41,11 @@ public class ImportPanel extends JTabbedPane {
 
 	JFrame frame;
 
-
 	boolean importSuccess = false;
 	boolean importStarted = false;
 	boolean importEnded = false;
 
-	private ModelStructureChangeListener callback;
+	private ModelStructureChangeListener changeListener1;
 
 
 	public ImportPanel(final EditableModel a, final EditableModel b) {
@@ -74,7 +73,6 @@ public class ImportPanel extends JTabbedPane {
 		// Geoset Panel
 		GeosetEditPanel geosetEditPanel = new GeosetEditPanel(mht);
 		addTab("Geosets", geoIcon, geosetEditPanel, "Controls which geosets will be imported.");
-//		addTab("Geosets", geoIcon, GeosetEditPanel.makeGeosetPanel(mht), "Controls which geosets will be imported.");
 
 		// Animation Panel
 		AnimEditPanel animEditPanel = new AnimEditPanel(mht);
@@ -91,6 +89,10 @@ public class ImportPanel extends JTabbedPane {
 		// Objects Panel
 		ObjectEditPanel objectEditPanel = new ObjectEditPanel(mht);
 		addTab("Objects", objIcon, objectEditPanel, "Controls which objects are imported.");
+
+		// Objects Panel
+		CameraEditPanel cameraEditPanel = new CameraEditPanel(mht);
+		addTab("Cameras", objIcon, cameraEditPanel, "Controls which cameras are imported.");
 
 		// Visibility Panel
 		VisibilityEditPanel visibilityEditPanel = new VisibilityEditPanel(mht);
@@ -118,56 +120,26 @@ public class ImportPanel extends JTabbedPane {
 		GlobalSeq newSeq = new GlobalSeq(anim.getLength());
 		for (AnimFlag<?> af : flags) {
 			if (!af.hasGlobalSeq()) {
-				AnimFlag<?> copy = af.deepCopy();
-				copy.setGlobSeq(newSeq);
-				copy.copyFrom(af, anim, newSeq);
-				addFlagToParent(model, af, copy);
+				AnimFlag<?> newGlobalSeqFlag = af.deepCopy();
+				newGlobalSeqFlag.setGlobSeq(newSeq);
+				newGlobalSeqFlag.copyFrom(af, anim, newSeq);
+				addFlagToParent(model, af, newGlobalSeqFlag);
 			}
 		}
 	}
 
-	public static void addFlagToParent(EditableModel model, final AnimFlag<?> aflg, final AnimFlag<?> added)
-	// aflg is the parent
-	{
-		// ADDS "added" TO THE PARENT OF "aflg"
-		for (final Material m : model.getMaterials()) {
-			for (final Layer layer : m.getLayers()) {
-				if (layer.has(aflg.getName())) {
-					layer.add(added);
-				}
-			}
+	public static void addFlagToParent(EditableModel model, AnimFlag<?> orgFlag, AnimFlag<?> newGlobalSeqFlag) {
+		// orgFlag is the original flag that should exist in the parent
+		// ADDS "newGlobalSeqFlag" TO THE PARENT OF "orgFlag"
+		for (Material material : model.getMaterials()) {
+			material.getLayers().stream().filter(layer -> layer.owns(orgFlag)).forEach(layer -> layer.add(newGlobalSeqFlag));
 		}
 
-		if (model.getTexAnims() != null) {
-			for (final TextureAnim textureAnim : model.getTexAnims()) {
-				if (textureAnim.has(aflg.getName())) {
-					textureAnim.add(added);
-				}
-			}
-		}
+		model.getTexAnims().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
+		model.getGeosetAnims().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
+		model.getAllObjects().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
+		model.getCameras().stream().filter(o -> o.getSourceNode().owns(orgFlag)).forEach(o -> o.getSourceNode().add(newGlobalSeqFlag));
 
-		if (model.getGeosetAnims() != null) {
-			for (final GeosetAnim geosetAnim : model.getGeosetAnims()) {
-				if (geosetAnim.has(aflg.getName())) {
-					geosetAnim.add(added);
-				}
-			}
-		}
-
-		for (final IdObject object : model.getAllObjects()) {
-			if (object.has(aflg.getName())) {
-				object.add(added);
-			}
-		}
-
-		if (model.getCameras() != null) {
-			for (final Camera x : model.getCameras()) {
-//				if (x.getSourceNode().has(aflg.getName()) || x.targetAnimFlags.contains(aflg)) {
-				if (x.getSourceNode().has(aflg.getName())) {
-					x.getSourceNode().add(added);
-				}
-			}
-		}
 	}
 
 	private JPanel getFooterPanel() {
@@ -187,6 +159,7 @@ public class ImportPanel extends JTabbedPane {
 	private void applyImport() {
 		doImport();
 		frame.setVisible(false);
+		frame.dispose();
 	}
 
 	private void cancelImport() {
@@ -202,8 +175,8 @@ public class ImportPanel extends JTabbedPane {
 	 * Provides a Runnable to the ImportPanel that will be run after the import has
 	 * ended successfully.
 	 */
-	public void setCallback(final ModelStructureChangeListener callback) {
-		this.callback = callback;
+	public void setModelChangeListener(final ModelStructureChangeListener changeListener) {
+		this.changeListener1 = changeListener;
 	}
 
 	public void doImport() {
@@ -215,68 +188,29 @@ public class ImportPanel extends JTabbedPane {
 				JOptionPane.showMessageDialog(null, "The program has confused itself.");
 			}
 
-			List<Geoset> geosetsAdded = addChosenGeosets();
-			List<Geoset> geosetsRemoved = getGeosetsRemoved();
+			addChosenGeosets();
+			getGeosetsRemoved();
 
-			final List<Animation> oldAnims = new ArrayList<>(mht.receivingModel.getAnims());
+			List<Animation> oldAnims = new ArrayList<>(mht.receivingModel.getAnims());
 
-			final List<AnimFlag<?>> recModFlags = mht.receivingModel.getAllAnimFlags();
-			final List<AnimFlag<?>> donModFlags = mht.donatingModel.getAllAnimFlags();
+			List<AnimFlag<?>> recModFlags = mht.receivingModel.getAllAnimFlags();
+			List<AnimFlag<?>> donModFlags = mht.donatingModel.getAllAnimFlags();
 
-			final List<EventObject> recModEventObjs = mht.receivingModel.getEvents();
-			final List<EventObject> donModEventObjs = mht.donatingModel.getEvents();
+			List<EventObject> recModEventObjs = mht.receivingModel.getEvents();
+			List<EventObject> donModEventObjs = mht.donatingModel.getEvents();
 
-			// note to self: remember to scale event objects with time
-			final List<AnimFlag<?>> newImpFlags = new ArrayList<>();
-			for (final AnimFlag<?> af : donModFlags) {
-				if (!af.hasGlobalSeq()) {
-					newImpFlags.add(af.getEmptyCopy());
-				} else {
-					newImpFlags.add(af.deepCopy());
-				}
-			}
-			final List<EventObject> newImpEventObjs = new ArrayList<>();
-			for (EventObject e : donModEventObjs) {
-				newImpEventObjs.add(EventObject.buildEmptyFrom(e));
-			}
-
-			final boolean clearAnims = mht.clearRecModAnims.isSelected();
-			if (clearAnims) {
-				for (final Animation anim : mht.receivingModel.getAnims()) {
-					for (AnimFlag<?> af : recModFlags) {
-						if (((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
-							// !af.hasGlobalSeq && was above before
-							af.deleteAnim(anim);
-						}
-					}
-					for (EventObject e : recModEventObjs) {
-						e.deleteAnim(anim);
-					}
-				}
-				mht.receivingModel.getAnims().clear();
+			if (mht.clearRecModAnims.isSelected()) {
+				doClearAnims(recModFlags, recModEventObjs);
 			}
 
 
-			final List<Animation> newAnims = getNewAnimations(donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
-
-//			if (!mht.clearRecModAnims.isSelected()) {
-//				addNewAnimsIntoOldAnims(donModFlags, donModEventObjs, newImpFlags, newImpEventObjs, newAnims);
-//			}
-
-			// Now, rebuild the old animflags with the new
-			for (final AnimFlag<?> af : donModFlags) {
-				af.setValuesTo(newImpFlags.get(donModFlags.indexOf(af)));
-			}
-			for (final EventObject e : donModEventObjs) {
-				e.setValuesTo(newImpEventObjs.get(donModEventObjs.indexOf(e)));
-			}
+			List<Animation> newAnims = getNewAnimations(donModFlags, donModEventObjs);
 
 			if (mht.clearExistingBones.isSelected()) {
 				clearRecModBoneAndHelpers();
 			}
-			final List<IdObject> objectsAdded = new ArrayList<>();
 
-			addChosenNewBones(objectsAdded);
+			addChosenNewBones();
 
 			if (!mht.clearExistingBones.isSelected()) {
 				copyMotionFromBones();
@@ -285,38 +219,19 @@ public class ImportPanel extends JTabbedPane {
 			applyNewMatrixBones();
 
 			// Objects!
-			final List<Camera> camerasAdded = addChosenObjects(objectsAdded);
+			addChosenObjects();
+			addChosenCameras();
 
-			setNewVisSources(oldAnims, clearAnims, newAnims);
+			setNewVisSources(oldAnims, mht.clearRecModAnims.isSelected(), newAnims);
 
 			importSuccess = true;
 
-			// TODO This is broken now, should fix it
-			// Tell program to set visibility after import
-			// MDLDisplay display = MainFrame.panel.displayFor(currentModel);
-			// if( display != null )
-			// {
-			// display.setBeenSaved(false); // we edited the model
-			// for( int i = 0; i < mht.geosetTabs.getTabCount(); i++ )
-			// {
-			// GeosetPanel gp = (GeosetPanel)mht.geosetTabs.getComponentAt(i);
-			// if( gp.doImport.isSelected() && gp.model == importedModel )
-			// {
-			// display.makeGeosetEditable(gp.geoset, true);
-			// display.makeGeosetVisible(gp.geoset, true);
-			// }
-			// }
-			// MainFrame.panel.geoControl.repaint();
-			// MainFrame.panel.geoControl.setMDLDisplay(display);
-			// display.reloadTextures();//.mpanel.perspArea.reloadTextures();//addGeosets(newGeosets);
-			// }
 
-
-			if (callback != null) {
-				callback.geosetsUpdated();
-				callback.geosetsUpdated();
-				callback.nodesUpdated();
-				callback.camerasUpdated();
+			if (changeListener1 != null) {
+				changeListener1.geosetsUpdated();
+				changeListener1.geosetsUpdated();
+				changeListener1.nodesUpdated();
+				changeListener1.camerasUpdated();
 			}
 		} catch (final Exception e) {
 			e.printStackTrace();
@@ -326,6 +241,21 @@ public class ImportPanel extends JTabbedPane {
 		importEnded = true;
 	}
 
+	private void doClearAnims(List<AnimFlag<?>> recModFlags, List<EventObject> recModEventObjs) {
+		for (Animation anim : mht.receivingModel.getAnims()) {
+			for (AnimFlag<?> af : recModFlags) {
+				if (((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
+					// !af.hasGlobalSeq && was above before
+					af.deleteAnim(anim);
+				}
+			}
+			for (EventObject e : recModEventObjs) {
+				e.deleteAnim(anim);
+			}
+		}
+		mht.receivingModel.getAnims().clear();
+	}
+
 	private void setNewVisSources(List<Animation> oldAnims, boolean clearAnims, List<Animation> newAnims) {
 		final List<AnimFlag<Float>> finalVisFlags = new ArrayList<>();
 		for (VisibilityShell visibilityShell : mht.futureVisComponents) {
@@ -333,25 +263,28 @@ public class ImportPanel extends JTabbedPane {
 			AnimFlag<Float> visFlag = temp.getVisibilityFlag();// might be null
 			AnimFlag<Float> newVisFlag;
 
-			boolean tans = false;
 			if (visFlag != null) {
 				newVisFlag = visFlag.getEmptyCopy();
-				tans = visFlag.tans();
 			} else {
 				newVisFlag = new FloatAnimFlag(temp.visFlagName());
 			}
 			// newVisFlag = new AnimFlag(temp.visFlagName());
 
-			FloatAnimFlag flagOld = getFloatAnimFlag(tans, oldAnims, visibilityShell.getOldVisSource());
+			FloatAnimFlag flagOld = getFloatAnimFlag(newVisFlag.tans(), oldAnims, visibilityShell.getOldVisSource());
+			FloatAnimFlag flagNew = getFloatAnimFlag(newVisFlag.tans(), newAnims, visibilityShell.getNewVisSource());
 
-			FloatAnimFlag flagNew = getFloatAnimFlag(tans, newAnims, visibilityShell.getNewVisSource());
-
-			if ((visibilityShell.isFavorOld() && (visibilityShell.getModel() == mht.receivingModel) && !clearAnims) || (!visibilityShell.isFavorOld() && (visibilityShell.getModel() == mht.donatingModel))) {
+			if (flagNew != null &&
+					((visibilityShell.isFavorOld() && (visibilityShell.getModel() == mht.receivingModel) && !clearAnims)
+					|| (!visibilityShell.isFavorOld() && (visibilityShell.getModel() == mht.donatingModel)))) {
 				// this is an element favoring existing animations over imported
-				clearAnims(oldAnims, flagNew);
-			} else {
+				for (Animation a : oldAnims) {
+					flagNew.deleteAnim(a);
+				}
+			} else if(flagOld != null){
 				// this is an element not favoring existing over imported
-				clearAnims(newAnims, flagOld);
+				for (Animation a : newAnims) {
+					flagOld.deleteAnim(a);
+				}
 			}
 			if (flagOld != null) {
 				newVisFlag.copyFrom(flagOld);
@@ -362,24 +295,12 @@ public class ImportPanel extends JTabbedPane {
 			finalVisFlags.add(newVisFlag);
 		}
 		for (int i = 0; i < mht.futureVisComponents.size(); i++) {
-			final VisibilityShell vPanel = mht.futureVisComponents.get(i);
-			final VisibilitySource temp = ((VisibilitySource) vPanel.getSource());
-			final AnimFlag<Float> visFlag = finalVisFlags.get(i);// might be null
+			VisibilitySource visSource = ((VisibilitySource) mht.futureVisComponents.get(i).getSource());
+			AnimFlag<Float> visFlag = finalVisFlags.get(i);// might be null
 			if (visFlag.size() > 0) {
-				temp.setVisibilityFlag(visFlag);
+				visSource.setVisibilityFlag(visFlag);
 			} else {
-				temp.setVisibilityFlag(null);
-			}
-		}
-	}
-
-	private void clearAnims(List<Animation> anims, FloatAnimFlag flag) {
-		for (final Animation a : anims) {
-			if (flag != null) {
-				if (!flag.hasGlobalSeq()) {
-					flag.deleteAnim(a);
-					// All entries for visibility are deleted from imported sources during existing animation times
-				}
+				visSource.setVisibilityFlag(null);
 			}
 		}
 	}
@@ -387,20 +308,15 @@ public class ImportPanel extends JTabbedPane {
 	private FloatAnimFlag getFloatAnimFlag(boolean tans, List<Animation> anims, VisibilityShell source) {
 		if (source != null) {
 			if (source.isNeverVisible()) {
-				FloatAnimFlag flagOld = new FloatAnimFlag("temp");
+				FloatAnimFlag tempFlag = new FloatAnimFlag("temp");
 
 				Entry<Float> invisEntry = new Entry<>(0, 0f);
-				if(tans) invisEntry.unLinearize();
+				if (tans) invisEntry.unLinearize();
 
-				for (final Animation a : anims) {
-					flagOld.setOrAddEntryT(a.getStart(), invisEntry.deepCopy().setTime(a.getStart()), a);
-//					if (tans) {
-//						flagOld.addEntry(a.getStart(), 0f, 0f, 0f);
-//					} else {
-//						flagOld.addEntry(a.getStart(), 0f);
-//					}
+				for (Animation a : anims) {
+					tempFlag.setOrAddEntryT(a.getStart(), invisEntry.deepCopy().setTime(a.getStart()), a);
 				}
-				return flagOld;
+				return tempFlag;
 			} else if (!source.isAlwaysVisible()) {
 				return (FloatAnimFlag) ((VisibilitySource) source.getSource()).getVisibilityFlag();
 			}
@@ -408,29 +324,35 @@ public class ImportPanel extends JTabbedPane {
 		return null;
 	}
 
-	private List<Camera> addChosenObjects(List<IdObject> objectsAdded) {
-		final List<Camera> camerasAdded = new ArrayList<>();
+	private List<IdObject> addChosenObjects() {
+		List<IdObject> objectsAdded = new ArrayList<>();
 		for (ObjectShell objectShell : mht.donModObjectShells) {
-			if (objectShell.getShouldImport()) {
-				if (objectShell.getIdObject() != null) {
-					final BoneShell parentBs = objectShell.getNewParentBs();
-					if (parentBs != null) {
-						objectShell.getIdObject().setParent(parentBs.getBone());
-					} else {
-						objectShell.getIdObject().setParent(null);
-					}
-					// later make a name field?
-					mht.receivingModel.add(objectShell.getIdObject());
-					objectsAdded.add(objectShell.getIdObject());
-				} else if (objectShell.getCamera() != null) {
-					mht.receivingModel.add(objectShell.getCamera());
-					camerasAdded.add(objectShell.getCamera());
-				}
-			} else {
-				if (objectShell.getIdObject() != null) {
+			if (objectShell.getShouldImport() && objectShell.getIdObject() != null) {
+				BoneShell parentBs = objectShell.getNewParentBs();
+				if (parentBs != null) {
+					objectShell.getIdObject().setParent(parentBs.getBone());
+				} else {
 					objectShell.getIdObject().setParent(null);
-					// Fix cross-model referencing issue (force clean parent node's list of children)
 				}
+				// later make a name field?
+				mht.receivingModel.add(objectShell.getIdObject());
+				objectsAdded.add(objectShell.getIdObject());
+			} else if (objectShell.getIdObject() != null) {
+				objectShell.getIdObject().setParent(null);
+				// Fix cross-model referencing issue (force clean parent node's list of children)
+
+			}
+		}
+
+		return objectsAdded;
+	}
+
+	private List<Camera> addChosenCameras() {
+		List<Camera> camerasAdded = new ArrayList<>();
+		for (CameraShell cameraShell : mht.donModCameraShells) {
+			if (cameraShell.getShouldImport() && cameraShell.getCamera() != null) {
+				mht.receivingModel.add(cameraShell.getCamera());
+				camerasAdded.add(cameraShell.getCamera());
 			}
 		}
 		return camerasAdded;
@@ -438,6 +360,7 @@ public class ImportPanel extends JTabbedPane {
 
 	private void applyNewMatrixBones() {
 		boolean shownEmpty = false;
+		boolean shownDestroyed = false;
 		Bone dummyBone = null;
 		// ToDo this needs a map matrices to vertices or something to update vertex-bones correctly...
 		for (GeosetShell geosetShell : mht.allGeoShells) {
@@ -460,9 +383,10 @@ public class ImportPanel extends JTabbedPane {
 							System.out.println("Boneshaving " + bs.getBone().getName() + " out of use");
 						}
 					}
-					if (ms.getMatrix().size() == 0) {
+					if (ms.getMatrix().size() == 0 && !shownDestroyed) {
 						JOptionPane.showMessageDialog(null,
 								"Error: A matrix was functionally destroyed while importing, and may take the program with it!");
+						shownDestroyed = true;
 					}
 					if (ms.getMatrix().getBones().size() < 1) {
 						if (dummyBone == null) {
@@ -485,11 +409,15 @@ public class ImportPanel extends JTabbedPane {
 						}
 					}
 					ms.getMatrix().cureBones(mht.receivingModel);
-					for(GeosetVertex vertex : vertexList){
-						vertex.clearBoneAttachments();
-						for (Bone bone : ms.getMatrix().getBones()) {
-							vertex.addBoneAttachment(bone);
+					if(vertexList != null){
+						for(GeosetVertex vertex : vertexList){
+							vertex.clearBoneAttachments();
+							for (Bone bone : ms.getMatrix().getBones()) {
+								vertex.addBoneAttachment(bone);
+							}
 						}
+					} else {
+						System.out.println("couldn't find vertices for Matrix " + ms.getMatrix());
 					}
 				}
 			}
@@ -528,7 +456,8 @@ public class ImportPanel extends JTabbedPane {
 		}
 	}
 
-	private void addChosenNewBones(List<IdObject> objectsAdded) {
+	private List<IdObject> addChosenNewBones() {
+		List<IdObject> objectsAdded = new ArrayList<>();
 		for (BoneShell boneShell : mht.donModBoneShells) {
 			// we will go through all bone shells for this
 			// Fix cross-model referencing issue (force clean parent node's list of children)
@@ -546,55 +475,91 @@ public class ImportPanel extends JTabbedPane {
 				case MOTIONFROM, DONTIMPORT -> boneShell.getBone().setParent(null);
 			}
 		}
+		return objectsAdded;
 	}
 
 	private void clearRecModBoneAndHelpers() {
-		for (final IdObject o : mht.receivingModel.getBones()) {
+		for (IdObject o : mht.receivingModel.getBones()) {
 			mht.receivingModel.remove(o);
 		}
-		for (final IdObject o : mht.receivingModel.getHelpers()) {
+		for (IdObject o : mht.receivingModel.getHelpers()) {
 			mht.receivingModel.remove(o);
 		}
 	}
 
-	private List<Animation> getNewAnimations(List<AnimFlag<?>> donModFlags, List<EventObject> donModEventObjs, List<AnimFlag<?>> newImpFlags, List<EventObject> newImpEventObjs) {
-		final List<Animation> newAnims = new ArrayList<>();
-		for (AnimShell animShell : mht.animTabList) {
+	private List<Animation> getNewAnimations(List<AnimFlag<?>> donModFlags, List<EventObject> donModEventObjs) {
+
+
+		// note to self: remember to scale event objects with time
+//		List<AnimFlag<?>> newImpFlags = new ArrayList<>();
+		Map<AnimFlag<?>, AnimFlag<?>> flagMap = new HashMap<>();
+		for (AnimFlag<?> af : donModFlags) {
+			if (!af.hasGlobalSeq()) {
+//				newImpFlags.add(af.getEmptyCopy());
+				flagMap.put(af, af.getEmptyCopy());
+			} else {
+//				newImpFlags.add(af.deepCopy());
+				flagMap.put(af, af.deepCopy());
+			}
+		}
+//		List<EventObject> newImpEventObjs = new ArrayList<>();
+		Map<EventObject, EventObject> eventMap = new HashMap<>();
+		for (EventObject e : donModEventObjs) {
+//			newImpEventObjs.add(EventObject.buildEmptyFrom(e));
+			eventMap.put(e, EventObject.buildEmptyFrom(e));
+		}
+
+
+		List<Animation> newAnims = new ArrayList<>();
+		for (AnimShell animShell : mht.allAnimShells) {
 			if (animShell.getImportType() != AnimShell.ImportType.DONTIMPORT) {
-				AnimShell.ImportType type = animShell.getImportType();
 				int newStart = mht.receivingModel.animTrackEnd() + 300;
 
 				Animation anim1 = animShell.getAnim();
 				if (animShell.isReverse()) {
-					// reverse the animation
-					for (AnimFlag<?> af : donModFlags) {
-						if (!af.hasGlobalSeq() && ((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
-							af.timeScale2(anim1, -anim1.getLength(), anim1.getLength());
-						}
-					}
-					for (EventObject e : donModEventObjs) {
-						e.timeScale(anim1, -anim1.getLength(), anim1.getLength());
-					}
+					reverseAnim(donModFlags, donModEventObjs, anim1);
 				}
-				switch (type) {
+				switch (animShell.getImportType()) {
 					case IMPORTBASIC:
 					case CHANGENAME:
 
 						//todo things here is probably broken...
-						int length = anim1.getLength();
-						anim1.setAnimStuff(newStart, length);
-						animCopyToInterv1(donModFlags, donModEventObjs, newImpFlags, newImpEventObjs, anim1, anim1);
-						if (type == AnimShell.ImportType.CHANGENAME) {
+						anim1.setStart(newStart);
+//						animCopyToInterv1(donModFlags, donModEventObjs, newImpFlags, newImpEventObjs, anim1, anim1);
+						animCopyToInterv1(flagMap, eventMap, anim1, anim1);
+						if (animShell.getImportType() == AnimShell.ImportType.CHANGENAME) {
 							anim1.setName(animShell.getName());
 						}
 						mht.receivingModel.add(anim1);
 						newAnims.add(anim1);
 						break;
 					case TIMESCALE:
+						if (!mht.clearRecModAnims.isSelected()) {
+							for (AnimShell recAnimShell : mht.recModAnims) {
+								AnimShell importAnimShell = recAnimShell.getImportAnimShell();
+								if(importAnimShell == animShell){
+									Animation importAnim = importAnimShell.getAnim();
+									animCopyToInterv1(flagMap, eventMap, anim1, importAnim);
+
+									newAnims.add(new Animation("temp", anim1.getStart(), anim1.getEnd()));
+
+									if (!mht.clearExistingBones.isSelected()) {
+										for (BoneShell bs : mht.recModBoneShells) {
+											if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
+												System.out.println("Attempting to clear animation for " + bs.getBone().getName() + " values " + anim1.getStart() + ", " + anim1.getEnd());
+												bs.getBone().clearAnimation(anim1);
+											}
+										}
+									}
+								}
+							}
+						}
 //						AnimShell importAnimShell = animShell.getImportAnimShell();
 //
 //						if (importAnimShell != null && importAnimShell.getImportType() == AnimShell.ImportType.TIMESCALE) {
-//							importAnimShell.getAnim().copyToInterval(anim1.getStart(), anim1.getEnd(), anim1, donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
+//
+//							Animation importAnim = importAnimShell.getAnim();
+//							animCopyToInterv1(flagMap, eventMap, anim1, importAnim);
 //
 //							newAnims.add(new Animation("temp", anim1.getStart(), anim1.getEnd()));
 //
@@ -614,26 +579,44 @@ public class ImportPanel extends JTabbedPane {
 				}
 			}
 		}
-		if (!mht.clearRecModAnims.isSelected()) {
-			addNewAnimsIntoOldAnims(donModFlags, donModEventObjs, newImpFlags, newImpEventObjs, newAnims);
-		}
-		return newAnims;
-	}
+//		if (!mht.clearRecModAnims.isSelected()) {
+//			addNewAnimsIntoOldAnims(donModFlags, donModEventObjs, newImpFlags, newImpEventObjs, newAnims);
+//		}
+//		if (!mht.clearRecModAnims.isSelected()) {
+//			for (AnimShell animShell : mht.recModAnims) {
+//
+//				AnimShell importAnimShell = animShell.getImportAnimShell();
+//				if (importAnimShell != null && importAnimShell.getImportType() == AnimShell.ImportType.TIMESCALE) {
+//					Animation anim1 = animShell.getAnim();
+//
+//					Animation importAnim = importAnimShell.getAnim();
+//					animCopyToInterv1(flagMap, eventMap, anim1, importAnim);
+//
+//					newAnims.add(new Animation("temp", anim1.getStart(), anim1.getEnd()));
+//
+//					if (!mht.clearExistingBones.isSelected()) {
+//						for (BoneShell bs : mht.recModBoneShells) {
+//							if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
+//								System.out.println("Attempting to clear animation for " + bs.getBone().getName() + " values " + anim1.getStart() + ", " + anim1.getLength());
+//								bs.getBone().clearAnimation(anim1);
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
 
-	private void animCopyToInterv1(List<AnimFlag<?>> donModFlags, List<EventObject> donModEventObjs, List<AnimFlag<?>> newImpFlags, List<EventObject> newImpEventObjs, Animation anim1, Animation importAnim) {
-//		importAnim.copyToInterval(start, start + length, anim1, donModFlags, donModEventObjs, newImpFlags, newImpEventObjs);
-		for (final AnimFlag<?> af : newImpFlags) {
-			if (!af.hasGlobalSeq()) {
-				AnimFlag<?> source = donModFlags.get(newImpFlags.indexOf(af));
-				af.copyFrom(source, importAnim, anim1);
-			}
+		// Now, rebuild the old animflags with the new
+		for (AnimFlag<?> af : donModFlags) {
+//			af.setValuesTo(newImpFlags.get(donModFlags.indexOf(af)));
+			af.setValuesTo(flagMap.get(af));
 		}
-		for (final EventObject e : newImpEventObjs) {
-			if (!e.hasGlobalSeq()) {
-				EventObject source = donModEventObjs.get(newImpEventObjs.indexOf(e));
-				e.copyFrom(source, importAnim, anim1);
-			}
+		for (EventObject e : donModEventObjs) {
+//			e.setValuesTo(newImpEventObjs.get(donModEventObjs.indexOf(e)));
+			e.setValuesTo(eventMap.get(e));
 		}
+
+		return newAnims;
 	}
 
 	private void addNewAnimsIntoOldAnims(List<AnimFlag<?>> donModFlags, List<EventObject> donModEventObjs, List<AnimFlag<?>> newImpFlags, List<EventObject> newImpEventObjs, List<Animation> newAnims) {
@@ -642,22 +625,63 @@ public class ImportPanel extends JTabbedPane {
 			AnimShell importAnimShell = animShell.getImportAnimShell();
 			if (importAnimShell != null && importAnimShell.getImportType() == AnimShell.ImportType.TIMESCALE) {
 				Animation anim1 = animShell.getAnim();
-				int start = anim1.getStart();
-				int length = anim1.getLength();
 
 				Animation importAnim = importAnimShell.getAnim();
 				animCopyToInterv1(donModFlags, donModEventObjs, newImpFlags, newImpEventObjs, anim1, importAnim);
 
-				newAnims.add(new Animation("temp", start, start + length));
+				newAnims.add(new Animation("temp", anim1.getStart(), anim1.getEnd()));
 
 				if (!mht.clearExistingBones.isSelected()) {
 					for (BoneShell bs : mht.recModBoneShells) {
 						if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
-							System.out.println("Attempting to clear animation for " + bs.getBone().getName() + " values " + start + ", " + start + length);
+							System.out.println("Attempting to clear animation for " + bs.getBone().getName() + " values " + anim1.getStart() + ", " + anim1.getLength());
 							bs.getBone().clearAnimation(anim1);
 						}
 					}
 				}
+			}
+		}
+	}
+
+	private void reverseAnim(List<AnimFlag<?>> donModFlags, List<EventObject> donModEventObjs, Animation anim1) {
+		// reverse the animation
+		int length = anim1.getLength();
+		for (AnimFlag<?> af : donModFlags) {
+			if (!af.hasGlobalSeq() && ((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
+				af.timeScale2(anim1, -length, length);
+			}
+		}
+		for (EventObject e : donModEventObjs) {
+			e.timeScale(anim1, -length, length);
+		}
+	}
+
+	private void animCopyToInterv1(List<AnimFlag<?>> animFlags, List<EventObject> eventObjects, List<AnimFlag<?>> newImpFlags, List<EventObject> newImpEventObjs, Animation anim1, Animation importAnim) {
+//		importAnim.copyToInterval(start, start + length, anim1, animFlags, eventObjects, newImpFlags, newImpEventObjs);
+		for (AnimFlag<?> af : newImpFlags) {
+			if (!af.hasGlobalSeq()) {
+				AnimFlag<?> source = animFlags.get(newImpFlags.indexOf(af));
+				af.copyFrom(source, importAnim, anim1);
+			}
+		}
+		for (EventObject e : newImpEventObjs) {
+			if (!e.hasGlobalSeq()) {
+				EventObject source = eventObjects.get(newImpEventObjs.indexOf(e));
+				e.copyFrom(source, importAnim, anim1);
+			}
+		}
+	}
+	private void animCopyToInterv1(Map<AnimFlag<?>, AnimFlag<?>> flagMap, Map<EventObject, EventObject> eventMap, Animation anim1, Animation importAnim) {
+		for (AnimFlag<?> source : flagMap.keySet()){
+			AnimFlag<?> af = flagMap.get(source);
+			if (af != null && !af.hasGlobalSeq()) {
+				af.copyFrom(source, importAnim, anim1);
+			}
+		}
+		for (EventObject source : eventMap.keySet()) {
+			EventObject e = eventMap.get(source);
+			if (e != null && !e.hasGlobalSeq()) {
+				e.copyFrom(source, importAnim, anim1);
 			}
 		}
 	}
@@ -716,47 +740,26 @@ public class ImportPanel extends JTabbedPane {
 	}
 
 	// *********************Simple Import Functions****************
-	public void animTransfer(final boolean singleAnimation, final Animation pickedAnim, final Animation visFromAnim, final boolean show) {
-		mht.importAllGeos(false);
-		mht.setImportStatusForAllBones(BoneShell.ImportType.MOTIONFROM);
-		mht.clearRecModAnims.doClick();
-		mht.importAllObjs(false);
-		mht.visibilityList();
-		mht.selSimButton();
+	public void animTransfer(boolean singleAnimation, Animation pickedAnim, Animation visFromAnim, boolean show) {
+		mht.clearRecModAnims.setSelected(true);
+		ugg(BoneShell.ImportType.MOTIONFROM, singleAnimation);
 
 		if (singleAnimation) {
-			// JOptionPane.showMessageDialog(null,"single trans");
-			mht.setImportTypeForAllAnims(AnimShell.ImportType.DONTIMPORT);
-			for (AnimShell animShell : mht.animTabList) {
-				if (animShell.getOldName().equals(pickedAnim.getName())) {
-//					animShell.setDoImport(true);
-					animShell.setImportType(AnimShell.ImportType.IMPORTBASIC);
-				}
-			}
-			mht.clearRecModAnims.doClick();// turn it back off
+			importSingleAnim2(pickedAnim);
+			mht.clearRecModAnims.setSelected(false);
 		}
 
-		VisibilityShell corpseShell = null;
+
 		// Try assuming it's a unit with a corpse; they'll tend to be that way
-
 		// Iterate through new visibility sources, find a geoset with gutz material
-		for (VisibilityShell vs : mht.donModVisSourcesNew) {
-			if (vs.getSource() instanceof Geoset) {
-				final Geoset g = (Geoset) vs.getSource();
-				if ((g.getGeosetAnim() != null) && g.getMaterial().firstLayer().firstTexture().getPath().equalsIgnoreCase("textures\\gutz.blp")) {
-					corpseShell = vs;
-					break;
-				}
-			}
-		}
-		if (corpseShell != null) {
-			for (VisibilityShell vs : mht.futureVisComponents) {
-				if (vs.getSource() instanceof Geoset) {
-					final Geoset g = (Geoset) vs.getSource();
-					if ((g.getGeosetAnim() != null) && g.getMaterial().firstLayer().firstTexture().getPath().equalsIgnoreCase("textures\\gutz.blp")) {
-						vs.setNewVisSource(corpseShell);
+		for (VisibilityShell donVis : mht.donModVisSourcesNew) {
+			if (isGutz(donVis)) {
+				for (VisibilityShell impVis : mht.futureVisComponents) {
+					if (isGutz(impVis)) {
+						impVis.setNewVisSource(donVis);
 					}
 				}
+				break;
 			}
 		}
 
@@ -765,43 +768,95 @@ public class ImportPanel extends JTabbedPane {
 		}
 	}
 
-	// *********************Simple Import Functions****************
-	public void animTransferPartTwo(final boolean singleAnimation, final Animation pickedAnim, final Animation visFromAnim, final boolean show) {
-		// This should be an import from self
+	private void ugg(BoneShell.ImportType importType, boolean singleAnim) {
 		mht.importAllGeos(false);
-//		mht.doImportAllAnims(false);
-		mht.setImportTypeForAllAnims(AnimShell.ImportType.DONTIMPORT);
-		mht.setImportStatusForAllBones(BoneShell.ImportType.DONTIMPORT);
+		mht.setImportStatusForAllBones(importType);
 		mht.importAllObjs(false);
 		mht.visibilityList();
-		mht.selSimButton();
+		mht.selectSimilarVisSources();
+		if (singleAnim) {
+			mht.setImportTypeForAllAnims(AnimShell.ImportType.DONTIMPORT);
+		}
+	}
+
+	private boolean isGutz(VisibilityShell donVis) {
+		boolean isGeoset = donVis.getSource() instanceof Geoset;
+		boolean hasGeoAnim = ((Geoset) donVis.getSource()).getGeosetAnim() != null;
+		if(isGeoset && hasGeoAnim){
+			Bitmap bitmap = ((Geoset) donVis.getSource()).getMaterial().firstLayer().firstTexture();
+			return bitmap.getPath().equalsIgnoreCase("textures\\gutz.blp");
+		}
+		return false;
+	}
+
+	// *********************Simple Import Functions****************
+
+	public void animTransfer1(boolean singleAnimation, Animation pickedAnim, Animation visFromAnim, boolean show) {
+		mht.clearRecModAnims.setSelected(true);
+		ugg(BoneShell.ImportType.MOTIONFROM, singleAnimation);
 
 		if (singleAnimation) {
-			for (AnimShell animShell : mht.animTabList) {
-				if (animShell.getOldName().equals(visFromAnim.getName())) {
-//					animShell.setDoImport(true);
-					animShell.setImportType(AnimShell.ImportType.TIMESCALE); // Time scale
+			importSingleAnim2(pickedAnim);
+			mht.clearRecModAnims.setSelected(false);
+		}
 
-					for (AnimShell shell : mht.recModAnims) {
-						if (shell.getOldName().equals(pickedAnim.getName())) {
-							animShell.setImportAnimShell(shell);
-//							aniPanel.animList.setSelectedValue(shell, true);
-//							aniPanel.updateSelectionPicks();
-							break;
-						}
+
+		// Try assuming it's a unit with a corpse; they'll tend to be that way
+		// Iterate through new visibility sources, find a geoset with gutz material
+		for (VisibilityShell donVis : mht.donModVisSourcesNew) {
+			if (isGutz(donVis)) {
+				for (VisibilityShell impVis : mht.futureVisComponents) {
+					if (isGutz(impVis)) {
+						impVis.setNewVisSource(donVis);
 					}
 				}
+				break;
 			}
-		} else {
-			JOptionPane.showMessageDialog(null, "Bug in anim transfer: attempted unnecessary 2-part transfer");
-		}
-		for (VisibilityShell vs : mht.futureVisComponents) {
-			vs.setFavorOld(false);
-//			vp.favorOld.doClick();
 		}
 
 		if (!show) {
 			applyImport();
+		}
+	}
+
+	public void animTransferPartTwo(Animation pickedAnim, Animation visFromAnim, boolean show) {
+		// This should be an import from self
+		// This seems to be a stupid hack to put back lost stuff...
+		ugg(BoneShell.ImportType.DONTIMPORT, true);
+
+		importSingleAnim1(pickedAnim, visFromAnim);
+
+		for (VisibilityShell vs : mht.futureVisComponents) {
+			vs.setFavorOld(false);
+		}
+
+		if (!show) {
+			applyImport();
+		}
+	}
+
+
+	private void importSingleAnim2(Animation pickedAnim) {
+		// JOptionPane.showMessageDialog(null,"single trans");
+		for (AnimShell animShell : mht.allAnimShells) {
+			if (animShell.getOldName().equals(pickedAnim.getName())) {
+				animShell.setImportType(AnimShell.ImportType.IMPORTBASIC);
+			}
+		}
+//			mht.clearRecModAnims.doClick();// turn it back off
+	}
+	private void importSingleAnim1(Animation pickedAnim, Animation visFromAnim) {
+		for (AnimShell animShell : mht.allAnimShells) {
+			if (animShell.getOldName().equals(visFromAnim.getName())) {
+				animShell.setImportType(AnimShell.ImportType.TIMESCALE); // Time scale
+
+				for (AnimShell shell : mht.recModAnims) {
+					if (shell.getOldName().equals(pickedAnim.getName())) {
+						animShell.setImportAnimShell(shell);
+						break;
+					}
+				}
+			}
 		}
 	}
 }

@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.ExtLog;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -42,9 +42,9 @@ public class ViewportHelpers {
 		return boundsRadius;
 	}
 
-	public static Animation findDefaultAnimation(ModelView modelView, TimeEnvironmentImpl renderEnv) {
+	public static Animation findDefaultAnimation(EditableModel model, TimeEnvironmentImpl renderEnv) {
 		Animation defaultAnimation = null;
-		for (final Animation animation : modelView.getModel().getAnims()) {
+		for (final Animation animation : model.getAnims()) {
 			if ((defaultAnimation == null)
 					|| !defaultAnimation.getName().toLowerCase().contains("stand")
 					|| (animation.getName().toLowerCase().contains("stand")

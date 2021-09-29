@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.mesh.SnapCloseVertsAction;
-import com.hiveworkshop.rms.editor.actions.mesh.WeldVertsAction;
 import com.hiveworkshop.rms.editor.actions.nodes.BakeAndRebindAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
@@ -10,6 +9,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.WeldVerts;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.KeybindingPrefPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -39,7 +39,7 @@ public class TwilacPanel extends JPanel {
 		add(hideVerts, "wrap");
 
 		JButton unHideVerts = new JButton("Unhide Verts");
-		unHideVerts.addActionListener(e -> ProgramGlobals.getCurrentModelPanel().getModelView().unHideVertices());
+		unHideVerts.addActionListener(e -> ProgramGlobals.getCurrentModelPanel().getModelView().unHideAllVertices());
 		add(unHideVerts, "wrap");
 
 		JButton bakeAndRebindToNull = new JButton("BakeAndRebindToNull");
@@ -53,7 +53,8 @@ public class TwilacPanel extends JPanel {
 
 		JButton weldCloseVerts = new JButton("Weld Close Verts");
 		weldCloseVerts.addActionListener(e ->
-				ProgramGlobals.getCurrentModelPanel().getUndoManager().pushAction(new WeldVertsAction(ProgramGlobals.getCurrentModelPanel().getModelView().getSelectedVertices(), 1, ModelStructureChangeListener.changeListener).redo()));
+//				ProgramGlobals.getCurrentModelPanel().getUndoManager().pushAction(new WeldVertsAction(ProgramGlobals.getCurrentModelPanel().getModelView().getSelectedVertices(), 1, ModelStructureChangeListener.changeListener).redo()));
+				WeldVerts.doWeld(ProgramGlobals.getCurrentModelPanel().getModelHandler()));
 		add(weldCloseVerts, "wrap");
 
 		JButton renameBoneChain = new JButton("Rename Bone Chain");
@@ -80,6 +81,18 @@ public class TwilacPanel extends JPanel {
 		importModelPart.addActionListener(e -> impModPart());
 		add(importModelPart, "wrap");
 
+		JButton importModelSubAnim = new JButton("importModelSubAnim");
+		importModelSubAnim.addActionListener(e -> impModSubAnim());
+		add(importModelSubAnim, "wrap");
+
+		JButton spliceModelMeshPart = new JButton("splice mesh");
+		spliceModelMeshPart.addActionListener(e -> spliceModPart());
+		add(spliceModelMeshPart, "wrap");
+
+		JButton mergeBoneHelpers = new JButton("mergeBoneHelpers");
+		mergeBoneHelpers.addActionListener(e -> mergeUnnecessaryBonesWithHelpers());
+		add(mergeBoneHelpers, "wrap");
+
 		JButton button = new JButton("button");
 		button.addActionListener(e -> button.setText(button.getText().equalsIgnoreCase("butt-on") ? "Butt-Off" : "Butt-On"));
 		add(button, "wrap");
@@ -87,11 +100,30 @@ public class TwilacPanel extends JPanel {
 	}
 
 	private void impModPart() {
+		ModelHandler modelHandler = ProgramGlobals.getCurrentModelPanel().getModelHandler();
 		FileDialog fileDialog = new FileDialog();
 		EditableModel donModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
 		if (donModel != null) {
-			ImportModelPartPanel panel = new ImportModelPartPanel(donModel, ProgramGlobals.getCurrentModelPanel().getModelHandler());
-			FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Twilac's new tools");
+			ImportModelPartPanel panel = new ImportModelPartPanel(donModel, modelHandler);
+			FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Import model Part");
+		}
+	}
+	private void impModSubAnim() {
+		ModelHandler modelHandler = ProgramGlobals.getCurrentModelPanel().getModelHandler();
+		FileDialog fileDialog = new FileDialog();
+		EditableModel donModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+		if (donModel != null) {
+			ImportBoneChainAnimationPanel panel = new ImportBoneChainAnimationPanel(donModel, modelHandler);
+			FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Import bone chain animation");
+		}
+	}
+	private void spliceModPart() {
+		ModelHandler modelHandler = ProgramGlobals.getCurrentModelPanel().getModelHandler();
+		FileDialog fileDialog = new FileDialog();
+		EditableModel donModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+		if (donModel != null) {
+			SpliceModelPartPanel panel = new SpliceModelPartPanel(donModel, modelHandler);
+			FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Splice mesh");
 		}
 	}
 
@@ -101,12 +133,13 @@ public class TwilacPanel extends JPanel {
 	}
 
 	public void rebindToNull() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		ModelHandler modelPanel = ProgramGlobals.getCurrentModelPanel().getModelHandler();
 		ModelView modelView = modelPanel.getModelView();
 		List<UndoAction> rebindActions = new ArrayList<>();
 		for (IdObject idObject : modelView.getSelectedIdObjects()) {
 			System.out.println("rebinding " + idObject.getName());
-			UndoAction action = new BakeAndRebindAction(idObject, null, modelPanel.getModelHandler());
+//			UndoAction action = new BakeAndRebindActionTwi(idObject, null, modelPanel);
+			UndoAction action = new BakeAndRebindAction(idObject, null, modelPanel);
 			rebindActions.add(action);
 		}
 		modelPanel.getUndoManager().pushAction(new CompoundAction("Baked and changed Parent", rebindActions, ModelStructureChangeListener.changeListener::nodesUpdated).redo());
@@ -166,7 +199,8 @@ public class TwilacPanel extends JPanel {
 	private void viewReOrderAnimsPanel(){
 		ModelPanel currentModelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (currentModelPanel != null) {
-			ReorderAnimationsPanel panel = new ReorderAnimationsPanel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
+			ModelHandler modelHandler = ProgramGlobals.getCurrentModelPanel().getModelHandler();
+			ReorderAnimationsPanel panel = new ReorderAnimationsPanel(modelHandler);
 			FramePopup.show(panel, null, "Re-order Animations");
 		}
 	}
@@ -174,5 +208,32 @@ public class TwilacPanel extends JPanel {
 		KeybindingPrefPanel keybindingPrefPanel = new KeybindingPrefPanel();
 //		keybindingPrefPanel.setPreferredSize(ScreenInfo.getSmallWindow());
 		FramePopup.show(keybindingPrefPanel, null, "Edit Keybindings");
+	}
+
+	private void mergeUnnecessaryBonesWithHelpers(){
+		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
+		Set<Bone> bonesWOMotion = new HashSet<>();
+		model.getBones().stream()
+				.filter(b -> b.getAnimFlags().isEmpty() && b.getChildrenNodes().isEmpty() && b.getParent() instanceof Helper)
+				.forEach(bonesWOMotion::add);
+
+//		Set<IdObject> decomParents = new HashSet<>();
+		for (Bone bone : bonesWOMotion){
+			IdObject parent = bone.getParent();
+			bone.setPivotPoint(parent.getPivotPoint());
+			bone.setAnimFlags(parent.getAnimFlags());
+			List<IdObject> childList = new ArrayList<>(parent.getChildrenNodes());
+			for(IdObject child : childList){
+				if(child != bone){
+					child.setParent(bone);
+				}
+			}
+			bone.setParent(parent.getParent());
+//			decomParents.add(parent);
+		}
+
+
+
+//		for (IdObject parent)
 	}
 }

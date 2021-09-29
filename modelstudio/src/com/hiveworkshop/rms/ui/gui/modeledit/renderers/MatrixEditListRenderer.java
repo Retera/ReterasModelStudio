@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ObjectShell;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
@@ -16,57 +15,12 @@ import java.util.Set;
 public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer2D<BoneShell> {
 	boolean showParent = false;
 
-	@Override
-	protected ResettableVertexFilter<BoneShell> createFilter() {
-		return new BoneShellFilter();
-	}
-
-	@Override
-	protected BoneShell valueToType(final Object value) {
-		return (BoneShell) value;
-	}
-
-	@Override
-	protected boolean contains(EditableModel model, final BoneShell object) {
-		return model.contains(object.getBone());
-	}
-
-	@Override
-	protected Vec3 getRenderVertex(final BoneShell value) {
-		return value.getBone().getPivotPoint();
-	}
-
 	BoneShell selectedBone;
 	ObjectShell selectedObject;
 	boolean showClass = false;
 
 	Set<BoneShell> bonesInAllMatricies = new HashSet<>();
-
-	public void addInAllBone(BoneShell boneShell) {
-		bonesInAllMatricies.add(boneShell);
-	}
-
-	public void removeInAllBone(BoneShell boneShell) {
-		bonesInAllMatricies.remove(boneShell);
-	}
-
 	Set<BoneShell> bonesNotInAllMatricies = new HashSet<>();
-
-	public void addNotInAllBone(BoneShell boneShell) {
-		bonesNotInAllMatricies.add(boneShell);
-	}
-
-	public void removeNotInAllBone(BoneShell boneShell) {
-		bonesNotInAllMatricies.remove(boneShell);
-	}
-
-	public void addNotInAllBone(Collection<BoneShell> boneShells) {
-		bonesNotInAllMatricies.addAll(boneShells);
-	}
-
-	public void removeNotInAllBone(Collection<BoneShell> boneShells) {
-		bonesNotInAllMatricies.removeAll(boneShells);
-	}
 
 	public MatrixEditListRenderer(EditableModel recModel, EditableModel donModel) {
 		super(recModel, donModel);
@@ -90,6 +44,64 @@ public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer
 		selectedObject = objectShell;
 	}
 
+	@Override
+	protected boolean isFromDonating(BoneShell value){
+		if(value != null){
+			return value.isFromDonating();
+		}
+		return false;
+	}
+
+	@Override
+	protected boolean isFromReceiving(BoneShell value){
+		if(value != null){
+			return !value.isFromDonating();
+		}
+		return false;
+	}
+
+	@Override
+	protected BoneShell valueToType(final Object value) {
+		return (BoneShell) value;
+	}
+
+	@Override
+	protected boolean contains(EditableModel model, final BoneShell object) {
+		if(model != null){
+			return model.contains(object.getBone());
+		}
+		return false;
+	}
+
+	@Override
+	protected Vec3 getRenderVertex(final BoneShell value) {
+		return value.getBone().getPivotPoint();
+	}
+
+
+	public void addInAllBone(BoneShell boneShell) {
+		bonesInAllMatricies.add(boneShell);
+	}
+
+	public void removeInAllBone(BoneShell boneShell) {
+		bonesInAllMatricies.remove(boneShell);
+	}
+
+	public void addNotInAllBone(BoneShell boneShell) {
+		bonesNotInAllMatricies.add(boneShell);
+	}
+
+	public void removeNotInAllBone(BoneShell boneShell) {
+		bonesNotInAllMatricies.remove(boneShell);
+	}
+
+	public void addNotInAllBone(Collection<BoneShell> boneShells) {
+		bonesNotInAllMatricies.addAll(boneShells);
+	}
+
+	public void removeNotInAllBone(Collection<BoneShell> boneShells) {
+		bonesNotInAllMatricies.removeAll(boneShells);
+	}
 
 	@Override
 	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSel, boolean hasFoc) {
@@ -125,21 +137,5 @@ public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer
 		this.setForeground(fg.asIntColor());
 
 		return this;
-	}
-
-	private static final class BoneShellFilter implements ResettableVertexFilter<BoneShell> {
-		private BoneShell boneShell;
-
-		@Override
-		public boolean isAccepted(final GeosetVertex vertex) {
-			return vertex.getBones().contains(boneShell.getBone());
-		}
-
-		@Override
-		public ResettableVertexFilter<BoneShell> reset(final BoneShell matrix) {
-			boneShell = matrix;
-			return this;
-		}
-
 	}
 }

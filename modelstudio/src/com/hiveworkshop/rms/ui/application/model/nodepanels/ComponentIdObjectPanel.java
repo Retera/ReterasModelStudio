@@ -18,7 +18,6 @@ import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.util.Collections;
 import java.util.function.Consumer;
 
 
@@ -206,6 +205,6 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	}
 
 	private void removeNode() {
-		undoManager.pushAction(new DeleteNodesAction(Collections.singleton(idObject), Collections.emptySet(), changeListener, model).redo());
+		undoManager.pushAction(new DeleteNodesAction(idObject, changeListener, model).redo());
 	}
 }

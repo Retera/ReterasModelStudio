@@ -10,7 +10,6 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
@@ -138,57 +137,64 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 	public MdlxUInt32Timeline toMdlx(final TimelineContainer container, EditableModel model) {
 		final MdlxUInt32Timeline mdlxTimeline = new MdlxUInt32Timeline();
 
-		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
-		mdlxTimeline.interpolationType = interpolationType;
-		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
-
-
-		ArrayList<Integer> tempFrames2 = new ArrayList<>();
-		ArrayList<long[]> tempValues2 = new ArrayList<>();
-		ArrayList<long[]> tempInTans2 = new ArrayList<>();
-		ArrayList<long[]> tempOutTans2 = new ArrayList<>();
-
-		for (Sequence anim : new TreeSet<>(sequenceMap.keySet())) {
-			if (globalSeq == null || anim == globalSeq) {
-				TreeMap<Integer, Entry<Integer>> entryTreeMap = sequenceMap.get(anim);
-				for (Integer time : entryTreeMap.keySet()) {
-					if (time > anim.getLength()) {
-						break;
-					}
-					Entry<Integer> entry = entryTreeMap.get(time);
-//					tempFrames2.add(time + Math.max(anim.getStart(), tempFrames2.get(tempFrames2.size()-1) + 10));
-					tempFrames2.add(time + anim.getStart());
-					tempValues2.add(new long[] {entry.getValue()});
-					if (tans()) {
-						tempInTans2.add(new long[] {entry.getInTan()});
-						tempOutTans2.add(new long[] {entry.getOutTan()});
-					} else {
-						tempInTans2.add(new long[] {0});
-						tempOutTans2.add(new long[] {0});
-					}
-				}
-			}
-		}
-
-		int size = tempFrames2.size();
-		long[] tempFrames = new long[size];
-		long[][] tempValues = new long[size][];
-		long[][] tempInTans = new long[size][];
-		long[][] tempOutTans = new long[size][];
-
-		for (int i = 0; i < size; i++) {
-			tempFrames[i] = tempFrames2.get(i);
-			tempValues[i] = tempValues2.get(i);
-			tempInTans[i] = tempInTans2.get(i);
-			tempOutTans[i] = tempOutTans2.get(i);
-		}
-
-		mdlxTimeline.frames = tempFrames;
-		mdlxTimeline.values = tempValues;
-		mdlxTimeline.inTans = tempInTans;
-		mdlxTimeline.outTans = tempOutTans;
+		toMdlx3(mdlxTimeline, container, model);
 
 		return mdlxTimeline;
+
+//		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
+//		mdlxTimeline.interpolationType = interpolationType;
+//		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
+//
+//
+//		ArrayList<Integer> tempFrames2 = new ArrayList<>();
+//		ArrayList<long[]> tempValues2 = new ArrayList<>();
+//		ArrayList<long[]> tempInTans2 = new ArrayList<>();
+//		ArrayList<long[]> tempOutTans2 = new ArrayList<>();
+//
+////		for (Sequence anim : new TreeSet<>(sequenceMap.keySet())) {
+//		for (Sequence anim : model.getAllSequences()) {
+//			if (globalSeq == null || anim == globalSeq) {
+//				TreeMap<Integer, Entry<Integer>> entryTreeMap = sequenceMap.get(anim);
+//				if(entryTreeMap != null){
+//					for (Integer time : entryTreeMap.keySet()) {
+//						if (time > anim.getLength()) {
+//							break;
+//						}
+//						Entry<Integer> entry = entryTreeMap.get(time);
+////					tempFrames2.add(time + Math.max(anim.getStart(), tempFrames2.get(tempFrames2.size()-1) + 10));
+//						tempFrames2.add(time + anim.getStart());
+//						tempValues2.add(new long[] {entry.getValue()});
+//						if (tans()) {
+//							tempInTans2.add(new long[] {entry.getInTan()});
+//							tempOutTans2.add(new long[] {entry.getOutTan()});
+//						} else {
+//							tempInTans2.add(new long[] {0});
+//							tempOutTans2.add(new long[] {0});
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		int size = tempFrames2.size();
+//		long[] tempFrames = new long[size];
+//		long[][] tempValues = new long[size][];
+//		long[][] tempInTans = new long[size][];
+//		long[][] tempOutTans = new long[size][];
+//
+//		for (int i = 0; i < size; i++) {
+//			tempFrames[i] = tempFrames2.get(i);
+//			tempValues[i] = tempValues2.get(i);
+//			tempInTans[i] = tempInTans2.get(i);
+//			tempOutTans[i] = tempOutTans2.get(i);
+//		}
+//
+//		mdlxTimeline.frames = tempFrames;
+//		mdlxTimeline.values = tempValues;
+//		mdlxTimeline.inTans = tempInTans;
+//		mdlxTimeline.outTans = tempOutTans;
+//
+//		return mdlxTimeline;
 	}
 
 	@Override

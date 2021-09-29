@@ -63,7 +63,7 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 	}
 
 	private void copyFromOther() {
-		GeosetAnimCopyPanel.show(this, modelHandler.getModelView(), geosetAnim, changeListener, modelHandler.getUndoManager());
+		GeosetAnimCopyPanel.show(this, model, geosetAnim, undoManager);
 		repaint();
 	}
 

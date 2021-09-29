@@ -10,7 +10,6 @@ import javax.swing.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BoneAttachmentEditPanel extends JPanel {
@@ -54,49 +53,6 @@ public class BoneAttachmentEditPanel extends JPanel {
 				}
 			}
 		});
-	}
-
-	static void uncheckUnusedBoneAttatchments(ModelHolderThing mht, List<BoneShell> usedBonePanels) {
-		for (GeosetShell geosetShell : mht.allGeoShells) {
-			if (geosetShell.isDoImport()) {
-				for (MatrixShell ms : geosetShell.getMatrixShells()) {
-					for (final BoneShell bs : ms.getNewBones()) {
-						BoneShell shell = bs;
-						BoneShell current = shell;
-						if (!usedBonePanels.contains(current)) {
-							usedBonePanels.add(current);
-						}
-
-						boolean good = true;
-						int k = 0;
-						while (good) {
-							if ((current == null) || (current.getImportStatus() == BoneShell.ImportType.MOTIONFROM)) {
-								break;
-							}
-							shell = current.getNewParentBs();
-							// If shell is null, then the bone has "No Parent"
-							// If current's selected index is not 2,
-							if (shell == null)// current.getSelectedIndex() != 2
-							{
-								good = false;
-							} else {
-								current = shell;
-								if (usedBonePanels.contains(current)) {
-									good = false;
-								} else {
-									usedBonePanels.add(current);
-								}
-							}
-							k++;
-							if (k > 1000) {
-								JOptionPane.showMessageDialog(null, "Unexpected error has occurred: IdObject to Bone parent loop, circular logic");
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
 	}
 
 	private JPanel getTopPanel() {

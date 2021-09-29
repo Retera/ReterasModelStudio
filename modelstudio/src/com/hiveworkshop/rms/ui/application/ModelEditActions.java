@@ -1,26 +1,20 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeInterpTypeAction;
-import com.hiveworkshop.rms.editor.actions.mesh.*;
-import com.hiveworkshop.rms.editor.actions.model.RecalculateExtentsAction;
+import com.hiveworkshop.rms.editor.actions.mesh.AddTriangleAction;
+import com.hiveworkshop.rms.editor.actions.mesh.FlipFacesAction;
+import com.hiveworkshop.rms.editor.actions.mesh.TeamColorAddAction;
 import com.hiveworkshop.rms.editor.actions.tools.MirrorModelAction;
-import com.hiveworkshop.rms.editor.actions.tools.RigAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.util.InfoPopup;
-import com.hiveworkshop.rms.util.SmartButtonGroup;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
-import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
 import java.util.*;
 
 public class ModelEditActions {
@@ -80,9 +74,9 @@ public class ModelEditActions {
             }
         }
         for (Triangle existingTriangle : verticesArray[0].getTriangles()) {
-            if (existingTriangle.contains(verticesArray[0])
-                    && existingTriangle.contains(verticesArray[1])
-                    && existingTriangle.contains(verticesArray[2])) {
+            if (existingTriangle.containsLoc(verticesArray[0])
+                    && existingTriangle.containsLoc(verticesArray[1])
+                    && existingTriangle.containsLoc(verticesArray[2])) {
                 throw new FaceCreationException("Triangle already exists");
             }
         }
@@ -99,12 +93,12 @@ public class ModelEditActions {
 
     public static String getSelectedHDSkinningDescription(ModelView modelView) {
         Collection<? extends Vec3> selectedVertices = modelView.getSelectedVertices();
-        Map<String, GeosetVertex.SkinBone[]> skinBonesArrayMap = new TreeMap<>();
+        Map<String, SkinBone[]> skinBonesArrayMap = new TreeMap<>();
 
         for (Vec3 vertex : selectedVertices) {
             if (vertex instanceof GeosetVertex) {
                 GeosetVertex gv = (GeosetVertex) vertex;
-                GeosetVertex.SkinBone[] skinBones = gv.getSkinBones();
+                SkinBone[] skinBones = gv.getSkinBones();
 
                 String sbId = skinBonesId(skinBones);
                 if (!skinBonesArrayMap.containsKey(sbId)) {
@@ -115,7 +109,7 @@ public class ModelEditActions {
 
         StringBuilder output = new StringBuilder();
         String ugg = ":                            ";
-        for (GeosetVertex.SkinBone[] skinBones : skinBonesArrayMap.values()) {
+        for (SkinBone[] skinBones : skinBonesArrayMap.values()) {
             for (int i = 0; i < 4; i++) {
                 if (skinBones == null) {
                     output.append("null");
@@ -130,11 +124,8 @@ public class ModelEditActions {
                     output.append(s);
                     String w = "   " + skinBones[i].getWeight();
                     w = w.substring(w.length() - 3);
-                    output.append(w);
-                    output.append(" ( ");
                     String w2 = (Math.round(skinBones[i].getWeight() / .255) / 1000.0 + "000000").substring(0, 6);
-                    output.append(w2);
-                    output.append(" )\n");
+                    output.append(w).append(" ( ").append(w2).append(" )\n");
                 }
             }
             output.append("\n");
@@ -153,14 +144,14 @@ public class ModelEditActions {
     }
 
 
-    private static String skinBonesId(GeosetVertex.SkinBone[] skinBones) {
+    private static String skinBonesId(SkinBone[] skinBones) {
         // this creates an id-string from the memory addresses of the bones and the weights.
         // keeping weights and bones separated lets us use the string to sort on common bones
         // inverting the weight lets us sort highest weight first
         if (skinBones != null) {
             StringBuilder output = new StringBuilder();
             StringBuilder output2 = new StringBuilder();
-            for (GeosetVertex.SkinBone skinBone : skinBones) {
+            for (SkinBone skinBone : skinBones) {
 //                output.append(skinBone.getBone()).append(skinBone.getWeight());
                 output.append(skinBone.getBone());
                 output2.append(255 - skinBone.getWeight());
@@ -168,18 +159,6 @@ public class ModelEditActions {
             return output.toString() + output2.toString();
         }
         return "null";
-    }
-
-    public static RigAction rig(ModelView modelView) {
-        List<Bone> selectedBones = new ArrayList<>();
-        for (IdObject object : modelView.getSelectedIdObjects()) {
-            if (object instanceof Bone) {
-                selectedBones.add((Bone) object);
-            }
-        }
-        RigAction rigAction = new RigAction(modelView.getSelectedVertices(), selectedBones);
-        rigAction.redo();
-        return rigAction;
     }
 
     public static void inverseAllUVs() {
@@ -226,168 +205,24 @@ public class ModelEditActions {
         ProgramGlobals.getMainPanel().repaint();
     }
 
-    public static void insideOutNormals() {
-        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-        if (modelPanel != null) {
-            FlipNormalsAction flipNormalsAction = new FlipNormalsAction(modelPanel.getModelView().getSelectedVertices());
-            flipNormalsAction.redo();
-            modelPanel.getUndoManager().pushAction(flipNormalsAction);
-        }
-        ProgramGlobals.getMainPanel().repaint();
-    }
 
-    public static void insideOut() {
-        final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-        if (modelPanel != null) {
-            FlipFacesAction flipFacesAction = new FlipFacesAction(modelPanel.getModelView().getSelectedVertices());
-            flipFacesAction.redo();
-            modelPanel.getUndoManager().pushAction(flipFacesAction);
-        }
-        ProgramGlobals.getMainPanel().repaint();
-    }
-
-    public static void snapVertices() {
-        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-        if (modelPanel != null) {
-            SnapAction snapAction = new SnapAction(modelPanel.getModelView().getSelectedVertices());
-            snapAction.redo();
-            modelPanel.getUndoManager().pushAction(snapAction);
-        }
-        ProgramGlobals.getMainPanel().repaint();
-    }
-
-    public static void snapNormals() {
-        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-        if (modelPanel != null) {
-            ModelView modelView = modelPanel.getModelView();
-            SnapNormalsAction snapNormalsAction = new SnapNormalsAction(modelView.getSelectedVertices(), new Vec3(0, 0, 1));
-            snapNormalsAction.redo();// a handy way to do the snapping!
-            modelPanel.getUndoManager().pushAction(snapNormalsAction);
-
-        }
-        ProgramGlobals.getMainPanel().repaint();
-    }
-
-    public static void recalculateExtents() {
-        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-        if (modelPanel != null) {
-            JPanel messagePanel = new JPanel(new MigLayout());
-            messagePanel.add(new JLabel("This will calculate the extents of all model components. Proceed?"), "wrap");
-            messagePanel.add(new JLabel("(It may destroy existing extents)"), "wrap");
-
-            SmartButtonGroup buttonGroup2 = new SmartButtonGroup();
-            buttonGroup2.addJRadioButton("Consider all geosets for calculation", null);
-            buttonGroup2.addJRadioButton("Consider current editable geosets for calculation", null);
-            buttonGroup2.setSelectedIndex(0);
-
-            messagePanel.add(buttonGroup2.getButtonPanel(), "wrap");
-
-//            JRadioButton considerAllBtn = new JRadioButton("Consider all geosets for calculation");
-//            JRadioButton considerCurrentBtn = new JRadioButton("Consider current editable geosets for calculation");
-//            ButtonGroup buttonGroup = new ButtonGroup();
-//            buttonGroup.add(considerAllBtn);
-//            buttonGroup.add(considerCurrentBtn);
-//            considerAllBtn.setSelected(true);
-//            messagePanel.add(considerAllBtn, "wrap");
-//            messagePanel.add(considerCurrentBtn, "wrap");
-
-            int userChoice = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), messagePanel, "Message",
-                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-            if (userChoice == JOptionPane.YES_OPTION) {
-                ModelView modelView = modelPanel.getModelView();
-	            EditableModel model = modelView.getModel();
-
-                RecalculateExtentsAction recalculateExtentsAction;
-                if (buttonGroup2.getSelectedIndex()==0) {
-	                recalculateExtentsAction = new RecalculateExtentsAction(model, modelView.getEditableGeosets());
-                } else {
-	                recalculateExtentsAction = new RecalculateExtentsAction(model, model.getGeosets());
-                }
-
-                modelPanel.getUndoManager().pushAction(recalculateExtentsAction.redo());
-            }
-        }
-        ProgramGlobals.getMainPanel().repaint();
-    }
 
     public static void mirrorAxis(byte i, boolean mirrorFlip) {
-        final ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null) {
-//            final Vec3 selectionCenter = modelPanel.getModelEditorManager().getModelEditor().getSelectionCenter();
-            final Vec3 selectionCenter = modelPanel.getModelView().getSelectionCenter();
+            Vec3 selectionCenter = modelPanel.getModelView().getSelectionCenter();
             ModelView modelView = modelPanel.getModelView();
 
-            UndoAction mirrorAction;
-//            UndoAction mirror = modelPanel.getModelEditorManager().getModelEditor().mirror(i, mirrorFlip, selectionCenter);
-
+            List<UndoAction> undoActions =  new ArrayList<>();
             MirrorModelAction mirror = new MirrorModelAction(modelView.getSelectedVertices(), modelView.getEditableIdObjects(), i, selectionCenter);
-
-            mirror.redo();
+            undoActions.add(mirror);
             if (mirrorFlip) {
-                UndoAction flipFacesAction = flipSelectedFaces(modelView);
-                mirrorAction =  new CompoundAction(mirror.actionName(), Arrays.asList(mirror, flipFacesAction));
-            } else {
-                mirrorAction = mirror;
+                undoActions.add(new FlipFacesAction(modelView.getSelectedVertices()));
             }
 
-            modelPanel.getUndoManager().pushAction(mirrorAction);
+            modelPanel.getUndoManager().pushAction(new CompoundAction(mirror.actionName(), undoActions).redo());
         }
         ProgramGlobals.getMainPanel().repaint();
-    }
-
-    public static UndoAction flipSelectedFaces(ModelView modelView) {
-        // TODO implement using faces for FaceModelEditor... probably?
-        FlipFacesAction flipFacesAction = new FlipFacesAction(modelView.getSelectedVertices());
-        flipFacesAction.redo();
-        return flipFacesAction;
-    }
-
-    public static void linearizeAnimations() {
-        final int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
-                "This is an irreversible process that will lose some of your model data," +
-                        "\nin exchange for making it a smaller storage size." +
-                        "\n\nContinue and simplify animations?",
-                "Warning: Linearize Animations", JOptionPane.OK_CANCEL_OPTION);
-        if (x == JOptionPane.OK_OPTION) {
-            ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-            final List<AnimFlag<?>> allAnimFlags = modelPanel.getModel().getAllAnimFlags();
-            List<UndoAction> interpTypActions = new ArrayList<>();
-            for (final AnimFlag<?> flag : allAnimFlags) {
-                interpTypActions.add(new ChangeInterpTypeAction<>(flag, InterpolationType.LINEAR, null));
-//                flag.linearize();
-            }
-
-            UndoAction action = new CompoundAction("Liniarize Animations", interpTypActions, ModelStructureChangeListener.changeListener::materialsListChanged);
-            modelPanel.getUndoManager().pushAction(action.redo());
-        }
-    }
-
-//	public static void simplifyKeyframes() {
-//        final int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
-//                "This is an irreversible process that will lose some of your model data," +
-//                        "\nin exchange for making it a smaller storage size." +
-//                        "\n\nContinue and simplify keyframes?",
-//                "Warning: Simplify Keyframes", JOptionPane.OK_CANCEL_OPTION);
-//        if (x == JOptionPane.OK_OPTION) {
-//            simplifyKeyframes1();
-//        }
-//    }
-//
-//    public static void simplifyKeyframes1() {
-//        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-//        EditableModel model = modelPanel.getModel();
-//        List<AnimFlag<?>> allAnimFlags = model.getAllAnimFlags();
-//
-//        SimplifyKeyframesAction action = new SimplifyKeyframesAction(allAnimFlags, model, 0.1f);
-//        modelPanel.getUndoManager().pushAction(action.redo());
-//    }
-
-    public static void simplifyGeometry() {
-        ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-
-        UndoAction action = new SimplifyGeometryAction2(modelPanel.getModelView().getSelectedVertices());
-	    modelPanel.getUndoManager().pushAction(action.redo());
-	    ModelStructureChangeListener.changeListener.geosetsUpdated();
     }
 
 }

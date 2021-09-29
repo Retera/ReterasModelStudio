@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -40,15 +41,18 @@ public class ModelLoader {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 
 		if ((modelPanel != null) && (modelPanel.getModel() != null)) {
+			ModelHandler modelHandler = modelPanel.getModelHandler();
+			EditableModel model = modelHandler.getModel();
 			Animation anim;
-			if ((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) && modelPanel.getModel().getAnimsSize() > 0) {
-				anim = modelPanel.getModel().getAnim(0);
+			if ((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) && model.getAnimsSize() > 0) {
+				anim = model.getAnim(0);
 			} else {
 				anim = null;
 			}
 			refreshAndUpdateRenderModel();
-			modelPanel.getModelHandler().getEditTimeEnv().setAnimation(anim);
-			modelPanel.getModelHandler().getEditTimeEnv().setStaticViewMode(!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE));
+			TimeEnvironmentImpl editTimeEnv = modelHandler.getEditTimeEnv();
+			editTimeEnv.setAnimation(anim);
+			editTimeEnv.setStaticViewMode(!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE));
 		}
 
 		if ((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
@@ -73,8 +77,7 @@ public class ModelLoader {
 	}
 
 	public static ModelPanel newTempModelPanel(ImageIcon icon, EditableModel model) {
-		ModelHandler modelHandler = new ModelHandler(model);
-		return new ModelPanel(modelHandler, icon);
+		return new ModelPanel(new ModelHandler(model, icon));
 	}
 
 

@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.MathUtils;
 
 import javax.swing.*;
-import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -120,59 +119,66 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 	public MdlxFloatTimeline toMdlx(final TimelineContainer container, EditableModel model) {
 		final MdlxFloatTimeline mdlxTimeline = new MdlxFloatTimeline();
 
-		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
-		mdlxTimeline.interpolationType = interpolationType;
-		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
-
-
-		ArrayList<Integer> tempFrames2 = new ArrayList<>();
-		ArrayList<float[]> tempValues2 = new ArrayList<>();
-		ArrayList<float[]> tempInTans2 = new ArrayList<>();
-		ArrayList<float[]> tempOutTans2 = new ArrayList<>();
-
-//		for (Sequence anim : sequenceMap.keySet()) {
-		for (Sequence anim : new TreeSet<>(sequenceMap.keySet())) {
-			System.out.println(anim);
-			if (globalSeq == null || anim == globalSeq) {
-				TreeMap<Integer, Entry<Float>> entryTreeMap = sequenceMap.get(anim);
-				for (Integer time : entryTreeMap.keySet()) {
-					if (time > anim.getLength()) {
-						break;
-					}
-					Entry<Float> entry = entryTreeMap.get(time);
-//					tempFrames2.add(time + Math.max(anim.getStart(), tempFrames2.get(tempFrames2.size()-1) + 10));
-					tempFrames2.add(time + anim.getStart());
-					tempValues2.add(new float[] {entry.getValue()});
-					if (tans()) {
-						tempInTans2.add(new float[] {entry.getInTan()});
-						tempOutTans2.add(new float[] {entry.getOutTan()});
-					} else {
-						tempInTans2.add(new float[] {0});
-						tempOutTans2.add(new float[] {0});
-					}
-				}
-			}
-		}
-
-		int size = tempFrames2.size();
-		long[] tempFrames = new long[size];
-		float[][] tempValues = new float[size][];
-		float[][] tempInTans = new float[size][];
-		float[][] tempOutTans = new float[size][];
-
-		for (int i = 0; i < size; i++) {
-			tempFrames[i] = tempFrames2.get(i);
-			tempValues[i] = tempValues2.get(i);
-			tempInTans[i] = tempInTans2.get(i);
-			tempOutTans[i] = tempOutTans2.get(i);
-		}
-
-		mdlxTimeline.frames = tempFrames;
-		mdlxTimeline.values = tempValues;
-		mdlxTimeline.inTans = tempInTans;
-		mdlxTimeline.outTans = tempOutTans;
+		toMdlx3(mdlxTimeline, container, model);
 
 		return mdlxTimeline;
+
+//		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
+//		mdlxTimeline.interpolationType = interpolationType;
+//		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
+//
+//
+//		ArrayList<Integer> tempFrames2 = new ArrayList<>();
+//		ArrayList<float[]> tempValues2 = new ArrayList<>();
+//		ArrayList<float[]> tempInTans2 = new ArrayList<>();
+//		ArrayList<float[]> tempOutTans2 = new ArrayList<>();
+//
+////		for (Sequence anim : sequenceMap.keySet()) {
+////		for (Sequence anim : new TreeSet<>(sequenceMap.keySet())) {
+//		for (Sequence anim : model.getAllSequences()) {
+//			System.out.println(anim);
+//			if (globalSeq == null || anim == globalSeq) {
+//				TreeMap<Integer, Entry<Float>> entryTreeMap = sequenceMap.get(anim);
+//				if(entryTreeMap != null){
+//					for (Integer time : entryTreeMap.keySet()) {
+//						if (time > anim.getLength()) {
+//							break;
+//						}
+//						Entry<Float> entry = entryTreeMap.get(time);
+////					tempFrames2.add(time + Math.max(anim.getStart(), tempFrames2.get(tempFrames2.size()-1) + 10));
+//						tempFrames2.add(time + anim.getStart());
+//						tempValues2.add(new float[] {entry.getValue()});
+//						if (tans()) {
+//							tempInTans2.add(new float[] {entry.getInTan()});
+//							tempOutTans2.add(new float[] {entry.getOutTan()});
+//						} else {
+//							tempInTans2.add(new float[] {0});
+//							tempOutTans2.add(new float[] {0});
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		int size = tempFrames2.size();
+//		long[] tempFrames = new long[size];
+//		float[][] tempValues = new float[size][];
+//		float[][] tempInTans = new float[size][];
+//		float[][] tempOutTans = new float[size][];
+//
+//		for (int i = 0; i < size; i++) {
+//			tempFrames[i] = tempFrames2.get(i);
+//			tempValues[i] = tempValues2.get(i);
+//			tempInTans[i] = tempInTans2.get(i);
+//			tempOutTans[i] = tempOutTans2.get(i);
+//		}
+//
+//		mdlxTimeline.frames = tempFrames;
+//		mdlxTimeline.values = tempValues;
+//		mdlxTimeline.inTans = tempInTans;
+//		mdlxTimeline.outTans = tempOutTans;
+//
+//		return mdlxTimeline;
 	}
 
 	public FloatAnimFlag getMostVisible(final FloatAnimFlag partner) {

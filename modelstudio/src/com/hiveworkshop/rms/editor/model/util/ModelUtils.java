@@ -313,7 +313,7 @@ public final class ModelUtils {
 	}
 
 
-	public static Mat4 processHdBones(RenderModel renderModel, GeosetVertex.SkinBone[] skinBones) {
+	public static Mat4 processHdBones(RenderModel renderModel, SkinBone[] skinBones) {
 		boolean processedBones = false;
 		Mat4 skinBonesMatrixSumHeap = new Mat4().setZero();
 

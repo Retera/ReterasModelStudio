@@ -21,4 +21,13 @@ public class FramePopup {
 		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		return frame;
 	}
+	public static JFrame get(JComponent jComponent, JComponent parent, String title, boolean undecorated) {
+		final JFrame frame = new JFrame(title);
+		frame.setUndecorated(undecorated);
+		frame.setContentPane(jComponent);
+		frame.pack();
+		frame.setLocationRelativeTo(parent);
+		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		return frame;
+	}
 }

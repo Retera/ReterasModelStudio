@@ -23,12 +23,18 @@ public final class SetParentAction implements UndoAction {
 		this.nodes = new HashSet<>(nodes);
 	}
 
+	public SetParentAction(IdObject node, IdObject newParent, ModelStructureChangeListener changeListener) {
+		this(Collections.singleton(node), newParent, changeListener);
+	}
+
 	@Override
 	public UndoAction undo() {
 		for (IdObject idObject : nodeToOldParent.keySet()) {
 			idObject.setParent(nodeToOldParent.get(idObject));
 		}
-		changeListener.nodesUpdated();
+		if(changeListener != null){
+			changeListener.nodesUpdated();
+		}
 		return this;
 	}
 
@@ -37,7 +43,9 @@ public final class SetParentAction implements UndoAction {
 		for (IdObject idObject : nodes) {
 			idObject.setParent(newParent);
 		}
-		changeListener.nodesUpdated();
+		if(changeListener != null){
+			changeListener.nodesUpdated();
+		}
 		return this;
 	}
 

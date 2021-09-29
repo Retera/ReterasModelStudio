@@ -5,22 +5,18 @@ import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ReplaceAnimFlagsAction implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
 	TimelineContainer timelineContainer;
-	List<AnimFlag<?>> animFlags;
+	List<AnimFlag<?>> newAnimFlags;
 	List<AnimFlag<?>> oldAnimFlags;
 
-	public ReplaceAnimFlagsAction(TimelineContainer timelineContainer, List<AnimFlag<?>> animFlagsToCopy, ModelStructureChangeListener changeListener) {
+	public ReplaceAnimFlagsAction(TimelineContainer timelineContainer, List<AnimFlag<?>> newAnimFlags, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
 		this.timelineContainer = timelineContainer;
-		this.animFlags = new ArrayList<>();
-		for (AnimFlag<?> animFlag : animFlagsToCopy) {
-			animFlags.add(animFlag.deepCopy());
-		}
+		this.newAnimFlags = newAnimFlags;
 		oldAnimFlags = timelineContainer.getAnimFlags();
 	}
 
@@ -35,7 +31,7 @@ public class ReplaceAnimFlagsAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		timelineContainer.setAnimFlags(animFlags);
+		timelineContainer.setAnimFlags(newAnimFlags);
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
 		}

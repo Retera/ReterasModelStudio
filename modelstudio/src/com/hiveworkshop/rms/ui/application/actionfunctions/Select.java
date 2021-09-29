@@ -3,12 +3,10 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.selection.InvertSelectionAction2;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.model.Triangle;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
@@ -17,7 +15,9 @@ import com.hiveworkshop.rms.ui.language.TextKey;
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Select {
@@ -25,22 +25,35 @@ public class Select {
 	private static class SelectAll  extends ActionFunction {
 
 		SelectAll(){
-			super(TextKey.SELECT_ALL, () -> selectAll());
+			super(TextKey.SELECT_ALL, Select::selectAll);
 			setKeyStroke(KeyStroke.getKeyStroke("control A"));
 		}
 	}
 	private static class ExpandSelection  extends ActionFunction {
 
 		ExpandSelection(){
-			super(TextKey.EXPAND_SELECTION, () -> expandSelection());
+			super(TextKey.EXPAND_SELECTION, Select::expandSelection);
 			setKeyStroke(KeyStroke.getKeyStroke("control E"));
+		}
+	}
+	private static class SelectLinkedGeometry  extends ActionFunction {
+
+		SelectLinkedGeometry(){
+			super(TextKey.SELECT_LINKED_GEOMETRY, Select::selectLinked);
+			setKeyStroke(KeyStroke.getKeyStroke("control L"));
 		}
 	}
 	private static class InvertSelection extends ActionFunction {
 
 		InvertSelection(){
-			super(TextKey.INVERT_SELECTION, () -> invertSelectActionRes());
+			super(TextKey.INVERT_SELECTION, Select::invertSelectActionRes);
 			setKeyStroke(KeyStroke.getKeyStroke("control I"));
+		}
+	}
+
+	private static class SelectNodeGeometry extends ActionFunction{
+		SelectNodeGeometry() {
+			super(TextKey.SELECT_NODE_GEOMETRY, Select::selectNodeGeometry);
 		}
 	}
 
@@ -53,56 +66,86 @@ public class Select {
 	public static JMenuItem getExpandSelectionMenuItem(){
 		return new ExpandSelection().getMenuItem();
 	}
-
-	public static void selectAll() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			Set<GeosetVertex> allSelection = new HashSet<>();
-			ModelView modelView = modelPanel.getModelView();
-			for (Geoset geo : modelView.getEditableGeosets()) {
-				allSelection.addAll(geo.getVertices());
-			}
-			SelectionBundle bundle = new SelectionBundle(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras());
-			UndoAction action = new SetSelectionUggAction(bundle, modelView, "select all");
-			modelPanel.getUndoManager().pushAction(action.redo());
-		}
+	public static JMenuItem getSelectNodeGeometryMenuItem(){
+		return new SelectNodeGeometry().getMenuItem();
+	}
+	public static JMenuItem getSelectLinkedGeometryMenuItem(){
+		return new SelectLinkedGeometry().getMenuItem();
 	}
 
-	public static void invertSelectActionRes() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			modelPanel.getUndoManager().pushAction(new InvertSelectionAction2(modelPanel.getModelView()).redo());
+	private static void selectAll(ModelHandler modelHandler) {
+		Set<GeosetVertex> allSelection = new HashSet<>();
+		ModelView modelView = modelHandler.getModelView();
+		for (Geoset geo : modelView.getEditableGeosets()) {
+			allSelection.addAll(geo.getVertices());
 		}
+		SelectionBundle bundle = new SelectionBundle(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras());
+		UndoAction action = new SetSelectionUggAction(bundle, modelView, "select all");
+		modelHandler.getUndoManager().pushAction(action.redo());
 	}
 
-	public static void expandSelection() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		// ToDo this should be renamed select linked, and a real "expand selection" should be implemented (ie this without the recursive call)
-		//  also, maybe care about collision shape vertices...
-		if (modelPanel != null) {
-			ModelView modelView = modelPanel.getModelView();
-			Set<GeosetVertex> expandedSelection = new HashSet<>(modelView.getSelectedVertices());
-
-			for (GeosetVertex v : modelView.getSelectedVertices()) {
-				expandSelection(v, expandedSelection);
-			}
-			SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras());
-			UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection");
-			modelPanel.getUndoManager().pushAction(action.redo());
-		}
+	private static void invertSelectActionRes(ModelHandler modelHandler) {
+		modelHandler.getUndoManager().pushAction(new InvertSelectionAction2(modelHandler.getModelView()).redo());
 	}
 
-	private static void expandSelection(GeosetVertex currentVertex, Set<GeosetVertex> selection) {
+	private static void selectLinked(ModelHandler modelHandler) {
+		ModelView modelView = modelHandler.getModelView();
+		Set<GeosetVertex> expandedSelection = new HashSet<>(modelView.getSelectedVertices());
+
+		for (GeosetVertex v : modelView.getSelectedVertices()) {
+			selectLinked(v, expandedSelection);
+		}
+		SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras());
+		UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection");
+		modelHandler.getUndoManager().pushAction(action.redo());
+	}
+
+	private static void selectLinked(GeosetVertex currentVertex, Set<GeosetVertex> selection) {
 		selection.add(currentVertex);
 		for (Triangle tri : currentVertex.getTriangles()) {
-			for (final GeosetVertex other : tri.getVerts()) {
+			for (GeosetVertex other : tri.getVerts()) {
 				if (!selection.contains(other)) {
-					expandSelection(other, selection);
+					selectLinked(other, selection);
 				}
 			}
 		}
 	}
 
+	private static void expandSelection(ModelHandler modelHandler) {
+		ModelView modelView = modelHandler.getModelView();
+		Set<GeosetVertex> expandedSelection = new HashSet<>(modelView.getSelectedVertices());
+
+		for (GeosetVertex v : modelView.getSelectedVertices()) {
+			v.getTriangles().forEach(tri -> expandedSelection.addAll(Arrays.asList(tri.getVerts())));
+		}
+		SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras());
+		UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection");
+		modelHandler.getUndoManager().pushAction(action.redo());
+	}
+
+	private static void selectNodeGeometry(ModelHandler modelHandler) {
+		ModelView modelView = modelHandler.getModelView();
+
+		Set<Bone> selectedBones = new HashSet<>();
+		Set<GeosetVertex> vertexList = new HashSet<>();
+		for (IdObject idObject : modelView.getSelectedIdObjects()) {
+			if (idObject instanceof Bone) {
+				selectedBones.add((Bone) idObject);
+			}
+		}
+		for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Bone bone : selectedBones) {
+				List<GeosetVertex> vertices = geoset.getBoneMap().get(bone);
+				if (vertices != null) {
+					vertexList.addAll(vertices);
+				}
+			}
+		}
+		if (!vertexList.isEmpty()) {
+			UndoAction action = new SetSelectionUggAction(new SelectionBundle(vertexList), modelView, "Select");
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
+	}
 
 
 	private static class ModAddSelect extends ActionFunction {

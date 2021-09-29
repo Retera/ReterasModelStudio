@@ -37,18 +37,18 @@ public class GeometryModelEditor extends ModelEditor {
 	@Override
 	public UndoAction translate(Vec3 v) {
 		Vec3 delta = new Vec3(v);
-		return new StaticMeshMoveAction(modelView, delta).redo();
+		return new StaticMeshMoveAction(modelView, delta);
 	}
 
 	@Override
 	public UndoAction scale(Vec3 center, Vec3 scale) {
-		return new StaticMeshScaleAction(modelView, center).updateScale(scale).redo();
+		return new StaticMeshScaleAction(modelView, center).updateScale(scale);
 	}
 
     @Override
     public UndoAction setPosition(Vec3 center, Vec3 v) {
         Vec3 delta = Vec3.getDiff(v, center);
-	    return new StaticMeshMoveAction(modelView, delta).redo();
+	    return new StaticMeshMoveAction(modelView, delta);
     }
 
     @Override
@@ -56,8 +56,7 @@ public class GeometryModelEditor extends ModelEditor {
 	    return new CompoundAction("rotate", Arrays.asList(
 			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.x), (byte) 2, (byte) 1),
 			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.y), (byte) 0, (byte) 2),
-			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.z), (byte) 1, (byte) 0)))
-			    .redo();
+			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.z), (byte) 1, (byte) 0)));
     }
 
     @Override

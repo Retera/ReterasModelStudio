@@ -5,11 +5,11 @@ import com.hiveworkshop.rms.editor.actions.animation.SetKeyframeAction_T;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -35,10 +35,10 @@ public class KeyframeHandler {
 	private final TreeMap<Integer, KeyFrame> timeToKey = new TreeMap<>();
 	private final List<CopiedKeyFrame<?>> copiedKeyframes = new ArrayList<>();
 	private TimeEnvironmentImpl timeEnvironment;
-	JPanel timelinePanel;
+	private final JPanel timelinePanel;
 	private ModelHandler modelHandler;
 	private UndoManager undoManager;
-	private ModelStructureChangeListener structureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 
 	private TimeSliderTimeListener notifier;
 
@@ -50,7 +50,7 @@ public class KeyframeHandler {
 		this.notifier = notifier;
 		this.timelinePanel = timelinePanel;
 
-		structureChangeListener = ModelStructureChangeListener.changeListener;
+		changeListener = ModelStructureChangeListener.changeListener;
 	}
 
 	public KeyframeHandler setModelHandler(ModelHandler modelHandler){
@@ -60,7 +60,6 @@ public class KeyframeHandler {
 			timeEnvironment = modelHandler.getEditTimeEnv();
 		} else {
 			undoManager = null;
-//			timeEnvironment = null;
 		}
 		return this;
 	}
@@ -83,14 +82,15 @@ public class KeyframeHandler {
 		Iterable<IdObject> selection = getSelectionToUse();
 		for (IdObject object : selection) {
 			for (AnimFlag<?> flag : object.getAnimFlags()) {
-				if ((flag.getGlobalSeq() == null && timeEnvironment.getGlobalSeq() == null)
-						|| (timeEnvironment.getGlobalSeq() != null && timeEnvironment.getGlobalSeq().equals(flag.getGlobalSeq()))) {
-					if (flag.size() > 0) {
-						TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap(timeEnvironment.getCurrentSequence());
+				if (isCorrectSeq(flag)) {
+					TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap(timeEnvironment.getCurrentSequence());
+					if (entryMap != null) {
+						System.out.println(object.getName() + ": " + flag.getName());
+//						TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap(timeEnvironment.getCurrentSequence());
 						for (Integer time : entryMap.keySet()) {
-							KeyFrame keyFrame = timeToKey.computeIfAbsent(time, k -> new KeyFrame(time));
-							keyFrame.objects.add(object);
-							keyFrame.timelines.add(flag);
+							KeyFrame keyFrame = timeToKey.computeIfAbsent(time, k -> new KeyFrame(this, time));
+							keyFrame.addObject(object);
+							keyFrame.addTimeline(flag);
 						}
 					}
 				}
@@ -105,13 +105,13 @@ public class KeyframeHandler {
 
 	public void cutItem(Integer time) {
 		copyKeyframes(time);
-		deleteKeyframes("cut keyframe", time, timeToKey.get(time).objects);
+		deleteKeyframes("cut keyframe", time, timeToKey.get(time).getObjects());
 	}
 
 	public void deleteSelectedKeyframes() {
 		KeyFrame keyFrame = timeToKey.get(timeEnvironment.getEnvTrackTime());
 		if (keyFrame != null) {
-			deleteKeyframes("delete keyframe", timeEnvironment.getEnvTrackTime(), keyFrame.objects);
+			deleteKeyframes("delete keyframe", timeEnvironment.getEnvTrackTime(), keyFrame.getObjects());
 		}
 		revalidateKeyframeDisplay();
 	}
@@ -127,13 +127,13 @@ public class KeyframeHandler {
 			}
 		}
 		// TODO build one action for performance, so that the structure change notifier is not called N times, where N is the number of selected timelines
-		CompoundAction action = new CompoundAction(actionName, actions, () -> structureChangeListener.keyframesUpdated());
+		CompoundAction action = new CompoundAction(actionName, actions, () -> changeListener.keyframesUpdated());
 		undoManager.pushAction(action.redo());
 	}
 	public void deleteKeyframe(AnimFlag<?> flag, int trackTime) {
 		Sequence currentSequence = timeEnvironment.getCurrentSequence();
 		if (flag.getEntryMap(currentSequence).containsKey(trackTime)) {
-			undoManager.pushAction(new RemoveFlagEntryAction<>(flag, trackTime, currentSequence, structureChangeListener).redo());
+			undoManager.pushAction(new RemoveFlagEntryAction<>(flag, trackTime, currentSequence, changeListener).redo());
 		}
 	}
 
@@ -142,13 +142,16 @@ public class KeyframeHandler {
 		useAllCopiedKeyframes = false;
 		for (IdObject object : getSelectionToUse()) {
 			for (AnimFlag<?> flag : object.getAnimFlags()) {
-				GlobalSeq currentEditorGlobalSeq = timeEnvironment.getGlobalSeq();
-				if ((flag.getGlobalSeq() == null && currentEditorGlobalSeq == null)
-						|| (currentEditorGlobalSeq != null && currentEditorGlobalSeq == flag.getGlobalSeq())) {
+				if (isCorrectSeq(flag)) {
 					copuKeyframes(object, flag, trackTime);
 				}
 			}
 		}
+	}
+
+	private boolean isCorrectSeq(AnimFlag<?> flag) {
+		return (flag.getGlobalSeq() == null && timeEnvironment.getGlobalSeq() == null)
+				|| (timeEnvironment.getGlobalSeq() != null && timeEnvironment.getGlobalSeq().equals(flag.getGlobalSeq()));
 	}
 
 	public void copyKeyframes(IdObject object, AnimFlag<?> flag, int trackTime) {
@@ -185,7 +188,7 @@ public class KeyframeHandler {
 		copyKeyframes(timeEnvironment.getEnvTrackTime());
 		final KeyFrame keyFrame = timeToKey.get(timeEnvironment.getEnvTrackTime());
 		if (keyFrame != null) {
-			deleteKeyframes("cut keyframe", timeEnvironment.getEnvTrackTime(), keyFrame.objects);
+			deleteKeyframes("cut keyframe", timeEnvironment.getEnvTrackTime(), keyFrame.getObjects());
 		}
 		revalidateKeyframeDisplay();
 	}
@@ -201,7 +204,7 @@ public class KeyframeHandler {
 				actions.add(getUndoAction(trackTime, frame));
 			}
 		}
-		undoManager.pushAction(new CompoundAction("paste keyframe", actions, structureChangeListener::keyframesUpdated).redo());
+		undoManager.pushAction(new CompoundAction("paste keyframe", actions, changeListener::keyframesUpdated).redo());
 		revalidateKeyframeDisplay();
 	}
 
@@ -228,13 +231,82 @@ public class KeyframeHandler {
 		useAllCopiedKeyframes = true;
 		for (IdObject object : modelHandler.getModel().getIdObjects()) {
 			for (AnimFlag<?> flag : object.getAnimFlags()) {
-				GlobalSeq currentEditorGlobalSeq = timeEnvironment.getGlobalSeq();
-				if ((flag.getGlobalSeq() == null && currentEditorGlobalSeq == null)
-						|| (currentEditorGlobalSeq != null && currentEditorGlobalSeq == flag.getGlobalSeq())) {
+				if (isCorrectSeq(flag)) {
 					copuKeyframes(object, flag, trackTime);
 				}
 			}
 		}
+	}
+
+	public KeyFrame getKeyFrameFromPoint(Point point) {
+		for (KeyFrame key : timeToKey.values()) {
+			if (key.containsPoint(point)) {
+				return key;
+			}
+		}
+		return null;
+	}
+	public Integer getTimeFromPoint(Point point) {
+		for (KeyFrame key : timeToKey.values()) {
+			if (key.containsPoint(point)) {
+				return key.getTime();
+			}
+		}
+		return null;
+	}
+
+	public KeyFrame getKeyFrame(int time){
+		return timeToKey.get(time);
+	}
+
+
+	public KeyFrame removeFrame(int time){
+		return timeToKey.remove(time);
+	}
+
+	public KeyframeHandler putFrame(int time, KeyFrame keyFrame){
+		timeToKey.put(time, keyFrame);
+		return this;
+	}
+
+	public Integer getNextFrame(int time){
+		return timeToKey.higherKey(time);
+	}
+	public Integer getPrevFrame(int time){
+		return timeToKey.lowerKey(time);
+	}
+
+	public NavigableSet<Integer> getTimes(){
+		return timeToKey.navigableKeySet();
+	}
+
+	public KeyFrame initDragging(Point lastMousePoint) {
+		for (KeyFrame frame : timeToKey.values()) {
+			if (frame.containsPoint(lastMousePoint)) {
+				return frame;
+			}
+		}
+		return null;
+	}
+
+	public void slideExistingKeyFramesForResize() {
+		for (KeyFrame key : timeToKey.values()) {
+			key.reposition();
+		}
+	}
+
+	public boolean[] getTransRotScalOth(Integer time) {
+		boolean[] transRotScalOth = new boolean[] {false, false, false, false};
+		if(timeToKey.get(time) != null){
+			for (AnimFlag<?> af : timeToKey.get(time).getTimelines()) {
+				String afName = af.getName();
+				transRotScalOth[0] = (afName.equals(MdlUtils.TOKEN_TRANSLATION) || transRotScalOth[0]);
+				transRotScalOth[1] = (afName.equals(MdlUtils.TOKEN_ROTATION) || transRotScalOth[1]);
+				transRotScalOth[2] = (afName.equals(MdlUtils.TOKEN_SCALING) || transRotScalOth[2]);
+				transRotScalOth[3] |= !(afName.equals(MdlUtils.TOKEN_TRANSLATION) || afName.equals(MdlUtils.TOKEN_ROTATION) || afName.equals(MdlUtils.TOKEN_SCALING));
+			}
+		}
+		return transRotScalOth;
 	}
 
 	private <T> UndoAction getUndoAction(int mouseClickAnimationTime, CopiedKeyFrame<T> frame) {
@@ -260,6 +332,14 @@ public class KeyframeHandler {
 		return (int) (widthMinusOffsets * timeRatio) + (SIDE_OFFSETS);
 	}
 
+	public JPanel getTimelinePanel() {
+		return timelinePanel;
+	}
+
+	public TimeEnvironmentImpl getTimeEnvironment() {
+		return timeEnvironment;
+	}
+
 	private static final class CopiedKeyFrame<T> {
 		private final TimelineContainer node;
 		private final AnimFlag<T> sourceTimeline;
@@ -278,29 +358,4 @@ public class KeyframeHandler {
 		}
 	}
 
-	public final class KeyFrame {
-		private int time;
-		private final Set<IdObject> objects = new HashSet<>();
-		private final List<AnimFlag<?>> timelines = new ArrayList<>();
-		private final Rectangle renderRect;
-		private int width = 8;
-
-		private KeyFrame(int time) {
-			this.time = time;
-			final int currentTimePixelX = computeXFromTime(time);
-			renderRect = new Rectangle(currentTimePixelX - width / 2, VERTICAL_SLIDER_HEIGHT, width, VERTICAL_TICKS_HEIGHT);
-		}
-
-		protected void reposition() {
-			renderRect.x = computeXFromTime(time) - 4;
-		}
-
-		protected int getXPoint() {
-			return renderRect.x + width / 2;
-		}
-
-		protected void setFrameX(int time) {
-			renderRect.x = computeXFromTime(time) - width / 2;
-		}
-	}
 }

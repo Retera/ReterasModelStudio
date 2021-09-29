@@ -48,6 +48,10 @@ public class MathUtils {
 	public static float randomInRange(double min, double max) {
 		return (float) (min + (Math.random() * (max - min)));
 	}
+	public static float randomSym(double maxDiv) {
+		return randomInRange(-maxDiv, maxDiv);
+//		return (float) ((Math.random() * (2*maxDiv) - maxDiv));
+	}
 
 	public static int uint8ToUint24(byte right, byte bottom, byte a) {
 		return ((right << 16) & 0xFF0000) | ((bottom << 8) & 0xFF00) | (a & 0xFF);

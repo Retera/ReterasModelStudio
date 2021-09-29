@@ -1,9 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -33,41 +31,6 @@ public class DisplayPanel extends JPanel {
 	private ViewportListener viewportListener;
 	Consumer<Cursor> cursorManager;
 
-	public DisplayPanel(String title, byte a, byte b, ModelHandler modelHandler,
-	                    ModelEditorManager modelEditorManager,
-	                    ViewportActivityManager activityListener,
-	                    CoordDisplayListener coordDisplayListener,
-	                    ViewportTransferHandler viewportTransferHandler,
-	                    ViewportListener viewportListener) {
-		super(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
-		this.activityListener = activityListener;
-//		this.viewportListener = viewportListener;
-		setupCopyPaste(viewportTransferHandler);
-
-//		addMouseMotionListener(getMouseAdapter());
-
-		cursorManager = this::setCursor;
-
-		JPanel viewHolderPanel = new JPanel(new MigLayout("fill, gap 0, ins 0", "[grow]", "[grow]"));
-		setOpaque(true);
-
-		try {
-			vp2 = new PerspectiveViewport();
-			vp2.setMinimumSize(new Dimension(200, 200));
-			CameraHandler cameraHandler = vp2.getCameraHandler();
-			cameraHandler.toggleOrtho().setAllowToggleOrtho(false);
-
-			setModel(modelHandler, activityListener);
-			viewHolderPanel.add(vp2, "spany, growy, growx");
-			add(viewHolderPanel, "spany, growy, growx");
-//			add(vp2, "spany, growy, growx");
-		} catch (LWJGLException e) {
-			e.printStackTrace();
-		}
-
-		buttonPanel = getButtonPanel();
-		add(buttonPanel, "gapy 16, top");
-	}
 	public DisplayPanel() {
 		super(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
 //		this.viewportListener = windowHandler2.getViewportListener();
@@ -196,5 +159,26 @@ public class DisplayPanel extends JPanel {
 
 	public void setTopView() {
 		vp2.getCameraHandler().setCameraRotation(0, 90);
+	}
+
+
+	public DisplayPanel setRenderTextures(boolean renderTextures) {
+		vp2.setRenderTextures(renderTextures);
+		return this;
+	}
+
+	public DisplayPanel setWireFrame(boolean wireFrame) {
+		vp2.setWireFrame(wireFrame);
+		return this;
+	}
+
+	public DisplayPanel setShowNormals(boolean showNormals) {
+		vp2.setShowNormals(showNormals);
+		return this;
+	}
+
+	public DisplayPanel setShow3dVerts(boolean show3dVerts) {
+		vp2.setShow3dVerts(show3dVerts);
+		return this;
 	}
 }

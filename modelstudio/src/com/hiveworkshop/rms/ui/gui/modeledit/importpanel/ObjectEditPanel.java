@@ -1,17 +1,18 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.renderers.ObjPanelListCellRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.ObjectShellListCellRenderer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 public class ObjectEditPanel extends JPanel {
 
-	public CardLayout objectCardLayout = new CardLayout();
-	public JPanel objectPanelCards = new JPanel(objectCardLayout);
+	public CardLayout cardLayout = new CardLayout();
+	public JPanel panelCards = new JPanel(cardLayout);
 	public MultiObjectPanel multiObjectPane;
 	ModelHolderThing mht;
 
@@ -22,95 +23,55 @@ public class ObjectEditPanel extends JPanel {
 		setLayout(new MigLayout("gap 0", "[grow][grow]", "[][grow]"));
 		this.mht = mht;
 
-		JButton importAllObjs = new JButton("Import All");
-		importAllObjs.addActionListener(e -> mht.importAllObjs(true));
-		add(importAllObjs, "cell 0 0, right");
+		add(getButton("Import All", e -> mht.importAllObjs(true)), "cell 0 0, right");
+		add(getButton("Leave All", e -> mht.importAllObjs(false)), "cell 1 0, left");
 
-		JButton uncheckAllObjs = new JButton("Leave All");
-		uncheckAllObjs.addActionListener(e -> mht.importAllObjs(false));
-		add(uncheckAllObjs, "cell 1 0, left");
-
-
-		mht.getFutureBoneListExtended(false);
+		mht.getFutureBoneHelperList();
 
 		bonePanelRenderer = new BoneShellListCellRenderer(mht.receivingModel, mht.donatingModel);
-		final ObjPanelListCellRenderer objectPanelRenderer = new ObjPanelListCellRenderer();
-
-		objectPanelCards.add(new JPanel(), "blank");
-
 		singleObjectPanel = new ObjectPanel(mht, bonePanelRenderer);
-		objectPanelCards.add(singleObjectPanel, "single");
+		multiObjectPane = new MultiObjectPanel(mht, bonePanelRenderer);
 
-		multiObjectPane = new MultiObjectPanel(mht, mht.getFutureBoneListExtended(true));
-		objectPanelCards.add(multiObjectPane, "multiple");
+		panelCards.add(new JPanel(), "blank");
+		panelCards.add(singleObjectPanel, "single");
+		panelCards.add(multiObjectPane, "multiple");
+		panelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-
-		objectPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
-
-		mht.donModObjectJList.setCellRenderer(objectPanelRenderer);
-		mht.donModObjectJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
-		JScrollPane objectTabsPane = new JScrollPane(mht.donModObjectJList);
-
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, objectTabsPane, objectPanelCards);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getObjectListPane(mht), panelCards);
 		add(splitPane, "cell 0 1, growx, growy, spanx 2");
 	}
 
-	static void uncheckUnusedObjects(ModelHolderThing mht, List<BoneShell> usedBonePanels) {
-		for (ObjectShell objectPanel : mht.donModObjectShells) {
-			if (objectPanel.getShouldImport()) {
-				BoneShell shell = objectPanel.getNewParentBs();
-				if ((shell != null) && (shell.getBone() != null)) {
-					BoneShell current = shell;
-					if (!usedBonePanels.contains(current)) {
-						usedBonePanels.add(current);
-					}
+	private JScrollPane getObjectListPane(ModelHolderThing mht) {
+		ObjectShellListCellRenderer objectPanelRenderer = new ObjectShellListCellRenderer(mht.receivingModel, mht.donatingModel);
+		mht.allObjectJList.setCellRenderer(objectPanelRenderer);
+		mht.allObjectJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
+		mht.allObjectJList.setSelectedValue(null, false);
+		return new JScrollPane(mht.allObjectJList);
+//		mht.donModObjectJList.setCellRenderer(objectPanelRenderer);
+//		mht.donModObjectJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
+//		mht.donModObjectJList.setSelectedValue(null, false);
+//		return new JScrollPane(mht.donModObjectJList);
+	}
 
-					boolean good = true;
-					int k = 0;
-					while (good) {
-						if (current.getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
-							break;
-						}
-						shell = current.getNewParentBs();
-						// If shell is null, then the bone has "No Parent"
-						// If current's selected index is not 2,
-						if (shell == null)// current.getSelectedIndex() != 2
-						{
-							good = false;
-						} else {
-							current = shell;
-							if (usedBonePanels.contains(current)) {
-								good = false;
-							} else {
-								usedBonePanels.add(current);
-							}
-						}
-						k++;
-						if (k > 1000) {
-							JOptionPane.showMessageDialog(null, "Unexpected error has occurred: IdObject to Bone parent loop, circular logic");
-							break;
-						}
-					}
-				}
-			}
-		}
+	private JButton getButton(String text, ActionListener actionListener) {
+		JButton button = new JButton(text);
+		button.addActionListener(actionListener);
+		return button;
 	}
 
 	private void objectTabsValueChanged(ModelHolderThing mht, ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
-			List<ObjectShell> selectedValuesList = mht.donModObjectJList.getSelectedValuesList();
+			List<ObjectShell> selectedValuesList = mht.allObjectJList.getSelectedValuesList();
 			if (selectedValuesList.size() < 1) {
 				bonePanelRenderer.setSelectedObjectShell(null);
-				objectCardLayout.show(objectPanelCards, "blank");
+				cardLayout.show(panelCards, "blank");
 			} else if (selectedValuesList.size() == 1) {
-				mht.getFutureBoneListExtended(false);
-				bonePanelRenderer.setSelectedObjectShell(mht.donModObjectJList.getSelectedValue());
-				objectCardLayout.show(objectPanelCards, "single");
-				singleObjectPanel.setSelectedObject(mht.donModObjectJList.getSelectedValue());
+//				mht.getFutureBoneHelperList();
+				singleObjectPanel.setSelectedObject(mht.allObjectJList.getSelectedValue());
+				cardLayout.show(panelCards, "single");
 			} else {
-				bonePanelRenderer.setSelectedObjectShell(null);
-				multiObjectPane.updateMultiObjectPanel();
-				objectCardLayout.show(objectPanelCards, "multiple");
+				multiObjectPane.setSelectedObjects(selectedValuesList);
+				cardLayout.show(panelCards, "multiple");
 			}
 		}
 	}

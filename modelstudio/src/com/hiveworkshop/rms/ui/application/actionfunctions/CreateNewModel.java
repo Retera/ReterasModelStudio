@@ -63,12 +63,7 @@ public class CreateNewModel extends ActionFunction{
 				mdl.setExtents(new ExtLog(128).setDefault());
 			}
 
-			ModelHandler modelHandler = new ModelHandler(mdl);
-			ModelPanel temp = new ModelPanel(modelHandler,
-//					mainPanel.getCoordDisplayListener(),
-//					mainPanel.getViewportTransferHandler(),
-//					mainPanel.getViewportListener(),
-					RMSIcons.MDLIcon);
+			ModelPanel temp = new ModelPanel(new ModelHandler(mdl, RMSIcons.MDLIcon));
 			ModelLoader.loadModel(true, true, temp);
 		}
 

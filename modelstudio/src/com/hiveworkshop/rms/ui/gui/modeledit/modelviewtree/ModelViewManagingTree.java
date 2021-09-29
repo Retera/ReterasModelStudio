@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.util.JCheckBoxTreeNode;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicTreeUI;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.event.MouseAdapter;
@@ -153,6 +154,25 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 		return newPathWithNewObjects;
 	}
 
+	private TreePath getTreePath1(TreePath nextPathToExpand, TreePath newPathWithNewObjects, DefaultMutableTreeNode currentNode) {
+		for (int i = 1; i < nextPathToExpand.getPathCount(); i++) {
+			DefaultMutableTreeNode pathComponent = (DefaultMutableTreeNode) nextPathToExpand.getPathComponent(i);
+			boolean foundMatchingChild = false;
+			for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
+				DefaultMutableTreeNode childAt = (DefaultMutableTreeNode) currentNode.getChildAt(j);
+				if (asElement(childAt.getUserObject()).hasSameItem(asElement(pathComponent.getUserObject()))) {
+					currentNode = childAt;
+					newPathWithNewObjects = newPathWithNewObjects.pathByAddingChild(childAt);
+					foundMatchingChild = true;
+				}
+			}
+			if (!foundMatchingChild) {
+				break;
+			}
+		}
+		return newPathWithNewObjects;
+	}
+
 
 	public ModelViewManagingTree reloadFromModelView() {
 		System.out.println("reloadFromModelView");
@@ -161,16 +181,20 @@ public final class ModelViewManagingTree extends JCheckBoxTree {
 	}
 
 	private void reloadFromModelView2() {
-		final TreePath rootPath = new TreePath(getModel().getRoot());
-		final Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
+		TreePath rootPath = new TreePath(getModel().getRoot());
+		Enumeration<TreePath> expandedDescendants = getExpandedDescendants(rootPath);
 
 		updateModel(buildTreeModel(modelHandler));
 
-		final TreePath newRootPath = new TreePath(getModel().getRoot());
-		final List<TreePath> pathsToExpand = new ArrayList<>();
+		expandTree(expandedDescendants);
+	}
+
+	private void expandTree(Enumeration<TreePath> expandedDescendants) {
+		TreePath newRootPath = new TreePath(getModel().getRoot());
+		List<TreePath> pathsToExpand = new ArrayList<>();
 
 		while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
-			final TreePath nextPathToExpand = expandedDescendants.nextElement();
+			TreePath nextPathToExpand = expandedDescendants.nextElement();
 
 			TreePath newPathWithNewObjects = newRootPath;
 			JCheckBoxTreeNode currentNode = (JCheckBoxTreeNode) getModel().getRoot();

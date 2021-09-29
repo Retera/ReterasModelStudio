@@ -38,17 +38,30 @@ public class SimplifyKeyframesPanel extends JPanel {
 		add(rotCheckSpinner, "wrap");
 
 		JButton simplifyButton = new JButton("Simplify");
-		simplifyButton.addActionListener(e -> simplify());
+		simplifyButton.addActionListener(e -> simplifySelected());
 		add(simplifyButton, "wrap");
 	}
 
-	private void simplify() {
+	private void simplifySelected() {
 		trans = transCheckSpinner.getValue() == null ? -1 : transCheckSpinner.getValue();
 		scale = scaleCheckSpinner.getValue() == null ? -1 : scaleCheckSpinner.getValue();
 		rot = rotCheckSpinner.getValue() == null ? -1 : rotCheckSpinner.getValue();
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		SimplifyKeyframesAction action = new SimplifyKeyframesAction(modelPanel.getModelView(), trans, scale, rot);
 		modelPanel.getUndoManager().pushAction(action.redo());
+
+		JOptionPane.showMessageDialog(this, "Removed " + action.getNumberOfEntriesToRemove() + " keyframes", "Removed Keyframes", JOptionPane.PLAIN_MESSAGE);
+	}
+
+	private static void simplify() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if(modelPanel != null) {
+			EditableModel model = modelPanel.getModel();
+			SimplifyKeyframesAction action = new SimplifyKeyframesAction(model.getAllAnimFlags(), model.getAllSequences(), 0);
+			modelPanel.getUndoManager().pushAction(action.redo());
+
+			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), "Removed " + action.getNumberOfEntriesToRemove() + " keyframes", "Removed Keyframes", JOptionPane.PLAIN_MESSAGE);
+		}
 	}
 
 
@@ -82,19 +95,30 @@ public class SimplifyKeyframesPanel extends JPanel {
 	public static void simplifyKeyframes(EditableModel model) {
 		List<AnimFlag<?>> allAnimFlags = model.getAllAnimFlags();
 
-		SimplifyKeyframesAction action = new SimplifyKeyframesAction(allAnimFlags, model, 0.1f);
+		SimplifyKeyframesAction action = new SimplifyKeyframesAction(allAnimFlags, model.getAllSequences(), 0.1f);
 		ProgramGlobals.getCurrentModelPanel().getUndoManager().pushAction(action.redo());
 	}
 
 	private static class SimplifyKeyframes extends ActionFunction {
 
 		SimplifyKeyframes(){
-			super(TextKey.SIMPLIFY_KEYFRAMES, () -> showPopup());
+			super(TextKey.SIMPLIFY_KEYFRAMES, () -> simplify());
+			setMenuItemMnemonic(KeyEvent.VK_K);
+		}
+	}
+
+	private static class SimplifyKeyframesOfSel extends ActionFunction {
+
+		SimplifyKeyframesOfSel(){
+			super(TextKey.SIMPLIFY_KEYFRAMES_OF_SELECTED_NODES, () -> showPopup());
 			setMenuItemMnemonic(KeyEvent.VK_K);
 		}
 	}
 
 	public static JMenuItem getMenuItem(){
 		return new SimplifyKeyframes().getMenuItem();
+	}
+	public static JMenuItem getMenuItemSelected(){
+		return new SimplifyKeyframesOfSel().getMenuItem();
 	}
 }

@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model;
 
+import com.hiveworkshop.rms.ui.application.model.material.ComponentTextureAnimPanel;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.*;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -36,6 +37,7 @@ public class ComponentsPanel extends JPanel {
 
 		addPanelToMap(new ComponentBitmapPanel(modelHandler), DisplayElementType.TEXTURE);
 		addPanelToMap(new ComponentMaterialPanel(modelHandler), DisplayElementType.MATERIAL);
+		addPanelToMap(new ComponentTextureAnimPanel(modelHandler), DisplayElementType.TEXTURE_ANIM);
 		addPanelToMap(new ComponentGeosetPanel(modelHandler), DisplayElementType.GEOSET_ITEM);
 		addPanelToMap(new ComponentGeosetAnimPanel(modelHandler), DisplayElementType.GEOSET_ANIM);
 

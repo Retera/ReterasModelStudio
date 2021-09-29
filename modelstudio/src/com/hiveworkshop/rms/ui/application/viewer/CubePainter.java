@@ -1,10 +1,9 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.render3d.RenderNode;
+import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.renderparts.RenderGeoset;
@@ -14,6 +13,8 @@ import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
+
+import java.awt.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -25,6 +26,8 @@ public class CubePainter {
 	static final Vec3 zAxis = new Vec3(0, 0, 1);
 	static final Vec3 zAxis_isolate = new Vec3(1, 1, 0);
 	static double A90 = (Math.PI/2.0);
+	Color ugg = new Color(255, (int)(255 * .2f), 255);
+	Color ugg2 = new Color(255, 255, 255);
 
 	public static void paintVertCubes(ModelView modelView, RenderModel renderModel, Geoset geo) {
 
@@ -232,10 +235,26 @@ public class CubePainter {
 
 //		glBegin(GL11.GL_TRIANGLES);
 //		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//		GL11.glDepthMask(false);
+//		glDisable(GL_DEPTH_TEST);
+//		glBegin(GL11.GL_LINES);
+
+
 		GL11.glDepthMask(false);
+		GL11.glEnable(GL11.GL_BLEND);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_ALPHA_TEST);
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_CULL_FACE);
+//		disableGlThings(GL_ALPHA_TEST, GL_TEXTURE_2D, GL_CULL_FACE);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		glColor3f(255f, 1f, 255f);
+		glColor4f(.7f, .7f, .7f, .4f);
 		glBegin(GL11.GL_LINES);
+		GL11.glNormal3f(0, 0, 0);
 
 		float frnt = 1;
+
 
 		glColor4f(1f, .2f, 1f, .7f);
 
@@ -360,7 +379,7 @@ public class CubePainter {
 	}
 
 	public static void paintBones1(ModelView modelView, RenderModel renderModel, IdObject idObject, CameraHandler cameraHandler) {
-		RenderNode renderNode = renderModel.getRenderNode(idObject);
+		RenderNode2 renderNode = renderModel.getRenderNode(idObject);
 		if (renderNode != null) {
 //			float boxRadLength = .5f;
 //			float boxRadHeight = .5f;
@@ -407,7 +426,7 @@ public class CubePainter {
 
 			Vec3 renderPosNode = renderNode.getPivot();
 
-			RenderNode parentNode = renderModel.getRenderNode(idObject.getParent());
+			RenderNode2 parentNode = renderModel.getRenderNode(idObject.getParent());
 			Vec3 parentPivot = new Vec3(0, 0, 0);
 			if (idObject.getParent() != null && parentNode != null) {
 				parentPivot.set(parentNode.getPivot());
@@ -547,7 +566,7 @@ public class CubePainter {
 	}
 
 	public static void paintBones3(ModelView modelView, RenderModel renderModel, IdObject idObject, CameraHandler cameraHandler) {
-		RenderNode renderNode = renderModel.getRenderNode(idObject);
+		RenderNode2 renderNode = renderModel.getRenderNode(idObject);
 		if (renderNode != null) {
 			float boxRadLength = 1.5f;
 			float boxRadHeight = 1.5f;
@@ -581,7 +600,7 @@ public class CubePainter {
 
 			Vec3 renderPosNode = idObject.getPivotPoint();
 
-			RenderNode parentNode = renderModel.getRenderNode(idObject.getParent());
+			RenderNode2 parentNode = renderModel.getRenderNode(idObject.getParent());
 			Vec3 parentPivot = new Vec3(0, 0, 0);
 			if (idObject.getParent() != null && parentNode != null) {
 				parentPivot.set(idObject.getParent().getPivotPoint());
@@ -672,12 +691,12 @@ public class CubePainter {
 
 
 	public static void paintBones2(ModelView modelView, RenderModel renderModel, IdObject idObject, CameraHandler cameraHandler) {
-		RenderNode renderNode = renderModel.getRenderNode(idObject);
+		RenderNode2 renderNode = renderModel.getRenderNode(idObject);
 		if (renderNode != null) {
 			BoneRenderThing boneRenderThing = new BoneRenderThing();
 
 			Vec3 renderPosNode = renderNode.getPivot();
-			RenderNode parentNode = renderModel.getRenderNode(idObject.getParent());
+			RenderNode2 parentNode = renderModel.getRenderNode(idObject.getParent());
 			if (idObject.getParent() != null && parentNode != null) {
 				boneRenderThing.transform2(renderPosNode, parentNode.getPivot());
 			} else {
@@ -718,11 +737,11 @@ public class CubePainter {
 	}
 
 	public static void paintBones4(ModelView modelView, RenderModel renderModel, IdObject idObject, CameraHandler cameraHandler, BoneRenderThing2 boneRenderThing) {
-		RenderNode renderNode = renderModel.getRenderNode(idObject);
-		if (renderNode != null) {
+		RenderNode2 renderNode = renderModel.getRenderNode(idObject);
+		if (renderNode != null && modelView.shouldRender(idObject)) {
 
 			Vec3 renderPosNode = renderNode.getPivot();
-			RenderNode parentNode = renderModel.getRenderNode(idObject.getParent());
+			RenderNode2 parentNode = renderModel.getRenderNode(idObject.getParent());
 			if (idObject.getParent() != null && parentNode != null) {
 				boneRenderThing.transform2(renderPosNode, parentNode.getPivot(), (float) cameraHandler.geomDist( idObject.getClickRadius()/2f));
 			} else {
@@ -739,13 +758,23 @@ public class CubePainter {
 			float[] components;
 			if (modelView.getHighlightedNode() == idObject) {
 				components = colorPrefs.getColorComponents(ColorThing.NODE_HIGHLIGHTED);
+			} else if (!modelView.isEditable(idObject)) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_UNEDITABLE);
 			} else if (modelView.isSelected(idObject)) {
 				components = colorPrefs.getColorComponents(ColorThing.NODE_SELECTED);
-			} else if (modelView.isEditable(idObject)) {
-				components = colorPrefs.getColorComponents(ColorThing.NODE);
 			} else {
-				components = colorPrefs.getColorComponents(ColorThing.NODE_UNEDITABLE);
+				components = colorPrefs.getColorComponents(ColorThing.NODE);
 			}
+//			if (modelView.getHighlightedNode() == idObject) {
+//				components = colorPrefs.getColorComponents(ColorThing.NODE_HIGHLIGHTED);
+//			} else if (modelView.isSelected(idObject)) {
+//				components = colorPrefs.getColorComponents(ColorThing.NODE_SELECTED);
+//			} else if (modelView.isEditable(idObject)) {
+//				components = colorPrefs.getColorComponents(ColorThing.NODE);
+//			} else {
+//				components = colorPrefs.getColorComponents(ColorThing.NODE_UNEDITABLE);
+//			}
+
 //			glColor4f(components[0], components[1], components[2], components[3]);
 
 //			if (modelView.isSelected(idObject)) {
@@ -860,35 +889,30 @@ public class CubePainter {
 //		glBegin(GL11.GL_TRIANGLES);
 
 //		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glPolygonMode(GL_FRONT, GL_FILL);
 //		glPolygonMode(GL_COLOR, GL_FILL);
 //		glBegin(GL_QUADS);
-		glBegin(GL11.GL_TRIANGLES);
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
-		EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
 
 		if (renderGeoset != null) {
-//			for (GeosetVertex vertex : geo.getVertices()) {
+			glPolygonMode(GL_FRONT, GL_FILL);
+			glBegin(GL11.GL_TRIANGLES);
+			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
-				float[] components;
-				if (modelView.isSelected(renderVert.getVertex())) {
-					components = colorPrefs.getColorComponents(ColorThing.VERTEX_SELECTED);
-//					glColor4f(1f, .0f, .0f, .7f);
-//					glColor4f(components[0], components[1], components[2], components[3]);
-				} else if (modelView.isEditable(renderVert.getVertex())) {
-					components = colorPrefs.getColorComponents(ColorThing.VERTEX);
-//					glColor4f(.5f, .3f, .7f, .7f);
-				} else {
-					components = colorPrefs.getColorComponents(ColorThing.VERTEX_UNEDITABLE);
-//					glColor4f(.4f, .3f, .7f, .4f);
-				}
-				glColor4f(components[0], components[1], components[2], components[3]);
-				if (renderVert != null) {
-					vertRendererThing.transform(cameraHandler.getInverseCameraRotation(), renderVert.getRenderPos()).doGlGeom();
-				}
+				if (renderVert != null && !modelView.isHidden(renderVert.getVertex())) {
+					float[] components;
+					if (modelView.isEditable(renderVert.getVertex()) && modelView.isSelected(renderVert.getVertex())) {
+						components = colorPrefs.getColorComponents(ColorThing.VERTEX_SELECTED);
+					} else if (modelView.isEditable(renderVert.getVertex())) {
+						components = colorPrefs.getColorComponents(ColorThing.VERTEX);
+					} else {
+						components = colorPrefs.getColorComponents(ColorThing.VERTEX_UNEDITABLE);
+					}
+						glColor4f(components[0], components[1], components[2], components[3]);
+						vertRendererThing.transform(cameraHandler.getInverseCameraRotation(), renderVert.getRenderPos()).doGlGeom();
+					}
 			}
+			glEnd();
 		}
-		glEnd();
 	}
 
 	public static void paintSquare(Vec3 vec3, CameraHandler cameraHandler) {

@@ -9,6 +9,7 @@ import java.util.List;
 
 class MultiVisibilityPanel extends VisibilityPanel {
 	ModelHolderThing mht;
+	List<VisibilityShell> selectedValuesList;
 
 	public MultiVisibilityPanel(ModelHolderThing mht,
 	                            List<VisibilityShell> recModVisSourcesOld,
@@ -38,8 +39,8 @@ class MultiVisibilityPanel extends VisibilityPanel {
 		add(favorOld, "left, wrap");
 	}
 
-	public void updateMultiVisPanel(){
-		List<VisibilityShell> selectedValuesList = mht.visTabs.getSelectedValuesList();
+	public void updateMultiVisPanel(List<VisibilityShell> selectedValuesList){
+		this.selectedValuesList = selectedValuesList;
 
 		boolean firstIsDoFavorOld = selectedValuesList.get(0).isFavorOld();
 
@@ -89,7 +90,6 @@ class MultiVisibilityPanel extends VisibilityPanel {
 	}
 
 	private void favorOldPressed() {
-		List<VisibilityShell> selectedValuesList = mht.visTabs.getSelectedValuesList();
 		for(VisibilityShell vs : selectedValuesList){
 			vs.setFavorOld(favorOld.isSelected());
 		}
@@ -98,7 +98,7 @@ class MultiVisibilityPanel extends VisibilityPanel {
 	public void setVisGroupItemOld(VisibilityShell o) {
 		if (receivingModelSourcesBox.getSelectedItem() != mht.multipleVisible){
 			((DefaultComboBoxModel<VisibilityShell>)receivingModelSourcesBox.getModel()).removeElement(mht.multipleVisible);
-			for (VisibilityShell temp : mht.visTabs.getSelectedValuesList()) {
+			for (VisibilityShell temp : selectedValuesList) {
 				temp.setOldVisSource(o);
 			}
 		}
@@ -107,7 +107,7 @@ class MultiVisibilityPanel extends VisibilityPanel {
 	public void setVisGroupItemNew(VisibilityShell o) {
 		if (donatingModelSourcesBox.getSelectedItem() != mht.multipleVisible){
 			((DefaultComboBoxModel<VisibilityShell>)donatingModelSourcesBox.getModel()).removeElement(mht.multipleVisible);
-			for (VisibilityShell temp : mht.visTabs.getSelectedValuesList()) {
+			for (VisibilityShell temp : selectedValuesList) {
 				temp.setNewVisSource(o);
 			}
 		}

@@ -176,24 +176,27 @@ public class Mat4 {
 	}
 
 	public Mat4 mul(final Mat4 a) {
-		Mat4 temp = new Mat4();
-		temp.m00 = m00 * a.m00 + m10 * a.m01 + m20 * a.m02 + m30 * a.m03;
-		temp.m01 = m01 * a.m00 + m11 * a.m01 + m21 * a.m02 + m31 * a.m03;
-		temp.m02 = m02 * a.m00 + m12 * a.m01 + m22 * a.m02 + m32 * a.m03;
-		temp.m03 = m03 * a.m00 + m13 * a.m01 + m23 * a.m02 + m33 * a.m03;
-		temp.m10 = m00 * a.m10 + m10 * a.m11 + m20 * a.m12 + m30 * a.m13;
-		temp.m11 = m01 * a.m10 + m11 * a.m11 + m21 * a.m12 + m31 * a.m13;
-		temp.m12 = m02 * a.m10 + m12 * a.m11 + m22 * a.m12 + m32 * a.m13;
-		temp.m13 = m03 * a.m10 + m13 * a.m11 + m23 * a.m12 + m33 * a.m13;
-		temp.m20 = m00 * a.m20 + m10 * a.m21 + m20 * a.m22 + m30 * a.m23;
-		temp.m21 = m01 * a.m20 + m11 * a.m21 + m21 * a.m22 + m31 * a.m23;
-		temp.m22 = m02 * a.m20 + m12 * a.m21 + m22 * a.m22 + m32 * a.m23;
-		temp.m23 = m03 * a.m20 + m13 * a.m21 + m23 * a.m22 + m33 * a.m23;
-		temp.m30 = m00 * a.m30 + m10 * a.m31 + m20 * a.m32 + m30 * a.m33;
-		temp.m31 = m01 * a.m30 + m11 * a.m31 + m21 * a.m32 + m31 * a.m33;
-		temp.m32 = m02 * a.m30 + m12 * a.m31 + m22 * a.m32 + m32 * a.m33;
-		temp.m33 = m03 * a.m30 + m13 * a.m31 + m23 * a.m32 + m33 * a.m33;
-		return set(temp);
+		float tmp00 = m00 * a.m00 + m10 * a.m01 + m20 * a.m02 + m30 * a.m03;
+		float tmp01 = m01 * a.m00 + m11 * a.m01 + m21 * a.m02 + m31 * a.m03;
+		float tmp02 = m02 * a.m00 + m12 * a.m01 + m22 * a.m02 + m32 * a.m03;
+		float tmp03 = m03 * a.m00 + m13 * a.m01 + m23 * a.m02 + m33 * a.m03;
+		float tmp10 = m00 * a.m10 + m10 * a.m11 + m20 * a.m12 + m30 * a.m13;
+		float tmp11 = m01 * a.m10 + m11 * a.m11 + m21 * a.m12 + m31 * a.m13;
+		float tmp12 = m02 * a.m10 + m12 * a.m11 + m22 * a.m12 + m32 * a.m13;
+		float tmp13 = m03 * a.m10 + m13 * a.m11 + m23 * a.m12 + m33 * a.m13;
+		float tmp20 = m00 * a.m20 + m10 * a.m21 + m20 * a.m22 + m30 * a.m23;
+		float tmp21 = m01 * a.m20 + m11 * a.m21 + m21 * a.m22 + m31 * a.m23;
+		float tmp22 = m02 * a.m20 + m12 * a.m21 + m22 * a.m22 + m32 * a.m23;
+		float tmp23 = m03 * a.m20 + m13 * a.m21 + m23 * a.m22 + m33 * a.m23;
+		float tmp30 = m00 * a.m30 + m10 * a.m31 + m20 * a.m32 + m30 * a.m33;
+		float tmp31 = m01 * a.m30 + m11 * a.m31 + m21 * a.m32 + m31 * a.m33;
+		float tmp32 = m02 * a.m30 + m12 * a.m31 + m22 * a.m32 + m32 * a.m33;
+		float tmp33 = m03 * a.m30 + m13 * a.m31 + m23 * a.m32 + m33 * a.m33;
+		return set(
+				tmp00, tmp01, tmp02, tmp03,
+				tmp10, tmp11, tmp12, tmp13,
+				tmp20, tmp21, tmp22, tmp23,
+				tmp30, tmp31, tmp32, tmp33);
 	}
 
 	public Mat4 translate(Vec3 a) {
@@ -274,7 +277,6 @@ public class Mat4 {
 	}
 
 	public Mat4 invert() {
-		Mat4 temp = new Mat4();
 		float b00 = m00 * m11 - m01 * m10;
 		float b01 = m00 * m12 - m02 * m10;
 		float b02 = m00 * m13 - m03 * m10;
@@ -297,53 +299,57 @@ public class Mat4 {
 
 		det = 1f / det;
 
-		temp.m00 = (m11 * b11) - (m12 * b10) + (m13 * b09) * det;
-		temp.m01 = (m02 * b10) - (m01 * b11) - (m03 * b09) * det;
-		temp.m02 = (m31 * b05) - (m32 * b04) + (m33 * b03) * det;
-		temp.m03 = (m22 * b04) - (m21 * b05) - (m23 * b03) * det;
-		temp.m10 = (m12 * b08) - (m10 * b11) - (m13 * b07) * det;
-		temp.m11 = (m00 * b11) - (m02 * b08) + (m03 * b07) * det;
-		temp.m12 = (m32 * b02) - (m30 * b05) - (m33 * b01) * det;
-		temp.m13 = (m20 * b05) - (m22 * b02) + (m23 * b01) * det;
-		temp.m20 = (m10 * b10) - (m11 * b08) + (m13 * b06) * det;
-		temp.m21 = (m01 * b08) - (m00 * b10) - (m03 * b06) * det;
-		temp.m22 = (m30 * b04) - (m31 * b02) + (m33 * b00) * det;
-		temp.m23 = (m21 * b02) - (m20 * b04) - (m23 * b00) * det;
-		temp.m30 = (m11 * b07) - (m10 * b09) - (m12 * b06) * det;
-		temp.m31 = (m00 * b09) - (m01 * b07) + (m02 * b06) * det;
-		temp.m32 = (m31 * b01) - (m30 * b03) - (m32 * b00) * det;
-		temp.m33 = (m20 * b03) - (m21 * b01) + (m22 * b00) * det;
-		return set(temp);
+		float tmp00 = (m11 * b11) - (m12 * b10) + (m13 * b09) * det;
+		float tmp01 = (m02 * b10) - (m01 * b11) - (m03 * b09) * det;
+		float tmp02 = (m31 * b05) - (m32 * b04) + (m33 * b03) * det;
+		float tmp03 = (m22 * b04) - (m21 * b05) - (m23 * b03) * det;
+		float tmp10 = (m12 * b08) - (m10 * b11) - (m13 * b07) * det;
+		float tmp11 = (m00 * b11) - (m02 * b08) + (m03 * b07) * det;
+		float tmp12 = (m32 * b02) - (m30 * b05) - (m33 * b01) * det;
+		float tmp13 = (m20 * b05) - (m22 * b02) + (m23 * b01) * det;
+		float tmp20 = (m10 * b10) - (m11 * b08) + (m13 * b06) * det;
+		float tmp21 = (m01 * b08) - (m00 * b10) - (m03 * b06) * det;
+		float tmp22 = (m30 * b04) - (m31 * b02) + (m33 * b00) * det;
+		float tmp23 = (m21 * b02) - (m20 * b04) - (m23 * b00) * det;
+		float tmp30 = (m11 * b07) - (m10 * b09) - (m12 * b06) * det;
+		float tmp31 = (m00 * b09) - (m01 * b07) + (m02 * b06) * det;
+		float tmp32 = (m31 * b01) - (m30 * b03) - (m32 * b00) * det;
+		float tmp33 = (m20 * b03) - (m21 * b01) + (m22 * b00) * det;
+		return set(
+				tmp00, tmp01, tmp02, tmp03,
+				tmp10, tmp11, tmp12, tmp13,
+				tmp20, tmp21, tmp22, tmp23,
+				tmp30, tmp31, tmp32, tmp33);
 	}
 
 	// copied from ghostwolf and
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html
-	public Mat4 fromRotationTranslationScaleOrigin(final Quat q, final Vec3 v, final Vec3 s, final Vec3 pivot) {
-		final float xx = q.x * q.x * 2;
-		final float xy = q.x * q.y * 2;
-		final float xz = q.x * q.z * 2;
-		final float yy = q.y * q.y * 2;
-		final float yz = q.y * q.z * 2;
-		final float zz = q.z * q.z * 2;
-		final float wx = q.w * q.x * 2;
-		final float wy = q.w * q.y * 2;
-		final float wz = q.w * q.z * 2;
+	public Mat4 fromRotationTranslationScaleOrigin(final Quat rot, final Vec3 loc, final Vec3 scale, final Vec3 pivot) {
+		final float xx = rot.x * rot.x * 2;
+		final float xy = rot.x * rot.y * 2;
+		final float xz = rot.x * rot.z * 2;
+		final float yy = rot.y * rot.y * 2;
+		final float yz = rot.y * rot.z * 2;
+		final float zz = rot.z * rot.z * 2;
+		final float wx = rot.w * rot.x * 2;
+		final float wy = rot.w * rot.y * 2;
+		final float wz = rot.w * rot.z * 2;
 
-		m00 = (1 - (yy + zz)) * s.x;
-		m01 = (xy + wz) * s.x;
-		m02 = (xz - wy) * s.x;
+		m00 = (1 - (yy + zz))   * scale.x;
+		m01 = (xy + wz)         * scale.x;
+		m02 = (xz - wy)         * scale.x;
 		m03 = 0;
-		m10 = (xy - wz) * s.y;
-		m11 = (1 - (xx + zz)) * s.y;
-		m12 = (yz + wx) * s.y;
+		m10 = (xy - wz)         * scale.y;
+		m11 = (1 - (xx + zz))   * scale.y;
+		m12 = (yz + wx)         * scale.y;
 		m13 = 0;
-		m20 = (xz + wy) * s.z;
-		m21 = (yz - wx) * s.z;
-		m22 = (1 - (xx + yy)) * s.z;
+		m20 = (xz + wy)         * scale.z;
+		m21 = (yz - wx)         * scale.z;
+		m22 = (1 - (xx + yy))   * scale.z;
 		m23 = 0;
-		m30 = (v.x + pivot.x) - ((m00 * pivot.x) + (m10 * pivot.y) + (m20 * pivot.z));
-		m31 = (v.y + pivot.y) - ((m01 * pivot.x) + (m11 * pivot.y) + (m21 * pivot.z));
-		m32 = (v.z + pivot.z) - ((m02 * pivot.x) + (m12 * pivot.y) + (m22 * pivot.z));
+		m30 = (loc.x + pivot.x) - ((m00 * pivot.x) + (m10 * pivot.y) + (m20 * pivot.z));
+		m31 = (loc.y + pivot.y) - ((m01 * pivot.x) + (m11 * pivot.y) + (m21 * pivot.z));
+		m32 = (loc.z + pivot.z) - ((m02 * pivot.x) + (m12 * pivot.y) + (m22 * pivot.z));
 		m33 = 1;
 
 		return this;

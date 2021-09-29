@@ -46,6 +46,9 @@ public abstract class TimelineContainer implements VisibilitySource {
 	public boolean has(String name) {
 		return animFlags.containsKey(name);
 	}
+	public boolean owns(AnimFlag<?> animFlag) {
+		return animFlags.containsValue(animFlag);
+	}
 
 	public void remove(AnimFlag<?> timeline) {
 		animFlags.remove(timeline.getName());

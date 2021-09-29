@@ -219,6 +219,7 @@ public class Vec3 {
 	}
 
 	public boolean equalLocs(final Vec3 v) {
+		if (v == null) return false;
 		return (x == v.x) && (y == v.y) && (z == v.z);
 	}
 
@@ -434,6 +435,48 @@ public class Vec3 {
 		float newX = (mat4.m00 * x) + (mat4.m10 * y) + (mat4.m20 * z) + w * mat4.m30;
 		float newY = (mat4.m01 * x) + (mat4.m11 * y) + (mat4.m21 * z) + w * mat4.m31;
 		float newZ = (mat4.m02 * x) + (mat4.m12 * y) + (mat4.m22 * z) + w * mat4.m32;
+		return set(newX, newY, newZ);
+	}
+
+
+	public Vec3 transformInverted(Mat4 mat4) {
+		float b00 = mat4.m00 * mat4.m11 - mat4.m01 * mat4.m10;
+		float b01 = mat4.m00 * mat4.m12 - mat4.m02 * mat4.m10;
+		float b02 = mat4.m00 * mat4.m13 - mat4.m03 * mat4.m10;
+		float b03 = mat4.m01 * mat4.m12 - mat4.m02 * mat4.m11;
+		float b04 = mat4.m01 * mat4.m13 - mat4.m03 * mat4.m11;
+		float b05 = mat4.m02 * mat4.m13 - mat4.m03 * mat4.m12;
+		float b06 = mat4.m20 * mat4.m31 - mat4.m21 * mat4.m30;
+		float b07 = mat4.m20 * mat4.m32 - mat4.m22 * mat4.m30;
+		float b08 = mat4.m20 * mat4.m33 - mat4.m23 * mat4.m30;
+		float b09 = mat4.m21 * mat4.m32 - mat4.m22 * mat4.m31;
+		float b10 = mat4.m21 * mat4.m33 - mat4.m23 * mat4.m31;
+		float b11 = mat4.m22 * mat4.m33 - mat4.m23 * mat4.m32;
+
+		// Calculate the determinant
+		float det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
+		if (det == 0f) {
+			return null;
+		}
+
+		det = 1f / det;
+
+		float tmp00 = (mat4.m11 * b11) - (mat4.m12 * b10) + (mat4.m13 * b09) * det;
+		float tmp01 = (mat4.m02 * b10) - (mat4.m01 * b11) - (mat4.m03 * b09) * det;
+		float tmp02 = (mat4.m31 * b05) - (mat4.m32 * b04) + (mat4.m33 * b03) * det;
+		float tmp03 = (mat4.m22 * b04) - (mat4.m21 * b05) - (mat4.m23 * b03) * det;
+		float tmp10 = (mat4.m12 * b08) - (mat4.m10 * b11) - (mat4.m13 * b07) * det;
+		float tmp11 = (mat4.m00 * b11) - (mat4.m02 * b08) + (mat4.m03 * b07) * det;
+		float tmp12 = (mat4.m32 * b02) - (mat4.m30 * b05) - (mat4.m33 * b01) * det;
+		float tmp20 = (mat4.m10 * b10) - (mat4.m11 * b08) + (mat4.m13 * b06) * det;
+		float tmp21 = (mat4.m01 * b08) - (mat4.m00 * b10) - (mat4.m03 * b06) * det;
+		float tmp22 = (mat4.m30 * b04) - (mat4.m31 * b02) + (mat4.m33 * b00) * det;
+
+		float newX = (tmp00 * x) + (tmp10 * y) + (tmp20 * z);
+		float newY = (tmp01 * x) + (tmp11 * y) + (tmp21 * z);
+		float newZ = (tmp02 * x) + (tmp12 * y) + (tmp22 * z);
+
 		return set(newX, newY, newZ);
 	}
 

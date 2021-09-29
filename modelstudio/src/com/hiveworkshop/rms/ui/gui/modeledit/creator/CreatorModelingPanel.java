@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.ui.application.ModelEditActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -30,6 +31,8 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.util.function.BiConsumer;
 
 public class CreatorModelingPanel extends JPanel implements ModelEditorChangeActivityListener {
 	private static final String ANIMATIONBASICS = "ANIMATIONBASICS";
@@ -64,7 +67,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		animationChooserBoxModel = new DefaultComboBoxModel<>();
 		animationChooserBox = new JComboBox<>(animationChooserBoxModel);
 		animationChooserBox.setVisible(false);
-		animationChooserBox.addActionListener(e -> chooseAnimation());
+		animationChooserBox.addItemListener(this::chooseAnimation);
 
 		northCardLayout = new CardLayout();
 		northCardPanel = new JPanel(northCardLayout);
@@ -95,13 +98,12 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		JPanel drawPrimitivesPanel = new JPanel(new GridLayout(16, 1));
 		drawPrimitivesPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
 
-		ModeButton planeButton = new ModeButton("Plane");
-		planeButton.addActionListener(e -> drawPlane(viewportListener, planeButton));
-		drawPrimitivesPanel.add(planeButton);
+		drawPrimitivesPanel.add(getModeButton(viewportListener, "Plane", this::drawPlane));
 
-		ModeButton boxButton = new ModeButton("Box");
-		boxButton.addActionListener(e -> drawBox(viewportListener, boxButton));
-		drawPrimitivesPanel.add(boxButton);
+//		ModeButton boxButton = new ModeButton("Box");
+//		boxButton.addActionListener(e -> drawBox(boxButton, viewportListener));
+//		drawPrimitivesPanel.add(boxButton);
+		drawPrimitivesPanel.add(getModeButton(viewportListener, "Box", this::drawBox));
 
 		JPanel spOptionsPanel = new JPanel(new GridLayout(16, 1));
 		spOptionsPanel.setBorder(BorderFactory.createTitledBorder("Options"));
@@ -112,11 +114,19 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		return standardPrimitivesPanel;
 	}
 
-	private void chooseAnimation() {
-		ChooseableTimeRange<?> selectedItem = (ChooseableTimeRange<?>) animationChooserBox.getSelectedItem();
-		if (selectedItem != null) {
-			TimeEnvironmentImpl timeEnvironment = modelHandler == null ? null : modelHandler.getEditTimeEnv();
-			selectedItem.applyTo(timeEnvironment);
+	private ModeButton getModeButton(ViewportListener viewportListener, String text, BiConsumer<ModeButton, ViewportListener> action) {
+		ModeButton modeButton = new ModeButton(text);
+		modeButton.addActionListener(e -> action.accept(modeButton, viewportListener));
+		return modeButton;
+	}
+
+	private void chooseAnimation(ItemEvent e) {
+		if(e.getStateChange() == ItemEvent.SELECTED){
+			ChooseableTimeRange<?> selectedItem = (ChooseableTimeRange<?>) animationChooserBox.getSelectedItem();
+			if (selectedItem != null) {
+				TimeEnvironmentImpl timeEnvironment = modelHandler == null ? null : modelHandler.getEditTimeEnv();
+				selectedItem.applyTo(timeEnvironment);
+			}
 		}
 	}
 
@@ -141,25 +151,22 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 	}
 
 	private JPanel getDrawToolsPanel(ViewportListener viewportListener) {
-		ModeButton2 vertexButton = new ModeButton2("Vertex", programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
-		vertexButton.addActionListener(e -> addVertex(vertexButton, viewportListener));
-
-		ModeButton2 faceButton = new ModeButton2("Face from Selection", programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
-		faceButton.addActionListener(e -> createFace(viewportListener));
-
-		ModeButton2 boneButton = new ModeButton2("Bone", programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
-		boneButton.addActionListener(e -> addBone(boneButton, viewportListener));
-
 		JPanel drawToolsPanel = new JPanel(new GridLayout(2, 1));
 		drawToolsPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
 
-		drawToolsPanel.add(vertexButton);
-		drawToolsPanel.add(faceButton);
-		drawToolsPanel.add(boneButton);
+		drawToolsPanel.add(getModeButton2(viewportListener, "Vertex", this::addVertex));
+		drawToolsPanel.add(getModeButton2(viewportListener, "Face from Selection", this::createFace));
+		drawToolsPanel.add(getModeButton2(viewportListener, "Bone", this::addBone));
 		return drawToolsPanel;
 	}
 
-	private void createFace(ViewportListener viewportListener) {
+	private ModeButton2 getModeButton2(ViewportListener viewportListener, String text, BiConsumer<ModeButton2, ViewportListener> action) {
+		ModeButton2 modeButton = new ModeButton2(text, programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
+		modeButton.addActionListener(e -> action.accept(modeButton, viewportListener));
+		return modeButton;
+	}
+
+	private void createFace(ModeButton2 modeButton, ViewportListener viewportListener) {
 		if (modelEditorManager == null) {
 			return;
 		}
@@ -196,7 +203,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 	}
 
-	private void drawBox(ViewportListener viewportListener, ModeButton modeButton) {
+	private void drawBox(ModeButton modeButton, ViewportListener viewportListener) {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			DrawBoxActivity activity = new DrawBoxActivity(modelHandler, modelEditorManager, viewportListener, 1, 1, 1);
@@ -205,7 +212,7 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		}
 	}
 
-	private void drawPlane(ViewportListener viewportListener, ModeButton modeButton) {
+	private void drawPlane(ModeButton modeButton, ViewportListener viewportListener) {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			DrawPlaneActivity activity = new DrawPlaneActivity(modelHandler, modelEditorManager, viewportListener, 1, 1, 1);
@@ -281,22 +288,28 @@ public class CreatorModelingPanel extends JPanel implements ModelEditorChangeAct
 		ChooseableTimeRange<?> selectedItem = (ChooseableTimeRange<?>) animationChooserBox.getSelectedItem();
 		animationChooserBoxModel.removeAllElements();
 
-		ChooseableDoNothing doNothingItem = new ChooseableDoNothing("Custom Timeframe");
-		animationChooserBoxModel.addElement(doNothingItem);
+//		ChooseableDoNothing doNothingItem = new ChooseableDoNothing("Custom Timeframe");
+//		animationChooserBoxModel.addElement(doNothingItem);
 
-		ChooseableTimeRange<?> thingSelected = selectedItem == null ? doNothingItem : selectedItem;
+//		ChooseableTimeRange<?> thingSelected = selectedItem == null ? doNothingItem : selectedItem;
 
 
-		for (Animation animation : modelHandler.getModel().getAnims()) {
+		EditableModel model = modelHandler.getModel();
+		for (Animation animation : model.getAnims()) {
 			ChooseableAnimation choosableItem = new ChooseableAnimation(animation);
 			animationChooserBoxModel.addElement(choosableItem);
 		}
 
-		for (GlobalSeq integer : modelHandler.getModel().getGlobalSeqs()) {
+		for (GlobalSeq integer : model.getGlobalSeqs()) {
 			ChooseableGlobalSeq chooseableItem = new ChooseableGlobalSeq(integer);
 			animationChooserBoxModel.addElement(chooseableItem);
 		}
-		animationChooserBox.setSelectedItem(thingSelected);
+//		animationChooserBox.setSelectedItem(thingSelected);
+		if(selectedItem != null || animationChooserBoxModel.getSize() < 1){
+			animationChooserBox.setSelectedItem(selectedItem);
+		} else {
+			animationChooserBox.setSelectedIndex(0);
+		}
 	}
 
 	@Override

@@ -10,6 +10,7 @@ public class ViewMenu extends JMenu {
 
 	public ViewMenu() {
 		super("View");
+		setMnemonic(KeyEvent.VK_V);
 		getAccessibleContext().setAccessibleDescription("Allows the user to control view settings.");
 
 		JCheckBoxMenuItem textureModels = new JCheckBoxMenuItem("Texture Models", true);
@@ -71,7 +72,7 @@ public class ViewMenu extends JMenu {
 
 		viewModes2.addJRadioButtonMenuItem("Wireframe", e -> ProgramGlobals.getPrefs().setViewMode(0));
 		viewModes2.addJRadioButtonMenuItem("Solid", e -> ProgramGlobals.getPrefs().setViewMode(1));
-		viewModes2.setSelectedIndex(ProgramGlobals.getPrefs().getViewMode());
+		viewModes2.setSelectedIndex(ProgramGlobals.getPrefs().viewMode());
 
 		viewModeMenu.add(viewModes2.getButton(0));
 		viewModeMenu.add(viewModes2.getButton(1));

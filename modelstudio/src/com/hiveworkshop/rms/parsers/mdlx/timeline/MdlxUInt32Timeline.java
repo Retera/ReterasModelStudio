@@ -31,4 +31,13 @@ public final class MdlxUInt32Timeline extends MdlxTimeline<long[]> {
 		stream.writeKeyframe(prefix, uint32[0]);
 	}
 
+	@Override
+	public void initLists(int size){
+		frames = new long[size];
+		values = new long[size][];
+		if(interpolationType.tangential()){
+			inTans = new long[size][];
+			outTans = new long[size][];
+		}
+	}
 }

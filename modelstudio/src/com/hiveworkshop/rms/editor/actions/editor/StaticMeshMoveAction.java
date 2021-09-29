@@ -12,14 +12,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public final class StaticMeshMoveAction implements GenericMoveAction {
-	private final ModelView modelView;
 	private final Vec3 moveVector;
 	private final Set<GeosetVertex> selectedVertices;
 	private final Set<IdObject> selectedIdObjects;
 	private final Set<Camera> selectedCameras;
 
 	public StaticMeshMoveAction(ModelView modelView, Vec3 moveVector) {
-		this.modelView = modelView;
 		this.moveVector = new Vec3(moveVector);
 		selectedVertices = new HashSet<>(modelView.getSelectedVertices());
 		selectedIdObjects = new HashSet<>(modelView.getSelectedIdObjects());

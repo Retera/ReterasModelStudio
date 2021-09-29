@@ -22,35 +22,8 @@ public class ImportGeoset extends ActionFunction {
 		EditableModel geoSource = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
 
 		if (geoSource != null) {
-			boolean going = true;
-			Geoset host = null;
-			while (going) {
-				String s = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(),
-						"Geoset into which to Import: (1 to " + current.getGeosetsSize() + ")");
-				try {
-					int x = Integer.parseInt(s);
-					if ((x >= 1) && (x <= current.getGeosetsSize())) {
-						host = current.getGeoset(x - 1);
-						going = false;
-					}
-				} catch (final NumberFormatException ignored) {
-
-				}
-			}
-			Geoset newGeoset = null;
-			going = true;
-			while (going) {
-				String s = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(), "Geoset to Import: (1 to " + geoSource.getGeosetsSize() + ")");
-				try {
-					int x = Integer.parseInt(s);
-					if ((x >= 1) && x <= geoSource.getGeosetsSize()) {
-						newGeoset = geoSource.getGeoset(x - 1);
-						going = false;
-					}
-				} catch (final NumberFormatException ignored) {
-
-				}
-			}
+			Geoset host = getGeoset(current, "Geoset into which to Import: (1 to " + current.getGeosetsSize() + ")");
+			Geoset newGeoset = getGeoset(geoSource, "Geoset to Import: (1 to " + geoSource.getGeosetsSize() + ")");
 			updateToObjects(newGeoset, current);
 			System.out.println("putting " + newGeoset.numUVLayers() + " into a nice " + host.numUVLayers());
 			for (int i = 0; i < newGeoset.numVerteces(); i++) {
@@ -68,7 +41,25 @@ public class ImportGeoset extends ActionFunction {
 		}
 	}
 
-	public static void updateToObjects(Geoset geoset, final EditableModel model) {
+	private static Geoset getGeoset(EditableModel model, String message) {
+		Geoset geoset = null;
+		boolean going = true;
+		while (going) {
+			String s = JOptionPane.showInputDialog(ProgramGlobals.getMainPanel(), message);
+			try {
+				int x = Integer.parseInt(s);
+				if (1 <= x && x <= model.getGeosetsSize()) {
+					geoset = model.getGeoset(x - 1);
+					going = false;
+				}
+			} catch (final NumberFormatException ignored) {
+
+			}
+		}
+		return geoset;
+	}
+
+	public static void updateToObjects(Geoset geoset, EditableModel model) {
 		// upload the temporary UVLayer and Matrix objects into the vertices themselves
 		System.out.println(geoset + ", " + model.getName());
 		Map<String, IdObject> nameBoneMap = new HashMap<>();
@@ -77,7 +68,7 @@ public class ImportGeoset extends ActionFunction {
 		}
 		Map<IdObject, IdObject> boneToBoneMap = new HashMap<>();
 		geoset.reMakeMatrixList();
-		for (final Matrix m : geoset.getMatrices()) {
+		for (Matrix m : geoset.getMatrices()) {
 			System.out.println(m.size());
 			for (Bone bone : m.getBones()){
 				boneToBoneMap.put(bone, nameBoneMap.get(bone.getName()));

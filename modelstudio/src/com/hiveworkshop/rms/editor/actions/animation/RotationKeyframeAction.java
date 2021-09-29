@@ -8,11 +8,10 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.render3d.RenderNode;
+import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
-import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -134,7 +133,7 @@ public class RotationKeyframeAction implements GenericRotateAction {
 			return;
 		}
 
-		AnimatedNode parent = null;// = getParent();
+		IdObject parent = null;// = getParent();
 		if (animatedNode instanceof IdObject) {
 			parent = ((IdObject) animatedNode).getParent();
 		}
@@ -142,11 +141,11 @@ public class RotationKeyframeAction implements GenericRotateAction {
 		Vec4 rotationAxis = new Vec4(0, 0, 0, 1);
 
 		if (parent != null) {
-			RenderNode parentRenderNode = editorRenderModel.getRenderNode(parent);
+			RenderNode2 parentRenderNode = editorRenderModel.getRenderNode(parent);
 
 			rotationAxis.transform(parentRenderNode.getWorldMatrix());
 			rotationAxis.add(axis);
-			rotationAxis.transform(Mat4.getInverted(parentRenderNode.getWorldMatrix()));
+			rotationAxis.transformInverted(parentRenderNode.getWorldMatrix());
 		} else {
 			rotationAxis.add(axis);
 		}

@@ -13,7 +13,7 @@ public class GeosetEditPanel extends JPanel {
 	public CardLayout geoCardLayout = new CardLayout();
 	public JPanel geoPanelCards = new JPanel(geoCardLayout);
 	public JPanel blankPane = new JPanel();
-	//	public MultiGeosetPanel multiGeosetPane;
+	public MultiGeosetPanel multiGeosetPanel;
 	GeosetPanel singleGeosetPanel;
 	ModelHolderThing mht;
 
@@ -23,41 +23,40 @@ public class GeosetEditPanel extends JPanel {
 
 		add(getTopPanel(), "spanx, align center, wrap");
 
-		GeosetListCellRenderer2D geosetListCellRenderer = new GeosetListCellRenderer2D(mht.receivingModel, mht.donatingModel);
-		mht.geosetShellJList.setCellRenderer(geosetListCellRenderer);
-		mht.geosetShellJList.addListSelectionListener(e -> showGeosetCard(mht, e));
-//		mht.geosetShellJList.setSelectedIndex(0);
-		mht.geosetShellJList.setSelectedValue(null, false);
-		JScrollPane geosetTabsPane = new JScrollPane(mht.geosetShellJList);
-		geosetTabsPane.setMinimumSize(new Dimension(150, 200));
+		singleGeosetPanel = new GeosetPanel(mht, mht.allMaterials);
 
 		geoPanelCards.add(blankPane, "blank");
-
-		singleGeosetPanel = new GeosetPanel(mht, mht.allMaterials);
 		geoPanelCards.add(singleGeosetPanel, "single");
 
-//		multiGeosetPane = new MultiGeosetPanel(mht, mht.boneShellRenderer);
-//		geoPanelCards.add(multiGeosetPane, "multiple");
+		multiGeosetPanel = new MultiGeosetPanel(mht, mht.allMaterials);
+		geoPanelCards.add(multiGeosetPanel, "multiple");
 
 		geoPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, geosetTabsPane, geoPanelCards);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getGeosetListPane(mht), geoPanelCards);
 		add(splitPane, "growx, growy");
+	}
+
+	private JScrollPane getGeosetListPane(ModelHolderThing mht) {
+		GeosetListCellRenderer2D geosetListCellRenderer = new GeosetListCellRenderer2D(mht.receivingModel, mht.donatingModel);
+		mht.geosetShellJList.setCellRenderer(geosetListCellRenderer);
+		mht.geosetShellJList.addListSelectionListener(e -> showGeosetCard(mht, e));
+		mht.geosetShellJList.setSelectedValue(null, false);
+		JScrollPane geosetTabsPane = new JScrollPane(mht.geosetShellJList);
+		geosetTabsPane.setMinimumSize(new Dimension(150, 200));
+		return geosetTabsPane;
 	}
 
 	private void showGeosetCard(ModelHolderThing mht, ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
 			List<GeosetShell> selectedValuesList = mht.geosetShellJList.getSelectedValuesList();
 			if (selectedValuesList.size() < 1) {
-//				mht.geoShellRenderer.setSelectedBoneShell(null);
 				geoCardLayout.show(geoPanelCards, "blank");
 			} else if (selectedValuesList.size() == 1) {
-//				mht.geoShellRenderer.setSelectedBoneShell(mht.geosetShellJList.getSelectedValue());
 				singleGeosetPanel.setGeoset(mht.geosetShellJList.getSelectedValue());
 				geoCardLayout.show(geoPanelCards, "single");
 			} else {
-//				mht.geoShellRenderer.setSelectedBoneShell(null);
-//				multiGeosetPane.updateMultiBonePanel();
+				multiGeosetPanel.setGeosets(selectedValuesList);
 				geoCardLayout.show(geoPanelCards, "multiple");
 			}
 		}

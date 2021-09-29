@@ -6,9 +6,9 @@ import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.VisibilitySource;
 
 public class VisibilityShell {
-	private Named source;
-	private VisibilitySource visibilitySource;
-	private EditableModel model;
+	private final Named source;
+	private final VisibilitySource visibilitySource;
+	private final EditableModel model;
 	private boolean isFromDonating;
 	private boolean favorOld = true;
 	private VisibilityShell newVisSource;
@@ -18,7 +18,7 @@ public class VisibilityShell {
 	private boolean neverVisible = false;
 	private boolean multipleSelected = false;
 
-	public VisibilityShell(final VisibilitySource vs, final EditableModel whichModel, boolean isFromDonating) {
+	public VisibilityShell(VisibilitySource vs, EditableModel whichModel, boolean isFromDonating) {
 		source = (Named) vs;
 		visibilitySource = vs;
 		model = whichModel;
@@ -36,6 +36,9 @@ public class VisibilityShell {
 	public VisibilityShell(boolean alwaysVisible) {
 		this.alwaysVisible = alwaysVisible;
 		this.neverVisible = !alwaysVisible;
+		visibilitySource = null;
+		source = null;
+		model = null;
 	}
 
 	public VisibilityShell setMultiple(){
@@ -49,27 +52,12 @@ public class VisibilityShell {
 		return source;
 	}
 
-	public VisibilityShell setSource(Named source) {
-		this.source = source;
-		return this;
-	}
-
 	public VisibilitySource getVisibilitySource() {
 		return visibilitySource;
 	}
 
-	public VisibilityShell setVisibilitySource(VisibilitySource visibilitySource) {
-		this.visibilitySource = visibilitySource;
-		return this;
-	}
-
 	public EditableModel getModel() {
 		return model;
-	}
-
-	public VisibilityShell setModel(EditableModel model) {
-		this.model = model;
-		return this;
 	}
 
 	public boolean isFavorOld() {

@@ -59,7 +59,7 @@ public class CloneContextHelper {
 			GeosetVertex vert = sourceNonPivots.get(k);
 			List<Triangle> gvTriangles = new ArrayList<>();// gv.getTriangles());
 			for (Triangle tri : vert.getGeoset().getTriangles()) {
-				if (tri.contains(vert)) {
+				if (tri.containsLoc(vert)) {
 					boolean good = true;
 					for (Vec3 vTemp : tri.getAll()) {
 						if (!sourceNonPivots.contains(vTemp)) {

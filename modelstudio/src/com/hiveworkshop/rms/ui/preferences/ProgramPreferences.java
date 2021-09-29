@@ -306,10 +306,6 @@ public class ProgramPreferences implements Serializable {
 		return actionType;
 	}
 
-	public int getViewMode() {
-		return viewMode;
-	}
-
 	public boolean isShowVertexModifierControls() {
 		return showVertexModifierControls;
 	}

@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import javax.swing.*;
 import java.util.*;
 
 /**
@@ -72,7 +71,7 @@ public class Matrix {
 
 	public void addAll(Collection<Bone> bones) {
 		this.bones.addAll(bones);
-		this.bones.removeIf(Objects::nonNull);
+		this.bones.removeIf(Objects::isNull);
 		recalculateId();
 	}
 

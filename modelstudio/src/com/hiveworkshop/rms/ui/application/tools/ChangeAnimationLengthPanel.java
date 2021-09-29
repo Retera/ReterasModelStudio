@@ -52,9 +52,14 @@ public class ChangeAnimationLengthPanel extends JPanel {
 		JButton okay = new JButton("OK");
 		okay.addActionListener(e -> applyNewAnimationLength());
 		JButton cancel = new JButton("Cancel");
-		cancel.addActionListener(e -> parentFrame.setVisible(false));
+		cancel.addActionListener(e -> closeWindow());
 		add(cancel);
 		add(okay);
+	}
+
+	private void closeWindow() {
+		parentFrame.setVisible(false);
+		parentFrame.dispose();
 	}
 
 	private void applyNewAnimationLength() {
@@ -68,6 +73,6 @@ public class ChangeAnimationLengthPanel extends JPanel {
 			sequenceToNewLength.put(myAnimation, animationBarMap.get(myAnimation).getValue());
 		}
 		undoManager.pushAction(new ScaleSequencesLengthsAction(mdl, sequenceToNewLength, ModelStructureChangeListener.changeListener).redo());
-		parentFrame.setVisible(false);
+		closeWindow();
 	}
 }

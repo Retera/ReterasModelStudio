@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
 import javax.swing.*;
@@ -16,26 +16,25 @@ import java.util.List;
 
 public class LinearizeAnimations extends ActionFunction {
 	public LinearizeAnimations(){
-		super(TextKey.LINEARIZE_ANIMATIONS, () -> linearizeAnimations());
+		super(TextKey.LINEARIZE_ANIMATIONS, LinearizeAnimations::linearizeAnimations);
 	}
 
-	public static void linearizeAnimations() {
-		final int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
+	public static void linearizeAnimations(ModelHandler modelHandler) {
+		int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
 				"This is an irreversible process that will lose some of your model data," +
 						"\nin exchange for making it a smaller storage size." +
 						"\n\nContinue and simplify animations?",
 				"Warning: Linearize Animations", JOptionPane.OK_CANCEL_OPTION);
 		if (x == JOptionPane.OK_OPTION) {
-			ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-			final List<AnimFlag<?>> allAnimFlags = modelPanel.getModel().getAllAnimFlags();
+			List<AnimFlag<?>> allAnimFlags = modelHandler.getModel().getAllAnimFlags();
 			List<UndoAction> interpTypActions = new ArrayList<>();
-			for (final AnimFlag<?> flag : allAnimFlags) {
+			for (AnimFlag<?> flag : allAnimFlags) {
 				interpTypActions.add(new ChangeInterpTypeAction<>(flag, InterpolationType.LINEAR, null));
 //                flag.linearize();
 			}
 
 			UndoAction action = new CompoundAction("Liniarize Animations", interpTypActions, ModelStructureChangeListener.changeListener::materialsListChanged);
-			modelPanel.getUndoManager().pushAction(action.redo());
+			modelHandler.getUndoManager().pushAction(action.redo());
 		}
 	}
 }

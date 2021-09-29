@@ -97,7 +97,7 @@ public class Triangle {
 		return verts[0] == v || verts[1] == v || verts[2] == v;
 	}
 
-	public boolean contains(GeosetVertex v) {
+	public boolean containsLoc(GeosetVertex v) {
 		return verts[0].equalLocs(v) || verts[1].equalLocs(v) || verts[2].equalLocs(v);
 	}
 
@@ -125,6 +125,14 @@ public class Triangle {
 	}
 
 	public int indexOf(GeosetVertex v) {
+		for (int i = 0; i < verts.length; i++) {
+			if (verts[i] == v) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	public int indexOfLoc(GeosetVertex v) {
 		int out = -1;
 		for (int i = 0; i < verts.length && out == -1; i++) {
 			if (verts[i].equalLocs(v)) {
@@ -145,7 +153,7 @@ public class Triangle {
 
 	public boolean sameLocVerts(Triangle t) {
 		for (int i = 0; i < 3; i++) {
-			if (!contains(t.verts[i])) {
+			if (!containsLoc(t.verts[i])) {
 				return false;
 			}
 		}
@@ -178,6 +186,29 @@ public class Triangle {
 				return false;
 			}
 		}
+		return true;
+	}
+
+	public boolean containsSameVerts(Triangle t) {
+		for (int i = 0; i < 3; i++) {
+			if(!(t.verts[i] == verts[0]
+					|| t.verts[i] == verts[1]
+					|| t.verts[i] == verts[2])){
+				return false;
+			}
+		}
+
+		return true;
+	}
+	public boolean containsSameVerts(GeosetVertex[] vertices) {
+		for (int i = 0; i < 3; i++) {
+			if(!(vertices[i] == verts[0]
+					|| vertices[i] == verts[1]
+					|| vertices[i] == verts[2])){
+				return false;
+			}
+		}
+
 		return true;
 	}
 
@@ -281,7 +312,9 @@ public class Triangle {
 	}
 
 	public void setVerts(GeosetVertex[] verts) {
-		this.verts = verts;
+		this.verts[0] = verts[0];
+		this.verts[1] = verts[1];
+		this.verts[2] = verts[2];
 	}
 
 	public int[] getVertIds() {

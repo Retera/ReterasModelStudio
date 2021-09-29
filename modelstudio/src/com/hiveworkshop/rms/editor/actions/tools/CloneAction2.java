@@ -49,7 +49,7 @@ public final class CloneAction2 implements UndoAction {
 			newVert.clearTriangles();
 			oldToNewVertMap.put(vertex, newVert);
 			if (newVert.getSkinBones() != null) {
-				for (GeosetVertex.SkinBone skinBone : newVert.getSkinBones()) {
+				for (SkinBone skinBone : newVert.getSkinBones()) {
 					if (oldToNewObjMap.containsKey(skinBone.getBone())) {
 						skinBone.setBone((Bone) oldToNewObjMap.get(skinBone.getBone()));
 					}

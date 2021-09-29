@@ -255,7 +255,7 @@ public class TwiAiSceneParser {
 		FloatBuffer normals = mesh.getNormalBuffer();
 
 		List<GeosetVertex> geosetVertices = new ArrayList<>();
-		Map<GeosetVertex, List<GeosetVertex.SkinBone>> geosetVertexSkinBoneMap = new HashMap<>();
+		Map<GeosetVertex, List<SkinBone>> geosetVertexSkinBoneMap = new HashMap<>();
 
 		Geoset geoset = new Geoset();
 		for (int i = 0; i < mesh.getNumVertices(); i++) {
@@ -265,7 +265,7 @@ public class TwiAiSceneParser {
 //			gv.setVertexGroup(-1);
 			geosetVertices.add(gv);
 			gv.initV900();
-			List<GeosetVertex.SkinBone> skinBoneList = new ArrayList<>();
+			List<SkinBone> skinBoneList = new ArrayList<>();
 			Map<Bone, Float> boneWeightMap = vertToBone.get(i);
 //			short[] weights = new short[boneWeightMap.keySet().size()];
 			if (boneWeightMap != null) {
@@ -359,7 +359,7 @@ public class TwiAiSceneParser {
 		FloatBuffer normals = mesh.getNormalBuffer();
 
 		List<GeosetVertex> geosetVertices = new ArrayList<>();
-		Map<GeosetVertex, List<GeosetVertex.SkinBone>> geosetVertexSkinBoneMap = new HashMap<>();
+		Map<GeosetVertex, List<SkinBone>> geosetVertexSkinBoneMap = new HashMap<>();
 
 		Geoset geoset = new Geoset();
 		for (int i = 0; i < mesh.getNumVertices(); i++) {
@@ -370,7 +370,7 @@ public class TwiAiSceneParser {
 			geosetVertices.add(gv);
 			gv.initV900();
 //			gv.magicSkinBones();
-			List<GeosetVertex.SkinBone> skinBoneList = new ArrayList<>();
+			List<SkinBone> skinBoneList = new ArrayList<>();
 			Map<Bone, Float> boneWeightMap = vertToBone.get(i);
 //			short[] weights = new short[boneWeightMap.keySet().size()];
 			int j = 0;

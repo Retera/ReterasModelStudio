@@ -381,6 +381,18 @@ public class CameraHandler {
 		return m_zoom;
 	}
 
+	public float getxAngle() {
+		return xAngle;
+	}
+
+	public float getyAngle() {
+		return yAngle;
+	}
+
+	public float getzAngle() {
+		return zAngle;
+	}
+
 	public void zoom(double amount) {
 		m_zoom *= 1 + amount;
 	}

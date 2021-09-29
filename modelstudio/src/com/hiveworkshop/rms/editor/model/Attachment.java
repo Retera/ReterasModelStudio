@@ -18,7 +18,7 @@ public class Attachment extends IdObject {
 		this.name = name;
 	}
 
-	public Attachment(Attachment attachment) {
+	private Attachment(Attachment attachment) {
 		super(attachment);
 
 		path = attachment.path;

@@ -91,15 +91,15 @@ public class EventObject extends IdObject {
 		// Timescales a part of the AnimFlag from section "start" to "end" into
 		// the new time "newStart" to "newEnd"
 
-		TreeSet<Integer> sourceTrackSet = source.eventTrackAnimMap.get(srcSequence);
+		TreeSet<Integer> sourceTrackSet = source.getEventTrack(srcSequence);
 		TreeSet<Integer> trackSet = eventTrackAnimMap.computeIfAbsent(newSequence, k -> new TreeSet<>());
 
-		if(srcSequence.getLength() != newSequence.getLength()){
+		if(srcSequence.getLength() != newSequence.getLength() && sourceTrackSet != null){
 			double ratio = (newSequence.getLength())/((double)srcSequence.getLength());
 			for(Integer time : sourceTrackSet){
 				trackSet.add((int) (time * ratio));
 			}
-		} else {
+		} else if (sourceTrackSet != null){
 			trackSet.addAll(sourceTrackSet);
 		}
 	}

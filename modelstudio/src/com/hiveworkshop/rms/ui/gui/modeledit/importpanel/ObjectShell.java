@@ -1,77 +1,48 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.util.BiMap;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class ObjectShell {
-	private IdObject idObject;
+	private final IdObject idObject;
 	private String name;
-	private Camera camera;
-	private IdObject importBone;
-	private String modelName;
-	private boolean showClass = true;
-	private boolean isFromDonating;
+	private final String modelName;
+	private boolean showClass;
+	private final boolean isFromDonating;
 
 	private boolean shouldImport = true;
 	private int importStatus = 0;
-	private IdObject oldParent;
+	private final IdObject oldParent;
 	private IdObject newParent;
 	private BoneShell newParentBs;
 	private BoneShell oldParentBs;
 
-	public ObjectShell(final IdObject b) {
-		idObject = b;
-		if (b != null) {
+	public ObjectShell(IdObject object) {
+		this(object, false, "", true);
+	}
+
+	public ObjectShell(IdObject object, boolean isFromDonating) {
+		this(object, isFromDonating, "", true);
+	}
+	public ObjectShell(IdObject object, boolean isFromDonating, String modelName) {
+		this(object, isFromDonating, modelName, true);
+	}
+	public ObjectShell(IdObject object, boolean isFromDonating, String modelName, boolean showClass) {
+		idObject = object;
+		if (object != null) {
 			oldParent = idObject.getParent();
 			name = idObject.getName();
-		}
-	}
-
-	public ObjectShell(final IdObject b, boolean isFromDonating) {
-		idObject = b;
-		if (b != null) {
-			oldParent = idObject.getParent();
-			name = idObject.getName();
+		} else {
+			oldParent = null;
 		}
 		this.isFromDonating = isFromDonating;
-	}
-
-	public ObjectShell(final Camera c) {
-		camera = c;
-	}
-
-	public ObjectShell(final Camera c, boolean isFromDonating) {
-		camera = c;
-		this.isFromDonating = isFromDonating;
-		name = camera.getName();
-	}
-
-	public static List<IdObject> toBonesList(final List<BoneShell> boneShells) {
-		final List<IdObject> bones = new ArrayList<>();
-		for (final BoneShell bs : boneShells) {
-			bones.add(bs.getBone());
-		}
-		return bones;
-	}
-
-	public IdObject getImportBone() {
-		return importBone;
-	}
-
-	public void setImportBone(final IdObject b) {
-		importBone = b;
+		this.modelName = modelName;
+		this.showClass = showClass;
 	}
 
 	public IdObject getIdObject() {
-		return importBone;
-	}
-
-	public Camera getCamera() {
-		return camera;
+		return idObject;
 	}
 
 	public IdObject getOldParent() {
@@ -111,6 +82,7 @@ public class ObjectShell {
 
 	public ObjectShell setParentBs(BiMap<IdObject, BoneShell> idObjectMap) {
 		this.oldParentBs = idObjectMap.get(oldParent);
+		this.newParentBs = idObjectMap.get(oldParent);
 		return this;
 	}
 
@@ -140,11 +112,6 @@ public class ObjectShell {
 		return modelName;
 	}
 
-	public ObjectShell setModelName(String modelName) {
-		this.modelName = modelName;
-		return this;
-	}
-
 	public boolean getShowClass() {
 		return showClass;
 	}
@@ -154,32 +121,25 @@ public class ObjectShell {
 		return this;
 	}
 
+	public boolean isFromDonating() {
+		return isFromDonating;
+	}
+
 	@Override
 	public String toString() {
-		if (idObject == null && camera == null) {
+		if (idObject == null) {
 			return "None";
 		}
 		String nameString = "";
-//		if(modelName != null){
-//			nameString += modelName + ": ";
-//		}
-		if (idObject != null) {
-			if (showClass) {
-				nameString += idObject.getClass().getSimpleName() + " \"" + idObject.getName() + "\"";
-			} else {
-				nameString += idObject.getName();
-			}
-			return nameString;
-		}
 		if (showClass) {
-			nameString += camera.getClass().getSimpleName() + " \"" + camera.getName() + "\"";
+			nameString += idObject.getClass().getSimpleName() + " \"" + idObject.getName() + "\"";
 		} else {
-			nameString += camera.getName();
+			nameString += idObject.getName();
 		}
 		return nameString;
 	}
 	public String toString(boolean showClass, boolean showParent) {
-		if (idObject == null && camera == null) {
+		if (idObject == null) {
 			return "None";
 		}
 		String stringToReturn = "";
@@ -205,8 +165,6 @@ public class ObjectShell {
 	private String getClassName(){
 		if (idObject != null){
 			return idObject.getClass().getSimpleName();
-		} else if (camera != null){
-			return camera.getClass().getSimpleName();
 		}
 		return "";
 	}

@@ -50,7 +50,8 @@ public class ModelViewManagingView extends ModelDependentView {
 	public ModelViewManagingView reload() {
 		if (modelPanel != null) {
 //			modelViewManagingTree.reloadFromModelView().repaint();
-			modelViewManagingTree2.setModel(modelPanel.getModelHandler()).repaint();
+//			modelViewManagingTree2.setModel(modelPanel.getModelHandler()).repaint();
+			modelViewManagingTree2.reloadTree().repaint();
 		}
 //		if (modelViewManagingTree != null) {
 //			modelViewManagingTree.reloadFromModelView().repaint();

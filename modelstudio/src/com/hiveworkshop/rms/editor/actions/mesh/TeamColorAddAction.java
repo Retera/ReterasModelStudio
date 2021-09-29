@@ -53,10 +53,10 @@ public final class TeamColorAddAction implements UndoAction {
 			geosetCreated.setSelectionGroup(geoset.getSelectionGroup());
 			GeosetAnim geosetAnim = geoset.getGeosetAnim();
 			if (geosetAnim != null) {
-				geosetCreated.setGeosetAnim(new GeosetAnim(geosetCreated, geosetAnim));
+				geosetCreated.setGeosetAnim(geosetAnim.deepCopy().setGeoset(geosetCreated));
 			}
 			geosetCreated.setParentModel(model);
-			Material newMaterial = new Material(geoset.getMaterial());
+			Material newMaterial = geoset.getMaterial().deepCopy();
 			if (newMaterial.getLayers().get(0).getFilterMode() == FilterMode.NONE) {
 				newMaterial.getLayers().get(0).setFilterMode(FilterMode.BLEND);
 			}

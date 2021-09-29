@@ -1,21 +1,18 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellMotionListCellRenderer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.util.List;
 
 class MultiBonePanel extends BonePanel {
 	JButton setAllParent;
-	ModelHolderThing mht;
+	List<BoneShell> selectedValuesList;
 
-	BoneShellMotionListCellRenderer oneShellRenderer;
-
-	public MultiBonePanel(ModelHolderThing mht, final BoneShellListCellRenderer renderer) {
-		BoneShellMotionListCellRenderer oneShellRenderer = new BoneShellMotionListCellRenderer(mht.receivingModel, mht.donatingModel);
+	public MultiBonePanel(ModelHolderThing mht, BoneShellListCellRenderer renderer) {
 		this.mht = mht;
 		setLayout(new MigLayout("gap 0"));
 		selectedBone = null;
@@ -24,19 +21,14 @@ class MultiBonePanel extends BonePanel {
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 		add(title, "align center, wrap");
 
-		importTypeBox.addActionListener(e -> showImportTypeCard());
+		this.renderer = renderer;
+		importTypeBox.addItemListener(e -> showImportTypeCard(e));
 		importTypeBox.setMaximumSize(new Dimension(200, 20));
 		add(importTypeBox, "wrap");
 
-		importMotionIntoRecBoneList = new JList<>(mht.recModBoneShells);
-		importMotionIntoRecBoneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		importMotionIntoRecBoneList.setCellRenderer(renderer);
-		JScrollPane boneListPane = new JScrollPane(importMotionIntoRecBoneList);
-
 		cardPanel = new JPanel(cards);
-		cardPanel.add(boneListPane, "boneList");
+		cardPanel.add(getMotionIntoBoneListPane(mht, renderer), "boneList");
 		cardPanel.add(dummyPanel, "blank");
-		importMotionIntoRecBoneList.setEnabled(false);
 
 		cards.show(cardPanel, "blank");
 		add(cardPanel, "wrap");
@@ -46,9 +38,17 @@ class MultiBonePanel extends BonePanel {
 		add(setAllParent, "wrap");
 	}
 
-	public void updateMultiBonePanel(){
-		List<BoneShell> selectedValuesList = mht.donModBoneShellJList.getSelectedValuesList();
+	private JScrollPane getMotionIntoBoneListPane(ModelHolderThing mht, BoneShellListCellRenderer renderer) {
+		importMotionIntoRecBoneList = new JList<>(mht.recModBoneShells);
+		importMotionIntoRecBoneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		importMotionIntoRecBoneList.setCellRenderer(renderer);
+		importMotionIntoRecBoneList.setEnabled(false);
+		return new JScrollPane(importMotionIntoRecBoneList);
+	}
 
+	public void setSelectedBones(List<BoneShell> selectedValuesList){
+		this.selectedValuesList = selectedValuesList;
+		renderer.setSelectedBoneShell(null);
 		BoneShell.ImportType firstImportStatus = selectedValuesList.get(0).getImportStatus();
 
 		if (selectedValuesList.stream().anyMatch(bs -> bs.getImportStatus() != firstImportStatus)) {
@@ -59,7 +59,7 @@ class MultiBonePanel extends BonePanel {
 	}
 
 	@Override
-	public void setSelectedIndex(final int index) {
+	public void setImportStatus(final int index) {
 		if (importTypeBox.getSelectedItem() == BoneShell.ImportType.MOTIONFROM) {
 			cards.show(cardPanel, "boneList");
 		} else {
@@ -67,18 +67,20 @@ class MultiBonePanel extends BonePanel {
 		}
 	}
 
-	private void showImportTypeCard() {
-		if (importTypeBox.getSelectedItem() == BoneShell.ImportType.MOTIONFROM) {
-			cards.show(cardPanel, "boneList");
-			importTypeForAll();
-		} else if (importTypeBox.getSelectedItem() == BoneShell.ImportType.DONTIMPORT) {
-			cards.show(cardPanel, "blank");
-			importTypeForAll();
-		} else if (importTypeBox.getSelectedItem() == BoneShell.ImportType.IMPORT) {
-			cards.show(cardPanel, "blank");
-			importTypeForAll();
-		} else {
-			cards.show(cardPanel, "blank");
+	private void showImportTypeCard(ItemEvent e) {
+		if(e.getStateChange() == ItemEvent.SELECTED){
+			if (importTypeBox.getSelectedItem() == BoneShell.ImportType.MOTIONFROM.dispText) {
+				cards.show(cardPanel, "boneList");
+				importTypeForAll(BoneShell.ImportType.MOTIONFROM);
+			} else if (importTypeBox.getSelectedItem() == BoneShell.ImportType.DONTIMPORT.dispText) {
+				cards.show(cardPanel, "blank");
+				importTypeForAll(BoneShell.ImportType.DONTIMPORT);
+			} else if (importTypeBox.getSelectedItem() == BoneShell.ImportType.IMPORT.dispText) {
+				cards.show(cardPanel, "blank");
+				importTypeForAll(BoneShell.ImportType.IMPORT);
+			} else {
+				cards.show(cardPanel, "blank");
+			}
 		}
 	}
 
@@ -88,9 +90,9 @@ class MultiBonePanel extends BonePanel {
 		importTypeBox.setEditable(false);
 	}
 
-	public void importTypeForAll() {
-		for (BoneShell temp : mht.donModBoneShellJList.getSelectedValuesList()) {
-			temp.setImportStatus(importTypeBox.getSelectedIndex());
+	public void importTypeForAll(BoneShell.ImportType type) {
+		for (BoneShell boneShell : selectedValuesList) {
+			boneShell.setImportStatus(type);
 		}
 	}
 
@@ -100,7 +102,7 @@ class MultiBonePanel extends BonePanel {
 	 * MultiBone panel.
 	 */
 	public void setParentMultiBones() {
-		final JList<BoneShell> list = new JList<>(mht.getFutureBoneListExtended(true));
+		final JList<BoneShell> list = new JList<>(mht.getFutureBoneHelperList());
 		list.setCellRenderer(mht.boneShellRenderer);
 		final int x = JOptionPane.showConfirmDialog(this, new JScrollPane(list), "Set Parent for All Selected Bones", JOptionPane.OK_CANCEL_OPTION);
 		if (x == JOptionPane.OK_OPTION) {

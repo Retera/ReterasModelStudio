@@ -118,6 +118,19 @@ public class GeosetVertex extends Vec3 {
 		return matrix.getBones();
 	}
 
+	public List<Bone> getAllBones() {
+		if(skinBones != null){
+			List<Bone> bones = new ArrayList<>();
+			for (SkinBone skinBone : skinBones){
+				if(skinBone != null && skinBone.getBone() != null){
+					bones.add(skinBone.getBone());
+				}
+			}
+			return bones;
+		}
+		return matrix.getBones();
+	}
+
 
 	public void setBone(int i, final Bone bone) {
 		matrix.set(i, bone);
@@ -133,6 +146,16 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public GeosetVertex replaceBones(Map<IdObject, IdObject> newBoneMap) {
+		if(skinBones != null){
+			for (SkinBone skinBone : skinBones){
+				if (skinBone != null && skinBone.getBone() != null){
+					IdObject idObject = newBoneMap.get(skinBone.getBone());
+					if(idObject instanceof Bone && !(idObject instanceof Helper)){
+						skinBone.setBone((Bone) idObject);
+					}
+				}
+			}
+		}
 		matrix.replaceBones(newBoneMap);
 		return this;
 	}
@@ -205,7 +228,7 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public boolean isInTriangle(Triangle triangle) {
-		return triangles.contains(triangle) && triangle.contains(this);
+		return triangles.contains(triangle) && triangle.containsLoc(this);
 	}
 
 	public boolean hasTriangle(Triangle triangle) {
@@ -423,71 +446,71 @@ public class GeosetVertex extends Vec3 {
 		return skinEntry;
 	}
 
-	public static class SkinBone {
-		short weight;
-		Bone bone;
-
-		SkinBone() {
-		}
-
-		SkinBone(SkinBone skinBone) {
-			this.weight = skinBone.weight;
-			this.bone = skinBone.bone;
-		}
-
-		SkinBone(short weight, Bone bone) {
-			this.weight = weight;
-			this.bone = bone;
-		}
-
-		SkinBone(short weight) {
-			this.weight = weight;
-			this.bone = null;
-		}
-
-		SkinBone(Bone bone) {
-			this.weight = 0;
-			this.bone = bone;
-		}
-
-		public SkinBone set(short weight, Bone bone) {
-			this.bone = bone;
-			this.weight = weight;
-			return this;
-		}
-
-		public Bone getBone() {
-			return bone;
-		}
-
-		public SkinBone setBone(Bone bone) {
-			this.bone = bone;
-			return this;
-		}
-
-		public short getWeight() {
-			return weight;
-		}
-		public float getWeightFraction() {
-			return weight/255f;
-		}
-
-		public SkinBone setWeight(short weight) {
-			this.weight = weight;
-			return this;
-		}
-
-		int getBoneId(EditableModel model) {
-			return model.getObjectId(bone);
-		}
-
-		public SkinBone copy() {
-			return new SkinBone(weight, bone);
-		}
-
-		public boolean equals(SkinBone otherSkinBone) {
-//            return weight == otherSkinBone.weight && bone.equals(otherSkinBone.bone);
-			return weight == otherSkinBone.weight && bone == otherSkinBone.bone;
-		}
-	}
+//	public static class SkinBone {
+//		short weight;
+//		Bone bone;
+//
+//		SkinBone() {
+//		}
+//
+//		SkinBone(SkinBone skinBone) {
+//			this.weight = skinBone.weight;
+//			this.bone = skinBone.bone;
+//		}
+//
+//		SkinBone(short weight, Bone bone) {
+//			this.weight = weight;
+//			this.bone = bone;
+//		}
+//
+//		SkinBone(short weight) {
+//			this.weight = weight;
+//			this.bone = null;
+//		}
+//
+//		SkinBone(Bone bone) {
+//			this.weight = 0;
+//			this.bone = bone;
+//		}
+//
+//		public SkinBone set(short weight, Bone bone) {
+//			this.bone = bone;
+//			this.weight = weight;
+//			return this;
+//		}
+//
+//		public Bone getBone() {
+//			return bone;
+//		}
+//
+//		public SkinBone setBone(Bone bone) {
+//			this.bone = bone;
+//			return this;
+//		}
+//
+//		public short getWeight() {
+//			return weight;
+//		}
+//		public float getWeightFraction() {
+//			return weight/255f;
+//		}
+//
+//		public SkinBone setWeight(short weight) {
+//			this.weight = weight;
+//			return this;
+//		}
+//
+//		int getBoneId(EditableModel model) {
+//			return model.getObjectId(bone);
+//		}
+//
+//		public SkinBone copy() {
+//			return new SkinBone(weight, bone);
+//		}
+//
+//		public boolean equals(SkinBone otherSkinBone) {
+////            return weight == otherSkinBone.weight && bone.equals(otherSkinBone.bone);
+//			return weight == otherSkinBone.weight && bone == otherSkinBone.bone;
+//		}
+//	}
 }

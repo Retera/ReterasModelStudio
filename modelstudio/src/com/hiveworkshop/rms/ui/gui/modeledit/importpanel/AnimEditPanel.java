@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
 import net.miginfocom.swing.MigLayout;
 
@@ -26,36 +25,27 @@ public class AnimEditPanel extends JPanel {
 		add(getTopPanel(), "align center, wrap");
 
 		animRenderer = new AnimListCellRenderer();
+		animRenderer.setSelectedAnim(null);
 
-		for (Animation anim : mht.receivingModel.getAnims()) {
-			AnimShell animShell = new AnimShell(anim);
-			mht.recModAnims.addElement(animShell);
-			mht.animTabList.addElement(animShell);
-		}
-
-		animPanelCards.add(new JPanel(), "blank");
 		// Build the animTabs list of AnimPanels
 		singleAnimPanel = new AnimPanel(mht, mht.recModAnims, animRenderer);
-		animPanelCards.add(singleAnimPanel, "single");
-
 		multiAnimPanel = new MultiAnimPanel(mht);
+
+		animPanelCards.add(new JPanel(), "blank");
+		animPanelCards.add(singleAnimPanel, "single");
 		animPanelCards.add(multiAnimPanel, "multiple");
 
-		for (Animation anim : mht.donatingModel.getAnims()) {
-			AnimShell animShell = new AnimShell(anim);
-			mht.donModAnims.addElement(animShell);
-			mht.animTabList.addElement(animShell);
-		}
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getAnimListPane(mht), animPanelCards);
+		add(splitPane, "growx, growy");
+	}
 
-		JScrollPane animStrollPane = new JScrollPane(mht.animJList);
-		animStrollPane.setMinimumSize(new Dimension(150, 200));
+	private JScrollPane getAnimListPane(ModelHolderThing mht) {
 		mht.animJList.setCellRenderer(animRenderer);
-		animRenderer.setSelectedAnim(null);
 		mht.animJList.addListSelectionListener(e -> changeAnim(mht, e));
 		mht.animJList.setSelectedValue(null, false);
-
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, animStrollPane, animPanelCards);
-		add(splitPane, "growx, growy");
+		JScrollPane animStrollPane = new JScrollPane(mht.animJList);
+		animStrollPane.setMinimumSize(new Dimension(150, 200));
+		return animStrollPane;
 	}
 
 	private void changeAnim(ModelHolderThing mht, ListSelectionEvent e) {
@@ -72,7 +62,7 @@ public class AnimEditPanel extends JPanel {
 				animCardLayout.show(animPanelCards, "single");
 			} else {
 				animRenderer.setSelectedAnim(null);
-//				multiAnimPanel.updateMultiBonePanel();
+				multiAnimPanel.updateMultiAnimPanel(selectedValuesList);
 				animCardLayout.show(animPanelCards, "multiple");
 			}
 		}
@@ -81,20 +71,10 @@ public class AnimEditPanel extends JPanel {
 
 	private JPanel getTopPanel() {
 		JPanel topPanel = new JPanel(new MigLayout("gap 0"));
-
-		JButton importAllAnims = createButton("Import All", e -> mht.setImportTypeForAllAnims(AnimShell.ImportType.IMPORTBASIC));
-		topPanel.add(importAllAnims);
-
-		JButton timescaleAllAnims = createButton("Time-scale All", e -> mht.setImportTypeForAllAnims(AnimShell.ImportType.TIMESCALE));
-		topPanel.add(timescaleAllAnims);
-
-		JButton renameAllAnims = createButton("Import and Rename All", e -> renameAllAnims(mht));
-		topPanel.add(renameAllAnims);
-
-		JButton uncheckAllAnims = createButton("Leave All", e -> mht.setImportTypeForAllAnims(AnimShell.ImportType.DONTIMPORT));
-		topPanel.add(uncheckAllAnims, "wrap");
-
-
+		topPanel.add(createButton("Import All", e -> mht.setImportTypeForAllAnims(AnimShell.ImportType.IMPORTBASIC)));
+		topPanel.add(createButton("Time-scale All", e -> mht.setImportTypeForAllAnims(AnimShell.ImportType.TIMESCALE)));
+		topPanel.add(createButton("Import and Rename All", e -> renameAllAnims(mht)));
+		topPanel.add(createButton("Leave All", e -> mht.setImportTypeForAllAnims(AnimShell.ImportType.DONTIMPORT)), "wrap");
 		topPanel.add(mht.clearRecModAnims, "spanx, align center");
 		return topPanel;
 	}
@@ -106,16 +86,16 @@ public class AnimEditPanel extends JPanel {
 	}
 
 	private void renameAllAnims(ModelHolderThing mht) {
-		final String newTagString = JOptionPane.showInputDialog(this, "Choose additional naming (i.e. swim or alternate)");
+		String newTagString = JOptionPane.showInputDialog(this, "Choose additional naming (i.e. swim or alternate)");
 
 		if (newTagString != null) {
-			for (AnimShell animShell : mht.animTabList) {
+			for (AnimShell animShell : mht.allAnimShells) {
 				animShell.setImportType(AnimShell.ImportType.CHANGENAME);
-				final String oldName = animShell.getOldName();
+				String oldName = animShell.getOldName();
 				String baseName = oldName;
 				while ((baseName.length() > 0) && baseName.contains(" ")) {
-					final int lastSpaceIndex = baseName.lastIndexOf(' ');
-					final String lastWord = baseName.substring(lastSpaceIndex + 1);
+					int lastSpaceIndex = baseName.lastIndexOf(' ');
+					String lastWord = baseName.substring(lastSpaceIndex + 1);
 					boolean chunkHasInt = false;
 					for (int animationId = 0; animationId < 10; animationId++) {
 						if (lastWord.contains(Integer.toString(animationId))) {
@@ -128,8 +108,8 @@ public class AnimEditPanel extends JPanel {
 						break;
 					}
 				}
-				final String afterBase = oldName.substring(Math.min(oldName.length(), baseName.length() + 1));
-				final String newName = baseName + " " + newTagString + " " + afterBase;
+				String afterBase = oldName.substring(Math.min(oldName.length(), baseName.length() + 1));
+				String newName = baseName + " " + newTagString + " " + afterBase;
 				animShell.setName(newName);
 			}
 		}

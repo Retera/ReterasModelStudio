@@ -18,28 +18,6 @@ public class RenameBoneChainPanel extends JPanel {
 
 	private JButton doRenaming;
 
-	//	public RenameBoneChainPanel(Bone bone, ModelHandler modelHandler){
-//		super(new MigLayout("", "", ""));
-//		JTextField nameField = new JTextField(24);
-//		JTextField subfixField = new JTextField(24);
-//		JCheckBox doTypePrefix = new JCheckBox("Prefix with type");
-//		add(new JLabel("Name:"));
-//		add(nameField, "wrap");
-//		add(new JLabel("Subfix:"));
-//		add(subfixField, "wrap");
-//		add(doTypePrefix, "spanx 2, wrap");
-//
-//		JCheckBox limitDepth = new JCheckBox("Limit depth");
-//		JSpinner depthSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 1000, 1));
-//		limitDepth.addActionListener(e -> depthSpinner.setEnabled(limitDepth.isEnabled()));
-//		add(limitDepth, "spanx, split");
-//		add(depthSpinner, "wrap");
-//
-//		doRenaming = new JButton("Rename");
-//		doRenaming.addActionListener(e -> doRenameing(bone, modelHandler, nameField.getText(), subfixField.getText(),
-//				doTypePrefix.isSelected(), limitDepth.isSelected() ? (Integer) depthSpinner.getValue() : -1));
-//		add(doRenaming, "spanx");
-//	}
 	public RenameBoneChainPanel() {
 		super(new MigLayout("", "", ""));
 		JTextField nameField = new JTextField(24);
@@ -59,7 +37,7 @@ public class RenameBoneChainPanel extends JPanel {
 		add(depthSpinner, "wrap");
 
 		doRenaming = new JButton("Rename");
-		doRenaming.addActionListener(e -> doRenameing2(nameField.getText(), subfixField.getText(), doTypePrefix.isSelected(), limitDepth.isSelected() ? (Integer) depthSpinner.getValue() : -1));
+		doRenaming.addActionListener(e -> doRenaming(nameField.getText(), subfixField.getText(), doTypePrefix.isSelected(), limitDepth.isSelected() ? (Integer) depthSpinner.getValue() : -1));
 		add(doRenaming, "spanx");
 
 	}
@@ -68,79 +46,8 @@ public class RenameBoneChainPanel extends JPanel {
 		RenameBoneChainPanel animCopyPanel = new RenameBoneChainPanel();
 		FramePopup.show(animCopyPanel, parent, "Rename Bone Chain");
 	}
-//	public static void show(JComponent parent, ModelHandler modelHandler) {
-//		Set<IdObject> selectedIdObjects = modelHandler.getModelView().getSelectedIdObjects();
-//		if(selectedIdObjects.size() == 1 && selectedIdObjects.stream().anyMatch(o -> o instanceof Bone)){
-//			Bone bone = (Bone) selectedIdObjects.stream().findFirst().get();
-//			RenameBoneChainPanel animCopyPanel = new RenameBoneChainPanel(bone, modelHandler);
-////		JFrame jFrame = FramePopup.get(animCopyPanel, parent, "Rename bone chain from " + bone.getName());
-//			FramePopup.show(animCopyPanel, parent, "Rename bone chain from " + bone.getName());
-//		} else {
-//			JOptionPane.showMessageDialog(parent, "Selection not valid." +
-//					"\nSelect one bone or helper to use this feature",
-//					"Invalid selection", JOptionPane.INFORMATION_MESSAGE);
-//		}
-//	}
-////	public static void show(JComponent parent, ModelHandler modelHandler, Bone bone) {
-////		RenameBoneChainPanel animCopyPanel = new RenameBoneChainPanel(bone, modelHandler);
-//////		JFrame jFrame = FramePopup.get(animCopyPanel, parent, "Rename bone chain from " + bone.getName());
-////		FramePopup.show(animCopyPanel, parent, "Rename bone chain from " + bone.getName());
-////	}
 
-	private void doRenameing(String name, String subfix, boolean doTypePrefix, int depthLimit) {
-		if (ProgramGlobals.getCurrentModelPanel() != null) {
-			ModelHandler modelHandler = ProgramGlobals.getCurrentModelPanel().getModelHandler();
-			Set<IdObject> selectedIdObjects = modelHandler.getModelView().getSelectedIdObjects();
-			if (selectedIdObjects.size() == 1 && selectedIdObjects.stream().anyMatch(o -> o instanceof Bone)) {
-				Bone bone = (Bone) selectedIdObjects.stream().findFirst().get();
-				System.out.println("getClass: " + bone.getClass() + ", getSimpleName: " + bone.getClass().getSimpleName());
-				Map<Integer, List<Bone>> depthMap = new HashMap<>();
-				fillDepthMap(bone, depthLimit, 0, depthMap);
-
-				List<UndoAction> actions = new ArrayList<>();
-				int depthStringSize = ("" + depthMap.size()).length();
-				int countRenamedBones = 0;
-				for (int depth : depthMap.keySet()) {
-					List<Bone> bones = depthMap.get(depth);
-//					bones.sort((b1, b2) -> b1.getObjectId(modelHandler.getModel())-b2.getObjectId(modelHandler.getModel()));
-					bones.sort(Comparator.comparingInt(b -> b.getObjectId(modelHandler.getModel())));
-					int siblingStringSize = ("" + bones.size()).length();
-					System.out.println("depth: " + depth + ", siblings: " + bones.size());
-					for (int i = 0; i < bones.size(); i++) {
-						Bone nodeToRename = bones.get(i);
-						String prefix = doTypePrefix ? nodeToRename.getClass().getSimpleName() + "_" : "";
-
-//						String depthString = ("0000" + depth).substring(4, 4 + depthStringSize);
-//						String siblingString = bones.size() > 1 ? ("0000" + i).substring(4, 4+siblingStringSize) : "";
-//						String depthString = ("0000" + (depth+1));
-						String depthString = depthMap.size() > 1 ? ("0000" + (depth + 1)) : "";
-						if (depthMap.size() > 1) {
-							depthString = "_" + depthString.substring(depthString.length() - depthStringSize);
-						}
-						String siblingString = bones.size() > 1 ? ("0000" + (i + 1)) : "";
-						if (bones.size() > 1) {
-							siblingString = "_" + siblingString.substring(siblingString.length() - (siblingStringSize));
-						}
-
-
-						String newName = prefix + name + depthString + siblingString + subfix;
-						actions.add(new RenameBoneAction(newName, nodeToRename));
-						countRenamedBones++;
-					}
-				}
-
-				modelHandler.getUndoManager().pushAction(new CompoundAction("Rename Bone Chain", actions, ModelStructureChangeListener.changeListener::nodesUpdated).redo());
-				JOptionPane.showMessageDialog(this, "Renamed " + countRenamedBones + " bones/helpers!", "Renamed Bones", JOptionPane.INFORMATION_MESSAGE);
-			} else {
-				JOptionPane.showMessageDialog(this, "Selection not valid." +
-								"\nSelect one bone or helper to use this feature",
-						"Invalid selection", JOptionPane.INFORMATION_MESSAGE);
-			}
-		}
-
-	}
-
-	private void doRenameing2(String name, String subfix, boolean doTypePrefix, int depthLimit) {
+	private void doRenaming(String name, String subfix, boolean doTypePrefix, int depthLimit) {
 		if (ProgramGlobals.getCurrentModelPanel() != null) {
 			ModelHandler modelHandler = ProgramGlobals.getCurrentModelPanel().getModelHandler();
 			Set<IdObject> selectedIdObjects = modelHandler.getModelView().getSelectedIdObjects();
@@ -195,7 +102,7 @@ public class RenameBoneChainPanel extends JPanel {
 	}
 
 
-	private void doRenameing(Bone bone, ModelHandler modelHandler, String name, String subfix, boolean doTypePrefix, int depthLimit) {
+	private void doRenaming(Bone bone, ModelHandler modelHandler, String name, String subfix, boolean doTypePrefix, int depthLimit) {
 		Map<Integer, List<Bone>> depthMap = new HashMap<>();
 		fillDepthMap(bone, depthLimit, 0, depthMap);
 

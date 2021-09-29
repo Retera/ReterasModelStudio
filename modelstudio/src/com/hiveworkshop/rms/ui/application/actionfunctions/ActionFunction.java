@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
@@ -27,13 +28,24 @@ public abstract class ActionFunction {
 		KeyBindingPrefs.addActionFunction(name, this);
 		menuItem = new JMenuItem(this.action);
 	}
-	public ActionFunction(TextKey name, Consumer<ModelPanel> consumer) {
+
+	public ActionFunction(TextKey name, Consumer<ModelHandler> consumer) {
 		this.name = name;
 		this.action = getAsAction(consumer);
 		actionFunctionMap.put(name, this);
 		KeyBindingPrefs.addActionFunction(name, this);
 		menuItem = new JMenuItem(this.action);
 	}
+
+	public ActionFunction(TextKey name, Consumer<ModelHandler> consumer, KeyStroke keyStroke) {
+		this(name, consumer);
+		setKeyStroke(keyStroke);
+	}
+	public ActionFunction(TextKey name, Consumer<ModelHandler> consumer, String keyStroke) {
+		this(name, consumer);
+		setKeyStroke(keyStroke);
+	}
+
 	public ActionFunction(TextKey name, AbstractAction action) {
 		this.name = name;
 		this.action = action;
@@ -96,12 +108,14 @@ public abstract class ActionFunction {
 			}
 		};
 	}
-	private AbstractAction getAsAction(Consumer<ModelPanel> consumer) {
+
+	private AbstractAction getAsAction(Consumer<ModelHandler> consumer) {
 		return new AbstractAction(name.toString()) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(ProgramGlobals.getCurrentModelPanel() != null){
-					consumer.accept(ProgramGlobals.getCurrentModelPanel());
+				ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+				if (modelPanel != null) {
+					consumer.accept(modelPanel.getModelHandler());
 				}
 			}
 		};

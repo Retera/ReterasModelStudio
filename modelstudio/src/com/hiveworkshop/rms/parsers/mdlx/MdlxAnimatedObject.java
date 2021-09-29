@@ -21,13 +21,18 @@ public abstract class MdlxAnimatedObject implements MdlxChunk, MdlxBlock {
 	public void readTimelines(final BinaryReader reader, long size) {
 		while (size > 0) {
 			final War3ID name = new War3ID(reader.readTag());
-			final MdlxTimeline<?> timeline = AnimationMap.ID_TO_TAG.get(name).getImplementation().createTimeline();
+			AnimationMap animationMap = AnimationMap.ID_TO_TAG.get(name);
+			if(animationMap != null){
+				final MdlxTimeline<?> timeline = animationMap.getImplementation().createTimeline();
 
-			timeline.readMdx(reader, name);
+				timeline.readMdx(reader, name);
 
-			size -= timeline.getByteLength();
+				size -= timeline.getByteLength();
 
-			timelines.add(timeline);
+				timelines.add(timeline);
+			} else {
+				System.out.println("couldn't find tag for: " + name);
+			}
 		}
 	}
 

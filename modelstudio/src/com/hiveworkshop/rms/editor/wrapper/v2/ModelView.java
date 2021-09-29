@@ -121,6 +121,10 @@ public final class ModelView {
 		return highlightedNode;
 	}
 
+	public Set<GeosetVertex> getHiddenVertices(){
+		return hiddenVertices;
+	}
+
 	public void makeGeosetEditable(Geoset geoset) {
 		editableGeosets.add(geoset);
 		notEditableGeosets.remove(geoset);
@@ -260,8 +264,18 @@ public final class ModelView {
 				visibleGeosets.add(geoset);
 				editableGeosets.add(geoset);
 				editableVertices.addAll(geoset.getVertices());
+			} else {
+				geoset.getVertices().stream()
+						.filter(v -> !editableVertices.contains(v) || !notEditableVertices.contains(v))
+						.forEach(editableVertices::add);
 			}
 		}
+
+		hiddenVertices.removeIf(g -> !g.getGeoset().contains(g));
+		editableVertices.removeIf(g -> !g.getGeoset().contains(g));
+		notEditableVertices.removeIf(g -> !g.getGeoset().contains(g));
+		selectedVertices.removeIf(g -> !g.getGeoset().contains(g));
+
 
 //		editableVertices.clear();
 //		hiddenVertices.clear();
@@ -648,8 +662,11 @@ public final class ModelView {
 	public void hideVertices(Collection<GeosetVertex> geosetVertices) {
 		hiddenVertices.addAll(geosetVertices);
 	}
+	public void showVertices(Collection<GeosetVertex> geosetVertices) {
+		hiddenVertices.removeAll(geosetVertices);
+	}
 
-	public void unHideVertices() {
+	public void unHideAllVertices() {
 		hiddenVertices.clear();
 		for (Geoset geoset : hiddenGeosets) {
 			hiddenVertices.addAll(geoset.getVertices());
@@ -778,15 +795,15 @@ public final class ModelView {
 
 	public <T> ModelView higthlight(T obj) {
 		if (obj instanceof Geoset) {
-			System.out.println("Geoset Higlighted!");
+//			System.out.println("Geoset Higlighted!");
 			highlightedGeoset = (Geoset) obj;
 			highlightedNode = null;
 		} else if (obj instanceof IdObject) {
-			System.out.println("IdObject Higlighted!");
+//			System.out.println("IdObject Higlighted!");
 			highlightedGeoset = null;
 			highlightedNode = (IdObject) obj;
 		} else if (obj instanceof Camera) {
-			System.out.println("Camera (not) Higlighted!");
+//			System.out.println("Camera (not) Higlighted!");
 			highlightedGeoset = null;
 			highlightedNode = null;
 		} else {

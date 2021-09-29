@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.editor.render3d;
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
@@ -37,13 +38,13 @@ public final class RenderNode {
 
 	protected boolean visible;
 
-	private final RenderModel model;
+	private final RenderModel renderModel;
 
 	boolean dirty = false;
 	boolean wasDirty = false;
 
-	public RenderNode(final RenderModel model, final AnimatedNode idObject) {
-		this.model = model;
+	public RenderNode(final RenderModel renderModel, final AnimatedNode idObject) {
+		this.renderModel = renderModel;
 		this.idObject = idObject;
 		renderPivot.set(idObject.getPivotPoint());
 //		if (idObject instanceof IdObject) {
@@ -90,60 +91,61 @@ public final class RenderNode {
 	public void recalculateTransformation() {
 		if (dirty) {
 //			dirty = false;
-			if (idObject instanceof IdObject && ((IdObject) idObject).getParent() != null) {
-				Vec3 computedLocation = new Vec3(localLocation);
-				Vec3 computedScaling = new Vec3();
-
-				if (dontInheritScaling) {
-					Vec3 parentInverseScale = model.getRenderNode(((IdObject) idObject).getParent()).inverseWorldScale;
-					computedScaling.set(parentInverseScale).multiply(localScale);
-
-					worldScale.set(localScale);
-				} else {
-					computedScaling = localScale;
-
-					Vec3 parentScale = model.getRenderNode(((IdObject) idObject).getParent()).worldScale;
-					worldScale.set(parentScale).multiply(localScale);
-				}
-
-				localMatrix.fromRotationTranslationScaleOrigin(localRotation, computedLocation, computedScaling, idObject.getPivotPoint());
-
-				Mat4 parentWorldMatrix = model.getRenderNode(((IdObject) idObject).getParent()).worldMatrix;
-				this.worldMatrix.set(parentWorldMatrix).mul(localMatrix);
-
-				Quat parentWorldRotation = model.getRenderNode(((IdObject) idObject).getParent()).worldRotation;
-				this.worldRotation.set(parentWorldRotation).mul(localRotation);
-			} else {
-
-				localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, localScale, idObject.getPivotPoint());
-				worldMatrix.set(localMatrix);
-				worldRotation.set(localRotation);
-				worldScale.set(localScale);
-			}
-//			if (worldMatrix != finalMatrix) {
-//				finalMatrix.set(worldMatrix).mul(bindPose);
+//			if (idObject instanceof IdObject && ((IdObject) idObject).getParent() != null) {
+//				worldLocation.set(localLocation);
+//				Vec3 computedLocation = new Vec3(localLocation);
+//				Vec3 computedScaling = new Vec3();
+//
+//				if (dontInheritScaling) {
+//					Vec3 parentInverseScale = renderModel.getRenderNode(((IdObject) idObject).getParent()).inverseWorldScale;
+//					computedScaling.set(parentInverseScale).multiply(localScale);
+//
+//					worldScale.set(localScale);
+//				} else {
+//					computedScaling = localScale;
+//
+//					Vec3 parentScale = renderModel.getRenderNode(((IdObject) idObject).getParent()).worldScale;
+//					worldScale.set(parentScale).multiply(localScale);
+//				}
+//
+//				localMatrix.fromRotationTranslationScaleOrigin(localRotation, computedLocation, computedScaling, idObject.getPivotPoint());
+//
+//				Mat4 parentWorldMatrix = renderModel.getRenderNode(((IdObject) idObject).getParent()).worldMatrix;
+//				this.worldMatrix.set(parentWorldMatrix).mul(localMatrix);
+//
+//				Quat parentWorldRotation = renderModel.getRenderNode(((IdObject) idObject).getParent()).worldRotation;
+//				this.worldRotation.set(parentWorldRotation).mul(localRotation);
+//			} else {
+//
+//				localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, localScale, idObject.getPivotPoint());
+//				worldMatrix.set(localMatrix);
+//				worldRotation.set(localRotation);
+//				worldScale.set(localScale);
 //			}
-
-			// Inverse world rotation
-			inverseWorldRotation.set(worldRotation).invertRotation();
-
-			// Inverse world scale
-			inverseWorldScale.set(1, 1, 1).divide(worldScale);
-
-			// World location
-			worldLocation.set(worldMatrix.m30, worldMatrix.m31, worldMatrix.m32);
-
-			// Inverse world location
-			inverseWorldLocation.set(worldLocation).negate();
-
-			renderPivot.set(idObject.getPivotPoint()).transform(worldMatrix);
+////			if (worldMatrix != finalMatrix) {
+////				finalMatrix.set(worldMatrix).mul(bindPose);
+////			}
+//
+//			// Inverse world rotation
+//			inverseWorldRotation.set(worldRotation).invertRotation();
+//
+//			// Inverse world scale
+//			inverseWorldScale.set(1, 1, 1).divide(worldScale);
+//
+//			// World location
+//			worldLocation.set(worldMatrix.m30, worldMatrix.m31, worldMatrix.m32);
+//
+//			// Inverse world location
+//			inverseWorldLocation.set(worldLocation).negate();
+//
+//			renderPivot.set(idObject.getPivotPoint()).transform(worldMatrix);
 		}
 	}
 
 	public void update() {
 		if (idObject instanceof IdObject) {
 			final AnimatedNode parent = ((IdObject) idObject).getParent();
-			if (dirty || ((parent != null) && model.getRenderNode(((IdObject) idObject).getParent()).wasDirty)) {
+			if (dirty || ((parent != null) && renderModel.getRenderNode(((IdObject) idObject).getParent()).wasDirty)) {
 				dirty = true;
 				wasDirty = true;
 				recalculateTransformation();
@@ -157,11 +159,11 @@ public final class RenderNode {
 
 	public void updateChildren() {
 		for (final AnimatedNode childNode : idObject.getChildrenNodes()) {
-			if (model.getRenderNode(childNode) == null) {
+			if (renderModel.getRenderNode(childNode) == null) {
 				throw new NullPointerException(
 						"Cannot find child \"" + childNode.getName() + "\" of \"" + idObject.getName() + "\"");
 			}
-			model.getRenderNode(childNode).update();
+			renderModel.getRenderNode(childNode).update();
 		}
 	}
 
@@ -184,9 +186,69 @@ public final class RenderNode {
 		dirty = true;
 	}
 
-	public void setRotation(Quat rotation) {
-		localRotation.set(rotation);
+	public void fetchTransformation(TimeEnvironmentImpl timeEnvironment) {
+		setLocation(idObject.getRenderTranslation(timeEnvironment));
+		setRotation(idObject.getRenderRotation(timeEnvironment));
+		setScale(idObject.getRenderScale(timeEnvironment));
+//		localLocation.set(idObject.getRenderTranslation(timeEnvironment));
+//		localRotation.set(idObject.getRenderRotation(timeEnvironment));
+//		localScale.set(idObject.getRenderScale(timeEnvironment));
+
 		dirty = true;
+	}
+
+//	public void setRotation(Quat rotation) {
+//		localRotation.set(rotation);
+//		dirty = true;
+//	}
+
+	public Quat setRotation(Quat rotation) {
+		if(rotation == null){
+			localRotation.set(0, 0, 0, 1);
+		}else {
+			localRotation.set(rotation);
+		}
+//		dirty = true;
+		return localRotation;
+	}
+
+	public Vec3 setLocation(Vec3 location) {
+		if(location == null){
+			localLocation.set(0, 0, 0);
+		}else {
+			localLocation.set(location);
+		}
+//		dirty = true;
+		return localLocation;
+	}
+//	public Vec3 setTranslation(Vec3 translation) {
+//		if(translation == null){
+//			localTranslation.set(0, 0, 0);
+//		}else {
+//			localTranslation.set(translation);
+//		}
+////		dirty = true;
+//		return localTranslation;
+//	}
+
+	public Vec3 setScale(Vec3 scale) {
+		if(scale == null){
+			localScale.set(1, 1, 1);
+		}else {
+			localScale.set(scale);
+		}
+//		dirty = true;
+		return localScale;
+	}
+
+	public RenderNode setVisible(boolean visible) {
+		this.visible = visible;
+		return this;
+	}
+
+	public RenderNode setDirty(boolean dirty) {
+		this.dirty = dirty;
+		return this;
 	}
 
 	public Mat4 getWorldMatrix() {
@@ -240,7 +302,7 @@ public final class RenderNode {
 	}
 
 	public Vec3 getPivot() {
-		if (model.getTimeEnvironment().isLive() || ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
+		if (renderModel.getTimeEnvironment().isLive() || ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
 			return renderPivot;
 		}
 		return idObject.getPivotPoint();

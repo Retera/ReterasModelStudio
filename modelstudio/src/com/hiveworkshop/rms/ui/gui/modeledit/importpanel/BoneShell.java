@@ -9,30 +9,38 @@ import java.util.Arrays;
 public class BoneShell {
 	private final Bone bone;
 	private BoneShell importBoneShell;
-	private String modelName;
-	private boolean showClass = false;
+	private final String modelName;
+	private boolean showClass;
 	private String name = "";
 	private ImportType importStatus = ImportType.IMPORT;
-	private IdObject oldParent;
+	private final IdObject oldParent;
 	private BoneShell oldParentBs;
 	private BoneShell newParentBs;
-	private boolean isFromDonating;
+	private final boolean isFromDonating;
 
 	public BoneShell(final Bone b) {
-		bone = b;
-		if (b != null) {
-			name = b.getName();
-			oldParent = bone.getParent();
-		}
+		this(b, false, "", false);
 	}
 
 	public BoneShell(final Bone b, boolean isFromDonating) {
+		this(b, isFromDonating, "", false);
+	}
+
+	public BoneShell(final Bone b, boolean isFromDonating, String modelName) {
+		this(b, isFromDonating, modelName, false);
+	}
+
+	public BoneShell(final Bone b, boolean isFromDonating, String modelName, boolean showClass) {
 		bone = b;
 		if (b != null) {
 			name = b.getName();
 			oldParent = bone.getParent();
+		} else {
+			oldParent = null;
 		}
 		this.isFromDonating = isFromDonating;
+		this.modelName = modelName;
+		this.showClass = showClass;
 	}
 
 	public Bone getImportBone() {
@@ -89,11 +97,6 @@ public class BoneShell {
 
 	public String getModelName() {
 		return modelName;
-	}
-
-	public BoneShell setModelName(String modelName) {
-		this.modelName = modelName;
-		return this;
 	}
 
 	public boolean isShowClass() {

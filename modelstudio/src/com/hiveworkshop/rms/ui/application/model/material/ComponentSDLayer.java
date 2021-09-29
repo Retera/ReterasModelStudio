@@ -62,6 +62,7 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 	public void setSelectedItem(Layer itemToSelect) {
 		selectedItem = itemToSelect;
 		texturePanel.reloadNewValue(itemToSelect.getTextureId(), (IntAnimFlag) itemToSelect.find(MdlUtils.TOKEN_TEXTURE_ID), itemToSelect, MdlUtils.TOKEN_TEXTURE_ID, itemToSelect::setTextureId);
+//		texturePanel.reloadNewValue(itemToSelect.getTextureId(), (IntAnimFlag) itemToSelect.find(MdlUtils.TOKEN_TEXTURE_ID), itemToSelect, MdlUtils.TOKEN_TEXTURE_ID, i -> itemToSelect.setTexture(itemToSelect.getTextureFromId(i)));
 		alphaPanel.reloadNewValue((float) itemToSelect.getStaticAlpha(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_ALPHA), itemToSelect, MdlUtils.TOKEN_ALPHA, itemToSelect::setStaticAlpha);
 
 		layerFlagsPanel.removeAll();
@@ -69,12 +70,22 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 
 
 		filterModeDropdown.setSelectedItem(itemToSelect.getFilterMode());
-		tVertexAnimButton.setText(selectedItem.getTextureAnim() == null ? "None" : selectedItem.getTextureAnim().getFlagNames());
+		tVertexAnimButton.setText(getTexAnimName());
 
 		coordIdSpinner.reloadNewValue(selectedItem.getCoordId());
 
 		updateTexturePanel(itemToSelect.getTextureBitmap());
 		updateMoveButtons();
+	}
+
+	private String getTexAnimName() {
+		TextureAnim textureAnim = selectedItem.getTextureAnim();
+		if (textureAnim != null) {
+			int textureAnimId = model.getTextureAnimId(textureAnim);
+			return "[" + textureAnimId + "] " + textureAnim.getFlagNames();
+		}
+//		String text = textureAnim == null ? "None" : textureAnim.getFlagNames();
+		return "None";
 	}
 
 	private JPanel getTopPanel() {
@@ -155,6 +166,7 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 
 		topSettingsPanel.add(new JLabel("TVertex Anim:"));
 		tVertexAnimButton = new JButton("Choose TVertex Anim");
+//		tVertexAnimButton.addActionListener();
 		topSettingsPanel.add(tVertexAnimButton, "wrap, growx");
 
 		topSettingsPanel.add(new JLabel("CoordID:"));
@@ -196,7 +208,7 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 			if (numUses > 0) {
 				JOptionPane.showMessageDialog(this, "Cannot delete material as it is being used by " + numUses + " geosets.");
 			} else {
-				undoManager.pushAction(new RemoveMaterialAction(material, modelHandler.getModel(), changeListener).redo());
+				undoManager.pushAction(new RemoveMaterialAction(material, model, changeListener).redo());
 			}
 		} else {
 			undoManager.pushAction(new RemoveLayerAction(selectedItem, material, changeListener).redo());

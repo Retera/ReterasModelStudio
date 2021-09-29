@@ -28,7 +28,6 @@ public class WindowsMenu extends JMenu {
 		getAccessibleContext().setAccessibleDescription("Allows the user to open various windows containing the program features.");
 
 		JMenuItem resetViewButton = new JMenuItem("Reset Layout");
-//		resetViewButton.addActionListener(e -> WindowHandler.resetView());
 		resetViewButton.addActionListener(e -> ProgramGlobals.getRootWindowUgg().resetView());
 		add(resetViewButton);
 

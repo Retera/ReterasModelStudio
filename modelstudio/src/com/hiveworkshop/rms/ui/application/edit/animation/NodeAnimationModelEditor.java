@@ -16,7 +16,7 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.render3d.RenderNode;
+import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -43,12 +43,12 @@ public class NodeAnimationModelEditor extends ModelEditor {
 
 	@Override
 	public UndoAction translate(Vec3 v) {
-		return beginTranslation().updateTranslation(v).redo();
+		return beginTranslation().updateTranslation(v);
 	}
 
 	@Override
 	public UndoAction scale(Vec3 center, Vec3 scale) {
-		return beginScaling(center).updateScale(scale).redo();
+		return beginScaling(center).updateScale(scale);
 	}
 
 	@Override
@@ -56,8 +56,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		return new CompoundAction("rotate", Arrays.asList(
 				beginRotation(center, (byte) 2, (byte) 1).updateRotation(Math.toRadians(rotate.x)),
 				beginRotation(center, (byte) 0, (byte) 2).updateRotation(Math.toRadians(rotate.y)),
-				beginRotation(center, (byte) 1, (byte) 0).updateRotation(Math.toRadians(rotate.z))))
-				.redo();
+				beginRotation(center, (byte) 1, (byte) 0).updateRotation(Math.toRadians(rotate.z))));
 	}
 
 	@Override
@@ -68,7 +67,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 	@Override
 	public UndoAction setPosition(Vec3 center, Vec3 v) {
 		Vec3 delta = Vec3.getDiff(v, center);
-		return new StaticMeshMoveAction(modelView, delta).redo();
+		return new StaticMeshMoveAction(modelView, delta);
 	}
 
 	@Override
@@ -217,7 +216,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 
 			actions.add(new AddTimelineAction<>(node, timeline));
 		}
-		RenderNode renderNode = renderModel.getRenderNode(node);
+		RenderNode2 renderNode = renderModel.getRenderNode(node);
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation())), timeEnvironmentImpl);
 	}
 
@@ -230,7 +229,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 
 			actions.add(new AddTimelineAction<>(node, timeline));
 		}
-		RenderNode renderNode = renderModel.getRenderNode(node);
+		RenderNode2 renderNode = renderModel.getRenderNode(node);
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalScale())), timeEnvironmentImpl);
 	}
 
@@ -243,7 +242,7 @@ public class NodeAnimationModelEditor extends ModelEditor {
 
 			actions.add(new AddTimelineAction<>(node, timeline));
 		}
-		RenderNode renderNode = renderModel.getRenderNode(node);
+		RenderNode2 renderNode = renderModel.getRenderNode(node);
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Quat(renderNode.getLocalRotation())), timeEnvironmentImpl);
 	}
 }

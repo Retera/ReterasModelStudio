@@ -30,11 +30,11 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		geoset = g;
 	}
 
-	public GeosetAnim(Geoset geoset, GeosetAnim other) {
-		addAll(other.getAnimFlags());
+	private GeosetAnim(GeosetAnim other) {
+		copyTimelines(other);
+		geoset = other.geoset;
 		staticAlpha = other.staticAlpha;
 		staticColor = other.staticColor;
-		this.geoset = geoset;
 		dropShadow = other.dropShadow;
 	}
 
@@ -92,8 +92,9 @@ public class GeosetAnim extends TimelineContainer implements Named {
 		return geoset;
 	}
 
-	public void setGeoset(Geoset geoset) {
+	public GeosetAnim setGeoset(Geoset geoset) {
 		this.geoset = geoset;
+		return this;
 	}
 
 	public boolean isDropShadow() {
@@ -137,5 +138,9 @@ public class GeosetAnim extends TimelineContainer implements Named {
 			newVisFlag.copyFrom(flagNew);
 		}
 		setVisibilityFlag(newVisFlag);
+	}
+
+	public GeosetAnim deepCopy(){
+		return new GeosetAnim(this);
 	}
 }

@@ -38,7 +38,6 @@ public class GeosetFactory {
 		geoset.setLevelOfDetailName(mdlxGeoset.lodName);
 
 		int index = 0;
-		System.out.println("MaingGeoset! " + mdlxGeoset.matrixGroups);
 		for (long size : mdlxGeoset.matrixGroups) {
 			Matrix m = new Matrix();
 			for (int i = 0; i < size; i++) {
@@ -48,7 +47,6 @@ public class GeosetFactory {
 			}
 			geoset.addMatrix(m);
 		}
-		System.out.println("GeosetMade!");
 
 
 		final short[] vertexGroups = mdlxGeoset.vertexGroups;

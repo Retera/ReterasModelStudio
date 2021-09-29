@@ -15,7 +15,7 @@ import java.awt.*;
 import java.util.List;
 
 public class AnimationViewer extends JPanel {
-	private ModelView modelView;
+	private EditableModel model;
 	private final EditableModel blank = new EditableModel();
 	private final DefaultComboBoxModel<Animation> animations;
 	private final JComboBox<Animation> animationBox;
@@ -35,12 +35,12 @@ public class AnimationViewer extends JPanel {
 
 		animations = new DefaultComboBoxModel<>();
 
-		setModel(null);
 		animationBox = new JComboBox<>(animations);
 		animationBox.setRenderer(getBoxRenderer());
 		animationBox.addActionListener(e -> setAnimation());
 
 		add(animationBox);
+		setModel(blank);
 
 	}
 
@@ -70,34 +70,23 @@ public class AnimationViewer extends JPanel {
 		}
 	}
 
-	public void setModel(ModelView modelView) {
+	public void setModel(EditableModel model) {
 		animations.removeAllElements();
-		if (modelView == null) {
-			this.modelView = new ModelView(blank);
-		} else {
-			this.modelView = modelView;
-		}
-		if (allowUnanimated || (this.modelView.getModel().getAnims().size() == 0)) {
+		this.model = model;
+		ModelView modelView = new ModelView(model);
+
+		if (allowUnanimated || (this.model.getAnims().size() == 0)) {
 			animations.addElement(null);
 		}
-		for (Animation animation : this.modelView.getModel().getAnims()) {
+		for (Animation animation : this.model.getAnims()) {
 			animations.addElement(animation);
 		}
-		this.modelView.setVetoOverrideParticles(true);
-		RenderModel renderModel = new RenderModel(this.modelView.getModel(), this.modelView);
+		modelView.setVetoOverrideParticles(true);
+		RenderModel renderModel = new RenderModel(this.model, modelView);
 		renderEnv = renderModel.getTimeEnvironment();
-		perspectiveViewport.setModel(this.modelView, renderModel, true);
+		perspectiveViewport.setModel(modelView, renderModel, true);
 		renderEnv.setAnimationTime(0);
 		renderEnv.setLive(true);
-		reload();
-	}
-
-	public void setModel1(ModelView modelView) {
-		if (modelView == null) {
-			modelView = new ModelView(blank);
-		}
-		this.modelView = modelView;
-		perspectiveViewport.setModel(modelView);
 		reload();
 	}
 
@@ -119,7 +108,7 @@ public class AnimationViewer extends JPanel {
 		Animation selectedItem = (Animation) animationBox.getSelectedItem();
 		animations.removeAllElements();
 
-		List<Animation> anims = modelView.getModel().getAnims();
+		List<Animation> anims = model.getAnims();
 		if (allowUnanimated || (anims.size() == 0)) {
 			animations.addElement(null);
 		}

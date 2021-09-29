@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.language.TextKey;
@@ -39,7 +40,7 @@ public class MakeModelSD extends ActionFunction {
 			}
 		}
 		for (Material material : model.getMaterials()) {
-			material.makeSD();
+			makeMaterialSD(material);
 		}
 		// 3.) geosets:
 		// - Convert skin to matrices & vertex groups
@@ -145,7 +146,7 @@ public class MakeModelSD extends ActionFunction {
 		if (geosetVertex.getSkinBones() != null) {
 			geosetVertex.clearBoneAttachments();
 			boolean fallback = false;
-			for (GeosetVertex.SkinBone skinBone : geosetVertex.getSkinBones()) {
+			for (SkinBone skinBone : geosetVertex.getSkinBones()) {
 				if (skinBone != null && skinBone.getBone() != null) {
 					fallback = true;
 					if (skinBone.getWeight() > 110) {
@@ -154,11 +155,33 @@ public class MakeModelSD extends ActionFunction {
 				}
 			}
 			if (geosetVertex.getMatrix().isEmpty() && fallback) {
-				for (GeosetVertex.SkinBone skinBone : geosetVertex.getSkinBones()) {
+				for (SkinBone skinBone : geosetVertex.getSkinBones()) {
 					if (skinBone != null && skinBone.getBone() != null) {
 						geosetVertex.addBoneAttachment(skinBone.getBone());
 					}
 				}
+			}
+		}
+	}
+
+	public static void makeMaterialSD(Material material) {
+		if (material.getShaderString() != null) {
+			material.setShaderString(null);
+			Layer layerZero = material.getLayers().get(0);
+			material.clearLayers();
+			material.addLayer(layerZero);
+			if (material.getTwoSided()) {
+				material.setTwoSided(false);
+				layerZero.setTwoSided(true);
+			}
+		}
+		for (final Layer layer : material.getLayers()) {
+			if (!Double.isNaN(layer.getEmissive())) {
+				layer.setEmissive(Double.NaN);
+			}
+			final AnimFlag<?> flag = layer.find("Emissive");
+			if (flag != null) {
+				layer.remove(flag);
 			}
 		}
 	}

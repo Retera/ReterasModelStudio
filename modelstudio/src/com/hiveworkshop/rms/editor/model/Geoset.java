@@ -424,27 +424,44 @@ public class Geoset implements Named, VisibilitySource {
 	public Map<Bone, List<GeosetVertex>> getBoneMap() {
 		Map<Bone, List<GeosetVertex>> boneMap = new HashMap<>();
 		for (GeosetVertex geosetVertex : getVertices()) {
-			Bone[] sb = geosetVertex.getSkinBoneBones();
-			short[] bw = geosetVertex.getSkinBoneWeights();
-			if (sb != null && bw != null) {
-				for (int i = 0; i < sb.length; i++) {
-					if (!boneMap.containsKey(sb[i])) {
-						boneMap.put(sb[i], new ArrayList<>());
-					}
-					if (bw[i] > 0) {
-//						System.out.println("added geoVert");
-						boneMap.get(sb[i]).add(geosetVertex);
+			SkinBone[] ssb = geosetVertex.getSkinBones();
+			if (ssb != null) {
+				for (SkinBone skinBone : ssb) {
+					if (skinBone != null && skinBone.getBone() != null && skinBone.getWeight() > 0) {
+						boneMap.computeIfAbsent(skinBone.getBone(), k -> new ArrayList<>()).add(geosetVertex);
 					}
 				}
 			} else {
 				for (Bone bone : geosetVertex.getBones()) {
-					if (!boneMap.containsKey(bone)) {
-						boneMap.put(bone, new ArrayList<>());
-					}
-					boneMap.get(bone).add(geosetVertex);
+					boneMap.computeIfAbsent(bone, k -> new ArrayList<>()).add(geosetVertex);
 				}
 			}
 		}
+
+//		for (GeosetVertex geosetVertex : getVertices()) {
+//			SkinBone[] ssb = geosetVertex.getSkinBones();
+//			if (ssb != null) {
+//				for (SkinBone skinBone : ssb) {
+//					if (skinBone != null && skinBone.getBone() != null) {
+//						if (!boneMap.containsKey(skinBone.getBone())) {
+//							boneMap.put(skinBone.getBone(), new ArrayList<>());
+//						}
+//						if (skinBone.getWeight() > 0) {
+////						System.out.println("added geoVert");
+//							boneMap.get(skinBone.getBone()).add(geosetVertex);
+//						}
+//					}
+//				}
+//			} else {
+//				for (Bone bone : geosetVertex.getBones()) {
+//					if (!boneMap.containsKey(bone)) {
+//						boneMap.put(bone, new ArrayList<>());
+//					}
+//					boneMap.get(bone).add(geosetVertex);
+//				}
+//			}
+//		}
+
 		return boneMap;
 	}
 
@@ -456,8 +473,33 @@ public class Geoset implements Named, VisibilitySource {
 		return tangents;
 	}
 
-//	public Geoset deepCopy(){
-//		Geoset geoset = new Geoset();
-//		return geoset;
-//	}
+	public Geoset deepCopy(){
+		Geoset geoset = new Geoset();
+		geoset.setExtents(extents.deepCopy());
+		Map<GeosetVertex, GeosetVertex> oldToNew = new HashMap<>();
+		for(GeosetVertex geosetVertex : vertices){
+			GeosetVertex newVertex = oldToNew.computeIfAbsent(geosetVertex, k -> geosetVertex.deepCopy());
+			newVertex.clearTriangles();
+			newVertex.setGeoset(geoset);
+			geoset.add(newVertex);
+		}
+		for(Triangle triangle : triangles){
+			GeosetVertex v0 = oldToNew.get(triangle.get(0));
+			GeosetVertex v1 = oldToNew.get(triangle.get(1));
+			GeosetVertex v2 = oldToNew.get(triangle.get(2));
+			geoset.add(new Triangle(v0, v1, v2, geoset));
+		}
+		geoset.setLevelOfDetailName(levelOfDetailName);
+		geoset.setAnims(new ArrayList<>(anims));
+		geoset.setMaterial(material);
+		geoset.setSelectionGroup(selectionGroup);
+		geoset.setParentModel(parentModel);
+		geoset.setLevelOfDetail(levelOfDetail);
+		if(tangents != null){
+			geoset.setTangents(new ArrayList<>(tangents));
+		}
+		geoset.setUnselectable(unselectable);
+		return geoset;
+	}
+
 }

@@ -6,6 +6,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.List;
 
 class VisibilityPanel extends JPanel {
@@ -14,9 +15,6 @@ class VisibilityPanel extends JPanel {
 	protected JCheckBox favorOld;
 	protected VisibilityShell selectedVisShell;
 	protected ModelHolderThing mht;
-
-	protected DefaultComboBoxModel<VisibilityShell> recModSources;
-	protected DefaultComboBoxModel<VisibilityShell> donModSources;
 
 	protected JLabel title;
 
@@ -32,18 +30,14 @@ class VisibilityPanel extends JPanel {
 		title.setMaximumSize(new Dimension(500, 500));
 		add(title, "align center, wrap");
 
-		JLabel oldAnimsLabel = new JLabel("Existing animation visibility from: ");
-		add(oldAnimsLabel, "left, wrap");
+		add(new JLabel("Existing animation visibility from: "), "left, wrap");
 
-		receivingModelSourcesBox = getSourceComboBox(renderer, recModVisSourcesOld);
-		receivingModelSourcesBox.addItemListener(this::setOldSource);
+		receivingModelSourcesBox = getSourceComboBox(renderer, recModVisSourcesOld, this::setOldSource);
 		add(receivingModelSourcesBox, "grow, wrap");
 
-		JLabel newAnimsLabel = new JLabel("Imported animation visibility from: ");
-		add(newAnimsLabel, "left, wrap");
+		add(new JLabel("Imported animation visibility from: "), "left, wrap");
 
-		donatingModelSourcesBox = getSourceComboBox(renderer, donModVisSourcesNew);
-		donatingModelSourcesBox.addItemListener(this::setNewSource);
+		donatingModelSourcesBox = getSourceComboBox(renderer, donModVisSourcesNew, this::setNewSource);
 		add(donatingModelSourcesBox, "grow, wrap");
 
 		favorOld = new JCheckBox("Favor component's original visibility when combining");
@@ -53,7 +47,6 @@ class VisibilityPanel extends JPanel {
 
 	public void setSource(VisibilityShell sourceShell) {
 		this.selectedVisShell = sourceShell;
-//		title.setText(sourceShell.getModel().getName() + ": " + sourceShell.getSource().getName());
 		title.setText(sourceShell.toString());
 		favorOld.setSelected(selectedVisShell.isFavorOld());
 
@@ -77,13 +70,14 @@ class VisibilityPanel extends JPanel {
 		selectedVisShell.setFavorOld(favorOld.isSelected());
 	}
 
-	private JComboBox<VisibilityShell> getSourceComboBox(VisShellBoxCellRenderer renderer, List<VisibilityShell> visSources) {
+	private JComboBox<VisibilityShell> getSourceComboBox(VisShellBoxCellRenderer renderer, List<VisibilityShell> visSources, ItemListener itemListener) {
 		DefaultComboBoxModel<VisibilityShell> sourceModel = new DefaultComboBoxModel<>();
 		sourceModel.addAll(visSources);
 
 		JComboBox<VisibilityShell> jComboBox = new JComboBox<>(sourceModel);
 		jComboBox.setMaximumSize(new Dimension(500, 25));
 		jComboBox.setRenderer(renderer);
+		jComboBox.addItemListener(itemListener);
 		return jComboBox;
 	}
 

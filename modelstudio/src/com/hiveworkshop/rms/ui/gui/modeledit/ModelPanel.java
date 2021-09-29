@@ -11,7 +11,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorAc
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
-import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.ModelEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -28,26 +27,21 @@ import java.util.function.Consumer;
 public class ModelPanel {
 	private final ModelHandler modelHandler;
 	private final ViewportActivityManager viewportActivityManager;
-	private final ModelEditorChangeNotifier modelEditorChangeNotifier;
 	private final ModelEditorManager modelEditorManager;
 
 	private SelectionItemTypes selectionType = SelectionItemTypes.VERTEX;
 	private ModelEditorActionType3 editorActionType = ModelEditorActionType3.TRANSLATION;
 
-
-	private final Icon icon;
 	private JMenuItem menuItem;
 
 	Consumer<SelectionItemTypes> selectionItemTypeListener;
 
-	public ModelPanel(ModelHandler modelHandler,
-	                  Icon icon) {
+	public ModelPanel(ModelHandler modelHandler) {
 		ModelTextureThings.setModel(modelHandler.getModel());
 		this.modelHandler = modelHandler;
-		this.icon = icon;
 		viewportActivityManager = new ViewportActivityManager(null);
 
-		modelEditorChangeNotifier = new ModelEditorChangeNotifier();
+		ModelEditorChangeNotifier modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
 		modelEditorManager = new ModelEditorManager(modelHandler, modelEditorChangeNotifier, viewportActivityManager);
@@ -69,7 +63,7 @@ public class ModelPanel {
 	}
 
 	public Icon getIcon() {
-		return icon;
+		return modelHandler.getIcon();
 	}
 
 	public void changeActivity(ModelEditorActionType3 action) {
@@ -129,11 +123,6 @@ public class ModelPanel {
 //		}
 	}
 
-	public ModelPanel addUVPanel(UVPanel uvPanel) {
-//		editUVPanels.add(uvPanel);
-		return this;
-	}
-
 	public EditableModel getModel() {
 		return modelHandler.getModel();
 	}
@@ -145,56 +134,6 @@ public class ModelPanel {
 	public ModelHandler getModelHandler() {
 		return modelHandler;
 	}
-//
-//	public ModelViewManagingTree getModelViewManagingTree() {
-//		return modelViewManagingTree;
-//	}
-//
-//	public ModelComponentBrowserTree getModelComponentBrowserTree() {
-//		return modelComponentBrowserTree;
-//	}
-
-//	public ModelViewManagingTree getModelEditingTree() {
-//		return modelViewManagingTree;
-//	}
-
-//	public JScrollPane getComponentBrowserTreePane() {
-//		return componentBrowserTreePane;
-//	}
-
-//	public void reloadComponentBrowser() {
-////		componentBrowserTreePane.setViewportView(modelComponentBrowserTree.reloadFromModelView());
-//		modelComponentBrowserTree.reloadFromModelView().repaint();
-////		componentBrowserTreePane.repaint();
-//	}
-
-//	public void reloadModelEditingTree() {
-//		modelViewManagingTree.reloadFromModelView().repaint();
-//	}
-
-//	public void repaintModelTrees() {
-//		if (modelViewManagingTree != null) {
-//			modelViewManagingTree.repaint();
-//		}
-////		if (modelComponentBrowserTree != null) {
-////			modelComponentBrowserTree.repaint();
-////		}
-//	}
-
-//	public void reloadGeosetManagers() {
-////		reloadModelEditingTree();
-////		reloadComponentBrowser();
-//
-////		getPerspArea().reloadTextures();
-////		getAnimationViewer().reload();
-////		getAnimationController().reload();
-////		parent.getMainLayoutCreator().getCreatorView().reloadAnimationList();
-////		parent.getWindowHandler2().reloadAnimationList();
-//
-////		getEditorRenderModel().refreshFromEditor(getPerspArea().getViewport().getParticleTextureInstance());
-//		Particle2TextureInstance particleTextureInstance = new Particle2TextureInstance(getPerspArea().getViewport().getTextureThing(), modelHandler.getModelView(), ProgramGlobals.getPrefs());
-//		getEditorRenderModel().refreshFromEditor(particleTextureInstance);
-//	}
 
 	public void setSelectionType(SelectionItemTypes selectionType){
 		this.selectionType = selectionType;
@@ -214,14 +153,4 @@ public class ModelPanel {
 	public ModelEditorActionType3 getEditorActionType(){
 		return editorActionType;
 	}
-
-//	public void setSelectionMode(SelectionItemTypes selectionType){
-//		this.selectionType = selectionType;
-//		modelEditorManager.setSelectionItemType(selectionType);
-//		ModelLoader.refreshAnimationModeState();
-//	}
-//
-//	public SelectionItemTypes getSelectionMode(){
-//		return selectionType;
-//	}
 }

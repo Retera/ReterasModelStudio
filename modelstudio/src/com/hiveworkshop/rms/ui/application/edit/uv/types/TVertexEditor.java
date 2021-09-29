@@ -77,20 +77,20 @@ public class TVertexEditor extends ModelEditor {
 	@Override
 	public UndoAction translate(Vec3 v) {
 		Vec3 delta = new Vec3(v);
-		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, Vec2.ORIGIN).updateTranslation(delta).redo();
+		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, Vec2.ORIGIN).updateTranslation(delta);
 	}
 
 	@Override
 	public UndoAction scale(Vec3 center, Vec3 scale) {
-		return new StaticMeshUVScaleAction(modelView.getSelectedVertices(), uvLayerIndex, center.getProjected((byte) 0, (byte) 1)).updateScale(scale).redo();
+		return new StaticMeshUVScaleAction(modelView.getSelectedVertices(), uvLayerIndex, center.getProjected((byte) 0, (byte) 1)).updateScale(scale);
 	}
 
 	@Override
 	public UndoAction rotate(Vec3 center, Vec3 rotate) {
 		return new CompoundAction("rotate", Arrays.asList(
 				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 2, (byte) 1),
-				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 0, (byte) 2)))
-				.redo(); // ToDo fix this? not sure if this is used or what it should rotate...
+				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 0, (byte) 2)));
+				// ToDo fix this? not sure if this is used or what it should rotate...
 //		return new CompoundAction("rotate", Arrays.asList(
 //				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 2, (byte) 1).updateRotation(Math.toRadians(rotate.x)),
 //				new StaticMeshUVRotateAction(modelView.getSelectedVertices(), uvLayerIndex, center, (byte) 0, (byte) 2).updateRotation(Math.toRadians(rotate.y))))
@@ -100,7 +100,7 @@ public class TVertexEditor extends ModelEditor {
 	@Override
 	public UndoAction setPosition(Vec3 center, Vec3 v) {
 		Vec3 delta = Vec3.getDiff(v, center);
-		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, Vec2.ORIGIN).updateTranslation(delta).redo();
+		return new StaticMeshUVMoveAction(modelView.getSelectedVertices(), uvLayerIndex, Vec2.ORIGIN).updateTranslation(delta);
 	}
 
 	public int getUVLayerIndex() {
