@@ -17,7 +17,7 @@ public class SpliceModelPartPanel extends TwiImportPanel {
 
 	public SpliceModelPartPanel(EditableModel donModel, ModelHandler recModelHandler) {
 		super(donModel, recModelHandler);
-		setLayout(new MigLayout("fill, wrap 2, debug", "[sgx half, grow][sgx half, grow][0%:0%:1%, grow 0]", "[grow 0][grow 1][grow 1][grow 0]"));
+		setLayout(new MigLayout("fill, wrap 2", "[sgx half, grow][sgx half, grow][0%:0%:1%, grow 0]", "[grow 0][grow 1][grow 1][grow 0]"));
 
 		add(new JLabel("Part source"), "");
 		add(new JLabel("Destination"), "");

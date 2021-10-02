@@ -24,10 +24,10 @@ public class ImportBoneChainAnimationPanel extends TwiImportPanel {
 
 	public ImportBoneChainAnimationPanel(EditableModel donModel, ModelHandler recModelHandler) {
 		super(donModel, recModelHandler);
-		setLayout(new MigLayout("fill, wrap 2, debug", "[sgx half, grow][sgx half, grow][0%:0%:1%, grow 0]", "[grow 0][grow 0][grow 0][grow][grow 0]"));
+		setLayout(new MigLayout("fill, wrap 2", "[sgx half, grow][sgx half, grow][0%:0%:1%, grow 0]", "[grow 0][grow 0][grow 0][grow][grow 0]"));
 
 		add(new JLabel("Motion source"), "");
-		add(new JLabel("Destination"),   "");
+		add(new JLabel("Destination"), "");
 //		add(new JLabel("Motion source"), "growy 0, ");
 //		add(new JLabel("Destination"),   "growy 0, wrap");
 //		add(new JLabel("Motion source"), "sgx half, growx");

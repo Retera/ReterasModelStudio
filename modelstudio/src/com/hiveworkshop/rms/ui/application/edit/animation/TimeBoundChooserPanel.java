@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -337,9 +338,9 @@ public class TimeBoundChooserPanel extends JPanel {
 
 			List<UndoAction> undoActions = new ArrayList<>();
 
-			for (AnimFlag<?> animFlag : model.getAllAnimFlags()) {
+			for (AnimFlag<?> animFlag : ModelUtils.getAllAnimFlags(model)) {
 				AddFlagEntryMapAction<?> e = getAddFlagEntryMapAction(selectedAnimation, copyAnimation, animFlag);
-				if(e != null){
+				if (e != null) {
 					undoActions.add(e);
 				}
 			}

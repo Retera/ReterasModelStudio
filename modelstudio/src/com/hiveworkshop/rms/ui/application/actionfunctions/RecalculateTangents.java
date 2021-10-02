@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -13,12 +14,12 @@ import com.hiveworkshop.rms.util.Vec3;
 import javax.swing.*;
 
 public class RecalculateTangents extends ActionFunction {
-	public RecalculateTangents(){
-		super(TextKey.RECALC_TANGENTS, () -> recalculateTangents());
+	public RecalculateTangents() {
+		super(TextKey.RECALC_TANGENTS, RecalculateTangents::recalculateTangents);
 	}
 
-	public static void recalculateTangents() {
-		EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
+	public static void recalculateTangents(ModelHandler modelHandler) {
+		EditableModel model = modelHandler.getModel();
 		// copied from
 		// https://github.com/TaylorMouse/MaxScripts/blob/master/Warcraft%203%20Reforged/GriffonStudios/GriffonStudios_Warcraft_3_Reforged_Export.ms#L169
 		int zeroAreaUVTris = 0;
@@ -123,40 +124,4 @@ public class RecalculateTangents extends ActionFunction {
 //		}
 	}
 
-	public static void recalculateTangentsOld(EditableModel currentMDL) {
-		for (Geoset theMesh : currentMDL.getGeosets()) {
-			for (int nFace = 0; nFace < theMesh.getTriangles().size(); nFace++) {
-				Triangle face = theMesh.getTriangle(nFace);
-
-				GeosetVertex v1 = face.getVerts()[0];
-				GeosetVertex v2 = face.getVerts()[0];
-				GeosetVertex v3 = face.getVerts()[0];
-
-				Vec2 uv1 = v1.getTVertex(0);
-				Vec2 uv2 = v2.getTVertex(0);
-				Vec2 uv3 = v3.getTVertex(0);
-
-				Vec3 dV1 = new Vec3(v1).sub(v2);
-				Vec3 dV2 = new Vec3(v1).sub(v3);
-
-				Vec2 dUV1 = new Vec2(uv1).sub(uv2);
-				Vec2 dUV2 = new Vec2(uv1).sub(uv3);
-				double area = (dUV1.x * dUV2.y) - (dUV1.y * dUV2.x);
-				int sign = (area < 0) ? -1 : 1;
-				Vec3 tangent = new Vec3(1, 0, 0);
-
-				tangent.x = (dV1.x * dUV2.y) - (dUV1.y * dV2.x);
-				tangent.y = (dV1.y * dUV2.y) - (dUV1.y * dV2.y);
-				tangent.z = (dV1.z * dUV2.y) - (dUV1.y * dV2.z);
-
-				tangent.normalize();
-				tangent.scale(sign);
-
-				Vec3 faceNormal = new Vec3(v1.getNormal());
-				faceNormal.add(v2.getNormal());
-				faceNormal.add(v3.getNormal());
-				faceNormal.normalize();
-			}
-		}
-	}
 }

@@ -57,7 +57,7 @@ public class SimplifyKeyframesPanel extends JPanel {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if(modelPanel != null) {
 			EditableModel model = modelPanel.getModel();
-			SimplifyKeyframesAction action = new SimplifyKeyframesAction(model.getAllAnimFlags(), model.getAllSequences(), 0);
+			SimplifyKeyframesAction action = new SimplifyKeyframesAction(ModelUtils.getAllAnimFlags(model), model.getAllSequences(), 0);
 			modelPanel.getUndoManager().pushAction(action.redo());
 
 			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), "Removed " + action.getNumberOfEntriesToRemove() + " keyframes", "Removed Keyframes", JOptionPane.PLAIN_MESSAGE);
@@ -93,7 +93,7 @@ public class SimplifyKeyframesPanel extends JPanel {
 	}
 
 	public static void simplifyKeyframes(EditableModel model) {
-		List<AnimFlag<?>> allAnimFlags = model.getAllAnimFlags();
+		List<AnimFlag<?>> allAnimFlags = ModelUtils.getAllAnimFlags(model);
 
 		SimplifyKeyframesAction action = new SimplifyKeyframesAction(allAnimFlags, model.getAllSequences(), 0.1f);
 		ProgramGlobals.getCurrentModelPanel().getUndoManager().pushAction(action.redo());

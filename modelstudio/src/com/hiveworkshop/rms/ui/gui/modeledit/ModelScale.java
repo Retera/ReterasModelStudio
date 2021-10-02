@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
@@ -30,12 +31,12 @@ public class ModelScale {
 	}
 
 	public static void scale(EditableModel mdl, Vec3 scale, Vec3 center) {
-		for (final AnimFlag<?> flag : mdl.getAllAnimFlags()) {
+		for (final AnimFlag<?> flag : ModelUtils.getAllAnimFlags(mdl)) {
 			if (flag.getTypeId() == AnimFlag.TRANSLATION) {
-				for(Sequence anim : flag.getAnimMap().keySet()){
-					TreeMap<Integer, Entry<Vec3>> entryMap = ((Vec3AnimFlag)flag).getEntryMap(anim);
-					if(entryMap != null){
-						for(Entry<Vec3> entry : entryMap.values()){
+				for (Sequence anim : flag.getAnimMap().keySet()) {
+					TreeMap<Integer, Entry<Vec3>> entryMap = ((Vec3AnimFlag) flag).getEntryMap(anim);
+					if (entryMap != null) {
+						for (Entry<Vec3> entry : entryMap.values()) {
 							entry.getValue().scale(center, scale);
 
 							if (flag.tans()) {
@@ -55,7 +56,7 @@ public class ModelScale {
 				scale(center, scale, anim.getExtents());
 			}
 		}
-		for (final IdObject object : mdl.getAllObjects()) {
+		for (final IdObject object : mdl.getIdObjects()) {
 			object.getPivotPoint().scale(center, scale);
 		}
 //		for (final Vec3 vertex : mdl.getPivots()) {

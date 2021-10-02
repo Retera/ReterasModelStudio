@@ -23,7 +23,8 @@ public class EditCommentAction implements UndoAction {
 
 	@Override
 	public UndoAction undo() {
-		model.setHeader(getCommentContent(stringOld));
+		model.clearHeader();
+		model.addToHeader(getCommentContent(stringOld));
 		if (changeListener != null) {
 			changeListener.headerChanged();
 		}
@@ -32,7 +33,8 @@ public class EditCommentAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		model.setHeader(getCommentContent(stringNew));
+		model.clearHeader();
+		model.addToHeader(getCommentContent(stringNew));
 		if (changeListener != null) {
 			changeListener.headerChanged();
 		}

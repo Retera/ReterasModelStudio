@@ -113,10 +113,10 @@ public class ExportStaticMesh extends ActionFunction {
 			frozenModel.remove(geoset);
 		}
 
-		frozenModel.getAnims().clear();
+		frozenModel.clearAnimations();
 		Animation stand = new Animation("Stand", 333, 1333);
 		frozenModel.add(stand);
-		List<AnimFlag<?>> allAnimFlags = frozenModel.getAllAnimFlags();
+		List<AnimFlag<?>> allAnimFlags = ModelUtils.getAllAnimFlags(frozenModel);
 		for (AnimFlag<?> flag : allAnimFlags) {
 			if (!flag.hasGlobalSeq() && flag.size() > 0) {
 				addFlagEntry(renderEnv, stand, flag);

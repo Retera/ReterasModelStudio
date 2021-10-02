@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
@@ -30,7 +31,7 @@ public class RemoveSequenceAction implements UndoAction {
 			this.name = "Animation " + ((Animation) sequence).getName();
 		}
 
-		for (AnimFlag<?> animFlag : model.getAllAnimFlags()) {
+		for (AnimFlag<?> animFlag : ModelUtils.getAllAnimFlags(model)) {
 			if (animFlag.hasSequence(sequence)) {
 				removeFlagEntryMapActions.add(new RemoveFlagEntryMapAction<>(animFlag, sequence, null));
 			}

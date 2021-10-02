@@ -169,7 +169,15 @@ public class ModelHolderThing {
 		allAnimShells.forEach(shell -> shell.setImportType(type));
 	}
 
-	public void setImportStatusForAllBones(BoneShell.ImportType importType) {
+	public void setImportTypeForAllDonAnims(AnimShell.ImportType type) {
+		donModAnims.forEach(shell -> shell.setImportType(type));
+	}
+
+	public void setImportTypeForAllRecAnims(AnimShell.ImportType type) {
+		recModAnims.forEach(shell -> shell.setImportType(type));
+	}
+
+	public void setImportStatusForAllDonBones(BoneShell.ImportType importType) {
 		Map<String, BoneShell> nameMap = new HashMap<>();
 		if (importType == BoneShell.ImportType.MOTIONFROM) {
 			for (BoneShell boneShell : recModBoneShells) {
@@ -186,11 +194,11 @@ public class ModelHolderThing {
 		}
 	}
 
-	public void importAllObjs(boolean b) {
-		donModObjectShells.forEach(shell -> shell.setShouldImport(b));
+	public void setImportAllDonObjs(boolean doImport) {
+		donModObjectShells.forEach(shell -> shell.setShouldImport(doImport));
 	}
 
-	public void importAllCams(boolean b) {
+	public void setImportAllDonCams(boolean b) {
 		donModCameraShells.forEach(shell -> shell.setShouldImport(b));
 	}
 
@@ -199,13 +207,13 @@ public class ModelHolderThing {
 		for (final VisibilityShell visibilityShell : allVisShells) {
 			for (VisibilityShell vs : donModVisSourcesNew) {
 				if (visibilityShell.getSource().getName().equals(vs.getSource().getName())) {
-					System.out.println(visibilityShell.getSource().getName());
+//					System.out.println(visibilityShell.getSource().getName());
 					visibilityShell.setNewVisSource(vs);
 				}
 			}
 			for (VisibilityShell vs : recModVisSourcesOld) {
 				if (visibilityShell.getSource().getName().equals(vs.getSource().getName())) {
-					System.out.println(visibilityShell.getSource().getName());
+//					System.out.println(visibilityShell.getSource().getName());
 					visibilityShell.setNewVisSource(vs);
 				}
 			}
@@ -228,11 +236,11 @@ public class ModelHolderThing {
 
 	private void initAnimLists() {
 		for (Animation anim : receivingModel.getAnims()) {
-			recModAnims.addElement(new AnimShell(anim));
+			recModAnims.addElement(new AnimShell(anim, false));
 		}
 
 		for (Animation anim : donatingModel.getAnims()) {
-			donModAnims.addElement(new AnimShell(anim));
+			donModAnims.addElement(new AnimShell(anim, true));
 		}
 		allAnimShells.addAll(recModAnims);
 		allAnimShells.addAll(donModAnims);

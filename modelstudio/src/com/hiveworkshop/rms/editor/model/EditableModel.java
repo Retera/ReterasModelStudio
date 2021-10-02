@@ -1,6 +1,4 @@
 package com.hiveworkshop.rms.editor.model;
-
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
@@ -19,30 +17,28 @@ import java.util.*;
  * Eric Theller 11/5/2011
  */
 public class EditableModel implements Named {
-	public static boolean RETERA_FORMAT_BPOS_MATRICES = false;
 
 	private File fileRef;
 	private String name = "UnnamedModel";
 	private int blendTime = 0;
 	private ExtLog extents;
 	private int formatVersion = 800;
-	protected ArrayList<String> header = new ArrayList<>();
-	protected List<Animation> anims = new ArrayList<>();
-	protected List<GlobalSeq> globalSeqs = new ArrayList<>();
-	protected List<Bitmap> textures = new ArrayList<>();
-	protected List<SoundFile> sounds = new ArrayList<>();
-	protected List<Material> materials = new ArrayList<>();
-	protected List<TextureAnim> texAnims = new ArrayList<>();
-	protected List<Geoset> geosets = new ArrayList<>();
-	protected List<GeosetAnim> geosetAnims = new ArrayList<>();
-	protected List<Vec3> pivots = new ArrayList<>();
-	protected List<Camera> cameras = new ArrayList<>();
+	private final ArrayList<String> header = new ArrayList<>();
+	private final List<Animation> anims = new ArrayList<>();
+	private final List<GlobalSeq> globalSeqs = new ArrayList<>();
+	private final List<Bitmap> textures = new ArrayList<>();
+	private final List<Material> materials = new ArrayList<>();
+	private final List<TextureAnim> texAnims = new ArrayList<>();
+	private final List<Geoset> geosets = new ArrayList<>();
+	private final List<GeosetAnim> geosetAnims = new ArrayList<>();
+	private final List<Vec3> pivots = new ArrayList<>();
+	private final List<Camera> cameras = new ArrayList<>();
 	private final List<FaceEffect> faceEffects = new ArrayList<>();
 	private BindPose bindPose;
 	private boolean temporary;
 	private DataSource wrappedDataSource = GameDataFileSystem.getDefault();
 
-	private ModelIdObjects modelIdObjects = new ModelIdObjects();
+	private final ModelIdObjects modelIdObjects = new ModelIdObjects();
 
 	public EditableModel() {
 	}
@@ -104,7 +100,8 @@ public class EditableModel implements Named {
 			extents = other.extents.deepCopy();
 		}
 		formatVersion = other.formatVersion;
-		header = new ArrayList<>(other.header);
+//		header = new ArrayList<>(other.header);
+		header.addAll(other.header);
 		name = other.name;
 	}
 
@@ -122,148 +119,54 @@ public class EditableModel implements Named {
 		modelIdObjects.clearAll();
 	}
 
-	public void clearTexAnims() {
-		texAnims.clear();
-//		if (texAnims != null) {
-//			texAnims.clear();
-//		} else {
-//			texAnims = new ArrayList<>();
-//		}
-	}
-
 	public <T extends IdObject> List<? extends IdObject> sortedIdObjects(final Class<T> objectClass) {
 		return modelIdObjects.getListByClass(objectClass);
 	}
 
-	public List<AnimFlag<?>> getAllAnimFlags() {
-		// Probably will cause a bunch of lag, be wary
-		final List<AnimFlag<?>> allFlags = Collections.synchronizedList(new ArrayList<>());
-		for (final Material m : getMaterials()) {
-			for (final Layer lay : m.getLayers()) {
-				allFlags.addAll(lay.getAnimFlags());
-			}
-		}
-		if (getTexAnims() != null) {
-			for (final TextureAnim texa : getTexAnims()) {
-				if (texa != null) {
-					allFlags.addAll(texa.getAnimFlags());
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
-				}
-			}
-		}
-		if (getGeosetAnims() != null) {
-			for (final GeosetAnim ga : getGeosetAnims()) {
-				if (ga != null) {
-					allFlags.addAll(ga.getAnimFlags());
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
-				}
-			}
-		}
-//		for (final IdObject idObject : idObjects) {
-		for (final IdObject idObject : getAllObjects()) {
-			allFlags.addAll(idObject.getAnimFlags());
-		}
-		if (getCameras() != null) {
-			for (final Camera x : getCameras()) {
-				allFlags.addAll(x.getSourceNode().getAnimFlags());
-				allFlags.addAll(x.getTargetNode().getAnimFlags());
-			}
-		}
-
-		return allFlags;
+	public File getFileRef() {
+		return fileRef;
 	}
 
-	public List<VisibilitySource> getAllVis() {
-		// Probably will cause a bunch of lag, be wary
-		final List<VisibilitySource> allVis = Collections.synchronizedList(new ArrayList<>());
-		for (final Material m : getMaterials()) {
-			for (final Layer lay : m.getLayers()) {
-//				allVis.add(lay.getVisibilitySource());
-				VisibilitySource vs = lay.getVisibilitySource();
-				if (vs != null) {
-					allVis.add(vs);
-				}
-			}
+	public void setFileRef(final File file) {
+		fileRef = file;
+		if (fileRef != null) {
+			wrappedDataSource = new CompoundDataSource(
+					Arrays.asList(GameDataFileSystem.getDefault(), new FolderDataSource(file.getParentFile().toPath())));
+		} else {
+			wrappedDataSource = GameDataFileSystem.getDefault();
 		}
-		if (getTexAnims() != null) {
-			for (final TextureAnim texa : getTexAnims()) {
-				if (texa != null) {
-					VisibilitySource vs = texa.getVisibilitySource();
-					if (vs != null) {
-						allVis.add(vs);
-					}
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
-				}
-			}
-		}
-		if (getGeosetAnims() != null) {
-			for (final GeosetAnim ga : getGeosetAnims()) {
-				if (ga != null) {
-					VisibilitySource vs = ga.getVisibilitySource();
-					if (vs != null) {
-						allVis.add(vs);
-					}
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
-				}
-			}
-		}
-//		for (final IdObject idObject : idObjects) {
-		for (final IdObject idObject : getAllObjects()) {
-			VisibilitySource vs = idObject.getVisibilitySource();
-			if (vs != null) {
-				allVis.add(vs);
-			}
-		}
-		if (getCameras() != null) {
-			for (final Camera x : getCameras()) {
-				VisibilitySource vs1 = x.getSourceNode().getVisibilitySource();
-				if (vs1 != null) {
-					allVis.add(vs1);
-				}
-				VisibilitySource vs2 = x.getTargetNode().getVisibilitySource();
-				if (vs2 != null) {
-					allVis.add(vs2);
-				}
-			}
-		}
-
-		return allVis;
 	}
 
-	public int animTrackEnd() {
-		int highestEnd = 0;
-		for (final Animation a : getAnims()) {
-			if (a.getStart() > highestEnd) {
-				highestEnd = a.getStart();
-			}
-			if (a.getEnd() > highestEnd) {
-				highestEnd = a.getEnd();
-			}
-		}
-		return highestEnd;
+	public int getBlendTime() {
+		return blendTime;
 	}
 
+	public void setBlendTime(final int blendTime) {
+		this.blendTime = blendTime;
+	}
 
-	public Bone getBone(final int index) {
-		try {
-			if (index < modelIdObjects.getIdObjectsSize()) {
-				final IdObject temp = modelIdObjects.getIdObject(index);
-				if (temp.getClass() == Bone.class) {
-					return (Bone) temp;
-				}
-			}
-		} catch (final Exception e) {
-			JOptionPane.showMessageDialog(null, "Bone reference broken or invalid!");
-		}
-		return null;
+	public ExtLog getExtents() {
+		return extents;
+	}
+
+	public void setExtents(final ExtLog extents) {
+		this.extents = extents;
+	}
+
+	public int getFormatVersion() {
+		return formatVersion;
+	}
+
+	public void setFormatVersion(final int formatVersion) {
+		this.formatVersion = formatVersion;
+	}
+
+	public ArrayList<String> getHeader() {
+		return header;
+	}
+
+	public void addToHeader(final ArrayList<String> header) {
+		this.header.addAll(header);
 	}
 
 
@@ -275,52 +178,40 @@ public class EditableModel implements Named {
 		temporary = flag;
 	}
 
-	public IdObject getIdObject(final int index) {
-		return modelIdObjects.getIdObject(index);
-	}
-
-	public Geoset getGeoset(final int index) {
-		return geosets.get(index);
-	}
-
-	public int getGeosetId(final Geoset g) {
-		return geosets.indexOf(g);
+	public int getAnimsSize() {
+		return anims.size();
 	}
 
 	public int getGeosetsSize() {
 		return geosets.size();
 	}
 
-	public int getAnimsSize() {
-		return anims.size();
-	}
-
 	public int getIdObjectsSize() {
 		return modelIdObjects.getIdObjectsSize();
-	}
-
-
-	public void remove(final Bitmap texture) {
-		// remove a texture, replacing with "Textures\\white.blp" if necessary.
-		textures.remove(texture);
-//		final Bitmap replacement = new Bitmap("Textures\\white.blp");
-//		for (final Material material : materials) {
-//			for (final Layer layer : material.getLayers()) {
-//				layer.replaceTexture(texture, replacement);
-//			}
-//		}
-////		for (final ParticleEmitter2 emitter : (List<ParticleEmitter2>)sortedIdObjects(ParticleEmitter2.class)) {
-//		for (final ParticleEmitter2 emitter : getParticleEmitter2s()) {
-//			if (emitter.getTexture().equals(texture)) {
-//				emitter.setTexture(replacement);
-//			}
-//		}
 	}
 
 	public void sortIdObjects() {
 		modelIdObjects.sort();
 	}
 
+
+	public void add(final Animation x) {
+		if (x == null) {
+			JOptionPane.showMessageDialog(null,
+					"Tried to add null Anim component to model, which is really bad. Tell Retera you saw this once you have errors.");
+		} else {
+			anims.add(x);
+		}
+	}
+
+	public void add(final Bitmap x) {
+		if (x == null) {
+			JOptionPane.showMessageDialog(null,
+					"Tried to add null Bitmap component to model, which is really bad. Tell Retera you saw this once you have errors.");
+		} else {
+			textures.add(x);
+		}
+	}
 
 	public void add(final Camera x) {
 		if (x == null) {
@@ -336,15 +227,6 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public void add(final Animation x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null Anim component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
-			anims.add(x);
-		}
-	}
-
 	public void add(final GlobalSeq x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
@@ -354,40 +236,22 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public void add(final Bitmap x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null Bitmap component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
-			textures.add(x);
-		}
-	}
-
-	public void add(final Material x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null Material component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
-			materials.add(x);
-		}
-	}
-
-	public void add(final TextureAnim x) {
-		if (x == null) {
-			JOptionPane.showMessageDialog(null,
-					"Tried to add null TextureAnim component to model, which is really bad. Tell Retera you saw this once you have errors.");
-		} else {
-			texAnims.add(x);
-		}
-	}
-
 	public void add(final Geoset x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
 					"Tried to add null Geoset component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		} else {
-			x.parentModel = this;
+			x.setParentModel(this);
 			geosets.add(x);
+		}
+	}
+
+	public void add(final GeosetAnim x) {
+		if (x == null) {
+			JOptionPane.showMessageDialog(null,
+					"Tried to add null GeosetAnim component to model, which is really bad. Tell Retera you saw this once you have errors.");
+		} else {
+			geosetAnims.add(x);
 		}
 	}
 
@@ -433,33 +297,46 @@ public class EditableModel implements Named {
 		}
 	}
 
-	public void add(final GeosetAnim x) {
+	public void add(final Material x) {
 		if (x == null) {
 			JOptionPane.showMessageDialog(null,
-					"Tried to add null GeosetAnim component to model, which is really bad. Tell Retera you saw this once you have errors.");
+					"Tried to add null Material component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		} else {
-			geosetAnims.add(x);
+			materials.add(x);
 		}
+	}
+
+	public void add(final TextureAnim x) {
+		if (x == null) {
+			JOptionPane.showMessageDialog(null,
+					"Tried to add null TextureAnim component to model, which is really bad. Tell Retera you saw this once you have errors.");
+		} else {
+			texAnims.add(x);
+		}
+	}
+
+	public void addPivotPoint(final Vec3 x) {
+		pivots.add(x);
+	}
+
+	public void addFaceEffect(final FaceEffect faceEffect) {
+		faceEffects.add(faceEffect);
+	}
+
+	public void addToHeader(final String comment) {
+		header.add(comment);
 	}
 
 	public boolean contains(final Animation x) {
 		return anims.contains(x);
 	}
 
-	public boolean contains(final GlobalSeq x) {
-		return globalSeqs.contains(x);
-	}
-
 	public boolean contains(final Bitmap x) {
 		return textures.contains(x);
 	}
 
-	public boolean contains(final Material x) {
-		return materials.contains(x);
-	}
-
-	public boolean contains(final TextureAnim x) {
-		return texAnims.contains(x);
+	public boolean contains(final Camera x) {
+		return cameras.contains(x);
 	}
 
 	public boolean contains(final Geoset x) {
@@ -470,8 +347,28 @@ public class EditableModel implements Named {
 		return geosetAnims.contains(x);
 	}
 
-	public boolean contains(final Camera x) {
-		return cameras.contains(x);
+	public boolean contains(final GlobalSeq x) {
+		return globalSeqs.contains(x);
+	}
+
+	public boolean contains(final IdObject x) {
+		return modelIdObjects.contains(x);
+	}
+
+	public boolean contains(final Material x) {
+		return materials.contains(x);
+	}
+
+	public boolean contains(final TextureAnim x) {
+		return texAnims.contains(x);
+	}
+
+	public void remove(final Animation a) {
+		anims.remove(a);
+	}
+
+	public void remove(final Bitmap texture) {
+		textures.remove(texture);
 	}
 
 	public void remove(final Camera camera) {
@@ -490,54 +387,123 @@ public class EditableModel implements Named {
 		globalSeqs.remove(g);
 	}
 
-	public void remove(final Animation a) {
-		anims.remove(a);
+	public void remove(final IdObject o) {
+		modelIdObjects.removeIdObject(o);
 	}
 
-	public File getFileRef() {
-		return fileRef;
+	public void remove(final Material material) {
+		materials.remove(material);
 	}
 
-	public void setFileRef(final File file) {
-		fileRef = file;
-		if (fileRef != null) {
-			wrappedDataSource = new CompoundDataSource(
-					Arrays.asList(GameDataFileSystem.getDefault(), new FolderDataSource(file.getParentFile().toPath())));
-		} else {
-			wrappedDataSource = GameDataFileSystem.getDefault();
+	public void clearHeader() {
+		header.clear();
+	}
+
+	public void clearAnimations() {
+		anims.clear();
+	}
+
+	public void clearGeosets() {
+		geosets.clear();
+	}
+
+	public void clearTextures() {
+		textures.clear();
+	}
+
+	public void clearTexAnims() {
+		texAnims.clear();
+	}
+
+	public void clearGlobalSeqs() {
+		globalSeqs.clear();
+	}
+
+	public void clearMaterials() {
+		materials.clear();
+	}
+
+	public void clearAllIdObjects() {
+		modelIdObjects.clearAll();
+	}
+
+	public void clearPivots() {
+		pivots.clear();
+	}
+
+	public IdObject getObject(final String name) {
+		return modelIdObjects.getObject(name);
+	}
+
+	public Animation getAnim(final int i) {
+		return (okIndex(i, anims)) ? anims.get(i) : null;
+	}
+
+	public GlobalSeq getGlobalSeq(final int i) {
+		return (okIndex(i, globalSeqs)) ? globalSeqs.get(i) : null;
+	}
+
+	public Bitmap getTexture(final int i) {
+		return (okIndex(i, textures)) ? textures.get(i) : null;
+	}
+
+	public Material getMaterial(final int i) {
+		return (okIndex(i, materials)) ? materials.get(i) : null;
+	}
+
+	public IdObject getIdObject(final int index) {
+		return modelIdObjects.getIdObject(index);
+	}
+
+	public Geoset getGeoset(final int i) {
+		return (okIndex(i, geosets)) ? geosets.get(i) : null;
+	}
+
+	public GeosetAnim getGeosetAnim(final int i) {
+		return (okIndex(i, geosetAnims)) ? geosetAnims.get(i) : null;
+	}
+
+	private boolean okIndex(int i, List<?> list) {
+		return 0 <= i && i < list.size();
+	}
+
+	public int computeMaterialID(final Material material) {
+		return materials.indexOf(material);
+	}
+
+	public int getGeosetId(final Geoset g) {
+		return geosets.indexOf(g);
+	}
+
+	public int computeGeosetID(final Geoset geoset) {
+		return geosets.indexOf(geoset);
+	}
+
+	public int getObjectId(final IdObject idObject) {
+		return modelIdObjects.getObjectId(idObject);
+	}
+
+	public int getGlobalSeqId(final GlobalSeq inte) {
+		return globalSeqs.indexOf(inte);
+	}
+
+	public int getTextureId(final Bitmap b) {
+		if (b == null) {
+			return -1;
 		}
+		return textures.indexOf(b);
 	}
 
-	public int getBlendTime() {
-		return blendTime;
+	public int getTextureAnimId(final TextureAnim texa) {
+		return texAnims.indexOf(texa);
 	}
 
-	public void setBlendTime(final int blendTime) {
-		this.blendTime = blendTime;
+	public List<Animation> getAnims() {
+		return anims;
 	}
 
-	public ExtLog getExtents() {
-		return extents;
-	}
-
-	public void setExtents(final ExtLog extents) {
-		this.extents = extents;
-	}
-
-	public int getFormatVersion() {
-		return formatVersion;
-	}
-
-	public void setFormatVersion(final int formatVersion) {
-		this.formatVersion = formatVersion;
-	}
-
-	public ArrayList<String> getHeader() {
-		return header;
-	}
-
-	public void setHeader(final ArrayList<String> header) {
-		this.header = header;
+	public List<GlobalSeq> getGlobalSeqs() {
+		return globalSeqs;
 	}
 
 	public List<Sequence> getAllSequences() {
@@ -546,44 +512,8 @@ public class EditableModel implements Named {
 		return sequences;
 	}
 
-	public List<Animation> getAnims() {
-		return anims;
-	}
-
-	public void setAnims(final List<Animation> anims) {
-		this.anims = anims;
-	}
-
-	public List<GlobalSeq> getGlobalSeqs() {
-		return globalSeqs;
-	}
-
-	public void clearGlobalSeqs() {
-		globalSeqs.clear();
-	}
-
-	public List<Bitmap> getTextures() {
-		return textures;
-	}
-
-	public void setTextures(final List<Bitmap> textures) {
-		this.textures = textures;
-	}
-
-	public List<Material> getMaterials() {
-		return materials;
-	}
-
-	public void setMaterials(final List<Material> materials) {
-		this.materials = materials;
-	}
-
-	public void clearMaterials() {
-		materials.clear();
-	}
-
-	public List<TextureAnim> getTexAnims() {
-		return texAnims;
+	public List<Camera> getCameras() {
+		return cameras;
 	}
 
 	public List<Geoset> getGeosets() {
@@ -594,36 +524,20 @@ public class EditableModel implements Named {
 		return geosetAnims;
 	}
 
-	public void setGeosetAnims(final List<GeosetAnim> geosetAnims) {
-		this.geosetAnims = geosetAnims;
+	public List<Material> getMaterials() {
+		return materials;
 	}
 
-	public boolean contains(final IdObject x) {
-		return modelIdObjects.contains(x);
+	public List<Bitmap> getTextures() {
+		return textures;
 	}
 
-	public void remove(final IdObject o) {
-		modelIdObjects.removeIdObject(o);
+	public List<TextureAnim> getTexAnims() {
+		return texAnims;
 	}
 
 	public List<Vec3> getPivots() {
 		return pivots;
-	}
-
-	public void clearPivots() {
-		pivots.clear();
-	}
-
-	public List<Camera> getCameras() {
-		return cameras;
-	}
-
-	public void setCameras(final List<Camera> cameras) {
-		this.cameras = cameras;
-	}
-
-	public List<IdObject> getIdObjects() {
-		return new ArrayList<>(modelIdObjects.allObjects);
 	}
 
 	public List<FaceEffect> getFaceEffects() {
@@ -638,155 +552,7 @@ public class EditableModel implements Named {
 		bindPose = bindPoseChunk;
 	}
 
-	public void clearAnimations() {
-		anims.clear();
-	}
-
-	public IdObject getObject(final String name) {
-		return modelIdObjects.getObject(name);
-	}
-
-	public void clearGeosets() {
-		geosets.clear();
-	}
-
-	public int getObjectId(final IdObject idObject) {
-		return modelIdObjects.getObjectId(idObject);
-	}
-
-	public void addToHeader(final String comment) {
-		header.add(comment);
-	}
-
-	public void addAnimation(final Animation a) {
-		anims.add(a);
-	}
-
-	public Animation getAnim(final int index) {
-		return anims.get(index);
-	}
-
-	public Animation findAnimByName(final String name) {
-		for (final Animation anim : anims) {
-			if (anim.getName().toLowerCase().contains(name.toLowerCase())) {
-				return anim;
-			}
-		}
-		return null;
-	}
-
-	public int getGlobalSeqId(final GlobalSeq inte) {
-		return globalSeqs.indexOf(inte);
-	}
-
-	public GlobalSeq getGlobalSeq(final int id) {
-		if (id >= 0 && globalSeqs.size() > id) {
-			return globalSeqs.get(id);
-		}
-		return null;
-	}
-
-	public void addTexture(final Bitmap b) {
-		textures.add(b);
-	}
-
-	public void clearTextures() {
-		textures.clear();
-	}
-
-	public Bitmap getTexture(final int index) {
-		return textures.get(index);
-	}
-
-	public Bitmap getTexture(final String path) {
-		for (final Bitmap texture : textures) {
-			if (texture.getPath().equals(path)) {
-				return texture;
-			}
-		}
-		return null;
-	}
-
-	public Bitmap loadTexture(final String path) {
-		Bitmap texture = getTexture(path);
-
-		if (texture == null) {
-			texture = new Bitmap(path);
-			add(texture);
-		}
-
-		return texture;
-	}
-
-	public int getTextureId(final Bitmap b) {
-		if (b == null) {
-			return -1;
-		}
-		return textures.indexOf(b);
-	}
-
-	public int getTextureAnimId(final TextureAnim texa) {
-		return texAnims.indexOf(texa);
-	}
-
-	public void addMaterial(final Material x) {
-		materials.add(x);
-	}
-
-	public Material getMaterial(final int i) {
-		if (i >= 0 && i < materials.size()) {
-			return materials.get(i);
-		}
-
-		return null;
-	}
-
-	public void addSound(final SoundFile sound) {
-		sounds.add(sound);
-	}
-
-	public SoundFile getSound(final int index) {
-		return sounds.get(index);
-	}
-
-	public void addGeosetAnim(final GeosetAnim x) {
-		geosetAnims.add(x);
-	}
-
-	public GeosetAnim getGeosetAnim(final int index) {
-		return geosetAnims.get(index);
-	}
-
-	public void addCamera(final Camera x) {
-		cameras.add(x);
-	}
-
-	public void addFaceEffect(final FaceEffect faceEffect) {
-		faceEffects.add(faceEffect);
-	}
-
-	private void addIdObject(final IdObject x) {
-		modelIdObjects.addIdObject(x);
-//		idObjects.add(x);
-	}
-
-	public void addPivotPoint(final Vec3 x) {
-		pivots.add(x);
-	}
-
-	public void addGeoset(final Geoset g) {
-		geosets.add(g);
-	}
-
-	public int computeMaterialID(final Material material) {
-		return materials.indexOf(material);
-	}
-
-	public int computeGeosetID(final Geoset geoset) {
-		return geosets.indexOf(geoset);
-	}
-
-	public List<IdObject> getAllObjects() {
+	public List<IdObject> getIdObjects() {
 		return new ArrayList<>(modelIdObjects.allObjects);
 	}
 
@@ -836,10 +602,6 @@ public class EditableModel implements Named {
 
 	Map<IdObject, Integer> getIdObjectToIdMap() {
 		return modelIdObjects.getIdObjectToIdMap();
-	}
-
-	public void clearAllIdObjects() {
-		modelIdObjects.clearAll();
 	}
 
 	private static class ModelIdObjects {

@@ -54,10 +54,10 @@ public class BoneEditPanel extends JPanel {
 		JPanel topPanel = new JPanel(new MigLayout("gap 0, debug", "[][][][]", "[][align center]"));
 		topPanel.setOpaque(true);
 
-		topPanel.add(createButton("Import All", e -> mht.setImportStatusForAllBones(BoneShell.ImportType.IMPORT)));
-		topPanel.add(createButton("Motion From All", e -> mht.setImportStatusForAllBones(BoneShell.ImportType.MOTIONFROM)));
+		topPanel.add(createButton("Import All", e -> mht.setImportStatusForAllDonBones(BoneShell.ImportType.IMPORT)));
+		topPanel.add(createButton("Motion From All", e -> mht.setImportStatusForAllDonBones(BoneShell.ImportType.MOTIONFROM)));
 		topPanel.add(createButton("Uncheck Unused", e -> uncheckUnusedBones(mht)));
-		topPanel.add(createButton("Leave All", e -> mht.setImportStatusForAllBones(BoneShell.ImportType.DONTIMPORT)), "wrap");
+		topPanel.add(createButton("Leave All", e -> mht.setImportStatusForAllDonBones(BoneShell.ImportType.DONTIMPORT)), "wrap");
 
 		mht.clearExistingBones = new JCheckBox("Clear pre-existing bones and helpers");
 		topPanel.add(mht.clearExistingBones, "spanx 4, align center");

@@ -2,11 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
-import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.io.BufferedReader;
@@ -86,60 +82,6 @@ public class ScriptActions {
 		return output;
 	}
 
-	public static void openImportPanelWithEmpty() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null && modelPanel.getModel() != null) {
-			EditableModel model = modelPanel.getModel();
-			EditableModel newModel = new EditableModel();
-			newModel.copyHeaders(model);
-			if (newModel.getFileRef() == null) {
-				newModel.setFileRef(
-						new File(System.getProperty("java.io.tmpdir") + "MatrixEaterExtract/matrixeater_anonymousMDL",
-								"" + (int) (Math.random() * Integer.MAX_VALUE) + ".mdl"));
-			}
-			while (newModel.getFile().exists()) {
-				newModel.setFileRef(new File(model.getFile().getParent() + "/" + incName(newModel.getName()) + ".mdl"));
-			}
-			ImportPanel importPanel = new ImportPanel(newModel, TempStuffFromEditableModel.deepClone(model, "CurrentModel"));
-
-			final Thread watcher = new Thread(() -> {
-				while (importPanel.getParentFrame().isVisible()
-						&& (!importPanel.importStarted()
-						|| importPanel.importEnded())) {
-					trySleep();
-				}
-				if (importPanel.importStarted()) {
-					while (!importPanel.importEnded()) {
-						trySleep();
-					}
-
-					if (importPanel.importSuccessful()) {
-						try {
-							MdxUtils.saveMdx(newModel, newModel.getFile());
-						} catch (final IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						ModelLoader.loadFile(newModel.getFile());
-					}
-				}
-			});
-			watcher.start();
-		}
-		if (ProgramGlobals.getCurrentModelPanel() != null) {
-//			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
-			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
-		}
-	}
-
-	private static void trySleep() {
-		try {
-			Thread.sleep(1);
-		} catch (final Exception e) {
-			ExceptionPopup.display("MatrixEater detected error with Java's wait function", e);
-		}
-	}
-
 	public static void jokeButtonClickResponse() {
 		StringBuilder sb = new StringBuilder();
 		for (File file : new File(
@@ -164,8 +106,7 @@ public class ScriptActions {
 				EditableModel model = ProgramGlobals.getCurrentModelPanel().getModel();
 				for (int i = 0; (i + 23) < dataString.length(); i += 24) {
 					Geoset geo = new Geoset();
-					model.addGeoset(geo);
-					geo.setParentModel(model);
+					model.add(geo);
 					geo.setMaterial(new Material(new Layer("Blend", new Bitmap("textures\\white.blp"))));
 					String data = dataString.substring(i, i + 24);
 					int x = Integer.parseInt(data.substring(0, 3));

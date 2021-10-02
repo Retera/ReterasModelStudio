@@ -106,17 +106,17 @@ public class ViewportModelRenderer {
 		}
 		graphics.setColor(ProgramGlobals.getPrefs().getVertexColor());
 
-		for (Geoset geoset: modelView.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getEditableGeosets()) {
 			drawVerts(graphics, geoset.getVertices());
 		}
 		graphics.setColor(ProgramGlobals.getPrefs().getSelectColor());
 		drawVerts(graphics, modelView.getSelectedVertices());
 
 		graphics.setColor(ProgramGlobals.getPrefs().getHighlighVertexColor());
-		if(modelView.getHighlightedGeoset() != null){
+		if (modelView.getHighlightedGeoset() != null) {
 			drawVerts(graphics, modelView.getHighlightedGeoset().getVertices());
 		}
-		for (IdObject object : model.getAllObjects()) {
+		for (IdObject object : model.getIdObjects()) {
 			if (modelView.isVisible(object) || (object == modelView.getHighlightedNode())) {
 //				idObjectRenderer.renderObject(modelView.getHighlightedNode() == object, object);
 				// ToDo mark children of selected parent

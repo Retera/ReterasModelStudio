@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.AddSequenceAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -182,7 +183,7 @@ public class AddSingleAnimationActions {
 		// a copy instead
 		other = TempStuffFromEditableModel.deepClone(other, "animation source file");
 
-		List<AnimFlag<?>> othersFlags = other.getAllAnimFlags();
+		List<AnimFlag<?>> othersFlags = ModelUtils.getAllAnimFlags(other);
 		List<EventObject> othersEventObjs = other.getEvents();
 
 		List<Animation> newAnimations = new ArrayList<>();
@@ -209,7 +210,7 @@ public class AddSingleAnimationActions {
 		// Fill the newly created time track with the exact same data, but shifted forward
 		// relative to wherever the current model's last animation starts
 		for (Animation anim : anims) {
-			int animTrackEnd = model.animTrackEnd();
+			int animTrackEnd = ModelUtils.animTrackEnd(model);
 			int newStart = animTrackEnd + 300;
 			int length = anim.getLength();
 			Animation newAnim = anim.deepCopy();
@@ -273,7 +274,7 @@ public class AddSingleAnimationActions {
 
 	public static void copyVisibility(EditableModel model, Animation visibilitySource, Animation target) {
 //		final List<VisibilitySource> allVisibilitySources = getAllVisibilitySources();
-		final List<VisibilitySource> allVisibilitySources = model.getAllVis();
+		final List<VisibilitySource> allVisibilitySources = ModelUtils.getAllVis(model);
 		for (VisibilitySource source : allVisibilitySources) {
 			AnimFlag<?> visibilityFlag = source.getVisibilityFlag();
 			AnimFlag<?> copyFlag = visibilityFlag.deepCopy();

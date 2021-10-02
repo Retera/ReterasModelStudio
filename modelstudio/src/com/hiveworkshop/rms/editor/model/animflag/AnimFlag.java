@@ -719,10 +719,14 @@ public abstract class AnimFlag<T> {
 		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
 		if (entryMap != null) {
 			TreeMap<Integer, Entry<T>> scaledMap = new TreeMap<>();
-			double ratio = (double) (newLength) / (double) (anim.getLength());
-			for (int time = entryMap.ceilingKey(0); time <= entryMap.floorKey(anim.getLength()); time = entryMap.higherKey(time)) {
-				int newTime = (int) (offsetFromStart + (time * ratio));
-				scaledMap.put(newTime, entryMap.remove(time).setTime(newTime));
+			int animLength = Math.max(0, anim.getLength());
+			double ratio = (double) (newLength) / (double) animLength;
+			Integer lastKF = entryMap.floorKey(animLength);
+			if (lastKF != null) {
+				for (Integer time = entryMap.ceilingKey(0); time != null && time <= lastKF; time = entryMap.higherKey(time)) {
+					int newTime = (int) (offsetFromStart + (time * ratio));
+					scaledMap.put(newTime, entryMap.remove(time).setTime(newTime));
+				}
 			}
 			entryMap.putAll(scaledMap);
 		}

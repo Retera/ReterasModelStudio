@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model.util;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
@@ -9,6 +10,7 @@ import com.hiveworkshop.rms.util.Pair;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
+import javax.swing.*;
 import java.util.*;
 
 public final class ModelUtils {
@@ -242,6 +244,119 @@ public final class ModelUtils {
 
 	public static boolean isCornSupported(int formatVersion) {
 		return (formatVersion == 900) || (formatVersion == 1000);
+	}
+
+	public static List<VisibilitySource> getAllVis(EditableModel model) {
+		// Probably will cause a bunch of lag, be wary
+		List<VisibilitySource> allVis = Collections.synchronizedList(new ArrayList<>());
+		for (Material m : model.getMaterials()) {
+			for (Layer lay : m.getLayers()) {
+				VisibilitySource vs = lay.getVisibilitySource();
+				if (vs != null) {
+					allVis.add(vs);
+				}
+			}
+		}
+		if (model.getTexAnims() != null) {
+			for (TextureAnim texa : model.getTexAnims()) {
+				if (texa != null) {
+					VisibilitySource vs = texa.getVisibilitySource();
+					if (vs != null) {
+						allVis.add(vs);
+					}
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
+				}
+			}
+		}
+		if (model.getGeosetAnims() != null) {
+			for (GeosetAnim ga : model.getGeosetAnims()) {
+				if (ga != null) {
+					VisibilitySource vs = ga.getVisibilitySource();
+					if (vs != null) {
+						allVis.add(vs);
+					}
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
+				}
+			}
+		}
+		for (IdObject idObject : model.getIdObjects()) {
+			VisibilitySource vs = idObject.getVisibilitySource();
+			if (vs != null) {
+				allVis.add(vs);
+			}
+		}
+		if (model.getCameras() != null) {
+			for (Camera x : model.getCameras()) {
+				VisibilitySource vs1 = x.getSourceNode().getVisibilitySource();
+				if (vs1 != null) {
+					allVis.add(vs1);
+				}
+				VisibilitySource vs2 = x.getTargetNode().getVisibilitySource();
+				if (vs2 != null) {
+					allVis.add(vs2);
+				}
+			}
+		}
+
+		return allVis;
+	}
+
+	public static int animTrackEnd(EditableModel model) {
+		int highestEnd = 0;
+		for (final Animation a : model.getAnims()) {
+			if (a.getStart() > highestEnd) {
+				highestEnd = a.getStart();
+			}
+			if (a.getEnd() > highestEnd) {
+				highestEnd = a.getEnd();
+			}
+		}
+		return highestEnd;
+	}
+
+	public static List<AnimFlag<?>> getAllAnimFlags(EditableModel model) {
+		// Probably will cause a bunch of lag, be wary
+		List<AnimFlag<?>> allFlags = Collections.synchronizedList(new ArrayList<>());
+		for (Material m : model.getMaterials()) {
+			for (Layer lay : m.getLayers()) {
+				allFlags.addAll(lay.getAnimFlags());
+			}
+		}
+		if (model.getTexAnims() != null) {
+			for (TextureAnim texa : model.getTexAnims()) {
+				if (texa != null) {
+					allFlags.addAll(texa.getAnimFlags());
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"WARNING: Error with processing time-scale from TextureAnims! Program will attempt to proceed.");
+				}
+			}
+		}
+		if (model.getGeosetAnims() != null) {
+			for (GeosetAnim ga : model.getGeosetAnims()) {
+				if (ga != null) {
+					allFlags.addAll(ga.getAnimFlags());
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"WARNING: Error with processing time-scale from GeosetAnims! Program will attempt to proceed.");
+				}
+			}
+		}
+		for (IdObject idObject : model.getIdObjects()) {
+			allFlags.addAll(idObject.getAnimFlags());
+		}
+		if (model.getCameras() != null) {
+			for (Camera x : model.getCameras()) {
+				allFlags.addAll(x.getSourceNode().getAnimFlags());
+				allFlags.addAll(x.getTargetNode().getAnimFlags());
+			}
+		}
+
+		return allFlags;
 	}
 
 	public static final class Mesh {

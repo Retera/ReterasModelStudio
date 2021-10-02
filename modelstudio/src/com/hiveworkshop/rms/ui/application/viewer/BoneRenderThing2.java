@@ -7,7 +7,6 @@ import org.lwjgl.opengl.GL11;
 import static org.lwjgl.opengl.GL11.*;
 
 public class BoneRenderThing2 {
-	private static final Vec3 zAxis = new Vec3(0, 0, 1);
 	private Vec3 diffVec = new Vec3();
 	private Vec3 tempVec = new Vec3();
 	Quat difRotR = new Quat();
@@ -139,12 +138,12 @@ public class BoneRenderThing2 {
 		float scale = 1;
 //		System.out.println("dist to par: " + diffVec.length());
 		if (diffVec.x == 0 && diffVec.y == 0 && diffVec.z == 0) {
-			diffVec.set(zAxis).scale(0.01f);
+			diffVec.set(Vec3.Z_AXIS).scale(0.01f);
 		}
 //		else {
 //			scale = diffVec.length() / 10;
 //		}
-		tempVec.set(zAxis).cross(diffVec).normalize();
+		tempVec.set(Vec3.Z_AXIS).cross(diffVec).normalize();
 
 		difRotR.setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
 		rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
@@ -155,31 +154,31 @@ public class BoneRenderThing2 {
 
 		return this;
 	}
-	public BoneRenderThing2 transform2(Vec3 p1, Vec3 p2, Vec3 scale){
+	public BoneRenderThing2 transform2(Vec3 p1, Vec3 p2, Vec3 scale) {
 		diffVec.set(p2).sub(p1);
-		if(diffVec.x==0 && diffVec.y == 0 && diffVec.z == 0){
-			diffVec.set(zAxis).scale(0.01f);
+		if (diffVec.x == 0 && diffVec.y == 0 && diffVec.z == 0) {
+			diffVec.set(Vec3.Z_AXIS).scale(0.01f);
 		}
-		tempVec.set(zAxis).cross(diffVec).normalize();
+		tempVec.set(Vec3.Z_AXIS).cross(diffVec).normalize();
 
 		difRotR.setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
-		rot90.setFromAxisAngle(tempVec, (float) (Math.PI/2)).normalize();
+		rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
 		difRotR.mul(rot90).normalize();
 
 		transform(difRotR, p1, p2);
 
 		return this;
 	}
-	public BoneRenderThing2 transform2(Vec3 p1, Vec3 p2, float nodeSize){
+	public BoneRenderThing2 transform2(Vec3 p1, Vec3 p2, float nodeSize) {
 		diffVec.set(p2).sub(p1);
 //		System.out.println("dist to par: " + diffVec.length());
 		if (diffVec.x == 0 && diffVec.y == 0 && diffVec.z == 0) {
-			diffVec.set(zAxis).scale(0.01f);
+			diffVec.set(Vec3.Z_AXIS).scale(0.01f);
 		}
 //		else {
 //			nodeSize = diffVec.length() / 10;
 //		}
-		tempVec.set(zAxis).cross(diffVec).normalize();
+		tempVec.set(Vec3.Z_AXIS).cross(diffVec).normalize();
 
 		difRotR.setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
 		rot90.setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();

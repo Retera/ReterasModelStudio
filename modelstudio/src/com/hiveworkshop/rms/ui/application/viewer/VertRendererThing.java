@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
 public class VertRendererThing {
-	Vec3 normal = new Vec3(1, 0, 0);
+	Vec3 normal = new Vec3(Vec3.X_AXIS);
 	Vec3 renderNormal = new Vec3();
 	Vec3 baseSize = new Vec3(1, 1, 1);
 	Vec3[] orgPoints;

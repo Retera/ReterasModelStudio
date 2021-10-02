@@ -147,4 +147,10 @@ public class Matrix {
 	private void recalculateId() {
 		identityHash = bones.hashCode();
 	}
+
+	@Override
+	public int hashCode() {
+//		return Objects.hash(bones);
+		return bones.hashCode();
+	}
 }

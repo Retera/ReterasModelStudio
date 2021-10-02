@@ -162,11 +162,11 @@ public final class ModelComponentBrowserTree extends JTree {
 			geosets.add(new DefaultMutableTreeNode(geosetItem2));
 		}
 
-		DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ANIM, modelView, "GeosetAnims").setNameFunc(() -> "GeosetAnims"));
-		for (GeosetAnim item : model.getGeosetAnims()) {
-			geosetAnims.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ANIM, modelView, item).setNameFunc(() -> "# " + model.getGeosets().indexOf(item.getGeoset()))));
-		}
-		root.add(geosetAnims);
+//		DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ANIM, modelView, "GeosetAnims").setNameFunc(() -> "GeosetAnims"));
+//		for (GeosetAnim item : model.getGeosetAnims()) {
+//			geosetAnims.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.GEOSET_ANIM, modelView, item).setNameFunc(() -> "# " + model.getGeosets().indexOf(item.getGeoset()))));
+//		}
+//		root.add(geosetAnims);
 
 
 		DefaultMutableTreeNode nodes = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.NODES, modelView, "Nodes").setNameFunc(() -> "Nodes"));

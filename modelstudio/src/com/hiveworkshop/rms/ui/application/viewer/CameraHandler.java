@@ -13,9 +13,6 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class CameraHandler {
-	private final Vec3 X_AXIS = new Vec3(1, 0, 0);
-	private final Vec3 Y_AXIS = new Vec3(0, 1, 0);
-	private final Vec3 Z_AXIS = new Vec3(0, 0, 1);
 	private final double ZOOM_FACTOR = 1.07;
 //	private final Vec3 cameraPos1 = new Vec3(0, 0, 0);
 	private final Vec3 cameraPos = new Vec3(0, 0, 0);
@@ -102,13 +99,13 @@ public class CameraHandler {
 	}
 
 	private void calculateCameraRotation() {
-		inverseCameraRotXSpinY.setFromAxisAngle(X_AXIS, (float) Math.toRadians(yAngle)).normalize();
+		inverseCameraRotXSpinY.setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(yAngle)).normalize();
 		inverseCameraRotXSpinY.invertRotation();
-		inverseCameraRotYSpinY.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(yAngle)).normalize();
+		inverseCameraRotYSpinY.setFromAxisAngle(Vec3.Y_AXIS, (float) Math.toRadians(yAngle)).normalize();
 		inverseCameraRotYSpinY.invertRotation();
-		inverseCameraRotZSpinX.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(xAngle)).normalize();
+		inverseCameraRotZSpinX.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(xAngle)).normalize();
 		inverseCameraRotZSpinX.invertRotation();
-		inverseCameraRotZSpinZ.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(zAngle)).normalize();
+		inverseCameraRotZSpinZ.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(zAngle)).normalize();
 		inverseCameraRotZSpinZ.invertRotation();
 		inverseCameraRotation.set(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()).normalize();
 
@@ -116,25 +113,25 @@ public class CameraHandler {
 //		cameraPos.rotate(cameraLookAt, inverseCameraRotation);
 	}
 //	private void calculateCameraRotation() {
-//		inverseCameraRotXSpinX.setFromAxisAngle(X_AXIS, (float) Math.toRadians(xAngle)).normalize();
+//		inverseCameraRotXSpinX.setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(xAngle)).normalize();
 //		inverseCameraRotXSpinX.invertRotation();
-//		inverseCameraRotXSpinY.setFromAxisAngle(X_AXIS, (float) Math.toRadians(yAngle)).normalize();
+//		inverseCameraRotXSpinY.setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(yAngle)).normalize();
 //		inverseCameraRotXSpinY.invertRotation();
-//		inverseCameraRotXSpinZ.setFromAxisAngle(X_AXIS, (float) Math.toRadians(zAngle)).normalize();
+//		inverseCameraRotXSpinZ.setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(zAngle)).normalize();
 //		inverseCameraRotXSpinZ.invertRotation();
 //
-//		inverseCameraRotYSpinX.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(xAngle)).normalize();
+//		inverseCameraRotYSpinX.setFromAxisAngle(Vec3.Y_AXIS, (float) Math.toRadians(xAngle)).normalize();
 //		inverseCameraRotYSpinX.invertRotation();
-//		inverseCameraRotYSpinY.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(yAngle)).normalize();
+//		inverseCameraRotYSpinY.setFromAxisAngle(Vec3.Y_AXIS, (float) Math.toRadians(yAngle)).normalize();
 //		inverseCameraRotYSpinY.invertRotation();
-//		inverseCameraRotYSpinZ.setFromAxisAngle(Y_AXIS, (float) Math.toRadians(zAngle)).normalize();
+//		inverseCameraRotYSpinZ.setFromAxisAngle(Vec3.Y_AXIS, (float) Math.toRadians(zAngle)).normalize();
 //		inverseCameraRotYSpinZ.invertRotation();
 //
-//		inverseCameraRotZSpinX.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(xAngle)).normalize();
+//		inverseCameraRotZSpinX.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(xAngle)).normalize();
 //		inverseCameraRotZSpinX.invertRotation();
-//		inverseCameraRotZSpinY.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(yAngle)).normalize();
+//		inverseCameraRotZSpinY.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(yAngle)).normalize();
 //		inverseCameraRotZSpinY.invertRotation();
-//		inverseCameraRotZSpinZ.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(zAngle)).normalize();
+//		inverseCameraRotZSpinZ.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(zAngle)).normalize();
 //		inverseCameraRotZSpinZ.invertRotation();
 //
 //		inverseCameraRotation.set(getInverseCameraRotXSpinZ()).normalize();
@@ -142,16 +139,16 @@ public class CameraHandler {
 
 
 //		inverseCameraRotation.set(getInverseCameraRotZSpinY()).mul(getInverseCameraRotXSpinZ()).normalize();
-//		inverseCameraRotation.setFromAxisAngle(Z_AXIS, (float) Math.toRadians(yAngle)).mul(getInverseCameraRotXSpinZ()).invertRotation().normalize();
+//		inverseCameraRotation.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(yAngle)).mul(getInverseCameraRotXSpinZ()).invertRotation().normalize();
 
 
-//		inverseCameraRotation.setFromAxisAngle(X_AXIS, (float) Math.toRadians(0)).mul(getInverseCameraRotXSpinZ()).mul(getInverseCameraRotXSpinZ()).normalize();
+//		inverseCameraRotation.setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(0)).mul(getInverseCameraRotXSpinZ()).mul(getInverseCameraRotXSpinZ()).normalize();
 
 
 //		inverseCameraRotation.setIdentity().mul(getInverseCameraRotYSpinY()).mul(getInverseCameraRotZSpinZ()).normalize();
 //		inverseCameraRotation.set(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()).normalize();
 //		inverseCameraRotation.set(inverseCameraRotYSpinZ).mul(inverseCameraRotXSpinX).normalize();
-//		inverseCameraRotation.setFromAxisAngle(Z_AXIS, 0).normalize();
+//		inverseCameraRotation.setFromAxisAngle(Vec3.Z_AXIS, 0).normalize();
 
 //		inverseCameraRot_XY_mulZX.set(inverseCameraRotXSpinY).mul(inverseCameraRotZSpinX).normalize();
 //		inverseCameraRot_XY_mulZX.invertRotation();

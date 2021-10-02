@@ -23,8 +23,8 @@ public class ObjectEditPanel extends JPanel {
 		setLayout(new MigLayout("gap 0", "[grow][grow]", "[][grow]"));
 		this.mht = mht;
 
-		add(getButton("Import All", e -> mht.importAllObjs(true)), "cell 0 0, right");
-		add(getButton("Leave All", e -> mht.importAllObjs(false)), "cell 1 0, left");
+		add(getButton("Import All", e -> mht.setImportAllDonObjs(true)), "cell 0 0, right");
+		add(getButton("Leave All", e -> mht.setImportAllDonObjs(false)), "cell 1 0, left");
 
 		mht.getFutureBoneHelperList();
 

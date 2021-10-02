@@ -62,6 +62,10 @@ public abstract class TimelineContainer implements VisibilitySource {
 		}
 	}
 
+	public void clearAnimFlags() {
+		animFlags.clear();
+	}
+
 	public ArrayList<AnimFlag<?>> getAnimFlags() {
 		return new ArrayList<>(animFlags.values());
 	}

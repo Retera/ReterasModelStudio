@@ -15,15 +15,17 @@ public class AnimShell {
 	private ImportType importType = ImportType.IMPORTBASIC;
 	private String name;
 	private String oldName;
+	private final boolean isFromDonating;
 
 	public AnimShell(final Animation anim) {
+		this(anim, false);
+	}
+
+	public AnimShell(final Animation anim, boolean isFromDonating) {
 		this.anim = anim;
 		name = anim.getName();
 		oldName = anim.getName();
-	}
-
-	public void setImportAnim(final Animation a) {
-		importAnim = a;
+		this.isFromDonating = isFromDonating;
 	}
 
 	public Animation getAnim() {
@@ -36,7 +38,10 @@ public class AnimShell {
 	}
 
 	public Animation getImportAnim() {
-		return importAnim;
+		if (importAnimShell == null) {
+			return null;
+		}
+		return importAnimShell.getAnim();
 	}
 
 	public List<AnimShell> getAnimShellsToTimeScaleInto() {
@@ -130,6 +135,10 @@ public class AnimShell {
 	public AnimShell setImportAnimShell(AnimShell importAnimShell) {
 		this.importAnimShell = importAnimShell;
 		return this;
+	}
+
+	public boolean isFromDonating() {
+		return isFromDonating;
 	}
 
 	public enum ImportType {

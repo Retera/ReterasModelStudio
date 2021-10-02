@@ -40,7 +40,7 @@ public class RotateManipulator extends AbstractRotateManipulator {
 	protected void onStart(MouseEvent e, Vec2 mouseStart, CameraHandler cameraHandler) {
 		Vec3 center = selectionManager.getCenter();
 		nonRotAngle = 0;
-		Vec3 axis = new Vec3(1, 0, 0);
+		Vec3 axis = new Vec3(Vec3.X_AXIS);
 		axis.transform(cameraHandler.getViewPortAntiRotMat2());
 
 //		if (dir != MoveDimension.XYZ && dir.containDirection(dim1)) {

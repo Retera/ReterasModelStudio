@@ -66,7 +66,7 @@ public class GeometryModelEditor extends ModelEditor {
 
     @Override
     public GenericMoveAction beginTranslation() {
-        return new StaticMeshMoveAction(modelView, Vec3.ORIGIN);
+        return new StaticMeshMoveAction(modelView, Vec3.ZERO);
     }
 
 	@Override

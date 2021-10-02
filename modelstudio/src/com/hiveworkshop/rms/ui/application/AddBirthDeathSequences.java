@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -48,7 +49,7 @@ public class AddBirthDeathSequences {
 		if (animation == null) return;
 		setNewAnimation(model, animation, offsetStart, offsetEnd);
 
-		final Animation stand = model.findAnimByName("stand");
+		final Animation stand = findAnimByName(model, "stand");
 		if (stand != null) {
 			setAnimationVisibilityFlag(model, stand, animation);
 		}
@@ -62,7 +63,7 @@ public class AddBirthDeathSequences {
 	}
 
 	private static Animation getAnimationToUse(String name, EditableModel model, Animation lastAnim) {
-		Animation oldAnimation = model.findAnimByName(name);
+		Animation oldAnimation = findAnimByName(model, name);
 		Animation animation = new Animation(name, lastAnim.getEnd() + 300, lastAnim.getEnd() + 2300);
 
 		boolean removeOldAnimation = false;
@@ -80,7 +81,7 @@ public class AddBirthDeathSequences {
 			}
 		}
         if (removeOldAnimation) {
-	        for (AnimFlag<?> af : model.getAllAnimFlags()) {
+	        for (AnimFlag<?> af : ModelUtils.getAllAnimFlags(model)) {
 		        if (((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
 			        af.deleteAnim(oldAnimation);
 		        }
@@ -92,8 +93,17 @@ public class AddBirthDeathSequences {
 	        model.remove(oldAnimation);
 	        ModelStructureChangeListener.changeListener.animationParamsChanged();
         }
-        return animation;
-    }
+		return animation;
+	}
+
+	public static Animation findAnimByName(EditableModel model, String name) {
+		for (final Animation anim : model.getAnims()) {
+			if (anim.getName().toLowerCase().contains(name.toLowerCase())) {
+				return anim;
+			}
+		}
+		return null;
+	}
 
 	private static void setNewAnimation(EditableModel model, Animation animation, int startOffset, int endOffset) {
 		Vec3 startVec = new Vec3(0, 0, startOffset);
@@ -103,7 +113,7 @@ public class AddBirthDeathSequences {
 		createKeyframes(model, animation, startVec, endVec);
 	}
 
-    private static List<IdObject> getRootObjects(EditableModel model) {
+	private static List<IdObject> getRootObjects(EditableModel model) {
         final List<IdObject> roots = new ArrayList<>();
         for (final IdObject obj : model.getIdObjects()) {
             if (obj.getParent() == null) {
@@ -143,7 +153,7 @@ public class AddBirthDeathSequences {
 
     private static void setAnimationVisibilityFlag(EditableModel model, Animation stand, Animation animation) {
 //        for (final VisibilitySource source : model.getAllVisibilitySources()) {
-	    for (final VisibilitySource source : model.getAllVis()) {
+	    for (final VisibilitySource source : ModelUtils.getAllVis(model)) {
 		    final FloatAnimFlag dummy = new FloatAnimFlag("dummy");
 		    final AnimFlag<?> af = source.getVisibilityFlag();
 		    dummy.copyFrom(af);

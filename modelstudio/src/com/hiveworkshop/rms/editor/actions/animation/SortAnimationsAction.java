@@ -18,7 +18,7 @@ public class SortAnimationsAction implements UndoAction {
 
 	@Override
 	public UndoAction undo() {
-		model.getAnims().clear();
+		model.clearAnimations();
 		model.getAnims().addAll(oldList);
 		return this;
 	}

@@ -45,7 +45,7 @@ public class AddMaterialAction implements UndoAction {
 
 	@Override
 	public UndoAction undo() {
-		model.getMaterials().remove(material);
+		model.remove(material);
 		if (!addTextureActions.isEmpty()) {
 			for (UndoAction action : addTextureActions) {
 				action.undo();
@@ -59,7 +59,7 @@ public class AddMaterialAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		model.addMaterial(material);
+		model.add(material);
 		if (!addTextureActions.isEmpty()) {
 			for (UndoAction action : addTextureActions) {
 				action.redo();

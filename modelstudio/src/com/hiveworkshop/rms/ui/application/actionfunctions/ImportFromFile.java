@@ -2,24 +2,22 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.ImportFileActions;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
-public class ImportFromFile extends ActionFunction{
+public class ImportFromFile extends ActionFunction {
 	private static final FileDialog fileDialog = new FileDialog();
-	public ImportFromFile(){
-		super(TextKey.IMPORT_FROM_FILE, () -> importButtonActionRes(), "control shift I");
+
+	public ImportFromFile() {
+		super(TextKey.IMPORT_FROM_FILE, ImportFromFile::importButtonActionRes, "control shift I");
 	}
 
-	public static void importButtonActionRes() {
+	public static void importButtonActionRes(ModelHandler modelHandler) {
 		EditableModel model = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
 		if (model != null) {
-			ImportFileActions.importFile(model);
-		}
-		if (ProgramGlobals.getCurrentModelPanel() != null) {
-//			ProgramGlobals.getCurrentModelPanel().repaintModelTrees();
-			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+			ImportPanel importPanel = new ImportPanel(modelHandler.getModel(), model, true);
+//			ImportPanelGui importPanel = new ImportPanelGui(modelHandler.getModel(), model);
 		}
 	}
 }

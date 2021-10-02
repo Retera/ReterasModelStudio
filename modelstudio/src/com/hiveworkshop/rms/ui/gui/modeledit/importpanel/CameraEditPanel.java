@@ -22,8 +22,8 @@ public class CameraEditPanel extends JPanel {
 		setLayout(new MigLayout("gap 0", "[grow][grow]", "[][grow]"));
 		this.mht = mht;
 
-		add(getButton("Import All", e -> mht.importAllCams(true)), "cell 0 0, right");
-		add(getButton("Leave All", e -> mht.importAllCams(false)), "cell 1 0, left");
+		add(getButton("Import All", e -> mht.setImportAllDonCams(true)), "cell 0 0, right");
+		add(getButton("Leave All", e -> mht.setImportAllDonCams(false)), "cell 1 0, left");
 
 
 		singleCameraPanel = new CameraPanel(mht);

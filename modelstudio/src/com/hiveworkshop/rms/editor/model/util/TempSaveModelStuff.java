@@ -62,11 +62,14 @@ public class TempSaveModelStuff {
 
 		for (final Geoset geoset : model.getGeosets()) {
 			mdlxModel.geosets.add(GeosetToMdlx.toMdlx(geoset, model));
+			if (geoset.getGeosetAnim() != null) {
+				mdlxModel.geosetAnimations.add(GeosetToMdlx.toMdlx(geoset.getGeosetAnim(), model));
+			}
 		}
-
-		for (final GeosetAnim animation : model.getGeosetAnims()) {
-			mdlxModel.geosetAnimations.add(GeosetToMdlx.toMdlx(animation, model));
-		}
+//
+//		for (final GeosetAnim animation : model.getGeosetAnims()) {
+//			mdlxModel.geosetAnimations.add(GeosetToMdlx.toMdlx(animation, model));
+//		}
 
 		for (final Bone bone : model.getBones()) {
 			mdlxModel.bones.add(IdObjectToMdlx.toMdlx(bone, model));
@@ -172,7 +175,7 @@ public class TempSaveModelStuff {
 
 		// Clearing pivot points
 		model.clearPivots();
-		for (final IdObject idObject : model.getAllObjects()) {
+		for (final IdObject idObject : model.getIdObjects()) {
 			model.addPivotPoint(idObject.getPivotPoint());
 		}
 	}
@@ -279,7 +282,7 @@ public class TempSaveModelStuff {
 
 	public static void rebuildGlobalSeqList(EditableModel model) {
 		model.clearGlobalSeqs();
-		final List<AnimFlag<?>> animFlags = model.getAllAnimFlags();// laggggg!
+		final List<AnimFlag<?>> animFlags = ModelUtils.getAllAnimFlags(model);// laggggg!
 		final List<EventObject> evtObjs = model.getEvents();
 		for (final AnimFlag<?> af : animFlags) {
 			if (af.getGlobalSeq() != null && !model.contains(af.getGlobalSeq())) {
@@ -301,7 +304,7 @@ public class TempSaveModelStuff {
 		// -- Injected in save prep --
 		// Delete empty rotation/translation/scaling
 		model.setBindPoseChunk(null);
-		for (final IdObject obj : model.getAllObjects()) {
+		for (final IdObject obj : model.getIdObjects()) {
 			final Collection<AnimFlag<?>> animFlags = obj.getAnimFlags();
 			final List<AnimFlag<?>> bad = new ArrayList<>();
 			for (final AnimFlag<?> flag : animFlags) {
@@ -320,7 +323,7 @@ public class TempSaveModelStuff {
 		final List<? extends Bone> helpers = model.getHelpers();
 		bones.addAll(helpers);
 
-		List<IdObject> allObjects = model.getAllObjects();
+		List<IdObject> allObjects = model.getIdObjects();
 		for (int i = 0; i < allObjects.size(); i++) {
 			final IdObject obj = allObjects.get(i);
 			obj.setObjectId(model.getObjectId(obj));
@@ -464,7 +467,7 @@ public class TempSaveModelStuff {
 
 		// Clearing matrix list
 		geoset.getMatrices().clear();
-		System.out.println(model.getName() + ": " + geoset.getName());
+		System.out.println("Prepping geoset for saving: " + model.getName() + ": " + geoset.getName());
 		for (final GeosetVertex geosetVertex : geoset.getVertices()) {
 			if (geosetVertex.getSkinBoneBones() != null) {
 				if (geoset.getMatrices().isEmpty()) {
@@ -499,7 +502,7 @@ public class TempSaveModelStuff {
 
 //				matrix.updateIds(model);
 				if (!geoset.getMatrices().contains(matrix)) {
-					System.out.println(matrix.size());
+					System.out.println("matrix size: " + matrix.size());
 					geoset.getMatrices().add(matrix);
 //					matrix.updateIds(model);
 				}

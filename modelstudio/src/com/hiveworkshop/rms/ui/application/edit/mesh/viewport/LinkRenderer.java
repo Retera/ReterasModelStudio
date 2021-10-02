@@ -37,7 +37,7 @@ public class LinkRenderer {
 
 		EditableModel model = modelHandler.getModel();
 
-		for (IdObject object : model.getAllObjects()) {
+		for (IdObject object : model.getIdObjects()) {
 			if (modelView.getEditableIdObjects().contains(object) || (object == modelView.getHighlightedNode())) {
 				if (object.getParent() != null) {
 					drawLink(graphics, coordinateSystem, object.getPivotPoint(), object.getParent().getPivotPoint(),

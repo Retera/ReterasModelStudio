@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
@@ -36,11 +37,11 @@ public class CombineAnimations extends ActionFunction {
 			int anim2Length = animation2.getLength();
 			int totalLength = anim1Length + anim2Length;
 
-			int animTrackEnd = model.animTrackEnd();
+			int animTrackEnd = ModelUtils.animTrackEnd(model);
 			int newStart = animTrackEnd + 1000;
 			Animation newAnimation = new Animation(nameChoice, newStart, newStart + totalLength);
-			copyFromInterval(animation, newAnimation, 0, model.getAllAnimFlags(), model.getEvents());
-			copyFromInterval(animation2, newAnimation, anim1Length, model.getAllAnimFlags(), model.getEvents());
+			copyFromInterval(animation, newAnimation, 0, ModelUtils.getAllAnimFlags(model), model.getEvents());
+			copyFromInterval(animation2, newAnimation, anim1Length, ModelUtils.getAllAnimFlags(model), model.getEvents());
 
 			model.add(newAnimation);
 			newAnimation.setNonLooping(true);

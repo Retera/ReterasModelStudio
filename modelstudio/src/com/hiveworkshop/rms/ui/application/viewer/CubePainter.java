@@ -19,12 +19,6 @@ import java.awt.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class CubePainter {
-	static final Vec3 xAxis = new Vec3(1, 0, 0);
-	static final Vec3 xAxis_isolate = new Vec3(0, 1, 1);
-	static final Vec3 yAxis = new Vec3(0, 1, 0);
-	static final Vec3 yAxis_isolate = new Vec3(1, 0, 1);
-	static final Vec3 zAxis = new Vec3(0, 0, 1);
-	static final Vec3 zAxis_isolate = new Vec3(1, 1, 0);
 	static double A90 = (Math.PI/2.0);
 	Color ugg = new Color(255, (int)(255 * .2f), 255);
 	Color ugg2 = new Color(255, 255, 255);
@@ -431,14 +425,14 @@ public class CubePainter {
 			if (idObject.getParent() != null && parentNode != null) {
 				parentPivot.set(parentNode.getPivot());
 			} else {
-				parentPivot.set(renderPosNode).addScaled(zAxis, 0.01f);
+				parentPivot.set(renderPosNode).addScaled(Vec3.Z_AXIS, 0.01f);
 			}
 
 
 			Vec3 diffVec = new Vec3(parentPivot).sub(renderPosNode);
 			Vec3 tempVec = new Vec3();
 
-			tempVec.set(zAxis).cross(diffVec).normalize();
+			tempVec.set(Vec3.Z_AXIS).cross(diffVec).normalize();
 
 			Quat difRotR = new Quat().setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
 			Quat rot90 = new Quat().setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();
@@ -605,14 +599,14 @@ public class CubePainter {
 			if (idObject.getParent() != null && parentNode != null) {
 				parentPivot.set(idObject.getParent().getPivotPoint());
 			} else {
-				parentPivot.set(renderPosNode).addScaled(zAxis, 0.01f);
+				parentPivot.set(renderPosNode).addScaled(Vec3.Z_AXIS, 0.01f);
 			}
 
 
 			Vec3 diffVec = new Vec3(parentPivot).sub(renderPosNode);
 			Vec3 tempVec = new Vec3();
 
-			tempVec.set(zAxis).cross(diffVec).normalize();
+			tempVec.set(Vec3.Z_AXIS).cross(diffVec).normalize();
 
 			Quat difRotR = new Quat().setFromAxisAngle(tempVec, (float) (diffVec.getAngleToZaxis())).normalize();
 			Quat rot90 = new Quat().setFromAxisAngle(tempVec, (float) (Math.PI / 2)).normalize();

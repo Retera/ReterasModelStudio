@@ -30,7 +30,7 @@ class BoneAttachmentPanel extends JPanel {
 	ModelHolderThing mht;
 
 	GeosetShell selectedGeoset;
-	JCheckBox linkBox;
+	JCheckBox linkCheckBox;
 
 	JTextField leftSearchField;
 	JTextField rightSearchField;
@@ -50,11 +50,11 @@ class BoneAttachmentPanel extends JPanel {
 
 		rightSearchField.addCaretListener(getCaretListener(rightSearchField, leftSearchField, this::setFutureBonesFilter));
 
-		linkBox = new JCheckBox("linked search");
-		linkBox.addActionListener(e -> queResetList());
+		linkCheckBox = new JCheckBox("linked search");
+		linkCheckBox.addActionListener(e -> queResetList());
 
 		oldBonesPanel.add(leftSearchField, "grow, split");
-		oldBonesPanel.add(linkBox, "wrap");
+		oldBonesPanel.add(linkCheckBox, "wrap");
 
 
 		recModBoneRefsList = new JList<>();
@@ -176,14 +176,14 @@ class BoneAttachmentPanel extends JPanel {
 	}
 
 	private void queResetList() {
-		if (!linkBox.isSelected()) {
+		if (!linkCheckBox.isSelected()) {
 			listResetQued = true;
 		}
 	}
 
 	private CaretListener getCaretListener(JTextField activeSearchField, JTextField inActiveSearchField, Consumer<String> listModelFunction) {
 		return e -> {
-			if (linkBox.isSelected()) {
+			if (linkCheckBox.isSelected()) {
 				inActiveSearchField.setText(activeSearchField.getText());
 			}
 			String filterText = activeSearchField.getText();
@@ -193,12 +193,23 @@ class BoneAttachmentPanel extends JPanel {
 
 	private void setFutureBonesFilter(String filterText) {
 		applyFutureBonesListModel(filterText);
-		if (linkBox.isSelected()) {
+		if (linkCheckBox.isSelected()) {
 			applyRecModMatrixFilteredListModel(filterText);
 		} else if (listResetQued) {
 			listResetQued = false;
 			setImportIntoListModel(recModMatrixShells);
 			leftSearchField.setText("");
+		}
+	}
+
+	private void setRecModMatrixFilter(String filterText) {
+		applyRecModMatrixFilteredListModel(filterText);
+		if (linkCheckBox.isSelected()) {
+			applyFutureBonesListModel(filterText);
+		} else if (listResetQued) {
+			listResetQued = false;
+			setFutureBoneListModel(futureBones);
+			rightSearchField.setText("");
 		}
 	}
 
@@ -213,17 +224,6 @@ class BoneAttachmentPanel extends JPanel {
 			setFutureBoneListModel(filteredFutureBones);
 		} else {
 			setFutureBoneListModel(futureBones);
-		}
-	}
-
-	private void setRecModMatrixFilter(String filterText) {
-		applyRecModMatrixFilteredListModel(filterText);
-		if (linkBox.isSelected()) {
-			applyFutureBonesListModel(filterText);
-		} else if (listResetQued) {
-			listResetQued = false;
-			setFutureBoneListModel(futureBones);
-			rightSearchField.setText("");
 		}
 	}
 

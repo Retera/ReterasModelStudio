@@ -80,7 +80,7 @@ public class ExportTexture extends ActionFunction {
         if (materialsList.getSelectedValue() != null) {
 	        BufferedImage bufferedImage = ImageCreator.getBufferedImage(materialsList.getSelectedValue(), model.getWrappedDataSource());
 	        String name = materialsList.getSelectedValue().getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
-            System.out.println(name);
+            System.out.println("ExportTexture, material name: " + name);
 
             fileDialog.exportTexture(bufferedImage, name);
         }
@@ -134,7 +134,7 @@ public class ExportTexture extends ActionFunction {
             BufferedImage texture = BLPHandler.getImage(bitmapJList.getSelectedValue(), model.getWrappedDataSource());
 
             String name = bitmapJList.getSelectedValue().getName().replaceAll("[^\\w\\[\\]()#\\. ]", "").replaceAll(" +", "_");
-            System.out.println(name);
+	        System.out.println("ExportTexture, texture name: " + name);
 //
             fileDialog.exportTexture(texture, name);
         }

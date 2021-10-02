@@ -86,7 +86,8 @@ public class IdObjectToMdlx {
 			}
 		}
 
-		object.keyFrames = new long[eventObject.size()];
+//		object.keyFrames = new long[eventObject.size()];
+		object.keyFrames = new long[keyframes.size()];
 
 		for (int i = 0; i < keyframes.size(); i++) {
 			object.keyFrames[i] = keyframes.get(i).longValue();

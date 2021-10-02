@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.VisPaneListCellRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.VisShellBoxCellRenderer;
 import net.miginfocom.swing.MigLayout;
@@ -99,7 +100,7 @@ public class VisibilityEditPanel extends JPanel {
 		fetchUniqueVisShells(mht.receivingModel, tempList);
 		fetchUniqueVisShells(mht.donatingModel, tempList);
 
-		for (VisibilitySource visSource : mht.receivingModel.getAllVis()) {
+		for (VisibilitySource visSource : ModelUtils.getAllVis(mht.receivingModel)) {
 			if (visSource.getClass() != GeosetAnim.class) {
 				recModVisSourcesOld.add(visShellFromObject(visSource));
 			} else {
@@ -109,7 +110,7 @@ public class VisibilityEditPanel extends JPanel {
 		recModVisSourcesOld.add(mht.neverVisible);
 		recModVisSourcesOld.add(mht.alwaysVisible);
 
-		for (VisibilitySource visSource : mht.donatingModel.getAllVis()) {
+		for (VisibilitySource visSource : ModelUtils.getAllVis(mht.donatingModel)) {
 			if (visSource.getClass() != GeosetAnim.class) {
 				donModVisSourcesNew.add(visShellFromObject(visSource));
 			} else {

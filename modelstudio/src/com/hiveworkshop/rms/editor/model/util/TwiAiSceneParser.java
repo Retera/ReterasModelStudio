@@ -81,7 +81,7 @@ public class TwiAiSceneParser {
 		Material material = new Material();
 		final Layer diffuseLayer = new Layer();
 
-		diffuseLayer.setTexture(model.loadTexture(aiMaterial.getTextureFile(AiTextureType.DIFFUSE, 0)));
+		diffuseLayer.setTexture(loadTexture(model, aiMaterial.getTextureFile(AiTextureType.DIFFUSE, 0)));
 		diffuseLayer.setStaticAlpha(aiMaterial.getOpacity());
 
 //		String textureFile = aiMaterial.getTextureFile(AiTextureType.NORMALS, 0);
@@ -93,6 +93,19 @@ public class TwiAiSceneParser {
 
 		return material;
 	}
+
+	public static Bitmap loadTexture(EditableModel model, String path) {
+		for (Bitmap texture : model.getTextures()) {
+			if (texture.getPath().equals(path)) {
+				return texture;
+			}
+		}
+
+		Bitmap texture = new Bitmap(path);
+		model.add(texture);
+		return texture;
+	}
+
 
 	private void fetchAnims() {
 		int nextStart = 10;

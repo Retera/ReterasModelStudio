@@ -222,12 +222,12 @@ public class TempOpenModelStuff {
 		final List<Bone> bones = model.getBones();
 		final List<? extends Bone> helpers = model.getHelpers();
 		bones.addAll(helpers);
-		for (final Bone b : bones) {
-			if ((b.getGeosetId() != -1) && (b.getGeosetId() < model.getGeosets().size())) {
-				b.setGeoset(model.getGeoset(b.getGeosetId()));
+		for (Bone bone : bones) {
+			if ((bone.getGeosetId() != -1) && (bone.getGeosetId() < model.getGeosets().size())) {
+				bone.setGeoset(model.getGeoset(bone.getGeosetId()));
 			}
-			if ((b.getGeosetAnimId() != -1) && (b.getGeosetAnimId() < model.getGeosetAnims().size())) {
-				b.setGeosetAnim(model.getGeosetAnim(b.getGeosetAnimId()));
+			if ((bone.getGeosetAnimId() != -1) && (bone.getGeosetAnimId() < model.getGeosetAnims().size())) {
+				bone.setGeosetAnim(model.getGeosetAnim(bone.getGeosetAnimId()));
 			}
 		}
 //		List<Camera> cameras = model.getCameras();

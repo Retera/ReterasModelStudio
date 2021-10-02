@@ -499,6 +499,11 @@ public class Geoset implements Named, VisibilitySource {
 			geoset.setTangents(new ArrayList<>(tangents));
 		}
 		geoset.setUnselectable(unselectable);
+		if (geosetAnim != null) {
+			GeosetAnim geosetAnimC = geosetAnim.deepCopy();
+			geoset.setGeosetAnim(geosetAnimC);
+			geosetAnimC.setGeoset(geoset);
+		}
 		return geoset;
 	}
 

@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -39,7 +40,7 @@ public class ImportPanel extends JTabbedPane {
 	public static final ImageIcon moveUpIcon = RMSIcons.moveUpIcon;// new ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/moveUp.png"));
 	public static final ImageIcon moveDownIcon = RMSIcons.moveDownIcon;// new ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/moveDown.png"));
 
-	JFrame frame;
+	private JFrame frame;
 
 	boolean importSuccess = false;
 	boolean importStarted = false;
@@ -47,29 +48,59 @@ public class ImportPanel extends JTabbedPane {
 
 	private ModelStructureChangeListener changeListener1;
 
-
-	public ImportPanel(final EditableModel a, final EditableModel b) {
-		this(a, b, true);
-	}
-
 	ModelHolderThing mht;
 
 	public ImportPanel(final EditableModel receivingModel, final EditableModel donatingModel, final boolean visibleOnStart) {
 		super();
 		mht = new ModelHolderThing(receivingModel, donatingModel);
-		if (mht.receivingModel.getName().equals(mht.donatingModel.getName())) {
-			mht.donatingModel.setFileRef(new File(mht.donatingModel.getFile().getParent() + "/" + mht.donatingModel.getName() + " (Imported)" + ".mdl"));
-			frame = new JFrame("Importing " + mht.receivingModel.getName() + " into itself");
-		} else {
-			frame = new JFrame("Importing " + mht.donatingModel.getName() + " into " + mht.receivingModel.getName());
+
+		String receivingModelName = mht.receivingModel.getName();
+		String donatingModelName = mht.donatingModel.getName();
+
+
+		if (receivingModelName.equals(donatingModelName)) {
+			mht.donatingModel.setFileRef(new File(mht.donatingModel.getFile().getParent() + "/" + donatingModelName + " (Imported)" + ".mdl"));
 		}
 		TempSaveModelStuff.doSavePreps(mht.receivingModel);
+
+		makeTabs();
+
+
+		if (receivingModelName.equals(donatingModelName)) {
+			frame = getFrame(receivingModelName, "itself");
+		} else {
+			frame = getFrame(donatingModelName, receivingModelName);
+		}
+		// frame.pack();
+		frame.setVisible(visibleOnStart);
+	}
+
+	private JFrame getFrame(String name1, String name2) {
+		JFrame frame = new JFrame("Importing " + name1 + " into " + name2);
 		try {
 			frame.setIconImage(RMSIcons.MDLIcon.getImage());
 		} catch (final Exception e) {
 			JOptionPane.showMessageDialog(null, "Error: Image files were not found! Due to bad programming, this might break the program!");
 		}
 
+		JPanel containerPanel = new JPanel(new MigLayout("gap 0, fill", "[grow]", "[grow][]"));
+		containerPanel.add(this, "growx, growy, wrap");
+		containerPanel.add(getFooterPanel(frame));
+		frame.setContentPane(containerPanel);
+
+		frame.setBounds(0, 0, 1024, 780);
+		frame.setLocationRelativeTo(null);
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(final WindowEvent e) {
+				cancelImport(frame);
+			}
+		});
+		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		return frame;
+	}
+
+	private void makeTabs() {
 		// Geoset Panel
 		GeosetEditPanel geosetEditPanel = new GeosetEditPanel(mht);
 		addTab("Geosets", geoIcon, geosetEditPanel, "Controls which geosets will be imported.");
@@ -97,23 +128,6 @@ public class ImportPanel extends JTabbedPane {
 		// Visibility Panel
 		VisibilityEditPanel visibilityEditPanel = new VisibilityEditPanel(mht);
 		addTab("Visibility", orangeIcon, visibilityEditPanel, "Controls the visibility of portions of the model.");
-
-		final JPanel containerPanel = new JPanel(new MigLayout("gap 0, fill", "[grow]", "[grow][]"));
-		containerPanel.add(this, "growx, growy, wrap");
-		containerPanel.add(getFooterPanel());
-		frame.setContentPane(containerPanel);
-
-		frame.setBounds(0, 0, 1024, 780);
-		frame.setLocationRelativeTo(null);
-		frame.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(final WindowEvent e) {
-				cancelImport();
-			}
-		});
-		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		// frame.pack();
-		frame.setVisible(visibleOnStart);
 	}
 
 	public static void buildGlobSeqFrom(EditableModel model, Animation anim, List<AnimFlag<?>> flags) {
@@ -137,17 +151,17 @@ public class ImportPanel extends JTabbedPane {
 
 		model.getTexAnims().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
 		model.getGeosetAnims().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
-		model.getAllObjects().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
+		model.getIdObjects().stream().filter(o -> o.owns(orgFlag)).forEach(o -> o.add(newGlobalSeqFlag));
 		model.getCameras().stream().filter(o -> o.getSourceNode().owns(orgFlag)).forEach(o -> o.getSourceNode().add(newGlobalSeqFlag));
 
 	}
 
-	private JPanel getFooterPanel() {
+	private JPanel getFooterPanel(JFrame frame) {
 		JPanel footerPanel = new JPanel(new MigLayout("gap 0", "[grow, left]8[grow, right]"));
 		JButton okayButton = new JButton("Finish");
-		okayButton.addActionListener(e -> applyImport());
+		okayButton.addActionListener(e -> applyImport(frame));
 		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(e -> cancelImport());
+		cancelButton.addActionListener(e -> cancelImport(frame));
 
 		footerPanel.add(okayButton);
 		footerPanel.add(cancelButton);
@@ -156,13 +170,13 @@ public class ImportPanel extends JTabbedPane {
 	}
 
 
-	private void applyImport() {
+	private void applyImport(JFrame frame) {
 		doImport();
 		frame.setVisible(false);
 		frame.dispose();
 	}
 
-	private void cancelImport() {
+	private void cancelImport(JFrame frame) {
 		final Object[] options = {"Yes", "No"};
 		final int n = JOptionPane.showOptionDialog(frame, "Really cancel this import?", "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
 		if (n == 0) {
@@ -193,8 +207,8 @@ public class ImportPanel extends JTabbedPane {
 
 			List<Animation> oldAnims = new ArrayList<>(mht.receivingModel.getAnims());
 
-			List<AnimFlag<?>> recModFlags = mht.receivingModel.getAllAnimFlags();
-			List<AnimFlag<?>> donModFlags = mht.donatingModel.getAllAnimFlags();
+			List<AnimFlag<?>> recModFlags = ModelUtils.getAllAnimFlags(mht.receivingModel);
+			List<AnimFlag<?>> donModFlags = ModelUtils.getAllAnimFlags(mht.donatingModel);
 
 			List<EventObject> recModEventObjs = mht.receivingModel.getEvents();
 			List<EventObject> donModEventObjs = mht.donatingModel.getEvents();
@@ -253,7 +267,7 @@ public class ImportPanel extends JTabbedPane {
 				e.deleteAnim(anim);
 			}
 		}
-		mht.receivingModel.getAnims().clear();
+		mht.receivingModel.clearAnimations();
 	}
 
 	private void setNewVisSources(List<Animation> oldAnims, boolean clearAnims, List<Animation> newAnims) {
@@ -308,20 +322,21 @@ public class ImportPanel extends JTabbedPane {
 	private FloatAnimFlag getFloatAnimFlag(boolean tans, List<Animation> anims, VisibilityShell source) {
 		if (source != null) {
 			if (source.isNeverVisible()) {
-				FloatAnimFlag tempFlag = new FloatAnimFlag("temp");
-
-				Entry<Float> invisEntry = new Entry<>(0, 0f);
-				if (tans) invisEntry.unLinearize();
-
-				for (Animation a : anims) {
-					tempFlag.setOrAddEntryT(a.getStart(), invisEntry.deepCopy().setTime(a.getStart()), a);
-				}
-				return tempFlag;
+				return getNeverVisFlag(tans, anims);
 			} else if (!source.isAlwaysVisible()) {
 				return (FloatAnimFlag) ((VisibilitySource) source.getSource()).getVisibilityFlag();
 			}
 		}
 		return null;
+	}
+
+	private FloatAnimFlag getNeverVisFlag(boolean tans, List<Animation> anims) {
+		FloatAnimFlag tempFlag = new FloatAnimFlag("temp");
+		for (Animation a : anims) {
+			tempFlag.setOrAddEntryT(0, new Entry<>(0, 0f), a);
+		}
+		if (tans) tempFlag.unLinearize();
+		return tempFlag;
 	}
 
 	private List<IdObject> addChosenObjects() {
@@ -513,7 +528,7 @@ public class ImportPanel extends JTabbedPane {
 		List<Animation> newAnims = new ArrayList<>();
 		for (AnimShell animShell : mht.allAnimShells) {
 			if (animShell.getImportType() != AnimShell.ImportType.DONTIMPORT) {
-				int newStart = mht.receivingModel.animTrackEnd() + 300;
+				int newStart = ModelUtils.animTrackEnd(mht.receivingModel) + 300;
 
 				Animation anim1 = animShell.getAnim();
 				if (animShell.isReverse()) {
@@ -742,10 +757,14 @@ public class ImportPanel extends JTabbedPane {
 	// *********************Simple Import Functions****************
 	public void animTransfer(boolean singleAnimation, Animation pickedAnim, Animation visFromAnim, boolean show) {
 		mht.clearRecModAnims.setSelected(true);
-		ugg(BoneShell.ImportType.MOTIONFROM, singleAnimation);
+		prepareModelHolderThing(BoneShell.ImportType.MOTIONFROM, singleAnimation);
 
 		if (singleAnimation) {
-			importSingleAnim2(pickedAnim);
+			for (AnimShell animShell : mht.allAnimShells) {
+				if (animShell.getOldName().equals(pickedAnim.getName())) {
+					animShell.setImportType(AnimShell.ImportType.IMPORTBASIC);
+				}
+			}
 			mht.clearRecModAnims.setSelected(false);
 		}
 
@@ -764,18 +783,54 @@ public class ImportPanel extends JTabbedPane {
 		}
 
 		if (!show) {
-			applyImport();
+			applyImport(frame);
 		}
 	}
+//	public void animTransfer_org(boolean singleAnimation, Animation pickedAnim, Animation visFromAnim, boolean show) {
+//		mht.clearRecModAnims.setSelected(true);
+//		ugg(BoneShell.ImportType.MOTIONFROM, singleAnimation);
+//
+//		if (singleAnimation) {
+//			importSingleAnim2(pickedAnim);
+//			mht.clearRecModAnims.setSelected(false);
+//		}
+//
+//
+//		// Try assuming it's a unit with a corpse; they'll tend to be that way
+//		// Iterate through new visibility sources, find a geoset with gutz material
+//		for (VisibilityShell donVis : mht.donModVisSourcesNew) {
+//			if (isGutz(donVis)) {
+//				for (VisibilityShell impVis : mht.futureVisComponents) {
+//					if (isGutz(impVis)) {
+//						impVis.setNewVisSource(donVis);
+//					}
+//				}
+//				break;
+//			}
+//		}
+//
+//		if (!show) {
+//			applyImport(frame);
+//		}
+//	}
+//private void importSingleAnim2(Animation pickedAnim) {
+//	// JOptionPane.showMessageDialog(null,"single trans");
+//	for (AnimShell animShell : mht.allAnimShells) {
+//		if (animShell.getOldName().equals(pickedAnim.getName())) {
+//			animShell.setImportType(AnimShell.ImportType.IMPORTBASIC);
+//		}
+//	}
+////			mht.clearRecModAnims.doClick();// turn it back off
+//}
 
-	private void ugg(BoneShell.ImportType importType, boolean singleAnim) {
+	private void prepareModelHolderThing(BoneShell.ImportType importType, boolean singleAnim) {
 		mht.importAllGeos(false);
-		mht.setImportStatusForAllBones(importType);
-		mht.importAllObjs(false);
+		mht.setImportStatusForAllDonBones(importType);
+		mht.setImportAllDonObjs(false);
 		mht.visibilityList();
 		mht.selectSimilarVisSources();
 		if (singleAnim) {
-			mht.setImportTypeForAllAnims(AnimShell.ImportType.DONTIMPORT);
+			mht.setImportTypeForAllDonAnims(AnimShell.ImportType.DONTIMPORT);
 		}
 	}
 
@@ -789,68 +844,18 @@ public class ImportPanel extends JTabbedPane {
 		return false;
 	}
 
-	// *********************Simple Import Functions****************
-
-	public void animTransfer1(boolean singleAnimation, Animation pickedAnim, Animation visFromAnim, boolean show) {
-		mht.clearRecModAnims.setSelected(true);
-		ugg(BoneShell.ImportType.MOTIONFROM, singleAnimation);
-
-		if (singleAnimation) {
-			importSingleAnim2(pickedAnim);
-			mht.clearRecModAnims.setSelected(false);
-		}
-
-
-		// Try assuming it's a unit with a corpse; they'll tend to be that way
-		// Iterate through new visibility sources, find a geoset with gutz material
-		for (VisibilityShell donVis : mht.donModVisSourcesNew) {
-			if (isGutz(donVis)) {
-				for (VisibilityShell impVis : mht.futureVisComponents) {
-					if (isGutz(impVis)) {
-						impVis.setNewVisSource(donVis);
-					}
-				}
-				break;
-			}
-		}
-
-		if (!show) {
-			applyImport();
-		}
-	}
-
 	public void animTransferPartTwo(Animation pickedAnim, Animation visFromAnim, boolean show) {
 		// This should be an import from self
 		// This seems to be a stupid hack to put back lost stuff...
-		ugg(BoneShell.ImportType.DONTIMPORT, true);
+		prepareModelHolderThing(BoneShell.ImportType.DONTIMPORT, true);
 
-		importSingleAnim1(pickedAnim, visFromAnim);
-
-		for (VisibilityShell vs : mht.futureVisComponents) {
-			vs.setFavorOld(false);
-		}
-
-		if (!show) {
-			applyImport();
-		}
-	}
-
-
-	private void importSingleAnim2(Animation pickedAnim) {
-		// JOptionPane.showMessageDialog(null,"single trans");
 		for (AnimShell animShell : mht.allAnimShells) {
-			if (animShell.getOldName().equals(pickedAnim.getName())) {
-				animShell.setImportType(AnimShell.ImportType.IMPORTBASIC);
-			}
-		}
-//			mht.clearRecModAnims.doClick();// turn it back off
-	}
-	private void importSingleAnim1(Animation pickedAnim, Animation visFromAnim) {
-		for (AnimShell animShell : mht.allAnimShells) {
+//		for (AnimShell animShell : mht.donModAnims) {
 			if (animShell.getOldName().equals(visFromAnim.getName())) {
 				animShell.setImportType(AnimShell.ImportType.TIMESCALE); // Time scale
 
-				for (AnimShell shell : mht.recModAnims) {
+				for (AnimShell shell : mht.allAnimShells) {
+//				for (AnimShell shell : mht.recModAnims) {
 					if (shell.getOldName().equals(pickedAnim.getName())) {
 						animShell.setImportAnimShell(shell);
 						break;
@@ -858,6 +863,47 @@ public class ImportPanel extends JTabbedPane {
 				}
 			}
 		}
+
+		for (VisibilityShell vs : mht.futureVisComponents) {
+			vs.setFavorOld(false);
+		}
+
+		if (!show) {
+			applyImport(frame);
+		}
 	}
+//	public void animTransferPartTwo(Animation pickedAnim, Animation visFromAnim, boolean show) {
+//		// This should be an import from self
+//		// This seems to be a stupid hack to put back lost stuff...
+//		prepareModelHolderThing(BoneShell.ImportType.DONTIMPORT, true);
+//
+//		importSingleAnim1(pickedAnim, visFromAnim);
+//
+//		for (VisibilityShell vs : mht.futureVisComponents) {
+//			vs.setFavorOld(false);
+//		}
+//
+//		if (!show) {
+//			applyImport(frame);
+//		}
+//	}
+//
+//
+//	private void importSingleAnim1(Animation pickedAnim, Animation visFromAnim) {
+//		for (AnimShell animShell : mht.allAnimShells) {
+////		for (AnimShell animShell : mht.donModAnims) {
+//			if (animShell.getOldName().equals(visFromAnim.getName())) {
+//				animShell.setImportType(AnimShell.ImportType.TIMESCALE); // Time scale
+//
+//				for (AnimShell shell : mht.allAnimShells) {
+////				for (AnimShell shell : mht.recModAnims) {
+//					if (shell.getOldName().equals(pickedAnim.getName())) {
+//						animShell.setImportAnimShell(shell);
+//						break;
+//					}
+//				}
+//			}
+//		}
+//	}
 }
 
