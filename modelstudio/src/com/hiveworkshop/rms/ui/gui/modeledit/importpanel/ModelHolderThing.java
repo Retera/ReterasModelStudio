@@ -194,12 +194,37 @@ public class ModelHolderThing {
 		}
 	}
 
+	public void setImportStatusForAllRecBones(BoneShell.ImportType importType) {
+		Map<String, BoneShell> nameMap = new HashMap<>();
+		if (importType == BoneShell.ImportType.MOTIONFROM) {
+			for (BoneShell boneShell : donModBoneShells) {
+				nameMap.put(boneShell.getName(), boneShell);
+			}
+		}
+		for (BoneShell boneShell : recModBoneShells) {
+			boneShell.setImportStatus(importType);
+			if (importType == BoneShell.ImportType.MOTIONFROM && nameMap.containsKey(boneShell.getName())) {
+				nameMap.get(boneShell.getName()).setImportBoneShell(boneShell);
+			} else if (importType != BoneShell.ImportType.MOTIONFROM) {
+				boneShell.setImportBoneShell(null);
+			}
+		}
+	}
+
 	public void setImportAllDonObjs(boolean doImport) {
 		donModObjectShells.forEach(shell -> shell.setShouldImport(doImport));
 	}
 
+	public void setImportAllRecObjs(boolean doImport) {
+		recModObjectShells.forEach(shell -> shell.setShouldImport(doImport));
+	}
+
 	public void setImportAllDonCams(boolean b) {
 		donModCameraShells.forEach(shell -> shell.setShouldImport(b));
+	}
+
+	public void setImportAllRecCams(boolean b) {
+		recModCameraShells.forEach(shell -> shell.setShouldImport(b));
 	}
 
 	public void selectSimilarVisSources() {
@@ -232,6 +257,21 @@ public class ModelHolderThing {
 		}
 	}
 
+	public void importAllRecGeos(boolean b) {
+		for (GeosetShell geoShell : recModGeoShells) {
+			if (geoShell.isFromDonating()) {
+				geoShell.setDoImport(b);
+			}
+		}
+	}
+
+	public void importAllDonGeos(boolean b) {
+		for (GeosetShell geoShell : donModGeoShells) {
+			if (geoShell.isFromDonating()) {
+				geoShell.setDoImport(b);
+			}
+		}
+	}
 
 
 	private void initAnimLists() {

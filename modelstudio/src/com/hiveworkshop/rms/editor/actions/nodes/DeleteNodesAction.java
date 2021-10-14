@@ -47,15 +47,21 @@ public class DeleteNodesAction implements UndoAction {
 		this(Collections.singleton(selectedObject), Collections.emptySet(), changeListener, model);
 	}
 
-	private IdObject topParent(IdObject idObject){
+	public DeleteNodesAction(Camera selectedCamera,
+	                         ModelStructureChangeListener changeListener,
+	                         EditableModel model) {
+		this(Collections.emptySet(), Collections.singleton(selectedCamera), changeListener, model);
+	}
+
+	private IdObject topParent(IdObject idObject) {
 		IdObject parent = idObject.getParent();
-		if(selectedObjects.contains(parent)){
+		if (selectedObjects.contains(parent)) {
 			return topParent(parent);
 		}
 		return parent;
 	}
 
-	private void removeFromParent(){
+	private void removeFromParent() {
 		for(IdObject removedParent : childMap.keySet()){
 			for (IdObject affectedChild : childMap.get(removedParent)){
 				if (relink){

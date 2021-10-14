@@ -78,7 +78,7 @@ public class ImportBoneChainAnimationPanel extends TwiImportPanel {
 					} else if (recAnimFlag == null){
 						AnimFlag<?> newAnimFlag = donAnimFlag.getEmptyCopy();
 						for (Sequence sequence : recToDonSequenceMap.keySet()) {
-							newAnimFlag.copyFrom(donAnimFlag, recToDonSequenceMap.get(sequence), sequence);
+							AnimFlagUtils.copyFrom(newAnimFlag, donAnimFlag, recToDonSequenceMap.get(sequence), sequence);
 						}
 						undoActions.add(new AddAnimFlagAction<>(recIdObject, newAnimFlag, null));
 					} else if (donAnimFlag == null){

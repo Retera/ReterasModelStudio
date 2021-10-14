@@ -12,7 +12,7 @@ import javax.swing.*;
 
 public class BoneChooser {
 	IterableListModel<BoneShell> filteredBones = new IterableListModel<>();
-	IterableListModel<BoneShell> posibleParentList;
+	IterableListModel<BoneShell> allBonesList;
 	JList<BoneShell> bonesJList;
 	JTextField boneSearch;
 
@@ -20,23 +20,23 @@ public class BoneChooser {
 
 	public BoneChooser(EditableModel model) {
 		this.model = model;
-		posibleParentList = new IterableListModel<>();
+		allBonesList = new IterableListModel<>();
 	}
 
 	public Bone chooseBone(Bone currentBone, JComponent parent) {
 		BoneShell currentBoneShell = null;
-		posibleParentList.clear();
-		posibleParentList.addElement(new BoneShell(null));
+		allBonesList.clear();
+		allBonesList.addElement(new BoneShell(null));
 		for (Bone bone : model.getBones()) {
 			BoneShell boneShell = new BoneShell(bone);
-			posibleParentList.addElement(boneShell);
+			allBonesList.addElement(boneShell);
 			if (bone == currentBone) {
 				currentBoneShell = boneShell;
 			}
 		}
 		for (Helper bone : model.getHelpers()) {
 			BoneShell boneShell = new BoneShell(bone);
-			posibleParentList.addElement(boneShell);
+			allBonesList.addElement(boneShell);
 			if (bone == currentBone) {
 				currentBoneShell = boneShell;
 			}
@@ -69,7 +69,7 @@ public class BoneChooser {
 		boneSearch.addCaretListener(e -> filterBones());
 		panel.add(boneSearch, "growx, wrap");
 
-		bonesJList = new JList<>(posibleParentList);
+		bonesJList = new JList<>(allBonesList);
 		bonesJList.setCellRenderer(renderer);
 
 		panel.add(new JScrollPane(bonesJList), "growx, growy, wrap");
@@ -85,14 +85,14 @@ public class BoneChooser {
 		String filterText = boneSearch.getText();
 		if (!filterText.equals("")) {
 			filteredBones.clear();
-			for (BoneShell boneShell : posibleParentList) {
+			for (BoneShell boneShell : allBonesList) {
 				if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
 					filteredBones.addElement(boneShell);
 				}
 			}
 			bonesJList.setModel(filteredBones);
 		} else {
-			bonesJList.setModel(posibleParentList);
+			bonesJList.setModel(allBonesList);
 		}
 	}
 }

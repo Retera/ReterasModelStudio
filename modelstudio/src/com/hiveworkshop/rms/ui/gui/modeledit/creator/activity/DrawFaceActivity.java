@@ -5,8 +5,8 @@ import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
 import com.hiveworkshop.rms.editor.actions.addactions.DrawVertexAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
@@ -77,7 +77,7 @@ public class DrawFaceActivity extends ViewportActivity {
 		for (Geoset geoset : geosets) {
 			Layer firstLayer = geoset.getMaterial().firstLayer();
 			if ((geoset.getMaterial() != null) && (firstLayer != null)
-					&& (firstLayer.getFilterMode() == MdlxLayer.FilterMode.NONE)
+					&& (firstLayer.getFilterMode() == FilterMode.NONE)
 					&& "Textures\\white.blp".equalsIgnoreCase(firstLayer.getTextureBitmap().getPath())) {
 				solidWhiteGeoset = geoset;
 			}
@@ -85,7 +85,7 @@ public class DrawFaceActivity extends ViewportActivity {
 
 		if (solidWhiteGeoset == null) {
 			solidWhiteGeoset = new Geoset();
-			solidWhiteGeoset.setMaterial(new Material(new Layer("None", new Bitmap("Textures\\white.blp"))));
+			solidWhiteGeoset.setMaterial(new Material(new Layer(new Bitmap("Textures\\white.blp"))));
 		}
 		return solidWhiteGeoset;
 	}

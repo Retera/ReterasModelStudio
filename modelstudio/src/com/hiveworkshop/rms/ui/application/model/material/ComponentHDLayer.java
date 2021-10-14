@@ -7,11 +7,11 @@ import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.model.util.HD_Material_Layer;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
@@ -40,7 +40,7 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 	JPanel texturePreviewPanel;
 	JPanel layerFlagsPanel;
 
-	JComboBox<MdlxLayer.FilterMode> filterModeDropdown;
+	JComboBox<FilterMode> filterModeDropdown;
 	JButton tVertexAnimButton;
 	IntEditorJSpinner coordIdSpinner;
 
@@ -157,7 +157,7 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 		JPanel topSettingsPanel = new JPanel(new MigLayout("ins 0"));
 
 		topSettingsPanel.add(new JLabel("Filter Mode:"));
-		filterModeDropdown = new JComboBox<>(MdlxLayer.FilterMode.values());
+		filterModeDropdown = new JComboBox<>(FilterMode.values());
 		filterModeDropdown.setSelectedIndex(0);
 		filterModeDropdown.addItemListener(this::filterModeDropdownListener);
 		topSettingsPanel.add(filterModeDropdown, "wrap, growx");
@@ -175,7 +175,7 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 	private void filterModeDropdownListener(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED && selectedItem != null) {
 //			System.out.println("filterModeDropdownListener");
-			MdlxLayer.FilterMode newFilterMode = (MdlxLayer.FilterMode) e.getItem();
+			FilterMode newFilterMode = (FilterMode) e.getItem();
 			if (newFilterMode != selectedItem.getFilterMode()) {
 				undoManager.pushAction(new SetLayerFilterModeAction(selectedItem, newFilterMode, changeListener).redo());
 			}

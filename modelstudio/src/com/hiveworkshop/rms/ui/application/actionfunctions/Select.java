@@ -95,7 +95,7 @@ public class Select {
 		for (GeosetVertex v : modelView.getSelectedVertices()) {
 			selectLinked(v, expandedSelection);
 		}
-		SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras());
+		SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameras());
 		UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection");
 		modelHandler.getUndoManager().pushAction(action.redo());
 	}
@@ -118,7 +118,7 @@ public class Select {
 		for (GeosetVertex v : modelView.getSelectedVertices()) {
 			v.getTriangles().forEach(tri -> expandedSelection.addAll(Arrays.asList(tri.getVerts())));
 		}
-		SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras());
+		SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameras());
 		UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection");
 		modelHandler.getUndoManager().pushAction(action.redo());
 	}

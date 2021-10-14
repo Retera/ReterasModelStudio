@@ -1,8 +1,7 @@
-package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.renderparts;
+package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;

@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCamera;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
@@ -10,7 +12,6 @@ import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -133,6 +134,7 @@ public class Camera implements Named {
 
 	public static class SourceNode extends AnimatedNode {
 		private static Quat rotationHeap = new Quat(0, 0, 0, 1);
+		Vec3 axisHeap = new Vec3();
 
 		private Camera parent;
 
@@ -140,19 +142,9 @@ public class Camera implements Named {
 			this.parent = parent;
 		}
 
-//		@Override
-//		public AnimatedNode getParent() {
-//			return null;
-//		}
-
 		@Override
 		public Vec3 getPivotPoint() {
 			return parent.position;
-		}
-
-		@Override
-		public List<? extends AnimatedNode> getChildrenNodes() {
-			return Collections.emptyList();
 		}
 
 		@Override
@@ -168,24 +160,39 @@ public class Camera implements Named {
 		@Override
 		public Quat getRenderRotation(TimeEnvironmentImpl animatedRenderEnvironment) {
 			AnimFlag<?> translationFlag = find("Rotation");
-			if (translationFlag != null) {
-				Object interpolated = translationFlag.interpolateAt(animatedRenderEnvironment);
-				if (interpolated instanceof Float) {
-					Float angle = (Float) interpolated;
-					Vec3 targetTranslation = parent.targetNode.getRenderTranslation(animatedRenderEnvironment);
-					Vec3 targetPosition = parent.targetPosition;
-					Vec3 sourceTranslation = getRenderTranslation(animatedRenderEnvironment);
-					Vec3 sourcePosition = parent.position;
-					Vec3 axisHeap = new Vec3(targetPosition).add(targetTranslation).sub(sourcePosition).sub(sourceTranslation);
+			if (translationFlag instanceof FloatAnimFlag) {
+				Float angle = (Float) translationFlag.interpolateAt(animatedRenderEnvironment);
+				Vec3 targetTranslation = parent.targetNode.getRenderTranslation(animatedRenderEnvironment);
+				Vec3 targetPosition = parent.targetPosition;
+				Vec3 sourceTranslation = getRenderTranslation(animatedRenderEnvironment);
+				Vec3 sourcePosition = parent.position;
+				axisHeap.set(targetPosition).add(targetTranslation).sub(sourcePosition).sub(sourceTranslation);
 //					axisHeap.x = (targetPosition.x + targetTranslation.x) - (sourcePosition.x + sourceTranslation.x);
 //					axisHeap.y = (targetPosition.y + targetTranslation.y) - (sourcePosition.y + sourceTranslation.y);
 //					axisHeap.z = (targetPosition.z + targetTranslation.z) - (sourcePosition.z + sourceTranslation.z);
-					rotationHeap.setFromAxisAngle(axisHeap, angle);
-					return rotationHeap;
-				} else {
-					return (Quat) interpolated;
-				}
+				rotationHeap.setFromAxisAngle(axisHeap, angle);
+				return rotationHeap;
+			} else if (translationFlag instanceof QuatAnimFlag) {
+				return (Quat) translationFlag.interpolateAt(animatedRenderEnvironment);
 			}
+//			if (translationFlag != null) {
+//				Object interpolated = translationFlag.interpolateAt(animatedRenderEnvironment);
+//				if (interpolated instanceof Float) {
+//					Float angle = (Float) interpolated;
+//					Vec3 targetTranslation = parent.targetNode.getRenderTranslation(animatedRenderEnvironment);
+//					Vec3 targetPosition = parent.targetPosition;
+//					Vec3 sourceTranslation = getRenderTranslation(animatedRenderEnvironment);
+//					Vec3 sourcePosition = parent.position;
+//					axisHeap.set(targetPosition).add(targetTranslation).sub(sourcePosition).sub(sourceTranslation);
+////					axisHeap.x = (targetPosition.x + targetTranslation.x) - (sourcePosition.x + sourceTranslation.x);
+////					axisHeap.y = (targetPosition.y + targetTranslation.y) - (sourcePosition.y + sourceTranslation.y);
+////					axisHeap.z = (targetPosition.z + targetTranslation.z) - (sourcePosition.z + sourceTranslation.z);
+//					rotationHeap.setFromAxisAngle(axisHeap, angle);
+//					return rotationHeap;
+//				} else {
+//					return (Quat) interpolated;
+//				}
+//			}
 			return null;
 		}
 
@@ -207,19 +214,9 @@ public class Camera implements Named {
 			this.parent = parent;
 		}
 
-//		@Override
-//		public AnimatedNode getParent() {
-//			return null;
-//		}
-
 		@Override
 		public Vec3 getPivotPoint() {
 			return parent.targetPosition;
-		}
-
-		@Override
-		public List<? extends AnimatedNode> getChildrenNodes() {
-			return Collections.emptyList();
 		}
 
 		@Override

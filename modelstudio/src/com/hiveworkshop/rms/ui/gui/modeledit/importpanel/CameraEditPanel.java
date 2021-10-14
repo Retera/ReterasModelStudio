@@ -8,6 +8,7 @@ import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class CameraEditPanel extends JPanel {
 
@@ -22,8 +23,10 @@ public class CameraEditPanel extends JPanel {
 		setLayout(new MigLayout("gap 0", "[grow][grow]", "[][grow]"));
 		this.mht = mht;
 
-		add(getButton("Import All", e -> mht.setImportAllDonCams(true)), "cell 0 0, right");
-		add(getButton("Leave All", e -> mht.setImportAllDonCams(false)), "cell 1 0, left");
+//		add(getButton("Import All", e -> mht.setImportAllDonCams(true)), "cell 0 0, right");
+//		add(getButton("Leave All", e -> mht.setImportAllDonCams(false)), "cell 1 0, left");
+		add(getSetImpTypePanel(mht.receivingModel.getName(), mht::setImportAllRecCams), "cell 0 0, right");
+		add(getSetImpTypePanel(mht.donatingModel.getName(), mht::setImportAllDonCams), "cell 1 0, left");
 
 
 		singleCameraPanel = new CameraPanel(mht);
@@ -45,6 +48,17 @@ public class CameraEditPanel extends JPanel {
 		mht.allCameraJList.setCellRenderer(cameraPanelRenderer);
 		mht.allCameraJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
 		return new JScrollPane(mht.allCameraJList);
+	}
+
+	private JPanel getSetImpTypePanel(String modelName, Consumer<Boolean> importTypeConsumer) {
+		JPanel panel = new JPanel(new MigLayout("gap 0, ins 0", "[][][]", "[align center]"));
+		panel.setOpaque(true);
+		panel.setBorder(BorderFactory.createTitledBorder(modelName));
+
+		panel.add(getButton("Import All", e -> importTypeConsumer.accept(true)), "");
+		panel.add(getButton("Leave All", e -> importTypeConsumer.accept(false)), "");
+
+		return panel;
 	}
 
 	private JButton getButton(String text, ActionListener actionListener) {

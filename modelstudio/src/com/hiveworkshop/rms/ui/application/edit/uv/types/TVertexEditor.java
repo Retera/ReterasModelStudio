@@ -32,7 +32,7 @@ import java.util.Set;
 public class TVertexEditor extends ModelEditor {
 	protected final ModelView modelView;
 	protected final ModelStructureChangeListener structureChangeListener;
-	protected int uvLayerIndex;
+	protected int uvLayerIndex = 0;
 	protected SelectionItemTypes selectionType;
 
 	public TVertexEditor(AbstractSelectionManager selectionManager, ModelView modelView, SelectionItemTypes selectionTyp) {

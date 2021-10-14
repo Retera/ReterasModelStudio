@@ -17,7 +17,7 @@ public class GridPainter {
 	float[] lineHeapPos = new float[3];
 	float[] lineHeapNeg = new float[3];
 
-	GridPainter(CameraHandler cameraHandler){
+	public GridPainter(CameraHandler cameraHandler) {
 		this.cameraHandler = cameraHandler;
 	}
 
@@ -57,18 +57,18 @@ public class GridPainter {
 		glBegin(GL11.GL_LINES);
 		GL11.glNormal3f(0, 0, 0);
 
-		int[] lineSpacingArr = new int[]{10, 50, 100};
+		int[] lineSpacingArr = new int[] {10, 50, 100};
 		glColor4f(1f, 1f, 1f, .3f);
 
 		//Grid floor X
 		fillLineHeap(X, Y, Z);
 		drawUggDuoArr(lineSpacingArr, 0, Y);
 
-		float upAngle = cameraHandler.getyAngle()%180;
-		float spinAngle = cameraHandler.getzAngle()%180;
+		float upAngle = cameraHandler.getYAngle() % 180;
+		float spinAngle = cameraHandler.getZAngle() % 180;
 		boolean isSide = upAngle == 0 && spinAngle == 90;
 		boolean isFront = upAngle == 0 && spinAngle == 0;
-		if(cameraHandler.isOrtho() && isSide){
+		if (cameraHandler.isOrtho() && isSide) {
 			//Side Horizontal Lines
 			zeroLineHeap(Y);
 			drawUggDuoArr(lineSpacingArr, 0, Z);

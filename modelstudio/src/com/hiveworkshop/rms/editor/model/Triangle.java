@@ -267,6 +267,14 @@ public class Triangle {
 		return output;
 	}
 
+	public Vec2[] getTVerts(int layerId) {
+		Vec2[] output = new Vec2[3];
+		for (int i = 0; i < 3; i++) {
+			output[i] = verts[i].getTVertex(layerId);
+		}
+		return output;
+	}
+
 	@Override
 	public String toString() {
 		return vertIds[0] + ", " + vertIds[1] + ", " + vertIds[2];

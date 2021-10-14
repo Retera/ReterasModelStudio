@@ -3,9 +3,9 @@ package com.hiveworkshop.rms.util;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.opengl.PixelFormat;
 
@@ -54,13 +54,13 @@ public class ImageCreator {
                     theImage = newImage;
                 } else {
                     if (newImage != null) {
-                    	if (tex != null) System.out.println(tex.getName());
-                    	if(lay.getFilterMode() == MdlxLayer.FilterMode.MODULATE){
+	                    if (tex != null) System.out.println(tex.getName());
+	                    if (lay.getFilterMode() == FilterMode.MODULATE) {
 		                    System.out.println("modulate!");
-                    		theImage = modulate(theImage, newImage);
-	                    } else if(lay.getFilterMode() == MdlxLayer.FilterMode.MODULATE2X) {
+		                    theImage = modulate(theImage, newImage);
+	                    } else if (lay.getFilterMode() == FilterMode.MODULATE2X) {
 		                    theImage = modulateX2(theImage, newImage);
-	                    } else if(lay.getFilterMode() == MdlxLayer.FilterMode.ADDITIVE) {
+	                    } else if (lay.getFilterMode() == FilterMode.ADDITIVE) {
 		                    theImage = additative(theImage, newImage);
 	                    } else {
 		                    theImage = mergeImage(theImage, newImage);

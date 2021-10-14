@@ -495,7 +495,7 @@ public class Geoset implements Named, VisibilitySource {
 		geoset.setSelectionGroup(selectionGroup);
 		geoset.setParentModel(parentModel);
 		geoset.setLevelOfDetail(levelOfDetail);
-		if(tangents != null){
+		if (tangents != null) {
 			geoset.setTangents(new ArrayList<>(tangents));
 		}
 		geoset.setUnselectable(unselectable);

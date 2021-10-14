@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
@@ -37,8 +37,12 @@ public class Layer extends TimelineContainer implements Named {
 
 	private transient Map<Integer, Bitmap> ridiculouslyWrongTextureIDToTexture = new HashMap<>();
 
-	public Layer(String filterMode, int textureId) {
-		this.filterMode = FilterMode.nameToFilter(filterMode);
+	public Layer(int textureId) {
+		this(FilterMode.NONE, textureId);
+	}
+
+	public Layer(FilterMode filterMode, int textureId) {
+		this.filterMode = filterMode;
 		this.textureId = textureId;
 	}
 
@@ -46,9 +50,8 @@ public class Layer extends TimelineContainer implements Named {
 
 	}
 
-	public Layer(String filterMode, Bitmap texture) {
-		this.filterMode = FilterMode.nameToFilter(filterMode);
-		this.texture = texture;
+	public Layer(Bitmap texture) {
+		this(FilterMode.NONE, texture);
 	}
 
 	public Layer(FilterMode filterMode, Bitmap texture) {
@@ -84,13 +87,9 @@ public class Layer extends TimelineContainer implements Named {
 			add(animFlag.deepCopy());
 		}
 
-//		textures = new ArrayList<>();
 		if (other.textures != null) {
 			textures.addAll(other.textures);
 		}
-//		else {
-//			textures = null;
-//		}
 	}
 
 	@Override

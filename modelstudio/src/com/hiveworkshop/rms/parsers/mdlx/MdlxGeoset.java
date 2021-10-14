@@ -37,24 +37,12 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 	public long materialId = 0;
 	public long selectionGroup = 0;
 	public long selectionFlags = 0;
-	/** 
-	 * @since 900
-	 */
-	public int lod = 0;
-	/** 
-	 * @since 900
-	 */
-	public String lodName = "";
+	public int lod = 0; // @since 900
+	public String lodName = ""; // @since 900
 	public MdlxExtent extent = new MdlxExtent();
 	public List<MdlxExtent> sequenceExtents = new ArrayList<>();
-	/** 
-	 * @since 900
-	 */
-	public float[] tangents;
-	/** 
-	 * @since 900
-	 */
-	public short[] skin;
+	public float[] tangents; // @since 900
+	public short[] skin; // @since 900
 	public float[][] uvSets;
 
 	@Override

@@ -123,6 +123,7 @@ public class TwilacStuff {
 		public SpliceSubMesh() {
 			super("Splice Mesh", SpliceSubMesh::doStuff);
 		}
+
 		private static void doStuff(ModelHandler modelHandler) {
 			FileDialog fileDialog = new FileDialog();
 			EditableModel donModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
@@ -132,14 +133,32 @@ public class TwilacStuff {
 			}
 		}
 	}
-	private static class MergeBoneHelpers extends TwiFunction{
+
+	private static class SpliceGeoset extends TwiFunction {
+
+		public SpliceGeoset() {
+			super("Splice Geoset", SpliceGeoset::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			FileDialog fileDialog = new FileDialog();
+			EditableModel donModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
+			if (donModel != null) {
+				SpliceGeosetPanel panel = new SpliceGeosetPanel(donModel, modelHandler);
+				FramePopup.show(panel, ProgramGlobals.getMainPanel(), "Splice Geoset");
+			}
+		}
+	}
+
+	private static class MergeBoneHelpers extends TwiFunction {
 
 		public MergeBoneHelpers() {
 			super("Merge unnecessary Helpers with Child Bones", MergeBoneHelpers::doStuff);
 		}
+
 		private static void doStuff(ModelHandler modelHandler) {
 			EditableModel model = modelHandler.getModel();
-					Set<Bone> bonesWOMotion = new HashSet<>();
+			Set<Bone> bonesWOMotion = new HashSet<>();
 			model.getBones().stream()
 					.filter(b -> b.getAnimFlags().isEmpty() && b.getChildrenNodes().isEmpty() && b.getParent() instanceof Helper)
 					.forEach(bonesWOMotion::add);
@@ -263,22 +282,32 @@ public class TwilacStuff {
 	public static JMenuItem getReorderAnimationsMenuItem(){
 		return new ReorderAnimations().getMenuItem();
 	}
-	public static JMenuItem getImportModelPartMenuItem(){
+
+	public static JMenuItem getImportModelPartMenuItem() {
 		return new ImportModelPart().getMenuItem();
 	}
-	public static JMenuItem getImportModelSubAnimMenuItem(){
+
+	public static JMenuItem getImportModelSubAnimMenuItem() {
 		return new ImportModelSubAnim().getMenuItem();
 	}
-	public static JMenuItem getSpliceSubMeshMenuItem(){
+
+	public static JMenuItem getSpliceSubMeshMenuItem() {
 		return new SpliceSubMesh().getMenuItem();
 	}
-	public static JMenuItem getMergeBoneHelpersMenuItem(){
+
+	public static JMenuItem getSpliceGeosetMenuItem() {
+		return new SpliceGeoset().getMenuItem();
+	}
+
+	public static JMenuItem getMergeBoneHelpersMenuItem() {
 		return new MergeBoneHelpers().getMenuItem();
 	}
-	public static JMenuItem getLinearizeSelectedMenuItem(){
+
+	public static JMenuItem getLinearizeSelectedMenuItem() {
 		return new LinearizeSelected().getMenuItem();
 	}
-	public static JMenuItem getTempNoneMenuItem(){
+
+	public static JMenuItem getTempNoneMenuItem() {
 		return new TempNone().getMenuItem();
 	}
 

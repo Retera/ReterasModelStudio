@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.language.TextKey;
@@ -56,7 +57,7 @@ public class CombineAnimations extends ActionFunction {
 		for (AnimFlag<?> af : flags) {
 			if (!af.hasGlobalSeq()) {
 //				af.copyFrom(af, source, animation, offset, animation.getLength() + offset);
-				af.copyFrom(af, source, animation, offset);
+				AnimFlagUtils.copyFrom(af, af, source, animation, offset);
 			}
 		}
 		for (EventObject e : eventObjs) {

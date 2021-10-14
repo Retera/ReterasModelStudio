@@ -8,6 +8,7 @@ import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ObjectEditPanel extends JPanel {
 
@@ -23,8 +24,8 @@ public class ObjectEditPanel extends JPanel {
 		setLayout(new MigLayout("gap 0", "[grow][grow]", "[][grow]"));
 		this.mht = mht;
 
-		add(getButton("Import All", e -> mht.setImportAllDonObjs(true)), "cell 0 0, right");
-		add(getButton("Leave All", e -> mht.setImportAllDonObjs(false)), "cell 1 0, left");
+		add(getSetImpTypePanel(mht.receivingModel.getName(), mht::setImportAllRecObjs), "cell 0 0, right");
+		add(getSetImpTypePanel(mht.donatingModel.getName(), mht::setImportAllDonObjs), "cell 1 0, left");
 
 		mht.getFutureBoneHelperList();
 
@@ -41,16 +42,23 @@ public class ObjectEditPanel extends JPanel {
 		add(splitPane, "cell 0 1, growx, growy, spanx 2");
 	}
 
+	private JPanel getSetImpTypePanel(String modelName, Consumer<Boolean> importTypeConsumer) {
+		JPanel panel = new JPanel(new MigLayout("gap 0, ins 0", "[][][]", "[align center]"));
+		panel.setOpaque(true);
+		panel.setBorder(BorderFactory.createTitledBorder(modelName));
+
+		panel.add(getButton("Import All", e -> importTypeConsumer.accept(true)), "");
+		panel.add(getButton("Leave All", e -> importTypeConsumer.accept(false)), "");
+
+		return panel;
+	}
+
 	private JScrollPane getObjectListPane(ModelHolderThing mht) {
 		ObjectShellListCellRenderer objectPanelRenderer = new ObjectShellListCellRenderer(mht.receivingModel, mht.donatingModel);
 		mht.allObjectJList.setCellRenderer(objectPanelRenderer);
 		mht.allObjectJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
 		mht.allObjectJList.setSelectedValue(null, false);
 		return new JScrollPane(mht.allObjectJList);
-//		mht.donModObjectJList.setCellRenderer(objectPanelRenderer);
-//		mht.donModObjectJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
-//		mht.donModObjectJList.setSelectedValue(null, false);
-//		return new JScrollPane(mht.donModObjectJList);
 	}
 
 	private JButton getButton(String text, ActionListener actionListener) {

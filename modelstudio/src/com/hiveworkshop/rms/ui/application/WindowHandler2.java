@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.ModelViewManagingView
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 import com.hiveworkshop.rms.util.ModelDependentView;
+import com.hiveworkshop.rms.util.ScreenInfo;
 import com.hiveworkshop.rms.util.Vec3;
 import net.infonode.docking.*;
 import net.infonode.docking.util.ViewMap;
@@ -147,11 +148,10 @@ public class WindowHandler2 {
 		if ((view.getTopLevelAncestor() == null) || !view.getTopLevelAncestor().isVisible()) {
 			addView(view);
 			FloatingWindow createFloatingWindow
-					= rootWindow.createFloatingWindow(rootWindow.getLocation(), new Dimension(640, 480), view);
+					= rootWindow.createFloatingWindow(rootWindow.getLocation(), ScreenInfo.getSmallWindow(), view);
 			createFloatingWindow.getTopLevelAncestor().setVisible(true);
 
 			KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
-//            view.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
 			createFloatingWindow.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
 			createFloatingWindow.setActionMap(keyBindingPrefs.getActionMap());
 		}

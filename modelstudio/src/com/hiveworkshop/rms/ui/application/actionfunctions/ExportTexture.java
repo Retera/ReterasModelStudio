@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -58,7 +59,7 @@ public class ExportTexture extends ActionFunction {
 			materials.addElement(mat);
 		}
 		for (ParticleEmitter2 emitter2 : model.getParticleEmitter2s()) {
-			Material dummyMaterial = new Material(new Layer("Blend", model.getTexture(emitter2.getTextureID())));
+			Material dummyMaterial = new Material(new Layer(FilterMode.BLEND, model.getTexture(emitter2.getTextureID())));
 		}
 
 		JList<Material> materialsList = new JList<>(materials);

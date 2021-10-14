@@ -6,10 +6,7 @@ import com.hiveworkshop.rms.editor.actions.animation.TranslationKeyframeAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.Entry;
-import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
@@ -156,9 +153,9 @@ public class AddBirthDeathSequences {
 	    for (final VisibilitySource source : ModelUtils.getAllVis(model)) {
 		    final FloatAnimFlag dummy = new FloatAnimFlag("dummy");
 		    final AnimFlag<?> af = source.getVisibilityFlag();
-		    dummy.copyFrom(af);
+		    AnimFlagUtils.copyFrom(dummy, af);
 		    af.deleteAnim(animation);
-		    af.copyFrom(dummy, stand, animation);
+		    AnimFlagUtils.copyFrom(af, dummy, stand, animation);
 	    }
     }
 

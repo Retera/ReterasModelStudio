@@ -13,20 +13,58 @@ import java.util.Map;
 
 public class ModelIconHandler {
 	private final Map<EditableModel, Map<Geoset, Map<Bone, List<GeosetVertex>>>> geosetBoneMap = new HashMap<>();
-	private final Map<IdObject, ImageIcon> matrixShellToCachedRenderer = new HashMap<>();
+	private final Map<IdObject, ImageIcon> idObjectToCachedRenderer = new HashMap<>();
+	private final Map<Geoset, ImageIcon> geosetToCachedRenderer = new HashMap<>();
 	private final Map<EditableModel, BufferedImage> modelOutlineImageMap = new HashMap<>();
+	private final Map<EditableModel, ImageIcon> modelImageMap = new HashMap<>();
 	private final Map<EditableModel, Vec2[]> modelBoundsSizeMap = new HashMap<>();
 
-	ModelIconHandler(){
+	public ModelIconHandler() {
 
 	}
 
-	public ImageIcon getImageIcon(IdObject idObject, EditableModel model) {
-		ImageIcon icon = matrixShellToCachedRenderer.get(idObject);
+	public ImageIcon getImageIcon(EditableModel model) {
+		return getImageIcon(Color.white, model);
+	}
+
+	public ImageIcon getImageIcon(Color backgroundColor, EditableModel model) {
+		ImageIcon icon = modelImageMap.get(model);
 		if (icon == null) {
 			try {
-				Color backgroundColor = Color.white;
+				BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+				Graphics graphics = image.getGraphics();
+				graphics.setColor(backgroundColor);
+				graphics.fill3DRect(0, 0, 32, 32, true);
+				graphics.setColor(backgroundColor.brighter());
 
+				makeIcon(backgroundColor, graphics, model);
+
+				graphics.dispose();
+				icon = new ImageIcon(image);
+			} catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
+			modelImageMap.put(model, icon);
+		}
+		return icon;
+	}
+
+	private void makeIcon(Color backgroundColor, Graphics graphics, EditableModel model) {
+		if (model != null) {
+			BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
+			graphics.drawImage(modelOutline, 0, 0, null);
+			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(32, 32), getModelBoundsSize(model));
+		}
+	}
+
+	public ImageIcon getImageIcon(IdObject idObject, EditableModel model) {
+		return getImageIcon(Color.white, idObject, model);
+	}
+
+	public ImageIcon getImageIcon(Color backgroundColor, IdObject idObject, EditableModel model) {
+		ImageIcon icon = idObjectToCachedRenderer.get(idObject);
+		if (icon == null) {
+			try {
 				BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
 				Graphics graphics = image.getGraphics();
 				graphics.setColor(backgroundColor);
@@ -40,7 +78,7 @@ public class ModelIconHandler {
 			} catch (final Exception e) {
 				throw new RuntimeException(e);
 			}
-			matrixShellToCachedRenderer.put(idObject, icon);
+			idObjectToCachedRenderer.put(idObject, icon);
 		}
 		return icon;
 	}
@@ -54,6 +92,43 @@ public class ModelIconHandler {
 				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) idObject);
 			}
 			ModelThumbnailMaker.drawBoneMarker(graphics, (byte) 1, (byte) 2, idObject.getPivotPoint());
+		}
+	}
+
+	public ImageIcon getImageIcon(Geoset geoset, EditableModel model) {
+		return getImageIcon(Color.white, geoset, model);
+	}
+
+	public ImageIcon getImageIcon(Color backgroundColor, Geoset geoset, EditableModel model) {
+		ImageIcon myIcon = geosetToCachedRenderer.get(geoset);
+		if (myIcon == null) {
+			try {
+				final BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+				final Graphics graphics = image.getGraphics();
+				graphics.setColor(backgroundColor);
+				graphics.fill3DRect(0, 0, 32, 32, true);
+				graphics.setColor(backgroundColor.brighter());
+
+				if (geoset != null) {
+					makeGeosetIcon(backgroundColor, geoset, graphics, model);
+				}
+
+				graphics.dispose();
+				myIcon = new ImageIcon(image);
+			} catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
+			geosetToCachedRenderer.put(geoset, myIcon);
+		}
+		return myIcon;
+	}
+
+	public void makeGeosetIcon(Color backgroundColor, Geoset geoset, Graphics graphics, EditableModel model) {
+		if (model.contains(geoset)) {
+			BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
+			graphics.drawImage(modelOutline, 0, 0, null);
+			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(32, 32), getModelBoundsSize(model));
+			ModelThumbnailMaker.drawGeosetFlat(graphics, (byte) 1, (byte) 2, geoset, Color.RED);
 		}
 	}
 

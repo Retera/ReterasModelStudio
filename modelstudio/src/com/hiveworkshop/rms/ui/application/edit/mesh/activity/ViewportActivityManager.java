@@ -83,27 +83,27 @@ public final class ViewportActivityManager implements SelectionListener {
 	}
 
 
-	public void mousePressed(MouseEvent e, CameraHandler coordinateSystem) {
+	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
 		if (this.currentActivity != null) {
-			currentActivity.mousePressed(e, coordinateSystem);
+			currentActivity.mousePressed(e, cameraHandler);
 		}
 	}
 
-	public void mouseReleased(MouseEvent e, CameraHandler coordinateSystem) {
+	public void mouseReleased(MouseEvent e, CameraHandler cameraHandler) {
 		if (this.currentActivity != null) {
-			currentActivity.mouseReleased(e, coordinateSystem);
+			currentActivity.mouseReleased(e, cameraHandler);
 		}
 	}
 
-	public void mouseMoved(MouseEvent e, CameraHandler coordinateSystem) {
+	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
 		if (this.currentActivity != null) {
-			currentActivity.mouseMoved(e, coordinateSystem);
+			currentActivity.mouseMoved(e, cameraHandler);
 		}
 	}
 
-	public void mouseDragged(MouseEvent e, CameraHandler coordinateSystem) {
+	public void mouseDragged(MouseEvent e, CameraHandler cameraHandler) {
 		if (this.currentActivity != null) {
-			currentActivity.mouseDragged(e, coordinateSystem);
+			currentActivity.mouseDragged(e, cameraHandler);
 		}
 	}
 

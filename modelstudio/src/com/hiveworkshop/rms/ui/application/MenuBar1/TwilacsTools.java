@@ -29,6 +29,7 @@ public class TwilacsTools extends JMenu {
 		add(TwilacStuff.getImportModelPartMenuItem());
 		add(TwilacStuff.getImportModelSubAnimMenuItem());
 		add(TwilacStuff.getSpliceSubMeshMenuItem());
+		add(TwilacStuff.getSpliceGeosetMenuItem());
 		add(new JSeparator());
 		add(TwilacStuff.getReorderAnimationsMenuItem());
 		add(new JSeparator());

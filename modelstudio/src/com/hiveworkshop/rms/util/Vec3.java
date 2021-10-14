@@ -238,6 +238,11 @@ public class Vec3 {
 		return "{" + x + ", " + y + ", " + z + "}";
 	}
 
+	public float distance(final Vec3 a) {
+		return distance(a.x, a.y, a.z);
+//		return getDiff(this, a).length();
+	}
+
 	public float distance(final float ax, final float ay, final float az) {
 		final float dx = ax - x;
 		final float dy = ay - y;
@@ -374,10 +379,6 @@ public class Vec3 {
 
 	public long[] toLongArray() {
 		return new long[] {(long) x, (long) y, (long) z};
-	}
-
-	public float distance(final Vec3 a) {
-		return getDiff(this, a).length();
 	}
 
 	public Vec3 add(final Vec3 a) {

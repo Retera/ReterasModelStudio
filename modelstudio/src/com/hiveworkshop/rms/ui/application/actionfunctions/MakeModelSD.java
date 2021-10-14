@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.language.TextKey;
@@ -88,7 +89,7 @@ public class MakeModelSD extends ActionFunction {
 
 					Bitmap heroGlowBitmap = new Bitmap("");
 					heroGlowBitmap.setReplaceableId(2);
-					Layer layer = new Layer("Additive", heroGlowBitmap);
+					Layer layer = new Layer(FilterMode.ADDITIVE, heroGlowBitmap);
 					layer.setUnshaded(true);
 					layer.setUnfogged(true);
 					heroGlow.setMaterial(new Material(layer));

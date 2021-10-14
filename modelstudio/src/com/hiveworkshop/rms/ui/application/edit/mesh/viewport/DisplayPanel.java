@@ -74,12 +74,12 @@ public class DisplayPanel extends JPanel {
 	private JPanel getButtonPanel() {
 		JPanel buttonPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[][][]", "[][][][][]"));
 		JPanel arrowPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[][][]", "[][][]"));
-		JButton plusZoom = addButton(20, 20, "Plus.png", e -> zoom(.15));
-		JButton minusZoom = addButton(20, 20, "Minus.png", e -> zoom(-.15));
-		JButton up = addButton(32, 16, "ArrowUp.png", e -> pan(0,-20));
-		JButton left = addButton(16, 32, "ArrowLeft.png", e -> pan(20,0));
-		JButton right = addButton(16, 32, "ArrowRight.png", e -> pan(-20,0));
-		JButton down = addButton(32, 16, "ArrowDown.png", e -> pan(0,20));
+		JButton plusZoom = getButton(20, 20, "Plus.png", e -> zoom(.15));
+		JButton minusZoom = getButton(20, 20, "Minus.png", e -> zoom(-.15));
+		JButton up = getButton(32, 16, "ArrowUp.png", e -> pan(0, -20));
+		JButton left = getButton(16, 32, "ArrowLeft.png", e -> pan(20, 0));
+		JButton right = getButton(16, 32, "ArrowRight.png", e -> pan(-20, 0));
+		JButton down = getButton(32, 16, "ArrowDown.png", e -> pan(0, 20));
 
 
 		buttonPanel.add(plusZoom, "align center, wrap");
@@ -92,7 +92,7 @@ public class DisplayPanel extends JPanel {
 		return buttonPanel;
 	}
 
-	private JButton addButton(int width, int height, String iconPath, ActionListener actionListener) {
+	private JButton getButton(int width, int height, String iconPath, ActionListener actionListener) {
 		Dimension dim = new Dimension(width, height);
 		JButton button = new JButton("");
 		button.setMaximumSize(dim);

@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.editor.model.Camera.TargetNode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.renderparts.RenderGeoset;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -238,7 +237,7 @@ public final class RenderModel {
 		updateNodes(false, soft, particles);
 	}
 	public void updateNodes2(boolean particles) {
-		boolean soft = timeEnvironment.getEnvTrackTime() == lastUpdatedTime;
+		boolean soft = lastUpdated < System.currentTimeMillis();
 		updateNodes(false, soft, particles);
 	}
 

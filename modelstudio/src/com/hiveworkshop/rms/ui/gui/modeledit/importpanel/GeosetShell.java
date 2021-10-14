@@ -24,9 +24,11 @@ public class GeosetShell {
 		this.model = model;
 		this.isFromDonating = isFromDonating;
 		modelName = model.getName();
-		name = geoset.getName();
-		index = model.getGeosetId(geoset);
-		oldMaterial = geoset.getMaterial();
+		if (geoset != null) {
+			name = geoset.getName();
+			index = model.getGeosetId(geoset);
+			oldMaterial = geoset.getMaterial();
+		}
 	}
 
 	public Geoset getGeoset() {
@@ -69,7 +71,10 @@ public class GeosetShell {
 
 	@Override
 	public String toString() {
-		return model.getName() + ": " + geoset.getName();
+		if (geoset != null) {
+			return model.getName() + ": " + geoset.getName();
+		}
+		return model.getName() + ": none";
 	}
 
 	public boolean isEnabled() {

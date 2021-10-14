@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.editor.model.util;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Pair;
@@ -115,7 +114,7 @@ public final class ModelUtils {
 	}
 
 	public static Material getWhiteMaterial(EditableModel model) {
-		Material material = new Material(new Layer(MdlxLayer.FilterMode.NONE, new Bitmap("Textures\\White.blp")));
+		Material material = new Material(new Layer(new Bitmap("Textures\\White.blp")));
 		if (model.getMaterials().contains(material)) {
 			int i = model.getMaterials().indexOf(material);
 			return model.getMaterial(i);

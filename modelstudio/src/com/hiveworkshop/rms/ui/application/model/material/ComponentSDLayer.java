@@ -7,9 +7,9 @@ import com.hiveworkshop.rms.editor.actions.model.material.SetLayerFilterModeActi
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
@@ -31,7 +31,7 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 	FloatValuePanel alphaPanel;
 	JPanel texturePreviewPanel;
 	JPanel layerFlagsPanel;
-	JComboBox<MdlxLayer.FilterMode> filterModeDropdown;
+	JComboBox<FilterMode> filterModeDropdown;
 	JButton tVertexAnimButton;
 	IntEditorJSpinner coordIdSpinner;
 	JButton move_up;
@@ -160,7 +160,7 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 		JPanel topSettingsPanel = new JPanel(new MigLayout("ins 0"));
 
 		topSettingsPanel.add(new JLabel("Filter Mode:"));
-		filterModeDropdown = new JComboBox<>(MdlxLayer.FilterMode.values());
+		filterModeDropdown = new JComboBox<>(FilterMode.values());
 		filterModeDropdown.addItemListener(this::filterModeDropdownListener);
 		topSettingsPanel.add(filterModeDropdown, "wrap, growx");
 
@@ -177,7 +177,7 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 
 	private void filterModeDropdownListener(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED && selectedItem != null) {
-			MdlxLayer.FilterMode newFilterMode = (MdlxLayer.FilterMode) e.getItem();
+			FilterMode newFilterMode = (FilterMode) e.getItem();
 			undoManager.pushAction(new SetLayerFilterModeAction(selectedItem, newFilterMode, changeListener).redo());
 		}
 	}

@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BoneEditPanel extends JPanel {
 
@@ -51,20 +52,32 @@ public class BoneEditPanel extends JPanel {
 	}
 
 	private JPanel getTopPanel() {
-		JPanel topPanel = new JPanel(new MigLayout("gap 0, debug", "[][][][]", "[][align center]"));
+//		JPanel topPanel = new JPanel(new MigLayout("gap 0, debug", "[][][][]", "[][align center]"));
+		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[][]", "[align center][align center]"));
 		topPanel.setOpaque(true);
 
-		topPanel.add(createButton("Import All", e -> mht.setImportStatusForAllDonBones(BoneShell.ImportType.IMPORT)));
-		topPanel.add(createButton("Motion From All", e -> mht.setImportStatusForAllDonBones(BoneShell.ImportType.MOTIONFROM)));
-		topPanel.add(createButton("Uncheck Unused", e -> uncheckUnusedBones(mht)));
-		topPanel.add(createButton("Leave All", e -> mht.setImportStatusForAllDonBones(BoneShell.ImportType.DONTIMPORT)), "wrap");
+		topPanel.add(getSetImpTypePanel(mht.receivingModel.getName(), (i) -> mht.setImportStatusForAllRecBones(i)), "");
+		topPanel.add(getSetImpTypePanel(mht.donatingModel.getName(), (i) -> mht.setImportStatusForAllDonBones(i)), "wrap");
+		topPanel.add(getButton("Uncheck Unused", e -> uncheckUnusedBones(mht)), "spanx 4, align center");
 
 		mht.clearExistingBones = new JCheckBox("Clear pre-existing bones and helpers");
-		topPanel.add(mht.clearExistingBones, "spanx 4, align center");
+//		topPanel.add(mht.clearExistingBones, "spanx 4, align center");
 		return topPanel;
 	}
 
-	public JButton createButton(String text, ActionListener actionListener) {
+	private JPanel getSetImpTypePanel(String modelName, Consumer<BoneShell.ImportType> importTypeConsumer) {
+		JPanel panel = new JPanel(new MigLayout("gap 0, ins 0", "[][][]", "[align center]"));
+		panel.setOpaque(true);
+		panel.setBorder(BorderFactory.createTitledBorder(modelName));
+
+		panel.add(getButton("Import All", e -> importTypeConsumer.accept(BoneShell.ImportType.IMPORT)), "");
+		panel.add(getButton("Motion From All", e -> importTypeConsumer.accept(BoneShell.ImportType.MOTIONFROM)), "");
+		panel.add(getButton("Leave All", e -> importTypeConsumer.accept(BoneShell.ImportType.DONTIMPORT)), "");
+
+		return panel;
+	}
+
+	public JButton getButton(String text, ActionListener actionListener) {
 		JButton jButton = new JButton(text);
 		jButton.addActionListener(actionListener);
 		return jButton;

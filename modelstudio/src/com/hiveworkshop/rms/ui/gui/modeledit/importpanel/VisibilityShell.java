@@ -73,11 +73,6 @@ public class VisibilityShell {
 		return isFromDonating;
 	}
 
-	public VisibilityShell setFromDonating(boolean fromDonating) {
-		isFromDonating = fromDonating;
-		return this;
-	}
-
 	public VisibilityShell getNewVisSource() {
 		return newVisSource;
 	}

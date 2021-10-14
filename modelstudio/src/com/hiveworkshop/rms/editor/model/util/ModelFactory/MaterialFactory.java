@@ -48,7 +48,7 @@ public class MaterialFactory {
 	}
 
 	public static Layer makeLayer(MdlxLayer mdlxLayer, EditableModel model) {
-		Layer layer = new Layer(mdlxLayer.filterMode.toString(), mdlxLayer.textureId);
+		Layer layer = new Layer(mdlxLayer.filterMode, mdlxLayer.textureId);
 
 		int shadingFlags = mdlxLayer.flags;
 		if ((shadingFlags & 0x1) != 0) {
@@ -123,7 +123,7 @@ public class MaterialFactory {
 	}
 
 	static Layer createLayer(MdlxLayer mdlxLayer, EditableModel model) {
-		Layer layer = new Layer(mdlxLayer.filterMode.toString(), mdlxLayer.textureId);
+		Layer layer = new Layer(mdlxLayer.filterMode, mdlxLayer.textureId);
 		int shadingFlags = mdlxLayer.flags;
 
 		layer.setUnshaded((shadingFlags & 0x1) != 0);

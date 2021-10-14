@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
@@ -136,7 +137,7 @@ public class ImportPanel extends JTabbedPane {
 			if (!af.hasGlobalSeq()) {
 				AnimFlag<?> newGlobalSeqFlag = af.deepCopy();
 				newGlobalSeqFlag.setGlobSeq(newSeq);
-				newGlobalSeqFlag.copyFrom(af, anim, newSeq);
+				AnimFlagUtils.copyFrom(newGlobalSeqFlag, af, anim, newSeq);
 				addFlagToParent(model, af, newGlobalSeqFlag);
 			}
 		}
@@ -301,10 +302,10 @@ public class ImportPanel extends JTabbedPane {
 				}
 			}
 			if (flagOld != null) {
-				newVisFlag.copyFrom(flagOld);
+				AnimFlagUtils.copyFrom(newVisFlag, flagOld);
 			}
 			if (flagNew != null) {
-				newVisFlag.copyFrom(flagNew);
+				AnimFlagUtils.copyFrom(newVisFlag, flagNew);
 			}
 			finalVisFlags.add(newVisFlag);
 		}
@@ -624,7 +625,7 @@ public class ImportPanel extends JTabbedPane {
 		// Now, rebuild the old animflags with the new
 		for (AnimFlag<?> af : donModFlags) {
 //			af.setValuesTo(newImpFlags.get(donModFlags.indexOf(af)));
-			af.setValuesTo(flagMap.get(af));
+			AnimFlagUtils.setValuesTo(af, flagMap.get(af));
 		}
 		for (EventObject e : donModEventObjs) {
 //			e.setValuesTo(newImpEventObjs.get(donModEventObjs.indexOf(e)));
@@ -663,7 +664,7 @@ public class ImportPanel extends JTabbedPane {
 		int length = anim1.getLength();
 		for (AnimFlag<?> af : donModFlags) {
 			if (!af.hasGlobalSeq() && ((af.getTypeId() == 1) || (af.getTypeId() == 2) || (af.getTypeId() == 3))) {
-				af.timeScale2(anim1, -length, length);
+				AnimFlagUtils.timeScale2(af, anim1, -length, length);
 			}
 		}
 		for (EventObject e : donModEventObjs) {
@@ -676,7 +677,7 @@ public class ImportPanel extends JTabbedPane {
 		for (AnimFlag<?> af : newImpFlags) {
 			if (!af.hasGlobalSeq()) {
 				AnimFlag<?> source = animFlags.get(newImpFlags.indexOf(af));
-				af.copyFrom(source, importAnim, anim1);
+				AnimFlagUtils.copyFrom(af, source, importAnim, anim1);
 			}
 		}
 		for (EventObject e : newImpEventObjs) {
@@ -690,7 +691,7 @@ public class ImportPanel extends JTabbedPane {
 		for (AnimFlag<?> source : flagMap.keySet()){
 			AnimFlag<?> af = flagMap.get(source);
 			if (af != null && !af.hasGlobalSeq()) {
-				af.copyFrom(source, importAnim, anim1);
+				AnimFlagUtils.copyFrom(af, source, importAnim, anim1);
 			}
 		}
 		for (EventObject source : eventMap.keySet()) {

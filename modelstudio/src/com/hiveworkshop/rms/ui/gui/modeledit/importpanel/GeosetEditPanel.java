@@ -6,7 +6,9 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class GeosetEditPanel extends JPanel {
 
@@ -63,15 +65,30 @@ public class GeosetEditPanel extends JPanel {
 	}
 
 	private JPanel getTopPanel() {
-		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[]8[]"));
+//		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[]8[]"));
+		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[][]", "[align center][align center]"));
+		topPanel.setOpaque(true);
 
-		JButton importAllGeos = new JButton("Import All");
-		importAllGeos.addActionListener(e -> mht.importAllGeos(true));
-		topPanel.add(importAllGeos);
+		topPanel.add(getSetImpTypePanel(mht.receivingModel.getName(), (b) -> mht.importAllRecGeos(b)), "");
+		topPanel.add(getSetImpTypePanel(mht.donatingModel.getName(), (b) -> mht.importAllDonGeos(b)), "wrap");
 
-		JButton uncheckAllGeos = new JButton("Leave All");
-		uncheckAllGeos.addActionListener(e -> mht.importAllGeos(false));
-		topPanel.add(uncheckAllGeos);
 		return topPanel;
+	}
+
+	private JPanel getSetImpTypePanel(String modelName, Consumer<Boolean> importTypeConsumer) {
+		JPanel panel = new JPanel(new MigLayout("gap 0, ins 0", "[][][]", "[align center]"));
+		panel.setOpaque(true);
+		panel.setBorder(BorderFactory.createTitledBorder(modelName));
+
+		panel.add(getButton("Import All", e -> importTypeConsumer.accept(true)), "");
+		panel.add(getButton("Leave All", e -> importTypeConsumer.accept(false)), "");
+
+		return panel;
+	}
+
+	public JButton getButton(String text, ActionListener actionListener) {
+		JButton jButton = new JButton(text);
+		jButton.addActionListener(actionListener);
+		return jButton;
 	}
 }

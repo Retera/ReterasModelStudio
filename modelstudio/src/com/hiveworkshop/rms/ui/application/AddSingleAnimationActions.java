@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.AddSequenceAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
@@ -221,7 +222,7 @@ public class AddSingleAnimationActions {
 			for (final AnimFlag<?> af : newImpFlags) {
 				if (!af.hasGlobalSeq()) {
 					AnimFlag<?> source = othersFlags.get(newImpFlags.indexOf(af));
-					af.copyFrom(source, anim, newAnim);
+					AnimFlagUtils.copyFrom(af, source, anim, newAnim);
 				}
 			}
 			for (final EventObject e : newImpEventObjs) {
@@ -237,7 +238,7 @@ public class AddSingleAnimationActions {
 
 		// destroy the other model's animations, filling them in with the new stuff
 		for (final AnimFlag<?> af : othersFlags) {
-			af.setValuesTo(newImpFlags.get(othersFlags.indexOf(af)));
+			AnimFlagUtils.setValuesTo(af, newImpFlags.get(othersFlags.indexOf(af)));
 		}
 		for (final Object e : othersEventObjs) {
 			((EventObject) e).setValuesTo(newImpEventObjs.get(othersEventObjs.indexOf(e)));
@@ -279,7 +280,7 @@ public class AddSingleAnimationActions {
 			AnimFlag<?> visibilityFlag = source.getVisibilityFlag();
 			AnimFlag<?> copyFlag = visibilityFlag.deepCopy();
 			visibilityFlag.deleteAnim(target);
-			visibilityFlag.copyFrom(copyFlag, visibilitySource, target);
+			AnimFlagUtils.copyFrom(visibilityFlag, copyFlag, visibilitySource, target);
 		}
 	}
 }

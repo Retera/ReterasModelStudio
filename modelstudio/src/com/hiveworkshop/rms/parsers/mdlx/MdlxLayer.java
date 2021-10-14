@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.parsers.mdlx;
 
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
@@ -10,49 +11,6 @@ import com.hiveworkshop.rms.util.BinaryWriter;
 import java.util.Iterator;
 
 public class MdlxLayer extends MdlxAnimatedObject {
-	public enum FilterMode {
-		NONE("None"),
-		TRANSPARENT("Transparent"),
-		BLEND("Blend"),
-		ADDITIVE("Additive"),
-		ADDALPHA("AddAlpha"),
-		MODULATE("Modulate"),
-		MODULATE2X("Modulate2x");
-
-		String token;
-
-		FilterMode(final String token) {
-			this.token = token;
-		}
-
-		public static FilterMode fromId(final int id) {
-			return values()[id];
-		}
-
-		public static int nameToId(final String name) {
-			for (final FilterMode mode : values()) {
-				if (mode.token.equals(name)) {
-					return mode.ordinal();
-				}
-			}
-			return -1;
-		}
-
-		public static FilterMode nameToFilter(final String name) {
-			for (final FilterMode mode : values()) {
-				if (mode.token.equals(name)) {
-					return mode;
-				}
-			}
-			return null;
-		}
-
-		@Override
-		public String toString() {
-			return token;
-		}
-	}
-
 	public FilterMode filterMode = FilterMode.NONE;
 	public int flags = 0;
 	public int textureId = -1;
@@ -142,63 +100,63 @@ public class MdlxLayer extends MdlxAnimatedObject {
 			case MdlUtils.TOKEN_TWO_SIDED:
 				flags |= 0x10;
 				break;
-			case MdlUtils.TOKEN_UNFOGGED:
-				flags |= 0x20;
-				break;
-			case MdlUtils.TOKEN_NO_DEPTH_TEST:
-				flags |= 0x40;
-				break;
-			case MdlUtils.TOKEN_NO_DEPTH_SET:
-				flags |= 0x80;
-				break;
-			case "Unlit":
-				flags |= 0x100;
-			case MdlUtils.TOKEN_STATIC_TEXTURE_ID:
-				textureId = stream.readInt();
-				break;
-			case MdlUtils.TOKEN_TEXTURE_ID:
-				readTimeline(stream, AnimationMap.KMTF);
-				break;
-			case MdlUtils.TOKEN_TVERTEX_ANIM_ID:
-				textureAnimationId = stream.readInt();
-				break;
-			case MdlUtils.TOKEN_COORD_ID:
-				coordId = stream.readInt();
-				break;
+				case MdlUtils.TOKEN_UNFOGGED:
+					flags |= 0x20;
+					break;
+				case MdlUtils.TOKEN_NO_DEPTH_TEST:
+					flags |= 0x40;
+					break;
+				case MdlUtils.TOKEN_NO_DEPTH_SET:
+					flags |= 0x80;
+					break;
+				case MdlUtils.TOKEN_UNLIT:
+					flags |= 0x100;
+				case MdlUtils.TOKEN_STATIC_TEXTURE_ID:
+					textureId = stream.readInt();
+					break;
+				case MdlUtils.TOKEN_TEXTURE_ID:
+					readTimeline(stream, AnimationMap.KMTF);
+					break;
+				case MdlUtils.TOKEN_TVERTEX_ANIM_ID:
+					textureAnimationId = stream.readInt();
+					break;
+				case MdlUtils.TOKEN_COORD_ID:
+					coordId = stream.readInt();
+					break;
 				case MdlUtils.TOKEN_STATIC_ALPHA:
 					alpha = stream.readFloat();
 					break;
 				case MdlUtils.TOKEN_ALPHA:
 					readTimeline(stream, AnimationMap.KMTA);
 					break;
-				case "static EmissiveGain":
+				case MdlUtils.TOKEN_STATIC_EMISSIVE_GAIN:
 					emissiveGain = stream.readFloat();
 					break;
-				case "static Emissive":
+				case MdlUtils.TOKEN_STATIC_EMISSIVE:
 					emissiveGain = stream.readFloat();
 					break;
-				case "EmissiveGain":
+				case MdlUtils.TOKEN_EMISSIVE_GAIN:
 					readTimeline(stream, AnimationMap.KMTE);
 					break;
-				case "Emissive":
+				case MdlUtils.TOKEN_EMISSIVE:
 					readTimeline(stream, AnimationMap.KMTE);
 					break;
-				case "static FresnelColor":
+				case MdlUtils.TOKEN_STATIC_FRESNEL_COLOR:
 					stream.readColor(fresnelColor);
 					break;
-				case "FresnelColor":
+				case MdlUtils.TOKEN_FRESNEL_COLOR:
 					readTimeline(stream, AnimationMap.KFC3);
 					break;
-				case "static FresnelOpacity":
+				case MdlUtils.TOKEN_STATIC_FRESNEL_OPACITY:
 					fresnelOpacity = stream.readFloat();
-				break;
-				case "FresnelOpacity":
+					break;
+				case MdlUtils.TOKEN_FRESNEL_OPACITY:
 					readTimeline(stream, AnimationMap.KFCA);
 					break;
-				case "static FresnelTeamColor":
+				case MdlUtils.TOKEN_STATIC_FRESNEL_TEAM_COLOR:
 					fresnelTeamColor = stream.readFloat();
 					break;
-				case "FresnelTeamColor":
+				case MdlUtils.TOKEN_FRESNEL_TEAM_COLOR:
 					readTimeline(stream, AnimationMap.KFTC);
 					break;
 				default:
@@ -238,7 +196,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 		}
 
 		if (version > 800 && (flags & 0x100) != 0) {
-			stream.writeFlag("Unlit");
+			stream.writeFlag(MdlUtils.TOKEN_UNLIT);
 		}
 
 		if (!writeTimeline(stream, AnimationMap.KMTF)) {
@@ -259,19 +217,19 @@ public class MdlxLayer extends MdlxAnimatedObject {
 
 		if (version > 800) {
 			if (!writeTimeline(stream, AnimationMap.KMTE) && emissiveGain != 1) {
-				stream.writeFloatAttrib("static EmissiveGain", emissiveGain);
-			  }
+				stream.writeFloatAttrib(MdlUtils.TOKEN_STATIC_EMISSIVE_GAIN, emissiveGain);
+			}
 		
 			  if (!writeTimeline(stream, AnimationMap.KFC3) && (fresnelColor[0] != 1 || fresnelColor[1] != 1 || fresnelColor[2] != 1)) {
-				stream.writeFloatArrayAttrib("static FresnelColor", fresnelColor);
+				  stream.writeFloatArrayAttrib(MdlUtils.TOKEN_STATIC_FRESNEL_COLOR, fresnelColor);
 			  }
 		
 			  if (!writeTimeline(stream, AnimationMap.KFCA) && fresnelOpacity != 0) {
-				stream.writeFloatAttrib("static FresnelOpacity", fresnelOpacity);
+				  stream.writeFloatAttrib(MdlUtils.TOKEN_STATIC_FRESNEL_OPACITY, fresnelOpacity);
 			  }
 		
 			  if (!writeTimeline(stream, AnimationMap.KFTC) && fresnelTeamColor != 0) {
-				stream.writeFloatAttrib("static FresnelTeamColor", fresnelTeamColor);
+				  stream.writeFloatAttrib(MdlUtils.TOKEN_STATIC_FRESNEL_TEAM_COLOR, fresnelTeamColor);
 			  }
 		}
 

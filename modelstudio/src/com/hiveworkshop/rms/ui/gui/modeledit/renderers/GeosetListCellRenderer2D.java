@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ModelThumbnailMaker;
+import com.hiveworkshop.rms.ui.application.tools.ModelIconHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.GeosetShell;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -33,6 +33,8 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 	private final EditableModel model;
 	private final EditableModel other;
 
+	ModelIconHandler iconHandler = new ModelIconHandler();
+
 
 	public GeosetListCellRenderer2D(EditableModel model, EditableModel other) {
 		this.model = model;
@@ -45,7 +47,7 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 	public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean chf) {
 
 		Color backgroundColor = noOwnerBgCol.asIntColor();
-		GeosetShell geoset = null;
+		GeosetShell geosetShell = null;
 
 		if (value instanceof GeosetShell) {
 			if (((GeosetShell) value).isFromDonating()) {
@@ -53,83 +55,22 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 			} else {
 				backgroundColor = recModelColor.asIntColor();
 			}
-			geoset = (GeosetShell) value;
+			geosetShell = (GeosetShell) value;
 		}
 		setBackground(null);
 
 
 		super.getListCellRendererComponent(list, value.toString(), index, isSelected, chf);
 
-		ImageIcon myIcon = getImageIcon(backgroundColor, geoset);
+		ImageIcon myIcon;
+		if (geosetShell != null && geosetShell.getGeoset() != null) {
+			myIcon = iconHandler.getImageIcon(backgroundColor, geosetShell.getGeoset(), geosetShell.getGeoset().getParentModel());
+		} else {
+			myIcon = iconHandler.getImageIcon(backgroundColor, null);
+
+		}
 		setIcon(myIcon);
 		return this;
-	}
-
-	private ImageIcon getImageIcon(Color backgroundColor, GeosetShell geosetShell) {
-		ImageIcon myIcon = matrixShellToCachedRenderer.get(geosetShell);
-		if (myIcon == null) {
-			try {
-				final BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
-				final Graphics graphics = image.getGraphics();
-				graphics.setColor(backgroundColor);
-				graphics.fill3DRect(0, 0, SIZE, SIZE, true);
-				graphics.setColor(backgroundColor.brighter());
-
-				if (geosetShell != null) {
-					makeGeosetIcon(backgroundColor, geosetShell, graphics, other);
-					makeGeosetIcon(backgroundColor, geosetShell, graphics, model);
-				}
-
-				graphics.dispose();
-				myIcon = new ImageIcon(image);
-			} catch (final Exception e) {
-				throw new RuntimeException(e);
-			}
-			matrixShellToCachedRenderer.put(geosetShell, myIcon);
-		}
-		return myIcon;
-	}
-
-	public void makeGeosetIcon(Color backgroundColor, GeosetShell geoset, Graphics graphics, EditableModel model) {
-		if (model != null && contains(model, geoset.getGeoset())) {
-			BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
-			graphics.drawImage(modelOutline, 0, 0, null);
-			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
-			ModelThumbnailMaker.drawGeosetFlat(graphics, (byte) 1, (byte) 2, geoset.getGeoset(), Color.RED);
-		}
-	}
-
-	private Vec2[] getModelBoundsSize(EditableModel model) {
-		if (modelBoundsSizeMap.containsKey(model)) {
-			return modelBoundsSizeMap.get(model);
-		} else {
-			Vec2[] boundSize = ModelThumbnailMaker.getBoundBoxSize(model, (byte) 1, (byte) 2);
-			modelBoundsSizeMap.put(model, boundSize);
-			return boundSize;
-		}
-	}
-
-	private BufferedImage getModelOutlineImage(Color backgroundColor, EditableModel model) {
-		if (modelOutlineImageMap.containsKey(model)) {
-//			System.out.println("fetching icon for model: " + model.getName());
-//			System.out.println("nr geosets: " + model.getGeosets().size());
-			return modelOutlineImageMap.get(model);
-		} else {
-			final BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
-			final Graphics graphics = image.getGraphics();
-			graphics.setColor(backgroundColor);
-			graphics.fill3DRect(0, 0, SIZE, SIZE, true);
-			graphics.setColor(backgroundColor.brighter());
-			graphics.fill3DRect(EIGHTH_SIZE, EIGHTH_SIZE, SIZE - QUARTER_SIZE, SIZE - QUARTER_SIZE, true);
-
-			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
-
-			ModelThumbnailMaker.drawGeosetsFlat(model, graphics, (byte) 1, (byte) 2, Color.GRAY);
-			modelOutlineImageMap.put(model, image);
-
-			graphics.dispose();
-			return image;
-		}
 	}
 
 	protected boolean contains(EditableModel model, Geoset object) {

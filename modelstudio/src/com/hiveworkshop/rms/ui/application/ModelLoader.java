@@ -1,10 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
-import com.hiveworkshop.rms.editor.model.util.TwiAiIoSys;
-import com.hiveworkshop.rms.editor.model.util.TwiAiSceneParser;
+import com.hiveworkshop.rms.editor.model.util.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
@@ -97,7 +94,7 @@ public class ModelLoader {
 		if (version == 1000) {
 			newGeoset.setLevelOfDetail(0);
 		}
-		Layer layer = new Layer("Blend", new Bitmap(fileName));
+		Layer layer = new Layer(FilterMode.BLEND, new Bitmap(fileName));
 		layer.setUnshaded(true);
 		//        layer.setTwoSided(true);
 		Material material = new Material(layer);

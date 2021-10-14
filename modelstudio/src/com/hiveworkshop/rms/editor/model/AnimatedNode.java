@@ -5,15 +5,13 @@ import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.List;
-
 public abstract class AnimatedNode extends TimelineContainer {
 
 //	abstract public AnimatedNode getParent();
 
 	abstract public Vec3 getPivotPoint();
 
-	abstract public List<? extends AnimatedNode> getChildrenNodes();
+//	abstract public List<? extends AnimatedNode> getChildrenNodes();
 
 	abstract public String getName();
 

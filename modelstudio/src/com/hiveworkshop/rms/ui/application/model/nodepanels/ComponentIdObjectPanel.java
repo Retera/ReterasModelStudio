@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.model.nodepanels;
 import com.hiveworkshop.rms.editor.actions.nodes.DeleteNodesAction;
 import com.hiveworkshop.rms.editor.actions.nodes.NameChangeAction;
 import com.hiveworkshop.rms.editor.actions.nodes.ParentChangeAction;
+import com.hiveworkshop.rms.editor.actions.nodes.SetPivotAction;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
@@ -15,14 +16,15 @@ import com.hiveworkshop.rms.ui.application.model.editors.Vec3ValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec3SpinnerArray;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.function.Consumer;
 
 
 public abstract class ComponentIdObjectPanel<T extends IdObject> extends ComponentPanel<T> {
-	JLabel title;
 	TwiTextField nameField;
 	JLabel parentName;
 	ParentChooser parentChooser;
@@ -32,6 +34,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	protected Vec3ValuePanel scalePanel;
 	protected QuatValuePanel rotPanel;
 	protected JLabel pivot;
+	protected Vec3SpinnerArray pivotSpinner;
 
 	JCheckBox billboardedBox;
 	JCheckBox billboardLockXBox;
@@ -49,9 +52,8 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 
 //		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][][][grow]"));
 		setLayout(new MigLayout("fillx, gap 0", "[]5[]5[grow]", "[]"));
-		title = new JLabel("Select a IdObject");
-		add(title, "wrap");
 		nameField = new TwiTextField(24, this::changeName);
+		nameField.setFont(new Font("Arial", Font.BOLD, 18));
 		add(nameField, "");
 
 		add(getDeleteButton(e -> removeNode()), "skip 1, wrap");
@@ -61,9 +63,10 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		add(parentName);
 		add(getButton("change", e -> chooseParent()), "wrap");
 
-		pivot = new JLabel("(0.0,0.0,0.0)");
-		add(new JLabel("pivot: "));
-		add(pivot, "wrap");
+
+		pivotSpinner = new Vec3SpinnerArray().setVec3Consumer(this::setPivot);
+		add(new JLabel("pivot: "), "split, spanx 2");
+		add(pivotSpinner.spinnerPanel(), "wrap");
 
 		add(getBillboardedPanel(), "spanx, wrap");
 		add(getInheritingPanel(), "spanx, wrap");
@@ -82,9 +85,8 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	@Override
 	public void setSelectedItem(T itemToSelect) {
 		idObject = itemToSelect;
-		title.setText(idObject.getName());
 		nameField.setText(idObject.getName());
-		pivot.setText(idObject.getPivotPoint().toString());
+		pivotSpinner.setValues(idObject.getPivotPoint());
 		IdObject parent = idObject.getParent();
 		if (parent != null) {
 			this.parentName.setText(parent.getName());
@@ -198,9 +200,15 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	}
 
 	private void changeName(String newName) {
-		if (!newName.equals("")) {
+		if (!newName.equals("") && !newName.equals(idObject.getName())) {
 			System.out.println("setting new name to: " + newName);
 			undoManager.pushAction(new NameChangeAction(idObject, newName, changeListener).redo());
+		}
+	}
+
+	private void setPivot(Vec3 newPivot) {
+		if (!newPivot.equalLocs(idObject.getPivotPoint())) {
+			undoManager.pushAction(new SetPivotAction(idObject, newPivot, changeListener).redo());
 		}
 	}
 

@@ -67,7 +67,8 @@ public abstract class TwiImportPanel extends JPanel {
 	protected JButton getButton(String text, Consumer<JButton> buttonConsumer, EditableModel model) {
 		JButton button = new JButton(text);
 		if(model != null){
-			button.setIcon(iconHandler.getImageIcon(null, model));
+//			button.setIcon(iconHandler.getImageIcon(null, model));
+			button.setIcon(iconHandler.getImageIcon(model));
 		}
 		button.addActionListener(e -> buttonConsumer.accept(button));
 		return button;
@@ -118,13 +119,6 @@ public abstract class TwiImportPanel extends JPanel {
 			extraBonesOption.addJRadioButton(option.getText(), e -> boneOption = option).setToolTipText(option.getTooltip());
 		}
 		extraBonesOption.setSelectedIndex(BoneOption.rebindGeometry.ordinal());
-//		extraBonesOption.addJRadioButton("Import", null);
-//		extraBonesOption.addJRadioButton("Rebind Geometry", null);
-//		extraBonesOption.addJRadioButton("Leave Geometry", null);
-
-//		JPanel panel = new JPanel(new MigLayout("", ""));
-//		panel.add(extraBonesOption.getButtonPanel());
-//		return panel;
 		return extraBonesOption.getButtonPanel();
 	}
 
@@ -143,6 +137,9 @@ public abstract class TwiImportPanel extends JPanel {
 	protected JPanel getAnimMapPanel() {
 //		JPanel animMapPanel = new JPanel(new MigLayout("ins 0, fill", "[50%][50%]", "[grow]"));
 		JPanel animMapPanel = new JPanel(new MigLayout("ins 0, fill, wrap 2", "[sgx anim][sgx anim]", "[][grow][]"));
+		JButton autoMatchAnimations = new JButton("Auto match animations");
+		autoMatchAnimations.addActionListener(e -> matchAnimsByName());
+		animMapPanel.add(autoMatchAnimations, "wrap");
 		animMapPanel.add(new JLabel("Map motion from:"), "");
 		animMapPanel.add(new JLabel("Into existing animation:"), "wrap");
 
@@ -165,6 +162,39 @@ public abstract class TwiImportPanel extends JPanel {
 		recAnimList.addListSelectionListener(this::recAnimationSelectionChanged);
 
 		return animMapPanel;
+	}
+
+	private void matchAnimsByName() {
+		Set<AnimShell> donAnimsToCheck = new HashSet<>();
+		for (AnimShell recAnimShell : recAnimations) {
+			for (AnimShell donAnimShell : donAnimations) {
+				if (recAnimShell.getName().equals(donAnimShell.getName())) {
+					recAnimShell.setImportAnimShell(donAnimShell);
+					donAnimsToCheck.add(donAnimShell);
+					donAnimShell.setImportType(AnimShell.ImportType.TIMESCALE);
+					break;
+				} else if (recAnimShell.getName().startsWith(donAnimShell.getName().split(" ")[0])) {
+					if (recAnimShell.getImportAnim() == null) {
+						recAnimShell.setImportAnimShell(donAnimShell);
+						donAnimsToCheck.add(donAnimShell);
+						donAnimShell.setImportType(AnimShell.ImportType.TIMESCALE);
+					} else {
+						int orgLength = recAnimShell.getAnim().getLength();
+						int lengthDiffCurr = Math.abs(recAnimShell.getImportAnim().getLength() - orgLength);
+						int lengthDiffNew = Math.abs(donAnimShell.getAnim().getLength() - orgLength);
+						if (lengthDiffNew < lengthDiffCurr) {
+							donAnimsToCheck.add(recAnimShell.getImportAnimShell());
+							recAnimShell.setImportAnimShell(donAnimShell);
+							donAnimsToCheck.add(donAnimShell);
+							donAnimShell.setImportType(AnimShell.ImportType.TIMESCALE);
+						}
+					}
+				}
+			}
+		}
+		fixImportType(donAnimsToCheck);
+		recAnimList.repaint();
+
 	}
 
 
@@ -201,7 +231,7 @@ public abstract class TwiImportPanel extends JPanel {
 					donAnimsToCheck.add(donAnimShell);
 					as.setImportAnimShell(null);
 				} else {
-					if(as.getImportAnimShell() != null){
+					if (as.getImportAnimShell() != null) {
 						donAnimsToCheck.add(as.getImportAnimShell());
 					}
 					as.setImportAnimShell(donAnimShell);
@@ -209,20 +239,24 @@ public abstract class TwiImportPanel extends JPanel {
 			}
 			recAnimList.setSelectedValue(null, false);
 
-			for(AnimShell animShell : donAnimsToCheck){
-				boolean isImp = false;
-				for(AnimShell as : recAnimations){
-					isImp = as.getImportAnimShell() == animShell;
-					if(isImp){
-						break;
-					}
-				}
-				if (!isImp){
-					animShell.setImportType(AnimShell.ImportType.IMPORTBASIC);
+			fixImportType(donAnimsToCheck);
+		}
+	}
+
+	private void fixImportType(Set<AnimShell> donAnimsToCheck) {
+		for (AnimShell animShell : donAnimsToCheck) {
+			boolean isImp = false;
+			for (AnimShell as : recAnimations) {
+				isImp = as.getImportAnimShell() == animShell;
+				if (isImp) {
+					break;
 				}
 			}
-			donAnimList.repaint();
+			if (!isImp) {
+				animShell.setImportType(AnimShell.ImportType.IMPORTBASIC);
+			}
 		}
+		donAnimList.repaint();
 	}
 
 	protected Map<Sequence, Sequence> getRecToDonSequenceMap() {
@@ -234,78 +268,6 @@ public abstract class TwiImportPanel extends JPanel {
 		}
 		return recToDonSequenceMap;
 	}
-
-//	protected Map<IdObject, IdObject> getChainMap(Bone donBone, Bone recBone, int depth){
-//		Map<IdObject, IdObject> boneChainMap = new HashMap<>();
-//		if(depth == -1) depth = 10000;
-//
-//		boneChainMap.put(recBone, donBone);
-//
-//		int currDepth = 0;
-//		fillBoneChainMap(depth, boneChainMap, donBone, donModel, recBone, recModel, currDepth);
-//		return boneChainMap;
-//	}
-//	protected Map<IdObject, IdObject> getChainMap1(Bone donBone, Bone recBone, int depth){
-//		Map<IdObject, IdObject> boneChainMap = new HashMap<>();
-//		if(depth == -1) depth = 10000;
-//
-//		boneChainMap.put(recBone, donBone);
-//
-//		int currDepth = 0;
-//		fillBoneChainMap(depth, boneChainMap, donBone, recBone, currDepth);
-//		return boneChainMap;
-//	}
-//	protected Map<IdObject, IdObject> getChainMapReverse(Bone donBone, Bone recBone, int depth){
-//		Map<IdObject, IdObject> boneChainMap = new HashMap<>();
-//		if(depth == -1) depth = 10000;
-//
-//		boneChainMap.put(donBone, recBone);
-//
-//		int currDepth = 0;
-//		fillBoneChainMap(depth, boneChainMap, recBone, recModel, donBone, donModel, currDepth);
-//		return boneChainMap;
-//	}
-
-//	protected void fillBoneChainMap(int depth, Map<IdObject, IdObject> boneChainMap, IdObject currDonBone, IdObject currRecBone, int currDepth) {
-//		if (currDepth < depth){
-//			currDepth++;
-//			List<IdObject> recChilds = currRecBone.getChildrenNodes();
-//			List<IdObject> donChilds = currDonBone.getChildrenNodes();
-//			if (recChilds.size() == 1 && donChilds.size() == 1){
-//				if(isBones(recChilds.get(0), donChilds.get(0))){
-//					boneChainMap.put(recChilds.get(0), donChilds.get(0));
-//					fillBoneChainMap(depth, boneChainMap, donChilds.get(0), recChilds.get(0), currDepth);
-//				} else if(recChilds.get(0).getClass() == donChilds.get(0).getClass()){
-//					boneChainMap.put(recChilds.get(0), donChilds.get(0));
-//				}
-//			} else if (!(recChilds.isEmpty() || donChilds.isEmpty())) {
-//				Map<IdObject, IdObject> boneChainSubMap = getBoneChainSubMap(donChilds, recChilds);
-//				boneChainMap.putAll(boneChainSubMap);
-//				for(IdObject idObject : boneChainSubMap.keySet()){
-//					if (boneChainSubMap.get(idObject) != null && isBones(idObject, boneChainSubMap.get(idObject))){
-//						fillBoneChainMap(depth, boneChainMap, boneChainSubMap.get(idObject), idObject, currDepth);
-//					}
-//				}
-//			}
-//		}
-//	}
-//	protected Map<IdObject, IdObject> getBoneChainSubMap(List<IdObject> donIdObjects, List<IdObject> recIdObjects){
-//		Map<IdObject, IdObject> boneChainSubMap = new HashMap<>();
-//		JPanel objectMappingPanel = new JPanel(new MigLayout());
-//		for(IdObject idObject : recIdObjects){
-//			JComboBox<ObjectShell> boneChooserBox = getBoneChooserBox(idObject, donIdObjects, donModel, (o -> boneChainSubMap.put(idObject, o)));
-//			if(boneChooserBox.getModel().getSize() == 2){
-//				boneChainSubMap.put(idObject, boneChooserBox.getModel().getElementAt(1).getIdObject());
-//			} else if (boneChooserBox.getModel().getSize() > 2){
-//				objectMappingPanel.add(new JLabel(iconHandler.getImageIcon(idObject, recModel)));
-//				objectMappingPanel.add(new JLabel(idObject.getName()));
-//				objectMappingPanel.add(boneChooserBox, "wrap");
-//			}
-//		}
-//		JOptionPane.showConfirmDialog(this, objectMappingPanel, "Map Bones", JOptionPane.OK_CANCEL_OPTION);
-//
-//		return boneChainSubMap;
-//	}
 
 	protected Map<IdObject, IdObject> getChainMap(Bone mapToBone, EditableModel mapToModel, Bone mapFromBone, EditableModel mapFromModel, int depth, boolean presentParent){
 		Map<IdObject, IdObject> boneChainMap = new HashMap<>();
@@ -411,7 +373,7 @@ public abstract class TwiImportPanel extends JPanel {
 				idObjectConsumer.accept(((ObjectShell) e.getItem()).getIdObject());
 			}
 		});
-		if(sameNameObject == null){
+		if (sameNameObject == null) {
 			comboBox.setSelectedIndex(0);
 		} else {
 			comboBox.setSelectedItem(sameNameObject);
@@ -420,133 +382,13 @@ public abstract class TwiImportPanel extends JPanel {
 	}
 
 
-	protected Set<Geoset> getNewGeosets1(Set<Bone> selectedBones) {
-		Set<Geoset> newGeosets = new HashSet<>();
-		Set<Bone> extraBones = new HashSet<>();
-		for (Geoset donGeoset : donModel.getGeosets()) {
-			Geoset newGeoset = donGeoset.deepCopy();
-			Set<GeosetVertex> vertexSet = new HashSet<>();
-			for (Bone bone : selectedBones) {
-				List<GeosetVertex> vertices = newGeoset.getBoneMap().get(bone);
-				if (vertices != null) {
-					vertexSet.addAll(vertices);
-				}
-			}
-			if (!vertexSet.isEmpty()) {
-				Set<GeosetVertex> verticesToPurge = new HashSet<>();
-				for (GeosetVertex vertex : vertexSet) {
-					switch (boneOption){
-						case importBones, importBonesExtra -> {
-							if (vertex.getSkinBones() != null) {
-								for (SkinBone skinBone : vertex.getSkinBones()) {
-									if (skinBone != null && skinBone.getBone() != null) {
-										extraBones.add(skinBone.getBone());
-									}
-								}
-							} else {
-								extraBones.addAll(vertex.getBones());
-							}
-						}
-						case rebindGeometry -> {
-							if (vertex.getSkinBones() != null) {
-								short extraWeight = 0;
-								for (SkinBone skinBone : vertex.getSkinBones()) {
-									if (skinBone != null && skinBone.getBone() != null && !selectedBones.contains(skinBone.getBone())) {
-										extraWeight += skinBone.getWeight();
-										skinBone.setBone(null);
-										skinBone.setWeight((short) 0);
-									}
-								}
-								for (SkinBone skinBone : vertex.getSkinBones()) {
-									if (skinBone != null && skinBone.getBone() != null && skinBone.getWeight() != 0){
-										skinBone.setWeight((short) (skinBone.getWeight() + extraWeight));
-										break;
-									}
-								}
-
-							} else {
-								Set<Bone> vertBones = new HashSet<>(vertex.getBones());
-								vertBones.removeAll(selectedBones);
-								vertex.removeBones(vertBones);
-							}
-						}
-						case leaveGeometry -> {
-							if (vertex.getSkinBones() != null) {
-								for (SkinBone skinBone : vertex.getSkinBones()) {
-									if (skinBone != null && skinBone.getBone() != null && !selectedBones.contains(skinBone.getBone())) {
-										verticesToPurge.add(vertex);
-										break;
-									}
-								}
-
-							} else {
-								if(!selectedBones.containsAll(vertex.getBones())){
-									verticesToPurge.add(vertex);
-								}
-							}
-						}
-					}
-				}
-				selectedBones.addAll(extraBones);
-				if(boneOption == BoneOption.importBonesExtra) {
-					for (Bone bone : selectedBones) {
-						List<GeosetVertex> vertices = newGeoset.getBoneMap().get(bone);
-						if (vertices != null) {
-							for(GeosetVertex vertex : vertices){
-								if(selectedBones.containsAll(vertex.getAllBones())){
-									vertexSet.add(vertex);
-								}
-							}
-						}
-					}
-				}
-
-				vertexSet.removeAll(verticesToPurge);
-				Set<Triangle> trianglesToRemove = new HashSet<>();
-				Set<GeosetVertex> verticesToCull = new HashSet<>();
-				for (Triangle triangle : newGeoset.getTriangles()) {
-					List<GeosetVertex> triVerts = Arrays.asList(triangle.getVerts());
-					if (!vertexSet.containsAll(triVerts)) {
-						trianglesToRemove.add(triangle);
-						verticesToCull.addAll(triVerts);
-					}
-				}
-
-				verticesToCull.removeAll(vertexSet);
-				newGeoset.remove(verticesToCull);
-
-				trianglesToRemove.forEach(newGeoset::removeExtended);
-
-				newGeoset.setParentModel(recModel);
-				newGeosets.add(newGeoset);
-			}
-
-		}
-		return newGeosets;
-	}
-
-
 	protected Set<Geoset> getNewGeosets(Set<Bone> selectedBones) {
-		Set<Geoset> newGeosets = new HashSet<>();
 		Set<Bone> extraBones = new HashSet<>();
-		for (Geoset donGeoset : donModel.getGeosets()) {
-			Geoset newGeoset = donGeoset.deepCopy();
-			Set<GeosetVertex> vertexSet = getVertexSet(selectedBones, newGeoset);
-			if (!vertexSet.isEmpty()) {
-				switch (boneOption) {
-					case importBones, importBonesExtra -> extraBones.addAll(getExtraBones(vertexSet));
-					case rebindGeometry -> removeBonesNotInSet(selectedBones, vertexSet);
-					case leaveGeometry -> removeVerticesNotFullyCovered(selectedBones, vertexSet);
-				}
+		Set<Geoset> newGeosets = getCopiedGeosets(selectedBones, extraBones);
 
-				newGeoset.setParentModel(recModel);
-				newGeosets.add(newGeoset);
-			}
-		}
-
-		for (Geoset newGeoset : newGeosets){
+		for (Geoset newGeoset : newGeosets) {
 			Set<GeosetVertex> vertexSet = getVertexSet(selectedBones, newGeoset);
-			if(boneOption == BoneOption.importBonesExtra){
+			if (boneOption == BoneOption.importBonesExtra) {
 				vertexSet.addAll(getVertexSet(extraBones, newGeoset));
 			}
 
@@ -566,6 +408,25 @@ public abstract class TwiImportPanel extends JPanel {
 			trianglesToRemove.forEach(newGeoset::removeExtended);
 		}
 		selectedBones.addAll(extraBones);
+		return newGeosets;
+	}
+
+	private Set<Geoset> getCopiedGeosets(Set<Bone> selectedBones, Set<Bone> extraBones) {
+		Set<Geoset> newGeosets = new HashSet<>();
+		for (Geoset donGeoset : donModel.getGeosets()) {
+			Geoset newGeoset = donGeoset.deepCopy();
+			Set<GeosetVertex> vertexSet = getVertexSet(selectedBones, newGeoset);
+			if (!vertexSet.isEmpty()) {
+				switch (boneOption) {
+					case importBones, importBonesExtra -> extraBones.addAll(getExtraBones(vertexSet));
+					case rebindGeometry -> removeBonesNotInSet(selectedBones, vertexSet);
+					case leaveGeometry -> removeVerticesNotFullyCovered(selectedBones, vertexSet);
+				}
+
+				newGeoset.setParentModel(recModel);
+				newGeosets.add(newGeoset);
+			}
+		}
 		return newGeosets;
 	}
 
@@ -650,11 +511,11 @@ public abstract class TwiImportPanel extends JPanel {
 	}
 
 
-	private boolean isBones(IdObject idObject1, IdObject idObject2) {
+	protected boolean isBones(IdObject idObject1, IdObject idObject2) {
 		return idObject1 instanceof Bone && idObject2 instanceof Bone;
 	}
 
-	private void mergeUnnecessaryBonesWithHelpers(EditableModel model){
+	private void mergeUnnecessaryBonesWithHelpers(EditableModel model) {
 		Set<Bone> bonesWOMotion = new HashSet<>();
 		model.getBones().stream()
 				.filter(b -> b.getAnimFlags().isEmpty() && b.getChildrenNodes().isEmpty() && b.getParent() instanceof Helper)

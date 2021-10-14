@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
@@ -55,7 +56,7 @@ public final class ScaleSequencesLengthsAction implements UndoAction {
 			for (Sequence sequence : af.getAnimMap().keySet()) {
 				Integer newLength = animLengthMap.get(sequence);
 				if (newLength != null && newLength != sequence.getLength()) {
-					af.timeScale2(sequence, newLength, 0);
+					AnimFlagUtils.timeScale2(af, sequence, newLength, 0);
 				}
 			}
 		}

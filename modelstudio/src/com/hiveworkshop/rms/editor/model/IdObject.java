@@ -198,7 +198,6 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return parent;
 	}
 
-	@Override
 	public List<IdObject> getChildrenNodes() {
 		return childrenNodes;
 	}

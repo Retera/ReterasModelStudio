@@ -1,8 +1,6 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
-import com.hiveworkshop.rms.ui.application.EditUVsPanel;
-import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
-import com.hiveworkshop.rms.ui.application.ModelEditActions;
+import com.hiveworkshop.rms.ui.application.*;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
 
@@ -48,7 +46,6 @@ public class ToolsMenu extends JMenu {
 		flipAllUVsV.addActionListener(e -> ModelEditActions.flipAllUVsV());
 		tweaksSubmenu.add(flipAllUVsV);
 
-//		createAndAddMenuItem("Swap All UVs U for V", tweaksSubmenu, KeyEvent.VK_S, e -> ModelEditActions.inverseAllUVs());
 		tweaksSubmenu.add(createMenuItem("Swap All UVs U for V", KeyEvent.VK_S, e -> ModelEditActions.inverseAllUVs()));
 
 		JMenu mirrorSubmenu = new JMenu("Mirror");

@@ -2,8 +2,8 @@ package com.hiveworkshop.rms.editor.actions.mesh;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 import java.util.*;
@@ -60,7 +60,7 @@ public final class TeamColorAddAction implements UndoAction {
 			if (newMaterial.getLayers().get(0).getFilterMode() == FilterMode.NONE) {
 				newMaterial.getLayers().get(0).setFilterMode(FilterMode.BLEND);
 			}
-			Layer teamColorLayer = new Layer(FilterMode.NONE.toString(), new Bitmap("", 1));
+			Layer teamColorLayer = new Layer(new Bitmap("", 1));
 			teamColorLayer.setUnshaded(true);
 			if (geoset.getMaterial().firstLayer().getTwoSided()) {
 				teamColorLayer.setTwoSided(true);

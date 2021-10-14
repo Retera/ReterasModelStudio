@@ -81,25 +81,26 @@ public class MdlUtils {
 	public static final String TOKEN_MATRICES           = "Matrices";
 	public static final String TOKEN_DROP_SHADOW        = "DropShadow";
 	public static final String TOKEN_ALPHA              = "Alpha";
-	public static final String TOKEN_COLOR              = "Color";
-	public static final String TOKEN_STATIC_ALPHA       = TOKEN_STATIC + " " + TOKEN_ALPHA;
-	public static final String TOKEN_STATIC_COLOR       = TOKEN_STATIC + " " + TOKEN_COLOR;
-	public static final String TOKEN_FILTER_MODE        = "FilterMode";
-	public static final String TOKEN_UNSHADED           = "Unshaded";
-	public static final String TOKEN_SPHERE_ENV_MAP     = "SphereEnvMap";
-	public static final String TOKEN_TWO_SIDED          = "TwoSided";
-	public static final String TOKEN_UNFOGGED           = "Unfogged";
-	public static final String TOKEN_NO_DEPTH_TEST      = "NoDepthTest";
-	public static final String TOKEN_NO_DEPTH_SET       = "NoDepthSet";
-	public static final String TOKEN_TEXTURE_ID         = "TextureID";
-	public static final String TOKEN_STATIC_TEXTURE_ID  = TOKEN_STATIC + " " + TOKEN_TEXTURE_ID;
-	public static final String TOKEN_TVERTEX_ANIM_ID    = "TVertexAnimId";
-	public static final String TOKEN_COORD_ID           = "CoordId";
+	public static final String TOKEN_COLOR = "Color";
+	public static final String TOKEN_STATIC_ALPHA = TOKEN_STATIC + " " + TOKEN_ALPHA;
+	public static final String TOKEN_STATIC_COLOR = TOKEN_STATIC + " " + TOKEN_COLOR;
+	public static final String TOKEN_FILTER_MODE = "FilterMode";
+	public static final String TOKEN_UNSHADED = "Unshaded";
+	public static final String TOKEN_SPHERE_ENV_MAP = "SphereEnvMap";
+	public static final String TOKEN_TWO_SIDED = "TwoSided";
+	public static final String TOKEN_UNFOGGED = "Unfogged";
+	public static final String TOKEN_NO_DEPTH_TEST = "NoDepthTest";
+	public static final String TOKEN_NO_DEPTH_SET = "NoDepthSet";
+	public static final String TOKEN_UNLIT = "Unlit";
+	public static final String TOKEN_TEXTURE_ID = "TextureID";
+	public static final String TOKEN_STATIC_TEXTURE_ID = TOKEN_STATIC + " " + TOKEN_TEXTURE_ID;
+	public static final String TOKEN_TVERTEX_ANIM_ID = "TVertexAnimId";
+	public static final String TOKEN_COORD_ID = "CoordId";
 
-	public static final String TOKEN_OMNIDIRECTIONAL    = "Omnidirectional";
-	public static final String TOKEN_DIRECTIONAL        = "Directional";
-	public static final String TOKEN_AMBIENT            = "Ambient";
-	public static final String TOKEN_ATTENUATION_START  = "AttenuationStart";
+	public static final String TOKEN_OMNIDIRECTIONAL = "Omnidirectional";
+	public static final String TOKEN_DIRECTIONAL = "Directional";
+	public static final String TOKEN_AMBIENT = "Ambient";
+	public static final String TOKEN_ATTENUATION_START = "AttenuationStart";
 	public static final String TOKEN_STATIC_ATTENUATION_START = TOKEN_STATIC + " " + TOKEN_ATTENUATION_START;
 	public static final String TOKEN_ATTENUATION_END    = "AttenuationEnd";
 	public static final String TOKEN_STATIC_ATTENUATION_END = TOKEN_STATIC + " " + TOKEN_ATTENUATION_END;
@@ -185,19 +186,25 @@ public class MdlUtils {
 	public static final String TOKEN_GEOSET             = "Geoset";
 	public static final String TOKEN_GEOSETANIM         = "GeosetAnim";
 	public static final String TOKEN_HELPER             = "Helper";
-	public static final String TOKEN_LAYER              = "Layer";
-	public static final String TOKEN_LIGHT              = "Light";
-	public static final String TOKEN_MATERIAL           = "Material";
-	public static final String TOKEN_PARTICLE_EMITTER   = "ParticleEmitter";
-	public static final String TOKEN_PARTICLE_EMITTER2  = "ParticleEmitter2";
+	public static final String TOKEN_LAYER = "Layer";
+	public static final String TOKEN_LIGHT = "Light";
+	public static final String TOKEN_MATERIAL = "Material";
+	public static final String TOKEN_PARTICLE_EMITTER = "ParticleEmitter";
+	public static final String TOKEN_PARTICLE_EMITTER2 = "ParticleEmitter2";
 	public static final String TOKEN_POPCORN_PARTICLE_EMITTER = "ParticleEmitterPopcorn";
-	public static final String TOKEN_RIBBON_EMITTER     = "RibbonEmitter";
+	public static final String TOKEN_RIBBON_EMITTER = "RibbonEmitter";
 
 	// > 800
 
-	public static final String TOKEN_EMISSIVE_GAIN      = "EmissiveGain";
-	public static final String TOKEN_EMISSIVE           = "Emissive"; //think this is needed to read some models saved with an older version
-	public static final String TOKEN_FRESNEL_COLOR      = "FresnelColor";
-	public static final String TOKEN_FRESNEL_OPACITY    = "FresnelOpacity";
+	public static final String TOKEN_EMISSIVE = "Emissive"; //think this is needed to read some models saved with an older version
+	public static final String TOKEN_EMISSIVE_GAIN = "EmissiveGain";
+	public static final String TOKEN_FRESNEL_COLOR = "FresnelColor";
+	public static final String TOKEN_FRESNEL_OPACITY = "FresnelOpacity";
 	public static final String TOKEN_FRESNEL_TEAM_COLOR = "FresnelTeamColor";
+
+	public static final String TOKEN_STATIC_EMISSIVE = TOKEN_STATIC + " " + TOKEN_EMISSIVE; //think this is needed to read some models saved with an older version
+	public static final String TOKEN_STATIC_EMISSIVE_GAIN = TOKEN_STATIC + " " + TOKEN_EMISSIVE_GAIN;
+	public static final String TOKEN_STATIC_FRESNEL_COLOR = TOKEN_STATIC + " " + TOKEN_FRESNEL_COLOR;
+	public static final String TOKEN_STATIC_FRESNEL_OPACITY = TOKEN_STATIC + " " + TOKEN_FRESNEL_OPACITY;
+	public static final String TOKEN_STATIC_FRESNEL_TEAM_COLOR = TOKEN_STATIC + " " + TOKEN_FRESNEL_TEAM_COLOR;
 }

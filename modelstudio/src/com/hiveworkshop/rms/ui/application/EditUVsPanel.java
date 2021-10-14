@@ -12,18 +12,17 @@ import java.awt.*;
 
 public class EditUVsPanel {
     public static void showEditUVs() {
-        UVPanel panel = new UVPanel().setModel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
-        panel.initViewport();
+	    UVPanel uvPanel = new UVPanel().setModel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
+	    uvPanel.initViewport();
 
-        ImageIcon UVIcon = new ImageIcon(IconUtils.worldEditStyleIcon(RMSIcons.loadTabImage("UVMap.png")));
-        String s = "Texture Coordinate Editor: " + ProgramGlobals.getCurrentModelPanel().getModel().getName();
-        View view = new View(s, UVIcon, panel.getMenuHolderPanel());
-        FloatingWindow floatingWindow = getWindow(panel, view);
+	    ImageIcon UVIcon = new ImageIcon(IconUtils.worldEditStyleIcon(RMSIcons.loadTabImage("UVMap.png")));
+	    String s = "Texture Coordinate Editor: " + ProgramGlobals.getCurrentModelPanel().getModel().getName();
+	    View view = new View(s, UVIcon, uvPanel.getMenuHolderPanel());
+	    FloatingWindow floatingWindow = getWindow(uvPanel, view);
 
-//        FloatingWindowFactory.openNewWindow("Edit UVs", panel, mainPanel.getRootWindow());
-        panel.init();
-        floatingWindow.getTopLevelAncestor().setVisible(true);
-        packFrame(view);
+	    uvPanel.init();
+	    floatingWindow.getTopLevelAncestor().setVisible(true);
+	    packFrame(view);
     }
 
     private static FloatingWindow getWindow(UVPanel panel, View view) {
@@ -43,36 +42,4 @@ public class EditUVsPanel {
             frame.setLocationRelativeTo(ProgramGlobals.getMainPanel());
         }
     }
-
-
-//    public static void showEditUVs() {
-//        MainPanel mainPanel = ProgramGlobals.getMainPanel();
-//        ModelPanel currentModelPanel = ProgramGlobals.getCurrentModelPanel();
-//        UVPanel panel = currentModelPanel.getEditUVPanel();
-//        if (panel == null) {
-//            panel = new UVPanel();
-//	        currentModelPanel.setEditUVPanel(panel);
-//
-//            panel.initViewport();
-//
-//            final FloatingWindow floatingWindow = getWindow(mainPanel, panel);
-//
-//            panel.init();
-//            floatingWindow.getTopLevelAncestor().setVisible(true);
-//            panel.packFrame();
-//        } else if (!panel.frameVisible()) {
-//
-//            FloatingWindow floatingWindow = getWindow(mainPanel, panel);
-//            floatingWindow.getTopLevelAncestor().setVisible(true);
-//        }
-//    }
-
-
-
-//    private static FloatingWindow getWindow(MainPanel mainPanel, UVPanel panel) {
-//        int wPos = mainPanel.getX() + mainPanel.getWidth() / 2;
-//        int hPos = mainPanel.getY() + mainPanel.getHeight() / 2;
-//        Point point = new Point(wPos, hPos);
-//        return mainPanel.rootWindow.createFloatingWindow(point, panel.getSize(), panel.getView());
-//    }
 }

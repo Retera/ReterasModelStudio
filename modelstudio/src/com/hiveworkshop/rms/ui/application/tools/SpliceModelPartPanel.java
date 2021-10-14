@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
+import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
@@ -39,15 +40,46 @@ public class SpliceModelPartPanel extends TwiImportPanel {
 
 			Set<Bone> selectedBones = new HashSet<>();
 			chainMap.keySet().stream().filter(idObject -> idObject instanceof Bone).forEach(idObject -> selectedBones.add((Bone) idObject));
+			int selectedBonesSize = selectedBones.size();
+
 			Set<Geoset> newGeosets = getNewGeosets(selectedBones);
-			for(Geoset geoset : newGeosets){
-				for(GeosetVertex vertex : geoset.getVertices()){
+
+			List<Bone> extraBones = new ArrayList<>();
+			if (selectedBones.size() != selectedBonesSize) {
+				for (Bone bone : selectedBones) {
+					if (chainMap.get(bone) == null) {
+						Bone copy = bone.copy();
+						chainMap.put(bone, copy);
+						extraBones.add(copy);
+					}
+				}
+			}
+
+			boolean removeExtraBones = boneOption == BoneOption.importBones || boneOption == BoneOption.importBonesExtra;
+			for (Geoset geoset : newGeosets) {
+				for (GeosetVertex vertex : geoset.getVertices()) {
+//					vertex.replaceBones(chainMap, removeExtraBones);
 					vertex.replaceBones(chainMap);
 				}
 			}
 
 			//todo imported stuff needs to get new Animations applied!
 			List<UndoAction> undoActions = new ArrayList<>();
+
+			for (IdObject idObject : extraBones) {
+//				IdObject newIdObject = boneCopyMap.get(idObject);
+//				for (AnimFlag<?> animFlag : newIdObject.getAnimFlags()) {
+//					AnimFlag<?> oldAnimFlag = idObject.find(animFlag.getName());
+//					animFlag.clear();
+//
+//					for (Sequence recSequence : recToDonSequenceMap.keySet()) {
+//						Sequence donSequence = recToDonSequenceMap.get(recSequence);
+//						AnimFlagUtils.copyFrom(animFlag, oldAnimFlag, donSequence, recSequence);
+//					}
+//				}
+				undoActions.add(new AddNodeAction(recModel, idObject, null));
+			}
+
 
 			Set<GeosetVertex> addedVertexes = new HashSet<>();
 			for (Geoset geoset : newGeosets) {

@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.editor.actions.model.material;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Layer;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer.FilterMode;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 public class SetLayerFilterModeAction implements UndoAction {

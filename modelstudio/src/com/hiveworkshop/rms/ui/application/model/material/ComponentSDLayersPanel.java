@@ -83,7 +83,7 @@ public class ComponentSDLayersPanel extends ComponentPanel<Material> {
 	}
 
 	private void addLayer() {
-		undoManager.pushAction(new AddLayerAction(new Layer("None", 0), material, changeListener).redo());
+		undoManager.pushAction(new AddLayerAction(new Layer(0), material, changeListener).redo());
 	}
 
 	private void deleteMaterial() {

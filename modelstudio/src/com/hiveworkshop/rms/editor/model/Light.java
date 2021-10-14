@@ -3,12 +3,6 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxLight.Type;
 import com.hiveworkshop.rms.util.Vec3;
 
-/**
- * Write a description of class Light here.
- *
- * @author (your name)
- * @version (a version number or a date)
- */
 public class Light extends IdObject {
 	Type type = Type.OMNIDIRECTIONAL;
 	float attenuationStart = 0;

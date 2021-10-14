@@ -3,8 +3,8 @@ package com.hiveworkshop.rms.ui.application.model.material;
 import com.hiveworkshop.rms.editor.actions.model.material.*;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.model.util.HD_Material_Layer;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.ShaderBox;
@@ -131,7 +131,7 @@ public class ComponentHDLayersPanel extends ComponentPanel<Material> {
 	}
 
 	private void addLayer() {
-		undoManager.pushAction(new AddLayerAction(new Layer("None", 0), material, changeListener).redo());
+		undoManager.pushAction(new AddLayerAction(new Layer(0), material, changeListener).redo());
 	}
 
 	private void setTwoSided() {
@@ -262,7 +262,7 @@ public class ComponentHDLayersPanel extends ComponentPanel<Material> {
 
 	private void filterModeDropdownListener(ItemEvent e, Layer layer) {
 		if (e.getStateChange() == ItemEvent.SELECTED) {
-			MdlxLayer.FilterMode selectedItem = (MdlxLayer.FilterMode) e.getItem();
+			FilterMode selectedItem = (FilterMode) e.getItem();
 			undoManager.pushAction(new SetLayerFilterModeAction(layer, selectedItem, changeListener).redo());
 		}
 	}

@@ -411,19 +411,6 @@ public abstract class AnimFlag<T> {
 		}
 	}
 
-	public void setValuesTo(AnimFlag<?> source) {
-		//todo check it this should clear existing
-		AnimFlag<T> tSource = getAsTypedOrNull(source);
-		if (tSource != null) {
-			setSettingsFrom(tSource);
-
-			for (Sequence anim : tSource.getAnimMap().keySet()) {
-				TreeMap<Integer, Entry<T>> entryMap = tSource.getAnimMap().get(anim);
-				entryMap.replaceAll((t, v) -> tSource.getEntryMap(anim).get(t).deepCopy());
-			}
-		}
-	}
-
 
 	public void changeEntryAt(Integer time, Entry<T> entry, Sequence animation) {
 		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(animation);
@@ -559,21 +546,7 @@ public abstract class AnimFlag<T> {
 		for (Sequence animation : sequenceMap.keySet()) {
 			TreeMap<Integer, Entry<T>> entryTreeMap = sequenceMap.get(animation);
 			int animationLength = animation.getEnd() - animation.getStart();
-			unLiniarizeMapEntries(animationLength, entryTreeMap);
-		}
-	}
-
-	private void unLiniarizeMapEntries(int animationLength, TreeMap<Integer, Entry<T>> entryTreeMap) {
-		entryTreeMap.forEach((t, e) -> e.unLinearize());
-		for (Integer time : entryTreeMap.keySet()) {
-			Integer prevTime = entryTreeMap.lowerKey(time) == null ? entryTreeMap.lastKey() : entryTreeMap.lowerKey(time);
-			Integer nextTime = entryTreeMap.higherKey(time) == null ? entryTreeMap.firstKey() : entryTreeMap.higherKey(time);
-
-			Entry<T> prevValue = entryTreeMap.get(prevTime);
-			Entry<T> nextValue = entryTreeMap.get(nextTime);
-
-			float[] factor = getTbcFactor(0, 0.5f, 0);
-			calcNewTans(factor, nextValue, prevValue, entryTreeMap.get(time), animationLength);
+			AnimFlagUtils.unLiniarizeMapEntries(this, animationLength, entryTreeMap);
 		}
 	}
 
@@ -613,141 +586,6 @@ public abstract class AnimFlag<T> {
 
 	public void clear() {
 		sequenceMap.clear();
-	}
-
-	/**
-	 * Copies time track data from a certain interval into a different, new interval.
-	 * The AnimFlag source of the data to copy cannot be same AnimFlag into which the
-	 * data is copied, or else a ConcurrentModificationException will be thrown.
-	 * Does not check that the destination interval is empty!
-	 *
-	 * @param source     the AnimFlag from which values will be copied
-	 * @param sourceAnim the Animation from which to copy
-	 * @param newAnim    the Animation to receive Entries
-	 * @param offset     the offset from the start of the receiving animation at which to start adding keyframes
-	 */
-	public void copyFrom(AnimFlag<?> source, Sequence sourceAnim, Sequence newAnim, int offset) {
-
-		AnimFlag<T> tSource = getAsTypedOrNull(source);
-		if (tSource != null && tSource.getEntryMap(sourceAnim) != null) {
-			boolean sourceHasTans = tSource.tans();
-
-			TreeMap<Integer, Entry<T>> sequenceEntryMapCopy = tSource.getSequenceEntryMapCopy(sourceAnim);
-			if (sequenceEntryMapCopy != null) {
-
-				if (sourceAnim.getLength() + offset != newAnim.getLength()) {
-					double ratio = (newAnim.getLength() - offset) / ((double) sourceAnim.getLength());
-					scaleMapEntries(ratio, sequenceEntryMapCopy);
-				}
-
-				if (offset != 0) {
-					TreeMap<Integer, Entry<T>> seqMovedMap = new TreeMap<>();
-					sequenceEntryMapCopy.forEach((t, e) -> seqMovedMap.put(t + offset, e.setTime(t + offset)));
-					sequenceEntryMapCopy = seqMovedMap;
-				}
-
-				if (!tans() && sourceHasTans) {
-					sequenceEntryMapCopy.forEach((t, e) -> e.linearize());
-				} else if (tans() && !sourceHasTans) {
-					unLiniarizeMapEntries(newAnim.getLength(), sequenceEntryMapCopy);
-				}
-
-				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.computeIfAbsent(newAnim, k -> new TreeMap<>());
-				entryMap.putAll(sequenceEntryMapCopy);
-			}
-		}
-	}
-
-	// Does clear existing values
-	public void copyFrom(AnimFlag<?> source, Sequence sourceAnim, Sequence newAnim) {
-		AnimFlag<T> tSource = getAsTypedOrNull(source);
-		if (tSource != null && tSource.getEntryMap(sourceAnim) != null) {
-			boolean sourceHasTans = tSource.tans();
-
-			TreeMap<Integer, Entry<T>> sequenceEntryMapCopy = tSource.getSequenceEntryMapCopy(sourceAnim);
-			if (sequenceEntryMapCopy != null) {
-
-				if (sourceAnim.getLength() != newAnim.getLength()) {
-					double ratio = ((double) newAnim.getLength()) / ((double) sourceAnim.getLength());
-					scaleMapEntries(ratio, sequenceEntryMapCopy);
-				}
-
-				if (!tans() && sourceHasTans) {
-					sequenceEntryMapCopy.forEach((t, e) -> e.linearize());
-				} else if (tans() && !sourceHasTans) {
-					unLiniarizeMapEntries(newAnim.getLength(), sequenceEntryMapCopy);
-				}
-				sequenceMap.put(newAnim, sequenceEntryMapCopy);
-			}
-		}
-	}
-
-	public void copyFrom(AnimFlag<?> source) {
-		AnimFlag<T> tSource = getAsTypedOrNull(source);
-		if (tSource != null) {
-			// ToDo give user option to either linearize animflag or unlinearize copied entries
-			boolean linearizeEntries = !tans() && tSource.tans();
-			boolean unlinearizeEntries = tans() && !tSource.tans();
-			for (Sequence anim : tSource.getAnimMap().keySet()) {
-				TreeMap<Integer, Entry<T>> sourceEntryMap = tSource.getAnimMap().get(anim);
-				TreeMap<Integer, Entry<T>> entryMap = sequenceMap.computeIfAbsent(anim, k -> new TreeMap<>());
-				for (Integer time : sourceEntryMap.keySet()) {
-					final Entry<T> copiedEntry = sourceEntryMap.get(time).deepCopy();
-					if (linearizeEntries) {
-						copiedEntry.linearize();
-					} else if (unlinearizeEntries) {
-						copiedEntry.unLinearize();
-					}
-					entryMap.put(time, copiedEntry);
-				}
-			}
-		}
-	}
-
-	private AnimFlag<T> getAsTypedOrNull(AnimFlag<?> source) {
-		if (this instanceof IntAnimFlag && source instanceof IntAnimFlag
-				|| this instanceof FloatAnimFlag && source instanceof FloatAnimFlag
-				|| this instanceof Vec3AnimFlag && source instanceof Vec3AnimFlag
-				|| this instanceof QuatAnimFlag && source instanceof QuatAnimFlag) {
-			return (AnimFlag<T>) source;
-		}
-		return null;
-	}
-
-	public void timeScale2(Sequence anim, int newLength, int offsetFromStart) {
-		// Timescales a part of the AnimFlag from section "start" to "end" into the new time "newStart" to "newEnd"
-		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
-		if (entryMap != null) {
-			TreeMap<Integer, Entry<T>> scaledMap = new TreeMap<>();
-			int animLength = Math.max(0, anim.getLength());
-			double ratio = (double) (newLength) / (double) animLength;
-			Integer lastKF = entryMap.floorKey(animLength);
-			if (lastKF != null) {
-				for (Integer time = entryMap.ceilingKey(0); time != null && time <= lastKF; time = entryMap.higherKey(time)) {
-					int newTime = (int) (offsetFromStart + (time * ratio));
-					scaledMap.put(newTime, entryMap.remove(time).setTime(newTime));
-				}
-			}
-			entryMap.putAll(scaledMap);
-		}
-	}
-
-	public void timeScale3(Sequence anim, double ratio) {
-		// Timescales a part of the AnimFlag from section "start" to "end" into the new time "newStart" to "newEnd"
-		TreeMap<Integer, Entry<T>> entryMap = sequenceMap.get(anim);
-		if (entryMap != null) {
-			scaleMapEntries(ratio, entryMap);
-		}
-	}
-
-	private void scaleMapEntries(double ratio, TreeMap<Integer, Entry<T>> entryMap) {
-		TreeMap<Integer, Entry<T>> scaledMap = new TreeMap<>();
-		for (Integer time : entryMap.keySet()) {
-			int newTime = (int) (time * ratio);
-			scaledMap.put(newTime, entryMap.get(time).setTime(newTime));
-		}
-		entryMap.clear();
-		entryMap.putAll(scaledMap);
 	}
 
 	public Entry<T> getEntryAt(Sequence anim, int time) {

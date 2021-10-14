@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.util.Vec3;
@@ -107,7 +108,7 @@ public class ScriptActions {
 				for (int i = 0; (i + 23) < dataString.length(); i += 24) {
 					Geoset geo = new Geoset();
 					model.add(geo);
-					geo.setMaterial(new Material(new Layer("Blend", new Bitmap("textures\\white.blp"))));
+					geo.setMaterial(new Material(new Layer(FilterMode.BLEND, new Bitmap("textures\\white.blp"))));
 					String data = dataString.substring(i, i + 24);
 					int x = Integer.parseInt(data.substring(0, 3));
 					int y = Integer.parseInt(data.substring(3, 6));

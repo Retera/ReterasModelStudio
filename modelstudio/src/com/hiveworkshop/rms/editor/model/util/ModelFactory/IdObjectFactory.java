@@ -5,9 +5,7 @@ import com.hiveworkshop.rms.parsers.mdlx.*;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.TreeMap;
 
 public class IdObjectFactory {
@@ -52,10 +50,8 @@ public class IdObjectFactory {
 		light.setType(mdlxLight.type);
 		light.setAttenuationStart(mdlxLight.attenuation[0]);
 		light.setAttenuationEnd(mdlxLight.attenuation[1]);
-//		light.setStaticColor(new Vec3(mdlxLight.color, true));
 		light.setStaticColor(new Vec3(mdlxLight.color));
 		light.setIntensity(mdlxLight.intensity);
-//		light.setStaticAmbColor(new Vec3(mdlxLight.ambientColor, true));
 		light.setStaticAmbColor(new Vec3(mdlxLight.ambientColor));
 		light.setAmbIntensity(mdlxLight.ambientIntensity);
 		return light;
@@ -78,8 +74,6 @@ public class IdObjectFactory {
 		}
 
 		loadObject(attachment, mdlxAttachment, model);
-		List<String> ugg = new ArrayList<>(attachment.getFlagNameSet());
-		System.out.println("attatchment timelines: " + (Arrays.toString(ugg.toArray(new String[0]))));
 
 		attachment.setAttachmentID(mdlxAttachment.attachmentId);
 		attachment.setPath(mdlxAttachment.path);
@@ -176,7 +170,6 @@ public class IdObjectFactory {
 		particleEmitter2.setPriorityPlane(mdlxEmitter.priorityPlane);
 		particleEmitter2.setReplaceableId((int) mdlxEmitter.replaceableId);
 
-		System.out.println("p2Emitter: " + particleEmitter2.getName());
 		return particleEmitter2;
 	}
 

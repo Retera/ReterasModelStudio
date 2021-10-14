@@ -63,11 +63,11 @@ public class MakeModelHD extends ActionFunction {
 			if (normal != null) {
 				gv.setTangent(normal, 1);
 			}
-			magicSkinBones(gv);
+			matrixToSkinBones(gv);
 		}
 	}
 
-	public static void magicSkinBones(GeosetVertex geosetVertex) {
+	public static void matrixToSkinBones(GeosetVertex geosetVertex) {
 		int bonesNum = Math.min(4, geosetVertex.getMatrix().size());
 		short weight = 0;
 		if (bonesNum > 0) {
@@ -89,19 +89,19 @@ public class MakeModelHD extends ActionFunction {
 	public static void makeMaterialHD(Material material) {
 		material.setShaderString("Shader_HD_DefaultUnit");
 		Layer diffuseLayer;
-		if (!material.getLayers().isEmpty()){
+		if (!material.getLayers().isEmpty()) {
 			diffuseLayer = material.getLayers().stream().filter(layer -> !layer.getTextureBitmap().getPath().equals("")).findFirst().orElse(material.getLayers().get(0));
 		} else {
-			diffuseLayer = new Layer("None", getBitmap("Textures\\White.dds"));
+			diffuseLayer = new Layer(getBitmap("Textures\\White.dds"));
 		}
 		material.clearLayers();
 
 		material.addLayer(HD_Material_Layer.DIFFUSE.ordinal(), diffuseLayer);
-		material.addLayer(HD_Material_Layer.VERTEX.ordinal(), new Layer("None", getBitmap("Textures\\normal.dds")));
-		material.addLayer(HD_Material_Layer.ORM.ordinal(), new Layer("None", getBitmap("Textures\\orm.dds")));
-		material.addLayer(HD_Material_Layer.EMISSIVE.ordinal(), new Layer("None", getBitmap("Textures\\Black32.dds")));
-		material.addLayer(HD_Material_Layer.TEAM_COLOR.ordinal(), new Layer("None", new Bitmap("", 1)));
-		material.addLayer(HD_Material_Layer.REFLECTIONS.ordinal(), new Layer("None", getBitmap("ReplaceableTextures\\EnvironmentMap.dds")));
+		material.addLayer(HD_Material_Layer.VERTEX.ordinal(), new Layer(getBitmap("Textures\\normal.dds")));
+		material.addLayer(HD_Material_Layer.ORM.ordinal(), new Layer(getBitmap("Textures\\orm.dds")));
+		material.addLayer(HD_Material_Layer.EMISSIVE.ordinal(), new Layer(getBitmap("Textures\\Black32.dds")));
+		material.addLayer(HD_Material_Layer.TEAM_COLOR.ordinal(), new Layer(new Bitmap("", 1)));
+		material.addLayer(HD_Material_Layer.REFLECTIONS.ordinal(), new Layer(getBitmap("ReplaceableTextures\\EnvironmentMap.dds")));
 
 		for (final Layer l : material.getLayers()) {
 			l.setEmissive(1.0);

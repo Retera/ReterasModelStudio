@@ -119,24 +119,24 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 		}
 	}
 
-	private BufferedImage getBufferedImage(Color backgroundColor, EditableModel model) {
-		BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
-		Graphics graphics = image.getGraphics();
-		graphics.setColor(backgroundColor);
-		graphics.fill3DRect(0, 0, SIZE, SIZE, true);
-		graphics.setColor(backgroundColor.brighter());
-		graphics.fill3DRect(EIGHTH_SIZE, EIGHTH_SIZE, SIZE - QUARTER_SIZE, SIZE - QUARTER_SIZE, true);
-
-
-//			System.out.println("creating icon for model: " + model.getName());
-//			System.out.println("nr geosets: " + model.getGeosets().size());
-//			System.out.println("bounds: " + Arrays.toString(getModelBoundsSize(model)));
-		ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
-
-		ModelThumbnailMaker.drawGeosetsFlat(model, graphics, (byte) 1, (byte) 2, Color.GRAY);
-		graphics.dispose();
-		return image;
-	}
+//	private BufferedImage getBufferedImage(Color backgroundColor, EditableModel model) {
+//		BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
+//		Graphics graphics = image.getGraphics();
+//		graphics.setColor(backgroundColor);
+//		graphics.fill3DRect(0, 0, SIZE, SIZE, true);
+//		graphics.setColor(backgroundColor.brighter());
+//		graphics.fill3DRect(EIGHTH_SIZE, EIGHTH_SIZE, SIZE - QUARTER_SIZE, SIZE - QUARTER_SIZE, true);
+//
+//
+////			System.out.println("creating icon for model: " + model.getName());
+////			System.out.println("nr geosets: " + model.getGeosets().size());
+////			System.out.println("bounds: " + Arrays.toString(getModelBoundsSize(model)));
+//		ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
+//
+//		ModelThumbnailMaker.drawGeosetsFlat(model, graphics, (byte) 1, (byte) 2, Color.GRAY);
+//		graphics.dispose();
+//		return image;
+//	}
 
 	private Color getBackgroundColor(TYPE valueType) {
 		if (isFromDonating(valueType)) {

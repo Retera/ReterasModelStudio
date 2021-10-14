@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
@@ -56,7 +57,7 @@ public class Bone extends IdObject {
 				if (baf.getName().equals(af.getName()) && sameSeq && baf.hasGlobalSeq() == af.hasGlobalSeq()) {
 					// if( && baf.tags.equals(af.tags)
 					foundMatch = true;
-					af.copyFrom(baf);
+					AnimFlagUtils.copyFrom(af, baf);
 				}
 			}
 			if (!foundMatch) {

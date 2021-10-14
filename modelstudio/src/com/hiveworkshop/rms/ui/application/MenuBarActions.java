@@ -346,7 +346,7 @@ public class MenuBarActions {
 				texture = model.getTexture(0);
 			}
 
-			Material material = new Material(new Layer("None", texture));
+			Material material = new Material(new Layer(texture));
 
 			if (model.getFormatVersion() == 1000) {
 				MakeModelHD.makeMaterialHD(material);
