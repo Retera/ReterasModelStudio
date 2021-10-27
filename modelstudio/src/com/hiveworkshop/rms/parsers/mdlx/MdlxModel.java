@@ -12,6 +12,7 @@ import javax.swing.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * A Warcraft 3 model. Supports loading from and saving to both the binary MDX
@@ -121,26 +122,26 @@ public class MdlxModel {
 				switch (tag) {
 					case VERS -> loadVersionChunk(reader);
 					case MODL -> loadModelChunk(reader);
-					case SEQS -> loadStaticObjects(sequences, MdlxBlockDescriptor.SEQUENCE, reader, size / 132);
+					case SEQS -> loadStaticObjects(sequences, MdlxSequence::new, reader, size / 132);
 					case GLBS -> loadGlobalSequenceChunk(reader, size);
-					case MTLS -> loadDynamicObjects(materials, MdlxBlockDescriptor.MATERIAL, reader, size);
-					case TEXS -> loadStaticObjects(textures, MdlxBlockDescriptor.TEXTURE, reader, size / 268);
-					case TXAN -> loadDynamicObjects(textureAnimations, MdlxBlockDescriptor.TEXTURE_ANIMATION, reader, size);
-					case GEOS -> loadDynamicObjects(geosets, MdlxBlockDescriptor.GEOSET, reader, size);
-					case GEOA -> loadDynamicObjects(geosetAnimations, MdlxBlockDescriptor.GEOSET_ANIMATION, reader, size);
-					case BONE -> loadDynamicObjects(bones, MdlxBlockDescriptor.BONE, reader, size);
-					case LITE -> loadDynamicObjects(lights, MdlxBlockDescriptor.LIGHT, reader, size);
-					case HELP -> loadDynamicObjects(helpers, MdlxBlockDescriptor.HELPER, reader, size);
-					case ATCH -> loadDynamicObjects(attachments, MdlxBlockDescriptor.ATTACHMENT, reader, size);
+					case MTLS -> loadDynamicObjects(materials, MdlxMaterial::new, reader, size);
+					case TEXS -> loadStaticObjects(textures, MdlxTexture::new, reader, size / 268);
+					case TXAN -> loadDynamicObjects(textureAnimations, MdlxTextureAnimation::new, reader, size);
+					case GEOS -> loadDynamicObjects(geosets, MdlxGeoset::new, reader, size);
+					case GEOA -> loadDynamicObjects(geosetAnimations, MdlxGeosetAnimation::new, reader, size);
+					case BONE -> loadDynamicObjects(bones, MdlxBone::new, reader, size);
+					case LITE -> loadDynamicObjects(lights, MdlxLight::new, reader, size);
+					case HELP -> loadDynamicObjects(helpers, MdlxHelper::new, reader, size);
+					case ATCH -> loadDynamicObjects(attachments, MdlxAttachment::new, reader, size);
 					case PIVT -> loadPivotPointChunk(reader, size);
-					case PREM -> loadDynamicObjects(particleEmitters, MdlxBlockDescriptor.PARTICLE_EMITTER, reader, size);
-					case PRE2 -> loadDynamicObjects(particleEmitters2, MdlxBlockDescriptor.PARTICLE_EMITTER2, reader, size);
-					case CORN -> loadDynamicObjects(particleEmittersPopcorn, MdlxBlockDescriptor.PARTICLE_EMITTER_POPCORN, reader, size);
-					case RIBB -> loadDynamicObjects(ribbonEmitters, MdlxBlockDescriptor.RIBBON_EMITTER, reader, size);
-					case CAMS -> loadDynamicObjects(cameras, MdlxBlockDescriptor.CAMERA, reader, size);
-					case EVTS -> loadDynamicObjects(eventObjects, MdlxBlockDescriptor.EVENT_OBJECT, reader, size);
-					case CLID -> loadDynamicObjects(collisionShapes, MdlxBlockDescriptor.COLLISION_SHAPE, reader, size);
-					case FAFX -> loadStaticObjects(faceEffects, MdlxBlockDescriptor.FACE_EFFECT, reader, size / 340);
+					case PREM -> loadDynamicObjects(particleEmitters, MdlxParticleEmitter::new, reader, size);
+					case PRE2 -> loadDynamicObjects(particleEmitters2, MdlxParticleEmitter2::new, reader, size);
+					case CORN -> loadDynamicObjects(particleEmittersPopcorn, MdlxParticleEmitterPopcorn::new, reader, size);
+					case RIBB -> loadDynamicObjects(ribbonEmitters, MdlxRibbonEmitter::new, reader, size);
+					case CAMS -> loadDynamicObjects(cameras, MdlxCamera::new, reader, size);
+					case EVTS -> loadDynamicObjects(eventObjects, MdlxEventObject::new, reader, size);
+					case CLID -> loadDynamicObjects(collisionShapes, MdlxCollisionShape::new, reader, size);
+					case FAFX -> loadStaticObjects(faceEffects, MdlxFaceEffect::new, reader, size / 340);
 					case BPOS -> loadBindPoseChunk(reader, size);
 					default -> unknownChunks.add(new MdlxUnknownChunk(reader, size, new War3ID(tag)));
 				}
@@ -163,10 +164,10 @@ public class MdlxModel {
 		blendTime = reader.readInt32();
 	}
 
-	private <E extends MdlxBlock> void loadStaticObjects(final List<E> out, final MdlxBlockDescriptor<E> constructor,
-			final BinaryReader reader, final long count) {
+	private <E extends MdlxBlock> void loadStaticObjects(List<E> out, Supplier<E> constructor,
+	                                                     final BinaryReader reader, final long count) {
 		for (int i = 0; i < count; i++) {
-			final E object = constructor.create();
+			final E object = constructor.get();
 
 			object.readMdx(reader, version);
 
@@ -174,17 +175,17 @@ public class MdlxModel {
 		}
 	}
 
-	private void loadGlobalSequenceChunk(final BinaryReader reader, final long size) {
+	private void loadGlobalSequenceChunk(BinaryReader reader, long size) {
 		for (long i = 0, l = size / 4; i < l; i++) {
 			globalSequences.add(reader.readUInt32());
 		}
 	}
 
-	private <E extends MdlxBlock & MdlxChunk> void loadDynamicObjects(final List<E> out,
-			final MdlxBlockDescriptor<E> constructor, final BinaryReader reader, final long size) {
+	private <E extends MdlxBlock & MdlxChunk> void loadDynamicObjects(
+			List<E> out, Supplier<E> constructor, BinaryReader reader, long size) {
 		long totalSize = 0;
 		while (totalSize < size) {
-			final E object = constructor.create();
+			final E object = constructor.get();
 
 			object.readMdx(reader, version);
 
@@ -194,13 +195,13 @@ public class MdlxModel {
 		}
 	}
 
-	private void loadPivotPointChunk(final BinaryReader reader, final long size) {
+	private void loadPivotPointChunk(BinaryReader reader, long size) {
 		for (long i = 0, l = size / 12; i < l; i++) {
 			pivotPoints.add(reader.readFloat32Array(3));
 		}
 	}
 
-	private void loadBindPoseChunk(final BinaryReader reader, final long size) {
+	private void loadBindPoseChunk(BinaryReader reader, long size) {
 		for (int i = 0, l = reader.readInt32(); i < l; i++) {
 			bindPose.add(reader.readFloat32Array(12));
 		}
@@ -286,8 +287,8 @@ public class MdlxModel {
 		}
 	}
 
-	private <E extends MdlxBlock & MdlxChunk> void saveDynamicObjectChunk(final BinaryWriter writer,
-			final int name, final List<E> objects) {
+	private <E extends MdlxBlock & MdlxChunk> void saveDynamicObjectChunk(
+			BinaryWriter writer, int name, List<E> objects) {
 		if (!objects.isEmpty()) {
 			writer.writeTag(name);
 			writer.writeUInt32(getObjectsByteLength(objects));
@@ -330,26 +331,26 @@ public class MdlxModel {
 				switch (token) {
 					case MdlUtils.TOKEN_VERSION -> loadVersionBlock(stream);
 					case MdlUtils.TOKEN_MODEL -> loadModelBlock(stream);
-					case MdlUtils.TOKEN_SEQUENCES -> loadNumberedObjectBlock(sequences, MdlxBlockDescriptor.SEQUENCE, MdlUtils.TOKEN_ANIM, stream);
+					case MdlUtils.TOKEN_SEQUENCES -> loadNumberedObjectBlock(sequences, MdlxSequence::new, MdlUtils.TOKEN_ANIM, stream);
 					case MdlUtils.TOKEN_GLOBAL_SEQUENCES -> loadGlobalSequenceBlock(stream);
-					case MdlUtils.TOKEN_TEXTURES -> loadNumberedObjectBlock(textures, MdlxBlockDescriptor.TEXTURE, MdlUtils.TOKEN_BITMAP, stream);
-					case MdlUtils.TOKEN_MATERIALS -> loadNumberedObjectBlock(materials, MdlxBlockDescriptor.MATERIAL, MdlUtils.TOKEN_MATERIAL, stream);
-					case MdlUtils.TOKEN_TEXTURE_ANIMS -> loadNumberedObjectBlock(textureAnimations, MdlxBlockDescriptor.TEXTURE_ANIMATION, MdlUtils.TOKEN_TVERTEX_ANIM_SPACE, stream);
-					case MdlUtils.TOKEN_GEOSET -> loadObject(geosets, MdlxBlockDescriptor.GEOSET, stream);
-					case MdlUtils.TOKEN_GEOSETANIM -> loadObject(geosetAnimations, MdlxBlockDescriptor.GEOSET_ANIMATION, stream);
-					case MdlUtils.TOKEN_BONE -> loadObject(bones, MdlxBlockDescriptor.BONE, stream);
-					case MdlUtils.TOKEN_LIGHT -> loadObject(lights, MdlxBlockDescriptor.LIGHT, stream);
-					case MdlUtils.TOKEN_HELPER -> loadObject(helpers, MdlxBlockDescriptor.HELPER, stream);
-					case MdlUtils.TOKEN_ATTACHMENT -> loadObject(attachments, MdlxBlockDescriptor.ATTACHMENT, stream);
+					case MdlUtils.TOKEN_TEXTURES -> loadNumberedObjectBlock(textures, MdlxTexture::new, MdlUtils.TOKEN_BITMAP, stream);
+					case MdlUtils.TOKEN_MATERIALS -> loadNumberedObjectBlock(materials, MdlxMaterial::new, MdlUtils.TOKEN_MATERIAL, stream);
+					case MdlUtils.TOKEN_TEXTURE_ANIMS -> loadNumberedObjectBlock(textureAnimations, MdlxTextureAnimation::new, MdlUtils.TOKEN_TVERTEX_ANIM_SPACE, stream);
+					case MdlUtils.TOKEN_GEOSET -> loadObject(geosets, MdlxGeoset::new, stream);
+					case MdlUtils.TOKEN_GEOSETANIM -> loadObject(geosetAnimations, MdlxGeosetAnimation::new, stream);
+					case MdlUtils.TOKEN_BONE -> loadObject(bones, MdlxBone::new, stream);
+					case MdlUtils.TOKEN_LIGHT -> loadObject(lights, MdlxLight::new, stream);
+					case MdlUtils.TOKEN_HELPER -> loadObject(helpers, MdlxHelper::new, stream);
+					case MdlUtils.TOKEN_ATTACHMENT -> loadObject(attachments, MdlxAttachment::new, stream);
 					case MdlUtils.TOKEN_PIVOT_POINTS -> loadPivotPointBlock(stream);
-					case MdlUtils.TOKEN_PARTICLE_EMITTER -> loadObject(particleEmitters, MdlxBlockDescriptor.PARTICLE_EMITTER, stream);
-					case MdlUtils.TOKEN_PARTICLE_EMITTER2 -> loadObject(particleEmitters2, MdlxBlockDescriptor.PARTICLE_EMITTER2, stream);
-					case MdlUtils.TOKEN_POPCORN_PARTICLE_EMITTER -> loadObject(particleEmittersPopcorn, MdlxBlockDescriptor.PARTICLE_EMITTER_POPCORN, stream);
-					case MdlUtils.TOKEN_RIBBON_EMITTER -> loadObject(ribbonEmitters, MdlxBlockDescriptor.RIBBON_EMITTER, stream);
-					case MdlUtils.TOKEN_CAMERA -> loadObject(cameras, MdlxBlockDescriptor.CAMERA, stream);
-					case MdlUtils.TOKEN_EVENT_OBJECT -> loadObject(eventObjects, MdlxBlockDescriptor.EVENT_OBJECT, stream);
-					case MdlUtils.TOKEN_COLLISION_SHAPE -> loadObject(collisionShapes, MdlxBlockDescriptor.COLLISION_SHAPE, stream);
-					case "FaceFX" -> loadObject(faceEffects, MdlxBlockDescriptor.FACE_EFFECT, stream);
+					case MdlUtils.TOKEN_PARTICLE_EMITTER -> loadObject(particleEmitters, MdlxParticleEmitter::new, stream);
+					case MdlUtils.TOKEN_PARTICLE_EMITTER2 -> loadObject(particleEmitters2, MdlxParticleEmitter2::new, stream);
+					case MdlUtils.TOKEN_POPCORN_PARTICLE_EMITTER -> loadObject(particleEmittersPopcorn, MdlxParticleEmitterPopcorn::new, stream);
+					case MdlUtils.TOKEN_RIBBON_EMITTER -> loadObject(ribbonEmitters, MdlxRibbonEmitter::new, stream);
+					case MdlUtils.TOKEN_CAMERA -> loadObject(cameras, MdlxCamera::new, stream);
+					case MdlUtils.TOKEN_EVENT_OBJECT -> loadObject(eventObjects, MdlxEventObject::new, stream);
+					case MdlUtils.TOKEN_COLLISION_SHAPE -> loadObject(collisionShapes, MdlxCollisionShape::new, stream);
+					case "FaceFX" -> loadObject(faceEffects, MdlxFaceEffect::new, stream);
 					case "BindPose" -> loadBindPoseBlock(stream);
 					default -> {
 						if (!token.matches("[\\d.{}\\-eE+]+")) {
@@ -412,13 +413,13 @@ public class MdlxModel {
 		}
 	}
 
-	private <E extends MdlxBlock> void loadNumberedObjectBlock(final List<E> out,
-			final MdlxBlockDescriptor<E> constructor, final String name, final MdlTokenInputStream stream) {
+	private <E extends MdlxBlock> void loadNumberedObjectBlock(
+			List<E> out, Supplier<E> constructor, String name, MdlTokenInputStream stream) {
 		stream.read(); // Don't care about the number, the array will grow
 
 		for (final String token : stream.readBlock()) {
 			if (token.equals(name)) {
-				final E object = constructor.create();
+				final E object = constructor.get();
 
 				object.readMdl(stream, version);
 
@@ -441,9 +442,9 @@ public class MdlxModel {
 		}
 	}
 
-	private <E extends MdlxBlock> void loadObject(final List<E> out, final MdlxBlockDescriptor<E> descriptor,
-			final MdlTokenInputStream stream) {
-		final E object = descriptor.create();
+	private <E extends MdlxBlock> void loadObject(List<E> out, Supplier<E> descriptor,
+	                                              final MdlTokenInputStream stream) {
+		final E object = descriptor.get();
 
 		object.readMdl(stream, version);
 

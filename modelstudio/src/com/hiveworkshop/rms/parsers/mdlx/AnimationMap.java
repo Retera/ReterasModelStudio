@@ -1,6 +1,10 @@
 package com.hiveworkshop.rms.parsers.mdlx;
 
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
+import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatTimeline;
+import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
+import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxUInt32Timeline;
 import com.hiveworkshop.rms.util.War3ID;
 
 import java.util.HashMap;
@@ -251,6 +255,16 @@ public enum AnimationMap {
 
 	public MdlxTimelineType getImplementation() {
 		return implementation;
+	}
+
+	public MdlxTimeline<?> getNewTimeline() {
+		return switch (implementation) {
+			case UINT32_TIMELINE -> new MdlxUInt32Timeline();
+			case FLOAT_TIMELINE -> new MdlxFloatTimeline();
+			case VECTOR3_TIMELINE -> new MdlxFloatArrayTimeline(3);
+			case VECTOR4_TIMELINE -> new MdlxFloatArrayTimeline(4);
+		};
+//		return timelineCreator.get();
 	}
 
 	public War3ID getWar3id() {
