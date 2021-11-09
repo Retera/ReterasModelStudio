@@ -11,14 +11,14 @@ import java.util.List;
 
 public class DrawBoneAction implements UndoAction {
 	private final Bone bone;
-	private final ModelStructureChangeListener modelStructureChangeListener;
+	private final ModelStructureChangeListener changeListener;
 	private final List<IdObject> boneAsList;
-	EditableModel model;
+	private final EditableModel model;
 
-	public DrawBoneAction(EditableModel model, ModelStructureChangeListener modelStructureChangeListener, Bone bone) {
+	public DrawBoneAction(EditableModel model, ModelStructureChangeListener changeListener, Bone bone) {
 		this.model = model;
 		this.bone = bone;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+		this.changeListener = changeListener;
 		boneAsList = new ArrayList<>();
 		boneAsList.add(bone);
 	}
@@ -26,8 +26,8 @@ public class DrawBoneAction implements UndoAction {
 	@Override
 	public UndoAction undo() {
 		model.remove(bone);
-		if (modelStructureChangeListener != null) {
-			modelStructureChangeListener.nodesUpdated();
+		if (changeListener != null) {
+			changeListener.nodesUpdated();
 		}
 		return this;
 	}
@@ -35,8 +35,8 @@ public class DrawBoneAction implements UndoAction {
 	@Override
 	public UndoAction redo() {
 		model.add(bone);
-		if (modelStructureChangeListener != null) {
-			modelStructureChangeListener.nodesUpdated();
+		if (changeListener != null) {
+			changeListener.nodesUpdated();
 		}
 		return this;
 	}

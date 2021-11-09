@@ -273,7 +273,7 @@ public class WindowHandler2 {
 		SplitWindow lfPs = new SplitWindow(true, side, perspective);
 		SplitWindow quadView = new SplitWindow(false, frBt, lfPs);
 
-		ModelingCreatorToolsView creatorView = new ModelingCreatorToolsView(viewportListener);
+		ModelingCreatorToolsView creatorView = new ModelingCreatorToolsView();
 		editingToolChooserViews.add(creatorView);
 		allViews.add(creatorView);
 		SplitWindow splitWindow = new SplitWindow(true, 0.2f, leftHandTabWindow, new SplitWindow(true, 0.8f, quadView, creatorView));

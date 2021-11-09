@@ -11,8 +11,6 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Vec2;
@@ -29,14 +27,11 @@ import java.util.Set;
 public class DrawFaceActivity extends ViewportActivity {
 
 	private Point lastMousePoint;
-	private final ViewportListener viewportListener;
 	Set<GeosetVertex> createdVerts = new HashSet<>();
 
 	public DrawFaceActivity(ModelHandler modelHandler,
-	                        ModelEditorManager modelEditorManager,
-	                        ViewportListener viewportListener) {
+	                        ModelEditorManager modelEditorManager) {
 		super(modelHandler, modelEditorManager);
-		this.viewportListener = viewportListener;
 	}
 
 	@Override
@@ -46,8 +41,9 @@ public class DrawFaceActivity extends ViewportActivity {
 		locationCalculator.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(e.getY()));
 		locationCalculator.setCoord(coordinateSystem.getUnusedXYZ(), 0);
 		try {
-			Viewport viewport = viewportListener.getViewport();
-			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
+//			Viewport viewport = viewportListener.getViewport();
+//			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
+			Vec3 facingVector = new Vec3(0, 0, 1); // todo make this work with CameraHandler
 
 			Geoset solidWhiteGeoset = getSolidWhiteGeoset();
 

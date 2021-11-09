@@ -112,7 +112,7 @@ public class ModelLoader {
 		Vec2 min = new Vec2(-displayWidth / 2.0, groundOffset);
 		Vec2 max = new Vec2(displayWidth / 2.0, displayHeight + groundOffset);
 
-		ModelUtils.Mesh planeMesh = ModelUtils.createPlane((byte) 0, true, 0, max, min, 1);
+		Mesh planeMesh = ModelUtils.createPlane((byte) 0, true, 0, max, min, 1);
 		newGeoset.addVerticies(planeMesh.getVertices());
 		newGeoset.setTriangles(planeMesh.getTriangles());
 

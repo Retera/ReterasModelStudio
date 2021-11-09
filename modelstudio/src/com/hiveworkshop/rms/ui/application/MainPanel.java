@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import net.miginfocom.swing.MigLayout;
@@ -15,25 +14,25 @@ public class MainPanel extends JPanel {
     private final RootWindowUgg rootWindowUgg;
 
     public MainPanel(JToolBar toolBar, RootWindowUgg rootWindowUgg) {
-        super(new MigLayout("fill, ins 0, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
-        add(toolBar);
+	    super(new MigLayout("fill, ins 0, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
+	    add(toolBar);
 
-        mainPanelLinkActions = new MainPanelLinkActions();
+	    mainPanelLinkActions = new MainPanelLinkActions();
 
 
-        TimeSliderView.createMouseCoordDisp(mouseCoordDisplay);
+	    TimeSliderView.createMouseCoordDisp(mouseCoordDisplay);
 
-        ClosePopup.createContextMenuPopup();
+	    ClosePopup.createContextMenuPopup();
 
-        this.rootWindowUgg = rootWindowUgg;
-        add(rootWindowUgg);
+	    this.rootWindowUgg = rootWindowUgg;
+	    add(rootWindowUgg);
 
-        coordDisplayListener = (coordSys, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, coordSys, value1, value2);
+	    coordDisplayListener = (coordSys, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, coordSys, value1, value2);
     }
 
-    public ViewportListener getViewportListener() {
-        return rootWindowUgg.getWindowHandler2().getViewportListener();
-    }
+//    public ViewportListener getViewportListener() {
+//        return rootWindowUgg.getWindowHandler2().getViewportListener();
+//    }
 
 //    public void selectionItemTypeGroupActionRes(SelectionItemTypes newType) {
 ////        animationModeState = newType == SelectionItemTypes.ANIMATE;

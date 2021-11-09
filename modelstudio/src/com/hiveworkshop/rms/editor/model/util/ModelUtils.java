@@ -3,11 +3,7 @@ package com.hiveworkshop.rms.editor.model.util;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
-import com.hiveworkshop.rms.util.Mat4;
-import com.hiveworkshop.rms.util.Pair;
-import com.hiveworkshop.rms.util.Vec2;
-import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.*;
 
 import javax.swing.*;
 import java.util.*;
@@ -34,7 +30,7 @@ public final class ModelUtils {
 	}
 
 	public static Mesh createPlane(byte firstDimension, byte secondDimension, Vec3 facingVector, double planeHeight, Vec2 p1, Vec2 p2, int numberOfSegmentsX, int numberOfSegmentsY) {
-		byte planeDimension = CoordSysUtils.getUnusedXYZ(firstDimension, secondDimension);
+		byte planeDimension = getUnusedXYZ(firstDimension, secondDimension);
 
 		List<GeosetVertex> vertices = new ArrayList<>();
 		List<Triangle> triangles = new ArrayList<>();
@@ -84,6 +80,172 @@ public final class ModelUtils {
 		return new Mesh(vertices, triangles);
 	}
 
+	public static Mesh createPlane(Mat4 transMat, Vec3 facingVector, double planeHeight, Vec2 p1, Vec2 p2, int numberOfSegmentsX, int numberOfSegmentsY) {
+//		byte planeDimension = getUnusedXYZ(firstDimension, secondDimension);
+
+		List<GeosetVertex> vertices = new ArrayList<>();
+		List<Triangle> triangles = new ArrayList<>();
+
+		Vec2 segSizes = Vec2.getDif(p2, p1).div(new Vec2(numberOfSegmentsX, numberOfSegmentsY));
+
+		Vec2 uvSegW = new Vec2(1.0 / numberOfSegmentsX, 1.0 / numberOfSegmentsY);
+		GeosetVertex[][] vertexGrid = new GeosetVertex[numberOfSegmentsY + 1][numberOfSegmentsX + 1];
+
+		Vec2 xy = new Vec2();
+		for (int y = 0; y < (numberOfSegmentsY + 1); y++) {
+			for (int x = 0; x < (numberOfSegmentsX + 1); x++) {
+				xy.set(x, y);
+
+				Vec3 normal = new Vec3(facingVector.x, facingVector.y, facingVector.z);
+				GeosetVertex vertex = new GeosetVertex(planeHeight, x * segSizes.x + p1.x, y * segSizes.y + p1.y, normal);
+//				vertex.transform(transMat);
+
+//				vertex.setCoord(planeDimension, planeHeight);
+//				vertex.setCoords(firstDimension, secondDimension, Vec2.getProd(segSizes, xy).add(p1));
+
+				vertex.addTVertex(Vec2.getProd(uvSegW, xy));
+
+				vertexGrid[y][x] = vertex;
+				vertices.add(vertex);
+			}
+		}
+
+		for (int y = 0; y < (numberOfSegmentsY); y++) {
+			for (int x = 0; x < (numberOfSegmentsX); x++) {
+				GeosetVertex upperL = vertexGrid[y][x];
+				GeosetVertex upperR = vertexGrid[y][x + 1];
+				GeosetVertex lowerL = vertexGrid[y + 1][x];
+				GeosetVertex lowerR = vertexGrid[y + 1][x + 1];
+
+				Triangle firstFace = new Triangle(upperR, upperL, lowerL);
+				triangles.add(firstFace);
+				Triangle secondFace = new Triangle(upperR, lowerL, lowerR);
+				triangles.add(secondFace);
+
+				boolean flip = firstFace.getNormal().dot(facingVector) < 0;
+				if (flip) {
+					firstFace.flip(false);
+					secondFace.flip(false);
+				}
+			}
+		}
+		return new Mesh(vertices, triangles);
+	}
+
+	public static Mesh createPlane2(Mat4 transMat, Vec3 facingVector, double planeHeight, Vec2 p1, Vec2 p2, int subDivX, int subDivY) {
+//		byte planeDimension = getUnusedXYZ(firstDimension, secondDimension);
+
+		List<GeosetVertex> vertices = new ArrayList<>();
+
+
+		GeosetVertex[][] vertexGrid = getVertexGrid(subDivX, subDivY);
+		for (int y = 0; y < subDivY + 1; y++) {
+			vertices.addAll(Arrays.asList(vertexGrid[y]));
+		}
+
+		List<Triangle> triangles = getTriangles(facingVector, vertexGrid);
+		return new Mesh(vertices, triangles);
+	}
+
+	private static List<Triangle> getTriangles(Vec3 facingVector, GeosetVertex[][] vertexGrid) {
+		List<Triangle> triangles = new ArrayList<>();
+		for (int y = 0; y < vertexGrid.length; y++) {
+			for (int x = 0; x < vertexGrid[0].length; x++) {
+				GeosetVertex upperL = vertexGrid[y][x];
+				GeosetVertex upperR = vertexGrid[y][x + 1];
+				GeosetVertex lowerL = vertexGrid[y + 1][x];
+				GeosetVertex lowerR = vertexGrid[y + 1][x + 1];
+
+				Triangle firstFace = new Triangle(upperL, lowerL, upperR);
+				triangles.add(firstFace);
+				Triangle secondFace = new Triangle(lowerL, lowerR, upperR);
+				triangles.add(secondFace);
+
+				boolean flip = firstFace.getNormal().dot(facingVector) < 0;
+				if (flip) {
+					firstFace.flip(false);
+					secondFace.flip(false);
+				}
+			}
+		}
+		return triangles;
+	}
+
+	public static GeosetVertex[][] getVertexGrid(int subDivX, int subDivY) {
+		GeosetVertex[][] vertexGrid = new GeosetVertex[subDivY + 1][subDivX + 1];
+
+		for (int y = 0; y < (subDivY + 1); y++) {
+			for (int x = 0; x < (subDivX + 1); x++) {
+				GeosetVertex vertex = new GeosetVertex(x / (float) subDivX, y / (float) subDivY, 0, new Vec3(0, 0, 1));
+				vertex.addTVertex(new Vec2(x / (float) subDivX, y / (float) subDivY));
+				vertexGrid[y][x] = vertex;
+			}
+		}
+		return vertexGrid;
+	}
+
+
+	public static Mesh createPlane3(int subDivX, int subDivY) {
+		Set<Triangle> triangles = new HashSet<>();
+		List<GeosetVertex> vertices = new ArrayList<>();
+
+
+		GeosetVertex[][] vertexGrid = getVertexGrid2(subDivX, subDivY);
+		for (int y = 0; y < subDivY + 1; y++) {
+			vertices.addAll(Arrays.asList(vertexGrid[y]));
+		}
+		for (GeosetVertex vertex : vertices) {
+			triangles.addAll(vertex.getTriangles());
+		}
+
+		return new Mesh(vertices, new ArrayList<>(triangles));
+	}
+
+	public static GeosetVertex[][] getVertexGrid2(int subDivX, int subDivY) {
+		GeosetVertex[][] vertexGrid = new GeosetVertex[subDivY + 1][subDivX + 1];
+
+		for (int y = 0; y < (subDivY + 1); y++) {
+			for (int x = 0; x < (subDivX + 1); x++) {
+				GeosetVertex vertex = new GeosetVertex(x / (float) subDivX, y / (float) subDivY, 0, new Vec3(Vec3.Z_AXIS));
+				vertex.addTVertex(new Vec2(x / (float) subDivX, y / (float) subDivY));
+				vertexGrid[y][x] = vertex;
+			}
+		}
+
+		for (int y = 0; y < subDivY; y++) {
+			for (int x = 0; x < subDivX; x++) {
+				GeosetVertex upperL = vertexGrid[y][x];
+				GeosetVertex upperR = vertexGrid[y][x + 1];
+				GeosetVertex lowerL = vertexGrid[y + 1][x];
+				GeosetVertex lowerR = vertexGrid[y + 1][x + 1];
+
+				Triangle firstFace = new Triangle(upperL, lowerL, upperR);
+				Triangle secondFace = new Triangle(lowerL, lowerR, upperR);
+
+//				float dot = firstFace.getNormal().dot(Vec3.Z_AXIS);
+//				boolean flip = dot < 0;
+//				System.out.println("flip face? " +  flip + ", (dot: " + dot + ", normal: " + firstFace.getNormal() + ")");
+//				if (flip) {
+//					firstFace.flip(false);
+//					System.out.println("(new normal: " + firstFace.getNormal() + ")");
+//					secondFace.flip(false);
+//				}
+			}
+		}
+
+		return vertexGrid;
+	}
+
+	public static byte getUnusedXYZ(byte portFirstXYZ, byte portSecondXYZ) {
+		if (portFirstXYZ < 0) {
+			portFirstXYZ = (byte) (-portFirstXYZ - 1);
+		}
+		if (portSecondXYZ < 0) {
+			portSecondXYZ = (byte) (-portSecondXYZ - 1);
+		}
+		return (byte) (3 - portFirstXYZ - portSecondXYZ);
+	}
+
 	public static void createBox(EditableModel model, Vec3 min, Vec3 max, int segments) {
 		Geoset geoset = new Geoset();
 		Material whiteMaterial = getWhiteMaterial(model);
@@ -92,16 +254,13 @@ public final class ModelUtils {
 		Mesh box = getBoxMesh(min, max, segments, segments, segments);
 
 
-		for (GeosetVertex vertex : box.vertices) {
+		for (GeosetVertex vertex : box.getVertices()) {
 			vertex.setGeoset(geoset);
 			geoset.add(vertex);
 		}
-		for (Triangle triangle : box.triangles) {
+		for (Triangle triangle : box.getTriangles()) {
 			geoset.add(triangle);
 			triangle.setGeoset(geoset);
-//			for (GeosetVertex vertex : triangle.getVerts()) {
-//				vertex.addTriangle(triangle);
-//			}
 		}
 
 		geoset.setName("Box");
@@ -113,18 +272,8 @@ public final class ModelUtils {
 		}
 	}
 
-	public static Material getWhiteMaterial(EditableModel model) {
-		Material material = new Material(new Layer(new Bitmap("Textures\\White.blp")));
-		if (model.getMaterials().contains(material)) {
-			int i = model.getMaterials().indexOf(material);
-			return model.getMaterial(i);
-		}
-		return material;
-	}
-
 	/**
-	 * Creates a box ready to add to the dataGeoset, but does not actually modify
-	 * the geoset itself
+	 * Creates a box ready to add to the dataGeoset, but does not actually modify the geoset itself
 	 */
 	public static Mesh createBox(Vec3 max, Vec3 min, int lengthSegs, int widthSegs, int heightSegs, Geoset dataGeoset) {
 		Mesh box = getBoxMesh(max, min, lengthSegs, widthSegs, heightSegs);
@@ -133,9 +282,17 @@ public final class ModelUtils {
 		}
 		for (Triangle triangle : box.getTriangles()) {
 			triangle.setGeoset(dataGeoset);
-//			for (GeosetVertex vertex : triangle.getVerts()) {
-//				vertex.addTriangle(triangle);
-//			}
+		}
+		return box;
+	}
+
+	public static Mesh createBox2(int lengthSegs, int widthSegs, int heightSegs, Geoset dataGeoset) {
+		Mesh box = getBoxMesh2(lengthSegs, widthSegs, heightSegs);
+		for (GeosetVertex vertex : box.getVertices()) {
+			vertex.setGeoset(dataGeoset);
+		}
+		for (Triangle triangle : box.getTriangles()) {
+			triangle.setGeoset(dataGeoset);
 		}
 		return box;
 	}
@@ -161,11 +318,89 @@ public final class ModelUtils {
 				Vec2 maxP = max.getProjected(dimensions[0], dimensions[1]);
 
 				Mesh sidedPlane = createPlane(dimension, side != 1, coordinateAtSide, minP, maxP, segsX, segsY);
-				box.vertices.addAll(sidedPlane.vertices);
-				box.triangles.addAll(sidedPlane.triangles);
+				box.addVertices(sidedPlane.getVertices());
+				box.addTriangles(sidedPlane.getTriangles());
 			}
 		}
 		return box;
+	}
+
+	private static Mesh getBoxMesh2(int xSegs, int ySegs, int zSegs) {
+		Mesh box = new Mesh(new ArrayList<>(), new ArrayList<>());
+
+		Vec3 spinPoint = new Vec3(0.5, 0.5, 0.5);
+		Quat rot = new Quat();
+
+		Mesh[] sides = new Mesh[] {
+				createPlane3(xSegs, ySegs), createPlane3(xSegs, ySegs),
+				createPlane3(xSegs, zSegs), createPlane3(xSegs, zSegs),
+				createPlane3(ySegs, zSegs), createPlane3(ySegs, zSegs)
+		};
+
+		rotatePlane(sides[0], spinPoint, rot.setFromAxisAngle(Vec3.Y_AXIS, (float) (Math.PI)));
+
+		rotatePlane(sides[2], spinPoint, rot.setFromAxisAngle(Vec3.Y_AXIS, (float) (Math.PI / 2.0)));
+		rotatePlane(sides[3], spinPoint, rot.setFromAxisAngle(Vec3.Y_AXIS, (float) (-Math.PI / 2.0)));
+
+		rotatePlane(sides[4], spinPoint, rot.setFromAxisAngle(Vec3.X_AXIS, (float) (Math.PI / 2.0)));
+		rotatePlane(sides[5], spinPoint, rot.setFromAxisAngle(Vec3.X_AXIS, (float) (-Math.PI / 2.0)));
+
+//		Mesh[] xySides = new Mesh[]{createPlane3(xSegs, ySegs), createPlane3(xSegs, ySegs)};
+//		Mesh[] xzSides = new Mesh[]{createPlane3(xSegs, zSegs), createPlane3(xSegs, zSegs)};
+//		Mesh[] yzSides = new Mesh[]{createPlane3(ySegs, zSegs), createPlane3(ySegs, zSegs)};
+//
+//		rotatePlane(xySides[0], spinPoint, rot.setFromAxisAngle(Vec3.Y_AXIS, (float) (Math.PI)));
+//
+//		rotatePlane(xzSides[0], spinPoint, rot.setFromAxisAngle(Vec3.Y_AXIS, (float) (Math.PI/2.0)));
+//		rotatePlane(xzSides[1], spinPoint, rot.setFromAxisAngle(Vec3.Y_AXIS, (float) (-Math.PI/2.0)));
+//
+//		rotatePlane(yzSides[0], spinPoint, rot.setFromAxisAngle(Vec3.X_AXIS, (float) (Math.PI/2.0)));
+//		rotatePlane(yzSides[1], spinPoint, rot.setFromAxisAngle(Vec3.X_AXIS, (float) (-Math.PI/2.0)));
+
+
+//		for (byte side = (byte) 0; side < 2; side++) {
+//			for (byte dimension = (byte) 0; dimension < 3; dimension++) {
+//				Vec3 sideMaxima = switch (side) {
+//					case 0 -> min;
+//					case 1 -> max;
+//					default -> throw new IllegalStateException();
+//				};
+//				double coordinateAtSide = sideMaxima.getCoord(dimension);
+//
+//
+//				byte[] dimensions = getBytesDimensions(dimension);
+//
+//				int segsX = dimensions[0] == 0 ? xSegs : ySegs;
+//				int segsY = dimensions[1] == 2 ? zSegs : ySegs;
+//
+//				Vec2 minP = min.getProjected(dimensions[0], dimensions[1]);
+//				Vec2 maxP = max.getProjected(dimensions[0], dimensions[1]);
+//
+//				Mesh sidedPlane = createPlane(dimension, side != 1, coordinateAtSide, minP, maxP, segsX, segsY);
+//				box.addVertices(sidedPlane.getVertices());
+//				box.addTriangles(sidedPlane.getTriangles());
+//			}
+//		}
+		for (Mesh side : sides) {
+			box.addVertices(side.getVertices());
+			box.addTriangles(side.getTriangles());
+		}
+		return box;
+	}
+
+	private static Mesh rotatePlane(Mesh mesh, Vec3 spinPoint, Quat rot) {
+		for (GeosetVertex vertex : mesh.getVertices()) {
+			vertex.rotate(spinPoint, rot);
+			vertex.getNormal().transform(rot);
+		}
+		return mesh;
+	}
+
+	private static Mesh flipPlane(Mesh mesh) {
+		for (Triangle triangle : mesh.getTriangles()) {
+			triangle.flip(true);
+		}
+		return mesh;
 	}
 
 	private static byte[] getBytesDimensions(byte dimension) {
@@ -186,11 +421,11 @@ public final class ModelUtils {
 		Vec2 maxP = max.getProjected((byte) 0, (byte) 1);
 
 		Mesh sidedPlane = createPlane((byte) 2, true, 0, minP, maxP, segments);
-		for (GeosetVertex vertex : sidedPlane.vertices) {
+		for (GeosetVertex vertex : sidedPlane.getVertices()) {
 			vertex.setGeoset(geoset);
 			geoset.add(vertex);
 		}
-		for (Triangle triangle : sidedPlane.triangles) {
+		for (Triangle triangle : sidedPlane.getTriangles()) {
 			triangle.setGeoset(geoset);
 			geoset.add(triangle);
 //			for (GeosetVertex vertex : triangle.getVerts()) {
@@ -202,6 +437,15 @@ public final class ModelUtils {
 			model.add(whiteMaterial);
 			model.add(whiteMaterial.getLayers().get(0).getTextureBitmap());
 		}
+	}
+
+	public static Material getWhiteMaterial(EditableModel model) {
+		Material material = new Material(new Layer(new Bitmap("Textures\\White.blp")));
+		if (model.getMaterials().contains(material)) {
+			int i = model.getMaterials().indexOf(material);
+			return model.getMaterial(i);
+		}
+		return material;
 	}
 
 	public static float[] flipRGBtoBGR(float[] rgb) {
@@ -356,25 +600,6 @@ public final class ModelUtils {
 		}
 
 		return allFlags;
-	}
-
-	public static final class Mesh {
-		private final List<GeosetVertex> vertices;
-		private final List<Triangle> triangles;
-
-		private Mesh(List<GeosetVertex> vertices, List<Triangle> triangles) {
-			this.vertices = vertices;
-			this.triangles = triangles;
-		}
-
-		public List<GeosetVertex> getVertices() {
-			return vertices;
-		}
-
-		public List<Triangle> getTriangles() {
-			return triangles;
-		}
-
 	}
 
 	/**

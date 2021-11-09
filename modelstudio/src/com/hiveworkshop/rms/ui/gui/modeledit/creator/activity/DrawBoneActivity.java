@@ -8,9 +8,8 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -23,11 +22,9 @@ import java.util.Set;
 public class DrawBoneActivity extends ViewportActivity {
 
 	private Point lastMousePoint;
-	private final ViewportListener viewportListener;
 
-	public DrawBoneActivity(ModelHandler modelHandler, ModelEditorManager modelEditorManager, ViewportListener viewportListener) {
+	public DrawBoneActivity(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
 		super(modelHandler, modelEditorManager);
-		this.viewportListener = viewportListener;
 	}
 
 	@Override
@@ -37,11 +34,8 @@ public class DrawBoneActivity extends ViewportActivity {
 		worldPressLocation.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(e.getY()));
 		worldPressLocation.setCoord(coordinateSystem.getUnusedXYZ(), 0);
 		try {
-			Viewport viewport = viewportListener.getViewport();
-			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
-
 			Set<String> allBoneNames = new HashSet<>();
-			for (IdObject object : modelView.getModel().getIdObjects()) {
+			for (IdObject object : modelHandler.getModel().getIdObjects()) {
 				allBoneNames.add(object.getName());
 			}
 			int nameNumber = 1;
@@ -50,7 +44,7 @@ public class DrawBoneActivity extends ViewportActivity {
 			}
 			Bone bone = new Bone(getNumberName("Bone", nameNumber));
 			bone.setPivotPoint(new Vec3(worldPressLocation));
-			DrawBoneAction drawBoneAction = new DrawBoneAction(modelView.getModel(), ModelStructureChangeListener.changeListener, bone);
+			DrawBoneAction drawBoneAction = new DrawBoneAction(modelHandler.getModel(), ModelStructureChangeListener.changeListener, bone);
 			drawBoneAction.redo();
 
 
@@ -77,6 +71,37 @@ public class DrawBoneActivity extends ViewportActivity {
 				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
 			}
 		}
+	}
+
+
+	@Override
+	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
+		Vec3 worldPressLocation = cameraHandler.getGeoPoint(e.getX(), e.getY());
+		try {
+			Set<String> allBoneNames = new HashSet<>();
+			for (IdObject object : modelView.getModel().getIdObjects()) {
+				allBoneNames.add(object.getName());
+			}
+			int nameNumber = 1;
+			while (allBoneNames.contains(getNumberName("Bone", nameNumber))) {
+				nameNumber++;
+			}
+			Bone bone = new Bone(getNumberName("Bone", nameNumber));
+			bone.setPivotPoint(new Vec3(worldPressLocation));
+			DrawBoneAction drawBoneAction = new DrawBoneAction(modelHandler.getModel(), ModelStructureChangeListener.changeListener, bone);
+			drawBoneAction.redo();
+
+
+			undoManager.pushAction(drawBoneAction);
+		} catch (WrongModeException exc) {
+			JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+
+	@Override
+	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
+		lastMousePoint = e.getPoint();
 	}
 
 }

@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.ModelDependentView;
 
@@ -14,11 +13,11 @@ public class ModelingCreatorToolsView extends ModelDependentView {
 //		creatorModelingPanel = new CreatorModelingPanel(ProgramGlobals.getMainPanel().getViewportListener());
 //		this.setComponent(creatorModelingPanel);
 //	}
-	public ModelingCreatorToolsView(ViewportListener viewportListener) {
-		super("Modeling", null, new JPanel());
-		creatorModelingPanel = new CreatorModelingPanel(viewportListener);
-		this.setComponent(creatorModelingPanel);
-	}
+public ModelingCreatorToolsView() {
+	super("Modeling", null, new JPanel());
+	creatorModelingPanel = new CreatorModelingPanel();
+	this.setComponent(creatorModelingPanel);
+}
 
 	public CreatorModelingPanel getCreatorModelingPanel() {
 		return creatorModelingPanel;

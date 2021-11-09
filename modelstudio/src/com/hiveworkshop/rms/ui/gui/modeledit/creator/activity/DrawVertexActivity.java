@@ -14,9 +14,8 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -30,13 +29,10 @@ import java.util.List;
 public class DrawVertexActivity extends ViewportActivity {
 
 	private Point lastMousePoint;
-	private final ViewportListener viewportListener;
 
 	public DrawVertexActivity(ModelHandler modelHandler,
-	                          ModelEditorManager modelEditorManager,
-	                          ViewportListener viewportListener) {
+	                          ModelEditorManager modelEditorManager) {
 		super(modelHandler, modelEditorManager);
-		this.viewportListener = viewportListener;
 	}
 
 	@Override
@@ -46,8 +42,9 @@ public class DrawVertexActivity extends ViewportActivity {
 		locationCalculator.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(e.getY()));
 		locationCalculator.setCoord(coordinateSystem.getUnusedXYZ(), 0);
 		try {
-			Viewport viewport = viewportListener.getViewport();
-			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
+//			Viewport viewport = viewportListener.getViewport();
+//			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
+			Vec3 facingVector = new Vec3(0, 0, 1); // TODO make this work with CameraHandler
 
 			List<UndoAction> undoActions = new ArrayList<>();
 			Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(modelView.getModel());
@@ -79,6 +76,50 @@ public class DrawVertexActivity extends ViewportActivity {
 
 	@Override
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
+		if (!isAnimated) {
+			g.setColor(preferences.getVertexColor());
+			if (lastMousePoint != null) {
+				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
+			}
+		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
+		Vec3 locationCalculator = cameraHandler.getGeoPoint(e.getX(), e.getY());
+		try {
+//			Viewport viewport = viewportListener.getViewport();
+//			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
+			Vec3 facingVector = new Vec3(1, 0, 0).transform(cameraHandler.getViewPortAntiRotMat());
+
+			List<UndoAction> undoActions = new ArrayList<>();
+			Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(modelView.getModel());
+			Geoset solidWhiteGeoset = getSolidWhiteGeoset(solidWhiteMaterial);
+
+			UndoAction addAction = getAddAction(solidWhiteMaterial, solidWhiteGeoset);
+			if (addAction != null) {
+				undoActions.add(addAction);
+			}
+
+			GeosetVertex geosetVertex = new GeosetVertex(locationCalculator, new Vec3(facingVector));
+			geosetVertex.setGeoset(solidWhiteGeoset);
+			geosetVertex.addTVertex(new Vec2(0, 0));
+
+			undoActions.add(new DrawVertexAction(geosetVertex));
+			undoManager.pushAction(new CompoundAction("add vertex", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated).redo());
+		} catch (WrongModeException exc) {
+			JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+
+	@Override
+	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
+		lastMousePoint = e.getPoint();
+	}
+
+
+	public void render(Graphics2D g, CameraHandler cameraHandler, RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
 			g.setColor(preferences.getVertexColor());
 			if (lastMousePoint != null) {

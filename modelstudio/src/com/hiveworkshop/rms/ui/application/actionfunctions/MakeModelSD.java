@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
+import com.hiveworkshop.rms.editor.model.util.Mesh;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.language.TextKey;
@@ -75,7 +76,7 @@ public class MakeModelSD extends ActionFunction {
 					System.out.println("HERO HERO HERO");
 					Bone dummyHeroGlowNode = new Bone("hero_reforged");
 					// this model needs hero glow
-					ModelUtils.Mesh heroGlowPlane = ModelUtils.createPlane((byte) 0, (byte) 1, new Vec3(0, 0, 1), 0, new Vec2(-64, -64), new Vec2(64, 64), 1, 1);
+					Mesh heroGlowPlane = ModelUtils.createPlane((byte) 0, (byte) 1, new Vec3(0, 0, 1), 0, new Vec2(-64, -64), new Vec2(64, 64), 1, 1);
 
 					Geoset heroGlow = new Geoset();
 					heroGlow.getVertices().addAll(heroGlowPlane.getVertices());

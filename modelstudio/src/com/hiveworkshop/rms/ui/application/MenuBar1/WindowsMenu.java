@@ -75,7 +75,7 @@ public class WindowsMenu extends JMenu {
 		WindowHandler2 windowHandler2 = rootWindow.getWindowHandler2();
 
 		viewsMenu.add(createMenuItem("Animation Preview", KeyEvent.VK_A, e -> windowHandler2.openNewWindowWithKB(new PreviewView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
-		viewsMenu.add(createMenuItem("Modeling", KeyEvent.VK_M, e -> windowHandler2.openNewWindowWithKB(new ModelingCreatorToolsView(windowHandler2.getViewportListener()).setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		viewsMenu.add(createMenuItem("Modeling", KeyEvent.VK_M, e -> windowHandler2.openNewWindowWithKB(new ModelingCreatorToolsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 		viewsMenu.add(createMenuItem("Outliner", KeyEvent.VK_O, e -> windowHandler2.openNewWindowWithKB(new ModelViewManagingView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 		viewsMenu.add(createMenuItem("Perspective", KeyEvent.VK_P, e -> windowHandler2.openNewWindowWithKB(new PerspectiveViewUgg().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 		viewsMenu.add(createMenuItem("Front", KeyEvent.VK_F, e -> windowHandler2.openNewWindowWithKB(new DisplayViewUgg("Front").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));

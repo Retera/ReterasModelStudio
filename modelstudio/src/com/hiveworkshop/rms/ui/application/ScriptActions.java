@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
+import com.hiveworkshop.rms.editor.model.util.Mesh;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.util.Vec3;
@@ -125,7 +126,7 @@ public class ScriptActions {
 					forceGetGeosetAnim.setStaticAlpha(alpha / 255.0);
 					System.out.println(x + "," + y + "," + z);
 
-					ModelUtils.Mesh mesh = ModelUtils.createBox(new Vec3(x, y, z).scale(10),
+					Mesh mesh = ModelUtils.createBox(new Vec3(x, y, z).scale(10),
 							new Vec3(x + sX, y + sY, z + sZ).scale(10), 1, 1, 1, geo);
 					geo.addVerticies(mesh.getVertices());
 					geo.addTriangles(mesh.getTriangles());
