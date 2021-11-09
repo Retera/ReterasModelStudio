@@ -115,7 +115,8 @@ public final class ModelComponentBrowserTree extends JTree {
 
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.MODEL_ROOT, modelView, model).setNameFunc(() -> "Model \"" + model.getHeaderName() + "\""));
 
-		root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.COMMENT, modelView, model.getHeader()).setNameFunc(() -> "Comment")));
+//		root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.COMMENT, modelView, model.getHeader()).setNameFunc(() -> "Comment")));
+		root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.COMMENT, modelView, model.getComments()).setNameFunc(() -> "Comment")));
 
 		root.add(new DefaultMutableTreeNode(new ChoosableDisplayElement<>(DisplayElementType.HEADER, modelView, model).setNameFunc(() -> "Header")));
 

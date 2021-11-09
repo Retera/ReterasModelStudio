@@ -29,7 +29,10 @@ public class MaterialListRenderer extends DefaultListCellRenderer {
 
 	@Override
 	public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean iss, final boolean chf) {
-		final String name = ((Material) value).getName();
+		String name = ((Material) value).getName();
+		if (model.contains((Material) value)) {
+			name = "#" + model.computeMaterialID((Material) value) + " " + name;
+		}
 		Color fgColor = orgFgColor;
 		ImageIcon myIcon = map.get(value);
 

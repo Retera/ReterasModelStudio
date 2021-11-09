@@ -119,7 +119,7 @@ public class TimeLineHolder extends JPanel {
 	private void addTestingStuff() {
 		Animation woop = new Animation("Woop", 1, 300);
 		if (renderEnv != null) {
-			renderEnv.setAnimation(woop);
+			renderEnv.setSequence(woop);
 		}
 
 		Vec3AnimFlag translation1 = new Vec3AnimFlag("Translation");

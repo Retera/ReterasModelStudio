@@ -11,7 +11,6 @@ public class AddGeosetAction implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
 	private final EditableModel model;
 
-	//ToDo change name to "AddGeosetAction"
 	public AddGeosetAction(Geoset geoset, ModelView modelView, ModelStructureChangeListener changeListener) {
 		this.geoset = geoset;
 		this.model = modelView.getModel();

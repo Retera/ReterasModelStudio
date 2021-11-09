@@ -392,6 +392,13 @@ public class Geoset implements Named, VisibilitySource {
 		}
 	}
 
+	public void cureVertTries() {
+		Set<Triangle> triangleSet = new HashSet<>(triangles);
+		for (GeosetVertex vertex : vertices) {
+			vertex.getTriangles().removeIf(t -> !triangleSet.contains(t));
+		}
+	}
+
 	public void addExtended(final Triangle tri) {
 		triangles.add(tri);
 		for (GeosetVertex vertex : tri.getVerts()) {
@@ -417,7 +424,7 @@ public class Geoset implements Named, VisibilitySource {
 				maximumDistanceFromCenter = distanceFromCenter;
 			}
 		}
-		System.out.println(new ExtLog(min, max, maximumDistanceFromCenter));
+		System.out.println("Geoset ExtLog: " + new ExtLog(min, max, maximumDistanceFromCenter));
 		return new ExtLog(min, max, maximumDistanceFromCenter);
 	}
 

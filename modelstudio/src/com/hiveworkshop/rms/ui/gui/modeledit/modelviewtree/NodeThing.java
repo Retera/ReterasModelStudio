@@ -1,75 +1,67 @@
-
 package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.selection.*;
+import com.hiveworkshop.rms.editor.actions.selection.AddSelectionUggAction;
+import com.hiveworkshop.rms.editor.actions.selection.RemoveSelectionUggAction;
+import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.Named;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
-import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
-public class ComponentTreeNode<T extends Named> extends NodeThing<T> {
-	String sgCompName = "sg CompName";
-	ModelStructureChangeListener changeListener = null;
+public abstract class NodeThing<T> extends DefaultMutableTreeNode {
+	protected Color color1 = new Color(255, 255, 255, 0);
+	protected Color color2 = new Color(55, 200, 55, 20);
+	protected Color buttonBGOn = new Color(120, 120, 120, 255);
+	protected Color buttonBGOff = new Color(55, 55, 55, 255);
+	protected ModelHandler modelHandler;
+	protected ModelView modelView;
+	protected UndoManager undoManager;
+	protected T item;
+	protected boolean visible = true;
+	protected boolean editable = true;
+	protected JLabel itemLabel;
+	protected JButton editableButton;
+	protected JButton visibleButton;
+	protected JPanel treeRenderComponent;
 
-	public ComponentTreeNode(ModelHandler modelHandler, T item) {
-		super(modelHandler, item);
-		this.editable = modelView.isInEditable(item);
-		this.visible = modelView.isInVisible(item);
+	public NodeThing(ModelHandler modelHandler, T item) {
+		super();
+		this.modelHandler = modelHandler;
+		this.modelView = modelHandler.getModelView();
+		this.undoManager = modelHandler.getUndoManager();
+		this.item = item;
 
 		makeRenderComponent(item);
 	}
 
-	protected void makeRenderComponent(T item) {
-		treeRenderComponent = new JPanel(new MigLayout("ins 0, gap 0", "[" + sgCompName + "][right][right]"));
-//		treeRenderComponent.setOpaque(true);
-		treeRenderComponent.setBackground(color1);
-//		treeRenderComponent.setFocusable(true);
+	protected abstract void makeRenderComponent(T item);
 
-		itemLabel = new JLabel(item.getClass().getSimpleName() + ": " + item.getName());
-		itemLabel.addMouseListener(getMouseListener());
-
-		editableButton = new JButton("E");
-		editableButton.setBackground(getButtonBGColor(editable));
-		editableButton.addActionListener(e -> setEditable(e, !editable));
-
-		visibleButton = new JButton("V");
-		visibleButton.setBackground(getButtonBGColor(visible));
-		visibleButton.addActionListener(e -> setVisible(e, !visible));
-
-		treeRenderComponent.add(editableButton);
-		treeRenderComponent.add(visibleButton);
-		treeRenderComponent.add(itemLabel);
+	public T getItem() {
+		return item;
 	}
 
-//	public T getItem() {
-//		return item;
-//	}
 
-//	public ComponentTreeNode(final Object userObject) {
-//		super(userObject);
-//	}
+	public boolean isVisible() {
+		return visible;
+	}
 
-
-//	public boolean isVisible() {
-//		return visible;
-//	}
-
-	public ComponentTreeNode<T> setVisible(ActionEvent e, boolean visible) {
+	public NodeThing<T> setVisible(ActionEvent e, boolean visible) {
 		System.out.println("set visible! " + visible);
 		if (isModUsed(e, ActionEvent.SHIFT_MASK)) {
 			undoManager.pushAction(setMultipleVisible(visible).redo());
@@ -79,37 +71,22 @@ public class ComponentTreeNode<T extends Named> extends NodeThing<T> {
 		return this;
 	}
 
-	protected UndoAction setSingleVisible(boolean visible) {
+	protected abstract UndoAction setSingleVisible(boolean visible);
+
+	protected abstract UndoAction setMultipleVisible(boolean visible);
+
+	public T setVisible1(boolean visible) {
 		this.visible = visible;
 		visibleButton.setBackground(getButtonBGColor(visible));
-		return new ShowHideSingleAction(item, visible, modelView, changeListener);
+		return item;
 	}
 
-	protected UndoAction setMultipleVisible(boolean visible) {
-		Set<NodeThing<?>> comSet = new HashSet<>();
-		getChildComponents(comSet);
-		Set<Object> itemSet = new HashSet<>();
-		for (NodeThing<?> comp : comSet) {
-			if (comp instanceof ComponentTreeNode) {
-				itemSet.add(comp.setVisible1(visible));
-			}
-		}
-		return new ShowHideMultipleAction(itemSet, visible, modelView, changeListener);
+	public boolean isEditable() {
+		return editable;
 	}
 
-//	public T setVisible1(boolean visible) {
-//		this.visible = visible;
-//		visibleButton.setBackground(getButtonBGColor(visible));
-//		return item;
-//	}
-
-//	public boolean isEditable() {
-//		return editable;
-//	}
-
-	public ComponentTreeNode<T> setEditable(ActionEvent e, boolean editable) {
-		System.out.println("setEd1, mods: " + e.getModifiers());
-
+	public NodeThing<T> setEditable(ActionEvent e, boolean editable) {
+		System.out.println("setEd1");
 
 		if (isModUsed(e, ActionEvent.SHIFT_MASK)) {
 			undoManager.pushAction(setMultipleEditable(editable).redo());
@@ -119,57 +96,31 @@ public class ComponentTreeNode<T extends Named> extends NodeThing<T> {
 		return this;
 	}
 
-	protected UndoAction setSingleEditable(boolean editable) {
-		System.out.println("editable!");
+	protected abstract UndoAction setSingleEditable(boolean editable);
+
+	protected abstract UndoAction setMultipleEditable(boolean editable);
+
+	public T setEditable1(boolean editable) {
 		this.editable = editable;
 		editableButton.setBackground(getButtonBGColor(editable));
-		return new SetEditableSingleAction(item, editable, modelView, changeListener);
+		return item;
 	}
 
-	protected UndoAction setMultipleEditable(boolean editable) {
-		Set<NodeThing<?>> comSet = new HashSet<>();
-		getChildComponents(comSet);
-		Set<Object> itemSet = new HashSet<>();
-		for (NodeThing<?> comp : comSet) {
-			if (comp instanceof ComponentTreeNode) {
-				itemSet.add(comp.setEditable1(editable));
+	protected void getChildComponents(Set<NodeThing<?>> thingsToAffect) {
+		thingsToAffect.add(this);
+		for (int i = 0; i < getChildCount(); i++) {
+			TreeNode childAt = getChildAt(i);
+			if (childAt instanceof NodeThing) {
+				((NodeThing<?>) childAt).getChildComponents(thingsToAffect);
 			}
 		}
-		return new SetEditableMultipleAction(itemSet, editable, modelView, changeListener);
 	}
 
-//	public T setEditable1(boolean editable) {
-//		this.editable = editable;
-//		editableButton.setBackground(getButtonBGColor(editable));
-//		return item;
-//	}
-
-//	protected void getChildComponents(Set<ComponentTreeNode<?>> thingsToAffect) {
-//		thingsToAffect.add(this);
-//		for (int i = 0; i < getChildCount(); i++) {
-//			TreeNode childAt = getChildAt(i);
-//			if (childAt instanceof ComponentTreeNode) {
-//				((ComponentTreeNode<?>) childAt).getChildComponents(thingsToAffect);
-//			}
-//		}
-//	}
-//
-//	private Color getButtonBGColor(boolean isOn) {
-//		return isOn ? buttonBGOn : buttonBGOff;
-//	}
-
-	public JPanel getTreeRenderComponent() {
-		treeRenderComponent.setOpaque(true);
-
-		itemLabel.setText(item.getClass().getSimpleName() + ": " + item.getName());
-		if (item instanceof IdObject && modelView.isSelected((IdObject) item)
-				|| item instanceof Camera && modelView.isSelected((Camera) item)) {
-			treeRenderComponent.setBackground(color2);
-		} else {
-			treeRenderComponent.setBackground(color1);
-		}
-		return treeRenderComponent;
+	protected Color getButtonBGColor(boolean isOn) {
+		return isOn ? buttonBGOn : buttonBGOff;
 	}
+
+	public abstract JPanel getTreeRenderComponent();
 
 	private boolean isModUsed(ActionEvent e, int mask) {
 		return ((e.getModifiers() & mask) == mask);

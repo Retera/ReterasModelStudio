@@ -164,12 +164,12 @@ public class ModelPanel {
 		return selectionType;
 	}
 
-	public void setEditorActionType(ModelEditorActionType3 editorActionType){
+	public void setEditorActionType(ModelEditorActionType3 editorActionType) {
 		this.editorActionType = editorActionType;
 		changeActivity(editorActionType);
 	}
 
-	public ModelEditorActionType3 getEditorActionType(){
+	public ModelEditorActionType3 getEditorActionType() {
 		return editorActionType;
 	}
 }
