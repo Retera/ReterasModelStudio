@@ -354,4 +354,35 @@ public class Quat extends Vec4 {
 		float num3 = Float.parseFloat(numbers[3].strip());
 		return new Quat(num0, num1, num2, num3);
 	}
+
+
+	public Quat validate() {
+		if (Float.isNaN(this.x)) {
+			this.x = 0;
+		}
+		if (Float.isNaN(this.y)) {
+			this.y = 0;
+		}
+		if (Float.isNaN(this.z)) {
+			this.z = 0;
+		}
+		if (Float.isNaN(this.w)) {
+			this.w = 0;
+		}
+		if (Float.isInfinite(this.x)) {
+			this.x = 1;
+		}
+		if (Float.isInfinite(this.y)) {
+			this.y = 1;
+		}
+		if (Float.isInfinite(this.z)) {
+			this.z = 1;
+		}
+		if (Float.isInfinite(this.w)) {
+			this.w = 1;
+		}
+
+		return this;
+	}
+
 }

@@ -11,8 +11,10 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorAc
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
+import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.ModelEditorManipulatorBuilder;
+import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.TVertexEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 
@@ -27,7 +29,9 @@ import java.util.function.Consumer;
 public class ModelPanel {
 	private final ModelHandler modelHandler;
 	private final ViewportActivityManager viewportActivityManager;
+	private final ViewportActivityManager viewportUVActivityManager;
 	private final ModelEditorManager modelEditorManager;
+	private final TVertexEditorManager uvModelEditorManager;
 
 	private SelectionItemTypes selectionType = SelectionItemTypes.VERTEX;
 	private ModelEditorActionType3 editorActionType = ModelEditorActionType3.TRANSLATION;
@@ -39,15 +43,24 @@ public class ModelPanel {
 	public ModelPanel(ModelHandler modelHandler) {
 		ModelTextureThings.setModel(modelHandler.getModel());
 		this.modelHandler = modelHandler;
-		viewportActivityManager = new ViewportActivityManager(null);
 
+		viewportActivityManager = new ViewportActivityManager(null);
 		ModelEditorChangeNotifier modelEditorChangeNotifier = new ModelEditorChangeNotifier();
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
-
 		modelEditorManager = new ModelEditorManager(modelHandler, modelEditorChangeNotifier, viewportActivityManager);
+
+		viewportUVActivityManager = new ViewportActivityManager(null);
+		ModelEditorChangeNotifier uvModelEditorChangeNotifier = new ModelEditorChangeNotifier();
+		uvModelEditorChangeNotifier.subscribe(viewportUVActivityManager);
+		uvModelEditorManager = new TVertexEditorManager(modelHandler, uvModelEditorChangeNotifier, viewportUVActivityManager);
 	}
+
 	public ViewportActivityManager getViewportActivityManager() {
 		return viewportActivityManager;
+	}
+
+	public ViewportActivityManager getUVViewportActivityManager() {
+		return viewportUVActivityManager;
 	}
 
 	public RenderModel getEditorRenderModel() {
@@ -70,6 +83,11 @@ public class ModelPanel {
 		ModelEditorManipulatorBuilder builder = new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action);
 		MultiManipulatorActivity manipulatorActivity = new MultiManipulatorActivity(builder, modelHandler, modelEditorManager);
 		viewportActivityManager.setCurrentActivity(manipulatorActivity);
+
+		TVertexEditorManipulatorBuilder uvBuilder = new TVertexEditorManipulatorBuilder(uvModelEditorManager, modelHandler, action);
+		MultiManipulatorActivity uvManipulatorActivity = new MultiManipulatorActivity(uvBuilder, modelHandler, uvModelEditorManager);
+		viewportUVActivityManager.setCurrentActivity(uvManipulatorActivity);
+
 	}
 
 	public void changeActivity(ViewportActivity newActivity) {
@@ -135,13 +153,14 @@ public class ModelPanel {
 		return modelHandler;
 	}
 
-	public void setSelectionType(SelectionItemTypes selectionType){
+	public void setSelectionType(SelectionItemTypes selectionType) {
 		this.selectionType = selectionType;
 		modelEditorManager.setSelectionItemType(selectionType);
+		uvModelEditorManager.setSelectionItemType(selectionType);
 		ModelLoader.refreshAnimationModeState();
 	}
 
-	public SelectionItemTypes getSelectionType(){
+	public SelectionItemTypes getSelectionType() {
 		return selectionType;
 	}
 

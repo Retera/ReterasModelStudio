@@ -370,12 +370,28 @@ public final class ModelView {
 		return idObjectsVisible;
 	}
 
+	public void setIdObjectsEditable(boolean editable) {
+		idObjectsEditable = editable;
+	}
+
+	public boolean isIdObjectsEditable() {
+		return idObjectsEditable;
+	}
+
 	public void setCamerasVisible(boolean visible) {
 		camerasVisible = visible;
 	}
 
 	public boolean isCamerasVisible() {
 		return camerasVisible;
+	}
+
+	public void setCamerasEditable(boolean editable) {
+		camerasEditable = editable;
+	}
+
+	public boolean isCamerasEditable() {
+		return camerasEditable;
 	}
 
 	public boolean isVisible(Geoset ob) {

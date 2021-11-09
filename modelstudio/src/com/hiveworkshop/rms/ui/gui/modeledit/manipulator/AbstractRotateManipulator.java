@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
@@ -59,7 +58,7 @@ public abstract class AbstractRotateManipulator extends Manipulator {
 				double radius = getRadius();
 				deltaAngle = (endingClick.x - startingClick.x) / radius;
 			}
-			if (dir.containDirection(CoordSysUtils.getUnusedXYZ(portFirstXYZ, portSecondXYZ))) {
+			if (dir.containDirection(getUnusedXYZ(portFirstXYZ, portSecondXYZ))) {
 				Vec2 startingDelta = Vec2.getDif(startingClick, center);
 				Vec2 endingDelta = Vec2.getDif(endingClick, center);
 
@@ -162,6 +161,16 @@ public abstract class AbstractRotateManipulator extends Manipulator {
 		double angleDeg = Math.toDegrees(angleToSnap);
 		int snapAngleDeg = ((int) angleDeg / snapDeg) * snapDeg;
 		return Math.toRadians(snapAngleDeg);
+	}
+
+	public static byte getUnusedXYZ(byte portFirstXYZ, byte portSecondXYZ) {
+		if (portFirstXYZ < 0) {
+			portFirstXYZ = (byte) (-portFirstXYZ - 1);
+		}
+		if (portSecondXYZ < 0) {
+			portSecondXYZ = (byte) (-portSecondXYZ - 1);
+		}
+		return (byte) (3 - portFirstXYZ - portSecondXYZ);
 	}
 
 }

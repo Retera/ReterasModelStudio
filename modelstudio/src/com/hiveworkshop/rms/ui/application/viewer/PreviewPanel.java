@@ -65,7 +65,7 @@ public class PreviewPanel extends JPanel {
 
 	public void setAnimation(Animation animation) {
 		if (renderEnv != null) {
-			renderEnv.setAnimation(animation);
+			renderEnv.setSequence(animation);
 		}
 	}
 

@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
@@ -23,11 +22,11 @@ public class RotateManipulator extends AbstractRotateManipulator {
 		nonRotAngle = 0;
 
 		if (dir != MoveDimension.XYZ && dir.containDirection(dim1)) {
-			planeDim1 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
+			planeDim1 = getUnusedXYZ(dim1, dim2);
 			planeDim2 = dim2;
 		} else if (dir != MoveDimension.XYZ && dir.containDirection(dim2)) {
 			planeDim1 = dim1;
-			planeDim2 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
+			planeDim2 = getUnusedXYZ(dim1, dim2);
 		} else {
 			planeDim1 = dim1;
 			planeDim2 = dim2;

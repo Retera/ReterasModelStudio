@@ -60,10 +60,26 @@ private static final String ARROW_RIGHT = "\u2BC8";
 
 	}
 
-	public CollapsablePanel toggleCollapsed(){
+	public CollapsablePanel toggleCollapsed() {
 		collapsableContent.setVisible(!collapsableContent.isVisible());
 
-		if(isCollapsed()) {
+		if (isCollapsed()) {
+			collapseArrowLabel.setText(ARROW_DOWN);
+			collapsedAdditionalInfoPanel.setVisible(false);
+		} else {
+			collapseArrowLabel.setText(ARROW_RIGHT);
+			collapsedAdditionalInfoPanel.setVisible(true);
+		}
+		collapseArrowLabel.repaint();
+		collapsedAdditionalInfoPanel.repaint();
+
+		return this;
+	}
+
+	public CollapsablePanel setCollapsed(boolean collapsed) {
+		collapsableContent.setVisible(!collapsed);
+
+		if (isCollapsed()) {
 			collapseArrowLabel.setText(ARROW_DOWN);
 			collapsedAdditionalInfoPanel.setVisible(false);
 		} else {

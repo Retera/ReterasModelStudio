@@ -26,9 +26,33 @@ public final class TVertexEditorManager extends AbstractModelEditorManager {
 
 	}
 
+	public TVertexEditorManager(ModelHandler modelHandler,
+	                            ModelEditorChangeNotifier changeNotifier,
+	                            SelectionListener selectionListener) {
+		super(modelHandler, changeNotifier, selectionListener);
+		selectionManager = new TVertSelectionManager(modelHandler.getRenderModel(), modelHandler.getModelView(), transformSelectionMode(TVertexSelectionItemTypes.VERTEX));
+		tVertexEditor = new TVertexEditor(selectionManager, modelHandler.getModelView(), transformSelectionMode(TVertexSelectionItemTypes.VERTEX));
+		setSelectionItemType(TVertexSelectionItemTypes.VERTEX);
+
+	}
+
 	public void setSelectionItemType(TVertexSelectionItemTypes selectionMode) {
 		switch (selectionMode) {
 			case FACE, VERTEX -> selectionManager.setSelectionMode(transformSelectionMode(selectionMode));
+		}
+
+		modelEditor = tVertexEditor;
+
+		viewportSelectionHandler.setSelectionManager(selectionManager);
+		changeNotifier.modelEditorChanged(modelEditor);
+		selectionListener.onSelectionChanged(selectionManager);
+	}
+
+	public void setSelectionItemType(SelectionItemTypes selectionMode) {
+		if (selectionMode == SelectionItemTypes.FACE) {
+			selectionManager.setSelectionMode(selectionMode);
+		} else {
+			selectionManager.setSelectionMode(SelectionItemTypes.VERTEX);
 		}
 
 		modelEditor = tVertexEditor;

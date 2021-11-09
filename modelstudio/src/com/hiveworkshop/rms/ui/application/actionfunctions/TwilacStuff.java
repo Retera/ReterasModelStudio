@@ -200,7 +200,7 @@ public class TwilacStuff {
 	private static class LinearizeSelected extends TwiFunction{
 
 		public LinearizeSelected() {
-			super("Linearize Animations For Selected", LinearizeSelected::linearizeAnimations);
+			super("Linearize Animations For Selected Nodes", LinearizeSelected::linearizeAnimations);
 		}
 		private static void doStuff(ModelHandler modelHandler) {
 		}

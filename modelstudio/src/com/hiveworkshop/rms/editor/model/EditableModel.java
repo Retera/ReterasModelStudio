@@ -24,6 +24,7 @@ public class EditableModel implements Named {
 	private ExtLog extents;
 	private int formatVersion = 800;
 	private final ArrayList<String> header = new ArrayList<>();
+	private final ArrayList<String> comments = new ArrayList<>();
 	private final List<Animation> anims = new ArrayList<>();
 	private final List<GlobalSeq> globalSeqs = new ArrayList<>();
 	private final List<Bitmap> textures = new ArrayList<>();
@@ -63,17 +64,12 @@ public class EditableModel implements Named {
 		return wrappedDataSource;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.hiveworkshop.wc3.mdl.Named#getName()
-	 */
 	@Override
 	public String getName() {
-		if (fileRef == null) {
-			return getHeaderName();
+		if (fileRef != null && (name.equals("") || name.equals("UnnamedModel"))) {
+			return fileRef.getName().split("\\.")[0];
 		}
-		return fileRef.getName().split("\\.")[0];
+		return getHeaderName();
 	}
 
 	public void setName(final String text) {
@@ -85,10 +81,6 @@ public class EditableModel implements Named {
 		return getName() + " (\"" + getHeaderName() + "\")";
 	}
 
-	/**
-	 * IMPORTANT: This is the only way to retrieve the true header name from the top
-	 * of the "model chunk", the same one set by {@link #setName(String)} function.
-	 */
 	public String getHeaderName() {
 		return name;
 	}
@@ -163,6 +155,10 @@ public class EditableModel implements Named {
 
 	public ArrayList<String> getHeader() {
 		return header;
+	}
+
+	public ArrayList<String> getComments() {
+		return comments;
 	}
 
 	public void addToHeader(final ArrayList<String> header) {
@@ -327,6 +323,10 @@ public class EditableModel implements Named {
 		header.add(comment);
 	}
 
+	public void addComment(final String comment) {
+		comments.add(comment);
+	}
+
 	public boolean contains(final Animation x) {
 		return anims.contains(x);
 	}
@@ -397,6 +397,10 @@ public class EditableModel implements Named {
 
 	public void clearHeader() {
 		header.clear();
+	}
+
+	public void clearComments() {
+		comments.clear();
 	}
 
 	public void clearAnimations() {

@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.language.TextKey;
@@ -34,8 +33,10 @@ public class CreateFace extends ActionFunction {
 			try {
 				ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 				if (modelPanel != null) {
-					Viewport viewport = mainPanel.getViewportListener().getViewport();
-					Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
+//					Viewport viewport = mainPanel.getViewportListener().getViewport();
+//					Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
+//					Viewport viewport = mainPanel.getViewportListener().getViewport();
+					Vec3 facingVector = new Vec3(0, 0, 1);
 					UndoAction createFaceFromSelection = createFaceFromSelection(modelPanel.getModelView(), facingVector);
 
 					if (createFaceFromSelection != null) {

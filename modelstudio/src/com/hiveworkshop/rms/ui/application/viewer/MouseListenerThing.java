@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.viewer;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.event.MouseAdapter;
@@ -15,9 +16,8 @@ public class MouseListenerThing extends MouseAdapter {
 	private final ProgramPreferences programPreferences;
 	private ViewportActivityManager activityManager;
 
-	//	Vec3 ccc2 = null;
-	private Vec3 startP = null;
-	private Vec3 endP = null;
+	private Vec2 startP = null;
+	private Vec2 endP = null;
 
 	private boolean isSelecting = false;
 	private boolean isActing = false;
@@ -35,35 +35,23 @@ public class MouseListenerThing extends MouseAdapter {
 
 	@Override
 	public void mouseEntered(final MouseEvent e) {
-//		clickTimer.setRepeats(true);
-//		clickTimer.start();
-//		mouseInBounds = true;
 	}
 
 	@Override
 	public void mouseExited(final MouseEvent e) {
-//		if ((cameraHandler.getCameraSpinStartPoint() == null) && (cameraHandler.getActStart() == null) && (cameraHandler.getCameraPanStartPoint() == null)) {
-//			clickTimer.stop();
-//		}
-//		mouseInBounds = false;
 	}
 
 	@Override
 	public void mousePressed(final MouseEvent e) {
-		startP = new Vec3(0, e.getX(), e.getY());
-		endP = new Vec3(0, e.getX(), e.getY());
+		startP = new Vec2(e.getX(), e.getY());
+		endP = new Vec2(e.getX(), e.getY());
 		int modifiersEx = e.getModifiersEx();
-		if (programPreferences.getThreeDCameraPanMouseEx() == modifiersEx) {
-//			cameraHandler.startPan(e);
-		} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
-//			cameraHandler.startSpinn(e);
-		} else if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
+		if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
 			isSelecting = true;
 			if (activityManager != null) {
 				activityManager.mousePressed(e, cameraHandler);
 			}
 		} else if ((ProgramGlobals.getPrefs().getModifyMouseButton() & modifiersEx) > 0) {
-//			cameraHandler.startAct(e);
 			isActing = true;
 			if (activityManager != null) {
 				activityManager.mousePressed(e, cameraHandler);
@@ -75,38 +63,24 @@ public class MouseListenerThing extends MouseAdapter {
 				activityManager.mousePressed(e, cameraHandler);
 			}
 		}
-//		ccc2 = new Vec3();
-//		System.out.println("camPos: " + cameraPos + ", invQ: " + inverseCameraRotation + ", invYspin: " + inverseCameraRotationYSpin + ", invZspin: " + inverseCameraRotationZSpin);
 	}
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
 		if (endP != null) {
-			endP.set(0, e.getX(), e.getY());
+			endP.set(e.getX(), e.getY());
 		}
-//		if (programPreferences.getThreeDCameraPanButton().isButton(e) && (cameraHandler.getCameraPanStartPoint() != null)) {
-//			cameraHandler.finnishPan(e);
-//		} else if (programPreferences.getThreeDCameraSpinButton().isButton(e) && (cameraHandler.getCameraSpinStartPoint() != null)) {
-//			cameraHandler.finnishSpinn(e);
-//		} else if ((e.getButton() == MouseEvent.BUTTON3) && (cameraHandler.getActStart() != null)) {
-//			cameraHandler.finnishAct(e);
-//		}
-//		if (!mouseInBounds && (cameraHandler.getCameraSpinStartPoint() == null) && (cameraHandler.getActStart() == null) && (cameraHandler.getCameraPanStartPoint() == null)) {
-//			clickTimer.stop();
-//		}
+
 		if ((isActing || isSelecting) && activityManager != null) {
 
 			activityManager.mouseReleased(e, cameraHandler);
+			System.out.println("getStartPGeo: " + getStartPGeo() + " (" + startP + "), " + "getEndPGeo2: " + getEndPGeo2() + " (" + endP + "), ");
 		}
 
-//		ccc2 = null;
 		startP = null;
 		endP = null;
 		isActing = false;
 		isSelecting = false;
-		/*
-		 * if( dispMDL != null ) dispMDL.refreshUndo();
-		 */
 	}
 
 	@Override
@@ -117,7 +91,7 @@ public class MouseListenerThing extends MouseAdapter {
 
 	@Override
 	public void mouseWheelMoved(final MouseWheelEvent e) {
-		cameraHandler.doZoom4(e);
+		cameraHandler.doZoom(e);
 	}
 
 	@Override
@@ -127,56 +101,46 @@ public class MouseListenerThing extends MouseAdapter {
 //			System.out.println("prefPan: " + programPreferences.getThreeDCameraPanMouseEx() + ", prefSpin: " + programPreferences.getThreeDCameraSpinMouseEx() + ", mouseEx: " + modifiersEx);
 			if (programPreferences.getThreeDCameraPanMouseEx() == modifiersEx) {
 //				System.out.println("transl x: " + (e.getX() - endP.y) + " (" + e.getX() + "-" + endP.y + ")" + ", transl y: " + (e.getY() - endP.z) + " (" + e.getY() + "-" + endP.z + ")");
-				cameraHandler.translate(-(e.getX() - endP.y), (e.getY() - endP.z));
+				cameraHandler.translate(-(e.getX() - endP.x), (e.getY() - endP.y));
 			} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
-				cameraHandler.rotate((e.getX() - endP.y), (e.getY() - endP.z));
-//			} else if ((e.getButton() == MouseEvent.BUTTON3)) {
+				cameraHandler.rotate((e.getX() - endP.x), (e.getY() - endP.y));
 			} else if ((isActing || isSelecting) && activityManager != null) {
-				// "act"? should maybe do geometry transformations
 				activityManager.mouseDragged(e, cameraHandler);
 			}
-
-
-//		if (ccc2 != null && cameraHandler.getActStart() != null) {
-//			System.out.println("mouseDragged!");
-//
-//			ccc2.set(cameraHandler.getGeoPoint(e.getX(), e.getY()));
-//		}
-
-
-			endP.set(0, e.getX(), e.getY());
+			endP.set(e.getX(), e.getY());
 		}
 	}
 
 	public boolean isActing() {
 		return isActing;
 	}
+
 	public boolean isSelecting() {
 		return isSelecting;
 	}
 
-	public Vec3 getEndP() {
+	public Vec2 getEndP() {
 		return endP;
 	}
 
-	public Vec3 getStartP() {
+	public Vec2 getStartP() {
 		return startP;
 	}
 
 	public Vec3 getEndPGeo1() {
-		return cameraHandler.getGeoPoint(startP.y, endP.z);
+		return cameraHandler.getGeoPoint(startP.x, endP.y);
 	}
 
 	public Vec3 getEndPGeo2() {
-		return cameraHandler.getGeoPoint(endP.y, endP.z);
+		return cameraHandler.getGeoPoint(endP.x, endP.y);
 	}
 
 	public Vec3 getEndPGeo3() {
-		return cameraHandler.getGeoPoint(endP.y, startP.z);
+		return cameraHandler.getGeoPoint(endP.x, startP.y);
 	}
 
 	public Vec3 getStartPGeo() {
-		return cameraHandler.getGeoPoint(startP.y, startP.z);
+		return cameraHandler.getGeoPoint(startP.x, startP.y);
 	}
 
 }

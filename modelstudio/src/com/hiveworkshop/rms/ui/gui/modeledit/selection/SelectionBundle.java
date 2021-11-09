@@ -44,4 +44,8 @@ public class SelectionBundle {
 	public Set<Camera> getSelectedCameras() {
 		return selectedCameras;
 	}
+
+	public boolean isEmpty() {
+		return selectedVertices.isEmpty() && selectedIdObjects.isEmpty() && selectedCameras.isEmpty();
+	}
 }

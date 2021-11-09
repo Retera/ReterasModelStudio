@@ -260,6 +260,36 @@ public class CubePainter {
 		glEnd();
 	}
 
+
+	public static void paintCameraLookAt(CameraHandler cameraHandler) {
+		Vec3 cameraLookAt = cameraHandler.getCameraLookAt();
+		float lineLength = 20;
+		GL11.glDepthMask(false);
+		GL11.glEnable(GL11.GL_BLEND);
+		glDisable(GL_ALPHA_TEST);
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_CULL_FACE);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		glColor3f(255f, 1f, 255f);
+		glColor4f(.7f, .7f, .7f, .4f);
+		glBegin(GL11.GL_LINES);
+		GL11.glNormal3f(0, 0, 0);
+
+		glColor4f(.7f, 1f, .7f, .4f);
+		GL11.glVertex3f(cameraLookAt.x, cameraLookAt.y - lineLength, cameraLookAt.z);
+		GL11.glVertex3f(cameraLookAt.x, cameraLookAt.y + lineLength, cameraLookAt.z);
+
+		glColor4f(1f, .7f, .7f, .4f);
+		GL11.glVertex3f(cameraLookAt.x - lineLength, cameraLookAt.y, cameraLookAt.z);
+		GL11.glVertex3f(cameraLookAt.x + lineLength, cameraLookAt.y, cameraLookAt.z);
+
+		glColor4f(.5f, .5f, 1f, .7f);
+		GL11.glVertex3f(cameraLookAt.x, cameraLookAt.y, cameraLookAt.z - lineLength);
+		GL11.glVertex3f(cameraLookAt.x, cameraLookAt.y, cameraLookAt.z + lineLength);
+
+		glEnd();
+	}
+
 	public static void paintVertCubes2(ModelView modelView, RenderModel renderModel, Geoset geo, CameraHandler cameraHandler) {
 
 //		glBegin(GL11.GL_TRIANGLES);
@@ -795,7 +825,7 @@ public class CubePainter {
 	public static void paintVertSquares(ModelView modelView, RenderModel renderModel, Geoset geo, CameraHandler cameraHandler) {
 
 //		glBegin(GL11.GL_TRIANGLES);
-		float v = (float) ((cameraHandler.geomX(4) - cameraHandler.geomX(0))*cameraHandler.getZoom());
+		float v = (float) ((cameraHandler.geomXifYZplane(4) - cameraHandler.geomXifYZplane(0)) * cameraHandler.getZoom());
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glBegin(GL_QUADS);

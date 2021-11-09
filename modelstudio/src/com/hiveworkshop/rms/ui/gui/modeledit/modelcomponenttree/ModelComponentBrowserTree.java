@@ -39,7 +39,7 @@ public final class ModelComponentBrowserTree extends JTree {
 		setCellRenderer(getComponentBrowserCellRenderer());
 
 		BasicTreeUI basicTreeUI = (BasicTreeUI) getUI();
-		basicTreeUI.setRightChildIndent(8);
+		basicTreeUI.setRightChildIndent(5);
 
 
 		componentsPanel = new ComponentsPanel(modelHandler);

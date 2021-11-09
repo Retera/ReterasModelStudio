@@ -57,7 +57,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private float yRatio;
 	private final MouseListenerThing mouseAdapter;
 	private final KeylistenerThing keyAdapter;
-//	private final VertRendererThing vertRendererThing;
 	private final BoneRenderThing2 boneRenderThing;
 	private final GridPainter gridPainter;
 
@@ -69,9 +68,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	public PerspectiveViewport() throws LWJGLException {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();
-//		EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
 		cameraHandler = new CameraHandler(this);
-//		vertRendererThing = new VertRendererThing(cameraHandler.getPixelSize());
 		boneRenderThing = new BoneRenderThing2();
 		gridPainter = new GridPainter(cameraHandler);
 
@@ -224,9 +221,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		// old library code and java std library code give me a metric for the ridiculous ratio:
 		xRatio = (float) (Display.getDisplayMode().getWidth() / Toolkit.getDefaultToolkit().getScreenSize().getWidth());
 		yRatio = (float) (Display.getDisplayMode().getHeight() / Toolkit.getDefaultToolkit().getScreenSize().getHeight());
-		// These ratios will be wrong and users will see corrupted visuals (bad scale, only fits part of window,
-		// etc) if they are using Windows 10 differing UI scale per monitor. I don't think I have an API
-		// to query that information yet, though.
+		// These ratios will be wrong and users will see corrupted visuals
+		// (bad scale, only fits part of window, etc)
+		// if they are using Windows 10 differing UI scale per monitor.
+		// I don't think I have an API to query that information yet, though.
 	}
 
 	@Override
@@ -275,7 +273,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 				addLamp(0.2f, 0.5f, -100.0f, 200.5f, GL_LIGHT1);
 
 				if (programPreferences != null && programPreferences.showPerspectiveGrid()) {
-					gridPainter.paintGrid2();
+					gridPainter.paintGrid();
 				}
 
 //				geosetRenderer.doRender(programPreferences.textureModels(), programPreferences.viewMode() == 0, programPreferences.showNormals(), programPreferences.show3dVerts());
@@ -330,7 +328,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			renderModel.updateAnimationTime().updateNodes2(programPreferences.getRenderParticles());
 		} else if (ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
 //			renderModel.updateNodes(false, programPreferences.getRenderParticles());
-			renderModel.updateNodes2(programPreferences.getRenderParticles());
+//			renderModel.updateNodes2(programPreferences.getRenderParticles());
+			renderModel.updateNodes(programPreferences.getRenderParticles());
 		}
 		if (modelView.isGeosetsVisible()) {
 			renderModel.updateGeosets();
@@ -461,10 +460,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		}
 	}
 
-//	Vec2 ccc = null;
-//	Vec3 ccc2 = null;
-
 	private void cameraMarkerPainter() {
+		CubePainter.paintCameraLookAt(cameraHandler);
 		if (mouseAdapter.isSelecting()) {
 			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(), mouseAdapter.getEndPGeo3(), cameraHandler);
 		}

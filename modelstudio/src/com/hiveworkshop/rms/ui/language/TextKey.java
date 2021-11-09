@@ -54,7 +54,7 @@ public enum TextKey {
 	INVERT_SELECTION("Invert Selection"),
 	EXPAND_SELECTION("Expand Selection"),
 	HIDE_VERTICES("Hide Selected Vertices"),
-	SHOW_VERTICES("Show Vertices"),
+	UNHIDE_ALL_VERTICES("Unhide All Vertices"),
 	RIG_ACTION("RigAction"),
 	MERGE_GEOSETS("Merge Geosets"),
 	EXPORT_STATIC_MESH("Export Animated to Static Mesh"),

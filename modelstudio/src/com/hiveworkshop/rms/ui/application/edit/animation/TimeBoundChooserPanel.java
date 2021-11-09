@@ -162,14 +162,14 @@ public class TimeBoundChooserPanel extends JPanel {
 		if (tabs.getSelectedIndex() == 0) {
 			final Animation selectedAnimation = animationBox.getSelectedValue();
 			if (selectedAnimation != null) {
-				timeEnvironmentImpl.setAnimation(selectedAnimation);
+				timeEnvironmentImpl.setSequence(selectedAnimation);
 			}
 		} else if (tabs.getSelectedIndex() == 1) {
 			timeEnvironmentImpl.setBounds(((Integer) timeStart.getValue()), ((Integer) timeEnd.getValue()));
 		} else if (tabs.getSelectedIndex() == 2) {
 			final GlobalSeq selectedValue = globalSeqBox.getSelectedValue();
 			if (selectedValue != null) {
-				timeEnvironmentImpl.setGlobalSeq(selectedValue);
+				timeEnvironmentImpl.setSequence(selectedValue);
 			} else {
 				JOptionPane.showMessageDialog(this, "You didn't select a global sequence!", "Error",
 						JOptionPane.ERROR_MESSAGE);

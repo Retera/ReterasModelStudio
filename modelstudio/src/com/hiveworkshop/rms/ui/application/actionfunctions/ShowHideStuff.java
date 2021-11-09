@@ -20,7 +20,7 @@ public class ShowHideStuff {
 
 	private static class ShowVerts extends ActionFunction{
 		public ShowVerts() {
-			super(TextKey.SHOW_VERTICES, ShowVerts::doShow);
+			super(TextKey.UNHIDE_ALL_VERTICES, ShowVerts::doShow);
 
 		}
 		private static void doShow(ModelHandler modelHandler){

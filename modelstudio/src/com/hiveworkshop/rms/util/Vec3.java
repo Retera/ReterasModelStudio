@@ -121,7 +121,9 @@ public class Vec3 {
 			center.add(v);
 		}
 
-		center.scale(1.0f / group.size());
+		if (group.size() != 0) {
+			center.scale(1.0f / group.size());
+		}
 
 		return center;
 	}
@@ -662,9 +664,10 @@ public class Vec3 {
 	}
 
 	public Vec3 scale(final Vec3 center, final Vec3 scale) {
-		Vec3 delta = this.sub(center);
-		Vec3 scaleRes = delta.multiply(scale);
-		set(scaleRes.add(center));
+//		Vec3 delta = this.sub(center);
+//		Vec3 scaleRes = delta.multiply(scale);
+//		set(scaleRes.add(center));
+		sub(center).multiply(scale).add(center);
 		return this;
 	}
 	public Vec3 scale(final Vec3 center, float scale) {
@@ -883,5 +886,32 @@ public class Vec3 {
 		result = prime * result + Float.floatToIntBits(y);
 		result = prime * result + Float.floatToIntBits(z);
 		return result;
+	}
+
+
+	public Vec2 getTransformedAndProjected(final Mat4 mat4, byte dim1, byte dim2) {
+		float newX = (mat4.m00 * x) + (mat4.m10 * y) + (mat4.m20 * z) + mat4.m30;
+		float newY = (mat4.m01 * x) + (mat4.m11 * y) + (mat4.m21 * z) + mat4.m31;
+		float newZ = (mat4.m02 * x) + (mat4.m12 * y) + (mat4.m22 * z) + mat4.m32;
+
+		float projX = switch (dim1) {
+			case 0 -> newX;
+			case 1 -> newY;
+			case 2 -> newZ;
+			case -1 -> -newX;
+			case -2 -> -newY;
+			case -3 -> -newZ;
+			default -> 0;
+		};
+		float projY = switch (dim2) {
+			case 0 -> newX;
+			case 1 -> newY;
+			case 2 -> newZ;
+			case -1 -> -newX;
+			case -2 -> -newY;
+			case -3 -> -newZ;
+			default -> 0;
+		};
+		return new Vec2(projX, projY);
 	}
 }

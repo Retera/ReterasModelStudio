@@ -1,11 +1,15 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.selection.AddSelectionUggAction;
+import com.hiveworkshop.rms.editor.actions.selection.RemoveSelectionUggAction;
+import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -33,65 +37,73 @@ public abstract class AbstractSelectionManager {
 
 	public abstract Vec3 getCenter();
 
-	public abstract SelectionBundle genericSelect(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+	public abstract SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 
-	public abstract UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+	public abstract SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, CameraHandler cameraHandler);
 
-	public abstract UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+	public abstract SelectionBundle getSelectionBundle(Vec3 min, Vec3 max, CameraHandler cameraHandler);
 
-	public abstract UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
-
-	public abstract UndoAction setSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler);
-
-	public abstract UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler);
-
-	public abstract UndoAction addSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler);
-
-	public void setSelection(SelectionBundle selectionItem) {
-		if (selectionMode == SelectionItemTypes.VERTEX
-				|| selectionMode == SelectionItemTypes.FACE
-				|| selectionMode == SelectionItemTypes.GROUP
-				|| selectionMode == SelectionItemTypes.CLUSTER) {
-			modelView.setSelectedVertices(selectionItem.getSelectedVertices());
-			modelView.setSelectedIdObjects(selectionItem.getSelectedIdObjects());
-			modelView.setSelectedCameras(selectionItem.getSelectedCameras());
-		}
-		if (selectionMode == SelectionItemTypes.ANIMATE
-				|| selectionMode == SelectionItemTypes.TPOSE) {
-			modelView.setSelectedIdObjects(selectionItem.getSelectedIdObjects());
-		}
+	public UndoAction selectStuff(Vec2 min, Vec2 max, SelectionMode selectionMode, CoordinateSystem coordinateSystem) {
+		SelectionBundle newSelection = getSelectionBundle(min, max, coordinateSystem);
+		return getUndoAction(selectionMode, newSelection);
 	}
 
-
-	public void addSelection(SelectionBundle selectionItem) {
-		if (selectionMode == SelectionItemTypes.VERTEX
-				|| selectionMode == SelectionItemTypes.FACE
-				|| selectionMode == SelectionItemTypes.GROUP
-				|| selectionMode == SelectionItemTypes.CLUSTER) {
-			modelView.addSelectedVertices(selectionItem.getSelectedVertices());
-			modelView.addSelectedIdObjects(selectionItem.getSelectedIdObjects());
-			modelView.addSelectedCameras(selectionItem.getSelectedCameras());
-		}
-		if (selectionMode == SelectionItemTypes.ANIMATE
-				|| selectionMode == SelectionItemTypes.TPOSE) {
-			modelView.addSelectedIdObjects(selectionItem.getSelectedIdObjects());
-		}
+	public UndoAction selectStuff(Vec2 min, Vec2 max, SelectionMode selectionMode, CameraHandler cameraHandler) {
+		SelectionBundle newSelection = getSelectionBundle(min, max, cameraHandler);
+		return getUndoAction(selectionMode, newSelection);
 	}
 
-	public void removeSelection(SelectionBundle selectionItem) {
-		if (selectionMode == SelectionItemTypes.VERTEX
-				|| selectionMode == SelectionItemTypes.FACE
-				|| selectionMode == SelectionItemTypes.GROUP
-				|| selectionMode == SelectionItemTypes.CLUSTER) {
-			modelView.removeSelectedVertices(selectionItem.getSelectedVertices());
-			modelView.removeSelectedIdObjects(selectionItem.getSelectedIdObjects());
-			modelView.removeSelectedCameras(selectionItem.getSelectedCameras());
-		}
-		if (selectionMode == SelectionItemTypes.ANIMATE
-				|| selectionMode == SelectionItemTypes.TPOSE) {
-			modelView.removeSelectedIdObjects(selectionItem.getSelectedIdObjects());
-		}
+	public UndoAction selectStuff(Vec3 min, Vec3 max, SelectionMode selectionMode, CameraHandler cameraHandler) {
+		SelectionBundle newSelection = getSelectionBundle(min, max, cameraHandler);
+		return getUndoAction(selectionMode, newSelection);
 	}
+
+	private UndoAction getUndoAction(SelectionMode selectionMode, SelectionBundle newSelection) {
+		if (selectionMode == null) {
+			if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
+				return null;
+			}
+			return new SetSelectionUggAction(newSelection, modelView, "select");
+		}
+		return switch (selectionMode) {
+			case ADD -> {
+				if (newSelection.isEmpty()) {
+					yield null;
+				}
+				yield new AddSelectionUggAction(newSelection, modelView);
+			}
+			case DESELECT -> {
+				if (newSelection.isEmpty() || modelView.isEmpty()) {
+					yield null;
+				}
+				yield new RemoveSelectionUggAction(newSelection, modelView);
+			}
+			case SELECT -> {
+				if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
+					yield null;
+				}
+				yield new SetSelectionUggAction(newSelection, modelView, "select");
+			}
+		};
+	}
+
+//	public abstract UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+//
+//	public abstract UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+//
+//	public abstract UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
+//
+//	public abstract UndoAction setSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler);
+//
+//	public abstract UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler);
+//
+//	public abstract UndoAction addSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler);
+//
+//	public abstract UndoAction setSelectedRegion(Vec3 min, Vec3 max, CameraHandler cameraHandler);
+//
+//	public abstract UndoAction removeSelectedRegion(Vec3 min, Vec3 max, CameraHandler cameraHandler);
+//
+//	public abstract UndoAction addSelectedRegion(Vec3 min, Vec3 max, CameraHandler cameraHandler);
 
 	public boolean isEmpty() {
 		if (selectionMode == SelectionItemTypes.VERTEX

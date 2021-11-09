@@ -52,7 +52,7 @@ public class ViewportHelpers {
 				defaultAnimation = animation;
 			}
 		}
-		renderEnv.setAnimation(defaultAnimation);
+		renderEnv.setSequence(defaultAnimation);
 		return defaultAnimation;
 	}
 }

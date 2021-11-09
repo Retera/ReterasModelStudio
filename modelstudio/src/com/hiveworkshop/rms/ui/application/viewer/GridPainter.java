@@ -28,32 +28,6 @@ public class GridPainter {
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_CULL_FACE);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		glColor3f(255f, 1f, 255f);
-		glColor4f(.7f, .7f, .7f, .4f);
-		glBegin(GL11.GL_LINES);
-		GL11.glNormal3f(0, 0, 0);
-		float lineSpread = (numberOfLines + 1) * lineSpacing / 2;
-
-		glColor4f(.7f, 1f, .7f, .4f);
-		for (float x = -lineSpread + lineSpacing; x < lineSpread; x += lineSpacing) {
-			GL11.glVertex3f(x, -lineLength, 0);
-			GL11.glVertex3f(x, lineLength, 0);
-		}
-
-		glColor4f(1f, .7f, .7f, .4f);
-		for (float y = -lineSpread + lineSpacing; y < lineSpread; y += lineSpacing) {
-			GL11.glVertex3f(-lineLength, y, 0);
-			GL11.glVertex3f(lineLength, y, 0);
-		}
-		glEnd();
-	}
-	public void paintGrid2() {
-		GL11.glDepthMask(false);
-		GL11.glEnable(GL11.GL_BLEND);
-		glDisable(GL_ALPHA_TEST);
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_CULL_FACE);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL11.GL_LINES);
 		GL11.glNormal3f(0, 0, 0);
 

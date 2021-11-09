@@ -280,4 +280,12 @@ public class Vec2 {
 		this.y = (float) y;
 		return this;
 	}
+
+	public Vec2 transform(final Mat4 mat4) {
+		float newX = (mat4.m00 * x) + (mat4.m10 * y) + mat4.m30;
+		float newY = (mat4.m01 * x) + (mat4.m11 * y) + mat4.m31;
+		float newZ = (mat4.m02 * x) + (mat4.m12 * y) + mat4.m32;
+//		return set(newX, newY, newZ);
+		return set(newY, newZ);
+	}
 }

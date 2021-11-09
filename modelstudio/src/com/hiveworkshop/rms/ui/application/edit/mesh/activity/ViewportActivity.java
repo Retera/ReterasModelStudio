@@ -1,13 +1,17 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
+import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -31,7 +35,6 @@ public abstract class ViewportActivity implements SelectionListener {
 	protected Vec2 mouseStart;
 	protected Point lastMousePoint;
 	protected AbstractSelectionManager selectionManager;
-	protected ViewportListener viewportListener;
 	protected AbstractModelEditorManager modelEditorManager;
 
 	public ViewportActivity(ModelHandler modelHandler, AbstractModelEditorManager modelEditorManager) {
@@ -106,4 +109,21 @@ public abstract class ViewportActivity implements SelectionListener {
 		}
 		return solidWhiteGeoset;
 	}
+
+
+	protected UndoAction getAddAction(Material solidWhiteMaterial, Geoset solidWhiteGeoset) {
+		if (!modelView.getModel().contains(solidWhiteMaterial) || !modelView.getModel().contains(solidWhiteGeoset) || !modelView.isEditable(solidWhiteGeoset)) {
+			AddGeosetAction addGeosetAction = new AddGeosetAction(solidWhiteGeoset, modelView, null);
+			if (!modelHandler.getModel().contains(solidWhiteMaterial)) {
+				AddMaterialAction addMaterialAction = new AddMaterialAction(solidWhiteMaterial, modelHandler.getModel(), null);
+				return new CompoundAction("Add geoset", ModelStructureChangeListener.changeListener::geosetsUpdated, addGeosetAction, addMaterialAction);
+			} else {
+
+				return new CompoundAction("Add geoset", ModelStructureChangeListener.changeListener::geosetsUpdated, addGeosetAction);
+			}
+
+		}
+		return null;
+	}
+
 }
