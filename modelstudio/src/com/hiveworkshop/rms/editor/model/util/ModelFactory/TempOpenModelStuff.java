@@ -21,6 +21,11 @@ public class TempOpenModelStuff {
 		model.setBlendTime((int) mdlxModel.blendTime);
 		model.setExtents(new ExtLog(mdlxModel.extent));
 
+		// Step ?: add comments
+		for (final String comment : mdlxModel.comments) {
+			System.out.println("adding comment: \"" + comment + "\"");
+			model.addComment(comment);
+		}
 
 		// Step 4: Convert any global sequences
 		for (final long sequence : mdlxModel.globalSequences) {

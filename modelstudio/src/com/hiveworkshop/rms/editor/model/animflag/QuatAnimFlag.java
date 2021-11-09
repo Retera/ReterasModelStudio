@@ -188,8 +188,98 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 		return getTCB(-1, bias, tension, continuity);
 	}
 
-	@Override
-	public void calcNewTans(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
+//	@Override
+public void calcNewTans(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
+
+	Quat logNNP = new Quat(cur.value).invertQuat();
+	if (next != null) {
+		logNNP.mul(next.value);
+	}
+	calcLogQ(logNNP);
+
+
+	Quat logNMN = new Quat(0, 0, 0, 1);
+	if (prev != null) {
+		logNMN.set(prev.value);
+	}
+	logNMN.mul(cur.value);
+	calcLogQ(logNMN);
+
+	if (cur.inTan == null) {
+		cur.inTan = new Quat(0, 0, 0, 1);
+//			cur.outTan = new Quat(0, 0, 0, 1);
+	}
+	if (cur.outTan == null) {
+		cur.outTan = new Quat(0, 0, 0, 1);
+	}
+//		if(next != null && next.time < cur.time || prev != null && cur.time <prev.time){
+//			System.out.println("\n#1 animationLength: " + animationLength + ", nextT: " + next.time + ", curT: " + cur.time + ", prevT: " + prev.time);
+//			System.out.println("#1 cur.inTan: " + cur.inTan);
+//			System.out.println("#1 cur.outTan: " + cur.outTan);
+//		}
+
+	cur.inTan.set(logNNP).scale(factor[0]).addScaled(logNMN, factor[1]);
+	cur.outTan.set(logNNP).scale(factor[2]).addScaled(logNMN, factor[3]);
+//		if(next != null && next.time < cur.time || prev != null && cur.time <prev.time){
+//			System.out.println("#2 cur.inTan: " + cur.inTan);
+//			System.out.println("#2 cur.outTan: " + cur.outTan);
+//		}
+
+	cur.outTan.sub(logNNP).scale(0.5f);
+	cur.outTan.w = 0;
+	calcExpQ(cur.outTan);
+	cur.outTan.mulLeft(cur.value);
+
+	cur.inTan.scale(-1).add(logNMN).scale(0.5f);
+	cur.inTan.w = cur.outTan.w;
+	calcExpQ(cur.inTan);
+	cur.inTan.mulLeft(cur.value);
+//		if(next != null && next.time < cur.time || prev != null && cur.time <prev.time){
+//			System.out.println("#3 cur.inTan: " + cur.inTan);
+//			System.out.println("#3 cur.outTan: " + cur.outTan);
+//		}
+
+	if (next != null && prev != null && !next.time.equals(prev.time)) {
+		int animAdj = animationLength + 1;
+		float timeBetweenFrames = (next.time - prev.time + animAdj) % animAdj;
+		int timeToPrevFrame = (cur.time - prev.time + animAdj) % animAdj;
+		int timeToNextFrame = (next.time - cur.time + animAdj) % animAdj;
+
+
+//			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
+//			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
+//			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;
+
+		float inAdj = 2 * timeToPrevFrame / timeBetweenFrames;
+		float outAdj = 2 * timeToNextFrame / timeBetweenFrames;
+//			if(next.time < cur.time || cur.time <prev.time){
+//				System.out.println("cur.inTan: " + cur.inTan);
+//				System.out.println("cur.outTan: " + cur.outTan);
+//			}
+
+		cur.inTan.scale(inAdj);
+		cur.outTan.scale(outAdj);
+
+//			if(next.time < cur.time || cur.time <prev.time){
+//
+////			System.out.println("curT: " + cur.time + ", nextT: " + next.time + ", prevT: " + prev.time);
+////			System.out.println("nextValue: " + next.value + ", prevValue: " + prev.value);
+////				System.out.println("animationLength: " + animationLength + ", nextT: " + next.time + ", curT: " + cur.time + ", prevT: " + prev.time);
+//				System.out.println("cur.inTan: " + cur.inTan + " (inAdj: " + inAdj + ", timeToPrev: " + timeToPrevFrame + ")");
+//				System.out.println("cur.outTan: " + cur.outTan + " (outAdj: " + outAdj + ", timeToNext: " + timeToNextFrame + ")");
+//			}
+	}
+	cur.value.validate();
+	cur.inTan.validate();
+	cur.outTan.validate();
+
+	cur.value.normalize();
+	cur.inTan.normalize();
+	cur.outTan.normalize();
+}
+
+
+	public void calcNewTans2(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
 
 		Quat logNNP = new Quat(cur.value).invertQuat();
 		if (next != null) {
@@ -207,11 +297,23 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 
 		if (cur.inTan == null) {
 			cur.inTan = new Quat(0, 0, 0, 1);
+//			cur.outTan = new Quat(0, 0, 0, 1);
+		}
+		if (cur.outTan == null) {
 			cur.outTan = new Quat(0, 0, 0, 1);
 		}
+//		if(next != null && next.time < cur.time || prev != null && cur.time <prev.time){
+//			System.out.println("\n#1 animationLength: " + animationLength + ", nextT: " + next.time + ", curT: " + cur.time + ", prevT: " + prev.time);
+//			System.out.println("#1 cur.inTan: " + cur.inTan);
+//			System.out.println("#1 cur.outTan: " + cur.outTan);
+//		}
 
 		cur.inTan.set(logNNP).scale(factor[0]).addScaled(logNMN, factor[1]);
 		cur.outTan.set(logNNP).scale(factor[2]).addScaled(logNMN, factor[3]);
+//		if(next != null && next.time < cur.time || prev != null && cur.time <prev.time){
+//			System.out.println("#2 cur.inTan: " + cur.inTan);
+//			System.out.println("#2 cur.outTan: " + cur.outTan);
+//		}
 
 		cur.outTan.sub(logNNP).scale(0.5f);
 		cur.outTan.w = 0;
@@ -220,20 +322,91 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 
 		cur.inTan.scale(-1).add(logNMN).scale(0.5f);
 		cur.inTan.w = cur.outTan.w;
+//		cur.inTan.w = 0;
 		calcExpQ(cur.inTan);
 		cur.inTan.mulLeft(cur.value);
+//		if(next != null && next.time < cur.time || prev != null && cur.time <prev.time){
+//			System.out.println("#3 cur.inTan: " + cur.inTan);
+//			System.out.println("#3 cur.outTan: " + cur.outTan);
+//		}
 
 		if (next != null && prev != null && !next.time.equals(prev.time)) {
-			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
-			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
-			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;
+			int nT = next.time;
+			int pT = prev.time;
+			int cT = cur.time;
+
+			if (cT < pT) {
+				cT += animationLength;
+			}
+
+			if (nT < pT || nT < cT) {
+				nT += animationLength;
+			}
+			float timeBetweenFrames = (nT - pT);
+
+			int timeToPrevFrame = (cT - pT);
+
+			int timeToNextFrame = (nT - cT);
+
+//			float timeBetweenFrames = (next.time - prev.time);
+//			if(timeBetweenFrames < 0){
+//				timeBetweenFrames = animationLength + timeBetweenFrames;
+//			}
+//			int timeToPrevFrame = (cur.time - prev.time);
+//			if(timeToPrevFrame < 0){
+//				timeToPrevFrame = animationLength + timeToPrevFrame;
+//			}
+//			int timeToNextFrame = (next.time - cur.time);
+//			if(timeToNextFrame < 0){
+//				timeToNextFrame = animationLength + timeToNextFrame;
+//			}
+
+
+//			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
+//			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
+//			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;
 
 			float inAdj = 2 * timeToPrevFrame / timeBetweenFrames;
+			if (timeToPrevFrame == 0) {
+				inAdj = 0.00001f;
+			}
 			float outAdj = 2 * timeToNextFrame / timeBetweenFrames;
-			cur.inTan.scale(inAdj);
-			cur.outTan.scale(outAdj);
-		}
+			if (timeToNextFrame == 0) {
+				outAdj = 0.00001f;
+			}
+			if (next.time < cur.time || cur.time < prev.time || true) {
+				System.out.println("\n#1 animationLength: " + animationLength + ", nextT: " + nT + ", curT: " + cT + ", prevT: " + pT + ", timeBetween: " + timeBetweenFrames);
+//				System.out.println("\n#1 animationLength: " + animationLength + ", nextT: " + next.time + ", curT: " + cur.time + ", prevT: " + prev.time + ", timeBetween: " + timeBetweenFrames);
+				System.out.println("inAdj: " + inAdj + " = 2 * " + timeToPrevFrame + " / " + timeBetweenFrames);
+				System.out.println("outAdj: " + outAdj + " = 2 * " + timeToNextFrame + " / " + timeBetweenFrames);
+				String c_inT = "cur.inTan: " + cur.inTan;
+				System.out.println(c_inT + ", cur.inTan: " + cur.inTan.scale(inAdj) + " (inAdj: " + inAdj + ", timeToPrev: " + timeToPrevFrame + ")");
+				String c_outT = "cur.outTan: " + cur.outTan;
+				System.out.println(c_outT + ", cur.outTan: " + cur.outTan.scale(outAdj) + " (outAdj: " + outAdj + ", timeToNext: " + timeToNextFrame + ")");
+			} else {
+				cur.inTan.scale(inAdj);
+				cur.outTan.scale(outAdj);
+			}
 
+//			cur.inTan.scale(inAdj);
+//			cur.outTan.scale(outAdj);
+
+//			if(next.time < cur.time || cur.time <prev.time){
+//
+////			System.out.println("curT: " + cur.time + ", nextT: " + next.time + ", prevT: " + prev.time);
+////			System.out.println("nextValue: " + next.value + ", prevValue: " + prev.value);
+////				System.out.println("animationLength: " + animationLength + ", nextT: " + next.time + ", curT: " + cur.time + ", prevT: " + prev.time);
+//				System.out.println("cur.inTan: " + cur.inTan + " (inAdj: " + inAdj + ", timeToPrev: " + timeToPrevFrame + ")");
+//				System.out.println("cur.outTan: " + cur.outTan + " (outAdj: " + outAdj + ", timeToNext: " + timeToNextFrame + ")");
+//			}
+		}
+		cur.value.validate();
+		cur.inTan.validate();
+		cur.outTan.validate();
+
+		cur.value.normalize();
+		cur.inTan.normalize();
+		cur.outTan.normalize();
 	}
 
 	private Quat calcLogQ(Quat q) {
@@ -249,7 +422,7 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 	private Quat calcExpQ(Quat q) {
 		float t = q.length();
 		if (t < 1e-5) {
-			return (Quat) q.set(1, 0, 0, 0);
+			return (Quat) q.set(0, 0, 0, 1);
 		}
 
 		q.scale((float) Math.sin(t) / t);

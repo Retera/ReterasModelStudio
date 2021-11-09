@@ -34,6 +34,7 @@ public class TempSaveModelStuff {
 		// having its own attachments list, no vertex groups)
 
 		final MdlxModel mdlxModel = new MdlxModel();
+		mdlxModel.comments.addAll(model.getComments());
 
 		mdlxModel.version = model.getFormatVersion();
 		mdlxModel.name = model.getName();

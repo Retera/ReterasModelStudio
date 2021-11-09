@@ -163,11 +163,17 @@ public class AnimFlagUtils {
 	protected static <T> void unLiniarizeMapEntries(AnimFlag<T> animFlag, int animationLength, TreeMap<Integer, Entry<T>> entryTreeMap) {
 		entryTreeMap.forEach((t, e) -> e.unLinearize());
 		for (Integer time : entryTreeMap.keySet()) {
-			Integer prevTime = entryTreeMap.lowerKey(time) == null ? entryTreeMap.lastKey() : entryTreeMap.lowerKey(time);
 			Integer nextTime = entryTreeMap.higherKey(time) == null ? entryTreeMap.firstKey() : entryTreeMap.higherKey(time);
+			Integer prevTime = entryTreeMap.lowerKey(time) == null ? entryTreeMap.lastKey() : entryTreeMap.lowerKey(time);
+
 
 			Entry<T> prevValue = entryTreeMap.get(prevTime);
 			Entry<T> nextValue = entryTreeMap.get(nextTime);
+
+//			if(entryTreeMap.lowerKey(time) == null || entryTreeMap.higherKey(time) == null){
+//				System.out.println("nextTime: " + nextTime + ", prevTime: " + prevTime);
+//				System.out.println("nextValue: " + nextValue.value + ", prevValue: " + prevValue.value);
+//			}
 
 			float[] factor = animFlag.getTbcFactor(0, 0.5f, 0);
 			animFlag.calcNewTans(factor, nextValue, prevValue, entryTreeMap.get(time), animationLength);

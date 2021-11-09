@@ -31,6 +31,17 @@ public class IdObjectFactory {
 		idObject.setDontInheritTranslation((object.flags & 0x1) != 0);
 		idObject.setDontInheritRotation((object.flags & 0x2) != 0);
 		idObject.setDontInheritScaling((object.flags & 0x4) != 0);
+
+		if (idObject.getDontInheritTranslation()) {
+			System.out.println(idObject.getName() + " dontInheritTranslation!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		}
+		if (idObject.getDontInheritRotation()) {
+			System.out.println(idObject.getName() + " dontInheritRotation!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		}
+		if (idObject.getDontInheritScaling()) {
+			System.out.println(idObject.getName() + " dontInheritScaling!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		}
+
 		idObject.setBillboarded((object.flags & 0x8) != 0);
 		idObject.setBillboardLockX((object.flags & 0x10) != 0);
 		idObject.setBillboardLockY((object.flags & 0x20) != 0);
@@ -187,7 +198,7 @@ public class IdObjectFactory {
 		particleEmitterPopcorn.setReplaceableId(mdlxEmitter.replaceableId);
 		particleEmitterPopcorn.setPath(mdlxEmitter.path);
 		particleEmitterPopcorn.setAnimVisibilityGuide(mdlxEmitter.animationVisiblityGuide);
-		System.out.println(mdlxEmitter.animationVisiblityGuide);
+		System.out.println("VisGuid: " + mdlxEmitter.animationVisiblityGuide);
 		return particleEmitterPopcorn;
 	}
 

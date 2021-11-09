@@ -3,7 +3,9 @@ package com.hiveworkshop.rms.parsers.mdlx.util;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
 import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
+import com.hiveworkshop.rms.parsers.mdlx.MdlLoadSave;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
+import com.hiveworkshop.rms.parsers.mdlx.MdxLoadSave;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -13,12 +15,8 @@ public class MdxUtils {
 		return new MdlxModel(ByteBuffer.wrap(inputStream.readAllBytes()));
 	}
 
-	public static void saveMdx(final MdlxModel model, final OutputStream outputStream) throws IOException {
-		outputStream.write(model.saveMdx().array());
-	}
-
 	public static void saveMdl(final MdlxModel model, final OutputStream outputStream) throws IOException {
-		outputStream.write(model.saveMdl().array());
+		outputStream.write(MdlLoadSave.saveMdl(model).array());
 	}
 
 	public static void saveMdl(final MdlxModel model, final File file) throws IOException {
@@ -47,5 +45,9 @@ public class MdxUtils {
 
 	public static void saveMdx(final EditableModel editableModel, final File file) throws IOException {
 		saveMdx(editableModel, new FileOutputStream(file));
+	}
+
+	public static void saveMdx(final MdlxModel model, final OutputStream outputStream) throws IOException {
+		outputStream.write(MdxLoadSave.saveMdx(model).array());
 	}
 }

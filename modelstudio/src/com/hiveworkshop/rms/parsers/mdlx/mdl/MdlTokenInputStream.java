@@ -17,6 +17,7 @@ public class MdlTokenInputStream {
 		boolean inComment = false;
 		boolean inString = false;
 		final StringBuilder token = new StringBuilder();
+		final StringBuilder comment = new StringBuilder();
 		final int length = buffer.remaining();
 
 		while (index < length) {
@@ -28,6 +29,9 @@ public class MdlTokenInputStream {
 				if (c == '\n') {
 					inComment = false;
 					line++;
+					return token.toString();
+				} else {
+					token.append(c);
 				}
 			}
 			else if (inString) {
@@ -45,26 +49,22 @@ public class MdlTokenInputStream {
 				if (token.length() > 0) {
 					return token.toString();
 				}
-			}
-			else if ((c == '{') || (c == '}')) {
+			} else if (c == '{' || c == '}') {
 				if (token.length() > 0) {
 					index--;
 					return token.toString();
-				}
-				else {
+				} else {
 					return Character.toString(c);
 				}
-			}
-			else if ((c == '/') && (buffer.get(buffer.position() + index) == '/')) {
+			} else if ((c == '/') && (buffer.get(buffer.position() + index) == '/')) {
 				if (token.length() > 0) {
 					index--;
 					return token.toString();
-				}
-				else {
+				} else {
 					inComment = true;
+					token.append(c);
 				}
-			}
-			else if (c == '"') {
+			} else if (c == '"') {
 				if (token.length() > 0) {
 					index--;
 					return token.toString();
