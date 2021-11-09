@@ -69,7 +69,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	public PerspectiveViewport() throws LWJGLException {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();
-		EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
+//		EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
 		cameraHandler = new CameraHandler(this);
 //		vertRendererThing = new VertRendererThing(cameraHandler.getPixelSize());
 		boneRenderThing = new BoneRenderThing2();
@@ -461,8 +461,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		}
 	}
 
-	Vec2 ccc = null;
-	Vec3 ccc2 = null;
+//	Vec2 ccc = null;
+//	Vec3 ccc2 = null;
 
 	private void cameraMarkerPainter() {
 		if (mouseAdapter.isSelecting()) {

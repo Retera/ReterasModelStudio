@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Mat4;
@@ -51,21 +52,18 @@ public class SelectionManager extends AbstractSelectionManager {
 	public SelectionManager(RenderModel editorRenderModel, ModelView modelView, boolean moveLinked, SelectionItemTypes selectionMode) {
 		super(editorRenderModel, modelView, selectionMode);
 		this.moveLinked = moveLinked;
-//		vertexClusterDefinitions = new VertexClusterDefinitions(modelView.getModel());
 		vertexClusterDefinitions = new VertexClusterDefinitions();
 	}
 
 	private Set<GeosetVertex> getGroupBundle(Collection<GeosetVertex> selectedVertices) {
 		Set<VertexGroupBundle> bundleSet = new HashSet<>();
 		for (GeosetVertex vertex : selectedVertices) {
-//			bundleSet.add(new VertexGroupBundle(vertex.getGeoset(), vertex.getVertexGroup()));
 			bundleSet.add(new VertexGroupBundle(vertex.getGeoset(), vertex.getMatrixIndex()));
 		}
 
 		Set<GeosetVertex> verticesSelected = new HashSet<>();
 		for (VertexGroupBundle bundle : bundleSet) {
 			for (GeosetVertex geosetVertex : bundle.getGeoset().getVertices()) {
-//				if (geosetVertex.getVertexGroup() == bundle.getVertexGroupId()) {
 				if (geosetVertex.getMatrixIndex() == bundle.getVertexGroupId()) {
 					verticesSelected.add(geosetVertex);
 				}

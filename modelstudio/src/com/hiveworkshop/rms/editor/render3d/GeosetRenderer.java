@@ -1,10 +1,9 @@
-package com.hiveworkshop.rms.ui.application.edit.mesh.viewport.renderers.renderparts;
+package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxLayer;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
@@ -171,12 +170,12 @@ public class GeosetRenderer {
 			}
 			Layer layer = material.getLayers().get(i);
 
-			boolean opaqueLayer = (layer.getFilterMode() == MdlxLayer.FilterMode.NONE) || (layer.getFilterMode() == MdlxLayer.FilterMode.TRANSPARENT);
+			boolean opaqueLayer = (layer.getFilterMode() == FilterMode.NONE) || (layer.getFilterMode() == FilterMode.TRANSPARENT);
 
 			if ((renderOpaque && opaqueLayer) || (!renderOpaque && !opaqueLayer)) {
 				Bitmap tex = layer.getRenderTexture(renderEnv, modelView.getModel());
 
-				if(tex != null){
+				if (tex != null) {
 					textureThing.bindLayerTexture(layer, tex, formatVersion, material);
 				}
 
@@ -221,7 +220,7 @@ public class GeosetRenderer {
 
 	private void setStandardColors(Vec3 renderColor, float alphaValue, Layer layer) {
 		if (renderColor != null) {
-			if (layer.getFilterMode() == MdlxLayer.FilterMode.ADDITIVE) {
+			if (layer.getFilterMode() == FilterMode.ADDITIVE) {
 				GL11.glColor4f(renderColor.x * alphaValue, renderColor.y * alphaValue, renderColor.z * alphaValue, alphaValue);
 			} else {
 				GL11.glColor4f(renderColor.x, renderColor.y, renderColor.z, alphaValue);

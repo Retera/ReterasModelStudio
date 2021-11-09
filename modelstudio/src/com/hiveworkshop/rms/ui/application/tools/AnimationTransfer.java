@@ -267,47 +267,47 @@ public class AnimationTransfer extends JPanel {
 			}
 		}
 	}
-	private void doImportIngStuff(boolean show, EditableModel receivingModel, EditableModel donatingModel) {
-		ImportPanel importPanel = new ImportPanel(receivingModel, donatingModel, show);
-		Animation animation = pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex());
-		Animation visibility = visFromBox.getItemAt(visFromBox.getSelectedIndex());
-		importPanel.animTransfer1(true, animation, visibility, show);
-		waitWhileVisible(importPanel);
-
-		if (importPanel.importStarted()) {
-			waitForPanel(importPanel);
-
-			if (importPanel.importSuccessful()) {
-				doImportThings2(show, receivingModel);
-			}
-		}
-	}
-	private void doImportIngStuff2(boolean show, EditableModel receivingModel, EditableModel donatingModel) {
-		ImportPanel importPanel = new ImportPanel(receivingModel, donatingModel, show);
-		Animation animation = pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex());
-		Animation visibility = visFromBox.getItemAt(visFromBox.getSelectedIndex());
-		importPanel.animTransfer1(true, animation, visibility, show);
-		waitWhileVisible(importPanel);
-
-		if (importPanel.importStarted()) {
-			waitForPanel(importPanel);
-
-			if (importPanel.importSuccessful()) {
-				EditableModel newDonatingModel = getEditableModel(receivingModel.getFile().getPath());
-				ImportPanel importPanel2 = new ImportPanel(receivingModel, newDonatingModel, show);
-				importPanel2.animTransferPartTwo(animation, visibility, show);
-
-				waitWhileVisible(importPanel2);
-
-				if (importPanel2.importStarted()) {
-					waitForPanel(importPanel2);
-					if (importPanel2.importSuccessful()) {
-						saveModel(receivingModel);
-					}
-				}
-			}
-		}
-	}
+//	private void doImportIngStuff(boolean show, EditableModel receivingModel, EditableModel donatingModel) {
+//		ImportPanel importPanel = new ImportPanel(receivingModel, donatingModel, show);
+//		Animation animation = pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex());
+//		Animation visibility = visFromBox.getItemAt(visFromBox.getSelectedIndex());
+//		importPanel.animTransfer1(true, animation, visibility, show);
+//		waitWhileVisible(importPanel);
+//
+//		if (importPanel.importStarted()) {
+//			waitForPanel(importPanel);
+//
+//			if (importPanel.importSuccessful()) {
+//				doImportThings2(show, receivingModel);
+//			}
+//		}
+//	}
+//	private void doImportIngStuff2(boolean show, EditableModel receivingModel, EditableModel donatingModel) {
+//		ImportPanel importPanel = new ImportPanel(receivingModel, donatingModel, show);
+//		Animation animation = pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex());
+//		Animation visibility = visFromBox.getItemAt(visFromBox.getSelectedIndex());
+//		importPanel.animTransfer1(true, animation, visibility, show);
+//		waitWhileVisible(importPanel);
+//
+//		if (importPanel.importStarted()) {
+//			waitForPanel(importPanel);
+//
+//			if (importPanel.importSuccessful()) {
+//				EditableModel newDonatingModel = getEditableModel(receivingModel.getFile().getPath());
+//				ImportPanel importPanel2 = new ImportPanel(receivingModel, newDonatingModel, show);
+//				importPanel2.animTransferPartTwo(animation, visibility, show);
+//
+//				waitWhileVisible(importPanel2);
+//
+//				if (importPanel2.importStarted()) {
+//					waitForPanel(importPanel2);
+//					if (importPanel2.importSuccessful()) {
+//						saveModel(receivingModel);
+//					}
+//				}
+//			}
+//		}
+//	}
 
 	private EditableModel getEditableModel(String filePath) {
 		try {
@@ -315,7 +315,7 @@ public class AnimationTransfer extends JPanel {
 			EditableModel model = MdxUtils.loadEditable(modelFile);
 			model.setFileRef(modelFile);
 			return model;
-		} catch (IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
 		}

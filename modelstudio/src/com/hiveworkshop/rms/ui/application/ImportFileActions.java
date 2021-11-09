@@ -25,7 +25,7 @@ public class ImportFileActions {
     public static void importFile(final EditableModel model) {
         ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
         if (modelPanel != null && modelPanel.getModel() != null) {
-            ImportPanel importPanel = new ImportPanel(modelPanel.getModel(), model);
+            ImportPanel importPanel = new ImportPanel(modelPanel.getModel(), model, false);
             importPanel.setModelChangeListener(new ModelStructureChangeListener());
         }
     }

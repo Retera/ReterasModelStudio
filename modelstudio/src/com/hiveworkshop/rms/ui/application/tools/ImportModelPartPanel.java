@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -93,7 +94,7 @@ public class ImportModelPartPanel extends TwiImportPanel {
 //					}
 					for (Sequence recSequence : recToDonSequenceMap.keySet()) {
 						Sequence donSequence = recToDonSequenceMap.get(recSequence);
-						animFlag.copyFrom(oldAnimFlag, donSequence, recSequence);
+						AnimFlagUtils.copyFrom(animFlag, oldAnimFlag, donSequence, recSequence);
 					}
 				}
 				undoActions.add(new AddNodeAction(recModel, newIdObject, null));

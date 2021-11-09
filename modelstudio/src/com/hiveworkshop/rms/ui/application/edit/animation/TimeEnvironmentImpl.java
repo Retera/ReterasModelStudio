@@ -76,6 +76,26 @@ public class TimeEnvironmentImpl {
 		return this;
 	}
 
+
+	public TimeEnvironmentImpl setSequence(final Sequence sequence) {
+		if (sequence instanceof Animation) {
+			this.animation = (Animation) sequence;
+//			setBounds(sequence.getStart(), sequence.getEnd());
+			setBounds(0, sequence.getLength());
+			globalSeq = null;
+			if (loopType == PreviewPanel.LoopType.DEFAULT_LOOP) {
+				looping = animation != null && !animation.isNonLooping();
+			}
+		} else if (sequence instanceof GlobalSeq) {
+			this.globalSeq = (GlobalSeq) sequence;
+			setBounds(0, sequence.length);
+			notifier.timeBoundsChanged(0, sequence.getLength());
+		} else {
+			globalSeq = null;
+		}
+		return this;
+	}
+
 	public Animation getCurrentAnimation() {
 		return animation;
 	}

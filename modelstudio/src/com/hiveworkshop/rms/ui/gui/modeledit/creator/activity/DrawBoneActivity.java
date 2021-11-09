@@ -50,7 +50,7 @@ public class DrawBoneActivity extends ViewportActivity {
 			}
 			Bone bone = new Bone(getNumberName("Bone", nameNumber));
 			bone.setPivotPoint(new Vec3(worldPressLocation));
-			DrawBoneAction drawBoneAction = new DrawBoneAction(modelView, ModelStructureChangeListener.changeListener, bone);
+			DrawBoneAction drawBoneAction = new DrawBoneAction(modelView.getModel(), ModelStructureChangeListener.changeListener, bone);
 			drawBoneAction.redo();
 
 
