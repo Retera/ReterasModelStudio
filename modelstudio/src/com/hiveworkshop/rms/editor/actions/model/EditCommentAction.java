@@ -6,25 +6,28 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class EditCommentAction implements UndoAction {
-	private final String stringOld;
-	private final String stringNew;
+	private final List<String> stringsOld;
+	private final List<String> stringsNew;
 	private final EditableModel model;
 	private final ModelStructureChangeListener changeListener;
 
-	public EditCommentAction(String stringOld, String stringNew, EditableModel model,
+	public EditCommentAction(String stringsNew, EditableModel model,
 	                         ModelStructureChangeListener changeListener) {
-		this.stringOld = stringOld;
-		this.stringNew = stringNew;
+		this.stringsOld = new ArrayList<>(model.getComments());
+		this.stringsNew = Arrays.asList(stringsNew.split("\n"));
 		this.model = model;
 		this.changeListener = changeListener;
 	}
 
 	@Override
 	public UndoAction undo() {
-		model.clearHeader();
-		model.addToHeader(getCommentContent(stringOld));
+		model.clearComments();
+		for (String s : stringsOld) {
+			model.addComment(s);
+		}
 		if (changeListener != null) {
 			changeListener.headerChanged();
 		}
@@ -33,8 +36,10 @@ public class EditCommentAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		model.clearHeader();
-		model.addToHeader(getCommentContent(stringNew));
+		model.clearComments();
+		for (String s : stringsNew) {
+			model.addComment(s);
+		}
 		if (changeListener != null) {
 			changeListener.headerChanged();
 		}

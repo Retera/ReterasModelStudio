@@ -32,7 +32,7 @@ public class ComponentCommentPanel extends ComponentPanel<List<String>> {
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				final EditCommentAction editCommentAction = new EditCommentAction("ugg", "ugg", model, changeListener);
+				final EditCommentAction editCommentAction = new EditCommentAction(textPane.getText(), model, changeListener);
 				undoManager.pushAction(editCommentAction.redo());
 			}
 		};
