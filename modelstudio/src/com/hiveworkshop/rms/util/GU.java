@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.util;
 
 import java.awt.*;
-import java.util.Arrays;
 
 public class GU {
 	public static void fillPolygon(Graphics graphics, Point... points) {
@@ -199,18 +198,18 @@ public class GU {
 		Polygon pRek = new Polygon();
 		int xp = xb == 0 ? p : 0;
 		int yp = yb == 0 ? p : 0;
-		System.out.println("-xb: " + -xb + ", -yb: " + -yb);
+//		System.out.println("-xb: " + -xb + ", -yb: " + -yb);
 		pRek.addPoint(-xb, -yb);
-		System.out.println("xp: " + xp + ", yp: " + yp);
+//		System.out.println("xp: " + xp + ", yp: " + yp);
 		pRek.addPoint(xp, yp);
-		System.out.println("xb: " + xb + ", yb: " + yb);
+//		System.out.println("xb: " + xb + ", yb: " + yb);
 		pRek.addPoint(xb, yb);
-		System.out.println("pRekt.x: " + Arrays.toString(pRek.xpoints) + ", pRekt.y: " + Arrays.toString(pRek.ypoints));
+//		System.out.println("pRekt.x: " + Arrays.toString(pRek.xpoints) + ", pRekt.y: " + Arrays.toString(pRek.ypoints));
 		Polygon nT = new Polygon();
 		nT.addPoint(-5, 0);
 		nT.addPoint(0, -18);
 		nT.addPoint(5, 0);
-		System.out.println("nT.x: " + Arrays.toString(nT.xpoints) + ", nT.y: " + Arrays.toString(nT.ypoints));
+//		System.out.println("nT.x: " + Arrays.toString(nT.xpoints) + ", nT.y: " + Arrays.toString(nT.ypoints));
 		return pRek;
 	}
 }

@@ -4,7 +4,8 @@ import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.MenuBarActions;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.War3ID;
 import net.infonode.docking.View;
@@ -28,7 +29,7 @@ public class DoodadBrowserView extends View {
 				MenuBarActions.getDoodadData(),
 				new DoodadTabTreeBrowserBuilder(),
 				new UnitEditorSettings(),
-				MutableObjectData.WorldEditorDataType.DOODADS);
+				WorldEditorDataType.DOODADS);
 		unitEditorTree.selectFirstUnit();
 
 		unitEditorTree.addMouseListener(new MouseAdapter() {
@@ -51,9 +52,9 @@ public class DoodadBrowserView extends View {
 			if (currentUnitTreePath != null) {
 
 				DefaultMutableTreeNode o = (DefaultMutableTreeNode) currentUnitTreePath.getLastPathComponent();
-				if (o.getUserObject() instanceof MutableObjectData.MutableGameObject) {
+				if (o.getUserObject() instanceof MutableGameObject) {
 
-					MutableObjectData.MutableGameObject obj = (MutableObjectData.MutableGameObject) o.getUserObject();
+					MutableGameObject obj = (MutableGameObject) o.getUserObject();
 					int numberOfVariations = obj.getFieldAsInteger(War3ID.fromString("dvar"), 0);
 					if (numberOfVariations > 1) {
 						for (int i = 0; i < numberOfVariations; i++) {

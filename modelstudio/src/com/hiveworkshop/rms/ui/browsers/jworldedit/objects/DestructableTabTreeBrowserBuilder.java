@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.SortB
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
 import com.hiveworkshop.rms.util.War3ID;
 
-public class DestructableTabTreeBrowserBuilder implements ObjectTabTreeBrowserBuilder {
+public class DestructableTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
 
 	private static final War3ID DEST_CATEGORY = War3ID.fromString("bcat");
 

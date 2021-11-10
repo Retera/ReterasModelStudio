@@ -2,14 +2,14 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
 import com.hiveworkshop.rms.ui.application.MenuBarActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
@@ -103,7 +103,7 @@ public class MenuBar {
         GameDataFileSystem.refresh(SaveProfile.get().getDataSources());
         // cache priority order...
         UnitOptionPanel.dropRaceCache();
-        DataTable.dropCache();
+        DataTableHolder.dropCache();
         ModelOptionPanel.dropCache();
         WEString.dropCache();
         BLPHandler.get().dropCache();
@@ -126,11 +126,11 @@ public class MenuBar {
                     Component viewportView = pane.getViewport().getView();
                     if (viewportView instanceof UnitEditorTree) {
                         UnitEditorTree unitEditorTree = (UnitEditorTree) viewportView;
-                        MutableObjectData.WorldEditorDataType dataType = unitEditorTree.getDataType();
-                        if (dataType == MutableObjectData.WorldEditorDataType.UNITS) {
+                        WorldEditorDataType dataType = unitEditorTree.getDataType();
+                        if (dataType == WorldEditorDataType.UNITS) {
                             System.out.println("saw unit tree");
                             unitEditorTree.setUnitDataAndReloadVerySlowly(UnitBrowserView.getUnitData());
-                        } else if (dataType == MutableObjectData.WorldEditorDataType.DOODADS) {
+                        } else if (dataType == WorldEditorDataType.DOODADS) {
                             System.out.println("saw doodad tree");
                             unitEditorTree.setUnitDataAndReloadVerySlowly(MenuBarActions.getDoodadData());
                         }

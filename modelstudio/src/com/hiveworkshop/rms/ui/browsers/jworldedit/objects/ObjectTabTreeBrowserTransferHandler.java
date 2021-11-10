@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
@@ -59,7 +59,7 @@ public class ObjectTabTreeBrowserTransferHandler extends TransferHandler {
 			}
 
 			if (info.isDrop()) { // This is a drop
-				final UnitEditorPanel.DropLocation dl = (UnitEditorPanel.DropLocation) info.getDropLocation();
+				final com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DropLocation dl = (com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DropLocation) info.getDropLocation();
 				final Point dropPoint = dl.getDropPoint();
 				// discard drop point, unit location is based on tree sorter folders
 			} else { // This is a paste

@@ -1,13 +1,12 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields;
 
-import java.awt.Component;
-
-import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.util.War3ID;
+
+import java.awt.*;
 
 public abstract class AbstractObjectField implements EditableOnscreenObjectField {
 	private final String displayName;
@@ -20,8 +19,8 @@ public abstract class AbstractObjectField implements EditableOnscreenObjectField
 	private final GameObject metaDataField;
 
 	public AbstractObjectField(final String displayName, final String sortName, final String rawDataName,
-			final boolean showLevelDisplay, final War3ID metaKey, final int level,
-			final MutableObjectData.WorldEditorDataType dataType, final GameObject metaDataField) {
+	                           final boolean showLevelDisplay, final War3ID metaKey, final int level,
+	                           final WorldEditorDataType dataType, final GameObject metaDataField) {
 		this.displayName = displayName;
 		this.sortName = sortName;
 		this.rawDataName = rawDataName;

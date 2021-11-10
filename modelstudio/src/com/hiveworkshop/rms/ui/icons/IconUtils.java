@@ -3,7 +3,8 @@ package com.hiveworkshop.rms.ui.icons;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.Element;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.War3ID;
 
@@ -50,8 +51,8 @@ public final class IconUtils {
 		return bufImage;
 	}
 
-	public static BufferedImage getIcon(final MutableObjectData.MutableGameObject gameObject,
-			final MutableObjectData.WorldEditorDataType worldEditorDataType) {
+	public static BufferedImage getIcon(final MutableGameObject gameObject,
+			final WorldEditorDataType worldEditorDataType) {
 		String iconPath;
 		switch (worldEditorDataType) {
 			case ABILITIES -> iconPath = gameObject.getFieldAsString(War3ID.fromString("aart"), 0);

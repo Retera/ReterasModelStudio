@@ -46,7 +46,7 @@ public class AnimationViewer extends JPanel {
 
 	private void setAnimation() {
 		if (renderEnv != null) {
-			renderEnv.setAnimation((Animation) animationBox.getSelectedItem());
+			renderEnv.setSequence((Animation) animationBox.getSelectedItem());
 		}
 	}
 

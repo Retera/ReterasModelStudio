@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
-import com.hiveworkshop.rms.parsers.slk.StandardObjectData.WarcraftData;
+import com.hiveworkshop.rms.parsers.slk.WarcraftData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import de.wc3data.stream.BlizzardDataInputStream;
@@ -23,7 +23,7 @@ public final class Warcraft3MapObjectData {
 	private final MutableObjectData buffs;
 	private final MutableObjectData upgrades;
 	private final List<MutableObjectData> datas;
-	private final transient Map<MutableObjectData.WorldEditorDataType, MutableObjectData> typeToData = new HashMap<>();
+	private final transient Map<WorldEditorDataType, MutableObjectData> typeToData = new HashMap<>();
 
 	public Warcraft3MapObjectData(final MutableObjectData units, final MutableObjectData items,
 								  final MutableObjectData destructibles, final MutableObjectData doodads, final MutableObjectData abilities,
@@ -48,7 +48,7 @@ public final class Warcraft3MapObjectData {
 		}
 	}
 
-	public MutableObjectData getDataByType(final MutableObjectData.WorldEditorDataType type) {
+	public MutableObjectData getDataByType(final WorldEditorDataType type) {
 		return typeToData.get(type);
 	}
 
@@ -139,19 +139,19 @@ public final class Warcraft3MapObjectData {
 					new WTSFile(GameDataFileSystem.getDefault().getResourceAsStream("war3map.wts")), inlineWTS);
 		}
 
-		final MutableObjectData unitData = new MutableObjectData(MutableObjectData.WorldEditorDataType.UNITS, standardUnits,
+		final MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.UNITS, standardUnits,
 				standardUnitMeta, unitChangeset);
-		final MutableObjectData itemData = new MutableObjectData(MutableObjectData.WorldEditorDataType.ITEM, standardItems,
+		final MutableObjectData itemData = new MutableObjectData(WorldEditorDataType.ITEM, standardItems,
 				standardUnitMeta, itemChangeset);
-		final MutableObjectData doodadData = new MutableObjectData(MutableObjectData.WorldEditorDataType.DOODADS, standardDoodads,
+		final MutableObjectData doodadData = new MutableObjectData(WorldEditorDataType.DOODADS, standardDoodads,
 				standardDoodadMeta, doodadChangeset);
-		final MutableObjectData destructableData = new MutableObjectData(MutableObjectData.WorldEditorDataType.DESTRUCTIBLES,
+		final MutableObjectData destructableData = new MutableObjectData(WorldEditorDataType.DESTRUCTIBLES,
 				standardDestructables, standardDestructableMeta, destructableChangeset);
-		final MutableObjectData abilityData = new MutableObjectData(MutableObjectData.WorldEditorDataType.ABILITIES, abilities,
+		final MutableObjectData abilityData = new MutableObjectData(WorldEditorDataType.ABILITIES, abilities,
 				abilityMeta, abilityChangeset);
-		final MutableObjectData buffData = new MutableObjectData(MutableObjectData.WorldEditorDataType.BUFFS_EFFECTS,
+		final MutableObjectData buffData = new MutableObjectData(WorldEditorDataType.BUFFS_EFFECTS,
 				standardAbilityBuffs, standardAbilityBuffMeta, buffChangeset);
-		final MutableObjectData upgradeData = new MutableObjectData(MutableObjectData.WorldEditorDataType.UPGRADES, standardUpgrades,
+		final MutableObjectData upgradeData = new MutableObjectData(WorldEditorDataType.UPGRADES, standardUpgrades,
 				standardUpgradeMeta, upgradeChangeset);
 
 		return new Warcraft3MapObjectData(unitData, itemData, destructableData, doodadData, abilityData, buffData,

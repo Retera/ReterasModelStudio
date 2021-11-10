@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 
 import java.util.*;
 
-public abstract class HashedGameObject implements GameObject {
+public abstract class HashedGameObject extends GameObject {
 	HashMap<StringKey, List<String>> fields = new HashMap<>();
 	String id;
 	ObjectData parentTable;

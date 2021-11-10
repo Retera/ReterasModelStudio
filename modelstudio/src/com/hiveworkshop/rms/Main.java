@@ -66,7 +66,8 @@ public class Main {
 		if (!hasOpenPopup) {
 			hasOpenPopup = true;
 			exception.printStackTrace();
-			ExceptionPopup.display(exception);
+			SwingUtilities.invokeLater(() -> ExceptionPopup.display(exception));
+//			ExceptionPopup.display(exception);
 			hasOpenPopup = false;
 		}
 	}

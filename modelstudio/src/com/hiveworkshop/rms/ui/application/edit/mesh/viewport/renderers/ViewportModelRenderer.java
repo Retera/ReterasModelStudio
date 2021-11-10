@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportRenderableCamera;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.GU;
@@ -157,12 +156,12 @@ public class ViewportModelRenderer {
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geoset);
 		for (RenderGeoset.RenderVert vertex : renderGeoset.getRenderVerts()) {
 
-			Vec2 vert2 = CoordSysUtils.convertToViewVec2(coordinateSystem, vertex.getRenderPos());
+			Vec2 vert2 = convertToViewVec2(coordinateSystem, vertex.getRenderPos());
 			vertsMap.put(vertex.getVertex(), vert2);
 
 			if (ProgramGlobals.getPrefs().showNormals()) {
 				Vec3 normalPoint = Vec3.getScaled(vertex.getRenderNorm(), (float) (12 / coordinateSystem.getZoom())).add(vertex.getRenderPos());
-				normalMap.put(vertex.getVertex(), CoordSysUtils.convertToViewVec2(coordinateSystem, normalPoint));
+				normalMap.put(vertex.getVertex(), convertToViewVec2(coordinateSystem, normalPoint));
 			}
 
 		}
@@ -200,25 +199,34 @@ public class ViewportModelRenderer {
 					triangleLineColor = FACE_NOT_SELECTED_COLOR_Line;
 				}
 
-				if(triV2[0] != null && triV2[1] != null && triV2[2] != null){
+				if (triV2[0] != null && triV2[1] != null && triV2[2] != null) {
 					graphics.setColor(triangleColor);
 					GU.fillPolygon(graphics, triV2);
 					graphics.setColor(triangleLineColor);
-					GU.drawLines(graphics, triV2[i%3], triV2[(i+1)%3]);
+					GU.drawLines(graphics, triV2[i % 3], triV2[(i + 1) % 3]);
 				}
 			}
 		}
 	}
 
+	public static Vec2 convertToViewVec2(CoordinateSystem coordinateSystem, Vec3 vertex) {
+//		Vec2 vec2 = vertex.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+//		return coordinateSystem.viewV(vec2);
+		double x = coordinateSystem.viewX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
+		double y = coordinateSystem.viewY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+		return new Vec2(x, y);
+	}
+
 	public Color getTriangleColor(int i) {
-		return switch (i){
+		return switch (i) {
 			case 1 -> FACE_SELECTED_COLOR;
 			default -> FACE_NOT_SELECTED_COLOR;
 		};
 //		return triangleColor;
 	}
+
 	public Color getTriangleEdgeColor(int i) {
-		return switch (i){
+		return switch (i) {
 			case 1 -> FACE_SELECTED_COLOR;
 			default -> FACE_NOT_SELECTED_COLOR;
 		};

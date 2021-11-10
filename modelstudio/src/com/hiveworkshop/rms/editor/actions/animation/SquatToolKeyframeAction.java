@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -67,7 +66,17 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 			nodeToLocalRotation.put(node, new Quat());
 		}
 		this.center = new Vec3(center);
-		this.axis = getUnusedAxis(CoordSysUtils.getUnusedXYZ(dim1, dim2));
+		this.axis = getUnusedAxis(getUnusedXYZ(dim1, dim2));
+	}
+
+	public static byte getUnusedXYZ(byte portFirstXYZ, byte portSecondXYZ) {
+		if (portFirstXYZ < 0) {
+			portFirstXYZ = (byte) (-portFirstXYZ - 1);
+		}
+		if (portSecondXYZ < 0) {
+			portSecondXYZ = (byte) (-portSecondXYZ - 1);
+		}
+		return (byte) (3 - portFirstXYZ - portSecondXYZ);
 	}
 
 	@Override

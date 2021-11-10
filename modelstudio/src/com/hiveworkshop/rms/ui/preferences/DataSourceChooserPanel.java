@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
 import com.hiveworkshop.rms.filesystem.sources.FolderDataSourceDescriptor;
 import com.hiveworkshop.rms.filesystem.sources.MpqDataSourceDescriptor;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
@@ -922,7 +922,7 @@ public class DataSourceChooserPanel extends JPanel {
 
 			// cache priority order...
 			UnitOptionPanel.dropRaceCache();
-			DataTable.dropCache();
+			DataTableHolder.dropCache();
 			ModelOptionPanel.dropCache();
 			WEString.dropCache();
 			BLPHandler.get().dropCache();

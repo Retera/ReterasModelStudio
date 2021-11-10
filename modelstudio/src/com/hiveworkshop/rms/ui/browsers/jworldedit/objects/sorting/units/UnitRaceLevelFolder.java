@@ -1,13 +1,13 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.units;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
+import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.SortRace;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.rms.util.War3ID;
+
+import javax.swing.tree.DefaultMutableTreeNode;
 
 public class UnitRaceLevelFolder extends AbstractSortingFolderTreeNode {
 	/**

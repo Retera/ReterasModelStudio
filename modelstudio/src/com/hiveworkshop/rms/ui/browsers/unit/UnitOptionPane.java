@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.browsers.unit;
 
-import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.ui.application.MainFrame;
@@ -11,7 +11,7 @@ import java.awt.*;
 
 public class UnitOptionPane {
 	public static GameObject show(Component component) {
-		UnitOptionPanel uop = new UnitOptionPanel(DataTable.get(), StandardObjectData.getStandardAbilities());
+		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.get(), StandardObjectData.getStandardAbilities());
 		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Unit Type", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (x == JOptionPane.OK_OPTION) {
@@ -21,7 +21,7 @@ public class UnitOptionPane {
 	}
 
 	public static GameObject fetchUnit(Component component) {
-		UnitOptionPanel uop = new UnitOptionPanel(DataTable.get(), StandardObjectData.getStandardAbilities());
+		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.get(), StandardObjectData.getStandardAbilities());
 		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Unit Type", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (x == JOptionPane.OK_OPTION) {
@@ -33,7 +33,7 @@ public class UnitOptionPane {
 		return null;
 	}
 	public static String fetchUnit1(Component component) {
-		UnitOptionPanel uop = new UnitOptionPanel(DataTable.get(), StandardObjectData.getStandardAbilities());
+		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.get(), StandardObjectData.getStandardAbilities());
 		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Unit Type", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (x == JOptionPane.OK_OPTION) {

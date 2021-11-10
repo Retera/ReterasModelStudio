@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
-import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
@@ -13,15 +12,11 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.builders.*;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.factory.BasicSingleFieldFactory;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
-import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
-import com.hiveworkshop.rms.util.War3ID;
 import de.wc3data.stream.BlizzardDataInputStream;
 import de.wc3data.stream.BlizzardDataOutputStream;
-import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -34,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
-	private static final War3ID UNIT_NAME = War3ID.fromString("unam");
 
 	private final List<UnitEditorPanel> editors = new ArrayList<>();
 	private JButton createNewButton;
@@ -216,7 +210,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				new UnitTabTreeBrowserBuilder(),
 				WorldEditorDataType.UNITS,
 				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_UNIT_NEW", "ToolBarIcon_OE_NewUnit", "WESTRING_MENU_OE_UNIT_COPY", "WESTRING_MENU_OE_UNIT_PASTE"),
-				new NewCustomUnitDialogRunner(unitData));
+				new NewCustomUnitDialogRunner(this, unitData));
 		return unitEditorPanel;
 	}
 
@@ -427,47 +421,4 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		}
 	}
 
-	private final class NewCustomUnitDialogRunner implements Runnable {
-		private final MutableObjectData unitData;
-
-		private NewCustomUnitDialogRunner(final MutableObjectData unitData) {
-			this.unitData = unitData;
-		}
-
-		@Override
-		public void run() {
-			final JLabel nameLabel = new JLabel(WEString.getString("WESTRING_UE_FIELDNAME") + ":");
-
-			final JTextField nameField = new JTextField(30);
-			nameField.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-			nameField.setPreferredSize(new Dimension(200, 18));
-			nameField.setMaximumSize(new Dimension(200, 100));
-
-			final JLabel baseUnitLabel = new JLabel(WEString.getString("WESTRING_UE_BASEUNIT").replace("&", "") + ":");
-
-			final UnitOptionPanel unitOptionPanel = new UnitOptionPanel(StandardObjectData.getStandardUnits(), StandardObjectData.getStandardAbilities(), true, true);
-			unitOptionPanel.setPreferredSize(new Dimension(416, 400));
-			unitOptionPanel.setSize(new Dimension(416, 400));
-			unitOptionPanel.doLayout();
-			unitOptionPanel.relayout();
-
-			final JPanel popupPanel = new JPanel(new MigLayout("ins 0"));
-			popupPanel.add(nameLabel, "split 2, spanx");
-			popupPanel.add(nameField, "wrap");
-			popupPanel.add(baseUnitLabel, "spanx, wrap");
-			popupPanel.add(unitOptionPanel, "wrap");
-
-			final int response = JOptionPane.showConfirmDialog(ObjectEditorPanel.this, popupPanel,
-					WEString.getString("WESTRING_UE_CREATECUSTOMUNIT"), JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.PLAIN_MESSAGE);
-
-			if (response == JOptionPane.OK_OPTION) {
-				final GameObject selection = unitOptionPanel.getSelection();
-				final War3ID sourceId = War3ID.fromString(selection.getId());
-				final War3ID objectId = unitData.getNextDefaultEditorId(War3ID.fromString(sourceId.charAt(0) + "000"));
-				final MutableGameObject newObject = unitData.createNew(objectId, sourceId);
-				newObject.setField(UNIT_NAME, 0, nameField.getText());
-			}
-		}
-	}
 }

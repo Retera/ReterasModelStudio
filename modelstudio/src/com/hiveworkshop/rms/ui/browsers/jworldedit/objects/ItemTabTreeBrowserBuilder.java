@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.items.ItemSortByClassFolder;
 
-public class ItemTabTreeBrowserBuilder implements ObjectTabTreeBrowserBuilder {
+public class ItemTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
 
 	@Override
 	public TopLevelCategoryFolder build() {

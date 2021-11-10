@@ -40,6 +40,8 @@ public class ModelViewManagingView extends ModelDependentView {
 
 //			modelEditingTreePane.setViewportView(modelViewManagingTree);
 			modelEditingTreePane.setViewportView(modelViewManagingTree2);
+
+			modelViewManagingTree2.expandMeshNode();
 		}
 //		reload();
 		System.out.println("name: " + name + ", panel: " + modelPanel);

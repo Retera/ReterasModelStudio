@@ -2,10 +2,10 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel;
 
 import java.util.Comparator;
 
-public class MutableGameObjectSortStringComparator implements Comparator<MutableObjectData.MutableGameObject> {
+public class MutableGameObjectSortStringComparator implements Comparator<MutableGameObject> {
 
 	@Override
-	public int compare(final MutableObjectData.MutableGameObject a, final MutableObjectData.MutableGameObject b) {
+	public int compare(final MutableGameObject a, final MutableGameObject b) {
 		if (a.readSLKTag("sort").equals("") && !b.readSLKTag("sort").equals("")) {
 			return 1;
 		} else if (b.readSLKTag("sort").equals("") && !a.readSLKTag("sort").equals("")) {

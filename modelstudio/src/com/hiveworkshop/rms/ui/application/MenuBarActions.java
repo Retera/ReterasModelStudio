@@ -14,6 +14,7 @@ import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.actionfunctions.MakeModelHD;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ProgramPreferencesPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -59,7 +60,7 @@ public class MenuBarActions {
 			e.printStackTrace();
 		}
 		return new MutableObjectData(
-				MutableObjectData.WorldEditorDataType.DOODADS,
+				WorldEditorDataType.DOODADS,
 				StandardObjectData.getStandardDoodads(),
 				StandardObjectData.getStandardDoodadMeta(),
 				editorData);

@@ -16,9 +16,9 @@ import java.util.TreeMap;
 public class ModelScale {
 
 	public static void main(String[] args) throws IOException {
-		final File santaFile = new File(
+		File santaFile = new File(
 				"C:\\Users\\Eric\\Documents\\Warcraft\\Models\\Hayate\\Warcraft_Santa\\Warcraft Santa\\SantaClausFull.mdx");
-		final EditableModel model = MdxUtils.loadEditable(santaFile);
+		EditableModel model = MdxUtils.loadEditable(santaFile);
 		Vec3 scale = new Vec3(0.35, 0.35, 0.35);
 		scale(model, scale);
 		MdxUtils.saveMdx(model, new File(
@@ -31,7 +31,7 @@ public class ModelScale {
 	}
 
 	public static void scale(EditableModel mdl, Vec3 scale, Vec3 center) {
-		for (final AnimFlag<?> flag : ModelUtils.getAllAnimFlags(mdl)) {
+		for (AnimFlag<?> flag : ModelUtils.getAllAnimFlags(mdl)) {
 			if (flag.getTypeId() == AnimFlag.TRANSLATION) {
 				for (Sequence anim : flag.getAnimMap().keySet()) {
 					TreeMap<Integer, Entry<Vec3>> entryMap = ((Vec3AnimFlag) flag).getEntryMap(anim);
@@ -48,21 +48,21 @@ public class ModelScale {
 				}
 			}
 		}
-		for (final Geoset geoset : mdl.getGeosets()) {
-			for (final Vec3 vertex : geoset.getVertices()) {
+		for (Geoset geoset : mdl.getGeosets()) {
+			for (Vec3 vertex : geoset.getVertices()) {
 				vertex.scale(center, scale);
 			}
-			for (final Animation anim : geoset.getAnims()) {
+			for (Animation anim : geoset.getAnims()) {
 				scale(center, scale, anim.getExtents());
 			}
 		}
-		for (final IdObject object : mdl.getIdObjects()) {
+		for (IdObject object : mdl.getIdObjects()) {
 			object.getPivotPoint().scale(center, scale);
 		}
 //		for (final Vec3 vertex : mdl.getPivots()) {
 //			vertex.scale(centerX, centerY, centerZ, x, y, z);
 //		}
-		for (final Camera camera : mdl.getCameras()) {
+		for (Camera camera : mdl.getCameras()) {
 			camera.getPosition().scale(center, scale);
 			camera.getTargetPosition().scale(center, scale);
 		}
@@ -87,8 +87,7 @@ public class ModelScale {
 		}
 	}
 
-	private static void scale(Vec3 center, Vec3 scale,
-	                          final ExtLog extents) {
+	private static void scale(Vec3 center, Vec3 scale, final ExtLog extents) {
 		if (extents == null) {
 			return;
 		}

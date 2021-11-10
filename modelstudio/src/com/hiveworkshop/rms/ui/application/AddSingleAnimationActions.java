@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
@@ -66,7 +66,7 @@ public class AddSingleAnimationActions {
 	}
 
 	public static void addAnimationFromObject() {
-		MutableObjectData.MutableGameObject fetchResult = ImportFileActions.fetchObject();
+		MutableGameObject fetchResult = ImportFileActions.fetchObject();
 		if (fetchResult != null) {
 			String path = fetchResult.getFieldAsString(UnitFields.MODEL_FILE, 0);
 			fetchAndAddSingleAnimation(path);

@@ -6,6 +6,8 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
+import com.hiveworkshop.rms.parsers.slk.DataTableUtils;
 import com.hiveworkshop.rms.parsers.slk.Element;
 import com.hiveworkshop.rms.ui.application.viewer.AnimationViewer;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
@@ -19,60 +21,12 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 public class ModelOptionPanel extends JPanel {
-
-	static class Model {
-		String cachedIcon;
-		String displayName;
-		String filepath;
-
-		@Override
-		public String toString() {
-			return displayName;
-		}
-	}
-
-	static class ModelGroup {
-		String name;
-		List<Model> models = new ArrayList<>();
-
-		public ModelGroup(final String name) {
-			this.name = name;
-		}
-
-		@Override
-		public String toString() {
-			return name;
-		}
-	}
-
-	static class ModelComparator implements Comparator<Model> {
-		@Override
-		public int compare(final Model o1, final Model o2) {
-			return o1.displayName.compareToIgnoreCase(o2.displayName);
-		}
-
-	}
-
-	static class NamedList<E> extends ArrayList<E> {
-		String name;
-		String cachedIconPath = null; // might be present
-
-		public NamedList(final String name) {
-			this.name = name;
-		}
-
-		public void setCachedIconPath(final String cachedIconPath) {
-			this.cachedIconPath = cachedIconPath;
-		}
-
-		public String getCachedIconPath() {
-			return cachedIconPath;
-		}
-	}
 
 	static List<ModelGroup> groups = new ArrayList<>();
 
@@ -123,7 +77,7 @@ public class ModelOptionPanel extends JPanel {
 			groupsModel.addElement(group);
 			final DefaultComboBoxModel<Model> groupModel = new DefaultComboBoxModel<>();
 
-			for (final Model model : group.models) {
+			for (final Model model : group.getModels()) {
 				groupModel.addElement(model);
 			}
 			groupModels.add(groupModel);
@@ -191,9 +145,9 @@ public class ModelOptionPanel extends JPanel {
 	private void modelBoxListener() {
 		choosingModel = true;
 		Model model = (Model) modelBox.getSelectedItem();
-		String filepath = model != null ? model.filepath : null;
+		String filepath = model != null ? model.getFilepath() : null;
 		filePathField.setText(filepath);
-		cachedIconPath = ((Model) modelBox.getSelectedItem()).cachedIcon;
+		cachedIconPath = ((Model) modelBox.getSelectedItem()).getCachedIcon();
 		showModel(filepath);
 		choosingModel = false;
 	}
@@ -214,11 +168,11 @@ public class ModelOptionPanel extends JPanel {
 	public void setSelection(final String path) {
 		if (path != null) {
 			ItemFinder: for (final ModelGroup group : groups) {
-				for (final Model model : group.models) {
-					if (model.filepath.equals(path)) {
+				for (final Model model : group.getModels()) {
+					if (model.getFilepath().equals(path)) {
 						groupBox.setSelectedItem(group);
 						modelBox.setSelectedItem(model);
-						cachedIconPath = model.cachedIcon;
+						cachedIconPath = model.getCachedIcon();
 						break ItemFinder;
 					}
 				}
@@ -267,7 +221,7 @@ public class ModelOptionPanel extends JPanel {
 			// - Game Interface
 		}
 		groups.clear();
-		unitData = DataTable.get();
+		unitData = DataTableHolder.get();
 		itemData = DataTable.getItems();
 		buffData = DataTable.getBuffs();
 		destData = DataTable.getDestructables();
@@ -371,43 +325,61 @@ public class ModelOptionPanel extends JPanel {
 		fillSpawnData(spawnModelData);
 		fillGinterData(ginterModelData);
 
-		addNewModelGroup(unitsModelData, "WESTRING_OE_TYPECAT_UNIT");
-		addNewModelGroup(unitsMissileData, "WESTRING_OE_TYPECAT_UNIT_MSSL");
-		addNewModelGroup(unitsSpecialData, "WESTRING_OE_TYPECAT_UNIT_SPEC");
-		addNewModelGroup(itemsModelData, "WESTRING_OE_TYPECAT_ITEM");
-		addNewModelGroup(abilityModelData, "WESTRING_OE_TYPECAT_ABIL");
-		addNewModelGroup(buffModelData, "WESTRING_OE_TYPECAT_BUFF");
-		addNewModelGroup(destModelData, "WESTRING_OE_TYPECAT_DEST");
-		addNewModelGroup(doodModelData, "WESTRING_OE_TYPECAT_DOOD");
-		addNewModelGroup(spawnModelData, "WESTRING_OE_TYPECAT_SPWN");
-		addNewModelGroup(ginterModelData, "WESTRING_OE_TYPECAT_SKIN");
+//		addNewModelGroup(unitsModelData, "WESTRING_OE_TYPECAT_UNIT");
+//		addNewModelGroup(unitsMissileData, "WESTRING_OE_TYPECAT_UNIT_MSSL");
+//		addNewModelGroup(unitsSpecialData, "WESTRING_OE_TYPECAT_UNIT_SPEC");
+//		addNewModelGroup(itemsModelData, "WESTRING_OE_TYPECAT_ITEM");
+//		addNewModelGroup(abilityModelData, "WESTRING_OE_TYPECAT_ABIL");
+//		addNewModelGroup(buffModelData, "WESTRING_OE_TYPECAT_BUFF");
+//		addNewModelGroup(destModelData, "WESTRING_OE_TYPECAT_DEST");
+//		addNewModelGroup(doodModelData, "WESTRING_OE_TYPECAT_DOOD");
+//		addNewModelGroup(spawnModelData, "WESTRING_OE_TYPECAT_SPWN");
+//		addNewModelGroup(ginterModelData, "WESTRING_OE_TYPECAT_SKIN");
+
+		groups.add(new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_UNIT")).fill(unitsModelData));
+		groups.add(new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_UNIT_MSSL")).fill(unitsMissileData));
+		groups.add(new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_UNIT_SPEC")).fill(unitsSpecialData));
+		groups.add(new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_ITEM")).fill(itemsModelData));
+		groups.add(new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_ABIL")).fill(abilityModelData));
+		groups.add(new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_BUFF")).fill(buffModelData));
+		groups.add(new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_DEST")).fill(destModelData));
+		groups.add(new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_DOOD")).fill(doodModelData));
+		groups.add(new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_SPWN")).fill(spawnModelData));
+		groups.add(new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_SKIN")).fill(ginterModelData));
+
 		addExtraModelGroup();
 
 		// new JFrame().setVisible(true);
 	}
 
 	private static void fillItemData(Map<String, NamedList<String>> itemsModelData) {
-		for (final String str : itemData.keySet()) {
+		for (String str : itemData.keySet()) {
 			// ITEMS
-			final Element unit = itemData.get(str);
-			final String filepath = unit.getField("file");
+			Element unit = itemData.get(str);
+			String filepath = unit.getField("file");
 			if (filepath.length() > 0) {
-				NamedList<String> unitList = getUnitList(itemsModelData, unit, filepath);
-				unitList.add(unit.getName());
+//				NamedList<String> unitList = getUnitList(itemsModelData, unit, filepath);
+//				unitList.add(unit.getName());
+				itemsModelData
+						.computeIfAbsent(filepath.toLowerCase(), k -> new NamedList<>(filepath, unit.getIconPath()))
+						.add(unit.getName());
 //				System.out.println("unit.fieldValue: " + unit.getFieldValue("numVar"));
 			}
 		}
 	}
 
 	private static void fillGinterData(Map<String, NamedList<String>> ginterModelData) {
-		for (final String str : ginterData.keySet()) {
-			final Element race = ginterData.get(str);
+		for (String str : ginterData.keySet()) {
+			Element race = ginterData.get(str);
 			// System.err.println("Gintering unit " + str);
-			for (final String fieldName : race.keySet()) {
-				final String value = race.getField(fieldName);
+			for (String fieldName : race.keySet()) {
+				String value = race.getField(fieldName);
 				if (value.endsWith(".mdl")) {
-					NamedList<String> unitList = getUnitList(ginterModelData, race, value);
-					unitList.add(fieldName + " (" + race.getUnitId() + ")");
+//					NamedList<String> unitList = getUnitList(ginterModelData, race, value);
+//					unitList.add(fieldName + " (" + race.getUnitId() + ")");
+					ginterModelData
+							.computeIfAbsent(value.toLowerCase(), k -> new NamedList<>(value, race.getIconPath()))
+							.add(fieldName + " (" + race.getUnitId() + ")");
 				}
 			}
 		}
@@ -422,7 +394,7 @@ public class ModelOptionPanel extends JPanel {
 				if (model.equals("_")) {
 					continue;
 				}
-				final String filepath = model;
+				String filepath = model;
 				if (filepath.length() > 0) {
 					NamedList<String> unitList = getUnitList(spawnModelData, unit, filepath);
 					if (model.contains("\\")) {
@@ -438,29 +410,29 @@ public class ModelOptionPanel extends JPanel {
 	}
 
 	private static void addExtraModelGroup() {
-		final ModelGroup extra = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_XTRA"));
-		final DataTable worldEditData = new DataTable();
+		ModelGroup extra = new ModelGroup(WEString.getString("WESTRING_OE_TYPECAT_XTRA"));
+		DataTable worldEditData = new DataTable();
 		try {
-			worldEditData.readTXT(GameDataFileSystem.getDefault().getResourceAsStream("UI\\WorldEditData.txt"), true);
+			DataTableUtils.readTXT(worldEditData, GameDataFileSystem.getDefault().getResourceAsStream("UI\\WorldEditData.txt"), true);
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
-		final Element extraModels = worldEditData.get("ExtraModels");
+		Element extraModels = worldEditData.get("ExtraModels");
 		int emId = 0;
 		while (extraModels.getField(String.format("%2d", emId).replace(" ", "0")).length() > 0) {
-			final String fieldName = String.format("%2d", emId).replace(" ", "0");
-			final Model nextModel = new Model();
-			nextModel.displayName = WEString.getString(extraModels.getField(fieldName, 2));
-			nextModel.filepath = extraModels.getField(fieldName, 1);
-			nextModel.cachedIcon = extraModels.getIconPath();
-			extra.models.add(nextModel);
+			String fieldName = String.format("%2d", emId).replace(" ", "0");
+			Model nextModel = new Model()
+					.setDisplayName(WEString.getString(extraModels.getField(fieldName, 2)))
+					.setFilepath(extraModels.getField(fieldName, 1))
+					.setCachedIcon(extraModels.getIconPath());
+			extra.addModel(nextModel);
 
 			emId++;
 		}
-		extra.models.sort(new ModelComparator());
+		extra.sortModels();
 		groups.add(extra);
 
-		for (final Model model : extra.models) {
+		for (Model model : extra.getModels()) {
 			System.out.println("Extra model: " + model);// + ": \"" + model.filepath + "\"");
 		}
 	}
@@ -475,8 +447,8 @@ public class ModelOptionPanel extends JPanel {
 		filepath = unit.getField("Missileart");
 		if (filepath.length() > 0) {
 			if (filepath.contains(",")) {
-				final String[] filepaths = filepath.split(",");
-				for (final String fp : filepaths) {
+				String[] filepaths = filepath.split(",");
+				for (String fp : filepaths) {
 					NamedList<String> unitList = getMissileNamedList(unitsMissileData, unit, filepath, fp);
 					unitList.add(unit.getName());
 				}
@@ -495,13 +467,6 @@ public class ModelOptionPanel extends JPanel {
 			unitsMissileData.put(fp.toLowerCase(), unitList);
 		}
 		return unitList;
-	}
-
-	private static void addNewModelGroup(Map<String, NamedList<String>> modelData, String weStringType) {
-		final ModelGroup modelGroup = new ModelGroup(WEString.getString(weStringType));
-		fillModelGroup(modelData, modelGroup);
-		modelGroup.models.sort(new ModelComparator());
-		groups.add(modelGroup);
 	}
 
 	private static NamedList<String> getUnitList(Map<String, NamedList<String>> spawnModelData, Element unit, String filepath) {
@@ -527,30 +492,6 @@ public class ModelOptionPanel extends JPanel {
 					}
 				}
 			}
-		}
-	}
-
-	private static void fillModelGroup(Map<String, NamedList<String>> modelData, ModelGroup modelGroup) {
-		for (final String str : modelData.keySet()) {
-			final NamedList<String> unitList = modelData.get(str);
-			// Collections.sort(unitList);
-			StringBuilder nameOutput = new StringBuilder();
-			for (final String unitName : unitList) {
-				if (nameOutput.length() > 0) {
-					nameOutput.append(", ");
-				}
-				if ((nameOutput.length() + unitName.length()) > 120) {
-					nameOutput.append("...");
-					break;
-				} else {
-					nameOutput.append(unitName);
-				}
-			}
-			final Model nextModel = new Model();
-			nextModel.displayName = nameOutput.toString();
-			nextModel.filepath = unitList.name;
-			nextModel.cachedIcon = unitList.getCachedIconPath();
-			modelGroup.models.add(nextModel);
 		}
 	}
 

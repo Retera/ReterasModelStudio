@@ -49,32 +49,32 @@ public class TimeEnvironmentImpl {
 		return this;
 	}
 
-	public TimeEnvironmentImpl setAnimation(Animation animation) {
-		this.animation = animation;
-		if (animation != null) {
-			setBounds(animation.getStart(), animation.getEnd());
-			globalSeq = null;
-		}
-		updateLastMillis();
-		if (loopType == PreviewPanel.LoopType.DEFAULT_LOOP) {
-			looping = animation != null && !animation.isNonLooping();
-		}
-		return this;
-	}
+//	public TimeEnvironmentImpl setAnimation(Animation animation) {
+//		this.animation = animation;
+//		if (animation != null) {
+//			setBounds(animation.getStart(), animation.getEnd());
+//			globalSeq = null;
+//		}
+//		updateLastMillis();
+//		if (loopType == PreviewPanel.LoopType.DEFAULT_LOOP) {
+//			looping = animation != null && !animation.isNonLooping();
+//		}
+//		return this;
+//	}
 
 	public TimeEnvironmentImpl setStaticViewMode(final boolean staticViewMode) {
 		this.staticViewMode = staticViewMode;
 		return this;
 	}
 
-	public TimeEnvironmentImpl setGlobalSeq(final GlobalSeq globalSeq) {
-		this.globalSeq = globalSeq;
-		if (globalSeq != null) {
-			setBounds(0, globalSeq.length);
-			notifier.timeBoundsChanged(0, globalSeq.getLength());
-		}
-		return this;
-	}
+//	public TimeEnvironmentImpl setGlobalSeq(final GlobalSeq globalSeq) {
+//		this.globalSeq = globalSeq;
+//		if (globalSeq != null) {
+//			setBounds(0, globalSeq.length);
+//			notifier.timeBoundsChanged(0, globalSeq.getLength());
+//		}
+//		return this;
+//	}
 
 
 	public TimeEnvironmentImpl setSequence(final Sequence sequence) {

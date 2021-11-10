@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields;
 
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 
 import java.awt.*;
 

@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
@@ -85,12 +85,12 @@ public class ImportFileActions {
         repaintModelTrees();
     }
 
-    public static MutableObjectData.MutableGameObject fetchObject() {
+    public static MutableGameObject fetchObject() {
         BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(UnitBrowserView.getUnitData(), new UnitEditorSettings());
         int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), selector, "Object Editor - Select Unit",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        MutableObjectData.MutableGameObject choice = selector.getSelection();
+        MutableGameObject choice = selector.getSelection();
 
         if ((x == JOptionPane.OK_OPTION)) {
             String filepath = choice.getFieldAsString(UnitFields.MODEL_FILE, 0);
@@ -101,7 +101,7 @@ public class ImportFileActions {
     }
 
     public static void importGameObjectActionRes() {
-        MutableObjectData.MutableGameObject fetchObjectResult = fetchObject();
+        MutableGameObject fetchObjectResult = fetchObject();
         if (fetchObjectResult != null) {
             String path = fetchObjectResult.getFieldAsString(UnitFields.MODEL_FILE, 0);
 

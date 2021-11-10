@@ -5,16 +5,15 @@ import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.parsers.slk.StandardObjectData.WarcraftObject;
+import com.hiveworkshop.rms.parsers.slk.WarcraftObject;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitTabTreeBrowserBuilder;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.UnitComparator;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
@@ -23,14 +22,12 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSelectionListener {
@@ -112,12 +109,6 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 		}
 	}
 
-	static class UnitEditorTreeModel extends DefaultTreeModel {
-		public UnitEditorTreeModel(final DefaultMutableTreeNode root) {
-			super(root);
-		}
-	}
-
 	public void loadRaceData(final DefaultMutableTreeNode folder, final RaceData data) {
 		addDataToFolder(folder, "WESTRING_UNITS", data.units);
 		addDataToFolder(folder, "WESTRING_UTYPE_BUILDINGS", data.buildings);
@@ -135,24 +126,6 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 			if (defaultSelection == null) {
 				defaultSelection = node.getFirstLeaf();
 			}
-		}
-	}
-
-	static class RaceData {
-		List<WarcraftObject> units = new ArrayList<>();
-		List<WarcraftObject> heroes = new ArrayList<>();
-		List<WarcraftObject> buildings = new ArrayList<>();
-		List<WarcraftObject> buildingsUprooted = new ArrayList<>();
-		List<WarcraftObject> special = new ArrayList<>();
-
-		void sort() {
-			final Comparator<WarcraftObject> unitComp = new UnitComparator();
-
-			units.sort(unitComp);
-			heroes.sort(unitComp);
-			buildings.sort(unitComp);
-			buildingsUprooted.sort(unitComp);
-			special.sort(unitComp);
 		}
 	}
 

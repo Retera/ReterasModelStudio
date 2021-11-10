@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.browsers.unit;
 
 import com.hiveworkshop.rms.parsers.slk.GameObject;
-import com.hiveworkshop.rms.parsers.slk.GameObjectComparator;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.util.ScreenInfo;
@@ -9,45 +8,55 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.*;
 
-public class UnitOptionPanel extends JPanel implements ActionListener {
+public class UnitOptionPanel extends JPanel {
 	public static final String TILESETS = "ABKYXJDCIFLWNOZGVQ";
 	public static final int ICON_SIZE = 32;
 
-	ObjectData unitData;
-	final ObjectData abilityData;
-	GameObject selection = null;
+	private final ObjectData unitData;
+	private final ObjectData abilityData;
+	private GameObject selection = null;
+	String[] raceKeys = {"human", "orc", "undead", "nightelf", "neutrals", "naga"};
 
-	JComboBox<String> raceBox, meleeBox, tilesetBox, levelBox;// playerBox,
+	private final JComboBox<String> raceBox;
+	private final JComboBox<String> meleeBox;
+	private final JComboBox<String> tilesetBox;
+	private final JComboBox<String> levelBox;
+	private final DefaultComboBoxModel<String> raceBoxModel;
+
+//	private JComboBox<String> playerBox;
 	// DefaultComboBoxModel<String> playerBoxModel = new
 	// DefaultComboBoxModel<String>();
-	DefaultComboBoxModel<String> raceBoxModel = new DefaultComboBoxModel<>();
 
-	JLabel unitsLabel, heroesLabel, buildingsLabel, buildingsUprootedLabel, specialLabel;
+	private final JLabel unitsLabel;
+	private final JLabel heroesLabel;
+	private final JLabel buildingsLabel;
+	private final JLabel buildingsUprootedLabel;
+	private final JLabel specialLabel;
 
-	List<UnitButton> unitButtons = new ArrayList<>();
-	ButtonGroup buttonGroup = new ButtonGroup();
+	private final List<UnitButton> unitButtons = new ArrayList<>();
+	private final ButtonGroup buttonGroup = new ButtonGroup();
 
-	JPanel buttonsPanel;
-	JScrollPane buttonsScrollPane;
+	private final JPanel buttonsPanel;
+	private final JScrollPane buttonsScrollPane;
 
 	private final boolean verticalStyle;
+	private boolean firstTime = true;
+
+	static Map<String, RaceData> sortedRaces;
+
 
 	public GameObject getSelection() {
 		return selection;
 	}
 
-	boolean firstTime = true;
-
-	public UnitOptionPanel(final ObjectData dataTable, final ObjectData abilityData) {
+	public UnitOptionPanel(ObjectData dataTable, ObjectData abilityData) {
 		this(dataTable, abilityData, false, false);
 	}
 
-	public UnitOptionPanel(final ObjectData dataTable, final ObjectData abilityData, final boolean hideBorder, final boolean verticalStyle) {
+	public UnitOptionPanel(ObjectData dataTable, ObjectData abilityData, boolean hideBorder, boolean verticalStyle) {
 		setLayout(new MigLayout("fill"));
 		setMaximumSize(ScreenInfo.getBigWindow());
 		unitData = dataTable;
@@ -60,29 +69,17 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		specialLabel = new JLabel(WEString.getString("WESTRING_UTYPE_SPECIAL"));
 
 		String[] raceStrings = {"WESTRING_RACE_HUMAN", "WESTRING_RACE_ORC", "WESTRING_RACE_UNDEAD", "WESTRING_RACE_NIGHTELF", "WESTRING_RACE_NEUTRAL", "WESTRING_RACE_NEUTRAL_NAGA"};
-		fillModel(raceBoxModel, raceStrings);
+		raceBoxModel = getBoxModelOf(raceStrings);
 
 		String[] neutralRaceStrings = {"WESTRING_RACE_NEUTRAL", "WESTRING_RACE_NEUTRAL_NAGA"};
-//		fillModel(raceBoxModelNeutral, neutralRaceStrings);
 		DefaultComboBoxModel<String> raceBoxModelNeutral = getBoxModelOf(neutralRaceStrings);
 
 		String[] meleeStrings = {"WESTRING_MELEE", "WESTRING_CAMPAIGN", "WESTRING_CUSTOM"};
-//		fillModel(meleeBoxModel, meleeStrings);
 		DefaultComboBoxModel<String> meleeBoxModel = getBoxModelOf(meleeStrings);
 		meleeBoxModel.addElement(WEString.getString("WESTRING_ITEMSTATUS_HIDDEN").replace("\"", ""));
 
 
-//		String[] tilesetStrings = {"WESTRING_LOCALE_ASHENVALE", "WESTRING_LOCALE_BARRENS",
-//				"WESTRING_LOCALE_BLACKCITADEL", "WESTRING_LOCALE_CITYSCAPE",
-//				"WESTRING_LOCALE_DALARAN", "WESTRING_LOCALE_DALARANRUINS",
-//				"WESTRING_LOCALE_DUNGEON", "WESTRING_LOCALE_FELWOOD",
-//				"WESTRING_LOCALE_ICECROWN", "WESTRING_LOCALE_LORDAERON_FALL",
-//				"WESTRING_LOCALE_LORDAERON_SUMMER", "WESTRING_LOCALE_LORDAERON_WINTER",
-//				"WESTRING_LOCALE_NORTHREND", "WESTRING_LOCALE_OUTLAND",
-//				"WESTRING_LOCALE_RUINS", "WESTRING_LOCALE_DUNGEON2",
-//				"WESTRING_LOCALE_VILLAGE", "WESTRING_LOCALE_VILLAGEFALL"};
-//		fillModel(tilesetBoxModel, tilesetStrings);
-		DefaultComboBoxModel<String> tilesetBoxModel = getBoxModelOf(WE_LOC.values());
+		DefaultComboBoxModel<String> tileSetBoxModel = getBoxModelOf(WE_LOC.values());
 
 		DefaultComboBoxModel<String> levelBoxModel = new DefaultComboBoxModel<>();
 		levelBoxModel.addElement(WEString.getString("WESTRING_ANYLEVEL"));
@@ -91,7 +88,37 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		}
 
 		buttonsPanel = new JPanel(new MigLayout("ins 0, wrap 7"));
-		buttonsScrollPane = new JScrollPane(buttonsPanel);
+		buttonsScrollPane = getButtonsScrollPane();
+
+		// playerBox = new JComboBox<String>(playerBoxModel);
+		// playerBox.addActionListener(e -> relayout());
+		// playerBox.setMaximumSize(new Dimension(10000,25));
+		raceBox = new JComboBox<>(raceBoxModel);
+		raceBox.addActionListener(e -> relayout());
+		raceBox.setMaximumSize(new Dimension(10000, 25));
+
+		meleeBox = new JComboBox<>(meleeBoxModel);
+		meleeBox.addActionListener(e -> relayout());
+		meleeBox.setMaximumSize(new Dimension(10000, 25));
+
+		tilesetBox = new JComboBox<>(tileSetBoxModel);
+		tilesetBox.addActionListener(e -> relayout());
+		tilesetBox.setMaximumSize(new Dimension(10000, 25));
+
+		levelBox = new JComboBox<>(levelBoxModel);
+		levelBox.addActionListener(e -> relayout());
+		levelBox.setMaximumSize(new Dimension(10000, 25));
+
+
+		if (sortedRaces == null) {
+			sortRaces();
+		}
+
+		tilesetBox.setSelectedIndex(10);
+	}
+
+	private JScrollPane getButtonsScrollPane() {
+		JScrollPane buttonsScrollPane = new JScrollPane(buttonsPanel);
 		buttonsScrollPane.getVerticalScrollBar().setUnitIncrement(16);
 		buttonsScrollPane.setFocusable(true);
 		buttonsScrollPane.setMaximumSize(ScreenInfo.getBigWindow());
@@ -100,32 +127,11 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 //		}
 		buttonsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		buttonsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-
-		// playerBox = new JComboBox<String>(playerBoxModel);
-		// playerBox.addActionListener(this);
-		// playerBox.setMaximumSize(new Dimension(10000,25));
-		raceBox = new JComboBox<>(raceBoxModel);
-		raceBox.addActionListener(this);
-		raceBox.setMaximumSize(new Dimension(10000, 25));
-
-		meleeBox = new JComboBox<>(meleeBoxModel);
-		meleeBox.addActionListener(this);
-		meleeBox.setMaximumSize(new Dimension(10000, 25));
-
-		tilesetBox = new JComboBox<>(tilesetBoxModel);
-		tilesetBox.addActionListener(this);
-		tilesetBox.setMaximumSize(new Dimension(10000, 25));
-
-		levelBox = new JComboBox<>(levelBoxModel);
-		levelBox.addActionListener(this);
-		levelBox.setMaximumSize(new Dimension(10000, 25));
-
-		sortRaces();
-
-		tilesetBox.setSelectedIndex(10);
+		return buttonsScrollPane;
 	}
 
-	private String raceKey(final int index) {
+	protected String raceKey(final int index) {
+		String[] ugg = {"human", "orc", "undead", "nightelf", "neutrals", "naga"};
 		return switch (index) {
 			case -1, 0 -> "human";
 			case 1 -> "orc";
@@ -136,116 +142,121 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		};
 	}
 
-	static class RaceData {
-		List<GameObject> units = new ArrayList<>();
-		List<GameObject> heroes = new ArrayList<>();
-		List<GameObject> buildings = new ArrayList<>();
-		List<GameObject> buildingsUprooted = new ArrayList<>();
-		List<GameObject> special = new ArrayList<>();
-
-		void sort() {
-			final Comparator<GameObject> unitComp = new GameObjectComparator();
-
-			units.sort(unitComp);
-			heroes.sort(unitComp);
-			buildings.sort(unitComp);
-			buildingsUprooted.sort(unitComp);
-			special.sort(unitComp);
-		}
+	protected boolean isShowLevel(String race) {
+		return !Arrays.asList(raceKeys).contains(race);
+//		for (String key : raceKeys) {
+//			if (race.equals(key)) {
+//				return false;
+//			}
+//		}
+//		return true;
 	}
 
-	static Map<String, RaceData> sortedRaces;
+	private String getRaceKey(GameObject unit) {
+		String race = unit.getField("race");
+		for (String key : raceKeys) {
+			if (race.equals(key)) {
+				return key;
+			}
+		}
+
+		return "neutrals";
+	}
 
 	public static void dropRaceCache() {
 		sortedRaces = null;
 	}
 
 	public void sortRaces() {
-		if (sortedRaces == null) {
-			sortedRaces = new HashMap<>();
+		sortedRaces = new HashMap<>();
 
-			for (int i = 0; i < 6; i++) {
-				sortedRaces.put(raceKey(i) + "melee", new RaceData());
-				sortedRaces.put(raceKey(i) + "campaign", new RaceData());
-				sortedRaces.put(raceKey(i) + "custom", new RaceData());
-				sortedRaces.put(raceKey(i) + "hidden", new RaceData());
+//		for (int i = 0; i < 6; i++) {
+//			String raceKey = raceKey(i);
+//			sortedRaces.put(raceKey + "melee", new RaceData());
+//			sortedRaces.put(raceKey + "campaign", new RaceData());
+//			sortedRaces.put(raceKey + "custom", new RaceData());
+//			sortedRaces.put(raceKey + "hidden", new RaceData());
+//		}
+		for (String raceKey : raceKeys) {
+			sortedRaces.put(raceKey + "melee", new RaceData());
+			sortedRaces.put(raceKey + "campaign", new RaceData());
+			sortedRaces.put(raceKey + "custom", new RaceData());
+			sortedRaces.put(raceKey + "hidden", new RaceData());
+		}
+
+		GameObject root = abilityData.get("Aroo");
+		GameObject rootAncientProtector = abilityData.get("Aro2");
+		GameObject rootAncients = abilityData.get("Aro1");
+
+		for (String str : unitData.keySet()) {
+			String strUpper = str.toUpperCase();
+			if (strUpper.startsWith("B")
+					|| strUpper.startsWith("R")
+					|| strUpper.startsWith("A")
+					|| strUpper.startsWith("S")
+					|| strUpper.startsWith("X")
+					|| strUpper.startsWith("M")
+					|| strUpper.startsWith("HERO")) {
+				continue;
 			}
 
-			final GameObject root = abilityData.get("Aroo");
-			final GameObject rootAncientProtector = abilityData.get("Aro2");
-			final GameObject rootAncients = abilityData.get("Aro1");
-			for (final String str : unitData.keySet()) {
-				final String strUpper = str.toUpperCase();
-				if (strUpper.startsWith("B")
-						|| strUpper.startsWith("R")
-						|| strUpper.startsWith("A")
-						|| strUpper.startsWith("S")
-						|| strUpper.startsWith("X")
-						|| strUpper.startsWith("M")
-						|| strUpper.startsWith("HERO")) {
-					continue;
-				}
+			GameObject unit = unitData.get(str);
 
-				final GameObject unit = unitData.get(str);
-				String raceKey = "neutrals";
-				final List<? extends GameObject> abilities = unit.getFieldAsList("abilList", abilityData);// .abilities();
-				final boolean isCampaign = unit.getField("campaign").startsWith("1");
-				final boolean isCustom = unit.getField("JWC3_IS_CUSTOM_UNIT").startsWith("1");
-				final boolean isHidden = !unit.getField("inEditor").startsWith("1");
-				int sortGroupId = 0;
+			int sortGroupId = getSortGroupId(root, rootAncientProtector, rootAncients, unit);
 
-				for (int i = 0; i < 6; i++) {
-					if (unit.getField("race").equals(raceKey(i))) {
-						raceKey = raceKey(i);
-					}
-				}
+			sortedRaces.get(getStoreKey(unit)).addUnitToCorrectList(unit, sortGroupId);
+		}
 
-				if (unit.getField("special").startsWith("1")) {
-					sortGroupId = 4;
-				} else if (unit.getId().length() > 1 && Character.isUpperCase(unit.getId().charAt(0))) {
-					sortGroupId = 1;
-				} else if (abilities.contains(root)
-						|| abilities.contains(rootAncients)
-						|| abilities.contains(rootAncientProtector)) {
-					sortGroupId = 3;
-				} else if (unit.getField("isbldg").startsWith("1")) {
-					sortGroupId = 2;
-				} else {
-					sortGroupId = 0;
-				}
-				// sortedRaces.get(raceKey(i) + "campaign").
+//		for (String str : sortedRaces.keySet()) {
+//			RaceData race = sortedRaces.get(str);
+//			race.sort();
+//		}
+		for (RaceData race : sortedRaces.values()) {
+			race.sort();
+		}
+	}
 
-				String storeKey = raceKey + (isCampaign ? "campaign" : "melee");
-				if (isHidden) {
-					storeKey = raceKey + "hidden";
-				}
-				if (isCustom) {
-					storeKey = raceKey + "custom";
-				}
+	private String getStoreKey(GameObject unit) {
+		String raceKey = getRaceKey(unit);
+		if (unit.getField("JWC3_IS_CUSTOM_UNIT").startsWith("1")) {
+			return raceKey + "custom";
+		} else if (!unit.getField("inEditor").startsWith("1")) {
+			return raceKey + "hidden";
+		} else if (unit.getField("campaign").startsWith("1")) {
+			return raceKey + "campaign";
+		} else {
+			return raceKey + "melee";
+		}
+	}
 
-				switch (sortGroupId) {
-					case 0 -> sortedRaces.get(storeKey).units.add(unit);
-					case 1 -> sortedRaces.get(storeKey).heroes.add(unit);
-					case 2 -> sortedRaces.get(storeKey).buildings.add(unit);
-					case 3 -> {
-						sortedRaces.get(storeKey).buildingsUprooted.add(unit);
-						sortedRaces.get(storeKey).buildings.add(unit);
-					}
-					case 4 -> sortedRaces.get(storeKey).special.add(unit);
-				}
-			}
+	private int getSortGroupId(GameObject root, GameObject rootAncientProtector, GameObject rootAncients, GameObject unit) {
+		List<? extends GameObject> abilities = unit.getFieldAsList("abilList", abilityData);// .abilities();
 
-			for (final String str : sortedRaces.keySet()) {
-				final RaceData race = sortedRaces.get(str);
-				race.sort();
-			}
+		if (unit.getField("special").startsWith("1")) {
+			return 4;
+		} else if (unit.getId().length() > 1 && Character.isUpperCase(unit.getId().charAt(0))) {
+			return 1;
+		} else if (abilities.contains(root)
+				|| abilities.contains(rootAncients)
+				|| abilities.contains(rootAncientProtector)) {
+			return 3;
+		} else if (unit.getField("isbldg").startsWith("1")) {
+			return 2;
+		} else {
+			return 0;
 		}
 	}
 
 	private String raceKey() {
+		int selectedIndex = raceBox.getSelectedIndex();
 		if (raceBox.getModel() == raceBoxModel) {
-			return raceKey(raceBox.getSelectedIndex());
-		} else if (raceBox.getSelectedIndex() == 1) {
+			if (0 <= selectedIndex && selectedIndex < raceKeys.length) {
+				return raceKeys[selectedIndex];
+
+			} else {
+				return raceKeys[0];
+			}
+		} else if (selectedIndex == 1) {
 			return "naga";
 		}
 		return "neutrals";
@@ -256,13 +267,13 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		removeAll();
 		buttonsPanel.removeAll();
 
-		final String race = raceKey();
-		final String tileset = TILESETS.charAt(tilesetBox.getSelectedIndex()) + "";
-		final boolean isNeutral = race.equals("neutrals");
-		final boolean checkLevel = levelBox.getSelectedIndex() > 0 && isNeutral;
+		String race = raceKey();
+		String tileSet = TILESETS.charAt(tilesetBox.getSelectedIndex()) + "";
+		boolean isNeutral = race.equals("neutrals");
+		boolean checkLevel = levelBox.getSelectedIndex() > 0 && isNeutral;
 
 		buttonGroup.clearSelection();
-		for (final UnitButton ub : unitButtons) {
+		for (UnitButton ub : unitButtons) {
 			buttonGroup.remove(ub);
 		}
 		unitButtons.clear();
@@ -275,7 +286,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 			data = sortedRaces.get(race + "hidden");
 		}
 
-		final boolean neutrals = race.equals("neutrals");
+		boolean neutrals = race.equals("neutrals");
 		tilesetBox.setVisible(neutrals);
 		levelBox.setVisible(neutrals);
 		add(raceBox, "growx, gapx 4, split 2, span");
@@ -303,73 +314,63 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		buttonsPanel.setLayout(new MigLayout("wrap " + (rowLength - 1)));
 		buttonsScrollPane.setMaximumSize(ScreenInfo.getBigWindow());
 
-		fillWithButtons(tileset, isNeutral, checkLevel, data.units);
-		addComponents(tileset, isNeutral, checkLevel, data.heroes, heroesLabel);
-		addComponents(tileset, isNeutral, checkLevel, data.buildings, buildingsLabel);
-		addComponents(tileset, isNeutral, checkLevel, data.buildingsUprooted, buildingsUprootedLabel);
-		addComponents(tileset, isNeutral, checkLevel, data.special, specialLabel);
+		fillWithButtons(tileSet, isNeutral, checkLevel, data.units);
+		addComponents(tileSet, isNeutral, checkLevel, data.heroes, heroesLabel);
+		addComponents(tileSet, isNeutral, checkLevel, data.buildings, buildingsLabel);
+		addComponents(tileSet, isNeutral, checkLevel, data.buildingsUprooted, buildingsUprootedLabel);
+		addComponents(tileSet, isNeutral, checkLevel, data.special, specialLabel);
 
 		revalidate();
 	}
 
-	public void addComponents(String tileset, boolean isNeutral, boolean checkLevel, List<GameObject> gameObjects, JLabel label) {
-		boolean good = false;
-		for (final GameObject unit : gameObjects) {
-			if (isNeutral && !unit.getField("tilesets").contains(tileset) && !unit.getField("tilesets").contains("*") && !unit.getField("tilesets").contains("_")) {
-				// System.err.println(unit.getField("Name") + " failed for tilset");
-				continue;
+	public void addComponents(String tileSet, boolean isNeutral, boolean checkLevel, List<GameObject> gameObjects, JLabel label) {
+		for (GameObject unit : gameObjects) {
+			if (isValid(tileSet, isNeutral, checkLevel, unit)) {
+				buttonsPanel.add(label, "newline 12, span, wrap 4");
+				break;
 			}
-			if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
-				// System.err.println(unit.getField("Name") + " failed for level");
-				continue;
-			}
-			// if( isPassive && unit.getField("hostilePal").startsWith("1") ) {continue;}
-			// if( isHostile && !unit.getField("hostilePal").startsWith("1") ) {continue;}
-			good = true;
-			break;
+//			else {
+//				// System.err.println(unit.getField("Name") + " failed for tilset");
+//				// System.err.println(unit.getField("Name") + " failed for level");
+//			}
 		}
-		if (gameObjects.size() > 0 && good) {
-			buttonsPanel.add(label, "newline 12, span, wrap 4");
-
-			fillWithButtons(tileset, isNeutral, checkLevel, gameObjects);
+		if (gameObjects.size() > 0) {
+			fillWithButtons(tileSet, isNeutral, checkLevel, gameObjects);
 		}
 	}
 
-	public void fillWithButtons(String tileset, boolean isNeutral, boolean checkLevel, List<GameObject> gameObjects) {
+	private boolean isValid(String tileSet, boolean isNeutral, boolean checkLevel, GameObject unit) {
+		boolean b1 = isNeutral
+				&& !unit.getField("tilesets").contains(tileSet)
+				&& !unit.getField("tilesets").contains("*")
+				&& !unit.getField("tilesets").contains("_");
+		boolean level = checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1;
+		return !(b1 || level);
+	}
 
-		for (final GameObject unit : gameObjects) {
-			if (isNeutral && !unit.getField("tilesets").contains(tileset) && !unit.getField("tilesets").contains("*") && !unit.getField("tilesets").contains("_")) {
-				// System.err.println(unit.getField("Name") + " failed for tilset");
-				continue;
-			}
-			if (checkLevel && unit.getFieldValue("level") != levelBox.getSelectedIndex() - 1) {
-				// System.err.println(unit.getField("Name") + " failed for level");
-				continue;
-			}
+	public void fillWithButtons(String tileSet, boolean isNeutral, boolean checkLevel, List<GameObject> gameObjects) {
 
-			final UnitButton unitButton = new UnitButton(unit);
-			unitButtons.add(unitButton);
-			buttonsPanel.add(unitButton);
+		for (GameObject unit : gameObjects) {
+			if (isValid(tileSet, isNeutral, checkLevel, unit)) {
+//				UnitButton unitButton1 = new UnitButton(this, unit);
+				UnitButton unitButton = new UnitButton(this::unitChosen, isShowLevel(unit.getField("race")), unit);
+				buttonGroup.add(unitButton);
+				unitButtons.add(unitButton);
+				buttonsPanel.add(unitButton);
+			}
 		}
 	}
 
 	public void unitChosen(UnitButton button) {
-		for (final UnitButton btn : unitButtons) {
+		for (UnitButton btn : unitButtons) {
 			btn.setEnabled(true);
 		}
 		if (unitButtons.contains(button)) {
 			button.setEnabled(false);
 			String name = button.getUnit().getName();
 
-			final String race = button.getUnit().getField("race");
-			boolean showLevel = true;
-			for (int i = 0; i < 6; i++) {
-				if (race.equals(raceKey(i))) {
-					showLevel = false;
-					break;
-				}
-			}
-			if (showLevel) {
+			String race = button.getUnit().getField("race");
+			if (isShowLevel(race)) {
 				name += " - " + WEString.getString("WESTRING_LEVEL") + " " + button.getUnit().getFieldValue("level");
 			}
 			unitsLabel.setText(WEString.getString("WESTRING_UNITS") + ": " + name);
@@ -382,10 +383,10 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 	}
 
 
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-		relayout();
-	}
+//	@Override
+//	public void actionPerformed(ActionEvent e) {
+//		relayout();
+//	}
 
 	private void fillModel(DefaultComboBoxModel<String> boxModel, String[] strings) {
 		for (String string : strings) {
@@ -395,6 +396,7 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 //			boxModel.addElement(WEString.getString(loc.getString()));
 //		}
 	}
+
 	private DefaultComboBoxModel<String> getBoxModelOf(String[] strings) {
 		DefaultComboBoxModel<String> boxModel = new DefaultComboBoxModel<>();
 		for (String string : strings) {
@@ -423,129 +425,4 @@ public class UnitOptionPanel extends JPanel implements ActionListener {
 		return model;
 	}
 
-	class UnitButton extends JButton {
-		GameObject unit;
-
-		public UnitButton(final GameObject u) {
-			super(u.getScaledIcon(ICON_SIZE));
-
-			setFocusable(false);
-			unit = u;
-			String uberTip = unit.getField("Ubertip");
-			if (uberTip.length() < 1) {
-				uberTip = unit.getField("UberTip");
-			}
-			if (uberTip.length() < 1) {
-				uberTip = unit.getField("uberTip");
-			}
-			uberTip = uberTip.replace("|n", "<br>");
-			uberTip = uberTip.replace("|cffffcc00", "");
-			uberTip = uberTip.replace("|r", "");
-
-			StringBuilder newUberTip = new StringBuilder();
-			int depth = 0;
-			for (int i = 0; i < uberTip.length(); i++) {
-				final char c = uberTip.charAt(i);
-				if (c == '<' && uberTip.length() > i + 4 && uberTip.startsWith("<br>", i)) {
-					i += 3;
-					depth = 0;
-					newUberTip.append("<br>");
-				} else {
-					if (depth > 80 && c == ' ') {
-						depth = 0;
-						newUberTip.append("<br>");
-					}
-					newUberTip.append(c);
-					depth++;
-				}
-			}
-
-			uberTip = newUberTip.toString();
-			String name = unit.getName();
-			// if( unit.getField("campaign").startsWith("1") && Character.isUpperCase(unit.getUnitId().charAt(0)) ) {
-			// name = unit.getField("Propernames");
-			// if( name.contains(",") ) {name = name.split(",")[0]; }}
-			final String race = unit.getField("race");
-			boolean showLevel = true;
-			for (int i = 0; i < 6; i++) {
-				if (race.equals(raceKey(i))) {
-					showLevel = false;
-					break;
-				}
-			}
-			// if( unit.getField("EditorSuffix").length() > 0 )
-			// name += " " + unit.getField("EditorSuffix");
-			if (showLevel) {
-				name += " - " + WEString.getString("WESTRING_LEVEL") + " " + unit.getFieldValue("level");
-			} // unit.getUnitId() + "<br>" +
-			if (uberTip.length() > 0) {
-				uberTip = "<html>" + name + "<br>--<br>" + uberTip + "</html>";
-			} else {
-				uberTip = name;
-			}
-			setToolTipText(uberTip);
-			buttonGroup.add(this);
-			addActionListener(e -> unitChosen(this));
-			setDisabledIcon(unit.getScaledTintedIcon(Color.green, ICON_SIZE));
-			setMargin(new Insets(0, 0, 0, 0));
-			setBorder(null);
-		}
-
-		public GameObject getUnit() {
-			return unit;
-		}
-
-		@Override
-		protected void paintComponent(final Graphics g) {
-			if (!isEnabled()) {
-				g.translate(1, 1);
-			}
-			super.paintComponent(g);
-			if (!isEnabled()) {
-				g.translate(-1, -1);
-				final Graphics2D g2 = (Graphics2D) g.create();
-				g2.setColor(Color.GRAY);
-				for (int i = 0; i < 2; i++) {
-					g2.setColor(g2.getColor().brighter());
-					g2.draw3DRect(i, i, getWidth() - i * 2 - 1, getHeight() - i * 2 - 1, false);
-				}
-				g2.dispose();
-			}
-		}
-	}
-
-	private enum WE_LOC{
-		ASHENVALE("WESTRING_LOCALE_ASHENVALE"),
-		BARRENS("WESTRING_LOCALE_BARRENS"),
-		BLACKCITADEL("WESTRING_LOCALE_BLACKCITADEL"),
-		CITYSCAPE("WESTRING_LOCALE_CITYSCAPE"),
-		DALARAN("WESTRING_LOCALE_DALARAN"),
-		DALARANRUINS("WESTRING_LOCALE_DALARANRUINS"),
-		DUNGEON("WESTRING_LOCALE_DUNGEON"),
-		FELWOOD("WESTRING_LOCALE_FELWOOD"),
-		ICECROWN("WESTRING_LOCALE_ICECROWN"),
-		LORDAERON_FALL("WESTRING_LOCALE_LORDAERON_FALL"),
-		LORDAERON_SUMMER("WESTRING_LOCALE_LORDAERON_SUMMER"),
-		LORDAERON_WINTER("WESTRING_LOCALE_LORDAERON_WINTER"),
-		NORTHREND("WESTRING_LOCALE_NORTHREND"),
-		OUTLAND("WESTRING_LOCALE_OUTLAND"),
-		RUINS("WESTRING_LOCALE_RUINS"),
-		DUNGEON2("WESTRING_LOCALE_DUNGEON2"),
-		VILLAGE("WESTRING_LOCALE_VILLAGE"),
-		VILLAGEFALL("WESTRING_LOCALE_VILLAGEFALL");
-
-		String string;
-
-		WE_LOC(String s){
-			string = s;
-		}
-
-		String getString(){
-			return string;
-		}
-		@Override
-		public String toString(){
-			return string;
-		}
-	}
 }

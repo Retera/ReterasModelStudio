@@ -1,12 +1,12 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel;
 
-import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
+import com.hiveworkshop.rms.parsers.slk.WarcraftObject;
 
 import java.util.Comparator;
 
-public class UnitComparator implements Comparator<StandardObjectData.WarcraftObject> {
+public class UnitComparator implements Comparator<WarcraftObject> {
 	@Override
-	public int compare(StandardObjectData.WarcraftObject a, StandardObjectData.WarcraftObject b) {
+	public int compare(WarcraftObject a, WarcraftObject b) {
 		if( a.getField("unitClass").equals("") && !b.getField("unitClass").equals("") ) {
 			return 1;
 		}

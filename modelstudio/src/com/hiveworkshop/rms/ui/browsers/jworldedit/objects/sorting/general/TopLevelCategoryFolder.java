@@ -1,11 +1,11 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.TreeNodeLinker;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
+
+import javax.swing.tree.DefaultMutableTreeNode;
 
 public final class TopLevelCategoryFolder extends AbstractSortingFolderTreeNode {
 	/**

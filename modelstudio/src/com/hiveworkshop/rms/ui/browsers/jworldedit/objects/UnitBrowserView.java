@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import de.wc3data.stream.BlizzardDataInputStream;
 import net.infonode.docking.View;
 
@@ -27,7 +28,7 @@ public class UnitBrowserView extends View {
 		return new UnitEditorTreeBrowser(getUnitData(),
 				new UnitTabTreeBrowserBuilder(),
 				new UnitEditorSettings(),
-				MutableObjectData.WorldEditorDataType.UNITS
+				WorldEditorDataType.UNITS
 		);
 	}
 
@@ -49,7 +50,7 @@ public class UnitBrowserView extends View {
 			e.printStackTrace();
 		}
 		return new MutableObjectData(
-				MutableObjectData.WorldEditorDataType.UNITS,
+				WorldEditorDataType.UNITS,
 				StandardObjectData.getStandardUnits(),
 				StandardObjectData.getStandardUnitMeta(),
 				editorData);

@@ -6,10 +6,10 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.EditorFieldBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.ObjectDataTableModel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.FieldPopupUtils;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectDataChangeListener;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.TreeNodeLinkerFromModel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
@@ -585,13 +585,6 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 			fillTable();
 			getTableModelListener2();
 		}
-	}
-
-	public static class DropLocation extends TransferHandler.DropLocation {
-		protected DropLocation(final Point dropPoint) {
-			super(dropPoint);
-		}
-
 	}
 
 	public void doSearchForUnit() {

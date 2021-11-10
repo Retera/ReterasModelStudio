@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.NodeIconPalette;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportRenderableCamera;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
@@ -156,7 +155,7 @@ public final class ResettableIdObjectRenderer {
         if (worldMatrix != null) {
             vertexHeap.transform(worldMatrix);
         }
-        Vec2 coord = CoordSysUtils.convertToViewVec2(coordinateSystem, vertexHeap);
+        Vec2 coord = convertToViewVec2(coordinateSystem, vertexHeap);
 
         Vec2 imageSize = new Vec2(nodeImage.getWidth(null), nodeImage.getHeight(null));
         coord.sub(imageSize.getScaled(.5f));
@@ -173,29 +172,29 @@ public final class ResettableIdObjectRenderer {
 
         if (collisionShape.getType() == MdlxCollisionShape.Type.BOX) {
             if (vertices.size() > 1) {
-                Vec3 vertexHeap1 = new Vec3(vertices.get(0));
-                Vec3 vertexHeap2 = new Vec3(vertices.get(1));
-                if (worldMatrix != null) {
-                    vertexHeap1.transform(worldMatrix);
-                    vertexHeap2.transform(worldMatrix);
-                }
+	            Vec3 vertexHeap1 = new Vec3(vertices.get(0));
+	            Vec3 vertexHeap2 = new Vec3(vertices.get(1));
+	            if (worldMatrix != null) {
+		            vertexHeap1.transform(worldMatrix);
+		            vertexHeap2.transform(worldMatrix);
+	            }
 
-                Vec2 firstCoord = CoordSysUtils.convertToViewVec2(coordinateSystem, vertexHeap1);
-                Vec2 secondCoord = CoordSysUtils.convertToViewVec2(coordinateSystem, vertexHeap2);
+	            Vec2 firstCoord = convertToViewVec2(coordinateSystem, vertexHeap1);
+	            Vec2 secondCoord = convertToViewVec2(coordinateSystem, vertexHeap2);
 
-                Vec2 minCoord = new Vec2(firstCoord).minimize(secondCoord);
-                Vec2 maxCoord = new Vec2(firstCoord).maximize(secondCoord);
+	            Vec2 minCoord = new Vec2(firstCoord).minimize(secondCoord);
+	            Vec2 maxCoord = new Vec2(firstCoord).maximize(secondCoord);
 
-                Vec2 diff = Vec2.getDif(maxCoord, minCoord);
+	            Vec2 diff = Vec2.getDif(maxCoord, minCoord);
 
-                graphics.drawRoundRect((int) minCoord.x, (int) minCoord.y, (int) diff.x, (int) diff.y, vertexSize, vertexSize);
+	            graphics.drawRoundRect((int) minCoord.x, (int) minCoord.y, (int) diff.x, (int) diff.y, vertexSize, vertexSize);
             }
         } else if (collisionShape.getExtents() != null) {
             Vec3 vertexHeap = new Vec3(collisionShape.getPivotPoint());
             if (worldMatrix != null) {
                 vertexHeap.transform(worldMatrix);
             }
-            Vec2 coord = CoordSysUtils.convertToViewVec2(coordinateSystem, vertexHeap);
+	        Vec2 coord = convertToViewVec2(coordinateSystem, vertexHeap);
 
             double boundsRadius = collisionShape.getExtents().getBoundsRadius() * coordinateSystem.getZoom();
             graphics.drawOval((int) (coord.x - boundsRadius), (int) (coord.y - boundsRadius), (int) (boundsRadius * 2), (int) (boundsRadius * 2));
@@ -212,7 +211,7 @@ public final class ResettableIdObjectRenderer {
         if (worldMatrix != null) {
             vertexHeap.transform(worldMatrix);
         }
-        Vec2 coord = CoordSysUtils.convertToViewVec2(coordinateSystem, vertexHeap);
+	    Vec2 coord = convertToViewVec2(coordinateSystem, vertexHeap);
 
         Vec2 vertSize = new Vec2(vertexSize, vertexSize);
 
@@ -221,25 +220,33 @@ public final class ResettableIdObjectRenderer {
         Vec2 outerMin = Vec2.getDif(coord, vertSize.getScaled(1.5f));
         Vec2 outerMax = Vec2.getSum(coord, vertSize.getScaled(1.5f));
 
-        if (crosshairIsBox) {
-            vertexSize *= 3;
-            graphics.fillRect((int) ovalStart.x, (int) ovalStart.y, vertexSize * 2, vertexSize * 2);
-        } else {
-            graphics.drawOval((int) ovalStart.x, (int) ovalStart.y, vertexSize * 2, vertexSize * 2);
-            graphics.drawLine((int) outerMin.x, (int) coord.y, (int) outerMax.x, (int) coord.y);
-            graphics.drawLine((int) coord.x, (int) outerMin.y, (int) coord.x, (int) outerMax.y);
-        }
+	    if (crosshairIsBox) {
+		    vertexSize *= 3;
+		    graphics.fillRect((int) ovalStart.x, (int) ovalStart.y, vertexSize * 2, vertexSize * 2);
+	    } else {
+		    graphics.drawOval((int) ovalStart.x, (int) ovalStart.y, vertexSize * 2, vertexSize * 2);
+		    graphics.drawLine((int) outerMin.x, (int) coord.y, (int) outerMax.x, (int) coord.y);
+		    graphics.drawLine((int) coord.x, (int) outerMin.y, (int) coord.x, (int) outerMax.y);
+	    }
     }
 
-    public Mat4 getWorldMatrix(AnimatedNode object) {
-        if (!isAnimated || renderModel == null || renderModel.getRenderNode(object) == null) {
-            return null;
-        }
-        return renderModel.getRenderNode(object).getWorldMatrix();
-    }
+	public static Vec2 convertToViewVec2(CoordinateSystem coordinateSystem, Vec3 vertex) {
+//		Vec2 vec2 = vertex.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+//		return coordinateSystem.viewV(vec2);
+		double x = coordinateSystem.viewX(vertex.getCoord(coordinateSystem.getPortFirstXYZ()));
+		double y = coordinateSystem.viewY(vertex.getCoord(coordinateSystem.getPortSecondXYZ()));
+		return new Vec2(x, y);
+	}
 
-    public void light(Light object) {
-        Vec3 vertexHeap = new Vec3(object.getPivotPoint());
+	public Mat4 getWorldMatrix(AnimatedNode object) {
+		if (!isAnimated || renderModel == null || renderModel.getRenderNode(object) == null) {
+			return null;
+		}
+		return renderModel.getRenderNode(object).getWorldMatrix();
+	}
+
+	public void light(Light object) {
+		Vec3 vertexHeap = new Vec3(object.getPivotPoint());
         Mat4 worldMatrix = getWorldMatrix(object);
         if (worldMatrix != null) {
             vertexHeap.transform(worldMatrix);

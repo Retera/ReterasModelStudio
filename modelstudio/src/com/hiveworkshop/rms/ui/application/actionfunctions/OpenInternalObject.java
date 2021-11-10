@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.InternalFileLoader;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
@@ -18,7 +18,7 @@ public class OpenInternalObject extends ActionFunction {
 
 
 	public static void fetchObject() {
-		MutableObjectData.MutableGameObject objectFetched = ImportFileActions.fetchObject();
+		MutableGameObject objectFetched = ImportFileActions.fetchObject();
 		if (objectFetched != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));

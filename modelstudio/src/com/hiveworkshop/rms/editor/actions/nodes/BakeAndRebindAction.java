@@ -136,7 +136,7 @@ public class BakeAndRebindAction implements UndoAction {
 		renderModel.refreshFromEditor(null);
 
 		for (Animation animation : model.getAnims()) {
-			timeEnvironment.setAnimation(animation);
+			timeEnvironment.setSequence(animation);
 			TreeMap<Integer, Vec3> newTransKF = seqNewTransKF.computeIfAbsent(animation, k -> new TreeMap<>());
 			TreeMap<Integer, Vec3> newScaleKF = seqNewScaleKF.computeIfAbsent(animation, k -> new TreeMap<>());
 			TreeMap<Integer, Quat> newRotKF = seqNewRotKF.computeIfAbsent(animation, k -> new TreeMap<>());

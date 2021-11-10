@@ -28,7 +28,7 @@ public class DisplayPanel extends JPanel {
 	private PerspectiveViewport vp2;
 	private final JPanel buttonPanel;
 	private ViewportActivityManager activityListener;
-	private ViewportListener viewportListener;
+//	private ViewportListener viewportListener;
 	Consumer<Cursor> cursorManager;
 
 	public DisplayPanel() {

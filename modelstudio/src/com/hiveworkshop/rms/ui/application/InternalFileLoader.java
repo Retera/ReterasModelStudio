@@ -7,7 +7,8 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
@@ -36,11 +37,11 @@ public class InternalFileLoader {
 		ModelLoader.loadModel(temporary, selectNewTab, temp);
 	}
 
-	public static void loadMdxStream(MutableObjectData.MutableGameObject obj, String prePath, boolean b) {
+	public static void loadMdxStream(MutableGameObject obj, String prePath, boolean b) {
 		final String path = ImportFileActions.convertPathToMDX(prePath);
 		final String portrait = ModelUtils.getPortrait(path);
 		final ImageIcon icon = new ImageIcon(IconUtils
-				.getIcon(obj, MutableObjectData.WorldEditorDataType.DOODADS)
+				.getIcon(obj, WorldEditorDataType.DOODADS)
 				.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 
 		loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(path), true, b, icon);
@@ -52,7 +53,7 @@ public class InternalFileLoader {
 
 
 	public static void fetchObject() {
-		MutableObjectData.MutableGameObject objectFetched = ImportFileActions.fetchObject();
+		MutableGameObject objectFetched = ImportFileActions.fetchObject();
 		if (objectFetched != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));
