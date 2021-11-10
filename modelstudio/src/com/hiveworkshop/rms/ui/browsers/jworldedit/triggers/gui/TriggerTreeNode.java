@@ -2,9 +2,7 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.gui;
 
 import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.impl.Trigger;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
-public class TriggerTreeNode extends DefaultMutableTreeNode implements TriggerElementTreeNode {
+public class TriggerTreeNode extends TriggerElementTreeNode {
 
 	private final Trigger trigger;
 
@@ -20,6 +18,17 @@ public class TriggerTreeNode extends DefaultMutableTreeNode implements TriggerEl
 	@Override
 	public TriggerElementTreeNode copy() {
 		return new TriggerTreeNode(trigger);
+	}
+
+	@Override
+	public TriggerElementTreeNode setNodeObjectName(String name) {
+		trigger.setName(name);
+		return this;
+	}
+
+	@Override
+	public String getNodeObjectName() {
+		return trigger.getName();
 	}
 
 	@Override

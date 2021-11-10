@@ -21,20 +21,17 @@ public final class UpgradeSortByRaceFolder extends AbstractSortingFolderTreeNode
 	private static final long serialVersionUID = 1L;
 	private static final War3ID UPGR_RACE_FIELD = War3ID.fromString("grac");
 
-	private final Map<String, SortingFolderTreeNode> raceFolders;
-	private final List<SortingFolderTreeNode> raceNodes;
+	private final Map<String, SortingFolderTreeNode> raceFolders = new HashMap<>();
+	private final List<SortingFolderTreeNode> raceNodes = new ArrayList<>();
 
 	public UpgradeSortByRaceFolder(final String displayName) {
 		this(displayName, Arrays.asList(DefaultBuffRace.values()));
 	}
 
-	public UpgradeSortByRaceFolder(final String displayName, final List<SortRace> races) {
+	public UpgradeSortByRaceFolder(String displayName, List<SortRace> races) {
 		super(displayName);
-		raceFolders = new HashMap<>();
-		raceNodes = new ArrayList<>();
-		for (final SortRace race : races) {
-			final BottomLevelCategoryFolder bottomLevelFolder = new BottomLevelCategoryFolder(race.getDisplayName(),
-					new MutableGameObjectSortStringComparator());
+		for (SortRace race : races) {
+			BottomLevelCategoryFolder bottomLevelFolder = new BottomLevelCategoryFolder(race.getDisplayName(), new MutableGameObjectSortStringComparator());
 			raceFolders.put(race.getKeyString(), bottomLevelFolder);
 			raceNodes.add(bottomLevelFolder);
 		}
@@ -54,7 +51,7 @@ public final class UpgradeSortByRaceFolder extends AbstractSortingFolderTreeNode
 	}
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object) {
+	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
 		String race = object.getFieldAsString(UPGR_RACE_FIELD, 0);
 		DefaultAbilityRace raceKey = null;
 		if ("naga".equals(race)) {
@@ -77,7 +74,7 @@ public final class UpgradeSortByRaceFolder extends AbstractSortingFolderTreeNode
 	}
 
 	@Override
-	public int getSortIndex(final DefaultMutableTreeNode childNode) {
+	public int getSortIndex(DefaultMutableTreeNode childNode) {
 		return raceNodes.indexOf(childNode);
 	}
 }

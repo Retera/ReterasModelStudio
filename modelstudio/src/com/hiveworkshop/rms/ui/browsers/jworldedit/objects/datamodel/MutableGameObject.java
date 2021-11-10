@@ -129,7 +129,7 @@ public final class MutableGameObject {
 		}
 		getOrCreateMatchingChange(field, level)
 				.setStrval(value)
-				.setVartype(War3ObjectDataChangeset.VAR_TYPE_STRING);
+				.setVarTypeInt(War3ObjectDataChangeset.VAR_TYPE_STRING);
 		System.out.println("field created change");
 		fireChangedEvent(field, level);
 	}
@@ -144,7 +144,7 @@ public final class MutableGameObject {
 		}
 		getOrCreateMatchingChange(field, level)
 				.setBoolval(value)
-				.setVartype(War3ObjectDataChangeset.VAR_TYPE_BOOLEAN);
+				.setVarTypeInt(War3ObjectDataChangeset.VAR_TYPE_BOOLEAN);
 		fireChangedEvent(field, level);
 	}
 
@@ -158,7 +158,7 @@ public final class MutableGameObject {
 		}
 		getOrCreateMatchingChange(field, level)
 				.setLongval(value)
-				.setVartype(War3ObjectDataChangeset.VAR_TYPE_INT);
+				.setVarTypeInt(War3ObjectDataChangeset.VAR_TYPE_INT);
 		fireChangedEvent(field, level);
 	}
 
@@ -180,7 +180,7 @@ public final class MutableGameObject {
 		}
 		final Change matchingChange = getOrCreateMatchingChange(field, level).setRealval(value);
 		final boolean unsigned = mutableObjectData.getSourceSLKMetaData().get(field.asStringValue()).getField("type").equals("unreal");
-		matchingChange.setVartype(
+		matchingChange.setVarTypeInt(
 				unsigned ? War3ObjectDataChangeset.VAR_TYPE_UNREAL : War3ObjectDataChangeset.VAR_TYPE_REAL);
 		fireChangedEvent(field, level);
 	}
@@ -224,10 +224,10 @@ public final class MutableGameObject {
 	public String getFieldAsString(final War3ID field, final int level) {
 		final Change matchingChange = getMatchingChange(field, level);
 		if (matchingChange != null) {
-			if (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_STRING) {
+			if (matchingChange.getVarTypeInt() != War3ObjectDataChangeset.VAR_TYPE_STRING) {
 				throw new IllegalStateException(
 						"Requested string value of '" + field + "' from '" + parentWC3Object.getId()
-								+ "', but this field was not a string! vartype=" + matchingChange.getVartype());
+								+ "', but this field was not a string! vartype=" + matchingChange.getVarTypeInt());
 			}
 			return matchingChange.getStrval();
 		}
@@ -476,10 +476,10 @@ public final class MutableGameObject {
 	public int getFieldAsInteger(final War3ID field, final int level) {
 		final Change matchingChange = getMatchingChange(field, level);
 		if (matchingChange != null) {
-			if (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_INT) {
+			if (matchingChange.getVarTypeInt() != War3ObjectDataChangeset.VAR_TYPE_INT) {
 				throw new IllegalStateException(
 						"Requested integer value of '" + field + "' from '" + parentWC3Object.getId()
-								+ "', but this field was not an int! vartype=" + matchingChange.getVartype());
+								+ "', but this field was not an int! vartype=" + matchingChange.getVarTypeInt());
 			}
 			return matchingChange.getLongval();
 		}
@@ -494,16 +494,16 @@ public final class MutableGameObject {
 	public boolean getFieldAsBoolean(final War3ID field, final int level) {
 		final Change matchingChange = getMatchingChange(field, level);
 		if (matchingChange != null) {
-			if (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_BOOLEAN) {
-				if (matchingChange.getVartype() == War3ObjectDataChangeset.VAR_TYPE_INT) {
+			if (matchingChange.getVarTypeInt() != War3ObjectDataChangeset.VAR_TYPE_BOOLEAN) {
+				if (matchingChange.getVarTypeInt() == War3ObjectDataChangeset.VAR_TYPE_INT) {
 					return matchingChange.getLongval() == 1;
 				} else {
 					throw new IllegalStateException(
 							"Requested boolean value of '" + field + "' from '" + parentWC3Object.getId()
-									+ "', but this field was not a bool! vartype=" + matchingChange.getVartype());
+									+ "', but this field was not a bool! vartype=" + matchingChange.getVarTypeInt());
 				}
 			}
-			return matchingChange.isBoolval();
+			return matchingChange.getBoolval();
 		}
 		// no luck with custom data, look at the standard data
 		try {
@@ -516,11 +516,11 @@ public final class MutableGameObject {
 	public float getFieldAsFloat(final War3ID field, final int level) {
 		final Change matchingChange = getMatchingChange(field, level);
 		if (matchingChange != null) {
-			if ((matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_REAL)
-					&& (matchingChange.getVartype() != War3ObjectDataChangeset.VAR_TYPE_UNREAL)) {
+			if ((matchingChange.getVarTypeInt() != War3ObjectDataChangeset.VAR_TYPE_REAL)
+					&& (matchingChange.getVarTypeInt() != War3ObjectDataChangeset.VAR_TYPE_UNREAL)) {
 				throw new IllegalStateException(
 						"Requested float value of '" + field + "' from '" + parentWC3Object.getId()
-								+ "', but this field was not a float! vartype=" + matchingChange.getVartype());
+								+ "', but this field was not a float! vartype=" + matchingChange.getVarTypeInt());
 			}
 			return matchingChange.getRealval();
 		}

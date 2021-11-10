@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.items;
 
 import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.parsers.slk.Element;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
@@ -19,29 +20,26 @@ public final class ItemSortByClassFolder extends AbstractSortingFolderTreeNode {
 	private static final long serialVersionUID = 1L;
 	private static final War3ID ITEM_CLASS_FIELD = War3ID.fromString("icla");
 	private static final Comparator<MutableGameObject> ITEM_NAME_COMPARATOR = Comparator.comparing(MutableGameObject::getName);
-	private final Map<String, BottomLevelCategoryFolder> itemClassToTreeNode;
-	private final List<BottomLevelCategoryFolder> itemClassesList;
+	private final Map<String, BottomLevelCategoryFolder> itemClassToTreeNode = new LinkedHashMap<>();
+	private final List<BottomLevelCategoryFolder> itemClassesList = new ArrayList<>();
 
-	public ItemSortByClassFolder(final String displayName) {
+	public ItemSortByClassFolder(String displayName) {
 		super(displayName);
-		final DataTable unitEditorData = DataTable.getWorldEditorData();
-		final Element itemClasses = unitEditorData.get("itemClass");
-		final int numClasses = itemClasses.getFieldValue("NumValues");
-		itemClassToTreeNode = new LinkedHashMap<>();
-		itemClassesList = new ArrayList<>();
+		DataTable unitEditorData = DataTableHolder.getWorldEditorData();
+		Element itemClasses = unitEditorData.get("itemClass");
+		int numClasses = itemClasses.getFieldValue("NumValues");
 		for (int i = 0; i < numClasses; i++) {
-			final String typeName = itemClasses.getField(String.format("%2d", i).replace(' ', '0'), 0);
-			final String tag = itemClasses.getField(String.format("%2d", i).replace(' ', '0'), 1);
-			final BottomLevelCategoryFolder classFolder = new BottomLevelCategoryFolder(WEString.getString(tag),
-					ITEM_NAME_COMPARATOR);
+			String typeName = itemClasses.getField(String.format("%2d", i).replace(' ', '0'), 0);
+			String tag = itemClasses.getField(String.format("%2d", i).replace(' ', '0'), 1);
+			BottomLevelCategoryFolder classFolder = new BottomLevelCategoryFolder(WEString.getString(tag), ITEM_NAME_COMPARATOR);
 			itemClassToTreeNode.put(typeName, classFolder);
 			itemClassesList.add(classFolder);
 		}
 	}
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object) {
-		final String itemClass = object.getFieldAsString(ITEM_CLASS_FIELD, 0);
+	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
+		String itemClass = object.getFieldAsString(ITEM_CLASS_FIELD, 0);
 		if (!itemClassToTreeNode.containsKey(itemClass)) {
 			return itemClassesList.get(itemClassesList.size() - 1);
 		}
@@ -49,7 +47,7 @@ public final class ItemSortByClassFolder extends AbstractSortingFolderTreeNode {
 	}
 
 	@Override
-	public int getSortIndex(final DefaultMutableTreeNode childNode) {
+	public int getSortIndex(DefaultMutableTreeNode childNode) {
 		return itemClassesList.indexOf(childNode);
 	}
 }

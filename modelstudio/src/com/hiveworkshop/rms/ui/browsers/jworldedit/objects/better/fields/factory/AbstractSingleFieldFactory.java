@@ -9,11 +9,10 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObje
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.util.War3ID;
 
-public abstract class AbstractSingleFieldFactory implements SingleFieldFactory {
-	@Override
-	public final EditableOnscreenObjectField create(MutableGameObject gameObject, ObjectData metaData,
-	                                                War3ID metaKey, int level, WorldEditorDataType worldEditorDataType,
-	                                                boolean hasMoreThanOneLevel) {
+public abstract class AbstractSingleFieldFactory {
+	public final AbstractObjectField create(MutableGameObject gameObject, ObjectData metaData,
+	                                        War3ID metaKey, int level, WorldEditorDataType worldEditorDataType,
+	                                        boolean hasMoreThanOneLevel) {
 		GameObject metaField = metaData.get(metaKey.toString());
 
 		String displayName = getDisplayName(metaData, metaKey, hasMoreThanOneLevel ? level : 0, gameObject);

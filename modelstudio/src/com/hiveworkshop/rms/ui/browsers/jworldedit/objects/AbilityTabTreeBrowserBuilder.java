@@ -8,10 +8,9 @@ public class AbilityTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
 
 	@Override
 	public TopLevelCategoryFolder build() {
-		final TopLevelCategoryFolder root = new TopLevelCategoryFolder(
+		return new TopLevelCategoryFolder(
 				new AbilitySortByRaceFolder(WEString.getString("WESTRING_AE_STANDARDABILS")),
 				new AbilitySortByRaceFolder(WEString.getString("WESTRING_AE_CUSTOMABILS")));
-		return root;
 	}
 
 }

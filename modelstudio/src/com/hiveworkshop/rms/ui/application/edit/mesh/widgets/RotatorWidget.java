@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordSysUtils;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.Vec2;
@@ -89,6 +88,16 @@ public final class RotatorWidget extends Widget {
 	}
 
 	private byte getOutwardDimension(byte xDimension, byte yDimension) {
-		return CoordSysUtils.getUnusedXYZ(xDimension, yDimension);
+		return getUnusedXYZ(xDimension, yDimension);
+	}
+
+	public static byte getUnusedXYZ(byte portFirstXYZ, byte portSecondXYZ) {
+		if (portFirstXYZ < 0) {
+			portFirstXYZ = (byte) (-portFirstXYZ - 1);
+		}
+		if (portSecondXYZ < 0) {
+			portSecondXYZ = (byte) (-portSecondXYZ - 1);
+		}
+		return (byte) (3 - portFirstXYZ - portSecondXYZ);
 	}
 }

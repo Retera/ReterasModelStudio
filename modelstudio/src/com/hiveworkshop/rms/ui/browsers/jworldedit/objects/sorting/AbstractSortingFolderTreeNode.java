@@ -32,15 +32,15 @@ public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNod
 	}
 
 	@Override
-	public DefaultMutableTreeNode add(final MutableGameObject mutableGameObject, final TreeNodeLinker treeModel) {
-		final DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(mutableGameObject);
+	public DefaultMutableTreeNode add(MutableGameObject mutableGameObject, TreeNodeLinker treeModel) {
+		DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(mutableGameObject);
 		treeModel.insertNodeInto(newChild, this, getChildCount());
 		return newChild;
 	}
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object, final TreeNodeLinker treeModel) {
-		final SortingFolderTreeNode sortingFolderTreeNode = getNextNode(object);
+	public SortingFolderTreeNode getNextNode(MutableGameObject object, TreeNodeLinker treeModel) {
+		SortingFolderTreeNode sortingFolderTreeNode = getNextNode(object);
 		if (sortingFolderTreeNode == null) {
 			return null;
 		}

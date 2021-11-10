@@ -2,9 +2,8 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.builde
 
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.EditorFieldBuilder;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.EditableOnscreenObjectField;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.factory.SingleFieldFactory;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.AbstractObjectField;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.factory.AbstractSingleFieldFactory;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.util.War3ID;
@@ -12,18 +11,17 @@ import com.hiveworkshop.rms.util.War3ID;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractFieldBuilder implements EditorFieldBuilder {
-	protected final SingleFieldFactory singleFieldFactory;
+public abstract class AbstractFieldBuilder {
+	protected final AbstractSingleFieldFactory singleFieldFactory;
 	protected final WorldEditorDataType worldEditorDataType;
 
-	public AbstractFieldBuilder(SingleFieldFactory singleFieldFactory, WorldEditorDataType worldEditorDataType) {
+	public AbstractFieldBuilder(AbstractSingleFieldFactory singleFieldFactory, WorldEditorDataType worldEditorDataType) {
 		this.singleFieldFactory = singleFieldFactory;
 		this.worldEditorDataType = worldEditorDataType;
 	}
 
-	@Override
-	public final List<EditableOnscreenObjectField> buildFields(ObjectData metaData, MutableGameObject gameObject) {
-		List<EditableOnscreenObjectField> fields = new ArrayList<>();
+	public final List<AbstractObjectField> buildFields(ObjectData metaData, MutableGameObject gameObject) {
+		List<AbstractObjectField> fields = new ArrayList<>();
 
 		for (String key : metaData.keySet()) {
 			GameObject metaDataField = metaData.get(key);
@@ -36,7 +34,7 @@ public abstract class AbstractFieldBuilder implements EditorFieldBuilder {
 		return fields;
 	}
 
-	protected abstract void makeAndAddFields(List<EditableOnscreenObjectField> fields, War3ID metaKey, GameObject metaDataField,
+	protected abstract void makeAndAddFields(List<AbstractObjectField> fields, War3ID metaKey, GameObject metaDataField,
 	                                         MutableGameObject gameObject, ObjectData metaData);
 
 	protected abstract boolean includeField(MutableGameObject gameObject, GameObject metaDataField, War3ID metaKey);

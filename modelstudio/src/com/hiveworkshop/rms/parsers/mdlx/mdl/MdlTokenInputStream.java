@@ -68,12 +68,10 @@ public class MdlTokenInputStream {
 				if (token.length() > 0) {
 					index--;
 					return token.toString();
-				}
-				else {
+				} else {
 					inString = true;
 				}
-			}
-			else {
+			} else {
 				token.append(c);
 			}
 		}

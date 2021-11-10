@@ -4,18 +4,18 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public class PreModelCreationTreeNodeLinker implements TreeNodeLinker {
 	@Override
-	public void insertNodeInto(final DefaultMutableTreeNode newChild, final DefaultMutableTreeNode parent,
-			final int index) {
+	public void insertNodeInto(DefaultMutableTreeNode newChild, DefaultMutableTreeNode parent,
+	                           final int index) {
 		parent.insert(newChild, index);
 	}
 
 	@Override
-	public void nodeChanged(final DefaultMutableTreeNode node) {
+	public void nodeChanged(DefaultMutableTreeNode node) {
 		// no tree model
 	}
 
 	@Override
-	public void removeNodeFromParent(final DefaultMutableTreeNode node) {
+	public void removeNodeFromParent(DefaultMutableTreeNode node) {
 		final DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
 		parent.remove(node);
 	}

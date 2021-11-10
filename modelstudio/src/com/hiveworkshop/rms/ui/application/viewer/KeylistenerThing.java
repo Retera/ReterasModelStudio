@@ -35,16 +35,16 @@ public class KeylistenerThing extends KeyAdapter {
         }
         if (e.getKeyCode() == KeyEvent.VK_O) {
             // Orto Mode
-            cameraHandler.toggleOrtho();
-            System.out.println("VK_O");
+	        cameraHandler.toggleOrtho();
+	        System.out.println("VK_O");
         }
-        if (e.getKeyCode() == KeyEvent.VK_X) {
-            if (e.isControlDown()) {
-                cameraHandler.rot(-45, 0, 0);
-            } else {
-	            cameraHandler.rot(45, 0, 0);
-            }
-        }
+	    if (e.getKeyCode() == KeyEvent.VK_X) {
+		    if (e.isControlDown()) {
+			    cameraHandler.rot(-45, 0, 0);
+		    } else {
+			    cameraHandler.rot(45, 0, 0);
+		    }
+	    }
 	    if (e.getKeyCode() == KeyEvent.VK_Y) {
 		    if (e.isControlDown()) {
 			    cameraHandler.rot(0, -45, 0);

@@ -8,10 +8,9 @@ public class ItemTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
 
 	@Override
 	public TopLevelCategoryFolder build() {
-		final TopLevelCategoryFolder root = new TopLevelCategoryFolder(
+		return new TopLevelCategoryFolder(
 				new ItemSortByClassFolder(WEString.getString("WESTRING_IE_STANDARDITEMS")),
 				new ItemSortByClassFolder(WEString.getString("WESTRING_IE_CUSTOMITEMS")));
-		return root;
 	}
 
 }

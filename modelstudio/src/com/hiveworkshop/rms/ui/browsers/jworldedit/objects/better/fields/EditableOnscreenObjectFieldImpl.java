@@ -21,7 +21,7 @@ public final class EditableOnscreenObjectFieldImpl {
 
 	public String getDisplayName(final ObjectData metaData, final MutableGameObject gameUnit) {
 		final GameObject metaDataFieldObject = metaData.get(cachedMetaKeyString);
-		String prefix = EditableOnscreenObjectField.categoryName(metaDataFieldObject.getField("category")) + " - ";
+		String prefix = AbstractObjectField.categoryName(metaDataFieldObject.getField("category")) + " - ";
 		if (level > 0) {
 			if (metaData.get("alev") != null || metaData.get("glvl") != null) {
 				// abilities, TODO less hacky

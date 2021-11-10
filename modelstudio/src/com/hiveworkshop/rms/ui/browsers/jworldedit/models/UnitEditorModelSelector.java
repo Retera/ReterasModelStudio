@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.WarcraftObjectTreeCellRenderer;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.UnitComparator;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
@@ -17,15 +18,14 @@ import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Deprecated
 public class UnitEditorModelSelector extends JSplitPane implements TreeSelectionListener {
@@ -152,6 +152,34 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		}
 	}
 
+//	public void loadHotkeys() {
+//		final JRootPane root = getRootPane();
+//		getRootPane().getActionMap().put("displayAsRawData", new AbstractAction() {
+//
+//			@Override
+//			public void actionPerformed(final ActionEvent e) {
+//				settings.setDisplayAsRawData(!settings.isDisplayAsRawData());
+//				final Enumeration<TreeNode> enumeration = UnitEditorModelSelector.this.root.breadthFirstEnumeration();
+//				while (enumeration.hasMoreElements()) {
+//					model.nodeChanged(enumeration.nextElement());
+//				}
+//				fillTable();
+//				repaint();
+//			}
+//
+//		});
+//		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control D"),
+//				"displayAsRawData");
+//
+//	}
+
+	static class UnitEditorTreeModel extends DefaultTreeModel {
+		public UnitEditorTreeModel(final DefaultMutableTreeNode root) {
+			super(root);
+		}
+
+	}
+
 	public void loadRaceData(final DefaultMutableTreeNode folder, final RaceData data) {
 		fetchAndAddRaceData(folder, "WESTRING_UNITS", data.units);
 
@@ -175,23 +203,23 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		}
 	}
 
-//	static class RaceData {
-//		List<WarcraftObject> units = new ArrayList<>();
-//		List<WarcraftObject> heroes = new ArrayList<>();
-//		List<WarcraftObject> buildings = new ArrayList<>();
-//		List<WarcraftObject> buildingsUprooted = new ArrayList<>();
-//		List<WarcraftObject> special = new ArrayList<>();
-//
-//		void sort() {
-//			final Comparator<WarcraftObject> unitComp = new UnitComparator();
-//
-//			units.sort(unitComp);
-//			heroes.sort(unitComp);
-//			buildings.sort(unitComp);
-//			buildingsUprooted.sort(unitComp);
-//			special.sort(unitComp);
-//		}
-//	}
+	static class RaceData {
+		List<WarcraftObject> units = new ArrayList<>();
+		List<WarcraftObject> heroes = new ArrayList<>();
+		List<WarcraftObject> buildings = new ArrayList<>();
+		List<WarcraftObject> buildingsUprooted = new ArrayList<>();
+		List<WarcraftObject> special = new ArrayList<>();
+
+		void sort() {
+			final Comparator<WarcraftObject> unitComp = new UnitComparator();
+
+			units.sort(unitComp);
+			heroes.sort(unitComp);
+			buildings.sort(unitComp);
+			buildingsUprooted.sort(unitComp);
+			special.sort(unitComp);
+		}
+	}
 
 	static Map<String, RaceData> sortedRaces;
 

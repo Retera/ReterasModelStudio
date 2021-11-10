@@ -25,11 +25,7 @@ public class DoodadBrowserView extends View {
 	}
 
 	private static UnitEditorTree getUnitEditorTree() {
-		UnitEditorTree unitEditorTree = new UnitEditorTree(
-				MenuBarActions.getDoodadData(),
-				new DoodadTabTreeBrowserBuilder(),
-				new UnitEditorSettings(),
-				WorldEditorDataType.DOODADS);
+		UnitEditorTree unitEditorTree = new UnitEditorTree(MenuBarActions.getDoodadData(), new DoodadTabTreeBrowserBuilder(), new UnitEditorSettings(), WorldEditorDataType.DOODADS);
 		unitEditorTree.selectFirstUnit();
 
 		unitEditorTree.addMouseListener(new MouseAdapter() {

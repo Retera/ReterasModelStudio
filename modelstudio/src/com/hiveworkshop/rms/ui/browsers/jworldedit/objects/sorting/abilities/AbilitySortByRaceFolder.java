@@ -20,25 +20,24 @@ public final class AbilitySortByRaceFolder extends AbstractSortingFolderTreeNode
 	private final Map<String, SortingFolderTreeNode> raceFolders;
 	private final List<SortingFolderTreeNode> raceNodes;
 
-	public AbilitySortByRaceFolder(final String displayName) {
+	public AbilitySortByRaceFolder(String displayName) {
 		this(displayName, Arrays.asList(DefaultAbilityRace.values()));
 	}
 
-	public AbilitySortByRaceFolder(final String displayName, final List<SortRace> races) {
+	public AbilitySortByRaceFolder(String displayName, List<SortRace> races) {
 		super(displayName);
 		raceFolders = new HashMap<>();
 		raceNodes = new ArrayList<>();
-		for (final SortRace race : races) {
-			final AbilityRaceLevelFolder meleeCampaignFolder = new AbilityRaceLevelFolder(race.getDisplayName());
+		for (SortRace race : races) {
+			AbilityRaceLevelFolder meleeCampaignFolder = new AbilityRaceLevelFolder(race.getDisplayName());
 			raceFolders.put(race.getKeyString(), meleeCampaignFolder);
 			raceNodes.add(meleeCampaignFolder);
 		}
 	}
 
-	private DefaultAbilityRace raceKey(final int index) {
+	protected DefaultAbilityRace raceKey(int index) {
 		return switch (index) {
-			case -1 -> DefaultAbilityRace.HUMAN;
-			case 0 -> DefaultAbilityRace.HUMAN;
+			case -1, 0 -> DefaultAbilityRace.HUMAN;
 			case 1 -> DefaultAbilityRace.ORC;
 			case 2 -> DefaultAbilityRace.UNDEAD;
 			case 3 -> DefaultAbilityRace.NIGHTELF;
@@ -73,7 +72,7 @@ public final class AbilitySortByRaceFolder extends AbstractSortingFolderTreeNode
 	}
 
 	@Override
-	public int getSortIndex(final DefaultMutableTreeNode childNode) {
+	public int getSortIndex(DefaultMutableTreeNode childNode) {
 		return raceNodes.indexOf(childNode);
 	}
 }

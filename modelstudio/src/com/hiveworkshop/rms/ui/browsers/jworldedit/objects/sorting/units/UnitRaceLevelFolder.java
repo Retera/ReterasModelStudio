@@ -19,7 +19,7 @@ public class UnitRaceLevelFolder extends AbstractSortingFolderTreeNode {
 	private final UnitMeleeLevelFolder campaign;
 	private final UnitMeleeLevelFolder hidden;
 
-	public UnitRaceLevelFolder(final SortRace race) {
+	public UnitRaceLevelFolder(SortRace race) {
 		super(WEString.getString(race.getDisplayName()));
 		this.melee = new UnitMeleeLevelFolder(WEString.getString("WESTRING_MELEE"));
 		this.campaign = new UnitMeleeLevelFolder(WEString.getString("WESTRING_CAMPAIGN"));
@@ -27,16 +27,16 @@ public class UnitRaceLevelFolder extends AbstractSortingFolderTreeNode {
 	}
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object) {
+	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
 		if (object.readSLKTagBoolean("hiddenInEditor")) {
 			return hidden;
 		}
-		final boolean isCampaign = object.getFieldAsBoolean(UNIT_CATEGORIZE_CAMPAIGN_FIELD, 0);
+		boolean isCampaign = object.getFieldAsBoolean(UNIT_CATEGORIZE_CAMPAIGN_FIELD, 0);
 		return isCampaign ? campaign : melee;
 	}
 
 	@Override
-	public int getSortIndex(final DefaultMutableTreeNode childNode) {
+	public int getSortIndex(DefaultMutableTreeNode childNode) {
 		if (childNode == hidden) {
 			return 2;
 		}

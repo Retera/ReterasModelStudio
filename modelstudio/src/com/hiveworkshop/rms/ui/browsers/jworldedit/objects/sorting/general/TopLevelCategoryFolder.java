@@ -15,7 +15,7 @@ public final class TopLevelCategoryFolder extends AbstractSortingFolderTreeNode 
 	private final SortingFolderTreeNode standard;
 	private final SortingFolderTreeNode custom;
 
-	public TopLevelCategoryFolder(final SortingFolderTreeNode standard, final SortingFolderTreeNode custom) {
+	public TopLevelCategoryFolder(SortingFolderTreeNode standard, SortingFolderTreeNode custom) {
 		this.standard = standard;
 		this.custom = custom;
 		add(standard);
@@ -23,7 +23,7 @@ public final class TopLevelCategoryFolder extends AbstractSortingFolderTreeNode 
 	}
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object) {
+	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
 		if (!object.isCustom()) {
 			return standard;
 		}
@@ -31,11 +31,11 @@ public final class TopLevelCategoryFolder extends AbstractSortingFolderTreeNode 
 	}
 
 	@Override
-	public int getSortIndex(final DefaultMutableTreeNode childNode) {
+	public int getSortIndex(DefaultMutableTreeNode childNode) {
 		return childNode == standard ? 0 : 1;
 	}
 
-	public DefaultMutableTreeNode insertObjectInto(final MutableGameObject unit, final TreeNodeLinker linker) {
+	public DefaultMutableTreeNode insertObjectInto(MutableGameObject unit, TreeNodeLinker linker) {
 		SortingFolderTreeNode folderForUnit = null;
 		SortingFolderTreeNode currentNode = this;
 		while ((currentNode = currentNode.getNextNode(unit, linker)) != null) {

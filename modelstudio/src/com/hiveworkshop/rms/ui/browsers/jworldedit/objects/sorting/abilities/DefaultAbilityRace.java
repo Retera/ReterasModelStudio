@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.abilities;
 
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.SortRace;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.SortRace;
 
 public enum DefaultAbilityRace implements SortRace {
 	HUMAN("human", "WESTRING_RACE_HUMAN"),
@@ -28,5 +28,14 @@ public enum DefaultAbilityRace implements SortRace {
 	@Override
 	public String getDisplayName() {
 		return displayName;
+	}
+
+	public static DefaultAbilityRace getFromKeyString(String string) {
+		for (DefaultAbilityRace abilityRace : DefaultAbilityRace.values()) {
+			if (string.equals(abilityRace.getKeyString())) {
+				return abilityRace;
+			}
+		}
+		return null;
 	}
 }

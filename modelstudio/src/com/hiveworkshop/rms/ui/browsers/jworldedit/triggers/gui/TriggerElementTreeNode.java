@@ -1,11 +1,21 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.gui;
 
-import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.DefaultMutableTreeNode;
 
-public interface TriggerElementTreeNode extends MutableTreeNode {
-	TriggerElementTreeNode copy();
+public abstract class TriggerElementTreeNode extends DefaultMutableTreeNode {
 
-	int getLevel();
+	public TriggerElementTreeNode(String s) {
+		super(s);
+	}
 
-	void add(MutableTreeNode node);
+	public abstract TriggerElementTreeNode copy();
+
+//	public abstract int getLevel();
+
+//	public abstract void add(MutableTreeNode node);
+
+	public abstract TriggerElementTreeNode setNodeObjectName(String name);
+
+	public abstract String getNodeObjectName();
+
 }

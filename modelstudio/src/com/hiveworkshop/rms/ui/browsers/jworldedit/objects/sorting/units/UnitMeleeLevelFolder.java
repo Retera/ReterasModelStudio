@@ -27,15 +27,12 @@ public final class UnitMeleeLevelFolder extends AbstractSortingFolderTreeNode {
 	private final BottomLevelCategoryFolder special;
 	private final List<BottomLevelCategoryFolder> folders = new ArrayList<>();
 
-	public UnitMeleeLevelFolder(final String displayName) {
+	public UnitMeleeLevelFolder(String displayName) {
 		super(displayName);
 		this.units = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UNITS"), MUTABLE_GAME_UNIT_COMPARATOR);
-		this.heroes = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_HEROES"),
-				MUTABLE_GAME_UNIT_COMPARATOR);
-		this.buildings = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_BUILDINGS"),
-				MUTABLE_GAME_UNIT_COMPARATOR);
-		this.special = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_SPECIAL"),
-				MUTABLE_GAME_UNIT_COMPARATOR);
+		this.heroes = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_HEROES"), MUTABLE_GAME_UNIT_COMPARATOR);
+		this.buildings = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_BUILDINGS"), MUTABLE_GAME_UNIT_COMPARATOR);
+		this.special = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_SPECIAL"), MUTABLE_GAME_UNIT_COMPARATOR);
 		folders.add(units);
 		folders.add(buildings);
 		folders.add(heroes);
@@ -43,7 +40,7 @@ public final class UnitMeleeLevelFolder extends AbstractSortingFolderTreeNode {
 	}
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object) {
+	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
 		if (object.getFieldAsBoolean(UNIT_CATEGORIZE_SPECIAL_FIELD, 0)) {
 			return special;
 		} else if (object.getAlias().toString().length() > 1 && Character.isUpperCase(object.getAlias().charAt(0))) {
@@ -56,7 +53,7 @@ public final class UnitMeleeLevelFolder extends AbstractSortingFolderTreeNode {
 	}
 
 	@Override
-	public int getSortIndex(final DefaultMutableTreeNode childNode) {
+	public int getSortIndex(DefaultMutableTreeNode childNode) {
 		return folders.indexOf(childNode);
 	}
 

@@ -27,15 +27,12 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 	private final BottomLevelCategoryFolder hidden;
 	private final List<BottomLevelCategoryFolder> folders = new ArrayList<>();
 
-	public AbilityRaceLevelFolder(final String displayName) {
+	public AbilityRaceLevelFolder(String displayName) {
 		super(displayName);
 		this.units = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UNITS"), MUTABLE_GAME_ABIL_COMPARATOR);
-		this.heroes = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_HEROES"),
-				MUTABLE_GAME_ABIL_COMPARATOR);
-		this.items = new BottomLevelCategoryFolder(WEString.getString("WESTRING_AE_ITEMS"),
-				MUTABLE_GAME_ABIL_COMPARATOR);
-		this.hidden = new BottomLevelCategoryFolder(WEString.getString("WESTRING_ITEMSTATUS_HIDDEN"),
-				MUTABLE_GAME_ABIL_COMPARATOR);
+		this.heroes = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_HEROES"), MUTABLE_GAME_ABIL_COMPARATOR);
+		this.items = new BottomLevelCategoryFolder(WEString.getString("WESTRING_AE_ITEMS"), MUTABLE_GAME_ABIL_COMPARATOR);
+		this.hidden = new BottomLevelCategoryFolder(WEString.getString("WESTRING_ITEMSTATUS_HIDDEN"), MUTABLE_GAME_ABIL_COMPARATOR);
 		folders.add(units);
 		folders.add(heroes);
 		folders.add(items);
@@ -43,7 +40,7 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 	}
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object) {
+	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
 		if (object.getFieldAsBoolean(ABIL_IS_HERO_ABIL, 0)) {
 			return heroes;
 		} else if (object.getFieldAsBoolean(ABIL_IS_ITEM_ABIL, 0)) {

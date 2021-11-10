@@ -6,11 +6,11 @@ public class DataTableHolder {
 	static DataTable splatTable;
 	static DataTable terrainTable;
 	static DataTable ginterTable;
-	static DataTable unitEditorDataTable;
 	static DataTable buffTable;
 	static DataTable itemTable;
 	static DataTable theTableDestructibles;
 	static DataTable theTableDoodads;
+	static DataTable unitEditorDataTable;
 
 	public static void dropCache() {
 		theTable = null;
@@ -30,5 +30,77 @@ public class DataTableHolder {
 			theTable.loadDefaults();
 		}
 		return theTable;
+	}
+
+	public static DataTable getDoodads() {
+		if (theTableDoodads == null) {
+			theTableDoodads = new DataTable();
+			theTableDoodads.loadDoodads();
+		}
+		return theTableDoodads;
+	}
+
+	public static DataTable getDestructables() {
+		if (theTableDestructibles == null) {
+			theTableDestructibles = new DataTable();
+			theTableDestructibles.loadDestructibles();
+		}
+		return theTableDestructibles;
+	}
+
+	public static DataTable getItems() {
+		if (itemTable == null) {
+			itemTable = new DataTable();
+			itemTable.loadItems();
+		}
+		return itemTable;
+	}
+
+	public static DataTable getBuffs() {
+		if (buffTable == null) {
+			buffTable = new DataTable();
+			buffTable.loadBuffs();
+		}
+		return buffTable;
+	}
+
+	public static DataTable getSpawns() {
+		if (spawnTable == null) {
+			spawnTable = new DataTable();
+			spawnTable.loadSpawns();
+		}
+		return spawnTable;
+	}
+
+	public static DataTable getSplats() {
+		if (splatTable == null) {
+			splatTable = new DataTable();
+			splatTable.loadSplats();
+		}
+		return splatTable;
+	}
+
+	public static DataTable getTerrain() {
+		if (terrainTable == null) {
+			terrainTable = new DataTable();
+			terrainTable.loadTerrain();
+		}
+		return terrainTable;
+	}
+
+	public static DataTable getGinters() {
+		if (ginterTable == null) {
+			ginterTable = new DataTable();
+			ginterTable.loadGinters();
+		}
+		return ginterTable;
+	}
+
+	public static DataTable getWorldEditorData() {
+		if (unitEditorDataTable == null) {
+			unitEditorDataTable = new DataTable();
+			unitEditorDataTable.loadUnitEditorData();
+		}
+		return unitEditorDataTable;
 	}
 }

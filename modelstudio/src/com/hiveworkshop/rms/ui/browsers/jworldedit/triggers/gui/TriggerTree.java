@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.gui;
 
-import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WorldEditArt;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WorldEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.TriggerTreeCellEditor;
@@ -26,7 +26,7 @@ public class TriggerTree extends JTree {
 		getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		root = (TriggerEnvironmentRootNode) getModel().getRoot();
 		this.triggerEnvironment = triggerEnvironment;
-		WorldEditArt worldEditArt = new WorldEditArt(DataTable.getWorldEditorData());
+		WorldEditArt worldEditArt = new WorldEditArt(DataTableHolder.getWorldEditorData());
 		WorldEditorSettings settings = new WorldEditorSettings();
 		TriggerTreeCellRenderer triggerTreeCellRenderer = new TriggerTreeCellRenderer(settings, worldEditArt);
 		setCellRenderer(triggerTreeCellRenderer);

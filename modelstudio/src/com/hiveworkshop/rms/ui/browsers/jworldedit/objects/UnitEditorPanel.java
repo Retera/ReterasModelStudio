@@ -3,9 +3,9 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.EditorFieldBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.ObjectDataTableModel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.FieldPopupUtils;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.builders.AbstractFieldBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectDataChangeListener;
@@ -39,7 +39,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 	TopLevelCategoryFolder root;
 
 	JTable table;
-	private final EditorFieldBuilder editorFieldBuilder;
+	private final AbstractFieldBuilder editorFieldBuilder;
 	private boolean holdingShift = false;
 	private ObjectDataTableModel dataModel;
 	private TreePath currentUnitTreePath;
@@ -54,7 +54,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 	public UnitEditorPanel(
 			final MutableObjectData unitData,
 			final DataTable unitMetaData,
-			final EditorFieldBuilder editorFieldBuilder,
+			final AbstractFieldBuilder editorFieldBuilder,
 			final ObjectTabTreeBrowserBuilder objectTabTreeBrowserBuilder,
 			final WorldEditorDataType dataType,
 			final EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData,

@@ -11,80 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class DataTable implements ObjectData {
-	private static final boolean DEBUG = false;
-
-	public static DataTable getDoodads() {
-		if (DataTableHolder.theTableDoodads == null) {
-			DataTableHolder.theTableDoodads = new DataTable();
-			DataTableHolder.theTableDoodads.loadDoodads();
-		}
-		return DataTableHolder.theTableDoodads;
-	}
-
-	public static DataTable getDestructables() {
-		if (DataTableHolder.theTableDestructibles == null) {
-			DataTableHolder.theTableDestructibles = new DataTable();
-			DataTableHolder.theTableDestructibles.loadDestructibles();
-		}
-		return DataTableHolder.theTableDestructibles;
-	}
-
-	public static DataTable getItems() {
-		if (DataTableHolder.itemTable == null) {
-			DataTableHolder.itemTable = new DataTable();
-			DataTableHolder.itemTable.loadItems();
-		}
-		return DataTableHolder.itemTable;
-	}
-
-	public static DataTable getBuffs() {
-		if (DataTableHolder.buffTable == null) {
-			DataTableHolder.buffTable = new DataTable();
-			DataTableHolder.buffTable.loadBuffs();
-		}
-		return DataTableHolder.buffTable;
-	}
-
-	public static DataTable getSpawns() {
-		if (DataTableHolder.spawnTable == null) {
-			DataTableHolder.spawnTable = new DataTable();
-			DataTableHolder.spawnTable.loadSpawns();
-		}
-		return DataTableHolder.spawnTable;
-	}
-
-	public static DataTable getSplats() {
-		if (DataTableHolder.splatTable == null) {
-			DataTableHolder.splatTable = new DataTable();
-			DataTableHolder.splatTable.loadSplats();
-		}
-		return DataTableHolder.splatTable;
-	}
-
-	public static DataTable getTerrain() {
-		if (DataTableHolder.terrainTable == null) {
-			DataTableHolder.terrainTable = new DataTable();
-			DataTableHolder.terrainTable.loadTerrain();
-		}
-		return DataTableHolder.terrainTable;
-	}
-
-	public static DataTable getGinters() {
-		if (DataTableHolder.ginterTable == null) {
-			DataTableHolder.ginterTable = new DataTable();
-			DataTableHolder.ginterTable.loadGinters();
-		}
-		return DataTableHolder.ginterTable;
-	}
-
-	public static DataTable getWorldEditorData() {
-		if (DataTableHolder.unitEditorDataTable == null) {
-			DataTableHolder.unitEditorDataTable = new DataTable();
-			DataTableHolder.unitEditorDataTable.loadUnitEditorData();
-		}
-		return DataTableHolder.unitEditorDataTable;
-	}
-
 	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
 
 	public DataTable() {
@@ -93,9 +19,9 @@ public class DataTable implements ObjectData {
 
 	@Override
 	public Set<String> keySet() {
-		final Set<String> outputKeySet = new HashSet<>();
-		final Set<StringKey> internalKeySet = dataTable.keySet();
-		for (final StringKey key : internalKeySet) {
+		Set<String> outputKeySet = new HashSet<>();
+		Set<StringKey> internalKeySet = dataTable.keySet();
+		for (StringKey key : internalKeySet) {
 			outputKeySet.add(key.getString());
 		}
 		return outputKeySet;

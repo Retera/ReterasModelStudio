@@ -206,35 +206,28 @@ public class WarcraftObject extends GameObject {
 		if (artField.indexOf(',') != -1) {
 			artField = artField.substring(0, artField.indexOf(','));
 		}
+		String doodadPlaceHolderPath = "ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp";
 		if ((storedImage == null) || (storedImagePath == null) || !storedImagePath.equals(artField)) {
 			try {
 				storedImage = BLPHandler.getGameTex(artField);
 				storedImagePath = artField;
 				if (storedImage == null) {
-					return IconUtils.scale(
-							BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"),
-							64, 64);
+					return IconUtils.scale(BLPHandler.getGameTex(doodadPlaceHolderPath), 64, 64);
 				}
 				return storedImage;
 			} catch (final Exception exc) {
-				// artField =
-				// "ReplaceableTextures\\CommandButtons\\BTNTemp.blp";
+				// artField = "ReplaceableTextures\\CommandButtons\\BTNTemp.blp";
 				storedImage = BLPHandler.getGameTex(artField);
 				storedImagePath = artField;
 				if (storedImage == null) {
-					return IconUtils.scale(
-							BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"),
-							64, 64);
+					return IconUtils.scale(BLPHandler.getGameTex(doodadPlaceHolderPath), 64, 64);
 				}
 				return storedImage;
-				// return
-				// BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNAcolyte.blp");
+				// return BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNAcolyte.blp");
 			}
 		} else {
 			if (storedImage == null) {
-				return IconUtils.scale(
-						BLPHandler.getGameTex("ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp"), 64,
-						64);
+				return IconUtils.scale(BLPHandler.getGameTex(doodadPlaceHolderPath), 64, 64);
 			}
 			return storedImage;
 		}

@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
@@ -48,7 +49,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 				editors.add((UnitEditorPanel) component);
 			}
 		};
-		final DataTable worldEditorData = DataTable.getWorldEditorData();
+		final DataTable worldEditorData = DataTableHolder.getWorldEditorData();
 		tabbedPane.addTab(WEString.getString("WESTRING_OBJTAB_UNITS"), getIcon(worldEditorData, "ToolBarIcon_OE_NewUnit"), createUnitEditor());
 		tabbedPane.addTab(WEString.getString("WESTRING_OBJTAB_ITEMS"), getIcon(worldEditorData, "ToolBarIcon_OE_NewItem"), createItemEditor());
 		tabbedPane.addTab(WEString.getString("WESTRING_OBJTAB_DESTRUCTABLES"), getIcon(worldEditorData, "ToolBarIcon_OE_NewDest"), createDestructibleEditor());
@@ -231,11 +232,11 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 	}
 
 	private UnitEditorPanel createDestructibleEditor() {
-		final War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('b', "war3map.w3b");
+		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('b', "war3map.w3b");
 
-		final DataTable standardUnitMeta = StandardObjectData.getStandardDestructableMeta();
+		DataTable standardUnitMeta = StandardObjectData.getStandardDestructableMeta();
 
-		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
+		UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
 				new MutableObjectData(WorldEditorDataType.DESTRUCTIBLES, StandardObjectData.getStandardDestructables(), standardUnitMeta, unitDataChangeset),
 				standardUnitMeta,
 				new BasicEditorFieldBuilder(BasicSingleFieldFactory.INSTANCE, WorldEditorDataType.DESTRUCTIBLES),
@@ -247,9 +248,9 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 	}
 
 	private UnitEditorPanel createDoodadEditor() {
-		final War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('d', "war3map.w3d");
+		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('d', "war3map.w3d");
 
-		final DataTable standardUnitMeta = StandardObjectData.getStandardDoodadMeta();
+		DataTable standardUnitMeta = StandardObjectData.getStandardDoodadMeta();
 
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
 				new MutableObjectData(WorldEditorDataType.DOODADS, StandardObjectData.getStandardDoodads(), standardUnitMeta, unitDataChangeset),
@@ -263,8 +264,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 	}
 
 	private JComponent createAbilityEditor() {
-		final War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('a', "war3map.w3a");
-		final DataTable standardUnitMeta = StandardObjectData.getStandardAbilityMeta();
+		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('a', "war3map.w3a");
+		DataTable standardUnitMeta = StandardObjectData.getStandardAbilityMeta();
 
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
 				new MutableObjectData(WorldEditorDataType.ABILITIES, StandardObjectData.getStandardAbilities(), standardUnitMeta, unitDataChangeset),
@@ -278,8 +279,8 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 	}
 
 	private UnitEditorPanel createAbilityBuffEditor() {
-		final War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('f', "war3map.w3h");
-		final DataTable standardUnitMeta = StandardObjectData.getStandardAbilityBuffMeta();
+		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('f', "war3map.w3h");
+		DataTable standardUnitMeta = StandardObjectData.getStandardAbilityBuffMeta();
 
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
 				new MutableObjectData(WorldEditorDataType.BUFFS_EFFECTS, StandardObjectData.getStandardAbilityBuffs(), standardUnitMeta, unitDataChangeset),
@@ -293,9 +294,9 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 	}
 
 	private UnitEditorPanel createUpgradeEditor() {
-		final War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('g', "war3map.w3q");
-		final DataTable standardMeta = StandardObjectData.getStandardUpgradeMeta();
-		final DataTable standardUpgradeEffectMeta = StandardObjectData.getStandardUpgradeEffectMeta();
+		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('g', "war3map.w3q");
+		DataTable standardMeta = StandardObjectData.getStandardUpgradeMeta();
+		DataTable standardUpgradeEffectMeta = StandardObjectData.getStandardUpgradeEffectMeta();
 
 		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
 				new MutableObjectData(WorldEditorDataType.UPGRADES, StandardObjectData.getStandardUpgrades(), standardMeta, unitDataChangeset),
@@ -309,9 +310,9 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 	}
 
 	private War3ObjectDataChangeset getWar3ObjectDataChangeset(char g, String s) {
-		final War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset(g);
+		War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset(g);
 		try {
-			final CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
+			CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
 
 			if (gameDataFileSystem.has(s)) {
 				unitDataChangeset.load(new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream(s)), gameDataFileSystem.has("war3map.wts") ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null, true);

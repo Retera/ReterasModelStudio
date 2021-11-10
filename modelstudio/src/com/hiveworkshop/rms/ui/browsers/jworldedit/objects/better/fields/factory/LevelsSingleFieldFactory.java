@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.factor
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.EditableOnscreenObjectField;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.AbstractObjectField;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.util.War3ID;
 
@@ -14,7 +14,7 @@ public final class LevelsSingleFieldFactory extends AbstractSingleFieldFactory {
 	protected String getDisplayName(final ObjectData metaData, final War3ID metaKey, final int level,
 			final MutableGameObject gameObject) {
 		final GameObject metaDataFieldObject = metaData.get(metaKey.toString());
-		final String prefix = EditableOnscreenObjectField.categoryName(metaDataFieldObject.getField("category"))
+		final String prefix = AbstractObjectField.categoryName(metaDataFieldObject.getField("category"))
 				+ " - ";
 		return prefix + WEString.getString(metaDataFieldObject.getField("displayName"));
 	}

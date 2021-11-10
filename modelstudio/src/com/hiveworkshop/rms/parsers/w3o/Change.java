@@ -4,10 +4,12 @@ import com.hiveworkshop.rms.util.War3ID;
 
 public final class Change {
 	private War3ID id;
-	private int vartype, level, dataptr;
+	private int varTypeInt, level, dataptr;
 	private int longval;
 	private float realval;
 	private String strval;
+
+	private VarType varType;
 
 	private boolean boolval;
 	private War3ID junkDNA;
@@ -21,12 +23,23 @@ public final class Change {
 		return this;
 	}
 
-	public int getVartype() {
-		return vartype;
+	public int getVarTypeInt() {
+		return varTypeInt;
 	}
 
-	public Change setVartype(final int vartype) {
-		this.vartype = vartype;
+	public Change setVarTypeInt(final int varTypeInt) {
+		this.varTypeInt = varTypeInt;
+		this.varType = VarType.values()[varTypeInt];
+		return this;
+	}
+
+	public VarType getVarType() {
+		return varType;
+	}
+
+	public Change setVarType(VarType varType) {
+		this.varType = varType;
+		this.varTypeInt = varType.ordinal();
 		return this;
 	}
 
@@ -75,7 +88,7 @@ public final class Change {
 		return this;
 	}
 
-	public boolean isBoolval() {
+	public boolean getBoolval() {
 		return boolval;
 	}
 
@@ -97,7 +110,8 @@ public final class Change {
 		id = other.id;
 		level = other.level;
 		dataptr = other.dataptr;
-		vartype = other.vartype;
+		varTypeInt = other.varTypeInt;
+		varType = other.varType;
 		longval = other.longval;
 		realval = other.realval;
 		strval = other.strval;
@@ -111,5 +125,22 @@ public final class Change {
 		final Change copy = new Change();
 		copy.copyFrom(this);
 		return copy;
+	}
+
+	public enum VarType {
+		VAR_TYPE_INT(0),
+		VAR_TYPE_REAL(1),
+		VAR_TYPE_UNREAL(2),
+		VAR_TYPE_STRING(3),
+		VAR_TYPE_BOOLEAN(4);
+		private int saveInt;
+
+		VarType(int saveInt) {
+			this.saveInt = saveInt;
+		}
+
+		public int getSaveInt() {
+			return saveInt;
+		}
 	}
 }

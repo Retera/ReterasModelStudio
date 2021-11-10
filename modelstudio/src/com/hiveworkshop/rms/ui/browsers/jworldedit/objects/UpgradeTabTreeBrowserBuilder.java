@@ -8,10 +8,9 @@ public class UpgradeTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
 
 	@Override
 	public TopLevelCategoryFolder build() {
-		final TopLevelCategoryFolder root = new TopLevelCategoryFolder(
+		return new TopLevelCategoryFolder(
 				new UpgradeSortByRaceFolder(WEString.getString("WESTRING_GE_STANDARDUPGRS")),
 				new UpgradeSortByRaceFolder(WEString.getString("WESTRING_GE_CUSTOMUPGRS")));
-		return root;
 	}
 
 }

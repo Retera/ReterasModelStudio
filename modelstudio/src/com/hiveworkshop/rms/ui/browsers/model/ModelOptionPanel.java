@@ -28,47 +28,34 @@ import java.util.Map;
 
 public class ModelOptionPanel extends JPanel {
 
-	static List<ModelGroup> groups = new ArrayList<>();
+	private static final List<ModelGroup> groups = new ArrayList<>();
 
-	static DataTable unitData = null;
-	static DataTable itemData = null;
-	static DataTable buffData = null;
-	static DataTable destData = null;
-	static DataTable doodData = null;
-	static DataTable spawnData = null;
-	static DataTable ginterData = null;
+	private static DataTable unitData = null;
+	private static DataTable itemData = null;
+	private static DataTable buffData = null;
+	private static DataTable destData = null;
+	private static DataTable doodData = null;
+	private static DataTable spawnData = null;
+	private static DataTable ginterData = null;
 
-	static boolean preloaded;
+	private static boolean preloaded;
 
 	public static void dropCache() {
 		preloaded = false;
 	}
 
-	boolean choosingModel;
+	private boolean choosingModel;
 
+	private final JComboBox<ModelGroup> groupBox;
+	private final JComboBox<Model> modelBox;
+	private final JTextField filePathField;
+	private String cachedIconPath;
+	private DefaultComboBoxModel<ModelGroup> groupsModel = new DefaultComboBoxModel<>();
+	private List<DefaultComboBoxModel<Model>> groupModels = new ArrayList<>();
 
+	private AnimationViewer viewer;
 
-	JComboBox<ModelGroup> groupBox;
-	JComboBox<Model> modelBox;
-	JTextField filePathField;
-	String cachedIconPath;
-	DefaultComboBoxModel<ModelGroup> groupsModel = new DefaultComboBoxModel<>();
-	List<DefaultComboBoxModel<Model>> groupModels = new ArrayList<>();
-
-	AnimationViewer viewer;
-
-	final EditableModel blank = new EditableModel();
-
-	private static void addModelsToList(Map<String, NamedList<String>> modelsData, Element unit, String artName, String weStringTypeSuffix) {
-		String filepath = unit.getField(artName);
-		if (filepath.length() > 0) {
-			if (filepath.contains(",")) {
-				filepath = filepath.split(",")[0];
-			}
-			NamedList<String> unitList = getUnitList(modelsData, unit, filepath);
-			unitList.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
-		}
-	}
+	private final EditableModel blank = new EditableModel();
 
 	public ModelOptionPanel() {
 		preload();
@@ -165,10 +152,11 @@ public class ModelOptionPanel extends JPanel {
 		return cachedIconPath;
 	}
 
-	public void setSelection(final String path) {
+	public void setSelection(String path) {
 		if (path != null) {
-			ItemFinder: for (final ModelGroup group : groups) {
-				for (final Model model : group.getModels()) {
+			ItemFinder:
+			for (ModelGroup group : groups) {
+				for (Model model : group.getModels()) {
 					if (model.getFilepath().equals(path)) {
 						groupBox.setSelectedItem(group);
 						modelBox.setSelectedItem(model);
@@ -222,12 +210,12 @@ public class ModelOptionPanel extends JPanel {
 		}
 		groups.clear();
 		unitData = DataTableHolder.get();
-		itemData = DataTable.getItems();
-		buffData = DataTable.getBuffs();
-		destData = DataTable.getDestructables();
-		doodData = DataTable.getDoodads();
-		spawnData = DataTable.getSpawns();
-		ginterData = DataTable.getGinters();
+		itemData = DataTableHolder.getItems();
+		buffData = DataTableHolder.getBuffs();
+		destData = DataTableHolder.getDestructables();
+		doodData = DataTableHolder.getDoodads();
+		spawnData = DataTableHolder.getSpawns();
+		ginterData = DataTableHolder.getGinters();
 
 		// WESTRING_OE_TYPECAT_UNIT=Units
 		// WESTRING_OE_TYPECAT_UNIT_MSSL=Units - Missiles
@@ -396,13 +384,13 @@ public class ModelOptionPanel extends JPanel {
 				}
 				String filepath = model;
 				if (filepath.length() > 0) {
-					NamedList<String> unitList = getUnitList(spawnModelData, unit, filepath);
 					if (model.contains("\\")) {
 						model = model.substring(model.lastIndexOf("\\") + 1);
 					}
 					if (model.contains(".")) {
 						model = model.substring(0, model.indexOf("."));
 					}
+					NamedList<String> unitList = getUnitList(spawnModelData, unit, filepath);
 					unitList.add(model);
 				}
 			}
@@ -500,6 +488,20 @@ public class ModelOptionPanel extends JPanel {
 		if (filepath.length() > 0) {
 			NamedList<String> unitList = getUnitList(unitsData, unit, filepath);
 			unitList.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
+		}
+	}
+
+	private static void addModelsToList(Map<String, NamedList<String>> modelsData, Element unit, String artName, String weStringTypeSuffix) {
+		String filepath = unit.getField(artName);
+		if (filepath.length() > 0) {
+//			if (filepath.contains(",")) {
+//				filepath = filepath.split(",")[0];
+//			}
+//			NamedList<String> unitList = getUnitList(modelsData, unit, filepath);
+//			unitList.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
+			String fp = filepath.split(",")[0];
+			modelsData.computeIfAbsent(fp.toLowerCase(), k -> new NamedList<>(fp, unit.getIconPath()))
+					.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
 		}
 	}
 }

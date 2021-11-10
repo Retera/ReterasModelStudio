@@ -20,15 +20,15 @@ public final class BuffsSortByIsEffectCategoryFolder extends AbstractSortingFold
 	private final BottomLevelCategoryFolder buff;
 	private final BottomLevelCategoryFolder effect;
 
-	public BuffsSortByIsEffectCategoryFolder(final String displayName) {
+	public BuffsSortByIsEffectCategoryFolder(String displayName) {
 		super(displayName);
 		this.buff = new BottomLevelCategoryFolder(WEString.getString("WESTRING_BUFFTYPE_BUFF"), MUTABLE_GAME_BUFF_COMPARATOR);
 		this.effect = new BottomLevelCategoryFolder(WEString.getString("WESTRING_BUFFTYPE_EFFECT"), MUTABLE_GAME_BUFF_COMPARATOR);
 	}
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object) {
-		final boolean isEffect = object.getFieldAsBoolean(IS_EFFECT_FIELD, 0);
+	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
+		boolean isEffect = object.getFieldAsBoolean(IS_EFFECT_FIELD, 0);
 		return isEffect ? effect : buff;
 	}
 

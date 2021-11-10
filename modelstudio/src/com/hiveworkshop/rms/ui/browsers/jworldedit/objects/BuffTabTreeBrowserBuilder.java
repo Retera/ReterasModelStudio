@@ -8,10 +8,9 @@ public class BuffTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
 
 	@Override
 	public TopLevelCategoryFolder build() {
-		final TopLevelCategoryFolder root = new TopLevelCategoryFolder(
+		return new TopLevelCategoryFolder(
 				new BuffSortByRaceFolder(WEString.getString("WESTRING_FE_STANDARDBUFFS")),
 				new BuffSortByRaceFolder(WEString.getString("WESTRING_FE_CUSTOMBUFFS")));
-		return root;
 	}
 
 }

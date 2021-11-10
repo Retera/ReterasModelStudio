@@ -1,19 +1,18 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.impl;
 
-import java.io.Serializable;
-
-public class TriggerImpl implements Trigger, Serializable {
+public class TriggerImpl extends Trigger {
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = -878578198686089131L;
-	private String name;
-	private String comment;
-	private TriggerCategory category;
+//	private String name;
+//	private String comment;
+//	private TriggerCategory category;
 
 	public TriggerImpl(final String name) {
-		this.name = name;
-		this.comment = "";
+		super(name);
+//		this.name = name;
+//		this.comment = "";
 	}
 
 	@Override

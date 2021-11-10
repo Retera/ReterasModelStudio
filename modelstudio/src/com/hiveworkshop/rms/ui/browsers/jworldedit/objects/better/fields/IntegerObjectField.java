@@ -11,23 +11,34 @@ import java.awt.*;
 
 public class IntegerObjectField extends AbstractObjectField {
 
-	public IntegerObjectField(final String displayName, final String sortName, final String rawDataName,
-			final boolean showingLevelDisplay, final War3ID metaKey, final int level,
-			final WorldEditorDataType dataType, final GameObject metaDataField) {
+	public IntegerObjectField(String displayName, String sortName, String rawDataName, boolean showingLevelDisplay,
+	                          War3ID metaKey, int level, WorldEditorDataType dataType, GameObject metaDataField) {
 		super(displayName, sortName, rawDataName, showingLevelDisplay, metaKey, level, dataType, metaDataField);
 	}
 
 	@Override
-	protected Object getValue(final MutableGameObject gameUnit, final War3ID metaKey, final int level) {
+	protected Object getValue(MutableGameObject gameUnit, War3ID metaKey, int level) {
 		return gameUnit.getFieldAsInteger(metaKey, level);
 	}
 
 	@Override
-	protected boolean popupEditor(final MutableGameObject gameUnit, final Component parent, final boolean editRawData,
-			final boolean disableLimits, final War3ID metaKey, final int level, final String defaultDialogTitle,
-			final GameObject metaDataField) {
-		final JPanel popupPanel = new JPanel();
+	protected boolean popupEditor(MutableGameObject gameUnit, Component parent, boolean editRawData,
+	                              boolean disableLimits, War3ID metaKey, int level, String defaultDialogTitle,
+	                              GameObject metaDataField) {
+		JPanel popupPanel = new JPanel();
 		popupPanel.add(new JLabel(getDisplayName(gameUnit)));
+		JSpinner spinner = getSpinner(gameUnit, disableLimits, metaKey, level, metaDataField);
+		popupPanel.add(spinner);
+		String title = String.format(defaultDialogTitle, WEString.getString("WESTRING_COD_TYPE_INT"));
+		int result = FieldPopupUtils.showPopup(parent, popupPanel, title, spinner);
+		if (result == JOptionPane.OK_OPTION) {
+			gameUnit.setField(metaKey, level, ((Number) spinner.getValue()).intValue());
+			return true;
+		}
+		return false;
+	}
+
+	private JSpinner getSpinner(MutableGameObject gameUnit, boolean disableLimits, War3ID metaKey, int level, GameObject metaDataField) {
 		int minValue = metaDataField.getFieldValue("minVal");
 		int maxValue = metaDataField.getFieldValue("maxVal");
 		if (disableLimits) {
@@ -41,18 +52,10 @@ public class IntegerObjectField extends AbstractObjectField {
 		if (maxValue < currentValue) {
 			currentValue = maxValue;
 		}
-		final JSpinner spinner = new JSpinner(new SpinnerNumberModel(currentValue, minValue, maxValue, 1));
+		JSpinner spinner = new JSpinner(new SpinnerNumberModel(currentValue, minValue, maxValue, 1));
 		spinner.setMinimumSize(new Dimension(50, 1));
 		spinner.setPreferredSize(new Dimension(75, 20));
-		popupPanel.add(spinner);
-		final int result = FieldPopupUtils.showPopup(parent, popupPanel,
-				String.format(defaultDialogTitle, WEString.getString("WESTRING_COD_TYPE_INT")),
-				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, spinner);
-		if (result == JOptionPane.OK_OPTION) {
-			gameUnit.setField(metaKey, level, ((Number) spinner.getValue()).intValue());
-			return true;
-		}
-		return false;
+		return spinner;
 	}
 
 }

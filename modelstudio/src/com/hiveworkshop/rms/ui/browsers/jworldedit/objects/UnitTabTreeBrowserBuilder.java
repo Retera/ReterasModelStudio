@@ -8,10 +8,9 @@ public class UnitTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
 
 	@Override
 	public TopLevelCategoryFolder build() {
-		final TopLevelCategoryFolder root = new TopLevelCategoryFolder(
+		return new TopLevelCategoryFolder(
 				new UnitSortByRaceFolder(WEString.getString("WESTRING_UE_STANDARDUNITS")),
 				new UnitSortByRaceFolder(WEString.getString("WESTRING_UE_CUSTOMUNITS")));
-		return root;
 	}
 
 }

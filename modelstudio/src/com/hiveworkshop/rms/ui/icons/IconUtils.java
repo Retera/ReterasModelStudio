@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.icons;
 
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.parsers.slk.Element;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
@@ -52,13 +53,13 @@ public final class IconUtils {
 	}
 
 	public static BufferedImage getIcon(final MutableGameObject gameObject,
-			final WorldEditorDataType worldEditorDataType) {
+	                                    final WorldEditorDataType worldEditorDataType) {
 		String iconPath;
 		switch (worldEditorDataType) {
 			case ABILITIES -> iconPath = gameObject.getFieldAsString(War3ID.fromString("aart"), 0);
 			case BUFFS_EFFECTS -> iconPath = gameObject.getFieldAsString(War3ID.fromString("fart"), 0);
 			case DESTRUCTIBLES -> {
-				final DataTable unitEditorData = DataTable.getWorldEditorData();
+				final DataTable unitEditorData = DataTableHolder.getWorldEditorData();
 				final String category = gameObject.getFieldAsString(War3ID.fromString("bcat"), 0);
 				final Element categories = unitEditorData.get("DestructibleCategories");
 				if (categories.hasField(category)) {
@@ -71,7 +72,7 @@ public final class IconUtils {
 				}
             }
 			case DOODADS -> {
-				final DataTable unitEditorData = DataTable.getWorldEditorData();
+				final DataTable unitEditorData = DataTableHolder.getWorldEditorData();
 				final String category = gameObject.getFieldAsString(War3ID.fromString("dcat"), 0);
 				final Element categories = unitEditorData.get("DoodadCategories");
 				if (categories.hasField(category)) {

@@ -16,19 +16,19 @@ public final class BottomLevelCategoryFolder extends SortingFolderTreeNode {
 
 	private final Comparator<MutableGameObject> objectComparator;
 
-	public BottomLevelCategoryFolder(final Object userObject, final Comparator<MutableGameObject> objectComparator) {
+	public BottomLevelCategoryFolder(Object userObject, Comparator<MutableGameObject> objectComparator) {
 		super(userObject);
 		this.objectComparator = objectComparator;
 	}
 
 	@Override
-	public DefaultMutableTreeNode add(final MutableGameObject unitToAdd, final TreeNodeLinker treeNodeLinker) {
-		final DefaultMutableTreeNode unitNode = new DefaultMutableTreeNode(unitToAdd);
+	public DefaultMutableTreeNode add(MutableGameObject unitToAdd, TreeNodeLinker treeNodeLinker) {
+		DefaultMutableTreeNode unitNode = new DefaultMutableTreeNode(unitToAdd);
 		int insertIndex = 0;
 		for (int childIndex = 0; childIndex < getChildCount(); childIndex++) {
-			final TreeNode child = getChildAt(childIndex);
-			final MutableGameObject unitInTree = ((MutableGameObject) ((DefaultMutableTreeNode) child).getUserObject());
-			final int comparison = objectComparator.compare(unitToAdd, unitInTree);
+			TreeNode child = getChildAt(childIndex);
+			MutableGameObject unitInTree = ((MutableGameObject) ((DefaultMutableTreeNode) child).getUserObject());
+			int comparison = objectComparator.compare(unitToAdd, unitInTree);
 			if (comparison >= 0) {
 				insertIndex = childIndex + 1;
 			}
@@ -38,7 +38,7 @@ public final class BottomLevelCategoryFolder extends SortingFolderTreeNode {
 	}
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object, final TreeNodeLinker defaultTreeModel) {
+	public SortingFolderTreeNode getNextNode(MutableGameObject object, TreeNodeLinker defaultTreeModel) {
 		return null;
 	}
 

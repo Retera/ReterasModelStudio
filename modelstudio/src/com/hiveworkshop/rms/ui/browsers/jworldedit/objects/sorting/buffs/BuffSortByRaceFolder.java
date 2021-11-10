@@ -21,23 +21,23 @@ public final class BuffSortByRaceFolder extends AbstractSortingFolderTreeNode {
 	private final Map<String, SortingFolderTreeNode> raceFolders;
 	private final List<SortingFolderTreeNode> raceNodes;
 
-	public BuffSortByRaceFolder(final String displayName) {
+	public BuffSortByRaceFolder(String displayName) {
 		this(displayName, Arrays.asList(DefaultBuffRace.values()));
 	}
 
-	public BuffSortByRaceFolder(final String displayName, final List<SortRace> races) {
+	public BuffSortByRaceFolder(String displayName, List<SortRace> races) {
 		super(displayName);
 		raceFolders = new HashMap<>();
 		raceNodes = new ArrayList<>();
-		for (final SortRace race : races) {
-			final BuffsSortByIsEffectCategoryFolder meleeCampaignFolder = new BuffsSortByIsEffectCategoryFolder(
+		for (SortRace race : races) {
+			BuffsSortByIsEffectCategoryFolder meleeCampaignFolder = new BuffsSortByIsEffectCategoryFolder(
 					race.getDisplayName());
 			raceFolders.put(race.getKeyString(), meleeCampaignFolder);
 			raceNodes.add(meleeCampaignFolder);
 		}
 	}
 
-	private DefaultAbilityRace raceKey(final int index) {
+	protected DefaultAbilityRace raceKey(int index) {
 		return switch (index) {
 			case -1, 0 -> DefaultAbilityRace.HUMAN;
 			case 1 -> DefaultAbilityRace.ORC;

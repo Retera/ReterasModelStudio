@@ -1,13 +1,8 @@
 package com.hiveworkshop.rms.ui.browsers.mpq;
 
-import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ModelLoader;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -18,9 +13,9 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -29,8 +24,6 @@ import java.util.*;
 public final class MPQBrowser extends JPanel {
 
 	private final JTree tree;
-	//	private final JFileChooser exportFileChooser;
-	private final MouseAdapterExtension mouseAdapterExtension;
 	private final DefaultTreeModel treeModel;
 	private final Map<String, Icon> iconMap;
 	private final Map<String, Filter> extensionToFilter = new HashMap<>();
@@ -64,7 +57,6 @@ public final class MPQBrowser extends JPanel {
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
 		tree.setCellRenderer(createTreeCellRenderer());
-		tree.addMouseListener(getMouseClickedListener());
 		tree.addKeyListener(getKeyListener());
 		tree.addTreeExpansionListener(getTreeExpansionListener());
 		expandedPaths = new HashSet<>();
@@ -74,25 +66,9 @@ public final class MPQBrowser extends JPanel {
 		add(menuBar, BorderLayout.BEFORE_FIRST_LINE);
 		add(new JScrollPane(tree), BorderLayout.CENTER);
 
-		mouseAdapterExtension = new MouseAdapterExtension(getContextMenu());
+		//	private final JFileChooser exportFileChooser;
+		MouseAdapterExtension mouseAdapterExtension = new MouseAdapterExtension(this, tree);
 		tree.addMouseListener(mouseAdapterExtension);
-	}
-
-	private JPopupMenu getContextMenu() {
-		JPopupMenu contextMenu = new JPopupMenu();
-
-		contextMenu.add(getMenuItem("Open", e -> loadFileByType(getMouseClickedPath())));
-		contextMenu.add(getMenuItem("Export", e -> new FileDialog(this).exportInternalFile(getMouseClickedPath())));
-		contextMenu.addSeparator();
-		contextMenu.add(getMenuItem("Copy Path to Clipboard", e -> copyItemPathToClipboard()));
-		contextMenu.add(getMenuItem("Use as Texture", e -> addTextureToCurrentModel(getMouseClickedPath())));
-		return contextMenu;
-	}
-
-	private JMenuItem getMenuItem(String text, ActionListener actionListener) {
-		JMenuItem openItem = new JMenuItem(text);
-		openItem.addActionListener(actionListener);
-		return openItem;
 	}
 
 	private static File getDummyFile(String extension) {
@@ -166,11 +142,11 @@ public final class MPQBrowser extends JPanel {
 		filtersMenu.putClientProperty("Menu.doNotCloseOnMouseExited", false);
 		for (Filter filter : filters) {
 			filtersMenu.add(filter.getFilterCheckBoxItem());
-			filter.addActionListener(e -> setFilteredExtensions(filter.extensions, filter.filterCheckBoxItem.getState()));
+			filter.addActionListener(e -> setFilteredExtensions(filter.getExtensions(), filter.getFilterState()));
 
 			filter.getFilterCheckBoxItem().putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 
-			for (String ext : filter.extensions) {
+			for (String ext : filter.getExtensions()) {
 				extensionToFilter.put(ext, filter);
 				currentlyFiltered.put(ext, true);
 			}
@@ -183,19 +159,7 @@ public final class MPQBrowser extends JPanel {
 		return filtersMenu;
 	}
 
-	private MouseAdapter getMouseClickedListener() {
-		return new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() >= 2) {
-					TreePath treePath = tree.getPathForLocation(e.getX(), e.getY());
-					openTreePath(treePath);
-				}
-			}
-		};
-	}
-
-	private void openTreePath(TreePath treePath) {
+	protected void openTreePath(TreePath treePath) {
 		if (treePath != null) {
 			MPQTreeNode lastPathComponent = (MPQTreeNode) treePath.getLastPathComponent();
 			if (lastPathComponent != null && lastPathComponent.isLeaf()) {
@@ -278,7 +242,7 @@ public final class MPQBrowser extends JPanel {
 	private void setFiltered(boolean b) {
 		for (Filter filter : filters) {
 			filter.getFilterCheckBoxItem().setSelected(b);
-			setFilteredExtensions(filter.extensions, b);
+			setFilteredExtensions(filter.getExtensions(), b);
 		}
 		refreshTree();
 	}
@@ -297,31 +261,25 @@ public final class MPQBrowser extends JPanel {
 			node.setVisible(node.hasVisibleChildren());
 		} else {
 			Boolean filtered = currentlyFiltered.get(node.getExtension());
-			boolean fitsSearch = (currentSearch.equals("") || (node.isLeaf() && node.getSubPathName().toLowerCase(Locale.ROOT).contains(currentSearch.toLowerCase(Locale.ROOT))));
-//			node.setVisible(filtered != null && filtered
-//					|| filtered == null && otherFilter.getFilterCheckBoxItem().isSelected());
+			boolean fitsSearch = (currentSearch.equals("")
+					|| (node.isLeaf()
+					&& node.getSubPathName().toLowerCase(Locale.ROOT).contains(currentSearch.toLowerCase(Locale.ROOT))));
 			node.setVisible(filtered != null && filtered && fitsSearch
 					|| filtered == null && otherFilter.getFilterCheckBoxItem().isSelected() && fitsSearch);
 		}
 	}
 
-	private void copyItemPathToClipboard() {
-		StringSelection selection = new StringSelection(getMouseClickedPath());
-		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-		clipboard.setContents(selection, selection);
+	public TreePath getPathForLocation(int x, int y) {
+		return tree.getPathForLocation(x, y);
 	}
 
-	private String getMouseClickedPath() {
-		return ((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent()).getPath();
-	}
+//	private void exportItemActionRes() {
+//		new FileDialog(this).exportInternalFile(getMouseClickedPath());
+//		// TODO batch save? (setSelectedFiles, getSelectedFiles, forEach -> if exists promt: [overwrite/skip/cancel batch save])
+//		// TODO make it possible to save as png (technically possible but the encoding is still blp)
+//	}
 
-	private void exportItemActionRes() {
-		new FileDialog(this).exportInternalFile(getMouseClickedPath());
-		// TODO batch save? (setSelectedFiles, getSelectedFiles, forEach -> if exists promt: [overwrite/skip/cancel batch save])
-		// TODO make it possible to save as png (technically possible but the encoding is still blp)
-	}
-
-	public void reloadFileSystem(){
+	public void reloadFileSystem() {
 		mergedListFile = GameDataFileSystem.getDefault().getMergedListfile();
 		root = createMPQTree();
 		refreshTree();
@@ -391,66 +349,6 @@ public final class MPQBrowser extends JPanel {
 		return root;
 	}
 
-	private static final class Filter {
-		private final String[] extensions;
-		private final String name;
-		private final JCheckBoxMenuItem filterCheckBoxItem;
-		private boolean isOtherFilter;
-
-		public Filter(String name, String[] extensions) {
-			this.name = name;
-			this.extensions = extensions;
-			filterCheckBoxItem = new JCheckBoxMenuItem(getDescription(), true);
-		}
-
-		public Filter(String name, boolean isOtherFilter) {
-			this.name = name;
-			this.isOtherFilter = isOtherFilter;
-			extensions = new String[] {};
-			filterCheckBoxItem = new JCheckBoxMenuItem(name, true);
-		}
-
-		public boolean passes(String path) {
-			for (String extension : extensions) {
-				if (path.endsWith(extension)) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public boolean isOtherFilter() {
-			return isOtherFilter;
-		}
-
-		public String getDescription() {
-			StringBuilder descBuilder = new StringBuilder(name);
-			descBuilder.append(" (");
-			if (extensions.length > 0) {
-				descBuilder.append("*");
-				descBuilder.append(extensions[0]);
-				for (int i = 1; i < extensions.length; i++) {
-					descBuilder.append(", *");
-					descBuilder.append(extensions[i]);
-				}
-			}
-			descBuilder.append(")");
-			return descBuilder.toString();
-		}
-
-		public void addItemListener(ItemListener itemListener) {
-			filterCheckBoxItem.addItemListener(itemListener);
-		}
-
-		public void addActionListener(ActionListener listener) {
-			filterCheckBoxItem.addActionListener(listener);
-		}
-
-		public JCheckBoxMenuItem getFilterCheckBoxItem() {
-			return filterCheckBoxItem;
-		}
-	}
-
 	private TreeExpansionListener getTreeExpansionListener() {
 		return new TreeExpansionListener() {
 			@Override
@@ -491,78 +389,7 @@ public final class MPQBrowser extends JPanel {
 	}
 
 
-	private final class MouseAdapterExtension extends MouseAdapter {
-		private final JPopupMenu contextMenu;
-		private TreePath clickedPath;
-
-		private MouseAdapterExtension(final JPopupMenu contextMenu) {
-			this.contextMenu = contextMenu;
-		}
-
-		@Override
-		public void mouseClicked(final MouseEvent e) {
-			clickedPath = tree.getPathForLocation(e.getX(), e.getY());
-			if (SwingUtilities.isRightMouseButton(e)) {
-				contextMenu.show(tree, e.getX(), e.getY());
-			}
-		}
-
-		public TreePath getClickedPath() {
-			return clickedPath;
-		}
-	}
-
 	private static void loadFileByType(String filepath) {
 		ModelLoader.loadFile(GameDataFileSystem.getDefault().getFile(filepath), true);
-	}
-
-	private void addTextureToCurrentModel(String path) {
-		int modIndex = Math.max(path.lastIndexOf(".w3mod/"), path.lastIndexOf(".w3mod\\"));
-		String finalPath;
-		if (modIndex == -1) {
-			finalPath = path;
-		} else {
-			finalPath = path.substring(modIndex + ".w3mod/".length());
-		}
-
-		JPanel panel = new JPanel(new MigLayout());
-		panel.add(new JLabel("Choose model to receive texture"), "wrap");
-		Map<Integer, ModelPanel> models = new HashMap<>();
-		List<ModelPanel> modelPanels = ProgramGlobals.getModelPanels();
-//				.stream()
-//				.filter(
-//						m -> m.getModel().getFile() != null
-//								&& (m.getModel().getFile().getName().endsWith(".mdx")
-//								|| m.getModel().getFile().getName().endsWith(".mdl")))
-//				.collect(Collectors.toList());
-		String[] names = new String[modelPanels.size()];
-		for (ModelPanel m : modelPanels){
-			names[models.size()] = m.getModel().getName();
-			models.put(models.size(), m);
-		}
-		JComboBox<String> modelsBox = new JComboBox<>(names);
-		panel.add(modelsBox);
-
-		int option = JOptionPane.showConfirmDialog(this, panel, "Choose model", JOptionPane.OK_CANCEL_OPTION);
-
-		if(option == JOptionPane.OK_OPTION){
-			ModelPanel modelPanel = models.get(modelsBox.getSelectedIndex());
-			if (modelPanel != null) {
-				if (modelPanel.getModel().getFormatVersion() > 800) {
-					finalPath = finalPath.replace("\\", "/"); // Reforged prefers forward slash
-				}
-				modelPanel.getModel().add(new Bitmap(finalPath));
-				ModelStructureChangeListener.changeListener.texturesChanged();
-			}
-		}
-
-//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-//		if (modelPanel != null) {
-//			if (modelPanel.getModel().getFormatVersion() > 800) {
-//				finalPath = finalPath.replace("\\", "/"); // Reforged prefers forward slash
-//			}
-//			modelPanel.getModel().add(new Bitmap(finalPath));
-//			ModelStructureChangeListener.changeListener.texturesChanged();
-//		}
 	}
 }

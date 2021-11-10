@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.impl.TriggerCategory
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.io.Serializable;
 
-final class CategoryDraggableNode implements DraggableNode, Serializable {
+public final class CategoryDraggableNode implements DraggableNode, Serializable {
 	/**
 	 *
 	 */

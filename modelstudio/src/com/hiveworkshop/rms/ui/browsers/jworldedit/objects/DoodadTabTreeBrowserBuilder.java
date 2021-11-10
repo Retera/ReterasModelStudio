@@ -11,11 +11,14 @@ public class DoodadTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
 
 	@Override
 	public TopLevelCategoryFolder build() {
-		final TopLevelCategoryFolder root = new TopLevelCategoryFolder(
-				new SortByDoodadCategoryFolder(WEString.getString("WESTRING_DE_STANDARDDOODS"), "DoodadCategories",
+		return new TopLevelCategoryFolder(
+				new SortByDoodadCategoryFolder(
+						WEString.getString("WESTRING_DE_STANDARDDOODS"),
+						"DoodadCategories",
 						DOOD_CATEGORY),
-				new SortByDoodadCategoryFolder(WEString.getString("WESTRING_DE_CUSTOMDOODS"), "DoodadCategories",
+				new SortByDoodadCategoryFolder(
+						WEString.getString("WESTRING_DE_CUSTOMDOODS"),
+						"DoodadCategories",
 						DOOD_CATEGORY));
-		return root;
 	}
 }

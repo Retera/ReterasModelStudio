@@ -17,25 +17,23 @@ public final class UnitSortByRaceFolder extends AbstractSortingFolderTreeNode {
 	private static final War3ID UNIT_RACE_FIELD = War3ID.fromString("urac");
 	private static final War3ID UNIT_DISPLAY_AS_NEUTRAL_HOSTILE_FIELD = War3ID.fromString("uhos");
 
-	private final Map<String, SortingFolderTreeNode> raceFolders;
-	private final List<SortingFolderTreeNode> raceNodes;
+	private final Map<String, SortingFolderTreeNode> raceFolders = new HashMap<>();
+	private final List<SortingFolderTreeNode> raceNodes = new ArrayList<>();
 
-	public UnitSortByRaceFolder(final String displayName) {
+	public UnitSortByRaceFolder(String displayName) {
 		this(displayName, Arrays.asList(DefaultUnitRace.values()));
 	}
 
-	public UnitSortByRaceFolder(final String displayName, final List<SortRace> races) {
+	public UnitSortByRaceFolder(String displayName, List<SortRace> races) {
 		super(displayName);
-		raceFolders = new HashMap<>();
-		raceNodes = new ArrayList<>();
-		for (final SortRace race : races) {
-			final UnitRaceLevelFolder meleeCampaignFolder = new UnitRaceLevelFolder(race);
+		for (SortRace race : races) {
+			UnitRaceLevelFolder meleeCampaignFolder = new UnitRaceLevelFolder(race);
 			raceFolders.put(race.getKeyString(), meleeCampaignFolder);
 			raceNodes.add(meleeCampaignFolder);
 		}
 	}
 
-	private DefaultUnitRace raceKey(final int index) {
+	protected DefaultUnitRace raceKey(int index) {
 		return switch (index) {
 			case -1, 0 -> DefaultUnitRace.HUMAN;
 			case 1 -> DefaultUnitRace.ORC;
@@ -52,8 +50,8 @@ public final class UnitSortByRaceFolder extends AbstractSortingFolderTreeNode {
 			"creeps", "");
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object) {
-		final String race = object.getFieldAsString(UNIT_RACE_FIELD, 0);
+	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
+		String race = object.getFieldAsString(UNIT_RACE_FIELD, 0);
 
 		DefaultUnitRace raceKey = null;
 		for (int i = 0; i < 6; i++) {
