@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolder
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.BottomLevelCategoryFolder;
 import com.hiveworkshop.rms.util.War3ID;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 public final class BuffsSortByIsEffectCategoryFolder extends AbstractSortingFolderTreeNode {
 	private static final MutableGameObjectSortStringComparator MUTABLE_GAME_BUFF_COMPARATOR = new MutableGameObjectSortStringComparator();
@@ -32,8 +32,13 @@ public final class BuffsSortByIsEffectCategoryFolder extends AbstractSortingFold
 		return isEffect ? effect : buff;
 	}
 
+	//	@Override
+	public int getSortIndex(SortingFolderTreeNode childNode) {
+		return childNode == buff ? 0 : 1;
+	}
+
 	@Override
-	public int getSortIndex(final DefaultMutableTreeNode childNode) {
+	public int getSortIndex(TreeNode childNode) {
 		return childNode == buff ? 0 : 1;
 	}
 }

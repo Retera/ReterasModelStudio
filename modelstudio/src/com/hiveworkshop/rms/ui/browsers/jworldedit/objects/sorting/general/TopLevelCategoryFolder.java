@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolder
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.TreeNodeLinker;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 public final class TopLevelCategoryFolder extends AbstractSortingFolderTreeNode {
 	/**
@@ -30,8 +31,13 @@ public final class TopLevelCategoryFolder extends AbstractSortingFolderTreeNode 
 		return custom;
 	}
 
+	//	@Override
+	public int getSortIndex(SortingFolderTreeNode childNode) {
+		return childNode == standard ? 0 : 1;
+	}
+
 	@Override
-	public int getSortIndex(DefaultMutableTreeNode childNode) {
+	public int getSortIndex(TreeNode childNode) {
 		return childNode == standard ? 0 : 1;
 	}
 

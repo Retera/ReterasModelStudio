@@ -12,7 +12,7 @@ public final class BottomLevelCategoryFolder extends SortingFolderTreeNode {
 	/**
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
-	private static final long serialVersionUID = 1L;
+//	private static final long serialVersionUID = 1L;
 
 	private final Comparator<MutableGameObject> objectComparator;
 
@@ -37,13 +37,17 @@ public final class BottomLevelCategoryFolder extends SortingFolderTreeNode {
 		return unitNode;
 	}
 
-	@Override
 	public SortingFolderTreeNode getNextNode(MutableGameObject object, TreeNodeLinker defaultTreeModel) {
 		return null;
 	}
 
+	//	@Override
+	public int getSortIndex(SortingFolderTreeNode childNode) {
+		return 0;
+	}
+
 	@Override
-	public int getSortIndex(final DefaultMutableTreeNode childNode) {
+	public int getSortIndex(TreeNode childNode) {
 		return 0;
 	}
 }

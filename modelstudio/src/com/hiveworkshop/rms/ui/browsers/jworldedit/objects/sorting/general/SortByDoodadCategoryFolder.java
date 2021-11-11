@@ -10,7 +10,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSorti
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.util.War3ID;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import java.util.*;
 
 public final class SortByDoodadCategoryFolder extends AbstractSortingFolderTreeNode {
@@ -44,8 +44,23 @@ public final class SortByDoodadCategoryFolder extends AbstractSortingFolderTreeN
 		return objectClassToTreeNode.get(itemClass);
 	}
 
+	//	@Override
+	public int getSortIndex(SortingFolderTreeNode childNode) {
+//		return objectClassesList.indexOf(childNode);
+
+		if (childNode != null) {
+			return objectClassesList.indexOf(childNode);
+		}
+		return -1;
+	}
+
 	@Override
-	public int getSortIndex(DefaultMutableTreeNode childNode) {
-		return objectClassesList.indexOf(childNode);
+	public int getSortIndex(TreeNode childNode) {
+//		return objectClassesList.indexOf(childNode);
+
+		if (childNode != null) {
+			return objectClassesList.indexOf(childNode);
+		}
+		return -1;
 	}
 }

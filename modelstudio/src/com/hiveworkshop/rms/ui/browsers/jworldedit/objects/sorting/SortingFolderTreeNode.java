@@ -10,8 +10,7 @@ public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode {
 	/**
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
-	private static final long serialVersionUID = 1L;
-
+//	private static final long serialVersionUID = 1L;
 	public SortingFolderTreeNode() {
 		super();
 	}
@@ -26,7 +25,9 @@ public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode {
 
 	public abstract DefaultMutableTreeNode add(final MutableGameObject mutableGameObject, TreeNodeLinker treeModel);
 
-	public abstract int getSortIndex(DefaultMutableTreeNode childNode);
+	public abstract int getSortIndex(SortingFolderTreeNode childNode);
+
+	public abstract int getSortIndex(TreeNode childNode);
 
 	/**
 	 * Returns the total number of leaves that are descendants of this node. If this node is a leaf, returns

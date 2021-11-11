@@ -7,16 +7,17 @@ public class WarcraftData implements ObjectData {
 	Map<StringKey, DataTable> tableMap = new HashMap<>();
 	Map<StringKey, WarcraftObject> units = new HashMap<>();
 
-	public void add(final DataTable data, final String name, final boolean canMake) {
+	public WarcraftData add(final DataTable data, final String name, final boolean canMake) {
 		tableMap.put(new StringKey(name), data);
 		tables.add(data);
 		if (canMake) {
-			for (final String id : data.keySet()) {
+			for (String id : data.keySet()) {
 				if (!units.containsKey(new StringKey(id))) {
 					units.put(new StringKey(id), new WarcraftObject(data.get(id).getId(), this));
 				}
 			}
 		}
+		return this;
 	}
 
 	public WarcraftData() {
@@ -46,18 +47,18 @@ public class WarcraftData implements ObjectData {
 
 	@Override
 	public Set<String> keySet() {
-		final Set<String> keySet = new HashSet<>();
-		for (final StringKey key : units.keySet()) {
+		Set<String> keySet = new HashSet<>();
+		for (StringKey key : units.keySet()) {
 			keySet.add(key.getString());
 		}
 		return keySet;
 	}
 
 	public void cloneUnit(final String parentId, final String cloneId) {
-		for (final DataTable table : tables) {
-			final Element parentEntry = table.get(parentId);
-			final LMUnit cloneUnit = new LMUnit(cloneId, table);
-			for (final String key : parentEntry.keySet()) {
+		for (DataTable table : tables) {
+			Element parentEntry = table.get(parentId);
+			LMUnit cloneUnit = new LMUnit(cloneId, table);
+			for (String key : parentEntry.keySet()) {
 				cloneUnit.setField(key, parentEntry.getField(key));
 			}
 			table.put(cloneId, cloneUnit);

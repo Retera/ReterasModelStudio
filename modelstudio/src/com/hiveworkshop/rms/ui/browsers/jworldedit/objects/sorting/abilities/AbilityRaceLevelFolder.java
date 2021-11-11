@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolder
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.BottomLevelCategoryFolder;
 import com.hiveworkshop.rms.util.War3ID;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +16,7 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 	/**
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
-	private static final long serialVersionUID = 1L;
+//	private static final long serialVersionUID = 1L;
 	private static final War3ID ABIL_IS_ITEM_ABIL = War3ID.fromString("aite");
 	private static final War3ID ABIL_IS_HERO_ABIL = War3ID.fromString("aher");
 	private static final MutableGameAbilityComparator MUTABLE_GAME_ABIL_COMPARATOR = new MutableGameAbilityComparator();
@@ -39,7 +39,6 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 		folders.add(hidden);
 	}
 
-	@Override
 	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
 		if (object.getFieldAsBoolean(ABIL_IS_HERO_ABIL, 0)) {
 			return heroes;
@@ -52,9 +51,20 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 		}
 	}
 
+	//	@Override
+	public int getSortIndex(SortingFolderTreeNode childNode) {
+		if (childNode != null) {
+			return folders.indexOf(childNode);
+		}
+		return -1;
+	}
+
 	@Override
-	public int getSortIndex(final DefaultMutableTreeNode childNode) {
-		return folders.indexOf(childNode);
+	public int getSortIndex(TreeNode childNode) {
+		if (childNode != null) {
+			return folders.indexOf(childNode);
+		}
+		return -1;
 	}
 
 }

@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolder
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.SortRace;
 import com.hiveworkshop.rms.util.War3ID;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 public class UnitRaceLevelFolder extends AbstractSortingFolderTreeNode {
 	/**
@@ -35,8 +35,16 @@ public class UnitRaceLevelFolder extends AbstractSortingFolderTreeNode {
 		return isCampaign ? campaign : melee;
 	}
 
+	//	@Override
+	public int getSortIndex(SortingFolderTreeNode childNode) {
+		if (childNode == hidden) {
+			return 2;
+		}
+		return childNode == melee ? 0 : 1;
+	}
+
 	@Override
-	public int getSortIndex(DefaultMutableTreeNode childNode) {
+	public int getSortIndex(TreeNode childNode) {
 		if (childNode == hidden) {
 			return 2;
 		}

@@ -32,7 +32,7 @@ public class ImportFileActions {
 
 	public static void repaintModelTrees() {
 		if (ProgramGlobals.getCurrentModelPanel() != null) {
-            ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 		}
 	}
 

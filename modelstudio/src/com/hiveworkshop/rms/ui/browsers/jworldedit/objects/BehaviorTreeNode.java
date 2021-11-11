@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-public class BehaviorTreeNode extends DefaultMutableTreeNode {
+class BehaviorTreeNode extends DefaultMutableTreeNode {
 	private final ImageIcon icon;
 
 	public BehaviorTreeNode(final String text, final ImageIcon icon) {

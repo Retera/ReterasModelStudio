@@ -9,7 +9,7 @@ public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNod
 	/**
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
-	private static final long serialVersionUID = 1L;
+//	private static final long serialVersionUID = 1L;
 
 	public AbstractSortingFolderTreeNode() {
 		super();
@@ -38,23 +38,37 @@ public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNod
 		return newChild;
 	}
 
-	@Override
 	public SortingFolderTreeNode getNextNode(MutableGameObject object, TreeNodeLinker treeModel) {
 		SortingFolderTreeNode sortingFolderTreeNode = getNextNode(object);
-		if (sortingFolderTreeNode == null) {
-			return null;
-		}
-		int sortedInsertionIndex = 0;
-		for (int childIndex = 0; childIndex < getChildCount(); childIndex++) {
-			if (getSortIndex(sortingFolderTreeNode) >= getSortIndex((DefaultMutableTreeNode) getChildAt(childIndex))) {
-				sortedInsertionIndex = childIndex + 1;
+		if (sortingFolderTreeNode != null) {
+			int sortedInsertionIndex = 0;
+			for (int childIndex = 0; childIndex < getChildCount(); childIndex++) {
+				if (getSortIndex(sortingFolderTreeNode) >= getSortIndex(getChildAt(childIndex))) {
+					sortedInsertionIndex = childIndex + 1;
+				}
 			}
-		}
-		if (!isNodeChild(sortingFolderTreeNode)) {
-			treeModel.insertNodeInto(sortingFolderTreeNode, this, sortedInsertionIndex);
+			if (!isNodeChild(sortingFolderTreeNode)) {
+				treeModel.insertNodeInto(sortingFolderTreeNode, this, sortedInsertionIndex);
+			}
 		}
 		return sortingFolderTreeNode;
 	}
+
+//	@Override
+//	public SortingFolderTreeNode getChildAt(int index){
+//		TreeNode childAt = super.getChildAt(index);
+//		if(childAt instanceof  SortingFolderTreeNode){
+//			return (SortingFolderTreeNode) childAt;
+//		} else {
+//			if(childAt != null && childAt.toString().equals("com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject@15a902e7")){
+//				System.out.println("index: " + index);
+//				System.out.println("childAt: " + childAt);
+//				System.out.println("childClass: " + childAt.getClass());
+//				new Exception().printStackTrace();
+//			}
+//		}
+//		return null;
+//	}
 
 	protected abstract SortingFolderTreeNode getNextNode(MutableGameObject object);
 

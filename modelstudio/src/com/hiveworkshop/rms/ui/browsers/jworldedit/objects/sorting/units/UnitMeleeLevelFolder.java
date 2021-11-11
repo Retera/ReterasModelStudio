@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolder
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.BottomLevelCategoryFolder;
 import com.hiveworkshop.rms.util.War3ID;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,9 +52,24 @@ public final class UnitMeleeLevelFolder extends AbstractSortingFolderTreeNode {
 		}
 	}
 
+	//	@Override
+	public int getSortIndex(SortingFolderTreeNode childNode) {
+//		return folders.indexOf(childNode);
+
+		if (childNode != null) {
+			return folders.indexOf(childNode);
+		}
+		return -1;
+	}
+
 	@Override
-	public int getSortIndex(DefaultMutableTreeNode childNode) {
-		return folders.indexOf(childNode);
+	public int getSortIndex(TreeNode childNode) {
+//		return folders.indexOf(childNode);
+
+		if (childNode != null) {
+			return folders.indexOf(childNode);
+		}
+		return -1;
 	}
 
 }

@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.WarcraftObject;
@@ -31,14 +30,12 @@ import java.util.List;
 
 public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSelectionListener {
 	MutableGameObject currentUnit = null;
-	UnitEditorTreeModel model;
+//	UnitEditorTreeModel model;
 
 	JLabel debugLabel = new JLabel("debug");
 
 	EditableModel mdl = new EditableModel();
-	// MDL mdl;
 	ModelHandler modelHandler = new ModelHandler(mdl);
-	//	ModelView modelDisp = new ModelView(mdl);
 	PerspDisplayPanel perspDisplayPanel;
 	DefaultTableModel tableModel;
 	DefaultMutableTreeNode defaultSelection = null;
@@ -46,8 +43,8 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 	private final MutableObjectData unitData;
 	private final UnitEditorTree tree;
 
-	public BetterUnitEditorModelSelector(final MutableObjectData unitData,
-										 final UnitEditorSettings unitEditorSettings) {
+	public BetterUnitEditorModelSelector(MutableObjectData unitData,
+	                                     UnitEditorSettings unitEditorSettings) {
 		this.unitData = unitData;
 		tree = new UnitEditorTree(unitData, new UnitTabTreeBrowserBuilder(), unitEditorSettings);
 
@@ -81,16 +78,10 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 
 		String filepath = currentUnit.getFieldAsString(UnitFields.MODEL_FILE, 0);
 
-		ModelView modelDisp = null;
 		try {
-			if (filepath.endsWith(".mdl")) {
-				filepath = filepath.replace(".mdl", ".mdx");
-			} else if (!filepath.endsWith(".mdx")) {
-				filepath = filepath.concat(".mdx");
-			}
+			filepath = setEndWithMdx(filepath);
 			try (InputStream reader = GameDataFileSystem.getDefault().getResourceAsStream(filepath)) {
 				mdl = TempOpenModelStuff.createEditableModel(MdxUtils.loadMdlx(reader));
-//				modelDisp = new ModelView(mdl);
 				modelHandler = new ModelHandler(mdl);
 				perspDisplayPanel.setModel(modelHandler);
 				perspDisplayPanel.setTitle(currentUnit.getName());
@@ -107,6 +98,21 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
+
+	private String setEndWithMdx(String filepath) {
+		if (filepath.endsWith(".mdl")) {
+			filepath = filepath.replace(".mdl", ".mdx");
+		} else if (!filepath.endsWith(".mdx")) {
+			filepath = filepath.concat(".mdx");
+		}
+		return filepath;
+	}
+
+//	static class UnitEditorTreeModel extends DefaultTreeModel {
+//		public UnitEditorTreeModel(final DefaultMutableTreeNode root) {
+//			super(root);
+//		}
+//	}
 
 	public void loadRaceData(final DefaultMutableTreeNode folder, final RaceData data) {
 		addDataToFolder(folder, "WESTRING_UNITS", data.units);
