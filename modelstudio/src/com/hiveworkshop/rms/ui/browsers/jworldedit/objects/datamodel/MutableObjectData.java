@@ -1,11 +1,14 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel;
 
+import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
+import com.hiveworkshop.rms.parsers.slk.WarcraftData;
 import com.hiveworkshop.rms.parsers.w3o.Change;
 import com.hiveworkshop.rms.parsers.w3o.ObjectDataChangeEntry;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorDataChangeListener;
 import com.hiveworkshop.rms.util.War3ID;
 
 import java.util.*;
@@ -13,24 +16,71 @@ import java.util.*;
 public class MutableObjectData {
 
 	private final WorldEditorDataType worldEditorDataType;
-	private final ObjectData sourceSLKData;
-	private final ObjectData sourceSLKMetaData;
+	private final WarcraftData sourceSLKData;
+	private final DataTable sourceSLKMetaData;
 	private final War3ObjectDataChangeset editorData;
 	private Set<War3ID> cachedKeySet;
 	private final Map<String, War3ID> metaNameToMetaId;
 	private final Map<War3ID, MutableGameObject> cachedKeyToGameObject;
 	private final MutableObjectDataChangeNotifier changeNotifier;
 
-	public MutableObjectData(WorldEditorDataType worldEditorDataType, ObjectData sourceSLKData,
-			ObjectData sourceSLKMetaData, War3ObjectDataChangeset editorData) {
+//	public MutableObjectData(WorldEditorDataType worldEditorDataType, ObjectData sourceSLKData,
+//			ObjectData sourceSLKMetaData, War3ObjectDataChangeset editorData) {
+//		this.worldEditorDataType = worldEditorDataType;
+//		resolveStringReferencesInNames(sourceSLKData);
+//		this.sourceSLKData = sourceSLKData;
+//		this.sourceSLKMetaData = sourceSLKMetaData;
+//		this.editorData = editorData;
+//		metaNameToMetaId = new HashMap<>();
+//		for (final String metaKeyString : sourceSLKMetaData.keySet()) {
+//			final War3ID metaKey = War3ID.fromString(metaKeyString);
+//			metaNameToMetaId.put(sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
+//		}
+//		cachedKeyToGameObject = new HashMap<>();
+//		changeNotifier = new MutableObjectDataChangeNotifier();
+//	}
+
+//	public MutableObjectData(WorldEditorDataType worldEditorDataType, WarcraftData sourceSLKData,
+//			ObjectData sourceSLKMetaData, War3ObjectDataChangeset editorData) {
+//		this.worldEditorDataType = worldEditorDataType;
+//		resolveStringReferencesInNames(sourceSLKData);
+//		this.sourceSLKData = sourceSLKData;
+//		this.sourceSLKMetaData = sourceSLKMetaData;
+//		this.editorData = editorData;
+//		metaNameToMetaId = new HashMap<>();
+//		for (final String metaKeyString : sourceSLKMetaData.keySet()) {
+//			final War3ID metaKey = War3ID.fromString(metaKeyString);
+//			metaNameToMetaId.put(sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
+//		}
+//		cachedKeyToGameObject = new HashMap<>();
+//		changeNotifier = new MutableObjectDataChangeNotifier();
+//	}
+
+//	public MutableObjectData(){
+//		this.worldEditorDataType = WorldEditorDataType.UNITS;
+//		this.sourceSLKData = StandardObjectData.getStandardUnits();
+//		resolveStringReferencesInNames(sourceSLKData);
+//		this.sourceSLKMetaData = StandardObjectData.getStandardUnitMeta();
+//		this.editorData = null;
+//		metaNameToMetaId = new HashMap<>();
+//		for (String metaKeyString : sourceSLKMetaData.keySet()) {
+//			War3ID metaKey = War3ID.fromString(metaKeyString);
+//			metaNameToMetaId.put(sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
+//		}
+//		cachedKeyToGameObject = new HashMap<>();
+//		changeNotifier = new MutableObjectDataChangeNotifier();
+//	}
+
+	public MutableObjectData(WorldEditorDataType worldEditorDataType, WarcraftData sourceSLKData,
+	                         DataTable sourceSLKMetaData, War3ObjectDataChangeset editorData) {
 		this.worldEditorDataType = worldEditorDataType;
 		resolveStringReferencesInNames(sourceSLKData);
 		this.sourceSLKData = sourceSLKData;
 		this.sourceSLKMetaData = sourceSLKMetaData;
 		this.editorData = editorData;
 		metaNameToMetaId = new HashMap<>();
-		for (final String metaKeyString : sourceSLKMetaData.keySet()) {
-			final War3ID metaKey = War3ID.fromString(metaKeyString);
+		for (String metaKeyString : sourceSLKMetaData.keySet()) {
+			War3ID metaKey = War3ID.fromString(metaKeyString);
 			metaNameToMetaId.put(sourceSLKMetaData.get(metaKeyString).getField("field"), metaKey);
 		}
 		cachedKeyToGameObject = new HashMap<>();
@@ -46,7 +96,7 @@ public class MutableObjectData {
 		return metaNameToMetaId;
 	}
 
-	private void resolveStringReferencesInNames(ObjectData sourceSLKData) {
+	private void resolveStringReferencesInNames1(ObjectData sourceSLKData) {
 		for (String key : sourceSLKData.keySet()) {
 			GameObject gameObject = sourceSLKData.get(key);
 			String suffix = gameObject.getField("EditorSuffix");
@@ -79,56 +129,105 @@ public class MutableObjectData {
 		}
 	}
 
-	public void mergeChangset(final War3ObjectDataChangeset changeset) {
-		final List<War3ID> newObjects = new ArrayList<>();
-		final Map<War3ID, War3ID> previousAliasToNewAlias = new HashMap<>();
-		for (final Map.Entry<War3ID, ObjectDataChangeEntry> entry : changeset.getCustom()) {
+	private void resolveStringReferencesInNames(ObjectData sourceSLKData) {
+		for (String key : sourceSLKData.keySet()) {
+			GameObject gameObject = sourceSLKData.get(key);
+			String suffix = gameObject.getField("EditorSuffix");
+			String nameField = gameObject.getField("Name");
+			if (nameField.startsWith("WESTRING")) {
+				String name = getName2(nameField);
+				gameObject.setField("Name", name);
+			}
+			if (suffix.startsWith("WESTRING")) {
+				gameObject.setField("EditorSuffix", WEString.getString(suffix));
+			}
+		}
+	}
 
-//			final String newId = JOptionPane.showInputDialog("Choose UNIT ID");
-			final War3ID nextDefaultEditorId = /* War3ID.fromString(newId); */getNextDefaultEditorId(
-					War3ID.fromString(entry.getKey().charAt(0) + "000"));
+	private String getName2(String nameField) {
+		String name;
+		if (!nameField.contains(" ")) {
+			name = WEString.getString(nameField);
+		} else {
+			String[] names = nameField.split(" ");
+			StringBuilder nameBuilder = new StringBuilder();
+			for (String subName : names) {
+				if (nameBuilder.length() > 0) {
+					nameBuilder.append(" ");
+				}
+				if (subName.startsWith("WESTRING")) {
+					nameBuilder.append(WEString.getString(subName));
+				} else {
+					nameBuilder.append(subName);
+				}
+			}
+			name = nameBuilder.toString();
+		}
+		if (name.startsWith("\"") && name.endsWith("\"")) {
+			return name.substring(1, name.length() - 1);
+		}
+		return name;
+	}
+
+	public void mergeChangset(War3ObjectDataChangeset changeset) {
+		List<War3ID> newObjects = new ArrayList<>();
+		Map<War3ID, War3ID> previousAliasToNewAlias = new HashMap<>();
+
+		for (Map.Entry<War3ID, ObjectDataChangeEntry> entry : changeset.getCustom()) {
+
+			War3ID nextDefaultEditorId = getNextDefaultEditorId(War3ID.fromString(entry.getKey().charAt(0) + "000"));
 			System.out.println("Merging " + nextDefaultEditorId + " for  " + entry.getKey());
 			// createNew API will notifier the changeNotifier
-			final MutableGameObject newObject = createNew(nextDefaultEditorId, entry.getValue().getOldId(), false);
-			for (final Map.Entry<War3ID, List<Change>> changeList : entry.getValue().getChanges()) {
+			MutableGameObject newObject = createNew(nextDefaultEditorId, entry.getValue().getOldId(), false);
+			for (Map.Entry<War3ID, List<Change>> changeList : entry.getValue().getChanges()) {
 				newObject.getCustomUnitData().getChanges().add(changeList.getKey(), changeList.getValue());
 			}
 			newObjects.add(nextDefaultEditorId);
 			previousAliasToNewAlias.put(entry.getKey(), nextDefaultEditorId);
 		}
-		final War3ID[] fieldsToCheck = getFieldsToCheck();
+		War3ID[] fieldsToCheck = getFieldsToCheck();
+
 		for (War3ID unitId : newObjects) {
 			MutableGameObject unit = get(unitId);
-			for (War3ID field : fieldsToCheck) {
-				String techtreeString = unit.getFieldAsString(field, 0);
-				String[] techList = techtreeString.split(",");
-				List<String> resultingTechList = new ArrayList<>();
-				for (String tech : techList) {
-					if (tech.length() == 4) {
-						War3ID newTechId = previousAliasToNewAlias.get(War3ID.fromString(tech));
-						if (newTechId != null) {
-							resultingTechList.add(newTechId.toString());
-						} else {
-							resultingTechList.add(tech);
-						}
-					} else {
-						resultingTechList.add(tech);
-					}
-				}
-				StringBuilder sb = new StringBuilder();
-				for (String tech : resultingTechList) {
-					if (sb.length() > 0) {
-						sb.append(",");
-					}
-					sb.append(tech);
-				}
-				unit.setField(field, 0, sb.toString());
-			}
+			fixUnitTechTreeStrings(previousAliasToNewAlias, fieldsToCheck, unit);
 		}
 		changeNotifier.objectsCreated(newObjects.toArray(new War3ID[0]));
 	}
 
-	public War3ObjectDataChangeset copySelectedObjects(List<MutableGameObject> objectsToCopy) {
+	private void fixUnitTechTreeStrings(Map<War3ID, War3ID> previousAliasToNewAlias, War3ID[] fieldsToCheck, MutableGameObject unit) {
+		for (War3ID field : fieldsToCheck) {
+			String techTreeString = unit.getFieldAsString(field, 0);
+			List<String> resultingTechList = getTechList(previousAliasToNewAlias, techTreeString);
+			StringBuilder sb = new StringBuilder();
+			for (String tech : resultingTechList) {
+				if (sb.length() > 0) {
+					sb.append(",");
+				}
+				sb.append(tech);
+			}
+			unit.setField(field, 0, sb.toString());
+		}
+	}
+
+	private List<String> getTechList(Map<War3ID, War3ID> previousAliasToNewAlias, String techtreeString) {
+		String[] techList = techtreeString.split(",");
+		List<String> resultingTechList = new ArrayList<>();
+		for (String tech : techList) {
+			if (tech.length() == 4) {
+				War3ID newTechId = previousAliasToNewAlias.get(War3ID.fromString(tech));
+				if (newTechId != null) {
+					resultingTechList.add(newTechId.toString());
+				} else {
+					resultingTechList.add(tech);
+				}
+			} else {
+				resultingTechList.add(tech);
+			}
+		}
+		return resultingTechList;
+	}
+
+	public War3ObjectDataChangeset copySelectedObjects(final List<MutableGameObject> objectsToCopy) {
 		War3ObjectDataChangeset changeset = new War3ObjectDataChangeset(editorData.getExpectedKind());
 		War3ID[] fieldsToCheck = getFieldsToCheck();
 		Map<War3ID, War3ID> previousAliasToNewAlias = new HashMap<>();
@@ -166,31 +265,7 @@ public class MutableObjectData {
 
 		for (War3ID unitId : changeEditManager.keySet()) {
 			MutableGameObject unit = changeEditManager.get(unitId);
-			for (War3ID field : fieldsToCheck) {
-				String techtreeString = unit.getFieldAsString(field, 0);
-				String[] techList = techtreeString.split(",");
-				List<String> resultingTechList = new ArrayList<>();
-				for (String tech : techList) {
-					if (tech.length() == 4) {
-						War3ID newTechId = previousAliasToNewAlias.get(War3ID.fromString(tech));
-						if (newTechId != null) {
-							resultingTechList.add(newTechId.toString());
-						} else {
-							resultingTechList.add(tech);
-						}
-					} else {
-						resultingTechList.add(tech);
-					}
-				}
-				StringBuilder sb = new StringBuilder();
-				for (String tech : resultingTechList) {
-					if (sb.length() > 0) {
-						sb.append(",");
-					}
-					sb.append(tech);
-				}
-				unit.setField(field, 0, sb.toString());
-			}
+			fixUnitTechTreeStrings(previousAliasToNewAlias, fieldsToCheck, unit);
 		}
 		return changeset;
 
@@ -206,15 +281,15 @@ public class MutableObjectData {
 		return worldEditorDataType;
 	}
 
-	public ObjectData getSourceSLKMetaData() {
+	public DataTable getSourceSLKMetaData() {
 		return sourceSLKMetaData;
 	}
 
-	public void addChangeListener(final MutableObjectDataChangeListener listener) {
+	public void addChangeListener(final UnitEditorDataChangeListener listener) {
 		changeNotifier.subscribe(listener);
 	}
 
-	public void removeChangeListener(final MutableObjectDataChangeListener listener) {
+	public void removeChangeListener(final UnitEditorDataChangeListener listener) {
 		changeNotifier.unsubscribe(listener);
 	}
 
@@ -345,6 +420,7 @@ public class MutableObjectData {
 		}
 		return newId;
 	}
+
 
 	public static String getEditorMetaDataDisplayKey(int level, final GameObject metaData) {
 		int index = metaData.getFieldValue("index");

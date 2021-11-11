@@ -28,7 +28,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 
 	public UnitEditorTreeBrowser(MutableObjectData unitData, ObjectTabTreeBrowserBuilder browserBuilder,
 	                             UnitEditorSettings settings, WorldEditorDataType dataType) {
-		super(unitData, browserBuilder, settings, dataType);
+		super(unitData, browserBuilder, settings);
 
 		selectFirstUnit();
 		JPopupMenu popupMenu = new JPopupMenu();

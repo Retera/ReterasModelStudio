@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.w3o.Change;
 import com.hiveworkshop.rms.parsers.w3o.ChangeMap;
 import com.hiveworkshop.rms.parsers.w3o.ObjectDataChangeEntry;
-import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.util.War3ID;
@@ -30,8 +29,6 @@ public final class MutableGameObject {
 	private static final War3ID HERO_PROPER_NAMES = War3ID.fromString("upro");
 
 	private static final Set<War3ID> CATEGORY_FIELDS = new HashSet<>();
-	private static final Set<War3ID> TEXT_FIELDS = new HashSet<>();
-	private static final Set<War3ID> ICON_FIELDS = new HashSet<>();
 	private static final Set<War3ID> FIELD_SETTINGS_FIELDS = new HashSet<>();
 
 	static {
@@ -64,7 +61,6 @@ public final class MutableGameObject {
 		FIELD_SETTINGS_FIELDS.add(War3ID.fromString("alev")); // ability level
 		FIELD_SETTINGS_FIELDS.add(War3ID.fromString("glvl")); // upgrade max level
 	}
-
 
 	private final MutableObjectDataChangeNotifier changeNotifier;
 	private final MutableObjectData mutableObjectData;
@@ -116,75 +112,6 @@ public final class MutableGameObject {
 		return mutableObjectData.getEditorData().getCustom().containsKey(getAlias());
 	}
 
-	public void setField(final War3ID field, final int level, final String value) {
-		if (value.equals(getFieldStringFromSLKs(field, level))) {
-			if (!value.equals(getFieldAsString(field, level))) {
-				fireChangedEvent(field, level);
-				System.out.println("field was reset");
-			} else {
-				System.out.println("field was unmodified");
-			}
-			resetFieldToDefaults(field, level);
-			return;
-		}
-		getOrCreateMatchingChange(field, level)
-				.setStrval(value)
-				.setVarTypeInt(War3ObjectDataChangeset.VAR_TYPE_STRING);
-		System.out.println("field created change");
-		fireChangedEvent(field, level);
-	}
-
-	public void setField(final War3ID field, final int level, final boolean value) {
-		if (value == (asInt(getFieldStringFromSLKs(field, level).trim()) == 1)) {
-			if (value != getFieldAsBoolean(field, level)) {
-				fireChangedEvent(field, level);
-			}
-			resetFieldToDefaults(field, level);
-			return;
-		}
-		getOrCreateMatchingChange(field, level)
-				.setBoolval(value)
-				.setVarTypeInt(War3ObjectDataChangeset.VAR_TYPE_BOOLEAN);
-		fireChangedEvent(field, level);
-	}
-
-	public void setField(final War3ID field, final int level, final int value) {
-		if (value == asInt(getFieldStringFromSLKs(field, level).trim())) {
-			if (value != getFieldAsInteger(field, level)) {
-				fireChangedEvent(field, level);
-			}
-			resetFieldToDefaults(field, level);
-			return;
-		}
-		getOrCreateMatchingChange(field, level)
-				.setLongval(value)
-				.setVarTypeInt(War3ObjectDataChangeset.VAR_TYPE_INT);
-		fireChangedEvent(field, level);
-	}
-
-	public void resetFieldToDefaults(final War3ID field, final int level) {
-		final Change existingChange = getMatchingChange(field, level);
-		if ((existingChange != null) && (customUnitData != null)) {
-			customUnitData.getChanges().delete(field, existingChange);
-			fireChangedEvent(field, level);
-		}
-	}
-
-	public void setField(final War3ID field, final int level, final float value) {
-		if (Math.abs(value - asFloat(getFieldStringFromSLKs(field, level).trim())) < 0.00001f) {
-			if (Math.abs(value - getFieldAsFloat(field, level)) > 0.00001f) {
-				fireChangedEvent(field, level);
-			}
-			resetFieldToDefaults(field, level);
-			return;
-		}
-		final Change matchingChange = getOrCreateMatchingChange(field, level).setRealval(value);
-		final boolean unsigned = mutableObjectData.getSourceSLKMetaData().get(field.asStringValue()).getField("type").equals("unreal");
-		matchingChange.setVarTypeInt(
-				unsigned ? War3ObjectDataChangeset.VAR_TYPE_UNREAL : War3ObjectDataChangeset.VAR_TYPE_REAL);
-		fireChangedEvent(field, level);
-	}
-
 	private Change getOrCreateMatchingChange(final War3ID field, final int level) {
 		if (customUnitData == null) {
 			final War3ID war3Id = War3ID.fromString(parentWC3Object.getId());
@@ -219,24 +146,6 @@ public final class MutableGameObject {
 			}
 		}
 		return matchingChange;
-	}
-
-	public String getFieldAsString(final War3ID field, final int level) {
-		final Change matchingChange = getMatchingChange(field, level);
-		if (matchingChange != null) {
-			if (matchingChange.getVarTypeInt() != War3ObjectDataChangeset.VAR_TYPE_STRING) {
-				throw new IllegalStateException(
-						"Requested string value of '" + field + "' from '" + parentWC3Object.getId()
-								+ "', but this field was not a string! vartype=" + matchingChange.getVarTypeInt());
-			}
-			return matchingChange.getStrval();
-		}
-		// no luck with custom data, look at the standard data
-		int slkLevel = level;
-		if (mutableObjectData.getWorldEditorDataType() == WorldEditorDataType.UPGRADES) {
-			slkLevel -= 1;
-		}
-		return getFieldStringFromSLKs(field, slkLevel);
 	}
 
 	private Change getMatchingChange(final War3ID field, final int level) {
@@ -473,10 +382,101 @@ public final class MutableGameObject {
 		return parentWC3Object.getField(editorMetaDataDisplayKey);
 	}
 
+	public void setField(final War3ID field, final int level, final String value) {
+		if (value.equals(getFieldStringFromSLKs(field, level))) {
+			if (!value.equals(getFieldAsString(field, level))) {
+				fireChangedEvent(field, level);
+				System.out.println("field was reset");
+			} else {
+				System.out.println("field was unmodified");
+			}
+			resetFieldToDefaults(field, level);
+			return;
+		}
+		getOrCreateMatchingChange(field, level)
+				.setStrval(value)
+//				.setVarTypeInt(War3ObjectDataChangeset.VAR_TYPE_STRING);
+				.setVarType(Change.VarType.VAR_TYPE_STRING);
+		System.out.println("field created change");
+		fireChangedEvent(field, level);
+	}
+
+	public void setField(final War3ID field, final int level, final boolean value) {
+		if (value == (asInt(getFieldStringFromSLKs(field, level).trim()) == 1)) {
+			if (value != getFieldAsBoolean(field, level)) {
+				fireChangedEvent(field, level);
+			}
+			resetFieldToDefaults(field, level);
+			return;
+		}
+		getOrCreateMatchingChange(field, level)
+				.setBoolval(value)
+//				.setVarTypeInt(War3ObjectDataChangeset.VAR_TYPE_BOOLEAN);
+				.setVarType(Change.VarType.VAR_TYPE_BOOLEAN);
+		fireChangedEvent(field, level);
+	}
+
+	public void setField(final War3ID field, final int level, final int value) {
+		if (value == asInt(getFieldStringFromSLKs(field, level).trim())) {
+			if (value != getFieldAsInteger(field, level)) {
+				fireChangedEvent(field, level);
+			}
+			resetFieldToDefaults(field, level);
+			return;
+		}
+		getOrCreateMatchingChange(field, level)
+				.setLongval(value)
+//				.setVarTypeInt(War3ObjectDataChangeset.VAR_TYPE_INT);
+				.setVarType(Change.VarType.VAR_TYPE_INT);
+		fireChangedEvent(field, level);
+	}
+
+	public void resetFieldToDefaults(final War3ID field, final int level) {
+		final Change existingChange = getMatchingChange(field, level);
+		if ((existingChange != null) && (customUnitData != null)) {
+			customUnitData.getChanges().delete(field, existingChange);
+			fireChangedEvent(field, level);
+		}
+	}
+
+	public void setField(final War3ID field, final int level, final float value) {
+		if (Math.abs(value - asFloat(getFieldStringFromSLKs(field, level).trim())) < 0.00001f) {
+			if (Math.abs(value - getFieldAsFloat(field, level)) > 0.00001f) {
+				fireChangedEvent(field, level);
+			}
+			resetFieldToDefaults(field, level);
+			return;
+		}
+		final Change matchingChange = getOrCreateMatchingChange(field, level).setRealval(value);
+		final boolean unsigned = mutableObjectData.getSourceSLKMetaData().get(field.asStringValue()).getField("type").equals("unreal");
+//		matchingChange.setVarTypeInt(
+//				unsigned ? War3ObjectDataChangeset.VAR_TYPE_UNREAL : War3ObjectDataChangeset.VAR_TYPE_REAL);
+		matchingChange.setVarType(unsigned ? Change.VarType.VAR_TYPE_UNREAL : Change.VarType.VAR_TYPE_REAL);
+		fireChangedEvent(field, level);
+	}
+
+	public String getFieldAsString(final War3ID field, final int level) {
+		final Change matchingChange = getMatchingChange(field, level);
+		if (matchingChange != null) {
+			if (matchingChange.getVarType() != Change.VarType.VAR_TYPE_STRING) {
+				throw new IllegalStateException(
+						"Requested string value of '" + field + "' from '" + parentWC3Object.getId()
+								+ "', but this field was not a string! vartype=" + matchingChange.getVarTypeInt());
+			}
+			return matchingChange.getStrval();
+		}
+		// no luck with custom data, look at the standard data
+		int slkLevel = level;
+		if (mutableObjectData.getWorldEditorDataType() == WorldEditorDataType.UPGRADES) {
+			slkLevel -= 1;
+		}
+		return getFieldStringFromSLKs(field, slkLevel);
+	}
+
 	public int getFieldAsInteger(final War3ID field, final int level) {
 		final Change matchingChange = getMatchingChange(field, level);
 		if (matchingChange != null) {
-			if (matchingChange.getVarTypeInt() != War3ObjectDataChangeset.VAR_TYPE_INT) {
+			if (matchingChange.getVarType() != Change.VarType.VAR_TYPE_INT) {
 				throw new IllegalStateException(
 						"Requested integer value of '" + field + "' from '" + parentWC3Object.getId()
 								+ "', but this field was not an int! vartype=" + matchingChange.getVarTypeInt());
@@ -494,8 +494,9 @@ public final class MutableGameObject {
 	public boolean getFieldAsBoolean(final War3ID field, final int level) {
 		final Change matchingChange = getMatchingChange(field, level);
 		if (matchingChange != null) {
-			if (matchingChange.getVarTypeInt() != War3ObjectDataChangeset.VAR_TYPE_BOOLEAN) {
-				if (matchingChange.getVarTypeInt() == War3ObjectDataChangeset.VAR_TYPE_INT) {
+			String type = "boolean";
+			if (matchingChange.getVarType() != Change.VarType.VAR_TYPE_BOOLEAN) {
+				if (matchingChange.getVarType() == Change.VarType.VAR_TYPE_INT) {
 					return matchingChange.getLongval() == 1;
 				} else {
 					throw new IllegalStateException(
@@ -516,8 +517,9 @@ public final class MutableGameObject {
 	public float getFieldAsFloat(final War3ID field, final int level) {
 		final Change matchingChange = getMatchingChange(field, level);
 		if (matchingChange != null) {
-			if ((matchingChange.getVarTypeInt() != War3ObjectDataChangeset.VAR_TYPE_REAL)
-					&& (matchingChange.getVarTypeInt() != War3ObjectDataChangeset.VAR_TYPE_UNREAL)) {
+			String type = "float";
+			if ((matchingChange.getVarType() != Change.VarType.VAR_TYPE_REAL)
+					&& (matchingChange.getVarType() != Change.VarType.VAR_TYPE_UNREAL)) {
 				throw new IllegalStateException(
 						"Requested float value of '" + field + "' from '" + parentWC3Object.getId()
 								+ "', but this field was not a float! vartype=" + matchingChange.getVarTypeInt());

@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
+import com.hiveworkshop.rms.parsers.w3o.WTS;
 import com.hiveworkshop.rms.parsers.w3o.WTSFile;
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.AbstractWorldEditorPanel;
@@ -14,32 +15,24 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.builder
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.factory.BasicSingleFieldFactory;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
-import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
+import com.hiveworkshop.rms.util.War3ID;
 import de.wc3data.stream.BlizzardDataInputStream;
-import de.wc3data.stream.BlizzardDataOutputStream;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
+	private static final War3ID UNIT_NAME = War3ID.fromString("unam");
 
 	private final List<UnitEditorPanel> editors = new ArrayList<>();
-	private JButton createNewButton;
-	private JButton pasteButton;
-	private JButton copyButton;
 	private final JTabbedPane tabbedPane;
+//	private MutableObjectData unitData;
 
-	private MutableObjectData unitData;
-
-	private final JFileChooser jFileChooser;
 
 	public ObjectEditorPanel() {
 		tabbedPane = new JTabbedPane() {
@@ -56,125 +49,31 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		tabbedPane.addTab(WEString.getString("WESTRING_OBJTAB_DOODADS"), getIcon(worldEditorData, "ToolBarIcon_OE_NewDood"), createDoodadEditor());
 		tabbedPane.addTab(WEString.getString("WESTRING_OBJTAB_ABILITIES"), getIcon(worldEditorData, "ToolBarIcon_OE_NewAbil"), createAbilityEditor());
 		tabbedPane.addTab(WEString.getString("WESTRING_OBJTAB_BUFFS"), getIcon(worldEditorData, "ToolBarIcon_OE_NewBuff"), createAbilityBuffEditor());
+		System.out.println("nextPanel : UpgradePanel!");
 		tabbedPane.addTab(WEString.getString("WESTRING_OBJTAB_UPGRADES"), getIcon(worldEditorData, "ToolBarIcon_OE_NewUpgr"), createUpgradeEditor());
+		System.out.println("UpgradePanel done!");
 
 		tabbedPane.addTab("Terrain", getIcon(worldEditorData, "ToolBarIcon_Module_Terrain"), createUpgradeEditor());
 		tabbedPane.addTab("Lighting Effects", new ImageIcon(IconUtils.worldEditStyleIcon(BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNChainLightning.blp"))), createUpgradeEditor());
 		tabbedPane.addTab("Weather", new ImageIcon(IconUtils.worldEditStyleIcon(BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNMonsoon.blp"))), createUpgradeEditor());
 		tabbedPane.addTab("Soundsets", getIcon(worldEditorData, "ToolBarIcon_Module_Sound"), createUpgradeEditor());
 
-		final JToolBar toolBar = createToolbar(worldEditorData);
+		final ObjectEditorToolbar toolBar = new ObjectEditorToolbar(worldEditorData, tabbedPane, editors, this);
 		toolBar.setFloatable(false);
 
 		setLayout(new BorderLayout());
 
 		add(toolBar, BorderLayout.BEFORE_FIRST_LINE);
 		add(tabbedPane, BorderLayout.CENTER);
-		tabbedPane.addChangeListener(e -> tabbedPaneChangeListener(worldEditorData));
-		jFileChooser = new JFileChooser(new File(System.getProperty("user.home") + "/Documents/Warcraft III/Maps"));
-	}
-
-	private void tabbedPaneChangeListener(DataTable worldEditorData) {
-		final UnitEditorPanel selectedEditorPanel = (UnitEditorPanel) tabbedPane.getSelectedComponent();
-		final EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = selectedEditorPanel.getEditorTabCustomToolbarButtonData();
-		createNewButton.setIcon(getIcon(worldEditorData, editorTabCustomToolbarButtonData.getIconKey()));
-		createNewButton.setToolTipText(WEString.getString(editorTabCustomToolbarButtonData.getNewCustomObject()).replace("&", ""));
-		copyButton.setToolTipText(WEString.getString(editorTabCustomToolbarButtonData.getCopyObject()).replace("&", ""));
-		pasteButton.setToolTipText(WEString.getString(editorTabCustomToolbarButtonData.getPasteObject()).replace("&", ""));
-	}
-
-	private JToolBar createToolbar(final DataTable worldEditorData) {
-		final JToolBar toolBar = new JToolBar();
-		makeButton(worldEditorData, toolBar, "newMap", "ToolBarIcon_New", "WESTRING_TOOLBAR_NEW");
-
-		final JButton openButton = makeButton(worldEditorData, toolBar, "openMap", "ToolBarIcon_Open", "WESTRING_TOOLBAR_OPEN");
-		openButton.addActionListener(e -> openSpecificTabData());
-
-		final JButton saveButton = makeButton(worldEditorData, toolBar, "saveMap", "ToolBarIcon_Save", "WESTRING_TOOLBAR_SAVE");
-		saveButton.addActionListener(e -> saveSpecificTabData());
-
-		toolBar.add(Box.createHorizontalStrut(8));
-
-		final TransferActionListener transferActionListener = new TransferActionListener();
-
-		copyButton = makeButton(worldEditorData, toolBar, "copy", "ToolBarIcon_Copy", "WESTRING_MENU_OE_UNIT_COPY");
-		copyButton.addActionListener(transferActionListener);
-		copyButton.setActionCommand((String) TransferHandler.getCopyAction().getValue(Action.NAME));
-
-		pasteButton = makeButton(worldEditorData, toolBar, "paste", "ToolBarIcon_Paste", "WESTRING_MENU_OE_UNIT_PASTE");
-		pasteButton.addActionListener(transferActionListener);
-		pasteButton.setActionCommand((String) TransferHandler.getPasteAction().getValue(Action.NAME));
-
-		toolBar.add(Box.createHorizontalStrut(8));
-		createNewButton = makeButton(worldEditorData, toolBar, "createNew", "ToolBarIcon_OE_NewUnit", "WESTRING_MENU_OE_UNIT_NEW");
-		createNewButton.addActionListener(e -> createNew());
-
-		toolBar.add(Box.createHorizontalStrut(8));
-
-		makeButton(worldEditorData, toolBar, "terrainEditor", "ToolBarIcon_Module_Terrain", "WESTRING_MENU_MODULE_TERRAIN");
-		makeButton(worldEditorData, toolBar, "scriptEditor", "ToolBarIcon_Module_Script", "WESTRING_MENU_MODULE_SCRIPTS");
-		makeButton(worldEditorData, toolBar, "soundEditor", "ToolBarIcon_Module_Sound", "WESTRING_MENU_MODULE_SOUND");
-
-		// final JButton objectEditorButton = makeButton(worldEditorData, toolBar,
-		// "objectEditor",
-		// "ToolBarIcon_Module_ObjectEditor", "WESTRING_MENU_OBJECTEDITOR");
-		final JToggleButton objectEditorButton = new JToggleButton(getIcon(worldEditorData, "ToolBarIcon_Module_ObjectEditor"));
-		objectEditorButton.setToolTipText(WEString.getString("WESTRING_MENU_OBJECTEDITOR").replace("&", ""));
-		objectEditorButton.setPreferredSize(new Dimension(24, 24));
-		objectEditorButton.setMargin(new Insets(1, 1, 1, 1));
-		objectEditorButton.setSelected(true);
-		objectEditorButton.setEnabled(false);
-		objectEditorButton.setDisabledIcon(objectEditorButton.getIcon());
-		toolBar.add(objectEditorButton);
-
-		makeButton(worldEditorData, toolBar, "campaignEditor", "ToolBarIcon_Module_Campaign", "WESTRING_MENU_MODULE_CAMPAIGN");
-		makeButton(worldEditorData, toolBar, "aiEditor", "ToolBarIcon_Module_AIEditor", "WESTRING_MENU_MODULE_AI");
-		makeButton(worldEditorData, toolBar, "objectEditor", "ToolBarIcon_Module_ObjectManager", "WESTRING_MENU_OBJECTMANAGER");
-
-		final String legacyImportManagerIcon = worldEditorData.get("WorldEditArt").getField("ToolBarIcon_Module_ImportManager");
-
-		String importManagerIconPath = "ToolBarIcon_Module_ImportManager";
-		String importManagerMenuName = "WESTRING_MENU_IMPORTMANAGER";
-
-		if ((legacyImportManagerIcon == null) || "".equals(legacyImportManagerIcon)) {
-			importManagerIconPath = "ToolBarIcon_Module_AssetManager";
-			importManagerMenuName = "WESTRING_MENU_ASSETMANAGER";
-		}
-		makeButton(worldEditorData, toolBar, "importEditor", importManagerIconPath, importManagerMenuName);
-
-		toolBar.add(Box.createHorizontalStrut(8));
-
-		makeButton(worldEditorData, toolBar, "testMap", new ImageIcon(IconUtils.worldEditStyleIcon(getIcon(worldEditorData, "ToolBarIcon_TestMap").getImage())), "WESTRING_TOOLBAR_TESTMAP").addActionListener(e -> ObjectEditorFrame.main(new String[] {}));
-		return toolBar;
-	}
-
-	private void createNew() {
-		final UnitEditorPanel selectedEditorPanel = (UnitEditorPanel) tabbedPane.getSelectedComponent();
-		selectedEditorPanel.runCustomUnitPopup();
+		tabbedPane.addChangeListener(e -> toolBar.tabbedPaneChangeListener(worldEditorData));
 	}
 
 	public void loadHotkeys() {
-		final JRootPane root = getRootPane();
-		getRootPane().getActionMap().put("displayAsRawData", new AbstractAction() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				for (final UnitEditorPanel editor : editors) {
-					editor.toggleDisplayAsRawData();
-				}
-			}
-		});
-		getRootPane().getActionMap().put("searchUnits", new AbstractAction() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				searchUnits();
-			}
-		});
-		getRootPane().getActionMap().put("searchFindNextUnit", new AbstractAction() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				searchFindNextUnit();
-			}
-		});
+		JRootPane root = getRootPane();
+
+		getRootPane().getActionMap().put("displayAsRawData", getAsAction("displayAsRawData", this::displayRaw));
+		getRootPane().getActionMap().put("searchUnits", getAsAction("searchUnits", this::searchUnits));
+		getRootPane().getActionMap().put("searchFindNextUnit", getAsAction("searchFindNextUnit", this::searchFindNextUnit));
 
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control D"), "displayAsRawData");
 		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control F"), "searchUnits");
@@ -185,241 +84,158 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 		}
 	}
 
+	private void displayRaw() {
+		for (UnitEditorPanel editor : editors) {
+			editor.toggleDisplayAsRawData();
+		}
+	}
+
+	private AbstractAction getAsAction(String name, Runnable runnable) {
+		return new AbstractAction(name) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				runnable.run();
+			}
+		};
+	}
+
 	private void searchFindNextUnit() {
-		final int selectedIndex = tabbedPane.getSelectedIndex();
-		final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
+		int selectedIndex = tabbedPane.getSelectedIndex();
+		UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
 		unitEditorPanel.doSearchFindNextUnit();
 	}
 
 	private void searchUnits() {
-		final int selectedIndex = tabbedPane.getSelectedIndex();
-		final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
+		int selectedIndex = tabbedPane.getSelectedIndex();
+		UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
 		unitEditorPanel.doSearchForUnit();
 	}
 
 	private UnitEditorPanel createUnitEditor() {
-		final War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('u', "war3map.w3u");
+		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('u', "war3map.w3u");
+//		DataTable standardUnitMeta = StandardObjectData.getStandardUnitMeta();
 
-		final DataTable standardUnitMeta = StandardObjectData.getStandardUnitMeta();
-		unitData = new MutableObjectData(WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(),
-				standardUnitMeta, unitDataChangeset);
+//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(), standardUnitMeta, unitDataChangeset);
+		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(), StandardObjectData.getStandardUnitMeta(), unitDataChangeset);
 
-		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
+		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("UNIT", "Unit");
+		return new UnitEditorPanel(
 				unitData,
-				standardUnitMeta,
 				new UnitFieldBuilder(),
 				new UnitTabTreeBrowserBuilder(),
-				WorldEditorDataType.UNITS,
-				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_UNIT_NEW", "ToolBarIcon_OE_NewUnit", "WESTRING_MENU_OE_UNIT_COPY", "WESTRING_MENU_OE_UNIT_PASTE"),
+				editorTabCustomToolbarButtonData,
 				new NewCustomUnitDialogRunner(this, unitData));
-		return unitEditorPanel;
 	}
 
 	private UnitEditorPanel createItemEditor() {
-		final War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('t', "war3map.w3t");
+		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('t', "war3map.w3t");
+//		DataTable standardUnitMeta = StandardObjectData.getStandardUnitMeta();
 
-		final DataTable standardUnitMeta = StandardObjectData.getStandardUnitMeta();
-
-		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
-				new MutableObjectData(WorldEditorDataType.ITEM, StandardObjectData.getStandardItems(), standardUnitMeta, unitDataChangeset),
-				standardUnitMeta,
+//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.ITEM, StandardObjectData.getStandardItems(), standardUnitMeta, unitDataChangeset);
+		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.ITEM, StandardObjectData.getStandardItems(), StandardObjectData.getStandardUnitMeta(), unitDataChangeset);
+		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("ITEM", "Item");
+		return new UnitEditorPanel(
+				unitData,
 				new ItemFieldBuilder(),
 				new ItemTabTreeBrowserBuilder(),
-				WorldEditorDataType.ITEM,
-				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_ITEM_NEW", "ToolBarIcon_OE_NewItem", "WESTRING_MENU_OE_ITEM_COPY", "WESTRING_MENU_OE_ITEM_PASTE"),
+				editorTabCustomToolbarButtonData,
 				() -> {});
-		return unitEditorPanel;
 	}
 
 	private UnitEditorPanel createDestructibleEditor() {
 		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('b', "war3map.w3b");
+//		DataTable standardUnitMeta = StandardObjectData.getStandardDestructableMeta();
 
-		DataTable standardUnitMeta = StandardObjectData.getStandardDestructableMeta();
-
-		UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
-				new MutableObjectData(WorldEditorDataType.DESTRUCTIBLES, StandardObjectData.getStandardDestructables(), standardUnitMeta, unitDataChangeset),
-				standardUnitMeta,
-				new BasicEditorFieldBuilder(BasicSingleFieldFactory.INSTANCE, WorldEditorDataType.DESTRUCTIBLES),
+//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.DESTRUCTIBLES, StandardObjectData.getStandardDestructables(), standardUnitMeta, unitDataChangeset);
+		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.DESTRUCTIBLES, StandardObjectData.getStandardDestructables(), StandardObjectData.getStandardDestructableMeta(), unitDataChangeset);
+		BasicEditorFieldBuilder editorFieldBuilder = new BasicEditorFieldBuilder(BasicSingleFieldFactory.INSTANCE, WorldEditorDataType.DESTRUCTIBLES);
+		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("DEST", "Dest");
+		return new UnitEditorPanel(
+				unitData,
+				editorFieldBuilder,
 				new DestructableTabTreeBrowserBuilder(),
-				WorldEditorDataType.DESTRUCTIBLES,
-				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_DEST_NEW", "ToolBarIcon_OE_NewDest", "WESTRING_MENU_OE_DEST_COPY", "WESTRING_MENU_OE_DEST_PASTE"),
+				editorTabCustomToolbarButtonData,
 				() -> {});
-		return unitEditorPanel;
 	}
 
 	private UnitEditorPanel createDoodadEditor() {
 		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('d', "war3map.w3d");
+//		DataTable standardUnitMeta = StandardObjectData.getStandardDoodadMeta();
 
-		DataTable standardUnitMeta = StandardObjectData.getStandardDoodadMeta();
-
-		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
-				new MutableObjectData(WorldEditorDataType.DOODADS, StandardObjectData.getStandardDoodads(), standardUnitMeta, unitDataChangeset),
-				standardUnitMeta,
+//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.DOODADS, StandardObjectData.getStandardDoodads(), standardUnitMeta, unitDataChangeset);
+		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.DOODADS, StandardObjectData.getStandardDoodads(), StandardObjectData.getStandardDoodadMeta(), unitDataChangeset);
+		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("DOOD", "Dood");
+		return new UnitEditorPanel(
+				unitData,
 				new DoodadFieldBuilder(),
 				new DoodadTabTreeBrowserBuilder(),
-				WorldEditorDataType.DOODADS,
-				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_DOOD_NEW", "ToolBarIcon_OE_NewDood", "WESTRING_MENU_OE_DOOD_COPY", "WESTRING_MENU_OE_DOOD_PASTE"),
+				editorTabCustomToolbarButtonData,
 				() -> {});
-		return unitEditorPanel;
 	}
 
 	private JComponent createAbilityEditor() {
 		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('a', "war3map.w3a");
-		DataTable standardUnitMeta = StandardObjectData.getStandardAbilityMeta();
+//		DataTable standardUnitMeta = StandardObjectData.getStandardAbilityMeta();
 
-		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
-				new MutableObjectData(WorldEditorDataType.ABILITIES, StandardObjectData.getStandardAbilities(), standardUnitMeta, unitDataChangeset),
-				standardUnitMeta,
+//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.ABILITIES, StandardObjectData.getStandardAbilities(), standardUnitMeta, unitDataChangeset);
+		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.ABILITIES, StandardObjectData.getStandardAbilities(), StandardObjectData.getStandardAbilityMeta(), unitDataChangeset);
+		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("ABIL", "Abil");
+		return new UnitEditorPanel(
+				unitData,
 				new AbilityFieldBuilder(),
 				new AbilityTabTreeBrowserBuilder(),
-				WorldEditorDataType.ABILITIES,
-				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_ABIL_NEW", "ToolBarIcon_OE_NewAbil", "WESTRING_MENU_OE_ABIL_COPY", "WESTRING_MENU_OE_ABIL_PASTE"),
+				editorTabCustomToolbarButtonData,
 				() -> {});
-		return unitEditorPanel;
 	}
 
 	private UnitEditorPanel createAbilityBuffEditor() {
 		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('f', "war3map.w3h");
-		DataTable standardUnitMeta = StandardObjectData.getStandardAbilityBuffMeta();
+//		DataTable standardUnitMeta = StandardObjectData.getStandardAbilityBuffMeta();
 
-		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
-				new MutableObjectData(WorldEditorDataType.BUFFS_EFFECTS, StandardObjectData.getStandardAbilityBuffs(), standardUnitMeta, unitDataChangeset),
-				standardUnitMeta,
-				new BasicEditorFieldBuilder(BasicSingleFieldFactory.INSTANCE, WorldEditorDataType.BUFFS_EFFECTS),
+//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.BUFFS_EFFECTS, StandardObjectData.getStandardAbilityBuffs(), standardUnitMeta, unitDataChangeset);
+		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.BUFFS_EFFECTS, StandardObjectData.getStandardAbilityBuffs(), StandardObjectData.getStandardAbilityBuffMeta(), unitDataChangeset);
+		BasicEditorFieldBuilder editorFieldBuilder = new BasicEditorFieldBuilder(BasicSingleFieldFactory.INSTANCE, WorldEditorDataType.BUFFS_EFFECTS);
+		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("BUFF", "Buff");
+		return new UnitEditorPanel(
+				unitData,
+				editorFieldBuilder,
 				new BuffTabTreeBrowserBuilder(),
-				WorldEditorDataType.BUFFS_EFFECTS,
-				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_BUFF_NEW", "ToolBarIcon_OE_NewBuff", "WESTRING_MENU_OE_BUFF_COPY", "WESTRING_MENU_OE_BUFF_PASTE"),
+				editorTabCustomToolbarButtonData,
 				() -> {});
-		return unitEditorPanel;
 	}
 
 	private UnitEditorPanel createUpgradeEditor() {
 		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('g', "war3map.w3q");
-		DataTable standardMeta = StandardObjectData.getStandardUpgradeMeta();
+//		DataTable standardMeta = StandardObjectData.getStandardUpgradeMeta();
 		DataTable standardUpgradeEffectMeta = StandardObjectData.getStandardUpgradeEffectMeta();
 
-		final UnitEditorPanel unitEditorPanel = new UnitEditorPanel(
-				new MutableObjectData(WorldEditorDataType.UPGRADES, StandardObjectData.getStandardUpgrades(), standardMeta, unitDataChangeset),
-				standardMeta,
+//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.UPGRADES, StandardObjectData.getStandardUpgrades(), standardMeta, unitDataChangeset);
+		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.UPGRADES, StandardObjectData.getStandardUpgrades(), StandardObjectData.getStandardUpgradeMeta(), unitDataChangeset);
+		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("UPGR", "Upgr");
+		System.out.println("new UnitEditorPanel (" + "UPGR" + "ADES)");
+		return new UnitEditorPanel(
+				unitData,
 				new UpgradesFieldBuilder(standardUpgradeEffectMeta),
 				new UpgradeTabTreeBrowserBuilder(),
-				WorldEditorDataType.UPGRADES,
-				new EditorTabCustomToolbarButtonData("WESTRING_MENU_OE_UPGR_NEW", "ToolBarIcon_OE_NewUpgr", "WESTRING_MENU_OE_UPGR_COPY", "WESTRING_MENU_OE_UPGR_PASTE"),
+				editorTabCustomToolbarButtonData,
 				() -> {});
-		return unitEditorPanel;
 	}
 
-	private War3ObjectDataChangeset getWar3ObjectDataChangeset(char g, String s) {
-		War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset(g);
+
+	private War3ObjectDataChangeset getWar3ObjectDataChangeset(char expectedkind, String fileName) {
+		War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset(expectedkind);
 		try {
 			CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
 
-			if (gameDataFileSystem.has(s)) {
-				unitDataChangeset.load(new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream(s)), gameDataFileSystem.has("war3map.wts") ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null, true);
+			if (gameDataFileSystem.has(fileName)) {
+				BlizzardDataInputStream stream = new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream(fileName));
+				WTS wts = gameDataFileSystem.has("war3map.wts") ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null;
+				unitDataChangeset.load(stream, wts, true);
 			}
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 		return unitDataChangeset;
-	}
-
-	public void saveSpecificTabData() {
-		// jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		jFileChooser.resetChoosableFileFilters();
-		jFileChooser.setAcceptAllFileFilterUsed(false);
-		jFileChooser.setDialogTitle("Export Data from this Tab");
-
-		final int selectedIndex = tabbedPane.getSelectedIndex();
-
-		final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
-		WorldEditorDataType worldEditorDataType = unitEditorPanel.getUnitData().getWorldEditorDataType();
-		JOptionPane.showMessageDialog(ObjectEditorPanel.this, "OK, friend, we are going to export " + worldEditorDataType);
-
-		String fileType = getFileTypeName(worldEditorDataType);
-		final String extension = worldEditorDataType.getExtension();
-		jFileChooser.addChoosableFileFilter(new FileNameExtensionFilter(fileType, extension));
-
-		if (jFileChooser.showSaveDialog(ObjectEditorPanel.this) == JFileChooser.APPROVE_OPTION) {
-			final File selectedFile = jFileChooser.getSelectedFile();
-			if (selectedFile != null) {
-				String path = selectedFile.getPath();
-				if (!path.toLowerCase().endsWith("." + extension)) {
-					path += "." + extension;
-				}
-				final File w3uFile = new File(path);
-
-				if (w3uFile.exists()) {
-					final int result = JOptionPane.showConfirmDialog(ObjectEditorPanel.this, w3uFile.getName() + " already exists. Ok to overwrite?", "Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-					if (result != JOptionPane.OK_OPTION) {
-						return;
-					}
-				}
-				try {
-					try (BlizzardDataOutputStream outputStream = new BlizzardDataOutputStream(w3uFile)) {
-						unitEditorPanel.getUnitData().getEditorData().save(outputStream, false);
-					}
-				} catch (final IOException e1) {
-					e1.printStackTrace();
-				}
-			}
-		}
-	}
-
-	public String getFileTypeName(final WorldEditorDataType dataType) {
-		return switch (dataType) {
-			case ABILITIES -> WEString.getString("WESTRING_FILETYPE_ABILITYDATA");
-			case BUFFS_EFFECTS -> WEString.getString("WESTRING_FILETYPE_BUFFDATA");
-			case DESTRUCTIBLES -> WEString.getString("WESTRING_FILETYPE_DESTRUCTABLEDATA");
-			case DOODADS -> WEString.getString("WESTRING_FILETYPE_DOODADDATA");
-			case ITEM -> WEString.getString("WESTRING_FILETYPE_ITEMDATA");
-			case UNITS -> WEString.getString("WESTRING_FILETYPE_UNITDATA");
-			case UPGRADES -> WEString.getString("WESTRING_FILETYPE_UPGRADEDATA");
-		};
-	}
-
-	public void openSpecificTabData() {
-		// jFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		jFileChooser.resetChoosableFileFilters();
-		jFileChooser.setAcceptAllFileFilterUsed(false);
-		jFileChooser.setDialogTitle("Import Data to this Tab");
-
-		final int selectedIndex = tabbedPane.getSelectedIndex();
-		final UnitEditorPanel unitEditorPanel = editors.get(selectedIndex);
-		WorldEditorDataType worldEditorDataType = unitEditorPanel.getUnitData().getWorldEditorDataType();
-
-		JOptionPane.showMessageDialog(ObjectEditorPanel.this,
-				"OK, friend, we are going to import " + worldEditorDataType
-						+ ". This will replace all settings, like WE.");
-
-		final String extension = worldEditorDataType.getExtension();
-		jFileChooser.addChoosableFileFilter(new FileNameExtensionFilter(getFileTypeName(worldEditorDataType), extension));
-
-
-		if (jFileChooser.showOpenDialog(ObjectEditorPanel.this) == JFileChooser.APPROVE_OPTION) {
-			final File selectedFile = jFileChooser.getSelectedFile();
-
-			if (selectedFile != null) {
-				final String path = selectedFile.getPath();
-				final File w3uFile = new File(path);
-				if (!w3uFile.exists()) {
-					JOptionPane.showMessageDialog(ObjectEditorPanel.this, "Error. Chosen file did not exist. Retry?");
-					return;
-				}
-				try {
-					try (BlizzardDataInputStream inputStream = new BlizzardDataInputStream(
-							new FileInputStream(w3uFile))) {
-						unitEditorPanel.getUnitData().dropCachesHack();
-						unitEditorPanel.getUnitData().getEditorData().getCustom().clear();
-						unitEditorPanel.getUnitData().getEditorData().getOriginal().clear();
-						unitEditorPanel.getUnitData().getEditorData().load(inputStream, null, false);
-						unitEditorPanel.reloadAllDataVerySlowly();
-					}
-				} catch (final IOException e1) {
-					e1.printStackTrace();
-				}
-			}
-		}
 	}
 
 }

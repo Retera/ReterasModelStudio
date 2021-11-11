@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-public class PreModelCreationTreeNodeLinker implements TreeNodeLinker {
+public class PreModelCreationTreeNodeLinker extends TreeNodeLinker {
 	@Override
 	public void insertNodeInto(DefaultMutableTreeNode newChild, DefaultMutableTreeNode parent,
 	                           final int index) {

@@ -13,7 +13,6 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
@@ -50,7 +49,7 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 	public BetterUnitEditorModelSelector(final MutableObjectData unitData,
 										 final UnitEditorSettings unitEditorSettings) {
 		this.unitData = unitData;
-		tree = new UnitEditorTree(unitData, new UnitTabTreeBrowserBuilder(), unitEditorSettings, WorldEditorDataType.UNITS);
+		tree = new UnitEditorTree(unitData, new UnitTabTreeBrowserBuilder(), unitEditorSettings);
 
 		setLeftComponent(treePane = new JScrollPane(tree));
 		final JPanel temp = new JPanel();

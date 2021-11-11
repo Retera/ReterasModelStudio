@@ -25,11 +25,7 @@ public class UnitBrowserView extends View {
 	}
 
 	static UnitEditorTree createUnitEditorTree() {
-		return new UnitEditorTreeBrowser(getUnitData(),
-				new UnitTabTreeBrowserBuilder(),
-				new UnitEditorSettings(),
-				WorldEditorDataType.UNITS
-		);
+		return new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(), new UnitEditorSettings(), WorldEditorDataType.UNITS);
 	}
 
 	/**
@@ -49,10 +45,6 @@ public class UnitBrowserView extends View {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return new MutableObjectData(
-				WorldEditorDataType.UNITS,
-				StandardObjectData.getStandardUnits(),
-				StandardObjectData.getStandardUnitMeta(),
-				editorData);
+		return new MutableObjectData(WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(), StandardObjectData.getStandardUnitMeta(), editorData);
 	}
 }

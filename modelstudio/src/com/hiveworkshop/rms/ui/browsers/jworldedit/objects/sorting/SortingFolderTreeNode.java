@@ -6,7 +6,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import java.util.Enumeration;
 
-public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode implements GameObjectSortingFolder {
+public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode {
 	/**
 	 * default generated id to stop warnings, not going to serialize these folders
 	 */
@@ -32,8 +32,8 @@ public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode imple
 	 * Returns the total number of leaves that are descendants of this node. If this node is a leaf, returns
 	 * <code>1</code>. This method is O(n) where n is the number of descendants of this node.
 	 *
-	 * @see #isNodeAncestor
 	 * @return the number of leaves beneath this node
+	 * @see #isNodeAncestor
 	 */
 	@Override
 	public int getLeafCount() {
@@ -44,8 +44,8 @@ public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode imple
 
 		while (enum_.hasMoreElements()) {
 			node = enum_.nextElement();
-			if (node.isLeaf() && !(node instanceof SortingFolderTreeNode)) { // override: sorting folders don't count as
-				// leaves
+			if (node.isLeaf() && !(node instanceof SortingFolderTreeNode)) {
+				// override: sorting folders don't count as leaves
 				count++;
 			}
 		}
@@ -59,8 +59,7 @@ public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode imple
 
 		while (enum_.hasMoreElements()) {
 			node = enum_.nextElement();
-			if ((node instanceof DefaultMutableTreeNode)) { // override: sorting folders don't count as
-				// leaves
+			if ((node instanceof DefaultMutableTreeNode)) { // override: sorting folders don't count as leaves
 				final DefaultMutableTreeNode mutableTreeNode = (DefaultMutableTreeNode) node;
 				if (mutableTreeNode.getUserObject() instanceof MutableGameObject) {
 					final MutableGameObject gameObject = (MutableGameObject) mutableTreeNode.getUserObject();
@@ -73,4 +72,6 @@ public abstract class SortingFolderTreeNode extends DefaultMutableTreeNode imple
 
 		return false;
 	}
+
+	public abstract SortingFolderTreeNode getNextNode(MutableGameObject object, TreeNodeLinker treeModel);
 }

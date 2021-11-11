@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
-public class TreeNodeLinkerFromModel implements TreeNodeLinker {
+public class TreeNodeLinkerFromModel extends TreeNodeLinker {
 	private final DefaultTreeModel treeModel;
 
 	public TreeNodeLinkerFromModel(final DefaultTreeModel treeModel) {
