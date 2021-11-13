@@ -1,28 +1,30 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel;
 
+import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
 import com.hiveworkshop.rms.parsers.slk.WarcraftData;
-import com.hiveworkshop.rms.parsers.w3o.Change;
-import com.hiveworkshop.rms.parsers.w3o.ObjectDataChangeEntry;
-import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
+import com.hiveworkshop.rms.parsers.w3o.*;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorDataChangeListener;
 import com.hiveworkshop.rms.util.War3ID;
+import de.wc3data.stream.BlizzardDataInputStream;
 
+import java.io.IOException;
 import java.util.*;
 
 public class MutableObjectData {
 
-	private final WorldEditorDataType worldEditorDataType;
-	private final WarcraftData sourceSLKData;
-	private final DataTable sourceSLKMetaData;
-	private final War3ObjectDataChangeset editorData;
-	private Set<War3ID> cachedKeySet;
-	private final Map<String, War3ID> metaNameToMetaId;
-	private final Map<War3ID, MutableGameObject> cachedKeyToGameObject;
-	private final MutableObjectDataChangeNotifier changeNotifier;
+	protected final WorldEditorDataType worldEditorDataType;
+	protected final WarcraftData sourceSLKData;
+	protected final DataTable sourceSLKMetaData;
+	protected final War3ObjectDataChangeset editorData;
+	protected Set<War3ID> cachedKeySet;
+	protected final Map<String, War3ID> metaNameToMetaId;
+	protected final Map<War3ID, MutableGameObject> cachedKeyToGameObject;
+	protected final MutableObjectDataChangeNotifier changeNotifier;
 
 //	public MutableObjectData(WorldEditorDataType worldEditorDataType, ObjectData sourceSLKData,
 //			ObjectData sourceSLKMetaData, War3ObjectDataChangeset editorData) {
@@ -194,7 +196,7 @@ public class MutableObjectData {
 		changeNotifier.objectsCreated(newObjects.toArray(new War3ID[0]));
 	}
 
-	private void fixUnitTechTreeStrings(Map<War3ID, War3ID> previousAliasToNewAlias, War3ID[] fieldsToCheck, MutableGameObject unit) {
+	protected void fixUnitTechTreeStrings(Map<War3ID, War3ID> previousAliasToNewAlias, War3ID[] fieldsToCheck, MutableGameObject unit) {
 		for (War3ID field : fieldsToCheck) {
 			String techTreeString = unit.getFieldAsString(field, 0);
 			List<String> resultingTechList = getTechList(previousAliasToNewAlias, techTreeString);
@@ -271,7 +273,7 @@ public class MutableObjectData {
 
 	}
 
-	private War3ID[] getFieldsToCheck() {
+	protected War3ID[] getFieldsToCheck() {
 		return worldEditorDataType == WorldEditorDataType.UNITS
 				? new War3ID[] {War3ID.fromString("utra"), War3ID.fromString("uupt"), War3ID.fromString("ubui")}
 				: new War3ID[] {};
@@ -340,7 +342,7 @@ public class MutableObjectData {
 		return createNew(id, parent, true);
 	}
 
-	private MutableGameObject createNew(War3ID id, War3ID parent, boolean fireListeners) {
+	protected MutableGameObject createNew(War3ID id, War3ID parent, boolean fireListeners) {
 		editorData.getCustom().put(id, new ObjectDataChangeEntry(parent, id));
 		if (cachedKeySet != null) {
 			cachedKeySet.add(id);
@@ -456,5 +458,21 @@ public class MutableObjectData {
 			aliasString += ":" + gameObject.getCode().toString();
 		}
 		return aliasString + " (" + gameObject.getName() + ")";
+	}
+
+	protected static War3ObjectDataChangeset getWar3ObjectDataChangeset(char expectedkind, String fileName) {
+		War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset(expectedkind);
+		try {
+			CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
+
+			if (gameDataFileSystem.has(fileName)) {
+				BlizzardDataInputStream stream = new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream(fileName));
+				WTS wts = gameDataFileSystem.has("war3map.wts") ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null;
+				unitDataChangeset.load(stream, wts, true);
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+		return unitDataChangeset;
 	}
 }

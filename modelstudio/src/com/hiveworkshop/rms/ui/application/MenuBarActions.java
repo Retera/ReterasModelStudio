@@ -4,17 +4,12 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
-import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
-import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
-import com.hiveworkshop.rms.parsers.w3o.WTSFile;
-import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.actionfunctions.MakeModelHD;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableDoodadData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ProgramPreferencesPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -22,14 +17,12 @@ import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener;
 import com.hiveworkshop.rms.util.FramePopup;
-import de.wc3data.stream.BlizzardDataInputStream;
 import net.infonode.docking.SplitWindow;
 import net.infonode.docking.View;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 import java.util.List;
 
 public class MenuBarActions {
@@ -46,24 +39,20 @@ public class MenuBarActions {
 	}
 
 	public static MutableObjectData getDoodadData() {
-		War3ObjectDataChangeset editorData = new War3ObjectDataChangeset('d');
-		try {
-			CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
-			if (gameDataFileSystem.has("war3map.w3d")) {
-				editorData.load(
-						new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream("war3map.w3d")),
-						gameDataFileSystem.has("war3map.wts") ?
-								new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null,
-						true);
-			}
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
-		return new MutableObjectData(
-				WorldEditorDataType.DOODADS,
-				StandardObjectData.getStandardDoodads(),
-				StandardObjectData.getStandardDoodadMeta(),
-				editorData);
+//		War3ObjectDataChangeset editorData = new War3ObjectDataChangeset('d');
+//		try {
+//			CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
+//			if (gameDataFileSystem.has("war3map.w3d")) {
+//				editorData.load(
+//						new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream("war3map.w3d")),
+//						gameDataFileSystem.has("war3map.wts") ?
+//								new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null,
+//						true);
+//			}
+//		} catch (final IOException e) {
+//			e.printStackTrace();
+//		}
+		return new MutableDoodadData();
 	}
 
 	public static void openHiveViewer() {

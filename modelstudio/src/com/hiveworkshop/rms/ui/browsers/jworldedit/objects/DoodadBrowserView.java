@@ -1,20 +1,13 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
-import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
-import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
-import com.hiveworkshop.rms.parsers.w3o.WTS;
-import com.hiveworkshop.rms.parsers.w3o.WTSFile;
-import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
 import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableDoodadData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.War3ID;
-import de.wc3data.stream.BlizzardDataInputStream;
 import net.infonode.docking.View;
 
 import javax.swing.*;
@@ -23,7 +16,6 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 
 public class DoodadBrowserView extends View {
 	private static ImageIcon icon = new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST));
@@ -51,18 +43,18 @@ public class DoodadBrowserView extends View {
 	}
 
 	public static MutableObjectData getDoodadData() {
-		War3ObjectDataChangeset editorData = new War3ObjectDataChangeset('d');
-		try {
-			CompoundDataSource fs = GameDataFileSystem.getDefault();
-			if (fs.has("war3map.w3d")) {
-				BlizzardDataInputStream stream = new BlizzardDataInputStream(fs.getResourceAsStream("war3map.w3d"));
-				WTS wts = fs.has("war3map.wts") ? new WTSFile(fs.getResourceAsStream("war3map.wts")) : null;
-				editorData.load(stream, wts, true);
-			}
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
-		return new MutableObjectData(WorldEditorDataType.DOODADS, StandardObjectData.getStandardDoodads(), StandardObjectData.getStandardDoodadMeta(), editorData);
+//		War3ObjectDataChangeset editorData = new War3ObjectDataChangeset('d');
+//		try {
+//			CompoundDataSource fs = GameDataFileSystem.getDefault();
+//			if (fs.has("war3map.w3d")) {
+//				BlizzardDataInputStream stream = new BlizzardDataInputStream(fs.getResourceAsStream("war3map.w3d"));
+//				WTS wts = fs.has("war3map.wts") ? new WTSFile(fs.getResourceAsStream("war3map.wts")) : null;
+//				editorData.load(stream, wts, true);
+//			}
+//		} catch (final IOException e) {
+//			e.printStackTrace();
+//		}
+		return new MutableDoodadData();
 	}
 
 	private static void doodadViewerMouseClick(MouseEvent e, UnitEditorTree unitEditorTree) {

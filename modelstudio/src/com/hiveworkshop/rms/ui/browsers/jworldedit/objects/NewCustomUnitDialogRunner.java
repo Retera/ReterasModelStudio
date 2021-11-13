@@ -1,10 +1,11 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.parsers.slk.GameObject;
-import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableAbilityData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableUnitData;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
 import com.hiveworkshop.rms.util.War3ID;
 import net.miginfocom.swing.MigLayout;
@@ -33,7 +34,7 @@ public final class NewCustomUnitDialogRunner implements Runnable {
 
 		JLabel baseUnitLabel = new JLabel(WEString.getString("WESTRING_UE_BASEUNIT").replace("&", "") + ":");
 
-		UnitOptionPanel unitOptionPanel = new UnitOptionPanel(StandardObjectData.getStandardUnits(), StandardObjectData.getStandardAbilities(), true, true);
+		UnitOptionPanel unitOptionPanel = new UnitOptionPanel(MutableUnitData.getStandardUnits(), MutableAbilityData.getStandardAbilities(), true, true);
 		unitOptionPanel.setPreferredSize(new Dimension(416, 400));
 		unitOptionPanel.setSize(new Dimension(416, 400));
 		unitOptionPanel.doLayout();

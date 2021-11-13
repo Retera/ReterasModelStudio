@@ -5,11 +5,15 @@ import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.parsers.slk.*;
+import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.GameObject;
+import com.hiveworkshop.rms.parsers.slk.WarcraftData;
+import com.hiveworkshop.rms.parsers.slk.WarcraftObject;
 import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.WarcraftObjectTreeCellRenderer;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableUnitData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.UnitComparator;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -29,9 +33,9 @@ import java.util.*;
 
 @Deprecated
 public class UnitEditorModelSelector extends JSplitPane implements TreeSelectionListener {
-	WarcraftData unitData = StandardObjectData.getStandardUnits();
+	WarcraftData unitData = MutableUnitData.getStandardUnits();
 	GameObject currentUnit = null;
-	DataTable unitMetaData = StandardObjectData.getStandardUnitMeta();
+	DataTable unitMetaData = MutableUnitData.getStandardUnitMeta();
 	UnitEditorSettings settings = new UnitEditorSettings();
 	JTree tree;
 	UnitEditorTreeModel model;

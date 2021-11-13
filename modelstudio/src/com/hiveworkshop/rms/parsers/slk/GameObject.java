@@ -31,42 +31,6 @@ public abstract class GameObject implements Comparable<GameObject> {
 
 	public abstract Set<String> keySet();
 
-	public abstract ImageIcon getScaledIcon(int size);
-
-	public abstract Image getImage();
-
-	public ImageIcon getScaledTintedIcon(Color tint, int amt) {
-		Image img = getTintedImage(tint);
-		return new ImageIcon(img.getScaledInstance(amt, amt, Image.SCALE_SMOOTH));
-	}
-
-	public Image getTintedImage(Color tint) {
-		Image img = getImage();
-		if (img == null) {
-			return BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
-		}
-		BufferedImage out = new BufferedImage(img.getWidth(null), img.getHeight(null),
-				BufferedImage.TYPE_4BYTE_ABGR);
-		Graphics2D g2 = (Graphics2D) out.getGraphics();
-		g2.drawImage(img, 0, 0, null);
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
-		g2.setColor(tint);
-		g2.fillRect(0, 0, img.getWidth(null), img.getHeight(null));
-		return out;
-	}
-
-	public ImageIcon getSmallIcon() {
-		Image img = getImage();
-		return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * 0.25),
-				(int) (img.getHeight(null) * 0.25), Image.SCALE_SMOOTH));
-	}
-
-	public ImageIcon getBigIcon() {
-		Image img = getImage();
-		return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * 1.25),
-				(int) (img.getHeight(null) * 1.25), Image.SCALE_SMOOTH));
-	}
-
 	public String getName() {
 		String nameField = getField("Name");
 		String name = null;
@@ -144,6 +108,42 @@ public abstract class GameObject implements Comparable<GameObject> {
 			}
 		}
 		return nameBuilder.toString();
+	}
+
+	public abstract ImageIcon getScaledIcon(int size);
+
+	public abstract Image getImage();
+
+	public ImageIcon getScaledTintedIcon(Color tint, int amt) {
+		Image img = getTintedImage(tint);
+		return new ImageIcon(img.getScaledInstance(amt, amt, Image.SCALE_SMOOTH));
+	}
+
+	public Image getTintedImage(Color tint) {
+		Image img = getImage();
+		if (img == null) {
+			return BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
+		}
+		BufferedImage out = new BufferedImage(img.getWidth(null), img.getHeight(null),
+				BufferedImage.TYPE_4BYTE_ABGR);
+		Graphics2D g2 = (Graphics2D) out.getGraphics();
+		g2.drawImage(img, 0, 0, null);
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f));
+		g2.setColor(tint);
+		g2.fillRect(0, 0, img.getWidth(null), img.getHeight(null));
+		return out;
+	}
+
+	public ImageIcon getSmallIcon() {
+		Image img = getImage();
+		return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * 0.25),
+				(int) (img.getHeight(null) * 0.25), Image.SCALE_SMOOTH));
+	}
+
+	public ImageIcon getBigIcon() {
+		Image img = getImage();
+		return new ImageIcon(img.getScaledInstance((int) (img.getWidth(null) * 1.25),
+				(int) (img.getHeight(null) * 1.25), Image.SCALE_SMOOTH));
 	}
 
 	@Override

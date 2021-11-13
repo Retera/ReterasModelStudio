@@ -61,16 +61,17 @@ public abstract class AbstractObjectField {
 	protected abstract Object getValue(MutableGameObject gameUnit, War3ID metaKey, int level);
 
 	public boolean popupEditor(MutableGameObject gameUnit, Component parent, boolean editRawData, boolean disableLimits) {
-		String worldEditValueStringKey = switch (dataType) {
-			case ABILITIES -> "WESTRING_AE_DLG_EDITVALUE";
-			case BUFFS_EFFECTS -> "WESTRING_FE_DLG_EDITVALUE";
-			case DESTRUCTIBLES -> "WESTRING_BE_DLG_EDITVALUE";
-			case DOODADS -> "WESTRING_DE_DLG_EDITVALUE";
-			case ITEM -> "WESTRING_IE_DLG_EDITVALUE";
-			case UPGRADES -> "WESTRING_GE_DLG_EDITVALUE";
-			case UNITS -> "WESTRING_UE_DLG_EDITVALUE";
-		};
-		final String defaultDialogTitle = WEString.getString(worldEditValueStringKey);
+//		String worldEditValueStringKey = switch (dataType) {
+//			case ABILITIES -> "WESTRING_AE_DLG_EDITVALUE";
+//			case BUFFS_EFFECTS -> "WESTRING_FE_DLG_EDITVALUE";
+//			case DESTRUCTIBLES -> "WESTRING_BE_DLG_EDITVALUE";
+//			case DOODADS -> "WESTRING_DE_DLG_EDITVALUE";
+//			case ITEM -> "WESTRING_IE_DLG_EDITVALUE";
+//			case UPGRADES -> "WESTRING_GE_DLG_EDITVALUE";
+//			case UNITS -> "WESTRING_UE_DLG_EDITVALUE";
+//		};
+//		final String defaultDialogTitle = WEString.getString(worldEditValueStringKey);
+		final String defaultDialogTitle = WEString.getString(dataType.getEditString());
 		return popupEditor(gameUnit, parent, editRawData, disableLimits, metaKey, level, defaultDialogTitle,
 				metaDataField);
 	}

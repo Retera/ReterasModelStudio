@@ -8,10 +8,10 @@ public final class Change {
 	private int longval;
 	private float realval;
 	private String strval;
+	private boolean boolval;
 
 	private VarType varType;
 
-	private boolean boolval;
 	private War3ID junkDNA;
 
 	public War3ID getId() {

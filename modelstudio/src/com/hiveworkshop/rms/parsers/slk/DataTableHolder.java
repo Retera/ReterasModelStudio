@@ -34,64 +34,56 @@ public class DataTableHolder {
 
 	public static DataTable getDoodads() {
 		if (theTableDoodads == null) {
-			theTableDoodads = new DataTable();
-			theTableDoodads.loadDoodads();
+			theTableDoodads = new DoodadsTable();
 		}
 		return theTableDoodads;
 	}
 
 	public static DataTable getDestructables() {
 		if (theTableDestructibles == null) {
-			theTableDestructibles = new DataTable();
-			theTableDestructibles.loadDestructibles();
+			theTableDestructibles = new DestructiblesTable();
 		}
 		return theTableDestructibles;
 	}
 
 	public static DataTable getItems() {
 		if (itemTable == null) {
-			itemTable = new DataTable();
-			itemTable.loadItems();
+			itemTable = new ItemsTable();
 		}
 		return itemTable;
 	}
 
 	public static DataTable getBuffs() {
 		if (buffTable == null) {
-			buffTable = new DataTable();
-			buffTable.loadBuffs();
+			buffTable = new BuffsTable();
 		}
 		return buffTable;
 	}
 
 	public static DataTable getSpawns() {
 		if (spawnTable == null) {
-			spawnTable = new DataTable();
-			spawnTable.loadSpawns();
+			spawnTable = new SpawnsTable();
 		}
 		return spawnTable;
 	}
 
 	public static DataTable getSplats() {
 		if (splatTable == null) {
-			splatTable = new DataTable();
-			splatTable.loadSplats();
+			splatTable = new SplatsTable();
 		}
 		return splatTable;
 	}
 
 	public static DataTable getTerrain() {
 		if (terrainTable == null) {
-			terrainTable = new DataTable();
-			terrainTable.loadTerrain();
+			terrainTable = new TerrainTable();
 		}
 		return terrainTable;
 	}
 
 	public static DataTable getGinters() {
 		if (ginterTable == null) {
-			ginterTable = new DataTable();
-			ginterTable.loadGinters();
+			ginterTable = new GintersTable();
 		}
 		return ginterTable;
 	}

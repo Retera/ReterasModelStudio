@@ -235,7 +235,6 @@ public class ModelOptionPanel extends JPanel {
 		final Map<String, NamedList<String>> unitsMissileData = new HashMap<>();
 		final Map<String, NamedList<String>> unitsSpecialData = new HashMap<>();
 		final Map<String, NamedList<String>> abilityModelData = new HashMap<>();
-		final Map<String, NamedList<String>> buffModelData = new HashMap<>();
 		final Map<String, NamedList<String>> itemsModelData = new HashMap<>();
 		final Map<String, NamedList<String>> destModelData = new HashMap<>();
 		final Map<String, NamedList<String>> doodModelData = new HashMap<>();
@@ -287,25 +286,7 @@ public class ModelOptionPanel extends JPanel {
 			}
 		}
 
-		for (final String str : buffData.keySet()) {
-
-			final Element unit = buffData.get(str);
-			addModelsToList(buffModelData, unit, "EffectArt", "WESTRING_OE_TYPECAT_SUFFIX_EFFECT");
-			addModelsToList(buffModelData, unit, "Effectart", "WESTRING_OE_TYPECAT_SUFFIX_EFFECT");
-			addModelsToList(buffModelData, unit, "effectart", "WESTRING_OE_TYPECAT_SUFFIX_EFFECT");
-
-			addModelsToList(buffModelData, unit, "Missileart", "WESTRING_OE_TYPECAT_SUFFIX_MISSILE");
-			addModelsToList(buffModelData, unit, "MissileArt", "WESTRING_OE_TYPECAT_SUFFIX_MISSILE");
-			addModelsToList(buffModelData, unit, "missileart", "WESTRING_OE_TYPECAT_SUFFIX_MISSILE");
-
-			addModelsToList(buffModelData, unit, "SpecialArt", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
-			addModelsToList(buffModelData, unit, "Specialart", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
-			addModelsToList(buffModelData, unit, "specialart", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
-
-			addModelsToList(buffModelData, unit, "TargetArt", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
-			addModelsToList(buffModelData, unit, "Targetart", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
-			addModelsToList(buffModelData, unit, "targetart", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
-		}
+		final Map<String, NamedList<String>> buffModelData = getBuffModelData();
 
 		fillItemData(itemsModelData);
 		fillUnitList(destModelData, destData);
@@ -340,14 +321,46 @@ public class ModelOptionPanel extends JPanel {
 		// new JFrame().setVisible(true);
 	}
 
+	private static Map<String, NamedList<String>> getBuffModelData() {
+		final Map<String, NamedList<String>> buffModelData = new HashMap<>();
+		for (final String str : buffData.keySet()) {
+
+			final Element unit = buffData.get(str);
+			addModelsToList(buffModelData, unit, "EffectArt", "WESTRING_OE_TYPECAT_SUFFIX_EFFECT");
+			addModelsToList(buffModelData, unit, "Effectart", "WESTRING_OE_TYPECAT_SUFFIX_EFFECT");
+			addModelsToList(buffModelData, unit, "effectart", "WESTRING_OE_TYPECAT_SUFFIX_EFFECT");
+
+			addModelsToList(buffModelData, unit, "Missileart", "WESTRING_OE_TYPECAT_SUFFIX_MISSILE");
+			addModelsToList(buffModelData, unit, "MissileArt", "WESTRING_OE_TYPECAT_SUFFIX_MISSILE");
+			addModelsToList(buffModelData, unit, "missileart", "WESTRING_OE_TYPECAT_SUFFIX_MISSILE");
+
+			addModelsToList(buffModelData, unit, "SpecialArt", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
+			addModelsToList(buffModelData, unit, "Specialart", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
+			addModelsToList(buffModelData, unit, "specialart", "WESTRING_OE_TYPECAT_SUFFIX_SPECIAL");
+
+			addModelsToList(buffModelData, unit, "TargetArt", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
+			addModelsToList(buffModelData, unit, "Targetart", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
+			addModelsToList(buffModelData, unit, "targetart", "WESTRING_OE_TYPECAT_SUFFIX_TARGET");
+		}
+		return buffModelData;
+	}
+
+	private void doStringThings() {
+		String string = "AreaEffectArt";
+		String[] split = string.split("(?=[A-Z])");
+		String[] split2 = new String[split.length];
+		for (int i = 0; i < split.length; i++) {
+			split2[i] = split[i].toLowerCase();
+		}
+		System.out.println(split);
+	}
+
 	private static void fillItemData(Map<String, NamedList<String>> itemsModelData) {
 		for (String str : itemData.keySet()) {
 			// ITEMS
 			Element unit = itemData.get(str);
 			String filepath = unit.getField("file");
 			if (filepath.length() > 0) {
-//				NamedList<String> unitList = getUnitList(itemsModelData, unit, filepath);
-//				unitList.add(unit.getName());
 				itemsModelData
 						.computeIfAbsent(filepath.toLowerCase(), k -> new NamedList<>(filepath, unit.getIconPath()))
 						.add(unit.getName());
@@ -359,12 +372,9 @@ public class ModelOptionPanel extends JPanel {
 	private static void fillGinterData(Map<String, NamedList<String>> ginterModelData) {
 		for (String str : ginterData.keySet()) {
 			Element race = ginterData.get(str);
-			// System.err.println("Gintering unit " + str);
 			for (String fieldName : race.keySet()) {
 				String value = race.getField(fieldName);
 				if (value.endsWith(".mdl")) {
-//					NamedList<String> unitList = getUnitList(ginterModelData, race, value);
-//					unitList.add(fieldName + " (" + race.getUnitId() + ")");
 					ginterModelData
 							.computeIfAbsent(value.toLowerCase(), k -> new NamedList<>(value, race.getIconPath()))
 							.add(fieldName + " (" + race.getUnitId() + ")");
@@ -390,8 +400,9 @@ public class ModelOptionPanel extends JPanel {
 					if (model.contains(".")) {
 						model = model.substring(0, model.indexOf("."));
 					}
-					NamedList<String> unitList = getUnitList(spawnModelData, unit, filepath);
-					unitList.add(model);
+					spawnModelData
+							.computeIfAbsent(filepath.toLowerCase(), k -> new NamedList<>(filepath, unit.getIconPath()))
+							.add(model);
 				}
 			}
 		}
@@ -406,16 +417,38 @@ public class ModelOptionPanel extends JPanel {
 			ExceptionPopup.display(e);
 		}
 		Element extraModels = worldEditData.get("ExtraModels");
-		int emId = 0;
-		while (extraModels.getField(String.format("%2d", emId).replace(" ", "0")).length() > 0) {
-			String fieldName = String.format("%2d", emId).replace(" ", "0");
-			Model nextModel = new Model()
-					.setDisplayName(WEString.getString(extraModels.getField(fieldName, 2)))
-					.setFilepath(extraModels.getField(fieldName, 1))
-					.setCachedIcon(extraModels.getIconPath());
-			extra.addModel(nextModel);
+//		int emId = 0;
+//		while (extraModels.getField(String.format("%2d", emId).replace(" ", "0")).length() > 0) {
+//			String fieldName = String.format("%2d", emId).replace(" ", "0");
+//			Model nextModel = new Model()
+//					.setDisplayName(WEString.getString(extraModels.getField(fieldName, 2)))
+//					.setFilepath(extraModels.getField(fieldName, 1))
+//					.setCachedIcon(extraModels.getIconPath());
+//			extra.addModel(nextModel);
+//
+//			emId++;
+//		}
 
-			emId++;
+//		for (int emId = 0; extraModels.getField(String.format("%2d", emId).replace(" ", "0")).length() > 0; emId++) {
+//			String fieldName = String.format("%2d", emId).replace(" ", "0");
+//			Model nextModel = new Model()
+//					.setDisplayName(WEString.getString(extraModels.getField(fieldName, 2)))
+//					.setFilepath(extraModels.getField(fieldName, 1))
+//					.setCachedIcon(extraModels.getIconPath());
+//			extra.addModel(nextModel);
+//
+//		}
+		for (int emId = 0; emId < 30000; emId++) {
+			String fieldName = String.format("%2d", emId).replace(" ", "0");
+			if (extraModels.getField(fieldName).length() > 0) {
+				Model nextModel = new Model()
+						.setDisplayName(WEString.getString(extraModels.getField(fieldName, 2)))
+						.setFilepath(extraModels.getField(fieldName, 1))
+						.setCachedIcon(extraModels.getIconPath());
+				extra.addModel(nextModel);
+			} else {
+				break;
+			}
 		}
 		extra.sortModels();
 		groups.add(extra);
@@ -428,38 +461,36 @@ public class ModelOptionPanel extends JPanel {
 	private static void addMissileArtUnitToList(Map<String, NamedList<String>> unitsModelData, Map<String, NamedList<String>> unitsMissileData, Element unit) {
 		String filepath = unit.getField("file");
 		if (filepath.length() > 0) {
-			NamedList<String> unitList = getUnitList(unitsModelData, unit, filepath);
-			unitList.add(unit.getName());
+//			NamedList<String> unitList = getUnitList(unitsModelData, unit, filepath);
+//			unitList.add(unit.getName());
+			unitsModelData
+					.computeIfAbsent(filepath.toLowerCase(), k -> new NamedList<>(filepath, unit.getIconPath()))
+					.add(unit.getName());
 		}
 
-		filepath = unit.getField("Missileart");
-		if (filepath.length() > 0) {
-			if (filepath.contains(",")) {
-				String[] filepaths = filepath.split(",");
+		String missileArtField = unit.getField("Missileart");
+		if (missileArtField.length() > 0) {
+			if (missileArtField.contains(",")) {
+				String[] filepaths = missileArtField.split(",");
 				for (String fp : filepaths) {
-					NamedList<String> unitList = getMissileNamedList(unitsMissileData, unit, filepath, fp);
-					unitList.add(unit.getName());
+					unitsMissileData
+							.computeIfAbsent(fp.toLowerCase(), k -> new NamedList<>(missileArtField, unit.getIconPath()))
+							.add(unit.getName());
 				}
 			} else {
-				NamedList<String> unitList = getMissileNamedList(unitsMissileData, unit, filepath, filepath);
-				unitList.add(unit.getName());
+				unitsMissileData
+						.computeIfAbsent(missileArtField.toLowerCase(), k -> new NamedList<>(missileArtField, unit.getIconPath()))
+						.add(unit.getName());
 			}
 		}
 	}
 
-	private static NamedList<String> getMissileNamedList(Map<String, NamedList<String>> unitsMissileData, Element unit, String filepath, String fp) {
-		NamedList<String> unitList = unitsMissileData.get(fp.toLowerCase());
-		if (unitList == null) {
-			unitList = new NamedList<>(filepath);
-			unitList.setCachedIconPath(unit.getIconPath());
-			unitsMissileData.put(fp.toLowerCase(), unitList);
-		}
-		return unitList;
+
+	private static NamedList<String> getUnitList(Map<String, NamedList<String>> dataMap, Element unit, String filepath) {
+//		return getMissileNamedList(dataMap, unit, filepath, filepath);
+		return dataMap.computeIfAbsent(filepath.toLowerCase(), k -> new NamedList<>(filepath, unit.getIconPath()));
 	}
 
-	private static NamedList<String> getUnitList(Map<String, NamedList<String>> spawnModelData, Element unit, String filepath) {
-		return getMissileNamedList(spawnModelData, unit, filepath, filepath);
-	}
 
 	private static void fillUnitList(Map<String, NamedList<String>> modelData, DataTable dataTable) {
 		for (String str : dataTable.keySet()) {
@@ -467,15 +498,16 @@ public class ModelOptionPanel extends JPanel {
 			Element unit = dataTable.get(str);
 			String filepath = unit.getField("file");
 			if (filepath.length() > 0) {
-				NamedList<String> unitList = getUnitList(modelData, unit, filepath);
-				unitList.add(unit.getName() + " <Base>");
+				modelData.computeIfAbsent(filepath.toLowerCase(), k -> new NamedList<>(filepath, unit.getIconPath())).add(unit.getName() + " <Base>");
 
 				int numVar = unit.getFieldValue("numVar");
 				if (numVar > 1) {
 					for (int i = 0; i < numVar; i++) {
 						String filepath2 = filepath + i + ".mdl";
-						NamedList<String> unitList2 = getUnitList(modelData, unit, filepath2);
-						unitList2.add(unit.getName() + " <" + WEString.getString("WESTRING_PREVIEWER_VAR") + " " + (i + 1) + ">");
+
+						modelData
+								.computeIfAbsent(filepath2.toLowerCase(), k -> new NamedList<>(filepath2, unit.getIconPath()))
+								.add(unit.getName() + " <" + WEString.getString("WESTRING_PREVIEWER_VAR") + " " + (i + 1) + ">");
 
 					}
 				}
@@ -486,8 +518,11 @@ public class ModelOptionPanel extends JPanel {
 	private static void addUnitsToList(Map<String, NamedList<String>> unitsData, Element unit, String artName, String weStringTypeSuffix) {
 		String filepath = unit.getField(artName);
 		if (filepath.length() > 0) {
-			NamedList<String> unitList = getUnitList(unitsData, unit, filepath);
-			unitList.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
+//			NamedList<String> unitList = getUnitList(unitsData, unit, filepath);
+//			unitList.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
+
+			unitsData.computeIfAbsent(filepath.toLowerCase(), k -> new NamedList<>(filepath, unit.getIconPath()))
+					.add(unit.getName() + " " + WEString.getString(weStringTypeSuffix));
 		}
 	}
 

@@ -36,21 +36,9 @@ public class ModelGroup {
 	public ModelGroup fill(Map<String, NamedList<String>> modelData) {
 		for (String str : modelData.keySet()) {
 			NamedList<String> unitList = modelData.get(str);
-			// Collections.sort(unitList);
-			StringBuilder nameOutput = new StringBuilder();
-			for (String unitName : unitList) {
-				if (nameOutput.length() > 0) {
-					nameOutput.append(", ");
-				}
-				if ((nameOutput.length() + unitName.length()) > 120) {
-					nameOutput.append("...");
-					break;
-				} else {
-					nameOutput.append(unitName);
-				}
-			}
+			String displayName = getDisplayName(unitList);
 			Model nextModel = new Model()
-					.setDisplayName(nameOutput.toString())
+					.setDisplayName(displayName)
 					.setFilepath(unitList.getName())
 					.setCachedIcon(unitList.getCachedIconPath());
 
@@ -58,5 +46,21 @@ public class ModelGroup {
 		}
 		sortModels();
 		return this;
+	}
+
+	private String getDisplayName(NamedList<String> unitList) {
+		StringBuilder nameOutput = new StringBuilder();
+		for (String unitName : unitList) {
+			if (nameOutput.length() > 0) {
+				nameOutput.append(", ");
+			}
+			if ((nameOutput.length() + unitName.length()) > 120) {
+				nameOutput.append("...");
+				break;
+			} else {
+				nameOutput.append(unitName);
+			}
+		}
+		return nameOutput.toString();
 	}
 }

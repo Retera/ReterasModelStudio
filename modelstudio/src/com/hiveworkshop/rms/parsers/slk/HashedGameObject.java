@@ -27,26 +27,6 @@ public abstract class HashedGameObject extends GameObject {
 		}
 	}
 
-	@Override
-	public String getField(final String field) {
-		final String value = "";
-		if (fields.get(new StringKey(field)) != null) {
-			final List<String> list = fields.get(new StringKey(field));
-			final StringBuilder sb = new StringBuilder();
-			if (list != null) {
-				for (final String str : list) {
-					if (sb.length() != 0) {
-						sb.append(',');
-					}
-					sb.append(str);
-				}
-				return sb.toString();
-//				value = list.get(0);
-			}
-		}
-		return value;
-	}
-
 	public boolean hasField(final String field) {
 		return fields.containsKey(new StringKey(field));
 	}
@@ -80,6 +60,27 @@ public abstract class HashedGameObject extends GameObject {
 				list.set(index, value);
 			}
 		}
+	}
+
+
+	@Override
+	public String getField(final String field) {
+		final String value = "";
+		if (fields.get(new StringKey(field)) != null) {
+			final List<String> list = fields.get(new StringKey(field));
+			final StringBuilder sb = new StringBuilder();
+			if (list != null) {
+				for (final String str : list) {
+					if (sb.length() != 0) {
+						sb.append(',');
+					}
+					sb.append(str);
+				}
+				return sb.toString();
+//				value = list.get(0);
+			}
+		}
+		return value;
 	}
 
 	@Override
