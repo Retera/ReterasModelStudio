@@ -128,7 +128,8 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		if (animFlag != null) {
 			for (KeyframePanel<Vec3> kfp : keyframePanelMap.values()) {
 
-				kfp.addAllowedCharatcters("\\{}, ");
+//				kfp.addAllowedCharatcters("\\{}, ");
+				kfp.addAllowedCharatcters(", ");
 				kfp.getFloatTrackTableModel().addExtraColumn("", "\uD83C\uDFA8", Integer.class);  // 🎨 \uD83C\uDFA8
 				kfp.getFloatTrackTableModel().setValueClass(String.class);
 

@@ -158,13 +158,13 @@ public final class RenderNode {
 	}
 
 	public void updateChildren() {
-		for (final AnimatedNode childNode : ((IdObject) idObject).getChildrenNodes()) {
-			if (renderModel.getRenderNode(childNode) == null) {
-				throw new NullPointerException(
-						"Cannot find child \"" + childNode.getName() + "\" of \"" + idObject.getName() + "\"");
-			}
-			renderModel.getRenderNode(childNode).update();
-		}
+//		for (final AnimatedNode childNode : idObject.getChildrenNodes()) {
+//			if (renderModel.getRenderNode(childNode) == null) {
+//				throw new NullPointerException(
+//						"Cannot find child \"" + childNode.getName() + "\" of \"" + idObject.getName() + "\"");
+//			}
+//			renderModel.getRenderNode(childNode).update();
+//		}
 	}
 
 	public void resetTransformation() {

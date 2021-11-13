@@ -31,6 +31,8 @@ public abstract class TwiImportPanel extends JPanel {
 	Animation prototypeAnim = new Animation("An Extra Empty Animation", 0, 1000);
 	AnimShell prototypeAnimShell = new AnimShell(prototypeAnim);
 
+	AnimShell asNewAnim = new AnimShell(new Animation("as New Anim", 0, 1));
+
 	AnimListCellRenderer donRenderer = new AnimListCellRenderer(true); //ToDo: make a new renderer and only use Animation
 	IterableListModel<AnimShell> donAnimations = new IterableListModel<>();
 	JList<AnimShell> donAnimList = new JList<>(donAnimations);
@@ -128,11 +130,25 @@ public abstract class TwiImportPanel extends JPanel {
 		}
 		donAnimList.setCellRenderer(donRenderer);
 
+		recAnimations.addElement(asNewAnim);
 		for (Animation animation : recModel.getAnims()) {
 			recAnimations.addElement(new AnimShell(animation));
 		}
 		recAnimList.setCellRenderer(recRenderer);
 	}
+
+
+//	protected void fillLists2(EditableModel donModel, EditableModel recModel) {
+//		fillAnimList(donModel.getAnims(), donAnimations, donAnimList, donRenderer);
+//
+//		fillAnimList(recModel.getAnims(), recAnimations, recAnimList, recRenderer);
+//	}
+//	private void fillAnimList(List<Animation> anims, IterableListModel<AnimShell> animShellList, JList<AnimShell> animList, AnimListCellRenderer renderer) {
+//		for (Animation animation : anims) {
+//			animShellList.addElement(new AnimShell(animation));
+//		}
+//		animList.setCellRenderer(renderer);
+//	}
 
 	protected JPanel getAnimMapPanel() {
 //		JPanel animMapPanel = new JPanel(new MigLayout("ins 0, fill", "[50%][50%]", "[grow]"));
@@ -209,9 +225,9 @@ public abstract class TwiImportPanel extends JPanel {
 	private void scrollToRevealFirstChosen(AnimShell animShell) {
 		if(animShell.getImportType() == AnimShell.ImportType.TIMESCALE){
 			for (int indexOfFirst = 0; indexOfFirst < recAnimations.getSize(); indexOfFirst++){
-				if(recAnimations.get(indexOfFirst).getImportAnimShell() == animShell){
+				if(recAnimations.get(indexOfFirst).getImportAnimShell() == animShell) {
 					Rectangle cellBounds = recAnimList.getCellBounds(indexOfFirst, indexOfFirst);
-					if(cellBounds != null){
+					if (cellBounds != null) {
 						recAnimList.scrollRectToVisible(cellBounds);
 					}
 					break;
@@ -220,6 +236,8 @@ public abstract class TwiImportPanel extends JPanel {
 		}
 	}
 
+	// todo make use of "animShellsToTimeScaleInto" in AnimShell to facilitate
+	//  importing into animation and importing animation at the same time
 	private void recAnimationSelectionChanged(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
 			AnimShell donAnimShell = donAnimList.getSelectedValue();
@@ -230,11 +248,18 @@ public abstract class TwiImportPanel extends JPanel {
 				if (as.getImportAnimShell() == donAnimShell) {
 					donAnimsToCheck.add(donAnimShell);
 					as.setImportAnimShell(null);
-				} else {
+				} else if (as != asNewAnim) {
 					if (as.getImportAnimShell() != null) {
 						donAnimsToCheck.add(as.getImportAnimShell());
 					}
 					as.setImportAnimShell(donAnimShell);
+				} else {
+					AnimShell.ImportType importType = donAnimShell.getImportType();
+					if (importType != AnimShell.ImportType.IMPORTBASIC) {
+						donAnimShell.setImportType(AnimShell.ImportType.IMPORTBASIC);
+					} else {
+						donAnimShell.setImportType(AnimShell.ImportType.DONTIMPORT);
+					}
 				}
 			}
 			recAnimList.setSelectedValue(null, false);
@@ -253,7 +278,7 @@ public abstract class TwiImportPanel extends JPanel {
 				}
 			}
 			if (!isImp) {
-				animShell.setImportType(AnimShell.ImportType.IMPORTBASIC);
+				animShell.setImportType(AnimShell.ImportType.DONTIMPORT);
 			}
 		}
 		donAnimList.repaint();
@@ -263,7 +288,12 @@ public abstract class TwiImportPanel extends JPanel {
 		Map<Sequence, Sequence> recToDonSequenceMap = new HashMap<>(); // receiving animations to donating animations
 		for (AnimShell animShell : recAnimations) {
 			if (animShell.getImportAnimShell() != null && animShell.getImportAnimShell().getImportType() == AnimShell.ImportType.TIMESCALE) {
-				recToDonSequenceMap.put(animShell.getAnim(), animShell.getImportAnimShell().getAnim());
+				if (animShell == asNewAnim) {
+
+					recToDonSequenceMap.put(animShell.getAnim(), animShell.getImportAnimShell().getAnim());
+				} else {
+					recToDonSequenceMap.put(animShell.getAnim(), animShell.getImportAnimShell().getAnim());
+				}
 			}
 		}
 		return recToDonSequenceMap;

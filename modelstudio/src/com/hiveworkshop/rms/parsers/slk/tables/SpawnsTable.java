@@ -1,6 +1,10 @@
-package com.hiveworkshop.rms.parsers.slk;
+package com.hiveworkshop.rms.parsers.slk.tables;
 
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableUtils;
+import com.hiveworkshop.rms.parsers.slk.Element;
+import com.hiveworkshop.rms.parsers.slk.StringKey;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import java.io.IOException;
@@ -9,11 +13,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class GintersTable extends DataTable {
+public class SpawnsTable extends DataTable {
 	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
 
-	public GintersTable() {
-		loadGinters();
+	public SpawnsTable() {
+		loadSpawns();
 	}
 
 	@Override
@@ -26,9 +30,9 @@ public class GintersTable extends DataTable {
 		return outputKeySet;
 	}
 
-	public void loadGinters() {
+	public void loadSpawns() {
 		try {
-			DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("UI\\war3skins.txt"), true);
+			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Splats\\SpawnData.slk"));
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}

@@ -18,16 +18,25 @@ public class FloatingWindowFactory {
     }
     public static void openNewWindowWithKB(View view, RootWindow rootWindow) {
         if ((view.getTopLevelAncestor() == null) || !view.getTopLevelAncestor().isVisible()) {
-            FloatingWindow createFloatingWindow
-                    = rootWindow.createFloatingWindow(rootWindow.getLocation(), new Dimension(640, 480), view);
-            createFloatingWindow.getTopLevelAncestor().setVisible(true);
+	        FloatingWindow createFloatingWindow
+			        = rootWindow.createFloatingWindow(rootWindow.getLocation(), new Dimension(640, 480), view);
+	        createFloatingWindow.getTopLevelAncestor().setVisible(true);
+//            packFrame(view);
 
 	        KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
 //            view.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
-            createFloatingWindow.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
-            createFloatingWindow.setActionMap(keyBindingPrefs.getActionMap());
+	        createFloatingWindow.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+	        createFloatingWindow.setActionMap(keyBindingPrefs.getActionMap());
         }
     }
+
+	public static void packFrame(View view) {
+		JFrame frame = (JFrame) view.getTopLevelAncestor();
+		if (frame != null) {
+			frame.pack();
+			frame.setLocationRelativeTo(ProgramGlobals.getMainPanel());
+		}
+	}
 
 //    public static void openNewWindow(String title, Component component, RootWindow rootWindow) {
 //        openNewWindow(title, component, null, rootWindow);

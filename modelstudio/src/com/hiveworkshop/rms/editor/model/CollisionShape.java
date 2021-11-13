@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape.Type;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -79,36 +80,11 @@ public class CollisionShape extends IdObject {
 
 	@Override
 	public double getClickRadius() {
-//		byte xDimension = coordinateSystem.getPortFirstXYZ();
-//		byte yDimension = coordinateSystem.getPortSecondXYZ();
-//		int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(xDimension));
-//		int yCoord = (int) coordinateSystem.viewY(pivotPoint.getCoord(yDimension));
-		if (type == Type.BOX) {
-			if (vertices.size() > 0) {
-				// Vertex vertex = vertices.get(0);
-				// int secondXCoord = (int)
-				// coordinateSystem.convertX(vertex.getCoord(xDimension));
-				// int secondYCoord = (int)
-				// coordinateSystem.convertY(vertex.getCoord(yDimension));
-				// int minXCoord = Math.min(xCoord, secondXCoord);
-				// int minYCoord = Math.min(yCoord, secondYCoord);
-				// int maxXCoord = Math.max(xCoord, secondXCoord);
-				// int maxYCoord = Math.max(yCoord, secondYCoord);
-				// int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord -
-				// minYCoord) / 2;
-				return DEFAULT_CLICK_RADIUS;
-			} else {
-				return DEFAULT_CLICK_RADIUS;
-			}
-		}
-		if (extents == null) {
-			return DEFAULT_CLICK_RADIUS;
-		}
-		return extents.getBoundsRadius();
-//		byte xDimension = coordinateSystem.getPortFirstXYZ();
-//		byte yDimension = coordinateSystem.getPortSecondXYZ();
-//		int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(xDimension));
-//		int yCoord = (int) coordinateSystem.viewY(pivotPoint.getCoord(yDimension));
+		return ProgramGlobals.getPrefs().getNodeBoxSize() * 2;
+////		byte xDimension = coordinateSystem.getPortFirstXYZ();
+////		byte yDimension = coordinateSystem.getPortSecondXYZ();
+////		int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(xDimension));
+////		int yCoord = (int) coordinateSystem.viewY(pivotPoint.getCoord(yDimension));
 //		if (type == Type.BOX) {
 //			if (vertices.size() > 0) {
 //				// Vertex vertex = vertices.get(0);
@@ -122,15 +98,41 @@ public class CollisionShape extends IdObject {
 //				// int maxYCoord = Math.max(yCoord, secondYCoord);
 //				// int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord -
 //				// minYCoord) / 2;
-//				return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+//				return DEFAULT_CLICK_RADIUS;
 //			} else {
-//				return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+//				return DEFAULT_CLICK_RADIUS;
 //			}
 //		}
 //		if (extents == null) {
-//			return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+//			return DEFAULT_CLICK_RADIUS;
 //		}
 //		return extents.getBoundsRadius();
+////		byte xDimension = coordinateSystem.getPortFirstXYZ();
+////		byte yDimension = coordinateSystem.getPortSecondXYZ();
+////		int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(xDimension));
+////		int yCoord = (int) coordinateSystem.viewY(pivotPoint.getCoord(yDimension));
+////		if (type == Type.BOX) {
+////			if (vertices.size() > 0) {
+////				// Vertex vertex = vertices.get(0);
+////				// int secondXCoord = (int)
+////				// coordinateSystem.convertX(vertex.getCoord(xDimension));
+////				// int secondYCoord = (int)
+////				// coordinateSystem.convertY(vertex.getCoord(yDimension));
+////				// int minXCoord = Math.min(xCoord, secondXCoord);
+////				// int minYCoord = Math.min(yCoord, secondYCoord);
+////				// int maxXCoord = Math.max(xCoord, secondXCoord);
+////				// int maxYCoord = Math.max(yCoord, secondYCoord);
+////				// int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord -
+////				// minYCoord) / 2;
+////				return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+////			} else {
+////				return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+////			}
+////		}
+////		if (extents == null) {
+////			return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+////		}
+////		return extents.getBoundsRadius();
 	}
 
 	@Override

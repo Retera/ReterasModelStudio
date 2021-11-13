@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.parsers.slk;
 
+import com.hiveworkshop.rms.parsers.slk.tables.*;
+
 public class DataTableHolder {
 	static DataTable theTable;
 	static DataTable spawnTable;

@@ -114,6 +114,9 @@ public abstract class ValuePanel<T> extends JPanel {
 		toggleStaticDynamicPanel(true);
 		RemoveAnimFlagAction removeAnimFlagAction = new RemoveAnimFlagAction(timelineContainer, animFlag, changeListener);
 		undoManager.pushAction(removeAnimFlagAction.redo());
+		if (valueSettingFunction != null) {
+			valueSettingFunction.accept(staticValue);
+		}
 	}
 
 	private void makeDynamic() {
@@ -180,6 +183,8 @@ public abstract class ValuePanel<T> extends JPanel {
 			} else {
 				staticComponent.setVisible(true);
 			}
+			collapsablePanel.setTitle(title);
+			titledBorder.setTitle(title);
 //			keyframePanel.updateFlag(null, null);
 		} else {
 			TreeSet<Sequence> tempSet = new TreeSet<>(modelHandler.getModel().getAnims());
@@ -192,9 +197,7 @@ public abstract class ValuePanel<T> extends JPanel {
 
 				int size = animFlag.size(sequence);
 				CollapsablePanel collapsablePanel = new CollapsablePanel(sequence + " " + size + " keyframes", keyframePanel);
-				if (size == 0) {
-					collapsablePanel.toggleCollapsed();
-				}
+				collapsablePanel.setCollapsed(size == 0);
 //				dynamicPanel.add(collapsablePanel, "spanx, growx, wrap, hidemode 3");
 				dynamicContentPanel.add(collapsablePanel, "spanx, growx, wrap, hidemode 3");
 			}

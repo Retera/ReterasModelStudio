@@ -207,7 +207,7 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 //		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.UPGRADES, StandardObjectData.getStandardUpgrades(), standardMeta, unitDataChangeset);
 		MutableObjectData unitData = new MutableUpgradeData();
 		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("UPGR", "Upgr");
-		System.out.println("new UnitEditorPanel (" + "UPGR" + "ADES)");
+//		System.out.println("new UnitEditorPanel (" + "UPGR" + "ADES)");
 		return new UnitEditorPanel(
 				unitData,
 				new UpgradesFieldBuilder(standardUpgradeEffectMeta),

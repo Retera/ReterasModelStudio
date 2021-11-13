@@ -1,19 +1,24 @@
-package com.hiveworkshop.rms.parsers.slk;
+package com.hiveworkshop.rms.parsers.slk.tables;
 
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableUtils;
+import com.hiveworkshop.rms.parsers.slk.Element;
+import com.hiveworkshop.rms.parsers.slk.StringKey;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class SpawnsTable extends DataTable {
+public class DestructiblesTable extends DataTable {
 	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
 
-	public SpawnsTable() {
-		loadSpawns();
+	public DestructiblesTable() {
+		loadDestructibles();
 	}
 
 	@Override
@@ -26,9 +31,13 @@ public class SpawnsTable extends DataTable {
 		return outputKeySet;
 	}
 
-	public void loadSpawns() {
+	public void loadDestructibles() {
 		try {
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Splats\\SpawnData.slk"));
+			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\DestructableData.slk"));
+			final InputStream unitSkin = GameDataFileSystem.getDefault().getResourceAsStream("Units\\DestructableSkin.txt");
+			if (unitSkin != null) {
+				DataTableUtils.readTXT(this, unitSkin, true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}

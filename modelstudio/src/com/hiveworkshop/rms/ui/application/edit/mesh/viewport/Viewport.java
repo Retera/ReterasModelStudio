@@ -32,19 +32,17 @@ public class Viewport extends ViewportView {
 	                ViewportActivityManager activityListener,
 	                CoordDisplayListener coordDisplayListener,
 	                ModelEditorManager modelEditorManager,
-	                ViewportTransferHandler viewportTransferHandler,
-	                ViewportListener viewportListener) {
-		super(modelHandler, d1, d2, new Dimension(200, 200), activityListener, viewportListener, coordDisplayListener);
+	                ViewportTransferHandler viewportTransferHandler) {
+		super(d1, d2, new Dimension(200, 200), coordDisplayListener);
+		setModel(modelHandler, activityListener);
 		// Dimension 1 and Dimension 2, these specify which dimensions to display.
 		// the d bytes can thus be from 0 to 2, specifying either the X, Y, or Z dimensions
 
 		this.modelEditorManager = modelEditorManager;
 		setupCopyPaste(viewportTransferHandler);
 
-		viewport = this;
-
-		contextMenu = new ViewportPopupMenu(this, this.getRootPane(), this.modelHandler, this.modelEditorManager);
-		add(contextMenu);
+//		contextMenu = new ViewportPopupMenu(this, this.getRootPane(), this.modelHandler, this.modelEditorManager);
+//		add(contextMenu);
 
 		viewportModelRenderer = new ViewportModelRenderer(ProgramGlobals.getPrefs().getVertexSize());
 		linkRenderer = new LinkRenderer();
@@ -122,28 +120,6 @@ public class Viewport extends ViewportView {
 		long renderEnd = System.nanoTime();
 		long currFrameRenderTime = renderEnd - renderStart;
 
-//		minRenderTime = Math.min(currFrameRenderTime, minRenderTime);
-//		maxRenderTime = Math.max(currFrameRenderTime, maxRenderTime);
-//		totTempRenderTime += currFrameRenderTime;
-//		renderCount += 1;
-//		if (renderCount >= 100) {
-////			long millis = ((totTempRenderTime / renderCount) / 1000000L) + 1;
-//			long millis = ((totTempRenderTime/1000000L) / renderCount);
-//			System.out.println("millis: " + millis);
-//			if (millis > paintTimer.getDelay()) {
-//				int millis2 = (int) (millis * 5);
-//				System.out.println("min, delay=" + millis2);
-//				paintTimer.setDelay(millis2);
-//			} else if (millis < paintTimer.getDelay()) {
-//				int max2 = Math.max(16, (int) (millis * 5));
-//				System.out.println("max, delay=" + max2);
-//				paintTimer.setDelay(max2);
-//			}
-//			System.out.println("min render time: " + (minRenderTime/1000000L) + "ms, max render time: " + (maxRenderTime/1000000L) + "ms");
-//			minRenderTime = Long.MAX_VALUE;
-//			maxRenderTime = 0;
-//		}
-
 		totTempRenderTime += currFrameRenderTime;
 		renderCount += 1;
 		if (renderCount >= 100) {
@@ -178,12 +154,6 @@ public class Viewport extends ViewportView {
 
 	public ModelEditorManager getModelEditorManager() {
 		return modelEditorManager;
-	}
-
-	public static class DropLocation extends TransferHandler.DropLocation {
-		protected DropLocation(Point dropPoint) {
-			super(dropPoint);
-		}
 	}
 
 	public ModelView getModelView() {

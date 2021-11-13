@@ -37,9 +37,9 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 		}
 		final DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 
-		if (value.toString().equals("Undead")) {
-			System.out.println("UndeadUggaBugga!");
-		}
+//		if (value.toString().equals("Undead")) {
+//			System.out.println("UndeadUggaBugga!");
+//		}
 		if (node.getUserObject() instanceof MutableGameObject) {
 			final MutableGameObject unit = (MutableGameObject) node.getUserObject();
 			String displayName = unit.getName();
@@ -90,9 +90,9 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 				ImageIcon icon = getImageIcon(gameTex);
 				setIcon(icon);
 			}
-			if (value.toString().equals("Undead") && leafCount == 18) {
-				System.out.println("HumanUggaBugga!");
-			}
+//			if (value.toString().equals("Undead") && leafCount == 18) {
+//				System.out.println("HumanUggaBugga!");
+//			}
 			if (((node instanceof SortingFolderTreeNode)
 					&& ((SortingFolderTreeNode) node).hasEditedChildren())
 					&& !selected) {

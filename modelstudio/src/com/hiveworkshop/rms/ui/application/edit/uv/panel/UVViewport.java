@@ -1,11 +1,9 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportView;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.uv.UVViewportModelRenderer;
-import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,21 +12,13 @@ import java.util.ArrayList;
 public class UVViewport extends ViewportView {
 	ArrayList<Image> backgrounds = new ArrayList<>();
 
-	JMenuItem placeholderButton;
 	UVPanel uvPanel;
 	private final UVViewportModelRenderer viewportModelRenderer;
 
 	public UVViewport(UVPanel uvPanel, CoordDisplayListener coordDisplayListener) {
-		super((byte) 0, (byte) 1, new Dimension(400, 400), new ViewportListener(), coordDisplayListener);
+		super((byte) 0, (byte) 1, new Dimension(400, 400), coordDisplayListener);
 
 		coordinateSystem.setYFlip(1);
-
-		viewport = null;
-
-
-		contextMenu = new JPopupMenu();
-		placeholderButton = new JMenuItem("Placeholder Button");
-		contextMenu.add(placeholderButton);
 
 		this.uvPanel = uvPanel;
 
@@ -56,9 +46,6 @@ public class UVViewport extends ViewportView {
 	private void PaintBackgroundImage(Graphics g) {
 		for (Image background : backgrounds) {
 			if (uvPanel.isWrapImage()) {
-				Vec2 geomMin = new Vec2(coordinateSystem.geomX(0), coordinateSystem.geomY(0));
-				Vec2 geomMax = new Vec2(coordinateSystem.geomX(getWidth()), coordinateSystem.geomY(getHeight()));
-
 				double geomMinX = coordinateSystem.geomX(0);
 				double geomMinY = coordinateSystem.geomY(0);
 				double geomMaxX = coordinateSystem.geomX(getWidth());
@@ -69,13 +56,21 @@ public class UVViewport extends ViewportView {
 				int maxY = (int) Math.ceil(geomMaxY);
 				for (int y = minY; y < maxY; y++) {
 					for (int x = minX; x < maxX; x++) {
-						g.drawImage(background, (int) coordinateSystem.viewX(x), (int) coordinateSystem.viewY(y), (int) (coordinateSystem.viewX(x + 1) - coordinateSystem.viewX(x)), (int) (coordinateSystem.viewY(y + 1) - coordinateSystem.viewY(y)), null);
+						drawImage(g, background, x, y);
 					}
 				}
 			} else {
-				g.drawImage(background, (int) coordinateSystem.viewX(0), (int) coordinateSystem.viewY(0), (int) (coordinateSystem.viewX(1) - coordinateSystem.viewX(0)), (int) (coordinateSystem.viewY(1) - coordinateSystem.viewY(0)), null);
+				drawImage(g, background, 0, 0);
 			}
 		}
+	}
+
+	private void drawImage(Graphics g, Image background, int x, int y) {
+		double startX = coordinateSystem.viewX(x);
+		double endX = coordinateSystem.viewX(x + 1);
+		double startY = coordinateSystem.viewY(y);
+		double endY = coordinateSystem.viewY(y + 1);
+		g.drawImage(background, (int) startX, (int) startY, (int) (endX - startX), (int) (endY - startY), null);
 	}
 
 	public void setAspectRatio(final double ratio) {

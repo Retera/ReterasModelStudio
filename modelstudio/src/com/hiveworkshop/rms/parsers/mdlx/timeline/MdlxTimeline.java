@@ -158,20 +158,36 @@ public abstract class MdlxTimeline<TYPE> {
 
 	protected abstract TYPE readMdlValue(MdlTokenInputStream stream);
 
+//		if(i == 0 && value instanceof int[]){
+//			System.out.println(this.getClass());
+//			System.out.println("(int0) " + this.name + ": " + Arrays.toString((int[])value) + ", " + Arrays.toString(values));
+//
+//		} else if (i == 1 && value instanceof int[]){
+////			System.out.println("(1) " + this.name + ": " + Arrays.toString((int[])value) + ", " + Arrays.toString((int[])values[0]));
+//			System.out.println("(int1) " + this.name + ": " + Arrays.toString((int[])value) + ", " + Arrays.toString(values));
+//		} else if(i == 0 && value instanceof float[]){
+//			System.out.println(this.getClass());
+//			System.out.println("(float0) " + this.name + ": " + Arrays.toString((float[])value) + ", " + Arrays.toString(values));
+//
+//		} else if (i == 1 && value instanceof float[]){
+////			System.out.println("(1) " + this.name + ": " + Arrays.toString((float[])value) + ", " + Arrays.toString((float[])values[0]));
+//			System.out.println("(float1) " + this.name + ": " + Arrays.toString((float[])value) + ", " + Arrays.toString(values));
+//		}
+
 	protected abstract void writeMdxValue(BinaryWriter writer, TYPE value);
 
 	protected abstract void writeMdlValue(MdlTokenOutputStream stream, String prefix, TYPE value);
 
 	public abstract void initLists(int size);
 
-	public void add(int i, long frame, TYPE value, TYPE inTan, TYPE outTan){
+	public void add(int i, long frame, TYPE value, TYPE inTan, TYPE outTan) {
 		frames[i] = frame;
 		values[i] = value;
-		if(interpolationType.tangential()){
-			if(inTans != null && inTan != null){
+		if (interpolationType.tangential()) {
+			if (inTans != null && inTan != null) {
 				inTans[i] = inTan;
 			}
-			if(outTans != null && outTan != null){
+			if (outTans != null && outTan != null) {
 				outTans[i] = outTan;
 			}
 		}

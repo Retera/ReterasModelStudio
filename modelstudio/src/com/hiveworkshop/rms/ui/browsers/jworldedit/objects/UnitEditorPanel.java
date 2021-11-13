@@ -98,9 +98,9 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		setRightComponent(new JScrollPane(table));
 
 		tree.addTreeSelectionListener(this);
-		System.out.println("UggaBugga!");
+//		System.out.println("UggaBugga!");
 		tree.selectFirstUnit();
-		System.out.println("UggaBugga2!");
+//		System.out.println("UggaBugga2!");
 
 		UnitEditorDataChangeListener objectDataChangeListener = new UnitEditorDataChangeListener(this, unitData);
 		unitData.addChangeListener(objectDataChangeListener);

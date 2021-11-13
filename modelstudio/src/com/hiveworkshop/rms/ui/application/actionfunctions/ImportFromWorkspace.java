@@ -5,7 +5,7 @@ import com.hiveworkshop.rms.editor.model.TempStuffFromEditableModel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanelGui;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
 import javax.swing.*;
@@ -28,9 +28,9 @@ public class ImportFromWorkspace extends ActionFunction {
 				"Choose a workspace item to import data from:", "Import from Workspace",
 				JOptionPane.OK_CANCEL_OPTION, null, optionNames.toArray(), optionNames.get(0));
 		if (choice != null) {
-			ImportPanel importPanel = new ImportPanel(modelHandler.getModel(), TempStuffFromEditableModel.deepClone(choice, choice.getHeaderName()), true);
+//			ImportPanel importPanel = new ImportPanel(modelHandler.getModel(), TempStuffFromEditableModel.deepClone(choice, choice.getHeaderName()), true);
 //			importPanel.setModelChangeListener(new ModelStructureChangeListener());
-//			ImportPanelGui importPanel = new ImportPanelGui(modelHandler.getModel(), TempStuffFromEditableModel.deepClone(choice, choice.getHeaderName()));
+			ImportPanelGui importPanel = new ImportPanelGui(modelHandler.getModel(), TempStuffFromEditableModel.deepClone(choice, choice.getHeaderName()));
 		}
 	}
 }

@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
-import com.hiveworkshop.rms.ui.application.actionfunctions.Select;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ShowHideStuff;
 import com.hiveworkshop.rms.ui.application.actionfunctions.TwilacStuff;
 import com.hiveworkshop.rms.ui.application.actionfunctions.WeldVerts;
@@ -19,10 +18,10 @@ public class TwilacsTools extends JMenu {
 		add(TwilacStuff.getSnapCloseVertsMenuItem());
 		add(ShowHideStuff.getHideVertsMenuItem());
 		add(ShowHideStuff.getShowVertsMenuItem());
-		add(new JSeparator());
-
-		add(Select.getSelectNodeGeometryMenuItem());
-		add(Select.getSelectLinkedGeometryMenuItem());
+//		add(new JSeparator());
+//
+//		add(Select.getSelectNodeGeometryMenuItem());
+//		add(Select.getSelectLinkedGeometryMenuItem());
 
 
 		add(new JSeparator());

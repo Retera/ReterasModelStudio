@@ -57,7 +57,8 @@ public class QuatValuePanel extends ValuePanel<Quat> {
 		}
 		if (animFlag != null) {
 			for (KeyframePanel<Quat> kfp : keyframePanelMap.values()) {
-				kfp.addAllowedCharatcters("\\{}, ");
+//				kfp.addAllowedCharatcters("\\{}, ");
+				kfp.addAllowedCharatcters(", ");
 				kfp.getFloatTrackTableModel().setValueClass(String.class);
 			}
 		}

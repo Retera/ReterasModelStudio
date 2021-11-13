@@ -8,82 +8,33 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.util.function.Consumer;
 
 public abstract class ViewportView extends JPanel {
 
 	private final double ZOOM_FACTOR = 1.15;
 	protected CoordinateSystem coordinateSystem;
 
-	protected boolean mouseInBounds = false;
-	protected Viewport viewport;
-	protected JPanel popupParent;
 	protected JPopupMenu contextMenu;
 
 	protected Component boxX, boxY;
 
 	protected Point lastMouseMotion = new Point(0, 0);
-	Consumer<Cursor> cursorManager;
 
 	protected ModelHandler modelHandler;
 	protected ViewportActivityManager viewportActivity;
-	protected ViewportListener viewportListener;
-	protected CoordDisplayListener coordDisplayListener;
 
-	protected Point lastClick;
-	protected Point selectStart;
-	protected Point actStart;
-	protected Timer clickTimer = new Timer(16, e -> clickTimer());
+	protected MouseListenerThing2 mouseListenerThing2;
 
-	public ViewportView(ModelHandler modelHandler, byte d1, byte d2,
-	                    Dimension minDim,
-	                    ViewportActivityManager viewportActivity,
-	                    ViewportListener viewportListener,
-	                    CoordDisplayListener coordDisplayListener) {
-		setModel(modelHandler, viewportActivity);
-		this.viewportListener = viewportListener;
-		this.coordDisplayListener = coordDisplayListener;
-
-		coordinateSystem = new CoordinateSystem(d1, d2, this);
-		popupParent = this;
-
-		setBorder(BorderFactory.createBevelBorder(1));
-		setBackground(ProgramGlobals.getPrefs().getBackgroundColor());
-//		ProgramGlobals.getPrefs().addChangeListener(() -> setBackground(ProgramGlobals.getPrefs().getBackgroundColor()));
-
-		// Viewport border
-		setMinimumSize(minDim);
-		add(boxX = Box.createHorizontalStrut(minDim.width));
-		add(boxY = Box.createVerticalStrut(minDim.height));
-		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-
-		MouseAdapter mouseAdapter = getMouseAdapter();
-		addMouseListener(mouseAdapter);
-		addMouseWheelListener(mouseAdapter);
-		addMouseMotionListener(mouseAdapter);
-
-
-//		cursorManager = this::setCursor;
-		cursorManager = this::setCursor;
-	}
 	public ViewportView(byte d1, byte d2,
 	                    Dimension minDim,
-	                    ViewportListener viewportListener,
 	                    CoordDisplayListener coordDisplayListener) {
-		this.viewportListener = viewportListener;
-		this.coordDisplayListener = coordDisplayListener;
 
 		coordinateSystem = new CoordinateSystem(d1, d2, this);
-		popupParent = this;
 
 		setBorder(BorderFactory.createBevelBorder(1));
 		setBackground(ProgramGlobals.getPrefs().getBackgroundColor());
-//		ProgramGlobals.getPrefs().addChangeListener(() -> setBackground(ProgramGlobals.getPrefs().getBackgroundColor()));
 
 		// Viewport border
 		setMinimumSize(minDim);
@@ -91,19 +42,21 @@ public abstract class ViewportView extends JPanel {
 		add(boxY = Box.createVerticalStrut(minDim.height));
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
-		MouseAdapter mouseAdapter = getMouseAdapter();
-		addMouseListener(mouseAdapter);
-		addMouseWheelListener(mouseAdapter);
-		addMouseMotionListener(mouseAdapter);
-
-
-//		cursorManager = this::setCursor;
-		cursorManager = this::setCursor;
+		mouseListenerThing2 = new MouseListenerThing2(this, coordDisplayListener, coordinateSystem);
+		addMouseListener(mouseListenerThing2);
+		addMouseWheelListener(mouseListenerThing2);
+		addMouseMotionListener(mouseListenerThing2);
 	}
 
 	public void setModel(ModelHandler modelHandler, ViewportActivityManager viewportActivity) {
 		this.modelHandler = modelHandler;
 		this.viewportActivity = viewportActivity;
+		if (modelHandler != null) {
+			mouseListenerThing2.setUndoHandler(modelHandler.getUndoHandler());
+		} else {
+			mouseListenerThing2.setUndoHandler(null);
+		}
+		mouseListenerThing2.setViewportActivity(viewportActivity);
 	}
 
 	public CoordinateSystem getCoordinateSystem() {
@@ -153,37 +106,15 @@ public abstract class ViewportView extends JPanel {
 		}
 	}
 
-
-	private boolean clickTimer() {
-		int xoff = 0;
-		int yoff = 0;
+	public int[] getOffsets() {
+		int[] off = new int[] {0, 0};
 		Component temp = this;
 		while (temp != null) {
-			xoff += temp.getX();
-			yoff += temp.getY();
+			off[0] += temp.getX();
+			off[1] += temp.getY();
 			temp = temp.getParent();
 		}
-		PointerInfo pointerInfo = MouseInfo.getPointerInfo();
-		if ((pointerInfo == null) || (pointerInfo.getLocation() == null)) {
-			return true;
-		}
-		double mx = pointerInfo.getLocation().x - xoff;
-		double my = pointerInfo.getLocation().y - yoff;
-
-		if (lastClick != null) {
-
-			int deltaX = (int) mx - lastClick.x;
-			int deltaY = (int) my - lastClick.y;
-			coordinateSystem.translateZoomed(deltaX, deltaY);
-
-			lastClick.x = (int) mx;
-			lastClick.y = (int) my;
-		}
-
-		coordDisplayListener.notifyUpdate(coordinateSystem, coordinateSystem.geomX(mx), coordinateSystem.geomY(my));
-
-		repaint();
-		return false;
+		return off;
 	}
 
 	public BufferedImage getBufferedImage() {
@@ -200,127 +131,4 @@ public abstract class ViewportView extends JPanel {
 	}
 
 	public abstract void paintComponent(final Graphics g, final int vertexSize);
-
-
-	protected MouseAdapter getMouseAdapter() {
-		return new MouseAdapter() {
-			@Override
-			public void mouseEntered(final MouseEvent e) {
-				if (!viewportActivity.isEditing()) {
-					viewportActivity.viewportChanged(cursorManager);
-					requestFocus();
-					mouseInBounds = true;
-					setBorder(BorderFactory.createBevelBorder(1, Color.YELLOW, Color.YELLOW.darker()));
-					clickTimer.setRepeats(true);
-					clickTimer.start();
-				}
-			}
-
-			@Override
-			public void mouseExited(final MouseEvent e) {
-				if (!viewportActivity.isEditing()) {
-					if ((selectStart == null) && (actStart == null) && (lastClick == null)) {
-						clickTimer.stop();
-					}
-					mouseInBounds = false;
-					setBorder(BorderFactory.createBevelBorder(1));
-				}
-			}
-
-			@Override
-			public void mousePressed(final MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON2) {
-					lastClick = new Point(e.getX(), e.getY());
-				} else if (e.getButton() == MouseEvent.BUTTON1) {
-					viewportActivity.viewportChanged(cursorManager);
-					viewportListener.viewportChanged(viewport);
-					requestFocus();
-					viewportActivity.mousePressed(e, coordinateSystem);
-				} else if (e.getButton() == MouseEvent.BUTTON3) {
-					viewportActivity.viewportChanged(cursorManager);
-					viewportListener.viewportChanged(viewport);
-					requestFocus();
-					viewportActivity.mousePressed(e, coordinateSystem);
-				}
-			}
-
-			@Override
-			public void mouseReleased(final MouseEvent e) {
-//				if (!mouseInBounds && (selectStart == null) && (actStart == null) && (lastClick == null)) {
-//					clickTimer.stop();
-//					repaint();
-//				}
-				if(modelHandler != null){
-					modelHandler.getUndoHandler().refreshUndo();
-					// TODO fix, refresh undo
-					if ((e.getButton() == MouseEvent.BUTTON2) && (lastClick != null)) {
-						double translateX = (e.getX() - lastClick.x);
-						double translateY = (e.getY() - lastClick.y);
-						coordinateSystem.translateZoomed(translateX, translateY);
-						lastClick = null;
-					} else if (e.getButton() == MouseEvent.BUTTON1) {
-						viewportActivity.mouseReleased(e, coordinateSystem);
-					} else if (e.getButton() == MouseEvent.BUTTON3) {
-						viewportActivity.mouseReleased(e, coordinateSystem);
-					}
-					if (!mouseInBounds && (selectStart == null) && (actStart == null) && (lastClick == null)) {
-						clickTimer.stop();
-						repaint();
-					}
-					if (mouseInBounds && !getBounds().contains(e.getPoint()) && !viewportActivity.isEditing()) {
-						mouseExited(e);
-					}
-				}
-			}
-
-			@Override
-			public void mouseClicked(final MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON3) {
-					contextMenu.show(popupParent, e.getX(), e.getY());
-				}
-			}
-
-			@Override
-			public void mouseWheelMoved(final MouseWheelEvent e) {
-				int wr = e.getWheelRotation();
-
-				int dir = wr < 0 ? -1 : 1;
-
-				double mouseX = e.getX();
-				double mouseY = e.getY();
-
-				for (int i = 0; i < wr * dir; i++) {
-					double zoomAdjust = (ZOOM_FACTOR - 1) * dir / ZOOM_FACTOR;
-
-					double w = mouseX - (getWidth() / 2.0) ;
-					double h = mouseY - (getHeight() / 2.0);
-
-					coordinateSystem.translateZoomed(w * zoomAdjust, h * zoomAdjust);
-
-					if (dir == -1) {
-						coordinateSystem.zoomIn(ZOOM_FACTOR);
-					} else {
-						coordinateSystem.zoomOut(ZOOM_FACTOR);
-					}
-				}
-			}
-
-			@Override
-			public void mouseDragged(final MouseEvent e) {
-				viewportActivity.mouseDragged(e, coordinateSystem);
-				lastMouseMotion = e.getPoint();
-//				repaint();
-			}
-
-			@Override
-			public void mouseMoved(final MouseEvent e) {
-				if (!mouseInBounds && getBounds().contains(e.getPoint()) && !viewportActivity.isEditing()) {
-					mouseEntered(e);
-				}
-				viewportActivity.mouseMoved(e, coordinateSystem);
-				lastMouseMotion = e.getPoint();
-				repaint();
-			}
-		};
-	}
 }

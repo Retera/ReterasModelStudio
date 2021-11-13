@@ -1,6 +1,10 @@
-package com.hiveworkshop.rms.parsers.slk;
+package com.hiveworkshop.rms.parsers.slk.tables;
 
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableUtils;
+import com.hiveworkshop.rms.parsers.slk.Element;
+import com.hiveworkshop.rms.parsers.slk.StringKey;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import java.io.IOException;

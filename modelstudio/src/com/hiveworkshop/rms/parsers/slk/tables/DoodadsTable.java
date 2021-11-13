@@ -1,19 +1,24 @@
-package com.hiveworkshop.rms.parsers.slk;
+package com.hiveworkshop.rms.parsers.slk.tables;
 
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableUtils;
+import com.hiveworkshop.rms.parsers.slk.Element;
+import com.hiveworkshop.rms.parsers.slk.StringKey;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class SplatsTable extends DataTable {
+public class DoodadsTable extends DataTable {
 	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
 
-	public SplatsTable() {
-		loadSplats();
+	public DoodadsTable() {
+		loadDoodads();
 	}
 
 	@Override
@@ -26,10 +31,13 @@ public class SplatsTable extends DataTable {
 		return outputKeySet;
 	}
 
-	public void loadSplats() {
+	public void loadDoodads() {
 		try {
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Splats\\SplatData.slk"));
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Splats\\UberSplatData.slk"));
+			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Doodads\\Doodads.slk"));
+			final InputStream unitSkin = GameDataFileSystem.getDefault().getResourceAsStream("Doodads\\DoodadSkins.txt");
+			if (unitSkin != null) {
+				DataTableUtils.readTXT(this, unitSkin, true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}

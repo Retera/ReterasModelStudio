@@ -157,7 +157,7 @@ public class KeyframePanel<T> extends JPanel {
 				final JTextField compTextField = (JTextField) comp;
 				if (comp.isValid()) {
 					doSave = true;
-					preEditValue = compTextField.getText();
+					preEditValue = compTextField.getText().replaceAll("[^" + allowedCharacters + "]*", "");
 				} else if (doSave) {
 					String newValue = compTextField.getText();
 					if (!newValue.equals(preEditValue) && !newValue.equals("")) {
@@ -217,8 +217,8 @@ public class KeyframePanel<T> extends JPanel {
 				editRenderingConsumer.accept(compTextField, col);
 			}
 			String text = compTextField.getText();
-			if (!text.matches("[" + allowedCharacters + "eE]*")) {
-				String newText = text.replaceAll("[^" + allowedCharacters + "eE]*", "");
+			if (!text.matches("[" + allowedCharacters + "]*")) {
+				String newText = text.replaceAll("[^" + allowedCharacters + "]*", "");
 				SwingUtilities.invokeLater(() -> {
 					applyFilteredText(compTextField, newText);
 				});

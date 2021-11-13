@@ -1,6 +1,10 @@
-package com.hiveworkshop.rms.parsers.slk;
+package com.hiveworkshop.rms.parsers.slk.tables;
 
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableUtils;
+import com.hiveworkshop.rms.parsers.slk.Element;
+import com.hiveworkshop.rms.parsers.slk.StringKey;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import java.io.IOException;
@@ -9,11 +13,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class TerrainTable extends DataTable {
+public class SplatsTable extends DataTable {
 	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
 
-	public TerrainTable() {
-		loadTerrain();
+	public SplatsTable() {
+		loadSplats();
 	}
 
 	@Override
@@ -26,9 +30,10 @@ public class TerrainTable extends DataTable {
 		return outputKeySet;
 	}
 
-	public void loadTerrain() {
+	public void loadSplats() {
 		try {
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("TerrainArt\\Terrain.slk"));
+			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Splats\\SplatData.slk"));
+			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Splats\\UberSplatData.slk"));
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}

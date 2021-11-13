@@ -1,10 +1,7 @@
 package com.hiveworkshop.rms.editor.actions.model;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.ExtLog;
-import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.Collection;
@@ -27,7 +24,8 @@ public class RecalculateExtentsAction implements UndoAction {
 		Vec3 max = new Vec3(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
 		Vec3 min = new Vec3(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
 		for (Geoset geoset : geosetsIncludedForCalculation) {
-			ExtLog extent = geoset.calculateExtent();
+//			ExtLog extent = geoset.calculateExtent();
+			ExtLog extent = calculateGeosetExtent(geoset);
 			Vec3 maximumExtent = extent.getMaximumExtent();
 			Vec3 minimumExtent = extent.getMinimumExtent();
 			double boundsRadius = extent.getBoundsRadius();
@@ -57,6 +55,25 @@ public class RecalculateExtentsAction implements UndoAction {
 		}
 		oldModelExtents = model.getExtents();
 
+	}
+
+
+	public ExtLog calculateGeosetExtent(Geoset geoset) {
+		double maximumDistanceFromCenter = 0;
+		Vec3 max = new Vec3(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
+		Vec3 min = new Vec3(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+
+		for (GeosetVertex geosetVertex : geoset.getVertices()) {
+			max.maximize(geosetVertex);
+			min.minimize(geosetVertex);
+
+			double distanceFromCenter = geosetVertex.length();
+			if (distanceFromCenter > maximumDistanceFromCenter) {
+				maximumDistanceFromCenter = distanceFromCenter;
+			}
+		}
+//		System.out.println("Geoset ExtLog: " + new ExtLog(min, max, maximumDistanceFromCenter));
+		return new ExtLog(min, max, maximumDistanceFromCenter);
 	}
 
 	@Override

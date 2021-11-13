@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ActionFunction;
+import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -21,18 +22,25 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class AnimationTransfer extends JPanel {
-	JTextField baseFileInput;
-	JTextField animFileInput;
-	JTextField outFileInput;
-	JComboBox<Animation> pickAnimBox;
-	JComboBox<Animation> visFromBox;
+	//	private final JTextField baseFileField;
+//	private final JTextField animFileField;
+//  private final JTextField outFileField;
+//	private final TwiTextField baseFileField;
+//	private final TwiTextField animFileField;
+	private final TwiTextField outFileField;
+	//	private String baseFilePath;
+//	private String animFilePath;
+	private String outFilePath;
+	private final JComboBox<Animation> pickAnimBox;
+	private final JComboBox<Animation> visFromBox;
 
-	JFileChooser fc = new JFileChooser();
-
-	EditableModel sourceFile;
-	EditableModel animFile;
+	private final JFileChooser fc = new JFileChooser();
+	private EditableModel sourceModel;
+	private EditableModel animModel;
 	private JFrame parentFrame;
 
 	public AnimationTransfer(final JFrame parentFrame) {
@@ -49,20 +57,16 @@ public class AnimationTransfer extends JPanel {
 			fc.setCurrentDirectory(new File(SaveProfile.get().getPath()));
 		}
 
-//		JPanel filePanel = new JPanel(new MigLayout("gap 0, wrap 3", "[grow]8[align right]8[align right]"));
-		JPanel filePanel = new JPanel(new MigLayout("gap 0, wrap 3", "[grow]"));
+		JPanel fileFieldsPanel = new JPanel(new MigLayout("gap 0, wrap 3", "[grow]"));
 
-		baseFileInput = getFileField();
-		filePanel.add(getFieldPanel("Base file:", e -> openAction(baseFileInput), baseFileInput), "wrap, growx");
+		fileFieldsPanel.add(getFieldPanel("Base file:", m -> sourceModel = m, () -> sourceModel), "wrap, growx");
+		fileFieldsPanel.add(getFieldPanel("Animation file:", m -> animModel = m, () -> animModel), "wrap, growx");
 
-		animFileInput = getFileField();
-		filePanel.add(getFieldPanel("Animation file:", e -> openAction(animFileInput), animFileInput), "wrap, growx");
-
-		outFileInput = getFileField();
-		filePanel.add(getFieldPanel("Output file:", e -> saveAction(outFileInput), outFileInput), "wrap, growx");
+		outFileField = getFileField(s -> outFilePath = s);
+		fileFieldsPanel.add(getFieldPanel("Output file:", e -> saveAction(outFileField), outFileField), "wrap, growx");
 		// TODO: remove save field and make "transfer" (and finished in ImportPanel) open save dialog
 
-		add(filePanel, "growx, spanx, wrap");
+		add(fileFieldsPanel, "growx, spanx, wrap");
 
 		JCheckBox transferSingleAnimation = new JCheckBox("Transfer single animation:", false);
 		transferSingleAnimation.addActionListener(e -> transferSingleAnimation(transferSingleAnimation.isSelected()));
@@ -85,13 +89,13 @@ public class AnimationTransfer extends JPanel {
 		add(animTransferPanel, "growx, spanx, wrap");
 
 		JPanel transferDonePanel = new JPanel(new MigLayout());
-		transferDonePanel.add(getSpecialButton("Transfer", e -> transfer(false, transferSingleAnimation.isSelected()), new Dimension(200, 35), KeyEvent.VK_T));
+		transferDonePanel.add(getSpecialButton("Transfer", e -> doTransfer(false, transferSingleAnimation.isSelected()), new Dimension(200, 35), KeyEvent.VK_T));
 		transferDonePanel.add(getSpecialButton("Done", e -> done(), new Dimension(80, 35), KeyEvent.VK_D));
 //		transferDonePanel.add(getSpecialButton("Save", e -> done(), new Dimension(80, 35), KeyEvent.VK_D));
 
 		add(transferDonePanel, "spanx, align center, wrap");
 
-		JButton goAdvanced = getSpecialButton("Go Advanced", e -> transfer(true, transferSingleAnimation.isSelected()), null, KeyEvent.VK_G);
+		JButton goAdvanced = getSpecialButton("Go Advanced", e -> doTransfer(true, transferSingleAnimation.isSelected()), null, KeyEvent.VK_G);
 		goAdvanced.setToolTipText(
 				"Opens the traditional MatrixEater Import window responsible for this Simple Import, " +
 						"so that you can micro-manage particular settings before finishing the operation.");
@@ -113,8 +117,27 @@ public class AnimationTransfer extends JPanel {
 		JPanel panel = new JPanel(new MigLayout("fill, gap 0, ins 0, wrap 3", "[grow]8[align right]8[align right]"));
 		panel.add(new JLabel(text), "growx");
 		panel.add(textField);
+		Consumer<String> setFieldText = textField::setText;
 		panel.add(getBrowseButton(actionListener));
 		return panel;
+	}
+
+	private JPanel getFieldPanel(String text, Consumer<EditableModel> modelConsumer, Supplier<EditableModel> model) {
+		JPanel panel = new JPanel(new MigLayout("fill, gap 0, ins 0, wrap 3", "[grow]8[align right]8[align right]"));
+		panel.add(new JLabel(text), "growx");
+		TwiTextField textField = new TwiTextField(24, fp -> updateModel(null, modelConsumer, model.get(), fp));
+		panel.add(textField);
+		Consumer<String> filePathConsumer = fp -> updateModel(textField, modelConsumer, model.get(), fp);
+		panel.add(getBrowseButton(e -> filePathConsumer.accept(openAction())));
+		return panel;
+	}
+
+	private void updateModel(TwiTextField textField, Consumer<EditableModel> modelConsumer, EditableModel model, String filePath) {
+		if (textField != null) {
+			textField.setText(filePath);
+		}
+		modelConsumer.accept(getModel(model, filePath));
+		updateBoxes();
 	}
 
 	public static void main(final String[] args) {
@@ -140,8 +163,8 @@ public class AnimationTransfer extends JPanel {
 		parentFrame.setVisible(true);
 	}
 
-	public JTextField getFileField() {
-		JTextField baseFileInput = new JTextField("");
+	public TwiTextField getFileField(Consumer<String> stringConsumer) {
+		TwiTextField baseFileInput = new TwiTextField(24, stringConsumer);
 		baseFileInput.setMinimumSize(new Dimension(200, 18));
 		return baseFileInput;
 	}
@@ -156,33 +179,6 @@ public class AnimationTransfer extends JPanel {
 		return baseBrowse;
 	}
 
-	public void refreshModels() throws IOException {
-		if (baseFileInput.getText().length() > 0) {
-			if (sourceFile == null
-					|| sourceFile.getFile() == null
-					|| !baseFileInput.getText().equals(sourceFile.getFile().getPath())) {
-				sourceFile = MdxUtils.loadEditable(new File(baseFileInput.getText()));
-			}
-		}
-		if (animFileInput.getText().length() > 0) {
-			if (animFile == null
-					|| animFile.getFile() == null
-					|| !animFileInput.getText().equals(animFile.getFile().getPath())) {
-				animFile = MdxUtils.loadEditable(new File(animFileInput.getText()));
-			}
-		}
-	}
-
-
-	public void updateBoxes() {
-		if (animFile != null) {
-			pickAnimBox.setModel(getAnimBoxModel(animFile.getAnims()));
-		}
-		if (sourceFile != null) {
-			visFromBox.setModel(getAnimBoxModel(sourceFile.getAnims()));
-		}
-	}
-
 	private DefaultComboBoxModel<Animation> getAnimBoxModel(List<Animation> anims) {
 		DefaultComboBoxModel<Animation> model = new DefaultComboBoxModel<>();
 
@@ -190,15 +186,6 @@ public class AnimationTransfer extends JPanel {
 			model.addElement(animation);
 		}
 		return model;
-	}
-
-	private void transfer(boolean advancedTransfer, boolean transferSingleAnim) {
-		try {
-			doTransfer(advancedTransfer, transferSingleAnim);
-		} catch (final IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	private void transferSingleAnimation(boolean transferSingleAnim) {
@@ -220,7 +207,7 @@ public class AnimationTransfer extends JPanel {
 		}
 	}
 
-	private void openAction(JTextField jTextField) {
+	private String openAction() {
 		fc.setDialogTitle("Open");
 		int returnValue = fc.showOpenDialog(this);
 
@@ -229,21 +216,39 @@ public class AnimationTransfer extends JPanel {
 			if (!filepath.toLowerCase().endsWith(".mdl") && !filepath.toLowerCase().endsWith(".mdx")) {
 				filepath += ".mdl";
 			}
-			jTextField.setText(filepath);
-			try {
-				refreshModels();
-			} catch (final IOException e1) {
-				e1.printStackTrace();
-			}
-			updateBoxes();
+			return filepath;
+		}
+		return "";
+	}
+
+	private void updateBoxes() {
+		if (animModel != null) {
+			pickAnimBox.setModel(getAnimBoxModel(animModel.getAnims()));
+		}
+		if (sourceModel != null) {
+			visFromBox.setModel(getAnimBoxModel(sourceModel.getAnims()));
 		}
 	}
 
-	public void doTransfer(boolean show, boolean transferSingleAnim) throws IOException {
-		EditableModel receivingModel = getEditableModel(baseFileInput.getText());
-		EditableModel donatingModel = getEditableModel(animFileInput.getText());
+	private EditableModel getModel(EditableModel modelToSet, String newPath) {
+		if (newPath.length() > 0
+				&& (modelToSet == null
+				|| modelToSet.getFile() == null
+				|| !newPath.equals(modelToSet.getFile().getPath()))) {
+			try {
+				return MdxUtils.loadEditable(new File(newPath));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return modelToSet;
+	}
 
-		if(receivingModel != null) {
+	private void doTransfer(boolean show, boolean transferSingleAnim) {
+		EditableModel receivingModel = sourceModel;
+		EditableModel donatingModel = animModel;
+
+		if (receivingModel != null) {
 			if (!transferSingleAnim) {
 				new Thread(() -> doImportIngStuff(show, false, receivingModel, donatingModel, () -> saveModel(receivingModel))).start();
 			} else {
@@ -267,47 +272,7 @@ public class AnimationTransfer extends JPanel {
 			}
 		}
 	}
-//	private void doImportIngStuff(boolean show, EditableModel receivingModel, EditableModel donatingModel) {
-//		ImportPanel importPanel = new ImportPanel(receivingModel, donatingModel, show);
-//		Animation animation = pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex());
-//		Animation visibility = visFromBox.getItemAt(visFromBox.getSelectedIndex());
-//		importPanel.animTransfer1(true, animation, visibility, show);
-//		waitWhileVisible(importPanel);
-//
-//		if (importPanel.importStarted()) {
-//			waitForPanel(importPanel);
-//
-//			if (importPanel.importSuccessful()) {
-//				doImportThings2(show, receivingModel);
-//			}
-//		}
-//	}
-//	private void doImportIngStuff2(boolean show, EditableModel receivingModel, EditableModel donatingModel) {
-//		ImportPanel importPanel = new ImportPanel(receivingModel, donatingModel, show);
-//		Animation animation = pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex());
-//		Animation visibility = visFromBox.getItemAt(visFromBox.getSelectedIndex());
-//		importPanel.animTransfer1(true, animation, visibility, show);
-//		waitWhileVisible(importPanel);
-//
-//		if (importPanel.importStarted()) {
-//			waitForPanel(importPanel);
-//
-//			if (importPanel.importSuccessful()) {
-//				EditableModel newDonatingModel = getEditableModel(receivingModel.getFile().getPath());
-//				ImportPanel importPanel2 = new ImportPanel(receivingModel, newDonatingModel, show);
-//				importPanel2.animTransferPartTwo(animation, visibility, show);
-//
-//				waitWhileVisible(importPanel2);
-//
-//				if (importPanel2.importStarted()) {
-//					waitForPanel(importPanel2);
-//					if (importPanel2.importSuccessful()) {
-//						saveModel(receivingModel);
-//					}
-//				}
-//			}
-//		}
-//	}
+
 
 	private EditableModel getEditableModel(String filePath) {
 		try {
@@ -329,15 +294,32 @@ public class AnimationTransfer extends JPanel {
 		Animation visibility = visFromBox.getItemAt(visFromBox.getSelectedIndex());
 		importPanel2.animTransferPartTwo(animation, visibility, show);
 
-		waitWhileVisible(importPanel2);
+//		waitWhileVisible(importPanel2);
 
-		if (importPanel2.importStarted()) {
-			waitForPanel(importPanel2);
-			if (importPanel2.importSuccessful()) {
-				saveModel(receivingModel);
-			}
-		}
+//		if (importPanel2.importStarted()) {
+//			waitForPanel(importPanel2);
+////			if (importPanel2.importSuccessful()) {
+//////				saveModel(receivingModel);
+////			}
+//		}
 	}
+//	private void doImportThings2(boolean show, EditableModel receivingModel) {
+//		EditableModel newDonatingModel = getEditableModel(receivingModel.getFile().getPath());
+//		ImportPanel importPanel2 = new ImportPanel(receivingModel, newDonatingModel, show);
+//
+//		Animation animation = pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex());
+//		Animation visibility = visFromBox.getItemAt(visFromBox.getSelectedIndex());
+//		importPanel2.animTransferPartTwo(animation, visibility, show);
+//
+//		waitWhileVisible(importPanel2);
+//
+//		if (importPanel2.importStarted()) {
+//			waitForPanel(importPanel2);
+//			if (importPanel2.importSuccessful()) {
+//				saveModel(receivingModel);
+//			}
+//		}
+//	}
 
 	private void saveModel(EditableModel model) {
 //		trySave(model, outFileInput.getText());

@@ -47,6 +47,8 @@ public class EditMenu extends JMenu {
 		add(Select.getSelectAllMenuItem());
 		add(Select.getInvertSelectMenuItem());
 		add(Select.getExpandSelectionMenuItem());
+		add(Select.getSelectLinkedGeometryMenuItem());
+		add(Select.getSelectNodeGeometryMenuItem());
 
 		addSeparator();
 

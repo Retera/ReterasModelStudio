@@ -62,7 +62,7 @@ public class GeosetRenderer {
 		renderGeosets(modelView.getVisibleGeosets(), formatVersion, false, renderTextures, wireFrame);
 
 		if (modelView.getHighlightedGeoset() != null) {
-			drawHighlightedGeosets(formatVersion);
+			drawHighlightedGeosets(formatVersion, renderTextures);
 		}
 
 		if (showNormals) {
@@ -74,7 +74,7 @@ public class GeosetRenderer {
 		return this;
 	}
 
-	private void drawHighlightedGeosets(int formatVersion) {
+	private void drawHighlightedGeosets(int formatVersion, boolean renderTextures) {
 		GL11.glDepthMask(true);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		if ((programPreferences != null) && (programPreferences.getHighlighTriangleColor() != null)) {
@@ -83,46 +83,51 @@ public class GeosetRenderer {
 		} else {
 			glColor3f(1f, 3f, 1f);
 		}
-		renderGeoset(modelView.getHighlightedGeoset(), true, formatVersion, true);
-		renderGeoset(modelView.getHighlightedGeoset(), false, formatVersion, true);
+		renderGeoset(modelView.getHighlightedGeoset(), true, formatVersion, true, renderTextures);
+		renderGeoset(modelView.getHighlightedGeoset(), false, formatVersion, true, renderTextures);
 	}
 
-	private void renderGeosets(Iterable<Geoset> geosets, int formatVersion, boolean overriddenColors) {
-		GL11.glDepthMask(true);
-		glShadeModel(GL11.GL_FLAT);
-//		glDisable(GL_SHADE_MODEL);
-		if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		} else if (programPreferences.viewMode() == 0) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
-		if (renderTextures()) {
-			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-			glEnable(GL11.GL_TEXTURE_2D);
-//			glEnable(GL_SHADE_MODEL);
-			glShadeModel(GL_SMOOTH);
-		}
-		for (Geoset geo : geosets) {
-			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
-				renderGeoset(geo, true, formatVersion, overriddenColors);
-			}
-		}
-		for (Geoset geo : geosets) {
-			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
-//			if (modelView.getEditableGeosets().contains(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
-				renderGeoset(geo, false, formatVersion, overriddenColors);
-			}
-		}
-	}
+	//	private void renderGeosets(Iterable<Geoset> geosets, int formatVersion, boolean overriddenColors, boolean renderTextures) {
+//		GL11.glDepthMask(true);
+//		glShadeModel(GL11.GL_FLAT);
+////		glDisable(GL_SHADE_MODEL);
+//		if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
+//			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//		} else if (programPreferences.viewMode() == 0) {
+//			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//		}
+//		if (renderTextures()) {
+//			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+//			glEnable(GL11.GL_TEXTURE_2D);
+////			glEnable(GL_SHADE_MODEL);
+//			glShadeModel(GL_SMOOTH);
+//		}
+//		for (Geoset geo : geosets) {
+//			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
+//				renderGeoset(geo, true, formatVersion, overriddenColors, renderTextures);
+//			}
+//		}
+//		for (Geoset geo : geosets) {
+//			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
+////			if (modelView.getEditableGeosets().contains(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
+//				renderGeoset(geo, false, formatVersion, overriddenColors, renderTextures);
+//			}
+//		}
+//	}
 	private void renderGeosets(Iterable<Geoset> geosets, int formatVersion, boolean overriddenColors, boolean renderTextures, boolean wireFrame) {
 		GL11.glDepthMask(true);
 		glShadeModel(GL11.GL_FLAT);
 //		glDisable(GL_SHADE_MODEL);
-		if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
+//		if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
+//			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//		}
 		if (wireFrame) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDisable(GL_CULL_FACE);
+			glDisable(GL_ALPHA_TEST);
+			glDisable(GL_TEXTURE_2D);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glDepthMask(false);
 		} else {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
@@ -134,18 +139,18 @@ public class GeosetRenderer {
 		}
 		for (Geoset geo : geosets) {
 			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
-				renderGeoset(geo, true, formatVersion, overriddenColors);
+				renderGeoset(geo, true, formatVersion, overriddenColors, renderTextures);
 			}
 		}
 		for (Geoset geo : geosets) {
 			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
 //			if (modelView.getEditableGeosets().contains(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
-				renderGeoset(geo, false, formatVersion, overriddenColors);
+				renderGeoset(geo, false, formatVersion, overriddenColors, renderTextures);
 			}
 		}
 	}
 
-	private void renderGeoset(Geoset geo, boolean renderOpaque, int formatVersion, boolean overriddenColors) {
+	private void renderGeoset(Geoset geo, boolean renderOpaque, int formatVersion, boolean overriddenColors, boolean renderTextures) {
 		if (!correctLoD(geo, formatVersion) || geo.getVertices().isEmpty()) return;
 
 		GeosetAnim geosetAnim = geo.getGeosetAnim();
@@ -185,30 +190,32 @@ public class GeosetRenderer {
 					setStandardColors(renderColor, geosetAnimVisibility * layer.getRenderVisibility(renderEnv), layer);
 				}
 
-				renderMesh3(geo, layer);
+				renderMesh3(geo, layer, renderTextures);
 			}
 		}
 	}
 
-	private void renderMesh3(Geoset geo, Layer layer) {
+	//, boolean renderTextures, boolean wireFrame
+	private void renderMesh3(Geoset geo, Layer layer, boolean renderTextures) {
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 		if (renderGeoset != null) {
 			glBegin(GL11.GL_TRIANGLES);
 			for (Triangle tri : geo.getTriangles()) {
-				if (programPreferences != null && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
+//				if (programPreferences != null && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
+				if (programPreferences != null && !renderTextures && cameraHandler.isOrtho()) {
 					getTriAreaColor(tri);
 				}
 				GeosetVertex[] verts = tri.getVerts();
-				if(!modelView.isHidden(verts[0]) && !modelView.isHidden(verts[1]) && !modelView.isHidden(verts[2])){
+				if (!modelView.isHidden(verts[0]) && !modelView.isHidden(verts[1]) && !modelView.isHidden(verts[2])) {
 					RenderGeoset.RenderVert[] renderVert = new RenderGeoset.RenderVert[3];
 					renderVert[0] = renderGeoset.getRenderVert(verts[0]);
 					renderVert[1] = renderGeoset.getRenderVert(verts[1]);
 					renderVert[2] = renderGeoset.getRenderVert(verts[2]);
-					if(renderVert[0] != null && renderVert[1] != null && renderVert[2] != null){
+					if (renderVert[0] != null && renderVert[1] != null && renderVert[2] != null) {
 						paintVert(getUv(layer, verts[0]), renderVert[0].getRenderPos(), renderVert[0].getRenderNorm());
 						paintVert(getUv(layer, verts[1]), renderVert[1].getRenderPos(), renderVert[1].getRenderNorm());
 						paintVert(getUv(layer, verts[2]), renderVert[2].getRenderPos(), renderVert[2].getRenderNorm());
-
+//						System.out.println("RenderVert: " + renderVert[0].getRenderPos());
 					}
 				}
 			}

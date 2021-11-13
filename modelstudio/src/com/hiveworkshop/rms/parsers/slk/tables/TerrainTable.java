@@ -1,20 +1,23 @@
-package com.hiveworkshop.rms.parsers.slk;
+package com.hiveworkshop.rms.parsers.slk.tables;
 
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableUtils;
+import com.hiveworkshop.rms.parsers.slk.Element;
+import com.hiveworkshop.rms.parsers.slk.StringKey;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class DoodadsTable extends DataTable {
+public class TerrainTable extends DataTable {
 	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
 
-	public DoodadsTable() {
-		loadDoodads();
+	public TerrainTable() {
+		loadTerrain();
 	}
 
 	@Override
@@ -27,13 +30,9 @@ public class DoodadsTable extends DataTable {
 		return outputKeySet;
 	}
 
-	public void loadDoodads() {
+	public void loadTerrain() {
 		try {
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Doodads\\Doodads.slk"));
-			final InputStream unitSkin = GameDataFileSystem.getDefault().getResourceAsStream("Doodads\\DoodadSkins.txt");
-			if (unitSkin != null) {
-				DataTableUtils.readTXT(this, unitSkin, true);
-			}
+			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("TerrainArt\\Terrain.slk"));
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}

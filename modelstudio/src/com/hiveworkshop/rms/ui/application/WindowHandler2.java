@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewUgg;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -44,7 +43,7 @@ public class WindowHandler2 {
 	private static final Set<MPQBrowserView> mpqBrowserViews = new HashSet<>();
 	private static final Set<UnitBrowserView> unitBrowserViews = new HashSet<>();
 
-	final ViewportListener viewportListener = new ViewportListener();
+//	private final ViewportListener viewportListener = new ViewportListener();
 
 	public TimeSliderView getTimeSliderView() {
 		return timeSliders.stream().findFirst().orElse(null);
@@ -87,9 +86,9 @@ public class WindowHandler2 {
 		return allViews;
 	}
 
-	public ViewportListener getViewportListener() {
-		return viewportListener;
-	}
+//	public ViewportListener getViewportListener() {
+//		return viewportListener;
+//	}
 
 	public WindowHandler2 setModelPanel(ModelPanel modelPanel) {
 //		for(DisplayViewUgg displayPanelView : displayPanelViews){
@@ -156,17 +155,39 @@ public class WindowHandler2 {
 			createFloatingWindow.setActionMap(keyBindingPrefs.getActionMap());
 		}
 	}
-	private void addView(ModelDependentView view){
-		if(view != null){
+
+	public void openNewWindowWithKB2(ModelDependentView view, RootWindow rootWindow) {
+		if ((view.getTopLevelAncestor() == null) || !view.getTopLevelAncestor().isVisible()) {
+			addView(view);
+			System.out.println("WindowHandler2: opening new window, creating floating window");
+			FloatingWindow createFloatingWindow
+//					= rootWindow.createFloatingWindow(rootWindow.getLocation(), new Dimension(640, 480), view);
+					= rootWindow.createFloatingWindow(rootWindow.getLocation(), ScreenInfo.getSmallWindow(), view);
+			System.out.println("WindowHandler2: setting window visible");
+			createFloatingWindow.getTopLevelAncestor().setVisible(true);
+
+			System.out.println("WindowHandler2: getting keybindings");
+			KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
+//            view.getRootPane().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+			System.out.println("WindowHandler2: setting input map");
+			createFloatingWindow.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+			System.out.println("WindowHandler2: setting action map");
+			createFloatingWindow.setActionMap(keyBindingPrefs.getActionMap());
+			System.out.println("WindowHandler2: action map set");
+		}
+	}
+
+	private void addView(ModelDependentView view) {
+		if (view != null) {
 			allViews.add(view);
-			if(view instanceof TimeSliderView) {
-				timeSliders.add((TimeSliderView)view);
-			} else if(view instanceof ModelViewManagingView) {
-				modelViewManagingTrees.add((ModelViewManagingView)view);
-			} else if(view instanceof ModelingCreatorToolsView) {
-				editingToolChooserViews.add((ModelingCreatorToolsView)view);
-			} else if(view instanceof ModelComponentsView) {
-				componentBrowserTreeViews.add((ModelComponentsView)view);
+			if (view instanceof TimeSliderView) {
+				timeSliders.add((TimeSliderView) view);
+			} else if (view instanceof ModelViewManagingView) {
+				modelViewManagingTrees.add((ModelViewManagingView) view);
+			} else if (view instanceof ModelingCreatorToolsView) {
+				editingToolChooserViews.add((ModelingCreatorToolsView) view);
+			} else if (view instanceof ModelComponentsView) {
+				componentBrowserTreeViews.add((ModelComponentsView) view);
 			}
 		}
 	}
@@ -212,6 +233,7 @@ public class WindowHandler2 {
 		allViews.add(modelTab);
 
 		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
+
 //        TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, viewingTab, modelTab});
 		traverseAndFix(startupTabWindow);
 		return startupTabWindow;

@@ -68,30 +68,13 @@ public class ImportModelPartPanel extends TwiImportPanel {
 
 			//todo imported stuff needs to get new Animations applied!
 			List<UndoAction> undoActions = new ArrayList<>();
-//			for (IdObject newIdObject : boneCopyMap.values()) {
-//				for (AnimFlag<?> animFlag : newIdObject.getAnimFlags()) {
-//					for (AnimShell donAnimShell : donAnimations) {
-//						if (!recToDonSequenceMap.containsValue(donAnimShell.getAnim())) {
-//							animFlag.deleteAnim(donAnimShell.getAnim());
-//						}
-//					}
-//					for (Sequence recSequence : recToDonSequenceMap.keySet()) {
-//						Sequence donSequence = recToDonSequenceMap.get(recSequence);
-//						animFlag.copyFrom(animFlag, donSequence, recSequence);
-//					}
-//				}
-//				undoActions.add(new AddNodeAction(recModel, newIdObject, null));
-//			}
+
 			for (IdObject idObject : boneCopyMap.keySet()) {
 				IdObject newIdObject = boneCopyMap.get(idObject);
 				for (AnimFlag<?> animFlag : newIdObject.getAnimFlags()) {
 					AnimFlag<?> oldAnimFlag = idObject.find(animFlag.getName());
 					animFlag.clear();
-//					for (AnimShell donAnimShell : donAnimations) {
-//						if (!recToDonSequenceMap.containsValue(donAnimShell.getAnim())) {
-//							animFlag.deleteAnim(donAnimShell.getAnim());
-//						}
-//					}
+
 					for (Sequence recSequence : recToDonSequenceMap.keySet()) {
 						Sequence donSequence = recToDonSequenceMap.get(recSequence);
 						AnimFlagUtils.copyFrom(animFlag, oldAnimFlag, donSequence, recSequence);
@@ -131,79 +114,10 @@ public class ImportModelPartPanel extends TwiImportPanel {
 
 	private void collectChildren(IdObject object, Set<IdObject> objectSet) {
 		objectSet.add(object);
-		System.out.println(object.getName());
+		System.out.println("collectChildren of: " + object.getName());
 		for (IdObject child : object.getChildrenNodes()) {
 			collectChildren(child, objectSet);
 		}
 	}
-
-//	private Set<GeosetVertex> getVertexSet(Set<Bone> selectedBones) {
-//		Set<GeosetVertex> vertexList = new HashSet<>();
-//		for (Geoset geoset : donModel.getGeosets()) {
-//			for (Bone bone : selectedBones) {
-//				List<GeosetVertex> vertices = geoset.getBoneMap().get(bone);
-//				if (vertices != null) {
-//					vertexList.addAll(vertices);
-//				}
-//			}
-//		}
-//		return vertexList;
-//	}
-//
-//	private Set<Geoset> getNewGeosets(Set<Bone> selectedBones) {
-//		Set<Geoset> newGeosets = new HashSet<>();
-//		for (Geoset geoset : donModel.getGeosets()) {
-//			Set<GeosetVertex> vertexList = new HashSet<>();
-//			for (Bone bone : selectedBones) {
-//				List<GeosetVertex> vertices = geoset.getBoneMap().get(bone);
-//				if (vertices != null) {
-//					vertexList.addAll(vertices);
-//				}
-//			}
-//			if (!vertexList.isEmpty()) {
-//				for (GeosetVertex vertex : vertexList) {
-//					if (vertex.getSkinBones() != null) {
-//						for (SkinBone skinBone : vertex.getSkinBones()) {
-//							if (skinBone != null && skinBone.getBone() != null) {
-//								skinBone.setBone(null);
-//							}
-//						}
-//					} else {
-//						System.out.println("Vert bones bf: " + vertex.getMatrix().size());
-//						Set<Bone> vertBones = new HashSet<>(vertex.getBones());
-//						vertBones.removeAll(selectedBones);
-//						vertex.removeBones(vertBones);
-//						System.out.println("Vert bones ressss: " + vertex.getMatrix().size());
-//
-//					}
-//				}
-//				Set<Triangle> trianglesToRemove = new HashSet<>();
-//				for (Triangle triangle : geoset.getTriangles()) {
-//					if (!containsAll(triangle, vertexList)) {
-//						trianglesToRemove.add(triangle);
-//					}
-//				}
-//				Set<GeosetVertex> verticesToCull = new HashSet<>();
-//				for (Triangle triangle : trianglesToRemove) {
-//					verticesToCull.add(triangle.get(0));
-//					verticesToCull.add(triangle.get(1));
-//					verticesToCull.add(triangle.get(2));
-//					geoset.removeExtended(triangle);
-//				}
-//				verticesToCull.removeAll(vertexList);
-//				geoset.remove(verticesToCull);
-//				geoset.setParentModel(recModel);
-//				newGeosets.add(geoset);
-//			}
-//
-//		}
-//		return newGeosets;
-//	}
-//
-//	private boolean containsAll(Triangle triangle, Set<GeosetVertex> vertexSet) {
-//		return vertexSet.contains(triangle.get(0))
-//				&& vertexSet.contains(triangle.get(1))
-//				&& vertexSet.contains(triangle.get(2));
-//	}
 
 }

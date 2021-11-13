@@ -170,12 +170,132 @@ public class Quat extends Vec4 {
 		// Now Quaternions can go burn and die.
 	}
 
-	public Quat squad(final Quat toward, final Quat outTan, final Quat inTan, final float t) {
-		Quat temp = getSlerped(outTan, inTan, t);
+	public Quat squad1(final Quat toward, final Quat outTan, final Quat inTan, final float t) {
+//		Quat temp = getSlerped(outTan, inTan, t);
+		Quat temp = new Quat(outTan).slerp(inTan, t);
 
 		slerp(toward, t);
 		return slerp(temp, 2 * t * (1 - t));
 	}
+
+	public Quat squad(final Quat toward, final Quat outTan, final Quat inTan, final float t) {
+
+		float scale0;
+		float scale1;
+		float dir = 1;
+
+		// calc cosine
+		float cosOm = (x * toward.x) + (y * toward.y) + (z * toward.z) + (w * toward.w);
+
+		// adjust signs (if necessary)
+		if (cosOm < 0) {
+			cosOm = -cosOm;
+			dir = -1;
+		}
+		// calculate coefficients
+		if ((1.0 - cosOm) > 0.000001) {
+			// standard case (slerp)
+			float omega = (float) Math.acos(cosOm);
+			float sinOm = (float) Math.sin(omega);
+
+			scale0 = (float) Math.sin((1.0 - t) * omega) / sinOm;
+			scale1 = (float) Math.sin(t * omega) / sinOm;
+		} else {
+			// if "from" and "to" quaternions are very close we can do a linear interpolation
+			scale0 = 1.0f - t;
+			scale1 = t;
+		}
+		this.scale(scale0).addScaled(toward, scale1 * dir);
+		float lengthSquared = lengthSquared();
+		if (.9 > lengthSquared || lengthSquared > 1.1) {
+			float size_adj = 1.0f / (float) Math.sqrt(lengthSquared);
+			this.scale(size_adj);
+		}
+
+
+//		Quat temp = new Quat(outTan);
+		float scale0_inT;
+		float scale1_inT;
+		float dir_inT = 1;
+
+		// calc cosine
+		float cosOm_inT = (outTan.x * inTan.x) + (outTan.y * inTan.y) + (outTan.z * inTan.z) + (outTan.w * inTan.w);
+
+		// adjust signs (if necessary)
+		if (cosOm_inT < 0) {
+			cosOm_inT = -cosOm_inT;
+			dir_inT = -1;
+		}
+		// calculate coefficients
+		if ((1.0 - cosOm_inT) > 0.000001) {
+			// standard case (slerp)
+			float omega = (float) Math.acos(cosOm_inT);
+			float sinOm = (float) Math.sin(omega);
+
+			scale0_inT = (float) Math.sin((1.0 - t) * omega) / sinOm;
+			scale1_inT = (float) Math.sin(t * omega) / sinOm;
+		} else {
+			// if "from" and "to" quaternions are very close we can do a linear interpolation
+			scale0_inT = 1.0f - t;
+			scale1_inT = t;
+		}
+		float tempX = outTan.x * scale0_inT + inTan.x * scale1_inT * dir_inT;
+		float tempY = outTan.y * scale0_inT + inTan.y * scale1_inT * dir_inT;
+		float tempZ = outTan.z * scale0_inT + inTan.z * scale1_inT * dir_inT;
+		float tempW = outTan.w * scale0_inT + inTan.w * scale1_inT * dir_inT;
+//		temp.scale(scale0_inT).addScaled(inTan, scale1_inT * dir_inT);
+//		float lengthSquared_inT = temp.lengthSquared();
+		float lengthSquared_inT = tempX * tempX + tempY * tempY + tempZ * tempZ + tempW * tempW;
+		if (.9 > lengthSquared_inT || lengthSquared_inT > 1.1) {
+			float size_adj = 1.0f / (float) Math.sqrt(lengthSquared_inT);
+//			temp.scale(size_adj);
+			tempX *= size_adj;
+			tempY *= size_adj;
+			tempZ *= size_adj;
+			tempW *= size_adj;
+		}
+
+		float lastT = 2 * t * (1 - t);
+		float scale0_last;
+		float scale1_last;
+		float dir_last = 1;
+
+		// calc cosine
+//		float cosOm_last = (x * temp.x) + (y * temp.y) + (z * temp.z) + (w * temp.w);
+		float cosOm_last = (x * tempX) + (y * tempY) + (z * tempZ) + (w * tempW);
+
+		// adjust signs (if necessary)
+		if (cosOm_last < 0) {
+			cosOm_last = -cosOm_last;
+			dir_last = -1;
+		}
+		// calculate coefficients
+		if ((1.0 - cosOm_last) > 0.000001) {
+			// standard case (slerp)
+			float omega = (float) Math.acos(cosOm_last);
+			float sinOm = (float) Math.sin(omega);
+
+			scale0_last = (float) Math.sin((1.0 - lastT) * omega) / sinOm;
+			scale1_last = (float) Math.sin(lastT * omega) / sinOm;
+		} else {
+			// if "from" and "to" quaternions are very close we can do a linear interpolation
+			scale0_last = 1.0f - lastT;
+			scale1_last = lastT;
+		}
+//		this.scale(scale0_last).addScaled(temp, scale1_last * dir_last);
+		this.scale(scale0_last);
+		x += tempX * scale1_last * dir_last;
+		y += tempY * scale1_last * dir_last;
+		z += tempZ * scale1_last * dir_last;
+		w += tempW * scale1_last * dir_last;
+		float lengthSquared_last = lengthSquared();
+		if (.9 > lengthSquared_last || lengthSquared_last > 1.1) {
+			float size_adj = 1.0f / (float) Math.sqrt(lengthSquared_last);
+			this.scale(size_adj);
+		}
+		return this;
+	}
+
 
 	public Quat slerp(Quat toward, float t) {
 		float scale0;
@@ -203,11 +323,12 @@ public class Quat extends Vec4 {
 			scale0 = 1.0f - t;
 			scale1 = t;
 		}
-//		this.scale(scale0).add(Quat.getScaled(toward, scale1 * dir));
 		this.scale(scale0).addScaled(toward, scale1 * dir);
-
-		// Super slow and generally not needed.
-		// quat.normalize(out, out);
+		float lengthSquared = lengthSquared();
+		if (.9 > lengthSquared || lengthSquared > 1.1) {
+			float size_adj = 1.0f / (float) Math.sqrt(lengthSquared);
+			this.scale(size_adj);
+		}
 		return this;
 	}
 

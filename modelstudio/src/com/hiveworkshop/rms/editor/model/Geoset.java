@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
 
@@ -408,24 +407,6 @@ public class Geoset implements Named, VisibilitySource {
 
 	public boolean isHD() {
 		return getParentModel().getFormatVersion() >= 900 && !getVertices().isEmpty() && getVertex(0).getTangent() != null;
-	}
-
-	public ExtLog calculateExtent() {
-		double maximumDistanceFromCenter = 0;
-		Vec3 max = new Vec3(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
-		Vec3 min = new Vec3(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
-
-		for (GeosetVertex geosetVertex : vertices) {
-			max.maximize(geosetVertex);
-			min.minimize(geosetVertex);
-
-			double distanceFromCenter = geosetVertex.length();
-			if (distanceFromCenter > maximumDistanceFromCenter) {
-				maximumDistanceFromCenter = distanceFromCenter;
-			}
-		}
-		System.out.println("Geoset ExtLog: " + new ExtLog(min, max, maximumDistanceFromCenter));
-		return new ExtLog(min, max, maximumDistanceFromCenter);
 	}
 
 	public Map<Bone, List<GeosetVertex>> getBoneMap() {

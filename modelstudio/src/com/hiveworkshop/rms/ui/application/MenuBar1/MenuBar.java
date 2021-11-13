@@ -4,9 +4,9 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
-import com.hiveworkshop.rms.ui.application.MenuBarActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
@@ -131,8 +131,8 @@ public class MenuBar {
                             System.out.println("saw unit tree");
                             unitEditorTree.setUnitDataAndReloadVerySlowly(UnitBrowserView.getUnitData());
                         } else if (dataType == WorldEditorDataType.DOODADS) {
-                            System.out.println("saw doodad tree");
-                            unitEditorTree.setUnitDataAndReloadVerySlowly(MenuBarActions.getDoodadData());
+	                        System.out.println("saw doodad tree");
+	                        unitEditorTree.setUnitDataAndReloadVerySlowly(DoodadBrowserView.getDoodadData());
                         }
                     }
                 } else if (component instanceof MPQBrowser) {

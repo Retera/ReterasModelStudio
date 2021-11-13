@@ -57,7 +57,8 @@ public class Vec3ValuePanel extends ValuePanel<Vec3> {
 		}
 		if (animFlag != null) {
 			for (KeyframePanel<Vec3> kfp : keyframePanelMap.values()) {
-				kfp.addAllowedCharatcters("\\{}, ");
+//				kfp.addAllowedCharatcters("\\{}, ");
+				kfp.addAllowedCharatcters(", ");
 				kfp.getFloatTrackTableModel().setValueClass(String.class);
 			}
 		}

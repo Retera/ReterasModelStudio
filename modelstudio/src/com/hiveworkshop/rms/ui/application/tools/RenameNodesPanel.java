@@ -153,12 +153,17 @@ public class RenameNodesPanel extends JPanel {
 		return onlySelected;
 	}
 
-	private void initHelperFrame(JFrame mainFrame){
+	private void initHelperFrame(JFrame mainFrame) {
+		JPanel panel = getHelperPanel();
+		helperFrame = getFollowPanel(panel, mainFrame);
+		helperFrame.pack();
+	}
+
+	private JPanel getHelperPanel() {
 		JPanel panel = new JPanel(new MigLayout());
 		panel.add(testPanel, "wrap");
 		panel.add(regexPanel, "wrap");
-		helperFrame = getFollowPanel(panel, mainFrame);
-		helperFrame.pack();
+		return panel;
 	}
 
 	public static void show(JComponent parent) {
@@ -217,26 +222,23 @@ public class RenameNodesPanel extends JPanel {
 	private Pattern getPattern(String searchString, boolean caseSensitive, boolean regex) {
 		int flags = 0;
 		flags |= !caseSensitive ? Pattern.CASE_INSENSITIVE : 0;
-		if(!regex){
-			String regexEscapes1 = "\\(\\)\\[\\]\\{\\}\\^\\|\\\\+?.*&/<";
+		if(!regex) {
+//			String regexEscapes1 = "\\(\\)\\[\\]\\{\\}\\^\\|\\\\+?.*&/<";
 //			String regexEscapes1 = "()[]{}^|\\+?.*&/<";
 //			String regexEscapes1 = '(' + ')' + '[' + ']' + '{' + '}' + '^' + '|' + '\\' + '+' + '?' + '.' + '*' + '&' + '/' + '<';
-			char backSlash1 = 92;
+//			char backSlash1 = 92;
 			char backSlash = '\\';
-			char[] regexEscapes = new char[]{'(', ')', '[', ']', '{', '}', '^', '|', '\\', '+', '?', '.', '*', '&', '/', '<'};
+			char[] regexEscapes = new char[] {'(', ')', '[', ']', '{', '}', '^', '|', '\\', '+', '?', '.', '*', '&', '/', '<'};
 			StringBuilder sb = new StringBuilder();
-			for(char c : regexEscapes){
+			for (char c : regexEscapes) {
 				sb.append(backSlash).append(c);
 			}
-//			sb.append(regexEscapes);
-//			searchString = searchString.replaceAll("(?=[^\\w\\d\\s])", "\\\\\\\\");
-//			searchString = searchString.replaceAll("(?=[" + regexEscapes + "])", "\\\\");
-			System.out.println("regexEscapes: " + Arrays.toString(regexEscapes));
-			System.out.println("sb: " + sb);
-			System.out.println("not regex search: " + searchString);
+//			System.out.println("regexEscapes: " + Arrays.toString(regexEscapes));
+//			System.out.println("sb: " + sb);
+//			System.out.println("not regex search: " + searchString);
 			searchString = searchString.replaceAll("(?=[" + sb.toString() + "])", "\\\\");
 //			searchString = searchString.replaceAll("(?=[" + regexEscapes1 + "])", "\\\\");
-			System.out.println("not regex search: " + searchString);
+//			System.out.println("not regex search: " + searchString);
 		}
 		return Pattern.compile(searchString, flags);
 	}
@@ -331,58 +333,60 @@ public class RenameNodesPanel extends JPanel {
 
 	}
 
-	private JFrame getFollowPanel(JPanel panel, JFrame frameToFollow){
+	private JFrame getFollowPanel(JPanel panel, JFrame frameToFollow) {
 		JFrame frame = FramePopup.get(panel, null, "", true);
-		frame.setLocation(frameToFollow.getX() + frameToFollow.getWidth(), frameToFollow.getY());
+		if (frameToFollow != null) {
+			frame.setLocation(frameToFollow.getX() + frameToFollow.getWidth(), frameToFollow.getY());
 
-		frameToFollow.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				frame.setVisible(false);
-				frame.dispose();
-			}
+			frameToFollow.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					frame.setVisible(false);
+					frame.dispose();
+				}
 
-			@Override
-			public void windowIconified(WindowEvent e) {
-				if(frame.isVisible()){
-					frame.setExtendedState(Frame.ICONIFIED);
+				@Override
+				public void windowIconified(WindowEvent e) {
+					if (frame.isVisible()) {
+						frame.setExtendedState(Frame.ICONIFIED);
 //					System.out.println("frame x: " + frameToFollow.getX() + ", frame width: " + frameToFollow.getWidth() + ", follow x: " + frameToFollow.getX() + frameToFollow.getWidth());
+					}
 				}
-			}
 
-			@Override
-			public void windowDeiconified(WindowEvent e) {
-				if(frame.isVisible()){
-					frame.setExtendedState(Frame.NORMAL);
-					frameToFollow.toFront();
+				@Override
+				public void windowDeiconified(WindowEvent e) {
+					if (frame.isVisible()) {
+						frame.setExtendedState(Frame.NORMAL);
+						frameToFollow.toFront();
+					}
 				}
-			}
 
-			@Override
-			public void windowActivated(WindowEvent e) {
+				@Override
+				public void windowActivated(WindowEvent e) {
 //				System.out.println("windowActivated: "
 //						+ " OppositeWindow == toFollow: " + (e.getOppositeWindow() == frameToFollow)
 //						+ " OppositeWindow == frame: " + (e.getOppositeWindow() == frame));
-				if(frame.isVisible() && e.getOppositeWindow() != frameToFollow && e.getOppositeWindow() != frame){
+					if (frame.isVisible() && e.getOppositeWindow() != frameToFollow && e.getOppositeWindow() != frame) {
 //					System.out.println("windowActivated! " + " ");
-					frame.toFront();
-					frameToFollow.toFront();
+						frame.toFront();
+						frameToFollow.toFront();
+					}
+
+				}
+			});
+
+			frameToFollow.addComponentListener(new ComponentAdapter() {
+				@Override
+				public void componentResized(ComponentEvent e) {
+					frame.setLocation(frameToFollow.getX() + frameToFollow.getWidth(), frameToFollow.getY());
 				}
 
-			}
-		});
-
-		frameToFollow.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				frame.setLocation(frameToFollow.getX() + frameToFollow.getWidth(), frameToFollow.getY());
-			}
-
-			@Override
-			public void componentMoved(ComponentEvent e) {
-				frame.setLocation(frameToFollow.getX() + frameToFollow.getWidth(), frameToFollow.getY());
-			}
-		});
+				@Override
+				public void componentMoved(ComponentEvent e) {
+					frame.setLocation(frameToFollow.getX() + frameToFollow.getWidth(), frameToFollow.getY());
+				}
+			});
+		}
 
 		return frame;
 	}

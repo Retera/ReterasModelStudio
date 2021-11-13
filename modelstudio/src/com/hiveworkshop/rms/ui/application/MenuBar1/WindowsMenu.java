@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewUgg;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadBrowserView;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.ObjectEditorFrame;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.ModelingCreatorToolsView;
@@ -51,6 +52,8 @@ public class WindowsMenu extends JMenu {
 		hiveViewer.setMnemonic(KeyEvent.VK_H);
 		hiveViewer.addActionListener(e -> MenuBarActions.openHiveViewer());
 
+
+		add(createMenuItem("Object Editor", KeyEvent.VK_D, e -> ObjectEditorFrame.showObjectEditor()));
 		addSeparator();
 	}
 

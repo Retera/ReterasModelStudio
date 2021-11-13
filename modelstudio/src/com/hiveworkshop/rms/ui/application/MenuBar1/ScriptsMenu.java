@@ -18,6 +18,10 @@ public class ScriptsMenu extends JMenu {
 		getAccessibleContext().setAccessibleDescription("Allows the user to execute model edit scripts.");
 
 
+//		JMenuItem menuItem = new JMenuItem("loadSimsModelFromString");
+//		menuItem.addActionListener(e -> TwiSKNParser.loadModel());
+//		add(menuItem);
+
 		add(AnimationTransfer.getMenuItem()); //KeyEvent.VK_I
 		add(new ImportGeoset().setMenuItemMnemonic(KeyEvent.VK_G).getMenuItem());
 		add(new MergeGeosets().setMenuItemMnemonic(KeyEvent.VK_M).getMenuItem());

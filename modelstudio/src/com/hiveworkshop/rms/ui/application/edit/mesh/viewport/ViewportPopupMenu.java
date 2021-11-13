@@ -14,10 +14,12 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ModelEditActions;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.RigSelection;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
+import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.MatrixPopup;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.SkinPopup;
@@ -48,15 +50,76 @@ public class ViewportPopupMenu extends JPopupMenu {
 			new ViewportAxis("Bottom180", (byte) -2, (byte) -1),
 			new ViewportAxis("Bottom270", (byte) 0, (byte) -2),
 	};
-	Viewport viewport;
+	//	Viewport viewport;
 	Component parent;
 	//	UndoActionListener undoListener;
 	ModelEditorManager modelEditorManager;
 	//	ModelView modelView;
 	ModelHandler modelHandler;
 
-	public ViewportPopupMenu(Viewport viewport, Component parent, ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
-		this.viewport = viewport;
+//	public ViewportPopupMenu(Viewport viewport, Component parent, ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
+//		this.viewport = viewport;
+//		this.parent = parent;
+//		this.modelHandler = modelHandler;
+////		this.undoListener = undoListener;
+//		this.modelEditorManager = modelEditorManager;
+////		this.modelView = modelView;
+//
+//		JMenu viewMenu = new JMenu("View");
+//		add(viewMenu);
+//
+//		addMenuItem("Front", e -> changeViewportAxis(axises[0]), viewMenu);
+//		addMenuItem("Back", e -> changeViewportAxis(axises[2]), viewMenu);
+//		addMenuItem("Top", e -> changeViewportAxis(axises[4]), viewMenu);
+//		addMenuItem("Bottom", e -> changeViewportAxis(axises[5]), viewMenu);
+//		addMenuItem("Left", e -> changeViewportAxis(axises[1]), viewMenu);
+//		addMenuItem("Right", e -> changeViewportAxis(axises[3]), viewMenu);
+////		addMenuItem("Front" , new ChangeViewportAxisAction("Front" , (byte)  1, (byte)  2), viewMenu);
+////		addMenuItem("Back"  , new ChangeViewportAxisAction("Back"  , (byte) -2, (byte)  2), viewMenu);
+////		addMenuItem("Top"   , new ChangeViewportAxisAction("Top"   , (byte)  1, (byte) -1), viewMenu);
+////		addMenuItem("Bottom", new ChangeViewportAxisAction("Bottom", (byte)  1, (byte)  0), viewMenu);
+////		addMenuItem("Left"  , new ChangeViewportAxisAction("Left"  , (byte) -1, (byte)  2), viewMenu);
+////		addMenuItem("Right" , new ChangeViewportAxisAction("Right" , (byte)  0, (byte)  2), viewMenu);
+//
+//		JMenu meshMenu = new JMenu("Mesh");
+//		add(meshMenu);
+//
+//		JMenuItem createFace = new JMenuItem("Create Face");
+//		createFace.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+//		createFace.addActionListener(e -> createFace());
+//		meshMenu.add(createFace);
+//
+//		addMenuItem("Split Geoset and Add Team Color", e -> modelHandler.getUndoManager().pushAction(ModelEditActions.addTeamColor(modelHandler.getModelView(), ModelStructureChangeListener.changeListener)), meshMenu);
+//		addMenuItem("Split Geoset", e -> splitGeoset(modelHandler), meshMenu);
+//
+//		JMenu editMenu = new JMenu("Edit");
+//		add(editMenu);
+//
+//		addMenuItem("Translation Type-in", e -> manualMove(this.parent), editMenu);
+//		addMenuItem("Rotate Type-in", e -> manualRotate(this.parent), editMenu);
+//		addMenuItem("Position Type-in", e -> manualSet(this.parent), editMenu);
+//		addMenuItem("Scale Type-in", e -> manualScale(this.parent), editMenu);
+//
+//		JMenu matrixMenu = new JMenu("Rig");
+//		add(matrixMenu);
+//
+//		addMenuItem("Selected Mesh to Selected Nodes", e -> RigSelection.doRig(modelHandler), matrixMenu);
+//		addMenuItem("Re-assign Matrix", e -> reAssignMatrix(this.parent), matrixMenu);
+//		addMenuItem("View Matrix", e -> ModelEditActions.viewMatrices(), matrixMenu);
+//		addMenuItem("Re-assign HD Skin", e -> reAssignSkinning(this.parent), matrixMenu);
+//		addMenuItem("View HD Skin", e -> InfoPopup.show(this.parent, ModelEditActions.getSelectedHDSkinningDescription(modelHandler.getModelView())), matrixMenu);
+//
+//		JMenu nodeMenu = new JMenu("Node");
+//		add(nodeMenu);
+//
+//		addMenuItem("Set Parent", e -> setParent(this.parent), nodeMenu);
+//		addMenuItem("Auto-Center Bone(s)", e -> modelHandler.getUndoManager().pushAction(autoCenterSelectedBones(modelHandler.getModelView())), nodeMenu);
+//		addMenuItem("Rename Bone", e -> renameBone(this.parent), nodeMenu);
+//		addMenuItem("Append Bone Suffix", e -> appendBoneBone(this.parent), nodeMenu);
+//	}
+
+	public ViewportPopupMenu(PerspectiveViewport perspectiveViewport, Component parent, ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
+//		this.viewport = viewport;
 		this.parent = parent;
 		this.modelHandler = modelHandler;
 //		this.undoListener = undoListener;
@@ -84,7 +147,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 
 		JMenuItem createFace = new JMenuItem("Create Face");
 		createFace.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
-		createFace.addActionListener(e -> createFace(this.viewport));
+		createFace.addActionListener(e -> createFace());
 		meshMenu.add(createFace);
 
 		addMenuItem("Split Geoset and Add Team Color", e -> modelHandler.getUndoManager().pushAction(ModelEditActions.addTeamColor(modelHandler.getModelView(), ModelStructureChangeListener.changeListener)), meshMenu);
@@ -116,9 +179,9 @@ public class ViewportPopupMenu extends JPopupMenu {
 		addMenuItem("Append Bone Suffix", e -> appendBoneBone(this.parent), nodeMenu);
 	}
 
-	public Viewport getViewport() {
-		return viewport;
-	}
+//	public Viewport getViewport() {
+//		return viewport;
+//	}
 
 	public UndoAction autoCenterSelectedBones(ModelView modelView) {
 		Set<IdObject> selBones = new HashSet<>();
@@ -166,14 +229,19 @@ public class ViewportPopupMenu extends JPopupMenu {
 		menu.add(menuItem);
 	}
 
-	void createFace(Viewport viewport) {
+	//	void createFace(Viewport viewport) {
+	void createFace() {
+		// todo make this work with CameraHandler
 		try {
-			if (viewport != null) {
-				UndoAction faceFromSelection = ModelEditActions.createFaceFromSelection(modelHandler.getModelView(), viewport.getFacingVector());
-				modelHandler.getUndoManager().pushAction(faceFromSelection.redo());
-			}
+//			if (viewport != null) {
+//				UndoAction faceFromSelection = ModelEditActions.createFaceFromSelection(modelHandler.getModelView(), viewport.getFacingVector());
+//				modelHandler.getUndoManager().pushAction(faceFromSelection.redo());
+//			}
+			UndoAction faceFromSelection = ModelEditActions.createFaceFromSelection(modelHandler.getModelView(), new Vec3(0, 0, 1));
+			modelHandler.getUndoManager().pushAction(faceFromSelection.redo());
 		} catch (final FaceCreationException exc) {
-			JOptionPane.showMessageDialog(viewport, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+//			JOptionPane.showMessageDialog(viewport, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -347,7 +415,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 	}
 
 	private void changeViewportAxis(ViewportAxis axis) {
-		viewport.setViewportAxises(axis.name, axis.dim1, axis.dim2);
+//		viewport.setViewportAxises(axis.name, axis.dim1, axis.dim2);
 	}
 
 	private class ViewportAxis {

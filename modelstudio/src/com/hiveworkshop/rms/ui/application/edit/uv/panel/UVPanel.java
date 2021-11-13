@@ -71,7 +71,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	JComboBox<Bitmap> textureComboBox;
 
 
-	private final UVViewport vp;
+	private final UVViewport uvViewport;
 	private final UVLinkActions uvLinkActions;
 
 	public UVPanel() {
@@ -81,14 +81,12 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		setBorder(BorderFactory.createLineBorder(Color.black));// BorderFactory.createCompoundBorder(
 		// BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(title),BorderFactory.createBevelBorder(1)),BorderFactory.createEmptyBorder(1,1,1,1)));
 		setOpaque(true);
-		vp = new UVViewport(this, this);
-		add(vp);
-//		setViewport(modelPanel.getModelHandler());
-//		setModel(modelPanel.getModelHandler());
+		uvViewport = new UVViewport(this, this);
+		add(uvViewport);
 
 		setLayout(new MigLayout("fill", "[grow][]", "[][grow][]"));
 		add(toolbar, "wrap, spanx");
-		add(vp, "grow");
+		add(uvViewport, "grow");
 		add(getStuffPanel(), "growy, wrap");
 		add(getBotomPanel());
 		setMinimumSize(new Dimension(200, 200));
@@ -112,27 +110,19 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		JPanel menuHolderPanel = new JPanel(new BorderLayout());
 		menuHolderPanel.add(this, BorderLayout.CENTER);
 		menuHolderPanel.add(createMenuBar(), BorderLayout.BEFORE_FIRST_LINE);
-//		view = new View("Texture Coordinate Editor: " + modelHandler.getModel().getName(), UVIcon, menuHolderPanel);
 		return menuHolderPanel;
 	}
 
 	private JPanel getBotomPanel() {
-		JButton plusZoom = addButton(20, 20, "Plus.png", e -> zoom(1.15));
-		JButton minusZoom = addButton(20, 20, "Minus.png", e -> zoom(-1.15));
 		zoomPanel = new JPanel(new MigLayout("gap 0", "[]16[]"));
-		zoomPanel.add(plusZoom);
-		zoomPanel.add(minusZoom);
-
-		JButton up = addButton(32, 16, "ArrowUp.png", e -> moveUpDown(20));
-		JButton down = addButton(32, 16, "ArrowDown.png", e -> moveUpDown(-20));
-		JButton left = addButton(16, 32, "ArrowLeft.png", e -> moveLeftRight(20));
-		JButton right = addButton(16, 32, "ArrowRight.png", e -> moveLeftRight(-20));
+		zoomPanel.add(getButton(20, 20, "Plus.png", e -> zoom(1.15)));
+		zoomPanel.add(getButton(20, 20, "Minus.png", e -> zoom(-1.15)));
 
 		navPanel = new JPanel(new MigLayout("gap 0"));
-		navPanel.add(up, "cell 1 0");
-		navPanel.add(left, "cell 0 1");
-		navPanel.add(right, "cell 2 1");
-		navPanel.add(down, "cell 1 2");
+		navPanel.add(getButton(32, 16, "ArrowUp.png", e -> moveUpDown(20)), "cell 1 0");
+		navPanel.add(getButton(32, 16, "ArrowDown.png", e -> moveUpDown(-20)), "cell 0 1");
+		navPanel.add(getButton(16, 32, "ArrowRight.png", e -> moveLeftRight(-20)), "cell 2 1");
+		navPanel.add(getButton(32, 16, "ArrowDown.png", e -> moveUpDown(-20)), "cell 1 2");
 
 
 		for (int i = 0; i < mouseCoordDisplay.length; i++) {
@@ -163,7 +153,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		JComboBox<UnwrapDirection> unwrapDirectionBox = new JComboBox<>(UnwrapDirection.values());
 
 		ModeButton unwrapButton = new ModeButton("Remap UVs");
-		unwrapButton.addActionListener(e -> unwrapFromView(unwrapDirectionBox));
+		unwrapButton.addActionListener(e -> unwrapFromView((UnwrapDirection) unwrapDirectionBox.getSelectedItem()));
 
 		buttons.add(loadImage);
 		buttons.add(unwrapButton);
@@ -204,14 +194,12 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		repaint();
 	}
 
-	private void unwrapFromView(JComboBox<UnwrapDirection> unwrapDirectionBox) {
-		UnwrapDirection selectedItem = (UnwrapDirection) unwrapDirectionBox.getSelectedItem();
-
-		if (selectedItem != null) {
-			switch (selectedItem) {
-				case BOTTOM -> remap((byte) 1, (byte) 0, selectedItem);
-				case FRONT -> remap((byte) 1, (byte) 2, selectedItem);
-				case RIGHT -> remap((byte) 0, (byte) 2, selectedItem);
+	private void unwrapFromView(UnwrapDirection unwrapDirection) {
+		if (unwrapDirection != null) {
+			switch (unwrapDirection) {
+				case BOTTOM -> remap((byte) 1, (byte) 0, unwrapDirection);
+				case FRONT -> remap((byte) 1, (byte) 2, unwrapDirection);
+				case RIGHT -> remap((byte) 0, (byte) 2, unwrapDirection);
 //                    case PERSPECTIVE -> System.out.println("ugg");
 			}
 		} else {
@@ -232,7 +220,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		return wrapImage.isSelected();
 	}
 
-	private JButton addButton(int width, int height, String iconPath, ActionListener actionListener) {
+	private JButton getButton(int width, int height, String iconPath, ActionListener actionListener) {
 		Dimension dim = new Dimension(width, height);
 		JButton button = new JButton("");
 		button.setMaximumSize(dim);
@@ -240,7 +228,6 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		button.setPreferredSize(dim);
 		button.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage(iconPath)));
 		button.addActionListener(actionListener);
-		add(button);
 		return button;
 	}
 
@@ -363,18 +350,21 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	public void initViewport() {
-		vp.setAspectRatio(1);
-		vp.revalidate();
+		uvViewport.setAspectRatio(1);
+		uvViewport.revalidate();
 	}
 
 	public void init() {
-		vp.init();
+		System.out.println("UVPanel: initiating");
+		uvViewport.init();
+		System.out.println("UVPanel: vp initiated, setting controls visibility");
 
-		JRootPane root = getRootPane();
+//		JRootPane root = getRootPane();
 
-		uvLinkActions.linkActions(root, this);
+//		uvLinkActions.linkActions(root, this);
 
 		setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
+		System.out.println("UVPanel: controls visibility set");
 	}
 
 	private JComboBox<Bitmap> getTextureComboBox(DefaultComboBoxModel<Bitmap> comboBoxModel) {
@@ -395,26 +385,6 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 
-//	protected boolean animationModeState() {
-//		return false;
-//	}
-//
-//	public boolean frameVisible() {
-//		return view.isVisible() && view.isShowing() && (view.getWindowParent() != null);
-//	}
-
-//	public View getView() {
-//		return view;
-//	}
-
-//	public void packFrame() {
-//		JFrame frame = (JFrame) view.getTopLevelAncestor();
-//		if (frame != null) {
-//			frame.pack();
-//			frame.setLocationRelativeTo(ProgramGlobals.getMainPanel());
-//		}
-//	}
-
 	public void setMouseCoordDisplay(double x, double y) {
 //		String.format(Locale.US,"", x)
 		mouseCoordDisplay[0].setText(String.format(Locale.US, "%3.4f", x));
@@ -422,33 +392,6 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 //		mouseCoordDisplay[0].setText((float) x + "");
 //		mouseCoordDisplay[1].setText((float) y + "");
 	}
-
-//	public void setViewport(ModelHandler modelHandler) {
-//		vp = new UVViewport(this, this);
-//		add(vp);
-//		setModel(modelHandler);
-//	}
-
-//	private JComboBox<String> getTextureCombobox1() {
-//		System.out.println("getComboBox!");
-//		List<Bitmap> bitmaps = new ArrayList<>(modelHandler.getModel().getTextures());
-//		List<String> bitmapNames = new ArrayList<>();
-//		DefaultComboBoxModel<Bitmap> comboBoxModel = new DefaultComboBoxModel<>();
-//		comboBoxModel.addAll(modelHandler.getModel().getTextures());
-//
-//		for (Bitmap bitmap : bitmaps) {
-//			bitmapNames.add(bitmap.getName());
-//		}
-//		bitmaps.add(0, null);
-//		bitmapNames.add(0, "no image");
-//
-//		String[] strings = bitmapNames.toArray(String[]::new);
-////		JComboBox<String> jComboBox = new JComboBox<>(strings);
-////		JComboBox<String> jComboBox = getComboBox(bitmaps, strings);
-//		jComboBox.setRenderer(new TextureListRenderer());
-//
-//		return jComboBox;
-//	}
 
 	public UVPanel setModel(ModelHandler modelHandler) {
 		this.modelHandler = modelHandler;
@@ -459,12 +402,12 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		modelEditorChangeNotifier.subscribe(viewportActivityManager);
 
 		modelEditorManager = new TVertexEditorManager(this.modelHandler, uvLinkActions.selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager);
-		vp.setModel(this.modelHandler, viewportActivityManager);
+		uvViewport.setModel(this.modelHandler, viewportActivityManager);
 
 		comboBoxModel.removeAllElements();
 		comboBoxModel.addAll(modelHandler.getModel().getTextures());
 		textureComboBox.setRenderer(new TextureListRenderer(modelHandler.getModel()));
-		if(comboBoxModel.getSize() > 0){
+		if (comboBoxModel.getSize() > 0) {
 			textureComboBox.setSelectedIndex(0);
 		}
 
@@ -477,23 +420,23 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	private void moveUpDown(int i) {
-		vp.getCoordinateSystem().translateZoomed(0, i);
-		vp.repaint();
+		uvViewport.getCoordinateSystem().translateZoomed(0, i);
+		uvViewport.repaint();
 	}
 
 	private void moveLeftRight(int i) {
-		vp.getCoordinateSystem().translateZoomed(i, 0);
-		vp.repaint();
+		uvViewport.getCoordinateSystem().translateZoomed(i, 0);
+		uvViewport.repaint();
 	}
 
 	private void zoom(double v) {
-		if (v>0){
-			vp.getCoordinateSystem().zoomIn(v);
-		}else {
-			vp.getCoordinateSystem().zoomOut(-v);
+		if (v > 0) {
+			uvViewport.getCoordinateSystem().zoomIn(v);
+		} else {
+			uvViewport.getCoordinateSystem().zoomOut(-v);
 
 		}
-		vp.repaint();
+		uvViewport.repaint();
 	}
 
 	private void setAspectRatio() {
@@ -505,7 +448,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		panel.add(toLabel);
 		panel.add(heightVal);
 		JOptionPane.showMessageDialog(this, panel);
-		vp.setAspectRatio((Integer) widthVal.getValue() / (double) (Integer) heightVal.getValue());
+		uvViewport.setAspectRatio((Integer) widthVal.getValue() / (double) (Integer) heightVal.getValue());
 	}
 
 	private void loadImage3() {
@@ -517,19 +460,19 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 	}
 
 	private void setTextureAsBackground(BufferedImage image) {
-		vp.clearBackgroundImage();
+		uvViewport.clearBackgroundImage();
 		if (image != null) {
-			vp.addBackgroundImage(image);
+			uvViewport.addBackgroundImage(image);
 		}
-		vp.repaint();
+		uvViewport.repaint();
 	}
 
 	public ImageIcon getImageIcon() {
-		return new ImageIcon(vp.getBufferedImage());
+		return new ImageIcon(uvViewport.getBufferedImage());
 	}
 
 	public BufferedImage getBufferedImage() {
-		return vp.getBufferedImage();
+		return uvViewport.getBufferedImage();
 	}
 
 	/**
@@ -539,10 +482,6 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		int uvLayerIndex = 0;
 		return uvLayerIndex;
 	}
-
-//	private ModelPanel currentModelPanel() {
-//		return modelPanel;
-//	}
 
 	@Override
 	public void notifyUpdate(CoordinateSystem coordinateSystem, double coord1, double coord2) {

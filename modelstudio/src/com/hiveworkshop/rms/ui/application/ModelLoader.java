@@ -173,7 +173,7 @@ public class ModelLoader {
 		ProgramGlobals.setCurrentModelPanel(modelPanel);
 		refreshAnimationModeState();
 
-		rootWindow.getWindowHandler2().getViewportListener().viewportChanged(null);
+//		rootWindow.getWindowHandler2().getViewportListener().viewportChanged(null);
 		ModelStructureChangeListener.changeListener.keyframesUpdated();
 	}
 
