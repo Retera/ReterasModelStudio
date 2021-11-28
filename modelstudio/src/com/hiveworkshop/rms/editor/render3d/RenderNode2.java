@@ -138,7 +138,8 @@ public final class RenderNode2 {
 		localScale.set(1, 1, 1);
 		worldMatrix.setIdentity();
 
-		renderPivot.set(idObject.getPivotPoint()).transform(worldMatrix);
+		renderPivot.set(idObject.getPivotPoint());
+//		renderPivot.set(idObject.getPivotPoint()).transform(worldMatrix);
 
 		dirty = true;
 	}
@@ -231,6 +232,13 @@ public final class RenderNode2 {
 		return worldMatrix;
 	}
 
+	public Mat4 getParentWorldMatrix() {
+		if (idObject.getParent() != null && renderModel.getRenderNode(idObject.getParent()) != null) {
+			return renderModel.getRenderNode(idObject.getParent()).getWorldMatrix();
+		}
+		return new Mat4().setIdentity();
+	}
+
 	/**
 	 * Supposedly returns final matrix based on bind pose, but don't actually use
 	 * this yet, I'm not even sure it's computed correctly. Graphically, based on my
@@ -273,6 +281,14 @@ public final class RenderNode2 {
 		return worldRotation;
 	}
 
+	public Quat getParentWorldRotation() {
+		if (idObject.getParent() != null && renderModel.getRenderNode(idObject.getParent()) != null) {
+			return renderModel.getRenderNode(idObject.getParent()).getWorldRotation();
+		}
+		return new Quat();
+	}
+
+
 	public Vec3 getWorldScale() {
 		return worldScale;
 	}
@@ -282,5 +298,16 @@ public final class RenderNode2 {
 			return renderPivot;
 		}
 		return idObject.getPivotPoint();
+	}
+
+	public Vec3 getRenderPivot() {
+		return renderPivot;
+	}
+
+	public Vec3 getParentRenderPivot() {
+		if (idObject.getParent() != null && renderModel.getRenderNode(idObject.getParent()) != null) {
+			return renderModel.getRenderNode(idObject.getParent()).getRenderPivot();
+		}
+		return Vec3.ZERO;
 	}
 }

@@ -78,10 +78,10 @@ public class CreatorModelingPanel extends JPanel {
 		modeCardLayout = new CardLayout();
 		modeCardPanel = new JPanel(modeCardLayout);
 
-		modeCardPanel.add(getStandardPrimitivesPanel(), modeChooserBoxModel.getElementAt(0));
-		modeCardPanel.add(getMeshBasicsPanel(), modeChooserBoxModel.getElementAt(1));
-//		modeCardPanel.add(getMeshBasicsPanel(), modeChooserBoxModel.getElementAt(0));
-//		modeCardPanel.add(getStandardPrimitivesPanel(), modeChooserBoxModel.getElementAt(1));
+//		modeCardPanel.add(getStandardPrimitivesPanel(), modeChooserBoxModel.getElementAt(0));
+//		modeCardPanel.add(getMeshBasicsPanel(), modeChooserBoxModel.getElementAt(1));
+		modeCardPanel.add(getMeshBasicsPanel(), modeChooserBoxModel.getElementAt(0));
+		modeCardPanel.add(getStandardPrimitivesPanel(), modeChooserBoxModel.getElementAt(1));
 		modeCardPanel.add(getAnimationBasicsPanel(), ANIMATIONBASICS);
 
 		modeChooserBox.addActionListener(e -> modeCardLayout.show(modeCardPanel, modeChooserBox.getSelectedItem().toString()));

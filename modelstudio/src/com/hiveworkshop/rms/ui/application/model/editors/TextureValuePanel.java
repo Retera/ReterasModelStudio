@@ -25,7 +25,7 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 //	private final BasicComboPopup chooseTextureComboPopup;
 	private final TwiComboPopup<Bitmap> chooseTextureComboPopup3;
 	private final JComboBox<Bitmap> textureChooser;
-	DefaultListModel<Bitmap> bitmapListModel;
+//	DefaultListModel<Bitmap> bitmapListModel;
 	private JComboBox<Bitmap> staticTextureChooser;
 //	private boolean listenersEnabled = true;
 
@@ -40,15 +40,18 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 		getTextures(modelHandler.getModel());
 
 		textureChooser = new JComboBox<>();
-		Bitmap[] bitmaps = modelHandler.getModel().getTextures().toArray(new Bitmap[0]);
-		textureChooser.setModel(new TwiComboBoxModel<>(bitmaps));
+//		Bitmap[] bitmaps = modelHandler.getModel().getTextures().toArray(new Bitmap[0]);
+		textureChooser.setModel(new TwiComboBoxModel<>(modelHandler.getModel().getTextures()));
 		textureChooser.setRenderer(ModelTextureThings.getTextureListRenderer());
 		textureChooser.addItemListener(this::setTextureId);
 //		chooseTextureComboPopup = new BasicComboPopup(textureChooser);
 		chooseTextureComboPopup3 = new TwiComboPopup<>(textureChooser, new Bitmap("Textures\\White.dds"));
 
 		staticTextureChooser.setRenderer(ModelTextureThings.getTextureListRenderer());
-		staticTextureChooser.setModel(new DefaultComboBoxModel<>(bitmaps));
+//		DefaultComboBoxModel<Bitmap> staticBitmapModel = new DefaultComboBoxModel<>(bitmaps);
+//		TwiComboBoxModel<Bitmap> staticBitmapModel = new TwiComboBoxModel<>(bitmaps);
+		TwiComboBoxModel<Bitmap> staticBitmapModel = new TwiComboBoxModel<>(modelHandler.getModel().getTextures());
+		staticTextureChooser.setModel(staticBitmapModel);
 		//todo
 
 //		keyframePanel.getFloatTrackTableModel().addExtraColumn("Texture", "", String.class);  // 🎨 \uD83C\uDFA8
@@ -65,12 +68,12 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 
 	private String[] getTextures(EditableModel model) {
 
-		bitmapListModel = new DefaultListModel<>();
+//		bitmapListModel = new DefaultListModel<>();
 		List<String> bitmapNames = new ArrayList<>();
 
 		for (final Bitmap bitmap : model.getTextures()) {
 			bitmapNames.add(bitmap.getName());
-			bitmapListModel.addElement(bitmap);
+//			bitmapListModel.addElement(bitmap);
 		}
 
 		return bitmapNames.toArray(new String[0]);
@@ -94,15 +97,22 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 	void reloadStaticValue(Integer bitmapId) {
 		bitmap = ((Layer) timelineContainer).getTextureBitmap();
 		staticValue = bitmapId;
+//		if(modelHandler.getModel().getTextures())
+//		staticTextureChooser.setModel();
 		if (bitmapId == -1) {
 			staticTextureChooser.setSelectedItem(bitmap);
 			staticValue = staticTextureChooser.getSelectedIndex();
 			if (staticValue != -1) {
-				this.bitmap = bitmapListModel.get(staticValue);
+//				this.bitmap = bitmapListModel.get(staticValue);
+				this.bitmap = (Bitmap) staticTextureChooser.getSelectedItem();
 			}
-		} else if (bitmapId < bitmapListModel.size()) {
-			this.bitmap = bitmapListModel.get(bitmapId);
-			staticTextureChooser.setSelectedItem(bitmap);
+//		} else if (bitmapId < bitmapListModel.size()) {
+//			this.bitmap = bitmapListModel.get(bitmapId);
+//			staticTextureChooser.setSelectedItem(bitmap);
+		} else if (bitmapId < staticTextureChooser.getItemCount()) {
+//			this.bitmap = bitmapListModel.get(bitmapId);
+//			staticTextureChooser.setSelectedItem(bitmap);
+			staticTextureChooser.setSelectedIndex(bitmapId);
 		}
 
 		if(animFlag != null){
@@ -139,8 +149,11 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 			if(entryMap != null){
 				for (Entry<Integer> entry : entryMap.values()) {
 					int tId = entry.getValue();
-					if (tId < bitmapListModel.size()) {
-						bitmapNames.add(bitmapListModel.get(tId).getName());
+//					if (tId < bitmapListModel.size()) {
+//						bitmapNames.add(bitmapListModel.get(tId).getName());
+//					}
+					if (tId < modelHandler.getModel().getTextures().size()) {
+						bitmapNames.add(modelHandler.getModel().getTextures().get(tId).getName());
 					}
 //			if (tId < bitmapListModel.size()) {
 //				bitmapNames.add(bitmapListModel.get(tId).getName());
@@ -193,9 +206,10 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 		if(e.getStateChange() == ItemEvent.SELECTED
 				&& (((Layer) timelineContainer).getTextureBitmap() != null
 				&& !((Layer) timelineContainer).getTextureBitmap().equals(e.getItem())
-				|| ((Layer) timelineContainer).getTextureBitmap() == null && e.getItem() != null)){
+				|| ((Layer) timelineContainer).getTextureBitmap() == null && e.getItem() != null)) {
 			int bitmapId = staticTextureChooser.getSelectedIndex();
-			Bitmap bitmap = bitmapListModel.get(staticTextureChooser.getSelectedIndex());
+//			Bitmap bitmap = bitmapListModel.get(staticTextureChooser.getSelectedIndex());
+			Bitmap bitmap = (Bitmap) staticTextureChooser.getSelectedItem();
 
 			ChangeLayerStaticTextureAction changeLayerStaticTextureAction = new ChangeLayerStaticTextureAction(bitmap, bitmapId, (Layer) timelineContainer, changeListener);
 			undoManager.pushAction(changeLayerStaticTextureAction.redo());

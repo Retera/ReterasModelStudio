@@ -646,10 +646,19 @@ public class Vec3 {
 //		}
 //		double rads = Math.PI - (Math.acos(cos) + radAdj);
 //		double rads = Math.PI/2.0 - (Math.acos(cos) + radAdj);
-		double rads = (Math.acos(cos) + radAdj) - Math.PI/2.0;
+		double rads = (Math.acos(cos) + radAdj) - Math.PI / 2.0;
 //		double rads = (Math.acos(Math.abs(cos)) + radAdj);
 //		rads = Math.copySign(rads, y);
 		return rads;
+	}
+
+	public Quat getQuatTo(Vec3 other) {
+		Vec3 aNorm = new Vec3(this).normalize();
+		Vec3 bNorm = new Vec3(other).normalize();
+
+		Vec3 cross = new Vec3(aNorm).cross(bNorm).normalize();
+
+		return new Quat().setFromAxisAngle(cross, (float) aNorm.radAngleTo(bNorm)).normalize().invertRotation();
 	}
 
 	public Vec3 scale(final double centerX, final double centerY, final double centerZ,

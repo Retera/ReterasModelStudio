@@ -207,7 +207,7 @@ public class Quat extends Vec4 {
 		}
 		this.scale(scale0).addScaled(toward, scale1 * dir);
 		float lengthSquared = lengthSquared();
-		if (.9 > lengthSquared || lengthSquared > 1.1) {
+		if (.99 > lengthSquared || lengthSquared > 1.01) {
 			float size_adj = 1.0f / (float) Math.sqrt(lengthSquared);
 			this.scale(size_adj);
 		}
@@ -325,7 +325,7 @@ public class Quat extends Vec4 {
 		}
 		this.scale(scale0).addScaled(toward, scale1 * dir);
 		float lengthSquared = lengthSquared();
-		if (.9 > lengthSquared || lengthSquared > 1.1) {
+		if (.99 > lengthSquared || lengthSquared > 1.01) {
 			float size_adj = 1.0f / (float) Math.sqrt(lengthSquared);
 			this.scale(size_adj);
 		}
@@ -462,8 +462,9 @@ public class Quat extends Vec4 {
 
 		if (len > 0) {
 			len = 1.0f / (float) Math.sqrt(len);
+			return (Quat) scale(len);
 		}
-		return (Quat) scale(len);
+		return (Quat) set(0, 0, 0, 1);
 	}
 
 	public static Quat parseQuat(String s) {

@@ -35,6 +35,7 @@ public class ObjectShell {
 			name = idObject.getName();
 		} else {
 			oldParent = null;
+			name = "none";
 		}
 		this.isFromDonating = isFromDonating;
 		this.modelName = modelName;
@@ -118,6 +119,15 @@ public class ObjectShell {
 
 	public ObjectShell setShowClass(boolean showClass) {
 		this.showClass = showClass;
+		return this;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public ObjectShell setName(String name) {
+		this.name = name;
 		return this;
 	}
 
