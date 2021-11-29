@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
+import com.hiveworkshop.rms.editor.render3d.NGGLDP;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
@@ -191,14 +192,14 @@ public class BoneRenderThing2 {
 
 	public BoneRenderThing2 doGlGeom(float[] color) {
 //		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glPolygonMode(GL_FRONT_FACE, GL_FILL);
+		NGGLDP.pipeline.glPolygonMode(GL_FRONT_FACE, GL_FILL);
 //		glBegin(GL_QUADS);
-		glColor4f(color[0], color[1], color[2], color[3]);
+		NGGLDP.pipeline.glColor4f(color[0], color[1], color[2], color[3]);
 //		glBegin(GL_TRIANGLE_STRIP);
-		glBegin(GL_TRIANGLES);
+		NGGLDP.pipeline.glBegin(GL_TRIANGLES);
 		doJoint();
 		doStem2();
-		glEnd();
+		NGGLDP.pipeline.glEnd();
 //		glBegin(GL_TRIANGLE_STRIP);
 //		doStem2();
 //		glEnd();
@@ -286,21 +287,21 @@ public class BoneRenderThing2 {
 	}
 
 	private static void doGlQuad(Vec3 RT, Vec3 LT, Vec3 RB, Vec3 LB, Vec3 normal) {
-		GL11.glNormal3f(normal.x,normal.y,normal.z);
-		GL11.glVertex3f(RT.x, RT.y, RT.z);
-		GL11.glVertex3f(LT.x, LT.y, LT.z);
-		GL11.glVertex3f(LB.x, LB.y, LB.z);
-		GL11.glVertex3f(RB.x, RB.y, RB.z);
+		NGGLDP.pipeline.glNormal3f(normal.x,normal.y,normal.z);
+		NGGLDP.pipeline.glVertex3f(RT.x, RT.y, RT.z);
+		NGGLDP.pipeline.glVertex3f(LT.x, LT.y, LT.z);
+		NGGLDP.pipeline.glVertex3f(LB.x, LB.y, LB.z);
+		NGGLDP.pipeline.glVertex3f(RB.x, RB.y, RB.z);
 	}
 	private static void doGlTriQuad(Vec3 LT, Vec3 LB, Vec3 RT, Vec3 RB, Vec3 normal) {
-		GL11.glNormal3f(normal.x,normal.y,normal.z);
+		NGGLDP.pipeline.glNormal3f(normal.x,normal.y,normal.z);
 
-		GL11.glVertex3f(LT.x, LT.y, LT.z);
-		GL11.glVertex3f(LB.x, LB.y, LB.z);
-		GL11.glVertex3f(RT.x, RT.y, RT.z);
+		NGGLDP.pipeline.glVertex3f(LT.x, LT.y, LT.z);
+		NGGLDP.pipeline.glVertex3f(LB.x, LB.y, LB.z);
+		NGGLDP.pipeline.glVertex3f(RT.x, RT.y, RT.z);
 
-		GL11.glVertex3f(RT.x, RT.y, RT.z);
-		GL11.glVertex3f(LB.x, LB.y, LB.z);
-		GL11.glVertex3f(RB.x, RB.y, RB.z);
+		NGGLDP.pipeline.glVertex3f(RT.x, RT.y, RT.z);
+		NGGLDP.pipeline.glVertex3f(LB.x, LB.y, LB.z);
+		NGGLDP.pipeline.glVertex3f(RB.x, RB.y, RB.z);
 	}
 }

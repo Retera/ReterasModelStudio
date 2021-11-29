@@ -4,7 +4,10 @@ import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.GeosetRenderer;
+import com.hiveworkshop.rms.editor.render3d.NGGLDP;
+import com.hiveworkshop.rms.editor.render3d.NGGLDP.Pipeline;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -24,6 +27,7 @@ import org.lwjgl.opengl.GL11;
 import javax.swing.*;
 import java.awt.*;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -65,6 +69,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	ExtLog currentExt = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 
+	private NGGLDP.Pipeline pipeline;
+	private java.util.List<TextureThing> textureThingsToDiscard = new ArrayList<>();
+
 	public PerspectiveViewport() throws LWJGLException {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();
@@ -84,7 +91,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		setBackground(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.BACKGROUND_COLOR));
 		setMinimumSize(new Dimension(200, 200));
 
-
 		paintTimer = new Timer(16, e -> {
 			repaint();
 			if (!isShowing()) {
@@ -96,8 +102,30 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	public PerspectiveViewport setModel(ModelView modelView, RenderModel renderModel, boolean loadDefaultCamera) {
+		if (textureThing != null) {
+			// Get rid of the old context later. It's stored on the GPU so standard Java memory garbage collection
+			// will fail on it... (our java class will be memory collected but the texture allocations on the GPU
+			// would not)
+			// But if we tell the GPU to discard these resources right now, it will
+			// throw exceptions at us for not having active context communication with GPU stuff
+			// (paintGL() or initGL() methods)
+			// There are already like a bunch of other systems trying to deal with this
+			// that are now pointless (reMakeTextureMap, forceReloadTextures, wantForceReload) etc whatever
+			// but we had multiple authors here changing stuff and making those others not work in this case
+			// by introducing some new java wrapper class for it.
+			// --
+			// After adding all of the above comment, I learned in the debugger that in our usual use case
+			// the OpenGL context that contained the old texture thing is usually getting destroyed
+			// because of how setModel() often coincides with calls to "removeNotify()" which calls the
+			// "destroy()" method of AWTGLCanvas. That's honestly terrible API though so I left this in 
+			// just to help in case some goofball calls "setModel()" WITHOUT calling destroy in a few years
+			// or something after everyone forgets how this works. If you're reading this and spent longer
+			// on this than I have today proving you have good API and don't need "thingsToDiscard" then it is
+			// up to you to delete that.
+			textureThingsToDiscard.add(textureThing);
+		}
 		this.renderModel = renderModel;
-		if(renderModel != null){
+		if (renderModel != null) {
 			this.modelView = modelView;
 			EditableModel model = modelView.getModel();
 			textureThing = new TextureThing(model, programPreferences);
@@ -118,6 +146,16 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		return this;
 	}
 
+	private Pipeline getOrCreatePipeline() {
+		if (pipeline == null) {
+			if(modelView != null && ModelUtils.isShaderStringSupported(modelView.getModel().getFormatVersion()) && !modelView.getModel().getGeosets().isEmpty() && modelView.getModel().getGeoset(0).isHD()) {
+				pipeline = new NGGLDP.HDDiffuseShaderPipeline();
+			} else {
+				pipeline = new NGGLDP.SimpleDiffuseShaderPipeline();
+			}
+		}
+		return pipeline;
+	}
 
 	public PerspectiveViewport setRenderTextures(boolean renderTextures) {
 		this.renderTextures = renderTextures;
@@ -138,6 +176,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		this.show3dVerts = show3dVerts;
 		return this;
 	}
+
 	public TextureThing getTextureThing() {
 		return textureThing;
 	}
@@ -198,8 +237,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		}
 	}
 
-
-
 	@Override
 	protected void exceptionOccurred(final LWJGLException exception) {
 		super.exceptionOccurred(exception);
@@ -208,6 +245,13 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 	@Override
 	public void initGL() {
+		NGGLDP.setPipeline(getOrCreatePipeline());
+		if (!textureThingsToDiscard.isEmpty()) {
+			for (TextureThing textureThing : textureThingsToDiscard) {
+				textureThing.discard();
+			}
+			textureThingsToDiscard.clear();
+		}
 		try {
 			if ((programPreferences == null) || programPreferences.textureModels()) {
 				forceReloadTextures();
@@ -218,9 +262,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			throw new RuntimeException(e);
 		}
 		// JAVA 9+ or maybe WIN 10 allow ridiculous virtual pixes, this combination of
-		// old library code and java std library code give me a metric for the ridiculous ratio:
+		// old library code and java std library code give me a metric for the
+		// ridiculous ratio:
 		xRatio = (float) (Display.getDisplayMode().getWidth() / Toolkit.getDefaultToolkit().getScreenSize().getWidth());
-		yRatio = (float) (Display.getDisplayMode().getHeight() / Toolkit.getDefaultToolkit().getScreenSize().getHeight());
+		yRatio = (float) (Display.getDisplayMode().getHeight()
+				/ Toolkit.getDefaultToolkit().getScreenSize().getHeight());
 		// These ratios will be wrong and users will see corrupted visuals
 		// (bad scale, only fits part of window, etc)
 		// if they are using Windows 10 differing UI scale per monitor.
@@ -233,6 +279,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	public void paintGL(final boolean autoRepainting) {
+		NGGLDP.setPipeline(pipeline);
 		setSize(getParent().getSize());
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 			System.out.println("not rendering :O");
@@ -246,27 +293,34 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			if (renderModel != null) {
 				updateRenderModel();
 				glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
-				enableGlThings(GL_DEPTH_TEST, GL_COLOR_MATERIAL, GL_LIGHTING, GL_LIGHT0, GL_LIGHT1, GL_NORMALIZE);
+				enableGlThings(GL_DEPTH_TEST);
+				NGGLDP.pipeline.glEnableIfNeeded(GL_COLOR_MATERIAL);
+				NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHTING);
+				NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHT0);
+				NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHT1);
+				NGGLDP.pipeline.glEnableIfNeeded(GL_NORMALIZE);
 
 				GL11.glDepthFunc(GL11.GL_LEQUAL);
 				GL11.glDepthMask(true);
 				if ((programPreferences != null) && (programPreferences.getPerspectiveBackgroundColor() != null)) {
-					float[] colorComponents = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.BACKGROUND_COLOR);
-					glClearColor(colorComponents[0], colorComponents[1], colorComponents[2], autoRepainting ? 1.0f : 1.0f);
+					float[] colorComponents = ProgramGlobals.getEditorColorPrefs()
+							.getColorComponents(ColorThing.BACKGROUND_COLOR);
+					glClearColor(colorComponents[0], colorComponents[1], colorComponents[2],
+							autoRepainting ? 1.0f : 1.0f);
 				} else {
 					glClearColor(.3f, .3f, .3f, autoRepainting ? 1.0f : 1.0f);
 				}
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 //			glMatrixMode(GL_MODELVIEW);
-				glMatrixMode(GL_PROJECTION);
-				glLoadIdentity();
+				NGGLDP.pipeline.glMatrixMode(GL_PROJECTION);
+				NGGLDP.pipeline.glLoadIdentity();
 
 				cameraHandler.setUpCamera();
 
 				FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
 				ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();
-				glLightModel(GL_LIGHT_MODEL_AMBIENT, ambientColor);
+				NGGLDP.pipeline.glLightModel(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 //			addLamp(0.8f, 40.0f, 200.0f, 80.0f, GL_LIGHT0);
 //			addLamp(0.2f, -100.0f, 200.5f, 0.5f, GL_LIGHT1);
 				addLamp(0.8f, 80.0f, 40.0f, 200.0f, GL_LIGHT0);
@@ -277,7 +331,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 				}
 
 //				geosetRenderer.doRender(programPreferences.textureModels(), programPreferences.viewMode() == 0, programPreferences.showNormals(), programPreferences.show3dVerts());
-				geosetRenderer.doRender(renderTextures,  wireFrame,  showNormals,  show3dVerts);
+				geosetRenderer.doRender(renderTextures, wireFrame, showNormals, show3dVerts);
 
 				if (show3dVerts) {
 					renderNodeStuff();
@@ -310,15 +364,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	private void drawUglyTestLine() {
-		glPolygonMode(GL_FRONT_FACE, GL_FILL);
-		glColor4f(1, 0, 0, 1);
-		glBegin(GL_LINES);
+		NGGLDP.pipeline.glPolygonMode(GL_FRONT_FACE, GL_FILL);
+		NGGLDP.pipeline.glColor4f(1, 0, 0, 1);
+		NGGLDP.pipeline.glBegin(GL_LINES);
 		Vec3 RT = new Vec3(100, 0, 0).transform(cameraHandler.getViewPortAntiRotMat2());
 
-		GL11.glVertex3f(0, 0, 0);
-		GL11.glVertex3f(RT.x, RT.y, RT.z);
+		NGGLDP.pipeline.glVertex3f(0, 0, 0);
+		NGGLDP.pipeline.glVertex3f(RT.x, RT.y, RT.z);
 //				GL11.glVertex3f(LT.x, LT.y, LT.z);
-		glEnd();
+		NGGLDP.pipeline.glEnd();
 	}
 
 	private void updateRenderModel() {
@@ -335,7 +389,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			renderModel.updateGeosets();
 		}
 	}
-
 
 	private void reloadIfNeeded() {
 		if (wantReloadAll) {
@@ -380,14 +433,14 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		lightColor.put(lightValue).put(lightValue).put(lightValue).put(1f).flip();
 		FloatBuffer lightPos = BufferUtils.createFloatBuffer(4);
 		lightPos.put(x).put(y).put(z).put(1f).flip();
-		glLight(glLight, GL_DIFFUSE, lightColor);
-		glLight(glLight, GL_POSITION, lightPos);
+		NGGLDP.pipeline.glLight(glLight, GL_DIFFUSE, lightColor);
+		NGGLDP.pipeline.glLight(glLight, GL_POSITION, lightPos);
 	}
 
 	private void renderParticles() {
 		if (renderTextures()) {
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-			glEnable(GL11.GL_TEXTURE_2D);
+			NGGLDP.pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
 		}
 		GL11.glDepthMask(false);
 		enableGlThings(GL_BLEND, GL_DEPTH_TEST);
@@ -400,8 +453,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		}
 	}
 
-
-
 	private void renderNodeStuff() {
 		GL11.glDepthMask(true);
 //		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -413,19 +464,21 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 //		GL11.glEnable(GL_SHADE_MODEL);
 		GL11.glEnable(GL11.GL_CULL_FACE);
 //		disableGlThings(GL_ALPHA_TEST, GL_TEXTURE_2D, GL_CULL_FACE);
-		disableGlThings(GL_ALPHA_TEST, GL_TEXTURE_2D, GL_SHADE_MODEL);
+		NGGLDP.pipeline.glDisableIfNeeded(GL_ALPHA_TEST);
+		NGGLDP.pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
+		NGGLDP.pipeline.glDisableIfNeeded(GL_SHADE_MODEL);
 //		disableGlThings(GL_ALPHA_TEST, GL_TEXTURE_2D);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable(GL11.GL_BLEND);
 
 //		glColor3f(255f, 1f, 255f);
-		glColor4f(.7f, .0f, .0f, .4f);
+		NGGLDP.pipeline.glColor4f(.7f, .0f, .0f, .4f);
 
 		for (final IdObject idObject : modelView.getVisibleIdObjects()) {
 			CubePainter.paintBones4(modelView, renderModel, idObject, cameraHandler, boneRenderThing);
 		}
 
-		GL11.glEnable(GL_SHADE_MODEL);
+		NGGLDP.pipeline.glEnableIfNeeded(GL_SHADE_MODEL);
 	}
 
 	public boolean renderTextures() {
@@ -463,7 +516,19 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private void cameraMarkerPainter() {
 		CubePainter.paintCameraLookAt(cameraHandler);
 		if (mouseAdapter.isSelecting()) {
-			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(), mouseAdapter.getEndPGeo3(), cameraHandler);
+			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(),
+					mouseAdapter.getEndPGeo3(), cameraHandler);
 		}
+	}
+	
+	@Override
+	public void removeNotify() {
+		super.removeNotify();
+		// This clears the pipeline in case of shaders... It clears out VBO/VAO so that it will auto create new ones.
+		// Without this, for example, some stuff tries to use the old VBO/VAO that are no longer valid and we get
+		// messed up drawing. super in this case is calling destroy on OpenGL context entirely, that's why.
+		// But this method was happening during the app lifecycle of clearing and resetting the UI views when we
+		// open a new model.
+		pipeline = null;
 	}
 }

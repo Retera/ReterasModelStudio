@@ -2,6 +2,8 @@ package com.hiveworkshop.rms.ui.application.viewer;
 
 import org.lwjgl.opengl.GL11;
 
+import com.hiveworkshop.rms.editor.render3d.NGGLDP;
+
 import static org.lwjgl.opengl.GL11.*;
 
 public class GridPainter {
@@ -24,15 +26,16 @@ public class GridPainter {
 	public void paintGrid() {
 		GL11.glDepthMask(false);
 		GL11.glEnable(GL11.GL_BLEND);
-		glDisable(GL_ALPHA_TEST);
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_CULL_FACE);
+		NGGLDP.pipeline.glDisableIfNeeded(GL_ALPHA_TEST);
+		NGGLDP.pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
+		NGGLDP.pipeline.glDisableIfNeeded(GL_CULL_FACE);
+		NGGLDP.pipeline.glDisableIfNeeded(GL_LIGHTING);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL11.GL_LINES);
-		GL11.glNormal3f(0, 0, 0);
+		NGGLDP.pipeline.glBegin(GL11.GL_LINES);
+		NGGLDP.pipeline.glNormal3f(0, 0, 0);
 
 		int[] lineSpacingArr = new int[] {10, 50, 100};
-		glColor4f(1f, 1f, 1f, .3f);
+		NGGLDP.pipeline.glColor4f(1f, 1f, 1f, .3f);
 
 		//Grid floor X
 		fillLineHeap(X, Y, Z);
@@ -71,18 +74,18 @@ public class GridPainter {
 			drawUggDuoArr(lineSpacingArr, 0, Y);
 		}
 
-		glColor4f(1f, .5f, .5f, .7f);
-		GL11.glVertex3f(-lineLength, 0, 0);
-		GL11.glVertex3f(lineLength, 0, 0);
+		NGGLDP.pipeline.glColor4f(1f, .5f, .5f, .7f);
+		NGGLDP.pipeline.glVertex3f(-lineLength, 0, 0);
+		NGGLDP.pipeline.glVertex3f(lineLength, 0, 0);
 
-		glColor4f(.5f, 1f, .5f, .7f);
-		GL11.glVertex3f(0, -lineLength, 0);
-		GL11.glVertex3f(0, lineLength, 0);
+		NGGLDP.pipeline.glColor4f(.5f, 1f, .5f, .7f);
+		NGGLDP.pipeline.glVertex3f(0, -lineLength, 0);
+		NGGLDP.pipeline.glVertex3f(0, lineLength, 0);
 
-		glColor4f(.5f, .5f, 1f, .7f);
-		GL11.glVertex3f(0, 0, -lineLength);
-		GL11.glVertex3f(0, 0, lineLength);
-		glEnd();
+		NGGLDP.pipeline.glColor4f(.5f, .5f, 1f, .7f);
+		NGGLDP.pipeline.glVertex3f(0, 0, -lineLength);
+		NGGLDP.pipeline.glVertex3f(0, 0, lineLength);
+		NGGLDP.pipeline.glEnd();
 	}
 
 	private void fillLineHeap(int pos) {
@@ -137,12 +140,12 @@ public class GridPainter {
 	private void drawUggDuoArr(int[] lineSpacing, int index, int lhi){
 		int lS = lineSpacing[index];//1
 		for (lineHeapNeg[lhi] = lS, lineHeapPos[lhi] = lS; lineHeapNeg[lhi] < lineLength; lineHeapNeg[lhi] += lS, lineHeapPos[lhi] += lS) {
-			GL11.glVertex3f(lineHeapNeg[0],  lineHeapNeg[1], lineHeapNeg[2]);
-			GL11.glVertex3f(lineHeapPos[0],  lineHeapPos[1], lineHeapPos[2]);
+			NGGLDP.pipeline.glVertex3f(lineHeapNeg[0],  lineHeapNeg[1], lineHeapNeg[2]);
+			NGGLDP.pipeline.glVertex3f(lineHeapPos[0],  lineHeapPos[1], lineHeapPos[2]);
 		}
 		for (lineHeapNeg[lhi] = -lS, lineHeapPos[lhi] = -lS; lineHeapNeg[lhi] > -lineLength; lineHeapNeg[lhi] -= lS, lineHeapPos[lhi] -= lS) {
-			GL11.glVertex3f(lineHeapNeg[0], lineHeapNeg[1], lineHeapNeg[2]);
-			GL11.glVertex3f(lineHeapPos[0], lineHeapPos[1], lineHeapPos[2]);
+			NGGLDP.pipeline.glVertex3f(lineHeapNeg[0], lineHeapNeg[1], lineHeapNeg[2]);
+			NGGLDP.pipeline.glVertex3f(lineHeapPos[0], lineHeapPos[1], lineHeapPos[2]);
 		}
 		if(index<lineSpacing.length-1){
 			drawUggDuoArr(lineSpacing, index+1, lhi);
@@ -150,10 +153,10 @@ public class GridPainter {
 	}
 	private void drawUgg2(int[] lineSpacing, int index){
 		for (float currDist = 0; currDist < lineLength; currDist += lineSpacing[index]) {
-			GL11.glVertex3f(-lineLength, currDist, 0);
-			GL11.glVertex3f(lineLength, currDist, 0);
-			GL11.glVertex3f(-lineLength, -currDist, 0);
-			GL11.glVertex3f(lineLength, -currDist, 0);
+			NGGLDP.pipeline.glVertex3f(-lineLength, currDist, 0);
+			NGGLDP.pipeline.glVertex3f(lineLength, currDist, 0);
+			NGGLDP.pipeline.glVertex3f(-lineLength, -currDist, 0);
+			NGGLDP.pipeline.glVertex3f(lineLength, -currDist, 0);
 		}
 		if(index<lineSpacing.length-1){
 			drawUgg2(lineSpacing, index+1);
@@ -161,8 +164,8 @@ public class GridPainter {
 	}
 	private void drawUgg1(int lineSpacing, int recursions){
 		for (float y = -lineLength; y < lineLength; y += lineSpacing) {
-			GL11.glVertex3f(-lineLength, y, 0);
-			GL11.glVertex3f(lineLength, y, 0);
+			NGGLDP.pipeline.glVertex3f(-lineLength, y, 0);
+			NGGLDP.pipeline.glVertex3f(lineLength, y, 0);
 		}
 		if(recursions>0){
 			drawUgg1(lineSpacing*10, recursions-1);

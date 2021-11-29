@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,9 +112,12 @@ public class RenderGeoset {
 	}
 
 	public static class RenderVert {
+		static Vec4 tempTang = new Vec4(0, 0, 0, 1);
+		static Vec3 tempNor = new Vec3(0, 0, 0);
 		GeosetVertex vertex;
 		Vec3 renderPos = new Vec3();
 		Vec3 renderNorm = new Vec3(0, 0, 1);
+		Vec4 renderTang = new Vec4(0, 0, 0, 1);
 		Vec2 tVert = new Vec2(0, 0);
 
 		public RenderVert(GeosetVertex vertex) {
@@ -121,6 +125,9 @@ public class RenderGeoset {
 			renderPos.set(vertex);
 			if (vertex.getNormal() != null) {
 				renderNorm.set(vertex.getNormal());
+			}
+			if(vertex.getTangent() != null) {
+				renderTang.set(vertex.getTangent());
 			}
 			if (vertex.getTverts() != null && vertex.getTverts().get(0) != null) {
 				tVert.set(vertex.getTVertex(0));
@@ -132,11 +139,21 @@ public class RenderGeoset {
 			if (vertex.getNormal() != null) {
 				renderNorm.set(vertex.getNormal());
 			}
+			if (vertex.getTangent() != null) {
+				renderTang.set(vertex.getTangent());
+			}
 			if (mat4 != null) {
 				renderPos.transform(mat4);
 				if (vertex.getNormal() != null) {
+					tempNor.set(0, 0, 0).transform(0, mat4);
 //					mat4.printMatrix();
-					renderNorm.transform(0, mat4).normalize();
+					renderNorm.transform(0, mat4).normalize().sub(tempNor);
+				}
+				if (vertex.getTangent() != null) {
+					tempTang.set(0, 0, 0, renderTang.w).transform(mat4);
+//					mat4.printMatrix();
+					renderTang.transform(mat4).sub(tempTang);
+					renderTang.w = vertex.getTangent().w;
 				}
 			}
 			if (vertex.getTverts() != null && vertex.getTverts().get(0) != null) {
@@ -155,6 +172,10 @@ public class RenderGeoset {
 
 		public Vec3 getRenderNorm() {
 			return renderNorm;
+		}
+		
+		public Vec4 getRenderTang() {
+			return renderTang;
 		}
 
 		public Vec2 getTVert() {

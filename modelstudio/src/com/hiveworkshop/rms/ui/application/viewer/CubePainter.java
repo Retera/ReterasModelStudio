@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.render3d.NGGLDP;
 import com.hiveworkshop.rms.editor.render3d.RenderGeoset;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
@@ -26,8 +27,8 @@ public class CubePainter {
 	public static void paintVertCubes(ModelView modelView, RenderModel renderModel, Geoset geo) {
 
 //		glBegin(GL11.GL_TRIANGLES);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glBegin(GL_QUADS);
+		NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		NGGLDP.pipeline.glBegin(GL_QUADS);
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 		float boxRad = .5f;
 		float frnt = 1;
@@ -65,9 +66,9 @@ public class CubePainter {
 //			for (GeosetVertex vertex : geo.getVertices()) {
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
 				if (modelView.isSelected(renderVert.getVertex())) {
-					glColor4f(1f, .0f, .0f, .7f);
+					NGGLDP.pipeline.glColor4f(1f, .0f, .0f, .7f);
 				} else {
-					glColor4f(.5f, .3f, .7f, .7f);
+					NGGLDP.pipeline.glColor4f(.5f, .3f, .7f, .7f);
 				}
 				if (renderVert != null) {
 					Vec3 renderPos = renderVert.getRenderPos();
@@ -83,31 +84,31 @@ public class CubePainter {
 
 
 //				//Up
-					GL11.glNormal3f(0, uppp, 0);
+					NGGLDP.pipeline.glNormal3f(0, uppp, 0);
 					doGlQuad(upBackRght, upBackLeft, upFrntRght, upFrntLeft);
 //
 //				//Down
-					GL11.glNormal3f(0, down, 0);
+					NGGLDP.pipeline.glNormal3f(0, down, 0);
 					doGlQuad(dwFrntRght, dwFrntLeft, dwBackRght, dwBackLeft);
 //
 //				glColor4f(.7f, .7f, .0f, .7f);
 //				//Back
-					GL11.glNormal3f(0, 0, back);
+					NGGLDP.pipeline.glNormal3f(0, 0, back);
 					doGlQuad(upFrntRght, upFrntLeft, dwFrntRght, dwFrntLeft);
 //
 //				glColor4f(.0f, .7f, .7f, .7f);
 //				//Front
-					GL11.glNormal3f(0, 0, frnt);
+					NGGLDP.pipeline.glNormal3f(0, 0, frnt);
 					doGlQuad(dwBackRght, dwBackLeft, upBackRght, upBackLeft);
 //
 //				glColor4f(.7f, .0f, .0f, .7f);
 //				//Right
-					GL11.glNormal3f(rght, 0, 0);
+					NGGLDP.pipeline.glNormal3f(rght, 0, 0);
 					doGlQuad(dwFrntRght, dwBackRght, upFrntRght, upBackRght);
 //
 //				glColor4f(0.f, .7f, .0f, .7f);
 //				//Left
-					GL11.glNormal3f(left, 0, 0);
+					NGGLDP.pipeline.glNormal3f(left, 0, 0);
 					doGlQuad(upFrntLeft, upBackLeft, dwFrntLeft, dwBackLeft);
 
 					// uppp (0,0, 1)
@@ -119,14 +120,14 @@ public class CubePainter {
 				}
 			}
 		}
-		glEnd();
+		NGGLDP.pipeline.glEnd();
 	}
 
 	public static void paintVertCubes3(Vec3 vec2, CameraHandler cameraHandler) {
 
 //		glBegin(GL11.GL_TRIANGLES);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glBegin(GL_QUADS);
+		NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		NGGLDP.pipeline.glBegin(GL_QUADS);
 		float boxRadLength = 100f;
 		float boxRadHeight = 5f;
 		float boxRadWidth = 2f;
@@ -163,7 +164,7 @@ public class CubePainter {
 		Vec3 dwBackLeft = new Vec3(0, 0, 0);
 
 
-		glColor4f(1f, .2f, 1f, .7f);
+		NGGLDP.pipeline.glColor4f(1f, .2f, 1f, .7f);
 
 
 		Vec3 renderPos = new Vec3(vec2.x, vec2.y, vec2.z);
@@ -188,31 +189,31 @@ public class CubePainter {
 
 
 //				//Top
-		GL11.glNormal3f(0, uppp, 0);
+		NGGLDP.pipeline.glNormal3f(0, uppp, 0);
 		doGlQuad(upBackRght, upBackLeft, upFrntRght, upFrntLeft);
 //
 //				//Bottom
-		GL11.glNormal3f(0, down, 0);
+		NGGLDP.pipeline.glNormal3f(0, down, 0);
 		doGlQuad(dwFrntRght, dwFrntLeft, dwBackRght, dwBackLeft);
 //
 //				glColor4f(.7f, .7f, .0f, .7f);
 //				//South
-		GL11.glNormal3f(0, 0, back);
+		NGGLDP.pipeline.glNormal3f(0, 0, back);
 		doGlQuad(upFrntRght, upFrntLeft, dwFrntRght, dwFrntLeft);
 //
 //				glColor4f(.0f, .7f, .7f, .7f);
 //				//North
-		GL11.glNormal3f(0, 0, frnt);
+		NGGLDP.pipeline.glNormal3f(0, 0, frnt);
 		doGlQuad(dwBackRght, dwBackLeft, upBackRght, upBackLeft);
 //
 //				glColor4f(.7f, .0f, .0f, .7f);
 //				//West
-		GL11.glNormal3f(rght, 0, 0);
+		NGGLDP.pipeline.glNormal3f(rght, 0, 0);
 		doGlQuad(dwFrntRght, dwBackRght, upFrntRght, upBackRght);
 //
 //				glColor4f(0.f, .7f, .0f, .7f);
 //				//East
-		GL11.glNormal3f(left, 0, 0);
+		NGGLDP.pipeline.glNormal3f(left, 0, 0);
 		doGlQuad(upFrntLeft, upBackLeft, dwFrntLeft, dwBackLeft);
 
 		// uppp (0,0, 1)
@@ -221,7 +222,7 @@ public class CubePainter {
 		// frnt ( 1,0,0)
 		// left (0, 1,0)
 		// rght (0,-1,0)
-		glEnd();
+		NGGLDP.pipeline.glEnd();
 	}
 
 
@@ -237,27 +238,27 @@ public class CubePainter {
 		GL11.glDepthMask(false);
 		GL11.glEnable(GL11.GL_BLEND);
 		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_ALPHA_TEST);
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_CULL_FACE);
+		NGGLDP.pipeline.glDisableIfNeeded(GL_ALPHA_TEST);
+		NGGLDP.pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
+		NGGLDP.pipeline.glDisableIfNeeded(GL_CULL_FACE);
 //		disableGlThings(GL_ALPHA_TEST, GL_TEXTURE_2D, GL_CULL_FACE);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		glColor3f(255f, 1f, 255f);
-		glColor4f(.7f, .7f, .7f, .4f);
-		glBegin(GL11.GL_LINES);
-		GL11.glNormal3f(0, 0, 0);
+		NGGLDP.pipeline.glColor3f(255f, 1f, 255f);
+		NGGLDP.pipeline.glColor4f(.7f, .7f, .7f, .4f);
+		NGGLDP.pipeline.glBegin(GL11.GL_LINES);
+		NGGLDP.pipeline.glNormal3f(0, 0, 0);
 
 		float frnt = 1;
 
 
-		glColor4f(1f, .2f, 1f, .7f);
+		NGGLDP.pipeline.glColor4f(1f, .2f, 1f, .7f);
 
-		GL11.glNormal3f(0, frnt, 0);
+		NGGLDP.pipeline.glNormal3f(0, frnt, 0);
 		doGlQuad(start, end1, end2, end1);
 
 		doGlQuad(end2, end3, start, end3);
 
-		glEnd();
+		NGGLDP.pipeline.glEnd();
 	}
 
 
@@ -266,35 +267,35 @@ public class CubePainter {
 		float lineLength = 20;
 		GL11.glDepthMask(false);
 		GL11.glEnable(GL11.GL_BLEND);
-		glDisable(GL_ALPHA_TEST);
-		glDisable(GL_TEXTURE_2D);
+		NGGLDP.pipeline.glDisableIfNeeded(GL_ALPHA_TEST);
+		NGGLDP.pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
 		glDisable(GL_CULL_FACE);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		glColor3f(255f, 1f, 255f);
-		glColor4f(.7f, .7f, .7f, .4f);
-		glBegin(GL11.GL_LINES);
-		GL11.glNormal3f(0, 0, 0);
+		NGGLDP.pipeline.glColor3f(255f, 1f, 255f);
+		NGGLDP.pipeline.glColor4f(.7f, .7f, .7f, .4f);
+		NGGLDP.pipeline.glBegin(GL11.GL_LINES);
+		NGGLDP.pipeline.glNormal3f(0, 0, 0);
 
-		glColor4f(.7f, 1f, .7f, .4f);
-		GL11.glVertex3f(cameraLookAt.x, cameraLookAt.y - lineLength, cameraLookAt.z);
-		GL11.glVertex3f(cameraLookAt.x, cameraLookAt.y + lineLength, cameraLookAt.z);
+		NGGLDP.pipeline.glColor4f(.7f, 1f, .7f, .4f);
+		NGGLDP.pipeline.glVertex3f(cameraLookAt.x, cameraLookAt.y - lineLength, cameraLookAt.z);
+		NGGLDP.pipeline.glVertex3f(cameraLookAt.x, cameraLookAt.y + lineLength, cameraLookAt.z);
 
-		glColor4f(1f, .7f, .7f, .4f);
-		GL11.glVertex3f(cameraLookAt.x - lineLength, cameraLookAt.y, cameraLookAt.z);
-		GL11.glVertex3f(cameraLookAt.x + lineLength, cameraLookAt.y, cameraLookAt.z);
+		NGGLDP.pipeline.glColor4f(1f, .7f, .7f, .4f);
+		NGGLDP.pipeline.glVertex3f(cameraLookAt.x - lineLength, cameraLookAt.y, cameraLookAt.z);
+		NGGLDP.pipeline.glVertex3f(cameraLookAt.x + lineLength, cameraLookAt.y, cameraLookAt.z);
 
-		glColor4f(.5f, .5f, 1f, .7f);
-		GL11.glVertex3f(cameraLookAt.x, cameraLookAt.y, cameraLookAt.z - lineLength);
-		GL11.glVertex3f(cameraLookAt.x, cameraLookAt.y, cameraLookAt.z + lineLength);
+		NGGLDP.pipeline.glColor4f(.5f, .5f, 1f, .7f);
+		NGGLDP.pipeline.glVertex3f(cameraLookAt.x, cameraLookAt.y, cameraLookAt.z - lineLength);
+		NGGLDP.pipeline.glVertex3f(cameraLookAt.x, cameraLookAt.y, cameraLookAt.z + lineLength);
 
-		glEnd();
+		NGGLDP.pipeline.glEnd();
 	}
 
 	public static void paintVertCubes2(ModelView modelView, RenderModel renderModel, Geoset geo, CameraHandler cameraHandler) {
 
 //		glBegin(GL11.GL_TRIANGLES);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glBegin(GL_QUADS);
+		NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		NGGLDP.pipeline.glBegin(GL_QUADS);
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 		float boxRad = .5f;
 		float frnt = 1;
@@ -335,9 +336,9 @@ public class CubePainter {
 //			for (GeosetVertex vertex : geo.getVertices()) {
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
 				if (modelView.isSelected(renderVert.getVertex())) {
-					glColor4f(1f, .0f, .0f, .7f);
+					NGGLDP.pipeline.glColor4f(1f, .0f, .0f, .7f);
 				} else {
-					glColor4f(.5f, .3f, .7f, .7f);
+					NGGLDP.pipeline.glColor4f(.5f, .3f, .7f, .7f);
 				}
 //				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(vertex);
 				if (renderVert != null) {
@@ -362,32 +363,32 @@ public class CubePainter {
 
 
 //				//Up
-					GL11.glNormal3f(0, uppp, 0);
+					NGGLDP.pipeline.glNormal3f(0, uppp, 0);
 					doGlQuad(upBackRght, upBackLeft, upFrntRght, upFrntLeft);
 
-					glColor4f(.0f, .0f, .7f, .7f);
+					NGGLDP.pipeline.glColor4f(.0f, .0f, .7f, .7f);
 //				//Down
-					GL11.glNormal3f(0, down, 0);
+					NGGLDP.pipeline.glNormal3f(0, down, 0);
 					doGlQuad(dwFrntRght, dwFrntLeft, dwBackRght, dwBackLeft);
 //
-					glColor4f(.7f, .7f, .0f, .7f);
+					NGGLDP.pipeline.glColor4f(.7f, .7f, .0f, .7f);
 //				//Back
-					GL11.glNormal3f(0, 0, back);
+					NGGLDP.pipeline.glNormal3f(0, 0, back);
 					doGlQuad(upFrntRght, upFrntLeft, dwFrntRght, dwFrntLeft);
 //
-					glColor4f(.0f, .7f, .7f, .7f);
+					NGGLDP.pipeline.glColor4f(.0f, .7f, .7f, .7f);
 //				//Front
-					GL11.glNormal3f(0, 0, frnt);
+					NGGLDP.pipeline.glNormal3f(0, 0, frnt);
 					doGlQuad(dwBackRght, dwBackLeft, upBackRght, upBackLeft);
 //
-					glColor4f(.7f, .0f, .0f, .7f);
+					NGGLDP.pipeline.glColor4f(.7f, .0f, .0f, .7f);
 //				//Right
-					GL11.glNormal3f(rght, 0, 0);
+					NGGLDP.pipeline.glNormal3f(rght, 0, 0);
 					doGlQuad(dwFrntRght, dwBackRght, upFrntRght, upBackRght);
 //
-					glColor4f(0.f, .7f, .0f, .7f);
+					NGGLDP.pipeline.glColor4f(0.f, .7f, .0f, .7f);
 //				//Left
-					GL11.glNormal3f(left, 0, 0);
+					NGGLDP.pipeline.glNormal3f(left, 0, 0);
 					doGlQuad(upFrntLeft, upBackLeft, dwFrntLeft, dwBackLeft);
 
 					// uppp (0,0, 1)
@@ -399,7 +400,7 @@ public class CubePainter {
 				}
 			}
 		}
-		glEnd();
+		NGGLDP.pipeline.glEnd();
 	}
 
 	public static void paintBones1(ModelView modelView, RenderModel renderModel, IdObject idObject, CameraHandler cameraHandler) {
@@ -480,8 +481,8 @@ public class CubePainter {
 
 
 			if (true) {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				glBegin(GL_QUADS);
+				NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				NGGLDP.pipeline.glBegin(GL_QUADS);
 //				if (modelView.isSelected(idObject)) {
 //					glColor4f(1f, .0f, .0f, .7f);
 //				} else {
@@ -489,52 +490,52 @@ public class CubePainter {
 //				}
 
 				if (modelView.isSelected(idObject)) {
-					glColor4f(1f, .0f, .0f, .7f);
+					NGGLDP.pipeline.glColor4f(1f, .0f, .0f, .7f);
 				} else if (modelView.isEditable(idObject)) {
-					glColor4f(.5f, .3f, .7f, .7f);
+					NGGLDP.pipeline.glColor4f(.5f, .3f, .7f, .7f);
 				} else {
-					glColor4f(.4f, .3f, .7f, .4f);
+					NGGLDP.pipeline.glColor4f(.4f, .3f, .7f, .4f);
 				}
 
 				//Up
-				GL11.glNormal3f(0, uppp, 0);
+				NGGLDP.pipeline.glNormal3f(0, uppp, 0);
 				doGlQuad(upBackRght, upBackLeft, upFrntRght, upFrntLeft);
 
 //				glColor4f(.0f, .0f, .7f, .7f);
 				//Down
-				GL11.glNormal3f(0, down, 0);
+				NGGLDP.pipeline.glNormal3f(0, down, 0);
 				doGlQuad(dwFrntRght, dwFrntLeft, dwBackRght, dwBackLeft);
 
 
 //				glColor4f(.7f, .7f, .0f, .4f);
 				//Back
-				GL11.glNormal3f(0, 0, back);
+				NGGLDP.pipeline.glNormal3f(0, 0, back);
 				doGlQuad(upFrntRght, upFrntLeft, dwFrntRght, dwFrntLeft);
 
 				//Front
-				GL11.glNormal3f(0, 0, frnt);
+				NGGLDP.pipeline.glNormal3f(0, 0, frnt);
 				doGlQuad(dwBackRght, dwBackLeft, upBackRght, upBackLeft);
 
 				//Right
-				GL11.glNormal3f(rght, 0, 0);
+				NGGLDP.pipeline.glNormal3f(rght, 0, 0);
 				doGlQuad(dwFrntRght, dwBackRght, upFrntRght, upBackRght);
 
 				//Left
-				GL11.glNormal3f(left, 0, 0);
+				NGGLDP.pipeline.glNormal3f(left, 0, 0);
 				doGlQuad(upFrntLeft, upBackLeft, dwFrntLeft, dwBackLeft);
 
-				glEnd();
+				NGGLDP.pipeline.glEnd();
 			}
 
 
 			if (idObject.getParent() != null) {
 
-				glBegin(GL_LINES);
-				glColor4f(.9f, .7f, 1f, .9f);
-				GL11.glVertex3f(renderPosNode.x, renderPosNode.y, renderPosNode.z);
-				GL11.glVertex3f(parentPivot.x, parentPivot.y, parentPivot.z);
+				NGGLDP.pipeline.glBegin(GL_LINES);
+				NGGLDP.pipeline.glColor4f(.9f, .7f, 1f, .9f);
+				NGGLDP.pipeline.glVertex3f(renderPosNode.x, renderPosNode.y, renderPosNode.z);
+				NGGLDP.pipeline.glVertex3f(parentPivot.x, parentPivot.y, parentPivot.z);
 
-				glEnd();
+				NGGLDP.pipeline.glEnd();
 			}
 
 //			if (true) {
@@ -654,8 +655,8 @@ public class CubePainter {
 
 
 			if (true) {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				glBegin(GL_QUADS);
+				NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				NGGLDP.pipeline.glBegin(GL_QUADS);
 //				if (modelView.isSelected(idObject)) {
 //					glColor4f(1f, .0f, .0f, .7f);
 //				} else {
@@ -663,52 +664,52 @@ public class CubePainter {
 //				}
 
 				if (modelView.isSelected(idObject)) {
-					glColor4f(1f, .0f, .0f, .7f);
+					NGGLDP.pipeline.glColor4f(1f, .0f, .0f, .7f);
 				} else if (modelView.isEditable(idObject)) {
-					glColor4f(.5f, .3f, .7f, .7f);
+					NGGLDP.pipeline.glColor4f(.5f, .3f, .7f, .7f);
 				} else {
-					glColor4f(.4f, .3f, .7f, .4f);
+					NGGLDP.pipeline.glColor4f(.4f, .3f, .7f, .4f);
 				}
 
 				//Up
-				GL11.glNormal3f(0, uppp, 0);
+				NGGLDP.pipeline.glNormal3f(0, uppp, 0);
 				doGlQuad(upBackRght, upBackLeft, upFrntRght, upFrntLeft);
 
 //				glColor4f(.0f, .0f, .7f, .7f);
 				//Down
-				GL11.glNormal3f(0, down, 0);
+				NGGLDP.pipeline.glNormal3f(0, down, 0);
 				doGlQuad(dwFrntRght, dwFrntLeft, dwBackRght, dwBackLeft);
 
 
 //				glColor4f(.7f, .7f, .0f, .4f);
 				//Back
-				GL11.glNormal3f(0, 0, back);
+				NGGLDP.pipeline.glNormal3f(0, 0, back);
 				doGlQuad(upFrntRght, upFrntLeft, dwFrntRght, dwFrntLeft);
 
 				//Front
-				GL11.glNormal3f(0, 0, frnt);
+				NGGLDP.pipeline.glNormal3f(0, 0, frnt);
 				doGlQuad(dwBackRght, dwBackLeft, upBackRght, upBackLeft);
 
 				//Right
-				GL11.glNormal3f(rght, 0, 0);
+				NGGLDP.pipeline.glNormal3f(rght, 0, 0);
 				doGlQuad(dwFrntRght, dwBackRght, upFrntRght, upBackRght);
 
 				//Left
-				GL11.glNormal3f(left, 0, 0);
+				NGGLDP.pipeline.glNormal3f(left, 0, 0);
 				doGlQuad(upFrntLeft, upBackLeft, dwFrntLeft, dwBackLeft);
 
-				glEnd();
+				NGGLDP.pipeline.glEnd();
 			}
 
 
 			if (idObject.getParent() != null) {
 
-				glBegin(GL_LINES);
-				glColor4f(.9f, .7f, 1f, .9f);
-				GL11.glVertex3f(renderPosNode.x, renderPosNode.y, renderPosNode.z);
-				GL11.glVertex3f(parentPivot.x, parentPivot.y, parentPivot.z);
+				NGGLDP.pipeline.glBegin(GL_LINES);
+				NGGLDP.pipeline.glColor4f(.9f, .7f, 1f, .9f);
+				NGGLDP.pipeline.glVertex3f(renderPosNode.x, renderPosNode.y, renderPosNode.z);
+				NGGLDP.pipeline.glVertex3f(parentPivot.x, parentPivot.y, parentPivot.z);
 
-				glEnd();
+				NGGLDP.pipeline.glEnd();
 			}
 		}
 	}
@@ -730,9 +731,9 @@ public class CubePainter {
 			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
 
 //			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			glPolygonMode(GL_FRONT_FACE, GL_FILL);
+			NGGLDP.pipeline.glPolygonMode(GL_FRONT_FACE, GL_FILL);
 //			glPolygonMode(GL_CULL_FACE, GL_FILL);
-			glBegin(GL_QUADS);
+			NGGLDP.pipeline.glBegin(GL_QUADS);
 
 			float[] components;
 			if (modelView.getHighlightedNode() == idObject) {
@@ -744,7 +745,7 @@ public class CubePainter {
 			} else {
 				components = colorPrefs.getColorComponents(ColorThing.NODE_UNEDITABLE);
 			}
-			glColor4f(components[0], components[1], components[2], components[3]);
+			NGGLDP.pipeline.glColor4f(components[0], components[1], components[2], components[3]);
 
 //			if (modelView.isSelected(idObject)) {
 //				glColor4f(1f, .0f, .0f, .7f);
@@ -756,7 +757,7 @@ public class CubePainter {
 
 			boneRenderThing.doGlGeom();
 
-			glEnd();
+			NGGLDP.pipeline.glEnd();
 		}
 	}
 
@@ -816,10 +817,10 @@ public class CubePainter {
 	}
 
 	private static void doGlQuad(Vec3 RT, Vec3 LT, Vec3 RB, Vec3 LB) {
-		GL11.glVertex3f(RT.x, RT.y, RT.z);
-		GL11.glVertex3f(LT.x, LT.y, LT.z);
-		GL11.glVertex3f(LB.x, LB.y, LB.z);
-		GL11.glVertex3f(RB.x, RB.y, RB.z);
+		NGGLDP.pipeline.glVertex3f(RT.x, RT.y, RT.z);
+		NGGLDP.pipeline.glVertex3f(LT.x, LT.y, LT.z);
+		NGGLDP.pipeline.glVertex3f(LB.x, LB.y, LB.z);
+		NGGLDP.pipeline.glVertex3f(RB.x, RB.y, RB.z);
 	}
 
 	public static void paintVertSquares(ModelView modelView, RenderModel renderModel, Geoset geo, CameraHandler cameraHandler) {
@@ -827,8 +828,8 @@ public class CubePainter {
 //		glBegin(GL11.GL_TRIANGLES);
 		float v = (float) ((cameraHandler.geomXifYZplane(4) - cameraHandler.geomXifYZplane(0)) * cameraHandler.getZoom());
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glBegin(GL_QUADS);
+		NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		NGGLDP.pipeline.glBegin(GL_QUADS);
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 		float boxRadLength = .001f;
 		float boxRadHeight = .5f * v;
@@ -870,11 +871,11 @@ public class CubePainter {
 		if (renderGeoset != null) {
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
 				if (modelView.isSelected(renderVert.getVertex())) {
-					glColor4f(1f, .0f, .0f, .7f);
+					NGGLDP.pipeline.glColor4f(1f, .0f, .0f, .7f);
 				} else if (modelView.isEditable(renderVert.getVertex())){
-					glColor4f(.5f, .3f, .7f, .7f);
+					NGGLDP.pipeline.glColor4f(.5f, .3f, .7f, .7f);
 				} else {
-					glColor4f(.4f, .3f, .7f, .4f);
+					NGGLDP.pipeline.glColor4f(.4f, .3f, .7f, .4f);
 				}
 				if (renderVert != null) {
 					Vec3 renderPos = renderVert.getRenderPos();
@@ -899,13 +900,13 @@ public class CubePainter {
 //
 //				glColor4f(.0f, .7f, .7f, .7f);
 //				//Front
-					GL11.glNormal3f(frnt, 0, 0);
+					NGGLDP.pipeline.glNormal3f(frnt, 0, 0);
 					doGlQuad(dwFrntRght, dwFrntLeft, upFrntRght, upFrntLeft);
 //
 				}
 			}
 		}
-		glEnd();
+		NGGLDP.pipeline.glEnd();
 	}
 
 	public static void paintVertSquares2(ModelView modelView, RenderModel renderModel, Geoset geo, CameraHandler cameraHandler, VertRendererThing vertRendererThing) {
@@ -918,8 +919,8 @@ public class CubePainter {
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 
 		if (renderGeoset != null) {
-			glPolygonMode(GL_FRONT, GL_FILL);
-			glBegin(GL11.GL_TRIANGLES);
+			NGGLDP.pipeline.glPolygonMode(GL_FRONT, GL_FILL);
+			NGGLDP.pipeline.glBegin(GL11.GL_TRIANGLES);
 			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
 				if (renderVert != null && !modelView.isHidden(renderVert.getVertex())) {
@@ -928,22 +929,22 @@ public class CubePainter {
 						components = colorPrefs.getColorComponents(ColorThing.VERTEX_SELECTED);
 					} else if (modelView.isEditable(renderVert.getVertex())) {
 						components = colorPrefs.getColorComponents(ColorThing.VERTEX);
-					} else {
+					} else { 
 						components = colorPrefs.getColorComponents(ColorThing.VERTEX_UNEDITABLE);
 					}
-						glColor4f(components[0], components[1], components[2], components[3]);
-						vertRendererThing.transform(cameraHandler.getInverseCameraRotation(), renderVert.getRenderPos()).doGlGeom();
-					}
+					NGGLDP.pipeline.glColor4f(components[0], components[1], components[2], components[3]);
+					vertRendererThing.transform(cameraHandler.getInverseCameraRotation(), renderVert.getRenderPos()).doGlGeom();
+				}
 			}
-			glEnd();
+			NGGLDP.pipeline.glEnd();
 		}
 	}
 
 	public static void paintSquare(Vec3 vec3, CameraHandler cameraHandler) {
 
 //		glBegin(GL11.GL_TRIANGLES);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glBegin(GL_QUADS);
+		NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		NGGLDP.pipeline.glBegin(GL_QUADS);
 		float boxRad = .5f;
 		float frnt = 1;
 		float left = 1;
@@ -980,7 +981,7 @@ public class CubePainter {
 		Vec3 dwFrntLeft = new Vec3(0, 0, 0);
 
 
-		glColor4f(1f, .3f, 1f, .7f);
+		NGGLDP.pipeline.glColor4f(1f, .3f, 1f, .7f);
 		if (vec3 != null) {
 
 
@@ -996,11 +997,11 @@ public class CubePainter {
 //
 //				glColor4f(.0f, .7f, .7f, .7f);
 //				//Front
-			GL11.glNormal3f(frnt, 0, 0);
+			NGGLDP.pipeline.glNormal3f(frnt, 0, 0);
 			doGlQuad(dwFrntRght, dwFrntLeft, upFrntRght, upFrntLeft);
 //
 		}
-		glEnd();
+		NGGLDP.pipeline.glEnd();
 	}
 
 	// uppp (0,0, 1)

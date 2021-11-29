@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
+import com.hiveworkshop.rms.editor.render3d.NGGLDP;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
@@ -9,8 +10,6 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.awt.*;
 import java.awt.event.MouseWheelEvent;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class CameraHandler {
 	private final double ZOOM_FACTOR = 1.07;
@@ -75,26 +74,27 @@ public class CameraHandler {
 			float ortoFac = 4.0f * (150 / cameraPos.x);
 			float w = viewport.getWidth() / 2.0f / ortoFac;
 			float h = viewport.getHeight() / 2.0f / ortoFac;
-			glOrtho(-w, w, -h, h, -6000.0f, 16000.0f);
+			NGGLDP.pipeline.glOrtho(-w, w, -h, h, -6000.0f, 16000.0f);
 		} else {
-			gluPerspective(45f, (float) viewport.getWidth() / (float) viewport.getHeight(), 5.0f, 16000.0f);
+			NGGLDP.pipeline.gluPerspective(45f, (float) viewport.getWidth() / (float) viewport.getHeight(), 5f, 16000.0f);
+			
 		}
 
 //		glCamTrans.set(cameraPos);
 
 		// Rotating camera to have +Z up and +X as forward (pointing into camera)
-		glRotatef(-90, 1f, 0f, 0f);
-		glRotatef(-90, 0f, 0f, 1f);
+		NGGLDP.pipeline.glRotatef(-90, 1f, 0f, 0f);
+		NGGLDP.pipeline.glRotatef(-90, 0f, 0f, 1f);
 
 
 //		GLU.gluLookAt(cameraPos.x, -cameraPos.y, -cameraPos.z, cameraLookAt.x, -cameraLookAt.y, -cameraLookAt.z, 0,0,1);
 
-		glTranslatef(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+		NGGLDP.pipeline.glTranslatef(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 //
-		glRotatef(xAngle, 1f, 0f, 0f);
-		glRotatef(yAngle, 0f, 1f, 0f);
-		glRotatef(zAngle, 0f, 0f, 1f);
-		glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
+		NGGLDP.pipeline.glRotatef(xAngle, 1f, 0f, 0f);
+		NGGLDP.pipeline.glRotatef(yAngle, 0f, 1f, 0f);
+		NGGLDP.pipeline.glRotatef(zAngle, 0f, 0f, 1f);
+		NGGLDP.pipeline.glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
 	}
 
 	public void setViewportCamera(int dist, int height, int rX, int rY, int rZ) {

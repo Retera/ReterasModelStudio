@@ -1,13 +1,16 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.editor.render3d.NGGLDP;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.GPUReadyTexture;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL13;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -32,6 +35,7 @@ public class TextureThing {
 			return -1;
 		}
 		ByteBuffer buffer = texture.getBuffer();
+		buffer.clear();
 		// You now have a ByteBuffer filled with the color data of each pixel.
 		// Now just create a texture ID and bind it. Then you can load it using
 		// whatever OpenGL method you want, for example:
@@ -50,7 +54,8 @@ public class TextureThing {
 		return textureID;
 	}
 
-	public static void bindTexture(Bitmap bitmap, Integer texture) {
+	private static void bindTexture(Bitmap bitmap, Integer texture) {
+		NGGLDP.pipeline.prepareToBindTexture();
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, bitmap.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, bitmap.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
@@ -86,13 +91,6 @@ public class TextureThing {
 		final List<Geoset> geosets = model.getGeosets();
 		for (final Geoset geo : geosets) {
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-				if (ModelUtils.isShaderStringSupported(model.getFormatVersion())) {
-					if ((geo.getMaterial().getShaderString() != null) && (geo.getMaterial().getShaderString().length() > 0)) {
-						if (i > 0) {
-							break;
-						}
-					}
-				}
 				final Layer layer = geo.getMaterial().getLayers().get(i);
 				if (layer.getTextureBitmap() != null) {
 					loadToTexMap(layer.getTextureBitmap());
@@ -105,7 +103,7 @@ public class TextureThing {
 			}
 		}
 	}
-	public static void deleteAllTextures(HashMap<Bitmap, Integer> textureMap) {
+	private static void deleteAllTextures(HashMap<Bitmap, Integer> textureMap) {
 		for (final Integer textureId : textureMap.values()) {
 			GL11.glDeleteTextures(textureId);
 		}
@@ -121,18 +119,22 @@ public class TextureThing {
 		}
 
 		boolean depthMask = false;
-		switch (layer.getFilterMode()) {
+		FilterMode filterModeToUse = layer.getFilterMode();
+		if(parent.getShaderString() != null && filterModeToUse == FilterMode.NONE) {
+			filterModeToUse = FilterMode.TRANSPARENT;
+		}
+		switch (filterModeToUse) {
 			case BLEND -> setBlendWOAlpha(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			case ADDITIVE, ADDALPHA -> setBlendWOAlpha(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 			case MODULATE -> setBlendWOAlpha(GL11.GL_ZERO, GL11.GL_SRC_COLOR);
 			case MODULATE2X -> setBlendWOAlpha(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
 			case NONE -> {
-				GL11.glDisable(GL11.GL_ALPHA_TEST);
+				NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 				GL11.glDisable(GL11.GL_BLEND);
 				depthMask = true;
 			}
 			case TRANSPARENT -> {
-				GL11.glEnable(GL11.GL_ALPHA_TEST);
+				NGGLDP.pipeline.glEnableIfNeeded(GL11.GL_ALPHA_TEST);
 				GL11.glAlphaFunc(GL11.GL_GREATER, 0.75f);
 				GL11.glDisable(GL11.GL_BLEND);
 				depthMask = true;
@@ -154,9 +156,9 @@ public class TextureThing {
 			GL11.glDepthMask(depthMask);
 		}
 		if (layer.getUnshaded()) {
-			GL11.glDisable(GL_LIGHTING);
+			NGGLDP.pipeline.glDisableIfNeeded(GL_LIGHTING);
 		} else {
-			glEnable(GL_LIGHTING);
+			NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHTING);
 		}
 	}
 
@@ -174,15 +176,19 @@ public class TextureThing {
 			case MODULATE2X -> setBlendWOAlpha(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
 		}
 		if (particle2.getUnshaded()) {
-			GL11.glDisable(GL_LIGHTING);
+			NGGLDP.pipeline.glDisableIfNeeded(GL_LIGHTING);
 		} else {
-			glEnable(GL_LIGHTING);
+			NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHTING);
 		}
 	}
 
 	private static void setBlendWOAlpha(int sFactor, int dFactor) {
-		GL11.glDisable(GL11.GL_ALPHA_TEST);
+		NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(sFactor, dFactor);
+	}
+
+	public void discard() {
+		deleteAllTextures(textureMap);
 	}
 }

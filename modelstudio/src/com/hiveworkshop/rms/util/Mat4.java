@@ -450,6 +450,32 @@ public class Mat4 {
 		return this;
 	}
 
+	public Mat4 setPerspective(final float left, final float right, final float bottom, final float top, final float near, final float far) {
+		float x = 2.0f * near / (right - left);
+		float y = 2.0f * near / (top - bottom);
+		float a = (right + left) / (right - left);
+		float b = (top + bottom) / (top - bottom);
+		float l_a1 = (far + near) / (near - far);
+		float l_a2 = (2 * far * near) / (near - far);
+		m00 = x;
+		m01 = 0;
+		m02 = 0;
+		m03 = 0;
+		m10 = 0;
+		m11 = y;
+		m12 = 0;
+		m13 = 0;
+		m20 = a;
+		m21 = b;
+		m22 = l_a1;
+		m23 = -1;
+		m30 = 0;
+		m31 = 0;
+		m32 = l_a2;
+		m33 = 0;
+		return this;
+	}
+
 	public Mat4 setOrtho(final float left, final float right, final float bottom, final float top, final float near, final float far) {
 		final float lr = 1 / (left - right);
 		final float bt = 1 / (bottom - top);

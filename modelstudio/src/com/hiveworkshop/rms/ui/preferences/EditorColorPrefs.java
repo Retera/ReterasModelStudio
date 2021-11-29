@@ -4,7 +4,7 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.lwjgl.opengl.GL11.glColor4f;
+import com.hiveworkshop.rms.editor.render3d.NGGLDP;
 
 public class EditorColorPrefs {
 	Map<ColorThing, Color> colorMap = new HashMap<>();
@@ -37,7 +37,7 @@ public class EditorColorPrefs {
 	public EditorColorPrefs useColor(ColorThing thing) {
 		Color color = colorMap.get(thing);
 		float[] components = color.getComponents(null);
-		glColor4f(components[0], components[1], components[2], components[3]);
+		NGGLDP.pipeline.glColor4f(components[0], components[1], components[2], components[3]);
 		return this;
 	}
 

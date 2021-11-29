@@ -224,7 +224,7 @@ public class RenderParticleEmitter2 {
 
 		bind();
 		GL11.glBlendFunc(blendSrc, blendDst);
-		GL11.glBegin(GL11.GL_TRIANGLES);
+		NGGLDP.pipeline.glBegin(GL11.GL_TRIANGLES);
 		if ((numItemsToRender) > renderData.length) {
 			new IllegalStateException(numItemsToRender + " alive items, " + renderData.length + " len buffer").printStackTrace();
 			return;
@@ -233,7 +233,7 @@ public class RenderParticleEmitter2 {
 			RenderParticleEmitter2.RenderData bufferDatum = renderData[i];
 			int colorInt = (int) bufferDatum.color;
 			int uvInt = (int) bufferDatum.uv;
-			GL11.glColor4ub((byte) ((colorInt >>> 16) & 0xFF), (byte) ((colorInt >>> 8) & 0xFF), (byte) ((colorInt) & 0xFF), (byte) ((uvInt) & 0xFF));
+			NGGLDP.pipeline.glColor4ub((byte) ((colorInt >>> 16) & 0xFF), (byte) ((colorInt >>> 8) & 0xFF), (byte) ((colorInt) & 0xFF), (byte) ((uvInt) & 0xFF));
 
 			float uv_u = (byte) ((uvInt >> 16) & 0xFF);
 			float uv_v = (byte) ((uvInt >> 8) & 0xFF);
@@ -244,10 +244,10 @@ public class RenderParticleEmitter2 {
 				uv_u /= cols;
 				uv_v /= rows;
 			}
-			GL11.glTexCoord2f(uv_u, uv_v);
-			GL11.glVertex3f(bufferDatum.v.x, bufferDatum.v.y, bufferDatum.v.z);
+			NGGLDP.pipeline.glTexCoord2f(uv_u, uv_v);
+			NGGLDP.pipeline.glVertex3f(bufferDatum.v.x, bufferDatum.v.y, bufferDatum.v.z);
 		}
-		GL11.glEnd();
+		NGGLDP.pipeline.glEnd();
 	}
 
 	public void bind() {
