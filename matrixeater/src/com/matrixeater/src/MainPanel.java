@@ -3189,6 +3189,93 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(recalculateTangents);
 
+		JMenuItem skinSpliceFromFile = new JMenuItem("From File");
+		skinSpliceFromFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final int returnValue = fc.showOpenDialog(MainPanel.this);
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					File currentFile = fc.getSelectedFile();
+					EditableModel mdl = EditableModel.read(currentFile);
+					doSkinSpliceUI(mdl);
+				}
+			}
+		});
+		JMenuItem skinSpliceFromWorkspace = new JMenuItem("From Workspace");
+		skinSpliceFromWorkspace.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final List<EditableModel> optionNames = new ArrayList<>();
+				for (final ModelPanel modelPanel : modelPanels) {
+					final EditableModel model = modelPanel.getModel();
+					optionNames.add(model);
+				}
+				final EditableModel choice = (EditableModel) JOptionPane.showInputDialog(MainPanel.this,
+						"Choose a workspace item to import data from:", "Import from Workspace",
+						JOptionPane.OK_CANCEL_OPTION, null, optionNames.toArray(), optionNames.get(0));
+				if (choice != null) {
+					EditableModel mdl = EditableModel.deepClone(choice, choice.getHeaderName());
+					doSkinSpliceUI(mdl);
+				}
+			}
+		});
+		JMenuItem skinSpliceFromModel = new JMenuItem("From Model");
+		skinSpliceFromModel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				final ModelElement model = fetchModel();
+				if (model != null) {
+					final String filepath = convertPathToMDX(model.getFilepath());
+					if (filepath != null) {
+						try (BlizzardDataInputStream in = new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(filepath))) {
+							final EditableModel mdl = new EditableModel(MdxUtils.loadModel(in));
+							mdl.setFileRef(null);
+							doSkinSpliceUI(mdl);
+						} catch (final FileNotFoundException e) {
+							e.printStackTrace();
+							ExceptionPopup.display(e);
+							throw new RuntimeException("Reading mdx failed");
+						} catch (final IOException e) {
+							e.printStackTrace();
+							ExceptionPopup.display(e);
+							throw new RuntimeException("Reading mdx failed");
+						}
+					}
+				}
+			}
+		});
+		JMenuItem skinSpliceFromUnit = new JMenuItem("From Unit");
+		skinSpliceFromUnit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				final GameObject unitFetched = fetchUnit();
+				if (unitFetched != null) {
+					final String filepath = convertPathToMDX(unitFetched.getField("file"));
+					if (filepath != null) {
+						try (BlizzardDataInputStream in = new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(filepath))) {
+							final EditableModel mdl = new EditableModel(MdxUtils.loadModel(in));
+							mdl.setFileRef(null);
+							doSkinSpliceUI(mdl);
+						} catch (final FileNotFoundException e) {
+							e.printStackTrace();
+							ExceptionPopup.display(e);
+							throw new RuntimeException("Reading mdx failed");
+						} catch (final IOException e) {
+							e.printStackTrace();
+							ExceptionPopup.display(e);
+							throw new RuntimeException("Reading mdx failed");
+						}
+					}
+				}
+			} 
+		});
+		JMenu skinSplice = new JMenu("Skin Splice Mesh into Current");
+		skinSplice.add(skinSpliceFromFile);
+		skinSplice.add(skinSpliceFromWorkspace);
+		skinSplice.add(skinSpliceFromModel);
+		skinSplice.add(skinSpliceFromUnit);
+		scriptsMenu.add(skinSplice);
+
 		final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
 		jokebutton.setMnemonic(KeyEvent.VK_A);
 		jokebutton.addActionListener(new ActionListener() {
@@ -3852,6 +3939,60 @@ public class MainPanel extends JPanel
 			menuBar.getMenu(i).getPopupMenu().setLightWeightPopupEnabled(false);
 		}
 		return menuBar;
+	}
+
+	protected void doSkinSpliceUI(EditableModel meshModel) {
+		ModelPanel animationModelPanel = currentModelPanel();
+		EditableModel animationModel = animationModelPanel.getModel();
+		final Map<String, Bone> nameToNode = new HashMap<>();
+		for (final Bone bone : animationModel.sortedIdObjects(Bone.class)) {
+			nameToNode.put(bone.getName(), bone);
+		}
+
+		List<String> warnings = new ArrayList<>();
+
+		List<Geoset> newGeosets = new ArrayList<>();
+		for (final Geoset geo : meshModel.getGeosets()) {
+			for (final GeosetVertex gv : geo.getVertices()) {
+				for (int i = 0; i < gv.getSkinBones().length; i++) {
+					IdObject bone = gv.getSkinBones()[i];
+					if (bone != null) {
+						final String boneName = bone.getName();
+						Bone replacement = nameToNode.get(boneName);
+						int upwardDepth = 0;
+						while ((replacement == null) && (bone != null)) {
+							bone = bone.getParent();
+							upwardDepth++;
+							if (bone != null) {
+								replacement = nameToNode.get(bone.getName());
+							} else {
+								replacement = null;
+							}
+						}
+						if (replacement == null) {
+							warnings.add("Failed to replace: " + boneName);
+							replacement = animationModel.getBone(0);
+//							throw new IllegalStateException("failed to replace: " + boneName);
+						} else {
+							while ((upwardDepth > 0) && (replacement.getChildrenNodes().size() == 1)
+									&& (replacement.getChildrenNodes().get(0) instanceof Bone)) {
+								replacement = (Bone) replacement.getChildrenNodes().get(0);
+								upwardDepth--;
+							}
+						}
+						gv.getSkinBones()[i] = replacement;
+
+					}
+				}
+			}
+			animationModel.add(geo);
+			newGeosets.add(geo);
+			final GeosetAnim geosetAnim = geo.forceGetGeosetAnim();
+			geosetAnim.copyVisibilityFrom(animationModel.getGeoset(0).getGeosetAnim(), animationModel);
+		}
+		modelStructureChangeListener.geosetsAdded(newGeosets);
+		
+
 	}
 
 	private void createTeamColorMenuItems() {
