@@ -450,16 +450,17 @@ public class NGGLDP {
 				"		gl_Position = u_projection * a_position;\r\n" + //
 				"		v_uv = a_uv;\r\n" + //
 				"		v_color = a_color;\r\n" + //
-				"		vec3 tangent = a_tangent.xyz * a_tangent.w;\r\n" + //
+				"		vec3 tangent = a_tangent.xyz;\r\n" + //
 				// this is supposed to re-orthogonalize per
 				// https://learnopengl.com/Advanced-Lighting/Normal-Mapping although I'm
 				// undecided if wc3 needs it
 				"		tangent = normalize(tangent - dot(tangent, a_normal.xyz) * a_normal.xyz);\r\n" + //
-				"		vec3 biTangent = cross(tangent, a_normal.xyz);\r\n" + //
-				"		mat3 TBN = transpose(mat3(tangent, biTangent, a_normal.xyz));\r\n" + //
-				"		v_tangentLightPos = TBN * u_lightDirection;\r\n" + //
-				"		v_tangentViewPos = TBN * u_viewPos;\r\n" + //
-				"		v_tangentFragPos = TBN * a_position.xyz;\r\n" + //
+				"		vec3 binormal = cross(a_normal.xyz, tangent) * a_tangent.w;\r\n" + //
+				"		mat3 mv = mat3(u_projection);\r\n" + //
+				"		mat3 TBN = transpose(mat3(tangent, binormal, a_normal.xyz));\r\n" + //
+				"		v_tangentLightPos = TBN * (u_projection * vec4(u_lightDirection, 1.0)).xyz;\r\n" + //
+				"		v_tangentViewPos = TBN * (vec4(u_viewPos, 1.0)).xyz;\r\n" + //
+				"		v_tangentFragPos = TBN * (u_projection * a_position).xyz;\r\n" + //
 				"}\r\n\0";
 		private static final String fragmentShader = "#version 330 core\r\n" + //
 				"\r\n" + //
@@ -531,10 +532,10 @@ public class NGGLDP {
 				"			discard;\r\n" + //
 				"		}\r\n" + //
 				"		if(u_lightingEnabled != 0) {\r\n" + //
-				"			vec3 normal = vec3(texture2D(u_textureNormal, v_uv).xy, 1.0);\r\n" + //
+				"			vec2 normalXY = texture2D(u_textureNormal, v_uv).xy * 2.0 - 1.0;\r\n" + //
+				"			vec3 normal = vec3(normalXY, sqrt(1.0 - dot(normalXY,normalXY)));\r\n" + //
 				"			vec4 emissiveTexel = texture2D(u_textureEmissive, v_uv);\r\n" + //
 				"			vec4 reflectionsTexel = texture2D(u_textureReflections, v_uv);\r\n" + //
-				"			normal = normalize(normal * 2.0 - 1.0);\r\n" + //
 				"			vec3 lightDir = normalize(v_tangentLightPos - v_tangentFragPos);\r\n" + //
 				"			float diff = max(dot(lightDir, normal), 0.0);\r\n" + //
 				"			vec3 diffuse = (clamp(diff + 0.1, 0.0, 1.0)) * color.xyz;\r\n" + //
@@ -699,8 +700,7 @@ public class NGGLDP {
 			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
 			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), 30.4879f, -24.1937f,
 					444.411f);
-			tempVec4.set(0, 0, -1, 1).transform(tempMat4.set(currentMatrix).invert());
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), tempVec4.x, tempVec4.y, tempVec4.z);
+			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
 			pipelineMatrixBuffer.clear();
 			pipelineMatrixBuffer.put(currentMatrix.m00);
 			pipelineMatrixBuffer.put(currentMatrix.m01);
