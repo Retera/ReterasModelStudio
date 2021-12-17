@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 
 import java.util.Collection;
@@ -21,12 +22,13 @@ public final class SetSelectionUggAction implements UndoAction {
 	private final Set<Camera> previousCameras;
 	private final ModelView modelView;
 	private final String actionName;
+	private final ModelStructureChangeListener changeListener;
 
-	public SetSelectionUggAction(SelectionBundle newSelection, ModelView modelView) {
-		this(newSelection, modelView, "select");
+	public SetSelectionUggAction(SelectionBundle newSelection, ModelView modelView, ModelStructureChangeListener changeListener) {
+		this(newSelection, modelView, "select", changeListener);
 	}
 
-	public SetSelectionUggAction(SelectionBundle newSelection, ModelView modelView, String actionName) {
+	public SetSelectionUggAction(SelectionBundle newSelection, ModelView modelView, String actionName, ModelStructureChangeListener changeListener) {
 		this.modelView = modelView;
 
 		this.previousVerts = new HashSet<>(modelView.getSelectedVertices());
@@ -37,10 +39,11 @@ public final class SetSelectionUggAction implements UndoAction {
 		this.affectedIdObjects = new HashSet<>(newSelection.getSelectedIdObjects());
 		this.affectedCameras = new HashSet<>(newSelection.getSelectedCameras());
 		this.actionName = actionName;
+		this.changeListener = changeListener;
 	}
 
 	public SetSelectionUggAction(Collection<GeosetVertex> newVerts,
-	                             ModelView modelView, String actionName) {
+	                             ModelView modelView, String actionName, ModelStructureChangeListener changeListener) {
 		this.modelView = modelView;
 
 		this.previousVerts = new HashSet<>(modelView.getSelectedVertices());
@@ -51,6 +54,7 @@ public final class SetSelectionUggAction implements UndoAction {
 		this.affectedIdObjects = new HashSet<>();
 		this.affectedCameras = new HashSet<>();
 		this.actionName = actionName;
+		this.changeListener = null;
 	}
 
 	@Override
@@ -58,6 +62,9 @@ public final class SetSelectionUggAction implements UndoAction {
 		modelView.setSelectedVertices(previousVerts);
 		modelView.setSelectedIdObjects(previousIdObjects);
 		modelView.setSelectedCameras(previousCameras);
+		if (changeListener != null) {
+			changeListener.selectionChanged();
+		}
 		return this;
 	}
 
@@ -66,6 +73,9 @@ public final class SetSelectionUggAction implements UndoAction {
 		modelView.setSelectedVertices(affectedVerts);
 		modelView.setSelectedIdObjects(affectedIdObjects);
 		modelView.setSelectedCameras(affectedCameras);
+		if (changeListener != null) {
+			changeListener.selectionChanged();
+		}
 		return this;
 	}
 

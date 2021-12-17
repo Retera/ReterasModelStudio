@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 
 import java.util.HashSet;
@@ -19,8 +20,9 @@ public final class RemoveSelectionUggAction implements UndoAction {
 	private final Set<GeosetVertex> affectedVerts;
 	private final Set<IdObject> affectedIdObjects;
 	private final Set<Camera> affectedCameras;
+	private final ModelStructureChangeListener changeListener;
 
-	public RemoveSelectionUggAction(SelectionBundle newSelection, ModelView modelView) {
+	public RemoveSelectionUggAction(SelectionBundle newSelection, ModelView modelView, ModelStructureChangeListener changeListener) {
 		this.modelView = modelView;
 
 		this.previousVerts = new HashSet<>(modelView.getSelectedVertices());
@@ -30,6 +32,7 @@ public final class RemoveSelectionUggAction implements UndoAction {
 		this.affectedVerts = new HashSet<>(newSelection.getSelectedVertices());
 		this.affectedIdObjects = new HashSet<>(newSelection.getSelectedIdObjects());
 		this.affectedCameras = new HashSet<>(newSelection.getSelectedCameras());
+		this.changeListener = changeListener;
 	}
 
 	@Override
@@ -37,6 +40,9 @@ public final class RemoveSelectionUggAction implements UndoAction {
 		modelView.setSelectedVertices(previousVerts);
 		modelView.setSelectedIdObjects(previousIdObjects);
 		modelView.setSelectedCameras(previousCameras);
+		if (changeListener != null) {
+			changeListener.selectionChanged();
+		}
 		return this;
 	}
 
@@ -45,6 +51,9 @@ public final class RemoveSelectionUggAction implements UndoAction {
 		modelView.removeSelectedVertices(affectedVerts);
 		modelView.removeSelectedIdObjects(affectedIdObjects);
 		modelView.removeSelectedCameras(affectedCameras);
+		if (changeListener != null) {
+			changeListener.selectionChanged();
+		}
 		return this;
 	}
 

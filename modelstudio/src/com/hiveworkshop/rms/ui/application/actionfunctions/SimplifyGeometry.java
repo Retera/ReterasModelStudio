@@ -20,7 +20,7 @@ public class SimplifyGeometry extends ActionFunction {
 	public static void simplifyGeometry(ModelHandler modelHandler) {
 		ModelView modelView = modelHandler.getModelView();
 		Set<GeosetVertex> selectedVertices = modelView.getSelectedVertices();
-		UndoAction selectionAction = new AddSelectionUggAction(selectedVertices, modelView); // to get back selection when undoing
+		UndoAction selectionAction = new AddSelectionUggAction(selectedVertices, modelView, null); // to get back selection when undoing
 		UndoAction action = new SimplifyGeometryAction(selectedVertices, ModelStructureChangeListener.changeListener);
 		modelHandler.getUndoManager().pushAction(new CompoundAction("Simplify Geometry", null, selectionAction, action).redo());
 	}

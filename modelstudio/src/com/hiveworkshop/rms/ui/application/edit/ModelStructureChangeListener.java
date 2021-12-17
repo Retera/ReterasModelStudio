@@ -93,6 +93,7 @@ public class ModelStructureChangeListener {
 		if (modelPanel != null) {
 			refreshFromEditor(modelPanel);
 		}
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadAnimationList();
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
 	}
 
@@ -140,5 +141,9 @@ public class ModelStructureChangeListener {
 //			modelPanel.reloadModelEditingTree();
 ////			modelPanel.reloadComponentBrowser();
 //		}
+	}
+
+	public void selectionChanged() {
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reValidateKeyframes();
 	}
 }

@@ -120,13 +120,13 @@ public class TimeSliderView extends ModelDependentView {
 	private TimeSliderPanel createTimeSliderPanel() {
 		timeSliderPanel = new TimeSliderPanel(ProgramGlobals.getPrefs());
 		timeSliderPanel.setDrawing(false);
-		Consumer<Integer> timeSliderTimeListener = currentTime -> {
-			if (ProgramGlobals.getCurrentModelPanel() != null) {
-				ProgramGlobals.getCurrentModelPanel().getEditorRenderModel().updateNodes(false);
-				ProgramGlobals.getCurrentModelPanel().repaintSelfAndRelatedChildren();
-			}
-		};
-		timeSliderPanel.addListener(timeSliderTimeListener);
+//		Consumer<Integer> timeSliderTimeListener = currentTime -> {
+//			if (ProgramGlobals.getCurrentModelPanel() != null) {
+////				ProgramGlobals.getCurrentModelPanel().getEditorRenderModel().updateNodes(false);
+////				ProgramGlobals.getCurrentModelPanel().repaintSelfAndRelatedChildren();
+//			}
+//		};
+//		timeSliderPanel.addListener(timeSliderTimeListener);
 		return timeSliderPanel;
 	}
 

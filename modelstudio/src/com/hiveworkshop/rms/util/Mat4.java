@@ -63,11 +63,20 @@ public class Mat4 {
 
 	public Mat4 setFromBindPose(final float[] a) {
 		set(
-				a[0], a[ 1], a[ 2], m03,
-				a[3], a[ 4], a[ 5], m13,
-				a[6], a[ 7], a[ 8], m23,
+				a[0], a[1], a[2], m03,
+				a[3], a[4], a[5], m13,
+				a[6], a[7], a[8], m23,
 				a[9], a[10], a[11], m33);
 		return this;
+	}
+
+	public float[] getBindPose() {
+		return new float[] {
+				m00, m01, m02,
+				m10, m11, m12,
+				m20, m21, m22,
+				m30, m31, m32};
+
 	}
 
 	public Mat4 set(final float m00, final float m01, final float m02, final float m03,
@@ -345,7 +354,7 @@ public class Mat4 {
 		m13 = 0;
 		m20 = (xz + wy)         * scale.z;
 		m21 = (yz - wx)         * scale.z;
-		m22 = (1 - (xx + yy))   * scale.z;
+		m22 = (1 - (xx + yy)) * scale.z;
 		m23 = 0;
 		m30 = (loc.x + pivot.x) - ((m00 * pivot.x) + (m10 * pivot.y) + (m20 * pivot.z));
 		m31 = (loc.y + pivot.y) - ((m01 * pivot.x) + (m11 * pivot.y) + (m21 * pivot.z));
@@ -354,6 +363,160 @@ public class Mat4 {
 
 		return this;
 	}
+
+	public Mat4 fromRotationTranslationScaleOrigin11(Vec3 pivot) {
+		final Quat rot = new Quat();
+		final Vec3 loc = new Vec3();
+		final Vec3 scale = new Vec3();
+
+		float xx = rot.x * rot.x * 2;
+		float xy = rot.x * rot.y * 2;
+		float xz = rot.x * rot.z * 2;
+		float yy = rot.y * rot.y * 2;
+		float yz = rot.y * rot.z * 2;
+		float zz = rot.z * rot.z * 2;
+		float wx = rot.w * rot.x * 2;
+		float wy = rot.w * rot.y * 2;
+		float wz = rot.w * rot.z * 2;
+
+		m00 = (1 - (yy + zz)) * scale.x;
+		m01 = (xy + wz) * scale.x;
+		m02 = (xz - wy) * scale.x;
+
+		m10 = (xy - wz) * scale.y;
+		m11 = (1 - (xx + zz)) * scale.y;
+		m12 = (yz + wx) * scale.y;
+
+		m20 = (xz + wy) * scale.z;
+		m21 = (yz - wx) * scale.z;
+		m22 = (1 - (xx + yy)) * scale.z;
+
+		m30 = (loc.x + pivot.x) - ((m00 * pivot.x) + (m10 * pivot.y) + (m20 * pivot.z));
+		m31 = (loc.y + pivot.y) - ((m01 * pivot.x) + (m11 * pivot.y) + (m21 * pivot.z));
+		m32 = (loc.z + pivot.z) - ((m02 * pivot.x) + (m12 * pivot.y) + (m22 * pivot.z));
+
+
+		loc.x = ((m00 * pivot.x) + (m10 * pivot.y) + (m20 * pivot.z)) - pivot.x;
+		loc.y = ((m01 * pivot.x) + (m11 * pivot.y) + (m21 * pivot.z)) - pivot.y;
+		loc.z = ((m02 * pivot.x) + (m12 * pivot.y) + (m22 * pivot.z)) - pivot.z;
+
+		scale.z = m20 / (xz + wy);
+		scale.z = m21 / (yz - wx);
+		scale.z = m22 / (1 - (xx + yy));
+
+		scale.y = m10 / (xy - wz);
+		scale.y = m11 / (1 - (xx + zz));
+		scale.y = m12 / (yz + wx);
+
+		scale.x = m00 / (1 - (yy + zz));
+		scale.x = m01 / (xy + wz);
+		scale.x = m02 / (xz - wy);
+
+
+		xx = (1 - m22 * (yz - wx) / m21) - yy;
+		xx = (1 - m11 * (yz + wx) / m12) - zz;
+
+		yy = (1 - m22 * (xz + wy) / m20) - xx;
+		yy = (1 - m00 * (xz - wy) / m02) - zz;
+
+		zz = (1 - m00 * (xy + wz) / m01) - yy;
+		zz = (1 - m11 * (xy - wz) / m10) - xx;
+
+
+		xx = m22 * ((xz + wy) / m20 - (yz - wx) / m21) + xx;
+		xx = m11 * ((xy - wz) / m10 - (yz + wx) / m12) + xx;
+
+		yy = m22 * ((yz - wx) / m21 - (xz + wy) / m20) + yy;
+		yy = m00 * ((xy + wz) / m01 - (xz - wy) / m02) + yy;
+
+		zz = m00 * ((xz - wy) / m02 - (xy + wz) / m01) + zz;
+		zz = m11 * ((yz + wx) / m12 - (xy - wz) / m10) + zz;
+
+		return this;
+	}
+
+	public Vec3 getBackLocation(final Vec3 pivot) {
+		Vec3 loc = new Vec3();
+
+		loc.x = m30 + ((m00 * pivot.x) + (m10 * pivot.y) + (m20 * pivot.z)) - pivot.x;
+		loc.y = m31 + ((m01 * pivot.x) + (m11 * pivot.y) + (m21 * pivot.z)) - pivot.y;
+		loc.z = m32 + ((m02 * pivot.x) + (m12 * pivot.y) + (m22 * pivot.z)) - pivot.z;
+
+		return loc;
+	}
+
+	public Quat getBackRotation(Vec3 loc, Vec3 scale, Vec3 pivot) {
+		Quat rot = new Quat();
+//		float xx = rot.x * rot.x * 2;
+//		float xy = rot.x * rot.y * 2;
+//		float xz = rot.x * rot.z * 2;
+//		float yy = rot.y * rot.y * 2;
+//		float yz = rot.y * rot.z * 2;
+//		float zz = rot.z * rot.z * 2;
+//		float wx = rot.w * rot.x * 2;
+//		float wy = rot.w * rot.y * 2;
+//		float wz = rot.w * rot.z * 2;
+//
+//		m00 = (1 - (yy + zz))   * scale.x;
+//		m01 = (xy + wz)         * scale.x;
+//		m02 = (xz - wy)         * scale.x;
+//		m10 = (xy - wz)         * scale.y;
+//		m11 = (1 - (xx + zz))   * scale.y;
+//		m12 = (yz + wx)         * scale.y;
+//		m20 = (xz + wy)         * scale.z;
+//		m21 = (yz - wx)         * scale.z;
+//		m22 = (1 - (xx + yy))   * scale.z;
+
+
+		float t00 = m00 / scale.x;
+		float t01 = m01 / scale.x;
+		float t02 = m02 / scale.x;
+		float t10 = m10 / scale.y;
+		float t11 = m11 / scale.y;
+		float t12 = m12 / scale.y;
+		float t20 = m20 / scale.z;
+		float t21 = m21 / scale.z;
+		float t22 = m22 / scale.z;
+//
+//		t00 = 1 - yy - zz  ;
+//		t01 = xy + wz        ;
+//		t02 = xz - wy        ;
+//		t10 = xy - wz        ;
+//		t11 = 1 - xx - zz ;
+//		t12 = yz + wx        ;
+//		t20 = xz + wy        ;
+//		t21 = yz - wx        ;
+//		t22 = 1 - xx - yy  ;
+//
+//		zz = t22 - t11 + yy;
+//		xx = 1 - t22 - yy;
+//
+//		yy = 1 - t00 - zz  ;
+
+//		zz = 1 - yy - t00;
+//
+//		yy = 1 - xx - t22;
+//
+//		xx = 1 - t11 - zz;
+//
+//		yy = t11 + zz - t22;
+//
+//		zz  = (1 - t11 + t22 - t00)/2;
+
+
+		float zz = (t22 - t11 + 1 - t00) / 2;
+		float xx = 1 - t11 - zz;
+//		float yy = 1 - t00 - zz;
+		float yy = t11 + zz - t22;
+
+
+		rot.x = (float) Math.sqrt(xx / 2);
+		rot.y = (float) Math.sqrt(yy / 2);
+		rot.z = (float) Math.sqrt(zz / 2);
+
+		return rot;
+	}
+
 
 	// copied from
 	// https://www.blend4web.com/api_doc/libs_gl-matrix2.js.html

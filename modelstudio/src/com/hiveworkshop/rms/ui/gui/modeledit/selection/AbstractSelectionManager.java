@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
@@ -63,26 +64,26 @@ public abstract class AbstractSelectionManager {
 			if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
 				return null;
 			}
-			return new SetSelectionUggAction(newSelection, modelView, "select");
+			return new SetSelectionUggAction(newSelection, modelView, "select", ModelStructureChangeListener.changeListener);
 		}
 		return switch (selectionMode) {
 			case ADD -> {
 				if (newSelection.isEmpty()) {
 					yield null;
 				}
-				yield new AddSelectionUggAction(newSelection, modelView);
+				yield new AddSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener);
 			}
 			case DESELECT -> {
 				if (newSelection.isEmpty() || modelView.isEmpty()) {
 					yield null;
 				}
-				yield new RemoveSelectionUggAction(newSelection, modelView);
+				yield new RemoveSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener);
 			}
 			case SELECT -> {
 				if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
 					yield null;
 				}
-				yield new SetSelectionUggAction(newSelection, modelView, "select");
+				yield new SetSelectionUggAction(newSelection, modelView, "select", ModelStructureChangeListener.changeListener);
 			}
 		};
 	}

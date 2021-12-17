@@ -180,7 +180,7 @@ public class TwilacPanel extends JPanel {
 				}
 			}
 			if (!vertexList.isEmpty()) {
-				UndoAction action = new SetSelectionUggAction(new SelectionBundle(vertexList), modelView, "Select");
+				UndoAction action = new SetSelectionUggAction(new SelectionBundle(vertexList), modelView, "Select", ModelStructureChangeListener.changeListener);
 				modelHandler.getUndoManager().pushAction(action.redo());
 			}
 		}

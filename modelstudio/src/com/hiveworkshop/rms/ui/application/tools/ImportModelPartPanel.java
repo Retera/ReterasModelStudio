@@ -90,7 +90,7 @@ public class ImportModelPartPanel extends TwiImportPanel {
 			}
 			CompoundAction addedModelPart = new CompoundAction("added model part", undoActions, ModelStructureChangeListener.changeListener::nodesUpdated);
 
-			SetSelectionUggAction selectionAction = new SetSelectionUggAction(new SelectionBundle(boneCopyMap.values(), addedVertexes), recModelHandler.getModelView(), "");
+			SetSelectionUggAction selectionAction = new SetSelectionUggAction(new SelectionBundle(boneCopyMap.values(), addedVertexes), recModelHandler.getModelView(), "", null);
 			recModelHandler.getUndoManager().pushAction(new CompoundAction("added model part", ModelStructureChangeListener.changeListener::nodesUpdated, addedModelPart, selectionAction).redo());
 		}
 

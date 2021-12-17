@@ -20,7 +20,7 @@ public class WeldVerts extends ActionFunction {
 	public static void doWeld(ModelHandler modelHandler) {
 		ModelView modelView = modelHandler.getModelView();
 		Set<GeosetVertex> selectedVertices = modelView.getSelectedVertices();
-		UndoAction selectionAction = new AddSelectionUggAction(selectedVertices, modelView); // to get back selection when undoing
+		UndoAction selectionAction = new AddSelectionUggAction(selectedVertices, modelView, null); // to get back selection when undoing
 		UndoAction action = new WeldVertsAction(selectedVertices, 1f, ModelStructureChangeListener.changeListener);
 		modelHandler.getUndoManager().pushAction(new CompoundAction("Weld Vertices", null, selectionAction, action).redo());
 	}

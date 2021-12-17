@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -80,7 +81,7 @@ public class Select {
 			allSelection.addAll(geo.getVertices());
 		}
 		SelectionBundle bundle = new SelectionBundle(allSelection, modelView.getEditableIdObjects(), modelView.getEditableCameras());
-		UndoAction action = new SetSelectionUggAction(bundle, modelView, "select all");
+		UndoAction action = new SetSelectionUggAction(bundle, modelView, "select all", ModelStructureChangeListener.changeListener);
 		modelHandler.getUndoManager().pushAction(action.redo());
 	}
 
@@ -96,7 +97,7 @@ public class Select {
 			selectLinked(v, expandedSelection);
 		}
 		SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameras());
-		UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection");
+		UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection", ModelStructureChangeListener.changeListener);
 		modelHandler.getUndoManager().pushAction(action.redo());
 	}
 
@@ -119,7 +120,7 @@ public class Select {
 			v.getTriangles().forEach(tri -> expandedSelection.addAll(Arrays.asList(tri.getVerts())));
 		}
 		SelectionBundle bundle = new SelectionBundle(expandedSelection, modelView.getSelectedIdObjects(), modelView.getSelectedCameras());
-		UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection");
+		UndoAction action = new SetSelectionUggAction(bundle, modelView, "expand selection", ModelStructureChangeListener.changeListener);
 		modelHandler.getUndoManager().pushAction(action.redo());
 	}
 
@@ -142,7 +143,7 @@ public class Select {
 			}
 		}
 		if (!vertexList.isEmpty()) {
-			UndoAction action = new SetSelectionUggAction(new SelectionBundle(vertexList), modelView, "Select");
+			UndoAction action = new SetSelectionUggAction(new SelectionBundle(vertexList), modelView, "Select", ModelStructureChangeListener.changeListener);
 			modelHandler.getUndoManager().pushAction(action.redo());
 		}
 	}

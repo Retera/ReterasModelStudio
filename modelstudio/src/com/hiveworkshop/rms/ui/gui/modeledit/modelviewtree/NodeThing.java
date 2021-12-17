@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
@@ -195,20 +196,20 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 			if (isModUsed(e, addSelectModifier)) {
 //						SelectionMode.ADD;
 				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
-					undoManager.pushAction(new AddSelectionUggAction(newSelection, modelView).redo());
+					undoManager.pushAction(new AddSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener).redo());
 				}
 //					} else if (modifiersEx == removeSelectModifier) {
 			} else if (isModUsed(e, removeSelectModifier)) {
 //						SelectionMode.DESELECT;
 				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
-					undoManager.pushAction(new RemoveSelectionUggAction(newSelection, modelView).redo());
+					undoManager.pushAction(new RemoveSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener).redo());
 				}
 			} else {
 //						SelectionMode.SELECT;
 				System.out.println("normal select! ");
 				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
 					System.out.println("viable selection! ");
-					undoManager.pushAction(new SetSelectionUggAction(newSelection, modelView).redo());
+					undoManager.pushAction(new SetSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener).redo());
 				}
 			}
 //					System.out.println("newSel: idob: " + newSelection.getSelectedIdObjects().size() + ", vert: " + newSelection.getSelectedVertices().size());

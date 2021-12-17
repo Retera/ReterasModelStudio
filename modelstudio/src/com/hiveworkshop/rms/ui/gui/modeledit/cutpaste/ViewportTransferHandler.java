@@ -21,6 +21,8 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -45,7 +47,6 @@ public class ViewportTransferHandler extends TransferHandler {
 	public boolean importData(TransferHandler.TransferSupport info) {
 		String data;
 		EditableModel pastedModel;
-//		System.out.println("imorpt daga_______________________________________________________");
 
 		// If we can't handle the import, bail now.
 		if (!canImport(info)) {
@@ -53,14 +54,9 @@ public class ViewportTransferHandler extends TransferHandler {
 //			System.out.println("cant Imp");
 			return false;
 		}
-//		Viewport viewport = null;
+
 		PerspectiveViewport pv = null;
 		DisplayPanel dp = null;
-//		System.out.println("info.getComponent(): " + info.getComponent());
-//		if(info.getComponent() instanceof Viewport){
-//			viewport = (Viewport) info.getComponent();
-////			System.out.println("found Viewport");
-//		}
 		if (info.getComponent() instanceof PerspectiveViewport) {
 //			System.out.println("found PerspectiveViewport");
 			pv = (PerspectiveViewport) info.getComponent();
@@ -114,52 +110,6 @@ public class ViewportTransferHandler extends TransferHandler {
 		return true;
 	}
 
-	//	private void pasteModelIntoViewport(EditableModel pastedModel, Viewport viewport, Point dropPoint) {
-//		ModelHandler modelHandler = new ModelHandler(pastedModel);
-//		ModelView pastedModelView = modelHandler.getModelView();
-//		pastedModelView.setIdObjectsVisible(true);
-//		pastedModelView.setCamerasVisible(true);
-//		List<IdObject> idObjects = pastedModel.getIdObjects();
-//		for (IdObject object : idObjects) {
-//			pastedModelView.makeIdObjectEditable(object);
-//		}
-//		for (Camera object : pastedModel.getCameras()) {
-//			pastedModelView.makeCameraEditable(object);
-//		}
-//		GeometryModelEditor modelEditor = new GeometryModelEditor(new SelectionManager(modelHandler.getRenderModel(), pastedModelView, SelectionItemTypes.VERTEX), modelHandler, SelectionItemTypes.VERTEX);
-//		pastedModelView.selectAll();
-//		Double geomPoint = new Point2D.Double(viewport.getCoordinateSystem().geomX(dropPoint.x), viewport.getCoordinateSystem().geomY(dropPoint.y));
-//		Vec3 vertex = new Vec3(0, 0, 0);
-//		vertex.setCoord(viewport.getCoordinateSystem().getPortFirstXYZ(), geomPoint.x);
-//		vertex.setCoord(viewport.getCoordinateSystem().getPortSecondXYZ(), geomPoint.y);
-//		modelEditor.setPosition(pastedModelView.getSelectionCenter(), vertex).redo();
-//
-//		// this is the model they're actually working on
-//		ModelView currentModelView = viewport.getModelView();
-//		List<UndoAction> undoActions = new ArrayList<>();
-//		List<GeosetVertex> pastedVerts = new ArrayList<>();
-//		for (Geoset pastedGeoset : pastedModel.getGeosets()) {
-//			pastedGeoset.setParentModel(currentModelView.getModel());
-//			pastedVerts.addAll(pastedGeoset.getVertices());
-//			undoActions.add(new AddGeosetAction(pastedGeoset, currentModelView, null));
-//		}
-//		for (IdObject idObject : idObjects) {
-//			undoActions.add(new AddNodeAction(currentModelView.getModel(), idObject, null));
-//		}
-//		currentModelView.setSelectedIdObjects(idObjects);
-//		for (Camera idObject : pastedModel.getCameras()) {
-//			undoActions.add(new AddCameraAction(currentModelView.getModel(), idObject, null));
-//		}
-//
-//		UndoAction pasteAction = new CompoundAction("Paste", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated);
-//
-//		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, pastedModel.getIdObjects(), pastedModel.getCameras());
-//		UndoAction selectPasted = new SetSelectionUggAction(pastedSelection, currentModelView, "select pasted");
-//
-//		UndoManager undoManager = ProgramGlobals.getCurrentModelPanel().getModelHandler().getUndoManager();
-//		UndoAction pasteAndSelectAction = new CompoundAction("Paste", ModelStructureChangeListener.changeListener::geosetsUpdated, pasteAction, selectPasted);
-//		undoManager.pushAction(pasteAndSelectAction.redo());
-//	}
 	private void pasteModelIntoViewport(EditableModel pastedModel, Point dropPoint) {
 //		System.out.println("pasting model!");
 		ModelHandler modelHandler = new ModelHandler(pastedModel);
@@ -179,7 +129,7 @@ public class ViewportTransferHandler extends TransferHandler {
 		Vec3 pasteCenter = new Vec3(0, 0, 0);
 //		pasteCenter.setCoord(viewport.getCoordinateSystem().getPortFirstXYZ(), geomPoint.x);
 //		pasteCenter.setCoord(viewport.getCoordinateSystem().getPortSecondXYZ(), geomPoint.y);
-		listener.setPosition(pastedModelView.getSelectionCenter(), pasteCenter).redo();
+//		listener.setPosition(pastedModelView.getSelectionCenter(), pasteCenter).redo();
 
 		// this is the model they're actually working on
 		ModelView currentModelView = ProgramGlobals.getCurrentModelPanel().getModelView();
@@ -230,7 +180,7 @@ public class ViewportTransferHandler extends TransferHandler {
 
 //		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, pastedModel.getIdObjects(), pastedModel.getCameras());
 		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, validIdObjects, pastedModel.getCameras());
-		UndoAction selectPasted = new SetSelectionUggAction(pastedSelection, currentModelView, "select pasted");
+		UndoAction selectPasted = new SetSelectionUggAction(pastedSelection, currentModelView, "select pasted", null);
 
 		UndoManager undoManager = ProgramGlobals.getCurrentModelPanel().getModelHandler().getUndoManager();
 		UndoAction pasteAndSelectAction = new CompoundAction("Paste", ModelStructureChangeListener.changeListener::geosetsUpdated, pasteAction, selectPasted);
@@ -242,9 +192,8 @@ public class ViewportTransferHandler extends TransferHandler {
 	 */
 	@Override
 	protected Transferable createTransferable(JComponent c) {
-//		System.out.println("createTransf_______________________________________________________");
-//		Viewport viewport = (Viewport) c;
-//		ModelView currentModelView = viewport.getModelView();
+		System.out.println("createTransf_______________________________________________________");
+
 		ModelView currentModelView = ProgramGlobals.getCurrentModelPanel().getModelView();
 		EditableModel currentModel = currentModelView.getModel();
 
@@ -276,6 +225,12 @@ public class ViewportTransferHandler extends TransferHandler {
 			applyVerticesToMatrices(geoset, stringableModel);
 		}
 		dummyBone.getPivotPoint().scale(1f / count);
+		if (800 < currentModel.getFormatVersion()) {
+			Mat4 mat4 = new Mat4().fromRotationTranslationScaleOrigin(new Quat(), new Vec3(), new Vec3(1, 1, 1), dummyBone.getPivotPoint());
+
+//			dummyBone.setBindPose(new float[] {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f});
+			dummyBone.setBindPose(mat4.getBindPose());
+		}
 
 		String value = "";
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
