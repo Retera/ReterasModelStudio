@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec3SpinnerArray;
@@ -66,6 +67,18 @@ public class ManualTransformPanel extends JPanel {
 	public ManualTransformPanel setModel(ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
 		this.modelHandler = modelHandler;
 		this.modelEditorManager = modelEditorManager;
+		return this;
+	}
+
+	public ManualTransformPanel setModelPanel(ModelPanel modelPanel) {
+		if (modelPanel != null) {
+			this.modelHandler = modelPanel.getModelHandler();
+			this.modelEditorManager = modelPanel.getModelEditorManager();
+
+		} else {
+			this.modelHandler = null;
+			this.modelEditorManager = null;
+		}
 		return this;
 	}
 

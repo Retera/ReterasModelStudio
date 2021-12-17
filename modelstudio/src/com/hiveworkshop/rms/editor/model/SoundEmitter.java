@@ -48,13 +48,14 @@ public class SoundEmitter extends IdObject {
 	}
 
 	@Override
-	public IdObject copy() {
+//	public IdObject copy() {
+	public SoundEmitter copy() {
 		final SoundEmitter x = new SoundEmitter();
 
 		x.name = name;
 		x.pivotPoint = new Vec3(pivotPoint);
-		x.objectId = objectId;
-		x.parentId = parentId;
+//		x.objectId = objectId;
+//		x.parentId = parentId;
 		x.setParent(getParent());
 
 		for (final AnimFlag<?> af : animFlags) {

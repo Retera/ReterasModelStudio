@@ -314,7 +314,7 @@ public class TempSaveModelStuff {
 				}
 			}
 			for (final AnimFlag<?> badFlag : bad) {
-				System.err.println("Gleaning out " + badFlag.getName() + " chunk with size of 0");
+				System.err.println("Gleaning out " + badFlag.getName() + " chunk with size of 0 (\"" + obj.getName() + "\")");
 				animFlags.remove(badFlag);
 			}
 		}
@@ -327,8 +327,8 @@ public class TempSaveModelStuff {
 		List<IdObject> allObjects = model.getIdObjects();
 		for (int i = 0; i < allObjects.size(); i++) {
 			final IdObject obj = allObjects.get(i);
-			obj.setObjectId(model.getObjectId(obj));
-			obj.setParentId(model.getObjectId(obj.getParent()));
+//			obj.setObjectId(model.getObjectId(obj));
+//			obj.setParentId(model.getObjectId(obj.getParent()));
 			if (obj.getBindPose() != null) {
 				if (model.getBindPoseChunk() == null) {
 					model.setBindPoseChunk(new BindPose(allObjects.size() + model.getCameras().size()));

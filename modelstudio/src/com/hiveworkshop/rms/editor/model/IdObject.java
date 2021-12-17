@@ -17,8 +17,8 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	public static final int DEFAULT_CLICK_RADIUS = 8;
 
 	protected String name = "";
-	protected int objectId = -1;
-	protected int parentId = -1;
+	//	protected int objectId = -1;
+//	protected int parentId = -1;
 	protected boolean dontInheritTranslation = false;
 	protected boolean dontInheritRotation = false;
 	protected boolean dontInheritScaling = false;
@@ -36,8 +36,8 @@ public abstract class IdObject extends AnimatedNode implements Named {
 
 	protected IdObject(final IdObject other) {
 		name = other.name;
-		objectId = other.objectId;
-		parentId = other.parentId;
+//		objectId = other.objectId;
+//		parentId = other.parentId;
 		dontInheritTranslation = other.dontInheritTranslation;
 		dontInheritRotation = other.dontInheritRotation;
 		dontInheritScaling = other.dontInheritScaling;
@@ -83,50 +83,50 @@ public abstract class IdObject extends AnimatedNode implements Named {
 
 	public abstract double getClickRadius();
 
-	/**
-	 * @return The Object ID
-	 * @deprecated Note that all object IDs are deleted and regenerated at save
-	 */
-	@Deprecated
-	public int getObjectId() {
-		return objectId;
-	}
-
 	public int getObjectId(EditableModel model) {
 		return model.getObjectId(this);
 	}
 
-	/**
-	 * @param objectId New object ID value
-	 * @deprecated Note that all object IDs are deleted and regenerated at save
-	 */
-	@Deprecated
-	public IdObject setObjectId(int objectId) {
-		this.objectId = objectId;
-		return this;
-	}
-
-	/**
-	 * @param parentId new Parent ID
-	 * @deprecated IF UNSURE, YOU SHOULD USE setParent(), note that all object IDs are deleted and regenerated at save
-	 */
-	@Deprecated
-	public IdObject setParentId(int parentId) {
-		this.parentId = parentId;
-		return this;
-	}
-
-	/**
-	 * @return Parent ID
-	 * @deprecated Note that all object IDs are deleted and regenerated at save
-	 */
-	@Deprecated
-	public int getParentId() {
-		if (parent == null) {
-			return -1;
-		}
-		return parent.getObjectId();
-	}
+//	/**
+//	 * @return The Object ID
+//	 * @deprecated Note that all object IDs are deleted and regenerated at save
+//	 */
+//	@Deprecated
+//	public int getObjectId() {
+//		return objectId;
+//	}
+//
+//	/**
+//	 * @param objectId New object ID value
+//	 * @deprecated Note that all object IDs are deleted and regenerated at save
+//	 */
+//	@Deprecated
+//	public IdObject setObjectId(int objectId) {
+//		this.objectId = objectId;
+//		return this;
+//	}
+//
+//	/**
+//	 * @param parentId new Parent ID
+//	 * @deprecated IF UNSURE, YOU SHOULD USE setParent(), note that all object IDs are deleted and regenerated at save
+//	 */
+//	@Deprecated
+//	public IdObject setParentId(int parentId) {
+//		this.parentId = parentId;
+//		return this;
+//	}
+//
+//	/**
+//	 * @return Parent ID
+//	 * @deprecated Note that all object IDs are deleted and regenerated at save
+//	 */
+//	@Deprecated
+//	public int getParentId() {
+//		if (parent == null) {
+//			return -1;
+//		}
+//		return parent.getObjectId();
+//	}
 
 	public int getParentId(EditableModel model) {
 		if (parent == null) {

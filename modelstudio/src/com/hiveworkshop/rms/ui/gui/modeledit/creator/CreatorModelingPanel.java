@@ -1,8 +1,5 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.CreateFace;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
@@ -20,11 +17,14 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ModeButton;
+import com.hiveworkshop.rms.util.TwiCardPanel;
+import com.hiveworkshop.rms.util.TwiComboBoxModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class CreatorModelingPanel extends JPanel {
@@ -32,80 +32,73 @@ public class CreatorModelingPanel extends JPanel {
 
 	private ModelEditorManager modelEditorManager;
 	private final ProgramPreferences programPreferences;
-	//	private final DefaultComboBoxModel<ChooseableTimeRange<?>> animationChooserBoxModel;
-//	private final JComboBox<ChooseableTimeRange<?>> animationChooserBox;
-	private final DefaultComboBoxModel<Sequence> animationChooserBoxModel;
-	private final JComboBox<Sequence> animationChooserBox;
-	private final JComboBox<String> modeChooserBox;
-	private final CardLayout modeCardLayout;
-	private final JPanel modeCardPanel;
+	private JComboBox<Sequence> animationChooserBox;
+	//	private JComboBox<String> modelingOptionsBox;
+//	private CardLayout modelingOptionsCardLayout;
+	private TwiCardPanel modelingOptionsCardPanel;
 	private ModelHandler modelHandler;
-	private final CardLayout northCardLayout;
-	private final JPanel northCardPanel;
-	private final ManualTransformPanel transformPanel;
+	//	private final CardLayout modeCardLayout;
+	private final TwiCardPanel modeCardPanel;
+	private ManualTransformPanel transformPanel;
 
 
 	private JPopupMenu contextMenu;
 
 	public CreatorModelingPanel() {
 		this.programPreferences = ProgramGlobals.getPrefs();
-		setLayout(new BorderLayout());
+		setLayout(new MigLayout("ins 0", "", "[grow][][]"));
 
-		DefaultComboBoxModel<String> modeChooserBoxModel = new DefaultComboBoxModel<>();
-		modeChooserBoxModel.addElement("Mesh Basics");
-		modeChooserBoxModel.addElement("Standard Primitives");
-		modeChooserBoxModel.addElement("Extended Primitives");
-		modeChooserBoxModel.addElement("Animation Nodes");
-		modeChooserBox = new JComboBox<>(modeChooserBoxModel);
 
-		animationChooserBoxModel = new DefaultComboBoxModel<>();
-		animationChooserBox = new JComboBox<>(animationChooserBoxModel);
-		animationChooserBox.setVisible(false);
-		animationChooserBox.addItemListener(this::chooseAnimation);
+		animationChooserBox = getAnimationChooserBox();
+		JPanel animationPanel = new JPanel(new MigLayout("ins 0, fill", "[]", "[][grow]"));
+		animationPanel.add(animationChooserBox, "wrap, growx");
+//		animationPanel.add(getAnimationBasicsPanel(), "wrap, growx, growy");
+//		animationPanel.add(getAnimationBasicsPanel(), "wrap, growx");
 
-		northCardLayout = new CardLayout();
-		northCardPanel = new JPanel(northCardLayout);
-		northCardPanel.add(animationChooserBox, "ANIM");
-		northCardPanel.add(modeChooserBox, "MESH");
 
-		add(northCardPanel, BorderLayout.NORTH);
-		northCardLayout.show(northCardPanel, "MESH");
+		modelingOptionsCardPanel = new TwiCardPanel();
 
-		modeCardLayout = new CardLayout();
-		modeCardPanel = new JPanel(modeCardLayout);
+		modelingOptionsCardPanel.add(getMeshBasicsPanel(), "Mesh Basics");
+		modelingOptionsCardPanel.add(getStandardPrimitivesPanel(), "Standard Primitives");
+//		modelingOptionsCardPanel.add(getStandardPrimitivesPanel(), "Extended Primitives");
+//		modelingOptionsCardPanel.add(getStandardPrimitivesPanel(), "Animation Nodes");
 
-//		modeCardPanel.add(getStandardPrimitivesPanel(), modeChooserBoxModel.getElementAt(0));
-//		modeCardPanel.add(getMeshBasicsPanel(), modeChooserBoxModel.getElementAt(1));
-		modeCardPanel.add(getMeshBasicsPanel(), modeChooserBoxModel.getElementAt(0));
-		modeCardPanel.add(getStandardPrimitivesPanel(), modeChooserBoxModel.getElementAt(1));
-		modeCardPanel.add(getAnimationBasicsPanel(), ANIMATIONBASICS);
 
-		modeChooserBox.addActionListener(e -> modeCardLayout.show(modeCardPanel, modeChooserBox.getSelectedItem().toString()));
+		JPanel modelingPanel = new JPanel(new MigLayout("ins 0"));
+		modelingPanel.add(modelingOptionsCardPanel.getCombobox(), "wrap");
+		modelingPanel.add(modelingOptionsCardPanel);
 
-		add(modeCardPanel, BorderLayout.CENTER);
-		modeCardLayout.show(modeCardPanel, modeChooserBoxModel.getElementAt(1));
 
-		transformPanel = new ManualTransformPanel();
-//		add(transformPanel, "wrap")
+		modeCardPanel = new TwiCardPanel();
+		modeCardPanel.add(animationPanel, "ANIM");
+		modeCardPanel.add(modelingPanel, "MESH");
+
 //		add(transformPanel, BorderLayout.CENTER);
 
-		JButton button = new JButton("show popup menu");
-		button.addActionListener(e -> showVPPopup(button));
-		add(button, BorderLayout.SOUTH);
+		JButton popupMenuButton = new JButton("show popup menu");
+		popupMenuButton.addActionListener(e -> showVPPopup(popupMenuButton));
+
+//		add(modeCardPanel, "wrap, growx, growy");
+		add(modeCardPanel, "wrap, growx");
+		transformPanel = new ManualTransformPanel();
+//		add(transformPanel, "wrap");
+		add(popupMenuButton, "");
 	}
 
 	private JPanel getStandardPrimitivesPanel() {
-		JPanel drawPrimitivesPanel = new JPanel(new GridLayout(16, 1));
+		JPanel drawPrimitivesPanel = new JPanel(new MigLayout("ins 0, gap 0, wrap 1, fill", "[grow]", ""));
 		drawPrimitivesPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
 		drawPrimitivesPanel.add(getModeButton("Plane", this::drawPlane));
 		drawPrimitivesPanel.add(getModeButton("Box", this::drawBox));
 
-		JPanel spOptionsPanel = new JPanel(new GridLayout(16, 1));
+		JPanel spOptionsPanel = new JPanel(new MigLayout("ins 0, gap 0, fill", "[grow]"));
 		spOptionsPanel.setBorder(BorderFactory.createTitledBorder("Options"));
 
-		JPanel standardPrimitivesPanel = new JPanel(new BorderLayout());
-		standardPrimitivesPanel.add(drawPrimitivesPanel, BorderLayout.NORTH);
-		standardPrimitivesPanel.add(spOptionsPanel, BorderLayout.CENTER);
+		JPanel standardPrimitivesPanel = new JPanel(new MigLayout("fill, ins 0, gap 0, wrap 1", "[grow]"));
+		standardPrimitivesPanel.add(drawPrimitivesPanel, "growx");
+		standardPrimitivesPanel.add(spOptionsPanel, "growx");
+//		standardPrimitivesPanel.add(drawPrimitivesPanel, "");
+//		standardPrimitivesPanel.add(spOptionsPanel, "");
 
 		return standardPrimitivesPanel;
 	}
@@ -116,13 +109,16 @@ public class CreatorModelingPanel extends JPanel {
 		return modeButton;
 	}
 
+	private JComboBox<Sequence> getAnimationChooserBox() {
+		final TwiComboBoxModel<Sequence> animationChooserBoxModel = new TwiComboBoxModel<>();
+		JComboBox<Sequence> animationChooserBox = new JComboBox<>(animationChooserBoxModel);
+//		animationChooserBox.setPrototypeDisplayValue(new Animation("temporary prototype animation", 0, 1));
+		animationChooserBox.addItemListener(this::chooseAnimation);
+		return animationChooserBox;
+	}
+
 	private void chooseAnimation(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED) {
-//			ChooseableTimeRange<?> selectedItem = (ChooseableTimeRange<?>) animationChooserBox.getSelectedItem();
-//			if (selectedItem != null) {
-//				TimeEnvironmentImpl timeEnvironment = modelHandler == null ? null : modelHandler.getEditTimeEnv();
-//				selectedItem.applyTo(timeEnvironment);
-//			}
 			Sequence selectedItem = (Sequence) animationChooserBox.getSelectedItem();
 			if (selectedItem != null && modelHandler != null) {
 				modelHandler.getEditTimeEnv().setSequence(selectedItem);
@@ -131,25 +127,25 @@ public class CreatorModelingPanel extends JPanel {
 	}
 
 	public JPanel getMeshBasicsPanel() {
+		JPanel meshBasicsPanel = new JPanel(new MigLayout("wrap 1, ins 0, fill", "[grow]", "[][][grow]"));
+		meshBasicsPanel.add(getDrawToolsPanel(), "growx");
+//		meshBasicsPanel.add(getEditToolsPanel(), "growx");
+		return meshBasicsPanel;
 
-		JPanel drawToolsPanel = getDrawToolsPanel();
+	}
 
-		JPanel editToolsPanel = new JPanel(new GridLayout(16, 1));
+	private JPanel getEditToolsPanel() {
+		JPanel editToolsPanel = new JPanel(new MigLayout("wrap 1, gap 0, ins 0, fill", "[grow]", ""));
 		editToolsPanel.setBorder(BorderFactory.createTitledBorder("Manipulate"));
 
 		for (ModeButton2 modeButton2 : ProgramGlobals.getActionTypeGroup().getModeButtons()) {
 			editToolsPanel.add(modeButton2);
 		}
-
-		JPanel meshBasicsPanel = new JPanel(new BorderLayout());
-		meshBasicsPanel.add(drawToolsPanel, BorderLayout.NORTH);
-		meshBasicsPanel.add(editToolsPanel, BorderLayout.CENTER);
-		return meshBasicsPanel;
-
+		return editToolsPanel;
 	}
 
 	private JPanel getDrawToolsPanel() {
-		JPanel drawToolsPanel = new JPanel(new GridLayout(2, 1));
+		JPanel drawToolsPanel = new JPanel(new MigLayout("wrap 1, gap 0, ins 0, fill"));
 		drawToolsPanel.setBorder(BorderFactory.createTitledBorder("Draw"));
 
 		drawToolsPanel.add(getModeButton2("Vertex", this::addVertex));
@@ -180,7 +176,7 @@ public class CreatorModelingPanel extends JPanel {
 	private void addVertex(ModeButton2 modeButton) {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
-			DrawVertexActivity activity = new DrawVertexActivity(modelHandler, modelEditorManager);
+			DrawVertexActivity activity = new DrawVertexActivity(modelHandler, modelEditorManager, modelPanel.getEditorActionType());
 			modeButton.setColors(programPreferences.getActiveColor1(), programPreferences.getActiveColor2());
 			modelPanel.changeActivity(activity);
 		}
@@ -217,15 +213,16 @@ public class CreatorModelingPanel extends JPanel {
 		editToolsPanel.add(actionTypeGroup.getModeButton(ModelEditorActionType3.SCALING), "wrap");
 		editToolsPanel.add(actionTypeGroup.getModeButton(ModelEditorActionType3.SQUAT), "wrap");
 
-//		boolean temp = false;
-		boolean temp = true;
+		animationBasicsPanel.add(editToolsPanel, "growx, growy, wrap");
+
+		boolean temp = false;
+//		boolean temp = true;
 		if (temp) {
 			TSpline tSpline = new TSpline();
 			animationBasicsPanel.add(tSpline, "wrap, growy");
 		}
 
 //		editToolsPanel.add(new JLabel("UGG"), "wrap");
-		animationBasicsPanel.add(editToolsPanel, "growx, growy");
 		return animationBasicsPanel;
 	}
 
@@ -236,12 +233,15 @@ public class CreatorModelingPanel extends JPanel {
 	}
 
 	public void setAnimationModeState(boolean animationModeState) {
-		northCardLayout.show(northCardPanel, animationModeState ? "ANIM" : "MESH");
-		if (animationModeState) {
-			modeCardLayout.show(modeCardPanel, ANIMATIONBASICS);
-		} else {
-			modeCardLayout.show(modeCardPanel, modeChooserBox.getSelectedItem().toString());
-		}
+		modeCardPanel.show(animationModeState ? "ANIM" : "MESH");
+//		if (animationModeState) {
+////			modelingOptionsCardLayout.show(modelingOptionsCardPanel, ANIMATIONBASICS);
+//			modelingOptionsCardPanel.show(ANIMATIONBASICS);
+//		} else {
+////			modelingOptionsCardLayout.show(modelingOptionsCardPanel, modelingOptionsBox.getSelectedItem().toString());
+////			modelingOptionsCardPanel.show(modelingOptionsBox.getSelectedItem().toString());
+//			modelingOptionsCardPanel.show("Mesh Basics");
+//		}
 	}
 
 	public void setModelPanel(ModelPanel modelPanel) {
@@ -263,20 +263,30 @@ public class CreatorModelingPanel extends JPanel {
 
 	public void reloadAnimationList() {
 		Sequence selectedItem = (Sequence) animationChooserBox.getSelectedItem();
-		animationChooserBoxModel.removeAllElements();
+//		animationChooserBoxModel.getSelectedItem()
+		List<Sequence> allSequences = new ArrayList<>();
+		allSequences.addAll(modelHandler.getModel().getAnims());
+		allSequences.addAll(modelHandler.getModel().getGlobalSeqs());
+		TwiComboBoxModel<Sequence> animationChooserBoxModel = new TwiComboBoxModel<>(allSequences);
+		animationChooserBox.setModel(animationChooserBoxModel);
+//		animationChooserBoxModel.removeAllElements();
 
-		EditableModel model = modelHandler.getModel();
-		for (Animation animation : model.getAnims()) {
-			animationChooserBoxModel.addElement(animation);
-		}
+//		EditableModel model = modelHandler.getModel();
+//		for (Animation animation : model.getAnims()) {
+//			animationChooserBoxModel.addElement(animation);
+//		}
 
-		for (GlobalSeq globalSeq : model.getGlobalSeqs()) {
-			animationChooserBoxModel.addElement(globalSeq);
-		}
-		if (selectedItem != null || animationChooserBoxModel.getSize() < 1) {
-			animationChooserBox.setSelectedItem(selectedItem);
-		} else {
-			animationChooserBox.setSelectedIndex(0);
+//		for (GlobalSeq globalSeq : model.getGlobalSeqs()) {
+//			animationChooserBoxModel.addElement(globalSeq);
+//		}
+		if (animationChooserBoxModel.getSize() >= 1) {
+			if (selectedItem != null && allSequences.contains(selectedItem)) {
+//			animationChooserBoxModel.setSelectedItem(selectedItem);
+				animationChooserBox.setSelectedItem(selectedItem);
+			} else {
+//				animationChooserBoxModel.setSelectedItem(0);
+				animationChooserBox.setSelectedIndex(0);
+			}
 		}
 	}
 }

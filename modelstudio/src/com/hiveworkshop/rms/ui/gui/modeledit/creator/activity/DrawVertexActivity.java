@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
@@ -17,6 +18,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -29,10 +31,24 @@ import java.util.List;
 public class DrawVertexActivity extends ViewportActivity {
 
 	private Point lastMousePoint;
+	private ViewportActivity lastActivity;
+	private ModelEditorActionType3 lastEditorType;
 
 	public DrawVertexActivity(ModelHandler modelHandler,
 	                          ModelEditorManager modelEditorManager) {
 		super(modelHandler, modelEditorManager);
+	}
+
+	public DrawVertexActivity(ModelHandler modelHandler,
+	                          ModelEditorManager modelEditorManager, ViewportActivity lastActivity) {
+		super(modelHandler, modelEditorManager);
+		this.lastActivity = lastActivity;
+	}
+
+	public DrawVertexActivity(ModelHandler modelHandler,
+	                          ModelEditorManager modelEditorManager, ModelEditorActionType3 lastEditorType) {
+		super(modelHandler, modelEditorManager);
+		this.lastEditorType = lastEditorType;
 	}
 
 	@Override
@@ -107,6 +123,10 @@ public class DrawVertexActivity extends ViewportActivity {
 
 			undoActions.add(new DrawVertexAction(geosetVertex));
 			undoManager.pushAction(new CompoundAction("add vertex", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated).redo());
+			if (lastEditorType != null) {
+//				ProgramGlobals.getCurrentModelPanel().changeActivity(lastActivity);
+				ProgramGlobals.getCurrentModelPanel().setEditorActionType(lastEditorType);
+			}
 		} catch (WrongModeException exc) {
 			JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}

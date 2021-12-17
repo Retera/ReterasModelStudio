@@ -25,8 +25,8 @@ public class IdObjectFactory {
 
 	public static void loadObject(IdObject idObject, final MdlxGenericObject object, EditableModel model) {
 		idObject.setName(object.name);
-		idObject.setObjectId(object.objectId);
-		idObject.setParentId(object.parentId);
+//		idObject.setObjectId(object.objectId);
+//		idObject.setParentId(object.parentId);
 
 		idObject.setDontInheritTranslation((object.flags & 0x1) != 0);
 		idObject.setDontInheritRotation((object.flags & 0x2) != 0);
