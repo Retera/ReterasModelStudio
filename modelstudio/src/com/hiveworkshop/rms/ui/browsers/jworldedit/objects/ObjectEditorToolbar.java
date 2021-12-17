@@ -91,11 +91,6 @@ public class ObjectEditorToolbar extends JToolBar {
 
 	}
 
-//	public ObjectEditorToolbar addEditor(UnitEditorPanel editor){
-//		editors.add(editor);
-//		return this;
-//	}
-
 	public void tabbedPaneChangeListener(DataTable worldEditorData) {
 		UnitEditorPanel selectedEditorPanel = (UnitEditorPanel) tabbedPane.getSelectedComponent();
 		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = selectedEditorPanel.getEditorTabCustomToolbarButtonData();

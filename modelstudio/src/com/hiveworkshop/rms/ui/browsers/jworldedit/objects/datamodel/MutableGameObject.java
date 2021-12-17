@@ -178,7 +178,7 @@ public final class MutableGameObject {
 	}
 
 	public String getName() {
-		WorldEditorDataType worldEditorDataType = mutableObjectData.getWorldEditorDataType();
+		WorldEditorDataType worldEditorDataType = getWorldEditorDataType();
 		int level = worldEditorDataType == WorldEditorDataType.UPGRADES ? 1 : 0;
 		String name = getFieldAsString(mutableObjectData.getEditorData().getNameField(), level);
 
@@ -242,6 +242,10 @@ public final class MutableGameObject {
 		return name;
 	}
 
+	public WorldEditorDataType getWorldEditorDataType() {
+		return mutableObjectData.getWorldEditorDataType();
+	}
+
 	private String getNameThingi(boolean nameKnown, WorldEditorDataType worldEditorDataType) {
 		return switch (worldEditorDataType) {
 			case ABILITIES, UPGRADES, DOODADS, ITEM, DESTRUCTIBLES -> "";
@@ -270,7 +274,7 @@ public final class MutableGameObject {
 	private String getFieldStringFromSLKs(final War3ID field, final int level) {
 		final GameObject metaData = mutableObjectData.getSourceSLKMetaData().get(field.asStringValue());
 		if (metaData == null) {
-			if (mutableObjectData.getWorldEditorDataType() == WorldEditorDataType.UNITS) {
+			if (getWorldEditorDataType() == WorldEditorDataType.UNITS) {
 				if (ROC_SUPPORT_URAC.equals(field)) {
 					return parentWC3Object.getField("race");
 				} else if (ROC_SUPPORT_UCAM.equals(field)) {
@@ -282,7 +286,7 @@ public final class MutableGameObject {
 				}
 			}
 			throw new IllegalStateException(
-					"Program requested " + field.toString() + " from " + mutableObjectData.getWorldEditorDataType());
+					"Program requested " + field.toString() + " from " + getWorldEditorDataType());
 		}
 		if (parentWC3Object == null) {
 			throw new IllegalStateException("corrupted unit, no parent unit id");
@@ -392,7 +396,7 @@ public final class MutableGameObject {
 		}
 		// no luck with custom data, look at the standard data
 		int slkLevel = level;
-		if (mutableObjectData.getWorldEditorDataType() == WorldEditorDataType.UPGRADES) {
+		if (getWorldEditorDataType() == WorldEditorDataType.UPGRADES) {
 			slkLevel -= 1;
 		}
 		return getFieldStringFromSLKs(field, slkLevel);
@@ -471,8 +475,8 @@ public final class MutableGameObject {
 
 	public War3ID getCode() {
 		if (customUnitData == null) {
-			if ((mutableObjectData.getWorldEditorDataType() == WorldEditorDataType.ABILITIES
-					|| mutableObjectData.getWorldEditorDataType() == WorldEditorDataType.BUFFS_EFFECTS)
+			if ((getWorldEditorDataType() == WorldEditorDataType.ABILITIES
+					|| getWorldEditorDataType() == WorldEditorDataType.BUFFS_EFFECTS)
 					&& (parentWC3Object.getField("code") != null
 					&& parentWC3Object.getField("code").length() > 0)) {
 				return War3ID.fromString(parentWC3Object.getField("code"));
@@ -481,8 +485,8 @@ public final class MutableGameObject {
 			}
 		}
 		if (War3ID.NONE.equals(customUnitData.getNewId())) {
-			if (mutableObjectData.getWorldEditorDataType() == WorldEditorDataType.ABILITIES
-					|| mutableObjectData.getWorldEditorDataType() == WorldEditorDataType.BUFFS_EFFECTS) {
+			if (getWorldEditorDataType() == WorldEditorDataType.ABILITIES
+					|| getWorldEditorDataType() == WorldEditorDataType.BUFFS_EFFECTS) {
 				return War3ID.fromString(parentWC3Object.getField("code"));
 			} else {
 				return customUnitData.getOldId();

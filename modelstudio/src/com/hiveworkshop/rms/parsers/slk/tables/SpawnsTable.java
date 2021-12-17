@@ -9,15 +9,16 @@ import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 public class SpawnsTable extends DataTable {
-	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
+	//	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
+	String[] sklDatafiles = {"Splats\\SpawnData.slk"};
+	String[] txtFiles = {};
 
 	public SpawnsTable() {
-		loadSpawns();
+//		loadSpawns();
+		loadStuff(sklDatafiles, txtFiles, true);
 	}
 
 	@Override
@@ -32,7 +33,12 @@ public class SpawnsTable extends DataTable {
 
 	public void loadSpawns() {
 		try {
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Splats\\SpawnData.slk"));
+			for (String sklData : sklDatafiles) {
+				DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream(sklData));
+			}
+			for (String txt : txtFiles) {
+				DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream(txt), true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}

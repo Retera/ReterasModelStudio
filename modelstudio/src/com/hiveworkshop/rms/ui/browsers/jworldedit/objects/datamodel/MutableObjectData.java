@@ -98,39 +98,6 @@ public class MutableObjectData {
 		return metaNameToMetaId;
 	}
 
-	private void resolveStringReferencesInNames1(ObjectData sourceSLKData) {
-		for (String key : sourceSLKData.keySet()) {
-			GameObject gameObject = sourceSLKData.get(key);
-			String suffix = gameObject.getField("EditorSuffix");
-			StringBuilder name = new StringBuilder(gameObject.getField("Name"));
-			if (name.toString().startsWith("WESTRING")) {
-				if (!name.toString().contains(" ")) {
-					name = new StringBuilder(WEString.getString(name.toString()));
-				} else {
-					final String[] names = name.toString().split(" ");
-					name = new StringBuilder();
-					for (final String subName : names) {
-						if (name.length() > 0) {
-							name.append(" ");
-						}
-						if (subName.startsWith("WESTRING")) {
-							name.append(WEString.getString(subName));
-						} else {
-							name.append(subName);
-						}
-					}
-				}
-				if (name.toString().startsWith("\"") && name.toString().endsWith("\"")) {
-					name = new StringBuilder(name.substring(1, name.length() - 1));
-				}
-				gameObject.setField("Name", name.toString());
-			}
-			if (suffix.startsWith("WESTRING")) {
-				gameObject.setField("EditorSuffix", WEString.getString(suffix));
-			}
-		}
-	}
-
 	private void resolveStringReferencesInNames(ObjectData sourceSLKData) {
 		for (String key : sourceSLKData.keySet()) {
 			GameObject gameObject = sourceSLKData.get(key);

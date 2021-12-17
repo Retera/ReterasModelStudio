@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.browsers.model;
 
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 
@@ -38,18 +39,19 @@ public class ModelOptionPane {
 		return null;
 	}
 
-	public static ModelElement fetchModel(Component component) {
+	public static ModelElement fetchModelElement(Component component) {
 		ModelOptionPanel uop = new ModelOptionPanel();
 		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (x == JOptionPane.OK_OPTION) {
-			ModelElement model =  new ModelElement(uop.getSelection(), uop.getCachedIconPath());
+			ModelElement model = new ModelElement(uop.getSelection(), uop.getCachedIconPath());
 			String filepath = model.getFilepath();
 			if (isValidFilepath(filepath)) return model;
 		}
 		return null;
 	}
-	public static String fetchModel1(Component component) {
+
+	public static String fetchModelPath(Component component) {
 		ModelOptionPanel uop = new ModelOptionPanel();
 		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
@@ -58,6 +60,16 @@ public class ModelOptionPane {
 //			ModelElement model =  new ModelElement(uop.getSelection(), uop.getCachedIconPath());
 //			String filepath = model.getFilepath();
 //			if (isValidFilepath(filepath)) return filepath;
+		}
+		return null;
+	}
+
+	public static EditableModel fetchModel(Component component) {
+		ModelOptionPanel uop = new ModelOptionPanel();
+		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE);
+		if (x == JOptionPane.OK_OPTION) {
+			if (isValidFilepath(uop.getSelection())) return uop.getSelectedModel();
 		}
 		return null;
 	}

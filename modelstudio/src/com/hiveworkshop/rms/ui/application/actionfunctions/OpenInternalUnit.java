@@ -18,7 +18,8 @@ public class OpenInternalUnit extends ActionFunction {
 
 	public static void fetchUnit() {
 //		GameObject unitFetched = ImportFileActions.fetchUnit();
-		GameObject unitFetched = UnitOptionPane.fetchUnit(ProgramGlobals.getMainPanel());;
+		GameObject unitFetched = UnitOptionPane.fetchUnitObject(ProgramGlobals.getMainPanel());
+		;
 		if (unitFetched != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(unitFetched.getField("file"));

@@ -19,7 +19,7 @@ public class OpenInternalModel extends ActionFunction {
 
 
 	public static void fetchModel() {
-		ModelOptionPane.ModelElement model = ModelOptionPane.fetchModel(ProgramGlobals.getMainPanel());
+		ModelOptionPane.ModelElement model = ModelOptionPane.fetchModelElement(ProgramGlobals.getMainPanel());
 		if (model != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(model.getFilepath());

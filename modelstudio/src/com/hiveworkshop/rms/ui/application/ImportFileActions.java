@@ -1,8 +1,13 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterDestructibleModelSelector;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterDoodadModelSelector;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DestructibleBrowserView;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
@@ -85,6 +90,17 @@ public class ImportFileActions {
 		repaintModelTrees();
 	}
 
+	static void importModel(EditableModel animationSource) {
+		if (animationSource != null) {
+			ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+			if (modelPanel != null && modelPanel.getModel() != null) {
+				ImportPanelGui importPanel = new ImportPanelGui(modelPanel.getModel(), animationSource);
+
+			}
+		}
+		repaintModelTrees();
+	}
+
 	public static MutableGameObject fetchObject() {
 		BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(UnitBrowserView.getUnitData(), new UnitEditorSettings());
 		int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), selector, "Object Editor - Select Unit",
@@ -100,17 +116,61 @@ public class ImportFileActions {
 		return null;
 	}
 
-    public static void importGameObjectActionRes() {
-	    MutableGameObject fetchObjectResult = fetchObject();
-	    if (fetchObjectResult != null) {
-		    String path = fetchObjectResult.getFieldAsString(UnitFields.MODEL_FILE, 0);
+	public static EditableModel fetchObjectModel() {
+		BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(UnitBrowserView.getUnitData(), new UnitEditorSettings());
+		int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), selector, "Object Editor - Select Unit",
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-		    importMdxObject(path);
-	    }
-    }
+		EditableModel choice = selector.getSelectedModel();
+
+		if ((x == JOptionPane.OK_OPTION)) {
+			return choice;
+		}
+
+		return null;
+	}
+
+	public static EditableModel fetchDestructibleModel() {
+		BetterDestructibleModelSelector selector = new BetterDestructibleModelSelector(DestructibleBrowserView.getDestructibleData(), new UnitEditorSettings());
+		int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), selector, "Object Editor - Select Unit",
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+		EditableModel choice = selector.getSelectedModel();
+
+		if ((x == JOptionPane.OK_OPTION)) {
+			return choice;
+		}
+
+		return null;
+	}
+
+	public static EditableModel fetchDoodadModel() {
+//		BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(DoodadBrowserView.getDoodadData(), new UnitEditorSettings());
+		BetterDoodadModelSelector selector = new BetterDoodadModelSelector(DoodadBrowserView.getDoodadData(), new UnitEditorSettings());
+		int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), selector, "Object Editor - Select Unit",
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+		EditableModel choice = selector.getSelectedModel();
+
+		if ((x == JOptionPane.OK_OPTION)) {
+			return choice;
+		}
+
+		return null;
+	}
+
+	public static void importGameObjectActionRes() {
+//	    MutableGameObject fetchObjectResult = fetchObject();
+//	    if (fetchObjectResult != null) {
+//		    String path = fetchObjectResult.getFieldAsString(UnitFields.MODEL_FILE, 0);
+//
+//		    importMdxObject(path);
+//	    }
+		importModel(fetchObjectModel());
+	}
 
     public static void importGameModelActionRes() {
-        importMdxObject(ModelOptionPane.fetchModel1(ProgramGlobals.getMainPanel()));
+	    importMdxObject(ModelOptionPane.fetchModelPath(ProgramGlobals.getMainPanel()));
 
     }
 
@@ -130,6 +190,6 @@ public class ImportFileActions {
     }
 
     public static void importUnitActionRes() {
-        importMdxObject(UnitOptionPane.fetchUnit1(ProgramGlobals.getMainPanel()));
+	    importMdxObject(UnitOptionPane.fetchUnitPath(ProgramGlobals.getMainPanel()));
     }
 }

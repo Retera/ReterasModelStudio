@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class InternalFileLoader {
-	public static void loadStreamMdx(InputStream f, boolean temporary, boolean selectNewTab, ImageIcon icon) {
+	public static void loadStreamMdx(InputStream f, boolean temporary, boolean showModel, ImageIcon icon) {
 		ModelPanel temp;
 		try {
 			final EditableModel model = MdxUtils.loadEditable(f);
@@ -34,17 +34,17 @@ public class InternalFileLoader {
 			throw new RuntimeException("Reading mdx failed");
 		}
 
-		ModelLoader.loadModel(temporary, selectNewTab, temp);
+		ModelLoader.loadModel(temporary, showModel, temp);
 	}
 
-	public static void loadMdxStream(MutableGameObject obj, String prePath, boolean b) {
+	public static void loadMdxStream(MutableGameObject obj, String prePath, boolean selectNewTab) {
 		final String path = ImportFileActions.convertPathToMDX(prePath);
 		final String portrait = ModelUtils.getPortrait(path);
 		final ImageIcon icon = new ImageIcon(IconUtils
 				.getIcon(obj, WorldEditorDataType.DOODADS)
 				.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 
-		loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(path), true, b, icon);
+		loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(path), true, selectNewTab, icon);
 
 		if (ProgramGlobals.getPrefs().isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
 			loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
@@ -65,7 +65,7 @@ public class InternalFileLoader {
 
 	public static void fetchModel() {
 //		ModelOptionPane.ModelElement model = ImportFileActions.fetchModel();
-		ModelOptionPane.ModelElement model = ModelOptionPane.fetchModel(ProgramGlobals.getMainPanel());
+		ModelOptionPane.ModelElement model = ModelOptionPane.fetchModelElement(ProgramGlobals.getMainPanel());
 		if (model != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(model.getFilepath());
@@ -77,7 +77,8 @@ public class InternalFileLoader {
 
 	public static void fetchUnit() {
 //		GameObject unitFetched = ImportFileActions.fetchUnit();
-		GameObject unitFetched = UnitOptionPane.fetchUnit(ProgramGlobals.getMainPanel());;
+		GameObject unitFetched = UnitOptionPane.fetchUnitObject(ProgramGlobals.getMainPanel());
+		;
 		if (unitFetched != null) {
 
 			String filepath = ImportFileActions.convertPathToMDX(unitFetched.getField("file"));

@@ -33,7 +33,7 @@ public class ModelOptionPanel extends JPanel {
 	private static DataTable unitData = null;
 	private static DataTable itemData = null;
 	private static DataTable buffData = null;
-	private static DataTable destData = null;
+	private static DataTable destrData = null;
 	private static DataTable doodData = null;
 	private static DataTable spawnData = null;
 	private static DataTable ginterData = null;
@@ -53,9 +53,10 @@ public class ModelOptionPanel extends JPanel {
 	private DefaultComboBoxModel<ModelGroup> groupsModel = new DefaultComboBoxModel<>();
 	private List<DefaultComboBoxModel<Model>> groupModels = new ArrayList<>();
 
-	private AnimationViewer viewer;
+	private final AnimationViewer viewer;
 
 	private final EditableModel blank = new EditableModel();
+	private EditableModel toLoad;
 
 	public ModelOptionPanel() {
 		preload();
@@ -64,6 +65,7 @@ public class ModelOptionPanel extends JPanel {
 			groupsModel.addElement(group);
 			final DefaultComboBoxModel<Model> groupModel = new DefaultComboBoxModel<>();
 
+			System.out.println("group: " + group + ", models: " + group.getModels().size());
 			for (final Model model : group.getModels()) {
 				groupModel.addElement(model);
 			}
@@ -125,7 +127,9 @@ public class ModelOptionPanel extends JPanel {
 	}
 
 	private void groupBoxListener() {
-		modelBox.setModel(groupModels.get(groupBox.getSelectedIndex()));
+		DefaultComboBoxModel<Model> groupModel = groupModels.get(groupBox.getSelectedIndex());
+		System.out.println("groupModel: " + groupModel + ", size: " + groupModel.getSize());
+		modelBox.setModel(groupModel);
 		modelBox.setSelectedIndex(0);
 	}
 
@@ -146,6 +150,10 @@ public class ModelOptionPanel extends JPanel {
 		// } else {
 		// return null;
 		// }
+	}
+
+	public EditableModel getSelectedModel() {
+		return toLoad;
 	}
 
 	public String getCachedIconPath() {
@@ -172,7 +180,6 @@ public class ModelOptionPanel extends JPanel {
 	}
 
 	private void showModel(String filepath) {
-		EditableModel toLoad;
 		try {
 			if (filepath.endsWith(".mdl")) {
 				filepath = filepath.replace(".mdl", ".mdx");
@@ -180,15 +187,22 @@ public class ModelOptionPanel extends JPanel {
 				filepath = filepath.concat(".mdx");
 			}
 			InputStream modelStream = GameDataFileSystem.getDefault().getResourceAsStream(filepath);
-			MdlxModel mdlxModel = MdxUtils.loadMdlx(modelStream);
-			toLoad = TempOpenModelStuff.createEditableModel(mdlxModel);
+			if (modelStream != null) {
+				MdlxModel mdlxModel = MdxUtils.loadMdlx(modelStream);
+				toLoad = TempOpenModelStuff.createEditableModel(mdlxModel);
+			} else {
+				System.err.println("failed to load file: \"" + filepath + "\"");
+				toLoad = null;
+				viewer.setModel(blank);
+				viewer.setTitle("No model loaded");
+			}
 		} catch (final Exception exc) {
 			exc.printStackTrace();
-			toLoad = blank;
+			toLoad = null;
+			viewer.setModel(blank);
+			viewer.setTitle("No model loaded");
 			// bad model!
 		}
-		viewer.setModel(toLoad);
-		viewer.setTitle(toLoad.getName());
 	}
 
 	static void preload() {
@@ -209,10 +223,10 @@ public class ModelOptionPanel extends JPanel {
 			// - Game Interface
 		}
 		groups.clear();
-		unitData = DataTableHolder.get();
+		unitData = DataTableHolder.getDefault();
 		itemData = DataTableHolder.getItems();
 		buffData = DataTableHolder.getBuffs();
-		destData = DataTableHolder.getDestructables();
+		destrData = DataTableHolder.getDestructables();
 		doodData = DataTableHolder.getDoodads();
 		spawnData = DataTableHolder.getSpawns();
 		ginterData = DataTableHolder.getGinters();
@@ -289,7 +303,7 @@ public class ModelOptionPanel extends JPanel {
 		final Map<String, NamedList<String>> buffModelData = getBuffModelData();
 
 		fillItemData(itemsModelData);
-		fillUnitList(destModelData, destData);
+		fillUnitList(destModelData, destrData);
 		fillUnitList(doodModelData, doodData);
 		fillSpawnData(spawnModelData);
 		fillGinterData(ginterModelData);

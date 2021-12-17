@@ -10,29 +10,13 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BuffsTable extends DataTable {
+public class UnitEditorTable extends DataTable {
 	//	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
-	String[] sklDatafiles = {"Units\\AbilityBuffData.slk"};
-	String[] txtFiles = {
-			"Units\\CampaignAbilityFunc.txt",
-			"Units\\CampaignAbilityStrings.txt",
-			"Units\\CommonAbilityFunc.txt",
-			"Units\\CommonAbilityStrings.txt",
-			"Units\\HumanAbilityFunc.txt",
-			"Units\\HumanAbilityStrings.txt",
-			"Units\\NeutralAbilityFunc.txt",
-			"Units\\NeutralAbilityStrings.txt",
-			"Units\\NightElfAbilityFunc.txt",
-			"Units\\NightElfAbilityStrings.txt",
-			"Units\\OrcAbilityFunc.txt",
-			"Units\\OrcAbilityStrings.txt",
-			"Units\\UndeadAbilityFunc.txt",
-			"Units\\UndeadAbilityStrings.txt",
-			"Units\\ItemAbilityFunc.txt",
-			"Units\\ItemAbilityStrings.txt"};
+	String[] sklDatafiles = {};
+	String[] txtFiles = {"UI\\UnitEditorData.txt", "UI\\WorldEditData.txt"};
 
-	public BuffsTable() {
-//		loadBuffs();
+	public UnitEditorTable() {
+//		loadUnitEditorData();
 		loadStuff(sklDatafiles, txtFiles, true);
 	}
 
@@ -46,7 +30,8 @@ public class BuffsTable extends DataTable {
 		return outputKeySet;
 	}
 
-	public void loadBuffs() {
+
+	public void loadUnitEditorData() {
 		try {
 			for (String sklData : sklDatafiles) {
 				DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream(sklData));
@@ -72,5 +57,4 @@ public class BuffsTable extends DataTable {
 //	public void put(final String id, final Element e) {
 //		dataTable.put(new StringKey(id), e);
 //	}
-
 }

@@ -3,21 +3,21 @@ package com.hiveworkshop.rms.parsers.slk.tables;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.DataTableUtils;
-import com.hiveworkshop.rms.parsers.slk.Element;
 import com.hiveworkshop.rms.parsers.slk.StringKey;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 public class SplatsTable extends DataTable {
-	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
+	//	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
+	String[] sklDatafiles = {"Splats\\SplatData.slk", "Splats\\UberSplatData.slk"};
+	String[] txtFiles = {};
 
 	public SplatsTable() {
-		loadSplats();
+		loadStuff(sklDatafiles, txtFiles, true);
+//		loadSplats();
 	}
 
 	@Override
@@ -32,25 +32,29 @@ public class SplatsTable extends DataTable {
 
 	public void loadSplats() {
 		try {
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Splats\\SplatData.slk"));
-			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Splats\\UberSplatData.slk"));
+			for (String sklData : sklDatafiles) {
+				DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream(sklData));
+			}
+			for (String txt : txtFiles) {
+				DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream(txt), true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
 	}
 
-	@Override
-	public Element get(final String id) {
-		return dataTable.get(new StringKey(id));
-	}
-
-	@Override
-	public void setValue(final String id, final String field, final String value) {
-		get(id).setField(field, value);
-	}
-
-	public void put(final String id, final Element e) {
-		dataTable.put(new StringKey(id), e);
-	}
+//	@Override
+//	public Element get(final String id) {
+//		return dataTable.get(new StringKey(id));
+//	}
+//
+//	@Override
+//	public void setValue(final String id, final String field, final String value) {
+//		get(id).setField(field, value);
+//	}
+//
+//	public void put(final String id, final Element e) {
+//		dataTable.put(new StringKey(id), e);
+//	}
 
 }

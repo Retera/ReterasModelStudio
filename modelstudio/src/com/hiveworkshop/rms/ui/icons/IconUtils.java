@@ -66,6 +66,19 @@ public final class IconUtils {
 		return BLPHandler.getGameTex(iconPath);
 	}
 
+	public static BufferedImage getIcon(final MutableGameObject gameObject) {
+		String iconPath = switch (gameObject.getWorldEditorDataType()) {
+			case ABILITIES -> gameObject.getFieldAsString(War3ID.fromString("aart"), 0);
+			case BUFFS_EFFECTS -> gameObject.getFieldAsString(War3ID.fromString("fart"), 0);
+			case DESTRUCTIBLES -> getOddIconPath(gameObject, "bcat", "DestructibleCategories");
+			case DOODADS -> getOddIconPath(gameObject, "dcat", "DoodadCategories");
+			case ITEM -> gameObject.getFieldAsString(War3ID.fromString("iico"), 0);
+			case UPGRADES -> gameObject.getFieldAsString(War3ID.fromString("gar1"), 1);
+			case UNITS -> gameObject.getFieldAsString(War3ID.fromString("uico"), 0);
+		};
+		return BLPHandler.getGameTex(iconPath);
+	}
+
 	private static String getOddIconPath(MutableGameObject gameObject, String cat, String doodadCategories) {
 		String iconPath;
 		final DataTable unitEditorData = DataTableHolder.getWorldEditorData();

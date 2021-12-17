@@ -15,7 +15,6 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.tree.*;
 import java.awt.*;
@@ -26,7 +25,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener {
+public class UnitEditorPanel extends JSplitPane {
 	private static final Object SHIFT_KEY_LOCK = new Object();
 	private final MutableObjectData unitData;
 	private final DataTable unitMetaData;
@@ -97,7 +96,7 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 
 		setRightComponent(new JScrollPane(table));
 
-		tree.addTreeSelectionListener(this);
+		tree.addTreeSelectionListener(this::valueChanged);
 //		System.out.println("UggaBugga!");
 		tree.selectFirstUnit();
 //		System.out.println("UggaBugga2!");
@@ -505,7 +504,6 @@ public class UnitEditorPanel extends JSplitPane implements TreeSelectionListener
 		}
 	}
 
-	@Override
 	public void valueChanged(final TreeSelectionEvent e) {
 		currentUnitTreePath = e.getNewLeadSelectionPath();
 		if (currentUnitTreePath != null) {

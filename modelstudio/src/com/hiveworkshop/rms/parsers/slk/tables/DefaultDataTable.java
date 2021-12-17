@@ -1,55 +1,74 @@
-package com.hiveworkshop.rms.parsers.slk;
+package com.hiveworkshop.rms.parsers.slk.tables;
 
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableUtils;
+import com.hiveworkshop.rms.parsers.slk.StringKey;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
-public class DataTable extends ObjectData {
-	protected Map<StringKey, Element> dataTable = new LinkedHashMap<>();
-	protected String[] sklDatafiles;
-	protected String[] txtFiles;
+public class DefaultDataTable extends DataTable {
+	//	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
+	String[] sklDatafiles = {
+			"Units\\UnitUI.slk",
+			"Units\\AbilityData.slk",
+			"Units\\UnitData.slk",
+			"Units\\UnitAbilities.slk",
+			"Units\\UnitBalance.slk",
+			"Units\\UnitWeapons.slk",
+			"Units\\UpgradeData.slk"};
+	String[] txtFiles = {
+			"Units\\CampaignUnitFunc.txt",
+			"Units\\CampaignUnitStrings.txt",
+			"Units\\HumanUnitFunc.txt",
+			"Units\\HumanUnitStrings.txt",
+			"Units\\NeutralUnitFunc.txt",
+			"Units\\NeutralUnitStrings.txt",
+			"Units\\NightElfUnitFunc.txt",
+			"Units\\NightElfUnitStrings.txt",
+			"Units\\OrcUnitFunc.txt",
+			"Units\\OrcUnitStrings.txt",
+			"Units\\UndeadUnitFunc.txt",
+			"Units\\UndeadUnitStrings.txt",
 
-	public DataTable() {
+			"Units\\CampaignUpgradeFunc.txt",
+			"Units\\CampaignUpgradeStrings.txt",
+			"Units\\HumanUpgradeFunc.txt",
+			"Units\\HumanUpgradeStrings.txt",
+			"Units\\NeutralUpgradeFunc.txt",
+			"Units\\NeutralUpgradeStrings.txt",
+			"Units\\NightElfUpgradeFunc.txt",
+			"Units\\NightElfUpgradeStrings.txt",
+			"Units\\OrcUpgradeFunc.txt",
+			"Units\\OrcUpgradeStrings.txt",
+			"Units\\UndeadUpgradeFunc.txt",
+			"Units\\UndeadUpgradeStrings.txt",
 
-	}
-//	public DataTable(String[] sklDatafiles, String[] txtFiles) {
-//		loadStuff(sklDatafiles, txtFiles, true);
-//	}
+			"Units\\CampaignAbilityFunc.txt",
+			"Units\\CampaignAbilityStrings.txt",
+			"Units\\CommonAbilityFunc.txt",
+			"Units\\CommonAbilityStrings.txt",
+			"Units\\HumanAbilityFunc.txt",
+			"Units\\HumanAbilityStrings.txt",
+			"Units\\NeutralAbilityFunc.txt",
+			"Units\\NeutralAbilityStrings.txt",
+			"Units\\NightElfAbilityFunc.txt",
+			"Units\\NightElfAbilityStrings.txt",
+			"Units\\OrcAbilityFunc.txt",
+			"Units\\OrcAbilityStrings.txt",
+			"Units\\UndeadAbilityFunc.txt",
+			"Units\\UndeadAbilityStrings.txt",
+			"Units\\ItemAbilityFunc.txt",
+			"Units\\ItemAbilityStrings.txt",
+			"Units\\ItemStrings.txt",
+			"Units\\UnitSkin.txt"};
 
-
-	public void loadStuff() {
-		try {
-			for (String sklData : sklDatafiles) {
-				DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream(sklData));
-			}
-			for (String txt : txtFiles) {
-				DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream(txt), true);
-			}
-		} catch (final IOException e) {
-			ExceptionPopup.display(e);
-		}
-	}
-
-	public void loadStuff(String[] sklDatafiles, String[] txtFiles, boolean canProduce) {
-		try {
-			for (String sklData : sklDatafiles) {
-				DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream(sklData));
-			}
-			for (String txt : txtFiles) {
-				InputStream inputStream = GameDataFileSystem.getDefault().getResourceAsStream(txt);
-				if (inputStream != null) {
-					DataTableUtils.readTXT(this, inputStream, canProduce);
-				}
-			}
-		} catch (final IOException e) {
-			ExceptionPopup.display(e);
-		}
+	public DefaultDataTable() {
+//		loadDefaults();
+		loadStuff(sklDatafiles, txtFiles, false);
 	}
 
 	@Override
@@ -62,11 +81,25 @@ public class DataTable extends ObjectData {
 		return outputKeySet;
 	}
 
+
+	public void loadDefaults() {
+		try {
+			for (String sklData : sklDatafiles) {
+				DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream(sklData));
+			}
+			for (String txt : txtFiles) {
+				DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream(txt), false);
+			}
+		} catch (final IOException e) {
+			ExceptionPopup.display(e);
+		}
+	}
+
 	public void loadDefaults1() {
 		try {
+			// DataTableUtils.readSLK(MpqNativeCodebase.get().getGameFile("Units\\AbilityBuffData.slk"));
 			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UnitUI.slk"));
 			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\AbilityData.slk"));
-			// DataTableUtils.readSLK(MpqNativeCodebase.get().getGameFile("Units\\AbilityBuffData.slk"));
 			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UnitData.slk"));
 			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UnitAbilities.slk"));
 			DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UnitBalance.slk"));
@@ -118,86 +151,21 @@ public class DataTable extends ObjectData {
 		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\ItemAbilityFunc.txt"));
 		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\ItemAbilityStrings.txt"));
 		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\ItemStrings.txt"));
-		final InputStream unitSkin = GameDataFileSystem.getDefault().getResourceAsStream("Units\\UnitSkin.txt");
-		if (unitSkin != null) {
-			DataTableUtils.readTXT(this, unitSkin);
-		}
+		DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("Units\\UnitSkin.txt"));
+
 	}
 
-	@Override
-	public Element get(final String id) {
-		return dataTable.get(new StringKey(id));
-	}
-
-	@Override
-	public void setValue(final String id, final String field, final String value) {
-		get(id).setField(field, value);
-	}
-
-	public void put(final String id, final Element e) {
-		dataTable.put(new StringKey(id), e);
-	}
-
-//	public Unit getFallyWorker() {
-//		return dataTable.get("h02Z");
-//	}
-//	public Unit getFallyWorker2() {
-//		return dataTable.get("h03P");
-//	}
-//	public Unit getTribeWorker() {
-//		return dataTable.get("opeo");
-//	}
-//	public Unit getTideWorker() {
-//		return dataTable.get("ewsp");
-//	}
-//	public Unit getVoidWorker() {
-//		return dataTable.get("e007");
-//	}
-//	public Unit getElfWorker() {
-//		return dataTable.get("e000");
-//	}
-//	public Unit getHumanWorker() {
-//		return dataTable.get("h001");
-//	}
-//	public Unit getOrcWorker() {
-//		return dataTable.get("o000");
-//	}
-//	public Unit getUndeadWorker() {
-//		return dataTable.get("u001");
+//	@Override
+//	public Element get(final String id) {
+//		return dataTable.get(new StringKey(id));
 //	}
 //
-//	public static void main(String [] args) {
-//		UnitDataTable table = new UnitDataTable();
-//		table.loadDefaults();
-//		Unit villager = table.get("h02Z");
-//		System.out.println(villager.getField("Name")+ " can build: ");
-//		System.out.println(villager.builds());
+//	@Override
+//	public void setValue(final String id, final String field, final String value) {
+//		get(id).setField(field, value);
+//	}
 //
-//		System.out.println();
-//
-//		Unit townSquare = table.get("owtw");
-//		System.out.println(townSquare.getField("Name")+ " trains: ");
-//		System.out.println(townSquare.trains());
-//
-//		System.out.println(townSquare.getField("Name")+ " upgrades: ");
-//		System.out.println(townSquare.upgrades());
-//
-//		System.out.println(townSquare.getField("Name")+ " researches: ");
-//		System.out.println(townSquare.researches());
-//
-//		System.out.println(townSquare.getField("Name")+ " stats: ");
-//		for( String field: townSquare.fields.keySet() ) {
-//			System.out.println(field +": "+townSquare.getField(field));
-//		}
-////		System.out.println(townSquare.getField("goldcost"));
-////		System.out.println(townSquare.getField("lumbercost"));
-////		System.out.println(townSquare.getField("fmade"));
-////		System.out.println(townSquare.getField("fmade"));
-//
-//		 List<Unit> abils = table.getTideWorker().abilities();
-//		System.out.println(abils);
-//		for( Unit abil: abils ) {
-//			System.out.println(abil.getUnitId());
-//		}
+//	public void put(final String id, final Element e) {
+//		dataTable.put(new StringKey(id), e);
 //	}
 }

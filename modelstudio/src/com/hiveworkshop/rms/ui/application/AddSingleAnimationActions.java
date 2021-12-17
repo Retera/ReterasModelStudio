@@ -9,8 +9,6 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -66,19 +64,21 @@ public class AddSingleAnimationActions {
 	}
 
 	public static void addAnimationFromObject() {
-		MutableGameObject fetchResult = ImportFileActions.fetchObject();
-		if (fetchResult != null) {
-			String path = fetchResult.getFieldAsString(UnitFields.MODEL_FILE, 0);
-			fetchAndAddSingleAnimation(path);
-		}
+//		MutableGameObject fetchResult = ImportFileActions.fetchObject();
+//		if (fetchResult != null) {
+//			String path = fetchResult.getFieldAsString(UnitFields.MODEL_FILE, 0);
+//			fetchAndAddSingleAnimation(path);
+//		}
+		fetchAndAddSingleAnimation(ImportFileActions.fetchObjectModel());
 	}
 
 	public static void addAnimFromModel() {
-		fetchAndAddSingleAnimation(ModelOptionPane.fetchModel1(ProgramGlobals.getMainPanel()));
+//		fetchAndAddSingleAnimation(ModelOptionPane.fetchModelPath(ProgramGlobals.getMainPanel()));
+		fetchAndAddSingleAnimation(ModelOptionPane.fetchModel(ProgramGlobals.getMainPanel()));
 	}
 
 	public static void addAnimationFromUnit() {
-		fetchAndAddSingleAnimation(UnitOptionPane.fetchUnit1(ProgramGlobals.getMainPanel()));
+		fetchAndAddSingleAnimation(UnitOptionPane.fetchUnitPath(ProgramGlobals.getMainPanel()));
 
 	}
 
@@ -167,16 +167,25 @@ public class AddSingleAnimationActions {
 
 			ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 			if (modelPanel != null && modelPanel.getModel() != null && filepath != null) {
-				EditableModel animationSource;
 				try {
-					animationSource = MdxUtils.loadEditable(GameDataFileSystem.getDefault().getFile(filepath));
+					EditableModel animationSource = MdxUtils.loadEditable(GameDataFileSystem.getDefault().getFile(filepath));
 					addSingleAnimation(modelPanel.getModel(), animationSource);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-    }
+	}
+
+	private static void fetchAndAddSingleAnimation(EditableModel animationSource) {
+		if (animationSource != null) {
+
+			ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+			if (modelPanel != null && modelPanel.getModel() != null) {
+				addSingleAnimation(modelPanel.getModel(), animationSource);
+			}
+		}
+	}
 
 
 	public static List<Animation> addAnimationsFrom(EditableModel model, EditableModel other, final List<Animation> anims) {

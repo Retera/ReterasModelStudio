@@ -1,118 +1,37 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
-import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.WarcraftObject;
-import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitTabTreeBrowserBuilder;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
-import java.awt.*;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
-public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSelectionListener {
-	MutableGameObject currentUnit = null;
-//	UnitEditorTreeModel model;
 
-	JLabel debugLabel = new JLabel("debug");
-
-	EditableModel mdl = new EditableModel();
-	ModelHandler modelHandler = new ModelHandler(mdl);
-	PerspDisplayPanel perspDisplayPanel;
-	DefaultTableModel tableModel;
-	DefaultMutableTreeNode defaultSelection = null;
-	JScrollPane treePane;
-	private final MutableObjectData unitData;
-	private final UnitEditorTree tree;
+public class BetterUnitEditorModelSelector extends BetterSelector {
 
 	public BetterUnitEditorModelSelector(MutableObjectData unitData,
 	                                     UnitEditorSettings unitEditorSettings) {
-		this.unitData = unitData;
-		tree = new UnitEditorTree(unitData, new UnitTabTreeBrowserBuilder(), unitEditorSettings);
-
-		setLeftComponent(treePane = new JScrollPane(tree));
-		final JPanel temp = new JPanel();
-		temp.add(debugLabel);
-
-		perspDisplayPanel = new PerspDisplayPanel("blank");
-		fillTable();
-
-		setRightComponent(perspDisplayPanel);
-
-		tree.addTreeSelectionListener(this);
-		treePane.setPreferredSize(new Dimension(350, 600));
-		perspDisplayPanel.setPreferredSize(new Dimension(800, 600));
-		if (defaultSelection != null) {
-			tree.getSelectionModel().setSelectionPath(getPath(defaultSelection));
-		}
+		super(unitData, new UnitTabTreeBrowserBuilder(), unitEditorSettings);
 	}
 
-	public void fillTable() {
-		if (currentUnit == null) {
-			tree.selectFirstUnit();
-			currentUnit = tree.getSelectedGameObject();
-		}
-		if (currentUnit != null) {
+	protected JPanel getRightPanel() {
+		JPanel rightPanel = new JPanel(new MigLayout("fill, ins 0", "", ""));
+		rightPanel.add(perspDisplayPanel, "growx, growy");
+		return rightPanel;
+	}
 
-		} else {
-			return;
-		}
-
+	protected void loadUnitPreview() {
 		String filepath = currentUnit.getFieldAsString(UnitFields.MODEL_FILE, 0);
+		String gameObjectName = currentUnit.getName();
 
-		try {
-			filepath = setEndWithMdx(filepath);
-			try (InputStream reader = GameDataFileSystem.getDefault().getResourceAsStream(filepath)) {
-				mdl = TempOpenModelStuff.createEditableModel(MdxUtils.loadMdlx(reader));
-				modelHandler = new ModelHandler(mdl);
-				perspDisplayPanel.setModel(modelHandler);
-				perspDisplayPanel.setTitle(currentUnit.getName());
-			} catch (final IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (final Exception exc) {
-			exc.printStackTrace();
-			// bad model!
-			JOptionPane.showMessageDialog(getParent(),
-					"The chosen model could not be used.",
-					"Program Error",
-					JOptionPane.ERROR_MESSAGE);
-		}
+		openModel(filepath, gameObjectName);
 	}
-
-	private String setEndWithMdx(String filepath) {
-		if (filepath.endsWith(".mdl")) {
-			filepath = filepath.replace(".mdl", ".mdx");
-		} else if (!filepath.endsWith(".mdx")) {
-			filepath = filepath.concat(".mdx");
-		}
-		return filepath;
-	}
-
-//	static class UnitEditorTreeModel extends DefaultTreeModel {
-//		public UnitEditorTreeModel(final DefaultMutableTreeNode root) {
-//			super(root);
-//		}
-//	}
 
 	public void loadRaceData(final DefaultMutableTreeNode folder, final RaceData data) {
 		addDataToFolder(folder, "WESTRING_UNITS", data.units);
@@ -132,35 +51,5 @@ public class BetterUnitEditorModelSelector extends JSplitPane implements TreeSel
 				defaultSelection = node.getFirstLeaf();
 			}
 		}
-	}
-
-	@Override
-	public void valueChanged(final TreeSelectionEvent e) {
-		final DefaultMutableTreeNode o = (DefaultMutableTreeNode) e.getNewLeadSelectionPath().getLastPathComponent();
-		if (o.getUserObject() instanceof MutableGameObject) {
-			final MutableGameObject obj = (MutableGameObject) o.getUserObject();
-			debugLabel.setText(obj.getName());
-			// System.out.println(obj.getId());
-			currentUnit = obj;
-			fillTable();
-		}
-	}
-
-	public static TreePath getPath(TreeNode treeNode) {
-		final List<Object> nodes = new ArrayList<>();
-		if (treeNode != null) {
-			nodes.add(treeNode);
-			treeNode = treeNode.getParent();
-			while (treeNode != null) {
-				nodes.add(0, treeNode);
-				treeNode = treeNode.getParent();
-			}
-		}
-
-		return nodes.isEmpty() ? null : new TreePath(nodes.toArray());
-	}
-
-	public MutableGameObject getSelection() {
-		return currentUnit;
 	}
 }

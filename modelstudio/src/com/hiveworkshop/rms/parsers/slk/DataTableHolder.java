@@ -26,11 +26,15 @@ public class DataTableHolder {
 		theTableDoodads = null;
 	}
 
-	public static DataTable get() {
+	public static DataTable getDefault() {
 		if (theTable == null) {
-			theTable = new DataTable();
-			theTable.loadDefaults();
+			theTable = new DefaultDataTable();
+//			theTable.loadDefaults();
 		}
+//		if (theTable == null) {
+//			theTable = new DataTable();
+//			theTable.loadDefaults();
+//		}
 		return theTable;
 	}
 
@@ -92,8 +96,7 @@ public class DataTableHolder {
 
 	public static DataTable getWorldEditorData() {
 		if (unitEditorDataTable == null) {
-			unitEditorDataTable = new DataTable();
-			unitEditorDataTable.loadUnitEditorData();
+			unitEditorDataTable = new UnitEditorTable();
 		}
 		return unitEditorDataTable;
 	}

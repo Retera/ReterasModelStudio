@@ -11,7 +11,7 @@ import java.awt.*;
 
 public class UnitOptionPane {
 	public static GameObject show(Component component) {
-		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.get(), MutableAbilityData.getStandardAbilities());
+		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.getDefault(), MutableAbilityData.getStandardAbilities());
 		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Unit Type", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (x == JOptionPane.OK_OPTION) {
@@ -20,8 +20,8 @@ public class UnitOptionPane {
 		return null;
 	}
 
-	public static GameObject fetchUnit(Component component) {
-		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.get(), MutableAbilityData.getStandardAbilities());
+	public static GameObject fetchUnitObject(Component component) {
+		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.getDefault(), MutableAbilityData.getStandardAbilities());
 		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Unit Type", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (x == JOptionPane.OK_OPTION) {
@@ -32,13 +32,28 @@ public class UnitOptionPane {
 		}
 		return null;
 	}
-	public static String fetchUnit1(Component component) {
-		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.get(), MutableAbilityData.getStandardAbilities());
+
+	public static String fetchUnitPath(Component component) {
+		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.getDefault(), MutableAbilityData.getStandardAbilities());
 		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Unit Type", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
 		if (x == JOptionPane.OK_OPTION) {
 			GameObject choice = uop.getSelection();
 			if (choice != null && isValidFilepath(choice.getField("file"))) {
+				return choice.getField("file");
+			}
+		}
+		return null;
+	}
+
+	public static String fetchUnitModel(Component component) {
+		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.getDefault(), MutableAbilityData.getStandardAbilities());
+		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Unit Type", JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE);
+		if (x == JOptionPane.OK_OPTION) {
+			GameObject choice = uop.getSelection();
+			if (choice != null && isValidFilepath(choice.getField("file"))) {
+
 				return choice.getField("file");
 			}
 		}

@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.parsers.slk;
 
 import java.util.*;
 
-public class WarcraftData implements ObjectData {
+public class WarcraftData extends ObjectData {
 	List<DataTable> tables = new ArrayList<>();
 	Map<StringKey, DataTable> tableMap = new HashMap<>();
 	Map<StringKey, WarcraftObject> units = new HashMap<>();

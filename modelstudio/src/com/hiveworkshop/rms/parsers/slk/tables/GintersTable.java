@@ -9,15 +9,16 @@ import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 public class GintersTable extends DataTable {
-	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
+	//	Map<StringKey, Element> dataTable = new LinkedHashMap<>();
+	String[] sklDatafiles = {};
+	String[] txtFiles = {"UI\\war3skins.txt"};
 
 	public GintersTable() {
-		loadGinters();
+//		loadGinters();
+		loadStuff(sklDatafiles, txtFiles, true);
 	}
 
 	@Override
@@ -32,7 +33,12 @@ public class GintersTable extends DataTable {
 
 	public void loadGinters() {
 		try {
-			DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream("UI\\war3skins.txt"), true);
+			for (String sklData : sklDatafiles) {
+				DataTableUtils.readSLK(this, GameDataFileSystem.getDefault().getResourceAsStream(sklData));
+			}
+			for (String txt : txtFiles) {
+				DataTableUtils.readTXT(this, GameDataFileSystem.getDefault().getResourceAsStream(txt), true);
+			}
 		} catch (final IOException e) {
 			ExceptionPopup.display(e);
 		}
