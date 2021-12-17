@@ -15,6 +15,7 @@ import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ModelEditActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.CreateFace;
 import com.hiveworkshop.rms.ui.application.actionfunctions.RigSelection;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
@@ -237,8 +238,10 @@ public class ViewportPopupMenu extends JPopupMenu {
 //				UndoAction faceFromSelection = ModelEditActions.createFaceFromSelection(modelHandler.getModelView(), viewport.getFacingVector());
 //				modelHandler.getUndoManager().pushAction(faceFromSelection.redo());
 //			}
-			UndoAction faceFromSelection = ModelEditActions.createFaceFromSelection(modelHandler.getModelView(), new Vec3(0, 0, 1));
-			modelHandler.getUndoManager().pushAction(faceFromSelection.redo());
+			UndoAction faceFromSelection = CreateFace.createFaceFromSelection(modelHandler.getModelView(), new Vec3(0, 0, 1));
+			if (faceFromSelection != null) {
+				modelHandler.getUndoManager().pushAction(faceFromSelection.redo());
+			}
 		} catch (final FaceCreationException exc) {
 //			JOptionPane.showMessageDialog(viewport, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

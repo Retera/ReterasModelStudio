@@ -1,16 +1,13 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
-import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
-import com.hiveworkshop.rms.ui.application.ModelEditActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.CreateFace;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
-import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TSpline;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportPopupMenu;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -23,7 +20,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ModeButton;
-import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -169,21 +165,7 @@ public class CreatorModelingPanel extends JPanel {
 	}
 
 	private void createFace(ModeButton2 modeButton) {
-		if (modelEditorManager == null) {
-			return;
-		}
-		try {
-//			Viewport viewport = viewportListener.getViewport();
-//			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
-			Vec3 facingVector = new Vec3(0, 0, 1);
-			UndoAction createFaceFromSelection = ModelEditActions.createFaceFromSelection(modelHandler.getModelView(), facingVector);
-			modelHandler.getUndoManager().pushAction(createFaceFromSelection.redo());
-		} catch (WrongModeException exc) {
-			JOptionPane.showMessageDialog(CreatorModelingPanel.this,
-					"Unable to create face, wrong selection mode", "Error", JOptionPane.ERROR_MESSAGE);
-		} catch (FaceCreationException exc) {
-			JOptionPane.showMessageDialog(CreatorModelingPanel.this, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-		}
+		CreateFace.createFace(modelHandler);
 	}
 
 	private void addBone(ModeButton2 modeButton) {

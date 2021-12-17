@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -23,30 +23,33 @@ import java.util.Collections;
 import java.util.Set;
 
 public class CreateFace extends ActionFunction {
-	public CreateFace(){
+	public CreateFace() {
 		super(TextKey.CREATE_FACE, CreateFace::createFace);
 	}
 
-	public static void createFace() {
-		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		if (!isTextField() && !(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
-			try {
-				ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-				if (modelPanel != null) {
+	public static void createFace(ModelHandler modelHandler) {
+		if (!isTextField() && modelHandler != null) {
+			MainPanel mainPanel = ProgramGlobals.getMainPanel();
+
+			if (!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {
+				try {
 //					Viewport viewport = mainPanel.getViewportListener().getViewport();
 //					Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 //					Viewport viewport = mainPanel.getViewportListener().getViewport();
 					Vec3 facingVector = new Vec3(0, 0, 1);
-					UndoAction createFaceFromSelection = createFaceFromSelection(modelPanel.getModelView(), facingVector);
+					UndoAction createFaceFromSelection = createFaceFromSelection(modelHandler.getModelView(), facingVector);
 
 					if (createFaceFromSelection != null) {
-						modelPanel.getUndoManager().pushAction(createFaceFromSelection.redo());
+						modelHandler.getUndoManager().pushAction(createFaceFromSelection.redo());
 					}
+				} catch (final FaceCreationException exc) {
+					JOptionPane.showMessageDialog(mainPanel, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				} catch (final Exception exc) {
+					ExceptionPopup.display(exc);
 				}
-			} catch (final FaceCreationException exc) {
-				JOptionPane.showMessageDialog(mainPanel, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-			} catch (final Exception exc) {
-				ExceptionPopup.display(exc);
+			} else {
+				JOptionPane.showMessageDialog(mainPanel,
+						"Unable to create face, wrong selection mode", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
@@ -77,6 +80,11 @@ public class CreateFace extends ActionFunction {
 			}
 
 			return new AddTriangleAction(geoset, Collections.singletonList(newTriangle));
+		} else if (sameGeoset) {
+			throw new FaceCreationException(
+					"All three vertices to create a face must be a part of the same Geoset");
+		} else if (triangleExists) {
+			throw new FaceCreationException("Triangle already exists");
 		}
 		return null;
 	}

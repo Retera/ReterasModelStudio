@@ -1,15 +1,16 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.mesh.AddTriangleAction;
 import com.hiveworkshop.rms.editor.actions.mesh.FlipFacesAction;
 import com.hiveworkshop.rms.editor.actions.mesh.TeamColorAddAction;
 import com.hiveworkshop.rms.editor.actions.tools.MirrorModelAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.SkinBone;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.util.InfoPopup;
 import com.hiveworkshop.rms.util.Vec2;
@@ -55,41 +56,6 @@ public class ModelEditActions {
         return boneList.toString();
     }
 
-    public static UndoAction createFaceFromSelection(ModelView modelView, Vec3 preferredFacingVector) {
-        Set<GeosetVertex> selection = modelView.getSelectedVertices();
-        if (selection.size() != 3) {
-            throw new FaceCreationException(
-                    "A face can only be created from exactly 3 vertices (you have " + selection.size() + " selected)");
-        }
-        int index = 0;
-        GeosetVertex[] verticesArray = new GeosetVertex[3];
-        Geoset geoset = null;
-        for (GeosetVertex vertex : selection) {
-            verticesArray[index++] = vertex;
-            if (geoset == null) {
-                geoset = vertex.getGeoset();
-            } else if (geoset != vertex.getGeoset()) {
-                throw new FaceCreationException(
-                        "All three vertices to create a face must be a part of the same Geoset");
-            }
-        }
-        for (Triangle existingTriangle : verticesArray[0].getTriangles()) {
-            if (existingTriangle.containsLoc(verticesArray[0])
-                    && existingTriangle.containsLoc(verticesArray[1])
-                    && existingTriangle.containsLoc(verticesArray[2])) {
-                throw new FaceCreationException("Triangle already exists");
-            }
-        }
-
-        Triangle newTriangle = new Triangle(verticesArray[0], verticesArray[1], verticesArray[2], geoset);
-        Vec3 facingVector = newTriangle.getNormal();
-        double cosine = facingVector.dot(preferredFacingVector) / (facingVector.length() * preferredFacingVector.length());
-        if (cosine < 0) {
-            newTriangle.flip(false);
-        }
-
-        return new AddTriangleAction(geoset, Collections.singletonList(newTriangle));
-    }
 
     public static String getSelectedHDSkinningDescription(ModelView modelView) {
         Collection<? extends Vec3> selectedVertices = modelView.getSelectedVertices();
