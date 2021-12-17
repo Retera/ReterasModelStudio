@@ -51,6 +51,23 @@ public class Camera implements Named {
 		}
 	}
 
+	private Camera(Camera camera) {
+		name = camera.name;
+		position = new Vec3(camera.position);
+		fieldOfView = camera.fieldOfView;
+		farClip = camera.farClip;
+		nearClip = camera.nearClip;
+		targetPosition = new Vec3(camera.targetPosition);
+
+		for (AnimFlag<?> animFlag : camera.targetNode.getAnimFlags()) {
+			targetNode.add(animFlag.deepCopy());
+		}
+		for (AnimFlag<?> animFlag : camera.sourceNode.getAnimFlags()) {
+			sourceNode.add(animFlag.deepCopy());
+		}
+		bindPose = camera.bindPose;
+	}
+
 	public MdlxCamera toMdlx(EditableModel model) {
 		MdlxCamera camera = new MdlxCamera();
 
@@ -130,6 +147,10 @@ public class Camera implements Named {
 
 	public TargetNode getTargetNode() {
 		return targetNode;
+	}
+
+	public Camera deepCopy() {
+		return new Camera(this);
 	}
 
 	public static class SourceNode extends AnimatedNode {

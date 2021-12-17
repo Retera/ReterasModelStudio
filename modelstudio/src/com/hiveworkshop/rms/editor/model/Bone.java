@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
@@ -43,34 +42,34 @@ public class Bone extends IdObject {
 	public Bone copy() {
 		return new Bone(this);
 	}
-	
-	public void copyMotionFrom(Bone b) {
-		for (AnimFlag<?> baf : b.getAnimFlags()) {
-			boolean foundMatch = false;
-			for (AnimFlag<?> af : getAnimFlags()) {
-				boolean sameSeq = false;
-				if (baf.getGlobalSeq() == null && af.getGlobalSeq() == null) {
-					sameSeq = true;
-				} else if (baf.getGlobalSeq() != null && af.getGlobalSeq() != null) {
-					sameSeq = baf.getGlobalSeq().equals(af.getGlobalSeq()); // todo check if this should be equals or identical (==)
-				}
-				if (baf.getName().equals(af.getName()) && sameSeq && baf.hasGlobalSeq() == af.hasGlobalSeq()) {
-					// if( && baf.tags.equals(af.tags)
-					foundMatch = true;
-					AnimFlagUtils.copyFrom(af, baf);
-				}
-			}
-			if (!foundMatch) {
-				add(baf);
-			}
-		}
-	}
 
-	public void clearAnimation(Animation a) {
-		for (AnimFlag<?> af : getAnimFlags()) {
-			af.deleteAnim(a);
-		}
-	}
+//	public void copyMotionFrom(IdObject b) {
+//		for (AnimFlag<?> baf : b.getAnimFlags()) {
+//			boolean foundMatch = false;
+//			for (AnimFlag<?> af : getAnimFlags()) {
+//				boolean sameSeq = false;
+//				if (baf.getGlobalSeq() == null && af.getGlobalSeq() == null) {
+//					sameSeq = true;
+//				} else if (baf.getGlobalSeq() != null && af.getGlobalSeq() != null) {
+//					sameSeq = baf.getGlobalSeq().equals(af.getGlobalSeq()); // todo check if this should be equals or identical (==)
+//				}
+//				if (baf.getName().equals(af.getName()) && sameSeq && baf.hasGlobalSeq() == af.hasGlobalSeq()) {
+//					// if( && baf.tags.equals(af.tags)
+//					foundMatch = true;
+//					AnimFlagUtils.copyFrom(af, baf);
+//				}
+//			}
+//			if (!foundMatch) {
+//				add(baf);
+//			}
+//		}
+//	}
+
+//	public void clearAnimation(Animation a) {
+//		for (AnimFlag<?> af : getAnimFlags()) {
+//			af.deleteAnim(a);
+//		}
+//	}
 
 	/**
 	 * Returns true if this bone contains some type of data that moves, scales, rotates, or otherwise changes based on

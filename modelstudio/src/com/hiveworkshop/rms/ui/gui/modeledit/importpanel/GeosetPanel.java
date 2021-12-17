@@ -51,7 +51,7 @@ class GeosetPanel extends JPanel {
 		selectedGeoset = geosetShell;
 		renderer.setSelectedGeoset(geosetShell);
 
-		geoTitle.setText(geosetShell.getModel().getName() + " " + (geosetShell.getIndex() + 1));
+		geoTitle.setText(geosetShell.getModelName() + " " + (geosetShell.getIndex() + 1));
 //		setDoImport(geosetShell.isDoImport());
 		doImport.setSelected(geosetShell.isDoImport());
 //		materialList.setSelectedValue(selectedGeoset.getMaterial(), true);

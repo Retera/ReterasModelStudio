@@ -13,22 +13,25 @@ import java.util.function.Consumer;
 
 public class BoneEditPanel extends JPanel {
 
-	public CardLayout boneCardLayout = new CardLayout();
-	public JPanel bonePanelCards = new JPanel(boneCardLayout);
-	public JPanel blankPane = new JPanel();
-	public MultiBonePanel multiBonePane;
-	BonePanel singleBonePanel;
-	ModelHolderThing mht;
+	private final CardLayout boneCardLayout = new CardLayout();
+	private final JPanel bonePanelCards = new JPanel(boneCardLayout);
+	private final MultiBonePanel multiBonePane;
+	private final BonePanel singleBonePanel;
+
+	private final JList<IdObjectShell<?>> allBoneShellJList;
+	private final ModelHolderThing mht;
 
 	public BoneEditPanel(ModelHolderThing mht) {
 		setLayout(new MigLayout("gap 0, fill", "[grow]", "[][grow]"));
 		this.mht = mht;
+		allBoneShellJList = new JList<>(mht.allBoneShells);
 
 		add(getTopPanel(), "align center, wrap");
 
 		singleBonePanel = new BonePanel(mht, mht.boneShellRenderer);
 		multiBonePane = new MultiBonePanel(mht, mht.boneShellRenderer);
 
+		JPanel blankPane = new JPanel();
 		bonePanelCards.add(blankPane, "blank");
 		bonePanelCards.add(singleBonePanel, "single");
 		bonePanelCards.add(multiBonePane, "multiple");
@@ -41,10 +44,10 @@ public class BoneEditPanel extends JPanel {
 	private JScrollPane getBoneListPane(ModelHolderThing mht) {
 		BoneShellListCellRenderer bonePanelRenderer = new BoneShellListCellRenderer(mht.receivingModel, mht.donatingModel);
 
-		mht.allBoneShellJList.setCellRenderer(bonePanelRenderer);
-		mht.allBoneShellJList.addListSelectionListener(e -> showBoneCard(mht, e));
-		mht.allBoneShellJList.setSelectedValue(null, false);
-		return new JScrollPane(mht.allBoneShellJList);
+		allBoneShellJList.setCellRenderer(bonePanelRenderer);
+		allBoneShellJList.addListSelectionListener(e -> showBoneCard(mht, e));
+		allBoneShellJList.setSelectedValue(null, false);
+		return new JScrollPane(allBoneShellJList);
 //		mht.donModBoneShellJList.setCellRenderer(bonePanelRenderer);
 //		mht.donModBoneShellJList.addListSelectionListener(e -> showBoneCard(mht, e));
 //		mht.donModBoneShellJList.setSelectedValue(null, false);
@@ -65,14 +68,14 @@ public class BoneEditPanel extends JPanel {
 		return topPanel;
 	}
 
-	private JPanel getSetImpTypePanel(String modelName, Consumer<BoneShell.ImportType> importTypeConsumer) {
+	private JPanel getSetImpTypePanel(String modelName, Consumer<IdObjectShell.ImportType> importTypeConsumer) {
 		JPanel panel = new JPanel(new MigLayout("gap 0, ins 0", "[][][]", "[align center]"));
 		panel.setOpaque(true);
 		panel.setBorder(BorderFactory.createTitledBorder(modelName));
 
-		panel.add(getButton("Import All", e -> importTypeConsumer.accept(BoneShell.ImportType.IMPORT)), "");
-		panel.add(getButton("Motion From All", e -> importTypeConsumer.accept(BoneShell.ImportType.MOTIONFROM)), "");
-		panel.add(getButton("Leave All", e -> importTypeConsumer.accept(BoneShell.ImportType.DONTIMPORT)), "");
+		panel.add(getButton("Import All", e -> importTypeConsumer.accept(IdObjectShell.ImportType.IMPORT)), "");
+		panel.add(getButton("Motion From All", e -> importTypeConsumer.accept(IdObjectShell.ImportType.MOTION_FROM)), "");
+		panel.add(getButton("Leave All", e -> importTypeConsumer.accept(IdObjectShell.ImportType.DONT_IMPORT)), "");
 
 		return panel;
 	}
@@ -85,12 +88,12 @@ public class BoneEditPanel extends JPanel {
 
 	private void showBoneCard(ModelHolderThing mht, ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
-			List<BoneShell> selectedValuesList = mht.allBoneShellJList.getSelectedValuesList();
+			List<IdObjectShell<?>> selectedValuesList = allBoneShellJList.getSelectedValuesList();
 			if (selectedValuesList.size() < 1) {
 				mht.boneShellRenderer.setSelectedBoneShell(null);
 				boneCardLayout.show(bonePanelCards, "blank");
 			} else if (selectedValuesList.size() == 1) {
-				singleBonePanel.setSelectedBone(mht.allBoneShellJList.getSelectedValue());
+				singleBonePanel.setSelectedBone(allBoneShellJList.getSelectedValue());
 				boneCardLayout.show(bonePanelCards, "single");
 			} else {
 				multiBonePane.setSelectedBones(selectedValuesList);
@@ -105,7 +108,7 @@ public class BoneEditPanel extends JPanel {
 		// - A matrix
 		// - Another bone
 		// - An IdObject
-		List<BoneShell> usedBoneShells = new ArrayList<>();
+		List<IdObjectShell<?>> usedBoneShells = new ArrayList<>();
 
 		collectUsedObjectParents(mht, usedBoneShells);
 		collectUsedBoneAttatchments(mht, usedBoneShells);
@@ -113,21 +116,21 @@ public class BoneEditPanel extends JPanel {
 		uncheckUnusedActualBones(mht, usedBoneShells);
 	}
 
-	void uncheckUnusedActualBones(ModelHolderThing mht, List<BoneShell> usedBoneShells) {
-		for (BoneShell boneShell : mht.donModBoneShells) {
-			if (boneShell.getImportStatus() != BoneShell.ImportType.MOTIONFROM) {
+	void uncheckUnusedActualBones(ModelHolderThing mht, List<IdObjectShell<?>> usedBoneShells) {
+		for (IdObjectShell<?> boneShell : mht.donModBoneShells) {
+			if (boneShell.getImportStatus() != IdObjectShell.ImportType.MOTION_FROM) {
 				if (usedBoneShells.contains(boneShell)) {
-					boneShell.setImportStatus(BoneShell.ImportType.IMPORT);
+					boneShell.setImportStatus(IdObjectShell.ImportType.IMPORT);
 				} else {
-					boneShell.setImportStatus(BoneShell.ImportType.DONTIMPORT);
+					boneShell.setImportStatus(IdObjectShell.ImportType.DONT_IMPORT);
 				}
 			}
 		}
 	}
 
-	private void collectUsedBones(ModelHolderThing mht, List<BoneShell> usedBoneShells) {
-		for (BoneShell boneShell : mht.donModBoneShells) {
-			if (boneShell.getImportStatus() != BoneShell.ImportType.MOTIONFROM) {
+	private void collectUsedBones(ModelHolderThing mht, List<IdObjectShell<?>> usedBoneShells) {
+		for (IdObjectShell<?> boneShell : mht.donModBoneShells) {
+			if (boneShell.getImportStatus() != IdObjectShell.ImportType.MOTION_FROM) {
 				if (usedBoneShells.contains(boneShell)) {
 					checkIfUsed(usedBoneShells, boneShell);
 				}
@@ -135,11 +138,11 @@ public class BoneEditPanel extends JPanel {
 		}
 	}
 
-	void collectUsedObjectParents(ModelHolderThing mht, List<BoneShell> usedBoneShells) {
-		for (ObjectShell objectShell : mht.donModObjectShells) {
+	void collectUsedObjectParents(ModelHolderThing mht, List<IdObjectShell<?>> usedBoneShells) {
+		for (IdObjectShell<?> objectShell : mht.donModObjectShells) {
 			if (objectShell.getShouldImport()) {
-				BoneShell shell = objectShell.getNewParentBs();
-				if ((shell != null) && (shell.getBone() != null)) {
+				IdObjectShell<?> shell = objectShell.getNewParentShell();
+				if ((shell != null) && (shell.getIdObject() != null)) {
 					if (!usedBoneShells.contains(shell)) {
 						usedBoneShells.add(shell);
 					}
@@ -150,11 +153,11 @@ public class BoneEditPanel extends JPanel {
 		}
 	}
 
-	void collectUsedBoneAttatchments(ModelHolderThing mht, List<BoneShell> usedBonePanels) {
+	void collectUsedBoneAttatchments(ModelHolderThing mht, List<IdObjectShell<?>> usedBonePanels) {
 		for (GeosetShell geosetShell : mht.allGeoShells) {
 			if (geosetShell.isDoImport()) {
 				for (MatrixShell ms : geosetShell.getMatrixShells()) {
-					for (BoneShell boneShell : ms.getNewBones()) {
+					for (IdObjectShell<?> boneShell : ms.getNewBones()) {
 						if (!usedBonePanels.contains(boneShell)) {
 							usedBonePanels.add(boneShell);
 						}
@@ -165,18 +168,18 @@ public class BoneEditPanel extends JPanel {
 		}
 	}
 
-	private void checkIfUsed(List<BoneShell> usedBoneShells, BoneShell boneShell) {
+	private void checkIfUsed(List<IdObjectShell<?>> usedBoneShells, IdObjectShell<?> boneShell) {
 		int k = 0;
 
-		BoneShell current = boneShell;
+		IdObjectShell<?> current = boneShell;
 		for (; k < 1000; k++) {
 			if (current == null
-					|| current.getImportStatus() == BoneShell.ImportType.MOTIONFROM
-					|| current.getNewParentBs() == null
-					|| usedBoneShells.contains(current.getNewParentBs())) {
+					|| current.getImportStatus() == IdObjectShell.ImportType.MOTION_FROM
+					|| current.getNewParentShell() == null
+					|| usedBoneShells.contains(current.getNewParentShell())) {
 				break;
 			}
-			current = current.getNewParentBs();
+			current = current.getNewParentShell();
 			usedBoneShells.add(current);
 		}
 

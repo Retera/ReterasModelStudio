@@ -8,7 +8,7 @@ import java.awt.*;
 import java.util.List;
 
 class MultiObjectPanel extends ObjectPanel {
-	List<ObjectShell> selectedValuesList;
+	private List<IdObjectShell<?>> selectedValuesList;
 
 	public MultiObjectPanel(ModelHolderThing mht, BoneShellListCellRenderer bonePanelRenderer) {
 		this.mht = mht;
@@ -42,14 +42,14 @@ class MultiObjectPanel extends ObjectPanel {
 		return parentsPane;
 	}
 
-	public void setSelectedObjects(List<ObjectShell> selectedValuesList){
+	public void setSelectedObjects(List<IdObjectShell<?>> selectedValuesList) {
 		this.selectedValuesList = selectedValuesList;
 
 		boolean firstShouldImport = selectedValuesList.get(0).getShouldImport();
 		parents = mht.getFutureBoneHelperList();
 		bonePanelRenderer.setSelectedObjectShell(null);
 
-		if (selectedValuesList.stream().anyMatch(objectShell -> objectShell.getShouldImport() != firstShouldImport)){
+		if (selectedValuesList.stream().anyMatch(objectShell -> objectShell.getShouldImport() != firstShouldImport)) {
 			doImport.setSelected(false);
 			doImport.setBackground(Color.ORANGE);
 		} else {
@@ -60,7 +60,7 @@ class MultiObjectPanel extends ObjectPanel {
 	}
 
 	private void doImportPressed(boolean doImport) {
-		for (ObjectShell op : selectedValuesList) {
+		for (IdObjectShell<?> op : selectedValuesList) {
 			op.setShouldImport(doImport);
 		}
 	}

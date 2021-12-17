@@ -175,7 +175,9 @@ public class AnimFlagUtils {
 //				System.out.println("nextValue: " + nextValue.value + ", prevValue: " + prevValue.value);
 //			}
 
-			float[] factor = animFlag.getTbcFactor(0, 0.5f, 0);
+//			float[] factor = animFlag.getTbcFactor(0, 0.5f, 0);
+//			float[] factor = animFlag.getTbcFactor(0, 0.75f, -.5f);
+			float[] factor = animFlag.getTbcFactor(0, .2f, -.9f);
 			animFlag.calcNewTans(factor, nextValue, prevValue, entryTreeMap.get(time), animationLength);
 		}
 	}

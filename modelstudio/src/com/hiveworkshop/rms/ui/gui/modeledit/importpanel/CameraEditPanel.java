@@ -12,16 +12,19 @@ import java.util.function.Consumer;
 
 public class CameraEditPanel extends JPanel {
 
-	public CardLayout cardLayout = new CardLayout();
-	public JPanel panelCards = new JPanel(cardLayout);
-	public MultiCameraPanel multiCameraPanel;
-	ModelHolderThing mht;
-
-	CameraPanel singleCameraPanel;
+	private CardLayout cardLayout = new CardLayout();
+	private JPanel panelCards = new JPanel(cardLayout);
+	private MultiCameraPanel multiCameraPanel;
+	private ModelHolderThing mht;
+	private JList<CameraShell> donModCameraJList;
+	private JList<CameraShell> allCameraJList;
+	private CameraPanel singleCameraPanel;
 
 	public CameraEditPanel(ModelHolderThing mht) {
 		setLayout(new MigLayout("gap 0", "[grow][grow]", "[][grow]"));
 		this.mht = mht;
+		donModCameraJList = new JList<>(mht.donModCameraShells);
+		allCameraJList = new JList<>(mht.allCameraShells);
 
 //		add(getButton("Import All", e -> mht.setImportAllDonCams(true)), "cell 0 0, right");
 //		add(getButton("Leave All", e -> mht.setImportAllDonCams(false)), "cell 1 0, left");
@@ -45,9 +48,9 @@ public class CameraEditPanel extends JPanel {
 
 	private JScrollPane getCameraListPane(ModelHolderThing mht) {
 		CameraShellListCellRenderer cameraPanelRenderer = new CameraShellListCellRenderer();
-		mht.allCameraJList.setCellRenderer(cameraPanelRenderer);
-		mht.allCameraJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
-		return new JScrollPane(mht.allCameraJList);
+		allCameraJList.setCellRenderer(cameraPanelRenderer);
+		allCameraJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
+		return new JScrollPane(allCameraJList);
 	}
 
 	private JPanel getSetImpTypePanel(String modelName, Consumer<Boolean> importTypeConsumer) {
@@ -69,12 +72,12 @@ public class CameraEditPanel extends JPanel {
 
 	private void objectTabsValueChanged(ModelHolderThing mht, ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
-			List<CameraShell> selectedValuesList = mht.donModCameraJList.getSelectedValuesList();
+			List<CameraShell> selectedValuesList = donModCameraJList.getSelectedValuesList();
 			if (selectedValuesList.size() < 1) {
 				cardLayout.show(panelCards, "blank");
 			} else if (selectedValuesList.size() == 1) {
 				cardLayout.show(panelCards, "single");
-				singleCameraPanel.setSelectedObject(mht.donModCameraJList.getSelectedValue());
+				singleCameraPanel.setSelectedObject(donModCameraJList.getSelectedValue());
 			} else {
 				multiCameraPanel.updateMultiCameraPanel(selectedValuesList);
 				cardLayout.show(panelCards, "multiple");

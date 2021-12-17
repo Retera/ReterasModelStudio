@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
@@ -208,5 +210,34 @@ public abstract class IdObject extends AnimatedNode implements Named {
 
 	public void setBindPose(float[] bindPose) {
 		this.bindPose = bindPose;
+	}
+
+
+	public void copyMotionFrom(IdObject b) {
+		for (AnimFlag<?> baf : b.getAnimFlags()) {
+			boolean foundMatch = false;
+			for (AnimFlag<?> af : getAnimFlags()) {
+				boolean sameSeq = false;
+				if (baf.getGlobalSeq() == null && af.getGlobalSeq() == null) {
+					sameSeq = true;
+				} else if (baf.getGlobalSeq() != null && af.getGlobalSeq() != null) {
+					sameSeq = baf.getGlobalSeq().equals(af.getGlobalSeq()); // todo check if this should be equals or identical (==)
+				}
+				if (baf.getName().equals(af.getName()) && sameSeq && baf.hasGlobalSeq() == af.hasGlobalSeq()) {
+					// if( && baf.tags.equals(af.tags)
+					foundMatch = true;
+					AnimFlagUtils.copyFrom(af, baf);
+				}
+			}
+			if (!foundMatch) {
+				add(baf);
+			}
+		}
+	}
+
+	public void clearAnimation(Animation a) {
+		for (AnimFlag<?> af : getAnimFlags()) {
+			af.deleteAnim(a);
+		}
 	}
 }

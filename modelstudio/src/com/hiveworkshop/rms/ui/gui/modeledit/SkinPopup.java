@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
@@ -16,9 +16,9 @@ public class SkinPopup extends JPanel {
     private JButton[] boneButtons = new JButton[BONE_COUNT];
     private JSpinner[] weightSpinners = new JSpinner[BONE_COUNT];
 
-    IterableListModel<BoneShell> filteredBones = new IterableListModel<>();
-    IterableListModel<BoneShell> boneList;
-    JList<BoneShell> bonesJList;
+    IterableListModel<IdObjectShell<Bone>> filteredBones = new IterableListModel<>();
+    IterableListModel<IdObjectShell<Bone>> boneList;
+    JList<IdObjectShell<Bone>> bonesJList;
     JTextField boneSearch;
 
     JLabel missingWeightsLabel;
@@ -71,7 +71,7 @@ public class SkinPopup extends JPanel {
 
 	    boneList = new IterableListModel<>();
 	    for (Bone bone : model.getBones()) {
-		    BoneShell boneShell = new BoneShell(bone);
+            IdObjectShell<Bone> boneShell = new IdObjectShell<>(bone);
 		    boneList.addElement(boneShell);
 	    }
 
@@ -88,10 +88,10 @@ public class SkinPopup extends JPanel {
     }
 
     private void onBoneChosen(int index, JButton boneButton) {
-        BoneShell selectedValue = bonesJList.getSelectedValue();
+        IdObjectShell<Bone> selectedValue = bonesJList.getSelectedValue();
 
-        bones[index] = selectedValue.getBone();
-        boneButton.setText(selectedValue.getBone().getName());
+        bones[index] = selectedValue.getIdObject();
+        boneButton.setText(selectedValue.getIdObject().getName());
     }
 
     public Bone[] getBones() {
@@ -122,7 +122,7 @@ public class SkinPopup extends JPanel {
         String filterText = boneSearch.getText();
         if (!filterText.equals("")) {
             filteredBones.clear();
-            for (BoneShell boneShell : boneList) {
+            for (IdObjectShell<Bone> boneShell : boneList) {
                 if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
                     filteredBones.addElement(boneShell);
                 }

@@ -12,16 +12,19 @@ import java.util.function.Consumer;
 
 public class GeosetEditPanel extends JPanel {
 
-	public CardLayout geoCardLayout = new CardLayout();
-	public JPanel geoPanelCards = new JPanel(geoCardLayout);
-	public JPanel blankPane = new JPanel();
-	public MultiGeosetPanel multiGeosetPanel;
-	GeosetPanel singleGeosetPanel;
-	ModelHolderThing mht;
+	private CardLayout geoCardLayout = new CardLayout();
+	private JPanel geoPanelCards = new JPanel(geoCardLayout);
+	private JPanel blankPane = new JPanel();
+	private MultiGeosetPanel multiGeosetPanel;
+	private GeosetPanel singleGeosetPanel;
+	private ModelHolderThing mht;
+
+	public JList<GeosetShell> geosetShellJList;
 
 	public GeosetEditPanel(ModelHolderThing mht) {
 		setLayout(new MigLayout("gap 0, fill", "[grow]", "[]8[grow]"));
 		this.mht = mht;
+		geosetShellJList = new JList<>(mht.allGeoShells);
 
 		add(getTopPanel(), "spanx, align center, wrap");
 
@@ -41,21 +44,21 @@ public class GeosetEditPanel extends JPanel {
 
 	private JScrollPane getGeosetListPane(ModelHolderThing mht) {
 		GeosetListCellRenderer2D geosetListCellRenderer = new GeosetListCellRenderer2D(mht.receivingModel, mht.donatingModel);
-		mht.geosetShellJList.setCellRenderer(geosetListCellRenderer);
-		mht.geosetShellJList.addListSelectionListener(e -> showGeosetCard(mht, e));
-		mht.geosetShellJList.setSelectedValue(null, false);
-		JScrollPane geosetTabsPane = new JScrollPane(mht.geosetShellJList);
+		geosetShellJList.setCellRenderer(geosetListCellRenderer);
+		geosetShellJList.addListSelectionListener(e -> showGeosetCard(e));
+		geosetShellJList.setSelectedValue(null, false);
+		JScrollPane geosetTabsPane = new JScrollPane(geosetShellJList);
 		geosetTabsPane.setMinimumSize(new Dimension(150, 200));
 		return geosetTabsPane;
 	}
 
-	private void showGeosetCard(ModelHolderThing mht, ListSelectionEvent e) {
+	private void showGeosetCard(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
-			List<GeosetShell> selectedValuesList = mht.geosetShellJList.getSelectedValuesList();
+			List<GeosetShell> selectedValuesList = geosetShellJList.getSelectedValuesList();
 			if (selectedValuesList.size() < 1) {
 				geoCardLayout.show(geoPanelCards, "blank");
 			} else if (selectedValuesList.size() == 1) {
-				singleGeosetPanel.setGeoset(mht.geosetShellJList.getSelectedValue());
+				singleGeosetPanel.setGeoset(geosetShellJList.getSelectedValue());
 				geoCardLayout.show(geoPanelCards, "single");
 			} else {
 				multiGeosetPanel.setGeosets(selectedValuesList);
@@ -69,8 +72,8 @@ public class GeosetEditPanel extends JPanel {
 		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[][]", "[align center][align center]"));
 		topPanel.setOpaque(true);
 
-		topPanel.add(getSetImpTypePanel(mht.receivingModel.getName(), (b) -> mht.importAllRecGeos(b)), "");
-		topPanel.add(getSetImpTypePanel(mht.donatingModel.getName(), (b) -> mht.importAllDonGeos(b)), "wrap");
+		topPanel.add(getSetImpTypePanel(mht.receivingModel.getName(), (b) -> mht.setImportAllRecGeos(b)), "");
+		topPanel.add(getSetImpTypePanel(mht.donatingModel.getName(), (b) -> mht.setImportAllDonGeos(b)), "wrap");
 
 		return topPanel;
 	}

@@ -36,7 +36,7 @@ public class AnimListCellRenderer extends DefaultListCellRenderer {
 	@Override
 	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSel, boolean hasFoc) {
 		super.getListCellRendererComponent(list, ((AnimShell) value).getOldName() + " " + ((AnimShell) value).getAnim().getLength(), index, isSel, hasFoc);
-		AnimShell importAnimShell = ((AnimShell) value).getImportAnimShell();
+		AnimShell importAnimShell = ((AnimShell) value).getAnimDataSrc();
 		Vec3 bg;
 		Vec3 fg;
 		if (importAnimShell != null && importAnimShell == selectedAnim) {
@@ -45,10 +45,10 @@ public class AnimListCellRenderer extends DefaultListCellRenderer {
 		} else if (importAnimShell != null) {
 			bg = otherOwnerBgCol;
 			fg = otherOwnerFgCol;
-		} else if (((AnimShell) value).getImportType() == AnimShell.ImportType.DONTIMPORT) {
+		} else if (((AnimShell) value).getImportType() == AnimShell.ImportType.DONT_IMPORT) {
 			bg = dontImpBgCol;
 			fg = otherOwnerFgCol;
-		} else if (((AnimShell) value).getImportType() == AnimShell.ImportType.TIMESCALE) {
+		} else if (((AnimShell) value).getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
 			bg = timeScaleBgCol;
 			fg = noOwnerFgCol;
 		} else {

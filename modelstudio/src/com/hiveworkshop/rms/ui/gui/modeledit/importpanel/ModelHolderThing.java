@@ -19,7 +19,11 @@ public class ModelHolderThing {
 	public IterableListModel<GeosetShell> recModGeoShells = new IterableListModel<>();
 	public IterableListModel<GeosetShell> donModGeoShells = new IterableListModel<>();
 	public IterableListModel<GeosetShell> allGeoShells = new IterableListModel<>();
-	public JList<GeosetShell> geosetShellJList = new JList<>(allGeoShells);
+	//	public JList<GeosetShell> geosetShellJList = new JList<>(allGeoShells);
+	public IterableListModel<MatrixShell> recModMatrixShells = new IterableListModel<>();
+	public IterableListModel<MatrixShell> donModMatrixShells = new IterableListModel<>();
+	public IterableListModel<MatrixShell> allMatrixShells = new IterableListModel<>();
+	public Map<Matrix, MatrixShell> allMatrixShellMap = new HashMap<>();
 
 	// Materials
 	public IterableListModel<Material> recModMaterials = new IterableListModel<>();
@@ -31,39 +35,39 @@ public class ModelHolderThing {
 	public IterableListModel<AnimShell> recModAnims = new IterableListModel<>();
 	public IterableListModel<AnimShell> donModAnims = new IterableListModel<>();
 	public IterableListModel<AnimShell> allAnimShells = new IterableListModel<>();
-	public JList<AnimShell> animJList = new JList<>(allAnimShells);
+//	public JList<AnimShell> animJList = new JList<>(allAnimShells);
 
 	// Bones
 	public JCheckBox clearExistingBones;
-	public IterableListModel<BoneShell> donModBoneShells = new IterableListModel<>();
-	public JList<BoneShell> donModBoneShellJList = new JList<>(donModBoneShells);
-	public IterableListModel<BoneShell> recModBoneShells = new IterableListModel<>();
-	public JList<BoneShell> recModBoneShellJList = new JList<>(recModBoneShells);
-	public IterableListModel<BoneShell> allBoneShells = new IterableListModel<>();
-	public JList<BoneShell> allBoneShellJList = new JList<>(allBoneShells);
-	public ArrayList<BoneShell> recModBones = new ArrayList<>();
-	public ArrayList<BoneShell> donModBones = new ArrayList<>();
-	public IterableListModel<BoneShell> futureBoneHelperList = new IterableListModel<>();
-	public IterableListModel<BoneShell> futureBoneList = new IterableListModel<>();
-	BiMap<IdObject, BoneShell> recModBoneShellBiMap = new BiMap<>();
-	BiMap<IdObject, BoneShell> donModBoneShellBiMap = new BiMap<>();
+	public IterableListModel<IdObjectShell<?>> donModBoneShells = new IterableListModel<>();
+	//	public JList<BoneShell> donModBoneShellJList = new JList<>(donModBoneShells);
+	public IterableListModel<IdObjectShell<?>> recModBoneShells = new IterableListModel<>();
+	//	public JList<BoneShell> recModBoneShellJList = new JList<>(recModBoneShells);
+	public IterableListModel<IdObjectShell<?>> allBoneShells = new IterableListModel<>();
+	//	public JList<BoneShell> allBoneShellJList = new JList<>(allBoneShells);
+	public ArrayList<IdObjectShell<?>> recModBones = new ArrayList<>();
+	public ArrayList<IdObjectShell<?>> donModBones = new ArrayList<>();
+	public IterableListModel<IdObjectShell<?>> futureBoneHelperList = new IterableListModel<>();
+	public IterableListModel<IdObjectShell<?>> futureBoneList = new IterableListModel<>();
+	BiMap<IdObject, IdObjectShell<?>> recModObjShellBiMap = new BiMap<>();
+	BiMap<IdObject, IdObjectShell<?>> donModObjShellBiMap = new BiMap<>();
 
 
 	// Objects
-	public IterableListModel<ObjectShell> donModObjectShells = new IterableListModel<>();
-	public JList<ObjectShell> donModObjectJList = new JList<>(donModObjectShells);
-	public IterableListModel<ObjectShell> recModObjectShells = new IterableListModel<>();
-	public JList<ObjectShell> recModObjectJList = new JList<>(recModObjectShells);
-	public IterableListModel<ObjectShell> allObjectShells = new IterableListModel<>();
-	public JList<ObjectShell> allObjectJList = new JList<>(allObjectShells);
+	public IterableListModel<IdObjectShell<?>> donModObjectShells = new IterableListModel<>();
+	//	public JList<ObjectShell> donModObjectJList = new JList<>(donModObjectShells);
+	public IterableListModel<IdObjectShell<?>> recModObjectShells = new IterableListModel<>();
+	//	public JList<ObjectShell> recModObjectJList = new JList<>(recModObjectShells);
+	public IterableListModel<IdObjectShell<?>> allObjectShells = new IterableListModel<>();
+//	public JList<ObjectShell> allObjectJList = new JList<>(allObjectShells);
 
 	// Cameras
 	public IterableListModel<CameraShell> donModCameraShells = new IterableListModel<>();
-	public JList<CameraShell> donModCameraJList = new JList<>(donModCameraShells);
+	//	public JList<CameraShell> donModCameraJList = new JList<>(donModCameraShells);
 	public IterableListModel<CameraShell> recModCameraShells = new IterableListModel<>();
 	public JList<CameraShell> recModCameraJList = new JList<>(recModCameraShells);
 	public IterableListModel<CameraShell> allCameraShells = new IterableListModel<>();
-	public JList<CameraShell> allCameraJList = new JList<>(allCameraShells);
+//	public JList<CameraShell> allCameraJList = new JList<>(allCameraShells);
 
 
 	// Visibility
@@ -94,65 +98,74 @@ public class ModelHolderThing {
 		this.receivingModel = receivingModel;
 		this.donatingModel = donatingModel;
 
-		initBoneHelperLists();
+//		initBoneHelperLists();
+		initIdObjectListsLists();
 		initiateGeosetLists();
-		initObjectLists();
+		initCameraLists();
+//		initObjectLists();
+		initVisLists();
 		initAnimLists();
 
 		boneShellRenderer = new BoneShellListCellRenderer(this.receivingModel, this.donatingModel);
 	}
 
-	public IterableListModel<BoneShell> getFutureBoneList() {
+	public IterableListModel<IdObjectShell<?>> getFutureBoneList() {
 		futureBoneList.clear();
-		ArrayList<BoneShell> motionFromBones = new ArrayList<>();
-		ArrayList<BoneShell> dontImportBones = new ArrayList<>();
+		ArrayList<IdObjectShell<?>> motionFromBones = new ArrayList<>();
+		ArrayList<IdObjectShell<?>> receiveMotionBones = new ArrayList<>();
+		ArrayList<IdObjectShell<?>> dontImportBones = new ArrayList<>();
 
 		if (!clearExistingBones.isSelected()) {
-			for (BoneShell bs : recModBones) {
+			for (IdObjectShell<?> bs : recModBones) {
 				switch (bs.getImportStatus()) {
 					case IMPORT -> futureBoneList.addElement(bs);
-					case MOTIONFROM -> motionFromBones.add(bs);
-					case DONTIMPORT -> dontImportBones.add(bs);
+					case MOTION_FROM -> motionFromBones.add(bs);
+//					case RECEIVE_MOTION -> receiveMotionBones.add(bs);
+					case RECEIVE_MOTION -> futureBoneList.addElement(bs);
+					case DONT_IMPORT -> dontImportBones.add(bs);
 				}
 			}
 		}
 
-		for (BoneShell bs : donModBones) {
+		for (IdObjectShell<?> bs : donModBones) {
 			switch (bs.getImportStatus()) {
 				case IMPORT -> futureBoneList.addElement(bs);
-				case MOTIONFROM -> motionFromBones.add(bs);
-				case DONTIMPORT -> dontImportBones.add(bs);
+				case MOTION_FROM -> motionFromBones.add(bs);
+//				case RECEIVE_MOTION -> receiveMotionBones.add(bs);
+				case RECEIVE_MOTION -> futureBoneList.addElement(bs);
+				case DONT_IMPORT -> dontImportBones.add(bs);
 			}
 		}
+//		futureBoneList.addAll(receiveMotionBones);
 		futureBoneList.addAll(dontImportBones);
 		return futureBoneList;
 	}
 
-	public IterableListModel<BoneShell> getFutureBoneHelperList() {
+	public IterableListModel<IdObjectShell<?>> getFutureBoneHelperList() {
 		totalAddTime = 0;
 		addCount = 0;
 		totalRemoveTime = 0;
 		removeCount = 0;
 
-		ArrayList<BoneShell> motionFromBones = new ArrayList<>();
-		ArrayList<BoneShell> dontImportBones = new ArrayList<>();
+		ArrayList<IdObjectShell<?>> motionFromBones = new ArrayList<>();
+		ArrayList<IdObjectShell<?>> dontImportBones = new ArrayList<>();
 
 		futureBoneHelperList.clear();
 
 		if (!clearExistingBones.isSelected()) {
-			for (BoneShell bs : recModBoneShells) {
+			for (IdObjectShell<?> bs : recModBoneShells) {
 				switch (bs.getImportStatus()) {
 					case IMPORT -> futureBoneHelperList.addElement(bs);
-					case MOTIONFROM -> motionFromBones.add(bs);
-					case DONTIMPORT -> dontImportBones.add(bs);
+					case MOTION_FROM -> motionFromBones.add(bs);
+					case DONT_IMPORT -> dontImportBones.add(bs);
 				}
 			}
 		}
-		for (BoneShell bs : donModBoneShells) {
+		for (IdObjectShell<?> bs : donModBoneShells) {
 			switch (bs.getImportStatus()) {
 				case IMPORT -> futureBoneHelperList.addElement(bs);
-				case MOTIONFROM -> motionFromBones.add(bs);
-				case DONTIMPORT -> dontImportBones.add(bs);
+				case MOTION_FROM -> motionFromBones.add(bs);
+				case DONT_IMPORT -> dontImportBones.add(bs);
 			}
 		}
 
@@ -177,36 +190,36 @@ public class ModelHolderThing {
 		recModAnims.forEach(shell -> shell.setImportType(type));
 	}
 
-	public void setImportStatusForAllDonBones(BoneShell.ImportType importType) {
-		Map<String, BoneShell> nameMap = new HashMap<>();
-		if (importType == BoneShell.ImportType.MOTIONFROM) {
-			for (BoneShell boneShell : recModBoneShells) {
+	public void setImportStatusForAllDonBones(IdObjectShell.ImportType importType) {
+		Map<String, IdObjectShell<?>> nameMap = new HashMap<>();
+		if (importType == IdObjectShell.ImportType.MOTION_FROM) {
+			for (IdObjectShell<?> boneShell : recModBoneShells) {
 				nameMap.put(boneShell.getName(), boneShell);
 			}
 		}
-		for (BoneShell boneShell : donModBoneShells) {
+		for (IdObjectShell<?> boneShell : donModBoneShells) {
 			boneShell.setImportStatus(importType);
-			if (importType == BoneShell.ImportType.MOTIONFROM && nameMap.containsKey(boneShell.getName())) {
-				nameMap.get(boneShell.getName()).setImportBoneShell(boneShell);
-			} else if (importType != BoneShell.ImportType.MOTIONFROM) {
-				boneShell.setImportBoneShell(null);
+			if (importType == IdObjectShell.ImportType.MOTION_FROM && nameMap.containsKey(boneShell.getName())) {
+				nameMap.get(boneShell.getName()).setMotionSrcShell(boneShell);
+			} else if (importType != IdObjectShell.ImportType.MOTION_FROM) {
+				boneShell.setMotionSrcShell(null);
 			}
 		}
 	}
 
-	public void setImportStatusForAllRecBones(BoneShell.ImportType importType) {
-		Map<String, BoneShell> nameMap = new HashMap<>();
-		if (importType == BoneShell.ImportType.MOTIONFROM) {
-			for (BoneShell boneShell : donModBoneShells) {
+	public void setImportStatusForAllRecBones(IdObjectShell.ImportType importType) {
+		Map<String, IdObjectShell<?>> nameMap = new HashMap<>();
+		if (importType == IdObjectShell.ImportType.MOTION_FROM) {
+			for (IdObjectShell<?> boneShell : donModBoneShells) {
 				nameMap.put(boneShell.getName(), boneShell);
 			}
 		}
-		for (BoneShell boneShell : recModBoneShells) {
+		for (IdObjectShell<?> boneShell : recModBoneShells) {
 			boneShell.setImportStatus(importType);
-			if (importType == BoneShell.ImportType.MOTIONFROM && nameMap.containsKey(boneShell.getName())) {
-				nameMap.get(boneShell.getName()).setImportBoneShell(boneShell);
-			} else if (importType != BoneShell.ImportType.MOTIONFROM) {
-				boneShell.setImportBoneShell(null);
+			if (importType == IdObjectShell.ImportType.MOTION_FROM && nameMap.containsKey(boneShell.getName())) {
+				nameMap.get(boneShell.getName()).setMotionSrcShell(boneShell);
+			} else if (importType != IdObjectShell.ImportType.MOTION_FROM) {
+				boneShell.setMotionSrcShell(null);
 			}
 		}
 	}
@@ -233,13 +246,13 @@ public class ModelHolderThing {
 			for (VisibilityShell vs : donModVisSourcesNew) {
 				if (visibilityShell.getSource().getName().equals(vs.getSource().getName())) {
 //					System.out.println(visibilityShell.getSource().getName());
-					visibilityShell.setNewVisSource(vs);
+					visibilityShell.setRecModAnimsVisSource(vs);
 				}
 			}
 			for (VisibilityShell vs : recModVisSourcesOld) {
 				if (visibilityShell.getSource().getName().equals(vs.getSource().getName())) {
 //					System.out.println(visibilityShell.getSource().getName());
-					visibilityShell.setNewVisSource(vs);
+					visibilityShell.setRecModAnimsVisSource(vs);
 				}
 			}
 		}
@@ -249,27 +262,30 @@ public class ModelHolderThing {
 	long totalRemoveTime;
 	long removeCount;
 
-	public void importAllGeos(boolean b) {
+	public void setImportAllGeos(boolean b) {
 		for (GeosetShell geoShell : allGeoShells) {
-			if (geoShell.isFromDonating()) {
-				geoShell.setDoImport(b);
-			}
+//			if (geoShell.isFromDonating()) {
+//				geoShell.setDoImport(b);
+//			}
+			geoShell.setDoImport(b);
 		}
 	}
 
-	public void importAllRecGeos(boolean b) {
+	public void setImportAllRecGeos(boolean b) {
 		for (GeosetShell geoShell : recModGeoShells) {
-			if (geoShell.isFromDonating()) {
-				geoShell.setDoImport(b);
-			}
+			geoShell.setDoImport(b);
+//			if (!geoShell.isFromDonating()) {
+//				geoShell.setDoImport(b);
+//			}
 		}
 	}
 
-	public void importAllDonGeos(boolean b) {
+	public void setImportAllDonGeos(boolean b) {
 		for (GeosetShell geoShell : donModGeoShells) {
-			if (geoShell.isFromDonating()) {
-				geoShell.setDoImport(b);
-			}
+			geoShell.setDoImport(b);
+//			if (geoShell.isFromDonating()) {
+//				geoShell.setDoImport(b);
+//			}
 		}
 	}
 
@@ -287,45 +303,83 @@ public class ModelHolderThing {
 	}
 
 	private void initBoneHelperLists() {
-		BiMap<IdObject, BoneShell> recBoneBiMap = getBoneShellBiMap(receivingModel.getBones(), receivingModel, false);
-		recModBoneShellBiMap.putAll(recBoneBiMap);
+		BiMap<IdObject, IdObjectShell<Bone>> recBoneBiMap = getBoneShellBiMap(receivingModel.getBones(), receivingModel, false);
+		recModObjShellBiMap.putAll(recBoneBiMap);
 		recModBones.addAll(recBoneBiMap.values());
+		recModBoneShells.addAll(recBoneBiMap.values());
 
-		BiMap<IdObject, BoneShell> recHelpBiMap = getBoneShellBiMap(receivingModel.getHelpers(), receivingModel, false);
-		recModBoneShellBiMap.putAll(recHelpBiMap);
+		BiMap<IdObject, IdObjectShell<Bone>> recHelpBiMap = getBoneShellBiMap(receivingModel.getHelpers(), receivingModel, false);
+		recModObjShellBiMap.putAll(recHelpBiMap);
+		recModBoneShells.addAll(recHelpBiMap.values());
 
-		recModBoneShells.addAll(recModBoneShellBiMap.values());
-		recModBoneShellBiMap.values().forEach(bs -> bs.setParentBs(recModBoneShellBiMap));
+//		recModObjShellBiMap.values().forEach(bs -> bs.setParentBs(recModObjShellBiMap));
 
 
-		BiMap<IdObject, BoneShell> donBoneBiMap = getBoneShellBiMap(donatingModel.getBones(), donatingModel, true);
-		donModBoneShellBiMap.putAll(donBoneBiMap);
+		BiMap<IdObject, IdObjectShell<Bone>> donBoneBiMap = getBoneShellBiMap(donatingModel.getBones(), donatingModel, true);
+		donModObjShellBiMap.putAll(donBoneBiMap);
 		donModBones.addAll(donBoneBiMap.values());
+		donModBoneShells.addAll(donBoneBiMap.values());
 
-		BiMap<IdObject, BoneShell> donHelpBiMap = getBoneShellBiMap(donatingModel.getHelpers(), donatingModel, true);
-		donModBoneShellBiMap.putAll(donHelpBiMap);
+		BiMap<IdObject, IdObjectShell<Bone>> donHelpBiMap = getBoneShellBiMap(donatingModel.getHelpers(), donatingModel, true);
+		donModObjShellBiMap.putAll(donHelpBiMap);
+		donModBoneShells.addAll(donHelpBiMap.values());
 
-		donModBoneShells.addAll(donModBoneShellBiMap.values());
-		donModBoneShellBiMap.values().forEach(bs -> bs.setParentBs(donModBoneShellBiMap));
+//		donModObjShellBiMap.values().forEach(bs -> bs.setParentBs(donModObjShellBiMap));
 
 		allBoneShells.addAll(recModBoneShells);
 		allBoneShells.addAll(donModBoneShells);
 	}
 
-	private BiMap<IdObject, BoneShell> getBoneShellBiMap(List<? extends Bone> objectList, EditableModel model, boolean isDonModel){
-		BiMap<IdObject, BoneShell> biMap = new BiMap<>();
+	private BiMap<IdObject, IdObjectShell<Bone>> getBoneShellBiMap(List<? extends Bone> objectList, EditableModel model, boolean isDonModel) {
+		BiMap<IdObject, IdObjectShell<Bone>> biMap = new BiMap<>();
 		for (Bone bone : objectList) {
-			BoneShell bs = new BoneShell(bone, isDonModel, model.getName(), true);
+			IdObjectShell<Bone> bs = new IdObjectShell<>(bone, isDonModel, model.getName(), true);
 			biMap.put(bone, bs);
 		}
 		return biMap;
 	}
 
+	private void initIdObjectListsLists() {
+		for (IdObject idObject : receivingModel.getIdObjects()) {
+			IdObjectShell<?> shell = new IdObjectShell<>(idObject, false, receivingModel.getName(), true);
+			if (idObject instanceof Helper) {
+				recModBoneShells.addElement(shell);
+			} else if (idObject instanceof Bone) {
+				recModBones.add(shell);
+				recModBoneShells.addElement(shell);
+			} else {
+				recModObjectShells.addElement(shell);
+			}
+			recModObjShellBiMap.put(idObject, shell);
+		}
+		for (IdObject idObject : donatingModel.getIdObjects()) {
+			IdObjectShell<?> shell = new IdObjectShell<>(idObject, true, donatingModel.getName(), true);
+			if (idObject instanceof Helper) {
+				donModBoneShells.addElement(shell);
+			} else if (idObject instanceof Bone) {
+				donModBones.add(shell);
+				donModBoneShells.addElement(shell);
+			} else {
+				donModObjectShells.addElement(shell);
+			}
+			donModObjShellBiMap.put(idObject, shell);
+		}
+
+		allBoneShells.addAll(recModBoneShells);
+		allBoneShells.addAll(donModBoneShells);
+		allObjectShells.addAll(recModObjectShells);
+		allObjectShells.addAll(donModObjectShells);
+		donModObjShellBiMap.values().forEach(os -> os.setParentBs(donModObjShellBiMap));
+		recModObjShellBiMap.values().forEach(os -> os.setParentBs(recModObjShellBiMap));
+	}
+
 	private void initiateGeosetLists() {
+		// ToDo Fix MatrixShell for HD models!!
+
 		for (Geoset geoset : receivingModel.getGeosets()) {
 			geoset.reMakeMatrixList();
 			GeosetShell geoShell = new GeosetShell(geoset, receivingModel, false);
-			geoShell.setMatrixShells(createMatrixShells(geoset, recModBoneShellBiMap, false));
+			geoShell.setMatrixShells(createMatrixShells(geoset, recModObjShellBiMap, receivingModel, false));
 			recModGeoShells.addElement(geoShell);
 		}
 		allGeoShells.addAll(recModGeoShells);
@@ -333,7 +387,7 @@ public class ModelHolderThing {
 		for (Geoset geoset : donatingModel.getGeosets()) {
 			geoset.reMakeMatrixList();
 			GeosetShell geoShell = new GeosetShell(geoset, donatingModel, true);
-			geoShell.setMatrixShells(createMatrixShells(geoset, donModBoneShellBiMap, true));
+			geoShell.setMatrixShells(createMatrixShells(geoset, donModObjShellBiMap, donatingModel, true));
 			donModGeoShells.addElement(geoShell);
 		}
 		allGeoShells.addAll(donModGeoShells);
@@ -349,19 +403,42 @@ public class ModelHolderThing {
 		allMaterials.addAll(donModMaterials);
 	}
 
-	private IterableListModel<MatrixShell> createMatrixShells(Geoset geoset, BiMap<IdObject, BoneShell> boneShells, boolean isFromDonating) {
-		IterableListModel<MatrixShell> matrixShells = new IterableListModel<>();
-		for (Matrix matrix : geoset.getMatrices()) {
-			ArrayList<BoneShell> orgBones = new ArrayList<>();
-			// For look to find similarly named stuff and add it
-			for (Bone bone : matrix.getBones()) {
-				if (boneShells.get(bone) != null) {
-					orgBones.add(boneShells.get(bone));
-				}
-			}
+	private void initCameraLists() {
+		for (Camera obj : receivingModel.getCameras()) {
+			recModCameraShells.addElement(new CameraShell(obj, false));
+		}
 
-			MatrixShell ms = new MatrixShell(matrix, orgBones, isFromDonating);
-			matrixShells.addElement(ms);
+		for (Camera obj : donatingModel.getCameras()) {
+			donModCameraShells.addElement(new CameraShell(obj, true));
+		}
+
+		allCameraShells.addAll(recModCameraShells);
+		allCameraShells.addAll(donModCameraShells);
+	}
+
+	// ToDo Fix MatrixShell for HD models!!
+	private IterableListModel<MatrixShell> createMatrixShells(Geoset geoset, BiMap<IdObject, IdObjectShell<?>> boneShells, EditableModel model, boolean isFromDonating) {
+		IterableListModel<MatrixShell> matrixShells = new IterableListModel<>();
+		if (geoset.isHD()) {
+			for (Bone bone : geoset.getBoneMap().keySet()) {
+				ArrayList<IdObjectShell<?>> orgBones = new ArrayList<>();
+				orgBones.add(boneShells.get(bone));
+				MatrixShell ms = allMatrixShellMap.computeIfAbsent(new Matrix(bone), matrix -> new MatrixShell(matrix, orgBones, isFromDonating, true));
+				matrixShells.addElement(ms);
+			}
+		} else {
+			for (Matrix matrix : geoset.getMatrices()) {
+				ArrayList<IdObjectShell<?>> orgBones = new ArrayList<>();
+				// For look to find similarly named stuff and add it
+				for (Bone bone : matrix.getBones()) {
+					if (boneShells.get(bone).getIdObject() instanceof Bone) {
+						orgBones.add(boneShells.get(bone));
+					}
+				}
+
+				MatrixShell ms = new MatrixShell(matrix, orgBones, isFromDonating);
+				matrixShells.addElement(ms);
+			}
 		}
 		return matrixShells;
 	}
@@ -370,16 +447,16 @@ public class ModelHolderThing {
 
 		for (GeosetShell geoShell : donModGeoShells) {
 			for (Layer x : geoShell.getMaterial().getLayers()) {
-				donModVisShellBiMap.put(x, new VisibilityShell(x, donatingModel, true));
+				donModVisShellBiMap.put(x, new VisibilityShell(x, donatingModel.getName(), true));
 			}
-			donModVisShellBiMap.put(geoShell.getGeoset(), new VisibilityShell(geoShell.getGeoset(), donatingModel, true));
+			donModVisShellBiMap.put(geoShell.getGeoset(), new VisibilityShell(geoShell.getGeoset(), donatingModel.getName(), true));
 		}
 
 		for (IdObject obj : donatingModel.getIdObjects()) {
 			if (!(obj instanceof Bone)) {
-				donModObjectShells.addElement(new ObjectShell(obj, true));
+				donModObjectShells.addElement(new IdObjectShell<>(obj, true));
 				if (!(obj instanceof CollisionShape || obj instanceof EventObject)) {
-					donModVisShellBiMap.put(obj, new VisibilityShell(obj, donatingModel, true));
+					donModVisShellBiMap.put(obj, new VisibilityShell(obj, donatingModel.getName(), true));
 				}
 			}
 		}
@@ -390,21 +467,21 @@ public class ModelHolderThing {
 
 		donModVisibilityShells.addAll(donModVisShellBiMap.values());
 		allVisShellBiMap.putAll(donModVisShellBiMap);
-		donModObjectShells.forEach(os -> os.setParentBs(donModBoneShellBiMap));
+		donModObjectShells.forEach(os -> os.setParentBs(donModObjShellBiMap));
 
 
 		for (GeosetShell geoShell : recModGeoShells) {
 			for (Layer x : geoShell.getMaterial().getLayers()) {
-				recModVisShellBiMap.put(x, new VisibilityShell(x, receivingModel, false));
+				recModVisShellBiMap.put(x, new VisibilityShell(x, receivingModel.getName(), false));
 			}
-			recModVisShellBiMap.put(geoShell.getGeoset(), new VisibilityShell(geoShell.getGeoset(), receivingModel, false));
+			recModVisShellBiMap.put(geoShell.getGeoset(), new VisibilityShell(geoShell.getGeoset(), receivingModel.getName(), false));
 		}
 
 		for (IdObject obj : receivingModel.getIdObjects()) {
 			if (!(obj instanceof Bone)) {
-				recModObjectShells.addElement(new ObjectShell(obj, false));
+				recModObjectShells.addElement(new IdObjectShell<>(obj, false));
 				if (!(obj instanceof CollisionShape || obj instanceof EventObject)) {
-					recModVisShellBiMap.put(obj, new VisibilityShell(obj, receivingModel, false));
+					recModVisShellBiMap.put(obj, new VisibilityShell(obj, receivingModel.getName(), false));
 				}
 			}
 		}
@@ -415,7 +492,7 @@ public class ModelHolderThing {
 
 		recModVisibilityShells.addAll(recModVisShellBiMap.values());
 		allVisShellBiMap.putAll(recModVisShellBiMap);
-		recModObjectShells.forEach(os -> os.setParentBs(recModBoneShellBiMap));
+		recModObjectShells.forEach(os -> os.setParentBs(recModObjShellBiMap));
 
 		allObjectShells.addAll(recModObjectShells);
 		allObjectShells.addAll(donModObjectShells);
@@ -424,18 +501,54 @@ public class ModelHolderThing {
 		allCameraShells.addAll(donModCameraShells);
 	}
 
+	private void initVisLists() {
+
+		for (GeosetShell geoShell : donModGeoShells) {
+			for (Layer x : geoShell.getMaterial().getLayers()) {
+				donModVisShellBiMap.put(x, new VisibilityShell(x, geoShell.getModelName(), geoShell.isFromDonating()));
+			}
+			donModVisShellBiMap.put(geoShell.getGeoset(), new VisibilityShell(geoShell.getGeoset(), geoShell.getModelName(), geoShell.isFromDonating()));
+		}
+
+		for (IdObjectShell<?> obj : donModObjectShells) {
+			if (!(obj.getIdObject() instanceof CollisionShape || obj.getIdObject() instanceof EventObject)) {
+				donModVisShellBiMap.put(obj.getIdObject(), new VisibilityShell(obj.getIdObject(), donatingModel.getName(), true));
+			}
+		}
+
+		donModVisibilityShells.addAll(donModVisShellBiMap.values());
+		allVisShellBiMap.putAll(donModVisShellBiMap);
+
+
+		for (GeosetShell geoShell : recModGeoShells) {
+			for (Layer x : geoShell.getMaterial().getLayers()) {
+				recModVisShellBiMap.put(x, new VisibilityShell(x, geoShell.getModelName(), geoShell.isFromDonating()));
+			}
+			recModVisShellBiMap.put(geoShell.getGeoset(), new VisibilityShell(geoShell.getGeoset(), geoShell.getModelName(), geoShell.isFromDonating()));
+		}
+
+		for (IdObjectShell<?> obj : recModObjectShells) {
+			if (!(obj.getIdObject() instanceof CollisionShape || obj.getIdObject() instanceof EventObject)) {
+				recModVisShellBiMap.put(obj.getIdObject(), new VisibilityShell(obj.getIdObject(), receivingModel.getName(), true));
+			}
+		}
+
+		recModVisibilityShells.addAll(recModVisShellBiMap.values());
+		allVisShellBiMap.putAll(recModVisShellBiMap);
+	}
+
 	public IterableListModel<VisibilityShell> visibilityList() {
 		VisibilityShell selection = visibilityShellJList.getSelectedValue();
 		futureVisComponents.clear();
 		for (GeosetShell geoShell : allGeoShells) {
 			for (Layer x : geoShell.getMaterial().getLayers()) {
-				VisibilityShell vs = visShellFromObject(x);
+				VisibilityShell vs = allVisShellBiMap.get(x);
 				if (vs != null && !futureVisComponents.contains(vs)) {
 					futureVisComponents.addElement(vs);
 				}
 			}
 			if (geoShell.isDoImport()) {
-				VisibilityShell vs = visShellFromObject(geoShell.getGeoset());
+				VisibilityShell vs = allVisShellBiMap.get(geoShell.getGeoset());
 				if (vs != null && !futureVisComponents.contains(vs)) {
 					futureVisComponents.addElement(vs);
 				}
@@ -450,9 +563,9 @@ public class ModelHolderThing {
 		fetchAndAddVisComp(receivingModel.getRibbonEmitters());
 		fetchAndAddVisComp(receivingModel.getPopcornEmitters());
 
-		for (ObjectShell op : donModObjectShells) {
+		for (IdObjectShell<?> op : donModObjectShells) {
 			if (op.getShouldImport()) {
-				VisibilityShell vs = visShellFromObject(op.getIdObject());
+				VisibilityShell vs = allVisShellBiMap.get(op.getIdObject());
 				if (vs != null && !futureVisComponents.contains(vs)) {
 					futureVisComponents.addElement(vs);
 				}
@@ -464,7 +577,7 @@ public class ModelHolderThing {
 
 	public void fetchAndAddVisComp(List<? extends IdObject> idObjects) {
 		for (IdObject x : idObjects) {
-			VisibilityShell vs = visShellFromObject(x);
+			VisibilityShell vs = allVisShellBiMap.get(x);
 			if (vs != null && !futureVisComponents.contains(vs)) {
 				futureVisComponents.addElement(vs);
 			}

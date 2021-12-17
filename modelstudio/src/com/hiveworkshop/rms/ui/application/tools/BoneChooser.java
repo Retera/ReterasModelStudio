@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.tools;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
@@ -11,9 +11,9 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 
 public class BoneChooser {
-	IterableListModel<BoneShell> filteredBones = new IterableListModel<>();
-	IterableListModel<BoneShell> allBonesList;
-	JList<BoneShell> bonesJList;
+	IterableListModel<IdObjectShell<Bone>> filteredBones = new IterableListModel<>();
+	IterableListModel<IdObjectShell<Bone>> allBonesList;
+	JList<IdObjectShell<Bone>> bonesJList;
 	JTextField boneSearch;
 
 	EditableModel model;
@@ -24,18 +24,18 @@ public class BoneChooser {
 	}
 
 	public Bone chooseBone(Bone currentBone, JComponent parent) {
-		BoneShell currentBoneShell = null;
+		IdObjectShell<Bone> currentBoneShell = null;
 		allBonesList.clear();
-		allBonesList.addElement(new BoneShell(null));
+		allBonesList.addElement(new IdObjectShell<>(null));
 		for (Bone bone : model.getBones()) {
-			BoneShell boneShell = new BoneShell(bone);
+			IdObjectShell<Bone> boneShell = new IdObjectShell<>(bone);
 			allBonesList.addElement(boneShell);
 			if (bone == currentBone) {
 				currentBoneShell = boneShell;
 			}
 		}
 		for (Helper bone : model.getHelpers()) {
-			BoneShell boneShell = new BoneShell(bone);
+			IdObjectShell<Bone> boneShell = new IdObjectShell<>(bone);
 			allBonesList.addElement(boneShell);
 			if (bone == currentBone) {
 				currentBoneShell = boneShell;
@@ -48,9 +48,9 @@ public class BoneChooser {
 
 		int option = JOptionPane.showConfirmDialog(parent, boneChooserPanel, "Choose Bone", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
 		if (option == JOptionPane.OK_OPTION) {
-			BoneShell selectedValue = bonesJList.getSelectedValue();
+			IdObjectShell<Bone> selectedValue = bonesJList.getSelectedValue();
 			if (selectedValue != null) {
-				return selectedValue.getBone();
+				return selectedValue.getIdObject();
 			}
 		}
 		return currentBone;
@@ -85,7 +85,7 @@ public class BoneChooser {
 		String filterText = boneSearch.getText();
 		if (!filterText.equals("")) {
 			filteredBones.clear();
-			for (BoneShell boneShell : allBonesList) {
+			for (IdObjectShell<Bone> boneShell : allBonesList) {
 				if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
 					filteredBones.addElement(boneShell);
 				}

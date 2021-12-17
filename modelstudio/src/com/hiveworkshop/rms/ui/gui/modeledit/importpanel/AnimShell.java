@@ -7,14 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AnimShell {
-	private Animation anim;
-	private Animation importAnim;
-	private List<AnimShell> animShellsToTimeScaleInto = new ArrayList<>();
-	private AnimShell importAnimShell;
+	private final Animation anim;
+	private final List<AnimShell> animDataDests = new ArrayList<>();
+	private AnimShell animDataSrc; // animation to replace this animation
 	private boolean reverse = false;
-	private ImportType importType = ImportType.IMPORTBASIC;
+	private ImportType importType = ImportType.IMPORT_BASIC;
 	private String name;
-	private String oldName;
+	private final String oldName;
 	private final boolean isFromDonating;
 
 	public AnimShell(final Animation anim) {
@@ -32,25 +31,16 @@ public class AnimShell {
 		return anim;
 	}
 
-	public AnimShell setAnim(Animation anim) {
-		this.anim = anim;
-		return this;
-	}
+//	public AnimShell setAnim(Animation anim) {
+//		this.anim = anim;
+//		return this;
+//	}
 
-	public Animation getImportAnim() {
-		if (importAnimShell == null) {
+	public Animation getAnimDataSrcAnim() {
+		if (animDataSrc == null) {
 			return null;
 		}
-		return importAnimShell.getAnim();
-	}
-
-	public List<AnimShell> getAnimShellsToTimeScaleInto() {
-		return animShellsToTimeScaleInto;
-	}
-
-	public AnimShell setAnimShellsToTimeScaleInto(List<AnimShell> animShellsToTimeScaleInto) {
-		this.animShellsToTimeScaleInto = animShellsToTimeScaleInto;
-		return this;
+		return animDataSrc.getAnim();
 	}
 
 	public boolean isReverse() {
@@ -85,25 +75,56 @@ public class AnimShell {
 		return this;
 	}
 
-	public void addToList(AnimShell animShell) {
-		animShellsToTimeScaleInto.add(animShell);
+	public List<AnimShell> getAnimDataDests() {
+		return animDataDests;
 	}
 
-	public void addToList(List<AnimShell> animShells) {
-		animShellsToTimeScaleInto.addAll(animShells);
+	public void addAnimDataDest(AnimShell animShell) {
+		if (!animDataDests.contains(animShell)) {
+			animDataDests.add(animShell);
+			animShell.setAnimDataSrc(this);
+			importType = ImportType.TIMESCALE_INTO;
+			if (animDataSrc != null) {
+				animDataSrc.removeAnimDataDest(this);
+				animDataSrc = null;
+			}
+		}
 	}
 
-	public void removeFromList(AnimShell animShell) {
-		animShellsToTimeScaleInto.remove(animShell);
+	public void addAnimDataDest(List<AnimShell> animShells) {
+		animDataDests.addAll(animShells);
+		for (AnimShell animShell : animShells) {
+			animShell.setAnimDataSrc(this);
+		}
+		importType = ImportType.TIMESCALE_INTO;
+		if (animDataSrc != null) {
+			animDataSrc.removeAnimDataDest(this);
+			animDataSrc = null;
+		}
 	}
 
-	public void removeFromList(List<AnimShell> animShells) {
-		animShellsToTimeScaleInto.removeAll(animShells);
+	public void removeAnimDataDest(AnimShell animShell) {
+//		animDataDests.remove(animShell);
+		if (animDataDests.remove(animShell) && animShell.getAnimDataSrc() == this) {
+			animShell.setAnimDataSrc(null);
+		}
 	}
 
-	public void setList(List<AnimShell> animShells) {
-		animShellsToTimeScaleInto.removeAll(animShells);
-		animShellsToTimeScaleInto.addAll(animShells);
+	public void removeAnimDataDest(List<AnimShell> animShells) {
+//		animDataDests.removeAll(animShells);
+		for (AnimShell animShell : animShells) {
+			animShell.setAnimDataSrc(null);
+		}
+	}
+
+	public void setAnimDataDestList(List<AnimShell> animShells) {
+		for (AnimShell animShell : animDataDests) {
+			animShell.setAnimDataSrc(null);
+		}
+		animDataDests.clear();
+		for (AnimShell animShell : animShells) {
+			animShell.setAnimDataSrc(this);
+		}
 	}
 
 
@@ -114,26 +135,31 @@ public class AnimShell {
 	public String displName() {
 		String dispName = "";
 		switch (importType) {
-			case DONTIMPORT -> dispName += "\u2297";
-			case IMPORTBASIC -> dispName += "\u24BE";
-			case CHANGENAME -> dispName += "\u24C3";
-			case TIMESCALE -> dispName += "\u24C9";
+			case DONT_IMPORT -> dispName += "\u2297";
+			case IMPORT_BASIC -> dispName += "\u24BE";
+			case CHANGE_NAME -> dispName += "\u24C3";
+			case TIMESCALE_INTO -> dispName += "\u24C9";
 			case GLOBALSEQ -> dispName += "\u24BC";
 		}
 		return dispName + "  " + oldName;
 	}
 
-	public AnimShell setOldName(String oldName) {
-		this.oldName = oldName;
-		return this;
+	public AnimShell getAnimDataSrc() {
+		return animDataSrc;
 	}
 
-	public AnimShell getImportAnimShell() {
-		return importAnimShell;
-	}
-
-	public AnimShell setImportAnimShell(AnimShell importAnimShell) {
-		this.importAnimShell = importAnimShell;
+	public AnimShell setAnimDataSrc(AnimShell animDataSrc) {
+		if (this.animDataSrc != null && this.animDataSrc != animDataSrc) {
+			this.animDataSrc.removeAnimDataDest(this);
+		}
+		this.animDataSrc = animDataSrc;
+		if (animDataSrc != null) {
+			animDataSrc.addAnimDataDest(this);
+			for (AnimShell animShell : animDataDests) {
+				animShell.setAnimDataSrc(null);
+			}
+			importType = ImportType.TIMESCALE_RECEIVE;
+		}
 		return this;
 	}
 
@@ -142,7 +168,13 @@ public class AnimShell {
 	}
 
 	public enum ImportType {
-		DONTIMPORT("Do Not Import"), IMPORTBASIC("Import as-is"), CHANGENAME("Change name to:"), TIMESCALE("Time-scale into pre-existing:"), GLOBALSEQ("Rebuild as global sequence");
+		DONT_IMPORT("Do Not Import"),
+		IMPORT_BASIC("Import as-is"),
+		CHANGE_NAME("Change name to:"),
+		//		TIMESCALE_INTO("Time-scale into pre-existing:"),
+		TIMESCALE_INTO("Time-scale into:"),
+		TIMESCALE_RECEIVE("Replace with:"),
+		GLOBALSEQ("Rebuild as global sequence");
 		String dispText;
 
 		ImportType(String s) {

@@ -770,6 +770,54 @@ public class Vec3 {
 		return this;
 	}
 
+	public Vec3 crossNorm(final Vec3 a) {
+		float len = length();
+		float lenA = a.length();
+		float scaleF = (lenA * len);
+
+		if (scaleF == 0) {
+			scaleF = 1;
+		}
+		float newX = ((y * a.z) - (a.y * z)) / scaleF;
+		float newY = ((a.x * z) - (x * a.z)) / scaleF;
+		float newZ = ((x * a.y) - (a.x * y)) / scaleF;
+
+		set(newX, newY, newZ);
+		return this;
+	}
+
+	public Vec3 crossNorm2(final Vec3 a, final Vec3 b) {
+		float lenA = a.length();
+		float lenB = b.length();
+		float scaleF = (lenB * lenA);
+
+		if (scaleF == 0) {
+			scaleF = 1;
+		}
+		float newX = ((a.y * b.z) - (b.y * a.z)) / scaleF;
+		float newY = ((b.x * a.z) - (a.x * b.z)) / scaleF;
+		float newZ = ((a.x * b.y) - (b.x * a.y)) / scaleF;
+
+		set(newX, newY, newZ);
+		return this;
+	}
+
+	public Vec3 crossNorm3(final Vec3 vec1, final Vec3 vec2) {
+		float lenA = vec1.length();
+		float lenB = vec2.length();
+		float scaleF = (lenB * lenA);
+
+		if (scaleF == 0) {
+			scaleF = 1;
+		}
+		float newX = ((vec1.y * vec2.z) - (vec2.y * vec1.z)) / scaleF;
+		float newY = ((vec2.x * vec1.z) - (vec1.x * vec2.z)) / scaleF;
+		float newZ = ((vec1.x * vec2.y) - (vec2.x * vec1.y)) / scaleF;
+
+		set(newX, newY, newZ);
+		return this;
+	}
+
 
 	public boolean isValid() {
 		return !(Float.isNaN(this.x)

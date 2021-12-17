@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.preferences;
 
+import com.hiveworkshop.blizzard.casc.io.WC3CascFileSystem;
 import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CascDataSourceDescriptor;
@@ -669,7 +670,7 @@ public class DataSourceChooserPanel extends JPanel {
 			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true);
 			final DefaultComboBoxModel<String> prefixes = new DefaultComboBoxModel<>();
 			try {
-				final WarcraftIIICASC.FileSystem rootFileSystem = tempCascReader.getRootFileSystem();
+				final WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
 				final List<String> allFiles = rootFileSystem.enumerateFiles();
 				for (final String file : allFiles) {
 					if (rootFileSystem.isNestedFileSystem(file)) {
@@ -743,7 +744,7 @@ public class DataSourceChooserPanel extends JPanel {
 //					locale = launcherDbLocale;
 //				}
 				SupportedCascPatchFormat patchFormat;
-				WarcraftIIICASC.FileSystem rootFileSystem = tempCascReader.getRootFileSystem();
+				WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
 				if (rootFileSystem.isFile("war3.mpq\\units\\unitdata.slk")) {
 					patchFormat = SupportedCascPatchFormat.PATCH130;
 				} else if (tempCascReader.getRootFileSystem()
@@ -810,7 +811,7 @@ public class DataSourceChooserPanel extends JPanel {
 		return defaultPrefixes;
 	}
 
-	private String getLocale(boolean allowPopup, String locale, String launcherDbLocale, String originalInstallLocale, WarcraftIIICASC tempCascReader, SupportedCascPatchFormat patchFormat, WarcraftIIICASC.FileSystem rootFileSystem) throws IOException {
+	private String getLocale(boolean allowPopup, String locale, String launcherDbLocale, String originalInstallLocale, WarcraftIIICASC tempCascReader, SupportedCascPatchFormat patchFormat, WC3CascFileSystem rootFileSystem) throws IOException {
 		if (locale == null) {
 			// gather list of locales from CASC
 			final Set<String> localeOptions = new HashSet<>();

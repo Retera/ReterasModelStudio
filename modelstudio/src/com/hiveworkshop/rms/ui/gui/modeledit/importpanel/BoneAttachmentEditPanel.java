@@ -96,11 +96,13 @@ public class BoneAttachmentEditPanel extends JPanel {
 	}
 
 	public void allMatrSameName() {
-		IterableListModel<BoneShell> futureBoneList = mht.getFutureBoneList();
+		IterableListModel<IdObjectShell<?>> futureBoneList = mht.getFutureBoneList();
 
-		Map<String, BoneShell> nameMap = new HashMap<>();
-		for (BoneShell boneShell : futureBoneList) {
-			nameMap.put(boneShell.getName(), boneShell);
+		Map<String, IdObjectShell<?>> nameMap = new HashMap<>();
+		for (IdObjectShell<?> boneShell : futureBoneList) {
+			if (boneShell.getShouldImport()) {
+				nameMap.put(boneShell.getName(), boneShell);
+			}
 		}
 
 		for (GeosetShell geosetShell : mht.allGeoShells) {
@@ -123,18 +125,20 @@ public class BoneAttachmentEditPanel extends JPanel {
 		// this will disregard some parts of bone names, increasing numbers of matched for some models
 		// placeholder "UGG" is used to make sure words isn't  merged and potentially losing more parts than necessary
 		// "ShelpBoneEric" -> "shelpUGGeric" -> "shelperic" and not "ShelpBoneEric" -> "shelperic" -> "sic"
-		IterableListModel<BoneShell> futureBoneList = mht.getFutureBoneList();
+		IterableListModel<IdObjectShell<?>> futureBoneList = mht.getFutureBoneList();
 
-		Map<String, BoneShell> nameMap = new HashMap<>();
+		Map<String, IdObjectShell<?>> nameMap = new HashMap<>();
 		String placeholder = "UGG";
-		for (BoneShell boneShell : futureBoneList) {
-			String name = boneShell.getName().toLowerCase()
-					.replaceAll("bone", placeholder)
-					.replaceAll("helper", placeholder)
-					.replaceAll("_", "")
-					.replaceAll(" ", "")
-					.replaceAll(placeholder, "");
-			nameMap.put(name, boneShell);
+		for (IdObjectShell<?> boneShell : futureBoneList) {
+			if (boneShell.getShouldImport()) {
+				String name = boneShell.getName().toLowerCase()
+						.replaceAll("bone", placeholder)
+						.replaceAll("helper", placeholder)
+						.replaceAll("_", "")
+						.replaceAll(" ", "")
+						.replaceAll(placeholder, "");
+				nameMap.put(name, boneShell);
+			}
 		}
 
 		for (GeosetShell geosetShell : mht.allGeoShells) {

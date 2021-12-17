@@ -12,17 +12,19 @@ import java.util.function.Consumer;
 
 public class ObjectEditPanel extends JPanel {
 
-	public CardLayout cardLayout = new CardLayout();
-	public JPanel panelCards = new JPanel(cardLayout);
-	public MultiObjectPanel multiObjectPane;
-	ModelHolderThing mht;
+	private CardLayout cardLayout = new CardLayout();
+	private JPanel panelCards = new JPanel(cardLayout);
+	private MultiObjectPanel multiObjectPane;
+	private ModelHolderThing mht;
+	private JList<IdObjectShell<?>> allObjectJList;
 
-	ObjectPanel singleObjectPanel;
-	BoneShellListCellRenderer bonePanelRenderer;
+	private ObjectPanel singleObjectPanel;
+	private BoneShellListCellRenderer bonePanelRenderer;
 
 	public ObjectEditPanel(ModelHolderThing mht) {
 		setLayout(new MigLayout("gap 0", "[grow][grow]", "[][grow]"));
 		this.mht = mht;
+		allObjectJList = new JList<>(mht.allObjectShells);
 
 		add(getSetImpTypePanel(mht.receivingModel.getName(), mht::setImportAllRecObjs), "cell 0 0, right");
 		add(getSetImpTypePanel(mht.donatingModel.getName(), mht::setImportAllDonObjs), "cell 1 0, left");
@@ -55,10 +57,10 @@ public class ObjectEditPanel extends JPanel {
 
 	private JScrollPane getObjectListPane(ModelHolderThing mht) {
 		ObjectShellListCellRenderer objectPanelRenderer = new ObjectShellListCellRenderer(mht.receivingModel, mht.donatingModel);
-		mht.allObjectJList.setCellRenderer(objectPanelRenderer);
-		mht.allObjectJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
-		mht.allObjectJList.setSelectedValue(null, false);
-		return new JScrollPane(mht.allObjectJList);
+		allObjectJList.setCellRenderer(objectPanelRenderer);
+		allObjectJList.addListSelectionListener(e -> objectTabsValueChanged(mht, e));
+		allObjectJList.setSelectedValue(null, false);
+		return new JScrollPane(allObjectJList);
 	}
 
 	private JButton getButton(String text, ActionListener actionListener) {
@@ -69,13 +71,13 @@ public class ObjectEditPanel extends JPanel {
 
 	private void objectTabsValueChanged(ModelHolderThing mht, ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
-			List<ObjectShell> selectedValuesList = mht.allObjectJList.getSelectedValuesList();
+			List<IdObjectShell<?>> selectedValuesList = allObjectJList.getSelectedValuesList();
 			if (selectedValuesList.size() < 1) {
 				bonePanelRenderer.setSelectedObjectShell(null);
 				cardLayout.show(panelCards, "blank");
 			} else if (selectedValuesList.size() == 1) {
 //				mht.getFutureBoneHelperList();
-				singleObjectPanel.setSelectedObject(mht.allObjectJList.getSelectedValue());
+				singleObjectPanel.setSelectedObject(allObjectJList.getSelectedValue());
 				cardLayout.show(panelCards, "single");
 			} else {
 				multiObjectPane.setSelectedObjects(selectedValuesList);

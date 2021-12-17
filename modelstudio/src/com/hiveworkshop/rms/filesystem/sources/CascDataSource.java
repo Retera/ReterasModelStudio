@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.filesystem.sources;
 
+import com.hiveworkshop.blizzard.casc.io.WC3CascFileSystem;
 import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,7 +19,7 @@ import java.util.*;
 public class CascDataSource implements DataSource {
 	private final String[] prefixes;
 	private final WarcraftIIICASC warcraftIIICASC;
-	private final WarcraftIIICASC.FileSystem rootFileSystem;
+	private final WC3CascFileSystem rootFileSystem;
 	private final List<String> listFile;
 	private final Map<String, String> fileAliases;
 

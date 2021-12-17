@@ -9,11 +9,13 @@ import java.awt.event.ItemEvent;
 import java.util.List;
 
 class MultiBonePanel extends BonePanel {
-	JButton setAllParent;
-	List<BoneShell> selectedValuesList;
+	private JButton setAllParent;
+	private List<IdObjectShell<?>> selectedValuesList;
+	private JList<IdObjectShell<?>> donModBoneShellJList;
 
 	public MultiBonePanel(ModelHolderThing mht, BoneShellListCellRenderer renderer) {
 		this.mht = mht;
+		donModBoneShellJList = new JList<>(mht.donModBoneShells);
 		setLayout(new MigLayout("gap 0"));
 		selectedBone = null;
 
@@ -46,10 +48,10 @@ class MultiBonePanel extends BonePanel {
 		return new JScrollPane(importMotionIntoRecBoneList);
 	}
 
-	public void setSelectedBones(List<BoneShell> selectedValuesList){
+	public void setSelectedBones(List<IdObjectShell<?>> selectedValuesList) {
 		this.selectedValuesList = selectedValuesList;
 		renderer.setSelectedBoneShell(null);
-		BoneShell.ImportType firstImportStatus = selectedValuesList.get(0).getImportStatus();
+		IdObjectShell.ImportType firstImportStatus = selectedValuesList.get(0).getImportStatus();
 
 		if (selectedValuesList.stream().anyMatch(bs -> bs.getImportStatus() != firstImportStatus)) {
 			setMultiTypes();
@@ -60,7 +62,7 @@ class MultiBonePanel extends BonePanel {
 
 	@Override
 	public void setImportStatus(final int index) {
-		if (importTypeBox.getSelectedItem() == BoneShell.ImportType.MOTIONFROM) {
+		if (importTypeBox.getSelectedItem() == IdObjectShell.ImportType.MOTION_FROM) {
 			cards.show(cardPanel, "boneList");
 		} else {
 			cards.show(cardPanel, "blank");
@@ -68,16 +70,16 @@ class MultiBonePanel extends BonePanel {
 	}
 
 	private void showImportTypeCard(ItemEvent e) {
-		if(e.getStateChange() == ItemEvent.SELECTED){
-			if (importTypeBox.getSelectedItem() == BoneShell.ImportType.MOTIONFROM.dispText) {
+		if(e.getStateChange() == ItemEvent.SELECTED) {
+			if (importTypeBox.getSelectedItem() == IdObjectShell.ImportType.MOTION_FROM.dispText) {
 				cards.show(cardPanel, "boneList");
-				importTypeForAll(BoneShell.ImportType.MOTIONFROM);
-			} else if (importTypeBox.getSelectedItem() == BoneShell.ImportType.DONTIMPORT.dispText) {
+				importTypeForAll(IdObjectShell.ImportType.MOTION_FROM);
+			} else if (importTypeBox.getSelectedItem() == IdObjectShell.ImportType.DONT_IMPORT.dispText) {
 				cards.show(cardPanel, "blank");
-				importTypeForAll(BoneShell.ImportType.DONTIMPORT);
-			} else if (importTypeBox.getSelectedItem() == BoneShell.ImportType.IMPORT.dispText) {
+				importTypeForAll(IdObjectShell.ImportType.DONT_IMPORT);
+			} else if (importTypeBox.getSelectedItem() == IdObjectShell.ImportType.IMPORT.dispText) {
 				cards.show(cardPanel, "blank");
-				importTypeForAll(BoneShell.ImportType.IMPORT);
+				importTypeForAll(IdObjectShell.ImportType.IMPORT);
 			} else {
 				cards.show(cardPanel, "blank");
 			}
@@ -90,8 +92,8 @@ class MultiBonePanel extends BonePanel {
 		importTypeBox.setEditable(false);
 	}
 
-	public void importTypeForAll(BoneShell.ImportType type) {
-		for (BoneShell boneShell : selectedValuesList) {
+	public void importTypeForAll(IdObjectShell.ImportType type) {
+		for (IdObjectShell boneShell : selectedValuesList) {
 			boneShell.setImportStatus(type);
 		}
 	}
@@ -102,12 +104,12 @@ class MultiBonePanel extends BonePanel {
 	 * MultiBone panel.
 	 */
 	public void setParentMultiBones() {
-		final JList<BoneShell> list = new JList<>(mht.getFutureBoneHelperList());
+		final JList<IdObjectShell<?>> list = new JList<>(mht.getFutureBoneHelperList());
 		list.setCellRenderer(mht.boneShellRenderer);
 		final int x = JOptionPane.showConfirmDialog(this, new JScrollPane(list), "Set Parent for All Selected Bones", JOptionPane.OK_CANCEL_OPTION);
 		if (x == JOptionPane.OK_OPTION) {
-			for (BoneShell temp : mht.donModBoneShellJList.getSelectedValuesList()) {
-				temp.setNewParentBs(list.getSelectedValue());
+			for (IdObjectShell<?> temp : donModBoneShellJList.getSelectedValuesList()) {
+				temp.setNewParentShell(list.getSelectedValue());
 			}
 		}
 	}

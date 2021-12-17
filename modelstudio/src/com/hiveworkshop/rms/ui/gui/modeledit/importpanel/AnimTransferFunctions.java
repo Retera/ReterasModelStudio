@@ -20,7 +20,7 @@ public class AnimTransferFunctions {
 
 	public void animTransfer(boolean singleAnimation, Animation pickedAnim, Animation visFromAnim, boolean show) {
 		mht.clearRecModAnims.setSelected(true);
-		ugg(BoneShell.ImportType.MOTIONFROM, singleAnimation);
+		ugg(IdObjectShell.ImportType.MOTION_FROM, singleAnimation);
 
 		if (singleAnimation) {
 			importSingleAnim2(pickedAnim);
@@ -34,7 +34,7 @@ public class AnimTransferFunctions {
 			if (isGutz(donVis)) {
 				for (VisibilityShell impVis : mht.futureVisComponents) {
 					if (isGutz(impVis)) {
-						impVis.setNewVisSource(donVis);
+						impVis.setRecModAnimsVisSource(donVis);
 					}
 				}
 				break;
@@ -46,14 +46,14 @@ public class AnimTransferFunctions {
 		}
 	}
 
-	private void ugg(BoneShell.ImportType importType, boolean singleAnim) {
-		mht.importAllGeos(false);
+	private void ugg(IdObjectShell.ImportType importType, boolean singleAnim) {
+		mht.setImportAllGeos(false);
 		mht.setImportStatusForAllDonBones(importType);
 		mht.setImportAllDonObjs(false);
 		mht.visibilityList();
 		mht.selectSimilarVisSources();
 		if (singleAnim) {
-			mht.setImportTypeForAllAnims(AnimShell.ImportType.DONTIMPORT);
+			mht.setImportTypeForAllAnims(AnimShell.ImportType.DONT_IMPORT);
 		}
 	}
 
@@ -71,7 +71,7 @@ public class AnimTransferFunctions {
 
 	public void animTransfer1(boolean singleAnimation, Animation pickedAnim, Animation visFromAnim, boolean show) {
 		mht.clearRecModAnims.setSelected(true);
-		ugg(BoneShell.ImportType.MOTIONFROM, singleAnimation);
+		ugg(IdObjectShell.ImportType.MOTION_FROM, singleAnimation);
 
 		if (singleAnimation) {
 			importSingleAnim2(pickedAnim);
@@ -85,7 +85,7 @@ public class AnimTransferFunctions {
 			if (isGutz(donVis)) {
 				for (VisibilityShell impVis : mht.futureVisComponents) {
 					if (isGutz(impVis)) {
-						impVis.setNewVisSource(donVis);
+						impVis.setRecModAnimsVisSource(donVis);
 					}
 				}
 				break;
@@ -100,7 +100,7 @@ public class AnimTransferFunctions {
 	public void animTransferPartTwo(Animation pickedAnim, Animation visFromAnim, boolean show) {
 		// This should be an import from self
 		// This seems to be a stupid hack to put back lost stuff...
-		ugg(BoneShell.ImportType.DONTIMPORT, true);
+		ugg(IdObjectShell.ImportType.DONT_IMPORT, true);
 
 		importSingleAnim1(pickedAnim, visFromAnim);
 
@@ -125,7 +125,7 @@ public class AnimTransferFunctions {
 		// JOptionPane.showMessageDialog(null,"single trans");
 		for (AnimShell animShell : mht.allAnimShells) {
 			if (animShell.getOldName().equals(pickedAnim.getName())) {
-				animShell.setImportType(AnimShell.ImportType.IMPORTBASIC);
+				animShell.setImportType(AnimShell.ImportType.IMPORT_BASIC);
 			}
 		}
 //			mht.clearRecModAnims.doClick();// turn it back off
@@ -134,11 +134,11 @@ public class AnimTransferFunctions {
 	private void importSingleAnim1(Animation pickedAnim, Animation visFromAnim) {
 		for (AnimShell animShell : mht.allAnimShells) {
 			if (animShell.getOldName().equals(visFromAnim.getName())) {
-				animShell.setImportType(AnimShell.ImportType.TIMESCALE); // Time scale
+				animShell.setImportType(AnimShell.ImportType.TIMESCALE_INTO); // Time scale
 
 				for (AnimShell shell : mht.recModAnims) {
 					if (shell.getOldName().equals(pickedAnim.getName())) {
-						animShell.setImportAnimShell(shell);
+						animShell.setAnimDataSrc(shell);
 						break;
 					}
 				}
@@ -296,7 +296,7 @@ public class AnimTransferFunctions {
 
 		List<Animation> newAnims = new ArrayList<>();
 		for (AnimShell animShell : mht.allAnimShells) {
-			if (animShell.getImportType() != AnimShell.ImportType.DONTIMPORT) {
+			if (animShell.getImportType() != AnimShell.ImportType.DONT_IMPORT) {
 				int newStart = ModelUtils.animTrackEnd(mht.receivingModel) + 300;
 
 				Animation anim1 = animShell.getAnim();
@@ -304,23 +304,23 @@ public class AnimTransferFunctions {
 					reverseAnim(donModFlags, donModEventObjs, anim1);
 				}
 				switch (animShell.getImportType()) {
-					case IMPORTBASIC:
-					case CHANGENAME:
+					case IMPORT_BASIC:
+					case CHANGE_NAME:
 
 						//todo things here is probably broken...
 						anim1.setStart(newStart);
 //						animCopyToInterv1(donModFlags, donModEventObjs, newImpFlags, newImpEventObjs, anim1, anim1);
 						animCopyToInterv1(flagMap, eventMap, anim1, anim1);
-						if (animShell.getImportType() == AnimShell.ImportType.CHANGENAME) {
+						if (animShell.getImportType() == AnimShell.ImportType.CHANGE_NAME) {
 							anim1.setName(animShell.getName());
 						}
 						mht.receivingModel.add(anim1);
 						newAnims.add(anim1);
 						break;
-					case TIMESCALE:
+					case TIMESCALE_INTO:
 						if (!mht.clearRecModAnims.isSelected()) {
 							for (AnimShell recAnimShell : mht.recModAnims) {
-								AnimShell importAnimShell = recAnimShell.getImportAnimShell();
+								AnimShell importAnimShell = recAnimShell.getAnimDataSrc();
 								if (importAnimShell == animShell) {
 									Animation importAnim = importAnimShell.getAnim();
 									animCopyToInterv1(flagMap, eventMap, anim1, importAnim);
@@ -328,10 +328,10 @@ public class AnimTransferFunctions {
 									newAnims.add(new Animation("temp", anim1.getStart(), anim1.getEnd()));
 
 									if (!mht.clearExistingBones.isSelected()) {
-										for (BoneShell bs : mht.recModBoneShells) {
-											if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
-												System.out.println("Attempting to clear animation for " + bs.getBone().getName() + " values " + anim1.getStart() + ", " + anim1.getEnd());
-												bs.getBone().clearAnimation(anim1);
+										for (IdObjectShell<?> bs : mht.recModBoneShells) {
+											if (bs.getMotionSrcShell() != null && bs.getMotionSrcShell().getImportStatus() == IdObjectShell.ImportType.MOTION_FROM) {
+												System.out.println("Attempting to clear animation for " + bs.getIdObject().getName() + " values " + anim1.getStart() + ", " + anim1.getEnd());
+												bs.getIdObject().clearAnimation(anim1);
 											}
 										}
 									}
@@ -476,30 +476,30 @@ public class AnimTransferFunctions {
 
 	private List<IdObject> addChosenNewBones() {
 		List<IdObject> objectsAdded = new ArrayList<>();
-		for (BoneShell boneShell : mht.donModBoneShells) {
+		for (IdObjectShell<?> boneShell : mht.donModBoneShells) {
 			// we will go through all bone shells for this
 			// Fix cross-model referencing issue (force clean parent node's list of children)
 			switch (boneShell.getImportStatus()) {
 				case IMPORT -> {
 					System.out.println("adding bone: " + boneShell);
-					mht.receivingModel.add(boneShell.getBone());
-					objectsAdded.add(boneShell.getBone());
-					if (boneShell.getNewParentBs() != null) {
-						boneShell.getBone().setParent(boneShell.getNewParentBs().getBone());
+					mht.receivingModel.add(boneShell.getIdObject());
+					objectsAdded.add(boneShell.getIdObject());
+					if (boneShell.getNewParentShell() != null) {
+						boneShell.getIdObject().setParent(boneShell.getNewParentShell().getIdObject());
 					} else {
-						boneShell.getBone().setParent(null);
+						boneShell.getIdObject().setParent(null);
 					}
 				}
-				case MOTIONFROM, DONTIMPORT -> boneShell.getBone().setParent(null);
+				case MOTION_FROM, DONT_IMPORT -> boneShell.getIdObject().setParent(null);
 			}
 		}
 		return objectsAdded;
 	}
 
 	private void copyMotionFromBones() {
-		for (BoneShell bs : mht.recModBoneShells) {
-			if (bs.getImportBoneShell() != null && bs.getImportBoneShell().getImportStatus() == BoneShell.ImportType.MOTIONFROM) {
-				bs.getBone().copyMotionFrom(bs.getImportBone());
+		for (IdObjectShell<?> bs : mht.recModBoneShells) {
+			if (bs.getMotionSrcShell() != null && bs.getMotionSrcShell().getImportStatus() == IdObjectShell.ImportType.MOTION_FROM) {
+				bs.getIdObject().copyMotionFrom(bs.getMotionSrcShell().getIdObject());
 			}
 		}
 	}
@@ -518,15 +518,15 @@ public class AnimTransferFunctions {
 				for (MatrixShell ms : geosetShell.getMatrixShells()) {
 					List<GeosetVertex> vertexList = matrixVertexMap.get(ms.getMatrix());
 					ms.getMatrix().clear();
-					for (final BoneShell bs : ms.getNewBones()) {
-						if (mht.receivingModel.contains(bs.getBone())) {
-							if (bs.getBone().getClass() == Helper.class) {
+					for (final IdObjectShell<?> bs : ms.getNewBones()) {
+						if (mht.receivingModel.contains(bs.getIdObject())) {
+							if (bs.getIdObject().getClass() == Helper.class) {
 								JOptionPane.showMessageDialog(null,
 										"Error: Holy fo shizzle my grizzle! A geoset is trying to attach to a helper, not a bone!");
 							}
-							ms.getMatrix().add(bs.getBone());
+							ms.getMatrix().add((Bone) bs.getIdObject()); // todo check instance of?
 						} else {
-							System.out.println("Boneshaving " + bs.getBone().getName() + " out of use");
+							System.out.println("Boneshaving " + bs.getIdObject().getName() + " out of use");
 						}
 					}
 					if (ms.getMatrix().size() == 0 && !shownDestroyed) {
@@ -576,11 +576,11 @@ public class AnimTransferFunctions {
 
 	private List<IdObject> addChosenObjects() {
 		List<IdObject> objectsAdded = new ArrayList<>();
-		for (ObjectShell objectShell : mht.donModObjectShells) {
+		for (IdObjectShell<?> objectShell : mht.donModObjectShells) {
 			if (objectShell.getShouldImport() && objectShell.getIdObject() != null) {
-				BoneShell parentBs = objectShell.getNewParentBs();
+				IdObjectShell<?> parentBs = objectShell.getNewParentShell();
 				if (parentBs != null) {
-					objectShell.getIdObject().setParent(parentBs.getBone());
+					objectShell.getIdObject().setParent(parentBs.getIdObject());
 				} else {
 					objectShell.getIdObject().setParent(null);
 				}
@@ -622,12 +622,12 @@ public class AnimTransferFunctions {
 			}
 			// newVisFlag = new AnimFlag(temp.visFlagName());
 
-			FloatAnimFlag flagOld = getFloatAnimFlag(newVisFlag.tans(), oldAnims, visibilityShell.getOldVisSource());
-			FloatAnimFlag flagNew = getFloatAnimFlag(newVisFlag.tans(), newAnims, visibilityShell.getNewVisSource());
+			FloatAnimFlag flagOld = getFloatAnimFlag(newVisFlag.tans(), oldAnims, visibilityShell.getDonModAnimsVisSource());
+			FloatAnimFlag flagNew = getFloatAnimFlag(newVisFlag.tans(), newAnims, visibilityShell.getRecModAnimsVisSource());
 
 			if (flagNew != null &&
-					((visibilityShell.isFavorOld() && (visibilityShell.getModel() == mht.receivingModel) && !clearAnims)
-							|| (!visibilityShell.isFavorOld() && (visibilityShell.getModel() == mht.donatingModel)))) {
+					((visibilityShell.isFavorOld() && (!visibilityShell.isFromDonating()) && !clearAnims)
+							|| (!visibilityShell.isFavorOld() && (visibilityShell.isFromDonating())))) {
 				// this is an element favoring existing animations over imported
 				for (Animation a : oldAnims) {
 					flagNew.deleteAnim(a);

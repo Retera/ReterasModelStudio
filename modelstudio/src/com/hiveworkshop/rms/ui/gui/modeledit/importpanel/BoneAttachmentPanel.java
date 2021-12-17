@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.MatrixShellListCellRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -17,14 +18,16 @@ class BoneAttachmentPanel extends JPanel {
 	IterableListModel<MatrixShell> recModMatrixShells;
 	IterableListModel<MatrixShell> filteredRecModMatrixShells = new IterableListModel<>();
 
+	MatrixShellListCellRenderer matrixListCellRenderer = new MatrixShellListCellRenderer();
+
 	// New refs
-	IterableListModel<BoneShell> newRefs = new IterableListModel<>();
-	JList<BoneShell> newRefsList;
+	IterableListModel<IdObjectShell<?>> newRefs = new IterableListModel<>();
+	JList<IdObjectShell<?>> newRefsList;
 
 	// Bones (all available -- NEW AND OLD)
-	IterableListModel<BoneShell> futureBones;
-	IterableListModel<BoneShell> filteredFutureBones = new IterableListModel<>();
-	JList<BoneShell> bonesList;
+	IterableListModel<IdObjectShell<?>> futureBones;
+	IterableListModel<IdObjectShell<?>> filteredFutureBones = new IterableListModel<>();
+	JList<IdObjectShell<?>> bonesList;
 	JScrollPane bonesPane;
 
 	ModelHolderThing mht;
@@ -58,6 +61,7 @@ class BoneAttachmentPanel extends JPanel {
 
 
 		recModBoneRefsList = new JList<>();
+		recModBoneRefsList.setCellRenderer(matrixListCellRenderer);
 		recModBoneRefsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 //		oldBoneRefsList.setCellRenderer(renderer);
 //		oldBoneRefsList.setCellRenderer(new MatrixShell2DListCellRenderer(new ModelViewManager(impPanel.currentModel), new ModelViewManager(impPanel.importedModel)));
@@ -124,7 +128,7 @@ class BoneAttachmentPanel extends JPanel {
 
 	private void moveBone(int dir) {
 		int[] selected = newRefsList.getSelectedIndices();
-		List<BoneShell> selectedValuesList = newRefsList.getSelectedValuesList();
+		List<IdObjectShell<?>> selectedValuesList = newRefsList.getSelectedValuesList();
 
 		int size = selectedValuesList.size();
 
@@ -140,7 +144,7 @@ class BoneAttachmentPanel extends JPanel {
 
 	private void removeNewRef() {
 		int i = newRefsList.getSelectedIndex() - newRefsList.getSelectedValuesList().size();
-		for (BoneShell bs : newRefsList.getSelectedValuesList()) {
+		for (IdObjectShell<?> bs : newRefsList.getSelectedValuesList()) {
 			recModBoneRefsList.getSelectedValue().removeNewBone(bs);
 		}
 		if (i >= (newRefs.size())) {
@@ -155,7 +159,7 @@ class BoneAttachmentPanel extends JPanel {
 	private void useBone() {
 		MatrixShell selectedMatrix = recModBoneRefsList.getSelectedValue();
 		if (selectedMatrix != null) {
-			for (BoneShell bs : bonesList.getSelectedValuesList()) {
+			for (IdObjectShell<?> bs : bonesList.getSelectedValuesList()) {
 				if (!selectedMatrix.getNewBones().contains(bs)) {
 					selectedMatrix.addNewBone(bs);
 				}
@@ -216,7 +220,7 @@ class BoneAttachmentPanel extends JPanel {
 	private void applyFutureBonesListModel(String filterText) {
 		if (!filterText.equals("")) {
 			filteredFutureBones.clear();
-			for (BoneShell boneShell : futureBones) {
+			for (IdObjectShell<?> boneShell : futureBones) {
 				if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
 					filteredFutureBones.addElement(boneShell);
 				}
@@ -231,7 +235,7 @@ class BoneAttachmentPanel extends JPanel {
 		if (!filterText.equals("")) {
 			filteredRecModMatrixShells.clear();
 			for (MatrixShell matrixShell : recModMatrixShells) {
-				for (BoneShell boneShell : matrixShell.getOrgBones()){
+				for (IdObjectShell<?> boneShell : matrixShell.getOrgBones()) {
 					if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
 						filteredRecModMatrixShells.addElement(matrixShell);
 						break;
@@ -244,7 +248,7 @@ class BoneAttachmentPanel extends JPanel {
 		}
 	}
 
-	public void setFutureBoneListModel(IterableListModel<BoneShell> model) {
+	public void setFutureBoneListModel(IterableListModel<IdObjectShell<?>> model) {
 		bonesList.setModel(model);
 	}
 

@@ -2,6 +2,9 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ModelLoader;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import net.miginfocom.swing.MigLayout;
 
@@ -127,7 +130,10 @@ public class ImportPanelGui extends JTabbedPane {
 		EditableModel editableModel = importPanel2.doImport();
 		frame.setVisible(false);
 //		saveModel(mht.receivingModel);
-		saveModel(editableModel);
+//		saveModel(editableModel);
+		ModelPanel modelPanel = new ModelPanel(new ModelHandler(editableModel));
+		ModelLoader.loadModel(true, true, modelPanel);
+//		saveModel(editableModel);
 		frame.dispose();
 	}
 

@@ -14,16 +14,18 @@ import java.util.regex.Pattern;
 
 public class AnimEditPanel extends JPanel {
 
-	ModelHolderThing mht;
-	AnimPanel singleAnimPanel;
-	AnimListCellRenderer animRenderer;
-	CardLayout animCardLayout = new CardLayout();
-	JPanel animPanelCards = new JPanel(animCardLayout);
-	MultiAnimPanel multiAnimPanel;
+	private ModelHolderThing mht;
+	private AnimPanel singleAnimPanel;
+	private AnimListCellRenderer animRenderer;
+	private CardLayout animCardLayout = new CardLayout();
+	private JPanel animPanelCards = new JPanel(animCardLayout);
+	private MultiAnimPanel multiAnimPanel;
+	private JList<AnimShell> animJList;
 
 	public AnimEditPanel(ModelHolderThing mht) {
 		setLayout(new MigLayout("gap 0, fill", "[grow]", "[][grow]"));
 		this.mht = mht;
+		animJList = new JList<>(mht.allAnimShells);
 
 		add(getTopPanel(), "align center, wrap");
 
@@ -31,7 +33,7 @@ public class AnimEditPanel extends JPanel {
 		animRenderer.setSelectedAnim(null);
 
 		// Build the animTabs list of AnimPanels
-		singleAnimPanel = new AnimPanel(mht, mht.recModAnims, animRenderer);
+		singleAnimPanel = new AnimPanel(mht, animJList, animRenderer);
 		multiAnimPanel = new MultiAnimPanel(mht);
 
 		animPanelCards.add(new JPanel(), "blank");
@@ -43,25 +45,25 @@ public class AnimEditPanel extends JPanel {
 	}
 
 	private JScrollPane getAnimListPane(ModelHolderThing mht) {
-		mht.animJList.setCellRenderer(animRenderer);
-		mht.animJList.addListSelectionListener(e -> changeAnim(mht, e));
-		mht.animJList.setSelectedValue(null, false);
-		JScrollPane animStrollPane = new JScrollPane(mht.animJList);
+		animJList.setCellRenderer(animRenderer);
+		animJList.addListSelectionListener(e -> changeAnim(mht, e));
+		animJList.setSelectedValue(null, false);
+		JScrollPane animStrollPane = new JScrollPane(animJList);
 		animStrollPane.setMinimumSize(new Dimension(150, 200));
 		return animStrollPane;
 	}
 
 	private void changeAnim(ModelHolderThing mht, ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
-			List<AnimShell> selectedValuesList = mht.animJList.getSelectedValuesList();
+			List<AnimShell> selectedValuesList = animJList.getSelectedValuesList();
 
-			singleAnimPanel.setSelectedAnim(mht.animJList.getSelectedValue());
+			singleAnimPanel.setSelectedAnim(animJList.getSelectedValue());
 			if (selectedValuesList.size() < 1) {
 				animRenderer.setSelectedAnim(null);
 				animCardLayout.show(animPanelCards, "blank");
 			} else if (selectedValuesList.size() == 1) {
-				animRenderer.setSelectedAnim(mht.animJList.getSelectedValue());
-				singleAnimPanel.setSelectedAnim(mht.animJList.getSelectedValue());
+				animRenderer.setSelectedAnim(animJList.getSelectedValue());
+				singleAnimPanel.setSelectedAnim(animJList.getSelectedValue());
 				animCardLayout.show(animPanelCards, "single");
 			} else {
 				animRenderer.setSelectedAnim(null);
@@ -74,15 +76,10 @@ public class AnimEditPanel extends JPanel {
 
 	private JPanel getTopPanel() {
 		JPanel topPanel = new JPanel(new MigLayout("gap 0"));
-//		topPanel.add(getButton("Import All", e -> mht.setImportTypeForAllAnims(AnimShell.ImportType.IMPORTBASIC)));
-//		topPanel.add(getButton("Time-scale All", e -> mht.setImportTypeForAllAnims(AnimShell.ImportType.TIMESCALE)));
-//		topPanel.add(getButton("Import and Rename All", e -> renameAllAnims(mht)));
-//		topPanel.add(getButton("Leave All", e -> mht.setImportTypeForAllAnims(AnimShell.ImportType.DONTIMPORT)), "wrap");
-//		topPanel.add(mht.clearRecModAnims, "spanx, align center");
-
-		topPanel.add(getSetImpTypePanel(mht.receivingModel.getName(), (i) -> mht.setImportTypeForAllAnims(i)), "");
-		topPanel.add(getSetImpTypePanel(mht.donatingModel.getName(), (i) -> mht.setImportTypeForAllAnims(i)), "wrap");
-		topPanel.add(getButton("bulk rename animations", e -> doSomeRenaming(mht)), "wrap");
+		topPanel.add(getSetImpTypePanel(mht.receivingModel.getName(), (i) -> mht.setImportTypeForAllRecAnims(i)), "");
+		topPanel.add(getSetImpTypePanel(mht.donatingModel.getName(), (i) -> mht.setImportTypeForAllDonAnims(i)), "wrap");
+		topPanel.add(getButton("bulk rename animations", e -> doSomeRenaming(mht)), "");
+		topPanel.add(getButton("auto match animations", e -> matchAnimsByName()), "wrap");
 		return topPanel;
 	}
 
@@ -91,10 +88,10 @@ public class AnimEditPanel extends JPanel {
 		panel.setOpaque(true);
 		panel.setBorder(BorderFactory.createTitledBorder(modelName));
 
-		panel.add(getButton("Import All", e -> importTypeConsumer.accept(AnimShell.ImportType.IMPORTBASIC)), "");
-		panel.add(getButton("Time-scale All", e -> importTypeConsumer.accept(AnimShell.ImportType.TIMESCALE)), "");
-		panel.add(getButton("Import and Rename All", e -> importTypeConsumer.accept(AnimShell.ImportType.CHANGENAME)), "");
-		panel.add(getButton("Leave All", e -> importTypeConsumer.accept(AnimShell.ImportType.DONTIMPORT)), "");
+		panel.add(getButton("Import All", e -> importTypeConsumer.accept(AnimShell.ImportType.IMPORT_BASIC)), "");
+		panel.add(getButton("Time-scale All", e -> importTypeConsumer.accept(AnimShell.ImportType.TIMESCALE_INTO)), "");
+		panel.add(getButton("Import and Rename All", e -> importTypeConsumer.accept(AnimShell.ImportType.CHANGE_NAME)), "");
+		panel.add(getButton("Leave All", e -> importTypeConsumer.accept(AnimShell.ImportType.DONT_IMPORT)), "");
 
 		return panel;
 	}
@@ -110,7 +107,7 @@ public class AnimEditPanel extends JPanel {
 
 		if (newTagString != null) {
 			for (AnimShell animShell : mht.allAnimShells) {
-				animShell.setImportType(AnimShell.ImportType.CHANGENAME);
+				animShell.setImportType(AnimShell.ImportType.CHANGE_NAME);
 				String oldName = animShell.getOldName();
 				String baseName = oldName;
 				while ((baseName.length() > 0) && baseName.contains(" ")) {
@@ -140,7 +137,7 @@ public class AnimEditPanel extends JPanel {
 
 		if (newTagString != null) {
 			for (AnimShell animShell : mht.allAnimShells) {
-				if (animShell.getImportType() == AnimShell.ImportType.CHANGENAME) {
+				if (animShell.getImportType() == AnimShell.ImportType.CHANGE_NAME) {
 //					animShell.setImportType(AnimShell.ImportType.CHANGENAME);
 					String oldName = animShell.getOldName();
 					String baseName = oldName;
@@ -180,9 +177,32 @@ public class AnimEditPanel extends JPanel {
 
 	private void doSomeRenaming(ModelHolderThing mht, Pattern pattern, String replaceString) {
 		for (AnimShell animShell : mht.allAnimShells) {
-			if (animShell.getImportType() == AnimShell.ImportType.CHANGENAME) {
+			if (animShell.getImportType() == AnimShell.ImportType.CHANGE_NAME) {
 				animShell.setName(pattern.matcher(animShell.getOldName()).replaceAll(replaceString));
 			}
 		}
+	}
+
+	private void matchAnimsByName() {
+		for (AnimShell recAnimShell : mht.recModAnims) {
+			for (AnimShell donAnimShell : mht.donModAnims) {
+				if (recAnimShell.getName().equals(donAnimShell.getName())) {
+					recAnimShell.setAnimDataSrc(donAnimShell);
+					break;
+				} else if (recAnimShell.getName().startsWith(donAnimShell.getName().split(" ")[0])) {
+					if (recAnimShell.getAnimDataSrcAnim() == null) {
+						recAnimShell.setAnimDataSrc(donAnimShell);
+					} else {
+						int orgLength = recAnimShell.getAnim().getLength();
+						int lengthDiffCurr = Math.abs(recAnimShell.getAnimDataSrcAnim().getLength() - orgLength);
+						int lengthDiffNew = Math.abs(donAnimShell.getAnim().getLength() - orgLength);
+						if (lengthDiffNew < lengthDiffCurr) {
+							recAnimShell.setAnimDataSrc(donAnimShell);
+						}
+					}
+				}
+			}
+		}
+		animJList.repaint();
 	}
 }

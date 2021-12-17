@@ -8,6 +8,7 @@ import java.util.List;
 public class TwiComboBoxModel<E> extends AbstractListModel<E> implements MutableComboBoxModel<E> {
 	List<E> objects;
 	Object selectedObject;
+	E selectedTypedObject;
 
 	/**
 	 * Constructs an empty TwiComboBox object.
@@ -31,6 +32,7 @@ public class TwiComboBoxModel<E> extends AbstractListModel<E> implements Mutable
 
 		if (getSize() > 0) {
 			selectedObject = getElementAt(0);
+			selectedTypedObject = getElementAt(0);
 		}
 	}
 
@@ -45,6 +47,7 @@ public class TwiComboBoxModel<E> extends AbstractListModel<E> implements Mutable
 
 		if (getSize() > 0) {
 			selectedObject = getElementAt(0);
+			selectedTypedObject = getElementAt(0);
 		}
 	}
 
@@ -59,6 +62,16 @@ public class TwiComboBoxModel<E> extends AbstractListModel<E> implements Mutable
 		if ((selectedObject != null && !selectedObject.equals(anObject)) ||
 				selectedObject == null && anObject != null) {
 			selectedObject = anObject;
+			selectedTypedObject = (E) anObject;
+			fireContentsChanged(this, -1, -1);
+		}
+	}
+
+	public void setSelectedTyped(E anObject) {
+		if ((selectedObject != null && !selectedObject.equals(anObject)) ||
+				selectedObject == null && anObject != null) {
+			selectedObject = anObject;
+			selectedTypedObject = anObject;
 			fireContentsChanged(this, -1, -1);
 		}
 	}
@@ -66,6 +79,10 @@ public class TwiComboBoxModel<E> extends AbstractListModel<E> implements Mutable
 	// implements javax.swing.ComboBoxModel
 	public Object getSelectedItem() {
 		return selectedObject;
+	}
+
+	public Object getSelectedTyped() {
+		return selectedTypedObject;
 	}
 
 	// implements javax.swing.ListModel
@@ -139,9 +156,11 @@ public class TwiComboBoxModel<E> extends AbstractListModel<E> implements Mutable
 			int lastIndex = objects.size() - 1;
 			objects.clear();
 			selectedObject = null;
+			selectedTypedObject = null;
 			fireIntervalRemoved(this, firstIndex, lastIndex);
 		} else {
 			selectedObject = null;
+			selectedTypedObject = null;
 		}
 	}
 

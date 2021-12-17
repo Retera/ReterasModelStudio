@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -11,9 +11,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRenderer2D<BoneShell> {
+public class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRenderer2D<IdObjectShell<?>> {
 	boolean showParent = false;
-	Set<BoneShell> selectedBones = new HashSet<>();
+	Set<IdObjectShell<?>> selectedBones = new HashSet<>();
 	boolean showClass = false;
 
 	public BoneShellMotionListCellRenderer(EditableModel model, EditableModel other) {
@@ -30,13 +30,13 @@ public class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCel
 		return this;
 	}
 
-	public BoneShellMotionListCellRenderer setSelectedBoneShell(BoneShell boneShell) {
+	public BoneShellMotionListCellRenderer setSelectedBoneShell(IdObjectShell<?> boneShell) {
 		selectedBones.clear();
 		selectedBones.add(boneShell);
 		return this;
 	}
 
-	public BoneShellMotionListCellRenderer setSelectedBoneShell(Collection<BoneShell> boneShells) {
+	public BoneShellMotionListCellRenderer setSelectedBoneShell(Collection<IdObjectShell<?>> boneShells) {
 		selectedBones.clear();
 		selectedBones.addAll(boneShells);
 		return this;
@@ -49,9 +49,9 @@ public class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCel
 		Vec3 bg = noOwnerBgCol;
 		Vec3 fg = noOwnerFgCol;
 
-		if (value instanceof BoneShell) {
-			setText(((BoneShell) value).toString(showClass, showParent));
-			BoneShell importBoneShell = ((BoneShell) value).getImportBoneShell();
+		if (value instanceof IdObjectShell<?>) {
+			setText(((IdObjectShell<?>) value).toString(showClass, showParent));
+			IdObjectShell<?> importBoneShell = ((IdObjectShell<?>) value).getMotionSrcShell();
 			if (selectedBones.contains(importBoneShell)) {
 				bg = selectedOwnerBgCol;
 				fg = selectedOwnerFgCol;
@@ -74,7 +74,7 @@ public class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCel
 	}
 
 	@Override
-	protected boolean isFromDonating(BoneShell value) {
+	protected boolean isFromDonating(IdObjectShell<?> value) {
 		if (value != null) {
 			return value.isFromDonating();
 		}
@@ -82,7 +82,7 @@ public class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCel
 	}
 
 	@Override
-	protected boolean isFromReceiving(BoneShell value) {
+	protected boolean isFromReceiving(IdObjectShell<?> value) {
 		if (value != null) {
 			return !value.isFromDonating();
 		}
@@ -90,20 +90,20 @@ public class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCel
 	}
 
 	@Override
-	protected BoneShell valueToType(Object value) {
-		return (BoneShell) value;
+	protected IdObjectShell<?> valueToType(Object value) {
+		return (IdObjectShell<?>) value;
 	}
 
 	@Override
-	protected boolean contains(EditableModel model, BoneShell object) {
+	protected boolean contains(EditableModel model, IdObjectShell<?> object) {
 		if (model != null) {
-			return model.contains(object.getBone());
+			return model.contains(object.getIdObject());
 		}
 		return false;
 	}
 
 	@Override
-	protected Vec3 getRenderVertex(BoneShell value) {
-		return value.getBone().getPivotPoint();
+	protected Vec3 getRenderVertex(IdObjectShell<?> value) {
+		return value.getIdObject().getPivotPoint();
 	}
 }

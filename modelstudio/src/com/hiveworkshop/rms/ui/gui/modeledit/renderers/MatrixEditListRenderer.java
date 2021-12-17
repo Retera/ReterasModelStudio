@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
+import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ObjectShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -12,15 +12,15 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer2D<BoneShell> {
+public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer2D<IdObjectShell<Bone>> {
 	boolean showParent = false;
 
-	BoneShell selectedBone;
-	ObjectShell selectedObject;
+	IdObjectShell<Bone> selectedBone;
+	IdObjectShell<?> selectedObject;
 	boolean showClass = false;
 
-	Set<BoneShell> bonesInAllMatricies = new HashSet<>();
-	Set<BoneShell> bonesNotInAllMatricies = new HashSet<>();
+	Set<IdObjectShell<Bone>> bonesInAllMatricies = new HashSet<>();
+	Set<IdObjectShell<Bone>> bonesNotInAllMatricies = new HashSet<>();
 
 	public MatrixEditListRenderer(EditableModel recModel, EditableModel donModel) {
 		super(recModel, donModel);
@@ -36,70 +36,70 @@ public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer
 		return this;
 	}
 
-	public void setSelectedBoneShell(BoneShell boneShell) {
+	public void setSelectedBoneShell(IdObjectShell<Bone> boneShell) {
 		selectedBone = boneShell;
 	}
 
-	public void setSelectedObjectShell(ObjectShell objectShell) {
+	public void setSelectedObjectShell(IdObjectShell<Bone> objectShell) {
 		selectedObject = objectShell;
 	}
 
 	@Override
-	protected boolean isFromDonating(BoneShell value){
-		if(value != null){
+	protected boolean isFromDonating(IdObjectShell<Bone> value) {
+		if (value != null) {
 			return value.isFromDonating();
 		}
 		return false;
 	}
 
 	@Override
-	protected boolean isFromReceiving(BoneShell value){
-		if(value != null){
+	protected boolean isFromReceiving(IdObjectShell<Bone> value) {
+		if (value != null) {
 			return !value.isFromDonating();
 		}
 		return false;
 	}
 
 	@Override
-	protected BoneShell valueToType(final Object value) {
-		return (BoneShell) value;
+	protected IdObjectShell<Bone> valueToType(final Object value) {
+		return (IdObjectShell<Bone>) value;
 	}
 
 	@Override
-	protected boolean contains(EditableModel model, final BoneShell object) {
-		if(model != null){
-			return model.contains(object.getBone());
+	protected boolean contains(EditableModel model, final IdObjectShell<Bone> object) {
+		if (model != null) {
+			return model.contains(object.getIdObject());
 		}
 		return false;
 	}
 
 	@Override
-	protected Vec3 getRenderVertex(final BoneShell value) {
-		return value.getBone().getPivotPoint();
+	protected Vec3 getRenderVertex(final IdObjectShell<Bone> value) {
+		return value.getIdObject().getPivotPoint();
 	}
 
 
-	public void addInAllBone(BoneShell boneShell) {
+	public void addInAllBone(IdObjectShell<Bone> boneShell) {
 		bonesInAllMatricies.add(boneShell);
 	}
 
-	public void removeInAllBone(BoneShell boneShell) {
+	public void removeInAllBone(IdObjectShell<Bone> boneShell) {
 		bonesInAllMatricies.remove(boneShell);
 	}
 
-	public void addNotInAllBone(BoneShell boneShell) {
+	public void addNotInAllBone(IdObjectShell<Bone> boneShell) {
 		bonesNotInAllMatricies.add(boneShell);
 	}
 
-	public void removeNotInAllBone(BoneShell boneShell) {
+	public void removeNotInAllBone(IdObjectShell<Bone> boneShell) {
 		bonesNotInAllMatricies.remove(boneShell);
 	}
 
-	public void addNotInAllBone(Collection<BoneShell> boneShells) {
+	public void addNotInAllBone(Collection<IdObjectShell<Bone>> boneShells) {
 		bonesNotInAllMatricies.addAll(boneShells);
 	}
 
-	public void removeNotInAllBone(Collection<BoneShell> boneShells) {
+	public void removeNotInAllBone(Collection<IdObjectShell<Bone>> boneShells) {
 		bonesNotInAllMatricies.removeAll(boneShells);
 	}
 
@@ -110,10 +110,11 @@ public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer
 		Vec3 bg = noOwnerBgCol;
 		Vec3 fg = noOwnerFgCol;
 
-		if (value instanceof BoneShell) {
-			setText(((BoneShell) value).toString(showClass, showParent));
-			if (selectedBone != null && selectedBone.getNewParentBs() == value
-					|| selectedObject != null && selectedObject.getNewParentBs() == value) {
+		// ToDo check if type matters for this renders
+		if (value instanceof IdObjectShell<?>) { // ObjectShell
+			setText(((IdObjectShell<?>) value).toString(showClass, showParent));
+			if (selectedBone != null && selectedBone.getNewParentShell() == value
+					|| selectedObject != null && selectedObject.getNewParentShell() == value) {
 				bg = selectedOwnerBgCol;
 				fg = selectedOwnerFgCol;
 			} else if (bonesNotInAllMatricies.contains(value)) {
@@ -124,7 +125,7 @@ public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer
 		} else {
 			setText(value.toString());
 		}
-		if (value instanceof BoneShell && ((BoneShell) value).getImportStatus() != BoneShell.ImportType.IMPORT) {
+		if (value instanceof IdObjectShell<?> && ((IdObjectShell<?>) value).getImportStatus() != IdObjectShell.ImportType.IMPORT) { // BoneShell
 			bg = Vec3.getProd(bg, otherOwnerBgCol).normalize().scale(160);
 			fg = Vec3.getProd(bg, otherOwnerFgCol).normalize().scale(60);
 		}

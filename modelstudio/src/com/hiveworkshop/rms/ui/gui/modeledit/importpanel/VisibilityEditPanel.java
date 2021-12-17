@@ -33,7 +33,7 @@ public class VisibilityEditPanel extends JPanel {
 		this.mht = mht;
 
 		mht.visibilityShellJList.setModel(mht.futureVisComponents);
-		mht.visibilityShellJList.setCellRenderer(new VisPaneListCellRenderer(mht.receivingModel));
+		mht.visibilityShellJList.setCellRenderer(new VisPaneListCellRenderer());
 		mht.visibilityShellJList.addListSelectionListener(e -> visTabsValueChanged(mht, e));
 
 		add(getTopPanel(), "spanx, align center, wrap");
@@ -60,10 +60,12 @@ public class VisibilityEditPanel extends JPanel {
 	private JPanel getTopPanel() {
 		JPanel topPanel = new JPanel(new MigLayout("gap 0", "", "[]8[]8[]"));
 
-		JButton allInvisButton = createButton("All Invisible in Exotic Anims", e -> allVisButton(mht.allVisShells, mht.receivingModel, mht.alwaysVisible), "Forces everything to be always invisibile in animations other than their own original animations.");
+//		JButton allInvisButton = createButton("All Invisible in Exotic Anims", e -> allVisButton(mht.allVisShells, mht.receivingModel, mht.alwaysVisible), "Forces everything to be always invisibile in animations other than their own original animations.");
+		JButton allInvisButton = createButton("All Invisible in Exotic Anims", e -> allVisButton(mht.allVisShells, mht.neverVisible), "Forces everything to be always invisibile in animations other than their own original animations.");
 		topPanel.add(allInvisButton, "align center, wrap");
 
-		JButton allVisButton = createButton("All Visible in Exotic Anims", e -> allVisButton(mht.allVisShells, mht.receivingModel, mht.neverVisible), "Forces everything to be always visibile in animations other than their own original animations.");
+//		JButton allVisButton = createButton("All Visible in Exotic Anims", e -> allVisButton(mht.allVisShells, mht.receivingModel, mht.neverVisible), "Forces everything to be always visibile in animations other than their own original animations.");
+		JButton allVisButton = createButton("All Visible in Exotic Anims", e -> allVisButton(mht.allVisShells, mht.alwaysVisible), "Forces everything to be always visibile in animations other than their own original animations.");
 		topPanel.add(allVisButton, "align center, wrap");
 
 		JButton selSimButton = createButton("Select Similar Options", e -> mht.selectSimilarVisSources(), "Similar components will be selected as visibility sources in exotic animations.");
@@ -160,12 +162,14 @@ public class VisibilityEditPanel extends JPanel {
 		return mht.allVisShellBiMap.get(vs);
 	}
 
-	public void allVisButton(ArrayList<VisibilityShell> allVisShellPanes, EditableModel model, VisibilityShell visibilityShell) {
+	// ToDo Fix this to check through all animShells
+	//  this might be more broken than
+	public void allVisButton(ArrayList<VisibilityShell> allVisShellPanes, VisibilityShell visibilityShell) {
 		for (VisibilityShell shell : allVisShellPanes) {
-			if (shell.getModel() == model) {
-				shell.setNewVisSource(visibilityShell);
+			if (shell.isFromDonating()) {
+				shell.setRecModAnimsVisSource(visibilityShell);
 			} else {
-				shell.setOldVisSource(visibilityShell);
+				shell.setDonModAnimsVisSource(visibilityShell);
 			}
 		}
 	}

@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.MatrixEditListRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
@@ -27,22 +27,22 @@ import java.util.stream.Collectors;
 public class MatrixPopup extends JPanel {
 
 	// New refs
-	public IterableListModel<BoneShell> newRefs = new IterableListModel<>();
-	JList<BoneShell> newRefsJList;
+	public IterableListModel<IdObjectShell<Bone>> newRefs = new IterableListModel<>();
+	JList<IdObjectShell<Bone>> newRefsJList;
 
 	// Bones (all available -- NEW AND OLD)
-	IterableListModel<BoneShell> bones;
-	IterableListModel<BoneShell> filteredBones = new IterableListModel<>();
-	JList<BoneShell> bonesList;
+	IterableListModel<IdObjectShell<Bone>> bones;
+	IterableListModel<IdObjectShell<Bone>> filteredBones = new IterableListModel<>();
+	JList<IdObjectShell<Bone>> bonesList;
 	JTextField boneSearch;
 
 	EditableModel model;
 
 	Set<Bone> bonesInAll = new HashSet<>();
 	Set<Bone> allBones = new HashSet<>();
-	Set<BoneShell> bonesShellInAll = new HashSet<>();
-	Set<BoneShell> bonesShellNotInAll = new HashSet<>();
-	Set<BoneShell> allBonesShell = new HashSet<>();
+	Set<IdObjectShell<Bone>> bonesShellInAll = new HashSet<>();
+	Set<IdObjectShell<Bone>> bonesShellNotInAll = new HashSet<>();
+	Set<IdObjectShell<Bone>> allBonesShell = new HashSet<>();
 	MatrixEditListRenderer renderer;
 
 	public MatrixPopup(ModelHandler modelHandler) {
@@ -125,11 +125,11 @@ public class MatrixPopup extends JPanel {
 			}
 		}
 
-		for (BoneShell boneShell : bones) {
-			if (allBones.contains(boneShell.getBone())) {
+		for (IdObjectShell<Bone> boneShell : bones) {
+			if (allBones.contains(boneShell.getIdObject())) {
 				newRefs.addElement(boneShell);
 				allBonesShell.add(boneShell);
-				if (bonesInAll.contains(boneShell.getBone())) {
+				if (bonesInAll.contains(boneShell.getIdObject())) {
 //					renderer.addInAllBone(boneShell);
 					bonesShellInAll.add(boneShell);
 				}
@@ -148,7 +148,7 @@ public class MatrixPopup extends JPanel {
 		if (indices != null && indices.length > 0) {
 			if (indices[indices.length - 1] < newRefs.size() - 1) {
 				for (int i = indices.length - 1; i >= 0; i--) {
-					final BoneShell bs = newRefs.get(indices[i]);
+					final IdObjectShell<Bone> bs = newRefs.get(indices[i]);
 					newRefs.removeElement(bs);
 					newRefs.add(indices[i] + 1, bs);
 					indices[i] += 1;
@@ -163,7 +163,7 @@ public class MatrixPopup extends JPanel {
 		if (indices != null && indices.length > 0) {
 			if (indices[0] > 0) {
 				for (int i = 0; i < indices.length; i++) {
-					final BoneShell bs = newRefs.get(indices[i]);
+					final IdObjectShell<Bone> bs = newRefs.get(indices[i]);
 					newRefs.removeElement(bs);
 					newRefs.add(indices[i] - 1, bs);
 					indices[i] -= 1;
@@ -188,7 +188,7 @@ public class MatrixPopup extends JPanel {
 		String filterText = boneSearch.getText();
 		if (!filterText.equals("")) {
 			filteredBones.clear();
-			for (BoneShell boneShell : bones) {
+			for (IdObjectShell<Bone> boneShell : bones) {
 				if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
 					filteredBones.addElement(boneShell);
 				}
@@ -202,12 +202,12 @@ public class MatrixPopup extends JPanel {
 	private void useBone() {
 //		renderer.removeNotInAllBone(newRefsJList.getSelectedValuesList());
 		for (final Object o : bonesList.getSelectedValuesList()) {
-			renderer.removeNotInAllBone((BoneShell) o);
+			renderer.removeNotInAllBone((IdObjectShell<Bone>) o);
 			if (!newRefs.contains(o)) {
-				newRefs.addElement((BoneShell) o);
+				newRefs.addElement((IdObjectShell<Bone>) o);
 			}
-			allBonesShell.add((BoneShell) o);
-			bonesShellInAll.add((BoneShell) o);
+			allBonesShell.add((IdObjectShell<Bone>) o);
+			bonesShellInAll.add((IdObjectShell<Bone>) o);
 			bonesShellNotInAll.remove(o);
 		}
 		repaint();
@@ -217,23 +217,23 @@ public class MatrixPopup extends JPanel {
 		bones = new IterableListModel<>();
 		final List<Bone> modelBones = model.getBones();
 		for (final Bone b : modelBones) {
-			bones.addElement(new BoneShell(b));
+			bones.addElement(new IdObjectShell<>(b));
 		}
 	}
 
 	public List<Bone> getNewBoneList() {
 		final List<Bone> bones = new ArrayList<>();
-		for (final BoneShell bs : newRefs) {
-			bones.add(bs.getBone());
+		for (final IdObjectShell<Bone> bs : newRefs) {
+			bones.add(bs.getIdObject());
 		}
 		return bones;
 	}
 
 	public Set<Bone> getBonesInAll() {
-		return bonesShellInAll.stream().map(BoneShell::getBone).collect(Collectors.toSet());
+		return bonesShellInAll.stream().map(IdObjectShell<Bone>::getIdObject).collect(Collectors.toSet());
 	}
 
 	public Set<Bone> getBonesNotInAll() {
-		return bonesShellNotInAll.stream().map(BoneShell::getBone).collect(Collectors.toSet());
+		return bonesShellNotInAll.stream().map(IdObjectShell<Bone>::getIdObject).collect(Collectors.toSet());
 	}
 }

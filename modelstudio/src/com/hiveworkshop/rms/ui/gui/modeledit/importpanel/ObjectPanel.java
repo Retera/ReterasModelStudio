@@ -15,12 +15,12 @@ class ObjectPanel extends JPanel {
 	JCheckBox doImport;
 	JLabel parentLabel;
 	JLabel oldParentLabel;
-	IterableListModel<BoneShell> parents;
-	JList<BoneShell> parentsList;
+	IterableListModel<IdObjectShell<?>> parents;
+	JList<IdObjectShell<?>> parentsList;
 	JScrollPane parentsPane;
 	BoneShellListCellRenderer bonePanelRenderer;
 
-	ObjectShell selectedObject;
+	IdObjectShell<?> selectedObject;
 
 	protected ObjectPanel() {
 
@@ -61,7 +61,7 @@ class ObjectPanel extends JPanel {
 		return parentsPane;
 	}
 
-	public void setSelectedObject(ObjectShell objectShell) {
+	public void setSelectedObject(IdObjectShell<?> objectShell) {
 		this.selectedObject = objectShell;
 		setTitles();
 		parents = mht.getFutureBoneHelperList();
@@ -73,13 +73,12 @@ class ObjectPanel extends JPanel {
 	}
 
 
-
-	private void scrollToRevealParent(ObjectShell objectShell) {
-		if(objectShell.getNewParentBs() != null){
-			int i = parents.indexOf(objectShell.getNewParentBs());
-			if(i != -1){
+	private void scrollToRevealParent(IdObjectShell<?> objectShell) {
+		if (objectShell.getNewParentShell() != null) {
+			int i = parents.indexOf(objectShell.getNewParentShell());
+			if (i != -1) {
 				Rectangle cellBounds = parentsList.getCellBounds(i, i);
-				if(cellBounds != null){
+				if (cellBounds != null) {
 					parentsList.scrollRectToVisible(cellBounds);
 				}
 			}
@@ -93,10 +92,10 @@ class ObjectPanel extends JPanel {
 
 	private void setParent(ListSelectionEvent e) {
 		if (!e.getValueIsAdjusting() && parentsList.getSelectedValue() != null) {
-			if (parentsList.getSelectedValue() == selectedObject.getNewParentBs()) {
-				selectedObject.setNewParentBs(null);
+			if (parentsList.getSelectedValue() == selectedObject.getNewParentShell()) {
+				selectedObject.setNewParentShell(null);
 			} else {
-				selectedObject.setNewParentBs(parentsList.getSelectedValue());
+				selectedObject.setNewParentShell(parentsList.getSelectedValue());
 			}
 		}
 	}
@@ -106,8 +105,8 @@ class ObjectPanel extends JPanel {
 		title.setText(selectedObject.toString());
 //		title.setText(object.getClass().getSimpleName() + " \"" + object.getName() + "\"");
 
-		if (selectedObject.getOldParentBs() != null) {
-			oldParentLabel.setText("(Old Parent: " + selectedObject.getOldParentBs().getName() + ")");
+		if (selectedObject.getOldParentShell() != null) {
+			oldParentLabel.setText("(Old Parent: " + selectedObject.getOldParentShell().getName() + ")");
 		} else {
 			oldParentLabel.setText("(Old Parent: {no parent})");
 		}

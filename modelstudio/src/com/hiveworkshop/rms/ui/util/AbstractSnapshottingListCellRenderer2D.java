@@ -5,8 +5,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ModelThumbnailMaker;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ObjectShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -88,10 +87,10 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 			BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
 			graphics.drawImage(modelOutline, 0, 0, null);
 			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
-			if (valueType instanceof BoneShell) {
-				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), ((BoneShell) valueType).getBone());
-			} else if (valueType instanceof ObjectShell && ((ObjectShell) valueType).getIdObject() instanceof Bone) {
-				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) ((ObjectShell) valueType).getIdObject());
+			if (valueType instanceof IdObjectShell && ((IdObjectShell<?>) valueType).getIdObject() instanceof Bone) {
+				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) ((IdObjectShell<?>) valueType).getIdObject());
+			} else if (valueType instanceof IdObjectShell<?> && ((IdObjectShell<?>) valueType).getIdObject() instanceof Bone) {
+				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) ((IdObjectShell<?>) valueType).getIdObject());
 			}
 			ModelThumbnailMaker.drawBoneMarker(graphics, (byte) 1, (byte) 2, getRenderVertex(valueType));
 		}

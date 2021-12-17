@@ -50,15 +50,15 @@ class VisibilityPanel extends JPanel {
 		title.setText(sourceShell.toString());
 		favorOld.setSelected(selectedVisShell.isFavorOld());
 
-		if (sourceShell.getOldVisSource() != null && mht.recModVisSourcesOld.contains(sourceShell.getOldVisSource())) {
-			receivingModelSourcesBox.setSelectedItem(sourceShell.getOldVisSource());
+		if (sourceShell.getDonModAnimsVisSource() != null && mht.recModVisSourcesOld.contains(sourceShell.getDonModAnimsVisSource())) {
+			receivingModelSourcesBox.setSelectedItem(sourceShell.getDonModAnimsVisSource());
 		} else if (mht.recModVisSourcesOld.contains(sourceShell)) {
 			receivingModelSourcesBox.setSelectedItem(sourceShell);
 		} else {
 			receivingModelSourcesBox.setSelectedItem(mht.alwaysVisible);
 		}
-		if (sourceShell.getNewVisSource() != null && mht.donModVisSourcesNew.contains(sourceShell.getNewVisSource())) {
-			donatingModelSourcesBox.setSelectedItem(sourceShell.getNewVisSource());
+		if (sourceShell.getRecModAnimsVisSource() != null && mht.donModVisSourcesNew.contains(sourceShell.getRecModAnimsVisSource())) {
+			donatingModelSourcesBox.setSelectedItem(sourceShell.getRecModAnimsVisSource());
 		} else if (mht.donModVisSourcesNew.contains(sourceShell)) {
 			donatingModelSourcesBox.setSelectedItem(sourceShell);
 		} else {
@@ -83,13 +83,13 @@ class VisibilityPanel extends JPanel {
 
 	private void setNewSource(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED) {
-			selectedVisShell.setNewVisSource((VisibilityShell) donatingModelSourcesBox.getSelectedItem());
+			selectedVisShell.setRecModAnimsVisSource((VisibilityShell) donatingModelSourcesBox.getSelectedItem());
 		}
 	}
 
 	private void setOldSource(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED) {
-			selectedVisShell.setOldVisSource((VisibilityShell) receivingModelSourcesBox.getSelectedItem());
+			selectedVisShell.setDonModAnimsVisSource((VisibilityShell) receivingModelSourcesBox.getSelectedItem());
 		}
 	}
 }

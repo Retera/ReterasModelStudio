@@ -1,19 +1,18 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ObjectShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<BoneShell> {
+public class BoneShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<IdObjectShell<?>> {
 	boolean showParent = false;
 
-	BoneShell selectedBone;
-	ObjectShell selectedObject;
+	IdObjectShell<?> selectedBone;
+	IdObjectShell<?> selectedObject;
 	boolean showClass = false;
 
 	public BoneShellListCellRenderer(EditableModel model, EditableModel other) {
@@ -30,12 +29,12 @@ public class BoneShellListCellRenderer extends AbstractSnapshottingListCellRende
 		return this;
 	}
 
-	public BoneShellListCellRenderer setSelectedBoneShell(BoneShell boneShell) {
+	public BoneShellListCellRenderer setSelectedBoneShell(IdObjectShell<?> boneShell) {
 		selectedBone = boneShell;
 		return this;
 	}
 
-	public BoneShellListCellRenderer setSelectedObjectShell(ObjectShell objectShell) {
+	public BoneShellListCellRenderer setSelectedObjectShell(IdObjectShell<?> objectShell) {
 		selectedObject = objectShell;
 		return this;
 	}
@@ -47,14 +46,14 @@ public class BoneShellListCellRenderer extends AbstractSnapshottingListCellRende
 		Vec3 bg = noOwnerBgCol;
 		Vec3 fg = noOwnerFgCol;
 
-		if (value instanceof BoneShell) {
-			setText(((BoneShell) value).toString(showClass, showParent));
-			if (selectedBone != null && selectedBone.getNewParentBs() == value
-					|| selectedObject != null && selectedObject.getNewParentBs() == value) {
+		if (value instanceof IdObjectShell) {
+			setText(((IdObjectShell<?>) value).toString(showClass, showParent));
+			if (selectedBone != null && selectedBone.getNewParentShell() == value
+					|| selectedObject != null && selectedObject.getNewParentShell() == value) {
 				bg = selectedOwnerBgCol;
 				fg = selectedOwnerFgCol;
 			}
-			if (((BoneShell) value).getImportStatus() != BoneShell.ImportType.IMPORT) {
+			if (((IdObjectShell<?>) value).getImportStatus() != IdObjectShell.ImportType.IMPORT) {
 				bg = Vec3.getProd(bg, otherOwnerBgCol).normalize().scale(160);
 				fg = Vec3.getProd(bg, otherOwnerFgCol).normalize().scale(60);
 			}
@@ -73,7 +72,7 @@ public class BoneShellListCellRenderer extends AbstractSnapshottingListCellRende
 	}
 
 	@Override
-	protected boolean isFromDonating(BoneShell value) {
+	protected boolean isFromDonating(IdObjectShell<?> value) {
 		if (value != null) {
 			return value.isFromDonating();
 		}
@@ -81,7 +80,7 @@ public class BoneShellListCellRenderer extends AbstractSnapshottingListCellRende
 	}
 
 	@Override
-	protected boolean isFromReceiving(BoneShell value) {
+	protected boolean isFromReceiving(IdObjectShell<?> value) {
 		if (value != null) {
 			return !value.isFromDonating();
 		}
@@ -89,20 +88,20 @@ public class BoneShellListCellRenderer extends AbstractSnapshottingListCellRende
 	}
 
 	@Override
-	protected BoneShell valueToType(Object value) {
-		return (BoneShell) value;
+	protected IdObjectShell<?> valueToType(Object value) {
+		return (IdObjectShell<?>) value;
 	}
 
 	@Override
-	protected boolean contains(EditableModel model, BoneShell object) {
+	protected boolean contains(EditableModel model, IdObjectShell<?> object) {
 		if (model != null) {
-			return model.contains(object.getBone());
+			return model.contains(object.getIdObject());
 		}
 		return false;
 	}
 
 	@Override
-	protected Vec3 getRenderVertex(BoneShell value) {
-		return value.getBone().getPivotPoint();
+	protected Vec3 getRenderVertex(IdObjectShell<?> value) {
+		return value.getIdObject().getPivotPoint();
 	}
 }

@@ -44,19 +44,19 @@ class MultiVisibilityPanel extends VisibilityPanel {
 
 		boolean firstIsDoFavorOld = selectedValuesList.get(0).isFavorOld();
 
-		if(selectedValuesList.stream().anyMatch(vs -> vs.isFavorOld() != firstIsDoFavorOld)){
+		if (selectedValuesList.stream().anyMatch(vs -> vs.isFavorOld() != firstIsDoFavorOld)) {
 			this.favorOld.setSelected(false);
 			this.favorOld.setBackground(Color.ORANGE);
-		}  else {
+		} else {
 			this.favorOld.setSelected(firstIsDoFavorOld);
 			this.favorOld.setBackground(this.getBackground());
 		}
 
-		VisibilityShell firstOldVisSource = selectedValuesList.get(0).getOldVisSource();
-		if(selectedValuesList.stream()
-				.anyMatch(vs -> vs.getOldVisSource() != firstOldVisSource
+		VisibilityShell firstOldVisSource = selectedValuesList.get(0).getDonModAnimsVisSource();
+		if (selectedValuesList.stream()
+				.anyMatch(vs -> vs.getDonModAnimsVisSource() != firstOldVisSource
 						&& !((firstOldVisSource == null || firstOldVisSource == mht.alwaysVisible)
-							&& (vs.getOldVisSource() == null || vs.getOldVisSource() == mht.alwaysVisible)))){
+						&& (vs.getDonModAnimsVisSource() == null || vs.getDonModAnimsVisSource() == mht.alwaysVisible)))) {
 			setMultipleOld();
 		} else if (firstOldVisSource == null) {
 			receivingModelSourcesBox.setSelectedItem(mht.alwaysVisible);
@@ -64,11 +64,11 @@ class MultiVisibilityPanel extends VisibilityPanel {
 			receivingModelSourcesBox.setSelectedItem(firstOldVisSource);
 		}
 
-		VisibilityShell firstNewVisSource = selectedValuesList.get(0).getNewVisSource();
-		if(selectedValuesList.stream()
-				.anyMatch(vs -> vs.getNewVisSource() != firstNewVisSource
+		VisibilityShell firstNewVisSource = selectedValuesList.get(0).getRecModAnimsVisSource();
+		if (selectedValuesList.stream()
+				.anyMatch(vs -> vs.getRecModAnimsVisSource() != firstNewVisSource
 						&& !((firstOldVisSource == null || firstOldVisSource == mht.alwaysVisible)
-							&& (vs.getNewVisSource() == null || vs.getNewVisSource() == mht.alwaysVisible)))){
+						&& (vs.getRecModAnimsVisSource() == null || vs.getRecModAnimsVisSource() == mht.alwaysVisible)))) {
 			setMultipleNew();
 		} else if (firstNewVisSource == null) {
 			donatingModelSourcesBox.setSelectedItem(mht.alwaysVisible);
@@ -99,7 +99,7 @@ class MultiVisibilityPanel extends VisibilityPanel {
 		if (receivingModelSourcesBox.getSelectedItem() != mht.multipleVisible){
 			((DefaultComboBoxModel<VisibilityShell>)receivingModelSourcesBox.getModel()).removeElement(mht.multipleVisible);
 			for (VisibilityShell temp : selectedValuesList) {
-				temp.setOldVisSource(o);
+				temp.setDonModAnimsVisSource(o);
 			}
 		}
 	}
@@ -108,7 +108,7 @@ class MultiVisibilityPanel extends VisibilityPanel {
 		if (donatingModelSourcesBox.getSelectedItem() != mht.multipleVisible){
 			((DefaultComboBoxModel<VisibilityShell>)donatingModelSourcesBox.getModel()).removeElement(mht.multipleVisible);
 			for (VisibilityShell temp : selectedValuesList) {
-				temp.setNewVisSource(o);
+				temp.setRecModAnimsVisSource(o);
 			}
 		}
 	}
