@@ -12,7 +12,7 @@ import java.awt.*;
 public class TimeSkip {
 	private static class Play extends ActionFunction {
 		Play(){
-			super(TextKey.CUT, () -> playAnimation(), "control SPACE");
+			super(TextKey.PLAY_ACTION, () -> playAnimation(), "control SPACE");
 		}
 	}
 	private static class Ffw1 extends ActionFunction {
@@ -40,32 +40,39 @@ public class TimeSkip {
 			super(TextKey.NEXT_KEYFRAME, () -> nextKeyframe(), "RIGHT");
 		}
 	}
+
 	private static class PrevKF extends ActionFunction {
-		PrevKF(){
+		PrevKF() {
 			super(TextKey.PREV_KEYFRAME, () -> previousKeyframe(), "LEFT");
 		}
 	}
 
 
-	public JMenuItem getPlayItem(){
+	public static JMenuItem getPlayItem() {
 		return new Play().getMenuItem();
 	}
-	public JMenuItem getFfw1Item(){
+
+	public static JMenuItem getFfw1Item() {
 		return new Ffw1().getMenuItem();
-			}
-	public JMenuItem getFfw10Item(){
+	}
+
+	public static JMenuItem getFfw10Item() {
 		return new Ffw10().getMenuItem();
 	}
-	public JMenuItem getBbw1Item(){
+
+	public static JMenuItem getBbw1Item() {
 		return new Bbw1().getMenuItem();
-			}
-	public JMenuItem getBbw10Item(){
+	}
+
+	public static JMenuItem getBbw10Item() {
 		return new Bbw10().getMenuItem();
 	}
-	public JMenuItem getNextKFItem(){
+
+	public static JMenuItem getNextKFItem() {
 		return new NextKF().getMenuItem();
-			}
-	public JMenuItem getPrevKFItem(){
+	}
+
+	public static JMenuItem getPrevKFItem() {
 		return new PrevKF().getMenuItem();
 	}
 
@@ -94,7 +101,8 @@ public class TimeSkip {
 
 	public static void jumpFrames(int i) {
 		if (!isTextField() && ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
-			getTimeSliderView().getTimeSliderPanel().jumpFrames(i);
+//			getTimeSliderView().getTimeSliderPanel().jumpFrames(i);
+			getTimeSliderView().getTimeSliderPanel().timeStep(i);
 		}
 	}
 

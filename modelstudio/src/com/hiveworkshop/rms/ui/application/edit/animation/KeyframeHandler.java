@@ -20,17 +20,17 @@ import java.util.List;
 import java.util.*;
 
 public class KeyframeHandler {
-	private static final Color GLASS_TICK_COVER_COLOR = new Color(100, 190, 255, 100);
-	private static final Color GLASS_TICK_COVER_BORDER_COLOR = new Color(0, 80, 255, 220);
-	private static final int SLIDER_SIDE_BUTTON_SIZE = 15;
-	private static final int SLIDING_TIME_CHOOSER_WIDTH = 50 + (SLIDER_SIDE_BUTTON_SIZE * 2);
-	private static final int VERTICAL_TICKS_HEIGHT = 10;
-	private static final int VERTICAL_SLIDER_HEIGHT = 15;
-	private static final int PLAY_BUTTON_SIZE = 30;
-	private static final Dimension PLAY_BUTTON_DIMENSION = new Dimension(PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE);
-	private static final int SIDE_OFFSETS = SLIDING_TIME_CHOOSER_WIDTH / 2;
-	private static final Stroke WIDTH_2_STROKE = new BasicStroke(2);
-	private static final Stroke WIDTH_1_STROKE = new BasicStroke(1);
+//	private static final Color GLASS_TICK_COVER_COLOR = new Color(100, 190, 255, 100);
+//	private static final Color GLASS_TICK_COVER_BORDER_COLOR = new Color(0, 80, 255, 220);
+//	private static final int SLIDER_SIDE_BUTTON_SIZE = 15;
+//	private static final int SLIDING_TIME_CHOOSER_WIDTH = 50 + (SLIDER_SIDE_BUTTON_SIZE * 2);
+//	private static final int VERTICAL_TICKS_HEIGHT = 10;
+//	private static final int VERTICAL_SLIDER_HEIGHT = 15;
+//	private static final int PLAY_BUTTON_SIZE = 30;
+//	private static final Dimension PLAY_BUTTON_DIMENSION = new Dimension(PLAY_BUTTON_SIZE, PLAY_BUTTON_SIZE);
+//	private static final int SIDE_OFFSETS = SLIDING_TIME_CHOOSER_WIDTH / 2;
+//	private static final Stroke WIDTH_2_STROKE = new BasicStroke(2);
+//	private static final Stroke WIDTH_1_STROKE = new BasicStroke(1);
 
 	private final TreeMap<Integer, KeyFrame> timeToKey = new TreeMap<>();
 	private final List<CopiedKeyFrame<?>> copiedKeyframes = new ArrayList<>();
@@ -59,6 +59,7 @@ public class KeyframeHandler {
 			undoManager = modelHandler.getUndoManager();
 			timeEnvironment = modelHandler.getEditTimeEnv();
 		} else {
+			timeEnvironment = null;
 			undoManager = null;
 		}
 		return this;
@@ -269,14 +270,43 @@ public class KeyframeHandler {
 		return this;
 	}
 
-	public Integer getNextFrame(int time){
+	public Integer getNextFrame(int time) {
 		return timeToKey.higherKey(time);
 	}
-	public Integer getPrevFrame(int time){
+
+	public Integer getPrevFrame(int time) {
 		return timeToKey.lowerKey(time);
 	}
 
-	public NavigableSet<Integer> getTimes(){
+	public Integer getNextFrame() {
+		if (timeEnvironment != null) {
+			if (!timeToKey.isEmpty()) {
+				Integer frameTime = timeToKey.higherKey(timeEnvironment.getEnvTrackTime());
+				if (frameTime == null) {
+					frameTime = timeToKey.higherKey(0);
+				}
+				return frameTime;
+			}
+			return timeEnvironment.getEnvTrackTime();
+		}
+		return null;
+	}
+
+	public Integer getPrevFrame() {
+		if (timeEnvironment != null) {
+			if (!timeToKey.isEmpty()) {
+				Integer frameTime = timeToKey.lowerKey(timeEnvironment.getEnvTrackTime());
+				if (frameTime == null) {
+					frameTime = timeToKey.lowerKey(timeEnvironment.getLength());
+				}
+				return frameTime;
+			}
+			return timeEnvironment.getEnvTrackTime();
+		}
+		return null;
+	}
+
+	public NavigableSet<Integer> getTimes() {
 		return timeToKey.navigableKeySet();
 	}
 
@@ -325,12 +355,12 @@ public class KeyframeHandler {
 		}
 	}
 
-	private int computeXFromTime(int time) {
-		int widthMinusOffsets = timelinePanel.getWidth() - (SIDE_OFFSETS * 2);
-		double timeRatio = (time) / (double) (timeEnvironment.getLength());
-//		System.out.println("new x: " + ((widthMinusOffsets * timeRatio) + (SIDE_OFFSETS)) + " for time " + time);
-		return (int) (widthMinusOffsets * timeRatio) + (SIDE_OFFSETS);
-	}
+//	private int computeXFromTime(int time) {
+//		int widthMinusOffsets = timelinePanel.getWidth() - (SIDE_OFFSETS * 2);
+//		double timeRatio = (time) / (double) (timeEnvironment.getLength());
+////		System.out.println("new x: " + ((widthMinusOffsets * timeRatio) + (SIDE_OFFSETS)) + " for time " + time);
+//		return (int) (widthMinusOffsets * timeRatio) + (SIDE_OFFSETS);
+//	}
 
 	public JPanel getTimelinePanel() {
 		return timelinePanel;
@@ -355,6 +385,12 @@ public class KeyframeHandler {
 			this.node = node;
 			this.sourceTimeline = sourceTimeline;
 			this.entry = entry;
+		}
+	}
+
+	public void drawKeyframeMarkers(Graphics g) {
+		for (Integer time : getTimes()) {
+			getKeyFrame(time).drawMarker(g);
 		}
 	}
 

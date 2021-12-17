@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
 import net.miginfocom.swing.MigLayout;
@@ -13,34 +14,44 @@ import java.util.List;
 
 public class AnimationController extends JPanel {
 	private ModelHandler modelHandler;
+	private TimeEnvironmentImpl renderEnv;
 	private final DefaultComboBoxModel<Animation> animations = new DefaultComboBoxModel<>();
 	private final JComboBox<Animation> animationBox;
+	private final JSlider speedSlider;
+	private final SmartButtonGroup loopTypePanel;
 	private boolean allowUnanimated = true;
 
 	public AnimationController(PreviewPanel previewPanel) {
 		super(new MigLayout("fillx"));
 
-		animationBox = getAnimationChooser(animations, previewPanel);
+		animationBox = getAnimationChooser(animations);
 		add(animationBox, "wrap, w 90%:90%:90%, gapbottom 16");
 
 		JButton playAnimationButton = new JButton("Play Animation");
-		playAnimationButton.addActionListener(e -> previewPanel.playAnimation());
+		playAnimationButton.addActionListener(e -> playAnimation());
 		add(playAnimationButton, "wrap, gapbottom 16");
 
 
-		add(getLoopTypoPanel(previewPanel).getButtonPanel(), "wrap");
+		loopTypePanel = getLoopTypePanel();
+		add(loopTypePanel.getButtonPanel(), "wrap");
 
-		add(getSpeedSlider(previewPanel), "wrap, w 90%:90%:90%, gapbottom 16");
+		speedSlider = getSpeedSlider();
+		add(speedSlider, "wrap, w 90%:90%:90%, gapbottom 16");
 
 		add(new JLabel("Level of Detail"), "wrap");
 		add(getLodSpinner(previewPanel), "wrap, w 90%:90%:90%");
 
-		previewPanel.setLoop(PreviewPanel.LoopType.DEFAULT_LOOP);
+//		setLoopType(LoopType.DEFAULT_LOOP);
 	}
 
 	public AnimationController setModel(ModelHandler modelHandler, boolean allowUnanimated, Animation defaultAnimation) {
 		System.out.println("AnimationController#setModel");
 		this.modelHandler = modelHandler;
+		if (modelHandler != null) {
+			renderEnv = modelHandler.getPreviewTimeEnv();
+			renderEnv.setAnimationSpeed(speedSlider.getValue() / 50f);
+			loopTypePanel.setSelectedIndex(loopTypePanel.getSelectedIndex());
+		}
 		updateAnimationList(modelHandler, allowUnanimated, animations);
 		animationBox.setSelectedItem(defaultAnimation);
 		return this;
@@ -53,29 +64,29 @@ public class AnimationController extends JPanel {
 		return levelOfDetailSpinner;
 	}
 
-	private JSlider getSpeedSlider(PreviewPanel listener) {
+	private JSlider getSpeedSlider() {
 		JSlider speedSlider = new JSlider(0, 100, 50);
 		JLabel speedSliderLabel = new JLabel("Speed: 100%");
 		add(speedSliderLabel, "wrap");
-		speedSlider.addChangeListener(e -> changeAnimationSpeed(listener, speedSlider, speedSliderLabel));
+		speedSlider.addChangeListener(e -> changeAnimationSpeed(speedSlider, speedSliderLabel));
 		return speedSlider;
 	}
 
-	private SmartButtonGroup getLoopTypoPanel(PreviewPanel previewPanel) {
-		SmartButtonGroup smartButtonGroup = new SmartButtonGroup();
-		smartButtonGroup.addJRadioButton("Default Loop", e -> previewPanel.setLoop(PreviewPanel.LoopType.DEFAULT_LOOP));
-		smartButtonGroup.addJRadioButton("Always Loop", e -> previewPanel.setLoop(PreviewPanel.LoopType.ALWAYS_LOOP));
-		smartButtonGroup.addJRadioButton("Never Loop", e -> previewPanel.setLoop(PreviewPanel.LoopType.NEVER_LOOP));
-		smartButtonGroup.setSelectedIndex(0);
-		return smartButtonGroup;
+	private SmartButtonGroup getLoopTypePanel() {
+		SmartButtonGroup loopTypeGroup = new SmartButtonGroup();
+		loopTypeGroup.addJRadioButton("Default Loop", e -> setLoopType(LoopType.DEFAULT_LOOP));
+		loopTypeGroup.addJRadioButton("Always Loop", e -> setLoopType(LoopType.ALWAYS_LOOP));
+		loopTypeGroup.addJRadioButton("Never Loop", e -> setLoopType(LoopType.NEVER_LOOP));
+		loopTypeGroup.setSelectedIndex(0);
+		return loopTypeGroup;
 	}
 
-	public JComboBox<Animation> getAnimationChooser(DefaultComboBoxModel<Animation> animations, PreviewPanel previewPanel) {
+	public JComboBox<Animation> getAnimationChooser(DefaultComboBoxModel<Animation> animations) {
 		JComboBox<Animation> animationBox = new JComboBox<>(animations);
-		// this prototype is to work around a weird bug where some components take for ever to load
+		// this prototype is to work around a weird bug where some components take forever to load
 		animationBox.setPrototypeDisplayValue(new Animation("Stand and work for me", 0, 1));
 		animationBox.setRenderer(getComboBoxRenderer());
-		animationBox.addActionListener(e -> playSelectedAnimation(previewPanel));
+		animationBox.addActionListener(e -> playSelectedAnimation());
 
 		animationBox.setMaximumSize(new Dimension(99999999, 35));
 		animationBox.setFocusable(true);
@@ -110,9 +121,19 @@ public class AnimationController extends JPanel {
 		};
 	}
 
-	public void playSelectedAnimation(PreviewPanel previewPanel) {
-		previewPanel.setAnimation((Animation) animationBox.getSelectedItem());
-		previewPanel.playAnimation();
+	public void playSelectedAnimation() {
+		if (renderEnv != null) {
+			renderEnv.setSequence((Animation) animationBox.getSelectedItem());
+			renderEnv.setRelativeAnimationTime(0);
+			renderEnv.setLive(true);
+		}
+	}
+
+	public void playAnimation() {
+		if (renderEnv != null) {
+			renderEnv.setRelativeAnimationTime(0);
+			renderEnv.setLive(true);
+		}
 	}
 
 	public void changeAnimation(MouseWheelEvent e) {
@@ -135,16 +156,22 @@ public class AnimationController extends JPanel {
 		}
 	}
 
-	public void changeAnimationSpeed(PreviewPanel previewPanel, JSlider speedSlider, JLabel speedSliderLabel) {
+	public void changeAnimationSpeed(JSlider speedSlider, JLabel speedSliderLabel) {
 		speedSliderLabel.setText("Speed: " + (speedSlider.getValue() * 2) + "%");
-		previewPanel.setSpeed(speedSlider.getValue() / 50f);
+//		previewPanel.setSpeed(speedSlider.getValue() / 50f);
+
+		if (renderEnv != null) {
+			renderEnv.setAnimationSpeed(speedSlider.getValue() / 50f);
+		}
 	}
 
-	public void setLoopType(PreviewPanel previewPanel, String loopType) {
-		switch (loopType) {
-			case "always" -> previewPanel.setLoop(PreviewPanel.LoopType.ALWAYS_LOOP);
-			case "never" -> previewPanel.setLoop(PreviewPanel.LoopType.NEVER_LOOP);
-			default -> previewPanel.setLoop(PreviewPanel.LoopType.DEFAULT_LOOP);
+	public void setLoopType(LoopType loopType) {
+		if (renderEnv != null) {
+			switch (loopType) {
+				case ALWAYS_LOOP -> renderEnv.setLoopType(LoopType.ALWAYS_LOOP);
+				case NEVER_LOOP -> renderEnv.setLoopType(LoopType.NEVER_LOOP);
+				case DEFAULT_LOOP -> renderEnv.setLoopType(LoopType.DEFAULT_LOOP);
+			}
 		}
 	}
 

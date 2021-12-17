@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
-import com.hiveworkshop.rms.ui.application.viewer.PreviewPanel;
+import com.hiveworkshop.rms.ui.application.viewer.LoopType;
 
 public class TimeEnvironmentImpl {
 
@@ -18,10 +18,11 @@ public class TimeEnvironmentImpl {
 	private int globalSeqTime = 0;
 	protected float animationSpeed = 1f;
 
+	private Sequence sequence;
 	private Animation animation;
 	private GlobalSeq globalSeq = null; // I think this is used to view a models global sequences (w/o animating other things)
 
-	private PreviewPanel.LoopType loopType = PreviewPanel.LoopType.DEFAULT_LOOP;
+	private LoopType loopType = LoopType.DEFAULT_LOOP;
 
 	private boolean staticViewMode;
 	private long lastUpdateMillis = System.currentTimeMillis();
@@ -83,7 +84,7 @@ public class TimeEnvironmentImpl {
 //			setBounds(sequence.getStart(), sequence.getEnd());
 			setBounds(0, sequence.getLength());
 			globalSeq = null;
-			if (loopType == PreviewPanel.LoopType.DEFAULT_LOOP) {
+			if (loopType == LoopType.DEFAULT_LOOP) {
 				looping = animation != null && !animation.isNonLooping();
 			}
 		} else if (sequence instanceof GlobalSeq) {
@@ -92,6 +93,7 @@ public class TimeEnvironmentImpl {
 			notifier.timeBoundsChanged(0, sequence.getLength());
 		} else {
 			globalSeq = null;
+			this.animation = null;
 		}
 		return this;
 	}
@@ -163,7 +165,8 @@ public class TimeEnvironmentImpl {
 	}
 
 	public int stepAnimationTime(int timeStep) {
-		animationTime = animationTime + timeStep;
+//		animationTime = animationTime + timeStep;
+		animationTime = (animationTime + timeStep + length + 1) % (length + 1);
 		return animationTime;
 	}
 
@@ -181,7 +184,7 @@ public class TimeEnvironmentImpl {
 	}
 
 
-	public TimeEnvironmentImpl setLoopType(final PreviewPanel.LoopType loopType) {
+	public TimeEnvironmentImpl setLoopType(final LoopType loopType) {
 		this.loopType = loopType;
 		switch (loopType) {
 			case ALWAYS_LOOP -> looping = true;
@@ -192,19 +195,19 @@ public class TimeEnvironmentImpl {
 	}
 
 	public TimeEnvironmentImpl setAlwaysLooping() {
-		this.loopType = PreviewPanel.LoopType.ALWAYS_LOOP;
+		this.loopType = LoopType.ALWAYS_LOOP;
 		looping = true;
 		return this;
 	}
 
 	public TimeEnvironmentImpl setDefaultLooping() {
-		this.loopType = PreviewPanel.LoopType.DEFAULT_LOOP;
+		this.loopType = LoopType.DEFAULT_LOOP;
 		looping = animation != null && !animation.isNonLooping();
 		return this;
 	}
 
 	public TimeEnvironmentImpl setNeverLooping() {
-		this.loopType = PreviewPanel.LoopType.NEVER_LOOP;
+		this.loopType = LoopType.NEVER_LOOP;
 		looping = false;
 		return this;
 	}
@@ -226,7 +229,8 @@ public class TimeEnvironmentImpl {
 //		if ((animation != null) && (end-start > 0)) {
 		if ((live) && (length > 0)) {
 //			System.out.println("animationTime: " + animationTime + ", speed: " + animationSpeed);
-			if (looping) {
+//			if (looping) {
+			if (loopType == LoopType.ALWAYS_LOOP || animation != null && !animation.isNonLooping() && loopType == LoopType.DEFAULT_LOOP) {
 //				animationTime = start + (int) ((animationTime - start + (long) (timeSkip * animationSpeed)) % animation.length());
 				animationTime = (int) (((animationTime) + (long) (timeSkip * animationSpeed)) % (length));
 				globalSeqTime = (int) (globalSeqTime + (long) (timeSkip * animationSpeed));

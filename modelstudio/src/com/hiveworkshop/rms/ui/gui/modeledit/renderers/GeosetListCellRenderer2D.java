@@ -19,6 +19,7 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 	protected static final Vec3 selectedOwnerBgCol = new Vec3(130, 230, 170);
 	protected static final Vec3 selectedOwnerFgCol = new Vec3(0, 0, 0);
 	protected static final Vec3 otherOwnerBgCol = new Vec3(160, 160, 160);
+	protected static final Vec3 dontImpBgCol = new Vec3(200, 200, 200);
 	protected static final Vec3 otherOwnerFgCol = new Vec3(60, 60, 60);
 	protected static final Vec3 noOwnerBgCol = new Vec3(255, 255, 255);
 	protected static final Vec3 noOwnerFgCol = new Vec3(0, 0, 0);
@@ -70,6 +71,11 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 
 		}
 		setIcon(myIcon);
+		if (geosetShell != null && !geosetShell.isDoImport()) {
+			setBackground(dontImpBgCol.asIntColor());
+		} else {
+			setBackground(null);
+		}
 		return this;
 	}
 

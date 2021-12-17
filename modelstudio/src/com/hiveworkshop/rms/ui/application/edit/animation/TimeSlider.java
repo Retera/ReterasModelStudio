@@ -15,18 +15,20 @@ public class TimeSlider {
 	private int x = 0;
 
 	private Rectangle timeChooserRect = new Rectangle(0, 0, SLIDING_TIME_CHOOSER_WIDTH, VERTICAL_SLIDER_HEIGHT);
-	private Rectangle timeRect =        new Rectangle(0, 0, SLIDER_TIME_BUTTON_SIZE, VERTICAL_SLIDER_HEIGHT);
-	private Rectangle backRect =        new Rectangle(0, 0, SLIDER_SIDE_BUTTON_SIZE, VERTICAL_SLIDER_HEIGHT);
-	private Rectangle forwardRect =     new Rectangle(0, 0, SLIDER_SIDE_BUTTON_SIZE, VERTICAL_SLIDER_HEIGHT);
+	private Rectangle timeRect = new Rectangle(0, 0, SLIDER_TIME_BUTTON_SIZE, VERTICAL_SLIDER_HEIGHT);
+	private Rectangle backRect = new Rectangle(0, 0, SLIDER_SIDE_BUTTON_SIZE, VERTICAL_SLIDER_HEIGHT);
+	private Rectangle forwardRect = new Rectangle(0, 0, SLIDER_SIDE_BUTTON_SIZE, VERTICAL_SLIDER_HEIGHT);
 
-	public TimeSlider(JPanel timelinePanel){
+	public TimeSlider(JPanel timelinePanel) {
 		this.timelinePanel = timelinePanel;
 	}
 
-	public void drawTimeSlider(Graphics g, FontMetrics fontMetrics, int time) {
+	public void drawTimeSlider(Graphics g, int time) {
+		FontMetrics fontMetrics = g.getFontMetrics(g.getFont());
 		drawRaisedRect(g, fontMetrics, backRect, "<");
 		drawRaisedRect(g, fontMetrics, timeRect, time + "");
 		drawRaisedRect(g, fontMetrics, forwardRect, ">");
+		drawCurrentKeyframeMarker(g);
 	}
 
 	private void drawRaisedRect(Graphics g, FontMetrics fontMetrics, Rectangle rect, String text) {
@@ -84,13 +86,29 @@ public class TimeSlider {
 	public boolean containsPoint(Point point){
 		return backRect.contains(point) || timeRect.contains(point) || forwardRect.contains(point);
 	}
-	public boolean onBackward(Point point){
+
+	public boolean onBackward(Point point) {
 		return backRect.contains(point);
 	}
-	public boolean onForward(Point point){
+
+	public boolean onForward(Point point) {
 		return forwardRect.contains(point);
 	}
-	public boolean onSlide(Point point){
+
+	public boolean onSlide(Point point) {
 		return timeRect.contains(point);
+	}
+
+
+	private static final Color GLASS_TICK_COVER_COLOR = new Color(100, 190, 255, 100);
+	private static final Color GLASS_TICK_COVER_BORDER_COLOR = new Color(0, 80, 255, 220);
+	private static final int VERTICAL_TICKS_HEIGHT = 10;
+
+	public void drawCurrentKeyframeMarker(Graphics g) {
+		g.setColor(GLASS_TICK_COVER_COLOR);
+		int currentTimePixelX = getCenterX();
+		g.fillRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
+		g.setColor(GLASS_TICK_COVER_BORDER_COLOR);
+		g.drawRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
 	}
 }

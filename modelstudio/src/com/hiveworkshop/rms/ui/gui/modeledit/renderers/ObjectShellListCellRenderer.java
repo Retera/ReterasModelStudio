@@ -1,21 +1,22 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.renderers;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ObjectShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
 import com.hiveworkshop.rms.ui.util.AbstractSnapshottingListCellRenderer2D;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class ObjectShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<ObjectShell> {
+public class ObjectShellListCellRenderer extends AbstractSnapshottingListCellRenderer2D<IdObjectShell<?>> {
 	boolean showParent = false;
-	ObjectShell selectedObject;
+	IdObjectShell<?> selectedObject;
 	boolean showClass = false;
 
 	public ObjectShellListCellRenderer() {
 		super(null, null);
 	}
+
 	public ObjectShellListCellRenderer(EditableModel model, EditableModel other) {
 		super(model, other);
 	}
@@ -30,39 +31,40 @@ public class ObjectShellListCellRenderer extends AbstractSnapshottingListCellRen
 		return this;
 	}
 
-	public ObjectShellListCellRenderer setSelectedObjectShell(ObjectShell objectShell) {
+	public ObjectShellListCellRenderer setSelectedObjectShell(IdObjectShell<?> objectShell) {
 		selectedObject = objectShell;
 		return this;
 	}
 
 	@Override
-	protected boolean isFromDonating(ObjectShell value){
-		if(value != null){
+	protected boolean isFromDonating(IdObjectShell<?> value) {
+		if (value != null) {
 			return value.isFromDonating();
 		}
 		return false;
 	}
+
 	@Override
-	protected boolean isFromReceiving(ObjectShell value){
-		if(value != null){
+	protected boolean isFromReceiving(IdObjectShell<?> value) {
+		if (value != null) {
 			return !value.isFromDonating();
 		}
 		return false;
 	}
 
 	@Override
-	protected ObjectShell valueToType(Object value) {
-		return (ObjectShell) value;
+	protected IdObjectShell<?> valueToType(Object value) {
+		return (IdObjectShell<?>) value;
 	}
 
 	@Override
-	protected Vec3 getRenderVertex(ObjectShell value) {
+	protected Vec3 getRenderVertex(IdObjectShell<?> value) {
 		return value.getIdObject().getPivotPoint();
 	}
 
 	@Override
-	protected boolean contains(EditableModel model, ObjectShell object) {
-		if(model != null){
+	protected boolean contains(EditableModel model, IdObjectShell<?> object) {
+		if (model != null) {
 			return model.contains(object.getIdObject());
 		}
 		return false;
@@ -76,9 +78,9 @@ public class ObjectShellListCellRenderer extends AbstractSnapshottingListCellRen
 		Vec3 bg = noOwnerBgCol;
 		Vec3 fg = noOwnerFgCol;
 
-		if (value instanceof ObjectShell) {
-			setText(((ObjectShell) value).toString(showClass, showParent));
-			if (!((ObjectShell) value).getShouldImport()) {
+		if (value instanceof IdObjectShell) {
+			setText(((IdObjectShell<?>) value).toString(showClass, showParent));
+			if (!((IdObjectShell<?>) value).getShouldImport()) {
 				bg = Vec3.getProd(bg, otherOwnerBgCol).normalize().scale(160);
 				fg = Vec3.getProd(bg, otherOwnerFgCol).normalize().scale(60);
 			}

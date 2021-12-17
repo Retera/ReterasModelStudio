@@ -131,12 +131,14 @@ public final class KeyFrame {
 		}
 		g.drawRoundRect(renderRect.x, renderRect.y, renderRect.width, renderRect.height, 2, 2);
 
-		if(mouseOver){
-			drawFloatingTime(g, g.getFontMetrics(g.getFont()));
+		if (mouseOver) {
+			drawFloatingTime(g);
 		}
 	}
 
-	public void drawFloatingTime(Graphics g, FontMetrics fontMetrics) {
+	public void drawFloatingTime(Graphics g) {
+
+		FontMetrics fontMetrics = g.getFontMetrics(g.getFont());
 		g.setColor(Color.WHITE);
 //		int draggingFrameTime = time;
 //		if (draggingFrameTime > timeEnvironment.getLength()) {

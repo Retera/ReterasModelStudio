@@ -111,6 +111,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 			this.renderModel.setCameraHandler(cameraHandler);
 			this.renderModel.refreshFromEditor(textureThing);
+//			forceReloadTextures();
+			texLoaded = false;
 		} else {
 			renderEnv = null;
 		}
@@ -461,7 +463,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	private void cameraMarkerPainter() {
-		CubePainter.paintCameraLookAt(cameraHandler);
+//		CubePainter.paintCameraLookAt(cameraHandler);
 		if (mouseAdapter.isSelecting()) {
 			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(), mouseAdapter.getEndPGeo3(), cameraHandler);
 		}

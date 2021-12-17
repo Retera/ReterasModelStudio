@@ -3,11 +3,11 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.AddKeyframeAction3;
 import com.hiveworkshop.rms.editor.actions.animation.SlideKeyframeAction;
-import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.TimeSliderView;
+import com.hiveworkshop.rms.ui.application.actionfunctions.TimeSkip;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -38,45 +38,37 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 	private static final Stroke WIDTH_1_STROKE = new BasicStroke(1);
 
 	private final TimeSlider timeSlider;
+	private final TimeBarPainter timeBarPainter;
 
 	private boolean keyframeModeActive;
-	int tickStep = 300;
+	private int tickStep = 300;
 	private TimeEnvironmentImpl timeEnvironment;
-	JPanel timelinePanel;
 
 	private final TimeSliderTimeListener notifier;
 
-
 	private final JPopupMenu popupMenu;
-	private Integer mouseOverFrameTime = null;
 	private KeyFrame draggingFrame = null;
 	private int draggingFrameStartTime = 0;
 	private boolean draggingSlider = false;
 	private Robot robot;
 
 	private final Cursor slideCursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
-	private final Cursor defaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+	//	private final Cursor defaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
 	private UndoManager undoManager;
 
-//	private final List<CopiedKeyFrame<?>> copiedKeyframes;
-//	private boolean useAllCopiedKeyframes = false;
-//	private final ModelStructureChangeListener changeListener;
-	private ModelHandler modelHandler;
 	private final JCheckBox allKF;
 	private final Timer liveAnimationTimer;
-	private final ProgramPreferences preferences;
+	//	private final ProgramPreferences preferences;
 	private final GUITheme theme;
 	private boolean drawing;
-	final JButton setKeyframe;
-	final JButton setTimeBounds;
-	JButton playButton;
-	private EditableModel model;
-//	MainPanel mainPanel;
-	KeyframeHandler keyframeHandler;
+	private final JButton setKeyframe;
+	private final JButton setTimeBounds;
+	private final JButton playButton;
+	private final KeyframeHandler keyframeHandler;
 
 	public TimeSliderPanel(ProgramPreferences preferences) {
 //		this.changeListener = ModelStructureChangeListener.changeListener;
-		this.preferences = preferences;
+//		this.preferences = preferences;
 		theme = preferences.getTheme();
 		notifier = new TimeSliderTimeListener();
 		setLayout(new MigLayout("fill, gap 0, ins 0, aligny top", "3[]3[grow]3", "[]"));
@@ -100,11 +92,13 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		buttonPanel.setOpaque(true);
 		add(buttonPanel, "aligny top, shrink");
 
-		timelinePanel = getTimelinePanel();
+//		JPanel timelinePanel = new TimeLinePanel_test();
+		JPanel timelinePanel = getTimelinePanel();
 		timelinePanel.setOpaque(true);
 		add(timelinePanel, "growx, growy, aligny top");
 
 		timeSlider = new TimeSlider(timelinePanel);
+		timeBarPainter = new TimeBarPainter(timeSlider);
 
 		setForeground(Color.WHITE);
 		setFont(new Font("Courier New", Font.PLAIN, 12));
@@ -126,6 +120,14 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		timelinePanel.addComponentListener(getComponentAdapter());
 
 		keyframeHandler = new KeyframeHandler(notifier, timelinePanel);
+
+		TimeSkip.getPlayItem();
+		TimeSkip.getFfw1Item();
+		TimeSkip.getFfw10Item();
+		TimeSkip.getBbw1Item();
+		TimeSkip.getBbw10Item();
+		TimeSkip.getNextKFItem();
+		TimeSkip.getPrevKFItem();
 	}
 
 	public static JButton createSetKeyframeButton() {
@@ -151,10 +153,6 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		ProgramGlobals.getMainPanel().repaintSelfAndChildren();
 	}
 
-	public void setModel(EditableModel model) {
-		this.model = model;
-	}
-
 	private ComponentAdapter getComponentAdapter() {
 		return new ComponentAdapter() {
 			@Override
@@ -176,21 +174,20 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 			@Override
 			public void mouseReleased(final MouseEvent e) {
 				super.mouseReleased(e);
-				if (!drawing) {
-					return;
-				}
-				if (SwingUtilities.isLeftMouseButton(e)) {
-					Point mousePoint = e.getPoint();
-					if (draggingSlider) {
-						timeSlider.setFromTimeFraction(timeEnvironment.getTimeRatio());
-						draggingSlider = false;
-					} else if (draggingFrame != null && mouseDownPointX != e.getPoint().getX()) {
-						int dx = mousePoint.x - mouseDragXOffset;
-						applyDraggedFrame(dx);
+				if (drawing) {
+					if (SwingUtilities.isLeftMouseButton(e)) {
+						Point mousePoint = e.getPoint();
+						if (draggingSlider) {
+							timeSlider.setFromTimeFraction(timeEnvironment.getTimeRatio());
+							draggingSlider = false;
+						} else if (draggingFrame != null && mouseDownPointX != e.getPoint().getX()) {
+							int dx = mousePoint.x - mouseDragXOffset;
+							applyDraggedFrame(dx);
+						}
+						checkMouseOver(mousePoint);
+					} else if (SwingUtilities.isRightMouseButton(e)) {
+						showPopupIfFrameExists(e);
 					}
-					checkMouseOver(mousePoint);
-				} else if (SwingUtilities.isRightMouseButton(e)) {
-					showPopupIfFrameExists(e);
 				}
 			}
 
@@ -198,40 +195,37 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 			public void mousePressed(MouseEvent e) {
 				super.mousePressed(e);
 				mouseDownPointX = e.getPoint().getX();
-				if (!drawing) {
-					return;
-				}
-				lastMousePoint = e.getPoint();
-				draggingSlider = timeSlider.onSlide(lastMousePoint);
-				if (!draggingSlider) {
-					mouseDragXOffset = TimeSliderPanel.this.mousePressed(e, lastMousePoint);
+				if (drawing) {
+					lastMousePoint = e.getPoint();
+					draggingSlider = timeSlider.onSlide(lastMousePoint);
+					if (!draggingSlider) {
+						mouseDragXOffset = TimeSliderPanel.this.mousePressed(e, lastMousePoint);
+					}
 				}
 			}
 
 			@Override
 			public void mouseMoved(final MouseEvent e) {
 				super.mouseMoved(e);
-				if (!drawing) {
-					return;
+				if (drawing) {
+					checkMouseOver(e.getPoint());
 				}
-				checkMouseOver(e.getPoint());
 			}
 
 			@Override
 			public void mouseDragged(final MouseEvent e) {
 				super.mouseDragged(e);
-				if (!drawing) {
-					return;
+				if (drawing) {
+					Point mousePoint = e.getPoint();
+					if (draggingSlider) {
+						dragTimeSlider((int) (mousePoint.getX() - lastMousePoint.getX()));
+					} else if (draggingFrame != null) {
+						int newX = mousePoint.x - mouseDragXOffset;
+						updateDraggedKeyframe(newX, draggingFrame);
+						repaint();
+					}
+					lastMousePoint = e.getPoint();
 				}
-				Point mousePoint = e.getPoint();
-				if (draggingSlider) {
-					dragTimeSlider((int) (mousePoint.getX() - lastMousePoint.getX()));
-				} else if (draggingFrame != null) {
-					int newX = mousePoint.x - mouseDragXOffset;
-					updateDraggedKeyframe(newX, draggingFrame);
-					repaint();
-				}
-				lastMousePoint = e.getPoint();
 			}
 		};
 	}
@@ -269,9 +263,9 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 
 	private int mousePressed(MouseEvent mouseEvent, Point lastMousePoint) {
 		if (timeSlider.onBackward(lastMousePoint)) {
-			stepTime(-1);
+			timeStep(-1, true);
 		} else if (timeSlider.onForward(lastMousePoint)) {
-			stepTime(1);
+			timeStep(1, true);
 		} else {
 			if (SwingUtilities.isLeftMouseButton(mouseEvent)) {
 				Integer lastMousePoint1 = initDragging(lastMousePoint);
@@ -352,32 +346,26 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		}
 		timeEnvironment.updateAnimationTime();
 		notifier.timeChanged(timeEnvironment.getEnvTrackTime());
-//		timeChooserRect.x = computeSliderXFromTime();
 		timeSlider.setFromTimeFraction(timeEnvironment.getTimeRatio());
 		repaint();
 	}
 
-
-	public void setTickStep(int tickStep) {
-		this.tickStep = tickStep;
-	}
-
 	public void setModelHandler(ModelHandler modelHandler) {
-		this.modelHandler = modelHandler;
 		keyframeHandler.setModelHandler(modelHandler);
 		if(modelHandler != null) {
 			this.undoManager = modelHandler.getUndoManager();
 			timeEnvironment = modelHandler.getEditTimeEnv();
 			timeEnvironment.addChangeListener(this);
+			timeBarPainter.setTimeEnvironment(timeEnvironment);
 		} else {
+			timeBarPainter.setTimeEnvironment(null);
 			this.undoManager = null;
 		}
 	}
 
 
 	public void checkMouseOver(Point mousePt) {
-		mouseOverFrameTime = keyframeHandler.getTimeFromPoint(mousePt);
-		if (mouseOverFrameTime != null){
+		if (keyframeHandler.getTimeFromPoint(mousePt) != null) {
 			setCursor(slideCursor);
 		} else {
 			setCursor(null);
@@ -386,12 +374,12 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 	}
 
 	public void jumpToPreviousTime() {
-		Integer newTime = keyframeHandler.getPrevFrame(timeEnvironment.getEnvTrackTime());
+		Integer newTime = keyframeHandler.getPrevFrame();
 		setCurrentTime(newTime == null ? 0 : newTime);
 	}
 
 	public void jumpToNextTime() {
-		Integer newTime = keyframeHandler.getNextFrame(timeEnvironment.getEnvTrackTime());
+		Integer newTime = keyframeHandler.getNextFrame();
 		setCurrentTime(newTime == null ? 0 : newTime);
 	}
 
@@ -405,13 +393,6 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		setCurrentTime(newTime);
 	}
 
-	private void stepTime(int step) {
-		if (timeEnvironment.getEnvTrackTime() + step > 0 && timeEnvironment.getEnvTrackTime() + step < timeEnvironment.getLength()) {
-			timeStep(step);
-		}
-		repaint();
-	}
-
 
 	public void setCurrentTime(int newTime) {
 		timeEnvironment.setAnimationTime(newTime);
@@ -419,77 +400,29 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		timeSlider.setFromTimeFraction(timeEnvironment.getTimeRatio());
 		repaint();
 	}
-	private void timeStep(int step) {
+
+	public void timeStep(int step) {
+		timeStep(step, false);
+	}
+
+	private void timeStep(int step, boolean moveMouse) {
 		timeEnvironment.stepAnimationTime(step);
-		int xStart = timeSlider.getX();
+		if (robot != null && moveMouse) {
+			int xStart = timeSlider.getX();
+			timeSlider.setFromTimeFraction(timeEnvironment.getTimeRatio());
 
-		timeSlider.setFromTimeFraction(timeEnvironment.getTimeRatio());
-
-		int pixelDelta = timeSlider.getX() - xStart;
-		if (robot != null) {
+			int pixelDelta = timeSlider.getX() - xStart;
 			robot.mouseMove(MouseInfo.getPointerInfo().getLocation().x + pixelDelta, MouseInfo.getPointerInfo().getLocation().y);
+		} else {
+			timeSlider.setFromTimeFraction(timeEnvironment.getTimeRatio());
 		}
 		notifier.timeChanged(timeEnvironment.getEnvTrackTime());
+		repaint();
 	}
 
-//	private int computeTimeFromX(final int x) {
-//		return (int) ((x / (double) timeSlider.getMaxX()) * (timeEnvironment.getLength()));
-//	}
-
-	private int computeXFromTime(int time) {
-		double timeRatio = (time) / (double) (timeEnvironment.getLength());
-		return (int) (timeSlider.getMaxX() * timeRatio) + (SIDE_OFFSETS);
-	}
 
 	public void addListener(Consumer<Integer> listener) {
 		notifier.subscribe(listener);
-	}
-
-
-	private void drawTimeTicks(Graphics g, FontMetrics fontMetrics) {
-		final int timeSpan = timeEnvironment.getLength();
-		int numberOfTicks = timeSpan / tickStep;
-		int startOffset = tickStep;
-
-		// draw first time marker
-		drawMajorTick(g, fontMetrics, 0);
-		// draw even (time%tickStep==0) time markers
-		for (int i = 0; i < numberOfTicks; i++) {
-			int time = startOffset + tickStep * i;
-
-			boolean majorTick = (i % 2) == 0;
-			if (majorTick) {
-				drawMajorTick(g, fontMetrics, time);
-			} else {
-				drawMinorTick(g, computeXFromTime(time));
-			}
-		}
-		// draw last time marker
-		drawMajorTick(g, fontMetrics, timeEnvironment.getLength());
-	}
-
-	private void drawMinorTick(Graphics g, int xCoordPixels) {
-		((Graphics2D) g).setStroke(WIDTH_1_STROKE);
-		int lineEnd = VERTICAL_SLIDER_HEIGHT + (VERTICAL_TICKS_HEIGHT / 2);
-		g.drawLine(xCoordPixels, 0, xCoordPixels, lineEnd);
-	}
-
-	private void drawMajorTick(Graphics g, FontMetrics fontMetrics, int time) {
-		int xCoordPixels = computeXFromTime(time);
-		((Graphics2D) g).setStroke(WIDTH_2_STROKE);
-		int lineEnd = VERTICAL_SLIDER_HEIGHT + VERTICAL_TICKS_HEIGHT;
-		g.drawLine(xCoordPixels, 0, xCoordPixels, lineEnd);
-		String tickLabel = "" + time;
-		g.drawString(tickLabel, xCoordPixels - (fontMetrics.stringWidth(tickLabel) / 2), lineEnd + fontMetrics.getAscent());
-	}
-
-	private void drawTimeBar(Graphics g, int width) {
-		if (keyframeModeActive) {
-			g.setColor(Color.RED);
-		} else {
-			g.setColor(Color.BLUE.darker());
-		}
-		g.fillRect(0, 0, width, VERTICAL_SLIDER_HEIGHT);
 	}
 
 	//	@Override
@@ -552,48 +485,21 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 				if (!drawing || timeEnvironment == null) {
 					return;
 				}
-				FontMetrics fontMetrics = g.getFontMetrics(g.getFont());
-
 				int width = getWidth();
-				drawTimeBar(g, width);
-				int maxX = width - SLIDING_TIME_CHOOSER_WIDTH;
-				if (maxX < 0) {
-					g.drawString("No pixels", 0, 16);
-					return;
+				timeBarPainter.drawTimeBar(g, width);
+				if (SLIDING_TIME_CHOOSER_WIDTH <= width) {
+					// keyframes
+					keyframeHandler.drawKeyframeMarkers(g);
+					// time label of dragged keyframe
+					if (draggingFrame != null) {
+						draggingFrame.drawFloatingTime(g);
+					}
+					// time slider and glass covering current tick
+					timeSlider.drawTimeSlider(g, timeEnvironment.getEnvTrackTime());
 				}
-				switch (theme) {
-					case DARK, HIFI -> g.setColor(Color.WHITE);
-					case FOREST_GREEN -> g.setColor(Color.WHITE);
-					default -> g.setColor(Color.BLACK);
-				}
-				// time markers
-				drawTimeTicks(g, fontMetrics);
 
-				// keyframes
-				drawKeyframeMarkers(g);
-				// time label of dragged keyframe
-				if(draggingFrame != null){
-					draggingFrame.drawFloatingTime(g, fontMetrics);
-				}
-				// time slider
-				timeSlider.drawTimeSlider(g, fontMetrics, timeEnvironment.getEnvTrackTime());
-				// glass covering current tick
-				drawCurrentKeyframeMarker(g);
 			}
 
-			private void drawCurrentKeyframeMarker(Graphics g) {
-				g.setColor(GLASS_TICK_COVER_COLOR);
-				int currentTimePixelX = timeSlider.getCenterX();
-				g.fillRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
-				g.setColor(GLASS_TICK_COVER_BORDER_COLOR);
-				g.drawRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
-			}
-
-			private void drawKeyframeMarkers(Graphics g) {
-				for (Integer time : keyframeHandler.getTimes()) {
-					keyframeHandler.getKeyFrame(time).drawMarker(g);
-				}
-			}
 		};
 	}
 

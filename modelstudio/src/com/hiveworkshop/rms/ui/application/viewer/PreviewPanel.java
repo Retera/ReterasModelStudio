@@ -82,20 +82,20 @@ public class PreviewPanel extends JPanel {
 		}
 	}
 
-	public void setLoop(PreviewPanel.LoopType loopType) {
-		if (renderEnv != null) {
-			renderEnv.setLoopType(loopType);
-		}
-	}
-
-	public void setSpeed(float speed) {
-		if(renderEnv != null){
-			renderEnv.setAnimationSpeed(speed);
-		}
-	}
+//	public void setLoop(LoopType loopType) {
+//		if (renderEnv != null) {
+//			renderEnv.setLoopType(loopType);
+//		}
+//	}
+//
+//	public void setSpeed(float speed) {
+//		if(renderEnv != null){
+//			renderEnv.setAnimationSpeed(speed);
+//		}
+//	}
 
 	public Animation getCurrentAnimation() {
-		if(renderEnv != null){
+		if (renderEnv != null) {
 			return renderEnv.getCurrentAnimation();
 		}
 		return null;
@@ -109,7 +109,4 @@ public class PreviewPanel extends JPanel {
 		return ViewportRenderExporter.getBufferedImage(perspectiveViewport);
 	}
 
-	public enum LoopType {
-		DEFAULT_LOOP, ALWAYS_LOOP, NEVER_LOOP
-	}
 }
