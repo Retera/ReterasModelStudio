@@ -18,17 +18,17 @@ import static org.lwjgl.opengl.GL11.glEnable;
 
 public class TextureThing {
 	public static final boolean LOG_EXCEPTIONS = true;
-	EditableModel model;
-	ProgramPreferences programPreferences;
-	HashMap<Bitmap, Integer> textureMap = new HashMap<>();
+	private final EditableModel model;
+	private final ProgramPreferences programPreferences;
+	private final HashMap<Bitmap, Integer> textureMap = new HashMap<>();
 
-	public TextureThing(EditableModel model, ProgramPreferences programPreferences){
+	public TextureThing(EditableModel model, ProgramPreferences programPreferences) {
 		this.model = model;
 		this.programPreferences = programPreferences;
 	}
 
 	public static int loadTexture(final GPUReadyTexture texture, final Bitmap bitmap) {
-		if (texture == null) {
+		if (texture == null || bitmap == null) {
 			return -1;
 		}
 		ByteBuffer buffer = texture.getBuffer();
@@ -57,7 +57,7 @@ public class TextureThing {
 	}
 
 	public void loadToTexMap(Bitmap tex) {
-		if (textureMap.get(tex) == null) {
+		if (tex != null && textureMap.get(tex) == null) {
 			String path = tex.getRenderableTexturePath();
 			if (!path.isEmpty() && !programPreferences.getAllowLoadingNonBlpTextures()) {
 				path = path.replaceAll("\\.\\w+", "") + ".blp";
@@ -164,7 +164,7 @@ public class TextureThing {
 		Integer texture = textureMap.get(tex);
 		if (texture != null) {
 			bindTexture(tex, texture);
-		} else if (textureMap.size() > 0) {
+		} else if (textureMap.size() > 0 && tex != null) {
 			bindTexture(tex, 0);
 		}
 		switch (particle2.getFilterMode()) {

@@ -212,7 +212,9 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public void updateTextureRef(List<Bitmap> textures) {
-		texture = textures.get(getTextureId());
+		if (0 <= textureID && textureID < textures.size()) {
+			texture = textures.get(getTextureId());
+		}
 	}
 
 	public int getTextureId() {
@@ -220,7 +222,11 @@ public class ParticleEmitter2 extends EmitterIdObject {
 	}
 
 	public void setTextureId(int textureId) {
-		textureID = textureId;
+		if (textureId != -1) {
+			textureID = textureId;
+		} else {
+			textureID = 0;
+		}
 	}
 
 	public double getSpeed() {
