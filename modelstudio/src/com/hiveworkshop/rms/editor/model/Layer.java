@@ -299,19 +299,19 @@ public class Layer extends TimelineContainer implements Named {
 
 	public void setTextureId(int textureId) {
 		this.textureId = textureId;
-		System.out.println("setting texture to " + textureId);
+//		System.out.println("setting texture to " + textureId);
 		Bitmap bitmap = ridiculouslyWrongTextureIDToTexture.get(textureId);
 		if(bitmap != null){
-			System.out.println("setting texture from Map " + bitmap.getName());
+//			System.out.println("setting texture from Map " + bitmap.getName());
 			this.texture = bitmap;
 		} else
 			if (0 <= textureId && textureId < textures.size()){
 			this.texture = textures.get(textureId);
-			System.out.println("setting texture from List " + this.texture.getName());
+//			System.out.println("setting texture from List " + this.texture.getName());
 		} else if (this.texture != null){
-			System.out.println("no new texture " + this.texture.getName());
+//			System.out.println("no new texture " + this.texture.getName());
 		} else {
-			System.out.println("no new texture " + null);
+//			System.out.println("no new texture " + null);
 		}
 	}
 

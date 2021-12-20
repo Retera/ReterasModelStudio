@@ -17,11 +17,15 @@ import net.infonode.docking.View;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenuItem;
 
 public class WindowsMenu extends JMenu {
+
+	private Map<ModelPanel, JMenuItem> modelMenuItemMap = new HashMap<>();
 
 	public WindowsMenu() {
 		super("Window");
@@ -58,11 +62,18 @@ public class WindowsMenu extends JMenu {
 	}
 
 	public void addModelPanelItem(ModelPanel modelPanel) {
+		JMenuItem menuItem = new JMenuItem(modelPanel.getModel().getName());
+		menuItem.setIcon(modelPanel.getIcon());
+		menuItem.addActionListener(e -> ModelLoader.setCurrentModel(modelPanel));
+		modelPanel.setJMenuItem(menuItem);
+		modelMenuItemMap.put(modelPanel, menuItem);
 		add(modelPanel.getMenuItem());
 	}
 
 	public void removeModelPanelItem(ModelPanel modelPanel) {
-		remove(modelPanel.getMenuItem());
+		remove(modelMenuItemMap.get(modelPanel));
+		modelMenuItemMap.remove(modelPanel);
+//		remove(modelPanel.getMenuItem());
 	}
 
 	public static void openViewer(View view) {

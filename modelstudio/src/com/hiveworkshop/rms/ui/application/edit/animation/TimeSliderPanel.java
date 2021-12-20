@@ -53,12 +53,12 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 	private Robot robot;
 
 	private final Cursor slideCursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
-	//	private final Cursor defaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+//	private final Cursor defaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
 	private UndoManager undoManager;
 
 	private final JCheckBox allKF;
 	private final Timer liveAnimationTimer;
-	//	private final ProgramPreferences preferences;
+//	private final ProgramPreferences preferences;
 	private final GUITheme theme;
 	private boolean drawing;
 	private final JButton setKeyframe;

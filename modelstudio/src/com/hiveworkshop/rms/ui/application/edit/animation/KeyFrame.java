@@ -123,7 +123,7 @@ public final class KeyFrame {
 		GradientPaint fillPaint = getFillPaint(transRotScalOth);
 		((Graphics2D) g).setPaint(fillPaint);
 		g.fillRoundRect(renderRect.x, renderRect.y, renderRect.width, renderRect.height, 2, 2);
-		if(mouseOver){
+		if (mouseOver) {
 			g.setColor(Color.RED);
 		} else {
 			GradientPaint edgePaint = getEdgePaint(transRotScalOth);

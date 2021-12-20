@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.preferences.listeners.ProgramPreferencesChangeLis
 import net.infonode.docking.View;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.Serial;
 import java.io.Serializable;
@@ -77,6 +78,14 @@ public class ProgramPreferences implements Serializable {
 	private Integer modifyMouseButton = MouseEvent.BUTTON3_DOWN_MASK;
 	private Integer addSelectModifier = MouseEvent.SHIFT_DOWN_MASK;
 	private Integer removeSelectModifier = MouseEvent.CTRL_DOWN_MASK;
+
+	private Integer cameraFrontKB = KeyEvent.VK_NUMPAD1;
+	private Integer cameraSideKB = KeyEvent.VK_NUMPAD3;
+	private Integer cameraTopKB = KeyEvent.VK_NUMPAD7;
+	private Integer cameraLocZoomReset = KeyEvent.VK_NUMPAD0;
+	private Integer cameraOppositeKB = KeyEvent.CTRL_DOWN_MASK;
+
+	private Integer cameraToggleOrtho = KeyEvent.VK_O;
 
 	private Integer maxNumbersOfUndo = 100;
 
@@ -554,6 +563,66 @@ public class ProgramPreferences implements Serializable {
 		this.threeDCameraPanMouseEx = threeDCameraPanMouseEx;
 
 		saveAndFireListeners();
+	}
+
+	public Integer getCameraFrontKB() {
+		return cameraFrontKB;
+	}
+
+	public ProgramPreferences setCameraFrontKB(Integer cameraFrontKB) {
+		this.cameraFrontKB = cameraFrontKB;
+		saveAndFireListeners();
+		return this;
+	}
+
+	public Integer getCameraSideKB() {
+		return cameraSideKB;
+	}
+
+	public ProgramPreferences setCameraSideKB(Integer cameraSideKB) {
+		this.cameraSideKB = cameraSideKB;
+		saveAndFireListeners();
+		return this;
+	}
+
+	public Integer getCameraTopKB() {
+		return cameraTopKB;
+	}
+
+	public ProgramPreferences setCameraTopKB(Integer cameraTopKB) {
+		this.cameraTopKB = cameraTopKB;
+		saveAndFireListeners();
+		return this;
+	}
+
+	public Integer getCameraLocZoomReset() {
+		return cameraLocZoomReset;
+	}
+
+	public ProgramPreferences setCameraLocZoomReset(Integer cameraLocZoomReset) {
+		this.cameraLocZoomReset = cameraLocZoomReset;
+		saveAndFireListeners();
+		return this;
+	}
+
+	public Integer getCameraOppositeKB() {
+		return cameraOppositeKB;
+	}
+
+	public ProgramPreferences setCameraOppositeKB(Integer cameraOppositeKB) {
+		this.cameraOppositeKB = cameraOppositeKB;
+		saveAndFireListeners();
+		return this;
+	}
+
+	public Integer getCameraToggleOrtho() {
+		return cameraToggleOrtho;
+	}
+
+	public ProgramPreferences setCameraToggleOrtho(Integer cameraToggleOrtho) {
+		this.cameraToggleOrtho = cameraToggleOrtho;
+		saveAndFireListeners();
+		return this;
 	}
 
 	public Integer getSelectMouseButton() {

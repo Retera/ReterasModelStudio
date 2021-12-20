@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ObjectShell;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.ObjectShellListCellRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
@@ -10,9 +10,9 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 
 public class IdObjectChooser {
-	IterableListModel<ObjectShell> filteredBones = new IterableListModel<>();
-	IterableListModel<ObjectShell> posibleParentList;
-	JList<ObjectShell> bonesJList;
+	IterableListModel<IdObjectShell<?>> filteredBones = new IterableListModel<>();
+	IterableListModel<IdObjectShell<?>> posibleParentList;
+	JList<IdObjectShell<?>> bonesJList;
 	JTextField boneSearch;
 
 	EditableModel model;
@@ -24,11 +24,11 @@ public class IdObjectChooser {
 
 	public IdObject chooseParent(IdObject childObj, JComponent parent) {
 //		BoneShell idObjBoneShell;
-		ObjectShell parentBoneShell = null;
+		IdObjectShell<?> parentBoneShell = null;
 		posibleParentList.clear();
-		posibleParentList.addElement(new ObjectShell(null));
+		posibleParentList.addElement(new IdObjectShell<>(null));
 		for (IdObject idObject : model.getIdObjects()) {
-			ObjectShell boneShell = new ObjectShell(idObject);
+			IdObjectShell<?> boneShell = new IdObjectShell<>(idObject);
 			posibleParentList.addElement(boneShell);
 			if (idObject == childObj.getParent()) {
 				parentBoneShell = boneShell;
@@ -48,7 +48,7 @@ public class IdObjectChooser {
 
 		int option = JOptionPane.showConfirmDialog(parent, boneChooserPanel, "Choose Bone", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
 		if (option == JOptionPane.OK_OPTION) {
-			ObjectShell selectedValue = bonesJList.getSelectedValue();
+			IdObjectShell<?> selectedValue = bonesJList.getSelectedValue();
 			if (selectedValue != null) {
 				return selectedValue.getIdObject();
 			}
@@ -85,7 +85,7 @@ public class IdObjectChooser {
 		String filterText = boneSearch.getText();
 		if (!filterText.equals("")) {
 			filteredBones.clear();
-			for (ObjectShell objectShell : posibleParentList) {
+			for (IdObjectShell<?> objectShell : posibleParentList) {
 				if (objectShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
 					filteredBones.addElement(objectShell);
 				}

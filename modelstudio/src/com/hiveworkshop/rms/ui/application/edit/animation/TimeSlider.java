@@ -10,7 +10,7 @@ public class TimeSlider {
 	private static final int SLIDING_TIME_CHOOSER_WIDTH = SLIDER_TIME_BUTTON_SIZE + (SLIDER_SIDE_BUTTON_SIZE * 2);
 	private static final int SIDE_OFFSETS = SLIDING_TIME_CHOOSER_WIDTH / 2;
 	private Color forgroundC = Color.WHITE;
-//	private TimeEnvironmentImpl timeEnvironment;
+	//	private TimeEnvironmentImpl timeEnvironment;
 	JPanel timelinePanel;
 	private int x = 0;
 
@@ -83,7 +83,7 @@ public class TimeSlider {
 		return this;
 	}
 
-	public boolean containsPoint(Point point){
+	public boolean containsPoint(Point point) {
 		return backRect.contains(point) || timeRect.contains(point) || forwardRect.contains(point);
 	}
 

@@ -213,10 +213,11 @@ public class SelectionManager extends AbstractSelectionManager {
 			List<IdObject> selectedItems = new ArrayList<>();
 
 			for (IdObject object : modelView.getEditableIdObjects()) {
-				double vertexSize = object.getClickRadius() * 2;
 				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
-				int vertexSize1 = ProgramGlobals.getPrefs().getVertexSize();
-				if (modelView.isEditable(object) && HitTestStuff.hitTest(min, max, renderNode.getPivot(), viewPortMat, vertexSize1)) {
+//				double vertexSize = object.getClickRadius() * 2;
+//				int vertexSize1 = ProgramGlobals.getPrefs().getVertexSize();
+				double vertexSize = cameraHandler.geomDist(object.getClickRadius()*2);
+				if (modelView.isEditable(object) && HitTestStuff.hitTest(min, max, renderNode.getPivot(), viewPortMat, vertexSize)) {
 					selectedItems.add(object);
 				}
 			}
@@ -286,7 +287,9 @@ public class SelectionManager extends AbstractSelectionManager {
 			for (IdObject object : modelView.getEditableIdObjects()) {
 				double vertexSize = object.getClickRadius() * 2;
 				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
-				int vertexSize1 = ProgramGlobals.getPrefs().getVertexSize();
+//				double vertexSize1 = ProgramGlobals.getPrefs().getVertexSize();
+				double vertexSize1 = cameraHandler.geomDist(object.getClickRadius() / 2.0);
+//				double vertexSize1 = cameraHandler.geomDist(1);
 				if (modelView.isEditable(object) && HitTestStuff.hitTest(minFlat, maxFlat, renderNode.getPivot(), viewPortMat, vertexSize1)) {
 					selectedItems.add(object);
 				}
@@ -378,6 +381,8 @@ public class SelectionManager extends AbstractSelectionManager {
 		Mat4 viewPortMat = cameraHandler.getViewPortAntiRotMat();
 		for (IdObject object : modelView.getEditableIdObjects()) {
 			double vertSize = cameraHandler.geomDist(object.getClickRadius() / 2.0);
+//			double vertSize = 1.0;
+//			double vertSize = cameraHandler.geomDist(1.0);
 			if (modelView.isEditable(object) && HitTestStuff.hitTest(min, max, object.getPivotPoint(), viewPortMat, vertSize)) {
 				selectedItems.add(object);
 			}
@@ -773,6 +778,8 @@ public class SelectionManager extends AbstractSelectionManager {
 			for (IdObject object : modelView.getEditableIdObjects()) {
 				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
 				double vertexSize = cameraHandler.geomDist(object.getClickRadius() * 2);
+//				double vertexSize = 1;
+//				double vertexSize = cameraHandler.geomDist(1.0);
 				if (HitTestStuff.hitTest(renderNode.getPivot(), point, cameraHandler, vertexSize)) {
 					return true;
 				}

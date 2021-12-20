@@ -742,7 +742,7 @@ public final class ModelView {
 //			System.out.println("GeosetVertex inVissible:" + hiddenVertices.contains(obj));
 			return !hiddenVertices.contains(obj);
 		} else if (obj instanceof Geoset) {
-			System.out.println("Geoset inVissible:" + visibleGeosets.contains(obj));
+//			System.out.println("Geoset inVissible:" + visibleGeosets.contains(obj));
 			return visibleGeosets.contains(obj);
 		} else if (obj instanceof IdObject) {
 //			System.out.println("IdObject inVissible:" + visibleIdObjects.contains(obj));

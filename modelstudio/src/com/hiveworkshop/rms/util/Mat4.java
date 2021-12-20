@@ -63,9 +63,9 @@ public class Mat4 {
 
 	public Mat4 setFromBindPose(final float[] a) {
 		set(
-				a[0], a[1], a[2], m03,
-				a[3], a[4], a[5], m13,
-				a[6], a[7], a[8], m23,
+				a[0], a[ 1], a[ 2], m03,
+				a[3], a[ 4], a[ 5], m13,
+				a[6], a[ 7], a[ 8], m23,
 				a[9], a[10], a[11], m33);
 		return this;
 	}
@@ -354,7 +354,7 @@ public class Mat4 {
 		m13 = 0;
 		m20 = (xz + wy)         * scale.z;
 		m21 = (yz - wx)         * scale.z;
-		m22 = (1 - (xx + yy)) * scale.z;
+		m22 = (1 - (xx + yy))   * scale.z;
 		m23 = 0;
 		m30 = (loc.x + pivot.x) - ((m00 * pivot.x) + (m10 * pivot.y) + (m20 * pivot.z));
 		m31 = (loc.y + pivot.y) - ((m01 * pivot.x) + (m11 * pivot.y) + (m21 * pivot.z));
@@ -379,17 +379,17 @@ public class Mat4 {
 		float wy = rot.w * rot.y * 2;
 		float wz = rot.w * rot.z * 2;
 
-		m00 = (1 - (yy + zz)) * scale.x;
-		m01 = (xy + wz) * scale.x;
-		m02 = (xz - wy) * scale.x;
+		m00 = (1 - (yy + zz))   * scale.x;
+		m01 = (xy + wz)         * scale.x;
+		m02 = (xz - wy)         * scale.x;
 
-		m10 = (xy - wz) * scale.y;
-		m11 = (1 - (xx + zz)) * scale.y;
-		m12 = (yz + wx) * scale.y;
+		m10 = (xy - wz)         * scale.y;
+		m11 = (1 - (xx + zz))   * scale.y;
+		m12 = (yz + wx)         * scale.y;
 
-		m20 = (xz + wy) * scale.z;
-		m21 = (yz - wx) * scale.z;
-		m22 = (1 - (xx + yy)) * scale.z;
+		m20 = (xz + wy)         * scale.z;
+		m21 = (yz - wx)         * scale.z;
+		m22 = (1 - (xx + yy))   * scale.z;
 
 		m30 = (loc.x + pivot.x) - ((m00 * pivot.x) + (m10 * pivot.y) + (m20 * pivot.z));
 		m31 = (loc.y + pivot.y) - ((m01 * pivot.x) + (m11 * pivot.y) + (m21 * pivot.z));

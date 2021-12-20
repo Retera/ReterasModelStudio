@@ -147,7 +147,8 @@ public class RenameBoneChainPanel extends JPanel {
 		}
 		depthMap.put(key, bone);
 		List<IdObject> childrenNodes = bone.getChildrenNodes();
-		childrenNodes.sort(Comparator.comparingInt(b -> b.getObjectId(modelHandler.getModel())));
+//		childrenNodes.sort(Comparator.comparingInt(b -> b.getObjectId(modelHandler.getModel())));
+		childrenNodes.sort(Comparator.comparingInt(b -> modelHandler.getModel().getObjectId(b)));
 		System.out.println("added bone: " + bone.getName() + ", dl: " + depthLimit + ", parentKey: " + parentKey + ", key: " + key + ", siblingIndex: " + siblingIndex + ", children: " + childrenNodes.size() + ", siblings: " + hasSibling);
 		for (int i = 0; i < childrenNodes.size(); i++) {
 			IdObject child = childrenNodes.get(i);

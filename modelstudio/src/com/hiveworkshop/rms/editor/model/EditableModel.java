@@ -330,6 +330,9 @@ public class EditableModel implements Named {
 	public boolean contains(final Animation x) {
 		return anims.contains(x);
 	}
+	public boolean contains(final Sequence x) {
+		return anims.contains(x) || globalSeqs.contains(x);
+	}
 
 	public boolean contains(final Bitmap x) {
 		return textures.contains(x);

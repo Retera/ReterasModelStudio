@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.animation.AddSequenceAction;
 import com.hiveworkshop.rms.editor.actions.animation.ReplaceSequenceTransformations;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddAnimFlagAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryMapAction;
@@ -57,6 +58,12 @@ public class ImportBoneChainAnimationPanel extends TwiImportPanel {
 			Map<Sequence, Sequence> recToDonSequenceMap = getRecToDonSequenceMap(); // receiving animations to donating animations
 
 			List<UndoAction> undoActions = new ArrayList<>();
+			for(Sequence recSeq : recToDonSequenceMap.keySet()){
+				if(!recModel.contains(recSeq)){
+					undoActions.add(new AddSequenceAction(recModel, recSeq, null));
+				}
+			}
+
 			System.out.println(chainMap.size());
 
 			for (IdObject recIdObject : chainMap.keySet()) {

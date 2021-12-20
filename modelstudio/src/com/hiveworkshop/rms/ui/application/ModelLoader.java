@@ -59,11 +59,7 @@ public class ModelLoader {
 			}
 		}
 
-//		mainPanel.snapButton.setVisible(!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE);
-//		ProgramGlobals.getMainPanel().getWindowHandler2().setAnimationMode();
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().setAnimationMode();
-//		mainPanel.getMainLayoutCreator().getCreatorView().setAnimationModeState((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE));
-//		mainPanel.getMainLayoutCreator().getTimeSliderView().setAnimationMode((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE));
 	}
 
 	private static void refreshAndUpdateRenderModel() {
@@ -124,21 +120,17 @@ public class ModelLoader {
 		return blankTextureModel;
 	}
 
-	public static void loadModel(boolean temporary, boolean selectNewTab, ModelPanel modelPanel) {
+	public static void loadModel(boolean temporary, boolean showModel, ModelPanel modelPanel) {
 		if (temporary) {
 			modelPanel.getModelView().getModel().setTemp(true);
 		}
-		JMenuItem menuItem = new JMenuItem(modelPanel.getModel().getName());
-		menuItem.setIcon(modelPanel.getIcon());
-		menuItem.addActionListener(e -> setCurrentModel(modelPanel));
-		modelPanel.setJMenuItem(menuItem);
 
 		MenuBar.addModelPanel(modelPanel);
 
 		if (ProgramGlobals.getCurrentModelPanel() == modelPanel) {
 			ProgramGlobals.getRootWindowUgg().getWindowHandler2().showModelPanel(modelPanel);
 		}
-		if (selectNewTab) {
+		if (showModel) {
 			setCurrentModel(modelPanel);
 		} else {
 			ProgramGlobals.addModelPanel(modelPanel);
@@ -150,7 +142,7 @@ public class ModelLoader {
 
 		MenuBar.setToolsMenuEnabled(true);
 
-		if (selectNewTab && ProgramGlobals.getPrefs().getQuickBrowse()) {
+		if (showModel && ProgramGlobals.getPrefs().getQuickBrowse()) {
 			closeUnalteredModels();
 		}
 	}
@@ -177,73 +169,35 @@ public class ModelLoader {
 		ModelStructureChangeListener.changeListener.keyframesUpdated();
 	}
 
-	public static void loadFile(final File f) {
+	public static void loadFile(File f) {
 		loadFile(f, false, true, MDLIcon);
 	}
 
-	public static void loadFile(final File f, boolean temporary, final boolean selectNewTab, final ImageIcon icon) {
+	public static void loadFile(File f, boolean temporary, boolean showModel, final ImageIcon icon) {
 		System.out.println("loadFile: " + f.getName());
 		System.out.println("filePath: " + f.getPath());
 		ExtFilter extFilter = new ExtFilter();
 		if (f.exists()) {
 			final String pathLow = f.getPath().toLowerCase();
 			String ext = pathLow.replaceAll(".+\\.(?=.+)", "");
-			ModelPanel tempModelPanel = null;
+			EditableModel model;
 			if (extFilter.isSupTexture(ext)) {
-				final EditableModel model;
-				if (ext.equals("dds")) {
-					model = getImagePlaneModel(f, 1000);
-				} else {
-					model = getImagePlaneModel(f, 800);
-				}
-				model.setTemp(true);
-				//            model.setFileRef(f);
+				model = getImageModel(f, ext);
 				temporary = false;
-				tempModelPanel = newTempModelPanel(icon, model);
 
-			}
-
-			if (Arrays.asList("mdx", "mdl").contains(ext)) {
-				try {
-
-					final EditableModel model = MdxUtils.loadEditable(f);
-					model.setFileRef(f);
-
-					tempModelPanel = newTempModelPanel(icon, model);
-
-				} catch (final IOException e) {
-					e.printStackTrace();
-					ExceptionPopup.display(e);
-					throw new RuntimeException("Reading mdx failed");
-				}
+			} else if (Arrays.asList("mdx", "mdl").contains(ext)) {
+				model = getMdxlModel(f);
 			} else if (Arrays.asList("obj", "fbx").contains(ext)) {
-				try {
-					System.out.println("importing file \"" + f.getName() + "\" this might take a while...");
-					long timeStart = System.currentTimeMillis();
-					AiProgressHandler aiProgressHandler = new AiProgressHandler() {
-						@Override
-						public boolean update(float v) {
-							//                            System.out.println("progress: " + (int)((v+1)*100) + "%  " + (System.currentTimeMillis()-timeStart) + " ms");
-							return true;
-						}
-					};
-					//                    AiClassLoaderIOSystem aiIOSystem = new AiClassLoaderIOSystem();
-					TwiAiIoSys twiAiIoSys = new TwiAiIoSys();
-					AiScene scene = Jassimp.importFile(f.getPath(), new HashSet<>(Collections.singletonList(AiPostProcessSteps.TRIANGULATE)), twiAiIoSys, aiProgressHandler);
-					TwiAiSceneParser twiAiSceneParser = new TwiAiSceneParser(scene);
-					//                    final EditableModel model = new EditableModel(scene);
-					System.out.println("took " + (System.currentTimeMillis() - timeStart) + " ms to load the model");
-					EditableModel model = twiAiSceneParser.getEditableModel();
-					model.setFileRef(f);
-					//
-					tempModelPanel = newTempModelPanel(icon, model);
-				} catch (final Exception e) {
-					ExceptionPopup.display(e);
-					e.printStackTrace();
-				}
+				model = getAssImpModel(f);
+			} else {
+				model = null;
 			}
-			if (tempModelPanel != null) {
-				loadModel(temporary, selectNewTab, tempModelPanel);
+//			else if (ext.equals(".skl")){
+//				new TestSklViewer().createAndShowHTMLPanel(f.getPath(), "View SKL");
+//			}
+			if (model != null) {
+				ModelPanel tempModelPanel = newTempModelPanel(icon, model);
+				loadModel(temporary, showModel, tempModelPanel);
 			}
 		} else if (SaveProfile.get().getRecent().contains(f.getPath())) {
 			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), "Could not find the file.\nRemove from recent?", "File not found", JOptionPane.YES_NO_OPTION);
@@ -252,6 +206,62 @@ public class ModelLoader {
 				MenuBar.updateRecent();
 			}
 		}
+	}
+
+	private static EditableModel getImageModel(File f, String ext) {
+		EditableModel model;
+		if (ext.equals("dds")) {
+			model = getImagePlaneModel(f, 1000);
+		} else {
+			model = getImagePlaneModel(f, 800);
+		}
+		model.setTemp(true);
+		//            model.setFileRef(f);
+		return model;
+	}
+
+	private static EditableModel getMdxlModel(File f) {
+		EditableModel model;
+		try {
+
+			model = MdxUtils.loadEditable(f);
+			model.setFileRef(f);
+
+
+		} catch (final IOException e) {
+			e.printStackTrace();
+			ExceptionPopup.display(e);
+			throw new RuntimeException("Reading mdx failed");
+		}
+		return model;
+	}
+
+	private static EditableModel getAssImpModel(File f) {
+		try {
+			System.out.println("importing file \"" + f.getName() + "\" this might take a while...");
+			long timeStart = System.currentTimeMillis();
+			AiProgressHandler aiProgressHandler = new AiProgressHandler() {
+				@Override
+				public boolean update(float v) {
+					//                            System.out.println("progress: " + (int)((v+1)*100) + "%  " + (System.currentTimeMillis()-timeStart) + " ms");
+					return true;
+				}
+			};
+			//                    AiClassLoaderIOSystem aiIOSystem = new AiClassLoaderIOSystem();
+			TwiAiIoSys twiAiIoSys = new TwiAiIoSys();
+			AiScene scene = Jassimp.importFile(f.getPath(), new HashSet<>(Collections.singletonList(AiPostProcessSteps.TRIANGULATE)), twiAiIoSys, aiProgressHandler);
+			TwiAiSceneParser twiAiSceneParser = new TwiAiSceneParser(scene);
+			//                    final EditableModel model = new EditableModel(scene);
+			System.out.println("took " + (System.currentTimeMillis() - timeStart) + " ms to load the model");
+			EditableModel model = twiAiSceneParser.getEditableModel();
+			model.setFileRef(f);
+			return model;
+			//
+		} catch (final Exception e) {
+			ExceptionPopup.display(e);
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static void revert() {

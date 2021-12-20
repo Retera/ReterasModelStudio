@@ -261,11 +261,11 @@ public class KeyframeHandler {
 	}
 
 
-	public KeyFrame removeFrame(int time){
+	public KeyFrame removeFrame(int time) {
 		return timeToKey.remove(time);
 	}
 
-	public KeyframeHandler putFrame(int time, KeyFrame keyFrame){
+	public KeyframeHandler putFrame(int time, KeyFrame keyFrame) {
 		timeToKey.put(time, keyFrame);
 		return this;
 	}

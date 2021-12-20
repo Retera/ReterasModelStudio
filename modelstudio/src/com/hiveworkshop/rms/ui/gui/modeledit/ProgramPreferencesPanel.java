@@ -11,12 +11,10 @@ import com.hiveworkshop.rms.util.SmartButtonGroup;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public final class ProgramPreferencesPanel extends JTabbedPane {
 	private final ProgramPreferences programPreferences;
@@ -161,6 +159,28 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 	private JPanel getHotkeysPanel2(ProgramPreferences pref) {
 		final JPanel hotkeysPanel = new JPanel();
 		hotkeysPanel.setLayout(new MigLayout());
+		//cameraFrontKB
+		//cameraSideKB
+		//cameraTopKB
+		//cameraLocZoomReset
+		//cameraOppositeKB
+
+		//cameraFrontKB
+		//cameraFrontKB
+		//cameraFrontKB
+		//cameraSideKB
+		//cameraSideKB
+		//cameraSideKB
+		//cameraTopKB
+		//cameraTopKB
+		//cameraTopKB
+		//cameraLocZoomReset
+		//cameraLocZoomReset
+		//cameraLocZoomReset
+		//cameraOppositeKB
+		//cameraOppositeKB
+		//cameraOppositeKB
+
 
 		String spinTextKey = "Camera Spin";
 		hotkeysPanel.add(new JLabel(spinTextKey));
@@ -173,6 +193,48 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		JButton panButton = new JButton(MouseEvent.getModifiersExText(pref.getThreeDCameraPanMouseEx()));
 		panButton.addActionListener(e -> pref.setThreeDCameraPanMouseEx(editMouseButtonBinding(panTextKey, panButton, pref.getThreeDCameraPanMouseEx(), false)));
 		hotkeysPanel.add(panButton, "wrap");
+
+		String cameraFrontKBTextKey = "Camera Front";
+		hotkeysPanel.add(new JLabel(cameraFrontKBTextKey));
+		JButton cameraFrontKBButton = new JButton(KeyEvent.getKeyText(pref.getCameraFrontKB()));
+//		cameraFrontKBButton.addActionListener(e -> pref.setCameraFrontKB(editMouseButtonBinding(cameraFrontKBTextKey, cameraFrontKBButton, pref.getCameraFrontKB(), false)));
+		cameraFrontKBButton.addActionListener(e -> editKeyBinding(cameraFrontKBTextKey, cameraFrontKBButton, pref::getCameraFrontKB, pref::setCameraFrontKB));
+		hotkeysPanel.add(cameraFrontKBButton, "wrap");
+
+		String cameraSideKBTextKey = "Camera Side";
+		hotkeysPanel.add(new JLabel(cameraSideKBTextKey));
+		JButton cameraSideKBButton = new JButton(KeyEvent.getKeyText(pref.getCameraSideKB()));
+//		cameraSideKBButton.addActionListener(e -> pref.setCameraSideKB(editMouseButtonBinding(cameraSideKBTextKey, cameraSideKBButton, pref.getCameraSideKB(), false)));
+		cameraSideKBButton.addActionListener(e -> editKeyBinding(cameraSideKBTextKey, cameraSideKBButton, pref::getCameraSideKB, pref::setCameraSideKB));
+		hotkeysPanel.add(cameraSideKBButton, "wrap");
+
+		String cameraTopKBTextKey = "Camera Top";
+		hotkeysPanel.add(new JLabel(cameraTopKBTextKey));
+		JButton cameraTopKBButton = new JButton(KeyEvent.getKeyText(pref.getCameraTopKB()));
+//		cameraTopKBButton.addActionListener(e -> pref.setCameraTopKB(editMouseButtonBinding(cameraTopKBTextKey, cameraTopKBButton, pref.getCameraTopKB(), false)));
+		cameraTopKBButton.addActionListener(e -> editKeyBinding(cameraTopKBTextKey, cameraTopKBButton, pref::getCameraTopKB, pref::setCameraTopKB));
+		hotkeysPanel.add(cameraTopKBButton, "wrap");
+
+		String cameraOppositeKBTextKey = "Camera Opposite Direction Modifier";
+		hotkeysPanel.add(new JLabel(cameraOppositeKBTextKey));
+		JButton cameraOppositeKBButton = new JButton(KeyEvent.getModifiersExText(pref.getCameraOppositeKB()));
+//		cameraOppositeKBButton.addActionListener(e -> pref.setCameraOppositeKB(editMouseButtonBinding(cameraOppositeKBTextKey, cameraOppositeKBButton, pref.getCameraOppositeKB(), false)));
+		cameraOppositeKBButton.addActionListener(e -> editKeyMod(cameraOppositeKBTextKey, cameraOppositeKBButton, pref::getCameraOppositeKB, pref::setCameraOppositeKB));
+		hotkeysPanel.add(cameraOppositeKBButton, "wrap");
+
+		String cameraLocZoomResetTextKey = "Camera Reset Location and Zoom";
+		hotkeysPanel.add(new JLabel(cameraLocZoomResetTextKey));
+		JButton cameraLocZoomResetButton = new JButton(KeyEvent.getKeyText(pref.getCameraLocZoomReset()));
+//		cameraLocZoomResetButton.addActionListener(e -> pref.setCameraLocZoomReset(editMouseButtonBinding(cameraLocZoomResetTextKey, cameraLocZoomResetButton, pref.getCameraLocZoomReset(), false)));
+		cameraLocZoomResetButton.addActionListener(e -> editKeyBinding(cameraLocZoomResetTextKey, cameraLocZoomResetButton, pref::getCameraLocZoomReset, pref::setCameraLocZoomReset));
+		hotkeysPanel.add(cameraLocZoomResetButton, "wrap");
+
+		String cameraToggleOrtho = "Camera Toggle Orthographical";
+		hotkeysPanel.add(new JLabel(cameraToggleOrtho));
+		JButton cameraToggleOrthoButton = new JButton(KeyEvent.getKeyText(pref.getCameraToggleOrtho()));
+//		cameraLocZoomResetButton.addActionListener(e -> pref.setCameraLocZoomReset(editMouseButtonBinding(cameraLocZoomResetTextKey, cameraLocZoomResetButton, pref.getCameraLocZoomReset(), false)));
+		cameraToggleOrthoButton.addActionListener(e -> editKeyBinding(cameraToggleOrtho, cameraToggleOrthoButton, pref::getCameraToggleOrtho, pref::setCameraToggleOrtho));
+		hotkeysPanel.add(cameraToggleOrthoButton, "wrap");
 
 		String modifyTextKey = "Manipulate";
 		hotkeysPanel.add(new JLabel(modifyTextKey));
@@ -290,5 +352,97 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		KeybindingPrefPanel keybindingPrefPanel = new KeybindingPrefPanel();
 //		keybindingPrefPanel.setPreferredSize(ScreenInfo.getSmallWindow());
 		FramePopup.show(keybindingPrefPanel, this, "Edit Keybindings");
+	}
+
+	private void editKeyBinding(String kbName, JButton button, Supplier<Integer> integerSupplier, Consumer<Integer> integerConsumer) {
+		JPanel panel = new JPanel(new MigLayout());
+		JTextField textField = new JTextField(24);
+		if (integerSupplier.get() != null) {
+			textField.setText(KeyEvent.getKeyText(integerSupplier.get()));
+		}
+		textField.setEditable(false);
+		final KeyEvent[] event = {null};
+		textField.addKeyListener(new KeyAdapter() {
+			KeyEvent lastPressedEvent;
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				lastPressedEvent = e;
+				if(event[0] == null){
+					textField.setText(KeyEvent.getKeyText(e.getKeyCode()));
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				System.out.println("keyReleased ugg, " + KeyEvent.VK_CONTROL + " "  + KeyEvent.getMaskForButton(KeyEvent.VK_CONTROL));
+				if(event[0] == null){
+					event[0] = lastPressedEvent;
+				}
+			}
+		});
+
+		panel.add(textField);
+		JButton resetButton = new JButton("Edit");
+		resetButton.addActionListener(e -> {event[0] = null; textField.setText(""); textField.requestFocus();});
+		panel.add(resetButton);
+
+		int change = JOptionPane.showConfirmDialog(this, panel, "Edit KeyBinding for " + kbName, JOptionPane.OK_CANCEL_OPTION);
+
+		if(change == JOptionPane.OK_OPTION){
+			if(event[0] != null){
+				integerConsumer.accept(event[0].getKeyCode());
+				button.setText(KeyEvent.getKeyText(event[0].getKeyCode()));
+			} else {
+				integerConsumer.accept(null);
+				button.setText("None");
+			}
+		}
+	}
+
+	private void editKeyMod(String kbName, JButton button, Supplier<Integer> integerSupplier, Consumer<Integer> integerConsumer) {
+		JPanel panel = new JPanel(new MigLayout());
+		JTextField textField = new JTextField(24);
+		if (integerSupplier.get() != null) {
+			textField.setText(KeyEvent.getModifiersExText(integerSupplier.get()));
+		}
+		textField.setEditable(false);
+		final KeyEvent[] event = {null};
+		textField.addKeyListener(new KeyAdapter() {
+			KeyEvent lastPressedEvent;
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				lastPressedEvent = e;
+				if(event[0] == null){
+					textField.setText(KeyEvent.getModifiersExText(e.getModifiersEx()));
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+//				System.out.println("keyReleased ugg, " + KeyEvent.VK_CONTROL + " "  + KeyEvent.getMaskForButton(KeyEvent.VK_CONTROL));
+				if(event[0] == null){
+					event[0] = lastPressedEvent;
+				}
+			}
+		});
+
+		panel.add(textField);
+		JButton resetButton = new JButton("Edit");
+		resetButton.addActionListener(e -> {event[0] = null; textField.setText(""); textField.requestFocus();});
+		panel.add(resetButton);
+
+		int change = JOptionPane.showConfirmDialog(this, panel, "Edit KeyBinding for " + kbName, JOptionPane.OK_CANCEL_OPTION);
+
+		if(change == JOptionPane.OK_OPTION){
+			if(event[0] != null){
+				integerConsumer.accept(event[0].getModifiersEx());
+				button.setText(KeyEvent.getModifiersExText(event[0].getModifiersEx()));
+			} else {
+				integerConsumer.accept(null);
+				button.setText("None");
+			}
+		}
 	}
 }

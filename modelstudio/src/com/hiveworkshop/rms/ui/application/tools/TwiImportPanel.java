@@ -442,10 +442,10 @@ public abstract class TwiImportPanel extends JPanel {
 	protected Map<IdObject, IdObject> getBoneChainSubMap(List<IdObject> idObjectsForComboBox,
 	                                                     EditableModel modelForComboBox,
 	                                                     List<IdObject> idObjectsForPanel,
-	                                                     EditableModel modelForPanel, boolean presentParent){
+	                                                     EditableModel modelForPanel, boolean presentParent) {
 		Map<IdObject, IdObject> boneChainSubMap = new HashMap<>();
 		JPanel objectMappingPanel = new JPanel(new MigLayout());
-		for(IdObject idObjectForPanel : idObjectsForPanel) {
+		for (IdObject idObjectForPanel : idObjectsForPanel) {
 			JComboBox<IdObjectShell<?>> boneChooserBox = getBoneChooserBox(idObjectForPanel, idObjectsForComboBox, modelForComboBox, (o -> boneChainSubMap.put(idObjectForPanel, o)), presentParent);
 			if (boneChooserBox.getModel().getSize() == 2) {
 				boneChainSubMap.put(idObjectForPanel, boneChooserBox.getModel().getElementAt(1).getIdObject());
@@ -486,12 +486,12 @@ public abstract class TwiImportPanel extends JPanel {
 					String[] destSplit = destName.split("_");
 					boolean match = true;
 					for (int i = 0; i < namsSplit.length && i < destSplit.length; i++) {
-						if(!namsSplit[i].equals(destSplit[i])){
+						if (!namsSplit[i].equals(destSplit[i])) {
 							match = false;
 							break;
 						}
 					}
-					if(match){
+					if (match) {
 						sameNameObject = newObjectShell;
 						lastMatch = Math.abs(sameNameObject.getIdObject().getName().compareTo(destName));
 					}
@@ -500,7 +500,7 @@ public abstract class TwiImportPanel extends JPanel {
 		}
 		comboBox.setRenderer(new ObjectShellListCellRenderer(modelForComboBox, null));
 		comboBox.addItemListener(e -> {
-			if(e.getStateChange() == ItemEvent.SELECTED) {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
 				idObjectConsumer.accept(((IdObjectShell<?>) e.getItem()).getIdObject());
 			}
 		});

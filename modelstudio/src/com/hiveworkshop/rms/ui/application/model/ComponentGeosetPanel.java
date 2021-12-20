@@ -401,4 +401,49 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		UndoAction action = new DeleteGeosetAction(model, geoset, changeListener);
 		undoManager.pushAction(action.redo());
 	}
+
+
+	// ToDo give GeosetPanel an additional visibillity button panel width the vissibillity of the material
+	//  or preferably put this next to the geosetAnimVisButtonPanel
+	private JPanel getMatVisButtonPanel() {
+		JPanel panel = new JPanel(new MigLayout("", "", ""));
+		Material material = geoset.getMaterial();
+
+		if (material != null) {
+			Map<Animation, String> animVisMap = new HashMap<>();
+//			for (Animation animation : model.getAnims()) {
+//				TreeMap<Integer, Entry<Float>> entryMap = geosetAnim.getVisibilityFlag().getEntryMap(animation);
+//				if (entryMap != null && !entryMap.isEmpty()) {
+//					float firstValue = entryMap.get(entryMap.firstKey()).getValue();
+//					Collection<Entry<Float>> visEntries = entryMap.values();
+//					if (visEntries.stream().allMatch(e -> e.getValue() >= 1)) {
+//						animVisMap.put(animation, "visible");
+//					} else if (visEntries.stream().allMatch(e -> e.getValue() == 0)) {
+//						animVisMap.put(animation, "invisible");
+//					} else if (visEntries.stream().anyMatch(e -> e.getValue() != firstValue)) {
+//						animVisMap.put(animation, "animated");
+//					}
+//				} else {
+//					animVisMap.put(animation, "visible");
+//				}
+//			}
+			for (Animation animation : model.getAnims()) {
+				if (animVisMap.containsKey(animation)) {
+					panel.add(new JLabel(animation.getName()));
+					JButton animButton = new JButton(animVisMap.get(animation));
+					animButton.addActionListener(e -> toggleVisibility(animation, animVisMap.get(animation)));
+					if (animVisMap.get(animation).equals("visible")) {
+						animButton.setBackground(new Color(120, 150, 255));
+//						animButton.setForeground(Color.WHITE);
+					} else if (animVisMap.get(animation).equals("animated")) {
+						animButton.setBackground(new Color(200, 150, 255));
+						animButton.setEnabled(false);
+					}
+					panel.add(animButton, "wrap");
+				}
+			}
+		}
+
+		return panel;
+	}
 }

@@ -132,9 +132,13 @@ public class CameraHandler {
 		}
 	}
 
-	public void setPosition(double a, double b) {
+	public void setPosition1(double a, double b) {
 		cameraPos.x = (float) a;
 		cameraPos.y = (float) b;
+	}
+	public void setPosition(double a, double b) {
+		cameraPos.y = (float) a;
+		cameraPos.z = (float) b;
 	}
 
 	public void translate(double right, double up) {

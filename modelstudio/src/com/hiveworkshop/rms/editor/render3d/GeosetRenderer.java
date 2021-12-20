@@ -114,6 +114,7 @@ public class GeosetRenderer {
 //			}
 //		}
 //	}
+	// ToDo investigate why transparent Geosets don't render when renderTextures is false
 	private void renderGeosets(Iterable<Geoset> geosets, int formatVersion, boolean overriddenColors, boolean renderTextures, boolean wireFrame) {
 		GL11.glDepthMask(true);
 		glShadeModel(GL11.GL_FLAT);
@@ -160,6 +161,7 @@ public class GeosetRenderer {
 			geosetAnimVisibility = geosetAnim.getRenderVisibility(renderEnv);
 			// do not show invisible geosets
 			if (geosetAnimVisibility < RenderModel.MAGIC_RENDER_SHOW_CONSTANT) {
+//				System.out.println("Wont render");
 				return;
 			}
 			renderColor = geosetAnim.getRenderColor(renderEnv);
@@ -175,9 +177,19 @@ public class GeosetRenderer {
 			}
 			Layer layer = material.getLayers().get(i);
 
-			boolean opaqueLayer = (layer.getFilterMode() == FilterMode.NONE) || (layer.getFilterMode() == FilterMode.TRANSPARENT);
+			boolean opaqueLayer = ((layer.getFilterMode() == FilterMode.NONE) || (layer.getFilterMode() == FilterMode.TRANSPARENT)) && !(!renderTextures && !modelView.isEditable(geo));
+//			if(!modelView.isEditable(geo) && !renderTextures && !renderOpaque && geo.getName().startsWith("Arm2_")){
+//			if(!modelView.isEditable(geo) && (geo.getName().startsWith("Arm2_") || geo.getName().startsWith("Pelvis"))){
+
+//			if(!modelView.isEditable(geo) && !renderOpaque && (geo.getName().contains("Pelvis")) && !renderTextures){
+//				System.out.println("should render geo " + geo.getName() + ": " + (!renderOpaque && !opaqueLayer) + ", has renderGeo: " + renderModel.getRenderGeoset(geo));
+//			}
 
 			if ((renderOpaque && opaqueLayer) || (!renderOpaque && !opaqueLayer)) {
+				if(!modelView.isEditable(geo) && !renderOpaque && (geo.getName().contains("Pelvis")) && !renderTextures){
+					System.out.println("should render geo " + geo.getName() + ": " + (!renderOpaque && !opaqueLayer) + ", has renderGeo: " + renderModel.getRenderGeoset(geo));
+				}
+
 				Bitmap tex = layer.getRenderTexture(renderEnv, modelView.getModel());
 
 				if (tex != null) {
@@ -278,7 +290,7 @@ public class GeosetRenderer {
 		GL11.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
 		GL11.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 
-		float factor = (float) (6 / cameraHandler.getZoom());
+		float factor = (float) (6 / cameraHandler.getZoom()); // TODO this scaling is not correct!! xD
 
 		GL11.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
 		GL11.glVertex3f(

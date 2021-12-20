@@ -70,7 +70,7 @@ class MultiBonePanel extends BonePanel {
 	}
 
 	private void showImportTypeCard(ItemEvent e) {
-		if(e.getStateChange() == ItemEvent.SELECTED) {
+		if (e.getStateChange() == ItemEvent.SELECTED) {
 			if (importTypeBox.getSelectedItem() == IdObjectShell.ImportType.MOTION_FROM.dispText) {
 				cards.show(cardPanel, "boneList");
 				importTypeForAll(IdObjectShell.ImportType.MOTION_FROM);
