@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.filesystem.sources;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.Collection;
@@ -41,7 +42,12 @@ public class JavaJarDataSource implements DataSource {
 
     @Override
     public boolean has(final String filepath) {
-        return JavaJarDataSource.class.getResource("/" + filepath.replace('\\', '/')) != null;
+        String fp = "/" + filepath.replace('\\', '/');
+        URL resource = JavaJarDataSource.class.getResource(fp);
+//        if (filepath.endsWith(".html")){
+//            System.out.println("checking for file: \"" + filepath + "\", url: \"" + resource + "\"");
+//        }
+        return resource != null;
     }
 
     @Override

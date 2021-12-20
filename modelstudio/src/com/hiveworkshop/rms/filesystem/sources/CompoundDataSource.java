@@ -33,6 +33,17 @@ public class CompoundDataSource implements DataSource {
 			return cache.get(filepath);
 		}
 		try {
+//			for (int i = mpqList.size() - 1; i >= 0; i--) {
+//				final DataSource mpq = mpqList.get(i);
+//				final File tempProduct = mpq.getFile(filepath);
+//				if (tempProduct != null) {
+//					cache.put(filepath, tempProduct);
+//					return tempProduct;
+//				}
+////				else {
+////					JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), "Could not find \"" + filepath + "\"", "File not found", JOptionPane.ERROR_MESSAGE);
+////				}
+//			}
 			for (int i = mpqList.size() - 1; i >= 0; i--) {
 				final DataSource mpq = mpqList.get(i);
 				final File tempProduct = mpq.getFile(filepath);
@@ -54,6 +65,11 @@ public class CompoundDataSource implements DataSource {
 			for (int i = mpqList.size() - 1; i >= 0; i--) {
 				final DataSource mpq = mpqList.get(i);
 				final InputStream resourceAsStream = mpq.getResourceAsStream(filepath);
+//				if (filepath.endsWith(".html")){
+//					System.out.println("checking for file: \"" + filepath
+//							+ "\", in: \"" + mpq.getClass().getSimpleName()
+//							+ "\", has: " + mpq.has(filepath) + ", stream: " + resourceAsStream);
+//				}
 				if (resourceAsStream != null) {
 					return resourceAsStream;
 				}
@@ -65,11 +81,11 @@ public class CompoundDataSource implements DataSource {
 	}
 
 	@Override
-	public ByteBuffer read(final String path) throws IOException {
+	public ByteBuffer read(final String filePath) throws IOException {
 		try {
 			for (int i = mpqList.size() - 1; i >= 0; i--) {
 				final DataSource mpq = mpqList.get(i);
-				final ByteBuffer buffer = mpq.read(path);
+				final ByteBuffer buffer = mpq.read(filePath);
 				if (buffer != null) {
 					return buffer;
 				}
@@ -82,11 +98,18 @@ public class CompoundDataSource implements DataSource {
 
 	@Override
 	public boolean has(final String filepath) {
+//		String fp = "/" + filepath.replace('\\', '/');
+//		if (filepath.endsWith(".html")){
+//			System.out.println("checking for file: \"" + filepath + "\", cashed: \"" + cache.containsKey(filepath) + "\"");
+//		}
 		if (cache.containsKey(filepath)) {
 			return true;
 		}
 		for (int i = mpqList.size() - 1; i >= 0; i--) {
 			final DataSource mpq = mpqList.get(i);
+//			if (filepath.endsWith(".html")){
+//				System.out.println("checking for file: \"" + filepath + "\", in: \"" + mpq.getClass().getSimpleName() + "\", has: " + mpq.has(filepath));
+//			}
 			if (mpq.has(filepath)) {
 				return true;
 			}

@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.browsers.mpq;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.application.ModelLoader;
+import com.hiveworkshop.rms.util.SklViewer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -390,6 +391,12 @@ public final class MPQBrowser extends JPanel {
 
 
 	private static void loadFileByType(String filepath) {
+		System.out.println("loading file");
 		ModelLoader.loadFile(GameDataFileSystem.getDefault().getFile(filepath), true);
+		System.out.println("File path: \"" + filepath + "\"");
+		if(filepath.endsWith(".skl")){
+			System.out.println("opening frame?");
+			new SklViewer().createAndShowHTMLPanel(filepath, "View SKL");
+		}
 	}
 }

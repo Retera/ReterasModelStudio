@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.TreeMap;
 
@@ -189,7 +190,268 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 	}
 
 //	@Override
-public void calcNewTans(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
+
+	public void calcNewTans(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
+
+		if (cur.inTan == null) {
+			cur.inTan = new Quat();
+		}
+		if (cur.outTan == null) {
+			cur.outTan = new Quat();
+		}
+
+		if(prev != null){
+			cur.inTan.set(prev.value).slerp(cur.value, .75f);
+		}
+		if (next != null){
+			cur.outTan.set(cur.value).slerp(next.value, .25f);
+		}
+
+
+////		cur.inTan.set(logCurToNext).scale(factor[0]).addScaled(logPrevToCurr, factor[1]);
+////		cur.outTan.set(logCurToNext).scale(factor[2]).addScaled(logPrevToCurr, factor[3]);
+//		if(prev != null){
+//			cur.inTan.set(prev.value).slerp(cur.value, factor[1]).slerp(next.value, 1-factor[0]);
+//		}
+//		if (next != null){
+//			cur.outTan.set(cur.value).slerp(next.value, factor[2]).slerp(prev.value, 1-factor[3]);
+//		}
+
+	}
+
+public void calcNewTans111(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
+//public void calcNewTans(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
+
+	Quat logCurToNext = new Quat(cur.value).invertQuat();
+	if (next != null) {
+		logCurToNext.mul(next.value);
+	}
+	calcLogQ(logCurToNext);
+
+
+	Quat logPrevToCurr = new Quat(0, 0, 0, 1);
+	if (prev != null) {
+		logPrevToCurr.set(prev.value);
+	}
+	logPrevToCurr.mul(cur.value);
+	calcLogQ(logPrevToCurr);
+
+	if (cur.inTan == null) {
+		cur.inTan = new Quat(0, 0, 0, 1);
+	}
+	if (cur.outTan == null) {
+		cur.outTan = new Quat(0, 0, 0, 1);
+	}
+	//		if(next != null && next.time < cur.time || prev != null && cur.time <prev.time){
+	//			System.out.println("\n#1 animationLength: " + animationLength + ", nextT: " + next.time + ", curT: " + cur.time + ", prevT: " + prev.time);
+	//			System.out.println("#1 cur.inTan: " + cur.inTan);
+	//			System.out.println("#1 cur.outTan: " + cur.outTan);
+	//		}
+
+	cur.inTan.set(logCurToNext).scale(factor[0]).addScaled(logPrevToCurr, factor[1]);
+	cur.outTan.set(logCurToNext).scale(factor[2]).addScaled(logPrevToCurr, factor[3]);
+	//		if(next != null && next.time < cur.time || prev != null && cur.time <prev.time){
+	//			System.out.println("#2 cur.inTan: " + cur.inTan);
+	//			System.out.println("#2 cur.outTan: " + cur.outTan);
+	//		}
+
+	cur.outTan.sub(logCurToNext).scale(0.5f);
+	cur.outTan.w = 0;
+	calcExpQ(cur.outTan);
+	cur.outTan.mulLeft(cur.value);
+
+	cur.inTan.scale(-1).add(logPrevToCurr).scale(0.5f);
+	cur.inTan.w = cur.outTan.w;
+	calcExpQ(cur.inTan);
+	cur.inTan.mulLeft(cur.value);
+	//		if(next != null && next.time < cur.time || prev != null && cur.time <prev.time){
+	//			System.out.println("#3 cur.inTan: " + cur.inTan);
+	//			System.out.println("#3 cur.outTan: " + cur.outTan);
+	//		}
+
+	if (next != null && prev != null && !next.time.equals(prev.time)) {
+		int animAdj = animationLength + 1;
+		float timeBetweenFrames = (next.time - prev.time + animAdj) % animAdj;
+		int timeToPrevFrame = (cur.time - prev.time + animAdj) % animAdj;
+		int timeToNextFrame = (next.time - cur.time + animAdj) % animAdj;
+
+
+		//			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
+		//			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
+		//			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;
+
+		float inAdj = 2 * timeToPrevFrame / timeBetweenFrames;
+		float outAdj = 2 * timeToNextFrame / timeBetweenFrames;
+		//			if(next.time < cur.time || cur.time <prev.time){
+		//				System.out.println("cur.inTan: " + cur.inTan);
+		//				System.out.println("cur.outTan: " + cur.outTan);
+		//			}
+
+		cur.inTan.scale(inAdj);
+		cur.outTan.scale(outAdj);
+
+		//			if(next.time < cur.time || cur.time <prev.time){
+		//
+		////			System.out.println("curT: " + cur.time + ", nextT: " + next.time + ", prevT: " + prev.time);
+		////			System.out.println("nextValue: " + next.value + ", prevValue: " + prev.value);
+		////				System.out.println("animationLength: " + animationLength + ", nextT: " + next.time + ", curT: " + cur.time + ", prevT: " + prev.time);
+		//				System.out.println("cur.inTan: " + cur.inTan + " (inAdj: " + inAdj + ", timeToPrev: " + timeToPrevFrame + ")");
+		//				System.out.println("cur.outTan: " + cur.outTan + " (outAdj: " + outAdj + ", timeToNext: " + timeToNextFrame + ")");
+		//			}
+	}
+	cur.value.validate();
+	cur.inTan.validate();
+	cur.outTan.validate();
+
+	cur.value.normalize();
+	cur.inTan.normalize();
+	cur.outTan.normalize();
+}
+	public void calcNewTansViaEuler(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
+//	public void calcNewTans(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
+		Vec3 nextEuler;
+		if (next != null) {
+			nextEuler = next.value.wikiToEuler();
+		} else {
+			nextEuler = new Vec3();
+		}
+		Vec3 prevEuler;
+		if (prev != null) {
+			prevEuler = prev.value.wikiToEuler();
+		} else {
+			prevEuler = new Vec3();
+		}
+		Vec3 currEuler = cur.value.wikiToEuler();
+
+		Vec3 currSubPrev = new Vec3(currEuler).sub(prevEuler);
+		Vec3 nextSubCurr = new Vec3(nextEuler).sub(currEuler);
+
+//		Vec3 TS1 = new Vec3().addScaled(currSubPrev, factor[0]);
+//		Vec3 TS2 = new Vec3(nextSubCurr).scale(factor[1]);
+		Vec3 TS = new Vec3().addScaled(currSubPrev, factor[0]).addScaled(nextSubCurr, factor[1]);
+
+//		Vec3 TD1 = new Vec3(currSubPrev).scale(factor[2]);
+//		Vec3 TD2 = new Vec3(nextSubCurr).scale(factor[3]);
+		Vec3 TD = new Vec3().addScaled(currSubPrev,factor[2]).addScaled(nextSubCurr, factor[3]);
+
+		if (next != null && prev != null && !next.time.equals(prev.time)) {
+			int animAdj = animationLength + 1;
+			float timeBetweenFrames = (next.time - prev.time + animAdj) % animAdj;
+			int timeToPrevFrame = (cur.time - prev.time + animAdj) % animAdj;
+			int timeToNextFrame = (next.time - cur.time + animAdj) % animAdj;
+
+
+			//			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
+			//			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
+			//			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;
+
+			float inAdj = 2 * timeToPrevFrame / timeBetweenFrames;
+			float outAdj = 2 * timeToNextFrame / timeBetweenFrames;
+			//			if(next.time < cur.time || cur.time <prev.time){
+			//				System.out.println("cur.inTan: " + cur.inTan);
+			//				System.out.println("cur.outTan: " + cur.outTan);
+			//			}
+
+			TS.scale(inAdj);
+			TD.scale(outAdj);
+		}
+
+//		cur.inTan.set(logCurToNext).scale(factor[0]).addScaled(logPrevToCurr, factor[1]);
+//		cur.outTan.set(logCurToNext).scale(factor[2]).addScaled(logPrevToCurr, factor[3]);
+
+		cur.inTan.set(TS);
+		cur.outTan.set(TD);
+	}
+	public void calcNewTansReal(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
+
+		Quat logCurToNext = new Quat(cur.value).invertQuat();
+		if (next != null) {
+			logCurToNext.mul(next.value);
+		}
+		calcLogQ(logCurToNext);
+
+
+		Quat logPrevToCurr = new Quat(0, 0, 0, 1);
+		if (prev != null) {
+			logPrevToCurr.set(prev.value);
+		}
+		logPrevToCurr.mul(cur.value);
+		calcLogQ(logPrevToCurr);
+
+		if (cur.inTan == null) {
+			cur.inTan = new Quat(0, 0, 0, 1);
+		}
+		if (cur.outTan == null) {
+			cur.outTan = new Quat(0, 0, 0, 1);
+		}
+	//		if(next != null && next.time < cur.time || prev != null && cur.time <prev.time){
+	//			System.out.println("\n#1 animationLength: " + animationLength + ", nextT: " + next.time + ", curT: " + cur.time + ", prevT: " + prev.time);
+	//			System.out.println("#1 cur.inTan: " + cur.inTan);
+	//			System.out.println("#1 cur.outTan: " + cur.outTan);
+	//		}
+
+		cur.inTan.set(logCurToNext).scale(factor[0]).addScaled(logPrevToCurr, factor[1]);
+		cur.outTan.set(logCurToNext).scale(factor[2]).addScaled(logPrevToCurr, factor[3]);
+	//		if(next != null && next.time < cur.time || prev != null && cur.time <prev.time){
+	//			System.out.println("#2 cur.inTan: " + cur.inTan);
+	//			System.out.println("#2 cur.outTan: " + cur.outTan);
+	//		}
+
+		cur.outTan.sub(logCurToNext).scale(0.5f);
+		cur.outTan.w = 0;
+		calcExpQ(cur.outTan);
+		cur.outTan.mulLeft(cur.value);
+
+		cur.inTan.scale(-1).add(logPrevToCurr).scale(0.5f);
+		cur.inTan.w = cur.outTan.w;
+		calcExpQ(cur.inTan);
+		cur.inTan.mulLeft(cur.value);
+	//		if(next != null && next.time < cur.time || prev != null && cur.time <prev.time){
+	//			System.out.println("#3 cur.inTan: " + cur.inTan);
+	//			System.out.println("#3 cur.outTan: " + cur.outTan);
+	//		}
+
+		if (next != null && prev != null && !next.time.equals(prev.time)) {
+			int animAdj = animationLength + 1;
+			float timeBetweenFrames = (next.time - prev.time + animAdj) % animAdj;
+			int timeToPrevFrame = (cur.time - prev.time + animAdj) % animAdj;
+			int timeToNextFrame = (next.time - cur.time + animAdj) % animAdj;
+
+
+	//			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
+	//			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
+	//			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;
+
+			float inAdj = 2 * timeToPrevFrame / timeBetweenFrames;
+			float outAdj = 2 * timeToNextFrame / timeBetweenFrames;
+	//			if(next.time < cur.time || cur.time <prev.time){
+	//				System.out.println("cur.inTan: " + cur.inTan);
+	//				System.out.println("cur.outTan: " + cur.outTan);
+	//			}
+
+			cur.inTan.scale(inAdj);
+			cur.outTan.scale(outAdj);
+
+	//			if(next.time < cur.time || cur.time <prev.time){
+	//
+	////			System.out.println("curT: " + cur.time + ", nextT: " + next.time + ", prevT: " + prev.time);
+	////			System.out.println("nextValue: " + next.value + ", prevValue: " + prev.value);
+	////				System.out.println("animationLength: " + animationLength + ", nextT: " + next.time + ", curT: " + cur.time + ", prevT: " + prev.time);
+	//				System.out.println("cur.inTan: " + cur.inTan + " (inAdj: " + inAdj + ", timeToPrev: " + timeToPrevFrame + ")");
+	//				System.out.println("cur.outTan: " + cur.outTan + " (outAdj: " + outAdj + ", timeToNext: " + timeToNextFrame + ")");
+	//			}
+		}
+		cur.value.validate();
+		cur.inTan.validate();
+		cur.outTan.validate();
+
+		cur.value.normalize();
+		cur.inTan.normalize();
+		cur.outTan.normalize();
+	}
+
+//	@Override
+	public void calcNewTans22(float[] factor, Entry<Quat> next, Entry<Quat> prev, Entry<Quat> cur, int animationLength) {
 
 	Quat logNNP = new Quat(cur.value).invertQuat();
 	if (next != null) {

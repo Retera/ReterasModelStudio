@@ -4,10 +4,12 @@ import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.RMSFileChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -23,6 +25,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
@@ -47,7 +50,8 @@ public class FileDialog {
 
     public FileDialog() {
         FileDialog.mainPanel = ProgramGlobals.getMainPanel();
-        this.fileChooser = getFileChooser();
+//        this.fileChooser = getFileChooser();
+        this.fileChooser = new RMSFileChooser();
 //        fileChooser.setAccessory(getAccessoryPanel("Ugg!"));
         this.fileChooser.setAcceptAllFileFilterUsed(false);
         extFilter = new ExtFilter();
@@ -242,7 +246,18 @@ public class FileDialog {
         File selectedFile = fileChooser.getSelectedFile();
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             try {
-                Files.copy(GameDataFileSystem.getDefault().getResourceAsStream(internalPath), selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                CompoundDataSource dataSource = GameDataFileSystem.getDefault();
+                if(dataSource.has(internalPath)){
+                    InputStream resourceAsStream = dataSource.getResourceAsStream(internalPath);
+                    if(resourceAsStream != null){
+                        Files.copy(resourceAsStream, selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    } else {
+                        System.err.println("Data source " + dataSource.getClass().getSimpleName() + " returned null instead of an input stream");
+                        new Exception().printStackTrace();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), "Could not find \"" + internalPath + "\"", "File not found", JOptionPane.ERROR_MESSAGE);
+                }
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }

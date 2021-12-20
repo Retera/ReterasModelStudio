@@ -60,7 +60,8 @@ public class GeosetToMdlx {
 			}
 
 //			mdlxGeoset.vertexGroups[vId] = (byte) vertex.getVertexGroup();
-			mdlxGeoset.vertexGroups[vId] = (short) (geoset.getMatrixId(vertex.getMatrix())%256);
+//			mdlxGeoset.vertexGroups[vId] = (short) (geoset.getMatrixId(vertex.getMatrix())%256);
+			mdlxGeoset.vertexGroups[vId] = (short) (geoset.getMatrixId(vertex.getMatrix()));
 		}
 
 		// Again, the current implementation of my mdl code is that it only handles triangle face types
@@ -91,7 +92,8 @@ public class GeosetToMdlx {
 		int groupIndex = 0;
 		for (final Matrix matrix : geoset.getMatrices()) {
 			for (int index = 0; index < matrix.size() && matrixIndex < mdlxGeoset.matrixIndices.length; index++) {
-				mdlxGeoset.matrixIndices[matrixIndex++] = matrix.get(index).getObjectId(model);
+//				mdlxGeoset.matrixIndices[matrixIndex++] = matrix.get(index).getObjectId(model);
+				mdlxGeoset.matrixIndices[matrixIndex++] = model.getObjectId(matrix.get(index));
 			}
 			if (matrix.size() <= 0) {
 				mdlxGeoset.matrixIndices[matrixIndex++] = -1;
@@ -117,7 +119,8 @@ public class GeosetToMdlx {
 				short[] skinBoneWeights = vertex.getSkinBoneWeights();
 				Bone[] skinBoneBones = vertex.getSkinBoneBones();
 				for (int j = 0; j < 4; j++) {
-					int index = skinBoneBones[j] == null ? 0 : skinBoneBones[j].getObjectId(model);
+//					int index = skinBoneBones[j] == null ? 0 : skinBoneBones[j].getObjectId(model);
+					int index = skinBoneBones[j] == null ? 0 : model.getObjectId(skinBoneBones[j]);
 					mdlxGeoset.skin[(i * 8) + j] = (short) index;
 					mdlxGeoset.skin[(i * 8) + j + 4] = (short) (skinBoneWeights[j]);
 					mdlxGeoset.tangents[(i * 4) + j] = vertex.getTangent().toFloatArray()[j];

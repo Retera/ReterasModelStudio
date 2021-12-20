@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.util.SklViewer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -18,6 +19,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,10 +79,21 @@ public final class MouseAdapterExtension extends MouseAdapter {
 		return openItem;
 	}
 
+//	private static void loadFileByType(String filepath) {
+//		ModelLoader.loadFile(GameDataFileSystem.getDefault().getFile(filepath), true);
+//	}
 	private static void loadFileByType(String filepath) {
-		ModelLoader.loadFile(GameDataFileSystem.getDefault().getFile(filepath), true);
+		System.out.println("loading file");
+		File file = GameDataFileSystem.getDefault().getFile(filepath);
+		if(file != null){
+			ModelLoader.loadFile(file, true);
+			System.out.println("File path: \"" + filepath + "\"");
+			if(filepath.endsWith(".slk")){
+				System.out.println("opening frame?");
+				new SklViewer().createAndShowHTMLPanel(filepath, "View SLK");
+			}
+		}
 	}
-
 
 	protected void openTreePath(TreePath treePath) {
 		if (treePath != null) {
