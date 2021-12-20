@@ -4,10 +4,11 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeInterpTypeAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.ReplaceAnimFlagsAction;
 import com.hiveworkshop.rms.editor.actions.mesh.SnapCloseVertsAction;
-import com.hiveworkshop.rms.editor.actions.nodes.BakeAndRebindAction;
+import com.hiveworkshop.rms.editor.actions.nodes.BakeAndRebindActionTwi2;
 import com.hiveworkshop.rms.editor.actions.nodes.DeleteNodesAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetParentAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetPivotAction;
+import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
@@ -23,16 +24,14 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.tools.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class TwilacStuff {
@@ -45,12 +44,50 @@ public class TwilacStuff {
 		private static void rebindToNull(ModelHandler modelHandler) {
 			ModelView modelView = modelHandler.getModelView();
 			List<UndoAction> rebindActions = new ArrayList<>();
-			for (IdObject idObject : modelView.getSelectedIdObjects()) {
-				System.out.println("rebinding " + idObject.getName());
-				UndoAction action = new BakeAndRebindAction(idObject, null, modelHandler);
-				rebindActions.add(action);
+
+//			quickTestForPeasant(modelHandler, modelView);
+
+			realFunc(modelHandler, modelView, rebindActions);
+		}
+
+		private static void realFunc(ModelHandler modelHandler, ModelView modelView, List<UndoAction> rebindActions) {
+			if(!modelView.getSelectedIdObjects().isEmpty()){
+				IdObject childObject;
+				if (modelView.getSelectedIdObjects().size() == 1){
+					childObject = modelView.getSelectedIdObjects().stream().findFirst().get();
+				} else {
+					childObject = new Helper("Temp");
+				}
+				IdObject newParent = new IdObjectChooser(modelHandler.getModel()).chooseParent(childObject, ProgramGlobals.getMainPanel());
+				for (IdObject idObject : modelView.getSelectedIdObjects()) {
+					System.out.println("rebinding " + idObject.getName());
+//				UndoAction action = new BakeAndRebindAction(idObject, null, modelHandler);
+					if(newParent != idObject.getParent()){
+//						UndoAction action = new BakeAndRebindActionRenderM(idObject, newParent, modelHandler);
+						UndoAction action = new BakeAndRebindActionTwi2(idObject, newParent, modelHandler);
+						rebindActions.add(action);
+					}
+				}
+				if(!rebindActions.isEmpty()){
+					modelHandler.getUndoManager().pushAction(new CompoundAction("Baked and changed Parent", rebindActions, ModelStructureChangeListener.changeListener::nodesUpdated).redo());
+				}
 			}
-			modelHandler.getUndoManager().pushAction(new CompoundAction("Baked and changed Parent", rebindActions, ModelStructureChangeListener.changeListener::nodesUpdated).redo());
+		}
+
+		private static void quickTestForPeasant(ModelHandler modelHandler, ModelView modelView) {
+			IdObject bone_leg2_l = modelHandler.getModel().getObject("Bone_Leg2_L");
+//			IdObject bone_hand_l = modelHandler.getModel().getObject("Bone_Hand_L");
+			IdObject bone_hand_l = modelHandler.getModel().getObject("Bone_Leg1_R");
+			if(bone_leg2_l != null){
+				System.out.println("rebinding " + bone_leg2_l.getName());
+//				UndoAction action = new BakeAndRebindAction(bone_leg2_l, null, modelHandler);
+//				UndoAction action = new BakeAndRebindActionRenderM3(bone_leg2_l, null, modelHandler);
+				UndoAction action = new BakeAndRebindActionTwi2(bone_leg2_l, bone_hand_l, modelHandler);
+//				UndoAction action = new BakeAndRebindActionRenderMat1(bone_leg2_l, bone_hand_l, modelHandler);
+//				UndoAction action = new BakeAndRebindActionRenderM(bone_leg2_l, bone_hand_l, modelHandler);
+				modelHandler.getUndoManager().pushAction(action.redo());
+				modelHandler.getUndoManager().pushAction(new SetSelectionUggAction(new SelectionBundle(Collections.singleton(bone_leg2_l)), modelView, ModelStructureChangeListener.changeListener).redo());
+			}
 		}
 	}
 	private static class SnapCloseVerts extends TwiFunction{
