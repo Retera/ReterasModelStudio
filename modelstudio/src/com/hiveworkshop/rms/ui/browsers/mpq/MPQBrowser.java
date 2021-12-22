@@ -17,6 +17,7 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -187,11 +188,17 @@ public final class MPQBrowser extends JPanel {
 					}
 				} else {
 					if (expanded) {
-						setIcon(new ImageIcon(BLPHandler
-								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
+						BufferedImage gameTex = BLPHandler
+								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp");
+						if(gameTex != null){
+							setIcon(new ImageIcon(gameTex));
+						}
 					} else {
-						setIcon(new ImageIcon(BLPHandler
-								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
+						BufferedImage gameTex = BLPHandler
+								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp");
+						if(gameTex != null){
+							setIcon(new ImageIcon(gameTex));
+						}
 					}
 				}
 				return treeCellRendererComponent;

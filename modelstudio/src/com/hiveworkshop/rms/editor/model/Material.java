@@ -267,4 +267,8 @@ public class Material {
 	public Material deepCopy(){
 		return new Material(this);
 	}
+
+	public boolean isHD(){
+		return shaderString.equals(SHADER_HD_DEFAULT_UNIT);
+	}
 }

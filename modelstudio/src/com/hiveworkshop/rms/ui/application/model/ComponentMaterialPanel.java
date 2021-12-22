@@ -31,7 +31,7 @@ public class ComponentMaterialPanel extends ComponentPanel<Material> {
 	public void setSelectedItem(final Material material) {
 		this.selectedItem = material;
 
-		if (ModelUtils.isShaderStringSupported(model.getFormatVersion())) {
+		if (ModelUtils.isShaderStringSupported(model.getFormatVersion()) && material.isHD()) {
 			System.out.println("setting HD Material");
 			HD.setSelectedItem(material);
 			SD.setVisible(false);

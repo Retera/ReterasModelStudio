@@ -105,9 +105,12 @@ public abstract class BetterSelector extends JSplitPane {
 
 
 	public void valueChanged(final TreeSelectionEvent e) {
-		final DefaultMutableTreeNode o = (DefaultMutableTreeNode) e.getNewLeadSelectionPath().getLastPathComponent();
-		if (o.getUserObject() instanceof MutableGameObject) {
-			setCurrentGameObject((MutableGameObject) o.getUserObject());
+		TreePath newLeadSelectionPath = e.getNewLeadSelectionPath();
+		if(newLeadSelectionPath != null){
+			final DefaultMutableTreeNode o = (DefaultMutableTreeNode) newLeadSelectionPath.getLastPathComponent();
+			if (o.getUserObject() instanceof MutableGameObject) {
+				setCurrentGameObject((MutableGameObject) o.getUserObject());
+			}
 		}
 	}
 

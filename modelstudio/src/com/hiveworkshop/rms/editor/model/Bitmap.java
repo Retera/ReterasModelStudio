@@ -162,6 +162,22 @@ public class Bitmap {
 				case 1 -> "ReplaceableTextures\\TeamColor\\TeamColor" + tcString + ".blp";
 				case 2 -> "ReplaceableTextures\\TeamGlow\\TeamGlow" + tcString + ".blp";
 				case 11 -> "ReplaceableTextures\\Cliff\\Cliff0" + ".blp";
+				case 31 -> "ReplaceableTextures\\LordaeronTree\\LordaeronSummerTree" + ".blp";
+				//"ReplaceableTextures\LordaeronTree\LordaeronSummerTree",
+				// "ReplaceableTextures\LordaeronTree\LordaeronFallTree",
+				// "ReplaceableTextures\DalaranRuinsTree\DalaranRuinsTree"
+				//"ReplaceableTextures\LordaeronTree\LordaeronWinterTree",
+				// "ReplaceableTextures\LordaeronTree\LordaeronSnowTree",
+				// "ReplaceableTextures\LordaeronTree\LordaeronFallTree"
+				case 32 -> "ReplaceableTextures\\AshenvaleTree\\AshenTree" + ".blp";
+				//"ReplaceableTextures\AshenvaleTree\FelwoodTree","ReplaceableTextures\AshenvaleTree\Ice_Tree",
+				// "ReplaceableTextures\AshenvaleTree\AshenCanopyTree"
+				case 33 -> "ReplaceableTextures\\BarrensTree\\BarrensTree" + ".blp";
+				case 34 -> "ReplaceableTextures\\NorthrendTree\\NorthTree" + ".blp";
+				case 35 -> "ReplaceableTextures\\Mushroom\\MushroomTree" + ".blp"; //tga?,
+				// "ReplaceableTextures\UndergroundTree\UnderMushroomTree"
+				case 36 -> "ReplaceableTextures\\RuinsTree\\RuinsTree" + ".blp";
+				case 37 -> "ReplaceableTextures\\OutlandMushroomTree\\MushroomTree" + ".blp";
 				default -> "replaceabletextures\\lordaerontree\\lordaeronsummertree" + ".blp";
 			};
 		}

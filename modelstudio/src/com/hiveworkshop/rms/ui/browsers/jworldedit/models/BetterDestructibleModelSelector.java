@@ -41,9 +41,11 @@ public class BetterDestructibleModelSelector extends BetterSelector {
 			variants.add(i + 1);
 		}
 		variantBox.setEnabled(numberOfVariations > 1);
-		variantBox.setSelectedIndex(0);
+		if(variantBox.getItemCount()>0){
+			variantBox.setSelectedIndex(0);
 //			openModel(currentUnit, 0);
-		openModel(getFilePath(currentUnit, 0), currentUnit.getName());
+			openModel(getFilePath(currentUnit, 0), currentUnit.getName());
+		}
 	}
 
 	protected void chooseVariant(ItemEvent e) {

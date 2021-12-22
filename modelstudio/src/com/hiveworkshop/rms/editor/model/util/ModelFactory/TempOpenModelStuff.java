@@ -27,6 +27,11 @@ public class TempOpenModelStuff {
 			model.addComment(comment);
 		}
 
+		// Step 5: Convert Texture refs
+		for (final MdlxTexture mdlxTexture : mdlxModel.textures) {
+			model.add(MaterialFactory.createBitmap(mdlxTexture));
+		}
+
 		// Step 4: Convert any global sequences
 		for (final long sequence : mdlxModel.globalSequences) {
 			model.add(new GlobalSeq((int) sequence));
@@ -120,11 +125,6 @@ public class TempOpenModelStuff {
 			CollisionShape x = IdObjectFactory.createCollisionShape(mdlxShape, model);
 			infoHolder.add(mdlxShape, x);
 			model.add(x);
-		}
-
-		// Step 5: Convert Texture refs
-		for (final MdlxTexture mdlxTexture : mdlxModel.textures) {
-			model.add(MaterialFactory.createBitmap(mdlxTexture));
 		}
 
 		// Step 6: Convert TVertexAnims
