@@ -33,10 +33,11 @@ public final class CompoundRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void updateRotation(final double radians) {
+	public GenericRotateAction updateRotation(final double radians) {
 		for (final GenericRotateAction action : actions) {
 			action.updateRotation(radians);
 		}
+		return this;
 	}
 
 }

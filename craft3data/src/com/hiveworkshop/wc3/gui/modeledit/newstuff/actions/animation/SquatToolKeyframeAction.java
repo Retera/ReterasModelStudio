@@ -65,8 +65,9 @@ public class SquatToolKeyframeAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void updateRotation(final double radians) {
+	public GenericRotateAction updateRotation(final double radians) {
 		modelEditor.rawSquatToolRotate2d(center.x, center.y, center.z, radians, dim1, dim2, nodeToLocalRotation);
+		return this;
 	}
 
 }

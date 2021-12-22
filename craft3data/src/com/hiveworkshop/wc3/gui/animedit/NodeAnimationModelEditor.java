@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import com.etheller.collections.ListView;
+import com.etheller.util.CollectionUtils;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
@@ -686,14 +688,10 @@ public class NodeAnimationModelEditor extends AbstractSelectingEditor<IdObject> 
 
 	@Override
 	public UndoAction rotate(final Vertex center, final double rotateX, final double rotateY, final double rotateZ) {
-		throw new UnsupportedOperationException("Not yet implemented for animation editing");
-		// final CompoundAction compoundAction = new CompoundAction("rotate",
-		// ListView.Util.of(new StaticMeshRotateAction(this, center, rotateX, (byte) 0,
-		// (byte) 2),
-		// new StaticMeshRotateAction(this, center, rotateY, (byte) 1, (byte) 0),
-		// new StaticMeshRotateAction(this, center, rotateZ, (byte) 1, (byte) 2)));
-		// compoundAction.redo();
-		// return compoundAction;
+		return new CompoundAction("rotate", CollectionUtils.asList(Arrays.asList(
+				beginRotation(center.x, center.y, center.z, (byte) 2, (byte) 1).updateRotation(rotateX),
+				beginRotation(center.x, center.y, center.z, (byte) 0, (byte) 2).updateRotation(rotateY),
+				beginRotation(center.x, center.y, center.z, (byte) 1, (byte) 0).updateRotation(rotateZ))));
 	}
 
 	@Override

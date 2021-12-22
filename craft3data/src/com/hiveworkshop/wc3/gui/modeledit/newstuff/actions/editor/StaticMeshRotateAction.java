@@ -36,9 +36,10 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 	}
 
 	@Override
-	public void updateRotation(final double radians) {
+	public GenericRotateAction updateRotation(final double radians) {
 		this.radians += radians;
 		modelEditor.rawRotate2d(center.x, center.y, center.z, radians, dim1, dim2);
+		return this;
 	}
 
 }
