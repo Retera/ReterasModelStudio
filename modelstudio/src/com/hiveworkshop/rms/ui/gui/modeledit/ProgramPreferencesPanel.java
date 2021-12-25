@@ -68,6 +68,9 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		allowLoadingNonBlpTextures.setToolTipText("Needed for opening PNGs with standard File Open");
 		generalPrefsPanel.add(allowLoadingNonBlpTextures, "wrap");
 
+		generalPrefsPanel.add(new JLabel("Open Browsers On Startup:"));
+		generalPrefsPanel.add(getCheckBox(pref::setLoadBrowsersOnStartup, pref.loadBrowsersOnStartup()), "wrap");
+
 //		generalPrefsPanel.add(new JLabel("Render Particle Emitters:"), "cell 0 7");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);

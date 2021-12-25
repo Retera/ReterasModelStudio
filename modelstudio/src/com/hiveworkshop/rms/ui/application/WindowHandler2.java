@@ -224,7 +224,7 @@ public class WindowHandler2 {
 	public TabWindow getStartupTabWindow() {
 		SplitWindow editingTab = getEditTab();
 
-		SplitWindow viewingTab = getViewTab();
+		DockingWindow viewingTab = getViewTab();
 
 //		SplitWindow modelTab = new SplitWindow(true, 0.2f, getPlaceholderView("Contents"), getTitledView("Component"));
 		ModelComponentsView modelTab = new ModelComponentsView();
@@ -241,33 +241,30 @@ public class WindowHandler2 {
 
 
 
-	private SplitWindow getViewTab() {
-		UnitBrowserView unitBrowserView = new UnitBrowserView();
-		unitBrowserViews.add(unitBrowserView);
-		MPQBrowserView mpqBrowserView = new MPQBrowserView();
-		mpqBrowserViews.add(mpqBrowserView);
+	private DockingWindow getViewTab() {
 
-		DockingWindow[] dockingWindow = new DockingWindow[] {unitBrowserView, mpqBrowserView};
-
-		TabWindow tabWindow = new TabWindow(dockingWindow);
-
-		tabWindow.setSelectedTab(0);
-
-//		View preview = getTitledView("Preview");
 		PreviewView previewView = new PreviewView();
-//		previewPanelViews.add(previewView);
 		allViews.add(previewView);
-//		View animation_controller = getTitledView("Animation Controller");
-//		animationControllerViews.add(animation_controller);
-//
-//		SplitWindow animPersp = new SplitWindow(true, 0.8f, preview, animation_controller);
+		DockingWindow viewingTab;
+		if(ProgramGlobals.getPrefs().loadBrowsersOnStartup()){
+			UnitBrowserView unitBrowserView = new UnitBrowserView();
+			unitBrowserViews.add(unitBrowserView);
+			MPQBrowserView mpqBrowserView = new MPQBrowserView();
+			mpqBrowserViews.add(mpqBrowserView);
 
-		SplitWindow viewingTab = new SplitWindow(true, 0.8f, previewView, tabWindow);
+			DockingWindow[] dockingWindow = new DockingWindow[] {unitBrowserView, mpqBrowserView};
+
+			TabWindow tabWindow = new TabWindow(dockingWindow);
+
+			tabWindow.setSelectedTab(0);
+			viewingTab = new SplitWindow(true, 0.8f, previewView, tabWindow);
+		} else {
+			viewingTab = previewView;
+		}
+
+//		viewingTab = new SplitWindow(true, 0.8f, previewView, tabWindow);
 
 		viewingTab.getWindowProperties().setTitleProvider(arg0 -> "View");
-//		viewingTab.getWindowProperties().setCloseEnabled(false);
-//		viewingTab.getWindowProperties().setDragEnabled(false);
-//		viewingTab.getSplitWindowProperties().setDividerLocationDragEnabled(false);
 		return viewingTab;
 	}
 

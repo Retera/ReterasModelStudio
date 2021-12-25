@@ -26,6 +26,7 @@ public class ProgramPreferences implements Serializable {
 	private Boolean show3dVerts = false;
 	private Boolean showPerspectiveGrid = true;
 	private Boolean showVertexModifierControls = false;
+	private Boolean loadBrowsersOnStartup = true;
 	private Boolean textureModels = true;
 	private Boolean useNativeMDXParser = true; // left for compat
 	private Boolean show2dGrid = true;
@@ -197,6 +198,16 @@ public class ProgramPreferences implements Serializable {
 
 	public boolean textureModels() {
 		return textureModels;
+	}
+
+	public boolean loadBrowsersOnStartup(){
+		return loadBrowsersOnStartup;
+	}
+
+	public ProgramPreferences setLoadBrowsersOnStartup(boolean loadBrowsersOnStartup){
+		this.loadBrowsersOnStartup = loadBrowsersOnStartup;
+		saveAndFireListeners();
+		return this;
 	}
 
 	public int currentSelectionType() {
