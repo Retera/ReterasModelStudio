@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
+import com.jtattoo.plaf.BaseSpinnerUI;
+
 import javax.swing.*;
 import javax.swing.event.CaretListener;
 import javax.swing.text.DefaultFormatter;
@@ -14,11 +16,13 @@ import java.util.TimerTask;
 import java.util.function.Consumer;
 
 public class FloatEditorJSpinner extends JSpinner {
-	public static final Color SAVED_FG = Color.BLACK;
-	public static final Color SAVED_BG = Color.WHITE;
-	public static final Color UNSAVED_FG = Color.MAGENTA.darker();
-	public static final Color UNSAVED_BG = Color.LIGHT_GRAY;
-	Consumer<Float> floatConsumer;
+	private static final Color SAVED_FG = Color.BLACK;
+	private static final Color SAVED_BG = Color.WHITE;
+	private static final Color UNSAVED_FG = Color.MAGENTA.darker();
+	private static final Color UNSAVED_BG = Color.LIGHT_GRAY;
+	private Consumer<Float> floatConsumer;
+	private long saveAtTime = 0;
+	private Timer saveChangeTimer;
 
 	public FloatEditorJSpinner(float value, Consumer<Float> floatConsumer) {
 		this(value, 0f, 1.0f, floatConsumer);
@@ -45,11 +49,39 @@ public class FloatEditorJSpinner extends JSpinner {
 
 		textField.addFocusListener(getFocusAdapter(textField));
 		textField.addKeyListener(getSaveOnEnterKeyListener());
+		for(Component component : getComponents()){
+			if(component instanceof BaseSpinnerUI.SpinButton){
+				((BaseSpinnerUI.SpinButton) component).addActionListener(e -> addSaveChangeTimer2());
+			}
+		}
+	}
+
+	public void addSaveChangeTimer2() {
+		if(saveChangeTimer == null) {
+			saveChangeTimer = new Timer();
+			TimerTask saveChangeTimerTask;
+			saveChangeTimerTask = new TimerTask() {
+				@Override
+				public void run() {
+					saveChange();
+				}
+			};
+			saveChangeTimer.schedule(saveChangeTimerTask, 100, 100);
+		}
+	}
+
+	private void saveChange() {
+		if (saveAtTime < System.currentTimeMillis()) {
+			runEditingStoppedListener();
+			saveChangeTimer.cancel();
+			saveChangeTimer = null;
+		}
 	}
 
 	private void setColors(Color unsavedFg, Color unsavedBg) {
 		((DefaultEditor) getEditor()).getTextField().setForeground(unsavedFg);
 		((DefaultEditor) getEditor()).getTextField().setBackground(unsavedBg);
+		saveAtTime = System.currentTimeMillis() + 300;
 	}
 
 	public FloatEditorJSpinner reloadNewValue(final Object value) {
@@ -78,13 +110,13 @@ public class FloatEditorJSpinner extends JSpinner {
 				timerTask = new TimerTask() {
 					@Override
 					public void run() {
-						if (LocalTime.now().isAfter(lastEditedTime.plusSeconds(300))) {
-							runEditingStopedListener();
+						if (LocalTime.now().isAfter(lastEditedTime.plusSeconds(1))) {
+							runEditingStoppedListener();
 						}
 					}
 				};
 				timer = new Timer();
-				timer.schedule(timerTask, 2000, 2000);
+				timer.schedule(timerTask, 500, 500);
 			}
 
 			public void removeTimer() {
@@ -104,7 +136,7 @@ public class FloatEditorJSpinner extends JSpinner {
 					textField.removeCaretListener(cl);
 				}
 				super.focusLost(e);
-				runEditingStopedListener();
+				runEditingStoppedListener();
 			}
 		};
 	}
@@ -114,13 +146,13 @@ public class FloatEditorJSpinner extends JSpinner {
 			@Override
 			public void keyReleased(final KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					runEditingStopedListener();
+					runEditingStoppedListener();
 				}
 			}
 		};
 	}
 
-	private void runEditingStopedListener() {
+	private void runEditingStoppedListener() {
 		if (floatConsumer != null) {
 			floatConsumer.accept(getFloatValue());
 		}
