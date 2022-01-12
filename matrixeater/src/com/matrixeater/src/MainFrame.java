@@ -49,7 +49,7 @@ import net.infonode.gui.laf.InfoNodeLookAndFeelThemes;
  * @version (a version number or a date)
  */
 public class MainFrame extends JFrame {
-	public static final Image MAIN_PROGRAM_ICON = new ImageIcon(MainFrame.class.getResource("ImageBin/retera.jpg"))
+	public static final Image MAIN_PROGRAM_ICON = new ImageIcon(MainFrame.class.getResource("ImageBin/btneredarred.png"))
 			.getImage();
 	static MainFrame frame;
 	static MainPanel panel;
@@ -136,6 +136,19 @@ public class MainFrame extends JFrame {
 							new Color(220, 202, 132), new Color(116, 126, 36), new Color(220, 202, 132));
 					theme.setShadingFactor(-0.8);
 					theme.setDesktopColor(new Color(60, 82, 44));
+
+					UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
+				} catch (final UnsupportedLookAndFeelException e) {
+					e.printStackTrace();
+				}
+				break;
+			case DEMONIC_MEME:
+				try {
+					final InfoNodeLookAndFeelTheme theme = new InfoNodeLookAndFeelTheme("DRMS",
+							new Color(46, 20, 20), new Color(126, 50, 36), new Color(46, 20, 20),
+							new Color(220, 172, 52), new Color(126, 56, 36), new Color(220, 172, 52));
+					theme.setShadingFactor(-0.8);
+					theme.setDesktopColor(new Color(82, 60, 44));
 
 					UIManager.setLookAndFeel(new InfoNodeLookAndFeel(theme));
 				} catch (final UnsupportedLookAndFeelException e) {
@@ -304,7 +317,7 @@ public class MainFrame extends JFrame {
 						}
 
 						JPopupMenu.setDefaultLightWeightPopupEnabled(false);
-						frame = new MainFrame("Retera Model Studio v0.04.2 ~Supports only War3 1.32.10.17165-18067~");
+						frame = new MainFrame("Demon Retera Model Studio v0.04.3");
 						panel.init();
 						if (!startupModelPaths.isEmpty()) {
 							for (final String path : startupModelPaths) {

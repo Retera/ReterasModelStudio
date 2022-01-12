@@ -2852,7 +2852,7 @@ public class AnimFlag {
 		}
 		final int startIndex = floorIndex(startTrackTime);
 		final int endIndex = floorIndex(endTrackTime);
-		if (times.get(endIndex) == endTrackTime) {
+		if (endIndex >= 0 && times.get(endIndex) == endTrackTime) {
 			throw new IllegalStateException("Sliding this keyframe would create duplicate entries at one time!");
 		}
 		times.set(startIndex, endTrackTime);
