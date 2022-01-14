@@ -16,6 +16,8 @@ public class SmartNumberSlider extends JPanel {
 	FilteredTextField textField;
 	int minMin;
 	int minMax;
+	int hardMin = Integer.MAX_VALUE;
+	int hardMax = Integer.MIN_VALUE;
 	int initial;
 	boolean expandMin;
 	boolean expandMax;
@@ -93,6 +95,16 @@ public class SmartNumberSlider extends JPanel {
 		}
 	}
 
+	public SmartNumberSlider setMaxUpperLimit(int maxUpperLimit) {
+		brm.setMaxUpperLimit(maxUpperLimit);
+		return this;
+	}
+
+	public SmartNumberSlider setMinLowerLimit(int minLowerLimit) {
+		brm.setMinLowerLimit(minLowerLimit);
+		return this;
+	}
+
 
 	private void getPrintln(ChangeEvent e) {
 		System.out.println(e.getSource() + " is adj: " + ((JSlider) e.getSource()).getValueIsAdjusting());
@@ -118,6 +130,10 @@ public class SmartNumberSlider extends JPanel {
 			int minMax;
 			int min;
 			int max;
+			int minUpperLimit = Integer.MAX_VALUE;
+			int minLowerLimit = Integer.MIN_VALUE;
+			int maxUpperLimit = Integer.MAX_VALUE;
+			int maxLowerLimit = Integer.MIN_VALUE;
 			int initial;
 			boolean expandMin;
 			boolean expandMax;
@@ -130,7 +146,9 @@ public class SmartNumberSlider extends JPanel {
 
 			@Override
 			public void setMinimum(int newMinimum) {
-				min = newMinimum;
+				if(minLowerLimit <= newMinimum && newMinimum <= minUpperLimit){
+					min = newMinimum;
+				}
 			}
 
 			@Override
@@ -140,7 +158,9 @@ public class SmartNumberSlider extends JPanel {
 
 			@Override
 			public void setMaximum(int newMaximum) {
-				max = newMaximum;
+				if(maxLowerLimit <= newMaximum && newMaximum <= maxUpperLimit){
+					max = newMaximum;
+				}
 			}
 
 			@Override

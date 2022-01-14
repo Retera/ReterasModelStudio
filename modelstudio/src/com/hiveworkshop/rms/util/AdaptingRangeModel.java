@@ -29,6 +29,10 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 	private boolean isAdjusting = false;
 	private int minMin = -10000;
 	private int minMax = 10000;
+	int minUpperLimit = Integer.MAX_VALUE;
+	int minLowerLimit = Integer.MIN_VALUE;
+	int maxUpperLimit = Integer.MAX_VALUE;
+	int maxLowerLimit = Integer.MIN_VALUE;
 
 
 	/**
@@ -63,7 +67,22 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 
 		this.min = Math.min(min, max);
 		this.max = Math.max(min, max);
-		this.value = Math.max(min, Math.min(value, max));
+
+
+		if(value > max){
+			int i = value - max;
+			max = Math.min(max+i+2, maxUpperLimit);
+			min = Math.min(min+i+2, minUpperLimit);
+		} else if (value < min){
+			int i = value - min;
+			System.out.println("adj: " + i);
+			min = Math.max(min+i-2, minLowerLimit);
+			max = Math.max(max+i-2, maxLowerLimit);
+		}
+//		this.min = Math.min(value, Math.min(min, max));
+//		this.max = Math.max(value, Math.max(min, max));
+//		this.value = Math.max(min, Math.min(value, max));
+		this.value = value;
 		this.extent = Math.min(extent, max - value);
 		if ((max >= min) &&
 				(value >= min) &&
@@ -74,7 +93,8 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 			this.min = min;
 			this.max = max;
 		} else {
-			throw new IllegalArgumentException("invalid range properties");
+//			System.err.println("min=" + min + ", max=" + max);
+			throw new IllegalArgumentException("invalid range properties: value=" + value + ", min=" + min + ", max=" + max);
 		}
 	}
 
@@ -95,6 +115,16 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 	}
 
 
+	public AdaptingRangeModel setMaxUpperLimit(int maxUpperLimit) {
+		this.maxUpperLimit = maxUpperLimit;
+		return this;
+	}
+
+	public AdaptingRangeModel setMinLowerLimit(int minLowerLimit) {
+		this.minLowerLimit = minLowerLimit;
+		return this;
+	}
+
 	/**
 	 * Sets the current value of the model. For a slider, that
 	 * determines where the knob appears. Ensures that the new
@@ -109,11 +139,12 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 //		System.out.println("setValue: " + n);
 		n = Math.min(n, Integer.MAX_VALUE - extent);
 
-		int newValue = Math.max(n, min);
-		if (newValue + extent > max) {
-			newValue = max - extent;
-		}
-		setRangeProperties(newValue, extent, min, max, isAdjusting);
+//		int newValue = Math.max(n, min);
+//		if (newValue + extent > max) {
+//			newValue = max - extent;
+//		}
+//		setRangeProperties(newValue, extent, min, max, isAdjusting);
+		setRangeProperties(n, extent, min, max, isAdjusting);
 	}
 
 
@@ -136,7 +167,6 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 		setRangeProperties(value, newExtent, min, max, isAdjusting);
 	}
 
-
 	public void setMinimum(int newMin) {
 //		System.out.println("setMinimum: " + newMin);
 		int newMax = Math.max(newMin, max);
@@ -155,6 +185,7 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 
 	public void setValueIsAdjusting(boolean b) {
 //		System.out.println("setValueIsAdjusting: " + b);
+		System.out.println("setValueIsAdjusting");
 		setRangeProperties(value, extent, min, max, b);
 	}
 
@@ -163,6 +194,7 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 	}
 
 	public void setRangeProperties(int newValue, int newExtent, int newMin, int newMax, boolean adjusting) {
+//		System.out.println("setRangeProperties: newValue: " + newValue + ", newExtent: " + newExtent + ", newMin: " + newMin + ", newMax: " + newMax + ", adjusting: " + adjusting);
 		if (newMin > newMax) {
 			newMin = newMax;
 		}
@@ -171,6 +203,14 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 		}
 		if (newValue < newMin) {
 			newMin = newValue;
+		}
+
+		if(newValue == newMax){
+			newMax = Math.min(newMax+2, maxUpperLimit);
+			newMin = Math.min(newMin+2, minUpperLimit);
+		} else if (newValue == newMin){
+			newMin = Math.max(newMin-2, minLowerLimit);
+			newMax = Math.max(newMax-2, maxLowerLimit);
 		}
 
 		/* Convert the addends to long so that extent can be

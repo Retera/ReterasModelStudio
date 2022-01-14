@@ -31,7 +31,10 @@ public class ScaleModel extends ActionFunction {
 			Vec3 scaleVec = new Vec3(1,1,1);
 			float[] scaleDiff = new float[]{1, 1};
 			JPanel sliderPanel = new JPanel(new MigLayout("ins 0"));
-			sliderPanel.add(new SmartNumberSlider("Scale", 100, 1, 300, (i) -> updateScaleModel(action, scaleVec, i/100f, scaleDiff)), SLIDER_CONSTRAINTS);
+			SmartNumberSlider smartNumberSlider = new SmartNumberSlider("Scale", 100, 1, 300, (i) -> updateScaleModel(action, scaleVec, i / 100f, scaleDiff));
+			smartNumberSlider.setMaxUpperLimit(1000);
+			smartNumberSlider.setMinLowerLimit(1);
+			sliderPanel.add(smartNumberSlider, SLIDER_CONSTRAINTS);
 			int opt = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), sliderPanel, "Scale model", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 			applyScaleModel(modelHandler, action, opt == JOptionPane.OK_OPTION);
 		}
