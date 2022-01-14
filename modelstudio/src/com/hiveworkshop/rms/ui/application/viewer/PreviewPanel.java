@@ -51,7 +51,6 @@ public class PreviewPanel extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-//		perspectiveViewport.paint(perspectiveViewport.getGraphics());
 	}
 
 	public void reloadAllTextures() {
@@ -69,12 +68,6 @@ public class PreviewPanel extends JPanel {
 		}
 	}
 
-//	public void setAnimationTime(int time) {
-//		if(renderEnv != null){
-//			renderEnv.setAnimationTime(time);
-//		}
-//	}
-
 	public void playAnimation() {
 		if (renderEnv != null) {
 			renderEnv.setRelativeAnimationTime(0);
@@ -82,17 +75,9 @@ public class PreviewPanel extends JPanel {
 		}
 	}
 
-//	public void setLoop(LoopType loopType) {
-//		if (renderEnv != null) {
-//			renderEnv.setLoopType(loopType);
-//		}
-//	}
-//
-//	public void setSpeed(float speed) {
-//		if(renderEnv != null){
-//			renderEnv.setAnimationSpeed(speed);
-//		}
-//	}
+	public PerspectiveViewport getPerspectiveViewport() {
+		return perspectiveViewport;
+	}
 
 	public Animation getCurrentAnimation() {
 		if (renderEnv != null) {

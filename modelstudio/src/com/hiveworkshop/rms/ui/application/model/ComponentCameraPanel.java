@@ -28,7 +28,7 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 	public ComponentCameraPanel(ModelHandler modelHandler) {
 		super(modelHandler);
 
-		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][][][grow]"));
+		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][][][][grow]"));
 		nameField = new TwiTextField(24, this::changeName1);
 		nameField.setFont(new Font("Arial", Font.BOLD, 18));
 		add(nameField, "spanx 2");

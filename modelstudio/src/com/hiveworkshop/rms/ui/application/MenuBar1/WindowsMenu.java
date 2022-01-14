@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 import com.hiveworkshop.rms.ui.application.*;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewUgg;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
+import com.hiveworkshop.rms.ui.application.viewer.CameraPreviewView;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.ObjectEditorFrame;
@@ -89,6 +90,7 @@ public class WindowsMenu extends JMenu {
 		WindowHandler2 windowHandler2 = rootWindow.getWindowHandler2();
 
 		viewsMenu.add(createMenuItem("Animation Preview", KeyEvent.VK_A, e -> windowHandler2.openNewWindowWithKB(new PreviewView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		viewsMenu.add(createMenuItem("Camera Preview", KeyEvent.VK_C, e -> windowHandler2.openNewWindowWithKB(new CameraPreviewView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 		viewsMenu.add(createMenuItem("Modeling", KeyEvent.VK_M, e -> windowHandler2.openNewWindowWithKB(new ModelingCreatorToolsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 		viewsMenu.add(createMenuItem("Outliner", KeyEvent.VK_O, e -> windowHandler2.openNewWindowWithKB(new ModelViewManagingView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 		viewsMenu.add(createMenuItem("Perspective", KeyEvent.VK_P, e -> windowHandler2.openNewWindowWithKB(new PerspectiveViewUgg().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
@@ -96,7 +98,7 @@ public class WindowsMenu extends JMenu {
 		viewsMenu.add(createMenuItem("Side", KeyEvent.VK_S, e -> windowHandler2.openNewWindowWithKB(new DisplayViewUgg("Side").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 		viewsMenu.add(createMenuItem("Bottom", KeyEvent.VK_B, e -> windowHandler2.openNewWindowWithKB(new DisplayViewUgg("Bottom").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 
-		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_C, e -> windowHandler2.openNewWindowWithKB(new ModelComponentsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_T, e -> windowHandler2.openNewWindowWithKB(new ModelComponentsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 		viewsMenu.add(createMenuItem("Footer", KeyEvent.VK_F, e -> FloatingWindowFactory.openNewWindowWithKB(windowHandler2.getTimeSliderView(), rootWindow)));
 //
 //		viewsMenu.add(createMenuItem("Animation Preview", KeyEvent.VK_A, e -> FloatingWindowFactory.openNewWindow(new PreviewView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));

@@ -1,10 +1,12 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
+import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+import org.lwjgl.util.glu.GLU;
 
 import java.awt.*;
 import java.awt.event.MouseWheelEvent;
@@ -50,6 +52,8 @@ public class CameraHandler {
 
 	private final Component viewport;
 
+	private Camera camera;
+
 	public CameraHandler(Component viewport) {
 		this.viewport = viewport;
 	}
@@ -71,6 +75,14 @@ public class CameraHandler {
 	}
 
 	public void setUpCamera() {
+		if(camera == null){
+			normalSetUpCamera();
+		} else {
+			setUpCamera(camera);
+		}
+	}
+
+	private void normalSetUpCamera() {
 		if (ortho) {
 			float ortoFac = 4.0f * (150 / cameraPos.x);
 			float w = viewport.getWidth() / 2.0f / ortoFac;
@@ -95,6 +107,63 @@ public class CameraHandler {
 		glRotatef(yAngle, 0f, 1f, 0f);
 		glRotatef(zAngle, 0f, 0f, 1f);
 		glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
+	}
+
+	public CameraHandler setCamera(Camera camera) {
+		this.camera = camera;
+		return this;
+	}
+
+	public void setUpCamera(Camera camera) {
+		gluPerspective((float) Math.toDegrees(camera.getFieldOfView()), 1, (float) camera.getNearClip(), (float) camera.getFarClip());
+//		gluPerspective((float) 60, 1,  5.0f, 16000.0f);
+
+//		glCamTrans.set(cameraPos);
+
+//		// Rotating camera to have +Z up and +X as forward (pointing into camera)
+//		glRotatef(-90, 1f, 0f, 0f);
+//		glRotatef(-90, 0f, 0f, 1f);
+
+
+
+		cameraPos.set(camera.getPosition());
+		Vec3 cameraLookAt = camera.getTargetPosition();
+		Vec3 up = new Vec3();
+////		up.set(cameraLookAt).sub(cameraPos).normalize();
+//		up.set(cameraPos).sub(cameraLookAt).normalize();
+////		up.cross(Vec3.Z_AXIS);// (works with neg z for LookAt)
+////		up.cross(Vec3.Y_AXIS); // got Visuals, but 90 deg ccw
+//		up.cross(Vec3.X_AXIS); // nah
+////		up.cross(Vec3.NEGATIVE_Z_AXIS);//
+////		up.cross(Vec3.NEGATIVE_Y_AXIS);//
+////		up.cross(Vec3.NEGATIVE_X_AXIS);//
+//
+////		up.cross(Vec3.Z_AXIS);// (works with neg z for LookAt)
+//////		up.cross(Vec3.Y_AXIS); // got Visuals, but 90 deg ccw
+//////		up.cross(Vec3.X_AXIS); // nah
+//////		up.cross(Vec3.NEGATIVE_Z_AXIS);//
+//////		up.cross(Vec3.NEGATIVE_Y_AXIS);//
+//////		up.cross(Vec3.NEGATIVE_X_AXIS);//
+
+
+		up.set(Vec3.Z_AXIS); //
+//		up.set(Vec3.Y_AXIS); //
+//		up.set(Vec3.X_AXIS);
+//		up.set(Vec3.NEGATIVE_Z_AXIS);
+//		up.set(Vec3.NEGATIVE_Y_AXIS);
+//		up.set(Vec3.NEGATIVE_X_AXIS);
+
+//		GLU.gluLookAt(cameraPos.x, -cameraPos.y, -cameraPos.z, cameraLookAt.x, -cameraLookAt.y, -cameraLookAt.z, 0,0,1);
+//		GLU.gluLookAt(cameraPos.x, -cameraPos.y, -cameraPos.z, cameraLookAt.x, -cameraLookAt.y, -cameraLookAt.z,  up.x, up.y, up.z);
+//		GLU.gluLookAt(cameraPos.x, cameraPos.y, cameraPos.z, cameraLookAt.x, cameraLookAt.y, cameraLookAt.z, 0,1,0);
+		GLU.gluLookAt(cameraPos.x, cameraPos.y, cameraPos.z, cameraLookAt.x, cameraLookAt.y, cameraLookAt.z, up.x, up.y, up.z);
+
+//		glTranslatef(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+//
+//		glRotatef(xAngle, 1f, 0f, 0f);
+//		glRotatef(yAngle, 0f, 1f, 0f);
+//		glRotatef(zAngle, 0f, 0f, 1f);
+//		glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
 	}
 
 	public void setViewportCamera(int dist, int height, int rX, int rY, int rZ) {
