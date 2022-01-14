@@ -67,10 +67,6 @@ public class TempSaveModelStuff {
 				mdlxModel.geosetAnimations.add(GeosetToMdlx.toMdlx(geoset.getGeosetAnim(), model));
 			}
 		}
-//
-//		for (final GeosetAnim animation : model.getGeosetAnims()) {
-//			mdlxModel.geosetAnimations.add(GeosetToMdlx.toMdlx(animation, model));
-//		}
 
 		for (final Bone bone : model.getBones()) {
 			mdlxModel.bones.add(IdObjectToMdlx.toMdlx(bone, model));
@@ -300,53 +296,54 @@ public class TempSaveModelStuff {
 	}
 
 	public static void updateObjectIds(EditableModel model) {
-		model.sortIdObjects();
 
 		// -- Injected in save prep --
-		// Delete empty rotation/translation/scaling
+		removeEmptyAnimFlags(model);
+		// -- end injected ---
+
+		collectBindPoses(model);
+
+		List<Bone> bones = model.getBones();
+		List<? extends Bone> helpers = model.getHelpers();
+		bones.addAll(helpers);
+		for (Bone b : bones) {
+			b.setGeosetId(model.getGeosets().indexOf(b.getGeoset()));
+			b.setGeosetAnimId(model.getGeosetAnims().indexOf(b.getGeosetAnim()));
+		}
+	}
+
+	private static void collectBindPoses(EditableModel model) {
+		model.sortIdObjects();
 		model.setBindPoseChunk(null);
-		for (final IdObject obj : model.getIdObjects()) {
-			final Collection<AnimFlag<?>> animFlags = obj.getAnimFlags();
-			final List<AnimFlag<?>> bad = new ArrayList<>();
-			for (final AnimFlag<?> flag : animFlags) {
+		BindPose bindPoseChunk = new BindPose();
+		for (IdObject obj : model.getIdObjects()) {
+			if (obj.getBindPose() != null) {
+				bindPoseChunk.addBindPose(obj.getBindPose());
+			}
+		}
+		for (Camera obj : model.getCameras()) {
+			if (obj.getBindPose() != null) {
+				bindPoseChunk.addBindPose(obj.getBindPose());
+			}
+		}
+		if(bindPoseChunk.getSize()>0){
+			model.setBindPoseChunk(bindPoseChunk);
+		}
+	}
+
+	private static void removeEmptyAnimFlags(EditableModel model) {
+		// Delete empty rotation/translation/scaling
+		for (IdObject obj : model.getIdObjects()) {
+			Collection<AnimFlag<?>> animFlags = obj.getAnimFlags();
+			List<AnimFlag<?>> bad = new ArrayList<>();
+			for (AnimFlag<?> flag : animFlags) {
 				if (flag.size() <= 0) {
 					bad.add(flag);
 				}
 			}
-			for (final AnimFlag<?> badFlag : bad) {
+			for (AnimFlag<?> badFlag : bad) {
 				System.err.println("Gleaning out " + badFlag.getName() + " chunk with size of 0 (\"" + obj.getName() + "\")");
 				animFlags.remove(badFlag);
-			}
-		}
-		// -- end injected ---
-
-		final List<Bone> bones = model.getBones();
-		final List<? extends Bone> helpers = model.getHelpers();
-		bones.addAll(helpers);
-
-		List<IdObject> allObjects = model.getIdObjects();
-		for (int i = 0; i < allObjects.size(); i++) {
-			final IdObject obj = allObjects.get(i);
-//			obj.setObjectId(model.getObjectId(obj));
-//			obj.setParentId(model.getObjectId(obj.getParent()));
-			if (obj.getBindPose() != null) {
-				if (model.getBindPoseChunk() == null) {
-					model.setBindPoseChunk(new BindPose(allObjects.size() + model.getCameras().size()));
-				}
-				model.getBindPoseChunk().bindPose[i] = obj.getBindPose();
-			}
-		}
-		for (final Bone b : bones) {
-			b.setGeosetId(model.getGeosets().indexOf(b.getGeoset()));
-			b.setGeosetAnimId(model.getGeosetAnims().indexOf(b.getGeosetAnim()));
-		}
-		for (int i = 0; i < model.getCameras().size(); i++) {
-			final Camera obj = model.getCameras().get(i);
-			if (obj.getBindPose() != null) {
-				if (model.getBindPoseChunk() == null) {
-					model.setBindPoseChunk(new BindPose(allObjects.size() + model.getCameras().size()));
-				}
-				model.getBindPoseChunk().bindPose[i + allObjects.size()] = obj.getBindPose();
 			}
 		}
 	}
@@ -355,7 +352,6 @@ public class TempSaveModelStuff {
 		if (DISABLE_BONE_GEO_ID_VALIDATOR) {
 			return;
 		}
-//		final List<Bone> bones = (List<Bone>) sortedIdObjects(Bone.class);
 		final List<Bone> bones = model.getBones();
 		for (final Bone b : bones) {
 			b.setMultiGeoId(false);

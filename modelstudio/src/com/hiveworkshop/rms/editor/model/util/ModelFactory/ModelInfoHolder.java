@@ -53,7 +53,7 @@ public class ModelInfoHolder {
 		idObject.setPivotPoint(getPivot(mdlxObj.objectId));
 
 		if (bindPose != null && mdlxObj.objectId > -1) {
-			idObject.setBindPose(bindPose.bindPose[mdlxObj.objectId]);
+			idObject.setBindPose(bindPose.getBindPose(mdlxObj.objectId));
 		}
 
 		return this;
@@ -63,8 +63,8 @@ public class ModelInfoHolder {
 		cameras.add(camera);
 		if (bindPose != null) {
 			int cameraBindPose = cameras.size() - 1 + idObjMap.size();
-			if (bindPose.bindPose.length > cameraBindPose) {
-				camera.setBindPose(bindPose.bindPose[cameraBindPose]);
+			if (bindPose.getSize() > cameraBindPose) {
+				camera.setBindPose(bindPose.getBindPose(cameraBindPose));
 			}
 		}
 		return this;

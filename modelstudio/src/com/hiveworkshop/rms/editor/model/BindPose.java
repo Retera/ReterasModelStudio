@@ -1,26 +1,38 @@
 package com.hiveworkshop.rms.editor.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class BindPose {
-	public float[][] bindPose = null;
+	private final ArrayList<float[]> bindPoses = new ArrayList<>();
 
-	public BindPose(int count) {
-		this.bindPose = new float[count][];
+	public BindPose() {
 	}
 
 	public BindPose(List<float[]> matrices) {
-		this.bindPose = new float[matrices.size()][];
+		bindPoses.addAll(matrices);
+	}
 
-		for (int i = 0, l = matrices.size(); i < l; i++) {
-			bindPose[i] = matrices.get(i);
-		}
+	public ArrayList<float[]> getBindPoses() {
+		return bindPoses;
+	}
+	public float[] getBindPose(int i) {
+		return bindPoses.get(i);
+	}
+	public BindPose setBindPose(int i, float[] bp) {
+		bindPoses.set(i, bp);
+		return this;
+	}
+	public BindPose addBindPose(float[] bp){
+		bindPoses.add(bp);
+		return this;
+	}
+
+	public int getSize(){
+		return bindPoses.size();
 	}
 
 	public List<float[]> toMdlx() {
-
-		return new ArrayList<>(Arrays.asList(bindPose));
+		return new ArrayList<>(bindPoses);
 	}
 }
