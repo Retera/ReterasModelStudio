@@ -17,6 +17,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -36,7 +38,7 @@ public class KeyframePanel<T> extends JPanel {
 	protected TimelineKeyNamer timelineKeyNamer;
 
 	BiConsumer<Sequence, Integer> addAction;
-	BiConsumer<Sequence, Integer> removeAction;
+	BiConsumer<Sequence, Collection<Integer>> removeAction;
 	BiConsumer<Integer, Entry<T>> changeAction;
 	Function<String, T> parseFunction;
 
@@ -51,7 +53,7 @@ public class KeyframePanel<T> extends JPanel {
 
 	public KeyframePanel(EditableModel model,
 	                     BiConsumer<Sequence, Integer> addAction,
-	                     BiConsumer<Sequence, Integer> removeAction,
+	                     BiConsumer<Sequence, Collection<Integer>> removeAction,
 	                     BiConsumer<Integer, Entry<T>> changeAction,
 	                     Function<String, T> parseFunction) {
 		super(new MigLayout("gap 0, ins 0, fill, hidemode 3", "[grow]", "[][]"));
@@ -190,7 +192,7 @@ public class KeyframePanel<T> extends JPanel {
 					checkDeletePressed();
 				}
 				if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-					removeEntry(keyframeTable.getSelectedRow());
+					removeEntry(keyframeTable.getSelectedRows());
 				}
 				if (e.getKeyCode() == KeyEvent.VK_PLUS || e.getKeyCode() == KeyEvent.VK_ADD) {
 					addEntry(keyframeTable.getSelectedRow());
@@ -293,17 +295,15 @@ public class KeyframePanel<T> extends JPanel {
 		}
 	}
 
-	private void removeEntry(int row) {
+	private void removeEntry(int... rows) {
 //		System.out.println("removeEntry");
 		if (removeAction != null) {
-//			oldAnimFlag = animFlag;
-			int orgTime = (int) floatTrackTableModel.getValueAt(row, 0);
-			removeAction.accept(sequence, orgTime);
-//			setTableModel();
+			ArrayList<Integer> orgTimes = new ArrayList<>();
+			for (int row : rows){
+				orgTimes.add((int) floatTrackTableModel.getValueAt(row, 0));
+			}
+			removeAction.accept(sequence, orgTimes);
 		}
-//
-//		revalidate();
-//		repaint();
 	}
 
 	private Integer parseTime(String val) {

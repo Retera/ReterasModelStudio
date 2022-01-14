@@ -17,6 +17,7 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.util.Collection;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -277,15 +278,14 @@ public abstract class ValuePanel<T> extends JPanel {
 
 	abstract T parseValue(String valueString);
 
-	private void removeEntry(Sequence sequence, int orgTime) {
-		if (animFlag.hasEntryAt(sequence, orgTime)) {
-			UndoAction undoAction = new RemoveFlagEntryAction<>(animFlag, orgTime, sequence, changeListener);
+	private void removeEntry(Sequence sequence, Collection<Integer> orgTimes) {
+		if (!orgTimes.isEmpty()) {
+			UndoAction undoAction = new RemoveFlagEntryAction<>(animFlag, orgTimes, sequence, changeListener);
 			undoManager.pushAction(undoAction.redo());
 		}
 	}
 
 	protected void changeEntry(Sequence sequence, int row, String field, String val) {
-//		int orgTime = (int) keyframePanel.getFloatTrackTableModel().getValueAt(row, 0);
 		int orgTime = (int) keyframePanelMap.get(sequence).getFloatTrackTableModel().getValueAt(row, 0);
 		Entry<T> newEntry = animFlag.getEntryAt(sequence, orgTime).deepCopy();
 		T tValue = parseValue(val);
