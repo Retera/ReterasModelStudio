@@ -15,10 +15,7 @@ private static final String ARROW_RIGHT = "\u2BC8";
 	private static final String ARROW_DOWN = "\u2BC6";
 
 	private final JLabel collapseArrowLabel;
-
-
 	private final JPanel collapsedAdditionalInfoPanel;
-
 	private final JPanel collapsableContent;
 
 	String title;
@@ -31,12 +28,12 @@ private static final String ARROW_RIGHT = "\u2BC8";
 	public CollapsablePanel(String title, JPanel collapsableContent, JPanel collapsedAdditionalInfoPanel) {
 		this.collapsedAdditionalInfoPanel = collapsedAdditionalInfoPanel;
 		this.collapsableContent = collapsableContent;
-		this.setLayout(new MigLayout("fill, hidemode 1, ins 0", "[grow]", "[][grow]"));
+		this.setLayout(new MigLayout("fill, hidemode 1, ins 0, gap 1", "[grow]", "[][grow]"));
 		this.title = title;
 
 		titleLabel = new JLabel(title);
 		collapseArrowLabel = new JLabel(ARROW_DOWN);
-		JPanel titlePanel = new JPanel(new MigLayout("fill", "[][][grow][right]", "[]"));
+		JPanel titlePanel = new JPanel(new MigLayout("fill, ins 1", "[][][grow][right]", "[]"));
 		setBorder(new BevelBorder(BevelBorder.RAISED));
 		collapsedAdditionalInfoPanel.setVisible(false);
 		titlePanel.add(collapseArrowLabel);
