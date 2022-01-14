@@ -6,22 +6,35 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 public class RemoveFlagEntryAction<T> implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
-	Sequence animation;
-	AnimFlag<T> animFlag;
-	Entry<T> entry;
+	private Sequence animation;
+	private AnimFlag<T> animFlag;
+	private List<Entry<T>> entries = new ArrayList<>();
 
 	public RemoveFlagEntryAction(AnimFlag<T> animFlag, int orgTime, Sequence animation, ModelStructureChangeListener changeListener) {
+		this(animFlag, Collections.singleton(orgTime), animation, changeListener);
+	}
+
+	public RemoveFlagEntryAction(AnimFlag<T> animFlag, Collection<Integer> orgTimes, Sequence animation, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
 		this.animation = animation;
 		this.animFlag = animFlag;
-		this.entry = animFlag.getEntryAt(animation, orgTime);
+		for(Integer orgTime : orgTimes){
+			entries.add(animFlag.getEntryAt(animation, orgTime));
+		}
 	}
 
 	@Override
 	public UndoAction undo() {
-		animFlag.setOrAddEntry(entry.time, entry, animation);
+		for(Entry<T> entry : entries){
+			animFlag.setOrAddEntry(entry.time, entry, animation);
+		}
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
 		}
@@ -30,7 +43,9 @@ public class RemoveFlagEntryAction<T> implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		animFlag.removeKeyframe(entry.time, animation);
+		for(Entry<T> entry : entries){
+			animFlag.removeKeyframe(entry.time, animation);
+		}
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
 		}
@@ -39,6 +54,6 @@ public class RemoveFlagEntryAction<T> implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "delete keyframe";
+		return "delete keyframe" + (entries.size() == 1 ? "" : "s");
 	}
 }
