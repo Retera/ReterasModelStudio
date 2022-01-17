@@ -42,8 +42,8 @@ public class RecalculateExtentsAction implements UndoAction {
 //		for (Geoset modelGeoset : geosetsIncludedForCalculation) {
 			Map<Animation, ExtLog> animationToOldExtents = new HashMap<>();
 			Map<Animation, ExtLog> animationToNewExtents = new HashMap<>();
-			for (Animation anim : modelGeoset.getAnims()) {
-				animationToOldExtents.put(anim, anim.getExtents());
+			for (Animation anim : model.getAnims()) {
+				animationToOldExtents.put(anim, modelGeoset.getAnimExtent(anim));
 				animationToNewExtents.put(anim, newModelExtents.deepCopy());
 			}
 			geosetToAnimationToOldExtents.put(modelGeoset, animationToOldExtents);
@@ -81,8 +81,7 @@ public class RecalculateExtentsAction implements UndoAction {
 		for (Geoset geoset : geosetToAnimationToOldExtents.keySet()) {
 			Map<Animation, ExtLog> animationExtLogMap = geosetToAnimationToOldExtents.get(geoset);
 			for (Animation animation : animationExtLogMap.keySet()) {
-				animation.setExtents(animationExtLogMap.get(animation));
-
+				geoset.add(animation, animationExtLogMap.get(animation));
 			}
 			geoset.setExtents(oldModelExtents);
 		}
@@ -100,8 +99,7 @@ public class RecalculateExtentsAction implements UndoAction {
 		for (Geoset geoset : geosetToAnimationToNewExtents.keySet()) {
 			Map<Animation, ExtLog> animationExtLogMap = geosetToAnimationToNewExtents.get(geoset);
 			for (Animation animation : animationExtLogMap.keySet()) {
-				animation.setExtents(animationExtLogMap.get(animation));
-
+				geoset.add(animation, animationExtLogMap.get(animation));
 			}
 			geoset.setExtents(newModelExtents);
 		}

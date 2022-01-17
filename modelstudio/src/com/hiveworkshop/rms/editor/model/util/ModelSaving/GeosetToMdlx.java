@@ -16,10 +16,10 @@ public class GeosetToMdlx {
 			mdlxGeoset.extent = geoset.getExtents().toMdlx();
 		}
 
-		for (int i = 0; i < geoset.getAnims().size() && i < model.getAnims().size(); i++) {
-			Animation anim = geoset.getAnim(i);
-			System.out.println("Geoset anim " + i + ": " + anim + "(" + anim.getStart() + " - " + anim.getEnd() + ")");
-			mdlxGeoset.sequenceExtents.add(geoset.getAnim(i).getExtents().toMdlx());
+		for (Animation anim : model.getAnims()) {
+			if(geoset.getAnimExtent(anim) != null){
+				mdlxGeoset.sequenceExtents.add(geoset.getAnimExtent(anim).toMdlx());
+			}
 		}
 
 		mdlxGeoset.materialId = model.computeMaterialID(geoset.getMaterial());

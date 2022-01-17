@@ -344,7 +344,9 @@ public class ViewportTransferHandler extends TransferHandler {
 	private Geoset copySelectedFromGeoset(ModelView modelView, Geoset geoset) {
 		Geoset newGeoset = new Geoset();
 		newGeoset.setSelectionGroup(geoset.getSelectionGroup());
-		newGeoset.setAnims(geoset.getAnims());
+		for (Animation anim : geoset.getAnimExts().keySet()) {
+			newGeoset.add(anim, geoset.getAnimExtent(anim).deepCopy());
+		}
 		newGeoset.setMaterial(geoset.getMaterial());
 
 		Map<GeosetVertex, GeosetVertex> vertToCopiedVert = new HashMap<>();

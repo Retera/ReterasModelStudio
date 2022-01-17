@@ -44,7 +44,6 @@ public class GeosetVertex extends Vec3 {
 		super(old);
 		normal.set(old.getNormal());
 		matrix.addAll(old.matrix.getBones());
-		tverts = new ArrayList<>();
 		for (Vec2 tv : old.tverts) {
 			tverts.add(new Vec2(tv));
 		}
@@ -257,7 +256,11 @@ public class GeosetVertex extends Vec3 {
 		}
 		Bone[] sb = new Bone[4];
 		for (int i = 0; i < skinBones.length; i++) {
-			sb[i] = skinBones[i].getBone();
+			if(skinBones[i] != null){
+				sb[i] = skinBones[i].getBone();
+			} else {
+				sb[i] = null;
+			}
 		}
 		return sb;
 	}
@@ -323,6 +326,14 @@ public class GeosetVertex extends Vec3 {
 			this.skinBones[i].setBone(bone);
 		}
 	}
+	public void setSkinBone(SkinBone skinBone, int i) {
+        this.skinBones[i] = skinBone;
+//		if (this.skinBones[i] == null) {
+//			this.skinBones[i] = new SkinBone(skinBone);
+//		} else {
+//			this.skinBones[i].setBone(skinBone);
+//		}
+	}
 
 //    public short[] getSkinBoneWeights() {
 //        return skinBoneWeights;
@@ -347,7 +358,11 @@ public class GeosetVertex extends Vec3 {
 		}
 		short[] sw = new short[4];
 		for (int i = 0; i < skinBones.length; i++) {
-			sw[i] = skinBones[i].getWeight();
+			if(skinBones[i] != null){
+				sw[i] = skinBones[i].getWeight();
+			} else {
+				sw[i] = 0;
+			}
 		}
 		return sw;
 	}
@@ -365,6 +380,28 @@ public class GeosetVertex extends Vec3 {
 			}
 		}
 	}
+
+	public void normalizeBoneWeights(){
+		float totWeight = 0;
+		for (int i = 0; i < 4; i++) {
+			if (this.skinBones[i] != null) {
+				totWeight += this.skinBones[i].getWeight();
+			}
+		}
+
+		float totWeight2 = 255;
+		for (int i = 0; i < 4; i++) {
+			if (this.skinBones[i] != null) {
+				this.skinBones[i].setWeight((short) ((this.skinBones[i].getWeight()/totWeight)*255));
+				totWeight2 -= this.skinBones[i].getWeight();
+			}
+		}
+
+		if (totWeight2 != 0 && this.skinBones[0] != null) {
+			this.skinBones[0].setWeight((short) (this.skinBones[0].getWeight() + totWeight2));
+		}
+	}
+
 
 	public Vec4 getTangent() {
 		return tangent;

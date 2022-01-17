@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.editor.model.util.ModelFactory;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxExtent;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxGeoset;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -14,16 +13,9 @@ public class GeosetFactory {
 		Geoset geoset = new Geoset();
 		geoset.setExtLog(new ExtLog(mdlxGeoset.extent));
 
-//		for(Animation animation : model.getAnims()){
-//
-//		}
-//		for(int i = 0; i<model.getAnims().size() && i< mdlxGeoset.sequenceExtents.size(); i++){
-//			geoset
-//		}
-		for (final MdlxExtent extent : mdlxGeoset.sequenceExtents) {
-			final ExtLog extents = new ExtLog(extent);
-			final Animation anim = new Animation(extents);
-			geoset.add(anim);
+		for (int i = 0; i < mdlxGeoset.sequenceExtents.size() && i<model.getAnimsSize(); i++) {
+			ExtLog extents = new ExtLog(mdlxGeoset.sequenceExtents.get(i));
+			geoset.add(model.getAnim(i), extents);
 		}
 
 		geoset.setMaterial(infoHolder.materials.get((int) mdlxGeoset.materialId));

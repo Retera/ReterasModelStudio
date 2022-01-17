@@ -52,8 +52,8 @@ public class ModelScale {
 			for (Vec3 vertex : geoset.getVertices()) {
 				vertex.scale(center, scale);
 			}
-			for (Animation anim : geoset.getAnims()) {
-				scale(center, scale, anim.getExtents());
+			for (Animation anim : geoset.getAnimExts().keySet()) {
+				scale(center, scale, geoset.getAnimExtent(anim));
 			}
 		}
 		for (IdObject object : mdl.getIdObjects()) {
