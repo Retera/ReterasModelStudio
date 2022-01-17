@@ -10,11 +10,14 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ModelIconHandler {
 	private final Map<EditableModel, Map<Geoset, Map<Bone, List<GeosetVertex>>>> geosetBoneMap = new HashMap<>();
 	private final Map<IdObject, ImageIcon> idObjectToCachedRenderer = new HashMap<>();
 	private final Map<Geoset, ImageIcon> geosetToCachedRenderer = new HashMap<>();
+	private final Map<Set<Geoset>, ImageIcon> geosetsToCachedRenderer = new HashMap<>();
+	private final Map<Geoset, BufferedImage> geosetToCachedHL = new HashMap<>();
 	private final Map<EditableModel, BufferedImage> modelOutlineImageMap = new HashMap<>();
 	private final Map<EditableModel, ImageIcon> modelImageMap = new HashMap<>();
 	private final Map<EditableModel, Vec2[]> modelBoundsSizeMap = new HashMap<>();
@@ -127,6 +130,65 @@ public class ModelIconHandler {
 		if (model.contains(geoset)) {
 			BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
 			graphics.drawImage(modelOutline, 0, 0, null);
+			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(32, 32), getModelBoundsSize(model));
+			ModelThumbnailMaker.drawGeosetFlat(graphics, (byte) 1, (byte) 2, geoset, Color.RED);
+		}
+	}
+
+	public ImageIcon getImageIcon(Set<Geoset> geoset, EditableModel model) {
+		return getImageIcon(Color.white, geoset, model);
+	}
+
+	public ImageIcon getImageIcon(Color backgroundColor, Set<Geoset> geosets, EditableModel model) {
+		ImageIcon myIcon = geosetsToCachedRenderer.get(geosets);
+		if (myIcon == null) {
+			try {
+				final BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+				final Graphics graphics = image.getGraphics();
+
+				BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
+				graphics.drawImage(modelOutline, 0, 0, null);
+
+				for(Geoset geoset : geosets){
+					if (geoset != null) {
+						BufferedImage geosetTransparentIcon = getGeosetTransparentIcon(geoset, model);
+						graphics.drawImage(geosetTransparentIcon, 0, 0, null);
+					}
+				}
+
+				graphics.dispose();
+				myIcon = new ImageIcon(image);
+			} catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
+			geosetsToCachedRenderer.put(geosets, myIcon);
+		}
+		return myIcon;
+	}
+
+	public BufferedImage getGeosetTransparentIcon(Geoset geoset, EditableModel model) {
+		BufferedImage image = geosetToCachedHL.get(geoset);
+		if (image == null) {
+			image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+			final Graphics graphics = image.getGraphics();
+			graphics.setColor(new Color(255,255,255,0));
+			graphics.fill3DRect(0, 0, 32, 32, false);
+			if (model.contains(geoset)) {
+				ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(32, 32), getModelBoundsSize(model));
+				ModelThumbnailMaker.drawGeosetFlat(graphics, (byte) 1, (byte) 2, geoset, Color.RED);
+			}
+			graphics.dispose();
+			geosetToCachedHL.put(geoset, image);
+		}
+		return image;
+	}
+
+	public void makeGeosetTransparentIcon(Geoset geoset, Graphics graphics1, EditableModel model) {
+		if (model.contains(geoset)) {
+			final BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+			final Graphics graphics = image.getGraphics();
+			graphics.setColor(new Color(255,255,255,0));
+			graphics.fill3DRect(0, 0, 32, 32, false);
 			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(32, 32), getModelBoundsSize(model));
 			ModelThumbnailMaker.drawGeosetFlat(graphics, (byte) 1, (byte) 2, geoset, Color.RED);
 		}

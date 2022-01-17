@@ -290,7 +290,7 @@ public class GeosetRenderer {
 		GL11.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
 		GL11.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 
-		float factor = (float) (6 / cameraHandler.getZoom()); // TODO this scaling is not correct!! xD
+		float factor = 6 * cameraHandler.getPixelSize();
 
 		GL11.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
 		GL11.glVertex3f(

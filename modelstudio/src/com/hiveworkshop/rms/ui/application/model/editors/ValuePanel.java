@@ -197,7 +197,7 @@ public abstract class ValuePanel<T> extends JPanel {
 				keyframePanel.updateFlag(animFlag, sequence);
 
 				int size = animFlag.size(sequence);
-				CollapsablePanel collapsablePanel = new CollapsablePanel(sequence + " " + size + " keyframes", keyframePanel);
+				CollapsablePanel collapsablePanel = new CollapsablePanel(sequence + " (" + sequence.getLength() + ") " + size + " keyframes", keyframePanel);
 				collapsablePanel.setCollapsed(size == 0);
 //				dynamicPanel.add(collapsablePanel, "spanx, growx, wrap, hidemode 3");
 				dynamicContentPanel.add(collapsablePanel, "spanx, growx, wrap, hidemode 3");

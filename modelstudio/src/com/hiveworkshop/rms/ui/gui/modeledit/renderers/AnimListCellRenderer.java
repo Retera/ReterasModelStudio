@@ -36,13 +36,13 @@ public class AnimListCellRenderer extends DefaultListCellRenderer {
 	@Override
 	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSel, boolean hasFoc) {
 		super.getListCellRendererComponent(list, ((AnimShell) value).getOldName() + " " + ((AnimShell) value).getAnim().getLength(), index, isSel, hasFoc);
-		AnimShell importAnimShell = ((AnimShell) value).getAnimDataSrc();
+		AnimShell animDataSrc = ((AnimShell) value).getAnimDataSrc();
 		Vec3 bg;
 		Vec3 fg;
-		if (importAnimShell != null && importAnimShell == selectedAnim) {
+		if (((AnimShell) value).getImportType() == AnimShell.ImportType.TIMESCALE_RECEIVE && animDataSrc != null && animDataSrc == selectedAnim) {
 			bg = selectedOwnerBgCol;
 			fg = selectedOwnerFgCol;
-		} else if (importAnimShell != null) {
+		} else if (((AnimShell) value).getImportType() == AnimShell.ImportType.TIMESCALE_RECEIVE && animDataSrc != null) {
 			bg = otherOwnerBgCol;
 			fg = otherOwnerFgCol;
 		} else if (((AnimShell) value).getImportType() == AnimShell.ImportType.DONT_IMPORT) {
