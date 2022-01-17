@@ -1,14 +1,14 @@
 package com.hiveworkshop.rms.util;
 
+import com.hiveworkshop.rms.ui.application.model.editors.FloatEditorJSpinner;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.util.function.Consumer;
 
 public class Vec3SpinnerArray {
-	private JSpinner[] spinners = new JSpinner[3];
+	private FloatEditorJSpinner[] spinners = new FloatEditorJSpinner[3];
 	private JLabel[] labels = new JLabel[3];
 	private String labelWrap = "wrap";
 	private String spinnerWrap = "";
@@ -16,7 +16,7 @@ public class Vec3SpinnerArray {
 	private String spinnerConst = "";
 	private boolean isEnabled = true;
 
-	Consumer<Vec3> vec3Consumer;
+	private Consumer<Vec3> vec3Consumer;
 
 	boolean isUpdating = false;
 
@@ -29,41 +29,50 @@ public class Vec3SpinnerArray {
 	}
 
 	public Vec3SpinnerArray(Vec3 startV, String l1, String l2, String l3) {
-		spinners[0] = getStandardSpinner(startV.x);
-		spinners[1] = getStandardSpinner(startV.y);
-		spinners[2] = getStandardSpinner(startV.z);
+		spinners[0] = getStandardSpinner(startV.x).reloadNewValue(startV.x);
+		spinners[1] = getStandardSpinner(startV.y).reloadNewValue(startV.y);
+		spinners[2] = getStandardSpinner(startV.z).reloadNewValue(startV.z);
 
 
-		spinners[0].addChangeListener(this::runConsumer);
-		spinners[1].addChangeListener(this::runConsumer);
-		spinners[2].addChangeListener(this::runConsumer);
+//		spinners[0].addChangeListener(this::runConsumer);
+//		spinners[1].addChangeListener(this::runConsumer);
+//		spinners[2].addChangeListener(this::runConsumer);
 
 		labels[0] = new JLabel(l1);
 		labels[1] = new JLabel(l2);
 		labels[2] = new JLabel(l3);
 	}
 
-	static JSpinner getStandardSpinner(double startValue) {
-		return new JSpinner(new SpinnerNumberModel(startValue, -100000.00, 100000.00, 0.1));
+//	static JSpinner getStandardSpinner(double startValue) {
+//		return new JSpinner(new SpinnerNumberModel(startValue, -100000.00, 100000.00, 0.1));
+//	}
+//	private JSpinner getStandardSpinner(double startValue) {
+//		FloatEditorJSpinner floatEditorJSpinner = new FloatEditorJSpinner((float) startValue, -100000.00f, .1f, f -> runConsumer());
+//		floatEditorJSpinner.reloadNewValue(startValue);
+//		return floatEditorJSpinner;
+//	}
+	private FloatEditorJSpinner getStandardSpinner(double startValue) {
+		return new FloatEditorJSpinner((float) startValue, -100000.00f, .1f, f -> runConsumer());
 	}
 
 	public JPanel spinnerPanel() {
 		JPanel spinnerPanel = new JPanel(new MigLayout("gap 0, ins 0"));
-		JPanel xPanel = new JPanel(new MigLayout("gap 0, ins 0"));
-		xPanel.add(labels[0], labelConst + ", " + labelWrap);
-		xPanel.add(spinners[0], spinnerConst);
-		JPanel yPanel = new JPanel(new MigLayout("gap 0, ins 0"));
-		yPanel.add(labels[1], labelConst + ", " + labelWrap);
-		yPanel.add(spinners[1], spinnerConst);
-		JPanel zPanel = new JPanel(new MigLayout("gap 0, ins 0"));
-		zPanel.add(labels[2], labelConst + ", " + labelWrap);
-		zPanel.add(spinners[2], spinnerConst);
+		JPanel xPanel = getCoordPanel(0);
+		JPanel yPanel = getCoordPanel(1);
+		JPanel zPanel = getCoordPanel(2);
 
 		spinnerPanel.add(xPanel, spinnerWrap);
 		spinnerPanel.add(yPanel, spinnerWrap);
 		spinnerPanel.add(zPanel, spinnerWrap);
 
 		return spinnerPanel;
+	}
+
+	public JPanel getCoordPanel(int i) {
+		JPanel coordPanel = new JPanel(new MigLayout("gap 0, ins 0"));
+		coordPanel.add(labels[i], labelConst + ", " + labelWrap);
+		coordPanel.add(spinners[i], spinnerConst);
+		return coordPanel;
 	}
 
 	public Vec3 getValue() {
@@ -75,9 +84,12 @@ public class Vec3SpinnerArray {
 
 	public Vec3SpinnerArray setValues(Vec3 newValues) {
 		isUpdating = true;
-		spinners[0].setValue(newValues.x);
-		spinners[1].setValue(newValues.y);
-		spinners[2].setValue(newValues.z);
+//		spinners[0].setValue(newValues.x);
+//		spinners[1].setValue(newValues.y);
+//		spinners[2].setValue(newValues.z);
+		spinners[0].reloadNewValue(newValues.x);
+		spinners[1].reloadNewValue(newValues.y);
+		spinners[2].reloadNewValue(newValues.z);
 		isUpdating = false;
 		return this;
 	}
@@ -114,37 +126,27 @@ public class Vec3SpinnerArray {
 		return this;
 	}
 
-	boolean ugg;
+	public Vec3SpinnerArray setStepSize(double stepSize){
+		((SpinnerNumberModel)spinners[0].getModel()).setStepSize(stepSize);
+		((SpinnerNumberModel)spinners[1].getModel()).setStepSize(stepSize);
+		((SpinnerNumberModel)spinners[2].getModel()).setStepSize(stepSize);
+		return this;
+	}
 
-//	public Vec3SpinnerArray addActionListener(Runnable actionListener){
-////		spinners[0].addChangeListener(e -> System.out.println("ChangeListener"));
-////		spinners[0].addPropertyChangeListener(e -> System.out.println("PropertyChange"));
+	public Vec3SpinnerArray addActionListener(Consumer<Vec3> consumer) {
 //		ChangeListener changeListener = e -> {
 //			if (!isUpdating) {
 //				if (ugg) {
-//					actionListener.run();
+//					consumer.accept(getValue()); // this is just an ugly temporary hack to run the actionListener only on the second change event fire
 //				}
-//				ugg = !ugg; // this is just an ugly temporary hack to run the actionListener only on the second change event fire
+//				ugg = !ugg;
 //			}
 //		};
 //		spinners[0].addChangeListener(changeListener);
 //		spinners[1].addChangeListener(changeListener);
 //		spinners[2].addChangeListener(changeListener);
-//		return this;
-//	}
 
-	public Vec3SpinnerArray addActionListener(Consumer<Vec3> consumer) {
-		ChangeListener changeListener = e -> {
-			if (!isUpdating) {
-				if (ugg) {
-					consumer.accept(getValue()); // this is just an ugly temporary hack to run the actionListener only on the second change event fire
-				}
-				ugg = !ugg;
-			}
-		};
-		spinners[0].addChangeListener(changeListener);
-		spinners[1].addChangeListener(changeListener);
-		spinners[2].addChangeListener(changeListener);
+		this.vec3Consumer = consumer;
 		return this;
 	}
 
@@ -160,14 +162,13 @@ public class Vec3SpinnerArray {
 		}
 	}
 
+	boolean ugg;
 	private void runConsumer(ChangeEvent e) {
-		if (vec3Consumer != null) {
-			if (!isUpdating) {
-				if (ugg) {
-					vec3Consumer.accept(getValue());
-				}
-				ugg = !ugg;
+		if (vec3Consumer != null && !isUpdating) {
+			if (ugg) {
+				vec3Consumer.accept(getValue());
 			}
+			ugg = !ugg;// this is just an ugly temporary hack to run the actionListener only on the second change event fire
 		}
 	}
 }

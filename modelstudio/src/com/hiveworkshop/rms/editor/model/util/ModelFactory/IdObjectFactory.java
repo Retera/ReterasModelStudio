@@ -254,8 +254,8 @@ public class IdObjectFactory {
 
 		for (final long val : mdlxObject.keyFrames) {
 			if(globalSeq != null){
-				eventObject.addTrack(globalSeq, (int) val - globalSeq.getStart());
-			}else if(animationTreeMap.floorEntry((int) val) != null){
+				eventObject.addTrack(globalSeq, (int) val);
+			} else if(animationTreeMap.floorEntry((int) val) != null){
 				Sequence sequence = animationTreeMap.floorEntry((int) val).getValue();
 				eventObject.addTrack(sequence, (int) val - sequence.getStart());
 			}

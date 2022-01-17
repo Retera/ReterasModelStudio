@@ -24,8 +24,8 @@ public class ComponentsPanel extends JPanel {
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 
-		JPanel blankPanel = new JPanel(new MigLayout(""));
-		blankPanel.add(new JLabel("Select a model component to get started..."));
+		JPanel blankPanel = new JPanel(new MigLayout("", "[]", "[]"));
+		blankPanel.add(new JLabel("Select a model component to get started..."), "");
 		add(blankPanel, BLANK);
 
 		addPanelToMap(new ComponentHeaderPanel(modelHandler), DisplayElementType.MODEL_ROOT);

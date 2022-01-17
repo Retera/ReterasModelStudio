@@ -55,10 +55,8 @@ public class MainFrame extends JFrame {
 				fileDialog.openFile(new File(path));
 			}
 		}
-//		fileDialog.openFile(new File("C:\\Users\\twilac\\Desktop\\WC3\\troubleShootingStuff\\LxXDijin\\BillBoarding models\\BB_All_2.mdx"));
-//		fileDialog.openFile(new File("C:\\Users\\twilac\\Desktop\\WC3\\ElfFemale.mdl"));
-//		fileDialog.openFile(new File("C:\\Users\\twilac\\Desktop\\WC3\\Bone_test3.mdl"));
 	}
+
 	public static void create(final List<String> startupModelPaths, boolean dataPromptForced) {
 		frame = new MainFrame("Retera Model Studio " + getVersion());
 		mainPanel.init();
@@ -68,10 +66,6 @@ public class MainFrame extends JFrame {
 				fileDialog.openFile(new File(path));
 			}
 		}
-//		fileDialog.openFile(new File("C:\\Users\\twilac\\Desktop\\WC3\\troubleShootingStuff\\LxXDijin\\BillBoarding models\\BB_All_2.mdx"));
-//		fileDialog.openFile(new File("C:\\Users\\twilac\\Desktop\\WC3\\ElfFemale.mdl"));
-//		fileDialog.openFile(new File("C:\\Users\\twilac\\Downloads\\MasterChief\\peasant_temp.mdx"));
-//		fileDialog.openFile(new File("C:\\Users\\twilac\\Desktop\\WC3\\Bone_test3.mdl"));
 
 		if (dataPromptForced || SaveProfile.get().getDataSources() == null) {
 			DataSourceChooserPanel.showDataSourceChooser(SaveProfile.get().getDataSources());

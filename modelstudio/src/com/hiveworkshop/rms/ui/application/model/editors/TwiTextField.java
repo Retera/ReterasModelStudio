@@ -8,8 +8,8 @@ import java.awt.event.KeyEvent;
 import java.util.function.Consumer;
 
 public class TwiTextField extends JTextField {
-	Consumer<String> textConsumer;
-	String text = "";
+	private Consumer<String> textConsumer;
+	private String text = "";
 
 	public TwiTextField(int columns, Consumer<String> textChangedAction) {
 		this("", columns, textChangedAction);
@@ -28,6 +28,10 @@ public class TwiTextField extends JTextField {
 		this.text = text;
 	}
 
+	public TwiTextField setTextConsumer(Consumer<String> textConsumer) {
+		this.textConsumer = textConsumer;
+		return this;
+	}
 
 	private FocusAdapter getFocusAdapter() {
 		return new FocusAdapter() {

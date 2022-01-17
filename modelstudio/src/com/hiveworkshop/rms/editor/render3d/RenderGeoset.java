@@ -107,7 +107,7 @@ public class RenderGeoset {
 
 	private void checkHD() {
 		isHD = ModelUtils.isTangentAndSkinSupported(geoset.getParentModel())
-				&& (geoset.getVertex(0).getSkinBoneBones() != null);
+				&& (geoset.getVertex(0).getSkinBones() != null);
 	}
 
 	public static class RenderVert {
@@ -170,15 +170,16 @@ public class RenderGeoset {
 		matrixSumHeap.setZero();
 
 		for (int boneIndex = 0; boneIndex < 4; boneIndex++) {
-			Bone bone = skinBones[boneIndex].getBone();
-			if (bone == null) {
+			SkinBone skinBone = skinBones[boneIndex];
+			if (skinBone == null || skinBone.getBone() == null) {
 				continue;
 			}
+			Bone bone = skinBone.getBone();
 			foundValidBones = true;
 			Mat4 worldMatrix = renderModel.getRenderNode(bone).getWorldMatrix();
 
 //			skinBonesMatrixSumHeap.addScaled(worldMatrix,skinBones[boneIndex].getWeightFraction());
-			matrixSumHeap.addScaled(worldMatrix,skinBones[boneIndex].getWeightFraction());
+			matrixSumHeap.addScaled(worldMatrix, skinBone.getWeightFraction());
 		}
 		if (!foundValidBones) {
 //			skinBonesMatrixSumHeap.setIdentity();
