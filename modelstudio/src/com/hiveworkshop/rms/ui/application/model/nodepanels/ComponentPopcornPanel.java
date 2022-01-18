@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -27,8 +28,7 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 	public ComponentPopcornPanel(ModelHandler modelHandler) {
 		super(modelHandler);
 
-		popcornPathField = new ComponentEditorTextField(24);
-		popcornPathField.addEditingStoppedListener(this::texturePathField);
+		popcornPathField = new ComponentEditorTextField(24, this::texturePathField);
 		topPanel.add(popcornPathField, "wrap");
 
 		visGuidPanel = new JPanel(new MigLayout("gap 0", "[]8[]"));
@@ -49,8 +49,8 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		return panel;
 	}
 
-	private void texturePathField() {
-		idObject.setPath(popcornPathField.getText());
+	private void texturePathField(String newPath) {
+		idObject.setPath(newPath);
 	}
 
 	@Override
@@ -59,12 +59,12 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		idObject.updateAnimsVisMap(modelHandler.getModel().getAnims());
 		updateAnimVisGuidPanel();
 
-		lifeSpanPanel.reloadNewValue(idObject.getLifeSpan(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LIFE_SPAN), idObject, MdlUtils.TOKEN_LIFE_SPAN, idObject::setLifeSpan);
-		emissionRatePanel.reloadNewValue(idObject.getEmissionRate(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, idObject::setEmissionRate);
-		speedPanel.reloadNewValue(idObject.getInitVelocity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_SPEED), idObject, MdlUtils.TOKEN_SPEED, idObject::setInitVelocity);
-		alphaPanel.reloadNewValue(idObject.getAlpha(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_ALPHA), idObject, MdlUtils.TOKEN_ALPHA, idObject::setAlpha);
+		lifeSpanPanel.reloadNewValue(idObject.getLifeSpan(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LIFE_SPAN), idObject, MdlUtils.TOKEN_LIFE_SPAN, this::setLifeSpan);
+		emissionRatePanel.reloadNewValue(idObject.getEmissionRate(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, this::setEmissionRate);
+		speedPanel.reloadNewValue(idObject.getInitVelocity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_SPEED), idObject, MdlUtils.TOKEN_SPEED, this::setInitVelocity);
+		alphaPanel.reloadNewValue(idObject.getAlpha(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_ALPHA), idObject, MdlUtils.TOKEN_ALPHA, this::setAlpha);
 		visPanel.reloadNewValue(1f, (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_VISIBILITY), idObject, MdlUtils.TOKEN_VISIBILITY, null);
-		colorPanel.reloadNewValue(idObject.getColor(), (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_COLOR), idObject, MdlUtils.TOKEN_COLOR, idObject::setColor);
+		colorPanel.reloadNewValue(idObject.getColor(), (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_COLOR), idObject, MdlUtils.TOKEN_COLOR, this::setColor);
 	}
 
 	private JPanel updateAnimVisGuidPanel() {
@@ -90,5 +90,36 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		}
 		popupMenu.show(parent, parent.getWidth(), 0);
 		return ParticleEmitterPopcorn.State.none;
+	}
+
+	private void setLifeSpan(float value){
+		if(idObject.getLifeSpan() != value){
+//			undoManager.pushAction(new UndoAction().redo);
+			idObject.setLifeSpan(value);
+		}
+	}
+	private void setEmissionRate(float value){
+		if(idObject.getEmissionRate() != value){
+//			undoManager.pushAction(new UndoAction().redo);
+			idObject.setEmissionRate(value);
+		}
+	}
+	private void setInitVelocity(float value){
+		if(idObject.getInitVelocity() != value){
+//			undoManager.pushAction(new UndoAction().redo);
+			idObject.setInitVelocity(value);
+		}
+	}
+	private void setAlpha(float value){
+		if(idObject.getAlpha() != value){
+//			undoManager.pushAction(new UndoAction().redo);
+			idObject.setAlpha(value);
+		}
+	}
+	private void setColor(Vec3 color){
+		if(!idObject.getColor().equalLocs(color)){
+//			undoManager.pushAction(new UndoAction().redo);
+			idObject.setColor(color);
+		}
 	}
 }

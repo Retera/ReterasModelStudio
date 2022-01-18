@@ -27,17 +27,16 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class ComponentSDLayer extends ComponentPanel<Layer> {
-	TextureValuePanel texturePanel;
-	FloatValuePanel alphaPanel;
-	JPanel texturePreviewPanel;
-	JPanel layerFlagsPanel;
-	JComboBox<FilterMode> filterModeDropdown;
-	JButton tVertexAnimButton;
-	IntEditorJSpinner coordIdSpinner;
-	JButton move_up;
-	JButton move_down;
-
-	Material material;
+	private TextureValuePanel texturePanel;
+	private FloatValuePanel alphaPanel;
+	private final JPanel texturePreviewPanel;
+	private final JPanel layerFlagsPanel;
+	private JComboBox<FilterMode> filterModeDropdown;
+	private JButton tVertexAnimButton;
+	private IntEditorJSpinner coordIdSpinner;
+	private JButton move_up;
+	private JButton move_down;
+	private Material material;
 
 	public ComponentSDLayer(ModelHandler modelHandler, int nr) {
 		super(modelHandler);
@@ -59,11 +58,10 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 	}
 
 	@Override
-	public void setSelectedItem(Layer itemToSelect) {
+	public ComponentPanel<Layer> setSelectedItem(Layer itemToSelect) {
 		selectedItem = itemToSelect;
-		texturePanel.reloadNewValue(itemToSelect.getTextureId(), (IntAnimFlag) itemToSelect.find(MdlUtils.TOKEN_TEXTURE_ID), itemToSelect, MdlUtils.TOKEN_TEXTURE_ID, itemToSelect::setTextureId);
-//		texturePanel.reloadNewValue(itemToSelect.getTextureId(), (IntAnimFlag) itemToSelect.find(MdlUtils.TOKEN_TEXTURE_ID), itemToSelect, MdlUtils.TOKEN_TEXTURE_ID, i -> itemToSelect.setTexture(itemToSelect.getTextureFromId(i)));
-		alphaPanel.reloadNewValue((float) itemToSelect.getStaticAlpha(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_ALPHA), itemToSelect, MdlUtils.TOKEN_ALPHA, itemToSelect::setStaticAlpha);
+		texturePanel.reloadNewValue(itemToSelect.getTextureId(), (IntAnimFlag) itemToSelect.find(MdlUtils.TOKEN_TEXTURE_ID), itemToSelect, MdlUtils.TOKEN_TEXTURE_ID, this::setTextureId);
+		alphaPanel.reloadNewValue((float) itemToSelect.getStaticAlpha(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_ALPHA), itemToSelect, MdlUtils.TOKEN_ALPHA, this::setStaticAlpha);
 
 		layerFlagsPanel.removeAll();
 		layerFlagsPanel.add(new LayerFlagsPanel(modelHandler, itemToSelect), "");
@@ -76,6 +74,7 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 
 		updateTexturePanel(itemToSelect.getTextureBitmap());
 		updateMoveButtons();
+		return this;
 	}
 
 	private String getTexAnimName() {
@@ -187,6 +186,20 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 			selectedItem.setCoordId(value);
 		}
 //		coordIdSpinner.reloadNewValue(coordIdSpinner.getIntValue());
+	}
+
+	private void setTextureId(int value){
+		if(selectedItem.getTextureId() != value) {
+//			undoManager.pushAction(new SetLayerFilterModeAction().redo());
+			selectedItem.setTextureId(value);
+		}
+	}
+
+	private void setStaticAlpha(double value){
+		if(selectedItem.getStaticAlpha() != value) {
+//			undoManager.pushAction(new SetLayerFilterModeAction().redo());
+			selectedItem.setStaticAlpha(value);
+		}
 	}
 
 	private void removeLayer() {

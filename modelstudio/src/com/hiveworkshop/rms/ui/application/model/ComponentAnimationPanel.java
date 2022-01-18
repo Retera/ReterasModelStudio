@@ -24,8 +24,7 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 		setLayout(new MigLayout());
 
 		add(new JLabel("Name: "), "");
-		nameField = new ComponentEditorTextField(24);
-		nameField.addEditingStoppedListener(() -> nameField(nameField.getText()));
+		nameField = new ComponentEditorTextField(24, this::nameField);
 		add(nameField, "wrap");
 
 		add(new JLabel("Start: "), "");
@@ -54,27 +53,39 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 	}
 
 	private void nonLoopingChooser(boolean b) {
-		undoManager.pushAction(new SetAnimationNonLoopingAction(b, animation, changeListener).redo());
+		if(animation.isNonLooping() != b){
+			undoManager.pushAction(new SetAnimationNonLoopingAction(b, animation, changeListener).redo());
+		}
 	}
 
 	private void moveSpeedChooser(float value) {
-		undoManager.pushAction(new SetAnimationMoveSpeedAction(value, animation, changeListener).redo());
+		if(animation.getMoveSpeed() != value){
+			undoManager.pushAction(new SetAnimationMoveSpeedAction(value, animation, changeListener).redo());
+		}
 	}
 
 	private void rarityChooser(float value) {
-		undoManager.pushAction(new SetAnimationRarityAction(value, animation, changeListener).redo());
+		if(animation.getRarity() != value){
+			undoManager.pushAction(new SetAnimationRarityAction(value, animation, changeListener).redo());
+		}
 	}
 
 	private void setAnimLength(int value) {
-		undoManager.pushAction(new SetSequenceLengthAction(animation, value, changeListener).redo());
+		if(animation.getLength() != value){
+			undoManager.pushAction(new SetSequenceLengthAction(animation, value, changeListener).redo());
+		}
 	}
 
 	private void nameField(String text) {
-		undoManager.pushAction(new SetAnimationNameAction(text, animation, changeListener).redo());
+		if(!animation.getName().equals(text)){
+			undoManager.pushAction(new SetAnimationNameAction(text, animation, changeListener).redo());
+		}
 	}
 
 	private void setAnimTimeStart(int value) {
-		undoManager.pushAction(new SetAnimationStartAction(animation, value, changeListener).redo());
+		if(animation.getStart() != value){
+			undoManager.pushAction(new SetAnimationStartAction(animation, value, changeListener).redo());
+		}
 	}
 
 	private void deleteAnim() {
@@ -82,13 +93,15 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 	}
 
 	@Override
-	public void setSelectedItem(Animation animation) {
+	public ComponentPanel<Animation> setSelectedItem(Animation animation) {
 		this.animation = animation;
+		selectedItem = animation;
 		nameField.reloadNewValue(animation.getName());
 		animTimeStart.reloadNewValue(animation.getStart());
 		animLength.reloadNewValue(animation.getLength());
 		nonLoopingChooser.setSelected(animation.isNonLooping());
 		rarityChooser.reloadNewValue(animation.getRarity());
 		moveSpeedChooser.reloadNewValue(animation.getMoveSpeed());
+		return this;
 	}
 }

@@ -60,7 +60,7 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 	}
 
 	@Override
-	public void setSelectedItem(Camera itemToSelect) {
+	public ComponentPanel<Camera> setSelectedItem(Camera itemToSelect) {
 		camera = itemToSelect;
 		nameField.setText(camera.getName());
 
@@ -74,6 +74,7 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 		revalidate();
 		repaint();
 
+		return this;
 	}
 
 	private void changeName1(String newName) {

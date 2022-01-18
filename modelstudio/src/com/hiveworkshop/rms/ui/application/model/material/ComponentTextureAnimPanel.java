@@ -18,9 +18,9 @@ import javax.swing.*;
 public class ComponentTextureAnimPanel extends ComponentPanel<TextureAnim> {
 
 	private final JPanel topPanel;
-	protected Vec3ValuePanel transPanel;
-	protected Vec3ValuePanel scalePanel;
-	protected QuatValuePanel rotPanel;
+	private Vec3ValuePanel transPanel;
+	private Vec3ValuePanel scalePanel;
+	private QuatValuePanel rotPanel;
 
 	public ComponentTextureAnimPanel(ModelHandler modelHandler) {
 		super(modelHandler);
@@ -35,7 +35,7 @@ public class ComponentTextureAnimPanel extends ComponentPanel<TextureAnim> {
 	}
 
 	@Override
-	public void setSelectedItem(TextureAnim itemToSelect) {
+	public ComponentPanel<TextureAnim> setSelectedItem(TextureAnim itemToSelect) {
 		selectedItem = itemToSelect;
 
 		topPanel.removeAll();
@@ -57,5 +57,6 @@ public class ComponentTextureAnimPanel extends ComponentPanel<TextureAnim> {
 		}
 		revalidate();
 		repaint();
+		return this;
 	}
 }

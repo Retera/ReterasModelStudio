@@ -23,7 +23,7 @@ public abstract class ComponentPanel<T> extends JPanel {
 		this.changeListener = ModelStructureChangeListener.changeListener;
 	}
 
-	public abstract void setSelectedItem(T itemToSelect);
+	public abstract ComponentPanel<T> setSelectedItem(T itemToSelect);
 
 	protected JButton getDeleteButton(ActionListener actionListener) {
 		JButton deleteButton = new JButton("Delete");

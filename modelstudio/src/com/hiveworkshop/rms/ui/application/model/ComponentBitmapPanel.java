@@ -31,17 +31,16 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 
 	public ComponentBitmapPanel(ModelHandler modelHandler) {
 		super(modelHandler);
-		texturePathField = new ComponentEditorTextField(24);
-		texturePathField.addEditingStoppedListener(this::texturePathField);
+		texturePathField = new ComponentEditorTextField(24, this::texturePathField);
 		fileDialog = new FileDialog(this);
 
 		replaceableIdSpinner = new IntEditorJSpinner(-1, -1, this::replaceableIdSpinner);
 
 		wrapWidthBox = new JCheckBox("Wrap Width");
-		wrapWidthBox.addActionListener(e -> wrapWidthBox());
+		wrapWidthBox.addActionListener(e -> wrapWidthBox(wrapWidthBox.isSelected()));
 
 		wrapHeightBox = new JCheckBox("Wrap Height");
-		wrapHeightBox.addActionListener(e -> wrapHeightBox());
+		wrapHeightBox.addActionListener(e -> wrapHeightBox(wrapHeightBox.isSelected()));
 
 		previewPanel = new JPanel();
 		previewPanel.setBorder(new TitledBorder(null, "Previewer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -69,24 +68,32 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		fileDialog.exportTexture(texture, suggestedName);
 	}
 
-	private void wrapHeightBox() {
-		undoManager.pushAction(new SetBitmapWrapHeightAction(bitmap, wrapHeightBox.isSelected(), changeListener).redo());
+	private void wrapHeightBox(boolean b) {
+		if(bitmap.isWrapHeight() != b){
+			undoManager.pushAction(new SetBitmapWrapHeightAction(bitmap, b, changeListener).redo());
+		}
 	}
 
-	private void wrapWidthBox() {
-		undoManager.pushAction(new SetBitmapWrapWidthAction(bitmap, wrapWidthBox.isSelected(), changeListener).redo());
+	private void wrapWidthBox(boolean b) {
+		if(bitmap.isWrapWidth() != b){
+			undoManager.pushAction(new SetBitmapWrapWidthAction(bitmap, b, changeListener).redo());
+		}
 	}
 
 	private void replaceableIdSpinner(int newValue) {
-		undoManager.pushAction(new SetBitmapReplaceableIdAction(bitmap, newValue, changeListener).redo());
+		if(bitmap.getReplaceableId() != newValue){
+			undoManager.pushAction(new SetBitmapReplaceableIdAction(bitmap, newValue, changeListener).redo());
+		}
 	}
 
-	private void texturePathField() {
-		undoManager.pushAction(new SetBitmapPathAction(bitmap, texturePathField.getText(), changeListener).redo());
+	private void texturePathField(String newPath) {
+		if(!bitmap.getPath().equals(newPath)){
+			undoManager.pushAction(new SetBitmapPathAction(bitmap, newPath, changeListener).redo());
+		}
 	}
 
 	@Override
-	public void setSelectedItem(Bitmap bitmap) {
+	public ComponentPanel<Bitmap> setSelectedItem(Bitmap bitmap) {
 		this.bitmap = bitmap;
 		texturePathField.reloadNewValue(bitmap.getPath());
 		replaceableIdSpinner.reloadNewValue(bitmap.getReplaceableId());
@@ -94,6 +101,7 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		wrapHeightBox.setSelected(bitmap.isWrapHeight());
 
 		loadBitmapPreview(bitmap);
+		return this;
 	}
 
 	private void loadBitmapPreview(Bitmap defaultTexture) {

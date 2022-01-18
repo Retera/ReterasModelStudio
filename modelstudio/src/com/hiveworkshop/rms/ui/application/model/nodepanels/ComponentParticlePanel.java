@@ -20,8 +20,7 @@ public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitt
 	public ComponentParticlePanel(ModelHandler modelHandler) {
 		super(modelHandler);
 
-		pathField = new ComponentEditorTextField(24);
-		pathField.addEditingStoppedListener(this::texturePathField);
+		pathField = new ComponentEditorTextField(24, this::texturePathField);
 		topPanel.add(pathField, "wrap");
 
 		longitudePanel = new FloatValuePanel(modelHandler, "Longitude");
@@ -41,15 +40,46 @@ public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitt
 	@Override
 	public void updatePanels() {
 		pathField.reloadNewValue(idObject.getPath());
-		longitudePanel.reloadNewValue((float) idObject.getLongitude(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LONGITUDE), idObject, MdlUtils.TOKEN_LONGITUDE, idObject::setLongitude);
-		latitudePanel.reloadNewValue((float) idObject.getLatitude(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LATITUDE), idObject, MdlUtils.TOKEN_LATITUDE, idObject::setLatitude);
-		speedPanel.reloadNewValue((float) idObject.getInitVelocity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_SPEED), idObject, MdlUtils.TOKEN_SPEED, idObject::setInitVelocity);
-		gravityPanel.reloadNewValue((float) idObject.getGravity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_GRAVITY), idObject, MdlUtils.TOKEN_GRAVITY, idObject::setGravity);
-		emissionPanel.reloadNewValue((float) idObject.getEmissionRate(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, idObject::setEmissionRate);
+		longitudePanel.reloadNewValue((float) idObject.getLongitude(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LONGITUDE), idObject, MdlUtils.TOKEN_LONGITUDE, this::setLongitude);
+		latitudePanel.reloadNewValue((float) idObject.getLatitude(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_LATITUDE), idObject, MdlUtils.TOKEN_LATITUDE, this::setLatitude);
+		speedPanel.reloadNewValue((float) idObject.getInitVelocity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_SPEED), idObject, MdlUtils.TOKEN_SPEED, this::setInitVelocity);
+		gravityPanel.reloadNewValue((float) idObject.getGravity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_GRAVITY), idObject, MdlUtils.TOKEN_GRAVITY, this::setGravity);
+		emissionPanel.reloadNewValue((float) idObject.getEmissionRate(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, this::setEmissionRate);
 		visibilityPanel.reloadNewValue(1f, (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, null);
 	}
 
-	private void texturePathField() {
-		idObject.setPath(pathField.getText());
+	private void texturePathField(String newPath) {
+		idObject.setPath(newPath);
+	}
+
+	private void setLongitude(float value){
+		if(idObject.getLongitude() != value) {
+//			undoManager.pushAction(new xx().redo);
+			idObject.setLongitude(value);
+		}
+	}
+	private void setLatitude(float value){
+		if(idObject.getLatitude() != value) {
+//			undoManager.pushAction(new xx().redo);
+			idObject.setLatitude(value);
+		}
+	}
+	private void setInitVelocity(float value){
+		if(idObject.getInitVelocity() != value) {
+//			undoManager.pushAction(new xx().redo);
+			idObject.setInitVelocity(value);
+		}
+	}
+	private void setGravity(float value){
+		if(idObject.getGravity() != value) {
+//			undoManager.pushAction(new xx().redo);
+			idObject.setGravity(value);
+		}
+	}
+	private void setEmissionRate(float value){
+		if(idObject.getEmissionRate() != value) {
+//			undoManager.pushAction(new xx().redo);
+			idObject.setEmissionRate(value);
+		}
 	}
 }

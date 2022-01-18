@@ -9,10 +9,9 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 public class ComponentFaceEffectPanel extends ComponentPanel<FaceEffect> {
-	FaceEffect faceEffect;
-
-	JTextField targetField;
-	JTextField effectField;
+	private FaceEffect faceEffect;
+	private final JTextField targetField;
+	private final JTextField effectField;
 
 
 	public ComponentFaceEffectPanel(ModelHandler modelHandler) {
@@ -32,13 +31,14 @@ public class ComponentFaceEffectPanel extends ComponentPanel<FaceEffect> {
 	}
 
 	@Override
-	public void setSelectedItem(FaceEffect itemToSelect) {
+	public ComponentPanel<FaceEffect> setSelectedItem(FaceEffect itemToSelect) {
 		faceEffect = itemToSelect;
 		targetField.setText(faceEffect.getFaceEffectTarget());
 		effectField.setText(faceEffect.getFaceEffect());
 
 		revalidate();
 		repaint();
+		return this;
 	}
 
 	private FocusAdapter setEffectTarget() {

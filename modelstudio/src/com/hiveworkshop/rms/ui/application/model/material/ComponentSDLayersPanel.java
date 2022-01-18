@@ -1,10 +1,9 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
 import com.hiveworkshop.rms.editor.actions.model.material.AddLayerAction;
-import com.hiveworkshop.rms.editor.actions.model.material.RemoveMaterialAction;
-import com.hiveworkshop.rms.editor.actions.model.material.SetMaterialPriorityPlaneAction;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -14,25 +13,29 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.TreeMap;
 
-public class ComponentSDLayersPanel extends ComponentPanel<Material> {
-	private static final Color HIGHLIGHT_BUTTON_BACKGROUND_COLOR = new Color(100, 118, 135);
-	private Material material;
+public class ComponentSDLayersPanel extends ComponentLayersPanel {
 	private final TreeMap<Integer, ComponentSDLayer> sdLayerPanelTreeMap = new TreeMap<>();
-
-	private IntEditorJSpinner priorityPlaneSpinner;
-
 	private JPanel layerPanelsHolder;
 
 	public ComponentSDLayersPanel(ModelHandler modelHandler) {
 		super(modelHandler);
 		setLayout(new MigLayout("fill, hidemode 2", "[][][grow]", "[][][grow]"));
+//		setLayout(new MigLayout("fill, hidemode 2", "[grow]", "[grow]"));
 
 		add(getTopPanel(), "growx, spanx");
-		add(getLayersHolderPanel(), "growx, growy, span 3");
+//		add(getLayersHolderPanel(), "growx, growy, span 3");
+		add(getLayersHolderPanel(), "growx, growy");
 	}
 
-	private JPanel getTopPanel() {
+	protected JPanel getTopPanel() {
 		JPanel topPanel = new JPanel(new MigLayout("fill, ins 0, hidemode 2", "[][][grow]", "[][][grow]"));
+
+		shaderOptionComboBox = getShaderComboBox();
+		if(ModelUtils.isShaderStringSupported(model.getFormatVersion())){
+			JLabel shaderLabel = new JLabel("Shader:");
+			topPanel.add(shaderLabel);
+			topPanel.add(shaderOptionComboBox, "growx, wrap");
+		}
 
 		topPanel.add(new JLabel("Priority Plane:"));
 		priorityPlaneSpinner = new IntEditorJSpinner(-1, -1, this::changePriorityPlane);
@@ -41,7 +44,7 @@ public class ComponentSDLayersPanel extends ComponentPanel<Material> {
 		return topPanel;
 	}
 
-	private JPanel getLayersHolderPanel() {
+	protected JPanel getLayersHolderPanel() {
 		JPanel layersPanel = new JPanel(new MigLayout("fill", "[][][grow]"));
 
 		layerPanelsHolder = new JPanel(new MigLayout("fill", "[grow]"));
@@ -53,10 +56,11 @@ public class ComponentSDLayersPanel extends ComponentPanel<Material> {
 	}
 
 	@Override
-	public void setSelectedItem(Material itemToSelect) {
+	public ComponentPanel<Material> setSelectedItem(Material itemToSelect) {
 		this.material = itemToSelect;
 		selectedItem = itemToSelect;
 
+		shaderOptionComboBox.setSelectedItem(material.getShaderString());
 		priorityPlaneSpinner.reloadNewValue(itemToSelect.getPriorityPlane());
 
 		layerPanelsHolder.removeAll();
@@ -66,12 +70,7 @@ public class ComponentSDLayersPanel extends ComponentPanel<Material> {
 			componentSDLayer.setMaterial(material).setSelectedItem(material.getLayer(i));
 			layerPanelsHolder.add(componentSDLayer, "growx, wrap");
 		}
-	}
-
-
-	private void changePriorityPlane(int newValue) {
-//		System.out.println("changePriorityPlane");
-		undoManager.pushAction(new SetMaterialPriorityPlaneAction(material, newValue, changeListener).redo());
+		return this;
 	}
 
 	private JButton getAddLayerButton() {
@@ -84,11 +83,5 @@ public class ComponentSDLayersPanel extends ComponentPanel<Material> {
 
 	private void addLayer() {
 		undoManager.pushAction(new AddLayerAction(new Layer(0), material, changeListener).redo());
-	}
-
-	private void deleteMaterial() {
-		if (!model.getMaterials().isEmpty()) {
-			undoManager.pushAction(new RemoveMaterialAction(material, model, changeListener).redo());
-		}
 	}
 }

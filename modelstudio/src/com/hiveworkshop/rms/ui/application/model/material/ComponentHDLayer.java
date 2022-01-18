@@ -20,6 +20,7 @@ import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.TextureValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
+import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -29,20 +30,18 @@ import java.awt.event.ItemEvent;
 import java.awt.image.BufferedImage;
 
 public class ComponentHDLayer extends ComponentPanel<Layer> {
-	String valuePanelConstraints = "wrap, growx, hidemode 2";
-
-	TextureValuePanel texturePanel;
-	FloatValuePanel alphaPanel;
-	FloatValuePanel emissiveGainPanel;
-	ColorValuePanel fresnelColorPanel;
-	FloatValuePanel fresnelOpacityPanel;
-	FloatValuePanel fresnelTeamColor;
-	JPanel texturePreviewPanel;
-	JPanel layerFlagsPanel;
-
-	JComboBox<FilterMode> filterModeDropdown;
-	JButton tVertexAnimButton;
-	IntEditorJSpinner coordIdSpinner;
+	private String valuePanelConstraints = "wrap, growx, hidemode 2";
+	private TextureValuePanel texturePanel;
+	private FloatValuePanel alphaPanel;
+	private FloatValuePanel emissiveGainPanel;
+	private ColorValuePanel fresnelColorPanel;
+	private FloatValuePanel fresnelOpacityPanel;
+	private FloatValuePanel fresnelTeamColor;
+	private final JPanel texturePreviewPanel;
+	private final JPanel layerFlagsPanel;
+	private JComboBox<FilterMode> filterModeDropdown;
+	private JButton tVertexAnimButton;
+	private IntEditorJSpinner coordIdSpinner;
 
 
 	public ComponentHDLayer(ModelHandler modelHandler, HD_Material_Layer ld) {
@@ -59,15 +58,15 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 	}
 
 	@Override
-	public void setSelectedItem(Layer itemToSelect) {
+	public ComponentPanel<Layer> setSelectedItem(Layer itemToSelect) {
 		selectedItem = itemToSelect;
 //		System.out.println("Reloading panel values");
-		texturePanel.reloadNewValue(itemToSelect.getTextureId(), (IntAnimFlag) itemToSelect.find(MdlUtils.TOKEN_TEXTURE_ID), itemToSelect, MdlUtils.TOKEN_TEXTURE_ID, itemToSelect::setTextureId);
-		alphaPanel.reloadNewValue((float) itemToSelect.getStaticAlpha(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_ALPHA), itemToSelect, MdlUtils.TOKEN_ALPHA, itemToSelect::setStaticAlpha);
-		fresnelTeamColor.reloadNewValue((float) itemToSelect.getFresnelTeamColor(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_FRESNEL_TEAM_COLOR), itemToSelect, MdlUtils.TOKEN_FRESNEL_TEAM_COLOR, itemToSelect::setFresnelTeamColor);
-		fresnelOpacityPanel.reloadNewValue((float) itemToSelect.getFresnelOpacity(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_FRESNEL_OPACITY), itemToSelect, MdlUtils.TOKEN_FRESNEL_OPACITY, itemToSelect::setFresnelOpacity);
-		fresnelColorPanel.reloadNewValue(itemToSelect.getFresnelColor(), (Vec3AnimFlag) itemToSelect.find(MdlUtils.TOKEN_FRESNEL_COLOR), itemToSelect, MdlUtils.TOKEN_FRESNEL_COLOR, itemToSelect::setFresnelColor);
-		emissiveGainPanel.reloadNewValue((float) itemToSelect.getEmissive(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_EMISSIVE_GAIN), itemToSelect, MdlUtils.TOKEN_EMISSIVE_GAIN, itemToSelect::setEmissive);
+		texturePanel.reloadNewValue(itemToSelect.getTextureId(), (IntAnimFlag) itemToSelect.find(MdlUtils.TOKEN_TEXTURE_ID), itemToSelect, MdlUtils.TOKEN_TEXTURE_ID, this::setTextureId);
+		alphaPanel.reloadNewValue((float) itemToSelect.getStaticAlpha(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_ALPHA), itemToSelect, MdlUtils.TOKEN_ALPHA, this::setStaticAlpha);
+		fresnelTeamColor.reloadNewValue((float) itemToSelect.getFresnelTeamColor(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_FRESNEL_TEAM_COLOR), itemToSelect, MdlUtils.TOKEN_FRESNEL_TEAM_COLOR, this::setFresnelTeamColor);
+		fresnelOpacityPanel.reloadNewValue((float) itemToSelect.getFresnelOpacity(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_FRESNEL_OPACITY), itemToSelect, MdlUtils.TOKEN_FRESNEL_OPACITY, this::setFresnelOpacity);
+		fresnelColorPanel.reloadNewValue(itemToSelect.getFresnelColor(), (Vec3AnimFlag) itemToSelect.find(MdlUtils.TOKEN_FRESNEL_COLOR), itemToSelect, MdlUtils.TOKEN_FRESNEL_COLOR, this::setFresnelColor);
+		emissiveGainPanel.reloadNewValue((float) itemToSelect.getEmissive(), (FloatAnimFlag) itemToSelect.find(MdlUtils.TOKEN_EMISSIVE_GAIN), itemToSelect, MdlUtils.TOKEN_EMISSIVE_GAIN, this::setEmissive);
 
 //		System.out.println("setting panel visibility (is1000)");
 		boolean is1000 = ModelUtils.isFresnelColorLayerSupported(modelHandler.getModel().getFormatVersion());
@@ -88,6 +87,7 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 
 //		System.out.println("updating TexturePanel");
 		updateTexturePanel(itemToSelect.getTextureBitmap());
+		return this;
 	}
 
 	private void updateTexturePanel(Bitmap defaultTexture) {
@@ -186,6 +186,48 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 		if (selectedItem != null) {
 //			System.out.println("setCoordId");
 			selectedItem.setCoordId(value);
+		}
+	}
+
+	private void setTextureId(int value){
+		if(selectedItem.getTextureId() != value) {
+//			undoManager.pushAction(new SetLayerFilterModeAction().redo());
+			selectedItem.setTextureId(value);
+		}
+	}
+
+	private void setStaticAlpha(double value){
+		if(selectedItem.getStaticAlpha() != value) {
+//			undoManager.pushAction(new SetLayerFilterModeAction().redo());
+			selectedItem.setStaticAlpha(value);
+		}
+	}
+
+	private void setFresnelTeamColor(double value){
+		if(selectedItem.getFresnelTeamColor() != value) {
+//			undoManager.pushAction(new SetLayerFilterModeAction().redo());
+			selectedItem.setFresnelTeamColor(value);
+		}
+	}
+
+	private void setFresnelOpacity(double value){
+		if(selectedItem.getFresnelOpacity() != value) {
+//			undoManager.pushAction(new SetLayerFilterModeAction().redo());
+			selectedItem.setFresnelOpacity(value);
+		}
+	}
+
+	private void setFresnelColor(Vec3 color){
+		if(!selectedItem.getFresnelColor().equalLocs(color)) {
+//			undoManager.pushAction(new SetLayerFilterModeAction().redo());
+			selectedItem.setFresnelColor(color);
+		}
+	}
+
+	private void setEmissive(double value){
+		if(selectedItem.getEmissive() != value) {
+//			undoManager.pushAction(new SetLayerFilterModeAction().redo());
+			selectedItem.setEmissive(value);
 		}
 	}
 }

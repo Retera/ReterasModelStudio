@@ -154,7 +154,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 
 	@Override
-	public void setSelectedItem(final Geoset geoset) {
+	public ComponentPanel<Geoset> setSelectedItem(final Geoset geoset) {
 		this.geoset = geoset;
 		geosetLabel.setText(geoset.getName());
 
@@ -181,6 +181,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 
 		revalidate();
 		repaint();
+		return this;
 	}
 
 	private void setSelectionGroup(int newGroup) {

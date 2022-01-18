@@ -18,18 +18,20 @@ public final class UnsavedChangesDocumentListener implements DocumentListener {
 
 	@Override
 	public void insertUpdate(final DocumentEvent e) {
-		component.setForeground(UNSAVED_FOREGROUND_COLOR);
-		component.setBackground(UNSAVED_BACKGROUND_COLOR);
+		setColors();
 	}
 
 	@Override
 	public void removeUpdate(final DocumentEvent e) {
-		component.setForeground(UNSAVED_FOREGROUND_COLOR);
-		component.setBackground(UNSAVED_BACKGROUND_COLOR);
+		setColors();
 	}
 
 	@Override
 	public void changedUpdate(final DocumentEvent e) {
+		setColors();
+	}
+
+	private void setColors() {
 		component.setForeground(UNSAVED_FOREGROUND_COLOR);
 		component.setBackground(UNSAVED_BACKGROUND_COLOR);
 	}

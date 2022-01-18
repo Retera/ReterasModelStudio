@@ -26,9 +26,8 @@ public class ComponentHeaderPanel extends ComponentPanel<EditableModel> {
 
 		setLayout(new MigLayout("fill", "[]", "[][][][][][][][grow]"));
 
-		modelNameField = new ComponentEditorTextField();
+		modelNameField = new ComponentEditorTextField(this::setModelName);
 		modelNameField.setMaximumSize(MAXIMUM_SIZE);
-		modelNameField.addActionListener(e -> setModelName(modelNameField.getText()));
 
 		formatVersionSpinner = new IntEditorJSpinner(800, Integer.MIN_VALUE, this::setFormatVersion);
 		formatVersionSpinner.setMaximumSize(MAXIMUM_SIZE);
@@ -50,27 +49,35 @@ public class ComponentHeaderPanel extends ComponentPanel<EditableModel> {
 	}
 
 	private void setExtLog(ExtLog extLog) {
-		System.out.println("edited: " + extLog);
-		undoManager.pushAction(new SetHeaderExtentsAction(extLog, model, changeListener).redo());
+		if (!model.getExtents().equals(extLog)) {
+			undoManager.pushAction(new SetHeaderExtentsAction(extLog, model, changeListener).redo());
+		}
 	}
 
 	private void setBlendTime(int newBlendTime) {
-		undoManager.pushAction(new SetBlendTimeAction(newBlendTime, model, changeListener).redo());
+		if (model.getBlendTime() != newBlendTime) {
+			undoManager.pushAction(new SetBlendTimeAction(newBlendTime, model, changeListener).redo());
+		}
 	}
 
 	private void setFormatVersion(int newVersion) {
-		undoManager.pushAction(new SetFormatVersionAction(newVersion, model, changeListener).redo());
+		if (model.getFormatVersion() != newVersion) {
+			undoManager.pushAction(new SetFormatVersionAction(newVersion, model, changeListener).redo());
+		}
 	}
 
 	private void setModelName(String newName) {
-		undoManager.pushAction(new SetNameAction(newName, model, changeListener).redo());
+		if (!model.getName().equals(newName)) {
+			undoManager.pushAction(new SetNameAction(newName, model, changeListener).redo());
+		}
 	}
 
 	@Override
-	public void setSelectedItem(EditableModel model) {
+	public ComponentPanel<EditableModel> setSelectedItem(EditableModel model) {
 		modelNameField.reloadNewValue(model.getHeaderName());
 		formatVersionSpinner.reloadNewValue(model.getFormatVersion());
 		blendTimeSpinner.reloadNewValue(model.getBlendTime());
 		extLogEditor.setExtLog(model.getExtents());
+		return this;
 	}
 }

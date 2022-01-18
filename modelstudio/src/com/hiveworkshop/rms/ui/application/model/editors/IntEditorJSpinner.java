@@ -3,14 +3,10 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 import com.jtattoo.plaf.BaseSpinnerUI;
 
 import javax.swing.*;
-import javax.swing.event.CaretListener;
 import javax.swing.text.DefaultFormatter;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.time.LocalTime;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Consumer;
@@ -29,9 +25,7 @@ public class IntEditorJSpinner extends JSpinner {
 	}
 
 	public IntEditorJSpinner(int value, int minValue, Consumer<Integer> intConsumer) {
-		super(new SpinnerNumberModel(value, minValue, Integer.MAX_VALUE, 1));
-		this.intConsumer = intConsumer;
-		init();
+		this(value, minValue, Integer.MAX_VALUE, intConsumer);
 	}
 
 	public IntEditorJSpinner(int value, int minValue, int maxValue, Consumer<Integer> intConsumer) {
@@ -47,7 +41,7 @@ public class IntEditorJSpinner extends JSpinner {
 		formatter.setCommitsOnValidEdit(true);
 
 
-		textField.addFocusListener(getFocusAdapter(textField));
+		textField.addFocusListener(new TwiFocusListener(textField, this::runEditingStoppedListener));
 		textField.addKeyListener(getSaveOnEnterKeyListener());
 		for(Component component : getComponents()){
 			if(component instanceof BaseSpinnerUI.SpinButton){
@@ -56,11 +50,10 @@ public class IntEditorJSpinner extends JSpinner {
 		}
 	}
 
-	private void setColors(Color unsavedFg, Color unsavedBg) {
-		((DefaultEditor) getEditor()).getTextField().setForeground(unsavedFg);
-		((DefaultEditor) getEditor()).getTextField().setBackground(unsavedBg);
+	private void setColors(Color fg, Color bg) {
+		((DefaultEditor) getEditor()).getTextField().setForeground(fg);
+		((DefaultEditor) getEditor()).getTextField().setBackground(bg);
 		saveAtTime = System.currentTimeMillis() + 300;
-
 	}
 
 	public void addSaveChangeTimer2() {
@@ -98,48 +91,6 @@ public class IntEditorJSpinner extends JSpinner {
 	public IntEditorJSpinner addIntEditingStoppedListener(Consumer<Integer> intConsumer) {
 		this.intConsumer = intConsumer;
 		return this;
-	}
-
-	private FocusAdapter getFocusAdapter(JFormattedTextField textField) {
-		return new FocusAdapter() {
-			public Timer timer;
-			LocalTime lastEditedTime = LocalTime.now();
-			final CaretListener caretListener = e -> lastEditedTime = LocalTime.now();
-			TimerTask timerTask;
-
-			public void addTimer() {
-				timerTask = new TimerTask() {
-					@Override
-					public void run() {
-						if (LocalTime.now().isAfter(lastEditedTime.plusSeconds(1))) {
-							runEditingStoppedListener();
-						}
-					}
-				};
-				timer = new Timer();
-				timer.schedule(timerTask, 500, 500);
-			}
-
-			public void removeTimer() {
-				timer.cancel();
-			}
-
-			@Override
-			public void focusGained(FocusEvent e) {
-				textField.addCaretListener(caretListener);
-				addTimer();
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				removeTimer();
-				for (CaretListener cl : textField.getCaretListeners()) {
-					textField.removeCaretListener(cl);
-				}
-				super.focusLost(e);
-				runEditingStoppedListener();
-			}
-		};
 	}
 
 	private KeyAdapter getSaveOnEnterKeyListener() {

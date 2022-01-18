@@ -2,13 +2,14 @@ package com.hiveworkshop.rms.util;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 public class TwiComboBoxModel<E> extends AbstractListModel<E> implements MutableComboBoxModel<E> {
-	List<E> objects;
-	Object selectedObject;
-	E selectedTypedObject;
+	private final List<E> objects;
+	private Object selectedObject;
+	private E selectedTypedObject;
 
 	/**
 	 * Constructs an empty TwiComboBox object.
@@ -81,7 +82,7 @@ public class TwiComboBoxModel<E> extends AbstractListModel<E> implements Mutable
 		return selectedObject;
 	}
 
-	public Object getSelectedTyped() {
+	public E getSelectedTyped() {
 		return selectedTypedObject;
 	}
 
@@ -204,5 +205,26 @@ public class TwiComboBoxModel<E> extends AbstractListModel<E> implements Mutable
 
 		objects.addAll(index, c);
 		fireIntervalAdded(this, index, index + c.size() - 1);
+	}
+
+	/**
+	 * Adds all of the elements present.
+	 *
+	 * @param c one or more elements to add
+	 * @throws NullPointerException if {@code c} is null
+	 */
+	public void addAll(E... c) {
+		if (c.length == 0) {
+			return;
+		}
+
+		int startIndex = getSize();
+
+		objects.addAll(Arrays.asList(c));
+//		for(E e : c){
+//			objects.add(e);
+//		}
+
+		fireIntervalAdded(this, startIndex, getSize() - 1);
 	}
 }

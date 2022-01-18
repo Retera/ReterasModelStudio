@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
+import com.hiveworkshop.rms.util.TwiComboBoxModel;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicComboBoxEditor;
@@ -10,18 +12,20 @@ import java.util.function.Consumer;
 
 public class ShaderBox<T> extends JComboBox<T> {
 	private ComponentEditorTextField comboBoxEditor;
-	private Consumer<T> consumer;
+	private final Consumer<T> consumer;
+	private final TwiComboBoxModel<T> comboBoxModel;
 
 	public ShaderBox(T[] options, Consumer<T> consumer) {
-		super(options);
+		comboBoxModel = new TwiComboBoxModel<>(options);
+		setModel(comboBoxModel);
 		this.consumer = consumer;
-		setRenderer(ShaderBoxRenderer());
-		setEditor(ShaderBoxEditor());
+		setRenderer(getShaderBoxRenderer());
+		setEditor(getShaderBoxEditor());
 		setEditable(true);
-		if (options != null && options.length > 0) {
+		if (options.length > 0) {
 			setSelectedItem(options[0]);
 		}
-		addItemListener(e -> optionChanged(e));
+		addItemListener(this::optionChanged);
 	}
 
 	@Override
@@ -34,28 +38,34 @@ public class ShaderBox<T> extends JComboBox<T> {
 
 	private void optionChanged(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.SELECTED && consumer != null) {
-			consumer.accept((T) getSelectedItem());
+
+//			consumer.accept((T) getSelectedItem());
+			consumer.accept(comboBoxModel.getSelectedTyped());
 		}
 	}
 
-	private BasicComboBoxRenderer ShaderBoxRenderer() {
+	private void paintEmpty(String text, Graphics g){
+		if (text == null || text.isEmpty()) {
+			g.setColor(Color.LIGHT_GRAY);
+			g.drawString("<empty>", 0, (getHeight() + g.getFontMetrics().getMaxAscent()) / 2);
+		}
+	}
+
+	private BasicComboBoxRenderer getShaderBoxRenderer() {
 		return new BasicComboBoxRenderer() {
 			@Override
 			protected void paintComponent(final Graphics g) {
 				super.paintComponent(g);
-				if ((getText() == null) || getText().isEmpty()) {
-					g.setColor(Color.LIGHT_GRAY);
-					g.drawString("<empty>", 0, (getHeight() + g.getFontMetrics().getMaxAscent()) / 2);
-				}
+				paintEmpty(getText(), g);
 			}
 		};
 	}
 
-	private BasicComboBoxEditor ShaderBoxEditor() {
+	private BasicComboBoxEditor getShaderBoxEditor() {
 		return new BasicComboBoxEditor() {
 			@Override
 			protected JTextField createEditorComponent() {
-				final ComponentEditorTextField editor = getEditor1();
+				final ComponentEditorTextField editor = getComponentEditor();
 				comboBoxEditor = editor;
 				editor.setBorder(null);
 				return editor;
@@ -65,15 +75,12 @@ public class ShaderBox<T> extends JComboBox<T> {
 		};
 	}
 
-	private ComponentEditorTextField getEditor1() {
+	private ComponentEditorTextField getComponentEditor() {
 		return new ComponentEditorTextField("", 9) {
 			@Override
 			protected void paintComponent(final Graphics g) {
 				super.paintComponent(g);
-				if ((getText() == null) || getText().isEmpty()) {
-					g.setColor(Color.LIGHT_GRAY);
-					g.drawString("<empty>", 0, (getHeight() + g.getFontMetrics().getMaxAscent()) / 2);
-				}
+				paintEmpty(getText(), g);
 			}
 
 			@Override

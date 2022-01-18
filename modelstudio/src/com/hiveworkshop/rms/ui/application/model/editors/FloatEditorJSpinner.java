@@ -3,14 +3,10 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 import com.jtattoo.plaf.BaseSpinnerUI;
 
 import javax.swing.*;
-import javax.swing.event.CaretListener;
 import javax.swing.text.DefaultFormatter;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.time.LocalTime;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Consumer;
@@ -47,7 +43,7 @@ public class FloatEditorJSpinner extends JSpinner {
 		formatter.setCommitsOnValidEdit(true);
 
 
-		textField.addFocusListener(getFocusAdapter(textField));
+		textField.addFocusListener(new TwiFocusListener(textField, this::runEditingStoppedListener));
 		textField.addKeyListener(getSaveOnEnterKeyListener());
 		for(Component component : getComponents()){
 			if(component instanceof BaseSpinnerUI.SpinButton){
@@ -94,51 +90,9 @@ public class FloatEditorJSpinner extends JSpinner {
 	 * Uses a FocusListener to execute the runnable on focus lost
 	 * or if no caret action was detected in the last 5 minutes
 	 */
-	public FloatEditorJSpinner addFloatEditingStoppedListener(Consumer<Float> floatConsumer) {
+	public FloatEditorJSpinner setFloatEditingStoppedListener(Consumer<Float> floatConsumer) {
 		this.floatConsumer = floatConsumer;
 		return this;
-	}
-
-	private FocusAdapter getFocusAdapter(JFormattedTextField textField) {
-		return new FocusAdapter() {
-			public Timer timer;
-			LocalTime lastEditedTime = LocalTime.now();
-			final CaretListener caretListener = e -> lastEditedTime = LocalTime.now();
-			TimerTask timerTask;
-
-			public void addTimer() {
-				timerTask = new TimerTask() {
-					@Override
-					public void run() {
-						if (LocalTime.now().isAfter(lastEditedTime.plusSeconds(1))) {
-							runEditingStoppedListener();
-						}
-					}
-				};
-				timer = new Timer();
-				timer.schedule(timerTask, 500, 500);
-			}
-
-			public void removeTimer() {
-				timer.cancel();
-			}
-
-			@Override
-			public void focusGained(FocusEvent e) {
-				textField.addCaretListener(caretListener);
-				addTimer();
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				removeTimer();
-				for (CaretListener cl : textField.getCaretListeners()) {
-					textField.removeCaretListener(cl);
-				}
-				super.focusLost(e);
-				runEditingStoppedListener();
-			}
-		};
 	}
 
 	private KeyAdapter getSaveOnEnterKeyListener() {

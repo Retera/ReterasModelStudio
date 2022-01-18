@@ -37,10 +37,11 @@ public class ComponentGlobalSequencePanel extends ComponentPanel<GlobalSeq> {
 	}
 
 	@Override
-	public void setSelectedItem(GlobalSeq itemToSelect) {
+	public ComponentPanel<GlobalSeq> setSelectedItem(GlobalSeq itemToSelect) {
 		this.globalSeq = itemToSelect;
 		indexLabel.setText(Integer.toString(modelHandler.getModel().getGlobalSeqId(itemToSelect)));
 		lengthSpinner.setValue(itemToSelect.getLength());
+		return this;
 	}
 
 	private void removeSequence() {

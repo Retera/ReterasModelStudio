@@ -50,7 +50,7 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 	}
 
 	@Override
-	public void setSelectedItem(final GeosetAnim geosetAnim) {
+	public ComponentPanel<GeosetAnim> setSelectedItem(final GeosetAnim geosetAnim) {
 		this.geosetAnim = geosetAnim;
 		geosetLabel.setText(geosetAnim.getGeoset().getName());
 		animsPanelHolder.revalidate();
@@ -60,6 +60,7 @@ public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
 
 		revalidate();
 		repaint();
+		return this;
 	}
 
 	private void copyFromOther() {

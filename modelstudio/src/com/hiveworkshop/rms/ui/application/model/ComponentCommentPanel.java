@@ -39,7 +39,7 @@ public class ComponentCommentPanel extends ComponentPanel<List<String>> {
 	}
 
 	@Override
-	public void setSelectedItem(final List<String> headerComment) {
+	public ComponentPanel<List<String>> setSelectedItem(final List<String> headerComment) {
 //		System.out.println(headerComment);
 
 		final StringBuilder sb = new StringBuilder();
@@ -50,6 +50,7 @@ public class ComponentCommentPanel extends ComponentPanel<List<String>> {
 		textPane.setText(sb.toString());
 		revalidate();
 		repaint();
+		return this;
 	}
 
 	public ArrayList<String> getCommentContents() {

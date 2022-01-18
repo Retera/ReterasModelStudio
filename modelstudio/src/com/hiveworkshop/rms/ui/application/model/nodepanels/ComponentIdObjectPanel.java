@@ -84,7 +84,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	}
 
 	@Override
-	public void setSelectedItem(T itemToSelect) {
+	public ComponentPanel<T> setSelectedItem(T itemToSelect) {
 		idObject = itemToSelect;
 		nameField.setText(idObject.getName());
 		pivotSpinner.setValues(idObject.getPivotPoint());
@@ -111,6 +111,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		revalidate();
 		repaint();
 
+		return this;
 	}
 
 	public void updatePanels() {
@@ -196,7 +197,9 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 
 	private void chooseParent() {
 		IdObject newParent = parentChooser.chooseParent(idObject, this.getRootPane());
-		undoManager.pushAction(new ParentChangeAction(idObject, newParent, changeListener).redo());
+		if(idObject.getParent() != newParent){
+			undoManager.pushAction(new ParentChangeAction(idObject, newParent, changeListener).redo());
+		}
 		repaint();
 	}
 
