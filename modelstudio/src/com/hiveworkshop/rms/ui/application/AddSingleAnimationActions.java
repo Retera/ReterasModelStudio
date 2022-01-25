@@ -8,9 +8,11 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.parsers.slk.GameObject;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ImportFromObjectEditor;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
-import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
+import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
+import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import net.miginfocom.swing.MigLayout;
@@ -64,21 +66,26 @@ public class AddSingleAnimationActions {
 	}
 
 	public static void addAnimationFromObject() {
-//		MutableGameObject fetchResult = ImportFileActions.fetchObject();
-//		if (fetchResult != null) {
-//			String path = fetchResult.getFieldAsString(UnitFields.MODEL_FILE, 0);
-//			fetchAndAddSingleAnimation(path);
-//		}
-		fetchAndAddSingleAnimation(ImportFileActions.fetchObjectModel());
+		fetchAndAddSingleAnimation(ImportFromObjectEditor.fetchObjectModel());
 	}
 
 	public static void addAnimFromModel() {
-//		fetchAndAddSingleAnimation(ModelOptionPane.fetchModelPath(ProgramGlobals.getMainPanel()));
-		fetchAndAddSingleAnimation(ModelOptionPane.fetchModel(ProgramGlobals.getMainPanel()));
+		EditableModel animationSource = null;
+
+		ModelOptionPanel uop = ModelOptionPanel.getModelOptionPanel(ProgramGlobals.getMainPanel());
+		if (uop != null) {
+			animationSource = uop.getSelectedModel();
+		}
+		fetchAndAddSingleAnimation(animationSource);
 	}
 
 	public static void addAnimationFromUnit() {
-		fetchAndAddSingleAnimation(UnitOptionPane.fetchUnitPath(ProgramGlobals.getMainPanel()));
+		String path = null;
+		GameObject choice = UnitOptionPanel.getGameObject(ProgramGlobals.getMainPanel());
+		if (choice != null) {
+			path = choice.getField("file");
+		}
+		fetchAndAddSingleAnimation(path);
 
 	}
 

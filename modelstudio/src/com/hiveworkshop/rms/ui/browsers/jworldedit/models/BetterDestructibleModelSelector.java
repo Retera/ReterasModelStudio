@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DestructableTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.util.TwiComboBoxModel;
 import com.hiveworkshop.rms.util.War3ID;
@@ -19,7 +18,7 @@ public class BetterDestructibleModelSelector extends BetterSelector {
 
 	public BetterDestructibleModelSelector(MutableObjectData unitData,
 	                                       UnitEditorSettings unitEditorSettings) {
-		super(unitData, new DestructableTabTreeBrowserBuilder(), unitEditorSettings);
+		super(unitData, new DestructableTabTreeBrowserBuilder(), unitEditorSettings, "bfil", "bvar");
 	}
 
 	protected JPanel getRightPanel() {
@@ -56,14 +55,12 @@ public class BetterDestructibleModelSelector extends BetterSelector {
 		}
 	}
 
-
-	protected String getFilePath(MutableGameObject obj, int variant) {
-		int numberOfVariations = obj.getFieldAsInteger(War3ID.fromString("bvar"), 0);
-		if (numberOfVariations > 1) {
-			System.out.println("found " + numberOfVariations + " variations of " + obj.getName());
-			return obj.getFieldAsString(War3ID.fromString("bfil"), 0) + variant + ".mdl";
+	public String getCurrentFilePath() {
+		if(currentUnit != null){
+			int variant = variantBox.isEnabled() ? variantBox.getSelectedIndex() : 0;
+			return getFilePath(currentUnit, variant);
 		} else {
-			return obj.getFieldAsString(War3ID.fromString("bfil"), 0);
+			return null;
 		}
 	}
 }

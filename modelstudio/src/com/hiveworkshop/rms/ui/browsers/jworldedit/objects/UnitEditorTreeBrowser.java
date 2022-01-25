@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
@@ -95,7 +96,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 	private void openUnit() {
 		MutableGameObject obj = getMutableGameObject();
 		if (obj != null) {
-			String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
+			String path = ImportFileActions.convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
 			String portrait = ModelUtils.getPortrait(path);
 			ImageIcon icon = getImageIcon(obj);
 
@@ -110,7 +111,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 	private void openSelectedSubPart(Function<String, String> resolvePath, String unitFieldRawcode) {
 		MutableGameObject obj = getMutableGameObject();
 		if (obj != null) {
-			String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString(unitFieldRawcode), 0));
+			String path = ImportFileActions.convertPathToMDX(obj.getFieldAsString(War3ID.fromString(unitFieldRawcode), 0));
 
 			System.err.println("loading: " + path);
 			loadFile(resolvePath.apply(path), true, true, getImageIcon(obj));
@@ -128,9 +129,7 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 	private void extractFile() {
 		MutableGameObject obj = getMutableGameObject();
 		if (obj != null) {
-			System.out.println("objString: " + obj.getFieldAsString(War3ID.fromString("umdl"), 0));
-			String path = convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
-			System.out.println("path: " + path);
+			String path = ImportFileActions.convertPathToMDX(obj.getFieldAsString(War3ID.fromString("umdl"), 0));
 
 			FileDialog fileDialog = new FileDialog(this);
 			fileDialog.exportInternalFile(path);
@@ -141,13 +140,5 @@ public class UnitEditorTreeBrowser extends UnitEditorTree {
 	private void loadFile(String filePathMdx, boolean temporary, boolean selectNewTab, ImageIcon icon){
 		InputStream resourceAsStream = GameDataFileSystem.getDefault().getResourceAsStream(filePathMdx);
 		InternalFileLoader.loadStreamMdx(resourceAsStream, temporary, selectNewTab, icon);
-	}
-	private String convertPathToMDX(String filepath) {
-		if (filepath.endsWith(".mdl")) {
-			filepath = filepath.replace(".mdl", ".mdx");
-		} else if (!filepath.endsWith(".mdx")) {
-			filepath = filepath.concat(".mdx");
-		}
-		return filepath;
 	}
 }

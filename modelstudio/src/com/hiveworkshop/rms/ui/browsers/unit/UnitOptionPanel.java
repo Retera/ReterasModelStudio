@@ -1,34 +1,35 @@
 package com.hiveworkshop.rms.ui.browsers.unit;
 
+import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
+import com.hiveworkshop.rms.ui.application.ImportFileActions;
+import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableAbilityData;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.*;
 
 public class UnitOptionPanel extends JPanel {
 	public static final String TILESETS = "ABKYXJDCIFLWNOZGVQ";
 	public static final int ICON_SIZE = 32;
 
-	private final ObjectData unitData;
-	private final ObjectData abilityData;
 	private GameObject selection = null;
-	String[] raceKeys = {"human", "orc", "undead", "nightelf", "neutrals", "naga"};
+	private final String[] raceKeys = {"human", "orc", "undead", "nightelf", "neutrals", "naga"};
 
 	private final JComboBox<String> raceBox;
 	private final JComboBox<String> meleeBox;
 	private final JComboBox<String> tilesetBox;
 	private final JComboBox<String> levelBox;
-	private final DefaultComboBoxModel<String> raceBoxModel;
 
 //	private JComboBox<String> playerBox;
-	// DefaultComboBoxModel<String> playerBoxModel = new
-	// DefaultComboBoxModel<String>();
+	// DefaultComboBoxModel<String> playerBoxModel = new DefaultComboBoxModel<String>();
 
 	private final JLabel unitsLabel;
 	private final JLabel heroesLabel;
@@ -45,7 +46,7 @@ public class UnitOptionPanel extends JPanel {
 	private final boolean verticalStyle;
 	private boolean firstTime = true;
 
-	static Map<String, RaceData> sortedRaces;
+	private final SortedRaces sortedRaces;
 
 
 	public GameObject getSelection() {
@@ -57,10 +58,9 @@ public class UnitOptionPanel extends JPanel {
 	}
 
 	public UnitOptionPanel(ObjectData dataTable, ObjectData abilityData, boolean hideBorder, boolean verticalStyle) {
-		setLayout(new MigLayout("fill"));
+		setLayout(new MigLayout("fillx", "[]", "[fill]"));
 		setMaximumSize(ScreenInfo.getBigWindow());
-		unitData = dataTable;
-		this.abilityData = abilityData;
+		sortedRaces = new SortedRaces(dataTable, abilityData);
 		this.verticalStyle = verticalStyle;
 		unitsLabel = new JLabel(WEString.getString("WESTRING_UNITS") + ": " + WEString.getString("WESTRING_NONE_CAPS"));
 		heroesLabel = new JLabel(WEString.getString("WESTRING_UTYPE_HEROES"));
@@ -69,7 +69,7 @@ public class UnitOptionPanel extends JPanel {
 		specialLabel = new JLabel(WEString.getString("WESTRING_UTYPE_SPECIAL"));
 
 		String[] raceStrings = {"WESTRING_RACE_HUMAN", "WESTRING_RACE_ORC", "WESTRING_RACE_UNDEAD", "WESTRING_RACE_NIGHTELF", "WESTRING_RACE_NEUTRAL", "WESTRING_RACE_NEUTRAL_NAGA"};
-		raceBoxModel = getBoxModelOf(raceStrings);
+		DefaultComboBoxModel<String> raceBoxModel = getBoxModelOf(raceStrings);
 
 		String[] neutralRaceStrings = {"WESTRING_RACE_NEUTRAL", "WESTRING_RACE_NEUTRAL_NAGA"};
 		DefaultComboBoxModel<String> raceBoxModelNeutral = getBoxModelOf(neutralRaceStrings);
@@ -90,31 +90,21 @@ public class UnitOptionPanel extends JPanel {
 		buttonsPanel = new JPanel(new MigLayout("ins 0, wrap 7"));
 		buttonsScrollPane = getButtonsScrollPane();
 
-		// playerBox = new JComboBox<String>(playerBoxModel);
-		// playerBox.addActionListener(e -> relayout());
-		// playerBox.setMaximumSize(new Dimension(10000,25));
-		raceBox = new JComboBox<>(raceBoxModel);
-		raceBox.addActionListener(e -> relayout());
-		raceBox.setMaximumSize(new Dimension(10000, 25));
+		// playerBox = getComboBox(playerBoxModel);
 
-		meleeBox = new JComboBox<>(meleeBoxModel);
-		meleeBox.addActionListener(e -> relayout());
-		meleeBox.setMaximumSize(new Dimension(10000, 25));
-
-		tilesetBox = new JComboBox<>(tileSetBoxModel);
-		tilesetBox.addActionListener(e -> relayout());
-		tilesetBox.setMaximumSize(new Dimension(10000, 25));
-
-		levelBox = new JComboBox<>(levelBoxModel);
-		levelBox.addActionListener(e -> relayout());
-		levelBox.setMaximumSize(new Dimension(10000, 25));
-
-
-		if (sortedRaces == null) {
-			sortRaces();
-		}
+		raceBox = getComboBox(raceBoxModel);
+		meleeBox = getComboBox(meleeBoxModel);
+		tilesetBox = getComboBox(tileSetBoxModel);
+		levelBox = getComboBox(levelBoxModel);
 
 		tilesetBox.setSelectedIndex(10);
+	}
+
+	public JComboBox<String> getComboBox(DefaultComboBoxModel<String> boxModel) {
+		JComboBox<String> comboBox = new JComboBox<>(boxModel);
+		comboBox.addActionListener(e -> relayout());
+		comboBox.setMaximumSize(new Dimension(10000, 25));
+		return comboBox;
 	}
 
 	private JScrollPane getButtonsScrollPane() {
@@ -130,190 +120,59 @@ public class UnitOptionPanel extends JPanel {
 		return buttonsScrollPane;
 	}
 
-	protected String raceKey(final int index) {
-		String[] ugg = {"human", "orc", "undead", "nightelf", "neutrals", "naga"};
-		return switch (index) {
-			case -1, 0 -> "human";
-			case 1 -> "orc";
-			case 2 -> "undead";
-			case 3 -> "nightelf";
-			case 5 -> "naga";
-			default -> "neutrals";
-		};
-	}
-
 	protected boolean isShowLevel(String race) {
 		return !Arrays.asList(raceKeys).contains(race);
-//		for (String key : raceKeys) {
-//			if (race.equals(key)) {
-//				return false;
-//			}
-//		}
-//		return true;
-	}
-
-	private String getRaceKey(GameObject unit) {
-		String race = unit.getField("race");
-		for (String key : raceKeys) {
-			if (race.equals(key)) {
-				return key;
-			}
-		}
-
-		return "neutrals";
 	}
 
 	public static void dropRaceCache() {
-		sortedRaces = null;
-	}
-
-	public void sortRaces() {
-		sortedRaces = new HashMap<>();
-
-//		for (int i = 0; i < 6; i++) {
-//			String raceKey = raceKey(i);
-//			sortedRaces.put(raceKey + "melee", new RaceData());
-//			sortedRaces.put(raceKey + "campaign", new RaceData());
-//			sortedRaces.put(raceKey + "custom", new RaceData());
-//			sortedRaces.put(raceKey + "hidden", new RaceData());
-//		}
-		for (String raceKey : raceKeys) {
-			sortedRaces.put(raceKey + "melee", new RaceData());
-			sortedRaces.put(raceKey + "campaign", new RaceData());
-			sortedRaces.put(raceKey + "custom", new RaceData());
-			sortedRaces.put(raceKey + "hidden", new RaceData());
-		}
-
-		GameObject root = abilityData.get("Aroo");
-		GameObject rootAncientProtector = abilityData.get("Aro2");
-		GameObject rootAncients = abilityData.get("Aro1");
-
-		for (String str : unitData.keySet()) {
-			String strUpper = str.toUpperCase();
-			if (strUpper.startsWith("B")
-					|| strUpper.startsWith("R")
-					|| strUpper.startsWith("A")
-					|| strUpper.startsWith("S")
-					|| strUpper.startsWith("X")
-					|| strUpper.startsWith("M")
-					|| strUpper.startsWith("HERO")) {
-				continue;
-			}
-
-			GameObject unit = unitData.get(str);
-
-			int sortGroupId = getSortGroupId(root, rootAncientProtector, rootAncients, unit);
-
-			sortedRaces.get(getStoreKey(unit)).addUnitToCorrectList(unit, sortGroupId);
-		}
-
-//		for (String str : sortedRaces.keySet()) {
-//			RaceData race = sortedRaces.get(str);
-//			race.sort();
-//		}
-		for (RaceData race : sortedRaces.values()) {
-			race.sort();
-		}
-	}
-
-	private String getStoreKey(GameObject unit) {
-		String raceKey = getRaceKey(unit);
-		if (unit.getField("JWC3_IS_CUSTOM_UNIT").startsWith("1")) {
-			return raceKey + "custom";
-		} else if (!unit.getField("inEditor").startsWith("1")) {
-			return raceKey + "hidden";
-		} else if (unit.getField("campaign").startsWith("1")) {
-			return raceKey + "campaign";
-		} else {
-			return raceKey + "melee";
-		}
-	}
-
-	private int getSortGroupId(GameObject root, GameObject rootAncientProtector, GameObject rootAncients, GameObject unit) {
-		List<? extends GameObject> abilities = unit.getFieldAsList("abilList", abilityData);// .abilities();
-
-		if (unit.getField("special").startsWith("1")) {
-			return 4;
-		} else if (unit.getId().length() > 1 && Character.isUpperCase(unit.getId().charAt(0))) {
-			return 1;
-		} else if (abilities.contains(root)
-				|| abilities.contains(rootAncients)
-				|| abilities.contains(rootAncientProtector)) {
-			return 3;
-		} else if (unit.getField("isbldg").startsWith("1")) {
-			return 2;
-		} else {
-			return 0;
-		}
+		SortedRaces.dropRaceCache();
 	}
 
 	private String raceKey() {
 		int selectedIndex = raceBox.getSelectedIndex();
-		if (raceBox.getModel() == raceBoxModel) {
-			if (0 <= selectedIndex && selectedIndex < raceKeys.length) {
-				return raceKeys[selectedIndex];
+		if (0 <= selectedIndex && selectedIndex < raceKeys.length) {
+			return raceKeys[selectedIndex];
 
-			} else {
-				return raceKeys[0];
-			}
-		} else if (selectedIndex == 1) {
-			return "naga";
+		} else {
+			return raceKeys[0];
 		}
-		return "neutrals";
+//		if (raceBox.getModel() == raceBoxModel) {
+//		} else if (selectedIndex == 1) {
+//			return "naga";
+//		}
+//		return "neutrals";
 	}
 
 	public void relayout() {
-
 		removeAll();
-		buttonsPanel.removeAll();
 
 		String race = raceKey();
 		String tileSet = TILESETS.charAt(tilesetBox.getSelectedIndex()) + "";
 		boolean isNeutral = race.equals("neutrals");
 		boolean checkLevel = levelBox.getSelectedIndex() > 0 && isNeutral;
 
-		buttonGroup.clearSelection();
-		for (UnitButton ub : unitButtons) {
-			buttonGroup.remove(ub);
-		}
-		unitButtons.clear();
-
-		RaceData data = sortedRaces.get(race + (meleeBox.getSelectedIndex() == 0 ? "melee" : "campaign"));
-		if (meleeBox.getSelectedIndex() == 2) {
-			data = sortedRaces.get(race + "custom");
-		}
-		if (meleeBox.getSelectedIndex() == 3) {
-			data = sortedRaces.get(race + "hidden");
-		}
+		clearButtons();
 
 		boolean neutrals = race.equals("neutrals");
 		tilesetBox.setVisible(neutrals);
 		levelBox.setVisible(neutrals);
-		add(raceBox, "growx, gapx 4, split 2, span");
+		add(raceBox, "growx, gapx 4, split 2, spanx");
 		add(meleeBox, "growx, wrap");
 		if (verticalStyle) {
-			add(tilesetBox, "growx, gapx 4, split 2, span");
+			add(tilesetBox, "growx, gapx 4, split 2, spanx");
 			add(levelBox, "growx, gapy 4, wrap");
 		} else if (neutrals) {
-			add(tilesetBox, "growx, gapx 4, split 2, span");
+			add(tilesetBox, "growx, gapx 4, split 2, spanx");
 			add(levelBox, "growx, gapy 4, wrap");
 		}
 
-		add(unitsLabel, "growx, span, wrap");
-		add(buttonsScrollPane, "grow, span");
+		add(unitsLabel, "growx, spanx, wrap");
+		add(buttonsScrollPane, "growx, growy, spanx, spany");
 
-		int scrollbarWith = buttonsScrollPane.getVerticalScrollBar().getWidth();
-		System.out.println("scrollbarWith: " + scrollbarWith);
-		int rowLength = Math.max(1, (buttonsScrollPane.getWidth() - scrollbarWith) / 32);
-		if (firstTime) {
-			rowLength = 8;
-			firstTime = false;
-		}
-//		System.out.println(rowLength);
+		setupButtonsPanel();
 
-		buttonsPanel.setLayout(new MigLayout("wrap " + (rowLength - 1)));
-		buttonsScrollPane.setMaximumSize(ScreenInfo.getBigWindow());
 
+		RaceData data = sortedRaces.get(race + getMeleeType());
 		fillWithButtons(tileSet, isNeutral, checkLevel, data.units);
 		addComponents(tileSet, isNeutral, checkLevel, data.heroes, heroesLabel);
 		addComponents(tileSet, isNeutral, checkLevel, data.buildings, buildingsLabel);
@@ -323,16 +182,43 @@ public class UnitOptionPanel extends JPanel {
 		revalidate();
 	}
 
+	private void clearButtons() {
+		buttonsPanel.removeAll();
+		buttonGroup.clearSelection();
+		for (UnitButton ub : unitButtons) {
+			buttonGroup.remove(ub);
+		}
+		unitButtons.clear();
+	}
+
+	private void setupButtonsPanel() {
+		int scrollbarWith = buttonsScrollPane.getVerticalScrollBar().getWidth();
+		System.out.println("scrollbarWith: " + scrollbarWith);
+		int rowLength = Math.max(1, (buttonsScrollPane.getWidth() - scrollbarWith) / 32);
+		if (firstTime) {
+			rowLength = 8;
+			firstTime = false;
+		}
+
+		buttonsPanel.setLayout(new MigLayout("wrap " + (rowLength - 1)));
+		buttonsScrollPane.setMaximumSize(ScreenInfo.getBigWindow());
+	}
+
+	private String getMeleeType() {
+		return switch (meleeBox.getSelectedIndex()){
+			case 1 -> "campaign";
+			case 2 -> "custom";
+			case 3 -> "hidden";
+			default -> "melee";
+		};
+	}
+
 	public void addComponents(String tileSet, boolean isNeutral, boolean checkLevel, List<GameObject> gameObjects, JLabel label) {
 		for (GameObject unit : gameObjects) {
 			if (isValid(tileSet, isNeutral, checkLevel, unit)) {
 				buttonsPanel.add(label, "newline 12, span, wrap 4");
 				break;
 			}
-//			else {
-//				// System.err.println(unit.getField("Name") + " failed for tilset");
-//				// System.err.println(unit.getField("Name") + " failed for level");
-//			}
 		}
 		if (gameObjects.size() > 0) {
 			fillWithButtons(tileSet, isNeutral, checkLevel, gameObjects);
@@ -352,7 +238,6 @@ public class UnitOptionPanel extends JPanel {
 
 		for (GameObject unit : gameObjects) {
 			if (isValid(tileSet, isNeutral, checkLevel, unit)) {
-//				UnitButton unitButton1 = new UnitButton(this, unit);
 				UnitButton unitButton = new UnitButton(this::unitChosen, isShowLevel(unit.getField("race")), unit);
 				buttonGroup.add(unitButton);
 				unitButtons.add(unitButton);
@@ -382,21 +267,6 @@ public class UnitOptionPanel extends JPanel {
 		}
 	}
 
-
-//	@Override
-//	public void actionPerformed(ActionEvent e) {
-//		relayout();
-//	}
-
-	private void fillModel(DefaultComboBoxModel<String> boxModel, String[] strings) {
-		for (String string : strings) {
-			boxModel.addElement(WEString.getString(string));
-		}
-//		for (WE_LOC loc : WE_LOC.values()) {
-//			boxModel.addElement(WEString.getString(loc.getString()));
-//		}
-	}
-
 	private DefaultComboBoxModel<String> getBoxModelOf(String[] strings) {
 		DefaultComboBoxModel<String> boxModel = new DefaultComboBoxModel<>();
 		for (String string : strings) {
@@ -410,19 +280,33 @@ public class UnitOptionPanel extends JPanel {
 			boxModel.addElement(WEString.getString(o.toString()));
 		}
 		return boxModel;
-//		for (WE_LOC loc : WE_LOC.values()) {
-//			boxModel.addElement(WEString.getString(loc.getString()));
-//		}
-	}
-	private DefaultComboBoxModel fillModel1(DefaultComboBoxModel<String> boxModel, String[] strings) {
-//		for (String string : strings) {
-//			boxModel.addElement(WEString.getString(string));
-//		}
-		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
-		for (WE_LOC loc : WE_LOC.values()) {
-			model.addElement(WEString.getString(loc.getString()));
-		}
-		return model;
 	}
 
+	public static GameObject getGameObject(Component component) {
+		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.getDefault(), MutableAbilityData.getStandardAbilities());
+		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Unit Type", JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE);
+		if (x == JOptionPane.OK_OPTION) {
+			GameObject choice = uop.getSelection();
+			if(choice != null && isValidFilepath(choice.getField("file"))){
+				return choice;
+			}
+		}
+		return null;
+	}
+
+	private static boolean isValidFilepath(String filepath) {
+		try {
+			//check model by converting its path
+			ImportFileActions.convertPathToMDX(filepath);
+		} catch (final Exception exc) {
+			exc.printStackTrace();
+			JOptionPane.showMessageDialog(MainFrame.frame,
+					"The chosen model could not be used.",
+					"Program Error",
+					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		return true;
+	}
 }

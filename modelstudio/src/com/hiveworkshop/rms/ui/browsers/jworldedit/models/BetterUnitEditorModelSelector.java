@@ -17,7 +17,7 @@ public class BetterUnitEditorModelSelector extends BetterSelector {
 
 	public BetterUnitEditorModelSelector(MutableObjectData unitData,
 	                                     UnitEditorSettings unitEditorSettings) {
-		super(unitData, new UnitTabTreeBrowserBuilder(), unitEditorSettings);
+		super(unitData, new UnitTabTreeBrowserBuilder(), unitEditorSettings, "umdl", null);
 	}
 
 	protected JPanel getRightPanel() {
@@ -50,6 +50,14 @@ public class BetterUnitEditorModelSelector extends BetterSelector {
 			if (defaultSelection == null) {
 				defaultSelection = node.getFirstLeaf();
 			}
+		}
+	}
+
+	public String getCurrentFilePath() {
+		if(currentUnit != null){
+			return getFilePath(currentUnit, 0);
+		} else {
+			return null;
 		}
 	}
 }

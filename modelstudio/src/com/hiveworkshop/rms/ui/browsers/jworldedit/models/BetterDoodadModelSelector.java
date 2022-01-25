@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.util.TwiComboBoxModel;
 import com.hiveworkshop.rms.util.War3ID;
@@ -19,7 +18,7 @@ public class BetterDoodadModelSelector extends BetterSelector {
 
 	public BetterDoodadModelSelector(MutableObjectData unitData,
 	                                 UnitEditorSettings unitEditorSettings) {
-		super(unitData, new DoodadTabTreeBrowserBuilder(), unitEditorSettings);
+		super(unitData, new DoodadTabTreeBrowserBuilder(), unitEditorSettings, "dfil", "dvar");
 	}
 
 	protected JPanel getRightPanel() {
@@ -54,14 +53,12 @@ public class BetterDoodadModelSelector extends BetterSelector {
 			openModel(filepath, gameObjectName);
 		}
 	}
-
-
-	protected String getFilePath(MutableGameObject obj, int variant) {
-		int numberOfVariations = obj.getFieldAsInteger(War3ID.fromString("dvar"), 0);
-		if (numberOfVariations > 1) {
-			return obj.getFieldAsString(War3ID.fromString("dfil"), 0) + variant + ".mdl";
+	public String getCurrentFilePath() {
+		if(currentUnit != null){
+			int variant = variantBox.isEnabled() ? variantBox.getSelectedIndex() : 0;
+			return getFilePath(currentUnit, variant);
 		} else {
-			return obj.getFieldAsString(War3ID.fromString("dfil"), 0);
+			return null;
 		}
 	}
 }

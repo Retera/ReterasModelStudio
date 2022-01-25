@@ -1,10 +1,48 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
-import com.hiveworkshop.rms.ui.application.ImportFileActions;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanelGui;
 import com.hiveworkshop.rms.ui.language.TextKey;
+
+import javax.swing.*;
 
 public class ImportFromObjectEditor extends ActionFunction{
 	public ImportFromObjectEditor(){
-		super(TextKey.IMPORT_FROM_OBJECT_EDITOR, () -> ImportFileActions.importGameObjectActionRes());
+		super(TextKey.IMPORT_FROM_OBJECT_EDITOR, () -> importGameObjectActionRes());
+	}
+
+	public static void importGameObjectActionRes(){
+		importModel(fetchObjectModel());
+	}
+
+	public static EditableModel fetchObjectModel() {
+		BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(UnitBrowserView.getUnitData(), new UnitEditorSettings());
+		int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), selector, "Object Editor - Select Unit",
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+		if ((x == JOptionPane.OK_OPTION)) {
+			return selector.getSelectedModel();
+		}
+
+		return null;
+	}
+
+
+	public static void importModel(EditableModel animationSource) {
+		if (animationSource != null) {
+			ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+			if (modelPanel != null && modelPanel.getModel() != null) {
+				ImportPanelGui importPanel = new ImportPanelGui(modelPanel.getModel(), animationSource);
+
+			}
+		}
+		if (ProgramGlobals.getCurrentModelPanel() != null) {
+			ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+		}
 	}
 }

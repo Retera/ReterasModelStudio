@@ -1,49 +1,42 @@
 package com.hiveworkshop.rms.ui.browsers.model;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.MainFrame;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class ModelOptionPane {
-	public static ModelElement showAndLogIcon(Component component) {
-		ModelOptionPanel uop = new ModelOptionPanel();
-		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE);
-		if (x == JOptionPane.OK_OPTION) {
-			return new ModelElement(uop.getSelection(), uop.getCachedIconPath());
-		}
-		return null;
-	}
+//	public static ModelElement showAndLogIcon(Component component) {
+//		ModelOptionPanel uop = getModelOptionPanel(component);
+//		if (uop != null) {
+//			return new ModelElement(uop.getSelection(), uop.getCachedIconPath());
+//		}
+//		return null;
+//	}
 
-	public static String show(Component component) {
-		ModelOptionPanel uop = new ModelOptionPanel();
-		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE);
-		if (x == JOptionPane.OK_OPTION) {
-			return uop.getSelection();
-		}
-		return null;
-	}
-
-	public static String show(Component component, String startingFile) {
-		ModelOptionPanel uop = new ModelOptionPanel();
-		uop.setSelection(startingFile);
-		final int x = JOptionPane.showConfirmDialog(component, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE);
-		if (x == JOptionPane.OK_OPTION) {
-			return uop.getSelection();
-		}
-		return null;
-	}
+//	public static String show(Component component) {
+//		ModelOptionPanel uop = getModelOptionPanel(component);
+//		if (uop != null) {
+//			return uop.getSelection();
+//		}
+//		return null;
+//	}
+//
+//	public static String show(Component component, String startingFile) {
+//		ModelOptionPanel uop = new ModelOptionPanel().setSelection(startingFile);
+//		final int x = JOptionPane.showConfirmDialog(component, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
+//				JOptionPane.PLAIN_MESSAGE);
+//		if (x == JOptionPane.OK_OPTION) {
+//			return uop.getSelection();
+//		}
+//		return null;
+//	}
 
 	public static ModelElement fetchModelElement(Component component) {
-		ModelOptionPanel uop = new ModelOptionPanel();
-		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE);
-		if (x == JOptionPane.OK_OPTION) {
+		ModelOptionPanel uop = getModelOptionPanel(component);
+		if (uop != null) {
 			ModelElement model = new ModelElement(uop.getSelection(), uop.getCachedIconPath());
 			String filepath = model.getFilepath();
 			if (isValidFilepath(filepath)) return model;
@@ -52,10 +45,8 @@ public class ModelOptionPane {
 	}
 
 	public static String fetchModelPath(Component component) {
-		ModelOptionPanel uop = new ModelOptionPanel();
-		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE);
-		if (x == JOptionPane.OK_OPTION) {
+		ModelOptionPanel uop = getModelOptionPanel(component);
+		if (uop != null) {
 			if (isValidFilepath(uop.getSelection())) return uop.getSelection();
 //			ModelElement model =  new ModelElement(uop.getSelection(), uop.getCachedIconPath());
 //			String filepath = model.getFilepath();
@@ -65,27 +56,28 @@ public class ModelOptionPane {
 	}
 
 	public static EditableModel fetchModel(Component component) {
-		ModelOptionPanel uop = new ModelOptionPanel();
-		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE);
-		if (x == JOptionPane.OK_OPTION) {
+		ModelOptionPanel uop = getModelOptionPanel(component);
+		if (uop != null) {
 			if (isValidFilepath(uop.getSelection())) return uop.getSelectedModel();
 		}
 		return null;
 	}
 
-	public static ModelElement fetchModel2() {
-		ModelElement model = showAndLogIcon(ProgramGlobals.getMainPanel());
-		if (model != null && isValidFilepath(model.getFilepath())) {
-			return model;
+	private static ModelOptionPanel getModelOptionPanel(Component component) {
+		ModelOptionPanel uop = new ModelOptionPanel();
+		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Model", JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE);
+		if (x == JOptionPane.OK_OPTION) {
+			return uop;
+		} else {
+			return null;
 		}
-		return null;
 	}
 
 	private static boolean isValidFilepath(String filepath) {
 		try {
 			//check model by converting its path
-			convertPathToMDX(filepath);
+			ImportFileActions.convertPathToMDX(filepath);
 		} catch (final Exception exc) {
 			exc.printStackTrace();
 			JOptionPane.showMessageDialog(MainFrame.frame,
@@ -95,16 +87,6 @@ public class ModelOptionPane {
 			return false;
 		}
 		return true;
-	}
-
-
-	public static String convertPathToMDX(String filepath) {
-		if (filepath.endsWith(".mdl")) {
-			filepath = filepath.replace(".mdl", ".mdx");
-		} else if (!filepath.endsWith(".mdx")) {
-			filepath = filepath.concat(".mdx");
-		}
-		return filepath;
 	}
 
 	public static final class ModelElement {

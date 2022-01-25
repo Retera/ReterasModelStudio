@@ -8,10 +8,7 @@ import de.wc3data.image.TgaFile;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
+import java.awt.image.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -29,6 +26,10 @@ public class BLPHandler {
 	 */
 	Map<String, ImageThingiHelper> cache = new HashMap<>();
 	Map<String, ImageThingiHelper> nonCache = new HashMap<>();
+	private static final BufferedImage blankImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+	static {
+		((DataBufferInt) blankImage.getRaster().getDataBuffer()).getData()[0] = 16777215;
+	}
 	private static final int BYTES_PER_PIXEL = 4;
 
 	private static BLPHandler current;
@@ -54,6 +55,9 @@ public class BLPHandler {
 
 	public static BufferedImage getImage(Bitmap bitmap, DataSource workingDirectory) {
 		return BLPHandler.get().getTexture(workingDirectory, bitmap.getRenderableTexturePath());
+	}
+	public static BufferedImage getBlankImage() {
+		return BLPHandler.blankImage;
 	}
 
 

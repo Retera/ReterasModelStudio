@@ -5,13 +5,7 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.parsers.slk.GameObject;
-import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
-import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPane;
-import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPane;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
@@ -37,67 +31,38 @@ public class InternalFileLoader {
 		ModelLoader.loadModel(temporary, showModel, temp);
 	}
 
-	public static void loadMdxStream(MutableGameObject obj, String prePath, boolean selectNewTab) {
-		final String path = ImportFileActions.convertPathToMDX(prePath);
-		final String portrait = ModelUtils.getPortrait(path);
-		final ImageIcon icon = new ImageIcon(IconUtils
-				.getIcon(obj, WorldEditorDataType.DOODADS)
+	public static void loadMdxStream(MutableGameObject obj, String prePath, boolean showModel) {
+		String path = ImportFileActions.convertPathToMDX(prePath);
+		ImageIcon icon = new ImageIcon(IconUtils
+				.getIcon(obj)
 				.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 
-		loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(path), true, selectNewTab, icon);
-
-		if (ProgramGlobals.getPrefs().isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
-			loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
-		}
-	}
-
-
-	public static void fetchObject() {
-		MutableGameObject objectFetched = ImportFileActions.fetchObject();
-		if (objectFetched != null) {
-
-			String filepath = ImportFileActions.convertPathToMDX(objectFetched.getFieldAsString(UnitFields.MODEL_FILE, 0));
-			ImageIcon icon = new ImageIcon(BLPHandler.getGameTex(objectFetched.getFieldAsString(UnitFields.INTERFACE_ICON, 0)).getScaledInstance(16, 16, Image.SCALE_FAST));
-
-			loadFromStream(filepath, icon);
-		}
-	}
-
-	public static void fetchModel() {
-//		ModelOptionPane.ModelElement model = ImportFileActions.fetchModel();
-		ModelOptionPane.ModelElement model = ModelOptionPane.fetchModelElement(ProgramGlobals.getMainPanel());
-		if (model != null) {
-
-			String filepath = ImportFileActions.convertPathToMDX(model.getFilepath());
-			ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST)) : ModelLoader.MDLIcon;
-
-			loadFromStream(filepath, icon);
-		}
-	}
-
-	public static void fetchUnit() {
-//		GameObject unitFetched = ImportFileActions.fetchUnit();
-		GameObject unitFetched = UnitOptionPane.fetchUnitObject(ProgramGlobals.getMainPanel());
-		if (unitFetched != null) {
-
-			String filepath = ImportFileActions.convertPathToMDX(unitFetched.getField("file"));
-			ImageIcon icon = unitFetched.getScaledIcon(16);
-
-			loadFromStream(filepath, icon);
-		}
+		loadFromStream(path, icon, showModel);
 	}
 
 	public static void loadFromStream(String filepath, ImageIcon icon) {
+		loadFromStream(filepath, icon, true);
+	}
+
+	public static void loadFromStream(String filepath, String iconPath) {
+		ImageIcon icon;
+		if(iconPath != null && iconPath.length() > 0){
+			Image scaledInstance = BLPHandler.getGameTex(iconPath).getScaledInstance(16, 16, Image.SCALE_FAST);
+			icon = new ImageIcon(scaledInstance);
+		} else {
+			icon = ModelLoader.MDLIcon;
+		}
+		loadFromStream(filepath, icon, true);
+	}
+
+	public static void loadFromStream(String filepath, ImageIcon icon, boolean showModel) {
 		if (filepath != null) {
+			loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, showModel, icon);
 
-			loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(filepath), true, true, icon);
-
-			String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait" + filepath.substring(filepath.lastIndexOf('.'));
-
+			String portrait = ModelUtils.getPortrait(filepath);;
 			if (ProgramGlobals.getPrefs().isLoadPortraits() && GameDataFileSystem.getDefault().has(portrait)) {
 				loadStreamMdx(GameDataFileSystem.getDefault().getResourceAsStream(portrait), true, false, icon);
 			}
-			MenuBar.setToolsMenuEnabled(true);
 		}
 	}
 }

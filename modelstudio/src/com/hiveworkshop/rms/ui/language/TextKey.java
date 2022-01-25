@@ -7,6 +7,7 @@ public enum TextKey {
 	MODEL("Model"),
 	OBJECT_EDITOR("Object Editor"),
 	DOODAD_BROWSER("Doodad Browser"),
+	INTERNAL_BROWSER("Internal Browser"),
 	DESTRUCTIBLE_BROWSER("Destructible Browser"),
 	NEW("New"),
 	CLOSE("Close"),

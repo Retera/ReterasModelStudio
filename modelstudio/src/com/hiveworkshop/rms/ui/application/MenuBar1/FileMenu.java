@@ -30,6 +30,7 @@ public class FileMenu extends JMenu {
 		fetch.add(new OpenInternalObject().setMenuItemMnemonic(KeyEvent.VK_O).getMenuItem());
 		fetch.add(new OpenInternalDoodad().setMenuItemMnemonic(KeyEvent.VK_D).getMenuItem());
 		fetch.add(new OpenInternalDestructible().setMenuItemMnemonic(KeyEvent.VK_E).getMenuItem());
+		fetch.add(new OpenFromInternal().setMenuItemMnemonic(KeyEvent.VK_I).getMenuItem());
 
 		fetch.add(new JSeparator());
 

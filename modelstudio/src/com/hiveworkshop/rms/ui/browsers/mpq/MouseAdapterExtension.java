@@ -122,15 +122,28 @@ public final class MouseAdapterExtension extends MouseAdapter {
 
 		JPanel panel = new JPanel(new MigLayout());
 		panel.add(new JLabel("Choose model to receive texture"), "wrap");
+
 		Map<Integer, ModelPanel> models = new HashMap<>();
 		List<ModelPanel> modelPanels = ProgramGlobals.getModelPanels();
 
 		String[] names = new String[modelPanels.size()];
+		int currentModelPanel = 0;
 		for (ModelPanel m : modelPanels) {
 			names[models.size()] = m.getModel().getName();
+			if(m == ProgramGlobals.getCurrentModelPanel()){
+				currentModelPanel = models.size();
+				names[models.size()] = m.getModel().getName() + " (current)";
+			} else {
+				names[models.size()] = m.getModel().getName();
+			}
 			models.put(models.size(), m);
 		}
+
 		JComboBox<String> modelsBox = new JComboBox<>(names);
+		if(currentModelPanel < names.length){
+			modelsBox.setSelectedIndex(currentModelPanel);
+		}
+
 		panel.add(modelsBox);
 
 		int option = JOptionPane.showConfirmDialog(mpqBrowser, panel, "Choose model", JOptionPane.OK_CANCEL_OPTION);

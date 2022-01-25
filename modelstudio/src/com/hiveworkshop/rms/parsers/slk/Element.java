@@ -125,12 +125,16 @@ public class Element extends HashedGameObject {
 		String artField = getIconPath();
 		try {
 			BufferedImage gameTex = BLPHandler.getGameTex(artField);
-			if (gameTex != null) {
-				return gameTex;
+			if (gameTex == null) {
+				gameTex = BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
 			}
+			if (gameTex == null) {
+				gameTex = BLPHandler.getBlankImage();
+			}
+			return gameTex;
 		} catch (final NullPointerException ignored) {
 		}
-		return BLPHandler.getGameTex("ReplaceableTextures\\CommandButtons\\BTNTemp.blp");
+		return BLPHandler.getBlankImage();
 	}
 
 	@Override

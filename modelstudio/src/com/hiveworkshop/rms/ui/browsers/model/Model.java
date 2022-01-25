@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.browsers.model;
 
+// ToDo should be renamed to modelFile
 public class Model implements Comparable<Model> {
 	private String cachedIcon;
 	private String displayName;
@@ -10,7 +11,9 @@ public class Model implements Comparable<Model> {
 	}
 
 	public Model(String cachedIcon, String displayName, String filepath) {
-
+		this.cachedIcon = cachedIcon;
+		this.displayName = displayName;
+		this.filepath = filepath;
 	}
 
 	@Override

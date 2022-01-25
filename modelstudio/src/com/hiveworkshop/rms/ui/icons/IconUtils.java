@@ -52,6 +52,15 @@ public final class IconUtils {
 		return bufImage;
 	}
 
+	public static Image getIconScaled(final MutableGameObject gameObject,
+	                                    final WorldEditorDataType worldEditorDataType) {
+		return getIcon(gameObject, worldEditorDataType).getScaledInstance(16, 16, Image.SCALE_DEFAULT);
+	}
+
+	public static Image getIconScaled(final MutableGameObject gameObject) {
+		return getIcon(gameObject).getScaledInstance(16, 16, Image.SCALE_DEFAULT);
+	}
+
 	public static BufferedImage getIcon(final MutableGameObject gameObject,
 	                                    final WorldEditorDataType worldEditorDataType) {
 		String iconPath = switch (worldEditorDataType) {

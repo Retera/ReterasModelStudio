@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.War3ID;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -32,10 +33,17 @@ public abstract class BetterSelector extends JSplitPane {
 	protected DefaultMutableTreeNode defaultSelection = null;
 	protected final UnitEditorTree tree;
 
+	protected String fileString;
+	protected String variationString;
+
 	public BetterSelector(MutableObjectData unitData,
 	                      ObjectTabTreeBrowserBuilder treeBuilder,
-	                      UnitEditorSettings unitEditorSettings) {
+	                      UnitEditorSettings unitEditorSettings,
+	                      String fileString,
+	                      String variationString) {
 		tree = new UnitEditorTree(unitData, treeBuilder, unitEditorSettings);
+		this.fileString = fileString;
+		this.variationString = variationString;
 
 		JScrollPane treePane;
 		setLeftComponent(treePane = new JScrollPane(tree));
@@ -134,5 +142,17 @@ public abstract class BetterSelector extends JSplitPane {
 
 	public EditableModel getSelectedModel() {
 		return mdl;
+	}
+
+	public abstract String getCurrentFilePath();
+
+	protected String getFilePath(MutableGameObject obj, int variant) {
+		int numberOfVariations = variationString == null ? 0 : obj.getFieldAsInteger(War3ID.fromString(variationString), 0);
+
+		if (numberOfVariations > 1) {
+			return obj.getFieldAsString(War3ID.fromString(fileString), 0) + variant + ".mdl";
+		} else {
+			return obj.getFieldAsString(War3ID.fromString(fileString), 0);
+		}
 	}
 }

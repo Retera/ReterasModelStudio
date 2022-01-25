@@ -2,25 +2,15 @@ package com.hiveworkshop.rms.ui.browsers.unit;
 
 import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
+import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.MainFrame;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableAbilityData;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class UnitOptionPane {
-	public static GameObject show(Component component) {
-		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.getDefault(), MutableAbilityData.getStandardAbilities());
-		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Unit Type", JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE);
-		if (x == JOptionPane.OK_OPTION) {
-			return uop.getSelection();
-		}
-		return null;
-	}
-
-	public static GameObject fetchUnitObject(Component component) {
+	public static GameObject getGameObject(Component component) {
 		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.getDefault(), MutableAbilityData.getStandardAbilities());
 		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Unit Type", JOptionPane.OK_CANCEL_OPTION,
 				JOptionPane.PLAIN_MESSAGE);
@@ -33,46 +23,10 @@ public class UnitOptionPane {
 		return null;
 	}
 
-	public static String fetchUnitPath(Component component) {
-		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.getDefault(), MutableAbilityData.getStandardAbilities());
-		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Unit Type", JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE);
-		if (x == JOptionPane.OK_OPTION) {
-			GameObject choice = uop.getSelection();
-			if (choice != null && isValidFilepath(choice.getField("file"))) {
-				return choice.getField("file");
-			}
-		}
-		return null;
-	}
-
-	public static String fetchUnitModel(Component component) {
-		UnitOptionPanel uop = new UnitOptionPanel(DataTableHolder.getDefault(), MutableAbilityData.getStandardAbilities());
-		int x = JOptionPane.showConfirmDialog(component, uop, "Choose Unit Type", JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE);
-		if (x == JOptionPane.OK_OPTION) {
-			GameObject choice = uop.getSelection();
-			if (choice != null && isValidFilepath(choice.getField("file"))) {
-
-				return choice.getField("file");
-			}
-		}
-		return null;
-	}
-	public static GameObject fetchUnit2() {
-		GameObject choice = show(ProgramGlobals.getMainPanel());
-
-		if (choice != null) {
-			String filepath = choice.getField("file");
-			if (isValidFilepath(filepath)) return choice;
-		}
-		return null;
-	}
-
 	private static boolean isValidFilepath(String filepath) {
 		try {
 			//check model by converting its path
-			convertPathToMDX(filepath);
+			ImportFileActions.convertPathToMDX(filepath);
 		} catch (final Exception exc) {
 			exc.printStackTrace();
 			JOptionPane.showMessageDialog(MainFrame.frame,
@@ -84,20 +38,4 @@ public class UnitOptionPane {
 		return true;
 	}
 
-
-	public static String convertPathToMDX(String filepath) {
-		if (filepath.endsWith(".mdl")) {
-			filepath = filepath.replace(".mdl", ".mdx");
-		} else if (!filepath.endsWith(".mdx")) {
-			filepath = filepath.concat(".mdx");
-		}
-		return filepath;
-	}
-
-	public static String convertPathToMDX2(String filepath) {
-		if (filepath.endsWith(".mdl") || filepath.endsWith(".mdx")) {
-			filepath = filepath.substring(0, filepath.length()-4);
-		}
-		return filepath.concat(".mdx");
-	}
 }
