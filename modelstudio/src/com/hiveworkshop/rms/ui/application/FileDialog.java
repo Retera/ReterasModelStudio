@@ -160,17 +160,17 @@ public class FileDialog {
         };
     }
 
-    public void onClickSaveAs() {
+    public boolean onClickSaveAs() {
         final EditableModel model = getModel();
-        onClickSaveAs(model, SAVE, true);
+        return onClickSaveAs(model, SAVE, true);
     }
 
-    public void exportTexture(final BufferedImage bufferedImage, String fileName) {
+    public boolean exportTexture(final BufferedImage bufferedImage, String fileName) {
         setCurrentDirectory(getModel());
         setFilter(SAVE_TEXTURE);
         File selectedFile = new File(fileChooser.getCurrentDirectory(), fileName);
         fileChooser.setSelectedFile(selectedFile);
-        onClickSaveAs(null, bufferedImage, SAVE_TEXTURE, false);
+        return onClickSaveAs(null, bufferedImage, SAVE_TEXTURE, false);
     }
 
     private String getExtension(File modelFile) {
@@ -182,17 +182,17 @@ public class FileDialog {
         }
     }
 
-    public void onClickSaveAs(final EditableModel model, int operationType, boolean updateCurrent) {
+    public boolean onClickSaveAs(final EditableModel model, int operationType, boolean updateCurrent) {
         BufferedImage bufferedImage = null;
         if (operationType == SAVE_TEXTURE || operationType == SAVE) {
             if (model != null && model.getMaterial(0) != null) {
 	            bufferedImage = ImageCreator.getBufferedImage(model.getMaterial(0), getModel().getWrappedDataSource());
             }
         }
-        onClickSaveAs(model, bufferedImage, operationType, updateCurrent);
+        return onClickSaveAs(model, bufferedImage, operationType, updateCurrent);
     }
 
-    public void onClickSaveAs(final EditableModel model, BufferedImage bufferedImage, int operationType, boolean updateCurrent) {
+    public boolean onClickSaveAs(final EditableModel model, BufferedImage bufferedImage, int operationType, boolean updateCurrent) {
         fileChooser.setDialogTitle("Save as");
         setFilter(operationType);
         setCurrentDirectory(model);
@@ -208,6 +208,7 @@ public class FileDialog {
             fileChooser.setSelectedFile(selectedFile);
         }
         try {
+            boolean success = false;
             final int returnValue = fileChooser.showSaveDialog(getParent());
             File file = fileChooser.getSelectedFile();
             if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -221,8 +222,9 @@ public class FileDialog {
                     setCurrentPath(file);
                     if (extFilter.isSavableModelExt(ext)) {
                         saveModel(model, file, ext, updateCurrent);
+                        success = true;
                     } else if (extFilter.isSavableTextureExt(ext) && bufferedImage != null) {
-                        saveTexture(bufferedImage, file, ext);
+                        success = saveTexture(bufferedImage, file, ext);
                     }
                 } else {
                     JOptionPane.showMessageDialog(getParent(),
@@ -230,10 +232,12 @@ public class FileDialog {
                 }
             }
             fileChooser.setSelectedFile(null);
+            return success;
         } catch (final Exception exc) {
             ExceptionPopup.display(exc);
             exc.printStackTrace();
         }
+        return false;
     }
 
     public void exportInternalFile(String internalPath) {
@@ -338,7 +342,7 @@ public class FileDialog {
         getModelPanel().getMenuItem().setToolTipText(getCurrentFile().getPath());
     }
 
-    private void saveTexture(BufferedImage bufferedImage, File modelFile, String ext) throws IOException {
+    private boolean saveTexture(BufferedImage bufferedImage, File modelFile, String ext) throws IOException {
         String fileExtension = ext.toLowerCase();
         if (fileExtension.equals("bmp") || fileExtension.equals("jpg") || fileExtension.equals("jpeg")) {
 	        JOptionPane.showMessageDialog(getParent(),
@@ -351,6 +355,7 @@ public class FileDialog {
         if (!write) {
             JOptionPane.showMessageDialog(getParent(), "Could not write file.\nFile type unknown or unavailable");
         }
+        return write;
     }
 
     private void setCurrentDirectory(EditableModel model) {

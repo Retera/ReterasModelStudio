@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.ui.util;
 
 import com.hiveworkshop.rms.ui.application.MainFrame;
-import com.hiveworkshop.rms.ui.application.MenuBar1.FileMenu;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.CloseModel;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
@@ -56,12 +56,21 @@ public class ExceptionPopup {
 		JButton tryToUndo = new JButton("try to undo");
 		tryToUndo.addActionListener(ProgramGlobals.getUndoHandler().getUndoAction());
 		panel.add(tryToUndo);
+		// And a way close the current model
+		// This will also trigger the save-prompt
+		JButton closeModel = new JButton("close model");
+		closeModel.addActionListener(a -> {
+			ProgramGlobals.getMainPanel().setVisible(false);
+			CloseModel.closeModelPanel();
+			ProgramGlobals.getMainPanel().setVisible(true);
+		});
+		panel.add(closeModel);
 		// And a way to exit RMS without going through the Task Manager
 		// This will also trigger the save-prompt
 		JButton exitRms = new JButton("exit RMS");
 		exitRms.addActionListener(a -> {
 			ProgramGlobals.getMainPanel().setVisible(false);
-			if (FileMenu.closeAll()) {
+			if (CloseModel.closeAll()) {
 				System.exit(-1);
 			}
 			ProgramGlobals.getMainPanel().setVisible(true);

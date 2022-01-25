@@ -100,27 +100,25 @@ public class ModelPanel {
 
 	public boolean close() {
 		// returns true if closed successfully
-		boolean canceled = false;
 		if (!modelHandler.getUndoManager().isUndoListEmpty()) {
 			final Object[] options = {"Yes", "No", "Cancel"};
+			EditableModel model = modelHandler.getModel();
 			final int n = JOptionPane.showOptionDialog(ProgramGlobals.getMainPanel(),
-					"Would you like to save " + modelHandler.getModel().getName() + " (\""
-							+ modelHandler.getModel().getHeaderName() + "\") before closing?",
+					"Would you like to save " + model.getName()
+							+ " (\"" + model.getHeaderName() + "\") " +
+							"before closing?",
 					"Warning", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, options,
 					options[2]);
-			switch (n) {
-				case JOptionPane.YES_OPTION:
+			return switch (n) {
+				case JOptionPane.YES_OPTION -> {
 					FileDialog fileDialog = new FileDialog(this);
-					fileDialog.onClickSaveAs();
-					break;
-				case JOptionPane.NO_OPTION:
-					break;
-				case JOptionPane.CANCEL_OPTION:
-					canceled = true;
-					break;
-			}
+					yield fileDialog.onClickSaveAs();
+				}
+				case JOptionPane.NO_OPTION -> true;
+				default -> false;
+			};
 		}
-		return !canceled;
+		return true;
 	}
 
 	public UndoManager getUndoManager() {

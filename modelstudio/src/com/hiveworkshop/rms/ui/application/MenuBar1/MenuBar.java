@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.CloseModel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
@@ -83,7 +84,7 @@ public class MenuBar {
     }
 
     public static boolean closeAll() {
-        return FileMenu.closeAll();
+        return CloseModel.closeAll();
     }
 
     public static void setToolsMenuEnabled(boolean enabled) {
