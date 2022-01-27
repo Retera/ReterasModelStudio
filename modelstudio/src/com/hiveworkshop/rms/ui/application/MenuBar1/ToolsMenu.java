@@ -3,8 +3,10 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 import com.hiveworkshop.rms.ui.application.EditUVsPanel;
 import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
 import com.hiveworkshop.rms.ui.application.ModelEditActions;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
-import com.hiveworkshop.rms.ui.application.tools.EditTexturesPopupPanel;
+import com.hiveworkshop.rms.ui.application.tools.EditTexturesPanel;
+import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -35,7 +37,7 @@ public class ToolsMenu extends JMenu {
 
 		JMenuItem editTextures = new JMenuItem("Edit Textures");
 		editTextures.setMnemonic(KeyEvent.VK_T);
-		editTextures.addActionListener(e -> EditTexturesPopupPanel.showPanel());
+		editTextures.addActionListener(e -> EditTexturesPanel.showPanel());
 		add(editTextures);
 
 		add(new RigSelection().getMenuItem());

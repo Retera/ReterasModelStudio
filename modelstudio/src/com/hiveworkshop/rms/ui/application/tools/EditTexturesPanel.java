@@ -25,65 +25,79 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
 
-public class EditTexturesPopupPanel extends JPanel {
+public class EditTexturesPanel extends JPanel {
 	private final ModelHandler modelHandler;
 	private final UndoManager undoManager;
 	private final EditableModel model;
-	private final JTextField pathField;
+	private final JTextField pathField = new JTextField(24);
 	private final JPanel imageViewerPanel;
 	private final FileDialog fileDialog;
 	private final IterableListModel<Bitmap> bitmapListModel = new IterableListModel<>();
-	JList<Bitmap> bitmapJList = new JList<>(bitmapListModel);
+	private final JList<Bitmap> bitmapJList = new JList<>(bitmapListModel);
+	private final ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
 
-	/**
-	 * Create the panel.
-	 */
-	public EditTexturesPopupPanel(ModelHandler modelHandler) {
-		fileDialog = new FileDialog(this);
-		setLayout(new MigLayout("fill", "[16%:16%:97][16%:16%:97][16%:16%:97][5%:5%:30][fill, max(200)][16%:16%:97][grow]", "[fill, grow][shrink][shrink]"));
+	public EditTexturesPanel(ModelHandler modelHandler) {
+		super(new MigLayout("fill", "[][grow]", "[grow][]"));
 		this.modelHandler = modelHandler;
 		this.undoManager = modelHandler.getUndoManager();
 		this.model = modelHandler.getModel();
+		fileDialog = new FileDialog(this);
 
-		JPanel texturesPanel = new JPanel();
-		texturesPanel.setBorder(new TitledBorder(null, "Textures", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		texturesPanel.setLayout(new BorderLayout(0, 0));
-		add(texturesPanel, "cell 0 0 3 1, w 50%:300:300");
+		add(getTexturesListPanel(), "growy, growx 90");
 
-		JCheckBox chckbxDisplayPath = new JCheckBox("Display Path");
+		imageViewerPanel = getImageViewerPanel();
+		add(imageViewerPanel, "growy, growx, wrap");
 
-		chckbxDisplayPath.addActionListener(e -> bitmapJList.repaint());
+		updateBitmapList();
 
-		Bitmap defaultTexture = getBitmaps();
+		add(getLowerButtonPanel(), "");
+		add(getPathFieldPanel(), "");
 
-//		list.setModel(bitmapListModel);
-		bitmapJList.setCellRenderer(getCellRenderer(chckbxDisplayPath));
-		bitmapJList.addListSelectionListener(e -> ListListener(bitmapJList));
-		texturesPanel.add(new JScrollPane(bitmapJList));
+		if(!bitmapListModel.isEmpty()){
+			bitmapJList.setSelectedIndex(0);
+		}
+	}
 
-		texturesPanel.add(chckbxDisplayPath, BorderLayout.SOUTH);
-
-		imageViewerPanel = new JPanel();
+	private JPanel getImageViewerPanel() {
+		JPanel imageViewerPanel = new JPanel();
 		imageViewerPanel.setBorder(new TitledBorder(null, "Image Viewer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		imageViewerPanel.setLayout(new BorderLayout());
-		add(imageViewerPanel, "cell 3 0 6 1, w 50%:95%:95%, grow");
+//		add(imageViewerPanel, "w 50%:95%:95%, growy, wrap");
+		return imageViewerPanel;
+	}
 
-		loadBitmap(defaultTexture);
-
-
-		add(getButton("Add", e -> importTexturePopup()), "cell 0 1 1 1, growx");
-		add(getButton("Add From Path", e -> btnAddTexture()), "cell 1 1 1 1, growx");
-		add(getButton("Export", e -> exportTexture()), "cell 2 1 1 1, growx");
-		add(getButton("Replace", e -> btnReplaceTexture()), "cell 0 2 1 1, growx");
-		add(getButton("Remove", e -> btnRemoveTexture()), "cell 1 2 1 1, growx");
-
-		pathField = new JTextField();
-		pathField.setColumns(10);
+	private JPanel getPathFieldPanel() {
+		JPanel pathFieldPanel = new JPanel(new MigLayout("fill, ins 0", "[]"));
 		pathField.addActionListener(e -> btnEditTexture());
-		add(pathField, "cell 4 1 2 1, grow");
+		pathFieldPanel.add(pathField, "grow, wrap");
 
-		add(getButton("Apply Path", e -> btnEditTexture()), "cell 5 2 1 1, growx");
+		pathFieldPanel.add(getButton("Apply Path", e -> btnEditTexture()), "right");
+		return pathFieldPanel;
+	}
 
+	private JPanel getLowerButtonPanel() {
+		JPanel lowerButtonPanel = new JPanel(new MigLayout("ins 0, gapx 0, wrap 3", "[sg 1]"));
+		lowerButtonPanel.add(getButton("Add", e -> importTexturePopup()), "growx");
+		lowerButtonPanel.add(getButton("Add From Path", e -> btnAddTexture()), "growx");
+		lowerButtonPanel.add(getButton("Export", e -> exportTexture()), "growx");
+		lowerButtonPanel.add(getButton("Replace", e -> btnReplaceTexture()), "growx");
+		lowerButtonPanel.add(getButton("Remove", e -> btnRemoveTexture()), "growx");
+		return lowerButtonPanel;
+	}
+
+	private JPanel getTexturesListPanel() {
+		JPanel texturesListPanel = new JPanel(new MigLayout("fill, ins 0", "[grow]", "[grow][]"));
+		texturesListPanel.setBorder(BorderFactory.createTitledBorder("Textures"));
+
+		JCheckBox chckbxDisplayPath = new JCheckBox("Display Path");
+		chckbxDisplayPath.addActionListener(e -> bitmapJList.repaint());
+
+		bitmapJList.setCellRenderer(getCellRenderer(chckbxDisplayPath));
+		bitmapJList.addListSelectionListener(e -> ListListener(bitmapJList));
+		texturesListPanel.add(new JScrollPane(bitmapJList), "growx, growy, wrap");
+
+		texturesListPanel.add(chckbxDisplayPath, "");
+		return texturesListPanel;
 	}
 
 	private JButton getButton(String s, ActionListener actionListener) {
@@ -106,9 +120,9 @@ public class EditTexturesPopupPanel extends JPanel {
 			public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index,
 			                                              final boolean isSelected, final boolean cellHasFocus) {
 				if (value instanceof Bitmap) {
-					String path = ((Bitmap) value).getPath();
+					String path = ((Bitmap) value).getRenderableTexturePath();
+
 					if (!chckbxDisplayPath.isSelected()) {
-//						String displayName = path.substring(path.lastIndexOf("\\") + 1);
 						String[] bits = path.split("[\\\\/]");
 						String displayName = bits[bits.length - 1];
 						return super.getListCellRendererComponent(list, displayName, index, isSelected, cellHasFocus);
@@ -121,34 +135,17 @@ public class EditTexturesPopupPanel extends JPanel {
 		};
 	}
 
-	private Bitmap getBitmaps() {
-		Bitmap defaultTexture = null;
-		for (Bitmap bitmap : model.getTextures()) {
-			if ((bitmap.getPath() != null) && (bitmap.getPath().length() > 0)) {
-				bitmapListModel.addElement(bitmap);
-				if (defaultTexture == null) {
-					defaultTexture = bitmap;
-				}
-			}
-		}
-		return defaultTexture;
-	}
-
 	private void updateBitmapList() {
 		Bitmap selectedValue = bitmapJList.getSelectedValue();
 		bitmapListModel.clear();
-		for (Bitmap bitmap : model.getTextures()) {
-			if ((bitmap.getPath() != null) && (bitmap.getPath().length() > 0)) {
-				bitmapListModel.addElement(bitmap);
-			}
-		}
+		bitmapListModel.addAll(model.getTextures());
 		bitmapJList.setSelectedValue(selectedValue, true);
 	}
 
 	private void importTexturePopup() {
 		Bitmap newBitmap = fileDialog.importImage();
 		if (newBitmap != null) {
-			UndoAction action = new AddBitmapAction(newBitmap, model, ModelStructureChangeListener.changeListener);
+			UndoAction action = new AddBitmapAction(newBitmap, model, changeListener);
 			undoManager.pushAction(action.redo());
 			updateBitmapList();
 			bitmapJList.setSelectedIndex(bitmapListModel.size() - 1);
@@ -163,12 +160,13 @@ public class EditTexturesPopupPanel extends JPanel {
 	}
 
 	private void btnAddTexture() {
-		String path = JOptionPane.showInputDialog(EditTexturesPopupPanel.this, "Enter texture path:",
-				"Add Texture", JOptionPane.PLAIN_MESSAGE);
+		String path = JOptionPane.showInputDialog(
+				EditTexturesPanel.this,
+				"Enter texture path:",
+				"Add Texture",
+				JOptionPane.PLAIN_MESSAGE);
 		if (path != null) {
-			Bitmap newBitmap = new Bitmap(path);
-			UndoAction action = new AddBitmapAction(newBitmap, model, ModelStructureChangeListener.changeListener);
-			undoManager.pushAction(action.redo());
+			undoManager.pushAction(new AddBitmapAction(new Bitmap(path), model, changeListener).redo());
 			updateBitmapList();
 			bitmapJList.setSelectedIndex(bitmapListModel.size() - 1);
 		}
@@ -176,10 +174,8 @@ public class EditTexturesPopupPanel extends JPanel {
 
 	private void btnEditTexture() {
 		Bitmap selectedValue = bitmapJList.getSelectedValue();
-		if (selectedValue != null) {
-
-			SetBitmapPathAction setBitmapPathAction = new SetBitmapPathAction(selectedValue, pathField.getText(), ModelStructureChangeListener.changeListener);
-			modelHandler.getUndoManager().pushAction(setBitmapPathAction.redo());
+		if (selectedValue != null && !selectedValue.getPath().equals(pathField.getText())) {
+			undoManager.pushAction(new SetBitmapPathAction(selectedValue, pathField.getText(), changeListener).redo());
 			loadBitmap(selectedValue);
 		}
 	}
@@ -188,8 +184,7 @@ public class EditTexturesPopupPanel extends JPanel {
 		Bitmap selectedValue = bitmapJList.getSelectedValue();
 		int selectedIndex = bitmapJList.getSelectedIndex()-1;
 		if (selectedValue != null) {
-			UndoAction action = new RemoveBitmapAction(selectedValue, model, ModelStructureChangeListener.changeListener);
-			undoManager.pushAction(action.redo());
+			undoManager.pushAction(new RemoveBitmapAction(selectedValue, model, changeListener).redo());
 			updateBitmapList();
 			bitmapJList.setSelectedIndex(selectedIndex);
 		}
@@ -199,12 +194,9 @@ public class EditTexturesPopupPanel extends JPanel {
 		final Bitmap selectedValue = bitmapJList.getSelectedValue();
 		if (selectedValue != null) {
 			Bitmap newBitmap = fileDialog.importImage();
-			if (newBitmap != null) {
-				selectedValue.setPath(newBitmap.getPath());
-				pathField.setText(selectedValue.getPath());
-				bitmapJList.repaint();
+			if (newBitmap != null && !newBitmap.getPath().equals(selectedValue.getPath())) {
+				undoManager.pushAction(new SetBitmapPathAction(selectedValue, newBitmap.getPath(), changeListener).redo());
 				loadBitmap(selectedValue);
-				ModelStructureChangeListener.changeListener.texturesChanged();
 			}
 		}
 	}
@@ -217,11 +209,13 @@ public class EditTexturesPopupPanel extends JPanel {
 			imageViewerPanel.add(comp);
 			imageViewerPanel.revalidate();
 		}
+		if(bitmapListModel.size() != model.getTextures().size()){
+			updateBitmapList();
+		}
 	}
 
 	private ZoomableImagePreviewPanel getZoomableImagePreviewPanel(Bitmap bitmap, DataSource workingDirectory) {
 		try {
-//			BufferedImage texture = BLPHandler.get().getTexture(workingDirectory, bitmap.getPath());
 			BufferedImage texture = BLPHandler.getImage(bitmap, workingDirectory);
 			return new ZoomableImagePreviewPanel(texture);
 		} catch (final Exception exc) {
@@ -234,7 +228,7 @@ public class EditTexturesPopupPanel extends JPanel {
 	}
 
 	public static void showPanel() {
-		EditTexturesPopupPanel textureManager = new EditTexturesPopupPanel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
+		EditTexturesPanel textureManager = new EditTexturesPanel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
 		textureManager.setSize(new Dimension(800, 650));
 		FramePopup.show(textureManager, ProgramGlobals.getMainPanel(), "Edit Textures");
 //		final JFrame frame = new JFrame("Edit Textures");
