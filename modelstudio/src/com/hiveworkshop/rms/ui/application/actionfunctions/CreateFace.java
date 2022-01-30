@@ -69,7 +69,7 @@ public class CreateFace extends ActionFunction {
 		Geoset geoset = selection.stream().findAny().orElse(new GeosetVertex(0, 0, 0)).getGeoset();
 
 		boolean sameGeoset = Arrays.stream(verticesArray).allMatch(vertex -> vertex.getGeoset() == geoset);
-		boolean triangleExists = verticesArray[0].getTriangles().stream().noneMatch(triangle -> triangle.containsSameVerts(verticesArray));
+		boolean triangleExists = verticesArray[0].getTriangles().stream().anyMatch(triangle -> triangle.containsSameVerts(verticesArray));
 
 		if (sameGeoset && !triangleExists) {
 			Triangle newTriangle = new Triangle(verticesArray[0], verticesArray[1], verticesArray[2], geoset);
@@ -80,7 +80,7 @@ public class CreateFace extends ActionFunction {
 			}
 
 			return new AddTriangleAction(geoset, Collections.singletonList(newTriangle));
-		} else if (sameGeoset) {
+		} else if (!sameGeoset) {
 			throw new FaceCreationException(
 					"All three vertices to create a face must be a part of the same Geoset");
 		} else if (triangleExists) {

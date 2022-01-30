@@ -101,10 +101,10 @@ public class ViewportPopupMenu extends JPopupMenu {
 
 		addMenuItem("Selected Mesh to Selected Nodes", e -> RigSelection.doRig(modelHandler), matrixMenu);
 		addMenuItem("Re-assign Matrix", e -> reAssignMatrix(this.parent), matrixMenu);
-		addMenuItem("View Matrix", e -> ViewSkinning.viewMatrices(), matrixMenu);
+		addMenuItem("View Matrix", e -> ViewSkinning.viewMatrices(modelHandler), matrixMenu);
 		addMenuItem("Re-assign HD Skin", e -> reAssignSkinning(this.parent), matrixMenu);
-		addMenuItem("View HD Skin", e -> ViewSkinning.viewHDSkinning(), matrixMenu);
-		addMenuItem("View Skinning", e -> ViewSkinning.viewSkinning(), matrixMenu);
+		addMenuItem("View HD Skin", e -> ViewSkinning.viewHDSkinning(modelHandler), matrixMenu);
+		addMenuItem("View Skinning", e -> ViewSkinning.viewSkinning(modelHandler), matrixMenu);
 
 		JMenu nodeMenu = new JMenu("Node");
 		add(nodeMenu);

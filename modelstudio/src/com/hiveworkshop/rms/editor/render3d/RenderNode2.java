@@ -233,10 +233,14 @@ public final class RenderNode2 {
 	}
 
 	public Mat4 getParentWorldMatrix() {
-		if (idObject.getParent() != null && renderModel.getRenderNode(idObject.getParent()) != null) {
+		if (hasParent()) {
 			return renderModel.getRenderNode(idObject.getParent()).getWorldMatrix();
 		}
 		return new Mat4().setIdentity();
+	}
+
+	public boolean hasParent() {
+		return idObject.getParent() != null && renderModel.getRenderNode(idObject.getParent()) != null;
 	}
 
 	/**
@@ -282,7 +286,7 @@ public final class RenderNode2 {
 	}
 
 	public Quat getParentWorldRotation() {
-		if (idObject.getParent() != null && renderModel.getRenderNode(idObject.getParent()) != null) {
+		if (hasParent()) {
 			return renderModel.getRenderNode(idObject.getParent()).getWorldRotation();
 		}
 		return new Quat();
@@ -305,7 +309,7 @@ public final class RenderNode2 {
 	}
 
 	public Vec3 getParentRenderPivot() {
-		if (idObject.getParent() != null && renderModel.getRenderNode(idObject.getParent()) != null) {
+		if (hasParent()) {
 			return renderModel.getRenderNode(idObject.getParent()).getRenderPivot();
 		}
 		return Vec3.ZERO;

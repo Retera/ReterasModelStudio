@@ -24,6 +24,7 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	private Bitmap bitmap;
 	private final ComponentEditorTextField texturePathField;
 	private final IntEditorJSpinner replaceableIdSpinner;
+	private final JLabel sizeLable;
 	private final JCheckBox wrapWidthBox;
 	private final JCheckBox wrapHeightBox;
 	private final JPanel previewPanel;
@@ -35,6 +36,8 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		fileDialog = new FileDialog(this);
 
 		replaceableIdSpinner = new IntEditorJSpinner(-1, -1, this::replaceableIdSpinner);
+
+		sizeLable = new JLabel();
 
 		wrapWidthBox = new JCheckBox("Wrap Width");
 		wrapWidthBox.addActionListener(e -> wrapWidthBox(wrapWidthBox.isSelected()));
@@ -50,7 +53,9 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 		add(new JLabel("Path: "), "cell 0 0");
 		add(texturePathField, "cell 1 0 2, growx");
 		add(new JLabel("ReplaceableId: "), "cell 0 1");
-		add(replaceableIdSpinner, "cell 1 1 2");
+//		add(replaceableIdSpinner, "cell 1 1 2");
+		add(replaceableIdSpinner, "cell 1 1 1");
+		add(sizeLable, "cell 2 1");
 		add(wrapWidthBox, "cell 0 2 3");
 		add(wrapHeightBox, "cell 0 3");
 
@@ -95,6 +100,7 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	@Override
 	public ComponentPanel<Bitmap> setSelectedItem(Bitmap bitmap) {
 		this.bitmap = bitmap;
+		sizeLable.setText("");
 		texturePathField.reloadNewValue(bitmap.getPath());
 		replaceableIdSpinner.reloadNewValue(bitmap.getReplaceableId());
 		wrapWidthBox.setSelected(bitmap.isWrapWidth());
@@ -116,7 +122,11 @@ public class ComponentBitmapPanel extends ComponentPanel<Bitmap> {
 	private ZoomableImagePreviewPanel getZoomableImagePreviewPanel(Bitmap defaultTexture, DataSource workingDirectory) {
 		ZoomableImagePreviewPanel comp;
 		try {
-			comp = new ZoomableImagePreviewPanel(BLPHandler.getImage(defaultTexture, workingDirectory));
+			BufferedImage image = BLPHandler.getImage(defaultTexture, workingDirectory);
+			if(image != null){
+				sizeLable.setText(image.getWidth() + " px * " + image.getHeight() + " px");
+			}
+			comp = new ZoomableImagePreviewPanel(image);
 		} catch (final Exception exc) {
 			BufferedImage image = new BufferedImage(512, 512, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D g2 = image.createGraphics();

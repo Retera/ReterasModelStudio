@@ -123,6 +123,8 @@ public class Material {
 					}
 				}
 			}
+		} else {
+			name.append("This material got no layers!");
 		}
 		return name.toString();
 	}

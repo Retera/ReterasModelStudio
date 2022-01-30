@@ -23,7 +23,7 @@ public class ToolsMenu extends JMenu {
 
 		add(new ScaleModel().getMenuItem());
 
-		add(new ViewMatrices().getMenuItem());
+		add(new ViewSkinning().getMenuItem());
 		add(new FlipFaces().getMenuItem());
 		add(new FlipNormals().getMenuItem());
 

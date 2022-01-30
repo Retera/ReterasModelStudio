@@ -4,39 +4,41 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Matrix;
 import com.hiveworkshop.rms.editor.model.SkinBone;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.ui.util.InfoPopup;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ViewSkinning {
-	public static void viewMatrices() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			InfoPopup.show(ProgramGlobals.getMainPanel(), getSelectedMatricesDescription(modelPanel.getModelView().getSelectedVertices()));
+public class ViewSkinning extends ActionFunction {
+
+	public ViewSkinning() {
+		super(TextKey.VIEW_SKINNING, ViewSkinning::viewSkinning);
+	}
+
+	public static void viewMatrices(ModelHandler modelHandler) {
+		if (modelHandler != null) {
+			InfoPopup.show(ProgramGlobals.getMainPanel(), getSelectedMatricesDescription(modelHandler.getModelView().getSelectedVertices()));
 		}
 	}
 
-	public static void viewHDSkinning() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			InfoPopup.show(ProgramGlobals.getMainPanel(), getSelectedHDSkinningDescription(modelPanel.getModelView().getSelectedVertices()));
+	public static void viewHDSkinning(ModelHandler modelHandler) {
+		if (modelHandler != null) {
+			InfoPopup.show(ProgramGlobals.getMainPanel(), getSelectedHDSkinningDescription(modelHandler.getModelView().getSelectedVertices()));
 		}
 	}
 
-	public static void viewSkinning() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		if (modelPanel != null) {
-			InfoPopup.show(ProgramGlobals.getMainPanel(), getSkinningDescription(modelPanel.getModelView()));
+	public static void viewSkinning(ModelHandler modelHandler) {
+		if (modelHandler != null) {
+			InfoPopup.show(ProgramGlobals.getMainPanel(), getSkinningDescription(modelHandler.getModelView().getSelectedVertices()));
 		}
 	}
 
-	public static String getSkinningDescription(ModelView modelView){
-		List<GeosetVertex> hdVerts = modelView.getSelectedVertices().stream().filter(gv -> gv.getSkinBones() != null).collect(Collectors.toList());
-		List<GeosetVertex> sdVerts = modelView.getSelectedVertices().stream().filter(gv -> gv.getSkinBones() == null).collect(Collectors.toList());
+	public static String getSkinningDescription(Collection<GeosetVertex> selection){
+		List<GeosetVertex> hdVerts = selection.stream().filter(gv -> gv.getSkinBones() != null).collect(Collectors.toList());
+		List<GeosetVertex> sdVerts = selection.stream().filter(gv -> gv.getSkinBones() == null).collect(Collectors.toList());
 
 		String hdDesc = "";
 		String sdDesc = "";

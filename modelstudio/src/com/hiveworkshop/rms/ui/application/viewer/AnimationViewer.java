@@ -47,6 +47,7 @@ public class AnimationViewer extends JPanel {
 	private void setAnimation() {
 		if (renderEnv != null) {
 			renderEnv.setSequence((Animation) animationBox.getSelectedItem());
+			renderEnv.setAnimationTime(0);
 		}
 	}
 
@@ -87,6 +88,7 @@ public class AnimationViewer extends JPanel {
 		perspectiveViewport.setModel(modelView, renderModel, true);
 		renderEnv.setAnimationTime(0);
 		renderEnv.setLive(true);
+		renderEnv.setLoopType(LoopType.ALWAYS_LOOP);
 		reload();
 	}
 

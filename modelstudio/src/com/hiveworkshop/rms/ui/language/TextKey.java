@@ -89,6 +89,7 @@ public enum TextKey {
 	REMOVE_UNUSED_NODES("Remove Unused Nodes"),
 	REMOVE_MATERIALS_DUPLICATES("Remove Materials Duplicates"),
 	VIEW_MATRICES("View Selected \"Matrices\""),
+	VIEW_SKINNING("View Skinning of Selected Vertices"),
 	FLIP_FACES("Flip all selected faces"),
 	FLIP_NORMALS("Flip all selected normals"),
 	IMPORT("Import"),
