@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.actions.model.material;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 
 public class SetLayerFlagAction implements UndoAction {
@@ -35,13 +36,13 @@ public class SetLayerFlagAction implements UndoAction {
 
 	private void toggleFlag() {
 		switch (flag) {
-			case "Unshaded" -> layer.setUnshaded(!layer.getUnshaded());
-			case "SphereEnvMap" -> layer.setSphereEnvMap(!layer.getSphereEnvMap());
-			case "TwoSided" -> layer.setTwoSided(!layer.getTwoSided());
-			case "Unfogged" -> layer.setUnfogged(!layer.getUnfogged());
-			case "NoDepthTest" -> layer.setNoDepthTest(!layer.getNoDepthTest());
-			case "NoDepthSet" -> layer.setNoDepthSet(!layer.getNoDepthSet());
-			case "Unlit" -> layer.setUnlit(!layer.getUnlit());
+			case MdlUtils.TOKEN_UNSHADED -> layer.setUnshaded(!layer.getUnshaded());
+			case MdlUtils.TOKEN_SPHERE_ENV_MAP -> layer.setSphereEnvMap(!layer.getSphereEnvMap());
+			case MdlUtils.TOKEN_TWO_SIDED -> layer.setTwoSided(!layer.getTwoSided());
+			case MdlUtils.TOKEN_UNFOGGED -> layer.setUnfogged(!layer.getUnfogged());
+			case MdlUtils.TOKEN_NO_DEPTH_TEST -> layer.setNoDepthTest(!layer.getNoDepthTest());
+			case MdlUtils.TOKEN_NO_DEPTH_SET -> layer.setNoDepthSet(!layer.getNoDepthSet());
+			case MdlUtils.TOKEN_UNLIT -> layer.setUnlit(!layer.getUnlit());
 		}
 	}
 

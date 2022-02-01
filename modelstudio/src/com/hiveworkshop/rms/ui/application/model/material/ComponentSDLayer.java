@@ -1,9 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
-import com.hiveworkshop.rms.editor.actions.model.material.ChangeLayerOrderAction;
-import com.hiveworkshop.rms.editor.actions.model.material.RemoveLayerAction;
-import com.hiveworkshop.rms.editor.actions.model.material.RemoveMaterialAction;
-import com.hiveworkshop.rms.editor.actions.model.material.SetLayerFilterModeAction;
+import com.hiveworkshop.rms.editor.actions.model.material.*;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
@@ -17,12 +14,12 @@ import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.TextureValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.ItemEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -31,7 +28,7 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 	private FloatValuePanel alphaPanel;
 	private final JPanel texturePreviewPanel;
 	private final JPanel layerFlagsPanel;
-	private JComboBox<FilterMode> filterModeDropdown;
+	private TwiComboBox<FilterMode> filterModeDropdown;
 	private JButton tVertexAnimButton;
 	private IntEditorJSpinner coordIdSpinner;
 	private JButton move_up;
@@ -40,7 +37,7 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 
 	public ComponentSDLayer(ModelHandler modelHandler, int nr) {
 		super(modelHandler);
-		setLayout(new MigLayout("fill", "[][][grow]", "[][fill]"));
+		setLayout(new MigLayout("fill", "[][][grow]", "[][grow]"));
 		Border lineBorder = BorderFactory.createLineBorder(Color.LIGHT_GRAY);
 		setBorder(BorderFactory.createTitledBorder(lineBorder, "Layer " + nr));
 
@@ -159,8 +156,8 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 		JPanel topSettingsPanel = new JPanel(new MigLayout("ins 0"));
 
 		topSettingsPanel.add(new JLabel("Filter Mode:"));
-		filterModeDropdown = new JComboBox<>(FilterMode.values());
-		filterModeDropdown.addItemListener(this::filterModeDropdownListener);
+		filterModeDropdown = new TwiComboBox<>(FilterMode.values(), FilterMode.TRANSPARENT);
+		filterModeDropdown.addOnSelectItemListener(this::changeFilterModeDrop);
 		topSettingsPanel.add(filterModeDropdown, "wrap, growx");
 
 		topSettingsPanel.add(new JLabel("TVertex Anim:"));
@@ -174,9 +171,8 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 		return topSettingsPanel;
 	}
 
-	private void filterModeDropdownListener(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED && selectedItem != null) {
-			FilterMode newFilterMode = (FilterMode) e.getItem();
+	private void changeFilterModeDrop(FilterMode newFilterMode) {
+		if (newFilterMode != null && newFilterMode != selectedItem.getFilterMode()) {
 			undoManager.pushAction(new SetLayerFilterModeAction(selectedItem, newFilterMode, changeListener).redo());
 		}
 	}
@@ -185,39 +181,27 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 		if (selectedItem != null) {
 			selectedItem.setCoordId(value);
 		}
-//		coordIdSpinner.reloadNewValue(coordIdSpinner.getIntValue());
 	}
 
 	private void setTextureId(int value){
-		if(selectedItem.getTextureId() != value) {
-//			undoManager.pushAction(new SetLayerFilterModeAction().redo());
-			selectedItem.setTextureId(value);
+		Bitmap texture = model.getTexture(value);
+		if(texture != null && selectedItem.getTextureBitmap() != texture) {
+			undoManager.pushAction(new SetLayerTextureAction(texture, selectedItem, changeListener).redo());
 		}
 	}
 
 	private void setStaticAlpha(double value){
 		if(selectedItem.getStaticAlpha() != value) {
-//			undoManager.pushAction(new SetLayerFilterModeAction().redo());
-			selectedItem.setStaticAlpha(value);
+			undoManager.pushAction(new SetLayerAlphaAction(selectedItem, value, changeListener).redo());
 		}
 	}
 
 	private void removeLayer() {
 		if (material.getLayers().size() <= 1) {
 			List<Geoset> geosetList = model.getGeosets();
-//			int numUses = 0;
-//			for (Geoset geoset : geosetList) {
-//				if (geoset.getMaterial() == material) {
-//					// Checks if this instance of the material is used.
-//					// This lets the user remove the material even if used clones exists
-//					numUses++;
-//				}
-//			}
-
-//			boolean b = geosetList.stream().anyMatch(geoset -> geoset.getMaterial() == material);
-			int numUses = geosetList.stream().mapToInt(geoset -> geoset.getMaterial() == material ? 1 : 0).sum();
 			// Checks if this instance of the material is used.
 			// This lets the user remove the material even if used clones exists
+			int numUses = geosetList.stream().mapToInt(geoset -> geoset.getMaterial() == material ? 1 : 0).sum();
 			if (numUses > 0) {
 				JOptionPane.showMessageDialog(this, "Cannot delete material as it is being used by " + numUses + " geosets.");
 			} else {

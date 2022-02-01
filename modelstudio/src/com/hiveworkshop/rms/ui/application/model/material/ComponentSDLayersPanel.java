@@ -45,9 +45,9 @@ public class ComponentSDLayersPanel extends ComponentLayersPanel {
 	}
 
 	protected JPanel getLayersHolderPanel() {
-		JPanel layersPanel = new JPanel(new MigLayout("fill", "[][][grow]"));
+		JPanel layersPanel = new JPanel(new MigLayout("fill, ins 0", "[][][grow]"));
 
-		layerPanelsHolder = new JPanel(new MigLayout("fill", "[grow]"));
+		layerPanelsHolder = new JPanel(new MigLayout("fill, ins 0", "[grow]"));
 		layersPanel.add(layerPanelsHolder, "growx, spanx, wrap");
 
 		layersPanel.add(getAddLayerButton());

@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
+import com.hiveworkshop.rms.editor.actions.model.material.SetLayerAlphaAction;
 import com.hiveworkshop.rms.editor.actions.model.material.SetLayerFilterModeAction;
+import com.hiveworkshop.rms.editor.actions.model.material.SetLayerTextureAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
@@ -20,13 +22,13 @@ import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.TextureValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.ItemEvent;
 import java.awt.image.BufferedImage;
 
 public class ComponentHDLayer extends ComponentPanel<Layer> {
@@ -39,7 +41,7 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 	private FloatValuePanel fresnelTeamColor;
 	private final JPanel texturePreviewPanel;
 	private final JPanel layerFlagsPanel;
-	private JComboBox<FilterMode> filterModeDropdown;
+	private TwiComboBox<FilterMode> filterModeDropdown;
 	private JButton tVertexAnimButton;
 	private IntEditorJSpinner coordIdSpinner;
 
@@ -157,9 +159,8 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 		JPanel topSettingsPanel = new JPanel(new MigLayout("ins 0"));
 
 		topSettingsPanel.add(new JLabel("Filter Mode:"));
-		filterModeDropdown = new JComboBox<>(FilterMode.values());
-		filterModeDropdown.setSelectedIndex(0);
-		filterModeDropdown.addItemListener(this::filterModeDropdownListener);
+		filterModeDropdown = new TwiComboBox<>(FilterMode.values(), FilterMode.TRANSPARENT);
+		filterModeDropdown.addOnSelectItemListener(this::changeFilterMode);
 		topSettingsPanel.add(filterModeDropdown, "wrap, growx");
 
 		topSettingsPanel.add(new JLabel("TVertex Anim:"));
@@ -172,15 +173,12 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 		return topSettingsPanel;
 	}
 
-	private void filterModeDropdownListener(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED && selectedItem != null) {
-//			System.out.println("filterModeDropdownListener");
-			FilterMode newFilterMode = (FilterMode) e.getItem();
-			if (newFilterMode != selectedItem.getFilterMode()) {
-				undoManager.pushAction(new SetLayerFilterModeAction(selectedItem, newFilterMode, changeListener).redo());
-			}
+	private void changeFilterMode(FilterMode newFilterMode) {
+		if (newFilterMode != null && newFilterMode != selectedItem.getFilterMode()) {
+			undoManager.pushAction(new SetLayerFilterModeAction(selectedItem, newFilterMode, changeListener).redo());
 		}
 	}
+
 
 	private void setCoordId(int value) {
 		if (selectedItem != null) {
@@ -190,16 +188,15 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 	}
 
 	private void setTextureId(int value){
-		if(selectedItem.getTextureId() != value) {
-//			undoManager.pushAction(new SetLayerFilterModeAction().redo());
-			selectedItem.setTextureId(value);
+		Bitmap texture = model.getTexture(value);
+		if(texture != null && selectedItem.getTextureBitmap() != texture) {
+			undoManager.pushAction(new SetLayerTextureAction(texture, selectedItem, changeListener).redo());
 		}
 	}
 
 	private void setStaticAlpha(double value){
 		if(selectedItem.getStaticAlpha() != value) {
-//			undoManager.pushAction(new SetLayerFilterModeAction().redo());
-			selectedItem.setStaticAlpha(value);
+			undoManager.pushAction(new SetLayerAlphaAction(selectedItem, value, changeListener).redo());
 		}
 	}
 

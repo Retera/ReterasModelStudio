@@ -27,12 +27,11 @@ import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.application.tools.GeosetAnimCopyPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.util.TwiComboBoxModel;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
 import java.util.List;
 import java.util.*;
 
@@ -66,7 +65,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		add(topPanel, "wrap");
 		topPanel.add(getGeosetInfoPanel(), "growx");
 
-		JPanel materialPanelHolder = getMaterialPanelHolder(modelHandler);
+		JPanel materialPanelHolder = getMaterialPanelHolder();
 		topPanel.add(materialPanelHolder, "wrap, growx, spanx");
 
 
@@ -83,13 +82,11 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		add(animPanel, "wrap");
 	}
 
-	private JPanel getMaterialPanelHolder(ModelHandler modelHandler) {
+	private JPanel getMaterialPanelHolder() {
 		JPanel materialPanelHolder = new JPanel(new MigLayout("hidemode 1"));
 		materialPanelHolder.add(new JLabel("Material:"), "wrap");
 
 		materialChooser = getMaterialChooser();
-		materialChooser.setRenderer(new MaterialListRenderer(modelHandler.getModel()));
-		materialChooser.addItemListener(this::changeTexture);
 		materialPanelHolder.add(materialChooser, "wrap");
 
 		JButton cloneMaterial = new JButton("Clone This Material");
@@ -117,18 +114,17 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		return geosetInfoPanel;
 	}
 
-	private void changeTexture(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED
-				&& materialChooser.getSelectedItem() != null
-				&& materialChooser.getSelectedItem() != geoset.getMaterial()) {
-			Material itemAt = (Material) materialChooser.getSelectedItem();
-			undoManager.pushAction(new ChangeMaterialAction(geoset, itemAt, changeListener).redo());
-		}
+	private JComboBox<Material> getMaterialChooser() {
+		TwiComboBox<Material> materialComboBox = new TwiComboBox<>(modelHandler.getModel().getMaterials(), new Material());
+		materialComboBox.setRenderer(new MaterialListRenderer(modelHandler.getModel()));
+		materialComboBox.addOnSelectItemListener(this::changeTexture);
+		return materialComboBox;
 	}
 
-	private JComboBox<Material> getMaterialChooser() {
-		TwiComboBoxModel<Material> bitmapModel = new TwiComboBoxModel<>(modelHandler.getModel().getMaterials());
-		return new JComboBox<>(bitmapModel);
+	private void changeTexture(Material material) {
+		if (material != null && material != geoset.getMaterial()) {
+			undoManager.pushAction(new ChangeMaterialAction(geoset, material, changeListener).redo());
+		}
 	}
 
 	private void cloneMaterial() {

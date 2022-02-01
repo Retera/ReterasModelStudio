@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.editor.actions.model.bitmap;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.model.material.ReplaceLayerTextureAction;
+import com.hiveworkshop.rms.editor.actions.model.material.SetLayerTextureAction;
 import com.hiveworkshop.rms.editor.actions.nodes.ChangeParticleTextureAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -71,14 +71,12 @@ public class RemoveBitmapAction implements UndoAction {
 		}
 		for (Material material : model.getMaterials()) {
 			for (Layer layer : material.getLayers()) {
-				undoActions.add(new ReplaceLayerTextureAction(texture, replacement, layer, null));
-//				layer.replaceTexture(texture, replacement);
+				undoActions.add(new SetLayerTextureAction(texture, replacement, layer, null));
 			}
 		}
 		for (final ParticleEmitter2 emitter : model.getParticleEmitter2s()) {
 			if (emitter.getTexture().equals(texture)) {
 				undoActions.add(new ChangeParticleTextureAction(emitter, replacement, changeListener));
-//				emitter.setTexture(replacement);
 			}
 		}
 		return undoActions;

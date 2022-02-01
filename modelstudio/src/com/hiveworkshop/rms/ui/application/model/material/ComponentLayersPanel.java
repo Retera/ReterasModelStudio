@@ -19,7 +19,7 @@ import java.awt.event.ItemEvent;
 public abstract class ComponentLayersPanel extends ComponentPanel<Material> {
 	protected static final Color HIGHLIGHT_BUTTON_BACKGROUND_COLOR = new Color(100, 118, 135);
 	protected Material material;
-	protected JComboBox<String> shaderOptionComboBox;
+	protected ShaderBox<String> shaderOptionComboBox;
 	protected IntEditorJSpinner priorityPlaneSpinner;
 	protected JCheckBox twoSided;
 
@@ -36,7 +36,7 @@ public abstract class ComponentLayersPanel extends ComponentPanel<Material> {
 		material.setTwoSided(twoSided.isSelected());
 	}
 
-	protected JComboBox<String> getShaderComboBox() {
+	protected ShaderBox<String> getShaderComboBox() {
 		final String[] shaderOptions = {"", "Shader_SD_FixedFunction", "Shader_HD_DefaultUnit"};
 		return new ShaderBox<>(shaderOptions, this::setShaderString);
 	}

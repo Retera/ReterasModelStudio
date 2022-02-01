@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReplaceLayerTextureAction implements UndoAction {
+public class SetLayerTextureAction implements UndoAction {
 	private final Bitmap newBitmap;
 	private final boolean wasMainTexture;
 	private final ArrayList<Integer> oldIndices = new ArrayList<>();
@@ -16,11 +16,11 @@ public class ReplaceLayerTextureAction implements UndoAction {
 	private final Layer layer;
 	private final ModelStructureChangeListener changeListener;
 
-	public ReplaceLayerTextureAction(Bitmap oldBitmap, Bitmap newBitmap, Layer layer, ModelStructureChangeListener changeListener) {
-		this(oldBitmap, newBitmap, -1, layer, changeListener);
+	public SetLayerTextureAction(Bitmap newBitmap, Layer layer, ModelStructureChangeListener changeListener) {
+		this(layer.getTextureBitmap(), newBitmap, layer, changeListener);
 	}
 
-	public ReplaceLayerTextureAction(Bitmap oldBitmap, Bitmap newBitmap, int textureId, Layer layer, ModelStructureChangeListener changeListener) {
+	public SetLayerTextureAction(Bitmap oldBitmap, Bitmap newBitmap, Layer layer, ModelStructureChangeListener changeListener) {
 		this.newBitmap = newBitmap;
 		this.layer = layer;
 		this.oldBitmap = oldBitmap;
@@ -66,6 +66,6 @@ public class ReplaceLayerTextureAction implements UndoAction {
 
 	@Override
 	public String actionName() {
-		return "Replace Texture";
+		return "Change Texture";
 	}
 }

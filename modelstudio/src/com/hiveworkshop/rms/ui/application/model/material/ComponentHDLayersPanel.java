@@ -21,7 +21,8 @@ public class ComponentHDLayersPanel extends ComponentLayersPanel {
 		add(getTopPanel(), "growx, spanx");
 //		add(getTwoSidedBoxHolder(), "growx, span 3, wrap");
 //		add(getLayersHolderPanel(), "growx, growy, span 3");
-		add(getLayersHolderPanel(), "growx, growy");
+//		add(getLayersHolderPanel(), "growx, growy");
+		add(getLayersHolderPanel(), "growx, growy, spanx");
 	}
 
 	protected JPanel getTopPanel() {
@@ -55,7 +56,7 @@ public class ComponentHDLayersPanel extends ComponentLayersPanel {
 	}
 
 	protected JPanel getLayersHolderPanel() {
-		JPanel layerPanelsHolder = new JPanel(new MigLayout("fill", "[grow]"));
+		JPanel layerPanelsHolder = new JPanel(new MigLayout("fill, ins 0", "[grow]"));
 
 		for (HD_Material_Layer ld : HD_Material_Layer.values()) {
 //			System.out.println("ComponentHDLayersPanel: creating " +ld + " panel");
