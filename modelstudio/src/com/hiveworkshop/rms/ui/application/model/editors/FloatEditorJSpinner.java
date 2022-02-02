@@ -28,6 +28,10 @@ public class FloatEditorJSpinner extends JSpinner {
 		this(value, minValue, 1.0f, floatConsumer);
 	}
 
+	public FloatEditorJSpinner(float value, float minValue, float stepSize) {
+		this(value, minValue, stepSize, null);
+	}
+
 	public FloatEditorJSpinner(float value, float minValue, float stepSize, Consumer<Float> floatConsumer) {
 		super(new SpinnerNumberModel(value, minValue, (float) Integer.MAX_VALUE, stepSize));
 		this.floatConsumer = floatConsumer;
@@ -53,7 +57,7 @@ public class FloatEditorJSpinner extends JSpinner {
 	}
 
 	public void addSaveChangeTimer2() {
-		if(saveChangeTimer == null) {
+		if(saveChangeTimer == null && floatConsumer != null) {
 			saveChangeTimer = new Timer();
 			TimerTask saveChangeTimerTask;
 			saveChangeTimerTask = new TimerTask() {
@@ -75,9 +79,12 @@ public class FloatEditorJSpinner extends JSpinner {
 	}
 
 	private void setColors(Color unsavedFg, Color unsavedBg) {
-		((DefaultEditor) getEditor()).getTextField().setForeground(unsavedFg);
-		((DefaultEditor) getEditor()).getTextField().setBackground(unsavedBg);
-		saveAtTime = System.currentTimeMillis() + 300;
+		if (floatConsumer != null){
+			System.out.println("settingColor");
+			((DefaultEditor) getEditor()).getTextField().setForeground(unsavedFg);
+			((DefaultEditor) getEditor()).getTextField().setBackground(unsavedBg);
+			saveAtTime = System.currentTimeMillis() + 300;
+		}
 	}
 
 	public FloatEditorJSpinner reloadNewValue(final Object value) {

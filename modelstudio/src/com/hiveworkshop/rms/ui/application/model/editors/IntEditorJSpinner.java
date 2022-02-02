@@ -51,13 +51,15 @@ public class IntEditorJSpinner extends JSpinner {
 	}
 
 	private void setColors(Color fg, Color bg) {
-		((DefaultEditor) getEditor()).getTextField().setForeground(fg);
-		((DefaultEditor) getEditor()).getTextField().setBackground(bg);
-		saveAtTime = System.currentTimeMillis() + 300;
+		if (intConsumer != null){
+			((DefaultEditor) getEditor()).getTextField().setForeground(fg);
+			((DefaultEditor) getEditor()).getTextField().setBackground(bg);
+			saveAtTime = System.currentTimeMillis() + 300;
+		}
 	}
 
 	public void addSaveChangeTimer2() {
-		if(saveChangeTimer == null) {
+		if(saveChangeTimer == null && intConsumer != null) {
 			saveChangeTimer = new Timer();
 			TimerTask saveChangeTimerTask;
 			saveChangeTimerTask = new TimerTask() {
