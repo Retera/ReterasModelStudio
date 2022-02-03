@@ -1,5 +1,12 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.render3d.RenderNode2;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
+import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
@@ -7,6 +14,7 @@ import org.lwjgl.opengl.GL11;
 import static org.lwjgl.opengl.GL11.*;
 
 public class BoneRenderThing2 {
+	private CameraHandler cameraHandler;
 	private Vec3 diffVec = new Vec3();
 	private Vec3 tempVec = new Vec3();
 	Quat difRotR = new Quat();
@@ -19,7 +27,8 @@ public class BoneRenderThing2 {
 	private Vec3[] renderPointsStemTop;
 	private Vec3[] pointsStemBot;
 	private Vec3[] renderPointsStemBot;
-	public BoneRenderThing2(){
+	public BoneRenderThing2(CameraHandler cameraHandler){
+		this.cameraHandler = cameraHandler;
 		float boxRadLength = 1.0f;
 		float boxRadHeight = 1.0f;
 //			float boxRadHeight = 0f;
@@ -95,6 +104,37 @@ public class BoneRenderThing2 {
 				new Vec3(frnt, left, down),
 				new Vec3(back, left, down)};
 
+	}
+
+	public void paintBones(ModelView modelView, RenderModel renderModel, IdObject idObject) {
+		RenderNode2 renderNode = renderModel.getRenderNode(idObject);
+		if (renderNode != null && modelView.shouldRender(idObject)) {
+
+			Vec3 renderPosNode = renderNode.getPivot();
+			float nodeSize = (float) cameraHandler.geomDist(idObject.getClickRadius() / 2f);
+			if (renderNode.hasParent()) {
+				RenderNode2 parentNode = renderModel.getRenderNode(idObject.getParent());
+				transform2(renderPosNode, parentNode.getPivot(), nodeSize);
+			} else {
+				transform2(renderPosNode, renderPosNode, nodeSize);
+			}
+
+			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
+
+
+			float[] components;
+			if (modelView.getHighlightedNode() == idObject) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_HIGHLIGHTED);
+			} else if (!modelView.isEditable(idObject)) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_UNEDITABLE);
+			} else if (modelView.isSelected(idObject)) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_SELECTED);
+			} else {
+				components = colorPrefs.getColorComponents(ColorThing.NODE);
+			}
+
+			doGlGeom(components);
+		}
 	}
 
 	public BoneRenderThing2 transform(Quat rot, Vec3 p1, Vec3 p2){

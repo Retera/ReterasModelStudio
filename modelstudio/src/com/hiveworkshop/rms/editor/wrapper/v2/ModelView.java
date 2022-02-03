@@ -44,6 +44,7 @@ public final class ModelView {
 
 	private Geoset highlightedGeoset;
 	private IdObject highlightedNode;
+	private Camera highlightedCamera;
 	private boolean vetoParticles = false;
 
 	private boolean geosetsVisible = true;
@@ -119,6 +120,10 @@ public final class ModelView {
 
 	public IdObject getHighlightedNode() {
 		return highlightedNode;
+	}
+
+	public Camera getHighlightedCamera() {
+		return highlightedCamera;
 	}
 
 	public Set<GeosetVertex> getHiddenVertices(){
@@ -237,7 +242,18 @@ public final class ModelView {
 			highlightedNode = null;
 		}
 		ProgramGlobals.getMainPanel().repaint();
+	}
 
+	public void highlightCamera(Camera camera) {
+		highlightedCamera = camera;
+		ProgramGlobals.getMainPanel().repaint();
+	}
+
+	public void unhighlightCamera(Camera camera) {
+		if (highlightedCamera == camera) {
+			highlightedCamera = null;
+		}
+		ProgramGlobals.getMainPanel().repaint();
 	}
 
 	public void updateElements() {

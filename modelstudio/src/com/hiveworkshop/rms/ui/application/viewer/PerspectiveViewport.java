@@ -1,9 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.ExtLog;
-import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.render3d.GeosetRenderer;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
@@ -58,6 +55,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private final MouseListenerThing mouseAdapter;
 	private final KeylistenerThing keyAdapter;
 	private final BoneRenderThing2 boneRenderThing;
+	private final CameraRenderThing cameraRenderThing;
 	private final GridPainter gridPainter;
 
 	private final GeosetRenderer geosetRenderer;
@@ -69,7 +67,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();
 		cameraHandler = new CameraHandler(this);
-		boneRenderThing = new BoneRenderThing2();
+		boneRenderThing = new BoneRenderThing2(cameraHandler);
+		cameraRenderThing = new CameraRenderThing();
 		gridPainter = new GridPainter(cameraHandler);
 
 		geosetRenderer = new GeosetRenderer(cameraHandler, programPreferences);
@@ -424,7 +423,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		glColor4f(.7f, .0f, .0f, .4f);
 
 		for (final IdObject idObject : modelView.getVisibleIdObjects()) {
-			CubePainter.paintBones4(modelView, renderModel, idObject, cameraHandler, boneRenderThing);
+			boneRenderThing.paintBones(modelView, renderModel, idObject);
+		}
+		for (final Camera camera : modelView.getVisibleCameras()) {
+			cameraRenderThing.paintCameras(modelView, renderModel, camera);
 		}
 
 		GL11.glEnable(GL_SHADE_MODEL);

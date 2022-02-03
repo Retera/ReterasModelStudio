@@ -1,31 +1,26 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
-import com.hiveworkshop.rms.util.TwiComboBoxModel;
+import com.hiveworkshop.rms.util.TwiComboBox;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicComboBoxEditor;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
-import java.awt.event.ItemEvent;
 import java.util.function.Consumer;
 
-public class ShaderBox<T> extends JComboBox<T> {
+public class ShaderBox<T> extends TwiComboBox<T> {
 	private ComponentEditorTextField comboBoxEditor;
-	private final Consumer<T> consumer;
-	private final TwiComboBoxModel<T> comboBoxModel;
 
 	public ShaderBox(T[] options, Consumer<T> consumer) {
-		comboBoxModel = new TwiComboBoxModel<>(options);
-		setModel(comboBoxModel);
-		this.consumer = consumer;
+		super(options);
+		addOnSelectItemListener(consumer);
 		setRenderer(getShaderBoxRenderer());
 		setEditor(getShaderBoxEditor());
 		setEditable(true);
 		if (options.length > 0) {
 			setSelectedItem(options[0]);
 		}
-		addItemListener(this::optionChanged);
 	}
 
 	@Override
@@ -33,14 +28,6 @@ public class ShaderBox<T> extends JComboBox<T> {
 		super.setSelectedItem(anObject);
 		if (comboBoxEditor != null) {
 			comboBoxEditor.setColorToSaved();
-		}
-	}
-
-	private void optionChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED && consumer != null) {
-
-//			consumer.accept((T) getSelectedItem());
-			consumer.accept(comboBoxModel.getSelectedTyped());
 		}
 	}
 

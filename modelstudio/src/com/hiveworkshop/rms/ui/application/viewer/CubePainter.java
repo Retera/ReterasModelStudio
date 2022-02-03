@@ -1,9 +1,11 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
+import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.render3d.RenderGeoset;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -746,14 +748,6 @@ public class CubePainter {
 			}
 			glColor4f(components[0], components[1], components[2], components[3]);
 
-//			if (modelView.isSelected(idObject)) {
-//				glColor4f(1f, .0f, .0f, .7f);
-//			} else if (modelView.isEditable(idObject)){
-//				glColor4f(.5f, .3f, .7f, .7f);
-//			} else {
-//				glColor4f(.4f, .3f, .7f, .4f);
-//			}
-
 			boneRenderThing.doGlGeom();
 
 			glEnd();
@@ -774,11 +768,6 @@ public class CubePainter {
 
 			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
 
-////			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//			glPolygonMode(GL_FRONT_FACE, GL_FILL);
-////			glPolygonMode(GL_CULL_FACE, GL_FILL);
-//			glBegin(GL_QUADS);
-
 			float[] components;
 			if (modelView.getHighlightedNode() == idObject) {
 				components = colorPrefs.getColorComponents(ColorThing.NODE_HIGHLIGHTED);
@@ -789,29 +778,32 @@ public class CubePainter {
 			} else {
 				components = colorPrefs.getColorComponents(ColorThing.NODE);
 			}
-//			if (modelView.getHighlightedNode() == idObject) {
-//				components = colorPrefs.getColorComponents(ColorThing.NODE_HIGHLIGHTED);
-//			} else if (modelView.isSelected(idObject)) {
-//				components = colorPrefs.getColorComponents(ColorThing.NODE_SELECTED);
-//			} else if (modelView.isEditable(idObject)) {
-//				components = colorPrefs.getColorComponents(ColorThing.NODE);
-//			} else {
-//				components = colorPrefs.getColorComponents(ColorThing.NODE_UNEDITABLE);
-//			}
-
-//			glColor4f(components[0], components[1], components[2], components[3]);
-
-//			if (modelView.isSelected(idObject)) {
-//				glColor4f(1f, .0f, .0f, .7f);
-//			} else if (modelView.isEditable(idObject)){
-//				glColor4f(.5f, .3f, .7f, .7f);
-//			} else {
-//				glColor4f(.4f, .3f, .7f, .4f);
-//			}
-
 			boneRenderThing.doGlGeom(components);
+		}
+	}
+	public static void paintCameras1(ModelView modelView, RenderModel renderModel, Camera camera, CameraHandler cameraHandler, CameraRenderThing cameraRenderThing) {
+		RenderNode renderNode = renderModel.getRenderNode(camera);
+		if (renderNode != null && modelView.shouldRender(camera)) {
 
-//			glEnd();
+			Vec3 renderPosNode = renderNode.getPivot();
+//			cameraRenderThing2.transform(renderPosNode, camera.getTargetPosition(), camera.getNearClip(), camera.getFarClip());
+//			cameraRenderThing2.transform(camera.getPosition(), camera.getTargetPosition(), camera.getNearClip(), camera.getFarClip());
+			cameraRenderThing.transform2(camera.getPosition(), camera.getTargetPosition(), camera.getNearClip(), camera.getFarClip());
+
+			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
+
+			float[] components;
+			if (modelView.getHighlightedCamera() == camera) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_HIGHLIGHTED);
+			} else if (!modelView.isEditable(camera)) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_UNEDITABLE);
+			} else if (modelView.isSelected(camera)) {
+				components = colorPrefs.getColorComponents(ColorThing.NODE_SELECTED);
+			} else {
+				components = colorPrefs.getColorComponents(ColorThing.NODE);
+			}
+
+			cameraRenderThing.doGlGeom(components);
 		}
 	}
 
