@@ -30,6 +30,24 @@ public interface ListView<TYPE> extends CollectionView<TYPE> {
 		public static <TYPE> boolean contains(final ListView<TYPE> list, final TYPE item) {
 			return indexOf(list, item) != -1;
 		}
+		
+		public static <TYPE> boolean equalContents(ListView<TYPE> listOne, ListView<TYPE> listTwo) {
+			if(listOne.size() != listTwo.size()) {
+				return false;
+			}
+			for(int i = 0; i < listOne.size(); i++) {
+				TYPE itemOne = listOne.get(i);
+				TYPE itemTwo = listTwo.get(i);
+				if(itemOne == null) {
+					if(itemTwo != null) {
+						return false;
+					}
+				} else if(!itemOne.equals(itemTwo)) {
+					return false;
+				}
+			}
+			return true;
+		}
 
 		public static <TYPE> TYPE[] toArray(final ListView<TYPE> list, TYPE[] array) {
 			if (array.length < list.size()) {
