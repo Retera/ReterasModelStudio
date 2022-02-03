@@ -27,7 +27,7 @@ public class Geoset implements Named, VisibilitySource {
 
 	GeosetAnim geosetAnim = null;
 
-	int levelOfDetail = -1;
+	int levelOfDetail = 0;
 	String levelOfDetailName;
 	ArrayList<byte[]> skin;
 	ArrayList<float[]> tangents;

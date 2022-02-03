@@ -3174,7 +3174,7 @@ public class MainPanel extends JPanel
 		version800EditingToggle.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				EditableModel.convertToV800(1, currentMDL());
+				EditableModel.convertToV800(0, currentMDL());
 			}
 		});
 		scriptsMenu.add(version800EditingToggle);

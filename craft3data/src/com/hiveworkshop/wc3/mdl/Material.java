@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.etheller.collections.ListView;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.mdl.v2.MaterialView;
@@ -228,7 +229,7 @@ public class Material implements MaterialView {
 			if (other.layers != null) {
 				return false;
 			}
-		} else if (!layers.equals(other.layers)) {
+		} else if (!ListView.Util.equalContents(layers, other.layers)) {
 			return false;
 		}
 		if (priorityPlane != other.priorityPlane) {
