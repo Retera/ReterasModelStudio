@@ -39,10 +39,11 @@ public class CameraEditPanel extends JPanel {
 		panelCards.add(singleCameraPanel, "single");
 		panelCards.add(multiCameraPanel, "multiple");
 		panelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
+		JScrollPane cardScrollPane = new JScrollPane(panelCards);
 
 		JScrollPane cameraListPane = getCameraListPane(mht);
 
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, cameraListPane, panelCards);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, cameraListPane, cardScrollPane);
 		add(splitPane, "cell 0 1, growx, growy, spanx 2");
 	}
 

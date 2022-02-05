@@ -2,78 +2,76 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.MatrixShellListCellRenderer;
+import com.hiveworkshop.rms.ui.util.SearchableList;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.CaretListener;
 import java.util.List;
-import java.util.function.Consumer;
 
 class BoneAttachmentPanel extends JPanel {
-	JLabel title;
+	private JLabel title;
 
 	// Old bone refs (matrices)
-	JList<MatrixShell> recModBoneRefsList;
-	IterableListModel<MatrixShell> recModMatrixShells;
-	IterableListModel<MatrixShell> filteredRecModMatrixShells = new IterableListModel<>();
-
-	MatrixShellListCellRenderer matrixListCellRenderer = new MatrixShellListCellRenderer();
+	private SearchableList<MatrixShell> recModBoneRefsList;
+	private final MatrixShellListCellRenderer matrixListCellRenderer = new MatrixShellListCellRenderer();
 
 	// New refs
-	IterableListModel<IdObjectShell<?>> newRefs = new IterableListModel<>();
-	JList<IdObjectShell<?>> newRefsList;
+	private final IterableListModel<IdObjectShell<?>> newRefs = new IterableListModel<>();
+	private JList<IdObjectShell<?>> newRefsList;
 
 	// Bones (all available -- NEW AND OLD)
-	IterableListModel<IdObjectShell<?>> futureBones;
-	IterableListModel<IdObjectShell<?>> filteredFutureBones = new IterableListModel<>();
-	JList<IdObjectShell<?>> bonesList;
-	JScrollPane bonesPane;
+	private SearchableList<IdObjectShell<?>> bonesList;
 
-	ModelHolderThing mht;
+	private final ModelHolderThing mht;
 
-	GeosetShell selectedGeoset;
-	JCheckBox linkCheckBox;
-
-	JTextField leftSearchField;
-	JTextField rightSearchField;
-	boolean listResetQued = false;
+	private GeosetShell selectedGeoset;
+	private JCheckBox linkCheckBox;
 
 	public BoneAttachmentPanel(ModelHolderThing mht, final BoneShellListCellRenderer renderer) {
 		setLayout(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow, 30%:32%:40%]10[grow, 30%:32%:40%]0[][grow, 30%:32%:40%]", "[grow]"));
 		this.mht = mht;
 
+		add(getOldBonesPanel(), "growy, growx");
+		add(getNewBonesPanel(renderer), "growy, growx");
+		add(getUpDownPanel(), "aligny center");
+		add(getBonesPanel(renderer), "growy, growx");
+	}
+
+	private JPanel getOldBonesPanel() {
 		JPanel oldBonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow]", "[][][grow]"));
 		oldBonesPanel.add(new JLabel("Old Bone References"), "wrap");
 
-		leftSearchField = new JTextField();
-		rightSearchField = new JTextField();
-
-		leftSearchField.addCaretListener(getCaretListener(leftSearchField, rightSearchField, this::setRecModMatrixFilter));
-
-		rightSearchField.addCaretListener(getCaretListener(rightSearchField, leftSearchField, this::setFutureBonesFilter));
+		recModBoneRefsList = new SearchableList<>(this::matrixShellBoneNameFilter)
+				.setRenderer(matrixListCellRenderer)
+				.addSelectionListener(e -> refreshLists());
+		recModBoneRefsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		linkCheckBox = new JCheckBox("linked search");
 		linkCheckBox.addActionListener(e -> queResetList());
 
-		oldBonesPanel.add(leftSearchField, "grow, split");
+		oldBonesPanel.add(recModBoneRefsList.getSearchField(), "grow, split");
 		oldBonesPanel.add(linkCheckBox, "wrap");
 
+		oldBonesPanel.add(recModBoneRefsList.getScrollableList(), "growy, growx");
+		return oldBonesPanel;
+	}
 
-		recModBoneRefsList = new JList<>();
-		recModBoneRefsList.setCellRenderer(matrixListCellRenderer);
-		recModBoneRefsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//		oldBoneRefsList.setCellRenderer(renderer);
-//		oldBoneRefsList.setCellRenderer(new MatrixShell2DListCellRenderer(new ModelViewManager(impPanel.currentModel), new ModelViewManager(impPanel.importedModel)));
-		recModBoneRefsList.addListSelectionListener(e -> refreshLists());
-		JScrollPane oldBoneRefsPane = new JScrollPane(recModBoneRefsList);
-		oldBonesPanel.add(oldBoneRefsPane, "growy, growx");
+	private JPanel getUpDownPanel() {
+		JPanel upDownPanel = new JPanel(new MigLayout("gap 0 0 0 0"));
+		JButton moveUp = new JButton(ImportPanel.moveUpIcon);
+		moveUp.addActionListener(e -> moveBone(-1));
+		upDownPanel.add(moveUp, "wrap");
 
-		add(oldBonesPanel, "growy, growx");
+		JButton moveDown = new JButton(ImportPanel.moveDownIcon);
+		moveDown.addActionListener(e -> moveBone(1));
+		upDownPanel.add(moveDown, "wrap");
+		return upDownPanel;
+	}
 
+	private JPanel getNewBonesPanel(BoneShellListCellRenderer renderer) {
 		JPanel newBonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow]", "[][grow][]"));
 		newBonesPanel.add(new JLabel("New Refs"), "wrap");
-
 
 		newRefsList = new JList<>();
 		newRefsList.setCellRenderer(renderer);
@@ -83,47 +81,32 @@ class BoneAttachmentPanel extends JPanel {
 		JButton removeNewRef = new JButton("Remove", ImportPanel.redXIcon);
 		removeNewRef.addActionListener(e -> removeNewRef());
 		newBonesPanel.add(removeNewRef, "alignx center");
+		return newBonesPanel;
+	}
 
-		add(newBonesPanel, "growy, growx");
-
-
-		JPanel upDownPanel = new JPanel(new MigLayout("gap 0 0 0 0"));
-		JButton moveUp = new JButton(ImportPanel.moveUpIcon);
-		moveUp.addActionListener(e -> moveBone(-1));
-		upDownPanel.add(moveUp, "wrap");
-
-		JButton moveDown = new JButton(ImportPanel.moveDownIcon);
-		moveDown.addActionListener(e -> moveBone(1));
-		upDownPanel.add(moveDown, "wrap");
-
-		add(upDownPanel, "aligny center");
-
-
+	private JPanel getBonesPanel(BoneShellListCellRenderer renderer) {
 		JPanel bonesPanel = new JPanel(new MigLayout("gap 0 0 0 0, insets 0 0 0 0, fill", "[grow]", "[][][grow][]"));
 		bonesPanel.add(new JLabel("Bones"), "wrap");
 
-		bonesPanel.add(rightSearchField, "grow, wrap");
-
-		// Built before oldBoneRefs, so that the MatrixShells can default to using New Refs with the same name as their first bone
-		bonesList = new JList<>();
-		bonesList.setCellRenderer(renderer);
-		bonesPane = new JScrollPane(bonesList);
-
-		bonesPanel.add(bonesPane, "growy, growx, wrap");
+		bonesList = new SearchableList<>(this::idObjectShellNameFilter).setRenderer(renderer);
+		bonesPanel.add(bonesList.getSearchField(), "grow, wrap");
+		bonesPanel.add(bonesList.getScrollableList(), "growy, growx, wrap");
 
 		JButton useBone = new JButton("Use Bone(s)", ImportPanel.greenArrowIcon);
 		useBone.addActionListener(e -> useBone());
 		bonesPanel.add(useBone, "alignx center");
-		add(bonesPanel, "growy, growx");
+		return bonesPanel;
 	}
 
 	public void setGeoset(GeosetShell geosetShell) {
 		selectedGeoset = geosetShell;
-		futureBones = mht.getFutureBoneList();
-		bonesList.setModel(futureBones);
-		recModMatrixShells = geosetShell.getMatrixShells();
-		recModBoneRefsList.setModel(recModMatrixShells);
+		bonesList.setListModel(mht.getFutureBoneList());
+		recModBoneRefsList.setListModel(geosetShell.getMatrixShells());
 		reloadNewRefsList();
+	}
+
+	public GeosetShell getSelectedGeoset() {
+		return selectedGeoset;
 	}
 
 	private void moveBone(int dir) {
@@ -168,7 +151,6 @@ class BoneAttachmentPanel extends JPanel {
 	}
 
 	public void refreshLists() {
-		futureBones = mht.getFutureBoneList();
 		reloadNewRefsList();
 	}
 
@@ -180,80 +162,38 @@ class BoneAttachmentPanel extends JPanel {
 	}
 
 	private void queResetList() {
+		if (linkCheckBox.isSelected()) {
+			bonesList.setFilterTextConsumer(this::linkSearch);
+			recModBoneRefsList.setFilterTextConsumer(this::linkSearch);
+		}
+	}
+
+	private void linkSearch(String filterText){
 		if (!linkCheckBox.isSelected()) {
-			listResetQued = true;
+			bonesList.setFilterTextConsumer(null);
+			recModBoneRefsList.setFilterTextConsumer(null);
+			filterText = "";
+		}
+
+		if (recModBoneRefsList.getSearchField().hasFocus()
+				&& !bonesList.getFilterText().equalsIgnoreCase(filterText)) {
+			bonesList.setSearch(filterText);
+		} else if (bonesList.getSearchField().hasFocus()
+				&& !recModBoneRefsList.getFilterText().equalsIgnoreCase(filterText)) {
+			recModBoneRefsList.setSearch(filterText);
 		}
 	}
 
-	private CaretListener getCaretListener(JTextField activeSearchField, JTextField inActiveSearchField, Consumer<String> listModelFunction) {
-		return e -> {
-			if (linkCheckBox.isSelected()) {
-				inActiveSearchField.setText(activeSearchField.getText());
+	private boolean matrixShellBoneNameFilter(MatrixShell matrixShell, String filterText) {
+		for (IdObjectShell<?> boneShell : matrixShell.getOrgBones()) {
+			if (idObjectShellNameFilter(boneShell, filterText)) {
+				return true;
 			}
-			String filterText = activeSearchField.getText();
-			listModelFunction.accept(filterText);
-		};
-	}
-
-	private void setFutureBonesFilter(String filterText) {
-		applyFutureBonesListModel(filterText);
-		if (linkCheckBox.isSelected()) {
-			applyRecModMatrixFilteredListModel(filterText);
-		} else if (listResetQued) {
-			listResetQued = false;
-			setImportIntoListModel(recModMatrixShells);
-			leftSearchField.setText("");
 		}
+		return false;
 	}
 
-	private void setRecModMatrixFilter(String filterText) {
-		applyRecModMatrixFilteredListModel(filterText);
-		if (linkCheckBox.isSelected()) {
-			applyFutureBonesListModel(filterText);
-		} else if (listResetQued) {
-			listResetQued = false;
-			setFutureBoneListModel(futureBones);
-			rightSearchField.setText("");
-		}
-	}
-
-	private void applyFutureBonesListModel(String filterText) {
-		if (!filterText.equals("")) {
-			filteredFutureBones.clear();
-			for (IdObjectShell<?> boneShell : futureBones) {
-				if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
-					filteredFutureBones.addElement(boneShell);
-				}
-			}
-			setFutureBoneListModel(filteredFutureBones);
-		} else {
-			setFutureBoneListModel(futureBones);
-		}
-	}
-
-	private void applyRecModMatrixFilteredListModel(String filterText) {
-		if (!filterText.equals("")) {
-			filteredRecModMatrixShells.clear();
-			for (MatrixShell matrixShell : recModMatrixShells) {
-				for (IdObjectShell<?> boneShell : matrixShell.getOrgBones()) {
-					if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
-						filteredRecModMatrixShells.addElement(matrixShell);
-						break;
-					}
-				}
-			}
-			setImportIntoListModel(filteredRecModMatrixShells);
-		} else {
-			setImportIntoListModel(recModMatrixShells);
-		}
-	}
-
-	public void setFutureBoneListModel(IterableListModel<IdObjectShell<?>> model) {
-		bonesList.setModel(model);
-	}
-
-
-	private void setImportIntoListModel(IterableListModel<MatrixShell> model) {
-		recModBoneRefsList.setModel(model);
+	private boolean idObjectShellNameFilter(IdObjectShell<?> boneShell, String filterText) {
+		return boneShell.getName().toLowerCase().contains(filterText.toLowerCase());
 	}
 }

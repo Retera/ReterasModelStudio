@@ -14,6 +14,7 @@ import java.util.Set;
 public class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCellRenderer2D<IdObjectShell<?>> {
 	boolean showParent = false;
 	Set<IdObjectShell<?>> selectedBones = new HashSet<>();
+	IdObjectShell<?> selectedBone;
 	boolean showClass = false;
 
 	public BoneShellMotionListCellRenderer(EditableModel model, EditableModel other) {
@@ -32,12 +33,14 @@ public class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCel
 
 	public BoneShellMotionListCellRenderer setSelectedBoneShell(IdObjectShell<?> boneShell) {
 		selectedBones.clear();
+		selectedBone = boneShell;
 		selectedBones.add(boneShell);
 		return this;
 	}
 
 	public BoneShellMotionListCellRenderer setSelectedBoneShell(Collection<IdObjectShell<?>> boneShells) {
 		selectedBones.clear();
+		selectedBone = null;
 		selectedBones.addAll(boneShells);
 		return this;
 	}
@@ -50,12 +53,14 @@ public class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCel
 		Vec3 fg = noOwnerFgCol;
 
 		if (value instanceof IdObjectShell<?>) {
-			setText(((IdObjectShell<?>) value).toString(showClass, showParent));
-			IdObjectShell<?> importBoneShell = ((IdObjectShell<?>) value).getMotionSrcShell();
-			if (selectedBones.contains(importBoneShell)) {
+			IdObjectShell<?> idObjectShell = (IdObjectShell<?>) value;
+			setText(idObjectShell.toString(showClass, showParent));
+			IdObjectShell<?> motionSrcShell = idObjectShell.getMotionSrcShell();
+			if (selectedBones.contains(motionSrcShell)
+					|| selectedBone != null && selectedBone.getMotionSrcShell() == idObjectShell) {
 				bg = selectedOwnerBgCol;
 				fg = selectedOwnerFgCol;
-			} else if (importBoneShell != null) {
+			} else if (motionSrcShell != null) {
 				bg = otherOwnerBgCol;
 				fg = otherOwnerFgCol;
 			}

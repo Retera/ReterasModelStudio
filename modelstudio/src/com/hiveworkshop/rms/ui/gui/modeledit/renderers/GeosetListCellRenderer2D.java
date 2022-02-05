@@ -65,7 +65,7 @@ public class GeosetListCellRenderer2D extends DefaultListCellRenderer {
 			if (!((GeosetShell) value).isDoImport()) {
 				bg.set(dontImpBgCol);
 			}
-			if(geosetShellList.contains(((GeosetShell) value))){
+			if(geosetShellList != null && geosetShellList.contains(((GeosetShell) value)) || isSelected){
 				bg.add(hLAdjBgCol);
 			}
 			setBackground(bg.asIntColor());

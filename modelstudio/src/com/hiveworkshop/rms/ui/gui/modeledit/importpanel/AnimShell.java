@@ -57,7 +57,9 @@ public class AnimShell {
 	}
 
 	public AnimShell setImportType(int importType) {
-		this.importType = ImportType.fromInt(importType);
+		if(0 <= importType && importType < ImportType.values().length) {
+			this.importType = ImportType.fromInt(importType);
+		}
 		return this;
 	}
 
@@ -149,16 +151,18 @@ public class AnimShell {
 	}
 
 	public AnimShell setAnimDataSrc(AnimShell animDataSrc) {
-		if (this.animDataSrc != null && this.animDataSrc != animDataSrc) {
-			this.animDataSrc.removeAnimDataDest(this);
-		}
-		this.animDataSrc = animDataSrc;
-		if (animDataSrc != null) {
-			animDataSrc.addAnimDataDest(this);
-			for (AnimShell animShell : animDataDests) {
-				animShell.setAnimDataSrc(null);
+		if(this.animDataSrc != animDataSrc){
+			if (this.animDataSrc != null) {
+				this.animDataSrc.removeAnimDataDest(this);
 			}
-			importType = ImportType.TIMESCALE_RECEIVE;
+			this.animDataSrc = animDataSrc;
+			if (animDataSrc != null) {
+				animDataSrc.addAnimDataDest(this);
+				for (AnimShell animShell : animDataDests) {
+					animShell.setAnimDataSrc(null);
+				}
+				importType = ImportType.TIMESCALE_RECEIVE;
+			}
 		}
 		return this;
 	}

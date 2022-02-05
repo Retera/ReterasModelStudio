@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -27,7 +29,26 @@ public class AnimEditPanel extends JPanel {
 		this.mht = mht;
 		animJList = new JList<>(mht.allAnimShells);
 
-		add(getTopPanel(), "align center, wrap");
+		JPanel topPanel = getTopPanel();
+		add(topPanel, "align center, wrap");
+		System.out.println("parent11: " + getParent());
+		System.out.println("rotepane11: " + getRootPane());
+		System.out.println("anc11: " + getTopLevelAncestor());
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				super.componentResized(e);
+				if(AnimEditPanel.this.getTopLevelAncestor().getWidth()<topPanel.getComponent(0).getWidth()*2){
+					((MigLayout)topPanel.getLayout()).setLayoutConstraints("gap 0, ins 0 n n n, wrap 1");
+					((MigLayout)AnimEditPanel.this.getLayout()).setComponentConstraints(topPanel, "align left, wrap");
+				} else {
+					((MigLayout)topPanel.getLayout()).setLayoutConstraints("gap 0, ins 0 n n n, wrap 2");
+					((MigLayout)AnimEditPanel.this.getLayout()).setComponentConstraints(topPanel, "align center, wrap");
+				}
+				topPanel.revalidate();
+			}
+		});
+
 
 		animRenderer = new AnimListCellRenderer();
 		animRenderer.setSelectedAnim(null);
@@ -39,9 +60,11 @@ public class AnimEditPanel extends JPanel {
 		animPanelCards.add(new JPanel(), "blank");
 		animPanelCards.add(singleAnimPanel, "single");
 		animPanelCards.add(multiAnimPanel, "multiple");
+		JScrollPane cardScrollPane = new JScrollPane(animPanelCards);
 
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getAnimListPane(mht), animPanelCards);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getAnimListPane(mht), cardScrollPane);
 		add(splitPane, "growx, growy");
+		splitPane.setDividerLocation(.3);
 	}
 
 	private JScrollPane getAnimListPane(ModelHolderThing mht) {
@@ -49,12 +72,12 @@ public class AnimEditPanel extends JPanel {
 		animJList.addListSelectionListener(e -> changeAnim(mht, e));
 		animJList.setSelectedValue(null, false);
 		JScrollPane animStrollPane = new JScrollPane(animJList);
-		animStrollPane.setMinimumSize(new Dimension(150, 200));
+//		animStrollPane.setMinimumSize(new Dimension(150, 200));
 		return animStrollPane;
 	}
 
 	private void changeAnim(ModelHolderThing mht, ListSelectionEvent e) {
-		if (e.getValueIsAdjusting()) {
+		if (!e.getValueIsAdjusting()) {
 			List<AnimShell> selectedValuesList = animJList.getSelectedValuesList();
 
 			singleAnimPanel.setSelectedAnim(animJList.getSelectedValue());

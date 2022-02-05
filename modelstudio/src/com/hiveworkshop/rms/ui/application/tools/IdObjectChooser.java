@@ -4,47 +4,23 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.ObjectShellListCellRenderer;
-import com.hiveworkshop.rms.util.IterableListModel;
+import com.hiveworkshop.rms.ui.util.SearchableList;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
 public class IdObjectChooser {
-	IterableListModel<IdObjectShell<?>> filteredBones = new IterableListModel<>();
-	IterableListModel<IdObjectShell<?>> posibleParentList;
-	JList<IdObjectShell<?>> bonesJList;
-	JTextField boneSearch;
-
-	EditableModel model;
+	private final EditableModel model;
 
 	public IdObjectChooser(EditableModel model) {
 		this.model = model;
-		posibleParentList = new IterableListModel<>();
 	}
 
 	public IdObject chooseParent(IdObject childObj, JComponent parent) {
-//		BoneShell idObjBoneShell;
-		IdObjectShell<?> parentBoneShell = null;
-		posibleParentList.clear();
-		posibleParentList.addElement(new IdObjectShell<>(null));
-		for (IdObject idObject : model.getIdObjects()) {
-			IdObjectShell<?> boneShell = new IdObjectShell<>(idObject);
-			posibleParentList.addElement(boneShell);
-			if (idObject == childObj.getParent()) {
-				parentBoneShell = boneShell;
-			}
-		}
-//		for (Helper bone : model.getHelpers()) {
-//			BoneShell boneShell = new BoneShell(bone);
-//			posibleParentList.addElement(boneShell);
-//			if (bone == childObj.getParent()) {
-//				parentBoneShell = boneShell;
-//			}
-//		}
+		ObjectShellListCellRenderer renderer = new ObjectShellListCellRenderer(model, null).setShowClass(false);
+		SearchableList<IdObjectShell<?>> bonesJList = getIdObjectShellList(childObj, renderer);
 
-		JPanel boneChooserPanel = boneChooserPanel();
-		bonesJList.setSelectedValue(parentBoneShell, true);
-
+		JPanel boneChooserPanel = boneChooserPanel(bonesJList, renderer);
 
 		int option = JOptionPane.showConfirmDialog(parent, boneChooserPanel, "Choose Bone", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
 		if (option == JOptionPane.OK_OPTION) {
@@ -56,23 +32,34 @@ public class IdObjectChooser {
 		return childObj.getParent();
 	}
 
-	private JPanel boneChooserPanel() {
-		JPanel panel = new JPanel(new MigLayout("fill, gap 0", "[grow]", "[][][grow]"));
+	private SearchableList<IdObjectShell<?>> getIdObjectShellList(IdObject childObj, ObjectShellListCellRenderer renderer) {
+		SearchableList<IdObjectShell<?>> bonesJList = new SearchableList<>(this::idObjectNameFiler);
 
-		ObjectShellListCellRenderer renderer = new ObjectShellListCellRenderer(model, null).setShowClass(false);
+		IdObjectShell<?> parentBoneShell = null;
+
+		bonesJList.add(new IdObjectShell<>(null));
+		for (IdObject idObject : model.getIdObjects()) {
+			IdObjectShell<?> boneShell = new IdObjectShell<>(idObject);
+			bonesJList.add(boneShell);
+			if (idObject == childObj.getParent()) {
+				parentBoneShell = boneShell;
+			}
+		}
+		bonesJList.setSelectedValue(parentBoneShell, true);
+		bonesJList.setCellRenderer(renderer);
+		return bonesJList;
+	}
+
+	private JPanel boneChooserPanel(SearchableList<IdObjectShell<?>> bonesJList, ObjectShellListCellRenderer renderer) {
+		JPanel panel = new JPanel(new MigLayout("fill, gap 0", "[grow]", "[][][grow]"));
 
 		JCheckBox showParents = new JCheckBox("Show Parents");
 		showParents.addActionListener(e -> showParents(renderer, showParents, panel));
 		panel.add(showParents, "wrap");
 
-		boneSearch = new JTextField();
-		boneSearch.addCaretListener(e -> filterBones());
-		panel.add(boneSearch, "growx, wrap");
+		panel.add(bonesJList.getSearchField(), "growx, wrap");
 
-		bonesJList = new JList<>(posibleParentList);
-		bonesJList.setCellRenderer(renderer);
-
-		panel.add(new JScrollPane(bonesJList), "growx, growy, wrap");
+		panel.add(bonesJList.getScrollableList(), "growx, growy, wrap");
 		return panel;
 	}
 
@@ -81,18 +68,7 @@ public class IdObjectChooser {
 		panel.repaint();
 	}
 
-	private void filterBones() {
-		String filterText = boneSearch.getText();
-		if (!filterText.equals("")) {
-			filteredBones.clear();
-			for (IdObjectShell<?> objectShell : posibleParentList) {
-				if (objectShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
-					filteredBones.addElement(objectShell);
-				}
-			}
-			bonesJList.setModel(filteredBones);
-		} else {
-			bonesJList.setModel(posibleParentList);
-		}
+	private boolean idObjectNameFiler(IdObjectShell<?> objectShell, String filterText) {
+		return objectShell.getName().toLowerCase().contains(filterText.toLowerCase());
 	}
 }

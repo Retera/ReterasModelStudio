@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.GeosetShell;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.GeosetListCellRenderer2D;
-import com.hiveworkshop.rms.util.IterableListModel;
+import com.hiveworkshop.rms.ui.util.SearchableList;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -15,11 +15,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class GeosetChooser {
-	private final IterableListModel<GeosetShell> filteredGeosets = new IterableListModel<>();
-	private final IterableListModel<GeosetShell> allGeosetsList = new IterableListModel<>();
-
 	private final List<GeosetShell> selectedGeosetShells = new ArrayList<>();
-
 	private final EditableModel model;
 
 	public GeosetChooser(EditableModel model) {
@@ -27,20 +23,9 @@ public class GeosetChooser {
 	}
 
 	public Geoset chooseGeoset(Geoset currentGeoset, JComponent parent) {
-		GeosetShell currentBoneShell = null;
-		allGeosetsList.clear();
-		allGeosetsList.addElement(new GeosetShell(null, model, false));
-		for (Geoset geoset : model.getGeosets()) {
-			GeosetShell geosetShell = new GeosetShell(geoset, model, false);
-			allGeosetsList.addElement(geosetShell);
-			if (geoset == currentGeoset) {
-				currentBoneShell = geosetShell;
-			}
-		}
+		SearchableList<GeosetShell> geosetJList = getGeosetJList(currentGeoset);
 
-		JList<GeosetShell> geosetJList = getGeosetShellJList();
 		JPanel geosetChooserPanel = geosetChooserPanel(geosetJList);
-		geosetJList.setSelectedValue(currentBoneShell, true);
 
 		int option = JOptionPane.showConfirmDialog(parent, geosetChooserPanel, "Choose Geoset", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
 		if (option == JOptionPane.OK_OPTION) {
@@ -52,21 +37,32 @@ public class GeosetChooser {
 		return currentGeoset;
 	}
 
-	public List<Geoset> chooseGeosets(List<Geoset> currentGeosets, JComponent parent) {
-		allGeosetsList.clear();
-		selectedGeosetShells.clear();
+	private SearchableList<GeosetShell> getGeosetJList(Geoset currentGeoset) {
+		GeosetListCellRenderer2D renderer = new GeosetListCellRenderer2D(model, null);
+		renderer.setSelectionList(selectedGeosetShells);
 
+		SearchableList<GeosetShell> geosetJList = new SearchableList<>(this::geosetNameFilter);
+		geosetJList.setCellRenderer(renderer);
+
+		GeosetShell currentBoneShell = null;
+		geosetJList.add(new GeosetShell(null, model, false));
 		for (Geoset geoset : model.getGeosets()) {
 			GeosetShell geosetShell = new GeosetShell(geoset, model, false);
-			allGeosetsList.addElement(geosetShell);
-			if (currentGeosets.contains(geoset)) {
-				selectedGeosetShells.add(geosetShell);
+			geosetJList.add(geosetShell);
+			if (geoset == currentGeoset) {
+				currentBoneShell = geosetShell;
 			}
 		}
+		geosetJList.setSelectedValue(currentBoneShell, true);
+		return geosetJList;
+	}
 
-		JList<GeosetShell> geosetJList = getGeosetShellJList();
+	public List<Geoset> chooseGeosets(List<Geoset> currentGeosets, JComponent parent) {
+		selectedGeosetShells.clear();
+
+		SearchableList<GeosetShell> geosetJList = getGeosetJList(currentGeosets);
+
 		JPanel geosetChooserPanel = geosetChooserPanel(geosetJList);
-		geosetJList.addListSelectionListener(e -> selectGeoset(e, geosetJList));
 
 		int option = JOptionPane.showConfirmDialog(parent, geosetChooserPanel, "Choose Geoset(s)", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null);
 		if (option == JOptionPane.OK_OPTION) {
@@ -78,7 +74,25 @@ public class GeosetChooser {
 		return currentGeosets;
 	}
 
-	private void selectGeoset(ListSelectionEvent e, JList<GeosetShell> geosetJList){
+	private SearchableList<GeosetShell> getGeosetJList(List<Geoset> currentGeosets) {
+		GeosetListCellRenderer2D renderer = new GeosetListCellRenderer2D(model, null);
+		renderer.setSelectionList(selectedGeosetShells);
+
+		SearchableList<GeosetShell> geosetJList = new SearchableList<>(this::geosetNameFilter);
+		geosetJList.setCellRenderer(renderer);
+
+		for (Geoset geoset : model.getGeosets()) {
+			GeosetShell geosetShell = new GeosetShell(geoset, model, false);
+			geosetJList.add(geosetShell);
+			if (currentGeosets.contains(geoset)) {
+				selectedGeosetShells.add(geosetShell);
+			}
+		}
+		geosetJList.addSelectionListener(e -> selectGeoset(e, geosetJList));
+		return geosetJList;
+	}
+
+	private void selectGeoset(ListSelectionEvent e, SearchableList<GeosetShell> geosetJList){
 		if(e.getValueIsAdjusting()){
 			GeosetShell selectedValue = geosetJList.getSelectedValue();
 			if(selectedGeosetShells.contains(selectedValue)){
@@ -90,38 +104,15 @@ public class GeosetChooser {
 		}
 	}
 
-	private JPanel geosetChooserPanel(JList<GeosetShell> geosetJList) {
+	private JPanel geosetChooserPanel(SearchableList<GeosetShell> geosetJList) {
 		JPanel panel = new JPanel(new MigLayout("fill, gap 0", "[grow]", "[][][grow]"));
 
-		JTextField geosetSearch = new JTextField();
-		geosetSearch.addCaretListener(e -> filterGeosets(geosetSearch, geosetJList));
-		panel.add(geosetSearch, "growx, wrap");
-
+		panel.add(geosetJList.getSearchField(), "growx, wrap");
 		panel.add(new JScrollPane(geosetJList), "growx, growy, wrap");
 		return panel;
 	}
 
-	private JList<GeosetShell> getGeosetShellJList() {
-		GeosetListCellRenderer2D renderer = new GeosetListCellRenderer2D(model, null);
-		renderer.setSelectionList(selectedGeosetShells);
-
-		JList<GeosetShell> geosetJList = new JList<>(allGeosetsList);
-		geosetJList.setCellRenderer(renderer);
-		return geosetJList;
-	}
-
-	private void filterGeosets(JTextField geosetSearch, JList<GeosetShell> geosetJList) {
-		String filterText = geosetSearch.getText();
-		if (!filterText.equals("")) {
-			filteredGeosets.clear();
-			for (GeosetShell geosetShell : allGeosetsList) {
-				if (geosetShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
-					filteredGeosets.addElement(geosetShell);
-				}
-			}
-			geosetJList.setModel(filteredGeosets);
-		} else {
-			geosetJList.setModel(allGeosetsList);
-		}
+	private boolean geosetNameFilter(GeosetShell geosetShell, String filterText) {
+		return geosetShell.getName().toLowerCase().contains(filterText.toLowerCase());
 	}
 }

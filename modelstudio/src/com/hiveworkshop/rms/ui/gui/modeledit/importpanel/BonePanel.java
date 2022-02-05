@@ -2,28 +2,26 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellMotionListCellRenderer;
+import com.hiveworkshop.rms.ui.util.SearchableList;
 import com.hiveworkshop.rms.util.IterableListModel;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.CaretListener;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class BonePanel extends JPanel {
 	protected ModelHolderThing mht;
 	protected IdObjectShell<?> selectedBone;
 	protected JLabel title;
-	protected JComboBox<String> importTypeBox = new JComboBox<>(IdObjectShell.ImportType.getDispList());
+	protected TwiComboBox<IdObjectShell.ImportType> importTypeBox;
 
-	// List for which bone to transfer motion
-	private IterableListModel<IdObjectShell<?>> recModMotionBonesListModel = new IterableListModel<>();
-	private IterableListModel<IdObjectShell<?>> filteredRecModMotionBonesListModel = new IterableListModel<>();
-	private IterableListModel<IdObjectShell<?>> currentMotionBonesListModel; // to let selectImportBones read indicies from the correct list
-	protected JList<IdObjectShell<?>> importMotionIntoRecBoneList;
+	protected SearchableList<IdObjectShell<?>> motionDestList;
+	protected SearchableList<IdObjectShell<?>> motionSrcList;
+	protected SearchableList<IdObjectShell<?>> parentList;
 
 	private List<IdObjectShell<?>> bonesWithMotion = new ArrayList<>();
 
@@ -31,124 +29,122 @@ public class BonePanel extends JPanel {
 	protected CardLayout cards = new CardLayout();
 	protected JPanel dummyPanel = new JPanel();
 	private IterableListModel<IdObjectShell<?>> futureBones;
-	private IterableListModel<IdObjectShell<?>> filteredFutureBones = new IterableListModel<>();
-	private JList<IdObjectShell<?>> futureBonesList;
 	private JLabel parentTitle;
 
 	private boolean listenSelection = true;
 
-	private JTextField leftSearchField;
-	private JTextField rightSearchField;
-	private JCheckBox linkBox;
-	private boolean listResetQued = false;
-
-	private BoneShellMotionListCellRenderer oneShellRenderer;
+	protected BoneShellMotionListCellRenderer motionReceiveRenderer;
 	protected BoneShellListCellRenderer renderer;
 
 
-	protected BonePanel() {
+	protected BonePanel(ModelHolderThing mht, String titleString, BoneShellListCellRenderer renderer) {
+		this.mht = mht;
+		this.renderer = renderer;
+
+		title = new JLabel(titleString);
+		title.setFont(new Font("Arial", Font.BOLD, 26));
+
+		motionReceiveRenderer = new BoneShellMotionListCellRenderer(mht.receivingModel, mht.donatingModel);
 		// This constructor is negative mojo
 	}
 
 	public BonePanel(ModelHolderThing mht, BoneShellListCellRenderer renderer) {
-		this.mht = mht;
+		this(mht, "Select a Bone", renderer);
 		setLayout(new MigLayout("gap 0, fill", "[grow][grow]", "[][grow]"));
-
-		title = new JLabel("Select a Bone");
-		title.setFont(new Font("Arial", Font.BOLD, 26));
 		add(title, "cell 0 0, spanx, align center, wrap");
-
-		this.renderer = renderer;
-		oneShellRenderer = new BoneShellMotionListCellRenderer(mht.receivingModel, mht.donatingModel);
-
-		leftSearchField = new JTextField();
-		rightSearchField = new JTextField();
-		leftSearchField.addCaretListener(getCaretListener(leftSearchField, rightSearchField, this::setRecModelBonesFilter));
-		rightSearchField.addCaretListener(getCaretListener(rightSearchField, leftSearchField, this::setFutureBonesFilter));
-
-		linkBox = new JCheckBox("linked search");
-		linkBox.addActionListener(e -> queResetList());
 
 		JPanel leftPanel = new JPanel(new MigLayout("gap 0, fill", "[]", "[][grow]"));
 
-		importTypeBox.setEditable(false);
-		importTypeBox.addActionListener(e -> showImportTypeCard());
-		importTypeBox.setMaximumSize(new Dimension(200, 20));
+		importTypeBox = getImportTypeComboBox();
 		leftPanel.add(importTypeBox, "wrap");
 
-		currentMotionBonesListModel = recModMotionBonesListModel;
-
-		JPanel importMotionIntoPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow][]", "[][][grow]"));
-		importMotionIntoPanel.add(new JLabel("Bones to receive motion"), "wrap");
-		importMotionIntoPanel.add(leftSearchField, "grow");
-		importMotionIntoPanel.add(linkBox, "wrap");
-		importMotionIntoPanel.add(getMotionIntoBoneListPane(), "spanx, growx, growy");
+		JPanel importMotionIntoPanel = getImportMotionIntoPanel();
+		JPanel receiveMotionFromPanel = getReciveMotionFromPanel();
 
 		cardPanel = new JPanel(cards);
-		cardPanel.add(importMotionIntoPanel, "boneList");
+		cardPanel.add(importMotionIntoPanel, IdObjectShell.ImportType.MOTION_FROM.name());
+		cardPanel.add(receiveMotionFromPanel, IdObjectShell.ImportType.RECEIVE_MOTION.name());
 		cardPanel.add(dummyPanel, "blank");
 
 		leftPanel.add(cardPanel, "growx, growy, spanx");
 
-		JPanel rightPanel = new JPanel(new MigLayout("gap 0, fill", "[][]", "[][][grow]"));
-
-		rightPanel.add(new JLabel("Parent:"), "align left, gap 20 0 0 0");
-		parentTitle = new JLabel("Parent:      (Old Parent: {no parent})");
-		rightPanel.add(parentTitle, "wrap");
-		rightPanel.add(rightSearchField, "grow, spanx");
-
-		rightPanel.add(getFutureBoneListPane(renderer), "spanx, growx, growy");
+		JPanel rightPanel = getRightPanel(renderer);
 
 		add(leftPanel, "cell 0 1, growx, growy");
 		add(rightPanel, "cell 1 1, growx, growy");
 	}
 
-	private JScrollPane getMotionIntoBoneListPane() {
-		importMotionIntoRecBoneList = new JList<>(recModMotionBonesListModel);
-		importMotionIntoRecBoneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		importMotionIntoRecBoneList.setCellRenderer(oneShellRenderer);
-		importMotionIntoRecBoneList.addListSelectionListener(this::updateList);
-		return new JScrollPane(importMotionIntoRecBoneList);
+	private JPanel getRightPanel(BoneShellListCellRenderer renderer) {
+		JPanel rightPanel = new JPanel(new MigLayout("gap 0, fill", "[][]", "[][][grow]"));
+
+		rightPanel.add(new JLabel("Parent:"), "align left, gap 20 0 0 0");
+		parentTitle = new JLabel("Parent:      (Old Parent: {no parent})");
+		rightPanel.add(parentTitle, "wrap");
+		parentList = new SearchableList<>(this::idObjectShellNameFilter)
+				.addSelectionListener(this::setParent)
+				.setRenderer(renderer);
+		parentList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		rightPanel.add(parentList.getSearchField(), "grow, spanx");
+
+		rightPanel.add(parentList.getScrollableList(), "spanx, growx, growy");
+		return rightPanel;
 	}
 
-	private JScrollPane getFutureBoneListPane(BoneShellListCellRenderer renderer) {
-		futureBonesList = new JList<>();
-		futureBonesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		futureBonesList.setCellRenderer(renderer);
-		futureBonesList.addListSelectionListener(this::setParent);
-		return new JScrollPane(futureBonesList);
+	protected TwiComboBox<IdObjectShell.ImportType> getImportTypeComboBox() {
+		TwiComboBox<IdObjectShell.ImportType> importTypeBox = new TwiComboBox<>(IdObjectShell.ImportType.values(), IdObjectShell.ImportType.RECEIVE_MOTION);
+		importTypeBox.setStringFunctionRender(i -> i instanceof IdObjectShell.ImportType ? ((IdObjectShell.ImportType)i).getDispText() : "Multiple Selected");
+		importTypeBox.addOnSelectItemListener(this::showImportTypeCard);
+		importTypeBox.setEditable(false);
+		importTypeBox.setMaximumSize(new Dimension(200, 20));
+		return importTypeBox;
 	}
 
-	public void setFutureBoneListModel(IterableListModel<IdObjectShell<?>> model) {
-		futureBonesList.setModel(model);
+	protected JPanel getImportMotionIntoPanel() {
+		JPanel importMotionIntoPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow][]", "[][][grow]"));
+		importMotionIntoPanel.add(new JLabel("Bones to receive motion"), "wrap");
+		motionDestList = new SearchableList<>(this::idObjectShellNameFilter)
+				.addSelectionListener(this::motionDestChosen)
+				.setRenderer(motionReceiveRenderer);
+		motionDestList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		importMotionIntoPanel.add(motionDestList.getSearchField(), "grow, wrap");
+		importMotionIntoPanel.add(motionDestList.getScrollableList(), "spanx, growx, growy");
+		return importMotionIntoPanel;
 	}
 
-
-	private void setImportIntoListModel(IterableListModel<IdObjectShell<?>> model) {
-		importMotionIntoRecBoneList.setModel(model);
-		currentMotionBonesListModel = model;
+	protected JPanel getReciveMotionFromPanel() {
+		JPanel importMotionIntoPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow][]", "[][][grow]"));
+		importMotionIntoPanel.add(new JLabel("Bone to receive motion from"), "wrap");
+		motionSrcList = new SearchableList<>(this::idObjectShellNameFilter)
+				.addSelectionListener(this::motionSrcChosen)
+				.setRenderer(motionReceiveRenderer);
+		motionSrcList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		importMotionIntoPanel.add(motionSrcList.getSearchField(), "grow, wrap");
+		importMotionIntoPanel.add(motionSrcList.getScrollableList(), "spanx, growx, growy");
+		return importMotionIntoPanel;
 	}
+
 
 	public void setSelectedBone(IdObjectShell<?> boneShell) {
 		selectedBone = boneShell;
-		oneShellRenderer.setSelectedBoneShell(selectedBone);
+		motionReceiveRenderer.setSelectedBoneShell(selectedBone);
 		futureBones = mht.getFutureBoneHelperList();
 		renderer.setSelectedBoneShell(boneShell);
 		setTitles();
-		setFutureBoneListModel(futureBones);
+		parentList.setListModel(futureBones);
 		updateRecModMotionBonesListModel();
+		updateDonModMotionScrBonesListModel();
 		scrollToRevealParent(boneShell);
-		setImportStatus(selectedBone.getImportStatus().ordinal());
+		setImportStatus(selectedBone.getImportStatus());
 		repaint();
 	}
 
 	private void scrollToRevealParent(IdObjectShell<?> boneShell) {
 		if (boneShell.getNewParentShell() != null) {
-			int i = futureBones.indexOf(boneShell.getNewParentShell());
+			int i = parentList.getFullListModel().indexOf(boneShell.getNewParentShell());
 			if (i != -1) {
-				Rectangle cellBounds = futureBonesList.getCellBounds(i, i);
+				Rectangle cellBounds = parentList.getCellBounds(i, i);
 				if (cellBounds != null) {
-					futureBonesList.scrollRectToVisible(cellBounds);
+					parentList.scrollRectToVisible(cellBounds);
 				}
 			}
 		}
@@ -164,150 +160,96 @@ public class BonePanel extends JPanel {
 		}
 	}
 
-	private void showImportTypeCard() {
-		selectedBone.setImportStatus(importTypeBox.getSelectedIndex());
+	protected void showImportTypeCard(IdObjectShell.ImportType type) {
+		if(type != null) {
+			selectedBone.setImportStatus(type);
 
-		boolean pastListSelectionState = listenSelection;
-		listenSelection = false;
-		if (importTypeBox.getSelectedItem() == IdObjectShell.ImportType.MOTION_FROM) {
-			cards.show(cardPanel, "boneList");
-		} else {
-			cards.show(cardPanel, "blank");
+			boolean pastListSelectionState = listenSelection;
+			listenSelection = false;
+			if (type == IdObjectShell.ImportType.MOTION_FROM) {
+				cards.show(cardPanel, IdObjectShell.ImportType.MOTION_FROM.name());
+			}else if (type == IdObjectShell.ImportType.RECEIVE_MOTION) {
+				cards.show(cardPanel, IdObjectShell.ImportType.RECEIVE_MOTION.name());
+			} else {
+				cards.show(cardPanel, "blank");
+			}
+			listenSelection = pastListSelectionState;
 		}
-		listenSelection = pastListSelectionState;
 	}
 
-	public void setImportStatus(final int index) {
-		importTypeBox.setSelectedIndex(index);
-		showImportTypeCard();
+	public void setImportStatus(IdObjectShell.ImportType type) {
+		importTypeBox.setSelectedItem(type);
+		showImportTypeCard(type);
 	}
 
 	private void setParent(ListSelectionEvent e) {
-		if (!e.getValueIsAdjusting() && futureBonesList.getSelectedValue() != null) {
-			if (futureBonesList.getSelectedValue() == selectedBone.getNewParentShell()) {
-				selectedBone.setNewParentShell(null);
-			} else {
-				selectedBone.setNewParentShell(futureBonesList.getSelectedValue());
+		if (!e.getValueIsAdjusting()) {
+			IdObjectShell<?> selectedValue = parentList.getSelectedValue();
+			if(selectedValue != null){
+				if (selectedValue == selectedBone.getNewParentShell()) {
+					selectedBone.setNewParentShell(null);
+				} else {
+					selectedBone.setNewParentShell(selectedValue);
+				}
+				parentList.setSelectedValue(null, false);
 			}
-			futureBonesList.setSelectedValue(null, false);
 		}
 	}
 
 	private void updateRecModMotionBonesListModel() {
-		recModMotionBonesListModel.clear();
+		motionDestList.clear().resetFilter();
 		bonesWithMotion.clear();
 		for (IdObjectShell<?> bs : mht.recModBoneShells) {
 			if (bs.getMotionSrcShell() == null) {
-				recModMotionBonesListModel.addElement(bs);
+				motionDestList.add(bs);
 			} else if (bs.getMotionSrcShell() == selectedBone) {
-				recModMotionBonesListModel.add(0, bs);
+				motionDestList.add(0, bs);
 			} else {
 				bonesWithMotion.add(bs);
 			}
 		}
-		recModMotionBonesListModel.addAll(bonesWithMotion);
+		motionDestList.addAll(bonesWithMotion);
 	}
 
-	private void updateList(ListSelectionEvent e) {
+	private void updateDonModMotionScrBonesListModel() {
+		motionSrcList.clear().resetFilter();
+		bonesWithMotion.clear();
+		for (IdObjectShell<?> bs : mht.donModBoneShells) {
+			if (selectedBone.getMotionSrcShell() == bs) {
+				motionSrcList.add(0, bs);
+			} else if (bs.getImportStatus() == IdObjectShell.ImportType.MOTION_FROM) {
+				motionSrcList.add(bs);
+			} else {
+				bonesWithMotion.add(bs);
+			}
+		}
+		motionSrcList.addAll(bonesWithMotion);
+	}
+
+	protected void motionDestChosen(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
-			for (IdObjectShell<?> bs : importMotionIntoRecBoneList.getSelectedValuesList()) {
+			for (IdObjectShell<?> bs : motionDestList.getSelectedValuesList()) {
 				if (bs.getMotionSrcShell() == selectedBone) {
 					bs.setMotionSrcShell(null);
 				} else {
 					bs.setMotionSrcShell(selectedBone);
 				}
 			}
-			importMotionIntoRecBoneList.setSelectedValue(null, false);
-		}
-	}
-//	private void updateList(ListSelectionEvent e) {
-//		if (e.getValueIsAdjusting()) {
-////			System.out.println("Update list, BEFORE values: ");
-//			for (BoneShell bs : importMotionIntoRecBoneList.getSelectedValuesList()) {
-//				if (bs.getImportBoneShell() == selectedBone) {
-//					bs.setImportBoneShell(null);
-////					System.out.println("import to null");
-//				} else {
-//					bs.setImportBoneShell(selectedBone);
-////					System.out.println("import to: " + selectedBone);
-//				}
-////				System.out.println(bs + ", importBs: " + bs.getImportBoneShell());
-//			}
-////			System.out.println("_______________");
-//			importMotionIntoRecBoneList.setSelectedValue(null, false);
-//		}
-//		if (!e.getValueIsAdjusting()) {
-////			System.out.println("Update list, AFTER values: ");
-//			for (BoneShell bs : importMotionIntoRecBoneList.getSelectedValuesList()) {
-//				System.out.println(bs);
-//			}
-////			System.out.println("_______________");
-//		}
-//	}
-
-	private void queResetList() {
-		if (!linkBox.isSelected()) {
-			listResetQued = true;
+			motionDestList.setSelectedValue(null, false);
 		}
 	}
 
-	private CaretListener getCaretListener(JTextField activeSearchField, JTextField inActiveSearchField, Consumer<String> listModelFunction) {
-		return e -> {
-			if (linkBox.isSelected()) {
-				inActiveSearchField.setText(activeSearchField.getText());
+	protected void motionSrcChosen(ListSelectionEvent e) {
+		if (e.getValueIsAdjusting()) {
+			IdObjectShell<?> bs = motionSrcList.getSelectedValue();
+			if (bs != null) {
+				bs.addMotionDest(selectedBone);
 			}
-			String filterText = activeSearchField.getText();
-			listModelFunction.accept(filterText);
-		};
-	}
-
-	private void setFutureBonesFilter(String filterText) {
-		applyFutureBonesListModel(filterText);
-		if (linkBox.isSelected()) {
-			applyRecModBonesFilteredListModel(filterText);
-		} else if (listResetQued) {
-			listResetQued = false;
-			setImportIntoListModel(recModMotionBonesListModel);
-			leftSearchField.setText("");
+			motionSrcList.setSelectedValue(null, false);
 		}
 	}
 
-	private void applyFutureBonesListModel(String filterText) {
-		if (!filterText.equals("")) {
-			filteredFutureBones.clear();
-			for (IdObjectShell<?> boneShell : futureBones) {
-				if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
-					filteredFutureBones.addElement(boneShell);
-				}
-			}
-			setFutureBoneListModel(filteredFutureBones);
-		} else {
-			setFutureBoneListModel(futureBones);
-		}
-	}
-
-	private void setRecModelBonesFilter(String filterText) {
-		applyRecModBonesFilteredListModel(filterText);
-		if (linkBox.isSelected()) {
-			applyFutureBonesListModel(filterText);
-		} else if (listResetQued) {
-			listResetQued = false;
-			setFutureBoneListModel(futureBones);
-			rightSearchField.setText("");
-		}
-	}
-
-	private void applyRecModBonesFilteredListModel(String filterText) {
-		if (!filterText.equals("")) {
-			filteredRecModMotionBonesListModel.clear();
-			for (IdObjectShell<?> boneShell : recModMotionBonesListModel) {
-				if (boneShell.getName().toLowerCase().contains(filterText.toLowerCase())) {
-					filteredRecModMotionBonesListModel.addElement(boneShell);
-				}
-			}
-			setImportIntoListModel(filteredRecModMotionBonesListModel);
-		} else {
-			setImportIntoListModel(recModMotionBonesListModel);
-		}
+	protected boolean idObjectShellNameFilter(IdObjectShell<?> boneShell, String filterText) {
+		return boneShell.getName().toLowerCase().contains(filterText.toLowerCase());
 	}
 }

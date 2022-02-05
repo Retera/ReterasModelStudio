@@ -46,7 +46,7 @@ public class BoneAttachmentEditPanel extends JPanel {
 				for (GeosetShell geosetShell : mht.allGeoShells) {
 					for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
 						final BoneAttachmentPanel geoPanel = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
-						if (geoPanel.selectedGeoset == geosetShell) {
+						if (geoPanel.getSelectedGeoset() == geosetShell) {
 							geosetAnimTabs.setEnabledAt(i, geosetShell.isDoImport());
 						}
 					}

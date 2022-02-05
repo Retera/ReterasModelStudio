@@ -36,8 +36,9 @@ public class BoneEditPanel extends JPanel {
 		bonePanelCards.add(singleBonePanel, "single");
 		bonePanelCards.add(multiBonePane, "multiple");
 		bonePanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
+		JScrollPane cardScrollPane = new JScrollPane(bonePanelCards);
 
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getBoneListPane(mht), bonePanelCards);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getBoneListPane(mht), cardScrollPane);
 		add(splitPane, "growx, growy");
 	}
 
