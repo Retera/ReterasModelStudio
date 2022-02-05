@@ -16,7 +16,6 @@ public class YseraFrame extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		final YseraPanel contentPane = new YseraPanel();
 		setContentPane(contentPane);
-		// setIconImage(GlobalIcons.bigGeoIcon.getImage());
 		setIconImage(BLPHandler.get().getGameTex("war3.w3mod/ReplaceableTextures\\CommandButtons\\BTNGreenDragon.blp"));
 		setJMenuBar(contentPane.createJMenuBar());
 		pack();

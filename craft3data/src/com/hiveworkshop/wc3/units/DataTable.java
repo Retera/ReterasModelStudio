@@ -306,10 +306,6 @@ public class DataTable implements ObjectData {
 		//// getVoidWorker().addToList("n03A","Builds");
 		// Unit empoweredNetherling = get("n03J");
 		// empoweredNetherling.setField("Upgrade",empoweredNetherling.getField("Upgrade").replace("n03A","null"));
-		// get("h02Y").setField("Name", "Shrine of the Æther");
-		// get("h02H").setField("Name", "Æthergate");
-		// get("h02G").setField("Name", "Vault of the Æther");
-		// get("h02V").setField("Name", "Ætherstorm Tower");
 
 		// //Loading of data
 		// for( String unitid: dataTable.keySet() ) {

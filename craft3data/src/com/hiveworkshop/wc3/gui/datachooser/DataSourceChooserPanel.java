@@ -59,6 +59,7 @@ import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC;
 import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC.FileSystem;
 import com.hiveworkshop.nio.ByteBufferInputStream;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.user.WindowsRegistry;
 import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
 import com.jtattoo.plaf.aluminium.AluminiumLookAndFeel;
@@ -66,32 +67,9 @@ import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 import com.jtattoo.plaf.noire.NoireLookAndFeel;
 
 public class DataSourceChooserPanel extends JPanel {
-	private static final ImageIcon CASCIcon;
-	private static final ImageIcon MPQIcon;
-	private static final ImageIcon FolderIcon;
-	static {
-		ImageIcon cascIcon = null;
-		try {
-			cascIcon = new ImageIcon(ImageIO.read(DataSourceChooserPanel.class.getResource("icons/CASC.png"))
-					.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
-		} catch (final IOException e) {
-		}
-		CASCIcon = cascIcon;
-		ImageIcon mpqIcon = null;
-		try {
-			mpqIcon = new ImageIcon(ImageIO.read(DataSourceChooserPanel.class.getResource("icons/MPQ.png"))
-					.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
-		} catch (final IOException e) {
-		}
-		MPQIcon = mpqIcon;
-		ImageIcon folderIcon = null;
-		try {
-			folderIcon = new ImageIcon(ImageIO.read(DataSourceChooserPanel.class.getResource("icons/Folder.png"))
-					.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
-		} catch (final IOException e) {
-		}
-		FolderIcon = folderIcon;
-	}
+	private static final ImageIcon CASCIcon = RMSIcons.loadDataSourceImageIcon("CASC.png");
+	private static final ImageIcon MPQIcon = RMSIcons.loadDataSourceImageIcon("MPQ.png");
+	private static final ImageIcon FolderIcon = RMSIcons.loadDataSourceImageIcon("Folder.png");
 
 	private final List<DataSourceDescriptor> dataSourceDescriptors;
 	private String wcDirectory;

@@ -1,27 +1,49 @@
-apply plugin: "java"
+plugins {
+    id 'org.beryx.runtime' version '1.12.5'
+}
 
-sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = [ "src/" ]
+sourceSets.main.resources.srcDirs = [ "res/" ]
 
 project.ext.mainClassName = "com.matrixeater.src.MainFrame"
 
-task run(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    standardInput = System.in
-    ignoreExitValue = true
+application {
+    mainClass = project.ext.mainClassName
+    applicationName = 'drms'
+    applicationDefaultJvmArgs = []
+}
+
+runtime {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    modules = ['java.desktop', 'java.scripting', 'java.logging', 'java.xml', 'java.datatransfer', 'jdk.dynalink', 'jdk.unsupported']
 }
 
 task dist(type: Jar) {
-    from files(sourceSets.main.output.classesDir)
-    from files(sourceSets.main.output.resourcesDir)
-    from {configurations.compile.collect {zipTree(it)}}
- 
+ 	duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    doFirst {
+        def serviceDir = file("$buildDir/META-INF/services")
+        serviceDir.deleteDir()
+        serviceDir.mkdirs()
+
+        // copy all service files from deps to buildDir
+        for(file in configurations.runtimeClasspath) {
+            zipTree(file).matching{ include 'META-INF/services/*' }.each { f ->
+                new File(serviceDir, f.name) << f.getText("UTF-8") + "\n"
+            }
+        }
+    }
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
+    dependsOn configurations.runtimeClasspath
+
+    from files(sourceSets.main.output.classesDirs)
+    from files(sourceSets.main.output.resourcesDir)
+    from {configurations.runtimeClasspath.collect {zipTree(it)}}
+
+    with jar
 }
 
 dist.dependsOn classes

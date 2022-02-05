@@ -23,6 +23,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.ImportPanel;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.EditableModel;
@@ -512,7 +513,7 @@ public class AnimationTransfer extends JPanel implements ActionListener {
 
 		final JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setIconImage((new ImageIcon(MainFrame.class.getResource("ImageBin/Anim.png"))).getImage());
+		frame.setIconImage((new ImageIcon(RMSIcons.AnimIcon.getImage())).getImage());
 		final AnimationTransfer transfer = new AnimationTransfer(frame);
 		frame.setContentPane(transfer);
 		frame.pack();

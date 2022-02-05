@@ -112,7 +112,7 @@ public class ProgramPreferences implements Serializable {
 			threeDCameraPanButton = MouseButtonPreference.MIDDLE;
 		}
 		if (theme == null) {
-			theme = GUITheme.WINDOWS;
+			theme = GUITheme.DARK;
 		}
 		if (quickBrowse == null) {
 			quickBrowse = Boolean.TRUE;

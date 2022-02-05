@@ -10,8 +10,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 
-import com.hiveworkshop.wc3.gui.GlobalIcons;
-
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.View;
 import net.infonode.docking.util.StringViewMap;
@@ -52,7 +51,7 @@ public class GuiTest {
 		final RootWindow rootWindow = new RootWindow(new StringViewMap());
 		final JPanel jPanel = new JPanel();
 		jPanel.add(new JLabel("content"));
-		rootWindow.setWindow(new View("ASDF", GlobalIcons.MDLIcon, jPanel));
+		rootWindow.setWindow(new View("ASDF", RMSIcons.MDLIcon, jPanel));
 		rootWindow.getRootWindowProperties().getViewProperties().getViewTitleBarProperties().setVisible(true);
 		rootWindow.getRootWindowProperties().getTabWindowProperties().getTabbedPanelProperties().getTabAreaProperties()
 				.getComponentProperties().setBackgroundColor(Color.GREEN);

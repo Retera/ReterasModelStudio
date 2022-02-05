@@ -4,7 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
-import com.hiveworkshop.wc3.gui.GlobalIcons;
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.ModelViewManagingTree;
 
 /**
@@ -22,11 +22,11 @@ public class ViewController extends JTabbedPane {
 		if (spawnFrame) {
 			frame = new JFrame("View Controller");
 			frame.setContentPane(this);
-			frame.setIconImage(GlobalIcons.redIcon.getImage());
+			frame.setIconImage(RMSIcons.redIcon.getImage());
 		}
 		modelViewManagingTree = disp;
 		geoScroll = new JScrollPane(modelViewManagingTree);
-		addTab("", GlobalIcons.geoIcon, geoScroll, "Controls visibility");
+		addTab("", RMSIcons.geoIcon, geoScroll, "Controls visibility");
 		if (spawnFrame) {
 			frame.setVisible(true);
 			frame.pack();

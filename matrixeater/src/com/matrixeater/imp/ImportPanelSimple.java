@@ -1,5 +1,7 @@
 package com.matrixeater.imp;
 
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
+
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class ImportPanelSimple extends JPanel implements ActionListener {
-	JButton animationTransfer = new JButton(com.matrixeater.src.MainPanel.AnimIcon);// "Animation
+	JButton animationTransfer = new JButton(RMSIcons.AnimIcon);// "Animation
 																					// Transferer");
 	JFrame frame;
 
@@ -34,7 +36,7 @@ public class ImportPanelSimple extends JPanel implements ActionListener {
 		if (e.getSource() == animationTransfer) {
 			frame.setContentPane(new AnimationTransfer(frame));
 			frame.setTitle("Animation Transferer");
-			frame.setIconImage(com.matrixeater.src.MainPanel.AnimIcon.getImage());
+			frame.setIconImage(RMSIcons.AnimIcon.getImage());
 			frame.revalidate();
 			frame.pack();
 			frame.setLocationRelativeTo(null);

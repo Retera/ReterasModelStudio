@@ -22,10 +22,10 @@ import com.etheller.collections.HashMap;
 import com.etheller.collections.List;
 import com.etheller.collections.Map;
 import com.hiveworkshop.wc3.gui.BLPHandler;
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
-import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportIconUtils;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bitmap;
@@ -482,7 +482,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableModelComment extends ChooseableDisplayElement<EditableModel> {
 		private static final ImageIcon COMMENT_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/comment.png"));
+				RMSIcons.loadNodeImage("comment.png"));
 
 		public ChooseableModelComment(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -513,7 +513,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableModelHeader extends ChooseableDisplayElement<EditableModel> {
-		private static final ImageIcon DATA_ICON = new ImageIcon(ViewportIconUtils.loadImage("icons/nodes/model.png"));
+		private static final ImageIcon DATA_ICON = new ImageIcon(RMSIcons.loadNodeImage("model.png"));
 
 		public ChooseableModelHeader(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -544,7 +544,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableAnimationItem extends ChooseableDisplayElement<Animation> {
 		private static final ImageIcon ANIMATION_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/animation.png"));
+				RMSIcons.loadNodeImage("animation.png"));
 
 		public ChooseableAnimationItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -576,7 +576,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableGlobalSequenceItem extends ChooseableDisplayElement<Integer> {
 		private static final ImageIcon GLOBAL_SEQ_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/globalseq.png"));
+				RMSIcons.loadNodeImage("globalseq.png"));
 		private final int globalSeqId;
 
 		public ChooseableGlobalSequenceItem(final ModelViewManager modelViewManager,
@@ -617,7 +617,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableBitmapItem extends ChooseableDisplayElement<Bitmap> {
 		private static final ImageIcon TEXTURE_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/bitmap.png"));
+				RMSIcons.loadNodeImage("bitmap.png"));
 
 		public ChooseableBitmapItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -649,7 +649,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableMaterialItem extends ChooseableDisplayElement<Material> {
 		private static final ImageIcon MATERIAL_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/material.png"));
+				RMSIcons.loadNodeImage("material.png"));
 
 		public ChooseableMaterialItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -681,7 +681,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableTextureAnimItem extends ChooseableDisplayElement<TextureAnim> {
 		private static final ImageIcon TEXTURE_ANIM_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/textureanim.png"));
+				RMSIcons.loadNodeImage("textureanim.png"));
 
 		public ChooseableTextureAnimItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -713,7 +713,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableGeosetItem extends ChooseableDisplayElement<Geoset> {
 		private static final ImageIcon GEOSET_ITEM_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/geoset.png"));
+				RMSIcons.loadNodeImage("geoset.png"));
 
 		public ChooseableGeosetItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -751,7 +751,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableGeosetAnimItem extends ChooseableDisplayElement<GeosetAnim> {
 		private static final ImageIcon GEOSET_ANIM_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/geoanim.png"));
+				RMSIcons.loadNodeImage("geoanim.png"));
 
 		public ChooseableGeosetAnimItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -782,7 +782,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableBoneItem extends ChooseableDisplayElement<Bone> {
-		private static final ImageIcon BONE_ICON = new ImageIcon(ViewportIconUtils.loadImage("icons/nodes/bone.png"));
+		private static final ImageIcon BONE_ICON = new ImageIcon(RMSIcons.loadNodeImage("bone.png"));
 
 		public ChooseableBoneItem(final ModelViewManager modelViewManager, final UndoActionListener undoActionListener,
 				final ModelStructureChangeListener modelStructureChangeListener, final Bone item) {
@@ -813,7 +813,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableHelperItem extends ChooseableDisplayElement<Helper> {
 		private static final ImageIcon BONE_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/helperhand.png"));
+				RMSIcons.loadNodeImage("helperhand.png"));
 
 		public ChooseableHelperItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -844,7 +844,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableLightItem extends ChooseableDisplayElement<Light> {
-		private static final ImageIcon LIGHT_ICON = new ImageIcon(ViewportIconUtils.loadImage("icons/nodes/light.png"));
+		private static final ImageIcon LIGHT_ICON = new ImageIcon(RMSIcons.loadNodeImage("light.png"));
 
 		public ChooseableLightItem(final ModelViewManager modelViewManager, final UndoActionListener undoActionListener,
 				final ModelStructureChangeListener modelStructureChangeListener, final Light item) {
@@ -875,7 +875,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableAttachmentItem extends ChooseableDisplayElement<Attachment> {
 		private static final ImageIcon ATTACHMENT_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/attachment.png"));
+				RMSIcons.loadNodeImage("attachment.png"));
 
 		public ChooseableAttachmentItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -907,7 +907,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableParticleEmitterItem extends ChooseableDisplayElement<ParticleEmitter> {
 		private static final ImageIcon PARTICLE_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/particle1.png"));
+				RMSIcons.loadNodeImage("particle1.png"));
 
 		public ChooseableParticleEmitterItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -939,7 +939,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableParticleEmitter2Item extends ChooseableDisplayElement<ParticleEmitter2> {
 		private static final ImageIcon PARTICLE2_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/particle2.png"));
+				RMSIcons.loadNodeImage("particle2.png"));
 
 		public ChooseableParticleEmitter2Item(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -972,7 +972,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	private static final class ChooseableParticleEmitterPopcornItem
 			extends ChooseableDisplayElement<ParticleEmitterPopcorn> {
 		private static final ImageIcon POPCORN_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/popcorn.png"));
+				RMSIcons.loadNodeImage("popcorn.png"));
 
 		public ChooseableParticleEmitterPopcornItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -1004,7 +1004,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableRibbonEmitterItem extends ChooseableDisplayElement<RibbonEmitter> {
 		private static final ImageIcon RIBBON_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/ribbon.png"));
+				RMSIcons.loadNodeImage("ribbon.png"));
 
 		public ChooseableRibbonEmitterItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -1036,7 +1036,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableEventObjectItem extends ChooseableDisplayElement<EventObject> {
 		private static final ImageIcon EVENT_OBJECT_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/event.png"));
+				RMSIcons.loadNodeImage("event.png"));
 
 		public ChooseableEventObjectItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -1067,7 +1067,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableCollisionShapeItem extends ChooseableDisplayElement<CollisionShape> {
 		private static final ImageIcon COLLISION_SHAPE_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/collision.png"));
+				RMSIcons.loadNodeImage("collision.png"));
 
 		public ChooseableCollisionShapeItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -1098,7 +1098,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableCameraItem extends ChooseableDisplayElement<Camera> {
 		private static final ImageIcon CAMERA_ICON = new ImageIcon(
-				ViewportIconUtils.loadImage("icons/nodes/camera.png"));
+				RMSIcons.loadNodeImage("camera.png"));
 
 		public ChooseableCameraItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -1128,7 +1128,7 @@ public final class ModelComponentBrowserTree extends JTree {
 	}
 
 	private static final class ChooseableFaceEffectsChunkItem extends ChooseableDisplayElement<FaceEffect> {
-		private static final ImageIcon FACEFX_ICON = new ImageIcon(ViewportIconUtils.loadImage("icons/nodes/fafx.png"));
+		private static final ImageIcon FACEFX_ICON = new ImageIcon(RMSIcons.loadNodeImage("fafx.png"));
 
 		public ChooseableFaceEffectsChunkItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,
@@ -1159,7 +1159,7 @@ public final class ModelComponentBrowserTree extends JTree {
 
 	private static final class ChooseableBindPoseChunkItem extends ChooseableDisplayElement<BindPoseChunk> {
 		private static final ImageIcon BINDPOSE_ICON = new ImageIcon(
-				IconUtils.worldEditStyleIcon(ViewportIconUtils.loadImage("icons/nodes/bindpos.png")));
+				IconUtils.worldEditStyleIcon(RMSIcons.loadNodeImage("bindpos.png")));
 
 		public ChooseableBindPoseChunkItem(final ModelViewManager modelViewManager,
 				final UndoActionListener undoActionListener,

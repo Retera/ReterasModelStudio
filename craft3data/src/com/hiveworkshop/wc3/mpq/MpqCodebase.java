@@ -17,6 +17,7 @@ import com.etheller.collections.SetView;
 import com.etheller.util.CollectionUtils;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
+import com.hiveworkshop.wc3.gui.datachooser.JavaJarDataSource;
 import com.hiveworkshop.wc3.gui.datachooser.MpqDataSourceDescriptor;
 import com.hiveworkshop.wc3.user.SaveProfile;
 
@@ -26,13 +27,10 @@ public class MpqCodebase implements Codebase, DataSource {
 	private final List<DataSource> mpqList = new ArrayList<>();
 
 	public MpqCodebase(final List<DataSourceDescriptor> dataSourceDescriptors) {
+		mpqList.add(new JavaJarDataSource());
 		if (dataSourceDescriptors != null) {
-			if (dataSourceDescriptors.isEmpty()) {
-				mpqList.add(new MpqDataSourceDescriptor("Retera.mpq").createDataSource());
-			} else {
-				for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
-					mpqList.add(descriptor.createDataSource());
-				}
+			for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
+				mpqList.add(descriptor.createDataSource());
 			}
 		}
 	}
@@ -120,6 +118,7 @@ public class MpqCodebase implements Codebase, DataSource {
 		}
 		cache.clear();
 		mpqList.clear();
+		mpqList.add(new JavaJarDataSource());
 		if (dataSourceDescriptors != null) {
 			for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
 				mpqList.add(descriptor.createDataSource());

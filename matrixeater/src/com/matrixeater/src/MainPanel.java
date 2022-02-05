@@ -90,6 +90,7 @@ import javax.swing.text.rtf.RTFEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -99,7 +100,6 @@ import org.lwjgl.util.vector.Vector4f;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
-import com.hiveworkshop.wc3.gui.GlobalIcons;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.animedit.ControllableTimeBoundProvider;
 import com.hiveworkshop.wc3.gui.animedit.TimeBoundChangeListener;
@@ -145,7 +145,6 @@ import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.wc3.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.wc3.gui.modeledit.util.TransferActionListener;
-import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportIconUtils;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationViewer;
 import com.hiveworkshop.wc3.gui.mpqbrowser.BLPPanel;
 import com.hiveworkshop.wc3.gui.mpqbrowser.MPQBrowser;
@@ -274,9 +273,7 @@ public class MainPanel extends JPanel
 	File filterFile;
 	File currentFile;
 	ImportPanel importPanel;
-	static final ImageIcon MDLIcon = new ImageIcon(MainPanel.class.getResource("ImageBin/MDLIcon_16.png"));
-	static final ImageIcon POWERED_BY_HIVE = new ImageIcon(MainPanel.class.getResource("ImageBin/powered_by_hive.png"));
-	public static final ImageIcon AnimIcon = new ImageIcon(MainPanel.class.getResource("ImageBin/Anim.png"));
+	static final ImageIcon POWERED_BY_HIVE = RMSIcons.loadHiveBrowserImageIcon("powered_by_hive.png");
 	protected static final boolean OLDMODE = false;
 	boolean loading;
 	List<ModelPanel> modelPanels;
@@ -977,7 +974,7 @@ public class MainPanel extends JPanel
 				}
 			}
 		});
-		setKeyframe = new JButton(GlobalIcons.setKeyframeIcon);
+		setKeyframe = new JButton(RMSIcons.setKeyframeIcon);
 		setKeyframe.setMargin(new Insets(0, 0, 0, 0));
 		setKeyframe.setToolTipText("Create Keyframe");
 		setKeyframe.addActionListener(new ActionListener() {
@@ -991,7 +988,7 @@ public class MainPanel extends JPanel
 				repaintSelfAndChildren(mpanel);
 			}
 		});
-		setTimeBounds = new JButton(GlobalIcons.setTimeBoundsIcon);
+		setTimeBounds = new JButton(RMSIcons.setTimeBoundsIcon);
 		setTimeBounds.setMargin(new Insets(0, 0, 0, 0));
 		setTimeBounds.setToolTipText("Choose Time Bounds");
 		setTimeBounds.addActionListener(new ActionListener() {
@@ -1338,7 +1335,6 @@ public class MainPanel extends JPanel
 		frontView = new View("Front", null, new JPanel());
 		bottomView = new View("Bottom", null, new JPanel());
 		perspectiveView = new View("Perspective", null, new JPanel());
-		
 
 		final DefaultStyledDocument panel = new DefaultStyledDocument();
 		final JTextPane epane = new JTextPane();
@@ -1347,7 +1343,7 @@ public class MainPanel extends JPanel
 		epane.setBackground(Color.WHITE);
 		final RTFEditorKit rtfk = new RTFEditorKit();
 		try {
-			rtfk.read(MainPanel.class.getResourceAsStream("welcome.rtf"), panel, 0);
+			rtfk.read(MpqCodebase.get().getResourceAsStream("docs/welcome.rtf"), panel, 0);
 		} catch (final MalformedURLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -1359,7 +1355,7 @@ public class MainPanel extends JPanel
 			e1.printStackTrace();
 		}
 		epane.setDocument(panel);
-		
+
 		previewView = new View("Preview", null, new JScrollPane(epane));
 		final JPanel timeSliderAndExtra = new JPanel();
 		final GroupLayout tsaeLayout = new GroupLayout(timeSliderAndExtra);
@@ -1547,7 +1543,6 @@ public class MainPanel extends JPanel
 				return "Model";
 			}
 		});
-	
 
 		final TabWindow startupTabWindow = new TabWindow(new DockingWindow[] { viewingTab, editingTab, modelTab });
 		traverseAndFix(startupTabWindow);
@@ -1810,7 +1805,7 @@ public class MainPanel extends JPanel
 	public JToolBar createJToolBar() {
 		toolbar = new JToolBar(JToolBar.HORIZONTAL);
 		toolbar.setFloatable(false);
-		toolbar.add(new AbstractAction("New", ViewportIconUtils.loadImageIcon("icons/actions/new.png")) {
+		toolbar.add(new AbstractAction("New", RMSIcons.loadToolBarImageIcon("new.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -1821,7 +1816,7 @@ public class MainPanel extends JPanel
 				}
 			}
 		});
-		toolbar.add(new AbstractAction("Open", ViewportIconUtils.loadImageIcon("icons/actions/open.png")) {
+		toolbar.add(new AbstractAction("Open", RMSIcons.loadToolBarImageIcon("open.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -1832,7 +1827,7 @@ public class MainPanel extends JPanel
 				}
 			}
 		});
-		toolbar.add(new AbstractAction("Save", ViewportIconUtils.loadImageIcon("icons/actions/save.png")) {
+		toolbar.add(new AbstractAction("Save", RMSIcons.loadToolBarImageIcon("save.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -1844,7 +1839,7 @@ public class MainPanel extends JPanel
 			}
 		});
 		toolbar.addSeparator();
-		toolbar.add(new AbstractAction("Undo", ViewportIconUtils.loadImageIcon("icons/actions/undo.png")) {
+		toolbar.add(new AbstractAction("Undo", RMSIcons.loadToolBarImageIcon("undo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -1858,7 +1853,7 @@ public class MainPanel extends JPanel
 				repaint();
 			}
 		});
-		toolbar.add(new AbstractAction("Redo", ViewportIconUtils.loadImageIcon("icons/actions/redo.png")) {
+		toolbar.add(new AbstractAction("Redo", RMSIcons.loadToolBarImageIcon("redo.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -1877,8 +1872,8 @@ public class MainPanel extends JPanel
 		toolbar.addSeparator();
 		selectionItemTypeGroup = new ToolbarButtonGroup<>(toolbar, SelectionItemTypes.values());
 		toolbar.addSeparator();
-		selectAndMoveDescriptor = new ToolbarActionButtonType(
-				ViewportIconUtils.loadImageIcon("icons/actions/move2.png"), "Select and Move") {
+		selectAndMoveDescriptor = new ToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("move2.png"),
+				"Select and Move") {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -1889,8 +1884,8 @@ public class MainPanel extends JPanel
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		selectAndRotateDescriptor = new ToolbarActionButtonType(
-				ViewportIconUtils.loadImageIcon("icons/actions/rotate.png"), "Select and Rotate") {
+		selectAndRotateDescriptor = new ToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("rotate.png"),
+				"Select and Rotate") {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -1901,8 +1896,8 @@ public class MainPanel extends JPanel
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		selectAndScaleDescriptor = new ToolbarActionButtonType(
-				ViewportIconUtils.loadImageIcon("icons/actions/scale.png"), "Select and Scale") {
+		selectAndScaleDescriptor = new ToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("scale.png"),
+				"Select and Scale") {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -1913,8 +1908,8 @@ public class MainPanel extends JPanel
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		selectAndExtrudeDescriptor = new ToolbarActionButtonType(
-				ViewportIconUtils.loadImageIcon("icons/actions/extrude.png"), "Select and Extrude") {
+		selectAndExtrudeDescriptor = new ToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("extrude.png"),
+				"Select and Extrude") {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -1925,8 +1920,8 @@ public class MainPanel extends JPanel
 						undoActionListener, modelEditorManager.getSelectionView());
 			}
 		};
-		selectAndExtendDescriptor = new ToolbarActionButtonType(
-				ViewportIconUtils.loadImageIcon("icons/actions/extend.png"), "Select and Extend") {
+		selectAndExtendDescriptor = new ToolbarActionButtonType(RMSIcons.loadToolBarImageIcon("extend.png"),
+				"Select and Extend") {
 			@Override
 			public ModelEditorViewportActivity createActivity(final ModelEditorManager modelEditorManager,
 					final ModelView modelView, final UndoActionListener undoActionListener) {
@@ -1942,7 +1937,7 @@ public class MainPanel extends JPanel
 						selectAndScaleDescriptor, selectAndExtrudeDescriptor, selectAndExtendDescriptor, });
 		currentActivity = actionTypeGroup.getActiveButtonType();
 		toolbar.addSeparator();
-		snapButton = toolbar.add(new AbstractAction("Snap", ViewportIconUtils.loadImageIcon("icons/actions/snap.png")) {
+		snapButton = toolbar.add(new AbstractAction("Snap", RMSIcons.loadToolBarImageIcon("snap.png")) {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				try {
@@ -2651,189 +2646,190 @@ public class MainPanel extends JPanel
 				return name.endsWith(".mdx");
 			}
 		});
-		for (final File file : stockFiles) {
-			final String basicName = file.getName().split("\\.")[0];
-			final File pngImage = new File(file.getParent() + File.separatorChar + basicName + ".png");
-			if (pngImage.exists()) {
-				try {
-					final Image image = ImageIO.read(pngImage);
-					final JMenuItem particleItem = new JMenuItem(basicName,
-							new ImageIcon(image.getScaledInstance(28, 28, Image.SCALE_DEFAULT)));
-					particleItem.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(final ActionEvent e) {
-							final ParticleEmitter2 particle = EditableModel.read(file)
-									.sortedIdObjects(ParticleEmitter2.class).get(0);
-
-							final JPanel particlePanel = new JPanel();
-							final List<IdObject> idObjects = new ArrayList<>(currentMDL().getIdObjects());
-							final Bone nullBone = new Bone("No parent");
-							idObjects.add(0, nullBone);
-							final JComboBox<IdObject> parent = new JComboBox<>(idObjects.toArray(new IdObject[0]));
-							parent.setRenderer(new BasicComboBoxRenderer() {
-								@Override
-								public Component getListCellRendererComponent(final JList list, final Object value,
-										final int index, final boolean isSelected, final boolean cellHasFocus) {
-									final IdObject idObject = (IdObject) value;
-									if (idObject == nullBone) {
-										return super.getListCellRendererComponent(list, "No parent", index, isSelected,
-												cellHasFocus);
-									}
-									return super.getListCellRendererComponent(list,
-											value.getClass().getSimpleName() + " \"" + idObject.getName() + "\"", index,
-											isSelected, cellHasFocus);
-								}
-							});
-							final JLabel parentLabel = new JLabel("Parent:");
-							final JLabel imageLabel = new JLabel(
-									new ImageIcon(image.getScaledInstance(128, 128, Image.SCALE_SMOOTH)));
-							final JLabel titleLabel = new JLabel("Add " + basicName);
-							titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-
-							final JLabel nameLabel = new JLabel("Particle Name:");
-							final JTextField nameField = new JTextField("MyBlizParticle");
-
-							final JLabel xLabel = new JLabel("Z:");
-							final JSpinner xSpinner = new JSpinner(
-									new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001));
-
-							final JLabel yLabel = new JLabel("X:");
-							final JSpinner ySpinner = new JSpinner(
-									new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001));
-
-							final JLabel zLabel = new JLabel("Y:");
-							final JSpinner zSpinner = new JSpinner(
-									new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001));
-							parent.addActionListener(new ActionListener() {
-								@Override
-								public void actionPerformed(final ActionEvent e) {
-									final IdObject choice = parent.getItemAt(parent.getSelectedIndex());
-									xSpinner.setValue(choice.getPivotPoint().x);
-									ySpinner.setValue(choice.getPivotPoint().y);
-									zSpinner.setValue(choice.getPivotPoint().z);
-								}
-							});
-
-							final JPanel animPanel = new JPanel();
-							final List<Animation> anims = currentMDL().getAnims();
-							animPanel.setLayout(new GridLayout(anims.size() + 1, 1));
-							final JCheckBox[] checkBoxes = new JCheckBox[anims.size()];
-							int animIndex = 0;
-							for (final Animation anim : anims) {
-								animPanel.add(checkBoxes[animIndex] = new JCheckBox(anim.getName()));
-								checkBoxes[animIndex].setSelected(true);
-								animIndex++;
-							}
-							final JButton chooseAnimations = new JButton("Choose when to show!");
-							chooseAnimations.addActionListener(new ActionListener() {
-								@Override
-								public void actionPerformed(final ActionEvent e) {
-									JOptionPane.showMessageDialog(particlePanel, animPanel);
-								}
-							});
-							final JButton[] colorButtons = new JButton[3];
-							final Color[] colors = new Color[colorButtons.length];
-							for (int i = 0; i < colorButtons.length; i++) {
-								final Vertex colorValues = particle.getSegmentColor(i);
-								final Color color = new Color((int) (colorValues.z * 255), (int) (colorValues.y * 255),
-										(int) (colorValues.x * 255));
-
-								final JButton button = new JButton("Color " + (i + 1),
-										new ImageIcon(IconUtils.createBlank(color, 32, 32)));
-								colors[i] = color;
-								final int index = i;
-								button.addActionListener(new ActionListener() {
+		if (stockFiles != null) {
+			for (final File file : stockFiles) {
+				final String basicName = file.getName().split("\\.")[0];
+				final File pngImage = new File(file.getParent() + File.separatorChar + basicName + ".png");
+				if (pngImage.exists()) {
+					try {
+						final Image image = ImageIO.read(pngImage);
+						final JMenuItem particleItem = new JMenuItem(basicName,
+								new ImageIcon(image.getScaledInstance(28, 28, Image.SCALE_DEFAULT)));
+						particleItem.addActionListener(new ActionListener() {
+							@Override
+							public void actionPerformed(final ActionEvent e) {
+								final ParticleEmitter2 particle = EditableModel.read(file)
+										.sortedIdObjects(ParticleEmitter2.class).get(0);
+								
+								final JPanel particlePanel = new JPanel();
+								final List<IdObject> idObjects = new ArrayList<>(currentMDL().getIdObjects());
+								final Bone nullBone = new Bone("No parent");
+								idObjects.add(0, nullBone);
+								final JComboBox<IdObject> parent = new JComboBox<>(idObjects.toArray(new IdObject[0]));
+								parent.setRenderer(new BasicComboBoxRenderer() {
 									@Override
-									public void actionPerformed(final ActionEvent e) {
-										final Color colorChoice = JColorChooser.showDialog(MainPanel.this,
-												"Chooser Color", colors[index]);
-										if (colorChoice != null) {
-											colors[index] = colorChoice;
-											button.setIcon(new ImageIcon(IconUtils.createBlank(colors[index], 32, 32)));
+									public Component getListCellRendererComponent(final JList list, final Object value,
+											final int index, final boolean isSelected, final boolean cellHasFocus) {
+										final IdObject idObject = (IdObject) value;
+										if (idObject == nullBone) {
+											return super.getListCellRendererComponent(list, "No parent", index,
+													isSelected, cellHasFocus);
 										}
+										return super.getListCellRendererComponent(list,
+												value.getClass().getSimpleName() + " \"" + idObject.getName() + "\"",
+												index, isSelected, cellHasFocus);
 									}
 								});
-								colorButtons[i] = button;
-							}
-
-							final GroupLayout layout = new GroupLayout(particlePanel);
-
-							layout.setHorizontalGroup(
-									layout.createSequentialGroup().addComponent(imageLabel).addGap(8)
-											.addGroup(layout.createParallelGroup(Alignment.CENTER)
-													.addComponent(titleLabel)
-													.addGroup(layout.createSequentialGroup().addComponent(nameLabel)
-															.addGap(4).addComponent(nameField))
-													.addGroup(layout.createSequentialGroup().addComponent(parentLabel)
-															.addGap(4).addComponent(parent))
-													.addComponent(chooseAnimations)
-													.addGroup(layout.createSequentialGroup().addComponent(xLabel)
-															.addComponent(xSpinner).addGap(4).addComponent(yLabel)
-															.addComponent(ySpinner).addGap(4).addComponent(zLabel)
-															.addComponent(zSpinner))
-													.addGroup(
-															layout.createSequentialGroup().addComponent(colorButtons[0])
-																	.addGap(4).addComponent(colorButtons[1]).addGap(4)
-																	.addComponent(colorButtons[2]))));
-							layout.setVerticalGroup(
-									layout.createParallelGroup(Alignment.CENTER).addComponent(imageLabel)
-											.addGroup(
-													layout.createSequentialGroup().addComponent(titleLabel)
-															.addGroup(layout.createParallelGroup(Alignment.CENTER)
-																	.addComponent(nameLabel).addComponent(nameField))
-															.addGap(4)
-															.addGroup(layout.createParallelGroup(Alignment.CENTER)
-																	.addComponent(parentLabel).addComponent(parent))
-															.addGap(4).addComponent(chooseAnimations).addGap(4)
-															.addGroup(layout.createParallelGroup(Alignment.CENTER)
-																	.addComponent(xLabel).addComponent(xSpinner)
-																	.addComponent(yLabel).addComponent(ySpinner)
-																	.addComponent(zLabel).addComponent(zSpinner))
-															.addGap(4)
-															.addGroup(layout.createParallelGroup(Alignment.CENTER)
-																	.addComponent(colorButtons[0])
-																	.addComponent(colorButtons[1])
-																	.addComponent(colorButtons[2]))));
-							particlePanel.setLayout(layout);
-							final int x = JOptionPane.showConfirmDialog(MainPanel.this, particlePanel,
-									"Add " + basicName, JOptionPane.OK_CANCEL_OPTION);
-							if (x == JOptionPane.OK_OPTION) {
-								// do stuff
-								particle.setPivotPoint(new Vertex(((Number) xSpinner.getValue()).doubleValue(),
-										((Number) ySpinner.getValue()).doubleValue(),
-										((Number) zSpinner.getValue()).doubleValue()));
-								for (int i = 0; i < colors.length; i++) {
-									particle.setSegmentColor(i, new Vertex(colors[i].getBlue() / 255.00,
-											colors[i].getGreen() / 255.00, colors[i].getRed() / 255.00));
-								}
-								final IdObject parentChoice = parent.getItemAt(parent.getSelectedIndex());
-								if (parentChoice == nullBone) {
-									particle.setParent(null);
-								} else {
-									particle.setParent(parentChoice);
-								}
-								AnimFlag oldFlag = particle.getVisibilityFlag();
-								if (oldFlag == null) {
-									oldFlag = new AnimFlag("Visibility");
-								}
-								final AnimFlag visFlag = AnimFlag.buildEmptyFrom(oldFlag);
-								animIndex = 0;
-								for (final Animation anim : anims) {
-									if (!checkBoxes[animIndex].isSelected()) {
-										visFlag.addEntry(anim.getStart(), new Integer(0));
+								final JLabel parentLabel = new JLabel("Parent:");
+								final JLabel imageLabel = new JLabel(
+										new ImageIcon(image.getScaledInstance(128, 128, Image.SCALE_SMOOTH)));
+								final JLabel titleLabel = new JLabel("Add " + basicName);
+								titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
+								
+								final JLabel nameLabel = new JLabel("Particle Name:");
+								final JTextField nameField = new JTextField("MyBlizParticle");
+								
+								final JLabel xLabel = new JLabel("Z:");
+								final JSpinner xSpinner = new JSpinner(
+										new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001));
+								
+								final JLabel yLabel = new JLabel("X:");
+								final JSpinner ySpinner = new JSpinner(
+										new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001));
+								
+								final JLabel zLabel = new JLabel("Y:");
+								final JSpinner zSpinner = new JSpinner(
+										new SpinnerNumberModel(0.0, -100000.00, 100000.0, 0.0001));
+								parent.addActionListener(new ActionListener() {
+									@Override
+									public void actionPerformed(final ActionEvent e) {
+										final IdObject choice = parent.getItemAt(parent.getSelectedIndex());
+										xSpinner.setValue(choice.getPivotPoint().x);
+										ySpinner.setValue(choice.getPivotPoint().y);
+										zSpinner.setValue(choice.getPivotPoint().z);
 									}
+								});
+								
+								final JPanel animPanel = new JPanel();
+								final List<Animation> anims = currentMDL().getAnims();
+								animPanel.setLayout(new GridLayout(anims.size() + 1, 1));
+								final JCheckBox[] checkBoxes = new JCheckBox[anims.size()];
+								int animIndex = 0;
+								for (final Animation anim : anims) {
+									animPanel.add(checkBoxes[animIndex] = new JCheckBox(anim.getName()));
+									checkBoxes[animIndex].setSelected(true);
 									animIndex++;
 								}
-								particle.setVisibilityFlag(visFlag);
-								particle.setName(nameField.getText());
-								currentMDL().add(particle);
-								modelStructureChangeListener.nodesAdded(Collections.<IdObject>singletonList(particle));
+								final JButton chooseAnimations = new JButton("Choose when to show!");
+								chooseAnimations.addActionListener(new ActionListener() {
+									@Override
+									public void actionPerformed(final ActionEvent e) {
+										JOptionPane.showMessageDialog(particlePanel, animPanel);
+									}
+								});
+								final JButton[] colorButtons = new JButton[3];
+								final Color[] colors = new Color[colorButtons.length];
+								for (int i = 0; i < colorButtons.length; i++) {
+									final Vertex colorValues = particle.getSegmentColor(i);
+									final Color color = new Color((int) (colorValues.z * 255),
+											(int) (colorValues.y * 255), (int) (colorValues.x * 255));
+									
+									final JButton button = new JButton("Color " + (i + 1),
+											new ImageIcon(IconUtils.createBlank(color, 32, 32)));
+									colors[i] = color;
+									final int index = i;
+									button.addActionListener(new ActionListener() {
+										@Override
+										public void actionPerformed(final ActionEvent e) {
+											final Color colorChoice = JColorChooser.showDialog(MainPanel.this,
+													"Chooser Color", colors[index]);
+											if (colorChoice != null) {
+												colors[index] = colorChoice;
+												button.setIcon(
+														new ImageIcon(IconUtils.createBlank(colors[index], 32, 32)));
+											}
+										}
+									});
+									colorButtons[i] = button;
+								}
+								
+								final GroupLayout layout = new GroupLayout(particlePanel);
+								
+								layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(imageLabel)
+										.addGap(8)
+										.addGroup(layout.createParallelGroup(Alignment.CENTER).addComponent(titleLabel)
+												.addGroup(layout.createSequentialGroup().addComponent(nameLabel)
+														.addGap(4).addComponent(nameField))
+												.addGroup(layout.createSequentialGroup().addComponent(parentLabel)
+														.addGap(4).addComponent(parent))
+												.addComponent(chooseAnimations)
+												.addGroup(layout.createSequentialGroup().addComponent(xLabel)
+														.addComponent(xSpinner).addGap(4).addComponent(yLabel)
+														.addComponent(ySpinner).addGap(4).addComponent(zLabel)
+														.addComponent(zSpinner))
+												.addGroup(layout.createSequentialGroup().addComponent(colorButtons[0])
+														.addGap(4).addComponent(colorButtons[1]).addGap(4)
+														.addComponent(colorButtons[2]))));
+								layout.setVerticalGroup(
+										layout.createParallelGroup(Alignment.CENTER).addComponent(imageLabel)
+										.addGroup(layout.createSequentialGroup().addComponent(titleLabel)
+												.addGroup(layout.createParallelGroup(Alignment.CENTER)
+														.addComponent(nameLabel).addComponent(nameField))
+												.addGap(4)
+												.addGroup(layout.createParallelGroup(Alignment.CENTER)
+														.addComponent(parentLabel).addComponent(parent))
+												.addGap(4).addComponent(chooseAnimations).addGap(4)
+												.addGroup(layout.createParallelGroup(Alignment.CENTER)
+														.addComponent(xLabel).addComponent(xSpinner)
+														.addComponent(yLabel).addComponent(ySpinner)
+														.addComponent(zLabel).addComponent(zSpinner))
+												.addGap(4)
+												.addGroup(layout.createParallelGroup(Alignment.CENTER)
+														.addComponent(colorButtons[0])
+														.addComponent(colorButtons[1])
+														.addComponent(colorButtons[2]))));
+								particlePanel.setLayout(layout);
+								final int x = JOptionPane.showConfirmDialog(MainPanel.this, particlePanel,
+										"Add " + basicName, JOptionPane.OK_CANCEL_OPTION);
+								if (x == JOptionPane.OK_OPTION) {
+									// do stuff
+									particle.setPivotPoint(new Vertex(((Number) xSpinner.getValue()).doubleValue(),
+											((Number) ySpinner.getValue()).doubleValue(),
+											((Number) zSpinner.getValue()).doubleValue()));
+									for (int i = 0; i < colors.length; i++) {
+										particle.setSegmentColor(i, new Vertex(colors[i].getBlue() / 255.00,
+												colors[i].getGreen() / 255.00, colors[i].getRed() / 255.00));
+									}
+									final IdObject parentChoice = parent.getItemAt(parent.getSelectedIndex());
+									if (parentChoice == nullBone) {
+										particle.setParent(null);
+									} else {
+										particle.setParent(parentChoice);
+									}
+									AnimFlag oldFlag = particle.getVisibilityFlag();
+									if (oldFlag == null) {
+										oldFlag = new AnimFlag("Visibility");
+									}
+									final AnimFlag visFlag = AnimFlag.buildEmptyFrom(oldFlag);
+									animIndex = 0;
+									for (final Animation anim : anims) {
+										if (!checkBoxes[animIndex].isSelected()) {
+											visFlag.addEntry(anim.getStart(), new Integer(0));
+										}
+										animIndex++;
+									}
+									particle.setVisibilityFlag(visFlag);
+									particle.setName(nameField.getText());
+									currentMDL().add(particle);
+									modelStructureChangeListener
+									.nodesAdded(Collections.<IdObject>singletonList(particle));
+								}
 							}
-						}
-					});
-					addParticle.add(particleItem);
-				} catch (final IOException e1) {
-					e1.printStackTrace();
+						});
+						addParticle.add(particleItem);
+					} catch (final IOException e1) {
+						e1.printStackTrace();
+					}
 				}
 			}
 		}
@@ -3227,7 +3223,8 @@ public class MainPanel extends JPanel
 				if (model != null) {
 					final String filepath = convertPathToMDX(model.getFilepath());
 					if (filepath != null) {
-						try (BlizzardDataInputStream in = new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(filepath))) {
+						try (BlizzardDataInputStream in = new BlizzardDataInputStream(
+								MpqCodebase.get().getResourceAsStream(filepath))) {
 							final EditableModel mdl = new EditableModel(MdxUtils.loadModel(in));
 							mdl.setFileRef(null);
 							doSkinSpliceUI(mdl);
@@ -3252,7 +3249,8 @@ public class MainPanel extends JPanel
 				if (unitFetched != null) {
 					final String filepath = convertPathToMDX(unitFetched.getField("file"));
 					if (filepath != null) {
-						try (BlizzardDataInputStream in = new BlizzardDataInputStream(MpqCodebase.get().getResourceAsStream(filepath))) {
+						try (BlizzardDataInputStream in = new BlizzardDataInputStream(
+								MpqCodebase.get().getResourceAsStream(filepath))) {
 							final EditableModel mdl = new EditableModel(MdxUtils.loadModel(in));
 							mdl.setFileRef(null);
 							doSkinSpliceUI(mdl);
@@ -3267,7 +3265,7 @@ public class MainPanel extends JPanel
 						}
 					}
 				}
-			} 
+			}
 		});
 		JMenu skinSplice = new JMenu("Skin Splice Mesh into Current");
 		skinSplice.add(skinSpliceFromFile);
@@ -3991,7 +3989,6 @@ public class MainPanel extends JPanel
 			geosetAnim.copyVisibilityFrom(animationModel.getGeoset(0).getGeosetAnim(), animationModel);
 		}
 		modelStructureChangeListener.geosetsAdded(newGeosets);
-		
 
 	}
 
@@ -4076,7 +4073,7 @@ public class MainPanel extends JPanel
 
 						final ImageIcon icon = model.hasCachedIconPath() ? new ImageIcon(BLPHandler.get()
 								.getGameTex(model.getCachedIconPath()).getScaledInstance(16, 16, Image.SCALE_FAST))
-								: MDLIcon;
+								: RMSIcons.MDLIcon;
 						loadStreamMdx(MpqCodebase.get().getResourceAsStream(filepath), true, true, icon);
 						final String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait"
 								+ filepath.substring(filepath.lastIndexOf('.'), filepath.length());
@@ -4226,7 +4223,7 @@ public class MainPanel extends JPanel
 				final JFrame frame = new JFrame("Animation Transferer");
 				frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 				frame.setContentPane(new AnimationTransfer(frame));
-				frame.setIconImage(com.matrixeater.src.MainPanel.AnimIcon.getImage());
+				frame.setIconImage(RMSIcons.AnimIcon.getImage());
 				frame.pack();
 				frame.setLocationRelativeTo(null);
 				frame.setVisible(true);
@@ -4656,7 +4653,7 @@ public class MainPanel extends JPanel
 				epane.setBackground(Color.WHITE);
 				final RTFEditorKit rtfk = new RTFEditorKit();
 				try {
-					rtfk.read(MainPanel.class.getResourceAsStream("credits.rtf"), panel, 0);
+					rtfk.read(MpqCodebase.get().getResourceAsStream("docs/credits.rtf"), panel, 0);
 				} catch (final MalformedURLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -4681,7 +4678,7 @@ public class MainPanel extends JPanel
 				epane.setBackground(Color.WHITE);
 				final RTFEditorKit rtfk = new RTFEditorKit();
 				try {
-					rtfk.read(MainPanel.class.getResourceAsStream("changelist.rtf"), panel, 0);
+					rtfk.read(MpqCodebase.get().getResourceAsStream("docs/changelist.rtf"), panel, 0);
 				} catch (final MalformedURLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -4923,7 +4920,7 @@ public class MainPanel extends JPanel
 			}
 			final ModelPanel temp = new ModelPanel(this, mdl, prefs, MainPanel.this, selectionItemTypeGroup,
 					selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-					activeViewportWatcher, GlobalIcons.MDLIcon, false, textureExporter);
+					activeViewportWatcher, RMSIcons.MDLIcon, false, textureExporter);
 			loadModel(true, true, temp);
 		}
 
@@ -5541,7 +5538,7 @@ public class MainPanel extends JPanel
 		loadModel(workingDirectory == null, true,
 				new ModelPanel(MainPanel.this, blankTextureModel, prefs, MainPanel.this, selectionItemTypeGroup,
 						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-						activeViewportWatcher, GlobalIcons.orangeIcon, true, textureExporter));
+						activeViewportWatcher, RMSIcons.orangeIcon, true, textureExporter));
 	}
 
 	public void loadModel(final boolean temporary, final boolean selectNewTab, final ModelPanel temp) {
@@ -5680,7 +5677,7 @@ public class MainPanel extends JPanel
 	}
 
 	public void loadFile(final File f, final boolean temporary) {
-		loadFile(f, temporary, true, MDLIcon);
+		loadFile(f, temporary, true, RMSIcons.MDLIcon);
 	}
 
 	public void loadFile(final File f) {

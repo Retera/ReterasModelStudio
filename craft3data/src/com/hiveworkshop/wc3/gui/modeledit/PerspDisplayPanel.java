@@ -17,7 +17,6 @@ import javax.swing.JPanel;
 
 import org.lwjgl.LWJGLException;
 
-import com.hiveworkshop.wc3.gui.GlobalIcons;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.render3d.RenderModel;
@@ -31,12 +30,11 @@ import net.infonode.docking.View;
  * @author (your name)
  * @version (a version number or a date)
  */
-public class PerspDisplayPanel extends JPanel implements ActionListener {
+public class PerspDisplayPanel extends JPanel {
 	private final ModelView dispMDL;
 	private PerspectiveViewport vp;
 	private JPanel vpp;
 	private String title;
-	private final JButton up, down, left, right, plusZoom, minusZoom;
 	private final ProgramPreferences programPreferences;
 	private final View view;
 	private final RenderModel editorRenderModel;
@@ -58,56 +56,6 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 		this.title = title;
 		this.dispMDL = dispMDL;
 
-		plusZoom = new JButton("");
-		Dimension dim = new Dimension(20, 20);
-		plusZoom.setMaximumSize(dim);
-		plusZoom.setMinimumSize(dim);
-		plusZoom.setPreferredSize(dim);
-		plusZoom.setIcon(new ImageIcon(GlobalIcons.class.getResource("ImageBin/Plus.png")));
-		plusZoom.addActionListener(this);
-		// add(plusZoom);
-
-		minusZoom = new JButton("");
-		minusZoom.setMaximumSize(dim);
-		minusZoom.setMinimumSize(dim);
-		minusZoom.setPreferredSize(dim);
-		minusZoom.setIcon(new ImageIcon(GlobalIcons.class.getResource("ImageBin/Minus.png")));
-		minusZoom.addActionListener(this);
-		// add(minusZoom);
-
-		up = new JButton("");
-		dim = new Dimension(32, 16);
-		up.setMaximumSize(dim);
-		up.setMinimumSize(dim);
-		up.setPreferredSize(dim);
-		up.setIcon(new ImageIcon(GlobalIcons.class.getResource("ImageBin/ArrowUp.png")));
-		up.addActionListener(this);
-		// add(up);
-
-		down = new JButton("");
-		down.setMaximumSize(dim);
-		down.setMinimumSize(dim);
-		down.setPreferredSize(dim);
-		down.setIcon(new ImageIcon(GlobalIcons.class.getResource("ImageBin/ArrowDown.png")));
-		down.addActionListener(this);
-		// add(down);
-
-		dim = new Dimension(16, 32);
-		left = new JButton("");
-		left.setMaximumSize(dim);
-		left.setMinimumSize(dim);
-		left.setPreferredSize(dim);
-		left.setIcon(new ImageIcon(GlobalIcons.class.getResource("ImageBin/ArrowLeft.png")));
-		left.addActionListener(this);
-		// add(left);
-
-		right = new JButton("");
-		right.setMaximumSize(dim);
-		right.setMinimumSize(dim);
-		right.setPreferredSize(dim);
-		right.setIcon(new ImageIcon(GlobalIcons.class.getResource("ImageBin/ArrowRight.png")));
-		right.addActionListener(this);
-		// add(right);
 
 		final GroupLayout layout = new GroupLayout(this);
 		layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(vp));
@@ -267,33 +215,6 @@ public class PerspDisplayPanel extends JPanel implements ActionListener {
 	// {
 	// return m_geosets.size();
 	// }
-	@Override
-	public void actionPerformed(final ActionEvent e) {
-		if (e.getSource() == up) {
-			vp.translate(0, (20 * (1 / vp.getZoomAmount())));
-			vp.repaint();
-		}
-		if (e.getSource() == down) {
-			vp.translate(0, (-20 * (1 / vp.getZoomAmount())));
-			vp.repaint();
-		}
-		if (e.getSource() == left) {
-			vp.translate((20 * (1 / vp.getZoomAmount())), 0);
-			vp.repaint();
-		}
-		if (e.getSource() == right) {
-			vp.translate((-20 * (1 / vp.getZoomAmount())), 0);// *vp.getZoomAmount()
-			vp.repaint();
-		}
-		if (e.getSource() == plusZoom) {
-			vp.zoom(.15);
-			vp.repaint();
-		}
-		if (e.getSource() == minusZoom) {
-			vp.zoom(-.15);
-			vp.repaint();
-		}
-	}
 
 	public ImageIcon getImageIcon() {
 		return new ImageIcon(vp.getBufferedImage());

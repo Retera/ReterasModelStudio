@@ -11,8 +11,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import com.hiveworkshop.wc3.gui.GlobalIcons;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.ViewportActivity;
@@ -65,7 +65,7 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		plusZoom.setMaximumSize(dim);
 		plusZoom.setMinimumSize(dim);
 		plusZoom.setPreferredSize(dim);
-		plusZoom.setIcon(new ImageIcon(GlobalIcons.class.getResource("ImageBin/Plus.png")));
+		plusZoom.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("Plus.png")));
 		plusZoom.addActionListener(this);
 		add(plusZoom);
 
@@ -73,7 +73,7 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		minusZoom.setMaximumSize(dim);
 		minusZoom.setMinimumSize(dim);
 		minusZoom.setPreferredSize(dim);
-		minusZoom.setIcon(new ImageIcon(GlobalIcons.class.getResource("ImageBin/Minus.png")));
+		minusZoom.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("Minus.png")));
 		minusZoom.addActionListener(this);
 		add(minusZoom);
 
@@ -82,7 +82,7 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		up.setMaximumSize(dim);
 		up.setMinimumSize(dim);
 		up.setPreferredSize(dim);
-		up.setIcon(new ImageIcon(GlobalIcons.class.getResource("ImageBin/ArrowUp.png")));
+		up.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowUp.png")));
 		up.addActionListener(this);
 		add(up);
 
@@ -90,7 +90,7 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		down.setMaximumSize(dim);
 		down.setMinimumSize(dim);
 		down.setPreferredSize(dim);
-		down.setIcon(new ImageIcon(GlobalIcons.class.getResource("ImageBin/ArrowDown.png")));
+		down.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowDown.png")));
 		down.addActionListener(this);
 		add(down);
 
@@ -99,7 +99,7 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		left.setMaximumSize(dim);
 		left.setMinimumSize(dim);
 		left.setPreferredSize(dim);
-		left.setIcon(new ImageIcon(GlobalIcons.class.getResource("ImageBin/ArrowLeft.png")));
+		left.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowLeft.png")));
 		left.addActionListener(this);
 		add(left);
 
@@ -107,7 +107,7 @@ public class DisplayPanel extends JPanel implements ActionListener {
 		right.setMaximumSize(dim);
 		right.setMinimumSize(dim);
 		right.setPreferredSize(dim);
-		right.setIcon(new ImageIcon(GlobalIcons.class.getResource("ImageBin/ArrowRight.png")));
+		right.setIcon(new ImageIcon(RMSIcons.loadDeprecatedImage("ArrowRight.png")));
 		right.addActionListener(this);
 		add(right);
 

@@ -27,6 +27,7 @@ import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceChooserPanel;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.resources.Resources;
@@ -49,7 +50,7 @@ import net.infonode.gui.laf.InfoNodeLookAndFeelThemes;
  * @version (a version number or a date)
  */
 public class MainFrame extends JFrame {
-	public static final Image MAIN_PROGRAM_ICON = new ImageIcon(MainFrame.class.getResource("ImageBin/btneredarred.png"))
+	public static final Image MAIN_PROGRAM_ICON = new ImageIcon(RMSIcons.loadProgramImage("BTNDemonRetera.png"))
 			.getImage();
 	static MainFrame frame;
 	static MainPanel panel;

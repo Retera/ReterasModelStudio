@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -97,7 +98,7 @@ public class BLPHandler {
 
 	public BufferedImage getTexture(final DataSource dataSource, final String filepath) {
 		try {
-			final String lowerCaseFilepath = filepath.toLowerCase();
+			final String lowerCaseFilepath = filepath.toLowerCase(Locale.US);
 			BufferedImage resultImage = cache.get(lowerCaseFilepath);
 			if (resultImage != null) {
 				return resultImage;

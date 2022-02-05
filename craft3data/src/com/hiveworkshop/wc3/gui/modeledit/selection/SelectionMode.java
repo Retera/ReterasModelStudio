@@ -2,13 +2,13 @@ package com.hiveworkshop.wc3.gui.modeledit.selection;
 
 import javax.swing.ImageIcon;
 
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonType;
-import com.hiveworkshop.wc3.gui.modeledit.viewport.ViewportIconUtils;
 
 public enum SelectionMode implements ToolbarButtonType {
-	SELECT("Select", ViewportIconUtils.loadImageIcon("icons/actions/selectSingle.png")),
-	ADD("Add Selection", ViewportIconUtils.loadImageIcon("icons/actions/selectAdd.png")),
-	DESELECT("Deselect", ViewportIconUtils.loadImageIcon("icons/actions/selectRemove.png"));
+	SELECT("Select", RMSIcons.loadToolBarImageIcon("selectSingle.png")),
+	ADD("Add Selection", RMSIcons.loadToolBarImageIcon("selectAdd.png")),
+	DESELECT("Deselect", RMSIcons.loadToolBarImageIcon("selectRemove.png"));
 
 	private final String name;
 	private final ImageIcon imageIcon;

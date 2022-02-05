@@ -49,7 +49,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
-import com.hiveworkshop.wc3.gui.GlobalIcons;
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
@@ -83,30 +83,18 @@ import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
  * Eric Theller 6/11/2012
  */
 public class ImportPanel extends JTabbedPane implements ActionListener, ListSelectionListener, ChangeListener {
-	static final ImageIcon animIcon = GlobalIcons.animIcon;// new
-															// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/anim_small.png"));
-	static final ImageIcon boneIcon = GlobalIcons.boneIcon;// new
-															// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/Bone_small.png"));
-	static final ImageIcon geoIcon = GlobalIcons.geoIcon;// new
-															// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/geo_small.png"));
-	static final ImageIcon objIcon = GlobalIcons.objIcon;// new
-															// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/Obj_small.png"));
-	static final ImageIcon greenIcon = GlobalIcons.greenIcon;// new
-																// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/Blank_small.png"));
-	static final ImageIcon redIcon = GlobalIcons.redIcon;// new
-															// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/BlankRed_small.png"));
-	static final ImageIcon orangeIcon = GlobalIcons.orangeIcon;// new
-																// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/BlankOrange_small.png"));
-	static final ImageIcon cyanIcon = GlobalIcons.cyanIcon;// new
-															// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/BlankCyan_small.png"));
-	static final ImageIcon redXIcon = GlobalIcons.redXIcon;// new
-															// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/redX.png"));
-	static final ImageIcon greenArrowIcon = GlobalIcons.greenArrowIcon;// new
-																		// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/greenArrow.png"));
-	static final ImageIcon moveUpIcon = GlobalIcons.moveUpIcon;// new
-																// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/moveUp.png"));
-	static final ImageIcon moveDownIcon = GlobalIcons.moveDownIcon;// new
-																	// ImageIcon(ImportPanel.class.getClassLoader().getResource("ImageBin/moveDown.png"));
+	public static final ImageIcon animIcon = RMSIcons.animIcon;
+	public static final ImageIcon boneIcon = RMSIcons.boneIcon;
+	public static final ImageIcon geoIcon = RMSIcons.geoIcon;
+	public static final ImageIcon objIcon = RMSIcons.objIcon;
+	public static final ImageIcon greenIcon = RMSIcons.greenIcon;
+	public static final ImageIcon redIcon = RMSIcons.redIcon;
+	public static final ImageIcon orangeIcon = RMSIcons.orangeIcon;
+	public static final ImageIcon cyanIcon = RMSIcons.cyanIcon;
+	public static final ImageIcon redXIcon = RMSIcons.redXIcon;
+	public static final ImageIcon greenArrowIcon = RMSIcons.greenArrowIcon;
+	public static final ImageIcon moveUpIcon = RMSIcons.moveUpIcon;
+	public static final ImageIcon moveDownIcon = RMSIcons.moveDownIcon;
 
 	JFrame frame;
 
@@ -205,7 +193,7 @@ public class ImportPanel extends JTabbedPane implements ActionListener, ListSele
 		}
 		currentModel.doSavePreps();
 		try {
-			frame.setIconImage(GlobalIcons.MDLIcon.getImage());
+			frame.setIconImage(RMSIcons.MDLIcon.getImage());
 		} catch (final Exception e) {
 			JOptionPane.showMessageDialog(null,
 					"Error: Image files were not found! Due to bad programming, this might break the program!");

@@ -45,9 +45,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import com.hiveworkshop.wc3.gui.GUITheme;
-import com.hiveworkshop.wc3.gui.GlobalIcons;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.animedit.TimeSliderTimeListener.TimeSliderTimeNotifier;
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.UndoAction;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
@@ -352,10 +352,10 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 							}
 						}
 						if (!foundMatch) {
-							if ((lastMousePoint.x < (GlobalIcons.PLAY.getIconWidth() / 2))
+							if ((lastMousePoint.x < (RMSIcons.PLAY.getIconWidth() / 2))
 									&& (lastMousePoint.y > (VERTICAL_SLIDER_HEIGHT + 4))
 									&& (lastMousePoint.y < (VERTICAL_SLIDER_HEIGHT + 4
-											+ (GlobalIcons.PLAY.getIconHeight() / 2)))) {
+											+ (RMSIcons.PLAY.getIconHeight() / 2)))) {
 								if (liveAnimationTimer.isRunning()) {
 									liveAnimationTimer.stop();
 								} else {
@@ -986,8 +986,8 @@ public class TimeSliderPanel extends JPanel implements TimeBoundChangeListener, 
 		g.setColor(GLASS_TICK_COVER_BORDER_COLOR);
 		g.drawRect(currentTimePixelX - 4, VERTICAL_SLIDER_HEIGHT, 8, VERTICAL_TICKS_HEIGHT);
 
-		final Image playImage = liveAnimationTimer.isRunning() ? GlobalIcons.PAUSE.getImage()
-				: GlobalIcons.PLAY.getImage();
+		final Image playImage = liveAnimationTimer.isRunning() ? RMSIcons.PAUSE.getImage()
+				: RMSIcons.PLAY.getImage();
 		g.drawImage(playImage, 0, VERTICAL_SLIDER_HEIGHT + 4, playImage.getWidth(null) / 2,
 				playImage.getWidth(null) / 2, null);
 	}
