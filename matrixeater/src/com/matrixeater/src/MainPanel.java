@@ -186,6 +186,7 @@ import com.hiveworkshop.wc3.mdl.v2.ModelViewStateListener;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
 import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
+import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
 import com.hiveworkshop.wc3.resources.Resources;
 import com.hiveworkshop.wc3.resources.WEString;
@@ -5781,7 +5782,8 @@ public class MainPanel extends JPanel
 				newModel.setFileRef(
 						new File(currentMDL.getFile().getParent() + "/" + incName(newModel.getName()) + ".mdl"));
 			}
-			importPanel = new ImportPanel(newModel, EditableModel.deepClone(currentMDL, "CurrentModel"));
+			EditableModel sourceModel = EditableModel.deepClone(currentMDL, "CurrentModel");
+			importPanel = new ImportPanel(newModel, sourceModel);
 
 			final Thread watcher = new Thread(new Runnable() {
 				@Override
@@ -5817,6 +5819,9 @@ public class MainPanel extends JPanel
 						}
 
 						if (importPanel.importSuccessful()) {
+							for(FaceEffect faceFx: sourceModel.getFaceEffects()) {
+								newModel.addFaceEffect(faceFx);
+							}
 							newModel.saveFile();
 							loadFile(newModel.getFile());
 						}
