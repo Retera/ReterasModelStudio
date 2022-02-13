@@ -8,14 +8,15 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
 public class ChangeFlagEntryAction<T> implements UndoAction {
 	private final ModelStructureChangeListener changeListener;
-	Sequence animation;
-	Entry<T> newEntry;
-	Entry<T> orgEntry;
-	AnimFlag<T> animFlag;
+	private final Sequence animation;
+	private final Entry<T> newEntry;
+	private final Entry<T> orgEntry;
+	private Entry<T> orgEntryAtNewTime;
+	private final AnimFlag<T> animFlag;
 
 
-	public ChangeFlagEntryAction(AnimFlag<T> animFlag, Entry<T> newEntry, int orgTime, Sequence animation, ModelStructureChangeListener changeListener) {
-		this(animFlag, newEntry, animFlag.getEntryAt(animation, orgTime), animation, changeListener);
+	public ChangeFlagEntryAction(AnimFlag<T> animFlag, Entry<T> newEntry, int orgTime, Sequence sequence, ModelStructureChangeListener changeListener) {
+		this(animFlag, newEntry, animFlag.getEntryAt(sequence, orgTime), sequence, changeListener);
 	}
 
 	public ChangeFlagEntryAction(AnimFlag<T> animFlag, Entry<T> newEntry, Entry<T> oldEntry, Sequence animation, ModelStructureChangeListener changeListener) {
@@ -24,11 +25,17 @@ public class ChangeFlagEntryAction<T> implements UndoAction {
 		this.newEntry = newEntry;
 		this.animFlag = animFlag;
 		orgEntry = oldEntry;
+		if(!newEntry.getTime().equals(oldEntry.getTime())){
+			orgEntryAtNewTime = animFlag.getEntryAt(animation, newEntry.getTime());
+		}
 	}
 
 	@Override
 	public UndoAction undo() {
-		animFlag.changeEntryAt(orgEntry.getTime(), orgEntry, animation);
+		animFlag.changeEntryAt(newEntry.getTime(), orgEntry, animation);
+		if(orgEntryAtNewTime != null){
+			animFlag.addEntry(orgEntryAtNewTime, animation);
+		}
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
 		}

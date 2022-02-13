@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.HashSet;
@@ -13,9 +14,10 @@ import java.util.Set;
 
 public final class StaticMeshRotateAction implements GenericRotateAction {
 	private final Vec3 center;
+	private final Vec3 axis;
+	private final Quat rot = new Quat();
+
 	private double radians;
-	private final byte dim1;
-	private final byte dim2;
 	private final Set<GeosetVertex> selectedVertices;
 	private final Set<IdObject> selectedIdObjects;
 	private final Set<Camera> selectedCameras;
@@ -23,8 +25,7 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 	public StaticMeshRotateAction(ModelView modelView, Vec3 center, byte dim1, byte dim2) {
 		this.center = center;
 		radians = 0;
-		this.dim1 = dim1;
-		this.dim2 = dim2;
+		axis = getPerpAxis(dim1, dim2);
 		selectedVertices = new HashSet<>(modelView.getSelectedVertices());
 		selectedIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
 		selectedCameras = new HashSet<>(modelView.getSelectedCameras());
@@ -55,21 +56,40 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 	}
 
 	public void rotate(double v) {
+		rot.setFromAxisAngle(axis, (float) v);
 		for (GeosetVertex vertex : selectedVertices) {
-			vertex.rotate(center, v, dim1, dim2);
+			vertex.rotate(center, rot);
 		}
 		for (IdObject b : selectedIdObjects) {
-			b.getPivotPoint().rotate(center, v, dim1, dim2);
+			b.getPivotPoint().rotate(center, rot);
 			float[] bindPose = b.getBindPose();
 			if (bindPose != null) {
 				bindPose[9] = b.getPivotPoint().x;
 				bindPose[10] = b.getPivotPoint().y;
 				bindPose[11] = b.getPivotPoint().z;
+				if(b.getBindPoseM4() != null){
+					b.getBindPoseM4().setFromBindPose(bindPose);
+				}
 			}
 		}
 
 		for (Camera camera : selectedCameras) {
-			camera.getPosition().rotate(center, v, dim1, dim2);
+			camera.getPosition().rotate(center, rot);
 		}
+	}
+
+	Vec3 getPerpAxis(byte dim1, byte dim2){
+		return new Vec3(getAxis(dim1)).cross(getAxis(dim2));
+	}
+	private Vec3 getAxis(byte dim) {
+		return switch (dim) {
+			case 0 -> Vec3.X_AXIS;
+			case 1 -> Vec3.Y_AXIS;
+			case 2 -> Vec3.Z_AXIS;
+			case -1 -> Vec3.NEGATIVE_X_AXIS;
+			case -2 -> Vec3.NEGATIVE_Y_AXIS;
+			case -3 -> Vec3.NEGATIVE_Z_AXIS;
+			default -> Vec3.Z_AXIS;
+		};
 	}
 }

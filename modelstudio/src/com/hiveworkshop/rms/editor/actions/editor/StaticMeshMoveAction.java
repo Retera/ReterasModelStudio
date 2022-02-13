@@ -44,12 +44,12 @@ public final class StaticMeshMoveAction implements GenericMoveAction {
 
 		for (IdObject b : selectedIdObjects) {
 			b.getPivotPoint().add(vec3);
-				float[] bindPose = b.getBindPose();
-				if (bindPose != null) {
-					bindPose[9] += vec3.x;
-					bindPose[10] += vec3.y;
-					bindPose[11] += vec3.z;
-				}
+			float[] bindPose = b.getBindPose();
+			if (bindPose != null) {
+				bindPose[9] += vec3.x;
+				bindPose[10] += vec3.y;
+				bindPose[11] += vec3.z;
+			}
 		}
 
 		for (Camera camera : selectedCameras) {

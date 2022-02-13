@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.Collection;
@@ -17,22 +16,34 @@ import java.util.TreeMap;
 
 public class StaticMeshScaleAction implements GenericScaleAction {
 	private final Vec3 center;
-	private final Vec3 scale = new Vec3(1, 1, 1);
+	private final Vec3 scale;
 	private final Set<GeosetVertex> selectedVertices;
 	private final Set<IdObject> selectedIdObjects;
 	private final Set<Camera> selectedCameras;
 
 	public StaticMeshScaleAction(ModelView modelView, Vec3 center) {
-		this.center = center;
-		selectedVertices = new HashSet<>(modelView.getSelectedVertices());
-		selectedIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
-		selectedCameras = new HashSet<>(modelView.getSelectedCameras());
+		this(modelView, center, new Vec3(1, 1, 1));
+	}
+
+	public StaticMeshScaleAction(ModelView modelView, Vec3 center, Vec3 scale) {
+		this(modelView.getSelectedVertices(),
+				modelView.getSelectedIdObjects(),
+				modelView.getSelectedCameras(), center, scale);
 	}
 
 	public StaticMeshScaleAction(Collection<GeosetVertex> selectedVertices,
 	                             Collection<IdObject> selectedIdObjects,
 	                             Collection<Camera> selectedCameras, Vec3 center) {
+		this(selectedVertices, selectedIdObjects, selectedCameras, center, new Vec3(1, 1, 1));
+	}
+
+	public StaticMeshScaleAction(Collection<GeosetVertex> selectedVertices,
+	                             Collection<IdObject> selectedIdObjects,
+	                             Collection<Camera> selectedCameras,
+	                             Vec3 center,
+	                             Vec3 scale) {
 		this.center = center;
+		this.scale = scale;
 		this.selectedVertices = new HashSet<>(selectedVertices);
 		this.selectedIdObjects = new HashSet<>(selectedIdObjects);
 		this.selectedCameras = new HashSet<>(selectedCameras);
@@ -102,8 +113,7 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	public void translateBone(IdObject object, Vec3 scale) {
 		Vec3AnimFlag translation = (Vec3AnimFlag) object.find(MdlUtils.TOKEN_TRANSLATION);
 		if (translation != null) {
-			for (Sequence anim : translation.getAnimMap().keySet()) {
-				TreeMap<Integer, Entry<Vec3>> entryMap = translation.getAnimMap().get(anim);
+			for (TreeMap<Integer, Entry<Vec3>> entryMap : translation.getAnimMap().values()) {
 				if (entryMap != null) {
 					for (Entry<Vec3> entry : entryMap.values()) {
 						entry.getValue().multiply(scale);
@@ -119,8 +129,7 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	public void translateNode(AnimatedNode node, Vec3 scale) {
 		Vec3AnimFlag translation = (Vec3AnimFlag) node.find(MdlUtils.TOKEN_TRANSLATION);
 		if (translation != null) {
-			for (Sequence anim : translation.getAnimMap().keySet()) {
-				TreeMap<Integer, Entry<Vec3>> entryMap = translation.getAnimMap().get(anim);
+			for (TreeMap<Integer, Entry<Vec3>> entryMap : translation.getAnimMap().values()) {
 				if (entryMap != null) {
 					for (Entry<Vec3> entry : entryMap.values()) {
 						entry.getValue().multiply(scale);

@@ -13,8 +13,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.Arrays;
-
 public class GeometryModelEditor extends ModelEditor {
 	protected final ModelStructureChangeListener structureChangeListener;
 	protected ModelHandler modelHandler;
@@ -42,7 +40,7 @@ public class GeometryModelEditor extends ModelEditor {
 
 	@Override
 	public UndoAction scale(Vec3 center, Vec3 scale) {
-		return new StaticMeshScaleAction(modelView, center).updateScale(scale);
+		return new StaticMeshScaleAction(modelView, center, scale);
 	}
 
     @Override
@@ -53,10 +51,10 @@ public class GeometryModelEditor extends ModelEditor {
 
     @Override
     public UndoAction rotate(Vec3 center, Vec3 rotate) {
-	    return new CompoundAction("rotate", Arrays.asList(
-			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.x), (byte) 2, (byte) 1),
-			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.y), (byte) 0, (byte) 2),
-			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.z), (byte) 1, (byte) 0)));
+	    return new CompoundAction("rotate", null,
+			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.x), Vec3.X_AXIS),
+			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.y), Vec3.NEGATIVE_Y_AXIS),
+			    new SimpleRotateAction(modelView, center, Math.toRadians(rotate.z), Vec3.NEGATIVE_Z_AXIS));
     }
 
     @Override

@@ -14,7 +14,7 @@ public class SetPivotAction implements UndoAction {
 	public SetPivotAction(IdObject node, Vec3 newPivot, ModelStructureChangeListener changeListener){
 		this.changeListener = changeListener;
 		this.node = node;
-		this.oldPivot = node.getPivotPoint();
+		this.oldPivot = new Vec3(node.getPivotPoint());
 		this.newPivot = newPivot;
 	}
 
