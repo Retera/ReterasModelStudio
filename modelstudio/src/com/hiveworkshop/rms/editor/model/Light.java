@@ -20,7 +20,7 @@ public class Light extends IdObject {
 		this.name = name;
 	}
 
-	public Light(final Light light) {
+	protected Light(final Light light) {
 		super(light);
 
 		type = light.type;

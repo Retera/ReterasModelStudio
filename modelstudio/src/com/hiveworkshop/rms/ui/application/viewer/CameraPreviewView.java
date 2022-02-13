@@ -6,14 +6,12 @@ import com.hiveworkshop.rms.ui.application.model.ComponentCameraPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.ModelDependentView;
-import com.hiveworkshop.rms.util.TwiComboBoxModel;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ItemEvent;
 
 public class CameraPreviewView extends ModelDependentView {
 	private AnimationController animationController;
@@ -21,23 +19,25 @@ public class CameraPreviewView extends ModelDependentView {
 	private PreviewPanel previewPanel;
 	private JPanel smartPanel;
 	private JPanel topLeftPanel;
-	private JPanel uggPanel;
+	private JPanel viewMainPanel;
 	private ComponentCameraPanel cameraPanel;
 	private Camera chosenCamera;
+	private final CameraHandler cameraHandler;
 
 	public CameraPreviewView() {
 		super("Camera Preview", null, new JPanel());
 		smartPanel = getSpecialPane();
 		topLeftPanel = new JPanel(new MigLayout("fill", "", ""));
-		uggPanel = new JPanel(new MigLayout("fill, ins 0, gap 0","[][]", "[grow][]"));
+		viewMainPanel = new JPanel(new MigLayout("fill, ins 0, gap 0","[][]", "[grow][]"));
 		previewPanel = new PreviewPanel();
+		cameraHandler = previewPanel.getPerspectiveViewport().getCameraHandler();
 		animationController = new AnimationController(previewPanel);
-		this.setComponent(uggPanel);
+		this.setComponent(viewMainPanel);
 	}
 
 	@Override
 	public CameraPreviewView setModelPanel(ModelPanel modelPanel) {
-		uggPanel.removeAll();
+		viewMainPanel.removeAll();
 		topLeftPanel.removeAll();
 		if (modelPanel == null || modelPanel.getModelHandler().getModel().getCameras().isEmpty()) {
 			scrollPane.setViewportView(new JPanel());
@@ -48,18 +48,18 @@ public class CameraPreviewView extends ModelDependentView {
 			previewPanel.setModel(modelHandler, true, modelPanel.getViewportActivityManager());
 			animationController.setModel(modelHandler, true, previewPanel.getCurrentAnimation());
 			topLeftPanel.add(previewPanel, "wrap");
-			topLeftPanel.add(getCameraChooserPanel(modelHandler.getModel(), previewPanel.getPerspectiveViewport().getCameraHandler()), "spanx, growx, wrap");
+			topLeftPanel.add(getCameraChooserPanel(modelHandler.getModel()), "spanx, growx, wrap");
 			cameraPanel = new ComponentCameraPanel(modelHandler);
 
 			chosenCamera = modelHandler.getModel().getCameras().get(0);
 			if(chosenCamera != null) {
 				cameraPanel.setSelectedItem(chosenCamera);
-				previewPanel.getPerspectiveViewport().getCameraHandler().setCamera(chosenCamera);
+				cameraHandler.setCamera(chosenCamera);
 			}
 
-			uggPanel.add(topLeftPanel, "");
-			uggPanel.add(smartPanel, "wrap, growx");
-			uggPanel.add(cameraPanel, "spanx, wrap");
+			viewMainPanel.add(topLeftPanel, "");
+			viewMainPanel.add(smartPanel, "wrap, growx");
+			viewMainPanel.add(cameraPanel, "spanx, wrap");
 
 			scrollPane.setViewportView(animationController);
 		}
@@ -67,31 +67,26 @@ public class CameraPreviewView extends ModelDependentView {
 		return this;
 	}
 
-	private JComboBox<Camera> getCameraChooserPanel(EditableModel model, CameraHandler cameraHandler){
-		TwiComboBoxModel<Camera> cameraTwiComboBoxModel = new TwiComboBoxModel<>(model.getCameras());
-		JComboBox<Camera> cameraJComboBox = new JComboBox<>(cameraTwiComboBoxModel);
-		cameraJComboBox.setRenderer(new ListCellRenderer<Camera>() {
-			@Override
-			public Component getListCellRendererComponent(JList<? extends Camera> list, Camera value, int index, boolean isSelected, boolean cellHasFocus) {
-				if(value != null){
-					String name = value.getName();
-					return new JLabel(name);
-				}
-				return null;
-			}
-		});
-		cameraJComboBox.addItemListener(e ->  cameraChoosen(e, cameraHandler));
+	private TwiComboBox<Camera> getCameraChooserPanel(EditableModel model){
+		TwiComboBox<Camera> cameraJComboBox = new TwiComboBox<>(model.getCameras());
+		cameraJComboBox.addOnSelectItemListener(this::setChoosenCamera);
+		cameraJComboBox.setStringFunctionRender(this::getCameraName);
+
 		return cameraJComboBox;
 	}
 
-	private void cameraChoosen(ItemEvent e, CameraHandler cameraHandler){
-		if(e.getStateChange() == ItemEvent.SELECTED && e.getItem() instanceof Camera){
-			chosenCamera = (Camera) e.getItem();
-			cameraHandler.setCamera(chosenCamera);
-			if (cameraPanel != null){
-				cameraPanel.setSelectedItem(chosenCamera);
-			}
-			System.out.println("camera got choosen!");
+	private String getCameraName(Object object){
+		if (object instanceof Camera){
+			return ((Camera) object).getName();
+		}
+		return "null";
+	}
+
+	private void setChoosenCamera(Camera chosenCamera) {
+		this.chosenCamera = chosenCamera;
+		cameraHandler.setCamera(chosenCamera);
+		if (cameraPanel != null){
+			cameraPanel.setSelectedItem(chosenCamera);
 		}
 	}
 

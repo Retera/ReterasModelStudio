@@ -82,8 +82,7 @@ public class AnimationViewer extends JPanel {
 		for (Animation animation : this.model.getAnims()) {
 			animations.addElement(animation);
 		}
-		modelView.setVetoOverrideParticles(true);
-		RenderModel renderModel = new RenderModel(this.model, modelView);
+		RenderModel renderModel = new RenderModel(this.model, modelView).setVetoOverrideParticles(true);
 		renderEnv = renderModel.getTimeEnvironment();
 		perspectiveViewport.setModel(modelView, renderModel, true);
 		renderEnv.setAnimationTime(0);

@@ -49,6 +49,7 @@ public class AnimationController extends JPanel {
 			loopTypePanel.setSelectedIndex(loopTypePanel.getSelectedIndex());
 		}
 		updateAnimationList(modelHandler, allowUnanimated);
+		System.out.println("defaultAnimation: " + defaultAnimation);
 		animationBox.setSelectedItem(defaultAnimation);
 		return this;
 	}
@@ -90,8 +91,10 @@ public class AnimationController extends JPanel {
 	private String getDisplayString(Object value) {
 		if (value instanceof Animation && modelHandler != null) {
 			return "(" + modelHandler.getModel().getAnims().indexOf(value) + ") " + value;
+		} else if (modelHandler != null){
+			return "(Unanimated)";
 		}
-		return "(Unanimated)";
+		return "";
 	}
 
 	public void playSelectedAnimation() {

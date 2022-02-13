@@ -31,9 +31,6 @@ public class GeosetOverviewPanel extends JPanel {
 		panel.add(new JLabel("" + verts));
 		panel.add(new JLabel("" + tris));
 
-
-		JScrollPane scrollPane = new JScrollPane(panel);
-		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(scrollPane, "growx, growy");
+		add(panel, "growx, growy");
 	}
 }

@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.editor.render3d;
 
+import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.MathUtils;
@@ -117,12 +118,20 @@ public class RenderParticle2 {
 	}
 
 	//	@Override
+	Vec3 dLoc = new Vec3();
 	public void update(float animationSpeed, RenderModel renderModel) {
 		float dt = (float) (TimeEnvironmentImpl.FRAMES_PER_UPDATE * 0.001f * animationSpeed);
+
+		if(renderModel.getTimeEnvironment().getCurrentSequence() instanceof Animation && !particleEmitter2.getModelSpace()){
+			dLoc.x = -((Animation) renderModel.getTimeEnvironment().getCurrentSequence()).getMoveSpeed()*dt;
+		} else {
+			dLoc.x = 0;
+		}
 
 		health -= dt;
 		velocity.z -= gravity * dt;
 		location.addScaled(velocity, dt);
+		location.add(dLoc);
 
 		float lifeFactor = (float) ((particleEmitter2.getLifeSpan() - health) / particleEmitter2.getLifeSpan());
 		float timeMiddle = (float) particleEmitter2.getTime();

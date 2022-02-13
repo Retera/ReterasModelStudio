@@ -113,14 +113,14 @@ public class WindowHandler2 {
 //			componentBrowserTreeView.setModelPanel(modelPanel);
 //		}
 
-		System.out.println("allViews.size()1: " + allViews.size());
+//		System.out.println("allViews.size()1: " + allViews.size());
 //		allViews.removeIf(view -> !view.isVisible().isValid());
 //		allViews.removeIf(view -> !view.getComponent().isVisible());
 		allViews.removeIf(view -> !isStillInUse(view));
-		System.out.println("allViews.size()2: " + allViews.size());
+//		System.out.println("allViews.size()2: " + allViews.size());
 
 		for (ModelDependentView view : allViews) {
-			System.out.println("updating: " + view);
+//			System.out.println("updating: " + view);
 //			System.out.println(view + "#ViewProp: " + view.getViewProperties());
 //			System.out.println(view + "#toString: " + view.toString());
 //			System.out.println(view + "#WindowPar: " + view.getWindowParent());

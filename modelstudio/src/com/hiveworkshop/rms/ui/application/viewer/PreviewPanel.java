@@ -13,12 +13,14 @@ import java.awt.image.BufferedImage;
 
 public class PreviewPanel extends JPanel {
 	private final PerspectiveViewport perspectiveViewport;
-	TimeEnvironmentImpl renderEnv;
+	private TimeEnvironmentImpl renderEnv;
+	private final AnimationController animationController;
 
 	public PreviewPanel() {
 		try {
 			perspectiveViewport = new PerspectiveViewport();
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
+			animationController = new AnimationController(this);
 		} catch (LWJGLException e) {
 			throw new RuntimeException(e);
 		}
@@ -29,15 +31,19 @@ public class PreviewPanel extends JPanel {
 	public PreviewPanel setModel(ModelHandler modelHandler, boolean doDefaultCamera, ViewportActivityManager activityManager) {
 		System.out.println("PreviewPanel#setModel");
 		if (modelHandler != null) {
-			modelHandler.getModelView().setVetoOverrideParticles(true);
 			RenderModel previewRenderModel = modelHandler.getPreviewRenderModel();
-			perspectiveViewport.setModel(modelHandler.getModelView(), previewRenderModel, doDefaultCamera);
+			previewRenderModel.setVetoOverrideParticles(true);
 			renderEnv = previewRenderModel.getTimeEnvironment();
 			renderEnv.setAnimationTime(0);
 			renderEnv.setLive(true);
+
+			perspectiveViewport.setModel(modelHandler.getModelView(), previewRenderModel, doDefaultCamera);
 			perspectiveViewport.getCameraHandler().setActivityManager(activityManager);
 			perspectiveViewport.getMouseListenerThing().setActivityManager(activityManager);
+
+			animationController.setModel(modelHandler, true, renderEnv.getCurrentAnimation());
 		} else {
+			animationController.setModel(null, true, null);
 			perspectiveViewport.setModel(null, null, doDefaultCamera);
 			renderEnv = null;
 		}
@@ -62,21 +68,17 @@ public class PreviewPanel extends JPanel {
 		return this;
 	}
 
-	public void setAnimation(Animation animation) {
-		if (renderEnv != null) {
-			renderEnv.setSequence(animation);
-		}
-	}
-
-	public void playAnimation() {
-		if (renderEnv != null) {
-			renderEnv.setRelativeAnimationTime(0);
-			renderEnv.setLive(true);
-		}
+	public PreviewPanel reloadRepaint() {
+		animationController.reload().repaint();
+		reload().repaint();
+		return this;
 	}
 
 	public PerspectiveViewport getPerspectiveViewport() {
 		return perspectiveViewport;
+	}
+	public AnimationController getAnimationController() {
+		return animationController;
 	}
 
 	public Animation getCurrentAnimation() {

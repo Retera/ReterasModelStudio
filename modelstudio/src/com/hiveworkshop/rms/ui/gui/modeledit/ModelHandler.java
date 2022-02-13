@@ -34,7 +34,7 @@ public class ModelHandler {
 		renderModel = new RenderModel(this.model, modelView);
 		renderModel.setShouldForceAnimation(true);
 
-		previewRenderModel = new RenderModel(model, modelView);
+		previewRenderModel = new RenderModel(this.model, modelView);
 	}
 
 	public EditableModel getModel() {

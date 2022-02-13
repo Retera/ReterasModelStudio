@@ -37,6 +37,7 @@ public final class RenderModel {
 	private boolean shouldForceAnimation = false;
 
 	private boolean spawnParticles = true;
+	private boolean vetoParticles = false;
 	//	private boolean allowInanimateParticles = false;
 	private boolean allowInanimateParticles = true;
 	private int lastUpdatedTime = 0;
@@ -352,7 +353,7 @@ public final class RenderModel {
 			// TODO instanced rendering in 2090
 			if (objectVisible && renderParticles && idObject instanceof ParticleEmitter2) {
 				if (emitterToRenderer2.get(idObject) != null) {
-					if ((modelView == null) || modelView.getEditableIdObjects().contains(idObject) || modelView.isVetoOverrideParticles()) {
+					if ((modelView == null) || modelView.getEditableIdObjects().contains(idObject) || vetoParticles) {
 						emitterToRenderer2.get(idObject).fill();
 					}
 				}
@@ -443,7 +444,7 @@ public final class RenderModel {
 			// TODO instanced rendering in 2090
 			if (objectVisible && renderParticles && idObject instanceof ParticleEmitter2) {
 				if (emitterToRenderer2.get(idObject) != null) {
-					if ((modelView == null) || modelView.getEditableIdObjects().contains(idObject) || modelView.isVetoOverrideParticles()) {
+					if ((modelView == null) || modelView.getEditableIdObjects().contains(idObject) || vetoParticles) {
 						emitterToRenderer2.get(idObject).fill();
 					}
 				}
@@ -676,6 +677,15 @@ public final class RenderModel {
 		return spawnParticles;
 	}
 
+
+	public boolean isVetoOverrideParticles() {
+		return vetoParticles;
+	}
+
+	public RenderModel setVetoOverrideParticles(boolean override) {
+		vetoParticles = override;
+		return this;
+	}
 
 	private Quat getInverseCameraRotation() {
 		if(cameraHandler != null){

@@ -11,7 +11,7 @@ import java.awt.event.MouseEvent;
 public class CollapsablePanel extends JPanel{
 //	private static final String ARROW_RIGHT = "\u25BA";
 //	private static final String ARROW_DOWN = "\u25BC";
-private static final String ARROW_RIGHT = "\u2BC8";
+	private static final String ARROW_RIGHT = "\u2BC8";
 	private static final String ARROW_DOWN = "\u2BC6";
 
 	private final JLabel collapseArrowLabel;

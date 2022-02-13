@@ -24,19 +24,14 @@ public class PerspectiveViewUgg extends ModelDependentView {
 
 	@Override
 	public PerspectiveViewUgg setModelPanel(ModelPanel modelPanel) {
-		System.out.println("update PerspectiveViewUgg! " + modelPanel);
 		this.modelPanel = modelPanel;
 		if (modelPanel == null) {
 			this.setComponent(dudPanel);
-//			perspDisplayPanel = null;
 			perspDisplayPanel.setModel(null);
 		} else {
-			System.out.println("update PerspectiveViewUgg! " + modelPanel.getModel().getName());
-//			perspDisplayPanel = modelPanel.getPerspArea();
 			perspDisplayPanel.setModel(modelPanel.getModelHandler());
 			this.setComponent(perspDisplayPanel);
 		}
-		System.out.println("name: " + name + ", panel: " + modelPanel);
 		return this;
 	}
 

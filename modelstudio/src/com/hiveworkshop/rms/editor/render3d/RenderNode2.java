@@ -61,28 +61,21 @@ public final class RenderNode2 {
 //			dirty = false;
 			worldScale.set(localScale);
 			worldRotation.set(localRotation);
-			if (idObject.getParent() != null) {
-				RenderNode2 parentNode = renderModel.getRenderNode(idObject.getParent());
-				Vec3 computedScaling = new Vec3();
+			RenderNode2 parentNode = renderModel.getRenderNode(idObject.getParent());
+			Vec3 computedScaling = new Vec3();
 
-				if (dontInheritScaling) {
-					computedScaling.set(localScale).divide(parentNode.worldScale);
-				} else {
-					computedScaling.set(localScale);
-					worldScale.multiply(parentNode.worldScale);
-				}
-
-//				localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, localScale, idObject.getPivotPoint());
-				localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, computedScaling, idObject.getPivotPoint());
-
-				worldMatrix.set(parentNode.worldMatrix).mul(localMatrix);
-
-				worldRotation.mul(parentNode.worldRotation);
+			if (dontInheritScaling) {
+				computedScaling.set(localScale).divide(parentNode.worldScale);
 			} else {
-
-				localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, localScale, idObject.getPivotPoint());
-				worldMatrix.set(localMatrix);
+				computedScaling.set(localScale);
+				worldScale.multiply(parentNode.worldScale);
 			}
+
+			localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, computedScaling, idObject.getPivotPoint());
+
+			worldMatrix.set(parentNode.worldMatrix).mul(localMatrix);
+
+			worldRotation.mul(parentNode.worldRotation);
 
 			// Inverse world rotation
 			inverseWorldRotation.set(worldRotation).invertRotation();
@@ -110,8 +103,7 @@ public final class RenderNode2 {
 	}
 
 	public void update() {
-		IdObject parent = idObject.getParent();
-		if (dirty || ((parent != null) && renderModel.getRenderNode(idObject.getParent()).wasDirty)) {
+		if (dirty || (renderModel.getRenderNode(idObject.getParent()).wasDirty)) {
 			dirty = true;
 			wasDirty = true;
 			recalculateTransformation();
@@ -233,10 +225,7 @@ public final class RenderNode2 {
 	}
 
 	public Mat4 getParentWorldMatrix() {
-		if (hasParent()) {
-			return renderModel.getRenderNode(idObject.getParent()).getWorldMatrix();
-		}
-		return new Mat4().setIdentity();
+		return renderModel.getRenderNode(idObject.getParent()).getWorldMatrix();
 	}
 
 	public boolean hasParent() {
@@ -286,10 +275,7 @@ public final class RenderNode2 {
 	}
 
 	public Quat getParentWorldRotation() {
-		if (hasParent()) {
-			return renderModel.getRenderNode(idObject.getParent()).getWorldRotation();
-		}
-		return new Quat();
+		return renderModel.getRenderNode(idObject.getParent()).getWorldRotation();
 	}
 
 

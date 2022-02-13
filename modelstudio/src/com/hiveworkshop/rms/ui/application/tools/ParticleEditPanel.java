@@ -288,7 +288,7 @@ public class ParticleEditPanel extends JPanel {
 
 		ModelHandler modelHandler = new ModelHandler(tempModel);
 		modelHandler.getPreviewTimeEnv().setSequence(animation);
-		modelHandler.getModelView().setVetoOverrideParticles(true);
+		modelHandler.getPreviewRenderModel().setVetoOverrideParticles(true);
 
 		return modelHandler;
 	}
