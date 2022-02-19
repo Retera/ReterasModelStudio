@@ -10,7 +10,8 @@ import java.util.*;
 
 public final class ModelUtils {
 	public static String getPortrait(String filepath) {
-		String portrait = filepath.substring(0, filepath.lastIndexOf('.')) + "_portrait" + filepath.substring(filepath.lastIndexOf('.'));
+		int endIndex = filepath.contains(".") ? filepath.lastIndexOf('.') : filepath.length();
+		String portrait = filepath.substring(0, endIndex) + "_portrait" + filepath.substring(endIndex);
 		return portrait;
 	}
 

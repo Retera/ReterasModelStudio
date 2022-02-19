@@ -3,10 +3,12 @@ package com.hiveworkshop.rms.ui.browsers.model;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
+import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.MainFrame;
+import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiFocusListener;
 import com.hiveworkshop.rms.ui.application.viewer.AnimationViewer;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
@@ -201,6 +203,16 @@ public class ModelOptionPanel extends JPanel {
 			return uop;
 		} else {
 			return null;
+		}
+	}
+
+	public ImageIcon getIconForSelected(){
+		String iconPath = getCachedIconPath();
+		if(iconPath != null && iconPath.length() > 0){
+			Image scaledInstance = BLPHandler.getGameTex(iconPath).getScaledInstance(16, 16, Image.SCALE_FAST);
+			return new ImageIcon(scaledInstance);
+		} else {
+			return ModelLoader.MDLIcon;
 		}
 	}
 

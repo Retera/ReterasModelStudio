@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditor
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.War3ID;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -52,13 +53,22 @@ public final class IconUtils {
 		return bufImage;
 	}
 
-	public static Image getIconScaled(final MutableGameObject gameObject,
+	public static Image getIconImageScaled(final MutableGameObject gameObject,
 	                                    final WorldEditorDataType worldEditorDataType) {
 		return getIcon(gameObject, worldEditorDataType).getScaledInstance(16, 16, Image.SCALE_DEFAULT);
 	}
 
-	public static Image getIconScaled(final MutableGameObject gameObject) {
+	public static Image getIconImageScaled(final MutableGameObject gameObject) {
 		return getIcon(gameObject).getScaledInstance(16, 16, Image.SCALE_DEFAULT);
+	}
+
+	public static ImageIcon getIconScaled(final MutableGameObject gameObject,
+	                                    final WorldEditorDataType worldEditorDataType) {
+		return new ImageIcon(getIcon(gameObject, worldEditorDataType).getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+	}
+
+	public static ImageIcon getIconScaled(final MutableGameObject gameObject) {
+		return new ImageIcon(getIcon(gameObject).getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 	}
 
 	public static BufferedImage getIcon(final MutableGameObject gameObject,

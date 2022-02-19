@@ -16,10 +16,9 @@ import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.List;
 import java.util.*;
 
 public class UnitEditorTree extends JTree {
@@ -52,6 +51,29 @@ public class UnitEditorTree extends JTree {
 			}
 		});
 //		setFont(getFont().deriveFont(24f));
+	}
+
+	public JMenuBar getSearchBar(){
+		JMenuBar menuBar = new JMenuBar();
+		JTextField searchField = new JTextField();
+		Dimension prefSize = searchField.getPreferredSize();
+		prefSize.width = 100;
+		searchField.setMinimumSize(prefSize);
+		searchField.setPreferredSize(prefSize);
+		searchField.addKeyListener(getSearchOnEnter(searchField));
+		menuBar.add(searchField);
+		return menuBar;
+	}
+	public KeyAdapter getSearchOnEnter(JTextField searchField) {
+		return new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				System.out.println("keyCode: " + e.getKeyCode());
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					find(searchField.getText(), false, false);
+				}
+			}
+		};
 	}
 
 	private TreeExpansionListener getTreeExpansionListener() {
@@ -108,22 +130,16 @@ public class UnitEditorTree extends JTree {
 		this.getActionMap().put("deleteUnit", new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				List<MutableGameObject> objectsToDelete = new ArrayList<>();
-				for (TreePath path : getSelectionPaths()) {
-					Object lastPathComponent = path.getLastPathComponent();
-					if (lastPathComponent instanceof DefaultMutableTreeNode) {
-						DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) lastPathComponent;
-						if (treeNode.getUserObject() instanceof MutableGameObject) {
-							MutableGameObject gameObject = (MutableGameObject) treeNode.getUserObject();
-							objectsToDelete.add(gameObject);
-						}
-					}
-				}
-				unitData.remove(objectsToDelete);
+				deleteUnit();
 			}
 		});
 		this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
 				.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteUnit");
+	}
+
+	private void deleteUnit() {
+		List<MutableGameObject> objectsToDelete = getSelectedGameObjects();
+		unitData.remove(objectsToDelete);
 	}
 
 	public void find(String text, boolean displayAsRawData, boolean caseSensitive) {
@@ -221,18 +237,26 @@ public class UnitEditorTree extends JTree {
 	}
 
 	public War3ObjectDataChangeset copySelectedObjects() {
-		List<MutableGameObject> objectsToCopy = new ArrayList<>();
-		for (TreePath path : getSelectionPaths()) {
-			Object lastPathComponent = path.getLastPathComponent();
-			if (lastPathComponent instanceof DefaultMutableTreeNode) {
-				DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) lastPathComponent;
-				if (treeNode.getUserObject() instanceof MutableGameObject) {
-					MutableGameObject gameObject = (MutableGameObject) treeNode.getUserObject();
-					objectsToCopy.add(gameObject);
+		List<MutableGameObject> objectsToCopy = getSelectedGameObjects();
+		return unitData.copySelectedObjects(objectsToCopy);
+	}
+
+	public List<MutableGameObject> getSelectedGameObjects() {
+		List<MutableGameObject> selectedObjects = new ArrayList<>();
+		TreePath[] selectionPaths = getSelectionPaths();
+		if (selectionPaths != null) {
+			for (TreePath path : selectionPaths) {
+				Object lastPathComponent = path.getLastPathComponent();
+				if (lastPathComponent instanceof DefaultMutableTreeNode) {
+					DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) lastPathComponent;
+					if (treeNode.getUserObject() instanceof MutableGameObject) {
+						MutableGameObject gameObject = (MutableGameObject) treeNode.getUserObject();
+						selectedObjects.add(gameObject);
+					}
 				}
 			}
 		}
-		return unitData.copySelectedObjects(objectsToCopy);
+		return selectedObjects;
 	}
 
 	public char getWar3ObjectDataChangesetKindChar() {

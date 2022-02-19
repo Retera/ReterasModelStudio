@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableDoodadData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.War3ID;
 import net.infonode.docking.View;
@@ -66,19 +67,23 @@ public class DoodadBrowserView extends View {
 				if (o.getUserObject() instanceof MutableGameObject) {
 
 					MutableGameObject obj = (MutableGameObject) o.getUserObject();
-					int numberOfVariations = obj.getFieldAsInteger(War3ID.fromString("dvar"), 0);
-					if (numberOfVariations > 1) {
-						for (int i = 0; i < numberOfVariations; i++) {
-							String prePath = obj.getFieldAsString(War3ID.fromString("dfil"), 0) + i + ".mdl";
-							InternalFileLoader.loadMdxStream(obj, prePath, i == 0);
-						}
-					} else {
-						String prePath = obj.getFieldAsString(War3ID.fromString("dfil"), 0);
-						InternalFileLoader.loadMdxStream(obj, prePath, true);
-					}
+					loadAllVariations(obj);
 					MenuBar.setToolsMenuEnabled(true);
 				}
 			}
+		}
+	}
+
+	private static void loadAllVariations(MutableGameObject obj) {
+		int numberOfVariations = obj.getFieldAsInteger(War3ID.fromString("dvar"), 0);
+		boolean addVarIndex = 1 < numberOfVariations;
+		ImageIcon icon = new ImageIcon(IconUtils
+				.getIcon(obj)
+				.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+		for (int i = 0; i < numberOfVariations; i++) {
+			String prePath = obj.getFieldAsString(War3ID.fromString("dfil"), 0) + (addVarIndex ? i : "");
+//			InternalFileLoader.loadMdxStream(obj, prePath, i == 0);
+			InternalFileLoader.loadFromStream(prePath, icon, i == 0);
 		}
 	}
 }

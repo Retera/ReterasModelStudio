@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObje
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableUnitData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import net.infonode.docking.View;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,8 +16,16 @@ public class UnitBrowserView extends View {
 
 	public UnitBrowserView() {
 		super("Unit Browser", imageIcon, new JScrollPane(createUnitEditorTree()));
+//		super("Unit Browser", imageIcon, getContentPanel());
 	}
 
+	static JPanel getContentPanel(){
+		JPanel panel = new JPanel(new MigLayout("fill, ins 0, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
+		UnitEditorTree unitEditorTree = createUnitEditorTree();
+		panel.add(unitEditorTree.getSearchBar());
+		panel.add(new JScrollPane(unitEditorTree), "growx, growy");
+		return panel;
+	}
 	static UnitEditorTree createUnitEditorTree() {
 		return new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(), new UnitEditorSettings(), WorldEditorDataType.UNITS);
 	}
