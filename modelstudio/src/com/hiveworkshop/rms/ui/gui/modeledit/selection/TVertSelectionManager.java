@@ -262,15 +262,27 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		}
 
 		if (selectionMode == SelectionItemTypes.FACE) {
-			Set<Vec2> selectedVertices = new HashSet<>();
+			Vec2 center = new Vec2();
+			int vertCount = 0;
 			for (Triangle triangle : modelView.getSelectedTriangles()) {
 				for (GeosetVertex geosetVertex : triangle.getVerts()) {
 					if (tvertexLayerId < geosetVertex.getTverts().size()) {
-						selectedVertices.add(geosetVertex.getTVertex(tvertexLayerId));
+						center.add(geosetVertex.getTVertex(tvertexLayerId));
+						vertCount++;
 					}
 				}
 			}
-			return Vec2.centerOfGroup(selectedVertices);
+			return center.scale(1f/vertCount);
+			// Not sure if the average position of vertices or the average position of tris should be used...
+//			Set<Vec2> selectedVertices = new HashSet<>();
+//			for (Triangle triangle : modelView.getSelectedTriangles()) {
+//				for (GeosetVertex geosetVertex : triangle.getVerts()) {
+//					if (tvertexLayerId < geosetVertex.getTverts().size()) {
+//						selectedVertices.add(geosetVertex.getTVertex(tvertexLayerId));
+//					}
+//				}
+//			}
+//			return Vec2.centerOfGroup(selectedVertices);
 		}
 		return Vec2.ORIGIN;
 	}

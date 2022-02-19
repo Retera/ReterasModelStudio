@@ -8,26 +8,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public final class MirrorTVerticesAction implements UndoAction {
+public final class SwapXYTVerticesAction implements UndoAction {
 	private final List<Vec2> selection;
-	private final String mirrorDim;
-	private final Vec2 flipAxis;
-	private final Vec2 center;
 	private final ModelStructureChangeListener changeListener;
 
-// flipAxis - the axis which values to affect
-	public MirrorTVerticesAction(Collection<Vec2> selection, Vec2 center, Vec2 flipAxis,
+	public SwapXYTVerticesAction(Collection<Vec2> selection,
 	                             ModelStructureChangeListener changeListener) {
-		this.center = new Vec2(center);
 		this.selection = new ArrayList<>(selection);
-		this.flipAxis = new Vec2(flipAxis);
 		this.changeListener = changeListener;
-		mirrorDim = flipAxis.x == 1 ? "X" : "Y";
 	}
 
 	@Override
 	public UndoAction undo() {
-		doMirror();
+		doSwap();
 
 		if (changeListener != null) {
 			changeListener.geosetsUpdated();
@@ -37,7 +30,7 @@ public final class MirrorTVerticesAction implements UndoAction {
 
 	@Override
 	public UndoAction redo() {
-		doMirror();
+		doSwap();
 
 		if (changeListener != null) {
 			changeListener.geosetsUpdated();
@@ -45,18 +38,17 @@ public final class MirrorTVerticesAction implements UndoAction {
 		return this;
 	}
 
-	private void doMirror() {
-		Vec2 keepAxis = new Vec2(1,1).sub(flipAxis);
-		final Vec2 center = new Vec2(this.center).mul(flipAxis).scale(2);
-		Vec2 tempFlipAxis = new Vec2(flipAxis).scale(-1).add(keepAxis);
-		for (Vec2 vert : selection) {
-			vert.mul(tempFlipAxis).add(center);
+	private void doSwap() {
+		for (Vec2 tvert : selection) {
+			final float temp = tvert.x;
+			tvert.x = tvert.y;
+			tvert.y = temp;
 		}
 	}
 
 	@Override
 	public String actionName() {
-		return "Mirror UV " + mirrorDim;
+		return "Swap UVs X/Y";
 	}
 
 }

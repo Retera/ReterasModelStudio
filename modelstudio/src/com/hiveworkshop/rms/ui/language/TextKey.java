@@ -102,6 +102,20 @@ public enum TextKey {
 	EXPORT_TEXTURE("Export Texture"),
 	NONE("None"),
 	KEYBOARDKEY(""),
+	INVERT_ALL_UVS("Swap All UVs U for V"),
+	MIRROR_X("Mirror X"),
+	MIRROR_Y("Mirror Y"),
+	MIRROR_Z("Mirror Z"),
+	MIRROR_ALL_UVS_X("Mirror All UVs X"),
+	MIRROR_ALL_UVS_Y("Mirror All UVs Y"),
+	MIRROR_SELECTED_UVS_X("Mirror Selected UVs X"),
+	MIRROR_SELECTED_UVS_Y("Mirror Selected UVs Y"),
+	MIRROR_ALL_UVS_X_IMAGE_CENTER("Mirror All UVs X"),
+	MIRROR_ALL_UVS_Y_IMAGE_CENTER("Mirror All UVs Y"),
+	MIRROR_SELECTED_UVS_X_IMAGE_CENTER("Mirror Selected UVs X (image center)"),
+	MIRROR_SELECTED_UVS_Y_IMAGE_CENTER("Mirror Selected UVs Y (image center)"),
+	MIRROR_SELECTED_UVS_X_SELECTION_CENTER("Mirror Selected UVs X (selection center)"),
+	MIRROR_SELECTED_UVS_Y_SELECTION_CENTER("Mirror Selected UVs Y (selection center)"),
 
 	;
 	String defaultTranslation;

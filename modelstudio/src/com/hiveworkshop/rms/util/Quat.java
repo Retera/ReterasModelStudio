@@ -397,6 +397,27 @@ public class Quat extends Vec4 {
 		return this;
 	}
 
+	public Quat setAsRotBetween(Vec3 vec1, Vec3 vec2) {
+//		Vec3 aNorm = new Vec3(vec1).normalize();
+//		Vec3 bNorm = new Vec3(vec2).normalize();
+		double angle = vec1.radAngleTo(vec2);
+
+//		return setFromAxisAngle(cross, (float) angle).normalize().invertRotation();
+//		Vec3 cross = new Vec3(aNorm).cross(bNorm).normalize();
+		float lenA = vec1.length();
+		float lenB = vec2.length();
+		float scaleF = (lenB * lenA);
+
+		if (scaleF == 0) {
+			scaleF = 1;
+		}
+		float axisX = ((vec1.y * vec2.z) - (vec2.y * vec1.z)) / scaleF;
+		float axisY = ((vec2.x * vec1.z) - (vec1.x * vec2.z)) / scaleF;
+		float axisZ = ((vec1.x * vec2.y) - (vec2.x * vec1.y)) / scaleF;
+
+		return setFromAxisAngle(axisX, axisY, axisZ, (float) angle).normalize().invertRotation();
+	}
+
 	public Quat setFromAxisAngle(final Vec3 axis, final float angle) {
 		return setFromAxisAngle(axis.x, axis.y, axis.z, angle);
 	}
@@ -406,7 +427,7 @@ public class Quat extends Vec4 {
 	}
 
 	public Quat setFromAxisAngle(float ax, float ay, float az, float angle) {
-		float halfAngle = angle / 2.0f;
+		double halfAngle = angle / 2.0;
 		float sinOfHalfAngle = (float) Math.sin(halfAngle);
 		x = ax * sinOfHalfAngle;
 		y = ay * sinOfHalfAngle;
@@ -457,7 +478,7 @@ public class Quat extends Vec4 {
 	}
 
 	@Override
-	public Quat normalize(){
+	public Quat normalize() {
 		float len = lengthSquared();
 
 		if (len > 0) {

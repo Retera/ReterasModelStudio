@@ -78,7 +78,7 @@ public class MouseListenerThing2 extends MouseAdapter {
 		if (!clickTimer.isRunning()) {
 			clickTimer.start();
 		}
-		if (!viewportActivity.isEditing()) {
+		if (viewportActivity != null && !viewportActivity.isEditing()) {
 			viewportActivity.viewportChanged(cursorManager);
 			viewportView.requestFocus();
 			mouseInBounds = true;
@@ -89,7 +89,7 @@ public class MouseListenerThing2 extends MouseAdapter {
 
 	@Override
 	public void mouseExited(final MouseEvent e) {
-		if (!viewportActivity.isEditing()) {
+		if (viewportActivity != null && !viewportActivity.isEditing()) {
 			if (lastClick == null) {
 				clickTimer.setDelay(250);
 			}
@@ -102,7 +102,7 @@ public class MouseListenerThing2 extends MouseAdapter {
 	public void mousePressed(final MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON2) {
 			lastClick = new Point(e.getX(), e.getY());
-		} else if (e.getButton() == MouseEvent.BUTTON1 || e.getButton() == MouseEvent.BUTTON3) {
+		} else if (viewportActivity != null && (e.getButton() == MouseEvent.BUTTON1 || e.getButton() == MouseEvent.BUTTON3)) {
 			viewportActivity.viewportChanged(cursorManager);
 			viewportView.requestFocus();
 			viewportActivity.mousePressed(e, coordinateSystem);
@@ -111,7 +111,7 @@ public class MouseListenerThing2 extends MouseAdapter {
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
-		if (undoHandler != null) {
+		if (undoHandler != null && viewportActivity != null) {
 			undoHandler.refreshUndo();
 			// TODO fix, refresh undo
 			if ((e.getButton() == MouseEvent.BUTTON2) && (lastClick != null)) {
@@ -148,15 +148,19 @@ public class MouseListenerThing2 extends MouseAdapter {
 
 	@Override
 	public void mouseDragged(final MouseEvent e) {
-		viewportActivity.mouseDragged(e, coordinateSystem);
+		if(viewportActivity != null){
+			viewportActivity.mouseDragged(e, coordinateSystem);
+		}
 	}
 
 	@Override
 	public void mouseMoved(final MouseEvent e) {
-		if (!mouseInBounds && viewportView.getBounds().contains(e.getPoint()) && !viewportActivity.isEditing()) {
-			mouseEntered(e);
+		if(viewportActivity != null){
+			if (!mouseInBounds && viewportView.getBounds().contains(e.getPoint()) && !viewportActivity.isEditing()) {
+				mouseEntered(e);
+			}
+			viewportActivity.mouseMoved(e, coordinateSystem);
+			viewportView.repaint();
 		}
-		viewportActivity.mouseMoved(e, coordinateSystem);
-		viewportView.repaint();
 	}
 }

@@ -92,10 +92,10 @@ public class GeosetToMdlx {
 		int groupIndex = 0;
 		for (final Matrix matrix : geoset.getMatrices()) {
 			for (int index = 0; index < matrix.size() && matrixIndex < mdlxGeoset.matrixIndices.length; index++) {
-//				mdlxGeoset.matrixIndices[matrixIndex++] = matrix.get(index).getObjectId(model);
 				mdlxGeoset.matrixIndices[matrixIndex++] = model.getObjectId(matrix.get(index));
 			}
 			if (matrix.size() <= 0) {
+				mdlxGeoset.matrixIndices = new long[1];
 				mdlxGeoset.matrixIndices[matrixIndex++] = -1;
 			}
 			int size = matrix.size();

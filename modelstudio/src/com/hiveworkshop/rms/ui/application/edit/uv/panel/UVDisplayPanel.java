@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
+import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
@@ -7,6 +8,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.language.TextKey;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 import org.lwjgl.LWJGLException;
 
@@ -15,6 +17,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class UVDisplayPanel extends JPanel {
@@ -23,11 +26,11 @@ public class UVDisplayPanel extends JPanel {
 	private ViewportActivityManager activityListener;
 	Consumer<Cursor> cursorManager;
 
+	TwiComboBox<Bitmap> modelTextures;
+
 	public UVDisplayPanel() {
 		super(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
-//		this.viewportListener = windowHandler2.getViewportListener();
 		setupCopyPaste(ProgramGlobals.getViewportTransferHandler());
-//		addMouseMotionListener(getMouseAdapter());
 
 		cursorManager = this::setCursor;
 
@@ -40,6 +43,10 @@ public class UVDisplayPanel extends JPanel {
 			CameraHandler cameraHandler = vp2.getCameraHandler();
 			cameraHandler.toggleOrtho().setAllowToggleOrtho(false);
 			cameraHandler.setAllowRotation(false);
+
+			modelTextures = new TwiComboBox<>(new Bitmap("", 1));
+			modelTextures.addOnSelectItemListener(b -> vp2.setCurrTexture(b));
+			modelTextures.setStringFunctionRender(b -> b instanceof Bitmap ? ((Bitmap)b).getName() : "none");
 
 
 			viewHolderPanel.add(vp2, "spany, growy, growx");
@@ -54,17 +61,18 @@ public class UVDisplayPanel extends JPanel {
 	}
 
 	public UVDisplayPanel setModel(ModelHandler modelHandler, ViewportActivityManager activityListener) {
-//		ModelEditorChangeNotifier modelEditorChangeNotifier = new ModelEditorChangeNotifier();
-//		modelEditorChangeNotifier.subscribe(activityListener);
 		this.activityListener = activityListener;
-//		this.activityListener = new ViewportActivityManager(null);
 		if (modelHandler != null) {
-//			TVertexEditorManager modelEditorManager = new TVertexEditorManager(modelHandler, modelEditorChangeNotifier, activityListener);
 			vp2.getCameraHandler().setActivityManager(activityListener);
 			vp2.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), true);
 			vp2.getMouseListenerThing().setActivityManager(activityListener);
+			vp2.reloadAllTextures();
+			modelTextures.setNewLinkedModelOf(modelHandler.getModel().getTextures());
+			modelTextures.setSelectedIndex(0);
+			vp2.setCurrTexture(modelHandler.getModel().getTextures().get(0));
 		} else {
 			vp2.setModel(null, null, false);
+			modelTextures.setNewLinkedModelOf(new ArrayList<>());
 		}
 		return this;
 	}
@@ -120,6 +128,8 @@ public class UVDisplayPanel extends JPanel {
 		arrowPanel2.add(down2, "cell 1 2");
 
 		buttonPanel.add(arrowPanel2, "gapy 16, wrap");
+		buttonPanel.add(modelTextures, "gapy 16, wrap");
+
 
 		return buttonPanel;
 	}

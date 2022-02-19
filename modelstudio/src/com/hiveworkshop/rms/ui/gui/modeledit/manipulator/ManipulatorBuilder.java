@@ -58,21 +58,24 @@ public abstract class ManipulatorBuilder {
 		return null;
 	}
 
-	public Manipulator buildManipulator(int x, int y,
+	public Manipulator buildManipulator(MouseEvent e, int x, int y,
 	                                    ButtonType clickedButton,
 	                                    CoordinateSystem coordinateSystem,
 	                                    AbstractSelectionManager selectionManager) {
-		if (clickedButton == ButtonType.RIGHT_MOUSE) {
-			return createDefaultManipulator(selectionManager);
-		} else if (!selectionManager.isEmpty()) {
+		int modifiersEx = e.getModifiersEx();
+		if ((ProgramGlobals.getPrefs().getModifyMouseButton() & modifiersEx) > 0 && !selectionManager.isEmpty()) {
 			Vec2 mousePoint = new Vec2(x, y);
 			Manipulator manipulatorFromWidget = createManipulatorFromWidget(mousePoint, coordinateSystem, selectionManager);
 			if (manipulatorFromWidget != null) {
 				return manipulatorFromWidget;
 			}
+
+		} else if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
+			return new SelectManipulator(viewportSelectionHandler, coordinateSystem);
 		}
-		return new SelectManipulator(viewportSelectionHandler, coordinateSystem);
+		return null;
 	}
+
 
 	public Manipulator buildManipulator(MouseEvent e, int x, int y,
 	                                    CameraHandler cameraHandler,
@@ -80,23 +83,13 @@ public abstract class ManipulatorBuilder {
 
 
 		int modifiersEx = e.getModifiersEx();
-//		if (modifiersEx == ProgramGlobals.getPrefs().getModifyMouseButton()) {
-//		if ((ProgramGlobals.getPrefs().getModifyMouseButton() & modifiersEx) == modifiersEx) {
 		if ((ProgramGlobals.getPrefs().getModifyMouseButton() & modifiersEx) > 0 && !selectionManager.isEmpty()) {
 			Vec2 mousePoint = new Vec2(cameraHandler.geomXifYZplane(x), cameraHandler.geomYifYZplane(y));
-			System.out.println("maybe manipulator..." + mousePoint);
-			System.out.println("found selectable...");
 			Manipulator manipulatorFromWidget = createManipulatorFromUgg(mousePoint, cameraHandler, selectionManager);
 			if (manipulatorFromWidget != null) {
-				System.out.println("should be manipulator...");
 				return manipulatorFromWidget;
 			}
-//			if(selectionManager.selectableUnderCursor(mousePoint, cameraHandler)){
-//			}
-		}
-//		else if(modifiersEx == ProgramGlobals.getPrefs().getSelectMouseButton()){
-//		else if((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) == modifiersEx){
-		else if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
+		} else if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
 			return new SelectManipulator(viewportSelectionHandler, cameraHandler);
 		}
 		return null;

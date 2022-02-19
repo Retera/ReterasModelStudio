@@ -285,53 +285,31 @@ public class Vec3 {
 	}
 
 	public Vec3 rotate(Vec3 center, double radians, byte firstXYZ, byte secondXYZ) {
-		double x1 = getCoord(firstXYZ);
-		double y1 = getCoord(secondXYZ);
-//		double cx = getCenterDimCoord(center, firstXYZ);
-		double cx = center.getCoord(firstXYZ);
-		double dx = x1 - cx;
-//		double cy = getCenterDimCoord(center, secondXYZ);
-		double cy = center.getCoord(secondXYZ);
-		double dy = y1 - cy;
-		double r = Math.sqrt((dx * dx) + (dy * dy));
-		double verAng = Math.acos(dx / r);
-		if (dy < 0) {
+		sub(center);
+		double d1 = getCoord(firstXYZ);
+		double d2 = getCoord(secondXYZ);
+
+		double r = Math.sqrt((d1 * d1) + (d2 * d2));
+		double verAng = Math.acos(d1 / r);
+		if (d2 < 0) {
 			verAng = -verAng;
 		}
-		double newFirstCoord = (Math.cos(verAng + radians) * r) + cx;
+		double newFirstCoord = (Math.cos(verAng + radians) * r);
 		if (!Double.isNaN(newFirstCoord)) {
 			setCoord(firstXYZ, newFirstCoord);
 		}
-		double newSecondCoord = (Math.sin(verAng + radians) * r) + cy;
+		double newSecondCoord = (Math.sin(verAng + radians) * r);
 		if (!Double.isNaN(newSecondCoord)) {
 			setCoord(secondXYZ, newSecondCoord);
 		}
+		add(center);
 		return this;
 	}
 
 	public Vec3 rotate(Vec3 center, Quat quat) {
-		float px = x;
-		float py = y;
-		float pz = z;
 		sub(center);
-//		double dx = x - center.x;
-//		double dy = y - center.y;
-//		double dZ = z - center.z;
 		transform(quat);
 		add(center);
-//		double r = Math.sqrt((dx * dx) + (dy * dy));
-//		double verAng = Math.acos(dx / r);
-//		if (dy < 0) {
-//			verAng = -verAng;
-//		}
-//		double newFirstCoord = (Math.cos(verAng + radians) * r) + center.x;
-//		if (!Double.isNaN(newFirstCoord)) {
-//			setCoord(firstXYZ, newFirstCoord);
-//		}
-//		double newSecondCoord = (Math.sin(verAng + radians) * r) + center.y;
-//		if (!Double.isNaN(newSecondCoord)) {
-//			setCoord(secondXYZ, newSecondCoord);
-//		}
 		return this;
 	}
 

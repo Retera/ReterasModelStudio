@@ -22,8 +22,13 @@ import java.util.List;
 import java.util.Set;
 
 public class Select {
+	private static SelectAll selectAll;
+	private static InvertSelection invertSelection;
+	private static ExpandSelection expandSelection;
+	private static SelectNodeGeometry selectNodeGeometry;
+	private static SelectLinkedGeometry selectLinkedGeometry;
 
-	private static class SelectAll  extends ActionFunction {
+	private static class SelectAll extends ActionFunction {
 
 		SelectAll(){
 			super(TextKey.SELECT_ALL, Select::selectAll);
@@ -58,20 +63,71 @@ public class Select {
 		}
 	}
 
+
+
+//	public static JMenuItem getSelectAllMenuItem(){
+//		return new SelectAll().getMenuItem();
+//	}
+//	public static JMenuItem getInvertSelectMenuItem(){
+//		return new InvertSelection().getMenuItem();
+//	}
+//	public static JMenuItem getExpandSelectionMenuItem(){
+//		return new ExpandSelection().getMenuItem();
+//	}
+//	public static JMenuItem getSelectNodeGeometryMenuItem(){
+//		return new SelectNodeGeometry().getMenuItem();
+//	}
+//	public static JMenuItem getSelectLinkedGeometryMenuItem(){
+//		return new SelectLinkedGeometry().getMenuItem();
+//	}
+
+
 	public static JMenuItem getSelectAllMenuItem(){
-		return new SelectAll().getMenuItem();
+		return getSelectAll().getMenuItem();
 	}
 	public static JMenuItem getInvertSelectMenuItem(){
-		return new InvertSelection().getMenuItem();
+		return getInvertSelection().getMenuItem();
 	}
 	public static JMenuItem getExpandSelectionMenuItem(){
-		return new ExpandSelection().getMenuItem();
+		return getExpandSelection().getMenuItem();
 	}
 	public static JMenuItem getSelectNodeGeometryMenuItem(){
-		return new SelectNodeGeometry().getMenuItem();
+		return getSelectNodeGeometry().getMenuItem();
 	}
 	public static JMenuItem getSelectLinkedGeometryMenuItem(){
-		return new SelectLinkedGeometry().getMenuItem();
+		return getSelectLinkedGeometry().getMenuItem();
+	}
+
+
+	public static ActionFunction getSelectAll(){
+		if(selectAll == null){
+			selectAll = new SelectAll();
+		}
+		return selectAll;
+	}
+	public static ActionFunction getInvertSelection(){
+		if(invertSelection == null){
+			invertSelection = new InvertSelection();
+		}
+		return invertSelection;
+	}
+	public static ActionFunction getExpandSelection(){
+		if(expandSelection == null){
+			expandSelection = new ExpandSelection();
+		}
+		return expandSelection;
+	}
+	public static ActionFunction getSelectNodeGeometry(){
+		if(selectNodeGeometry == null){
+			selectNodeGeometry = new SelectNodeGeometry();
+		}
+		return selectNodeGeometry;
+	}
+	public static ActionFunction getSelectLinkedGeometry(){
+		if(selectLinkedGeometry == null){
+			selectLinkedGeometry = new SelectLinkedGeometry();
+		}
+		return selectLinkedGeometry;
 	}
 
 	private static void selectAll(ModelHandler modelHandler) {

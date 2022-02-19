@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.ui.application.EditUVsPanel;
 import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
-import com.hiveworkshop.rms.ui.application.ModelEditActions;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPanel;
@@ -46,15 +45,14 @@ public class ToolsMenu extends JMenu {
 		tweaksSubmenu.setMnemonic(KeyEvent.VK_T);
 		tweaksSubmenu.getAccessibleContext().setAccessibleDescription("Allows the user to tweak conversion mistakes.");
 		add(tweaksSubmenu);
-//		createAndAddMenuItem("Flip All UVs U", tweaksSubmenu, KeyEvent.VK_U, e -> ModelEditActions.flipAllUVsU());
-		tweaksSubmenu.add(createMenuItem("Flip All UVs U", KeyEvent.VK_U, e -> ModelEditActions.flipAllUVsU()));
 
-		JMenuItem flipAllUVsV = new JMenuItem("Flip All UVs V");
-		// flipAllUVsV.setMnemonic(KeyEvent.VK_V);
-		flipAllUVsV.addActionListener(e -> ModelEditActions.flipAllUVsV());
-		tweaksSubmenu.add(flipAllUVsV);
+		tweaksSubmenu.add(createMenuItem("Flip All UVs U", KeyEvent.VK_U, e -> FlipUVs.flipAllUVsDim(ProgramGlobals.getCurrentModelPanel().getModelHandler(), Vec2.X_AXIS, new Vec2(0.5, 0.5))));
+		tweaksSubmenu.add(createMenuItem("Flip All UVs V", KeyEvent.VK_V, e -> FlipUVs.flipAllUVsDim(ProgramGlobals.getCurrentModelPanel().getModelHandler(), Vec2.Y_AXIS, new Vec2(0.5, 0.5))));
 
-		tweaksSubmenu.add(createMenuItem("Swap All UVs U for V", KeyEvent.VK_S, e -> ModelEditActions.inverseAllUVs()));
+		tweaksSubmenu.add(new FlipUVs.FlipUVsX().getMenuItem());
+		tweaksSubmenu.add(new FlipUVs.FlipUVsY().getMenuItem());
+
+		tweaksSubmenu.add(createMenuItem("Swap All UVs U for V", KeyEvent.VK_S, e -> FlipUVs.InvertAllUVs.inverseAllUVs(ProgramGlobals.getCurrentModelPanel().getModelHandler())));
 
 		JMenu mirrorSubmenu = new JMenu("Mirror");
 		mirrorSubmenu.setMnemonic(KeyEvent.VK_M);
@@ -64,9 +62,9 @@ public class ToolsMenu extends JMenu {
 		JCheckBoxMenuItem mirrorFlip = new JCheckBoxMenuItem("Automatically flip after mirror (preserves surface)", true);
 		mirrorFlip.setMnemonic(KeyEvent.VK_A);
 
-		mirrorSubmenu.add(createMenuItem("Mirror X", KeyEvent.VK_X, e -> ModelEditActions.mirrorAxis((byte) 0, mirrorFlip.isSelected())));
-		mirrorSubmenu.add(createMenuItem("Mirror Y", KeyEvent.VK_Y, e -> ModelEditActions.mirrorAxis((byte) 1, mirrorFlip.isSelected())));
-		mirrorSubmenu.add(createMenuItem("Mirror Z", KeyEvent.VK_Z, e -> ModelEditActions.mirrorAxis((byte) 2, mirrorFlip.isSelected())));
+		mirrorSubmenu.add(createMenuItem("Mirror X", KeyEvent.VK_X, e -> MirrorSelection.mirrorAxis(ProgramGlobals.getCurrentModelPanel().getModelHandler(), (byte) 0, mirrorFlip.isSelected(), null)));
+		mirrorSubmenu.add(createMenuItem("Mirror Y", KeyEvent.VK_Y, e -> MirrorSelection.mirrorAxis(ProgramGlobals.getCurrentModelPanel().getModelHandler(), (byte) 1, mirrorFlip.isSelected(), null)));
+		mirrorSubmenu.add(createMenuItem("Mirror Z", KeyEvent.VK_Z, e -> MirrorSelection.mirrorAxis(ProgramGlobals.getCurrentModelPanel().getModelHandler(), (byte) 2, mirrorFlip.isSelected(), null)));
 
 		mirrorSubmenu.add(new JSeparator());
 

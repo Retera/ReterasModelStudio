@@ -37,10 +37,10 @@ public abstract class ViewportView extends JPanel {
 		setBackground(ProgramGlobals.getPrefs().getBackgroundColor());
 
 		// Viewport border
-		setMinimumSize(minDim);
-		add(boxX = Box.createHorizontalStrut(minDim.width));
-		add(boxY = Box.createVerticalStrut(minDim.height));
-		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+//		setMinimumSize(minDim);
+//		add(boxX = Box.createHorizontalStrut(minDim.width));
+//		add(boxY = Box.createVerticalStrut(minDim.height));
+//		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
 		mouseListenerThing2 = new MouseListenerThing2(this, coordDisplayListener, coordinateSystem);
 		addMouseListener(mouseListenerThing2);

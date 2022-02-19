@@ -428,24 +428,12 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	@Override
-	public Vec3 rotate(double centerX, double centerY, double centerZ, double radians,
-	                   byte firstXYZ, byte secondXYZ) {
-		super.rotate(centerX, centerY, centerZ, radians, firstXYZ, secondXYZ);
-		normal.rotate(0, 0, 0, radians, firstXYZ, secondXYZ);
-		if (tangent != null) {
-			tangent.set(tangent.getVec3().rotate(0, 0, 0, radians, firstXYZ, secondXYZ));
-		}
-		return this;
-	}
-
-	@Override
 	public Vec3 rotate(Vec3 center, double radians,
 	                   byte firstXYZ, byte secondXYZ) {
 		super.rotate(center, radians, firstXYZ, secondXYZ);
-		normal.rotate(0, 0, 0, radians, firstXYZ, secondXYZ);
+		normal.rotate(Vec3.ZERO, radians, firstXYZ, secondXYZ);
 		if (tangent != null) {
-//            rotateTangent(0, 0, 0, radians, firstXYZ, secondXYZ, tangent);
-			tangent.set(tangent.getVec3().rotate(0, 0, 0, radians, firstXYZ, secondXYZ));
+			tangent.rotateAsVec3(Vec3.ZERO, radians, firstXYZ, secondXYZ);
 		}
 		return this;
 	}

@@ -18,15 +18,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class UVLinkActions {
-	ModelPanel modelPanel;
-	UVPanel uvPanel;
-	ToolbarButtonGroup2<TVertexSelectionItemTypes> selectionItemTypeGroup;
-	ToolbarButtonGroup2<SelectionMode> selectionModeGroup;
-	ToolbarButtonGroup2<ModelEditorWidgetType> actionTypeGroup;
-	AbstractAction undoAction;
-	AbstractAction redoAction;
-	boolean cheatShift = false;
-	boolean cheatAlt = false;
+	private ModelPanel modelPanel;
+	private UVPanel uvPanel;
+	private ToolbarButtonGroup2<TVertexSelectionItemTypes> selectionItemTypeGroup;
+	private ToolbarButtonGroup2<SelectionMode> selectionModeGroup;
+	private ToolbarButtonGroup2<ModelEditorWidgetType> actionTypeGroup;
+	private AbstractAction undoAction;
+	private AbstractAction redoAction;
+	private boolean cheatShift = false;
+	private boolean cheatAlt = false;
 
 	public UVLinkActions(UVPanel uvPanel) {
 		this.uvPanel = uvPanel;
@@ -37,11 +37,69 @@ public class UVLinkActions {
 		redoAction = ProgramGlobals.getUndoHandler().getRedoAction();
 
 	}
+	public AbstractAction getUndoAction() {
+		return undoAction;
+	}
 
-	AbstractAction selectAllAction = getAsAction("Select All", () -> selectAll(modelPanel.getModelView()));
-	AbstractAction invertSelectAction = getAsAction("Invert Selection", () -> invertSelection(modelPanel.getModelView()));
-	AbstractAction expandSelectionAction = getAsAction("Expand Selection", () -> expandSelection(modelPanel.getModelView()));
-	AbstractAction selFromMainAction = getAsAction("Sel From Main", () -> selectFromViewer(modelPanel.getModelView()));
+	public AbstractAction getRedoAction() {
+		return redoAction;
+	}
+
+	public AbstractAction getInvertSelectAction() {
+		return invertSelectAction;
+	}
+
+	public AbstractAction getSelectAllAction() {
+		return selectAllAction;
+	}
+
+	public AbstractAction getExpandSelectionAction() {
+		return expandSelectionAction;
+	}
+
+	public AbstractAction getSelFromMainAction() {
+		return selFromMainAction;
+	}
+
+	public ModelPanel getModelPanel() {
+		return modelPanel;
+	}
+
+	public ToolbarButtonGroup2<ModelEditorWidgetType> getActionTypeGroup() {
+		return actionTypeGroup;
+	}
+
+	public UVLinkActions setActionTypeGroup(ToolbarButtonGroup2<ModelEditorWidgetType> actionTypeGroup) {
+		this.actionTypeGroup = actionTypeGroup;
+		return this;
+	}
+
+	public ToolbarButtonGroup2<SelectionMode> getSelectionModeGroup() {
+		return selectionModeGroup;
+	}
+
+	public UVLinkActions setSelectionModeGroup(ToolbarButtonGroup2<SelectionMode> selectionModeGroup) {
+		this.selectionModeGroup = selectionModeGroup;
+		return this;
+	}
+
+	public ToolbarButtonGroup2<TVertexSelectionItemTypes> getSelectionItemTypeGroup() {
+		return selectionItemTypeGroup;
+	}
+
+	public UVLinkActions setSelectionItemTypeGroup(ToolbarButtonGroup2<TVertexSelectionItemTypes> selectionItemTypeGroup) {
+		this.selectionItemTypeGroup = selectionItemTypeGroup;
+		return this;
+	}
+
+	public UVPanel getUvPanel() {
+		return uvPanel;
+	}
+
+	private AbstractAction selectAllAction = getAsAction("Select All", () -> selectAll(modelPanel.getModelView()));
+	private AbstractAction invertSelectAction = getAsAction("Invert Selection", () -> invertSelection(modelPanel.getModelView()));
+	private AbstractAction expandSelectionAction = getAsAction("Expand Selection", () -> expandSelection(modelPanel.getModelView()));
+	private AbstractAction selFromMainAction = getAsAction("Sel From Main", () -> selectFromViewer(modelPanel.getModelView()));
 
 
 	public void expandSelection(ModelView modelView) {

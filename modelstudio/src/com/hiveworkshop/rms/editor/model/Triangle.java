@@ -221,10 +221,6 @@ public class Triangle {
 		return true;
 	}
 
-	public GeosetVertex[] getAll() {
-		return verts;
-	}
-
 	public int[] getIntCoords(byte dim) {
 		int[] output = new int[3];
 		for (int i = 0; i < 3; i++) {
@@ -313,6 +309,10 @@ public class Triangle {
 
 	public void setGeoset(Geoset geoset) {
 		this.geoset = geoset;
+	}
+
+	public GeosetVertex[] getAll() {
+		return verts;
 	}
 
 	public GeosetVertex[] getVerts() {

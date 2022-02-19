@@ -403,8 +403,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		Set<GeosetVertex> newSelection = new HashSet<>();
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (HitTestStuff.triHitTest(triangle, min, max, viewPortMat)
-				) {
+				if (HitTestStuff.triHitTest(triangle, min, max, viewPortMat)) {
 					newSelection.addAll(Arrays.asList(triangle.getAll()));
 				}
 			}
@@ -428,78 +427,6 @@ public class SelectionManager extends AbstractSelectionManager {
 		}
 		return newSelection;
 	}
-
-//	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, coordinateSystem);
-//		if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
-//			return null;
-//		}
-//		return new SetSelectionUggAction(newSelection, modelView, "select");
-//	}
-//
-//	public final UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, coordinateSystem);
-//		if (newSelection.isEmpty() || modelView.isEmpty()) {
-//			return null;
-//		}
-//		return new RemoveSelectionUggAction(newSelection, modelView);
-//	}
-//
-//	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, coordinateSystem);
-//		if (newSelection.isEmpty()) {
-//			return null;
-//		}
-//		return new AddSelectionUggAction(newSelection, modelView);
-//	}
-//
-//	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, cameraHandler);
-//		if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
-//			return null;
-//		}
-//		return new SetSelectionUggAction(newSelection, modelView, "select");
-//	}
-//
-//	public final UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, cameraHandler);
-//		if (newSelection.isEmpty() || modelView.isEmpty()) {
-//			return null;
-//		}
-//		return new RemoveSelectionUggAction(newSelection, modelView);
-//	}
-//
-//	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, cameraHandler);
-//		if (newSelection.isEmpty()) {
-//			return null;
-//		}
-//		return new AddSelectionUggAction(newSelection, modelView);
-//	}
-//
-//	public final UndoAction setSelectedRegion(Vec3 min, Vec3 max, CameraHandler cameraHandler) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, cameraHandler);
-//		if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
-//			return null;
-//		}
-//		return new SetSelectionUggAction(newSelection, modelView, "select");
-//	}
-//
-//	public final UndoAction removeSelectedRegion(Vec3 min, Vec3 max, CameraHandler cameraHandler) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, cameraHandler);
-//		if (newSelection.isEmpty() || modelView.isEmpty()) {
-//			return null;
-//		}
-//		return new RemoveSelectionUggAction(newSelection, modelView);
-//	}
-//
-//	public final UndoAction addSelectedRegion(Vec3 min, Vec3 max, CameraHandler cameraHandler) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, cameraHandler);
-//		if (newSelection.isEmpty()) {
-//			return null;
-//		}
-//		return new AddSelectionUggAction(newSelection, modelView);
-//	}
 
 	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
 
@@ -610,33 +537,37 @@ public class SelectionManager extends AbstractSelectionManager {
 
 	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem coordinateSystem) {
 		for (IdObject object : modelView.getEditableIdObjects()) {
-			double nodeSize = object.getClickRadius() / coordinateSystem.getZoom();
-			if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(object.getPivotPoint()), point, nodeSize)) {
-				return true;
-			}
-			if (object instanceof CollisionShape) {
-				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
-					double vertexSize = IdObject.DEFAULT_CLICK_RADIUS / 2.0 / coordinateSystem.getZoom();
-					if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(vertex), point, vertexSize)) {
-						return true;
+			if(modelView.isSelected(object)){
+				double nodeSize = object.getClickRadius() / coordinateSystem.getZoom();
+				if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(object.getPivotPoint()), point, nodeSize)) {
+					return true;
+				}
+				if (object instanceof CollisionShape) {
+					for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+						double vertexSize = IdObject.DEFAULT_CLICK_RADIUS / 2.0 / coordinateSystem.getZoom();
+						if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(vertex), point, vertexSize)) {
+							return true;
+						}
 					}
 				}
 			}
 		}
 		double vertexSize = ProgramGlobals.getPrefs().getVertexSize() / 2.0 / coordinateSystem.getZoom();
 		for (Camera camera : modelView.getEditableCameras()) {
-			if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(camera.getPosition()), point, vertexSize)) {
-				return true;
-			}
-			if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(camera.getTargetPosition()), point, vertexSize)) {
-				return true;
+			if(modelView.isEditable(camera)){
+				if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(camera.getPosition()), point, vertexSize)) {
+					return true;
+				}
+				if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(camera.getTargetPosition()), point, vertexSize)) {
+					return true;
+				}
 			}
 		}
 
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
-				for (GeosetVertex geosetVertex : geoset.getVertices()) {
-					if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(geosetVertex), point, vertexSize)) {
+				for (GeosetVertex vertex : geoset.getVertices()) {
+					if (modelView.isEditable(vertex) && HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(vertex), point, vertexSize)) {
 						return true;
 					}
 				}
@@ -647,7 +578,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		if(selectionMode == SelectionItemTypes.CLUSTER){
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-					if (HitTestStuff.triHitTest(triangle, point, coordinateSystem)) {
+					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, coordinateSystem)) {
 						return true;
 					}
 				}
@@ -662,7 +593,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		if(selectionMode == SelectionItemTypes.GROUP){
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-					if (HitTestStuff.triHitTest(triangle, point, coordinateSystem)) {
+					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, coordinateSystem)) {
 						return true;
 					}
 				}
@@ -677,7 +608,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		if(selectionMode == SelectionItemTypes.FACE){
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-					if (HitTestStuff.triHitTest(triangle, point, coordinateSystem)) {
+					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, coordinateSystem)) {
 						return true;
 					}
 				}
@@ -726,8 +657,8 @@ public class SelectionManager extends AbstractSelectionManager {
 
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
-				for (GeosetVertex geosetVertex : geoset.getVertices()) {
-					if (HitTestStuff.hitTest(geosetVertex, point, cameraHandler, vertexSize2)) {
+				for (GeosetVertex vertex : geoset.getVertices()) {
+					if (modelView.isEditable(vertex) && HitTestStuff.hitTest(vertex, point, cameraHandler, vertexSize2)) {
 						return true;
 					}
 				}
@@ -738,7 +669,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		if (selectionMode == SelectionItemTypes.CLUSTER) {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-					if (HitTestStuff.triHitTest(triangle, point, cameraHandler.getViewPortAntiRotMat())) {
+					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, cameraHandler.getViewPortAntiRotMat())) {
 						return true;
 					}
 				}
@@ -753,12 +684,12 @@ public class SelectionManager extends AbstractSelectionManager {
 		if (selectionMode == SelectionItemTypes.GROUP) {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-					if (HitTestStuff.triHitTest(triangle, point, cameraHandler.getViewPortAntiRotMat())) {
+					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, cameraHandler.getViewPortAntiRotMat())) {
 						return true;
 					}
 				}
-				for (GeosetVertex geosetVertex : geoset.getVertices()) {
-					if (HitTestStuff.hitTest(geosetVertex, point, cameraHandler, vertexSize2)) {
+				for (GeosetVertex vertex : geoset.getVertices()) {
+					if (modelView.isEditable(vertex) && HitTestStuff.hitTest(vertex, point, cameraHandler, vertexSize2)) {
 						return true;
 					}
 				}
@@ -768,7 +699,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		if (selectionMode == SelectionItemTypes.FACE) {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-					if (HitTestStuff.triHitTest(triangle, point, cameraHandler.getViewPortAntiRotMat())) {
+					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, cameraHandler.getViewPortAntiRotMat())) {
 						return true;
 					}
 				}

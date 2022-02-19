@@ -12,12 +12,19 @@ import java.awt.*;
 
 public class EditUVsPanel {
     public static void showEditUVs() {
-	    UVPanel uvPanel = new UVPanel().setModel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
+	    UVPanel uvPanel = new UVPanel();
 	    uvPanel.initViewport();
+	    uvPanel.setModel(ProgramGlobals.getCurrentModelPanel().getModelHandler());
 
 	    ImageIcon UVIcon = new ImageIcon(IconUtils.worldEditStyleIcon(RMSIcons.loadTabImage("UVMap.png")));
 	    String s = "Texture Coordinate Editor: " + ProgramGlobals.getCurrentModelPanel().getModel().getName();
-	    View view = new View(s, UVIcon, uvPanel.getMenuHolderPanel());
+
+	    JPanel menuHolderPanel = new JPanel(new BorderLayout());
+	    menuHolderPanel.add(uvPanel, BorderLayout.CENTER);
+	    menuHolderPanel.add(uvPanel.getMenuBar(), BorderLayout.BEFORE_FIRST_LINE);
+	    View view = new View(s, UVIcon, menuHolderPanel);
+
+
 	    FloatingWindow floatingWindow = getWindow(uvPanel, view);
 
 	    uvPanel.init();

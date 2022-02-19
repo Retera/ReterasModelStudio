@@ -75,6 +75,7 @@ public abstract class ActionFunction {
 	public ActionFunction setKeyStroke(KeyStroke keyStroke) {
 		this.keyStroke = keyStroke;
 		menuItem.setAccelerator(this.keyStroke);
+		action.putValue(Action.ACCELERATOR_KEY, this.keyStroke);
 		return this;
 	}
 	public ActionFunction setKeyStroke(String keyStroke) {

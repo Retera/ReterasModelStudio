@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.editor.actions.uv.StaticMeshUVMoveAction;
 import com.hiveworkshop.rms.editor.actions.uv.StaticMeshUVRotateAction;
 import com.hiveworkshop.rms.editor.actions.uv.StaticMeshUVScaleAction;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
@@ -17,9 +18,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * So, in some ideal future this would be an implementation of the ModelEditor
@@ -44,8 +43,18 @@ public class TVertexEditor extends ModelEditor {
 
 	public Vec2 getSelectionCenter() {
 //		return selectionManager.getCenter();
-		Set<Vec2> tvertices = new HashSet<>(TVertexUtils.getTVertices(modelView.getSelectedVertices(), uvLayerIndex));
+		Set<Vec2> tvertices = new HashSet<>(getTVertices(modelView.getSelectedVertices(), uvLayerIndex));
 		return Vec2.centerOfGroup(tvertices); // TODO is this correct?
+	}
+
+	public static Collection<Vec2> getTVertices(Collection<GeosetVertex> vertexSelection, int uvLayerIndex) {
+		List<Vec2> tVertices = new ArrayList<>();
+		for (GeosetVertex vertex : vertexSelection) {
+			if (uvLayerIndex < vertex.getTverts().size()) {
+				tVertices.add(vertex.getTVertex(uvLayerIndex));
+			}
+		}
+		return tVertices;
 	}
 
 	public GenericMoveAction beginTranslation() {

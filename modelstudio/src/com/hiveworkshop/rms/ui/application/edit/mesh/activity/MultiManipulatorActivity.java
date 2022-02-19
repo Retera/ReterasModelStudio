@@ -11,7 +11,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.ManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
-import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,9 +22,7 @@ public class MultiManipulatorActivity extends ViewportActivity {
 	private Manipulator manipulator;
 	private Consumer<Cursor> cursorManager;
 	private Vec2 mouseStartPoint;
-	private Vec3 mouseStartPoint1;
 	private Vec2 lastDragPoint;
-	private Vec3 lastDragPoint1;
 
 	public MultiManipulatorActivity(ManipulatorBuilder manipulatorBuilder,
 	                                ModelHandler modelHandler,
@@ -59,7 +56,7 @@ public class MultiManipulatorActivity extends ViewportActivity {
 		}
 		System.out.println("Mouse pressed! selectionView: " + selectionManager + " is UV-manager: " + (selectionManager instanceof TVertSelectionManager));
 		System.out.println("mouseX: " + e.getX() + "mouseY: " + e.getY());
-		manipulator = manipulatorBuilder.buildManipulator(e.getX(), e.getY(), buttonType, coordinateSystem, selectionManager);
+		manipulator = manipulatorBuilder.buildManipulator(e, e.getX(), e.getY(), buttonType, coordinateSystem, selectionManager);
 		if (manipulator != null) {
 			mouseStartPoint = new Vec2(coordinateSystem.geomX(e.getX()), coordinateSystem.geomY(e.getY()));
 			manipulator.start(e, mouseStartPoint, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
@@ -102,49 +99,16 @@ public class MultiManipulatorActivity extends ViewportActivity {
 	}
 
 
-//	@Override
-//	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
-//		ButtonType buttonType;
-////		if (SwingUtilities.isRightMouseButton(e)) {
-////			buttonType = ButtonType.RIGHT_MOUSE;
-////			finnishAction(e, cameraHandler, true);
-////		} else if (SwingUtilities.isMiddleMouseButton(e)) {
-////			buttonType = ButtonType.MIDDLE_MOUSE;
-////			finnishAction(e, cameraHandler, false);
-////		} else {
-////			buttonType = ButtonType.LEFT_MOUSE;
-////			finnishAction(e, cameraHandler, true);
-////		}
-//		if(manipulator != null){
-//			finnishAction(e, cameraHandler, true);
-//		}
-//		System.out.println("Mouse pressed! selectionView: " + selectionManager + " is UV-manager: " + (selectionManager instanceof TVertSelectionManager));
-////		System.out.println("mouseX: " + e.getX() + " mouseY: " + e.getY());
-//		manipulator = manipulatorBuilder.buildManipulator(e, e.getX(), e.getY(), cameraHandler, selectionManager);
-//		if (manipulator != null) {
-//			mouseStartPoint = new Vec2(cameraHandler.geomX(e.getX()), cameraHandler.geomY(e.getY()));
-//			System.out.println("mouseStartPoint: " + mouseStartPoint);
-//			manipulator.start(e, mouseStartPoint, cameraHandler);
-//			lastDragPoint = mouseStartPoint;
-//		}
-//	}
-
-
 	@Override
 	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
 		if (manipulator != null) {
 			finnishAction(e, cameraHandler, true);
 		}
-//		System.out.println("Mouse pressed! selectionView: " + selectionManager + " is UV-manager: " + (selectionManager instanceof TVertSelectionManager));
-//		System.out.println("mouseX: " + e.getX() + " mouseY: " + e.getY());
 		manipulator = manipulatorBuilder.buildManipulator(e, e.getX(), e.getY(), cameraHandler, selectionManager);
 		if (manipulator != null) {
-//			mouseStartPoint1 = cameraHandler.getGeoPoint(e.getX(),e.getY());
 			mouseStartPoint = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
-//			System.out.println("mouseStartPoint: " + mouseStartPoint);
 			manipulator.start(e, mouseStartPoint, cameraHandler);
 			lastDragPoint = mouseStartPoint;
-//			lastDragPoint1 = mouseStartPoint1;
 		}
 	}
 
@@ -153,39 +117,9 @@ public class MultiManipulatorActivity extends ViewportActivity {
 		finnishAction(e, cameraHandler, false);
 	}
 
-	//	private void finnishAction(MouseEvent e, CameraHandler cameraHandler, boolean wasCanceled) {
-//		if (manipulator != null) {
-//			Vec2 mouseEnd = new Vec2(cameraHandler.geomX(e.getX()), cameraHandler.geomY(e.getY()));
-//			System.out.println("mouseEnd: " + mouseEnd);
-//			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, cameraHandler);
-//			if (wasCanceled && undoAction != null) {
-//				undoAction.undo();
-//			} else if (undoAction != null) {
-//				undoManager.pushAction(undoAction);
-//			}
-//			mouseStartPoint = null;
-//			lastDragPoint = null;
-//			manipulator = null;
-//		}
-//	}
 	private void finnishAction(MouseEvent e, CameraHandler cameraHandler, boolean wasCanceled) {
-//		if (manipulator != null) {
-//			Vec2 mouseEnd = new Vec2(cameraHandler.geomX(e.getX()), cameraHandler.geomY(e.getY()));
-//			System.out.println("mouseEnd: " + mouseEnd);
-//			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, cameraHandler);
-//			if (wasCanceled && undoAction != null) {
-//				undoAction.undo();
-//			} else if (undoAction != null) {
-//				undoManager.pushAction(undoAction);
-//			}
-//			mouseStartPoint = null;
-//			lastDragPoint = null;
-//			manipulator = null;
-//		}
 		if (manipulator != null) {
-//			Vec3 mouseEnd = cameraHandler.getGeoPoint(e.getX(),e.getY());
 			Vec2 mouseEnd = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
-//			System.out.println("mouseEnd: " + mouseEnd);
 			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, cameraHandler);
 			if (wasCanceled && undoAction != null) {
 				undoAction.undo();
@@ -198,39 +132,14 @@ public class MultiManipulatorActivity extends ViewportActivity {
 		}
 	}
 
-	private void finnishAction2(MouseEvent e, CameraHandler cameraHandler, boolean wasCanceled) {
-		Vec2 mouseEnd = new Vec2(cameraHandler.geomXifYZplane(e.getX()), cameraHandler.geomYifYZplane(e.getY()));
-		UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, cameraHandler);
-		if (wasCanceled && undoAction != null) {
-			undoAction.undo();
-		} else if (undoAction != null) {
-			undoManager.pushAction(undoAction);
-		}
-		mouseStartPoint = null;
-		lastDragPoint = null;
-		manipulator = null;
-	}
-
 	@Override
 	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
 		cursorManager.accept(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), cameraHandler, selectionManager));
 	}
 
-	//	@Override
-//	public void mouseDragged(MouseEvent e, CameraHandler cameraHandler) {
-//		if (manipulator != null) {
-//			Vec2 mouseEnd = new Vec2(cameraHandler.geomX(e.getX()), cameraHandler.geomY(e.getY()));
-//			manipulator.update(e, lastDragPoint, mouseEnd, cameraHandler);
-//			lastDragPoint = mouseEnd;
-//		}
-//	}
 	@Override
 	public void mouseDragged(MouseEvent e, CameraHandler cameraHandler) {
 		if (manipulator != null) {
-//			Vec2 mouseEnd = new Vec2(cameraHandler.geomX(e.getX()), cameraHandler.geomY(e.getY()));
-//			manipulator.update(e, lastDragPoint, mouseEnd, cameraHandler);
-//			lastDragPoint = mouseEnd;
-//			Vec3 mouseEnd = cameraHandler.getGeoPoint(e.getX(), e.getY());
 			Vec2 mouseEnd = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
 			manipulator.update(e, lastDragPoint, mouseEnd, cameraHandler);
 			lastDragPoint = mouseEnd;

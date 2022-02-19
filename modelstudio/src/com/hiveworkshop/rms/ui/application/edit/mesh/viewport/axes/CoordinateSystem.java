@@ -47,6 +47,10 @@ public final class CoordinateSystem {
 		return this;
 	}
 
+	public double getAspectRatio() {
+		return aspectRatio;
+	}
+
 	public double getCameraX() {
 		return cameraX;
 	}
@@ -67,22 +71,62 @@ public final class CoordinateSystem {
 	public CoordinateSystem doZoom(MouseWheelEvent e) {
 		int wr = e.getWheelRotation();
 
+		double mouseX = e.getX();
+		double mouseY = e.getY();
+		return doZoom(wr, mouseX, mouseY);
+	}
+
+	// xRatio = [0.0, 1.0]
+	public CoordinateSystem doZoom(double wRatio, double hRatio, boolean zoomIn) {
+		double mouseX = wRatio * parent.getWidth();
+		double mouseY = hRatio * parent.getHeight();
+
+		return doZoom(zoomIn ? -1 : 1, mouseX, mouseY);
+	}
+	private CoordinateSystem doZoom(int wr, double mouseX, double mouseY) {
+		int dir = wr < 0 ? -1 : 1;
+		double w = mouseX - (parent.getWidth() / 2.0);
+		double h = mouseY - (parent.getHeight() / 2.0);
+
+		for (int i = 0; i < wr * dir; i++) {
+			double zoomAdjust = (ZOOM_FACTOR - 1) * dir / zoom;
+
+			if (dir == -1) {
+				cameraX += w * zoomAdjust / ZOOM_FACTOR / aspectRatio;
+				cameraY += h * zoomAdjust / ZOOM_FACTOR;
+				zoom *= ZOOM_FACTOR;
+			} else {
+
+				cameraX += w * zoomAdjust  / aspectRatio;
+				cameraY += h * zoomAdjust ;
+				zoom /= ZOOM_FACTOR;
+			}
+		}
+		return this;
+	}
+
+	public CoordinateSystem doZoom1(MouseWheelEvent e) {
+		int wr = e.getWheelRotation();
+
 		int dir = wr < 0 ? -1 : 1;
 
 		double mouseX = e.getX();
 		double mouseY = e.getY();
+		System.out.println("mouseX: " + mouseX + ", mouseY: " + mouseY);
+
+		double w = mouseX - (parent.getWidth() / 2.0);
+		double h = mouseY - (parent.getHeight() / 2.0);
+		double wRatio = mouseX / parent.getWidth();
+		double hRatio = mouseY / parent.getHeight();
 
 		for (int i = 0; i < wr * dir; i++) {
 			double zoomAdjust = (ZOOM_FACTOR - 1) * dir / ZOOM_FACTOR;
 
-			double w = mouseX - (parent.getWidth() / 2.0);
-			double h = mouseY - (parent.getHeight() / 2.0);
-
 			cameraX += w * zoomAdjust / zoom / aspectRatio;
 			cameraY += h * zoomAdjust / zoom;
-
-			cameraX += w * (ZOOM_FACTOR - 1) * dir / ZOOM_FACTOR / zoom / aspectRatio;
-			cameraY += h * (ZOOM_FACTOR - 1) * dir / ZOOM_FACTOR / zoom;
+//
+//			cameraX += w * (ZOOM_FACTOR - 1) * dir / ZOOM_FACTOR / zoom / aspectRatio;
+//			cameraY += h * (ZOOM_FACTOR - 1) * dir / ZOOM_FACTOR / zoom;
 
 			if (dir == -1) {
 
@@ -104,27 +148,27 @@ public final class CoordinateSystem {
 		return this;
 	}
 
-	public CoordinateSystem setPosition(double a, double b) {
-		cameraX = a;
-		cameraY = b;
+	public CoordinateSystem setPosition(double x, double y) {
+		cameraX = x;
+		cameraY = y;
 		return this;
 	}
 
-	public CoordinateSystem translate(double a, double b) {
-		cameraX += a / aspectRatio;
-		cameraY += b;
+	public CoordinateSystem translate(double x, double y) {
+		cameraX += x / aspectRatio;
+		cameraY += y;
 		return this;
 	}
 
-	public CoordinateSystem translateZoomed(double a, double b) {
-		cameraX += a / zoom / aspectRatio;
-		cameraY += b / zoom;
+	public CoordinateSystem translateZoomed(double x, double y) {
+		cameraX += x / zoom / aspectRatio;
+		cameraY += y / zoom;
 		return this;
 	}
 
-	public CoordinateSystem setGeomPosition(double a, double b) {
-		cameraX = geomX(a);
-		cameraY = geomY(b);
+	public CoordinateSystem setGeomPosition(double x, double y) {
+		cameraX = geomX(x);
+		cameraY = geomY(y);
 		return this;
 	}
 

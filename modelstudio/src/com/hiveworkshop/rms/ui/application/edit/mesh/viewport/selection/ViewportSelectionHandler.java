@@ -24,16 +24,22 @@ public final class ViewportSelectionHandler {
 	}
 
 	public UndoAction selectRegion(MouseEvent e, Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-//		System.out.println("CoordinateSystem");
-		return selectionManager.selectStuff(min, max, ProgramGlobals.getSelectionMode(), coordinateSystem);
-//		if (ProgramGlobals.getSelectionMode() == null) {
-//			return selectionManager.setSelectedRegion(min, max, coordinateSystem);
-//		}
-//		return switch (ProgramGlobals.getSelectionMode()) {
-//			case ADD -> selectionManager.addSelectedRegion(min, max, coordinateSystem);
-//			case DESELECT -> selectionManager.removeSelectedRegion(min, max, coordinateSystem);
-//			case SELECT -> selectionManager.setSelectedRegion(min, max, coordinateSystem);
-//		};
+		SelectionMode tempSelectMode;
+
+		Integer selectMouseButton = ProgramGlobals.getPrefs().getSelectMouseButton();
+		Integer addSelectModifier = ProgramGlobals.getPrefs().getAddSelectModifier();
+		Integer removeSelectModifier = ProgramGlobals.getPrefs().getRemoveSelectModifier();
+
+		int modBut = e.getModifiersEx();
+
+		if (modBut == addSelectModifier || ProgramGlobals.getSelectionMode() == SelectionMode.ADD && modBut != removeSelectModifier) {
+			tempSelectMode = SelectionMode.ADD;
+		} else if (modBut == removeSelectModifier || ProgramGlobals.getSelectionMode() == SelectionMode.DESELECT) {
+			tempSelectMode = SelectionMode.DESELECT;
+		} else {
+			tempSelectMode = SelectionMode.SELECT;
+		}
+		return selectionManager.selectStuff(min, max, tempSelectMode, coordinateSystem);
 	}
 
 	public UndoAction selectRegion(MouseEvent e, Vec2 min, Vec2 max, CameraHandler cameraHandler) {
@@ -53,14 +59,7 @@ public final class ViewportSelectionHandler {
 		} else {
 			tempSelectMode = SelectionMode.SELECT;
 		}
-//		System.out.println("VPSH, selectRegion, " + "min: " + min + ", max" + max);
 		return selectionManager.selectStuff(min, max, tempSelectMode, cameraHandler);
-
-//		return switch (tempSelectMode) { // ugggg
-//			case ADD -> selectionManager.addSelectedRegion(min, max, cameraHandler);
-//			case DESELECT -> selectionManager.removeSelectedRegion(min, max, cameraHandler);
-//			case SELECT -> selectionManager.setSelectedRegion(min, max, cameraHandler);
-//		};
 	}
 
 	public UndoAction selectRegion(MouseEvent e, Vec3 min, Vec3 max, CameraHandler cameraHandler) {
@@ -82,11 +81,6 @@ public final class ViewportSelectionHandler {
 		}
 
 		return selectionManager.selectStuff(min, max, tempSelectMode, cameraHandler);
-//		return switch (tempSelectMode) {
-//			case ADD -> selectionManager.addSelectedRegion(min, max, cameraHandler);
-//			case DESELECT -> selectionManager.removeSelectedRegion(min, max, cameraHandler);
-//			case SELECT -> selectionManager.setSelectedRegion(min, max, cameraHandler);
-//		};
 	}
 
 	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes) {

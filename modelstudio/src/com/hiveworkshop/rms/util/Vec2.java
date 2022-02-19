@@ -4,6 +4,8 @@ import java.util.Collection;
 
 public class Vec2 {
 	public static final Vec2 ORIGIN = new Vec2();
+	public static final Vec2 X_AXIS = new Vec2(1,0);
+	public static final Vec2 Y_AXIS = new Vec2(0,1);
 
 	public float x = 0;
 	public float y = 0;
@@ -41,13 +43,14 @@ public class Vec2 {
 		};
 	}
 
-	public void setCoord(final int dim, final double value) {
+	public Vec2 setCoord(final int dim, final double value) {
 		if (!Double.isNaN(value)) {
 			switch (dim) {
 				case 0 -> x = (float) value;
 				case 1 -> y = (float) value;
 			}
 		}
+		return this;
 	}
 
 	public static Vec2 getProd(Vec2 a, Vec2 b) {

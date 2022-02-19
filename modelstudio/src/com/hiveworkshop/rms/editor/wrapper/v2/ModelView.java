@@ -430,6 +430,10 @@ public final class ModelView {
 		return geosetsEditable && geosetsVisible && editableVertices.contains(ob) && !hiddenVertices.contains(ob);
 	}
 
+	public boolean isEditable(Triangle ob) {
+		return geosetsEditable && geosetsVisible && editableVertices.containsAll(Arrays.asList(ob.getVerts())) && !hiddenVertices.contains(ob.get(0)) && !hiddenVertices.contains(ob.get(1)) && !hiddenVertices.contains(ob.get(2));
+	}
+
 	public boolean isEditable(IdObject ob) {
 		return idObjectsEditable && idObjectsVisible && editableIdObjects.contains(ob) && visibleIdObjects.contains(ob);
 	}
