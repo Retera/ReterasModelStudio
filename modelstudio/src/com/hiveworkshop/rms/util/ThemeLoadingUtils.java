@@ -21,23 +21,8 @@ public class ThemeLoadingUtils {
 			case BLUE_ICE -> trySetTheme(InfoNodeLookAndFeelThemes.getBlueIceTheme());
 			case DARK_BLUE_GREEN -> trySetTheme(InfoNodeLookAndFeelThemes.getDarkBlueGreenTheme());
 			case GRAY -> trySetTheme(InfoNodeLookAndFeelThemes.getGrayTheme());
-			case DARK -> EditorDisplayManager.setupLookAndFeel();
-			case HIFI -> EditorDisplayManager.setupLookAndFeel("HiFi");
-			case ACRYL -> EditorDisplayManager.setupLookAndFeel("Acryl");
-			case ALUMINIUM -> EditorDisplayManager.setupLookAndFeel("Aluminium");
-			case FOREST_GREEN -> {
-				try {
-					final InfoNodeLookAndFeelTheme rmsTheme = new InfoNodeLookAndFeelTheme("Retera Studio",
-							new Color(44, 46, 20), new Color(116, 126, 36), new Color(44, 46, 20),
-							new Color(220, 202, 132), new Color(116, 126, 36), new Color(220, 202, 132));
-					rmsTheme.setShadingFactor(-0.8);
-					rmsTheme.setDesktopColor(new Color(60, 82, 44));
-
-					UIManager.setLookAndFeel(new InfoNodeLookAndFeel(rmsTheme));
-				} catch (final UnsupportedLookAndFeelException e) {
-					e.printStackTrace();
-				}
-			}
+			case DARK, HIFI, ACRYL, ALUMINIUM -> EditorDisplayManager.setupLookAndFeel(theme);
+			case FOREST_GREEN -> trySetTheme(getRmsTheme());
 			case WINDOWS -> {
 				try {
 					UIManager.put("desktop", new ColorUIResource(Color.WHITE));
@@ -55,6 +40,15 @@ public class ThemeLoadingUtils {
 				}
 			}
 		}
+	}
+
+	private static InfoNodeLookAndFeelTheme getRmsTheme() {
+		final InfoNodeLookAndFeelTheme rmsTheme = new InfoNodeLookAndFeelTheme("Retera Studio",
+				new Color(44, 46, 20), new Color(116, 126, 36), new Color(44, 46, 20),
+				new Color(220, 202, 132), new Color(116, 126, 36), new Color(220, 202, 132));
+		rmsTheme.setShadingFactor(-0.8);
+		rmsTheme.setDesktopColor(new Color(60, 82, 44));
+		return rmsTheme;
 	}
 
 	private static void trySetTheme(InfoNodeLookAndFeelTheme theme) {
