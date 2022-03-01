@@ -99,7 +99,7 @@ public class UnitBrowserPopupMenu extends JPopupMenu {
 			String filepath = getFilePath(id, portrait, obj);
 
 			System.err.println("loading: " + filepath);
-			InternalFileLoader.loadFilepathMdx(filepath, true, true, IconUtils.getIconScaled(obj));
+			InternalFileLoader.loadFilepathMdx(filepath, true, true, IconUtils.getIconScaled(obj), false);
 		}
 	}
 

@@ -47,8 +47,8 @@ public class InternalFileLoader {
 
 	}
 
-	public static void loadFilepathMdx(String filepath, boolean temporary, boolean showModel, ImageIcon icon) {
-		EditableModel model = getEditableModel(filepath, false);
+	public static void loadFilepathMdx(String filepath, boolean temporary, boolean showModel, ImageIcon icon, boolean doCheckExist) {
+		EditableModel model = getEditableModel(filepath, doCheckExist);
 		loadModelPanel(temporary, showModel, icon, model);
 
 	}

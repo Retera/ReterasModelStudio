@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.model.ParticleEmitterPopcorn;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
@@ -29,7 +30,10 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		super(modelHandler);
 
 		popcornPathField = new ComponentEditorTextField(24, this::texturePathField);
-		topPanel.add(popcornPathField, "wrap");
+		topPanel.add(popcornPathField, "");
+		JButton exportButton = new JButton("Export");
+		exportButton.addActionListener(e -> export());
+		topPanel.add(exportButton, "wrap");
 
 		visGuidPanel = new JPanel(new MigLayout("gap 0", "[]8[]"));
 		topPanel.add(visGuidPanel, "wrap");
@@ -120,6 +124,14 @@ public class ComponentPopcornPanel extends ComponentIdObjectPanel<ParticleEmitte
 		if(!idObject.getColor().equalLocs(color)){
 //			undoManager.pushAction(new UndoAction().redo);
 			idObject.setColor(color);
+		}
+	}
+
+	private void export(){
+		String particlePath = idObject.getPath();
+		if(!particlePath.isEmpty()){
+			FileDialog fileDialog = new FileDialog(this);
+			fileDialog.exportInternalFile(particlePath);
 		}
 	}
 }

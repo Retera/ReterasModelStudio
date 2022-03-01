@@ -14,7 +14,7 @@ public class SetCameraTargetAction implements UndoAction {
 	public SetCameraTargetAction(Camera camera, Vec3 newPosition, ModelStructureChangeListener changeListener) {
 		this.changeListener = changeListener;
 		this.camera = camera;
-		this.oldPosition = camera.getTargetPosition();
+		this.oldPosition = new Vec3(camera.getTargetPosition());
 		this.newPosition = newPosition;
 	}
 

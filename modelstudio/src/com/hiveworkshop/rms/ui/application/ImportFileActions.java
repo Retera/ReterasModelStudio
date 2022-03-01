@@ -13,9 +13,11 @@ import java.io.IOException;
 public class ImportFileActions {
 
 	public static String convertPathToMDX(String filepath) {
-		if (filepath != null && filepath.endsWith(".mdl")) {
-			filepath = filepath.replace(".mdl", ".mdx");
-		} else if (filepath != null && !filepath.endsWith(".mdx")) {
+		if (filepath != null && filepath.toLowerCase().endsWith(".mdl")) {
+			filepath = filepath.replaceAll("\\.(M|m)(D|d)(L|l)", ".mdx");
+//			filepath = filepath.replaceAll("(?-i)\\.mdl", ".mdx");
+			System.out.println("to: " + filepath);
+		} else if (filepath != null && !filepath.toLowerCase().endsWith(".mdx")) {
 			filepath = filepath.concat(".mdx");
 		}
 		return filepath;

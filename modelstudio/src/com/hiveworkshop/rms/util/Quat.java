@@ -8,6 +8,7 @@ package com.hiveworkshop.rms.util;
  * Eric Theller 3/8/2012
  */
 public class Quat extends Vec4 {
+	public static final Quat IDENTITY = new Quat(0,0,0,1);
 	public Quat() {
 		w = 1;
 	}

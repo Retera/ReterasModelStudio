@@ -80,7 +80,6 @@ public class FloatEditorJSpinner extends JSpinner {
 
 	private void setColors(Color unsavedFg, Color unsavedBg) {
 		if (floatConsumer != null){
-			System.out.println("settingColor");
 			((DefaultEditor) getEditor()).getTextField().setForeground(unsavedFg);
 			((DefaultEditor) getEditor()).getTextField().setBackground(unsavedBg);
 			saveAtTime = System.currentTimeMillis() + 300;

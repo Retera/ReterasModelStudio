@@ -50,7 +50,7 @@ public class OpenFromInternal extends ActionFunction {
 			ModelLoader.loadModel(true, true, new ModelPanel(new ModelHandler(modelFetched, icon)));
 			if (ProgramGlobals.getPrefs().isLoadPortraits()) {
 				String portrait = ModelUtils.getPortrait(selector.getCurrentFilePath());
-				InternalFileLoader.loadFilepathMdx(portrait, true, false, icon);
+				InternalFileLoader.loadFilepathMdx(portrait, true, false, icon, true);
 			}
 		}
 	}

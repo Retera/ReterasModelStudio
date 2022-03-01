@@ -16,11 +16,6 @@ public class DisplayViewUgg extends ModelDependentView {
 	String name;
 	JPanel dudPanel;
 
-//	JCheckBox renderTextures;
-//	JCheckBox wireFrame;
-//	JCheckBox showNormals;
-//	JCheckBox show3dVerts;
-
 	TinyToggleButton renderTextures;
 	TinyToggleButton wireFrame;
 	TinyToggleButton showNormals;
@@ -56,10 +51,6 @@ public class DisplayViewUgg extends ModelDependentView {
 //		show3dVerts =       getButton("verts", true, b -> displayPanel.setShow3dVerts(b));
 //		showNormals =       getButton("normals", false, b -> displayPanel.setShowNormals(b));
 
-//		renderTextures =    getCheckBox("\u26FE ", true, b -> displayPanel.setRenderTextures(b));
-//		wireFrame =         getCheckBox("\u2342 ", false, b -> displayPanel.setWireFrame(b));
-//		show3dVerts =       getCheckBox("\u26DA ", true, b -> displayPanel.setShow3dVerts(b));
-//		showNormals =       getCheckBox("\u23CA ", false, b -> displayPanel.setShowNormals(b));
 		getCustomTitleBarComponents().add(renderTextures);
 		getCustomTitleBarComponents().add(wireFrame);
 		getCustomTitleBarComponents().add(show3dVerts);
@@ -76,21 +67,11 @@ public class DisplayViewUgg extends ModelDependentView {
 
 	@Override
 	public DisplayViewUgg setModelPanel(ModelPanel modelPanel) {
-		System.out.println("update DisplayViewUgg!");
 		this.modelPanel = modelPanel;
-//		if(displayPanel == null){
-//			displayPanel = new DisplayPanel();
-//		}
 		if (modelPanel == null) {
 			this.setComponent(dudPanel);
-//			displayPanel = null;
 			displayPanel.setModel(null, null);
 		} else {
-			System.out.println("update DisplayViewUgg! " + modelPanel.getModel().getName());
-//			displayPanel = modelPanel.getDisplayPanel(name, (byte) 1, (byte) 2);
-//			displayPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
-//			this.setComponent(displayPanel);
-//			displayPanel =  new DisplayPanel();
 			displayPanel.setModel(modelPanel.getModelHandler(), modelPanel.getViewportActivityManager());
 			displayPanel.setControlsVisible(ProgramGlobals.getPrefs().showVMControls());
 			setUpViewAngle();
@@ -114,26 +95,6 @@ public class DisplayViewUgg extends ModelDependentView {
 			displayPanel.reload().repaint();
 		}
 		return this;
-	}
-
-	private JCheckBox getCheckBox(String text, boolean initial, Consumer<Boolean> boolConsumer){
-		JCheckBox checkBox = new JCheckBox(text, initial);
-		checkBox.setSize(10,10);
-		checkBox.setSize(new Dimension(10,10));
-		checkBox.setMaximumSize(new Dimension(10,10));
-		for(int i = 0; i<checkBox.getComponentCount(); i++){
-			checkBox.getComponent(i).setMaximumSize(new Dimension(10,10));
-		}
-
-
-		int size = checkBox.getFont().getSize();
-		Font font = getFont().deriveFont(size/2f);
-		checkBox.setFont(font);
-		boolConsumer.accept(initial);
-		checkBox.addActionListener(e -> boolConsumer.accept(checkBox.isSelected()));
-		checkBox.setOpaque(false);
-//		checkBox.setSelected(initial);
-		return checkBox;
 	}
 
 	Color onC = new Color(255, 255, 255);

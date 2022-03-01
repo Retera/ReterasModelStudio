@@ -43,7 +43,7 @@ public class Camera implements Named {
 		targetPosition = new Vec3(camera.targetPosition);
 
 		for (MdlxTimeline<?> timeline : camera.timelines) {
-			if (timeline.name == AnimationMap.KTTR.getWar3id()) {
+			if (timeline.name.equals(AnimationMap.KTTR.getWar3id())) {
 				targetNode.add(AnimFlag.createFromTimeline(timeline, model));
 			} else {
 				sourceNode.add(AnimFlag.createFromTimeline(timeline, model));

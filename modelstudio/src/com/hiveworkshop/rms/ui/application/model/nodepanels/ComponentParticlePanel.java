@@ -3,9 +3,13 @@ package com.hiveworkshop.rms.ui.application.model.nodepanels;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.FileDialog;
+import com.hiveworkshop.rms.ui.application.ImportFileActions;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+
+import javax.swing.*;
 
 public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitter> {
 	private final ComponentEditorTextField pathField;
@@ -21,7 +25,10 @@ public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitt
 		super(modelHandler);
 
 		pathField = new ComponentEditorTextField(24, this::texturePathField);
-		topPanel.add(pathField, "wrap");
+		topPanel.add(pathField, "");
+		JButton exportButton = new JButton("Export");
+		exportButton.addActionListener(e -> export());
+		topPanel.add(exportButton, "wrap");
 
 		longitudePanel = new FloatValuePanel(modelHandler, "Longitude");
 		latitudePanel = new FloatValuePanel(modelHandler, "Latitude");
@@ -80,6 +87,14 @@ public class ComponentParticlePanel extends ComponentIdObjectPanel<ParticleEmitt
 		if(idObject.getEmissionRate() != value) {
 //			undoManager.pushAction(new xx().redo);
 			idObject.setEmissionRate(value);
+		}
+	}
+
+	private void export(){
+		String particlePath = ImportFileActions.convertPathToMDX(idObject.getPath());
+		if(!particlePath.isEmpty()){
+			FileDialog fileDialog = new FileDialog();
+			fileDialog.exportInternalFile(particlePath);
 		}
 	}
 }
