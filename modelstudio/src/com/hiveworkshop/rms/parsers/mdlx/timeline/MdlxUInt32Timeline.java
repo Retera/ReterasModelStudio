@@ -7,7 +7,7 @@ import com.hiveworkshop.rms.util.BinaryWriter;
 
 public final class MdlxUInt32Timeline extends MdlxTimeline<long[]> {
 	@Override
-	protected int size() {
+	protected int valueSize() {
 		return 1;
 	}
 
@@ -39,5 +39,18 @@ public final class MdlxUInt32Timeline extends MdlxTimeline<long[]> {
 			inTans = new long[size][];
 			outTans = new long[size][];
 		}
+	}
+
+	public long[][] getEntryAt(int i){
+		long[][] entry = new long[3][];
+		entry[0] = values[i];
+		if(interpolationType.tangential()){
+			entry[1] = inTans[i];
+			entry[2] = outTans[i];
+		} else {
+			entry[1] = new long[valueSize()];
+			entry[2] = new long[valueSize()];
+		}
+		return entry;
 	}
 }

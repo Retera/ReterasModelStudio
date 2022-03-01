@@ -141,38 +141,23 @@ public abstract class MdlxTimeline<TYPE> {
 		int size = 16;
 
 		if (tracksCount > 0) {
-			final int bytesPerValue = size() * 4;
-			int valuesPerTrack = 1;
-			if (interpolationType.tangential()) {
-				valuesPerTrack = 3;
-			}
+			int bytesPerValue = valueSize() * 4;
+			int valuesPerTrack = interpolationType.tangential() ? 3 : 1;
 
 			size += (4 + (valuesPerTrack * bytesPerValue)) * tracksCount;
 		}
 		return size;
 	}
 
-	protected abstract int size();
+	protected abstract int valueSize();
+
+	public int size() {
+		return frames.length;
+	}
 
 	protected abstract TYPE readMdxValue(BinaryReader reader);
 
 	protected abstract TYPE readMdlValue(MdlTokenInputStream stream);
-
-//		if(i == 0 && value instanceof int[]){
-//			System.out.println(this.getClass());
-//			System.out.println("(int0) " + this.name + ": " + Arrays.toString((int[])value) + ", " + Arrays.toString(values));
-//
-//		} else if (i == 1 && value instanceof int[]){
-////			System.out.println("(1) " + this.name + ": " + Arrays.toString((int[])value) + ", " + Arrays.toString((int[])values[0]));
-//			System.out.println("(int1) " + this.name + ": " + Arrays.toString((int[])value) + ", " + Arrays.toString(values));
-//		} else if(i == 0 && value instanceof float[]){
-//			System.out.println(this.getClass());
-//			System.out.println("(float0) " + this.name + ": " + Arrays.toString((float[])value) + ", " + Arrays.toString(values));
-//
-//		} else if (i == 1 && value instanceof float[]){
-////			System.out.println("(1) " + this.name + ": " + Arrays.toString((float[])value) + ", " + Arrays.toString((float[])values[0]));
-//			System.out.println("(float1) " + this.name + ": " + Arrays.toString((float[])value) + ", " + Arrays.toString(values));
-//		}
 
 	protected abstract void writeMdxValue(BinaryWriter writer, TYPE value);
 
@@ -191,5 +176,13 @@ public abstract class MdlxTimeline<TYPE> {
 				outTans[i] = outTan;
 			}
 		}
+	}
+
+	public TYPE[] getEntryAt(int i){
+		return null;
+	}
+
+	public long getFrameAt(int i){
+		return frames[i];
 	}
 }

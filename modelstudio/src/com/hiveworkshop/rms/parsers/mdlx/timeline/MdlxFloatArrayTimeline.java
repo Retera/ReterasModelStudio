@@ -13,7 +13,7 @@ public final class MdlxFloatArrayTimeline extends MdlxTimeline<float[]> {
 	}
 
 	@Override
-	protected int size() {
+	protected int valueSize() {
 		return arraySize;
 	}
 
@@ -51,5 +51,18 @@ public final class MdlxFloatArrayTimeline extends MdlxTimeline<float[]> {
 			inTans = new float[size][];
 			outTans = new float[size][];
 		}
+	}
+
+	public float[][] getEntryAt(int i){
+		float[][] entry = new float[3][];
+		entry[0] = values[i];
+		if(interpolationType.tangential()){
+			entry[1] = inTans[i];
+			entry[2] = outTans[i];
+		} else {
+			entry[1] = new float[valueSize()];
+			entry[2] = new float[valueSize()];
+		}
+		return entry;
 	}
 }
