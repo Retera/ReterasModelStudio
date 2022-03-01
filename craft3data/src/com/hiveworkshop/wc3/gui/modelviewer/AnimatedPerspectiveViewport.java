@@ -16,22 +16,6 @@ import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
 import static org.lwjgl.opengl.GL11.GL_NORMALIZE;
 import static org.lwjgl.opengl.GL11.GL_POSITION;
 import static org.lwjgl.opengl.GL11.GL_PROJECTION;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glColor3f;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glLight;
-import static org.lwjgl.opengl.GL11.glLightModel;
-import static org.lwjgl.opengl.GL11.glLoadIdentity;
-import static org.lwjgl.opengl.GL11.glMatrixMode;
-import static org.lwjgl.opengl.GL11.glPolygonMode;
-import static org.lwjgl.opengl.GL11.glRotatef;
-import static org.lwjgl.opengl.GL11.glScalef;
-import static org.lwjgl.opengl.GL11.glTranslatef;
-import static org.lwjgl.opengl.GL11.glViewport;
-import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -68,11 +52,14 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.Pbuffer;
 import org.lwjgl.opengl.PixelFormat;
+import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.hiveworkshop.rms.editor.render3d.NGGLDP;
+import com.hiveworkshop.rms.editor.render3d.NGGLDP.Pipeline;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
 import com.hiveworkshop.wc3.gui.GPUReadyTexture;
@@ -126,6 +113,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	boolean texLoaded = false;
 
 	JCheckBox wireframe;
+	private NGGLDP.Pipeline pipeline;
 	HashMap<Bitmap, Integer> textureMap = new HashMap<>();
 
 	Class<? extends Throwable> lastThrownErrorClass;
@@ -328,14 +316,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		deleteAllTextures();
 		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-				if (ModelUtils.isShaderStringSupported(modelView.getModel().getFormatVersion())) {
-					if ((geo.getMaterial().getShaderString() != null)
-							&& (geo.getMaterial().getShaderString().length() > 0)) {
-						if (i > 0) {
-							break;
-						}
-					}
-				}
 				final Layer layer = geo.getMaterial().getLayers().get(i);
 				if (layer.getTextureBitmap() != null) {
 					loadToTexMap(layer, layer.getTextureBitmap());
@@ -412,14 +392,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	public void addGeosets(final List<Geoset> geosets) {
 		for (final Geoset geo : geosets) {// .getMDL().getGeosets()
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-				if (ModelUtils.isShaderStringSupported(modelView.getModel().getFormatVersion())) {
-					if ((geo.getMaterial().getShaderString() != null)
-							&& (geo.getMaterial().getShaderString().length() > 0)) {
-						if (i > 0) {
-							break;
-						}
-					}
-				}
 				final Layer layer = geo.getMaterial().getLayers().get(i);
 				if (layer.getTextureBitmap() != null) {
 					loadToTexMap(layer, layer.getTextureBitmap());
@@ -449,22 +421,27 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		this.looping = looping;
 	}
 
+	private Pipeline getOrCreatePipeline() {
+		if (pipeline == null) {
+			if (modelView != null && ModelUtils.isShaderStringSupported(modelView.getModel().getFormatVersion())
+					&& !modelView.getModel().getGeosets().isEmpty() && modelView.getModel().getGeoset(0).isHD()) {
+				pipeline = new NGGLDP.HDDiffuseShaderPipeline();
+			} else {
+				pipeline = new NGGLDP.SimpleDiffuseShaderPipeline();
+			}
+		}
+		return pipeline;
+	}
+
 	@Override
 	public void initGL() {
+		NGGLDP.setPipeline(getOrCreatePipeline());
 		try {
 			if ((programPreferences == null) || programPreferences.textureModels()) {
 				texLoaded = true;
 				deleteAllTextures();
 				for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
 					for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
-						if (ModelUtils.isShaderStringSupported(modelView.getModel().getFormatVersion())) {
-							if ((geo.getMaterial().getShaderString() != null)
-									&& (geo.getMaterial().getShaderString().length() > 0)) {
-								if (i > 0) {
-									break;
-								}
-							}
-						}
 						final Layer layer = geo.getMaterial().getLayers().get(i);
 						if (layer.getTextureBitmap() != null) {
 							loadToTexMap(layer, layer.getTextureBitmap());
@@ -582,10 +559,13 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	private final Vector4f appliedVertexHeap = new Vector4f();
 	private final Vector4f vertexSumHeap = new Vector4f();
 	private final Vector4f normalHeap = new Vector4f();
+	private final Vector3f normalHeap3 = new Vector3f();
 	private final Vector4f appliedNormalHeap = new Vector4f();
 	private final Vector4f normalSumHeap = new Vector4f();
+	private final Vector3f normalSumHeap3 = new Vector3f();
 	private final Matrix4f skinBonesMatrixHeap = new Matrix4f();
 	private final Matrix4f skinBonesMatrixSumHeap = new Matrix4f();
+	private final Matrix3f skinBonesMatrixSumHeap3 = new Matrix3f();
 
 	@Override
 	protected void exceptionOccurred(final LWJGLException exception) {
@@ -599,6 +579,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	}
 
 	public void paintGL(final boolean autoRepainting) {
+		NGGLDP.setPipeline(pipeline);
 		setSize(getParent().getSize());
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 			System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
@@ -647,47 +628,47 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			}
 
 			if ((programPreferences != null) && (programPreferences.viewMode() == 0)) {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			} else if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
-			glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
-			glEnable(GL_DEPTH_TEST);
+			NGGLDP.pipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
+			GL11.glEnable(GL_DEPTH_TEST);
 
 			GL11.glDepthFunc(GL11.GL_LEQUAL);
 			GL11.glDepthMask(true);
-			glEnable(GL_COLOR_MATERIAL);
-			glEnable(GL_LIGHTING);
-			glEnable(GL_LIGHT0);
-			glEnable(GL_LIGHT1);
-			glEnable(GL_NORMALIZE);
+			NGGLDP.pipeline.glEnableIfNeeded(GL_COLOR_MATERIAL);
+			NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHTING);
+			NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHT0);
+			NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHT1);
+			NGGLDP.pipeline.glEnableIfNeeded(GL_NORMALIZE);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 			// System.out.println("max:
 			// "+GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE));
 			if (renderTextures()) {
-				glEnable(GL11.GL_TEXTURE_2D);
+				NGGLDP.pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
 			}
-			glClearColor(backgroundRed, backgroundGreen, backgroundBlue, autoRepainting ? 1.0f : 0.0f);
+			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, autoRepainting ? 1.0f : 0.0f);
 			// glClearColor(0f, 0f, 0f, 1.0f);
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-			gluPerspective(45f, (float) getWidth() / (float) getHeight(), 20.0f, 60000.0f);
+			NGGLDP.pipeline.glMatrixMode(GL_PROJECTION);
+			NGGLDP.pipeline.glLoadIdentity();
+			NGGLDP.pipeline.gluPerspective(45f, (float) getWidth() / (float) getHeight(), 20.0f, 60000.0f);
 			// GLU.gluOrtho2D(45f, (float)current_width/(float)current_height,
 			// 1.0f, 600.0f);
 			// glRotatef(angle, 0, 0, 0);
 			// glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
 			// gluOrtho2D(0.0f, (float) getWidth(), 0.0f, (float) getHeight());
 			// GLU.
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
+			GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			NGGLDP.pipeline.glMatrixMode(GL_MODELVIEW);
+			NGGLDP.pipeline.glLoadIdentity();
 			// GL11.glShadeModel(GL11.GL_SMOOTH);
 
-			glTranslatef(0f + ((float) cameraPos.x * (float) m_zoom), -70f - ((float) cameraPos.y * (float) m_zoom),
-					-200f - ((float) cameraPos.z * (float) m_zoom));
-			glRotatef(yangle, 1f, 0f, 0f);
-			glRotatef(xangle, 0f, 1f, 0f);
-			glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
+			NGGLDP.pipeline.glTranslatef(0f + ((float) cameraPos.x * (float) m_zoom),
+					-70f - ((float) cameraPos.y * (float) m_zoom), -200f - ((float) cameraPos.z * (float) m_zoom));
+			NGGLDP.pipeline.glRotatef(yangle, 1f, 0f, 0f);
+			NGGLDP.pipeline.glRotatef(xangle, 0f, 1f, 0f);
+			NGGLDP.pipeline.glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
 
 			final FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
 			ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();
@@ -695,22 +676,22 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			// FloatBuffer buffer =
 			// ByteBuffer.allocateDirect(ambientColor.length*8).asFloatBuffer();
 			// buffer.put(ambientColor).flip();
-			glLightModel(GL_LIGHT_MODEL_AMBIENT, ambientColor);
+			NGGLDP.pipeline.glLightModel(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 
 			final FloatBuffer lightColor0 = BufferUtils.createFloatBuffer(4);
 			lightColor0.put(0.8f).put(0.8f).put(0.8f).put(1f).flip();
 			final FloatBuffer lightPos0 = BufferUtils.createFloatBuffer(4);
 			lightPos0.put(40.0f).put(100.0f).put(80.0f).put(1f).flip();
-			glLight(GL_LIGHT0, GL_DIFFUSE, lightColor0);
-			glLight(GL_LIGHT0, GL_POSITION, lightPos0);
+			NGGLDP.pipeline.glLight(GL_LIGHT0, GL_DIFFUSE, lightColor0);
+			NGGLDP.pipeline.glLight(GL_LIGHT0, GL_POSITION, lightPos0);
 
 			final FloatBuffer lightColor1 = BufferUtils.createFloatBuffer(4);
 			lightColor1.put(0.2f).put(0.2f).put(0.2f).put(1f).flip();
 			final FloatBuffer lightPos1 = BufferUtils.createFloatBuffer(4);
 			lightPos1.put(-100.0f).put(100.5f).put(0.5f).put(1f).flip();
 
-			glLight(GL_LIGHT1, GL_DIFFUSE, lightColor1);
-			glLight(GL_LIGHT1, GL_POSITION, lightPos1);
+			NGGLDP.pipeline.glLight(GL_LIGHT1, GL_DIFFUSE, lightColor1);
+			NGGLDP.pipeline.glLight(GL_LIGHT1, GL_POSITION, lightPos1);
 
 			// glColor3f(1f,1f,0f);
 			// glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
@@ -719,14 +700,14 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			render(geosets, formatVersion);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 			if ((programPreferences != null) && programPreferences.showNormals()) {
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-				GL11.glDisable(GL11.GL_TEXTURE_2D);
+				NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 
-				glBegin(GL11.GL_LINES);
-				glColor3f(1f, 1f, 3f);
+				NGGLDP.pipeline.glBegin(GL11.GL_LINES);
+				NGGLDP.pipeline.glColor3f(1f, 1f, 3f);
 				// if( wireframe.isSelected() )
 				for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
 					if ((ModelUtils.isLevelOfDetailSupported(formatVersion)) && (geo.getLevelOfDetailName() != null)
@@ -812,11 +793,12 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 										continue;
 									}
 
-									GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-									GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+									NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+									NGGLDP.pipeline.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 
-									GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-									GL11.glVertex3f(vertexSumHeap.y + (float) ((normalSumHeap.y * 6) / m_zoom),
+									NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+									NGGLDP.pipeline.glVertex3f(
+											vertexSumHeap.y + (float) ((normalSumHeap.y * 6) / m_zoom),
 											vertexSumHeap.z + (float) ((normalSumHeap.z * 6) / m_zoom),
 											vertexSumHeap.x + (float) ((normalSumHeap.x * 6) / m_zoom));
 								}
@@ -867,11 +849,12 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 										normalSumHeap.set(0, 1, 0, 0);
 									}
 
-									GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-									GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+									NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+									NGGLDP.pipeline.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 
-									GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-									GL11.glVertex3f(vertexSumHeap.y + (float) ((normalSumHeap.y * 6) / m_zoom),
+									NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+									NGGLDP.pipeline.glVertex3f(
+											vertexSumHeap.y + (float) ((normalSumHeap.y * 6) / m_zoom),
 											vertexSumHeap.z + (float) ((normalSumHeap.z * 6) / m_zoom),
 											vertexSumHeap.x + (float) ((normalSumHeap.x * 6) / m_zoom));
 								}
@@ -879,11 +862,11 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 						}
 					}
 				}
-				glEnd();
+				NGGLDP.pipeline.glEnd();
 			}
 			if (renderTextures()) {
 				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-				glEnable(GL11.GL_TEXTURE_2D);
+				NGGLDP.pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
 			}
 			GL11.glDepthMask(false);
 			GL11.glEnable(GL11.GL_BLEND);
@@ -977,34 +960,55 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		final Material material = geo.getMaterial();
 		for (int i = 0; i < material.getLayers().size(); i++) {
 			final Layer layer = material.getLayers().get(i);
+			boolean hdTextureOnlyLayer = false;
+			boolean hdNoMetaDataLayer = false;
 			if (ModelUtils.isShaderStringSupported(formatVersion)) {
 				if ((material.getShaderString() != null) && (material.getShaderString().length() > 0)) {
-					if (i > 0) {
-						break;
+					NGGLDP.pipeline.glActiveHDTexture(i);
+					if (i != material.getLayers().size() - 1) {
+						hdTextureOnlyLayer = true;
+					}
+					if(i != 0) {
+						hdNoMetaDataLayer = true;
 					}
 				}
 			}
 
-			if (animation != null) {
-				final float layerVisibility = layer.getRenderVisibility(this);
-				final float alphaValue = geosetAnimVisibility * layerVisibility;
-				if (/* geo.getMaterial().isConstantColor() && */ geosetAnim != null) {
-					final Vector3f renderColor = geosetAnim.getRenderColor(this);
-					if (renderColor != null) {
-						if (layer.getFilterMode() == FilterMode.ADDITIVE) {
-							GL11.glColor4f(renderColor.z * alphaValue, renderColor.y * alphaValue,
-									renderColor.x * alphaValue, alphaValue);
+			if (!hdNoMetaDataLayer) {
+				if (animation != null) {
+					final float layerVisibility = layer.getRenderVisibility(this);
+					final float alphaValue = geosetAnimVisibility * layerVisibility;
+					if (/* geo.getMaterial().isConstantColor() && */ geosetAnim != null) {
+						final Vector3f renderColor = geosetAnim.getRenderColor(this);
+						if (renderColor != null) {
+							if (layer.getFilterMode() == FilterMode.ADDITIVE) {
+								NGGLDP.pipeline.glColor4f(renderColor.z * alphaValue, renderColor.y * alphaValue,
+										renderColor.x * alphaValue, alphaValue);
+							} else {
+								NGGLDP.pipeline.glColor4f(renderColor.z * 1f, renderColor.y * 1f, renderColor.x * 1f,
+										alphaValue);
+							}
 						} else {
-							GL11.glColor4f(renderColor.z * 1f, renderColor.y * 1f, renderColor.x * 1f, alphaValue);
+							NGGLDP.pipeline.glColor4f(1f, 1f, 1f, alphaValue);
 						}
 					} else {
-						GL11.glColor4f(1f, 1f, 1f, alphaValue);
+						NGGLDP.pipeline.glColor4f(1f, 1f, 1f, alphaValue);
 					}
+					
 				} else {
-					GL11.glColor4f(1f, 1f, 1f, alphaValue);
+					NGGLDP.pipeline.glColor4f(1f, 1f, 1f, 1f);
 				}
-			} else {
-				GL11.glColor4f(1f, 1f, 1f, 1f);
+				if(hdTextureOnlyLayer) {
+					//(this branch assures it's HD, if you hate this code paradigm change it to "isHD()" for the check)
+					Vertex fresnelColor = layer.getRenderFresnelColor(this);
+					if(fresnelColor != null) {
+						NGGLDP.pipeline.glFresnelColor3f((float)fresnelColor.z, (float)fresnelColor.y, (float)fresnelColor.x);
+					} else {
+						NGGLDP.pipeline.glFresnelColor3f(0f, 0f, 0f);
+					}
+					NGGLDP.pipeline.glFresnelTeamColor1f(layer.getRenderFresnelTeamColor(this));
+					NGGLDP.pipeline.glFresnelOpacity1f(layer.getRenderFresnelOpacity(this));
+				}
 			}
 
 			final FilterMode filterMode = layer.getFilterMode();
@@ -1017,8 +1021,15 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			if ((renderOpaque && opaqueLayer) || (!renderOpaque && !opaqueLayer)) {
 				final Bitmap tex = layer.getRenderTexture(this, modelView.getModel());
 				final Integer texture = textureMap.get(tex);
-				bindLayer(layer, tex, texture, formatVersion, material);
-				glBegin(GL11.GL_TRIANGLES);
+				if (hdNoMetaDataLayer) {
+					bindTexture(tex, texture);
+				} else {
+					bindLayer(layer, tex, texture, formatVersion, material);
+				}
+				if(hdTextureOnlyLayer) {
+					continue;
+				}
+				NGGLDP.pipeline.glBegin(GL11.GL_TRIANGLES);
 				if ((ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geo.getVertices().size() > 0)
 						&& (geo.getVertex(0).getSkinBones() != null)) {
 					for (final Triangle tri : geo.getTriangles()) {
@@ -1078,28 +1089,37 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 								skinBonesMatrixSumHeap.setIdentity();
 							}
 							Matrix4f.transform(skinBonesMatrixSumHeap, vertexHeap, vertexSumHeap);
+							skinBonesMatrixSumHeap3.m00 = skinBonesMatrixSumHeap.m00;
+							skinBonesMatrixSumHeap3.m01 = skinBonesMatrixSumHeap.m01;
+							skinBonesMatrixSumHeap3.m02 = skinBonesMatrixSumHeap.m02;
+							skinBonesMatrixSumHeap3.m10 = skinBonesMatrixSumHeap.m10;
+							skinBonesMatrixSumHeap3.m11 = skinBonesMatrixSumHeap.m11;
+							skinBonesMatrixSumHeap3.m12 = skinBonesMatrixSumHeap.m12;
+							skinBonesMatrixSumHeap3.m20 = skinBonesMatrixSumHeap.m20;
+							skinBonesMatrixSumHeap3.m21 = skinBonesMatrixSumHeap.m21;
+							skinBonesMatrixSumHeap3.m22 = skinBonesMatrixSumHeap.m22;
 							if (v.getNormal() != null) {
-								normalHeap.x = (float) v.getNormal().x;
-								normalHeap.y = (float) v.getNormal().y;
-								normalHeap.z = (float) v.getNormal().z;
-								normalHeap.w = 0;
-								Matrix4f.transform(skinBonesMatrixSumHeap, normalHeap, normalSumHeap);
+								normalHeap3.x = (float) v.getNormal().x;
+								normalHeap3.y = (float) v.getNormal().y;
+								normalHeap3.z = (float) v.getNormal().z;
+								Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
 
-								if (normalSumHeap.length() > 0) {
-									normalSumHeap.normalise();
-								} else {
-									normalSumHeap.set(0, 1, 0, 0);
-								}
+								NGGLDP.pipeline.glNormal3f(normalSumHeap3.y, normalSumHeap3.z, normalSumHeap3.x);
+							}
+							if (v.getTangent() != null) {
+								normalHeap3.set(v.getTangent()[0], v.getTangent()[1], v.getTangent()[2]);
+								Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
 
-								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+								NGGLDP.pipeline.glTangent4f(normalSumHeap3.y, normalSumHeap3.z, normalSumHeap3.x,
+										v.getTangent()[3]);
 							}
 							int coordId = layer.getCoordId();
 							if (coordId >= v.getTverts().size()) {
 								coordId = v.getTverts().size() - 1;
 							}
-							GL11.glTexCoord2f((float) v.getTverts().get(coordId).x,
+							NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
 									(float) v.getTverts().get(coordId).y);
-							GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+							NGGLDP.pipeline.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 						}
 					}
 				} else {
@@ -1147,15 +1167,15 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 									normalSumHeap.set(0, 1, 0, 0);
 								}
 
-								GL11.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+								NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
 							}
 							int coordId = layer.getCoordId();
 							if (coordId >= v.getTverts().size()) {
 								coordId = v.getTverts().size() - 1;
 							}
-							GL11.glTexCoord2f((float) v.getTverts().get(coordId).x,
+							NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
 									(float) v.getTverts().get(coordId).y);
-							GL11.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+							NGGLDP.pipeline.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
 						}
 					}
 				}
@@ -1163,7 +1183,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				// {
 				// texture.release();
 				// }
-				glEnd();
+				NGGLDP.pipeline.glEnd();
 			}
 		}
 
@@ -1171,50 +1191,37 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 
 	public void bindLayer(final Layer layer, final Bitmap tex, final Integer texture, final int formatVersion,
 			final Material parent) {
-		if (texture != null) {
-			// texture.bind();
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-					tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-					tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-		} else if (textureMap.size() > 0) {
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S,
-					tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
-					tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-		}
+		bindTexture(tex, texture);
 		boolean depthMask = false;
 		switch (layer.getFilterMode()) {
 		case BLEND:
-			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			break;
 		case ADDITIVE:
 		case ADDALPHA:
-			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 			break;
 		case MODULATE:
-			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_ZERO, GL11.GL_SRC_COLOR);
 			break;
 		case MODULATE2X:
-			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
 			break;
 		case NONE:
-			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 			GL11.glDisable(GL11.GL_BLEND);
 			depthMask = true;
 			break;
 		case TRANSPARENT:
-			GL11.glEnable(GL11.GL_ALPHA_TEST);
+			NGGLDP.pipeline.glEnableIfNeeded(GL11.GL_ALPHA_TEST);
 			GL11.glAlphaFunc(GL11.GL_GREATER, 0.75f);
 			GL11.glDisable(GL11.GL_BLEND);
 			depthMask = true;
@@ -1239,13 +1246,14 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 //		GL11.glColorMask(layer.getFilterMode() == FilterMode.ADDITIVE, layer.getFilterMode() == FilterMode.ADDITIVE,
 //				layer.getFilterMode() == FilterMode.ADDITIVE, layer.getFilterMode() == FilterMode.ADDITIVE);
 		if (layer.isUnshaded()) {
-			GL11.glDisable(GL_LIGHTING);
+			NGGLDP.pipeline.glDisableIfNeeded(GL_LIGHTING);
 		} else {
-			glEnable(GL_LIGHTING);
+			NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHTING);
 		}
 	}
 
-	public void bindLayer(final ParticleEmitter2 particle2, final Bitmap tex, final Integer texture) {
+	private void bindTexture(final Bitmap tex, final Integer texture) {
+		NGGLDP.pipeline.prepareToBindTexture();
 		if (texture != null) {
 			// texture.bind();
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
@@ -1260,37 +1268,41 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T,
 					tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 		}
+	}
+
+	public void bindLayer(final ParticleEmitter2 particle2, final Bitmap tex, final Integer texture) {
+		bindTexture(tex, texture);
 		switch (particle2.getFilterModeReallyBadReallySlow()) {
 		case Blend:
-			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			break;
 		case Additive:
-			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 			break;
 		case AlphaKey:
-			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 			break;
 		case Modulate:
-			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_ZERO, GL11.GL_SRC_COLOR);
 			break;
 		case Modulate2x:
-			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			NGGLDP.pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glBlendFunc(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
 			break;
 		}
 		if (particle2.isUnshaded()) {
-			GL11.glDisable(GL_LIGHTING);
+			NGGLDP.pipeline.glDisableIfNeeded(GL_LIGHTING);
 		} else {
-			glEnable(GL_LIGHTING);
+			NGGLDP.pipeline.glEnableIfNeeded(GL_LIGHTING);
 		}
 	}
 
@@ -1563,6 +1575,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		// whatever OpenGL method you want, for example:
 
 		final int textureID = GL11.glGenTextures(); // Generate texture ID
+		NGGLDP.pipeline.prepareToBindTexture();
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID); // Bind texture ID
 
 		// Setup wrap mode
@@ -1688,4 +1701,20 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	public void setSpawnParticles(final boolean b) {
 		renderModel.setSpawnParticles(b);
 	}
+
+	@Override
+	public void removeNotify() {
+		super.removeNotify();
+		// This clears the pipeline in case of shaders... It clears out VBO/VAO so that
+		// it will auto create new ones.
+		// Without this, for example, some stuff tries to use the old VBO/VAO that are
+		// no longer valid and we get
+		// messed up drawing. super in this case is calling destroy on OpenGL context
+		// entirely, that's why.
+		// But this method was happening during the app lifecycle of clearing and
+		// resetting the UI views when we
+		// open a new model.
+		pipeline = null;
+	}
+
 }

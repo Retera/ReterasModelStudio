@@ -50,7 +50,7 @@ public class ProgramPreferences implements Serializable {
 	Color backgroundColor = new Color(45, 45, 45);// new Color(190, 190, 190)
 	Color perspectiveBackgroundColor = new Color(80, 80, 80);// new Color(190, 190, 190)
 	Color selectColor = Color.RED;
-	GUITheme theme = GUITheme.ALUMINIUM;
+	GUITheme theme = GUITheme.BLUE_ICE;
 	private int vertexSize = 3;
 	int teamColor = 6;
 	private Boolean quickBrowse = true;

@@ -50,7 +50,7 @@ import net.infonode.gui.laf.InfoNodeLookAndFeelThemes;
  * @version (a version number or a date)
  */
 public class MainFrame extends JFrame {
-	public static final Image MAIN_PROGRAM_ICON = new ImageIcon(RMSIcons.loadProgramImage("BTNDemonRetera.png"))
+	public static final Image MAIN_PROGRAM_ICON = new ImageIcon(RMSIcons.loadProgramImage("BTNFlyingSheep.png"))
 			.getImage();
 	static MainFrame frame;
 	static MainPanel panel;

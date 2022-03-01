@@ -91,15 +91,7 @@ public class EditableModel implements Named {
 	protected ArrayList<Vertex> pivots = new ArrayList<>();
 	protected ArrayList<Camera> cameras = new ArrayList<>();
 
-	protected ArrayList m_junkCode = new ArrayList();// A series of
-														// UnrecognizedElements
-
-	protected ArrayList m_allParts = new ArrayList();// A compilation of array
-														// list components in
-														// the model, to contain
-														// all parts
 	private int c;
-	private boolean loading;
 	private boolean temporary;
 
 	private final List<FaceEffectsChunk.FaceEffect> faceEffects = new ArrayList<>();
@@ -489,7 +481,6 @@ public class EditableModel implements Named {
 		}
 		c++;
 		if (output == null) {
-			loading = false;
 			output = "COMPLETED PARSING";
 		}
 		return output;
@@ -3362,5 +3353,9 @@ public class EditableModel implements Named {
 			}
 			globalSeqs.set(globalSequenceId, newLength);
 		}
+	}
+
+	public void removeMesh() {
+		geosets.clear();
 	}
 }

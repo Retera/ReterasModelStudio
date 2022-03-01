@@ -410,6 +410,45 @@ public class Layer implements Named, VisibilitySource, LayerView {
 		return staticAlpha < 0 ? 1 : (float) staticAlpha;
 	}
 
+	public Vertex getRenderFresnelColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag fresnelColorFlag = AnimFlag.find(getAnims(), "FresnelColor");
+		if ((fresnelColorFlag != null) && (animatedRenderEnvironment != null)) {
+			if (animatedRenderEnvironment.getCurrentAnimation() == null) {
+				return fresnelColor;
+			}
+			final Vertex fresnelColorAtTime = (Vertex) fresnelColorFlag.interpolateAt(animatedRenderEnvironment);
+			return fresnelColorAtTime;
+		} else {
+			return fresnelColor;
+		}
+	}
+
+	public float getRenderFresnelTeamColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag visibilityFlag = AnimFlag.find(getAnims(), "FresnelTeamColor");
+		if (visibilityFlag != null) {
+			final Number alpha = (Number) visibilityFlag.interpolateAt(animatedRenderEnvironment);
+			if (alpha == null) {
+				return fresnelTeamColor < 0 ? 0 : (float) fresnelTeamColor;
+			}
+			final float alphaFloatValue = alpha.floatValue();
+			return alphaFloatValue;
+		}
+		return fresnelTeamColor < 0 ? 0 : (float) fresnelTeamColor;
+	}
+
+	public float getRenderFresnelOpacity(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag visibilityFlag = AnimFlag.find(getAnims(), "FresnelOpacity");
+		if (visibilityFlag != null) {
+			final Number alpha = (Number) visibilityFlag.interpolateAt(animatedRenderEnvironment);
+			if (alpha == null) {
+				return fresnelOpacity < 0 ? 0 : (float) fresnelOpacity;
+			}
+			final float alphaFloatValue = alpha.floatValue();
+			return alphaFloatValue;
+		}
+		return fresnelOpacity < 0 ? 0 : (float) fresnelOpacity;
+	}
+
 	public void setTextureAnim(final TextureAnim texa) {
 		textureAnim = texa;
 	}

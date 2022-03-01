@@ -183,4 +183,82 @@ public class MathUtils {
 	public static int uint8ToUint24(final byte right, final byte bottom, final byte a) {
 		return ((right << 16) & 0xFF0000) | ((bottom << 8) & 0xFF00) | (a & 0xFF);
 	}
+
+	public static void setOrtho(Matrix4f matrix, final float left, final float right, final float bottom,
+			final float top, final float near, final float far) {
+		final float lr = 1 / (left - right);
+		final float bt = 1 / (bottom - top);
+		final float nf = 1 / (near - far);
+
+		matrix.m00 = -2 * lr;
+		matrix.m01 = 0;
+		matrix.m02 = 0;
+		matrix.m03 = 0;
+		matrix.m10 = 0;
+		matrix.m11 = -2 * bt;
+		matrix.m12 = 0;
+		matrix.m13 = 0;
+		matrix.m20 = 0;
+		matrix.m21 = 0;
+		matrix.m22 = 2 * nf;
+		matrix.m23 = 0;
+		matrix.m30 = (left + right) * lr;
+		matrix.m31 = (top + bottom) * bt;
+		matrix.m32 = (far + near) * nf;
+		matrix.m33 = 1;
+	}
+
+	public static void setPerspective(Matrix4f matrix, final float fovy, final float aspect, final float near, final float far) {
+		final float f = 1 / (float) Math.tan(fovy / 2);
+
+		matrix.m00 = f / aspect;
+		matrix.m01 = 0;
+		matrix.m02 = 0;
+		matrix.m03 = 0;
+		matrix.m10 = 0;
+		matrix.m11 = f;
+		matrix.m12 = 0;
+		matrix.m13 = 0;
+		matrix.m20 = 0;
+		matrix.m21 = 0;
+		matrix.m23 = -1;
+		matrix.m30 = 0;
+		matrix.m31 = 0;
+		matrix.m33 = 0;
+
+		if (!Float.isInfinite(far)) {
+			final float nf = 1 / (near - far);
+
+			matrix.m22 = (far + near) * nf;
+			matrix.m32 = 2 * far * near * nf;
+		} else {
+			matrix.m22 = -1;
+			matrix.m32 = -2 * near;
+		}
+	}
+
+	public static void setPerspective(Matrix4f matrix,final float left, final float right, final float bottom, final float top, final float near, final float far) {
+		float x = 2.0f * near / (right - left);
+		float y = 2.0f * near / (top - bottom);
+		float a = (right + left) / (right - left);
+		float b = (top + bottom) / (top - bottom);
+		float l_a1 = (far + near) / (near - far);
+		float l_a2 = (2 * far * near) / (near - far);
+		matrix.m00 = x;
+		matrix.m01 = 0;
+		matrix.m02 = 0;
+		matrix.m03 = 0;
+		matrix.m10 = 0;
+		matrix.m11 = y;
+		matrix.m12 = 0;
+		matrix.m13 = 0;
+		matrix.m20 = a;
+		matrix.m21 = b;
+		matrix.m22 = l_a1;
+		matrix.m23 = -1;
+		matrix.m30 = 0;
+		matrix.m31 = 0;
+		matrix.m32 = l_a2;
+		matrix.m33 = 0;
+	}
 }

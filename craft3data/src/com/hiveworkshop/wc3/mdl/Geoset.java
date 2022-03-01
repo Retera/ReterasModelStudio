@@ -1133,6 +1133,10 @@ public class Geoset implements Named, VisibilitySource {
 	public void remove(final Triangle tri) {
 		this.triangles.remove(tri);
 	}
+	
+	public boolean isHD() {
+		return getParentModel().getFormatVersion() >= 900 && !getVertices().isEmpty() && getVertex(0).getTangent() != null;
+	}
 
 	public ExtLog calculateExtent() {
 		double maximumDistanceFromCenter = 0;

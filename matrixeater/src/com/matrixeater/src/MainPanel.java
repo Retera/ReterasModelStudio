@@ -90,7 +90,6 @@ import javax.swing.text.rtf.RTFEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -108,6 +107,7 @@ import com.hiveworkshop.wc3.gui.animedit.TimeEnvironmentImpl;
 import com.hiveworkshop.wc3.gui.animedit.TimeSliderPanel;
 import com.hiveworkshop.wc3.gui.animedit.TimeSliderTimeListener;
 import com.hiveworkshop.wc3.gui.datachooser.DataSourceDescriptor;
+import com.hiveworkshop.wc3.gui.icons.RMSIcons;
 import com.hiveworkshop.wc3.gui.modeledit.ActiveViewportWatcher;
 import com.hiveworkshop.wc3.gui.modeledit.CoordDisplayListener;
 import com.hiveworkshop.wc3.gui.modeledit.FaceCreationException;
@@ -183,6 +183,7 @@ import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdl.v2.ModelViewStateListener;
 import com.hiveworkshop.wc3.mdl.v2.timelines.InterpolationType;
+import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 import com.hiveworkshop.wc3.mdx.MdxModel;
 import com.hiveworkshop.wc3.mdx.MdxUtils;
 import com.hiveworkshop.wc3.mpq.MpqCodebase;
@@ -3274,6 +3275,17 @@ public class MainPanel extends JPanel
 		skinSplice.add(skinSpliceFromUnit);
 		scriptsMenu.add(skinSplice);
 
+		JMenuItem removeAll3D = new JMenuItem("Remove All 3D");
+		removeAll3D.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				currentMDL().removeMesh();
+			}
+		});
+		JMenu forDarkfang = new JMenu("For Darkfang");
+		forDarkfang.add(removeAll3D);
+		scriptsMenu.add(forDarkfang);
+
 		final JMenuItem jokebutton = new JMenuItem("Load Retera Land");
 		jokebutton.setMnemonic(KeyEvent.VK_A);
 		jokebutton.addActionListener(new ActionListener() {
@@ -5778,7 +5790,8 @@ public class MainPanel extends JPanel
 				newModel.setFileRef(
 						new File(currentMDL.getFile().getParent() + "/" + incName(newModel.getName()) + ".mdl"));
 			}
-			importPanel = new ImportPanel(newModel, EditableModel.deepClone(currentMDL, "CurrentModel"));
+			EditableModel sourceModel = EditableModel.deepClone(currentMDL, "CurrentModel");
+			importPanel = new ImportPanel(newModel, sourceModel);
 
 			final Thread watcher = new Thread(new Runnable() {
 				@Override
@@ -5814,6 +5827,9 @@ public class MainPanel extends JPanel
 						}
 
 						if (importPanel.importSuccessful()) {
+							for(FaceEffect faceFx: sourceModel.getFaceEffects()) {
+								newModel.addFaceEffect(faceFx);
+							}
 							newModel.saveFile();
 							loadFile(newModel.getFile());
 						}
