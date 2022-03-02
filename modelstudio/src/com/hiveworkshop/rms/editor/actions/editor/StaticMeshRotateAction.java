@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.editor.actions.editor;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
-import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.CameraNode;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -20,7 +20,7 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 	private double radians;
 	private final Set<GeosetVertex> selectedVertices;
 	private final Set<IdObject> selectedIdObjects;
-	private final Set<Camera> selectedCameras;
+	private final Set<CameraNode> selectedCameras;
 
 	public StaticMeshRotateAction(ModelView modelView, Vec3 center, byte dim1, byte dim2) {
 		this.center = center;
@@ -28,7 +28,7 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 		axis = getPerpAxis(dim1, dim2);
 		selectedVertices = new HashSet<>(modelView.getSelectedVertices());
 		selectedIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
-		selectedCameras = new HashSet<>(modelView.getSelectedCameras());
+		selectedCameras = new HashSet<>(modelView.getSelectedCameraNodes());
 	}
 
 	@Override
@@ -67,14 +67,11 @@ public final class StaticMeshRotateAction implements GenericRotateAction {
 				bindPose[9] = b.getPivotPoint().x;
 				bindPose[10] = b.getPivotPoint().y;
 				bindPose[11] = b.getPivotPoint().z;
-				if(b.getBindPoseM4() != null){
-					b.getBindPoseM4().setFromBindPose(bindPose);
-				}
 			}
 		}
 
-		for (Camera camera : selectedCameras) {
-			camera.getPosition().rotate(center, rot);
+		for (CameraNode cameraNode : selectedCameras) {
+			cameraNode.getPosition().rotate(center, rot);
 		}
 	}
 

@@ -104,13 +104,13 @@ public class FlagUtils {
 				case MdlUtils.TOKEN_VISIBILITY -> AnimationMap.KRVS;
 				default -> getIdObjectAnimationMap(name);
 			};
-		} else if (container instanceof Camera.SourceNode) {
+		} else if (container instanceof CameraNode.SourceNode) {
 			return switch (name) {
 				case MdlUtils.TOKEN_TRANSLATION -> AnimationMap.KCTR;
 				case MdlUtils.TOKEN_ROTATION -> AnimationMap.KCRL;
 				default -> null;
 			};
-		} else if (container instanceof Camera.TargetNode) {
+		} else if (container instanceof CameraNode.TargetNode) {
 			return switch (name) {
 				case MdlUtils.TOKEN_TRANSLATION -> AnimationMap.KTTR;
 				default -> null;

@@ -272,6 +272,8 @@ public class GeosetRenderer {
 		glBegin(GL11.GL_LINES);
 		glColor3f(1f, 1f, 3f);
 
+		float sizeFactor = 6 * cameraHandler.getPixelSize();
+
 		for (Geoset geo : modelView.getVisibleGeosets()) {
 			RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 			if (correctLoD(geo, formatVersion) && renderGeoset != null) {
@@ -279,24 +281,22 @@ public class GeosetRenderer {
 					Vec3 renderPos = renderVert.getRenderPos();
 					Vec3 renderNorm = renderVert.getRenderNorm();
 
-					paintNormal(renderPos, renderNorm);
+					paintNormal(renderPos, renderNorm, sizeFactor);
 				}
 			}
 		}
 		glEnd();
 	}
 
-	private void paintNormal(Vec3 vertexSumHeap, Vec3 normalSumHeap) {
+	private void paintNormal(Vec3 vertexSumHeap, Vec3 normalSumHeap, float sizeFactor) {
 		GL11.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
 		GL11.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 
-		float factor = 6 * cameraHandler.getPixelSize();
-
 		GL11.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
 		GL11.glVertex3f(
-				vertexSumHeap.x + (normalSumHeap.x * factor),
-				vertexSumHeap.y + (normalSumHeap.y * factor),
-				vertexSumHeap.z + (normalSumHeap.z * factor));
+				vertexSumHeap.x + (normalSumHeap.x * sizeFactor),
+				vertexSumHeap.y + (normalSumHeap.y * sizeFactor),
+				vertexSumHeap.z + (normalSumHeap.z * sizeFactor));
 	}
 
 

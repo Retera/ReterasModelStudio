@@ -19,7 +19,7 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	private final Vec3 scale;
 	private final Set<GeosetVertex> selectedVertices;
 	private final Set<IdObject> selectedIdObjects;
-	private final Set<Camera> selectedCameras;
+	private final Set<CameraNode> selectedCameraNodes;
 
 	public StaticMeshScaleAction(ModelView modelView, Vec3 center) {
 		this(modelView, center, new Vec3(1, 1, 1));
@@ -28,25 +28,26 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	public StaticMeshScaleAction(ModelView modelView, Vec3 center, Vec3 scale) {
 		this(modelView.getSelectedVertices(),
 				modelView.getSelectedIdObjects(),
-				modelView.getSelectedCameras(), center, scale);
+				modelView.getSelectedCameraNodes(),
+				center, scale);
 	}
 
 	public StaticMeshScaleAction(Collection<GeosetVertex> selectedVertices,
 	                             Collection<IdObject> selectedIdObjects,
-	                             Collection<Camera> selectedCameras, Vec3 center) {
-		this(selectedVertices, selectedIdObjects, selectedCameras, center, new Vec3(1, 1, 1));
+	                             Collection<CameraNode> selectedCameraNodes, Vec3 center) {
+		this(selectedVertices, selectedIdObjects, selectedCameraNodes, center, new Vec3(1, 1, 1));
 	}
 
 	public StaticMeshScaleAction(Collection<GeosetVertex> selectedVertices,
 	                             Collection<IdObject> selectedIdObjects,
-	                             Collection<Camera> selectedCameras,
+	                             Collection<CameraNode> selectedCameraNodes,
 	                             Vec3 center,
 	                             Vec3 scale) {
 		this.center = center;
 		this.scale = scale;
 		this.selectedVertices = new HashSet<>(selectedVertices);
 		this.selectedIdObjects = new HashSet<>(selectedIdObjects);
-		this.selectedCameras = new HashSet<>(selectedCameras);
+		this.selectedCameraNodes = new HashSet<>(selectedCameraNodes);
 	}
 
 	@Override
@@ -100,11 +101,9 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 				((ParticleEmitter) object).setLongitude(((ParticleEmitter) object).getLongitude()*scale.y);
 			}
 		}
-		for (Camera camera : selectedCameras) {
-			camera.getPosition().scale(center, scale);
-			camera.getTargetPosition().scale(center, scale);
-			translateNode(camera.getSourceNode(), scale);
-			translateNode(camera.getTargetNode(), scale);
+		for (CameraNode cameraNode : selectedCameraNodes) {
+			cameraNode.getPosition().scale(center, scale);
+			translateNode(cameraNode, scale);
 		}
 	}
 

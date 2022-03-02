@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.util.ModelDependentView;
 import javax.swing.*;
 
 public class ModelViewManagingView extends ModelDependentView {
-	ModelViewManagingTree modelViewManagingTree;
 	ComponentThingTree modelViewManagingTree2;
 	JScrollPane modelEditingTreePane;
 	ModelPanel modelPanel;
@@ -19,7 +18,6 @@ public class ModelViewManagingView extends ModelDependentView {
 		jPanel = new JPanel();
 		jPanel.add(new JLabel("..."));
 		modelEditingTreePane = new JScrollPane(jPanel);
-		modelViewManagingTree = new ModelViewManagingTree();
 		modelViewManagingTree2 = new ComponentThingTree();
 
 		setComponent(modelEditingTreePane);
@@ -29,21 +27,12 @@ public class ModelViewManagingView extends ModelDependentView {
 	public ModelViewManagingView setModelPanel(ModelPanel modelPanel){
 		this.modelPanel = modelPanel;
 		if(modelPanel == null) {
-//			modelViewManagingTree = null;
 			modelEditingTreePane.setViewportView(jPanel);
 		} else {
-//			modelViewManagingTree = modelPanel.getModelEditingTree();
-//			modelEditingTreePane.setViewportView(modelViewManagingTree);
-//			modelViewManagingTree = new ModelViewManagingTree().setModel(modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
-//			modelViewManagingTree.setModel(modelPanel.getModelHandler());
 			modelViewManagingTree2.setModel(modelPanel.getModelHandler());
-
-//			modelEditingTreePane.setViewportView(modelViewManagingTree);
 			modelEditingTreePane.setViewportView(modelViewManagingTree2);
-
 			modelViewManagingTree2.expandMeshNode();
 		}
-//		reload();
 		System.out.println("name: " + name + ", panel: " + modelPanel);
 		return this;
 	}
@@ -51,13 +40,8 @@ public class ModelViewManagingView extends ModelDependentView {
 	@Override
 	public ModelViewManagingView reload() {
 		if (modelPanel != null) {
-//			modelViewManagingTree.reloadFromModelView().repaint();
-//			modelViewManagingTree2.setModel(modelPanel.getModelHandler()).repaint();
 			modelViewManagingTree2.reloadTree().repaint();
 		}
-//		if (modelViewManagingTree != null) {
-//			modelViewManagingTree.reloadFromModelView().repaint();
-//		}
 		return this;
 	}
 }

@@ -326,7 +326,10 @@ public class ViewportTransferHandler extends TransferHandler {
 		for (IdObject obj : nodesToClonedNodes.values()) {
 			obj.setParent(nodesToClonedNodes.getOrDefault(obj.getParent(), null));
 		}
-		Set<Camera> clonedCameras = new HashSet<>(modelView.getSelectedCameras());
+		Set<Camera> clonedCameras = new HashSet<>();
+		for (Camera camera : modelView.getSelectedCameras()) {
+			clonedCameras.add(camera.deepCopy());
+		}
 
 		List<Geoset> copiedGeosets = new ArrayList<>();
 

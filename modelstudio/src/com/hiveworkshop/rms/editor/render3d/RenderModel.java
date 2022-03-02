@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.editor.render3d;
 
 import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.Camera.SourceNode;
-import com.hiveworkshop.rms.editor.model.Camera.TargetNode;
+import com.hiveworkshop.rms.editor.model.CameraNode.SourceNode;
+import com.hiveworkshop.rms.editor.model.CameraNode.TargetNode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -25,7 +25,7 @@ public final class RenderModel {
 	private final TimeEnvironmentImpl timeEnvironment;
 
 	private final Map<AnimatedNode, RenderNode> objectToRenderNode = new HashMap<>();
-	private final Map<Camera, RenderNode> cameraToRenderNode = new HashMap<>();
+	private final Map<AnimatedNode, RenderNodeCamera> cameraToRenderNode = new HashMap<>();
 	private final Map<AnimatedNode, RenderNode2> idObjectToRenderNode = new HashMap<>();
 	private final Map<Geoset, RenderGeoset> renderGeosetMap = new HashMap<>();
 	private final LinkedHashMap<ParticleEmitter2, RenderParticleEmitter2> emitterToRenderer2 = new LinkedHashMap<>();
@@ -33,6 +33,7 @@ public final class RenderModel {
 
 	private final RenderNode rootPosition;
 	private final RenderNode2 rootPosition2;
+	private final RenderNodeCamera rootPositionCam;
 
 	private boolean shouldForceAnimation = false;
 
@@ -78,6 +79,7 @@ public final class RenderModel {
 		this.modelView = modelView;
 		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
 		rootPosition2 = new RenderNode2(this, new Bone("RootPositionHack"));
+		rootPositionCam = new RenderNodeCamera(this, new Camera("RootPositionHack"));
 		this.timeEnvironment = new TimeEnvironmentImpl();
 		for (final Geoset geoset : model.getGeosets()) {
 			RenderGeoset renderGeoset = renderGeosetMap.computeIfAbsent(geoset, k -> new RenderGeoset(geoset, this, modelView));
@@ -125,10 +127,17 @@ public final class RenderModel {
 		}
 		return renderNode;
 	}
-	public RenderNode getRenderNode(Camera idObject) {
-		RenderNode renderNode = cameraToRenderNode.get(idObject);
+	public RenderNodeCamera getRenderNode(CameraNode cameraNode) {
+		RenderNodeCamera renderNode = cameraToRenderNode.get(cameraNode);
 		if (renderNode == null) {
-			return rootPosition;
+			return rootPositionCam;
+		}
+		return renderNode;
+	}
+	public RenderNodeCamera getRenderNode(Camera camera) {
+		RenderNodeCamera renderNode = cameraToRenderNode.get(camera.getSourceNode());
+		if (renderNode == null) {
+			return rootPositionCam;
 		}
 		return renderNode;
 	}
@@ -138,6 +147,9 @@ public final class RenderModel {
 			return rootPosition2;
 		}
 		return renderNode;
+	}
+	public RenderNode2 getRootPosition() {
+		return rootPosition2;
 	}
 
 	public RenderGeoset getRenderGeoset(Geoset geoset){
@@ -201,6 +213,7 @@ public final class RenderModel {
 			SourceNode object = camera.getSourceNode();
 			sortedNodes.add(object);
 			objectToRenderNode.computeIfAbsent(object, k -> new RenderNode(this, object));
+			cameraToRenderNode.computeIfAbsent(object, k -> new RenderNodeCamera(this, camera));
 		}
 	}
 
@@ -252,6 +265,8 @@ public final class RenderModel {
 			for (AnimatedNode idObject : sortedNodes) {
 				if(idObject instanceof IdObject){
 					getRenderNode((IdObject) idObject).resetTransformation();
+				} else if(idObject instanceof CameraNode.SourceNode){
+					getRenderNode((CameraNode.SourceNode) idObject).resetTransformation();
 				} else {
 					getRenderNode(idObject).resetTransformation();
 				}
@@ -264,6 +279,8 @@ public final class RenderModel {
 		for (AnimatedNode idObject : sortedNodes) {
 			if(idObject instanceof IdObject){
 				updateNode(forced, soft, renderParticles, (IdObject)idObject);
+			} else if(idObject instanceof CameraNode.SourceNode){
+				updateNode(forced, soft, renderParticles, (CameraNode.SourceNode)idObject);
 			}
 		}
 		if (renderParticles) {
@@ -298,39 +315,6 @@ public final class RenderModel {
 				lastUpdatedTime = timeEnvironment.getEnvTrackTime();
 				dirty = true;
 				node.fetchTransformation(timeEnvironment);
-
-//				Vec3 localLocation = new Vec3(0, 0, 0);
-//				Quat localRotation = new Quat(0, 0, 0, 1);
-//				Vec3 localScale = new Vec3(1, 1, 1);
-//
-//				// Translation
-//				Vec3 renderTranslation = idObject.getRenderTranslation(timeEnvironment);
-//				if (renderTranslation != null) {
-//					localLocation.set(renderTranslation);
-//				}
-//
-//				// Rotation
-//				try {
-//					Quat renderRotation = idObject.getRenderRotation(timeEnvironment);
-//					if (renderRotation != null) {
-//						localRotation.set(renderRotation);
-//					}
-//				} catch (Exception e) {
-//					long currentTime = System.currentTimeMillis();
-//					if (lastConsoleLogTime < currentTime) {
-////							e.printStackTrace();
-//						System.out.println("RenderModel#updateNodes: failed to update rotation for " + idObject.getName());
-//						lastConsoleLogTime = currentTime + 1000;
-//					}
-//				}
-//
-//				// Scale
-//				Vec3 renderScale = idObject.getRenderScale(timeEnvironment);
-//				if (renderScale != null) {
-//					localScale.set(renderScale);
-//				}
-//
-//				node.setTransformation(localLocation, localRotation, localScale);
 			}
 			node.setDirty(dirty);
 			// Billboarding
@@ -384,46 +368,11 @@ public final class RenderModel {
 			// Only update the local data if there is a need to
 			if (forced || (!soft && idObject.getAnimFlags().size() > 0)) {
 				lastUpdatedTime = timeEnvironment.getEnvTrackTime();
-//				locationHeap.set(0, 0, 0);
-//				rotationHeap.set(0, 0, 0, 1);
-//				scaleHeap.set(1, 1, 1);
-				dirty = true;
-
 				node.fetchTransformation(timeEnvironment);
-
-//				// Translation
-//				node.setLocation(idObject.getRenderTranslation(timeEnvironment));
-////				Vec3 renderTranslation = idObject.getRenderTranslation(timeEnvironment);
-////				if (renderTranslation != null) {
-////					locationHeap.set(renderTranslation);
-////				}
-//
-//				// Rotation
-//				try {
-//					node.setRotation(idObject.getRenderRotation(timeEnvironment));
-////					Quat renderRotation = idObject.getRenderRotation(timeEnvironment);
-////					if (renderRotation != null) {
-////						rotationHeap.set(renderRotation);
-////					}
-//				} catch (Exception e) {
-//					long currentTime = System.currentTimeMillis();
-//					if (lastConsoleLogTime < currentTime) {
-////							e.printStackTrace();
-//						System.out.println("RenderModel#updateNodes: failed to update rotation for " + idObject.getName());
-//						lastConsoleLogTime = currentTime + 1000;
-//					}
-//				}
-//
-//				// Scale
-//				node.setScale(idObject.getRenderScale(timeEnvironment));
-////				Vec3 renderScale = idObject.getRenderScale(timeEnvironment);
-////				if (renderScale != null) {
-////					scaleHeap.set(renderScale);
-////				}
-//
-////				node.setTransformation(locationHeap, rotationHeap, scaleHeap);
+				dirty = true;
 			}
 			node.setDirty(dirty);
+
 			// Billboarding
 			boolean wasDirty = RotateAndStuffBillboarding3(node, parent);
 
@@ -451,91 +400,42 @@ public final class RenderModel {
 			}
 		}
 	}
-//	private void updateNode1(boolean forced, boolean soft, boolean renderParticles, IdObject idObject) {
-//		RenderNode2 node = getRenderNode(idObject);
-//		IdObject idObjectParent = idObject.getParent();
-//		RenderNode2 parent = idObjectParent == null ? null : getRenderNode(idObjectParent);
-//		boolean objectVisible = idObject.getRenderVisibility(timeEnvironment) >= MAGIC_RENDER_SHOW_CONSTANT;
-////		node.setVisible(forced || (((parent == null) || parent.visible) && objectVisible));
-//		node.setVisible(forced || objectVisible);
-//
-//		// Every node only needs to be updated if this is a forced update, or if both
-//		// the parent node and the generic object corresponding to this node are visible.
-//		// Incoming messy code for optimizations!
-//		// --- All copied from Ghostwolf
-//		boolean dirty = forced || (parent != null && parent.dirty) || node.billboarded;
-////		if (nodeVisible || forced || !soft) {
-//		if (objectVisible || forced || !soft) {
-//			// TODO variants
-//
-//			// Only update the local data if there is a need to
-//			if (forced || (!soft && idObject.getAnimFlags().size() > 0)) {
-//				lastUpdatedTime = timeEnvironment.getEnvTrackTime();
-////				Vec3 localLocation = new Vec3(0, 0, 0);
-////				Quat localRotation = new Quat(0, 0, 0, 1);
-////				Vec3 localScale = new Vec3(1, 1, 1);
-//				locationHeap.set(0, 0, 0);
-//				rotationHeap.set(0, 0, 0, 1);
-//				scaleHeap.set(1, 1, 1);
-//				dirty = true;
-//
-//				// Translation
-//				Vec3 renderTranslation = idObject.getRenderTranslation(timeEnvironment);
-//				if (renderTranslation != null) {
-//					locationHeap.set(renderTranslation);
-//				}
-//
-//				// Rotation
-//				try {
-//					Quat renderRotation = idObject.getRenderRotation(timeEnvironment);
-//					if (renderRotation != null) {
-//						rotationHeap.set(renderRotation);
-//					}
-//				} catch (Exception e) {
-//					long currentTime = System.currentTimeMillis();
-//					if (lastConsoleLogTime < currentTime) {
-////							e.printStackTrace();
-//						System.out.println("RenderModel#updateNodes: failed to update rotation for " + idObject.getName());
-//						lastConsoleLogTime = currentTime + 1000;
-//					}
-//				}
-//
-//				// Scale
-//				Vec3 renderScale = idObject.getRenderScale(timeEnvironment);
-//				if (renderScale != null) {
-//					scaleHeap.set(renderScale);
-//				}
-//
-//				node.setTransformation(locationHeap, rotationHeap, scaleHeap);
-//			}
-//			node.setDirty(dirty);
-//			// Billboarding
-//			boolean wasDirty = RotateAndStuffBillboarding3(node, parent);
-//
-//			boolean wasReallyDirty = forced || dirty || wasDirty || (parent != null && parent.wasDirty);
-//			node.wasDirty = wasReallyDirty;
-//
-//			// If this is a forced upate, or this node's local data was updated, or the
-//			// parent node updated, do a full world update.
-//
-//			if (wasReallyDirty) {
-//				node.recalculateTransformation();
-//			}
-//
-//			// If there is an instance object associated with this node, and the node is
-//			// visible (which might not be the case for a forced update!), update the object.
-//			// This includes attachments and emitters.
-//
-//			// TODO instanced rendering in 2090
-//			if (objectVisible && renderParticles && idObject instanceof ParticleEmitter2) {
-//				if (emitterToRenderer2.get(idObject) != null) {
-//					if ((modelView == null) || modelView.getEditableIdObjects().contains(idObject) || modelView.isVetoOverrideParticles()) {
-//						emitterToRenderer2.get(idObject).fill();
-//					}
-//				}
-//			}
-//		}
-//	}
+
+	private void updateNode(boolean forced, boolean soft, boolean renderParticles, CameraNode cameraNode) {
+		RenderNodeCamera node = getRenderNode(cameraNode);
+		boolean objectVisible = true;
+		node.setVisible(forced || objectVisible);
+
+		// Every node only needs to be updated if this is a forced update, or if both
+		// the parent node and the generic object corresponding to this node are visible.
+		// Incoming messy code for optimizations!
+		// --- All copied from Ghostwolf
+		boolean dirty = forced || node.billboarded;
+//		if (nodeVisible || forced || !soft) {
+		if (objectVisible || forced || !soft) {
+			// TODO variants
+
+			// Only update the local data if there is a need to
+			if (forced || (!soft && cameraNode.getAnimFlags().size() > 0)) {
+				lastUpdatedTime = timeEnvironment.getEnvTrackTime();
+				node.fetchTransformation(timeEnvironment);
+				dirty = true;
+			}
+			node.setDirty(dirty);
+			// Billboarding
+
+			boolean wasReallyDirty = forced || dirty;
+			node.wasDirty = wasReallyDirty;
+
+			// If this is a forced upate, or this node's local data was updated, or the
+			// parent node updated, do a full world update.
+
+			if (wasReallyDirty) {
+				node.recalculateTransformation();
+			}
+		}
+	}
+
 
 	public boolean RotateAndStuffBillboarding3(RenderNode node, RenderNode parent) {
 		boolean wasDirty = false;
@@ -611,23 +511,8 @@ public final class RenderModel {
 
 		if(node.billboarded || node.billboardedX || node.billboardedY || node.billboardedZ){
 
-//			Quat localRotation = new Quat(0, 0, 0, 1);
 			rotationHeap.set(0, 0, 0, 1);
 			wasDirty = true;
-
-//			if (node.billboarded) {
-//				localRotation.mul(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()); // WORKS!
-//			} else if (node.billboardedX) {
-//				localRotation.invertRotation2().mulLeft(getInverseCameraRotZSpinX());
-//			} else if (node.billboardedY) {
-//				localRotation.invertRotation2().mulLeft(getInverseCameraRotXSpinY()); //I Think It Works :O
-//			} else if (node.billboardedZ) {
-//				localRotation.mul(getInverseCameraRotZSpinZ());
-//
-//			}
-//			localRotation.normalize();
-//
-//			node.setRotation(localRotation);
 
 			if (node.billboarded) {
 				rotationHeap.mul(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()); // WORKS!

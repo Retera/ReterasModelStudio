@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.render3d.RenderGeoset;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
+import com.hiveworkshop.rms.editor.render3d.RenderNodeCamera;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
@@ -99,29 +100,29 @@ public class SelectionManager extends AbstractSelectionManager {
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			Set<GeosetVertex> selectedVerts = addVertsFromArea(min, max, coordinateSystem);
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
-			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
+			Set<CameraNode> selectedCamNodes = getCameraNodesFromArea(min, max, coordinateSystem);
+			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
 		}
 
 		if (selectionMode == SelectionItemTypes.FACE) {
 			Set<GeosetVertex> selectedVerts = addTrisFromArea(min, max, coordinateSystem);
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
-			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
+			Set<CameraNode> selectedCamNodes = getCameraNodesFromArea(min, max, coordinateSystem);
+			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
 		}
 
 		if (selectionMode == SelectionItemTypes.CLUSTER) {
 			Set<GeosetVertex> selectedVerts = getClusterBundle(vertexClusterDefinitions, addTrisFromArea(min, max, coordinateSystem));
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
-			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
+			Set<CameraNode> selectedCamNodes = getCameraNodesFromArea(min, max, coordinateSystem);
+			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
 		}
 
 		if (selectionMode == SelectionItemTypes.GROUP) {
 			Set<GeosetVertex> selectedVerts = getGroupBundle(addTrisFromArea(min, max, coordinateSystem));
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, coordinateSystem);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, coordinateSystem);
-			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
+			Set<CameraNode> selectedCamNodes = getCameraNodesFromArea(min, max, coordinateSystem);
+			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
 		}
 
 		if (selectionMode == SelectionItemTypes.TPOSE) {
@@ -165,29 +166,29 @@ public class SelectionManager extends AbstractSelectionManager {
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			Set<GeosetVertex> selectedVerts = addVertsFromArea(min, max, cameraHandler);
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, cameraHandler);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, cameraHandler);
-			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
+			Set<CameraNode> selectedCamNodes = getCameraNodesFromArea(min, max, cameraHandler);
+			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
 		}
 
 		if (selectionMode == SelectionItemTypes.FACE) {
 			Set<GeosetVertex> selectedVerts = addTrisFromArea(min, max, viewPortMat, zoom);
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, cameraHandler);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, cameraHandler);
-			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
+			Set<CameraNode> selectedCamNodes = getCameraNodesFromArea(min, max, cameraHandler);
+			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
 		}
 
 		if (selectionMode == SelectionItemTypes.CLUSTER) {
 			Set<GeosetVertex> selectedVerts = getClusterBundle(vertexClusterDefinitions, addTrisFromArea(min, max, viewPortMat, zoom));
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, cameraHandler);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, cameraHandler);
-			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
+			Set<CameraNode> selectedCamNodes = getCameraNodesFromArea(min, max, cameraHandler);
+			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
 		}
 
 		if (selectionMode == SelectionItemTypes.GROUP) {
 			Set<GeosetVertex> selectedVerts = getGroupBundle(addTrisFromArea(min, max, viewPortMat, zoom));
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(min, max, cameraHandler);
-			Set<Camera> selectedCams = getCamerasFromArea(min, max, cameraHandler);
-			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
+			Set<CameraNode> selectedCamNodes = getCameraNodesFromArea(min, max, cameraHandler);
+			return new SelectionBundle(selectedVerts, selectedObjs, selectedCamNodes);
 		}
 
 //		if (selectionMode == SelectionItemTypes.TPOSE) {
@@ -237,28 +238,28 @@ public class SelectionManager extends AbstractSelectionManager {
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			Set<GeosetVertex> selectedVerts = addVertsFromArea(minFlat, maxFlat, cameraHandler);
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(minFlat, maxFlat, cameraHandler);
-			Set<Camera> selectedCams = getCamerasFromArea(minFlat, maxFlat, cameraHandler);
+			Set<CameraNode> selectedCams = getCameraNodesFromArea(minFlat, maxFlat, cameraHandler);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
 		}
 
 		if (selectionMode == SelectionItemTypes.FACE) {
 			Set<GeosetVertex> selectedVerts = addTrisFromArea(minFlat, maxFlat, viewPortMat, zoom);
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(minFlat, maxFlat, cameraHandler);
-			Set<Camera> selectedCams = getCamerasFromArea(minFlat, maxFlat, cameraHandler);
+			Set<CameraNode> selectedCams = getCameraNodesFromArea(minFlat, maxFlat, cameraHandler);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
 		}
 
 		if (selectionMode == SelectionItemTypes.CLUSTER) {
 			Set<GeosetVertex> selectedVerts = getClusterBundle(vertexClusterDefinitions, addTrisFromArea(minFlat, maxFlat, viewPortMat, zoom));
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(minFlat, maxFlat, cameraHandler);
-			Set<Camera> selectedCams = getCamerasFromArea(minFlat, maxFlat, cameraHandler);
+			Set<CameraNode> selectedCams = getCameraNodesFromArea(minFlat, maxFlat, cameraHandler);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
 		}
 
 		if (selectionMode == SelectionItemTypes.GROUP) {
 			Set<GeosetVertex> selectedVerts = getGroupBundle(addTrisFromArea(minFlat, maxFlat, viewPortMat, zoom));
 			Set<IdObject> selectedObjs = getIdObjectsFromArea(minFlat, maxFlat, cameraHandler);
-			Set<Camera> selectedCams = getCamerasFromArea(minFlat, maxFlat, cameraHandler);
+			Set<CameraNode> selectedCams = getCameraNodesFromArea(minFlat, maxFlat, cameraHandler);
 			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
 		}
 
@@ -295,23 +296,30 @@ public class SelectionManager extends AbstractSelectionManager {
 				}
 			}
 			Set<GeosetVertex> selectedVerts = addVertsFromArea(minFlat, maxFlat, cameraHandler);
-			return new SelectionBundle(selectedItems, selectedVerts);
+			Set<CameraNode> selectedCams = new HashSet<>();
+			for(CameraNode cameraNode : modelView.getEditableCameraNodes()) {
+				if (modelView.isEditable(cameraNode)){
+					RenderNodeCamera renderNode = editorRenderModel.getRenderNode(cameraNode.getParent());
+					Vec3 pivot = cameraNode instanceof CameraNode.SourceNode ? renderNode.getPivot() : renderNode.getTarget();
+					if(HitTestStuff.hitTest(minFlat, maxFlat, pivot, viewPortMat, 2)){
+						selectedCams.add(cameraNode);
+					}
+				}
+			}
+			return new SelectionBundle(selectedItems, selectedVerts, selectedCams);
 		}
 		return new SelectionBundle(Collections.emptySet());
 	}
 
-	private Set<Camera> getCamerasFromArea(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-		Set<Camera> selectedCams = new HashSet<>();
-		for (Camera camera : modelView.getEditableCameras()) {
+	private Set<CameraNode> getCameraNodesFromArea(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
+		Set<CameraNode> selectedCamNodes = new HashSet<>();
+		for (CameraNode node : modelView.getEditableCameraNodes()) {
 			int vertexSize = ProgramGlobals.getPrefs().getVertexSize();
-			if (modelView.isEditable(camera) && HitTestStuff.hitTest(min, max, camera.getPosition(), coordinateSystem, vertexSize)) {
-				selectedCams.add(camera);
-			}
-			if (modelView.isEditable(camera) && HitTestStuff.hitTest(min, max, camera.getTargetPosition(), coordinateSystem, vertexSize)) {
-				selectedCams.add(camera);
+			if (modelView.isEditable(node) && HitTestStuff.hitTest(min, max, node.getPosition(), coordinateSystem, vertexSize)) {
+				selectedCamNodes.add(node);
 			}
 		}
-		return selectedCams;
+		return selectedCamNodes;
 	}
 
 	private Set<IdObject> getIdObjectsFromArea(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
@@ -360,19 +368,16 @@ public class SelectionManager extends AbstractSelectionManager {
 	}
 // ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓  3D  ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
-	private Set<Camera> getCamerasFromArea(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
-		Set<Camera> selectedCams = new HashSet<>();
+	private Set<CameraNode> getCameraNodesFromArea(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
+		Set<CameraNode> selectedCamNodes = new HashSet<>();
 		double vertexSize = cameraHandler.geomDist(ProgramGlobals.getPrefs().getVertexSize() / 2.0);
 		Mat4 viewPortMat = cameraHandler.getViewPortAntiRotMat();
-		for (Camera camera : modelView.getEditableCameras()) {
-			if (modelView.isEditable(camera) && HitTestStuff.hitTest(min, max, camera.getPosition(), viewPortMat, vertexSize)) {
-				selectedCams.add(camera);
-			}
-			if (modelView.isEditable(camera) && HitTestStuff.hitTest(min, max, camera.getTargetPosition(), viewPortMat, vertexSize)) {
-				selectedCams.add(camera);
+		for (CameraNode node : modelView.getEditableCameraNodes()) {
+			if (modelView.isEditable(node) && HitTestStuff.hitTest(min, max, node.getPosition(), viewPortMat, vertexSize)) {
+				selectedCamNodes.add(node);
 			}
 		}
-		return selectedCams;
+		return selectedCamNodes;
 	}
 
 	private Set<IdObject> getIdObjectsFromArea(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
@@ -444,7 +449,7 @@ public class SelectionManager extends AbstractSelectionManager {
 					radius = distance;
 				}
 			}
-			for (Camera item : modelView.getSelectedCameras()) {
+			for (CameraNode item : modelView.getSelectedCameraNodes()) {
 				double distance = sphereCenter.distance(item.getPosition());
 				if (distance >= radius) {
 					radius = distance;
@@ -553,12 +558,9 @@ public class SelectionManager extends AbstractSelectionManager {
 			}
 		}
 		double vertexSize = ProgramGlobals.getPrefs().getVertexSize() / 2.0 / coordinateSystem.getZoom();
-		for (Camera camera : modelView.getEditableCameras()) {
-			if(modelView.isEditable(camera)){
-				if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(camera.getPosition()), point, vertexSize)) {
-					return true;
-				}
-				if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(camera.getTargetPosition()), point, vertexSize)) {
+		for (CameraNode cameraNode : modelView.getEditableCameraNodes()) {
+			if(modelView.isEditable(cameraNode)){
+				if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(cameraNode.getPosition()), point, vertexSize)) {
 					return true;
 				}
 			}
@@ -646,11 +648,8 @@ public class SelectionManager extends AbstractSelectionManager {
 		}
 
 		double vertexSize2 = cameraHandler.geomDist(ProgramGlobals.getPrefs().getVertexSize() / 2.0);
-		for (Camera camera : modelView.getEditableCameras()) {
-			if (HitTestStuff.hitTest(camera.getPosition(), point, cameraHandler, vertexSize2)) {
-				return true;
-			}
-			if (HitTestStuff.hitTest(camera.getTargetPosition(), point, cameraHandler, vertexSize2)) {
+		for (CameraNode cameraNode : modelView.getEditableCameraNodes()) {
+			if (HitTestStuff.hitTest(cameraNode.getPosition(), point, cameraHandler, vertexSize2)) {
 				return true;
 			}
 		}

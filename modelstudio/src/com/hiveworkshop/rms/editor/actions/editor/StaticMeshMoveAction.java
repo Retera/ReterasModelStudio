@@ -2,7 +2,7 @@ package com.hiveworkshop.rms.editor.actions.editor;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.CameraNode;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -15,13 +15,13 @@ public final class StaticMeshMoveAction implements GenericMoveAction {
 	private final Vec3 moveVector;
 	private final Set<GeosetVertex> selectedVertices;
 	private final Set<IdObject> selectedIdObjects;
-	private final Set<Camera> selectedCameras;
+	private final Set<CameraNode> selectedCameraNodes;
 
 	public StaticMeshMoveAction(ModelView modelView, Vec3 moveVector) {
 		this.moveVector = new Vec3(moveVector);
 		selectedVertices = new HashSet<>(modelView.getSelectedVertices());
 		selectedIdObjects = new HashSet<>(modelView.getSelectedIdObjects());
-		selectedCameras = new HashSet<>(modelView.getSelectedCameras());
+		selectedCameraNodes = new HashSet<>(modelView.getSelectedCameraNodes());
 	}
 
 	@Override
@@ -52,8 +52,8 @@ public final class StaticMeshMoveAction implements GenericMoveAction {
 			}
 		}
 
-		for (Camera camera : selectedCameras) {
-			camera.getPosition().add(vec3);
+		for (CameraNode cameraNode : selectedCameraNodes) {
+			cameraNode.getPosition().add(vec3);
 		}
 	}
 

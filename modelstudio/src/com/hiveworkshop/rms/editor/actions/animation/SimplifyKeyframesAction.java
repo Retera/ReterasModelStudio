@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.actions.animation;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.SimplifyKeyframesFlagAction;
+import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -29,7 +30,21 @@ public class SimplifyKeyframesAction implements UndoAction {
 				actions.add(new SimplifyKeyframesFlagAction<>(idObject.find(MdlUtils.TOKEN_ROTATION), allSequences, rot));
 			}
 		}
+	}
 
+	public SimplifyKeyframesAction(Collection<Camera> cameras, List<Sequence> sequences, float trans, float rot) {
+		actions = new ArrayList<>();
+		for (Camera camera : cameras) {
+			if (trans >= 0 && camera.getSourceNode().has(MdlUtils.TOKEN_TRANSLATION)) {
+				actions.add(new SimplifyKeyframesFlagAction<>(camera.getSourceNode().find(MdlUtils.TOKEN_TRANSLATION), sequences, trans));
+			}
+			if (rot >= 0 && camera.getSourceNode().has(MdlUtils.TOKEN_ROTATION)) {
+				actions.add(new SimplifyKeyframesFlagAction<>(camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION), sequences, rot));
+			}
+			if (trans >= 0 && camera.getTargetNode().has(MdlUtils.TOKEN_TRANSLATION)) {
+				actions.add(new SimplifyKeyframesFlagAction<>(camera.getTargetNode().find(MdlUtils.TOKEN_TRANSLATION), sequences, trans));
+			}
+		}
 	}
 
 	public SimplifyKeyframesAction(Collection<AnimFlag<?>> animFlags, List<Sequence> sequences, float valueDiff) {

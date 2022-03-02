@@ -1,18 +1,10 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCamera;
-import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Camera class, these are the things most people would think of as a particle
@@ -23,24 +15,22 @@ import java.util.List;
  * Eric Theller 3/10/2012 3:32 PM
  */
 public class Camera implements Named {
-	String name;
-	Vec3 position;
-	double fieldOfView;
-	double farClip;
-	double nearClip;
-	Vec3 targetPosition;
-	List<AnimFlag<Vec3>> targetAnimFlags = new ArrayList<>();
-	final SourceNode sourceNode = new SourceNode(this);
-	final TargetNode targetNode = new TargetNode(this);
-	float[] bindPose;
+	private String name;
+	private double fieldOfView;
+	private double farClip;
+	private double nearClip;
+	private final CameraNode.SourceNode sourceNode;
+	private final CameraNode.TargetNode targetNode;
+	private float[] bindPose;
 
 	public Camera(MdlxCamera camera, EditableModel model) {
 		name = camera.name;
-		position = new Vec3(camera.position);
+		sourceNode = new CameraNode.SourceNode(this, new Vec3(camera.position));
+		targetNode = new CameraNode.TargetNode(this, new Vec3(camera.targetPosition));
 		fieldOfView = camera.fieldOfView;
 		farClip = camera.farClippingPlane;
 		nearClip = camera.nearClippingPlane;
-		targetPosition = new Vec3(camera.targetPosition);
+//		System.out.println(timeline.getClass().getSimpleName() + ", name: " + timeline.name + ", vSize: " + timeline.vSize());
 
 		for (MdlxTimeline<?> timeline : camera.timelines) {
 			if (timeline.name.equals(AnimationMap.KTTR.getWar3id())) {
@@ -51,13 +41,25 @@ public class Camera implements Named {
 		}
 	}
 
+	public Camera(String name) {
+		this.name = name;
+
+		sourceNode = new CameraNode.SourceNode(this);
+		targetNode = new CameraNode.TargetNode(this);
+		fieldOfView = Math.toRadians(90);
+		farClip = 2000;
+		nearClip = 10;
+	}
+
 	private Camera(Camera camera) {
 		name = camera.name;
-		position = new Vec3(camera.position);
+
+		sourceNode = camera.sourceNode.deepCopy(this);
+		targetNode = camera.targetNode.deepCopy(this);
+
 		fieldOfView = camera.fieldOfView;
 		farClip = camera.farClip;
 		nearClip = camera.nearClip;
-		targetPosition = new Vec3(camera.targetPosition);
 
 		for (AnimFlag<?> animFlag : camera.targetNode.getAnimFlags()) {
 			targetNode.add(animFlag.deepCopy());
@@ -94,11 +96,11 @@ public class Camera implements Named {
 	}
 
 	public Vec3 getPosition() {
-		return position;
+		return sourceNode.getPosition();
 	}
 
 	public void setPosition(Vec3 position) {
-		this.position = position;
+		sourceNode.setPosition(position);
 	}
 
 	public double getFieldOfView() {
@@ -126,11 +128,11 @@ public class Camera implements Named {
 	}
 
 	public Vec3 getTargetPosition() {
-		return targetPosition;
+		return targetNode.getPosition();
 	}
 
 	public void setTargetPosition(Vec3 targetPosition) {
-		this.targetPosition = targetPosition;
+		targetNode.setPosition(targetPosition);
 	}
 
 	public float[] getBindPose() {
@@ -141,123 +143,15 @@ public class Camera implements Named {
 		this.bindPose = bindPose;
 	}
 
-	public SourceNode getSourceNode() {
+	public CameraNode.SourceNode getSourceNode() {
 		return sourceNode;
 	}
 
-	public TargetNode getTargetNode() {
+	public CameraNode.TargetNode getTargetNode() {
 		return targetNode;
 	}
 
 	public Camera deepCopy() {
 		return new Camera(this);
-	}
-
-	public static class SourceNode extends AnimatedNode {
-		private static Quat rotationHeap = new Quat(0, 0, 0, 1);
-		Vec3 axisHeap = new Vec3();
-
-		private Camera parent;
-
-		private SourceNode(Camera parent) {
-			this.parent = parent;
-		}
-
-		@Override
-		public Vec3 getPivotPoint() {
-			return parent.position;
-		}
-
-		@Override
-		public String getName() {
-			return "Source of: " + parent.name;
-		}
-
-		@Override
-		public float getRenderVisibility(TimeEnvironmentImpl animatedRenderEnvironment) {
-			return 1;
-		}
-
-		@Override
-		public Quat getRenderRotation(TimeEnvironmentImpl animatedRenderEnvironment) {
-			AnimFlag<?> translationFlag = find("Rotation");
-			if (translationFlag instanceof FloatAnimFlag) {
-				Float angle = (Float) translationFlag.interpolateAt(animatedRenderEnvironment);
-				Vec3 targetTranslation = parent.targetNode.getRenderTranslation(animatedRenderEnvironment);
-				Vec3 targetPosition = parent.targetPosition;
-				Vec3 sourceTranslation = getRenderTranslation(animatedRenderEnvironment);
-				Vec3 sourcePosition = parent.position;
-				axisHeap.set(targetPosition).add(targetTranslation).sub(sourcePosition).sub(sourceTranslation);
-//					axisHeap.x = (targetPosition.x + targetTranslation.x) - (sourcePosition.x + sourceTranslation.x);
-//					axisHeap.y = (targetPosition.y + targetTranslation.y) - (sourcePosition.y + sourceTranslation.y);
-//					axisHeap.z = (targetPosition.z + targetTranslation.z) - (sourcePosition.z + sourceTranslation.z);
-				rotationHeap.setFromAxisAngle(axisHeap, angle);
-				return rotationHeap;
-			} else if (translationFlag instanceof QuatAnimFlag) {
-				return (Quat) translationFlag.interpolateAt(animatedRenderEnvironment);
-			}
-//			if (translationFlag != null) {
-//				Object interpolated = translationFlag.interpolateAt(animatedRenderEnvironment);
-//				if (interpolated instanceof Float) {
-//					Float angle = (Float) interpolated;
-//					Vec3 targetTranslation = parent.targetNode.getRenderTranslation(animatedRenderEnvironment);
-//					Vec3 targetPosition = parent.targetPosition;
-//					Vec3 sourceTranslation = getRenderTranslation(animatedRenderEnvironment);
-//					Vec3 sourcePosition = parent.position;
-//					axisHeap.set(targetPosition).add(targetTranslation).sub(sourcePosition).sub(sourceTranslation);
-////					axisHeap.x = (targetPosition.x + targetTranslation.x) - (sourcePosition.x + sourceTranslation.x);
-////					axisHeap.y = (targetPosition.y + targetTranslation.y) - (sourcePosition.y + sourceTranslation.y);
-////					axisHeap.z = (targetPosition.z + targetTranslation.z) - (sourcePosition.z + sourceTranslation.z);
-//					rotationHeap.setFromAxisAngle(axisHeap, angle);
-//					return rotationHeap;
-//				} else {
-//					return (Quat) interpolated;
-//				}
-//			}
-			return null;
-		}
-
-		public float getRenderRotationScalar(TimeEnvironmentImpl animatedRenderEnvironment) {
-//			return getInterpolatedFloat(animatedRenderEnvironment, "Rotation", 0);
-			return getInterpolatedInteger(animatedRenderEnvironment, MdlUtils.TOKEN_ROTATION, 0);
-		}
-
-		@Override
-		public Vec3 getRenderScale(TimeEnvironmentImpl animatedRenderEnvironment) {
-			return AnimFlag.SCALE_IDENTITY;
-		}
-	}
-
-	public static class TargetNode extends AnimatedNode {
-		private Camera parent;
-
-		private TargetNode(Camera parent) {
-			this.parent = parent;
-		}
-
-		@Override
-		public Vec3 getPivotPoint() {
-			return parent.targetPosition;
-		}
-
-		@Override
-		public String getName() {
-			return "Target of: " + parent.name;
-		}
-
-		@Override
-		public float getRenderVisibility(TimeEnvironmentImpl animatedRenderEnvironment) {
-			return 1;
-		}
-
-		@Override
-		public Quat getRenderRotation(TimeEnvironmentImpl animatedRenderEnvironment) {
-			return AnimFlag.ROTATE_IDENTITY;
-		}
-
-		@Override
-		public Vec3 getRenderScale(TimeEnvironmentImpl animatedRenderEnvironment) {
-			return AnimFlag.SCALE_IDENTITY;
-		}
 	}
 }

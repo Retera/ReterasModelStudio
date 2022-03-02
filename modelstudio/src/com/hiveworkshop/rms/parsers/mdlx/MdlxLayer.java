@@ -88,18 +88,18 @@ public class MdlxLayer extends MdlxAnimatedObject {
 		while (iterator.hasNext()) {
 			final String token = iterator.next();
 			switch (token) {
-			case MdlUtils.TOKEN_FILTER_MODE:
-				filterMode = FilterMode.fromId(FilterMode.nameToId(stream.read()));
-				break;
-			case MdlUtils.TOKEN_UNSHADED:
-				flags |= 0x1;
-				break;
-			case MdlUtils.TOKEN_SPHERE_ENV_MAP:
-				flags |= 0x2;
-				break;
-			case MdlUtils.TOKEN_TWO_SIDED:
-				flags |= 0x10;
-				break;
+				case MdlUtils.TOKEN_FILTER_MODE:
+					filterMode = FilterMode.fromId(FilterMode.nameToId(stream.read()));
+					break;
+				case MdlUtils.TOKEN_UNSHADED:
+					flags |= 0x1;
+					break;
+				case MdlUtils.TOKEN_SPHERE_ENV_MAP:
+					flags |= 0x2;
+					break;
+				case MdlUtils.TOKEN_TWO_SIDED:
+					flags |= 0x10;
+					break;
 				case MdlUtils.TOKEN_UNFOGGED:
 					flags |= 0x20;
 					break;
@@ -111,6 +111,7 @@ public class MdlxLayer extends MdlxAnimatedObject {
 					break;
 				case MdlUtils.TOKEN_UNLIT:
 					flags |= 0x100;
+					break;
 				case MdlUtils.TOKEN_STATIC_TEXTURE_ID:
 					textureId = stream.readInt();
 					break;

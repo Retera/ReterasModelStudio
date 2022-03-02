@@ -1,11 +1,12 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
-import com.hiveworkshop.rms.editor.actions.selection.SetSelectionAction;
+import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorWidgetType;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
@@ -27,6 +28,7 @@ public class UVLinkActions {
 	private AbstractAction redoAction;
 	private boolean cheatShift = false;
 	private boolean cheatAlt = false;
+	private ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
 
 	public UVLinkActions(UVPanel uvPanel) {
 		this.uvPanel = uvPanel;
@@ -109,7 +111,7 @@ public class UVLinkActions {
 			expandSelection(v, expandedSelection);
 		}
 
-		modelPanel.getUndoManager().pushAction(new SetSelectionAction(expandedSelection, modelView, "expand selection").redo());
+		modelPanel.getUndoManager().pushAction(new SetSelectionUggAction(expandedSelection, modelView, "expand selection", changeListener).redo());
 		uvPanel.repaint();
 	}
 
@@ -131,7 +133,7 @@ public class UVLinkActions {
 		}
 		invertedSelection.removeAll(modelView.getSelectedVertices());
 
-		modelPanel.getUndoManager().pushAction(new SetSelectionAction(invertedSelection, modelView, "invert selection").redo());
+		modelPanel.getUndoManager().pushAction(new SetSelectionUggAction(invertedSelection, modelView, "invert selection", changeListener).redo());
 		uvPanel.repaint();
 	}
 
@@ -141,12 +143,12 @@ public class UVLinkActions {
 			allSelection.addAll(geo.getVertices());
 		}
 
-		modelPanel.getUndoManager().pushAction(new SetSelectionAction(allSelection, modelView, "select all").redo());
+		modelPanel.getUndoManager().pushAction(new SetSelectionUggAction(allSelection, modelView, "select all", changeListener).redo());
 		uvPanel.repaint();
 	}
 
 	public void selectFromViewer(ModelView modelView) {
-		modelPanel.getUndoManager().pushAction(new SetSelectionAction(modelView.getSelectedVertices(), modelView, "").redo());
+		modelPanel.getUndoManager().pushAction(new SetSelectionUggAction(modelView.getSelectedVertices(), modelView, "", changeListener).redo());
 		uvPanel.repaint();
 	}
 

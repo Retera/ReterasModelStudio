@@ -16,12 +16,13 @@ public final class ModelView {
 	private final Set<GeosetVertex> selectedTVertices = new HashSet<>();
 	private final Set<GeosetVertex> selectedVertices = new HashSet<>();
 	private final Set<IdObject> selectedIdObjects = new HashSet<>();
-	private final Set<Camera> selectedCameras = new HashSet<>();
+	private final Set<CameraNode> selectedCameraNodes = new HashSet<>();
 
 	private final Set<GeosetVertex> selEdTVertices = new HashSet<>();
 	private final Set<GeosetVertex> selEdVertices = new HashSet<>();
 	private final Set<IdObject> selEdIdObjects = new HashSet<>();
 	private final Set<Camera> selEdCameras = new HashSet<>();
+	private final Set<CameraNode> selEdCameraNodes = new HashSet<>();
 
 	private final Set<GeosetVertex> hiddenVertices = new HashSet<>();
 	private final Set<GeosetVertex> editableVertices = new HashSet<>();
@@ -42,6 +43,11 @@ public final class ModelView {
 	private final Set<Camera> visibleCameras = new HashSet<>();
 	private final Set<Camera> hiddenCameras = new HashSet<>();
 
+	private final Set<CameraNode> editableCameraNodes = new HashSet<>();
+	private final Set<CameraNode> notEditableCameraNodes = new HashSet<>();
+	private final Set<CameraNode> visibleCameraNodes = new HashSet<>();
+	private final Set<CameraNode> hiddenCameraNodes = new HashSet<>();
+
 	private Geoset highlightedGeoset;
 	private IdObject highlightedNode;
 	private Camera highlightedCamera;
@@ -49,7 +55,7 @@ public final class ModelView {
 
 	private boolean geosetsVisible = true;
 	private boolean idObjectsVisible = true;
-	private boolean camerasVisible = false;
+	private boolean camerasVisible = true;
 	private boolean geosetsEditable = true;
 	private boolean idObjectsEditable = true;
 	private boolean camerasEditable = true;
@@ -72,6 +78,15 @@ public final class ModelView {
 		visibleIdObjects.addAll(model.getIdObjects());
 		editableCameras.addAll(model.getCameras());
 		visibleCameras.addAll(model.getCameras());
+
+		editableCameras.forEach(c -> {
+			editableCameraNodes.add(c.getSourceNode());
+			editableCameraNodes.add(c.getTargetNode());
+		});
+		visibleCameras.forEach(c -> {
+			visibleCameraNodes.add(c.getSourceNode());
+			visibleCameraNodes.add(c.getTargetNode());
+		});
 	}
 
 	public Set<Geoset> getVisibleGeosets() {
@@ -107,6 +122,18 @@ public final class ModelView {
 	public Set<Camera> getEditableCameras() {
 //		return editableCameras;
 		if (camerasVisible && camerasEditable) return editableCameras;
+		return Collections.emptySet();
+	}
+
+	public Set<CameraNode> getVisibleCameraNodes() {
+//		return visibleCameras;
+		if (camerasVisible) return visibleCameraNodes;
+		return Collections.emptySet();
+	}
+
+	public Set<CameraNode> getEditableCameraNodes() {
+//		return editableCameras;
+		if (camerasVisible && camerasEditable) return editableCameraNodes;
 		return Collections.emptySet();
 	}
 
@@ -195,28 +222,42 @@ public final class ModelView {
 	public void makeCameraVisible(Camera camera) {
 		visibleCameras.add(camera);
 		hiddenCameras.remove(camera);
+		visibleCameraNodes.add(camera.getSourceNode());
+		visibleCameraNodes.add(camera.getTargetNode());
+		hiddenCameraNodes.remove(camera.getTargetNode());
+		hiddenCameraNodes.remove(camera.getSourceNode());
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
 	public void makeCameraEditable(Camera camera) {
 		editableCameras.add(camera);
-//		visibleCameras.add(camera);
-//		hiddenCameras.remove(camera);
 		notEditableCameras.remove(camera);
+		editableCameraNodes.add(camera.getSourceNode());
+		editableCameraNodes.add(camera.getTargetNode());
+		notEditableCameraNodes.remove(camera.getTargetNode());
+		notEditableCameraNodes.remove(camera.getSourceNode());
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
 	public void makeCameraNotVisible(Camera camera) {
-//		editableCameras.remove(camera);
 		visibleCameras.remove(camera);
 		hiddenCameras.add(camera);
-//		notEditableCameras.add(camera);
+
+		visibleCameraNodes.remove(camera.getSourceNode());
+		visibleCameraNodes.remove(camera.getTargetNode());
+		hiddenCameraNodes.add(camera.getTargetNode());
+		hiddenCameraNodes.add(camera.getSourceNode());
+
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
 	public void makeCameraNotEditable(Camera camera) {
 		editableCameras.remove(camera);
 		notEditableCameras.add(camera);
+		editableCameraNodes.remove(camera.getSourceNode());
+		editableCameraNodes.remove(camera.getTargetNode());
+		notEditableCameraNodes.add(camera.getTargetNode());
+		notEditableCameraNodes.add(camera.getSourceNode());
 		ProgramGlobals.getMainPanel().repaint();
 	}
 
@@ -336,7 +377,13 @@ public final class ModelView {
 		hiddenCameras.removeIf(camera -> !modelCameras.contains(camera));
 		editableCameras.removeIf(camera -> !modelCameras.contains(camera));
 		notEditableCameras.removeIf(camera -> !modelCameras.contains(camera));
-		selectedCameras.removeIf(camera -> !modelCameras.contains(camera));
+
+
+		visibleCameraNodes.removeIf(node -> !modelCameras.contains(node.getParent()));
+		hiddenCameraNodes.removeIf(node -> !modelCameras.contains(node.getParent()));
+		editableCameraNodes.removeIf(node -> !modelCameras.contains(node.getParent()));
+		notEditableCameraNodes.removeIf(node -> !modelCameras.contains(node.getParent()));
+		selectedCameraNodes.removeIf(node -> !modelCameras.contains(node.getParent()));
 
 		for (Camera camera : modelCameras) {
 			if (!visibleCameras.contains(camera)
@@ -345,6 +392,10 @@ public final class ModelView {
 					&& !notEditableCameras.contains(camera)){
 				visibleCameras.add(camera);
 				editableCameras.add(camera);
+				editableCameraNodes.add(camera.getSourceNode());
+				editableCameraNodes.add(camera.getTargetNode());
+				visibleCameraNodes.add(camera.getSourceNode());
+				visibleCameraNodes.add(camera.getTargetNode());
 			}
 		}
 //		modelCameras.removeAll(visibleCameras);
@@ -442,6 +493,10 @@ public final class ModelView {
 		return camerasEditable && camerasVisible && editableCameras.contains(ob) && visibleCameras.contains(ob);
 	}
 
+	public boolean isEditable(CameraNode ob) {
+		return camerasEditable && camerasVisible && editableCameraNodes.contains(ob) && visibleCameraNodes.contains(ob);
+	}
+
 	public boolean shouldRender(Geoset ob) {
 		return visibleGeosets.contains(ob) && geosetsVisible;
 	}
@@ -466,12 +521,16 @@ public final class ModelView {
 		return camerasEditable && camerasVisible && editableCameras.contains(ob) && visibleCameras.contains(ob);
 	}
 
+	public boolean canSelect(CameraNode ob) {
+		return camerasEditable && camerasVisible && editableCameraNodes.contains(ob) && visibleCameraNodes.contains(ob);
+	}
+
 	public Vec3 getSelectionCenter() {
 		Set<Vec3> selectedPoints = new HashSet<>();
 		selectedVertices.stream().filter(editableVertices::contains).filter(v -> !hiddenVertices.contains(v)).forEach(selectedPoints::add);
 //		selectedVertices.stream().forEach(selectedPoints::add);
 		selectedIdObjects.stream().filter(editableIdObjects::contains).filter(visibleIdObjects::contains).forEach(o -> selectedPoints.add(o.getPivotPoint()));
-		selectedCameras.stream().filter(editableCameras::contains).filter(visibleCameras::contains).forEach(c -> selectedPoints.add(c.getPosition()));
+		selectedCameraNodes.stream().filter(editableCameraNodes::contains).filter(visibleCameraNodes::contains).forEach(n -> selectedPoints.add(n.getPosition()));
 
 		return Vec3.centerOfGroup(selectedPoints);
 	}
@@ -511,15 +570,36 @@ public final class ModelView {
 //		return selectedCameras;
 		if (!camerasEditable || !camerasVisible) return Collections.emptySet();
 		selEdCameras.clear();
-		selEdCameras.addAll(selectedCameras);
-		selEdCameras.removeAll(hiddenCameras);
-		selEdCameras.removeAll(notEditableCameras);
+		for (CameraNode node : selectedCameraNodes){
+			Camera camera = node.getParent();
+			if(editableCameras.contains(camera) && visibleCameras.contains(camera)){
+				selEdCameras.add(camera);
+			}
+		}
 		return selEdCameras;
 	}
 
 	public void setSelectedCameras(Collection<Camera> cameras) {
-		selectedCameras.clear();
-		selectedCameras.addAll(cameras);
+		selectedCameraNodes.clear();
+		cameras.forEach(c -> {
+			selectedCameraNodes.add(c.getSourceNode());
+			selectedCameraNodes.add(c.getTargetNode());
+		});
+	}
+
+	public Set<CameraNode> getSelectedCameraNodes() {
+//		return selectedCameras;
+		if (!camerasEditable || !camerasVisible) return Collections.emptySet();
+		selEdCameraNodes.clear();
+		selEdCameraNodes.addAll(selectedCameraNodes);
+		selEdCameraNodes.removeAll(hiddenCameraNodes);
+		selEdCameraNodes.removeAll(notEditableCameraNodes);
+		return selEdCameraNodes;
+	}
+
+	public void setSelectedCameraNodes(Collection<CameraNode> cameraNodes) {
+		selectedCameraNodes.clear();
+		selectedCameraNodes.addAll(cameraNodes);
 	}
 
 	public Set<Triangle> getSelectedTriangles() {
@@ -598,23 +678,51 @@ public final class ModelView {
 	}
 
 	public void addSelectedCamera(Camera camera) {
-		selectedCameras.add(camera);
+		selectedCameraNodes.add(camera.getSourceNode());
+		selectedCameraNodes.add(camera.getTargetNode());
 	}
 
 	public void addSelectedCameras(Collection<Camera> cameras) {
-		selectedCameras.addAll(cameras);
+		cameras.forEach(c -> {
+			selectedCameraNodes.add(c.getSourceNode());
+			selectedCameraNodes.add(c.getTargetNode());
+		});
 	}
 
 	public void clearSelectedCameras() {
-		selectedCameras.clear();
+		selectedCameraNodes.clear();
 	}
 
 	public void removeSelectedCameras(Collection<Camera> cameras) {
-		selectedCameras.removeAll(cameras);
+		cameras.forEach(c -> {
+			selectedCameraNodes.remove(c.getSourceNode());
+			selectedCameraNodes.remove(c.getTargetNode());
+		});
 	}
 
 	public void removeSelectedCamera(Camera camera) {
-		selectedCameras.remove(camera);
+		selectedCameraNodes.remove(camera.getSourceNode());
+		selectedCameraNodes.remove(camera.getTargetNode());
+	}
+
+	public void addSelectedCameraNode(CameraNode camera) {
+		selectedCameraNodes.add(camera);
+	}
+
+	public void addSelectedCameraNodes(Collection<CameraNode> cameras) {
+		selectedCameraNodes.addAll(cameras);
+	}
+
+	public void clearSelectedCameraNodes() {
+		selectedCameraNodes.clear();
+	}
+
+	public void removeSelectedCameraNodes(Collection<CameraNode> cameras) {
+		selectedCameraNodes.removeAll(cameras);
+	}
+
+	public void removeSelectedCameraNode(CameraNode camera) {
+		selectedCameraNodes.remove(camera);
 	}
 
 	public boolean isSelected(GeosetVertex geosetVertex) {
@@ -626,7 +734,11 @@ public final class ModelView {
 	}
 
 	public boolean isSelected(Camera camera) {
-		return selectedCameras.contains(camera);
+		return selectedCameraNodes.contains(camera.getSourceNode()) || selectedCameraNodes.contains(camera.getTargetNode());
+	}
+
+	public boolean isSelected(CameraNode node) {
+		return selectedCameraNodes.contains(node);
 	}
 
 	public void invertVertSelection() {
@@ -645,9 +757,9 @@ public final class ModelView {
 	}
 
 	public void invertCamSelection() {
-		Set<Camera> tempCams = new HashSet<>(editableCameras);
-		tempCams.removeAll(selectedCameras);
-		setSelectedCameras(tempCams);
+		Set<CameraNode> tempCamNodes = new HashSet<>(editableCameraNodes);
+		tempCamNodes.removeAll(selectedCameraNodes);
+		setSelectedCameraNodes(tempCamNodes);
 	}
 
 	public void invertSelection() {
@@ -667,7 +779,10 @@ public final class ModelView {
 	}
 
 	public void selectAllCams() {
-		selectedCameras.addAll(editableCameras);
+		selectedCameraNodes.addAll(editableCameraNodes);
+	}
+	public void selectAllCamNodes() {
+		selectedCameraNodes.addAll(editableCameraNodes);
 	}
 
 	public void selectAll() {
@@ -683,7 +798,7 @@ public final class ModelView {
 			selectedIdObjects.addAll(editableIdObjects);
 		}
 		if (camerasVisible && camerasEditable) {
-			selectedCameras.addAll(editableCameras);
+			selectedCameraNodes.addAll(editableCameraNodes);
 		}
 	}
 
@@ -753,6 +868,8 @@ public final class ModelView {
 			return editableIdObjects.contains(obj);
 		} else if (obj instanceof Camera) {
 			return editableCameras.contains(obj);
+		} else if (obj instanceof CameraNode) {
+			return editableCameraNodes.contains(obj);
 		}
 		return false;
 	}
@@ -770,6 +887,9 @@ public final class ModelView {
 		} else if (obj instanceof Camera) {
 //			System.out.println("Camera inVissible:" + visibleCameras.contains(obj));
 			return visibleCameras.contains(obj);
+		} else if (obj instanceof CameraNode) {
+//			System.out.println("Camera inVissible:" + visibleCameras.contains(obj));
+			return visibleCameraNodes.contains(obj);
 		}
 		return false;
 	}
@@ -834,29 +954,33 @@ public final class ModelView {
 //			System.out.println("Geoset Higlighted!");
 			highlightedGeoset = (Geoset) obj;
 			highlightedNode = null;
+			highlightedCamera = null;
 		} else if (obj instanceof IdObject) {
 //			System.out.println("IdObject Higlighted!");
 			highlightedGeoset = null;
 			highlightedNode = (IdObject) obj;
+			highlightedCamera = null;
 		} else if (obj instanceof Camera) {
 //			System.out.println("Camera (not) Higlighted!");
 			highlightedGeoset = null;
 			highlightedNode = null;
+			highlightedCamera = (Camera) obj;
 		} else {
 			highlightedGeoset = null;
 			highlightedNode = null;
+			highlightedCamera = null;
 		}
 		ProgramGlobals.getMainPanel().repaint();
 		return this;
 	}
 
-	public boolean sameSelection(Collection<GeosetVertex> verts, Collection<IdObject> objs, Collection<Camera> cams) {
+	public boolean sameSelection(Collection<GeosetVertex> verts, Collection<IdObject> objs, Collection<CameraNode> cams) {
 		return (selectedVertices.size() == verts.size() && selectedVertices.containsAll(verts)
 				&& selectedIdObjects.size() == objs.size() && selectedIdObjects.containsAll(objs)
-				&& selectedCameras.size() == cams.size() && selectedCameras.containsAll(cams));
+				&& selectedCameraNodes.size() == cams.size() && selectedCameraNodes.containsAll(cams));
 	}
 
 	public boolean isEmpty() {
-		return selectedVertices.isEmpty() && selectedIdObjects.isEmpty() && selectedCameras.isEmpty();
+		return selectedVertices.isEmpty() && selectedIdObjects.isEmpty() && selectedCameraNodes.isEmpty();
 	}
 }

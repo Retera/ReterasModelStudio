@@ -159,6 +159,16 @@ public class GeosetVertex extends Vec3 {
 		return this;
 	}
 	public GeosetVertex replaceBones(Map<IdObject, IdObject> newBoneMap, boolean removeIfNull) {
+		if(skinBones != null){
+			for (SkinBone skinBone : skinBones){
+				if (skinBone != null && skinBone.getBone() != null){
+					IdObject idObject = newBoneMap.get(skinBone.getBone());
+					if(idObject instanceof Bone && !(idObject instanceof Helper)){
+						skinBone.setBone((Bone) idObject);
+					}
+				}
+			}
+		}
 		matrix.replaceBones(newBoneMap, removeIfNull);
 		return this;
 	}

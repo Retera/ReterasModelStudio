@@ -1,9 +1,7 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.actions.editor.StaticMeshScaleAction;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -45,7 +43,12 @@ public class ScaleModel extends ActionFunction {
 		for(Geoset geoset : model.getGeosets()){
 			vertices.addAll(geoset.getVertices());
 		}
-		return new StaticMeshScaleAction(vertices, model.getIdObjects(), model.getCameras(), center);
+		Set<CameraNode> cameraNodes = new HashSet<>();
+		for (Camera camera : model.getCameras()){
+			cameraNodes.add(camera.getSourceNode());
+			cameraNodes.add(camera.getTargetNode());
+		}
+		return new StaticMeshScaleAction(vertices, model.getIdObjects(), cameraNodes, center);
 	}
 	private static void updateScaleModel(StaticMeshScaleAction action, Vec3 scale, float scaleFloat, float[] lastScaleFloat){
 		float newScale = 0f + (scaleFloat/lastScaleFloat[0]);

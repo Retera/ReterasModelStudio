@@ -62,58 +62,6 @@ public class Vec3 {
 		}
 	}
 
-	public static void rotateVertex(final Vec3 center, final Vec3 axis, final double radians, final Vec3 vertex) {
-//        final double centerX = center.x;
-//        final double centerY = center.y;
-//        final double centerZ = center.z;
-//        final double vertexX = vertex.x;
-//        final double vertexY = vertex.y;
-//        final double vertexZ = vertex.z;
-//        final double deltaX = vertexX - centerX;
-//        final double deltaY = vertexY - centerY;
-//        final double deltaZ = vertexZ - centerZ;
-//        double radiansToApply;
-//        final double twoPi = Math.PI * 2;
-//        if (radians > Math.PI) {
-//            radiansToApply = (radians - twoPi) % twoPi;
-//        } else if (radians <= -Math.PI) {
-//            radiansToApply = (radians + twoPi) % twoPi;
-//        } else {
-//            radiansToApply = radians;
-//        }
-//        final double cosRadians = Math.cos(radiansToApply);
-//        if (radiansToApply == Math.PI) {
-//            vertex.x = (float) centerX - (float) deltaX;
-//            vertex.y = (float) centerY - (float) deltaY;
-//            vertex.z = (float) centerY - (float) deltaZ;
-//        }
-//        final double resultDeltaX = vertexX * cosRadians;
-//        throw new UnsupportedOperationException("NYI");
-	}
-
-	public static void rotateVertex2(final Vec3 center, final Vec3 axis, final double radians, final Vec3 vertex) {
-		Vec3 delta = getDiff(vertex, center);
-
-
-		double radiansToApply;
-		final double twoPi = Math.PI * 2;
-		if (radians > Math.PI) {
-			radiansToApply = (radians - twoPi) % twoPi;
-		} else if (radians <= -Math.PI) {
-			radiansToApply = (radians + twoPi) % twoPi;
-		} else {
-			radiansToApply = radians;
-		}
-		final double cosRadians = Math.cos(radiansToApply);
-		if (radiansToApply == Math.PI) {
-			vertex.x = (float) center.x - (float) delta.x;
-			vertex.y = (float) center.y - (float) delta.y;
-			vertex.z = (float) center.z - (float) delta.z;
-		}
-//        final double resultDeltaX = vertexX * cosRadians;
-		throw new UnsupportedOperationException("NYI");
-	}
-
 	public static Vec3 centerOfGroup(final Collection<? extends Vec3> group) {
 		final Vec3 center = new Vec3(0, 0, 0);
 
@@ -182,7 +130,7 @@ public class Vec3 {
 	}
 
 	public static Vec3 getBezier(final Vec3 from, final Vec3 outTan, final Vec3 inTan, final Vec3 toward, final float t) {
-		return new Vec3(from).hermite(outTan, inTan, toward, t);
+		return new Vec3(from).bezier(outTan, inTan, toward, t);
 	}
 
 
@@ -255,33 +203,6 @@ public class Vec3 {
 
 	public float distance(final Vec4 other) {
 		return distance(other.getVec3());
-	}
-
-	public Vec3 rotate(double centerX, double centerY, double centerZ, double radians,
-	                   byte firstXYZ, byte secondXYZ) {
-		double x1 = getCoord(firstXYZ);
-		double y1 = getCoord(secondXYZ);
-		double cx = getCenterDimCoord(centerX, centerY, centerZ, firstXYZ);// = coordinateSystem.geomX(centerX);
-		double dx = x1 - cx;
-		double cy = getCenterDimCoord(centerX, centerY, centerZ, secondXYZ);// = coordinateSystem.geomY(centerY);
-		double dy = y1 - cy;
-		double r = Math.sqrt((dx * dx) + (dy * dy));
-
-		double verAng = Math.acos(dx / r);
-		if (dy < 0) {
-			verAng = -verAng;
-		}
-		// if( getDimEditable(dim1) )
-		double newFirstCoord = (Math.cos(verAng + radians) * r) + cx;
-		if (!Double.isNaN(newFirstCoord)) {
-			setCoord(firstXYZ, newFirstCoord);
-		}
-		// if( getDimEditable(dim2) )
-		double newSecondCoord = (Math.sin(verAng + radians) * r) + cy;
-		if (!Double.isNaN(newSecondCoord)) {
-			setCoord(secondXYZ, newSecondCoord);
-		}
-		return this;
 	}
 
 	public Vec3 rotate(Vec3 center, double radians, byte firstXYZ, byte secondXYZ) {

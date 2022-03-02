@@ -31,7 +31,11 @@ public class GridPainter {
 		glBegin(GL11.GL_LINES);
 		GL11.glNormal3f(0, 0, 0);
 
-		int[] lineSpacingArr = new int[] {10, 50, 100};
+		float cameraPxSize1 = cameraHandler.getPixelSize()/2f; // 1px
+		double v = (int)Math.log10(cameraPxSize1);
+		float lineScaleMul = (float) Math.pow(10, v);
+
+		float[] lineSpacingArr = new float[] {10*lineScaleMul, 50*lineScaleMul, 100*lineScaleMul};
 		glColor4f(1f, 1f, 1f, .3f);
 
 		//Grid floor X
@@ -134,8 +138,8 @@ public class GridPainter {
 		lineHeapNeg[pos2] = 0;
 	}
 
-	private void drawUggDuoArr(int[] lineSpacing, int index, int lhi){
-		int lS = lineSpacing[index];//1
+	private void drawUggDuoArr(float[] lineSpacing, int index, int lhi){
+		float lS = lineSpacing[index];//1
 		for (lineHeapNeg[lhi] = lS, lineHeapPos[lhi] = lS; lineHeapNeg[lhi] < lineLength; lineHeapNeg[lhi] += lS, lineHeapPos[lhi] += lS) {
 			GL11.glVertex3f(lineHeapNeg[0],  lineHeapNeg[1], lineHeapNeg[2]);
 			GL11.glVertex3f(lineHeapPos[0],  lineHeapPos[1], lineHeapPos[2]);

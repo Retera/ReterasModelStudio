@@ -511,4 +511,26 @@ public class Geoset implements Named, VisibilitySource {
 		return geoset;
 	}
 
+	public Geoset emptyCopy(){
+		Geoset geoset = new Geoset();
+		geoset.setExtents(extents.deepCopy());
+
+		geoset.setLevelOfDetailName(levelOfDetailName);
+		for(Animation anim : animExts.keySet()){
+			geoset.add(anim, animExts.get(anim).deepCopy());
+		}
+		geoset.setMaterial(material);
+		geoset.setSelectionGroup(selectionGroup);
+		geoset.setParentModel(parentModel);
+		geoset.setLevelOfDetail(levelOfDetail);
+
+		geoset.setUnselectable(unselectable);
+		if (geosetAnim != null) {
+			GeosetAnim geosetAnimC = geosetAnim.deepCopy();
+			geoset.setGeosetAnim(geosetAnimC);
+			geosetAnimC.setGeoset(geoset);
+		}
+		return geoset;
+	}
+
 }

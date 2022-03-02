@@ -222,7 +222,7 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 					radius = distance;
 				}
 			}
-			for (Camera item : modelView.getSelectedCameras()) {
+			for (CameraNode item : modelView.getSelectedCameraNodes()) {
 				double distance = sphereCenter.distance(item.getPosition());
 				if (distance >= radius) {
 					radius = distance;

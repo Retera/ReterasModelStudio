@@ -61,7 +61,7 @@ public abstract class AbstractSelectionManager {
 
 	private UndoAction getUndoAction(SelectionMode selectionMode, SelectionBundle newSelection) {
 		if (selectionMode == null) {
-			if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
+			if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameraNodes())) {
 				return null;
 			}
 			return new SetSelectionUggAction(newSelection, modelView, "select", ModelStructureChangeListener.changeListener);
@@ -80,7 +80,7 @@ public abstract class AbstractSelectionManager {
 				yield new RemoveSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener);
 			}
 			case SELECT -> {
-				if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
+				if (modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameraNodes())) {
 					yield null;
 				}
 				yield new SetSelectionUggAction(newSelection, modelView, "select", ModelStructureChangeListener.changeListener);
@@ -113,7 +113,7 @@ public abstract class AbstractSelectionManager {
 				|| selectionMode == SelectionItemTypes.CLUSTER) {
 			return modelView.getSelectedVertices().isEmpty()
 					&& modelView.getSelectedIdObjects().isEmpty()
-					&& modelView.getSelectedCameras().isEmpty();
+					&& modelView.getSelectedCameraNodes().isEmpty();
 		}
 		if (selectionMode == SelectionItemTypes.ANIMATE
 				|| selectionMode == SelectionItemTypes.TPOSE) {

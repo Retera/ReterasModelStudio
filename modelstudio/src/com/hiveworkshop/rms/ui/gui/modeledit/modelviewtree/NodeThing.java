@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.actions.selection.AddSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.selection.RemoveSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.model.CameraNode;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
@@ -23,6 +24,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 public abstract class NodeThing<T> extends DefaultMutableTreeNode {
@@ -182,37 +184,35 @@ public abstract class NodeThing<T> extends DefaultMutableTreeNode {
 			System.out.println("Geoset!");
 			newSelection = new SelectionBundle(((Geoset) item).getVertices());
 		} else if (item instanceof Camera) {
-			newSelection = new SelectionBundle(Collections.singleton((Camera) item));
+//			newSelection = new SelectionBundle(Collections.singleton((Camera) item));
+			Set<CameraNode> cameraNodes = new HashSet<>();
+			cameraNodes.add(((Camera) item).getSourceNode());
+			cameraNodes.add(((Camera) item).getTargetNode());
+			newSelection = new SelectionBundle(cameraNodes);
 		} else {
 			System.out.println("not viable item :O");
 		}
 
 		if (MouseEvent.getMaskForButton(e.getButton()) == selectMouseButton && newSelection != null) {
-			System.out.println("should be selecting! ");
 			Integer addSelectModifier = ProgramGlobals.getPrefs().getAddSelectModifier();
 			Integer removeSelectModifier = ProgramGlobals.getPrefs().getRemoveSelectModifier();
 
-//					if (modifiersEx == addSelectModifier) {
 			if (isModUsed(e, addSelectModifier)) {
 //						SelectionMode.ADD;
-				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
+				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameraNodes())) {
 					undoManager.pushAction(new AddSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener).redo());
 				}
-//					} else if (modifiersEx == removeSelectModifier) {
 			} else if (isModUsed(e, removeSelectModifier)) {
 //						SelectionMode.DESELECT;
-				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
+				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameraNodes())) {
 					undoManager.pushAction(new RemoveSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener).redo());
 				}
 			} else {
 //						SelectionMode.SELECT;
-				System.out.println("normal select! ");
-				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameras())) {
-					System.out.println("viable selection! ");
+				if (!modelView.sameSelection(newSelection.getSelectedVertices(), newSelection.getSelectedIdObjects(), newSelection.getSelectedCameraNodes())) {
 					undoManager.pushAction(new SetSelectionUggAction(newSelection, modelView, ModelStructureChangeListener.changeListener).redo());
 				}
 			}
-//					System.out.println("newSel: idob: " + newSelection.getSelectedIdObjects().size() + ", vert: " + newSelection.getSelectedVertices().size());
 		}
 	}
 }

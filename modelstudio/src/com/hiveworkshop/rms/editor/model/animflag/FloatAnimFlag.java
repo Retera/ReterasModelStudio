@@ -104,7 +104,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 		Float ceilValue = entryCeil.getValue();
 		Float ceilInTan = entryCeil.getInTan();
 
-		if (typeid == ALPHA) {
+		if (typeid == ALPHA || typeid == ROTATION) {
 			return switch (interpolationType) {
 				case BEZIER -> MathUtils.bezier(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
 				case DONT_INTERP -> floorValue;

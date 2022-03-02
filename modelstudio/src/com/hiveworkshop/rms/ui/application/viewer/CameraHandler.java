@@ -1,6 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
-import com.hiveworkshop.rms.editor.model.Camera;
+import com.hiveworkshop.rms.editor.render3d.RenderNodeCamera;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
@@ -52,7 +52,7 @@ public class CameraHandler {
 
 	private final Component viewport;
 
-	private Camera camera;
+	private RenderNodeCamera cameraNode;
 
 	public CameraHandler(Component viewport) {
 		this.viewport = viewport;
@@ -75,10 +75,10 @@ public class CameraHandler {
 	}
 
 	public void setUpCamera() {
-		if(camera == null){
+		if(cameraNode == null){
 			normalSetUpCamera();
 		} else {
-			setUpCamera(camera);
+			setUpCamera(cameraNode);
 		}
 	}
 
@@ -109,13 +109,13 @@ public class CameraHandler {
 		glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
 	}
 
-	public CameraHandler setCamera(Camera camera) {
-		this.camera = camera;
+	public CameraHandler setCamera(RenderNodeCamera cameraNode) {
+		this.cameraNode = cameraNode;
 		return this;
 	}
 
-	public void setUpCamera(Camera camera) {
-		gluPerspective((float) Math.toDegrees(camera.getFieldOfView()), 1, (float) camera.getNearClip(), (float) camera.getFarClip());
+	public void setUpCamera(RenderNodeCamera renderNode) {
+		gluPerspective((float) Math.toDegrees(renderNode.getFoV()), 1, (float) renderNode.getNearClip(), (float) renderNode.getFarClip());
 //		gluPerspective((float) 60, 1,  5.0f, 16000.0f);
 
 //		glCamTrans.set(cameraPos);
@@ -126,8 +126,12 @@ public class CameraHandler {
 
 
 
-		cameraPos.set(camera.getPosition());
-		Vec3 cameraLookAt = camera.getTargetPosition();
+//		cameraPos.set(camera.getPosition());
+//		Vec3 cameraLookAt = camera.getTargetPosition();
+		cameraPos.set(renderNode.getPivot());
+//		Vec3 cameraLookAt = camera.getTargetNode().getRenderTranslation(renderEnv);
+		Vec3 cameraLookAt = renderNode.getTarget();
+//		Vec3 up = renderNode.getCameraUp();
 		Vec3 up = new Vec3();
 ////		up.set(cameraLookAt).sub(cameraPos).normalize();
 //		up.set(cameraPos).sub(cameraLookAt).normalize();
@@ -164,6 +168,7 @@ public class CameraHandler {
 //		glRotatef(yAngle, 0f, 1f, 0f);
 //		glRotatef(zAngle, 0f, 0f, 1f);
 //		glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
+//		System.out.println("camera pos set!");
 	}
 
 	public void setViewportCamera(int dist, int height, int rX, int rY, int rZ) {
@@ -351,8 +356,17 @@ public class CameraHandler {
 		return vec2;
 	}
 
+	// returns a float that in model space that corresponds to 4 pixels on screen
 	public float getPixelSize() {
 		return (float) ((geomXifYZplane(4) - geomXifYZplane(0)));
+	}
+	public float getViewPxOfGeomDist(double geomDist) {
+//		double viewDist = 1;
+//		double geomDist = viewDist * cameraPos.x / 600f / m_zoom;
+
+		double viewDist = geomDist * 600f * m_zoom / cameraPos.x;
+
+		return (float) viewDist;
 	}
 
 	public CameraHandler setAllowRotation(boolean allowRotation) {
