@@ -6,9 +6,12 @@ import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeFlagEntryAct
 import com.hiveworkshop.rms.editor.actions.mesh.ChangeLoDAction;
 import com.hiveworkshop.rms.editor.actions.mesh.ChangeLoDNameAction;
 import com.hiveworkshop.rms.editor.actions.mesh.DeleteGeosetAction;
+import com.hiveworkshop.rms.editor.actions.mesh.RecalculateTangentsAction;
 import com.hiveworkshop.rms.editor.actions.model.SetGeosetAnimAction;
 import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.model.material.ChangeMaterialAction;
+import com.hiveworkshop.rms.editor.actions.tools.ConvertToMatricesAction;
+import com.hiveworkshop.rms.editor.actions.tools.ConvertToSkinBonesAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
@@ -18,8 +21,6 @@ import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.model.util.HD_Material_Layer;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.actionfunctions.MakeModelHD;
-import com.hiveworkshop.rms.ui.application.actionfunctions.MakeModelSD;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
@@ -194,9 +195,15 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	private void toggleSdHd() {
 		if (geoset != null) {
 			if (geoset.isHD()) {
-				MakeModelSD.makeSd(geoset);
+				undoManager.pushAction(new ConvertToMatricesAction(geoset, changeListener).redo());
 			} else {
-				MakeModelHD.makeHd(geoset);
+				UndoAction convertToSkinBones = new ConvertToSkinBonesAction(geoset, null);
+				UndoAction recalculateTangs = new RecalculateTangentsAction(geoset.getVertices());
+				CompoundAction action = new CompoundAction("Make Geoset HD",
+						changeListener::geosetsUpdated,
+						convertToSkinBones,
+						recalculateTangs);
+				undoManager.pushAction(action.redo());
 			}
 			setToggleButtonText();
 		}

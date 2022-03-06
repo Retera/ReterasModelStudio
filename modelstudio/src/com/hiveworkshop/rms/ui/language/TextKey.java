@@ -77,6 +77,7 @@ public enum TextKey {
 	RECALCULATE_NORMALS("Recalculate Normals"),
 	RECALCULATE_EXTENTS("Recalculate Extents"),
 	SNAP_VERTICES("Snap Vertices"),
+	SPLIT_VERTICES("Split Vertices"),
 	WELD_VERTICES("Weld Close Vertices"),
 	SNAP_NORMALS("Snap Normals"),
 	SCALE_MODEL("Scale Model"),

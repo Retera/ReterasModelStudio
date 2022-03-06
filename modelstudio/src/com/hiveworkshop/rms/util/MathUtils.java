@@ -17,11 +17,11 @@ public class MathUtils {
 		return (min <= value) && (value <= max);
 	}
 
-	public static float lerp(float value1, float value2, float t) {
-		return value1 + (t * (value2 - value1));
+	public static float lerp(float floorValue, float ceilValue, float timeFraction) {
+		return floorValue + (timeFraction * (ceilValue - floorValue));
 	}
 
-	public static float hermite(float value1, float value1OutTan, float value2InTan, float value2, float timeFraction) {
+	public static float hermite(float floorValue, float floorOutTan, float ceilInTan, float ceilValue, float timeFraction) {
 		float tfSq = timeFraction * timeFraction;
 
 		float factor1 = tfSq * ((2 * timeFraction) - 3) + 1;
@@ -29,10 +29,10 @@ public class MathUtils {
 		float factor3 = tfSq * (timeFraction - 1);
 		float factor4 = tfSq * (3 - (2 * timeFraction));
 
-		return (value1 * factor1) + (value1OutTan * factor2) + (value2InTan * factor3) + (value2 * factor4);
+		return (floorValue * factor1) + (floorOutTan * factor2) + (ceilInTan * factor3) + (ceilValue * factor4);
 	}
 
-	public static float bezier(float value1, float value1OutTan, float value2InTan, float value2, float timeFraction) {
+	public static float bezier(float floorValue, float floorOutTan, float ceilInTan, float ceilValue, float timeFraction) {
 		float tfInv = 1 - timeFraction;
 		float tfSq = timeFraction * timeFraction;
 		float tfInvSq = tfInv * tfInv;
@@ -42,7 +42,7 @@ public class MathUtils {
 		float factor3 = 3 * tfSq * tfInv;
 		float factor4 = tfSq * timeFraction;
 
-		return (value1 * factor1) + (value1OutTan * factor2) + (value2InTan * factor3) + (value2 * factor4);
+		return (floorValue * factor1) + (floorOutTan * factor2) + (ceilInTan * factor3) + (ceilValue * factor4);
 	}
 
 	public static float randomInRange(double min, double max) {

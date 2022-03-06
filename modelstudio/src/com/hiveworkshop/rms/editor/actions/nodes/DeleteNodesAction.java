@@ -20,7 +20,7 @@ public class DeleteNodesAction implements UndoAction {
 
 	private boolean relink = true;
 
-	public DeleteNodesAction(Collection<IdObject> selectedObjects,
+	public DeleteNodesAction(Collection<? extends IdObject> selectedObjects,
 	                         Collection<Camera> selectedCameras,
 	                         ModelStructureChangeListener changeListener,
 	                         EditableModel model) {
@@ -35,7 +35,7 @@ public class DeleteNodesAction implements UndoAction {
 			childMap.put(idObject, new HashSet<>(idObject.getChildrenNodes()));
 		}
 	}
-	public DeleteNodesAction(Collection<IdObject> selectedObjects,
+	public DeleteNodesAction(Collection<? extends IdObject> selectedObjects,
 	                         ModelStructureChangeListener changeListener,
 	                         EditableModel model) {
 		this(selectedObjects, Collections.emptySet(), changeListener, model);

@@ -223,7 +223,18 @@ public class SelectionManager extends AbstractSelectionManager {
 				}
 			}
 			Set<GeosetVertex> selectedVerts = addVertsFromArea(min, max, cameraHandler);
-			return new SelectionBundle(selectedItems, selectedVerts);
+
+			Set<CameraNode> selectedCams = new HashSet<>();
+			for(CameraNode cameraNode : modelView.getEditableCameraNodes()) {
+				if (modelView.isEditable(cameraNode)){
+					RenderNodeCamera renderNode = editorRenderModel.getRenderNode(cameraNode.getParent());
+					Vec3 pivot = cameraNode instanceof CameraNode.SourceNode ? renderNode.getPivot() : renderNode.getTarget();
+					if(HitTestStuff.hitTest(min, max, pivot, viewPortMat, 2)){
+						selectedCams.add(cameraNode);
+					}
+				}
+			}
+			return new SelectionBundle(selectedItems, selectedVerts, selectedCams);
 		}
 		return new SelectionBundle(Collections.emptySet());
 	}

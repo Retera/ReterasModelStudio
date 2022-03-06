@@ -4,6 +4,8 @@ package com.hiveworkshop.rms.ui.application.MenuBar1;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.tools.AnimationTransfer;
 import com.hiveworkshop.rms.ui.application.tools.KeyframeCopyPanel;
+import com.hiveworkshop.rms.ui.application.tools.SpliceHandsByTwilac;
+import com.hiveworkshop.rms.ui.application.tools.SpliceMeshByRetera;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -43,6 +45,8 @@ public class ScriptsMenu extends JMenu {
 		add(new MakeModelSD().setMenuItemMnemonic(KeyEvent.VK_D).getMenuItem());
 		add(new RemoveLODs().setMenuItemMnemonic(KeyEvent.VK_L).getMenuItem());
 		add(new RecalculateTangents().setMenuItemMnemonic(KeyEvent.VK_T).getMenuItem());
+
+		add(new SpliceMeshByRetera().getMenu());
 
 
 	}

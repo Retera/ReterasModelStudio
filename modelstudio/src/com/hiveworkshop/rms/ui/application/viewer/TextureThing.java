@@ -112,6 +112,16 @@ public class TextureThing {
 		textureMap.clear();
 	}
 
+	public void bindTexture(Bitmap tex) {
+		Integer texture = textureMap.get(tex);
+		if (texture != null) {
+//			System.out.println("binding texture " + texture);
+			bindTexture(tex, texture);
+		} else if (textureMap.size() > 0){
+			bindTexture(tex, 0);
+		}
+	}
+
 	public void bindLayerTexture(Layer layer, Bitmap tex, int formatVersion, Material parent) {
 		Integer texture = textureMap.get(tex);
 		if (texture != null) {

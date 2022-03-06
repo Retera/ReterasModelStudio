@@ -287,7 +287,14 @@ public class EditableModel implements Named {
 			}
 			if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPose != null)) {
 				if (x.getBindPose() == null) {
-					x.setBindPose(new float[] {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0});
+					float xBP = x.pivotPoint != null ? x.pivotPoint.x : 0;
+					float yBP = x.pivotPoint != null ? x.pivotPoint.y : 0;
+					float zBP = x.pivotPoint != null ? x.pivotPoint.z : 0;
+					x.setBindPose(new float[] {
+							1, 0, 0,
+							0, 1, 0,
+							0, 0, 1,
+							xBP, yBP, zBP});
 				}
 			}
 		}
@@ -366,6 +373,10 @@ public class EditableModel implements Named {
 		return texAnims.contains(x);
 	}
 
+	public boolean contains(final FaceEffect x) {
+		return faceEffects.contains(x);
+	}
+
 	public void remove(final Animation a) {
 		anims.remove(a);
 	}
@@ -396,6 +407,10 @@ public class EditableModel implements Named {
 
 	public void remove(final Material material) {
 		materials.remove(material);
+	}
+
+	public void remove(final FaceEffect faceEffect) {
+		faceEffects.remove(faceEffect);
 	}
 
 	public void clearHeader() {

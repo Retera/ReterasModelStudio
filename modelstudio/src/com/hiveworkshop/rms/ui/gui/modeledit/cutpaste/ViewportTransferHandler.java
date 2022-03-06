@@ -3,16 +3,21 @@ package com.hiveworkshop.rms.ui.gui.modeledit.cutpaste;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.addactions.AddCameraAction;
 import com.hiveworkshop.rms.editor.actions.addactions.AddGeosetAction;
+import com.hiveworkshop.rms.editor.actions.model.AddFaceEffectAction;
+import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
 import com.hiveworkshop.rms.editor.actions.nodes.AddNodeAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.mesh.GeometryModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayPanel;
@@ -112,42 +117,31 @@ public class ViewportTransferHandler extends TransferHandler {
 
 	private void pasteModelIntoViewport(EditableModel pastedModel, Point dropPoint) {
 //		System.out.println("pasting model!");
-		ModelHandler modelHandler = new ModelHandler(pastedModel);
-		ModelView pastedModelView = modelHandler.getModelView();
-		pastedModelView.setIdObjectsVisible(true);
-		pastedModelView.setCamerasVisible(true);
-		List<IdObject> idObjects = pastedModel.getIdObjects();
-		for (IdObject object : idObjects) {
-			pastedModelView.makeIdObjectEditable(object);
-		}
-		for (Camera object : pastedModel.getCameras()) {
-			pastedModelView.makeCameraEditable(object);
-		}
-		GeometryModelEditor listener = new GeometryModelEditor(new SelectionManager(modelHandler.getRenderModel(), pastedModelView, SelectionItemTypes.VERTEX), modelHandler, SelectionItemTypes.VERTEX);
-		pastedModelView.selectAll();
-//		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
-		Vec3 pasteCenter = new Vec3(0, 0, 0);
-//		pasteCenter.setCoord(viewport.getCoordinateSystem().getPortFirstXYZ(), geomPoint.x);
-//		pasteCenter.setCoord(viewport.getCoordinateSystem().getPortSecondXYZ(), geomPoint.y);
-//		listener.setPosition(pastedModelView.getSelectionCenter(), pasteCenter).redo();
+//		doSomething(pastedModel);
 
 		// this is the model they're actually working on
-		ModelView currentModelView = ProgramGlobals.getCurrentModelPanel().getModelView();
+		ModelHandler currModelHandler = ProgramGlobals.getCurrentModelPanel().getModelHandler();
+		EditableModel currentModel = currModelHandler.getModel();
 		List<UndoAction> undoActions = new ArrayList<>();
 		Map<String, IdObject> placeHolderBones = new HashMap<>();
 		Map<IdObject, IdObject> placeHolderBonesToModelBones = new HashMap<>();
 
+		Map<Sequence, Sequence> sequenceMap = getSequenceMap(pastedModel.getAllSequences(), currentModel.getAllSequences());
+
 		Set<IdObject> validIdObjects = new HashSet<>();
-		for (IdObject idObject : idObjects) {
+		for (IdObject idObject : pastedModel.getIdObjects()) {
 			if(!idObject.getName().endsWith(PLACEHOLDER_TAG)){
-				undoActions.add(new AddNodeAction(currentModelView.getModel(), idObject, null));
+				for (AnimFlag<?> animFlag : idObject.getAnimFlags()) {
+					replaceAnimations(animFlag, sequenceMap);
+				}
+				undoActions.add(new AddNodeAction(currentModel, idObject, null));
 				placeHolderBonesToModelBones.put(idObject, idObject);
 				validIdObjects.add(idObject);
 			} else {
 				placeHolderBones.put(idObject.getName().replaceAll(PLACEHOLDER_TAG, ""), idObject);
 			}
 		}
-		for(Bone bone : currentModelView.getModel().getBones()){
+		for(Bone bone : currentModel.getBones()){
 			if(placeHolderBones.containsKey(bone.getName())){
 				placeHolderBonesToModelBones.put(placeHolderBones.get(bone.getName()), bone);
 			}
@@ -155,7 +149,12 @@ public class ViewportTransferHandler extends TransferHandler {
 
 		List<GeosetVertex> pastedVerts = new ArrayList<>();
 		for (Geoset pastedGeoset : pastedModel.getGeosets()) {
-			pastedGeoset.setParentModel(currentModelView.getModel());
+			pastedGeoset.setParentModel(currentModel);
+			if(pastedGeoset.getGeosetAnim() != null){
+				for (AnimFlag<?> animFlag : pastedGeoset.getGeosetAnim().getAnimFlags()) {
+					replaceAnimations(animFlag, sequenceMap);
+				}
+			}
 			for (GeosetVertex vertex : pastedGeoset.getVertices()){
 				if (vertex.getSkinBones() != null) {
 					for (SkinBone skinBone : vertex.getSkinBones()) {
@@ -169,22 +168,101 @@ public class ViewportTransferHandler extends TransferHandler {
 				}
 			}
 			pastedVerts.addAll(pastedGeoset.getVertices());
-			undoActions.add(new AddGeosetAction(pastedGeoset, currentModelView, null));
+			undoActions.add(new AddGeosetAction(pastedGeoset, currentModel, null));
 		}
-//		currentModelView.setSelectedIdObjects(idObjects);
+
+		for (Material material : pastedModel.getMaterials()){
+			for(Layer layer : material.getLayers()){
+				for (AnimFlag<?> animFlag : layer.getAnimFlags()) {
+					replaceAnimations(animFlag, sequenceMap);
+				}
+			}
+
+			if(!currentModel.contains(material)){
+				undoActions.add(new AddMaterialAction(material, currentModel, null));
+			}
+		}
+
+		Set<CameraNode> cameraNodes = new HashSet<>();
 		for (Camera idObject : pastedModel.getCameras()) {
-			undoActions.add(new AddCameraAction(currentModelView.getModel(), idObject, null));
+			for (AnimFlag<?> animFlag : idObject.getSourceNode().getAnimFlags()) {
+				replaceAnimations(animFlag, sequenceMap);
+			}
+			for (AnimFlag<?> animFlag : idObject.getTargetNode().getAnimFlags()) {
+				replaceAnimations(animFlag, sequenceMap);
+			}
+			undoActions.add(new AddCameraAction(currentModel, idObject, null));
+			cameraNodes.add(idObject.getSourceNode());
+			cameraNodes.add(idObject.getTargetNode());
 		}
+		undoActions.add(new AddFaceEffectAction(pastedModel.getFaceEffects(), currentModel, null));
+
 
 		UndoAction pasteAction = new CompoundAction("Paste", undoActions, ModelStructureChangeListener.changeListener::geosetsUpdated);
 
-//		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, pastedModel.getIdObjects(), pastedModel.getCameras());
-		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, validIdObjects, pastedModel.getCameras());
+//		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, validIdObjects, pastedModel.getCameras());
+		SelectionBundle pastedSelection = new SelectionBundle(pastedVerts, validIdObjects, cameraNodes);
+
+		ModelView currentModelView = currModelHandler.getModelView();
 		UndoAction selectPasted = new SetSelectionUggAction(pastedSelection, currentModelView, "select pasted", null);
 
-		UndoManager undoManager = ProgramGlobals.getCurrentModelPanel().getModelHandler().getUndoManager();
+		UndoManager undoManager = currModelHandler.getUndoManager();
 		UndoAction pasteAndSelectAction = new CompoundAction("Paste", ModelStructureChangeListener.changeListener::geosetsUpdated, pasteAction, selectPasted);
 		undoManager.pushAction(pasteAndSelectAction.redo());
+	}
+
+	private <Q> void replaceAnimations(AnimFlag<Q> animFlag, Map<Sequence, Sequence> sequenceMap){
+		for(Sequence sequence : sequenceMap.keySet()){
+			if(animFlag.getEntryMap(sequence) != null && sequenceMap.get(sequence) != null){
+				System.out.println("replacing " + sequence + " with " + sequenceMap.get(sequence));
+				TreeMap<Integer, Entry<Q>> entryMap = animFlag.getEntryMap(sequence);
+				animFlag.deleteAnim(sequence);
+				animFlag.setEntryMap(sequenceMap.get(sequence), entryMap);
+			}
+		}
+	}
+
+	private  Map<Sequence, Sequence> getSequenceMap(List<Sequence> pastedModelSequences, List<Sequence> sequences){
+		Map<Sequence, Sequence> sequenceMap = new HashMap<>();
+		for (Sequence pSequence : pastedModelSequences){
+			for (Sequence sequence : sequences){
+				if (pSequence.getLength() == sequence.getLength()){
+					if (pSequence instanceof Animation && sequence instanceof Animation){
+						if (((Animation) pSequence).getName().equals(((Animation) sequence).getName())){
+							System.out.println(pSequence + " == " + sequence);
+							sequenceMap.put(pSequence, sequence);
+							break;
+						}
+					} else if (pSequence instanceof GlobalSeq && sequence instanceof GlobalSeq){
+						System.out.println(pSequence + " == " + sequence);
+						sequenceMap.put(pSequence, sequence);
+						break;
+					}
+				}
+			}
+		}
+
+		return sequenceMap;
+	}
+
+	private void doSomething(EditableModel pastedModel) {
+		ModelHandler modelHandler = new ModelHandler(pastedModel);
+		ModelView pastedModelView = modelHandler.getModelView();
+		pastedModelView.setIdObjectsVisible(true);
+		pastedModelView.setCamerasVisible(true);
+		for (IdObject object : pastedModel.getIdObjects()) {
+			pastedModelView.makeIdObjectEditable(object);
+		}
+		for (Camera object : pastedModel.getCameras()) {
+			pastedModelView.makeCameraEditable(object);
+		}
+		GeometryModelEditor listener = new GeometryModelEditor(new SelectionManager(modelHandler.getRenderModel(), pastedModelView, SelectionItemTypes.VERTEX), modelHandler, SelectionItemTypes.VERTEX);
+		pastedModelView.selectAll();
+//		Double geomPoint = CoordSysUtils.geom(viewport.getCoordinateSystem(), dropPoint);
+		Vec3 pasteCenter = new Vec3(0, 0, 0);
+//		pasteCenter.setCoord(viewport.getCoordinateSystem().getPortFirstXYZ(), geomPoint.x);
+//		pasteCenter.setCoord(viewport.getCoordinateSystem().getPortSecondXYZ(), geomPoint.y);
+//		listener.setPosition(pastedModelView.getSelectionCenter(), pasteCenter).redo();
 	}
 
 	/**
@@ -219,11 +297,23 @@ public class ViewportTransferHandler extends TransferHandler {
 		for (Geoset geoset : copySelection.getGeosets()) {
 			stringableModel.add(geoset);
 			stringableModel.add(geoset.getMaterial());
+			if (geoset.getGeosetAnim() != null){
+				stringableModel.add(geoset.getGeosetAnim());
+			}
 			count += geoset.getVertices().size();
 
 			dummyBone.getPivotPoint().add(fixVertBones(stringableModel, dummyBone, geoset));
 			applyVerticesToMatrices(geoset, stringableModel);
 		}
+		for (Sequence sequence : currentModel.getAllSequences()){
+			// Need to be original instances to not mess timeline saving
+			if (sequence instanceof Animation){
+				stringableModel.add((Animation) sequence);
+			} else if (sequence instanceof GlobalSeq){
+				stringableModel.add((GlobalSeq) sequence);
+			}
+		}
+
 		dummyBone.getPivotPoint().scale(1f / count);
 		if (800 < currentModel.getFormatVersion()) {
 			Mat4 mat4 = new Mat4().fromRotationTranslationScaleOrigin(new Quat(), new Vec3(), new Vec3(1, 1, 1), dummyBone.getPivotPoint());

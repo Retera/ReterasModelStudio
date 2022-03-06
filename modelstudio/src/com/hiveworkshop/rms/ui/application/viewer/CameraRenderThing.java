@@ -304,6 +304,7 @@ public class CameraRenderThing {
 	}
 
 	private void doTargetBox() {
+		glBegin(GL_TRIANGLES);
 		//Front
 		doGlTriQuad(renderPointsTargetBox[6], renderPointsTargetBox[4], renderPointsTargetBox[7], renderPointsTargetBox[5], renderNormals[0]);
 

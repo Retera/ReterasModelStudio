@@ -8,52 +8,24 @@ import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
-public final class RenderNode2 {
-	private final IdObject idObject;
-
+public final class RenderNode2 extends RenderNode<IdObject> {
 	private boolean dontInheritScaling = false;
 	boolean billboarded;
 	boolean billboardedX;
 	boolean billboardedY;
 	boolean billboardedZ;
 
-	private final Vec3 localLocation = new Vec3(0, 0, 0);
-	private final Vec3 localTranslation = new Vec3(0, 0, 0);
-	private final Quat localRotation = new Quat(0, 0, 0, 1);
-	private final Vec3 localScale = new Vec3(1, 1, 1);
-	private final Mat4 localMatrix = new Mat4();
-
-	private final Vec3 worldLocation = new Vec3();
-//	private final Vec3 worldTranslation = new Vec3(0, 0, 0);
-	private final Quat worldRotation = new Quat();
-	private final Vec3 worldScale = new Vec3(1, 1, 1);
-	private final Mat4 worldMatrix = new Mat4();
-
-	private final Vec3 renderPivot = new Vec3(0, 0, 0);
-
-	private final Vec3 inverseWorldLocation = new Vec3();
-	private final Quat inverseWorldRotation = new Quat();
-	private final Vec3 inverseWorldScale = new Vec3();
-
-	private boolean visible;
-
-	private final RenderModel renderModel;
-
-	boolean dirty = false;
-	boolean wasDirty = false;
-
-	public RenderNode2(RenderModel renderModel, IdObject idObject) {
-		this.renderModel = renderModel;
-		this.idObject = idObject;
-		renderPivot.set(idObject.getPivotPoint());
+	public RenderNode2(RenderModel renderModel, IdObject animatedNode) {
+		super(renderModel, animatedNode);
+		renderPivot.set(animatedNode.getPivotPoint());
 	}
 
 	public void refreshFromEditor() {
-		dontInheritScaling = idObject.getDontInheritScaling();
-		billboarded = idObject.getBillboarded();
-		billboardedX = idObject.getBillboardLockX();
-		billboardedY = idObject.getBillboardLockY();
-		billboardedZ = idObject.getBillboardLockZ();
+		dontInheritScaling = animatedNode.getDontInheritScaling();
+		billboarded = animatedNode.getBillboarded();
+		billboardedX = animatedNode.getBillboardLockX();
+		billboardedY = animatedNode.getBillboardLockY();
+		billboardedZ = animatedNode.getBillboardLockZ();
 	}
 
 	public void recalculateTransformation() {
@@ -61,7 +33,7 @@ public final class RenderNode2 {
 //			dirty = false;
 			worldScale.set(localScale);
 			worldRotation.set(localRotation);
-			RenderNode2 parentNode = renderModel.getRenderNode(idObject.getParent());
+			RenderNode2 parentNode = renderModel.getRenderNode(animatedNode.getParent());
 			Vec3 computedScaling = new Vec3();
 
 			if (dontInheritScaling) {
@@ -71,7 +43,7 @@ public final class RenderNode2 {
 				worldScale.multiply(parentNode.worldScale);
 			}
 
-			localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, computedScaling, idObject.getPivotPoint());
+			localMatrix.fromRotationTranslationScaleOrigin(localRotation, localLocation, computedScaling, animatedNode.getPivotPoint());
 
 			worldMatrix.set(parentNode.worldMatrix).mul(localMatrix);
 
@@ -89,7 +61,7 @@ public final class RenderNode2 {
 			// Inverse world location
 			inverseWorldLocation.set(worldLocation).negate();
 
-			renderPivot.set(idObject.getPivotPoint()).transform(worldMatrix);
+			renderPivot.set(animatedNode.getPivotPoint()).transform(worldMatrix);
 //			if(!worldLocation.equalLocs(renderPivot)){
 //				Vec3 diff = new Vec3(worldLocation).sub(renderPivot);
 //				System.out.println("WL: " + worldLocation + " != RP: " + renderPivot + " (diff: " + diff + ", piv: " + idObject.getPivotPoint() + ")");
@@ -103,7 +75,7 @@ public final class RenderNode2 {
 	}
 
 	public void update() {
-		if (dirty || (renderModel.getRenderNode(idObject.getParent()).wasDirty)) {
+		if (dirty || (renderModel.getRenderNode(animatedNode.getParent()).wasDirty)) {
 			dirty = true;
 			wasDirty = true;
 			recalculateTransformation();
@@ -115,10 +87,10 @@ public final class RenderNode2 {
 	}
 
 	public void updateChildren() {
-		for (IdObject childNode : idObject.getChildrenNodes()) {
+		for (IdObject childNode : animatedNode.getChildrenNodes()) {
 			if (renderModel.getRenderNode(childNode) == null) {
 				throw new NullPointerException(
-						"Cannot find child \"" + childNode.getName() + "\" of \"" + idObject.getName() + "\"");
+						"Cannot find child \"" + childNode.getName() + "\" of \"" + animatedNode.getName() + "\"");
 			}
 			renderModel.getRenderNode(childNode).update();
 		}
@@ -130,106 +102,26 @@ public final class RenderNode2 {
 		localScale.set(1, 1, 1);
 		worldMatrix.setIdentity();
 
-		renderPivot.set(idObject.getPivotPoint());
+		renderPivot.set(animatedNode.getPivotPoint());
 //		renderPivot.set(idObject.getPivotPoint()).transform(worldMatrix);
 
 		dirty = true;
 	}
 
-//	public void setTransformation(final Vec3 location, final Quat rotation, final Vec3 scale) {
-//		localLocation.set(location);
-//		localRotation.set(rotation);
-//		localScale.set(scale);
-//
-//		dirty = true;
-//	}
-
 	public void fetchTransformation(TimeEnvironmentImpl timeEnvironment) {
-		setLocation(idObject.getRenderTranslation(timeEnvironment));
-		setRotation(idObject.getRenderRotation(timeEnvironment));
-		setScale(idObject.getRenderScale(timeEnvironment));
-//		localLocation.set(idObject.getRenderTranslation(timeEnvironment));
-//		localRotation.set(idObject.getRenderRotation(timeEnvironment));
-//		localScale.set(idObject.getRenderScale(timeEnvironment));
+		setLocation(animatedNode.getRenderTranslation(timeEnvironment));
+		setRotation(animatedNode.getRenderRotation(timeEnvironment));
+		setScale(animatedNode.getRenderScale(timeEnvironment));
 
 		dirty = true;
 	}
 
-	public Quat setRotation(Quat rotation) {
-		if(rotation == null){
-			localRotation.set(0, 0, 0, 1);
-		}else {
-			localRotation.set(rotation);
-		}
-//		dirty = true;
-		return localRotation;
-	}
-
-	public Vec3 setLocation(Vec3 location) {
-		if(location == null){
-			localLocation.set(0, 0, 0);
-		}else {
-			localLocation.set(location);
-		}
-//		dirty = true;
-		return localLocation;
-	}
-	public Vec3 setTranslation(Vec3 translation) {
-		if(translation == null){
-			localTranslation.set(0, 0, 0);
-		}else {
-			localTranslation.set(translation);
-		}
-//		dirty = true;
-		return localTranslation;
-	}
-
-	public Vec3 setScale(Vec3 scale) {
-		if(scale == null){
-			localScale.set(1, 1, 1);
-		}else {
-			localScale.set(scale);
-		}
-//		dirty = true;
-		return localScale;
-	}
-
-	public RenderNode2 setDirty(boolean dirty) {
-		this.dirty = dirty;
-		return this;
-	}
-
-	//
-//	public void setRotation(Quat rotation) {
-//		localRotation.set(rotation);
-//		dirty = true;
-//	}
-//
-//	public void setLocation(Vec3 location) {
-//		localLocation.set(location);
-//		dirty = true;
-//	}
-//
-//	public void setScale(Vec3 scale) {
-//		localScale.set(scale);
-//		dirty = true;
-//	}
-
-	public RenderNode2 setVisible(boolean visible) {
-		this.visible = visible;
-		return this;
-	}
-
-	public Mat4 getWorldMatrix() {
-		return worldMatrix;
-	}
-
 	public Mat4 getParentWorldMatrix() {
-		return renderModel.getRenderNode(idObject.getParent()).getWorldMatrix();
+		return renderModel.getRenderNode(animatedNode.getParent()).getWorldMatrix();
 	}
 
 	public boolean hasParent() {
-		return idObject.getParent() != null && renderModel.getRenderNode(idObject.getParent()) != null;
+		return animatedNode.getParent() != null && renderModel.getRenderNode(animatedNode.getParent()) != null;
 	}
 
 	/**
@@ -238,56 +130,17 @@ public final class RenderNode2 {
 	 * tests, it looked like maybe we do not need it.
 	 */
 
-	public Quat getInverseWorldRotation() {
-		return inverseWorldRotation;
-	}
-
-	public Vec3 getInverseWorldLocation() {
-		return inverseWorldLocation;
-	}
-
-	public Vec3 getInverseWorldScale() {
-		return inverseWorldScale;
-	}
-
-	public Vec3 getWorldLocation() {
-		return worldLocation;
-	}
-
-	public Vec3 getLocalLocation() {
-		return localLocation;
-	}
-
-	public Vec3 getLocalScale() {
-		return localScale;
-	}
-
-	public Mat4 getLocalMatrix() {
-		return localMatrix;
-	}
-
-	public Quat getLocalRotation() {
-		return localRotation;
-	}
-
-	public Quat getWorldRotation() {
-		return worldRotation;
-	}
 
 	public Quat getParentWorldRotation() {
-		return renderModel.getRenderNode(idObject.getParent()).getWorldRotation();
+		return renderModel.getRenderNode(animatedNode.getParent()).getWorldRotation();
 	}
 
-
-	public Vec3 getWorldScale() {
-		return worldScale;
-	}
 
 	public Vec3 getPivot() {
 		if (renderModel.getTimeEnvironment().isLive() || ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
 			return renderPivot;
 		}
-		return idObject.getPivotPoint();
+		return animatedNode.getPivotPoint();
 	}
 
 	public Vec3 getRenderPivot() {
@@ -296,7 +149,7 @@ public final class RenderNode2 {
 
 	public Vec3 getParentRenderPivot() {
 		if (hasParent()) {
-			return renderModel.getRenderNode(idObject.getParent()).getRenderPivot();
+			return renderModel.getRenderNode(animatedNode.getParent()).getRenderPivot();
 		}
 		return Vec3.ZERO;
 	}

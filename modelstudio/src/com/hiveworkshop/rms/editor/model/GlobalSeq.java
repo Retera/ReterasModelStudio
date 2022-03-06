@@ -8,6 +8,10 @@ public class GlobalSeq extends Sequence {
 		super(length);
 	}
 
+	public GlobalSeq deepCopy(){
+		return new GlobalSeq(length);
+	}
+
 	@Override
 	public int compareTo(Sequence o) {
 		if (o instanceof GlobalSeq) {

@@ -38,6 +38,8 @@ public abstract class Sequence implements Comparable<Sequence> {
 
 	@Override
 	public abstract int compareTo(Sequence o);
+
+	public abstract Sequence deepCopy();
 //	@Override
 //	public int compareTo(Sequence o) {
 //		int startDiff = getStart() - o.getStart();

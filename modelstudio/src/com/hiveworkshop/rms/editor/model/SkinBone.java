@@ -19,7 +19,7 @@ public class SkinBone {
 		this.bone = bone;
 	}
 
-	SkinBone(short weight) {
+	public SkinBone(short weight) {
 		this.weight = weight;
 		this.bone = null;
 	}

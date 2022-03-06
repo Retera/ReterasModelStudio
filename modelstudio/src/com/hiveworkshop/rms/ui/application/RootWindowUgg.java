@@ -117,7 +117,9 @@ public class RootWindowUgg extends RootWindow {
 //			UIManager.put("MenuBar.highlight", Color.cyan.brighter().brighter());
 //			UIManager.put("InternalFrame.borderHighlight", Color.cyan);
 //			UIManager.put("EditorPane.disabledBackground", Color.cyan);
-		UIManager.put("TabbedPane.darkShadow", Color.green);
+
+//		UIManager.put("TabbedPane.darkShadow", Color.green);
+
 //			UIManager.put("TabbedPane.background", Color.cyan.brighter());
 //			UIManager.put("SplitPane.background", Color.green);
 //			UIManager.put("TabbedPane.shadow", Color.green.darker());

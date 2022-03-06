@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 
+import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
@@ -52,6 +53,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 	private final GridPainter gridPainter;
 
 	private final UVRenderer geosetRenderer;
+	private Bitmap currTexture;
 
 	ExtLog currentExt = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
@@ -117,6 +119,11 @@ public class TextureViewport extends BetterAWTGLCanvas {
 
 	public MouseListenerThing getMouseListenerThing() {
 		return mouseAdapter;
+	}
+
+	public TextureViewport setCurrTexture(Bitmap currTexture) {
+		this.currTexture = currTexture;
+		return this;
 	}
 
 	public TextureViewport setAllowRotation(boolean allow) {
@@ -215,6 +222,9 @@ public class TextureViewport extends BetterAWTGLCanvas {
 			addLamp(0.8f, 80.0f, 40.0f, 200.0f, GL_LIGHT0);
 			addLamp(0.2f, 0.5f, -100.0f, 200.5f, GL_LIGHT1);
 
+
+			GL11.glDisable(GL_LIGHTING);
+			drawBackgroundImage();
 			if (programPreferences != null && programPreferences.showPerspectiveGrid()) {
 				gridPainter.paintGrid();
 			}
@@ -242,6 +252,59 @@ public class TextureViewport extends BetterAWTGLCanvas {
 			System.out.println("Failed to render");
 			throw new RuntimeException(e);
 		}
+	}
+
+	private void drawBackgroundImage(){
+		glShadeModel(GL11.GL_FLAT);
+//		glPolygonMode(GL_FRONT_FACE, GL_FILL);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glColor4f(1, 1, 1, 1);
+//		GL11.glDisable(GL11.GL_CULL_FACE);
+//		GL11.glEnable(GL11.GL_ALPHA_TEST);
+//		GL11.glAlphaFunc(GL11.GL_GREATER, 0.75f);
+//		GL11.glDisable(GL11.GL_BLEND);
+
+		if (currTexture != null) {
+//			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+			glEnable(GL11.GL_TEXTURE_2D);
+//			System.out.println("found Texture! " + currTexture.getName());
+			textureThing.bindTexture(currTexture);
+		} else {
+			glDisable(GL11.GL_TEXTURE_2D);
+		}
+		glBegin(GL_TRIANGLES);
+
+		GL11.glNormal3f(0, 0, 1);
+
+//		glColor4f(1, 0, 0, .5f);
+		GL11.glTexCoord2f(0, 0);
+		GL11.glVertex3f(0, 0, 0);
+		GL11.glTexCoord2f(0, 1);
+		GL11.glVertex3f(0, 1, 0);
+		GL11.glTexCoord2f(1, 0);
+		GL11.glVertex3f(1, 0, 0);
+
+//		glColor4f(0, 0, 1, .5f);
+
+		GL11.glTexCoord2f(0, 1);
+		GL11.glVertex3f(0, 1, 0);
+		GL11.glTexCoord2f(1, 0);
+		GL11.glVertex3f(1, 0, 0);
+		GL11.glTexCoord2f(1, 1);
+		GL11.glVertex3f(1, 1, 0);
+		glEnd();
+
+	}
+	private static void doGlTriQuad(Vec3 LT, Vec3 LB, Vec3 RT, Vec3 RB, Vec3 normal) {
+		GL11.glNormal3f(normal.x,normal.y,normal.z);
+
+		GL11.glVertex3f(LT.x, LT.y, LT.z);
+		GL11.glVertex3f(LB.x, LB.y, LB.z);
+		GL11.glVertex3f(RT.x, RT.y, RT.z);
+
+		GL11.glVertex3f(RT.x, RT.y, RT.z);
+		GL11.glVertex3f(LB.x, LB.y, LB.z);
+		GL11.glVertex3f(RB.x, RB.y, RB.z);
 	}
 
 	private void drawUglyTestLine() {

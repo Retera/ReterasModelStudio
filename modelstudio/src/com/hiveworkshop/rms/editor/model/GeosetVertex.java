@@ -66,7 +66,7 @@ public class GeosetVertex extends Vec3 {
 
 	public void initV900() {
 		skinBones = new SkinBone[4];
-		tangent = new Vec4(0, 0, 0, 0);
+		tangent = new Vec4(0, 1, 0, 1);
 	}
 
 	public void addTVertex(Vec2 v) {
@@ -85,17 +85,9 @@ public class GeosetVertex extends Vec3 {
 		tverts.clear();
 	}
 
-//	public int getVertexGroup() {
-//		return vertexGroup;
-//	}
-
 	public int getMatrixIndex(){
 		return geoset.getMatrices().indexOf(matrix);
 	}
-
-//	public void setVertexGroup(int k) {
-//		vertexGroup = k;
-//	}
 
 	public void clearBoneAttachments() {
 		matrix.clear();
@@ -252,14 +244,6 @@ public class GeosetVertex extends Vec3 {
 		this.geoset = geoset;
 	}
 
-//	/**
-//	 * @deprecated for use only with saving functionalities inside the system
-//	 */
-//	@Deprecated
-//	public byte[] getSkinBoneIndexes() {
-//		return skinBoneIndexes;
-//	}
-
 	public Bone[] getSkinBoneBones() {
 		if (this.skinBones == null) {
 			return null;
@@ -275,18 +259,9 @@ public class GeosetVertex extends Vec3 {
 		return sb;
 	}
 
-//    public void setSkinBones(final Bone[] skinBones) {
-//        this.skinBones = skinBones;
-//    }
-
 	public SkinBone[] getSkinBones() {
 		return skinBones;
 	}
-
-//    public void setSkinBones(final Bone[] skinBones, final short[] skinBoneWeights) {
-//        this.skinBones = skinBones;
-//        this.skinBoneWeights = skinBoneWeights;
-//    }
 
 	public void setSkinBones(Bone[] bones) {
 //        this.bones = bones;
@@ -412,13 +387,24 @@ public class GeosetVertex extends Vec3 {
 		}
 	}
 
+	public void initSkinBones(){
+		if(skinBones == null){
+			skinBones = new SkinBone[4];
+		}
+	}
+
+	public SkinBone[] removeSkinBones(){
+		SkinBone[] skinBones = this.skinBones;
+		this.skinBones = null;
+		return skinBones;
+	}
 
 	public Vec4 getTangent() {
 		return tangent;
 	}
 
 	public void setTangent(float[] tangent) {
-		this.tangent = new Vec4(tangent);
+		this.tangent.set(tangent);
 	}
 
 	public void setTangent(Vec4 tangent) {
@@ -434,7 +420,11 @@ public class GeosetVertex extends Vec3 {
 	}
 
 	public void setTangent(Vec3 tangent, float w) {
-		this.tangent = new Vec4(tangent, w);
+		if(this.tangent == null){
+			this.tangent = new Vec4(tangent, w);
+		} else {
+			this.tangent.set(tangent, w);
+		}
 	}
 
 	@Override

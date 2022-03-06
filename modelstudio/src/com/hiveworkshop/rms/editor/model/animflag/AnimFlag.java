@@ -106,10 +106,13 @@ public abstract class AnimFlag<T> {
 		typeid = af.typeid;
 	}
 
-	public boolean equals(AnimFlag<T> animFlag) {
-		if (animFlag == null) {
-			return false;
-		}
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null) return false;
+		if (getClass() != o.getClass()) return false;
+
+		AnimFlag<T> animFlag = (AnimFlag<T>) o;
+
 		return name.equals(animFlag.getName())
 				|| sequenceMap.equals(animFlag.sequenceMap)
 				|| (Objects.equals(globalSeq, animFlag.globalSeq)

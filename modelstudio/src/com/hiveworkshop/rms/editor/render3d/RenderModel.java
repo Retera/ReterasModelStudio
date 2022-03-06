@@ -24,14 +24,12 @@ public final class RenderModel {
 	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
 	private final TimeEnvironmentImpl timeEnvironment;
 
-	private final Map<AnimatedNode, RenderNode> objectToRenderNode = new HashMap<>();
 	private final Map<AnimatedNode, RenderNodeCamera> cameraToRenderNode = new HashMap<>();
 	private final Map<AnimatedNode, RenderNode2> idObjectToRenderNode = new HashMap<>();
 	private final Map<Geoset, RenderGeoset> renderGeosetMap = new HashMap<>();
 	private final LinkedHashMap<ParticleEmitter2, RenderParticleEmitter2> emitterToRenderer2 = new LinkedHashMap<>();
 	private final List<RenderParticleEmitter2> renderParticleEmitters2 = new ArrayList<>();// TODO one per model, not instance
 
-	private final RenderNode rootPosition;
 	private final RenderNode2 rootPosition2;
 	private final RenderNodeCamera rootPositionCam;
 
@@ -77,9 +75,8 @@ public final class RenderModel {
 	public RenderModel(EditableModel model, ModelView modelView) {
 		this.model = model;
 		this.modelView = modelView;
-		rootPosition = new RenderNode(this, new Bone("RootPositionHack"));
 		rootPosition2 = new RenderNode2(this, new Bone("RootPositionHack"));
-		rootPositionCam = new RenderNodeCamera(this, new Camera("RootPositionHack"));
+		rootPositionCam = new RenderNodeCamera(this, new Camera("RootPositionHack").getSourceNode());
 		this.timeEnvironment = new TimeEnvironmentImpl();
 		for (final Geoset geoset : model.getGeosets()) {
 			RenderGeoset renderGeoset = renderGeosetMap.computeIfAbsent(geoset, k -> new RenderGeoset(geoset, this, modelView));
@@ -120,12 +117,30 @@ public final class RenderModel {
 		return this;
 	}
 
-	public RenderNode getRenderNode(AnimatedNode idObject) {
-		RenderNode renderNode = objectToRenderNode.get(idObject);
-		if (renderNode == null) {
-			return rootPosition;
+//	public RenderNode1 getRenderNode1(AnimatedNode idObject) {
+//		RenderNode1 renderNode = objectToRenderNode.get(idObject);
+//		if (renderNode == null) {
+//			return rootPosition;
+//		}
+//		return renderNode;
+//	}
+	public <Q extends AnimatedNode> RenderNode<Q> getRenderNode(Q idObject) {
+		if (idObject instanceof IdObject) {
+			RenderNode2 renderNode2 = idObjectToRenderNode.get(idObject);
+			if(renderNode2 != null){
+				return (RenderNode<Q>) renderNode2;
+			} else {
+				return (RenderNode<Q>) rootPosition2;
+			}
+		} else if (idObject instanceof CameraNode){
+			RenderNodeCamera camera = cameraToRenderNode.get(idObject);
+			if(camera != null){
+				return (RenderNode<Q>) camera;
+			} else {
+				return (RenderNode<Q>) rootPositionCam;
+			}
 		}
-		return renderNode;
+		return null;
 	}
 	public RenderNodeCamera getRenderNode(CameraNode cameraNode) {
 		RenderNodeCamera renderNode = cameraToRenderNode.get(cameraNode);
@@ -172,6 +187,7 @@ public final class RenderModel {
 		setBilllBoardVectors();
 
 		sortedNodes.clear();
+		idObjectToRenderNode.clear();
 		fetchCameraSourceNodes();
 		setupHierarchy(null);
 		fetchCameraTargetNodes();
@@ -203,7 +219,7 @@ public final class RenderModel {
 		for (Camera camera : model.getCameras()) {
 			TargetNode object = camera.getTargetNode();
 			sortedNodes.add(object);
-			objectToRenderNode.computeIfAbsent(object, k -> new RenderNode(this, object));
+//			objectToRenderNode.computeIfAbsent(object, k -> new RenderNode1(this, object));
 //			cameraToRenderNode.computeIfAbsent(object, k -> new RenderNode(this, object));
 		}
 	}
@@ -212,8 +228,8 @@ public final class RenderModel {
 		for (Camera camera : model.getCameras()) {
 			SourceNode object = camera.getSourceNode();
 			sortedNodes.add(object);
-			objectToRenderNode.computeIfAbsent(object, k -> new RenderNode(this, object));
-			cameraToRenderNode.computeIfAbsent(object, k -> new RenderNodeCamera(this, camera));
+//			objectToRenderNode.computeIfAbsent(object, k -> new RenderNode1(this, object));
+			cameraToRenderNode.computeIfAbsent(object, k -> new RenderNodeCamera(this, camera.getSourceNode()));
 		}
 	}
 
@@ -228,7 +244,7 @@ public final class RenderModel {
 			for (IdObject object : model.getIdObjects()) {
 				if (object.getParent() == null) {
 					sortedNodes.add(object);
-					objectToRenderNode.computeIfAbsent(object, k -> new RenderNode(this, object));
+//					objectToRenderNode.computeIfAbsent(object, k -> new RenderNode1(this, object));
 					idObjectToRenderNode.computeIfAbsent(object, k -> new RenderNode2(this, object));
 					setupHierarchy(object);
 				}
@@ -236,7 +252,7 @@ public final class RenderModel {
 		} else {
 			for (IdObject object : parent.getChildrenNodes()) {
 				sortedNodes.add(object);
-				objectToRenderNode.computeIfAbsent(object, k -> new RenderNode(this, object));
+//				objectToRenderNode.computeIfAbsent(object, k -> new RenderNode1(this, object));
 				idObjectToRenderNode.computeIfAbsent(object, k -> new RenderNode2(this, object));
 				setupHierarchy(object);
 			}
@@ -289,61 +305,61 @@ public final class RenderModel {
 
 	}
 
-	private void updateNode(boolean forced, boolean soft, boolean renderParticles, AnimatedNode idObject) {
-		RenderNode node = getRenderNode(idObject);
-		AnimatedNode idObjectParent = null;
-		if (idObject instanceof IdObject) {
-			idObjectParent = ((IdObject) idObject).getParent();
-		}
-		RenderNode parent = idObjectParent == null ? null : getRenderNode(idObjectParent);
-		boolean objectVisible = idObject.getRenderVisibility(timeEnvironment) >= MAGIC_RENDER_SHOW_CONSTANT;
-//		node.setVisible(forced || (((parent == null) || parent.visible) && objectVisible));
-		node.setVisible(forced || objectVisible);
-
-		// Every node only needs to be updated if this is a forced update, or if both
-		// the parent node and the generic object corresponding to this node are visible.
-		// Incoming messy code for optimizations!
-		// --- All copied from Ghostwolf
-		boolean dirty = forced || (parent != null && parent.dirty) || node.billboarded;
-//			if (nodeVisible) {
-//		if (nodeVisible || forced || !soft) {
-		if (objectVisible || forced || !soft) {
-			// TODO variants
-
-			// Only update the local data if there is a need to
-			if (forced || (!soft && idObject.getAnimFlags().size() > 0)) {
-				lastUpdatedTime = timeEnvironment.getEnvTrackTime();
-				dirty = true;
-				node.fetchTransformation(timeEnvironment);
-			}
-			node.setDirty(dirty);
-			// Billboarding
-			boolean wasDirty = RotateAndStuffBillboarding3(node, parent);
-
-			boolean wasReallyDirty = forced || dirty || wasDirty || (parent != null && parent.wasDirty);
-			node.wasDirty = wasReallyDirty;
-
-			// If this is a forced upate, or this node's local data was updated, or the
-			// parent node updated, do a full world update.
-
-			if (wasReallyDirty) {
-				node.recalculateTransformation();
-			}
-
-			// If there is an instance object associated with this node, and the node is
-			// visible (which might not be the case for a forced update!), update the object.
-			// This includes attachments and emitters.
-
-			// TODO instanced rendering in 2090
-			if (objectVisible && renderParticles && idObject instanceof ParticleEmitter2) {
-				if (emitterToRenderer2.get(idObject) != null) {
-					if ((modelView == null) || modelView.getEditableIdObjects().contains(idObject) || vetoParticles) {
-						emitterToRenderer2.get(idObject).fill();
-					}
-				}
-			}
-		}
-	}
+//	private void updateNode(boolean forced, boolean soft, boolean renderParticles, AnimatedNode idObject) {
+//		RenderNode1 node = getRenderNode1(idObject);
+//		AnimatedNode idObjectParent = null;
+//		if (idObject instanceof IdObject) {
+//			idObjectParent = ((IdObject) idObject).getParent();
+//		}
+//		RenderNode1 parent = idObjectParent == null ? null : getRenderNode1(idObjectParent);
+//		boolean objectVisible = idObject.getRenderVisibility(timeEnvironment) >= MAGIC_RENDER_SHOW_CONSTANT;
+////		node.setVisible(forced || (((parent == null) || parent.visible) && objectVisible));
+//		node.setVisible(forced || objectVisible);
+//
+//		// Every node only needs to be updated if this is a forced update, or if both
+//		// the parent node and the generic object corresponding to this node are visible.
+//		// Incoming messy code for optimizations!
+//		// --- All copied from Ghostwolf
+//		boolean dirty = forced || (parent != null && parent.dirty) || node.billboarded;
+////			if (nodeVisible) {
+////		if (nodeVisible || forced || !soft) {
+//		if (objectVisible || forced || !soft) {
+//			// TODO variants
+//
+//			// Only update the local data if there is a need to
+//			if (forced || (!soft && idObject.getAnimFlags().size() > 0)) {
+//				lastUpdatedTime = timeEnvironment.getEnvTrackTime();
+//				dirty = true;
+//				node.fetchTransformation(timeEnvironment);
+//			}
+//			node.setDirty(dirty);
+//			// Billboarding
+//			boolean wasDirty = RotateAndStuffBillboarding3(node, parent);
+//
+//			boolean wasReallyDirty = forced || dirty || wasDirty || (parent != null && parent.wasDirty);
+//			node.wasDirty = wasReallyDirty;
+//
+//			// If this is a forced upate, or this node's local data was updated, or the
+//			// parent node updated, do a full world update.
+//
+//			if (wasReallyDirty) {
+//				node.recalculateTransformation();
+//			}
+//
+//			// If there is an instance object associated with this node, and the node is
+//			// visible (which might not be the case for a forced update!), update the object.
+//			// This includes attachments and emitters.
+//
+//			// TODO instanced rendering in 2090
+//			if (objectVisible && renderParticles && idObject instanceof ParticleEmitter2) {
+//				if (emitterToRenderer2.get(idObject) != null) {
+//					if ((modelView == null) || modelView.getEditableIdObjects().contains(idObject) || vetoParticles) {
+//						emitterToRenderer2.get(idObject).fill();
+//					}
+//				}
+//			}
+//		}
+//	}
 
 	Vec3 locationHeap = new Vec3(0, 0, 0);
 	Quat rotationHeap = new Quat(0, 0, 0, 1);
@@ -437,53 +453,53 @@ public final class RenderModel {
 	}
 
 
-	public boolean RotateAndStuffBillboarding3(RenderNode node, RenderNode parent) {
-		boolean wasDirty = false;
-		// If the instance is not attached to any scene, this is meaningless
-
-		// To solve billboard Y, you must rotate to face camera in node local space only
-		// around the node-local version of the Y axis.
-		// Imagine that we have a vector facing outward from the plane that represents
-		// where the front of the plane will face after we apply the node's rotation.
-		// We can easily do "billboarding", which is to say we can construct a rotation
-		// that turns this facing to face the camera.
-		// However, for BillboardLockY, we must instead take the projection of the vector
-		// that would result from this -- "facing camera" vector,
-		// and take the projection of that vector onto the plane perpendicular to the billboard lock axis.
-
-
-		// To solve billboard Y, you must rotate to face camera in node local space
-		// only around the node-local version of the Y axis.
-
-		// Imagine the normal of the plane resulting from apply the node's rotation.
-		// With this we can easily do "billboarding", which is to say we can
-		// construct a quaternation that turns this facing to face the camera.
-
-		// However, for BillboardLockY, we must instead take the projection of the normal of the billboarded plane,
-		// and project it onto the plane perpendicular to the billboard lock axis.
-
-		if(node.billboarded || node.billboardedX || node.billboardedY || node.billboardedZ){
-
-			Quat localRotation = new Quat(0, 0, 0, 1);
-			wasDirty = true;
-
-			if (node.billboarded) {
-				localRotation.mul(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()); // WORKS!
-			} else if (node.billboardedX) {
-				localRotation.invertRotation2().mulLeft(getInverseCameraRotZSpinX());
-			} else if (node.billboardedY) {
-				localRotation.invertRotation2().mulLeft(getInverseCameraRotXSpinY()); //I Think It Works :O
-			} else if (node.billboardedZ) {
-				localRotation.mul(getInverseCameraRotZSpinZ());
-
-			}
-			localRotation.normalize();
-
-			node.setRotation(localRotation);
-			node.setDirty(true);
-		}
-		return wasDirty;
-	}
+//	public boolean RotateAndStuffBillboarding3(RenderNode1 node, RenderNode1 parent) {
+//		boolean wasDirty = false;
+//		// If the instance is not attached to any scene, this is meaningless
+//
+//		// To solve billboard Y, you must rotate to face camera in node local space only
+//		// around the node-local version of the Y axis.
+//		// Imagine that we have a vector facing outward from the plane that represents
+//		// where the front of the plane will face after we apply the node's rotation.
+//		// We can easily do "billboarding", which is to say we can construct a rotation
+//		// that turns this facing to face the camera.
+//		// However, for BillboardLockY, we must instead take the projection of the vector
+//		// that would result from this -- "facing camera" vector,
+//		// and take the projection of that vector onto the plane perpendicular to the billboard lock axis.
+//
+//
+//		// To solve billboard Y, you must rotate to face camera in node local space
+//		// only around the node-local version of the Y axis.
+//
+//		// Imagine the normal of the plane resulting from apply the node's rotation.
+//		// With this we can easily do "billboarding", which is to say we can
+//		// construct a quaternation that turns this facing to face the camera.
+//
+//		// However, for BillboardLockY, we must instead take the projection of the normal of the billboarded plane,
+//		// and project it onto the plane perpendicular to the billboard lock axis.
+//
+//		if(node.billboarded || node.billboardedX || node.billboardedY || node.billboardedZ){
+//
+//			Quat localRotation = new Quat(0, 0, 0, 1);
+//			wasDirty = true;
+//
+//			if (node.billboarded) {
+//				localRotation.mul(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()); // WORKS!
+//			} else if (node.billboardedX) {
+//				localRotation.invertRotation2().mulLeft(getInverseCameraRotZSpinX());
+//			} else if (node.billboardedY) {
+//				localRotation.invertRotation2().mulLeft(getInverseCameraRotXSpinY()); //I Think It Works :O
+//			} else if (node.billboardedZ) {
+//				localRotation.mul(getInverseCameraRotZSpinZ());
+//
+//			}
+//			localRotation.normalize();
+//
+//			node.setRotation(localRotation);
+//			node.setDirty(true);
+//		}
+//		return wasDirty;
+//	}
 	public boolean RotateAndStuffBillboarding3(RenderNode2 node, RenderNode2 parent) {
 		boolean wasDirty = false;
 		// If the instance is not attached to any scene, this is meaningless

@@ -59,12 +59,16 @@ public class RenderGeoset {
 	public RenderGeoset updateTransforms(boolean forceAnimated){
 		transformMapSD.clear();
 		transformMapHD.clear();
+		checkHD();
+//		System.out.println("isTangentAndSkinSupported: " + ModelUtils.isTangentAndSkinSupported(geoset.getParentModel()));
+//		System.out.println("has skinBone: " + (geoset.getVertex(0).getSkinBones() != null));
 		if(renderVerts.size() != geoset.getVertices().size()){
 			rebuildVertexMap();
 		}
 		for(RenderVert renderVert : renderVerts){
 			renderVert.update(getTransform(renderVert.vertex, forceAnimated));
 		}
+
 		return this;
 	}
 //	public BiMap<GeosetVertex, RenderVert> updateTransforms(){
@@ -95,8 +99,10 @@ public class RenderGeoset {
 	private Mat4 getTransform(GeosetVertex vertex, boolean forceAnimated) {
 		if (renderModel.getTimeEnvironment().isLive() || forceAnimated) {
 			if (isHD) {
+//				System.out.println("Vertex is HD");
 				return processHdBones(renderModel, vertex.getSkinBones());
 			} else {
+//				System.out.println("Vertex NOT HD");
 				return processSdBones(renderModel, vertex.getMatrix().getBones());
 			}
 		}
