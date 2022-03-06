@@ -27,7 +27,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -130,10 +129,10 @@ public class ModelLoader {
 		if (ProgramGlobals.getCurrentModelPanel() == modelPanel) {
 			ProgramGlobals.getRootWindowUgg().getWindowHandler2().showModelPanel(modelPanel);
 		}
+		ProgramGlobals.addModelPanel(modelPanel);
+
 		if (showModel) {
 			setCurrentModel(modelPanel);
-		} else {
-			ProgramGlobals.addModelPanel(modelPanel);
 		}
 
 		if (temporary) {
@@ -161,11 +160,10 @@ public class ModelLoader {
 	}
 
 	public static void setCurrentModel(ModelPanel modelPanel) {
-		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
 		ProgramGlobals.setCurrentModelPanel(modelPanel);
 		refreshAnimationModeState();
 
-//		rootWindow.getWindowHandler2().getViewportListener().viewportChanged(null);
+//		ProgramGlobals.getRootWindowUgg().getWindowHandler2().getViewportListener().viewportChanged(null);
 		ModelStructureChangeListener.changeListener.keyframesUpdated();
 	}
 
@@ -196,7 +194,8 @@ public class ModelLoader {
 //				new TestSklViewer().createAndShowHTMLPanel(f.getPath(), "View SKL");
 //			}
 			if (model != null) {
-				ModelPanel tempModelPanel = newTempModelPanel(icon, model);
+//				ModelPanel tempModelPanel = newTempModelPanel(icon, model);
+				ModelPanel tempModelPanel = new ModelPanel(new ModelHandler(model, icon));
 				loadModel(temporary, showModel, tempModelPanel);
 			}
 		} else if (SaveProfile.get().getRecent().contains(f.getPath())) {
@@ -249,9 +248,13 @@ public class ModelLoader {
 			};
 			//                    AiClassLoaderIOSystem aiIOSystem = new AiClassLoaderIOSystem();
 			TwiAiIoSys twiAiIoSys = new TwiAiIoSys();
-			AiScene scene = Jassimp.importFile(f.getPath(), new HashSet<>(Collections.singletonList(AiPostProcessSteps.TRIANGULATE)), twiAiIoSys, aiProgressHandler);
+
+
+			HashSet<AiPostProcessSteps> processSteps = new HashSet<>();
+			processSteps.add(AiPostProcessSteps.TRIANGULATE);
+			processSteps.add(AiPostProcessSteps.REMOVE_REDUNDANT_MATERIALS);
+			AiScene scene = Jassimp.importFile(f.getPath(), processSteps, twiAiIoSys, aiProgressHandler);
 			TwiAiSceneParser twiAiSceneParser = new TwiAiSceneParser(scene);
-			//                    final EditableModel model = new EditableModel(scene);
 			System.out.println("took " + (System.currentTimeMillis() - timeStart) + " ms to load the model");
 			EditableModel model = twiAiSceneParser.getEditableModel();
 			model.setFileRef(f);
@@ -262,26 +265,6 @@ public class ModelLoader {
 			e.printStackTrace();
 		}
 		return null;
-	}
-
-	public static void revert() {
-		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
-		if (modelPanel != null) {
-			if (modelPanel.close()) {
-				ProgramGlobals.removeModelPanel(modelPanel);
-				MenuBar.removeModelPanel(modelPanel);
-				if (ProgramGlobals.getModelPanels().size() > 0) {
-					int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);
-					setCurrentModel(ProgramGlobals.getModelPanels().get(newIndex));
-				} else {
-					// TODO remove from notifiers to fix leaks
-					setCurrentModel(null);
-				}
-				final File fileToRevert = modelPanel.getModel().getFile();
-				loadFile(fileToRevert);
-			}
-		}
 	}
 
 	public static void loadFile(File f, boolean temporary) {
