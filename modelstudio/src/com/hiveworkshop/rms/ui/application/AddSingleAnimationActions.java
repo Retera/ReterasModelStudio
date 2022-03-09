@@ -41,9 +41,8 @@ public class AddSingleAnimationActions {
 	}
 
 	public static void addSingleAnimation(EditableModel current, EditableModel animationSourceModel) {
-		Animation choice = null;
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		choice = (Animation) JOptionPane.showInputDialog(mainPanel, "Choose an animation!", "Add Animation",
+		Animation choice = (Animation) JOptionPane.showInputDialog(mainPanel, "Choose an animation!", "Add Animation",
 				JOptionPane.QUESTION_MESSAGE, null, animationSourceModel.getAnims().toArray(),
 				animationSourceModel.getAnims().get(0));
 		if (choice == null) {
@@ -105,9 +104,9 @@ public class AddSingleAnimationActions {
 		JTextField nameField = new JTextField();
 		nameField.setText("newAnimation");
 		newAnimationPanel.add(nameField, "wrap, grow");
-		newAnimationPanel.add(new JLabel("Start"));
-		JSpinner startSpinner = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
-		newAnimationPanel.add(startSpinner, "wrap");
+//		newAnimationPanel.add(new JLabel("Start"));
+//		JSpinner startSpinner = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
+//		newAnimationPanel.add(startSpinner, "wrap");
 		newAnimationPanel.add(new JLabel("Length"));
 		JSpinner lengthSpinner = new JSpinner(new SpinnerNumberModel(500, 0, Integer.MAX_VALUE, 1));
 		newAnimationPanel.add(lengthSpinner, "wrap");
@@ -121,48 +120,52 @@ public class AddSingleAnimationActions {
 		creationPanel.add(existingAnimationsPanel, "cell 1 0");
 
 		List<Animation> currAnim = modelHandler.getModel().getAnims();
-		List<Integer> startTimes = new ArrayList<>();
+//		List<Integer> startTimes = new ArrayList<>();
+		List<Integer> animNumber = new ArrayList<>();
 		List<Integer> lengths = new ArrayList<>();
 		List<String> animationNames = new ArrayList<>();
         for (Animation a : currAnim) {
-	        startTimes.add(a.getStart());
+//	        startTimes.add(a.getStart());
+	        animNumber.add(animNumber.size());
 	        lengths.add(a.getLength());
 	        animationNames.add(a.getName());
         }
 
         DefaultTableModel animationTableModel = new DefaultTableModel();
-		animationTableModel.addColumn("start", startTimes.toArray());
-		animationTableModel.addColumn("length", lengths.toArray());
+//		animationTableModel.addColumn("start", startTimes.toArray());
+		animationTableModel.addColumn("", animNumber.toArray());
 		animationTableModel.addColumn("name", animationNames.toArray());
+		animationTableModel.addColumn("length", lengths.toArray());
 
         existingAnimationTable.setModel(animationTableModel);
 
-        JButton setStartAfter = new JButton("Start After");
-        setStartAfter.addActionListener(e -> {
-	        int length = (Integer) lengthSpinner.getValue();
-	        int newStart = ((Integer) existingAnimationTable.getValueAt(existingAnimationTable.getSelectedRow(), 1)) + 1;
-	        startSpinner.setValue(newStart);
-	        lengthSpinner.setValue(length);
-        });
-        JButton setEndBefore = new JButton("End Before");
-//        setEndBefore.addActionListener(e -> lengthSpinner.setValue(existingAnimationTable.getValueAt(existingAnimationTable.getSelectedRow(), 0)));
-        setEndBefore.addActionListener(e -> {
-	        int duration = (Integer) lengthSpinner.getValue();
-	        int selectedRow = existingAnimationTable.getSelectedRow();
-	        int start = ((Integer) existingAnimationTable.getValueAt(selectedRow, 0)) - 1 - duration;
-	        startSpinner.setValue(start);
-        });
-
-		existingAnimationsPanel.add(setStartAfter);
-		existingAnimationsPanel.add(setEndBefore);
+//        JButton setStartAfter = new JButton("Start After");
+//        setStartAfter.addActionListener(e -> {
+//	        int length = (Integer) lengthSpinner.getValue();
+//	        int newStart = ((Integer) existingAnimationTable.getValueAt(existingAnimationTable.getSelectedRow(), 1)) + 1;
+//	        startSpinner.setValue(newStart);
+//	        lengthSpinner.setValue(length);
+//        });
+//        JButton setEndBefore = new JButton("End Before");
+////        setEndBefore.addActionListener(e -> lengthSpinner.setValue(existingAnimationTable.getValueAt(existingAnimationTable.getSelectedRow(), 0)));
+//        setEndBefore.addActionListener(e -> {
+//	        int duration = (Integer) lengthSpinner.getValue();
+//	        int selectedRow = existingAnimationTable.getSelectedRow();
+//	        int start = ((Integer) existingAnimationTable.getValueAt(selectedRow, 0)) - 1 - duration;
+//	        startSpinner.setValue(start);
+//        });
+//
+//		existingAnimationsPanel.add(setStartAfter);
+//		existingAnimationsPanel.add(setEndBefore);
 
 //        optionPane.setOptions();
 		int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), creationPanel, "Create Empty Animation", JOptionPane.OK_CANCEL_OPTION);
 		System.out.println("option \"" + option + "\"");
-		int start = (Integer) startSpinner.getValue();
-		int end = (Integer) lengthSpinner.getValue();
+//		int start = (Integer) startSpinner.getValue();
+		int length = (Integer) lengthSpinner.getValue();
 		if (option == 0) {
-			Animation animation = new Animation(nameField.getText(), start, end);
+//			Animation animation = new Animation(nameField.getText(), start, length);
+			Animation animation = new Animation(nameField.getText(), 0, length);
 			UndoAction action = new AddSequenceAction(modelHandler.getModel(), animation, ModelStructureChangeListener.getModelStructureChangeListener());
 			modelHandler.getUndoManager().pushAction(action.redo());
 		}

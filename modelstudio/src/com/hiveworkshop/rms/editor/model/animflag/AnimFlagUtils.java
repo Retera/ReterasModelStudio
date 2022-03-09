@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.TreeMap;
 
@@ -180,5 +181,19 @@ public class AnimFlagUtils {
 			float[] factor = animFlag.getTbcFactor(0, .2f, -.9f);
 			animFlag.calcNewTans(factor, nextValue, prevValue, entryTreeMap.get(time), animationLength);
 		}
+	}
+
+	public static <Q> AnimFlag<Q> createNewAnimFlag(Q defaultValue, String title){
+		if(defaultValue instanceof Integer){
+			return (AnimFlag<Q>) new IntAnimFlag(title);
+		} else if(defaultValue instanceof Float){
+			return (AnimFlag<Q>) new FloatAnimFlag(title);
+		} else if(defaultValue instanceof Vec3){
+			return (AnimFlag<Q>) new Vec3AnimFlag(title);
+		} else if(defaultValue instanceof QuatAnimFlag){
+			return (AnimFlag<Q>) new QuatAnimFlag(title);
+		}
+
+		return null;
 	}
 }

@@ -1,17 +1,14 @@
 package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.animation.AddEventTrackAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.AddSingleAnimationActions;
-import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ActionFunction;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -20,59 +17,53 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.SequenceComboBoxRenderer;
 import com.hiveworkshop.rms.ui.language.TextKey;
 import com.hiveworkshop.rms.util.FramePopup;
-import com.hiveworkshop.rms.util.TwiComboBoxModel;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class KeyframeCopyPanel extends JPanel {
-	private final FileDialog fileDialog;
-	ModelHandler modelHandler;
-	String RRW = "\u23EE"; // ⏮
-	String FFW = "\u23ED"; // ⏭
-	JComboBox<Animation> donAnimBox;
-	JSpinner donTimeSpinner;
-	JSpinner donTimeEndSpinner;
-	JComboBox<Animation> recAnimBox;
-	JSpinner recTimeSpinner;
+	private final ModelHandler modelHandler;
+	private final String RRW = "\u23EE"; // ⏮
+	private final String FFW = "\u23ED"; // ⏭
+	private JSpinner donTimeSpinner;
+	private JSpinner donTimeEndSpinner;
+	private JSpinner recTimeSpinner;
 
-	JLabel recTimeLabel = new JLabel("0");
-	JLabel donTimeLabel = new JLabel("0");
-
-	Animation donAnim;
-	Animation recAnim;
+	private Animation donAnim;
+	private Animation recAnim;
 
 	/**
 	 * Create the panel.
 	 */
 	public KeyframeCopyPanel(final ModelHandler modelHandler) {
-		fileDialog = new FileDialog(this);
 		this.modelHandler = modelHandler;
 		setLayout(new MigLayout("fill", "[grow][grow]"));
 
-//		add(new JLabel("Copies all keyframes from source animation within specified interval to destination. \nWARNING: Make sure that the copied interval fits within the destination animation."), "spanx, wrap");
 		JTextArea info = new JTextArea("Copies all keyframes from chosen interval in source animation into destination animation starting at specified frame.");
 		info.setEditable(false);
 		info.setOpaque(false);
 		info.setLineWrap(true);
 		info.setWrapStyleWord(true);
 		add(info, "spanx, growx, wrap");
-		JTextArea warning = new JTextArea("WARNING: Make sure that the copied interval fits within the destination animation.");
+//		JTextArea warning = new JTextArea("WARNING: Make sure that the copied interval fits within the destination animation.");
+		JTextArea warning = new JTextArea("Note: The destination interval might exceed the animation length. These keyframes will be pruned from the saved model.");
 		warning.setEditable(false);
 		warning.setOpaque(false);
 		warning.setLineWrap(true);
 		warning.setWrapStyleWord(true);
 		add(warning, "spanx, growx, wrap");
+
 		JButton addAnimButton = new JButton("add new animation");
 		addAnimButton.addActionListener(e -> AddSingleAnimationActions.addEmptyAnimation(this.modelHandler));
 		add(addAnimButton, "skip, right, wrap");
-		animChoosingStuff();
 
 		JPanel donAnimPanel = getDonAnimPanel();
 		add(donAnimPanel, "growx, aligny top");
@@ -97,83 +88,71 @@ public class KeyframeCopyPanel extends JPanel {
 	private JPanel getRecAnimPanel() {
 		JPanel recAnimPanel = new JPanel(new MigLayout("fill, gap 0"));
 		recAnimPanel.add(new JLabel("To:"), "wrap");
+
+		List<Animation> animations = modelHandler.getModel().getAnims();
+		recAnim = animations.get(0);
+		recTimeSpinner = new JSpinner(getAnimModel(recAnim));
+		TwiComboBox<Animation> recAnimBox = getAnimChooser(animations, this::recAnimChosen);
+
 		recAnimPanel.add(recAnimBox, "growx, gapbottom 5, wrap");
-//		recAnimPanel.add(recTimeLabel, "wrap");
 		recAnimPanel.add(recTimeSpinner, "wrap");
-//		getSpinnerPanel(recAnimPanel, "Start", recTimeSpinner, () -> recAnim.getStart(), () -> recAnim.getEnd());
-		getSpinnerPanel(recAnimPanel, "Start", recTimeSpinner, () -> 0, () -> recAnim.getLength());
+
+		recAnimPanel.add(getSpinnerPanel("Start", recTimeSpinner, () -> 0, () -> recAnim.getLength()), "growx, wrap");
 		return recAnimPanel;
 	}
 
 	private JPanel getDonAnimPanel() {
 		JPanel donAnimPanel = new JPanel(new MigLayout("fill, gap 0"));
 		donAnimPanel.add(new JLabel("From:"), "wrap");
-		donAnimPanel.add(donAnimBox, "growx, gapbottom 5, wrap");
-//		donAnimPanel.add(donTimeLabel, "wrap");
-//		getSpinnerPanel(donAnimPanel, "Start", donTimeSpinner, () -> donAnim.getStart(), () -> donAnim.getEnd());
-		getSpinnerPanel(donAnimPanel, "Start", donTimeSpinner, () -> 0, () -> donAnim.getLength());
 
-//		getSpinnerPanel(donAnimPanel, "End", donTimeEndSpinner, () -> donAnim.getStart(), () -> donAnim.getEnd());
-		getSpinnerPanel(donAnimPanel, "End", donTimeEndSpinner, () -> 0, () -> donAnim.getLength());
+		List<Animation> animations = modelHandler.getModel().getAnims();
+		donAnim = animations.get(0);
+		donTimeSpinner = new JSpinner(getAnimModel(donAnim));
+		donTimeEndSpinner = new JSpinner(getAnimModel(donAnim));
+		TwiComboBox<Animation> donAnimBox = getAnimChooser(animations, this::donAnimChoosen);
+
+		donAnimPanel.add(donAnimBox, "growx, gapbottom 5, wrap");
+		donAnimPanel.add(getSpinnerPanel("Start", donTimeSpinner, () -> 0, () -> donAnim.getLength()), "growx, wrap");
+		donAnimPanel.add(getSpinnerPanel("End", donTimeEndSpinner, () -> 0, () -> donAnim.getLength()), "growx, wrap");
 		return donAnimPanel;
 	}
 
-	private void getSpinnerPanel(JPanel donAnimPanel, String start, JSpinner donTimeSpinner,
-	                             Supplier<Integer> startSupplier, Supplier<Integer> endSupplier) {
-		JPanel startP = new JPanel(new MigLayout("fill, gap 0, ins 0", "[5%:10%:10%]10[grow][][]"));
-		startP.add(new JLabel(start));
-		startP.add(donTimeSpinner, "growx");
-		startP.add(getButton(e -> donTimeSpinner.setValue(startSupplier.get()), RRW));
-		startP.add(getButton(e -> donTimeSpinner.setValue(endSupplier.get()), FFW));
-		donAnimPanel.add(startP, "growx, wrap");
+	private JPanel getSpinnerPanel(String title, JSpinner spinner,
+	                               Supplier<Integer> startSupplier, Supplier<Integer> endSupplier) {
+		JPanel panel = new JPanel(new MigLayout("fill, gap 0, ins 0", "[5%:10%:10%]10[grow][][]"));
+		panel.add(new JLabel(title));
+		panel.add(spinner, "growx");
+		panel.add(getButton(e -> spinner.setValue(startSupplier.get()), RRW));
+		panel.add(getButton(e -> spinner.setValue(endSupplier.get()), FFW));
+		return panel;
 	}
 
 	private JButton getButton(ActionListener actionListener, String s) {
-		JButton dRwButton1 = new JButton(s);
-		dRwButton1.addActionListener(actionListener);
-		return dRwButton1;
+		JButton button = new JButton(s);
+		button.addActionListener(actionListener);
+		return button;
 	}
 
-	private void animChoosingStuff() {
-		List<Animation> animations = modelHandler.getModel().getAnims();
-
-		TwiComboBoxModel<Animation> donBoxModel = new TwiComboBoxModel<>(animations);
-		donAnimBox = new JComboBox<>(donBoxModel);
+	private TwiComboBox<Animation> getAnimChooser(List<Animation> animations, Consumer<Animation> donAnimChoosen) {
+		TwiComboBox<Animation> donAnimBox = new TwiComboBox<>(animations, new Animation("Stand and Work for me", 0, 1));
 		donAnimBox.setRenderer(new SequenceComboBoxRenderer(modelHandler));
-		donAnimBox.addItemListener(this::donAnimChoosen);
-		donAnim = animations.get(0);
-//		donTimeLabel.setText(donAnim.getStart() + "  to  " + donAnim.getEnd() + "  (" + (donAnim.getEnd() - donAnim.getStart()) + ")");
-//		donTimeLabel.setText(donAnim.getLength() + " ticks");
-		donTimeSpinner = new JSpinner(getAnimModel(donAnim));
-		donTimeEndSpinner = new JSpinner(getAnimModel(donAnim));
-
-		TwiComboBoxModel<Animation> recBoxModel = new TwiComboBoxModel<>(animations);
-		recAnimBox = new JComboBox<>(recBoxModel);
-		recAnimBox.setRenderer(new SequenceComboBoxRenderer(modelHandler));
-		recAnimBox.addItemListener(this::recAnimChosen);
-		recAnim = animations.get(0);
-//		recTimeLabel.setText(recAnim.getStart() + "  to  " + recAnim.getEnd() + "  (" + (recAnim.getEnd() - recAnim.getStart()) + ")");
-//		recTimeLabel.setText(recAnim.getLength() + " ticks");
-		recTimeSpinner = new JSpinner(getAnimModel(recAnim));
-		revalidate();
+		donAnimBox.addOnSelectItemListener(donAnimChoosen);
+		return donAnimBox;
 	}
 
-	private void recAnimChosen(ItemEvent e) {
-		if(e.getStateChange() == ItemEvent.SELECTED && e.getItem() != null){
-			recAnim = (Animation) e.getItem();
+
+	private void recAnimChosen(Animation anim) {
+		if(anim != null){
+			recAnim = anim;
 			recTimeSpinner.setModel(getAnimModel(recAnim));
-//		recTimeLabel.setText(recAnim.getStart() + "  to  " + recAnim.getEnd() + "  (" + (recAnim.getEnd() - recAnim.getStart()) + ")");
-//			recTimeLabel.setText(recAnim.getLength() + " ticks");
 		}
 	}
 
-	private void donAnimChoosen(ItemEvent e) {
-		if(e.getStateChange() == ItemEvent.SELECTED && e.getItem() != null){
-			donAnim = (Animation) e.getItem();
+	private void donAnimChoosen(Animation anim) {
+		if(donAnim != null){
+			donAnim = anim;
 			donTimeSpinner.setModel(getAnimModel(donAnim));
 			donTimeEndSpinner.setModel(getAnimModel(donAnim));
-//		donTimeLabel.setText(donAnim.getStart() + "  to  " + donAnim.getEnd() + "  (" + (donAnim.getEnd() - donAnim.getStart()) + ")");
-//			donTimeLabel.setText(donAnim.getLength() + " ticks");
 		}
 	}
 
@@ -191,18 +170,60 @@ public class KeyframeCopyPanel extends JPanel {
 	private void copyKeyframe(Animation donAnimation, int donKeyframe, Animation recAnimation, int recKeyframe, int times) {
 		EditableModel model = modelHandler.getModel();
 		List<UndoAction> undoActions = new ArrayList<>();
-		List<Bone> bones = model.getBones();
-		List<Helper> helpers = model.getHelpers();
 
-		for (Bone bone : bones) {
-			ArrayList<AnimFlag<?>> animFlags = bone.getAnimFlags();
+		for (IdObject idObject : model.getIdObjects()) {
+			ArrayList<AnimFlag<?>> animFlags = idObject.getAnimFlags();
 			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
 		}
-		for (Helper helper : helpers) {
-			ArrayList<AnimFlag<?>> animFlags = helper.getAnimFlags();
+		for(Material material : model.getMaterials()){
+			for(Layer layer : material.getLayers()){
+				ArrayList<AnimFlag<?>> animFlags = layer.getAnimFlags();
+				undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
+			}
+		}
+
+		for(Geoset geoset : model.getGeosets()){
+			if(geoset.getGeosetAnim() != null){
+				ArrayList<AnimFlag<?>> animFlags = geoset.getGeosetAnim().getAnimFlags();
+				undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
+			}
+		}
+		for (TextureAnim textureAnim : model.getTexAnims()){
+			ArrayList<AnimFlag<?>> animFlags = textureAnim.getAnimFlags();
 			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
 		}
-		modelHandler.getUndoManager().pushAction(new CompoundAction("Copy keyframes", undoActions, ModelStructureChangeListener.changeListener::keyframesUpdated).redo());
+		for (Camera camera : model.getCameras()){
+			ArrayList<AnimFlag<?>> animFlags1 = camera.getSourceNode().getAnimFlags();
+			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags1));
+			ArrayList<AnimFlag<?>> animFlags2 = camera.getTargetNode().getAnimFlags();
+			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags2));
+		}
+		for (EventObject eventObject : model.getEvents()){
+			TreeSet<Integer> eventTrack = eventObject.getEventTrack(donAnimation);
+			if(eventTrack != null){
+				ArrayList<Integer> newTracks = new ArrayList<>();
+				for(Integer time : eventTrack){
+					int newTime = time - donKeyframe + recKeyframe;
+					if(0 <= newTime && newTime < donKeyframe+times-1){
+						newTracks.add(newTime);
+					}
+				}
+				if(!newTracks.isEmpty()){
+					undoActions.add(new AddEventTrackAction(eventObject, recAnimation, newTracks, ModelStructureChangeListener.changeListener));
+				}
+			}
+		}
+//		for (Bone bone : bones) {
+//			ArrayList<AnimFlag<?>> animFlags = bone.getAnimFlags();
+//			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
+//		}
+//		for (Helper helper : helpers) {
+//			ArrayList<AnimFlag<?>> animFlags = helper.getAnimFlags();
+//			undoActions.addAll(getSetKeyframesAction(donAnimation, donKeyframe, recAnimation, recKeyframe, times, animFlags));
+//		}
+		if(!undoActions.isEmpty()){
+			modelHandler.getUndoManager().pushAction(new CompoundAction("Copy keyframes", undoActions, ModelStructureChangeListener.changeListener::keyframesUpdated).redo());
+		}
 	}
 
 	private List<UndoAction> getSetKeyframesAction(Animation donAnimation, int donKeyframe, Animation recAnimation, int recKeyframe, int times, ArrayList<AnimFlag<?>> animFlags) {
@@ -232,34 +253,6 @@ public class KeyframeCopyPanel extends JPanel {
 			undoActions.add(new AddFlagEntryAction<>(animFlag, addEntries, recAnimation, null));
 		}
 		return undoActions;
-	}
-	private <T> void setAnimFlagKeyframe2(Animation donAnimation, int donKeyframe, Animation recAnimation, int recKeyframe, int times, AnimFlag<T> animFlag) {
-		List<UndoAction> undoActions = new ArrayList<>();
-		for (int j = 0; j < times; j++) {
-			if(animFlag.hasEntryAt(recAnimation, recKeyframe + j)){
-				undoActions.add(new RemoveFlagEntryAction<>(animFlag, recKeyframe + j, recAnimation, null));
-			}
-			if(animFlag.hasEntryAt(donAnimation, donKeyframe + j)){
-				undoActions.add(new AddFlagEntryAction<>(animFlag, animFlag.getEntryAt(donAnim, donKeyframe + j).deepCopy().setTime(recKeyframe + j), recAnimation, null));
-			}
-		}
-	}
-
-	private <T> void setAnimFlagKeyframe1(Animation donAnimation, int donKeyframe, Animation recAnimation, int recKeyframe, int times, AnimFlag<T> animFlag) {
-		for (int j = 0; j < times; j++) {
-			animFlag.removeKeyframe(recKeyframe + j, recAnimation);
-			Entry<T> entryAt = animFlag.getEntryAt(donAnimation, donKeyframe + j);
-			if (entryAt != null) {
-				Entry<T> entry = entryAt.deepCopy();
-				animFlag.setOrAddEntry(recKeyframe + j, entry, recAnimation);
-			}
-		}
-	}
-
-	private void openModel() {
-		FileDialog fileDialog = new FileDialog();
-
-		final EditableModel model = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
 	}
 
 

@@ -7,13 +7,13 @@ import java.util.Locale;
 
 public class ValueParserUtil {
 	//		if (!valueString.matches("\\{? ?(-?\\d*\\.?\\d+)( ?, ?(-?\\d*\\.?\\d+))* ?}?"))
-	Quat parseValueQuat(String valueString) {
+	public Quat parseQuat(String valueString) {
 		int vectorSize = 4;
 
 		return Quat.parseQuat(getString(vectorSize, valueString));
 	}
 
-	Vec3 parseValueVec3(String valueString) {
+	public Vec3 parseVec3(String valueString) {
 		int vectorSize = 3;
 
 		return Vec3.parseVec3(getString(vectorSize, valueString));
@@ -80,7 +80,7 @@ public class ValueParserUtil {
 				newS.append(",");
 			}
 		}
-		System.out.println("polished string: " + newS.toString());
+//		System.out.println("polished string: " + newS.toString());
 		return newS.toString();
 	}
 
@@ -96,7 +96,7 @@ public class ValueParserUtil {
 	}
 
 	private static String getSubString(String s) {
-		System.out.println("string: " + s);
+//		System.out.println("string: " + s);
 		if (s.equals("") || s.equals(".")) {
 			return "0";
 		} else if (s.matches("-?\\d+\\.")) {

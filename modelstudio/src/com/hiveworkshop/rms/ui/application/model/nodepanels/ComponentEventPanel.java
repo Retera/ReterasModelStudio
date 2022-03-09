@@ -1,6 +1,9 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
-import com.hiveworkshop.rms.editor.actions.animation.*;
+import com.hiveworkshop.rms.editor.actions.animation.AddEventTrackAction;
+import com.hiveworkshop.rms.editor.actions.animation.EditEventTrackAction;
+import com.hiveworkshop.rms.editor.actions.animation.RemoveEventSequenceAction;
+import com.hiveworkshop.rms.editor.actions.animation.RemoveEventTrackAction;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.EventObject;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -111,7 +114,7 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 		panel.add(animationBox);
 		int opt = JOptionPane.showConfirmDialog(this, panel, "Add Event Track", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (opt == JOptionPane.OK_OPTION && animationBox.getSelectedItem() != null) {
-			undoManager.pushAction(new AddEventSequenceAction(idObject, (Sequence) animationBox.getSelectedItem(), changeListener).redo());
+			undoManager.pushAction(new AddEventTrackAction(idObject, (Sequence) animationBox.getSelectedItem(), 0, changeListener).redo());
 		}
 	}
 
@@ -128,7 +131,7 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 	}
 
 	private void addSequence(Sequence sequence) {
-		undoManager.pushAction(new AddEventSequenceAction(idObject, sequence, changeListener).redo());
+		undoManager.pushAction(new AddEventTrackAction(idObject, sequence, 0, changeListener).redo());
 	}
 
 	private void removeTrack(Sequence sequence, int track) {
