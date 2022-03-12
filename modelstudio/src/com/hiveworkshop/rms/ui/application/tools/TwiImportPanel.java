@@ -126,7 +126,9 @@ public abstract class TwiImportPanel extends JPanel {
 
 	protected void fillLists(EditableModel donModel, EditableModel recModel) {
 		for (Animation animation : donModel.getAnims()) {
-			donAnimations.addElement(new AnimShell(animation));
+			AnimShell animShell = new AnimShell(animation);
+			animShell.setImportType(AnimShell.ImportType.DONT_IMPORT);
+			donAnimations.addElement(animShell);
 		}
 		donAnimList.setCellRenderer(donRenderer);
 
@@ -137,36 +139,13 @@ public abstract class TwiImportPanel extends JPanel {
 		recAnimList.setCellRenderer(recRenderer);
 	}
 
-
-//	protected void fillLists2(EditableModel donModel, EditableModel recModel) {
-//		fillAnimList(donModel.getAnims(), donAnimations, donAnimList, donRenderer);
-//
-//		fillAnimList(recModel.getAnims(), recAnimations, recAnimList, recRenderer);
-//	}
-//	private void fillAnimList(List<Animation> anims, IterableListModel<AnimShell> animShellList, JList<AnimShell> animList, AnimListCellRenderer renderer) {
-//		for (Animation animation : anims) {
-//			animShellList.addElement(new AnimShell(animation));
-//		}
-//		animList.setCellRenderer(renderer);
-//	}
-
 	protected JPanel getAnimMapPanel() {
-//		JPanel animMapPanel = new JPanel(new MigLayout("ins 0, fill", "[50%][50%]", "[grow]"));
 		JPanel animMapPanel = new JPanel(new MigLayout("ins 0, fill, wrap 2", "[sgx anim][sgx anim]", "[][grow][]"));
 		JButton autoMatchAnimations = new JButton("Auto match animations");
 		autoMatchAnimations.addActionListener(e -> matchAnimsByName());
 		animMapPanel.add(autoMatchAnimations, "wrap");
 		animMapPanel.add(new JLabel("Map motion from:"), "");
 		animMapPanel.add(new JLabel("Into existing animation:"), "wrap");
-
-//		JPanel animMapPanelDon = new JPanel(new MigLayout("ins 0, fill", "[grow]", "[grow]"));
-//		JPanel animMapPanelRec = new JPanel(new MigLayout("ins 0, fill", "[grow]", "[grow]"));
-//		JScrollPane comp = new JScrollPane(donAnimList);
-//		animMapPanelDon.add(comp, "growy, growx");
-////		animMapPanelDon.add(new JScrollPane(donAnimList), "growy, growx");
-//		animMapPanelRec.add(new JScrollPane(recAnimList), "growy, growx");
-//		animMapPanel.add(animMapPanelDon, "growy, growx");
-//		animMapPanel.add(animMapPanelRec, "growy, growx");
 
 		animMapPanel.add(new JScrollPane(donAnimList), "growy, growx");
 		animMapPanel.add(new JScrollPane(recAnimList), "growy, growx");
@@ -241,57 +220,23 @@ public abstract class TwiImportPanel extends JPanel {
 	private void recAnimationSelectionChanged(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
 			AnimShell donAnimShell = donAnimList.getSelectedValue();
-			donAnimShell.setImportType(AnimShell.ImportType.TIMESCALE_INTO);
 
 			Set<AnimShell> donAnimsToCheck = new HashSet<>();
 			for (AnimShell as : recAnimList.getSelectedValuesList()) {
-				if (as == asNewAnim) {
+				if (as == asNewAnim && recAnimList.getSelectedValuesList().size() == 1) {
 					if (donAnimShell.getImportType() == AnimShell.ImportType.IMPORT_BASIC) {
 						donAnimShell.setImportType(AnimShell.ImportType.DONT_IMPORT);
 					} else {
 						donAnimShell.setImportType(AnimShell.ImportType.IMPORT_BASIC);
 					}
-				} else {
+				} else if (as != asNewAnim){
 					if (donAnimShell.getAnimDataDests().contains(as)) {
 						donAnimShell.removeAnimDataDest(as);
-						if (as != asNewAnim) {
-							as.setAnimDataSrc(null);
-						}
+
 					} else {
 						donAnimShell.addAnimDataDest(as);
-						if (as != asNewAnim) {
-							if (as.getAnimDataSrc() != null) {
-								as.getAnimDataSrc().removeAnimDataDest(as);
-								fixImportType(as.getAnimDataSrc());
-							}
-							as.setAnimDataSrc(donAnimShell);
-						}
 					}
 				}
-				fixImportType(donAnimShell);
-//				if (as.getImportAnimShell() == donAnimShell) {
-//					donAnimsToCheck.add(donAnimShell);
-//					as.setImportAnimShell(null);
-//				} else if (as != asNewAnim) {
-//					if (as.getImportAnimShell() != null) {
-//						donAnimsToCheck.add(as.getImportAnimShell());
-//					}
-//					as.setImportAnimShell(donAnimShell);
-//				} else {
-//					if(asNewAnim.getAnimShellsToTimeScaleInto().contains(donAnimShell)){
-//						System.out.println("import \"" + donAnimShell + "\"an new");
-//						asNewAnim.removeAnimShellToTimeScaleInto(donAnimShell);
-//					} else {
-//						System.out.println("import \"" + donAnimShell + "\"an new");
-//						asNewAnim.addAnimShellToTimeScaleInto(donAnimShell);
-//					}
-//					AnimShell.ImportType importType = donAnimShell.getImportType();
-//					if (importType != AnimShell.ImportType.IMPORTBASIC) {
-//						donAnimShell.setImportType(AnimShell.ImportType.IMPORTBASIC);
-//					} else {
-//						donAnimShell.setImportType(AnimShell.ImportType.DONTIMPORT);
-//					}
-//				}
 			}
 			recAnimList.setSelectedValue(null, false);
 
@@ -342,7 +287,8 @@ public abstract class TwiImportPanel extends JPanel {
 			}
 			recAnimList.setSelectedValue(null, false);
 
-			fixImportType(donAnimsToCheck);
+//			fixImportType(donAnimsToCheck);
+			donAnimList.repaint();
 		}
 	}
 
@@ -364,22 +310,49 @@ public abstract class TwiImportPanel extends JPanel {
 
 	protected Map<Sequence, Sequence> getRecToDonSequenceMap() {
 		Map<Sequence, Sequence> recToDonSequenceMap = new HashMap<>(); // receiving animations to donating animations
-		for (AnimShell animShell : recAnimations) {
-			if (animShell.getAnimDataSrc() != null && animShell.getAnimDataSrc().getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
-				if (animShell == asNewAnim) {
-					recToDonSequenceMap.put(animShell.getAnimDataSrc().getAnim().deepCopy(), animShell.getAnimDataSrc().getAnim());
-				} else {
-					recToDonSequenceMap.put(animShell.getAnim(), animShell.getAnimDataSrc().getAnim());
-				}
-			}
-		}
+//		for (AnimShell animShell : recAnimations) {
+//			if (animShell.getAnimDataSrc() != null && animShell.getAnimDataSrc().getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
+//				if (animShell == asNewAnim) {
+//					recToDonSequenceMap.put(animShell.getAnimDataSrc().getAnim().deepCopy(), animShell.getAnimDataSrc().getAnim());
+//				} else {
+//					recToDonSequenceMap.put(animShell.getAnim(), animShell.getAnimDataSrc().getAnim());
+//				}
+//			}
+//		}
 		for (AnimShell animShell : donAnimations) {
-			if (animShell.getAnimDataDests().contains(asNewAnim)) {
+			if (animShell.getImportType() == AnimShell.ImportType.IMPORT_BASIC) {
 				recToDonSequenceMap.put(animShell.getAnim().deepCopy(), animShell.getAnim());
+			} else if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_INTO){
+				List<AnimShell> animDataDests = animShell.getAnimDataDests();
+				for (AnimShell animDataDest : animDataDests){
+					recToDonSequenceMap.put(animDataDest.getAnim(), animShell.getAnim());
+				}
 			}
 		}
 		return recToDonSequenceMap;
 	}
+//	protected Map<Sequence, Sequence> getDonToRecSequenceMap() {
+//		Map<Sequence, Sequence> donToRecSequenceMap = new HashMap<>(); // donating animations to receiving animations
+//		for (AnimShell animShell : recAnimations) {
+//			if (animShell.getAnimDataSrc() != null && animShell.getAnimDataSrc().getImportType() == AnimShell.ImportType.TIMESCALE_INTO) {
+//				if (animShell == asNewAnim) {
+//					donToRecSequenceMap.put(animShell.getAnimDataSrc().getAnim().deepCopy(), animShell.getAnimDataSrc().getAnim());
+//				} else {
+//					donToRecSequenceMap.put(animShell.getAnim(), animShell.getAnimDataSrc().getAnim());
+//				}
+//			}
+//		}
+//		for (AnimShell animShell : donAnimations) {
+//			if (animShell.getImportType() == AnimShell.ImportType.IMPORT_BASIC) {
+//				donToRecSequenceMap.put(animShell.getAnim(), animShell.getAnim().deepCopy());
+//			} else if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_INTO){
+//				List<AnimShell> animDataDests = animShell.getAnimDataDests();
+//				for(a)
+//				donToRecSequenceMap.put(animShell.getAnim(), animDataDests.getAnim());
+//			}
+//		}
+//		return donToRecSequenceMap;
+//	}
 
 	protected Map<Sequence, Sequence> getRecToDonSequenceMap1() {
 		Map<Sequence, Sequence> recToDonSequenceMap = new HashMap<>(); // receiving animations to donating animations
@@ -467,8 +440,11 @@ public abstract class TwiImportPanel extends JPanel {
 	private JComboBox<IdObjectShell<?>> getBoneChooserBox(IdObject idObjectDest, List<IdObject> idObjectsForComboBox, EditableModel modelForComboBox, Consumer<IdObject> idObjectConsumer, boolean presentParent) {
 		JComboBox<IdObjectShell<?>> comboBox = new JComboBox<>();
 		comboBox.addItem(new IdObjectShell<>(null));
-		if (presentParent && idObjectDest.getParent() != null) {
-			comboBox.addItem(new IdObjectShell<>(idObjectDest.getParent()));
+//		if (presentParent && idObjectDest.getParent() != null) {
+//			comboBox.addItem(new IdObjectShell<>(idObjectDest.getParent()));
+//		}
+		if (presentParent && !idObjectsForComboBox.isEmpty() && idObjectsForComboBox.get(0).getParent() != null) {
+			comboBox.addItem(new IdObjectShell<>(idObjectsForComboBox.get(0).getParent()));
 		}
 		IdObjectShell<?> sameNameObject = null;
 		int lastMatch = 20;

@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application.edit.animation;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.AddKeyframeAction3;
 import com.hiveworkshop.rms.editor.actions.animation.SlideKeyframeAction;
-import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.TimeSliderView;
@@ -20,7 +19,10 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
 
 public class TimeSliderPanel extends JPanel implements SelectionListener {
@@ -46,7 +48,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 
 	private final TimeSliderTimeListener notifier;
 
-	private final JPopupMenu popupMenu;
+	private final TimeLinePopup popupMenu;
 	private KeyFrame draggingFrame = null;
 	private int draggingFrameStartTime = 0;
 	private boolean draggingSlider = false;
@@ -103,8 +105,6 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		setForeground(Color.WHITE);
 		setFont(new Font("Courier New", Font.PLAIN, 12));
 
-		popupMenu = new JPopupMenu();
-
 //		copiedKeyframes = new ArrayList<>();
 
 		liveAnimationTimer = new Timer(16, e -> liveAnimationTimerListener());
@@ -120,6 +120,8 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		timelinePanel.addComponentListener(getComponentAdapter());
 
 		keyframeHandler = new KeyframeHandler(notifier, timelinePanel);
+
+		popupMenu = new TimeLinePopup(keyframeHandler);
 
 		TimeSkip.getPlayItem();
 		TimeSkip.getFfw1Item();
@@ -244,11 +246,12 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		boolean foundFrame = false;
 		for (Integer time : keyframeHandler.getTimes()) {
 			if (keyframeHandler.getKeyFrame(time).containsPoint(mouseEvent.getPoint())) {
-				foundFrame = showTimeSliderPopup3(mouseEvent, time);
+				popupMenu.fillAndShow(time, TimeSliderPanel.this, mouseEvent.getX(), mouseEvent.getY(), true);
+				return;
 			}
 		}
-		if (!foundFrame && timeSlider.containsPoint(mouseEvent.getPoint())) {
-			showTimeSliderPopUp2(mouseEvent);
+		if (timeSlider.containsPoint(mouseEvent.getPoint())) {
+			popupMenu.fillAndShow(timeEnvironment.getEnvTrackTime(), TimeSliderPanel.this, mouseEvent.getX(), mouseEvent.getY(), false);
 		}
 	}
 
@@ -285,60 +288,6 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		return null;
 	}
 
-	private boolean showTimeSliderPopup3(MouseEvent mouseEvent, Integer time) {
-		popupMenu.removeAll();
-
-		JMenuItem timeIndicator = new JMenuItem("" + time);
-		timeIndicator.setEnabled(false);
-		popupMenu.add(timeIndicator);
-		popupMenu.addSeparator();
-		popupMenu.add(getMenuItem("Delete All", e -> keyframeHandler.deleteKeyframes("delete keyframe", time, keyframeHandler.getKeyFrame(time).getObjects())));
-		popupMenu.addSeparator();
-		popupMenu.add(getMenuItem("Cut", e -> keyframeHandler.cutItem(time)));
-		popupMenu.add(getMenuItem("Copy", e -> keyframeHandler.copyKeyframes(time)));
-		popupMenu.add(getMenuItem("Copy Frame (whole model)", e -> keyframeHandler.copyAllKeyframes(time)));
-		popupMenu.add(getMenuItem("Paste", e -> keyframeHandler.pasteToAllSelected(time)));
-
-		popupMenu.addSeparator();
-
-		for (IdObject object : keyframeHandler.getKeyFrame(time).getObjects()) {
-			for (AnimFlag<?> flag : object.getAnimFlags()) {
-				if (flag.hasEntryAt(timeEnvironment.getCurrentSequence(), time)) {
-					JMenu subMenu = new JMenu(object.getName() + ": " + flag.getName());
-
-					subMenu.add(getMenuItem("Delete", e -> keyframeHandler.deleteKeyframe(flag, time)));
-					subMenu.addSeparator();
-					subMenu.add(getMenuItem("Cut", e -> keyframeHandler.cutSpecificItem(time, object, flag)));
-					subMenu.add(getMenuItem("Copy", e -> keyframeHandler.copyKeyframes(object, flag, time)));
-					subMenu.add(getMenuItem("Paste", e -> keyframeHandler.pasteToSpecificTimeline(time, flag)));
-
-					popupMenu.add(subMenu);
-				}
-			}
-		}
-		popupMenu.show(TimeSliderPanel.this, mouseEvent.getX(), mouseEvent.getY());
-		return true;
-	}
-
-	private JMenuItem getMenuItem(String text, ActionListener actionListener) {
-		JMenuItem deleteSpecificItem = new JMenuItem(text);
-		deleteSpecificItem.addActionListener(actionListener);
-		return deleteSpecificItem;
-	}
-
-	private void showTimeSliderPopUp2(MouseEvent mouseEvent) {
-		popupMenu.removeAll();
-
-		JMenuItem timeIndicator = new JMenuItem("" + timeEnvironment.getEnvTrackTime());
-		timeIndicator.setEnabled(false);
-		popupMenu.add(timeIndicator);
-		popupMenu.addSeparator();
-		popupMenu.add(getMenuItem("Copy", e -> keyframeHandler.copyKeyframes(timeEnvironment.getEnvTrackTime())));
-		popupMenu.add(getMenuItem("Copy Frame (whole model)", e -> keyframeHandler.copyAllKeyframes(timeEnvironment.getEnvTrackTime())));
-		popupMenu.add(getMenuItem("Paste", e -> keyframeHandler.pasteToAllSelected(timeEnvironment.getEnvTrackTime())));
-		popupMenu.addSeparator();
-		popupMenu.show(TimeSliderPanel.this, mouseEvent.getX(), mouseEvent.getY());
-	}
 
 	private void liveAnimationTimerListener() {
 		if (!drawing || timeEnvironment == null || !timeEnvironment.isLive()) {
@@ -357,6 +306,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 			timeEnvironment = modelHandler.getEditTimeEnv();
 			timeEnvironment.addChangeListener(this);
 			timeBarPainter.setTimeEnvironment(timeEnvironment);
+			popupMenu.setTimeEnvironment(timeEnvironment);
 		} else {
 			timeBarPainter.setTimeEnvironment(null);
 			this.undoManager = null;

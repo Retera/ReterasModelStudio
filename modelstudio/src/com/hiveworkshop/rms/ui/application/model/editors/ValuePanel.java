@@ -41,7 +41,7 @@ public abstract class ValuePanel<T> extends JPanel {
 	protected TitledBorder titledBorder;
 
 	protected TreeMap<Sequence, KeyframePanel<T>> keyframePanelMap = new TreeMap<>();
-	KeyframePanel<T> keyframePanel;
+//	KeyframePanel<T> keyframePanel;
 
 	protected Consumer<T> valueSettingFunction;
 
@@ -62,14 +62,15 @@ public abstract class ValuePanel<T> extends JPanel {
 		timelineContainer = null;
 		flagName = "";
 //		keyframePanel = new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, this::changeEntry, this::parseValue);
-		keyframePanel = new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, (time, entry) -> changeEntry(keyframePanel.getSequence(), time, entry), this::parseValue);
+//		keyframePanel = new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, (time, entry) -> changeEntry(keyframePanel.getSequence(), time, entry), this::parseValue);
 
 		titledBorder = BorderFactory.createTitledBorder(title);
 //		setBorder(titledBorder);
 //		setLayout(new MigLayout("fill, hidemode 1", "[]", "[][][]0[][]"));
 		setLayout(new MigLayout("fill, hidemode 1, ins 0", "[grow]", "[grow]"));
 
-		JPanel collapsablePCont = new JPanel(new MigLayout("fill, hidemode 1", "[]", "[][][]0[][]"));
+//		JPanel collapsablePCont = new JPanel(new MigLayout("fill, hidemode 1", "[]", "[][][]0[][]"));
+		JPanel collapsablePCont = new JPanel(new MigLayout("fill, hidemode 1", "[]", "[]"));
 		collapsablePanel = new CollapsablePanel(title, collapsablePCont);
 		add(collapsablePanel, "growx, spanx");
 
@@ -78,13 +79,15 @@ public abstract class ValuePanel<T> extends JPanel {
 		collapsablePCont.add(dynStatPanel, "align center, growx, wrap");
 
 		dynamicPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[][][][]"));
-		dynamicPanel.add(new JLabel("Dynamic"), "al 0% 0%, hidemode 3");
+//		dynamicPanel.add(new JLabel("Dynamic"), "al 0% 0%, hidemode 3");
+		dynamicPanel.add(new JLabel("Dynamic"), "left, hidemode 3");
 		dynStatPanel.add("dynamic", dynamicPanel);
 
 		JButton makeStaticButton = new JButton("Make Static");
 		makeStaticButton.addActionListener(e -> makeStatic());
 		makeStaticButton.setVisible(true);
-		dynamicPanel.add(makeStaticButton, "al 100% 0%, wrap, hidemode 3");
+//		dynamicPanel.add(makeStaticButton, "al 100% 0%, wrap, hidemode 3");
+		dynamicPanel.add(makeStaticButton, "right, wrap, hidemode 3");
 
 		JPanel spinInterpPanel = new JPanel(new MigLayout("ins 0, gap 0, hidemode 3", "[]", "[]"));
 		dynamicPanel.add(spinInterpPanel, "wrap, hidemode 3");
@@ -94,16 +97,18 @@ public abstract class ValuePanel<T> extends JPanel {
 		interpTypeBox.addItemListener(this::setInterpolationType);
 		spinInterpPanel.add(interpTypeBox, "wrap, hidemode 3");
 
-		dynamicContentPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[][][][]"));
+		dynamicContentPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow]", "[]"));
 		dynamicPanel.add(dynamicContentPanel, "spanx, growx, wrap, hidemode 3");
 
 //		dynamicPanel.add(keyframePanel, "spanx, growx, wrap, hidemode 3");
 
 		JPanel staticPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[]"));
-		staticPanel.add(new JLabel("Static"), "al 0% 0%");
+//		staticPanel.add(new JLabel("Static"), "al 0% 0%");
+		staticPanel.add(new JLabel("Static"), "left");
 		JButton makeDynamicButton = new JButton("Make Dynamic");
 		makeDynamicButton.addActionListener(e -> makeDynamic());
-		staticPanel.add(makeDynamicButton, "al 100% 0%, wrap, hidemode 3");
+//		staticPanel.add(makeDynamicButton, "al 100% 0%, wrap, hidemode 3");
+		staticPanel.add(makeDynamicButton, "right, wrap, hidemode 3");
 
 		staticComponent = this.getStaticComponent();
 		staticPanel.add(staticComponent, "spanx, wrap, hidemode 3");
@@ -190,7 +195,8 @@ public abstract class ValuePanel<T> extends JPanel {
 		} else {
 			TreeSet<Sequence> tempSet = new TreeSet<>(modelHandler.getModel().getAnims());
 			tempSet.addAll(modelHandler.getModel().getGlobalSeqs());
-			keyframePanelMap.keySet().removeIf(anim -> !tempSet.contains(anim));
+//			keyframePanelMap.keySet().removeIf(anim -> !tempSet.contains(anim));
+			keyframePanelMap.clear();
 			for(Sequence sequence : tempSet) {
 //				KeyframePanel<T> keyframePanel1 = keyframePanelMap.computeIfAbsent(sequence, k -> new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, (time, entry) -> changeEntry(sequence, time, entry), this::parseValue));
 				KeyframePanel<T> keyframePanel = keyframePanelMap.computeIfAbsent(sequence, k -> getKeyframePanel(sequence));
@@ -219,11 +225,12 @@ public abstract class ValuePanel<T> extends JPanel {
 	}
 
 	private KeyframePanel<T> getKeyframePanel(Sequence sequence) {
-		return new KeyframePanel<>(modelHandler.getModel(),
+		KeyframePanel<T> tKeyframePanel = new KeyframePanel<>(modelHandler.getModel(),
 				this::addEntry,
 				this::removeEntry,
 				(time, entry) -> changeEntry(sequence, time, entry),
 				this::parseValue);
+		return addListeners(tKeyframePanel);
 	}
 
 	abstract JComponent getStaticComponent();
@@ -235,6 +242,7 @@ public abstract class ValuePanel<T> extends JPanel {
 				&& e.getItem() instanceof InterpolationType
 				&& e.getItem() != animFlag.getInterpolationType()) {
 			UndoAction undoAction = new ChangeInterpTypeAction<>(animFlag, (InterpolationType) e.getItem(), changeListener);
+			dynamicContentPanel.removeAll();
 			undoManager.pushAction(undoAction.redo());
 
 		}
@@ -245,6 +253,7 @@ public abstract class ValuePanel<T> extends JPanel {
 			AnimFlag<T> flag = getNewAnimFlag();
 			if (flag != null) {
 				UndoAction undoAction = new AddAnimFlagAction<>(timelineContainer, flag, changeListener);
+				dynamicContentPanel.removeAll();
 				undoManager.pushAction(undoAction.redo());
 			}
 		} else if (animFlag != null) {
@@ -269,6 +278,7 @@ public abstract class ValuePanel<T> extends JPanel {
 			}
 
 			UndoAction undoAction = new AddFlagEntryAction<>(animFlag, newEntry, sequence, changeListener);
+			dynamicContentPanel.removeAll();
 			undoManager.pushAction(undoAction.redo());
 
 		}
@@ -277,6 +287,10 @@ public abstract class ValuePanel<T> extends JPanel {
 	abstract T getZeroValue();
 
 	abstract T parseValue(String valueString);
+
+	protected KeyframePanel<T> addListeners(KeyframePanel<T> keyframePanel){
+		return keyframePanel;
+	}
 
 	private void removeEntry(Sequence sequence, Collection<Integer> orgTimes) {
 		if (!orgTimes.isEmpty()) {

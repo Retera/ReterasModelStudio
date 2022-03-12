@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.parsers.blp;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
-import de.wc3data.image.TgaFile;
+import com.hiveworkshop.rms.parsers.twiImageStuff.TwiTGAFile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -137,7 +137,8 @@ public class BLPHandler {
 			try (final InputStream imageDataStream = dataSource.getResourceAsStream(filepath)) {
 				if (imageDataStream != null) {
 					if (filepath.toLowerCase(Locale.US).endsWith(".tga")) {
-						return TgaFile.readTGA(filepath, imageDataStream);
+//						return TgaFile.readTGA(filepath, imageDataStream);
+						return new TwiTGAFile(imageDataStream).getAsBufferedImage();
 					} else if (filepath.toLowerCase(Locale.US).endsWith(".blp")) {
 						return forceBufferedImagesRGB(ImageIO.read(imageDataStream));
 					} else {

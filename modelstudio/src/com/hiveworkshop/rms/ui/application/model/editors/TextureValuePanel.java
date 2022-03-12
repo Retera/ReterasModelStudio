@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 
 import com.hiveworkshop.rms.editor.actions.model.material.ChangeLayerStaticTextureAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
@@ -10,8 +9,7 @@ import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelTextureThings;
-import com.hiveworkshop.rms.util.TwiComboBoxModel;
-import com.hiveworkshop.rms.util.TwiComboPopup;
+import com.hiveworkshop.rms.util.TwiComboBox;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,10 +21,10 @@ import java.util.TreeMap;
 public class TextureValuePanel extends ValuePanel<Integer> {
 
 //	private final BasicComboPopup chooseTextureComboPopup;
-	private final TwiComboPopup<Bitmap> chooseTextureComboPopup3;
-	private final JComboBox<Bitmap> textureChooser;
+//	private final TwiComboPopup<Bitmap> chooseTextureComboPopup3;
+	private final TwiComboBox<Bitmap> textureChooser;
 //	DefaultListModel<Bitmap> bitmapListModel;
-	private JComboBox<Bitmap> staticTextureChooser;
+	private TwiComboBox<Bitmap> staticTextureChooser;
 //	private boolean listenersEnabled = true;
 
 	private Bitmap bitmap;
@@ -37,58 +35,23 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 	public TextureValuePanel(ModelHandler modelHandler, String title) {
 		super(modelHandler, title);
 
-		getTextures(modelHandler.getModel());
-
-		textureChooser = new JComboBox<>();
-//		Bitmap[] bitmaps = modelHandler.getModel().getTextures().toArray(new Bitmap[0]);
-		textureChooser.setModel(new TwiComboBoxModel<>(modelHandler.getModel().getTextures()));
+		textureChooser = new TwiComboBox<>(modelHandler.getModel().getTextures(), new Bitmap("", 1));
 		textureChooser.setRenderer(ModelTextureThings.getTextureListRenderer());
-		textureChooser.addItemListener(this::setTextureId);
-//		chooseTextureComboPopup = new BasicComboPopup(textureChooser);
-		chooseTextureComboPopup3 = new TwiComboPopup<>(textureChooser, new Bitmap("Textures\\White.dds"));
 
 		staticTextureChooser.setRenderer(ModelTextureThings.getTextureListRenderer());
-//		DefaultComboBoxModel<Bitmap> staticBitmapModel = new DefaultComboBoxModel<>(bitmaps);
-//		TwiComboBoxModel<Bitmap> staticBitmapModel = new TwiComboBoxModel<>(bitmaps);
-		TwiComboBoxModel<Bitmap> staticBitmapModel = new TwiComboBoxModel<>(modelHandler.getModel().getTextures());
-		staticTextureChooser.setModel(staticBitmapModel);
+		staticTextureChooser.setNewLinkedModelOf(modelHandler.getModel().getTextures());
 		//todo
 
 //		keyframePanel.getFloatTrackTableModel().addExtraColumn("Texture", "", String.class);  // 🎨 \uD83C\uDFA8
 
-		addBitmapChangeListeners();
+//		addBitmapChangeListeners();
 	}
 
-	private void setTextureId(ItemEvent e) {
-
-		if (e.getStateChange() == ItemEvent.SELECTED && ((Layer) timelineContainer).getTextures() != null && !((Layer) timelineContainer).getTextures().get(selectedRow).equals(e.getItem())) {
-			changeEntry(keyframePanel.getSequence(), selectedRow, "Value", Integer.toString(textureChooser.getSelectedIndex()));
-		}
-	}
-
-	private String[] getTextures(EditableModel model) {
-
-//		bitmapListModel = new DefaultListModel<>();
-		List<String> bitmapNames = new ArrayList<>();
-
-		for (final Bitmap bitmap : model.getTextures()) {
-			bitmapNames.add(bitmap.getName());
-//			bitmapListModel.addElement(bitmap);
-		}
-
-		return bitmapNames.toArray(new String[0]);
-	}
-
-//	protected void valueCellRendering(Component tableCellRendererComponent, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-//		if (column == 2) {
-////			floatTrackTableModel.setValueAt(floatTrackTableModel.getValueAt(row, 1), row, column);
-////			value = floatTrackTableModel.getValueAt(row, 1);
-//		}
-//	}
 
 	@Override
 	JComponent getStaticComponent() {
-		staticTextureChooser = new JComboBox<>();
+		staticTextureChooser = new TwiComboBox<>(new Bitmap("", 1));
+		staticTextureChooser.setPrototypeDisplayValue(new Bitmap("", 1));
 		staticTextureChooser.addItemListener(this::changeStaticBitmap);
 		return staticTextureChooser;
 	}
@@ -97,35 +60,34 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 	void reloadStaticValue(Integer bitmapId) {
 		bitmap = ((Layer) timelineContainer).getTextureBitmap();
 		staticValue = bitmapId;
-//		if(modelHandler.getModel().getTextures())
-//		staticTextureChooser.setModel();
 		if (bitmapId == -1) {
 			staticTextureChooser.setSelectedItem(bitmap);
 			staticValue = staticTextureChooser.getSelectedIndex();
 			if (staticValue != -1) {
-//				this.bitmap = bitmapListModel.get(staticValue);
 				this.bitmap = (Bitmap) staticTextureChooser.getSelectedItem();
 			}
-//		} else if (bitmapId < bitmapListModel.size()) {
-//			this.bitmap = bitmapListModel.get(bitmapId);
-//			staticTextureChooser.setSelectedItem(bitmap);
 		} else if (bitmapId < staticTextureChooser.getItemCount()) {
-//			this.bitmap = bitmapListModel.get(bitmapId);
-//			staticTextureChooser.setSelectedItem(bitmap);
 			staticTextureChooser.setSelectedIndex(bitmapId);
 		}
 
 		if(animFlag != null){
 			for(KeyframePanel<Integer> kfp : keyframePanelMap.values()){
-//				kfp.addAllowedCharatcters("");
-				kfp.getFloatTrackTableModel().addExtraColumn("Texture", "", String.class);  // 🎨 \uD83C\uDFA8
-				kfp.getFloatTrackTableModel().updateExtraButtonValues(getBitmapNameList());
+				kfp.getFloatTrackTableModel().addExtraColumn("Texture", "", Bitmap.class);
+				if(kfp.getFloatTrackTableModel().getRowCount()>2){
+					System.out.println("editable 1,2: " + kfp.getFloatTrackTableModel().isCellEditable(1,2));
+				}
+				kfp.getFloatTrackTableModel().setColEditable(true, 2);
+				kfp.getFloatTrackTableModel().updateExtraButtonValues(modelHandler.getModel().getTextures().toArray(Bitmap[]::new));
+				kfp.getTable().setDefaultEditor(Bitmap.class, new DefaultCellEditor(textureChooser));
+//				kfp.setValueRenderingConsumer(this::valueCellRendering);
 			}
 		}
-//		if (animFlag != null) {
-//			keyframePanel.getFloatTrackTableModel().updateExtraButtonValues(getBitmapNameList());
-//		}
+
 	}
+
+//	private Bitmap[] getBitMatArr(){
+//		for ()
+//	}
 
 
 	@Override
@@ -149,27 +111,22 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 			if(entryMap != null){
 				for (Entry<Integer> entry : entryMap.values()) {
 					int tId = entry.getValue();
-//					if (tId < bitmapListModel.size()) {
-//						bitmapNames.add(bitmapListModel.get(tId).getName());
-//					}
 					if (tId < modelHandler.getModel().getTextures().size()) {
 						bitmapNames.add(modelHandler.getModel().getTextures().get(tId).getName());
 					}
-//			if (tId < bitmapListModel.size()) {
-//				bitmapNames.add(bitmapListModel.get(tId).getName());
-//			}
 				}
 			}
 		}
 		return bitmapNames.toArray(String[]::new);
 	}
 
-	private void addBitmapChangeListeners() {
+	protected KeyframePanel<Integer> addListeners(KeyframePanel<Integer> keyframePanel) {
+		keyframePanel.getTable().setCellEditor(new DefaultCellEditor(textureChooser));
 		keyframePanel.getTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				System.out.println("mouseClicked");
-				checkChangeBitmapPressed(e.getPoint(), KeyEvent.VK_ENTER);
+				checkChangeBitmapPressed(e.getPoint(), KeyEvent.VK_ENTER, keyframePanel);
 			}
 		});
 
@@ -178,25 +135,38 @@ public class TextureValuePanel extends ValuePanel<Integer> {
 			public void keyReleased(KeyEvent e) {
 				System.out.println("CVP keyReleased! " + e.getKeyCode());
 				if (e.getKeyCode() == KeyEvent.VK_T) {
-//					System.out.println("C-Point: " + e.getComponent().getLocation() + ", comp: " + e.getComponent());
+					System.out.println("C-Point: " + e.getComponent().getLocation() + ", comp: " + e.getComponent());
 					Point compPoint = e.getComponent().getLocation();
 					Point point = new Point(compPoint.y, compPoint.x);
 
-					checkChangeBitmapPressed(point, e.getKeyCode());
+					checkChangeBitmapPressed(point, e.getKeyCode(), keyframePanel);
 				}
 			}
 		});
+		return keyframePanel;
 	}
 
-	private void checkChangeBitmapPressed(Point point, int keyCode) {
+	protected void valueCellRendering(Component tableCellRendererComponent, Object value) {
+		System.out.println("value: " + value);
+		Rectangle bounds = tableCellRendererComponent.getBounds();
+		ModelTextureThings.getTextureTableCellRenderer().getPaintedRect(tableCellRendererComponent, bounds, value);
+//		Color bgColor = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), rowColor, 1.0f);
+//		tableCellRendererComponent.setBackground(bgColor);
+//		tableCellRendererComponent.setForeground(getTextColor(bgColor));
+	}
+
+	private void checkChangeBitmapPressed(Point point, int keyCode, KeyframePanel<Integer> keyframePanel) {
 		System.out.println("checkChangeBitmapPressed");
 
 		int colorChangeColumnIndex = keyframePanel.getTable().getColumnCount() - 2;
 		if (keyCode == KeyEvent.VK_T || keyCode == KeyEvent.VK_ENTER && keyframePanel.getTable().getSelectedColumn() == colorChangeColumnIndex) {
 			selectedRow = keyframePanel.getTable().getSelectedRow();
 			textureChooser.setSelectedIndex((Integer) keyframePanel.getFloatTrackTableModel().getValueAt(selectedRow, 1));
+//			textureChooser.getComponentPopupMenu().show(keyframePanel.getTable().p);
+//			textureChooser.showPopup();
+			System.out.println("uggggg");
 //			chooseTextureComboPopup.show(keyframePanel.getTable(), point.x, point.y);
-			chooseTextureComboPopup3.show(keyframePanel.getTable(), point.x, point.y);
+//			chooseTextureComboPopup3.show(keyframePanel.getTable(), point.x, point.y);
 		}
 	}
 

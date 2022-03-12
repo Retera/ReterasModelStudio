@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.ui.application.tools.TwiRenamingPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.AnimListCellRenderer;
+import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -207,6 +208,29 @@ public class AnimEditPanel extends JPanel {
 	}
 
 	private void matchAnimsByName() {
+		for (AnimShell recAnimShell : mht.recModAnims) {
+			for (AnimShell donAnimShell : mht.donModAnims) {
+				if (recAnimShell.getName().equals(donAnimShell.getName())) {
+					recAnimShell.setAnimDataSrc(donAnimShell);
+					break;
+				} else if (recAnimShell.getName().startsWith(donAnimShell.getName().split(" ")[0])) {
+					if (recAnimShell.getAnimDataSrcAnim() == null) {
+						recAnimShell.setAnimDataSrc(donAnimShell);
+					} else {
+						int orgLength = recAnimShell.getAnim().getLength();
+						int lengthDiffCurr = Math.abs(recAnimShell.getAnimDataSrcAnim().getLength() - orgLength);
+						int lengthDiffNew = Math.abs(donAnimShell.getAnim().getLength() - orgLength);
+						if (lengthDiffNew < lengthDiffCurr) {
+							recAnimShell.setAnimDataSrc(donAnimShell);
+						}
+					}
+				}
+			}
+		}
+		animJList.repaint();
+	}
+
+	private void matchAnimsByName(IterableListModel<AnimShell> animsToKeep, IterableListModel<AnimShell> recModAnims) {
 		for (AnimShell recAnimShell : mht.recModAnims) {
 			for (AnimShell donAnimShell : mht.donModAnims) {
 				if (recAnimShell.getName().equals(donAnimShell.getName())) {

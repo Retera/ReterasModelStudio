@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
+import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 
@@ -11,6 +12,7 @@ public class FloatTrackTableModel<T> extends AbstractTableModel {
 	private String[] lastButtonsTitle = {"", null};
 	private Class<?>[] lastButtonsClazz = {Integer.class, null};
 	private Class<?> valueClazz = Float.class;
+	private boolean[] isEditable = {true, true, false, false, false, false, false};
 
 	private Sequence sequence;
 
@@ -101,10 +103,15 @@ public class FloatTrackTableModel<T> extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int row, int col) {
-		if (track.tans()) {
-			return col < 4;
+//		if (track.tans()) {
+//			return col < 4;
+//		} else {
+//			return col < 2;
+//		}
+		if (col<isEditable.length) {
+			return isEditable[col];
 		} else {
-			return col < 2;
+			return false;
 		}
 	}
 
@@ -143,8 +150,12 @@ public class FloatTrackTableModel<T> extends AbstractTableModel {
 	private void setClassList() {
 		if ((track != null) && track.tans()) {
 			columnClassList = new Class[] {Integer.class, valueClazz, valueClazz, valueClazz, getLbtClass(0), getLbtClass(1)};
+			isEditable[2] = true;
+			isEditable[3] = true;
 		} else {
 			columnClassList = new Class[] {Integer.class, valueClazz, getLbtClass(0), getLbtClass(1)};
+			isEditable[2] = false;
+			isEditable[3] = false;
 		}
 	}
 
@@ -156,7 +167,23 @@ public class FloatTrackTableModel<T> extends AbstractTableModel {
 		return lastButtonsTitle[i];
 	}
 
-	private String getLbtValue(int i, int index) {
+	private Object getLbtValue(int i, int index) {
+		if (lastButtons[i] != null && lastButtons[i].getClass() == String.class) {
+			return (String) lastButtons[i];
+		} else if (lastButtons[i] != null && lastButtons[i].getClass() == String[].class) {
+			String[] bv = (String[]) lastButtons[i];
+			if (bv.length > index) {
+				return bv[index];
+			}
+		} else if (lastButtons[i] != null && lastButtons[i].getClass() == Bitmap[].class) {
+			Bitmap[] bv = (Bitmap[]) lastButtons[i];
+			if (bv.length > index) {
+				return bv[(int)getValueAt(index, 1)];
+			}
+		}
+		return "";
+	}
+	private String getLbtValue1(int i, int index) {
 		if (lastButtons[i] != null && lastButtons[i].getClass() == String.class) {
 			return (String) lastButtons[i];
 		} else if (lastButtons[i] != null && lastButtons[i].getClass() == String[].class) {
@@ -172,6 +199,11 @@ public class FloatTrackTableModel<T> extends AbstractTableModel {
 		if (lastButtons[1] != null) {
 			lastButtons[0] = values;
 		}
+	}
+
+	public FloatTrackTableModel<T> setColEditable(boolean editable, int col) {
+		this.isEditable[col] = editable;
+		return this;
 	}
 
 	private Class<?> getLbtClass(int i) {

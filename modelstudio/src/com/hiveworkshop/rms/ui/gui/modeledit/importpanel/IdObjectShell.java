@@ -143,17 +143,33 @@ public class IdObjectShell<T extends IdObject> {
 
 	public IdObjectShell<T> setMotionSrcShell(IdObjectShell<?> motionSrcShell) {
 		if (this.motionSrcShell != motionSrcShell) {
+			if (this.motionSrcShell != null) {
+				this.motionSrcShell.removeMotionDest(this);
+			}
 			this.motionSrcShell = motionSrcShell;
-			this.motionSrcShell.addMotionDest(this);
+			if(motionSrcShell != null){
+				this.motionSrcShell.addMotionDest(this);
+				for (IdObjectShell<?> idObjectShell : motionDestShells) {
+					idObjectShell.setMotionSrcShell(null);
+				}
+				importStatus = ImportType.RECEIVE_MOTION;
+			}
 		}
 		return this;
 	}
 
 	public IdObjectShell<T> addMotionDest(IdObjectShell<?> boneShell) {
 		if (!motionDestShells.contains(boneShell)) {
+			if(motionSrcShell != null){
+				motionSrcShell.removeMotionDest(this);
+			}
 			motionDestShells.add(boneShell);
 			boneShell.setMotionSrcShell(this);
 			importStatus = ImportType.MOTION_FROM;
+			if(motionSrcShell != null){
+				motionSrcShell.removeMotionDest(this);
+				motionSrcShell = null;
+			}
 		}
 		return this;
 	}

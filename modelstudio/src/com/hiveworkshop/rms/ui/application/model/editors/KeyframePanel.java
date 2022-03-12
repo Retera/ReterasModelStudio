@@ -1,22 +1,16 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
+import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
-import com.hiveworkshop.rms.util.ScreenInfo;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelTextureThings;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.CaretListener;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,15 +21,12 @@ import java.util.function.Function;
 public class KeyframePanel<T> extends JPanel {
 	protected static final Color LIGHT_GREEN = new Color(128, 255, 128);
 	protected static final Color LIGHT_YELLOW = new Color(255, 255, 128);
-	protected JTable keyframeTable;
 	protected String allowedCharacters = "-1234567890.eE";
-	protected FloatTrackTableModel<T> floatTrackTableModel;
 	protected AnimFlag<T> animFlag;
 	protected Sequence sequence;
 //	protected AnimFlag<T> oldAnimFlag;
 	protected boolean doSave;
 	protected String preEditValue;
-	protected TimelineKeyNamer timelineKeyNamer;
 
 	BiConsumer<Sequence, Integer> addAction;
 	BiConsumer<Sequence, Collection<Integer>> removeAction;
@@ -45,9 +36,7 @@ public class KeyframePanel<T> extends JPanel {
 	BiConsumer<Component, Object> valueRenderingConsumer;
 	BiConsumer<JTextField, Integer> editRenderingConsumer;
 
-	JScrollBar tableScrollBar;
-
-	protected int selectNewIndex = -1;
+	TwiTablePane<T> tablePanel;
 
 	protected Map<Integer, Integer> columnSizes = new HashMap<>();
 
@@ -57,192 +46,81 @@ public class KeyframePanel<T> extends JPanel {
 	                     BiConsumer<Integer, Entry<T>> changeAction,
 	                     Function<String, T> parseFunction) {
 		super(new MigLayout("gap 0, ins 0, fill, hidemode 3", "[grow]", "[][]"));
-		timelineKeyNamer = new TimelineKeyNamer(model);
 
 		this.addAction = addAction;
 		this.removeAction = removeAction;
 		this.changeAction = changeAction;
 		this.parseFunction = parseFunction;
 
-		JPanel tablePanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow]", "[]"));
-//		JPanel tableAndScrollPanel = new JPanel(new MigLayout("gap 0, ins 0, fill, hidemode 3", "[grow][][grow, 1%:50%:80%]", "[][]"));
-//		JPanel tableAndScrollPanel = new JPanel(new MigLayout("gap 0, ins 0, fill, hidemode 3", "[grow 150][grow 70]", "[][]"));
-		JPanel tableAndScrollPanel = new JPanel(new MigLayout("gap 0, ins 0, fill, hidemode 3", "[][]", "[][]"));
+		tablePanel = new TwiTablePane<>(parseFunction, changeAction);
 
-		keyframeTable = new JTable();
-		keyframeTable.addPropertyChangeListener(getPropertyChangeListener());
-		addInteractionListeners();
+//		tablePanel.getKeyframeTable().addPropertyChangeListener(getPropertyChangeListener2());
 
-		JScrollPane tableScrollPane = new JScrollPane(tablePanel);
-		tableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-		tableScrollPane.setBorder(null);
-		tableScrollPane.setMaximumSize(ScreenInfo.getSuitableSize(700, 300, 0.6));
-		tableScrollBar = tableScrollPane.getVerticalScrollBar();
-		tableScrollBar.setUnitIncrement(16);
+		tablePanel.setRowsDeleteListener(this::removeEntry);
+		tablePanel.setAddListener(this::addEntry);
 
-		tableAndScrollPanel.add(keyframeTable.getTableHeader(), "growx, wrap");
-		setTableModel();
-		columnSizes.put(-1, keyframeTable.getRowHeight());
+		tablePanel.setRenderer(Integer.class, getCellRenderer());
+		tablePanel.setRenderer(Bitmap.class, ModelTextureThings.getTextureTableCellRenderer());
+		tablePanel.setRenderer(String.class, getCellRenderer());
+		tablePanel.setRenderer(Float.class, getCellRenderer());
 
-
-		keyframeTable.setDefaultRenderer(Integer.class, getCellRenderer());
-		keyframeTable.setDefaultRenderer(String.class, getCellRenderer());
-		keyframeTable.setDefaultRenderer(Float.class, getCellRenderer());
-
-		tablePanel.add(keyframeTable, "growx");
-
-
-		tableAndScrollPanel.add(tableScrollPane, "growx");
-		tableAndScrollPanel.add(tableScrollBar, "left, spany, growy");
-		add(tableAndScrollPanel, "growx, wrap");
+		add(tablePanel, "growx, wrap");
 
 		JButton addButton = new JButton("add");
-		addButton.addActionListener(e -> addEntry(keyframeTable.getRowCount() - 1));
+		addButton.addActionListener(e -> addEntry(tablePanel.getRowCount() - 1));
 		add(addButton, "wrap, hidemode 3");
 	}
 
 	public void updateFlag(AnimFlag<T> animFlag, Sequence sequence) {
 		this.animFlag = animFlag;
 		this.sequence = sequence;
-		timelineKeyNamer.update();
-		setTableModel();
-		if (selectNewIndex != -1 && selectNewIndex < keyframeTable.getRowCount()) {
-			keyframeTable.setRowSelectionInterval(selectNewIndex, selectNewIndex);
-			selectNewIndex = -1;
-		}
+		tablePanel.setSequence(animFlag, sequence);
 		revalidate();
 		repaint();
 	}
 
-	private void setTableModel() {
-		if (floatTrackTableModel == null) {
-
-			floatTrackTableModel = new FloatTrackTableModel<>(animFlag, sequence);
-
-			keyframeTable.setModel(floatTrackTableModel);
-			keyframeTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-			revalidate();
-		}
-
-		if (floatTrackTableModel != null) {
-			floatTrackTableModel.setTrack(animFlag, sequence);
-
-			keyframeTable.setModel(floatTrackTableModel);
-			keyframeTable.createDefaultColumnsFromModel();
-			keyframeTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-
-
-			for (int i : columnSizes.keySet()) {
-				int count = keyframeTable.getColumnCount();
-				int columnIndex = (count + i) % count;
-				TableColumn column = keyframeTable.getColumnModel().getColumn(columnIndex);
-				if (column != null) {
-					column.setMaxWidth(columnSizes.get(i));
-					column.setPreferredWidth(columnSizes.get(i));
-					column.setMinWidth(5);
-				}
-			}
-			revalidate();
-
-			tableScrollBar.setVisible(keyframeTable.getRowCount() > 5);
-			revalidate();
-		}
-	}
-
-	private PropertyChangeListener getPropertyChangeListener() {
-		return evt -> {
-			Component comp = keyframeTable.getEditorComponent();
-			if (comp instanceof JTextField) {
-				int row = keyframeTable.getEditingRow();
-				int col = keyframeTable.getEditingColumn();
-
-				final JTextField compTextField = (JTextField) comp;
-				if (comp.isValid()) {
-					doSave = true;
-					preEditValue = compTextField.getText().replaceAll("[^" + allowedCharacters + "]*", "");
-				} else if (doSave) {
-					String newValue = compTextField.getText();
-					if (!newValue.equals(preEditValue) && !newValue.equals("")) {
-						changeEntry(row, keyframeTable.getColumnName(col), ((JTextField) comp).getText());
-					}
-					doSave = false;
-				}
-
-				if (compTextField.getCaretListeners().length == 0) {
-					compTextField.addCaretListener(getCaretListener(col, compTextField));
-				}
-			}
-		};
-	}
-
-	private void addInteractionListeners() {
-		keyframeTable.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				checkDeletePressed();
-			}
-		});
-		keyframeTable.addKeyListener(new KeyAdapter() {
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				System.out.println("VP keyReleased! " + e.getKeyCode() + ", char: " + e.getKeyChar());
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					System.out.println("was enter");
-					checkDeletePressed();
-				}
-				if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-					removeEntry(keyframeTable.getSelectedRows());
-				}
-				if (e.getKeyCode() == KeyEvent.VK_PLUS || e.getKeyCode() == KeyEvent.VK_ADD) {
-					addEntry(keyframeTable.getSelectedRow());
-				}
-			}
-		});
-	}
-
 	private void addEntry(int row) {
-//		System.out.println("addEntry");
 		if (addAction != null) {
 			addAction.accept(sequence, row);
-//			setTableModel();
 		}
 	}
 
 	public FloatTrackTableModel<T> getFloatTrackTableModel() {
-		return floatTrackTableModel;
+		return tablePanel.getFloatTrackTableModel();
 	}
 
-	private CaretListener getCaretListener(int col, JTextField compTextField) {
-		return e -> {
-			if (editRenderingConsumer != null) {
-				editRenderingConsumer.accept(compTextField, col);
-			}
-			String text = compTextField.getText();
-			if (!text.matches("[" + allowedCharacters + "]*")) {
-				String newText = text.replaceAll("[^" + allowedCharacters + "]*", "");
-				SwingUtilities.invokeLater(() -> {
-					applyFilteredText(compTextField, newText);
-				});
-			}
-			if (text.matches("(.*\\.\\.+.*)")) {
-				String newText = text.replaceAll("(\\.+)", ".");
-				SwingUtilities.invokeLater(() -> {
-					applyFilteredText(compTextField, newText);
-				});
-			}
-		};
-	}
-
-	private void applyFilteredText(JTextField compTextField, String newText) {
-		CaretListener listener = compTextField.getCaretListeners()[0];
-		compTextField.removeCaretListener(listener);
-		int carPos = compTextField.getCaretPosition();
-		compTextField.setText(newText);
-		int newCarPos = Math.max(0, Math.min(newText.length(), carPos - 1));
-		compTextField.setCaretPosition(newCarPos);
-		compTextField.addCaretListener(listener);
-	}
+//	private CaretListener getCaretListener(int col, JTextField compTextField) {
+//		return e -> {
+//			if (editRenderingConsumer != null) {
+//				editRenderingConsumer.accept(compTextField, col);
+//			}
+//			String text = compTextField.getText();
+//			if (!text.matches("[" + allowedCharacters + "]*")) {
+//				String newText = text.replaceAll("[^" + allowedCharacters + "]*", "");
+//				SwingUtilities.invokeLater(() -> {
+//					applyFilteredText(compTextField, newText);
+//				});
+//			}
+//			if (text.matches("(.*\\.\\.+.*)")) {
+//				String newText = text.replaceAll("(\\.+)", ".");
+//				SwingUtilities.invokeLater(() -> {
+//					applyFilteredText(compTextField, newText);
+//				});
+//			}
+//		};
+//	}
+//
+//	private void applyFilteredText(JTextField compTextField, String newText) {
+//		CaretListener listener = compTextField.getCaretListeners()[0];
+//		compTextField.removeCaretListener(listener);
+//
+//		int carPos = compTextField.getCaretPosition();
+//		compTextField.setText(newText);
+//
+//		int newCarPos = Math.max(0, Math.min(newText.length(), carPos - 1));
+//		compTextField.setCaretPosition(newCarPos);
+//		compTextField.addCaretListener(listener);
+//	}
 
 
 	private DefaultTableCellRenderer getCellRenderer() {
@@ -288,19 +166,11 @@ public class KeyframePanel<T> extends JPanel {
 		};
 	}
 
-	private void checkDeletePressed() {
-		int maxColumnIndex = keyframeTable.getColumnCount() - 1;
-		if (keyframeTable.getSelectedColumn() == maxColumnIndex) {
-			removeEntry(keyframeTable.getSelectedRow());
-		}
-	}
-
 	private void removeEntry(int... rows) {
-//		System.out.println("removeEntry");
 		if (removeAction != null) {
 			ArrayList<Integer> orgTimes = new ArrayList<>();
 			for (int row : rows){
-				orgTimes.add((int) floatTrackTableModel.getValueAt(row, 0));
+				orgTimes.add((int) tablePanel.getFloatTrackTableModel().getValueAt(row, 0));
 			}
 			removeAction.accept(sequence, orgTimes);
 		}
@@ -315,7 +185,7 @@ public class KeyframePanel<T> extends JPanel {
 
 	protected void changeEntry(int row, String field, String val) {
 		if (parseFunction != null && changeAction != null && animFlag != null && sequence != null) {
-			int orgTime = (int) floatTrackTableModel.getValueAt(row, 0);
+			int orgTime = (int) tablePanel.getFloatTrackTableModel().getValueAt(row, 0);
 			Entry<T> newEntry = animFlag.getEntryAt(sequence, orgTime).deepCopy();
 
 
@@ -327,10 +197,29 @@ public class KeyframePanel<T> extends JPanel {
 			}
 
 			changeAction.accept(orgTime, newEntry);
-			selectNewIndex = animFlag.getIndexOfTime(sequence, newEntry.time);
-			setTableModel();
+			tablePanel.setSelectNew(animFlag.getIndexOfTime(sequence, newEntry.time));
+//			selectNewIndex = animFlag.getIndexOfTime(sequence, newEntry.time);
 		}
 	}
+
+//	protected void changeEntry(int row, int col, T val) {
+//		if (parseFunction != null && changeAction != null && animFlag != null && sequence != null) {
+//			int orgTime = (int) tablePanel.getFloatTrackTableModel().getValueAt(row, 0);
+//			Entry<T> newEntry = animFlag.getEntryAt(sequence, orgTime).deepCopy();
+//
+//
+//			switch (tablePanel.getFloatTrackTableModel().getColumnName(col)) {
+//				case "Keyframe" -> newEntry.setTime(parseTime(val));
+//				case "Value" -> newEntry.setValue(val);
+//				case "InTan" -> newEntry.setInTan(val);
+//				case "OutTan" -> newEntry.setOutTan(val);
+//			}
+//
+//			changeAction.accept(orgTime, newEntry);
+//			tablePanel.setSelectNew(animFlag.getIndexOfTime(sequence, newEntry.time));
+////			selectNewIndex = animFlag.getIndexOfTime(sequence, newEntry.time);
+//		}
+//	}
 
 	public KeyframePanel<T> setColumnSize(int column, int size) {
 		columnSizes.put(column, size);
@@ -347,11 +236,11 @@ public class KeyframePanel<T> extends JPanel {
 	}
 
 	public int getTableRowHeight() {
-		return keyframeTable.getRowHeight();
+		return tablePanel.getRowHeight();
 	}
 
 	public JTable getTable() {
-		return keyframeTable;
+		return tablePanel.getKeyframeTable();
 	}
 
 	public KeyframePanel<T> setValueRenderingConsumer(BiConsumer<Component, Object> valueRenderingConsumer) {

@@ -44,6 +44,7 @@ public class ScriptsMenu extends JMenu {
 		add(new MakeModelHD().setMenuItemMnemonic(KeyEvent.VK_H).getMenuItem());
 		add(new MakeModelSD().setMenuItemMnemonic(KeyEvent.VK_D).getMenuItem());
 		add(new RemoveLODs().setMenuItemMnemonic(KeyEvent.VK_L).getMenuItem());
+		add(new SpliceHandsByTwilac().getMenu());
 		add(new RecalculateTangents().setMenuItemMnemonic(KeyEvent.VK_T).getMenuItem());
 
 		add(new SpliceMeshByRetera().getMenu());

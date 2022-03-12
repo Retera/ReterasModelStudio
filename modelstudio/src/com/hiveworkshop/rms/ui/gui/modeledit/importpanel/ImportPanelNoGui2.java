@@ -156,9 +156,10 @@ public class ImportPanelNoGui2 extends JTabbedPane {
 
 					} else if (animShell.getImportType() == AnimShell.ImportType.TIMESCALE_RECEIVE) {
 						AnimShell animDataSrc = animShell.getAnimDataSrc();
-						if (motionSrcShell != null && animDataSrc.isFromDonating() == motionSrcShell.isFromDonating()) {
+						// ToDo can be null! Match button not working!
+						if (animDataSrc != null && motionSrcShell != null && animDataSrc.isFromDonating() == motionSrcShell.isFromDonating()) {
 							addIdObjectAnim(newObject, animDataSrc, motionSrcShell, animShell.getAnim());
-						} else if (animDataSrc.isFromDonating() == idObjectShell.isFromDonating()) {
+						} else if (animDataSrc != null && animDataSrc.isFromDonating() == idObjectShell.isFromDonating()) {
 							addIdObjectAnim(newObject, animDataSrc, idObjectShell, animShell.getAnim());
 						} else {
 							if (motionSrcShell != null && animShell.isFromDonating() == motionSrcShell.isFromDonating()) {

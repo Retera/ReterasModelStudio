@@ -44,9 +44,13 @@ public class ThemeLoadingUtils {
 
 	private static InfoNodeLookAndFeelTheme getRmsTheme() {
 		final InfoNodeLookAndFeelTheme rmsTheme = new InfoNodeLookAndFeelTheme("Retera Studio",
-				new Color(44, 46, 20), new Color(116, 126, 36), new Color(44, 46, 20),
-				new Color(220, 202, 132), new Color(116, 126, 36), new Color(220, 202, 132));
-		rmsTheme.setShadingFactor(-0.8);
+				controlColor, primaryControlColor, backgroundColor,
+				selectedTextBackgroundColor, selectedTextColor, textColor, shadingFactor);
+
+//		final InfoNodeLookAndFeelTheme rmsTheme = new InfoNodeLookAndFeelTheme("Retera Studio",
+//				new Color(44, 46, 20), new Color(116, 126, 36), new Color(44, 46, 20),
+//				new Color(220, 202, 132), new Color(116, 126, 36), new Color(220, 202, 132));
+//		rmsTheme.setShadingFactor(-0.8);
 		rmsTheme.setDesktopColor(new Color(60, 82, 44));
 		return rmsTheme;
 	}

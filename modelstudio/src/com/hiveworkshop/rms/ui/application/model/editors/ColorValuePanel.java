@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.model.editors;
 import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.util.Vec3;
@@ -53,7 +54,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 //		keyframePanel.setValueRenderingConsumer(this::valueCellRendering);
 //		keyframePanel.setEditRenderingConsumer(this::editFieldRendering);
 
-		addColorChangeListeners();
+//		addColorChangeListeners();
 
 //		keyframePanel.setColumnSize(-2, keyframePanel.getTableRowHeight());
 	}
@@ -219,11 +220,11 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		vec3.set(vecFloats);
 	}
 
-	private void addColorChangeListeners() {
+	protected KeyframePanel<Vec3> addListeners(KeyframePanel<Vec3> keyframePanel) {
 		keyframePanel.getTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				checkChangeColorPressed(e.getPoint(), KeyEvent.VK_ENTER);
+				checkChangeColorPressed(e.getPoint(), KeyEvent.VK_ENTER, keyframePanel);
 			}
 		});
 
@@ -239,13 +240,39 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 					Point compPoint = e.getComponent().getLocation();
 					Point point = new Point(compPoint.y, compPoint.x);
 
-					checkChangeColorPressed(point, e.getKeyCode());
+					checkChangeColorPressed(point, e.getKeyCode(), keyframePanel);
 				}
 			}
 		});
+		return keyframePanel;
 	}
+//	private void addColorChangeListeners() {
+//		keyframePanel.getTable().addMouseListener(new MouseAdapter() {
+//			@Override
+//			public void mouseClicked(MouseEvent e) {
+//				checkChangeColorPressed(e.getPoint(), KeyEvent.VK_ENTER);
+//			}
+//		});
+//
+//		keyframePanel.getTable().addKeyListener(new KeyAdapter() {
+//			@Override
+//			public void keyReleased(KeyEvent e) {
+////				System.out.println("CVP keyReleased! " + e.getKeyCode());
+////				System.out.println("rect: " + keyframeTable.getCellRect(keyframeTable.getSelectedRow(), keyframeTable.getSelectedColumn(), false));
+////				System.out.println("loc: " + keyframeTable.getCellRect(keyframeTable.getSelectedRow(), keyframeTable.getSelectedColumn(), false).getLocation());
+////				System.out.println("loc: " + keyframeTable.getCellRect(keyframeTable.getSelectedRow(), keyframeTable.getSelectedColumn(), false));
+//				if (e.getKeyCode() == KeyEvent.VK_C) {
+////					System.out.println("C-Point: " + e.getComponent().getLocation() + ", comp: " + e.getComponent());
+//					Point compPoint = e.getComponent().getLocation();
+//					Point point = new Point(compPoint.y, compPoint.x);
+//
+//					checkChangeColorPressed(point, e.getKeyCode());
+//				}
+//			}
+//		});
+//	}
 
-	private void checkChangeColorPressed(Point point, int keyCode) {
+	private void checkChangeColorPressed(Point point, int keyCode, KeyframePanel<Vec3> keyframePanel) {
 		int colorChangeColumnIndex = keyframePanel.getTable().getColumnCount() - 2;
 		if (keyCode == KeyEvent.VK_C || keyCode == KeyEvent.VK_ENTER && keyframePanel.getTable().getSelectedColumn() == colorChangeColumnIndex) {
 //			colorChooser.setColor(new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), clampColorVector(animFlag.getValueFromIndex(keyframePanel.getTable().getSelectedRow()).toFloatArray()), 1.0f));
@@ -253,7 +280,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		}
 	}
 
-	private void changeColor() {
+	private void changeColor(Sequence sequence, int row) {
 		if (animFlag == null) {
 			color = new Vec3(selectedColor);
 			if (valueSettingFunction != null) {
@@ -262,8 +289,8 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 //				valueSettingFunction.accept(color);
 			}
 			staticColorButton.setIcon(new ImageIcon(IconUtils.createColorImage(color, 48, 48)));
-		} else {
-			changeEntry(keyframePanel.getSequence(), keyframePanel.getTable().getSelectedRow(), "Value", selectedColor.toString());
+		} else if (sequence != null){
+			changeEntry(sequence, row, "Value", selectedColor.toString());
 		}
 
 	}
@@ -277,7 +304,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 
 			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-				changeColor();
+				changeColor(null, 0);
 			}
 
 			@Override

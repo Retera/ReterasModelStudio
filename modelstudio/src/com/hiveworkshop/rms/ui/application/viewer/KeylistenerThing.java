@@ -35,6 +35,38 @@ public class KeylistenerThing extends KeyAdapter {
 			//Left (90,0) / Right (-90,0)
 			cameraHandler.setCameraRotation(controlAdj * 90, 0);
 		}
+		if (e.getKeyCode() == prefs.getCameraRotateSideNegKB()) {
+			//Left (90,0) / Right (-90,0)
+			if(0 < controlAdj){
+				cameraHandler.rotate(-15.0, 0.0);
+			} else {
+				cameraHandler.translate(10.0, 0);
+			}
+		}
+		if (e.getKeyCode() == prefs.getCameraRotateSidePosKB()) {
+			//Left (90,0) / Right (-90,0)
+			if(0 < controlAdj){
+				cameraHandler.rotate(15.0, 0.0);
+			} else {
+				cameraHandler.translate(-10.0, 0.0);
+			}
+		}
+		if (e.getKeyCode() == prefs.getCameraRotateUpKB()) {
+			//Left (90,0) / Right (-90,0)
+			if(0 < controlAdj){
+				cameraHandler.rotate(0.0, 15.0);
+			} else {
+				cameraHandler.translate(0.0, 10.0);
+			}
+		}
+		if (e.getKeyCode() == prefs.getCameraRotateDownKB()) {
+			//Left (90,0) / Right (-90,0)
+			if(0 < controlAdj){
+				cameraHandler.rotate(0.0, -15.0);
+			} else {
+				cameraHandler.translate(0.0, -10.0);
+			}
+		}
 		if (e.getKeyCode() == prefs.getCameraToggleOrtho()) {
 			// Orto Mode
 			cameraHandler.toggleOrtho();

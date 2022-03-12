@@ -70,6 +70,9 @@ public final class StaticMeshRotateAction2 implements GenericRotateAction {
 				bindPose[9] = b.getPivotPoint().x;
 				bindPose[10] = b.getPivotPoint().y;
 				bindPose[11] = b.getPivotPoint().z;
+				if(b.getBindPoseM4() != null){
+					b.getBindPoseM4().setFromBindPose(bindPose);
+				}
 			}
 		}
 

@@ -1,7 +1,5 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
-import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
@@ -117,9 +115,15 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 		if (image != null) {
 			return new ImageIcon(image);
 		} else {
-			System.out.println("failed to load image");
-			BufferedImage bi = BLPHandler.getImage(new Bitmap("Textures\\white.blp"), GameDataFileSystem.getDefault());
-			Image scaledInstance = bi.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_FAST);
+			System.err.println("failed to load image");
+//			BufferedImage bi = BLPHandler.getImage(new Bitmap("Textures\\white.blp"), GameDataFileSystem.getDefault());
+//			BufferedImage bi = BLPHandler.getImage(new Bitmap("Textures\\white.blp"), GameDataFileSystem.getDefault());
+			BufferedImage newTempImage = new BufferedImage(ICON_SIZE, ICON_SIZE, BufferedImage.TYPE_INT_RGB);
+			Graphics graphics = newTempImage.getGraphics();
+			graphics.setColor(Color.WHITE);
+			graphics.fill3DRect(0, 0, ICON_SIZE, ICON_SIZE, false);
+			graphics.dispose();
+			Image scaledInstance = newTempImage.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_FAST);
 			return new ImageIcon(scaledInstance);
 		}
 	}

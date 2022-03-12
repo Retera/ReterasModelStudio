@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.ui.application.*;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewUgg;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
 import com.hiveworkshop.rms.ui.application.viewer.CameraPreviewView;
+import com.hiveworkshop.rms.ui.application.viewer.EditUVsView;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.ObjectEditorFrame;
@@ -12,6 +13,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.ModelingCreatorToolsView;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.ModelComponentsView;
 import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.ModelViewManagingView;
+import com.hiveworkshop.rms.util.ModelDependentView;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.SplitWindow;
 import net.infonode.docking.View;
@@ -98,6 +100,9 @@ public class WindowsMenu extends JMenu {
 		viewsMenu.add(createMenuItem("Side", KeyEvent.VK_S, e -> windowHandler2.openNewWindowWithKB(new DisplayViewUgg("Side").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 		viewsMenu.add(createMenuItem("Bottom", KeyEvent.VK_B, e -> windowHandler2.openNewWindowWithKB(new DisplayViewUgg("Bottom").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 
+
+		viewsMenu.add(createMenuItem("Edit UV's", KeyEvent.VK_U, e -> openEditUVsView(rootWindow, windowHandler2)));
+
 		viewsMenu.add(createMenuItem("Contents", KeyEvent.VK_T, e -> windowHandler2.openNewWindowWithKB(new ModelComponentsView().setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 		viewsMenu.add(createMenuItem("Footer", KeyEvent.VK_F, e -> FloatingWindowFactory.openNewWindowWithKB(windowHandler2.getTimeSliderView(), rootWindow)));
 //
@@ -114,5 +119,13 @@ public class WindowsMenu extends JMenu {
 
 		viewsMenu.add(createMenuItem("Matrix Eater Script", KeyEvent.VK_H, KeyStroke.getKeyStroke("control P"), e -> ScriptView.openScriptView()));
 		return viewsMenu;
+	}
+
+	private void openEditUVsView(RootWindowUgg rootWindow, WindowHandler2 windowHandler2) {
+		ModelDependentView view = new EditUVsView();
+		System.out.println("sat model panel, opening window");
+		windowHandler2.openNewWindowWithKB(view, rootWindow);
+		view.setModelPanel(ProgramGlobals.getCurrentModelPanel());
+		System.out.println("done opening window");
 	}
 }

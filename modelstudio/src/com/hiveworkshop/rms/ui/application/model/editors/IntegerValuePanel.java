@@ -17,7 +17,7 @@ public class IntegerValuePanel extends ValuePanel<Integer> {
 		super(modelHandler, title);
 
 		staticSpinner = new IntEditorJSpinner(1, Integer.MIN_VALUE, this::setStaticValue);
-		keyframePanel.getFloatTrackTableModel().addExtraColumn("Track", "", String.class);  // 🎨 \uD83C\uDFA8
+//		keyframePanel.getFloatTrackTableModel().addExtraColumn("Track", "", String.class);  // 🎨 \uD83C\uDFA8
 	}
 
 

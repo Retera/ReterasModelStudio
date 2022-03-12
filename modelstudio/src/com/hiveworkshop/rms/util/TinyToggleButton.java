@@ -49,7 +49,7 @@ public class TinyToggleButton extends JButton {
 		if(dimension == null){
 //		int height = getHeight();
 //		int width = getWidth()-10;
-			dimension = new Dimension(getWidth()-10, getHeight());
+			dimension = new Dimension(Math.max(getWidth()-10, 10), getHeight());
 //			System.out.println(height);
 			setPreferredSize(dimension);
 			setSize(dimension);

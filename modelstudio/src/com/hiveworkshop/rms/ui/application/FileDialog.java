@@ -16,6 +16,7 @@ import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.ui.util.ExtFilter;
 import com.hiveworkshop.rms.util.ImageCreator;
 import com.hiveworkshop.rms.util.ImageUtils;
+import de.wc3data.image.TgaFile;
 import net.miginfocom.swing.MigLayout;
 
 import javax.imageio.ImageIO;
@@ -252,6 +253,7 @@ public class FileDialog {
             try {
                 CompoundDataSource dataSource = GameDataFileSystem.getDefault();
                 if(dataSource.has(internalPath)){
+                    System.out.println("internal path: " + dataSource.getFile(internalPath).getName());
                     InputStream resourceAsStream = dataSource.getResourceAsStream(internalPath);
                     if(resourceAsStream != null){
                         Files.copy(resourceAsStream, selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -350,12 +352,17 @@ public class FileDialog {
 					        "\nif you convert this texture back to Warcraft BLP.");
 	        bufferedImage = ImageUtils.removeAlphaChannel(bufferedImage);
         }
-        final boolean write = ImageIO.write(bufferedImage, fileExtension, modelFile);
-        SaveProfile.get().addRecent(modelFile.getPath());
-        if (!write) {
-            JOptionPane.showMessageDialog(getParent(), "Could not write file.\nFile type unknown or unavailable");
+        if(fileExtension.equals("tga")){
+            TgaFile.writeTGA(bufferedImage, modelFile);
+            return true;
+        } else {
+            final boolean write = ImageIO.write(bufferedImage, fileExtension, modelFile);
+            SaveProfile.get().addRecent(modelFile.getPath());
+            if (!write) {
+                JOptionPane.showMessageDialog(getParent(), "Could not write file.\nFile type unknown or unavailable");
+            }
+            return write;
         }
-        return write;
     }
 
     private void setCurrentDirectory(EditableModel model) {

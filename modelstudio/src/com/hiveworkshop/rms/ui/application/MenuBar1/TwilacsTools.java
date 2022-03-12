@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.ui.application.actionfunctions.ShowHideStuff;
+import com.hiveworkshop.rms.ui.application.actionfunctions.SplitVertices;
 import com.hiveworkshop.rms.ui.application.actionfunctions.TwilacStuff;
 import com.hiveworkshop.rms.ui.application.actionfunctions.WeldVerts;
 
@@ -15,6 +16,9 @@ public class TwilacsTools extends JMenu {
 		getAccessibleContext().setAccessibleDescription("Where Twilac puts new features during development before they find a permanent home.");
 
 		add(new WeldVerts().getMenuItem());
+		add(new SplitVertices().getMenuItem());
+		add(TwilacStuff.getBridgeEdgesMenuItem());
+//		add(TwilacStuff.getSelectEdgeMenuItem());
 		add(TwilacStuff.getSnapCloseVertsMenuItem());
 		add(ShowHideStuff.getHideVertsMenuItem());
 		add(ShowHideStuff.getShowVertsMenuItem());
@@ -38,5 +42,6 @@ public class TwilacsTools extends JMenu {
 		add(new JSeparator());
 		add(TwilacStuff.getBakeAndRebindToNullMenuItem());
 		add(TwilacStuff.getMergeBoneHelpersMenuItem());
+		add(TwilacStuff.getAddNewAttatchment());
 	}
 }

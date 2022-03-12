@@ -49,6 +49,9 @@ public final class StaticMeshMoveAction implements GenericMoveAction {
 				bindPose[9] += vec3.x;
 				bindPose[10] += vec3.y;
 				bindPose[11] += vec3.z;
+				if (b.getBindPoseM4() != null){
+					b.getBindPoseM4().translate(vec3); // todo check if this is correct...
+				}
 			}
 		}
 

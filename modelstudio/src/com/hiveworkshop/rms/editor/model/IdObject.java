@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
@@ -17,8 +18,6 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	public static final int DEFAULT_CLICK_RADIUS = 8;
 
 	protected String name = "";
-	//	protected int objectId = -1;
-//	protected int parentId = -1;
 	protected boolean dontInheritTranslation = false;
 	protected boolean dontInheritRotation = false;
 	protected boolean dontInheritScaling = false;
@@ -30,14 +29,13 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	protected IdObject parent;
 	protected final List<IdObject> childrenNodes = new ArrayList<>();
 	protected float[] bindPose;
+	protected Mat4 bindPoseM4;
 
 	public IdObject() {
 	}
 
 	protected IdObject(final IdObject other) {
 		name = other.name;
-//		objectId = other.objectId;
-//		parentId = other.parentId;
 		dontInheritTranslation = other.dontInheritTranslation;
 		dontInheritRotation = other.dontInheritRotation;
 		dontInheritScaling = other.dontInheritScaling;
@@ -50,6 +48,9 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		setParent(other.parent);
 		if (other.bindPose != null) {
 			bindPose = other.bindPose.clone();
+		}
+		if (other.bindPoseM4 != null){
+			bindPoseM4 = new Mat4().set(other.bindPoseM4);
 		}
 		copyTimelines(other);
 	}
@@ -86,47 +87,6 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	public int getObjectId(EditableModel model) {
 		return model.getObjectId(this);
 	}
-
-//	/**
-//	 * @return The Object ID
-//	 * @deprecated Note that all object IDs are deleted and regenerated at save
-//	 */
-//	@Deprecated
-//	public int getObjectId() {
-//		return objectId;
-//	}
-//
-//	/**
-//	 * @param objectId New object ID value
-//	 * @deprecated Note that all object IDs are deleted and regenerated at save
-//	 */
-//	@Deprecated
-//	public IdObject setObjectId(int objectId) {
-//		this.objectId = objectId;
-//		return this;
-//	}
-//
-//	/**
-//	 * @param parentId new Parent ID
-//	 * @deprecated IF UNSURE, YOU SHOULD USE setParent(), note that all object IDs are deleted and regenerated at save
-//	 */
-//	@Deprecated
-//	public IdObject setParentId(int parentId) {
-//		this.parentId = parentId;
-//		return this;
-//	}
-//
-//	/**
-//	 * @return Parent ID
-//	 * @deprecated Note that all object IDs are deleted and regenerated at save
-//	 */
-//	@Deprecated
-//	public int getParentId() {
-//		if (parent == null) {
-//			return -1;
-//		}
-//		return parent.getObjectId();
-//	}
 
 	public int getParentId(EditableModel model) {
 		if (parent == null) {
@@ -207,9 +167,28 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	public float[] getBindPose() {
 		return bindPose;
 	}
+	public Mat4 getBindPoseM4() {
+		return bindPoseM4;
+	}
 
 	public void setBindPose(float[] bindPose) {
 		this.bindPose = bindPose;
+		if(bindPose != null){
+			if(bindPoseM4 == null){
+				bindPoseM4 = new Mat4();
+			}
+			bindPoseM4.setFromBindPose(bindPose);
+		} else {
+			bindPoseM4 = null;
+		}
+	}
+	public void setBindPoseM4(Mat4 bindPose) {
+		bindPoseM4 = bindPose;
+		if(bindPose != null){
+			this.bindPose = bindPose.getBindPose();
+		} else {
+			this.bindPose = null;
+		}
 	}
 
 

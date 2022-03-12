@@ -189,14 +189,20 @@ public class NodeAnimationModelEditor extends ModelEditor {
 				System.out.println("calc tans! " + entryIn + entryOut + entry);
 
 				return new AddFlagEntryAction<>(timeline, entry, sequence, null);
-			}
-			if (sequence != null && !timeline.hasEntryAt(sequence, entry.getTime())) {
-				if (timeline.getInterpolationType().tangential()) {
+			} else if (sequence != null) {
+				if (timeline.tans()) {
 					entry.unLinearize();
 				}
 
 				return new AddFlagEntryAction<>(timeline, entry, sequence, null);
 			}
+//			if (sequence != null && !timeline.hasEntryAt(sequence, entry.getTime())) {
+//				if (timeline.getInterpolationType().tangential()) {
+//					entry.unLinearize();
+//				}
+//
+//				return new AddFlagEntryAction<>(timeline, entry, sequence, null);
+//			}
 		}
 		return null;
 	}

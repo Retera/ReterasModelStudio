@@ -233,6 +233,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		paintGL(true);
 	}
 
+	private boolean hasReloadedRenderModel = false;
 	public void paintGL(final boolean autoRepainting) {
 		setSize(getParent().getSize());
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
@@ -245,6 +246,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		reloadIfNeeded();
 		try {
 			if (renderModel != null) {
+				hasReloadedRenderModel = false;
 				updateRenderModel();
 				glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
 				enableGlThings(GL_DEPTH_TEST, GL_COLOR_MATERIAL, GL_LIGHTING, GL_LIGHT0, GL_LIGHT1, GL_NORMALIZE);
@@ -297,6 +299,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			}
 		} catch (final Throwable e) {
 			paintTimer.stop();
+			if (renderModel != null && !hasReloadedRenderModel) {
+				hasReloadedRenderModel = true;
+				renderModel.refreshFromEditor(textureThing);
+			}
 			lastExceptionTimeMillis = System.currentTimeMillis();
 			if ((lastThrownErrorClass == null) || (lastThrownErrorClass != e.getClass())) {
 				lastThrownErrorClass = e.getClass();

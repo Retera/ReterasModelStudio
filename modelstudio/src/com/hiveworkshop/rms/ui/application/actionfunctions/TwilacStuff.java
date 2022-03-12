@@ -3,17 +3,16 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeInterpTypeAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.ReplaceAnimFlagsAction;
+import com.hiveworkshop.rms.editor.actions.mesh.BridgeEdgeAction;
 import com.hiveworkshop.rms.editor.actions.mesh.SnapCloseVertsAction;
 import com.hiveworkshop.rms.editor.actions.nodes.BakeAndRebindActionTwi2;
 import com.hiveworkshop.rms.editor.actions.nodes.DeleteNodesAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetParentAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetPivotAction;
+import com.hiveworkshop.rms.editor.actions.selection.RemoveSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
-import com.hiveworkshop.rms.editor.model.Bone;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Helper;
-import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
@@ -27,6 +26,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.SmartButtonGroup;
+import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -187,6 +187,29 @@ public class TwilacStuff {
 		}
 	}
 
+	private static class BridgeEdgeStuff extends TwiFunction {
+
+		public BridgeEdgeStuff() {
+			super("Bridge Edges", BridgeEdgeStuff::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			Set<GeosetVertex> selectedVertices = modelHandler.getModelView().getSelectedVertices();
+			modelHandler.getUndoManager().pushAction(new BridgeEdgeAction(selectedVertices, ModelStructureChangeListener.getModelStructureChangeListener()).redo());
+		}
+	}
+
+	private static class SelectEdgeStuff extends TwiFunction {
+
+		public SelectEdgeStuff() {
+			super("Select Edge", SelectEdgeStuff::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			new SelectEdge(modelHandler);
+		}
+	}
+
 	private static class MergeBoneHelpers extends TwiFunction {
 
 		public MergeBoneHelpers() {
@@ -195,42 +218,128 @@ public class TwilacStuff {
 
 		private static void doStuff(ModelHandler modelHandler) {
 			EditableModel model = modelHandler.getModel();
+			ModelView modelView = modelHandler.getModelView();
 			Set<Bone> bonesWOMotion = new HashSet<>();
 			model.getBones().stream()
-					.filter(b -> b.getAnimFlags().isEmpty() && b.getChildrenNodes().isEmpty() && b.getParent() instanceof Helper)
+					.filter(b -> b.getAnimFlags().isEmpty() && modelView.isSelected(b) && b.getChildrenNodes().isEmpty() && b.getParent() instanceof Helper)
 					.forEach(bonesWOMotion::add);
 
 			List<UndoAction> undoActions = new ArrayList<>();
 			List<IdObject> nodesToRemove = new ArrayList<>();
+			Map<IdObject, IdObject> nodeToReplacement = new HashMap<>();
+			Map<Bone, List<IdObject>> boneToChildren = new HashMap<>();
 
 			for (Bone bone : bonesWOMotion){
 				IdObject parent = bone.getParent();
-				undoActions.add(new SetPivotAction(bone, parent.getPivotPoint(), null));
-//				bone.setPivotPoint(parent.getPivotPoint());
+				long count = parent.getChildrenNodes().stream().filter(idObject -> idObject instanceof Bone && bonesWOMotion.contains(idObject)).count();
+				if(count == 1){
+					nodesToRemove.add(parent);
+					nodeToReplacement.put(parent, bone);
+					System.out.println("moving " + bone.getName() + " to parent position");
+					undoActions.add(new SetPivotAction(bone, new Vec3(parent.getPivotPoint()), null));
 
-				ArrayList<AnimFlag<?>> animFlags = parent.getAnimFlags();
-//				bone.setAnimFlags(animFlags);
-				ArrayList<AnimFlag<?>> animFlagCopies = new ArrayList<>();
-				for(AnimFlag<?> animFlag : animFlags){
-					animFlagCopies.add(animFlag.deepCopy());
-				}
-				undoActions.add(new ReplaceAnimFlagsAction(bone, animFlagCopies, null));
 
-				List<IdObject> childList = new ArrayList<>(parent.getChildrenNodes());
-				for(IdObject child : childList){
-					if(child != bone){
-						undoActions.add(new SetParentAction(child, bone, null));
-//						child.setParent(bone);
+					ArrayList<AnimFlag<?>> animFlags = parent.getAnimFlags();
+					ArrayList<AnimFlag<?>> animFlagCopies = new ArrayList<>();
+					for(AnimFlag<?> animFlag : animFlags){
+						animFlagCopies.add(animFlag.deepCopy());
 					}
+					undoActions.add(new ReplaceAnimFlagsAction(bone, animFlagCopies, null));
+
+					List<IdObject> childList = new ArrayList<>(parent.getChildrenNodes());
+					childList.remove(bone);
+					boneToChildren.put(bone, childList);
 				}
-				undoActions.add(new SetParentAction(bone, parent.getParent(), null));
-				nodesToRemove.add(parent);
 //				bone.setParent(parent.getParent());
 			}
+			System.out.println("\nfound " + bonesWOMotion.size() + " bones to merge and " + nodesToRemove.size() + " nodes to remove");
+
+			undoActions.add(new RemoveSelectionUggAction(new SelectionBundle(nodesToRemove), modelView, null));
+			undoActions.add(new DeleteNodesAction(nodesToRemove, null, model));
+
+			for (Bone bone : bonesWOMotion){
+				IdObject parent = bone.getParent();
+				if(nodesToRemove.contains(parent)){
+					IdObject newParent = parent.getParent();
+					while (nodeToReplacement.containsKey(newParent)){
+						newParent = nodeToReplacement.get(newParent);
+					}
+					System.out.println("setting parent of " + bone.getName() + " to " + newParent.getName());
+					undoActions.add(new SetParentAction(bone, newParent, null));
+				}
+//				bone.setParent(parent.getParent());
+			}
+			for (Bone bone : boneToChildren.keySet()){
+				System.out.println(bone.getClass().getSimpleName() + ": " + bone.getName() + ": stealing parents (" + bone.getParent().getClass().getSimpleName() + ": " + bone.getParent().getName() + ") children");
+				List<IdObject> childList = boneToChildren.get(bone);
+				for(IdObject child : childList){
+					undoActions.add(new SetParentAction(child, bone, null));
+				}
+			}
+			modelHandler.getUndoManager().pushAction(
+					new CompoundAction("Merge unnecessary Helpers", undoActions,
+							ModelStructureChangeListener.changeListener::nodesUpdated)
+//							ModelStructureChangeListener.changeListener::geosetsUpdated)
+							.redo());
+		}
+		private static void doStuff1(ModelHandler modelHandler) {
+			EditableModel model = modelHandler.getModel();
+			ModelView modelView = modelHandler.getModelView();
+			Set<Bone> bonesWOMotion = new HashSet<>();
+			model.getBones().stream()
+					.filter(b -> b.getAnimFlags().isEmpty() && modelView.isSelected(b) && b.getChildrenNodes().isEmpty() && b.getParent() instanceof Helper)
+					.forEach(bonesWOMotion::add);
+
+			List<UndoAction> undoActions = new ArrayList<>();
+			List<IdObject> nodesToRemove = new ArrayList<>();
+			Map<IdObject, IdObject> nodeToReplacement = new HashMap<>();
+
+			for (Bone bone : bonesWOMotion){
+				IdObject parent = bone.getParent();
+				long count = parent.getChildrenNodes().stream().filter(idObject -> idObject instanceof Bone && bonesWOMotion.contains(idObject)).count();
+				if(count == 1){
+//					System.out.println(bone.getName() + ", parent: " + parent.getName() + ", has " + parent.getChildrenNodes().size() + " siblings");
+					nodesToRemove.add(parent);
+//					nodeToReplacement.put(parent, nodeToReplacement.getOrDefault(bone, bone));
+					nodeToReplacement.put(parent, bone);
+				}
+//				bone.setParent(parent.getParent());
+			}
+			System.out.println("\nfound " + bonesWOMotion.size() + " bones to merge and " + nodesToRemove.size() + " nodes to remove");
+			for (Bone bone : bonesWOMotion){
+				IdObject parent = bone.getParent();
+				if(nodesToRemove.contains(parent)){
+					IdObject newParent = nodeToReplacement.getOrDefault(parent.getParent(), parent.getParent());
+					Vec3 newPivot = new Vec3(parent.getPivotPoint());
+					System.out.println(bone.getName() + ", \tparent: " + parent.getName() + ", \thas " + parent.getChildrenNodes().size() + " siblings");
+
+					undoActions.add(new SetPivotAction(bone, newPivot, null));
+//				bone.setPivotPoint(parent.getPivotPoint());
+
+					ArrayList<AnimFlag<?>> animFlags = parent.getAnimFlags();
+//				bone.setAnimFlags(animFlags);
+					ArrayList<AnimFlag<?>> animFlagCopies = new ArrayList<>();
+					for(AnimFlag<?> animFlag : animFlags){
+						animFlagCopies.add(animFlag.deepCopy());
+					}
+					undoActions.add(new ReplaceAnimFlagsAction(bone, animFlagCopies, null));
+
+					List<IdObject> childList = new ArrayList<>(parent.getChildrenNodes());
+					for(IdObject child : childList){
+						if(child != bone){
+							undoActions.add(new SetParentAction(child, bone, null));
+						}
+					}
+					undoActions.add(new SetParentAction(bone, newParent, null));
+				}
+//				bone.setParent(parent.getParent());
+			}
+			undoActions.add(new RemoveSelectionUggAction(new SelectionBundle(nodesToRemove), modelView, null));
 			undoActions.add(new DeleteNodesAction(nodesToRemove, null, model));
 			modelHandler.getUndoManager().pushAction(
 					new CompoundAction("Merge unnececary Helpers", undoActions,
 							ModelStructureChangeListener.changeListener::nodesUpdated)
+//							ModelStructureChangeListener.changeListener::geosetsUpdated)
 							.redo());
 		}
 	}
@@ -336,6 +445,13 @@ public class TwilacStuff {
 		return new SpliceGeoset().getMenuItem();
 	}
 
+	public static JMenuItem getBridgeEdgesMenuItem() {
+		return new BridgeEdgeStuff().getMenuItem();
+	}
+	public static JMenuItem getSelectEdgeMenuItem() {
+		return new SelectEdgeStuff().getMenuItem();
+	}
+
 	public static JMenuItem getMergeBoneHelpersMenuItem() {
 		return new MergeBoneHelpers().getMenuItem();
 	}
@@ -344,6 +460,9 @@ public class TwilacStuff {
 		return new LinearizeSelected().getMenuItem();
 	}
 
+	public static JMenuItem getAddNewAttatchment() {
+		return new AddNewAttatchment().getMenuItem();
+	}
 	public static JMenuItem getTempNoneMenuItem() {
 		return new TempNone().getMenuItem();
 	}
@@ -371,6 +490,20 @@ public class TwilacStuff {
 					}
 				}
 			};
+		}
+	}
+
+	private static class AddNewAttatchment  extends TwiFunction{
+		public AddNewAttatchment() {
+			super("add New Attatchment", AddNewAttatchment::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+			AddAttachmentsPanel panel = new AddAttachmentsPanel(modelHandler);
+			JFrame jFrame = FramePopup.show(panel, null, "Rename Nodes");
+			panel.setOnFinished(() -> jFrame.dispose());
+			jFrame.setVisible(true);
+//			modelHandler.getUndoManager().pushAction(new SnapCloseVertsAction(modelHandler.getModelView().getSelectedVertices(), 1, ModelStructureChangeListener.changeListener).redo());
 		}
 	}
 }

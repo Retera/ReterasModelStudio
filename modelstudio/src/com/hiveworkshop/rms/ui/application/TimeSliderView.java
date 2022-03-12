@@ -8,7 +8,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.util.ModelDependentView;
-import com.hiveworkshop.rms.ztempteststuff.TestTimeline.TimeLineHolder;
+import com.hiveworkshop.rms.util.TestTimeline.TimeLineHolder;
 import net.infonode.docking.View;
 
 import javax.swing.*;

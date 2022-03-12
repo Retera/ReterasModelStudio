@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ztempteststuff.TestTimeline;
+package com.hiveworkshop.rms.util.TestTimeline;
 
 import net.miginfocom.swing.MigLayout;
 

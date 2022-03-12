@@ -1,9 +1,8 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
-import com.hiveworkshop.rms.ui.application.EditUVsPanel;
-import com.hiveworkshop.rms.ui.application.MainPanelLinkActions;
-import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.*;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
+import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVView;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPanel;
 import com.hiveworkshop.rms.util.Vec2;
 
@@ -30,9 +29,9 @@ public class ToolsMenu extends JMenu {
 
 		add(createMenuItem("Edit UV Mapping", KeyEvent.VK_U, e -> EditUVsPanel.showEditUVs()));
 
-//		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
-//		WindowHandler2 windowHandler2 = rootWindow.getWindowHandler2();
-//		add(createMenuItem("Edit UV Mapping2", KeyEvent.VK_A, e -> windowHandler2.openNewWindowWithKB(new UVView("Edit UV Mapping").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
+		RootWindowUgg rootWindow = ProgramGlobals.getRootWindowUgg();
+		WindowHandler2 windowHandler2 = rootWindow.getWindowHandler2();
+		add(createMenuItem("Edit UV Mapping2", KeyEvent.VK_A, e -> windowHandler2.openNewWindowWithKB(new UVView("Edit UV Mapping").setModelPanel(ProgramGlobals.getCurrentModelPanel()), rootWindow)));
 
 		JMenuItem editTextures = new JMenuItem("Edit Textures");
 		editTextures.setMnemonic(KeyEvent.VK_T);
