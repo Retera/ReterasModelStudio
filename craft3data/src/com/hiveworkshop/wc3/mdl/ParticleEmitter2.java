@@ -162,22 +162,22 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		if (emitter.particleEmitter2Visibility != null) {
 			add(new AnimFlag(emitter.particleEmitter2Visibility));
 		}
-		if (((node.flags >> 15) & 1) == 1) {
+		if ((node.flags >> 15 & 1) == 1) {
 			add("Unshaded");
 		}
-		if (((node.flags >> 16) & 1) == 1) {
+		if ((node.flags >> 16 & 1) == 1) {
 			add("SortPrimsFarZ");
 		}
-		if (((node.flags >> 17) & 1) == 1) {
+		if ((node.flags >> 17 & 1) == 1) {
 			add("LineEmitter");
 		}
-		if (((node.flags >> 18) & 1) == 1) {
+		if ((node.flags >> 18 & 1) == 1) {
 			add("Unfogged");
 		}
-		if (((node.flags >> 19) & 1) == 1) {
+		if ((node.flags >> 19 & 1) == 1) {
 			add("ModelSpace");
 		}
-		if (((node.flags >> 20) & 1) == 1) {
+		if ((node.flags >> 20 & 1) == 1) {
 			add("XYQuad");
 		}
 		if (emitter.particleEmitter2Speed != null) {
@@ -258,8 +258,8 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 		setTime(emitter.time);
 		// SegmentColor - Inverse order for MDL!
 		for (int i = 0; i < 3; i++) {
-			setSegmentColor(i, new Vertex(emitter.segmentColor[(i * 3) + 2], emitter.segmentColor[(i * 3) + 1],
-					emitter.segmentColor[(i * 3) + 0]));
+			setSegmentColor(i, new Vertex(emitter.segmentColor[i * 3 + 2], emitter.segmentColor[i * 3 + 1],
+					emitter.segmentColor[i * 3 + 0]));
 		}
 		setAlpha(new Vertex((256 + emitter.segmentAlpha[0]) % 256, (256 + emitter.segmentAlpha[1]) % 256,
 				(256 + emitter.segmentAlpha[2]) % 256));
@@ -344,7 +344,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 					foundType = true;
 					// JOptionPane.showMessageDialog(null,"SegmentColor from
 					// line: "+line);
-					for (int i = 0; reading && (i < 3); i++) {
+					for (int i = 0; reading && i < 3; i++) {
 						line = MDLReader.nextLine(mdl);
 						if (line.contains("Color")) {
 							pe.segmentColor[i] = Vertex.parseText(line);
@@ -356,7 +356,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 					}
 					line = MDLReader.nextLine(mdl);
 				}
-				for (int i = 0; (i < vertexDataNames.length) && !foundType; i++) {
+				for (int i = 0; i < vertexDataNames.length && !foundType; i++) {
 					if (line.contains("\t" + vertexDataNames[i] + " ")) {
 						foundType = true;
 						pe.vertexData[i] = Vertex.parseText(line);
@@ -364,7 +364,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 						// from line: "+line);
 					}
 				}
-				for (int i = 0; (i < loneDoubleNames.length) && !foundType; i++) {
+				for (int i = 0; i < loneDoubleNames.length && !foundType; i++) {
 					if (line.contains(loneDoubleNames[i])) {
 						foundType = true;
 						pe.loneDoubleData[i] = MDLReader.readDouble(line);
@@ -372,7 +372,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 						// from line: "+line);
 					}
 				}
-				for (int i = 0; (i < loneIntNames.length) && !foundType; i++) {
+				for (int i = 0; i < loneIntNames.length && !foundType; i++) {
 					if (line.contains(loneIntNames[i])) {
 						foundType = true;
 						pe.loneIntData[i] = MDLReader.readInt(line);
@@ -380,7 +380,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 						// from line: "+line);
 					}
 				}
-				for (int i = 0; (i < knownFlagNames.length) && !foundType; i++) {
+				for (int i = 0; i < knownFlagNames.length && !foundType; i++) {
 					if (line.contains(knownFlagNames[i])) {
 						foundType = true;
 						pe.knownFlags[i] = true;
@@ -388,7 +388,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 						// from line: "+line);
 					}
 				}
-				for (int i = 0; (i < timeDoubleNames.length) && !foundType; i++) {
+				for (int i = 0; i < timeDoubleNames.length && !foundType; i++) {
 					if (line.contains(timeDoubleNames[i])) {
 						foundType = true;
 						// JOptionPane.showMessageDialog(null,timeDoubleNames[i]+"
@@ -401,9 +401,8 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 						}
 					}
 				}
-				if (!foundType && ((line.contains("Visibility") || line.contains("Rotation")
-						|| line.contains("Translation") || line.contains("Scaling")))
-						&& !line.contains("DontInherit")) {
+				if (!foundType && (line.contains("Visibility") || line.contains("Rotation")
+						|| line.contains("Translation") || line.contains("Scaling")) && !line.contains("DontInherit")) {
 					MDLReader.reset(mdl);
 					pe.animFlags.add(AnimFlag.read(mdl));
 					foundType = true;
@@ -454,7 +453,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			} else {
 				boolean set = false;
-				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
+				for (int a = 0; a < pAnimFlags.size() && !set; a++) {
 					if (pAnimFlags.get(a).getName().equals(currentFlag)) {
 						pAnimFlags.get(a).printTo(writer, 1);
 						pAnimFlags.remove(a);
@@ -487,7 +486,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
 			} else {
 				boolean set = false;
-				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
+				for (int a = 0; a < pAnimFlags.size() && !set; a++) {
 					if (pAnimFlags.get(a).getName().equals(currentFlag)) {
 						pAnimFlags.get(a).printTo(writer, 1);
 						pAnimFlags.remove(a);
@@ -828,7 +827,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 	@Override
 	public void add(final String flag) {
 		boolean isKnownFlag = false;
-		for (int i = 0; (i < knownFlagNames.length) && !isKnownFlag; i++) {
+		for (int i = 0; i < knownFlagNames.length && !isKnownFlag; i++) {
 			if (knownFlagNames[i].equals(flag)) {
 				knownFlags[i] = true;
 				isKnownFlag = true;
@@ -985,7 +984,7 @@ public class ParticleEmitter2 extends EmitterIdObject implements VisibilitySourc
 	public double getRenderEmissionRate(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		final AnimFlag translationFlag = AnimFlag.find(animFlags, "EmissionRate");
 		if (translationFlag != null) {
-			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment, getEmissionRate());
 		}
 		return getEmissionRate();
 	}

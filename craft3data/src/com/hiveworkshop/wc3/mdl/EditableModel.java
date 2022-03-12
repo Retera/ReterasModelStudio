@@ -401,7 +401,7 @@ public class EditableModel implements Named {
 			for (final CameraChunk.Camera cam : mdx.cameraChunk.camera) {
 				final Camera mdlCam = new Camera(cam);
 				if (!corruptedCameraWarningGiven && (mdlCam.getName().contains("????????")
-						|| (mdlCam.getName().length() > 20) || (mdlCam.getName().length() <= 0))) {
+						|| mdlCam.getName().length() > 20 || mdlCam.getName().length() <= 0)) {
 					corruptedCameraWarningGiven = true;
 					JOptionPane.showMessageDialog(null, "--- " + this.getName()
 							+ " ---\nWARNING: Java Warcraft Libraries thinks we are loading a camera with corrupted data due to bug in Native MDX Parser.\nPlease DISABLE \"View > Use Native MDX Parser\" if you want to correctly edit \""
@@ -421,14 +421,14 @@ public class EditableModel implements Named {
 		}
 
 		if (mdx.pivotPointChunk != null) {
-			for (int objId = 0; objId < (mdx.pivotPointChunk.pivotPoints.length / 3); objId++) {
-				addPivotPoint(new Vertex(mdx.pivotPointChunk.pivotPoints[(objId * 3) + 0],
-						mdx.pivotPointChunk.pivotPoints[(objId * 3) + 1],
-						mdx.pivotPointChunk.pivotPoints[(objId * 3) + 2]));
+			for (int objId = 0; objId < mdx.pivotPointChunk.pivotPoints.length / 3; objId++) {
+				addPivotPoint(new Vertex(mdx.pivotPointChunk.pivotPoints[objId * 3 + 0],
+						mdx.pivotPointChunk.pivotPoints[objId * 3 + 1],
+						mdx.pivotPointChunk.pivotPoints[objId * 3 + 2]));
 			}
 		}
 
-		if ((mdx.faceEffectsChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
+		if (mdx.faceEffectsChunk != null && ModelUtils.isBindPoseSupported(formatVersion)) {
 			for (final FaceEffect facefx : mdx.faceEffectsChunk.faceEffects) {
 				addFaceEffect(facefx);
 			}
@@ -456,7 +456,7 @@ public class EditableModel implements Named {
 		s[0] = s[0].substring(4, s[0].length());
 		final int s_size = countContainsString(input, ",");
 		s[s_size - 1] = s[s_size - 1].substring(0, s[s_size - 1].length() - 2);
-		for (int t = 0; t < (s_size - 1); t += 3)// s[t+3].equals("")||
+		for (int t = 0; t < s_size - 1; t += 3)// s[t+3].equals("")||
 		{
 			for (int i = 0; i < 3; i++) {
 				s[t + i] = s[t + i].substring(1);
@@ -701,7 +701,7 @@ public class EditableModel implements Named {
 				for (final Animation anim : anims) {
 					final Integer animStartTime = anim.getStart();
 					final Number visible = (Number) visibility.valueAt(animStartTime);
-					if ((visible == null) || (visible.floatValue() > 0)) {
+					if (visible == null || visible.floatValue() > 0) {
 						talliesFor++;
 					} else {
 						talliesAgainst++;
@@ -804,7 +804,7 @@ public class EditableModel implements Named {
 				final Bone bone = (Bone) object;
 				// the object in this model of similar name
 				final Object localObject = getObject(bone.getName());
-				if ((localObject != null) && (localObject instanceof Bone)) {
+				if (localObject != null && localObject instanceof Bone) {
 					final Bone localBone = (Bone) localObject;
 					localBone.copyMotionFrom(bone); // if it's a match, take the
 													// data
@@ -891,7 +891,7 @@ public class EditableModel implements Named {
 				final Bone bone = (Bone) object;
 				// the object in this model of similar name
 				final Object localObject = getObject(bone.getName());
-				if ((localObject != null) && (localObject instanceof Bone)) {
+				if (localObject != null && localObject instanceof Bone) {
 					final Bone localBone = (Bone) localObject;
 					localBone.copyMotionFrom(bone); // if it's a match, take the
 													// data
@@ -990,7 +990,7 @@ public class EditableModel implements Named {
 			}
 			line = MDLReader.nextLine(mdl);
 			mdlr.formatVersion = MDLReader.readInt(line);
-			if ((mdlr.formatVersion != 800) && (mdlr.formatVersion != 900) && (mdlr.formatVersion != 1000)) {
+			if (mdlr.formatVersion != 800 && mdlr.formatVersion != 900 && mdlr.formatVersion != 1000) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "The format version was confusing!");
 			}
 			line = MDLReader.nextLine(mdl);// this is "}" for format version
@@ -1060,7 +1060,7 @@ public class EditableModel implements Named {
 			// if( hadGeosetAnims )
 			MDLReader.reset(mdl);
 			line = MDLReader.nextLine(mdl);
-			while ((line.length() > 1) && !line.equals("COMPLETED PARSING")) {
+			while (line.length() > 1 && !line.equals("COMPLETED PARSING")) {
 				if (line.startsWith("Bone ")) {
 					MDLReader.reset(mdl);
 					mdlr.addIdObject(Bone.read(mdl));
@@ -1209,14 +1209,14 @@ public class EditableModel implements Named {
 		}
 		for (int i = 1; i < 3; i++) {
 			try {
-				output[offset + (i * 3)] = Float.parseFloat(entries[i].trim());
+				output[offset + i * 3] = Float.parseFloat(entries[i].trim());
 			} catch (final NumberFormatException e) {
 				JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 						"Error {" + input + "}: BindPose Matrix could not be interpreted.");
 			}
 		}
 		try {
-			output[offset + (3 * 3)] = Float.parseFloat(entries[3].split("}")[0].trim());
+			output[offset + 3 * 3] = Float.parseFloat(entries[3].split("}")[0].trim());
 		} catch (final NumberFormatException e) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Error {" + input + "}: BindPose Matrix could not be interpreted.");
@@ -1520,10 +1520,9 @@ public class EditableModel implements Named {
 
 		for (int i = 0; i < idObjects.size(); i++) {
 			final IdObject obj = idObjects.get(i);
-			if (!pivotsPrinted && ((obj.getClass() == ParticleEmitter.class)
-					|| (obj.getClass() == ParticleEmitter2.class) || (obj.getClass() == ParticleEmitterPopcorn.class)
-					|| (obj.getClass() == RibbonEmitter.class) || (obj.getClass() == EventObject.class)
-					|| (obj.getClass() == CollisionShape.class))) {
+			if (!pivotsPrinted && (obj.getClass() == ParticleEmitter.class || obj.getClass() == ParticleEmitter2.class
+					|| obj.getClass() == ParticleEmitterPopcorn.class || obj.getClass() == RibbonEmitter.class
+					|| obj.getClass() == EventObject.class || obj.getClass() == CollisionShape.class)) {
 				writer.println("PivotPoints " + pivots.size() + " {");
 				for (int p = 0; p < pivots.size(); p++) {
 					writer.println("\t" + pivots.get(p).toString() + ",");
@@ -1531,8 +1530,7 @@ public class EditableModel implements Named {
 				writer.println("}");
 				pivotsPrinted = true;
 			}
-			if (!camerasPrinted
-					&& ((obj.getClass() == EventObject.class) || (obj.getClass() == CollisionShape.class))) {
+			if (!camerasPrinted && (obj.getClass() == EventObject.class || obj.getClass() == CollisionShape.class)) {
 				camerasPrinted = true;
 				for (int c = 0; c < cameras.size(); c++) {
 					cameras.get(c).printTo(writer);
@@ -1564,7 +1562,7 @@ public class EditableModel implements Named {
 			}
 		}
 
-		if ((bindPoseChunk != null) && ModelUtils.isBindPoseSupported(formatVersion)) {
+		if (bindPoseChunk != null && ModelUtils.isBindPoseSupported(formatVersion)) {
 			if (RETERA_FORMAT_BPOS_MATRICES) {
 				writer.println("BindPose " + bindPoseChunk.bindPose.length + " {");
 				final StringBuilder matrixStringBuilder = new StringBuilder();
@@ -1572,7 +1570,7 @@ public class EditableModel implements Named {
 					Named matrixPredictedParent = null;
 					if (i < idObjects.size()) {
 						matrixPredictedParent = idObjects.get(i);
-					} else if (i < (idObjects.size() + cameras.size())) {
+					} else if (i < idObjects.size() + cameras.size()) {
 						matrixPredictedParent = cameras.get(i - idObjects.size());
 					}
 					if (matrixPredictedParent != null) {
@@ -1588,7 +1586,7 @@ public class EditableModel implements Named {
 							if (k > 0) {
 								matrixStringBuilder.append(", ");
 							}
-							matrixStringBuilder.append(MDLReader.doubleToString(matrix[(k * 3) + j]));
+							matrixStringBuilder.append(MDLReader.doubleToString(matrix[k * 3 + j]));
 						}
 						matrixStringBuilder.append(" },");
 						writer.println("\t\t" + matrixStringBuilder.toString());
@@ -1687,14 +1685,14 @@ public class EditableModel implements Named {
 	public void rebuildMaterialList() {
 		materials.clear();
 		for (final Geoset g : geosets) {
-			if ((g.material != null) && !materials.contains(g.material)) {
+			if (g.material != null && !materials.contains(g.material)) {
 				materials.add(g.material);
 			}
 			g.setMaterialId(materials.indexOf(g.material)); // -1 if null
 		}
 		final ArrayList<RibbonEmitter> ribbons = sortedIdObjects(RibbonEmitter.class);
 		for (final RibbonEmitter r : ribbons) {
-			if ((r.material != null) && !materials.contains(r.material)) {
+			if (r.material != null && !materials.contains(r.material)) {
 				materials.add(r.material);
 			} else {
 				// JOptionPane.showMessageDialog(null,"Null material found for
@@ -1716,7 +1714,7 @@ public class EditableModel implements Named {
 		clearTexAnims();
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				if ((lay.textureAnim != null) && !texAnims.contains(lay.textureAnim)) {
+				if (lay.textureAnim != null && !texAnims.contains(lay.textureAnim)) {
 					texAnims.add(lay.textureAnim);
 				}
 			}
@@ -1728,7 +1726,7 @@ public class EditableModel implements Named {
 		textures.clear();
 		for (final Material m : materials) {
 			for (final Layer lay : m.layers) {
-				if ((lay.texture != null) && !textures.contains(lay.texture) && (lay.textures == null)) {
+				if (lay.texture != null && !textures.contains(lay.texture) && lay.textures == null) {
 					boolean good = true;
 					for (final Bitmap btm : textures) {
 						if (lay.texture.equals(btm)) {
@@ -1761,7 +1759,7 @@ public class EditableModel implements Named {
 		final ArrayList<ParticleEmitter2> particles = sortedIdObjects(ParticleEmitter2.class);
 		for (final ParticleEmitter2 pe : particles) {
 			boolean good = true;
-			if ((pe.texture != null) && !textures.contains(pe.texture)) {
+			if (pe.texture != null && !textures.contains(pe.texture)) {
 				for (final Bitmap btm : textures) {
 					if (pe.texture.equals(btm)) {
 						good = false;
@@ -1780,13 +1778,13 @@ public class EditableModel implements Named {
 		final List<AnimFlag> animFlags = getAllAnimFlags();// laggggg!
 		final List<EventObject> evtObjs = sortedIdObjects(EventObject.class);
 		for (final AnimFlag af : animFlags) {
-			if (!globalSeqs.contains(af.globalSeq) && (af.globalSeq != null)) {
+			if (!globalSeqs.contains(af.globalSeq) && af.globalSeq != null) {
 				globalSeqs.add(af.globalSeq);
 			}
 			af.updateGlobalSeqId(this);// keep the ids straight
 		}
 		for (final EventObject af : evtObjs) {
-			if (!globalSeqs.contains(af.globalSeq) && (af.globalSeq != null)) {
+			if (!globalSeqs.contains(af.globalSeq) && af.globalSeq != null) {
 				globalSeqs.add(af.globalSeq);
 			}
 			af.updateGlobalSeqId(this);// keep the ids straight
@@ -1832,10 +1830,10 @@ public class EditableModel implements Named {
 			}
 		}
 		for (final Bone b : bones) {
-			if ((b.geosetId != -1) && (b.geosetId < geosets.size())) {
+			if (b.geosetId != -1 && b.geosetId < geosets.size()) {
 				b.geoset = geosets.get(b.geosetId);
 			}
-			if ((b.geosetAnimId != -1) && (b.geosetAnimId < geosetAnims.size())) {
+			if (b.geosetAnimId != -1 && b.geosetAnimId < geosetAnims.size()) {
 				b.geosetAnim = geosetAnims.get(b.geosetAnimId);
 			}
 		}
@@ -2177,7 +2175,7 @@ public class EditableModel implements Named {
 	public GeosetAnim getGeosetAnimOfGeoset(final Geoset g) {
 		if (g.geosetAnim == null) {
 			boolean noIds = true;
-			for (int i = 0; (i < geosetAnims.size()) && noIds; i++) {
+			for (int i = 0; i < geosetAnims.size() && noIds; i++) {
 				final GeosetAnim ga = geosetAnims.get(i);
 				if (ga.geosetId != -1) {
 					noIds = false;
@@ -2272,7 +2270,7 @@ public class EditableModel implements Named {
 									}
 
 								}
-							} else if ((ga != null) && (ga != b2.geosetAnim)) {
+							} else if (ga != null && ga != b2.geosetAnim) {
 								b2.geosetAnim = ga.getMostVisible(b2.geosetAnim);
 							}
 						}
@@ -2397,10 +2395,10 @@ public class EditableModel implements Named {
 					"Added null IdObject component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		}
 		idObjects.add(x);
-		if ((x.pivotPoint != null) && !pivots.contains(x.pivotPoint)) {
+		if (x.pivotPoint != null && !pivots.contains(x.pivotPoint)) {
 			pivots.add(x.pivotPoint);
 		}
-		if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPoseChunk != null)) {
+		if (ModelUtils.isBindPoseSupported(formatVersion) && bindPoseChunk != null) {
 			if (x.getBindPose() == null) {
 				x.setBindPose(new float[] { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
 			}
@@ -2413,7 +2411,7 @@ public class EditableModel implements Named {
 					"Added null Camera component to model, which is really bad. Tell Retera you saw this once you have errors.");
 		}
 		cameras.add(x);
-		if (ModelUtils.isBindPoseSupported(formatVersion) && (bindPoseChunk != null)) {
+		if (ModelUtils.isBindPoseSupported(formatVersion) && bindPoseChunk != null) {
 			if (x.getBindPose() == null) {
 				x.setBindPose(new float[] { 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 });
 			}
@@ -2597,8 +2595,8 @@ public class EditableModel implements Named {
 		for (final Geoset geoset : geosets) {
 			final GeosetVisitor geosetRenderer = renderer.beginGeoset(geosetId++, geoset.getMaterial(),
 					geoset.getGeosetAnim());
-			if ((ModelUtils.isTangentAndSkinSupported(formatVersion)) && (geoset.getVertices().size() > 0)
-					&& (geoset.getVertex(0).getSkinBones() != null)) {
+			if (ModelUtils.isTangentAndSkinSupported(formatVersion) && geoset.getVertices().size() > 0
+					&& geoset.getVertex(0).getSkinBones() != null) {
 				for (final Triangle triangle : geoset.getTriangles()) {
 					final TriangleVisitor triangleRenderer = geosetRenderer.beginTriangle();
 					for (final GeosetVertex vertex : triangle.getVerts()) {
@@ -2664,7 +2662,7 @@ public class EditableModel implements Named {
 			Entry lastEntry = null;
 			for (int i = 0; i < flag.length(); i++) {
 				final Entry entry = flag.getEntry(i);
-				if ((lastEntry != null) && (lastEntry.time == entry.time)) {
+				if (lastEntry != null && lastEntry.time == entry.time) {
 					indicesForDeletion.add(new Integer(i));
 				}
 				lastEntry = entry;
@@ -2695,19 +2693,19 @@ public class EditableModel implements Named {
 						// public static final int COLOR = 4;
 						// // 5 TextureID
 						// public static final int TEXTUREID = 5;
-						if ((entry.time >= anim.getStart()) && (entry.time <= anim.getEnd())) {
+						if (entry.time >= anim.getStart() && entry.time <= anim.getEnd()) {
 							if (entry.value instanceof Double) {
 								final Double d = (Double) entry.value;
 								final Double older = (Double) olderKeyframe;
 								final Double old = (Double) oldKeyframe;
-								if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
+								if (older != null && old != null && MathUtils.isBetween(older, old, d)) {
 									indicesForDeletion.add(new Integer(i - 1));
 								}
 							} else if (entry.value instanceof Vertex) {
 								final Vertex current = (Vertex) entry.value;
 								final Vertex older = (Vertex) olderKeyframe;
 								final Vertex old = (Vertex) oldKeyframe;
-								if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
+								if (older != null && old != null && MathUtils.isBetween(older.x, old.x, current.x)
 										&& MathUtils.isBetween(older.y, old.y, current.y)
 										&& MathUtils.isBetween(older.z, old.z, current.z)) {
 									indicesForDeletion.add(new Integer(i - 1));
@@ -2717,7 +2715,7 @@ public class EditableModel implements Named {
 								final QuaternionRotation older = (QuaternionRotation) olderKeyframe;
 								final QuaternionRotation old = (QuaternionRotation) oldKeyframe;
 								final Vertex euler = current.toEuler();
-								if ((older != null) && (old != null)) {
+								if (older != null && old != null) {
 									final Vertex olderEuler = older.toEuler();
 									final Vertex oldEuler = old.toEuler();
 									if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
@@ -2775,14 +2773,14 @@ public class EditableModel implements Named {
 							final Double d = (Double) entry.value;
 							final Double older = (Double) olderKeyframe;
 							final Double old = (Double) oldKeyframe;
-							if ((older != null) && (old != null) && MathUtils.isBetween(older, old, d)) {
+							if (older != null && old != null && MathUtils.isBetween(older, old, d)) {
 								indicesForDeletion.add(new Integer(i - 1));
 							}
 						} else if (entry.value instanceof Vertex) {
 							final Vertex current = (Vertex) entry.value;
 							final Vertex older = (Vertex) olderKeyframe;
 							final Vertex old = (Vertex) oldKeyframe;
-							if ((older != null) && (old != null) && MathUtils.isBetween(older.x, old.x, current.x)
+							if (older != null && old != null && MathUtils.isBetween(older.x, old.x, current.x)
 									&& MathUtils.isBetween(older.y, old.y, current.y)
 									&& MathUtils.isBetween(older.z, old.z, current.z)) {
 								indicesForDeletion.add(new Integer(i - 1));
@@ -2792,7 +2790,7 @@ public class EditableModel implements Named {
 							final QuaternionRotation older = (QuaternionRotation) olderKeyframe;
 							final QuaternionRotation old = (QuaternionRotation) oldKeyframe;
 							final Vertex euler = current.toEuler();
-							if ((older != null) && (old != null)) {
+							if (older != null && old != null) {
 								final Vertex olderEuler = older.toEuler();
 								final Vertex oldEuler = old.toEuler();
 								if (MathUtils.isBetween(olderEuler.x, oldEuler.x, euler.x)
@@ -2993,7 +2991,7 @@ public class EditableModel implements Named {
 				if (layer.getTextureBitmap().equals(texture)) {
 					layer.setTexture(replacement);
 				} else {
-					if ((layer.getTextures() != null) && layer.getTextures().contains(texture)) {
+					if (layer.getTextures() != null && layer.getTextures().contains(texture)) {
 						for (int i = 0; i < layer.getTextures().size(); i++) {
 							if (layer.getTextures().get(i).equals(texture)) {
 								layer.getTextures().set(i, replacement);
@@ -3035,10 +3033,10 @@ public class EditableModel implements Named {
 		// 2.) materials: only diffuse
 		for (final Bitmap tex : model.getTextures()) {
 			String path = tex.getPath();
-			if ((path != null) && !path.isEmpty()) {
+			if (path != null && !path.isEmpty()) {
 				final int dotIndex = path.lastIndexOf('.');
-				if ((dotIndex != -1) && !path.endsWith(".blp")) {
-					path = (path.substring(0, dotIndex));
+				if (dotIndex != -1 && !path.endsWith(".blp")) {
+					path = path.substring(0, dotIndex);
 				}
 				if (!path.endsWith(".blp")) {
 					path += ".blp";
@@ -3158,6 +3156,139 @@ public class EditableModel implements Named {
 		model.faceEffects.clear();
 	}
 
+	public static void convertToV800BakingTextures(final int targetLevelOfDetail, final EditableModel model,
+			final File outputDirectory) {
+		// Things to fix:
+		// 1.) format version
+		model.setFormatVersion(800);
+		// 2.) materials: bake to only diffuse
+		for (final Material material : model.getMaterials()) {
+			if (material.getShaderString() != null) {
+				material.getBakedHDNonEmissiveBufferedImage(model.getWrappedDataSource(), outputDirectory, model,
+						targetLevelOfDetail);
+				material.setShaderString(null);
+				final Layer layerZero = material.getLayers().get(0);
+				material.getLayers().clear();
+				material.getLayers().add(layerZero);
+				if (material.getFlags().contains("TwoSided")) {
+					material.getFlags().remove("TwoSided");
+					layerZero.add("TwoSided");
+				}
+			}
+			for (final Layer layer : material.getLayers()) {
+				if (!Double.isNaN(layer.getEmissive())) {
+					layer.setEmissive(Double.NaN);
+				}
+				final AnimFlag flag = layer.getFlag("Emissive");
+				if (flag != null) {
+					layer.getAnims().remove(flag);
+				}
+			}
+		}
+		for (final Bitmap tex : model.getTextures()) {
+			String path = tex.getPath();
+			if (path != null && !path.isEmpty()) {
+				final int dotIndex = path.lastIndexOf('.');
+				if (dotIndex != -1 && !path.endsWith(".blp")) {
+					path = path.substring(0, dotIndex);
+				}
+				if (!path.endsWith(".blp")) {
+					path += ".blp";
+				}
+				tex.setPath(path);
+			}
+		}
+		// 3.) geosets:
+		// - Convert skin to matrices & vertex groups
+		final List<Geoset> wrongLOD = new ArrayList<>();
+		for (final Geoset geo : model.getGeosets()) {
+			for (final GeosetVertex vertex : geo.getVertices()) {
+				vertex.un900Heuristic();
+			}
+			if (geo.getLevelOfDetail() != targetLevelOfDetail) {
+				// wrong lod
+				wrongLOD.add(geo);
+			}
+		}
+		// - Probably overwrite normals with tangents, maybe, or maybe not
+		// - Eradicate anything that isn't LOD==X
+		if (model.getGeosets().size() > wrongLOD.size()) {
+			for (final Geoset wrongLODGeo : wrongLOD) {
+				model.remove(wrongLODGeo);
+				final GeosetAnim geosetAnim = wrongLODGeo.getGeosetAnim();
+				if (geosetAnim != null) {
+					model.remove(geosetAnim);
+				}
+			}
+		}
+		// 4.) remove popcorn
+		// - add hero glow from popcorn if necessary
+		final List<IdObject> incompatibleObjects = new ArrayList<>();
+		for (int idObjIdx = 0; idObjIdx < model.getIdObjectsSize(); idObjIdx++) {
+			final IdObject idObject = model.getIdObject(idObjIdx);
+			if (idObject instanceof ParticleEmitterPopcorn) {
+				incompatibleObjects.add(idObject);
+				if (((ParticleEmitterPopcorn) idObject).getPath().toLowerCase().contains("hero_glow")) {
+					System.out.println("HERO HERO HERO");
+					final Bone dummyHeroGlowNode = new Bone("hero_reforged");
+					// this model needs hero glow
+					final Geoset heroGlow = new Geoset();
+					final Mesh heroGlowPlane = ModelUtils.createPlane((byte) 0, (byte) 1, new Vertex(0, 0, 1), 0, -64,
+							-64, 64, 64, 1);
+					heroGlow.getVertices().addAll(heroGlowPlane.getVertices());
+					for (final GeosetVertex gv : heroGlow.getVertices()) {
+						gv.setGeoset(heroGlow);
+						gv.getBones().clear();
+						gv.getBones().add(dummyHeroGlowNode);
+					}
+					heroGlow.getTriangles().addAll(heroGlowPlane.getTriangles());
+					heroGlow.addFlag("Unselectable");
+					final Bitmap heroGlowBitmap = new Bitmap("");
+					heroGlowBitmap.setReplaceableId(2);
+					final Layer layer = new Layer("Additive", heroGlowBitmap);
+					layer.add("Unshaded");
+					layer.add("Unfogged");
+					heroGlow.setMaterial(new Material(layer));
+					model.add(dummyHeroGlowNode);
+					model.add(heroGlow);
+
+				}
+			}
+		}
+		for (final IdObject incompat : incompatibleObjects) {
+			model.remove(incompat);
+		}
+		// 5.) remove other unsupported stuff
+		for (final IdObject obj : model.getIdObjects()) {
+			obj.setBindPose(null);
+		}
+		for (final Camera camera : model.getCameras()) {
+			camera.setBindPose(null);
+		}
+		// 6.) fix dump bug with paths:
+		for (final Bitmap tex : model.getTextures()) {
+			final String path = tex.getPath();
+			if (path != null) {
+				tex.setPath(path.replace('/', '\\'));
+			}
+		}
+		for (final ParticleEmitter emitter : model.sortedIdObjects(ParticleEmitter.class)) {
+			final String path = emitter.getPath();
+			if (path != null) {
+				emitter.setPath(path.replace('/', '\\'));
+			}
+		}
+		for (final Attachment emitter : model.sortedIdObjects(Attachment.class)) {
+			final String path = emitter.getPath();
+			if (path != null) {
+				emitter.setPath(path.replace('/', '\\'));
+			}
+		}
+
+		model.setBindPoseChunk(null);
+		model.faceEffects.clear();
+	}
+
 	public static void makeItHD(final EditableModel model) {
 		for (final Geoset geo : model.getGeosets()) {
 			final ArrayList<GeosetVertex> vertices = geo.getVertices();
@@ -3173,8 +3304,8 @@ public class EditableModel implements Named {
 				}
 				final int bones = Math.min(4, gv.getBoneAttachments().size());
 				final short weight = (short) (255 / bones);
-				final short offsetWeight = (short) (255 - (weight * bones));
-				for (int i = 0; (i < bones) && (i < 4); i++) {
+				final short offsetWeight = (short) (255 - weight * bones);
+				for (int i = 0; i < bones && i < 4; i++) {
 					gv.getSkinBones()[i] = gv.getBoneAttachments().get(i);
 					gv.getSkinBoneWeights()[i] = weight;
 					if (i == 0) {
@@ -3241,12 +3372,10 @@ public class EditableModel implements Named {
 				final double t1 = w2.y - w1.y;
 				final double t2 = w3.y - w1.y;
 
-				final double r = 1.0 / ((s1 * t2) - (s2 * t1));
+				final double r = 1.0 / (s1 * t2 - s2 * t1);
 
-				final double[] sdir = { ((t2 * x1) - (t1 * x2)) * r, ((t2 * y1) - (t1 * y2)) * r,
-						((t2 * z1) - (t1 * z2)) * r };
-				final double[] tdir = { ((s1 * x2) - (s2 * x1)) * r, ((s1 * y2) - (s2 * y1)) * r,
-						((s1 * z2) - (s2 * z1)) * r };
+				final double[] sdir = { (t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r };
+				final double[] tdir = { (s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r };
 
 				tan1[face.getId(0)] = sdir;
 				tan1[face.getId(1)] = sdir;
@@ -3312,13 +3441,13 @@ public class EditableModel implements Named {
 
 				final TVertex dUV1 = new TVertex(uv1).subtract(uv2);
 				final TVertex dUV2 = new TVertex(uv1).subtract(uv3);
-				final double area = (dUV1.x * dUV2.y) - (dUV1.y * dUV2.x);
-				final int sign = (area < 0) ? -1 : 1;
+				final double area = dUV1.x * dUV2.y - dUV1.y * dUV2.x;
+				final int sign = area < 0 ? -1 : 1;
 				final Vertex tangent = new Vertex(1, 0, 0);
 
-				tangent.x = (dV1.x * dUV2.y) - (dUV1.y * dV2.x);
-				tangent.y = (dV1.y * dUV2.y) - (dUV1.y * dV2.y);
-				tangent.z = (dV1.z * dUV2.y) - (dUV1.y * dV2.z);
+				tangent.x = dV1.x * dUV2.y - dUV1.y * dV2.x;
+				tangent.y = dV1.y * dUV2.y - dUV1.y * dV2.y;
+				tangent.z = dV1.z * dUV2.y - dUV1.y * dV2.z;
 
 				tangent.normalize();
 				tangent.scale(sign);
@@ -3336,7 +3465,7 @@ public class EditableModel implements Named {
 			final Integer prevLength = globalSeqs.get(globalSequenceId);
 			final List<AnimFlag> allAnimFlags = getAllAnimFlags();
 			for (final AnimFlag af : allAnimFlags) {
-				if ((af.getGlobalSeq() != null) && af.hasGlobalSeq()) {// TODO eliminate redundant structure
+				if (af.getGlobalSeq() != null && af.hasGlobalSeq()) {// TODO eliminate redundant structure
 					if (af.getGlobalSeq().equals(prevLength)) {
 						af.setGlobalSeq(newLength);
 					}
@@ -3345,7 +3474,7 @@ public class EditableModel implements Named {
 			final ArrayList<EventObject> sortedEventObjects = sortedIdObjects(EventObject.class);
 			for (final EventObject eventObject : sortedEventObjects) {
 				// TODO eliminate redundant structure
-				if (eventObject.isHasGlobalSeq() && (eventObject.getGlobalSeq() != null)) {
+				if (eventObject.isHasGlobalSeq() && eventObject.getGlobalSeq() != null) {
 					if (eventObject.getGlobalSeq().equals(prevLength)) {
 						eventObject.setGlobalSeq(newLength);
 					}

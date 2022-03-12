@@ -20,11 +20,11 @@ public class MathUtils {
 	public static boolean isBetween(final double a, final double b, final double c) {
 		final double min = Math.min(a, c);
 		final double max = Math.max(a, c);
-		return (min < b) && (b < max);
+		return min < b && b < max;
 	}
 
 	public static double lerp(final double a, final double b, final double t) {
-		return a + (t * (b - a));
+		return a + t * (b - a);
 	}
 
 	public static Vertex lerp(final Vertex out, final Vertex a, final Vertex b, final double t) {
@@ -41,11 +41,11 @@ public class MathUtils {
 	public static double hermite(final double a, final double aOutTan, final double bInTan, final double b,
 			final double t) {
 		final double factorTimes2 = t * t;
-		final double factor1 = (factorTimes2 * ((2 * t) - 3)) + 1;
-		final double factor2 = (factorTimes2 * (t - 2)) + t;
+		final double factor1 = factorTimes2 * (2 * t - 3) + 1;
+		final double factor2 = factorTimes2 * (t - 2) + t;
 		final double factor3 = factorTimes2 * (t - 1);
-		final double factor4 = factorTimes2 * (3 - (2 * t));
-		return (a * factor1) + (aOutTan * factor2) + (bInTan * factor3) + (b * factor4);
+		final double factor4 = factorTimes2 * (3 - 2 * t);
+		return a * factor1 + aOutTan * factor2 + bInTan * factor3 + b * factor4;
 	}
 
 	public static double bezier(final double a, final double aOutTan, final double bInTan, final double b,
@@ -58,7 +58,7 @@ public class MathUtils {
 		final double factor3 = 3 * factorSquared * invt;
 		final double factor4 = factorSquared * t;
 
-		return (a * factor1) + (aOutTan * factor2) + (bInTan * factor3) + (b * factor4);
+		return a * factor1 + aOutTan * factor2 + bInTan * factor3 + b * factor4;
 	}
 
 	// copied from ghostwolf and
@@ -96,9 +96,9 @@ public class MathUtils {
 		out.m21 = (yz - wx) * sz;
 		out.m22 = (1 - (xx + yy)) * sz;
 		out.m23 = 0;
-		out.m30 = (v.x + pivot.x) - ((out.m00 * pivot.x) + (out.m10 * pivot.y) + (out.m20 * pivot.z));
-		out.m31 = (v.y + pivot.y) - ((out.m01 * pivot.x) + (out.m11 * pivot.y) + (out.m21 * pivot.z));
-		out.m32 = (v.z + pivot.z) - ((out.m02 * pivot.x) + (out.m12 * pivot.y) + (out.m22 * pivot.z));
+		out.m30 = v.x + pivot.x - (out.m00 * pivot.x + out.m10 * pivot.y + out.m20 * pivot.z);
+		out.m31 = v.y + pivot.y - (out.m01 * pivot.x + out.m11 * pivot.y + out.m21 * pivot.z);
+		out.m32 = v.z + pivot.z - (out.m02 * pivot.x + out.m12 * pivot.y + out.m22 * pivot.z);
 		out.m33 = 1;
 	}
 
@@ -177,14 +177,14 @@ public class MathUtils {
 	}
 
 	public static float randomInRange(final double min, final double max) {
-		return (float) (min + (Math.random() * (max - min)));
+		return (float) (min + Math.random() * (max - min));
 	}
 
 	public static int uint8ToUint24(final byte right, final byte bottom, final byte a) {
-		return ((right << 16) & 0xFF0000) | ((bottom << 8) & 0xFF00) | (a & 0xFF);
+		return right << 16 & 0xFF0000 | bottom << 8 & 0xFF00 | a & 0xFF;
 	}
 
-	public static void setOrtho(Matrix4f matrix, final float left, final float right, final float bottom,
+	public static void setOrtho(final Matrix4f matrix, final float left, final float right, final float bottom,
 			final float top, final float near, final float far) {
 		final float lr = 1 / (left - right);
 		final float bt = 1 / (bottom - top);
@@ -208,7 +208,8 @@ public class MathUtils {
 		matrix.m33 = 1;
 	}
 
-	public static void setPerspective(Matrix4f matrix, final float fovy, final float aspect, final float near, final float far) {
+	public static void setPerspective(final Matrix4f matrix, final float fovy, final float aspect, final float near,
+			final float far) {
 		final float f = 1 / (float) Math.tan(fovy / 2);
 
 		matrix.m00 = f / aspect;
@@ -237,13 +238,14 @@ public class MathUtils {
 		}
 	}
 
-	public static void setPerspective(Matrix4f matrix,final float left, final float right, final float bottom, final float top, final float near, final float far) {
-		float x = 2.0f * near / (right - left);
-		float y = 2.0f * near / (top - bottom);
-		float a = (right + left) / (right - left);
-		float b = (top + bottom) / (top - bottom);
-		float l_a1 = (far + near) / (near - far);
-		float l_a2 = (2 * far * near) / (near - far);
+	public static void setPerspective(final Matrix4f matrix, final float left, final float right, final float bottom,
+			final float top, final float near, final float far) {
+		final float x = 2.0f * near / (right - left);
+		final float y = 2.0f * near / (top - bottom);
+		final float a = (right + left) / (right - left);
+		final float b = (top + bottom) / (top - bottom);
+		final float l_a1 = (far + near) / (near - far);
+		final float l_a2 = 2 * far * near / (near - far);
 		matrix.m00 = x;
 		matrix.m01 = 0;
 		matrix.m02 = 0;
@@ -260,5 +262,26 @@ public class MathUtils {
 		matrix.m31 = 0;
 		matrix.m32 = l_a2;
 		matrix.m33 = 0;
+	}
+
+	public static double areaOfTriangle(final double x1, final double y1, final double x2, final double y2,
+			final double x3, final double y3) {
+		final double a = dist(x1, y1, x2, y2);
+		final double b = dist(x2, y2, x3, y3);
+		final double c = dist(x1, y1, x3, y3);
+		final double s = (a + b + c) / 2;
+		return Math.sqrt(s * (s - a) * (s - b) * (s - c));
+	}
+
+	public static double dist(final double x1, final double y1, final double x2, final double y2) {
+		final double dx = x2 - x1;
+		final double dy = y2 - y1;
+		return Math.sqrt(dx * dx + dy * dy);
+	}
+
+	public static void reflect(final Vector3f left, final Vector3f right, final Vector3f output) {
+		output.set(right);
+		output.scale(2.0f * Vector3f.dot(right, left));
+		Vector3f.sub(left, output, output);
 	}
 }

@@ -165,7 +165,7 @@ public class AnimFlag {
 		does = values.equals(af.values) && (globalSeq == null ? af.globalSeq == null : globalSeq.equals(af.globalSeq))
 				&& (tags == null ? af.tags == null : tags.equals(af.tags))
 				&& (inTans == null ? af.inTans == null : inTans.equals(af.inTans))
-				&& (outTans == null ? af.outTans == null : outTans.equals(af.outTans)) && (typeid == af.typeid);
+				&& (outTans == null ? af.outTans == null : outTans.equals(af.outTans)) && typeid == af.typeid;
 		return does;
 	}
 
@@ -1611,8 +1611,8 @@ public class AnimFlag {
 		// TODO make flags be a map and remove this method, this is 2018
 		// not 2012 anymore, and I learned basic software dev
 		for (final AnimFlag flag : flags) {
-			if (flag.getName().equals(name) && (((globalSeq == null) && (flag.globalSeq == null))
-					|| ((globalSeq != null) && globalSeq.equals(flag.globalSeq)))) {
+			if (flag.getName().equals(name) && (globalSeq == null && flag.globalSeq == null
+					|| globalSeq != null && globalSeq.equals(flag.globalSeq))) {
 				return flag;
 			}
 		}
@@ -2096,7 +2096,7 @@ public class AnimFlag {
 
 	public AnimFlag getMostVisible(final AnimFlag partner) {
 		if (partner != null) {
-			if ((typeid == 0) && (partner.typeid == 0)) {
+			if (typeid == 0 && partner.typeid == 0) {
 				final ArrayList<Integer> atimes = new ArrayList<>(times);
 				final ArrayList<Integer> btimes = new ArrayList<>(partner.times);
 				final ArrayList<Double> avalues = new ArrayList(values);
@@ -2180,7 +2180,7 @@ public class AnimFlag {
 	}
 
 	public boolean tans() {
-		return tags.contains("Bezier") || tags.contains("Hermite") || (inTans.size() > 0);
+		return tags.contains("Bezier") || tags.contains("Hermite") || inTans.size() > 0;
 	}
 
 	public void linearize() {
@@ -2217,7 +2217,7 @@ public class AnimFlag {
 				final Integer inte = times.get(index);
 				final int i = inte.intValue();
 				// int index = times.indexOf(inte);
-				if ((i >= anim.getStart()) && (i <= anim.getEnd())) {
+				if (i >= anim.getStart() && i <= anim.getEnd()) {
 					// If this "i" is a part of the anim being removed
 
 					times.remove(index);
@@ -2273,10 +2273,10 @@ public class AnimFlag {
 		for (final Integer inte : source.times) {
 			final int i = inte.intValue();
 			final int index = source.times.indexOf(inte);
-			if ((i >= sourceStart) && (i <= sourceEnd)) {
+			if (i >= sourceStart && i <= sourceEnd) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - sourceStart) / (double) (sourceEnd - sourceStart);
-				times.add(new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
+				times.add(new Integer((int) (newStart + ratio * (newEnd - newStart))));
 				values.add(cloneValue(source.values.get(index)));
 				if (tans) {
 					inTans.add(cloneValue(source.inTans.get(index)));
@@ -2299,10 +2299,10 @@ public class AnimFlag {
 		{
 			final Integer inte = times.get(z);
 			final int i = inte.intValue();
-			if ((i >= start) && (i <= end)) {
+			if (i >= start && i <= end) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);
-				times.set(z, new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
+				times.set(z, new Integer((int) (newStart + ratio * (newEnd - newStart))));
 			}
 		}
 		// }
@@ -2339,7 +2339,7 @@ public class AnimFlag {
 		// look at), found on google
 		// (re-written by Eric "Retera" for use in AnimFlags)
 		int i = low, j = high;
-		final Integer pivot = times.get(low + ((high - low) / 2));
+		final Integer pivot = times.get(low + (high - low) / 2);
 
 		while (i <= j) {
 			while (times.get(i).intValue() < pivot.intValue()) {
@@ -2437,13 +2437,13 @@ public class AnimFlag {
 		if (midTime == time) {
 			return mid;
 		} else if (midTime < time) {
-			if (((mid + 1) <= hi) && (time <= times.get(mid + 1))) {
+			if (mid + 1 <= hi && time <= times.get(mid + 1)) {
 				return mid + 1;
 			} else {
 				return ceilIndex(time, mid + 1, hi);
 			}
 		} else {
-			if (((mid - 1) >= lo) && (time > times.get(mid - 1))) {
+			if (mid - 1 >= lo && time > times.get(mid - 1)) {
 				return mid;
 			} else {
 				return ceilIndex(time, lo, mid - 1);
@@ -2475,7 +2475,7 @@ public class AnimFlag {
 		if (times.get(mid) == time) {
 			return mid;
 		}
-		if ((mid > 0) && (times.get(mid - 1) <= time) && (time < midTime)) {
+		if (mid > 0 && times.get(mid - 1) <= time && time < midTime) {
 			return mid - 1;
 		}
 		if (time > midTime) {
@@ -2523,18 +2523,27 @@ public class AnimFlag {
 	 * @return
 	 */
 	public Object interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
+		int localTypeId = typeid;
+		if (localTypeId == ROTATION && size() > 0 && values.get(0) instanceof Double) {
+			localTypeId = ALPHA; // magic Camera rotation!
+		}
+		final Object identity = identity(localTypeId);
+		return interpolateAt(animatedRenderEnvironment, identity);
+	}
+
+	public Object interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment, final Object identity) {
+		int localTypeId = typeid;
+		if (localTypeId == ROTATION && size() > 0 && values.get(0) instanceof Double) {
+			localTypeId = ALPHA; // magic Camera rotation!
+		}
+		if (animatedRenderEnvironment == null || animatedRenderEnvironment.getCurrentAnimation() == null) {
 			if (values.size() > 0) {
 				return values.get(0);
 			}
-			return identity(typeid);
-		}
-		int localTypeId = typeid;
-		if ((localTypeId == ROTATION) && (size() > 0) && (values.get(0) instanceof Double)) {
-			localTypeId = ALPHA; // magic Camera rotation!
+			return identity;
 		}
 		if (times.isEmpty()) {
-			return identity(localTypeId);
+			return identity;
 		}
 		// TODO ghostwolf says to stop using binary search, because linear walking is
 		// faster for the small MDL case
@@ -2548,7 +2557,7 @@ public class AnimFlag {
 		Integer floorIndexTime;
 		Integer ceilIndexTime;
 		float timeBetweenFrames;
-		if (hasGlobalSeq() && (getGlobalSeq() >= 0)) {
+		if (hasGlobalSeq() && getGlobalSeq() >= 0) {
 			time = animatedRenderEnvironment.getGlobalSeqTime(getGlobalSeq());
 			final int floorAnimStartIndex = Math.max(0, floorIndex(1));
 			final int floorAnimEndIndex = Math.max(0, floorIndex(getGlobalSeq()));
@@ -2567,20 +2576,20 @@ public class AnimFlag {
 			ceilIndexTime = times.get(ceilIndex);
 			timeBetweenFrames = ceilIndexTime - floorIndexTime;
 			if (ceilIndexTime < 0) {
-				return identity(localTypeId);
+				return identity;
 			}
 			if (floorIndexTime > getGlobalSeq()) {
 				if (values.size() > 0) {
 					// out of range global sequences end up just using the higher value keyframe
 					return values.get(floorIndex);
 				}
-				return identity(localTypeId);
+				return identity;
 			}
-			if ((floorIndexTime < 0) && (ceilIndexTime > getGlobalSeq())) {
-				return identity(localTypeId);
+			if (floorIndexTime < 0 && ceilIndexTime > getGlobalSeq()) {
+				return identity;
 			} else if (floorIndexTime < 0) {
-				floorValue = identity(localTypeId);
-				floorInTan = floorOutTan = identity(localTypeId);
+				floorValue = identity;
+				floorInTan = floorOutTan = identity;
 			} else if (ceilIndexTime > getGlobalSeq()) {
 				ceilValue = values.get(floorAnimStartIndex);
 				ceilIndex = floorAnimStartIndex;
@@ -2603,7 +2612,7 @@ public class AnimFlag {
 			ceilValue = values.get(ceilIndex);
 			ceilIndexTime = times.get(ceilIndex);
 			if (ceilIndexTime < animation.getStart()) {
-				return identity(localTypeId);
+				return identity;
 			}
 			final int lookupFloorIndex = Math.max(0, floorIndex);
 			floorValue = values.get(lookupFloorIndex);
@@ -2611,11 +2620,11 @@ public class AnimFlag {
 			floorOutTan = tans() ? outTans.get(lookupFloorIndex) : null;
 			floorIndexTime = times.get(lookupFloorIndex);
 			if (floorIndexTime > animation.getEnd()) {
-				return identity(localTypeId);
+				return identity;
 			}
-			if ((floorIndexTime < animation.getStart()) && (ceilIndexTime > animation.getEnd())) {
-				return identity(localTypeId);
-			} else if ((floorIndex == -1) || (floorIndexTime < animation.getStart())) {
+			if (floorIndexTime < animation.getStart() && ceilIndexTime > animation.getEnd()) {
+				return identity;
+			} else if (floorIndex == -1 || floorIndexTime < animation.getStart()) {
 				floorValue = values.get(floorAnimEndIndex);
 				floorIndexTime = times.get(floorAnimStartIndex);
 				if (tans()) {
@@ -2624,8 +2633,8 @@ public class AnimFlag {
 //						floorIndexTime = times.get(floorAnimEndIndex);
 				}
 				timeBetweenFrames = times.get(floorAnimEndIndex) - animation.getStart();
-			} else if ((ceilIndexTime > animation.getEnd())
-					|| ((ceilIndexTime < time) && (times.get(floorAnimEndIndex) < time))) {
+			} else if (ceilIndexTime > animation.getEnd()
+					|| ceilIndexTime < time && times.get(floorAnimEndIndex) < time) {
 				if (times.get(floorAnimStartIndex) == animation.getStart()) {
 					ceilValue = values.get(floorAnimStartIndex);
 					ceilIndex = floorAnimStartIndex;
@@ -2780,7 +2789,7 @@ public class AnimFlag {
 
 	public void removeKeyframe(final int trackTime) {
 		final int keyframeIndex = floorIndex(trackTime);
-		if ((keyframeIndex >= size()) || (times.get(keyframeIndex) != trackTime)) {
+		if (keyframeIndex >= size() || times.get(keyframeIndex) != trackTime) {
 			throw new IllegalStateException("Attempted to remove keyframe, but no keyframe was found (" + keyframeIndex
 					+ " @ time " + trackTime + ")");
 		} else {
@@ -2795,7 +2804,7 @@ public class AnimFlag {
 
 	public void addKeyframe(final int trackTime, final Object value) {
 		int keyframeIndex = ceilIndex(trackTime);
-		if (keyframeIndex == (times.size() - 1)) {
+		if (keyframeIndex == times.size() - 1) {
 			if (times.isEmpty()) {
 				keyframeIndex = 0;
 			} else if (trackTime > times.get(times.size() - 1)) {
@@ -2808,7 +2817,7 @@ public class AnimFlag {
 
 	public void addKeyframe(final int trackTime, final Object value, final Object inTan, final Object outTan) {
 		int keyframeIndex = ceilIndex(trackTime);
-		if (keyframeIndex == (times.size() - 1)) {
+		if (keyframeIndex == times.size() - 1) {
 			if (times.isEmpty()) {
 				keyframeIndex = 0;
 			} else if (trackTime > times.get(times.size() - 1)) {
