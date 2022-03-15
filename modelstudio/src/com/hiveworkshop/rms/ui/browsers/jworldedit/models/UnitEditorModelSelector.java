@@ -9,7 +9,7 @@ import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.parsers.slk.WarcraftData;
 import com.hiveworkshop.rms.parsers.slk.WarcraftObject;
-import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
+import com.hiveworkshop.rms.ui.application.viewer.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.WarcraftObjectTreeCellRenderer;

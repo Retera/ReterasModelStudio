@@ -1,14 +1,15 @@
-package com.hiveworkshop.rms.editor.render3d;
+package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.editor.render3d.RenderGeoset;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
-import com.hiveworkshop.rms.ui.application.viewer.VertRendererThing;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;

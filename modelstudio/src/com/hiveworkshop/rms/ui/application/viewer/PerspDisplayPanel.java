@@ -1,7 +1,5 @@
-package com.hiveworkshop.rms.ui.application.viewer.perspective;
+package com.hiveworkshop.rms.ui.application.viewer;
 
-import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
-import com.hiveworkshop.rms.ui.application.viewer.ViewportRenderExporter;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 import org.lwjgl.LWJGLException;

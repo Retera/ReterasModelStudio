@@ -1,5 +1,6 @@
-package com.hiveworkshop.rms.ui.application.viewer;
+package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
 

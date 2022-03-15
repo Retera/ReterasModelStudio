@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
+import com.hiveworkshop.rms.ui.application.viewer.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
-import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.ModelDependentView;
 import net.miginfocom.swing.MigLayout;

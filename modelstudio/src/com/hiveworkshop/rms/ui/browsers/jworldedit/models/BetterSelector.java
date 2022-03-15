@@ -4,7 +4,7 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
+import com.hiveworkshop.rms.ui.application.viewer.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.ObjectTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
