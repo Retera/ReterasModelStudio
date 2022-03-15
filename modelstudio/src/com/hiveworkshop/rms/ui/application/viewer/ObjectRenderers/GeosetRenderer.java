@@ -345,15 +345,8 @@ public class GeosetRenderer {
 			EditorColorPrefs colorPrefs = ProgramGlobals.getEditorColorPrefs();
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
 				if (renderVert != null && !modelView.isHidden(renderVert.getVertex())) {
-					float[] components;
-					if (modelView.isEditable(renderVert.getVertex()) && modelView.isSelected(renderVert.getVertex())) {
-						components = colorPrefs.getColorComponents(ColorThing.VERTEX_SELECTED);
-					} else if (modelView.isEditable(renderVert.getVertex())) {
-						components = colorPrefs.getColorComponents(ColorThing.VERTEX);
-					} else {
-						components = colorPrefs.getColorComponents(ColorThing.VERTEX_UNEDITABLE);
-					}
-					glColor4f(components[0], components[1], components[2], components[3]);
+					float[] rgba = getVertRGBA(colorPrefs, renderVert);
+					glColor4f(rgba[0], rgba[1], rgba[2], rgba[3]);
 					vertRendererThing.transform(cameraHandler.getInverseCameraRotation(), renderVert.getRenderPos()).doGlGeom();
 				}
 			}
@@ -361,34 +354,36 @@ public class GeosetRenderer {
 		}
 	}
 
+	private float[] getVertRGBA(EditorColorPrefs colorPrefs, RenderGeoset.RenderVert renderVert) {
+		float[] rgba;
+		if (modelView.isEditable(renderVert.getVertex()) && modelView.isSelected(renderVert.getVertex())) {
+			rgba = colorPrefs.getColorComponents(ColorThing.VERTEX_SELECTED);
+		} else if (modelView.isEditable(renderVert.getVertex())) {
+			rgba = colorPrefs.getColorComponents(ColorThing.VERTEX);
+		} else {
+			rgba = colorPrefs.getColorComponents(ColorThing.VERTEX_UNEDITABLE);
+		}
+		return rgba;
+	}
+
 	private void getTriAreaColor(Triangle triangle) {
+		float[] color = getTriRGBA(triangle);
+
+		glColor4f(color[0], color[1], color[2], color[3]);
+	}
+
+	private float[] getTriRGBA(Triangle triangle) {
 		float[] color;
-//		if (triangle.getGeoset() == modelView.getHighlightedGeoset()) {
-//			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_AREA_HIGHLIGHTED);
-////				GL11.glColor4f(.95f, .2f, .2f, 1f);
-//		} else if (triFullySelected(triangle)) {
-//			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_AREA_SELECTED);
-//		} else if (triFullyEditable(triangle)) {
-//			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_AREA);
-////				GL11.glColor4f(1f, 1f, 1f, 1f);
-//		} else {
-//			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_AREA_UNEDITABLE);
-////				GL11.glColor4f(.5f, .5f, .5f, 1f);
-//		}
 		if (triangle.getGeoset() == modelView.getHighlightedGeoset()) {
 			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_HIGHLIGHTED);
-//				GL11.glColor4f(.95f, .2f, .2f, 1f);
 		} else if (triFullySelected(triangle)) {
 			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_SELECTED);
 		} else if (triFullyEditable(triangle)) {
 			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE);
-//				GL11.glColor4f(1f, 1f, 1f, 1f);
 		} else {
 			color = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_UNEDITABLE);
-//				GL11.glColor4f(.5f, .5f, .5f, 1f);
 		}
-
-		glColor4f(color[0], color[1], color[2], color[3]);
+		return color;
 	}
 
 

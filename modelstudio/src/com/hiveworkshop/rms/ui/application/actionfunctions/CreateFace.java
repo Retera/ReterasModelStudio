@@ -36,8 +36,8 @@ public class CreateFace extends ActionFunction {
 //					Viewport viewport = mainPanel.getViewportListener().getViewport();
 //					Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
 //					Viewport viewport = mainPanel.getViewportListener().getViewport();
-					Vec3 facingVector = new Vec3(0, 0, 1);
-					UndoAction createFaceFromSelection = createFaceFromSelection(modelHandler.getModelView(), facingVector);
+//					Vec3 facingVector = new Vec3(0, 0, 1);
+					UndoAction createFaceFromSelection = createFaceFromSelection(modelHandler.getModelView(), null);
 
 					if (createFaceFromSelection != null) {
 						modelHandler.getUndoManager().pushAction(createFaceFromSelection.redo());
@@ -66,6 +66,7 @@ public class CreateFace extends ActionFunction {
 					"A face can only be created from exactly 3 vertices (you have " + selection.size() + " selected)");
 		}
 		GeosetVertex[] verticesArray = selection.toArray(new GeosetVertex[0]);
+
 		Geoset geoset = selection.stream().findAny().orElse(new GeosetVertex(0, 0, 0)).getGeoset();
 
 		boolean sameGeoset = Arrays.stream(verticesArray).allMatch(vertex -> vertex.getGeoset() == geoset);
@@ -74,6 +75,10 @@ public class CreateFace extends ActionFunction {
 		if (sameGeoset && !triangleExists) {
 			Triangle newTriangle = new Triangle(verticesArray[0], verticesArray[1], verticesArray[2], geoset);
 			Vec3 facingVector = newTriangle.getNormal();
+
+			if (preferredFacingVector == null){
+				preferredFacingVector = verticesArray[0].getNormal();
+			}
 			double cosine = facingVector.dot(preferredFacingVector) / (facingVector.length() * preferredFacingVector.length());
 			if (cosine < 0) {
 				newTriangle.flip(false);

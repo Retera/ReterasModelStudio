@@ -103,4 +103,15 @@ public class CollapsablePanel extends JPanel{
 		repaint();
 		return this;
 	}
+
+	public CollapsablePanel addAdditionalCollapsedInfo(Component component) {
+		collapsedAdditionalInfoPanel.add(component);
+		repaint();
+		return this;
+	}
+	public CollapsablePanel clearAdditionalCollapsedInfo() {
+		collapsedAdditionalInfoPanel.removeAll();
+		repaint();
+		return this;
+	}
 }

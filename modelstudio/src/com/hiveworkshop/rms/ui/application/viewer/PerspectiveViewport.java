@@ -55,10 +55,14 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private final MouseListenerThing mouseAdapter;
 	private final KeylistenerThing keyAdapter;
 	private final BoneRenderThing2 boneRenderThing;
+	private final BoneRenderThingBuf boneRenderThingBuf;
 	private final CameraRenderThing cameraRenderThing;
 	private final GridPainter gridPainter;
 
+	VertexBuffers idObjectBuffers = new VertexBuffers();
+
 	private final GeosetRenderer geosetRenderer;
+	private final GeosetRendererBuf geosetRendererBuf;
 
 	ExtLog currentExt = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
@@ -68,16 +72,19 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		this.programPreferences = ProgramGlobals.getPrefs();
 		cameraHandler = new CameraHandler(this);
 		boneRenderThing = new BoneRenderThing2(cameraHandler);
+		boneRenderThingBuf = new BoneRenderThingBuf(cameraHandler);
 		cameraRenderThing = new CameraRenderThing();
 		gridPainter = new GridPainter(cameraHandler);
 
 		geosetRenderer = new GeosetRenderer(cameraHandler, programPreferences);
+		geosetRendererBuf = new GeosetRendererBuf(cameraHandler, programPreferences);
 
 		mouseAdapter = new MouseListenerThing(cameraHandler, programPreferences);
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
 		addMouseWheelListener(mouseAdapter);
-		keyAdapter = new KeylistenerThing(cameraHandler, programPreferences, this);
+		keyAdapter = new KeylistenerThing(cameraHandler, programPreferences, null);
+//		keyAdapter = new KeylistenerThing(cameraHandler, programPreferences, this);
 		addKeyListener(keyAdapter);
 
 		setBackground(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.BACKGROUND_COLOR));
@@ -116,6 +123,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			renderEnv = null;
 		}
 		geosetRenderer.updateModel(renderModel, modelView, textureThing);
+//		geosetRendererBuf.updateModel(renderModel, modelView, textureThing);
 		return this;
 	}
 
@@ -281,6 +289,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 //				geosetRenderer.doRender(programPreferences.textureModels(), programPreferences.viewMode() == 0, programPreferences.showNormals(), programPreferences.show3dVerts());
 				geosetRenderer.doRender(renderTextures,  wireFrame,  showNormals,  show3dVerts);
+//				geosetRendererBuf.doRender(renderTextures,  wireFrame,  showNormals,  show3dVerts);
 
 				if (show3dVerts) {
 					renderNodeStuff();
@@ -431,11 +440,43 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		for (final IdObject idObject : modelView.getVisibleIdObjects()) {
 			boneRenderThing.paintBones(modelView, renderModel, idObject);
 		}
+//		renderIdObjects();
+
 		for (final Camera camera : modelView.getVisibleCameras()) {
 			cameraRenderThing.paintCameras(modelView, renderModel, camera);
 		}
 
 		GL11.glEnable(GL_SHADE_MODEL);
+	}
+
+	private void renderIdObjects(){
+		glEnable(GL_CULL_FACE);
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+
+		int buffCap = modelView.getVisibleIdObjects().size() * boneRenderThingBuf.getQuadsPerObj() * 6;
+		idObjectBuffers.ensureCapacity(buffCap);
+		idObjectBuffers.resetIndex();
+
+		int objectCount = 0;
+		for (final IdObject idObject : modelView.getVisibleIdObjects()) {
+			boneRenderThingBuf.paintBones(idObjectBuffers, modelView, renderModel, idObject);
+			objectCount++;
+		}
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_NORMAL_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+
+		glVertexPointer(3, 0, idObjectBuffers.getPositions());
+		glNormalPointer(0, idObjectBuffers.getNormals());
+		glColorPointer(4, 0, idObjectBuffers.getColors());
+
+		glDrawArrays(GL_TRIANGLES, 0, objectCount * boneRenderThingBuf.getQuadsPerObj()*6);
+
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_NORMAL_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
 	}
 
 	public boolean renderTextures() {
