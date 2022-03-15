@@ -12,11 +12,12 @@ public class GeosetOverviewPanel extends JPanel {
 
 	public GeosetOverviewPanel(ModelHandler modelHandler) {
 		super(new MigLayout("fill, ins 0", "[grow]", "[grow]"));
-		JPanel panel = new JPanel(new MigLayout("wrap 5", "[]10[Right]10[Right]20[Left]10[Right]", ""));
+		JPanel panel = new JPanel(new MigLayout("wrap 6", "[]10[Right]10[Right]10[Right]20[Left]10[Right]", ""));
 
 		panel.add(new JLabel("Geoset"));
 		panel.add(new JLabel("Vertices"));
 		panel.add(new JLabel("Triangles"));
+		panel.add(new JLabel("LoD"));
 		panel.add(new JLabel("Material"));
 		panel.add(new JLabel("GeosetAnim"));
 		int verts = 0;
@@ -30,6 +31,7 @@ public class GeosetOverviewPanel extends JPanel {
 			panel.add(new JLabel(geoset.getName()));
 			panel.add(new JLabel("" + vSize));
 			panel.add(new JLabel("" + tSize));
+			panel.add(new JLabel("" + geoset.getLevelOfDetail()));
 
 			panel.add(getMaterialLabel(model, geoset));
 			panel.add(new JLabel("" + (geoset.getGeosetAnim() == null ? "no" : "yes")));

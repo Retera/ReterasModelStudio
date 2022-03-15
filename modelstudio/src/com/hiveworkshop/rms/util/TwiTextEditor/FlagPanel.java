@@ -36,8 +36,8 @@ public class FlagPanel<T> extends CollapsablePanel {
 		this.parseFunction = parseFunction;
 		this.defaultValue = defaultValue;
 		this.modelHandler = modelHandler;
-		topPanel = new JPanel(new MigLayout("gap 0, ins 0"));
-		getCollapsableContentPanel().add(topPanel, "wrap");
+		topPanel = new JPanel(new MigLayout("fill, gap 0, ins 0"));
+		getCollapsableContentPanel().add(topPanel, "growx, wrap");
 		multiAnimPanel = new MultiAnimPanel<>(parseFunction, defaultValue, modelHandler);
 		getCollapsableContentPanel().add(multiAnimPanel);
 	}
@@ -48,7 +48,7 @@ public class FlagPanel<T> extends CollapsablePanel {
 		this.staticValue = staticValue;
 		topPanel.removeAll();
 		if(animFlag != null){
-			topPanel.add(dynamicPanel());
+			topPanel.add(dynamicPanel(), "grow");
 			multiAnimPanel.setNode(node, animFlag);
 			if (animFlag.hasGlobalSeq()) {
 				setTitle(title + " (GlobalSeq: " + animFlag.getGlobalSeq() + ")");
@@ -57,7 +57,7 @@ public class FlagPanel<T> extends CollapsablePanel {
 			}
 			multiAnimPanel.setVisible(true);
 		} else {
-			topPanel.add(staticPanel());
+			topPanel.add(staticPanel(), "grow");
 			multiAnimPanel.setVisible(false);
 		}
 		return this;
