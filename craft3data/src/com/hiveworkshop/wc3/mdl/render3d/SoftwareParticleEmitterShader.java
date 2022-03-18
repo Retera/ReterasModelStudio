@@ -29,12 +29,13 @@ public class SoftwareParticleEmitterShader implements ParticleEmitterShader {
 //			GL11.glColor4ub(TFF, TFF, TFF, TFF);
 //			System.out.println((byte) ((colorInt >> 16) & 0xFF) + "," + (byte) ((colorInt >> 8) & 0xFF) + ","
 //					+ (byte) ((colorInt) & 0xFF) + "," + (byte) ((uvInt) & 0xFF));
-			float uv_u = (byte) ((uvInt >> 16) & 0xFF);
-			float uv_v = (byte) ((uvInt >> 8) & 0xFF);
+			float uv_u = (short) ((uvInt >> 16) & 0xFF);
+			float uv_v = (short) ((uvInt >> 8) & 0xFF);
 			if (isRibbonEmitter) {
 				uv_u /= 255.0f;
 				uv_v /= 255.0f;
-			} else {
+			}
+			else {
 				uv_u /= cols;
 				uv_v /= rows;
 			}

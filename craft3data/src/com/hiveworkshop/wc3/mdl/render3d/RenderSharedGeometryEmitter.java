@@ -6,7 +6,7 @@ public abstract class RenderSharedGeometryEmitter<MODEL_OBJECT extends EmitterId
 		extends RenderSharedEmitter<MODEL_OBJECT, EMITTER_VIEW> {
 	private static final int MAX_POWER_OF_TWO = 1 << 30;
 	private final int elementsPerEmit;
-	private float[] data;
+	protected float[] data;
 	private final ByteBuffer buffer;
 	protected InternalResource internalResource;
 
@@ -74,14 +74,6 @@ public abstract class RenderSharedGeometryEmitter<MODEL_OBJECT extends EmitterId
 			data[offset + 27] = vertices[11];
 			data[offset + 28] = rta;
 			data[offset + 29] = rgb;
-		}
-	}
-
-	@Override
-	public void render(final RenderModel modelView, final ParticleEmitterShader shader) {
-		if ((internalResource != null) && (alive > 0)) {
-			shader.renderParticles(modelObject.getBlendSrc(), modelObject.getBlendDst(), modelObject.getRows(),
-					modelObject.getCols(), internalResource, data, modelObject.isRibbonEmitter(), alive * 6);
 		}
 	}
 

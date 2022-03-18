@@ -165,7 +165,7 @@ public class AnimFlag {
 		does = values.equals(af.values) && (globalSeq == null ? af.globalSeq == null : globalSeq.equals(af.globalSeq))
 				&& (tags == null ? af.tags == null : tags.equals(af.tags))
 				&& (inTans == null ? af.inTans == null : inTans.equals(af.inTans))
-				&& (outTans == null ? af.outTans == null : outTans.equals(af.outTans)) && typeid == af.typeid;
+				&& (outTans == null ? af.outTans == null : outTans.equals(af.outTans)) && (typeid == af.typeid);
 		return does;
 	}
 
@@ -199,7 +199,8 @@ public class AnimFlag {
 		for (final MaterialTextureId.ScalingTrack track : source.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, track.textureId, track.inTan, track.outTan);
-			} else {
+			}
+			else {
 				addEntry(track.time, track.textureId);
 			}
 		}
@@ -217,7 +218,8 @@ public class AnimFlag {
 		for (final MaterialAlpha.ScalingTrack track : source.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.alpha));
 			}
 		}
@@ -235,7 +237,8 @@ public class AnimFlag {
 		for (final MaterialEmissiveGain.ScalingTrack track : source.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.emission), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.emission));
 			}
 		}
@@ -254,7 +257,8 @@ public class AnimFlag {
 		for (final MaterialFresnelColor.ScalingTrack track : cornColor.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.color));
 			}
 		}
@@ -272,7 +276,8 @@ public class AnimFlag {
 		for (final MaterialFresnelOpacity.ScalingTrack track : source.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.fresnelOpacity), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.fresnelOpacity));
 			}
 		}
@@ -290,7 +295,8 @@ public class AnimFlag {
 		for (final MaterialFresnelTeamColor.ScalingTrack track : source.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.fresnelTeamColor), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.fresnelTeamColor));
 			}
 		}
@@ -315,7 +321,8 @@ public class AnimFlag {
 			if (tans) {
 				addEntry(track.time, new QuaternionRotation(track.rotation), new QuaternionRotation(track.inTan),
 						new QuaternionRotation(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new QuaternionRotation(track.rotation));
 			}
 		}
@@ -339,7 +346,8 @@ public class AnimFlag {
 		for (final TextureScaling.TranslationTrack track : textureData.translationTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.scaling), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.scaling));
 			}
 		}
@@ -363,7 +371,8 @@ public class AnimFlag {
 		for (final TextureTranslation.TranslationTrack track : textureData.translationTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.translation), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.translation));
 			}
 		}
@@ -387,7 +396,8 @@ public class AnimFlag {
 		for (final GeosetAlpha.ScalingTrack track : geosetAlpha.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.alpha));
 			}
 		}
@@ -406,7 +416,8 @@ public class AnimFlag {
 		for (final GeosetColor.ScalingTrack track : geosetColor.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.color));
 			}
 		}
@@ -425,7 +436,8 @@ public class AnimFlag {
 		for (final GeosetTranslation.TranslationTrack track : geosetTranslation.translationTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.translation), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.translation));
 			}
 		}
@@ -450,7 +462,8 @@ public class AnimFlag {
 			if (tans) {
 				addEntry(track.time, new QuaternionRotation(track.rotation), new QuaternionRotation(track.inTan),
 						new QuaternionRotation(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new QuaternionRotation(track.rotation));
 			}
 		}
@@ -474,7 +487,8 @@ public class AnimFlag {
 		for (final GeosetScaling.ScalingTrack track : geosetData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.scaling), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.scaling));
 			}
 		}
@@ -498,7 +512,8 @@ public class AnimFlag {
 		for (final LightVisibility.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.visibility));
 			}
 		}
@@ -522,7 +537,8 @@ public class AnimFlag {
 		for (final LightColor.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.color));
 			}
 		}
@@ -546,7 +562,8 @@ public class AnimFlag {
 		for (final LightIntensity.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.intensity), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.intensity));
 			}
 		}
@@ -570,7 +587,8 @@ public class AnimFlag {
 		for (final LightAmbientIntensity.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.ambientIntensity), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.ambientIntensity));
 			}
 		}
@@ -594,7 +612,8 @@ public class AnimFlag {
 		for (final LightAttenuationStart.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.attenuationStart), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.attenuationStart));
 			}
 		}
@@ -618,7 +637,8 @@ public class AnimFlag {
 		for (final LightAttenuationEnd.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.attenuationEnd), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.attenuationEnd));
 			}
 		}
@@ -642,7 +662,8 @@ public class AnimFlag {
 		for (final LightAmbientColor.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.ambientColor), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.ambientColor));
 			}
 		}
@@ -666,7 +687,8 @@ public class AnimFlag {
 		for (final AttachmentVisibility.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.visibility));
 			}
 		}
@@ -684,7 +706,8 @@ public class AnimFlag {
 		for (final ParticleEmitterEmissionRate.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.emissionRate), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.emissionRate));
 			}
 		}
@@ -702,7 +725,8 @@ public class AnimFlag {
 		for (final ParticleEmitterGravity.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.gravity), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.gravity));
 			}
 		}
@@ -720,7 +744,8 @@ public class AnimFlag {
 		for (final ParticleEmitterLatitude.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.latitude), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.latitude));
 			}
 		}
@@ -738,7 +763,8 @@ public class AnimFlag {
 		for (final ParticleEmitterLifeSpan.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.lifeSpan), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.lifeSpan));
 			}
 		}
@@ -756,7 +782,8 @@ public class AnimFlag {
 		for (final ParticleEmitterLongitude.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.longitude), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.longitude));
 			}
 		}
@@ -774,7 +801,8 @@ public class AnimFlag {
 		for (final ParticleEmitterSpeed.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.speed), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.speed));
 			}
 		}
@@ -798,7 +826,8 @@ public class AnimFlag {
 		for (final ParticleEmitterVisibility.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.visibility));
 			}
 		}
@@ -822,7 +851,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2Visibility.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.visibility));
 			}
 		}
@@ -846,7 +876,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2Variation.VariationTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.variation), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.variation));
 			}
 		}
@@ -870,7 +901,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2Gravity.VariationTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.gravity), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.gravity));
 			}
 		}
@@ -894,7 +926,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2EmissionRate.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.emissionRate), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.emissionRate));
 			}
 		}
@@ -918,7 +951,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2Latitude.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.speed), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.speed));
 			}
 		}
@@ -942,7 +976,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2Length.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.length), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.length));
 			}
 		}
@@ -966,7 +1001,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2Speed.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.speed), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.speed));
 			}
 		}
@@ -990,7 +1026,8 @@ public class AnimFlag {
 		for (final ParticleEmitter2Width.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.width), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.width));
 			}
 		}
@@ -1008,7 +1045,8 @@ public class AnimFlag {
 		for (final CornEmissionRate.EmissionRateTrack track : trackData.emissionRateTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.emissionRate), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.emissionRate));
 			}
 		}
@@ -1026,7 +1064,8 @@ public class AnimFlag {
 		for (final CornAlpha.AlphaTrack track : trackData.alphaTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.alpha));
 			}
 		}
@@ -1044,7 +1083,8 @@ public class AnimFlag {
 		for (final CornVisibility.VisibilityTrack track : trackData.visibilityTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.visibility));
 			}
 		}
@@ -1062,7 +1102,8 @@ public class AnimFlag {
 		for (final CornLifeSpan.LifeSpanTrack track : trackData.lifeSpanTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.lifeSpan), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.lifeSpan));
 			}
 		}
@@ -1080,7 +1121,8 @@ public class AnimFlag {
 		for (final CornSpeed.SpeedTrack track : trackData.speedTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.speed), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.speed));
 			}
 		}
@@ -1099,7 +1141,8 @@ public class AnimFlag {
 		for (final CornColor.ScalingTrack track : cornColor.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.color));
 			}
 		}
@@ -1123,7 +1166,8 @@ public class AnimFlag {
 		for (final RibbonEmitterVisibility.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.visibility), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.visibility));
 			}
 		}
@@ -1147,7 +1191,8 @@ public class AnimFlag {
 		for (final RibbonEmitterHeightAbove.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.heightAbove), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.heightAbove));
 			}
 		}
@@ -1171,7 +1216,8 @@ public class AnimFlag {
 		for (final RibbonEmitterHeightBelow.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.heightBelow), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.heightBelow));
 			}
 		}
@@ -1189,7 +1235,8 @@ public class AnimFlag {
 		for (final RibbonEmitterAlpha.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.alpha), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.alpha));
 			}
 		}
@@ -1207,7 +1254,8 @@ public class AnimFlag {
 		for (final RibbonEmitterColor.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.color), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.color));
 			}
 		}
@@ -1225,7 +1273,8 @@ public class AnimFlag {
 		for (final RibbonEmitterTextureSlot.ScalingTrack track : trackData.scalingTrack) {
 			if (tans) {
 				addEntry(track.time, track.textureSlot, track.inTan, track.outTan);
-			} else {
+			}
+			else {
 				addEntry(track.time, track.textureSlot);
 			}
 		}
@@ -1249,7 +1298,8 @@ public class AnimFlag {
 		for (final CameraPositionTranslation.TranslationTrack track : translation.translationTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.translation), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.translation));
 			}
 		}
@@ -1273,7 +1323,8 @@ public class AnimFlag {
 		for (final CameraTargetTranslation.TranslationTrack track : translation.translationTrack) {
 			if (tans) {
 				addEntry(track.time, new Vertex(track.translation), new Vertex(track.inTan), new Vertex(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, new Vertex(track.translation));
 			}
 		}
@@ -1297,7 +1348,8 @@ public class AnimFlag {
 		for (final CameraRotation.TranslationTrack track : translation.translationTrack) {
 			if (tans) {
 				addEntry(track.time, box(track.rotation), box(track.inTan), box(track.outTan));
-			} else {
+			}
+			else {
 				addEntry(track.time, box(track.rotation));
 			}
 		}
@@ -1398,17 +1450,21 @@ public class AnimFlag {
 		typeid = 0;
 		if (title.equals("Scaling")) {
 			typeid = 1;
-		} else if (title.equals("Rotation")) {
+		}
+		else if (title.equals("Rotation")) {
 			typeid = 2;
-		} else if (title.equals("Translation")) {
+		}
+		else if (title.equals("Translation")) {
 			typeid = 3;
-		} else if (title.equals("TextureID"))// aflg.title.equals("Visibility")
-												// || -- 100.088% visible in
-												// UndeadCampaign3D OutTans! Go
-												// look!
+		}
+		else if (title.equals("TextureID"))// aflg.title.equals("Visibility")
+											// || -- 100.088% visible in
+											// UndeadCampaign3D OutTans! Go
+											// look!
 		{
 			typeid = 5;
-		} else if (title.contains("Color"))// AmbColor
+		}
+		else if (title.contains("Color"))// AmbColor
 		{
 			typeid = 4;
 		}
@@ -1491,7 +1547,8 @@ public class AnimFlag {
 	public Entry getEntry(final int index) {
 		if (tans()) {
 			return new Entry(times.get(index), values.get(index), inTans.get(index), outTans.get(index));
-		} else {
+		}
+		else {
 			return new Entry(times.get(index), values.get(index));
 		}
 	}
@@ -1502,17 +1559,21 @@ public class AnimFlag {
 		}
 		if (value instanceof Integer) {
 			return value;
-		} else if (value instanceof Double) {
+		}
+		else if (value instanceof Double) {
 			return value;
-		} else if (value instanceof Vertex) {
+		}
+		else if (value instanceof Vertex) {
 			final Vertex vertex = (Vertex) value;
 			final Vertex clonedVertex = new Vertex(vertex);
 			return clonedVertex;
-		} else if (value instanceof QuaternionRotation) {
+		}
+		else if (value instanceof QuaternionRotation) {
 			final QuaternionRotation vertex = (QuaternionRotation) value;
 			final QuaternionRotation clonedVertex = new QuaternionRotation(vertex);
 			return clonedVertex;
-		} else {
+		}
+		else {
 			throw new IllegalStateException(value.getClass().getName());
 		}
 	}
@@ -1523,17 +1584,21 @@ public class AnimFlag {
 		}
 		if (value instanceof Integer) {
 			return 0;
-		} else if (value instanceof Double) {
+		}
+		else if (value instanceof Double) {
 			return 0.0;
-		} else if (value instanceof Vertex) {
+		}
+		else if (value instanceof Vertex) {
 			final Vertex vertex = (Vertex) value;
 			final Vertex clonedVertex = new Vertex(0, 0, 0);
 			return clonedVertex;
-		} else if (value instanceof QuaternionRotation) {
+		}
+		else if (value instanceof QuaternionRotation) {
 			final QuaternionRotation vertex = (QuaternionRotation) value;
 			final QuaternionRotation clonedVertex = new QuaternionRotation(0, 0, 0, 1);
 			return clonedVertex;
-		} else {
+		}
+		else {
 			throw new IllegalStateException(value.getClass().getName());
 		}
 	}
@@ -1586,7 +1651,8 @@ public class AnimFlag {
 			if (item instanceof Vertex) {
 				final Vertex v = (Vertex) item;
 				toAdd = (T) v;
-			} else if (item instanceof QuaternionRotation) {
+			}
+			else if (item instanceof QuaternionRotation) {
 				final QuaternionRotation r = (QuaternionRotation) item;
 				toAdd = (T) r;
 			}
@@ -1611,8 +1677,8 @@ public class AnimFlag {
 		// TODO make flags be a map and remove this method, this is 2018
 		// not 2012 anymore, and I learned basic software dev
 		for (final AnimFlag flag : flags) {
-			if (flag.getName().equals(name) && (globalSeq == null && flag.globalSeq == null
-					|| globalSeq != null && globalSeq.equals(flag.globalSeq))) {
+			if (flag.getName().equals(name) && (((globalSeq == null) && (flag.globalSeq == null))
+					|| ((globalSeq != null) && globalSeq.equals(flag.globalSeq)))) {
 				return flag;
 			}
 		}
@@ -1642,11 +1708,14 @@ public class AnimFlag {
 		int typeid = 0;
 		if (aflg.title.equals("Scaling")) {
 			typeid = 1;
-		} else if (aflg.title.equals("Rotation")) {
+		}
+		else if (aflg.title.equals("Rotation")) {
 			typeid = 2;
-		} else if (aflg.title.equals("Translation")) {
+		}
+		else if (aflg.title.equals("Translation")) {
 			typeid = 3;
-		} else if (!aflg.title.equals("Alpha")) {
+		}
+		else if (!aflg.title.equals("Alpha")) {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Unable to parse \"" + aflg.title + "\": Missing or unrecognized open statement.");
 		}
@@ -1657,7 +1726,8 @@ public class AnimFlag {
 				if (line[i].contains("In"))// InTan
 				{
 					target = aflg.inTans;
-				} else// OutTan
+				}
+				else// OutTan
 				{
 					target = aflg.outTans;
 				}
@@ -1680,7 +1750,8 @@ public class AnimFlag {
 					target.add(Vertex.parseText(line[i]));
 					break;
 				}
-			} else if (line[i].contains(":")) {
+			}
+			else if (line[i].contains(":")) {
 				switch (typeid) {
 				case 0: // Alpha
 					// A single double is used to store alpha data
@@ -1704,15 +1775,18 @@ public class AnimFlag {
 					aflg.values.add(Vertex.parseText(line[i]));
 					break;
 				}
-			} else if (line[i].contains("GlobalSeqId")) {
+			}
+			else if (line[i].contains("GlobalSeqId")) {
 				if (!aflg.hasGlobalSeq) {
 					aflg.globalSeqId = MDLReader.readInt(line[i]);
 					aflg.hasGlobalSeq = true;
-				} else {
+				}
+				else {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error while parsing " + aflg.title
 							+ ": More than one Global Sequence Id is present in the same " + aflg.title + "!");
 				}
-			} else {
+			}
+			else {
 				aflg.tags.add(MDLReader.readFlag(line[i]));
 			}
 		}
@@ -1731,20 +1805,25 @@ public class AnimFlag {
 		int typeid = 0;
 		if (aflg.title.equals("Scaling")) {
 			typeid = 1;
-		} else if (aflg.title.equals("Rotation")) {
+		}
+		else if (aflg.title.equals("Rotation")) {
 			typeid = 2;
-		} else if (aflg.title.equals("Translation")) {
+		}
+		else if (aflg.title.equals("Translation")) {
 			typeid = 3;
-		} else if (aflg.title.equals("TextureID"))// aflg.title.equals("Visibility")
-													// || -- 100.088% visible in
-													// UndeadCampaign3D OutTans!
-													// Go look!
+		}
+		else if (aflg.title.equals("TextureID"))// aflg.title.equals("Visibility")
+												// || -- 100.088% visible in
+												// UndeadCampaign3D OutTans!
+												// Go look!
 		{
 			typeid = 5;
-		} else if (aflg.title.contains("Color"))// AmbColor
+		}
+		else if (aflg.title.contains("Color"))// AmbColor
 		{
 			typeid = 4;
-		} else if (!aflg.title.equals("Alpha")) {
+		}
+		else if (!aflg.title.equals("Alpha")) {
 			// JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),"Unable
 			// to parse \""+aflg.title+"\": Missing or unrecognized open
 			// statement.");
@@ -1759,7 +1838,8 @@ public class AnimFlag {
 				if (line.contains("In"))// InTan
 				{
 					target = aflg.inTans;
-				} else// OutTan
+				}
+				else// OutTan
 				{
 					target = aflg.outTans;
 				}
@@ -1777,7 +1857,8 @@ public class AnimFlag {
 					// data
 					try {
 						target.add(QuaternionRotation.parseText(line));
-					} catch (final Exception e) {
+					}
+					catch (final Exception e) {
 						// typeid = 0;//Yay! random bad model.
 						target.add(new Double(MDLReader.readDouble(line)));
 					}
@@ -1795,7 +1876,8 @@ public class AnimFlag {
 					target.add(new Integer(MDLReader.readInt(line)));
 					break;
 				}
-			} else if (line.contains(":")) {
+			}
+			else if (line.contains(":")) {
 				switch (typeid) {
 				case 0: // Alpha
 					// A single double is used to store alpha data
@@ -1814,7 +1896,8 @@ public class AnimFlag {
 
 						aflg.times.add(new Integer(MDLReader.readBeforeColon(line)));
 						aflg.values.add(QuaternionRotation.parseText(line));
-					} catch (final Exception e) {
+					}
+					catch (final Exception e) {
 						// JOptionPane.showMessageDialog(null,e.getStackTrace());
 						// typeid = 0;
 						// aflg.times.add(new
@@ -1838,15 +1921,18 @@ public class AnimFlag {
 					aflg.values.add(new Integer(MDLReader.readInt(line)));
 					break;
 				}
-			} else if (line.contains("GlobalSeqId")) {
+			}
+			else if (line.contains("GlobalSeqId")) {
 				if (!aflg.hasGlobalSeq) {
 					aflg.globalSeqId = MDLReader.readInt(line);
 					aflg.hasGlobalSeq = true;
-				} else {
+				}
+				else {
 					JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(), "Error while parsing " + aflg.title
 							+ ": More than one Global Sequence Id is present in the same " + aflg.title + "!");
 				}
-			} else {
+			}
+			else {
 				aflg.tags.add(MDLReader.readFlag(line));
 			}
 		}
@@ -1868,9 +1954,11 @@ public class AnimFlag {
 	public String flagToString(final Object o) {
 		if (o.getClass() == double.class) {
 			return MDLReader.doubleToString((Double) o);
-		} else if (o.getClass() == Double.class) {
+		}
+		else if (o.getClass() == Double.class) {
 			return MDLReader.doubleToString(((Double) o).doubleValue());
-		} else {
+		}
+		else {
 			return o.toString();
 		}
 	}
@@ -1935,7 +2023,8 @@ public class AnimFlag {
 				}
 				outTans.set(k, new QuaternionRotation(euler));
 			}
-		} else if (typeid == 3) {
+		}
+		else if (typeid == 3) {
 			// Translation
 			for (int k = 0; k < values.size(); k++) {
 				final Vertex trans = (Vertex) values.get(k);
@@ -2096,7 +2185,7 @@ public class AnimFlag {
 
 	public AnimFlag getMostVisible(final AnimFlag partner) {
 		if (partner != null) {
-			if (typeid == 0 && partner.typeid == 0) {
+			if ((typeid == 0) && (partner.typeid == 0)) {
 				final ArrayList<Integer> atimes = new ArrayList<>(times);
 				final ArrayList<Integer> btimes = new ArrayList<>(partner.times);
 				final ArrayList<Double> avalues = new ArrayList(values);
@@ -2114,24 +2203,30 @@ public class AnimFlag {
 						if (partVal.doubleValue() > currentVal.doubleValue()) {
 							if (mostVisible == null) {
 								mostVisible = partner;
-							} else if (mostVisible == this) {
+							}
+							else if (mostVisible == this) {
 								return null;
 							}
-						} else if (partVal.doubleValue() < currentVal.doubleValue()) {
+						}
+						else if (partVal.doubleValue() < currentVal.doubleValue()) {
 							if (mostVisible == null) {
 								mostVisible = this;
-							} else if (mostVisible == partner) {
+							}
+							else if (mostVisible == partner) {
 								return null;
 							}
-						} else {
+						}
+						else {
 							// System.out.println("Equal entries spell success");
 						}
 						// btimes.remove(currentTime);
 						// bvalues.remove(partVal);
-					} else if (currentVal.doubleValue() < 1) {
+					}
+					else if (currentVal.doubleValue() < 1) {
 						if (mostVisible == null) {
 							mostVisible = partner;
-						} else if (mostVisible == this) {
+						}
+						else if (mostVisible == this) {
 							return null;
 						}
 					}
@@ -2148,30 +2243,37 @@ public class AnimFlag {
 						if (partVal.doubleValue() > currentVal.doubleValue()) {
 							if (mostVisible == null) {
 								mostVisible = this;
-							} else if (mostVisible == partner) {
-								return null;
 							}
-						} else if (partVal.doubleValue() < currentVal.doubleValue()) {
-							if (mostVisible == null) {
-								mostVisible = partner;
-							} else if (mostVisible == this) {
+							else if (mostVisible == partner) {
 								return null;
 							}
 						}
-					} else if (currentVal.doubleValue() < 1) {
+						else if (partVal.doubleValue() < currentVal.doubleValue()) {
+							if (mostVisible == null) {
+								mostVisible = partner;
+							}
+							else if (mostVisible == this) {
+								return null;
+							}
+						}
+					}
+					else if (currentVal.doubleValue() < 1) {
 						if (mostVisible == null) {
 							mostVisible = this;
-						} else if (mostVisible == partner) {
+						}
+						else if (mostVisible == partner) {
 							return null;
 						}
 					}
 				}
 				if (mostVisible == null) {
 					return partner;// partner has priority!
-				} else {
+				}
+				else {
 					return mostVisible;
 				}
-			} else {
+			}
+			else {
 				JOptionPane.showMessageDialog(null,
 						"Error: Program attempted to compare visibility with non-visibility animation component.\nThis... probably means something is horribly wrong. Save your work, if you can.");
 			}
@@ -2180,7 +2282,7 @@ public class AnimFlag {
 	}
 
 	public boolean tans() {
-		return tags.contains("Bezier") || tags.contains("Hermite") || inTans.size() > 0;
+		return tags.contains("Bezier") || tags.contains("Hermite") || (inTans.size() > 0);
 	}
 
 	public void linearize() {
@@ -2199,7 +2301,8 @@ public class AnimFlag {
 		if (stans && mtans) {
 			inTans.addAll(source.inTans);
 			outTans.addAll(source.outTans);
-		} else if (mtans) {
+		}
+		else if (mtans) {
 			JOptionPane.showMessageDialog(null,
 					"Some animations will lose complexity due to transfer incombatibility. There will probably be no visible change.");
 			inTans.clear();
@@ -2217,7 +2320,7 @@ public class AnimFlag {
 				final Integer inte = times.get(index);
 				final int i = inte.intValue();
 				// int index = times.indexOf(inte);
-				if (i >= anim.getStart() && i <= anim.getEnd()) {
+				if ((i >= anim.getStart()) && (i <= anim.getEnd())) {
 					// If this "i" is a part of the anim being removed
 
 					times.remove(index);
@@ -2228,7 +2331,8 @@ public class AnimFlag {
 					}
 				}
 			}
-		} else {
+		}
+		else {
 			System.out.println("KeyFrame deleting was blocked by a GlobalSequence");
 		}
 
@@ -2273,10 +2377,10 @@ public class AnimFlag {
 		for (final Integer inte : source.times) {
 			final int i = inte.intValue();
 			final int index = source.times.indexOf(inte);
-			if (i >= sourceStart && i <= sourceEnd) {
+			if ((i >= sourceStart) && (i <= sourceEnd)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - sourceStart) / (double) (sourceEnd - sourceStart);
-				times.add(new Integer((int) (newStart + ratio * (newEnd - newStart))));
+				times.add(new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
 				values.add(cloneValue(source.values.get(index)));
 				if (tans) {
 					inTans.add(cloneValue(source.inTans.get(index)));
@@ -2299,10 +2403,10 @@ public class AnimFlag {
 		{
 			final Integer inte = times.get(z);
 			final int i = inte.intValue();
-			if (i >= start && i <= end) {
+			if ((i >= start) && (i <= end)) {
 				// If this "i" is a part of the anim being rescaled
 				final double ratio = (double) (i - start) / (double) (end - start);
-				times.set(z, new Integer((int) (newStart + ratio * (newEnd - newStart))));
+				times.set(z, new Integer((int) (newStart + (ratio * (newEnd - newStart)))));
 			}
 		}
 		// }
@@ -2339,7 +2443,7 @@ public class AnimFlag {
 		// look at), found on google
 		// (re-written by Eric "Retera" for use in AnimFlags)
 		int i = low, j = high;
-		final Integer pivot = times.get(low + (high - low) / 2);
+		final Integer pivot = times.get(low + ((high - low) / 2));
 
 		while (i <= j) {
 			while (times.get(i).intValue() < pivot.intValue()) {
@@ -2370,7 +2474,8 @@ public class AnimFlag {
 		times.set(i, times.get(j));
 		try {
 			values.set(i, values.get(j));
-		} catch (final Exception e) {
+		}
+		catch (final Exception e) {
 			e.printStackTrace();
 			// System.out.println(getName()+":
 			// "+times.size()+","+values.size());
@@ -2436,18 +2541,20 @@ public class AnimFlag {
 		final Integer midTime = times.get(mid);
 		if (midTime == time) {
 			return mid;
-		} else if (midTime < time) {
-			if (mid + 1 <= hi && time <= times.get(mid + 1)) {
+		}
+		else if (midTime < time) {
+			if (((mid + 1) <= hi) && (time <= times.get(mid + 1))) {
 				return mid + 1;
-			} else {
+			}
+			else {
 				return ceilIndex(time, mid + 1, hi);
 			}
-		} else {
-			if (mid - 1 >= lo && time > times.get(mid - 1)) {
-				return mid;
-			} else {
-				return ceilIndex(time, lo, mid - 1);
-			}
+		}
+		else if (((mid - 1) >= lo) && (time > times.get(mid - 1))) {
+			return mid;
+		}
+		else {
+			return ceilIndex(time, lo, mid - 1);
 		}
 	}
 
@@ -2475,12 +2582,13 @@ public class AnimFlag {
 		if (times.get(mid) == time) {
 			return mid;
 		}
-		if (mid > 0 && times.get(mid - 1) <= time && time < midTime) {
+		if ((mid > 0) && (times.get(mid - 1) <= time) && (time < midTime)) {
 			return mid - 1;
 		}
 		if (time > midTime) {
 			return floorIndex(time, mid + 1, hi);
-		} else {
+		}
+		else {
 			return floorIndex(time, lo, mid - 1);
 		}
 	}
@@ -2524,7 +2632,7 @@ public class AnimFlag {
 	 */
 	public Object interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
 		int localTypeId = typeid;
-		if (localTypeId == ROTATION && size() > 0 && values.get(0) instanceof Double) {
+		if ((localTypeId == ROTATION) && (size() > 0) && (values.get(0) instanceof Double)) {
 			localTypeId = ALPHA; // magic Camera rotation!
 		}
 		final Object identity = identity(localTypeId);
@@ -2533,10 +2641,10 @@ public class AnimFlag {
 
 	public Object interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment, final Object identity) {
 		int localTypeId = typeid;
-		if (localTypeId == ROTATION && size() > 0 && values.get(0) instanceof Double) {
+		if ((localTypeId == ROTATION) && (size() > 0) && (values.get(0) instanceof Double)) {
 			localTypeId = ALPHA; // magic Camera rotation!
 		}
-		if (animatedRenderEnvironment == null || animatedRenderEnvironment.getCurrentAnimation() == null) {
+		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 			if (values.size() > 0) {
 				return values.get(0);
 			}
@@ -2557,7 +2665,7 @@ public class AnimFlag {
 		Integer floorIndexTime;
 		Integer ceilIndexTime;
 		float timeBetweenFrames;
-		if (hasGlobalSeq() && getGlobalSeq() >= 0) {
+		if (hasGlobalSeq() && (getGlobalSeq() >= 0)) {
 			time = animatedRenderEnvironment.getGlobalSeqTime(getGlobalSeq());
 			final int floorAnimStartIndex = Math.max(0, floorIndex(1));
 			final int floorAnimEndIndex = Math.max(0, floorIndex(getGlobalSeq()));
@@ -2585,19 +2693,22 @@ public class AnimFlag {
 				}
 				return identity;
 			}
-			if (floorIndexTime < 0 && ceilIndexTime > getGlobalSeq()) {
+			if ((floorIndexTime < 0) && (ceilIndexTime > getGlobalSeq())) {
 				return identity;
-			} else if (floorIndexTime < 0) {
+			}
+			else if (floorIndexTime < 0) {
 				floorValue = identity;
 				floorInTan = floorOutTan = identity;
-			} else if (ceilIndexTime > getGlobalSeq()) {
+			}
+			else if (ceilIndexTime > getGlobalSeq()) {
 				ceilValue = values.get(floorAnimStartIndex);
 				ceilIndex = floorAnimStartIndex;
 			}
 			if (floorIndex == ceilIndex) {
 				return floorValue;
 			}
-		} else {
+		}
+		else {
 			final BasicTimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
 			time = animation.getStart() + animatedRenderEnvironment.getAnimationTime();
 			final int floorAnimStartIndex = Math.max(0, floorIndex(animation.getStart() + 1));
@@ -2622,9 +2733,10 @@ public class AnimFlag {
 			if (floorIndexTime > animation.getEnd()) {
 				return identity;
 			}
-			if (floorIndexTime < animation.getStart() && ceilIndexTime > animation.getEnd()) {
+			if ((floorIndexTime < animation.getStart()) && (ceilIndexTime > animation.getEnd())) {
 				return identity;
-			} else if (floorIndex == -1 || floorIndexTime < animation.getStart()) {
+			}
+			else if ((floorIndex == -1) || (floorIndexTime < animation.getStart())) {
 				floorValue = values.get(floorAnimEndIndex);
 				floorIndexTime = times.get(floorAnimStartIndex);
 				if (tans()) {
@@ -2633,14 +2745,16 @@ public class AnimFlag {
 //						floorIndexTime = times.get(floorAnimEndIndex);
 				}
 				timeBetweenFrames = times.get(floorAnimEndIndex) - animation.getStart();
-			} else if (ceilIndexTime > animation.getEnd()
-					|| ceilIndexTime < time && times.get(floorAnimEndIndex) < time) {
+			}
+			else if ((ceilIndexTime > animation.getEnd())
+					|| ((ceilIndexTime < time) && (times.get(floorAnimEndIndex) < time))) {
 				if (times.get(floorAnimStartIndex) == animation.getStart()) {
 					ceilValue = values.get(floorAnimStartIndex);
 					ceilIndex = floorAnimStartIndex;
 					ceilIndexTime = animation.getEnd();
 					timeBetweenFrames = ceilIndexTime - floorIndexTime;
-				} else {
+				}
+				else {
 					ceilIndex = ceilIndex(animation.getStart());
 					ceilValue = values.get(ceilIndex);
 					ceilIndexTime = animation.getEnd();// times.get(ceilIndex);
@@ -2648,7 +2762,8 @@ public class AnimFlag {
 				}
 				// NOTE: we just let it be in this case, based on
 				// Water Elemental's birth
-			} else {
+			}
+			else {
 				timeBetweenFrames = ceilIndexTime - floorIndexTime;
 			}
 			if (floorIndex == ceilIndex) {
@@ -2789,10 +2904,11 @@ public class AnimFlag {
 
 	public void removeKeyframe(final int trackTime) {
 		final int keyframeIndex = floorIndex(trackTime);
-		if (keyframeIndex >= size() || times.get(keyframeIndex) != trackTime) {
+		if ((keyframeIndex >= size()) || (times.get(keyframeIndex) != trackTime)) {
 			throw new IllegalStateException("Attempted to remove keyframe, but no keyframe was found (" + keyframeIndex
 					+ " @ time " + trackTime + ")");
-		} else {
+		}
+		else {
 			times.remove(keyframeIndex);
 			values.remove(keyframeIndex);
 			if (tans()) {
@@ -2804,10 +2920,11 @@ public class AnimFlag {
 
 	public void addKeyframe(final int trackTime, final Object value) {
 		int keyframeIndex = ceilIndex(trackTime);
-		if (keyframeIndex == times.size() - 1) {
+		if (keyframeIndex == (times.size() - 1)) {
 			if (times.isEmpty()) {
 				keyframeIndex = 0;
-			} else if (trackTime > times.get(times.size() - 1)) {
+			}
+			else if (trackTime > times.get(times.size() - 1)) {
 				keyframeIndex = times.size();
 			}
 		}
@@ -2817,10 +2934,11 @@ public class AnimFlag {
 
 	public void addKeyframe(final int trackTime, final Object value, final Object inTan, final Object outTan) {
 		int keyframeIndex = ceilIndex(trackTime);
-		if (keyframeIndex == times.size() - 1) {
+		if (keyframeIndex == (times.size() - 1)) {
 			if (times.isEmpty()) {
 				keyframeIndex = 0;
-			} else if (trackTime > times.get(times.size() - 1)) {
+			}
+			else if (trackTime > times.get(times.size() - 1)) {
 				keyframeIndex = times.size();
 			}
 		}
@@ -2861,7 +2979,7 @@ public class AnimFlag {
 		}
 		final int startIndex = floorIndex(startTrackTime);
 		final int endIndex = floorIndex(endTrackTime);
-		if (endIndex >= 0 && times.get(endIndex) == endTrackTime) {
+		if ((endIndex >= 0) && (times.get(endIndex) == endTrackTime)) {
 			throw new IllegalStateException("Sliding this keyframe would create duplicate entries at one time!");
 		}
 		times.set(startIndex, endTrackTime);

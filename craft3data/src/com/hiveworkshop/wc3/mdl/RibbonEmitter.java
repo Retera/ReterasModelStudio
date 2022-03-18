@@ -7,8 +7,12 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Vector3f;
+
 import com.hiveworkshop.wc3.gui.modeledit.CoordinateSystem;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.wc3.mdl.render3d.EmitterIdObject;
 import com.hiveworkshop.wc3.mdl.v2.visitor.IdObjectVisitor;
 import com.hiveworkshop.wc3.mdx.RibbonEmitterChunk;
 
@@ -20,17 +24,24 @@ import com.hiveworkshop.wc3.mdx.RibbonEmitterChunk;
  *
  * Eric Theller 3/10/2012 3:32 PM
  */
-public class RibbonEmitter extends IdObject implements VisibilitySource {
+public class RibbonEmitter extends EmitterIdObject implements VisibilitySource {
 	public static enum TimeDoubles {
-		HeightAbove, HeightBelow, Alpha, TextureSlot;
+		HeightAbove,
+		HeightBelow,
+		Alpha,
+		TextureSlot;
 	}
 
 	public static enum LoneDoubles {
-		LifeSpan, Gravity;
+		LifeSpan,
+		Gravity;
 	}
 
 	public static enum LoneInts {
-		EmissionRate, Rows, Columns, MaterialID;
+		EmissionRate,
+		Rows,
+		Columns,
+		MaterialID;
 	}
 
 	static final String[] timeDoubleNames = { "HeightAbove", "HeightBelow", "Alpha", "TextureSlot" };
@@ -66,7 +77,8 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 
 		if (emitter.ribbonEmitterTextureSlot != null) {
 			add(new AnimFlag(emitter.ribbonEmitterTextureSlot));
-		} else {
+		}
+		else {
 			setTextureSlot(emitter.textureSlot);
 		}
 		// System.out.println(attachment.node.name + ": " +
@@ -77,22 +89,26 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 		}
 		if (emitter.ribbonEmitterHeightAbove != null) {
 			add(new AnimFlag(emitter.ribbonEmitterHeightAbove));
-		} else {
+		}
+		else {
 			setHeightAbove(emitter.heightAbove);
 		}
 		if (emitter.ribbonEmitterHeightBelow != null) {
 			add(new AnimFlag(emitter.ribbonEmitterHeightBelow));
-		} else {
+		}
+		else {
 			setHeightBelow(emitter.heightBelow);
 		}
 		if (emitter.ribbonEmitterAlpha != null) {
 			add(new AnimFlag(emitter.ribbonEmitterAlpha));
-		} else {
+		}
+		else {
 			setAlpha(emitter.alpha);
 		}
 		if (emitter.ribbonEmitterColor != null) {
 			add(new AnimFlag(emitter.ribbonEmitterColor));
-		} else {
+		}
+		else {
 			setStaticColor(new Vertex(MdlxUtils.flipRGBtoBGR(emitter.color)));
 		}
 		setLifeSpan(emitter.lifeSpan);
@@ -154,19 +170,23 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 				if (line.contains("ObjectId")) {
 					pe.objectId = MDLReader.readInt(line);
 					foundType = true;
-				} else if (line.contains("Parent")) {
+				}
+				else if (line.contains("Parent")) {
 					pe.parentId = MDLReader.splitToInts(line)[0];
 					foundType = true;
-				} else if ((line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
+				}
+				else if ((line.contains("Visibility") || line.contains("Rotation") || line.contains("Translation")
 						|| line.contains("Scaling")) && !line.contains("DontInherit")) {
 					MDLReader.reset(mdl);
 					pe.animFlags.add(AnimFlag.read(mdl));
 					foundType = true;
-				} else if (line.contains("Color")) {
+				}
+				else if (line.contains("Color")) {
 					foundType = true;
 					if (line.contains("static")) {
 						pe.staticColor = Vertex.parseText(line);
-					} else {
+					}
+					else {
 						MDLReader.reset(mdl);
 						pe.animFlags.add(AnimFlag.read(mdl));
 					}
@@ -176,7 +196,8 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 						foundType = true;
 						if (line.contains("static")) {
 							pe.timeDoubleData[i] = MDLReader.readDouble(line);
-						} else {
+						}
+						else {
 							MDLReader.reset(mdl);
 							pe.animFlags.add(AnimFlag.read(mdl));
 						}
@@ -203,7 +224,8 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 				line = MDLReader.nextLine(mdl);
 			}
 			return pe;
-		} else {
+		}
+		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Unable to parse RibbonEmitter: Missing or unrecognized open statement.");
 		}
@@ -229,7 +251,8 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 			currentFlag = timeDoubleNames[i];
 			if (timeDoubleData[i] != 0) {
 				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
-			} else {
+			}
+			else {
 				boolean set = false;
 				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
 					if (pAnimFlags.get(a).getName().equals(currentFlag)) {
@@ -253,14 +276,16 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 					set = true;
 				}
 			}
-		} else {
+		}
+		else {
 			writer.println("\tstatic " + currentFlag + " " + staticColor.toString() + ",");
 		}
 		for (int i = 3; i < 4; i++) {
 			currentFlag = timeDoubleNames[i];
 			if (timeDoubleData[i] != 0) {
 				writer.println("\tstatic " + currentFlag + " " + MDLReader.doubleToString(timeDoubleData[i]) + ",");
-			} else {
+			}
+			else {
 				set = false;
 				for (int a = 0; (a < pAnimFlags.size()) && !set; a++) {
 					if (pAnimFlags.get(a).getName().equals(currentFlag)) {
@@ -425,6 +450,7 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 		loneIntData[LoneInts.EmissionRate.ordinal()] = emissionRate;
 	}
 
+	@Override
 	public int getRows() {
 		return loneIntData[LoneInts.Rows.ordinal()];
 	}
@@ -493,6 +519,9 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 		final AnimFlag visibilityFlag = getVisibilityFlag();
 		if (visibilityFlag != null) {
 			final Number visibility = (Number) visibilityFlag.interpolateAt(animatedRenderEnvironment);
+			if (visibility == null) {
+				return 1;
+			}
 			return visibility.floatValue();
 		}
 		return 1;
@@ -523,5 +552,132 @@ public class RibbonEmitter extends IdObject implements VisibilitySource {
 			return (Vertex) translationFlag.interpolateAt(animatedRenderEnvironment);
 		}
 		return null;
+	}
+
+	public double getRenderHeightBelow(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "HeightBelow");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getHeightBelow();
+	}
+
+	public double getRenderHeightAbove(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "HeightAbove");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getHeightAbove();
+	}
+
+	public double getRenderAlpha(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Alpha");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getAlpha();
+	}
+
+	private static Vector3f renderColorVector = new Vector3f();
+
+	public Vector3f getRenderColor(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag colorFlag = AnimFlag.find(animFlags, "Color");
+		if (colorFlag != null) {
+			final Vertex color = (Vertex) colorFlag.interpolateAt(animatedRenderEnvironment);
+			if (color == null) {
+				return null;
+			}
+			renderColorVector.x = (float) color.x;
+			renderColorVector.y = (float) color.y;
+			renderColorVector.z = (float) color.z;
+			return renderColorVector;
+		}
+		if (staticColor == null) {
+			return null;
+		}
+		renderColorVector.x = (float) staticColor.x;
+		renderColorVector.y = (float) staticColor.y;
+		renderColorVector.z = (float) staticColor.z;
+		return renderColorVector;
+	}
+
+	public double getRenderGravity(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "Gravity");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment);
+		}
+		return getGravity();
+	}
+
+	public double getRenderEmissionRate(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag translationFlag = AnimFlag.find(animFlags, "EmissionRate");
+		if (translationFlag != null) {
+			return (Double) translationFlag.interpolateAt(animatedRenderEnvironment, getEmissionRate());
+		}
+		return getEmissionRate();
+	}
+
+	public int getRenderTextureSlot(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+		final AnimFlag textureSlotFlag = AnimFlag.find(animFlags, "TextureSlot");
+		if (textureSlotFlag != null) {
+			return ((Double) textureSlotFlag.interpolateAt(animatedRenderEnvironment)).intValue();
+		}
+		// TODO the ghostwolf repo returns 0 here magically, but WHY???
+		// (or something close to that, at least)
+		return (int) getTextureSlot();
+	}
+
+	@Override
+	public int getBlendSrc() {
+		if ((material != null) && (material.getLayers().size() > 0)) {
+			switch (material.getLayers().get(0).getFilterMode()) {
+			case BLEND:
+				return GL11.GL_SRC_ALPHA;
+			case ADDITIVE:
+				return GL11.GL_SRC_ALPHA;
+			case ADDALPHA:
+				return GL11.GL_SRC_ALPHA;
+			case MODULATE:
+				return GL11.GL_ZERO;
+			case MODULATE2X:
+				return GL11.GL_DST_COLOR;
+			case TRANSPARENT:
+			case NONE:
+				return GL11.GL_ONE;
+			}
+		}
+		return GL11.GL_ONE;
+	}
+
+	@Override
+	public int getBlendDst() {
+		if ((material != null) && (material.getLayers().size() > 0)) {
+			switch (material.getLayers().get(0).getFilterMode()) {
+			case BLEND:
+				return GL11.GL_ONE_MINUS_SRC_ALPHA;
+			case ADDITIVE:
+				return GL11.GL_ONE;
+			case ADDALPHA:
+				return GL11.GL_ONE;
+			case MODULATE:
+				return GL11.GL_SRC_COLOR;
+			case MODULATE2X:
+				return GL11.GL_SRC_COLOR;
+			case TRANSPARENT:
+			case NONE:
+				return GL11.GL_ONE;
+			}
+		}
+		return GL11.GL_ONE;
+	}
+
+	@Override
+	public int getCols() {
+		return getColumns();
+	}
+
+	@Override
+	public boolean isRibbonEmitter() {
+		return true;
 	}
 }

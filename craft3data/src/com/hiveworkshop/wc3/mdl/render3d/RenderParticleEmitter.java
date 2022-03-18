@@ -18,4 +18,13 @@ public class RenderParticleEmitter extends RenderSharedGeometryEmitter<ParticleE
 	protected EmittedObject<RenderParticleEmitterView> createObject() {
 		return null;
 	}
+
+	@Override
+	public void render(final RenderModel modelView, final ParticleEmitterShader shader) {
+		if ((internalResource != null) && (alive > 0)) {
+			// TODO not supported
+//			shader.renderParticles(modelObject.getBlendSrc(), modelObject.getBlendDst(), modelObject.getRows(),
+//					modelObject.getCols(), internalResource, data, modelObject.isRibbonEmitter(), alive * 6);
+		}
+	}
 }

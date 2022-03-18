@@ -1,5 +1,6 @@
 package com.hiveworkshop.wc3.gui.modeledit.actions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +14,10 @@ import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
 public class RecalculateExtentsAction implements UndoAction {
 	private final ModelView modelView;
-	private final Map<Geoset, Map<Animation, ExtLog>> geosetToAnimationToOldExtents = new HashMap<>();
+	private final Map<Geoset, ArrayList<Animation>> geosetToOldExtents = new HashMap<>();
 	private final Map<Animation, ExtLog> modelSequenceToOldExtents = new HashMap<>();
 	private final ExtLog oldModelExtents;
-	private final Map<Geoset, Map<Animation, ExtLog>> geosetToAnimationToNewExtents = new HashMap<>();
+	private final Map<Geoset, ArrayList<Animation>> geosetToNewExtents = new HashMap<>();
 	private final Map<Animation, ExtLog> modelSequenceToNewExtents = new HashMap<>();
 	private final ExtLog newModelExtents;
 
@@ -55,14 +56,13 @@ public class RecalculateExtentsAction implements UndoAction {
 		newModelExtents = new ExtLog(new Vertex(minX, minY, minZ), new Vertex(maxX, maxY, maxZ), maximumBoundsRadius);
 
 		for (final Geoset modelGeoset : modelView.getModel().getGeosets()) {
-			final Map<Animation, ExtLog> animationToOldExtents = new HashMap<>();
-			final Map<Animation, ExtLog> animationToNewExtents = new HashMap<>();
-			for (final Animation anim : modelGeoset.getAnims()) {
-				animationToOldExtents.put(anim, anim.getExtents());
-				animationToNewExtents.put(anim, new ExtLog(newModelExtents));
+			final ArrayList<Animation> oldExtents = modelGeoset.getAnims();
+			geosetToOldExtents.put(modelGeoset, new ArrayList<>(oldExtents));
+			final ArrayList<Animation> newExtents = new ArrayList<>();
+			for (final Animation anim : modelView.getModel().getAnims()) {
+				newExtents.add(new Animation(new ExtLog(newModelExtents)));
 			}
-			geosetToAnimationToOldExtents.put(modelGeoset, animationToOldExtents);
-			geosetToAnimationToNewExtents.put(modelGeoset, animationToNewExtents);
+			geosetToNewExtents.put(modelGeoset, newExtents);
 		}
 		for (final Animation sequence : modelView.getModel().getAnims()) {
 			modelSequenceToOldExtents.put(sequence, sequence.getExtents());
@@ -74,13 +74,8 @@ public class RecalculateExtentsAction implements UndoAction {
 
 	@Override
 	public void undo() {
-		for (final Map.Entry<Geoset, Map<Animation, ExtLog>> entry : geosetToAnimationToOldExtents.entrySet()) {
-			final Map<Animation, ExtLog> animationToOldExtents = entry.getValue();
-			for (final Map.Entry<Animation, ExtLog> animationAndOldExtents : animationToOldExtents.entrySet()) {
-				final Animation anim = animationAndOldExtents.getKey();
-				final ExtLog extents = animationAndOldExtents.getValue();
-				anim.setExtents(extents);
-			}
+		for (final Map.Entry<Geoset, ArrayList<Animation>> entry : geosetToOldExtents.entrySet()) {
+			entry.getKey().setAnims(new ArrayList<>(entry.getValue()));
 			entry.getKey().setExtents(oldModelExtents);
 		}
 		for (final Map.Entry<Animation, ExtLog> animationAndOldExtents : modelSequenceToOldExtents.entrySet()) {
@@ -93,13 +88,8 @@ public class RecalculateExtentsAction implements UndoAction {
 
 	@Override
 	public void redo() {
-		for (final Map.Entry<Geoset, Map<Animation, ExtLog>> entry : geosetToAnimationToNewExtents.entrySet()) {
-			final Map<Animation, ExtLog> animationToNewExtents = entry.getValue();
-			for (final Map.Entry<Animation, ExtLog> animationAndNewExtents : animationToNewExtents.entrySet()) {
-				final Animation anim = animationAndNewExtents.getKey();
-				final ExtLog extents = animationAndNewExtents.getValue();
-				anim.setExtents(extents);
-			}
+		for (final Map.Entry<Geoset, ArrayList<Animation>> entry : geosetToNewExtents.entrySet()) {
+			entry.getKey().setAnims(new ArrayList<>(entry.getValue()));
 			entry.getKey().setExtents(newModelExtents);
 		}
 		for (final Map.Entry<Animation, ExtLog> animationAndNewExtents : modelSequenceToNewExtents.entrySet()) {

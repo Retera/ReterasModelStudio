@@ -13,6 +13,7 @@ import org.lwjgl.util.vector.Vector4f;
 
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
 import com.hiveworkshop.wc3.mdl.AnimatedNode;
+import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.Camera.SourceNode;
@@ -21,6 +22,7 @@ import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.IdObject;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.QuaternionRotation;
+import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 import com.hiveworkshop.wc3.util.MathUtils;
@@ -46,6 +48,9 @@ public final class RenderModel {
 	private final List<RenderParticleEmitter2View> particleEmitterViews2 = new ArrayList<>();// TODO one per model, not
 																								// instance
 	private final SoftwareParticleEmitterShader particleShader = new SoftwareParticleEmitterShader();
+	private final Map<RibbonEmitter, RenderRibbonEmitterView> ribbonEmitterToRenderer = new HashMap<>();
+	private final List<RenderRibbonEmitter> ribbonEmitters = new ArrayList<>();
+	private final List<RenderRibbonEmitterView> ribbonEmitterViews = new ArrayList<>();
 
 	private final RenderNode rootPosition;
 
@@ -134,8 +139,14 @@ public final class RenderModel {
 			}
 		}
 		for (final ParticleEmitter2 particleEmitter : model.sortedIdObjects(ParticleEmitter2.class)) {
+			Bitmap particleTexture = particleEmitter.getTexture();
+			if (particleEmitter.getReplaceableId() != 0) {
+				particleTexture = new Bitmap(particleTexture);
+				particleTexture.setPath("");
+				particleTexture.setReplaceableId(particleEmitter.getReplaceableId());
+			}
 			particleEmitters2.add(new RenderParticleEmitter2(particleEmitter,
-					renderResourceAllocator.allocateTexture(particleEmitter.getTexture(), particleEmitter)));
+					renderResourceAllocator.allocateTexture(particleTexture, particleEmitter)));
 		}
 		particleEmitters2.sort(new Comparator<RenderParticleEmitter2>() {
 			@Override
@@ -148,6 +159,22 @@ public final class RenderModel {
 			final RenderParticleEmitter2View emitterView = new RenderParticleEmitter2View(this, particleEmitter);
 			particleEmitterViews2.add(emitterView);
 			emitterToRenderer.put(emitterView.getEmitter(), emitterView);
+		}
+		for (final RibbonEmitter ribbonEmitter : model.sortedIdObjects(RibbonEmitter.class)) {
+			ribbonEmitters.add(new RenderRibbonEmitter(ribbonEmitter,
+					renderResourceAllocator.allocateMaterial(ribbonEmitter.getMaterial(), ribbonEmitter)));
+		}
+		ribbonEmitters.sort(new Comparator<RenderRibbonEmitter>() {
+			@Override
+			public int compare(final RenderRibbonEmitter o1, final RenderRibbonEmitter o2) {
+				return Integer.compare(o1.getPriorityPlane(), o2.getPriorityPlane());
+			}
+
+		});
+		for (final RenderRibbonEmitter particleEmitter : ribbonEmitters) {
+			final RenderRibbonEmitterView emitterView = new RenderRibbonEmitterView(this, particleEmitter);
+			ribbonEmitterViews.add(emitterView);
+			ribbonEmitterToRenderer.put(emitterView.getEmitter(), emitterView);
 		}
 		for (final AnimatedNode node : sortedNodes) {
 			getRenderNode(node).refreshFromEditor();
@@ -212,7 +239,8 @@ public final class RenderModel {
 							localLocation.x = (float) renderTranslation.x;
 							localLocation.y = (float) renderTranslation.y;
 							localLocation.z = (float) renderTranslation.z;
-						} else {
+						}
+						else {
 							localLocation.set(0, 0, 0);
 						}
 					}
@@ -225,7 +253,8 @@ public final class RenderModel {
 							localRotation.y = (float) renderRotation.b;
 							localRotation.z = (float) renderRotation.c;
 							localRotation.w = (float) renderRotation.d;
-						} else {
+						}
+						else {
 							localRotation.set(0, 0, 0, 1);
 						}
 					}
@@ -237,7 +266,8 @@ public final class RenderModel {
 							localScale.x = (float) renderScale.x;
 							localScale.y = (float) renderScale.y;
 							localScale.z = (float) renderScale.z;
-						} else {
+						}
+						else {
 							localScale.set(1, 1, 1);
 						}
 					}
@@ -252,12 +282,14 @@ public final class RenderModel {
 					// Cancel the parent's rotation;
 					if (parent != null) {
 						localRotation.set(parent.inverseWorldRotation);
-					} else {
+					}
+					else {
 						localRotation.setIdentity();
 					}
 
 					Quaternion.mul(localRotation, inverseCameraRotation, localRotation);
-				} else if (node.billboardedY) {
+				}
+				else if (node.billboardedY) {
 					// To solve billboard Y, you must rotate to face camera
 					// in node local space only around the node-local version of the Y axis.
 					// Imagine that we have a vector facing outward from the plane that represents
@@ -280,13 +312,15 @@ public final class RenderModel {
 //					}
 
 					// TODO face camera, TODO have a camera
-				} else if (node.billboardedZ) {
+				}
+				else if (node.billboardedZ) {
 					wasDirty = true;
 
 					// Cancel the parent's rotation;
 					if (parent != null) {
 						localRotation.set(parent.inverseWorldRotation);
-					} else {
+					}
+					else {
 						localRotation.setIdentity();
 					}
 
@@ -322,6 +356,12 @@ public final class RenderModel {
 								renderer.fill();
 							}
 						}
+						final RenderRibbonEmitterView ribbRenderer = ribbonEmitterToRenderer.get(idObject);
+						if (ribbRenderer != null) {
+							if ((modelView == null) || modelView.getEditableIdObjects().contains((IdObject) idObject)) {
+								ribbRenderer.fill();
+							}
+						}
 					}
 				}
 
@@ -352,13 +392,30 @@ public final class RenderModel {
 				for (final RenderParticleEmitter2 renderParticleEmitter2 : particleEmitters2) {
 					renderParticleEmitter2.update();
 				}
+				for (final RenderRibbonEmitterView renderRibbonEmitterView : ribbonEmitterViews) {
+					if ((modelView == null)
+							|| modelView.getEditableIdObjects().contains(renderRibbonEmitterView.getEmitter())) {
+						renderRibbonEmitterView.fill();
+					}
+					renderRibbonEmitterView.update();
+				}
+				for (final RenderRibbonEmitter renderRibbonEmitter : ribbonEmitters) {
+					renderRibbonEmitter.update();
+				}
 			}
-		} else {
+		}
+		else {
 			for (final RenderParticleEmitter2View renderParticleEmitter2View : particleEmitterViews2) {
 				renderParticleEmitter2View.update();
 			}
 			for (final RenderParticleEmitter2 renderParticleEmitter2 : particleEmitters2) {
 				renderParticleEmitter2.update();
+			}
+			for (final RenderRibbonEmitterView renderRibbonEmitterView : ribbonEmitterViews) {
+				renderRibbonEmitterView.update();
+			}
+			for (final RenderRibbonEmitter renderRibbonEmitter : ribbonEmitters) {
+				renderRibbonEmitter.update();
 			}
 		}
 	}
@@ -377,6 +434,10 @@ public final class RenderModel {
 
 	public List<RenderParticleEmitter2View> getParticleEmitterViews2() {
 		return particleEmitterViews2;
+	}
+
+	public List<RenderRibbonEmitter> getRibbonEmitters() {
+		return ribbonEmitters;
 	}
 
 	public SoftwareParticleEmitterShader getParticleShader() {
