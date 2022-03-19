@@ -79,7 +79,7 @@ public class TriggerTreeCellSubEditor extends JTextField implements TreeCellEdit
 	@Override
 	public Component getTreeCellEditorComponent(final JTree tree, final Object value, final boolean isSelected,
 			final boolean expanded, final boolean leaf, final int row) {
-		System.out.println(value);
+		System.out.println("TriggerTreeCellSubEditor#value: " + value);
 		setText(value.toString());
 		startingValue = value;
 		return this;

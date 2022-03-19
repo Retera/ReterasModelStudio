@@ -1,19 +1,42 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.impl;
 
-public interface Trigger {
-	TriggerCategory getCategory();
+import java.io.Serializable;
 
-	void setCategory(TriggerCategory category);
+public abstract class Trigger implements Serializable {
+	protected String name;
+	protected String comment;
+	protected TriggerCategory category;
 
-	String getName();
+	public Trigger(final String name) {
+		this.name = name;
+		this.comment = "";
+	}
 
-	void setName(String name);
+	public String getName() {
+		return name;
+	}
 
-	boolean isComment();
+	public void setName(final String name) {
+		this.name = name;
+	}
 
-	String getComment();
+	public TriggerCategory getCategory() {
+		return category;
+	}
 
-	void setComment(String comment);
+	public void setCategory(final TriggerCategory category) {
+		this.category = category;
+	}
 
-	Trigger copy();
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(final String comment) {
+		this.comment = comment;
+	}
+
+	public abstract boolean isComment();
+
+	public abstract Trigger copy();
 }

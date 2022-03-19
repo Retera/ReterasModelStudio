@@ -1,9 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxRibbonEmitter;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.List;
@@ -39,8 +35,8 @@ public class RibbonEmitter extends IdObject {
 	}
 
 	public RibbonEmitter(final RibbonEmitter emitter) {
-		copyObject(emitter);
-		
+		super(emitter);
+
 		heightAbove = emitter.heightAbove;
 		heightBelow = emitter.heightBelow;
 		alpha = emitter.alpha;
@@ -53,47 +49,6 @@ public class RibbonEmitter extends IdObject {
 		materialID = emitter.materialID;
 		material = emitter.material;
 		staticColor = new Vec3(emitter.staticColor);
-	}
-
-	public RibbonEmitter(final MdlxRibbonEmitter emitter) {
-		if ((emitter.flags & 16384) != 16384) {
-			System.err.println("MDX -> MDL error: A ribbon emitter '" + emitter.name
-					+ "' not flagged as ribbon emitter in MDX!");
-		}
-		
-		loadObject(emitter);
-
-		setTextureSlot(emitter.textureSlot);
-		setHeightAbove(emitter.heightAbove);
-		setHeightBelow(emitter.heightBelow);
-		setAlpha(emitter.alpha);
-		setStaticColor(new Vec3(ModelUtils.flipRGBtoBGR(emitter.color)));
-		setLifeSpan(emitter.lifeSpan);
-		setEmissionRate((int) emitter.emissionRate);
-		setRows((int) emitter.rows);
-		setColumns((int) emitter.columns);
-		setMaterialId(emitter.materialId);
-		setGravity(emitter.gravity);
-	}
-
-	public MdlxRibbonEmitter toMdlx(EditableModel model) {
-		final MdlxRibbonEmitter emitter = new MdlxRibbonEmitter();
-
-		objectToMdlx(emitter, model);
-
-		emitter.textureSlot = (long) getTextureSlot();
-		emitter.heightAbove = (float) getHeightAbove();
-		emitter.heightBelow = (float) getHeightBelow();
-		emitter.alpha = (float) getAlpha();
-		emitter.color = ModelUtils.flipRGBtoBGR(getStaticColor().toFloatArray());
-		emitter.lifeSpan = (float) getLifeSpan();
-		emitter.emissionRate = getEmissionRate();
-		emitter.rows = getRows();
-		emitter.columns = getColumns();
-		emitter.materialId = getMaterialId();
-		emitter.gravity = (float)getGravity();
-
-		return emitter;
 	}
 
 	@Override
@@ -206,12 +161,7 @@ public class RibbonEmitter extends IdObject {
 	}
 
 	@Override
-	public void apply(final IdObjectVisitor visitor) {
-		visitor.ribbonEmitter(this);
-	}
-
-	@Override
-	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
+	public double getClickRadius() {
+		return DEFAULT_CLICK_RADIUS;
 	}
 }

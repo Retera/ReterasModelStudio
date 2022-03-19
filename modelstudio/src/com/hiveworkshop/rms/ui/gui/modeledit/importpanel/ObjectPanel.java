@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -8,17 +9,18 @@ import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
 
 class ObjectPanel extends JPanel {
+	ModelHolderThing mht;
 	JLabel title;
 
 	JCheckBox doImport;
 	JLabel parentLabel;
 	JLabel oldParentLabel;
-	IterableListModel<BoneShell> parents;
-	JList<BoneShell> parentsList;
+	IterableListModel<IdObjectShell<?>> parents;
+	JList<IdObjectShell<?>> parentsList;
 	JScrollPane parentsPane;
-	ModelHolderThing mht;
+	BoneShellListCellRenderer bonePanelRenderer;
 
-	ObjectShell selectedObject;
+	IdObjectShell<?> selectedObject;
 
 	protected ObjectPanel() {
 
@@ -32,9 +34,10 @@ class ObjectPanel extends JPanel {
 		title.setFont(new Font("Arial", Font.BOLD, 26));
 		add(title, "align center, wrap");
 
+		this.bonePanelRenderer = bonePanelRenderer;
+
 		doImport = new JCheckBox("Import this object");
-		doImport.setSelected(true);
-		doImport.addActionListener(e -> setImportStatus());
+		doImport.addActionListener(e -> setImportStatus(doImport.isSelected()));
 		add(doImport, "left, wrap");
 
 
@@ -45,24 +48,43 @@ class ObjectPanel extends JPanel {
 		parentLabel = new JLabel("Parent:");
 		add(parentLabel, "left, wrap");
 
+		add(getParentListPane(bonePanelRenderer), "growx, growy 200");
+	}
+
+	private JScrollPane getParentListPane(BoneShellListCellRenderer bonePanelRenderer) {
 		parentsList = new JList<>();
 		parentsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		parentsList.setCellRenderer(bonePanelRenderer);
 		parentsList.addListSelectionListener(this::setParent);
 
 		parentsPane = new JScrollPane(parentsList);
-		add(parentsPane, "growx, growy 200");
+		return parentsPane;
 	}
 
-	public ObjectPanel setSelectedObject(ObjectShell selectedObject) {
-		this.selectedObject = selectedObject;
-		parentsList.setEnabled(selectedObject.getCamera() == null);
+	public void setSelectedObject(IdObjectShell<?> objectShell) {
+		this.selectedObject = objectShell;
 		setTitles();
-		parents = mht.getFutureBoneListExtended(true);
+		parents = mht.getFutureBoneHelperList();
+		bonePanelRenderer.setSelectedObjectShell(objectShell);
 		setParentListModel();
-		setCheckboxStatus(selectedObject.getShouldImport());
-		return this;
+		scrollToRevealParent(objectShell);
+		doImport.setSelected(objectShell.getShouldImport());
+		repaint();
 	}
+
+
+	private void scrollToRevealParent(IdObjectShell<?> objectShell) {
+		if (objectShell.getNewParentShell() != null) {
+			int i = parents.indexOf(objectShell.getNewParentShell());
+			if (i != -1) {
+				Rectangle cellBounds = parentsList.getCellBounds(i, i);
+				if (cellBounds != null) {
+					parentsList.scrollRectToVisible(cellBounds);
+				}
+			}
+		}
+	}
+
 
 	private void setParentListModel() {
 		parentsList.setModel(parents);
@@ -70,10 +92,10 @@ class ObjectPanel extends JPanel {
 
 	private void setParent(ListSelectionEvent e) {
 		if (!e.getValueIsAdjusting() && parentsList.getSelectedValue() != null) {
-			if (parentsList.getSelectedValue() == selectedObject.getNewParentBs()) {
-				selectedObject.setNewParentBs(null);
+			if (parentsList.getSelectedValue() == selectedObject.getNewParentShell()) {
+				selectedObject.setNewParentShell(null);
 			} else {
-				selectedObject.setNewParentBs(parentsList.getSelectedValue());
+				selectedObject.setNewParentShell(parentsList.getSelectedValue());
 			}
 		}
 	}
@@ -83,19 +105,15 @@ class ObjectPanel extends JPanel {
 		title.setText(selectedObject.toString());
 //		title.setText(object.getClass().getSimpleName() + " \"" + object.getName() + "\"");
 
-		if (selectedObject.getOldParentBs() != null) {
-			oldParentLabel.setText("(Old Parent: " + selectedObject.getOldParentBs().getName() + ")");
+		if (selectedObject.getOldParentShell() != null) {
+			oldParentLabel.setText("(Old Parent: " + selectedObject.getOldParentShell().getName() + ")");
 		} else {
 			oldParentLabel.setText("(Old Parent: {no parent})");
 		}
 	}
 
-	private void setCheckboxStatus(boolean isChecked) {
-		doImport.setSelected(isChecked);
-	}
-
-	private void setImportStatus() {
-		selectedObject.setShouldImport(doImport.isSelected());
+	private void setImportStatus(boolean doImport) {
+		selectedObject.setShouldImport(doImport);
 	}
 
 }

@@ -1,155 +1,216 @@
 package com.hiveworkshop.rms.ui.application.model;
 
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Geoset;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeFlagEntryAction;
+import com.hiveworkshop.rms.editor.actions.mesh.ChangeLoDAction;
+import com.hiveworkshop.rms.editor.actions.mesh.ChangeLoDNameAction;
+import com.hiveworkshop.rms.editor.actions.mesh.DeleteGeosetAction;
+import com.hiveworkshop.rms.editor.actions.mesh.RecalculateTangentsAction;
+import com.hiveworkshop.rms.editor.actions.model.SetGeosetAnimAction;
+import com.hiveworkshop.rms.editor.actions.model.material.AddMaterialAction;
+import com.hiveworkshop.rms.editor.actions.model.material.ChangeMaterialAction;
+import com.hiveworkshop.rms.editor.actions.tools.ConvertToMatricesAction;
+import com.hiveworkshop.rms.editor.actions.tools.ConvertToSkinBonesAction;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
+import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.editor.model.util.HD_Material_Layer;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
+import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
+import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
+import com.hiveworkshop.rms.ui.application.tools.GeosetAnimCopyPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.*;
+import java.util.List;
+import java.util.*;
 
-public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geoset> {
-	private final ModelViewManager modelViewManager;
-	private final UndoActionListener undoActionListener;
-	private final ModelStructureChangeListener modelStructureChangeListener;
-	private ComponentGeosetMaterialPanel materialPanel;
-	private final Map<Geoset, ComponentGeosetMaterialPanel> materialPanels;
-	private final JLabel trisLabel;
-	private final JLabel vertLabel;
-	JPanel hdPanel;
-	JSpinner lodSpinner;
-	JTextField nameTextField;
-	JButton toggleSdHd;
-	//	private final JLabel selectionGroupLabel;
-	private JSpinner selectionGroupSpinner;
+public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
+	private final JLabel geosetLabel = new JLabel("geoset name");
+	private final JLabel trisLabel = new JLabel("0");
+	private final JLabel vertLabel = new JLabel("0");
+	private JPanel lodPanel;
+	private final JPanel hdNamePanel;
+	private IntEditorJSpinner lodSpinner;
+	private TwiTextField nameTextField;
+	private final JButton toggleSdHd;
+	private IntEditorJSpinner selectionGroupSpinner;
 	private Geoset geoset;
 
-	private final boolean listenersEnabled = true;
-	private final JPanel materialPanelHolder;
+	private JPanel animVisPanel;
+	private JPanel animPanel;
+
+	private JComboBox<Material> materialChooser;
+
+	public ComponentGeosetPanel(ModelHandler modelHandler) {
+		super(modelHandler);
+		setLayout(new MigLayout("hidemode 1", "[][grow][grow]", "[]"));
+
+		add(geosetLabel, "");
+		add(getDeleteButton(e -> removeGeoset()), "skip 1, wrap");
+		hdNamePanel = getHdNamePanel();
+		add(hdNamePanel, "wrap, growx, spanx");
+
+		JPanel topPanel = new JPanel(new MigLayout("hidemode 1, ins 0", "[][grow][grow]", "[]"));
+		add(topPanel, "wrap");
+		topPanel.add(getGeosetInfoPanel(), "growx");
+
+		JPanel materialPanelHolder = getMaterialPanelHolder();
+		topPanel.add(materialPanelHolder, "wrap, growx, spanx");
 
 
-	public ComponentGeosetPanel(final ModelViewManager modelViewManager,
-	                            final UndoActionListener undoActionListener,
-	                            final ModelStructureChangeListener modelStructureChangeListener) {
-		this.undoActionListener = undoActionListener;
-		this.modelViewManager = modelViewManager;
-		this.modelStructureChangeListener = modelStructureChangeListener;
-		setLayout(new MigLayout("fill", "[][grow][grow]", "[][][grow]"));
+		JButton editUvButton = new JButton("Edit Geoset UVs");
 
-		materialPanels = new HashMap<>();
+		toggleSdHd = new JButton("Make Geoset HD");
+		toggleSdHd.addActionListener(e -> toggleSdHd());
+		add(toggleSdHd, "wrap");
 
-		materialPanelHolder = new JPanel(new MigLayout("hidemode 1"));
-		add(materialPanelHolder, "wrap, growx, spanx");
+		animVisPanel = new JPanel();
+		add(animVisPanel, "wrap");
 
+		animPanel = new JPanel();
+		add(animPanel, "wrap");
+	}
+
+	private JPanel getMaterialPanelHolder() {
+		JPanel materialPanelHolder = new JPanel(new MigLayout("hidemode 1"));
 		materialPanelHolder.add(new JLabel("Material:"), "wrap");
-		materialPanel = new ComponentGeosetMaterialPanel();
-		materialPanelHolder.add(materialPanel);
 
+		materialChooser = getMaterialChooser();
+		materialPanelHolder.add(materialChooser, "wrap");
+
+		JButton cloneMaterial = new JButton("Clone This Material");
+		cloneMaterial.addActionListener(e -> cloneMaterial());
+		materialPanelHolder.add(cloneMaterial);
+
+		return materialPanelHolder;
+	}
+
+	private JPanel getGeosetInfoPanel() {
 		JPanel geosetInfoPanel = new JPanel(new MigLayout("fill, hidemode 1", "[][][grow][grow]"));
-		add(geosetInfoPanel, "wrap, growx, spanx");
 
-		createHDPanel(modelViewManager);
-		geosetInfoPanel.add(hdPanel, "growx, spanx, wrap");
+		lodPanel = getLodPanel();
+		geosetInfoPanel.add(lodPanel, "growx, spanx, wrap");
 
 		geosetInfoPanel.add(new JLabel("Triangles: "));
-		trisLabel = new JLabel("0");
 		geosetInfoPanel.add(trisLabel, "wrap");
 
 		geosetInfoPanel.add(new JLabel("Vertices: "));
-		vertLabel = new JLabel("0");
 		geosetInfoPanel.add(vertLabel, "wrap");
 
 		geosetInfoPanel.add(new JLabel("SelectionGroup: "));
-		selectionGroupSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 10000, 1));
-		selectionGroupSpinner.addChangeListener(e -> setSelectionGroup());
+		selectionGroupSpinner = new IntEditorJSpinner(0, 0, 10000, this::setSelectionGroup);
 		geosetInfoPanel.add(selectionGroupSpinner, "wrap");
-//		selectionGroupLabel = new JLabel("0");
-
-		JButton editUvButton = new JButton("Edit Geoset UVs");
-		toggleSdHd = new JButton("Make Geoset HD");
-		if (modelViewManager.getModel().getFormatVersion() >= 900) {
-			toggleSdHd.addActionListener(e -> toggleSdHd());
-			add(toggleSdHd, "wrap");
-		}
-
+		return geosetInfoPanel;
 	}
 
-	private void createHDPanel(ModelViewManager modelViewManager) {
-		hdPanel = new JPanel(new MigLayout("fill, ins 0", "[]16[][grow][grow]"));
+	private JComboBox<Material> getMaterialChooser() {
+		TwiComboBox<Material> materialComboBox = new TwiComboBox<>(modelHandler.getModel().getMaterials(), new Material());
+		materialComboBox.setRenderer(new MaterialListRenderer(modelHandler.getModel()));
+		materialComboBox.addOnSelectItemListener(this::changeTexture);
+		return materialComboBox;
+	}
 
-		hdPanel.add(new JLabel("Name: "));
-		nameTextField = new JTextField(26);
-		nameTextField.addFocusListener(setLoDName());
-		hdPanel.add(nameTextField, "spanx 2, wrap");
+	private void changeTexture(Material material) {
+		if (material != null && material != geoset.getMaterial()) {
+			undoManager.pushAction(new ChangeMaterialAction(geoset, material, changeListener).redo());
+		}
+	}
 
-		hdPanel.add(new JLabel("LevelOfDetail: "));
-		lodSpinner = new JSpinner(new SpinnerNumberModel(0, -1, 10000, 1));
-		hdPanel.add(lodSpinner, "wrap");
-		lodSpinner.addChangeListener(e -> setLoD());
+	private void cloneMaterial() {
+		AddMaterialAction addMaterialAction = new AddMaterialAction(geoset.getMaterial().deepCopy(), modelHandler.getModel(), changeListener);
+		undoManager.pushAction(addMaterialAction.redo());
+	}
 
-		hdPanel.setVisible(modelViewManager.getModel().getFormatVersion() == 1000);
+	private JPanel getHdNamePanel() {
+		JPanel hdNamePanel = new JPanel(new MigLayout("fill, ins 0", "[]16[][grow][grow]"));
+		hdNamePanel.add(new JLabel("Name: "));
+		nameTextField = new TwiTextField(26, this::setLoDName);
+		hdNamePanel.add(nameTextField, "spanx 2, wrap");
+		return hdNamePanel;
+	}
+
+	private JPanel getLodPanel() {
+		JPanel lodPanel = new JPanel(new MigLayout("fill, ins 0", "[]16[][grow][grow]"));
+		lodPanel.add(new JLabel("LevelOfDetail: "));
+		lodSpinner = new IntEditorJSpinner(0, -1, 100, this::setLoD);
+		lodPanel.add(lodSpinner, "wrap");
+		return lodPanel;
 	}
 
 
 	@Override
-	public void setSelectedItem(final Geoset geoset) {
+	public ComponentPanel<Geoset> setSelectedItem(final Geoset geoset) {
 		this.geoset = geoset;
-		materialPanelHolder.remove(materialPanel);
+		geosetLabel.setText(geoset.getName());
+
 		setToggleButtonText();
-
-		materialPanels.putIfAbsent(geoset, new ComponentGeosetMaterialPanel());
-		materialPanel = materialPanels.get(geoset);
-
-		materialPanel.setMaterialChooser(geoset, modelViewManager, undoActionListener, modelStructureChangeListener);
-		materialPanelHolder.add(materialPanel);
-		materialPanelHolder.revalidate();
-		materialPanelHolder.repaint();
+		materialChooser.setSelectedItem(geoset.getMaterial());
 
 		trisLabel.setText("" + geoset.getTriangles().size());
 		vertLabel.setText("" + geoset.getVertices().size());
 
-		selectionGroupSpinner.setValue(geoset.getSelectionGroup());
-		lodSpinner.setValue(geoset.getLevelOfDetail());
+		selectionGroupSpinner.reloadNewValue(geoset.getSelectionGroup());
+		lodSpinner.reloadNewValue(geoset.getLevelOfDetail());
 		nameTextField.setText(geoset.getLevelOfDetailName());
 
-		hdPanel.setVisible(modelViewManager.getModel().getFormatVersion() == 1000);
+		hdNamePanel.setVisible(modelHandler.getModel().getFormatVersion() == 1000);
+		lodPanel.setVisible(modelHandler.getModel().getFormatVersion() == 1000);
+
+		remove(animVisPanel);
+		animVisPanel = getVisButtonPanel();
+		add(animVisPanel, "wrap");
+
+		remove(animPanel);
+		animPanel = getGeosetAnimPanel();
+		add(animPanel, "wrap");
 
 		revalidate();
 		repaint();
+		return this;
+	}
+
+	private void setSelectionGroup(int newGroup) {
+		geoset.setSelectionGroup(newGroup);
 	}
 
 
-	@Override
-	public void save(final EditableModel model, final UndoActionListener undoListener,
-	                 final ModelStructureChangeListener changeListener) {
-	}
-
-
-	private void setSelectionGroup() {
-		geoset.setSelectionGroup((Integer) selectionGroupSpinner.getValue());
-	}
-
-	private void setLoD() {
-		geoset.setLevelOfDetail((Integer) lodSpinner.getValue());
+	private void setLoD(int newLod) {
+		if (newLod != geoset.getLevelOfDetail()){
+			undoManager.pushAction(new ChangeLoDAction(newLod, geoset, changeListener).redo());
+		}
 	}
 
 	private void toggleSdHd() {
 		if (geoset != null) {
 			if (geoset.isHD()) {
-				geoset.makeSd();
+				undoManager.pushAction(new ConvertToMatricesAction(geoset, changeListener).redo());
 			} else {
-				geoset.makeHd();
+				UndoAction convertToSkinBones = new ConvertToSkinBonesAction(geoset, null);
+				UndoAction recalculateTangs = new RecalculateTangentsAction(geoset.getVertices());
+				CompoundAction action = new CompoundAction("Make Geoset HD",
+						changeListener::geosetsUpdated,
+						convertToSkinBones,
+						recalculateTangs);
+				undoManager.pushAction(action.redo());
 			}
 			setToggleButtonText();
 		}
 	}
 
 	private void setToggleButtonText() {
+		toggleSdHd.setVisible(modelHandler.getModel().getFormatVersion() >= 900);
 		if (geoset.isHD()) {
 			toggleSdHd.setText("Make Geoset SD");
 		} else {
@@ -157,17 +218,249 @@ public class ComponentGeosetPanel extends JPanel implements ComponentPanel<Geose
 		}
 	}
 
-	private FocusAdapter setLoDName() {
-		return new FocusAdapter() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				geoset.setLevelOfDetailName(nameTextField.getText());
-			}
-		};
+	private void setLoDName(String newName) {
+		if (!newName.equals(geoset.getLevelOfDetailName())) {
+			undoManager.pushAction(new ChangeLoDNameAction(newName, geoset, changeListener).redo());
+		}
 	}
 
 	private void editUVs() {
 
 	}
 
+	private JPanel getGeosetAnimPanel() {
+		JPanel panel = new JPanel(new MigLayout("fill", "[]", "[][][grow]"));
+		GeosetAnim geosetAnim = geoset.getGeosetAnim();
+
+		if (geosetAnim != null) {
+			panel.add(new JLabel("GeosetAnim"), "wrap");
+
+			JButton button = new JButton("copy all geosetAnim-info from other");
+			button.addActionListener(e -> copyFromOther());
+			panel.add(button, "wrap");
+
+			FloatValuePanel alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA);
+			panel.add(alphaPanel, "wrap, span 2");
+
+			ColorValuePanel colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR);
+			panel.add(colorPanel, "wrap, span 2");
+
+			alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), (FloatAnimFlag) geosetAnim.find(MdlUtils.TOKEN_ALPHA), geosetAnim, MdlUtils.TOKEN_ALPHA, geosetAnim::setStaticAlpha);
+			colorPanel.reloadNewValue(geosetAnim.getStaticColor(), (Vec3AnimFlag) geosetAnim.find(MdlUtils.TOKEN_COLOR), geosetAnim, MdlUtils.TOKEN_COLOR, geosetAnim::setStaticColor);
+		} else {
+			JButton addAnim = new JButton("Add GeosetAnim");
+			addAnim.addActionListener(e -> undoManager.pushAction(new SetGeosetAnimAction(model, geoset, changeListener).redo()));
+			panel.add(addAnim);
+		}
+		return panel;
+	}
+
+	private void copyFromOther() {
+		GeosetAnimCopyPanel.show(ProgramGlobals.getMainPanel(), model, geoset.getGeosetAnim(), undoManager);
+		repaint();
+	}
+
+	private JPanel getVisButtonPanel() {
+		JPanel panel = new JPanel(new MigLayout("wrap 3", "[sg group1][sg group1, center][sg group1, center]", ""));
+		GeosetAnim geosetAnim = geoset.getGeosetAnim();
+
+		Map<Animation, Visibility> geoAnimVisMap = new HashMap<>();
+		Map<Animation, Visibility> matAnimVisMap = getMaterialAnimVisMap();
+		if (geosetAnim != null && geosetAnim.getVisibilityFlag() != null) {
+			for (Animation animation : model.getAnims()) {
+				geoAnimVisMap.put(animation, getVis(geosetAnim.getVisibilityFlag().getEntryMap(animation)));
+			}
+		}
+		if (!geoAnimVisMap.isEmpty() || !matAnimVisMap.isEmpty()) {
+			panel.setBorder(BorderFactory.createTitledBorder("Visibility"));
+			panel.add(new JLabel("Animation"));
+			panel.add(new JLabel("GeosetAnimation"), "");
+			panel.add(new JLabel("Material"), "");
+			for (Animation animation : model.getAnims()) {
+				panel.add(new JLabel(animation.getName()));
+				if (geoAnimVisMap.containsKey(animation)) {
+					JButton animButton = new JButton(geoAnimVisMap.get(animation).toString());
+					animButton.addActionListener(e -> toggleVisibility(animation, geoAnimVisMap.get(animation)));
+					if (geoAnimVisMap.get(animation) == Visibility.VISIBLE) {
+//						animButton.setBackground(new Color(120, 150, 255));
+						animButton.setBackground(new Color(167, 182, 235));
+//						animButton.setForeground(Color.WHITE);
+					} else if (geoAnimVisMap.get(animation) == Visibility.ANIMATED || geoAnimVisMap.get(animation) == Visibility.TRANSPARENT) {
+						animButton.setBackground(new Color(200, 150, 255));
+						animButton.setEnabled(false);
+					}
+					panel.add(animButton, "");
+				} else {
+					panel.add(new JLabel());
+				}
+				if (matAnimVisMap.containsKey(animation)) {
+					JButton animButton = new JButton(matAnimVisMap.get(animation).toString());
+					animButton.setEnabled(false);
+					if (matAnimVisMap.get(animation) == Visibility.VISIBLE) {
+//						animButton.setBackground(new Color(120, 150, 255, 120));
+						animButton.setBackground(new Color(167, 182, 235));
+					} else if (matAnimVisMap.get(animation) == Visibility.ANIMATED || matAnimVisMap.get(animation) == Visibility.TRANSPARENT) {
+						animButton.setBackground(new Color(200, 150, 255));
+						animButton.setEnabled(false);
+					}
+					panel.add(animButton, "");
+				} else {
+					panel.add(new JLabel());
+				}
+
+			}
+		}
+
+		return panel;
+	}
+
+	private Visibility getVis(TreeMap<Integer, Entry<Float>> entryMap) {
+		if (entryMap != null && !entryMap.isEmpty()) {
+			float firstValue = entryMap.get(entryMap.firstKey()).getValue();
+			Collection<Entry<Float>> visEntries = entryMap.values();
+			if (visEntries.stream().allMatch(e -> e.getValue() >= 1)) {
+				return Visibility.VISIBLE;
+			} else if (visEntries.stream().allMatch(e -> e.getValue() == 0)) {
+				return Visibility.INVISIBLE;
+			} else if (visEntries.stream().anyMatch(e -> e.getValue() != firstValue && 0.05 < Math.abs(e.getValue() - firstValue))) {
+//			} else if (visEntries.stream().anyMatch(e -> e.getValue() != firstValue)) {
+				return Visibility.ANIMATED;
+			} else {
+				return Visibility.TRANSPARENT;
+			}
+		} else {
+			return Visibility.VISIBLE;
+		}
+	}
+
+	private void toggleVisibility(Animation animation, Visibility currVis) {
+		AnimFlag<Float> visibilityFlag = geoset.getGeosetAnim().getVisibilityFlag();
+		TreeMap<Integer, Entry<Float>> entryMap = visibilityFlag.getEntryMap(animation);
+		if (currVis == Visibility.VISIBLE) {
+			System.out.println("going invis!");
+			if (entryMap == null || entryMap.isEmpty()) {
+				Entry<Float> entry = new Entry<>(0, 0f);
+				UndoAction action = new AddFlagEntryAction<>(visibilityFlag, entry, animation, changeListener);
+				undoManager.pushAction(action.redo());
+			} else {
+				List<UndoAction> actions = new ArrayList<>();
+				for (Entry<Float> entry : entryMap.values()) {
+					Entry<Float> newEntry = new Entry<>(entry.getTime(), 0f);
+					actions.add(new ChangeFlagEntryAction<>(visibilityFlag, newEntry, entry, animation, null));
+				}
+				UndoAction action = new CompoundAction("Set visible", actions, changeListener::geosetsUpdated);
+				undoManager.pushAction(action.redo());
+			}
+		} else if (currVis == Visibility.INVISIBLE) {
+			System.out.println("going vis!");
+			if (!entryMap.isEmpty()) {
+				List<UndoAction> actions = new ArrayList<>();
+				for (Entry<Float> entry : entryMap.values()) {
+					Entry<Float> newEntry = new Entry<>(entry.getTime(), 1f);
+					actions.add(new ChangeFlagEntryAction<>(visibilityFlag, newEntry, entry, animation, null));
+				}
+				UndoAction action = new CompoundAction("Set invisible", actions, changeListener::geosetsUpdated);
+				undoManager.pushAction(action.redo());
+			}
+		}
+	}
+
+	private void removeGeoset() {
+		UndoAction action = new DeleteGeosetAction(model, geoset, changeListener);
+		undoManager.pushAction(action.redo());
+	}
+
+	private Map<Animation, Visibility> getMaterialAnimVisMap() {
+		Material material = geoset.getMaterial();
+		Map<Animation, Visibility> animVisMap = new HashMap<>();
+		if (material != null) {
+			for (Animation animation : model.getAnims()) {
+				if (material.isHD()) {
+					Layer layer = material.getLayer(HD_Material_Layer.DIFFUSE.ordinal());
+					if(layer.getVisibilityFlag() != null && layer.getVisibilityFlag().size() != 0){
+						Visibility vis = getLayersAnimVis(animation, Collections.singletonList(layer));
+						animVisMap.put(animation, vis);
+					}
+				} else {
+					if(material.getLayers().stream().anyMatch(layer -> layer.getVisibilityFlag() != null && layer.getVisibilityFlag().size() != 0)){
+						Visibility vis = getLayersAnimVis(animation, material.getLayers());
+						animVisMap.put(animation, vis);
+					}
+				}
+			}
+		}
+		return animVisMap;
+	}
+
+	private Visibility getLayersAnimVis(Animation animation, List<Layer> layers) {
+		Visibility visibility = Visibility.INVISIBLE;
+		for (Layer layer : layers) {
+			AnimFlag<Float> animFlag = layer.getVisibilityFlag();
+			if(animFlag == null || animFlag.size(animation) == 0){
+				Visibility layerVis = getVisibility(layer.getStaticAlpha());
+				if(layerVis == Visibility.VISIBLE){
+					return Visibility.VISIBLE;
+				} else if(visibility.ordinal() < layerVis.ordinal()){
+					visibility = layerVis;
+				}
+			} else {
+				TreeMap<Integer, Entry<Float>> entryMap = animFlag.getEntryMap(animation);
+				if(!entryMap.isEmpty()) {
+					float vis = entryMap.get(entryMap.firstKey()).getValue();
+					Visibility firstVis = getVisibility(vis);
+					Visibility animVis = firstVis;
+
+					for (Entry<Float> entry : entryMap.values()) {
+						animVis = getVisibility(entry.getValue());
+						if (animVis != firstVis){
+							animVis = Visibility.ANIMATED;
+							break;
+						} else if (animVis == Visibility.TRANSPARENT){
+							float visDiff = Math.abs(entry.getValue() - vis);
+							if(0.05 < visDiff){
+								animVis = Visibility.ANIMATED;
+								break;
+							}
+						}
+					}
+					if(animVis == Visibility.VISIBLE){
+						return Visibility.VISIBLE;
+					} else if(visibility.ordinal() < animVis.ordinal()){
+						visibility = animVis;
+					}
+				} else {
+					return Visibility.VISIBLE;
+				}
+			}
+		}
+		return visibility;
+	}
+
+	private Visibility getVisibility(double vis) {
+		Visibility visibility;
+		if(vis == 0){
+			visibility = Visibility.INVISIBLE;
+		} else if (vis >= 1) {
+			visibility = Visibility.VISIBLE;
+		} else {
+			visibility = Visibility.TRANSPARENT;
+		}
+		return visibility;
+	}
+
+	private enum Visibility{
+		INVISIBLE("invisible"),
+		TRANSPARENT("transparent"),
+		ANIMATED("animated"),
+		VISIBLE("visible");
+		String s;
+		Visibility(String s){
+			this.s = s;
+		}
+
+		@Override
+		public String toString() {
+			return s;
+		}
+	}
 }

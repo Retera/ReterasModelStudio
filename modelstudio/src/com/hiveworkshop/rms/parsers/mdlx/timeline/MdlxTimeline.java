@@ -37,12 +37,7 @@ public abstract class MdlxTimeline<TYPE> {
 		interpolationType = InterpolationType.getType(reader.readInt32());
 		globalSequenceId = reader.readInt32();
 
-		frames = new long[(int) keyFrameCount];
-		values = (TYPE[]) new Object[(int) keyFrameCount];
-		if (interpolationType.tangential()) {
-			inTans = (TYPE[]) new Object[(int) keyFrameCount];
-			outTans = (TYPE[]) new Object[(int) keyFrameCount];
-		}
+		initLists((int) keyFrameCount);
 
 		for (int i = 0; i < keyFrameCount; i++) {
 			frames[i] = reader.readInt32();
@@ -100,12 +95,7 @@ public abstract class MdlxTimeline<TYPE> {
 			globalSequenceId = -1;
 		}
 
-		frames = new long[keyFrameCount];
-		values = (TYPE[]) new Object[keyFrameCount];
-		if (this.interpolationType.tangential()) {
-			inTans = (TYPE[]) new Object[keyFrameCount];
-			outTans = (TYPE[]) new Object[keyFrameCount];
-		}
+		initLists(keyFrameCount);
 		for (int i = 0; i < keyFrameCount; i++) {
 			frames[i] = (stream.readInt());
 			values[i] = (readMdlValue(stream));
@@ -151,18 +141,19 @@ public abstract class MdlxTimeline<TYPE> {
 		int size = 16;
 
 		if (tracksCount > 0) {
-			final int bytesPerValue = size() * 4;
-			int valuesPerTrack = 1;
-			if (interpolationType.tangential()) {
-				valuesPerTrack = 3;
-			}
+			int bytesPerValue = valueSize() * 4;
+			int valuesPerTrack = interpolationType.tangential() ? 3 : 1;
 
 			size += (4 + (valuesPerTrack * bytesPerValue)) * tracksCount;
 		}
 		return size;
 	}
 
-	protected abstract int size();
+	protected abstract int valueSize();
+
+	public int size() {
+		return frames.length;
+	}
 
 	protected abstract TYPE readMdxValue(BinaryReader reader);
 
@@ -171,4 +162,27 @@ public abstract class MdlxTimeline<TYPE> {
 	protected abstract void writeMdxValue(BinaryWriter writer, TYPE value);
 
 	protected abstract void writeMdlValue(MdlTokenOutputStream stream, String prefix, TYPE value);
+
+	public abstract void initLists(int size);
+
+	public void add(int i, long frame, TYPE value, TYPE inTan, TYPE outTan) {
+		frames[i] = frame;
+		values[i] = value;
+		if (interpolationType.tangential()) {
+			if (inTans != null && inTan != null) {
+				inTans[i] = inTan;
+			}
+			if (outTans != null && outTan != null) {
+				outTans[i] = outTan;
+			}
+		}
+	}
+
+	public TYPE[] getEntryAt(int i){
+		return null;
+	}
+
+	public long getFrameAt(int i){
+		return frames[i];
+	}
 }

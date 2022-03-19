@@ -1,30 +1,48 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.model.Camera;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 
 public class CheckableCameraElement extends CheckableDisplayElement<Camera> {
-	public CheckableCameraElement(ModelViewManager modelViewManager, Camera item) {
-		super(modelViewManager, item);
+	public CheckableCameraElement(ModelView modelView, Camera item) {
+		super(modelView, item);
 	}
 
 	@Override
-	protected void setChecked(Camera item, ModelViewManager modelViewManager, boolean checked) {
+	protected void setChecked(Camera item, ModelView modelView, boolean checked) {
 		if (checked) {
-			modelViewManager.makeCameraVisible(item);
+			modelView.makeCameraEditable(item);
 		} else {
-			modelViewManager.makeCameraNotVisible(item);
+			modelView.makeCameraNotVisible(item);
 		}
 	}
-
 	@Override
-	protected String getName(Camera item, ModelViewManager modelViewManager) {
-		return item.getName();
+	public void setEditable(boolean editable){
+		if(editable){
+			modelView.makeCameraEditable(item);
+		} else {
+			modelView.makeCameraNotEditable(item);
+		}
 	}
+	@Override
+	public void setVisible(boolean visible){
+		if(visible){
+			modelView.makeCameraVisible(item);
+		} else {
+			modelView.makeCameraNotVisible(item);
+		}
+	}
+//	@Override
+//	public boolean isEditable(){
+//		return modelView.isEditable(item);
+//	}
+//	@Override
+//	public boolean isVisible(){
+//		return modelView.isVisible(item);
+//	}
 
 	@Override
-	public void visit(SelectableComponentVisitor visitor) {
-		visitor.accept(item);
+	protected String getName(Camera item, ModelView modelView) {
+		return item.getName();
 	}
 }

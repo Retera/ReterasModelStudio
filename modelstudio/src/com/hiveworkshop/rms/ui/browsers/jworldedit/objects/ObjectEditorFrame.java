@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
+import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import net.sf.image4j.codec.ico.ICODecoder;
 
 import javax.swing.*;
@@ -14,24 +15,11 @@ public class ObjectEditorFrame extends JFrame {
 
 	public ObjectEditorFrame() {
 		super("Object Editor");
-		try {
-			InputStream resourceAsStream = this.getClass().getResourceAsStream("worldedit.ico");
-			System.out.println("image stream (\"this.in\"): " + resourceAsStream);
-			final List<BufferedImage> images = ICODecoder.read(resourceAsStream);
-			final List<BufferedImage> finalImages = new ArrayList<>();
-			BufferedImage lastImage = null;
-			for (final BufferedImage image : images) {
-				if ((lastImage != null) && (image.getWidth() != lastImage.getWidth())) {
-					finalImages.add(lastImage);
-				}
-				lastImage = image;
-			}
-			finalImages.add(lastImage);
-			setIconImages(finalImages);
-		} catch (final Exception e) {
-			e.printStackTrace();
-		}
-		setContentPane(panel = new ObjectEditorPanel());
+		setIconImages(getBufferedImages());
+		System.out.println("Panelur?");
+		panel = new ObjectEditorPanel();
+		System.out.println("Panelur done!");
+		setContentPane(panel);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		pack();
@@ -39,7 +27,58 @@ public class ObjectEditorFrame extends JFrame {
 		// setIconImage(BLPHandler.get().getGameTex(""));
 	}
 
+	private List<BufferedImage> getBufferedImages() {
+		List<BufferedImage> finalImages = new ArrayList<>();
+		try {
+			if (GameDataFileSystem.getDefault().has("UI\\worldedit.ico")) {
+				InputStream resourceAsStream = GameDataFileSystem.getDefault().getResourceAsStream("UI\\worldedit.ico");
+//				InputStream resourceAsStream = this.getClass().getResourceAsStream("worldedit.ico");
+				System.out.println("image stream (\"this.in\"): " + resourceAsStream);
+
+				List<BufferedImage> images = ICODecoder.read(resourceAsStream);
+				BufferedImage lastImage = null;
+				for (BufferedImage image : images) {
+					if ((lastImage != null) && (image.getWidth() != lastImage.getWidth())) {
+						finalImages.add(lastImage);
+					}
+					lastImage = image;
+				}
+				finalImages.add(lastImage);
+			}
+		} catch (final Exception e) {
+			e.printStackTrace();
+		}
+		return finalImages;
+	}
+
 	public static void main(final String[] args) {
+		setUpLookAndFeel();
+
+		showObjectEditor();
+	}
+
+	public static void showObjectEditor() {
+		ObjectEditorFrame frame = new ObjectEditorFrame();
+		frame.setVisible(true);
+		frame.setJMenuBar(getjMenuBar());
+		frame.panel.loadHotkeys();
+	}
+
+	private static JMenuBar getjMenuBar() {
+		final JMenuBar menubar = new JMenuBar();
+		menubar.add(new JMenu("File"));
+		menubar.add(new JMenu("Edit"));
+		menubar.add(new JMenu("View"));
+		menubar.add(new JMenu("Module"));
+		menubar.add(new JMenu("Window"));
+		return menubar;
+	}
+
+	public void loadHotkeys() {
+		panel.loadHotkeys();
+	}
+
+	private static void setUpLookAndFeel() {
 		try {
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel");
 		} catch (final Exception exc) {
@@ -49,21 +88,5 @@ public class ObjectEditorFrame extends JFrame {
 				e.printStackTrace();
 			}
 		}
-
-		final ObjectEditorFrame frame = new ObjectEditorFrame();
-		frame.setVisible(true);
-		final JMenuBar menubar = new JMenuBar();
-		menubar.add(new JMenu("File"));
-		menubar.add(new JMenu("Edit"));
-		menubar.add(new JMenu("View"));
-		menubar.add(new JMenu("Module"));
-		menubar.add(new JMenu("Window"));
-		frame.setJMenuBar(menubar);
-		frame.panel.loadHotkeys();
 	}
-
-	public void loadHotkeys() {
-		panel.loadHotkeys();
-	}
-
 }

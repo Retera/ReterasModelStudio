@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxTexture.WrapMode;
 
 /**
@@ -17,10 +16,33 @@ public class Bitmap {
 		return imagePath;
 	}
 
+	public Bitmap(String imagePath, int replaceableId) {
+		this.imagePath = imagePath;
+		this.replaceableId = replaceableId;
+	}
+
+	public Bitmap(String imagePath) {
+		this.imagePath = imagePath;
+	}
+
+	public Bitmap(Bitmap other) {
+		imagePath = other.imagePath;
+		replaceableId = other.replaceableId;
+		wrapMode = other.wrapMode;
+	}
+
+	public Bitmap() {
+
+	}
+
+	public int getReplaceableId() {
+		return replaceableId;
+	}
+
 	public String getName() {
 		if (!imagePath.equals("")) {
 			try {
-				final String[] bits = imagePath.split("\\\\");
+				String[] bits = imagePath.split("[\\\\/]");
 				return bits[bits.length - 1].split("\\.")[0];
 			} catch (final Exception e) {
 				return "bad blp path";
@@ -36,52 +58,14 @@ public class Bitmap {
 		}
 	}
 
-	public int getReplaceableId() {
-		return replaceableId;
-	}
-
-	public void setReplaceableId(final int replaceableId) {
+	public Bitmap setReplaceableId(int replaceableId) {
 		this.replaceableId = replaceableId;
-	}
-
-	public Bitmap() {
-
-	}
-	
-	public Bitmap(final String imagePath, final int replaceableId) {
-		this.imagePath = imagePath;
-		this.replaceableId = replaceableId;
-	}
-
-	public Bitmap(final Bitmap other) {
-		imagePath = other.imagePath;
-		replaceableId = other.replaceableId;
-		wrapMode = other.wrapMode;
-	}
-
-	public Bitmap(final MdlxTexture texture) {
-		imagePath = texture.path;
-		replaceableId = texture.replaceableId;
-		wrapMode = texture.wrapMode;
-	}
-
-	public MdlxTexture toMdlx() {
-		final MdlxTexture texture = new MdlxTexture();
-
-		texture.path = imagePath;
-		texture.replaceableId = replaceableId;
-		texture.wrapMode = wrapMode;
-
-		return texture;
-	}
-	
-	public Bitmap(final String imagePath) {
-		this.imagePath = imagePath;
+		return this;
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		int prime = 31;
 		int result = 1;
 		result = (prime * result) + ((imagePath == null) ? 0 : imagePath.hashCode());
 		result = (prime * result) + replaceableId;
@@ -90,7 +74,7 @@ public class Bitmap {
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
+	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -100,7 +84,7 @@ public class Bitmap {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final Bitmap other = (Bitmap) obj;
+		Bitmap other = (Bitmap) obj;
 		if (imagePath == null) {
 			if (other.imagePath != null) {
 				return false;
@@ -118,7 +102,7 @@ public class Bitmap {
 		return (wrapMode == WrapMode.WRAP_HEIGHT) || (wrapMode == WrapMode.WRAP_BOTH);
 	}
 
-	public void setWrapHeight(final boolean flag) {
+	public Bitmap setWrapHeight(boolean flag) {
 		if (flag) {
 			if (wrapMode == WrapMode.REPEAT_BOTH) {
 				wrapMode = WrapMode.WRAP_HEIGHT;
@@ -132,13 +116,14 @@ public class Bitmap {
 				wrapMode = WrapMode.REPEAT_BOTH;
 			}
 		}
+		return this;
 	}
 
 	public boolean isWrapWidth() {
 		return (wrapMode == WrapMode.WRAP_WIDTH) || (wrapMode == WrapMode.WRAP_BOTH);
 	}
 
-	public void setWrapWidth(final boolean flag) {
+	public Bitmap setWrapWidth(boolean flag) {
 		if (flag) {
 			if (wrapMode == WrapMode.REPEAT_BOTH) {
 				wrapMode = WrapMode.WRAP_WIDTH;
@@ -152,17 +137,50 @@ public class Bitmap {
 				wrapMode = WrapMode.REPEAT_BOTH;
 			}
 		}
+		return this;
 	}
 
 	public WrapMode getWrapMode() {
 		return wrapMode;
 	}
 
-	public void setWrapMode(final WrapMode wrapMode) {
+	public Bitmap setWrapMode(WrapMode wrapMode) {
 		this.wrapMode = wrapMode;
+		return this;
 	}
 
-	public void setPath(final String imagePath) {
+	public Bitmap setPath(String imagePath) {
 		this.imagePath = imagePath;
+		return this;
+	}
+
+	public String getRenderableTexturePath() {
+		if (imagePath.length() == 0) {
+			String tcString = ("" + (100 + Material.teamColor)).substring(1);
+			return switch (replaceableId) {
+				case 0 -> "";
+				case 1 -> "ReplaceableTextures\\TeamColor\\TeamColor" + tcString + ".blp";
+				case 2 -> "ReplaceableTextures\\TeamGlow\\TeamGlow" + tcString + ".blp";
+				case 11 -> "ReplaceableTextures\\Cliff\\Cliff0" + ".blp";
+				case 31 -> "ReplaceableTextures\\LordaeronTree\\LordaeronSummerTree" + ".blp";
+				//"ReplaceableTextures\LordaeronTree\LordaeronSummerTree",
+				// "ReplaceableTextures\LordaeronTree\LordaeronFallTree",
+				// "ReplaceableTextures\DalaranRuinsTree\DalaranRuinsTree"
+				//"ReplaceableTextures\LordaeronTree\LordaeronWinterTree",
+				// "ReplaceableTextures\LordaeronTree\LordaeronSnowTree",
+				// "ReplaceableTextures\LordaeronTree\LordaeronFallTree"
+				case 32 -> "ReplaceableTextures\\AshenvaleTree\\AshenTree" + ".blp";
+				//"ReplaceableTextures\AshenvaleTree\FelwoodTree","ReplaceableTextures\AshenvaleTree\Ice_Tree",
+				// "ReplaceableTextures\AshenvaleTree\AshenCanopyTree"
+				case 33 -> "ReplaceableTextures\\BarrensTree\\BarrensTree" + ".blp";
+				case 34 -> "ReplaceableTextures\\NorthrendTree\\NorthTree" + ".blp";
+				case 35 -> "ReplaceableTextures\\Mushroom\\MushroomTree" + ".blp"; //tga?,
+				// "ReplaceableTextures\UndergroundTree\UnderMushroomTree"
+				case 36 -> "ReplaceableTextures\\RuinsTree\\RuinsTree" + ".blp";
+				case 37 -> "ReplaceableTextures\\OutlandMushroomTree\\MushroomTree" + ".blp";
+				default -> "replaceabletextures\\lordaerontree\\lordaeronsummertree" + ".blp";
+			};
+		}
+		return imagePath;
 	}
 }

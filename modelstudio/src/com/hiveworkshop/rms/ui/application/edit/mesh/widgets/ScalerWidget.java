@@ -1,30 +1,26 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.widgets;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.MoveDimension;
+import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.util.GU;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 
-public final class ScalerWidget {
+public final class ScalerWidget extends Widget {
 	private static final int LINE_LEN = 80;
 	private static final int LINE_SENS = 3;
 	private static final int EXTERIOR_TRIANGLE_OFFSET = LINE_LEN - 16;
 	private static final int INTERIOR_TRIANGLE_OFFSET = LINE_LEN - 32;
-	private final Vec3 point;
 
 	private final Polygon triangle;
 	private final Polygon romb;
-	private MoveDimension moveDirection = MoveDimension.NONE;
 
 	private final Polygon northLineHitBox;
 	private final Polygon eastLineHitBox;
 
-	public ScalerWidget(Vec3 point) {
-		this.point = new Vec3(0, 0, 0);
-		this.point.set(point);
-
+	public ScalerWidget() {
 		triangle = new Polygon();
 		triangle.addPoint(0, 0);
 		triangle.addPoint(INTERIOR_TRIANGLE_OFFSET, 0);
@@ -41,11 +37,16 @@ public final class ScalerWidget {
 
 	}
 
-	public MoveDimension getDirectionByMouse(Point mousePoint, CoordinateSystem coordinateSystem, byte dim1, byte dim2) {
+	@Override
+	public MoveDimension getDirectionByMouse(Vec2 mousePoint1, CoordinateSystem coordinateSystem) {
+		byte dim1 = coordinateSystem.getPortFirstXYZ();
+		byte dim2 = coordinateSystem.getPortSecondXYZ();
 		int x = (int) coordinateSystem.viewX(point.getCoord(dim1));
 		int y = (int) coordinateSystem.viewY(point.getCoord(dim2));
 
 		MoveDimension direction = MoveDimension.NONE;
+
+		Point mousePoint = new Point((int) mousePoint1.x, (int) mousePoint1.y);
 
 		if (GU.getTransPolygon(x, y, triangle).contains(mousePoint)) {
 			return MoveDimension.XYZ;
@@ -62,22 +63,11 @@ public final class ScalerWidget {
 		return direction;
 	}
 
-    public Vec3 getPoint() {
-        return point;
-    }
-
-	public void setPoint(Vec3 point) {
-		this.point.set(point);
+	public Vec3 getPoint() {
+		return point;
 	}
 
-	public MoveDimension getMoveDirection() {
-		return moveDirection;
-	}
-
-	public void setMoveDirection(MoveDimension moveDirection) {
-		this.moveDirection = moveDirection;
-	}
-
+	@Override
 	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem) {
 		byte xDimension = coordinateSystem.getPortFirstXYZ();
 		byte yDimension = coordinateSystem.getPortSecondXYZ();
@@ -130,22 +120,5 @@ public final class ScalerWidget {
 	public void drawEastLine(Graphics2D graphics, int x, int y) {
 		GU.drawCenteredSquare(graphics, x + LINE_LEN, y, 4);
 		graphics.drawLine(x, y, x + LINE_LEN, y);
-	}
-
-	private void setColorByDimension(Graphics2D graphics, byte dimension) {
-		switch (dimension) {
-			case 0, -1 -> graphics.setColor(new Color(0, 255, 0));
-			case 1, -2 -> graphics.setColor(new Color(255, 0, 0));
-			case 2, -3 -> graphics.setColor(new Color(0, 0, 255));
-		}
-	}
-
-	private void setHighLightableColor(Graphics2D graphics, byte dimension, MoveDimension moveDimension) {
-//		System.out.println(moveDimension + " has " + MoveDimension.getByByte(dimension) + "?");
-		if (moveDimension.containDirection(dimension)) {
-			graphics.setColor(new Color(255, 255, 0));
-		} else {
-			setColorByDimension(graphics, dimension);
-		}
 	}
 }

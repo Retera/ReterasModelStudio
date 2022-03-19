@@ -1,28 +1,31 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 import javax.swing.*;
 
 public class FloatValuePanel extends ValuePanel<Float> {
 
-	private ComponentEditorJSpinner staticSpinner;
+	private FloatEditorJSpinner staticSpinner;
 
 
-	public FloatValuePanel(final String title, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
-		this(title, Double.MAX_VALUE, -Double.MAX_VALUE, undoActionListener, modelStructureChangeListener);
+	public FloatValuePanel(ModelHandler modelHandler, final String title) {
+		this(modelHandler, title, Double.MAX_VALUE, -Double.MAX_VALUE);
 	}
 
-	public FloatValuePanel(final String title, double maxValue, double minValue, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
-		super(title, maxValue, minValue, undoActionListener, modelStructureChangeListener);
+	public FloatValuePanel(ModelHandler modelHandler, final String title, double maxValue, double minValue) {
+		super(modelHandler, title, maxValue, minValue);
 	}
 
 	@Override
-	ComponentEditorJSpinner getStaticComponent() {
+	FloatEditorJSpinner getStaticComponent() {
 //		staticSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(1.0, minValue, maxValue, 0.01));
-		staticSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(1.0, -Double.MAX_VALUE, Double.MAX_VALUE, 0.01));
-		staticSpinner.addEditingStoppedListener(this::setStaticValue);
+//		staticSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(1.0, -Double.MAX_VALUE, Double.MAX_VALUE, 0.01));
+		staticSpinner = new FloatEditorJSpinner(1.0f, (float) Integer.MIN_VALUE, 0.01f, this::setStaticValue);
+//		staticSpinner.addFloatEditingStoppedListener(this::setStaticValue);
 
 		((JSpinner.NumberEditor) staticSpinner.getEditor()).getFormat().setMinimumFractionDigits(2);
 
@@ -39,11 +42,10 @@ public class FloatValuePanel extends ValuePanel<Float> {
 		staticSpinner.reloadNewValue(value);
 	}
 
-	void setStaticValue() {
-		float newValue = staticSpinner.getFloatValue();
-
+	void setStaticValue(float newValue) {
 		if (valueSettingFunction != null) {
-			valueSettingFunction.accept(newValue);
+			undoManager.pushAction(new ConsumerAction<>(valueSettingFunction, newValue, staticValue, title).redo());
+//			valueSettingFunction.accept(newValue);
 			staticSpinner.reloadNewValue(newValue);
 		}
 	}
@@ -86,4 +88,8 @@ public class FloatValuePanel extends ValuePanel<Float> {
 	}
 
 
+
+	protected AnimFlag<Float> getNewAnimFlag() {
+		return new FloatAnimFlag(flagName);
+	}
 }

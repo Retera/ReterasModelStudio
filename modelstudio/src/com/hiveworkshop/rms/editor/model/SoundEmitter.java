@@ -1,8 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -50,17 +48,18 @@ public class SoundEmitter extends IdObject {
 	}
 
 	@Override
-	public IdObject copy() {
+//	public IdObject copy() {
+	public SoundEmitter copy() {
 		final SoundEmitter x = new SoundEmitter();
 
 		x.name = name;
 		x.pivotPoint = new Vec3(pivotPoint);
-		x.objectId = objectId;
-		x.parentId = parentId;
+//		x.objectId = objectId;
+//		x.parentId = parentId;
 		x.setParent(getParent());
 
 		for (final AnimFlag<?> af : animFlags) {
-			x.animFlags.add(AnimFlag.createFromAnimFlag(af));
+			x.animFlags.add(af.deepCopy());
 		}
 		return x;
 	}
@@ -157,12 +156,7 @@ public class SoundEmitter extends IdObject {
 	}
 
 	@Override
-	public void apply(final IdObjectVisitor visitor) {
-		throw new UnsupportedOperationException("NYI");
-	}
-
-	@Override
-	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
+	public double getClickRadius() {
+		return DEFAULT_CLICK_RADIUS;
 	}
 }

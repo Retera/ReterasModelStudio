@@ -1,40 +1,33 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
+import com.hiveworkshop.rms.ui.util.SearchableList;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.*;
+import javax.swing.event.ListSelectionEvent;
 import java.util.List;
 
 class MultiBonePanel extends BonePanel {
-	JButton setAllParent;
-	ModelHolderThing mht;
+	private JButton setAllParent;
+	private List<IdObjectShell<?>> selectedValuesList;
+	private JList<IdObjectShell<?>> donModBoneShellJList;
 
-	BoneShellMotionListCellRenderer oneShellRenderer;
-
-	public MultiBonePanel(ModelHolderThing mht, final BoneShellListCellRenderer renderer) {
-		BoneShellMotionListCellRenderer oneShellRenderer = new BoneShellMotionListCellRenderer(mht.recModelManager, mht.donModelManager);
-		this.mht = mht;
+	public MultiBonePanel(ModelHolderThing mht, BoneShellListCellRenderer renderer) {
+		super(mht, "Multiple Selected", renderer);
+		donModBoneShellJList = new JList<>(mht.donModBoneShells);
 		setLayout(new MigLayout("gap 0"));
 		selectedBone = null;
-
-		title = new JLabel("Multiple Selected");
-		title.setFont(new Font("Arial", Font.BOLD, 26));
 		add(title, "align center, wrap");
 
-		importTypeBox.addActionListener(e -> showImportTypeCard());
-		importTypeBox.setMaximumSize(new Dimension(200, 20));
+		importTypeBox = getImportTypeComboBox();
 		add(importTypeBox, "wrap");
 
-		importMotionIntoRecBoneList = new JList<>(mht.recModBoneShells);
-		importMotionIntoRecBoneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		importMotionIntoRecBoneList.setCellRenderer(renderer);
-		JScrollPane boneListPane = new JScrollPane(importMotionIntoRecBoneList);
-
 		cardPanel = new JPanel(cards);
-		cardPanel.add(boneListPane, "boneList");
+//		cardPanel.add(new JPanel(), IdObjectShell.ImportType.MOTION_FROM.name());
+//		cardPanel.add(getMotionIntoBoneListPane(mht, renderer), IdObjectShell.ImportType.MOTION_FROM.name());
+		cardPanel.add(getReciveMotionFromPanel(), IdObjectShell.ImportType.RECEIVE_MOTION.name());
 		cardPanel.add(dummyPanel, "blank");
-		importMotionIntoRecBoneList.setEnabled(false);
 
 		cards.show(cardPanel, "blank");
 		add(cardPanel, "wrap");
@@ -44,10 +37,42 @@ class MultiBonePanel extends BonePanel {
 		add(setAllParent, "wrap");
 	}
 
-	public void updateMultiBonePanel(){
-		List<BoneShell> selectedValuesList = mht.donModBoneShellJList.getSelectedValuesList();
+//	private JScrollPane getMotionIntoBoneListPane(ModelHolderThing mht, BoneShellListCellRenderer renderer) {
+//		recModMotionDestBoneList = new JList<>(mht.recModBoneShells);
+//		recModMotionDestBoneList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+//		recModMotionDestBoneList.setCellRenderer(renderer);
+//		recModMotionDestBoneList.setEnabled(false);
+//		return new JScrollPane(recModMotionDestBoneList);
+//	}
 
-		BoneShell.ImportType firstImportStatus = selectedValuesList.get(0).getImportStatus();
+//	protected JPanel getImportMotionIntoPanel() {
+//		JPanel importMotionIntoPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow][]", "[][][grow]"));
+//		importMotionIntoPanel.add(new JLabel("Bones to receive motion"), "wrap");
+//		motionDestList = new SearchableList<>(this::idObjectShellNameFilter)
+//				.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION)
+//				.addListSelectionListener(this::motionDestChosen)
+//				.setRenderer(motionReceiveRenderer);
+//		importMotionIntoPanel.add(motionDestList.getSearchField(), "grow, wrap");
+//		importMotionIntoPanel.add(motionDestList.getScrollableList(), "spanx, growx, growy");
+//		return importMotionIntoPanel;
+//	}
+
+	protected JPanel getReciveMotionFromPanel() {
+		JPanel importMotionIntoPanel = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow][]", "[][][grow]"));
+		importMotionIntoPanel.add(new JLabel("Bone to receive motion from"), "wrap");
+		motionSrcList = new SearchableList<>(this::idObjectShellNameFilter)
+				.addSelectionListener(this::motionSrcChosen)
+				.setRenderer(motionReceiveRenderer);
+		motionSrcList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		importMotionIntoPanel.add(motionSrcList.getSearchField(), "grow, wrap");
+		importMotionIntoPanel.add(motionSrcList.getScrollableList(), "spanx, growx, growy");
+		return importMotionIntoPanel;
+	}
+
+	public void setSelectedBones(List<IdObjectShell<?>> selectedValuesList) {
+		this.selectedValuesList = selectedValuesList;
+		renderer.setSelectedBoneShell(null);
+		IdObjectShell.ImportType firstImportStatus = selectedValuesList.get(0).getImportStatus();
 
 		if (selectedValuesList.stream().anyMatch(bs -> bs.getImportStatus() != firstImportStatus)) {
 			setMultiTypes();
@@ -56,39 +81,56 @@ class MultiBonePanel extends BonePanel {
 		}
 	}
 
+	protected void motionSrcChosen(ListSelectionEvent e) {
+		if (e.getValueIsAdjusting()) {
+			IdObjectShell<?> bs = motionSrcList.getSelectedValue();
+			if (bs != null) {
+				for(IdObjectShell<?> o : selectedValuesList){
+					bs.addMotionDest(o);
+				}
+			}
+			motionSrcList.setSelectedValue(null, false);
+		}
+	}
+
 	@Override
-	public void setSelectedIndex(final int index) {
-		if (importTypeBox.getSelectedItem() == BoneShell.ImportType.MOTIONFROM) {
-			cards.show(cardPanel, "boneList");
+	public void setImportStatus(IdObjectShell.ImportType type) {
+		if (importTypeBox.getSelectedItem() == IdObjectShell.ImportType.MOTION_FROM) {
+			cards.show(cardPanel, IdObjectShell.ImportType.MOTION_FROM.name());
+		} else if (importTypeBox.getSelectedItem() == IdObjectShell.ImportType.RECEIVE_MOTION) {
+			cards.show(cardPanel, IdObjectShell.ImportType.RECEIVE_MOTION.name());
 		} else {
 			cards.show(cardPanel, "blank");
 		}
 	}
 
-	private void showImportTypeCard() {
-		if (importTypeBox.getSelectedItem() == BoneShell.ImportType.MOTIONFROM) {
-			cards.show(cardPanel, "boneList");
-			importTypeForAll();
-		} else if (importTypeBox.getSelectedItem() == BoneShell.ImportType.DONTIMPORT) {
-			cards.show(cardPanel, "blank");
-			importTypeForAll();
-		} else if (importTypeBox.getSelectedItem() == BoneShell.ImportType.IMPORT) {
-			cards.show(cardPanel, "blank");
-			importTypeForAll();
-		} else {
-			cards.show(cardPanel, "blank");
+	@Override
+	protected void showImportTypeCard(IdObjectShell.ImportType type) {
+		if (type != null) {
+			if (type == IdObjectShell.ImportType.MOTION_FROM) {
+				cards.show(cardPanel, IdObjectShell.ImportType.MOTION_FROM.name());
+				importTypeForAll(IdObjectShell.ImportType.MOTION_FROM);
+			} else if (type == IdObjectShell.ImportType.DONT_IMPORT) {
+				cards.show(cardPanel, "blank");
+				importTypeForAll(IdObjectShell.ImportType.DONT_IMPORT);
+			} else if (type == IdObjectShell.ImportType.IMPORT) {
+				cards.show(cardPanel, "blank");
+				importTypeForAll(IdObjectShell.ImportType.IMPORT);
+			}else {
+				cards.show(cardPanel, "blank");
+			}
 		}
 	}
 
 	public void setMultiTypes() {
 		importTypeBox.setEditable(true);
-		importTypeBox.setSelectedItem("Multiple selected");
+		importTypeBox.setSelectedItem(null);
 		importTypeBox.setEditable(false);
 	}
 
-	public void importTypeForAll() {
-		for (BoneShell temp : mht.donModBoneShellJList.getSelectedValuesList()) {
-			temp.setImportStatus(importTypeBox.getSelectedIndex());
+	public void importTypeForAll(IdObjectShell.ImportType type) {
+		for (IdObjectShell boneShell : selectedValuesList) {
+			boneShell.setImportStatus(type);
 		}
 	}
 
@@ -98,12 +140,12 @@ class MultiBonePanel extends BonePanel {
 	 * MultiBone panel.
 	 */
 	public void setParentMultiBones() {
-		final JList<BoneShell> list = new JList<>(mht.getFutureBoneListExtended(true));
+		final JList<IdObjectShell<?>> list = new JList<>(mht.getFutureBoneHelperList());
 		list.setCellRenderer(mht.boneShellRenderer);
 		final int x = JOptionPane.showConfirmDialog(this, new JScrollPane(list), "Set Parent for All Selected Bones", JOptionPane.OK_CANCEL_OPTION);
 		if (x == JOptionPane.OK_OPTION) {
-			for (BoneShell temp : mht.donModBoneShellJList.getSelectedValuesList()) {
-				temp.setNewParentBs(list.getSelectedValue());
+			for (IdObjectShell<?> temp : donModBoneShellJList.getSelectedValuesList()) {
+				temp.setNewParentShell(list.getSelectedValue());
 			}
 		}
 	}

@@ -1,66 +1,64 @@
 package com.hiveworkshop.rms.util;
 
+import com.hiveworkshop.rms.ui.application.model.editors.FloatEditorJSpinner;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.util.function.Consumer;
 
 public class Vec3SpinnerArray {
-	JSpinner[] spinners = new JSpinner[3];
-	JLabel[] labels = new JLabel[3];
-	String labelWrap = "wrap";
-	String spinnerWrap = "";
-	String labelConst = "";
-	String spinnerConst = "";
+	private FloatEditorJSpinner[] spinners = new FloatEditorJSpinner[3];
+	private JLabel[] labels = new JLabel[3];
+	private String labelWrap = "wrap";
+	private String spinnerWrap = "";
+	private String labelConst = "";
+	private String spinnerConst = "";
+	private boolean isEnabled = true;
 
+	private Consumer<Vec3> vec3Consumer;
+
+	boolean isUpdating = false;
 
 	public Vec3SpinnerArray() {
-		spinners[0] = getStandardSpinner(0);
-		spinners[1] = getStandardSpinner(0);
-		spinners[2] = getStandardSpinner(0);
-		labels[0] = new JLabel("");
-		labels[1] = new JLabel("");
-		labels[2] = new JLabel("");
-	}
-
-	public Vec3SpinnerArray(Vec3 startV, String l1, String l2, String l3) {
-		spinners[0] = getStandardSpinner(startV.x);
-		spinners[1] = getStandardSpinner(startV.y);
-		spinners[2] = getStandardSpinner(startV.z);
-		labels[0] = new JLabel(l1);
-		labels[1] = new JLabel(l2);
-		labels[2] = new JLabel(l3);
+		this(new Vec3(), "", "", "");
 	}
 
 	public Vec3SpinnerArray(String l1, String l2, String l3) {
-		spinners[0] = getStandardSpinner(0);
-		spinners[1] = getStandardSpinner(0);
-		spinners[2] = getStandardSpinner(0);
+		this(new Vec3(), l1, l2, l3);
+	}
+
+	public Vec3SpinnerArray(Vec3 startV, String l1, String l2, String l3) {
+		spinners[0] = getStandardSpinner(startV.x).reloadNewValue(startV.x);
+		spinners[1] = getStandardSpinner(startV.y).reloadNewValue(startV.y);
+		spinners[2] = getStandardSpinner(startV.z).reloadNewValue(startV.z);
+
 		labels[0] = new JLabel(l1);
 		labels[1] = new JLabel(l2);
 		labels[2] = new JLabel(l3);
 	}
 
-	static JSpinner getStandardSpinner(double startValue) {
-		return new JSpinner(new SpinnerNumberModel(startValue, -100000.00, 100000.00, 0.1));
+	private FloatEditorJSpinner getStandardSpinner(double startValue) {
+		return new FloatEditorJSpinner((float) startValue, -100000.00f, .1f);
 	}
 
 	public JPanel spinnerPanel() {
 		JPanel spinnerPanel = new JPanel(new MigLayout("gap 0, ins 0"));
-		JPanel xPanel = new JPanel(new MigLayout("gap 0, ins 0"));
-		xPanel.add(labels[0], labelConst + ", " + labelWrap);
-		xPanel.add(spinners[0], spinnerConst);
-		JPanel yPanel = new JPanel(new MigLayout("gap 0, ins 0"));
-		yPanel.add(labels[1], labelConst + ", " + labelWrap);
-		yPanel.add(spinners[1], spinnerConst);
-		JPanel zPanel = new JPanel(new MigLayout("gap 0, ins 0"));
-		zPanel.add(labels[2], labelConst + ", " + labelWrap);
-		zPanel.add(spinners[2], spinnerConst);
+		JPanel xPanel = getCoordPanel(0);
+		JPanel yPanel = getCoordPanel(1);
+		JPanel zPanel = getCoordPanel(2);
 
 		spinnerPanel.add(xPanel, spinnerWrap);
 		spinnerPanel.add(yPanel, spinnerWrap);
 		spinnerPanel.add(zPanel, spinnerWrap);
 
 		return spinnerPanel;
+	}
+
+	public JPanel getCoordPanel(int i) {
+		JPanel coordPanel = new JPanel(new MigLayout("gap 0, ins 0"));
+		coordPanel.add(labels[i], labelConst + ", " + labelWrap);
+		coordPanel.add(spinners[i], spinnerConst);
+		return coordPanel;
 	}
 
 	public Vec3 getValue() {
@@ -71,17 +69,24 @@ public class Vec3SpinnerArray {
 	}
 
 	public Vec3SpinnerArray setValues(Vec3 newValues) {
-		spinners[0].setValue(newValues.x);
-		spinners[1].setValue(newValues.y);
-		spinners[2].setValue(newValues.z);
+		isUpdating = true;
+		spinners[0].reloadNewValue(newValues.x);
+		spinners[1].reloadNewValue(newValues.y);
+		spinners[2].reloadNewValue(newValues.z);
+		isUpdating = false;
 		return this;
 	}
 
 	public Vec3SpinnerArray setEnabled(boolean b) {
+		isEnabled = b;
 		spinners[0].setEnabled(b);
 		spinners[1].setEnabled(b);
 		spinners[2].setEnabled(b);
 		return this;
+	}
+
+	public boolean isEnabled() {
+		return isEnabled;
 	}
 
 	public Vec3SpinnerArray setLabelWrap(boolean b) {
@@ -102,5 +107,27 @@ public class Vec3SpinnerArray {
 	public Vec3SpinnerArray setSpinnerConstrains(String constrains) {
 		spinnerConst = constrains;
 		return this;
+	}
+
+	public Vec3SpinnerArray setStepSize(double stepSize){
+		((SpinnerNumberModel)spinners[0].getModel()).setStepSize(stepSize);
+		((SpinnerNumberModel)spinners[1].getModel()).setStepSize(stepSize);
+		((SpinnerNumberModel)spinners[2].getModel()).setStepSize(stepSize);
+		return this;
+	}
+
+	public Vec3SpinnerArray setVec3Consumer(Consumer<Vec3> consumer) {
+		this.vec3Consumer = consumer;
+		spinners[0].setFloatEditingStoppedListener(f -> runConsumer());
+		spinners[1].setFloatEditingStoppedListener(f -> runConsumer());
+		spinners[2].setFloatEditingStoppedListener(f -> runConsumer());
+		return this;
+	}
+
+
+	private void runConsumer() {
+		if (vec3Consumer != null) {
+			vec3Consumer.accept(getValue());
+		}
 	}
 }

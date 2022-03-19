@@ -1,16 +1,15 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
+import com.hiveworkshop.rms.util.War3ID;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
-
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
-import com.hiveworkshop.rms.util.War3ID;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UnitEditorTreeModel extends DefaultTreeModel {
 	private final Map<War3ID, MutableTreeNode> unitIdToNode = new HashMap<>();

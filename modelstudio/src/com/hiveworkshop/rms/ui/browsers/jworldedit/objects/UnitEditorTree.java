@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.PreModelCreationTreeNodeLinker;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.TreeNodeLinker;
@@ -16,50 +16,27 @@ import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.LinkedList;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.List;
+import java.util.*;
 
 public class UnitEditorTree extends JTree {
 	private TopLevelCategoryFolder root;
 	private MutableObjectData unitData;
 	private final ObjectTabTreeBrowserBuilder browserBuilder;
+	private WorldEditorDataType dataType;
 
-	public UnitEditorTree(final MutableObjectData unitData, final ObjectTabTreeBrowserBuilder browserBuilder,
-			final UnitEditorSettings settings, final WorldEditorDataType dataType) {
+	public UnitEditorTree(MutableObjectData unitData,
+	                      ObjectTabTreeBrowserBuilder browserBuilder,
+	                      UnitEditorSettings settings) {
 		super(makeTreeModel(unitData, browserBuilder));
 		this.unitData = unitData;
 		this.browserBuilder = browserBuilder;
+		this.dataType = unitData.getWorldEditorDataType();
 		root = (TopLevelCategoryFolder) getModel().getRoot();
-		setCellRenderer(new WarcraftObjectTreeCellRenderer(settings, dataType));
-		addTreeExpansionListener(new TreeExpansionListener() {
-
-			@Override
-			public void treeExpanded(final TreeExpansionEvent event) {
-				final TreePath expandedPath = event.getPath();
-				final Object lastPathComponent = expandedPath.getLastPathComponent();
-				if (lastPathComponent instanceof AbstractSortingFolderTreeNode) {
-					final AbstractSortingFolderTreeNode folderTreeNode = (AbstractSortingFolderTreeNode) lastPathComponent;
-					if (!folderTreeNode.isHasExpandedFirstTime()) {
-						if (folderTreeNode.getChildCount() > 0) {
-							final TreeNode childAt = folderTreeNode.getChildAt(0);
-							expandPath(expandedPath.pathByAddingChild(childAt));
-						}
-						folderTreeNode.setHasExpandedFirstTime(true);
-					}
-				}
-			}
-
-			@Override
-			public void treeCollapsed(final TreeExpansionEvent event) {
-
-			}
-		});
+		setCellRenderer(new WarcraftObjectTreeCellRenderer(settings, unitData.getWorldEditorDataType()));
+		addTreeExpansionListener(getTreeExpansionListener());
 		setRootVisible(false);
 		setScrollsOnExpand(true);
 		addFocusListener(new FocusListener() {
@@ -76,26 +53,67 @@ public class UnitEditorTree extends JTree {
 //		setFont(getFont().deriveFont(24f));
 	}
 
-	public void loadHotkeys() {
-		this.getActionMap().put("deleteUnit", new AbstractAction() {
+	public JMenuBar getSearchBar(){
+		JMenuBar menuBar = new JMenuBar();
+		JTextField searchField = new JTextField();
+		Dimension prefSize = searchField.getPreferredSize();
+		prefSize.width = 100;
+		searchField.setMinimumSize(prefSize);
+		searchField.setPreferredSize(prefSize);
+		searchField.addKeyListener(getSearchOnEnter(searchField));
+		menuBar.add(searchField);
+		return menuBar;
+	}
+	public KeyAdapter getSearchOnEnter(JTextField searchField) {
+		return new KeyAdapter() {
 			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final List<MutableGameObject> objectsToDelete = new ArrayList<>();
-				for (final TreePath path : getSelectionPaths()) {
-					final Object lastPathComponent = path.getLastPathComponent();
-					if (lastPathComponent instanceof DefaultMutableTreeNode) {
-						final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) lastPathComponent;
-						if (treeNode.getUserObject() instanceof MutableGameObject) {
-							final MutableGameObject gameObject = (MutableGameObject) treeNode.getUserObject();
-							objectsToDelete.add(gameObject);
+			public void keyPressed(KeyEvent e) {
+				System.out.println("keyCode: " + e.getKeyCode());
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					find(searchField.getText(), false, false);
+				}
+			}
+		};
+	}
+
+	private TreeExpansionListener getTreeExpansionListener() {
+		return new TreeExpansionListener() {
+
+			@Override
+			public void treeExpanded(TreeExpansionEvent event) {
+				TreePath expandedPath = event.getPath();
+				Object lastPathComponent = expandedPath.getLastPathComponent();
+				if (lastPathComponent instanceof AbstractSortingFolderTreeNode) {
+					AbstractSortingFolderTreeNode folderTreeNode = (AbstractSortingFolderTreeNode) lastPathComponent;
+					if (!folderTreeNode.isHasExpandedFirstTime()) {
+						if (folderTreeNode.getChildCount() > 0) {
+							TreeNode childAt = folderTreeNode.getChildAt(0);
+							expandPath(expandedPath.pathByAddingChild(childAt));
 						}
+						folderTreeNode.setHasExpandedFirstTime(true);
 					}
 				}
-				unitData.remove(objectsToDelete);
 			}
-		});
-		this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-				.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteUnit");
+
+			@Override
+			public void treeCollapsed(TreeExpansionEvent event) {
+
+			}
+		};
+	}
+
+	private static UnitEditorTreeModel makeTreeModel(MutableObjectData unitData,
+	                                                 ObjectTabTreeBrowserBuilder browserBuilder) {
+		TopLevelCategoryFolder root = browserBuilder.build();
+		TreeNodeLinker linker = new PreModelCreationTreeNodeLinker();
+		for (War3ID alias : unitData.keySet()) {
+			MutableGameObject unit = unitData.get(alias);
+			if (unitData.getWorldEditorDataType().equals(WorldEditorDataType.UPGRADES)) {
+				System.out.println("alias: " + alias + ", unit: " + unit);
+			}
+			root.insertObjectInto(unit, linker);
+		}
+		return new UnitEditorTreeModel(root);
 	}
 
 	public void reloadAllObjectDataVerySlowly() {
@@ -108,36 +126,37 @@ public class UnitEditorTree extends JTree {
 		return root;
 	}
 
-	public void find(String text, final boolean displayAsRawData, final boolean caseSensitive) {
+	public void loadHotkeys() {
+		this.getActionMap().put("deleteUnit", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				deleteUnit();
+			}
+		});
+		this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteUnit");
+	}
+
+	private void deleteUnit() {
+		List<MutableGameObject> objectsToDelete = getSelectedGameObjects();
+		unitData.remove(objectsToDelete);
+	}
+
+	public void find(String text, boolean displayAsRawData, boolean caseSensitive) {
 		if (!caseSensitive) {
 			text = text.toLowerCase();
 		}
 
-		final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) getLastSelectedPathComponent();
+		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) getLastSelectedPathComponent();
 
 		boolean foundSelection = selectedNode == null;
+
 		Enumeration<TreeNode> depthFirstEnum = root.depthFirstEnumeration();
+
 		while (depthFirstEnum.hasMoreElements()) {
-			final Object nextElement = depthFirstEnum.nextElement();
+			TreeNode nextElement = depthFirstEnum.nextElement();
 			if (foundSelection) {
-				if (nextElement instanceof DefaultMutableTreeNode) {
-					final DefaultMutableTreeNode node = (DefaultMutableTreeNode) nextElement;
-					final LinkedList<TreeNode> nodesForPath = new LinkedList<>();
-					if (matches(node, text, displayAsRawData, caseSensitive)) {
-						TreePath path = new TreePath(root);
-						TreeNode treeNode = node;
-						while (treeNode.getParent() != null) {
-							nodesForPath.addFirst(treeNode);
-							treeNode = treeNode.getParent();
-						}
-						for (final TreeNode treeNodeForPath : nodesForPath) {
-							path = path.pathByAddingChild(treeNodeForPath);
-						}
-						setSelectionPath(path);
-						scrollPathToVisible(path);
-						return;
-					}
-				}
+				if (getSelectionPath111(text, displayAsRawData, caseSensitive, nextElement)) return;
 			} else {
 				foundSelection = nextElement == selectedNode;
 			}
@@ -145,38 +164,33 @@ public class UnitEditorTree extends JTree {
 		if (foundSelection && (selectedNode != null)) {
 			depthFirstEnum = root.depthFirstEnumeration();
 			while (depthFirstEnum.hasMoreElements()) {
-				final Object nextElement = depthFirstEnum.nextElement();
-				if (nextElement instanceof DefaultMutableTreeNode) {
-					final DefaultMutableTreeNode node = (DefaultMutableTreeNode) nextElement;
-					final LinkedList<TreeNode> nodesForPath = new LinkedList<>();
-					if (matches(node, text, displayAsRawData, caseSensitive)) {
-						TreePath path = new TreePath(root);
-						TreeNode treeNode = node;
-						while (treeNode.getParent() != null) {
-							nodesForPath.addFirst(treeNode);
-							treeNode = treeNode.getParent();
-						}
-						for (final TreeNode treeNodeForPath : nodesForPath) {
-							path = path.pathByAddingChild(treeNodeForPath);
-						}
-						setSelectionPath(path);
-						scrollPathToVisible(path);
-						return;
-					}
-				}
+				TreeNode nextElement = depthFirstEnum.nextElement();
+				if (getSelectionPath111(text, displayAsRawData, caseSensitive, nextElement)) return;
 			}
 		}
 	}
 
-	public boolean matches(final DefaultMutableTreeNode node, final String text, final boolean displayAsRawData,
-			final boolean caseSensitive) {
-		if ((node != null) && (node.getUserObject() instanceof MutableGameObject)) {
-			final MutableGameObject obj = (MutableGameObject) node.getUserObject();
-			String name = displayAsRawData ? MutableObjectData.getDisplayAsRawDataName(obj) : obj.getName();
-			if (!caseSensitive) {
-				name = name.toLowerCase();
+	private boolean getSelectionPath111(String text, boolean displayAsRawData, boolean caseSensitive, TreeNode nextElement) {
+		System.out.println("getSelectionPath111");
+		if (nextElement instanceof DefaultMutableTreeNode) {
+			System.out.println("next element: " + nextElement);
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) nextElement;
+			LinkedList<TreeNode> nodesForPath = new LinkedList<>();
+			if (matches(node, text, displayAsRawData, caseSensitive)) {
+				TreePath path = new TreePath(root);
+				TreeNode treeNode = node;
+				while (treeNode.getParent() != null) {
+					nodesForPath.addFirst(treeNode);
+					treeNode = treeNode.getParent();
+				}
+				for (TreeNode treeNodeForPath : nodesForPath) {
+					System.out.println("nodesForPath: " + nodesForPath);
+					path = path.pathByAddingChild(treeNodeForPath);
+				}
+				setSelectionPath(path);
+				scrollPathToVisible(path);
+				return true;
 			}
-			return name.contains(text);
 		}
 		return false;
 	}
@@ -187,25 +201,34 @@ public class UnitEditorTree extends JTree {
 	}
 
 	public void selectFirstUnit() {
-		TreePath topTreePath = new TreePath(root);
-		while (((TreeNode) topTreePath.getLastPathComponent()).getChildCount() > 0) {
-			topTreePath = topTreePath.pathByAddingChild(((TreeNode) topTreePath.getLastPathComponent()).getChildAt(0));
-		}
-		setSelectionPath(topTreePath);
+//		TreePath topTreePath = new TreePath(root);
+//		while (((TreeNode) topTreePath.getLastPathComponent()).getChildCount() > 0) {
+//			topTreePath = topTreePath.pathByAddingChild(((TreeNode) topTreePath.getLastPathComponent()).getChildAt(0));
+//		}
+//		setSelectionPath(topTreePath);
+		TreeNode[] path = root.getFirstLeaf().getPath();
+		System.out.println("TreeNodes: " + Arrays.toString(path));
+		TreePath path1 = new TreePath(path);
+		System.out.println("TreePath: " + path1);
+
+		setSelectionPath(path1);
+
+		System.out.println("getSelectionPath111");
 	}
 
-	private static UnitEditorTreeModel makeTreeModel(final MutableObjectData unitData,
-			final ObjectTabTreeBrowserBuilder browserBuilder) {
-		final TopLevelCategoryFolder root = browserBuilder.build();
-		final TreeNodeLinker linker = new PreModelCreationTreeNodeLinker();
-		for (final War3ID alias : unitData.keySet()) {
-			final MutableGameObject unit = unitData.get(alias);
-			root.insertObjectInto(unit, linker);
+	public boolean matches(DefaultMutableTreeNode node, String text, boolean displayAsRawData, boolean caseSensitive) {
+		if (node != null && node.getUserObject() instanceof MutableGameObject) {
+			MutableGameObject obj = (MutableGameObject) node.getUserObject();
+			String name = displayAsRawData ? MutableObjectData.getDisplayAsRawDataName(obj) : obj.getName();
+			if (!caseSensitive) {
+				name = name.toLowerCase();
+			}
+			return name.contains(text);
 		}
-		return new UnitEditorTreeModel(root);
+		return false;
 	}
 
-	public void acceptPastedObjectData(final War3ObjectDataChangeset changeset) {
+	public void acceptPastedObjectData(War3ObjectDataChangeset changeset) {
 		// ObjectMap custom = changeset.getCustom();
 		// for(War3ID unitId: custom.keySet()) {
 		// ObjectDataChangeEntry objectDataEntry = custom.get(unitId);
@@ -214,18 +237,26 @@ public class UnitEditorTree extends JTree {
 	}
 
 	public War3ObjectDataChangeset copySelectedObjects() {
-		final List<MutableGameObject> objectsToCopy = new ArrayList<>();
-		for (final TreePath path : getSelectionPaths()) {
-			final Object lastPathComponent = path.getLastPathComponent();
-			if (lastPathComponent instanceof DefaultMutableTreeNode) {
-				final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) lastPathComponent;
-				if (treeNode.getUserObject() instanceof MutableGameObject) {
-					final MutableGameObject gameObject = (MutableGameObject) treeNode.getUserObject();
-					objectsToCopy.add(gameObject);
+		List<MutableGameObject> objectsToCopy = getSelectedGameObjects();
+		return unitData.copySelectedObjects(objectsToCopy);
+	}
+
+	public List<MutableGameObject> getSelectedGameObjects() {
+		List<MutableGameObject> selectedObjects = new ArrayList<>();
+		TreePath[] selectionPaths = getSelectionPaths();
+		if (selectionPaths != null) {
+			for (TreePath path : selectionPaths) {
+				Object lastPathComponent = path.getLastPathComponent();
+				if (lastPathComponent instanceof DefaultMutableTreeNode) {
+					DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) lastPathComponent;
+					if (treeNode.getUserObject() instanceof MutableGameObject) {
+						MutableGameObject gameObject = (MutableGameObject) treeNode.getUserObject();
+						selectedObjects.add(gameObject);
+					}
 				}
 			}
 		}
-		return unitData.copySelectedObjects(objectsToCopy);
+		return selectedObjects;
 	}
 
 	public char getWar3ObjectDataChangesetKindChar() {
@@ -236,15 +267,15 @@ public class UnitEditorTree extends JTree {
 		return unitData.getWorldEditorDataType();
 	}
 
-	public void setUnitDataAndReloadVerySlowly(final MutableObjectData newUnitData) {
+	public void setUnitDataAndReloadVerySlowly(MutableObjectData newUnitData) {
 		this.unitData = newUnitData;
 		reloadAllObjectDataVerySlowly();
 	}
 
 	public MutableGameObject getSelectedGameObject() {
-		final DefaultMutableTreeNode o = (DefaultMutableTreeNode) getLastSelectedPathComponent();
-		if ((o != null) && (o.getUserObject() instanceof MutableGameObject)) {
-			return (MutableGameObject) o.getUserObject();
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode) getLastSelectedPathComponent();
+		if (node != null && node.getUserObject() instanceof MutableGameObject) {
+			return (MutableGameObject) node.getUserObject();
 		}
 		return null;
 	}

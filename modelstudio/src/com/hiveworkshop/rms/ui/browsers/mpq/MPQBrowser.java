@@ -1,8 +1,9 @@
 package com.hiveworkshop.rms.ui.browsers.mpq;
 
-import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
+import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
-import com.hiveworkshop.rms.util.Callback;
+import com.hiveworkshop.rms.ui.application.ModelLoader;
+import com.hiveworkshop.rms.util.SklViewer;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -13,79 +14,44 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.*;
 
 public final class MPQBrowser extends JPanel {
-	private final class MouseAdapterExtension extends MouseAdapter {
-		private final JPopupMenu contextMenu;
-		private TreePath clickedPath;
-
-		private MouseAdapterExtension(final JPopupMenu contextMenu) {
-			this.contextMenu = contextMenu;
-		}
-
-		@Override
-		public void mouseClicked(final MouseEvent e) {
-			clickedPath = tree.getPathForLocation(e.getX(), e.getY());
-			if (SwingUtilities.isRightMouseButton(e)) {
-				contextMenu.show(tree, e.getX(), e.getY());
-			}
-		}
-
-		public TreePath getClickedPath() {
-			return clickedPath;
-		}
-	}
 
 	private final JTree tree;
-	//	private final JFileChooser exportFileChooser;
-	private final MouseAdapterExtension mouseAdapterExtension;
-	private final CompoundDataSource gameDataFileSystem;
 	private final DefaultTreeModel treeModel;
 	private final Map<String, Icon> iconMap;
 	private final Map<String, Filter> extensionToFilter = new HashMap<>();
 	private final Map<String, Boolean> currentlyFiltered = new HashMap<>();
-	String currentSearch = "";
-	MPQTreeNode root;
-	Set<String> mergedListFile;
+	private String currentSearch = "";
+	private MPQTreeNode root;
+	private Set<String> mergedListFile;
 	private List<Filter> filters;
 	private Filter otherFilter;
 	private JCheckBoxMenuItem checkAll;
-	private Set<TreePath> expandedPaths;
-	private Set<TreePath> collapsedPaths;
+	private final Set<TreePath> expandedPaths;
+	private final Set<TreePath> collapsedPaths;
 
-	public MPQBrowser(final CompoundDataSource gameDataFileSystem, final Callback<String> fileOpenCallback,
-	                  final Callback<String> useAsTextureCallback) {
-		this.gameDataFileSystem = gameDataFileSystem;
+	public MPQBrowser() {
 		iconMap = new HashMap<>();
 
-		mergedListFile = gameDataFileSystem.getMergedListfile();
+		mergedListFile = GameDataFileSystem.getDefault().getMergedListfile();
 
-		final JMenuBar menuBar = new JMenuBar();
+		JMenuBar menuBar = new JMenuBar();
 
-		final JMenu fileMenu = new JMenu("File");
+		JMenu fileMenu = new JMenu("File");
 		fileMenu.setEnabled(false);
 		menuBar.add(fileMenu);
 
-		final JMenu filtersMenu = new JMenu("Filters");
-		filtersMenu.putClientProperty("Menu.doNotCloseOnMouseExited", false);
-		menuBar.add(filtersMenu);
-
-		createAndAddFilters(filtersMenu);
-
-		filtersMenu.addSeparator();
-
-		final JMenu searchMenu = new JMenu("Search");
-		searchMenu.putClientProperty("Menu.doNotCloseOnMouseExited", false);
-		menuBar.add(searchMenu);
-
-		createSearchMenu(searchMenu);
+		menuBar.add(createAndAddFilters());
+		menuBar.add(getSearchMenu());
 
 		root = createMPQTree();
 		treeModel = new DefaultTreeModel(root);
@@ -93,8 +59,7 @@ public final class MPQBrowser extends JPanel {
 		tree.setShowsRootHandles(true);
 		tree.setRootVisible(false);
 		tree.setCellRenderer(createTreeCellRenderer());
-		tree.addMouseListener(getMouseClickedListener(fileOpenCallback));
-		tree.addKeyListener(getKeyListener(fileOpenCallback));
+		tree.addKeyListener(getKeyListener());
 		tree.addTreeExpansionListener(getTreeExpansionListener());
 		expandedPaths = new HashSet<>();
 		collapsedPaths = new HashSet<>();
@@ -103,36 +68,43 @@ public final class MPQBrowser extends JPanel {
 		add(menuBar, BorderLayout.BEFORE_FIRST_LINE);
 		add(new JScrollPane(tree), BorderLayout.CENTER);
 
-//		exportFileChooser = getFileChooser();
-
-		final JPopupMenu contextMenu = new JPopupMenu();
-
-		final JMenuItem openItem = new JMenuItem("Open");
-		openItem.addActionListener(e -> useAsTextureActionRes(fileOpenCallback));
-		contextMenu.add(openItem);
-
-		final JMenuItem extractItem = new JMenuItem("Export");
-		extractItem.addActionListener(e -> exportItemActionRes(gameDataFileSystem));
-		contextMenu.add(extractItem);
-
-		contextMenu.addSeparator();
-
-		final JMenuItem copyPathToClipboardItem = new JMenuItem("Copy Path to Clipboard");
-		copyPathToClipboardItem.addActionListener(e -> copyItemPathToClipboard());
-		contextMenu.add(copyPathToClipboardItem);
-
-		final JMenuItem useAsTextureItem = new JMenuItem("Use as Texture");
-		useAsTextureItem.addActionListener(e -> useAsTextureActionRes(useAsTextureCallback));
-		contextMenu.add(useAsTextureItem);
-
-		mouseAdapterExtension = new MouseAdapterExtension(contextMenu);
+		//	private final JFileChooser exportFileChooser;
+		MouseAdapterExtension mouseAdapterExtension = new MouseAdapterExtension(this, tree);
 		tree.addMouseListener(mouseAdapterExtension);
 	}
 
-	public void createSearchMenu(JMenu searchMenu) {
+	private static File getDummyFile(String extension) {
+		File dummy = new File(extension);
+		if (!dummy.exists()) {
+			try {
+				if (!dummy.createNewFile()) {
+					return null;
+				}
+			} catch (IOException e) {
+				return null;
+			}
+		}
+		return dummy;
+	}
+
+	public KeyAdapter getSearchOnEnter(JTextField searchField) {
+		return new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				System.out.println("keyCode: " + e.getKeyCode());
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					searchFilter(searchField.getText());
+				}
+			}
+		};
+	}
+
+	private JMenu getSearchMenu() {
+		JMenu searchMenu = new JMenu("Search");
+		searchMenu.putClientProperty("Menu.doNotCloseOnMouseExited", false);
 		searchMenu.getPopupMenu().setLayout(new MigLayout());
 
-		final JTextField searchField = new JTextField();
+		JTextField searchField = new JTextField();
 		Dimension prefSize = searchField.getPreferredSize();
 		prefSize.width = 100;
 		searchField.setMinimumSize(prefSize);
@@ -151,35 +123,10 @@ public final class MPQBrowser extends JPanel {
 			searchField.setText("");
 		});
 		searchMenu.getPopupMenu().add(clearButton, "growx");
+		return searchMenu;
 	}
 
-	public KeyAdapter getSearchOnEnter(JTextField searchField) {
-		return new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				System.out.println("keyCode: " + e.getKeyCode());
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					searchFilter(searchField.getText());
-				}
-			}
-		};
-	}
-
-	private static File getDummyFile(final String extension) {
-		final File dummy = new File(extension);
-		if (!dummy.exists()) {
-			try {
-				if (!dummy.createNewFile()) {
-					return null;
-				}
-			} catch (final IOException e) {
-				return null;
-			}
-		}
-		return dummy;
-	}
-
-	private void createAndAddFilters(JMenu filtersMenu) {
+	private JMenu createAndAddFilters() {
 		filters = new ArrayList<>();
 		filters.add(new Filter("Text", new String[] {".txt"}));
 		filters.add(new Filter("Sylk", new String[] {".slk"}));
@@ -193,13 +140,15 @@ public final class MPQBrowser extends JPanel {
 		otherFilter = new Filter("Other", true);
 		filters.add(otherFilter);
 
-		for (final Filter filter : filters) {
+		JMenu filtersMenu = new JMenu("Filters");
+		filtersMenu.putClientProperty("Menu.doNotCloseOnMouseExited", false);
+		for (Filter filter : filters) {
 			filtersMenu.add(filter.getFilterCheckBoxItem());
-			filter.addActionListener(e -> setFilteredExtensions(filter.extensions, filter.filterCheckBoxItem.getState()));
+			filter.addActionListener(e -> setFilteredExtensions(filter.getExtensions(), filter.getFilterState()));
 
 			filter.getFilterCheckBoxItem().putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 
-			for (final String ext : filter.extensions) {
+			for (String ext : filter.getExtensions()) {
 				extensionToFilter.put(ext, filter);
 				currentlyFiltered.put(ext, true);
 			}
@@ -209,25 +158,14 @@ public final class MPQBrowser extends JPanel {
 		checkAll.addActionListener(e -> setFiltered(checkAll.getState()));
 		checkAll.putClientProperty("CheckBoxMenuItem.doNotCloseOnMouseClick", true);
 		filtersMenu.add(checkAll);
+		return filtersMenu;
 	}
 
-	private MouseAdapter getMouseClickedListener(Callback<String> fileOpenCallback) {
-		return new MouseAdapter() {
-			@Override
-			public void mouseClicked(final MouseEvent e) {
-				if (e.getClickCount() >= 2) {
-					TreePath treePath = tree.getPathForLocation(e.getX(), e.getY());
-					openTreePath(treePath, fileOpenCallback);
-				}
-			}
-		};
-	}
-
-	private void openTreePath(TreePath treePath, Callback<String> fileOpenCallback) {
+	protected void openTreePath(TreePath treePath) {
 		if (treePath != null) {
-			final MPQTreeNode lastPathComponent = (MPQTreeNode) treePath.getLastPathComponent();
+			MPQTreeNode lastPathComponent = (MPQTreeNode) treePath.getLastPathComponent();
 			if (lastPathComponent != null && lastPathComponent.isLeaf()) {
-				fileOpenCallback.run(lastPathComponent.getPath());
+				loadFileByType(lastPathComponent.getPath());
 			}
 		}
 	}
@@ -235,14 +173,14 @@ public final class MPQBrowser extends JPanel {
 	private DefaultTreeCellRenderer createTreeCellRenderer() {
 		return new DefaultTreeCellRenderer() {
 			@Override
-			public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean sel,
-			                                              final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
-				final Component treeCellRendererComponent = super.getTreeCellRendererComponent(tree, value, sel,
+			public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel,
+			                                              boolean expanded, boolean leaf, int row, boolean hasFocus) {
+				Component treeCellRendererComponent = super.getTreeCellRendererComponent(tree, value, sel,
 						expanded, leaf, row, hasFocus);
 				if (leaf) {
-					final String name = value.toString();
+					String name = value.toString();
 					if (name.indexOf('.') > -1) {
-						final String ext = name.substring(name.lastIndexOf('.'));
+						String ext = name.substring(name.lastIndexOf('.'));
 						Icon systemIcon = iconMap.get(ext);
 						if (systemIcon != null) {
 							setIcon(systemIcon);
@@ -250,11 +188,17 @@ public final class MPQBrowser extends JPanel {
 					}
 				} else {
 					if (expanded) {
-						setIcon(new ImageIcon(BLPHandler.get()
-								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp")));
+						BufferedImage gameTex = BLPHandler
+								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup-Open.blp");
+						if(gameTex != null){
+							setIcon(new ImageIcon(gameTex));
+						}
 					} else {
-						setIcon(new ImageIcon(BLPHandler.get()
-								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp")));
+						BufferedImage gameTex = BLPHandler
+								.getGameTex("ReplaceableTextures\\WorldEditUI\\Editor-TriggerGroup.blp");
+						if(gameTex != null){
+							setIcon(new ImageIcon(gameTex));
+						}
 					}
 				}
 				return treeCellRendererComponent;
@@ -262,7 +206,7 @@ public final class MPQBrowser extends JPanel {
 		};
 	}
 
-	private KeyListener getKeyListener(Callback<String> fileOpenCallback) {
+	private KeyListener getKeyListener() {
 		return new KeyListener() {
 			boolean stillPressed = false;
 
@@ -275,7 +219,7 @@ public final class MPQBrowser extends JPanel {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER && !stillPressed) {
 					stillPressed = true;
 					TreePath treePath = tree.getSelectionPath();
-					openTreePath(treePath, fileOpenCallback);
+					openTreePath(treePath);
 				}
 			}
 
@@ -291,9 +235,9 @@ public final class MPQBrowser extends JPanel {
 	// Fill a map with icons to be used. Only fetch Icon if not already in the map.
 	private void getIcons(String ext) {
 		if (!iconMap.containsKey(ext)) {
-			final File tempFile = getDummyFile(ext);
+			File tempFile = getDummyFile(ext);
 			if (tempFile != null) {
-				final Icon systemIcon = FileSystemView.getFileSystemView().getSystemIcon(tempFile);
+				Icon systemIcon = FileSystemView.getFileSystemView().getSystemIcon(tempFile);
 				if (systemIcon != null) {
 					iconMap.put(ext, systemIcon);
 				}
@@ -304,9 +248,9 @@ public final class MPQBrowser extends JPanel {
 
 	// Set the all the filter checkboxes to the value of the "All" checkbox and updates the filter map
 	private void setFiltered(boolean b) {
-		for (final Filter filter : filters) {
+		for (Filter filter : filters) {
 			filter.getFilterCheckBoxItem().setSelected(b);
-			setFilteredExtensions(filter.extensions, b);
+			setFilteredExtensions(filter.getExtensions(), b);
 		}
 		refreshTree();
 	}
@@ -325,35 +269,29 @@ public final class MPQBrowser extends JPanel {
 			node.setVisible(node.hasVisibleChildren());
 		} else {
 			Boolean filtered = currentlyFiltered.get(node.getExtension());
-			boolean fitsSearch = (currentSearch.equals("") || (node.isLeaf() && node.getSubPathName().contains(currentSearch)));
-//			node.setVisible(filtered != null && filtered
-//					|| filtered == null && otherFilter.getFilterCheckBoxItem().isSelected());
+			boolean fitsSearch = (currentSearch.equals("")
+					|| (node.isLeaf()
+					&& node.getSubPathName().toLowerCase(Locale.ROOT).contains(currentSearch.toLowerCase(Locale.ROOT))));
 			node.setVisible(filtered != null && filtered && fitsSearch
 					|| filtered == null && otherFilter.getFilterCheckBoxItem().isSelected() && fitsSearch);
 		}
 	}
 
-	private void copyItemPathToClipboard() {
-		final MPQTreeNode clickedNode = ((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent());
-		final StringSelection selection = new StringSelection(clickedNode.getPath());
-		final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-		clipboard.setContents(selection, selection);
+	public TreePath getPathForLocation(int x, int y) {
+		return tree.getPathForLocation(x, y);
 	}
 
-	private void useAsTextureActionRes(Callback<String> useAsTextureCallback) {
-		useAsTextureCallback.run(((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent()).getPath());
+//	private void exportItemActionRes() {
+//		new FileDialog(this).exportInternalFile(getMouseClickedPath());
+//		// TODO batch save? (setSelectedFiles, getSelectedFiles, forEach -> if exists promt: [overwrite/skip/cancel batch save])
+//		// TODO make it possible to save as png (technically possible but the encoding is still blp)
+//	}
+
+	public void reloadFileSystem() {
+		mergedListFile = GameDataFileSystem.getDefault().getMergedListfile();
+		root = createMPQTree();
+		refreshTree();
 	}
-
-	private void exportItemActionRes(CompoundDataSource gameDataFileSystem) {
-		final MPQTreeNode clickedNode = ((MPQTreeNode) mouseAdapterExtension.getClickedPath().getLastPathComponent());
-		com.hiveworkshop.rms.ui.application.FileDialog fileDialog = new com.hiveworkshop.rms.ui.application.FileDialog(this);
-
-		fileDialog.exportInternalFile(clickedNode.getPath());
-		// TODO batch save? (setSelectedFiles, getSelectedFiles, forEach -> if exists promt: [overwrite/skip/cancel batch save])
-		// TODO make it possible to save as png (technically possible but the encoding is still blp)
-	}
-
-
 
 	// Refreshed the tree. Not sure if all of this is necessary
 	public void refreshTree() {
@@ -375,7 +313,6 @@ public final class MPQBrowser extends JPanel {
 		checkChildren(root);
 		refreshTree();
 	}
-
 	private void searchFilter(String searchText) {
 		currentSearch = searchText;
 		checkChildren(root);
@@ -383,9 +320,9 @@ public final class MPQBrowser extends JPanel {
 	}
 
 	public MPQTreeNode createMPQTree() {
-		final MPQTreeNode root = new MPQTreeNode(null, "", "", "");
+		MPQTreeNode root = new MPQTreeNode(null, "", "", "");
 
-		final List<String> listFile = new ArrayList<>(mergedListFile);
+		List<String> listFile = new ArrayList<>(mergedListFile);
 		Collections.sort(listFile);
 
 		for (String string : listFile) {
@@ -413,71 +350,11 @@ public final class MPQBrowser extends JPanel {
 				currentNode = child;
 			}
 
-			final MPQTreeNode leafNode = new MPQTreeNode(currentNode, string, pathParts.get(pathParts.size() - 1), extension);
+			MPQTreeNode leafNode = new MPQTreeNode(currentNode, string, pathParts.get(pathParts.size() - 1), extension);
 			currentNode.addChild(pathParts.get(pathParts.size() - 1), leafNode);
 		}
 		root.sort();
 		return root;
-	}
-
-	private static final class Filter {
-		private final String[] extensions;
-		private final String name;
-		private final JCheckBoxMenuItem filterCheckBoxItem;
-		private boolean isOtherFilter;
-
-		public Filter(final String name, final String[] extensions) {
-			this.name = name;
-			this.extensions = extensions;
-			filterCheckBoxItem = new JCheckBoxMenuItem(getDescription(), true);
-		}
-
-		public Filter(final String name, final boolean isOtherFilter) {
-			this.name = name;
-			this.isOtherFilter = isOtherFilter;
-			extensions = new String[] {};
-			filterCheckBoxItem = new JCheckBoxMenuItem(name, true);
-		}
-
-		public boolean passes(final String path) {
-			for (final String extension : extensions) {
-				if (path.endsWith(extension)) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public boolean isOtherFilter() {
-			return isOtherFilter;
-		}
-
-		public String getDescription() {
-			final StringBuilder descBuilder = new StringBuilder(name);
-			descBuilder.append(" (");
-			if (extensions.length > 0) {
-				descBuilder.append("*");
-				descBuilder.append(extensions[0]);
-				for (int i = 1; i < extensions.length; i++) {
-					descBuilder.append(", *");
-					descBuilder.append(extensions[i]);
-				}
-			}
-			descBuilder.append(")");
-			return descBuilder.toString();
-		}
-
-		public void addItemListener(final ItemListener itemListener) {
-			filterCheckBoxItem.addItemListener(itemListener);
-		}
-
-		public void addActionListener(final ActionListener listener) {
-			filterCheckBoxItem.addActionListener(listener);
-		}
-
-		public JCheckBoxMenuItem getFilterCheckBoxItem() {
-			return filterCheckBoxItem;
-		}
 	}
 
 	private TreeExpansionListener getTreeExpansionListener() {
@@ -516,6 +393,17 @@ public final class MPQBrowser extends JPanel {
 					System.out.println("faild on: " + treePath);
 				}
 			}
+		}
+	}
+
+
+	private static void loadFileByType(String filepath) {
+		System.out.println("loading file");
+		ModelLoader.loadFile(GameDataFileSystem.getDefault().getFile(filepath), true);
+		System.out.println("File path: \"" + filepath + "\"");
+		if(filepath.endsWith(".skl")){
+			System.out.println("opening frame?");
+			new SklViewer().createAndShowHTMLPanel(filepath, "View SKL");
 		}
 	}
 }

@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.Matrix;
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.BoneShellListCellRenderer;
 import com.hiveworkshop.rms.util.IterableListModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -9,7 +10,6 @@ import javax.swing.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BoneAttachmentEditPanel extends JPanel {
@@ -23,7 +23,7 @@ public class BoneAttachmentEditPanel extends JPanel {
 		setLayout(new MigLayout("gap 0, fill", "[grow]", "[][grow]"));
 		this.mht = mht;
 
-		renderer = new BoneShellListCellRenderer(mht.recModelManager, mht.donModelManager);
+		renderer = new BoneShellListCellRenderer(mht.receivingModel, mht.donatingModel);
 
 		add(getTopPanel(), "align center, wrap");
 
@@ -46,56 +46,13 @@ public class BoneAttachmentEditPanel extends JPanel {
 				for (GeosetShell geosetShell : mht.allGeoShells) {
 					for (int i = 0; i < geosetAnimTabs.getTabCount(); i++) {
 						final BoneAttachmentPanel geoPanel = (BoneAttachmentPanel) geosetAnimTabs.getComponentAt(i);
-						if (geoPanel.selectedGeoset == geosetShell) {
+						if (geoPanel.getSelectedGeoset() == geosetShell) {
 							geosetAnimTabs.setEnabledAt(i, geosetShell.isDoImport());
 						}
 					}
 				}
 			}
 		});
-	}
-
-	static void uncheckUnusedBoneAttatchments(ModelHolderThing mht, List<BoneShell> usedBonePanels) {
-		for (GeosetShell geosetShell : mht.allGeoShells) {
-			if (geosetShell.isDoImport()) {
-				for (MatrixShell ms : geosetShell.getMatrixShells()) {
-					for (final BoneShell bs : ms.getNewBones()) {
-						BoneShell shell = bs;
-						BoneShell current = shell;
-						if (!usedBonePanels.contains(current)) {
-							usedBonePanels.add(current);
-						}
-
-						boolean good = true;
-						int k = 0;
-						while (good) {
-							if ((current == null) || (current.getImportStatus() == BoneShell.ImportType.MOTIONFROM)) {
-								break;
-							}
-							shell = current.getNewParentBs();
-							// If shell is null, then the bone has "No Parent"
-							// If current's selected index is not 2,
-							if (shell == null)// current.getSelectedIndex() != 2
-							{
-								good = false;
-							} else {
-								current = shell;
-								if (usedBonePanels.contains(current)) {
-									good = false;
-								} else {
-									usedBonePanels.add(current);
-								}
-							}
-							k++;
-							if (k > 1000) {
-								JOptionPane.showMessageDialog(null, "Unexpected error has occurred: IdObject to Bone parent loop, circular logic");
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
 	}
 
 	private JPanel getTopPanel() {
@@ -139,11 +96,13 @@ public class BoneAttachmentEditPanel extends JPanel {
 	}
 
 	public void allMatrSameName() {
-		IterableListModel<BoneShell> futureBoneList = mht.getFutureBoneList();
+		IterableListModel<IdObjectShell<?>> futureBoneList = mht.getFutureBoneList();
 
-		Map<String, BoneShell> nameMap = new HashMap<>();
-		for (BoneShell boneShell : futureBoneList) {
-			nameMap.put(boneShell.getName(), boneShell);
+		Map<String, IdObjectShell<?>> nameMap = new HashMap<>();
+		for (IdObjectShell<?> boneShell : futureBoneList) {
+			if (boneShell.getShouldImport()) {
+				nameMap.put(boneShell.getName(), boneShell);
+			}
 		}
 
 		for (GeosetShell geosetShell : mht.allGeoShells) {
@@ -166,18 +125,20 @@ public class BoneAttachmentEditPanel extends JPanel {
 		// this will disregard some parts of bone names, increasing numbers of matched for some models
 		// placeholder "UGG" is used to make sure words isn't  merged and potentially losing more parts than necessary
 		// "ShelpBoneEric" -> "shelpUGGeric" -> "shelperic" and not "ShelpBoneEric" -> "shelperic" -> "sic"
-		IterableListModel<BoneShell> futureBoneList = mht.getFutureBoneList();
+		IterableListModel<IdObjectShell<?>> futureBoneList = mht.getFutureBoneList();
 
-		Map<String, BoneShell> nameMap = new HashMap<>();
+		Map<String, IdObjectShell<?>> nameMap = new HashMap<>();
 		String placeholder = "UGG";
-		for (BoneShell boneShell : futureBoneList) {
-			String name = boneShell.getName().toLowerCase()
-					.replaceAll("bone", placeholder)
-					.replaceAll("helper", placeholder)
-					.replaceAll("_", "")
-					.replaceAll(" ", "")
-					.replaceAll(placeholder, "");
-			nameMap.put(name, boneShell);
+		for (IdObjectShell<?> boneShell : futureBoneList) {
+			if (boneShell.getShouldImport()) {
+				String name = boneShell.getName().toLowerCase()
+						.replaceAll("bone", placeholder)
+						.replaceAll("helper", placeholder)
+						.replaceAll("_", "")
+						.replaceAll(" ", "")
+						.replaceAll(placeholder, "");
+				nameMap.put(name, boneShell);
+			}
 		}
 
 		for (GeosetShell geosetShell : mht.allGeoShells) {

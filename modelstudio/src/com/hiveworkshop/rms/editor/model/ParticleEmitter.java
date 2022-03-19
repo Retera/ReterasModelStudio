@@ -1,10 +1,7 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
 import com.hiveworkshop.rms.editor.render3d.EmitterIdObject;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitter;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 
 /**
  * ParticleEmitter2 class, these are the things most people would think of as a
@@ -28,12 +25,12 @@ public class ParticleEmitter extends EmitterIdObject {
 
 	}
 
-	public ParticleEmitter(final String name) {
+	public ParticleEmitter(String name) {
 		this.name = name;
 	}
 
-	public ParticleEmitter(final ParticleEmitter emitter) {
-		copyObject(emitter);
+	public ParticleEmitter(ParticleEmitter emitter) {
+		super(emitter);
 
 		emissionRate = emitter.emissionRate;
 		gravity = emitter.gravity;
@@ -43,51 +40,6 @@ public class ParticleEmitter extends EmitterIdObject {
 		initVelocity = emitter.initVelocity;
 		MDLEmitter = emitter.MDLEmitter;
 		path = emitter.path;
-	}
-
-	public ParticleEmitter(final MdlxParticleEmitter emitter) {
-		if ((emitter.flags & 4096) != 4096) {
-			System.err.println("MDX -> MDL error: A particle emitter '" + emitter.name
-					+ "' not flagged as particle emitter in MDX!");
-		}
-
-		loadObject(emitter);
-
-		setEmissionRate(emitter.emissionRate);
-		setGravity(emitter.gravity);
-		setInitVelocity(emitter.speed);
-		setLatitude(emitter.latitude);
-		setLifeSpan(emitter.lifeSpan);
-		setLongitude(emitter.longitude);
-		setPath(emitter.path);
-
-		setMDLEmitter(((emitter.flags >> 15) & 1) == 1);
-		if (!isMDLEmitter() && (((emitter.flags >> 8) & 1) == 1)) {
-			System.err.println(
-					"WARNING in MDX -> MDL: ParticleEmitter of unknown type! Defaults to EmitterUsesTGA in my MDL code!");
-		}
-	}
-
-	public MdlxParticleEmitter toMdlx(EditableModel model) {
-		final MdlxParticleEmitter emitter = new MdlxParticleEmitter();
-
-		objectToMdlx(emitter, model);
-
-		emitter.emissionRate = (float) getEmissionRate();
-		emitter.gravity = (float) getGravity();
-		emitter.speed = (float) getInitVelocity();
-		emitter.latitude = (float) getLatitude();
-		emitter.lifeSpan = (float) getLifeSpan();
-		emitter.longitude = (float) getLongitude();
-		emitter.path = getPath();
-
-		if (isMDLEmitter()) {
-			emitter.flags |= 0x8000;
-		} else {
-			emitter.flags |= 0x10000;
-		}
-		
-		return emitter;
 	}
 
 	@Override
@@ -124,7 +76,7 @@ public class ParticleEmitter extends EmitterIdObject {
 		return emissionRate;
 	}
 
-	public void setEmissionRate(final double emissionRate) {
+	public void setEmissionRate(double emissionRate) {
 		this.emissionRate = emissionRate;
 	}
 
@@ -132,7 +84,7 @@ public class ParticleEmitter extends EmitterIdObject {
 		return gravity;
 	}
 
-	public void setGravity(final double gravity) {
+	public void setGravity(double gravity) {
 		this.gravity = gravity;
 	}
 
@@ -140,7 +92,7 @@ public class ParticleEmitter extends EmitterIdObject {
 		return longitude;
 	}
 
-	public void setLongitude(final double longitude) {
+	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
 
@@ -148,7 +100,7 @@ public class ParticleEmitter extends EmitterIdObject {
 		return latitude;
 	}
 
-	public void setLatitude(final double latitude) {
+	public void setLatitude(double latitude) {
 		this.latitude = latitude;
 	}
 
@@ -156,7 +108,7 @@ public class ParticleEmitter extends EmitterIdObject {
 		return this.lifeSpan;
 	}
 
-	public void setLifeSpan(final double lifeSpan) {
+	public void setLifeSpan(double lifeSpan) {
 		this.lifeSpan = lifeSpan;
 	}
 
@@ -164,7 +116,7 @@ public class ParticleEmitter extends EmitterIdObject {
 		return initVelocity;
 	}
 
-	public void setInitVelocity(final double initVelocity) {
+	public void setInitVelocity(double initVelocity) {
 		this.initVelocity = initVelocity;
 	}
 
@@ -172,7 +124,7 @@ public class ParticleEmitter extends EmitterIdObject {
 		return MDLEmitter;
 	}
 
-	public void setMDLEmitter(final boolean mDLEmitter) {
+	public void setMDLEmitter(boolean mDLEmitter) {
 		MDLEmitter = mDLEmitter;
 	}
 
@@ -180,41 +132,36 @@ public class ParticleEmitter extends EmitterIdObject {
 		return path;
 	}
 
-	public void setPath(final String path) {
+	public void setPath(String path) {
 		this.path = path;
 	}
 
 	@Override
-	public void apply(final IdObjectVisitor visitor) {
-		visitor.particleEmitter(this);
+	public double getClickRadius() {
+		return DEFAULT_CLICK_RADIUS;
 	}
 
-	@Override
-	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
+	public double getRenderSpeed(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedFloat(animatedRenderEnvironment, "InitVelocity", (float) getInitVelocity());
 	}
 
-	public double getRenderSpeed(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "InitVelocity", (float)getInitVelocity());
+	public double getRenderLatitude(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedFloat(animatedRenderEnvironment, "Latitude", (float) getLatitude());
 	}
 
-	public double getRenderLatitude(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "Latitude", (float)getLatitude());
+	public double getRenderLongitude(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedFloat(animatedRenderEnvironment, "Longitude", (float) getLongitude());
 	}
 
-	public double getRenderLongitude(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "Longitude", (float)getLongitude());
+	public double getRenderLifeSpan(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedFloat(animatedRenderEnvironment, "LifeSpan", (float) getLifeSpan());
 	}
 
-	public double getRenderLifeSpan(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "LifeSpan", (float)getLifeSpan());
+	public double getRenderGravity(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedFloat(animatedRenderEnvironment, "Gravity", (float) getGravity());
 	}
 
-	public double getRenderGravity(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "Gravity", (float)getGravity());
-	}
-
-	public double getRenderEmissionRate(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-		return getInterpolatedFloat(animatedRenderEnvironment, "EmissionRate", (float)getEmissionRate());
+	public double getRenderEmissionRate(TimeEnvironmentImpl animatedRenderEnvironment) {
+		return getInterpolatedFloat(animatedRenderEnvironment, "EmissionRate", (float) getEmissionRate());
 	}
 }

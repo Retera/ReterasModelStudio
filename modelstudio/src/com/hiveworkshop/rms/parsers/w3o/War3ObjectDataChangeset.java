@@ -156,50 +156,50 @@ public final class War3ObjectDataChangeset {
 	}
 
 	public void renameIds(final ObjectMap map, final boolean isOriginal) {
-		final War3ID nameId = getNameField();
-		final List<War3ID> idsToRemoveFromMap = new ArrayList<>();
-		final Map<War3ID, ObjectDataChangeEntry> idsToObjectsForAddingToMap = new HashMap<>();
+		War3ID nameId = getNameField();
+		List<War3ID> idsToRemoveFromMap = new ArrayList<>();
+		Map<War3ID, ObjectDataChangeEntry> idsToObjectsForAddingToMap = new HashMap<>();
 
-        for (final Map.Entry<War3ID, ObjectDataChangeEntry> entry : map) {
-            final ObjectDataChangeEntry current = entry.getValue();
-            final List<Change> nameEntry = current.getChanges().get(nameId);
+		for (Map.Entry<War3ID, ObjectDataChangeEntry> entry : map) {
+			ObjectDataChangeEntry current = entry.getValue();
+			List<Change> nameEntry = current.getChanges().get(nameId);
 
-            if ((nameEntry != null) && nameEntry.size() > 0) {
-                final Change firstNameChange = nameEntry.get(0);
-                int pos = firstNameChange.getStrval().lastIndexOf("::");
+			if ((nameEntry != null) && nameEntry.size() > 0) {
+				Change firstNameChange = nameEntry.get(0);
+				int pos = firstNameChange.getStrval().lastIndexOf("::");
 
-                if ((pos != -1) && (firstNameChange.getStrval().length() > (pos + 2))) {
-                    String rest = firstNameChange.getStrval().substring(pos + 2);
+				if ((pos != -1) && (firstNameChange.getStrval().length() > (pos + 2))) {
+					String rest = firstNameChange.getStrval().substring(pos + 2);
 
-                    if (rest.length() == 4) {
-                        final War3ID newId = War3ID.fromString(rest);
-                        final ObjectDataChangeEntry existingObjectWithMatchingId = map.get(newId);
+					if (rest.length() == 4) {
+						War3ID newId = War3ID.fromString(rest);
+						ObjectDataChangeEntry existingObjectWithMatchingId = map.get(newId);
 
-                        if (isOriginal) {// obj.cpp: update id and name
-                            current.setOldId(newId);
-                        } else {
-                            current.setNewId(newId);
-                        }
-                        firstNameChange.setStrval(firstNameChange.getStrval().substring(0, pos));
+						if (isOriginal) {// obj.cpp: update id and name
+							current.setOldId(newId);
+						} else {
+							current.setNewId(newId);
+						}
+						firstNameChange.setStrval(firstNameChange.getStrval().substring(0, pos));
 
-                        if (existingObjectWithMatchingId != null) {
+						if (existingObjectWithMatchingId != null) {
 							carryOverChanges(nameId, current, existingObjectWithMatchingId);
 
 						} else { // obj.cpp: an object with that id didn't exist
-                            idsToRemoveFromMap.add(entry.getKey());
-                            idsToObjectsForAddingToMap.put(newId, current.clone());
-                        }
-                    } else if ("REMOVE".equals(rest)) { // obj.cpp: want to remove the object
-                        idsToRemoveFromMap.add(entry.getKey());
-                    } // obj.cpp: in all other cases keep it untouched
-                }
-            }
+							idsToRemoveFromMap.add(entry.getKey());
+							idsToObjectsForAddingToMap.put(newId, current.clone());
+						}
+					} else if ("REMOVE".equals(rest)) { // obj.cpp: want to remove the object
+						idsToRemoveFromMap.add(entry.getKey());
+					} // obj.cpp: in all other cases keep it untouched
+				}
+			}
 
-        }
-		for (final War3ID id : idsToRemoveFromMap) {
+		}
+		for (War3ID id : idsToRemoveFromMap) {
 			map.remove(id);
 		}
-		for (final Map.Entry<War3ID, ObjectDataChangeEntry> entry : idsToObjectsForAddingToMap.entrySet()) {
+		for (Map.Entry<War3ID, ObjectDataChangeEntry> entry : idsToObjectsForAddingToMap.entrySet()) {
 			map.put(entry.getKey(), entry.getValue());
 		}
 	}
@@ -207,21 +207,19 @@ public final class War3ObjectDataChangeset {
 	private void carryOverChanges(War3ID nameId, ObjectDataChangeEntry current, ObjectDataChangeEntry existingObjectWithMatchingId) {
 		// obj.cpp: carry over all changes
 		for (Map.Entry<War3ID, List<Change>> changeIteratorNext : current.getChanges()) {
-			final War3ID copiedChangeId = changeIteratorNext.getKey();
-			List<Change> changeListForFieldToOverwrite = existingObjectWithMatchingId.getChanges()
-					.get(copiedChangeId);
+			War3ID copiedChangeId = changeIteratorNext.getKey();
+			List<Change> changeListForFieldToOverwrite = existingObjectWithMatchingId.getChanges().get(copiedChangeId);
 			if (changeListForFieldToOverwrite == null) {
 				changeListForFieldToOverwrite = new ArrayList<>();
 			}
-			for (final Change changeToCopy : changeIteratorNext.getValue()) {
-				final Iterator<Change> replaceIterator = changeListForFieldToOverwrite.iterator();
+			for (Change changeToCopy : changeIteratorNext.getValue()) {
+				Iterator<Change> replaceIterator = changeListForFieldToOverwrite.iterator();
 
 				boolean didOverwrite = overwrite(nameId, copiedChangeId, changeToCopy, replaceIterator);
 				if (!didOverwrite) {
 					changeListForFieldToOverwrite.add(changeToCopy);
 					if (changeListForFieldToOverwrite.size() == 1) {
-						existingObjectWithMatchingId.getChanges().add(copiedChangeId,
-								changeListForFieldToOverwrite);
+						existingObjectWithMatchingId.getChanges().add(copiedChangeId, changeListForFieldToOverwrite);
 					}
 				}
 			}
@@ -233,7 +231,7 @@ public final class War3ObjectDataChangeset {
 		int pos;
 		String rest;
 		while (replaceIterator.hasNext()) {
-			final Change changeToOverwrite = replaceIterator.next();
+			Change changeToOverwrite = replaceIterator.next();
 			if (changeToOverwrite.getLevel() != changeToCopy.getLevel()) {
 				// obj.cpp: we can only replace changes with the same level/variation
 				continue;
@@ -308,48 +306,48 @@ public final class War3ObjectDataChangeset {
 		return lastused;
 	}
 
-	public void mergeTable(final ObjectMap target, final ObjectMap targetCustom, final ObjectMap source,
-						   final CollisionHandling collisionHandling) {
+	public void mergeTable(ObjectMap target, ObjectMap targetCustom, ObjectMap source, CollisionHandling collisionHandling) {
 		for (Map.Entry<War3ID, ObjectDataChangeEntry> sourceObject : source) {
 			if (target.containsKey(sourceObject.getKey())) {
-				// obj.cpp: we have a collision
-				War3ID oldId;
-				War3ID replacementId;
 
-				// obj.cpp: get new id until we finally have one that isn't used yet, or we're
-				// out of ids
+				// obj.cpp: get new id until we finally have one that isn't used yet,
+				// or we're out of ids
 				// final ObjectDataChangeEntry deleteObject = target.get(sourceObject.getKey());
 				switch (collisionHandling) {
-					case CREATE_NEW_ID -> {
-						oldId = sourceObject.getKey();
-						replacementId = getUnusedId(oldId);
-						while (!((oldId.charAt(1) == '~')
-								&& (oldId.charAt(2) == '~')
-								&& (oldId.charAt(3) == '~'))
-								&& targetCustom.containsKey(replacementId)) {
-							oldId = replacementId;
-							replacementId = getUnusedId(oldId);
-						}
-						if (!((oldId.charAt(1) == '~') && (oldId.charAt(2) == '~') && (oldId.charAt(3) == '~'))) {
-							sourceObject.getValue().setNewId(replacementId);
-							targetCustom.put(replacementId, sourceObject.getValue().clone());
-						}
-					}
+					case CREATE_NEW_ID -> addWithNewId(targetCustom, sourceObject);
 					case REPLACE -> target.put(sourceObject.getKey(), sourceObject.getValue().clone());
-// merge
-					default -> {
-						final ObjectDataChangeEntry targetObject = target.get(sourceObject.getKey());
-						for (final Map.Entry<War3ID, List<Change>> sourceUnitField : sourceObject.getValue()
-								.getChanges()) {
-							for (final Change sourceChange : sourceUnitField.getValue()) {
-								List<Change> targetChanges = targetObject.getChanges().get(sourceUnitField.getKey());
-								findBestSource(targetObject, sourceChange, targetChanges, sourceUnitField.getKey());
-							}
-						}
-					}
+					case MERGE -> mergeChange(target, sourceObject);
 				}
 			} else {
 				targetCustom.put(sourceObject.getKey(), sourceObject.getValue().clone());
+			}
+		}
+	}
+
+	private void addWithNewId(ObjectMap targetCustom, Map.Entry<War3ID, ObjectDataChangeEntry> sourceObject) {
+		// obj.cpp: we have a collision
+		War3ID oldId;
+		War3ID replacementId;
+		oldId = sourceObject.getKey();
+		replacementId = getUnusedId(oldId);
+		while ((oldId.charAt(1) != '~' || oldId.charAt(2) != '~' || oldId.charAt(3) != '~')
+				&& targetCustom.containsKey(replacementId)) {
+			oldId = replacementId;
+			replacementId = getUnusedId(oldId);
+		}
+
+		if (oldId.charAt(1) != '~' || oldId.charAt(2) != '~' || oldId.charAt(3) != '~') {
+			sourceObject.getValue().setNewId(replacementId);
+			targetCustom.put(replacementId, sourceObject.getValue().clone());
+		}
+	}
+
+	private void mergeChange(ObjectMap target, Map.Entry<War3ID, ObjectDataChangeEntry> sourceObject) {
+		ObjectDataChangeEntry targetObject = target.get(sourceObject.getKey());
+		for (Map.Entry<War3ID, List<Change>> sourceUnitField : sourceObject.getValue().getChanges()) {
+			for (Change sourceChange : sourceUnitField.getValue()) {
+				List<Change> targetChanges = targetObject.getChanges().get(sourceUnitField.getKey());
+				findBestSource(targetObject, sourceChange, targetChanges, sourceUnitField.getKey());
 			}
 		}
 	}
@@ -395,17 +393,16 @@ public final class War3ObjectDataChangeset {
 		return 3; // string
 	}
 
-	public boolean loadtable(final BlizzardDataInputStream stream, final ObjectMap map, final boolean isOriginal,
-			final WTS wts, final boolean inlineWTS) throws IOException {
-		final War3ID noId = new War3ID(0);
-		final ByteBuffer stringByteBuffer = ByteBuffer.allocate(1024); // TODO check max len?
-		final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPLACE)
+	public boolean loadtable(BlizzardDataInputStream stream, ObjectMap map, boolean isOriginal, WTS wts, boolean inlineWTS) throws IOException {
+		War3ID noId = new War3ID(0);
+		ByteBuffer stringByteBuffer = ByteBuffer.allocate(1024); // TODO check max len?
+		CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPLACE)
 				.onUnmappableCharacter(CodingErrorAction.REPLACE);
 		int ptr;
 		final int count = stream.readInt();
 		for (int i = 0; i < count; i++) {
-			final long nanoTime = System.nanoTime();
-			final War3ID origId;
+			long nanoTime = System.nanoTime();
+			War3ID origId;
 			War3ID newid = null;
 			origId = readWar3ID(stream);
 			ObjectDataChangeEntry existingObject;
@@ -426,8 +423,7 @@ public final class War3ObjectDataChangeset {
 			}
 			final int ccount = stream.readInt();// Retera: I assume this is change count?
 			if ((ccount == 0) && isOriginal) {
-				// throw new IOException("we seem to have reached the end of the stream and get
-				// zeroes");
+				// throw new IOException("we seem to have reached the end of the stream and get zeroes");
 				System.err.println("we seem to have reached the end of the stream and get zeroes");
 			}
 			if (isOriginal) {
@@ -444,9 +440,9 @@ public final class War3ObjectDataChangeset {
 
 				final Change newlyReadChange = new Change();
 				newlyReadChange.setId(chid);
-				newlyReadChange.setVartype(stream.readInt());
+				newlyReadChange.setVarTypeInt(stream.readInt());
 				debugprint("\t\"" + chid + "\" {");
-				debugprint("\t\tType " + newlyReadChange.getVartype() + ",");
+				debugprint("\t\tType " + newlyReadChange.getVarType() + ",");
 				if (extended()) {
 					newlyReadChange.setLevel(stream.readInt());
 					newlyReadChange.setDataptr(stream.readInt());
@@ -454,12 +450,12 @@ public final class War3ObjectDataChangeset {
 					debugprint("\t\tData " + newlyReadChange.getDataptr() + ",");
 				}
 
-				switch (newlyReadChange.getVartype()) {
-					case 0 -> {
+				switch (newlyReadChange.getVarType()) {
+					case VAR_TYPE_INT -> {
 						newlyReadChange.setLongval(stream.readInt());
 						debugprint("\t\tValue " + newlyReadChange.getLongval() + ",");
 					}
-					case 3 -> {
+					case VAR_TYPE_STRING -> {
 						ptr = 0;
 						stringByteBuffer.clear();
 						byte charRead;
@@ -481,11 +477,11 @@ public final class War3ObjectDataChangeset {
 						}
 						debugprint("\t\tValue \"" + newlyReadChange.getStrval() + "\",");
 					}
-					case 4 -> {
+					case VAR_TYPE_BOOLEAN -> {
 						newlyReadChange.setBoolval(stream.readInt() == 1);
-						debugprint("\t\tValue " + newlyReadChange.isBoolval() + ",");
+						debugprint("\t\tValue " + newlyReadChange.getBoolval() + ",");
 					}
-					default -> {
+					case VAR_TYPE_UNREAL, VAR_TYPE_REAL -> {
 						newlyReadChange.setRealval(stream.readFloat());
 						debugprint("\t\tValue " + newlyReadChange.getRealval() + ",");
 					}
@@ -543,8 +539,7 @@ public final class War3ObjectDataChangeset {
 		return Integer.parseInt(numberAsText);
 	}
 
-	public boolean load(final BlizzardDataInputStream stream, final WTS wts, final boolean inlineWTS)
-			throws IOException {
+	public boolean load(final BlizzardDataInputStream stream, final WTS wts, final boolean inlineWTS) throws IOException {
 		detected = false;
 		version = stream.readInt();
 		if ((version != 1) && (version != 2)) {
@@ -570,11 +565,27 @@ public final class War3ObjectDataChangeset {
 	}
 
 	public static void inlineWTSTable(final ObjectMap map, final WTS wts) {
+		for (ObjectDataChangeEntry entry : map.values()) {
+			for (List<Change> changes : entry.getChanges().values()) {
+				for (Change change : changes) {
+					if ((change.getStrval().length() > 8) && "TRIGSTR_".equals(change.getStrval().substring(0, 8))) {
+						int key = getWTSValue(change);
+						change.setStrval(wts.get(key));
+						if (change.getStrval().length() > MAX_STR_LEN) {
+							change.setStrval(change.getStrval().substring(0, MAX_STR_LEN - 1));
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public static void inlineWTSTable1(final ObjectMap map, final WTS wts) {
 		for (final Map.Entry<War3ID, ObjectDataChangeEntry> entry : map) {
 			for (final Map.Entry<War3ID, List<Change>> changes : entry.getValue().getChanges()) {
 				for (final Change change : changes.getValue()) {
 					if ((change.getStrval().length() > 8) && "TRIGSTR_".equals(change.getStrval().substring(0, 8))) {
-						final int key = getWTSValue(change);
+						int key = getWTSValue(change);
 						change.setStrval(wts.get(key));
 						if (change.getStrval().length() > MAX_STR_LEN) {
 							change.setStrval(change.getStrval().substring(0, MAX_STR_LEN - 1));
@@ -603,20 +614,80 @@ public final class War3ObjectDataChangeset {
 		custom.clear();
 	}
 
-	public boolean saveTable(final BlizzardDataOutputStream outputStream, final ObjectMap map, final boolean isOriginal)
-			throws IOException {
-		final CharsetEncoder encoder = StandardCharsets.UTF_8.newEncoder().onMalformedInput(CodingErrorAction.REPLACE)
+	public boolean saveTable(BlizzardDataOutputStream outputStream, ObjectMap map, boolean isOriginal) throws IOException {
+		CharsetEncoder encoder = StandardCharsets.UTF_8.newEncoder()
+				.onMalformedInput(CodingErrorAction.REPLACE)
 				.onUnmappableCharacter(CodingErrorAction.REPLACE);
-		final CharBuffer charBuffer = CharBuffer.allocate(1024);
-		final ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-		final War3ID noid = new War3ID(0);
-		int count;
-		count = map.size();
-		outputStream.writeInt(count);
-		for (final Map.Entry<War3ID, ObjectDataChangeEntry> entry : map) {
-			final ObjectDataChangeEntry cl = entry.getValue();
+		CharBuffer charBuffer = CharBuffer.allocate(1024);
+		ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+		outputStream.writeInt(map.size());
+		for (ObjectDataChangeEntry cl : map.values()) {
 			int totalSize = 0;
-			for (final Map.Entry<War3ID, List<Change>> changeEntry : cl.getChanges()) {
+			for (Map.Entry<War3ID, List<Change>> changeEntry : cl.getChanges()) {
+				totalSize += changeEntry.getValue().size();
+			}
+			if ((totalSize > 0) || !isOriginal) {
+				saveWriteChars(outputStream, cl.getOldId().asStringValue().toCharArray());
+				saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
+				outputStream.writeInt(totalSize);// cl.getChanges().size();
+				for (List<Change> changes : cl.getChanges().values()) {
+					for (Change change : changes) {
+						saveWriteChars(outputStream, change.getId().asStringValue().toCharArray());
+//						outputStream.writeInt(change.getVarTypeInt());
+						outputStream.writeInt(change.getVarType().getSaveInt());
+						if (extended()) {
+							outputStream.writeInt(change.getLevel());
+							outputStream.writeInt(change.getDataptr());
+						}
+						switch (change.getVarType()) {
+							case VAR_TYPE_INT -> outputStream.writeInt(change.getLongval());
+							case VAR_TYPE_STRING -> outputStream.write(getStringBytes(encoder, charBuffer, byteBuffer, change));
+							case VAR_TYPE_BOOLEAN -> outputStream.writeInt(change.getBoolval() ? 1 : 0);
+							case VAR_TYPE_UNREAL, VAR_TYPE_REAL -> outputStream.writeFloat(change.getRealval());
+						}
+//						if (change.getJunkDNA() == null) {
+//							saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
+//						} else {
+//							saveWriteChars(outputStream, change.getJunkDNA().asStringValue().toCharArray());
+//						}
+//						saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
+						saveWriteChars(outputStream, War3ID.NONE.asStringValue().toCharArray());
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	private byte[] getStringBytes(CharsetEncoder encoder, CharBuffer charBuffer, ByteBuffer byteBuffer, Change change) {
+		charBuffer.clear();
+		byteBuffer.clear();
+		charBuffer.put(change.getStrval());
+		charBuffer.flip();
+		encoder.encode(charBuffer, byteBuffer, false);
+		byteBuffer.flip();
+		final byte[] stringBytes = new byte[byteBuffer.remaining() + 1];
+		int i = 0;
+		while (byteBuffer.hasRemaining()) {
+			stringBytes[i++] = byteBuffer.get();
+		}
+		stringBytes[i] = 0;
+		return stringBytes;
+	}
+
+	public boolean saveTable1(BlizzardDataOutputStream outputStream, ObjectMap map, boolean isOriginal) throws IOException {
+		CharsetEncoder encoder = StandardCharsets.UTF_8.newEncoder()
+				.onMalformedInput(CodingErrorAction.REPLACE)
+				.onUnmappableCharacter(CodingErrorAction.REPLACE);
+		CharBuffer charBuffer = CharBuffer.allocate(1024);
+		ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+		War3ID noid = new War3ID(0);
+		int count = map.size();
+		outputStream.writeInt(count);
+		for (Map.Entry<War3ID, ObjectDataChangeEntry> entry : map) {
+			ObjectDataChangeEntry cl = entry.getValue();
+			int totalSize = 0;
+			for (Map.Entry<War3ID, List<Change>> changeEntry : cl.getChanges()) {
 				totalSize += changeEntry.getValue().size();
 			}
 			if ((totalSize > 0) || !isOriginal) {
@@ -624,41 +695,27 @@ public final class War3ObjectDataChangeset {
 				saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
 				count = totalSize;// cl.getChanges().size();
 				outputStream.writeInt(count);
-				for (final Map.Entry<War3ID, List<Change>> changes : entry.getValue().getChanges()) {
-					for (final Change change : changes.getValue()) {
+				for (Map.Entry<War3ID, List<Change>> changes : entry.getValue().getChanges()) {
+					for (Change change : changes.getValue()) {
 						saveWriteChars(outputStream, change.getId().asStringValue().toCharArray());
-						outputStream.writeInt(change.getVartype());
+//						outputStream.writeInt(change.getVarTypeInt());
+						outputStream.writeInt(change.getVarType().getSaveInt());
 						if (extended()) {
 							outputStream.writeInt(change.getLevel());
 							outputStream.writeInt(change.getDataptr());
 						}
-						switch (change.getVartype()) {
-							case 0 -> outputStream.writeInt(change.getLongval());
-							case 3 -> {
-								charBuffer.clear();
-								byteBuffer.clear();
-								charBuffer.put(change.getStrval());
-								charBuffer.flip();
-								encoder.encode(charBuffer, byteBuffer, false);
-								byteBuffer.flip();
-								final byte[] stringBytes = new byte[byteBuffer.remaining() + 1];
-								int i = 0;
-								while (byteBuffer.hasRemaining()) {
-									stringBytes[i++] = byteBuffer.get();
-								}
-								stringBytes[i] = 0;
-								outputStream.write(stringBytes);
-							}
-							case 4 -> outputStream.writeInt(change.isBoolval() ? 1 : 0);
-							default -> outputStream.writeFloat(change.getRealval());
+						switch (change.getVarType()) {
+							case VAR_TYPE_INT -> outputStream.writeInt(change.getLongval());
+							case VAR_TYPE_STRING -> outputStream.write(getStringBytes(encoder, charBuffer, byteBuffer, change));
+							case VAR_TYPE_BOOLEAN -> outputStream.writeInt(change.getBoolval() ? 1 : 0);
+							case VAR_TYPE_UNREAL, VAR_TYPE_REAL -> outputStream.writeFloat(change.getRealval());
 						}
-						// if (change.getJunkDNA() == null) {
-						// saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
-						// } else {
-						// saveWriteChars(outputStream,
-						// change.getJunkDNA().asStringValue().toCharArray());
-						// }
-						// saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
+//						if (change.getJunkDNA() == null) {
+//							saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
+//						} else {
+//							saveWriteChars(outputStream, change.getJunkDNA().asStringValue().toCharArray());
+//						}
+//						saveWriteChars(outputStream, cl.getNewId().asStringValue().toCharArray());
 						saveWriteChars(outputStream, noid.asStringValue().toCharArray());
 					}
 				}
@@ -667,16 +724,14 @@ public final class War3ObjectDataChangeset {
 		return true;
 	}
 
-	private void saveWriteChars(final BlizzardDataOutputStream outputStream, final char[] charArray)
-			throws IOException {
-		// TODO Auto-generated method stub
+	private void saveWriteChars(BlizzardDataOutputStream outputStream, char[] charArray) throws IOException {
 		outputStream.writeChars(charArray);
 		for (int i = charArray.length; i < 4; i++) {
 			outputStream.writeByte(0);
 		}
 	}
 
-	public boolean save(final BlizzardDataOutputStream outputStream, final boolean generateWTS) throws IOException {
+	public boolean save(BlizzardDataOutputStream outputStream, boolean generateWTS) throws IOException {
 		if (generateWTS) {
 			throw new UnsupportedOperationException("FAIL cannot generate WTS, needs more code");
 		}
@@ -700,6 +755,10 @@ public final class War3ObjectDataChangeset {
 	}
 
 	private static void debugprint(final String s) {
+		boolean debug = false;
+		if(debug){
+			System.out.println(s);
+		}
 
 	}
 }

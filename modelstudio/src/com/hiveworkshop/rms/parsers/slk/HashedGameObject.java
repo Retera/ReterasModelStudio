@@ -1,10 +1,8 @@
 package com.hiveworkshop.rms.parsers.slk;
 
-import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-
 import java.util.*;
 
-public abstract class HashedGameObject implements GameObject {
+public abstract class HashedGameObject extends GameObject {
 	HashMap<StringKey, List<String>> fields = new HashMap<>();
 	String id;
 	ObjectData parentTable;
@@ -29,39 +27,18 @@ public abstract class HashedGameObject implements GameObject {
 		}
 	}
 
-	@Override
-	public String getField(final String field) {
-		final String value = "";
-		if (fields.get(new StringKey(field)) != null) {
-			final List<String> list = fields.get(new StringKey(field));
-			final StringBuilder sb = new StringBuilder();
-			if (list != null) {
-				for (final String str : list) {
-					if (sb.length() != 0) {
-						sb.append(',');
-					}
-					sb.append(str);
-				}
-				return sb.toString();
-//				value = list.get(0);
-			}
-		}
-		return value;
-	}
-
 	public boolean hasField(final String field) {
 		return fields.containsKey(new StringKey(field));
 	}
 
 	@Override
 	public int getFieldValue(final String field) {
-		int i = 0;
 		try {
-			i = Integer.parseInt(getField(field));
+			return Integer.parseInt(getField(field));
 		} catch (final NumberFormatException e) {
 
 		}
-		return i;
+		return 0;
 	}
 
 	@Override
@@ -85,6 +62,27 @@ public abstract class HashedGameObject implements GameObject {
 		}
 	}
 
+
+	@Override
+	public String getField(final String field) {
+		final String value = "";
+		if (fields.get(new StringKey(field)) != null) {
+			final List<String> list = fields.get(new StringKey(field));
+			final StringBuilder sb = new StringBuilder();
+			if (list != null) {
+				for (final String str : list) {
+					if (sb.length() != 0) {
+						sb.append(',');
+					}
+					sb.append(str);
+				}
+				return sb.toString();
+//				value = list.get(0);
+			}
+		}
+		return value;
+	}
+
 	@Override
 	public String getField(final String field, final int index) {
 		String value = "";
@@ -101,28 +99,23 @@ public abstract class HashedGameObject implements GameObject {
 
 	@Override
 	public int getFieldValue(final String field, final int index) {
-		int i = 0;
 		try {
-			i = Integer.parseInt(getField(field, index));
+			return Integer.parseInt(getField(field, index));
 		} catch (final NumberFormatException e) {
 
 		}
-		return i;
+		return 0;
 	}
 
 	@Override
-	public List<GameObject> getFieldAsList(final String field, final ObjectData parentTable) {
-		final List<GameObject> fieldAsList;// = hashedLists.get(field);
-		// if( fieldAsList == null ) {
-		fieldAsList = new ArrayList<>();
-		final String stringList = getField(field);
-		final String[] listAsArray = stringList.split(",");
-		if (listAsArray != null && listAsArray.length > 0) {
-			for (final String buildingId : listAsArray) {
-				final GameObject referencedUnit = parentTable.get(buildingId);
-				if (referencedUnit != null) {
-					fieldAsList.add(referencedUnit);
-				}
+	public List<GameObject> getFieldAsList(String field, ObjectData parentTable) {
+		List<GameObject> fieldAsList = new ArrayList<>();
+
+		String[] listAsArray = getField(field).split(",");
+		for (String buildingId : listAsArray) {
+			GameObject referencedUnit = parentTable.get(buildingId);
+			if (referencedUnit != null) {
+				fieldAsList.add(referencedUnit);
 			}
 		}
 		// hashedLists.put(field, fieldAsList);
@@ -138,77 +131,6 @@ public abstract class HashedGameObject implements GameObject {
 	@Override
 	public String getId() {
 		return id;
-	}
-
-	@Override
-	public String getName() {
-		StringBuilder name = new StringBuilder(getField("Name"));
-		boolean nameKnown = name.length() >= 1;
-		if (!nameKnown && !getField("code").equals(id) && getField("code").length() >= 4) {
-			final GameObject other = parentTable.get(getField("code").substring(0, 4));
-			if (other != null) {
-				name = new StringBuilder(other.getName());
-				nameKnown = true;
-			}
-		}
-		if (!nameKnown && getField("EditorName").length() > 1) {
-			name = new StringBuilder(getField("EditorName"));
-			nameKnown = true;
-		}
-		if (!nameKnown && getField("Editorname").length() > 1) {
-			name = new StringBuilder(getField("Editorname"));
-			nameKnown = true;
-		}
-		if (!nameKnown && getField("BuffTip").length() > 1) {
-			name = new StringBuilder(getField("BuffTip"));
-			nameKnown = true;
-		}
-		if (!nameKnown && getField("Bufftip").length() > 1) {
-			name = new StringBuilder(getField("Bufftip"));
-			nameKnown = true;
-		}
-		if (nameKnown && name.toString().startsWith("WESTRING")) {
-			if (!name.toString().contains(" ")) {
-				name = new StringBuilder(WEString.getString(name.toString()));
-			} else {
-				final String[] names = name.toString().split(" ");
-				name = new StringBuilder();
-				for (final String subName : names) {
-					if (name.length() > 0) {
-						name.append(" ");
-					}
-					if (subName.startsWith("WESTRING")) {
-						name.append(WEString.getString(subName));
-					} else {
-						name.append(subName);
-					}
-				}
-			}
-			if (name.toString().startsWith("\"") && name.toString().endsWith("\"")) {
-				name = new StringBuilder(name.substring(1, name.length() - 1));
-			}
-			setField("Name", name.toString());
-		}
-		if (!nameKnown) {
-			name = new StringBuilder(WEString.getString("WESTRING_UNKNOWN") + " '" + getId() + "'");
-		}
-		if (getField("campaign").startsWith("1") && Character.isUpperCase(getId().charAt(0))) {
-			name = new StringBuilder(getField("Propernames"));
-			if (name.toString().contains(",")) {
-				name = new StringBuilder(name.toString().split(",")[0]);
-			}
-		}
-		String suf = getField("EditorSuffix");
-		if (suf.length() > 0 && !suf.equals("_")) {
-			if (suf.startsWith("WESTRING")) {
-				suf = WEString.getString(suf);
-			}
-			if (!suf.startsWith(" ")) {
-				name.append(" ");
-			}
-			name.append(suf);
-		}
-		return name.toString();
 	}
 
 	public void addToList(final String parentId, final String list) {

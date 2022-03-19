@@ -1,149 +1,83 @@
 package com.hiveworkshop.rms.ui.application.model;
 
+import com.hiveworkshop.rms.editor.actions.model.header.SetBlendTimeAction;
+import com.hiveworkshop.rms.editor.actions.model.header.SetFormatVersionAction;
+import com.hiveworkshop.rms.editor.actions.model.header.SetHeaderExtentsAction;
+import com.hiveworkshop.rms.editor.actions.model.header.SetNameAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
-import com.hiveworkshop.rms.ui.application.actions.model.header.SetBlendTimeAction;
-import com.hiveworkshop.rms.ui.application.actions.model.header.SetFormatVersionAction;
-import com.hiveworkshop.rms.ui.application.actions.model.header.SetHeaderExtentsAction;
-import com.hiveworkshop.rms.ui.application.actions.model.header.SetNameAction;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
-import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorJSpinner;
+import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
+import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.text.ParseException;
 
-public class ComponentHeaderPanel extends JPanel implements ComponentPanel<EditableModel> {
+public class ComponentHeaderPanel extends ComponentPanel<EditableModel> {
 	private static final Dimension MAXIMUM_SIZE = new Dimension(99999, 25);
 	private final ComponentEditorTextField modelNameField;
-	private final ComponentEditorJSpinner formatVersionSpinner;
-	private final ComponentEditorJSpinner blendTimeSpinner;
+	private final IntEditorJSpinner formatVersionSpinner;
+	private final IntEditorJSpinner blendTimeSpinner;
 	private final ExtLogEditor extLogEditor;
-	private final ModelViewManager modelViewManager;
-	private final UndoActionListener undoActionListener;
-	private final ModelStructureChangeListener changeListener;
 
-	public ComponentHeaderPanel(final ModelViewManager modelViewManager,
-	                            final UndoActionListener undoActionListener,
-	                            final ModelStructureChangeListener changeListener) {
+	public ComponentHeaderPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 
-		this.modelViewManager = modelViewManager;
-		this.undoActionListener = undoActionListener;
-		this.changeListener = changeListener;
+		setLayout(new MigLayout("fill", "[]", "[][][][][][][][grow]"));
 
-		final JLabel modelNameLabel = new JLabel("Model Name:");
-		modelNameField = new ComponentEditorTextField();
+		modelNameField = new ComponentEditorTextField(this::setModelName);
 		modelNameField.setMaximumSize(MAXIMUM_SIZE);
-		modelNameField.addActionListener(e -> modelNameField());
 
-		final JLabel versionLabel = new JLabel("Format Version:");
-		formatVersionSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(800, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
+		formatVersionSpinner = new IntEditorJSpinner(800, Integer.MIN_VALUE, this::setFormatVersion);
 		formatVersionSpinner.setMaximumSize(MAXIMUM_SIZE);
-		formatVersionSpinner.addActionListener(this::formatVersionSpinner);
 
-		final JLabel blendTimeLabel = new JLabel("Blend Time:");
-		blendTimeSpinner = new ComponentEditorJSpinner(new SpinnerNumberModel(150, Integer.MIN_VALUE, Integer.MAX_VALUE, 1));
+		blendTimeSpinner = new IntEditorJSpinner(150, Integer.MIN_VALUE, this::setBlendTime);
 		blendTimeSpinner.setMaximumSize(MAXIMUM_SIZE);
-		blendTimeSpinner.addActionListener(this::blendTimeSpinner);
 
 		extLogEditor = new ExtLogEditor();
 		extLogEditor.setBorder(BorderFactory.createTitledBorder("Extents"));
-		extLogEditor.addActionListener(this::extLogEditor);
+		extLogEditor.addExtLogConsumer(this::setExtLog);
 
-		final GroupLayout layout = new GroupLayout(this);
-
-		layout.setHorizontalGroup(layout.createParallelGroup().addComponent(modelNameLabel).addComponent(modelNameField)
-				.addComponent(versionLabel).addComponent(formatVersionSpinner).addComponent(blendTimeLabel)
-				.addComponent(blendTimeSpinner).addComponent(extLogEditor));
-		layout.setVerticalGroup(layout.createSequentialGroup().addComponent(modelNameLabel).addComponent(modelNameField)
-				.addComponent(versionLabel).addComponent(formatVersionSpinner).addComponent(blendTimeLabel)
-				.addComponent(blendTimeSpinner).addComponent(extLogEditor));
-		setLayout(layout);
+		add(new JLabel("Model Name:"), "wrap");
+		add(modelNameField, "wrap, growx");
+		add(new JLabel("Format Version:"), "wrap");
+		add(formatVersionSpinner, "wrap, growx");
+		add(new JLabel("Blend Time:"), "wrap");
+		add(blendTimeSpinner, "wrap, growx");
+		add(extLogEditor, "wrap, growx");
 	}
 
-	private void extLogEditor() {
-		final SetHeaderExtentsAction setHeaderExtentsAction = new SetHeaderExtentsAction(
-				modelViewManager.getModel().getExtents(), extLogEditor.getExtLog(), modelViewManager,
-				changeListener);
-		setHeaderExtentsAction.redo();
-		undoActionListener.pushAction(setHeaderExtentsAction);
-	}
-
-	private void blendTimeSpinner() {
-		if (modelViewManager != null) {
-			final SetBlendTimeAction setFormatVersionAction =
-					new SetBlendTimeAction(
-							modelViewManager.getModel().getBlendTime(),
-							((Number) blendTimeSpinner.getValue()).intValue(),
-							modelViewManager,
-							changeListener);
-			setFormatVersionAction.redo();
-			undoActionListener.pushAction(setFormatVersionAction);
+	private void setExtLog(ExtLog extLog) {
+		if (!model.getExtents().equals(extLog)) {
+			undoManager.pushAction(new SetHeaderExtentsAction(extLog, model, changeListener).redo());
 		}
 	}
 
-	private void formatVersionSpinner() {
-		if (modelViewManager != null) {
-			final SetFormatVersionAction setFormatVersionAction =
-					new SetFormatVersionAction(
-							modelViewManager.getModel().getFormatVersion(),
-							((Number) formatVersionSpinner.getValue()).intValue(),
-							modelViewManager,
-							changeListener);
-			setFormatVersionAction.redo();
-			undoActionListener.pushAction(setFormatVersionAction);
+	private void setBlendTime(int newBlendTime) {
+		if (model.getBlendTime() != newBlendTime) {
+			undoManager.pushAction(new SetBlendTimeAction(newBlendTime, model, changeListener).redo());
 		}
 	}
 
-	private void modelNameField() {
-		if (modelViewManager != null) {
-			final SetNameAction action =
-					new SetNameAction(
-							modelViewManager.getModel().getHeaderName(),
-							modelNameField.getText(),
-							modelViewManager,
-							changeListener);
-			action.redo();
-			undoActionListener.pushAction(action);
+	private void setFormatVersion(int newVersion) {
+		if (model.getFormatVersion() != newVersion) {
+			undoManager.pushAction(new SetFormatVersionAction(newVersion, model, changeListener).redo());
 		}
 	}
 
-	private void setModelHeader(final EditableModel model) {
+	private void setModelName(String newName) {
+		if (!model.getName().equals(newName)) {
+			undoManager.pushAction(new SetNameAction(newName, model, changeListener).redo());
+		}
+	}
+
+	@Override
+	public ComponentPanel<EditableModel> setSelectedItem(EditableModel model) {
 		modelNameField.reloadNewValue(model.getHeaderName());
 		formatVersionSpinner.reloadNewValue(model.getFormatVersion());
 		blendTimeSpinner.reloadNewValue(model.getBlendTime());
 		extLogEditor.setExtLog(model.getExtents());
+		return this;
 	}
-
-	@Override
-	public void setSelectedItem(EditableModel model) {
-		commitEdits();
-		setModelHeader(model);
-	}
-
-	private void commitEdits() {
-		try {
-			formatVersionSpinner.commitEdit();
-		} catch (final ParseException e) {
-			e.printStackTrace();
-		}
-		try {
-			blendTimeSpinner.commitEdit();
-		} catch (final ParseException e) {
-			e.printStackTrace();
-		}
-		extLogEditor.commitEdits();
-
-	}
-
-	@Override
-	public void save(final EditableModel modelOutput, final UndoActionListener undoListener,
-	                 final ModelStructureChangeListener changeListener) {
-		modelOutput.setFormatVersion(((Number) formatVersionSpinner.getValue()).intValue());
-		modelOutput.setBlendTime(((Number) blendTimeSpinner.getValue()).intValue());
-		modelOutput.setExtents(extLogEditor.getExtLog());
-	}
-
 }

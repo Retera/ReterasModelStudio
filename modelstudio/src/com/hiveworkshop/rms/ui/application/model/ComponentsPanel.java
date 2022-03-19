@@ -1,162 +1,62 @@
 package com.hiveworkshop.rms.ui.application.model;
 
-import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.ui.application.model.material.ComponentTextureAnimPanel;
 import com.hiveworkshop.rms.ui.application.model.nodepanels.*;
-import com.hiveworkshop.rms.ui.gui.modeledit.util.TextureExporter;
+import com.hiveworkshop.rms.ui.application.tools.EditTexturesPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelcomponenttree.DisplayElementType;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ComponentsPanel extends JPanel {
 	private static final String BLANK = "BLANK";
-	private static final String GLOBALSEQ = "GLOBALSEQ";
 	private final CardLayout cardLayout;
-	private final Map<Class<?>, ComponentPanel<?>> panelMap;
-	private final ComponentGlobalSequencePanel globalSeqPanel;
+	private final Map<DisplayElementType, ComponentPanel<?>> componentPanelMap;
+	private final Map<DisplayElementType, JPanel> overviewPanelMap;
+	private final ModelHandler modelHandler;
 
-	public ComponentsPanel(final ModelViewManager modelViewManager,
-	                       final UndoActionListener undoActionListener,
-	                       final ModelStructureChangeListener modelStructureChangeListener,
-	                       final TextureExporter textureExporter) {
-		panelMap = new HashMap<>();
+	public ComponentsPanel(ModelHandler modelHandler) {
+		this.modelHandler = modelHandler;
+		componentPanelMap = new HashMap<>();
+		overviewPanelMap = new HashMap<>();
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 
 		JPanel blankPanel = new JPanel();
-		blankPanel.add(new JLabel("Select a model component to get started..."));
-		add(blankPanel, BLANK);
-//		panelMap.put(null, blankPanel);
+		blankPanel.add(new JLabel("Select a model component to get started..."), "");
+		add(new JScrollPane(blankPanel), BLANK);
 
-		ComponentHeaderPanel headerPanel = new ComponentHeaderPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		add(headerPanel, EditableModel.class.getName());
-		panelMap.put(EditableModel.class, headerPanel);
-
-		ComponentCommentPanel commentPanel = new ComponentCommentPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		add(commentPanel, ArrayList.class.getName());
-		panelMap.put(ArrayList.class, commentPanel);
-
-		ComponentAnimationPanel animationPanel = new ComponentAnimationPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		add(animationPanel, Animation.class.getName());
-		panelMap.put(Animation.class, animationPanel);
-
-
-		globalSeqPanel = new ComponentGlobalSequencePanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		add(globalSeqPanel, Integer.class.getName());
-		panelMap.put(Integer.class, globalSeqPanel);
-//		add(globalSeqPanel, GLOBALSEQ);
-////		panelMap.put(EditableModel.class, globalSeqPanel);
-
-		ComponentBitmapPanel bitmapPanel = new ComponentBitmapPanel(modelViewManager, undoActionListener, modelStructureChangeListener, textureExporter);
-		add(bitmapPanel, Bitmap.class.getName());
-		panelMap.put(Bitmap.class, bitmapPanel);
-
-		ComponentMaterialPanel materialPanel = new ComponentMaterialPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		JScrollPane materialScrollPane = new JScrollPane(materialPanel);
-		materialScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(materialScrollPane, Material.class.getName());
-		panelMap.put(Material.class, materialPanel);
-
-		ComponentGeosetPanel geosetPanel = new ComponentGeosetPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		add(geosetPanel, Geoset.class.getName());
-		panelMap.put(Geoset.class, geosetPanel);
-
-		ComponentGeosetAnimPanel geosetAnimPanel = new ComponentGeosetAnimPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		JScrollPane geosetAnimScrollPane = new JScrollPane(geosetAnimPanel);
-		geosetAnimScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(geosetAnimScrollPane, GeosetAnim.class.getName());
-		panelMap.put(GeosetAnim.class, geosetAnimPanel);
-
-		ComponentNodePanel nodePanel = new ComponentNodePanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		add(nodePanel, AnimatedNode.class.getName());
-		panelMap.put(AnimatedNode.class, nodePanel);
-
-		ComponentPopcornPanel popcornPanel = new ComponentPopcornPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		JScrollPane popcornScrollPane = new JScrollPane(popcornPanel);
-		popcornScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(popcornScrollPane, ParticleEmitterPopcorn.class.getName());
-		panelMap.put(ParticleEmitterPopcorn.class, popcornPanel);
-
-		ComponentBonePanel bonePanel = new ComponentBonePanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		JScrollPane boneScrollPane = new JScrollPane(bonePanel);
-		boneScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(boneScrollPane, Bone.class.getName());
-		panelMap.put(Bone.class, bonePanel);
-
-		ComponentHelperPanel helperPanel = new ComponentHelperPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		JScrollPane helperScrollPane = new JScrollPane(helperPanel);
-		helperScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(helperScrollPane, Helper.class.getName());
-		panelMap.put(Helper.class, helperPanel);
-
-		ComponentParticle2Panel particle2Panel = new ComponentParticle2Panel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		JScrollPane particle2ScrollPane = new JScrollPane(particle2Panel);
-		particle2ScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(particle2ScrollPane, ParticleEmitter2.class.getName());
-		panelMap.put(ParticleEmitter2.class, particle2Panel);
-
-		ComponentCollisionPanel collisionPanel = new ComponentCollisionPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		JScrollPane collosionScrollPane = new JScrollPane(collisionPanel);
-		collosionScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(collosionScrollPane, CollisionShape.class.getName());
-		panelMap.put(CollisionShape.class, collisionPanel);
-
-		ComponentEventPanel eventPanel = new ComponentEventPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		JScrollPane eventScrollPane = new JScrollPane(eventPanel);
-		eventScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(eventScrollPane, EventObject.class.getName());
-		panelMap.put(EventObject.class, eventPanel);
-
-		ComponentRibbonPanel ribbonPanel = new ComponentRibbonPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		JScrollPane ribbonScrollPane = new JScrollPane(ribbonPanel);
-		ribbonScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(ribbonScrollPane, RibbonEmitter.class.getName());
-		panelMap.put(RibbonEmitter.class, ribbonPanel);
-
-		ComponentAttatchmentPanel attachmentPanel = new ComponentAttatchmentPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		JScrollPane attachmentScrollPane = new JScrollPane(attachmentPanel);
-		attachmentScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-		add(attachmentScrollPane, Attachment.class.getName());
-		panelMap.put(Attachment.class, attachmentPanel);
-
-//		ComponentPopcornPanel popcornPanel = new ComponentPopcornPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-//		JScrollPane popcornScrollPane = new JScrollPane(popcornPanel);
-//		popcornScrollPane.getVerticalScrollBar().setUnitIncrement(16);
-//		add(popcornScrollPane, ParticleEmitterPopcorn.class.getName());
-//		panelMap.put(ParticleEmitterPopcorn.class, popcornPanel);
-
-		ComponentFaceEffectPanel faceEffectPanel = new ComponentFaceEffectPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		add(faceEffectPanel, FaceEffect.class.getName());
-		panelMap.put(FaceEffect.class, faceEffectPanel);
-
-		ComponentCameraPanel cameraPanel = new ComponentCameraPanel(modelViewManager, undoActionListener, modelStructureChangeListener);
-		add(cameraPanel, Camera.class.getName());
-		panelMap.put(Camera.class, cameraPanel);
+		addOverviewPanel(DisplayElementType.TEXTURE, new EditTexturesPanel(modelHandler));
+		addOverviewPanel(DisplayElementType.GEOSET_ITEM, new GeosetOverviewPanel(modelHandler));
+		addOverviewPanel(DisplayElementType.ANIMATION, new AnimationOverviewPanel(modelHandler));
+		addOverviewPanel(DisplayElementType.GLOBAL_SEQ, new GlobalSeqOverviewPanel(modelHandler));
+		addOverviewPanel(DisplayElementType.NODES, new NodesOverviewPanel(modelHandler));
 
 		cardLayout.show(this, BLANK);
 	}
 
-
-	public void selected(final EditableModel model, final Integer globalSequence, final int globalSequenceId,
-	                     final UndoActionListener undoListener,
-	                     final ModelStructureChangeListener changeListener) {
-//		globalSeqPanel.setGlobalSequence(model, globalSequence, globalSequenceId, undoListener, changeListener);
-		globalSeqPanel.setSelectedItem(globalSequence);
-		cardLayout.show(this, GLOBALSEQ);
+	public void addOverviewPanel(DisplayElementType type, JPanel panel) {
+		JScrollPane scrollPane = new JScrollPane(panel);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(scrollPane, type.getName());
+		overviewPanelMap.put(type, panel);
 	}
 
-
-	public <T> void setSelectedPanel(T selectedItem) {
-		if (selectedItem != null && panelMap.containsKey(selectedItem.getClass())) {
+	public <T> void setSelectedPanel(T selectedItem, DisplayElementType type) {
+		if (selectedItem != null && !(selectedItem instanceof String) && type != null) {
 			// Typing of this would be nice, if ever possible...
-			ComponentPanel<T> componentPanel = (ComponentPanel<T>) panelMap.get(selectedItem.getClass());
-			componentPanel.setSelectedItem(selectedItem);
-			cardLayout.show(this, selectedItem.getClass().getName());
+			ComponentPanel<T> componentPanel = (ComponentPanel<T>) componentPanelMap.computeIfAbsent(type, k -> getAndAddPanel(type, modelHandler));
+			if(componentPanel != null){
+				componentPanel.setSelectedItem(selectedItem);
+				cardLayout.show(this, String.valueOf(type));
+			} else {
+				selectedBlank();
+			}
+		} else if (selectedItem instanceof String && overviewPanelMap.containsKey(type)) {
+			cardLayout.show(this, type.getName());
 		} else {
 			selectedBlank();
 		}
@@ -164,5 +64,61 @@ public class ComponentsPanel extends JPanel {
 
 	public void selectedBlank() {
 		cardLayout.show(this, BLANK);
+	}
+
+	public ComponentPanel<?> getAndAddPanel(DisplayElementType type, ModelHandler modelHandler) {
+		ComponentPanel<?> panel = getComponentPanel(type, modelHandler);
+		JScrollPane scrollPane = new JScrollPane(panel);
+		scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+		add(scrollPane, String.valueOf(type));
+
+		return panel;
+	}
+
+	private JPanel getOverviewPanel(DisplayElementType type, ModelHandler modelHandler){
+		return switch (type){
+			case DUMMY, MODEL_ROOT, HEADER, COMMENT, DATA, MATERIAL, TEXTURE_ANIM,
+					TVERT_ANIM, GEOSET_ANIM, HELPER, RIBBON, EVENT_OBJECT, BINDPOSE,
+					GROUP, FACEFX, CAMERA, ATTACHMENT, COLLISION_SHAPE, PARTICLE2,
+					PARTICLE, LIGHT, BONE, POPCORN -> null;
+			case GLOBAL_SEQ -> new GlobalSeqOverviewPanel(modelHandler);
+			case ANIMATION -> new AnimationOverviewPanel(modelHandler);
+			case TEXTURE -> new EditTexturesPanel(modelHandler);
+			case GEOSET_ITEM -> new GeosetOverviewPanel(modelHandler);
+			case NODES -> new NodesOverviewPanel(modelHandler);
+		};
+	}
+
+	private ComponentPanel<?> getComponentPanel(DisplayElementType type, ModelHandler modelHandler){
+		return switch (type){
+			case DUMMY -> null;
+			case MODEL_ROOT -> new ComponentHeaderPanel(modelHandler);
+			case HEADER -> new ComponentHeaderPanel(modelHandler);
+			case COMMENT -> new ComponentCommentPanel(modelHandler);
+			case DATA -> null;
+			case GLOBAL_SEQ -> new ComponentGlobalSequencePanel(modelHandler);
+			case ANIMATION -> new ComponentAnimationPanel(modelHandler);
+			case TEXTURE -> new ComponentBitmapPanel(modelHandler);
+			case MATERIAL -> new ComponentMaterialPanel(modelHandler);
+			case TEXTURE_ANIM -> new ComponentTextureAnimPanel(modelHandler);
+			case TVERT_ANIM -> new ComponentTextureAnimPanel(modelHandler);
+			case GEOSET_ITEM -> new ComponentGeosetPanel(modelHandler);
+			case GEOSET_ANIM -> new ComponentGeosetAnimPanel(modelHandler);
+			case BONE -> new ComponentBonePanel(modelHandler);
+			case HELPER -> new ComponentHelperPanel(modelHandler);
+			case LIGHT -> new ComponentLightPanel(modelHandler);
+			case PARTICLE -> new ComponentParticlePanel(modelHandler);
+			case PARTICLE2 -> new ComponentParticle2Panel(modelHandler);
+			case RIBBON -> new ComponentRibbonPanel(modelHandler);
+			case POPCORN -> new ComponentPopcornPanel(modelHandler);
+			case COLLISION_SHAPE -> new ComponentCollisionPanel(modelHandler);
+			case EVENT_OBJECT -> new ComponentEventPanel(modelHandler);
+			case ATTACHMENT -> new ComponentAttatchmentPanel(modelHandler);
+			case FACEFX -> new ComponentFaceEffectPanel(modelHandler);
+			case CAMERA -> new ComponentCameraPanel(modelHandler);
+			case BINDPOSE -> null;
+			case GROUP -> null;
+			case NODES -> null;
+		};
 	}
 }

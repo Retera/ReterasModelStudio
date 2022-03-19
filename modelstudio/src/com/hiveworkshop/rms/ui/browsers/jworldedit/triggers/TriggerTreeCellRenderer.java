@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.triggers;
 
+import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WorldEditArt;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WorldEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.gui.TriggerCategoryTreeNode;
@@ -8,7 +9,6 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.gui.TriggerTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.impl.Trigger;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.impl.TriggerCategory;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.impl.TriggerEnvironment;
-import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -39,7 +39,7 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer {
 			final String displayName = triggerEnv.getName();
 			revalidate();
 			try {
-				final BufferedImage img = BLPHandler.get()
+				final BufferedImage img = BLPHandler
 						.getGameTex("ReplaceableTextures\\WorldEditUI\\CampaignEditor-Map.blp");
 				final ImageIcon mapIcon = new ImageIcon(
 						toBufferedImage(img.getScaledInstance(16, 16, Image.SCALE_FAST)));
@@ -88,28 +88,25 @@ public class TriggerTreeCellRenderer extends DefaultTreeCellRenderer {
 		} else {
 			setLeafIcon(worldEditArt.getIcon("SEIcon_FunctionDisabled"));
 			System.out.println("leaf is STATE CORRUPTION");
-			// final TreePath selectionPath = tree.getSelectionPath();
-			// if (tree.getSelectionCount() == 1) {
-			// switch (selectionPath.getPathCount()) {
-			// case 1:
-			// try {
-			// final BufferedImage img = BLPHandler.get()
-			// .getGameTex("ReplaceableTextures\\WorldEditUI\\CampaignEditor-Map.blp");
-			// final ImageIcon mapIcon = new ImageIcon(
-			// toBufferedImage(img.getScaledInstance(16, 16, Image.SCALE_FAST)));
-			// setLeafIcon(mapIcon);
-			// } catch (final Exception exc) {
-			// exc.printStackTrace();
-			// }
-			// break;
-			// case 2:
-			// setLeafIcon(worldEditArt.getIcon("SEIcon_TriggerCategory"));
-			// break;
-			// case 3:
-			// setLeafIcon(worldEditArt.getIcon("SEIcon_Trigger"));
-			// break;
-			// }
-			// }
+//			TreePath selectionPath = tree.getSelectionPath();
+//			if (tree.getSelectionCount() == 1) {
+//				switch (selectionPath.getPathCount()) {
+//					case 1:
+//						try {
+//							BufferedImage img = BLPHandler.get()
+//									.getGameTex("ReplaceableTextures\\WorldEditUI\\CampaignEditor-Map.blp");
+//							ImageIcon mapIcon = new ImageIcon(
+//									toBufferedImage(img.getScaledInstance(16, 16, Image.SCALE_FAST)));
+//							setLeafIcon(mapIcon);
+//						} catch (final Exception exc) { exc.printStackTrace(); }
+//						break;
+//					case 2:
+//						setLeafIcon(worldEditArt.getIcon("SEIcon_TriggerCategory"));
+//						break;
+//					case 3: setLeafIcon(worldEditArt.getIcon("SEIcon_Trigger"));
+//						break;
+//				 }
+//			}
 			super.getTreeCellRendererComponent(tree, node, selected, expanded, leaf, row, hasFocus);
 		}
 		if (selected) {

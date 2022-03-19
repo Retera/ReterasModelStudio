@@ -1,179 +1,146 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.*;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
-import com.hiveworkshop.rms.editor.model.animflag.*;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
-import com.hiveworkshop.rms.ui.application.actions.model.animFlag.*;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.ScreenInfo;
-import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.CollapsablePanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.event.CaretListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.*;
-import java.beans.PropertyChangeListener;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.event.ItemEvent;
+import java.util.Collection;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 
 public abstract class ValuePanel<T> extends JPanel {
-	protected static final Color LIGHT_GREEN = new Color(128, 255, 128);
-	protected static final Color LIGHT_YELLOW = new Color(255, 255, 128);
-	protected final JLabel typeLabel;
-	protected final JButton makeStaticButton;
-	protected final JButton makeDynamicButton;
-	protected final JButton addButton;
-	//	protected final ComponentEditorJSpinner staticSpinner;
 	protected final JComponent staticComponent;
 	protected final JComboBox<InterpolationType> interpTypeBox;
-	protected final UndoActionListener undoActionListener;
-	protected final ModelStructureChangeListener modelStructureChangeListener;
-	protected String allowedCharacters = "-1234567890.eE";
-	protected JTable keyframeTable;
-	protected FloatTrackTableModel floatTrackTableModel;
+	protected final UndoManager undoManager;
+	protected final ModelHandler modelHandler;
+	protected final ModelStructureChangeListener changeListener;
 	protected T staticValue;
 	protected TimelineContainer timelineContainer;
 	protected String flagName;
 	protected AnimFlag<T> animFlag;
-	protected AnimFlag<T> oldAnimFlag;
 	protected TimelineKeyNamer timelineKeyNamer;
-	protected boolean doSave;
-	protected String preEditValue;
+	JPanel dynStatPanel;
+	JPanel dynamicPanel;
+	JPanel dynamicContentPanel;
+	private final CardLayout dynStatLayout;
+	protected String title;
+	protected TitledBorder titledBorder;
 
-	protected Map<Integer, Integer> columnSizes = new HashMap<>();
-
-	protected int selectNewIndex = -1;
+	protected TreeMap<Sequence, KeyframePanel<T>> keyframePanelMap = new TreeMap<>();
+//	KeyframePanel<T> keyframePanel;
 
 	protected Consumer<T> valueSettingFunction;
 
-	JScrollPane tableScrollPane = new JScrollPane();
-	JPanel tablePanel;
+	protected CollapsablePanel collapsablePanel;
 
-	public ValuePanel(final String title, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
-		this(title, Double.MAX_VALUE, -Double.MAX_VALUE, undoActionListener, modelStructureChangeListener);
+	public ValuePanel(ModelHandler modelHandler, final String title) {
+		this(modelHandler, title, Double.MAX_VALUE, -Double.MAX_VALUE);
 	}
 
-	public ValuePanel(final String title, double maxValue, double minValue, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
-		//		System.out.println("New FloatValuePanel!");
-		this.undoActionListener = undoActionListener;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ValuePanel(ModelHandler modelHandler, final String title, double maxValue, double minValue) {
+		this.undoManager = modelHandler.getUndoManager();
+		this.modelHandler = modelHandler;
+		this.changeListener = ModelStructureChangeListener.changeListener;
+		this.title = title;
 		setFocusable(true);
 		timelineKeyNamer = null;
 		animFlag = null;
 		timelineContainer = null;
 		flagName = "";
+//		keyframePanel = new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, this::changeEntry, this::parseValue);
+//		keyframePanel = new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, (time, entry) -> changeEntry(keyframePanel.getSequence(), time, entry), this::parseValue);
 
-		setBorder(BorderFactory.createTitledBorder(title));
-		setLayout(new MigLayout("fill, hidemode 1", "[]", "[][][]0[][]"));
+		titledBorder = BorderFactory.createTitledBorder(title);
+//		setBorder(titledBorder);
+//		setLayout(new MigLayout("fill, hidemode 1", "[]", "[][][]0[][]"));
+		setLayout(new MigLayout("fill, hidemode 1, ins 0", "[grow]", "[grow]"));
 
+//		JPanel collapsablePCont = new JPanel(new MigLayout("fill, hidemode 1", "[]", "[][][]0[][]"));
+		JPanel collapsablePCont = new JPanel(new MigLayout("fill, hidemode 1", "[]", "[]"));
+		collapsablePanel = new CollapsablePanel(title, collapsablePCont);
+		add(collapsablePanel, "growx, spanx");
 
-		JPanel dynStatPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[]"));
+		dynStatLayout = new CardLayout();
+		dynStatPanel = new JPanel(dynStatLayout);
+		collapsablePCont.add(dynStatPanel, "align center, growx, wrap");
 
-		typeLabel = new JLabel("");
-		dynStatPanel.add(typeLabel, "al 0% 0%");
+		dynamicPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[][][][]"));
+//		dynamicPanel.add(new JLabel("Dynamic"), "al 0% 0%, hidemode 3");
+		dynamicPanel.add(new JLabel("Dynamic"), "left, hidemode 3");
+		dynStatPanel.add("dynamic", dynamicPanel);
 
-		makeStaticButton = new JButton("Make Static");
+		JButton makeStaticButton = new JButton("Make Static");
 		makeStaticButton.addActionListener(e -> makeStatic());
 		makeStaticButton.setVisible(true);
-		dynStatPanel.add(makeStaticButton, "al 100% 0%");
-
-		makeDynamicButton = new JButton("Make Dynamic");
-		makeDynamicButton.addActionListener(e -> makeDynamic());
-		makeDynamicButton.setVisible(false);
-		dynStatPanel.add(makeDynamicButton, "al 100% 0%");
-
-		add(dynStatPanel, "align center, growx, wrap");
-
+//		dynamicPanel.add(makeStaticButton, "al 100% 0%, wrap, hidemode 3");
+		dynamicPanel.add(makeStaticButton, "right, wrap, hidemode 3");
 
 		JPanel spinInterpPanel = new JPanel(new MigLayout("ins 0, gap 0, hidemode 3", "[]", "[]"));
-		add(spinInterpPanel, "wrap");
+		dynamicPanel.add(spinInterpPanel, "wrap, hidemode 3");
+
+		spinInterpPanel.add(new JLabel("Interpolation:"));
+		interpTypeBox = new JComboBox<>(InterpolationType.values());
+		interpTypeBox.addItemListener(this::setInterpolationType);
+		spinInterpPanel.add(interpTypeBox, "wrap, hidemode 3");
+
+		dynamicContentPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow]", "[]"));
+		dynamicPanel.add(dynamicContentPanel, "spanx, growx, wrap, hidemode 3");
+
+//		dynamicPanel.add(keyframePanel, "spanx, growx, wrap, hidemode 3");
+
+		JPanel staticPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow][][]", "[]"));
+//		staticPanel.add(new JLabel("Static"), "al 0% 0%");
+		staticPanel.add(new JLabel("Static"), "left");
+		JButton makeDynamicButton = new JButton("Make Dynamic");
+		makeDynamicButton.addActionListener(e -> makeDynamic());
+//		staticPanel.add(makeDynamicButton, "al 100% 0%, wrap, hidemode 3");
+		staticPanel.add(makeDynamicButton, "right, wrap, hidemode 3");
 
 		staticComponent = this.getStaticComponent();
-		spinInterpPanel.add(staticComponent);
+		staticPanel.add(staticComponent, "spanx, wrap, hidemode 3");
 
-		interpTypeBox = new JComboBox<>(InterpolationType.values());
-		interpTypeBox.addActionListener(e -> setInterpolationType());
-		spinInterpPanel.add(interpTypeBox);
-
-//		add(getTablePanel(), "growx, wrap");
-
-		add(getTablePanel(), "spanx, growx, wrap");
-
-		addButton = new JButton("add");
-		addButton.addActionListener(e -> addEntry(keyframeTable.getRowCount() - 1));
-		add(addButton, "wrap");
-	}
-
-	private JPanel getTablePanel() {
-		tablePanel = new JPanel(new MigLayout("gap 0, ins 0, fill, hidemode 2", "[grow][][grow, 1%:50%:80%]", "[][]"));
-		JPanel tablePanel2 = new JPanel(new MigLayout("gap 0, ins 0, fill", "[grow]", "[]"));
-
-		keyframeTable = new JTable();
-		keyframeTable.addPropertyChangeListener(getPropertyChangeListener());
-		addDeleteListeners();
-
-		String tableConstraints = "growx, wrap";
-		tablePanel.add(keyframeTable.getTableHeader(), tableConstraints);
-		setTableModel();
-		columnSizes.put(-1, keyframeTable.getRowHeight());
-
-
-		keyframeTable.setDefaultRenderer(Integer.class, getCellRenderer());
-		keyframeTable.setDefaultRenderer(String.class, getCellRenderer());
-		keyframeTable.setDefaultRenderer(Float.class, getCellRenderer());
-
-		tablePanel2.add(keyframeTable, "growx");
-
-		tableScrollPane = new JScrollPane(tablePanel2);
-		tableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-		tableScrollPane.setBorder(null);
-		tableScrollPane.setMaximumSize(ScreenInfo.getSuitableSize(700, 300, 0.6));
-		JScrollBar verticalScrollBar = tableScrollPane.getVerticalScrollBar();
-
-		verticalScrollBar.setUnitIncrement(16);
-
-
-		tablePanel.add(tableScrollPane, "growx");
-		tablePanel.add(verticalScrollBar, "spany, growy, wrap");
-		return tablePanel;
+		dynStatPanel.add("static", staticPanel);
 	}
 
 	private void makeStatic() {
-//		oldAnimFlag = animFlag;
 		toggleStaticDynamicPanel(true);
-		RemoveAnimFlagAction removeAnimFlagAction = new RemoveAnimFlagAction(timelineContainer, animFlag, modelStructureChangeListener);
-		undoActionListener.pushAction(removeAnimFlagAction);
-		removeAnimFlagAction.redo();
+		RemoveAnimFlagAction removeAnimFlagAction = new RemoveAnimFlagAction(timelineContainer, animFlag, changeListener);
+		undoManager.pushAction(removeAnimFlagAction.redo());
+		if (valueSettingFunction != null) {
+			valueSettingFunction.accept(staticValue);
+		}
 	}
 
 	private void makeDynamic() {
-//		if (oldAnimFlag == null && timelineContainer != null && !flagName.equals("")) {
 		if (animFlag == null && timelineContainer != null && !flagName.equals("")) {
-			toggleStaticDynamicPanel(false);
 			if (staticValue == null) {
 				staticValue = getZeroValue();
 			}
 			AnimFlag<T> newAnimFlag = getNewAnimFlag();
 
 			if (newAnimFlag != null) {
-				newAnimFlag.addEntry(0, staticValue);
-				AddAnimFlagAction addAnimFlagAction = new AddAnimFlagAction(timelineContainer, newAnimFlag, modelStructureChangeListener);
-				undoActionListener.pushAction(addAnimFlagAction);
-				addAnimFlagAction.redo();
+				toggleStaticDynamicPanel(false);
+				AddAnimFlagAction<T> addAnimFlagAction = new AddAnimFlagAction<>(timelineContainer, newAnimFlag, changeListener);
+				undoManager.pushAction(addAnimFlagAction.redo());
 			}
-//		} else if (oldAnimFlag != null){
 		} else if (animFlag != null) {
 			toggleStaticDynamicPanel(false);
-			AddAnimFlagAction addAnimFlagAction = new AddAnimFlagAction(timelineContainer, animFlag, modelStructureChangeListener);
-			undoActionListener.pushAction(addAnimFlagAction);
-			addAnimFlagAction.redo();
+			AddAnimFlagAction<T> addAnimFlagAction = new AddAnimFlagAction<>(timelineContainer, animFlag, changeListener);
+			undoManager.pushAction(addAnimFlagAction.redo());
 		}
 //		System.out.println("ftt: "+ floatTrackTableModel.getColumnCount());
 //		keyframeTable.setModel(floatTrackTableModel);
@@ -184,165 +151,15 @@ public abstract class ValuePanel<T> extends JPanel {
 //		System.out.println("kftM_a: " + keyframeTable.getModel().getColumnCount());
 	}
 
-	private AnimFlag<T> getNewAnimFlag() {
-		if (staticValue instanceof Integer) {
-			return (AnimFlag<T>) new IntAnimFlag(flagName);
-		} else if (staticValue instanceof Float) {
-			return (AnimFlag<T>) new FloatAnimFlag(flagName);
-		} else if (staticValue instanceof Vec3) {
-			return (AnimFlag<T>) new Vec3AnimFlag(flagName);
-		} else if (staticValue instanceof Quat) {
-			return (AnimFlag<T>) new QuatAnimFlag(flagName);
-		} else {
-			return null;
-		}
-	}
+	protected abstract AnimFlag<T> getNewAnimFlag();
 
 	private void toggleStaticDynamicPanel(boolean isStatic) {
 		boolean isDynamic = !isStatic;
-
-		tablePanel.setVisible(isDynamic);
-		keyframeTable.setVisible(isDynamic);
-		interpTypeBox.setVisible(isDynamic);
-		makeStaticButton.setVisible(isDynamic && this.valueSettingFunction != null);
-		keyframeTable.getTableHeader().setVisible(isDynamic);
-		addButton.setVisible(isDynamic);
-
-		makeDynamicButton.setVisible(isStatic);
-		staticComponent.setVisible(isStatic);
 		if (isDynamic) {
-			typeLabel.setText("Dynamic");
+			dynStatLayout.show(dynStatPanel, "dynamic");
 		} else {
-			typeLabel.setText("Static");
+			dynStatLayout.show(dynStatPanel, "static");
 		}
-	}
-
-	private void addDeleteListeners() {
-		keyframeTable.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				checkDeletePressed();
-			}
-		});
-		keyframeTable.addKeyListener(new KeyAdapter() {
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				System.out.println("VP keyReleased! " + e.getKeyCode() + ", char: " + e.getKeyChar());
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					System.out.println("was enter");
-					checkDeletePressed();
-				}
-				if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-					removeEntry(keyframeTable.getSelectedRow());
-				}
-				if (e.getKeyCode() == KeyEvent.VK_PLUS || e.getKeyCode() == KeyEvent.VK_ADD) {
-					addEntry(keyframeTable.getSelectedRow());
-				}
-			}
-		});
-	}
-
-	private PropertyChangeListener getPropertyChangeListener() {
-		return evt -> {
-			Component comp = keyframeTable.getEditorComponent();
-			if (comp instanceof JTextField) {
-				int row = keyframeTable.getEditingRow();
-				int col = keyframeTable.getEditingColumn();
-
-				final JTextField compTextField = (JTextField) comp;
-				if (comp.isValid()) {
-					doSave = true;
-					preEditValue = compTextField.getText();
-				} else if (doSave) {
-					String newValue = compTextField.getText();
-					if (!newValue.equals(preEditValue) && !newValue.equals("")) {
-						changeEntry(row, col, keyframeTable.getColumnName(col), ((JTextField) comp).getText());
-					}
-					doSave = false;
-				}
-
-				if (compTextField.getCaretListeners().length == 0) {
-					compTextField.addCaretListener(getCaretListener(col, compTextField));
-				}
-			}
-		};
-	}
-
-	private CaretListener getCaretListener(int col, JTextField compTextField) {
-		return e -> {
-			editFieldRendering(compTextField, col);
-			String text = compTextField.getText();
-			if (!text.matches("[" + allowedCharacters + "eE]*")) {
-				String newText = text.replaceAll("[^" + allowedCharacters + "eE]*", "");
-				SwingUtilities.invokeLater(() -> {
-					applyFilteredText(compTextField, newText);
-				});
-			}
-			if (text.matches("(.*\\.\\.+.*)")) {
-				String newText = text.replaceAll("(\\.+)", ".");
-				SwingUtilities.invokeLater(() -> {
-					applyFilteredText(compTextField, newText);
-				});
-			}
-		};
-	}
-
-	private void applyFilteredText(JTextField compTextField, String newText) {
-		CaretListener listener = compTextField.getCaretListeners()[0];
-		compTextField.removeCaretListener(listener);
-		int carPos = compTextField.getCaretPosition();
-		compTextField.setText(newText);
-		int newCarPos = Math.max(0, Math.min(newText.length(), carPos - 1));
-		compTextField.setCaretPosition(newCarPos);
-		compTextField.addCaretListener(listener);
-	}
-
-	private DefaultTableCellRenderer getCellRenderer() {
-		return new DefaultTableCellRenderer() {
-			@Override
-			public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
-//				System.out.println(row + ", " + column + " , value:" + value + " editor:");
-//				System.out.println("correct? " + table.getSelectedColumn() + ", " + table.getSelectedRow());
-				setBackground(null);
-				setForeground(null);
-				final Component tableCellRendererComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				this.setHorizontalAlignment(SwingConstants.RIGHT);
-				if (column == table.getColumnCount() - 1) {
-					this.setHorizontalAlignment(SwingConstants.CENTER);
-					tableCellRendererComponent.setBackground(Color.RED);
-					tableCellRendererComponent.setForeground(Color.WHITE);
-				} else if (column == 0) {
-					if (timelineKeyNamer != null) {
-						Color bgColor = Color.WHITE;
-						int time = (int) value;
-						TimelineKeyNamer.AnimationMarker animationMarker = timelineKeyNamer.getAnimationMarker(time);
-						if (animationMarker != null && animationMarker.contains(time)) {
-							if (animationMarker.isEndPoint(time)) {
-								bgColor = LIGHT_GREEN;
-							} else {
-								bgColor = LIGHT_YELLOW;
-							}
-							this.createToolTip();
-							this.setToolTipText(animationMarker.name);
-						}
-						if (isSelected) {
-							tableCellRendererComponent.setBackground(bgColor.darker().darker());
-						} else {
-							tableCellRendererComponent.setBackground(bgColor);
-						}
-					}
-				} else {
-					valueCellRendering(tableCellRendererComponent, table, value, isSelected, hasFocus, row, column);
-				}
-				return tableCellRendererComponent;
-//				return this;
-			}
-		};
-	}
-
-	public void setKeyframeHelper(TimelineKeyNamer timelineKeyNamer) {
-		this.timelineKeyNamer = timelineKeyNamer;
 	}
 
 	public void reloadNewValue(final T value, final AnimFlag<T> animFlag) {
@@ -360,178 +177,156 @@ public abstract class ValuePanel<T> extends JPanel {
 		this.flagName = flagName;
 		staticValue = value;
 
+//		dynamicPanel.removeAll();
+		dynamicContentPanel.removeAll();
 		if (animFlag == null) {
 			toggleStaticDynamicPanel(true);
+			for (KeyframePanel<T> kfp : keyframePanelMap.values()) {
+				kfp.updateFlag(null, null);
+			}
+			if (valueSettingFunction == null) {
+				staticComponent.setVisible(false);
+			} else {
+				staticComponent.setVisible(true);
+			}
+			collapsablePanel.setTitle(title);
+			titledBorder.setTitle(title);
+//			keyframePanel.updateFlag(null, null);
 		} else {
+			TreeSet<Sequence> tempSet = new TreeSet<>(modelHandler.getModel().getAnims());
+			tempSet.addAll(modelHandler.getModel().getGlobalSeqs());
+//			keyframePanelMap.keySet().removeIf(anim -> !tempSet.contains(anim));
+			keyframePanelMap.clear();
+			for(Sequence sequence : tempSet) {
+//				KeyframePanel<T> keyframePanel1 = keyframePanelMap.computeIfAbsent(sequence, k -> new KeyframePanel<>(modelHandler.getModel(), this::addEntry, this::removeEntry, (time, entry) -> changeEntry(sequence, time, entry), this::parseValue));
+				KeyframePanel<T> keyframePanel = keyframePanelMap.computeIfAbsent(sequence, k -> getKeyframePanel(sequence));
+				keyframePanel.updateFlag(animFlag, sequence);
+
+				int size = animFlag.size(sequence);
+				CollapsablePanel collapsablePanel = new CollapsablePanel(sequence + " (" + sequence.getLength() + ") " + size + " keyframes", keyframePanel);
+				collapsablePanel.setCollapsed(size == 0);
+//				dynamicPanel.add(collapsablePanel, "spanx, growx, wrap, hidemode 3");
+				dynamicContentPanel.add(collapsablePanel, "spanx, growx, wrap, hidemode 3");
+			}
+			if (animFlag.hasGlobalSeq()) {
+				titledBorder.setTitle(title + " (GlobalSeq: " + animFlag.getGlobalSeq() + ")");
+				collapsablePanel.setTitle(title + " (GlobalSeq: " + animFlag.getGlobalSeq() + ")");
+			} else {
+				collapsablePanel.setTitle(title);
+				titledBorder.setTitle(title);
+			}
 			toggleStaticDynamicPanel(false);
-//			List<InterpolationType> types =  animFlag.getForbiddenInterpolationTypes();
-//			types.forEach(t -> interpTypeBox.remove());
-			ActionListener actionListener = interpTypeBox.getActionListeners()[0];
-			interpTypeBox.removeActionListener(actionListener);
 			interpTypeBox.setSelectedItem(animFlag.getInterpolationType());
-			interpTypeBox.addActionListener(actionListener);
 		}
 
 		reloadStaticValue(value);
-		setTableModel();
-		if (selectNewIndex != -1 && selectNewIndex < keyframeTable.getRowCount()) {
-			keyframeTable.setRowSelectionInterval(selectNewIndex, selectNewIndex);
-			selectNewIndex = -1;
-		}
+		revalidate();
+		repaint();
+	}
+
+	private KeyframePanel<T> getKeyframePanel(Sequence sequence) {
+		KeyframePanel<T> tKeyframePanel = new KeyframePanel<>(modelHandler.getModel(),
+				this::addEntry,
+				this::removeEntry,
+				(time, entry) -> changeEntry(sequence, time, entry),
+				this::parseValue);
+		return addListeners(tKeyframePanel);
 	}
 
 	abstract JComponent getStaticComponent();
 
 	abstract void reloadStaticValue(T value);
 
-	private void setInterpolationType() {
-		if (interpTypeBox.getSelectedItem() != null) {
-			UndoAction undoAction = new ChangeInterpTypeAction(animFlag, InterpolationType.getType(interpTypeBox.getSelectedItem().toString()), modelStructureChangeListener);
-			undoActionListener.pushAction(undoAction);
-			undoAction.redo();
+	private void setInterpolationType(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED
+				&& e.getItem() instanceof InterpolationType
+				&& e.getItem() != animFlag.getInterpolationType()) {
+			UndoAction undoAction = new ChangeInterpTypeAction<>(animFlag, (InterpolationType) e.getItem(), changeListener);
+			dynamicContentPanel.removeAll();
+			undoManager.pushAction(undoAction.redo());
 
-			setTableModel();
 		}
 	}
 
-	private void setTableModel() {
-		if (floatTrackTableModel == null) {
-			floatTrackTableModel = new FloatTrackTableModel(animFlag);
-
-			keyframeTable.setModel(floatTrackTableModel);
-			keyframeTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		}
-
-		if (floatTrackTableModel != null) {
-			floatTrackTableModel.setTrack(animFlag);
-
-			keyframeTable.setModel(floatTrackTableModel);
-			keyframeTable.createDefaultColumnsFromModel();
-			keyframeTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-
-			for (int i : columnSizes.keySet()) {
-				int count = keyframeTable.getColumnCount();
-				int columnIndex = (count + i) % count;
-				TableColumn column = keyframeTable.getColumnModel().getColumn(columnIndex);
-				if (column != null) {
-					column.setMaxWidth(columnSizes.get(i));
-					column.setPreferredWidth(columnSizes.get(i));
-					column.setMinWidth(5);
-				}
-			}
-
-			tableScrollPane.getVerticalScrollBar().setVisible(keyframeTable.getRowCount() > 5);
-		}
-	}
-
-	private void addEntry(int row) {
-//		System.out.println("addEntry");
+	private void addEntry(Sequence sequence, int row) {
 		if (animFlag == null && timelineContainer != null && !flagName.equals("")) {
 			AnimFlag<T> flag = getNewAnimFlag();
 			if (flag != null) {
-				AnimFlag.Entry<T> entry = new AnimFlag.Entry<>(0, staticValue);
-				flag.addEntry(entry);
-//			UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flagName, modelStructureChangeListener);
-				UndoAction undoAction = new AddAnimFlagAction(timelineContainer, flag, modelStructureChangeListener);
-				undoActionListener.pushAction(undoAction);
-				undoAction.redo();
+				UndoAction undoAction = new AddAnimFlagAction<>(timelineContainer, flag, changeListener);
+				dynamicContentPanel.removeAll();
+				undoManager.pushAction(undoAction.redo());
 			}
 		} else if (animFlag != null) {
-			AnimFlag.Entry<T> newEntry;
-			AnimFlag.Entry<T> lastEntry;
+			Entry<T> newEntry;
 			T zeroValue = getZeroValue();
 			if (staticValue == null) {
 				staticValue = zeroValue;
 			}
-			if (animFlag.getTimes().isEmpty()) {
+			if (animFlag.getEntryMap(sequence) == null || animFlag.getEntryMap(sequence).isEmpty()) {
 				if (animFlag.getInterpolationType().tangential()) {
-					lastEntry = new AnimFlag.Entry<>(0, staticValue, zeroValue, zeroValue);
+					newEntry = new Entry<>(0, staticValue, zeroValue, zeroValue);
 				} else {
-					lastEntry = new AnimFlag.Entry<>(0, staticValue);
+					newEntry = new Entry<>(0, staticValue);
 				}
-				newEntry = new AnimFlag.Entry<>(lastEntry);
 			} else {
-//				lastEntry = animFlag.getEntry(animFlag.getTimes().size() - 1);
-				lastEntry = animFlag.getEntry(row);
-				newEntry = new AnimFlag.Entry<>(lastEntry);
-				newEntry.time++;
+				int time = animFlag.getTimeFromIndex(sequence, row);
+				newEntry = animFlag.getEntryAt(sequence, time).deepCopy();
+
+				while (animFlag.hasEntryAt(sequence, newEntry.getTime())) {
+					newEntry.setTime(newEntry.getTime() + 1);
+				}
 			}
 
-			UndoAction undoAction = new AddFlagEntryAction(animFlag, newEntry, timelineContainer, modelStructureChangeListener);
-			undoActionListener.pushAction(undoAction);
-			undoAction.redo();
+			UndoAction undoAction = new AddFlagEntryAction<>(animFlag, newEntry, sequence, changeListener);
+			dynamicContentPanel.removeAll();
+			undoManager.pushAction(undoAction.redo());
 
 		}
-		setTableModel();
-
-		revalidate();
-		repaint();
-
-	}
-
-	// To let implementations change how the editfield is displayed
-	protected void editFieldRendering(JTextField textField, int column) {
-	}
-
-	/**
-	 * Lets implementations change how the fields of {@link #keyframeTable}, except delete and time, is displayed
-	 *
-	 * @param tableCellRendererComponent the render component for the current cell
-	 * @param value                      the value of the cell
-	 */
-	protected void valueCellRendering(Component tableCellRendererComponent, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 	}
 
 	abstract T getZeroValue();
 
 	abstract T parseValue(String valueString);
 
-	private void checkDeletePressed() {
-		int maxColumnIndex = keyframeTable.getColumnCount() - 1;
-		if (keyframeTable.getSelectedColumn() == maxColumnIndex) {
-			removeEntry(keyframeTable.getSelectedRow());
+	protected KeyframePanel<T> addListeners(KeyframePanel<T> keyframePanel){
+		return keyframePanel;
+	}
+
+	private void removeEntry(Sequence sequence, Collection<Integer> orgTimes) {
+		if (!orgTimes.isEmpty()) {
+			UndoAction undoAction = new RemoveFlagEntryAction<>(animFlag, orgTimes, sequence, changeListener);
+			undoManager.pushAction(undoAction.redo());
 		}
 	}
 
-	private void removeEntry(int row) {
-//		System.out.println("removeEntry");
-		oldAnimFlag = animFlag;
-
-		UndoAction undoAction = new RemoveFlagEntryAction(animFlag, row, timelineContainer, modelStructureChangeListener);
-		undoActionListener.pushAction(undoAction);
-		undoAction.redo();
-
-		revalidate();
-		repaint();
-	}
-
-	protected void changeEntry(int row, int col, String field, String val) {
-//		System.out.println("changeEntry");
-		AnimFlag.Entry<T> entry = animFlag.getEntry(row);
-		int orgTime = animFlag.getTimes().get(row);
+	protected void changeEntry(Sequence sequence, int row, String field, String val) {
+		int orgTime = (int) keyframePanelMap.get(sequence).getFloatTrackTableModel().getValueAt(row, 0);
+		Entry<T> newEntry = animFlag.getEntryAt(sequence, orgTime).deepCopy();
 		T tValue = parseValue(val);
 		System.out.println(val);
 		System.out.println(tValue);
-//		String intString = val.replaceAll("[^\\d.]", "");//.split("\\.")[0];
-		String intString = val.replaceAll("[^\\d]", "");//.split("\\.")[0];
-		intString = intString.substring(0, Math.min(intString.length(), 10));
-		int iValue = Integer.parseInt(intString);
 
 		switch (field) {
-			case "Keyframe" -> entry.time = iValue;
-			case "Value" -> entry.value = tValue;
-			case "InTan" -> entry.inTan = tValue;
-			case "OutTan" -> entry.outTan = tValue;
+			case "Keyframe" -> newEntry.setTime(parseTime(val));
+			case "Value" -> newEntry.setValue(tValue);
+			case "InTan" -> newEntry.setInTan(tValue);
+			case "OutTan" -> newEntry.setOutTan(tValue);
 		}
+		System.out.println(newEntry.getTime());
 
-		UndoAction undoAction = new ChangeFlagEntryAction(animFlag, entry, orgTime, timelineContainer, modelStructureChangeListener);
-		undoActionListener.pushAction(undoAction);
-		undoAction.redo();
+		UndoAction undoAction = new ChangeFlagEntryAction<>(animFlag, newEntry, orgTime, sequence, changeListener);
+		undoManager.pushAction(undoAction.redo());
+	}
 
-//		revalidate();
-//		repaint();
+	protected void changeEntry(Sequence sequence, Integer orgTime, Entry<T> newEntry) {
+		UndoAction undoAction = new ChangeFlagEntryAction<>(animFlag, newEntry, orgTime, sequence, changeListener);
+		undoManager.pushAction(undoAction.redo());
+	}
 
-		selectNewIndex = animFlag.ceilIndex(entry.time);
+	private int parseTime(String val) {
+		String intString = val.replaceAll("[^\\d]", "");//.split("\\.")[0];
+		intString = intString.substring(0, Math.min(intString.length(), 10));
+		return Integer.parseInt(intString);
 	}
 
 }

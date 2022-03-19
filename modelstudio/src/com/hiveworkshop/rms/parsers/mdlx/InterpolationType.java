@@ -3,7 +3,10 @@ package com.hiveworkshop.rms.parsers.mdlx;
 import java.util.Arrays;
 
 public enum InterpolationType {
-	DONT_INTERP("DontInterp"), LINEAR("Linear"), HERMITE("Hermite"), BEZIER("Bezier");
+	DONT_INTERP("DontInterp"),
+	LINEAR("Linear"),
+	HERMITE("Hermite"),
+	BEZIER("Bezier");
 
 	public static final InterpolationType[] VALUES = values();
 

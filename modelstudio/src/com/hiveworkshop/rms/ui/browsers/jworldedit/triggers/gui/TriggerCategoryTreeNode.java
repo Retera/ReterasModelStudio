@@ -3,12 +3,11 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.gui;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.impl.Trigger;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.impl.TriggerCategory;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TriggerCategoryTreeNode extends DefaultMutableTreeNode implements TriggerElementTreeNode {
+public class TriggerCategoryTreeNode extends TriggerElementTreeNode {
 
 	private final TriggerCategory category;
 	private final Map<Trigger, TriggerTreeNode> triggerToNode;
@@ -44,6 +43,17 @@ public class TriggerCategoryTreeNode extends DefaultMutableTreeNode implements T
 	@Override
 	public TriggerElementTreeNode copy() {
 		return new TriggerCategoryTreeNode(category);
+	}
+
+	@Override
+	public TriggerElementTreeNode setNodeObjectName(String name) {
+		category.setName(name);
+		return this;
+	}
+
+	@Override
+	public String getNodeObjectName() {
+		return category.getName();
 	}
 
 	@Override

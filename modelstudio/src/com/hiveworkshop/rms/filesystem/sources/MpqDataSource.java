@@ -62,6 +62,7 @@ public class MpqDataSource implements DataSource {
 			file = archive.getMpqFile(filepath);
 		} catch (final Exception exc) {
 			if (exc.getMessage().startsWith("File Not Found")) {
+				exc.printStackTrace();
 				return null;
 			} else {
 				throw new IOException(exc);

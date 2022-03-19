@@ -1,50 +1,116 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
+import com.hiveworkshop.rms.editor.actions.model.material.SetLayerFlagAction;
 import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
 public class LayerFlagsPanel extends JPanel {
-	private final JCheckBox unshaded;
-	private final JCheckBox sphereEnvMap;
-	private final JCheckBox twoSided;
-	private final JCheckBox unfogged;
-	private final JCheckBox noDepthTest;
-	private final JCheckBox noDepthSet;
-	private final JCheckBox unlit;
 
-	public LayerFlagsPanel() {
-		setLayout(new MigLayout());
-		unshaded = new JCheckBox("Unshaded");
+	private final ModelHandler modelHandler;
+	private Layer layer;
+
+	public LayerFlagsPanel(ModelHandler modelHandler, Layer layer) {
+		super(new MigLayout("ins 3, gap 3, wrap 1", "", ""));
+		setBorder(BorderFactory.createTitledBorder("Flags"));
+		this.modelHandler = modelHandler;
+		this.layer = layer;
+
+//		setOpaque(true);
+//		setBackground(Color.MAGENTA);
+
+		JCheckBox unshaded = new JCheckBox(MdlUtils.TOKEN_UNSHADED);
+		unshaded.setSelected(layer.getUnshaded());
+		unshaded.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_UNSHADED));
+		add(unshaded, "");
+
+		JCheckBox sphereEnvMap = new JCheckBox(MdlUtils.TOKEN_SPHERE_ENV_MAP);
+		sphereEnvMap.setSelected(layer.getSphereEnvMap());
+		sphereEnvMap.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_SPHERE_ENV_MAP));
+		add(sphereEnvMap, "");
+
+		JCheckBox twoSided = new JCheckBox(MdlUtils.TOKEN_TWO_SIDED);
+		twoSided.setSelected(layer.getTwoSided());
+		twoSided.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_TWO_SIDED));
+		add(twoSided, "");
+
+		JCheckBox unfogged = new JCheckBox(MdlUtils.TOKEN_UNFOGGED);
+		unfogged.setSelected(layer.getUnfogged());
+		unfogged.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_UNFOGGED));
+		add(unfogged, "");
+
+		JCheckBox noDepthTest = new JCheckBox(MdlUtils.TOKEN_NO_DEPTH_TEST);
+		noDepthTest.setSelected(layer.getNoDepthTest());
+		noDepthTest.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_NO_DEPTH_TEST));
+		add(noDepthTest, "");
+
+		JCheckBox noDepthSet = new JCheckBox(MdlUtils.TOKEN_NO_DEPTH_SET);
+		noDepthSet.setSelected(layer.getNoDepthSet());
+		noDepthSet.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_NO_DEPTH_SET));
+		add(noDepthSet, "");
+
+		JCheckBox unlit = new JCheckBox(MdlUtils.TOKEN_UNLIT);
+		unlit.setSelected(layer.getUnlit());
+		unlit.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_UNLIT));
+		add(unlit, "");
+	}
+
+	public LayerFlagsPanel(ModelHandler modelHandler) {
+		super(new MigLayout());
+		setBorder(BorderFactory.createTitledBorder("Flags"));
+		this.modelHandler = modelHandler;
+
+//		setOpaque(true);
+//		setBackground(Color.MAGENTA);
+
+		JCheckBox unshaded = new JCheckBox(MdlUtils.TOKEN_UNSHADED);
+		unshaded.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_UNSHADED));
 		add(unshaded, "wrap");
 
-		sphereEnvMap = new JCheckBox("SphereEnvMap");
+		JCheckBox sphereEnvMap = new JCheckBox(MdlUtils.TOKEN_SPHERE_ENV_MAP);
+		sphereEnvMap.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_SPHERE_ENV_MAP));
 		add(sphereEnvMap, "wrap");
 
-		twoSided = new JCheckBox("TwoSided");
+		JCheckBox twoSided = new JCheckBox(MdlUtils.TOKEN_TWO_SIDED);
+		twoSided.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_TWO_SIDED));
 		add(twoSided, "wrap");
 
-		unfogged = new JCheckBox("Unfogged");
+		JCheckBox unfogged = new JCheckBox(MdlUtils.TOKEN_UNFOGGED);
+		unfogged.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_UNFOGGED));
 		add(unfogged, "wrap");
 
-		noDepthTest = new JCheckBox("NoDepthTest");
+		JCheckBox noDepthTest = new JCheckBox(MdlUtils.TOKEN_NO_DEPTH_TEST);
+		noDepthTest.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_NO_DEPTH_TEST));
 		add(noDepthTest, "wrap");
 
-		noDepthSet = new JCheckBox("NoDepthSet");
+		JCheckBox noDepthSet = new JCheckBox(MdlUtils.TOKEN_NO_DEPTH_SET);
+		noDepthSet.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_NO_DEPTH_SET));
 		add(noDepthSet, "wrap");
 
-		unlit = new JCheckBox("Unlit");
+		JCheckBox unlit = new JCheckBox(MdlUtils.TOKEN_UNLIT);
+		unlit.addActionListener(e -> toggleFlag(MdlUtils.TOKEN_UNLIT));
 		add(unlit, "wrap");
 	}
 
-	public void setLayer(final Layer layer) {
-		unshaded.setSelected(layer.getUnshaded());
-		sphereEnvMap.setSelected(layer.getSphereEnvMap());
-		twoSided.setSelected(layer.getTwoSided());
-		unfogged.setSelected(layer.getUnfogged());
-		noDepthTest.setSelected(layer.getNoDepthTest());
-		noDepthSet.setSelected(layer.getNoDepthSet());
-		unlit.setSelected(layer.getUnlit());
+//	public LayerFlagsPanel setLayer(Layer layer){
+//
+//		unshaded.setSelected(layer.getUnshaded());
+//		sphereEnvMap.setSelected(layer.getSphereEnvMap());
+//		twoSided.setSelected(layer.getTwoSided());
+//		unfogged.setSelected(layer.getUnfogged());
+//		noDepthTest.setSelected(layer.getNoDepthTest());
+//		noDepthSet.setSelected(layer.getNoDepthSet());
+//		unlit.setSelected(layer.getUnlit());
+//		return this;
+//	}
+
+	private void toggleFlag(String flag) {
+		if (layer != null) {
+			modelHandler.getUndoManager().pushAction(new SetLayerFlagAction(layer, flag, ModelStructureChangeListener.changeListener).redo());
+		}
 	}
 }

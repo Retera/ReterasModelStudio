@@ -81,6 +81,7 @@ public class MdlTokenOutputStream {
 	}
 
 	public void writeFloatArray(final float[] floatArray) {
+//		System.out.println("(writeFloatArray) " + floatArray + ": " + Arrays.toString(floatArray));
 		writeLine("{ " + formatFloatArray(floatArray) + " },");
 	}
 
@@ -153,11 +154,14 @@ public class MdlTokenOutputStream {
 
 	private String formatFloatArray(final float[] value) {
 		final StringBuilder stringBuilder = new StringBuilder();
+//		int i = 0;
         for (float v : value) {
-            if (stringBuilder.length() > 0) {
-                stringBuilder.append(", ");
-            }
-            stringBuilder.append(formatFloat(v));
+//	        System.out.println("v: " + v + ", i: " + i);
+//	        i++;
+	        if (stringBuilder.length() > 0) {
+		        stringBuilder.append(", ");
+	        }
+	        stringBuilder.append(formatFloat(v));
         }
 		return stringBuilder.toString();
 	}

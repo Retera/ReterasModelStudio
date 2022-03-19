@@ -1,204 +1,172 @@
 package com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff;
 
+import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
-import com.hiveworkshop.rms.util.Quat;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Set;
 
 public class TSpline extends JPanel {
-	private final TTan der; // in mdlvis this was just called der, and whatever, I'm copying them right now
 	private int currentFrame;
-	private final CurveRenderer curveRenderer;
+	private CurveRenderer curveRenderer;
+	private final CurveRenderer2 curveRenderer2;
+	private SplineTracker<?> splineTracker;
 	private final JSpinner tensionSpinner;
 	private final JSpinner continuitySpinner;
 	private final JSpinner biasSpinner;
-	private AnimFlag timeline;
+	private AnimFlag<?> timeline;
 
-	public TSpline(final TTan der) {
-		super(new MigLayout("fillx, filly", "[grow][]", "[][grow][][][]"));
-		this.der = der;
-		add(new JLabel("Curve properties"), "growx");
-		add(new JButton("-"), "wrap");
+	public TSpline() {
+//		super(new MigLayout("fill, debug", "[][]", "[][grow][][][]"));
+		super(new MigLayout("fill", "[][]", "[][grow][][][]"));
+		add(new JLabel("Curve properties"), "growx, spanx, wrap");
+//		JButton loadButton = new JButton("-");
+//		loadButton.addActionListener(e -> load());
+//		add(loadButton, "");
+//		JButton loadButton2 = new JButton(":");
+//		loadButton2.addActionListener(e -> loadTime());
+//		add(loadButton2, "wrap");
 
-		curveRenderer = new CurveRenderer();
-		curveRenderer.setBackground(Color.WHITE);
-		add(curveRenderer, "wrap");
+//		curveRenderer = new CurveRenderer();
+//		add(curveRenderer, "growx, growy, spanx, wrap");
+//		add(curveRenderer, "spanx, wrap");
+//		curveRenderer.setBackground(Color.WHITE);
 
-		add(new JLabel("Tension:"), "growx");
-		tensionSpinner = new JSpinner(new SpinnerNumberModel(0.0, Long.MIN_VALUE, Long.MAX_VALUE, 0.01));
+
+		curveRenderer2 = new CurveRenderer2();
+		add(curveRenderer2, "spanx, wrap");
+		curveRenderer2.setBackground(Color.WHITE);
+
+		add(new JLabel("Tension:"), "");
+		tensionSpinner = getSpinner();
 		add(tensionSpinner, "wrap");
 
-		add(new JLabel("Continuity:"), "growx");
-		continuitySpinner = new JSpinner(new SpinnerNumberModel(0.0, Long.MIN_VALUE, Long.MAX_VALUE, 0.01));
+		add(new JLabel("Continuity:"), "");
+		continuitySpinner = getSpinner();
 		add(continuitySpinner, "wrap");
 
-		add(new JLabel("Bias:"), "growx");
-		biasSpinner = new JSpinner(new SpinnerNumberModel(0.0, Long.MIN_VALUE, Long.MAX_VALUE, 0.01));
+		add(new JLabel("Bias:"), "");
+		biasSpinner = getSpinner();
 		add(biasSpinner, "wrap");
+//		setEmptySelection();
+		JButton testNewValues = new JButton("x");
+		testNewValues.addActionListener(e -> testNewValues());
+		add(testNewValues, "wrap");
 	}
 
-	public void setTimeline(final AnimFlag timeline) {
-		this.timeline = timeline;
+	public JSpinner getSpinner() {
+		SpinnerNumberModel model = new SpinnerNumberModel(0.0, Integer.MIN_VALUE, Integer.MAX_VALUE, 5);
+		JSpinner jSpinner = new JSpinner(model);
+		jSpinner.setMaximumSize(new Dimension(50, 50));
+		return jSpinner;
 	}
 
-	public void initFromKF() {
+	private void load() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			ModelHandler modelHandler = modelPanel.getModelHandler();
+			int animationTime = modelHandler.getEditTimeEnv().getEnvTrackTime();
+			Set<IdObject> selectedIdObjects = modelHandler.getModelView().getSelectedIdObjects();
+			if (selectedIdObjects.size() == 1) {
+				IdObject idObject = selectedIdObjects.stream().findFirst().get();
+				AnimFlag<?> rotation = idObject.find("Rotation");
+				if (rotation != null && rotation.tans()) {
+					setTimeline(animationTime, rotation, modelHandler.getEditTimeEnv().getCurrentSequence());
+				}
+			}
+		}
+	}
+	private void loadTime() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			ModelHandler modelHandler = modelPanel.getModelHandler();
+			int animationTime = modelHandler.getEditTimeEnv().getEnvTrackTime();
+			setSelection(animationTime, modelHandler.getEditTimeEnv().getCurrentSequence());
+		}
+	}
+	private void testNewValues() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			ModelHandler modelHandler = modelPanel.getModelHandler();
+			ModelView modelView = modelHandler.getModelView();
+			if (!modelView.getSelectedIdObjects().isEmpty() && modelHandler.getEditTimeEnv().getCurrentSequence() != null) {
+				curveRenderer2.setSequence(modelHandler.getEditTimeEnv().getCurrentSequence());
+				curveRenderer2.setAnimFlag((Vec3AnimFlag) modelView.getEditableIdObjects().stream().findFirst().get().getTranslationFlag(null));
+			}
+		}
+
+		curveRenderer2.makeSplines();
+		curveRenderer2.repaint();
+		revalidate();
+		repaint();
+//		if(splineTracker != null){
+////			float newT = 50;
+////			float newC = 50;
+////			float newB = 50;
+//			float newT = ((Double) tensionSpinner.getValue()).floatValue()/100;
+//			float newC = ((Double) continuitySpinner.getValue()).floatValue()/100;
+//			float newB = ((Double) biasSpinner.getValue()).floatValue()/100;
+//			splineTracker.setTCB(newT, newC, newB);
+//			curveRenderer.makeSplines();
+//		}
+	}
+
+	public void initFromKF(Sequence anim) {
 		if (timeline == null) {
-			setVisible(false);
-			return;
-		}
-		final int len;
-		final int num;
-		len = timeline.size();
-		num = timeline.ceilIndex(currentFrame);
-		if ((num == 0) || (num >= (len - 1)) || (timeline.getInterpolationType() != InterpolationType.HERMITE)) {
-			setVisible(false);
-			return;
-		}
-		if ((num >= len) || (num < 0) || !(timeline.getTimes().get(num).equals(currentFrame))) {
-			setVisible(false);
+//			setVisible(false);
+			curveRenderer.clearCurve();
 			return;
 		}
 
-		der.tang = timeline.getEntry(num);
-		der.cur = timeline.getEntry(num);
-		der.prev = timeline.getEntry(num - 1);
-		der.next = timeline.getEntry(num + 1);
-		der.calcSplineParameters(timeline.getValues().get(0) instanceof Quat, 4);
+		if (timeline.valueAt(anim, currentFrame) == null
+				|| (timeline.getInterpolationType() != InterpolationType.HERMITE)) {
+//			setVisible(false);
+			curveRenderer.clearCurve();
+			return;
+		}
 
-		tensionSpinner.setValue(Math.round(der.tension * 100));
-		continuitySpinner.setValue(Math.round(der.continuity * 100));
-		biasSpinner.setValue(Math.round(der.bias * 100));
+		splineTracker.initFromKF();
+		curveRenderer.makeSplines();
+
+		tensionSpinner.setValue(Math.round(splineTracker.getTension() * 100));
+		continuitySpinner.setValue(Math.round(splineTracker.getContinuity() * 100));
+		biasSpinner.setValue(Math.round(splineTracker.getBias() * 100));
 
 		setVisible(true);
 
 		curveRenderer.repaint();
 	}
 
-	public float getTension() {
-		return der.tension;
-	}
-
-	public float getContinuity() {
-		return der.continuity;
-	}
-
-	public float getBias() {
-		return der.bias;
-	}
-
-	public void setTCB(final float tension, final float continuity, final float bias) {
-		final AnimFlag.Entry it;
-		final int i;
-
-		der.tension = tension;
-		der.continuity = continuity;
-		der.bias = bias;
-
-		i = timeline.ceilIndex(currentFrame);
-		der.cur = timeline.getEntry(i);
-		der.prev = timeline.getEntry(i - 1);
-		der.next = timeline.getEntry(i + 1);
-
-		der.isLogsReady = false;
-		if (timeline.getValues().get(0) instanceof Quat) {
-			der.calcDerivative4D();
-		} else {
-			der.calcDerivativeXD(TTan.getSizeOfElement(timeline.getValues().get(0)));
-		}
-
-		throw new UnsupportedOperationException(
-				"Not finished here, need to have shared access to storing keyframe data and UndoManager");
-	}
-
-	private final class CurveRenderer extends JPanel {
-
-		private final AnimFlag.Entry itd = new AnimFlag.Entry(0, 0.0, 0.0, 0.0);
-		private final AnimFlag.Entry its = new AnimFlag.Entry(0, 0.0, 0.0, 0.0);
-
-		@Override
-		protected void paintComponent(final Graphics g) {
-			super.paintComponent(g);
-			final Rectangle rect = getBounds();
-			int i;
-			final float pixPerUnitX = 0.005f * rect.width;
-			final float pixPerUnitY = rect.height / 130f;
-			float renderX = rect.x, renderY = rect.y + rect.height;
-
-			g.setColor(Color.BLUE);
-			g.drawRect(rect.x, rect.y, rect.width, rect.height);
-
-			TTan.assignSubscript(der.prev.value, 0, 0);
-			TTan.assignSubscript(der.cur.value, 0, 100);
-			TTan.assignSubscript(der.next.value, 0, 0);
-			der.calcDerivativeXD(1);
-			g.setColor(Color.BLACK);
-			i = 0;
-			final InterpolationType interpType = timeline.getInterpolationType();
-			do {
-				itd.set(der.tang);
-				TTan.assignSubscript(itd.value, 0, 100);
-				itd.time = 100;
-
-				its.time = 0;
-				TTan.assignSubscript(its.value, 0, 0);
-				TTan.assignSubscript(its.inTan, 0, 0);
-				TTan.assignSubscript(its.outTan, 0, 0);
-
-				TTan_doStuff(i, interpType);
-				final float newRenderX = Math.round(pixPerUnitX * i);
-				final float newRenderY = rect.height - Math.round(pixPerUnitY * TTan.getSubscript(itd.value, 0).floatValue());
-				g.drawLine((int) renderX, (int) renderY, (int) newRenderX, (int) newRenderY);
-				renderX = newRenderX;
-				renderY = newRenderY;
-				i += 2;
-			} while (i <= 100);
-
-			// Second half of the Curve (Spline?)
-
-			i = 100;
-			do {
-				TTan.assignSubscript(itd.value, 0, 0);
-				itd.time = 200;
-				TTan.assignSubscript(itd.inTan, 0, 0);
-				TTan.assignSubscript(itd.outTan, 0, 0);
-
-				its.set(der.tang);
-				its.time = 100;
-				TTan.assignSubscript(its.value, 0, 100);
-
-				TTan_doStuff(i, interpType);
-				final float newRenderX = Math.round(pixPerUnitX * i);
-				final float newRenderY = rect.height - Math.round(pixPerUnitY * TTan.getSubscript(itd.value, 0).floatValue());
-				g.drawLine((int) renderX, (int) renderY, (int) newRenderX, (int) newRenderY);
-				renderX = newRenderX;
-				renderY = newRenderY;
-				i += 2;
-			} while (i <= 100);
-
-			// Central line
-			g.setColor(Color.RED);
-			g.drawLine((Math.round(pixPerUnitX * 100)), rect.height, Math.round(pixPerUnitX * 100), rect.height - Math.round(pixPerUnitY * 100));
-		}
-
-		private void TTan_doStuff(int i, InterpolationType interpType) {
-			switch (interpType) {
-				case HERMITE -> TTan.spline(i, its, itd);
-				case BEZIER -> TTan.bezInterp(i, its, itd);
-			}
-		}
-	}
-
-	public void setSelection(final int currentTime, final AnimFlag timeline) {
-		currentFrame = currentTime;
+	public void setTimeline(int currentTime, AnimFlag<?> timeline, Sequence anim) {
 		this.timeline = timeline;
-		initFromKF();
+
+//		splineTracker = new SplineTracker<>(TTan.getNewTTan2(timeline));
+		splineTracker = new SplineTracker<>(timeline, anim);
+		curveRenderer.setSplineTracker(splineTracker);
+		splineTracker.setTime(currentTime, anim);
+		initFromKF(anim);
+
+		revalidate();
+		repaint();
+	}
+
+	public void setSelection(int currentTime, Sequence anim) {
+		currentFrame = currentTime;
+		splineTracker.setTime(currentTime, anim);
+		initFromKF(anim);
 	}
 
 	public void setEmptySelection() {
 		timeline = null;
-		initFromKF();
+		initFromKF(null);
 	}
 }

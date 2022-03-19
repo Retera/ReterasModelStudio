@@ -1,15 +1,15 @@
 package com.hiveworkshop.rms.editor.model.animflag;
 
+import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxFloatArrayTimeline;
-import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundProvider;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
-import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.TreeMap;
 
 /**
  * A java class for MDL "motion flags," such as Alpha, Translation, Scaling, or
@@ -20,286 +20,222 @@ import java.util.List;
  */
 public class Vec3AnimFlag extends AnimFlag<Vec3> {
 
+	public Vec3AnimFlag(String title) {
+		super(title);
+	}
 
-//	public Vec3AnimFlag(MdlxTimeline<Float[]> timeline) {
-//		super(timeline);
-//	}
+	protected Vec3AnimFlag(AnimFlag<Vec3> af) {
+		super(af);
+	}
 
-	public Vec3AnimFlag(final MdlxFloatArrayTimeline timeline) {
-		super(timeline);
-//		name = AnimationMap.ID_TO_TAG.get(timeline.name).getMdlToken();
-//		generateTypeId();
-//
-//		interpolationType = timeline.interpolationType;
-//
-//		final int globalSequenceId = timeline.globalSequenceId;
-//		if (globalSequenceId >= 0) {
-//			setGlobalSeqId(globalSequenceId);
-//			setHasGlobalSeq(true);
-//		}
+	public Vec3AnimFlag(final MdlxFloatArrayTimeline timeline, EditableModel model) {
+		super(timeline, model);
 
 		final long[] frames = timeline.frames;
 		final Object[] values = timeline.values;
 		final Object[] inTans = timeline.inTans;
 		final Object[] outTans = timeline.outTans;
 
-		if (frames.length > 0) {
-			setVectorSize(values[0]);
-			final boolean hasTangents = interpolationType.tangential();
+		TreeMap<Integer, Animation> animationTreeMap = new TreeMap<>();
+		model.getAnims().forEach(a -> animationTreeMap.put(a.getStart(), a));
 
+		if (frames.length > 0) {
+			final boolean hasTangents = interpolationType.tangential();
 
 			for (int i = 0, l = frames.length; i < l; i++) {
 				final Object value = values[i];
-				Vec3 valueAsObject = null;
+				Vec3 valueAsObject = new Vec3((float[]) value);
+
 				Vec3 inTanAsObject = null;
 				Vec3 outTanAsObject = null;
 
-				if (isFloat) {
-					final float[] valueAsArray = (float[]) value;
-
-					if (vectorSize == 3) {
-						valueAsObject = new Vec3(valueAsArray);
-
-						if (hasTangents) {
-							inTanAsObject = new Vec3((float[]) inTans[i]);
-							outTanAsObject = new Vec3((float[]) outTans[i]);
-						}
-					}
+				if (hasTangents) {
+					inTanAsObject = new Vec3((float[]) inTans[i]);
+					outTanAsObject = new Vec3((float[]) outTans[i]);
 				}
 
-				addEntry((int) frames[i], valueAsObject, inTanAsObject, outTanAsObject);
+				if (hasGlobalSeq()) {
+					addEntry((int) frames[i] - globalSeq.getStart(), valueAsObject, inTanAsObject, outTanAsObject, globalSeq);
+				} else if (animationTreeMap.floorEntry((int) frames[i]) != null) {
+					Sequence sequence = animationTreeMap.floorEntry((int) frames[i]).getValue();
+					addEntry((int) frames[i] - sequence.getStart(), valueAsObject, inTanAsObject, outTanAsObject, sequence);
+				}
 			}
 		}
 	}
 
-	public Vec3AnimFlag(String title, List<Integer> times, List<Vec3> values) {
-		super(title, times, values);
-	}
-
-	public Vec3AnimFlag(String title) {
+	public Vec3AnimFlag(String title, InterpolationType interpolationType, GlobalSeq globalSeq) {
 		super(title);
+		this.interpolationType = interpolationType;
+		setGlobSeq(globalSeq);
 	}
 
-	public Vec3AnimFlag(AnimFlag<Vec3> af) {
-		super(af);
+	public AnimFlag<Vec3> getEmptyCopy() {
+		Vec3AnimFlag newFlag = new Vec3AnimFlag(name);
+		newFlag.setSettingsFrom(this);
+		return newFlag;
+	}
+	public AnimFlag<Vec3> deepCopy(){
+		return new Vec3AnimFlag(this);
 	}
 
-	public Vec3AnimFlag(Vec3AnimFlag af) {
-		super(af);
-	}
-
-	public static Vec3AnimFlag createEmpty2018(final String title, final InterpolationType interpolationType, final Integer globalSeq) {
-		final Vec3AnimFlag flag = new Vec3AnimFlag(title);
-//		flag.name = title;
-		flag.interpolationType = interpolationType;
-		flag.generateTypeId();
-		flag.setGlobSeq(globalSeq);
-		return flag;
-	}
-
-	public static Vec3 cloneValue(final Vec3 value) {
-		if (value == null) {
-			return null;
+	public Vec3 cloneValue(Object value) {
+		if(value instanceof Vec3){
+			return new Vec3((Vec3) value);
 		}
-		return new Vec3(value);
+		return null;
 	}
 
 	@Override
-	public void setValuesTo2(final AnimFlag<Vec3> af) {
-		this.setValuesTo(af);
-	}
+	public MdlxFloatArrayTimeline toMdlx(final TimelineContainer container, EditableModel model) {
+		final MdlxFloatArrayTimeline mdlxTimeline = new MdlxFloatArrayTimeline(3);
 
-	public void setValuesTo(Vec3AnimFlag af) {
-		name = af.name;
-		globalSeq = af.globalSeq;
-		globalSeqId = af.globalSeqId;
-		hasGlobalSeq = af.hasGlobalSeq;
-		interpolationType = af.interpolationType;
-		typeid = af.typeid;
-		times = new ArrayList<>(af.times);
-		values = deepCopy(af.values);
-		inTans = deepCopy(af.inTans);
-		outTans = deepCopy(af.outTans);
-	}
+		toMdlx3(mdlxTimeline, container, model);
 
-	@Override
-//	public MdlxTimeline<Float[]> toMdlx(TimelineContainer container) {
-//		return null;
+		return mdlxTimeline;
+
+//		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
+//		mdlxTimeline.interpolationType = interpolationType;
+//		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
+//
+//
+//		ArrayList<Integer> tempFrames2 = new ArrayList<>();
+//		ArrayList<float[]> tempValues2 = new ArrayList<>();
+//		ArrayList<float[]> tempInTans2 = new ArrayList<>();
+//		ArrayList<float[]> tempOutTans2 = new ArrayList<>();
+//
+////		for (Sequence anim : new TreeSet<>(sequenceMap.keySet())) {
+//		for (Sequence anim : model.getAllSequences()) {
+//			if (globalSeq == null || anim == globalSeq) {
+//				TreeMap<Integer, Entry<Vec3>> entryTreeMap = sequenceMap.get(anim);
+//				if(entryTreeMap != null){
+//					for (Integer time : entryTreeMap.keySet()) {
+//						if (time > anim.getLength()) {
+//							break;
+//						}
+//						Entry<Vec3> entry = entryTreeMap.get(time);
+////					tempFrames2.add(time + Math.max(anim.getStart(), tempFrames2.get(tempFrames2.size()-1) + 10));
+//						tempFrames2.add(time + anim.getStart());
+//						tempValues2.add(entry.getValue().toFloatArray());
+//						if (tans()) {
+//							tempInTans2.add(entry.getInTan().toFloatArray());
+//							tempOutTans2.add(entry.getOutTan().toFloatArray());
+//						} else {
+//							tempInTans2.add(new float[] {0});
+//							tempOutTans2.add(new float[] {0});
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		int size = tempFrames2.size();
+//		long[] tempFrames = new long[size];
+//		float[][] tempValues = new float[size][];
+//		float[][] tempInTans = new float[size][];
+//		float[][] tempOutTans = new float[size][];
+//
+//		for (int i = 0; i < size; i++) {
+//			tempFrames[i] = tempFrames2.get(i);
+//			tempValues[i] = tempValues2.get(i);
+//			tempInTans[i] = tempInTans2.get(i);
+//			tempOutTans[i] = tempOutTans2.get(i);
+//		}
+//
+//		mdlxTimeline.frames = tempFrames;
+//		mdlxTimeline.values = tempValues;
+//		mdlxTimeline.inTans = tempInTans;
+//		mdlxTimeline.outTans = tempOutTans;
+//
+//		return mdlxTimeline;
+	}
+//	@Override
+//	public MdlxFloatArrayTimeline toMdlx(final TimelineContainer container, EditableModel model) {
+//		final MdlxFloatArrayTimeline mdlxTimeline = new MdlxFloatArrayTimeline(3);
+//
+//		mdlxTimeline.name = FlagUtils.getWar3ID(name, container);
+//		mdlxTimeline.interpolationType = interpolationType;
+//		mdlxTimeline.globalSequenceId = getGlobalSeqId(model);
+//
+//
+//		ArrayList<Integer> tempFrames2 = new ArrayList<>();
+//		ArrayList<float[]> tempValues2 = new ArrayList<>();
+//		ArrayList<float[]> tempInTans2 = new ArrayList<>();
+//		ArrayList<float[]> tempOutTans2 = new ArrayList<>();
+//
+////		for (Sequence anim : new TreeSet<>(sequenceMap.keySet())) {
+//		for (Sequence anim : model.getAllSequences()) {
+//			if (globalSeq == null || anim == globalSeq) {
+//				TreeMap<Integer, Entry<Vec3>> entryTreeMap = sequenceMap.get(anim);
+//				if(entryTreeMap != null){
+//					for (Integer time : entryTreeMap.keySet()) {
+//						if (time > anim.getLength()) {
+//							break;
+//						}
+//						Entry<Vec3> entry = entryTreeMap.get(time);
+////					tempFrames2.add(time + Math.max(anim.getStart(), tempFrames2.get(tempFrames2.size()-1) + 10));
+//						tempFrames2.add(time + anim.getStart());
+//						tempValues2.add(entry.getValue().toFloatArray());
+//						if (tans()) {
+//							tempInTans2.add(entry.getInTan().toFloatArray());
+//							tempOutTans2.add(entry.getOutTan().toFloatArray());
+//						} else {
+//							tempInTans2.add(new float[] {0});
+//							tempOutTans2.add(new float[] {0});
+//						}
+//					}
+//				}
+//			}
+//		}
+//
+//		int size = tempFrames2.size();
+//		long[] tempFrames = new long[size];
+//		float[][] tempValues = new float[size][];
+//		float[][] tempInTans = new float[size][];
+//		float[][] tempOutTans = new float[size][];
+//
+//		for (int i = 0; i < size; i++) {
+//			tempFrames[i] = tempFrames2.get(i);
+//			tempValues[i] = tempValues2.get(i);
+//			tempInTans[i] = tempInTans2.get(i);
+//			tempOutTans[i] = tempOutTans2.get(i);
+//		}
+//
+//		mdlxTimeline.frames = tempFrames;
+//		mdlxTimeline.values = tempValues;
+//		mdlxTimeline.inTans = tempInTans;
+//		mdlxTimeline.outTans = tempOutTans;
+//
+//		return mdlxTimeline;
 //	}
 
-	public MdlxFloatArrayTimeline toMdlx(final TimelineContainer container) {
-		final MdlxFloatArrayTimeline timeline = new MdlxFloatArrayTimeline(3);
-
-		setVectorSize(values.get(0));
-		timeline.name = getWar3ID(container);
-		timeline.interpolationType = interpolationType;
-		timeline.globalSequenceId = getGlobalSeqId();
-
-		final List<Integer> times = getTimes();
-		final List<Vec3> values = getValues();
-		final List<Vec3> inTans = getInTans();
-		final List<Vec3> outTans = getOutTans();
-
-		final long[] tempFrames = new long[times.size()];
-		final float[][] tempValues = new float[times.size()][];
-		final float[][] tempInTans = new float[times.size()][];
-		final float[][] tempOutTans = new float[times.size()][];
-
-		final boolean hasTangents = timeline.interpolationType.tangential();
-
-		for (int i = 0, l = times.size(); i < l; i++) {
-			final Vec3 value = values.get(i);
-
-			tempFrames[i] = times.get(i).longValue();
-
-			tempValues[i] = value.toFloatArray();
-
-			if (hasTangents) {
-				tempInTans[i] = inTans.get(i).toFloatArray();
-				tempOutTans[i] = outTans.get(i).toFloatArray();
-			} else {
-				tempInTans[i] = (new Vec3()).toFloatArray();
-				tempOutTans[i] = (new Vec3()).toFloatArray();
-			}
-		}
-
-		timeline.frames = tempFrames;
-		timeline.values = tempValues;
-		timeline.inTans = tempInTans;
-		timeline.outTans = tempOutTans;
-
-		return timeline;
+	@Override
+	public Vec3 getIdentity(int typeid) {
+		return (Vec3) identity(typeid);
 	}
 
-	public Vec3 interpolateAt(final AnimatedRenderEnvironment animatedRenderEnvironment) {
-//		System.out.println(name + ", interpolateAt");
-		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
-//			System.out.println("~~ animatedRenderEnvironment == null");
-			if (values.size() > 0) {
-				return values.get(0);
-			}
-			return (Vec3) identity(typeid);
-		}
-		int localTypeId = typeid;
-//		System.out.println("typeId 1: " + typeid);
+	public Vec3 getInterpolatedValue(Integer floorTime, Integer ceilTime, float timeFactor, Sequence anim) {
+		TreeMap<Integer, Entry<Vec3>> entryMap = sequenceMap.get(anim);
+		Entry<Vec3> entryFloor = entryMap.get(floorTime);
+		Entry<Vec3> entryCeil = entryMap.get(ceilTime);
 
-		if (times.isEmpty()) {
-//			System.out.println(name + ", ~~ no times");
-			return (Vec3) identity(localTypeId);
-		}
-		// TODO ghostwolf says to stop using binary search, because linear walking is faster for the small MDL case
-		final int time;
-		int ceilIndex;
-		final int floorIndex;
-		Vec3 floorOutTan;
-		Vec3 floorValue;
-		Vec3 ceilValue;
-		Integer floorIndexTime;
-		Integer ceilIndexTime;
-		final float timeBetweenFrames;
-		if (hasGlobalSeq() && (getGlobalSeq() >= 0)) {
-//			System.out.println(name + ", ~~ hasGlobalSeq");
-			time = animatedRenderEnvironment.getGlobalSeqTime(getGlobalSeq());
-			final int floorAnimStartIndex = Math.max(0, floorIndex(1));
-			floorIndex = Math.max(0, floorIndex(time));
+		return getInterpolatedValue(entryFloor, entryCeil, timeFactor);
+	}
 
-			ceilIndex = Math.max(floorIndex, ceilIndex(time)); // retarded repeated keyframes issue, see Peasant's Bone_Chest at time 18300
+	@Override
+	public Vec3 getInterpolatedValue(Entry<Vec3> entryFloor, Entry<Vec3> entryCeil, float timeFactor) {
+		Vec3 floorValue = entryFloor.getValue();
+		Vec3 floorOutTan = entryFloor.getOutTan();
 
-			floorValue = values.get(floorIndex);
-			floorOutTan = tans() ? outTans.get(floorIndex) : null;
-			ceilValue = values.get(ceilIndex);
-			floorIndexTime = times.get(floorIndex);
-			ceilIndexTime = times.get(ceilIndex);
-			timeBetweenFrames = ceilIndexTime - floorIndexTime;
-			if (ceilIndexTime < 0) {
-				return (Vec3) identity(localTypeId);
-			}
-			if (floorIndexTime > getGlobalSeq()) {
-				if (values.size() > 0) {
-					// out of range global sequences end up just using the higher value keyframe
-					return values.get(floorIndex);
-				}
-				return (Vec3) identity(localTypeId);
-			}
-			if ((floorIndexTime < 0) && (ceilIndexTime > getGlobalSeq())) {
-				return (Vec3) identity(localTypeId);
-			} else if (floorIndexTime < 0) {
-				floorValue = (Vec3) identity(localTypeId);
-				floorOutTan = (Vec3) identity(localTypeId);
-			} else if (ceilIndexTime > getGlobalSeq()) {
-				ceilValue = values.get(floorAnimStartIndex);
-				ceilIndex = floorAnimStartIndex;
-			}
-			if (floorIndex == ceilIndex) {
-				return floorValue;
-			}
-		} else {
-//			System.out.println(name + ", ~~ no global seq");
-			final TimeBoundProvider animation = animatedRenderEnvironment.getCurrentAnimation();
-			int animationStart = animation.getStart();
-			time = animationStart + animatedRenderEnvironment.getAnimationTime();
-			final int floorAnimStartIndex = Math.max(0, floorIndex(animationStart + 1));
-			int animationEnd = animation.getEnd();
-			final int floorAnimEndIndex = Math.max(0, floorIndex(animationEnd));
-			floorIndex = floorIndex(time);
-			ceilIndex = Math.max(floorIndex, ceilIndex(time)); // retarded repeated keyframes issue, see Peasant's Bone_Chest at time 18300
+		Vec3 ceilValue = entryCeil.getValue();
+		Vec3 ceilInTan = entryCeil.getInTan();
 
-			ceilIndexTime = times.get(ceilIndex);
-			final int lookupFloorIndex = Math.max(0, floorIndex);
-			floorIndexTime = times.get(lookupFloorIndex);
-			if (ceilIndexTime < animationStart || floorIndexTime > animationEnd) {
-//				System.out.println(name + ", ~~~~ identity(localTypeId)1 " + localTypeId + " id: " + identity(localTypeId));
-				return (Vec3) identity(localTypeId);
-			}
-			ceilValue = values.get(ceilIndex);
-			floorValue = values.get(lookupFloorIndex);
-			floorOutTan = tans() ? outTans.get(lookupFloorIndex) : null;
-			if ((floorIndexTime < animationStart) && (ceilIndexTime > animationEnd)) {
-//				System.out.println(name + ", ~~~~ identity(localTypeId)3");
-				return (Vec3) identity(localTypeId);
-			} else if ((floorIndex == -1) || (floorIndexTime < animationStart)) {
-				floorValue = values.get(floorAnimEndIndex);
-				floorIndexTime = times.get(floorAnimStartIndex);
-				if (tans()) {
-					floorOutTan = inTans.get(floorAnimEndIndex);
-//					floorIndexTime = times.get(floorAnimEndIndex);
-				}
-				timeBetweenFrames = times.get(floorAnimEndIndex) - animationStart;
-			} else if ((ceilIndexTime > animationEnd)
-					|| ((ceilIndexTime < time) && (times.get(floorAnimEndIndex) < time))) {
-				if (times.get(floorAnimStartIndex) == animationStart) {
-					ceilValue = values.get(floorAnimStartIndex);
-					ceilIndex = floorAnimStartIndex;
-					ceilIndexTime = animationEnd;
-					timeBetweenFrames = ceilIndexTime - floorIndexTime;
-				} else {
-					ceilIndex = ceilIndex(animationStart);
-					ceilValue = values.get(ceilIndex);
-					timeBetweenFrames = animationEnd - animationStart;
-				}
-				// NOTE: we just let it be in this case, based on Water Elemental's birth
-			} else {
-				timeBetweenFrames = ceilIndexTime - floorIndexTime;
-			}
-			if (floorIndex == ceilIndex) {
-//				System.out.println(name + ", ~~~~ floorValue");
-				return floorValue;
-			}
-		}
-//		System.out.println(name + ", ~~ Something");
-
-		final Integer floorTime = floorIndexTime;
-		final float timeFactor = (time - floorTime) / timeBetweenFrames;
-
-		// Integer
-		switch (localTypeId) {
+		switch (typeid) {
 			case TRANSLATION, SCALING, COLOR -> {
-				// Vertex
-
 				return switch (interpolationType) {
-					case BEZIER -> Vec3.getBezier(floorValue, floorOutTan, inTans.get(ceilIndex), ceilValue, timeFactor);
+					case BEZIER -> Vec3.getBezier(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
 					case DONT_INTERP -> floorValue;
-					case HERMITE -> Vec3.getHermite(floorValue, floorOutTan, inTans.get(ceilIndex), ceilValue, timeFactor);
+					case HERMITE -> Vec3.getHermite(floorValue, floorOutTan, ceilInTan, ceilValue, timeFactor);
 					case LINEAR -> Vec3.getLerped(floorValue, ceilValue, timeFactor);
 				};
 			}
@@ -307,51 +243,46 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 		throw new IllegalStateException();
 	}
 
-	/**
-	 * Copies time track data from a certain interval into a different, new interval.
-	 * The AnimFlag source of the data to copy cannot be same AnimFlag into which the
-	 * data is copied, or else a ConcurrentModificationException will be thrown.
-	 */
-	public void copyFrom(final Vec3AnimFlag source, final int sourceStart, final int sourceEnd, final int newStart, final int newEnd) {
-		// Timescales a part of the AnimFlag from the source into the new time "newStart" to "newEnd"
-		boolean tans = source.tans();
-		if (tans && interpolationType == InterpolationType.LINEAR) {
-			final int x = JOptionPane.showConfirmDialog(null,
-					"ERROR! A source was found to have Linear and Nonlinear motion simultaneously. Does the following have non-zero data? " + source.inTans,
-					"Help This Program!", JOptionPane.YES_NO_OPTION);
-			if (x == JOptionPane.NO_OPTION) {
-				tans = false;
-			}
-		}
-		for (final Integer time : source.times) {
-			final int index = source.times.indexOf(time);
-			if ((time >= sourceStart) && (time <= sourceEnd)) {
-				// If this "time" is a part of the anim being rescaled
-				final double ratio = (double) (time - sourceStart) / (double) (sourceEnd - sourceStart);
-				times.add((int) (newStart + (ratio * (newEnd - newStart))));
-				values.add(cloneValue(source.values.get(index)));
-				if (tans) {
-					inTans.add(cloneValue(source.inTans.get(index)));
-					outTans.add(cloneValue(source.outTans.get(index)));
-				}
-			}
-		}
-		sort();
+	@Override
+	public float[] getTbcFactor(float bias, float tension, float continuity) {
+		return getTCB(-1, bias, tension, continuity);
 	}
 
-	public void copyFrom(final Vec3AnimFlag source) {
-		times.addAll(source.times);
-		values.addAll(source.values);
-		if (source.tans() && tans()) {
-			inTans.addAll(source.inTans);
-			outTans.addAll(source.outTans);
-		} else if (tans()) {
-			JOptionPane.showMessageDialog(null,
-					"Some animations will lose complexity due to transfer incombatibility. There will probably be no visible change.");
-			inTans.clear();
-			outTans.clear();
-			interpolationType = InterpolationType.LINEAR;
-			// Probably makes this flag linear, but certainly makes it more like the copy source
+	@Override
+	public void calcNewTans(float[] factor, Entry<Vec3> next, Entry<Vec3> prev, Entry<Vec3> cur, int animationLength) {
+		// Calculating the derivatives in point Cur (for count cells)
+		if (cur.inTan == null) {
+			cur.inTan = new Vec3(0, 0, 0);
+			cur.outTan = new Vec3(0, 0, 0);
 		}
+
+		Vec3 currPrev = new Vec3(cur.value);
+		Vec3 nextCurr = new Vec3(0, 0, 0).sub(cur.value);
+		if (prev != null) {
+			currPrev.sub(prev.value);
+		}
+		if (next != null) {
+			nextCurr.add(next.value);
+		}
+
+		cur.inTan.set(currPrev).scale(factor[0]).addScaled(nextCurr, factor[1]);
+		cur.outTan.set(currPrev).scale(factor[2]).addScaled(nextCurr, factor[3]);
+//		System.out.println("currPrev: " + currPrev);
+//		System.out.println("nextCurr: " + nextCurr);
+//		System.out.println("factor: " + Arrays.toString(factor));
+
+		if (next != null && prev != null && !next.time.equals(prev.time)) {
+			float timeBetweenFrames = (next.time - prev.time + animationLength) % animationLength;
+			int timeToPrevFrame = (cur.time - prev.time + animationLength) % animationLength;
+			int timeToNextFrame = (next.time - cur.time + animationLength) % animationLength;
+
+//			System.out.println("timeBetweenFrames: " + timeBetweenFrames);
+
+			float inAdj = 2 * timeToPrevFrame / timeBetweenFrames;
+			float outAdj = 2 * timeToNextFrame / timeBetweenFrames;
+			cur.inTan.scale(inAdj);
+			cur.outTan.scale(outAdj);
+		}
+
 	}
 }

@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.util;
 
 import java.awt.*;
-import java.util.Arrays;
 
 public class GU {
 	public static void fillPolygon(Graphics graphics, Point... points) {
@@ -11,6 +10,17 @@ public class GU {
 		for (int i = 0; i < points.length; i++) {
 			polygonX[i] = points[i].x;
 			polygonY[i] = points[i].y;
+		}
+		graphics.fillPolygon(polygonX, polygonY, points.length);
+	}
+
+	public static void fillPolygon(Graphics graphics, Vec2... points) {
+		int[] polygonX = new int[points.length];
+		int[] polygonY = new int[points.length];
+
+		for (int i = 0; i < points.length; i++) {
+			polygonX[i] = (int) points[i].x;
+			polygonY[i] = (int) points[i].y;
 		}
 		graphics.fillPolygon(polygonX, polygonY, points.length);
 	}
@@ -42,8 +52,10 @@ public class GU {
 		int[] polygonY = new int[points.length];
 
 		for (int i = 0; i < points.length; i++) {
-			polygonX[i] = points[i].x;
-			polygonY[i] = points[i].y;
+			if (points[i] != null) {
+				polygonX[i] = points[i].x;
+				polygonY[i] = points[i].y;
+			}
 		}
 		graphics.drawPolygon(polygonX, polygonY, points.length);
 	}
@@ -53,8 +65,10 @@ public class GU {
 		int[] polygonY = new int[points.length];
 
 		for (int i = 0; i < points.length; i++) {
-			polygonX[i] = (int) points[i].x;
-			polygonY[i] = (int) points[i].y;
+			if (points[i] != null) {
+				polygonX[i] = (int) points[i].x;
+				polygonY[i] = (int) points[i].y;
+			}
 		}
 		graphics.drawPolygon(polygonX, polygonY, points.length);
 	}
@@ -89,6 +103,10 @@ public class GU {
 		fillCenteredSquare(graphics, point.x, point.y, size);
 	}
 
+	public static void fillCenteredSquare(Graphics graphics, Vec2 point, int size) {
+		fillCenteredSquare(graphics, (int) (point.x + .5), (int) (point.y + .5), size);
+	}
+
 	public static void fillCenteredSquare(Graphics graphics, int x, int y, int size) {
 		int offset = size / 2;
 		graphics.fillRect(x - offset, (y - offset), size, size);
@@ -111,7 +129,9 @@ public class GU {
 
 	public static void drawLines(Graphics graphics, Point... points) {
 		for (int i = 0; i < points.length - 1; i += 2) {
-			graphics.drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+			if (points[i] != null) {
+				graphics.drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
+			}
 		}
 	}
 
@@ -178,18 +198,18 @@ public class GU {
 		Polygon pRek = new Polygon();
 		int xp = xb == 0 ? p : 0;
 		int yp = yb == 0 ? p : 0;
-		System.out.println("-xb: " + -xb + ", -yb: " + -yb);
+//		System.out.println("-xb: " + -xb + ", -yb: " + -yb);
 		pRek.addPoint(-xb, -yb);
-		System.out.println("xp: " + xp + ", yp: " + yp);
+//		System.out.println("xp: " + xp + ", yp: " + yp);
 		pRek.addPoint(xp, yp);
-		System.out.println("xb: " + xb + ", yb: " + yb);
+//		System.out.println("xb: " + xb + ", yb: " + yb);
 		pRek.addPoint(xb, yb);
-		System.out.println("pRekt.x: " + Arrays.toString(pRek.xpoints) + ", pRekt.y: " + Arrays.toString(pRek.ypoints));
+//		System.out.println("pRekt.x: " + Arrays.toString(pRek.xpoints) + ", pRekt.y: " + Arrays.toString(pRek.ypoints));
 		Polygon nT = new Polygon();
 		nT.addPoint(-5, 0);
 		nT.addPoint(0, -18);
 		nT.addPoint(5, 0);
-		System.out.println("nT.x: " + Arrays.toString(nT.xpoints) + ", nT.y: " + Arrays.toString(nT.ypoints));
+//		System.out.println("nT.x: " + Arrays.toString(nT.xpoints) + ", nT.y: " + Arrays.toString(nT.ypoints));
 		return pRek;
 	}
 }

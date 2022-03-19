@@ -1,58 +1,21 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields;
 
-import java.awt.Component;
-import java.text.ParseException;
-
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFormattedTextField;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.text.ParseException;
 
 public enum FieldPopupUtils {
 	;
 
-	public static int showPopup(final Component parentComponent, final JPanel message, final String title,
-			final int optionType, final int messageType, final JComponent componentToFocus) {
-//		componentToFocus.addAncestorListener(new AncestorListener() {
-//			@Override
-//			public void ancestorRemoved(final AncestorEvent event) {
-//			}
-//
-//			@Override
-//			public void ancestorMoved(final AncestorEvent event) {
-//			}
-//
-//			@Override
-//			public void ancestorAdded(final AncestorEvent event) {
-//				SwingUtilities.invokeLater(new Runnable() {
-//					@Override
-//					public void run() {
-//						SwingUtilities.invokeLater(new Runnable() {
-//							@Override
-//							public void run() {
-//								if (componentToFocus instanceof JSpinner) {
-//									final JFormattedTextField textField = ((JSpinner.DefaultEditor) ((JSpinner) componentToFocus)
-//											.getEditor()).getTextField();
-//									// textField.requestFocus();
-//									// textField.setText(textField.getText());
-//									textField.selectAll();
-//								} else {
-//									componentToFocus.requestFocus();
-//									if (componentToFocus instanceof JTextComponent) {
-//										((JTextComponent) componentToFocus).selectAll();
-//									}
-//								}
-//							}
-//						});
-//					}
-//				});
-//			}
-//		});
+	public static int showPopup(Component parentComponent, JPanel message, String title, int optionType,
+	                            int messageType, JComponent componentToFocus) {
 		return showConfirmDialog(parentComponent, message, title, optionType, messageType, componentToFocus);
+	}
+
+	public static int showPopup(Component parentComponent, JPanel message, String title, JComponent componentToFocus) {
+		return showConfirmDialog(parentComponent, message, title,
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, componentToFocus);
 	}
 
 	/**
@@ -66,62 +29,65 @@ public enum FieldPopupUtils {
 	 * @param title           The title of the dialog.
 	 * @param optionType      The optionType.
 	 * @param messageType     The messageType.
-	 *
 	 * @return The selected option.
 	 */
-	public static int showConfirmDialog(final Component parentComponent, final Object message, final String title,
-			final int optionType, final int messageType, final JComponent componentWantingFocus) {
-		final PopupContext popupContext = new PopupContext();
+	public static int showConfirmDialog(Component parentComponent, Object message, String title, int optionType,
+	                                    int messageType, JComponent componentWantingFocus) {
+		PopupContext popupContext = new PopupContext();
 		if (componentWantingFocus instanceof JSpinner) {
-			final JSpinner spinner = (JSpinner) componentWantingFocus;
-			final JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spinner.getEditor();
-			final JFormattedTextField textField = editor.getTextField();
-//			((NumberFormatter) textField.getFormatter()).setAllowsInvalid(false);
+			JSpinner spinner = (JSpinner) componentWantingFocus;
+			JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spinner.getEditor();
+			JFormattedTextField textField = editor.getTextField();
 			spinner.addChangeListener(e -> {
-                try {
-                    spinner.commitEdit();
-                } catch (final ParseException e1) {
-                    JOptionPane.showMessageDialog(parentComponent,
-                            "Unable to commit edit because: " + e1.getClass() + ": " + e1.getMessage());
-                    e1.printStackTrace();
-                }
-            });
+				commitEdit(parentComponent, spinner);
+			});
 			textField.addActionListener(e -> {
-                if (popupContext.dialog != null) {
-                    popupContext.optionPane.setValue(JOptionPane.OK_OPTION);
-                    popupContext.dialog.dispose();
-                }
-            });
+				disposeExisting(popupContext);
+			});
 		}
-		final JOptionPane pane = new JOptionPane(message, messageType, optionType) {
+		JOptionPane pane = new JOptionPane(message, messageType, optionType) {
 			@Override
 			public void selectInitialValue() {
-				SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> {
-//								componentWantingFocus.requestFocus();
-                    if (componentWantingFocus instanceof JSpinner) {
-                        final JFormattedTextField textField = ((JSpinner.DefaultEditor) ((JSpinner) componentWantingFocus)
-                                .getEditor()).getTextField();
-//									textField.requestFocus();
-                        // textField.setText(textField.getText());
-                        textField.selectAll();
-                    } else {
-//									componentWantingFocus.requestFocus();
-                        if (componentWantingFocus instanceof JTextComponent) {
-                            ((JTextComponent) componentWantingFocus).selectAll();
-                        }
-                    }
-                }));
+				SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> selectAll(componentWantingFocus)));
 			}
 		};
-		final JDialog dialog = pane.createDialog(parentComponent, title);
+		JDialog dialog = pane.createDialog(parentComponent, title);
 		popupContext.dialog = dialog;
 		popupContext.optionPane = pane;
-		dialog.show();
+		dialog.setVisible(true);
 
 		if (pane.getValue() instanceof Integer) {
 			return (Integer) pane.getValue();
 		}
 		return -1;
+	}
+
+	private static void selectAll(JComponent componentWantingFocus) {
+		if (componentWantingFocus instanceof JSpinner) {
+			JSpinner spinner = (JSpinner) componentWantingFocus;
+			((JSpinner.DefaultEditor) spinner.getEditor()).getTextField().selectAll();
+		} else {
+			if (componentWantingFocus instanceof JTextComponent) {
+				((JTextComponent) componentWantingFocus).selectAll();
+			}
+		}
+	}
+
+	private static void disposeExisting(PopupContext popupContext) {
+		if (popupContext.dialog != null) {
+			popupContext.optionPane.setValue(JOptionPane.OK_OPTION);
+			popupContext.dialog.dispose();
+		}
+	}
+
+	private static void commitEdit(Component parentComponent, JSpinner spinner) {
+		try {
+			spinner.commitEdit();
+		} catch (ParseException e1) {
+			JOptionPane.showMessageDialog(parentComponent,
+					"Unable to commit edit because: " + e1.getClass() + ": " + e1.getMessage());
+			e1.printStackTrace();
+		}
 	}
 
 	private static final class PopupContext {

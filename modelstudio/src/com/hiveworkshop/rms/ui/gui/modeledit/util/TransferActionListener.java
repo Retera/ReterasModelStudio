@@ -1,13 +1,14 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.util;
 
-import java.awt.KeyboardFocusManager;
+import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
+import com.hiveworkshop.rms.ui.language.TextKey;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-import javax.swing.Action;
-import javax.swing.JComponent;
 
 /**
  * A class that tracks the focused component. This is necessary to delegate the
@@ -20,6 +21,7 @@ import javax.swing.JComponent;
  */
 public class TransferActionListener implements ActionListener, PropertyChangeListener {
 	private JComponent focusOwner = null;
+	private PerspectiveViewport perspectiveViewport = null;
 
 	public TransferActionListener() {
 		final KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
@@ -28,23 +30,70 @@ public class TransferActionListener implements ActionListener, PropertyChangeLis
 
 	@Override
 	public void propertyChange(final PropertyChangeEvent e) {
+//		System.out.println("property changed");
 		final Object o = e.getNewValue();
+//		System.out.println("e: " + e.getNewValue());
 		if (o instanceof JComponent) {
 			focusOwner = (JComponent) o;
 		} else {
 			focusOwner = null;
 		}
+		if (o instanceof PerspectiveViewport) {
+			perspectiveViewport = (PerspectiveViewport) o;
+		} else {
+			perspectiveViewport = null;
+		}
+//		System.out.println("focusOwner: " + focusOwner);
 	}
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		if (focusOwner == null) {
+//		System.out.println("actionPerformed");
+		if (focusOwner == null && perspectiveViewport == null) {
+//			System.out.println("focusOwner == null");
 			return;
 		}
-		final String action = e.getActionCommand();
-		final Action a = focusOwner.getActionMap().get(action);
-		if (a != null) {
-			a.actionPerformed(new ActionEvent(focusOwner, ActionEvent.ACTION_PERFORMED, null));
+		if(focusOwner != null){
+			final String action = e.getActionCommand();
+			System.out.println("action: " + action);
+			final Action a = focusOwner.getActionMap().get(action);
+			if (a != null) {
+				System.out.println("will complete action!");
+				a.actionPerformed(new ActionEvent(focusOwner, ActionEvent.ACTION_PERFORMED, null));
+			}
+		} else if(perspectiveViewport != null){
+			final String action = e.getActionCommand();
+			System.out.println("action: " + action + " (e: " + e + ")");
+			System.out.println("action: " + action.length() + " (e: " + e + ")");
+			JPanel parent = (JPanel) perspectiveViewport.getParent().getParent();
+			final Action a = parent.getActionMap().get(action);
+			if (a != null) {
+				System.out.println("will complete action!");
+				a.actionPerformed(new ActionEvent(parent, ActionEvent.ACTION_PERFORMED, null));
+			}
+		}
+	}
+
+	public void doActionPerformed(TextKey textKey) {
+		System.out.println("actionPerformed");
+		if (focusOwner == null && perspectiveViewport == null) {
+			System.out.println("focusOwner == null");
+			return;
+		}
+		if(focusOwner != null){
+			System.out.println("action: " + textKey);
+			final Action a = focusOwner.getActionMap().get(textKey);
+			if (a != null) {
+				System.out.println("will complete action!");
+				a.actionPerformed(new ActionEvent(focusOwner, ActionEvent.ACTION_PERFORMED, null));
+			}
+		} else if(perspectiveViewport != null){
+			JPanel parent = (JPanel) perspectiveViewport.getParent().getParent();
+			final Action a = parent.getActionMap().get(textKey);
+			if (a != null) {
+				System.out.println("will complete action!");
+				a.actionPerformed(new ActionEvent(parent, ActionEvent.ACTION_PERFORMED, null));
+			}
 		}
 	}
 }

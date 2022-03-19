@@ -1,8 +1,8 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxGenericObject;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
@@ -18,8 +18,6 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	public static final int DEFAULT_CLICK_RADIUS = 8;
 
 	protected String name = "";
-	protected int objectId = -1;
-	protected int parentId = -1;
 	protected boolean dontInheritTranslation = false;
 	protected boolean dontInheritRotation = false;
 	protected boolean dontInheritScaling = false;
@@ -27,91 +25,36 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	protected boolean billboardLockX = false;
 	protected boolean billboardLockY = false;
 	protected boolean billboardLockZ = false;
-	protected Vec3 pivotPoint;
+	protected Vec3 pivotPoint = new Vec3();
 	protected IdObject parent;
 	protected final List<IdObject> childrenNodes = new ArrayList<>();
 	protected float[] bindPose;
+	protected Mat4 bindPoseM4;
 
 	public IdObject() {
-
 	}
 
-	public IdObject(final IdObject host) {
-		copyObject(host);
+	protected IdObject(final IdObject other) {
+		name = other.name;
+		dontInheritTranslation = other.dontInheritTranslation;
+		dontInheritRotation = other.dontInheritRotation;
+		dontInheritScaling = other.dontInheritScaling;
+		billboarded = other.billboarded;
+		billboardLockX = other.billboardLockX;
+		billboardLockY = other.billboardLockY;
+		billboardLockZ = other.billboardLockZ;
+//		pivotPoint = new Vec3(other.pivotPoint);
+		pivotPoint.set(other.pivotPoint);
+		setParent(other.parent);
+		if (other.bindPose != null) {
+			bindPose = other.bindPose.clone();
+		}
+		if (other.bindPoseM4 != null){
+			bindPoseM4 = new Mat4().set(other.bindPoseM4);
+		}
+		copyTimelines(other);
 	}
 
-	public void loadObject(final MdlxGenericObject object) {
-		name = object.name;
-		objectId = object.objectId;
-		parentId = object.parentId;
-
-		if ((object.flags & 0x1) != 0) {
-			dontInheritTranslation = true;
-		}
-
-		if ((object.flags & 0x2) != 0) {
-			dontInheritRotation = true;
-		}
-
-		if ((object.flags & 0x4) != 0) {
-			dontInheritScaling = true;
-		}
-
-		if ((object.flags & 0x8) != 0) {
-			billboarded = true;
-		}
-
-		if ((object.flags & 0x10) != 0) {
-			billboardLockX = true;
-		}
-
-		if ((object.flags & 0x20) != 0) {
-			billboardLockY = true;
-		}
-
-		if ((object.flags & 0x40) != 0) {
-			billboardLockZ = true;
-		}
-
-		loadTimelines(object);
-	}
-
-	public void objectToMdlx(final MdlxGenericObject object, EditableModel model) {
-		object.name = getName();
-		object.objectId = getObjectId(model);
-		object.parentId = getParentId(model);
-
-		if (dontInheritTranslation) {
-			object.flags |= 0x1;
-		}
-
-		if (dontInheritRotation) {
-			object.flags |= 0x2;
-		}
-
-		if (dontInheritScaling) {
-			object.flags |= 0x4;
-		}
-
-		if (billboarded) {
-			object.flags |= 0x8;
-		}
-
-		if (billboardLockX) {
-			object.flags |= 0x10;
-		}
-
-		if (billboardLockY) {
-			object.flags |= 0x20;
-		}
-
-		if (billboardLockZ) {
-			object.flags |= 0x40;
-		}
-
-		timelinesToMdlx(object);
-	}
-	
 	public void setName(final String text) {
 		name = text;
 	}
@@ -122,93 +65,37 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	}
 
 	public void setPivotPoint(final Vec3 p) {
-		pivotPoint = p;
+		pivotPoint.set(p);
 	}
 
 	public void setParent(final IdObject p) {
 		if (parent != null) {
 			parent.childrenNodes.remove(this);
 		}
-		parent = p;
-		if (parent != null) {
-			parent.childrenNodes.add(this);
+		if (parent != this) {
+			parent = p;
+			if (parent != null) {
+				parent.childrenNodes.add(this);
+			}
 		}
 	}
 
-	public IdObject copy() {
-		return null;
-	}
+	public abstract IdObject copy();
 
-	public void copyObject(final IdObject other) {
-		name = other.name;
-		objectId = other.objectId;
-		parentId = other.parentId;
-		dontInheritTranslation = other.dontInheritTranslation;
-		dontInheritRotation = other.dontInheritRotation;
-		dontInheritScaling = other.dontInheritScaling;
-		billboarded = other.billboarded;
-		billboardLockX = other.billboardLockX;
-		billboardLockY = other.billboardLockY;
-		billboardLockZ = other.billboardLockZ;
-		pivotPoint = new Vec3(other.pivotPoint);
-		setParent(other.getParent());
-		addAll(other.getAnimFlags());
-	}
-
-	public abstract double getClickRadius(CoordinateSystem coordinateSystem);
-
-	/**
-	 * @return The Object ID
-	 * @deprecated Note that all object IDs are deleted and regenerated at save
-	 */
-	@Deprecated
-	public int getObjectId() {
-		return objectId;
-	}
+	public abstract double getClickRadius();
 
 	public int getObjectId(EditableModel model) {
 		return model.getObjectId(this);
 	}
 
-//	/**
-//	 * @param objectId New object ID value
-//	 * @deprecated Note that all object IDs are deleted and regenerated at save
-//	 */
-//	@Deprecated
-//	public void setObjectId(final int objectId) {
-//		this.objectId = objectId;
-//	}
-
-	/**
-	 * @return Parent ID
-	 * @deprecated Note that all object IDs are deleted and regenerated at save
-	 */
-	@Deprecated
-	public int getParentId() {
-		return parent.getObjectId();
-	}
-
 	public int getParentId(EditableModel model) {
 		if (parent == null) {
-//			System.out.println("trying to get parent for bone: " + getName());
-//			System.out.println("parent: " + parent);
-//			System.out.println("_____________________________________________________");
 			return -1;
 		}
 		return model.getObjectId(parent);
 	}
 
-//	/**
-//	 * @param parentId new Parent ID
-//	 * @deprecated IF UNSURE, YOU SHOULD USE setParent(), note that all object IDs
-//	 *             are deleted and regenerated at save
-//	 */
-//	@Deprecated
-//	public void setParentId(final int parentId) {
-//		this.parentId = parentId;
-//	}
-
-	public void setDontInheritTranslation(final boolean dontInheritTranslation) {
+	public void setDontInheritTranslation(boolean dontInheritTranslation) {
 		this.dontInheritTranslation = dontInheritTranslation;
 	}
 
@@ -216,7 +103,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return dontInheritTranslation;
 	}
 
-	public void setDontInheritRotation(final boolean dontInheritRotation) {
+	public void setDontInheritRotation(boolean dontInheritRotation) {
 		this.dontInheritRotation = dontInheritRotation;
 	}
 
@@ -224,7 +111,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return dontInheritRotation;
 	}
 
-	public void setDontInheritScaling(final boolean dontInheritScaling) {
+	public void setDontInheritScaling(boolean dontInheritScaling) {
 		this.dontInheritScaling = dontInheritScaling;
 	}
 
@@ -232,7 +119,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return dontInheritScaling;
 	}
 
-	public void setBillboarded(final boolean billboarded) {
+	public void setBillboarded(boolean billboarded) {
 		this.billboarded = billboarded;
 	}
 
@@ -240,7 +127,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return billboarded;
 	}
 
-	public void setBillboardLockX(final boolean billboardLockX) {
+	public void setBillboardLockX(boolean billboardLockX) {
 		this.billboardLockX = billboardLockX;
 	}
 
@@ -248,7 +135,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return billboardLockX;
 	}
 
-	public void setBillboardLockY(final boolean billboardLockY) {
+	public void setBillboardLockY(boolean billboardLockY) {
 		this.billboardLockY = billboardLockY;
 	}
 
@@ -256,7 +143,7 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return billboardLockY;
 	}
 
-	public void setBillboardLockZ(final boolean billboardLockZ) {
+	public void setBillboardLockZ(boolean billboardLockZ) {
 		this.billboardLockZ = billboardLockZ;
 	}
 
@@ -269,14 +156,10 @@ public abstract class IdObject extends AnimatedNode implements Named {
 		return pivotPoint;
 	}
 
-	//	@Override
 	public IdObject getParent() {
 		return parent;
 	}
 
-	public abstract void apply(IdObjectVisitor visitor);
-
-	@Override
 	public List<IdObject> getChildrenNodes() {
 		return childrenNodes;
 	}
@@ -284,8 +167,56 @@ public abstract class IdObject extends AnimatedNode implements Named {
 	public float[] getBindPose() {
 		return bindPose;
 	}
+	public Mat4 getBindPoseM4() {
+		return bindPoseM4;
+	}
 
-	public void setBindPose(final float[] bindPose) {
+	public void setBindPose(float[] bindPose) {
 		this.bindPose = bindPose;
+		if(bindPose != null){
+			if(bindPoseM4 == null){
+				bindPoseM4 = new Mat4();
+			}
+			bindPoseM4.setFromBindPose(bindPose);
+		} else {
+			bindPoseM4 = null;
+		}
+	}
+	public void setBindPoseM4(Mat4 bindPose) {
+		bindPoseM4 = bindPose;
+		if(bindPose != null){
+			this.bindPose = bindPose.getBindPose();
+		} else {
+			this.bindPose = null;
+		}
+	}
+
+
+	public void copyMotionFrom(IdObject b) {
+		for (AnimFlag<?> baf : b.getAnimFlags()) {
+			boolean foundMatch = false;
+			for (AnimFlag<?> af : getAnimFlags()) {
+				boolean sameSeq = false;
+				if (baf.getGlobalSeq() == null && af.getGlobalSeq() == null) {
+					sameSeq = true;
+				} else if (baf.getGlobalSeq() != null && af.getGlobalSeq() != null) {
+					sameSeq = baf.getGlobalSeq().equals(af.getGlobalSeq()); // todo check if this should be equals or identical (==)
+				}
+				if (baf.getName().equals(af.getName()) && sameSeq && baf.hasGlobalSeq() == af.hasGlobalSeq()) {
+					// if( && baf.tags.equals(af.tags)
+					foundMatch = true;
+					AnimFlagUtils.copyFrom(af, baf);
+				}
+			}
+			if (!foundMatch) {
+				add(baf);
+			}
+		}
+	}
+
+	public void clearAnimation(Animation a) {
+		for (AnimFlag<?> af : getAnimFlags()) {
+			af.deleteAnim(a);
+		}
 	}
 }

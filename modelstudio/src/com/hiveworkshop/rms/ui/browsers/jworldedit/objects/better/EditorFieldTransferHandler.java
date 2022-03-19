@@ -1,23 +1,19 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better;
 
-import java.awt.Point;
+import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
+import de.wc3data.stream.BlizzardDataInputStream;
+import de.wc3data.stream.BlizzardDataOutputStream;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import javax.swing.JComponent;
-import javax.swing.TransferHandler;
-
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorPanel;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
-import com.hiveworkshop.rms.parsers.w3o.War3ObjectDataChangeset;
-
-import de.wc3data.stream.BlizzardDataInputStream;
-import de.wc3data.stream.BlizzardDataOutputStream;
 
 public class EditorFieldTransferHandler extends TransferHandler {
 	private final DataFlavor dataFlavor;
@@ -59,7 +55,7 @@ public class EditorFieldTransferHandler extends TransferHandler {
 		}
 
 		if (info.isDrop()) { // This is a drop
-			final UnitEditorPanel.DropLocation dl = (UnitEditorPanel.DropLocation) info.getDropLocation();
+			final com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DropLocation dl = (com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DropLocation) info.getDropLocation();
 			final Point dropPoint = dl.getDropPoint();
 			// discard drop point, unit location is based on tree sorter folders
 		} else { // This is a paste

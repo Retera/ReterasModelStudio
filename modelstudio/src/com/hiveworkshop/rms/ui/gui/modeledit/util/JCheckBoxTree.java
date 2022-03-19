@@ -1,5 +1,10 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.util;
 
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableNodeElement;
+
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeExpansionEvent;
@@ -26,7 +31,10 @@ public class JCheckBoxTree extends JTree {
 	protected EventListenerList listenerList = new EventListenerList();
 
 	HashSet<TreeNode> checkedPaths = new HashSet<>();
-	private boolean controlDown = false;
+	protected boolean controlDown = false;
+	protected ModelHandler modelHandler;
+	protected ModelView modelView;
+	protected UndoManager undoManager;
 
 	public JCheckBoxTree() {
 		super();
@@ -35,8 +43,8 @@ public class JCheckBoxTree extends JTree {
 		setOpaque(false);
 
 		// Overriding cell renderer by new one defined above
-		CheckBoxCellRenderer cellRenderer = new CheckBoxCellRenderer();
-		setCellRenderer(cellRenderer);
+//		CheckBoxCellRenderer cellRenderer = new CheckBoxCellRenderer(modelView);
+//		setCellRenderer(cellRenderer);
 
 		// Overriding selection model by an empty one
 		DefaultTreeSelectionModel dtsm = getDisabledSelectionModel();
@@ -45,6 +53,20 @@ public class JCheckBoxTree extends JTree {
 		addMouseListener(getMouseListener());
 		addKeyListener(getKeyAdapter());
 		addTreeExpansionListener(getExpansionListener());
+	}
+
+	public JCheckBoxTree setModel(ModelHandler modelHandler) {
+		this.modelHandler = modelHandler;
+		if (modelHandler != null) {
+			this.modelView = modelHandler.getModelView();
+			this.undoManager = modelHandler.getUndoManager();
+		} else {
+			this.modelView = null;
+			this.undoManager = null;
+		}
+		CheckBoxCellRenderer cellRenderer = new CheckBoxCellRenderer(modelView);
+		setCellRenderer(cellRenderer);
+		return this;
 	}
 
 	private TreeExpansionListener getExpansionListener() {
@@ -118,6 +140,7 @@ public class JCheckBoxTree extends JTree {
 		return new MouseAdapter() {
 			@Override
 			public void mouseClicked(final MouseEvent e) {
+//				System.out.println("click: " + JCheckBoxTree.this.getPathForLocation(e.getX(), e.getY()));
 			}
 
 			@Override
@@ -130,6 +153,12 @@ public class JCheckBoxTree extends JTree {
 
 			@Override
 			public void mousePressed(final MouseEvent e) {
+//				System.out.println("press: " + JCheckBoxTree.this.getPathForLocation(e.getX(), e.getY()));
+			}
+
+			@Override
+			public void mouseDragged(final MouseEvent e) {
+//				System.out.println("drag: " + JCheckBoxTree.this.getPathForLocation(e.getX(), e.getY()));
 			}
 
 			@Override
@@ -185,11 +214,6 @@ public class JCheckBoxTree extends JTree {
 	public void updateModel(final TreeModel newModel) {
 		super.setModel(newModel);
 		resetCheckingState();
-	}
-
-	// New method that returns only the checked paths (totally ignores original "selection" mechanism)
-	public TreeNode[] getCheckedPaths() {
-		return checkedPaths.toArray(new TreeNode[0]);
 	}
 
 	public boolean isSelected(final JCheckBoxTreeNode node) {
@@ -357,9 +381,11 @@ public class JCheckBoxTree extends JTree {
 		private static final long serialVersionUID = -7341833835878991719L;
 		JCheckBox checkBox;
 		JLabel label;
+		ModelView modelView;
 
-		public CheckBoxCellRenderer() {
+		public CheckBoxCellRenderer(ModelView modelView) {
 			super();
+			this.modelView = modelView;
 			this.setLayout(new BorderLayout());
 			checkBox = new JCheckBox();
 			label = new JLabel();
@@ -376,6 +402,16 @@ public class JCheckBoxTree extends JTree {
 				final Object obj = node.getUserObject();
 				checkBox.setSelected(node.isChecked());
 				label.setText(obj.toString());
+
+				if (obj instanceof CheckableNodeElement) {
+					if (modelView.isSelected(((CheckableNodeElement) obj).getItem())) {
+						label.setOpaque(true);
+						label.setBackground(new Color(255, 0, 0, 15));
+					} else {
+						label.setOpaque(false);
+						label.setBackground(new Color(255, 255, 255, 0));
+					}
+				}
 //				checkBox.setText(obj.toString());
 
 				// This is not working as intended (the render update seems to lag in a lot of instances)

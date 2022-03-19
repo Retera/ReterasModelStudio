@@ -6,33 +6,31 @@ import com.hiveworkshop.rms.util.IterableListModel;
 import java.util.ArrayList;
 
 public class MatrixShell {
-	private Matrix matrix;
-	private IterableListModel<BoneShell> newBones;
-	private ArrayList<BoneShell> orgBones;
-	private boolean isFromDonating;
+	private final Matrix matrix;
+	private final ArrayList<IdObjectShell<?>> orgBones;
+	private final IterableListModel<IdObjectShell<?>> newBones;
+	private final boolean isFromDonating;
+	private final boolean isHd;
 
 	public MatrixShell(final Matrix m) {
-		matrix = m;
-		newBones = new IterableListModel<>();
+		this(m, new ArrayList<>(), false, false);
 	}
 
 
-	public MatrixShell(final Matrix m, ArrayList<BoneShell> orgBones) {
-		matrix = m;
-		this.orgBones = orgBones;
-		newBones = new IterableListModel<>(orgBones);
+	public MatrixShell(final Matrix m, ArrayList<IdObjectShell<?>> orgBones) {
+		this(m, orgBones, false, false);
 	}
 
-	public MatrixShell(final Matrix m, ArrayList<BoneShell> orgBones, boolean isFromDonating) {
+	public MatrixShell(final Matrix m, ArrayList<IdObjectShell<?>> orgBones, boolean isFromDonating) {
+		this(m, orgBones, isFromDonating, false);
+	}
+
+	public MatrixShell(final Matrix m, ArrayList<IdObjectShell<?>> orgBones, boolean isFromDonating, boolean isHd) {
 		matrix = m;
 		this.orgBones = orgBones;
 		newBones = new IterableListModel<>(orgBones);
 		this.isFromDonating = isFromDonating;
-	}
-
-	public void orgBones(ArrayList<BoneShell> orgBones) {
-		this.orgBones = orgBones;
-		newBones = new IterableListModel<>(orgBones);
+		this.isHd = isHd;
 	}
 
 	public void resetMatrix() {
@@ -44,13 +42,37 @@ public class MatrixShell {
 		return matrix;
 	}
 
-	public IterableListModel<BoneShell> getNewBones() {
+	public IterableListModel<IdObjectShell<?>> getNewBones() {
 		return newBones;
 	}
 
-	public MatrixShell setNewBones(IterableListModel<BoneShell> newBones) {
-		this.newBones = newBones;
-		return this;
+//	public MatrixShell setNewBones(IterableListModel<IdObjectShell<?>> newBones) {
+//		this.newBones = newBones;
+//		return this;
+//	}
+
+	public IdObjectShell<?> getHdBoneToUse() {
+		if (!newBones.isEmpty() && newBones.get(0) != null && newBones.get(0).getShouldImport()) {
+			return newBones.get(0);
+		} else if (!orgBones.isEmpty() && orgBones.get(0) != null && orgBones.get(0).getShouldImport()) {
+			return orgBones.get(0);
+		} else if (!newBones.isEmpty() && newBones.get(0) != null) {
+			System.out.println("should import new bone: " + newBones.get(0).getShouldImport());
+		} else if (!orgBones.isEmpty() && orgBones.get(0) != null) {
+			System.out.println("should import org bone: " + orgBones.get(0).getShouldImport());
+		}
+		return null;
+	}
+
+	public IdObjectShell<?> getHdBoneToMapFrom() {
+		if (!orgBones.isEmpty()) {
+			return orgBones.get(0);
+		}
+		return null;
+	}
+
+	public boolean isHd() {
+		return isHd;
 	}
 
 	@Override
@@ -58,36 +80,27 @@ public class MatrixShell {
 		return matrix.getName();
 	}
 
-	public MatrixShell setMatrix(Matrix matrix) {
-		this.matrix = matrix;
-		return this;
-	}
 
-	public void addNewBone(BoneShell boneShell) {
-		if (boneShell.getImportStatus() == BoneShell.ImportType.DONTIMPORT) {
-			boneShell.setImportStatus(BoneShell.ImportType.IMPORT);
+	public void addNewBone(IdObjectShell<?> boneShell) {
+		if (boneShell.getImportStatus() == IdObjectShell.ImportType.DONT_IMPORT) {
+			boneShell.setImportStatus(IdObjectShell.ImportType.IMPORT);
 		}
 		newBones.addElement(boneShell);
 	}
 
-	public void removeNewBone(BoneShell boneShell) {
+	public void removeNewBone(IdObjectShell<?> boneShell) {
 		newBones.remove(boneShell);
 	}
 
-	public ArrayList<BoneShell> getOrgBones() {
+	public ArrayList<IdObjectShell<?>> getOrgBones() {
 		return orgBones;
-	}
-
-	public MatrixShell setOrgBones(ArrayList<BoneShell> orgBones) {
-		this.orgBones = orgBones;
-		return this;
 	}
 
 	public void clearNewBones() {
 		newBones.clear();
 	}
 
-	public int moveBone(BoneShell boneShell, int step) {
+	public int moveBone(IdObjectShell<?> boneShell, int step) {
 		int index = newBones.indexOf(boneShell);
 		if (index != -1) {
 			int newIndex = Math.max(0, Math.min((index + step), (newBones.size() - 1)));
@@ -101,10 +114,5 @@ public class MatrixShell {
 
 	public boolean isFromDonating() {
 		return isFromDonating;
-	}
-
-	public MatrixShell setFromDonating(boolean fromDonating) {
-		isFromDonating = fromDonating;
-		return this;
 	}
 }

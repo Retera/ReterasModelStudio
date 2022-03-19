@@ -1,41 +1,43 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.builder.ManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.manipulator.Manipulator;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.Manipulator;
+import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.ManipulatorBuilder;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.function.Consumer;
 
-public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends ManipulatorBuilder> implements ViewportActivity {
-	protected final MANIPULATOR_BUILDER manipulatorBuilder;
-	private final UndoActionListener undoActionListener;
+public class MultiManipulatorActivity extends ViewportActivity {
+	private final ManipulatorBuilder manipulatorBuilder;
 	private Manipulator manipulator;
-	private CursorManager cursorManager;
+	private Consumer<Cursor> cursorManager;
 	private Vec2 mouseStartPoint;
 	private Vec2 lastDragPoint;
-	private SelectionView selectionView;
 
-	public MultiManipulatorActivity(MANIPULATOR_BUILDER manipulatorBuilder,
-	                                UndoActionListener undoActionListener,
-	                                SelectionView selectionView) {
+	public MultiManipulatorActivity(ManipulatorBuilder manipulatorBuilder,
+	                                ModelHandler modelHandler,
+	                                AbstractModelEditorManager modelEditorManager) {
+		super(modelHandler, modelEditorManager);
 		this.manipulatorBuilder = manipulatorBuilder;
-		this.undoActionListener = undoActionListener;
-		this.selectionView = selectionView;
 	}
 
 	@Override
-	public void onSelectionChanged(SelectionView newSelection) {
-		this.selectionView = newSelection;
+	public void modelEditorChanged(ModelEditor newModelEditor) {
+		manipulatorBuilder.modelEditorChanged(newModelEditor);
 	}
 
 	@Override
-	public void viewportChanged(CursorManager cursorManager) {
+	public void viewportChanged(Consumer<Cursor> cursorManager) {
 		this.cursorManager = cursorManager;
 	}
 
@@ -52,9 +54,11 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 			buttonType = ButtonType.LEFT_MOUSE;
 			finnishAction(e, coordinateSystem, true);
 		}
-		manipulator = manipulatorBuilder.buildActivityListener(e.getX(), e.getY(), buttonType, coordinateSystem, selectionView);
+		System.out.println("Mouse pressed! selectionView: " + selectionManager + " is UV-manager: " + (selectionManager instanceof TVertSelectionManager));
+		System.out.println("mouseX: " + e.getX() + "mouseY: " + e.getY());
+		manipulator = manipulatorBuilder.buildManipulator(e, e.getX(), e.getY(), buttonType, coordinateSystem, selectionManager);
 		if (manipulator != null) {
-			mouseStartPoint = new Vec2(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
+			mouseStartPoint = new Vec2(coordinateSystem.geomX(e.getX()), coordinateSystem.geomY(e.getY()));
 			manipulator.start(e, mouseStartPoint, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			lastDragPoint = mouseStartPoint;
 		}
@@ -67,12 +71,12 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 
 	private void finnishAction(MouseEvent e, CoordinateSystem coordinateSystem, boolean wasCanceled) {
 		if (manipulator != null) {
-			Vec2 mouseEnd = new Vec2(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
+			Vec2 mouseEnd = new Vec2(coordinateSystem.geomX(e.getX()), coordinateSystem.geomY(e.getY()));
 			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
-			if (wasCanceled) {
+			if (wasCanceled && undoAction != null) {
 				undoAction.undo();
-			} else {
-				undoActionListener.pushAction(undoAction);
+			} else if (undoAction != null) {
+				undoManager.pushAction(undoAction);
 			}
 			mouseStartPoint = null;
 			lastDragPoint = null;
@@ -82,29 +86,69 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 
 	@Override
 	public void mouseMoved(MouseEvent e, CoordinateSystem coordinateSystem) {
-		cursorManager.setCursor(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), coordinateSystem, selectionView));
+		cursorManager.accept(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), coordinateSystem, selectionManager));
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e, CoordinateSystem coordinateSystem) {
 		if (manipulator != null) {
-			Vec2 mouseEnd = new Vec2(coordinateSystem.geomX(e.getPoint().getX()), coordinateSystem.geomY(e.getPoint().getY()));
+			Vec2 mouseEnd = new Vec2(coordinateSystem.geomX(e.getX()), coordinateSystem.geomY(e.getY()));
 			manipulator.update(e, lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			lastDragPoint = mouseEnd;
 		}
 	}
 
+
 	@Override
-	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem, RenderModel renderModel) {
-		manipulatorBuilder.render(graphics, coordinateSystem, selectionView, renderModel);
+	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
 		if (manipulator != null) {
-			manipulator.render(graphics, coordinateSystem);
+			finnishAction(e, cameraHandler, true);
+		}
+		manipulator = manipulatorBuilder.buildManipulator(e, e.getX(), e.getY(), cameraHandler, selectionManager);
+		if (manipulator != null) {
+			mouseStartPoint = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
+			manipulator.start(e, mouseStartPoint, cameraHandler);
+			lastDragPoint = mouseStartPoint;
 		}
 	}
 
 	@Override
-	public void renderStatic(Graphics2D graphics, CoordinateSystem coordinateSystem) {
-		manipulatorBuilder.renderStatic(graphics, coordinateSystem, selectionView);
+	public void mouseReleased(MouseEvent e, CameraHandler cameraHandler) {
+		finnishAction(e, cameraHandler, false);
+	}
+
+	private void finnishAction(MouseEvent e, CameraHandler cameraHandler, boolean wasCanceled) {
+		if (manipulator != null) {
+			Vec2 mouseEnd = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
+			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, cameraHandler);
+			if (wasCanceled && undoAction != null) {
+				undoAction.undo();
+			} else if (undoAction != null) {
+				undoManager.pushAction(undoAction);
+			}
+			mouseStartPoint = null;
+			lastDragPoint = null;
+			manipulator = null;
+		}
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
+		cursorManager.accept(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), cameraHandler, selectionManager));
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e, CameraHandler cameraHandler) {
+		if (manipulator != null) {
+			Vec2 mouseEnd = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
+			manipulator.update(e, lastDragPoint, mouseEnd, cameraHandler);
+			lastDragPoint = mouseEnd;
+		}
+	}
+
+	@Override
+	public void render(Graphics2D graphics, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
+		manipulatorBuilder.renderWidget(graphics, coordinateSystem, selectionManager);
 		if (manipulator != null) {
 			manipulator.render(graphics, coordinateSystem);
 		}
@@ -114,8 +158,5 @@ public abstract class MultiManipulatorActivity<MANIPULATOR_BUILDER extends Manip
 	public boolean isEditing() {
 		return manipulator != null;
 	}
-
-	@Override
-	public void modelChanged() {}
 
 }

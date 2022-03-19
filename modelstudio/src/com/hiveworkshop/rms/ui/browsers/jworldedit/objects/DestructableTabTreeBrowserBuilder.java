@@ -5,17 +5,16 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.SortB
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
 import com.hiveworkshop.rms.util.War3ID;
 
-public class DestructableTabTreeBrowserBuilder implements ObjectTabTreeBrowserBuilder {
+public class DestructableTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
 
-	private static final War3ID DEST_CATEGORY = War3ID.fromString("bcat");
+	private static final War3ID DESTR_CATEGORY = War3ID.fromString("bcat");
 
 	@Override
 	public TopLevelCategoryFolder build() {
-		final TopLevelCategoryFolder root = new TopLevelCategoryFolder(
-				new SortByDoodadCategoryFolder(WEString.getString("WESTRING_BE_STANDARDDESTS"),
-						"DestructibleCategories", DEST_CATEGORY),
-				new SortByDoodadCategoryFolder(WEString.getString("WESTRING_BE_CUSTOMDESTS"), "DestructibleCategories",
-						DEST_CATEGORY));
-		return root;
+		SortByDoodadCategoryFolder standard =
+				new SortByDoodadCategoryFolder(WEString.getString("WESTRING_BE_STANDARDDESTS"), "DestructibleCategories", DESTR_CATEGORY);
+		SortByDoodadCategoryFolder custom =
+				new SortByDoodadCategoryFolder(WEString.getString("WESTRING_BE_CUSTOMDESTS"), "DestructibleCategories", DESTR_CATEGORY);
+		return new TopLevelCategoryFolder(standard, custom);
 	}
 }

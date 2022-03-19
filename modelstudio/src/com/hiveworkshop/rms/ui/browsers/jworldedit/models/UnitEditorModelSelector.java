@@ -1,43 +1,40 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
-import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
-import com.hiveworkshop.rms.parsers.slk.StandardObjectData.WarcraftData;
-import com.hiveworkshop.rms.parsers.slk.StandardObjectData.WarcraftObject;
-import com.hiveworkshop.rms.ui.application.viewer.perspective.PerspDisplayPanel;
+import com.hiveworkshop.rms.parsers.slk.WarcraftData;
+import com.hiveworkshop.rms.parsers.slk.WarcraftObject;
+import com.hiveworkshop.rms.ui.application.viewer.PerspDisplayPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.WarcraftObjectTreeCellRenderer;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableUnitData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.UnitComparator;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.*;
 
 @Deprecated
-public class UnitEditorModelSelector extends JSplitPane implements TreeSelectionListener {
-	WarcraftData unitData = StandardObjectData.getStandardUnits();
+public class UnitEditorModelSelector extends JSplitPane {
+	WarcraftData unitData = MutableUnitData.getStandardUnits();
 	GameObject currentUnit = null;
-	DataTable unitMetaData = StandardObjectData.getStandardUnitMeta();
+	DataTable unitMetaData = MutableUnitData.getStandardUnitMeta();
 	UnitEditorSettings settings = new UnitEditorSettings();
 	JTree tree;
 	UnitEditorTreeModel model;
@@ -46,40 +43,17 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 	JLabel debugLabel = new JLabel("debug");
 
 	EditableModel mdl = new EditableModel();
+	ModelHandler modelHandler = new ModelHandler(mdl);
 	// MDL mdl;
-	ModelView modelDisp = new ModelViewManager(mdl);
-	PerspDisplayPanel modelPanel;
-	DefaultTableModel tableModel;
+//	ModelView modelDisp = new ModelView(mdl);
+	PerspDisplayPanel perspDisplayPanel;
+	//	DefaultTableModel tableModel;
 	DefaultMutableTreeNode defaultSelection = null;
 
 	public UnitEditorModelSelector() {
 		root = new DefaultMutableTreeNode();
 
-		final DefaultMutableTreeNode standardUnitsFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_UE_STANDARDUNITS"));
-		final DefaultMutableTreeNode customUnitsFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_UE_CUSTOMUNITS"));
-		sortRaces();
-
-		for (int i = 0; i < 7; i++) {
-			final String race = raceName(i);
-			final String raceKey = raceKey(i);
-			final DefaultMutableTreeNode humanFolder = new DefaultMutableTreeNode(race);
-			final DefaultMutableTreeNode humanMeleeFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_MELEE"));
-			final DefaultMutableTreeNode humanCampFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_CAMPAIGN"));
-			final RaceData humanMData = sortedRaces.get(raceKey + "melee");
-			final RaceData humanCData = sortedRaces.get(raceKey + "campaign");
-
-			loadRaceData(humanMeleeFolder, humanMData);
-			loadRaceData(humanCampFolder, humanCData);
-			if (humanMeleeFolder.getLeafCount() > 1) {
-				humanFolder.add(humanMeleeFolder);
-			}
-			if (humanCampFolder.getLeafCount() > 1) {
-				humanFolder.add(humanCampFolder);
-			}
-			standardUnitsFolder.add(humanFolder);
-		}
-		root.add(standardUnitsFolder);
-		root.add(customUnitsFolder);
+		addRaceFolders();
 
 		model = new UnitEditorTreeModel(root);
 		tree = new JTree(root);
@@ -93,20 +67,48 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		temp.add(debugLabel);
 
 		// TODO null prefs
-		modelPanel = new PerspDisplayPanel("blank", modelDisp, new ProgramPreferences());
+		perspDisplayPanel = new PerspDisplayPanel("blank");
 		fillTable();
 
-		setRightComponent(modelPanel);
+		setRightComponent(perspDisplayPanel);
 
-		tree.addTreeSelectionListener(this);
+		tree.addTreeSelectionListener(this::valueChanged);
 		treePane.setPreferredSize(new Dimension(350, 600));
-		modelPanel.setPreferredSize(new Dimension(800, 600));
+		perspDisplayPanel.setPreferredSize(new Dimension(800, 600));
 		if (defaultSelection != null) {
 			tree.getSelectionModel().setSelectionPath(getPath(defaultSelection));
 		}
 
 		// KeyEventDispatcher myKeyEventDispatcher = new DefaultFocusManager();
 		// KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(myKeyEventDispatcher);
+	}
+
+	private void addRaceFolders() {
+		final DefaultMutableTreeNode standardUnitsFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_UE_STANDARDUNITS"));
+		final DefaultMutableTreeNode customUnitsFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_UE_CUSTOMUNITS"));
+		sortRaces();
+
+		for (int i = 0; i < 7; i++) {
+			final String race = raceName(i);
+			final String raceKey = raceKey(i);
+			final DefaultMutableTreeNode raceFolder = new DefaultMutableTreeNode(race);
+			final DefaultMutableTreeNode meleeFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_MELEE"));
+			final DefaultMutableTreeNode campaignFolder = new DefaultMutableTreeNode(WEString.getString("WESTRING_CAMPAIGN"));
+			final RaceData raceMeleeData = sortedRaces.get(raceKey + "melee");
+			final RaceData raceCampaignData = sortedRaces.get(raceKey + "campaign");
+
+			loadRaceData(meleeFolder, raceMeleeData);
+			loadRaceData(campaignFolder, raceCampaignData);
+			if (meleeFolder.getLeafCount() > 1) {
+				raceFolder.add(meleeFolder);
+			}
+			if (campaignFolder.getLeafCount() > 1) {
+				raceFolder.add(campaignFolder);
+			}
+			standardUnitsFolder.add(raceFolder);
+		}
+		root.add(standardUnitsFolder);
+		root.add(customUnitsFolder);
 	}
 
 	public static String categoryName(final String cat) {
@@ -142,10 +144,11 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 			}
 
 			try (InputStream reader = GameDataFileSystem.getDefault().getResourceAsStream(filepath)) {
-				mdl = new EditableModel(MdxUtils.loadMdlx(reader));
-				modelDisp = new ModelViewManager(mdl);
-				modelPanel.setViewport(modelDisp);
-				modelPanel.setTitle(currentUnit.getName());
+				mdl = TempOpenModelStuff.createEditableModel(MdxUtils.loadMdlx(reader));
+				modelHandler = new ModelHandler(mdl);
+//				modelDisp = new ModelView(mdl);
+				perspDisplayPanel.setModel(modelHandler);
+				perspDisplayPanel.setTitle(currentUnit.getName());
 			} catch (final IOException e) {
 				e.printStackTrace();
 				// bad model!
@@ -156,26 +159,26 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		}
 	}
 
-	public void loadHotkeys() {
-		final JRootPane root = getRootPane();
-		getRootPane().getActionMap().put("displayAsRawData", new AbstractAction() {
-
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				settings.setDisplayAsRawData(!settings.isDisplayAsRawData());
-				final Enumeration<TreeNode> enumeration = UnitEditorModelSelector.this.root.breadthFirstEnumeration();
-				while (enumeration.hasMoreElements()) {
-					model.nodeChanged(enumeration.nextElement());
-				}
-				fillTable();
-				repaint();
-			}
-
-		});
-		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control D"),
-				"displayAsRawData");
-
-	}
+//	public void loadHotkeys() {
+//		final JRootPane root = getRootPane();
+//		getRootPane().getActionMap().put("displayAsRawData", new AbstractAction() {
+//
+//			@Override
+//			public void actionPerformed(final ActionEvent e) {
+//				settings.setDisplayAsRawData(!settings.isDisplayAsRawData());
+//				final Enumeration<TreeNode> enumeration = UnitEditorModelSelector.this.root.breadthFirstEnumeration();
+//				while (enumeration.hasMoreElements()) {
+//					model.nodeChanged(enumeration.nextElement());
+//				}
+//				fillTable();
+//				repaint();
+//			}
+//
+//		});
+//		root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("control D"),
+//				"displayAsRawData");
+//
+//	}
 
 	static class UnitEditorTreeModel extends DefaultTreeModel {
 		public UnitEditorTreeModel(final DefaultMutableTreeNode root) {
@@ -326,7 +329,6 @@ public class UnitEditorModelSelector extends JSplitPane implements TreeSelection
 		}
 	}
 
-	@Override
 	public void valueChanged(final TreeSelectionEvent e) {
 		final DefaultMutableTreeNode o = (DefaultMutableTreeNode) e.getNewLeadSelectionPath().getLastPathComponent();
 		if (o.getUserObject() instanceof WarcraftObject) {

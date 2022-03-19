@@ -1,13 +1,13 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.units;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
+import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.SortRace;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.rms.util.War3ID;
+
+import javax.swing.tree.TreeNode;
 
 public class UnitRaceLevelFolder extends AbstractSortingFolderTreeNode {
 	/**
@@ -19,7 +19,7 @@ public class UnitRaceLevelFolder extends AbstractSortingFolderTreeNode {
 	private final UnitMeleeLevelFolder campaign;
 	private final UnitMeleeLevelFolder hidden;
 
-	public UnitRaceLevelFolder(final SortRace race) {
+	public UnitRaceLevelFolder(SortRace race) {
 		super(WEString.getString(race.getDisplayName()));
 		this.melee = new UnitMeleeLevelFolder(WEString.getString("WESTRING_MELEE"));
 		this.campaign = new UnitMeleeLevelFolder(WEString.getString("WESTRING_CAMPAIGN"));
@@ -27,16 +27,24 @@ public class UnitRaceLevelFolder extends AbstractSortingFolderTreeNode {
 	}
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object) {
+	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
 		if (object.readSLKTagBoolean("hiddenInEditor")) {
 			return hidden;
 		}
-		final boolean isCampaign = object.getFieldAsBoolean(UNIT_CATEGORIZE_CAMPAIGN_FIELD, 0);
+		boolean isCampaign = object.getFieldAsBoolean(UNIT_CATEGORIZE_CAMPAIGN_FIELD, 0);
 		return isCampaign ? campaign : melee;
 	}
 
+	//	@Override
+	public int getSortIndex(SortingFolderTreeNode childNode) {
+		if (childNode == hidden) {
+			return 2;
+		}
+		return childNode == melee ? 0 : 1;
+	}
+
 	@Override
-	public int getSortIndex(final DefaultMutableTreeNode childNode) {
+	public int getSortIndex(TreeNode childNode) {
 		if (childNode == hidden) {
 			return 2;
 		}

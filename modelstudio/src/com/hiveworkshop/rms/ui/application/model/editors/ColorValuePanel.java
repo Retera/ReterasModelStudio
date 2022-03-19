@@ -1,7 +1,10 @@
 package com.hiveworkshop.rms.ui.application.model.editors;
 
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.editor.actions.util.ConsumerAction;
+import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -30,8 +33,8 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 	private Vec3 selectedColor;
 
 
-	public ColorValuePanel(final String title, UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener) {
-		super(title, undoActionListener, modelStructureChangeListener);
+	public ColorValuePanel(ModelHandler modelHandler, final String title) {
+		super(modelHandler, title);
 
 		colorChooser = new JColorChooser();
 //		colorChooser.getSelectionModel().addChangeListener(e -> color = new Vec3(colorChooser.getColor().getComponents(null)));
@@ -44,13 +47,16 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		addPopupListener();
 		color = new Vec3(DEFAULT_COLOR);
 		selectedColor = new Vec3(DEFAULT_COLOR);
-		allowedCharacters += "\\{}, ";
-		floatTrackTableModel.addExtraColumn("", "\uD83C\uDFA8", Integer.class);  // 🎨 \uD83C\uDFA8
-		floatTrackTableModel.setValueClass(String.class);
+//		keyframePanel.addAllowedCharatcters("\\{}, ");
+//		keyframePanel.getFloatTrackTableModel().addExtraColumn("", "\uD83C\uDFA8", Integer.class);  // 🎨 \uD83C\uDFA8
+//		keyframePanel.getFloatTrackTableModel().setValueClass(String.class);
+//
+//		keyframePanel.setValueRenderingConsumer(this::valueCellRendering);
+//		keyframePanel.setEditRenderingConsumer(this::editFieldRendering);
 
-		addColorChangeListeners();
+//		addColorChangeListeners();
 
-		columnSizes.put(-2, keyframeTable.getRowHeight());
+//		keyframePanel.setColumnSize(-2, keyframePanel.getTableRowHeight());
 	}
 
 	private Color getClampedColor(String string) {
@@ -99,6 +105,15 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		}
 	}
 
+	protected void valueCellRendering(Component tableCellRendererComponent, Object value) {
+		float[] rowColor = ((Vec3) value).toFloatArray();
+
+		clampColorVector(rowColor);
+		Color bgColor = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), rowColor, 1.0f);
+		tableCellRendererComponent.setBackground(bgColor);
+		tableCellRendererComponent.setForeground(getTextColor(bgColor));
+	}
+
 	@Override
 	JComponent getStaticComponent() {
 		staticColorButton = new JButton("Choose Color");
@@ -110,6 +125,19 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 	void reloadStaticValue(Vec3 color) {
 		if (color != null) {
 			this.color = color;
+		}
+		if (animFlag != null) {
+			for (KeyframePanel<Vec3> kfp : keyframePanelMap.values()) {
+
+//				kfp.addAllowedCharatcters("\\{}, ");
+				kfp.addAllowedCharatcters(", ");
+				kfp.getFloatTrackTableModel().addExtraColumn("", "\uD83C\uDFA8", Integer.class);  // 🎨 \uD83C\uDFA8
+				kfp.getFloatTrackTableModel().setValueClass(String.class);
+
+				kfp.setValueRenderingConsumer(this::valueCellRendering);
+				kfp.setEditRenderingConsumer(this::editFieldRendering);
+				kfp.setColumnSize(-2, kfp.getTableRowHeight());
+			}
 		}
 		staticColorButton.setIcon(new ImageIcon(IconUtils.createColorImage(this.color, 48, 48)));
 	}
@@ -192,15 +220,15 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		vec3.set(vecFloats);
 	}
 
-	private void addColorChangeListeners() {
-		keyframeTable.addMouseListener(new MouseAdapter() {
+	protected KeyframePanel<Vec3> addListeners(KeyframePanel<Vec3> keyframePanel) {
+		keyframePanel.getTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				checkChangeColorPressed(e.getPoint(), KeyEvent.VK_ENTER);
+				checkChangeColorPressed(e.getPoint(), KeyEvent.VK_ENTER, keyframePanel);
 			}
 		});
 
-		keyframeTable.addKeyListener(new KeyAdapter() {
+		keyframePanel.getTable().addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
 //				System.out.println("CVP keyReleased! " + e.getKeyCode());
@@ -212,29 +240,57 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 					Point compPoint = e.getComponent().getLocation();
 					Point point = new Point(compPoint.y, compPoint.x);
 
-					checkChangeColorPressed(point, e.getKeyCode());
+					checkChangeColorPressed(point, e.getKeyCode(), keyframePanel);
 				}
 			}
 		});
+		return keyframePanel;
 	}
+//	private void addColorChangeListeners() {
+//		keyframePanel.getTable().addMouseListener(new MouseAdapter() {
+//			@Override
+//			public void mouseClicked(MouseEvent e) {
+//				checkChangeColorPressed(e.getPoint(), KeyEvent.VK_ENTER);
+//			}
+//		});
+//
+//		keyframePanel.getTable().addKeyListener(new KeyAdapter() {
+//			@Override
+//			public void keyReleased(KeyEvent e) {
+////				System.out.println("CVP keyReleased! " + e.getKeyCode());
+////				System.out.println("rect: " + keyframeTable.getCellRect(keyframeTable.getSelectedRow(), keyframeTable.getSelectedColumn(), false));
+////				System.out.println("loc: " + keyframeTable.getCellRect(keyframeTable.getSelectedRow(), keyframeTable.getSelectedColumn(), false).getLocation());
+////				System.out.println("loc: " + keyframeTable.getCellRect(keyframeTable.getSelectedRow(), keyframeTable.getSelectedColumn(), false));
+//				if (e.getKeyCode() == KeyEvent.VK_C) {
+////					System.out.println("C-Point: " + e.getComponent().getLocation() + ", comp: " + e.getComponent());
+//					Point compPoint = e.getComponent().getLocation();
+//					Point point = new Point(compPoint.y, compPoint.x);
+//
+//					checkChangeColorPressed(point, e.getKeyCode());
+//				}
+//			}
+//		});
+//	}
 
-	private void checkChangeColorPressed(Point point, int keyCode) {
-		int colorChangeColumnIndex = keyframeTable.getColumnCount() - 2;
-		if (keyCode == KeyEvent.VK_C || keyCode == KeyEvent.VK_ENTER && keyframeTable.getSelectedColumn() == colorChangeColumnIndex) {
-			colorChooser.setColor(new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), clampColorVector(((Vec3) animFlag.getValues().get(keyframeTable.getSelectedRow())).toFloatArray()), 1.0f));
-			chooseColor.show(keyframeTable, point.x, point.y);
+	private void checkChangeColorPressed(Point point, int keyCode, KeyframePanel<Vec3> keyframePanel) {
+		int colorChangeColumnIndex = keyframePanel.getTable().getColumnCount() - 2;
+		if (keyCode == KeyEvent.VK_C || keyCode == KeyEvent.VK_ENTER && keyframePanel.getTable().getSelectedColumn() == colorChangeColumnIndex) {
+//			colorChooser.setColor(new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), clampColorVector(animFlag.getValueFromIndex(keyframePanel.getTable().getSelectedRow()).toFloatArray()), 1.0f));
+//			chooseColor.show(keyframePanel.getTable(), point.x, point.y);
 		}
 	}
 
-	private void changeColor() {
+	private void changeColor(Sequence sequence, int row) {
 		if (animFlag == null) {
 			color = new Vec3(selectedColor);
 			if (valueSettingFunction != null) {
-				valueSettingFunction.accept(color);
+
+				undoManager.pushAction(new ConsumerAction<>(valueSettingFunction, color, staticValue, title).redo());
+//				valueSettingFunction.accept(color);
 			}
 			staticColorButton.setIcon(new ImageIcon(IconUtils.createColorImage(color, 48, 48)));
-		} else {
-			changeEntry(keyframeTable.getSelectedRow(), 1, "Value", selectedColor.toString());
+		} else if (sequence != null){
+			changeEntry(sequence, row, "Value", selectedColor.toString());
 		}
 
 	}
@@ -248,7 +304,7 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 
 			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-				changeColor();
+				changeColor(null, 0);
 			}
 
 			@Override
@@ -263,4 +319,8 @@ public class ColorValuePanel extends ValuePanel<Vec3> {
 		chooseColor.show(staticColorButton, 0, 0);
 	}
 
+
+	protected AnimFlag<Vec3> getNewAnimFlag() {
+		return new Vec3AnimFlag(flagName);
+	}
 }

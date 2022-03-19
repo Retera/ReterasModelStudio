@@ -1,7 +1,11 @@
 package com.hiveworkshop.rms.parsers.mdlx.util;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.util.ModelFactory.TempOpenModelStuff;
+import com.hiveworkshop.rms.editor.model.util.TempSaveModelStuff;
+import com.hiveworkshop.rms.parsers.mdlx.MdlLoadSave;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
+import com.hiveworkshop.rms.parsers.mdlx.MdxLoadSave;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -11,12 +15,8 @@ public class MdxUtils {
 		return new MdlxModel(ByteBuffer.wrap(inputStream.readAllBytes()));
 	}
 
-	public static void saveMdx(final MdlxModel model, final OutputStream outputStream) throws IOException {
-		outputStream.write(model.saveMdx().array());
-	}
-
 	public static void saveMdl(final MdlxModel model, final OutputStream outputStream) throws IOException {
-		outputStream.write(model.saveMdl().array());
+		outputStream.write(MdlLoadSave.saveMdl(model).array());
 	}
 
 	public static void saveMdl(final MdlxModel model, final File file) throws IOException {
@@ -24,26 +24,30 @@ public class MdxUtils {
 	}
 
 	public static void saveMdl(final EditableModel model, final File file) throws IOException {
-		saveMdl(model.toMdlx(), new FileOutputStream(file));
+		saveMdl(TempSaveModelStuff.toMdlx(model), new FileOutputStream(file));
 	}
 
 	public static EditableModel loadEditable(final InputStream inputStream) throws IOException {
-		return new EditableModel(loadMdlx(inputStream));
+		return TempOpenModelStuff.createEditableModel(loadMdlx(inputStream));
 	}
 
 	public static EditableModel loadEditable(final ByteBuffer buffer) {
-		return new EditableModel(new MdlxModel(buffer));
+		return TempOpenModelStuff.createEditableModel(new MdlxModel(buffer));
 	}
 
 	public static EditableModel loadEditable(final File in) throws IOException {
-		return new EditableModel(loadMdlx(new FileInputStream(in)));
+		return TempOpenModelStuff.createEditableModel(loadMdlx(new FileInputStream(in)));
 	}
 
 	public static void saveMdx(final EditableModel editableModel, final OutputStream outputStream) throws IOException {
-		saveMdx(editableModel.toMdlx(), outputStream);
+		saveMdx(TempSaveModelStuff.toMdlx(editableModel), outputStream);
 	}
 
 	public static void saveMdx(final EditableModel editableModel, final File file) throws IOException {
 		saveMdx(editableModel, new FileOutputStream(file));
+	}
+
+	public static void saveMdx(final MdlxModel model, final OutputStream outputStream) throws IOException {
+		outputStream.write(MdxLoadSave.saveMdx(model).array());
 	}
 }

@@ -11,7 +11,7 @@ sourceSets.main.resources.srcDirs = [ "res/" ]
 project.ext.mainClassName = "com.hiveworkshop.rms.Main"
 
 task run(dependsOn: classes, type: JavaExec) {
-    main = project.mainClassName
+    mainClass = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
     standardInput = System.in
     setIgnoreExitValue(true)
@@ -19,13 +19,15 @@ task run(dependsOn: classes, type: JavaExec) {
 
 task dist(type: Jar) {
     // From http://cmoz.me/blog/2014/11/service-files-uber-jars-and-gradle/
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     doFirst {
         def serviceDir = file("$buildDir/META-INF/services")
         serviceDir.deleteDir()
         serviceDir.mkdirs()
 
         // copy all service files from deps to buildDir
-        for(file in configurations.runtime) {
+        for(file in configurations.runtimeClasspath) {
             zipTree(file).matching{ include 'META-INF/services/*' }.each { f ->
                 new File(serviceDir, f.name) << f.getText("UTF-8") + "\n"
             }
@@ -39,7 +41,7 @@ task dist(type: Jar) {
         attributes 'Main-Class': project.mainClassName
     }
 
-    from(configurations.runtime.collect{ it.isDirectory() ? it : zipTree(it) }) {
+    from(configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }) {
         exclude 'META-INF/**' // Don't let Gradle merge service files
     }
 
@@ -48,7 +50,15 @@ task dist(type: Jar) {
 }
 
 task setVersion(){
-    new File(sourceSets.main.output.resourcesDir.path, "version.txt").text ="""${version}.${new SimpleDateFormat("yyyy.MM.dd").format(new Date())}"""
+    def path = sourceSets.main.resources.srcDirs.path[0]
+    def versionString = """${version}.TwilacsNowIn3D.${new SimpleDateFormat("yyyy.MM.dd").format(new Date())}"""
+    println "writing version \"" + versionString +  "\" to path: " + path
+
+    def file = new File(path, "version.txt")
+    if(!file.exists()){
+        file.createNewFile()
+    }
+    file.text = versionString
 }
 
 dist.dependsOn classes

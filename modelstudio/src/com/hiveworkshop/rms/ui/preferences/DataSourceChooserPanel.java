@@ -1,10 +1,18 @@
 package com.hiveworkshop.rms.ui.preferences;
 
+import com.hiveworkshop.blizzard.casc.io.WC3CascFileSystem;
 import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC;
+import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.filesystem.sources.CascDataSourceDescriptor;
 import com.hiveworkshop.rms.filesystem.sources.DataSourceDescriptor;
 import com.hiveworkshop.rms.filesystem.sources.FolderDataSourceDescriptor;
 import com.hiveworkshop.rms.filesystem.sources.MpqDataSourceDescriptor;
+import com.hiveworkshop.rms.parsers.blp.BLPHandler;
+import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
+import com.hiveworkshop.rms.ui.application.MainFrame;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
+import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.WindowsRegistry;
 import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
@@ -76,8 +84,10 @@ public class DataSourceChooserPanel extends JPanel {
 		JButton addSpecificCascPrefix = getButton("Add Specific CASC Mod", e -> addSpecificCASCMod(), false);
 
 		JButton deleteSelection = getButton("Delete Selection", e -> deleteSelection(), false);
-		JButton moveSelectionUp = getButton("Move Up", e -> moveUp(), false);
-		JButton moveSelectionDown = getButton("Move Down", e -> moveDown(), false);
+//		JButton moveSelectionUp = getButton("Move Up", e -> moveUp(), false);
+//		JButton moveSelectionDown = getButton("Move Down", e -> moveDown(), false);
+		JButton moveSelectionUp = getButton("Move Up", e -> move(true), false);
+		JButton moveSelectionDown = getButton("Move Down", e -> move(false), false);
 
 		JPanel rightPanel = new JPanel(new MigLayout("gap 0, ins 0"));
 		rightPanel.add(addCASCButton, "growx, wrap");
@@ -218,7 +228,12 @@ public class DataSourceChooserPanel extends JPanel {
 		reloadTree();
 	}
 
-	private void dataSourceTreeListener(JButton addDefaultCascPrefixes, JButton addSpecificCascPrefix, JButton deleteSelection, JButton moveSelectionUp, JButton moveSelectionDown, javax.swing.event.TreeSelectionEvent e) {
+	private void dataSourceTreeListener(JButton addDefaultCascPrefixes,
+	                                    JButton addSpecificCascPrefix,
+	                                    JButton deleteSelection,
+	                                    JButton moveSelectionUp,
+	                                    JButton moveSelectionDown,
+	                                    javax.swing.event.TreeSelectionEvent e) {
 		boolean cascSelected = false;
 		TreePath selectionPath = e.getNewLeadSelectionPath();
 
@@ -320,42 +335,75 @@ public class DataSourceChooserPanel extends JPanel {
 		return null;
 	}
 
-	private void moveDown() {
-		TreePath[] selectionPaths = dataSourceTree.getSelectionPaths();
-		int[] selectionRows = dataSourceTree.getSelectionRows();
-		for (TreePath selectionPath : selectionPaths) {
-			DefaultMutableTreeNode lastComp = getNode(selectionPath);
-			if (lastComp != null) {
-				TreeNode parent = lastComp.getParent();
-				if (parent instanceof DataSourceDescTreeNode) {
-					DataSourceDescriptor parentDescriptor = ((DataSourceDescTreeNode) parent).getDescriptor();
-					if (parentDescriptor instanceof CascDataSourceDescriptor) {
-						((CascDataSourceDescriptor) parentDescriptor).movePrefixDown(parent.getIndex(lastComp));
-						reloadTree();
-						dataSourceTree.addSelectionPath(selectionPath);
-					}
-				}
-				if (lastComp instanceof DataSourceDescTreeNode) {
-					DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) lastComp).getDescriptor();
-					int indexOf = dataSourceDescriptors.indexOf(descriptor);
-					if (indexOf < (dataSourceDescriptors.size() - 1)) {
-						Collections.swap(dataSourceDescriptors, indexOf, indexOf + 1);
-					}
-					reloadTree();
-				}
-			}
-		}
-		dataSourceTree.clearSelection();
-		for (final int row : selectionRows) {
-			if ((row + 1) < dataSourceTree.getRowCount()) {
-				dataSourceTree.addSelectionRow(row + 1);
-			}
-		}
-	}
+//	private void moveDown() {
+//		TreePath[] selectionPaths = dataSourceTree.getSelectionPaths();
+//		int[] selectionRows = dataSourceTree.getSelectionRows();
+//		for (TreePath selectionPath : selectionPaths) {
+//			DefaultMutableTreeNode lastComp = getNode(selectionPath);
+//			if (lastComp != null) {
+//				TreeNode parent = lastComp.getParent();
+//				if (parent instanceof DataSourceDescTreeNode) {
+//					DataSourceDescriptor parentDescriptor = ((DataSourceDescTreeNode) parent).getDescriptor();
+//					if (parentDescriptor instanceof CascDataSourceDescriptor) {
+//						((CascDataSourceDescriptor) parentDescriptor).movePrefixDown(parent.getIndex(lastComp));
+//						reloadTree();
+//						dataSourceTree.addSelectionPath(selectionPath);
+//					}
+//				}
+//				if (lastComp instanceof DataSourceDescTreeNode) {
+//					DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) lastComp).getDescriptor();
+//					int indexOf = dataSourceDescriptors.indexOf(descriptor);
+//					if (indexOf < (dataSourceDescriptors.size() - 1)) {
+//						Collections.swap(dataSourceDescriptors, indexOf, indexOf + 1);
+//					}
+//					reloadTree();
+//				}
+//			}
+//		}
+//		dataSourceTree.clearSelection();
+//		for (final int row : selectionRows) {
+//			if ((row + 1) < dataSourceTree.getRowCount()) {
+//				dataSourceTree.addSelectionRow(row + 1);
+//			}
+//		}
+//	}
+//
+//	private void moveUp() {
+//		TreePath[] selectionPaths = dataSourceTree.getSelectionPaths();
+//		int[] selectionRows = dataSourceTree.getSelectionRows();
+//		for (TreePath selectionPath : selectionPaths) {
+//			DefaultMutableTreeNode lastComp = getNode(selectionPath);
+//			if (lastComp != null) {
+//				TreeNode parent = lastComp.getParent();
+//				if (parent instanceof DataSourceDescTreeNode) {
+//					DataSourceDescriptor parentDescriptor = ((DataSourceDescTreeNode) parent).getDescriptor();
+//					if (parentDescriptor instanceof CascDataSourceDescriptor) {
+//						((CascDataSourceDescriptor) parentDescriptor).movePrefixUp(parent.getIndex(lastComp));
+//						reloadTree();
+//					}
+//				}
+//				if (lastComp instanceof DataSourceDescTreeNode) {
+//					DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) lastComp).getDescriptor();
+//					int indexOf = dataSourceDescriptors.indexOf(descriptor);
+//					if (indexOf > 0) {
+//						Collections.swap(dataSourceDescriptors, indexOf, indexOf - 1);
+//					}
+//					reloadTree();
+//				}
+//			}
+//		}
+//		dataSourceTree.clearSelection();
+//		for (final int row : selectionRows) {
+//			if ((row - 1) > 0) {
+//				dataSourceTree.addSelectionRow(row - 1);
+//			}
+//		}
+//	}
 
-	private void moveUp() {
+	private void move(boolean up) {
 		TreePath[] selectionPaths = dataSourceTree.getSelectionPaths();
 		int[] selectionRows = dataSourceTree.getSelectionRows();
+		int dir = up ? -1 : 1;
 		for (TreePath selectionPath : selectionPaths) {
 			DefaultMutableTreeNode lastComp = getNode(selectionPath);
 			if (lastComp != null) {
@@ -363,26 +411,33 @@ public class DataSourceChooserPanel extends JPanel {
 				if (parent instanceof DataSourceDescTreeNode) {
 					DataSourceDescriptor parentDescriptor = ((DataSourceDescTreeNode) parent).getDescriptor();
 					if (parentDescriptor instanceof CascDataSourceDescriptor) {
-						((CascDataSourceDescriptor) parentDescriptor).movePrefixUp(parent.getIndex(lastComp));
+						((CascDataSourceDescriptor) parentDescriptor).movePrefix(parent.getIndex(lastComp), dir);
 						reloadTree();
+//						dataSourceTree.addSelectionPath(selectionPath);
 					}
 				}
 				if (lastComp instanceof DataSourceDescTreeNode) {
 					DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) lastComp).getDescriptor();
 					int indexOf = dataSourceDescriptors.indexOf(descriptor);
-					if (indexOf > 0) {
-						Collections.swap(dataSourceDescriptors, indexOf, indexOf - 1);
+
+					if (indexOf + dir >= 0 && indexOf + dir < dataSourceDescriptors.size()) {
+						Collections.swap(dataSourceDescriptors, indexOf, indexOf + dir);
 					}
+//					dataSourceTree.setSelectionPaths(selectionPaths);
 					reloadTree();
 				}
 			}
 		}
-		dataSourceTree.clearSelection();
-		for (final int row : selectionRows) {
-			if ((row - 1) > 0) {
-				dataSourceTree.addSelectionRow(row - 1);
-			}
-		}
+//		selectionPaths = dataSourceTree.getSelectionPaths();
+//		dataSourceTree.clearSelection();
+////		for (final int row : selectionRows) {
+////			if ((row + dir) >= 0 && (row + dir) < dataSourceTree.getRowCount()) {
+////				dataSourceTree.addSelectionRow(row + dir);
+////			}
+////		}
+//		for (TreePath path : selectionPaths) {
+//			dataSourceTree.addSelectionPath(path);
+//		}
 	}
 
 	private void deleteSelection() {
@@ -516,10 +571,12 @@ public class DataSourceChooserPanel extends JPanel {
 	}
 
 	private void reloadTree() {
-		final TreePath selectionPath = dataSourceTree.getSelectionPath();
-		int selectedRow = -1;
-		if (selectionPath != null) {
-			selectedRow = dataSourceTree.getRowForPath(selectionPath);
+		Set<String> selectionSet = new HashSet<>();
+		TreePath[] selectionPaths = dataSourceTree.getSelectionPaths();
+		int rowCount = dataSourceTree.getRowCount();
+
+		if (selectionPaths != null) {
+			Arrays.stream(selectionPaths).forEach(sp -> selectionSet.add(sp.toString()));
 		}
 		for (int i = root.getChildCount() - 1; i >= 0; i--) {
 			model.removeNodeFromParent((MutableTreeNode) root.getChildAt(i));
@@ -532,17 +589,25 @@ public class DataSourceChooserPanel extends JPanel {
 					newChild.setUserObject(newChild.getUserObject() + " (WARNING: No Mods Selected)");
 				}
 				for (final String prefix : cascDescriptor.getPrefixes()) {
-					model.insertNodeInto(new DefaultMutableTreeNode(prefix), newChild, newChild.getChildCount());
+					DefaultMutableTreeNode cascChild = new DefaultMutableTreeNode(prefix);
+					model.insertNodeInto(cascChild, newChild, newChild.getChildCount());
+					if(selectionSet.contains(new TreePath(model.getPathToRoot(cascChild)).toString())){
+						dataSourceTree.addSelectionPath(new TreePath(model.getPathToRoot(cascChild)));
+					}
 				}
 			}
 			model.insertNodeInto(newChild, root, root.getChildCount());
+
+			if(selectionSet.contains(new TreePath(model.getPathToRoot(newChild)).toString())){
+				dataSourceTree.addSelectionPath(new TreePath(model.getPathToRoot(newChild)));
+			}
 		}
 		dataSourceTree.expandPath(new TreePath(root));
 		for (int i = 0; i < dataSourceTree.getRowCount(); i++) {
 			dataSourceTree.expandRow(i);
 		}
-		if ((selectedRow >= 0) && (selectedRow < dataSourceTree.getRowCount())) {
-			dataSourceTree.setSelectionRow(selectedRow);
+		if (rowCount < dataSourceTree.getRowCount()){
+			dataSourceTree.setSelectionRow(dataSourceTree.getRowCount()-1);
 		}
 	}
 
@@ -605,7 +670,7 @@ public class DataSourceChooserPanel extends JPanel {
 			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true);
 			final DefaultComboBoxModel<String> prefixes = new DefaultComboBoxModel<>();
 			try {
-				final WarcraftIIICASC.FileSystem rootFileSystem = tempCascReader.getRootFileSystem();
+				final WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
 				final List<String> allFiles = rootFileSystem.enumerateFiles();
 				for (final String file : allFiles) {
 					if (rootFileSystem.isNestedFileSystem(file)) {
@@ -630,8 +695,8 @@ public class DataSourceChooserPanel extends JPanel {
 				}
 			}
 		} catch (final Exception e1) {
-			ExceptionPopup.display(e1);
 			e1.printStackTrace();
+			ExceptionPopup.display(e1);
 		}
 	}
 
@@ -679,7 +744,7 @@ public class DataSourceChooserPanel extends JPanel {
 //					locale = launcherDbLocale;
 //				}
 				SupportedCascPatchFormat patchFormat;
-				WarcraftIIICASC.FileSystem rootFileSystem = tempCascReader.getRootFileSystem();
+				WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
 				if (rootFileSystem.isFile("war3.mpq\\units\\unitdata.slk")) {
 					patchFormat = SupportedCascPatchFormat.PATCH130;
 				} else if (tempCascReader.getRootFileSystem()
@@ -703,8 +768,8 @@ public class DataSourceChooserPanel extends JPanel {
 				}
 			}
 		} catch (final Exception e1) {
-			ExceptionPopup.display(e1);
 			e1.printStackTrace();
+			ExceptionPopup.display(e1);
 		}
 	}
 
@@ -746,7 +811,7 @@ public class DataSourceChooserPanel extends JPanel {
 		return defaultPrefixes;
 	}
 
-	private String getLocale(boolean allowPopup, String locale, String launcherDbLocale, String originalInstallLocale, WarcraftIIICASC tempCascReader, SupportedCascPatchFormat patchFormat, WarcraftIIICASC.FileSystem rootFileSystem) throws IOException {
+	private String getLocale(boolean allowPopup, String locale, String launcherDbLocale, String originalInstallLocale, WarcraftIIICASC tempCascReader, SupportedCascPatchFormat patchFormat, WC3CascFileSystem rootFileSystem) throws IOException {
 		if (locale == null) {
 			// gather list of locales from CASC
 			final Set<String> localeOptions = new HashSet<>();
@@ -843,5 +908,28 @@ public class DataSourceChooserPanel extends JPanel {
 
 	private void showMessage(String message) {
 		JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+	}
+
+	public static boolean showDataSourceChooser(List<DataSourceDescriptor> dataSources) {
+		final DataSourceChooserPanel dataSourceChooserPanel = new DataSourceChooserPanel(dataSources);
+
+		int opt = JOptionPane.showConfirmDialog(null, dataSourceChooserPanel,
+				"Retera Model Studio " + MainFrame.getVersion() + ": Setup", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+		if (opt == JOptionPane.OK_OPTION) {
+			SaveProfile.get().setDataSources(dataSourceChooserPanel.getDataSourceDescriptors());
+			SaveProfile.save();
+			GameDataFileSystem.refresh(SaveProfile.get().getDataSources());
+
+			// cache priority order...
+			UnitOptionPanel.dropRaceCache();
+			DataTableHolder.dropCache();
+			ModelOptionPanel.dropCache();
+			WEString.dropCache();
+			BLPHandler.get().dropCache();
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

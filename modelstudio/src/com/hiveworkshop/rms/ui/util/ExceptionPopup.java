@@ -1,11 +1,15 @@
 package com.hiveworkshop.rms.ui.util;
 
+import com.hiveworkshop.rms.ui.application.MainFrame;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.CloseModel;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import java.awt.*;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -27,6 +31,8 @@ public class ExceptionPopup {
 
 	public static void display(Throwable e, String s) {
 		final JTextPane pane = new JTextPane();
+		pane.setBackground(new Color(30,30,30));
+		pane.setForeground(new Color(240, 80, 60));
 
 		final OutputStream stream = getOutputStream(pane);
 		final PrintStream ps = new PrintStream(stream);
@@ -38,7 +44,47 @@ public class ExceptionPopup {
 		jScrollPane.setPreferredSize(ScreenInfo.getSmallWindow());
 		jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-		JOptionPane.showMessageDialog(null, jScrollPane, "Warning", JOptionPane.WARNING_MESSAGE, null);
+		JPanel panel = new JPanel(new MigLayout("fill, ins 0,"));
+		panel.add(jScrollPane, "spanx, growx, growy, wrap");
+		SwingUtilities.invokeLater(() -> jScrollPane.getVerticalScrollBar().setValue(0));
+//		jScrollPane.getVerticalScrollBar().setValue(0);
+
+
+		// Some QoL buttons:
+		// Undo so that users that get stuck in a error-loop has a
+		// chance to get out of it without loosing their progress
+		JButton tryToUndo = new JButton("try to undo");
+		tryToUndo.addActionListener(ProgramGlobals.getUndoHandler().getUndoAction());
+		panel.add(tryToUndo);
+		// And a way close the current model
+		// This will also trigger the save-prompt
+		JButton closeModel = new JButton("close model");
+		closeModel.addActionListener(a -> {
+			ProgramGlobals.getMainPanel().setVisible(false);
+			CloseModel.closeModelPanel();
+			ProgramGlobals.getMainPanel().setVisible(true);
+		});
+		panel.add(closeModel);
+		// And a way to exit RMS without going through the Task Manager
+		// This will also trigger the save-prompt
+		JButton exitRms = new JButton("exit RMS");
+		exitRms.addActionListener(a -> {
+			ProgramGlobals.getMainPanel().setVisible(false);
+			if (CloseModel.closeAll()) {
+				System.exit(-1);
+			}
+			ProgramGlobals.getMainPanel().setVisible(true);
+		});
+		panel.add(exitRms);
+		JButton forceExitRms = new JButton("force exit RMS");
+		forceExitRms.addActionListener(a -> {
+			ProgramGlobals.getMainPanel().setVisible(false);
+			System.exit(-1);
+		});
+		panel.add(forceExitRms);
+
+
+		JOptionPane.showMessageDialog(null, panel, "Warning (" + MainFrame.getVersion() + ")", JOptionPane.WARNING_MESSAGE, null);
 	}
 
 
@@ -87,7 +133,7 @@ public class ExceptionPopup {
 			jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 			clearStringsToShow();
-			JOptionPane.showMessageDialog(null, infoPanel, "Warning", JOptionPane.WARNING_MESSAGE, null);
+			JOptionPane.showMessageDialog(null, infoPanel, "Warning (" + MainFrame.getVersion() + ")", JOptionPane.WARNING_MESSAGE, null);
 
 			clearFirstException();
 		}

@@ -9,7 +9,7 @@ buildscript {
         maven { url "https://maven.nikr.net/" }
         maven { url "https://mvnrepository.com/artifact/" }
         maven { url "https://mvnrepository.com/" }
-        jcenter()
+//        jcenter()
         maven { url 'https://jitpack.io' }
     }
 }
@@ -21,7 +21,7 @@ allprojects {
     version = '0.5'
     ext {
         appName = "retera-jwc3"
-        jtattooVersion = '1.6.11'
+        jtattooVersion = '1.6.12'
         miglayoutVersion = '4.2'
 		lwjglVersion = '2.9.3'
 		image4jVersion = '0.7'
@@ -46,13 +46,13 @@ project(":modelstudio") {
 
 
     dependencies {
-        compile project(":thirdparty")
-        compile "com.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
-        compile "org.jclarion:image4j:$image4jVersion"
+        implementation project(":thirdparty")
+        implementation "com.fifesoft:rsyntaxtextarea:$rsyntaxtextareaVersion"
+        implementation "org.jclarion:image4j:$image4jVersion"
 
-        compile "com.github.inwc3:JMPQ3:1.7.14"
-        compile "org.json:json:20200518"
-        compile "org.openjdk.nashorn:nashorn-core:${nashornVersion}"
+        implementation "com.github.inwc3:JMPQ3:1.7.14"
+        implementation "org.json:json:20200518"
+        implementation "org.openjdk.nashorn:nashorn-core:${nashornVersion}"
     }
 }
 
@@ -62,17 +62,23 @@ project(":thirdparty") {
 
 
     dependencies {
-        compile "com.jtattoo:JTattoo:$jtattooVersion"
-        compile "com.miglayout:miglayout-swing:$miglayoutVersion"
-        compile "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
-        compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
-        compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
-        compile "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
-        compile "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
-        compile "net.nikr:dds:1.0.0"
+        apiElements "com.jtattoo:JTattoo:$jtattooVersion"
+        implementation "com.jtattoo:JTattoo:$jtattooVersion"
+        apiElements "com.miglayout:miglayout-swing:$miglayoutVersion"
+        implementation "com.miglayout:miglayout-swing:$miglayoutVersion"
+
+        apiElements "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
+        apiElements "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
+        apiElements "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
+        apiElements "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
+        apiElements "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
+        apiElements "net.nikr:dds:1.0.0"
 //        compile "com.github.ebourg:infonode:master"
 //        compile "com.github.DrSuperGood:blp-iio-plugin:master"
-        compile files(fileTree(dir: '../jars', includes: ['*.jar']))
+        apiElements files(fileTree(dir: '../jars', includes: ['*.jar']))
+
+        implementation "net.nikr:dds:1.0.0"
+        implementation files(fileTree(dir: '../jars', includes: ['*.jar']))
 
         implementation "org.lwjgl.lwjgl:lwjgl:${lwjglVersion}"
         implementation "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"

@@ -1,8 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
-import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Vertex motion matrices.
@@ -10,27 +8,20 @@ import java.util.List;
  * Eric Theller 11/10/2011
  */
 public class Matrix {
-	List<Integer> m_boneIds;
-	List<Bone> bones;
+	private List<Bone> bones = new ArrayList<>();
+	private long identityHash = 0;
 
 	public Matrix() {
-		m_boneIds = new ArrayList<>();
 	}
 
-	public Matrix(final int id) {
-		m_boneIds = new ArrayList<>();
-		m_boneIds.add(id);
+	public Matrix(final Collection<Bone> newBones) {
+		bones.addAll(newBones);
+		recalculateId();
 	}
 
-	public Matrix(final List<Bone> newBones) {
-		bones = new ArrayList<>(newBones);
-	}
-
-	public Matrix(final int[] boneIds) {
-		m_boneIds = new ArrayList<>();
-		for (int boneId : boneIds) {
-			m_boneIds.add(boneId);
-		}
+	public Matrix(Bone newBone) {
+		bones.add(newBone);
+		recalculateId();
 	}
 
 	public String getName() {
@@ -44,109 +35,104 @@ public class Matrix {
 			} else {
 				out = new StringBuilder("Error bad bone list");
 			}
-		} else if (m_boneIds != null) {
-			if (m_boneIds.size() > 0) {
-				out = new StringBuilder(m_boneIds.get(0).toString());
-				for (int i = 1; i < m_boneIds.size(); i++) {
-					out.append(", ").append(m_boneIds.get(i).toString());
-				}
-			} else {
-				out = new StringBuilder("Error bad bone ids");
-			}
 		}
 		return out.toString();
 	}
 
-	long lastPopupTimeHack = 0;
+	public void cureBones(EditableModel model) {
+		bones.removeIf(b -> !model.getBones().contains(b));
+	}
 
-	public void updateIds(final EditableModel mdlr) {
-		mdlr.sortIdObjects();
-		if (m_boneIds == null) {
-			m_boneIds = new ArrayList<>();
-		} else {
-			m_boneIds.clear();
-		}
-		List<Bone> bonesToRemove = new ArrayList<>();
-		for (Bone bone : bones) {
-			final int newId = mdlr.getObjectId(bone);
-//			System.out.println("new id: " + newId + " for bone: " + bone.getName());
-			if (newId >= 0) {
-				m_boneIds.add(newId);
-			} else {
-				bonesToRemove.add(bone);
-				new Exception("Matrix error").printStackTrace();
-				if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
-//					JOptionPane.showMessageDialog(null, "Error: A matrix's bone reference was missing in the model!" + "\nDid you move geometry between models and forget to update bones?");
-					System.out.println("Error: A matrix's bone reference was missing in the model!" + "\nDid you move geometry between models and forget to update bones?");
-					lastPopupTimeHack = System.currentTimeMillis();
-				}
-			}
-		}
-		if (((bones.size() != 0) && (m_boneIds.size() == 0)) || (m_boneIds.size() < bones.size())) {
-			bones.removeAll(bonesToRemove);
-			new Exception("Matrix error").printStackTrace();
-			if ((System.currentTimeMillis() - lastPopupTimeHack) > 2000) {
-				JOptionPane.showMessageDialog(null, "Error: bad sizes in matrix (" + (bones.size() - m_boneIds.size()) + " as difference, should be same size)\n Bad bones was removed from the matrix.");
-				System.out.println("Error: bad sizes in matrix (" + (bones.size() - m_boneIds.size()) + " as difference, should be same size)");
-				lastPopupTimeHack = System.currentTimeMillis();
-			}
+
+	public Bone get(int i) {
+		return bones.get(i);
+	}
+
+	public void add(final Bone bone) {
+		if (bone != null) {
+			bones.add(bone);
+			recalculateId();
 		}
 	}
 
-	public void updateBones(final EditableModel mdlr) {
-		if (bones == null) {
-			bones = new ArrayList<>();
-		} else {
-			bones.clear();
+	public void add(int i, final Bone bone) {
+		if (bone != null) {
+			bones.add(i, bone);
+			recalculateId();
 		}
-        for (Integer m_boneId : m_boneIds) {
-	        final Bone b = mdlr.getBone(m_boneId);
-	        // if( b.getClass() == Helper.class ) { JOptionPane.showMessageDialog(null,"Error: Holy fo shizzle my grizzle! There's geometry attached to Helper "+b.getName()+" and that is very bad!"); }
-	        if (b != null) {
-		        bones.add(b);
-	        } else {
-//				JOptionPane.showMessageDialog(null, "Error: A matrix's bone id was not referencing a real bone!");
-		        System.err.println("Error: A matrix's bone id was not referencing a real bone! " + m_boneId);
-	        }
-        }
 	}
 
-	public void add(final Bone b) {
-		bones.add(b);
+	public void set(int i, final Bone bone) {
+		if (bone != null) {
+			bones.set(i, bone);
+			recalculateId();
+		}
 	}
 
-	public void addId(final int id) {
-		m_boneIds.add(id);
+	public void addAll(Collection<Bone> bones) {
+		this.bones.addAll(bones);
+		this.bones.removeIf(Objects::isNull);
+		recalculateId();
 	}
 
-	public int getBoneId(final int index) {
-		return m_boneIds.get(index);
+	public void remove(int i) {
+		bones.remove(i);
+		recalculateId();
 	}
 
-	public int getBoneId(final int index, EditableModel model) {
-		return model.getObjectId(bones.get(index));
+	public void remove(final Bone bone) {
+		bones.remove(bone);
+		recalculateId();
+	}
+
+	public void removeAll(Collection<Bone> bones) {
+		this.bones.removeAll(bones);
+		recalculateId();
+	}
+
+	public void clear() {
+		bones.clear();
+		recalculateId();
+	}
+
+	public void replaceBones(Map<IdObject, IdObject> newBoneMap) {
+		bones.replaceAll(b -> (Bone) newBoneMap.get(b));
+		bones.removeIf(Objects::isNull);
+		recalculateId();
+	}
+
+	public void replaceBones(Map<IdObject, IdObject> newBoneMap, boolean removeIfNotInMap) {
+		bones.replaceAll(b -> removeIfNotInMap || newBoneMap.get(b) != null ? (Bone) newBoneMap.get(b) : b);
+		bones.removeIf(Objects::isNull);
+		recalculateId();
+	}
+	public void replaceBone(Bone oldBone, Bone newBone, boolean removeIfNewIsNull) {
+		if(newBone != null){
+			int i = bones.indexOf(oldBone);
+			bones.set(i, newBone);
+		} else if(removeIfNewIsNull){
+			bones.remove(oldBone);
+		}
+		recalculateId();
 	}
 
 	public int size() {
-//		if ((m_boneIds != null) && (m_boneIds.size() > 0)) { return m_boneIds.size(); } else
-		if ((bones != null) && (bones.size() > 0)) {
+		if ((bones != null)) {
 			return bones.size();
 		}
-		// JOptionPane.showMessageDialog(null,"Warning: A matrix with no contents was used!");
-		// System.out.println("Warning: A matrix with no contents was used!");
 		return -1;// bad stuff
 	}
 
-	public boolean equals(final Matrix other) {
-		if (other.size() != size()) {
-			return false;
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof Matrix) {
+			return identityHash == ((Matrix) other).identityHash;
 		}
-		for (int i = 0; i < size(); i++) {
-			if (bones.get(i) != other.bones.get(i)) {
-				return false;
-			}
-		}
-		return true;
+		return false;
+	}
+
+	public boolean isEmpty() {
+		return bones == null || bones.isEmpty();
 	}
 
 	public List<Bone> getBones() {
@@ -155,5 +141,16 @@ public class Matrix {
 
 	public void setBones(final List<Bone> bones) {
 		this.bones = bones;
+		recalculateId();
+	}
+
+	private void recalculateId() {
+		identityHash = bones.hashCode();
+	}
+
+	@Override
+	public int hashCode() {
+//		return Objects.hash(bones);
+		return bones.hashCode();
 	}
 }

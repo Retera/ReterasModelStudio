@@ -2,11 +2,14 @@ package com.hiveworkshop.rms.ui.icons;
 
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
 import com.hiveworkshop.rms.parsers.slk.Element;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.War3ID;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -50,45 +53,65 @@ public final class IconUtils {
 		return bufImage;
 	}
 
-	public static BufferedImage getIcon(final MutableObjectData.MutableGameObject gameObject,
-			final MutableObjectData.WorldEditorDataType worldEditorDataType) {
+	public static Image getIconImageScaled(final MutableGameObject gameObject,
+	                                    final WorldEditorDataType worldEditorDataType) {
+		return getIcon(gameObject, worldEditorDataType).getScaledInstance(16, 16, Image.SCALE_DEFAULT);
+	}
+
+	public static Image getIconImageScaled(final MutableGameObject gameObject) {
+		return getIcon(gameObject).getScaledInstance(16, 16, Image.SCALE_DEFAULT);
+	}
+
+	public static ImageIcon getIconScaled(final MutableGameObject gameObject,
+	                                    final WorldEditorDataType worldEditorDataType) {
+		return new ImageIcon(getIcon(gameObject, worldEditorDataType).getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+	}
+
+	public static ImageIcon getIconScaled(final MutableGameObject gameObject) {
+		return new ImageIcon(getIcon(gameObject).getScaledInstance(16, 16, Image.SCALE_DEFAULT));
+	}
+
+	public static BufferedImage getIcon(final MutableGameObject gameObject,
+	                                    final WorldEditorDataType worldEditorDataType) {
+		String iconPath = switch (worldEditorDataType) {
+			case ABILITIES -> gameObject.getFieldAsString(War3ID.fromString("aart"), 0);
+			case BUFFS_EFFECTS -> gameObject.getFieldAsString(War3ID.fromString("fart"), 0);
+			case DESTRUCTIBLES -> getOddIconPath(gameObject, "bcat", "DestructibleCategories");
+			case DOODADS -> getOddIconPath(gameObject, "dcat", "DoodadCategories");
+			case ITEM -> gameObject.getFieldAsString(War3ID.fromString("iico"), 0);
+			case UPGRADES -> gameObject.getFieldAsString(War3ID.fromString("gar1"), 1);
+			case UNITS -> gameObject.getFieldAsString(War3ID.fromString("uico"), 0);
+		};
+		return BLPHandler.getGameTex(iconPath);
+	}
+
+	public static BufferedImage getIcon(final MutableGameObject gameObject) {
+		String iconPath = switch (gameObject.getWorldEditorDataType()) {
+			case ABILITIES -> gameObject.getFieldAsString(War3ID.fromString("aart"), 0);
+			case BUFFS_EFFECTS -> gameObject.getFieldAsString(War3ID.fromString("fart"), 0);
+			case DESTRUCTIBLES -> getOddIconPath(gameObject, "bcat", "DestructibleCategories");
+			case DOODADS -> getOddIconPath(gameObject, "dcat", "DoodadCategories");
+			case ITEM -> gameObject.getFieldAsString(War3ID.fromString("iico"), 0);
+			case UPGRADES -> gameObject.getFieldAsString(War3ID.fromString("gar1"), 1);
+			case UNITS -> gameObject.getFieldAsString(War3ID.fromString("uico"), 0);
+		};
+		return BLPHandler.getGameTex(iconPath);
+	}
+
+	private static String getOddIconPath(MutableGameObject gameObject, String cat, String doodadCategories) {
 		String iconPath;
-		switch (worldEditorDataType) {
-			case ABILITIES -> iconPath = gameObject.getFieldAsString(War3ID.fromString("aart"), 0);
-			case BUFFS_EFFECTS -> iconPath = gameObject.getFieldAsString(War3ID.fromString("fart"), 0);
-			case DESTRUCTIBLES -> {
-				final DataTable unitEditorData = DataTable.getWorldEditorData();
-				final String category = gameObject.getFieldAsString(War3ID.fromString("bcat"), 0);
-				final Element categories = unitEditorData.get("DestructibleCategories");
-				if (categories.hasField(category)) {
-					iconPath = categories.getField(category).split(",")[1];
-				} else {
-					iconPath = "ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp";
-				}
-				if (!iconPath.toLowerCase().endsWith(".blp")) {
-					iconPath += ".blp";
-				}
-            }
-			case DOODADS -> {
-				final DataTable unitEditorData = DataTable.getWorldEditorData();
-				final String category = gameObject.getFieldAsString(War3ID.fromString("dcat"), 0);
-				final Element categories = unitEditorData.get("DoodadCategories");
-				if (categories.hasField(category)) {
-					iconPath = categories.getField(category, 1);
-				} else {
-					iconPath = "ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp";
-				}
-				if (!iconPath.toLowerCase().endsWith(".blp")) {
-					iconPath += ".blp";
-				}
-            }
-			case ITEM -> iconPath = gameObject.getFieldAsString(War3ID.fromString("iico"), 0);
-			case UPGRADES -> iconPath = gameObject.getFieldAsString(War3ID.fromString("gar1"), 1);
-			case UNITS -> iconPath = gameObject.getFieldAsString(War3ID.fromString("uico"), 0);
-			default -> iconPath = gameObject.getFieldAsString(War3ID.fromString("uico"), 0);
+		final DataTable unitEditorData = DataTableHolder.getWorldEditorData();
+		final String category = gameObject.getFieldAsString(War3ID.fromString(cat), 0);
+		final Element categories = unitEditorData.get(doodadCategories);
+		if (categories.hasField(category)) {
+			iconPath = categories.getField(category, 1);
+		} else {
+			iconPath = "ReplaceableTextures\\WorldEditUI\\DoodadPlaceholder.blp";
 		}
-		final BufferedImage gameTex = BLPHandler.get().getGameTex(iconPath);
-		return gameTex;
+		if (!iconPath.toLowerCase().endsWith(".blp")) {
+			iconPath += ".blp";
+		}
+		return iconPath;
 	}
 
 	public static BufferedImage createBlank(final Color color, final int width, final int height) {

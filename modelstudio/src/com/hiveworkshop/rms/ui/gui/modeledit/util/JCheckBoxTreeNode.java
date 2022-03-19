@@ -1,24 +1,30 @@
 
 package com.hiveworkshop.rms.ui.gui.modeledit.util;
 
+import com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree.CheckableDisplayElement;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public class JCheckBoxTreeNode extends DefaultMutableTreeNode {
 	private boolean checked;
 	private boolean tempHidden;
 	private ChildrenSelected childState = ChildrenSelected.NONE;
+//	private CheckableDisplayElement<?> element;
 
 	public JCheckBoxTreeNode() {
 		super();
 	}
 
-	public JCheckBoxTreeNode(final Object userObject, final boolean checked) {
+	public JCheckBoxTreeNode(final CheckableDisplayElement<?> userObject, final boolean checked) {
 		super(userObject);
 		this.checked = checked;
+//		element = userObject;
 	}
 
-	public JCheckBoxTreeNode(final Object userObject) {
+	public JCheckBoxTreeNode(final CheckableDisplayElement<?> userObject) {
 		super(userObject);
+		this.checked = userObject.isVisible();
+//		element = userObject;
 	}
 
 	public JCheckBoxTreeNode(final boolean checked) {
@@ -29,6 +35,7 @@ public class JCheckBoxTreeNode extends DefaultMutableTreeNode {
 	public JCheckBoxTreeNode setChecked(boolean checked) {
 		this.checked = checked;
 		tempHidden = false;
+//		element.setVisible(checked);
 		return this;
 	}
 
@@ -37,6 +44,7 @@ public class JCheckBoxTreeNode extends DefaultMutableTreeNode {
 	}
 
 	public boolean isChecked() {
+//		return element.isVisible();
 		return checked;
 	}
 

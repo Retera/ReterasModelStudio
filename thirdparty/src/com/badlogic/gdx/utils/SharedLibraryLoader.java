@@ -124,8 +124,7 @@ public class SharedLibraryLoader {
 	 *                    prefix (eg lib) or suffix (eg .dll).
 	 */
 	public void load(final String libraryName) {
-		// in case of iOS, things have been linked statically to the executable, bail
-		// out.
+		// in case of iOS, things have been linked statically to the executable, bail out.
 		if (isIos) {
 			return;
 		}

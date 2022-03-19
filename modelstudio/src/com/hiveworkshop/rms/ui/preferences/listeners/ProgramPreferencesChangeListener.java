@@ -10,7 +10,7 @@ public interface ProgramPreferencesChangeListener {
 
         @Override
         public void preferencesChanged() {
-            for (final ProgramPreferencesChangeListener listener : set) {
+            for (ProgramPreferencesChangeListener listener : listenerSet) {
                 listener.preferencesChanged();
             }
         }

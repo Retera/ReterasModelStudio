@@ -9,9 +9,9 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
  * 6/28/2012
  */
 public interface VisibilitySource {
-    AnimFlag<?> getVisibilityFlag();
+    AnimFlag<Float> getVisibilityFlag();
 
-    void setVisibilityFlag(AnimFlag<?> what);
+    void setVisibilityFlag(AnimFlag<Float> what);
 
     //     public String getVisTagname();
     String visFlagName();

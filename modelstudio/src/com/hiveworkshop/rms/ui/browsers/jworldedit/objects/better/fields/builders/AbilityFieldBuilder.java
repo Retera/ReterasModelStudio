@@ -1,12 +1,13 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.builders;
 
-import java.util.Arrays;
-
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.factory.LevelsSingleFieldFactory;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.WorldEditorDataType;
+import com.hiveworkshop.rms.parsers.slk.ObjectData;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.util.War3ID;
+
+import java.util.Arrays;
 
 public class AbilityFieldBuilder extends AbstractLevelsFieldBuilder {
 	private static final War3ID ABILITY_LEVEL_FIELD = War3ID.fromString("alev");
@@ -14,31 +15,48 @@ public class AbilityFieldBuilder extends AbstractLevelsFieldBuilder {
 	private static final War3ID ITEM_ABILITY_FIELD = War3ID.fromString("aite");
 
 	public AbilityFieldBuilder() {
-		super(LevelsSingleFieldFactory.INSTANCE, WorldEditorDataType.ABILITIES, ABILITY_LEVEL_FIELD);
+		super(WorldEditorDataType.ABILITIES, ABILITY_LEVEL_FIELD);
 	}
 
 	@Override
-	protected boolean includeField(final MutableGameObject gameObject, final GameObject metaDataField,
-			final War3ID metaKey) {
-		final boolean heroAbility = gameObject.getFieldAsBoolean(HERO_ABILITY_FIELD, 0);
-		final boolean itemAbility = gameObject.getFieldAsBoolean(ITEM_ABILITY_FIELD, 0);
-		final String useSpecific = metaDataField.getField("useSpecific");
-		final String specificallyNotAllowedAbilityIds = metaDataField.getField("notSpecific");
-		boolean passesSpecificCheck;
-		if (useSpecific.length() > 0) {
-			passesSpecificCheck = Arrays.asList(useSpecific.split(",")).contains(gameObject.getCode().asStringValue());
+	protected boolean includeField(MutableGameObject gameObject, GameObject metaDataField, War3ID metaKey) {
+		String useSpecific = metaDataField.getField("useSpecific");
+		String notAllowed = metaDataField.getField("notSpecific"); //specificallyNotAllowedAbilityIds
+
+		String codeStringValue = gameObject.getCode().asStringValue();
+
+		boolean doUseSpecific = 0 >= useSpecific.length() || Arrays.asList(useSpecific.split(",")).contains(codeStringValue);
+		boolean isAllowed = 0 >= notAllowed.length() || !Arrays.asList(notAllowed.split(",")).contains(codeStringValue);
+		if (doUseSpecific && isAllowed) {
+			boolean heroAbility = gameObject.getFieldAsBoolean(HERO_ABILITY_FIELD, 0);
+			boolean itemAbility = gameObject.getFieldAsBoolean(ITEM_ABILITY_FIELD, 0);
+			boolean useHero = heroAbility && !itemAbility && metaDataField.getFieldValue("useHero") == 1;
+			boolean useUnit = !heroAbility && !itemAbility && metaDataField.getFieldValue("useUnit") == 1;
+			boolean useItem = itemAbility && metaDataField.getFieldValue("useItem") == 1;
+
+			return (useHero || useUnit || useItem);
 		} else {
-			passesSpecificCheck = true;
+			return false;
 		}
-		if (specificallyNotAllowedAbilityIds.length() > 0) {
-			if (Arrays.asList(specificallyNotAllowedAbilityIds.split(","))
-					.contains(gameObject.getCode().asStringValue())) {
-				passesSpecificCheck = false;
-			}
+	}
+
+	@Override
+	protected String getDisplayName(ObjectData metaData, War3ID metaKey, int level, MutableGameObject gameObject) {
+		GameObject metaDataField = metaData.get(metaKey.toString());
+		String category = metaDataField.getField("category");
+		String prefix = categoryName(category) + " - ";
+		String displayName = metaDataField.getField("displayName");
+		return prefix + WEString.getString(displayName);
+	}
+
+	@Override
+	protected String getDisplayPrefix(ObjectData metaData, War3ID metaKey, int level, MutableGameObject gameObject) {
+		String prefix = "";
+		if (level > 0) {
+			String westring = WEString.getString("WESTRING_AEVAL_LVL");
+			prefix = String.format(westring, level) + " - " + prefix;
 		}
-        return ((heroAbility && !itemAbility && metaDataField.getFieldValue("useHero") == 1)
-                || (!heroAbility && !itemAbility && metaDataField.getFieldValue("useUnit") == 1)
-                || (itemAbility && metaDataField.getFieldValue("useItem") == 1)) && passesSpecificCheck;
-    }
+		return prefix;
+	}
 
 }

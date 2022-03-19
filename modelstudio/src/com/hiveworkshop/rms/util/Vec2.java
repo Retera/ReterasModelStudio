@@ -4,6 +4,8 @@ import java.util.Collection;
 
 public class Vec2 {
 	public static final Vec2 ORIGIN = new Vec2();
+	public static final Vec2 X_AXIS = new Vec2(1,0);
+	public static final Vec2 Y_AXIS = new Vec2(0,1);
 
 	public float x = 0;
 	public float y = 0;
@@ -41,13 +43,14 @@ public class Vec2 {
 		};
 	}
 
-	public void setCoord(final int dim, final double value) {
+	public Vec2 setCoord(final int dim, final double value) {
 		if (!Double.isNaN(value)) {
 			switch (dim) {
 				case 0 -> x = (float) value;
 				case 1 -> y = (float) value;
 			}
 		}
+		return this;
 	}
 
 	public static Vec2 getProd(Vec2 a, Vec2 b) {
@@ -56,6 +59,10 @@ public class Vec2 {
 
 	public static Vec2 getScaled(Vec2 a, float factor) {
 		return new Vec2(a).scale(factor);
+	}
+
+	public Vec2 getScaled(float factor) {
+		return new Vec2(this).scale(factor);
 	}
 
 	public static Vec2 getSum(Vec2 a, Vec2 b) {
@@ -74,6 +81,11 @@ public class Vec2 {
 		return this;
 	}
 
+	public Vec2 setProjection(Vec3 vec3, byte dim1, byte dim2) {
+		this.x += vec3.getCoord(dim1);
+		this.y += vec3.getCoord(dim2);
+		return this;
+	}
 //	public void rotate(final double centerX, final double centerY, final double radians, final byte firstXYZ,
 //	                   final byte secondXYZ) {
 //		rotateVertex(centerX, centerY, radians, firstXYZ, secondXYZ, this);
@@ -106,10 +118,11 @@ public class Vec2 {
 	}
 
 	public Vec2 scale(Vec2 center, Vec2 a) {
-		final float dx = this.x - center.x;
-		final float dy = this.y - center.y;
-		this.x = center.x + (dx * a.x);
-		this.y = center.y + (dy * a.y);
+		this.sub(center).mul(a).add(center);
+//		final float dx = this.x - center.x;
+//		final float dy = this.y - center.y;
+//		this.x = center.x + (dx * a.x);
+//		this.y = center.y + (dy * a.y);
 		return this;
 	}
 
@@ -157,8 +170,8 @@ public class Vec2 {
 		return (float) Math.sqrt(lengthSquared());
 	}
 
-	public Float[] toFloatArray() {
-		return new Float[] {x, y};
+	public float[] toFloatArray() {
+		return new float[] {x, y};
 	}
 
 	public float[] toArray() {
@@ -269,5 +282,13 @@ public class Vec2 {
 		this.x = (float) x;
 		this.y = (float) y;
 		return this;
+	}
+
+	public Vec2 transform(final Mat4 mat4) {
+		float newX = (mat4.m00 * x) + (mat4.m10 * y) + mat4.m30;
+		float newY = (mat4.m01 * x) + (mat4.m11 * y) + mat4.m31;
+		float newZ = (mat4.m02 * x) + (mat4.m12 * y) + mat4.m32;
+//		return set(newX, newY, newZ);
+		return set(newY, newZ);
 	}
 }

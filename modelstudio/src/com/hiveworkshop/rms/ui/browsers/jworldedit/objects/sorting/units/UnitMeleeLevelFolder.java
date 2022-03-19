@@ -1,17 +1,16 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.units;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.tree.DefaultMutableTreeNode;
-
+import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameUnitComparator;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.BottomLevelCategoryFolder;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameUnitComparator;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
 import com.hiveworkshop.rms.util.War3ID;
+
+import javax.swing.tree.TreeNode;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class UnitMeleeLevelFolder extends AbstractSortingFolderTreeNode {
 	/**
@@ -28,15 +27,12 @@ public final class UnitMeleeLevelFolder extends AbstractSortingFolderTreeNode {
 	private final BottomLevelCategoryFolder special;
 	private final List<BottomLevelCategoryFolder> folders = new ArrayList<>();
 
-	public UnitMeleeLevelFolder(final String displayName) {
+	public UnitMeleeLevelFolder(String displayName) {
 		super(displayName);
 		this.units = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UNITS"), MUTABLE_GAME_UNIT_COMPARATOR);
-		this.heroes = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_HEROES"),
-				MUTABLE_GAME_UNIT_COMPARATOR);
-		this.buildings = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_BUILDINGS"),
-				MUTABLE_GAME_UNIT_COMPARATOR);
-		this.special = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_SPECIAL"),
-				MUTABLE_GAME_UNIT_COMPARATOR);
+		this.heroes = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_HEROES"), MUTABLE_GAME_UNIT_COMPARATOR);
+		this.buildings = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_BUILDINGS"), MUTABLE_GAME_UNIT_COMPARATOR);
+		this.special = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_SPECIAL"), MUTABLE_GAME_UNIT_COMPARATOR);
 		folders.add(units);
 		folders.add(buildings);
 		folders.add(heroes);
@@ -44,7 +40,7 @@ public final class UnitMeleeLevelFolder extends AbstractSortingFolderTreeNode {
 	}
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object) {
+	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
 		if (object.getFieldAsBoolean(UNIT_CATEGORIZE_SPECIAL_FIELD, 0)) {
 			return special;
 		} else if (object.getAlias().toString().length() > 1 && Character.isUpperCase(object.getAlias().charAt(0))) {
@@ -56,9 +52,24 @@ public final class UnitMeleeLevelFolder extends AbstractSortingFolderTreeNode {
 		}
 	}
 
+	//	@Override
+	public int getSortIndex(SortingFolderTreeNode childNode) {
+//		return folders.indexOf(childNode);
+
+		if (childNode != null) {
+			return folders.indexOf(childNode);
+		}
+		return -1;
+	}
+
 	@Override
-	public int getSortIndex(final DefaultMutableTreeNode childNode) {
-		return folders.indexOf(childNode);
+	public int getSortIndex(TreeNode childNode) {
+//		return folders.indexOf(childNode);
+
+		if (childNode != null) {
+			return folders.indexOf(childNode);
+		}
+		return -1;
 	}
 
 }

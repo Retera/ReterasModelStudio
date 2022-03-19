@@ -2,11 +2,7 @@ package com.hiveworkshop.rms.parsers.w3o;
 
 import com.hiveworkshop.rms.util.War3ID;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class ChangeMap implements Iterable<Map.Entry<War3ID, List<Change>>> {
 	private final Map<War3ID, List<Change>> idToChanges = new HashMap<>();
@@ -39,6 +35,10 @@ public final class ChangeMap implements Iterable<Map.Entry<War3ID, List<Change>>
 	@Override
 	public Iterator<Map.Entry<War3ID, List<Change>>> iterator() {
 		return idToChanges.entrySet().iterator();
+	}
+
+	public Collection<List<Change>> values() {
+		return idToChanges.values();
 	}
 
 	public int size() {

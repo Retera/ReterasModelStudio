@@ -1,11 +1,12 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.TreeNodeLinker;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
+
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 public final class TopLevelCategoryFolder extends AbstractSortingFolderTreeNode {
 	/**
@@ -15,7 +16,7 @@ public final class TopLevelCategoryFolder extends AbstractSortingFolderTreeNode 
 	private final SortingFolderTreeNode standard;
 	private final SortingFolderTreeNode custom;
 
-	public TopLevelCategoryFolder(final SortingFolderTreeNode standard, final SortingFolderTreeNode custom) {
+	public TopLevelCategoryFolder(SortingFolderTreeNode standard, SortingFolderTreeNode custom) {
 		this.standard = standard;
 		this.custom = custom;
 		add(standard);
@@ -23,19 +24,24 @@ public final class TopLevelCategoryFolder extends AbstractSortingFolderTreeNode 
 	}
 
 	@Override
-	public SortingFolderTreeNode getNextNode(final MutableGameObject object) {
+	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
 		if (!object.isCustom()) {
 			return standard;
 		}
 		return custom;
 	}
 
-	@Override
-	public int getSortIndex(final DefaultMutableTreeNode childNode) {
+	//	@Override
+	public int getSortIndex(SortingFolderTreeNode childNode) {
 		return childNode == standard ? 0 : 1;
 	}
 
-	public DefaultMutableTreeNode insertObjectInto(final MutableGameObject unit, final TreeNodeLinker linker) {
+	@Override
+	public int getSortIndex(TreeNode childNode) {
+		return childNode == standard ? 0 : 1;
+	}
+
+	public DefaultMutableTreeNode insertObjectInto(MutableGameObject unit, TreeNodeLinker linker) {
 		SortingFolderTreeNode folderForUnit = null;
 		SortingFolderTreeNode currentNode = this;
 		while ((currentNode = currentNode.getNextNode(unit, linker)) != null) {

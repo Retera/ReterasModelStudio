@@ -1,33 +1,35 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
-import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Named;
 import com.hiveworkshop.rms.editor.model.TimelineContainer;
 import com.hiveworkshop.rms.editor.model.VisibilitySource;
 
-class VisibilityShell {
-	Named source;
-	VisibilitySource visibilitySource;
-	EditableModel model;
-	boolean isFromDonating;
+public class VisibilityShell {
+	private final Named source;
+	private final VisibilitySource visibilitySource;
+	private final String modelName;
+
+	private final boolean isFromDonating;
 	private boolean favorOld = true;
-	private VisibilityShell newVisSource;
-	private VisibilityShell oldVisSource;
+	private VisibilityShell recModAnimsVisSource;
+	private VisibilityShell donModAnimsVisSource;
+//	private VisibilityShell newVisSource;
+//	private VisibilityShell oldVisSource;
 
 	private boolean alwaysVisible = false;
 	private boolean neverVisible = false;
 	private boolean multipleSelected = false;
 
-	public VisibilityShell(final VisibilitySource vs, final EditableModel whichModel, boolean isFromDonating) {
+	public VisibilityShell(VisibilitySource vs, String modelName, boolean isFromDonating) {
 		source = (Named) vs;
 		visibilitySource = vs;
-		model = whichModel;
+		this.modelName = modelName;
 		this.isFromDonating = isFromDonating;
 		if (visibilitySource instanceof TimelineContainer && visibilitySource.getVisibilityFlag() != null) {
 			if (isFromDonating) {
-				newVisSource = this;
+				recModAnimsVisSource = this;
 			} else {
-				oldVisSource = this;
+				donModAnimsVisSource = this;
 			}
 		}
 
@@ -36,6 +38,10 @@ class VisibilityShell {
 	public VisibilityShell(boolean alwaysVisible) {
 		this.alwaysVisible = alwaysVisible;
 		this.neverVisible = !alwaysVisible;
+		visibilitySource = null;
+		source = null;
+		modelName = null;
+		this.isFromDonating = false;
 	}
 
 	public VisibilityShell setMultiple(){
@@ -49,27 +55,8 @@ class VisibilityShell {
 		return source;
 	}
 
-	public VisibilityShell setSource(Named source) {
-		this.source = source;
-		return this;
-	}
-
 	public VisibilitySource getVisibilitySource() {
 		return visibilitySource;
-	}
-
-	public VisibilityShell setVisibilitySource(VisibilitySource visibilitySource) {
-		this.visibilitySource = visibilitySource;
-		return this;
-	}
-
-	public EditableModel getModel() {
-		return model;
-	}
-
-	public VisibilityShell setModel(EditableModel model) {
-		this.model = model;
-		return this;
 	}
 
 	public boolean isFavorOld() {
@@ -85,26 +72,21 @@ class VisibilityShell {
 		return isFromDonating;
 	}
 
-	public VisibilityShell setFromDonating(boolean fromDonating) {
-		isFromDonating = fromDonating;
+	public VisibilityShell getRecModAnimsVisSource() {
+		return recModAnimsVisSource;
+	}
+
+	public VisibilityShell setRecModAnimsVisSource(VisibilityShell recModAnimsVisSource) {
+		this.recModAnimsVisSource = recModAnimsVisSource;
 		return this;
 	}
 
-	public VisibilityShell getNewVisSource() {
-		return newVisSource;
+	public VisibilityShell getDonModAnimsVisSource() {
+		return donModAnimsVisSource;
 	}
 
-	public VisibilityShell setNewVisSource(VisibilityShell newVisSource) {
-		this.newVisSource = newVisSource;
-		return this;
-	}
-
-	public VisibilityShell getOldVisSource() {
-		return oldVisSource;
-	}
-
-	public VisibilityShell setOldVisSource(VisibilityShell oldVisSource) {
-		this.oldVisSource = oldVisSource;
+	public VisibilityShell setDonModAnimsVisSource(VisibilityShell donModAnimsVisSource) {
+		this.donModAnimsVisSource = donModAnimsVisSource;
 		return this;
 	}
 
@@ -133,10 +115,10 @@ class VisibilityShell {
 		if (source != null) {
 //			return source.getName();
 			String name = source.getName();
-			if(name.length() > 50){
-				name = name.substring(0,50);
+			if (name.length() > 50) {
+				name = name.substring(0, 50);
 			}
-			return model.getName() + ": " + name;
+			return modelName + ": " + name;
 		} else if (alwaysVisible && !neverVisible) {
 			return "Always visible";
 		} else if (neverVisible && !alwaysVisible) {

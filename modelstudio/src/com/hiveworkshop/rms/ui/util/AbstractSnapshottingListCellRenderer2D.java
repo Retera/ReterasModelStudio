@@ -4,10 +4,8 @@ import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportModelRenderer;
-import com.hiveworkshop.rms.ui.gui.modeledit.VertexFilter;
-import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.BoneShell;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ModelThumbnailMaker;
+import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.IdObjectShell;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -33,65 +31,46 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 	private static final int QUARTER_SIZE = SIZE / 4;
 	private static final int EIGHTH_SIZE = SIZE / 8;
 	private final Map<TYPE, ImageIcon> matrixShellToCachedRenderer = new HashMap<>();
-	private final ResettableVertexFilter<TYPE> matrixFilter;
-	private final ModelView modelDisplay;
-	private final ModelView otherDisplay;
+	private final EditableModel model;
+	private final EditableModel other;
 	private static Map<EditableModel, BufferedImage> modelOutlineImageMap;
 	private static Map<EditableModel, Vec2[]> modelBoundsSizeMap;
 
 	private static Map<EditableModel, Map<Geoset, Map<Bone, List<GeosetVertex>>>> geosetBoneMap;
 
-	public AbstractSnapshottingListCellRenderer2D(final ModelView modelDisplay, final ModelView otherDisplay) {
-		this.modelDisplay = modelDisplay;
-		this.otherDisplay = otherDisplay;
-		matrixFilter = createFilter();
+	public AbstractSnapshottingListCellRenderer2D(EditableModel model, EditableModel other) {
+		this.model = model;
+		this.other = other;
 		modelOutlineImageMap = new HashMap<>();
 		modelBoundsSizeMap = new HashMap<>();
 		geosetBoneMap = new HashMap<>();
 	}
 
-	protected abstract ResettableVertexFilter<TYPE> createFilter();
-
 	@Override
-	public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean chf) {
-
-		Color backgroundColor = noOwnerBgCol.asIntColor();
-
-		if (value instanceof BoneShell) {
-			if (((BoneShell) value).isFromDonating()) {
-				backgroundColor = donModelColor.asIntColor();
-			} else {
-				backgroundColor = recModelColor.asIntColor();
-			}
-		}
-
+	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSel, boolean hasFoc) {
 		setBackground(null);
+		TYPE valueType = valueToType(value);
 
-		final TYPE valueType = valueToType(value);
+		super.getListCellRendererComponent(list, valueType.toString(), index, isSel, hasFoc);
 
-		super.getListCellRendererComponent(list, valueType.toString(), index, isSelected, chf);
-
-		ImageIcon myIcon = getImageIcon(value, backgroundColor, valueType);
-		setIcon(myIcon);
+		setIcon(getImageIcon(valueType));
 		return this;
 	}
 
-	private ImageIcon getImageIcon(Object value, Color backgroundColor, TYPE valueType) {
+	private ImageIcon getImageIcon(TYPE valueType) {
 		ImageIcon myIcon = matrixShellToCachedRenderer.get(valueType);
 		if (myIcon == null) {
 			try {
-				final BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
-				final Graphics graphics = image.getGraphics();
+				Color backgroundColor = getBackgroundColor(valueType);
+
+				BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
+				Graphics graphics = image.getGraphics();
 				graphics.setColor(backgroundColor);
 				graphics.fill3DRect(0, 0, SIZE, SIZE, true);
 				graphics.setColor(backgroundColor.brighter());
 
-				if (valueType == null) {
-					System.out.println("valueType Null! value: " + value);
-				} else {
-					makeBoneIcon(backgroundColor, valueType, graphics, otherDisplay, value);
-					makeBoneIcon(backgroundColor, valueType, graphics, modelDisplay, value);
-				}
+				makeBoneIcon(backgroundColor, valueType, graphics, other);
+				makeBoneIcon(backgroundColor, valueType, graphics, model);
 
 				graphics.dispose();
 				myIcon = new ImageIcon(image);
@@ -103,18 +82,17 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 		return myIcon;
 	}
 
-	public void makeBoneIcon(Color backgroundColor, TYPE matrixShell, Graphics graphics, ModelView modelDisplay, Object value) {
-		if (modelDisplay != null && contains(modelDisplay, matrixShell)) {
-			EditableModel model = modelDisplay.getModel();
+	public void makeBoneIcon(Color backgroundColor, TYPE valueType, Graphics graphics, EditableModel model) {
+		if (contains(model, valueType)) {
 			BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
 			graphics.drawImage(modelOutline, 0, 0, null);
-//			ViewportModelRenderer.drawFilteredTriangles(model, graphics, new Rectangle(SIZE, SIZE), (byte) 1, (byte) 2, modelBoundsSizeMap.get(model), matrixFilter.reset(matrixShell));
-			ViewportModelRenderer.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
-			if (value instanceof BoneShell) {
-//				System.out.println("BONE!!!");
-				ViewportModelRenderer.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), ((BoneShell) value).getBone());
+			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
+			if (valueType instanceof IdObjectShell && ((IdObjectShell<?>) valueType).getIdObject() instanceof Bone) {
+				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) ((IdObjectShell<?>) valueType).getIdObject());
+			} else if (valueType instanceof IdObjectShell<?> && ((IdObjectShell<?>) valueType).getIdObject() instanceof Bone) {
+				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) ((IdObjectShell<?>) valueType).getIdObject());
 			}
-			ViewportModelRenderer.drawBoneMarker(graphics, (byte) 1, (byte) 2, getRenderVertex(matrixShell));
+			ModelThumbnailMaker.drawBoneMarker(graphics, (byte) 1, (byte) 2, getRenderVertex(valueType));
 		}
 	}
 
@@ -122,7 +100,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 		if (modelBoundsSizeMap.containsKey(model)) {
 			return modelBoundsSizeMap.get(model);
 		} else {
-			Vec2[] boundSize = ViewportModelRenderer.getBoundBoxSize(model, (byte) 1, (byte) 2);
+			Vec2[] boundSize = ModelThumbnailMaker.getBoundBoxSize(model, (byte) 1, (byte) 2);
 			modelBoundsSizeMap.put(model, boundSize);
 			return boundSize;
 		}
@@ -134,25 +112,38 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 //			System.out.println("nr geosets: " + model.getGeosets().size());
 			return modelOutlineImageMap.get(model);
 		} else {
-			final BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
-			final Graphics graphics = image.getGraphics();
-			graphics.setColor(backgroundColor);
-			graphics.fill3DRect(0, 0, SIZE, SIZE, true);
-			graphics.setColor(backgroundColor.brighter());
-			graphics.fill3DRect(EIGHTH_SIZE, EIGHTH_SIZE, SIZE - QUARTER_SIZE, SIZE - QUARTER_SIZE, true);
-
-
-//			System.out.println("creating icon for model: " + model.getName());
-//			System.out.println("nr geosets: " + model.getGeosets().size());
-//			System.out.println("bounds: " + Arrays.toString(getModelBoundsSize(model)));
-			ViewportModelRenderer.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
-
-			ViewportModelRenderer.drawGeosetsFlat(model, graphics, (byte) 1, (byte) 2, Color.GRAY);
+			BufferedImage image = ModelThumbnailMaker.getBufferedImage(backgroundColor, model, SIZE, getModelBoundsSize(model));
 			modelOutlineImageMap.put(model, image);
-//			ViewportModelRenderer.drawFittedTriangles2(otherDisplay.getModel(), graphics, new Rectangle(SIZE, SIZE), (byte) 1, (byte) 2, matrixFilter.reset(matrixShell), getRenderVertex(matrixShell));
-			graphics.dispose();
 			return image;
 		}
+	}
+
+//	private BufferedImage getBufferedImage(Color backgroundColor, EditableModel model) {
+//		BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
+//		Graphics graphics = image.getGraphics();
+//		graphics.setColor(backgroundColor);
+//		graphics.fill3DRect(0, 0, SIZE, SIZE, true);
+//		graphics.setColor(backgroundColor.brighter());
+//		graphics.fill3DRect(EIGHTH_SIZE, EIGHTH_SIZE, SIZE - QUARTER_SIZE, SIZE - QUARTER_SIZE, true);
+//
+//
+////			System.out.println("creating icon for model: " + model.getName());
+////			System.out.println("nr geosets: " + model.getGeosets().size());
+////			System.out.println("bounds: " + Arrays.toString(getModelBoundsSize(model)));
+//		ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
+//
+//		ModelThumbnailMaker.drawGeosetsFlat(model, graphics, (byte) 1, (byte) 2, Color.GRAY);
+//		graphics.dispose();
+//		return image;
+//	}
+
+	private Color getBackgroundColor(TYPE valueType) {
+		if (isFromDonating(valueType)) {
+			return donModelColor.asIntColor();
+		} else if (isFromReceiving(valueType)) {
+			return recModelColor.asIntColor();
+		}
+		return noOwnerBgCol.asIntColor();
 	}
 
 	private Map<Geoset, Map<Bone, List<GeosetVertex>>> getBoneMap(EditableModel model) {
@@ -168,14 +159,13 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 		}
 	}
 
+	protected abstract boolean isFromDonating(TYPE value);
+
+	protected abstract boolean isFromReceiving(TYPE value);
 
 	protected abstract TYPE valueToType(Object value);
 
 	protected abstract Vec3 getRenderVertex(TYPE value);
 
-	protected abstract boolean contains(ModelView modelDisp, TYPE object);
-
-	protected interface ResettableVertexFilter<TYPE> extends VertexFilter<GeosetVertex> {
-		ResettableVertexFilter<TYPE> reset(final TYPE matrix);
-	}
+	protected abstract boolean contains(EditableModel model, TYPE object);
 }

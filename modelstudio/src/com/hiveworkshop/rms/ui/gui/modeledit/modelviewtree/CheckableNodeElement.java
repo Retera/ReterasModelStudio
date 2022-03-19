@@ -1,40 +1,58 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.modelviewtree;
 
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectableComponentVisitor;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 
 public class CheckableNodeElement extends CheckableDisplayElement<IdObject> {
-	public CheckableNodeElement(ModelViewManager modelViewManager, IdObject item) {
-		super(modelViewManager, item);
+	public CheckableNodeElement(ModelView modelView, IdObject item) {
+		super(modelView, item);
 	}
 
 	@Override
-	protected void setChecked(IdObject item, ModelViewManager modelViewManager, boolean checked) {
+	protected void setChecked(IdObject item, ModelView modelView, boolean checked) {
 		if (checked) {
-			modelViewManager.makeIdObjectVisible(item);
+			modelView.makeIdObjectEditable(item);
 		} else {
-			modelViewManager.makeIdObjectNotVisible(item);
+			modelView.makeIdObjectNotVisible(item);
 		}
 	}
+	@Override
+	public void setEditable(boolean editable){
+		if(editable){
+			modelView.makeIdObjectEditable(item);
+		} else {
+			modelView.makeIdObjectNotEditable(item);
+		}
+	}
+	@Override
+	public void setVisible(boolean visible){
+		if(visible){
+			modelView.makeIdObjectVisible(item);
+		} else {
+			modelView.makeIdObjectNotVisible(item);
+		}
+	}
+//	@Override
+//	public boolean isEditable(){
+//		return modelView.isEditable(item);
+//	}
+//	@Override
+//	public boolean isVisible(){
+//		return modelView.isVisible(item);
+//	}
 
 	@Override
-	protected String getName(IdObject item, ModelViewManager modelViewManager) {
+	protected String getName(IdObject item, ModelView modelView) {
 		return item.getClass().getSimpleName() + " \"" + item.getName() + "\"";
 	}
 
 	@Override
-	public void visit(SelectableComponentVisitor visitor) {
-		visitor.accept(item);
-	}
-
-	@Override
 	public void mouseEntered() {
-		modelViewManager.highlightNode(item);
+		modelView.highlightNode(item);
 	}
 
 	@Override
 	public void mouseExited() {
-		modelViewManager.unhighlightNode(item);
+		modelView.unhighlightNode(item);
 	}
 }

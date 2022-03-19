@@ -1,167 +1,161 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.SmartButtonGroup;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
 import java.util.List;
 
 public class AnimationController extends JPanel {
-	private ModelView mdlDisp;
-	private DefaultComboBoxModel<Animation> animations;
-	private JComboBox<Animation> animationBox;
-	private final boolean allowUnanimated;
+	private ModelHandler modelHandler;
+	private TimeEnvironmentImpl renderEnv;
+	private final TwiComboBox<Animation> animationBox;
+	private final JSlider speedSlider;
+	private final SmartButtonGroup loopTypePanel;
+	private boolean allowUnanimated = true;
 
-	public AnimationController(final ModelView mdlDisp, final boolean allowUnanimated, final AnimationControllerListener listener) {
-		this(mdlDisp, allowUnanimated, listener, null);
-	}
+	public AnimationController(PreviewPanel previewPanel) {
+		super(new MigLayout("fillx"));
 
-	public AnimationController(final ModelView mdlDisp, final boolean allowUnanimated,
-	                           final AnimationControllerListener listener, final Animation defaultAnimation) {
-		this.mdlDisp = mdlDisp;
-		this.allowUnanimated = allowUnanimated;
-		setLayout(new MigLayout("fillx"));
-
-		createAnimationChooser(mdlDisp, allowUnanimated, listener);
+		animationBox = getAnimationChooser();
 		add(animationBox, "wrap, w 90%:90%:90%, gapbottom 16");
 
-		final JButton playAnimationButton = new JButton("Play Animation");
-		final ActionListener playAnimationActionListener = e -> listener.playAnimation();
-		playAnimationButton.addActionListener(playAnimationActionListener);
+		JButton playAnimationButton = new JButton("Play Animation");
+		playAnimationButton.addActionListener(e -> playAnimation());
 		add(playAnimationButton, "wrap, gapbottom 16");
 
-		final ButtonGroup buttonGroup = new ButtonGroup();
 
-		final JRadioButton defaultLoopButton = new JRadioButton("Default Loop");
-		defaultLoopButton.addActionListener(e -> setLoopType(listener, "default"));
-		buttonGroup.add(defaultLoopButton);
-		defaultLoopButton.setSelected(true);
-		add(defaultLoopButton, "wrap");
+		loopTypePanel = getLoopTypePanel();
+		add(loopTypePanel.getButtonPanel(), "wrap");
 
-		final JRadioButton alwaysLoopButton = new JRadioButton("Always Loop");
-		alwaysLoopButton.addActionListener(e -> setLoopType(listener, "always"));
-		buttonGroup.add(alwaysLoopButton);
-		add(alwaysLoopButton, "wrap");
-
-		final JRadioButton neverLoopButton = new JRadioButton("Never Loop");
-		neverLoopButton.addActionListener(e -> setLoopType(listener, "never"));
-		buttonGroup.add(neverLoopButton);
-		add(neverLoopButton, "wrap, gapbottom 16");
-
-		final JSlider speedSlider = new JSlider(0, 100, 50);
-		final JLabel speedSliderLabel = new JLabel("Speed: 100%");
-		add(speedSliderLabel, "wrap");
-		speedSlider.addChangeListener(e -> changeAnimationSpeed(listener, speedSlider, speedSliderLabel));
+		speedSlider = getSpeedSlider();
 		add(speedSlider, "wrap, w 90%:90%:90%, gapbottom 16");
 
 		add(new JLabel("Level of Detail"), "wrap");
-		final JSpinner levelOfDetailSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 5, 1));
-		levelOfDetailSpinner.addChangeListener(e -> listener.setLevelOfDetail(((Number) levelOfDetailSpinner.getValue()).intValue()));
-		levelOfDetailSpinner.setMaximumSize(new Dimension(99999, 25));
-		add(levelOfDetailSpinner, "wrap, w 90%:90%:90%");
-
-		animationBox.setSelectedItem(defaultAnimation);
-		listener.setLoop(AnimationControllerListener.LoopType.DEFAULT_LOOP);
+		add(getLodSpinner(previewPanel), "wrap, w 90%:90%:90%");
 	}
 
-	public void createAnimationChooser(ModelView mdlDisp, boolean allowUnanimated, AnimationControllerListener listener) {
-		animations = new DefaultComboBoxModel<>();
-		if (allowUnanimated || (mdlDisp.getModel().getAnims().size() == 0)) {
-			animations.addElement(null);
+	public AnimationController setModel(ModelHandler modelHandler, boolean allowUnanimated, Animation defaultAnimation) {
+		this.modelHandler = modelHandler;
+		if (modelHandler != null) {
+			renderEnv = modelHandler.getPreviewTimeEnv();
+			renderEnv.setAnimationSpeed(speedSlider.getValue() / 50f);
+			loopTypePanel.setSelectedIndex(loopTypePanel.getSelectedIndex());
 		}
-		for (final Animation animation : mdlDisp.getModel().getAnims()) {
-			animations.addElement(animation);
-		}
-		animationBox = new JComboBox<>(animations);
-		animationBox.setRenderer(getComboBoxRenderer());
-		animationBox.addActionListener(e -> playSelectedAnimation(listener));
+		updateAnimationList(modelHandler, allowUnanimated);
+		System.out.println("defaultAnimation: " + defaultAnimation);
+		animationBox.setSelectedItem(defaultAnimation);
+		return this;
+	}
+
+	private JSpinner getLodSpinner(PreviewPanel listener) {
+		JSpinner levelOfDetailSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 5, 1));
+		levelOfDetailSpinner.addChangeListener(e -> listener.setLevelOfDetail(((Number) levelOfDetailSpinner.getValue()).intValue()));
+		levelOfDetailSpinner.setMaximumSize(new Dimension(99999, 25));
+		return levelOfDetailSpinner;
+	}
+
+	private JSlider getSpeedSlider() {
+		JSlider speedSlider = new JSlider(0, 100, 50);
+		JLabel speedSliderLabel = new JLabel("Speed: 100%");
+		speedSlider.addChangeListener(e -> changeAnimationSpeed(speedSlider, speedSliderLabel));
+		return speedSlider;
+	}
+
+	private SmartButtonGroup getLoopTypePanel() {
+		SmartButtonGroup loopTypeGroup = new SmartButtonGroup();
+		loopTypeGroup.addJRadioButton("Default Loop", e -> setLoopType(LoopType.DEFAULT_LOOP));
+		loopTypeGroup.addJRadioButton("Always Loop", e -> setLoopType(LoopType.ALWAYS_LOOP));
+		loopTypeGroup.addJRadioButton("Never Loop", e -> setLoopType(LoopType.NEVER_LOOP));
+		loopTypeGroup.setSelectedIndex(0);
+		return loopTypeGroup;
+	}
+
+	private TwiComboBox<Animation> getAnimationChooser() {
+		TwiComboBox<Animation> animationBox = new TwiComboBox<>(new Animation("Stand and work for me", 0, 1));
+		animationBox.setStringFunctionRender(this::getDisplayString);
+		animationBox.addActionListener(e -> playSelectedAnimation());
 
 		animationBox.setMaximumSize(new Dimension(99999999, 35));
 		animationBox.setFocusable(true);
 		animationBox.addMouseWheelListener(this::changeAnimation);
+		return animationBox;
 	}
 
-	private BasicComboBoxRenderer getComboBoxRenderer() {
-		return new BasicComboBoxRenderer() {
-			@Override
-			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-			                                              final boolean isSelected, final boolean cellHasFocus) {
-				Object display = value == null ? "(Unanimated)" : value;
-				if (value != null) {
-					display = "(" + mdlDisp.getModel().getAnims().indexOf(value) + ") " + display;
-				}
-				return super.getListCellRendererComponent(list, display, index, isSelected, cellHasFocus);
-			}
-		};
+	private String getDisplayString(Object value) {
+		if (value instanceof Animation && modelHandler != null) {
+			return "(" + modelHandler.getModel().getAnims().indexOf(value) + ") " + value;
+		} else if (modelHandler != null){
+			return "(Unanimated)";
+		}
+		return "";
 	}
 
-	public void playSelectedAnimation(AnimationControllerListener listener) {
-		listener.setAnimation((Animation) animationBox.getSelectedItem());
-		listener.playAnimation();
+	public void playSelectedAnimation() {
+		if (renderEnv != null) {
+			renderEnv.setSequence((Animation) animationBox.getSelectedItem());
+			playAnimation();
+		}
 	}
 
-	public void changeAnimation(java.awt.event.MouseWheelEvent e) {
-		final int wheelRotation = e.getWheelRotation();
+	public void playAnimation() {
+		if (renderEnv != null) {
+			renderEnv.setRelativeAnimationTime(0);
+			renderEnv.setLive(true);
+		}
+	}
+
+	public void changeAnimation(MouseWheelEvent e) {
+		int wheelRotation = e.getWheelRotation();
 		int previousSelectedIndex = animationBox.getSelectedIndex();
 		if (previousSelectedIndex < 0) {
 			previousSelectedIndex = 0;
 		}
-		int newIndex = previousSelectedIndex + wheelRotation;
-		if (newIndex > (animations.getSize() - 1)) {
-			newIndex = animations.getSize() - 1;
-		} else if (newIndex < 0) {
-			newIndex = 0;
-		}
+		int newIndex = (animationBox.getItemCount() + previousSelectedIndex + wheelRotation) % animationBox.getItemCount();
+
 		if (newIndex != previousSelectedIndex) {
 			animationBox.setSelectedIndex(newIndex);
-			// animationBox.setSelectedIndex(
-			// ((newIndex % animations.getSize()) + animations.getSize()) %
-			// animations.getSize());
 		}
 	}
 
-	public void changeAnimationSpeed(AnimationControllerListener listener, JSlider speedSlider, JLabel speedSliderLabel) {
+	public void changeAnimationSpeed(JSlider speedSlider, JLabel speedSliderLabel) {
 		speedSliderLabel.setText("Speed: " + (speedSlider.getValue() * 2) + "%");
-		listener.setSpeed(speedSlider.getValue() / 50f);
-	}
 
-	public void setLoopType(AnimationControllerListener listener, String loopType) {
-		switch (loopType) {
-			case "always" -> listener.setLoop(AnimationControllerListener.LoopType.ALWAYS_LOOP);
-			case "never" -> listener.setLoop(AnimationControllerListener.LoopType.NEVER_LOOP);
-			default -> listener.setLoop(AnimationControllerListener.LoopType.DEFAULT_LOOP);
+		if (renderEnv != null) {
+			renderEnv.setAnimationSpeed(speedSlider.getValue() / 50f);
 		}
 	}
 
-	public void reload() {
-		final Animation selectedItem = (Animation) animationBox.getSelectedItem();
-		animations.removeAllElements();
-		List<Animation> anims = mdlDisp.getModel().getAnims();
-		if (allowUnanimated || (anims.size() == 0)) {
-			animations.addElement(null);
-		}
-		animations.addAll(anims);
-
-
-		System.out.println("AC allow unanimated: " + allowUnanimated);
-
-		if (anims.contains(selectedItem) && ((selectedItem != null) || allowUnanimated)) {
-			animationBox.setSelectedItem(selectedItem);
-		} else if (!allowUnanimated && (anims.size() > 0)) {
-			animationBox.setSelectedItem(anims.get(0));
+	public void setLoopType(LoopType loopType) {
+		if (renderEnv != null) {
+			renderEnv.setLoopType(loopType);
 		}
 	}
 
-	public Animation getCurrentAnimation() {
-		return (Animation) animationBox.getSelectedItem();
+	private void updateAnimationList(ModelHandler modelHandler, boolean allowUnanimated) {
+		animationBox.removeAllItems();
+		if (modelHandler != null) {
+			List<Animation> anims = modelHandler.getModel().getAnims();
+			if (allowUnanimated || (anims.size() == 0)) {
+				animationBox.addItem(null);
+			}
+			animationBox.addAll(anims);
+		}
 	}
 
-	public void setModel(final ModelView modelView) {
-		mdlDisp = modelView;
-		reload();
+	public AnimationController reload() {
+		Animation selectedItem = (Animation) animationBox.getSelectedItem();
+
+		updateAnimationList(modelHandler, allowUnanimated);
+		if (modelHandler != null && (selectedItem != null || allowUnanimated)) {
+			animationBox.selectOrFirst(selectedItem);
+		}
+		return this;
 	}
 }

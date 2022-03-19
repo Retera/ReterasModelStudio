@@ -1,44 +1,170 @@
 package com.hiveworkshop.rms.ui.application.edit;
 
-import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.MainPanel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.WindowHandler2;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
+import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
+import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 
-import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
-public interface ModelStructureChangeListener {
-	void geosetsAdded(List<Geoset> geosets);
+public class ModelStructureChangeListener {
+	public static final ModelStructureChangeListener changeListener = new ModelStructureChangeListener();
 
-	void geosetsRemoved(List<Geoset> geosets);
+	private Map<ModelPanel, Consumer<Boolean>> changeListeners;
 
-	void nodesAdded(List<IdObject> nodes);
+	public ModelStructureChangeListener() {
+	}
 
-	void nodesRemoved(List<IdObject> nodes);
+	public static void reloadGeosetManagers(MainPanel mainPanel, ModelPanel modelPanel) {
 
-	void camerasAdded(List<Camera> nodes);
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+//		modelPanel.reloadModelEditingTree();
+//		modelPanel.reloadComponentBrowser();
+//		modelPanel.getComponentBrowserTreePane().repaint();
 
-	void camerasRemoved(List<Camera> nodes);
+//		modelPanel.getPerspArea().reloadTextures();
+//		modelPanel.getAnimationViewer().reload();
+//		modelPanel.getAnimationController().reload();
+//		mainPanel.getMainLayoutCreator().getCreatorView().reloadAnimationList();
+		mainPanel.getWindowHandler2().reloadAnimationList();
 
-	void timelineAdded(TimelineContainer node, AnimFlag<?> timeline);
+//		Particle2TextureInstance particleTextureInstance = modelPanel.getPerspArea().getViewport().getParticleTextureInstance();
+		refreshFromEditor(modelPanel);
+	}
 
-	void keyframeAdded(TimelineContainer node, AnimFlag<?> timeline, int trackTime);
+	public static ModelStructureChangeListener getModelStructureChangeListener() {
+		return changeListener;
+	}
 
-	void timelineRemoved(TimelineContainer node, AnimFlag<?> timeline);
+	// The methods below is not static to make it less confusing where
+	// UndoActions take a nullable ModelStructureChangeListener as parameter.
+	// This is done to allow for compound actions where the inner actions
+	// takes does not call any update function
+	// It would be possible to let those actions take a boolean instead...
 
-	void keyframeRemoved(TimelineContainer node, AnimFlag<?> timeline, int trackTime);
+	public void nodesUpdated() {
+		System.out.println("nodesUpdated");
+		// Tell program to set visibility after import
+		updateElementsAndRefreshFromEditor();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+	}
 
-	void animationsAdded(List<Animation> animation);
+	private void updateElementsAndRefreshFromEditor() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			modelPanel.getModelView().updateElements();
+			refreshFromEditor(modelPanel);
+		}
+	}
 
-	void animationsRemoved(List<Animation> animation);
+	public static void refreshFromEditor(ModelPanel modelPanel) {
+		System.out.println("refreshFromEditor");
+		ModelHandler modelHandler = modelPanel.getModelHandler();
+		PerspectiveViewUgg modelDependentView = (PerspectiveViewUgg) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PerspectiveViewUgg).findFirst().orElse(null);
+		if (modelDependentView != null && modelDependentView.getPerspectiveViewport() != null) {
+			PerspectiveViewport viewport = modelDependentView.getPerspectiveViewport();
+			updateRenderModel(viewport, modelHandler.getRenderModel());
 
-	void texturesChanged();
+		}
+		PreviewView previewView = (PreviewView) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PreviewView).findFirst().orElse(null);
+		if (previewView != null && previewView.getPerspectiveViewport() != null) {
+			PerspectiveViewport viewport = previewView.getPerspectiveViewport();
+			updateRenderModel(viewport, modelHandler.getPreviewRenderModel());
+		}
+	}
 
-	void headerChanged();
+	public static void updateRenderModel(PerspectiveViewport viewport, RenderModel renderModel) {
+		renderModel.refreshFromEditor(viewport.getTextureThing());
+		TimeEnvironmentImpl timeEnv = renderModel.getTimeEnvironment();
+		int animationTime = timeEnv.getAnimationTime();
+		Sequence currentSequence = timeEnv.getCurrentSequence();
+		timeEnv.setSequence(currentSequence);
+		timeEnv.setAnimationTime(animationTime);
+	}
 
-	void animationParamsChanged(Animation animation);
+	public void geosetsUpdated() {
+		// Tell program to set visibility after import
+		updateElementsAndRefreshFromEditor();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+	}
 
-	void globalSequenceLengthChanged(int index, Integer newLength);
+	public void camerasUpdated() {
+		// Tell program to set visibility after import
+		updateElementsAndRefreshFromEditor();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+	}
 
-	void materialsListChanged();
+	public void keyframesUpdated() {
+//		ProgramGlobals.getMainPanel().getMainLayoutCreator().getTimeSliderView().getTimeSliderPanel().revalidateKeyframeDisplay();
+//		ProgramGlobals.getMainPanel().getWindowHandler2().reValidateKeyframes();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reValidateKeyframes();
+	}
 
-	void nodeHierarchyChanged();
+	public void animationParamsChanged() {
+		System.out.println("animationParamsChanged");
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			refreshFromEditor(modelPanel);
+		}
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadAnimationList();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+	}
+
+	public void texturesChanged() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			refreshFromEditor(modelPanel);
+		}
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+	}
+
+	public void headerChanged() {
+//		reloadComponentBrowser(mainPanel.getGeoControlModelData(), modelPanel);
+//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		if (modelPanel != null) {
+////			modelPanel.reloadComponentBrowser();
+//		}
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+	}
+
+	public void globalSequenceLengthChanged() {
+		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+		if (modelPanel != null) {
+			refreshFromEditor(modelPanel);
+		}
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+	}
+
+	public void materialsListChanged() {
+//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		if (modelPanel != null) {
+////			modelPanel.getAnimationViewer().reloadAllTextures();
+////			modelPanel.getPerspArea().reloadAllTextures();
+//			modelPanel.repaintSelfAndRelatedChildren();
+//			modelPanel.reloadGeosetManagers();
+//		}
+		updateElementsAndRefreshFromEditor();
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+	}
+
+	public void nodeHierarchyChanged() {
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
+//		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
+//		if (modelPanel != null) {
+//			modelPanel.reloadModelEditingTree();
+////			modelPanel.reloadComponentBrowser();
+//		}
+	}
+
+	public void selectionChanged() {
+		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reValidateKeyframes();
+	}
 }

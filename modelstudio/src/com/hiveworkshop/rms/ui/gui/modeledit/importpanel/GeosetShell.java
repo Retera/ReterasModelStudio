@@ -6,8 +6,7 @@ import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.util.IterableListModel;
 
 public class GeosetShell {
-	private EditableModel model;
-	private String modelName;
+	private final String modelName;
 	private String name;
 	private int index;
 	private boolean isFromDonating;
@@ -17,16 +16,28 @@ public class GeosetShell {
 	private Material oldMaterial;
 	private Material newMaterial;
 	private boolean isEnabled = true;
-	IterableListModel<MatrixShell> matrixShells;
+	private IterableListModel<MatrixShell> matrixShells;
 
 	public GeosetShell(Geoset geoset, EditableModel model, boolean isFromDonating) {
 		this.geoset = geoset;
-		this.model = model;
 		this.isFromDonating = isFromDonating;
 		modelName = model.getName();
-		name = geoset.getName();
-		index = model.getGeosetId(geoset);
-		oldMaterial = geoset.getMaterial();
+		if (geoset != null) {
+			name = geoset.getName();
+			index = model.getGeosetId(geoset);
+			oldMaterial = geoset.getMaterial();
+		}
+	}
+
+	public GeosetShell(Geoset geoset, String modelName, int index, boolean isFromDonating) {
+		this.geoset = geoset;
+		this.isFromDonating = isFromDonating;
+		this.modelName = modelName;
+		if (geoset != null) {
+			name = geoset.getName();
+			this.index = index;
+			oldMaterial = geoset.getMaterial();
+		}
 	}
 
 	public Geoset getGeoset() {
@@ -69,7 +80,10 @@ public class GeosetShell {
 
 	@Override
 	public String toString() {
-		return model.getName() + ": " + geoset.getName();
+		if (geoset != null) {
+			return modelName + ": " + geoset.getName();
+		}
+		return modelName + ": none";
 	}
 
 	public boolean isEnabled() {
@@ -78,15 +92,6 @@ public class GeosetShell {
 
 	public GeosetShell setEnabled(boolean enabled) {
 		isEnabled = enabled;
-		return this;
-	}
-
-	public EditableModel getModel() {
-		return model;
-	}
-
-	public GeosetShell setModel(EditableModel model) {
-		this.model = model;
 		return this;
 	}
 
@@ -128,11 +133,6 @@ public class GeosetShell {
 
 	public String getModelName() {
 		return modelName;
-	}
-
-	public GeosetShell setModelName(String modelName) {
-		this.modelName = modelName;
-		return this;
 	}
 
 	public IterableListModel<MatrixShell> getMatrixShells() {

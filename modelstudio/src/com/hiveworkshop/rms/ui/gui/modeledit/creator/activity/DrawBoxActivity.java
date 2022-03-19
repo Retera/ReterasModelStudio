@@ -1,36 +1,30 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.creator.activity;
 
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.addactions.DrawBoxAction;
+import com.hiveworkshop.rms.editor.actions.addactions.DrawBoxAction2;
+import com.hiveworkshop.rms.editor.actions.editor.CompoundMoveAction;
+import com.hiveworkshop.rms.editor.actions.util.DoNothingMoveActionAdapter;
+import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
-import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.CursorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.Graphics2DToModelElementRendererAdapter;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ModelEditorViewportActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.Viewport;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportListener;
+import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
+import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericMoveAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionView;
-import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
-public class DrawBoxActivity implements ModelEditorViewportActivity {
-
-	private final ProgramPreferences preferences;
-	private ModelEditor modelEditor;
-	private final UndoActionListener undoActionListener;
-	private final Vec3 locationCalculator = new Vec3(0, 0, 0);
-	private final ModelView modelView;
-	private SelectionView selectionView;
-	private final Graphics2DToModelElementRendererAdapter graphics2dToModelElementRendererAdapter;
-	private final ViewportListener viewportListener;
+public class DrawBoxActivity extends ViewportActivity {
 
 	private DrawingState drawingState = DrawingState.NOTHING;
 	private Vec2 mouseStart;
@@ -42,23 +36,13 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 	private double lastHeightModeZ = 0;
 	private double firstHeightModeZ = 0;
 
-	public DrawBoxActivity(ProgramPreferences preferences,
-	                       UndoActionListener undoActionListener,
-	                       ModelEditor modelEditor,
-	                       ModelView modelView,
-	                       SelectionView selectionView,
-	                       ViewportListener viewportListener,
+	public DrawBoxActivity(ModelHandler modelHandler,
+	                       ModelEditorManager modelEditorManager,
 	                       int numSegsX, int numSegsY, int numSegsZ) {
-		this.preferences = preferences;
-		this.undoActionListener = undoActionListener;
-		this.modelEditor = modelEditor;
-		this.modelView = modelView;
-		this.selectionView = selectionView;
-		this.viewportListener = viewportListener;
+		super(modelHandler, modelEditorManager);
 		this.numSegsX = numSegsX;
 		this.numSegsY = numSegsY;
 		this.numSegsZ = numSegsZ;
-		graphics2dToModelElementRendererAdapter = new Graphics2DToModelElementRendererAdapter(preferences.getVertexSize(), preferences);
 	}
 
 	public void setNumSegsX(int numSegsX) {
@@ -74,31 +58,19 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 	}
 
 	@Override
-	public void onSelectionChanged(SelectionView newSelection) {
-		selectionView = newSelection;
-	}
-
-	@Override
-	public void modelChanged() {
-	}
-
-	@Override
-	public void modelEditorChanged(ModelEditor newModelEditor) {
-		modelEditor = newModelEditor;
-	}
-
-	@Override
-	public void viewportChanged(CursorManager cursorManager) {
-
-	}
-
-	@Override
 	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
 		if (drawingState == DrawingState.NOTHING) {
-			locationCalculator.set(CoordinateSystem.Util.convertToVec3(coordinateSystem, e.getPoint()));
+			Vec3 locationCalculator = convertToVec3(coordinateSystem, e.getPoint());
 			mouseStart = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			drawingState = DrawingState.WANT_BEGIN_BASE;
 		}
+	}
+
+	public static Vec3 convertToVec3(CoordinateSystem coordinateSystem, Point point) {
+		Vec3 vertex = new Vec3(0, 0, 0);
+		vertex.setCoord(coordinateSystem.getPortFirstXYZ(), coordinateSystem.geomX(point.x));
+		vertex.setCoord(coordinateSystem.getPortSecondXYZ(), coordinateSystem.geomY(point.y));
+		return vertex;
 	}
 
 	@Override
@@ -113,7 +85,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 				drawingState = DrawingState.HEIGHT;
 			}
 		} else if (drawingState == DrawingState.HEIGHT) {
-			undoActionListener.pushAction(boxAction);
+			undoManager.pushAction(boxAction);
 			boxAction = null;
 			drawingState = DrawingState.NOTHING;
 		}
@@ -129,7 +101,7 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 		if (drawingState == DrawingState.WANT_BEGIN_BASE || drawingState == DrawingState.BASE) {
 			drawingState = DrawingState.BASE;
 
-			locationCalculator.set(CoordinateSystem.Util.convertToVec3(coordinateSystem, e.getPoint()));
+			Vec3 locationCalculator = convertToVec3(coordinateSystem, e.getPoint());
 			Vec2 mouseEnd = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 
 			updateBase(mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
@@ -145,10 +117,25 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 	public void updateBase(Vec2 mouseEnd, byte dim1, byte dim2) {
 		if (Math.abs(mouseEnd.x - mouseStart.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStart.y) >= 0.1) {
 			if (boxAction == null) {
-				Viewport viewport = viewportListener.getViewport();
-				Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
+				Vec3 facingVector = new Vec3(0, 0, 1); // todo make this work with CameraHandler
 				try {
-					boxAction = modelEditor.addBox(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, numSegsZ);
+
+					List<GenericMoveAction> moveActions = new ArrayList<>();
+
+					Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(modelView.getModel());
+					Geoset solidWhiteGeoset = getSolidWhiteGeoset(solidWhiteMaterial);
+
+					UndoAction addAction = getAddAction(solidWhiteMaterial, solidWhiteGeoset);
+					if (addAction != null) {
+						moveActions.add(new DoNothingMoveActionAdapter(addAction));
+					}
+
+					moveActions.add(new DrawBoxAction(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset));
+
+					boxAction = new CompoundMoveAction("Add Box", moveActions);
+					;
+					boxAction.redo();
+
 				} catch (WrongModeException exc) {
 					drawingState = DrawingState.NOTHING;
 					JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -161,17 +148,86 @@ public class DrawBoxActivity implements ModelEditorViewportActivity {
 	}
 
 	@Override
-	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel) {
+	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
+		if (drawingState == DrawingState.NOTHING) {
+			Vec3 locationCalculator = cameraHandler.getGeoPoint(e.getX(), e.getY());
+			mouseStart = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
+			drawingState = DrawingState.WANT_BEGIN_BASE;
+		}
 	}
 
 	@Override
-	public void renderStatic(Graphics2D g, CoordinateSystem coordinateSystem) {
-		selectionView.renderSelection(graphics2dToModelElementRendererAdapter.reset(g, coordinateSystem), coordinateSystem, modelView, preferences);
+	public void mouseReleased(MouseEvent e, CameraHandler cameraHandler) {
+		if (drawingState == DrawingState.BASE) {
+			if (boxAction == null) {
+				drawingState = DrawingState.NOTHING;
+			} else {
+
+				lastHeightModeZ = cameraHandler.geomYifYZplane(e.getY());
+				firstHeightModeZ = lastHeightModeZ;
+				drawingState = DrawingState.HEIGHT;
+			}
+		} else if (drawingState == DrawingState.HEIGHT) {
+			undoManager.pushAction(boxAction);
+			boxAction = null;
+			drawingState = DrawingState.NOTHING;
+		}
 	}
 
 	@Override
-	public boolean isEditing() {
-		return false;
+	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
+		mouseDragged(e, cameraHandler);
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e, CameraHandler cameraHandler) {
+		if (drawingState == DrawingState.WANT_BEGIN_BASE || drawingState == DrawingState.BASE) {
+			drawingState = DrawingState.BASE;
+
+			Vec3 locationCalculator = cameraHandler.getGeoPoint(e.getX(), e.getY());
+			Vec2 mouseEnd = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
+
+			updateBase(mouseEnd, cameraHandler);
+		} else if (drawingState == DrawingState.HEIGHT) {
+			double heightModeZ = cameraHandler.geomYifYZplane(e.getY());
+			if (Math.abs(heightModeZ - firstHeightModeZ - 1) > 0.1) {
+				boxAction.updateTranslation(0, 0, heightModeZ - lastHeightModeZ);
+			}
+			lastHeightModeZ = heightModeZ;
+		}
+	}
+
+	public void updateBase(Vec2 mouseEnd, CameraHandler cameraHandler) {
+		if (Math.abs(mouseEnd.x - mouseStart.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStart.y) >= 0.1) {
+			if (boxAction == null) {
+				Vec3 facingVector = new Vec3(0, 0, 1); // todo make this work with CameraHandler
+				try {
+
+					List<GenericMoveAction> moveActions = new ArrayList<>();
+
+					Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(modelView.getModel());
+					Geoset solidWhiteGeoset = getSolidWhiteGeoset(solidWhiteMaterial);
+
+					UndoAction addAction = getAddAction(solidWhiteMaterial, solidWhiteGeoset);
+					if (addAction != null) {
+						moveActions.add(new DoNothingMoveActionAdapter(addAction));
+					}
+
+					moveActions.add(new DrawBoxAction2(mouseStart, mouseEnd, cameraHandler, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset));
+
+					boxAction = new CompoundMoveAction("Add Box", moveActions);
+					;
+					boxAction.redo();
+
+				} catch (WrongModeException exc) {
+					drawingState = DrawingState.NOTHING;
+					JOptionPane.showMessageDialog(null, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				}
+			} else {
+				boxAction.updateTranslation(mouseEnd.x - lastMousePoint.x, mouseEnd.y - lastMousePoint.y, 0);
+			}
+			lastMousePoint = mouseEnd;
+		}
 	}
 
 	private enum DrawingState {

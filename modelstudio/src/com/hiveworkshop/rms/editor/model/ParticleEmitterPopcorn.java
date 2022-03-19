@@ -1,9 +1,6 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxParticleEmitterPopcorn;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.*;
@@ -18,63 +15,32 @@ public class ParticleEmitterPopcorn extends IdObject {
 	int replaceableId = 0;
 	float alpha = 0;
 	Vec3 color = new Vec3();
-	float speed = 0;
+	float initVelocity = 0;
 	float emissionRate = 0;
 	float lifeSpan = 0;
 	String path = "";
 	String animVisibilityGuide = "";
+	State always = State.off;
 	Map<Animation, State> animationVisStateMap = new HashMap<>();
 
-	public ParticleEmitterPopcorn(final String name) {
+	public ParticleEmitterPopcorn(String name) {
 		this.name = name;
 	}
 
-	public ParticleEmitterPopcorn(final ParticleEmitterPopcorn emitter) {
-		copyObject(emitter);
+	public ParticleEmitterPopcorn() {
+	}
+
+	public ParticleEmitterPopcorn(ParticleEmitterPopcorn emitter) {
+		super(emitter);
 
 		replaceableId = emitter.replaceableId;
 		alpha = emitter.alpha;
 		color = new Vec3(emitter.color);
-		speed = emitter.speed;
+		initVelocity = emitter.initVelocity;
 		emissionRate = emitter.emissionRate;
 		lifeSpan = emitter.lifeSpan;
 		path = emitter.path;
 		animVisibilityGuide = emitter.animVisibilityGuide;
-	}
-
-	public ParticleEmitterPopcorn(final MdlxParticleEmitterPopcorn emitter) {
-		loadObject(emitter);
-
-		lifeSpan = emitter.lifeSpan;
-		emissionRate = emitter.emissionRate;
-		speed = emitter.speed;
-		System.out.println("emitter color: " + Arrays.toString(emitter.color));
-		color = new Vec3(emitter.color);
-//		color = new Vec3(ModelUtils.flipRGBtoBGR(emitter.color));
-		alpha = emitter.alpha;
-		replaceableId = emitter.replaceableId;
-		path = emitter.path;
-		animVisibilityGuide = emitter.animationVisiblityGuide;
-		System.out.println(emitter.animationVisiblityGuide);
-	}
-
-	public MdlxParticleEmitterPopcorn toMdlx(EditableModel model) {
-		final MdlxParticleEmitterPopcorn emitter = new MdlxParticleEmitterPopcorn();
-
-		objectToMdlx(emitter, model);
-
-		emitter.lifeSpan = lifeSpan;
-		emitter.emissionRate = emissionRate;
-		emitter.speed = speed;
-		emitter.color = color.toFloatArray();
-//		emitter.color = ModelUtils.flipRGBtoBGR(color.toFloatArray());
-		emitter.alpha = alpha;
-		emitter.replaceableId = replaceableId;
-		emitter.path = path;
-//		emitter.animationVisiblityGuide = animVisibilityGuide;
-		emitter.animationVisiblityGuide = getAnimVisibilityGuide();
-
-		return emitter;
 	}
 
 	@Override
@@ -86,36 +52,117 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return path;
 	}
 
-	public void setPath(final String path) {
+	public void setPath(String path) {
 		this.path = path;
 	}
 
-	public void setAnimVisibilityGuide(final String flagString) {
+	public void setAnimVisibilityGuide(String flagString) {
 		animVisibilityGuide = flagString;
 	}
 
 	public String getAnimVisibilityGuide() {
 		if (!animationVisStateMap.isEmpty()) {
+			TreeMap<String, State> stringStateMap = new TreeMap<>();
 			List<String> visStrings = new ArrayList<>();
-			animationVisStateMap.keySet().stream()
-					.filter(s -> !animationVisStateMap.get(s).equals(State.none))
-					.forEach(s -> visStrings.add(s.getName() + "=" + animationVisStateMap.get(s).name()));
+			if (always != State.none) {
+				visStrings.add("Always=" + always.name());
+//				System.out.println("added: " + "Always=" + always.name());
+			}
+			animationVisStateMap.keySet()
+//					.filter(s -> !animationVisStateMap.get(s).equals(State.none))
+					.forEach(s -> stringStateMap.put(s.getName(), animationVisStateMap.get(s)));
+//					.forEach(s -> visStrings.add(s.getName() + "=" + animationVisStateMap.get(s).name()));
+
+
+			TreeMap<String, Set<State>> rootMap = new TreeMap<>();
+			for (String s : stringStateMap.keySet()) {
+				String[] nameParts = s.split(" ");
+				String rootName = "";
+				for (String np : nameParts) {
+					rootName += np;
+					if (rootMap.containsKey(rootName)) {
+						rootMap.get(rootName).add(stringStateMap.get(s));
+					} else {
+						Set<State> stateSet = new HashSet<>();
+						stateSet.add(stringStateMap.get(s));
+						rootMap.put(rootName, stateSet);
+					}
+					rootName += " ";
+				}
+			}
+
+//			System.out.println(name);
+//			for (String s : rootMap.keySet()){
+//				if(rootMap.get(s).size() == 1 && !rootMap.get(s).contains(State.none)){
+//					System.out.println("root: " + s + " "+ rootMap.get(s).toArray(new State[0])[0]);
+//				}
+//			}
+
+			State lastState = State.none;
+			String rootName = ""; //recursive solution?
+			String orgRootName = "";
+			String lastAddedRootName = " ";
+			for (String s : rootMap.keySet()) {
+				if (rootMap.get(s).size() == 1) {
+					State currState = rootMap.get(s).toArray(new State[0])[0];
+					if (currState != lastState || !s.startsWith(rootName)) {
+						if (rootName.length() > 0 && lastState != State.none) {
+//							System.out.println("added: " + rootName + "=" + lastState.name());
+							visStrings.add(rootName + "=" + lastState.name());
+							lastAddedRootName = rootName;
+						}
+						rootName = s;
+//					orgRootName = s;
+//					rootName = s.split(" ")[0];
+						lastState = currState;
+					}
+				}
+
+			}
+
+			if (!rootName.startsWith(lastAddedRootName) && lastState != State.none) {
+//				System.out.println("added: " + rootName + "=" + lastState.name());
+				visStrings.add(rootName + "=" + lastState.name());
+			}
+
+
+//			State lastState = State.none;
+//			String rootName = ""; //recursive solution?
+//			String orgRootName = "";
+//			String lastAddedRootName = "";
+//			for (String s : stringStateMap.keySet()){
+//				State currState = stringStateMap.get(s);
+//				if(currState != lastState || !s.startsWith(rootName)){
+//					if(rootName.length() > 0 && lastState != State.none){
+//						System.out.println("added: " + rootName + "=" + lastState.name());
+//						visStrings.add(rootName + "=" + lastState.name());
+//					}
+//					lastAddedRootName = rootName;
+//					rootName = s;
+////					orgRootName = s;
+////					rootName = s.split(" ")[0];
+//					lastState = currState;
+//				}
+//
+//			}
+//
+//			if(!rootName.startsWith(lastAddedRootName)){
+//				System.out.println("added: " + rootName + "=" + lastState.name());
+//				visStrings.add(rootName + "=" + lastState.name());
+//			}
+
+
 			return String.join(", ", visStrings);
 		}
 		return animVisibilityGuide;
 	}
 
 	@Override
-	public void apply(final IdObjectVisitor visitor) {
-		visitor.popcornFxEmitter(this);
+	public double getClickRadius() {
+		return DEFAULT_CLICK_RADIUS;
 	}
 
-	@Override
-	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
-	}
-
-	public double getRenderEmissionRate(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public double getRenderEmissionRate(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return getInterpolatedFloat(animatedRenderEnvironment, "EmissionRate", 0);
 	}
 
@@ -123,7 +170,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return color;
 	}
 
-	public void setColor(final Vec3 color) {
+	public void setColor(Vec3 color) {
 		this.color = color;
 	}
 
@@ -131,7 +178,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return alpha;
 	}
 
-	public void setAlpha(final float alpha) {
+	public void setAlpha(float alpha) {
 		this.alpha = alpha;
 	}
 
@@ -139,7 +186,7 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return emissionRate;
 	}
 
-	public void setEmissionRate(final float emissionRate) {
+	public void setEmissionRate(float emissionRate) {
 		this.emissionRate = emissionRate;
 	}
 
@@ -147,39 +194,52 @@ public class ParticleEmitterPopcorn extends IdObject {
 		return lifeSpan;
 	}
 
-	public void setLifeSpan(final float lifeSpan) {
+	public void setLifeSpan(float lifeSpan) {
 		this.lifeSpan = lifeSpan;
 	}
 
-	public float getSpeed() {
-		return speed;
+	public float getInitVelocity() {
+		return initVelocity;
 	}
 
-	public void setSpeed(final float speed) {
-		this.speed = speed;
+	public void setInitVelocity(float initVelocity) {
+		this.initVelocity = initVelocity;
 	}
 
 	public int getReplaceableId() {
 		return replaceableId;
 	}
 
-	public void setReplaceableId(final int replaceableId) {
+	public void setReplaceableId(int replaceableId) {
 		this.replaceableId = replaceableId;
 	}
 
 	public ParticleEmitterPopcorn initAnimsVisStates(List<Animation> anims) {
+//		System.out.println(name);
 		Map<String, String> visGuid = new HashMap<>();
 		for (String vg : animVisibilityGuide.split(",")) {
 			String[] anSt = vg.toLowerCase().split("=");
 			if (anSt.length == 2) {
-				System.out.println(vg);
+//				System.out.println(vg + ", splitted: " + Arrays.toString(anSt));
 				visGuid.put(anSt[0].strip(), anSt[1].strip());
 			}
 		}
+		if (visGuid.containsKey("always")) {
+			always = State.valueOf(visGuid.get("always"));
+		}
 		for (Animation animation : anims) {
 			State state = State.none;
-			if (visGuid.containsKey(animation.getName())) {
-				state = State.valueOf(visGuid.get(animation.getName()));
+//			System.out.println(animation.getName());
+			String[] animName = animation.getName().toLowerCase().split(" ");
+			String namePart = "";
+			for (String s : animName) {
+				namePart += s;
+				if (visGuid.containsKey(namePart)) {
+//					System.out.println("name matched!");
+					state = State.valueOf(visGuid.get(namePart));
+				}
+				namePart += " ";
+
 			}
 			animationVisStateMap.put(animation, state);
 		}

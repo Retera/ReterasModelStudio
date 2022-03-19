@@ -1,13 +1,13 @@
 package com.hiveworkshop.rms.parsers.mdlx;
 
-import java.util.Iterator;
-
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
+
+import java.util.Iterator;
 
 /**
  * A generic object.
@@ -65,8 +65,7 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 
 	protected final Iterable<String> readMdlGeneric(final MdlTokenInputStream stream) {
 		name = stream.read();
-		return () -> new WrappedMdlTokenIterator(readAnimatedBlock(stream), MdlxGenericObject.this,
-                stream);
+		return () -> new WrappedMdlTokenIterator(readAnimatedBlock(stream), MdlxGenericObject.this, stream);
 	}
 
 	public void writeGenericHeader(final MdlTokenOutputStream stream) {
@@ -173,6 +172,8 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 
 		private String read() {
 			String token;
+			String subTypeToken = null;
+
 			InteriorParsing:
 			do {
 				token = delegate.next();
@@ -180,62 +181,32 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 					break;
 				}
 				switch (token) {
-					case MdlUtils.TOKEN_OBJECTID:
-						updatingObject.objectId = Integer.parseInt(delegate.next());
-						token = null;
-						break;
-					case MdlUtils.TOKEN_PARENT:
-						updatingObject.parentId = Integer.parseInt(delegate.next());
-						token = null;
-						break;
-					case MdlUtils.TOKEN_BILLBOARDED_LOCK_Z:
-						updatingObject.flags |= 0x40;
-						token = null;
-						break;
-					case MdlUtils.TOKEN_BILLBOARDED_LOCK_Y:
-						updatingObject.flags |= 0x20;
-						token = null;
-						break;
-					case MdlUtils.TOKEN_BILLBOARDED_LOCK_X:
-						updatingObject.flags |= 0x10;
-						token = null;
-						break;
-					case MdlUtils.TOKEN_BILLBOARDED:
-						updatingObject.flags |= 0x8;
-						token = null;
-						break;
-					case MdlUtils.TOKEN_CAMERA_ANCHORED:
-						updatingObject.flags |= 0x80;
-						token = null;
-						break;
-					case MdlUtils.TOKEN_DONT_INHERIT:
+					case MdlUtils.TOKEN_OBJECTID -> updatingObject.objectId = Integer.parseInt(delegate.next());
+					case MdlUtils.TOKEN_PARENT -> updatingObject.parentId = Integer.parseInt(delegate.next());
+					case MdlUtils.TOKEN_BILLBOARDED_LOCK_Z -> updatingObject.flags |= 0x40;
+					case MdlUtils.TOKEN_BILLBOARDED_LOCK_Y -> updatingObject.flags |= 0x20;
+					case MdlUtils.TOKEN_BILLBOARDED_LOCK_X -> updatingObject.flags |= 0x10;
+					case MdlUtils.TOKEN_BILLBOARDED -> updatingObject.flags |= 0x8;
+					case MdlUtils.TOKEN_CAMERA_ANCHORED -> updatingObject.flags |= 0x80;
+					case MdlUtils.TOKEN_DONT_INHERIT -> {
 						for (final String subToken : stream.readBlock()) {
 							switch (subToken) {
 								case MdlUtils.TOKEN_ROTATION -> updatingObject.flags |= 0x2;
 								case MdlUtils.TOKEN_TRANSLATION -> updatingObject.flags |= 0x1;
-								case MdlUtils.TOKEN_SCALING -> updatingObject.flags |= 0x0;
+								case MdlUtils.TOKEN_SCALING -> updatingObject.flags |= 0x4;
 							}
 						}
-						token = null;
-						break;
-					case MdlUtils.TOKEN_TRANSLATION:
-						updatingObject.readTimeline(stream, AnimationMap.KGTR);
-						token = null;
-						break;
-					case MdlUtils.TOKEN_ROTATION:
-						updatingObject.readTimeline(stream, AnimationMap.KGRT);
-						token = null;
-						break;
-					case MdlUtils.TOKEN_SCALING:
-						updatingObject.readTimeline(stream, AnimationMap.KGSC);
-						token = null;
-						break;
-					default:
+					}
+					case MdlUtils.TOKEN_TRANSLATION -> updatingObject.readTimeline(stream, AnimationMap.KGTR);
+					case MdlUtils.TOKEN_ROTATION -> updatingObject.readTimeline(stream, AnimationMap.KGRT);
+					case MdlUtils.TOKEN_SCALING -> updatingObject.readTimeline(stream, AnimationMap.KGSC);
+					default -> {
+						subTypeToken = token;
 						break InteriorParsing;
+					}
 				}
-			}
-			while (delegate.hasNext());
-			return token;
+			} while (delegate.hasNext());
+			return subTypeToken;
 		}
 
 	}

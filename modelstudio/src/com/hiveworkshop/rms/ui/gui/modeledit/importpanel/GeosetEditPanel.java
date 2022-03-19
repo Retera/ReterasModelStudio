@@ -1,77 +1,97 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.importpanel;
 
+import com.hiveworkshop.rms.ui.gui.modeledit.renderers.GeosetListCellRenderer2D;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class GeosetEditPanel extends JPanel {
 
-	public CardLayout geoCardLayout = new CardLayout();
-	public JPanel geoPanelCards = new JPanel(geoCardLayout);
-	public JPanel blankPane = new JPanel();
-	//	public MultiGeosetPanel multiGeosetPane;
-	GeosetPanel singleGeosetPanel;
-	ModelHolderThing mht;
+	private CardLayout geoCardLayout = new CardLayout();
+	private JPanel geoPanelCards = new JPanel(geoCardLayout);
+	private JPanel blankPane = new JPanel();
+	private MultiGeosetPanel multiGeosetPanel;
+	private GeosetPanel singleGeosetPanel;
+	private ModelHolderThing mht;
+
+	public JList<GeosetShell> geosetShellJList;
 
 	public GeosetEditPanel(ModelHolderThing mht) {
 		setLayout(new MigLayout("gap 0, fill", "[grow]", "[]8[grow]"));
 		this.mht = mht;
+		geosetShellJList = new JList<>(mht.allGeoShells);
 
 		add(getTopPanel(), "spanx, align center, wrap");
 
-		GeosetListCellRenderer2D geosetListCellRenderer = new GeosetListCellRenderer2D(mht.recModelManager, mht.donModelManager);
-		mht.geosetShellJList.setCellRenderer(geosetListCellRenderer);
-		mht.geosetShellJList.addListSelectionListener(e -> showGeosetCard(mht, e));
-//		mht.geosetShellJList.setSelectedIndex(0);
-		mht.geosetShellJList.setSelectedValue(null, false);
-		JScrollPane geosetTabsPane = new JScrollPane(mht.geosetShellJList);
-		geosetTabsPane.setMinimumSize(new Dimension(150, 200));
+		singleGeosetPanel = new GeosetPanel(mht, mht.allMaterials);
 
 		geoPanelCards.add(blankPane, "blank");
-
-		singleGeosetPanel = new GeosetPanel(mht, mht.allMaterials);
 		geoPanelCards.add(singleGeosetPanel, "single");
 
-//		multiGeosetPane = new MultiGeosetPanel(mht, mht.boneShellRenderer);
-//		geoPanelCards.add(multiGeosetPane, "multiple");
+		multiGeosetPanel = new MultiGeosetPanel(mht, mht.allMaterials);
+		geoPanelCards.add(multiGeosetPanel, "multiple");
 
 		geoPanelCards.setBorder(BorderFactory.createLineBorder(Color.blue.darker()));
 
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, geosetTabsPane, geoPanelCards);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, getGeosetListPane(mht), geoPanelCards);
 		add(splitPane, "growx, growy");
 	}
 
-	private void showGeosetCard(ModelHolderThing mht, ListSelectionEvent e) {
+	private JScrollPane getGeosetListPane(ModelHolderThing mht) {
+		GeosetListCellRenderer2D geosetListCellRenderer = new GeosetListCellRenderer2D(mht.receivingModel, mht.donatingModel);
+		geosetShellJList.setCellRenderer(geosetListCellRenderer);
+		geosetShellJList.addListSelectionListener(e -> showGeosetCard(e));
+		geosetShellJList.setSelectedValue(null, false);
+		JScrollPane geosetTabsPane = new JScrollPane(geosetShellJList);
+		geosetTabsPane.setMinimumSize(new Dimension(150, 200));
+		return geosetTabsPane;
+	}
+
+	private void showGeosetCard(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting()) {
-			List<GeosetShell> selectedValuesList = mht.geosetShellJList.getSelectedValuesList();
+			List<GeosetShell> selectedValuesList = geosetShellJList.getSelectedValuesList();
 			if (selectedValuesList.size() < 1) {
-//				mht.geoShellRenderer.setSelectedBoneShell(null);
 				geoCardLayout.show(geoPanelCards, "blank");
 			} else if (selectedValuesList.size() == 1) {
-//				mht.geoShellRenderer.setSelectedBoneShell(mht.geosetShellJList.getSelectedValue());
-				singleGeosetPanel.setGeoset(mht.geosetShellJList.getSelectedValue());
+				singleGeosetPanel.setGeoset(geosetShellJList.getSelectedValue());
 				geoCardLayout.show(geoPanelCards, "single");
 			} else {
-//				mht.geoShellRenderer.setSelectedBoneShell(null);
-//				multiGeosetPane.updateMultiBonePanel();
+				multiGeosetPanel.setGeosets(selectedValuesList);
 				geoCardLayout.show(geoPanelCards, "multiple");
 			}
 		}
 	}
 
 	private JPanel getTopPanel() {
-		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[]8[]"));
+//		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[]8[]"));
+		JPanel topPanel = new JPanel(new MigLayout("gap 0", "[][]", "[align center][align center]"));
+		topPanel.setOpaque(true);
 
-		JButton importAllGeos = new JButton("Import All");
-		importAllGeos.addActionListener(e -> mht.importAllGeos(true));
-		topPanel.add(importAllGeos);
+		topPanel.add(getSetImpTypePanel(mht.receivingModel.getName(), (b) -> mht.setImportAllRecGeos(b)), "");
+		topPanel.add(getSetImpTypePanel(mht.donatingModel.getName(), (b) -> mht.setImportAllDonGeos(b)), "wrap");
 
-		JButton uncheckAllGeos = new JButton("Leave All");
-		uncheckAllGeos.addActionListener(e -> mht.importAllGeos(false));
-		topPanel.add(uncheckAllGeos);
 		return topPanel;
+	}
+
+	private JPanel getSetImpTypePanel(String modelName, Consumer<Boolean> importTypeConsumer) {
+		JPanel panel = new JPanel(new MigLayout("gap 0, ins 0", "[][][]", "[align center]"));
+		panel.setOpaque(true);
+		panel.setBorder(BorderFactory.createTitledBorder(modelName));
+
+		panel.add(getButton("Import All", e -> importTypeConsumer.accept(true)), "");
+		panel.add(getButton("Leave All", e -> importTypeConsumer.accept(false)), "");
+
+		return panel;
+	}
+
+	public JButton getButton(String text, ActionListener actionListener) {
+		JButton jButton = new JButton(text);
+		jButton.addActionListener(actionListener);
+		return jButton;
 	}
 }

@@ -4,93 +4,98 @@ import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxAnimatedObject;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.parsers.mdlx.timeline.MdlxTimeline;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public abstract class TimelineContainer implements VisibilitySource {
-	public Map<String, AnimFlag<?>> animFlags = new HashMap<>();
+	protected Map<String, AnimFlag<?>> animFlags = new HashMap<>();
 
-	public void loadTimelines(final MdlxAnimatedObject object) {
-		for (final MdlxTimeline<?> timeline : object.timelines) {
-			add(AnimFlag.createFromTimeline(timeline));
+	public void loadTimelines(MdlxAnimatedObject object, EditableModel model) {
+		for (MdlxTimeline<?> timeline : object.timelines) {
+			add(AnimFlag.createFromTimeline(timeline, model));
 		}
 	}
 
-	public void timelinesToMdlx(final MdlxAnimatedObject object) {
-		for (final AnimFlag<?> timeline : animFlags.values()) {
-			object.timelines.add(timeline.toMdlx(this));
+	public void timelinesToMdlx(MdlxAnimatedObject mdlxObject, EditableModel model) {
+		for (AnimFlag<?> timeline : animFlags.values()) {
+			if (!timeline.getAnimMap().isEmpty()) {
+				mdlxObject.timelines.add(timeline.toMdlx(this, model));
+			}
 		}
 	}
 
-	public void add(final AnimFlag<?> timeline) {
+	public void add(AnimFlag<?> timeline) {
 		animFlags.put(timeline.getName(), timeline);
 	}
 
-	public void addAll(final Collection<AnimFlag<?>> timelines) {
-		for (final AnimFlag<?> timeline : timelines) {
+	public void addAll(Collection<AnimFlag<?>> timelines) {
+		for (AnimFlag<?> timeline : timelines) {
 			add(timeline);
 		}
 	}
 
-	public boolean has(final String name) {
-		return animFlags.containsKey(name);
+	public void copyTimelines(TimelineContainer other) {
+		for (AnimFlag<?> timeline : other.getAnimFlags()) {
+			add(timeline.deepCopy());
+		}
 	}
 
-	public void remove(final AnimFlag<?> timeline) {
+	public boolean has(String name) {
+		return animFlags.containsKey(name);
+	}
+	public boolean owns(AnimFlag<?> animFlag) {
+		return animFlags.containsValue(animFlag);
+	}
+
+	public void remove(AnimFlag<?> timeline) {
 		animFlags.remove(timeline.getName());
 	}
 
-	public void remove(final String name) {
-		final AnimFlag<?> timeline = animFlags.get(name);
+	public void remove(String name) {
+		AnimFlag<?> timeline = animFlags.get(name);
 
 		if (timeline != null) {
 			animFlags.remove(name);
 		}
 	}
 
+	public void clearAnimFlags() {
+		animFlags.clear();
+	}
+
 	public ArrayList<AnimFlag<?>> getAnimFlags() {
 		return new ArrayList<>(animFlags.values());
 	}
 
-	public void setAnimFlags(final Collection<AnimFlag<?>> timelines) {
+	public void setAnimFlags(Collection<AnimFlag<?>> timelines) {
 		animFlags.clear();
 
-		for (final AnimFlag<?> timeline : timelines) {
+		for (AnimFlag<?> timeline : timelines) {
 			add(timeline);
 		}
 	}
 
-	public AnimFlag<?> find(final String name) {
+	public AnimFlag<?> find(String name) {
 		return animFlags.get(name);
 	}
 
-	public AnimFlag<?> find(final String name, final Integer globalSeq) {
-		final AnimFlag<?> timeline = animFlags.get(name);
+	public AnimFlag<?> find(String name, GlobalSeq globalSeq) {
+		AnimFlag<?> timeline = animFlags.get(name);
 
-		if (timeline != null && (((globalSeq == null) && (timeline.getGlobalSeq() == null))
-				|| ((globalSeq != null) && globalSeq.equals(timeline.getGlobalSeq())))) {
+		if (timeline != null &&
+				(globalSeq == null && timeline.getGlobalSeq() == null
+						|| globalSeq == timeline.getGlobalSeq())) {
 			return timeline;
 		}
 
 		return null;
 	}
 
-	public void removeAllTimelinesForGlobalSeq(final Integer selectedValue) {
-		for (final AnimFlag<?> timeline : animFlags.values()) {
-			if (selectedValue.equals(timeline.getGlobalSeq())) {
-				remove(timeline);
-			}
-		}
-	}
-
-	public int getInterpolatedInteger(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final int defaultValue) {
-		final IntAnimFlag timeline = (IntAnimFlag) find(tag);
+	public int getInterpolatedInteger(TimeEnvironmentImpl animatedRenderEnvironment, String tag, int defaultValue) {
+		IntAnimFlag timeline = (IntAnimFlag) find(tag);
 
 		if (timeline != null) {
 			return timeline.interpolateAt(animatedRenderEnvironment);
@@ -99,8 +104,8 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return defaultValue;
 	}
 
-	public float getInterpolatedFloat(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final float defaultValue) {
-		final FloatAnimFlag timeline = (FloatAnimFlag) find(tag);
+	public float getInterpolatedFloat(TimeEnvironmentImpl animatedRenderEnvironment, String tag, float defaultValue) {
+		FloatAnimFlag timeline = (FloatAnimFlag) find(tag);
 
 		if (timeline != null) {
 			return timeline.interpolateAt(animatedRenderEnvironment);
@@ -109,8 +114,8 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return defaultValue;
 	}
 
-	public Vec3 getInterpolatedVector(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final Vec3 defaultValue) {
-		final Vec3AnimFlag timeline = (Vec3AnimFlag) find(tag);
+	public Vec3 getInterpolatedVector(TimeEnvironmentImpl animatedRenderEnvironment, String tag, Vec3 defaultValue) {
+		Vec3AnimFlag timeline = (Vec3AnimFlag) find(tag);
 
 		if (timeline != null) {
 			return timeline.interpolateAt(animatedRenderEnvironment);
@@ -119,8 +124,8 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return defaultValue;
 	}
 
-	public Quat getInterpolatedQuat(final AnimatedRenderEnvironment animatedRenderEnvironment, final String tag, final Quat defaultValue) {
-		final QuatAnimFlag timeline = (QuatAnimFlag) find(tag);
+	public Quat getInterpolatedQuat(TimeEnvironmentImpl animatedRenderEnvironment, String tag, Quat defaultValue) {
+		QuatAnimFlag timeline = (QuatAnimFlag) find(tag);
 
 		if (timeline != null) {
 			return timeline.interpolateAt(animatedRenderEnvironment);
@@ -129,26 +134,29 @@ public abstract class TimelineContainer implements VisibilitySource {
 		return defaultValue;
 	}
 
-	public void flipOver(final byte axis) {
-		for (final AnimFlag<?> timeline : animFlags.values()) {
+	public void flipOver(byte axis) {
+		for (AnimFlag<?> timeline : animFlags.values()) {
 			timeline.flipOver(axis);
 		}
 	}
 
 	@Override
-	public AnimFlag<?> getVisibilityFlag() {
+	public AnimFlag<Float> getVisibilityFlag() {
 		AnimFlag<?> timeline = find(MdlUtils.TOKEN_VISIBILITY);
 
 		if (timeline == null) {
 			timeline = find(MdlUtils.TOKEN_ALPHA);
 		}
 
-		return timeline;
+		if(timeline instanceof FloatAnimFlag){
+			return (FloatAnimFlag) timeline;
+		}
+		return null;
 	}
 
 	// VisibilitySource methods
 	@Override
-	public void setVisibilityFlag(final AnimFlag<?> flag) {
+	public void setVisibilityFlag(AnimFlag<Float> flag) {
 		remove(MdlUtils.TOKEN_VISIBILITY);
 		remove(MdlUtils.TOKEN_ALPHA);
 
@@ -157,17 +165,17 @@ public abstract class TimelineContainer implements VisibilitySource {
 		}
 	}
 
-	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public float getRenderVisibility(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return getRenderVisibility(animatedRenderEnvironment, 1);
 	}
 
-	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment, final float defaultValue) {
+	public float getRenderVisibility(TimeEnvironmentImpl animatedRenderEnvironment, float defaultValue) {
 		return getInterpolatedFloat(animatedRenderEnvironment, visFlagName(), defaultValue);
 	}
 
 	@Override
 	public String visFlagName() {
-		return "Visibility";
+		return MdlUtils.TOKEN_VISIBILITY;
 	}
 
 	public VisibilitySource getVisibilitySource() {
@@ -175,5 +183,63 @@ public abstract class TimelineContainer implements VisibilitySource {
 			return this;
 		}
 		return null;
+	}
+
+	public AnimFlag<Vec3> getTranslationFlag(GlobalSeq globalSeq) {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_TRANSLATION, globalSeq);
+
+		if (timeline instanceof Vec3AnimFlag) {
+			return (Vec3AnimFlag) timeline;
+		}
+		return null;
+	}
+
+	public AnimFlag<Vec3> getScalingFlag(GlobalSeq globalSeq) {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_SCALING, globalSeq);
+
+		if (timeline instanceof Vec3AnimFlag) {
+			return (Vec3AnimFlag) timeline;
+		}
+		return null;
+	}
+
+	public AnimFlag<Quat> getRotationFlag(GlobalSeq globalSeq) {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_ROTATION, globalSeq);
+
+		if (timeline instanceof QuatAnimFlag) {
+			return (QuatAnimFlag) timeline;
+		}
+		return null;
+	}
+
+	public AnimFlag<Vec3> getTranslationFlag() {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_TRANSLATION);
+
+		if (timeline instanceof Vec3AnimFlag) {
+			return (Vec3AnimFlag) timeline;
+		}
+		return null;
+	}
+
+	public AnimFlag<Vec3> getScalingFlag() {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_SCALING);
+
+		if (timeline instanceof Vec3AnimFlag) {
+			return (Vec3AnimFlag) timeline;
+		}
+		return null;
+	}
+
+	public AnimFlag<Quat> getRotationFlag() {
+		AnimFlag<?> timeline = find(MdlUtils.TOKEN_ROTATION);
+
+		if (timeline instanceof QuatAnimFlag) {
+			return (QuatAnimFlag) timeline;
+		}
+		return null;
+	}
+
+	public Set<String> getFlagNameSet() {
+		return animFlags.keySet();
 	}
 }

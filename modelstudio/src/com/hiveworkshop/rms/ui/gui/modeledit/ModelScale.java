@@ -2,92 +2,100 @@ package com.hiveworkshop.rms.ui.gui.modeledit;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.Entry;
+import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.TreeMap;
 
 public class ModelScale {
 
-	public static void main(final String[] args) throws IOException {
-		final File santaFile = new File(
+	public static void main(String[] args) throws IOException {
+		File santaFile = new File(
 				"C:\\Users\\Eric\\Documents\\Warcraft\\Models\\Hayate\\Warcraft_Santa\\Warcraft Santa\\SantaClausFull.mdx");
-		final EditableModel model = MdxUtils.loadEditable(santaFile);
-		scale(model, 0.35, 0.35, 0.35);
+		EditableModel model = MdxUtils.loadEditable(santaFile);
+		Vec3 scale = new Vec3(0.35, 0.35, 0.35);
+		scale(model, scale);
 		MdxUtils.saveMdx(model, new File(
 				"C:\\Users\\Eric\\Documents\\Warcraft\\Models\\Hayate\\Warcraft_Santa\\Warcraft Santa\\SantaClausFull_scaled.mdx"));
 	}
 
-	public static void scale(final EditableModel mdl,
-	                         final double x, final double y, final double z) {
-		scale(mdl, x, y, z, 0, 0, 0);
+	public static void scale(EditableModel mdl, Vec3 scale) {
+		Vec3 center = new Vec3(0, 0, 0);
+		scale(mdl, scale, center);
 	}
 
-	public static void scale(final EditableModel mdl,
-	                         final double x, final double y, final double z,
-	                         final double centerX, final double centerY, final double centerZ) {
-		final double avgScale = (x + y + z) / 3;
-		for (final AnimFlag<?> flag : mdl.getAllAnimFlags()) {
+	public static void scale(EditableModel mdl, Vec3 scale, Vec3 center) {
+		for (AnimFlag<?> flag : ModelUtils.getAllAnimFlags(mdl)) {
 			if (flag.getTypeId() == AnimFlag.TRANSLATION) {
-				for (int i = 0; i < flag.size(); i++) {
-					final Vec3 value = (Vec3) flag.getValues().get(i);
-					value.scale(centerX, centerY, centerZ, x, y, z);
-					if (flag.tans()) {
-						final Vec3 inTan = (Vec3) flag.getInTans().get(i);
-						inTan.scale(centerX, centerY, centerZ, x, y, z);
-						final Vec3 outTan = (Vec3) flag.getOutTans().get(i);
-						outTan.scale(centerX, centerY, centerZ, x, y, z);
+				for (Sequence anim : flag.getAnimMap().keySet()) {
+					TreeMap<Integer, Entry<Vec3>> entryMap = ((Vec3AnimFlag) flag).getEntryMap(anim);
+					if (entryMap != null) {
+						for (Entry<Vec3> entry : entryMap.values()) {
+							entry.getValue().scale(center, scale);
+
+							if (flag.tans()) {
+								entry.getInTan().scale(center, scale);
+								entry.getOutTan().scale(center, scale);
+							}
+						}
 					}
 				}
 			}
 		}
-		for (final Geoset geoset : mdl.getGeosets()) {
-			for (final Vec3 vertex : geoset.getVertices()) {
-				vertex.scale(centerX, centerY, centerZ, x, y, z);
+		for (Geoset geoset : mdl.getGeosets()) {
+			for (Vec3 vertex : geoset.getVertices()) {
+				vertex.scale(center, scale);
 			}
-			for (final Animation anim : geoset.getAnims()) {
-				scale(centerX, centerY, centerZ, x, y, z, anim.getExtents());
+			for (Animation anim : geoset.getAnimExts().keySet()) {
+				scale(center, scale, geoset.getAnimExtent(anim));
 			}
 		}
-		for (final Vec3 vertex : mdl.getPivots()) {
-			vertex.scale(centerX, centerY, centerZ, x, y, z);
+		for (IdObject object : mdl.getIdObjects()) {
+			object.getPivotPoint().scale(center, scale);
 		}
-		for (final Camera camera : mdl.getCameras()) {
-			camera.getPosition().scale(centerX, centerY, centerZ, x, y, z);
-			camera.getTargetPosition().scale(centerX, centerY, centerZ, x, y, z);
+//		for (final Vec3 vertex : mdl.getPivots()) {
+//			vertex.scale(centerX, centerY, centerZ, x, y, z);
+//		}
+		for (Camera camera : mdl.getCameras()) {
+			camera.getPosition().scale(center, scale);
+			camera.getTargetPosition().scale(center, scale);
 		}
-		for (final CollisionShape collision : mdl.getColliders()) {
-			for (final Vec3 vertex : collision.getVertices()) {
-				vertex.scale(centerX, centerY, centerZ, x, y, z);
+		for (CollisionShape collision : mdl.getColliders()) {
+			for (Vec3 vertex : collision.getVertices()) {
+				vertex.scale(center, scale);
 			}
-			final ExtLog extents = collision.getExtents();
-			scale(centerX, centerY, centerZ, x, y, z, extents);
+			ExtLog extents = collision.getExtents();
+			scale(center, scale, extents);
 		}
-		for (final ParticleEmitter2 particle : mdl.getParticleEmitter2s()) {
+		double avgScale = (scale.x + scale.y + scale.z) / 3;
+		for (ParticleEmitter2 particle : mdl.getParticleEmitter2s()) {
 			particle.setLength(particle.getLength() * avgScale);
 			particle.setWidth(particle.getWidth() * avgScale);
 			particle.getParticleScaling().scale(0, 0, 0, avgScale, avgScale, avgScale);
 			particle.setSpeed(particle.getSpeed() * avgScale);
 			particle.setGravity(particle.getGravity() * avgScale);
 		}
-		scale(centerX, centerY, centerZ, x, y, z, mdl.getExtents());
-		for (final Animation anim : mdl.getAnims()) {
-			scale(centerX, centerY, centerZ, x, y, z, anim.getExtents());
+		scale(center, scale, mdl.getExtents());
+		for (Animation anim : mdl.getAnims()) {
+			scale(center, scale, anim.getExtents());
 		}
 	}
 
-	private static void scale(final double centerX, final double centerY, final double centerZ,
-	                          final double x, final double y, final double z,
-	                          final ExtLog extents) {
+	private static void scale(Vec3 center, Vec3 scale, final ExtLog extents) {
 		if (extents == null) {
 			return;
 		}
 		if (extents.getMaximumExtent() != null) {
-			extents.getMaximumExtent().scale(centerX, centerY, centerZ, x, y, z);
+			extents.getMaximumExtent().scale(center, scale);
 		}
 		if (extents.getMinimumExtent() != null) {
-			extents.getMinimumExtent().scale(centerX, centerY, centerZ, x, y, z);
+			extents.getMinimumExtent().scale(center, scale);
 		}
 	}
 

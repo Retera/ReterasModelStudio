@@ -1,15 +1,30 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
+import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.actions.mesh.SplitGeosetAction;
+import com.hiveworkshop.rms.editor.actions.mesh.TeamColorAddAction;
+import com.hiveworkshop.rms.editor.actions.nodes.NameChangeAction;
+import com.hiveworkshop.rms.editor.actions.nodes.SetParentAction;
+import com.hiveworkshop.rms.editor.actions.tools.AutoCenterBonesAction;
+import com.hiveworkshop.rms.editor.actions.tools.SetHdSkinAction;
+import com.hiveworkshop.rms.editor.actions.tools.SetMatrixAction3;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
+import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.actionfunctions.CreateFace;
+import com.hiveworkshop.rms.ui.application.actionfunctions.RigSelection;
+import com.hiveworkshop.rms.ui.application.actionfunctions.ViewSkinning;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.graphics2d.FaceCreationException;
+import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.MatrixPopup;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.SkinPopup;
-import com.hiveworkshop.rms.ui.gui.modeledit.UndoAction;
-import com.hiveworkshop.rms.ui.gui.modeledit.newstuff.actions.util.GenericScaleAction;
-import com.hiveworkshop.rms.ui.util.InfoPopup;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec3SpinnerArray;
 import net.miginfocom.swing.MigLayout;
@@ -18,8 +33,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
 import java.util.List;
+import java.util.*;
 
 public class ViewportPopupMenu extends JPopupMenu {
 	ViewportAxis[] axises = {
@@ -36,16 +51,15 @@ public class ViewportPopupMenu extends JPopupMenu {
 			new ViewportAxis("Bottom180", (byte) -2, (byte) -1),
 			new ViewportAxis("Bottom270", (byte) 0, (byte) -2),
 	};
-	Viewport viewport;
-	UndoActionListener undoListener;
-	ModelEditorManager modelEditorManager;
-	ModelView modelView;
 
-	public ViewportPopupMenu(Viewport viewport, UndoActionListener undoListener, ModelEditorManager modelEditorManager, ModelView modelView) {
-		this.viewport = viewport;
-		this.undoListener = undoListener;
+	Component parent;
+	ModelEditorManager modelEditorManager;
+	ModelHandler modelHandler;
+
+	public ViewportPopupMenu(PerspectiveViewport perspectiveViewport, Component parent, ModelHandler modelHandler, ModelEditorManager modelEditorManager) {
+		this.parent = parent;
+		this.modelHandler = modelHandler;
 		this.modelEditorManager = modelEditorManager;
-		this.modelView = modelView;
 
 		JMenu viewMenu = new JMenu("View");
 		add(viewMenu);
@@ -68,40 +82,91 @@ public class ViewportPopupMenu extends JPopupMenu {
 
 		JMenuItem createFace = new JMenuItem("Create Face");
 		createFace.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
-		createFace.addActionListener(e -> createFace(viewport));
+		createFace.addActionListener(e -> createFace());
 		meshMenu.add(createFace);
 
-		addMenuItem("Split Geoset and Add Team Color", e -> undoListener.pushAction(modelEditorManager.getModelEditor().addTeamColor()), meshMenu);
-		addMenuItem("Split Geoset", e -> undoListener.pushAction(modelEditorManager.getModelEditor().splitGeoset()), meshMenu);
+		addMenuItem("Split Geoset and Add Team Color", e -> addTeamColor(modelHandler), meshMenu);
+		addMenuItem("Split Geoset", e -> splitGeoset(modelHandler), meshMenu);
 
 		JMenu editMenu = new JMenu("Edit");
 		add(editMenu);
 
-		addMenuItem("Translation Type-in", e -> manualMove(viewport), editMenu);
-		addMenuItem("Rotate Type-in", e -> manualRotate(viewport), editMenu);
-		addMenuItem("Position Type-in", e -> manualSet(viewport), editMenu);
-		addMenuItem("Scale Type-in", e -> manualScale(viewport), editMenu);
+		addMenuItem("Translation Type-in", e -> manualMove(this.parent), editMenu);
+		addMenuItem("Rotate Type-in", e -> manualRotate(this.parent), editMenu);
+		addMenuItem("Position Type-in", e -> manualSet(this.parent), editMenu);
+		addMenuItem("Scale Type-in", e -> manualScale(this.parent), editMenu);
 
 		JMenu matrixMenu = new JMenu("Rig");
 		add(matrixMenu);
 
-		addMenuItem("Selected Mesh to Selected Nodes", e -> undoListener.pushAction(modelEditorManager.getModelEditor().rig()), matrixMenu);
-		addMenuItem("Re-assign Matrix", e -> reAssignMatrix(viewport), matrixMenu);
-		addMenuItem("View Matrix", e -> InfoPopup.show(viewport, modelEditorManager.getModelEditor().getSelectedMatricesDescription()), matrixMenu);
-		addMenuItem("Re-assign HD Skin", e -> reAssignSkinning(viewport), matrixMenu);
-		addMenuItem("View HD Skin", e -> InfoPopup.show(viewport, modelEditorManager.getModelEditor().getSelectedHDSkinningDescription()), matrixMenu);
-
-
-		System.out.println(Arrays.toString(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()));
+		addMenuItem("Selected Mesh to Selected Nodes", e -> RigSelection.doRig(modelHandler), matrixMenu);
+		addMenuItem("Re-assign Matrix", e -> reAssignMatrix(this.parent), matrixMenu);
+		addMenuItem("View Matrix", e -> ViewSkinning.viewMatrices(modelHandler), matrixMenu);
+		addMenuItem("Re-assign HD Skin", e -> reAssignSkinning(this.parent), matrixMenu);
+		addMenuItem("View HD Skin", e -> ViewSkinning.viewHDSkinning(modelHandler), matrixMenu);
+		addMenuItem("View Skinning", e -> ViewSkinning.viewSkinning(modelHandler), matrixMenu);
 
 		JMenu nodeMenu = new JMenu("Node");
 		add(nodeMenu);
 
-		addMenuItem("Set Parent", e -> setParent(viewport), nodeMenu);
-		addMenuItem("Auto-Center Bone(s)", e -> undoListener.pushAction(modelEditorManager.getModelEditor().autoCenterSelectedBones()), nodeMenu);
-		addMenuItem("Rename Bone", e -> renameBone(viewport), nodeMenu);
-		addMenuItem("Append Bone Suffix", e -> appendBoneBone(viewport), nodeMenu);
+		addMenuItem("Set Parent", e -> setParent(this.parent), nodeMenu);
+		addMenuItem("Auto-Center Bone(s)", e -> modelHandler.getUndoManager().pushAction(autoCenterSelectedBones(modelHandler.getModelView())), nodeMenu);
+		addMenuItem("Rename Bone", e -> renameBone(this.parent), nodeMenu);
+		addMenuItem("Append Bone Suffix", e -> appendBoneBone(this.parent), nodeMenu);
 	}
+
+//	public Viewport getViewport() {
+//		return viewport;
+//	}
+
+	public UndoAction autoCenterSelectedBones(ModelView modelView) {
+		Set<IdObject> selBones = new HashSet<>();
+		for (IdObject b : modelView.getEditableIdObjects()) {
+			if (modelView.isSelected(b)) {
+				selBones.add(b);
+			}
+		}
+
+		Map<Geoset, Map<Bone, List<GeosetVertex>>> geosetBoneMaps = new HashMap<>();
+		for (Geoset geo : modelView.getModel().getGeosets()) {
+			geosetBoneMaps.put(geo, geo.getBoneMap());
+		}
+
+		Map<Bone, Vec3> boneToOldPosition = new HashMap<>();
+		for (IdObject obj : selBones) {
+			if (obj instanceof Bone) {
+				Bone bone = (Bone) obj;
+				List<GeosetVertex> childVerts = new ArrayList<>();
+				for (Geoset geo : modelView.getModel().getGeosets()) {
+					List<GeosetVertex> vertices = geosetBoneMaps.get(geo).get(bone);
+					if (vertices != null) {
+						childVerts.addAll(vertices);
+					}
+				}
+				if (childVerts.size() > 0) {
+					Vec3 pivotPoint = bone.getPivotPoint();
+					boneToOldPosition.put(bone, new Vec3(pivotPoint));
+					pivotPoint.set(Vec3.centerOfGroup(childVerts));
+				}
+			}
+		}
+		return new AutoCenterBonesAction(boneToOldPosition);
+	}
+
+	public void splitGeoset(ModelHandler modelHandler) {
+		SplitGeosetAction splitGeosetAction = new SplitGeosetAction(modelHandler.getModel(), ModelStructureChangeListener.changeListener, modelHandler.getModelView());
+		modelHandler.getUndoManager().pushAction(splitGeosetAction.redo());
+	}
+
+
+	public void addTeamColor(ModelHandler modelHandler) {
+		if(modelHandler != null){
+			ModelView modelView = modelHandler.getModelView();
+			UndoAction action = new TeamColorAddAction(modelView.getSelectedVertices(), modelView, ModelStructureChangeListener.changeListener);
+			modelHandler.getUndoManager().pushAction(action.redo());
+		}
+	}
+
 
 
 	static void addMenuItem(String itemText, ActionListener actionListener, JMenu menu) {
@@ -110,48 +175,80 @@ public class ViewportPopupMenu extends JPopupMenu {
 		menu.add(menuItem);
 	}
 
-	void createFace(Viewport viewport) {
+	//	void createFace(Viewport viewport) {
+	void createFace() {
+		// todo make this work with CameraHandler
 		try {
-			undoListener.pushAction(modelEditorManager.getModelEditor().createFaceFromSelection(viewport.getFacingVector()));
+//			if (viewport != null) {
+//				UndoAction faceFromSelection = ModelEditActions.createFaceFromSelection(modelHandler.getModelView(), viewport.getFacingVector());
+//				modelHandler.getUndoManager().pushAction(faceFromSelection.redo());
+//			}
+			UndoAction faceFromSelection = CreateFace.createFaceFromSelection(modelHandler.getModelView(), new Vec3(0, 0, 1));
+			if (faceFromSelection != null) {
+				modelHandler.getUndoManager().pushAction(faceFromSelection.redo());
+			}
 		} catch (final FaceCreationException exc) {
-			JOptionPane.showMessageDialog(viewport, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+//			JOptionPane.showMessageDialog(viewport, exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), exc.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
-	void reAssignMatrix(Viewport viewport) {
-		MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
+	void reAssignMatrix(Component parent) {
+		MatrixPopup matrixPopup = new MatrixPopup(modelHandler);
 		String[] words = {"Accept", "Cancel"};
-		int i = JOptionPane.showOptionDialog(viewport, matrixPopup, "Rebuild Matrix", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
+		int i = JOptionPane.showOptionDialog(parent, matrixPopup, "Rebuild Matrix", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
-			UndoAction reassignMatrixAction = modelEditorManager.getModelEditor().setMatrix(matrixPopup.getNewBoneList());
-			undoListener.pushAction(reassignMatrixAction);
+			Set<GeosetVertex> selectedVertices = modelHandler.getModelView().getSelectedVertices();
+			modelHandler.getUndoManager()
+					.pushAction(new SetMatrixAction3(selectedVertices, matrixPopup.getNewBoneList(), matrixPopup.getBonesNotInAll()).redo());
 		}
 	}
 
-	void reAssignSkinning(Viewport viewport) {
-		SkinPopup skinPopup = new SkinPopup(modelView);
+	void reAssignSkinning(Component parent) {
+		SkinPopup skinPopup = new SkinPopup(modelHandler.getModelView());
 		String[] words = {"Accept", "Cancel"};
-		int i = JOptionPane.showOptionDialog(viewport, skinPopup, "Rebuild Skin", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
+		int i = JOptionPane.showOptionDialog(parent, skinPopup, "Rebuild Skin", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, words, words[1]);
 		if (i == 0) {
-			undoListener.pushAction(modelEditorManager.getModelEditor().setHDSkinning(skinPopup.getBones(), skinPopup.getSkinWeights()));
+			SetHdSkinAction hdSkinAction = new SetHdSkinAction(modelHandler.getModelView().getSelectedVertices(), skinPopup.getBones(), skinPopup.getSkinWeights());
+			modelHandler.getUndoManager().pushAction(hdSkinAction.redo());
 		}
 	}
 
-	void appendBoneBone(Viewport viewport) {
-		String name = JOptionPane.showInputDialog(viewport, "Enter bone suffix:");
-		if (name != null) {
-			modelEditorManager.getModelEditor().addSelectedBoneSuffix(name);
+	void appendBoneBone(Component parent) {
+		if (!modelHandler.getModelView().getSelectedIdObjects().isEmpty()) {
+			String name = JOptionPane.showInputDialog(parent, "Enter bone suffix:");
+			if (name != null && !modelHandler.getModelView().getSelectedIdObjects().isEmpty()) {
+				List<UndoAction> actions = new ArrayList<>();
+				for (IdObject bone : modelHandler.getModelView().getSelectedIdObjects()) {
+					actions.add(new NameChangeAction(bone, name, null));
+				}
+				modelHandler.getUndoManager().pushAction(new CompoundAction("add selected bone suffix", actions, ModelStructureChangeListener.changeListener::nodesUpdated).redo());
+			}
+		} else {
+			JOptionPane.showMessageDialog(parent, "No node(s) selected");
 		}
 	}
 
-	void renameBone(Viewport viewport) {
-		String name = JOptionPane.showInputDialog(viewport, "Enter bone name:");
-		if (name != null) {
-			modelEditorManager.getModelEditor().setSelectedBoneName(name);
+	void renameBone(Component parent) {
+		Set<IdObject> selectedIdObjects = modelHandler.getModelView().getSelectedIdObjects();
+		if (selectedIdObjects.size() > 1) {
+			JOptionPane.showMessageDialog(parent, "Only one node can be renamed at a time.");
+		} else if (selectedIdObjects.size() == 0) {
+			JOptionPane.showMessageDialog(parent, "No node is selected");
+		} else {
+			IdObject node = new ArrayList<>(selectedIdObjects).get(0);
+			if (node == null) {
+				throw new IllegalStateException("Selection is not a node");
+			}
+			String name = JOptionPane.showInputDialog(parent, "Enter bone name:", node.getName());
+			if (name != null) {
+				modelHandler.getUndoManager().pushAction(new NameChangeAction(node, name, ModelStructureChangeListener.changeListener).redo());
+			}
 		}
+
 	}
 
-	void setParent(Viewport viewport) {
+	void setParent(Component parent) {
 		class NodeShell {
 			IdObject node;
 
@@ -172,7 +269,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 			}
 		}
 
-		List<IdObject> idObjects = modelView.getModel().getIdObjects();
+		List<IdObject> idObjects = modelHandler.getModel().getIdObjects();
 		NodeShell[] nodeOptions = new NodeShell[idObjects.size() + 1];
 		nodeOptions[0] = new NodeShell(null);
 		NodeShell defaultChoice = nodeOptions[0];
@@ -180,60 +277,69 @@ public class ViewportPopupMenu extends JPopupMenu {
 			IdObject node = idObjects.get(i);
 			nodeOptions[i + 1] = new NodeShell(node);
 		}
-		NodeShell result = (NodeShell) JOptionPane.showInputDialog(viewport, "Choose a parent node", "Set Parent Node", JOptionPane.PLAIN_MESSAGE, null, nodeOptions, defaultChoice);
-//		MatrixPopup matrixPopup = new MatrixPopup(modelView.getModel());
+		NodeShell result = (NodeShell) JOptionPane.showInputDialog(parent, "Choose a parent node", "Set Parent Node", JOptionPane.PLAIN_MESSAGE, null, nodeOptions, defaultChoice);
 		if (result != null) {
-			// JOptionPane.showMessageDialog(null,"action approved");
-			modelEditorManager.getModelEditor().setParent(result.getNode());
+			Set<IdObject> selectedIdObjects = modelHandler.getModelView().getSelectedIdObjects();
+			modelHandler.getUndoManager()
+					.pushAction(new SetParentAction(selectedIdObjects, result.getNode(), ModelStructureChangeListener.changeListener).redo());
 		}
 	}
 
-	void manualMove(Viewport viewport) {
+	void manualMove(Component parent) {
 		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
 		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(0, 0, 0), "Move X:", "Move Y:", "Move Z:");
 		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel());
-		int x = JOptionPane.showConfirmDialog(viewport.getRootPane(), inputPanel, "Manual Translation", JOptionPane.OK_CANCEL_OPTION);
+
+		int x = JOptionPane.showConfirmDialog(parent, inputPanel, "Manual Translation", JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
 		}
-		UndoAction translate = modelEditorManager.getModelEditor().translate(spinners.getValue());
-		undoListener.pushAction(translate);
+
+		if (!modelHandler.getModelView().isEmpty()) {
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().translate(spinners.getValue()).redo());
+		}
 	}
 
-	void manualRotate(Viewport viewport) {
+	void manualRotate(Component parent) {
 		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
 		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(0, 0, 0), "Rotate X degrees (around axis facing front):", "Rotate Y degrees (around axis facing left):", "Rotate Z degrees (around axis facing up):");
 		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel());
-		int x = JOptionPane.showConfirmDialog(viewport.getRootPane(), inputPanel, "Manual Rotation", JOptionPane.OK_CANCEL_OPTION);
+
+		int x = JOptionPane.showConfirmDialog(parent, inputPanel, "Manual Rotation", JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
 		}
 
-		UndoAction rotate = modelEditorManager.getModelEditor().rotate(modelEditorManager.getModelEditor().getSelectionCenter(), spinners.getValue());
-		undoListener.pushAction(rotate);
-
+		if (!modelHandler.getModelView().isEmpty()) {
+			Vec3 selectionCenter = modelHandler.getModelView().getSelectionCenter();
+			modelHandler.getUndoManager().pushAction(modelEditorManager.getModelEditor().rotate(selectionCenter, spinners.getValue()).redo());
+		}
 	}
 
-	void manualSet(Viewport viewport) {
+	void manualSet(Component parent) {
 		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
 		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(0, 0, 0), "New Position X:", "New Position Y:", "New Position Z:");
 		inputPanel.add(spinners.setSpinnerWrap(true).spinnerPanel());
-		int x = JOptionPane.showConfirmDialog(viewport.getRootPane(), inputPanel, "Manual Position", JOptionPane.OK_CANCEL_OPTION);
+		int x = JOptionPane.showConfirmDialog(parent, inputPanel, "Manual Position", JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
 		}
-		UndoAction setPosition = modelEditorManager.getModelEditor().setPosition(modelEditorManager.getModelEditor().getSelectionCenter(), spinners.getValue());
-		undoListener.pushAction(setPosition);
+		if (!modelHandler.getModelView().isEmpty()) {
+			Vec3 selectionCenter = modelHandler.getModelView().getSelectionCenter();
+			modelHandler.getUndoManager()
+					.pushAction(modelEditorManager.getModelEditor().setPosition(selectionCenter, spinners.getValue()).redo());
+		}
 	}
 
-	void manualScale(Viewport viewport) {
+	void manualScale(Component parent) {
 		JPanel inputPanel = new JPanel(new MigLayout("gap 0"));
 		Vec3SpinnerArray spinners = new Vec3SpinnerArray(new Vec3(1, 1, 1), "Scale X:", "Scale Y:", "Scale Z:");
 		inputPanel.add(spinners.spinnerPanel(), "wrap");
 		JCheckBox customOrigin = new JCheckBox("Custom Scaling Origin");
 		inputPanel.add(customOrigin, "wrap");
 
-		Vec3 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+//		Vec3 selectionCenter = modelEditorManager.getModelEditor().getSelectionCenter();
+		Vec3 selectionCenter = modelHandler.getModelView().getSelectionCenter();
 		if (Double.isNaN(selectionCenter.x)) {
 			selectionCenter = new Vec3(0, 0, 0);
 		}
@@ -242,8 +348,7 @@ public class ViewportPopupMenu extends JPopupMenu {
 		centerSpinners.setEnabled(false);
 		customOrigin.addActionListener(e -> centerSpinners.setEnabled(customOrigin.isSelected()));
 
-		int x = JOptionPane.showConfirmDialog(
-				viewport.getRootPane(), inputPanel, "Manual Scaling", JOptionPane.OK_CANCEL_OPTION);
+		int x = JOptionPane.showConfirmDialog(parent, inputPanel, "Manual Scaling", JOptionPane.OK_CANCEL_OPTION);
 		if (x != JOptionPane.OK_OPTION) {
 			return;
 		}
@@ -251,13 +356,14 @@ public class ViewportPopupMenu extends JPopupMenu {
 		if (customOrigin.isSelected()) {
 			center = centerSpinners.getValue();
 		}
-		GenericScaleAction scalingAction = modelEditorManager.getModelEditor().beginScaling(center);
-		scalingAction.updateScale(spinners.getValue());
-		undoListener.pushAction(scalingAction);
+		if (!modelHandler.getModelView().isEmpty()) {
+			modelHandler.getUndoManager()
+					.pushAction(modelEditorManager.getModelEditor().scale(center, spinners.getValue()).redo());
+		}
 	}
 
 	private void changeViewportAxis(ViewportAxis axis) {
-		viewport.setViewportAxises(axis.name, axis.dim1, axis.dim2);
+//		viewport.setViewportAxises(axis.name, axis.dim1, axis.dim2);
 	}
 
 	private class ViewportAxis {

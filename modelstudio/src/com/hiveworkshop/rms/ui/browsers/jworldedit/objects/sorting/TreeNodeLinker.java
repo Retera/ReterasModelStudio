@@ -2,10 +2,10 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-public interface TreeNodeLinker {
-	void insertNodeInto(DefaultMutableTreeNode newChild, DefaultMutableTreeNode parent, int index);
+public abstract class TreeNodeLinker {
+	public abstract void insertNodeInto(DefaultMutableTreeNode newChild, DefaultMutableTreeNode parent, int index);
 
-	void nodeChanged(DefaultMutableTreeNode node);
+	public abstract void nodeChanged(DefaultMutableTreeNode node);
 
-	void removeNodeFromParent(DefaultMutableTreeNode node);
+	public abstract void removeNodeFromParent(DefaultMutableTreeNode node);
 }

@@ -77,15 +77,9 @@ public class Triangle {
 	}
 
 	public void forceVertsUpdate() {
-		if (!verts[0].triangles.contains(this)) {
-			verts[0].triangles.add(this);
-		}
-		if (!verts[1].triangles.contains(this)) {
-			verts[1].triangles.add(this);
-		}
-		if (!verts[2].triangles.contains(this)) {
-			verts[2].triangles.add(this);
-		}
+		verts[0].addTriangle(this);
+		verts[1].addTriangle(this);
+		verts[2].addTriangle(this);
 	}
 
 	public void updateVertexIds(Geoset geoRef) {
@@ -103,7 +97,7 @@ public class Triangle {
 		return verts[0] == v || verts[1] == v || verts[2] == v;
 	}
 
-	public boolean contains(GeosetVertex v) {
+	public boolean containsLoc(GeosetVertex v) {
 		return verts[0].equalLocs(v) || verts[1].equalLocs(v) || verts[2].equalLocs(v);
 	}
 
@@ -112,7 +106,7 @@ public class Triangle {
 	}
 
 	public int getId(int index) {
-		return vertIds[index];
+		return geoset.getVertexId(verts[index]);
 	}
 
 	public void set(int index, GeosetVertex v) {
@@ -120,7 +114,25 @@ public class Triangle {
 		vertIds[index] = geoset.getVertexId(v);
 	}
 
+	public Triangle replace(GeosetVertex oldV, GeosetVertex newV) {
+		for (int i = 0; i < verts.length; i++) {
+			if (verts[i] == oldV) {
+				verts[i] = newV;
+				break;
+			}
+		}
+		return this;
+	}
+
 	public int indexOf(GeosetVertex v) {
+		for (int i = 0; i < verts.length; i++) {
+			if (verts[i] == v) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	public int indexOfLoc(GeosetVertex v) {
 		int out = -1;
 		for (int i = 0; i < verts.length && out == -1; i++) {
 			if (verts[i].equalLocs(v)) {
@@ -139,9 +151,20 @@ public class Triangle {
 		return true;
 	}
 
+	public boolean sameLocVerts(Triangle t) {
+		for (int i = 0; i < 3; i++) {
+			if (!containsLoc(t.verts[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public boolean sameVerts(Triangle t) {
 		for (int i = 0; i < 3; i++) {
-			if (!contains(t.verts[i])) {
+			if (!(verts[0] == t.verts[i]
+					|| verts[1] == t.verts[i]
+					|| verts[2] == t.verts[i])) {
 				return false;
 			}
 		}
@@ -149,13 +172,12 @@ public class Triangle {
 	}
 
 	public int indexOfRef(GeosetVertex v) {
-		int out = -1;
-		for (int i = 0; i < verts.length && out == -1; i++) {
+		for (int i = 0; i < verts.length; i++) {
 			if (verts[i] == v) {
-				out = i;
+				return i;
 			}
 		}
-		return out;
+		return -1;
 	}
 
 	public boolean equalRefsNoIds(Triangle t) {
@@ -167,6 +189,29 @@ public class Triangle {
 		return true;
 	}
 
+	public boolean containsSameVerts(Triangle t) {
+		for (int i = 0; i < 3; i++) {
+			if(!(t.verts[i] == verts[0]
+					|| t.verts[i] == verts[1]
+					|| t.verts[i] == verts[2])){
+				return false;
+			}
+		}
+
+		return true;
+	}
+	public boolean containsSameVerts(GeosetVertex[] vertices) {
+		for (int i = 0; i < 3; i++) {
+			if(!(vertices[i] == verts[0]
+					|| vertices[i] == verts[1]
+					|| vertices[i] == verts[2])){
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	public boolean equalRefs(Triangle t) {
 		for (int i = 0; i < 3; i++) {
 			if (t.verts[i] != verts[i] || t.vertIds[i] != vertIds[i]) {
@@ -174,10 +219,6 @@ public class Triangle {
 			}
 		}
 		return true;
-	}
-
-	public GeosetVertex[] getAll() {
-		return verts;
 	}
 
 	public int[] getIntCoords(byte dim) {
@@ -222,6 +263,14 @@ public class Triangle {
 		return output;
 	}
 
+	public Vec2[] getTVerts(int layerId) {
+		Vec2[] output = new Vec2[3];
+		for (int i = 0; i < 3; i++) {
+			output[i] = verts[i].getTVertex(layerId);
+		}
+		return output;
+	}
+
 	@Override
 	public String toString() {
 		return vertIds[0] + ", " + vertIds[1] + ", " + vertIds[2];
@@ -234,10 +283,11 @@ public class Triangle {
 		GeosetVertex tempVert;
 		int tempVertId;
 		tempVert = verts[2];
-		tempVertId = vertIds[2];
 		verts[2] = verts[1];
-		vertIds[2] = vertIds[1];
 		verts[1] = tempVert;
+
+		tempVertId = vertIds[2];
+		vertIds[2] = vertIds[1];
 		vertIds[1] = tempVertId;
 		if (flipNormals) {
 			for (GeosetVertex geosetVertex : verts) {
@@ -251,6 +301,9 @@ public class Triangle {
 	}
 
 	public Geoset getGeoset() {
+		if (geoset == null) {
+
+		}
 		return geoset;
 	}
 
@@ -258,12 +311,18 @@ public class Triangle {
 		this.geoset = geoset;
 	}
 
+	public GeosetVertex[] getAll() {
+		return verts;
+	}
+
 	public GeosetVertex[] getVerts() {
 		return verts;
 	}
 
 	public void setVerts(GeosetVertex[] verts) {
-		this.verts = verts;
+		this.verts[0] = verts[0];
+		this.verts[1] = verts[1];
+		this.verts[2] = verts[2];
 	}
 
 	public int[] getVertIds() {

@@ -1,10 +1,8 @@
 package com.hiveworkshop.rms.editor.model;
 
-import com.hiveworkshop.rms.editor.model.visitor.IdObjectVisitor;
-import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape.Type;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
 import java.util.ArrayList;
@@ -19,60 +17,24 @@ public class CollisionShape extends IdObject {
 	ExtLog extents;
 	Type type = Type.BOX;
 	List<Vec3> vertices = new ArrayList<>();
+	Vec3 vertex1 = new Vec3();
+	Vec3 vertex2 = new Vec3();
 
-	public CollisionShape(final CollisionShape shape) {
-		copyObject(shape);
+	public CollisionShape(CollisionShape shape) {
+		super(shape);
 
 		type = shape.type;
 
 		vertices = new ArrayList<>(shape.vertices);
+		vertex1.set(shape.vertex1);
+		vertex2.set(shape.vertex2);
 
 		if (shape.extents != null) {
-			extents = new ExtLog(shape.extents);
+			extents = shape.extents.deepCopy();
 		}
 	}
 
-	public CollisionShape(final MdlxCollisionShape shape) {
-		if ((shape.flags & 8192) != 8192) {
-			System.err.println("MDX -> MDL error: A collisionshape '" + shape.name
-					+ "' not flagged as collisionshape in MDX!");
-		}
-
-		loadObject(shape);
-
-		type = shape.type;
-
-		final float[][] vertices = shape.vertices;
-
-		this.vertices.add(new Vec3(vertices[0]));
-
-		if (type != Type.SPHERE) {
-			this.vertices.add(new Vec3(vertices[1]));
-		}
-
-		if (type == Type.SPHERE || type == Type.CYLINDER) {
-			extents = new ExtLog(shape.boundsRadius);
-		}
-	}
-
-	public MdlxCollisionShape toMdlx(EditableModel model) {
-		final MdlxCollisionShape shape = new MdlxCollisionShape();
-
-		objectToMdlx(shape, model);
-
-		shape.type = type;
-
-		shape.vertices[0] = getVertex(0).toFloatArray();
-
-		if (shape.type != MdlxCollisionShape.Type.SPHERE) {
-			shape.vertices[1] = getVertex(1).toFloatArray();
-		}
-
-		if (shape.type == MdlxCollisionShape.Type.SPHERE || shape.type == MdlxCollisionShape.Type.CYLINDER) {
-			shape.boundsRadius = (float)getExtents().getBoundsRadius();
-		}
-
-		return shape;
+	public CollisionShape() {
 	}
 
 	@Override
@@ -84,15 +46,15 @@ public class CollisionShape extends IdObject {
 		return type;
 	}
 
-	public void setType(final Type type) {
+	public void setType(Type type) {
 		this.type = type;
 	}
 
-	public void addVertex(final Vec3 v) {
+	public void addVertex(Vec3 v) {
 		vertices.add(v);
 	}
 
-	public Vec3 getVertex(final int vertId) {
+	public Vec3 getVertex(int vertId) {
 		return vertices.get(vertId);
 	}
 
@@ -104,7 +66,7 @@ public class CollisionShape extends IdObject {
 		return extents;
 	}
 
-	public void setExtents(final ExtLog extents) {
+	public void setExtents(ExtLog extents) {
 		this.extents = extents;
 	}
 
@@ -112,47 +74,69 @@ public class CollisionShape extends IdObject {
 		return vertices;
 	}
 
-	public void setVertices(final List<Vec3> vertices) {
+	public void setVertices(List<Vec3> vertices) {
 		this.vertices = vertices;
 	}
 
 	@Override
-	public void apply(final IdObjectVisitor visitor) {
-		visitor.collisionShape(this);
+	public double getClickRadius() {
+		return ProgramGlobals.getPrefs().getNodeBoxSize() * 2;
+////		byte xDimension = coordinateSystem.getPortFirstXYZ();
+////		byte yDimension = coordinateSystem.getPortSecondXYZ();
+////		int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(xDimension));
+////		int yCoord = (int) coordinateSystem.viewY(pivotPoint.getCoord(yDimension));
+//		if (type == Type.BOX) {
+//			if (vertices.size() > 0) {
+//				// Vertex vertex = vertices.get(0);
+//				// int secondXCoord = (int)
+//				// coordinateSystem.convertX(vertex.getCoord(xDimension));
+//				// int secondYCoord = (int)
+//				// coordinateSystem.convertY(vertex.getCoord(yDimension));
+//				// int minXCoord = Math.min(xCoord, secondXCoord);
+//				// int minYCoord = Math.min(yCoord, secondYCoord);
+//				// int maxXCoord = Math.max(xCoord, secondXCoord);
+//				// int maxYCoord = Math.max(yCoord, secondYCoord);
+//				// int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord -
+//				// minYCoord) / 2;
+//				return DEFAULT_CLICK_RADIUS;
+//			} else {
+//				return DEFAULT_CLICK_RADIUS;
+//			}
+//		}
+//		if (extents == null) {
+//			return DEFAULT_CLICK_RADIUS;
+//		}
+//		return extents.getBoundsRadius();
+////		byte xDimension = coordinateSystem.getPortFirstXYZ();
+////		byte yDimension = coordinateSystem.getPortSecondXYZ();
+////		int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(xDimension));
+////		int yCoord = (int) coordinateSystem.viewY(pivotPoint.getCoord(yDimension));
+////		if (type == Type.BOX) {
+////			if (vertices.size() > 0) {
+////				// Vertex vertex = vertices.get(0);
+////				// int secondXCoord = (int)
+////				// coordinateSystem.convertX(vertex.getCoord(xDimension));
+////				// int secondYCoord = (int)
+////				// coordinateSystem.convertY(vertex.getCoord(yDimension));
+////				// int minXCoord = Math.min(xCoord, secondXCoord);
+////				// int minYCoord = Math.min(yCoord, secondYCoord);
+////				// int maxXCoord = Math.max(xCoord, secondXCoord);
+////				// int maxYCoord = Math.max(yCoord, secondYCoord);
+////				// int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord -
+////				// minYCoord) / 2;
+////				return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+////			} else {
+////				return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+////			}
+////		}
+////		if (extents == null) {
+////			return DEFAULT_CLICK_RADIUS / coordinateSystem.getZoom();
+////		}
+////		return extents.getBoundsRadius();
 	}
 
 	@Override
-	public double getClickRadius(final CoordinateSystem coordinateSystem) {
-		final byte xDimension = coordinateSystem.getPortFirstXYZ();
-		final byte yDimension = coordinateSystem.getPortSecondXYZ();
-		final int xCoord = (int) coordinateSystem.viewX(pivotPoint.getCoord(xDimension));
-		final int yCoord = (int) coordinateSystem.viewY(pivotPoint.getCoord(yDimension));
-		if (type == Type.BOX) {
-			if (vertices.size() > 0) {
-				// final Vertex vertex = vertices.get(0);
-				// final int secondXCoord = (int)
-				// coordinateSystem.convertX(vertex.getCoord(xDimension));
-				// final int secondYCoord = (int)
-				// coordinateSystem.convertY(vertex.getCoord(yDimension));
-				// final int minXCoord = Math.min(xCoord, secondXCoord);
-				// final int minYCoord = Math.min(yCoord, secondYCoord);
-				// final int maxXCoord = Math.max(xCoord, secondXCoord);
-				// final int maxYCoord = Math.max(yCoord, secondYCoord);
-				// final int generalRadius = Math.max(maxXCoord - minXCoord, maxYCoord -
-				// minYCoord) / 2;
-				return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
-			} else {
-				return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
-			}
-		}
-		if (extents == null) {
-			return DEFAULT_CLICK_RADIUS / CoordinateSystem.Util.getZoom(coordinateSystem);
-		}
-		return extents.getBoundsRadius();
-	}
-
-	@Override
-	public float getRenderVisibility(final AnimatedRenderEnvironment animatedRenderEnvironment) {
+	public float getRenderVisibility(TimeEnvironmentImpl animatedRenderEnvironment) {
 		return 1;
 	}
 }

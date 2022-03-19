@@ -1,5 +1,7 @@
 package com.hiveworkshop.rms.ui.util;
 
+import com.hiveworkshop.rms.ui.preferences.GUITheme;
+import com.jtattoo.plaf.AbstractLookAndFeel;
 import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
 import com.jtattoo.plaf.aluminium.AluminiumLookAndFeel;
 import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
@@ -10,11 +12,7 @@ import java.util.Properties;
 
 public final class EditorDisplayManager {
 
-	public static void setupLookAndFeel() {
-		setupLookAndFeel("Noire");
-	}
-
-	public static void setupLookAndFeel(final String jtattooTheme) {
+	public static void setupLookAndFeel(GUITheme theme) {
 
 		// setup the look and feel properties
 		final Properties props = new Properties();
@@ -45,16 +43,30 @@ public final class EditorDisplayManager {
 		// props.put("windowBorderColor", "218 254 230");
 
 		// set your theme
-		switch (jtattooTheme) {
-			case "Noire" -> NoireLookAndFeel.setCurrentTheme(props);
-			case "HiFi" -> HiFiLookAndFeel.setCurrentTheme(props);
-			case "Acryl" -> AcrylLookAndFeel.setCurrentTheme(props);
-			case "Aluminium" -> AluminiumLookAndFeel.setCurrentTheme(props);
+
+		switch (theme) {
+			case DARK -> NoireLookAndFeel.setCurrentTheme(props);
+			case HIFI -> HiFiLookAndFeel.setCurrentTheme(props);
+			case ACRYL -> AcrylLookAndFeel.setCurrentTheme(props);
+			case ALUMINIUM -> AluminiumLookAndFeel.setCurrentTheme(props);
+
 		}
-		// select the Look and Feel
+		Class<? extends AbstractLookAndFeel> themeClass = switch (theme) {
+			case DARK -> NoireLookAndFeel.class;
+			case HIFI -> HiFiLookAndFeel.class;
+			case ACRYL -> AcrylLookAndFeel.class;
+			case ALUMINIUM -> AluminiumLookAndFeel.class;
+			default -> AluminiumLookAndFeel.class;
+		};
+//		System.out.println("class: " + themeClass);
+		String themeClassName = themeClass.getName();
+//		System.out.println("className: " + themeClassName);
+		trySetTheme(themeClassName);
+	}
+
+	public static void trySetTheme(String themeClassName) {
 		try {
-			UIManager.setLookAndFeel(
-					"com.jtattoo.plaf." + jtattooTheme.toLowerCase() + "." + jtattooTheme + "LookAndFeel");
+			UIManager.setLookAndFeel(themeClassName);
 		} catch (final ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
 			System.out.println("could not set theme");
 			throw new RuntimeException(e);

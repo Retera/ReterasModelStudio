@@ -1,82 +1,71 @@
 package com.hiveworkshop.rms.ui.application.model;
 
-import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.wrapper.v2.ModelViewManager;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoActionListener;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
-import com.hiveworkshop.rms.ui.application.model.editors.TimelineKeyNamer;
+import com.hiveworkshop.rms.ui.application.tools.GeosetAnimCopyPanel;
+import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.util.HashMap;
-import java.util.Map;
 
 
-public class ComponentGeosetAnimPanel extends JPanel implements ComponentPanel<GeosetAnim> {
-	private final ModelViewManager modelViewManager;
-	private final UndoActionListener undoActionListener;
-	private final ModelStructureChangeListener modelStructureChangeListener;
-	private final Map<GeosetAnim, ComponentGeosetMaterialPanel> animPanels;
-	private final boolean listenersEnabled = true;
+public class ComponentGeosetAnimPanel extends ComponentPanel<GeosetAnim> {
+	private GeosetAnim geosetAnim;
 	private final JPanel animsPanelHolder;
-	private FloatValuePanel alphaPanel;
-	private ColorValuePanel colorPanel;
-	private ComponentGeosetMaterialPanel geosetAnimPanel;
+	private final FloatValuePanel alphaPanel;
+	private final ColorValuePanel colorPanel;
+	private final JLabel geosetLabel;
 
 
-	public ComponentGeosetAnimPanel(final ModelViewManager modelViewManager,
-	                                final UndoActionListener undoActionListener,
-	                                final ModelStructureChangeListener modelStructureChangeListener) {
-		this.undoActionListener = undoActionListener;
-		this.modelViewManager = modelViewManager;
-		this.modelStructureChangeListener = modelStructureChangeListener;
+	public ComponentGeosetAnimPanel(ModelHandler modelHandler) {
+		super(modelHandler);
 		setLayout(new MigLayout("fill", "[][][grow]", "[][][grow]"));
 
-		animPanels = new HashMap<>();
+		JPanel labelPanel = new JPanel(new MigLayout());
+		add(labelPanel, "wrap, growx, span 3");
+		labelPanel.add(new JLabel("GeosetAnim for Geoset:"));
+		geosetLabel = new JLabel("geoset name");
+		labelPanel.add(geosetLabel, "wrap");
 
 		animsPanelHolder = new JPanel(new MigLayout());
 		add(animsPanelHolder, "wrap, growx, span 3");
 
 		animsPanelHolder.add(new JLabel("GeosetAnim"), "wrap");
 
-		alphaPanel = new FloatValuePanel("Alpha", undoActionListener, modelStructureChangeListener);
-		alphaPanel.setKeyframeHelper(new TimelineKeyNamer(modelViewManager.getModel()));
+		JButton button = new JButton("copy all geosetAnim-info from other");
+		button.addActionListener(e -> copyFromOther());
+		animsPanelHolder.add(button, "wrap");
+
+		alphaPanel = new FloatValuePanel(modelHandler, MdlUtils.TOKEN_ALPHA);
 		animsPanelHolder.add(alphaPanel, "wrap, span 2");
 
-		colorPanel = new ColorValuePanel("Color", undoActionListener, modelStructureChangeListener);
-		colorPanel.setKeyframeHelper(new TimelineKeyNamer(modelViewManager.getModel()));
+		colorPanel = new ColorValuePanel(modelHandler, MdlUtils.TOKEN_COLOR);
 		animsPanelHolder.add(colorPanel, "wrap, span 2");
+
 
 	}
 
 	@Override
-	public void setSelectedItem(final GeosetAnim geosetAnim) {
-
-//		animsPanelHolder.remove(geosetAnimPanel);
-
-//		animPanels.putIfAbsent(geosetAnim, new ComponentGeosetMaterialPanel());
-//		geosetAnimPanel = animPanels.get(geosetAnim);
-
-//		geosetAnimPanel.setMaterialChooser(geosetAnim, modelViewManager, undoActionListener, modelStructureChangeListener);
-//		animsPanelHolder.add(geosetAnimPanel);
+	public ComponentPanel<GeosetAnim> setSelectedItem(final GeosetAnim geosetAnim) {
+		this.geosetAnim = geosetAnim;
+		geosetLabel.setText(geosetAnim.getGeoset().getName());
 		animsPanelHolder.revalidate();
 		animsPanelHolder.repaint();
-		alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), (FloatAnimFlag) geosetAnim.find("Alpha"), geosetAnim, "Alpha", geosetAnim::setStaticAlpha);
-		colorPanel.reloadNewValue(geosetAnim.getStaticColor(), (Vec3AnimFlag) geosetAnim.find("Color"), geosetAnim, "Color", geosetAnim::setStaticColor);
+		alphaPanel.reloadNewValue((float) geosetAnim.getStaticAlpha(), (FloatAnimFlag) geosetAnim.find(MdlUtils.TOKEN_ALPHA), geosetAnim, MdlUtils.TOKEN_ALPHA, geosetAnim::setStaticAlpha);
+		colorPanel.reloadNewValue(geosetAnim.getStaticColor(), (Vec3AnimFlag) geosetAnim.find(MdlUtils.TOKEN_COLOR), geosetAnim, MdlUtils.TOKEN_COLOR, geosetAnim::setStaticColor);
 
 		revalidate();
 		repaint();
+		return this;
 	}
 
-
-	@Override
-	public void save(final EditableModel model, final UndoActionListener undoListener,
-	                 final ModelStructureChangeListener changeListener) {
+	private void copyFromOther() {
+		GeosetAnimCopyPanel.show(this, model, geosetAnim, undoManager);
+		repaint();
 	}
 
 }

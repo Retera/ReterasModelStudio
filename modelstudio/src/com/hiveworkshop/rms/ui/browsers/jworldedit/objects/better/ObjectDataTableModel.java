@@ -1,9 +1,10 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better;
 
-import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.EditableOnscreenObjectField;
 import com.hiveworkshop.rms.parsers.slk.ObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData.MutableGameObject;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.AbstractObjectField;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.builders.AbstractFieldBuilder;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -14,15 +15,15 @@ import java.util.*;
 
 public class ObjectDataTableModel implements TableModel {
 	private final MutableGameObject gameObject;
-	private final List<EditableOnscreenObjectField> fields;
+	private final List<AbstractObjectField> fields;
 	private final Set<TableModelListener> tableModelListeners;
 	private boolean displayAsRawData;
 	private final ObjectData metaData;
 	private final Runnable runOnIsCustomUnitStateChange;
 
-	public ObjectDataTableModel(final MutableGameObject gameObject, final ObjectData metaData,
-			final EditorFieldBuilder editorFieldBuilder, final boolean displayAsRawData,
-			final Runnable runOnIsCustomUnitStateChange) {
+	public ObjectDataTableModel(MutableGameObject gameObject, ObjectData metaData,
+	                            AbstractFieldBuilder editorFieldBuilder, boolean displayAsRawData,
+	                            Runnable runOnIsCustomUnitStateChange) {
 		this.gameObject = gameObject;
 		this.metaData = metaData;
 		this.displayAsRawData = displayAsRawData;
@@ -30,24 +31,28 @@ public class ObjectDataTableModel implements TableModel {
 		tableModelListeners = new LinkedHashSet<>();
 		if (gameObject != null) {
 			fields = editorFieldBuilder.buildFields(metaData, gameObject);
-			fields.sort((o1, o2) -> {
-				final int o1Level = o1.getLevel();
-				final int o2Level = o2.getLevel();
-				if (o1.isShowingLevelDisplay() && !o2.isShowingLevelDisplay()) {
-					return 1;
-				}
-				if (!o1.isShowingLevelDisplay() && o2.isShowingLevelDisplay()) {
-					return -1;
-				}
-				final int sortNameComparison = o1.getSortName(gameObject).compareTo(o2.getSortName(gameObject));
-				if (sortNameComparison != 0) {
-					return sortNameComparison;
-				}
-				return Integer.compare(o1Level, o2Level);
-			});
+			fields.sort(getFieldComparator(gameObject));
 		} else {
 			fields = new ArrayList<>();
 		}
+	}
+
+	private Comparator<AbstractObjectField> getFieldComparator(MutableGameObject gameObject) {
+		return (o1, o2) -> {
+			final int o1Level = o1.getLevel();
+			final int o2Level = o2.getLevel();
+			if (o1.isShowingLevelDisplay() && !o2.isShowingLevelDisplay()) {
+				return 1;
+			}
+			if (!o1.isShowingLevelDisplay() && o2.isShowingLevelDisplay()) {
+				return -1;
+			}
+			final int sortNameComparison = o1.getSortName(gameObject).compareTo(o2.getSortName(gameObject));
+			if (sortNameComparison != 0) {
+				return sortNameComparison;
+			}
+			return Integer.compare(o1Level, o2Level);
+		};
 	}
 
 	public void setDisplayAsRawData(final boolean displayAsRawData) {
@@ -129,7 +134,7 @@ public class ObjectDataTableModel implements TableModel {
 			return;
 		}
 		final boolean hadBeenEdited = gameObject.hasEditorData();
-		final EditableOnscreenObjectField field = fields.get(rowIndex);
+		final AbstractObjectField field = fields.get(rowIndex);
 		if (field.popupEditor(gameObject, parent, displayAsRawData, isHoldingShift)) {
 			for (final TableModelListener listener : tableModelListeners) {
 				listener.tableChanged(new TableModelEvent(this, rowIndex, rowIndex, 1));
