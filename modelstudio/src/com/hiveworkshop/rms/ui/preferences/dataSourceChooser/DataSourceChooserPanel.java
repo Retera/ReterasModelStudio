@@ -1,4 +1,4 @@
-package com.hiveworkshop.rms.ui.preferences;
+package com.hiveworkshop.rms.ui.preferences.dataSourceChooser;
 
 import com.hiveworkshop.blizzard.casc.io.WC3CascFileSystem;
 import com.hiveworkshop.blizzard.casc.io.WarcraftIIICASC;
@@ -13,6 +13,7 @@ import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
+import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.WindowsRegistry;
 import com.jtattoo.plaf.acryl.AcrylLookAndFeel;
@@ -29,6 +30,7 @@ import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,9 +44,9 @@ public class DataSourceChooserPanel extends JPanel {
 	private static final ImageIcon FolderIcon;
 
 	static {
-		CASCIcon = getImageIcon("/UI/Widgets/ReteraStudio/DataSourceIcons/CASC.png");
-		MPQIcon = getImageIcon("/UI/Widgets/ReteraStudio/DataSourceIcons/MPQ.png");
-		FolderIcon = getImageIcon("/UI/Widgets/ReteraStudio/DataSourceIcons/Folder.png");
+		CASCIcon    = getImageIcon("/UI/Widgets/ReteraStudio/DataSourceIcons/CASC.png");
+		MPQIcon     = getImageIcon("/UI/Widgets/ReteraStudio/DataSourceIcons/MPQ.png");
+		FolderIcon  = getImageIcon("/UI/Widgets/ReteraStudio/DataSourceIcons/Folder.png");
 	}
 
 	private final List<DataSourceDescriptor> dataSourceDescriptors;
@@ -183,8 +185,10 @@ public class DataSourceChooserPanel extends JPanel {
 	private static ImageIcon getImageIcon(String iconPath) {
 		ImageIcon imageIcon = null;
 		try {
-			imageIcon = new ImageIcon(ImageIO.read(DataSourceChooserPanel.class.getResource(iconPath))
-					.getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+			URL resource = DataSourceChooserPanel.class.getResource(iconPath);
+			if(resource != null){
+				imageIcon = new ImageIcon(ImageIO.read(resource).getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+			}
 		} catch (final IOException ignored) {
 		}
 		return imageIcon;
@@ -335,71 +339,6 @@ public class DataSourceChooserPanel extends JPanel {
 		return null;
 	}
 
-//	private void moveDown() {
-//		TreePath[] selectionPaths = dataSourceTree.getSelectionPaths();
-//		int[] selectionRows = dataSourceTree.getSelectionRows();
-//		for (TreePath selectionPath : selectionPaths) {
-//			DefaultMutableTreeNode lastComp = getNode(selectionPath);
-//			if (lastComp != null) {
-//				TreeNode parent = lastComp.getParent();
-//				if (parent instanceof DataSourceDescTreeNode) {
-//					DataSourceDescriptor parentDescriptor = ((DataSourceDescTreeNode) parent).getDescriptor();
-//					if (parentDescriptor instanceof CascDataSourceDescriptor) {
-//						((CascDataSourceDescriptor) parentDescriptor).movePrefixDown(parent.getIndex(lastComp));
-//						reloadTree();
-//						dataSourceTree.addSelectionPath(selectionPath);
-//					}
-//				}
-//				if (lastComp instanceof DataSourceDescTreeNode) {
-//					DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) lastComp).getDescriptor();
-//					int indexOf = dataSourceDescriptors.indexOf(descriptor);
-//					if (indexOf < (dataSourceDescriptors.size() - 1)) {
-//						Collections.swap(dataSourceDescriptors, indexOf, indexOf + 1);
-//					}
-//					reloadTree();
-//				}
-//			}
-//		}
-//		dataSourceTree.clearSelection();
-//		for (final int row : selectionRows) {
-//			if ((row + 1) < dataSourceTree.getRowCount()) {
-//				dataSourceTree.addSelectionRow(row + 1);
-//			}
-//		}
-//	}
-//
-//	private void moveUp() {
-//		TreePath[] selectionPaths = dataSourceTree.getSelectionPaths();
-//		int[] selectionRows = dataSourceTree.getSelectionRows();
-//		for (TreePath selectionPath : selectionPaths) {
-//			DefaultMutableTreeNode lastComp = getNode(selectionPath);
-//			if (lastComp != null) {
-//				TreeNode parent = lastComp.getParent();
-//				if (parent instanceof DataSourceDescTreeNode) {
-//					DataSourceDescriptor parentDescriptor = ((DataSourceDescTreeNode) parent).getDescriptor();
-//					if (parentDescriptor instanceof CascDataSourceDescriptor) {
-//						((CascDataSourceDescriptor) parentDescriptor).movePrefixUp(parent.getIndex(lastComp));
-//						reloadTree();
-//					}
-//				}
-//				if (lastComp instanceof DataSourceDescTreeNode) {
-//					DataSourceDescriptor descriptor = ((DataSourceDescTreeNode) lastComp).getDescriptor();
-//					int indexOf = dataSourceDescriptors.indexOf(descriptor);
-//					if (indexOf > 0) {
-//						Collections.swap(dataSourceDescriptors, indexOf, indexOf - 1);
-//					}
-//					reloadTree();
-//				}
-//			}
-//		}
-//		dataSourceTree.clearSelection();
-//		for (final int row : selectionRows) {
-//			if ((row - 1) > 0) {
-//				dataSourceTree.addSelectionRow(row - 1);
-//			}
-//		}
-//	}
-
 	private void move(boolean up) {
 		TreePath[] selectionPaths = dataSourceTree.getSelectionPaths();
 		int[] selectionRows = dataSourceTree.getSelectionRows();
@@ -413,7 +352,6 @@ public class DataSourceChooserPanel extends JPanel {
 					if (parentDescriptor instanceof CascDataSourceDescriptor) {
 						((CascDataSourceDescriptor) parentDescriptor).movePrefix(parent.getIndex(lastComp), dir);
 						reloadTree();
-//						dataSourceTree.addSelectionPath(selectionPath);
 					}
 				}
 				if (lastComp instanceof DataSourceDescTreeNode) {
@@ -423,21 +361,10 @@ public class DataSourceChooserPanel extends JPanel {
 					if (indexOf + dir >= 0 && indexOf + dir < dataSourceDescriptors.size()) {
 						Collections.swap(dataSourceDescriptors, indexOf, indexOf + dir);
 					}
-//					dataSourceTree.setSelectionPaths(selectionPaths);
 					reloadTree();
 				}
 			}
 		}
-//		selectionPaths = dataSourceTree.getSelectionPaths();
-//		dataSourceTree.clearSelection();
-////		for (final int row : selectionRows) {
-////			if ((row + dir) >= 0 && (row + dir) < dataSourceTree.getRowCount()) {
-////				dataSourceTree.addSelectionRow(row + dir);
-////			}
-////		}
-//		for (TreePath path : selectionPaths) {
-//			dataSourceTree.addSelectionPath(path);
-//		}
 	}
 
 	private void deleteSelection() {
@@ -581,8 +508,8 @@ public class DataSourceChooserPanel extends JPanel {
 		for (int i = root.getChildCount() - 1; i >= 0; i--) {
 			model.removeNodeFromParent((MutableTreeNode) root.getChildAt(i));
 		}
-		for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
-			final DataSourceDescTreeNode newChild = new DataSourceDescTreeNode(descriptor);
+		for (DataSourceDescriptor descriptor : dataSourceDescriptors) {
+			DataSourceDescTreeNode newChild = new DataSourceDescTreeNode(descriptor);
 			if (descriptor instanceof CascDataSourceDescriptor) {
 				final CascDataSourceDescriptor cascDescriptor = (CascDataSourceDescriptor) descriptor;
 				if (cascDescriptor.getPrefixes().isEmpty()) {
@@ -615,20 +542,6 @@ public class DataSourceChooserPanel extends JPanel {
 		return dataSourceDescriptors;
 	}
 
-	private static final class DataSourceDescTreeNode extends DefaultMutableTreeNode {
-
-		private final DataSourceDescriptor descriptor;
-
-		public DataSourceDescTreeNode(final DataSourceDescriptor descriptor) {
-			super(descriptor.getDisplayName());
-			this.descriptor = descriptor;
-		}
-
-		public DataSourceDescriptor getDescriptor() {
-			return descriptor;
-		}
-	}
-
 	private enum SupportedCascPatchFormat {
 		PATCH130, PATCH131, PATCH132, UNKNOWN_FUTURE_PATCH
 	}
@@ -645,8 +558,7 @@ public class DataSourceChooserPanel extends JPanel {
 
 	private void addWarcraft3Installation(final Path installPathPath, final boolean allowPopup) {
 		if (Files.exists(installPathPath.resolve("Data/indices"))) {
-			CascDataSourceDescriptor dataSourceDesc =
-					new CascDataSourceDescriptor(installPathPath.toString(), new ArrayList<>());
+			CascDataSourceDescriptor dataSourceDesc = new CascDataSourceDescriptor(installPathPath.toString(), new ArrayList<>());
 			dataSourceDescriptors.add(dataSourceDesc);
 			addDefaultCASCPrefixes(installPathPath, dataSourceDesc, allowPopup);
 		} else {
@@ -664,15 +576,15 @@ public class DataSourceChooserPanel extends JPanel {
 		}
 	}
 
-	private void addSpecificCASCPrefix(final Path installPathPath, final CascDataSourceDescriptor dataSourceDesc) {
+	private void addSpecificCASCPrefix(Path installPathPath, CascDataSourceDescriptor dataSourceDesc) {
 		// It's CASC. Now the question: what prefixes do we use?
 		try {
-			final WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true);
-			final DefaultComboBoxModel<String> prefixes = new DefaultComboBoxModel<>();
+			WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true);
+			DefaultComboBoxModel<String> prefixes = new DefaultComboBoxModel<>();
 			try {
-				final WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
-				final List<String> allFiles = rootFileSystem.enumerateFiles();
-				for (final String file : allFiles) {
+				WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
+				List<String> allFiles = rootFileSystem.enumerateFiles();
+				for (String file : allFiles) {
 					if (rootFileSystem.isNestedFileSystem(file)) {
 						prefixes.addElement(file);
 					}
@@ -680,17 +592,17 @@ public class DataSourceChooserPanel extends JPanel {
 			} finally {
 				tempCascReader.close();
 			}
-			final JComboBox<String> prefixChoiceComboBox = new JComboBox<>(prefixes);
+			JComboBox<String> prefixChoiceComboBox = new JComboBox<>(prefixes);
 			prefixChoiceComboBox.setEditable(true);
 
-			final JPanel comboBoxPanel = new JPanel(new BorderLayout());
+			JPanel comboBoxPanel = new JPanel(new BorderLayout());
 			comboBoxPanel.add(prefixChoiceComboBox, BorderLayout.CENTER);
 			comboBoxPanel.add(new JLabel("Choose a .w3mod:"), BorderLayout.BEFORE_FIRST_LINE);
 
 			if (showConf(comboBoxPanel, "Choose Mod") == JOptionPane.OK_OPTION) {
-				final Object selectedItem = prefixChoiceComboBox.getSelectedItem();
+				Object selectedItem = prefixChoiceComboBox.getSelectedItem();
 				if (selectedItem != null) {
-					final String newPrefixName = selectedItem.toString();
+					String newPrefixName = selectedItem.toString();
 					dataSourceDesc.addPrefix(newPrefixName);
 				}
 			}
@@ -712,7 +624,7 @@ public class DataSourceChooserPanel extends JPanel {
 		}
 		if (launcherDBLang != null) {
 			if (launcherDBLang.size() > 0) {
-				final String dbLangString = launcherDBLang.get(0);
+				String dbLangString = launcherDBLang.get(0);
 				if (dbLangString.length() == 4) {
 					launcherDbLocale = dbLangString;
 				}
@@ -722,7 +634,7 @@ public class DataSourceChooserPanel extends JPanel {
 			try (WarcraftIIICASC tempCascReader = new WarcraftIIICASC(installPathPath, true)) {
 				String tags = tempCascReader.getBuildInfo().getField(tempCascReader.getActiveRecordIndex(), "Tags");
 				String[] splitTags = tags.split("\\?");
-				for (final String splitTag : splitTags) {
+				for (String splitTag : splitTags) {
 					String trimmedTag = splitTag.trim();
 					int spaceIndex = trimmedTag.indexOf(' ');
 					if (spaceIndex != -1) {
@@ -735,20 +647,12 @@ public class DataSourceChooserPanel extends JPanel {
 						}
 					}
 				}
-//				if (originalInstallLocale == null) {
-//					locale = launcherDbLocale;
-//				} else if ((launcherDbLocale == null) && (originalInstallLocale != null)) {
-//					locale = originalInstallLocale;
-//				} else if ((launcherDbLocale != null) && (originalInstallLocale != null)
-//						&& originalInstallLocale.equals(launcherDbLocale)) {
-//					locale = launcherDbLocale;
-//				}
+
 				SupportedCascPatchFormat patchFormat;
 				WC3CascFileSystem rootFileSystem = tempCascReader.getRootFileSystem();
 				if (rootFileSystem.isFile("war3.mpq\\units\\unitdata.slk")) {
 					patchFormat = SupportedCascPatchFormat.PATCH130;
-				} else if (tempCascReader.getRootFileSystem()
-						.isFile("war3.w3mod\\_hd.w3mod\\units\\human\\footman\\footman.mdx")) {
+				} else if (tempCascReader.getRootFileSystem().isFile("war3.w3mod\\_hd.w3mod\\units\\human\\footman\\footman.mdx")) {
 					patchFormat = SupportedCascPatchFormat.PATCH132;
 				} else if (tempCascReader.getRootFileSystem().isFile("war3.w3mod\\units\\unitdata.slk")) {
 					patchFormat = SupportedCascPatchFormat.PATCH131;
@@ -811,12 +715,13 @@ public class DataSourceChooserPanel extends JPanel {
 		return defaultPrefixes;
 	}
 
-	private String getLocale(boolean allowPopup, String locale, String launcherDbLocale, String originalInstallLocale, WarcraftIIICASC tempCascReader, SupportedCascPatchFormat patchFormat, WC3CascFileSystem rootFileSystem) throws IOException {
+	private String getLocale(boolean allowPopup, String locale, String launcherDbLocale, String originalInstallLocale, WarcraftIIICASC tempCascReader,
+	                         SupportedCascPatchFormat patchFormat, WC3CascFileSystem rootFileSystem) throws IOException {
 		if (locale == null) {
 			// gather list of locales from CASC
-			final Set<String> localeOptions = new HashSet<>();
+			Set<String> localeOptions = new HashSet<>();
 			if (rootFileSystem.isFile("index") && rootFileSystem.isFileAvailable("index")) {
-				final ByteBuffer buffer = rootFileSystem.readFileData("index");
+				ByteBuffer buffer = rootFileSystem.readFileData("index");
 				Set<String> categories = new HashSet<>();
 				try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(buffer.array())))) {
 					String line;

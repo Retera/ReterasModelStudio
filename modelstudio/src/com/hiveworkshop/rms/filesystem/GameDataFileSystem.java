@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.filesystem;
 import com.hiveworkshop.rms.filesystem.sources.*;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,20 @@ public final class GameDataFileSystem {
 			dataSources.add(new JavaJarDataSource());
 			if (dataSourceDescriptors != null) {
 				for (final DataSourceDescriptor descriptor : dataSourceDescriptors) {
-					dataSources.add(descriptor.createDataSource());
+					try {
+						dataSources.add(descriptor.createDataSource());
+					} catch (Exception e){
+						System.err.println("failed to load data source " + descriptor.getClass().getSimpleName());
+						e.printStackTrace();
+					}
+				}
+				System.out.println(dataSources.size()-1 + " out of " + dataSourceDescriptors.size() + " data sources loaded");
+				if(dataSources.size()-1 != dataSourceDescriptors.size()){
+					int tot = dataSourceDescriptors.size();
+					int loaded = dataSources.size()-1;
+					int failed = tot - loaded;
+					System.err.println("Failed to load " + failed + " / " + tot + " data sources");
+					SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Failed to load " + failed + " / " + tot + " data sources"));
 				}
 			}
 			current = new CompoundDataSource(dataSources);

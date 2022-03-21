@@ -1,9 +1,9 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
-import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableUnitData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
+import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import net.infonode.docking.View;
 import net.miginfocom.swing.MigLayout;
 
@@ -11,7 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class UnitBrowserView extends View {
-	static ImageIcon imageIcon = new ImageIcon(MainFrame.MAIN_PROGRAM_ICON.getScaledInstance(16, 16, Image.SCALE_FAST));
+	static ImageIcon imageIcon = new ImageIcon(RMSIcons.MAIN_PROGRAM_ICON.getScaledInstance(16, 16, Image.SCALE_FAST));
 
 
 	public UnitBrowserView() {

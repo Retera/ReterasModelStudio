@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.UndoHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
@@ -21,23 +22,24 @@ import java.util.List;
 public class ProgramGlobals {
 	private static final SaveProfile profile;
 	private static final ProgramPreferences prefs;
+	private static final KeyBindingPrefs keyBindingPrefs;
+	private static final EditorColorPrefs editorColorPrefs;
 	private static final List<ModelPanel> modelPanels;
-	private static ModelPanel currentModelPanel;
 	private static final RootWindowUgg rootWindowUgg;
 	private static final MainPanel mainPanel;
 	private static final JToolBar toolbar;
 	private static final UndoHandler undoHandler;
 	private static final SoundMappings soundMappings;
-	private static boolean cheatShift = false;
-	private static boolean cheatAlt = false;
-	private static boolean lockLayout = false;
+	private static final MenuBar menuBar;
+	private static ModelPanel currentModelPanel;
 
 	private static final Translator translator;
 	private static final ViewportTransferHandler viewportTransferHandler = new ViewportTransferHandler();
 
 
-	private static KeyBindingPrefs keyBindingPrefs;
-	private static EditorColorPrefs editorColorPrefs;
+	private static boolean cheatShift = false;
+	private static boolean cheatAlt = false;
+	private static boolean lockLayout = false;
 
 	private static final ToolbarButtonGroup2<SelectionItemTypes> selectionItemTypeGroup;
 	private static final ToolbarButtonGroup2<SelectionMode> selectionModeGroup;
@@ -59,7 +61,7 @@ public class ProgramGlobals {
 
 
 		System.out.println("loading ToolBar");
-		toolbar = ToolBar.createJToolBar();
+		toolbar = new ToolBar();
 
 		System.out.println("setting up ButtonGroups");
 		selectionItemTypeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionItemTypes.values());
@@ -78,6 +80,8 @@ public class ProgramGlobals {
 
 		selectionItemTypeGroup.addToolbarButtonListener(ProgramGlobals::setSelectionItemType);
 		actionTypeGroup.addToolbarButtonListener(ProgramGlobals::setEditorActionType);
+
+		menuBar = new MenuBar();
 	}
 
 	public static MainPanel getMainPanel() {
@@ -106,6 +110,7 @@ public class ProgramGlobals {
 			selectionItemTypeGroup.setActiveButton(currentModelPanel.getSelectionType());
 			actionTypeGroup.setActiveButton(currentModelPanel.getEditorActionType());
 		}
+		menuBar.setToolsMenuEnabled(currentModelPanel != null);
 	}
 
 	public static List<ModelPanel> getModelPanels() {
@@ -117,11 +122,13 @@ public class ProgramGlobals {
 			currentModelPanel = null;
 		}
 		modelPanels.remove(modelPanel);
+		menuBar.removeModelPanel(modelPanel);
 	}
 
 	public static void addModelPanel(ModelPanel modelPanel) {
 		if(modelPanel != null && !modelPanels.contains(modelPanel)){
 			modelPanels.add(modelPanel);
+			menuBar.addModelPanel(modelPanel);
 		}
 	}
 
@@ -135,21 +142,6 @@ public class ProgramGlobals {
 
 	public static SoundMappings getSoundMappings() {
 		return soundMappings;
-	}
-
-	public static void setUggUgg(){
-//		selectionModeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionMode.values());
-//		selectionModeGroup.setActiveButton(SelectionMode.SELECT);
-//
-//		toolbar.addSeparator();
-//
-//		selectionItemTypeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionItemTypes.values());
-//		selectionItemTypeGroup.setActiveButton(SelectionItemTypes.VERTEX);
-//
-//		toolbar.addSeparator();
-//
-//		actionTypeGroup = new ToolbarButtonGroup2<>(toolbar, ModelEditorActionType3.values());
-//		actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
 	}
 
 	private static void setSelectionItemType(SelectionItemTypes selectionItemTypes){
@@ -237,5 +229,9 @@ public class ProgramGlobals {
 
 	public static ViewportTransferHandler getViewportTransferHandler() {
 		return viewportTransferHandler;
+	}
+
+	public static MenuBar getMenuBar() {
+		return menuBar;
 	}
 }

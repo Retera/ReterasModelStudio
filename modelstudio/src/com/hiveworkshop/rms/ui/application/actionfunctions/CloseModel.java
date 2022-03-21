@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -21,8 +20,7 @@ public class CloseModel extends ActionFunction {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null && modelPanel.close()) {
 			int oldIndex = ProgramGlobals.getModelPanels().indexOf(modelPanel);
-			ProgramGlobals.removeModelPanel(modelPanel);
-			MenuBar.removeModelPanel(modelPanel);
+			removePanel(modelPanel);
 			if (ProgramGlobals.getModelPanels().size() > 0) {
 				int newIndex = Math.min(ProgramGlobals.getModelPanels().size() - 1, oldIndex);
 				ModelLoader.setCurrentModel(ProgramGlobals.getModelPanels().get(newIndex));
@@ -34,23 +32,11 @@ public class CloseModel extends ActionFunction {
 	}
 
 	public static boolean closeAll() {
-		boolean success = true;
-		List<ModelPanel> modelPanels = ProgramGlobals.getModelPanels();
-		ModelPanel lastUnclosedModelPanel = null;
-		for (int i = modelPanels.size() - 1; i >= 0; i--) {
-			ModelPanel panel = modelPanels.get(i);
-			if (success = panel.close()) {
-				MenuBar.removeModelPanel(panel);
-				ProgramGlobals.removeModelPanel(panel);
-			} else {
-				lastUnclosedModelPanel = panel;
-				break;
-			}
-		}
+		ModelPanel lastUnclosedModelPanel = closeAllModelPanelsExcept(null);
 		if (ProgramGlobals.getCurrentModelPanel() == null && lastUnclosedModelPanel != null) {
 			ModelLoader.setCurrentModel(lastUnclosedModelPanel);
 		}
-		return success;
+		return lastUnclosedModelPanel == null;
 	}
 
 
@@ -61,39 +47,41 @@ public class CloseModel extends ActionFunction {
 			if (openModelPanel.getUndoManager().isRedoListEmpty() && openModelPanel.getUndoManager().isUndoListEmpty()) {
 //				if (openModelPanel.close()) {
 //				}
-				ProgramGlobals.removeModelPanel(openModelPanel);
-				MenuBar.removeModelPanel(openModelPanel);
+				removePanel(openModelPanel);
 			}
 		}
 	}
-//	}
 
 	public static boolean closeOthers(ModelPanel modelPanel) {
-		boolean success = true;
-		List<ModelPanel> modelPanels = ProgramGlobals.getModelPanels();
-		ModelPanel lastUnclosedModelPanel = null;
-		for (int i = modelPanels.size() - 1; i > 0; i--) {
-			ModelPanel panel = modelPanels.get(i);
-			if(panel != modelPanel){
-				if (panel.close()) {
-					MenuBar.removeModelPanel(panel);
-					ProgramGlobals.removeModelPanel(panel);
-				} else {
-					lastUnclosedModelPanel = panel;
-					success = false;
-					break;
-				}
-			}
-		}
+		ModelPanel lastUnclosedModelPanel = closeAllModelPanelsExcept(modelPanel);
 		if (modelPanel == null && lastUnclosedModelPanel != null) {
 			ModelLoader.setCurrentModel(lastUnclosedModelPanel);
 		} else {
 			ModelLoader.setCurrentModel(modelPanel);
 		}
-		return success;
+		return lastUnclosedModelPanel == null;
 	}
 
+	public static ModelPanel closeAllModelPanelsExcept(ModelPanel modelPanel) {
+		List<ModelPanel> modelPanels = ProgramGlobals.getModelPanels();
+		ModelPanel lastUnclosedModelPanel = null;
+		for (int i = modelPanels.size() - 1; i >= 0; i--) {
+			ModelPanel panel = modelPanels.get(i);
+			if (panel != modelPanel) {
+				if (panel.close()) {
+					removePanel(panel);
+				} else {
+					lastUnclosedModelPanel = panel;
+					break;
+				}
+			}
+		}
+		return lastUnclosedModelPanel;
+	}
 
+	public static void removePanel(ModelPanel openModelPanel) {
+		ProgramGlobals.removeModelPanel(openModelPanel);
+	}
 
 	public boolean save(ModelPanel modelPanel) {
 		// returns true if closed successfully

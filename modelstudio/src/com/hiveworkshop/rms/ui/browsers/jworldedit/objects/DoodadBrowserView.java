@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.application.MainFrame;
-import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableDoodadData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
@@ -68,7 +67,6 @@ public class DoodadBrowserView extends View {
 
 					MutableGameObject obj = (MutableGameObject) o.getUserObject();
 					loadAllVariations(obj);
-					MenuBar.setToolsMenuEnabled(true);
 				}
 			}
 		}
@@ -82,7 +80,6 @@ public class DoodadBrowserView extends View {
 				.getScaledInstance(16, 16, Image.SCALE_DEFAULT));
 		for (int i = 0; i < numberOfVariations; i++) {
 			String prePath = obj.getFieldAsString(War3ID.fromString("dfil"), 0) + (addVarIndex ? i : "");
-//			InternalFileLoader.loadMdxStream(obj, prePath, i == 0);
 			InternalFileLoader.loadFromStream(prePath, icon, i == 0);
 		}
 	}

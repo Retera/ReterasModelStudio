@@ -2,103 +2,45 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.ui.application.actionfunctions.CreateNewModel;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
-import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class ToolBar {
-    public static JToolBar createJToolBar() {
-        JToolBar toolbar = new JToolBar(JToolBar.HORIZONTAL);
-        toolbar.setFloatable(false);
-        FileDialog fileDialog = new FileDialog();
+public class ToolBar extends JToolBar {
 
-        addToolbarIcon(toolbar, "New", "new.png", CreateNewModel::newModel);
-        addToolbarIcon(toolbar, "Open", "open.png", fileDialog::onClickOpen);
-        addToolbarIcon(toolbar, "Save", "save.png", fileDialog::onClickSave);
+	public ToolBar() {
+		super(JToolBar.HORIZONTAL);
+		setFloatable(false);
+		FileDialog fileDialog = new FileDialog();
 
-        toolbar.addSeparator();
+		add(getToolbarButton("New", "new.png", e -> CreateNewModel.newModel()));
+		System.out.println("loaded [New]");
+		add(getToolbarButton("Open", "open.png", e -> fileDialog.onClickOpen()));
+		add(getToolbarButton("Save", "save.png", e -> fileDialog.onClickSave()));
 
-//        addToolbarIcon(toolbar, "Undo", "undo.png", ProgramGlobals.getUndoHandler().getUndoAction());
-//        addToolbarIcon(toolbar, "Redo", "redo.png", ProgramGlobals.getUndoHandler().getRedoAction());
-        addToolbarIcon(toolbar, "Undo", "undo.png", () -> ProgramGlobals.getUndoHandler().undo());
-        addToolbarIcon(toolbar, "Redo", "redo.png", () -> ProgramGlobals.getUndoHandler().redo());
+		addSeparator();
 
-        toolbar.addSeparator();
-        addToolbarIcon(toolbar, "Lock Layout", "lockLayout.png", () -> toggleLockLayout());
-        toolbar.addSeparator();
-//
-//        toolbar.addSeparator();
-//        mainPanel.selectionModeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionMode.values());
-//        mainPanel.selectionModeGroup.setActiveButton(SelectionMode.SELECT);
-//
-//        toolbar.addSeparator();
-//
-//        mainPanel.selectionItemTypeGroup = new ToolbarButtonGroup2<>(toolbar, SelectionItemTypes.values());
-//        mainPanel.selectionItemTypeGroup.setActiveButton(SelectionItemTypes.VERTEX);
-//
-//        toolbar.addSeparator();
-//
-//        mainPanel.actionTypeGroup = new ToolbarButtonGroup2<>(toolbar, ModelEditorActionType3.values());
-//        mainPanel.actionTypeGroup.setActiveButton(ModelEditorActionType3.TRANSLATION);
-//
-////        mainPanel.actionTypeGroup = new ToolbarButtonGroup<>(toolbar,
-////                new ToolbarActionButtonType[] {
-////                        new ToolbarActionButtonType("move", "move2.png", "Select and Move", mainPanel),
-////                        new ToolbarActionButtonType("rotate", "rotate.png", "Select and Rotate", mainPanel),
-////                        new ToolbarActionButtonType("scale", "scale.png", "Select and Scale", mainPanel),
-////                        new ToolbarActionButtonType("extrude", "extrude.png", "Select and Extrude", mainPanel),
-////                        new ToolbarActionButtonType("extend", "extend.png", "Select and Extend", mainPanel),
-////                });
-//
-//        toolbar.addSeparator();
-//
-//        JButton snapButton = addToolbarIcon(toolbar, "Snap", "snap.png", () -> ModelEditActions.snapVertices());
+		add(getToolbarButton("Undo", "undo.png", e -> ProgramGlobals.getUndoHandler().undo()));
+		add(getToolbarButton("Redo", "redo.png", e -> ProgramGlobals.getUndoHandler().redo()));
 
-        toolbar.setMaximumSize(new Dimension(80000, 48));
-        return toolbar;
-    }
+		addSeparator();
+		add(getToolbarButton("Lock Layout", "lockLayout.png", e -> toggleLockLayout()));
+		addSeparator();
 
-//	public static ViewportActivity createActivity(ModelEditorManager modelEditorManager, ModelHandler modelHandler, MainPanel mainPanel, ModelEditorActionType3 action) {
-////        mainPanel.actionType = getActivityType(action);
-//        return new MultiManipulatorActivity(new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action), modelHandler, modelEditorManager);
-//    }
+		setMaximumSize(new Dimension(80000, 48));
+	}
 
+	private JButton getToolbarButton(String hooverText, String icon, ActionListener action) {
+		JButton button = new JButton(RMSIcons.loadToolBarImageIcon(icon));
+		button.setToolTipText(hooverText);
+		button.addActionListener(action);
+		return button;
+	}
 
-    static JButton addToolbarIcon(JToolBar toolbar, String hooverText, String icon, AbstractAction action) {
-        JButton button = new JButton(RMSIcons.loadToolBarImageIcon(icon));
-        button.setToolTipText(hooverText);
-        button.addActionListener(action);
-        toolbar.add(button);
-        return button;
-    }
-
-    static JButton addToolbarIcon(JToolBar toolbar, String hooverText, String icon, Runnable function) {
-        System.out.println("adding Toolbar button: " + icon + " (" + hooverText + ")");
-        AbstractAction action = new AbstractAction(hooverText) {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                try {
-                    function.run();
-                } catch (final Exception exc) {
-                    exc.printStackTrace();
-                    ExceptionPopup.display(exc);
-                }
-            }
-        };
-
-        JButton button = new JButton(RMSIcons.loadToolBarImageIcon(icon));
-        button.setToolTipText(hooverText);
-        button.addActionListener(action);
-        toolbar.add(button);
-        return button;
-    }
-
-    static void toggleLockLayout(){
-        ProgramGlobals.setLockLayout(!ProgramGlobals.isLockLayout());
-//        WindowHandler.traverseAndFix(ProgramGlobals.getMainPanel().getRootWindow());
-        WindowHandler2.traverseAndFix(ProgramGlobals.getRootWindowUgg());
-    }
+	private void toggleLockLayout() {
+		ProgramGlobals.setLockLayout(!ProgramGlobals.isLockLayout());
+		WindowHandler2.traverseAndFix(ProgramGlobals.getRootWindowUgg());
+	}
 
 }

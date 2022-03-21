@@ -1,6 +1,9 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
-import com.hiveworkshop.rms.ui.application.*;
+import com.hiveworkshop.rms.ui.application.EditUVsPanel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.RootWindowUgg;
+import com.hiveworkshop.rms.ui.application.WindowHandler2;
 import com.hiveworkshop.rms.ui.application.actionfunctions.*;
 import com.hiveworkshop.rms.ui.application.edit.uv.panel.UVView;
 import com.hiveworkshop.rms.ui.application.tools.EditTexturesPanel;
@@ -13,7 +16,7 @@ import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenuIt
 
 public class ToolsMenu extends JMenu {
 
-	public ToolsMenu(MainPanelLinkActions linkActions) {
+	public ToolsMenu() {
 		super("Tools");
 
 		setMnemonic(KeyEvent.VK_T);

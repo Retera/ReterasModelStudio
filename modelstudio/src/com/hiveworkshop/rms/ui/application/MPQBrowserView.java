@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.browsers.mpq.MPQBrowser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import net.infonode.docking.View;
 
 import javax.swing.*;
@@ -12,7 +13,7 @@ import java.awt.*;
 
 public class MPQBrowserView extends View {
 
-	static ImageIcon imageIcon = new ImageIcon(MainFrame.MAIN_PROGRAM_ICON.getScaledInstance(16, 16, Image.SCALE_FAST));
+	static ImageIcon imageIcon = new ImageIcon(RMSIcons.MAIN_PROGRAM_ICON.getScaledInstance(16, 16, Image.SCALE_FAST));
 	MPQBrowser mpqBrowser;
 
 	public MPQBrowserView() {
