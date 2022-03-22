@@ -25,6 +25,7 @@ public class ProgramPreferences implements Serializable {
 	private Boolean allowLoadingNonBlpTextures = true;
 	private Boolean renderParticles = true;
 	private Boolean renderStaticPoseParticles = true;
+	private Boolean autoPopulateMdlTextEditor = true;
 	Color activeRColor1 = new Color(200, 255, 200);
 	Color activeRColor2 = new Color(60, 170, 0);
 	Color activeColor1 = new Color(255, 200, 200);
@@ -74,6 +75,9 @@ public class ProgramPreferences implements Serializable {
 		}
 		if (renderStaticPoseParticles == null) {
 			renderStaticPoseParticles = true;
+		}
+		if (autoPopulateMdlTextEditor == null) {
+			autoPopulateMdlTextEditor = true;
 		}
 		if ((vertexColor == null) || (normalsColor == null) || (pivotPointsColor == null)) {
 			vertexColor = new Color(0, 0, 255);// new Color(0, 0, 0)
@@ -159,6 +163,7 @@ public class ProgramPreferences implements Serializable {
 		this.allowLoadingNonBlpTextures = other.allowLoadingNonBlpTextures;
 		this.renderParticles = other.renderParticles;
 		this.renderStaticPoseParticles = other.renderStaticPoseParticles;
+		this.autoPopulateMdlTextEditor = other.autoPopulateMdlTextEditor;
 		SaveProfile.save();
 		firePrefsChanged();
 
@@ -527,6 +532,10 @@ public class ProgramPreferences implements Serializable {
 		return renderStaticPoseParticles;
 	}
 
+	public Boolean getAutoPopulateMdlTextEditor() {
+		return autoPopulateMdlTextEditor;
+	}
+
 	public void setAllowLoadingNonBlpTextures(final Boolean allowLoadingNonBlpTextures) {
 		this.allowLoadingNonBlpTextures = allowLoadingNonBlpTextures;
 		SaveProfile.save();
@@ -541,6 +550,12 @@ public class ProgramPreferences implements Serializable {
 
 	public void setRenderStaticPoseParticles(final Boolean renderStaticPoseParticles) {
 		this.renderStaticPoseParticles = renderStaticPoseParticles;
+		SaveProfile.save();
+		firePrefsChanged();
+	}
+
+	public void setAutoPopulateMdlTextEditor(final Boolean autoPopulateMdlTextEditor) {
+		this.autoPopulateMdlTextEditor = autoPopulateMdlTextEditor;
 		SaveProfile.save();
 		firePrefsChanged();
 	}

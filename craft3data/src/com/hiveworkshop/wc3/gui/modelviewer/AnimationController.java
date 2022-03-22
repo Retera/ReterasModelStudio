@@ -32,6 +32,7 @@ public class AnimationController extends JPanel {
 	private final DefaultComboBoxModel<Animation> animations;
 	private final JComboBox<Animation> animationBox;
 	private final boolean allowUnanimated;
+	private ActionListener boxChangeListener;
 
 	public AnimationController(final ModelView mdlDisp, final boolean allowUnanimated,
 			final AnimationControllerListener listener) {
@@ -63,13 +64,14 @@ public class AnimationController extends JPanel {
 				return super.getListCellRendererComponent(list, display, index, isSelected, cellHasFocus);
 			}
 		});
-		animationBox.addActionListener(new ActionListener() {
+		boxChangeListener = new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				listener.setAnimation((Animation) animationBox.getSelectedItem());
 				listener.playAnimation();
 			}
-		});
+		};
+		animationBox.addActionListener(boxChangeListener);
 		animationBox.setMaximumSize(new Dimension(99999999, 35));
 		animationBox.setFocusable(true);
 		animationBox.addMouseWheelListener(new MouseWheelListener() {
@@ -83,7 +85,8 @@ public class AnimationController extends JPanel {
 				int newIndex = previousSelectedIndex + wheelRotation;
 				if (newIndex > (animations.getSize() - 1)) {
 					newIndex = animations.getSize() - 1;
-				} else if (newIndex < 0) {
+				}
+				else if (newIndex < 0) {
 					newIndex = 0;
 				}
 				if (newIndex != previousSelectedIndex) {
@@ -127,11 +130,14 @@ public class AnimationController extends JPanel {
 				AnimationControllerListener.LoopType loopType;
 				if (defaultLoopButton.isSelected()) {
 					loopType = LoopType.DEFAULT_LOOP;
-				} else if (alwaysLoopButton.isSelected()) {
+				}
+				else if (alwaysLoopButton.isSelected()) {
 					loopType = LoopType.ALWAYS_LOOP;
-				} else if (neverLoopButton.isSelected()) {
+				}
+				else if (neverLoopButton.isSelected()) {
 					loopType = LoopType.NEVER_LOOP;
-				} else {
+				}
+				else {
 					throw new IllegalStateException();
 				}
 				listener.setLoop(loopType);
@@ -189,7 +195,16 @@ public class AnimationController extends JPanel {
 		}
 		if (sawLast && ((selectedItem != null) || allowUnanimated)) {
 			animationBox.setSelectedItem(selectedItem);
-		} else if (!allowUnanimated && (mdlDisp.getModel().getAnims().size() > 0)) {
+		}
+		else if (selectedItem != null) {
+			for (final Animation animation : mdlDisp.getModel().getAnims()) {
+				if (animation.getName().equals(selectedItem.getName())) {
+					animationBox.setSelectedItem(animation);
+					break;
+				}
+			}
+		}
+		else if (!allowUnanimated && (mdlDisp.getModel().getAnims().size() > 0)) {
 			animationBox.setSelectedItem(mdlDisp.getModel().getAnim(0));
 		}
 	}
@@ -201,5 +216,10 @@ public class AnimationController extends JPanel {
 	public void setModel(final ModelView modelView) {
 		this.mdlDisp = modelView;
 		reload();
+	}
+
+	public void setCurrentAnimation(final Animation currentAnimation) {
+		animationBox.setSelectedItem(currentAnimation);
+		boxChangeListener.actionPerformed(null);
 	}
 }

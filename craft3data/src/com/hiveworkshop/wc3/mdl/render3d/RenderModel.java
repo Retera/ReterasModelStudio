@@ -33,7 +33,7 @@ import com.hiveworkshop.wc3.util.MathUtils;
  * @param forced
  */
 public final class RenderModel {
-	private final EditableModel model;
+	private EditableModel model;
 	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.75;
 	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
 	private Quaternion inverseCameraRotation;
@@ -70,6 +70,7 @@ public final class RenderModel {
 			new Vector4f(0, -1, 1, 1), new Vector4f(0, 1, 1, 1), new Vector4f(0, 1, 0, 1), new Vector4f(0, 0, 1, 1),
 			new Vector4f(1, 0, 0, 1) };
 	private final ModelView modelView;
+	private RenderResourceAllocator lastRenderResourceAllocator;
 
 	public RenderModel(final EditableModel model, final ModelView modelView) {
 		this.model = model;
@@ -110,6 +111,7 @@ public final class RenderModel {
 		this.inverseCameraRotation = inverseCameraRotation;
 		this.inverseCameraRotationYSpin = inverseCameraRotationYSpin;
 		this.inverseCameraRotationZSpin = inverseCameraRotationZSpin;
+		this.lastRenderResourceAllocator = renderResourceAllocator;
 
 		// Cache the billboard vectors; TODO be more efficient like Ghostwolf's code and
 		// dont use billboardUpdatesMatrixHeap
@@ -446,5 +448,11 @@ public final class RenderModel {
 
 	public boolean allowParticleSpawn() {
 		return spawnParticles;
+	}
+
+	public void setModel(final EditableModel model) {
+		this.model = model;
+		refreshFromEditor(animatedRenderEnvironment, inverseCameraRotation, inverseCameraRotationYSpin,
+				inverseCameraRotationZSpin, lastRenderResourceAllocator);
 	}
 }

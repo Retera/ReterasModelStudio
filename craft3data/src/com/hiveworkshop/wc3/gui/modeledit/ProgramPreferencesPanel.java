@@ -42,6 +42,7 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		final JCheckBox quickBrowse = new JCheckBox();
 		final JCheckBox allowLoadingNonBlpTextures = new JCheckBox();
 		final JCheckBox renderParticles = new JCheckBox();
+		final JCheckBox autoPopulateMdlTextEditor = new JCheckBox();
 		if ((programPreferences.isInvertedDisplay() != null) && programPreferences.isInvertedDisplay()) {
 			invertedDisplay.setSelected(true);
 		}
@@ -58,6 +59,10 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		}
 		if ((programPreferences.getRenderParticles() == null) || programPreferences.getRenderParticles()) {
 			renderParticles.setSelected(true);
+		}
+		if ((programPreferences.getAutoPopulateMdlTextEditor() == null)
+				|| programPreferences.getAutoPopulateMdlTextEditor()) {
+			autoPopulateMdlTextEditor.setSelected(true);
 		}
 		final ActionListener viewModeUpdater = new ActionListener() {
 			@Override
@@ -90,6 +95,8 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 		generalPrefsPanel.add(allowLoadingNonBlpTextures, "cell 1 6");
 		generalPrefsPanel.add(new JLabel("Render Particle Emitters:"), "cell 0 7");
 		generalPrefsPanel.add(renderParticles, "cell 1 7");
+		generalPrefsPanel.add(new JLabel("Auto Refresh MDL Text (enabled=more lag):"), "cell 0 8");
+		generalPrefsPanel.add(autoPopulateMdlTextEditor, "cell 1 8");
 		// final BoxLayout boxLayout = new BoxLayout(generalPrefsPanel,
 		// BoxLayout.PAGE_AXIS);
 
@@ -116,6 +123,12 @@ public final class ProgramPreferencesPanel extends JTabbedPane {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				programPreferences.setRenderParticles(renderParticles.isSelected());
+			}
+		});
+		autoPopulateMdlTextEditor.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				programPreferences.setAutoPopulateMdlTextEditor(autoPopulateMdlTextEditor.isSelected());
 			}
 		});
 		useBoxesForNodes.addActionListener(new ActionListener() {

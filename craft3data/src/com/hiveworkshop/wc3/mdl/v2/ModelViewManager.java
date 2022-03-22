@@ -4,9 +4,9 @@ import com.etheller.collections.HashSet;
 import com.etheller.collections.Set;
 import com.etheller.collections.SetView;
 import com.hiveworkshop.wc3.mdl.Camera;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.IdObject;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.v2.render.RenderByViewMeshRenderer;
 import com.hiveworkshop.wc3.mdl.v2.render.RenderByViewModelRenderer;
 import com.hiveworkshop.wc3.mdl.v2.visitor.MeshVisitor;
@@ -14,7 +14,7 @@ import com.hiveworkshop.wc3.mdl.v2.visitor.ModelVisitor;
 import com.hiveworkshop.wc3.util.ModelUtils;
 
 public final class ModelViewManager implements ModelView {
-	private final EditableModel model;
+	private EditableModel model;
 	private final ModelViewStateNotifier modelViewStateNotifier;
 	private final Set<Geoset> editableGeosets;// TODO should be a set
 	private final Set<Geoset> visibleGeosets;
@@ -30,7 +30,7 @@ public final class ModelViewManager implements ModelView {
 		this.modelViewStateNotifier = new ModelViewStateNotifier();
 		this.editableGeosets = new HashSet<>();
 		for (final Geoset geoset : model.getGeosets()) {
-			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() == 0)) {
+			if (!ModelUtils.isLevelOfDetailSupported(model.getFormatVersion()) || (geoset.getLevelOfDetail() <= 0)) {
 				editableGeosets.add(geoset);
 			}
 		}
@@ -154,5 +154,75 @@ public final class ModelViewManager implements ModelView {
 	@Override
 	public void visitMesh(final MeshVisitor visitor) {
 		model.visit(renderByViewMeshRenderer.reset(visitor));
+	}
+
+	public void setModel(final EditableModel model) {
+		final int highlightGeosetId = this.model.getGeosets().indexOf(highlightedGeoset);
+		final int highlightObjectId = this.model.getIdObjects().indexOf(highlightedNode);
+		final Set<Integer> editableGeosetIds = new HashSet<>();
+		final Set<Integer> visibleGeosetIds = new HashSet<>();
+		final Set<Integer> editableObjectIds = new HashSet<>();
+		final Set<Integer> editableCameraIds = new HashSet<>();
+		for (final Geoset editableGeoset : editableGeosets) {
+			final int indexOf = this.model.getGeosets().indexOf(editableGeoset);
+			if (indexOf != -1) {
+				editableGeosetIds.add(indexOf);
+			}
+		}
+		for (final Geoset visibleGeoset : visibleGeosets) {
+			final int indexOf = this.model.getGeosets().indexOf(visibleGeoset);
+			if (indexOf != -1) {
+				visibleGeosetIds.add(indexOf);
+			}
+		}
+		for (final IdObject editableObject : editableIdObjects) {
+			final int indexOf = this.model.getIdObjects().indexOf(editableObject);
+			if (indexOf != -1) {
+				editableObjectIds.add(indexOf);
+			}
+		}
+		for (final Camera editableObject : editableCameras) {
+			final int indexOf = this.model.getCameras().indexOf(editableObject);
+			if (indexOf != -1) {
+				editableCameraIds.add(indexOf);
+			}
+		}
+		this.model = model;
+		if ((highlightGeosetId != -1) && (highlightGeosetId < model.getGeosetsSize())) {
+			highlightedGeoset = model.getGeoset(highlightGeosetId);
+		}
+		else {
+			highlightedGeoset = null;
+		}
+		if ((highlightObjectId != -1) && (highlightObjectId < model.getIdObjectsSize())) {
+			highlightedNode = model.getIdObject(highlightObjectId);
+		}
+		else {
+			highlightedNode = null;
+		}
+		editableGeosets.clear();
+		for (final int geosetId : editableGeosetIds) {
+			if (geosetId < model.getGeosetsSize()) {
+				editableGeosets.add(model.getGeoset(geosetId));
+			}
+		}
+		visibleGeosets.clear();
+		for (final int geosetId : visibleGeosetIds) {
+			if (geosetId < model.getGeosetsSize()) {
+				visibleGeosets.add(model.getGeoset(geosetId));
+			}
+		}
+		editableIdObjects.clear();
+		for (final int objectId : editableObjectIds) {
+			if (objectId < model.getIdObjectsSize()) {
+				editableIdObjects.add(model.getIdObject(objectId));
+			}
+		}
+		editableCameras.clear();
+		for (final int objectId : editableCameraIds) {
+			if (objectId < model.getCameras().size()) {
+				editableCameras.add(model.getCameras().get(objectId));
+			}
+		}
 	}
 }

@@ -236,7 +236,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		this.editUVPanel = editUVPanel;
 	}
 
-	public void loadModel(final File input) {
+	private void loadModel(final File input) {
 		file = input;
 		if (file != null) {
 			model = EditableModel.read(file);
@@ -244,7 +244,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		}
 	}
 
-	public void loadModel(final EditableModel model) {
+	private void loadModel(final EditableModel model) {
 		this.model = model;
 	}
 
@@ -411,11 +411,10 @@ public class ModelPanel implements ActionListener, MouseListener {
 				canceled = true;
 				break;
 			}
-		} else {
-			// parent.tabbedPane.remove(myIndex);
-			if (editUVPanel != null) {
-				editUVPanel.view.setVisible(false);
-			}
+		}
+		else // parent.tabbedPane.remove(myIndex);
+		if (editUVPanel != null) {
+			editUVPanel.view.setVisible(false);
 		}
 		return !canceled;
 	}
@@ -510,9 +509,11 @@ public class ModelPanel implements ActionListener, MouseListener {
 		for (int i = 0; i < boneRefs.size(); i++) {
 			if (i == (boneRefs.size() - 2)) {
 				boneList = boneList + boneRefs.get(i).getName() + " and ";
-			} else if (i == (boneRefs.size() - 1)) {
+			}
+			else if (i == (boneRefs.size() - 1)) {
 				boneList = boneList + boneRefs.get(i).getName();
-			} else {
+			}
+			else {
 				boneList = boneList + boneRefs.get(i).getName() + ", ";
 			}
 		}
@@ -549,5 +550,12 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 	public ComponentsPanel getComponentsPanel() {
 		return componentsPanel;
+	}
+
+	public void setModel(final EditableModel model) {
+		loadModel(model);
+		modelView.setModel(model);
+		editorRenderModel.setModel(model);
+		animationViewer.setModel(modelView);
 	}
 }
