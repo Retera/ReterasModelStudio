@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -83,7 +82,7 @@ public class ModelLoader {
 		EditableModel blankTextureModel = new EditableModel(fileName);
 		blankTextureModel.setFileRef(fileRef);
 		blankTextureModel.setFormatVersion(version);
-		//        blankTextureModel.setTemp(true);
+//		blankTextureModel.setTemp(true);
 
 		Geoset newGeoset = new Geoset();
 		if (version == 1000) {
@@ -91,7 +90,7 @@ public class ModelLoader {
 		}
 		Layer layer = new Layer(FilterMode.BLEND, new Bitmap(fileName));
 		layer.setUnshaded(true);
-		//        layer.setTwoSided(true);
+//		layer.setTwoSided(true);
 		Material material = new Material(layer);
 		newGeoset.setMaterial(material);
 		BufferedImage bufferedImage = ImageCreator.getBufferedImage(material, blankTextureModel.getWrappedDataSource());
@@ -124,8 +123,6 @@ public class ModelLoader {
 			modelPanel.getModelView().getModel().setTemp(true);
 		}
 
-		MenuBar.addModelPanel(modelPanel);
-
 		if (ProgramGlobals.getCurrentModelPanel() == modelPanel) {
 			ProgramGlobals.getRootWindowUgg().getWindowHandler2().showModelPanel(modelPanel);
 		}
@@ -139,8 +136,6 @@ public class ModelLoader {
 			modelPanel.getModelView().getModel().setFileRef(null);
 		}
 
-		MenuBar.setToolsMenuEnabled(true);
-
 		if (showModel && ProgramGlobals.getPrefs().getQuickBrowse()) {
 			closeUnalteredModels();
 		}
@@ -153,7 +148,6 @@ public class ModelLoader {
 			if (openModelPanel.getUndoManager().isRedoListEmpty() && openModelPanel.getUndoManager().isUndoListEmpty()) {
 				if (openModelPanel.close()) {
 					ProgramGlobals.removeModelPanel(openModelPanel);
-					MenuBar.removeModelPanel(openModelPanel);
 				}
 			}
 		}
@@ -202,7 +196,7 @@ public class ModelLoader {
 			int option = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), "Could not find the file.\nRemove from recent?", "File not found", JOptionPane.YES_NO_OPTION);
 			if (option == JOptionPane.YES_OPTION) {
 				SaveProfile.get().removeFromRecent(f.getPath());
-				MenuBar.updateRecent();
+				ProgramGlobals.getMenuBar().updateRecent();
 			}
 		}
 	}
@@ -215,18 +209,15 @@ public class ModelLoader {
 			model = getImagePlaneModel(f, 800);
 		}
 		model.setTemp(true);
-		//            model.setFileRef(f);
+//		model.setFileRef(f);
 		return model;
 	}
 
 	private static EditableModel getMdxlModel(File f) {
 		EditableModel model;
 		try {
-
 			model = MdxUtils.loadEditable(f);
 			model.setFileRef(f);
-
-
 		} catch (final IOException e) {
 			e.printStackTrace();
 			ExceptionPopup.display(e);
@@ -242,11 +233,11 @@ public class ModelLoader {
 			AiProgressHandler aiProgressHandler = new AiProgressHandler() {
 				@Override
 				public boolean update(float v) {
-					//                            System.out.println("progress: " + (int)((v+1)*100) + "%  " + (System.currentTimeMillis()-timeStart) + " ms");
+//					System.out.println("progress: " + (int)((v+1)*100) + "%  " + (System.currentTimeMillis()-timeStart) + " ms");
 					return true;
 				}
 			};
-			//                    AiClassLoaderIOSystem aiIOSystem = new AiClassLoaderIOSystem();
+//			AiClassLoaderIOSystem aiIOSystem = new AiClassLoaderIOSystem();
 			TwiAiIoSys twiAiIoSys = new TwiAiIoSys();
 
 

@@ -46,7 +46,7 @@ public class Camera implements Named {
 
 		sourceNode = new CameraNode.SourceNode(this);
 		targetNode = new CameraNode.TargetNode(this);
-		fieldOfView = Math.toRadians(90);
+		fieldOfView = Math.toRadians(60);
 		farClip = 2000;
 		nearClip = 10;
 	}

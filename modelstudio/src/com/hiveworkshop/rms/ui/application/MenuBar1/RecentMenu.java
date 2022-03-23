@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
 import com.hiveworkshop.rms.ui.application.FileDialog;
-import com.hiveworkshop.rms.ui.application.MenuBarActions;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
 
 import javax.swing.*;
@@ -21,7 +21,7 @@ public class RecentMenu extends JMenu {
 		getAccessibleContext().setAccessibleDescription("Allows you to access recently opened files.");
 
 		add(new JSeparator());
-		add(createMenuItem("Clear", KeyEvent.VK_C, e -> MenuBarActions.clearRecent()));
+		add(createMenuItem("Clear", KeyEvent.VK_C, e -> clearRecent()));
 	}
 
 	public void updateRecent() {
@@ -49,6 +49,16 @@ public class RecentMenu extends JMenu {
 
 		public RecentItem(final String what) {
 			super(what);
+		}
+	}
+
+	public static void clearRecent() {
+		int dialogResult = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(),
+				"Are you sure you want to clear the Recent history?", "Confirm Clear",
+				JOptionPane.YES_NO_OPTION);
+		if (dialogResult == JOptionPane.YES_OPTION) {
+			SaveProfile.get().clearRecent();
+			ProgramGlobals.getMenuBar().updateRecent();
 		}
 	}
 }

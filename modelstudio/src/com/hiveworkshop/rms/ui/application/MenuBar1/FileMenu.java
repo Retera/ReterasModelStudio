@@ -11,8 +11,9 @@ import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenu;
 import static com.hiveworkshop.rms.ui.application.MenuCreationUtils.createMenuItem;
 
 public class FileMenu extends JMenu {
+	private final RecentMenu recentMenu;
 
-	public FileMenu(RecentMenu recentMenu) {
+	public FileMenu() {
 		super("File");
 		setMnemonic(KeyEvent.VK_F);
 		getAccessibleContext().setAccessibleDescription("Allows the user to open, save, close, and manipulate files.");
@@ -20,6 +21,7 @@ public class FileMenu extends JMenu {
 		add(new CreateNewModel().setMenuItemMnemonic(KeyEvent.VK_N).getMenuItem());
 		add(new File.Open().setMenuItemMnemonic(KeyEvent.VK_O).getMenuItem());
 
+		recentMenu = new RecentMenu();
 		add(recentMenu);
 
 		JMenu fetch = createMenu("Open Internal", KeyEvent.VK_F);
@@ -64,14 +66,16 @@ public class FileMenu extends JMenu {
 
 		add(new JSeparator());
 
-//		add(createMenuItem("Revert", -1, e -> ModelLoader.revert()));
 		add(new Revert().getMenuItem());
-//		add(createMenuItem("Close", KeyEvent.VK_E, KeyStroke.getKeyStroke("control E"), e -> MenuBarActions.closeModelPanel()));
 		add(new CloseModel().setMenuItemMnemonic(KeyEvent.VK_C).getMenuItem());
 
 		add(new JSeparator());
 
 		add(createMenuItem("Exit", KeyEvent.VK_E, e -> closeProgram()));
+	}
+
+	public RecentMenu getRecentMenu() {
+		return recentMenu;
 	}
 
 	private void closeProgram() {

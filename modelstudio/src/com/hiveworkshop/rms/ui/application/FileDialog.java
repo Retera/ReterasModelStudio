@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.filesystem.sources.CompoundDataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.mdlx.MdlxModel;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
-import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.RMSFileChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.preferences.SaveProfile;
@@ -330,8 +329,7 @@ public class FileDialog {
             // currentMDLDisp().resetBeenSaved();
             // TODO reset been saved
         }
-        SaveProfile.get().addRecent(modelFile.getPath());
-        MenuBar.updateRecent();
+        updateRecent(modelFile);
     }
 
     public void onClickOpen() {
@@ -472,17 +470,14 @@ public class FileDialog {
         if (file != null) {
             setCurrentFile(file);
             setCurrentPath(file);
-            // frontArea.clearGeosets();
-            // sideArea.clearGeosets();
-            // botArea.clearGeosets();
-//            mainPanel.toolsMenu.getAccessibleContext().setAccessibleDescription(
-//            MenuBar.toolsMenu.getAccessibleContext().setAccessibleDescription(
-//                    "Allows the user to control which parts of the model are displayed for editing.");
-//            mainPanel.toolsMenu.setEnabled(true);
-            MenuBar.setToolsMenuEnabled(true);
-            SaveProfile.get().addRecent(getCurrentFile().getPath());
-            MenuBar.updateRecent();
+
+            updateRecent(getCurrentFile());
             ModelLoader.loadFile(getCurrentFile());
         }
+    }
+
+    public void updateRecent(File currentFile) {
+        SaveProfile.get().addRecent(currentFile.getPath());
+        ProgramGlobals.getMenuBar().updateRecent();
     }
 }

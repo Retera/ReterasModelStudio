@@ -76,6 +76,7 @@ public class Main {
 		try {
 			MainFrame.create(startupModelPaths, dataPromptForced);
 		} catch (final Throwable th) {
+			System.err.println("Failed to start");
 			th.printStackTrace();
 			ExceptionPopup.display(th);
 //			if (!dataPromptForced) {

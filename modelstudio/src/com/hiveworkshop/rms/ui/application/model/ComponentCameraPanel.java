@@ -92,7 +92,7 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 		positionSpinner.setValues(camera.getPosition());
 		targetSpinner.setValues(camera.getTargetPosition());
 
-		fieldOfViewSpinner.reloadNewValue(camera.getFieldOfView());
+		fieldOfViewSpinner.reloadNewValue(Math.toDegrees(camera.getFieldOfView()));
 		farClipSpinner.reloadNewValue(camera.getFarClip());
 		nearClipSpinner.reloadNewValue(camera.getNearClip());
 
@@ -153,8 +153,8 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 	}
 
 	private void setFov(Float fov) {
-		if (fov != camera.getFieldOfView()) {
-			undoManager.pushAction(new SetCameraFoVAction(camera, fov, changeListener).redo());
+		if (fov != Math.toDegrees(camera.getFieldOfView())) {
+			undoManager.pushAction(new SetCameraFoVAction(camera, Math.toRadians(fov), changeListener).redo());
 		}
 	}
 

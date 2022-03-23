@@ -34,6 +34,10 @@ public class CollisionShape extends IdObject {
 		}
 	}
 
+	public CollisionShape(String name) {
+		this.name = name;
+	}
+
 	public CollisionShape() {
 	}
 

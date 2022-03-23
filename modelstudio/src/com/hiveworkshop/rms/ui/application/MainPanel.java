@@ -1,24 +1,19 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
-import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
+import com.hiveworkshop.rms.ui.preferences.KeyBindingPrefs;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 
 public class MainPanel extends JPanel {
-    private final MainPanelLinkActions mainPanelLinkActions;
     private final JTextField[] mouseCoordDisplay = new JTextField[3];
     private final CoordDisplayListener coordDisplayListener;
-    private final ViewportTransferHandler viewportTransferHandler = new ViewportTransferHandler();
     private final RootWindowUgg rootWindowUgg;
 
     public MainPanel(JToolBar toolBar, RootWindowUgg rootWindowUgg) {
 	    super(new MigLayout("fill, ins 0, gap 0, novisualpadding, wrap 1", "[fill, grow]", "[][fill, grow]"));
 	    add(toolBar);
-
-	    mainPanelLinkActions = new MainPanelLinkActions();
-
 
 	    TimeSliderView.createMouseCoordDisp(mouseCoordDisplay);
 
@@ -30,45 +25,14 @@ public class MainPanel extends JPanel {
 	    coordDisplayListener = (coordSys, value1, value2) -> TimeSliderView.setMouseCoordDisplay(mouseCoordDisplay, coordSys, value1, value2);
     }
 
-//    public ViewportListener getViewportListener() {
-//        return rootWindowUgg.getWindowHandler2().getViewportListener();
-//    }
-
-//    public void selectionItemTypeGroupActionRes(SelectionItemTypes newType) {
-////        animationModeState = newType == SelectionItemTypes.ANIMATE;
-//        // we need to refresh the state of stuff AFTER the ModelPanels, this is a pretty signficant design flaw,
-//        // so we're just going to post to the EDT to get behind them (they're called on the same notifier as this method)
-//        SwingUtilities.invokeLater(() -> ModelLoader.refreshAnimationModeState());
-//
-//        if (newType == SelectionItemTypes.TPOSE) {
-//
-//            final Object[] settings = {"Move Linked", "Move Single"};
-//            final Object dialogResult = JOptionPane.showInputDialog(null, "Choose settings:", "T-Pose Settings",
-//                    JOptionPane.PLAIN_MESSAGE, null, settings, settings[0]);
-//            ModelEditorManager.MOVE_LINKED = dialogResult == settings[0];
-//        }
-//        repaint();
-//    }
-
-//    @Override
-//    public void changeActivity(ModelEditorActionType3 newType) {
-////        actionTypeGroup.setActiveButton(newType);
-//        for (ModelPanel modelPanel : ProgramGlobals.getModelPanels()) {
-//            modelPanel.changeActivity(newType);
-//        }
-//    }
-
     public void init() {
         linkActions(getRootPane());
     }
 
     public void linkActions(JRootPane rootPane) {
-//        mainPanelLinkActions.linkActions(rootPane);
-        mainPanelLinkActions.linkActions2(rootPane);
-    }
-
-    public MainPanelLinkActions getMainPanelLinkActions() {
-        return mainPanelLinkActions;
+	    KeyBindingPrefs keyBindingPrefs = ProgramGlobals.getKeyBindingPrefs();
+	    rootPane.setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keyBindingPrefs.getInputMap());
+	    rootPane.setActionMap(keyBindingPrefs.getActionMap());
     }
 
     public void repaintSelfAndChildren() {
@@ -79,11 +43,4 @@ public class MainPanel extends JPanel {
         return rootWindowUgg.getWindowHandler2();
     }
 
-    public CoordDisplayListener getCoordDisplayListener() {
-        return coordDisplayListener;
-    }
-
-    public ViewportTransferHandler getViewportTransferHandler() {
-        return viewportTransferHandler;
-    }
 }

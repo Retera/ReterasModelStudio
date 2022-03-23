@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.actionfunctions;
 
-import com.hiveworkshop.rms.ui.application.MenuBar1.MenuBar;
 import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -23,7 +22,6 @@ public class Revert extends ActionFunction {
 			}
 			if (modelPanel.close()) {
 				ProgramGlobals.removeModelPanel(modelPanel);
-				MenuBar.removeModelPanel(modelPanel);
 				// TODO remove from notifiers to fix leaks
 				ModelLoader.setCurrentModel(null);
 				File fileToRevert = modelPanel.getModel().getFile();
