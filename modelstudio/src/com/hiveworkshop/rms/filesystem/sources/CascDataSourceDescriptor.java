@@ -31,6 +31,10 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 		prefixes.add(prefix);
 	}
 
+	public void addPrefixes(List<String> prefixes) {
+		this.prefixes.addAll(prefixes);
+	}
+
 	public void deletePrefix(final int index) {
 		prefixes.remove(index);
 	}
