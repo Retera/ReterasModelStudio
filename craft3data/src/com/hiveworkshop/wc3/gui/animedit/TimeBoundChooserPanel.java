@@ -27,10 +27,12 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.hiveworkshop.wc3.gui.GUIUtils;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.EventObject;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.hiveworkshop.wc3.util.Callback;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -50,8 +52,8 @@ public class TimeBoundChooserPanel extends JPanel {
 	private final ButtonGroup buttonGroup;
 	private final JTabbedPane tabs;
 
-	public TimeBoundChooserPanel(final ModelView modelView,
-			final ModelStructureChangeListener structureChangeListener) {
+	public TimeBoundChooserPanel(final ModelView modelView, final ModelStructureChangeListener structureChangeListener,
+			final Callback<Animation> editAnimationCallback) {
 		animations = new DefaultListModel<>();
 		if (modelView != null) {
 			for (final Animation animation : modelView.getModel().getAnims()) {
@@ -166,99 +168,8 @@ public class TimeBoundChooserPanel extends JPanel {
 			public void actionPerformed(final ActionEvent e) {
 				final Animation selectedValue = animationBox.getSelectedValue();
 				if (selectedValue != null) {
-					final JPanel createAnimQuestionPanel = new JPanel();
-					final JTextField nameField = new JTextField(24);
-					final JRadioButton lengthButton = new JRadioButton("Length");
-					final JSpinner newAnimLength = new JSpinner(new SpinnerNumberModel(1000, 0, Integer.MAX_VALUE, 1));
-					final JRadioButton timeRangeButton = new JRadioButton("Time Range");
-					final Animation lastAnimation = modelView.getModel().getAnimsSize() == 0 ? null
-							: modelView.getModel().getAnim(modelView.getModel().getAnimsSize() - 1);
-					final int lastAnimationEnd = lastAnimation == null ? 0 : lastAnimation.getEnd();
-					final JSpinner newAnimTimeStart = new JSpinner(
-							new SpinnerNumberModel(lastAnimationEnd + 300, 0, Integer.MAX_VALUE, 1));
-					final JSpinner newAnimTimeEnd = new JSpinner(
-							new SpinnerNumberModel(lastAnimationEnd + 1300, 0, Integer.MAX_VALUE, 1));
-
-					newAnimLength.addChangeListener(new ChangeListener() {
-						@Override
-						public void stateChanged(final ChangeEvent e) {
-							newAnimTimeStart.setValue(lastAnimationEnd + 300);
-							newAnimTimeEnd
-									.setValue(lastAnimationEnd + 300 + ((Number) newAnimLength.getValue()).intValue());
-						}
-					});
-
-					final ButtonGroup newAnimBtnGrp = new ButtonGroup();
-					newAnimBtnGrp.add(lengthButton);
-					newAnimBtnGrp.add(timeRangeButton);
-					final ActionListener actions = new ActionListener() {
-						@Override
-						public void actionPerformed(final ActionEvent e) {
-							newAnimLength.setEnabled(lengthButton.isSelected());
-							newAnimTimeStart.setEnabled(timeRangeButton.isSelected());
-							newAnimTimeEnd.setEnabled(timeRangeButton.isSelected());
-						}
-					};
-					lengthButton.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(final ActionEvent e) {
-							newAnimTimeStart.setValue(lastAnimationEnd + 300);
-							newAnimTimeEnd
-									.setValue(lastAnimationEnd + 300 + ((Number) newAnimLength.getValue()).intValue());
-							newAnimLength.setEnabled(lengthButton.isSelected());
-							newAnimTimeStart.setEnabled(timeRangeButton.isSelected());
-							newAnimTimeEnd.setEnabled(timeRangeButton.isSelected());
-						}
-					});
-					timeRangeButton.addActionListener(actions);
-					createAnimQuestionPanel.setLayout(new MigLayout());
-					createAnimQuestionPanel.add(new JLabel("Name: "), "cell 0 0");
-					createAnimQuestionPanel.add(nameField, "cell 1 0");
-					createAnimQuestionPanel.add(lengthButton, "cell 0 1");
-					createAnimQuestionPanel.add(new JLabel("Length: "), "cell 0 2");
-					createAnimQuestionPanel.add(newAnimLength, "cell 1 2");
-					createAnimQuestionPanel.add(timeRangeButton, "cell 0 3");
-					createAnimQuestionPanel.add(new JLabel("Start: "), "cell 0 4");
-					createAnimQuestionPanel.add(newAnimTimeStart, "cell 1 4");
-					createAnimQuestionPanel.add(new JLabel("End: "), "cell 2 4");
-					createAnimQuestionPanel.add(newAnimTimeEnd, "cell 3 4");
-					final JPanel extraProperties = new JPanel();
-					createAnimQuestionPanel.add(extraProperties, "cell 0 5");
-
-					final JSpinner rarityChooser = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
-					final JSpinner moveSpeedChooser = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
-					extraProperties.setBorder(BorderFactory.createTitledBorder("Misc"));
-					extraProperties.setLayout(new MigLayout());
-					final JCheckBox nonLoopingChooser = new JCheckBox("NonLooping");
-					extraProperties.add(nonLoopingChooser, "cell 0 0");
-					extraProperties.add(new JLabel("Rarity"), "cell 0 1");
-					extraProperties.add(rarityChooser, "cell 1 1");
-					extraProperties.add(new JLabel("MoveSpeed"), "cell 0 2");
-					extraProperties.add(moveSpeedChooser, "cell 1 2");
-
-					lengthButton.doClick();
-					final int result = JOptionPane.showConfirmDialog(TimeBoundChooserPanel.this,
-							createAnimQuestionPanel, "Create Animation", JOptionPane.OK_CANCEL_OPTION,
-							JOptionPane.PLAIN_MESSAGE);
-					if (result == JOptionPane.OK_OPTION) {
-						final Animation newAnimation = new Animation(nameField.getText(),
-								((Number) newAnimTimeStart.getValue()).intValue(),
-								((Number) newAnimTimeEnd.getValue()).intValue());
-						final int rarityValue = ((Number) rarityChooser.getValue()).intValue();
-						final int moveValue = ((Number) moveSpeedChooser.getValue()).intValue();
-						modelView.getModel().add(newAnimation);
-						structureChangeListener.animationsAdded(Collections.singletonList(newAnimation));
-						animations.addElement(newAnimation);
-						if (rarityValue != 0) {
-							newAnimation.addTag("Rarity " + rarityValue);
-						}
-						if (moveValue != 0) {
-							newAnimation.addTag("MoveSpeed " + moveValue);
-						}
-						if (nonLoopingChooser.isSelected()) {
-							newAnimation.addTag("NonLooping");
-						}
-					}
+					GUIUtils.disposeAnyJOptionPanes();
+					editAnimationCallback.run(selectedValue);
 				}
 			}
 		});
@@ -406,7 +317,8 @@ public class TimeBoundChooserPanel extends JPanel {
 					JOptionPane.showMessageDialog(TimeBoundChooserPanel.this,
 							"A Global Sequence with that length already exists.\nThis program does not support multiple Global Sequences of the same length.\nInstead, simply add animation data to the sequence of that length which already exists.",
 							"Error", JOptionPane.ERROR_MESSAGE);
-				} else {
+				}
+				else {
 					globalSeqs.addElement((Integer) spinner.getValue());
 					modelView.getModel().add((Integer) spinner.getValue());
 				}
@@ -445,14 +357,17 @@ public class TimeBoundChooserPanel extends JPanel {
 			if (selectedAnimation != null) {
 				timeEnvironmentImpl.setBounds(selectedAnimation.getStart(), selectedAnimation.getEnd());
 			}
-		} else if (tabs.getSelectedIndex() == 1) {
+		}
+		else if (tabs.getSelectedIndex() == 1) {
 			timeEnvironmentImpl.setBounds(((Number) timeStart.getValue()).intValue(),
 					((Number) timeEnd.getValue()).intValue());
-		} else if (tabs.getSelectedIndex() == 2) {
+		}
+		else if (tabs.getSelectedIndex() == 2) {
 			final Integer selectedValue = globalSeqBox.getSelectedValue();
 			if (selectedValue != null) {
 				timeEnvironmentImpl.setGlobalSeq(selectedValue);
-			} else {
+			}
+			else {
 				JOptionPane.showMessageDialog(this, "You didn't select a global sequence!", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}

@@ -15,6 +15,7 @@ import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.hiveworkshop.wc3.gui.modelviewer.ViewerCamera;
 import com.hiveworkshop.wc3.util.MathUtils;
 
 /**
@@ -27,7 +28,7 @@ public class NGGLDP {
 
 	public static Pipeline pipeline = null;
 
-	public static void setPipeline(Pipeline userPipeline) {
+	public static void setPipeline(final Pipeline userPipeline) {
 		pipeline = userPipeline;
 		pipeline.onGlobalPipelineSet();
 	}
@@ -62,11 +63,7 @@ public class NGGLDP {
 				"		if(u_lightingEnabled != 0) {\r\n" + //
 				"			vec3 lightFactorContribution = vec3(clamp(dot(a_normal.xyz, u_lightDirection), 0.0, 1.0));\r\n"
 				+ //
-				"			if(lightFactorContribution.r > 1.0 || lightFactorContribution.g > 1.0 || lightFactorContribution.b > 1.0) {\r\n"
-				+ //
-				"				lightFactorContribution = clamp(lightFactorContribution, 0.0, 1.0);\r\n" + //
-				"			}\r\n" + //
-				"			v_color.rgb = v_color.rgb * clamp(lightFactorContribution + vec3(0.3f, 0.3f, 0.3f), 0.0, 1.0);\r\n"
+				"			v_color.rgb = v_color.rgb * clamp(lightFactorContribution * 1.3 + vec3(0.5f, 0.5f, 0.5f), 0.0, 1.0);\r\n"
 				+ //
 				"		}\r\n" + //
 				"}\r\n\0";
@@ -94,7 +91,7 @@ public class NGGLDP {
 				"		}\r\n" + //
 				"		FragColor = color;\r\n" + //
 				"}\r\n\0";
-		private Vector4f color = new Vector4f(1f, 1f, 1f, 1f);
+		private final Vector4f color = new Vector4f(1f, 1f, 1f, 1f);
 		private FloatBuffer pipelineVertexBuffer = ByteBuffer.allocateDirect(1024 * 4).order(ByteOrder.nativeOrder())
 				.asFloatBuffer();
 		private int vertexCount = 0;
@@ -105,26 +102,25 @@ public class NGGLDP {
 		private int shaderProgram;
 		private int vertexBufferObjectId, vertexArrayObjectId; // has nothing to do with "object id" of war3 models
 		private boolean loaded = false;
-		private Matrix4f currentMatrix = new Matrix4f();
+		private final Matrix4f currentMatrix = new Matrix4f();
 		{
 			currentMatrix.setIdentity();
 		}
 		private int textureUsed = 0;
 		private int alphaTest = 0;
 		private int lightingEnabled = 1;
-		private boolean perspectiveActive = false;
 
 		public SimpleDiffuseShaderPipeline() {
 			load();
 		}
 
-		private int createShader(int shaderType, String shaderSource) {
-			int shaderId = GL20.glCreateShader(shaderType);
+		private int createShader(final int shaderType, final String shaderSource) {
+			final int shaderId = GL20.glCreateShader(shaderType);
 			GL20.glShaderSource(shaderId, shaderSource);
 			GL20.glCompileShader(shaderId);
-			int compileStatus = GL20.glGetShaderi(shaderId, GL20.GL_COMPILE_STATUS);
+			final int compileStatus = GL20.glGetShaderi(shaderId, GL20.GL_COMPILE_STATUS);
 			if (compileStatus == GL11.GL_FALSE) {
-				String errorText = GL20.glGetShaderInfoLog(shaderId, 1024);
+				final String errorText = GL20.glGetShaderInfoLog(shaderId, 1024);
 				System.err.println(errorText);
 				throw new IllegalStateException(compileStatus + ": " + errorText);
 			}
@@ -132,7 +128,7 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glBegin(int type) {
+		public void glBegin(final int type) {
 			pipelineVertexBuffer.clear();
 			this.glBeginType = type;
 			vertexCount = 0;
@@ -152,15 +148,15 @@ public class NGGLDP {
 		}
 
 		private void load() {
-			int vertexShaderId = createShader(GL20.GL_VERTEX_SHADER, vertexShader);
-			int fragmentShaderId = createShader(GL20.GL_FRAGMENT_SHADER, fragmentShader);
+			final int vertexShaderId = createShader(GL20.GL_VERTEX_SHADER, vertexShader);
+			final int fragmentShaderId = createShader(GL20.GL_FRAGMENT_SHADER, fragmentShader);
 			shaderProgram = GL20.glCreateProgram();
 			GL20.glAttachShader(shaderProgram, vertexShaderId);
 			GL20.glAttachShader(shaderProgram, fragmentShaderId);
 			GL20.glLinkProgram(shaderProgram);
-			int linkStatus = GL20.glGetProgrami(shaderProgram, GL20.GL_LINK_STATUS);
+			final int linkStatus = GL20.glGetProgrami(shaderProgram, GL20.GL_LINK_STATUS);
 			if (linkStatus == GL11.GL_FALSE) {
-				String errorText = GL20.glGetProgramInfoLog(shaderProgram, 1024);
+				final String errorText = GL20.glGetProgramInfoLog(shaderProgram, 1024);
 				System.err.println(errorText);
 				throw new IllegalStateException(linkStatus + ": " + errorText);
 			}
@@ -177,14 +173,14 @@ public class NGGLDP {
 			// GL20.glGetAttribLocation(shaderProgram, "a_position") ?
 		}
 
-		private void pushFloat(int absoluteOffset, float x) {
+		private void pushFloat(final int absoluteOffset, final float x) {
 			ensureCapacity(absoluteOffset);
 			pipelineVertexBuffer.put(absoluteOffset, x);
 		}
 
-		private void ensureCapacity(int absoluteOffset) {
+		private void ensureCapacity(final int absoluteOffset) {
 			if (pipelineVertexBuffer.capacity() <= absoluteOffset) {
-				FloatBuffer largerBuffer = ByteBuffer
+				final FloatBuffer largerBuffer = ByteBuffer
 						.allocateDirect(Math.max((absoluteOffset + 1) * 4, pipelineVertexBuffer.capacity() * 2 * 4))
 						.order(ByteOrder.nativeOrder()).asFloatBuffer().clear();
 				pipelineVertexBuffer.flip();
@@ -195,8 +191,8 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glVertex3f(float x, float y, float z) {
-			int baseOffset = vertexCount * STRIDE;
+		public void glVertex3f(final float x, final float y, final float z) {
+			final int baseOffset = vertexCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			tempVec4.set(x, y, z, 1);
 			Matrix4f.transform(currentMatrix, tempVec4, tempVec4);
@@ -237,8 +233,11 @@ public class NGGLDP {
 			textureUsed = 0;
 			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_alphaTest"), alphaTest);
 			GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
-			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), 0.0683413f, -0.0542323f,
-					0.996187f);
+			tempVec4.set(30.4879f, -24.1937f, 444.411f, 1.0f);
+			Matrix4f.transform(currentMatrix, tempVec4, tempVec4);
+			tempVec4.normalise();
+			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), tempVec4.x, tempVec4.y,
+					tempVec4.z);
 			GL11.glDrawArrays(glBeginType, 0, vertexCount);
 			vertexCount = 0;
 			uvCount = 0;
@@ -248,13 +247,13 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glPolygonMode(int face, int mode) {
+		public void glPolygonMode(final int face, final int mode) {
 			GL11.glPolygonMode(face, mode);
 		}
 
 		@Override
-		public void glColor4f(float r, float g, float b, float a) {
-			int baseOffset = colorCount * STRIDE;
+		public void glColor4f(final float r, final float g, final float b, final float a) {
+			final int baseOffset = colorCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			color.set(r, g, b, a);
 			pushFloat(baseOffset + 10, color.x);
@@ -265,10 +264,11 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glNormal3f(float x, float y, float z) {
-			int baseOffset = normalCount * STRIDE;
-			tempVec4.set(x, y, z, 1);
+		public void glNormal3f(final float x, final float y, final float z) {
+			final int baseOffset = normalCount * STRIDE;
+			tempVec4.set(x, y, z, 0);
 			Matrix4f.transform(currentMatrix, tempVec4, tempVec4);
+			tempVec4.normalise();
 			ensureCapacity(baseOffset + STRIDE);
 			pushFloat(baseOffset + 4, tempVec4.x);
 			pushFloat(baseOffset + 5, tempVec4.y);
@@ -278,8 +278,8 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glTexCoord2f(float u, float v) {
-			int baseOffset = uvCount * STRIDE;
+		public void glTexCoord2f(final float u, final float v) {
+			final int baseOffset = uvCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			pushFloat(baseOffset + 8, u);
 			pushFloat(baseOffset + 9, v);
@@ -287,8 +287,8 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glColor3f(float r, float g, float b) {
-			int baseOffset = colorCount * STRIDE;
+		public void glColor3f(final float r, final float g, final float b) {
+			final int baseOffset = colorCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			color.set(r, g, b, color.w);
 			pushFloat(baseOffset + 10, color.x);
@@ -298,8 +298,8 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glColor4ub(byte r, byte g, byte b, byte a) {
-			int baseOffset = colorCount * STRIDE;
+		public void glColor4ub(final byte r, final byte g, final byte b, final byte a) {
+			final int baseOffset = colorCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			color.set((r & 0xFF) / 255f, (g & 0xFF) / 255f, (b & 0xFF) / 255f, (a & 0xFF) / 255f);
 			pushFloat(baseOffset + 10, color.x);
@@ -310,15 +310,15 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glLight(int light, int pname, FloatBuffer params) {
+		public void glLight(final int light, final int pname, final FloatBuffer params) {
 
 		}
 
-		private Quaternion tempQuat = new Quaternion();
-		private Matrix4f tempMat4 = new Matrix4f();
+		private final Quaternion tempQuat = new Quaternion();
+		private final Matrix4f tempMat4 = new Matrix4f();
 
 		@Override
-		public void glRotatef(float angle, float axisX, float axisY, float axisZ) {
+		public void glRotatef(final float angle, final float axisX, final float axisY, final float axisZ) {
 			tempVec3.set(axisX, axisY, axisZ);
 			tempVec3.normalise();
 			tempVec4.set(tempVec3.x, tempVec3.y, tempVec3.z, (float) Math.toRadians(angle));
@@ -328,12 +328,17 @@ public class NGGLDP {
 			Matrix4f.mul(currentMatrix, tempMat4, currentMatrix);
 		}
 
-		private Vector3f tempVec3 = new Vector3f();
-		private Vector4f tempVec4 = new Vector4f();
+		@Override
+		public void glCamera(final ViewerCamera viewerCamera) {
+			Matrix4f.mul(viewerCamera.viewProjectionMatrix, currentMatrix, currentMatrix);
+		}
+
+		private final Vector3f tempVec3 = new Vector3f();
+		private final Vector4f tempVec4 = new Vector4f();
 		private int matrixMode;
 
 		@Override
-		public void glScalef(float x, float y, float z) {
+		public void glScalef(final float x, final float y, final float z) {
 			tempMat4.setIdentity();
 			tempVec3.set(x, y, z);
 			tempMat4.scale(tempVec3);
@@ -341,7 +346,7 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glTranslatef(float x, float y, float z) {
+		public void glTranslatef(final float x, final float y, final float z) {
 			tempMat4.setIdentity();
 			tempVec3.set(x, y, z);
 			tempMat4.translate(tempVec3);
@@ -349,27 +354,26 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glOrtho(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax) {
-			perspectiveActive = false;
+		public void glOrtho(final float xMin, final float xMax, final float yMin, final float yMax, final float zMin,
+				final float zMax) {
 			MathUtils.setOrtho(currentMatrix, xMin, xMax, yMin, yMax, zMin, zMax);
 		}
 
 		@Override
-		public void gluPerspective(float fovY, float aspect, float nearClip, float farClip) {
+		public void gluPerspective(final float fovY, final float aspect, final float nearClip, final float farClip) {
 			MathUtils.setPerspective(currentMatrix, (float) Math.toRadians(fovY), aspect, nearClip, farClip);
 			// When we are not using fixed function pipeline, notably Perspective cannot be
 			// expressed as a matrix due to the math, so to emulate legacy behavior we will
 			// set a flag and divide by negative Z factor later.
-			perspectiveActive = NGGLDP.pipeline != NGGLDP.fixedFunctionPipeline;
 		}
 
 		@Override
-		public void glLightModel(int lightModel, FloatBuffer ambientColor) {
+		public void glLightModel(final int lightModel, final FloatBuffer ambientColor) {
 
 		}
 
 		@Override
-		public void glMatrixMode(int mode) {
+		public void glMatrixMode(final int mode) {
 			this.matrixMode = mode;
 
 		}
@@ -377,36 +381,39 @@ public class NGGLDP {
 		@Override
 		public void glLoadIdentity() {
 			if (matrixMode == GL11.GL_PROJECTION) {
-				perspectiveActive = false;
 				currentMatrix.setIdentity();
 			} // else if it is set to GL_MODELVIEW we should be in a different mode, but I was
 				// lazy and only made 1 matrix and so we skip it....
 		}
 
 		@Override
-		public void glEnableIfNeeded(int glEnum) {
+		public void glEnableIfNeeded(final int glEnum) {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 1;
 				GL13.glActiveTexture(GL13.GL_TEXTURE0);
-			} else if (glEnum == GL11.GL_ALPHA_TEST) {
+			}
+			else if (glEnum == GL11.GL_ALPHA_TEST) {
 				alphaTest = 1;
-			} else if (glEnum == GL11.GL_LIGHTING) {
+			}
+			else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 1;
 			}
 		}
 
 		@Override
-		public void glShadeModel(int mode) {
+		public void glShadeModel(final int mode) {
 		}
 
 		@Override
-		public void glDisableIfNeeded(int glEnum) {
+		public void glDisableIfNeeded(final int glEnum) {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 0;
 				GL13.glActiveTexture(0);
-			} else if (glEnum == GL11.GL_ALPHA_TEST) {
+			}
+			else if (glEnum == GL11.GL_ALPHA_TEST) {
 				alphaTest = 0;
-			} else if (glEnum == GL11.GL_LIGHTING) {
+			}
+			else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 0;
 			}
 		}
@@ -424,31 +431,36 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glTangent4f(float x, float y, float z, float w) {
+		public void glTangent4f(final float x, final float y, final float z, final float w) {
 			// tangents are not applicable to old style drawing
 		}
 
 		@Override
-		public void glActiveHDTexture(int textureUnit) {
+		public void glActiveHDTexture(final int textureUnit) {
 			// TODO Auto-generated method stub
 
 		}
 
 		@Override
-		public void glViewport(int x, int y, int w, int h) {
+		public void glViewport(final int x, final int y, final int w, final int h) {
 			GL11.glViewport(x, y, w, h);
 		}
 
 		@Override
-		public void glFresnelColor3f(float r, float g, float b) {
+		public void glFresnelColor3f(final float r, final float g, final float b) {
 		}
 
 		@Override
-		public void glFresnelTeamColor1f(float v) {
+		public void glFresnelTeamColor1f(final float v) {
 		}
 
 		@Override
-		public void glFresnelOpacity1f(float v) {
+		public void glFresnelOpacity1f(final float v) {
+		}
+
+		@Override
+		public void discard() {
+			GL20.glDeleteProgram(shaderProgram);
 		}
 
 	}
@@ -583,19 +595,20 @@ public class NGGLDP {
 				"			vec3 halfwayDir = normalize(lightDir + viewDir);\r\n" + //
 				"			float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);\r\n" + //
 				"			vec3 specular = vec3(max(ormTexel.b-0.5, 0.0)) * spec /* * reflectionsTexel.xyz*/;\r\n" + //
-				"			vec3 fresnelColor = vec3(u_fresnelColor.rgb * (1.0 - u_fresnelTeamColor) + teamColorTexel.rgb *  u_fresnelTeamColor) * v_color.rgb;\r\n" + //
+				"			vec3 fresnelColor = vec3(u_fresnelColor.rgb * (1.0 - u_fresnelTeamColor) + teamColorTexel.rgb *  u_fresnelTeamColor) * v_color.rgb;\r\n"
+				+ //
 				"			vec3 fresnel = fresnelColor*pow(1.0 - cosTheta, 1.0)*u_fresnelColor.a;\r\n" + //
 				"			FragColor = vec4(emissiveTexel.xyz + specular + diffuse + fresnel, color.a);\r\n" + //
 				"		} else {\r\n" + //
 				"			FragColor = color;\r\n" + //
 				"		}\r\n" + //
 				"}\r\n\0";
-		private Vector4f color = new Vector4f(1f, 1f, 1f, 1f);
-		private Vector3f fresnelColor = new Vector3f(0f, 0f, 0f);
+		private final Vector4f color = new Vector4f(1f, 1f, 1f, 1f);
+		private final Vector3f fresnelColor = new Vector3f(0f, 0f, 0f);
 		private FloatBuffer pipelineVertexBuffer = ByteBuffer.allocateDirect(1024 * 4).order(ByteOrder.nativeOrder())
 				.asFloatBuffer();
-		private FloatBuffer pipelineMatrixBuffer = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder())
-				.asFloatBuffer();
+		private final FloatBuffer pipelineMatrixBuffer = ByteBuffer.allocateDirect(16 * 4)
+				.order(ByteOrder.nativeOrder()).asFloatBuffer();
 		private int vertexCount = 0;
 		private int normalCount = 0;
 		private int tangentCount = 0;
@@ -606,14 +619,13 @@ public class NGGLDP {
 		private int shaderProgram;
 		private int vertexBufferObjectId, vertexArrayObjectId; // has nothing to do with "object id" of war3 models
 		private boolean loaded = false;
-		private Matrix4f currentMatrix = new Matrix4f();
+		private final Matrix4f currentMatrix = new Matrix4f();
 		{
 			currentMatrix.setIdentity();
 		}
 		private int textureUsed = 0;
 		private int alphaTest = 0;
 		private int lightingEnabled = 1;
-		private boolean perspectiveActive = false;
 		private float fresnelTeamColor;
 		private float fresnelOpacity;
 
@@ -621,13 +633,13 @@ public class NGGLDP {
 			load();
 		}
 
-		private int createShader(int shaderType, String shaderSource) {
-			int shaderId = GL20.glCreateShader(shaderType);
+		private int createShader(final int shaderType, final String shaderSource) {
+			final int shaderId = GL20.glCreateShader(shaderType);
 			GL20.glShaderSource(shaderId, shaderSource);
 			GL20.glCompileShader(shaderId);
-			int compileStatus = GL20.glGetShaderi(shaderId, GL20.GL_COMPILE_STATUS);
+			final int compileStatus = GL20.glGetShaderi(shaderId, GL20.GL_COMPILE_STATUS);
 			if (compileStatus == GL11.GL_FALSE) {
-				String errorText = GL20.glGetShaderInfoLog(shaderId, 1024);
+				final String errorText = GL20.glGetShaderInfoLog(shaderId, 1024);
 				System.err.println(errorText);
 				throw new IllegalStateException(compileStatus + ": " + errorText);
 			}
@@ -635,7 +647,7 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glBegin(int type) {
+		public void glBegin(final int type) {
 			pipelineVertexBuffer.clear();
 			this.glBeginType = type;
 			vertexCount = 0;
@@ -657,15 +669,15 @@ public class NGGLDP {
 		}
 
 		private void load() {
-			int vertexShaderId = createShader(GL20.GL_VERTEX_SHADER, vertexShader);
-			int fragmentShaderId = createShader(GL20.GL_FRAGMENT_SHADER, fragmentShader);
+			final int vertexShaderId = createShader(GL20.GL_VERTEX_SHADER, vertexShader);
+			final int fragmentShaderId = createShader(GL20.GL_FRAGMENT_SHADER, fragmentShader);
 			shaderProgram = GL20.glCreateProgram();
 			GL20.glAttachShader(shaderProgram, vertexShaderId);
 			GL20.glAttachShader(shaderProgram, fragmentShaderId);
 			GL20.glLinkProgram(shaderProgram);
-			int linkStatus = GL20.glGetProgrami(shaderProgram, GL20.GL_LINK_STATUS);
+			final int linkStatus = GL20.glGetProgrami(shaderProgram, GL20.GL_LINK_STATUS);
 			if (linkStatus == GL11.GL_FALSE) {
-				String errorText = GL20.glGetProgramInfoLog(shaderProgram, 1024);
+				final String errorText = GL20.glGetProgramInfoLog(shaderProgram, 1024);
 				System.err.println(errorText);
 				throw new IllegalStateException(linkStatus + ": " + errorText);
 			}
@@ -682,15 +694,15 @@ public class NGGLDP {
 			// GL20.glGetAttribLocation(shaderProgram, "a_position") ?
 		}
 
-		private void pushFloat(int absoluteOffset, float x) {
+		private void pushFloat(final int absoluteOffset, final float x) {
 			ensureCapacity(absoluteOffset);
 			pipelineVertexBuffer.put(absoluteOffset, x);
 		}
 
-		private void ensureCapacity(int absoluteOffset) {
+		private void ensureCapacity(final int absoluteOffset) {
 			if (pipelineVertexBuffer.capacity() <= absoluteOffset) {
-				int newSizeBytes = Math.max((absoluteOffset + 1) * 4, pipelineVertexBuffer.capacity() * 2 * 4);
-				FloatBuffer largerBuffer = ByteBuffer.allocateDirect(newSizeBytes).order(ByteOrder.nativeOrder())
+				final int newSizeBytes = Math.max((absoluteOffset + 1) * 4, pipelineVertexBuffer.capacity() * 2 * 4);
+				final FloatBuffer largerBuffer = ByteBuffer.allocateDirect(newSizeBytes).order(ByteOrder.nativeOrder())
 						.asFloatBuffer().clear();
 				pipelineVertexBuffer.flip();
 				largerBuffer.put(pipelineVertexBuffer);
@@ -700,8 +712,8 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glVertex3f(float x, float y, float z) {
-			int baseOffset = vertexCount * STRIDE;
+		public void glVertex3f(final float x, final float y, final float z) {
+			final int baseOffset = vertexCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			pushFloat(baseOffset + 0, x);
 			pushFloat(baseOffset + 1, y);
@@ -757,7 +769,8 @@ public class NGGLDP {
 			GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
 			GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "u_viewportSize"), viewportWidth, viewportHeight);
 			GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelTeamColor"), fresnelTeamColor);
-			GL20.glUniform4f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelColor"), fresnelColor.x, fresnelColor.y, fresnelColor.z, fresnelOpacity);
+			GL20.glUniform4f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelColor"), fresnelColor.x, fresnelColor.y,
+					fresnelColor.z, fresnelOpacity);
 			pipelineMatrixBuffer.clear();
 			pipelineMatrixBuffer.put(currentMatrix.m00);
 			pipelineMatrixBuffer.put(currentMatrix.m01);
@@ -805,13 +818,13 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glPolygonMode(int face, int mode) {
+		public void glPolygonMode(final int face, final int mode) {
 			GL11.glPolygonMode(face, mode);
 		}
 
 		@Override
-		public void glColor4f(float r, float g, float b, float a) {
-			int baseOffset = colorCount * STRIDE;
+		public void glColor4f(final float r, final float g, final float b, final float a) {
+			final int baseOffset = colorCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			color.set(r, g, b, a);
 			pushFloat(baseOffset + 14, color.x);
@@ -822,8 +835,8 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glNormal3f(float x, float y, float z) {
-			int baseOffset = normalCount * STRIDE;
+		public void glNormal3f(final float x, final float y, final float z) {
+			final int baseOffset = normalCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			pushFloat(baseOffset + 4, x);
 			pushFloat(baseOffset + 5, y);
@@ -833,8 +846,8 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glTexCoord2f(float u, float v) {
-			int baseOffset = uvCount * STRIDE;
+		public void glTexCoord2f(final float u, final float v) {
+			final int baseOffset = uvCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			pushFloat(baseOffset + 12, u);
 			pushFloat(baseOffset + 13, v);
@@ -842,8 +855,8 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glColor3f(float r, float g, float b) {
-			int baseOffset = colorCount * STRIDE;
+		public void glColor3f(final float r, final float g, final float b) {
+			final int baseOffset = colorCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			color.set(r, g, b, color.w);
 			pushFloat(baseOffset + 14, color.x);
@@ -853,18 +866,18 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glFresnelTeamColor1f(float v) {
+		public void glFresnelTeamColor1f(final float v) {
 			this.fresnelTeamColor = v;
 		}
 
 		@Override
-		public void glFresnelOpacity1f(float v) {
+		public void glFresnelOpacity1f(final float v) {
 			this.fresnelOpacity = v;
 		}
 
 		@Override
-		public void glFresnelColor3f(float r, float g, float b) {
-			int baseOffset = fresnelColorCount * STRIDE;
+		public void glFresnelColor3f(final float r, final float g, final float b) {
+			final int baseOffset = fresnelColorCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			fresnelColor.set(r, g, b);
 			pushFloat(baseOffset + 18, r);
@@ -874,8 +887,8 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glColor4ub(byte r, byte g, byte b, byte a) {
-			int baseOffset = colorCount * STRIDE;
+		public void glColor4ub(final byte r, final byte g, final byte b, final byte a) {
+			final int baseOffset = colorCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			color.set((r & 0xFF) / 255f, (g & 0xFF) / 255f, (b & 0xFF) / 255f, (a & 0xFF) / 255f);
 			pushFloat(baseOffset + 14, color.x);
@@ -886,15 +899,15 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glLight(int light, int pname, FloatBuffer params) {
+		public void glLight(final int light, final int pname, final FloatBuffer params) {
 
 		}
 
-		private Quaternion tempQuat = new Quaternion();
-		private Matrix4f tempMat4 = new Matrix4f();
+		private final Quaternion tempQuat = new Quaternion();
+		private final Matrix4f tempMat4 = new Matrix4f();
 
 		@Override
-		public void glRotatef(float angle, float axisX, float axisY, float axisZ) {
+		public void glRotatef(final float angle, final float axisX, final float axisY, final float axisZ) {
 			tempVec3.set(axisX, axisY, axisZ);
 			tempVec3.normalise();
 			tempVec4.set(tempVec3.x, tempVec3.y, tempVec3.z, (float) Math.toRadians(angle));
@@ -904,15 +917,20 @@ public class NGGLDP {
 			Matrix4f.mul(currentMatrix, tempMat4, currentMatrix);
 		}
 
-		private Vector3f tempVec3 = new Vector3f();
-		private Vector4f tempVec4 = new Vector4f();
+		@Override
+		public void glCamera(final ViewerCamera viewerCamera) {
+			Matrix4f.mul(viewerCamera.viewProjectionMatrix, currentMatrix, currentMatrix);
+		}
+
+		private final Vector3f tempVec3 = new Vector3f();
+		private final Vector4f tempVec4 = new Vector4f();
 		private int textureUnit;
 		private int matrixMode;
 		private int viewportWidth;
 		private int viewportHeight;
 
 		@Override
-		public void glScalef(float x, float y, float z) {
+		public void glScalef(final float x, final float y, final float z) {
 			tempMat4.setIdentity();
 			tempVec3.set(x, y, z);
 			tempMat4.scale(tempVec3);
@@ -920,7 +938,7 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glTranslatef(float x, float y, float z) {
+		public void glTranslatef(final float x, final float y, final float z) {
 			tempMat4.setIdentity();
 			tempVec3.set(x, y, z);
 			tempMat4.translate(tempVec3);
@@ -928,65 +946,66 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glOrtho(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax) {
-			perspectiveActive = false;
+		public void glOrtho(final float xMin, final float xMax, final float yMin, final float yMax, final float zMin,
+				final float zMax) {
 			MathUtils.setOrtho(currentMatrix, xMin, xMax, yMin, yMax, zMin, zMax);
 		}
 
 		@Override
-		public void gluPerspective(float fovY, float aspect, float nearClip, float farClip) {
+		public void gluPerspective(final float fovY, final float aspect, final float nearClip, final float farClip) {
 			MathUtils.setPerspective(currentMatrix, (float) Math.toRadians(fovY), aspect, nearClip, farClip);
 			// When we are not using fixed function pipeline, notably Perspective cannot be
 			// expressed as a matrix due to the math, so to emulate legacy behavior we will
 			// set a flag and divide by negative Z factor later.
-			perspectiveActive = NGGLDP.pipeline != NGGLDP.fixedFunctionPipeline;
 		}
 
 		@Override
-		public void glLightModel(int lightModel, FloatBuffer ambientColor) {
+		public void glLightModel(final int lightModel, final FloatBuffer ambientColor) {
 
 		}
 
 		@Override
-		public void glMatrixMode(int mode) {
+		public void glMatrixMode(final int mode) {
 			this.matrixMode = mode;
 
 		}
 
 		@Override
 		public void glLoadIdentity() {
-			perspectiveActive = false;
 			if (matrixMode == GL11.GL_PROJECTION) {
-				perspectiveActive = false;
 				currentMatrix.setIdentity();
 			} // else if it is set to GL_MODELVIEW we should be in a different mode, but I was
 				// lazy and only made 1 matrix and so we skip it....
 		}
 
 		@Override
-		public void glEnableIfNeeded(int glEnum) {
+		public void glEnableIfNeeded(final int glEnum) {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 1;
 				GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-			} else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
+			}
+			else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
 				alphaTest = 1;
-			} else if (glEnum == GL11.GL_LIGHTING) {
+			}
+			else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 1;
 			}
 		}
 
 		@Override
-		public void glShadeModel(int mode) {
+		public void glShadeModel(final int mode) {
 		}
 
 		@Override
-		public void glDisableIfNeeded(int glEnum) {
+		public void glDisableIfNeeded(final int glEnum) {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 0;
 				GL13.glActiveTexture(0);
-			} else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
+			}
+			else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
 				alphaTest = 0;
-			} else if (glEnum == GL11.GL_LIGHTING) {
+			}
+			else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 0;
 			}
 		}
@@ -1004,8 +1023,8 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glTangent4f(float x, float y, float z, float w) {
-			int baseOffset = tangentCount * STRIDE;
+		public void glTangent4f(final float x, final float y, final float z, final float w) {
+			final int baseOffset = tangentCount * STRIDE;
 			ensureCapacity(baseOffset + STRIDE);
 			pushFloat(baseOffset + 8, x);
 			pushFloat(baseOffset + 9, y);
@@ -1015,28 +1034,33 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glActiveHDTexture(int textureUnit) {
+		public void glActiveHDTexture(final int textureUnit) {
 			this.textureUnit = textureUnit;
 			GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
 		}
 
 		@Override
-		public void glViewport(int x, int y, int w, int h) {
+		public void glViewport(final int x, final int y, final int w, final int h) {
 			this.viewportWidth = w;
 			this.viewportHeight = h;
 			GL11.glViewport(x, y, w, h);
+		}
+
+		@Override
+		public void discard() {
+			GL20.glDeleteProgram(shaderProgram);
 		}
 
 	}
 
 	public static final class FixedFunctionPipeline implements Pipeline {
 		@Override
-		public void glBegin(int type) {
+		public void glBegin(final int type) {
 			GL11.glBegin(type);
 		}
 
 		@Override
-		public void glVertex3f(float x, float y, float z) {
+		public void glVertex3f(final float x, final float y, final float z) {
 			GL11.glVertex3f(x, y, z);
 		}
 
@@ -1046,76 +1070,77 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glPolygonMode(int face, int mode) {
+		public void glPolygonMode(final int face, final int mode) {
 			GL11.glPolygonMode(face, mode);
 		}
 
 		@Override
-		public void glColor4f(float r, float g, float b, float a) {
+		public void glColor4f(final float r, final float g, final float b, final float a) {
 			GL11.glColor4f(r, g, b, a);
 		}
 
 		@Override
-		public void glNormal3f(float x, float y, float z) {
+		public void glNormal3f(final float x, final float y, final float z) {
 			GL11.glNormal3f(x, y, z);
 		}
 
 		@Override
-		public void glTexCoord2f(float u, float v) {
+		public void glTexCoord2f(final float u, final float v) {
 			GL11.glTexCoord2f(u, v);
 		}
 
 		@Override
-		public void glColor3f(float r, float g, float b) {
+		public void glColor3f(final float r, final float g, final float b) {
 			GL11.glColor3f(r, g, b);
 		}
 
 		@Override
-		public void glFresnelColor3f(float r, float g, float b) {
+		public void glFresnelColor3f(final float r, final float g, final float b) {
 		}
 
 		@Override
-		public void glColor4ub(byte r, byte g, byte b, byte a) {
+		public void glColor4ub(final byte r, final byte g, final byte b, final byte a) {
 			GL11.glColor4ub(r, g, b, a);
 		}
 
 		@Override
-		public void glLight(int light, int pname, FloatBuffer params) {
+		public void glLight(final int light, final int pname, final FloatBuffer params) {
 			GL11.glLight(light, pname, params);
 		}
 
 		@Override
-		public void glRotatef(float a, float b, float c, float d) {
+		public void glRotatef(final float a, final float b, final float c, final float d) {
 			GL11.glRotatef(a, b, c, d);
 		}
 
 		@Override
-		public void glScalef(float x, float y, float z) {
+		public void glScalef(final float x, final float y, final float z) {
 			GL11.glScalef(x, y, z);
 		}
 
 		@Override
-		public void glTranslatef(float x, float y, float z) {
+		public void glTranslatef(final float x, final float y, final float z) {
 			GL11.glTranslatef(x, y, z);
 		}
 
 		@Override
-		public void glOrtho(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax) {
+		public void glOrtho(final float xMin, final float xMax, final float yMin, final float yMax, final float zMin,
+				final float zMax) {
 			GL11.glOrtho(xMin, xMax, yMin, yMax, zMin, zMax);
 		}
 
 		@Override
-		public void gluPerspective(float fovY, float aspect, float nearClip, float farClip) {
+		public void gluPerspective(final float fovY, final float aspect, final float nearClip, final float farClip) {
 			GLU.gluPerspective(fovY, aspect, nearClip, farClip);
 		}
 
 		@Override
-		public void glLightModel(int lightModel, FloatBuffer ambientColor) {
+		public void glLightModel(final int lightModel, final FloatBuffer ambientColor) {
 			GL11.glLightModel(lightModel, ambientColor);
 		}
 
 		@Override
-		public void glMatrixMode(int mode) {
+		public void glMatrixMode(final int mode) {
 			GL11.glMatrixMode(mode);
 		}
 
@@ -1125,17 +1150,17 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glEnableIfNeeded(int glEnum) {
+		public void glEnableIfNeeded(final int glEnum) {
 			GL11.glEnable(glEnum);
 		}
 
 		@Override
-		public void glShadeModel(int glFlat) {
+		public void glShadeModel(final int glFlat) {
 			GL11.glShadeModel(glFlat);
 		}
 
 		@Override
-		public void glDisableIfNeeded(int glEnum) {
+		public void glDisableIfNeeded(final int glEnum) {
 			GL11.glDisable(glEnum);
 		}
 
@@ -1148,27 +1173,36 @@ public class NGGLDP {
 		}
 
 		@Override
-		public void glTangent4f(float x, float y, float z, float w) {
+		public void glTangent4f(final float x, final float y, final float z, final float w) {
 			// tangents are not applicable to old style drawing
 		}
 
 		@Override
-		public void glActiveHDTexture(int textureUnit) {
+		public void glActiveHDTexture(final int textureUnit) {
 			// TODO Auto-generated method stub
 
 		}
 
 		@Override
-		public void glViewport(int x, int y, int w, int h) {
+		public void glViewport(final int x, final int y, final int w, final int h) {
 			GL11.glViewport(x, y, w, h);
 		}
 
 		@Override
-		public void glFresnelTeamColor1f(float v) {
+		public void glFresnelTeamColor1f(final float v) {
 		}
 
 		@Override
-		public void glFresnelOpacity1f(float v) {
+		public void glFresnelOpacity1f(final float v) {
+		}
+
+		@Override
+		public void glCamera(final ViewerCamera viewerCamera) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void discard() {
 		}
 
 	}
@@ -1232,5 +1266,8 @@ public class NGGLDP {
 
 		void glViewport(int x, int y, int w, int h);
 
+		void glCamera(ViewerCamera viewerCamera);
+
+		void discard();
 	}
 }

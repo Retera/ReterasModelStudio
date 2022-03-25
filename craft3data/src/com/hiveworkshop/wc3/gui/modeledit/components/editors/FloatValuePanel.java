@@ -84,8 +84,11 @@ public class FloatValuePanel extends JPanel {
 	public void reloadNewValue(final float value, final AnimFlag valueTrack) {
 		if (valueTrack == null) {
 			staticButton.setSelected(true);
-		} else {
+			interpTypeBox.setSelectedItem(InterpolationType.DONT_INTERP);
+		}
+		else {
 			dynamicButton.setSelected(true);
+			interpTypeBox.setSelectedItem(valueTrack.getInterpTypeAsEnum());
 		}
 		staticSpinner.reloadNewValue(Double.valueOf(value));
 		floatTrackTableModel.setTrack(valueTrack);

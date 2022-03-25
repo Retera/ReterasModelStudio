@@ -51,12 +51,12 @@ import com.hiveworkshop.wc3.mdx.BindPoseChunk;
 import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 import com.hiveworkshop.wc3.util.IconUtils;
 
-public final class ModelComponentBrowserTree extends JTree {
+public final class ModelComponentAnimFlagTree extends JTree {
 	private final ModelViewManager modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
 
-	public ModelComponentBrowserTree(final ModelViewManager modelViewManager,
+	public ModelComponentAnimFlagTree(final ModelViewManager modelViewManager,
 			final UndoActionListener undoActionListener, final ModelEditorManager modelEditorManager,
 			final ModelStructureChangeListener modelStructureChangeListener) {
 		super(buildTreeModel(modelViewManager, undoActionListener, modelStructureChangeListener));

@@ -77,7 +77,7 @@ public class ProgramPreferences implements Serializable {
 			renderStaticPoseParticles = true;
 		}
 		if (autoPopulateMdlTextEditor == null) {
-			autoPopulateMdlTextEditor = true;
+			autoPopulateMdlTextEditor = false;
 		}
 		if ((vertexColor == null) || (normalsColor == null) || (pivotPointsColor == null)) {
 			vertexColor = new Color(0, 0, 255);// new Color(0, 0, 0)

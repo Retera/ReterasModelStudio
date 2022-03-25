@@ -155,17 +155,20 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 
 			if (head) {
 				interval = modelObject.getLifeSpanUVAnim();
-			} else {
+			}
+			else {
 				interval = modelObject.getTailUVAnim();
 			}
-		} else {
+		}
+		else {
 			factor = (lifeFactor - timeMiddle) / (1 - timeMiddle);
 
 			firstColor = 1;
 
 			if (head) {
 				interval = modelObject.getDecayUVAnim();
-			} else {
+			}
+			else {
 				interval = modelObject.getTailDecayUVAnim();
 			}
 		}
@@ -191,7 +194,8 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			top = 0;
 			right = left + 1;
 			bottom = top + 1;
-		} else {
+		}
+		else {
 			final int columns = modelObject.getCols();
 			float index = 0;
 			final float spriteCount = end - start;
@@ -226,12 +230,13 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 		this.rgb = MathUtils.uint8ToUint24((byte) ((int) (colorHeap.z * 255) & 0xFF),
 				(byte) ((int) (colorHeap.y * 255) & 0xFF), (byte) ((int) (colorHeap.x * 255) & 0xFF));
 
-		final Vector4f[] vectors;
+		final Vector3f[] vectors;
 
 		// Choose between a default rectangle or a billboarded one
 		if (modelObject.isXYQuad()) {
 			vectors = instance.getSpacialVectors();
-		} else {
+		}
+		else {
 			vectors = instance.getBillboardVectors();
 		}
 
@@ -253,10 +258,10 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			final float py = worldLocation4f.y;
 			final float pz = worldLocation4f.z;
 
-			final Vector4f pv1 = vectors[0];
-			final Vector4f pv2 = vectors[1];
-			final Vector4f pv3 = vectors[2];
-			final Vector4f pv4 = vectors[3];
+			final Vector3f pv1 = vectors[0];
+			final Vector3f pv2 = vectors[1];
+			final Vector3f pv3 = vectors[2];
+			final Vector3f pv4 = vectors[3];
 
 			vertices[0] = px + (pv1.x * scalex);
 			vertices[1] = py + (pv1.y * scaley);
@@ -270,7 +275,8 @@ public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
 			vertices[9] = px + (pv4.x * scalex);
 			vertices[10] = py + (pv4.y * scaley);
 			vertices[11] = pz + (pv4.z * scalez);
-		} else {
+		}
+		else {
 			final double tailLength = modelObject.getTailLength();
 			final double offsetx = tailLength * velocity.x * 1;
 			final double offsety = tailLength * velocity.y * 1;

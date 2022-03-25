@@ -28,8 +28,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -65,7 +63,10 @@ import com.hiveworkshop.wc3.gui.ProgramPreferencesChangeListener;
 import com.hiveworkshop.wc3.gui.animedit.BasicTimeBoundProvider;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.lwjgl.BetterAWTGLCanvas;
+import com.hiveworkshop.wc3.gui.modelviewer.AnimatedPerspectiveViewport;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.wc3.gui.modelviewer.ViewerCamera;
+import com.hiveworkshop.wc3.gui.modelviewer.camera.PortraitCameraManager;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Geoset;
@@ -90,18 +91,12 @@ import com.hiveworkshop.wc3.util.ModelUtils;
 
 public class PerspectiveViewport extends BetterAWTGLCanvas
 		implements MouseListener, ActionListener, MouseWheelListener, RenderResourceAllocator {
+	private static final float NORMAL_RENDER_LENGTH = AnimatedPerspectiveViewport.NORMAL_RENDER_LENGTH;
 	public static final boolean LOG_EXCEPTIONS = true;
 	ModelView modelView;
-	Vertex cameraPos = new Vertex(0, 0, 0);
-	Quaternion inverseCameraRotationQuat = new Quaternion();
-	Quaternion inverseCameraRotationYSpin = new Quaternion();
-	Quaternion inverseCameraRotationZSpin = new Quaternion();
 	Matrix4f matrixHeap = new Matrix4f();
-	private final Vector4f axisHeap = new Vector4f();
-	double m_zoom = 1;
 	Point lastClick;
 	Point leftClickStart;
-	Point actStart;
 	Timer clickTimer = new Timer(16, this);
 	boolean mouseInBounds = false;
 	JPopupMenu contextMenu;
@@ -127,6 +122,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 	};
 	Timer paintTimer;
+	private final ViewerCamera viewerCamera;
+	private final PortraitCameraManager cameraManager;
 
 	public PerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences,
 			final RenderModel editorRenderModel) throws LWJGLException {
@@ -149,6 +146,11 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		// add(Box.createVerticalStrut(200));
 		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
 		this.modelView = modelView;
+		viewerCamera = new ViewerCamera();
+		cameraManager = new PortraitCameraManager();
+		cameraManager.setupCamera(viewerCamera);
+		cameraManager.horizontalAngle = (float) (Math.PI / 2);
+		cameraManager.distance = 128;
 		addMouseListener(this);
 		addMouseWheelListener(this);
 
@@ -172,6 +174,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 		loadBackgroundColors();
 		paintTimer = new Timer(16, new ActionListener() {
+
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				repaint();
@@ -179,6 +182,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 					paintTimer.stop();
 				}
 			}
+
 		});
 		paintTimer.start();
 	}
@@ -367,28 +371,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 	}
 
-	public void setPosition(final double a, final double b) {
-		cameraPos.x = a;
-		cameraPos.y = b;
-	}
-
-	public void translate(final double a, final double b) {
-		cameraPos.x += a;
-		cameraPos.y += b;
-	}
-
-	public void zoom(final double amount) {
-		m_zoom *= 1 + amount;
-	}
-
-	public double getZoomAmount() {
-		return m_zoom;
-	}
-
-	public Point2D.Double getDisplayOffset() {
-		return new Point2D.Double(cameraPos.x, cameraPos.y);
-	}
-
 	// public byte getPortFirstXYZ()
 	// {
 	// return m_d1;
@@ -418,8 +400,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	boolean initialized = false;
 	int current_height;
 	int current_width;
-	private float xangle;
-	private float yangle;
 
 	public boolean renderTextures() {
 		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
@@ -436,6 +416,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 	private final Matrix4f skinBonesMatrixHeap = new Matrix4f();
 	private final Matrix4f skinBonesMatrixSumHeap = new Matrix4f();
 	private final Matrix3f skinBonesMatrixSumHeap3 = new Matrix3f();
+	private final Vector3f screenDimension = new Vector3f();
+	private final Matrix3f screenDimensionMat3Heap = new Matrix3f();
 
 	@Override
 	protected void exceptionOccurred(final LWJGLException exception) {
@@ -445,11 +427,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 	@Override
 	public void paintGL() {
+		viewerCamera.update();
+		cameraManager.updateCamera();
 		NGGLDP.setPipeline(pipeline);
 		if (wantReloadAll) {
 			wantReloadAll = false;
 			wantReload = false;// If we just reloaded all, no need to reload
 								// some.
+			pipeline.discard();
+			pipeline = null;
 			try {
 				initGL();// Re-overwrite textures
 			}
@@ -479,6 +465,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				current_width = getWidth();
 				current_height = getHeight();
 				NGGLDP.pipeline.glViewport(0, 0, (int) (current_width * xRatio), (int) (current_height * yRatio));
+				viewerCamera.viewport(0, 0, (int) (current_width * xRatio), (int) (current_height * yRatio));
 			}
 			if ((programPreferences != null) && (programPreferences.viewMode() == 0)) {
 				NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -504,17 +491,12 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 1.0f);
 			NGGLDP.pipeline.glMatrixMode(GL_PROJECTION);
 			NGGLDP.pipeline.glLoadIdentity();
-			NGGLDP.pipeline.gluPerspective(45f, (float) current_width / (float) current_height, 20.0f, 600.0f);
+//			NGGLDP.pipeline.gluPerspective(45f, (float) current_width / (float) current_height, 20.0f, 600.0f);
 			GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			NGGLDP.pipeline.glMatrixMode(GL_MODELVIEW);
 			NGGLDP.pipeline.glLoadIdentity();
 
-			NGGLDP.pipeline.glTranslatef(0f, -70f, -200f);
-			NGGLDP.pipeline.glRotatef(yangle, 1f, 0f, 0f);
-			NGGLDP.pipeline.glRotatef(xangle, 0f, 1f, 0f);
-			NGGLDP.pipeline.glTranslatef((float) cameraPos.y * (float) m_zoom, (float) cameraPos.z * (float) m_zoom,
-					(float) cameraPos.x * (float) m_zoom);
-			NGGLDP.pipeline.glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
+			NGGLDP.pipeline.glCamera(viewerCamera);
 
 			final FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
 			ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();
@@ -664,14 +646,16 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 										continue;
 									}
 
-									NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-									NGGLDP.pipeline.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
+									NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 
-									NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-									NGGLDP.pipeline.glVertex3f(
-											vertexSumHeap.y + (float) ((normalSumHeap.y * 6) / m_zoom),
-											vertexSumHeap.z + (float) ((normalSumHeap.z * 6) / m_zoom),
-											vertexSumHeap.x + (float) ((normalSumHeap.x * 6) / m_zoom));
+									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
+									NGGLDP.pipeline.glVertex3f(vertexSumHeap.x
+											+ ((normalSumHeap.x * NORMAL_RENDER_LENGTH) * cameraManager.distance),
+											vertexSumHeap.y + ((normalSumHeap.y * NORMAL_RENDER_LENGTH)
+													* cameraManager.distance),
+											vertexSumHeap.z + ((normalSumHeap.z * NORMAL_RENDER_LENGTH)
+													* cameraManager.distance));
 								}
 							}
 						}
@@ -724,14 +708,16 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 										normalSumHeap.set(0, 1, 0, 0);
 									}
 
-									NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-									NGGLDP.pipeline.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
+									NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 
-									NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-									NGGLDP.pipeline.glVertex3f(
-											vertexSumHeap.y + (float) ((normalSumHeap.y * 6) / m_zoom),
-											vertexSumHeap.z + (float) ((normalSumHeap.z * 6) / m_zoom),
-											vertexSumHeap.x + (float) ((normalSumHeap.x * 6) / m_zoom));
+									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
+									NGGLDP.pipeline.glVertex3f(vertexSumHeap.x
+											+ ((normalSumHeap.x * NORMAL_RENDER_LENGTH) * cameraManager.distance),
+											vertexSumHeap.y + ((normalSumHeap.y * NORMAL_RENDER_LENGTH)
+													* cameraManager.distance),
+											vertexSumHeap.z + ((normalSumHeap.z * NORMAL_RENDER_LENGTH)
+													* cameraManager.distance));
 								}
 							}
 						}
@@ -1068,13 +1054,13 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 								normalHeap3.z = (float) v.getNormal().z;
 								Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
 
-								NGGLDP.pipeline.glNormal3f(normalSumHeap3.y, normalSumHeap3.z, normalSumHeap3.x);
+								NGGLDP.pipeline.glNormal3f(normalSumHeap3.x, normalSumHeap3.y, normalSumHeap3.z);
 							}
 							if (v.getTangent() != null) {
 								normalHeap3.set(v.getTangent()[0], v.getTangent()[1], v.getTangent()[2]);
 								Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
 
-								NGGLDP.pipeline.glTangent4f(normalSumHeap3.y, normalSumHeap3.z, normalSumHeap3.x,
+								NGGLDP.pipeline.glTangent4f(normalSumHeap3.x, normalSumHeap3.y, normalSumHeap3.z,
 										v.getTangent()[3]);
 							}
 							int coordId = layer.getCoordId();
@@ -1083,7 +1069,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 							}
 							NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
 									(float) v.getTverts().get(coordId).y);
-							NGGLDP.pipeline.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+							NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 						}
 					}
 				}
@@ -1132,7 +1118,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 									normalSumHeap.normalise();
 								}
 								else {
-									normalSumHeap.set(0, 1, 0, 0);
+									normalSumHeap.set(0, 0, 1, 0);
 								}
 
 								NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
@@ -1144,7 +1130,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 							final int highestTvertexIndx = v.getTverts().size() - 1;
 							NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
 									(float) v.getTverts().get(coordId).y);
-							NGGLDP.pipeline.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+							NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 						}
 					}
 				}
@@ -1157,20 +1143,21 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		}
 	}
 
-	public double convertX(final double x) {
-		return ((x + cameraPos.x) * m_zoom) + (getWidth() / 2);
-	}
-
-	public double convertY(final double y) {
-		return ((-y + cameraPos.y) * m_zoom) + (getHeight() / 2);
-	}
-
-	public double geomX(final double x) {
-		return ((x - (getWidth() / 2)) / m_zoom) - cameraPos.x;
-	}
-
-	public double geomY(final double y) {
-		return -(((y - (getHeight() / 2)) / m_zoom) - cameraPos.y);
+	private void applyPan(final double dx, final double dy) {
+		this.screenDimension.set(-1, 0, 0);
+		MathUtils.copy(cameraManager.camera.viewProjectionMatrix, screenDimensionMat3Heap);
+		screenDimensionMat3Heap.transpose();
+		Matrix3f.transform(screenDimensionMat3Heap, screenDimension, screenDimension);
+		screenDimension.normalise();
+		screenDimension.scale((float) dx * 0.008f * cameraManager.distance);
+		Vector3f.add(cameraManager.target, screenDimension, cameraManager.target);
+		this.screenDimension.set(0, 1, 0);
+		MathUtils.copy(cameraManager.camera.viewProjectionMatrix, screenDimensionMat3Heap);
+		screenDimensionMat3Heap.transpose();
+		Matrix3f.transform(screenDimensionMat3Heap, screenDimension, screenDimension);
+		screenDimension.normalise();
+		screenDimension.scale((float) dy * 0.008f * cameraManager.distance);
+		Vector3f.add(cameraManager.target, screenDimension, cameraManager.target);
 	}
 
 	@Override
@@ -1190,70 +1177,27 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 			// }
 			final double mx = MouseInfo.getPointerInfo().getLocation().x - xoff;// MainFrame.frame.getX()-8);
 			final double my = MouseInfo.getPointerInfo().getLocation().y - yoff;// MainFrame.frame.getY()-30);
-			// JOptionPane.showMessageDialog(null,mx+","+my+" as mouse,
-			// "+lastClick.x+","+lastClick.y+" as last.");
-			// System.out.println(xoff+" and "+mx);
+
 			if (lastClick != null) {
-				MathUtils.fromQuat(inverseCameraRotationQuat, matrixHeap);
-				vertexHeap.x = 0;
-				vertexHeap.y = (float) (((int) mx - lastClick.x) / m_zoom);
-				vertexHeap.z = -(float) (((int) my - lastClick.y) / m_zoom);
-				vertexHeap.w = 1;
-				Matrix4f.transform(matrixHeap, vertexHeap, vertexHeap);
-				cameraPos.x += vertexHeap.x;
-				cameraPos.y += vertexHeap.y;
-				cameraPos.z += vertexHeap.z;
+				final double dx = mx - lastClick.x;
+				final double dy = my - lastClick.y;
+
+				applyPan(dx, dy);
+
 				lastClick.x = (int) mx;
 				lastClick.y = (int) my;
-				// rip it from magos's code:
-				// final double dx = ((int) mx - lastClick.x) / m_zoom;
-				// final double dy = ((int) my - lastClick.y) / m_zoom;
-				// final double yaw = xangle;
-				// final double pitch = yangle;
-				// final double x_x = dx * Math.sin(yaw);
-				// final double x_y = -dy * Math.sin(pitch) * Math.cos(yaw);
-				// final double y_x = -dx * Math.cos(yaw);
-				// final double y_y = -dy * Math.sin(pitch) * Math.sin(yaw);
-				// final double z_x = 0;
-				// final double z_y = dy * Math.cos(pitch);
-				// cameraPos.x += (x_x + x_y);
-				// cameraPos.y += (y_x + y_y);
-				// cameraPos.z += (z_x + z_y);
-				// lastClick.x = (int) mx;
-				// lastClick.y = (int) my;
 			}
 			if (leftClickStart != null) {
+				final double dx = mx - leftClickStart.x;
+				final double dy = my - leftClickStart.y;
 
-				xangle += mx - leftClickStart.x;
-				yangle += my - leftClickStart.y;
-
-				axisHeap.set(0, 1, 0, (float) Math.toRadians(yangle));
-				inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
-				axisHeap.set(0, 0, 1, (float) Math.toRadians(xangle));
-				inverseCameraRotationZSpin.setFromAxisAngle(axisHeap);
-				Quaternion.mul(inverseCameraRotationYSpin, inverseCameraRotationZSpin, inverseCameraRotationQuat);
-				inverseCameraRotationQuat.x = -inverseCameraRotationQuat.x;
-				inverseCameraRotationQuat.y = -inverseCameraRotationQuat.y;
-				inverseCameraRotationQuat.z = -inverseCameraRotationQuat.z;
-				inverseCameraRotationYSpin.x = -inverseCameraRotationYSpin.x;
-				inverseCameraRotationYSpin.y = -inverseCameraRotationYSpin.y;
-				inverseCameraRotationYSpin.z = -inverseCameraRotationYSpin.z;
-				inverseCameraRotationZSpin.x = -inverseCameraRotationZSpin.x;
-				inverseCameraRotationZSpin.y = -inverseCameraRotationZSpin.y;
-				inverseCameraRotationZSpin.z = -inverseCameraRotationZSpin.z;
-
+				cameraManager.horizontalAngle -= Math.toRadians(dy);
+				cameraManager.verticalAngle -= Math.toRadians(dx);
 				leftClickStart.x = (int) mx;
 				leftClickStart.y = (int) my;
 			}
 			// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
 
-			if (actStart != null) {
-				final Point actEnd = new Point((int) mx, (int) my);
-				final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-				final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-				// dispMDL.updateAction(convertedStart,convertedEnd,m_d1,m_d2);
-				actStart = actEnd;
-			}
 		}
 		else if (e.getSource() == reAssignMatrix) {
 			// MatrixPopup matrixPopup = new MatrixPopup(dispMDL.getMDL());
@@ -1283,7 +1227,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 
 	@Override
 	public void mouseExited(final MouseEvent e) {
-		if ((leftClickStart == null) && (actStart == null) && (lastClick == null)) {
+		if ((leftClickStart == null) && (lastClick == null)) {
 			clickTimer.stop();
 		}
 		mouseInBounds = false;
@@ -1297,35 +1241,23 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
 			leftClickStart = new Point(e.getXOnScreen(), e.getYOnScreen());
 		}
-		else if (e.getButton() == MouseEvent.BUTTON3) {
-			actStart = new Point(e.getX(), e.getY());
-			final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			// dispMDL.startAction(convertedStart,m_d1,m_d2,MainFrame.panel.currentActionType());
-		}
 	}
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
 		if (programPreferences.getThreeDCameraPanButton().isButton(e) && (lastClick != null)) {
-			cameraPos.x += (e.getXOnScreen() - lastClick.x) / m_zoom;
-			cameraPos.y += (e.getYOnScreen() - lastClick.y) / m_zoom;
+			final double dx = e.getXOnScreen() - lastClick.x;
+			final double dy = e.getYOnScreen() - lastClick.y;
+			applyPan(dx, dy);
 			lastClick = null;
 		}
 		else if (programPreferences.getThreeDCameraSpinButton().isButton(e) && (leftClickStart != null)) {
 			final Point selectEnd = new Point(e.getX(), e.getY());
-			final Rectangle2D.Double area = pointsToGeomRect(leftClickStart, selectEnd);
 			// System.out.println(area);
 			// dispMDL.selectVerteces(area,m_d1,m_d2,MainFrame.panel.currentSelectionType());
 			leftClickStart = null;
 		}
-		else if ((e.getButton() == MouseEvent.BUTTON3) && (actStart != null)) {
-			final Point actEnd = new Point(e.getX(), e.getY());
-			final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-			// dispMDL.finishAction(convertedStart,convertedEnd,m_d1,m_d2);
-			actStart = null;
-		}
-		if (!mouseInBounds && (leftClickStart == null) && (actStart == null) && (lastClick == null)) {
+		if (!mouseInBounds && (leftClickStart == null) && (lastClick == null)) {
 			clickTimer.stop();
 		}
 		/*
@@ -1364,10 +1296,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				// * (1 / m_zoom - 1 / (m_zoom * 1.15));
 				// cameraPos.z -= (getHeight() / 2)
 				// * (1 / m_zoom - 1 / (m_zoom * 1.15));
-				m_zoom *= 1.15;
+				cameraManager.distance *= 1.15;
 			}
 			else {
-				m_zoom /= 1.15;
+				cameraManager.distance /= 1.15;
 				// cameraPos.x -= (mx - getWidth() / 2)
 				// * (1 / (m_zoom * 1.15) - 1 / m_zoom);
 				// cameraPos.y -= (my - getHeight() / 2)
@@ -1376,24 +1308,6 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 				// * (1 / (m_zoom * 1.15) - 1 / m_zoom);
 			}
 		}
-	}
-
-	public Rectangle2D.Double pointsToGeomRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min(geomX(a.x), geomX(b.x)),
-				Math.min(geomY(a.y), geomY(b.y)));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)),
-				Math.max(geomY(a.y), geomY(b.y)));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
-				lowRight.y - topLeft.y);
-		return temp;
-	}
-
-	public Rectangle2D.Double pointsToRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min(a.x, b.x), Math.min(a.y, b.y));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max(a.x, b.x), Math.max(a.y, b.y));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
-				lowRight.y - topLeft.y);
-		return temp;
 	}
 
 	private static final int BYTES_PER_PIXEL = 4;
@@ -1583,5 +1497,13 @@ public class PerspectiveViewport extends BetterAWTGLCanvas
 		// resetting the UI views when we
 		// open a new model.
 		pipeline = null;
+	}
+
+	public ViewerCamera getViewerCamera() {
+		return viewerCamera;
+	}
+
+	public PortraitCameraManager getCameraManager() {
+		return cameraManager;
 	}
 }

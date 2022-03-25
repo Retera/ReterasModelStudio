@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Quaternion;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import com.hiveworkshop.wc3.gui.modelviewer.AnimatedRenderEnvironment;
+import com.hiveworkshop.wc3.gui.modelviewer.ViewerCamera;
 import com.hiveworkshop.wc3.mdl.AnimatedNode;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
@@ -25,7 +25,6 @@ import com.hiveworkshop.wc3.mdl.QuaternionRotation;
 import com.hiveworkshop.wc3.mdl.RibbonEmitter;
 import com.hiveworkshop.wc3.mdl.Vertex;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
-import com.hiveworkshop.wc3.util.MathUtils;
 
 /**
  * For rendering. Copied from ghostwolf's stuff
@@ -33,13 +32,15 @@ import com.hiveworkshop.wc3.util.MathUtils;
  * @param forced
  */
 public final class RenderModel {
+	private static final Quaternion HALF_PI_X = new Quaternion();
+	private static final Quaternion HALF_PI_Y = new Quaternion();
+	{
+		HALF_PI_X.setFromAxisAngle(new Vector4f(1, 0, 0, (float) (-Math.PI / 2)));
+		HALF_PI_Y.setFromAxisAngle(new Vector4f(0, 1, 0, (float) (-Math.PI / 2)));
+	}
 	private EditableModel model;
 	public static final double MAGIC_RENDER_SHOW_CONSTANT = 0.75;
 	private final List<AnimatedNode> sortedNodes = new ArrayList<>();
-	private Quaternion inverseCameraRotation;
-	private Quaternion inverseCameraRotationXSpin;
-	private Quaternion inverseCameraRotationYSpin;
-	private Quaternion inverseCameraRotationZSpin;
 	private AnimatedRenderEnvironment animatedRenderEnvironment;
 
 	private final Map<AnimatedNode, RenderNode> objectToRenderNode = new HashMap<>();
@@ -56,21 +57,14 @@ public final class RenderModel {
 
 	private boolean spawnParticles = true;
 	private boolean allowInanimateParticles = false;
-	private static final Matrix4f billboardUpdatesMatrixHeap = new Matrix4f();
 
 	// These guys form the corners of a 2x2 rectangle, for use in Ghostwolf particle
 	// emitter algorithm
-	private final Vector4f[] spacialVectors = { new Vector4f(-1, 1, 0, 1), new Vector4f(1, 1, 0, 1),
-			new Vector4f(1, -1, 0, 1), new Vector4f(-1, -1, 0, 1), new Vector4f(1, 0, 0, 1), new Vector4f(0, 1, 0, 1),
-			new Vector4f(0, 0, 1, 1) };
-	private final Vector4f[] billboardBaseVectors = { new Vector4f(0, 1, -1, 1), new Vector4f(0, -1, -1, 1),
-			new Vector4f(0, -1, 1, 1), new Vector4f(0, 1, 1, 1), new Vector4f(0, 1, 0, 1), new Vector4f(0, 0, 1, 1),
-			new Vector4f(1, 0, 0, 1) };
-	private final Vector4f[] billboardVectors = { new Vector4f(0, 1, -1, 1), new Vector4f(0, -1, -1, 1),
-			new Vector4f(0, -1, 1, 1), new Vector4f(0, 1, 1, 1), new Vector4f(0, 1, 0, 1), new Vector4f(0, 0, 1, 1),
-			new Vector4f(1, 0, 0, 1) };
+	private final Vector3f[] spacialVectors = { new Vector3f(-1, 1, 0), new Vector3f(1, 1, 0), new Vector3f(1, -1, 0),
+			new Vector3f(-1, -1, 0), new Vector3f(1, 0, 0), new Vector3f(0, 1, 0), new Vector3f(0, 0, 1) };
 	private final ModelView modelView;
 	private RenderResourceAllocator lastRenderResourceAllocator;
+	private ViewerCamera camera;
 
 	public RenderModel(final EditableModel model, final ModelView modelView) {
 		this.model = model;
@@ -103,22 +97,15 @@ public final class RenderModel {
 	}
 
 	public void refreshFromEditor(final AnimatedRenderEnvironment animatedRenderEnvironment,
-			final Quaternion inverseCameraRotation, final Quaternion inverseCameraRotationYSpin,
-			final Quaternion inverseCameraRotationZSpin, final RenderResourceAllocator renderResourceAllocator) {
+			final ViewerCamera viewerCamera, final RenderResourceAllocator renderResourceAllocator) {
 		particleEmitterViews2.clear();
 		particleEmitters2.clear();
 		this.animatedRenderEnvironment = animatedRenderEnvironment;
-		this.inverseCameraRotation = inverseCameraRotation;
-		this.inverseCameraRotationYSpin = inverseCameraRotationYSpin;
-		this.inverseCameraRotationZSpin = inverseCameraRotationZSpin;
+		this.camera = viewerCamera;
 		this.lastRenderResourceAllocator = renderResourceAllocator;
 
 		// Cache the billboard vectors; TODO be more efficient like Ghostwolf's code and
 		// dont use billboardUpdatesMatrixHeap
-		MathUtils.fromQuat(inverseCameraRotation, billboardUpdatesMatrixHeap);
-		for (int i = 0; i < billboardVectors.length; i++) {
-			Matrix4f.transform(billboardUpdatesMatrixHeap, billboardBaseVectors[i], billboardVectors[i]);
-		}
 
 		sortedNodes.clear();
 		for (final Camera camera : model.getCameras()) {
@@ -289,7 +276,9 @@ public final class RenderModel {
 						localRotation.setIdentity();
 					}
 
-					Quaternion.mul(localRotation, inverseCameraRotation, localRotation);
+					Quaternion.mul(localRotation, camera.inverseRotation, localRotation);
+					Quaternion.mul(localRotation, HALF_PI_Y, localRotation);
+					Quaternion.mul(localRotation, HALF_PI_X, localRotation);
 				}
 				else if (node.billboardedY) {
 					// To solve billboard Y, you must rotate to face camera
@@ -308,7 +297,7 @@ public final class RenderModel {
 
 					// Cancel the parent's rotation;
 					localRotation.setIdentity();
-					Quaternion.mul(localRotation, inverseCameraRotationYSpin, localRotation);
+					Quaternion.mul(localRotation, camera.inverseRotation /* TODO not correct */, localRotation);
 //					if (parent != null) {
 //						Quaternion.mul(localRotation, localRotation, parent.inverseWorldRotation);
 //					}
@@ -326,7 +315,7 @@ public final class RenderModel {
 						localRotation.setIdentity();
 					}
 
-					Quaternion.mul(localRotation, inverseCameraRotationZSpin, localRotation);
+					Quaternion.mul(localRotation, camera.inverseRotation/* TODO not correct */, localRotation);
 
 					// TODO face camera, TODO have a camera
 				}
@@ -377,10 +366,6 @@ public final class RenderModel {
 	}
 
 	private void updateParticles() {
-		MathUtils.fromQuat(inverseCameraRotation, billboardUpdatesMatrixHeap);
-		for (int i = 0; i < billboardVectors.length; i++) {
-			Matrix4f.transform(billboardUpdatesMatrixHeap, billboardBaseVectors[i], billboardVectors[i]);
-		}
 		if ((animatedRenderEnvironment == null) || (animatedRenderEnvironment.getCurrentAnimation() == null)) {
 			// not animating
 			if (allowInanimateParticles) {
@@ -422,11 +407,11 @@ public final class RenderModel {
 		}
 	}
 
-	public Vector4f[] getBillboardVectors() {
-		return billboardVectors;
+	public Vector3f[] getBillboardVectors() {
+		return camera.billboardedVectors;
 	}
 
-	public Vector4f[] getSpacialVectors() {
+	public Vector3f[] getSpacialVectors() {
 		return spacialVectors;
 	}
 
@@ -452,7 +437,6 @@ public final class RenderModel {
 
 	public void setModel(final EditableModel model) {
 		this.model = model;
-		refreshFromEditor(animatedRenderEnvironment, inverseCameraRotation, inverseCameraRotationYSpin,
-				inverseCameraRotationZSpin, lastRenderResourceAllocator);
+		refreshFromEditor(animatedRenderEnvironment, camera, lastRenderResourceAllocator);
 	}
 }

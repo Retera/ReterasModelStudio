@@ -12,9 +12,11 @@ import org.lwjgl.LWJGLException;
 
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.mdl.Animation;
+import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
-public class ControlledAnimationViewer extends JPanel implements AnimationControllerListener {
+public class ControlledAnimationViewer extends JPanel
+		implements AnimationControllerListener, CameraManagerPanelListener {
 	private ModelView mdlDisp;
 	private AnimatedPerspectiveViewport perspectiveViewport;
 
@@ -26,7 +28,8 @@ public class ControlledAnimationViewer extends JPanel implements AnimationContro
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			perspectiveViewport.setAnimationTime(0);
 			perspectiveViewport.setLive(true);
-		} catch (final LWJGLException e) {
+		}
+		catch (final LWJGLException e) {
 			throw new RuntimeException(e);
 		}
 		setLayout(new BorderLayout());
@@ -93,5 +96,15 @@ public class ControlledAnimationViewer extends JPanel implements AnimationContro
 
 	public BufferedImage getBufferedImage() {
 		return perspectiveViewport.getBufferedImage();
+	}
+
+	@Override
+	public void setCamera(final Camera camera) {
+		perspectiveViewport.setCamera(camera);
+	}
+
+	@Override
+	public void setDefaultCamera() {
+		perspectiveViewport.loadDefaultCamera();
 	}
 }

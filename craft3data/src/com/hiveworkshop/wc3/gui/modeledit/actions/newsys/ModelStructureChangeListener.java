@@ -41,4 +41,71 @@ public interface ModelStructureChangeListener {
 	void animationParamsChanged(Animation animation);
 
 	void globalSequenceLengthChanged(int index, Integer newLength);
+
+	ModelStructureChangeListener DO_NOTHING = new ModelStructureChangeListener() {
+
+		@Override
+		public void timelineRemoved(final TimelineContainer node, final AnimFlag timeline) {
+		}
+
+		@Override
+		public void timelineAdded(final TimelineContainer node, final AnimFlag timeline) {
+		}
+
+		@Override
+		public void texturesChanged() {
+		}
+
+		@Override
+		public void nodesRemoved(final List<IdObject> nodes) {
+		}
+
+		@Override
+		public void nodesAdded(final List<IdObject> nodes) {
+		}
+
+		@Override
+		public void keyframeRemoved(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
+		}
+
+		@Override
+		public void keyframeAdded(final TimelineContainer node, final AnimFlag timeline, final int trackTime) {
+		}
+
+		@Override
+		public void headerChanged() {
+		}
+
+		@Override
+		public void globalSequenceLengthChanged(final int index, final Integer newLength) {
+		}
+
+		@Override
+		public void geosetsRemoved(final List<Geoset> geosets) {
+		}
+
+		@Override
+		public void geosetsAdded(final List<Geoset> geosets) {
+		}
+
+		@Override
+		public void camerasRemoved(final List<Camera> nodes) {
+		}
+
+		@Override
+		public void camerasAdded(final List<Camera> nodes) {
+		}
+
+		@Override
+		public void animationsRemoved(final List<Animation> animation) {
+		}
+
+		@Override
+		public void animationsAdded(final List<Animation> animation) {
+		}
+
+		@Override
+		public void animationParamsChanged(final Animation animation) {
+		}
+	};
 }

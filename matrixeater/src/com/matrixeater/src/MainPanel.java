@@ -106,6 +106,7 @@ import org.lwjgl.util.vector.Vector4f;
 
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.ExceptionPopup;
+import com.hiveworkshop.wc3.gui.GUIUtils;
 import com.hiveworkshop.wc3.gui.ProgramPreferences;
 import com.hiveworkshop.wc3.gui.animedit.ControllableTimeBoundProvider;
 import com.hiveworkshop.wc3.gui.animedit.TimeBoundChangeListener;
@@ -265,9 +266,9 @@ public class MainPanel extends JPanel
 			newDirectory, creditsButton, changelogButton, clearRecent, nullmodelButton, selectAll, invertSelect,
 			expandSelection, snapNormals, snapVertices, flipAllUVsU, flipAllUVsV, inverseAllUVs, mirrorX, mirrorY,
 			mirrorZ, insideOut, insideOutNormals, showMatrices, editUVs, exportTextures, editTextures, scaleAnimations,
-			animationViewer, animationController, modelingTab, mpqViewer, hiveViewer, unitViewer, preferencesWindow,
-			linearizeAnimations, sortBones, simplifyKeyframes, rigButton, duplicateSelection, riseFallBirth,
-			animFromFile, animFromUnit, animFromModel, animFromObject, teamColor, teamGlow;
+			animationViewer, animationController, cameraController, modelingTab, mpqViewer, hiveViewer, unitViewer,
+			preferencesWindow, linearizeAnimations, sortBones, simplifyKeyframes, rigButton, duplicateSelection,
+			riseFallBirth, animFromFile, animFromUnit, animFromModel, animFromObject, teamColor, teamGlow;
 	JMenuItem cut, copy, paste;
 	List<RecentItem> recentItems = new ArrayList<>();
 	UndoMenuItem undo;
@@ -294,6 +295,7 @@ public class MainPanel extends JPanel
 	private View creatorView;
 	private View mdlTextView;
 	private View animationControllerView;
+	private View cameraControllerView;
 	JScrollPane geoControl;
 	JScrollPane geoControlModelData;
 	JTextField[] mouseCoordDisplay = new JTextField[3];
@@ -683,6 +685,12 @@ public class MainPanel extends JPanel
 			return animationControllerView;
 		}
 	});
+	AbstractAction openCameraControllerAction = new OpenViewAction("Camera Controller", new OpenViewGetter() {
+		@Override
+		public View getView() {
+			return cameraControllerView;
+		}
+	});
 	AbstractAction openModelingTabAction = new OpenViewAction("Modeling", new OpenViewGetter() {
 		@Override
 		public View getView() {
@@ -735,6 +743,12 @@ public class MainPanel extends JPanel
 		@Override
 		public View getView() {
 			return modelDataView;
+		}
+	});
+	AbstractAction openTextViewAction = new OpenViewAction("Text", new OpenViewGetter() {
+		@Override
+		public View getView() {
+			return mdlTextView;
 		}
 	});
 	AbstractAction hackerViewAction = new OpenViewAction("Matrix Eater Script", new OpenViewGetter() {
@@ -1020,17 +1034,30 @@ public class MainPanel extends JPanel
 		setTimeBounds.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+				final ModelPanel modelPanel = currentModelPanel();
+				if (modelPanel == null) {
+					JOptionPane.showMessageDialog(MainPanel.this, "Please open a model file.", "Error",
+							JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 				final TimeBoundChooserPanel timeBoundChooserPanel = new TimeBoundChooserPanel(
-						currentModelPanel() == null ? null : currentModelPanel().getModelViewManager(),
-						modelStructureChangeListener);
+						modelPanel.getModelViewManager(), modelStructureChangeListener, new Callback<Animation>() {
+
+							@Override
+							public void run(final Animation object) {
+								GUIUtils.bringToFront(modelComponentView);
+								modelPanel.getModelComponentBrowserTree().selectObject(object);
+							}
+						});
 				final int confirmDialogResult = JOptionPane.showConfirmDialog(MainPanel.this, timeBoundChooserPanel,
 						"Set Time Bounds", JOptionPane.OK_CANCEL_OPTION);
 				if (confirmDialogResult == JOptionPane.OK_OPTION) {
 					timeBoundChooserPanel.applyTo(animatedRenderEnvironment);
-					if (currentModelPanel() != null) {
-						currentModelPanel().getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment,
-								IDENTITY, IDENTITY, IDENTITY, currentModelPanel().getPerspArea().getViewport());
-						currentModelPanel().getEditorRenderModel().updateNodes(true, false);
+					if (modelPanel != null) {
+						modelPanel.getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment,
+								modelPanel.getPerspArea().getViewport().getViewerCamera(),
+								modelPanel.getPerspArea().getViewport());
+						modelPanel.getEditorRenderModel().updateNodes(true, false);
 					}
 				}
 			}
@@ -1531,6 +1558,7 @@ public class MainPanel extends JPanel
 		}, prefs, actionTypeGroup, activeViewportWatcher, animatedRenderEnvironment);
 		creatorView = new View("Modeling", null, creatorPanel);
 		animationControllerView = new View("Animation Controller", null, new JPanel());
+		cameraControllerView = new View("Camera Controller", null, new JPanel());
 		final TabWindow startupTabWindow = createMainLayout();
 		rootWindow.setWindow(startupTabWindow);
 		rootWindow.getRootWindowProperties().getFloatingWindowProperties().setUseFrame(true);
@@ -1639,8 +1667,8 @@ public class MainPanel extends JPanel
 		final TabWindow tabWindow = new TabWindow(new DockingWindow[] {
 				new View("Unit Browser", imageIcon, new JScrollPane(unitEditorTree)), mpqBrowserView });
 		tabWindow.setSelectedTab(0);
-		final SplitWindow viewingTab = new SplitWindow(true, 0.8f,
-				new SplitWindow(true, 0.8f, previewView, animationControllerView), tabWindow);
+		final SplitWindow viewingTab = new SplitWindow(true, 0.8f, new SplitWindow(true, 0.8f, previewView,
+				new SplitWindow(false, 0.7f, animationControllerView, cameraControllerView)), tabWindow);
 		viewingTab.getWindowProperties().setTitleProvider(new DockingWindowTitleProvider() {
 			@Override
 			public String getTitle(final DockingWindow arg0) {
@@ -1810,8 +1838,9 @@ public class MainPanel extends JPanel
 					final Animation anim = currentModelPanel().getModel().getAnim(0);
 					animatedRenderEnvironment.setBounds(anim.getStart(), anim.getEnd());
 				}
-				currentModelPanel().getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment, IDENTITY,
-						IDENTITY, IDENTITY, currentModelPanel().getPerspArea().getViewport());
+				currentModelPanel().getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment,
+						currentModelPanel().getPerspArea().getViewport().getViewerCamera(),
+						currentModelPanel().getPerspArea().getViewport());
 				currentModelPanel().getEditorRenderModel().updateNodes(true, false);
 				timeSliderPanel.setNodeSelectionManager(
 						currentModelPanel().getModelEditorManager().getNodeAnimationSelectionManager());
@@ -1824,8 +1853,9 @@ public class MainPanel extends JPanel
 		animatedRenderEnvironment.setStaticViewMode(!animationModeState);
 		if (!animationModeState) {
 			if ((currentModelPanel() != null) && (currentModelPanel().getModel() != null)) {
-				currentModelPanel().getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment, IDENTITY,
-						IDENTITY, IDENTITY, currentModelPanel().getPerspArea().getViewport());
+				currentModelPanel().getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment,
+						currentModelPanel().getPerspArea().getViewport().getViewerCamera(),
+						currentModelPanel().getPerspArea().getViewport());
 				currentModelPanel().getEditorRenderModel().updateNodes(true, false); // update to 0 position
 			}
 		}
@@ -1860,7 +1890,8 @@ public class MainPanel extends JPanel
 		display.getAnimationController().reload();
 		creatorPanel.reloadAnimationList();
 
-		display.getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment, IDENTITY, IDENTITY, IDENTITY,
+		display.getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment,
+				currentModelPanel().getPerspArea().getViewport().getViewerCamera(),
 				display.getPerspArea().getViewport());
 	}
 
@@ -2702,6 +2733,10 @@ public class MainPanel extends JPanel
 		animationController.addActionListener(openAnimationControllerAction);
 		viewsMenu.add(animationController);
 
+		cameraController = new JMenuItem("Camera Controller");
+		cameraController.addActionListener(openCameraControllerAction);
+		viewsMenu.add(cameraController);
+
 		modelingTab = new JMenuItem("Modeling");
 		modelingTab.setMnemonic(KeyEvent.VK_M);
 		modelingTab.addActionListener(openModelingTabAction);
@@ -2745,6 +2780,10 @@ public class MainPanel extends JPanel
 		final JMenuItem timeItem = new JMenuItem("Footer");
 		timeItem.addActionListener(openTimeSliderAction);
 		viewsMenu.add(timeItem);
+
+		final JMenuItem textItem = new JMenuItem("Text");
+		textItem.addActionListener(openTextViewAction);
+		viewsMenu.add(textItem);
 
 		final JMenuItem hackerViewItem = new JMenuItem("Matrix Eater Script");
 		hackerViewItem.setMnemonic(KeyEvent.VK_H);
@@ -3088,6 +3127,9 @@ public class MainPanel extends JPanel
 							vertexSumHeap.z /= boneCount;
 							vertexSumHeap.w /= boneCount;
 						}
+						else if (vertex.getSkinBones() != null) {
+
+						}
 						else {
 							vertexSumHeap.set(vertexHeap);
 						}
@@ -3324,7 +3366,7 @@ public class MainPanel extends JPanel
 		});
 		scriptsMenu.add(makeItHDItem);
 
-		final JMenuItem version800EditingToggle = new JMenuItem("HD -> SD (highly experimental, becomes 800)");
+		final JMenuItem version800EditingToggle = new JMenuItem("HD -> SD with older code (becomes 800)");
 		version800EditingToggle.setMnemonic(KeyEvent.VK_A);
 		version800EditingToggle.addActionListener(new ActionListener() {
 			@Override
@@ -3349,7 +3391,9 @@ public class MainPanel extends JPanel
 					EditableModel.convertToV800BakingTextures(0, current, file.getParentFile());
 					defaultFileSaveAsCallback.accept(file);
 				})) {
-
+					reloadGUI();
+					currentModelPanel().getAnimationViewer().reloadAllTextures();
+					currentModelPanel().getPerspArea().getViewport().reloadAllTextures();
 				}
 			}
 		});
@@ -5386,8 +5430,9 @@ public class MainPanel extends JPanel
 					display.getModelViewManager().makeIdObjectVisible(geoset);
 				}
 				reloadGeosetManagers(display);
-				display.getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment, IDENTITY, IDENTITY,
-						IDENTITY, display.getPerspArea().getViewport());
+				display.getEditorRenderModel().refreshFromEditor(animatedRenderEnvironment,
+						currentModelPanel().getPerspArea().getViewport().getViewerCamera(),
+						display.getPerspArea().getViewport());
 				display.getAnimationViewer().reload();
 			}
 		}
@@ -5940,6 +5985,7 @@ public class MainPanel extends JPanel
 			previewView.setComponent(new JPanel());
 			mdlEditorTextArea.setText("// empty");
 			animationControllerView.setComponent(new JPanel());
+			cameraControllerView.setComponent(new JPanel());
 			refreshAnimationModeState();
 			timeSliderPanel.setUndoManager(null, animatedRenderEnvironment);
 			timeSliderPanel.setModelView(null);
@@ -5962,10 +6008,12 @@ public class MainPanel extends JPanel
 				loadMDLText(modelContextManager);
 			}
 			else {
-				mdlEditorTextArea.setText("// click on \"Refresh\" to populate this UI");
+				mdlEditorTextArea.setText(
+						"// click on \"Refresh\" to populate this UI.\n// If you want to populate this view automatically, you can do so in the preferences window\n// (but it may degrade performance).");
 
 			}
 			animationControllerView.setComponent(modelContextManager.getAnimationController());
+			cameraControllerView.setComponent(modelContextManager.getCameraController());
 			refreshAnimationModeState();
 			timeSliderPanel.setUndoManager(currentModelPanel.getUndoManager(), animatedRenderEnvironment);
 			timeSliderPanel.setModelView(currentModelPanel.getModelViewManager());

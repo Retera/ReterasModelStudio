@@ -41,7 +41,7 @@ public class SoftwareParticleEmitterShader implements ParticleEmitterShader {
 			}
 			NGGLDP.pipeline.glTexCoord2f(uv_u, uv_v);
 			NGGLDP.pipeline.glNormal3f(0, 0, 1);
-			NGGLDP.pipeline.glVertex3f(bufferData[i + 1], bufferData[i + 2], bufferData[i]);
+			NGGLDP.pipeline.glVertex3f(bufferData[i], bufferData[i + 1], bufferData[i + 2]);
 		}
 		NGGLDP.pipeline.glEnd();
 	}

@@ -31,8 +31,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -68,9 +66,11 @@ import com.hiveworkshop.wc3.gui.ProgramPreferencesChangeListener;
 import com.hiveworkshop.wc3.gui.datachooser.DataSource;
 import com.hiveworkshop.wc3.gui.lwjgl.BetterAWTGLCanvas;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationControllerListener.LoopType;
+import com.hiveworkshop.wc3.gui.modelviewer.camera.PortraitCameraManager;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
+import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.CollisionShape;
 import com.hiveworkshop.wc3.mdl.ExtLog;
 import com.hiveworkshop.wc3.mdl.Geoset;
@@ -90,22 +90,17 @@ import com.hiveworkshop.wc3.mdl.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.wc3.mdl.render3d.RenderResourceAllocator;
 import com.hiveworkshop.wc3.mdl.render3d.RenderRibbonEmitter;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
+import com.hiveworkshop.wc3.util.MathUtils;
 import com.hiveworkshop.wc3.util.ModelUtils;
 
 public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements MouseListener, ActionListener,
 		MouseWheelListener, AnimatedRenderEnvironment, RenderResourceAllocator {
+	public static final float NORMAL_RENDER_LENGTH = 0.025f;
 	public static final boolean LOG_EXCEPTIONS = true;
 	ModelView modelView;
 	private RenderModel renderModel;
-	Vertex cameraPos = new Vertex(0, 0, 0);
-	Quaternion inverseCameraRotationQuat = new Quaternion();
-	Quaternion inverseCameraRotationYSpin = new Quaternion();
-	Quaternion inverseCameraRotationZSpin = new Quaternion();
-	private final Vector4f axisHeap = new Vector4f();
-	double m_zoom = 1;
 	Point lastClick;
 	Point leftClickStart;
-	Point actStart;
 	Timer clickTimer = new Timer(16, this);
 	Timer paintTimer;
 	boolean mouseInBounds = false;
@@ -131,6 +126,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	private float backgroundRed, backgroundBlue, backgroundGreen;
 
 	private int levelOfDetail;
+	private final ViewerCamera viewerCamera;
+	private final PortraitCameraManager cameraManager;
 
 	public AnimatedPerspectiveViewport(final ModelView modelView, final ProgramPreferences programPreferences,
 			final boolean loadDefaultCamera) throws LWJGLException {
@@ -150,14 +147,16 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		// add(Box.createVerticalStrut(200));
 		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
 		this.modelView = modelView;
+		viewerCamera = new ViewerCamera();
+		cameraManager = new PortraitCameraManager();
+		cameraManager.setupCamera(viewerCamera);
 		if (loadDefaultCamera) {
-			loadDefaultCameraFor(modelView);
+			loadDefaultCameraFor(modelView, true);
 		}
 		this.renderModel = new RenderModel(modelView.getModel(), null);
 		renderModel.setSpawnParticles(
 				(programPreferences.getRenderParticles() == null) || programPreferences.getRenderParticles());
-		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
-				inverseCameraRotationZSpin, this);
+		renderModel.refreshFromEditor(this, viewerCamera, this);
 		addMouseListener(this);
 		addMouseWheelListener(this);
 
@@ -186,7 +185,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		paintTimer.start();
 	}
 
-	private void loadDefaultCameraFor(final ModelView modelView) {
+	private void loadDefaultCameraFor(final ModelView modelView, final boolean loadDefaultAnimation) {
 		ExtLog extents = null;
 		final ArrayList<CollisionShape> collisionShapes = modelView.getModel().sortedIdObjects(CollisionShape.class);
 		if (collisionShapes.size() > 0) {
@@ -213,9 +212,11 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				}
 			}
 		}
-		this.animation = defaultAnimation;
+		if (loadDefaultAnimation) {
+			this.animation = defaultAnimation;
+		}
+		double boundsRadius = 64;
 		if (extents != null) {
-			double boundsRadius = 64;
 			if (extents.hasBoundsRadius() && (extents.getBoundsRadius() > 1)) {
 				final double extBoundRadius = extents.getBoundsRadius();
 				if (extBoundRadius > boundsRadius) {
@@ -231,25 +232,10 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			if ((boundsRadius > 10000) || (boundsRadius < 0.1)) {
 				boundsRadius = 64;
 			}
-			this.m_zoom = 128 / (boundsRadius * 2);
-			this.cameraPos.y -= boundsRadius / 2;
 		}
-		this.yangle += 35;
+		cameraManager.distance = (float) (boundsRadius * Math.sqrt(2)) * 2;
+		cameraManager.target.set(0, 0, (float) boundsRadius / 2);
 
-		axisHeap.set(0, 1, 0, (float) Math.toRadians(yangle));
-		inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
-		axisHeap.set(0, 0, 1, (float) Math.toRadians(xangle));
-		inverseCameraRotationZSpin.setFromAxisAngle(axisHeap);
-		Quaternion.mul(inverseCameraRotationYSpin, inverseCameraRotationZSpin, inverseCameraRotationQuat);
-		inverseCameraRotationQuat.x = -inverseCameraRotationQuat.x;
-		inverseCameraRotationQuat.y = -inverseCameraRotationQuat.y;
-		inverseCameraRotationQuat.z = -inverseCameraRotationQuat.z;
-		inverseCameraRotationYSpin.x = -inverseCameraRotationYSpin.x;
-		inverseCameraRotationYSpin.y = -inverseCameraRotationYSpin.y;
-		inverseCameraRotationYSpin.z = -inverseCameraRotationYSpin.z;
-		inverseCameraRotationZSpin.x = -inverseCameraRotationZSpin.x;
-		inverseCameraRotationZSpin.y = -inverseCameraRotationZSpin.y;
-		inverseCameraRotationZSpin.z = -inverseCameraRotationZSpin.z;
 	}
 
 	private void loadBackgroundColors() {
@@ -264,8 +250,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		setAnimation(null);
 		this.modelView = modelView;
 		this.renderModel = new RenderModel(modelView.getModel(), null);
-		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
-				inverseCameraRotationZSpin, this);
+		renderModel.refreshFromEditor(this, viewerCamera, this);
 		if (modelView.getModel().getAnims().size() > 0) {
 			setAnimation(modelView.getModel().getAnim(0));
 		}
@@ -277,12 +262,10 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		animationTime = 0;
 		lastUpdateMillis = System.currentTimeMillis();
 		if (animation != null) {
-			renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
-					inverseCameraRotationZSpin, this);
+			renderModel.refreshFromEditor(this, viewerCamera, this);
 		}
 		else {
-			renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
-					inverseCameraRotationZSpin, this);
+			renderModel.refreshFromEditor(this, viewerCamera, this);
 		}
 		if (loopType == LoopType.DEFAULT_LOOP) {
 			final boolean loopingState = animation == null ? false : !animation.isNonLooping();
@@ -313,8 +296,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		// //GL11.glDeleteTextures(textureMap.get(tex));
 		// }
 		// initGL();
-		renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
-				inverseCameraRotationZSpin, this);
+		renderModel.refreshFromEditor(this, viewerCamera, this);
 
 		deleteAllTextures();
 		for (final Geoset geo : modelView.getModel().getGeosets()) {// .getMDL().getGeosets()
@@ -462,8 +444,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 						}
 					}
 				}
-				renderModel.refreshFromEditor(this, inverseCameraRotationQuat, inverseCameraRotationYSpin,
-						inverseCameraRotationZSpin, this);
+				renderModel.refreshFromEditor(this, viewerCamera, this);
 			}
 			// JAVA 9+ or maybe WIN 10 allow ridiculous virtual pixes, this combination of
 			// old library code and java std library code give me a metric for the
@@ -483,28 +464,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 					+ e.getClass().getSimpleName() + ": " + e.getMessage());
 			throw new RuntimeException(e);
 		}
-	}
-
-	public void setPosition(final double a, final double b) {
-		cameraPos.x = a;
-		cameraPos.y = b;
-	}
-
-	public void translate(final double a, final double b) {
-		cameraPos.x += a;
-		cameraPos.y += b;
-	}
-
-	public void zoom(final double amount) {
-		m_zoom *= 1 + amount;
-	}
-
-	public double getZoomAmount() {
-		return m_zoom;
-	}
-
-	public Point2D.Double getDisplayOffset() {
-		return new Point2D.Double(cameraPos.x, cameraPos.y);
 	}
 
 	// public byte getPortFirstXYZ()
@@ -559,8 +518,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	}
 
 	boolean initialized = false;
-	private float xangle;
-	private float yangle;
 
 	public boolean renderTextures() {
 		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
@@ -577,6 +534,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	private final Matrix4f skinBonesMatrixHeap = new Matrix4f();
 	private final Matrix4f skinBonesMatrixSumHeap = new Matrix4f();
 	private final Matrix3f skinBonesMatrixSumHeap3 = new Matrix3f();
+	private final Vector3f screenDimension = new Vector3f();
+	private final Matrix3f screenDimensionMat3Heap = new Matrix3f();
 
 	@Override
 	protected void exceptionOccurred(final LWJGLException exception) {
@@ -590,6 +549,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	}
 
 	public void paintGL(final boolean autoRepainting) {
+		viewerCamera.update();
+		cameraManager.updateCamera();
 		NGGLDP.setPipeline(pipeline);
 		setSize(getParent().getSize());
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
@@ -600,6 +561,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			wantReloadAll = false;
 			wantReload = false;// If we just reloaded all, no need to reload
 			// some.
+			pipeline.discard();
+			pipeline = null;
 			try {
 				initGL();// Re-overwrite textures
 			}
@@ -650,6 +613,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				NGGLDP.pipeline.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 			NGGLDP.pipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
+			viewerCamera.viewport(0, 0, getWidth() * xRatio, getHeight() * yRatio);
 			GL11.glEnable(GL_DEPTH_TEST);
 
 			GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -669,7 +633,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			// glClearColor(0f, 0f, 0f, 1.0f);
 			NGGLDP.pipeline.glMatrixMode(GL_PROJECTION);
 			NGGLDP.pipeline.glLoadIdentity();
-			NGGLDP.pipeline.gluPerspective(45f, (float) getWidth() / (float) getHeight(), 20.0f, 60000.0f);
+//			NGGLDP.pipeline.gluPerspective(45f, (float) getWidth() / (float) getHeight(), 20.0f, 60000.0f);
 			// GLU.gluOrtho2D(45f, (float)current_width/(float)current_height,
 			// 1.0f, 600.0f);
 			// glRotatef(angle, 0, 0, 0);
@@ -681,11 +645,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 			NGGLDP.pipeline.glLoadIdentity();
 			// GL11.glShadeModel(GL11.GL_SMOOTH);
 
-			NGGLDP.pipeline.glTranslatef(0f + ((float) cameraPos.x * (float) m_zoom),
-					-70f - ((float) cameraPos.y * (float) m_zoom), -200f - ((float) cameraPos.z * (float) m_zoom));
-			NGGLDP.pipeline.glRotatef(yangle, 1f, 0f, 0f);
-			NGGLDP.pipeline.glRotatef(xangle, 0f, 1f, 0f);
-			NGGLDP.pipeline.glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
+			NGGLDP.pipeline.glCamera(viewerCamera);
 
 			final FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
 			ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();
@@ -802,7 +762,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 										normalSumHeap.normalise();
 									}
 									else {
-										normalSumHeap.set(0, 1, 0, 0);
+										normalSumHeap.set(0, 0, 1, 0);
 									}
 									if (Float.isNaN(normalSumHeap.x) || Float.isNaN(normalSumHeap.y)
 											|| Float.isNaN(normalSumHeap.z) || Float.isNaN(normalSumHeap.w)
@@ -811,14 +771,16 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 										continue;
 									}
 
-									NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-									NGGLDP.pipeline.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
+									NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 
-									NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-									NGGLDP.pipeline.glVertex3f(
-											vertexSumHeap.y + (float) ((normalSumHeap.y * 6) / m_zoom),
-											vertexSumHeap.z + (float) ((normalSumHeap.z * 6) / m_zoom),
-											vertexSumHeap.x + (float) ((normalSumHeap.x * 6) / m_zoom));
+									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
+									NGGLDP.pipeline.glVertex3f(vertexSumHeap.x
+											+ ((normalSumHeap.x * NORMAL_RENDER_LENGTH) * cameraManager.distance),
+											vertexSumHeap.y + ((normalSumHeap.y * NORMAL_RENDER_LENGTH)
+													* cameraManager.distance),
+											vertexSumHeap.z + ((normalSumHeap.z * NORMAL_RENDER_LENGTH)
+													* cameraManager.distance));
 								}
 							}
 						}
@@ -871,14 +833,16 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 										normalSumHeap.set(0, 1, 0, 0);
 									}
 
-									NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-									NGGLDP.pipeline.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
+									NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 
-									NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
-									NGGLDP.pipeline.glVertex3f(
-											vertexSumHeap.y + (float) ((normalSumHeap.y * 6) / m_zoom),
-											vertexSumHeap.z + (float) ((normalSumHeap.z * 6) / m_zoom),
-											vertexSumHeap.x + (float) ((normalSumHeap.x * 6) / m_zoom));
+									NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
+									NGGLDP.pipeline.glVertex3f(vertexSumHeap.x
+											+ ((normalSumHeap.x * NORMAL_RENDER_LENGTH) * cameraManager.distance),
+											vertexSumHeap.y + ((normalSumHeap.y * NORMAL_RENDER_LENGTH)
+													* cameraManager.distance),
+											vertexSumHeap.z + ((normalSumHeap.z * NORMAL_RENDER_LENGTH)
+													* cameraManager.distance));
 								}
 							}
 						}
@@ -1139,13 +1103,13 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 								normalHeap3.z = (float) v.getNormal().z;
 								Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
 
-								NGGLDP.pipeline.glNormal3f(normalSumHeap3.y, normalSumHeap3.z, normalSumHeap3.x);
+								NGGLDP.pipeline.glNormal3f(normalSumHeap3.x, normalSumHeap3.y, normalSumHeap3.z);
 							}
 							if (v.getTangent() != null) {
 								normalHeap3.set(v.getTangent()[0], v.getTangent()[1], v.getTangent()[2]);
 								Matrix3f.transform(skinBonesMatrixSumHeap3, normalHeap3, normalSumHeap3);
 
-								NGGLDP.pipeline.glTangent4f(normalSumHeap3.y, normalSumHeap3.z, normalSumHeap3.x,
+								NGGLDP.pipeline.glTangent4f(normalSumHeap3.x, normalSumHeap3.y, normalSumHeap3.z,
 										v.getTangent()[3]);
 							}
 							int coordId = layer.getCoordId();
@@ -1154,7 +1118,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 							}
 							NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
 									(float) v.getTverts().get(coordId).y);
-							NGGLDP.pipeline.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+							NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 						}
 					}
 				}
@@ -1203,10 +1167,10 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 									normalSumHeap.normalise();
 								}
 								else {
-									normalSumHeap.set(0, 1, 0, 0);
+									normalSumHeap.set(0, 0, 1, 0);
 								}
 
-								NGGLDP.pipeline.glNormal3f(normalSumHeap.y, normalSumHeap.z, normalSumHeap.x);
+								NGGLDP.pipeline.glNormal3f(normalSumHeap.x, normalSumHeap.y, normalSumHeap.z);
 							}
 							int coordId = layer.getCoordId();
 							if (coordId >= v.getTverts().size()) {
@@ -1214,7 +1178,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 							}
 							NGGLDP.pipeline.glTexCoord2f((float) v.getTverts().get(coordId).x,
 									(float) v.getTverts().get(coordId).y);
-							NGGLDP.pipeline.glVertex3f(vertexSumHeap.y, vertexSumHeap.z, vertexSumHeap.x);
+							NGGLDP.pipeline.glVertex3f(vertexSumHeap.x, vertexSumHeap.y, vertexSumHeap.z);
 						}
 					}
 				}
@@ -1417,21 +1381,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	// (Probably not a major issue. Due to sleep mode?)");
 	// }
 	// }
-	public double convertX(final double x) {
-		return ((x + cameraPos.x) * m_zoom) + (getWidth() / 2);
-	}
-
-	public double convertY(final double y) {
-		return ((-y + cameraPos.y) * m_zoom) + (getHeight() / 2);
-	}
-
-	public double geomX(final double x) {
-		return ((x - (getWidth() / 2)) / m_zoom) - cameraPos.x;
-	}
-
-	public double geomY(final double y) {
-		return -(((y - (getHeight() / 2)) / m_zoom) - cameraPos.y);
-	}
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
@@ -1455,46 +1404,46 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				// JOptionPane.showMessageDialog(null,mx+","+my+" as mouse,
 				// "+lastClick.x+","+lastClick.y+" as last.");
 				// System.out.println(xoff+" and "+mx);
-				if (lastClick != null) {
 
-					cameraPos.x += ((int) mx - lastClick.x) / m_zoom;
-					cameraPos.y += ((int) my - lastClick.y) / m_zoom;
+				if (lastClick != null) {
+					final double dx = mx - lastClick.x;
+					final double dy = my - lastClick.y;
+
+					applyPan(dx, dy);
+
 					lastClick.x = (int) mx;
 					lastClick.y = (int) my;
 				}
 				if (leftClickStart != null) {
 
-					xangle += mx - leftClickStart.x;
-					yangle += my - leftClickStart.y;
-
-					axisHeap.set(0, 1, 0, (float) Math.toRadians(yangle));
-					inverseCameraRotationYSpin.setFromAxisAngle(axisHeap);
-					axisHeap.set(0, 0, 1, (float) Math.toRadians(xangle));
-					inverseCameraRotationZSpin.setFromAxisAngle(axisHeap);
-					Quaternion.mul(inverseCameraRotationYSpin, inverseCameraRotationZSpin, inverseCameraRotationQuat);
-					inverseCameraRotationQuat.x = -inverseCameraRotationQuat.x;
-					inverseCameraRotationQuat.y = -inverseCameraRotationQuat.y;
-					inverseCameraRotationQuat.z = -inverseCameraRotationQuat.z;
-					inverseCameraRotationYSpin.x = -inverseCameraRotationYSpin.x;
-					inverseCameraRotationYSpin.y = -inverseCameraRotationYSpin.y;
-					inverseCameraRotationYSpin.z = -inverseCameraRotationYSpin.z;
-					inverseCameraRotationZSpin.x = -inverseCameraRotationZSpin.x;
-					inverseCameraRotationZSpin.y = -inverseCameraRotationZSpin.y;
-					inverseCameraRotationZSpin.z = -inverseCameraRotationZSpin.z;
+					final double dx = mx - leftClickStart.x;
+					final double dy = my - leftClickStart.y;
+					cameraManager.horizontalAngle -= Math.toRadians(dy);
+					cameraManager.verticalAngle -= Math.toRadians(dx);
 					leftClickStart.x = (int) mx;
 					leftClickStart.y = (int) my;
 				}
 				// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
 
-				if (actStart != null) {
-					final Point actEnd = new Point((int) mx, (int) my);
-					final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-					final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-					// dispMDL.updateAction(convertedStart,convertedEnd,m_d1,m_d2);
-					actStart = actEnd;
-				}
 			}
 		}
+	}
+
+	private void applyPan(final double dx, final double dy) {
+		this.screenDimension.set(-1, 0, 0);
+		MathUtils.copy(cameraManager.camera.viewProjectionMatrix, screenDimensionMat3Heap);
+		screenDimensionMat3Heap.transpose();
+		Matrix3f.transform(screenDimensionMat3Heap, screenDimension, screenDimension);
+		screenDimension.normalise();
+		screenDimension.scale((float) dx * 0.008f * cameraManager.distance);
+		Vector3f.add(cameraManager.target, screenDimension, cameraManager.target);
+		this.screenDimension.set(0, 1, 0);
+		MathUtils.copy(cameraManager.camera.viewProjectionMatrix, screenDimensionMat3Heap);
+		screenDimensionMat3Heap.transpose();
+		Matrix3f.transform(screenDimensionMat3Heap, screenDimension, screenDimension);
+		screenDimension.normalise();
+		screenDimension.scale((float) dy * 0.008f * cameraManager.distance);
+		Vector3f.add(cameraManager.target, screenDimension, cameraManager.target);
 	}
 
 	@Override
@@ -1506,7 +1455,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 
 	@Override
 	public void mouseExited(final MouseEvent e) {
-		if ((leftClickStart == null) && (actStart == null) && (lastClick == null)) {
+		if ((leftClickStart == null) && (lastClick == null)) {
 			clickTimer.stop();
 		}
 		mouseInBounds = false;
@@ -1520,35 +1469,23 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		else if (programPreferences.getThreeDCameraSpinButton().isButton(e)) {
 			leftClickStart = new Point(e.getXOnScreen(), e.getYOnScreen());
 		}
-		else if (e.getButton() == MouseEvent.BUTTON3) {
-			actStart = new Point(e.getX(), e.getY());
-			final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			// dispMDL.startAction(convertedStart,m_d1,m_d2,MainFrame.panel.currentActionType());
-		}
 	}
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
 		if (programPreferences.getThreeDCameraPanButton().isButton(e)) {
-			cameraPos.x += (e.getXOnScreen() - lastClick.x) / m_zoom;
-			cameraPos.y += (e.getYOnScreen() - lastClick.y) / m_zoom;
+			final double dx = e.getXOnScreen() - lastClick.x;
+			final double dy = e.getYOnScreen() - lastClick.y;
+			applyPan(dx, dy);
 			lastClick = null;
 		}
 		else if (programPreferences.getThreeDCameraSpinButton().isButton(e) && (leftClickStart != null)) {
 			final Point selectEnd = new Point(e.getX(), e.getY());
-			final Rectangle2D.Double area = pointsToGeomRect(leftClickStart, selectEnd);
 			// System.out.println(area);
 			// dispMDL.selectVerteces(area,m_d1,m_d2,MainFrame.panel.currentSelectionType());
 			leftClickStart = null;
 		}
-		else if ((e.getButton() == MouseEvent.BUTTON3) && (actStart != null)) {
-			final Point actEnd = new Point(e.getX(), e.getY());
-			final Point2D.Double convertedStart = new Point2D.Double(geomX(actStart.x), geomY(actStart.y));
-			final Point2D.Double convertedEnd = new Point2D.Double(geomX(actEnd.x), geomY(actEnd.y));
-			// dispMDL.finishAction(convertedStart,convertedEnd,m_d1,m_d2);
-			actStart = null;
-		}
-		if (!mouseInBounds && (leftClickStart == null) && (actStart == null) && (lastClick == null)) {
+		if (!mouseInBounds && (leftClickStart == null) && (lastClick == null)) {
 			clickTimer.stop();
 		}
 		/*
@@ -1576,10 +1513,10 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				// * (1 / m_zoom - 1 / (m_zoom * 1.15));
 				// cameraPos.z -= (getHeight() / 2)
 				// * (1 / m_zoom - 1 / (m_zoom * 1.15));
-				m_zoom *= 1.15;
+				cameraManager.distance *= 1.15;
 			}
 			else {
-				m_zoom /= 1.15;
+				cameraManager.distance /= 1.15;
 				// cameraPos.x -= (mx - getWidth() / 2)
 				// * (1 / (m_zoom * 1.15) - 1 / m_zoom);
 				// cameraPos.y -= (my - getHeight() / 2)
@@ -1588,24 +1525,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				// * (1 / (m_zoom * 1.15) - 1 / m_zoom);
 			}
 		}
-	}
-
-	public Rectangle2D.Double pointsToGeomRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min(geomX(a.x), geomX(b.x)),
-				Math.min(geomY(a.y), geomY(b.y)));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max(geomX(a.x), geomX(b.x)),
-				Math.max(geomY(a.y), geomY(b.y)));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
-				lowRight.y - topLeft.y);
-		return temp;
-	}
-
-	public Rectangle2D.Double pointsToRect(final Point a, final Point b) {
-		final Point2D.Double topLeft = new Point2D.Double(Math.min(a.x, b.x), Math.min(a.y, b.y));
-		final Point2D.Double lowRight = new Point2D.Double(Math.max(a.x, b.x), Math.max(a.y, b.y));
-		final Rectangle2D.Double temp = new Rectangle2D.Double(topLeft.x, topLeft.y, lowRight.x - topLeft.x,
-				lowRight.y - topLeft.y);
-		return temp;
 	}
 
 	private static final int BYTES_PER_PIXEL = 4;
@@ -1839,6 +1758,19 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 		// resetting the UI views when we
 		// open a new model.
 		pipeline = null;
+	}
+
+	public PortraitCameraManager getCameraManager() {
+		return cameraManager;
+	}
+
+	public void setCamera(final Camera camera) {
+		cameraManager.setModelInstance(renderModel, camera);
+	}
+
+	public void loadDefaultCamera() {
+		cameraManager.setModelInstance(null, null);
+		loadDefaultCameraFor(modelView, false);
 	}
 
 }

@@ -122,6 +122,16 @@ public class BLPHandler {
 					}
 					return resultImage;
 				}
+				else {
+					final String tgaFilepath = filepath.substring(0, filepath.length() - 4) + ".tga";
+					resultImage = loadTextureDirectly(dataSource, tgaFilepath);
+					if (resultImage != null) {
+						if (dataSource.allowDownstreamCaching(tgaFilepath)) {
+							cache.put(lowerCaseFilepath, resultImage);
+						}
+						return resultImage;
+					}
+				}
 			}
 			final String nameOnly = filepath
 					.substring(Math.max(filepath.lastIndexOf("/"), filepath.lastIndexOf("\\")) + 1);
@@ -132,7 +142,8 @@ public class BLPHandler {
 				}
 			}
 			return resultImage;
-		} catch (final IOException exc) {
+		}
+		catch (final IOException exc) {
 			throw new RuntimeException(exc);
 		}
 	}
@@ -143,7 +154,8 @@ public class BLPHandler {
 			if (imageDataStream != null) {
 				if (isExtension(filepath, ".tga")) {
 					resultImage = TgaFile.readTGA(filepath, imageDataStream);
-				} else {
+				}
+				else {
 					resultImage = ImageIO.read(imageDataStream);
 					if (resultImage != null) {
 						if (isExtension(filepath, ".blp")) {
@@ -222,7 +234,8 @@ public class BLPHandler {
 		BufferedImage bi;
 		try {
 			bi = reader.read(0, param);
-		} finally {
+		}
+		finally {
 			reader.dispose();
 			stream.close();
 		}
@@ -249,13 +262,15 @@ public class BLPHandler {
 				// System.out.println(tga.getPath());
 				// //mpqlib.TestMPQ.draw(mpqlib.TargaReader.getImage(tga.getPath()));
 				// return TargaReader.getImage(tga.getPath());//ImageIO.read(tga);
-			} else {
+			}
+			else {
 				if (!blpFile.exists()) {
 					return null;
 				}
 				return ImageIO.read(blpFile);
 			}
-		} catch (final IOException e1) {
+		}
+		catch (final IOException e1) {
 			e1.printStackTrace();
 		}
 		return null;
@@ -318,25 +333,25 @@ public class BLPHandler {
 				try {
 					Files.copy(mpqFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 					directExport = true;
-				} catch (final IOException e) {
+				}
+				catch (final IOException e) {
 					e.printStackTrace();
 					ExceptionPopup.display(e);
 				}
-			} else {
-				if (workingDirectory != null) {
-					final File wantedFile = new File(
-							workingDirectory.getPath() + File.separatorChar + selectedValue.getPath());
-					if (wantedFile.exists()) {
-						try {
-							Files.copy(wantedFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-							directExport = true;
-						} catch (final IOException e) {
-							e.printStackTrace();
-							ExceptionPopup.display(e);
-						}
+			}
+			else if (workingDirectory != null) {
+				final File wantedFile = new File(
+						workingDirectory.getPath() + File.separatorChar + selectedValue.getPath());
+				if (wantedFile.exists()) {
+					try {
+						Files.copy(wantedFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+						directExport = true;
+					}
+					catch (final IOException e) {
+						e.printStackTrace();
+						ExceptionPopup.display(e);
 					}
 				}
-
 			}
 		}
 		if (!directExport) {
@@ -346,7 +361,8 @@ public class BLPHandler {
 				if (!write) {
 					JOptionPane.showMessageDialog(component, "File type unknown or unavailable");
 				}
-			} catch (final IOException e) {
+			}
+			catch (final IOException e) {
 				e.printStackTrace();
 				ExceptionPopup.display(e);
 			}
@@ -358,9 +374,11 @@ public class BLPHandler {
 		if ((path == null) || path.isEmpty()) {
 			if (defaultTexture.getReplaceableId() == 1) {
 				path = "ReplaceableTextures\\TeamColor\\TeamColor" + Material.getTeamColorNumberString() + ".blp";
-			} else if (defaultTexture.getReplaceableId() == 2) {
+			}
+			else if (defaultTexture.getReplaceableId() == 2) {
 				path = "ReplaceableTextures\\TeamGlow\\TeamGlow" + Material.getTeamColorNumberString() + ".blp";
-			} else if (defaultTexture.getReplaceableId() != 0) {
+			}
+			else if (defaultTexture.getReplaceableId() != 0) {
 				path = "replaceabletextures\\lordaerontree\\lordaeronsummertree" + ".blp";
 			}
 		}

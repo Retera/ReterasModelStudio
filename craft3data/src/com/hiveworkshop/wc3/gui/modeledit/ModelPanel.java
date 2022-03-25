@@ -34,6 +34,7 @@ import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
 import com.hiveworkshop.wc3.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationController;
+import com.hiveworkshop.wc3.gui.modelviewer.CameraManagerPanel;
 import com.hiveworkshop.wc3.gui.modelviewer.ControlledAnimationViewer;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.EditableModel;
@@ -74,6 +75,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 	private final ControlledAnimationViewer animationViewer;
 	private final RenderModel editorRenderModel;
 	private final AnimationController animationController;
+	private final CameraManagerPanel cameraController;
 	private final ComponentsPanel componentsPanel;
 
 	public ModelPanel(final JComponent parent, final File input, final ProgramPreferences prefs,
@@ -146,6 +148,8 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 		animationController = new AnimationController(modelView, true, animationViewer,
 				animationViewer.getCurrentAnimation());
+
+		cameraController = new CameraManagerPanel(modelView, animationViewer);
 
 		frontArea.setControlsVisible(prefs.showVMControls());
 		botArea.setControlsVisible(prefs.showVMControls());
@@ -557,5 +561,10 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelView.setModel(model);
 		editorRenderModel.setModel(model);
 		animationViewer.setModel(modelView);
+		cameraController.setModel(modelView);
+	}
+
+	public CameraManagerPanel getCameraController() {
+		return cameraController;
 	}
 }
