@@ -32,6 +32,7 @@ import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.wc3.gui.modeledit.selection.SelectionMode;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonGroup;
 import com.hiveworkshop.wc3.gui.modeledit.toolbar.ToolbarButtonListener;
+import com.hiveworkshop.wc3.gui.modeledit.tracks.TracksEditorPanel;
 import com.hiveworkshop.wc3.gui.modeledit.util.TextureExporter;
 import com.hiveworkshop.wc3.gui.modelviewer.AnimationController;
 import com.hiveworkshop.wc3.gui.modelviewer.CameraManagerPanel;
@@ -77,6 +78,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 	private final AnimationController animationController;
 	private final CameraManagerPanel cameraController;
 	private final ComponentsPanel componentsPanel;
+	private final TracksEditorPanel tracksEditorPanel;
 
 	public ModelPanel(final JComponent parent, final File input, final ProgramPreferences prefs,
 			final UndoHandler undoHandler, final ToolbarButtonGroup<SelectionItemTypes> notifier,
@@ -117,6 +119,8 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
 		modelViewManagingTree.setFocusable(false);
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager, modelEditorManager,
+				modelStructureChangeListener);
+		tracksEditorPanel = new TracksEditorPanel(modelView, undoManager, modelEditorManager,
 				modelStructureChangeListener);
 
 		selectionItemTypeNotifier.addToolbarButtonListener(new ToolbarButtonListener<SelectionItemTypes>() {
@@ -550,6 +554,10 @@ public class ModelPanel implements ActionListener, MouseListener {
 
 	public ModelComponentBrowserTree getModelComponentBrowserTree() {
 		return modelComponentBrowserTree;
+	}
+
+	public TracksEditorPanel getTracksEditorPanel() {
+		return tracksEditorPanel;
 	}
 
 	public ComponentsPanel getComponentsPanel() {

@@ -745,6 +745,12 @@ public class MainPanel extends JPanel
 			return modelDataView;
 		}
 	});
+	AbstractAction openTracksViewAction = new OpenViewAction("Tracks", new OpenViewGetter() {
+		@Override
+		public View getView() {
+			return tracksView;
+		}
+	});
 	AbstractAction openTextViewAction = new OpenViewAction("Text", new OpenViewGetter() {
 		@Override
 		public View getView() {
@@ -945,7 +951,7 @@ public class MainPanel extends JPanel
 	private final ViewportTransferHandler viewportTransferHandler;
 	private StringViewMap viewMap;
 	private RootWindow rootWindow;
-	private View viewportControllerWindowView, toolView, modelDataView, modelComponentView;
+	private View viewportControllerWindowView, toolView, modelDataView, tracksView, modelComponentView;
 	private ControllableTimeBoundProvider timeBoundProvider;
 	private ActivityDescriptor currentActivity;
 
@@ -1189,6 +1195,7 @@ public class MainPanel extends JPanel
 		final JPanel contentsDummy = new JPanel();
 		contentsDummy.add(new JLabel("..."));
 		modelDataView = new View("Contents", null, contentsDummy);
+		tracksView = new View("Tracks", null, new JPanel());
 		modelComponentView = new View("Component", null, new JPanel());
 //		toolView.getWindowProperties().setCloseEnabled(false);
 		rootWindow.getWindowProperties().getTabProperties().getTitledTabProperties()
@@ -1686,7 +1693,7 @@ public class MainPanel extends JPanel
 		});
 
 		final TabWindow startupTabWindow = new TabWindow(
-				new DockingWindow[] { viewingTab, editingTab, modelTab, mdlTextView });
+				new DockingWindow[] { viewingTab, editingTab, tracksView, modelTab, mdlTextView });
 		traverseAndFix(startupTabWindow);
 		return startupTabWindow;
 	}
@@ -1899,6 +1906,7 @@ public class MainPanel extends JPanel
 		geoControlModelData.repaint();
 		display.getModelComponentBrowserTree().reloadFromModelView();
 		geoControlModelData.setViewportView(display.getModelComponentBrowserTree());
+		display.getTracksEditorPanel().reloadFromModelView();
 	}
 
 	public void reloadGUI() {
@@ -5918,6 +5926,7 @@ public class MainPanel extends JPanel
 			modelDataView.setComponent(geoControlModelData);
 			modelComponentView.setComponent(temp.getComponentsPanel());
 			modelDataView.repaint();
+			tracksView.setComponent(temp.getTracksEditorPanel());
 		}
 		addTabForView(temp, selectNewTab);
 		modelPanels.add(temp);
@@ -5994,6 +6003,7 @@ public class MainPanel extends JPanel
 			creatorPanel.setUndoManager(null);
 			modelComponentView.setComponent(new JPanel());
 			geoControlModelData = null;
+			tracksView.setComponent(new JPanel());
 		}
 		else {
 			geoControl.setViewportView(currentModelPanel.getModelViewManagingTree());
@@ -6026,6 +6036,9 @@ public class MainPanel extends JPanel
 			modelComponentView.setComponent(currentModelPanel.getComponentsPanel());
 			geoControlModelData.repaint();
 			currentModelPanel.getModelComponentBrowserTree().reloadFromModelView();
+
+			tracksView.setComponent(currentModelPanel.getTracksEditorPanel());
+			currentModelPanel.getTracksEditorPanel().reloadFromModelView();
 		}
 		activeViewportWatcher.viewportChanged(null);
 		timeSliderPanel.revalidateKeyframeDisplay();

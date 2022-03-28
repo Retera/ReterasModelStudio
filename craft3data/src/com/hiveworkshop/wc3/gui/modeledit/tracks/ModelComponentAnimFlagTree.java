@@ -1,4 +1,4 @@
-package com.hiveworkshop.wc3.gui.modeledit;
+package com.hiveworkshop.wc3.gui.modeledit.tracks;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;

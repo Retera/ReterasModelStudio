@@ -80,7 +80,7 @@ project(":craft3data") {
 		api "org.lwjgl.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
 		api "org.lwjgl.lwjgl:lwjgl_util:${lwjglVersion}"
 		api "net.nikr:dds:1.0.0"
-        api "com.google.guava:guava:23.5-jre"
+        api "com.glazedlists:glazedlists:1.11.0"
 //        compile "com.github.ebourg:infonode:master"
 //        compile "com.github.DrSuperGood:blp-iio-plugin:master"
 		api files(fileTree(dir:'../jars', includes: ['*.jar']))
