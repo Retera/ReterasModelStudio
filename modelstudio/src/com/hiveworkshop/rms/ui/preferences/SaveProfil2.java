@@ -20,8 +20,7 @@ public class SaveProfil2 implements Serializable {
 	ProgramPreference2 preferences;
 	private List<DataSourceDescriptor> dataSources;
 
-	private transient WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier dataSourceChangeNotifier
-			= new WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier();
+	private transient WarcraftDataSourceChangeListener dataSourceChangeNotifier = new WarcraftDataSourceChangeListener();
 	private transient boolean isHD = false;
 
 	public SaveProfil2() {
@@ -144,10 +143,10 @@ public class SaveProfil2 implements Serializable {
 		this.dataSources = dataSources;
 		isHD = computeIsHd(dataSources);
 		save();
-		dataSourceChangeNotifier.dataSourcesChanged();
+		dataSourceChangeNotifier.runListeners();
 	}
 
-	public void addDataSourceChangeListener(final WarcraftDataSourceChangeListener listener) {
+	public void addDataSourceChangeListener(final Runnable listener) {
 		dataSourceChangeNotifier.subscribe(listener);
 	}
 
@@ -161,7 +160,7 @@ public class SaveProfil2 implements Serializable {
 	}
 
 	private void reload() {
-		dataSourceChangeNotifier = new WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier();
+		dataSourceChangeNotifier = new WarcraftDataSourceChangeListener();
 		isHD = computeIsHd(dataSources);
 	}
 

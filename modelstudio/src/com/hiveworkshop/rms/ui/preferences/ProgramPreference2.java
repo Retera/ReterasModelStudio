@@ -62,7 +62,7 @@ public class ProgramPreference2 implements Serializable {
 
 	private MouseButtonPreference threeDCameraSpinButton = MouseButtonPreference.LEFT;
 	private MouseButtonPreference threeDCameraPanButton = MouseButtonPreference.MIDDLE;
-	private transient ProgramPreferencesChangeListener.ProgramPreferencesChangeNotifier notifier = new ProgramPreferencesChangeListener.ProgramPreferencesChangeNotifier();
+	private transient ProgramPreferencesChangeListener notifier = new ProgramPreferencesChangeListener();
 
 	public void reload() {
 		dimLocks = new boolean[3];
@@ -643,7 +643,7 @@ public class ProgramPreference2 implements Serializable {
 
 	private void firePrefsChanged() {
 		if (notifier != null) {
-			notifier.preferencesChanged();
+			notifier.runListeners();
 		}
 	}
 
@@ -657,9 +657,9 @@ public class ProgramPreference2 implements Serializable {
 		firePrefsChanged();
 	}
 
-	public void addChangeListener(final ProgramPreferencesChangeListener listener) {
+	public void addChangeListener(final Runnable listener) {
 		if (notifier == null) {
-			notifier = new ProgramPreferencesChangeListener.ProgramPreferencesChangeNotifier();
+			notifier = new ProgramPreferencesChangeListener();
 		}
 		notifier.subscribe(listener);
 	}

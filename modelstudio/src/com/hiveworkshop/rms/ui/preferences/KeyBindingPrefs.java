@@ -5,11 +5,11 @@ import com.hiveworkshop.rms.ui.language.TextKey;
 
 import javax.swing.*;
 import java.io.Serializable;
+import java.util.EnumMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class KeyBindingPrefs implements Serializable {
-	private static final Map<TextKey, ActionFunction> actionFunctionMap = new TreeMap<>();
+	private static final Map<TextKey, ActionFunction> actionFunctionMap = new EnumMap<>(TextKey.class);
 
 	public static void addActionFunction(TextKey textKey, ActionFunction function) {
 		actionFunctionMap.put(textKey, function);

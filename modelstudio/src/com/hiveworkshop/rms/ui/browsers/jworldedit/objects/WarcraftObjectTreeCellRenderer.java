@@ -115,8 +115,7 @@ public class WarcraftObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 		if (image != null) {
 			return new ImageIcon(image);
 		} else {
-			System.err.println("failed to load image");
-//			BufferedImage bi = BLPHandler.getImage(new Bitmap("Textures\\white.blp"), GameDataFileSystem.getDefault());
+//			System.err.println("WarcraftObjectTreeCellRenderer: can't make icon, image is null");
 //			BufferedImage bi = BLPHandler.getImage(new Bitmap("Textures\\white.blp"), GameDataFileSystem.getDefault());
 			BufferedImage newTempImage = new BufferedImage(ICON_SIZE, ICON_SIZE, BufferedImage.TYPE_INT_RGB);
 			Graphics graphics = newTempImage.getGraphics();

@@ -26,14 +26,14 @@ import java.util.List;
 public class MenuBarActions {
 	static final ImageIcon POWERED_BY_HIVE = RMSIcons.loadHiveBrowserImageIcon("powered_by_hive.png");
 
-	private static void dataSourcesChanged(WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier directoryChangeNotifier, List<ModelPanel> modelPanels) {
+	private static void dataSourcesChanged(WarcraftDataSourceChangeListener directoryChangeNotifier, List<ModelPanel> modelPanels) {
 //		for (ModelPanel modelPanel : modelPanels) {
 //			PerspDisplayPanel pdp = modelPanel.getPerspArea();
 //			pdp.reloadAllTextures();
 //			modelPanel.getAnimationViewer().reloadAllTextures();
 //		}
 		ProgramGlobals.getRootWindowUgg().getWindowHandler2().reloadThings();
-		directoryChangeNotifier.dataSourcesChanged();
+		directoryChangeNotifier.runListeners();
 	}
 
 	public static void openHiveViewer() {

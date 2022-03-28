@@ -1,13 +1,14 @@
 package com.hiveworkshop.rms.ui.preferences;
 
 import java.awt.*;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.glColor4f;
 
 public class EditorColorPrefs {
-	Map<ColorThing, Color> colorMap = new HashMap<>();
+	Map<ColorThing, Color> colorMap = new EnumMap<>(ColorThing.class);
 
 	public EditorColorPrefs() {
 		for (ColorThing thing : ColorThing.values()) {

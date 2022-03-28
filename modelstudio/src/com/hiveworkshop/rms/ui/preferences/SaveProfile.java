@@ -17,8 +17,7 @@ public class SaveProfile implements Serializable {
 	ProgramPreferences preferences;
 	private List<DataSourceDescriptor> dataSources;
 
-	private transient WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier dataSourceChangeNotifier
-			= new WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier();
+	private transient WarcraftDataSourceChangeListener dataSourceChangeNotifier = new WarcraftDataSourceChangeListener();
 	private transient boolean isHD = false;
 
 	public void clearRecent() {
@@ -167,7 +166,10 @@ public class SaveProfile implements Serializable {
 		return dataSources;
 	}
 
-	public void addDataSourceChangeListener(final WarcraftDataSourceChangeListener listener) {
+	public void addDataSourceChangeListener(final Runnable listener) {
+		if (dataSourceChangeNotifier == null) {
+			dataSourceChangeNotifier = new WarcraftDataSourceChangeListener();
+		}
 		dataSourceChangeNotifier.subscribe(listener);
 	}
 
@@ -203,7 +205,7 @@ public class SaveProfile implements Serializable {
 	}
 
 	private void reload() {
-		dataSourceChangeNotifier = new WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier();
+		dataSourceChangeNotifier = new WarcraftDataSourceChangeListener();
 		isHD = computeIsHd(dataSources);
 	}
 

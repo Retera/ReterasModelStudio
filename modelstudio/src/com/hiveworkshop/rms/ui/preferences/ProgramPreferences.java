@@ -727,7 +727,7 @@ public class ProgramPreferences implements Serializable {
 
 	private void firePrefsChanged() {
 		if (notifier != null) {
-			notifier.preferencesChanged();
+			notifier.runListeners();
 		}
 	}
 
@@ -735,11 +735,11 @@ public class ProgramPreferences implements Serializable {
 		return theme;
 	}
 
-	private transient ProgramPreferencesChangeListener.ProgramPreferencesChangeNotifier notifier = new ProgramPreferencesChangeListener.ProgramPreferencesChangeNotifier();
+	private transient ProgramPreferencesChangeListener notifier = new ProgramPreferencesChangeListener();
 
-	public void addChangeListener(final ProgramPreferencesChangeListener listener) {
+	public void addChangeListener(final Runnable listener) {
 		if (notifier == null) {
-			notifier = new ProgramPreferencesChangeListener.ProgramPreferencesChangeNotifier();
+			notifier = new ProgramPreferencesChangeListener();
 		}
 		notifier.subscribe(listener);
 	}

@@ -2,18 +2,11 @@ package com.hiveworkshop.rms.ui.preferences.listeners;
 
 import com.hiveworkshop.rms.util.SubscriberSetNotifier;
 
-public interface ProgramPreferencesChangeListener {
-    void preferencesChanged();
+public class ProgramPreferencesChangeListener extends SubscriberSetNotifier<Runnable> {
 
-    final class ProgramPreferencesChangeNotifier extends SubscriberSetNotifier<ProgramPreferencesChangeListener>
-            implements ProgramPreferencesChangeListener {
-
-        @Override
-        public void preferencesChanged() {
-            for (ProgramPreferencesChangeListener listener : listenerSet) {
-                listener.preferencesChanged();
-            }
+    public void runListeners() {
+        for (Runnable listener : listenerSet) {
+            listener.run();
         }
-
     }
 }
