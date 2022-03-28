@@ -36,8 +36,6 @@ public abstract class AbstractSelectionManager {
 		return modelView.getSelectedVertices();
 	}
 
-	public abstract Vec3 getCenter();
-
 	public abstract SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
 
 	public abstract SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, CameraHandler cameraHandler);
@@ -88,24 +86,6 @@ public abstract class AbstractSelectionManager {
 		};
 	}
 
-//	public abstract UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
-//
-//	public abstract UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
-//
-//	public abstract UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem);
-//
-//	public abstract UndoAction setSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler);
-//
-//	public abstract UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler);
-//
-//	public abstract UndoAction addSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler);
-//
-//	public abstract UndoAction setSelectedRegion(Vec3 min, Vec3 max, CameraHandler cameraHandler);
-//
-//	public abstract UndoAction removeSelectedRegion(Vec3 min, Vec3 max, CameraHandler cameraHandler);
-//
-//	public abstract UndoAction addSelectedRegion(Vec3 min, Vec3 max, CameraHandler cameraHandler);
-
 	public boolean isEmpty() {
 		if (selectionMode == SelectionItemTypes.VERTEX
 				|| selectionMode == SelectionItemTypes.FACE
@@ -117,14 +97,16 @@ public abstract class AbstractSelectionManager {
 		}
 		if (selectionMode == SelectionItemTypes.ANIMATE
 				|| selectionMode == SelectionItemTypes.TPOSE) {
-			return modelView.getSelectedIdObjects().isEmpty();
+			return modelView.getSelectedIdObjects().isEmpty() && modelView.getEditableCameraNodes().isEmpty();
 		}
 		return false;
 	}
 
-	public abstract double getCircumscribedSphereRadius(Vec3 sphereCenter);
+	public abstract double getCircumscribedSphereRadius(Vec3 sphereCenter, int tvertexLayerId);
 
 	public abstract double getCircumscribedSphereRadius(Vec2 center, int tvertexLayerId);
+
+	public abstract Vec3 getCenter();
 
 	public abstract Vec2 getUVCenter(int tvertexLayerId);
 

@@ -11,6 +11,7 @@ import java.util.Collection;
 
 public class StaticMeshUVScaleAction implements GenericScaleAction {
 	private final ArrayList<Vec2> selectedTVerts;
+	private final ArrayList<Vec2> orgTVerts;
 	private final Vec2 center;
 	private final Vec2 scale = new Vec2(1, 1);
 	private final Vec2 dScale = new Vec2(1, 1);
@@ -19,9 +20,11 @@ public class StaticMeshUVScaleAction implements GenericScaleAction {
 
 	public StaticMeshUVScaleAction(Collection<GeosetVertex> selectedVertices, int uvLayerIndex, Vec2 center) {
 		selectedTVerts = new ArrayList<>();
+		orgTVerts = new ArrayList<>();
 		for (GeosetVertex vertex : selectedVertices) {
 			if (uvLayerIndex < vertex.getTverts().size()) {
 				selectedTVerts.add(vertex.getTVertex(uvLayerIndex));
+				orgTVerts.add(new Vec2(vertex.getTVertex(uvLayerIndex)));
 			}
 		}
 		this.uvLayerIndex = uvLayerIndex;
@@ -30,9 +33,8 @@ public class StaticMeshUVScaleAction implements GenericScaleAction {
 
 	@Override
 	public UndoAction undo() {
-		Vec2 invScale = new Vec2(1, 1).div(scale);
-		for (Vec2 vertex : selectedTVerts) {
-			vertex.scale(center, invScale);
+		for (int i = 0; i<selectedTVerts.size(); i++) {
+			selectedTVerts.get(i).set(orgTVerts.get(i));
 		}
 		return this;
 	}
@@ -54,8 +56,8 @@ public class StaticMeshUVScaleAction implements GenericScaleAction {
 	public GenericScaleAction updateScale(Vec3 scale) {
 		dScale.set(scale.x, scale.y);
 		this.scale.mul(dScale);
-		for (Vec2 vertex : selectedTVerts) {
-			vertex.scale(center, dScale);
+		for (int i = 0; i<selectedTVerts.size(); i++) {
+			selectedTVerts.get(i).set(orgTVerts.get(i)).scale(center, this.scale);
 		}
 		return this;
 	}

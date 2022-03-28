@@ -19,6 +19,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -93,7 +94,7 @@ public class DrawVertexActivity extends ViewportActivity {
 	@Override
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
-			g.setColor(preferences.getVertexColor());
+			g.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX));
 			if (lastMousePoint != null) {
 				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
 			}
@@ -141,7 +142,7 @@ public class DrawVertexActivity extends ViewportActivity {
 
 	public void render(Graphics2D g, CameraHandler cameraHandler, RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
-			g.setColor(preferences.getVertexColor());
+			g.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX));
 			if (lastMousePoint != null) {
 				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
 			}

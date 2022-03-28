@@ -11,6 +11,7 @@ import java.util.Collection;
 
 public final class StaticMeshUVRotateAction implements GenericRotateAction {
 	private final ArrayList<Vec2> selectedTVerts;
+	private final ArrayList<Vec2> orgTVerts;
 	private final Vec3 center;
 	private double radians;
 	private final byte dim1;
@@ -23,9 +24,11 @@ public final class StaticMeshUVRotateAction implements GenericRotateAction {
 
 	public StaticMeshUVRotateAction(Collection<GeosetVertex> selectedVertices, int uvLayerIndex, Vec3 center, byte dim1, byte dim2) {
 		selectedTVerts = new ArrayList<>();
+		orgTVerts = new ArrayList<>();
 		for (GeosetVertex vertex : selectedVertices) {
 			if (uvLayerIndex < vertex.getTverts().size()) {
 				selectedTVerts.add(vertex.getTVertex(uvLayerIndex));
+				orgTVerts.add(new Vec2(vertex.getTVertex(uvLayerIndex)));
 			}
 		}
 		this.uvLayerIndex = uvLayerIndex;
@@ -37,8 +40,8 @@ public final class StaticMeshUVRotateAction implements GenericRotateAction {
 
 	@Override
 	public UndoAction undo() {
-		for (Vec2 vertex : selectedTVerts) {
-			vertex.rotate(center.x, center.y, -radians, dim1, dim2);
+		for (int i = 0; i<selectedTVerts.size(); i++) {
+			selectedTVerts.get(i).set(orgTVerts.get(i));
 		}
 		return this;
 	}
@@ -59,8 +62,8 @@ public final class StaticMeshUVRotateAction implements GenericRotateAction {
 	@Override
 	public GenericRotateAction updateRotation(double radians) {
 		this.radians += radians;
-		for (Vec2 vertex : selectedTVerts) {
-			vertex.rotate(center.x, center.y, radians, dim1, dim2);
+		for (int i = 0; i<selectedTVerts.size(); i++) {
+			selectedTVerts.get(i).set(orgTVerts.get(i)).rotate(center.x, center.y, this.radians, dim1, dim2);
 		}
 		return this;
 	}

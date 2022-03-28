@@ -7,12 +7,14 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -94,7 +96,8 @@ public class DrawFaceActivity extends ViewportActivity {
 	@Override
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 		if (!isAnimated) {
-			g.setColor(preferences.getVertexColor());
+//			g.setColor(preferences.getVertexColor());
+			g.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX));
 			if (lastMousePoint != null) {
 				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
 			}

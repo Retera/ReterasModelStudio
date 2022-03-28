@@ -73,29 +73,6 @@ public class SelectionManager extends AbstractSelectionManager {
 		return verticesSelected;
 	}
 
-	public Vec3 getCenter() {
-		if (selectionMode == SelectionItemTypes.VERTEX
-				|| selectionMode == SelectionItemTypes.FACE
-				|| selectionMode == SelectionItemTypes.GROUP
-				|| selectionMode == SelectionItemTypes.CLUSTER
-				|| selectionMode == SelectionItemTypes.TPOSE) {
-			return modelView.getSelectionCenter();
-		}
-		if (selectionMode == SelectionItemTypes.ANIMATE) {
-			Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
-			for (IdObject object : modelView.getSelectedIdObjects()) {
-				Vec4 pivotHeap = new Vec4(object.getPivotPoint(), 1);
-				pivotHeap.transform(editorRenderModel.getRenderNode(object).getWorldMatrix());
-				centerOfGroupSumHeap.add(pivotHeap.getVec3());
-			}
-			if (modelView.getSelectedIdObjects().size() > 0) {
-				centerOfGroupSumHeap.scale(1f / modelView.getSelectedIdObjects().size());
-			}
-			return centerOfGroupSumHeap;
-		}
-		return new Vec3();
-	}
-
 	public SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			Set<GeosetVertex> selectedVerts = addVertsFromArea(min, max, coordinateSystem);
@@ -444,7 +421,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		return newSelection;
 	}
 
-	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
+	public double getCircumscribedSphereRadius(Vec3 sphereCenter, int tvertexLayerId) {
 
 		if (selectionMode == SelectionItemTypes.VERTEX || selectionMode == SelectionItemTypes.FACE || selectionMode == SelectionItemTypes.CLUSTER || selectionMode == SelectionItemTypes.GROUP) {
 			double radius = 0;
@@ -516,6 +493,39 @@ public class SelectionManager extends AbstractSelectionManager {
 			return radius;
 		}
 		return 0;
+	}
+
+	public Vec3 getCenter() {
+		if (selectionMode == SelectionItemTypes.VERTEX
+				|| selectionMode == SelectionItemTypes.FACE
+				|| selectionMode == SelectionItemTypes.GROUP
+				|| selectionMode == SelectionItemTypes.CLUSTER
+				|| selectionMode == SelectionItemTypes.TPOSE) {
+			return modelView.getSelectionCenter();
+		}
+		if (selectionMode == SelectionItemTypes.ANIMATE) {
+			int tot = 0;
+			Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
+			for (IdObject object : modelView.getSelectedIdObjects()) {
+				centerOfGroupSumHeap.add(editorRenderModel.getRenderNode(object).getRenderPivot());
+				tot++;
+			}
+			for (CameraNode cameraNode : modelView.getEditableCameraNodes()) {
+				if(cameraNode instanceof CameraNode.SourceNode){
+					centerOfGroupSumHeap.add(editorRenderModel.getRenderNode(cameraNode).getRenderPivot());
+					tot++;
+				} else if (cameraNode instanceof CameraNode.TargetNode) {
+					centerOfGroupSumHeap.add(editorRenderModel.getRenderNode(cameraNode).getTarget());
+					tot++;
+				}
+			}
+			if (modelView.getSelectedIdObjects().size() > 0) {
+//				centerOfGroupSumHeap.scale(1f / modelView.getSelectedIdObjects().size());
+				centerOfGroupSumHeap.scale(1f / tot);
+			}
+			return centerOfGroupSumHeap;
+		}
+		return new Vec3();
 	}
 
 	public Vec2 getUVCenter(int tvertexLayerId) {

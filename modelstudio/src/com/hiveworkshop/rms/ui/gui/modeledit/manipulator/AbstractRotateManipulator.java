@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Vec2;
+import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.event.MouseEvent;
 
@@ -69,17 +70,10 @@ public abstract class AbstractRotateManipulator extends Manipulator {
 			}
 		}
 		if (e.isControlDown()) {
-//			double angleDiff = totRotAngle%Math.toDegrees(15);
-//			totRotAngle -= angleDiff;
-//			nonRotAngle += deltaAngle;
-//			deltaAngle = getSnappedAngle(nonRotAngle, 15) - angleDiff;
-//			double angleDiff = totRotAngle%Math.toDegrees(15);
-//			totRotAngle -= angleDiff;
 			nonRotAngle += deltaAngle;
 			deltaAngle = getSnappedAngle(nonRotAngle, 15);
 			nonRotAngle -= deltaAngle;
 		} else {
-//			deltaAngle += nonRotAngle;
 			nonRotAngle = 0;
 		}
 		totRotAngle += deltaAngle;
@@ -103,50 +97,26 @@ public abstract class AbstractRotateManipulator extends Manipulator {
 
 	protected double computeRotateRadians(MouseEvent e, Vec2 startingClick, Vec2 endingClick, CameraHandler cameraHandler) {
 		double deltaAngle = 0;
-//		Vec2 center = getVec2Center(portFirstXYZ, portSecondXYZ);
+		Vec2 center = getVec2Center(cameraHandler);
 		if (dir == MoveDimension.XYZ) {
-//			Vec2 startingDelta = Vec2.getDif(startingClick, center);
-//			Vec2 endingDelta = Vec2.getDif(endingClick, center);
-//
-//			double startingAngle = Math.atan2(startingDelta.y, startingDelta.x);
-//			double endingAngle = Math.atan2(endingDelta.y, endingDelta.x);
-//
-//			deltaAngle = endingAngle - startingAngle;
+//			System.out.println("S:" + startingClick + " E:" + endingClick + " C:" + center);
+			Vec2 startingDelta = Vec2.getDif(startingClick, center);
+			Vec2 endingDelta = Vec2.getDif(endingClick, center);
 
-			double radius = getRadius();
-			deltaAngle = (endingClick.x - startingClick.x) / radius;
-//
-		} else {
-//			if (dir.containDirection(portFirstXYZ)) {
-//				double radius = getRadius();
-//				deltaAngle = (endingClick.y - startingClick.y) / radius;
-//			}
-//			if (dir.containDirection(portSecondXYZ)) {
-//				double radius = getRadius();
-//				deltaAngle = (endingClick.x - startingClick.x) / radius;
-//			}
-//			if (dir.containDirection(CoordSysUtils.getUnusedXYZ(portFirstXYZ, portSecondXYZ))) {
-//				Vec2 startingDelta = Vec2.getDif(startingClick, center);
-//				Vec2 endingDelta = Vec2.getDif(endingClick, center);
-//
-//				double startingAngle = Math.atan2(startingDelta.y, startingDelta.x);
-//				double endingAngle = Math.atan2(endingDelta.y, endingDelta.x);
-//
-//				deltaAngle = endingAngle - startingAngle;
-//			}
+			double startingAngle = Math.atan2(-startingDelta.y, startingDelta.x);
+			double endingAngle = Math.atan2(-endingDelta.y, endingDelta.x);
+
+			deltaAngle = endingAngle - startingAngle;
+			System.out.println("S:" + startingDelta + " SA:" + startingAngle + " E:" + endingClick + " EA:" + endingAngle + ", delta: " + deltaAngle);
+
+//			double radius = getRadius();
+//			deltaAngle = (endingClick.x - startingClick.x) / radius;
 		}
 		if (e.isControlDown()) {
-//			double angleDiff = totRotAngle%Math.toDegrees(15);
-//			totRotAngle -= angleDiff;
-//			nonRotAngle += deltaAngle;
-//			deltaAngle = getSnappedAngle(nonRotAngle, 15) - angleDiff;
-//			double angleDiff = totRotAngle%Math.toDegrees(15);
-//			totRotAngle -= angleDiff;
 			nonRotAngle += deltaAngle;
 			deltaAngle = getSnappedAngle(nonRotAngle, 15);
 			nonRotAngle -= deltaAngle;
 		} else {
-//			deltaAngle += nonRotAngle;
 			nonRotAngle = 0;
 		}
 		totRotAngle += deltaAngle;
@@ -154,13 +124,20 @@ public abstract class AbstractRotateManipulator extends Manipulator {
 	}
 
 	protected abstract Vec2 getVec2Center(byte portFirstXYZ, byte portSecondXYZ);
-
-	protected abstract double getRadius();
+	protected abstract Vec2 getVec2Center(CameraHandler cameraHandler);
 
 	protected double getSnappedAngle(double angleToSnap, int snapDeg) {
 		double angleDeg = Math.toDegrees(angleToSnap);
 		int snapAngleDeg = ((int) angleDeg / snapDeg) * snapDeg;
 		return Math.toRadians(snapAngleDeg);
+	}
+
+	protected double getRadius() {
+		double radius = selectionManager.getCircumscribedSphereRadius(selectionManager.getCenter(), 0);
+		if (radius <= 0) {
+			radius = 64;
+		}
+		return radius;
 	}
 
 	public static byte getUnusedXYZ(byte portFirstXYZ, byte portSecondXYZ) {

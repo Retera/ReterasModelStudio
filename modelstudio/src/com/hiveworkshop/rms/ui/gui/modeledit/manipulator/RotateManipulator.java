@@ -42,17 +42,6 @@ public class RotateManipulator extends AbstractRotateManipulator {
 		Vec3 axis = new Vec3(Vec3.X_AXIS);
 		axis.transform(cameraHandler.getViewPortAntiRotMat2());
 
-//		if (dir != MoveDimension.XYZ && dir.containDirection(dim1)) {
-//			planeDim1 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
-//			planeDim2 = dim2;
-//		} else if (dir != MoveDimension.XYZ && dir.containDirection(dim2)) {
-//			planeDim1 = dim1;
-//			planeDim2 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
-//		} else {
-//			planeDim1 = dim1;
-//			planeDim2 = dim2;
-//		}
-//
 		rotationAction = modelEditor.beginRotation(center, axis);
 	}
 
@@ -60,11 +49,9 @@ public class RotateManipulator extends AbstractRotateManipulator {
 		return selectionManager.getCenter().getProjected(portFirstXYZ, portSecondXYZ);
 	}
 
-	protected double getRadius() {
-		double radius = selectionManager.getCircumscribedSphereRadius(selectionManager.getCenter());
-		if (radius <= 0) {
-			radius = 64;
-		}
-		return radius;
+	protected Vec2 getVec2Center(CameraHandler cameraHandler) {
+		Vec3 flatCenter = new Vec3();
+		flatCenter.set(selectionManager.getCenter()).transform(cameraHandler.getViewPortAntiRotMat());
+		return new Vec2(flatCenter.y, flatCenter.z);
 	}
 }

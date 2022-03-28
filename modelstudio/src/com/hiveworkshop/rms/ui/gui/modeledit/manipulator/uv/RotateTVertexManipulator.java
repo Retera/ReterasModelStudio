@@ -18,15 +18,15 @@ public class RotateTVertexManipulator extends AbstractRotateManipulator {
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
-		Vec3 center = new Vec3().setCoords(dim1, dim2, selectionManager.getUVCenter(0));
+		Vec3 center = selectionManager.getCenter();
 		byte planeDim1;
 		byte planeDim2;
 		nonRotAngle = 0;
 
-		if (dir.containDirection(dim1)) {
+		if (dir != MoveDimension.XYZ && dir.containDirection(dim1)) {
 			planeDim1 = getUnusedXYZ(dim1, dim2);
 			planeDim2 = dim2;
-		} else if (dir.containDirection(dim2)) {
+		} else if (dir != MoveDimension.XYZ && dir.containDirection(dim2)) {
 			planeDim1 = dim1;
 			planeDim2 = getUnusedXYZ(dim1, dim2);
 		} else {
@@ -43,21 +43,6 @@ public class RotateTVertexManipulator extends AbstractRotateManipulator {
 		Vec3 axis = new Vec3(Vec3.X_AXIS);
 		axis.transform(cameraHandler.getViewPortAntiRotMat2());
 
-//
-//		byte planeDim1;
-//		byte planeDim2;
-		nonRotAngle = 0;
-
-//		if (dir.containDirection(dim1)) {
-//			planeDim1 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
-//			planeDim2 = dim2;
-//		} else if (dir.containDirection(dim2)) {
-//			planeDim1 = dim1;
-//			planeDim2 = CoordSysUtils.getUnusedXYZ(dim1, dim2);
-//		} else {
-//			planeDim1 = dim1;
-//			planeDim2 = dim2;
-//		}
 		rotationAction = modelEditor.beginRotation(center, axis);
 	}
 
@@ -65,12 +50,7 @@ public class RotateTVertexManipulator extends AbstractRotateManipulator {
 		return selectionManager.getUVCenter(0);
 	}
 
-	protected double getRadius() {
-//		double radius = selectionView.getCircumscribedSphereRadius(center, modelEditor.getUVLayerIndex());
-		double radius = selectionManager.getCircumscribedSphereRadius(selectionManager.getUVCenter(0), 0);
-		if (radius <= 0) {
-			radius = 64;
-		}
-		return radius;
+	protected Vec2 getVec2Center(CameraHandler cameraHandler) {
+		return selectionManager.getUVCenter(0);
 	}
 }

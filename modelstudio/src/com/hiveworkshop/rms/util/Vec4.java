@@ -49,6 +49,18 @@ public class Vec4 {
 		w = data[3];
 	}
 
+	public Vec4 setAsAxisWithAngle(Quat quat){
+		float angle = (float) Math.acos(quat.w) * 2;
+		float sinOfHalfAngle = (float) Math.sin(angle / 2.0);
+		if(sinOfHalfAngle != 0) {
+			float ax = quat.x / sinOfHalfAngle;
+			float ay = quat.y / sinOfHalfAngle;
+			float az = quat.z / sinOfHalfAngle;
+			return set(ax, ay, az, angle);
+		}
+		return set(0, 0, 1, angle);
+	}
+
 	public float getCoord(final byte dim) {
 		return switch (dim) {
 			case 0 -> x;

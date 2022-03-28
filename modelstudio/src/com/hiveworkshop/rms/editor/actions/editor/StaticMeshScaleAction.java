@@ -9,17 +9,20 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TreeMap;
 
 public class StaticMeshScaleAction implements GenericScaleAction {
 	private final Vec3 center;
 	private final Vec3 scale;
-	private final Set<GeosetVertex> selectedVertices;
-	private final Set<IdObject> selectedIdObjects;
-	private final Set<CameraNode> selectedCameraNodes;
+	private final ArrayList<GeosetVertex> selectedVertices;
+	private final ArrayList<IdObject> selectedIdObjects;
+	private final ArrayList<CameraNode> selectedCameraNodes;
+
+	private final ArrayList<Vec3> opgPosVertices;
+	private final ArrayList<Vec3> opgPosIdObjects;
+	private final ArrayList<Vec3> opgPosCameraNodes;
 
 	public StaticMeshScaleAction(ModelView modelView, Vec3 center) {
 		this(modelView, center, new Vec3(1, 1, 1));
@@ -45,15 +48,34 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	                             Vec3 scale) {
 		this.center = center;
 		this.scale = scale;
-		this.selectedVertices = new HashSet<>(selectedVertices);
-		this.selectedIdObjects = new HashSet<>(selectedIdObjects);
-		this.selectedCameraNodes = new HashSet<>(selectedCameraNodes);
+		this.selectedVertices = new ArrayList<>(selectedVertices);
+		this.selectedIdObjects = new ArrayList<>(selectedIdObjects);
+		this.selectedCameraNodes = new ArrayList<>(selectedCameraNodes);
+
+		this.opgPosVertices = new ArrayList<>();
+		this.selectedVertices.forEach(v -> opgPosVertices.add(new Vec3(v)));
+		this.opgPosIdObjects = new ArrayList<>();
+		this.selectedIdObjects.forEach(o -> opgPosIdObjects.add(new Vec3(o.getPivotPoint())));
+		this.opgPosCameraNodes = new ArrayList<>();
+		this.selectedCameraNodes.forEach(c -> opgPosCameraNodes.add(new Vec3(c.getPosition())));
 	}
 
 	@Override
 	public UndoAction undo() {
-		Vec3 revScale = new Vec3(1, 1, 1).divide(scale);
+		Vec3 revScale = new Vec3(1, 1, 1).divide(scale.length()>0 ? scale : new Vec3(0.1, 0.1, 0.1).scale(0.0000001f));
 		rawScale(center, revScale);
+
+		for (int i = 0; i<selectedVertices.size(); i++) {
+			selectedVertices.get(i).set(opgPosVertices.get(i));
+		}
+
+		for (int i = 0; i<selectedIdObjects.size(); i++) {
+			selectedIdObjects.get(i).setPivotPoint(opgPosIdObjects.get(i));
+		}
+
+		for (int i = 0; i<selectedCameraNodes.size(); i++) {
+			selectedCameraNodes.get(i).setPosition(opgPosCameraNodes.get(i));
+		}
 		return this;
 	}
 
@@ -104,25 +126,6 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 		for (CameraNode cameraNode : selectedCameraNodes) {
 			cameraNode.getPosition().scale(center, scale);
 			translateNode(cameraNode, scale);
-		}
-	}
-
-	// Scales the translation animations of scaled bones (and helpers)
-	// is this correct to do...?
-	public void translateBone(IdObject object, Vec3 scale) {
-		Vec3AnimFlag translation = (Vec3AnimFlag) object.find(MdlUtils.TOKEN_TRANSLATION);
-		if (translation != null) {
-			for (TreeMap<Integer, Entry<Vec3>> entryMap : translation.getAnimMap().values()) {
-				if (entryMap != null) {
-					for (Entry<Vec3> entry : entryMap.values()) {
-						entry.getValue().multiply(scale);
-						if (translation.tans()) {
-							entry.getInTan().multiply(scale);
-							entry.getOutTan().multiply(scale);
-						}
-					}
-				}
-			}
 		}
 	}
 	public void translateNode(AnimatedNode node, Vec3 scale) {

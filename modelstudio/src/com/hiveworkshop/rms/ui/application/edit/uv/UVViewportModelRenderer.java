@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.GU;
 import com.hiveworkshop.rms.util.Vec2;
@@ -30,16 +31,20 @@ public class UVViewportModelRenderer {
 	                          CoordinateSystem coordinateSystem,
 	                          ModelHandler modelHandler) {
 		ModelView modelView = modelHandler.getModelView();
-		for (Geoset geoset : modelView.getEditableGeosets()) {
+		for (Geoset geoset : modelView.getVisibleGeosets()) {
 			graphics.setColor(ProgramGlobals.getPrefs().getTriangleColor());
 			if (modelView.getHighlightedGeoset() == geoset) {
 				graphics.setColor(ProgramGlobals.getPrefs().getHighlighTriangleColor());
 			}
 			for (Triangle triangle : geoset.getTriangles()) {
-				renderFace(graphics, coordinateSystem, modelView, triangle);
+				if(!triangleHidden(modelView, triangle)){
+					renderFace(graphics, coordinateSystem, modelView, triangle);
+				}
 			}
 			for (GeosetVertex vertex : geoset.getVertices()){
-				renderVertex(graphics, coordinateSystem, modelView, vertex);
+				if(!modelView.isHidden(vertex)){
+					renderVertex(graphics, coordinateSystem, modelView, vertex);
+				}
 			}
 		}
 	}
@@ -52,17 +57,30 @@ public class UVViewportModelRenderer {
 		Vec2 pointB = convertToViewVec2(coordinateSystem, triangle.get(1).getTVertex(0));
 		Vec2 pointC = convertToViewVec2(coordinateSystem, triangle.get(2).getTVertex(0));
 
-		if (triangleSelected(modelView, triangle)) {
-			graphics.setColor(FACE_SELECTED_COLOR);
+		if(modelView.isEditable(triangle)){
+			if (triangleSelected(modelView, triangle)) {
+				graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_AREA_SELECTED));
+			} else {
+				graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_AREA));
+			}
 		} else {
-			graphics.setColor(FACE_NOT_SELECTED_COLOR);
+			graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_AREA_UNEDITABLE));
 		}
 		GU.fillPolygon(graphics, pointA, pointB, pointC);
 
 		if (triangleSelected(modelView, triangle)) {
-			graphics.setColor(prefs.getSelectColor());
+			graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_LINE_SELECTED));
 		} else {
-			graphics.setColor(prefs.getTriangleColor());
+			graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_LINE));
+		}
+		if(modelView.isEditable(triangle)){
+			if (triangleSelected(modelView, triangle)) {
+				graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_LINE_SELECTED));
+			} else {
+				graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_LINE));
+			}
+		} else {
+			graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.TRIANGLE_LINE_UNEDITABLE));
 		}
 		GU.drawPolygon(graphics, pointA, pointB, pointC);
 	}
@@ -71,18 +89,25 @@ public class UVViewportModelRenderer {
 		return modelView.isSelected(triangle.get(0)) && modelView.isSelected(triangle.get(1)) && modelView.isSelected(triangle.get(2));
 	}
 
+	private boolean triangleHidden(ModelView modelView, Triangle triangle) {
+		return modelView.isHidden(triangle.get(0)) && modelView.isHidden(triangle.get(1)) && modelView.isHidden(triangle.get(2));
+	}
+
 	public void renderVertex(Graphics2D graphics,
 	                         CoordinateSystem coordinateSystem,
 	                         ModelView modelView,
 	                         GeosetVertex vertex) {
 		Vec2 pointA = convertToViewVec2(coordinateSystem, vertex.getTVertex(0));
-		if (modelView.isSelected(vertex)) {
-			graphics.setColor(prefs.getSelectColor());
+		if (modelView.isEditable(vertex)){
+			if (modelView.isSelected(vertex)) {
+				graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX_SELECTED));
+			} else {
+				graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX));
+			}
 		} else {
-			graphics.setColor(prefs.getVertexColor());
+			graphics.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX_UNEDITABLE));
 		}
 		GU.fillCenteredSquare(graphics, pointA, vertexSize);
-//		graphics.fillRect(pointA.x - (vertexSize / 2), (int) (pointA.y - (vertexSize / 2.0)), vertexSize, vertexSize);
 	}
 
 	public static Vec2 convertToViewVec2(CoordinateSystem coordinateSystem, Vec2 vertex) {

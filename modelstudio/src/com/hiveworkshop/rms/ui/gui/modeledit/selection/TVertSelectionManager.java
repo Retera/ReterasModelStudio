@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
-import com.hiveworkshop.rms.editor.model.*;
+import com.hiveworkshop.rms.editor.model.Geoset;
+import com.hiveworkshop.rms.editor.model.GeosetVertex;
+import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
@@ -8,7 +10,6 @@ import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSys
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec4;
 
 import java.awt.*;
 import java.util.*;
@@ -31,57 +32,8 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		super(editorRenderModel, modelView, selectionMode);
 	}
 
-//	public UndoAction setSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
-//		System.out.println("setSelectedRegion: " + min + "" + max);
-//		SelectionBundle newSelection = getSelectionBundle(min, max, cameraHandler);
-//		return new SetSelectionUggAction(newSelection, modelView, "select");
-//	}
-//
-//	public UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, cameraHandler);
-//		return new RemoveSelectionUggAction(newSelection, modelView);
-//	}
-//
-//	public UndoAction addSelectedRegion(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, cameraHandler);
-//		return new AddSelectionUggAction(newSelection, modelView);
-//	}
-//
-//	public UndoAction setSelectedRegion(Vec3 min3, Vec3 max3, CameraHandler cameraHandler) {
-//		System.out.println("setSelectedRegion: " + min3 + "" + max3);
-//		SelectionBundle newSelection = getSelectionBundle(min3, max3, cameraHandler);
-//		return new SetSelectionUggAction(newSelection, modelView, "select");
-//	}
-//
-//	public UndoAction removeSelectedRegion(Vec3 min3, Vec3 max3, CameraHandler cameraHandler) {
-//		SelectionBundle newSelection = getSelectionBundle(min3, max3, cameraHandler);
-//		return new RemoveSelectionUggAction(newSelection, modelView);
-//	}
-//
-//	public UndoAction addSelectedRegion(Vec3 min3, Vec3 max3, CameraHandler cameraHandler) {
-//		SelectionBundle newSelection = getSelectionBundle(min3, max3, cameraHandler);
-//		return new AddSelectionUggAction(newSelection, modelView);
-//	}
-//
-//	public final UndoAction setSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, coordinateSystem);
-//		return new SetSelectionUggAction(newSelection, modelView, "select");
-//	}
-//
-//	public final UndoAction removeSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, coordinateSystem);
-//		return new RemoveSelectionUggAction(newSelection, modelView);
-//	}
-//
-//	public final UndoAction addSelectedRegion(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
-//		SelectionBundle newSelection = getSelectionBundle(min, max, coordinateSystem);
-//		return new AddSelectionUggAction(newSelection, modelView);
-//	}
-
 	public SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, CameraHandler cameraHandler) {
 		double vertexSize = cameraHandler.geomDist(ProgramGlobals.getPrefs().getVertexSize() / 2.0);
-//		min.transform(cameraHandler.getViewPortAntiRotMat());
-//		max.transform(cameraHandler.getViewPortAntiRotMat());
 		return genericSelect(min, max, vertexSize, cameraHandler);
 	}
 
@@ -95,32 +47,6 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 	public SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		double vertexSize = ProgramGlobals.getPrefs().getVertexSize() / coordinateSystem.getZoom();
 		return genericSelect(min, max, vertexSize);
-	}
-
-
-	public Vec3 getCenter() {
-		if (selectionMode == SelectionItemTypes.VERTEX
-				|| selectionMode == SelectionItemTypes.FACE
-				|| selectionMode == SelectionItemTypes.GROUP
-				|| selectionMode == SelectionItemTypes.CLUSTER
-				|| selectionMode == SelectionItemTypes.TPOSE) {
-			return new Vec3().setCoords((byte) 0, (byte) 1, modelView.getTSelectionCenter());
-//			return modelView.getSelectionCenter();
-		}
-		if (selectionMode == SelectionItemTypes.ANIMATE) {
-			Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
-			Set<IdObject> selectedIdObjects = modelView.getSelectedIdObjects();
-			for (IdObject object : selectedIdObjects) {
-				Vec4 pivotHeap = new Vec4(object.getPivotPoint(), 1);
-				pivotHeap.transform(editorRenderModel.getRenderNode(object).getWorldMatrix());
-				centerOfGroupSumHeap.add(pivotHeap.getVec3());
-			}
-			if (selectedIdObjects.size() > 0) {
-				centerOfGroupSumHeap.scale(1f / selectedIdObjects.size());
-			}
-			return centerOfGroupSumHeap;
-		}
-		return new Vec3();
 	}
 
 	public SelectionBundle genericSelect(Vec2 min, Vec2 max, double vertexSize) {
@@ -206,38 +132,53 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		return newSelection;
 	}
 
-	public double getCircumscribedSphereRadius(Vec3 sphereCenter) {
+	public double getCircumscribedSphereRadius(Vec3 sphereCenter, int tvertexLayerId) {
 
 		if (selectionMode == SelectionItemTypes.VERTEX || selectionMode == SelectionItemTypes.FACE || selectionMode == SelectionItemTypes.CLUSTER || selectionMode == SelectionItemTypes.GROUP) {
+			Vec2 center = sphereCenter.getProjected((byte) 0, (byte) 1);
 			double radius = 0;
-			for (Vec3 item : modelView.getSelectedVertices()) {
-				double distance = sphereCenter.distance(item);
-				if (distance >= radius) {
-					radius = distance;
+			for (GeosetVertex item : modelView.getSelectedVertices()) {
+				if (tvertexLayerId < item.getTverts().size()) {
+					double distance = center.distance(item.getTVertex(tvertexLayerId));
+					if (distance >= radius) {
+						radius = distance;
+					}
 				}
 			}
-			for (IdObject item : modelView.getSelectedIdObjects()) {
-				double distance = sphereCenter.distance(item.getPivotPoint());
-				if (distance >= radius) {
-					radius = distance;
-				}
-			}
-			for (CameraNode item : modelView.getSelectedCameraNodes()) {
-				double distance = sphereCenter.distance(item.getPosition());
-				if (distance >= radius) {
-					radius = distance;
-				}
-			}
-//			for (Vec3 item : selection) {
+			return radius;
+		}
+		return 0;
+
+//		if (selectionMode == SelectionItemTypes.VERTEX || selectionMode == SelectionItemTypes.FACE || selectionMode == SelectionItemTypes.CLUSTER || selectionMode == SelectionItemTypes.GROUP) {
+//			double radius = 0;
+//			for (Vec3 item : modelView.getSelectedVertices()) {
 //				double distance = sphereCenter.distance(item);
 //				if (distance >= radius) {
 //					radius = distance;
 //				}
 //			}
-
-			return radius;
-		}
-		return 0;
+//			for (IdObject item : modelView.getSelectedIdObjects()) {
+//				double distance = sphereCenter.distance(item.getPivotPoint());
+//				if (distance >= radius) {
+//					radius = distance;
+//				}
+//			}
+//			for (CameraNode item : modelView.getSelectedCameraNodes()) {
+//				double distance = sphereCenter.distance(item.getPosition());
+//				if (distance >= radius) {
+//					radius = distance;
+//				}
+//			}
+////			for (Vec3 item : selection) {
+////				double distance = sphereCenter.distance(item);
+////				if (distance >= radius) {
+////					radius = distance;
+////				}
+////			}
+//
+//			return radius;
+//		}
+//		return 0;
 	}
 
 	public double getCircumscribedSphereRadius(Vec2 center, int tvertexLayerId) {
@@ -254,6 +195,34 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 			return radius;
 		}
 		return 0;
+	}
+
+	public Vec3 getCenter() {
+		int tvertexLayerId = 0;
+		if (selectionMode == SelectionItemTypes.VERTEX
+				|| selectionMode == SelectionItemTypes.FACE
+				|| selectionMode == SelectionItemTypes.GROUP
+				|| selectionMode == SelectionItemTypes.CLUSTER
+				|| selectionMode == SelectionItemTypes.TPOSE) {
+
+			return new Vec3().setCoords((byte) 0, (byte) 1, getUVCenter(tvertexLayerId));
+//			return new Vec3().setCoords((byte) 0, (byte) 1, modelView.getTSelectionCenter());
+		}
+//		if (selectionMode == SelectionItemTypes.ANIMATE) {
+//			Vec3 centerOfGroupSumHeap = new Vec3(0, 0, 0);
+//			Set<IdObject> selectedIdObjects = modelView.getSelectedIdObjects();
+//			for (IdObject object : selectedIdObjects) {
+//				Vec4 pivotHeap = new Vec4(object.getPivotPoint(), 1);
+//				pivotHeap.transform(editorRenderModel.getRenderNode(object).getWorldMatrix());
+//				centerOfGroupSumHeap.add(pivotHeap.getVec3());
+//			}
+//			if (selectedIdObjects.size() > 0) {
+//				centerOfGroupSumHeap.scale(1f / selectedIdObjects.size());
+//			}
+//			return centerOfGroupSumHeap;
+//		}
+
+		return new Vec3();
 	}
 
 	public Vec2 getUVCenter(int tvertexLayerId) {
@@ -301,15 +270,15 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 	}
 
 	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem coordinateSystem) {
+		int tvertexLayerId = 0;
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			double vertexSize = ProgramGlobals.getPrefs().getVertexSize() / 2.0 / coordinateSystem.getZoom();
 			Vec2 point2 = new Vec2(coordinateSystem.geomX(point.x), coordinateSystem.geomY(point.y));
-			;
+
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (GeosetVertex geosetVertex : geoset.getVertices()) {
-					if (geosetVertex.getTverts().size() > 0) {
-//						if (HitTestStuff.hitTest(geosetVertex.getTVertex(0), point, vertexSize)) {
-						if (HitTestStuff.hitTest(geosetVertex.getTVertex(0), point2, vertexSize)) {
+					if (geosetVertex.getTverts().size() > tvertexLayerId) {
+						if (HitTestStuff.hitTest(geosetVertex.getTVertex(tvertexLayerId), point2, vertexSize)) {
 							return true;
 						}
 					}
@@ -319,8 +288,7 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 			Vec2 point2 = new Vec2(coordinateSystem.geomX(point.x), coordinateSystem.geomY(point.y));
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-//					if (HitTestStuff.triHitTest(triangle, point, 0)) {
-					if (HitTestStuff.triHitTest(triangle, point2, 0)) {
+					if (HitTestStuff.triHitTest(triangle, point2, tvertexLayerId)) {
 						return true;
 					}
 				}
@@ -330,12 +298,13 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 	}
 
 	public boolean selectableUnderCursor(Vec2 point, CameraHandler cameraHandler) {
+		int tvertexLayerId = 0;
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			double vertexSize = cameraHandler.geomDist(ProgramGlobals.getPrefs().getVertexSize() / 2.0);
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (GeosetVertex geosetVertex : geoset.getVertices()) {
-					if (geosetVertex.getTverts().size() > 0) {
-						if (HitTestStuff.hitTest(geosetVertex.getTVertex(0), point, vertexSize)) {
+					if (geosetVertex.getTverts().size() > tvertexLayerId) {
+						if (HitTestStuff.hitTest(geosetVertex.getTVertex(tvertexLayerId), point, vertexSize)) {
 							return true;
 						}
 					}
@@ -344,7 +313,7 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		} else if (selectionMode == SelectionItemTypes.FACE) {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-					if (HitTestStuff.triHitTest(triangle, point, 0)) {
+					if (HitTestStuff.triHitTest(triangle, point, tvertexLayerId)) {
 						return true;
 					}
 				}
