@@ -21,6 +21,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ComponentSDLayer extends ComponentPanel<Layer> {
@@ -29,7 +30,8 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 	private final JPanel texturePreviewPanel;
 	private final JPanel layerFlagsPanel;
 	private TwiComboBox<FilterMode> filterModeDropdown;
-	private JButton tVertexAnimButton;
+	private TwiComboBox<TextureAnim> textureAnimDropdown;
+	private List<TextureAnim> textureAnims = new ArrayList<>();
 	private IntEditorJSpinner coordIdSpinner;
 	private JButton move_up;
 	private JButton move_down;
@@ -65,23 +67,13 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 
 
 		filterModeDropdown.setSelectedItem(itemToSelect.getFilterMode());
-		tVertexAnimButton.setText(getTexAnimName());
+		updateTextureAnimBox(selectedItem.getTextureAnim());
 
 		coordIdSpinner.reloadNewValue(selectedItem.getCoordId());
 
 		updateTexturePanel(itemToSelect.getTextureBitmap());
 		updateMoveButtons();
 		return this;
-	}
-
-	private String getTexAnimName() {
-		TextureAnim textureAnim = selectedItem.getTextureAnim();
-		if (textureAnim != null) {
-			int textureAnimId = model.getTextureAnimId(textureAnim);
-			return "[" + textureAnimId + "] " + textureAnim.getFlagNames();
-		}
-//		String text = textureAnim == null ? "None" : textureAnim.getFlagNames();
-		return "None";
 	}
 
 	private JPanel getTopPanel() {
@@ -161,14 +153,31 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 		topSettingsPanel.add(filterModeDropdown, "wrap, growx");
 
 		topSettingsPanel.add(new JLabel("TVertex Anim:"));
-		tVertexAnimButton = new JButton("Choose TVertex Anim");
-//		tVertexAnimButton.addActionListener();
-		topSettingsPanel.add(tVertexAnimButton, "wrap, growx");
+		textureAnimDropdown = new TwiComboBox<>(textureAnims);
+		textureAnimDropdown.setStringFunctionRender(this::getTexAnimName);
+		textureAnimDropdown.addOnSelectItemListener(this::setTextureAnim);
+		topSettingsPanel.add(textureAnimDropdown, "wrap, growx");
 
 		topSettingsPanel.add(new JLabel("CoordID:"));
 		coordIdSpinner = new IntEditorJSpinner(-1, Integer.MIN_VALUE, this::setCoordId);
 		topSettingsPanel.add(coordIdSpinner, "wrap, growx");
 		return topSettingsPanel;
+	}
+
+	private void updateTextureAnimBox(TextureAnim textureAnim){
+		textureAnims.clear();
+		textureAnims.add(0, null);
+		textureAnims.addAll(model.getTexAnims());
+		textureAnimDropdown.setSelectedItem(textureAnim);
+	}
+
+
+	private String getTexAnimName(Object textureAnim) {
+		if (textureAnim instanceof TextureAnim) {
+			int textureAnimId = model.getTextureAnimId((TextureAnim) textureAnim);
+			return "[" + textureAnimId + "] " + ((TextureAnim) textureAnim).getFlagNames();
+		}
+		return "None";
 	}
 
 	private void changeFilterModeDrop(FilterMode newFilterMode) {
@@ -193,6 +202,13 @@ public class ComponentSDLayer extends ComponentPanel<Layer> {
 	private void setStaticAlpha(double value){
 		if(selectedItem.getStaticAlpha() != value) {
 			undoManager.pushAction(new SetLayerAlphaAction(selectedItem, value, changeListener).redo());
+		}
+	}
+
+	private void setTextureAnim(TextureAnim textureAnim) {
+		if(textureAnim != selectedItem.getTextureAnim()){
+			System.out.println("notTehSame: " + textureAnim);
+			undoManager.pushAction(new SetLayerTextureAnimAction(selectedItem, textureAnim, changeListener).redo());
 		}
 	}
 

@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.render3d.RenderGeoset;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
@@ -13,6 +14,8 @@ import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Mat4;
+import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
@@ -31,6 +34,9 @@ public class GeosetRenderer {
 	private EditorColorPrefs colorPrefs;
 	private ModelView modelView;
 	private int levelOfDetail = -1;
+
+	private Vec2 uvTemp = new Vec2();
+	private Mat4 uvTransform = new Mat4();
 
 	boolean texLoaded = true;
 	public GeosetRenderer(CameraHandler cameraHandler, ProgramPreferences programPreferences){
@@ -212,6 +218,7 @@ public class GeosetRenderer {
 	private void renderMesh3(Geoset geo, Layer layer, boolean renderTextures) {
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 		if (renderGeoset != null) {
+			Mat4 uvTransform = getUVTransform(layer);
 			glBegin(GL11.GL_TRIANGLES);
 			for (Triangle tri : geo.getTriangles()) {
 //				if (programPreferences != null && !programPreferences.textureModels() && cameraHandler.isOrtho()) {
@@ -225,9 +232,9 @@ public class GeosetRenderer {
 					renderVert[1] = renderGeoset.getRenderVert(verts[1]);
 					renderVert[2] = renderGeoset.getRenderVert(verts[2]);
 					if (renderVert[0] != null && renderVert[1] != null && renderVert[2] != null) {
-						paintVert(getUv(layer, verts[0]), renderVert[0].getRenderPos(), renderVert[0].getRenderNorm());
-						paintVert(getUv(layer, verts[1]), renderVert[1].getRenderPos(), renderVert[1].getRenderNorm());
-						paintVert(getUv(layer, verts[2]), renderVert[2].getRenderPos(), renderVert[2].getRenderNorm());
+						paintVert(getUv(layer, verts[0], uvTransform), renderVert[0].getRenderPos(), renderVert[0].getRenderNorm());
+						paintVert(getUv(layer, verts[1], uvTransform), renderVert[1].getRenderPos(), renderVert[1].getRenderNorm());
+						paintVert(getUv(layer, verts[2], uvTransform), renderVert[2].getRenderPos(), renderVert[2].getRenderNorm());
 //						System.out.println("RenderVert: " + renderVert[0].getRenderPos());
 					}
 				}
@@ -250,12 +257,31 @@ public class GeosetRenderer {
 		}
 	}
 
-	private Vec2 getUv(Layer layer, GeosetVertex vertex) {
+	private Vec2 getUv(Layer layer, GeosetVertex vertex, Mat4 uvTransform) {
 		int coordId = layer.getCoordId();
 		if (coordId >= vertex.getTverts().size()) {
 			coordId = vertex.getTverts().size() - 1;
 		}
+		if(uvTransform != null){
+			uvTemp.set(vertex.getTverts().get(coordId));
+			uvTemp.transform2(uvTransform);
+			return uvTemp;
+		}
 		return vertex.getTverts().get(coordId);
+	}
+
+	private Mat4 getUVTransform(Layer layer) {
+		if(layer.getTextureAnim() != null){
+			uvTransform.setIdentity();
+
+			uvTransform.fromRotationTranslationScale(
+					layer.getTextureAnim().getInterpolatedQuat(renderEnv, MdlUtils.TOKEN_ROTATION, Quat.IDENTITY),
+					layer.getTextureAnim().getInterpolatedVector(renderEnv, MdlUtils.TOKEN_TRANSLATION, Vec3.ZERO),
+					layer.getTextureAnim().getInterpolatedVector(renderEnv, MdlUtils.TOKEN_SCALING, Vec3.ONE)
+			);
+			return uvTransform;
+		}
+		return null;
 	}
 
 	private void paintVert(Vec2 uv, Vec3 vert, Vec3 normal) {

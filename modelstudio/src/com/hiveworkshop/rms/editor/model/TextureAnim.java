@@ -40,7 +40,7 @@ public class TextureAnim extends TimelineContainer {
 	public String getFlagNames() {
 		Map<String, AnimFlag<?>> flags = this.animFlags;
 		//TODO figure out what this should return
-		System.out.println("TextureAnim flags: " + flags.keySet());
+//		System.out.println("TextureAnim flags: " + flags.keySet());
 		return flags.keySet().toString();
 	}
 }

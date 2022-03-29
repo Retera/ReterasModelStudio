@@ -5,6 +5,7 @@ import java.util.Collection;
 
 public class Vec3 {
 	public static final Vec3 ZERO = new Vec3();
+	public static final Vec3 ONE = new Vec3(1,1,1);
 	public static final Vec3 X_AXIS = new Vec3(1, 0, 0);
 	public static final Vec3 Y_AXIS = new Vec3(0, 1, 0);
 	public static final Vec3 Z_AXIS = new Vec3(0, 0, 1);

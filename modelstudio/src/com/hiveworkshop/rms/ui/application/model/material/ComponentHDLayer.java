@@ -3,9 +3,11 @@ package com.hiveworkshop.rms.ui.application.model.material;
 import com.hiveworkshop.rms.editor.actions.model.material.SetLayerAlphaAction;
 import com.hiveworkshop.rms.editor.actions.model.material.SetLayerFilterModeAction;
 import com.hiveworkshop.rms.editor.actions.model.material.SetLayerTextureAction;
+import com.hiveworkshop.rms.editor.actions.model.material.SetLayerTextureAnimAction;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
+import com.hiveworkshop.rms.editor.model.TextureAnim;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
@@ -30,6 +32,8 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ComponentHDLayer extends ComponentPanel<Layer> {
 	private String valuePanelConstraints = "wrap, growx, hidemode 2";
@@ -42,7 +46,8 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 	private final JPanel texturePreviewPanel;
 	private final JPanel layerFlagsPanel;
 	private TwiComboBox<FilterMode> filterModeDropdown;
-	private JButton tVertexAnimButton;
+	private TwiComboBox<TextureAnim> textureAnimDropdown;
+	private List<TextureAnim> textureAnims = new ArrayList<>();
 	private IntEditorJSpinner coordIdSpinner;
 
 
@@ -83,7 +88,7 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 //		System.out.println("updating filtermode ");
 		filterModeDropdown.setSelectedItem(itemToSelect.getFilterMode());
 //		System.out.println("updating textureAnim ");
-		tVertexAnimButton.setText(selectedItem.getTextureAnim() == null ? "None" : selectedItem.getTextureAnim().getFlagNames());
+		updateTextureAnimBox(selectedItem.getTextureAnim());
 
 		coordIdSpinner.reloadNewValue(selectedItem.getCoordId());
 
@@ -164,13 +169,38 @@ public class ComponentHDLayer extends ComponentPanel<Layer> {
 		topSettingsPanel.add(filterModeDropdown, "wrap, growx");
 
 		topSettingsPanel.add(new JLabel("TVertex Anim:"));
-		tVertexAnimButton = new JButton("Choose TVertex Anim");
-		topSettingsPanel.add(tVertexAnimButton, "wrap, growx");
+		textureAnimDropdown = new TwiComboBox<>(textureAnims);
+		textureAnimDropdown.setStringFunctionRender(this::getTexAnimName);
+		textureAnimDropdown.addOnSelectItemListener(this::setTextureAnim);
+		topSettingsPanel.add(textureAnimDropdown, "wrap, growx");
 
 		topSettingsPanel.add(new JLabel("CoordID:"));
 		coordIdSpinner = new IntEditorJSpinner(-1, Integer.MIN_VALUE, this::setCoordId);
 		topSettingsPanel.add(coordIdSpinner, "wrap, growx");
 		return topSettingsPanel;
+	}
+
+	private void updateTextureAnimBox(TextureAnim textureAnim){
+		textureAnims.clear();
+		textureAnims.add(0, null);
+		textureAnims.addAll(model.getTexAnims());
+		textureAnimDropdown.setSelectedItem(textureAnim);
+	}
+
+
+	private String getTexAnimName(Object textureAnim) {
+		if (textureAnim instanceof TextureAnim) {
+			int textureAnimId = model.getTextureAnimId((TextureAnim) textureAnim);
+			return "[" + textureAnimId + "] " + ((TextureAnim) textureAnim).getFlagNames();
+		}
+		return "None";
+	}
+
+	private void setTextureAnim(TextureAnim textureAnim) {
+		if(textureAnim != selectedItem.getTextureAnim()){
+			System.out.println("notTehSame: " + textureAnim);
+			undoManager.pushAction(new SetLayerTextureAnimAction(selectedItem, textureAnim, changeListener).redo());
+		}
 	}
 
 	private void changeFilterMode(FilterMode newFilterMode) {
