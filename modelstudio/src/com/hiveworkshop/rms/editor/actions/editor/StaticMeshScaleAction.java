@@ -117,10 +117,17 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 				((ParticleEmitter2) object).setLatitude(((ParticleEmitter2) object).getLatitude()*scale.z);
 				((ParticleEmitter2) object).setWidth(((ParticleEmitter2) object).getWidth()*scale.y);
 				((ParticleEmitter2) object).setLength(((ParticleEmitter2) object).getLength()*scale.x);
+				((ParticleEmitter2) object).getParticleScaling().multiply(scale);
+				double avgScale = (scale.x + scale.y + scale.z) / 3;
+				((ParticleEmitter2) object).setSpeed(((ParticleEmitter2) object).getSpeed() * avgScale);
+				((ParticleEmitter2) object).setGravity(((ParticleEmitter2) object).getGravity() * avgScale);
 			}
 			if(object instanceof ParticleEmitter){
 				((ParticleEmitter) object).setLatitude(((ParticleEmitter) object).getLatitude()*scale.z);
 				((ParticleEmitter) object).setLongitude(((ParticleEmitter) object).getLongitude()*scale.y);
+				double avgScale = (scale.x + scale.y + scale.z) / 3;
+				((ParticleEmitter) object).setInitVelocity(((ParticleEmitter) object).getInitVelocity()*avgScale);
+
 			}
 		}
 		for (CameraNode cameraNode : selectedCameraNodes) {

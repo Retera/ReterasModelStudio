@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddAnimFlagAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveAnimFlagAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
+import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
@@ -13,6 +14,7 @@ import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.TwiComboBox;
@@ -34,6 +36,7 @@ public class MaterialHDAnimEditPanel extends JPanel {
 	private boolean invFresOp = false;
 	private boolean invEmissive = false;
 	private FlipColor flipColor = FlipColor.DONT_FLIP;
+	private static Material prototypeMaterial = new Material(new Layer(new Bitmap("Non-existing image for prototype purposes cuz Swing")));
 
 	private final UndoManager undoManager;
 
@@ -49,8 +52,6 @@ public class MaterialHDAnimEditPanel extends JPanel {
 		info.setOpaque(false);
 		info.setLineWrap(true);
 		info.setWrapStyleWord(true);
-
-		List<Material> geosetAnims = model.getMaterials();
 
 		JCheckBox invert_Vis = new JCheckBox("invert visibility");
 		invert_Vis.addActionListener(e -> invertVis = invert_Vis.isSelected());
@@ -73,10 +74,10 @@ public class MaterialHDAnimEditPanel extends JPanel {
 		flipColorBox.addOnSelectItemListener(fc -> flipColor = fc);
 
 		JButton copyButton = new JButton("Copy Animation Data");
-		copyButton.addActionListener(e -> doCopy(recMaterial, donMaterial));
+		copyButton.addActionListener(e -> doCopy(recMaterial, donMaterial, model.getAllSequences()));
 
 		add(info, "spanx, growx, wrap");
-		add(getDonGeoAnimPanel(geosetAnims), "growx, aligny top, wrap");
+		add(getDonGeoAnimPanel(model.getMaterials()), "spanx, growx, aligny top, wrap");
 		add(copy_Vis);
 		add(invert_Vis, "wrap");
 		add(copy_emissive, "");
@@ -98,7 +99,7 @@ public class MaterialHDAnimEditPanel extends JPanel {
 		donMaterialPanel.add(new JLabel("From:"), "wrap");
 
 
-		TwiComboBox<Material> comboBox = new TwiComboBox<>(materials);
+		TwiComboBox<Material> comboBox = new TwiComboBox<>(materials, prototypeMaterial);
 		comboBox.addOnSelectItemListener(mat -> donMaterial = mat);
 		comboBox.setStringFunctionRender((mat) -> ((Material) mat).getName());
 
@@ -107,11 +108,11 @@ public class MaterialHDAnimEditPanel extends JPanel {
 		return donMaterialPanel;
 	}
 
-	private void doCopy(Material recMaterial, Material donMaterial) {
+	private void doCopy(Material recMaterial, Material donMaterial, List<Sequence> allSequences) {
 		ArrayList<UndoAction> actions = new ArrayList<>();
 
 		for(int i = 0; i<donMaterial.getLayers().size() && i<recMaterial.getLayers().size(); i++){
-			addLayerActions(actions, donMaterial.getLayer(i), recMaterial.getLayer(i));
+			addLayerActions(actions, donMaterial.getLayer(i), recMaterial.getLayer(i), allSequences);
 		}
 
 		if(!actions.isEmpty()){
@@ -190,6 +191,92 @@ public class MaterialHDAnimEditPanel extends JPanel {
 		}
 	}
 
+	private void addLayerActions(ArrayList<UndoAction> actions, Layer donMatLayer, Layer recMatLayer, List<Sequence> allSequences) {
+		for (AnimFlag<?> animFlag : donMatLayer.getAnimFlags()){
+			if (copyVis && (animFlag.getName().equals(MdlUtils.TOKEN_ALPHA) || animFlag.getName().equals(MdlUtils.TOKEN_VISIBILITY))){
+				AnimFlag<?> newAnimFlag = animFlag.deepCopy();
+				if(recMatLayer.has(animFlag.getName())){
+					actions.add(new RemoveAnimFlagAction(recMatLayer, recMatLayer.find(animFlag.getName()), null));
+				}
+				invertFloatAnimFlag(animFlag, invertVis, (FloatAnimFlag) newAnimFlag, allSequences);
+				actions.add(new AddAnimFlagAction<>(recMatLayer, newAnimFlag, null));
+			} else if (copyEmissive && (animFlag.getName().equals(MdlUtils.TOKEN_EMISSIVE) || animFlag.getName().equals(MdlUtils.TOKEN_EMISSIVE_GAIN))){
+				AnimFlag<?> newAnimFlag = animFlag.deepCopy();
+				if(recMatLayer.has(animFlag.getName())){
+					actions.add(new RemoveAnimFlagAction(recMatLayer, recMatLayer.find(animFlag.getName()), null));
+				}
+				invertFloatAnimFlag(animFlag, invEmissive, (FloatAnimFlag) newAnimFlag, allSequences);
+				actions.add(new AddAnimFlagAction<>(recMatLayer, newAnimFlag, null));
+			} else if (copyFresOp && animFlag.getName().equals(MdlUtils.TOKEN_FRESNEL_OPACITY)){
+				AnimFlag<?> newAnimFlag = animFlag.deepCopy();
+				if(recMatLayer.has(animFlag.getName())){
+					actions.add(new RemoveAnimFlagAction(recMatLayer, recMatLayer.find(animFlag.getName()), null));
+				}
+				invertFloatAnimFlag(animFlag, invFresOp, (FloatAnimFlag) newAnimFlag, allSequences);
+				actions.add(new AddAnimFlagAction<>(recMatLayer, newAnimFlag, null));
+			} else if (copyColor && (animFlag.getName().equals(MdlUtils.TOKEN_FRESNEL_COLOR) || animFlag.getName().equals(MdlUtils.TOKEN_COLOR))){
+				AnimFlag<?> newAnimFlag = animFlag.deepCopy();
+				if(recMatLayer.has(animFlag.getName())){
+					actions.add(new RemoveAnimFlagAction(recMatLayer, recMatLayer.find(animFlag.getName()), null));
+				}
+				if(flipColor != FlipColor.DONT_FLIP && animFlag instanceof Vec3AnimFlag){
+					Vec3AnimFlag floatAnimFlag = (Vec3AnimFlag) newAnimFlag;
+					for(TreeMap<Integer, Entry<Vec3>> entryMap : floatAnimFlag.getAnimMap().values()){
+						for(Entry<Vec3> entry : entryMap.values()){
+							Vec3 value = entry.getValue();
+							switch (flipColor){
+								case DONT_FLIP  -> value.set(value.x, value.y, value.z);
+								case RED_GREEN  -> value.set(value.y, value.x, value.z);
+								case RED_BLUE   -> value.set(value.z, value.y, value.x);
+								case GREEN_BLUE -> value.set(value.x, value.z, value.y);
+								case RGB_BRG    -> value.set(value.z, value.x, value.y);
+								case RGB_GBR    -> value.set(value.y, value.z, value.x);
+							}
+						}
+					}
+				}
+				actions.add(new AddAnimFlagAction<>(recMatLayer, newAnimFlag, null));
+			} else if (!animFlag.getName().equals(MdlUtils.TOKEN_COLOR)
+					&& !animFlag.getName().equals(MdlUtils.TOKEN_FRESNEL_COLOR)
+					&& !animFlag.getName().equals(MdlUtils.TOKEN_ALPHA)
+					&& !animFlag.getName().equals(MdlUtils.TOKEN_VISIBILITY)
+					&& !animFlag.getName().equals(MdlUtils.TOKEN_FRESNEL_OPACITY)
+					&& !animFlag.getName().equals(MdlUtils.TOKEN_EMISSIVE)
+					&& !animFlag.getName().equals(MdlUtils.TOKEN_EMISSIVE_GAIN)){
+				AnimFlag<?> newAnimFlag = animFlag.deepCopy();
+				if(recMatLayer.has(animFlag.getName())){
+					actions.add(new RemoveAnimFlagAction(recMatLayer, recMatLayer.find(animFlag.getName()), null));
+				}
+				actions.add(new AddAnimFlagAction<>(recMatLayer, newAnimFlag, null));
+			}
+		}
+	}
+
+	private void invertFloatAnimFlag(AnimFlag<?> animFlag, boolean invert, FloatAnimFlag newAnimFlag, List<Sequence> allSequences) {
+		if(invert && animFlag instanceof FloatAnimFlag){
+			for (Sequence sequence : allSequences){
+//				if(!newAnimFlag.hasSequence(sequence) || newAnimFlag.getEntryMap(sequence).size() == 0 || newAnimFlag.getEntryAt(sequence, 0) == null){
+				if(newAnimFlag.getEntryAt(sequence, 0) == null){
+					if(newAnimFlag.tans()){
+						newAnimFlag.addEntry(new Entry<>(0, 1.0f, 1.0f, 1.0f), sequence);
+					} else {
+						newAnimFlag.addEntry(new Entry<>(0, 1.0f), sequence);
+					}
+				}
+			}
+			for(TreeMap<Integer, Entry<Float>> entryMap : newAnimFlag.getAnimMap().values()){
+				for(Entry<Float> entry : entryMap.values()){
+					entry.setValue(Math.min(1f, Math.max(0f, 1f-entry.getValue())));
+
+					if(newAnimFlag.tans()){
+						entry.setInTan(Math.min(1f, Math.max(0f, 1f-entry.getInTan())));
+						entry.setOutTan(Math.min(1f, Math.max(0f, 1f-entry.getOutTan())));
+					}
+				}
+			}
+		}
+	}
+
 	//RGB
 	private enum FlipColor{
 		DONT_FLIP   ("Don't flip"),
@@ -202,6 +289,11 @@ public class MaterialHDAnimEditPanel extends JPanel {
 		String name;
 		FlipColor(String name){
 			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
 		}
 	}
 

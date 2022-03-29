@@ -77,7 +77,7 @@ public class ModelScale {
 		for (ParticleEmitter2 particle : mdl.getParticleEmitter2s()) {
 			particle.setLength(particle.getLength() * avgScale);
 			particle.setWidth(particle.getWidth() * avgScale);
-			particle.getParticleScaling().scale(0, 0, 0, avgScale, avgScale, avgScale);
+			particle.getParticleScaling().scale(Vec3.ZERO, scale);
 			particle.setSpeed(particle.getSpeed() * avgScale);
 			particle.setGravity(particle.getGravity() * avgScale);
 		}

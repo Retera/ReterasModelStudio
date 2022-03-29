@@ -495,7 +495,7 @@ public class TwilacStuff {
 
 	private static class AddNewAttatchment  extends TwiFunction{
 		public AddNewAttatchment() {
-			super("add New Attatchment", AddNewAttatchment::doStuff);
+			super("add New Attachment", AddNewAttatchment::doStuff);
 		}
 
 		private static void doStuff(ModelHandler modelHandler) {

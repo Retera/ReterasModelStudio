@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.actions.animation.animFlag;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -16,6 +17,7 @@ public class RemoveFlagEntryAction<T> implements UndoAction {
 	private Sequence animation;
 	private AnimFlag<T> animFlag;
 	private List<Entry<T>> entries = new ArrayList<>();
+	private final GlobalSeq globalSeq;
 
 	public RemoveFlagEntryAction(AnimFlag<T> animFlag, int orgTime, Sequence animation, ModelStructureChangeListener changeListener) {
 		this(animFlag, Collections.singleton(orgTime), animation, changeListener);
@@ -25,6 +27,7 @@ public class RemoveFlagEntryAction<T> implements UndoAction {
 		this.changeListener = changeListener;
 		this.animation = animation;
 		this.animFlag = animFlag;
+		this.globalSeq = animFlag.getGlobalSeq();
 		for(Integer orgTime : orgTimes){
 			entries.add(animFlag.getEntryAt(animation, orgTime));
 		}
@@ -35,6 +38,7 @@ public class RemoveFlagEntryAction<T> implements UndoAction {
 		for(Entry<T> entry : entries){
 			animFlag.setOrAddEntry(entry.time, entry, animation);
 		}
+		animFlag.setGlobSeq(globalSeq);
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
 		}
@@ -45,6 +49,9 @@ public class RemoveFlagEntryAction<T> implements UndoAction {
 	public UndoAction redo() {
 		for(Entry<T> entry : entries){
 			animFlag.removeKeyframe(entry.time, animation);
+		}
+		if(animation instanceof GlobalSeq && animFlag.getEntryMap(animation).isEmpty()){
+			animFlag.setGlobSeq(globalSeq);
 		}
 		if (changeListener != null) {
 			changeListener.materialsListChanged();

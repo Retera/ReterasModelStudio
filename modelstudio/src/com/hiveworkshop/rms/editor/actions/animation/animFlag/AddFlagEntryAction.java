@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.editor.actions.animation.animFlag;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
+import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -14,6 +15,7 @@ public class AddFlagEntryAction<T> implements UndoAction {
 	private final Sequence animation;
 	private final AnimFlag<T> animFlag;
 	private final Collection<Entry<T>> entries;
+	private final GlobalSeq globalSeq;
 
 	public AddFlagEntryAction(AnimFlag<T> animFlag, Entry<T> entry, Sequence animation, ModelStructureChangeListener changeListener) {
 		this(animFlag, Collections.singleton(entry), animation, changeListener);
@@ -22,6 +24,7 @@ public class AddFlagEntryAction<T> implements UndoAction {
 		this.changeListener = changeListener;
 		this.animation = animation;
 		this.animFlag = animFlag;
+		this.globalSeq = animFlag.getGlobalSeq();
 		this.entries = entries;
 	}
 
@@ -30,6 +33,7 @@ public class AddFlagEntryAction<T> implements UndoAction {
 		for(Entry<T> entry : entries){
 			animFlag.removeKeyframe(entry.time, animation);
 		}
+		animFlag.setGlobSeq(globalSeq);
 		if (changeListener != null) {
 			changeListener.materialsListChanged();
 		}

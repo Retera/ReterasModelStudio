@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.util.TwiTextEditor;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryMapAction;
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
@@ -196,6 +197,10 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 		editor.show();
 	}
 
+	private void clearAnimation(){
+		modelHandler.getUndoManager().pushAction(new RemoveFlagEntryMapAction<>(animFlag, sequence, changeListener).redo());
+	}
+
 	public JPanel fillEditorPanel(){
 		JScrollPane scrollPane = new JScrollPane(keyframeTable);
 		Dimension suitableSize = ScreenInfo.getSuitableSize(700, 300, 0.6);
@@ -212,6 +217,10 @@ public class TimelineTableEditor<T> extends CollapsablePanel {
 		JButton editAsTextButton = new JButton("Edit as text");
 		editAsTextButton.addActionListener(e -> editAsText());
 		buttonPanel.add(editAsTextButton, "right");
+
+		JButton clearAnimationButton = new JButton("Clear Animation");
+		clearAnimationButton.addActionListener(e -> clearAnimation());
+		buttonPanel.add(clearAnimationButton, "right");
 
 		mainPanel.add(buttonPanel, "growx");
 

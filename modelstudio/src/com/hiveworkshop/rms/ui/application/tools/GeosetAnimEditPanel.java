@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddAnimFlagAction;
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveAnimFlagAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.Geoset;
 import com.hiveworkshop.rms.editor.model.GeosetAnim;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
@@ -12,6 +13,7 @@ import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.TwiComboBox;
@@ -45,8 +47,6 @@ public class GeosetAnimEditPanel extends JPanel {
 		info.setLineWrap(true);
 		info.setWrapStyleWord(true);
 
-		List<GeosetAnim> geosetAnims = model.getGeosetAnims();
-
 		JCheckBox copy_alpha = new JCheckBox("copy visibility", true);
 		copy_alpha.addActionListener(e -> copyVis = copy_alpha.isSelected());
 		JCheckBox invert_alpha = new JCheckBox("invert visibility");
@@ -58,13 +58,13 @@ public class GeosetAnimEditPanel extends JPanel {
 		flipColorBox.addOnSelectItemListener(fc -> flipColor = fc);
 
 		JButton copyButton = new JButton("Copy Animation Data");
-		copyButton.addActionListener(e -> doCopy(recGeosetAnim, donGeosetAnim));
+		copyButton.addActionListener(e -> doCopy(recGeosetAnim, donGeosetAnim, model.getAllSequences()));
 
 		add(info, "spanx, growx, wrap");
-		add(getDonGeoAnimPanel(geosetAnims), "growx, aligny top, wrap");
+		add(getDonGeoAnimPanel(model.getGeosetAnims()), "spanx, growx, aligny top, wrap");
 		add(copy_alpha);
-		add(copy_color, "wrap");
-		add(invert_alpha);
+		add(invert_alpha, "wrap");
+		add(copy_color, "");
 		add(flipColorBox, "wrap");
 		add(copyButton, "spanx, align center, wrap");
 	}
@@ -78,8 +78,10 @@ public class GeosetAnimEditPanel extends JPanel {
 		JPanel donGeoAnimPanel = new JPanel(new MigLayout("fill, gap 0"));
 		donGeoAnimPanel.add(new JLabel("From:"), "wrap");
 
-
-		TwiComboBox<GeosetAnim> comboBox = new TwiComboBox<>(geosetAnims);
+		Geoset geoset = new Geoset();
+		geoset.setParentModel(new EditableModel());
+		geoset.setLevelOfDetailName("Dummy geoset for prototype purposes cuz Swing");
+		TwiComboBox<GeosetAnim> comboBox = new TwiComboBox<>(geosetAnims, new GeosetAnim(geoset));
 		comboBox.addOnSelectItemListener(ga -> donGeosetAnim = ga);
 		comboBox.setStringFunctionRender((ga) -> ((GeosetAnim) ga).getName());
 
@@ -88,7 +90,7 @@ public class GeosetAnimEditPanel extends JPanel {
 		return donGeoAnimPanel;
 	}
 
-	private void doCopy(GeosetAnim recGeosetAnim, GeosetAnim donGeosetAnim) {
+	private void doCopy(GeosetAnim recGeosetAnim, GeosetAnim donGeosetAnim, List<Sequence> allSequences) {
 		ArrayList<UndoAction> actions = new ArrayList<>();
 
 		for (AnimFlag<?> animFlag : donGeosetAnim.getAnimFlags()){
@@ -99,6 +101,16 @@ public class GeosetAnimEditPanel extends JPanel {
 				}
 				if(invertVis && animFlag instanceof FloatAnimFlag){
 					FloatAnimFlag floatAnimFlag = (FloatAnimFlag) newAnimFlag;
+					for (Sequence sequence : allSequences){
+//				        if(!newAnimFlag.hasSequence(sequence) || newAnimFlag.getEntryMap(sequence).size() == 0 || newAnimFlag.getEntryAt(sequence, 0) == null){
+						if(floatAnimFlag.getEntryAt(sequence, 0) == null){
+							if(floatAnimFlag.tans()){
+								floatAnimFlag.addEntry(new Entry<>(0, 1.0f, 1.0f, 1.0f), sequence);
+							} else {
+								floatAnimFlag.addEntry(new Entry<>(0, 1.0f), sequence);
+							}
+						}
+					}
 					for(TreeMap<Integer, Entry<Float>> entryMap : floatAnimFlag.getAnimMap().values()){
 						for(Entry<Float> entry : entryMap.values()){
 							entry.setValue(Math.min(1f, Math.max(0f, 1f-entry.getValue())));
@@ -155,6 +167,11 @@ public class GeosetAnimEditPanel extends JPanel {
 		String name;
 		FlipColor(String name){
 			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
 		}
 	}
 

@@ -4,16 +4,14 @@ import com.hiveworkshop.rms.editor.actions.nodes.DeleteNodesAction;
 import com.hiveworkshop.rms.editor.actions.nodes.NameChangeAction;
 import com.hiveworkshop.rms.editor.actions.nodes.ParentChangeAction;
 import com.hiveworkshop.rms.editor.actions.nodes.SetPivotAction;
+import com.hiveworkshop.rms.editor.actions.util.BoolAction;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
-import com.hiveworkshop.rms.ui.application.model.editors.QuatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.ValueParserUtil;
-import com.hiveworkshop.rms.ui.application.model.editors.Vec3ValuePanel;
 import com.hiveworkshop.rms.ui.application.tools.ParentChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Quat;
@@ -25,30 +23,28 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 
 public abstract class ComponentIdObjectPanel<T extends IdObject> extends ComponentPanel<T> {
-	TwiTextField nameField;
-	JLabel parentName;
-	ParentChooser parentChooser;
+	protected TwiTextField nameField;
+	protected JLabel parentName;
+	protected ParentChooser parentChooser;
 	protected T idObject;
 	protected JPanel topPanel;
-//	protected Vec3ValuePanel transPanel;
 	protected FlagPanel<Vec3> transPanel2;
 	protected FlagPanel<Quat> rotPanel2;
 	protected FlagPanel<Vec3> scalePanel2;
-	protected Vec3ValuePanel scalePanel;
-	protected QuatValuePanel rotPanel;
 	protected JLabel pivot;
 	protected Vec3SpinnerArray pivotSpinner;
 
-	JCheckBox billboardedBox;
-	JCheckBox billboardLockXBox;
-	JCheckBox billboardLockYBox;
-	JCheckBox billboardLockZBox;
-	JCheckBox dontInheritTranslationBox;
-	JCheckBox dontInheritRotationBox;
-	JCheckBox dontInheritScalingBox;
+	protected JCheckBox billboardedBox;
+	protected JCheckBox billboardLockXBox;
+	protected JCheckBox billboardLockYBox;
+	protected JCheckBox billboardLockZBox;
+	protected JCheckBox dontInheritTranslationBox;
+	protected JCheckBox dontInheritRotationBox;
+	protected JCheckBox dontInheritScalingBox;
 
 
 	public ComponentIdObjectPanel(ModelHandler modelHandler) {
@@ -69,7 +65,6 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		add(parentName);
 		add(getButton("change", e -> chooseParent()), "wrap");
 
-
 		pivotSpinner = new Vec3SpinnerArray().setVec3Consumer(this::setPivot);
 		add(new JLabel("pivot: "), "split, spanx 2");
 		add(pivotSpinner.spinnerPanel(), "wrap");
@@ -80,17 +75,10 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		topPanel = new JPanel(new MigLayout("fill, ins 0", "[]5[]5[grow]"));
 		add(topPanel, "spanx, wrap");
 
-//		transPanel = new Vec3ValuePanel(modelHandler, MdlUtils.TOKEN_TRANSLATION);
-//		scalePanel = new Vec3ValuePanel(modelHandler, MdlUtils.TOKEN_SCALING);
-//		rotPanel = new QuatValuePanel(modelHandler, MdlUtils.TOKEN_ROTATION);
-
 		transPanel2 = new FlagPanel<>(MdlUtils.TOKEN_TRANSLATION, this::parseVec3, new Vec3(0,0,0), modelHandler);
 		scalePanel2 = new FlagPanel<>(MdlUtils.TOKEN_SCALING, this::parseVec3, new Vec3(1,1,1), modelHandler);
 		rotPanel2 = new FlagPanel<>(MdlUtils.TOKEN_ROTATION, this::parseQuat, new Quat(0,0,0, 1), modelHandler);
 
-//		add(transPanel, "spanx, growx, wrap");
-//		add(scalePanel, "spanx, growx, wrap");
-//		add(rotPanel, "spanx, growx, wrap");
 		add(transPanel2, "spanx, growx, wrap");
 		add(scalePanel2, "spanx, growx, wrap");
 		add(rotPanel2, "spanx, growx, wrap");
@@ -101,6 +89,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		idObject = itemToSelect;
 		nameField.setText(idObject.getName());
 		pivotSpinner.setValues(idObject.getPivotPoint());
+
 		IdObject parent = idObject.getParent();
 		if (parent != null) {
 			this.parentName.setText(parent.getName());
@@ -111,9 +100,6 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		transPanel2.update(idObject, (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_TRANSLATION), new Vec3(0, 0, 0));
 		scalePanel2.update(idObject, (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_SCALING), new Vec3(1, 1, 1));
 		rotPanel2.update(idObject, (QuatAnimFlag) idObject.find(MdlUtils.TOKEN_ROTATION), new Quat(0, 0, 0, 1));
-//		transPanel.reloadNewValue(new Vec3(0, 0, 0), (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_TRANSLATION), idObject, MdlUtils.TOKEN_TRANSLATION, null);
-//		scalePanel.reloadNewValue(new Vec3(1, 1, 1), (Vec3AnimFlag) idObject.find(MdlUtils.TOKEN_SCALING), idObject, MdlUtils.TOKEN_SCALING, null);
-//		rotPanel.reloadNewValue(new Quat(0, 0, 0, 1), (QuatAnimFlag) idObject.find(MdlUtils.TOKEN_ROTATION), idObject, MdlUtils.TOKEN_ROTATION, null);
 
 		billboardedBox.setSelected(idObject.getBillboarded());
 		billboardLockXBox.setSelected(idObject.getBillboardLockX());
@@ -143,29 +129,10 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	private JPanel getBillboardedPanel() {
 		JPanel panel = new JPanel(new MigLayout("ins 0"));
 
-		billboardedBox = new JCheckBox("billboarded");
-		billboardedBox.addActionListener(e -> setThing((b) -> idObject.setBillboarded(b), billboardedBox.isSelected(), ""));
-
-		billboardLockXBox = new JCheckBox("billboardLockX");
-		billboardLockXBox.addActionListener(e -> setThing((b) -> idObject.setBillboardLockX(b), billboardLockXBox.isSelected(), ""));
-
-		billboardLockYBox = new JCheckBox("billboardLockY");
-		billboardLockYBox.addActionListener(e -> setThing((b) -> idObject.setBillboardLockY(b), billboardLockYBox.isSelected(), ""));
-
-		billboardLockZBox = new JCheckBox("billboardLockZ");
-		billboardLockZBox.addActionListener(e -> setThing((b) -> idObject.setBillboardLockZ(b), billboardLockZBox.isSelected(), ""));
-
-//		billboardedBox = getCheckbox("billboarded", (b) -> idObject.setBillboarded(b));
-////		billboardedBox.addActionListener(e -> setThing((b) -> idObject.setBillboarded(b), billboardedBox.isSelected(), ""));
-//
-//		billboardLockXBox = getCheckbox("billboardLockX", (b) -> idObject.setBillboardLockX(b));
-////		billboardLockXBox.addActionListener(e -> setThing((b) -> idObject.setBillboardLockX(b), billboardLockXBox.isSelected(), ""));
-//
-//		billboardLockYBox = getCheckbox("billboardLockY", (b) -> idObject.setBillboardLockY(b));
-////		billboardLockYBox.addActionListener(e -> setThing((b) -> idObject.setBillboardLockY(b), billboardLockYBox.isSelected(), ""));
-//
-//		billboardLockZBox = getCheckbox("billboardLockZ", (b) -> idObject.setBillboardLockZ(b));
-////		billboardLockZBox.addActionListener(e -> setThing((b) -> idObject.setBillboardLockZ(b), billboardLockZBox.isSelected(), ""));
+		billboardedBox = getCheckBox("billboarded", (b) -> idObject.setBillboarded(b), () -> idObject.getBillboarded());
+		billboardLockXBox = getCheckBox("billboardLockX", (b) -> idObject.setBillboardLockX(b), () -> idObject.getBillboardLockX());
+		billboardLockYBox = getCheckBox("billboardLockY", (b) -> idObject.setBillboardLockY(b), () -> idObject.getBillboardLockY());
+		billboardLockZBox = getCheckBox("billboardLockZ", (b) -> idObject.setBillboardLockZ(b), () -> idObject.getBillboardLockZ());
 
 		panel.add(billboardedBox);
 		panel.add(billboardLockXBox);
@@ -177,26 +144,9 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	private JPanel getInheritingPanel() {
 		JPanel panel = new JPanel(new MigLayout("ins 0"));
 
-//		Consumer<Boolean> booleanConsumer1 = (b) -> idObject.setDontInheritTranslation(b);
-//		dontInheritTranslationBox = new JCheckBox("dontInheritTranslation");
-//		dontInheritTranslationBox.addActionListener(e -> setThing((b) -> idObject.setDontInheritTranslation(b), dontInheritTranslationBox.isSelected()));
-//
-//
-//		dontInheritRotationBox = new JCheckBox("dontInheritRotation");
-//		dontInheritRotationBox.addActionListener(e -> setThing((b) -> idObject.setDontInheritRotation(b), dontInheritRotationBox.isSelected()));
-//
-//		dontInheritScalingBox = new JCheckBox("dontInheritScaling");
-//		dontInheritScalingBox.addActionListener(e -> setThing((b) -> idObject.setDontInheritScaling(b), dontInheritScalingBox.isSelected()));
-
-
-		dontInheritTranslationBox = getCheckbox("dontInheritTranslation", (b) -> idObject.setDontInheritTranslation(b));
-//		dontInheritTranslationBox.addActionListener(e -> setThing((b) -> idObject.setDontInheritTranslation(b), dontInheritTranslationBox.isSelected()));
-
-
-		dontInheritRotationBox = getCheckbox("dontInheritRotation", (b) -> idObject.setDontInheritRotation(b));
-
-		dontInheritScalingBox = getCheckbox("dontInheritScaling", (b) -> idObject.setDontInheritScaling(b));
-//		dontInheritScalingBox.addActionListener(e -> setThing((b) -> idObject.setDontInheritScaling(b), dontInheritScalingBox.isSelected()));
+		dontInheritTranslationBox = getCheckBox("dontInheritTranslation", b -> idObject.setDontInheritTranslation(b), () -> idObject.getDontInheritTranslation());
+		dontInheritRotationBox = getCheckBox("dontInheritRotation", b -> idObject.setDontInheritRotation(b), () -> idObject.getDontInheritRotation());
+		dontInheritScalingBox = getCheckBox("dontInheritScaling", b -> idObject.setDontInheritScaling(b), () -> idObject.getDontInheritScaling());
 
 		panel.add(dontInheritTranslationBox);
 		panel.add(dontInheritRotationBox);
@@ -204,17 +154,15 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 		return panel;
 	}
 
-	private JCheckBox getCheckbox(String text, Consumer<Boolean> booleanConsumer) {
+	private JCheckBox getCheckBox(String text, Consumer<Boolean> booleanConsumer, Supplier<Boolean> orgState) {
 		JCheckBox checkBox = new JCheckBox(text);
-		checkBox.addActionListener(e -> setThing(booleanConsumer, checkBox.isSelected(), text));
+		checkBox.addActionListener(e -> setThing(booleanConsumer, orgState, checkBox.isSelected(), text));
 		return checkBox;
 	}
 
-	private void setThing(Consumer<Boolean> consumer, boolean b, String name) {
-		if (idObject != null) {
-//			undoManager.pushAction(new ConsumerAction<>(consumer, b, !b, "set " + name + " to " + b).redo());
-			consumer.accept(b);
-			ModelStructureChangeListener.changeListener.nodesUpdated();
+	private void setThing(Consumer<Boolean> consumer, Supplier<Boolean> orgState, boolean b, String name) {
+		if (idObject != null && orgState.get() != b) {
+			undoManager.pushAction(new BoolAction(consumer, b, "set " + name + " to " + b, changeListener::nodesUpdated).redo());
 		}
 	}
 

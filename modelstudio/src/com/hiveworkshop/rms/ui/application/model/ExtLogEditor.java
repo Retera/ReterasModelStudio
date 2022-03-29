@@ -55,20 +55,26 @@ public class ExtLogEditor extends JPanel {
 	}
 
 	private void setMinExtValue(Vec3 vec3Value){
-		minExt = vec3Value;
-		minimumExtentV.setEnabled(minExt != null);
-		runExtLogConsumer();
+		if(!minExt.equalLocs(vec3Value)){
+			minExt = vec3Value;
+			minimumExtentV.setEnabled(minExt != null);
+			runExtLogConsumer();
+		}
 	}
 	private void setMaxExtValue(Vec3 vec3Value){
-		maxExt = vec3Value;
-		maximumExtentV.setEnabled(maxExt != null);
-		runExtLogConsumer();
+		if(!maxExt.equalLocs(vec3Value)){
+			maxExt = vec3Value;
+			maximumExtentV.setEnabled(maxExt != null);
+			runExtLogConsumer();
+		}
 	}
 
 	private void setBoundsRadius(float value){
-		boundsRadValue = value;
-		boundsRadius.setEnabled(boundsRadiusBox.isSelected());
-		runExtLogConsumer();
+		if(boundsRadValue != value) {
+			boundsRadValue = value;
+			boundsRadius.setEnabled(boundsRadiusBox.isSelected());
+			runExtLogConsumer();
+		}
 	}
 
 	public ExtLogEditor addExtLogConsumer(Consumer<ExtLog> extLogConsumer){

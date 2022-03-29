@@ -83,7 +83,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 	@Override
 	protected Float getIdentity(int typeId) {
 		if ((typeId == ROTATION) && !sequenceMap.isEmpty()) {//&& sequenceMap.firstEntry() != null && sequenceMap.firstEntry().getValue().firstEntry().getValue().getValue() != null) {
-			return (float) identity(ALPHA); // magic Camera rotation!
+			return (float) 0; // magic Camera rotation!
 		}
 		return (float) identity(typeId);
 	}

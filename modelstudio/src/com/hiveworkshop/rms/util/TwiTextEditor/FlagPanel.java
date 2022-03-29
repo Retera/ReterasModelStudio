@@ -57,6 +57,7 @@ public class FlagPanel<T> extends CollapsablePanel {
 			}
 			multiAnimPanel.setVisible(true);
 		} else {
+			setTitle(title);
 			topPanel.add(staticPanel(), "grow");
 			multiAnimPanel.setVisible(false);
 		}
