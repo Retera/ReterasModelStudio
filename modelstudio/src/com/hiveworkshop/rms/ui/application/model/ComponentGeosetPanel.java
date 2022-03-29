@@ -25,7 +25,7 @@ import com.hiveworkshop.rms.ui.application.model.editors.ColorValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatValuePanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
-import com.hiveworkshop.rms.ui.application.tools.GeosetAnimCopyPanel;
+import com.hiveworkshop.rms.ui.application.tools.GeosetAnimEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.MaterialListRenderer;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.TwiComboBox;
@@ -256,7 +256,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	}
 
 	private void copyFromOther() {
-		GeosetAnimCopyPanel.show(ProgramGlobals.getMainPanel(), model, geoset.getGeosetAnim(), undoManager);
+		GeosetAnimEditPanel.show(ProgramGlobals.getMainPanel(), model, geoset.getGeosetAnim(), undoManager);
 		repaint();
 	}
 

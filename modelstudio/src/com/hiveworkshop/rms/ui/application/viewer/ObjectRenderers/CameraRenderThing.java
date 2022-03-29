@@ -32,6 +32,8 @@ public class CameraRenderThing {
 	private final Vec3[] renderPointsFarClipMark;
 	private final Vec3[] pointsNearClipMark;
 	private final Vec3[] renderPointsNearClipMark;
+	private final Vec3[] pointsCamUp;
+	private final Vec3[] renderPointsCamUp;
 
 	private final Vec3 farClipPoint = new Vec3(0, 0, 10);
 	private final Vec3 camPoint = new Vec3(0, 0, 10);
@@ -129,11 +131,6 @@ public class CameraRenderThing {
 				new Vec3(back * boxRadLength*markerSize, rght * boxRadWidth*markerSize, 0*down * boxRadHeight*markerSize),
 				new Vec3(frnt * boxRadLength*markerSize, left * boxRadWidth*markerSize, 0*down * boxRadHeight*markerSize),
 				new Vec3(back * boxRadLength*markerSize, left * boxRadWidth*markerSize, 0*down * boxRadHeight*markerSize)};
-//		pointsFarClipMark = new Vec3[]{
-//				new Vec3(frnt * boxRadLength*markerSize, rght * boxRadWidth*markerSize, down * boxRadHeight*markerSize),
-//				new Vec3(back * boxRadLength*markerSize, rght * boxRadWidth*markerSize, down * boxRadHeight*markerSize),
-//				new Vec3(frnt * boxRadLength*markerSize, left * boxRadWidth*markerSize, down * boxRadHeight*markerSize),
-//				new Vec3(back * boxRadLength*markerSize, left * boxRadWidth*markerSize, down * boxRadHeight*markerSize)};
 		renderPointsFarClipMark = new Vec3[]{
 				new Vec3(frnt, rght, down),
 				new Vec3(back, rght, down),
@@ -150,6 +147,15 @@ public class CameraRenderThing {
 				new Vec3(frnt, left, down),
 				new Vec3(back, left, down)};
 
+		pointsCamUp = new Vec3[]{
+				new Vec3(back, rght, 0),
+				new Vec3(back, left, 0),
+				new Vec3(back*1.5f, 0, 0)};
+		renderPointsCamUp = new Vec3[]{
+				new Vec3(),
+				new Vec3(),
+				new Vec3()};
+
 	}
 	public void paintCameras(ModelView modelView, RenderModel renderModel, Camera camera) {
 		RenderNodeCamera renderNode = renderModel.getRenderNode(camera.getSourceNode());
@@ -157,13 +163,17 @@ public class CameraRenderThing {
 
 			Vec3 renderPosNode = renderNode.getPivot(); // ToDo fix animated camera rotation stuff
 			Vec3 targetPosition = renderNode.getTarget();
-			transform2(renderPosNode, targetPosition, camera.getNearClip(), camera.getFarClip(), camera.getFieldOfView());
+			transform2(renderPosNode, targetPosition, renderNode.getLocalRotation(), camera.getNearClip(), camera.getFarClip(), camera.getFieldOfView());
 
 			float[] components = getColor(modelView, camera.getSourceNode());
 			doGlGeomSource(components);
 
 			components = getColor(modelView, camera.getTargetNode());
 			doGlGeomTarget(components);
+
+
+			GL11.glDisable(GL11.GL_CULL_FACE);
+			doGlGeomUP(components);
 
 			components = getColor(modelView, camera);
 			doGlGeomMarkers(components);
@@ -201,7 +211,7 @@ public class CameraRenderThing {
 		return components;
 	}
 
-	public CameraRenderThing transform2(Vec3 p1, Vec3 p2, double nearClip, double farClip, double fov) {
+	public CameraRenderThing transform2(Vec3 p1, Vec3 p2, Quat rot, double nearClip, double farClip, double fov) {
 		diffVec.set(p2).sub(p1);
 		if (diffVec.x == 0 && diffVec.y == 0 && diffVec.z == 0) {
 			diffVec.set(Vec3.Z_AXIS).scale(0.01f);
@@ -212,7 +222,7 @@ public class CameraRenderThing {
 		rot90.setFromAxisAngle(Vec3.Z_AXIS, (float) tempVec.radAngleTo2(Vec3.X_AXIS));
 
 
-		difRotR.mulLeft(rot90);
+		difRotR.mulLeft(rot90).mulLeft(rot);
 
 		transform(difRotR, p1, p2, nearClip, farClip, fov);
 
@@ -234,19 +244,22 @@ public class CameraRenderThing {
 		for (int i = 0; i < pointsFoVRect.length; i++) {
 			renderPointsFoVRekt[i].set(pointsFoVRect[i]).scale(fovAdj).translate(0,0,farClip).transform(rot).add(pos);
 		}
-//		float fovAdj = (float) (fovBoxD.z * Math.tan(fov/2)) * sqRootTwo;
-//		for (int i = 0; i < pointsFoVRect.length; i++) {
-//			renderPointsFoVRekt[i].set(pointsFoVRect[i]).scale(fovAdj).add(fovBoxD).transform(rot).add(pos);
-//		}
+
+		// camera FarClip
 		farClipPoint.set(0,0,farClip).transform(rot).add(pos);
 		for (int i = 0; i < pointsFarClipMark.length; i++) {
 			renderPointsFarClipMark[i].set(pointsFarClipMark[i]).translate(0,0,farClip).transform(rot).add(pos);
 		}
 
+		// camera NearClip
 		float nearClipAdj = (float) (nearClip * Math.tan(fov/2)) * sqRootTwo;
 		for (int i = 0; i < pointsNearClipMark.length; i++) {
-//			renderPointsNearClipMark[i].set(pointsNearClipMark[i]).translate(0,0,nearClip).transform(rot).add(pos);
 			renderPointsNearClipMark[i].set(pointsNearClipMark[i]).scale(nearClipAdj).translate(0,0,nearClip).transform(rot).add(pos);
+		}
+
+		// camera Up marker
+		for (int i = 0; i < pointsCamUp.length; i++) {
+			renderPointsCamUp[i].set(pointsCamUp[i]).scale(nearClipAdj).translate(0,0,nearClip).transform(rot).add(pos);
 		}
 
 		for (int i = 0; i < normals.length; i++) {
@@ -270,6 +283,15 @@ public class CameraRenderThing {
 		glPolygonMode(GL_FRONT_FACE, GL_FILL);
 		glColor4f(color[0], color[1], color[2], color[3]);
 		doTargetBox();
+		return this;
+	}
+
+	public CameraRenderThing doGlGeomUP(float[] color) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//		glPolygonMode(GL_FRONT_FACE, GL_FILL);
+//		glColor4f(color[0], color[1], color[2], color[3]);
+		glColor4f(1.0f, 0f, .5f, 1.0f);
+		doUP();
 		return this;
 	}
 
@@ -300,6 +322,19 @@ public class CameraRenderThing {
 
 		//Down
 		doGlTriQuad(renderPointsPosBox[2], renderPointsPosBox[6], renderPointsPosBox[3], renderPointsPosBox[7], renderNormals[5]);
+		glEnd();
+
+
+		glColor4f(1.0f, 0f, .5f, 1.0f);
+
+		glBegin(GL_TRIANGLES);
+		doGlTri(renderPointsCamUp[0], renderPointsCamUp[1], renderPointsCamUp[2], renderNormals[0]);
+		glEnd();
+	}
+
+	private void doUP() {
+		glBegin(GL_TRIANGLES);
+		doGlTri(renderPointsCamUp[0], renderPointsCamUp[1], renderPointsCamUp[2], renderNormals[0]);
 		glEnd();
 	}
 

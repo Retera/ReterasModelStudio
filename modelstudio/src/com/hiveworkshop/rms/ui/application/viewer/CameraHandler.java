@@ -68,7 +68,18 @@ public class CameraHandler {
 
 //		System.out.println("boundsRadius: " + boundsRadius + " (zoom : 128/" + boundsRadius + "/1.3=" + m_zoom + ", X-pos: " + boundsRadius + "/4=" + (boundsRadius / 4) + ")");
 
-		setViewportCamera((int) (boundsRadius / 3), (int) (boundsRadius / 20), 0, 20, -25);
+		setViewportCamera((int) (boundsRadius / 3), 0, (int) (boundsRadius / 20), 0, 20, -25);
+//		System.out.println("X dist: " + (int) -(boundsRadius / 3) + ", X dist: " + (int) (boundsRadius / 20));
+//		setViewportCamera((int) 0, (int) 0, 0, 0, 0);
+		return this;
+	}
+
+	public CameraHandler loadDefaultCameraFor(Vec3 pos) {
+		m_zoom = .2f;
+
+//		System.out.println("boundsRadius: " + boundsRadius + " (zoom : 128/" + boundsRadius + "/1.3=" + m_zoom + ", X-pos: " + boundsRadius + "/4=" + (boundsRadius / 4) + ")");
+
+		setViewportCamera((int) pos.x, (int) pos.y, (int) pos.z, 0, 20, -25);
 //		System.out.println("X dist: " + (int) -(boundsRadius / 3) + ", X dist: " + (int) (boundsRadius / 20));
 //		setViewportCamera((int) 0, (int) 0, 0, 0, 0);
 		return this;
@@ -116,69 +127,20 @@ public class CameraHandler {
 
 	public void setUpCamera(RenderNodeCamera renderNode) {
 		gluPerspective((float) Math.toDegrees(renderNode.getFoV()), 1, (float) renderNode.getNearClip(), (float) renderNode.getFarClip());
-//		gluPerspective((float) 60, 1,  5.0f, 16000.0f);
 
-//		glCamTrans.set(cameraPos);
-
-//		// Rotating camera to have +Z up and +X as forward (pointing into camera)
-//		glRotatef(-90, 1f, 0f, 0f);
-//		glRotatef(-90, 0f, 0f, 1f);
-
-
-
-//		cameraPos.set(camera.getPosition());
-//		Vec3 cameraLookAt = camera.getTargetPosition();
 		cameraPos.set(renderNode.getPivot());
-//		Vec3 cameraLookAt = camera.getTargetNode().getRenderTranslation(renderEnv);
 		Vec3 cameraLookAt = renderNode.getTarget();
-//		Vec3 up = renderNode.getCameraUp();
-		Vec3 up = new Vec3();
-////		up.set(cameraLookAt).sub(cameraPos).normalize();
-//		up.set(cameraPos).sub(cameraLookAt).normalize();
-////		up.cross(Vec3.Z_AXIS);// (works with neg z for LookAt)
-////		up.cross(Vec3.Y_AXIS); // got Visuals, but 90 deg ccw
-//		up.cross(Vec3.X_AXIS); // nah
-////		up.cross(Vec3.NEGATIVE_Z_AXIS);//
-////		up.cross(Vec3.NEGATIVE_Y_AXIS);//
-////		up.cross(Vec3.NEGATIVE_X_AXIS);//
-//
-////		up.cross(Vec3.Z_AXIS);// (works with neg z for LookAt)
-//////		up.cross(Vec3.Y_AXIS); // got Visuals, but 90 deg ccw
-//////		up.cross(Vec3.X_AXIS); // nah
-//////		up.cross(Vec3.NEGATIVE_Z_AXIS);//
-//////		up.cross(Vec3.NEGATIVE_Y_AXIS);//
-//////		up.cross(Vec3.NEGATIVE_X_AXIS);//
-
-
-		up.set(Vec3.Z_AXIS); //
-//		up.set(Vec3.Y_AXIS); //
-//		up.set(Vec3.X_AXIS);
-//		up.set(Vec3.NEGATIVE_Z_AXIS);
-//		up.set(Vec3.NEGATIVE_Y_AXIS);
-//		up.set(Vec3.NEGATIVE_X_AXIS);
-
-//		GLU.gluLookAt(cameraPos.x, -cameraPos.y, -cameraPos.z, cameraLookAt.x, -cameraLookAt.y, -cameraLookAt.z, 0,0,1);
-//		GLU.gluLookAt(cameraPos.x, -cameraPos.y, -cameraPos.z, cameraLookAt.x, -cameraLookAt.y, -cameraLookAt.z,  up.x, up.y, up.z);
-//		GLU.gluLookAt(cameraPos.x, cameraPos.y, cameraPos.z, cameraLookAt.x, cameraLookAt.y, cameraLookAt.z, 0,1,0);
+		Vec3 up = renderNode.getCameraUp();
 		GLU.gluLookAt(cameraPos.x, cameraPos.y, cameraPos.z, cameraLookAt.x, cameraLookAt.y, cameraLookAt.z, up.x, up.y, up.z);
 
-//		glTranslatef(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-//
-//		glRotatef(xAngle, 1f, 0f, 0f);
-//		glRotatef(yAngle, 0f, 1f, 0f);
-//		glRotatef(zAngle, 0f, 0f, 1f);
-//		glScalef((float) m_zoom, (float) m_zoom, (float) m_zoom);
-//		System.out.println("camera pos set!");
 	}
 
-	public void setViewportCamera(int dist, int height, int rX, int rY, int rZ) {
+	public void setViewportCamera(int dist, int side, int height, int rX, int rY, int rZ) {
 		xAngle = rX;
 		yAngle = rY;
 		zAngle = rZ;
 
-//		cameraLookAt.set(0,0,height);
-		cameraPos.set(dist, 0, height);
-//		cameraPos1.set(dist, 0, 0);
+		cameraPos.set(dist, side, height);
 		calculateCameraRotation();
 
 	}
@@ -196,12 +158,10 @@ public class CameraHandler {
 				m_zoom *= ZOOM_FACTOR;
 				cameraPos.y *= ZOOM_FACTOR;
 				cameraPos.z *= ZOOM_FACTOR;
-//				cameraPos.scale(cameraLookAt, (float) ZOOM_FACTOR);
 			} else {
 				m_zoom /= ZOOM_FACTOR;
 				cameraPos.y /= ZOOM_FACTOR;
 				cameraPos.z /= ZOOM_FACTOR;
-//				cameraPos.scale(cameraLookAt, (float) (1/ZOOM_FACTOR));
 			}
 		}
 	}
@@ -216,35 +176,16 @@ public class CameraHandler {
 	}
 
 	public void translate(double right, double up) {
-//		cameraPos.y += right;
-//		cameraPos.z += up;
-//		cameraPos.y += right * (1f / m_zoom);
-//		cameraPos.z += up * (1f / m_zoom);
-//		cameraPos.y += right * (1f / m_zoom) * cameraPos.x / 600f;
-//		cameraPos.z += up * (1f / m_zoom) * cameraPos.x / 600f;
 		cameraPos.y += right * cameraPos.x / 600f;
 		cameraPos.z += up * cameraPos.x / 600f;
-
-//		cameraLookAt.y -= right * cameraPos.x / 600f;
-//		cameraLookAt.z -= up * cameraPos.x / 600f;
 
 	}
 
 	public void translate2(double x, double y, double z) {
-//		cameraPos.y += left;
-//		cameraPos.z += up;
-//		cameraPos.y += left * (1f / m_zoom);
-//		cameraPos.z += up * (1f / m_zoom);
-//		cameraPos.y += left * (1f / m_zoom) * cameraPos.x / 600f;
-//		cameraPos.z += up * (1f / m_zoom) * cameraPos.x / 600f;
 		cameraPos.x += x;
 		cameraPos.y += y;
 		cameraPos.z += z;
 		System.out.println(cameraPos);
-
-//		cameraLookAt.y -= left * cameraPos.x / 600f;
-//		cameraLookAt.z -= up * cameraPos.x / 600f;
-
 	}
 
 	public void rotate(double right, double up) {

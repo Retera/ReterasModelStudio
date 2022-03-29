@@ -94,7 +94,11 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 
 	@Override
 	protected Integer getIdentity(int typeId) {
-		return (int) identity(typeId);
+		if(typeId == ROTATION){
+			return 0;
+		} else {
+			return (int) identity(typeId);
+		}
 	}
 
 	@Override

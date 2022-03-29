@@ -99,7 +99,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 			EditableModel model = modelView.getModel();
 			textureThing = new TextureThing(model, programPreferences);
 			geosetRenderer.updateModel(renderModel, modelView, textureThing);
-			cameraHandler.setViewportCamera(2, 0, 0, -90, 90);
+			cameraHandler.setViewportCamera(2, 0, 0, 0, -90, 90);
 			cameraHandler.translate(.5, -.5);
 //			cameraHandler.loadDefaultCameraFor();
 		} else {

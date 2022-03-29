@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.model;
 
 import com.hiveworkshop.rms.editor.actions.animation.*;
 import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.ExtLog;
 import com.hiveworkshop.rms.ui.application.model.editors.ComponentEditorTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.FloatEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
@@ -17,6 +18,7 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 	private final FloatEditorJSpinner rarityChooser;
 	private final FloatEditorJSpinner moveSpeedChooser;
 	private final JCheckBox nonLoopingChooser;
+	private final ExtLogEditor extLogEditor;
 	private Animation animation;
 
 	public ComponentAnimationPanel(ModelHandler modelHandler) {
@@ -48,6 +50,11 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 		moveSpeedChooser = new FloatEditorJSpinner(0f, 0f, this::moveSpeedChooser);
 		add(moveSpeedChooser, "wrap");
 
+		extLogEditor = new ExtLogEditor();
+		extLogEditor.setBorder(BorderFactory.createTitledBorder("Extents"));
+		extLogEditor.addExtLogConsumer(this::setExtLog);
+
+		add(extLogEditor, "spanx, wrap");
 		add(getDeleteButton(e -> deleteAnim()), "gapy 20px, wrap");
 
 	}
@@ -92,6 +99,12 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 		undoManager.pushAction(new RemoveSequenceAction(model, animation, changeListener).redo());
 	}
 
+	private void setExtLog(ExtLog extLog) {
+		if (!animation.getExtents().equals(extLog)) {
+			undoManager.pushAction(new SetAnimExtentAction(animation, extLog, changeListener).redo());
+		}
+	}
+
 	@Override
 	public ComponentPanel<Animation> setSelectedItem(Animation animation) {
 		this.animation = animation;
@@ -102,6 +115,7 @@ public class ComponentAnimationPanel extends ComponentPanel<Animation> {
 		nonLoopingChooser.setSelected(animation.isNonLooping());
 		rarityChooser.reloadNewValue(animation.getRarity());
 		moveSpeedChooser.reloadNewValue(animation.getMoveSpeed());
+		extLogEditor.setExtLog(animation.getExtents());
 		return this;
 	}
 }

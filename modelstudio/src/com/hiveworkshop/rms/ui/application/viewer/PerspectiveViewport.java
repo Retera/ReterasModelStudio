@@ -109,7 +109,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			textureThing = new TextureThing(model, programPreferences);
 			renderEnv = renderModel.getTimeEnvironment();
 
-			modelExtent.setMinMax(model.getExtents());
+			modelExtent.set(model.getExtents());
 			if (loadDefaultCamera) {
 				ViewportHelpers.findDefaultAnimation(model, renderEnv);
 				cameraHandler.loadDefaultCameraFor(getCurrentModelRadius());

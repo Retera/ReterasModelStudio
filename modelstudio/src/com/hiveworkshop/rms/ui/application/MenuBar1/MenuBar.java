@@ -1,8 +1,6 @@
 package com.hiveworkshop.rms.ui.application.MenuBar1;
 
-import com.hiveworkshop.rms.ui.application.MenuBarActions;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
-import com.hiveworkshop.rms.ui.preferences.listeners.WarcraftDataSourceChangeListener;
 
 import javax.swing.*;
 
@@ -11,7 +9,6 @@ public class MenuBar extends JMenuBar {
 	private final ToolsMenu toolsMenu;
 	private final WindowsMenu windowMenu;
 	private final TeamColorMenu teamColorMenu;
-	private WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier directoryChangeNotifier = new WarcraftDataSourceChangeListener.WarcraftDataSourceChangeNotifier();
 
 	public MenuBar() {
 
@@ -26,8 +23,6 @@ public class MenuBar extends JMenuBar {
 		ScriptsMenu scriptsMenu = new ScriptsMenu();
 		TwilacsTools twilacsTools = new TwilacsTools();
 		AboutMenu aboutMenu = new AboutMenu();
-
-		directoryChangeNotifier.subscribe(MenuBarActions::updateDataSource);
 
 		add(fileMenu);
 		add(editMenu);

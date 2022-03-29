@@ -42,13 +42,15 @@ public class GeosetAnimCopyPanel extends JPanel {
 
 		List<GeosetAnim> geosetAnims = model.getGeosetAnims();
 
+
+		JCheckBox invert_alpha = new JCheckBox("invert visibility");
+		invert_alpha.addActionListener(e -> invertVis = invert_alpha.isSelected());
+
 		JButton copyButton = new JButton("Copy Animation Data");
 		copyButton.addActionListener(e -> doCopy(recGeosetAnim, donGeosetAnim));
 
 		add(info, "spanx, growx, wrap");
 		add(getDonGeoAnimPanel(geosetAnims), "growx, aligny top");
-		JCheckBox invert_alpha = new JCheckBox("invert visibility");
-		invert_alpha.addActionListener(e -> invertVis = invert_alpha.isSelected());
 		add(invert_alpha);
 		add(copyButton, "spanx, align center, wrap");
 	}

@@ -2,8 +2,10 @@ package com.hiveworkshop.rms.ui.application.model.material;
 
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.model.util.HD_Material_Layer;
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
+import com.hiveworkshop.rms.ui.application.tools.MaterialHDAnimEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 
@@ -26,23 +28,38 @@ public class ComponentHDLayersPanel extends ComponentLayersPanel {
 	}
 
 	protected JPanel getTopPanel() {
-		JPanel topPanel = new JPanel(new MigLayout("fill, ins 0, hidemode 2", "[][][grow]", "[][][grow]"));
+		JPanel topPanel = new JPanel(new MigLayout("fill, ins 0, hidemode 2", "[][][grow][grow]", "[][][grow]"));
 
 		JLabel shaderLabel = new JLabel("Shader:");
 		topPanel.add(shaderLabel);
 		shaderOptionComboBox = getShaderComboBox();
 		topPanel.add(shaderOptionComboBox, "growx");
+		JButton duplicate_material = new JButton("Duplicate Material");
+		duplicate_material.addActionListener(e -> duplicateMaterial());
+		topPanel.add(duplicate_material, "right");
 		topPanel.add(getDeleteButton(e -> deleteMaterial()), "right, wrap");
 
 		topPanel.add(new JLabel("Priority Plane:"));
 		priorityPlaneSpinner = new IntEditorJSpinner(-1, -1, this::changePriorityPlane);
-		topPanel.add(priorityPlaneSpinner, "growx, wrap");
+//		topPanel.add(priorityPlaneSpinner, "growx, wrap");
+		topPanel.add(priorityPlaneSpinner, "growx");
+
+
+		JButton copyMaterialAnim = new JButton("copy layer animations from other");
+		copyMaterialAnim.addActionListener(e -> copyFromOther());
+		topPanel.add(copyMaterialAnim, "right, wrap");
 
 		twoSided = new JCheckBox("TwoSided", false);
 		twoSided.addActionListener(e -> setTwoSided());
 		topPanel.add(twoSided);
 
 		return topPanel;
+	}
+
+
+	private void copyFromOther() {
+		MaterialHDAnimEditPanel.show(ProgramGlobals.getMainPanel(), model, material, undoManager);
+		repaint();
 	}
 
 	private JPanel getTwoSidedBoxHolder() {

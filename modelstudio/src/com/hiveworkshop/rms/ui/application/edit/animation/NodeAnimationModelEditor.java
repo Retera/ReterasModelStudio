@@ -6,14 +6,13 @@ import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddFlagEntryAction
 import com.hiveworkshop.rms.editor.actions.editor.StaticMeshMoveAction;
 import com.hiveworkshop.rms.editor.actions.util.*;
 import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.CameraNode;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.IdObject;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.Entry;
-import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
+import com.hiveworkshop.rms.editor.render3d.RenderNodeCamera;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
@@ -44,9 +43,10 @@ public class NodeAnimationModelEditor extends ModelEditor {
 	@Override
 	public UndoAction translate(Vec3 v) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
+		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
 
-		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.TRANSLATION);
-		return new TranslationKeyframeAction(setup, selection, renderModel, v);
+		CompoundAction setup = getSetupAction(selection, camSelection, ModelEditorActionType3.TRANSLATION);
+		return new TranslationKeyframeAction(setup, selection, camSelection, renderModel, v);
 	}
 
 	@Override
@@ -83,9 +83,10 @@ public class NodeAnimationModelEditor extends ModelEditor {
 	public GenericMoveAction beginTranslation() {
 		// TODO fix cast, meta knowledge: NodeAnimationModelEditor will only be constructed from a TimeEnvironmentImpl render environment, and never from the anim previewer impl
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
+		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
 
-		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.TRANSLATION);
-		return new TranslationKeyframeAction(setup, selection, renderModel).doSetup();
+		CompoundAction setup = getSetupAction(selection, camSelection, ModelEditorActionType3.TRANSLATION);
+		return new TranslationKeyframeAction(setup, selection, camSelection, renderModel).doSetup();
 	}
 
 	@Override
@@ -122,9 +123,10 @@ public class NodeAnimationModelEditor extends ModelEditor {
 	@Override
 	public GenericRotateAction beginRotation(Vec3 center, Vec3 axis) {
 		Set<IdObject> selection = modelView.getSelectedIdObjects();
+		Set<CameraNode> camSelection = modelView.getSelectedCameraNodes();
 
-		CompoundAction setup = getSetupAction(selection, ModelEditorActionType3.ROTATION);
-		return new RotationKeyframeAction(setup, selection, renderModel, center, axis).doSetup();
+		CompoundAction setup = getSetupAction(selection, camSelection, ModelEditorActionType3.ROTATION);
+		return new RotationKeyframeAction(setup, selection, camSelection, renderModel, center, axis).doSetup();
 	}
 
 	@Override
@@ -142,8 +144,15 @@ public class NodeAnimationModelEditor extends ModelEditor {
 		return new SquatToolKeyframeAction(setup, modelView.getSelectedIdObjects(), renderModel, center, axis).doSetup();
 	}
 
-	public CompoundAction getSetupAction(Set<IdObject> selection, ModelEditorActionType3 squat) {
+	public CompoundAction getSetupAction(Set<IdObject> selection, ModelEditorActionType3 actionType) {
+		List<UndoAction> actions = createKeyframe(renderModel.getTimeEnvironment(), actionType, selection);
+
+		return new CompoundAction("setup", actions, changeListener::keyframesUpdated);
+	}
+
+	public CompoundAction getSetupAction(Set<IdObject> selection, Set<CameraNode> camSelection, ModelEditorActionType3 squat) {
 		List<UndoAction> actions = createKeyframe(renderModel.getTimeEnvironment(), squat, selection);
+		actions.addAll(createKeyframeC(renderModel.getTimeEnvironment(), squat, camSelection));
 
 		return new CompoundAction("setup", actions, changeListener::keyframesUpdated);
 	}
@@ -161,6 +170,23 @@ public class NodeAnimationModelEditor extends ModelEditor {
 			UndoAction keyframeAction = switch (actionType) {
 				case ROTATION, SQUAT -> createRotationKeyframe(node, getRotationTimeline(node, actions, globalSeq), timeEnvironmentImpl);
 				case SCALING -> createScalingKeyframe(node, getScalingTimeline(node, actions, globalSeq), timeEnvironmentImpl);
+				case TRANSLATION, EXTEND, EXTRUDE -> createTranslationKeyframe(node, getTranslationTimeline(node, actions, globalSeq), timeEnvironmentImpl);
+			};
+			if (keyframeAction != null) {
+				actions.add(keyframeAction);
+			}
+		}
+
+		return actions;
+	}
+
+	public List<UndoAction> createKeyframeC(TimeEnvironmentImpl timeEnvironmentImpl, ModelEditorActionType3 actionType, Set<CameraNode> selection) {
+		List<UndoAction> actions = new ArrayList<>();
+		for (CameraNode node : selection) {
+			GlobalSeq globalSeq = timeEnvironmentImpl.getGlobalSeq();
+			UndoAction keyframeAction = switch (actionType) {
+				case ROTATION, SQUAT -> createRotationKeyframe(node, getRotationTimeline(node, actions, globalSeq), timeEnvironmentImpl);
+				case SCALING -> null;
 				case TRANSLATION, EXTEND, EXTRUDE -> createTranslationKeyframe(node, getTranslationTimeline(node, actions, globalSeq), timeEnvironmentImpl);
 			};
 			if (keyframeAction != null) {
@@ -263,5 +289,56 @@ public class NodeAnimationModelEditor extends ModelEditor {
 			actions.add(new AddTimelineAction<>(node, timeline));
 		}
 		return timeline;
+	}
+
+	public UndoAction createTranslationKeyframe(CameraNode node, AnimFlag<Vec3> timeline, TimeEnvironmentImpl timeEnvironmentImpl) {
+		if(!timeline.hasEntryAt(timeEnvironmentImpl.getCurrentSequence(), timeEnvironmentImpl.getEnvTrackTime())){
+			int trackTime = timeEnvironmentImpl.getEnvTrackTime();
+			RenderNodeCamera renderNode = renderModel.getRenderNode(node);
+			return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation())), timeEnvironmentImpl);
+		}
+		return null;
+	}
+
+	public UndoAction createRotationKeyframe(CameraNode node, AnimFlag<?> timeline, TimeEnvironmentImpl timeEnvironmentImpl) {
+		if (timeline != null && !timeline.hasEntryAt(timeEnvironmentImpl.getCurrentSequence(), timeEnvironmentImpl.getEnvTrackTime())){
+			int trackTime = timeEnvironmentImpl.getEnvTrackTime();
+			RenderNodeCamera renderNode = renderModel.getRenderNode(node);
+			if (timeline instanceof QuatAnimFlag){
+				QuatAnimFlag qTimeline = (QuatAnimFlag) timeline;
+				return getAddKeyframeAction(qTimeline, new Entry<>(trackTime, new Quat(renderNode.getLocalRotation())), timeEnvironmentImpl);
+			} else if (timeline instanceof FloatAnimFlag){
+				FloatAnimFlag fTimeline = (FloatAnimFlag) timeline;
+				return getAddKeyframeAction(fTimeline, new Entry<>(trackTime, renderNode.getLocalRotationFloat()), timeEnvironmentImpl);
+			} else if (timeline instanceof IntAnimFlag){
+				IntAnimFlag iTimeline = (IntAnimFlag) timeline;
+				return getAddKeyframeAction(iTimeline, new Entry<>(trackTime, renderNode.getLocalRotationInt()), timeEnvironmentImpl);
+			}
+		}
+		return null;
+	}
+
+	public AnimFlag<Vec3> getTranslationTimeline(CameraNode node, List<UndoAction> actions, GlobalSeq globalSeq) {
+		AnimFlag<Vec3> timeline = node.getTranslationFlag();
+		if (timeline == null) {
+			timeline = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.HERMITE, globalSeq);
+
+			actions.add(new AddTimelineAction<>(node, timeline));
+		}
+		return timeline;
+	}
+
+	private AnimFlag<?> getRotationTimeline(CameraNode node, List<UndoAction> actions, GlobalSeq globalSeq) {
+		if (node instanceof CameraNode.TargetNode){
+			return null;
+		} else {
+
+			AnimFlag<?> timeline = node.getRotationFlag();
+			if (timeline == null) {
+				timeline = new FloatAnimFlag(MdlUtils.TOKEN_ROTATION);
+				actions.add(new AddTimelineAction<>(node, timeline));
+			}
+			return timeline;
+		}
 	}
 }

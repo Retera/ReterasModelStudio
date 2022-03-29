@@ -16,6 +16,7 @@ import java.util.TreeMap;
 public class ComponentSDLayersPanel extends ComponentLayersPanel {
 	private final TreeMap<Integer, ComponentSDLayer> sdLayerPanelTreeMap = new TreeMap<>();
 	private JPanel layerPanelsHolder;
+	private JLabel shaderLabel;
 
 	public ComponentSDLayersPanel(ModelHandler modelHandler) {
 		super(modelHandler);
@@ -28,18 +29,21 @@ public class ComponentSDLayersPanel extends ComponentLayersPanel {
 	}
 
 	protected JPanel getTopPanel() {
-		JPanel topPanel = new JPanel(new MigLayout("fill, ins 0, hidemode 2", "[][][grow]", "[][][grow]"));
+		JPanel topPanel = new JPanel(new MigLayout("fill, ins 0, hidemode 2", "[][][grow][grow]", "[][][grow]"));
 
 		shaderOptionComboBox = getShaderComboBox();
-		if(ModelUtils.isShaderStringSupported(model.getFormatVersion())){
-			JLabel shaderLabel = new JLabel("Shader:");
-			topPanel.add(shaderLabel);
-			topPanel.add(shaderOptionComboBox, "growx, wrap");
-		}
+		shaderLabel = new JLabel("Shader:");
+		topPanel.add(shaderLabel);
+		topPanel.add(shaderOptionComboBox, "growx, wrap");
 
 		topPanel.add(new JLabel("Priority Plane:"));
 		priorityPlaneSpinner = new IntEditorJSpinner(-1, -1, this::changePriorityPlane);
 		topPanel.add(priorityPlaneSpinner, "growx");
+
+		JButton duplicate_material = new JButton("Duplicate Material");
+		duplicate_material.addActionListener(e -> duplicateMaterial());
+		topPanel.add(duplicate_material, "right");
+
 		topPanel.add(getDeleteButton(e -> deleteMaterial()), "right, wrap");
 		return topPanel;
 	}
@@ -59,6 +63,9 @@ public class ComponentSDLayersPanel extends ComponentLayersPanel {
 	public ComponentPanel<Material> setSelectedItem(Material itemToSelect) {
 		this.material = itemToSelect;
 		selectedItem = itemToSelect;
+
+		shaderLabel.setVisible(ModelUtils.isShaderStringSupported(model.getFormatVersion()));
+		shaderOptionComboBox.setVisible(ModelUtils.isShaderStringSupported(model.getFormatVersion()));
 
 		shaderOptionComboBox.setSelectedItem(material.getShaderString());
 		priorityPlaneSpinner.reloadNewValue(itemToSelect.getPriorityPlane());

@@ -1,12 +1,10 @@
 package com.hiveworkshop.rms.ui.application.model.material;
 
-import com.hiveworkshop.rms.editor.actions.model.material.RemoveMaterialAction;
-import com.hiveworkshop.rms.editor.actions.model.material.SetLayerFilterModeAction;
-import com.hiveworkshop.rms.editor.actions.model.material.SetMaterialPriorityPlaneAction;
-import com.hiveworkshop.rms.editor.actions.model.material.SetMaterialShaderStringAction;
+import com.hiveworkshop.rms.editor.actions.model.material.*;
 import com.hiveworkshop.rms.editor.model.Layer;
 import com.hiveworkshop.rms.editor.model.Material;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.ShaderBox;
@@ -68,5 +66,10 @@ public abstract class ComponentLayersPanel extends ComponentPanel<Material> {
 
 	protected void setCoordId(Layer layer, int value) {
 		layer.setCoordId(value);
+	}
+
+	protected void duplicateMaterial(){
+		Material newMaterial = this.material.deepCopy();
+		undoManager.pushAction(new AddMaterialAction(newMaterial, model, ModelStructureChangeListener.changeListener).redo());
 	}
 }

@@ -99,29 +99,29 @@ public class KeylistenerThing extends KeyAdapter {
 //		    }
 //	    }
 
-		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-			cameraHandler.translate2(0, -10, 0);
-			System.out.println("Y -10");
-		}
-		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			cameraHandler.translate2(0, 10, 0);
-			System.out.println("Y +10");
-		}
-		if (e.getKeyCode() == KeyEvent.VK_UP) {
+//		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+//			cameraHandler.translate2(0, -10, 0);
+//			System.out.println("Y -10");
+//		}
+//		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+//			cameraHandler.translate2(0, 10, 0);
+//			System.out.println("Y +10");
+//		}
+//		if (e.getKeyCode() == KeyEvent.VK_UP) {
+//			cameraHandler.translate2(0, 0, 10);
+//			System.out.println("Z +10");
+//		}
+//		if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+//			cameraHandler.translate2(0, 0, -10);
+//			System.out.println("Z -10");
+//		}
+		if (e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
 			cameraHandler.translate2(-10, 0, 0);
 			System.out.println("X -10");
 		}
-		if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+		if (e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
 			cameraHandler.translate2(10, 0, 0);
 			System.out.println("X +10");
-		}
-		if (e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
-			cameraHandler.translate2(0, 0, 10);
-			System.out.println("Z +10");
-		}
-		if (e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
-			cameraHandler.translate2(0, 0, -10);
-			System.out.println("Z -10");
 		}
 	}
 }

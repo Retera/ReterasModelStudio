@@ -28,6 +28,9 @@ public final class RenderNodeCamera extends RenderNode<CameraNode.SourceNode> {
 	private final Vec3 cameraUp = new Vec3(0, 0, 1);
 	private final Vec3 renderTarget = new Vec3(0, 0, 0);
 
+	private Integer localRotationInt = 0;
+	private Float localRotationFloat = 0.0f;
+
 
 	public RenderNodeCamera(RenderModel renderModel, CameraNode.SourceNode sourceNode) {
 		super(renderModel, sourceNode);
@@ -151,17 +154,17 @@ public final class RenderNodeCamera extends RenderNode<CameraNode.SourceNode> {
 	private void setRenderRotation(TimeEnvironmentImpl timeEnvironment) {
 		AnimFlag<?> rotationFlag = camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION);
 		if (rotationFlag instanceof IntAnimFlag) {
-			int angle = (Integer) rotationFlag.interpolateAt(timeEnvironment);
-			axisHeap.set(camera.getTargetPosition()).add(targetLocalLocation).sub(camera.getPosition()).sub(localLocation);
-			localRotation.setFromAxisAngle(axisHeap, angle);
+			localRotationInt = (Integer) rotationFlag.interpolateAt(timeEnvironment);
+			axisHeap.set(camera.getTargetPosition()).add(targetLocalLocation).sub(camera.getPosition()).sub(localLocation).normalize();
+			localRotation.setFromAxisAngle(axisHeap, localRotationInt);
 		} else if (rotationFlag instanceof FloatAnimFlag) {
-			Float angle = (Float) rotationFlag.interpolateAt(timeEnvironment);
-			axisHeap.set(camera.getTargetPosition()).add(targetLocalLocation).sub(camera.getPosition()).sub(localLocation);
-			localRotation.setFromAxisAngle(axisHeap, angle);
+			localRotationFloat = (Float) rotationFlag.interpolateAt(timeEnvironment);
+			axisHeap.set(camera.getTargetPosition()).add(targetLocalLocation).sub(camera.getPosition()).sub(localLocation).normalize();
+			localRotation.setFromAxisAngle(axisHeap, localRotationFloat);
 		} else if (rotationFlag instanceof QuatAnimFlag) {
 			setRotation(((QuatAnimFlag)rotationFlag).interpolateAt(timeEnvironment));
 		} else {
-			axisHeap.set(camera.getTargetPosition()).add(targetLocalLocation).sub(camera.getPosition()).sub(localLocation);
+			axisHeap.set(camera.getTargetPosition()).add(targetLocalLocation).sub(camera.getPosition()).sub(localLocation).normalize();
 			localRotation.setFromAxisAngle(axisHeap, 0);
 //			setRotation(null);
 		}
@@ -211,6 +214,14 @@ public final class RenderNodeCamera extends RenderNode<CameraNode.SourceNode> {
 			return renderTarget;
 		}
 		return camera.getTargetPosition();
+	}
+
+	public Float getLocalRotationFloat() {
+		return localRotationFloat;
+	}
+
+	public Integer getLocalRotationInt() {
+		return localRotationInt;
 	}
 
 	public Vec3 getRenderPivot() {

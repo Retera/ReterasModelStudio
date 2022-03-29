@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.editor.render3d.RenderNodeCamera;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.editors.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -97,26 +98,33 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 		nearClipSpinner.reloadNewValue(camera.getNearClip());
 
 		transPanel.reloadNewValue(new Vec3(0, 0, 0), (Vec3AnimFlag) camera.getSourceNode().find(MdlUtils.TOKEN_TRANSLATION), camera.getSourceNode(), MdlUtils.TOKEN_TRANSLATION, null);
-		if(camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION) instanceof QuatAnimFlag){
+		if(camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION) instanceof QuatAnimFlag) {
 			rotPanelQuat.reloadNewValue(new Quat(0, 0, 0, 1), (QuatAnimFlag) camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION), camera.getSourceNode(), MdlUtils.TOKEN_ROTATION, null);
 			rotPanelFloat.reloadNewValue(0f, null, camera.getSourceNode(), MdlUtils.TOKEN_ROTATION, null);
 			rotPanelInt.reloadNewValue(0, null, camera.getSourceNode(), MdlUtils.TOKEN_ROTATION, null);
 			rotPanelQuat.setVisible(true);
 			rotPanelFloat.setVisible(false);
 			rotPanelInt.setVisible(false);
-		} else if (camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION) instanceof FloatAnimFlag){
+		} else if (camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION) instanceof FloatAnimFlag) {
 			rotPanelFloat.reloadNewValue(0f, (FloatAnimFlag) camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION), camera.getSourceNode(), MdlUtils.TOKEN_ROTATION, null);
 			rotPanelQuat.reloadNewValue(new Quat(0, 0, 0, 1), null, camera.getSourceNode(), MdlUtils.TOKEN_ROTATION, null);
 			rotPanelInt.reloadNewValue(0, null, camera.getSourceNode(), MdlUtils.TOKEN_ROTATION, null);
 			rotPanelFloat.setVisible(true);
 			rotPanelInt.setVisible(false);
 			rotPanelQuat.setVisible(false);
-		} else {
+		} else if (camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION) instanceof IntAnimFlag) {
 			rotPanelInt.reloadNewValue(0, (IntAnimFlag) camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION), camera.getSourceNode(), MdlUtils.TOKEN_ROTATION, null);
 			rotPanelFloat.reloadNewValue(0f, null, camera.getSourceNode(), MdlUtils.TOKEN_ROTATION, null);
 			rotPanelQuat.reloadNewValue(new Quat(0, 0, 0, 1), null, camera.getSourceNode(), MdlUtils.TOKEN_ROTATION, null);
 			rotPanelInt.setVisible(true);
 			rotPanelFloat.setVisible(false);
+			rotPanelQuat.setVisible(false);
+		} else {
+			rotPanelFloat.reloadNewValue(0f, (FloatAnimFlag) camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION), camera.getSourceNode(), MdlUtils.TOKEN_ROTATION, null);
+			rotPanelQuat.reloadNewValue(new Quat(0, 0, 0, 1), null, camera.getSourceNode(), MdlUtils.TOKEN_ROTATION, null);
+			rotPanelInt.reloadNewValue(0, null, camera.getSourceNode(), MdlUtils.TOKEN_ROTATION, null);
+			rotPanelFloat.setVisible(true);
+			rotPanelInt.setVisible(false);
 			rotPanelQuat.setVisible(false);
 		}
 		targetTransPanel.reloadNewValue(new Vec3(0, 0, 0), (Vec3AnimFlag) camera.getTargetNode().find(MdlUtils.TOKEN_TRANSLATION), camera.getTargetNode(), MdlUtils.TOKEN_TRANSLATION, null);

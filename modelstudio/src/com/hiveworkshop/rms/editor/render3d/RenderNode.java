@@ -126,6 +126,8 @@ public abstract class RenderNode<T extends AnimatedNode> {
 		return localMatrix;
 	}
 
+	public abstract Mat4 getParentWorldMatrix();
+
 	public Quat getLocalRotation() {
 		return localRotation;
 	}

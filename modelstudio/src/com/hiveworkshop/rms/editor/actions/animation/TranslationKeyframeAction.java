@@ -3,11 +3,13 @@ package com.hiveworkshop.rms.editor.actions.animation;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.editor.model.AnimatedNode;
+import com.hiveworkshop.rms.editor.model.CameraNode;
 import com.hiveworkshop.rms.editor.model.GlobalSeq;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.render3d.RenderNode;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.util.Mat4;
@@ -21,7 +23,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	private final UndoAction addingTimelinesOrKeyframesAction;
 	private final int trackTime;
 	private final Sequence anim;
-	private final HashMap<IdObject, Vec3> nodeToLocalTranslation;
+	private final HashMap<AnimatedNode, Vec3> nodeToLocalTranslation;
 	private final RenderModel editorRenderModel;
 
 	public TranslationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
@@ -33,7 +35,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
 
 		nodeToLocalTranslation = new HashMap<>();
-		for (IdObject node : nodeSelection) {
+		for (AnimatedNode node : nodeSelection) {
 			nodeToLocalTranslation.put(node, new Vec3());
 		}
 	}
@@ -45,7 +47,42 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 
 		Vec4 translationHeap = new Vec4();
 		Vec3 translationHeap2 = new Vec3();
-		for (IdObject idObject : nodeToLocalTranslation.keySet()) {
+		for (AnimatedNode idObject : nodeToLocalTranslation.keySet()) {
+			if (nodeToLocalTranslation.get(idObject) != null) {
+				setTranslationHeap(idObject, translation, translationHeap);
+				translationHeap2.set(translationHeap);
+				nodeToLocalTranslation.get(idObject).add(translationHeap2);
+			}
+		}
+	}
+
+	public TranslationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
+	                                 Collection<IdObject> nodeSelection,
+	                                 Collection<CameraNode> camSelection,
+	                                 RenderModel editorRenderModel) {
+		this.addingTimelinesOrKeyframesAction = addingTimelinesOrKeyframesAction;
+		this.editorRenderModel = editorRenderModel;
+		this.trackTime = editorRenderModel.getTimeEnvironment().getEnvTrackTime();
+		this.anim = editorRenderModel.getTimeEnvironment().getCurrentSequence();
+
+		nodeToLocalTranslation = new HashMap<>();
+		for (AnimatedNode node : nodeSelection) {
+			nodeToLocalTranslation.put(node, new Vec3());
+		}
+		for (AnimatedNode node : camSelection) {
+			nodeToLocalTranslation.put(node, new Vec3());
+		}
+	}
+
+	public TranslationKeyframeAction(UndoAction addingTimelinesOrKeyframesAction,
+	                                 Collection<IdObject> nodeSelection,
+	                                 Collection<CameraNode> camSelection,
+	                                 RenderModel editorRenderModel, Vec3 translation) {
+		this(addingTimelinesOrKeyframesAction, nodeSelection, camSelection, editorRenderModel);
+
+		Vec4 translationHeap = new Vec4();
+		Vec3 translationHeap2 = new Vec3();
+		for (AnimatedNode idObject : nodeToLocalTranslation.keySet()) {
 			if (nodeToLocalTranslation.get(idObject) != null) {
 				setTranslationHeap(idObject, translation, translationHeap);
 				translationHeap2.set(translationHeap);
@@ -57,7 +94,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	@Override
 	public UndoAction undo() {
 		Vec3 localTranslation = new Vec3();
-		for (IdObject node : nodeToLocalTranslation.keySet()) {
+		for (AnimatedNode node : nodeToLocalTranslation.keySet()) {
 			localTranslation.set(nodeToLocalTranslation.get(node)).scale( -1);
 			updateLocalTranslationKeyframe(node, localTranslation);
 		}
@@ -68,7 +105,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	@Override
 	public UndoAction redo() {
 		addingTimelinesOrKeyframesAction.redo();
-		for (IdObject node : nodeToLocalTranslation.keySet()) {
+		for (AnimatedNode node : nodeToLocalTranslation.keySet()) {
 			Vec3 localTranslation = nodeToLocalTranslation.get(node);
 			updateLocalTranslationKeyframe(node, localTranslation);
 		}
@@ -91,7 +128,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		Vec3 delta = new Vec3(deltaX, deltaY, deltaZ);
 		Vec4 translationHeap = new Vec4();
 		Vec3 translationHeap2 = new Vec3();
-		for (IdObject idObject : nodeToLocalTranslation.keySet()) {
+		for (AnimatedNode idObject : nodeToLocalTranslation.keySet()) {
 			setTranslationHeap(idObject, delta, translationHeap);
 			translationHeap2.set(translationHeap);
 
@@ -105,7 +142,7 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 	public GenericMoveAction updateTranslation(Vec3 delta) {
 		Vec4 translationHeap = new Vec4();
 		Vec3 translationHeap2 = new Vec3();
-		for (IdObject idObject : nodeToLocalTranslation.keySet()) {
+		for (AnimatedNode idObject : nodeToLocalTranslation.keySet()) {
 			setTranslationHeap(idObject, delta, translationHeap);
 			translationHeap2.set(translationHeap);
 
@@ -117,12 +154,15 @@ public class TranslationKeyframeAction implements GenericMoveAction {
 		return this;
 	}
 
-	private Vec4 setTranslationHeap(IdObject idObject, Vec3 newDelta, Vec4 translationHeap) {
-		Mat4 worldMatrix = editorRenderModel.getRenderNode(idObject).getParentWorldMatrix();
+	private Vec4 setTranslationHeap(AnimatedNode idObject, Vec3 newDelta, Vec4 translationHeap) {
 		translationHeap.set(0, 0, 0, 1);
-		translationHeap.transform(worldMatrix);
-		translationHeap.add(newDelta);
-		translationHeap.transformInverted(worldMatrix);
+		RenderNode<AnimatedNode> renderNode = editorRenderModel.getRenderNode(idObject);
+		if(renderNode != null){
+			Mat4 worldMatrix = renderNode.getParentWorldMatrix();
+			translationHeap.transform(worldMatrix);
+			translationHeap.add(newDelta);
+			translationHeap.transformInverted(worldMatrix);
+		}
 
 		return translationHeap;
 	}
