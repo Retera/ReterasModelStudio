@@ -672,12 +672,20 @@ public class Material implements MaterialView {
 						final Vector3f normal = new Vector3f(normalX, normalY,
 								(float) Math.sqrt(1.0 - ((normalX * normalX) + (normalY * normalY))));
 						bakingCell.tangentViewPos.normalise();
-						final Vector3f lightDir = bakingCell.tangentViewPos;
+						final Vector3f lightDir = new Vector3f(0, 0, 1);// bakingCell.tangentViewPos;
 						lightDir.normalise();
-						final float cosTheta = Vector3f.dot(lightDir, normal);
-						final float lambertFactor = (float) Math.max(0.0, Math.min(1.0, cosTheta));
-						final float occlusion = ((bakingCell.ormRGB >> 16) & 0xFF) / 255.0f;
-						diffuse.scale((float) Math.max(0.0, Math.min(1.0, (lambertFactor * occlusion) + 0.1)));
+						{
+							final float cosTheta = Vector3f.dot(lightDir, normal);
+							lightDir.set(bakingCell.tangentViewPos);
+							lightDir.normalise();
+							final float lambertFactor = (float) Math.max(0.0, Math.min(1.0, cosTheta));
+							final float occlusion = ((bakingCell.ormRGB >> 16) & 0xFF) / 255.0f;
+
+							final float cosTheta2 = Vector3f.dot(lightDir, normal);
+							final float lambertFactor2 = (float) Math.max(0.0, Math.min(1.0, cosTheta2));
+							diffuse.scale((float) Math.max(0.0,
+									Math.min(1.0, (lambertFactor * occlusion * 0.7f) + (lambertFactor2 * 0.3f))));
+						}
 						final Vector3f viewDir = new Vector3f();
 						Vector3f.sub(bakingCell.tangentViewPos, bakingCell.tangentFragPos, viewDir);
 						viewDir.normalise();

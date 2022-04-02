@@ -1247,62 +1247,6 @@ public final class ModelComponentBrowserTree extends JTree {
 		}
 	}
 
-	public static interface ModelComponentListener {
-
-		void selectedBlank();
-
-		void selected(EditableModel model);
-
-		void selectedHeaderData(EditableModel model, ModelViewManager modelViewManager, UndoActionListener undoListener,
-				ModelStructureChangeListener modelStructureChangeListener);
-
-		void selectedHeaderComment(Iterable<String> comment);
-
-		void selected(Animation animation, UndoActionListener undoListener,
-				ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(EditableModel model, Integer globalSequence, int globalSequenceId,
-				UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(Bitmap texture, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
-				ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(Material material, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
-				ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(TextureAnim textureAnim);
-
-		void selected(Geoset geoset);
-
-		void selected(GeosetAnim geosetAnim);
-
-		void selected(Bone object);
-
-		void selected(Light light);
-
-		void selected(Helper object);
-
-		void selected(Attachment attachment);
-
-		void selected(ParticleEmitter particleEmitter);
-
-		void selected(ParticleEmitter2 particleEmitter);
-
-		void selected(ParticleEmitterPopcorn popcornFxEmitter);
-
-		void selected(RibbonEmitter particleEmitter);
-
-		void selected(EventObject eventObject);
-
-		void selected(CollisionShape collisionShape);
-
-		void selected(Camera camera);
-
-		void selected(FaceEffect faceEffectsChunk);
-
-		void selected(BindPoseChunk bindPoseChunk);
-	}
-
 	private static final class IdObjectToChooseableElementWrappingConverter implements IdObjectVisitor {
 		private final ModelViewManager modelViewManager;
 		private ChooseableDisplayElement<?> element;

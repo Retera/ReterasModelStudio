@@ -5,6 +5,7 @@ import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
+import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -72,10 +73,14 @@ public class CameraManagerPanel extends JPanel {
 
 		final JScrollPane cameraScroll = new JScrollPane(cameraBox);
 
-		groupLayout
-				.setHorizontalGroup(groupLayout.createSequentialGroup().addGap(8).addComponent(cameraScroll).addGap(8));
-		groupLayout
-				.setVerticalGroup(groupLayout.createSequentialGroup().addGap(8).addComponent(cameraScroll).addGap(8));
+		final JButton createCameraFromView = new JButton("Create Camera from Current View");
+
+		groupLayout.setHorizontalGroup(groupLayout.createSequentialGroup().addGap(8)
+				.addGroup(
+						groupLayout.createParallelGroup().addComponent(cameraScroll).addComponent(createCameraFromView))
+				.addGap(8));
+		groupLayout.setVerticalGroup(groupLayout.createSequentialGroup().addGap(8).addComponent(cameraScroll).addGap(8)
+				.addComponent(createCameraFromView).addGap(8));
 		setLayout(groupLayout);
 
 		cameraBox.setSelectedIndex(0);

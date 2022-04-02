@@ -49,6 +49,16 @@ public class Camera implements Named {
 
 	}
 
+	public Camera(final String name, final Vertex source, final Vertex target, final double fieldOfView,
+			final double farClip, final double nearClip) {
+		this.name = name;
+		this.Position = source;
+		this.targetPosition = target;
+		this.FieldOfView = fieldOfView;
+		this.FarClip = farClip;
+		this.NearClip = nearClip;
+	}
+
 	public Camera(final CameraChunk.Camera mdxSource) {
 		this.name = mdxSource.name;
 		Position = new Vertex(mdxSource.position);
@@ -87,32 +97,40 @@ public class Camera implements Named {
 					&& !line.equals("COMPLETED PARSING")) {
 				if (line.contains("Position")) {
 					c.Position = Vertex.parseText(line);
-				} else if (line.contains("Rotation") || line.contains("Translation")) {
+				}
+				else if (line.contains("Rotation") || line.contains("Translation")) {
 					MDLReader.reset(mdl);
 					c.animFlags.add(AnimFlag.read(mdl));
-				} else if (line.contains("FieldOfView")) {
+				}
+				else if (line.contains("FieldOfView")) {
 					c.FieldOfView = MDLReader.readDouble(line);
-				} else if (line.contains("FarClip")) {
+				}
+				else if (line.contains("FarClip")) {
 					c.FarClip = MDLReader.readDouble(line);
-				} else if (line.contains("NearClip")) {
+				}
+				else if (line.contains("NearClip")) {
 					c.NearClip = MDLReader.readDouble(line);
-				} else if (line.contains("Target")) {
+				}
+				else if (line.contains("Target")) {
 					MDLReader.mark(mdl);
 					line = MDLReader.nextLine(mdl);
 					while (!line.startsWith("\t}")) {
 						if (line.contains("Position")) {
 							c.targetPosition = Vertex.parseText(line);
-						} else if (line.contains("Translation")) {
+						}
+						else if (line.contains("Translation")) {
 							MDLReader.reset(mdl);
 							c.targetAnimFlags.add(AnimFlag.read(mdl));
-						} else {
+						}
+						else {
 							JOptionPane.showMessageDialog(null, "Camera target did not recognize data at: " + line
 									+ "\nThis is probably not a major issue?");
 						}
 						MDLReader.mark(mdl);
 						line = MDLReader.nextLine(mdl);
 					}
-				} else {
+				}
+				else {
 					JOptionPane.showMessageDialog(null,
 							"Camera did not recognize data at: " + line + "\nThis is probably not a major issue?");
 				}
@@ -121,7 +139,8 @@ public class Camera implements Named {
 				line = MDLReader.nextLine(mdl);
 			}
 			return c;
-		} else {
+		}
+		else {
 			JOptionPane.showMessageDialog(MDLReader.getDefaultContainer(),
 					"Unable to parse Camera: Missing or unrecognized open statement.");
 		}
@@ -300,7 +319,8 @@ public class Camera implements Named {
 					axisHeap.z = (targetPosition.z + targetTranslation.z) - (sourcePosition.z + sourceTranslation.z);
 					rotationHeap.set(axisHeap, angle);
 					return rotationHeap;
-				} else {
+				}
+				else {
 					return (QuaternionRotation) interpolated;
 				}
 			}
@@ -314,7 +334,8 @@ public class Camera implements Named {
 				if (interpolated instanceof Double) {
 					final Double angle = (Double) interpolated;
 					return angle;
-				} else {
+				}
+				else {
 					return null;
 				}
 			}

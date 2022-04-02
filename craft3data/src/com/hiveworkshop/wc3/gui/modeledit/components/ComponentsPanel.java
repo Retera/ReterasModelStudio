@@ -6,7 +6,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import com.hiveworkshop.wc3.gui.modeledit.ModelComponentBrowserTree;
+import com.hiveworkshop.wc3.gui.modeledit.ModelComponentListener;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.util.TextureExporter;
@@ -16,12 +16,13 @@ import com.hiveworkshop.wc3.mdl.Bitmap;
 import com.hiveworkshop.wc3.mdl.Bone;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.CollisionShape;
+import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.EventObject;
 import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.Helper;
+import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.Light;
-import com.hiveworkshop.wc3.mdl.EditableModel;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter2;
@@ -32,7 +33,7 @@ import com.hiveworkshop.wc3.mdl.v2.ModelViewManager;
 import com.hiveworkshop.wc3.mdx.BindPoseChunk;
 import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 
-public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree.ModelComponentListener {
+public class ComponentsPanel extends JPanel implements ModelComponentListener {
 	private static final String BLANK = "BLANK";
 	private static final String HEADER = "HEADER";
 	private static final String COMMENT = "COMMENT";
@@ -194,5 +195,12 @@ public class ComponentsPanel extends JPanel implements ModelComponentBrowserTree
 	public void selectedBlank() {
 		cardLayout.show(this, BLANK);
 		currentPanel = null;
+	}
+
+	@Override
+	public void selected(final Layer layer, final ModelViewManager modelViewManager,
+			final UndoActionListener undoActionListener,
+			final ModelStructureChangeListener modelStructureChangeListener) {
+		// NOTE: for now this should never get called, and is only used in Tracks view
 	}
 }

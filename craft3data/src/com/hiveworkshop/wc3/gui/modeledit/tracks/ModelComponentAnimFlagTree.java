@@ -23,9 +23,11 @@ import com.etheller.collections.List;
 import com.etheller.collections.Map;
 import com.hiveworkshop.wc3.gui.BLPHandler;
 import com.hiveworkshop.wc3.gui.icons.RMSIcons;
+import com.hiveworkshop.wc3.gui.modeledit.ModelComponentListener;
 import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
 import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
 import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditorManager;
+import com.hiveworkshop.wc3.mdl.AnimFlag;
 import com.hiveworkshop.wc3.mdl.Animation;
 import com.hiveworkshop.wc3.mdl.Attachment;
 import com.hiveworkshop.wc3.mdl.Bitmap;
@@ -38,6 +40,7 @@ import com.hiveworkshop.wc3.mdl.Geoset;
 import com.hiveworkshop.wc3.mdl.GeosetAnim;
 import com.hiveworkshop.wc3.mdl.Helper;
 import com.hiveworkshop.wc3.mdl.IdObject;
+import com.hiveworkshop.wc3.mdl.Layer;
 import com.hiveworkshop.wc3.mdl.Light;
 import com.hiveworkshop.wc3.mdl.Material;
 import com.hiveworkshop.wc3.mdl.ParticleEmitter;
@@ -52,9 +55,11 @@ import com.hiveworkshop.wc3.mdx.FaceEffectsChunk.FaceEffect;
 import com.hiveworkshop.wc3.util.IconUtils;
 
 public final class ModelComponentAnimFlagTree extends JTree {
+	private static boolean TREEIFY_NODES = false;
 	private final ModelViewManager modelViewManager;
 	private final UndoActionListener undoActionListener;
 	private final ModelStructureChangeListener modelStructureChangeListener;
+	private final DefaultTreeCellRenderer renderer;
 
 	public ModelComponentAnimFlagTree(final ModelViewManager modelViewManager,
 			final UndoActionListener undoActionListener, final ModelEditorManager modelEditorManager,
@@ -66,7 +71,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		final HighlightOnMouseoverListenerImpl mouseListener = new HighlightOnMouseoverListenerImpl();
 		addMouseMotionListener(mouseListener);
 		addMouseListener(mouseListener);
-		setCellRenderer(new DefaultTreeCellRenderer() {
+		renderer = new DefaultTreeCellRenderer() {
 			@Override
 			public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean selected,
 					final boolean expanded, final boolean leaf, final int row, final boolean hasFocus) {
@@ -87,8 +92,13 @@ public final class ModelComponentAnimFlagTree extends JTree {
 				}
 				return treeCellRendererComponent;
 			}
-		});
+		};
+		setCellRenderer(renderer);
 		setFocusable(false);
+	}
+
+	public int getLastRendererRowHeight() {
+		return renderer.getHeight();
 	}
 
 	public void addSelectListener(final ModelComponentListener selectListener) {
@@ -219,58 +229,48 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		final DefaultMutableTreeNode root = new DefaultMutableTreeNode(new ChooseableModelRoot(modelViewManager,
 				undoActionListener, modelStructureChangeListener, modelViewManager.getModel()));
 
-		root.add(new DefaultMutableTreeNode(new ChooseableModelComment(modelViewManager, undoActionListener,
-				modelStructureChangeListener, modelViewManager.getModel())));
-		root.add(new DefaultMutableTreeNode(new ChooseableModelHeader(modelViewManager, undoActionListener,
-				modelStructureChangeListener, modelViewManager.getModel())));
-		final DefaultMutableTreeNode sequences = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "Sequences"));
-		for (final Animation item : modelViewManager.getModel().getAnims()) {
-			sequences.add(new DefaultMutableTreeNode(new ChooseableAnimationItem(modelViewManager, undoActionListener,
-					modelStructureChangeListener, item)));
-		}
-		root.add(sequences);
-		final DefaultMutableTreeNode globalSequences = new DefaultMutableTreeNode(new ChooseableDummyItem(
-				modelViewManager, undoActionListener, modelStructureChangeListener, "GlobalSequences"));
-		for (int globalSeqId = 0; globalSeqId < modelViewManager.getModel().getGlobalSeqs().size(); globalSeqId++) {
-			globalSequences.add(new DefaultMutableTreeNode(
-					new ChooseableGlobalSequenceItem(modelViewManager, undoActionListener, modelStructureChangeListener,
-							modelViewManager.getModel().getGlobalSeq(globalSeqId), globalSeqId)));
-		}
-		root.add(globalSequences);
-		final DefaultMutableTreeNode textures = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
-				undoActionListener, modelStructureChangeListener, "Textures"));
-		for (final Bitmap item : modelViewManager.getModel().getTextures()) {
-			textures.add(new DefaultMutableTreeNode(new ChooseableBitmapItem(modelViewManager, undoActionListener,
-					modelStructureChangeListener, item)));
-		}
-		root.add(textures);
 		final DefaultMutableTreeNode materials = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
 				undoActionListener, modelStructureChangeListener, "Materials"));
 		for (final Material item : modelViewManager.getModel().getMaterials()) {
-			materials.add(new DefaultMutableTreeNode(new ChooseableMaterialItem(modelViewManager, undoActionListener,
-					modelStructureChangeListener, item)));
+			final DefaultMutableTreeNode materialNode = new DefaultMutableTreeNode(new ChooseableMaterialItem(
+					modelViewManager, undoActionListener, modelStructureChangeListener, item));
+			for (final Layer layer : item.getLayers()) {
+				final DefaultMutableTreeNode layerNode = new DefaultMutableTreeNode(new ChooseableLayerItem(
+						modelViewManager, undoActionListener, modelStructureChangeListener, layer));
+				for (final AnimFlag flag : layer.getAnims()) {
+					final DefaultMutableTreeNode animFlagNode = new DefaultMutableTreeNode(new ChooseableAnimFlagItem(
+							modelViewManager, undoActionListener, modelStructureChangeListener, flag));
+					layerNode.add(animFlagNode);
+				}
+				materialNode.add(layerNode);
+			}
+			materials.add(materialNode);
 		}
 		root.add(materials);
 		final DefaultMutableTreeNode tVertexAnims = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
 				undoActionListener, modelStructureChangeListener, "TVertexAnims"));
 		for (final TextureAnim item : modelViewManager.getModel().getTexAnims()) {
-			tVertexAnims.add(new DefaultMutableTreeNode(new ChooseableTextureAnimItem(modelViewManager,
-					undoActionListener, modelStructureChangeListener, item)));
+			final DefaultMutableTreeNode tvertexAnimNode = new DefaultMutableTreeNode(new ChooseableTextureAnimItem(
+					modelViewManager, undoActionListener, modelStructureChangeListener, item));
+			for (final AnimFlag flag : item.getAnimFlags()) {
+				final DefaultMutableTreeNode animFlagNode = new DefaultMutableTreeNode(new ChooseableAnimFlagItem(
+						modelViewManager, undoActionListener, modelStructureChangeListener, flag));
+				tvertexAnimNode.add(animFlagNode);
+			}
+			tVertexAnims.add(tvertexAnimNode);
 		}
 		root.add(tVertexAnims);
-		final DefaultMutableTreeNode geosets = new DefaultMutableTreeNode(
-				new ChooseableDummyItem(modelViewManager, undoActionListener, modelStructureChangeListener, "Geosets"));
-		for (final Geoset item : modelViewManager.getModel().getGeosets()) {
-			geosets.add(new DefaultMutableTreeNode(new ChooseableGeosetItem(modelViewManager, undoActionListener,
-					modelStructureChangeListener, item)));
-		}
-		root.add(geosets);
 		final DefaultMutableTreeNode geosetAnims = new DefaultMutableTreeNode(new ChooseableDummyItem(modelViewManager,
 				undoActionListener, modelStructureChangeListener, "GeosetAnims"));
 		for (final GeosetAnim item : modelViewManager.getModel().getGeosetAnims()) {
-			geosetAnims.add(new DefaultMutableTreeNode(new ChooseableGeosetAnimItem(modelViewManager,
-					undoActionListener, modelStructureChangeListener, item)));
+			final DefaultMutableTreeNode geosetAnimNode = new DefaultMutableTreeNode(new ChooseableGeosetAnimItem(
+					modelViewManager, undoActionListener, modelStructureChangeListener, item));
+			for (final AnimFlag flag : item.getAnimFlags()) {
+				final DefaultMutableTreeNode animFlagNode = new DefaultMutableTreeNode(new ChooseableAnimFlagItem(
+						modelViewManager, undoActionListener, modelStructureChangeListener, flag));
+				geosetAnimNode.add(animFlagNode);
+			}
+			geosetAnims.add(geosetAnimNode);
 		}
 		root.add(geosetAnims);
 //		for (final Bone item : modelViewManager.getModel().sortedIdObjects(Bone.class)) {
@@ -315,30 +315,40 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		for (final IdObject object : modelViewManager.getModel().getIdObjects()) {
 			object.apply(converter);
 			final DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(converter.element);
-			nodeToTreeElement.put(object, treeNode);
-			IdObject parent = object.getParent();
-			if (parent == object) {
-				parent = null;
+			for (final AnimFlag flag : object.getAnimFlags()) {
+				final DefaultMutableTreeNode animFlagNode = new DefaultMutableTreeNode(new ChooseableAnimFlagItem(
+						modelViewManager, undoActionListener, modelStructureChangeListener, flag));
+				treeNode.add(animFlagNode);
 			}
-			final DefaultMutableTreeNode parentTreeNode = nodeToTreeElement.get(parent);
-			if (parentTreeNode == null) {
-				List<DefaultMutableTreeNode> awaitingChildrenList = nodeToChildrenAwaitingLink.get(parent);
-				if (awaitingChildrenList == null) {
-					awaitingChildrenList = new ArrayList<>();
-					nodeToChildrenAwaitingLink.put(parent, awaitingChildrenList);
+			if (TREEIFY_NODES) {
+				nodeToTreeElement.put(object, treeNode);
+				IdObject parent = object.getParent();
+				if (parent == object) {
+					parent = null;
 				}
-				awaitingChildrenList.add(treeNode);
+				final DefaultMutableTreeNode parentTreeNode = nodeToTreeElement.get(parent);
+				if (parentTreeNode == null) {
+					List<DefaultMutableTreeNode> awaitingChildrenList = nodeToChildrenAwaitingLink.get(parent);
+					if (awaitingChildrenList == null) {
+						awaitingChildrenList = new ArrayList<>();
+						nodeToChildrenAwaitingLink.put(parent, awaitingChildrenList);
+					}
+					awaitingChildrenList.add(treeNode);
+				}
+				else {
+					parentTreeNode.add(treeNode);
+				}
+				final List<DefaultMutableTreeNode> childrenNeedingLinkToCurrentNode = nodeToChildrenAwaitingLink
+						.get(object);
+				if ((childrenNeedingLinkToCurrentNode != null)
+						&& !Collection.Util.isEmpty(childrenNeedingLinkToCurrentNode)) {
+					for (final DefaultMutableTreeNode child : childrenNeedingLinkToCurrentNode) {
+						treeNode.add(child);
+					}
+				}
 			}
 			else {
-				parentTreeNode.add(treeNode);
-			}
-			final List<DefaultMutableTreeNode> childrenNeedingLinkToCurrentNode = nodeToChildrenAwaitingLink
-					.get(object);
-			if ((childrenNeedingLinkToCurrentNode != null)
-					&& !Collection.Util.isEmpty(childrenNeedingLinkToCurrentNode)) {
-				for (final DefaultMutableTreeNode child : childrenNeedingLinkToCurrentNode) {
-					treeNode.add(child);
-				}
+				nodes.add(treeNode);
 			}
 
 		}
@@ -482,7 +492,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 //	final Image ribbonImage = IconUtils.loadImage("icons/nodes/ribbon" + template + ".png");
 //	final Image collisionImage = IconUtils.loadImage("icons/nodes/collision" + template + ".png");
 
-	private static final class ChooseableModelRoot extends ChooseableDisplayElement<EditableModel> {
+	public static final class ChooseableModelRoot extends ChooseableDisplayElement<EditableModel> {
 		private static final ImageIcon MODEL_ROOT_ICON = new ImageIcon(IconUtils.worldEditStyleIcon(
 				BLPHandler.get().getGameTex("replaceabletextures\\worldeditui\\editor-trigger.blp")));
 
@@ -703,6 +713,94 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		public void mouseExited() {
+		}
+
+	}
+
+	private static final class ChooseableLayerItem extends ChooseableDisplayElement<Layer> {
+		private static final ImageIcon LAYER_ICON = new ImageIcon(RMSIcons.loadNodeImage("bitmap.png"));
+
+		public ChooseableLayerItem(final ModelViewManager modelViewManager, final UndoActionListener undoActionListener,
+				final ModelStructureChangeListener modelStructureChangeListener, final Layer item) {
+			super(LAYER_ICON, modelViewManager, undoActionListener, modelStructureChangeListener, item);
+		}
+
+		@Override
+		protected void select(final Layer item, final ModelViewManager modelViewManager,
+				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
+				final ModelComponentListener listener) {
+			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
+		}
+
+		@Override
+		protected String getName(final Layer item, final ModelViewManager modelViewManager) {
+			return item.getName();
+		}
+
+		@Override
+		public void mouseEntered() {
+		}
+
+		@Override
+		public void mouseExited() {
+		}
+
+	}
+
+	public static final class ChooseableAnimFlagItem extends ChooseableDisplayElement<AnimFlag> {
+		private static final ImageIcon ANIMATION_ICON = new ImageIcon(RMSIcons.loadNodeImage("animation.png"));
+		private static final ImageIcon TRANSLATION_ICON = new ImageIcon(RMSIcons.loadNodeImage("translationTrack.png"));
+		private static final ImageIcon ROTATION_ICON = new ImageIcon(RMSIcons.loadNodeImage("rotationTrack.png"));
+		private static final ImageIcon SCALING_ICON = new ImageIcon(RMSIcons.loadNodeImage("scalingTrack.png"));
+		private static final ImageIcon COLOR_ICON = new ImageIcon(RMSIcons.loadNodeImage("colorTrack.png"));
+		private static final ImageIcon ALPHA_ICON = new ImageIcon(RMSIcons.loadNodeImage("visibilityTrack.png"));
+
+		private static ImageIcon chooseIcon(final AnimFlag item) {
+			switch (item.getName()) {
+			case "Translation":
+				return TRANSLATION_ICON;
+			case "Rotation":
+				return ROTATION_ICON;
+			case "Scaling":
+				return SCALING_ICON;
+			case "Color":
+				return COLOR_ICON;
+			case "Alpha":
+			case "Visibility":
+				return ALPHA_ICON;
+			default:
+				return ANIMATION_ICON;
+			}
+		}
+
+		public ChooseableAnimFlagItem(final ModelViewManager modelViewManager,
+				final UndoActionListener undoActionListener,
+				final ModelStructureChangeListener modelStructureChangeListener, final AnimFlag item) {
+			super(chooseIcon(item), modelViewManager, undoActionListener, modelStructureChangeListener, item);
+		}
+
+		@Override
+		protected void select(final AnimFlag item, final ModelViewManager modelViewManager,
+				final UndoActionListener undoListener, final ModelStructureChangeListener modelStructureChangeListener,
+				final ModelComponentListener listener) {
+//			listener.selected(item, modelViewManager, undoListener, modelStructureChangeListener);
+		}
+
+		@Override
+		protected String getName(final AnimFlag item, final ModelViewManager modelViewManager) {
+			return item.getName() + " Track";
+		}
+
+		@Override
+		public void mouseEntered() {
+		}
+
+		@Override
+		public void mouseExited() {
+		}
+
+		public AnimFlag getFlag() {
+			return item;
 		}
 
 	}
@@ -1245,62 +1343,6 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		public boolean hasSameItem(final ChooseableDisplayElement<?> other) {
 			return (other instanceof ChooseableDummyItem) && ((ChooseableDummyItem) other).name2.equals(name2);
 		}
-	}
-
-	public static interface ModelComponentListener {
-
-		void selectedBlank();
-
-		void selected(EditableModel model);
-
-		void selectedHeaderData(EditableModel model, ModelViewManager modelViewManager, UndoActionListener undoListener,
-				ModelStructureChangeListener modelStructureChangeListener);
-
-		void selectedHeaderComment(Iterable<String> comment);
-
-		void selected(Animation animation, UndoActionListener undoListener,
-				ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(EditableModel model, Integer globalSequence, int globalSequenceId,
-				UndoActionListener undoActionListener, ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(Bitmap texture, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
-				ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(Material material, ModelViewManager modelViewManager, UndoActionListener undoActionListener,
-				ModelStructureChangeListener modelStructureChangeListener);
-
-		void selected(TextureAnim textureAnim);
-
-		void selected(Geoset geoset);
-
-		void selected(GeosetAnim geosetAnim);
-
-		void selected(Bone object);
-
-		void selected(Light light);
-
-		void selected(Helper object);
-
-		void selected(Attachment attachment);
-
-		void selected(ParticleEmitter particleEmitter);
-
-		void selected(ParticleEmitter2 particleEmitter);
-
-		void selected(ParticleEmitterPopcorn popcornFxEmitter);
-
-		void selected(RibbonEmitter particleEmitter);
-
-		void selected(EventObject eventObject);
-
-		void selected(CollisionShape collisionShape);
-
-		void selected(Camera camera);
-
-		void selected(FaceEffect faceEffectsChunk);
-
-		void selected(BindPoseChunk bindPoseChunk);
 	}
 
 	private static final class IdObjectToChooseableElementWrappingConverter implements IdObjectVisitor {

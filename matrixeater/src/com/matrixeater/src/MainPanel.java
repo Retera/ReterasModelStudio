@@ -5884,12 +5884,17 @@ public class MainPanel extends JPanel
 		newGeoset.add(new Triangle(upperRight, lowerRight, lowerLeft));
 		blankTextureModel.add(newGeoset);
 		blankTextureModel.add(new Animation("Stand", 0, 1000));
+		final Camera blpCam = new Camera("Camera01",
+				new Vertex(displayWidth * 2, 0, groundOffset + (displayHeight / 2)),
+				new Vertex(0, 0, groundOffset + (displayHeight / 2)), 0.75f, 1000f, 8f);
+		blankTextureModel.add(blpCam);
 		blankTextureModel.doSavePreps();
 
-		loadModel(workingDirectory == null, true,
-				new ModelPanel(MainPanel.this, blankTextureModel, prefs, MainPanel.this, selectionItemTypeGroup,
-						selectionModeGroup, modelStructureChangeListener, coordDisplayListener, viewportTransferHandler,
-						activeViewportWatcher, RMSIcons.orangeIcon, true, textureExporter));
+		final ModelPanel modelPanel = new ModelPanel(MainPanel.this, blankTextureModel, prefs, MainPanel.this,
+				selectionItemTypeGroup, selectionModeGroup, modelStructureChangeListener, coordDisplayListener,
+				viewportTransferHandler, activeViewportWatcher, RMSIcons.orangeIcon, true, textureExporter);
+		loadModel(workingDirectory == null, true, modelPanel);
+		modelPanel.getCameraController().setCurrentCamera(blpCam);
 	}
 
 	public void loadModel(final boolean temporary, final boolean selectNewTab, final ModelPanel temp) {
