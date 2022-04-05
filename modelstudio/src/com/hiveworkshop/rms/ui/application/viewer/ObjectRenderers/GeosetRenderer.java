@@ -21,6 +21,7 @@ import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -94,33 +95,6 @@ public class GeosetRenderer {
 		renderGeoset(modelView.getHighlightedGeoset(), false, formatVersion, true, renderTextures);
 	}
 
-	//	private void renderGeosets(Iterable<Geoset> geosets, int formatVersion, boolean overriddenColors, boolean renderTextures) {
-//		GL11.glDepthMask(true);
-//		glShadeModel(GL11.GL_FLAT);
-////		glDisable(GL_SHADE_MODEL);
-//		if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
-//			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//		} else if (programPreferences.viewMode() == 0) {
-//			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//		}
-//		if (renderTextures()) {
-//			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-//			glEnable(GL11.GL_TEXTURE_2D);
-////			glEnable(GL_SHADE_MODEL);
-//			glShadeModel(GL_SMOOTH);
-//		}
-//		for (Geoset geo : geosets) {
-//			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
-//				renderGeoset(geo, true, formatVersion, overriddenColors, renderTextures);
-//			}
-//		}
-//		for (Geoset geo : geosets) {
-//			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
-////			if (modelView.getEditableGeosets().contains(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
-//				renderGeoset(geo, false, formatVersion, overriddenColors, renderTextures);
-//			}
-//		}
-//	}
 	// ToDo investigate why transparent Geosets don't render when renderTextures is false
 	private void renderGeosets(Iterable<Geoset> geosets, int formatVersion, boolean overriddenColors, boolean renderTextures, boolean wireFrame) {
 		GL11.glDepthMask(true);
@@ -138,12 +112,18 @@ public class GeosetRenderer {
 			GL11.glDepthMask(false);
 		} else {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glEnable(GL_CULL_FACE);
+			glEnable(GL_ALPHA_TEST);
 		}
 		if (texLoaded && renderTextures) {
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 			glEnable(GL11.GL_TEXTURE_2D);
 //			glEnable(GL_SHADE_MODEL);
 			glShadeModel(GL_SMOOTH);
+		} else {
+
+			glDisable(GL_TEXTURE_2D);
+			glShadeModel(GL11.GL_FLAT);
 		}
 		for (Geoset geo : geosets) {
 			if (modelView.shouldRender(geo) || (modelView.getHighlightedGeoset() != geo && overriddenColors)) {
@@ -165,32 +145,25 @@ public class GeosetRenderer {
 		Vec3 renderColor = null;
 		float geosetAnimVisibility = 1;
 		if (geosetAnim != null) {
-			geosetAnimVisibility = geosetAnim.getRenderVisibility(renderEnv);
-			// do not show invisible geosets
+			geosetAnimVisibility = geosetAnim.getRenderVisibility(renderEnv);// do not show invisible geosets
 			if (geosetAnimVisibility < RenderModel.MAGIC_RENDER_SHOW_CONSTANT) {
-//				System.out.println("Wont render");
 				return;
 			}
 			renderColor = geosetAnim.getRenderColor(renderEnv);
 		}
 
 		Material material = geo.getMaterial();
-		for (int i = 0; i < material.getLayers().size(); i++) {
+		List<Layer> layers = material.getLayers();
+		for (int i = 0; i < layers.size(); i++) {
 			if (ModelUtils.isShaderStringSupported(formatVersion)
 					&& (material.getShaderString() != null)
 					&& (material.getShaderString().length() > 0)
 					&& (i > 0)) {
 				break; // HD-materials is not supported
 			}
-			Layer layer = material.getLayers().get(i);
+			Layer layer = layers.get(i);
 
-			boolean opaqueLayer = ((layer.getFilterMode() == FilterMode.NONE) || (layer.getFilterMode() == FilterMode.TRANSPARENT)) && !(!renderTextures && !modelView.isEditable(geo));
-//			if(!modelView.isEditable(geo) && !renderTextures && !renderOpaque && geo.getName().startsWith("Arm2_")){
-//			if(!modelView.isEditable(geo) && (geo.getName().startsWith("Arm2_") || geo.getName().startsWith("Pelvis"))){
-
-//			if(!modelView.isEditable(geo) && !renderOpaque && (geo.getName().contains("Pelvis")) && !renderTextures){
-//				System.out.println("should render geo " + geo.getName() + ": " + (!renderOpaque && !opaqueLayer) + ", has renderGeo: " + renderModel.getRenderGeoset(geo));
-//			}
+			boolean opaqueLayer = isOpaqueLayer(geo, renderTextures, layer);
 
 			if ((renderOpaque && opaqueLayer) || (!renderOpaque && !opaqueLayer)) {
 				if(!modelView.isEditable(geo) && !renderOpaque && (geo.getName().contains("Pelvis")) && !renderTextures){
@@ -212,6 +185,12 @@ public class GeosetRenderer {
 				renderMesh3(geo, layer, renderTextures);
 			}
 		}
+	}
+
+	private boolean isOpaqueLayer(Geoset geo, boolean renderTextures, Layer layer) {
+		boolean notEditable = !modelView.isEditable(geo);
+		boolean dontTexture = !renderTextures;
+		return (layer.getFilterMode() == FilterMode.NONE || layer.getFilterMode() == FilterMode.TRANSPARENT) && !(!renderTextures && !modelView.isEditable(geo));
 	}
 
 	//, boolean renderTextures, boolean wireFrame

@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ public class RenderGeoset {
 	private final RenderModel renderModel;
 	private final Map<GeosetVertex, RenderVert> renderVertexMap = new HashMap<>();
 	private final ArrayList<RenderVert> renderVerts = new ArrayList<>();
+	private final Vec4 renderColor = new Vec4();
 
 //	private Vec3[] vertexBuffer;
 //	private Vec3[] triangleBuffer;
@@ -69,9 +71,24 @@ public class RenderGeoset {
 			renderVert.update(getTransform(renderVert.vertex, forceAnimated));
 		}
 
+		if (geoset.getGeosetAnim() != null) {
+			if (renderModel.getTimeEnvironment().isLive() || forceAnimated) {
+				renderColor.set(geoset.getGeosetAnim().getRenderColor(renderModel.getTimeEnvironment()), geoset.getGeosetAnim().getRenderVisibility(renderModel.getTimeEnvironment()));
+			} else {
+				renderColor.set(geoset.getGeosetAnim().getStaticColor(), (float) geoset.getGeosetAnim().getStaticAlpha());
+			}
+		} else {
+			renderColor.set(1,1,1,1);
+		}
+
 		return this;
 	}
-//	public BiMap<GeosetVertex, RenderVert> updateTransforms(){
+
+	public Vec4 getRenderColor() {
+		return renderColor;
+	}
+
+	//	public BiMap<GeosetVertex, RenderVert> updateTransforms(){
 //		for(RenderVert renderVert : renderVertexMap.valueSet()){
 //			renderVert.update(getTransform(renderVert.vertex));
 //		}

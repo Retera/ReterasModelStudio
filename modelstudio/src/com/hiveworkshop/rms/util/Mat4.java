@@ -679,4 +679,42 @@ public class Mat4 {
 		m33 = v.w * v.w;
 		return this;
 	}
+
+
+	public Mat4 transpose() {
+		float m00 = this.m00;
+		float m01 = this.m10;
+		float m02 = this.m20;
+		float m03 = this.m30;
+		float m10 = this.m01;
+		float m11 = this.m11;
+		float m12 = this.m21;
+		float m13 = this.m31;
+		float m20 = this.m02;
+		float m21 = this.m12;
+		float m22 = this.m22;
+		float m23 = this.m32;
+		float m30 = this.m03;
+		float m31 = this.m13;
+		float m32 = this.m23;
+		float m33 = this.m33;
+
+		this.m00 = m00;
+		this.m01 = m01;
+		this.m02 = m02;
+		this.m03 = m03;
+		this.m10 = m10;
+		this.m11 = m11;
+		this.m12 = m12;
+		this.m13 = m13;
+		this.m20 = m20;
+		this.m21 = m21;
+		this.m22 = m22;
+		this.m23 = m23;
+		this.m30 = m30;
+		this.m31 = m31;
+		this.m32 = m32;
+		this.m33 = m33;
+		return this;
+	}
 }

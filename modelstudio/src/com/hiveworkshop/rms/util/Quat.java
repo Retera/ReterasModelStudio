@@ -529,4 +529,86 @@ public class Quat extends Vec4 {
 		return this;
 	}
 
+	public Quat setFromMatrix(Mat4 m, Quat q) {
+		return q.setFromMat(m.m00, m.m01, m.m02, m.m10, m.m11, m.m12, m.m20, m.m21, m.m22);
+	}
+
+
+	private Quat setFromMat(float m00, float m01, float m02, float m10,
+	                              float m11, float m12, float m20, float m21, float m22) {
+
+		float s;
+		float tr = m00 + m11 + m22;
+		if (tr >= 0.0) {
+			s = (float) Math.sqrt(tr + 1.0);
+			w = s * 0.5f;
+			s = 0.5f / s;
+			x = (m21 - m12) * s;
+			y = (m02 - m20) * s;
+			z = (m10 - m01) * s;
+		} else {
+			float max = Math.max(Math.max(m00, m11), m22);
+			if (max == m00) {
+				s = (float) Math.sqrt(m00 - (m11 + m22) + 1.0);
+				x = s * 0.5f;
+				s = 0.5f / s;
+				y = (m01 + m10) * s;
+				z = (m20 + m02) * s;
+				w = (m21 - m12) * s;
+			} else if (max == m11) {
+				s = (float) Math.sqrt(m11 - (m22 + m00) + 1.0);
+				y = s * 0.5f;
+				s = 0.5f / s;
+				z = (m12 + m21) * s;
+				x = (m01 + m10) * s;
+				w = (m02 - m20) * s;
+			} else {
+				s = (float) Math.sqrt(m22 - (m00 + m11) + 1.0);
+				z = s * 0.5f;
+				s = 0.5f / s;
+				x = (m20 + m02) * s;
+				y = (m12 + m21) * s;
+				w = (m10 - m01) * s;
+			}
+		}
+		return this;
+	}
+	public Quat setFromMat(Mat4 m) {
+
+		float s;
+		float tr = m.m00 + m.m11 + m.m22;
+		if (tr >= 0.0) {
+			s = (float) Math.sqrt(tr + 1.0);
+			w = s * 0.5f;
+			s = 0.5f / s;
+			x = (m.m21 - m.m12) * s;
+			y = (m.m02 - m.m20) * s;
+			z = (m.m10 - m.m01) * s;
+		} else {
+			float max = Math.max(Math.max(m.m00, m.m11), m.m22);
+			if (max == m.m00) {
+				s = (float) Math.sqrt(m.m00 - (m.m11 + m.m22) + 1.0);
+				x = s * 0.5f;
+				s = 0.5f / s;
+				y = (m.m01 + m.m10) * s;
+				z = (m.m20 + m.m02) * s;
+				w = (m.m21 - m.m12) * s;
+			} else if (max == m.m11) {
+				s = (float) Math.sqrt(m.m11 - (m.m22 + m.m00) + 1.0);
+				y = s * 0.5f;
+				s = 0.5f / s;
+				z = (m.m12 + m.m21) * s;
+				x = (m.m01 + m.m10) * s;
+				w = (m.m02 - m.m20) * s;
+			} else {
+				s = (float) Math.sqrt(m.m22 - (m.m00 + m.m11) + 1.0);
+				z = s * 0.5f;
+				s = 0.5f / s;
+				x = (m.m20 + m.m02) * s;
+				y = (m.m12 + m.m21) * s;
+				w = (m.m10 - m.m01) * s;
+			}
+		}
+		return this;
+	}
 }

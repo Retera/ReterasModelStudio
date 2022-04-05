@@ -2,12 +2,15 @@ package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.GPUReadyTexture;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SimpleDiffuseShaderPipeline;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL13;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -51,6 +54,7 @@ public class TextureThing {
 	}
 
 	public static void bindTexture(Bitmap bitmap, Integer texture) {
+		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, bitmap.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, bitmap.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
@@ -120,6 +124,14 @@ public class TextureThing {
 		} else if (textureMap.size() > 0){
 			bindTexture(tex, 0);
 		}
+	}
+
+	public int getTextureID(Bitmap tex){
+		Integer texture = textureMap.get(tex);
+		if (texture != null) {
+			return texture;
+		}
+		return 0;
 	}
 
 	public void bindLayerTexture(Layer layer, Bitmap tex, int formatVersion, Material parent) {
@@ -194,5 +206,99 @@ public class TextureThing {
 		GL11.glDisable(GL11.GL_ALPHA_TEST);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(sFactor, dFactor);
+	}
+
+
+
+
+
+
+	public void bindLayerTexture(SimpleDiffuseShaderPipeline pipeline, RenderModel renderModel, EditableModel model, int formatVersion, Material material, Layer layer, boolean hdNoMetaDataLayer) {
+		final Bitmap tex = layer.getRenderTexture(renderModel.getTimeEnvironment(), model);
+		final Integer texture = textureMap.get(tex);
+		if (hdNoMetaDataLayer) {
+			bindTexture(pipeline, tex, texture);
+		} else {
+			bindLayer(pipeline, layer, tex, texture, formatVersion, material.getTwoSided());
+		}
+	}
+
+	public void bindLayer(SimpleDiffuseShaderPipeline pipeline, Layer layer, Bitmap tex, Integer texture, int formatVersion, boolean matTwoSided) {
+		bindTexture(pipeline, tex, texture);
+		boolean depthMask = false;
+		switch (layer.getFilterMode()) {
+			case BLEND:
+				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				break;
+			case ADDITIVE:
+			case ADDALPHA:
+				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+				break;
+			case MODULATE:
+				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_ZERO, GL11.GL_SRC_COLOR);
+				break;
+			case MODULATE2X:
+				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
+				break;
+			case NONE:
+				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+				GL11.glDisable(GL11.GL_BLEND);
+				depthMask = true;
+				break;
+			case TRANSPARENT:
+				pipeline.glEnableIfNeeded(GL11.GL_ALPHA_TEST);
+				GL11.glAlphaFunc(GL11.GL_GREATER, 0.75f);
+				GL11.glDisable(GL11.GL_BLEND);
+				depthMask = true;
+				break;
+		}
+		if (layer.getTwoSided() || ((ModelUtils.isShaderStringSupported(formatVersion)) && matTwoSided)) {
+			GL11.glDisable(GL11.GL_CULL_FACE);
+		}
+		else {
+			GL11.glEnable(GL11.GL_CULL_FACE);
+		}
+		if (layer.getNoDepthTest()) {
+			GL11.glDisable(GL11.GL_DEPTH_TEST);
+		}
+		else {
+			GL11.glEnable(GL11.GL_DEPTH_TEST);
+		}
+		if (layer.getNoDepthSet()) {
+			GL11.glDepthMask(false);
+		}
+		else {
+			GL11.glDepthMask(depthMask);
+		}
+//		GL11.glColorMask(layer.getFilterMode() == FilterMode.ADDITIVE, layer.getFilterMode() == FilterMode.ADDITIVE,
+//				layer.getFilterMode() == FilterMode.ADDITIVE, layer.getFilterMode() == FilterMode.ADDITIVE);
+		if (layer.getUnshaded()) {
+			pipeline.glDisableIfNeeded(GL11.GL_LIGHTING);
+		}
+		else {
+			pipeline.glEnableIfNeeded(GL11.GL_LIGHTING);
+		}
+	}
+
+	public void bindTexture(SimpleDiffuseShaderPipeline pipeline, Bitmap tex, Integer texture) {
+		pipeline.prepareToBindTexture();
+		if (texture != null) {
+			// texture.bind();
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+		} else if (textureMap.size() > 0) {
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+		}
 	}
 }

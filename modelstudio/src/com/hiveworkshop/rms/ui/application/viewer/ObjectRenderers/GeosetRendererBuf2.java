@@ -22,7 +22,7 @@ import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class GeosetRendererBuf {
+public class GeosetRendererBuf2 {
 	private final ProgramPreferences programPreferences;
 	private CameraHandler cameraHandler;
 	private final VertRendererThingBuf vertRendererThing;
@@ -39,11 +39,11 @@ public class GeosetRendererBuf {
 
 	VertexBuffers vertexBuffers = new VertexBuffers();
 
-	ShaderThing shaderThing = new ShaderThing();
+//	ShaderThing shaderThing = new ShaderThing();
 //	VertexBuffers dotBuffers = new VertexBuffers();
 
 	boolean texLoaded = true;
-	public GeosetRendererBuf(CameraHandler cameraHandler, ProgramPreferences programPreferences){
+	public GeosetRendererBuf2(CameraHandler cameraHandler, ProgramPreferences programPreferences){
 		this.cameraHandler = cameraHandler;
 		this.programPreferences = programPreferences;
 		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
@@ -58,13 +58,13 @@ public class GeosetRendererBuf {
 
 	public void initShaderThing() {
 		try {
-			shaderThing.init();
+//			shaderThing.init();
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
 	}
 
-	public GeosetRendererBuf updateModel(RenderModel renderModel, ModelView modelView, TextureThing textureThing) {
+	public GeosetRendererBuf2 updateModel(RenderModel renderModel, ModelView modelView, TextureThing textureThing) {
 		this.renderModel = renderModel;
 		if(renderModel != null){
 			renderEnv = renderModel.getTimeEnvironment();
@@ -78,44 +78,44 @@ public class GeosetRendererBuf {
 		return this;
 	}
 
-	public GeosetRendererBuf doRender(boolean renderTextures, boolean wireFrame, boolean showNormals, boolean show3dVerts){
+	public GeosetRendererBuf2 doRender(SimpleDiffuseShaderPipeline pipeline, boolean renderTextures, boolean wireFrame, boolean showNormals, boolean show3dVerts){
 		vertexBuffers.resetIndex();
 		int formatVersion = modelView.getModel().getFormatVersion();
 
 		for (Geoset geo : modelView.getVisibleGeosets()) {
-			System.out.println("rendering geoset: " + geo);
-			if(modelView.getHighlightedGeoset() == geo){
-				drawHighlightedGeosets(formatVersion, renderTextures);
-			} else {
-				renderGeoset1(geo, formatVersion, renderTextures, wireFrame);
-			}
-			System.out.println("rendered geoset: " + geo + "!!");
+//			System.out.println("rendering geoset: " + geo);
+//			if(modelView.getHighlightedGeoset() == geo){
+//				drawHighlightedGeosets(formatVersion, renderTextures);
+//			} else {
+//			}
+			renderGeoset1(geo, pipeline, formatVersion, renderTextures, wireFrame);
+//			System.out.println("rendered geoset: " + geo + "!!");
 
-			if (showNormals) {
-				glDepthMask(true);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-				glDisable(GL_TEXTURE_2D);
-				renderNormals(geo, formatVersion);
-				shaderThing.glDisableIfNeeded(GL_TEXTURE_2D);
-			}
-			if (show3dVerts) {
-				GL11.glDepthMask(true);
-				GL11.glDepthMask(true);
-				GL11.glEnable(GL11.GL_CULL_FACE);
-
-				glDisable(GL_ALPHA_TEST);
-				glDisable(GL_TEXTURE_2D);
-				glDisable(GL_SHADE_MODEL);
-				shaderThing.glDisableIfNeeded(GL_ALPHA_TEST);
-				shaderThing.glDisableIfNeeded(GL_TEXTURE_2D);
-				shaderThing.glDisableIfNeeded(GL_SHADE_MODEL);
-//				disableGlThings(GL_ALPHA_TEST, GL_TEXTURE_2D, GL_SHADE_MODEL);
-				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-				GL11.glEnable(GL11.GL_BLEND);
-				shaderThing.glEnableIfNeeded(GL11.GL_BLEND);
-				renderVertDots(geo, formatVersion);
-			}
+//			if (showNormals) {
+//				glDepthMask(true);
+//				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//				glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+//				glDisable(GL_TEXTURE_2D);
+//				renderNormals(geo, formatVersion);
+//				shaderThing.glDisableIfNeeded(GL_TEXTURE_2D);
+//			}
+//			if (show3dVerts) {
+//				GL11.glDepthMask(true);
+//				GL11.glDepthMask(true);
+//				GL11.glEnable(GL11.GL_CULL_FACE);
+//
+//				glDisable(GL_ALPHA_TEST);
+//				glDisable(GL_TEXTURE_2D);
+//				glDisable(GL_SHADE_MODEL);
+//				shaderThing.glDisableIfNeeded(GL_ALPHA_TEST);
+//				shaderThing.glDisableIfNeeded(GL_TEXTURE_2D);
+//				shaderThing.glDisableIfNeeded(GL_SHADE_MODEL);
+////				disableGlThings(GL_ALPHA_TEST, GL_TEXTURE_2D, GL_SHADE_MODEL);
+//				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+//				GL11.glEnable(GL11.GL_BLEND);
+//				shaderThing.glEnableIfNeeded(GL11.GL_BLEND);
+//				renderVertDots(geo, formatVersion);
+//			}
 		}
 		return this;
 	}
@@ -123,59 +123,41 @@ public class GeosetRendererBuf {
 	private void drawHighlightedGeosets(int formatVersion, boolean renderTextures) {
 		GL11.glDepthMask(true);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		shaderThing.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+//		shaderThing.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		if (programPreferences != null && programPreferences.getHighlighTriangleColor() != null) {
 			final Color highlightTriangleColor = programPreferences.getHighlighTriangleColor();
 			glColor3f(highlightTriangleColor.getRed() / 255f, highlightTriangleColor.getGreen() / 255f, highlightTriangleColor.getBlue() / 255f);
 		} else {
 			glColor3f(1f, 3f, 1f);
 		}
-		renderGeoset(modelView.getHighlightedGeoset(), formatVersion, true, renderTextures, false);
+//		renderGeoset(modelView.getHighlightedGeoset(), formatVersion, true, renderTextures, false);
 	}
 
 	// ToDo investigate why transparent Geosets don't render when renderTextures is false
-	private void renderGeoset1(Geoset geo, int formatVersion, boolean renderTextures, boolean wireFrame) {
-		GL11.glDepthMask(true);
-		glShadeModel(GL11.GL_FLAT);
+	private void renderGeoset1(Geoset geo, SimpleDiffuseShaderPipeline pipeline, int formatVersion, boolean renderTextures, boolean wireFrame) {
+
 
 		if (wireFrame) {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			glDisable(GL_CULL_FACE);
-			glDisable(GL_ALPHA_TEST);
-//			glDisable(GL_TEXTURE_2D);
-			shaderThing.glDisableIfNeeded(GL_CULL_FACE);
-			shaderThing.glDisableIfNeeded(GL_ALPHA_TEST);
-//			shaderThing.glDisableIfNeeded(GL_TEXTURE_2D);
-//			GL11.glEnable(GL11.GL_BLEND);
-//			shaderThing.glEnableIfNeeded(GL11.GL_BLEND);
+			pipeline.glDisableIfNeeded(GL_CULL_FACE);
+			pipeline.glDisableIfNeeded(GL_ALPHA_TEST);
 			GL11.glDepthMask(false);
 		} else {
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			glEnable(GL_CULL_FACE);
-			glEnable(GL_ALPHA_TEST);
-//			glDisable(GL_TEXTURE_2D);
-			shaderThing.glEnableIfNeeded(GL_CULL_FACE);
-			shaderThing.glEnableIfNeeded(GL_ALPHA_TEST);
+			pipeline.glEnableIfNeeded(GL_CULL_FACE);
+			pipeline.glEnableIfNeeded(GL_ALPHA_TEST);
 		}
 		if (texLoaded && renderTextures) {
-			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-			glShadeModel(GL_SMOOTH);
-			GL11.glEnable(GL11.GL_BLEND);
-			shaderThing.glEnableIfNeeded(GL11.GL_BLEND);
-			glEnable(GL11.GL_TEXTURE_2D);
-			shaderThing.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
+			pipeline.glEnableIfNeeded(GL11.GL_BLEND);
+			pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
 		} else {
-			GL11.glDisable(GL11.GL_BLEND);
-			shaderThing.glDisableIfNeeded(GL11.GL_BLEND);
-			glDisable(GL_TEXTURE_2D);
-			shaderThing.glDisableIfNeeded(GL_TEXTURE_2D);
+			pipeline.glDisableIfNeeded(GL11.GL_BLEND);
+			pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
 		}
 		if (modelView.shouldRender(geo)) {
-			renderGeoset(geo, formatVersion, false, renderTextures, wireFrame);
+			renderGeoset(geo, pipeline, formatVersion, false, renderTextures, wireFrame);
 		}
 	}
 
-	private void renderGeoset(Geoset geo, int formatVersion, boolean overriddenColors, boolean renderTextures, boolean wireFrame) {
+	private void renderGeoset(Geoset geo, SimpleDiffuseShaderPipeline pipeline, int formatVersion, boolean overriddenColors, boolean renderTextures, boolean wireFrame) {
 		if (!correctLoD(geo, formatVersion) || geo.getVertices().isEmpty()) return;
 
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
@@ -189,17 +171,14 @@ public class GeosetRendererBuf {
 
 			if (overriddenColors) {
 				resetColorsA(1f);
-				GL11.glDisable(GL11.GL_ALPHA_TEST);
-				shaderThing.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 			} else {
-//				getStandardColors(renderColor, layer.getRenderVisibility(renderEnv), layer.getFilterMode());
 				getStandardColors(renderColor, 1, FilterMode.TRANSPARENT);
 			}
 
-//			Mat4 uvTransform = getUVTransform(layer);
 			Mat4 uvTransform = this.uvTransform.setIdentity();
-			vertexBuffers.resetIndex();
-			vertexBuffers.ensureCapacity(geo.getTriangles().size() * 3);
+//			vertexBuffers.resetIndex();
+//			vertexBuffers.ensureCapacity(geo.getTriangles().size() * 3);
 
 			int renderedVertices = 0;
 			float[] color;
@@ -221,7 +200,11 @@ public class GeosetRendererBuf {
 						Vec3 renderNorm = renderVert.getRenderNorm();
 
 						Vec2 texcoord = getUV(0, vertex, uvTransform);
-						vertexBuffers.setMultiple(renderPos, renderNorm, texcoord, color);
+						pipeline.glVertex3f(renderPos);
+						pipeline.glNormal3f(renderNorm);
+						pipeline.glTexCoord2f(texcoord);
+						pipeline.glColor4f(color);
+//						vertexBuffers.setMultiple(renderPos, renderNorm, texcoord, color);
 						renderedVertices++;
 					}
 				}
@@ -243,86 +226,86 @@ public class GeosetRendererBuf {
 
 				if (overriddenColors) {
 					resetColorsA(1f);
-					GL11.glDisable(GL11.GL_ALPHA_TEST);
+//					GL11.glDisable(GL11.GL_ALPHA_TEST);
 				} else {
 					getStandardColors(renderColor, layer.getRenderVisibility(renderEnv), layer.getFilterMode());
 				}
 
 
-				if(renderTextures){
-					uvTransform = getUVTransform(layer);
-					int renderedTVs = 0;
-					for (Triangle tri : geo.getTriangles()) {
-						GeosetVertex[] verts = tri.getVerts();
-						if (!modelView.isHidden(verts[0]) && !modelView.isHidden(verts[1]) && !modelView.isHidden(verts[2])) {
-							color = rgba;
-							for(GeosetVertex vertex : tri.getVerts()){
+//				if(renderTextures){
+//					uvTransform = getUVTransform(layer);
+//					int renderedTVs = 0;
+//					for (Triangle tri : geo.getTriangles()) {
+//						GeosetVertex[] verts = tri.getVerts();
+//						if (!modelView.isHidden(verts[0]) && !modelView.isHidden(verts[1]) && !modelView.isHidden(verts[2])) {
+//							color = rgba;
+//							for(GeosetVertex vertex : tri.getVerts()){
+//
+//								if(layer.getTextureAnim() != null){
+//									Vec2 texcoord = getUV(layer.getCoordId(), vertex, uvTransform);
+//									vertexBuffers.setTexCoordAlt(renderedTVs, texcoord);
+//								}
+//								vertexBuffers.setColorRGBA(renderedTVs, color);
+//								renderedTVs++;
+//							}
+//						}
+//					}
+//
+//				}
 
-								if(layer.getTextureAnim() != null){
-									Vec2 texcoord = getUV(layer.getCoordId(), vertex, uvTransform);
-									vertexBuffers.setTexCoordAlt(renderedTVs, texcoord);
-								}
-								vertexBuffers.setColorRGBA(renderedTVs, color);
-								renderedTVs++;
-							}
-						}
-					}
-
-				}
-
-				System.out.println("starting setting states");
-
-				glEnableClientState(GL_VERTEX_ARRAY);
-				glEnableClientState(GL_NORMAL_ARRAY);
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				glEnableClientState(GL_COLOR_ARRAY);
-
-				System.out.println("starting binding");
-
-				shaderThing.start(textureThing.getTextureID(bitmap));
-//				GL20.glVertexAttribPointer(0, 3, false, 0, vertexBuffers.getPositions());
-				shaderThing.bindPos(vertexBuffers.getPositions());
-//				GL20.glVertexAttribPointer(1, 3, false, 0, vertexBuffers.getNormals());
-				shaderThing.bindNorm(vertexBuffers.getNormals());
-//				glNormalPointer(0, vertexBuffers.getNormals());
-
-				if(renderTextures && layer.getTextureAnim() != null){
-//					GL20.glVertexAttribPointer(2, 2, false, 0, vertexBuffers.getTexCoordsAlt());
-					shaderThing.bindTexture(vertexBuffers.getTexCoordsAlt());
-//					glTexCoordPointer(2, 0, vertexBuffers.getTexCoordsAlt());
-				} else {
-//					GL20.glVertexAttribPointer(2, 2, false, 0, vertexBuffers.getTexCoords());
-					shaderThing.bindTexture(vertexBuffers.getTexCoords());
-//					glTexCoordPointer(2, 0, vertexBuffers.getTexCoords());
-				}
-
-				shaderThing.bindColor(vertexBuffers.getColors());
-//				GL20.glVertexAttribPointer(3, 4, false, 0, vertexBuffers.getColors());
-
-
-
-//				glVertexPointer(3, 0, vertexBuffers.getPositions());
-//				glNormalPointer(0, vertexBuffers.getNormals());
+//				System.out.println("starting setting states");
+//
+//				glEnableClientState(GL_VERTEX_ARRAY);
+//				glEnableClientState(GL_NORMAL_ARRAY);
+//				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//				glEnableClientState(GL_COLOR_ARRAY);
+//
+//				System.out.println("starting binding");
+//
+//				shaderThing.start(textureThing.getTextureID(bitmap));
+////				GL20.glVertexAttribPointer(0, 3, false, 0, vertexBuffers.getPositions());
+//				shaderThing.bindPos(vertexBuffers.getPositions());
+////				GL20.glVertexAttribPointer(1, 3, false, 0, vertexBuffers.getNormals());
+//				shaderThing.bindNorm(vertexBuffers.getNormals());
+////				glNormalPointer(0, vertexBuffers.getNormals());
 //
 //				if(renderTextures && layer.getTextureAnim() != null){
-//					glTexCoordPointer(2, 0, vertexBuffers.getTexCoordsAlt());
+////					GL20.glVertexAttribPointer(2, 2, false, 0, vertexBuffers.getTexCoordsAlt());
+//					shaderThing.bindTexture(vertexBuffers.getTexCoordsAlt());
+////					glTexCoordPointer(2, 0, vertexBuffers.getTexCoordsAlt());
 //				} else {
-//					glTexCoordPointer(2, 0, vertexBuffers.getTexCoords());
+////					GL20.glVertexAttribPointer(2, 2, false, 0, vertexBuffers.getTexCoords());
+//					shaderThing.bindTexture(vertexBuffers.getTexCoords());
+////					glTexCoordPointer(2, 0, vertexBuffers.getTexCoords());
 //				}
 //
-//				glColorPointer(4, 0, vertexBuffers.getColors());
-				System.out.println("starting painting");
-				glDrawArrays(GL_TRIANGLES, 0, renderedVertices);
-				System.out.println("done painting");
-				System.out.println("ending shader");
-				shaderThing.end();
-
-
-				glDisableClientState(GL_VERTEX_ARRAY);
-				glDisableClientState(GL_NORMAL_ARRAY);
-				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				glDisableClientState(GL_COLOR_ARRAY);
-				System.out.println("disabled states");
+//				shaderThing.bindColor(vertexBuffers.getColors());
+////				GL20.glVertexAttribPointer(3, 4, false, 0, vertexBuffers.getColors());
+//
+//
+//
+////				glVertexPointer(3, 0, vertexBuffers.getPositions());
+////				glNormalPointer(0, vertexBuffers.getNormals());
+////
+////				if(renderTextures && layer.getTextureAnim() != null){
+////					glTexCoordPointer(2, 0, vertexBuffers.getTexCoordsAlt());
+////				} else {
+////					glTexCoordPointer(2, 0, vertexBuffers.getTexCoords());
+////				}
+////
+////				glColorPointer(4, 0, vertexBuffers.getColors());
+//				System.out.println("starting painting");
+//				glDrawArrays(GL_TRIANGLES, 0, renderedVertices);
+//				System.out.println("done painting");
+//				System.out.println("ending shader");
+//				shaderThing.end();
+//
+//
+//				glDisableClientState(GL_VERTEX_ARRAY);
+//				glDisableClientState(GL_NORMAL_ARRAY);
+//				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//				glDisableClientState(GL_COLOR_ARRAY);
+//				System.out.println("disabled states");
 			}
 		}
 	}

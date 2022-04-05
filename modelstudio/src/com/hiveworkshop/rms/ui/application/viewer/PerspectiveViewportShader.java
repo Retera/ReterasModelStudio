@@ -24,7 +24,7 @@ import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class PerspectiveViewport extends BetterAWTGLCanvas {
+public class PerspectiveViewportShader extends BetterAWTGLCanvas {
 	private RenderModel renderModel;
 	private ModelView modelView;
 	private TimeEnvironmentImpl renderEnv;
@@ -61,13 +61,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 	VertexBuffers idObjectBuffers = new VertexBuffers();
 
-	private final GeosetRenderer geosetRenderer;
-	private final GeosetRendererBuf geosetRendererBuf;
+	private final GeosetRendererBuf2 geosetRendererBuf;
 
 	ExtLog currentExt = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 
-	public PerspectiveViewport() throws LWJGLException {
+	SimpleDiffuseShaderPipeline pipeline;
+	ViewerCamera viewerCamera;
+
+	public PerspectiveViewportShader() throws LWJGLException {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();
 		cameraHandler = new CameraHandler(this);
@@ -76,8 +78,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		cameraRenderThing = new CameraRenderThing();
 		gridPainter = new GridPainter(cameraHandler);
 
-		geosetRenderer = new GeosetRenderer(cameraHandler, programPreferences);
-		geosetRendererBuf = new GeosetRendererBuf(cameraHandler, programPreferences);
+		geosetRendererBuf = new GeosetRendererBuf2(cameraHandler, programPreferences);
+		viewerCamera = new ViewerCamera();
 
 		mouseAdapter = new MouseListenerThing(cameraHandler, programPreferences);
 		addMouseListener(mouseAdapter);
@@ -101,13 +103,15 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 //		Timer clickTimer = new Timer(16, e -> cameraHandler.clickTimerAction());
 	}
 
-	public PerspectiveViewport setModel(ModelView modelView, RenderModel renderModel, boolean loadDefaultCamera) {
+	public PerspectiveViewportShader setModel(ModelView modelView, RenderModel renderModel, boolean loadDefaultCamera) {
 		this.renderModel = renderModel;
 		if(renderModel != null){
 			this.modelView = modelView;
 			EditableModel model = modelView.getModel();
 			textureThing = new TextureThing(model, programPreferences);
 			renderEnv = renderModel.getTimeEnvironment();
+
+
 
 			modelExtent.set(model.getExtents());
 			if (loadDefaultCamera) {
@@ -117,33 +121,36 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 			this.renderModel.setCameraHandler(cameraHandler);
 			this.renderModel.refreshFromEditor(textureThing);
+
+
+			viewerCamera.setLocation(cameraHandler.getCameraPos());
+			viewerCamera.face(Vec3.ZERO, Vec3.Z_AXIS);
 //			forceReloadTextures();
 			texLoaded = false;
 		} else {
 			renderEnv = null;
 		}
-//		geosetRenderer.updateModel(renderModel, modelView, textureThing);
 		geosetRendererBuf.updateModel(renderModel, modelView, textureThing);
 		return this;
 	}
 
 
-	public PerspectiveViewport setRenderTextures(boolean renderTextures) {
+	public PerspectiveViewportShader setRenderTextures(boolean renderTextures) {
 		this.renderTextures = renderTextures;
 		return this;
 	}
 
-	public PerspectiveViewport setWireFrame(boolean wireFrame) {
+	public PerspectiveViewportShader setWireFrame(boolean wireFrame) {
 		this.wireFrame = wireFrame;
 		return this;
 	}
 
-	public PerspectiveViewport setShowNormals(boolean showNormals) {
+	public PerspectiveViewportShader setShowNormals(boolean showNormals) {
 		this.showNormals = showNormals;
 		return this;
 	}
 
-	public PerspectiveViewport setShow3dVerts(boolean show3dVerts) {
+	public PerspectiveViewportShader setShow3dVerts(boolean show3dVerts) {
 		this.show3dVerts = show3dVerts;
 		return this;
 	}
@@ -163,17 +170,17 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		return mouseAdapter;
 	}
 
-	public PerspectiveViewport setAllowRotation(boolean allow) {
+	public PerspectiveViewportShader setAllowRotation(boolean allow) {
 		cameraHandler.setAllowRotation(allow);
 		return this;
 	}
 
-	public PerspectiveViewport setAllowToggleOrtho(boolean allow) {
+	public PerspectiveViewportShader setAllowToggleOrtho(boolean allow) {
 		cameraHandler.setAllowToggleOrtho(allow);
 		return this;
 	}
 
-	public PerspectiveViewport toggleOrtho() {
+	public PerspectiveViewportShader toggleOrtho() {
 		cameraHandler.toggleOrtho();
 		return this;
 	}
@@ -219,7 +226,10 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	public void initGL() {
 		try {
 			System.out.println("initing GL");
-			geosetRendererBuf.initShaderThing();
+
+			pipeline = new SimpleDiffuseShaderPipeline();
+			pipeline.onGlobalPipelineSet();
+//			geosetRendererBuf.initShaderThing();
 			if ((programPreferences == null) || programPreferences.textureModels()) {
 				forceReloadTextures();
 			}
@@ -247,7 +257,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private boolean hasReloadedRenderModel = false;
 	public void paintGL(final boolean autoRepainting) {
 		setSize(getParent().getSize());
-
+//		viewerCamera.viewport(this.getX(), this.getY(), this.getWidth(), this.getHeight());
+		viewerCamera.viewport(0, 0, this.getWidth(), this.getHeight());
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 			System.out.println("not rendering :O");
 			if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 100) {
@@ -257,67 +268,50 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		}
 		reloadIfNeeded();
 		try {
-			System.out.println("painting");
+//			System.out.println("painting");
+//			GL11.glClearColor(0f, 0f, 0.3f, 0f);
 			if (renderModel != null) {
 				hasReloadedRenderModel = false;
 				updateRenderModel();
-				glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
-				enableGlThings(GL_DEPTH_TEST, GL_COLOR_MATERIAL, GL_LIGHTING, GL_LIGHT0, GL_LIGHT1, GL_NORMALIZE);
 
-				GL11.glDepthFunc(GL11.GL_LEQUAL);
-				GL11.glDepthMask(true);
-				if ((programPreferences != null) && (programPreferences.getPerspectiveBackgroundColor() != null)) {
-					float[] colorComponents = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.BACKGROUND_COLOR);
-					glClearColor(colorComponents[0], colorComponents[1], colorComponents[2], autoRepainting ? 1.0f : 1.0f);
-				} else {
-					glClearColor(.3f, .3f, .3f, autoRepainting ? 1.0f : 1.0f);
+				viewerCamera.setLocation(cameraHandler.getCameraPos());
+				viewerCamera.setRotation(cameraHandler.getInverseCameraRotation());
+				viewerCamera.update();
+
+//				if ((programPreferences != null) && (programPreferences.getPerspectiveBackgroundColor() != null)) {
+//					float[] colorComponents = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.BACKGROUND_COLOR);
+//					glClearColor(colorComponents[0], colorComponents[1], colorComponents[2], autoRepainting ? 1.0f : 1.0f);
+//				} else {
+//					glClearColor(.3f, .3f, .3f, autoRepainting ? 1.0f : 1.0f);
+//				}
+				glClearColor(.3f, .3f, .7f, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT);
+				pipeline.glCamera(viewerCamera);
+
+				pipeline.glLoadIdentity();
+				pipeline.gluPerspective(45f, (float) getWidth() / (float) getHeight(), -1.0f, 1.0f);
+				pipeline.glTranslatef(0.0f, 0, 0);
+				pipeline.glRotatef(0.0f, 0.0f, 0, 1f);
+				pipeline.glScalef(0.5f, 0.5f, 0.5f);
+				pipeline.glScalef(0.5f, 0.5f, 0.5f);
+//				pipeline.glScalef(cameraHandler.getZoom());
+				pipeline.glBegin(GL11.GL_TRIANGLES);
+
+
+//				System.out.println("painting geosets!");
+				geosetRendererBuf.doRender(pipeline, renderTextures,  wireFrame,  showNormals,  show3dVerts);
+
+				pipeline.glEnd();
+
+
+				gridPainter.paintGrid();
+				try {
+					swapBuffers();
+				} catch (LWJGLException e) {
+					e.printStackTrace();
 				}
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-//			glMatrixMode(GL_MODELVIEW);
-				glMatrixMode(GL_PROJECTION);
-				glLoadIdentity();
-
-				cameraHandler.setUpCamera();
-
-				FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
-				ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();
-				glLightModel(GL_LIGHT_MODEL_AMBIENT, ambientColor);
-//			addLamp(0.8f, 40.0f, 200.0f, 80.0f, GL_LIGHT0);
-//			addLamp(0.2f, -100.0f, 200.5f, 0.5f, GL_LIGHT1);
-				addLamp(0.8f, 80.0f, 40.0f, 200.0f, GL_LIGHT0);
-				addLamp(0.2f, 0.5f, -100.0f, 200.5f, GL_LIGHT1);
-
-				if (programPreferences != null && programPreferences.showPerspectiveGrid()) {
-					System.out.println("painting grid!");
-					gridPainter.paintGrid();
-				}
-
-//				geosetRenderer.doRender(programPreferences.textureModels(), programPreferences.viewMode() == 0, programPreferences.showNormals(), programPreferences.show3dVerts());
-//				geosetRenderer.doRender(renderTextures,  wireFrame,  showNormals,  show3dVerts);
-				System.out.println("painting geosets!");
-				geosetRendererBuf.doRender(renderTextures,  wireFrame,  showNormals,  show3dVerts);
-
-				if (show3dVerts) {
-					System.out.println("painting nodes!");
-					renderNodeStuff();
-				}
-				if (programPreferences != null && programPreferences.getRenderParticles()) {
-					System.out.println("painting particles!");
-					renderParticles();
-				}
-
-//				drawUglyTestLine();
-
-				System.out.println("painting camera!");
-				cameraMarkerPainter();
-				GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
-				if (autoRepainting) {
-					System.out.println("paintAndUpdate");
-					paintAndUpdate();
-				}
+				repaint();
 			}
-			System.out.println("painted!");
 		} catch (final Throwable e) {
 			paintTimer.stop();
 			if (renderModel != null && !hasReloadedRenderModel) {

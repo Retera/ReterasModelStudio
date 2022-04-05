@@ -25,6 +25,11 @@ public class ImageThingiHelper {
 	}
 
 	public boolean hasBeenModified() {
+		if(path.equals("C:\\Users\\twilac\\AppData\\Local\\Temp\\MatrixEaterExtract\\war3.w3mod\\replaceabletextures\\commandbuttons\\btnpeasant.blp")
+				&& (file == null || !file.exists() || new File(path).lastModified() != lastModified)){
+
+			new Exception().printStackTrace();
+		}
 		return file == null || !file.exists() || new File(path).lastModified() != lastModified;
 	}
 

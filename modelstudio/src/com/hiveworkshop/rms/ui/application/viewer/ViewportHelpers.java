@@ -55,4 +55,44 @@ public class ViewportHelpers {
 		renderEnv.setSequence(defaultAnimation);
 		return defaultAnimation;
 	}
+
+//	public static ExtLog getAnimExt(Sequence sequence){
+//		if(sequence instanceof Animation){
+//			return ((Animation) sequence).getExtents();
+//		}
+//	}
+
+	public static Vec3 getGoodCameraPos(ExtLog extLog, double ry, double rz){
+		Vec3 look = new Vec3(extLog.getMaximumExtent()).add(extLog.getMinimumExtent()).scale(.5f);
+		float length = look.length()*1.3f;
+		System.out.println("look: " + look + ", length: " + length);
+//		look.scale(.5f);
+
+		Vec3 pos = new Vec3(Vec3.X_AXIS).scale(length);
+		float x = pos.x;
+		pos.x = (float) (x*Math.cos(ry));
+		pos.z = (float) (x*Math.sin(ry));
+
+		x = pos.x;
+		pos.x = (float) (x*Math.cos(-rz));
+		pos.y = (float) (x*Math.sin(-rz));
+
+		System.out.println("pos:  " + pos);
+//		pos.scale(100);
+//		pos.add(look);
+//		pos.scale(length).add(look);
+////		pos.multiply(look);
+//
+//
+//
+//		pos.x = (float) (pos.x*Math.cos(-rz));
+//		pos.y = (float) (pos.y*Math.sin(-rz));
+//
+//		pos.x = (float) (pos.x/Math.cos(-ry));
+//		pos.z = (float) (pos.z/Math.sin(-ry));
+
+		System.out.println("pos: " + pos);
+
+		return pos;
+	}
 }

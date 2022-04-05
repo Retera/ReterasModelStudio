@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewUgg;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
@@ -224,7 +223,7 @@ public class WindowHandler2 {
 	public TabWindow getStartupTabWindow() {
 		SplitWindow editingTab = getEditTab();
 
-		DockingWindow viewingTab = getViewTab();
+//		DockingWindow viewingTab = getViewTab();
 
 //		SplitWindow modelTab = new SplitWindow(true, 0.2f, getPlaceholderView("Contents"), getTitledView("Component"));
 		ModelComponentsView modelTab = new ModelComponentsView();
@@ -232,7 +231,8 @@ public class WindowHandler2 {
 		componentBrowserTreeViews.add(modelTab);
 		allViews.add(modelTab);
 
-		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
+		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, modelTab});
+//		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
 
 //        TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, viewingTab, modelTab});
 		traverseAndFix(startupTabWindow);
@@ -276,26 +276,24 @@ public class WindowHandler2 {
 		leftHandTabWindow.setSelectedTab(0);
 
 		DisplayViewUgg front = new DisplayViewUgg("Front");
-		DisplayViewUgg top = new DisplayViewUgg("Top");
-		DisplayViewUgg side = new DisplayViewUgg("Side");
-//		displayPanelViews.add(front);
-//		displayPanelViews.add(top);
-//		displayPanelViews.add(side);
-		allViews.add(front);
-		allViews.add(top);
-		allViews.add(side);
+//		DisplayViewUgg top = new DisplayViewUgg("Top");
+//		DisplayViewUgg side = new DisplayViewUgg("Side");
 
-		PerspectiveViewUgg perspective = new PerspectiveViewUgg();
-//		perspectivePanelViews.add(perspective);
-		allViews.add(perspective);
-		SplitWindow frBt = new SplitWindow(true, front, top);
-		SplitWindow lfPs = new SplitWindow(true, side, perspective);
-		SplitWindow quadView = new SplitWindow(false, frBt, lfPs);
+		allViews.add(front);
+//		allViews.add(top);
+//		allViews.add(side);
+
+//		PerspectiveViewUgg perspective = new PerspectiveViewUgg();
+//		allViews.add(perspective);
+//		SplitWindow frBt = new SplitWindow(true, front, top);
+//		SplitWindow lfPs = new SplitWindow(true, side, perspective);
+//		SplitWindow quadView = new SplitWindow(false, frBt, lfPs);
 
 		ModelingCreatorToolsView creatorView = new ModelingCreatorToolsView();
 		editingToolChooserViews.add(creatorView);
 		allViews.add(creatorView);
-		SplitWindow splitWindow = new SplitWindow(true, 0.2f, leftHandTabWindow, new SplitWindow(true, 0.8f, quadView, creatorView));
+//		SplitWindow splitWindow = new SplitWindow(true, 0.2f, leftHandTabWindow, new SplitWindow(true, 0.8f, quadView, creatorView));
+		SplitWindow splitWindow = new SplitWindow(true, 0.2f, leftHandTabWindow, new SplitWindow(true, 0.8f, front, creatorView));
 
 		TimeSliderView timeSliderView = new TimeSliderView();
 		timeSliders.add(timeSliderView);

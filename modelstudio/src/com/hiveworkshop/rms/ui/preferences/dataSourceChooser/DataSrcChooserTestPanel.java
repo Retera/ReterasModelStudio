@@ -12,7 +12,44 @@ public class DataSrcChooserTestPanel {
 
 
 	public static void main(final String[] args) {
-		setupLookAndFeel("Aluminium");
+//		setupLookAndFeel("Aluminium");
+//		showFrame();
+
+		// range: [-10,10]
+		modToRange( -5);
+		modToRange(-20);
+		modToRange(-10);
+		modToRange( 10);
+		modToRange(-11);
+		modToRange( 11);
+		modToRange(  1);
+		modToRange(  90);
+		modToRange( -90);
+		modToRange(-180);
+		modToRange( 180);
+		modToRange( 270);
+		modToRange(-270);
+		modToRange( 360);
+		modToRange(-360);
+		modToRange( 450);
+		modToRange(-450);
+	}
+
+	private static void modToRange(int input){
+		// range: [-180,180]
+		int rangeMin = -180;
+		int rangeMax = 180;
+		int modValue = rangeMax - rangeMin;
+		int inpAdd = -rangeMin;
+
+//		int adj = (input + inpAdd) % modValue -inpAdd;
+		int adj = (input) % modValue;
+
+		System.out.println(input + "\t->\t" + adj);
+
+	}
+
+	private static void showFrame() {
 		final JFrame dataSourceChooserFrame = new JFrame("DataSourceChooserPanel");
 		dataSourceChooserFrame.setContentPane(new DataSourceChooserPanel(null));
 		dataSourceChooserFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

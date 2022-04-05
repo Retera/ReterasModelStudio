@@ -25,8 +25,10 @@ public class VertexBuffers {
 	private int capacity = 0;
 	private FloatBuffer positions;
 	private FloatBuffer texCoords;
+	private FloatBuffer texCoordsAlt;
 	private FloatBuffer normals;
 	private FloatBuffer colors;
+	private FloatBuffer colorsAlt;
 	private int index = 0;
 
 	public void ensureCapacity(int vertices) {
@@ -34,8 +36,10 @@ public class VertexBuffers {
 			capacity = vertices;
 			positions = ByteBuffer.allocateDirect(vertices * 3 * 4).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer();
 			texCoords = ByteBuffer.allocateDirect(vertices * 2 * 4).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer();
+			texCoordsAlt = ByteBuffer.allocateDirect(vertices * 2 * 4).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer();
 			normals = ByteBuffer.allocateDirect(vertices * 3 * 4).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer();
 			colors = ByteBuffer.allocateDirect(vertices * 4 * 4).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer();
+			colorsAlt = ByteBuffer.allocateDirect(vertices * 4 * 4).order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer();
 		}
 	}
 	public void resetIndex(){
@@ -105,6 +109,30 @@ public class VertexBuffers {
 	}
 	void setTexCoord(int index, Vec2 texCoord) {
 		setTexCoord(index, texCoord.x, texCoord.y);
+	}
+
+	void setTexCoordAlt(float x, float y) {
+		setTexCoordAlt(index, x, y);
+	}
+	void setTexCoordAlt(int index, float x, float y) {
+		int offset = index * 2;
+
+		texCoordsAlt.put(offset + 0, x);
+		texCoordsAlt.put(offset + 1, y);
+	}
+
+	void setTexCoordAlt(float[] texCoord) {
+		setTexCoordAlt(index, texCoord);
+	}
+	void setTexCoordAlt(int index, float[] texCoord) {
+		setTexCoordAlt(index, texCoord[0], texCoord[1]);
+	}
+
+	void setTexCoordAlt(Vec2 texCoord) {
+		setTexCoordAlt(index, texCoord);
+	}
+	void setTexCoordAlt(int index, Vec2 texCoord) {
+		setTexCoordAlt(index, texCoord.x, texCoord.y);
 	}
 
 	void setNormal(float x, float y, float z) {
@@ -177,6 +205,51 @@ public class VertexBuffers {
 		setColorRGBA(index, color.x, color.y, color.z, color.w);
 	}
 
+	void setColorAltRGB(int index, float r, float g, float b) {
+		int offset = index * 3;
+
+		colorsAlt.put(offset + 0, r);
+		colorsAlt.put(offset + 1, g);
+		colorsAlt.put(offset + 2, b);
+	}
+
+	void setColorAltRGB(Vec3 color) {
+		setColorAltRGB(index, color);
+	}
+	void setColorAltRGB(int index, Vec3 color) {
+		setColorAltRGB(index, color.x, color.y, color.z);
+	}
+
+	void setColorAltRGB(float[] color) {setColorAltRGB(index, color);}
+	void setColorAltRGB(int index, float[] color) {
+		setColorAltRGB(index, color[0], color[1], color[2]);
+	}
+
+	void setColorAltRGBA(float r, float g, float b, float a) {
+		setColorAltRGBA(index, r, g, b, a);
+	}
+	void setColorAltRGBA(int index, float r, float g, float b, float a) {
+		int offset = index * 4;
+
+		colorsAlt.put(offset + 0, r);
+		colorsAlt.put(offset + 1, g);
+		colorsAlt.put(offset + 2, b);
+		colorsAlt.put(offset + 3, a);
+	}
+
+	void setColorAltRGBA(float[] color) {
+		setColorAltRGBA(index, color);
+	}
+	void setColorAltRGBA(int index, float[] color) {
+		setColorAltRGBA(index, color[0], color[1], color[2], color[3]);
+	}
+
+	void setColorAltRGBA(Vec4 color) {
+		setColorAltRGBA(index, color);}
+	void setColorAltRGBA(int index, Vec4 color) {
+		setColorAltRGBA(index, color.x, color.y, color.z, color.w);
+	}
+
 	public FloatBuffer getPositions() {
 		return positions.asReadOnlyBuffer();
 	}
@@ -185,12 +258,20 @@ public class VertexBuffers {
 		return texCoords.asReadOnlyBuffer();
 	}
 
+	public FloatBuffer getTexCoordsAlt() {
+		return texCoordsAlt.asReadOnlyBuffer();
+	}
+
 	public FloatBuffer getNormals() {
 		return normals.asReadOnlyBuffer();
 	}
 
 	public FloatBuffer getColors() {
 		return colors.asReadOnlyBuffer();
+	}
+
+	public FloatBuffer getColorsAlt() {
+		return colorsAlt.asReadOnlyBuffer();
 	}
 
 	public int getIndex() {

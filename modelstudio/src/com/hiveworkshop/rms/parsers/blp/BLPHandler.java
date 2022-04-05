@@ -136,15 +136,33 @@ public class BLPHandler {
 		if (dataSource.has(filepath)) {
 			try (final InputStream imageDataStream = dataSource.getResourceAsStream(filepath)) {
 				if (imageDataStream != null) {
+					if(filepath.toLowerCase().contains("peasant")){
+						System.out.println("stream not null! " + dataSource.getClass().getSimpleName() + " has " + filepath);
+					}
 					if (filepath.toLowerCase(Locale.US).endsWith(".tga")) {
 //						return TgaFile.readTGA(filepath, imageDataStream);
 						return new TwiTGAFile(imageDataStream).getAsBufferedImage();
 					} else if (filepath.toLowerCase(Locale.US).endsWith(".blp")) {
+						if(filepath.toLowerCase().contains("peasant")){
+							System.out.println("forceBufferedImagesRGB: " + dataSource.getClass().getSimpleName());
+						}
 						return forceBufferedImagesRGB(ImageIO.read(imageDataStream));
 					} else {
+						if(filepath.toLowerCase().contains("peasant")){
+							System.out.println("read: " + dataSource.getClass().getSimpleName());
+						}
 						return ImageIO.read(imageDataStream);
 					}
+				} else {
+					if(filepath.toLowerCase().contains("peasant")){
+						System.out.println("imageDataStream was null for " + filepath);
+					}
 				}
+			}
+		} else {
+
+			if(filepath.toLowerCase().contains("peasant")){
+				System.out.println("data source " + dataSource.getClass().getSimpleName() + " did not have " + filepath);
 			}
 		}
 		return null;
