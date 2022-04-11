@@ -14,9 +14,9 @@ public class PortraitCameraManager extends CameraManager {
 	}
 
 	public void updateCamera() {
-		vec4Heap.set(1, 0, 0, this.horizontalAngle);
+		vec4Heap.set(1, 0, 0, this.upAngle);
 		upRot.setFromAxisAngle(vec4Heap);
-		vec4Heap.set(0, 0, 1, this.verticalAngle);
+		vec4Heap.set(0, 0, 1, this.sideAngle);
 		sideRot.setFromAxisAngle(vec4Heap);
 		upRot.mulLeft(sideRot);
 //		System.out.println();

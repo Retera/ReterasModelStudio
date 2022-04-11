@@ -178,13 +178,13 @@ public abstract class ShaderPipeline {
 	}
 
 	public void glRotatef(float angle, float axisX, float axisY, float axisZ) {
-		tempVec3.set(axisX, axisY, axisZ);
-		tempVec3.normalize();
-		tempVec4.set(tempVec3.x, tempVec3.y, tempVec3.z, (float) Math.toRadians(angle));
-		tempQuat.setFromAxisAngle(tempVec4);
-		tempQuat.normalize();
-		tempMat4.fromQuat(tempQuat);
-		currentMatrix.mul(tempMat4);
+//		tempVec3.set(axisX, axisY, axisZ);
+//		tempVec3.normalize();
+//		tempVec4.set(tempVec3.x, tempVec3.y, tempVec3.z, (float) Math.toRadians(angle));
+//		tempQuat.setFromAxisAngle(tempVec4);
+//		tempQuat.normalize();
+//		tempMat4.fromQuat(tempQuat);
+//		currentMatrix.mul(tempMat4);
 	}
 
 	public void glCamera(ViewerCamera viewerCamera) {
@@ -195,22 +195,23 @@ public abstract class ShaderPipeline {
 	}
 
 	public void glSetProjectionMatrix(Mat4 projectionMatrix) {
+		currentMatrix.setIdentity();
 		tempMat4.set(projectionMatrix).mul(currentMatrix);
 		currentMatrix.set(tempMat4);
 	}
 
 	public void glScalef(float x, float y, float z) {
-		tempMat4.setIdentity();
-		tempVec3.set(x, y, z);
-		tempMat4.scale(tempVec3);
-		currentMatrix.mul(tempMat4);
+//		tempMat4.setIdentity();
+//		tempVec3.set(x, y, z);
+//		tempMat4.scale(tempVec3);
+//		currentMatrix.mul(tempMat4);
 	}
 
 	public void glTranslatef(float x, float y, float z) {
-		tempMat4.setIdentity();
-		tempVec3.set(x, y, z);
-		tempMat4.translate(tempVec3);
-		currentMatrix.mul(tempMat4);
+//		tempMat4.setIdentity();
+//		tempVec3.set(x, y, z);
+//		tempMat4.translate(tempVec3);
+//		currentMatrix.mul(tempMat4);
 	}
 
 	public void glOrtho(float xMin, float xMax, float yMin,
@@ -219,7 +220,7 @@ public abstract class ShaderPipeline {
 	}
 
 	public void gluPerspective(float fovY, float aspect, float nearClip, float farClip) {
-		currentMatrix.setPerspective((float) Math.toRadians(fovY), aspect, nearClip, farClip);
+//		currentMatrix.setPerspective((float) Math.toRadians(fovY), aspect, nearClip, farClip);
 		// When we are not using fixed function pipeline, notably Perspective cannot be
 		// expressed as a matrix due to the math, so to emulate legacy behavior we will
 		// set a flag and divide by negative Z factor later.

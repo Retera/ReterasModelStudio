@@ -8,6 +8,8 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.blp.GPUReadyTexture;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.viewer.KeylistenerThing;
+import com.hiveworkshop.rms.ui.application.viewer.MouseListenerThing;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.application.viewer.ViewportHelpers;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
@@ -68,8 +70,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	boolean wantReloadAll = false;
 
 	int popupCount = 0;
-//	private final MouseListenerThing mouseAdapter;
-//	private final KeylistenerThing keyAdapter;
+	private MouseListenerThing mouseAdapter;
+	private KeylistenerThing keyAdapter;
 
 	public AnimatedPerspectiveViewport() throws LWJGLException {
 		super();
@@ -89,18 +91,18 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 //		cameraManager = new PortraitCameraManager();
 		cameraManager = new CameraManager(this);
 
-		mouseThingi = new MouseThingi(cameraManager);
-		addMouseListener(mouseThingi);
-		addMouseMotionListener(mouseThingi);
-		addMouseWheelListener(mouseThingi);
+//		mouseThingi = new MouseThingi(cameraManager);
+//		addMouseListener(mouseThingi);
+//		addMouseMotionListener(mouseThingi);
+//		addMouseWheelListener(mouseThingi);
 
-//		mouseAdapter = new MouseListenerThing(cameraManager, programPreferences);
-//		addMouseListener(mouseAdapter);
-//		addMouseMotionListener(mouseAdapter);
-//		addMouseWheelListener(mouseAdapter);
-//		keyAdapter = new KeylistenerThing(cameraManager, programPreferences, null);
-////		keyAdapter = new KeylistenerThing(cameraHandler, programPreferences, this);
-//		addKeyListener(keyAdapter);
+		mouseAdapter = new MouseListenerThing(cameraManager, programPreferences);
+		addMouseListener(mouseAdapter);
+		addMouseMotionListener(mouseAdapter);
+		addMouseWheelListener(mouseAdapter);
+		keyAdapter = new KeylistenerThing(cameraManager, programPreferences, null);
+//		keyAdapter = new KeylistenerThing(cameraHandler, programPreferences, this);
+		addKeyListener(keyAdapter);
 
 		geosetRenderThing = new GeosetRenderThing();
 
@@ -121,12 +123,12 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		return cameraManager;
 	}
 
-	public MouseThingi getMouseListenerThing() {
-		return mouseThingi;
-	}
-//	public MouseListenerThing getMouseListenerThing() {
-//		return mouseAdapter;
+//	public MouseThingi getMouseListenerThing() {
+//		return mouseThingi;
 //	}
+	public MouseListenerThing getMouseListenerThing() {
+		return mouseAdapter;
+	}
 
 	public CameraManager getPortraitCameraManager() {
 		return cameraManager;
@@ -163,7 +165,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			renderEnv = null;
 			modelView = null;
 		}
-		cameraManager.viewport(0, 0, getWidth() * xRatio, getHeight() * yRatio);
+//		cameraManager.viewport(0, 0, getWidth() * xRatio, getHeight() * yRatio);
 		cameraManager.setOrtho(true);
 		geosetRenderThing.setModel(renderModel, modelView, textureThing);
 	}
@@ -300,7 +302,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			} else if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
 				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 			}
-			pipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
+//			pipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
+			pipeline.glViewport(0, 0, (int) (getWidth()), (int) (getHeight()));
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
 
 			GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -343,6 +346,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 			if (showNormals) {
 				normPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+//				normPipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
 				normPipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
 				normPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 				normPipeline.glMatrixMode(GL11.GL_PROJECTION);
@@ -355,7 +359,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			}
 			if (show3dVerts) {
 				vertPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-				vertPipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
+//				vertPipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
+				vertPipeline.glViewport(0, 0, (int) (getWidth()), (int) (getHeight()));
 				vertPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 				vertPipeline.glMatrixMode(GL11.GL_PROJECTION);
 				vertPipeline.glLoadIdentity();

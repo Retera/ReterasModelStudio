@@ -210,7 +210,7 @@ public class CameraHandler {
 		}
 	}
 
-	public void rot(float rx, float ry, float rz) {
+	public void rot(double rx, double ry, double rz) {
 		xAngle += rx;
 		yAngle += ry;
 		zAngle += rz;

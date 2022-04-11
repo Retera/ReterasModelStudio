@@ -717,4 +717,28 @@ public class Mat4 {
 		this.m33 = m33;
 		return this;
 	}
+
+	public Mat4 set(Vec3 right, Vec3 up, Vec3 dir){
+		setIdentity();
+//		m00 = right.x;
+//		m01 = right.y;
+//		m02 = right.z;
+//		m10 = up.x;
+//		m11 = up.y;
+//		m12 = up.z;
+//		m20 = dir.x;
+//		m21 = dir.y;
+//		m22 = dir.z;
+		m00 = right.x;
+		m10 = right.y;
+		m20 = right.z;
+		m01 = up.x;
+		m11 = up.y;
+		m21 = up.z;
+		m02 = dir.x;
+		m12 = dir.y;
+		m22 = dir.z;
+
+		return this;
+	}
 }

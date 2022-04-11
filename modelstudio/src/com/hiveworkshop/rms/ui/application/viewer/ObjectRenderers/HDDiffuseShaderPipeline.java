@@ -74,6 +74,23 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "u_viewportSize"), viewportWidth, viewportHeight);
 		GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelTeamColor"), fresnelTeamColor);
 		GL20.glUniform4f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelColor"), fresnelColor.x, fresnelColor.y, fresnelColor.z, fresnelOpacity);
+		fillPipelineMatrixBuffer();
+		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false, pipelineMatrixBuffer);
+
+
+		GL11.glDrawArrays(glBeginType, 0, vertexCount);
+		vertexCount = 0;
+		uvCount = 0;
+		normalCount = 0;
+		colorCount = 0;
+		fresnelColorCount = 0;
+		tangentCount = 0;
+		pipelineVertexBuffer.clear();
+		textureUnit = 0;
+		GL20.glUseProgram(0);
+	}
+
+	private void fillPipelineMatrixBuffer() {
 		pipelineMatrixBuffer.clear();
 		pipelineMatrixBuffer.put(currentMatrix.m00);
 		pipelineMatrixBuffer.put(currentMatrix.m01);
@@ -92,19 +109,6 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		pipelineMatrixBuffer.put(currentMatrix.m32);
 		pipelineMatrixBuffer.put(currentMatrix.m33);
 		pipelineMatrixBuffer.flip();
-		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false, pipelineMatrixBuffer);
-
-
-		GL11.glDrawArrays(glBeginType, 0, vertexCount);
-		vertexCount = 0;
-		uvCount = 0;
-		normalCount = 0;
-		colorCount = 0;
-		fresnelColorCount = 0;
-		tangentCount = 0;
-		pipelineVertexBuffer.clear();
-		textureUnit = 0;
-		GL20.glUseProgram(0);
 	}
 
 	public void glEnableIfNeeded(int glEnum) {
@@ -150,10 +154,6 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres){
 		int baseOffset = vertexCount * STRIDE;
 		ensureCapacity(baseOffset + STRIDE);
-//		position.set(pos, 1).transform(currentMatrix);
-//		normal.set(norm).transform(0f, currentMatrix).normalize();
-//		tangent.set(tang).transform(currentMatrix, 0f).normalizeAsV3();
-//		color.set(col);
 		position.set(pos, 1);
 		normal.set(norm).normalize();
 		tangent.set(tang).normalizeAsV3();

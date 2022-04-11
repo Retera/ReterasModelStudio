@@ -183,14 +183,12 @@ public class ViewerCamera {
 	public static void setToLookAt(Mat4 out, Vec3 location, Vec3 point, Vec3 worldUp) {
 		tempVec.set(point).sub(location).normalize();
 		tempVecZ.set(tempVec);
-		tempVecX.set(tempVec);
-		tempVecX.cross(worldUp);
+		tempVecX.set(tempVec).cross(worldUp).normalize();
 		if (tempVecX.lengthSquared() <= 0) {
 			out.setIdentity();
 			System.err.println("bad setToLookAt: " + location + ", " + point + ", " + worldUp);
 			return;
 		}
-		tempVecX.normalize();
 		tempVecY.set(tempVecX).cross(tempVecZ).normalize();
 
 		out.setIdentity();

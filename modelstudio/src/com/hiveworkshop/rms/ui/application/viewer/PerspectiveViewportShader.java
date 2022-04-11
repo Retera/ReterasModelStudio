@@ -258,7 +258,7 @@ public class PerspectiveViewportShader extends BetterAWTGLCanvas {
 	public void paintGL(final boolean autoRepainting) {
 		setSize(getParent().getSize());
 //		viewerCamera.viewport(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-		cameraManager.viewport(0, 0, this.getWidth(), this.getHeight());
+//		cameraManager.viewport(0, 0, this.getWidth(), this.getHeight());
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 			System.out.println("not rendering :O");
 			if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 100) {
@@ -293,7 +293,7 @@ public class PerspectiveViewportShader extends BetterAWTGLCanvas {
 				pipeline.glTranslatef(0.0f, 0, 0);
 				pipeline.glRotatef(0.0f, 0.0f, 0, 1f);
 				pipeline.glScalef(0.5f, 0.5f, 0.5f);
-				pipeline.glScalef(0.5f, 0.5f, 0.5f);
+//				pipeline.glScalef(0.5f, 0.5f, 0.5f);
 //				pipeline.glScalef(cameraHandler.getZoom());
 				pipeline.glBegin(GL11.GL_TRIANGLES);
 

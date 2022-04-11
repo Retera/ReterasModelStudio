@@ -25,71 +25,129 @@ public class CameraManager extends CameraHandler {
 	protected final float[] cameraTargetTemp = new float[3];
 	protected ViewerCamera camera;
 	protected float zoomFactor;
-	public float horizontalAngle;
-	public float verticalAngle;
-	public float distance;
+	protected float upAngle;    // pitch
+	protected float sideAngle;  // yaw
+	protected float tiltAngle;  // roll
+	protected float distance;
 	protected Vec3 camPosition = new Vec3();
 	protected Vec3 camRight = new Vec3();
 	protected Vec3 camUp = new Vec3();
 	protected Vec3 camForward = new Vec3();
 	protected Vec3 camBackward = new Vec3();
 	protected Vec3 target = new Vec3(0, 0, 0);
-	protected Vec3 worldUp = new Vec3(0, 0, 1);
+//	protected Vec3 worldUp = new Vec3(0, 0, 1);
+	protected Vec3 worldUp = new Vec3(0, 1, 0);
 	protected Vec3 vecHeap = new Vec3();
 	protected Vec4 vec4Heap = new Vec4();
 	protected Quat quatHeap = new Quat();
 	protected Quat totRot = new Quat();
-	protected Quat upRot = new Quat();
-	protected Quat sideRot = new Quat();
+	protected Quat upRot = new Quat();      // pitch
+	protected Quat sideRot = new Quat();    // yaw
+	protected Quat tilt = new Quat();       // roll
 
 	private boolean allowToggleOrtho = true;
 	private boolean allowRotation = true;
 	private boolean isOrtho = false;
 
+	private final Mat4 viewMatrix = new Mat4();                  // World -> View
+	private final Mat4 projectionMatrix = new Mat4();            // View -> Clip
+	private final Mat4 viewProjectionMatrix = new Mat4();        // World -> Clip
+	private final Mat4 inverseViewMatrix = new Mat4();           // View -> World
+	private final Mat4 inverseViewProjectionMatrix = new Mat4(); // Clip -> World
+	private final Component viewport;
+	// https://learnopengl.com/Getting-started/Camera
 	public CameraManager(Component viewport) {
 		super(viewport);
+		this.viewport = viewport;
 		camera = new ViewerCamera();
 		this.zoomFactor = 0.1f;
 //		this.horizontalAngle = (float) Math.toRadians(90 - 34);
-		this.horizontalAngle = (float) Math.toRadians(90);
-		this.verticalAngle = (float) (Math.PI / 2);
-//		this.distance = 1650;
-		this.distance = 3;
+		this.upAngle = (float) Math.toRadians(90);
+		this.sideAngle = (float) (Math.PI / 2);
+		this.distance = 1650;
+//		this.distance = 3;
 		calculateCameraRotation();
 	}
 
 	public CameraManager loadDefaultCameraFor(double boundsRadius){
-		this.horizontalAngle = (float) Math.toRadians(90);
-		this.verticalAngle = (float) (Math.PI / 2);
-		calculateCameraRotation();
-//		distance = (float) (boundsRadius * Math.sqrt(2)) * 2;
-		distance = 3;
-//		target.set(0, 0, (float) boundsRadius / 2);
-		target.set(0, 0, 0);
+//		this.horizontalAngle = (float) Math.toRadians(90);
+//		this.verticalAngle = (float) (Math.PI / 2);
+		this.upAngle = 0.0f;
+		this.sideAngle = 0.0f;
+//		calculateCameraRotation();
+		distance = (float) (boundsRadius * Math.sqrt(2));
+//		distance = 3;
+		target.set(0, 0, (float) boundsRadius / 2);
+//		target.set(0, 0, 0);
+		camPosition.set(distance, 0,0).add(target);
 		camBackward.set(camPosition).sub(target).normalize();
-		camRight.set(Vec3.Z_AXIS).cross(camBackward).normalize();
+		camRight.set(worldUp).cross(camBackward).normalize();
+		calculateCameraRotation();
 		return this;
 	}
 	public void updateCamera() {
 
-		camPosition.set(Vec3.Z_AXIS).transform(totRot).scale(this.distance).add(target);
+		worldUp.set(Vec3.Z_AXIS);
+		camPosition.set(1,0,0).transform(totRot).scale(distance).add(target);
+		camUp.set(0,0,1).transform(totRot);
+
 		camBackward.set(camPosition).sub(target).normalize();
-//		position.set(Vec3.X_AXIS).transform(totRot).scale(this.distance).add(target);
-		camUp.set(Vec3.Z_AXIS).transform(totRot);
-		camRight.set(Vec3.X_AXIS).transform(totRot);
-//		forward.set(Vec3.NEGATIVE_Z_AXIS).transform(totRot);
-		camForward.set(Vec3.Z_AXIS).transform(totRot);
-//		up.set(Vec3.Z_AXIS).transform(totRot);
-//		right.set(Vec3.Y_AXIS).transform(totRot);
-//		forward.set(Vec3.NEGATIVE_X_AXIS).transform(totRot);
-//		worldUp.set(Vec3.Y_AXIS).transform(totRot);
-//		worldUp.set(Vec3.Z_AXIS).transform(totRot);
-//		worldUp.set(forward).cross(right).normalize();
+		camRight.set(camUp).cross(camBackward).normalize();
+		camUp.set(camBackward).cross(camRight).normalize();
 
 
+		viewMatrix.setIdentity();
+		viewMatrix.set(camRight, camUp, camBackward);
 
-		camera.moveToAndFace(camPosition, target, worldUp);
-		camera.update();
+		tempMat4.setIdentity();
+		camPosition.negate();
+		tempMat4.translate(camPosition);
+		camPosition.negate();
+
+		viewMatrix.mul(tempMat4);
+
+
+		float aspect = (float) viewport.getWidth()/(float) viewport.getHeight();
+//		projectionMatrix.setOrtho(-viewport.getWidth()/2, viewport.getWidth()/2, 0, viewport.getHeight(), -50, 60000);
+//		projectionMatrix.setOrtho(-viewport.getWidth()/2, viewport.getWidth()/2, 0, -viewport.getHeight(), -50, 60000);
+		if (isOrtho){
+			projectionMatrix.setOrtho(-aspect*distance/2.0f, aspect*distance/2.0f, -distance/2.0f, distance/2.0f, -6000, 6000);
+		} else {
+			projectionMatrix.setPerspective((float) Math.toRadians(70), aspect, 0.0001f, 200000f);
+		}
+		viewProjectionMatrix.set(projectionMatrix).mul(viewMatrix);
+
+//		camera.moveToAndFace(camPosition, target, worldUp);
+//		camera.update();
+	}
+
+	private final Mat4 tempMat4 = new Mat4();
+	public void setToLookAt(Vec3 camPosition, Vec3 target, Vec3 worldUp) {
+		camBackward.set(camPosition).sub(target).normalize();
+		camRight.set(camBackward).cross(worldUp).normalize();
+		if (camRight.lengthSquared() <= 0) {
+			viewMatrix.setIdentity();
+			System.err.println("bad setToLookAt: " + camPosition + ", " + target + ", " + worldUp);
+			return;
+		}
+
+		camUp.set(camRight).cross(camBackward).normalize();
+
+		viewMatrix.setIdentity();
+		viewMatrix.m00 = camRight.x;
+		viewMatrix.m01 = camRight.y;
+		viewMatrix.m02 = camRight.z;
+		viewMatrix.m10 = camUp.x;
+		viewMatrix.m11 = camUp.y;
+		viewMatrix.m12 = camUp.z;
+		viewMatrix.m20 = -camBackward.x;
+		viewMatrix.m21 = -camBackward.y;
+		viewMatrix.m22 = -camBackward.z;
+
+		tempMat4.setIdentity();
+		tempMat4.translate(camPosition);
+
+		viewMatrix.mul(tempMat4);
 	}
 
 	public void setUpCamera() {
@@ -107,32 +165,22 @@ public class CameraManager extends CameraHandler {
 		return this;
 	}
 
-	public ViewerCamera getCamera() {
-		return camera;
-	}
+//	public ViewerCamera getCamera() {
+//		return camera;
+//	}
 
 	public Vec3 getTarget() {
 		return target;
 	}
 
 	public Mat4 getViewProjectionMatrix(){
-		return camera.getViewProjectionMatrix();
+//		return viewMatrix;
+		return viewProjectionMatrix;
+//		return camera.getViewProjectionMatrix();
 	}
 
 	public double sizeAdj() {
 		return distance / 600f;
-	}
-
-	private final Mat4 screenDimensionMat3Heap = new Mat4();
-	private final Vec3 screenDimension = new Vec3();
-	public void applyPan(double dx, double dy) {
-		screenDimension.set(dx, dy, 0);
-		screenDimensionMat3Heap.set(camera.getViewProjectionMatrix());
-		screenDimensionMat3Heap.transpose();
-		screenDimension.transform(0, screenDimensionMat3Heap);
-		screenDimension.normalize();
-//		screenDimension.scale(0.008f * distance);
-		target.add(screenDimension);
 	}
 	public void setPosition(double a, double b) {
 		target.y = (float) a;
@@ -140,53 +188,46 @@ public class CameraManager extends CameraHandler {
 	}
 
 	public void translate(double right, double up) {
-//		location.y += right * location.x / 600f;
-//		location.z += up * location.x / 600f;
-//		this.dirty = true;
-		applyPan(right, up);
+		applyPan(right, up, 0);
+//		applyPan(0, right, up);
 	}
-
 	public void translate2(double dx, double dy, double dz) {
-		screenDimension.set(dx, dy, dz);
-		screenDimensionMat3Heap.set(camera.getViewProjectionMatrix());
-		screenDimensionMat3Heap.transpose();
-		screenDimension.transform(0, screenDimensionMat3Heap);
+		applyPan(dx, dy, dz);
+	}
+	private final Mat4 screenDimensionMat3Heap = new Mat4();
+	private final Vec3 screenDimension = new Vec3();
+	private void applyPan(double dx, double dy, double dz) {
+//		screenDimension.set(-dx, dy, dz).scale(1/distance);
+		screenDimension.set(-dx, dy, dz);
+//		screenDimensionMat3Heap.set(viewProjectionMatrix);
+//		screenDimensionMat3Heap.transpose();
+//		screenDimension.transform(0, screenDimensionMat3Heap);
+		screenDimension.transformInverted(viewProjectionMatrix);
 		screenDimension.normalize();
-//		screenDimension.scale(0.008f * distance);
 		target.add(screenDimension);
 	}
 
 
 	public void rotate(double dx, double dy){
 		if(allowRotation){
-			horizontalAngle -= Math.toRadians(dy);
-			verticalAngle -= Math.toRadians(dx);
-			calculateCameraRotation();
+			rot(0, dx, dy);
 		} else {
-			applyPan(dx, dy);
+			applyPan(dx, dy, 0);
 		}
 	}
 	public void setCameraRotation(float right, float up) {
 		if (allowRotation) {
-			horizontalAngle = (float) Math.toRadians(right);
-			verticalAngle = (float) Math.toRadians(up);
+			upAngle = (float) Math.toRadians(right);
+			sideAngle = (float) Math.toRadians(up);
 			calculateCameraRotation();
 		}
 	}
 
-	public void rot(float rx, float ry, float rz) {
-//		xAngle += rx;
-		verticalAngle += ry;
-		horizontalAngle += rz;
+	public void rot(double rx, double ry, double rz) {
+		tiltAngle += Math.toRadians(rx);
+		sideAngle -= Math.toRadians(ry);
+		upAngle -= Math.toRadians(rz);
 		calculateCameraRotation();
-//		System.out.println(""
-//				+ "xAngle: " + xAngle
-//				+ ", yAngle: " + yAngle
-//				+ ", zAngle: " + zAngle);
-//		calculateCameraRotation();
-
-//		cameraPos.rotate(cameraPos, Math.toRadians(ry), (byte) 0, (byte) 2);
-//		cameraPos.rotate(cameraPos, Math.toRadians(rz), (byte) 1, (byte) 2);
 	}
 
 	public void doZoom(MouseWheelEvent e) {
@@ -206,6 +247,7 @@ public class CameraManager extends CameraHandler {
 //				cameraPos.z /= ZOOM_FACTOR;
 			}
 		}
+		System.out.println("distance: " + distance);
 	}
 
 //	public CameraManager zoom(double v){
@@ -225,11 +267,11 @@ public class CameraManager extends CameraHandler {
 	}
 
 	public float getYAngle() {
-		return verticalAngle;
+		return sideAngle;
 	}
 
 	public float getZAngle() {
-		return horizontalAngle;
+		return upAngle;
 	}
 
 	public CameraManager resetZoom(){
@@ -244,11 +286,11 @@ public class CameraManager extends CameraHandler {
 
 	public CameraManager setOrtho(boolean ortho){
 		this.isOrtho = ortho;
-		if(ortho){
-			camera.setOrtho();
-		} else {
-			camera.setPerspective();
-		}
+//		if(ortho){
+//			camera.setOrtho();
+//		} else {
+//			camera.setPerspective();
+//		}
 		return this;
 	}
 	public CameraManager toggleOrtho(){
@@ -263,15 +305,17 @@ public class CameraManager extends CameraHandler {
 	}
 
 	public void viewport(float x, float y, float width, float height) {
-		camera.viewport(x, y, width, height);
+//		camera.viewport(x, y, width, height);
 	}
 
 
 	public Vec3 getGeoPoint(double viewX, double viewY) {
 //		double x_real = (viewX - (camera.rect.getWidth() / 2.0)) * distance / 600f + cameraPos.y;
 //		double y_real = -(viewY - (camera.rect.getHeight() / 2.0)) * distance / 600f + cameraPos.z;
-		double x_real = (viewX - (camera.rect.getWidth() / 2.0));
-		double y_real = -(viewY - (camera.rect.getHeight() / 2.0));
+//		double x_real = (viewX - (camera.rect.getWidth() / 2.0));
+//		double y_real = -(viewY - (camera.rect.getHeight() / 2.0));
+		double x_real = (viewX - (viewport.getWidth() / 2.0));
+		double y_real = -(viewY - (viewport.getHeight() / 2.0));
 
 		Vec3 vec3 = new Vec3(0, x_real, y_real);
 
@@ -283,8 +327,10 @@ public class CameraManager extends CameraHandler {
 	}
 
 	public Vec2 getPoint_ifYZplane(double viewX, double viewY) {
-		double x_real = (viewX - (camera.rect.getWidth() / 2.0)) + target.y;
-		double y_real = -(viewY - (camera.rect.getHeight() / 2.0)) + target.z;
+//		double x_real = (viewX - (camera.rect.getWidth() / 2.0)) + target.y;
+//		double y_real = -(viewY - (camera.rect.getHeight() / 2.0)) + target.z;
+		double x_real = (viewX - (viewport.getWidth() / 2.0)) + target.y;
+		double y_real = -(viewY - (viewport.getHeight() / 2.0)) + target.z;
 
 		Vec2 vec2 = new Vec2(x_real, y_real);
 		vec2.scale((float) (1f / distance));
@@ -296,9 +342,9 @@ public class CameraManager extends CameraHandler {
 	}
 
 	public void setViewportCamera(int dist, int side, int height, int rX, int rY, int rZ) {
-//		xAngle = rX;
-		verticalAngle = rY;
-		horizontalAngle = rZ;
+		tiltAngle = rX;
+		sideAngle = rY;
+		upAngle = rZ;
 		calculateCameraRotation();
 
 		target.set(dist, side, height);
@@ -308,19 +354,21 @@ public class CameraManager extends CameraHandler {
 
 
 	private void calculateCameraRotation() {
-		upRot.setFromAxisAngle(Vec3.X_AXIS, horizontalAngle);
-		sideRot.setFromAxisAngle(Vec3.Z_AXIS, verticalAngle);
+		upRot.setFromAxisAngle(Vec3.Y_AXIS, upAngle);
+//		upRot.setFromAxisAngle(Vec3.X_AXIS, verticalAngle);
+		sideRot.setFromAxisAngle(Vec3.Z_AXIS, sideAngle);
 //		totRot.set(sideRot).mul(upRot);
 //		totRot.set(sideRot).mulLeft(upRot);
+		tilt.set(Vec3.X_AXIS, tiltAngle);
 		totRot.set(upRot).mulLeft(sideRot);
-		inverseCameraRotXSpinY.setFromAxisAngle(Vec3.X_AXIS, verticalAngle).normalize();
+		inverseCameraRotXSpinY.setFromAxisAngle(Vec3.X_AXIS, sideAngle).normalize();
 		inverseCameraRotXSpinY.invertRotation();
-		inverseCameraRotYSpinY.setFromAxisAngle(Vec3.Y_AXIS, verticalAngle).normalize();
+		inverseCameraRotYSpinY.setFromAxisAngle(Vec3.Y_AXIS, sideAngle).normalize();
 		inverseCameraRotYSpinY.invertRotation();
 //		inverseCameraRotZSpinX.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(xAngle)).normalize();
 		inverseCameraRotZSpinX.setFromAxisAngle(Vec3.Z_AXIS, 0.0f).normalize();
 		inverseCameraRotZSpinX.invertRotation();
-		inverseCameraRotZSpinZ.setFromAxisAngle(Vec3.Z_AXIS, horizontalAngle).normalize();
+		inverseCameraRotZSpinZ.setFromAxisAngle(Vec3.Z_AXIS, upAngle).normalize();
 		inverseCameraRotZSpinZ.invertRotation();
 		inverseCameraRotation.set(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()).normalize();
 
@@ -375,8 +423,8 @@ public class CameraManager extends CameraHandler {
 		quatHeap.mul(quatHeap1);
 
 		float xAngle = 0;
-		float yAngle = verticalAngle;
-		float zAngle = horizontalAngle;
+		float yAngle = sideAngle;
+		float zAngle = upAngle;
 
 		quatHeap1.setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(xAngle));
 		quatHeap.mul(quatHeap1);

@@ -138,7 +138,7 @@ public class MouseThingi extends MouseAdapter {
 			if (programPreferences.getThreeDCameraPanMouseEx() == modifiersEx) {
 //				System.out.println("transl x: " + (e.getX() - endP.y) + " (" + e.getX() + "-" + endP.y + ")" + ", transl y: " + (e.getY() - endP.z) + " (" + e.getY() + "-" + endP.z + ")");
 //				cameraHandler.translate(-(e.getX() - endP.x), (e.getY() - endP.y));
-				cameraManager.applyPan(-(e.getX() - endP.x), (e.getY() - endP.y));
+				cameraManager.translate(-(e.getX() - endP.x), (e.getY() - endP.y));
 			} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
 //				cameraHandler.rotate((e.getX() - endP.x), (e.getY() - endP.y));
 				cameraManager.rotate((e.getX() - endP.x), (e.getY() - endP.y));
@@ -175,7 +175,7 @@ public class MouseThingi extends MouseAdapter {
 					final double dx = mx - lastClick.x;
 					final double dy = my - lastClick.y;
 
-					cameraManager.applyPan(dx, dy);
+					cameraManager.translate(dx, dy);
 
 					lastClick.x = (int) mx;
 					lastClick.y = (int) my;
@@ -193,8 +193,7 @@ public class MouseThingi extends MouseAdapter {
 	private void rotate(double mx, double my) {
 		final double dx = mx - leftClickStart.x;
 		final double dy = my - leftClickStart.y;
-		cameraManager.horizontalAngle -= Math.toRadians(dy);
-		cameraManager.verticalAngle -= Math.toRadians(dx);
+		cameraManager.rotate(dx, dy);
 		leftClickStart.x = (int) mx;
 		leftClickStart.y = (int) my;
 	}
