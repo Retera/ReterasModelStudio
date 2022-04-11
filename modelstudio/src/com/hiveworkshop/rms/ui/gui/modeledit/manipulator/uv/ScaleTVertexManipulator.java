@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.AbstractScaleManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -57,7 +58,7 @@ public final class ScaleTVertexManipulator extends AbstractScaleManipulator {
 		return flipNeg * endDist / startDist;
 	}
 
-	protected double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+	protected double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat1) {
 		Vec2 center = selectionManager.getUVCenter(0);
 		double dxEnd = 0;
 		double dyEnd = 0;

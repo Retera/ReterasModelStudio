@@ -272,7 +272,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 //			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 			glEnable(GL11.GL_TEXTURE_2D);
 //			System.out.println("found Texture! " + currTexture.getName());
-			textureThing.bindTexture(currTexture);
+			textureThing.bindTexture(currTexture, 0);
 		} else {
 			glDisable(GL11.GL_TEXTURE_2D);
 		}

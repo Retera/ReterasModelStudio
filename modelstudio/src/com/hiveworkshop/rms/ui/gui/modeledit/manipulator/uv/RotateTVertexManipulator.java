@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.AbstractRotateManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -50,7 +51,7 @@ public class RotateTVertexManipulator extends AbstractRotateManipulator {
 		return selectionManager.getUVCenter(0);
 	}
 
-	protected Vec2 getVec2Center(CameraHandler cameraHandler) {
+	protected Vec2 getVec2Center(Mat4 viewPortAntiRotMat) {
 		return selectionManager.getUVCenter(0);
 	}
 }

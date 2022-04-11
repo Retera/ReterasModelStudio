@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -54,12 +55,12 @@ public class SelectManipulator extends Manipulator {
 	}
 
 	@Override
-	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat) {
 		this.mouseEnd = mouseEnd;
 	}
 
 	@Override
-	public void update(MouseEvent e, Vec3 mouseStart, Vec3 mouseEnd, CameraHandler cameraHandler) {
+	public void update(MouseEvent e, Vec3 mouseStart, Vec3 mouseEnd, Mat4 viewPortAntiRotMat) {
 //		this.mouseEnd = mouseEnd;
 	}
 
@@ -75,12 +76,12 @@ public class SelectManipulator extends Manipulator {
 	}
 
 	@Override
-	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		Vec2 min = new Vec2(activityStart).minimize(mouseEnd);
 		Vec2 max = new Vec2(activityStart).maximize(mouseEnd);
 //		System.out.println("SelectManipulator#finish " + "min: " + min + " max: " + max);
 //		return viewportSelectionHandler.selectRegion(e, min, max, cameraHandler).redo();
-		UndoAction action = viewportSelectionHandler.selectRegion(e, min, max, cameraHandler);
+		UndoAction action = viewportSelectionHandler.selectRegion(e, min, max, viewPortAntiRotMat, sizeAdj);
 		if (action != null) {
 			action.redo();
 		}
@@ -93,7 +94,9 @@ public class SelectManipulator extends Manipulator {
 		Vec3 max = new Vec3(activityStart1).maximize(mouseEnd);
 //		System.out.println("SelectManipulator#finish " + "min: " + min + " max: " + max);
 //		return viewportSelectionHandler.selectRegion(e, min, max, cameraHandler).redo();
-		UndoAction action = viewportSelectionHandler.selectRegion(e, min, max, cameraHandler);
+		Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
+		double sizeAdj = cameraHandler.sizeAdj();
+		UndoAction action = viewportSelectionHandler.selectRegion(e, min, max, viewPortAntiRotMat, sizeAdj);
 		if (action != null) {
 			action.redo();
 		}

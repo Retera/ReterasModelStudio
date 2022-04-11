@@ -7,8 +7,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import com.hiveworkshop.rms.ui.language.TextKey;
-import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vec3;
 import net.miginfocom.swing.MigLayout;
 import org.lwjgl.LWJGLException;
 
@@ -27,6 +25,7 @@ import java.util.function.Consumer;
  */
 public class DisplayPanel extends JPanel {
 	private AnimatedPerspectiveViewport vp2;
+//	private PerspectiveViewport vp2;
 	private final JPanel buttonPanel;
 	private ViewportActivityManager activityListener;
 //	private ViewportListener viewportListener;
@@ -45,9 +44,11 @@ public class DisplayPanel extends JPanel {
 
 		try {
 			vp2 = new AnimatedPerspectiveViewport();
+//			vp2 = new PerspectiveViewport();
 			vp2.setMinimumSize(new Dimension(200, 200));
-//			CameraHandler cameraHandler = vp2.getCameraHandler();
-//			cameraHandler.toggleOrtho().setAllowToggleOrtho(false);
+
+			vp2.getCameraHandler().toggleOrtho();
+//			vp2.getCameraHandler().setAllowToggleOrtho(false);
 
 			viewHolderPanel.add(vp2, "spany, growy, growx");
 			add(viewHolderPanel, "spany, growy, growx");
@@ -64,9 +65,9 @@ public class DisplayPanel extends JPanel {
 		this.activityListener = activityListener;
 		if(modelHandler != null){
 //			vp2.getCameraHandler().setActivityManager(activityListener);
-//			vp2.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), true);
-			vp2.setModel(modelHandler, modelHandler.getRenderModel(), true);
-//			vp2.getMouseListenerThing().setActivityManager(activityListener);
+			vp2.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), true);
+			vp2.getCameraHandler().setOrtho(true);
+			vp2.getMouseListenerThing().setActivityManager(activityListener);
 		} else {
 			vp2.setModel(null, null, false);
 		}
@@ -131,13 +132,12 @@ public class DisplayPanel extends JPanel {
 	}
 
 	public void zoom(double v) {
-//		vp2.getViewerCamera().zoom(v);
+		vp2.getCameraHandler().zoom(v);
 	}
 
 	public void pan(int x, int y) {
-//		CameraHandler ch = vp2.getCameraHandler();
-//		ch.translate(x * ch.getZoom(),y * ch.getZoom());
-		vp2.getViewerCamera().move(new Vec3(x, y, 0));
+		double zoom = vp2.getCameraHandler().getZoom();
+		vp2.getCameraHandler().translate(x * zoom,y * zoom);
 	}
 
 	private void setupCopyPaste(ViewportTransferHandler viewportTransferHandler) {
@@ -153,23 +153,20 @@ public class DisplayPanel extends JPanel {
 	}
 
 	public void setFrontView() {
-//		vp2.getCameraHandler().setCameraRotation(0, 0);
-		vp2.getViewerCamera().setRotation(new Quat(Vec3.Y_AXIS, (float) Math.toRadians(90)));
+		vp2.getCameraHandler().setCameraRotation(0, 0);
 	}
 
 	public void setLeftView() {
-//		vp2.getCameraHandler().setCameraRotation(90, 0);
-		vp2.getViewerCamera().setRotation(new Quat(Vec3.X_AXIS, (float) Math.toRadians(90)));
+		vp2.getCameraHandler().setCameraRotation(90, 0);
 	}
 
 	public void setTopView() {
-//		vp2.getCameraHandler().setCameraRotation(0, 90);
-		vp2.getViewerCamera().setRotation(new Quat(Vec3.Y_AXIS, (float) Math.toRadians(0)));
+		vp2.getCameraHandler().setCameraRotation(0, 90);
 	}
 
 
 	public DisplayPanel setRenderTextures(boolean renderTextures) {
-//		vp2.setRenderTextures(renderTextures);
+		vp2.setRenderTextures(renderTextures);
 		return this;
 	}
 
@@ -179,66 +176,12 @@ public class DisplayPanel extends JPanel {
 	}
 
 	public DisplayPanel setShowNormals(boolean showNormals) {
-//		vp2.setShowNormals(showNormals);
+		vp2.setShowNormals(showNormals);
 		return this;
 	}
 
 	public DisplayPanel setShow3dVerts(boolean show3dVerts) {
-//		vp2.setShow3dVerts(show3dVerts);
+		vp2.setShow3dVerts(show3dVerts);
 		return this;
 	}
-//
-//	public void zoom(double v) {
-//		vp2.getCameraHandler().zoom(v);
-//	}
-//
-//	public void pan(int x, int y) {
-//		CameraHandler ch = vp2.getCameraHandler();
-//		ch.translate(x * ch.getZoom(),y * ch.getZoom());
-//	}
-//
-//	private void setupCopyPaste(ViewportTransferHandler viewportTransferHandler) {
-//		setTransferHandler(viewportTransferHandler);
-//		ActionMap map = getActionMap();
-//		map.put(TextKey.CUT, TransferHandler.getCutAction());
-//		map.put(TextKey.COPY, TransferHandler.getCopyAction());
-//		map.put(TextKey.PASTE, TransferHandler.getPasteAction());
-////		map.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
-////		map.put(TransferHandler.getCopyAction().getValue(Action.NAME), TransferHandler.getCopyAction());
-////		map.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
-//		setFocusable(true);
-//	}
-//
-//	public void setFrontView() {
-//		vp2.getCameraHandler().setCameraRotation(0, 0);
-//	}
-//
-//	public void setLeftView() {
-//		vp2.getCameraHandler().setCameraRotation(90, 0);
-//	}
-//
-//	public void setTopView() {
-//		vp2.getCameraHandler().setCameraRotation(0, 90);
-//	}
-//
-//
-//	public DisplayPanel setRenderTextures(boolean renderTextures) {
-//		vp2.setRenderTextures(renderTextures);
-//		return this;
-//	}
-//
-//	public DisplayPanel setWireFrame(boolean wireFrame) {
-//		vp2.setWireFrame(wireFrame);
-//		return this;
-//	}
-//
-//	public DisplayPanel setShowNormals(boolean showNormals) {
-//		vp2.setShowNormals(showNormals);
-//		return this;
-//	}
-//
-//	public DisplayPanel setShow3dVerts(boolean show3dVerts) {
-//		vp2.setShow3dVerts(show3dVerts);
-//		return this;
-//	}
 }

@@ -32,7 +32,7 @@ public class GridPainter {
 		glBegin(GL11.GL_LINES);
 		GL11.glNormal3f(0, 0, 0);
 
-		float cameraPxSize1 = cameraHandler.getPixelSize()/2f; // 1px
+		float cameraPxSize1 = (float) (cameraHandler.sizeAdj() * 2f); // 1px
 		double v = (int)Math.log10(cameraPxSize1);
 		float lineScaleMul = (float) Math.pow(10, v);
 

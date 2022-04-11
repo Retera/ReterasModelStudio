@@ -47,7 +47,7 @@ public class GeosetRendererBuf {
 		this.cameraHandler = cameraHandler;
 		this.programPreferences = programPreferences;
 		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
-		vertRendererThing = new VertRendererThingBuf(cameraHandler.getPixelSize());
+		vertRendererThing = new VertRendererThingBuf((float) (cameraHandler.sizeAdj() * 4));
 
 //		initShaderThing();
 
@@ -338,7 +338,7 @@ public class GeosetRendererBuf {
 		Bitmap tex = layer.getRenderTexture(renderEnv, modelView.getModel());
 
 		if (tex != null) {
-			textureThing.bindLayerTexture(layer, tex, formatVersion, material);
+			textureThing.bindLayerTexture(layer, tex, formatVersion, material, 0);
 		}
 		return tex;
 	}
@@ -592,7 +592,7 @@ public class GeosetRendererBuf {
 			Vec3 normEndPos = new Vec3();
 
 			vertexBuffers.ensureCapacity(geo.getVertices().size() * 2);
-			float sizeFactor = 6 * cameraHandler.getPixelSize();
+			float sizeFactor = (float) (6 * 4 * cameraHandler.sizeAdj());
 
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
 				Vec3 renderPos = renderVert.getRenderPos();
@@ -621,7 +621,7 @@ public class GeosetRendererBuf {
 	private void renderVertDots(Geoset geo, int formatVersion) {
 
 		if (correctLoD(geo, formatVersion) && modelView.shouldRender(geo)) {
-			vertRendererThing.updateSquareSize(cameraHandler.getPixelSize());
+			vertRendererThing.updateSquareSize((float) (cameraHandler.sizeAdj() * 4));
 			RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 
 			if (renderGeoset != null) {

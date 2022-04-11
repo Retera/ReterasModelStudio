@@ -3,10 +3,9 @@ package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericRotateAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
-import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.event.MouseEvent;
 
@@ -82,22 +81,22 @@ public abstract class AbstractRotateManipulator extends Manipulator {
 
 
 	@Override
-	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
-		double radians = computeRotateRadians(e, mouseStart, mouseEnd, cameraHandler);
+	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat) {
+		double radians = computeRotateRadians(e, mouseStart, mouseEnd, viewPortAntiRotMat);
 		rotationAction.updateRotation(radians);
 	}
 
 	@Override
-	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
-		update(e, mouseStart, mouseEnd, cameraHandler);
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat, double sizeAdj) {
+		update(e, mouseStart, mouseEnd, viewPortAntiRotMat);
 		nonRotAngle = 0;
 		totRotAngle = 0;
 		return rotationAction;
 	}
 
-	protected double computeRotateRadians(MouseEvent e, Vec2 startingClick, Vec2 endingClick, CameraHandler cameraHandler) {
+	protected double computeRotateRadians(MouseEvent e, Vec2 startingClick, Vec2 endingClick, Mat4 viewPortAntiRotMat) {
 		double deltaAngle = 0;
-		Vec2 center = getVec2Center(cameraHandler);
+		Vec2 center = getVec2Center(viewPortAntiRotMat);
 		if (dir == MoveDimension.XYZ) {
 //			System.out.println("S:" + startingClick + " E:" + endingClick + " C:" + center);
 			Vec2 startingDelta = Vec2.getDif(startingClick, center);
@@ -124,7 +123,7 @@ public abstract class AbstractRotateManipulator extends Manipulator {
 	}
 
 	protected abstract Vec2 getVec2Center(byte portFirstXYZ, byte portSecondXYZ);
-	protected abstract Vec2 getVec2Center(CameraHandler cameraHandler);
+	protected abstract Vec2 getVec2Center(Mat4 viewPortAntiRotMat);
 
 	protected double getSnappedAngle(double angleToSnap, int snapDeg) {
 		double angleDeg = Math.toDegrees(angleToSnap);

@@ -67,7 +67,7 @@ public class PerspectiveViewportShader extends BetterAWTGLCanvas {
 	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
 
 	SimpleDiffuseShaderPipeline pipeline;
-	ViewerCamera viewerCamera;
+	CameraManager cameraManager;
 
 	public PerspectiveViewportShader() throws LWJGLException {
 		super();
@@ -79,7 +79,7 @@ public class PerspectiveViewportShader extends BetterAWTGLCanvas {
 		gridPainter = new GridPainter(cameraHandler);
 
 		geosetRendererBuf = new GeosetRendererBuf2(cameraHandler, programPreferences);
-		viewerCamera = new ViewerCamera();
+		cameraManager = new CameraManager(this);
 
 		mouseAdapter = new MouseListenerThing(cameraHandler, programPreferences);
 		addMouseListener(mouseAdapter);
@@ -115,7 +115,7 @@ public class PerspectiveViewportShader extends BetterAWTGLCanvas {
 
 			modelExtent.set(model.getExtents());
 			if (loadDefaultCamera) {
-				ViewportHelpers.findDefaultAnimation(model, renderEnv);
+				renderEnv.setSequence(ViewportHelpers.findDefaultAnimation(model));
 				cameraHandler.loadDefaultCameraFor(getCurrentModelRadius());
 			}
 
@@ -123,8 +123,8 @@ public class PerspectiveViewportShader extends BetterAWTGLCanvas {
 			this.renderModel.refreshFromEditor(textureThing);
 
 
-			viewerCamera.setLocation(cameraHandler.getCameraPos());
-			viewerCamera.face(Vec3.ZERO, Vec3.Z_AXIS);
+//			viewerCamera.setLocation(cameraHandler.getCameraPos());
+//			viewerCamera.face(Vec3.ZERO, Vec3.Z_AXIS);
 //			forceReloadTextures();
 			texLoaded = false;
 		} else {
@@ -258,7 +258,7 @@ public class PerspectiveViewportShader extends BetterAWTGLCanvas {
 	public void paintGL(final boolean autoRepainting) {
 		setSize(getParent().getSize());
 //		viewerCamera.viewport(this.getX(), this.getY(), this.getWidth(), this.getHeight());
-		viewerCamera.viewport(0, 0, this.getWidth(), this.getHeight());
+		cameraManager.viewport(0, 0, this.getWidth(), this.getHeight());
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 			System.out.println("not rendering :O");
 			if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 100) {
@@ -274,9 +274,9 @@ public class PerspectiveViewportShader extends BetterAWTGLCanvas {
 				hasReloadedRenderModel = false;
 				updateRenderModel();
 
-				viewerCamera.setLocation(cameraHandler.getCameraPos());
-				viewerCamera.setRotation(cameraHandler.getInverseCameraRotation());
-				viewerCamera.update();
+//				viewerCamera.setLocation(cameraHandler.getCameraPos());
+//				viewerCamera.setRotation(cameraHandler.getInverseCameraRotation());
+//				viewerCamera.update();
 
 //				if ((programPreferences != null) && (programPreferences.getPerspectiveBackgroundColor() != null)) {
 //					float[] colorComponents = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.BACKGROUND_COLOR);
@@ -286,10 +286,10 @@ public class PerspectiveViewportShader extends BetterAWTGLCanvas {
 //				}
 				glClearColor(.3f, .3f, .7f, 1.0f);
 				glClear(GL_COLOR_BUFFER_BIT);
-				pipeline.glCamera(viewerCamera);
+				pipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
 
 				pipeline.glLoadIdentity();
-				pipeline.gluPerspective(45f, (float) getWidth() / (float) getHeight(), -1.0f, 1.0f);
+				pipeline.gluPerspective(45f, (float) getWidth() / (float) getHeight(), 0.010f, 1000.0f);
 				pipeline.glTranslatef(0.0f, 0, 0);
 				pipeline.glRotatef(0.0f, 0.0f, 0, 1f);
 				pipeline.glScalef(0.5f, 0.5f, 0.5f);

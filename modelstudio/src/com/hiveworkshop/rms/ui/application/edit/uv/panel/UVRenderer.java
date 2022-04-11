@@ -42,7 +42,7 @@ public class UVRenderer {
 		this.cameraHandler = cameraHandler;
 		this.programPreferences = programPreferences;
 		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
-		vertRendererThing = new VertRendererThing(cameraHandler.getPixelSize());
+		vertRendererThing = new VertRendererThing((float) (cameraHandler.sizeAdj() * 4));
 
 
 //		System.out.println("Geometry "+GL20.glCreateShader(GL32.GL_GEOMETRY_SHADER));
@@ -186,7 +186,7 @@ public class UVRenderer {
 		glColor4f(.7f, .0f, .0f, .4f);
 		for (final Geoset geo : modelView.getEditableGeosets()) {
 			if (correctLoD(geo, formatVersion) && modelView.shouldRender(geo)) {
-				vertRendererThing.updateSquareSize(cameraHandler.getPixelSize());
+				vertRendererThing.updateSquareSize((float) (cameraHandler.sizeAdj()*4));
 				paintVertSquares2(geo);
 			}
 		}

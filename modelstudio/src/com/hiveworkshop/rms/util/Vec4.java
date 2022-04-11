@@ -202,6 +202,14 @@ public class Vec4 {
 
 		return set(newX, newY, newZ, newW);
 	}
+
+	public Vec4 transform(Mat4 mat4, float w) {
+		float newX = (mat4.m00 * x) + (mat4.m10 * y) + (mat4.m20 * z) + (mat4.m30 * w);
+		float newY = (mat4.m01 * x) + (mat4.m11 * y) + (mat4.m21 * z) + (mat4.m31 * w);
+		float newZ = (mat4.m02 * x) + (mat4.m12 * y) + (mat4.m22 * z) + (mat4.m32 * w);
+
+		return set(newX, newY, newZ, this.w);
+	}
 	public Vec4 transformInverted(Mat4 mat4) {
 		float b00 = mat4.m00 * mat4.m11 - mat4.m01 * mat4.m10;
 		float b01 = mat4.m00 * mat4.m12 - mat4.m02 * mat4.m10;
@@ -355,6 +363,18 @@ public class Vec4 {
 			len = 1 / (float) Math.sqrt(len);
 		}
 		return scale(len);
+	}
+
+	public Vec4 normalizeAsV3() {
+		float len = (x * x) + (y * y) + (z * z);
+		float w = this.w;
+
+		if (len > 0) {
+			len = 1 / (float) Math.sqrt(len);
+		}
+		scale(len);
+		this.w = w;
+		return this;
 	}
 
 	public Vec4 lerp(final Vec4 toward, final float t) {

@@ -44,7 +44,7 @@ public class GeosetRenderer {
 		this.cameraHandler = cameraHandler;
 		this.programPreferences = programPreferences;
 		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();
-		vertRendererThing = new VertRendererThing(cameraHandler.getPixelSize());
+		vertRendererThing = new VertRendererThing((float) (cameraHandler.sizeAdj()*4));
 
 
 //		System.out.println("Geometry "+GL20.glCreateShader(GL32.GL_GEOMETRY_SHADER));
@@ -173,7 +173,7 @@ public class GeosetRenderer {
 				Bitmap tex = layer.getRenderTexture(renderEnv, modelView.getModel());
 
 				if (tex != null) {
-					textureThing.bindLayerTexture(layer, tex, formatVersion, material);
+					textureThing.bindLayerTexture(layer, tex, formatVersion, material, 0);
 				}
 
 				if (overriddenColors) {
@@ -278,7 +278,7 @@ public class GeosetRenderer {
 		glBegin(GL11.GL_LINES);
 		glColor3f(1f, 1f, 3f);
 
-		float sizeFactor = 6 * cameraHandler.getPixelSize();
+		float sizeFactor = (float) (6.0 * 4.0 * cameraHandler.sizeAdj());
 
 		for (Geoset geo : modelView.getVisibleGeosets()) {
 			RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
@@ -328,7 +328,7 @@ public class GeosetRenderer {
 		glColor4f(.7f, .0f, .0f, .4f);
 		for (final Geoset geo : modelView.getEditableGeosets()) {
 			if (correctLoD(geo, formatVersion) && modelView.shouldRender(geo)) {
-				vertRendererThing.updateSquareSize(cameraHandler.getPixelSize());
+				vertRendererThing.updateSquareSize((float) (cameraHandler.sizeAdj() * 4));
 				paintVertSquares2(geo);
 			}
 		}

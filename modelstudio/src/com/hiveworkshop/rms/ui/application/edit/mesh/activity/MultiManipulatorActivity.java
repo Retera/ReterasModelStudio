@@ -10,6 +10,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.ManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.TVertSelectionManager;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 
 import javax.swing.*;
@@ -120,7 +121,10 @@ public class MultiManipulatorActivity extends ViewportActivity {
 	private void finnishAction(MouseEvent e, CameraHandler cameraHandler, boolean wasCanceled) {
 		if (manipulator != null) {
 			Vec2 mouseEnd = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
-			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, cameraHandler);
+//			Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
+			Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat2();
+			double sizeAdj = cameraHandler.sizeAdj();
+			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, viewPortAntiRotMat, sizeAdj);
 			if (wasCanceled && undoAction != null) {
 				undoAction.undo();
 			} else if (undoAction != null) {
@@ -141,7 +145,9 @@ public class MultiManipulatorActivity extends ViewportActivity {
 	public void mouseDragged(MouseEvent e, CameraHandler cameraHandler) {
 		if (manipulator != null) {
 			Vec2 mouseEnd = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
-			manipulator.update(e, lastDragPoint, mouseEnd, cameraHandler);
+			Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat2();
+//			manipulator.update(e, lastDragPoint, mouseEnd, cameraHandler);
+			manipulator.update(e, lastDragPoint, mouseEnd, viewPortAntiRotMat);
 			lastDragPoint = mouseEnd;
 		}
 	}

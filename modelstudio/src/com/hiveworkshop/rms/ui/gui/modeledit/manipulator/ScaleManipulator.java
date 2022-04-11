@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -57,10 +58,10 @@ public final class ScaleManipulator extends AbstractScaleManipulator {
 		scaleAction = modelEditor.beginScaling(center);
 	}
 
-	protected double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+	protected double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat) {
 		System.out.println("computeScaleFactor!");
 //		Vec3 center = selectionManager.getCenter().transform(cameraHandler.getViewPortAntiRotMat());
-		Vec2 center = selectionManager.getCenter().transform(cameraHandler.getViewPortAntiRotMat()).getProjected((byte) 1, (byte) 2);
+		Vec2 center = selectionManager.getCenter().transform(viewPortAntiRotMat).getProjected((byte) 1, (byte) 2);
 		double dxEnd = 0;
 		double dyEnd = 0;
 		double dxStart = 0;

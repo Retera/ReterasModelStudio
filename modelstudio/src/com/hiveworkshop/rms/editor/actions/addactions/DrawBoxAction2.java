@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.editor.model.util.Mesh;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -21,17 +20,17 @@ public class DrawBoxAction2 implements GenericMoveAction {
 	private final Geoset planeGeoset;
 	private double zHeight;
 
-	public DrawBoxAction2(Vec2 p1, Vec2 p2, CameraHandler cameraHandler, Vec3 facingVector,
+	public DrawBoxAction2(Vec2 p1, Vec2 p2, Vec3 facingVector,
 	                      int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments,
 	                      Geoset planeGeoset) {
 		this.p1 = p1;
 		this.p2 = p2;
 		this.planeGeoset = planeGeoset;
 
-		makePlaneFromPoints(p1, p2, cameraHandler, facingVector, numberOfLengthSegments, numberOfWidthSegments, numberOfHeightSegments);
+		makePlaneFromPoints(p1, p2, facingVector, numberOfLengthSegments, numberOfWidthSegments, numberOfHeightSegments);
 	}
 
-	public void makePlaneFromPoints(Vec2 p1, Vec2 p2, CameraHandler cameraHandler, Vec3 facingVector,
+	public void makePlaneFromPoints(Vec2 p1, Vec2 p2, Vec3 facingVector,
 	                                int numberOfLengthSegments, int numberOfWidthSegments, int numberOfHeightSegments) {
 
 		planeMin = new Vec2(p1).minimize(p2);

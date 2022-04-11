@@ -2,56 +2,49 @@ package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
 import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
-import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.editor.render3d.RenderNodeCamera;
+
+import java.awt.*;
 
 public class PortraitCameraManager extends CameraManager {
-	public Camera modelCamera;
-	protected RenderModel modelInstance;
+	private RenderNodeCamera renderCamera;
+
+	public PortraitCameraManager(Component viewport) {
+		super(viewport);
+	}
 
 	public void updateCamera() {
 		vec4Heap.set(1, 0, 0, this.horizontalAngle);
-		quatHeap.setFromAxisAngle(vec4Heap);
+		upRot.setFromAxisAngle(vec4Heap);
 		vec4Heap.set(0, 0, 1, this.verticalAngle);
-		quatHeap2.setFromAxisAngle(vec4Heap);
-		quatHeap.mulLeft(quatHeap2);
+		sideRot.setFromAxisAngle(vec4Heap);
+		upRot.mulLeft(sideRot);
 //		System.out.println();
 
-		this.position.set(0, 0, 1);
-		position.transform(quatHeap);
-		this.position.scale(this.distance);
-		position.add(target);
-		if (this.modelCamera != null) {
-			Vec3 sourceTranslation = modelCamera.getSourceNode().getRenderTranslation(modelInstance.getTimeEnvironment());
-			if (sourceTranslation == null) {
-				sourceTranslation = Vec3.ZERO;
-			}
-			Vec3 targetTranslation = modelCamera.getTargetNode().getRenderTranslation(modelInstance.getTimeEnvironment());
-			if (targetTranslation == null) {
-				targetTranslation = Vec3.ZERO;
-			}
+		camPosition.set(0, 0, 1);
+		camPosition.transform(upRot);
+		camPosition.scale(this.distance);
+		camPosition.add(target);
 
-			Vec3 cameraPosition = this.modelCamera.getPosition();
-			Vec3 targetPosition = this.modelCamera.getTargetPosition();
-			this.position.set((cameraPosition.x + sourceTranslation.x), (cameraPosition.y + sourceTranslation.y), (cameraPosition.z + sourceTranslation.z));
-			this.target.set((targetPosition.x + targetTranslation.x), (targetPosition.y + targetTranslation.y), (targetPosition.z + targetTranslation.z));
+		if (this.renderCamera != null) {
+			camPosition.set(renderCamera.getRenderPivot());
+			target.set(renderCamera.getTarget());
 
-			this.camera.perspective((float) this.modelCamera.getFieldOfView() * 0.75f, this.camera.getAspect(),
-					(float) this.modelCamera.getNearClip(), (float) this.modelCamera.getFarClip());
+			camera.perspective((float) Math.toDegrees(renderCamera.getFoV()), camera.getAspect(),
+					(float) renderCamera.getNearClip(), (float) renderCamera.getFarClip());
 		}
 		else {
-			this.camera.perspective(70, this.camera.getAspect(), 100, 5000);
+			camera.perspective(70, camera.getAspect(), 1, 5000);
 		}
 
-		this.camera.moveToAndFace(this.position, this.target, this.worldUp);
+		camera.moveToAndFace(camPosition, target, worldUp);
 	}
 
 	public void setModelInstance(final RenderModel modelInstance, final Camera camera) {
-		this.modelInstance = modelInstance;
-		if (modelInstance == null) {
-			this.modelCamera = null;
-		}
-		else if (camera != null) {
-			this.modelCamera = camera;
+		if (modelInstance != null && camera != null) {
+			renderCamera = modelInstance.getRenderNode(camera);
+		} else {
+			renderCamera = null;
 		}
 	}
 

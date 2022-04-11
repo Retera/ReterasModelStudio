@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -45,8 +46,8 @@ public final class ExtrudeManipulator extends AbstractMoveManipulator {
 	}
 
 	@Override
-	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
-		return new CompoundAction("extrude", Arrays.asList(beginExtrudingSelection, super.finish(e, mouseStart, mouseEnd, cameraHandler)));
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat, double sizeAdj) {
+		return new CompoundAction("extrude", null, beginExtrudingSelection, super.finish(e, mouseStart, mouseEnd, viewPortAntiRotMat, sizeAdj));
 	}
 
 }

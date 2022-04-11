@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.render3d.RenderNodeCamera;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec2;
@@ -41,8 +40,9 @@ public class CameraHandler {
 	private double m_zoom = 1;
 
 	private final Mat4 viewPortAntiRotMat = new Mat4();
+	private final Mat4 viewPortMat = new Mat4();
 
-	private ViewportActivityManager activityManager;
+//	private ViewportActivityManager activityManager;
 	private float xAngle;
 	private float yAngle;
 	private float zAngle;
@@ -125,7 +125,7 @@ public class CameraHandler {
 		return this;
 	}
 
-	public void setUpCamera(RenderNodeCamera renderNode) {
+	private void setUpCamera(RenderNodeCamera renderNode) {
 		gluPerspective((float) Math.toDegrees(renderNode.getFoV()), 1, (float) renderNode.getNearClip(), (float) renderNode.getFarClip());
 
 		cameraPos.set(renderNode.getPivot());
@@ -256,18 +256,9 @@ public class CameraHandler {
 		return ((-y + cameraPos.y) * m_zoom) + (viewport.getHeight() / 2.0);
 	}
 
-	public double geomXifYZplane(double x) {
-		return ((x - (viewport.getWidth() / 2.0)) * cameraPos.x / 600f + cameraPos.y) / m_zoom;
-	}
-
-	public double geomYifYZplane(double y) {
-
-		return (-(y - (viewport.getHeight() / 2.0)) * cameraPos.x / 600f + cameraPos.z) / m_zoom;
-	}
-
-	public double geomDist(double x1) {
+	public double sizeAdj() {
 //		return geomX(x1) - geomX(0);
-		return x1 * cameraPos.x / 600f / m_zoom;
+		return cameraPos.x / 600f / m_zoom;
 	}
 
 	public Vec3 getGeoPoint(double viewX, double viewY) {
@@ -295,19 +286,6 @@ public class CameraHandler {
 //		System.out.println("CamSpaceMouse: [" + viewX + ", " + viewY + "], " + "zoom: " + m_zoom + ", CamP: " + vec2 + ", camPos: " + cameraPos);
 
 		return vec2;
-	}
-
-	// returns a float that in model space that corresponds to 4 pixels on screen
-	public float getPixelSize() {
-		return (float) ((geomXifYZplane(4) - geomXifYZplane(0)));
-	}
-	public float getViewPxOfGeomDist(double geomDist) {
-//		double viewDist = 1;
-//		double geomDist = viewDist * cameraPos.x / 600f / m_zoom;
-
-		double viewDist = geomDist * 600f * m_zoom / cameraPos.x;
-
-		return (float) viewDist;
 	}
 
 	public CameraHandler setAllowRotation(boolean allowRotation) {
@@ -350,10 +328,10 @@ public class CameraHandler {
 	}
 
 
-	public CameraHandler setActivityManager(ViewportActivityManager activityManager) {
-		this.activityManager = activityManager;
-		return this;
-	}
+//	public CameraHandler setActivityManager(ViewportActivityManager activityManager) {
+//		this.activityManager = activityManager;
+//		return this;
+//	}
 
 	private void calculateCameraRotation() {
 		inverseCameraRotXSpinY.setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(yAngle)).normalize();
@@ -397,6 +375,32 @@ public class CameraHandler {
 	public Mat4 getViewPortAntiRotMat2() {
 		viewPortAntiRotMat.setIdentity().fromQuat(inverseCameraRotation);
 		return viewPortAntiRotMat;
+	}
+
+	Quat quatHeap1 = new Quat();
+	Quat quatHeap2 = new Quat();
+	Quat quatHeap = new Quat();
+	Vec3 scaleHeap = new Vec3();
+	public Mat4 getViewportMat(){
+		// Rotating camera to have +Z up and +X as forward (pointing into camera)
+		quatHeap1.setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(-90));
+		quatHeap2.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(-90));
+
+		quatHeap.set(quatHeap1).mul(quatHeap2);
+		quatHeap.mul(quatHeap1);
+
+		quatHeap1.setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(xAngle));
+		quatHeap.mul(quatHeap1);
+		quatHeap1.setFromAxisAngle(Vec3.Y_AXIS, (float) Math.toRadians(yAngle));
+		quatHeap.mul(quatHeap1);
+		quatHeap1.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(zAngle));
+		quatHeap.mul(quatHeap1);
+
+		scaleHeap.set(m_zoom, m_zoom, m_zoom);
+
+		viewPortMat.fromRotationTranslationScale(quatHeap, cameraPos, scaleHeap);
+
+		return viewPortMat;
 	}
 
 	public Vec3 getCameraLookAt() {

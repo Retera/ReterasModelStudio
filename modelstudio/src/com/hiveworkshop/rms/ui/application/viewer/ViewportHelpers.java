@@ -42,17 +42,16 @@ public class ViewportHelpers {
 		return boundsRadius;
 	}
 
-	public static Animation findDefaultAnimation(EditableModel model, TimeEnvironmentImpl renderEnv) {
+	public static Animation findDefaultAnimation(EditableModel model) {
 		Animation defaultAnimation = null;
-		for (final Animation animation : model.getAnims()) {
-			if ((defaultAnimation == null)
+		for (Animation animation : model.getAnims()) {
+			if (defaultAnimation == null
 					|| !defaultAnimation.getName().toLowerCase().contains("stand")
 					|| (animation.getName().toLowerCase().contains("stand")
 					&& (animation.getName().length() < defaultAnimation.getName().length()))) {
 				defaultAnimation = animation;
 			}
 		}
-		renderEnv.setSequence(defaultAnimation);
 		return defaultAnimation;
 	}
 

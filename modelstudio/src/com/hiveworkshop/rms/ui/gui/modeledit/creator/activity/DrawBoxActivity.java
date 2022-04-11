@@ -163,7 +163,8 @@ public class DrawBoxActivity extends ViewportActivity {
 				drawingState = DrawingState.NOTHING;
 			} else {
 
-				lastHeightModeZ = cameraHandler.geomYifYZplane(e.getY());
+//				lastHeightModeZ = cameraHandler.geomYifYZplane(e.getY());
+				lastHeightModeZ = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY()).y;;
 				firstHeightModeZ = lastHeightModeZ;
 				drawingState = DrawingState.HEIGHT;
 			}
@@ -181,15 +182,14 @@ public class DrawBoxActivity extends ViewportActivity {
 
 	@Override
 	public void mouseDragged(MouseEvent e, CameraHandler cameraHandler) {
+		Vec2 mouseEnd = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
 		if (drawingState == DrawingState.WANT_BEGIN_BASE || drawingState == DrawingState.BASE) {
 			drawingState = DrawingState.BASE;
 
-			Vec3 locationCalculator = cameraHandler.getGeoPoint(e.getX(), e.getY());
-			Vec2 mouseEnd = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
 
-			updateBase(mouseEnd, cameraHandler);
+			updateBase(mouseEnd);
 		} else if (drawingState == DrawingState.HEIGHT) {
-			double heightModeZ = cameraHandler.geomYifYZplane(e.getY());
+			double heightModeZ = mouseEnd.y;
 			if (Math.abs(heightModeZ - firstHeightModeZ - 1) > 0.1) {
 				boxAction.updateTranslation(0, 0, heightModeZ - lastHeightModeZ);
 			}
@@ -197,7 +197,7 @@ public class DrawBoxActivity extends ViewportActivity {
 		}
 	}
 
-	public void updateBase(Vec2 mouseEnd, CameraHandler cameraHandler) {
+	public void updateBase(Vec2 mouseEnd) {
 		if (Math.abs(mouseEnd.x - mouseStart.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStart.y) >= 0.1) {
 			if (boxAction == null) {
 				Vec3 facingVector = new Vec3(0, 0, 1); // todo make this work with CameraHandler
@@ -213,7 +213,7 @@ public class DrawBoxActivity extends ViewportActivity {
 						moveActions.add(new DoNothingMoveActionAdapter(addAction));
 					}
 
-					moveActions.add(new DrawBoxAction2(mouseStart, mouseEnd, cameraHandler, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset));
+					moveActions.add(new DrawBoxAction2(mouseStart, mouseEnd, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset));
 
 					boxAction = new CompoundMoveAction("Add Box", moveActions);
 					;

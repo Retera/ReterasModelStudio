@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -49,9 +50,9 @@ public class SquatToolManipulator extends AbstractRotateManipulator {
 		return selectionManager.getCenter().getProjected(portFirstXYZ, portSecondXYZ);
 	}
 
-	protected Vec2 getVec2Center(CameraHandler cameraHandler) {
+	protected Vec2 getVec2Center(Mat4 viewPortAntiRotMat) {
 		Vec3 flatCenter = new Vec3();
-		flatCenter.set(selectionManager.getCenter()).transform(cameraHandler.getViewPortAntiRotMat());
+		flatCenter.set(selectionManager.getCenter()).transform(viewPortAntiRotMat);
 		return new Vec2(flatCenter.y, flatCenter.z);
 	}
 }

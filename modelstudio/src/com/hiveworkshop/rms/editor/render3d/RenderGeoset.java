@@ -137,6 +137,7 @@ public class RenderGeoset {
 		GeosetVertex vertex;
 		Vec3 renderPos = new Vec3();
 		Vec3 renderNorm = new Vec3(0, 0, 1);
+		Vec4 renderTang = new Vec4(0, 0, 1, 1);
 		Vec2 tVert = new Vec2(0, 0);
 
 		public RenderVert(GeosetVertex vertex) {
@@ -144,6 +145,9 @@ public class RenderGeoset {
 			renderPos.set(vertex);
 			if (vertex.getNormal() != null) {
 				renderNorm.set(vertex.getNormal());
+			}
+			if (vertex.getTangent() != null) {
+				renderTang.set(vertex.getTang());
 			}
 			if (vertex.getTverts() != null && vertex.getTverts().get(0) != null) {
 				tVert.set(vertex.getTVertex(0));
@@ -154,13 +158,18 @@ public class RenderGeoset {
 			renderPos.set(vertex);
 			if (vertex.getNormal() != null) {
 				renderNorm.set(vertex.getNormal());
+			} else {
+				renderNorm.set(Vec3.X_AXIS);
+			}
+			if (vertex.getTangent() != null) {
+				renderTang.set(vertex.getTang());
+			} else {
+				renderTang.set(Vec3.Z_AXIS, 0);
 			}
 			if (mat4 != null) {
 				renderPos.transform(mat4);
-				if (vertex.getNormal() != null) {
-//					mat4.printMatrix();
-					renderNorm.transform(0, mat4).normalize();
-				}
+				renderNorm.transform(0, mat4).normalize();
+				renderTang.transform(mat4, 0).normalizeAsV3();
 			}
 			if (vertex.getTverts() != null && vertex.getTverts().get(0) != null) {
 				tVert.set(vertex.getTVertex(0));
@@ -174,6 +183,10 @@ public class RenderGeoset {
 
 		public Vec3 getRenderPos() {
 			return renderPos;
+		}
+
+		public Vec4 getRenderTang() {
+			return renderTang;
 		}
 
 		public Vec3 getRenderNorm() {

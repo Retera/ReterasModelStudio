@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.gui.modeledit.selection;
 
 import com.hiveworkshop.rms.editor.model.Triangle;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -25,8 +24,8 @@ public class HitTestStuff {
 		return hitTest(min, max, vertexV2, vertexSize);
 	}
 
-	public static boolean hitTest(Vec3 vec3, Vec2 point, CameraHandler cameraHandler, double vertexSize) {
-		Vec3 viewPAdj = new Vec3(vec3).transform(cameraHandler.getViewPortAntiRotMat());
+	public static boolean hitTest(Vec3 vec3, Vec2 point, Mat4 viewPortAntiRotMat, double vertexSize) {
+		Vec3 viewPAdj = new Vec3(vec3).transform(viewPortAntiRotMat);
 		Vec2 vertexV2 = viewPAdj.getProjected((byte) 1, (byte) 2);
 
 		//		System.out.println(vertSize + " >= " + vertexV2.distance(point) + " (" + vertexV2 + " to " + point + ") vertexSize:" + vertexSize);
@@ -47,12 +46,12 @@ public class HitTestStuff {
 		return triangleOverlapArea(min, max, tVerts);
 	}
 
-	public static boolean triHitTest(Triangle triangle, Vec2 min, Vec2 max, int tvIndex, CameraHandler cameraHandler) {
+	public static boolean triHitTest(Triangle triangle, Vec2 min, Vec2 max, int tvIndex, Mat4 viewPortAntiRotMat) {
 		Vec2[] tVerts = triangle.getTVerts(tvIndex);
 		Vec2[] tVerts2 = new Vec2[tVerts.length];
 
 		for (int i = 0; i < tVerts.length; i++) {
-			tVerts2[i] = new Vec2(tVerts[i]).transform(cameraHandler.getViewPortAntiRotMat());
+			tVerts2[i] = new Vec2(tVerts[i]).transform(viewPortAntiRotMat);
 		}
 
 

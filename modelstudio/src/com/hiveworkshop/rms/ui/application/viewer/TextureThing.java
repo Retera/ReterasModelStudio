@@ -2,15 +2,12 @@ package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
-import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.filesystem.sources.DataSource;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.blp.GPUReadyTexture;
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.SimpleDiffuseShaderPipeline;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderPipeline;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.*;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -30,7 +27,25 @@ public class TextureThing {
 		this.programPreferences = programPreferences;
 	}
 
-	public static int loadTexture(final GPUReadyTexture texture, final Bitmap bitmap) {
+	public void loadToTexMap(Bitmap tex) {
+		if (tex != null && textureMap.get(tex) == null) {
+			String path = tex.getRenderableTexturePath();
+			if (!path.isEmpty() && !programPreferences.getAllowLoadingNonBlpTextures()) {
+				path = path.replaceAll("\\.\\w+", "") + ".blp";
+			}
+			try {
+				DataSource workingDirectory = model.getWrappedDataSource();
+				Integer texture = loadTexture(BLPHandler.get().loadTexture2(workingDirectory, path), tex);
+				textureMap.put(tex, texture);
+			} catch (final Exception exc) {
+				if (LOG_EXCEPTIONS) {
+					exc.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public int loadTexture(final GPUReadyTexture texture, final Bitmap bitmap) {
 		if (texture == null || bitmap == null) {
 			return -1;
 		}
@@ -40,51 +55,93 @@ public class TextureThing {
 		// whatever OpenGL method you want, for example:
 
 		int textureID = GL11.glGenTextures(); // Generate texture ID
-		bindTexture(bitmap, textureID);
+		System.out.println("texture: " + bitmap.getName() + ", id: " + textureID);
+		int width = texture.getWidth();
+		int height = texture.getHeight();
+		boolean wrapW = bitmap.isWrapWidth();
+		boolean wrapH = bitmap.isWrapHeight();
+
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
+		GL42.glTexStorage2D(GL11.GL_TEXTURE_2D, 1, GL11.GL_RGBA8, width, height);
+		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+
+		GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);  //Generate num_mipmaps number of mipmaps here.
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, wrapW ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, wrapH ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
+
 
 		// Setup texture scaling filtering
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+//		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+//		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
 		// Send texel data to OpenGL
-		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, texture.getWidth(), texture.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+//		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, texture.getWidth(), texture.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 
 		// Return the texture ID so we can bind it later again
 		return textureID;
 	}
+//	public int loadTexture(final GPUReadyTexture texture, final Bitmap bitmap) {
+//		if (texture == null || bitmap == null) {
+//			return -1;
+//		}
+//		ByteBuffer buffer = texture.getBuffer();
+//		// You now have a ByteBuffer filled with the color data of each pixel.
+//		// Now just create a texture ID and bind it. Then you can load it using
+//		// whatever OpenGL method you want, for example:
+//
+//		int textureID = GL11.glGenTextures(); // Generate texture ID
+//		// Test the texture (necessary?)
+//		GL13.glActiveTexture(GL13.GL_TEXTURE0);
+//		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
+//		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+//		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+//
+//		// Setup texture scaling filtering
+//		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+//		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+//
+//		// Send texel data to OpenGL
+//		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, texture.getWidth(), texture.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+//
+//		// Return the texture ID so we can bind it later again
+//		return textureID;
+//	}
 
-	public static void bindTexture(Bitmap bitmap, Integer texture) {
-		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, bitmap.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, bitmap.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+	public void bindTexture(Bitmap bitmap, int textureSlot) {
+		int textureHandle = getTextureID(bitmap);
+//		printThing("texture: " + bitmap.getName() + ", id: " + textureHandle, 500);
+		boolean wrapW = bitmap != null && bitmap.isWrapWidth();
+		boolean wrapH = bitmap != null && bitmap.isWrapHeight();
+		bindTexture(textureHandle, textureSlot, wrapW, wrapH);
 	}
 
-	public void loadToTexMap(Bitmap tex) {
-		if (tex != null && textureMap.get(tex) == null) {
-			String path = tex.getRenderableTexturePath();
-			if (!path.isEmpty() && !programPreferences.getAllowLoadingNonBlpTextures()) {
-				path = path.replaceAll("\\.\\w+", "") + ".blp";
-			}
-			Integer texture = null;
-			try {
-				DataSource workingDirectory = model.getWrappedDataSource();
-				texture = loadTexture(BLPHandler.get().loadTexture2(workingDirectory, path), tex);
-			} catch (final Exception exc) {
-				if (LOG_EXCEPTIONS) {
-					exc.printStackTrace();
-				}
-			}
-			if (texture != null) {
-				textureMap.put(tex, texture);
-			}
+
+	public void bindTexture(Integer texture, int textureSlot, boolean wrapW, boolean wrapH) {
+		if(!textureMap.isEmpty()){
+			GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureSlot);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+//			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, wrapW ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+//			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, wrapH ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+
+//			GL13.glClientActiveTexture(GL13.GL_TEXTURE0 + textureSlot);
+		}
+	}
+
+	long lastPrint = 0;
+	private void printThing(String text, int ms){
+		if(lastPrint < System.currentTimeMillis() || true){
+			lastPrint = System.currentTimeMillis() + ms;
+			System.out.println(text);
 		}
 	}
 
 
 	public void reMakeTextureMap() {
 		deleteAllTextures(textureMap);
-		loadGeosetMaterials();
+//		loadGeosetMaterials();
+		loadModelTextures();
 	}
 	public void loadGeosetMaterials() {
 		final List<Geoset> geosets = model.getGeosets();
@@ -109,21 +166,18 @@ public class TextureThing {
 			}
 		}
 	}
+	public void loadModelTextures() {
+		List<Bitmap> textures = model.getTextures();
+		for (Bitmap texture : textures) {
+			loadToTexMap(texture);
+		}
+	}
+
 	public static void deleteAllTextures(HashMap<Bitmap, Integer> textureMap) {
 		for (final Integer textureId : textureMap.values()) {
 			GL11.glDeleteTextures(textureId);
 		}
 		textureMap.clear();
-	}
-
-	public void bindTexture(Bitmap tex) {
-		Integer texture = textureMap.get(tex);
-		if (texture != null) {
-//			System.out.println("binding texture " + texture);
-			bindTexture(tex, texture);
-		} else if (textureMap.size() > 0){
-			bindTexture(tex, 0);
-		}
 	}
 
 	public int getTextureID(Bitmap tex){
@@ -134,13 +188,8 @@ public class TextureThing {
 		return 0;
 	}
 
-	public void bindLayerTexture(Layer layer, Bitmap tex, int formatVersion, Material parent) {
-		Integer texture = textureMap.get(tex);
-		if (texture != null) {
-			bindTexture(tex, texture);
-		} else if (textureMap.size() > 0){
-			bindTexture(tex, 0);
-		}
+	public void bindLayerTexture(Layer layer, Bitmap tex, int formatVersion, Material parent, int textureSlot) {
+		bindTexture(tex, textureSlot);
 
 		boolean depthMask = false;
 		switch (layer.getFilterMode()) {
@@ -183,12 +232,8 @@ public class TextureThing {
 	}
 
 	public void bindParticleTexture(ParticleEmitter2 particle2, Bitmap tex) {
-		Integer texture = textureMap.get(tex);
-		if (texture != null) {
-			bindTexture(tex, texture);
-		} else if (textureMap.size() > 0 && tex != null) {
-			bindTexture(tex, 0);
-		}
+		bindTexture(tex, 0);
+
 		switch (particle2.getFilterMode()) {
 			case BLEND -> setBlendWOAlpha(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			case ADDITIVE, ALPHAKEY -> setBlendWOAlpha(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
@@ -213,18 +258,22 @@ public class TextureThing {
 
 
 
-	public void bindLayerTexture(SimpleDiffuseShaderPipeline pipeline, RenderModel renderModel, EditableModel model, int formatVersion, Material material, Layer layer, boolean hdNoMetaDataLayer) {
-		final Bitmap tex = layer.getRenderTexture(renderModel.getTimeEnvironment(), model);
-		final Integer texture = textureMap.get(tex);
-		if (hdNoMetaDataLayer) {
-			bindTexture(pipeline, tex, texture);
-		} else {
-			bindLayer(pipeline, layer, tex, texture, formatVersion, material.getTwoSided());
+	public void bindLayerTexture(ShaderPipeline pipeline, Layer layer, boolean doSetUpFilterMode, int textureSlot, boolean twoSided, Bitmap tex) {
+		int textureHandle = getTextureID(tex);
+//		printThing("texture: " + tex.getName() + ", id: " + textureHandle + ", slot: " + textureSlot, 1000);
+		bindTexture(tex, textureSlot);
+
+		if (doSetUpFilterMode) {
+			bindLayer(pipeline, layer);
+			if (twoSided) {
+				GL11.glDisable(GL11.GL_CULL_FACE);
+			} else {
+				GL11.glEnable(GL11.GL_CULL_FACE);
+			}
 		}
 	}
 
-	public void bindLayer(SimpleDiffuseShaderPipeline pipeline, Layer layer, Bitmap tex, Integer texture, int formatVersion, boolean matTwoSided) {
-		bindTexture(pipeline, tex, texture);
+	public void bindLayer(ShaderPipeline pipeline, Layer layer) {
 		boolean depthMask = false;
 		switch (layer.getFilterMode()) {
 			case BLEND:
@@ -260,22 +309,16 @@ public class TextureThing {
 				depthMask = true;
 				break;
 		}
-		if (layer.getTwoSided() || ((ModelUtils.isShaderStringSupported(formatVersion)) && matTwoSided)) {
-			GL11.glDisable(GL11.GL_CULL_FACE);
-		}
-		else {
-			GL11.glEnable(GL11.GL_CULL_FACE);
-		}
+
 		if (layer.getNoDepthTest()) {
 			GL11.glDisable(GL11.GL_DEPTH_TEST);
-		}
-		else {
+		} else {
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
 		}
+
 		if (layer.getNoDepthSet()) {
 			GL11.glDepthMask(false);
-		}
-		else {
+		} else {
 			GL11.glDepthMask(depthMask);
 		}
 //		GL11.glColorMask(layer.getFilterMode() == FilterMode.ADDITIVE, layer.getFilterMode() == FilterMode.ADDITIVE,
@@ -285,20 +328,6 @@ public class TextureThing {
 		}
 		else {
 			pipeline.glEnableIfNeeded(GL11.GL_LIGHTING);
-		}
-	}
-
-	public void bindTexture(SimpleDiffuseShaderPipeline pipeline, Bitmap tex, Integer texture) {
-		pipeline.prepareToBindTexture();
-		if (texture != null) {
-			// texture.bind();
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-		} else if (textureMap.size() > 0) {
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, tex.isWrapWidth() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, tex.isWrapHeight() ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
 		}
 	}
 }

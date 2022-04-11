@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -58,24 +59,24 @@ public abstract class AbstractMoveManipulator extends Manipulator {
 	}
 
 	@Override
-	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat) {
 		resetMoveVector();
-		buildMoveVector(mouseStart, mouseEnd, cameraHandler);
+		buildMoveVector(mouseStart, mouseEnd, viewPortAntiRotMat);
 		translationAction.updateTranslation(moveVector);
 	}
 
 	@Override
-	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
-		update(e, mouseStart, mouseEnd, cameraHandler);
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat, double sizeAdj) {
+		update(e, mouseStart, mouseEnd, viewPortAntiRotMat);
 		resetMoveVector();
 		return translationAction;
 	}
 
-	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat) {
 		moveVector.y = (mouseEnd.x - mouseStart.x);
 		moveVector.z = (mouseEnd.y - mouseStart.y);
 
-		moveVector.transform(cameraHandler.getViewPortAntiRotMat2());
+		moveVector.transform(viewPortAntiRotMat);
 
 	}
 

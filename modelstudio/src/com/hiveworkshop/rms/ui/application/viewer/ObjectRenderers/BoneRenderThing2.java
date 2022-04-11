@@ -112,7 +112,7 @@ public class BoneRenderThing2 {
 		if (renderNode != null && modelView.shouldRender(idObject)) {
 
 			Vec3 renderPosNode = renderNode.getPivot();
-			float nodeSize = (float) cameraHandler.geomDist(idObject.getClickRadius() / 2f);
+			float nodeSize = (float) (cameraHandler.sizeAdj() * idObject.getClickRadius() / 2f);
 			if (renderNode.hasParent()) {
 				RenderNode2 parentNode = renderModel.getRenderNode(idObject.getParent());
 				transform2(renderPosNode, parentNode.getPivot(), nodeSize);

@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -47,15 +48,27 @@ public abstract class Manipulator {
 
 	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
 	}
+	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortMat) {
+	}
 
 	public void update(MouseEvent e, Vec3 mouseStart, Vec3 mouseEnd, CameraHandler cameraHandler) {
+	}
+	public void update(MouseEvent e, Vec3 mouseStart, Vec3 mouseEnd, Mat4 viewPortMat) {
 	}
 
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
 		return null;
 	}
 
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortMat, double sizeAdj) {
+		return null;
+	}
+
 	public UndoAction finish(MouseEvent e, Vec3 mouseStart, Vec3 mouseEnd, CameraHandler cameraHandler) {
+		return null;
+	}
+
+	public UndoAction finish(MouseEvent e, Vec3 mouseStart, Vec3 mouseEnd, Mat4 viewPortMat, double sizeAdj) {
 		return null;
 	}
 

@@ -3,72 +3,73 @@ package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
+import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.blp.GPUReadyTexture;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
-import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.ui.application.viewer.ViewportHelpers;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
-import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.List;
+
+import static org.lwjgl.opengl.GL11.glEnable;
 
 public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
-	public static final boolean LOG_EXCEPTIONS = true;
-	private ModelHandler modelHandler;
+	private ModelView modelView;
 	private RenderModel renderModel;
+	private TimeEnvironmentImpl renderEnv;
 	private Timer paintTimer;
 
 	private boolean texLoaded = false;
 
+	private boolean renderTextures = true;
+	private boolean wireFrame = false;
+	private boolean showNormals = false;
+	private boolean show3dVerts = false;
+
 	private boolean wireframe;
-	private SimpleDiffuseShaderPipeline pipeline;
+	private ShaderPipeline pipeline;
+	private ShaderPipeline vertPipeline;
+	private ShaderPipeline normPipeline;
 
 	Class<? extends Throwable> lastThrownErrorClass;
 	private final ProgramPreferences programPreferences;
 
-	private long lastUpdateMillis = System.currentTimeMillis();
 	private long lastExceptionTimeMillis = 0;
 
 	private float backgroundRed, backgroundBlue, backgroundGreen;
 
 	private int levelOfDetail;
-	private final ViewerCamera viewerCamera;
-	private final PortraitCameraManager cameraManager;
+	private final CameraManager cameraManager;
 
 	MouseThingi mouseThingi;
 	GeosetRenderThing geosetRenderThing;
 
 	private TextureThing textureThing;
 
-	private float animSpeed = 1.0f;
 	private float xRatio;
 	private float yRatio;
-
-	private final Vec4 vertexHeap = new Vec4();
-	private final Vec4 colorHeap = new Vec4();
-	private final Vec4 normalHeap = new Vec4();
-	private final Vec4 normalSumHeap = new Vec4();
-	private final Mat4 skinBonesMatrixHeap = new Mat4();
-	private final Vec3 screenDimension = new Vec3();
-	private final Mat4 screenDimensionMat3Heap = new Mat4();
 
 	boolean wantReload = false;
 	boolean wantReloadAll = false;
 
 	int popupCount = 0;
+//	private final MouseListenerThing mouseAdapter;
+//	private final KeylistenerThing keyAdapter;
 
 	public AnimatedPerspectiveViewport() throws LWJGLException {
 		super();
@@ -85,19 +86,28 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		// add(Box.createHorizontalStrut(200));
 		// add(Box.createVerticalStrut(200));
 		// setLayout( new BoxLayout(this,BoxLayout.LINE_AXIS));
-		viewerCamera = new ViewerCamera();
-		cameraManager = new PortraitCameraManager();
-		cameraManager.setupCamera(viewerCamera);
+//		cameraManager = new PortraitCameraManager();
+		cameraManager = new CameraManager(this);
 
 		mouseThingi = new MouseThingi(cameraManager);
 		addMouseListener(mouseThingi);
+		addMouseMotionListener(mouseThingi);
 		addMouseWheelListener(mouseThingi);
 
-		geosetRenderThing = new GeosetRenderThing(cameraManager);
+//		mouseAdapter = new MouseListenerThing(cameraManager, programPreferences);
+//		addMouseListener(mouseAdapter);
+//		addMouseMotionListener(mouseAdapter);
+//		addMouseWheelListener(mouseAdapter);
+//		keyAdapter = new KeylistenerThing(cameraManager, programPreferences, null);
+////		keyAdapter = new KeylistenerThing(cameraHandler, programPreferences, this);
+//		addKeyListener(keyAdapter);
+
+		geosetRenderThing = new GeosetRenderThing();
 
 //
 		loadBackgroundColors();
-		paintTimer = new Timer(16, e -> {
+//		paintTimer = new Timer(16, e -> {
+		paintTimer = new Timer(100, e -> {
 			repaint();
 			if (!isShowing()) {
 				paintTimer.stop();
@@ -107,70 +117,21 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		paintTimer.start();
 	}
 
-	public void refreshStuff() {
-		renderModel.refreshFromEditor(textureThing);
-	}
-
-	public ViewerCamera getViewerCamera() {
-		return viewerCamera;
-	}
-
-	public PortraitCameraManager getPortraitCameraManager() {
+	public CameraManager getCameraHandler() {
 		return cameraManager;
 	}
 
-	private void loadDefaultCameraFor(EditableModel model, final boolean loadDefaultAnimation) {
-		ExtLog extents = null;
-		List<CollisionShape> collisionShapes = model.getColliders();
-		if (collisionShapes.size() > 0) {
-			for (final CollisionShape shape : collisionShapes) {
-				if ((shape != null) && (shape.getExtents() != null) && shape.getExtents().hasBoundsRadius()) {
-					extents = shape.getExtents();
-				}
-			}
-			final CollisionShape firstShape = collisionShapes.get(0);
-			extents = firstShape.getExtents();
-		}
-		if (extents == null) {
-			extents = model.getExtents();
-		}
-		Animation defaultAnimation = null;
-		for (final Animation animation : model.getAnims()) {
-			if ((defaultAnimation == null) || !defaultAnimation.getName().toLowerCase().contains("stand")
-					|| (animation.getName().toLowerCase().contains("stand")
-					&& (animation.getName().length() < defaultAnimation.getName().length()))) {
-				defaultAnimation = animation;
-				if ((animation.getExtents() != null) && (animation.getExtents().hasBoundsRadius()
-						|| (animation.getExtents().getMinimumExtent() != null))) {
-					extents = animation.getExtents();
-				}
-			}
-		}
-		if (loadDefaultAnimation) {
-			renderModel.getTimeEnvironment().setSequence(defaultAnimation);
-		}
-		double boundsRadius = 64;
-		if (extents != null) {
-			if (extents.hasBoundsRadius() && (extents.getBoundsRadius() > 1)) {
-				final double extBoundRadius = extents.getBoundsRadius();
-				if (extBoundRadius > boundsRadius) {
-					boundsRadius = extBoundRadius;
-				}
-			}
-			if ((extents.getMaximumExtent() != null) && (extents.getMaximumExtent() != null)) {
-				final double minMaxBoundRadius = extents.getMaximumExtent().distance(extents.getMinimumExtent()) / 2;
-				if (minMaxBoundRadius > boundsRadius) {
-					boundsRadius = minMaxBoundRadius;
-				}
-			}
-			if ((boundsRadius > 10000) || (boundsRadius < 0.1)) {
-				boundsRadius = 64;
-			}
-		}
-		cameraManager.distance = (float) (boundsRadius * Math.sqrt(2)) * 2;
-		cameraManager.target.set(0, 0, (float) boundsRadius / 2);
-
+	public MouseThingi getMouseListenerThing() {
+		return mouseThingi;
 	}
+//	public MouseListenerThing getMouseListenerThing() {
+//		return mouseAdapter;
+//	}
+
+	public CameraManager getPortraitCameraManager() {
+		return cameraManager;
+	}
+
 
 	private void loadBackgroundColors() {
 		if (getBackground() != null) {
@@ -180,27 +141,50 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		}
 	}
 
-	public void setModel(ModelHandler modelHandler, RenderModel renderModel, boolean loadDefaultCamera) {
-		renderModel.getTimeEnvironment().setSequence(null);
-		this.modelHandler = modelHandler;
+	public void setModel(ModelView modelView, RenderModel renderModel, boolean loadDefaultCamera) {
 		this.renderModel = renderModel;
-		if(modelHandler != null){
-			textureThing = new TextureThing(modelHandler.getModel(), programPreferences);
-			renderModel.setSpawnParticles((programPreferences.getRenderParticles() == null) || programPreferences.getRenderParticles());
-			refreshStuff();
-			if (modelHandler.getModel().getAnims().size() > 0) {
-				renderModel.getTimeEnvironment().setSequence(modelHandler.getModel().getAnim(0));
-			}
+		this.modelView = modelView;
+		if(renderModel != null){
+			renderModel.getTimeEnvironment().setSequence(null);
+			EditableModel model = modelView.getModel();
+			textureThing = new TextureThing(model, programPreferences);
+			renderEnv = renderModel.getTimeEnvironment();
+
 			if (loadDefaultCamera) {
-				loadDefaultCamera();
+//				cameraManager.setModelInstance(null, null);
+				renderEnv.setSequence(ViewportHelpers.findDefaultAnimation(model));
+				cameraManager.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderEnv, model.getExtents()));
 			}
+
+			renderModel.refreshFromEditor(textureThing);
 			reloadAllTextures();
+		} else {
+			textureThing = null;
+			renderEnv = null;
+			modelView = null;
 		}
-		geosetRenderThing.setModel(renderModel, modelHandler, textureThing);
+		cameraManager.viewport(0, 0, getWidth() * xRatio, getHeight() * yRatio);
+		cameraManager.setOrtho(true);
+		geosetRenderThing.setModel(renderModel, modelView, textureThing);
+	}
+
+	public AnimatedPerspectiveViewport setRenderTextures(boolean renderTextures) {
+		this.renderTextures = renderTextures;
+		return this;
 	}
 
 	public AnimatedPerspectiveViewport setWireFrame(boolean wireFrame) {
-		this.wireframe = wireFrame;
+		this.wireFrame = wireFrame;
+		return this;
+	}
+
+	public AnimatedPerspectiveViewport setShowNormals(boolean showNormals) {
+		this.showNormals = showNormals;
+		return this;
+	}
+
+	public AnimatedPerspectiveViewport setShow3dVerts(boolean show3dVerts) {
+		this.show3dVerts = show3dVerts;
 		return this;
 	}
 
@@ -216,7 +200,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		texLoaded = true;
 		if (textureThing != null && renderModel != null) {
 			textureThing.reMakeTextureMap();
-			refreshStuff();
+
+			renderModel.refreshFromEditor(textureThing);
 		}
 
 	}
@@ -225,23 +210,43 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		this.levelOfDetail = levelOfDetail;
 	}
 
-	private SimpleDiffuseShaderPipeline getOrCreatePipeline() {
+	private ShaderPipeline getOrCreatePipeline() {
 		if (pipeline == null) {
-//			if ((modelView != null) && ModelUtils.isShaderStringSupported(model.getFormatVersion())
+//			if (model != null && ModelUtils.isShaderStringSupported(model.getFormatVersion())
 //					&& !model.getGeosets().isEmpty() && model.getGeoset(0).isHD()) {
-//				pipeline = new NGGLDP.HDDiffuseShaderPipeline();
+//				pipeline = new HDDiffuseShaderPipeline();
 //			}
 //			else {
-//				pipeline = new NGGLDP.SimpleDiffuseShaderPipeline();
+//				pipeline = new SimpleDiffuseShaderPipeline();
 //			}
-			pipeline = new SimpleDiffuseShaderPipeline();
+//			pipeline = new SimpleDiffuseShaderPipeline();
+			pipeline = new HDDiffuseShaderPipeline();
+//			pipeline = new NormalLinesShaderPipeline();
+//			pipeline = new VertMarkerShaderPipeline();
 		}
 		return pipeline;
+	}
+
+	private ShaderPipeline getOrCreateVertPipeline() {
+		if (vertPipeline == null) {
+			vertPipeline = new VertMarkerShaderPipeline();
+		}
+		return vertPipeline;
+	}
+
+	private ShaderPipeline getOrCreateNormPipeline() {
+		if (normPipeline == null) {
+			normPipeline = new NormalLinesShaderPipeline();
+		}
+		return normPipeline;
 	}
 
 	@Override
 	public void initGL() {
 		getOrCreatePipeline();
+		getOrCreateVertPipeline();
+		getOrCreateNormPipeline();
+		pipeline.onGlobalPipelineSet();
 //		NGGLDP.setPipeline(getOrCreatePipeline());
 		try {
 			if ((programPreferences == null) || programPreferences.textureModels()) {
@@ -252,10 +257,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			// ridiculous ratio:
 			xRatio = (float) (Display.getDisplayMode().getWidth() / Toolkit.getDefaultToolkit().getScreenSize().getWidth());
 			yRatio = (float) (Display.getDisplayMode().getHeight() / Toolkit.getDefaultToolkit().getScreenSize().getHeight());
-			// These ratios will be wrong and users will see corrupted visuals (bad scale,
-			// only fits part of window,
-			// etc) if they are using Windows 10 differing UI scale per monitor. I don't
-			// think I have an API
+			// These ratios will be wrong and users will see corrupted visuals (bad scale, only fits part of window,
+			// etc) if they are using Windows 10 differing UI scale per monitor. I don't think I have an API
 			// to query that information yet, though.
 		}
 		catch (final Throwable e) {
@@ -265,55 +268,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		}
 	}
 
-	// public byte getPortFirstXYZ()
-	// {
-	// return m_d1;
-	// }
-	// public byte getPortSecondXYZ()
-	// {
-	// return m_d2;
-	// }
-	public BufferedImage getBufferedImage() {
-		try {
-			BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
-			// paintComponent(image.getGraphics(),5);
-			Pbuffer buffer = new Pbuffer(getWidth(), getHeight(), new PixelFormat(), null, null);
-			buffer.makeCurrent();
-			ByteBuffer pixels = ByteBuffer.allocateDirect(getWidth() * getHeight() * 4);
-			initGL();
-			paintGL(false);
-			GL11.glReadPixels(0, 0, getWidth(), getHeight(), GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
-			final int[] array = new int[pixels.capacity() / 4];
-			pixels.asIntBuffer().get(array);
-			for (int i = 0; i < array.length; i++) {
-				int rgba = array[i];
-				int a = rgba & 0xFF;
-				array[i] = (rgba >>> 8) | (a << 24);
-			}
-			image.getRaster().setDataElements(0, 0, getWidth(), getHeight(), array);
-			buffer.releaseContext();
-			return createFlipped(image);
-		}
-		catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private static BufferedImage createFlipped(final BufferedImage image) {
-		AffineTransform at = new AffineTransform();
-		at.concatenate(AffineTransform.getScaleInstance(1, -1));
-		at.concatenate(AffineTransform.getTranslateInstance(0, -image.getHeight()));
-		return createTransformed(image, at);
-	}
-
-	private static BufferedImage createTransformed(final BufferedImage image, final AffineTransform at) {
-		BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = newImage.createGraphics();
-		g.transform(at);
-		g.drawImage(image, 0, 0, null);
-		g.dispose();
-		return newImage;
-	}
 
 	public boolean renderTextures() {
 		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
@@ -331,47 +285,15 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	public void paintGL(final boolean autoRepainting) {
-		viewerCamera.update();
-		cameraManager.updateCamera();
-//		NGGLDP.setPipeline(pipeline);
 		setSize(getParent().getSize());
+		cameraManager.updateCamera();
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 			System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
 			return;
 		}
-		if (wantReloadAll) {
-			wantReloadAll = false;
-			wantReload = false;// If we just reloaded all, no need to reload some.
-			pipeline.discard();
-			pipeline = null;
-			try {
-				initGL();// Re-overwrite textures
-			} catch (final Exception e) {
-				e.printStackTrace();
-				ExceptionPopup.display("Error loading textures:", e);
-			}
-		} else if (wantReload) {
-			wantReload = false;
-			try {
-				forceReloadTextures();
-			}
-			catch (final Exception e) {
-				e.printStackTrace();
-				ExceptionPopup.display("Error loading new texture:", e);
-			}
-		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
-			forceReloadTextures();
-			texLoaded = true;
-		}
+		reloadIfNeeded();
 		try {
-			int formatVersion = modelHandler.getModel().getFormatVersion();
-			if (renderModel.getTimeEnvironment().isLive()) {
-				long currentTimeMillis = System.currentTimeMillis();
-				if ((currentTimeMillis - lastExceptionTimeMillis) > 16) {
-					renderModel.updateNodes(false, true);
-					lastUpdateMillis = currentTimeMillis;
-				}
-			}
+			updateRenderModel();
 
 			if ((programPreferences != null) && (programPreferences.viewMode() == 0)) {
 				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
@@ -379,7 +301,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 			}
 			pipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
-			viewerCamera.viewport(0, 0, getWidth() * xRatio, getHeight() * yRatio);
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
 
 			GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -402,42 +323,61 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			pipeline.glMatrixMode(GL11.GL_MODELVIEW);
 			pipeline.glLoadIdentity();
 
-			pipeline.glCamera(viewerCamera);
+			pipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
 
 			setUpLights();
 
-			geosetRenderThing.render(pipeline, formatVersion);
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-			if ((programPreferences != null) && programPreferences.showNormals()) {
-				geosetRenderThing.drawNormals(pipeline, formatVersion);
+			if (programPreferences != null && programPreferences.showPerspectiveGrid()) {
 			}
+
 			if (renderTextures()) {
 				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 				pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
 			}
+			geosetRenderThing.render(pipeline);
+
+
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
+
+			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+			if (showNormals) {
+				normPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+				normPipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
+				normPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+				normPipeline.glMatrixMode(GL11.GL_PROJECTION);
+				normPipeline.glLoadIdentity();
+				normPipeline.glMatrixMode(GL11.GL_MODELVIEW);
+				normPipeline.glLoadIdentity();
+				normPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+				geosetRenderThing.drawNormals(normPipeline);
+//				geosetRenderThing.render(normPipeline, formatVersion);
+			}
+			if (show3dVerts) {
+				vertPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+				vertPipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
+				vertPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+				vertPipeline.glMatrixMode(GL11.GL_PROJECTION);
+				vertPipeline.glLoadIdentity();
+				vertPipeline.glMatrixMode(GL11.GL_MODELVIEW);
+				vertPipeline.glLoadIdentity();
+				vertPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+				geosetRenderThing.drawVerts(vertPipeline);
+//				geosetRenderThing.render(vertPipeline, formatVersion);
+			}
+
+//			if (programPreferences != null && programPreferences.getRenderParticles()) {
+//				renderParticles();
+//			}
 			GL11.glDepthMask(false);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glDisable(GL11.GL_CULL_FACE);
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
-//			renderModel.getParticleShader().use();
-//			for (final RenderParticleEmitter2 particle : renderModel.getParticleEmitters2()) {
-//				particle.render(renderModel, renderModel.getParticleShader());
-//			}
-//			for (final RenderRibbonEmitter emitter : renderModel.getRibbonEmitters()) {
-//				emitter.render(renderModel, renderModel.getParticleShader());
-//			}
+
 
 			if (autoRepainting) {
-				swapBuffers();
-				boolean showing = isShowing();
-				boolean running = paintTimer.isRunning();
-				if (showing && !running) {
-					paintTimer.restart();
-				} else if (!showing && running) {
-					paintTimer.stop();
-				}
+
+				paintAndUpdate();
 			}
 		}
 		catch (final Throwable e) {
@@ -451,6 +391,67 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				}
 			}
 			throw new RuntimeException(e);
+		}
+	}
+
+	private void updateRenderModel() {
+		if (renderEnv.isLive()) {
+			if (renderEnv.isLive()) {
+//			renderEnv.updateAnimationTime();
+//			renderModel.updateNodes(false, programPreferences.getRenderParticles());
+				renderModel.updateAnimationTime().updateNodes2(programPreferences.getRenderParticles());
+			} else if (ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
+//			renderModel.updateNodes(false, programPreferences.getRenderParticles());
+//			renderModel.updateNodes2(programPreferences.getRenderParticles());
+				renderModel.updateNodes(programPreferences.getRenderParticles());
+			}
+			if (modelView.isGeosetsVisible()) {
+				renderModel.updateGeosets();
+			}
+		}
+	}
+
+	private void paintAndUpdate() {
+		try {
+			swapBuffers();
+		} catch (LWJGLException e) {
+			e.printStackTrace();
+		}
+		if (isShowing() && !paintTimer.isRunning()) {
+			paintTimer.restart();
+		} else if (!isShowing() && paintTimer.isRunning()) {
+			paintTimer.stop();
+		}
+	}
+
+	private void reloadIfNeeded() {
+		if (wantReloadAll) {
+			wantReloadAll = false;
+			wantReload = false;// If we just reloaded all, no need to reload some.
+			pipeline.discard();
+			pipeline = null;
+			vertPipeline.discard();
+			vertPipeline = null;
+			normPipeline.discard();
+			normPipeline = null;
+			try {
+				initGL();// Re-overwrite textures
+			} catch (final Exception e) {
+				e.printStackTrace();
+				ExceptionPopup.display("Error loading textures:", e);
+			}
+		} else if (wantReload) {
+			wantReload = false;
+			try {
+				forceReloadTextures();
+			}
+			catch (final Exception e) {
+				e.printStackTrace();
+				ExceptionPopup.display("Error loading new texture:", e);
+			}
+		} else if (!texLoaded && ((programPreferences == null) || programPreferences.textureModels())) {
+			forceReloadTextures();
+			texLoaded = true;
 		}
 	}
 
@@ -474,6 +475,32 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 
 		pipeline.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightColor1);
 		pipeline.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPos1);
+	}
+
+	private void renderParticles() {
+		if (renderTextures()) {
+			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+			glEnable(GL11.GL_TEXTURE_2D);
+		}
+		GL11.glDepthMask(false);
+		glEnable(GL11.GL_BLEND);
+		glEnable(GL11.GL_DEPTH_TEST);
+		GL11.glDisable(GL11.GL_CULL_FACE);
+
+//		renderModel.getParticleShader().use();
+		for (final RenderParticleEmitter2 particle : renderModel.getRenderParticleEmitters2()) {
+//			System.out.println("renderParticles");
+			particle.render();
+		}
+
+
+//		renderModel.getParticleShader().use();
+//		for (final RenderParticleEmitter2 particle : renderModel.getParticleEmitters2()) {
+//			particle.render(renderModel, renderModel.getParticleShader());
+//		}
+//		for (final RenderRibbonEmitter emitter : renderModel.getRibbonEmitters()) {
+//			emitter.render(renderModel, renderModel.getParticleShader());
+//		}
 	}
 
 
@@ -718,19 +745,17 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		// that's why. But this method was happening during the app lifecycle of
 		// clearing and resetting the UI views when we open a new model.
 		pipeline = null;
+		vertPipeline = null;
 	}
 
-	public PortraitCameraManager getCameraManager() {
+	public CameraManager getCameraManager() {
 		return cameraManager;
 	}
 
 	public void setCamera(final Camera camera) {
-		cameraManager.setModelInstance(renderModel, camera);
-	}
-
-	public void loadDefaultCamera() {
-		cameraManager.setModelInstance(null, null);
-		loadDefaultCameraFor(modelHandler.getModel(), false);
+		if(cameraManager instanceof PortraitCameraManager){
+			((PortraitCameraManager)cameraManager).setModelInstance(renderModel, camera);
+		}
 	}
 
 }

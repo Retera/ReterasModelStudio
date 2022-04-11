@@ -3,8 +3,8 @@ package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericScaleAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -62,22 +62,22 @@ public abstract class AbstractScaleManipulator extends Manipulator {
 	}
 
 	@Override
-	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
+	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat) {
 		resetScaleVector();
-		buildScaleVector(mouseStart, mouseEnd, cameraHandler);
+		buildScaleVector(mouseStart, mouseEnd, viewPortAntiRotMat);
 		scaleAction.updateScale(scaleVector);
 	}
 
 	@Override
-	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
-		update(e, mouseStart, mouseEnd, cameraHandler);
+	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat, double sizeAdj) {
+		update(e, mouseStart, mouseEnd, viewPortAntiRotMat);
 		resetScaleVector();
 		isNeg = false;
 		return scaleAction;
 	}
 
-	protected final void buildScaleVector(Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
-		double scaleFactor = computeScaleFactor(mouseStart, mouseEnd, cameraHandler);
+	protected final void buildScaleVector(Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat) {
+		double scaleFactor = computeScaleFactor(mouseStart, mouseEnd, viewPortAntiRotMat);
 		if (dir == MoveDimension.XYZ) {
 			scaleVector.set(scaleFactor, scaleFactor, scaleFactor);
 		} else {
@@ -92,7 +92,7 @@ public abstract class AbstractScaleManipulator extends Manipulator {
 
 	protected abstract double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2);
 
-	protected abstract double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler);
+	protected abstract double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat1);
 
 	protected int getFlipNeg(double dEnd) {
 		int flipNeg;

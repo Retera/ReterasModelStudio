@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
@@ -49,10 +50,12 @@ public abstract class ManipulatorBuilder {
 	}
 
 	public Cursor getCursorAt(int x, int y, CameraHandler cameraHandler, AbstractSelectionManager selectionManager) {
-		Vec2 mousePoint = new Vec2(cameraHandler.geomXifYZplane(x), cameraHandler.geomYifYZplane(y));
-		if (!selectionManager.isEmpty() && widgetOffersEdit(mousePoint, cameraHandler, selectionManager)) {
+		Vec2 mousePoint = cameraHandler.getPoint_ifYZplane(x,y);
+		Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
+		double sizeAdj = cameraHandler.sizeAdj();
+		if (!selectionManager.isEmpty() && widgetOffersEdit(selectionManager)) {
 			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-		} else if (viewportSelectionHandler.selectableUnderCursor(mousePoint, cameraHandler)) {
+		} else if (viewportSelectionHandler.selectableUnderCursor(mousePoint, viewPortAntiRotMat, sizeAdj)) {
 			return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
 		}
 		return null;
@@ -84,8 +87,8 @@ public abstract class ManipulatorBuilder {
 
 		int modifiersEx = e.getModifiersEx();
 		if ((ProgramGlobals.getPrefs().getModifyMouseButton() & modifiersEx) > 0 && !selectionManager.isEmpty()) {
-			Vec2 mousePoint = new Vec2(cameraHandler.geomXifYZplane(x), cameraHandler.geomYifYZplane(y));
-			Manipulator manipulatorFromWidget = createManipulatorFromUgg(mousePoint, cameraHandler, selectionManager);
+//			Vec2 mousePoint = cameraHandler.getPoint_ifYZplane(x,y);
+			Manipulator manipulatorFromWidget = createManipulatorFromUgg(selectionManager);
 			if (manipulatorFromWidget != null) {
 				return manipulatorFromWidget;
 			}
@@ -104,9 +107,7 @@ public abstract class ManipulatorBuilder {
 		return directionByMouse != MoveDimension.NONE;
 	}
 
-	protected boolean widgetOffersEdit(Vec2 mousePoint,
-	                                   CameraHandler cameraHandler,
-	                                   AbstractSelectionManager selectionManager) {
+	protected boolean widgetOffersEdit(AbstractSelectionManager selectionManager) {
 		setWidgetPoint(selectionManager);
 //		MoveDimension directionByMouse = widget.getDirectionByMouse(mousePoint, cameraHandler);
 		MoveDimension directionByMouse = MoveDimension.NONE;
@@ -127,9 +128,7 @@ public abstract class ManipulatorBuilder {
 		return null;
 	}
 
-	protected Manipulator createManipulatorFromUgg(Vec2 mousePoint,
-	                                               CameraHandler cameraHandler,
-	                                               AbstractSelectionManager selectionManager) {
+	protected Manipulator createManipulatorFromUgg(AbstractSelectionManager selectionManager) {
 		setWidgetPoint(selectionManager);
 ////		if(ProgramGlobals.getEditorActionType() == ModelEditorActionType3.TRANSLATION){
 ////		if (ProgramGlobals.getEditorActionType() == ModelEditorActionType3.ROTATION) {

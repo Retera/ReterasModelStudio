@@ -63,7 +63,7 @@ public class UVDisplayPanel extends JPanel {
 	public UVDisplayPanel setModel(ModelHandler modelHandler, ViewportActivityManager activityListener) {
 		this.activityListener = activityListener;
 		if (modelHandler != null) {
-			vp2.getCameraHandler().setActivityManager(activityListener);
+//			vp2.getCameraHandler().setActivityManager(activityListener);
 			vp2.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), true);
 			vp2.getMouseListenerThing().setActivityManager(activityListener);
 			vp2.reloadAllTextures();
