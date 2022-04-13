@@ -16,10 +16,10 @@ import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -102,12 +102,13 @@ public class DrawVertexActivity extends ViewportActivity {
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
-		Vec3 locationCalculator = cameraHandler.getGeoPoint(e.getX(), e.getY());
+	public void mousePressed(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+		Vec2 point = getPoint(e);
+		Vec3 locationCalculator = new Vec3(point.x, point.y, 0).transform(viewPortAntiRotMat);
 		try {
 //			Viewport viewport = viewportListener.getViewport();
 //			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
-			Vec3 facingVector = new Vec3(1, 0, 0).transform(cameraHandler.getViewPortAntiRotMat());
+			Vec3 facingVector = new Vec3(1, 0, 0).transform(viewPortAntiRotMat);
 
 			List<UndoAction> undoActions = new ArrayList<>();
 			Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(modelView.getModel());
@@ -135,18 +136,18 @@ public class DrawVertexActivity extends ViewportActivity {
 
 
 	@Override
-	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
+	public void mouseMoved(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		lastMousePoint = e.getPoint();
 	}
 
 
-	public void render(Graphics2D g, CameraHandler cameraHandler, RenderModel renderModel, boolean isAnimated) {
-		if (!isAnimated) {
-			g.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX));
-			if (lastMousePoint != null) {
-				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
-			}
-		}
-	}
+//	public void render(Graphics2D g, CameraHandler cameraHandler, RenderModel renderModel, boolean isAnimated) {
+//		if (!isAnimated) {
+//			g.setColor(ProgramGlobals.getEditorColorPrefs().getColor(ColorThing.VERTEX));
+//			if (lastMousePoint != null) {
+//				g.fillRect(lastMousePoint.x, lastMousePoint.y, 3, 3);
+//			}
+//		}
+//	}
 
 }

@@ -12,7 +12,6 @@ import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
@@ -138,19 +137,18 @@ public class DrawPlaneActivity extends ViewportActivity {
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
+	public void mousePressed(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		if (drawingState == DrawingState.NOTHING) {
 //			mouseStart = new Vec2(e.getX(), e.getY());
-			mouseStart = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
-			Mat4 viewPortAntiRotMat2 = cameraHandler.getViewPortAntiRotMat2();
+			mouseStart = getPoint(e);
 //			Mat4 viewPortAntiRotMat2 = cameraHandler.getViewportMat();
-			mouseStartV3 = new Vec3(0, mouseStart.x, mouseStart.y).transform(viewPortAntiRotMat2);
+			mouseStartV3 = new Vec3(0, mouseStart.x, mouseStart.y).transform(viewPortAntiRotMat);
 			drawingState = DrawingState.WANT_BEGIN_BASE;
 		}
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent e, CameraHandler cameraHandler) {
+	public void mouseReleased(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		if (drawingState == DrawingState.BASE) {
 			if (planeAction != null) {
 				undoManager.pushAction(planeAction);
@@ -161,21 +159,20 @@ public class DrawPlaneActivity extends ViewportActivity {
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
-		mouseDragged(e, cameraHandler);
+	public void mouseMoved(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+		mouseDragged(e, viewPortAntiRotMat, sizeAdj);
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent e, CameraHandler cameraHandler) {
+	public void mouseDragged(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		if (drawingState == DrawingState.WANT_BEGIN_BASE || drawingState == DrawingState.BASE) {
 			drawingState = DrawingState.BASE;
 
 //			Vec2 mouseEnd = new Vec2(e.getX(), e.getY()).scale((float) cameraHandler.sizeAdj());
-			Vec2 mouseEnd = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
+			Vec2 mouseEnd = getPoint(e);
 //			Vec3 mouseEndV3 = cameraHandler.getGeoPoint(e.getX(), e.getY());
-			Mat4 viewPortAntiRotMat2 = cameraHandler.getViewPortAntiRotMat2();
 //			Mat4 viewPortAntiRotMat2 = cameraHandler.getViewportMat();
-			updateBase(mouseEnd, viewPortAntiRotMat2);
+			updateBase(mouseEnd, viewPortAntiRotMat);
 //			updateBase2(mouseEnd, mouseEndV3, viewPortAntiRotMat2);
 		}
 	}

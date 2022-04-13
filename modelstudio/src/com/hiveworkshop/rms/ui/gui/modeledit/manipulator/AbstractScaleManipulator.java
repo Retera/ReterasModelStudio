@@ -25,13 +25,6 @@ public abstract class AbstractScaleManipulator extends Manipulator {
 		this.dir = dir;
 	}
 
-//	@Override
-//	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
-//		Vec3 center = selectionView.getCenter();
-//		resetScaleVector();
-//		scaleAction = modelEditor.beginScaling(center);
-//	}
-
 	@Override
 	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		resetScaleVector();

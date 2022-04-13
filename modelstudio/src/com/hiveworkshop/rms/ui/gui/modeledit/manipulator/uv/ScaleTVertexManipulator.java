@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.manipulator.uv;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.AbstractScaleManipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.MoveDimension;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
@@ -25,7 +24,7 @@ public final class ScaleTVertexManipulator extends AbstractScaleManipulator {
 	}
 
 	@Override
-	protected void onStart(MouseEvent e, Vec2 mouseStart, CameraHandler cameraHandler) {
+	protected void onStart(MouseEvent e, Vec2 mouseStart, Mat4 viewPortAntiRotMat) {
 		Vec3 center = new Vec3().setCoords((byte) 0, (byte) 1, selectionManager.getUVCenter(0));
 		resetScaleVector();
 		scaleAction = modelEditor.beginScaling(center);

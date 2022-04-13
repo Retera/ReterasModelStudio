@@ -3,9 +3,9 @@ package com.hiveworkshop.rms.ui.application.edit.mesh.activity;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
+import com.hiveworkshop.rms.util.Mat4;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -83,27 +83,27 @@ public final class ViewportActivityManager implements SelectionListener {
 	}
 
 
-	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
+	public void mousePressed(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		if (this.currentActivity != null) {
-			currentActivity.mousePressed(e, cameraHandler);
+			currentActivity.mousePressed(e, viewPortAntiRotMat, sizeAdj);
 		}
 	}
 
-	public void mouseReleased(MouseEvent e, CameraHandler cameraHandler) {
+	public void mouseReleased(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		if (this.currentActivity != null) {
-			currentActivity.mouseReleased(e, cameraHandler);
+			currentActivity.mouseReleased(e, viewPortAntiRotMat, sizeAdj);
 		}
 	}
 
-	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
+	public void mouseMoved(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		if (this.currentActivity != null) {
-			currentActivity.mouseMoved(e, cameraHandler);
+			currentActivity.mouseMoved(e, viewPortAntiRotMat, sizeAdj);
 		}
 	}
 
-	public void mouseDragged(MouseEvent e, CameraHandler cameraHandler) {
+	public void mouseDragged(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		if (this.currentActivity != null) {
-			currentActivity.mouseDragged(e, cameraHandler);
+			currentActivity.mouseDragged(e, viewPortAntiRotMat, sizeAdj);
 		}
 	}
 

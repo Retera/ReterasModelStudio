@@ -18,6 +18,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 
 import java.awt.*;
@@ -85,6 +86,19 @@ public abstract class ViewportActivity implements SelectionListener {
 	}
 
 
+	public void mousePressed(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	}
+
+	public void mouseReleased(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	}
+
+	public void mouseMoved(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	}
+
+	public void mouseDragged(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	}
+
+
 	public void render(Graphics2D g, CoordinateSystem coordinateSystem, RenderModel renderModel, boolean isAnimated) {
 	}
 
@@ -124,6 +138,13 @@ public abstract class ViewportActivity implements SelectionListener {
 
 		}
 		return null;
+	}
+
+	protected Vec2 getPoint(MouseEvent e) {
+		Component component = e.getComponent();
+		float xRatio = (2.0f * (float) e.getX() / (float) component.getWidth()) - 1.0f;
+		float yRatio = 1.0f - (2.0f * (float) e.getY() / (float) component.getHeight());
+		return new Vec2(xRatio, yRatio);
 	}
 
 }

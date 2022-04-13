@@ -6,7 +6,6 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -37,8 +36,8 @@ public final class ExtrudeManipulator extends AbstractMoveManipulator {
 	}
 
 	@Override
-	protected void onStart(MouseEvent e, Vec2 mouseStart, CameraHandler cameraHandler) {
-		super.onStart(e, mouseStart, cameraHandler);
+	protected void onStart(MouseEvent e, Vec2 mouseStart, Mat4 viewPortAntiRotMat) {
+		super.onStart(e, mouseStart, viewPortAntiRotMat);
 		ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
 		beginExtrudingSelection = new ExtrudeAction(modelView.getSelectedVertices(), new Vec3(0, 0, 0));
 		beginExtrudingSelection.redo();

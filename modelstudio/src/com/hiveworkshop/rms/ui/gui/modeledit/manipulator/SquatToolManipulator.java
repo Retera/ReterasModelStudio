@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
@@ -37,11 +36,11 @@ public class SquatToolManipulator extends AbstractRotateManipulator {
 	}
 
 	@Override
-	protected void onStart(MouseEvent e, Vec2 mouseStart, CameraHandler cameraHandler) {
+	protected void onStart(MouseEvent e, Vec2 mouseStart, Mat4 viewPortAntiRotMat) {
 		Vec3 center = selectionManager.getCenter();
 		nonRotAngle = 0;
 		Vec3 axis = new Vec3(Vec3.X_AXIS);
-		axis.transform(cameraHandler.getViewPortAntiRotMat2());
+		axis.transform(viewPortAntiRotMat);
 
 		rotationAction = modelEditor.beginSquatTool(center, axis);
 	}

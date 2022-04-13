@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.FilterMode;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.blp.GPUReadyTexture;
@@ -16,7 +17,9 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
@@ -45,8 +48,10 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 
 	private boolean wireframe;
 	private ShaderPipeline pipeline;
+	private ShaderPipeline bonePipeline;
 	private ShaderPipeline vertPipeline;
 	private ShaderPipeline normPipeline;
+	private ShaderPipeline selectionPipeline;
 
 	Class<? extends Throwable> lastThrownErrorClass;
 	private final ProgramPreferences programPreferences;
@@ -109,7 +114,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 //
 		loadBackgroundColors();
 //		paintTimer = new Timer(16, e -> {
-		paintTimer = new Timer(100, e -> {
+		paintTimer = new Timer(200, e -> {
 			repaint();
 			if (!isShowing()) {
 				paintTimer.stop();
@@ -243,11 +248,27 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		return normPipeline;
 	}
 
+	private ShaderPipeline getOrCreateSelectionPipeline() {
+		if (selectionPipeline == null) {
+			selectionPipeline = new SelectionBoxShaderPipeline();
+		}
+		return selectionPipeline;
+	}
+
+	private ShaderPipeline getOrCreateBoneMarkerShaderPipeline() {
+		if (bonePipeline == null) {
+			bonePipeline = new BoneMarkerShaderPipeline();
+		}
+		return bonePipeline;
+	}
+
 	@Override
 	public void initGL() {
 		getOrCreatePipeline();
 		getOrCreateVertPipeline();
 		getOrCreateNormPipeline();
+		getOrCreateSelectionPipeline();
+		getOrCreateBoneMarkerShaderPipeline();
 		pipeline.onGlobalPipelineSet();
 //		NGGLDP.setPipeline(getOrCreatePipeline());
 		try {
@@ -347,7 +368,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			if (showNormals) {
 				normPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 //				normPipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
-				normPipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
+//				normPipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
+				vertPipeline.glViewport(0, 0, (int) (getWidth()), (int) (getHeight()));
 				normPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 				normPipeline.glMatrixMode(GL11.GL_PROJECTION);
 				normPipeline.glLoadIdentity();
@@ -355,7 +377,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				normPipeline.glLoadIdentity();
 				normPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
 				geosetRenderThing.drawNormals(normPipeline);
-//				geosetRenderThing.render(normPipeline, formatVersion);
 			}
 			if (show3dVerts) {
 				vertPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
@@ -368,8 +389,38 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				vertPipeline.glLoadIdentity();
 				vertPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
 				geosetRenderThing.drawVerts(vertPipeline);
-//				geosetRenderThing.render(vertPipeline, formatVersion);
 			}
+			if (true) {
+				bonePipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+//				bonePipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
+				bonePipeline.glViewport(0, 0, (int) (getWidth()), (int) (getHeight()));
+				bonePipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+				bonePipeline.glMatrixMode(GL11.GL_PROJECTION);
+				bonePipeline.glLoadIdentity();
+				bonePipeline.glMatrixMode(GL11.GL_MODELVIEW);
+				bonePipeline.glLoadIdentity();
+				bonePipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
+				bonePipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+				GL11.glDisable(GL11.GL_TEXTURE_2D);
+
+				bonePipeline.glBegin(GL11.GL_POINTS);
+//			pipeline.glColor3f(1f, 1f, 3f);
+
+				Vec4 colorHeap = new Vec4(0f, .0f, 1f, 1f);
+				// if( wireframe.isSelected() )
+				for (IdObject v : modelView.getVisibleIdObjects()) {
+					if(modelView.shouldRender(v)){
+						RenderNode2 renderNode = renderModel.getRenderNode(v);
+
+						bonePipeline.addVert(renderNode.getPivot(), Vec3.Z_AXIS, colorHeap, Vec2.ORIGIN, colorHeap, Vec3.ZERO);
+					}
+				}
+				bonePipeline.glEnd();
+			}
+
+			paintSelectionBox();
 
 //			if (programPreferences != null && programPreferences.getRenderParticles()) {
 //				renderParticles();
@@ -378,7 +429,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glDisable(GL11.GL_CULL_FACE);
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
-
 
 			if (autoRepainting) {
 
@@ -399,20 +449,49 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		}
 	}
 
+	private void paintSelectionBox() {
+//		CubePainter.paintCameraLookAt(cameraHandler);
+		if (mouseAdapter.isSelecting()) {
+			selectionPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+			selectionPipeline.glViewport(0, 0, (int) (getWidth()), (int) (getHeight()));
+			selectionPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+			selectionPipeline.glMatrixMode(GL11.GL_PROJECTION);
+			selectionPipeline.glLoadIdentity();
+			selectionPipeline.glMatrixMode(GL11.GL_MODELVIEW);
+			selectionPipeline.glLoadIdentity();
+			selectionPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+
+			if(renderModel != null){
+				// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
+				selectionPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+				GL11.glDisable(GL11.GL_TEXTURE_2D);
+
+				selectionPipeline.glBegin(GL11.GL_LINES);
+
+				selectionPipeline.addVert(mouseAdapter.getStart(), Vec3.Z_AXIS, new Vec4(), new Vec2(), new Vec4(1, 0,0,1), Vec3.ZERO);
+				selectionPipeline.addVert(mouseAdapter.getEnd(), Vec3.Z_AXIS, new Vec4(), new Vec2(), new Vec4(1, 0,0,1), Vec3.ZERO);
+
+				selectionPipeline.glEnd();
+			}
+//			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(), mouseAdapter.getEndPGeo3(), cameraHandler);
+			System.out.println("is selecting!");
+		}
+	}
+
 	private void updateRenderModel() {
 		if (renderEnv.isLive()) {
-			if (renderEnv.isLive()) {
 //			renderEnv.updateAnimationTime();
 //			renderModel.updateNodes(false, programPreferences.getRenderParticles());
-				renderModel.updateAnimationTime().updateNodes2(programPreferences.getRenderParticles());
-			} else if (ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
+			renderModel.updateAnimationTime().updateNodes2(programPreferences.getRenderParticles());
+		} else if (ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE) {
 //			renderModel.updateNodes(false, programPreferences.getRenderParticles());
 //			renderModel.updateNodes2(programPreferences.getRenderParticles());
-				renderModel.updateNodes(programPreferences.getRenderParticles());
-			}
-			if (modelView.isGeosetsVisible()) {
-				renderModel.updateGeosets();
-			}
+			renderModel.updateNodes(programPreferences.getRenderParticles());
+		}
+		if (modelView.isGeosetsVisible()) {
+			renderModel.updateGeosets();
 		}
 	}
 

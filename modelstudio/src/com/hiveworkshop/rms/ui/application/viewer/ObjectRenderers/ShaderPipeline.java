@@ -8,6 +8,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 public abstract class ShaderPipeline {
+	//https://www.khronos.org/files/opengles_shading_language.pdf
 //	protected int STRIDE = 4 /* position */ + 4 /* normal */ + 2 /* uv */ + 4 /* color */;
 //	protected int STRIDE_BYTES = STRIDE * Float.BYTES;
 //	protected int STRIDE;
@@ -29,6 +30,8 @@ public abstract class ShaderPipeline {
 	protected int colorCount = 0;
 	protected int tangentCount = 0;
 	protected int fresnelColorCount = 0;
+	protected int attributeArrayOffs = 0;
+	protected int attributeArrayIndex = 0;
 
 	protected int glBeginType;
 	protected int shaderProgram;
@@ -53,8 +56,8 @@ public abstract class ShaderPipeline {
 	protected float fresnelOpacity = 0f;
 
 	protected int textureUnit;
-	protected int viewportWidth;
-	protected int viewportHeight;
+	protected float viewportWidth;
+	protected float viewportHeight;
 
 	public ShaderPipeline(){
 		currentMatrix.setIdentity();
@@ -127,6 +130,8 @@ public abstract class ShaderPipeline {
 		colorCount = 0;
 		fresnelColorCount = 0;
 		tangentCount = 0;
+		attributeArrayOffs = 0;
+		attributeArrayIndex = 0;
 		switch (type) {
 			case GL11.GL_TRIANGLES:
 				break;
@@ -139,6 +144,14 @@ public abstract class ShaderPipeline {
 			default:
 				throw new IllegalArgumentException(Integer.toString(type));
 		}
+	}
+
+
+	protected void enableAttribArray(int size, int stride) {
+		GL20.glEnableVertexAttribArray(attributeArrayIndex);
+		GL20.glVertexAttribPointer(attributeArrayIndex, size, GL11.GL_FLOAT, false, stride * Float.BYTES, attributeArrayOffs * Float.BYTES);
+		attributeArrayIndex++;
+		attributeArrayOffs += size;
 	}
 
 	protected void pushFloat(int absoluteOffset, float x) {

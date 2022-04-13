@@ -61,6 +61,23 @@ public abstract class ManipulatorBuilder {
 		return null;
 	}
 
+	public Cursor getCursorAt(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj, AbstractSelectionManager selectionManager) {
+		Vec2 mousePoint = getPoint(e);
+		if (!selectionManager.isEmpty() && widgetOffersEdit(selectionManager)) {
+			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
+		} else if (viewportSelectionHandler.selectableUnderCursor(mousePoint, viewPortAntiRotMat, sizeAdj)) {
+			return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+		}
+		return null;
+	}
+
+	private Vec2 getPoint(MouseEvent e) {
+		Component component = e.getComponent();
+		float xRatio = (2.0f * (float) e.getX() / (float) component.getWidth()) - 1.0f;
+		float yRatio = 1.0f - (2.0f * (float) e.getY() / (float) component.getHeight());
+		return new Vec2(xRatio, yRatio);
+	}
+
 	public Manipulator buildManipulator(MouseEvent e, int x, int y,
 	                                    ButtonType clickedButton,
 	                                    CoordinateSystem coordinateSystem,
@@ -81,7 +98,6 @@ public abstract class ManipulatorBuilder {
 
 
 	public Manipulator buildManipulator(MouseEvent e, int x, int y,
-	                                    CameraHandler cameraHandler,
 	                                    AbstractSelectionManager selectionManager) {
 
 
@@ -93,7 +109,7 @@ public abstract class ManipulatorBuilder {
 				return manipulatorFromWidget;
 			}
 		} else if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
-			return new SelectManipulator(viewportSelectionHandler, cameraHandler);
+			return new SelectManipulator(viewportSelectionHandler);
 		}
 		return null;
 	}

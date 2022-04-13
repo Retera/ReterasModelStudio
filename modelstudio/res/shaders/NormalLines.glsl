@@ -20,15 +20,13 @@ void EmVert(vec4 vPos) {
     EmitVertex();
 }
 
-void GenerateLine(int index)
-{
+void GenerateLine(int index) {
     EmVert(u_projection * gs_in[index].pos);
     EmVert(u_projection * (gs_in[index].pos + vec4(gs_in[index].normal, 0.0) * MAGNITUDE));
     EndPrimitive();
 }
 
-void main()
-{
+void main() {
     v_color = gs_in[0].color;
     GenerateLine(0);
 }

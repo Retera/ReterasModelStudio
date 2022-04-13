@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.Manipulator;
 import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.ManipulatorBuilder;
@@ -101,29 +100,27 @@ public class MultiManipulatorActivity extends ViewportActivity {
 
 
 	@Override
-	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
+	public void mousePressed(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		if (manipulator != null) {
-			finnishAction(e, cameraHandler, true);
+			finnishAction(e, viewPortAntiRotMat, sizeAdj, true);
 		}
-		manipulator = manipulatorBuilder.buildManipulator(e, e.getX(), e.getY(), cameraHandler, selectionManager);
+		manipulator = manipulatorBuilder.buildManipulator(e, e.getX(), e.getY(), selectionManager);
 		if (manipulator != null) {
-			mouseStartPoint = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
-			manipulator.start(e, mouseStartPoint, cameraHandler);
+			mouseStartPoint = getPoint(e);
+//			mouseStartPoint = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
+			manipulator.start(e, mouseStartPoint, viewPortAntiRotMat);
 			lastDragPoint = mouseStartPoint;
 		}
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent e, CameraHandler cameraHandler) {
-		finnishAction(e, cameraHandler, false);
+	public void mouseReleased(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+		finnishAction(e, viewPortAntiRotMat, sizeAdj, false);
 	}
 
-	private void finnishAction(MouseEvent e, CameraHandler cameraHandler, boolean wasCanceled) {
+	private void finnishAction(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj, boolean wasCanceled) {
 		if (manipulator != null) {
-			Vec2 mouseEnd = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
-//			Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
-			Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat2();
-			double sizeAdj = cameraHandler.sizeAdj();
+			Vec2 mouseEnd = getPoint(e);
 			UndoAction undoAction = manipulator.finish(e, lastDragPoint, mouseEnd, viewPortAntiRotMat, sizeAdj);
 			if (wasCanceled && undoAction != null) {
 				undoAction.undo();
@@ -137,16 +134,14 @@ public class MultiManipulatorActivity extends ViewportActivity {
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
-		cursorManager.accept(manipulatorBuilder.getCursorAt(e.getX(), e.getY(), cameraHandler, selectionManager));
+	public void mouseMoved(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+		cursorManager.accept(manipulatorBuilder.getCursorAt(e, viewPortAntiRotMat, sizeAdj, selectionManager));
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent e, CameraHandler cameraHandler) {
+	public void mouseDragged(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		if (manipulator != null) {
-			Vec2 mouseEnd = cameraHandler.getPoint_ifYZplane(e.getX(), e.getY());
-			Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat2();
-//			manipulator.update(e, lastDragPoint, mouseEnd, cameraHandler);
+			Vec2 mouseEnd = getPoint(e);
 			manipulator.update(e, lastDragPoint, mouseEnd, viewPortAntiRotMat);
 			lastDragPoint = mouseEnd;
 		}

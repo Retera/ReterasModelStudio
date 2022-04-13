@@ -278,7 +278,7 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (GeosetVertex geosetVertex : geoset.getVertices()) {
 					if (geosetVertex.getTverts().size() > tvertexLayerId) {
-						if (HitTestStuff.hitTest(geosetVertex.getTVertex(tvertexLayerId), point2, vertexSize)) {
+						if (HitTestStuff.hitTest(point2, geosetVertex.getTVertex(tvertexLayerId), vertexSize)) {
 							return true;
 						}
 					}
@@ -304,7 +304,7 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (GeosetVertex geosetVertex : geoset.getVertices()) {
 					if (geosetVertex.getTverts().size() > tvertexLayerId) {
-						if (HitTestStuff.hitTest(geosetVertex.getTVertex(tvertexLayerId), point, vertexSize)) {
+						if (HitTestStuff.hitTest(point, geosetVertex.getTVertex(tvertexLayerId), vertexSize)) {
 							return true;
 						}
 					}

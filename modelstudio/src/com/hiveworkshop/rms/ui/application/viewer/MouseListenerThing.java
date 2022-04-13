@@ -3,9 +3,11 @@ package com.hiveworkshop.rms.ui.application.viewer;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -18,6 +20,8 @@ public class MouseListenerThing extends MouseAdapter {
 
 	private Vec2 startP = null;
 	private Vec2 endP = null;
+	private final Vec2 vec2Temp = new Vec2();
+	private final Vec2 endOld = new Vec2();
 
 	private boolean isSelecting = false;
 	private boolean isActing = false;
@@ -26,7 +30,6 @@ public class MouseListenerThing extends MouseAdapter {
 		this.cameraHandler = cameraHandler;
 		this.programPreferences = programPreferences;
 	}
-
 
 	public MouseListenerThing setActivityManager(ViewportActivityManager activityManager) {
 		this.activityManager = activityManager;
@@ -43,24 +46,26 @@ public class MouseListenerThing extends MouseAdapter {
 
 	@Override
 	public void mousePressed(final MouseEvent e) {
-		startP = new Vec2(e.getX(), e.getY());
-		endP = new Vec2(e.getX(), e.getY());
+		endP = setPoint(e, endP);
+		startP = new Vec2(endP);
 		int modifiersEx = e.getModifiersEx();
+		Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
+		double sizeAdj = cameraHandler.sizeAdj();
 		if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
 			isSelecting = true;
 			if (activityManager != null) {
-				activityManager.mousePressed(e, cameraHandler);
+				activityManager.mousePressed(e, viewPortAntiRotMat, sizeAdj);
 			}
 		} else if ((ProgramGlobals.getPrefs().getModifyMouseButton() & modifiersEx) > 0) {
 			isActing = true;
 			if (activityManager != null) {
-				activityManager.mousePressed(e, cameraHandler);
+				activityManager.mousePressed(e, viewPortAntiRotMat, sizeAdj);
 			}
 		} else {
 			isActing = true;
 
 			if (activityManager != null) {
-				activityManager.mousePressed(e, cameraHandler);
+				activityManager.mousePressed(e, viewPortAntiRotMat, sizeAdj);
 			}
 		}
 	}
@@ -68,12 +73,14 @@ public class MouseListenerThing extends MouseAdapter {
 	@Override
 	public void mouseReleased(final MouseEvent e) {
 		if (endP != null) {
-			endP.set(e.getX(), e.getY());
+			endP = setPoint(e, endP);
 		}
 
 		if ((isActing || isSelecting) && activityManager != null) {
 
-			activityManager.mouseReleased(e, cameraHandler);
+			Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
+			double sizeAdj = cameraHandler.sizeAdj();
+			activityManager.mouseReleased(e, viewPortAntiRotMat, sizeAdj);
 			System.out.println("getStartPGeo: " + getStartPGeo() + " (" + startP + "), " + "getEndPGeo2: " + getEndPGeo2() + " (" + endP + "), ");
 		}
 
@@ -99,16 +106,33 @@ public class MouseListenerThing extends MouseAdapter {
 		if (endP != null) {
 			int modifiersEx = e.getModifiersEx();
 //			System.out.println("prefPan: " + programPreferences.getThreeDCameraPanMouseEx() + ", prefSpin: " + programPreferences.getThreeDCameraSpinMouseEx() + ", mouseEx: " + modifiersEx);
+
+			endOld.set(endP);
+			endP = setPoint(e, endP);
+			vec2Temp.set(endP).sub(endOld);
 			if (programPreferences.getThreeDCameraPanMouseEx() == modifiersEx) {
 //				System.out.println("transl x: " + (e.getX() - endP.y) + " (" + e.getX() + "-" + endP.y + ")" + ", transl y: " + (e.getY() - endP.z) + " (" + e.getY() + "-" + endP.z + ")");
-				cameraHandler.translate(-(e.getX() - endP.x), (e.getY() - endP.y));
+				cameraHandler.translate(-vec2Temp.x, vec2Temp.y);
 			} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
-				cameraHandler.rotate((e.getX() - endP.x), (e.getY() - endP.y));
+				cameraHandler.rotate(vec2Temp.x, vec2Temp.y);
 			} else if ((isActing || isSelecting) && activityManager != null) {
-				activityManager.mouseDragged(e, cameraHandler);
+				Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
+				double sizeAdj = cameraHandler.sizeAdj();
+				activityManager.mouseDragged(e, viewPortAntiRotMat, sizeAdj);
 			}
-			endP.set(e.getX(), e.getY());
 		}
+	}
+
+	private Vec2 setPoint(MouseEvent e, Vec2 point) {
+		Component component = e.getComponent();
+		float xRatio = 2.0f * e.getX() / (float) component.getWidth() - 1.0f;
+		float yRatio = 1.0f - 2.0f * e.getY() / (float) component.getHeight();
+		if(point == null){
+			point = new Vec2(xRatio, yRatio);
+		} else {
+			point.set(xRatio, yRatio);
+		}
+		return point;
 	}
 
 	public boolean isActing() {
@@ -141,6 +165,14 @@ public class MouseListenerThing extends MouseAdapter {
 
 	public Vec3 getStartPGeo() {
 		return cameraHandler.getGeoPoint(startP.x, startP.y);
+	}
+
+	Vec3 vec3Heap = new Vec3();
+	public Vec3 getStart(){
+		return vec3Heap.set(startP.x, startP.y, 0);
+	}
+	public Vec3 getEnd(){
+		return vec3Heap.set(endP.x, endP.y, 0);
 	}
 
 }

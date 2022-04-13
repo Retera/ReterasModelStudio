@@ -4,6 +4,7 @@ import java.util.Collection;
 
 public class Vec2 {
 	public static final Vec2 ORIGIN = new Vec2();
+	public static final Vec2 ONE = new Vec2(1,1);
 	public static final Vec2 X_AXIS = new Vec2(1,0);
 	public static final Vec2 Y_AXIS = new Vec2(0,1);
 
@@ -300,4 +301,12 @@ public class Vec2 {
 //		float newZ = (mat4.m02 * x) + (mat4.m12 * y) + mat4.m32;
 		return set(newX, newY);
 	}
+
+	public Vec2 setAsProjection(Vec3 vec3, Mat4 mat4){
+		float l_w = 1f / ((vec3.x * mat4.m03) + (vec3.y * mat4.m13) + (vec3.z * mat4.m23) + mat4.m33);
+		float newX = (mat4.m00 * vec3.x) + (mat4.m10 * vec3.y) + (mat4.m20 * vec3.z) + mat4.m30;
+		float newY = (mat4.m01 * vec3.x) + (mat4.m11 * vec3.y) + (mat4.m21 * vec3.z) + mat4.m31;
+		return set(newX, newY).scale(l_w);
+	}
+
 }

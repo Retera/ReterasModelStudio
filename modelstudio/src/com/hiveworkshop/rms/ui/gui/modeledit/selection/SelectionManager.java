@@ -185,15 +185,17 @@ public class SelectionManager extends AbstractSelectionManager {
 //		}
 
 		if (selectionMode == SelectionItemTypes.ANIMATE) {
+			Vec2 vertexV2 = new Vec2();
 			List<IdObject> selectedItems = new ArrayList<>();
 
 			for (IdObject object : modelView.getEditableIdObjects()) {
-				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
-//				double vertexSize = object.getClickRadius() * 2;
-//				int vertexSize1 = ProgramGlobals.getPrefs().getVertexSize();
-				double vertexSize = sizeAdj * object.getClickRadius()*2;
-				if (modelView.isEditable(object) && HitTestStuff.hitTest(min, max, renderNode.getPivot(), viewPortAntiRotMat, vertexSize)) {
-					selectedItems.add(object);
+				if (modelView.isEditable(object)) {
+					RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
+					double vertexSize = sizeAdj * object.getClickRadius()*2;
+					vertexV2.setAsProjection(renderNode.getPivot(), viewPortAntiRotMat);
+					if (HitTestStuff.hitTest(min, max, vertexV2, vertexSize)) {
+						selectedItems.add(object);
+					}
 				}
 			}
 			Set<GeosetVertex> selectedVerts = addVertsFromArea(min, max, viewPortAntiRotMat, sizeAdj);
@@ -203,7 +205,8 @@ public class SelectionManager extends AbstractSelectionManager {
 				if (modelView.isEditable(cameraNode)){
 					RenderNodeCamera renderNode = editorRenderModel.getRenderNode(cameraNode.getParent());
 					Vec3 pivot = cameraNode instanceof CameraNode.SourceNode ? renderNode.getPivot() : renderNode.getTarget();
-					if(HitTestStuff.hitTest(min, max, pivot, viewPortAntiRotMat, 2)){
+					vertexV2.setAsProjection(pivot, viewPortAntiRotMat);
+					if(HitTestStuff.hitTest(min, max, vertexV2, 2)){
 						selectedCams.add(cameraNode);
 					}
 				}
@@ -266,16 +269,17 @@ public class SelectionManager extends AbstractSelectionManager {
 //		}
 
 		if (selectionMode == SelectionItemTypes.ANIMATE) {
+			Vec2 vertexV2 = new Vec2();
 			List<IdObject> selectedItems = new ArrayList<>();
 
 			for (IdObject object : modelView.getEditableIdObjects()) {
-				double vertexSize = object.getClickRadius() * 2;
-				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
-//				double vertexSize1 = ProgramGlobals.getPrefs().getVertexSize();
-				double vertexSize1 = sizeAdj * object.getClickRadius() / 2.0;
-//				double vertexSize1 = cameraHandler.geomDist(1);
-				if (modelView.isEditable(object) && HitTestStuff.hitTest(minFlat, maxFlat, renderNode.getPivot(), viewPortAntiRotMat, vertexSize1)) {
-					selectedItems.add(object);
+				if (modelView.isEditable(object)) {
+					RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
+					double vertexSize1 = sizeAdj * object.getClickRadius() / 2.0;
+					vertexV2.setAsProjection(renderNode.getPivot(), viewPortAntiRotMat);
+					if (HitTestStuff.hitTest(minFlat, maxFlat, vertexV2, vertexSize1)) {
+						selectedItems.add(object);
+					}
 				}
 			}
 			Set<GeosetVertex> selectedVerts = addVertsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
@@ -284,7 +288,8 @@ public class SelectionManager extends AbstractSelectionManager {
 				if (modelView.isEditable(cameraNode)){
 					RenderNodeCamera renderNode = editorRenderModel.getRenderNode(cameraNode.getParent());
 					Vec3 pivot = cameraNode instanceof CameraNode.SourceNode ? renderNode.getPivot() : renderNode.getTarget();
-					if(HitTestStuff.hitTest(minFlat, maxFlat, pivot, viewPortAntiRotMat, 2)){
+					vertexV2.setAsProjection(pivot, viewPortAntiRotMat);
+					if(HitTestStuff.hitTest(minFlat, maxFlat, vertexV2, 2)){
 						selectedCams.add(cameraNode);
 					}
 				}
@@ -353,10 +358,14 @@ public class SelectionManager extends AbstractSelectionManager {
 
 	private Set<CameraNode> getCameraNodesFromArea(Vec2 min, Vec2 max, Mat4 viewPortMat, double sizeAdj) {
 		Set<CameraNode> selectedCamNodes = new HashSet<>();
+		Vec2 vertexV2 = new Vec2();
 		double vertexSize = sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0;
 		for (CameraNode node : modelView.getEditableCameraNodes()) {
-			if (modelView.isEditable(node) && HitTestStuff.hitTest(min, max, node.getPosition(), viewPortMat, vertexSize)) {
-				selectedCamNodes.add(node);
+			if (modelView.isEditable(node)) {
+				vertexV2.setAsProjection(node.getPosition(), viewPortMat);
+				if (HitTestStuff.hitTest(min, max, vertexV2, vertexSize)) {
+					selectedCamNodes.add(node);
+				}
 			}
 		}
 		return selectedCamNodes;
@@ -364,12 +373,14 @@ public class SelectionManager extends AbstractSelectionManager {
 
 	private Set<IdObject> getIdObjectsFromArea(Vec2 min, Vec2 max, Mat4 viewPortMat, double sizeAdj) {
 		Set<IdObject> selectedItems = new HashSet<>();
+		Vec2 vertexV2 = new Vec2();
 		for (IdObject object : modelView.getEditableIdObjects()) {
-			double vertSize = sizeAdj * object.getClickRadius() / 2.0;
-//			double vertSize = 1.0;
-//			double vertSize = cameraHandler.geomDist(1.0);
-			if (modelView.isEditable(object) && HitTestStuff.hitTest(min, max, object.getPivotPoint(), viewPortMat, vertSize)) {
-				selectedItems.add(object);
+			if (modelView.isEditable(object)) {
+				double vertSize = sizeAdj * object.getClickRadius() / 2.0;
+				vertexV2.setAsProjection(object.getPivotPoint(), viewPortMat);
+				if (HitTestStuff.hitTest(min, max, vertexV2, vertSize)) {
+					selectedItems.add(object);
+				}
 			}
 
 //				if (object instanceof CollisionShape) {
@@ -386,10 +397,17 @@ public class SelectionManager extends AbstractSelectionManager {
 
 	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, Mat4 viewPortMat) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
+		Vec2[] triPoints = new Vec2[] {new Vec2(), new Vec2(), new Vec2()};
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (Triangle triangle : geoset.getTriangles()) {
-				if (HitTestStuff.triHitTest(triangle, min, max, viewPortMat)) {
-					newSelection.addAll(Arrays.asList(triangle.getAll()));
+				if (modelView.isEditable(triangle)){
+					triPoints[0].setAsProjection(triangle.get(0), viewPortMat);
+					triPoints[1].setAsProjection(triangle.get(1), viewPortMat);
+					triPoints[2].setAsProjection(triangle.get(2), viewPortMat);
+//					if (HitTestStuff.triHitTest(triangle, min, max, viewPortMat)) {
+					if (HitTestStuff.triangleOverlapArea(min, max, triPoints)) {
+						newSelection.addAll(Arrays.asList(triangle.getAll()));
+					}
 				}
 			}
 		}
@@ -399,14 +417,19 @@ public class SelectionManager extends AbstractSelectionManager {
 
 	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
+		Vec2 vertexV2 = new Vec2();
 
 		double vertSize = sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0;
 
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			RenderGeoset renderGeoset = editorRenderModel.getRenderGeoset(geoset);
 			for (RenderGeoset.RenderVert renderVert : renderGeoset.getRenderVerts()) {
-				if (modelView.isEditable(renderVert.getVertex()) && HitTestStuff.hitTest(min, max, renderVert.getRenderPos(), viewPortAntiRotMat, vertSize))
-					newSelection.add(renderVert.getVertex());
+				if (modelView.isEditable(renderVert.getVertex())){
+					vertexV2.setAsProjection(renderVert.getRenderPos(), viewPortAntiRotMat);
+					if (HitTestStuff.hitTest(min, max, vertexV2, vertSize)){
+						newSelection.add(renderVert.getVertex());
+					}
+				}
 			}
 		}
 		return newSelection;
@@ -556,13 +579,13 @@ public class SelectionManager extends AbstractSelectionManager {
 		for (IdObject object : modelView.getEditableIdObjects()) {
 			if(modelView.isSelected(object)){
 				double nodeSize = object.getClickRadius() / coordinateSystem.getZoom();
-				if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(object.getPivotPoint()), point, nodeSize)) {
+				if (HitTestStuff.hitTest(point, coordinateSystem.convertToViewVec2(object.getPivotPoint()), nodeSize)) {
 					return true;
 				}
 				if (object instanceof CollisionShape) {
 					for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
 						double vertexSize = IdObject.DEFAULT_CLICK_RADIUS / 2.0 / coordinateSystem.getZoom();
-						if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(vertex), point, vertexSize)) {
+						if (HitTestStuff.hitTest(point, coordinateSystem.convertToViewVec2(vertex), vertexSize)) {
 							return true;
 						}
 					}
@@ -572,7 +595,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		double vertexSize = ProgramGlobals.getPrefs().getVertexSize() / 2.0 / coordinateSystem.getZoom();
 		for (CameraNode cameraNode : modelView.getEditableCameraNodes()) {
 			if(modelView.isEditable(cameraNode)){
-				if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(cameraNode.getPosition()), point, vertexSize)) {
+				if (HitTestStuff.hitTest(point, coordinateSystem.convertToViewVec2(cameraNode.getPosition()), vertexSize)) {
 					return true;
 				}
 			}
@@ -581,7 +604,7 @@ public class SelectionManager extends AbstractSelectionManager {
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (GeosetVertex vertex : geoset.getVertices()) {
-					if (modelView.isEditable(vertex) && HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(vertex), point, vertexSize)) {
+					if (modelView.isEditable(vertex) && HitTestStuff.hitTest(point, coordinateSystem.convertToViewVec2(vertex), vertexSize)) {
 						return true;
 					}
 				}
@@ -597,7 +620,7 @@ public class SelectionManager extends AbstractSelectionManager {
 					}
 				}
 				for (GeosetVertex geosetVertex : geoset.getVertices()) {
-					if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(geosetVertex), point, vertexSize)) {
+					if (HitTestStuff.hitTest(point, coordinateSystem.convertToViewVec2(geosetVertex), vertexSize)) {
 						return true;
 					}
 				}
@@ -612,7 +635,7 @@ public class SelectionManager extends AbstractSelectionManager {
 					}
 				}
 				for (GeosetVertex geosetVertex : geoset.getVertices()) {
-					if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(geosetVertex), point, vertexSize)) {
+					if (HitTestStuff.hitTest(point, coordinateSystem.convertToViewVec2(geosetVertex), vertexSize)) {
 						return true;
 					}
 				}
@@ -632,7 +655,7 @@ public class SelectionManager extends AbstractSelectionManager {
 			for (IdObject object : modelView.getEditableIdObjects()) {
 				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
 				double nodeSize = object.getClickRadius() * 2 / 2.0 / coordinateSystem.getZoom();
-				if (HitTestStuff.hitTest(coordinateSystem.convertToViewVec2(renderNode.getPivot()), point, nodeSize)) {
+				if (HitTestStuff.hitTest(point, coordinateSystem.convertToViewVec2(renderNode.getPivot()), nodeSize)) {
 					return true;
 				}
 			}
@@ -643,16 +666,19 @@ public class SelectionManager extends AbstractSelectionManager {
 	}
 
 	public boolean selectableUnderCursor(Vec2 point, Mat4 viewPortAntiRotMat, double sizeAdj) {
+		Vec2 vertexV2 = new Vec2();
 		for (IdObject object : modelView.getEditableIdObjects()) {
 			RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
 			double vertexSize = sizeAdj * object.getClickRadius() * 2;
-			if (HitTestStuff.hitTest(renderNode.getPivot(), point, viewPortAntiRotMat, vertexSize)) {
+			vertexV2.setAsProjection(renderNode.getPivot(), viewPortAntiRotMat);
+			if (HitTestStuff.hitTest(point, vertexV2, vertexSize)) {
 				return true;
 			}
 			if (object instanceof CollisionShape) {
 				double vertexSize1 = sizeAdj * IdObject.DEFAULT_CLICK_RADIUS;
 				for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
-					if (HitTestStuff.hitTest(vertex, point, viewPortAntiRotMat, vertexSize1)) {
+					vertexV2.setAsProjection(vertex, viewPortAntiRotMat);
+					if (HitTestStuff.hitTest(point, vertexV2, vertexSize1)) {
 						return true;
 					}
 				}
@@ -661,7 +687,8 @@ public class SelectionManager extends AbstractSelectionManager {
 
 		double vertexSize2 = sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0;
 		for (CameraNode cameraNode : modelView.getEditableCameraNodes()) {
-			if (HitTestStuff.hitTest(cameraNode.getPosition(), point, viewPortAntiRotMat, vertexSize2)) {
+			vertexV2.setAsProjection(cameraNode.getPosition(), viewPortAntiRotMat);
+			if (HitTestStuff.hitTest(point, vertexV2, vertexSize2)) {
 				return true;
 			}
 		}
@@ -669,23 +696,32 @@ public class SelectionManager extends AbstractSelectionManager {
 		if (selectionMode == SelectionItemTypes.VERTEX) {
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (GeosetVertex vertex : geoset.getVertices()) {
-					if (modelView.isEditable(vertex) && HitTestStuff.hitTest(vertex, point, viewPortAntiRotMat, vertexSize2)) {
-						return true;
+					if (modelView.isEditable(vertex)) {
+						vertexV2.setAsProjection(vertex, viewPortAntiRotMat);
+						if (HitTestStuff.hitTest(point, vertexV2, vertexSize2)) {
+							return true;
+						}
 					}
 				}
 			}
 		}
 
-
 		if (selectionMode == SelectionItemTypes.CLUSTER) {
+			Vec2[] triPoints = new Vec2[] {new Vec2(), new Vec2(), new Vec2()};
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, viewPortAntiRotMat)) {
-						return true;
+					if (modelView.isEditable(triangle)) {
+						triPoints[0].setAsProjection(triangle.get(0), viewPortAntiRotMat);
+						triPoints[1].setAsProjection(triangle.get(1), viewPortAntiRotMat);
+						triPoints[2].setAsProjection(triangle.get(2), viewPortAntiRotMat);
+						if (HitTestStuff.pointInTriangle(point, triPoints[0], triPoints[1], triPoints[2])) {
+							return true;
+						}
 					}
 				}
 				for (GeosetVertex geosetVertex : geoset.getVertices()) {
-					if (HitTestStuff.hitTest(geosetVertex, point, viewPortAntiRotMat, vertexSize2)) {
+					vertexV2.setAsProjection(geosetVertex, viewPortAntiRotMat);
+					if (HitTestStuff.hitTest(point, vertexV2, vertexSize2)) {
 						return true;
 					}
 				}
@@ -693,25 +729,40 @@ public class SelectionManager extends AbstractSelectionManager {
 		}
 
 		if (selectionMode == SelectionItemTypes.GROUP) {
+			Vec2[] triPoints = new Vec2[] {new Vec2(), new Vec2(), new Vec2()};
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, viewPortAntiRotMat)) {
-						return true;
+					if (modelView.isEditable(triangle)) {
+						triPoints[0].setAsProjection(triangle.get(0), viewPortAntiRotMat);
+						triPoints[1].setAsProjection(triangle.get(1), viewPortAntiRotMat);
+						triPoints[2].setAsProjection(triangle.get(2), viewPortAntiRotMat);
+						if (HitTestStuff.pointInTriangle(point, triPoints[0], triPoints[1], triPoints[2])) {
+							return true;
+						}
 					}
 				}
 				for (GeosetVertex vertex : geoset.getVertices()) {
-					if (modelView.isEditable(vertex) && HitTestStuff.hitTest(vertex, point, viewPortAntiRotMat, vertexSize2)) {
-						return true;
+					if (modelView.isEditable(vertex)) {
+						vertexV2.setAsProjection(vertex, viewPortAntiRotMat);
+						if (HitTestStuff.hitTest(point, vertexV2, vertexSize2)) {
+							return true;
+						}
 					}
 				}
 			}
 		}
 
 		if (selectionMode == SelectionItemTypes.FACE) {
+			Vec2[] triPoints = new Vec2[] {new Vec2(), new Vec2(), new Vec2()};
 			for (Geoset geoset : modelView.getEditableGeosets()) {
 				for (Triangle triangle : geoset.getTriangles()) {
-					if (modelView.isEditable(triangle) && HitTestStuff.triHitTest(triangle, point, viewPortAntiRotMat)) {
-						return true;
+					if (modelView.isEditable(triangle)) {
+						triPoints[0].setAsProjection(triangle.get(0), viewPortAntiRotMat);
+						triPoints[1].setAsProjection(triangle.get(1), viewPortAntiRotMat);
+						triPoints[2].setAsProjection(triangle.get(2), viewPortAntiRotMat);
+						if (HitTestStuff.pointInTriangle(point, triPoints[0], triPoints[1], triPoints[2])) {
+							return true;
+						}
 					}
 				}
 			}
@@ -720,9 +771,8 @@ public class SelectionManager extends AbstractSelectionManager {
 			for (IdObject object : modelView.getEditableIdObjects()) {
 				RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
 				double vertexSize = sizeAdj * object.getClickRadius() * 2;
-//				double vertexSize = 1;
-//				double vertexSize = cameraHandler.geomDist(1.0);
-				if (HitTestStuff.hitTest(renderNode.getPivot(), point, viewPortAntiRotMat, vertexSize)) {
+				vertexV2.setAsProjection(renderNode.getPivot(), viewPortAntiRotMat);
+				if (HitTestStuff.hitTest(point, vertexV2, vertexSize)) {
 					return true;
 				}
 			}

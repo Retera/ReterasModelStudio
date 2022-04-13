@@ -113,7 +113,8 @@ public class CameraManager extends CameraHandler {
 		if (isOrtho){
 			projectionMatrix.setOrtho(-aspect*distance/2.0f, aspect*distance/2.0f, -distance/2.0f, distance/2.0f, -6000, 6000);
 		} else {
-			projectionMatrix.setPerspective((float) Math.toRadians(70), aspect, 0.0001f, 200000f);
+//			projectionMatrix.setPerspective((float) Math.toRadians(70), aspect, 0.0001f, 200000f);
+			projectionMatrix.setPerspective((float) Math.toRadians(70), aspect, 1f, 20000f);
 		}
 		viewProjectionMatrix.set(projectionMatrix).mul(viewMatrix);
 
@@ -180,7 +181,8 @@ public class CameraManager extends CameraHandler {
 	}
 
 	public double sizeAdj() {
-		return distance / 600f;
+//		return distance / 600f;
+		return 1.0/(double) viewport.getWidth();
 	}
 	public void setPosition(double a, double b) {
 		target.y = (float) a;
@@ -224,9 +226,12 @@ public class CameraManager extends CameraHandler {
 	}
 
 	public void rot(double rx, double ry, double rz) {
-		tiltAngle += Math.toRadians(rx);
-		sideAngle -= Math.toRadians(ry);
-		upAngle -= Math.toRadians(rz);
+//		tiltAngle += Math.toRadians(rx);
+//		sideAngle -= Math.toRadians(ry);
+//		upAngle -= Math.toRadians(rz);
+		tiltAngle += rx;
+		sideAngle -= ry;
+		upAngle -= rz;
 		calculateCameraRotation();
 	}
 
@@ -317,10 +322,12 @@ public class CameraManager extends CameraHandler {
 		double x_real = (viewX - (viewport.getWidth() / 2.0));
 		double y_real = -(viewY - (viewport.getHeight() / 2.0));
 
-		Vec3 vec3 = new Vec3(0, x_real, y_real);
+//		Vec3 vec3 = new Vec3(0, x_real, y_real);
+		Vec3 vec3 = new Vec3(viewX, viewY, 0);
 
 //		vec3.transform(getViewPortAntiRotMat2());
-		vec3.transformInverted(getViewProjectionMatrix());
+//		vec3.transformInverted(getViewProjectionMatrix());
+		vec3.transformInverted(viewProjectionMatrix);
 //		System.out.println("GeoMouse: [" + viewX + ", " + viewY + "], " + "zoom: " + m_zoom + ", geoP: " + vec3 + ", camPos: " + cameraPos);
 
 		return vec3;
@@ -331,14 +338,19 @@ public class CameraManager extends CameraHandler {
 //		double y_real = -(viewY - (camera.rect.getHeight() / 2.0)) + target.z;
 		double x_real = (viewX - (viewport.getWidth() / 2.0)) + target.y;
 		double y_real = -(viewY - (viewport.getHeight() / 2.0)) + target.z;
+		float xRatio = 2.0f * (float) viewX / (float) viewport.getWidth() - 1.0f;
+		float yRatio = 1.0f - 2.0f * (float) viewX / (float) viewport.getHeight();
 
 		Vec2 vec2 = new Vec2(x_real, y_real);
-		vec2.scale((float) (1f / distance));
+//		vec2.scale((float) (1f / distance));
 //		vec2.transform(getViewPortAntiRotMat2());
 
 //		System.out.println("CamSpaceMouse: [" + viewX + ", " + viewY + "], " + "zoom: " + m_zoom + ", CamP: " + vec2 + ", camPos: " + cameraPos);
+//		Vec2 vec22 = new Vec2(viewX - (viewport.getWidth() / 2.0), -(viewY - (viewport.getHeight() / 2.0)));
+//		Vec2 vec22 = new Vec2(viewX*(float)viewport.getWidth(), viewY*(float)viewport.getHeight());
+		Vec2 vec22 = new Vec2(xRatio, yRatio);
 
-		return vec2;
+		return vec22;
 	}
 
 	public void setViewportCamera(int dist, int side, int height, int rX, int rY, int rZ) {
@@ -401,13 +413,21 @@ public class CameraManager extends CameraHandler {
 	}
 
 	public Mat4 getViewPortAntiRotMat() {
-		viewPortAntiRotMat.setIdentity().fromQuat(inverseCameraRotation.invertRotation());
-		inverseCameraRotation.invertRotation();
+//		viewPortAntiRotMat.setIdentity().fromQuat(inverseCameraRotation.invertRotation());
+//		inverseCameraRotation.invertRotation();
+//		return viewPortAntiRotMat;
+
+		viewPortAntiRotMat.set(viewProjectionMatrix);
+//		viewPortAntiRotMat.set(testSelMatrix);
 		return viewPortAntiRotMat;
 	}
 
 	public Mat4 getViewPortAntiRotMat2() {
-		viewPortAntiRotMat.setIdentity().fromQuat(inverseCameraRotation);
+//		viewPortAntiRotMat.setIdentity().fromQuat(inverseCameraRotation);
+//		viewPortAntiRotMat.set(viewProjectionMatrix).invert();
+
+		viewPortAntiRotMat.set(viewProjectionMatrix);
+//		viewPortAntiRotMat.set(testSelMatrix);
 		return viewPortAntiRotMat;
 	}
 

@@ -17,21 +17,6 @@ public class HitTestStuff {
 		return hitTest(min, max, vertexV2, vertSize);
 	}
 
-	public static boolean hitTest(Vec2 min, Vec2 max, Vec3 vec3, Mat4 viewPortMat, double vertexSize) {
-		Vec3 viewPAdj = new Vec3(vec3).transform(viewPortMat);
-		Vec2 vertexV2 = viewPAdj.getProjected((byte) 1, (byte) 2);
-
-		return hitTest(min, max, vertexV2, vertexSize);
-	}
-
-	public static boolean hitTest(Vec3 vec3, Vec2 point, Mat4 viewPortAntiRotMat, double vertexSize) {
-		Vec3 viewPAdj = new Vec3(vec3).transform(viewPortAntiRotMat);
-		Vec2 vertexV2 = viewPAdj.getProjected((byte) 1, (byte) 2);
-
-		//		System.out.println(vertSize + " >= " + vertexV2.distance(point) + " (" + vertexV2 + " to " + point + ") vertexSize:" + vertexSize);
-		return vertexV2.distance(point) <= vertexSize;
-	}
-
 	public static boolean triHitTest(Triangle triangle, Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		byte dim1 = coordinateSystem.getPortFirstXYZ();
 		byte dim2 = coordinateSystem.getPortSecondXYZ();
@@ -58,17 +43,7 @@ public class HitTestStuff {
 		return triangleOverlapArea(min, max, tVerts2);
 	}
 
-	public static boolean triHitTest(Triangle triangle, Vec2 min, Vec2 max, Mat4 viewPortMat) {
-		Vec2[] triPoints = new Vec2[] {
-				new Vec3(triangle.get(0)).transform(viewPortMat).getProjected((byte) 1, (byte) 2),
-				new Vec3(triangle.get(1)).transform(viewPortMat).getProjected((byte) 1, (byte) 2),
-				new Vec3(triangle.get(2)).transform(viewPortMat).getProjected((byte) 1, (byte) 2),
-		};
-
-		return triangleOverlapArea(min, max, triPoints);
-	}
-
-	private static boolean triangleOverlapArea(Vec2 min, Vec2 max, Vec2[] triPoints) {
+	public static boolean triangleOverlapArea(Vec2 min, Vec2 max, Vec2[] triPoints) {
 		Vec2 corner1 = new Vec2(min.x, max.y); // not sure if these are needed...
 		Vec2 corner2 = new Vec2(max.x, min.y);
 
@@ -86,16 +61,6 @@ public class HitTestStuff {
 		return pointInTriangle(point, triPoints);
 	}
 
-	public static boolean triHitTest(Triangle triangle, Vec2 point, Mat4 viewPortMat) {
-		Vec2[] triPoints = new Vec2[] {
-				new Vec3(triangle.get(0)).transform(viewPortMat).getProjected((byte) 1, (byte) 2),
-				new Vec3(triangle.get(1)).transform(viewPortMat).getProjected((byte) 1, (byte) 2),
-				new Vec3(triangle.get(2)).transform(viewPortMat).getProjected((byte) 1, (byte) 2),
-		};
-
-		return pointInTriangle(point, triPoints);
-	}
-
 	//ugg
 	public static boolean triHitTest(Triangle triangle, Vec2 point, int tvIndex) {
 		return pointInTriangle(point, triangle.getTVerts(tvIndex));
@@ -107,7 +72,7 @@ public class HitTestStuff {
 				|| within(point, min, max);
 	}
 
-	public static boolean hitTest(Vec2 vertex, Vec2 point, double vertexSize) {
+	public static boolean hitTest(Vec2 point, Vec2 vertex, double vertexSize) {
 		return vertex.distance(point) <= vertexSize;
 	}
 
@@ -139,11 +104,11 @@ public class HitTestStuff {
 		return xIn && yIn && zIn;
 	}
 
-	private static boolean pointInTriangle(Vec2 point, Vec2[] triPoints) {
+	public static boolean pointInTriangle(Vec2 point, Vec2[] triPoints) {
 		return pointInTriangle(point, triPoints[0], triPoints[1], triPoints[2]);
 	}
 
-	private static boolean pointInTriangle(Vec2 point, Vec2 v1, Vec2 v2, Vec2 v3) {
+	public static boolean pointInTriangle(Vec2 point, Vec2 v1, Vec2 v2, Vec2 v3) {
 		float d1 = (point.x - v2.x) * (v1.y - v2.y) - (v1.x - v2.x) * (point.y - v2.y);
 		float d2 = (point.x - v3.x) * (v2.y - v3.y) - (v2.x - v3.x) * (point.y - v3.y);
 		float d3 = (point.x - v1.x) * (v3.y - v1.y) - (v3.x - v1.x) * (point.y - v1.y);

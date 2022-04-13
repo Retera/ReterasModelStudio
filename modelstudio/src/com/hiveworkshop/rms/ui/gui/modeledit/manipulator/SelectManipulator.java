@@ -4,10 +4,8 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
-import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -26,27 +24,14 @@ public class SelectManipulator extends Manipulator {
 		this.coordinateSystem = coordinateSystem;
 	}
 
-	public SelectManipulator(ViewportSelectionHandler viewportSelectionHandler, CameraHandler cameraHandler) {
+	public SelectManipulator(ViewportSelectionHandler viewportSelectionHandler) {
 		this.viewportSelectionHandler = viewportSelectionHandler;
-//		this.coordinateSystem = coordinateSystem;
 	}
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
 		currentDim1 = dim1;
 		currentDim2 = dim2;
-	}
-
-	@Override
-	protected void onStart(MouseEvent e, Vec2 mouseStart, CameraHandler cameraHandler) {
-//		currentDim1 = dim1;
-//		currentDim2 = dim2;
-	}
-
-	@Override
-	protected void onStart(MouseEvent e, Vec3 mouseStart, CameraHandler cameraHandler) {
-//		currentDim1 = dim1;
-//		currentDim2 = dim2;
 	}
 
 	@Override
@@ -57,11 +42,6 @@ public class SelectManipulator extends Manipulator {
 	@Override
 	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat) {
 		this.mouseEnd = mouseEnd;
-	}
-
-	@Override
-	public void update(MouseEvent e, Vec3 mouseStart, Vec3 mouseEnd, Mat4 viewPortAntiRotMat) {
-//		this.mouseEnd = mouseEnd;
 	}
 
 	@Override
@@ -79,23 +59,6 @@ public class SelectManipulator extends Manipulator {
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		Vec2 min = new Vec2(activityStart).minimize(mouseEnd);
 		Vec2 max = new Vec2(activityStart).maximize(mouseEnd);
-//		System.out.println("SelectManipulator#finish " + "min: " + min + " max: " + max);
-//		return viewportSelectionHandler.selectRegion(e, min, max, cameraHandler).redo();
-		UndoAction action = viewportSelectionHandler.selectRegion(e, min, max, viewPortAntiRotMat, sizeAdj);
-		if (action != null) {
-			action.redo();
-		}
-		return action;
-	}
-
-	@Override
-	public UndoAction finish(MouseEvent e, Vec3 mouseStart, Vec3 mouseEnd, CameraHandler cameraHandler) {
-		Vec3 min = new Vec3(activityStart1).minimize(mouseEnd);
-		Vec3 max = new Vec3(activityStart1).maximize(mouseEnd);
-//		System.out.println("SelectManipulator#finish " + "min: " + min + " max: " + max);
-//		return viewportSelectionHandler.selectRegion(e, min, max, cameraHandler).redo();
-		Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
-		double sizeAdj = cameraHandler.sizeAdj();
 		UndoAction action = viewportSelectionHandler.selectRegion(e, min, max, viewPortAntiRotMat, sizeAdj);
 		if (action != null) {
 			action.redo();

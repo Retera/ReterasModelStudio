@@ -7,19 +7,16 @@ import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.*;
 
 
-public class VertMarkerShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = 4 /* position */ + 4 /* normal */ + 4 /* color */ ;
+public class SelectionBoxShaderPipeline extends ShaderPipeline {
+	private static final int STRIDE = 4 /* position */ + 0 /* 4 normal */ + 4 /* color */ ;
 	private static final int STRIDE_BYTES = STRIDE * Float.BYTES;
 
 
-	public VertMarkerShaderPipeline() {
+	public SelectionBoxShaderPipeline() {
 		currentMatrix.setIdentity();
-		geometryShader = OtherUtils.loadShader("VertexBoxes.glsl");
-		vertexShader = OtherUtils.loadShader("VertexBoxes.vert");
-		fragmentShader = OtherUtils.loadShader("VertexBoxes.frag");
-//		geometryShader = OtherUtils.loadShader("NormalLines.glsl");
-//		vertexShader = OtherUtils.loadShader("NormalLines.vert");
-//		fragmentShader = OtherUtils.loadShader("NormalLines.frag");
+		geometryShader = OtherUtils.loadShader("SelectionBox.glsl");
+		vertexShader = OtherUtils.loadShader("SelectionBox.vert");
+		fragmentShader = OtherUtils.loadShader("SelectionBox.frag");
 		load();
 	}
 
@@ -37,12 +34,12 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 		// Vertex
 		GL20.glEnableVertexAttribArray(0);
 		GL20.glVertexAttribPointer(0, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 0);
-		// Normal
+//		// Normal
+//		GL20.glEnableVertexAttribArray(1);
+//		GL20.glVertexAttribPointer(1, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 4 * Float.BYTES);
+		// Color
 		GL20.glEnableVertexAttribArray(1);
 		GL20.glVertexAttribPointer(1, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 4 * Float.BYTES);
-		// Color
-		GL20.glEnableVertexAttribArray(2);
-		GL20.glVertexAttribPointer(2, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 8 * Float.BYTES);
 
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL20.glUseProgram(shaderProgram);
@@ -56,8 +53,6 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 //		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), tempVec4.x, tempVec4.y, tempVec4.z);
 //		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), -24.1937f, 444.411f, 30.4879f);
 
-		tempVec4.set(0,0,0,1).transform(currentMatrix);
-		GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "scale"), tempVec4.w/viewportWidth, tempVec4.w/viewportHeight);
 
 		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
 		pipelineMatrixBuffer.clear();
@@ -82,7 +77,7 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 
 
 //		GL11.glDrawArrays(glBeginType, 0, vertexCount);
-		GL11.glDrawArrays(GL11.GL_POINTS, 0, vertexCount);
+		GL11.glDrawArrays(GL11.GL_LINES, 0, vertexCount);
 		vertexCount = 0;
 		uvCount = 0;
 		normalCount = 0;
@@ -138,24 +133,24 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 		int baseOffset = vertexCount * STRIDE;
 		ensureCapacity(baseOffset + STRIDE);
 		position.set(pos, 1);
-		normal.set(Vec3.Z_AXIS).normalize();
 		normal.set(norm).normalize();
 		color.set(col);
+
 
 		pipelineVertexBuffer.put(baseOffset + 0, position.x);
 		pipelineVertexBuffer.put(baseOffset + 1, position.y);
 		pipelineVertexBuffer.put(baseOffset + 2, position.z);
 		pipelineVertexBuffer.put(baseOffset + 3, position.w);
 
-		pipelineVertexBuffer.put(baseOffset + 4, normal.x);
-		pipelineVertexBuffer.put(baseOffset + 5, normal.y);
-		pipelineVertexBuffer.put(baseOffset + 6, normal.z);
-		pipelineVertexBuffer.put(baseOffset + 7, 1);
-
-		pipelineVertexBuffer.put(baseOffset + 8, color.x);
-		pipelineVertexBuffer.put(baseOffset + 9, color.y);
-		pipelineVertexBuffer.put(baseOffset + 10, color.z);
-		pipelineVertexBuffer.put(baseOffset + 11, color.w);
+//		pipelineVertexBuffer.put(baseOffset + 4, normal.x);
+//		pipelineVertexBuffer.put(baseOffset + 5, normal.y);
+//		pipelineVertexBuffer.put(baseOffset + 6, normal.z);
+//		pipelineVertexBuffer.put(baseOffset + 7, 1);
+//
+		pipelineVertexBuffer.put(baseOffset + 4, color.x);
+		pipelineVertexBuffer.put(baseOffset + 5, color.y);
+		pipelineVertexBuffer.put(baseOffset + 6, color.z);
+		pipelineVertexBuffer.put(baseOffset + 7, color.w);
 		vertexCount++;
 
 	}

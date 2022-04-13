@@ -2,17 +2,14 @@ package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
-import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
 public abstract class Manipulator {
 	protected final Vec2 activityStart = new Vec2();
-	protected final Vec3 activityStart1 = new Vec3();
 
 	public final void start(MouseEvent e, Vec2 mouseStart, byte dim1, byte dim2) {
 		activityStart.set(mouseStart);
@@ -26,49 +23,18 @@ public abstract class Manipulator {
 
 	public abstract UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2);
 
-	public final void start(MouseEvent e, Vec2 mouseStart, CameraHandler cameraHandler) {
-		// this should maybe pass along a flag for "model or view space" (ie if the action should be rotated to
-		// match the view or if it should be locked to the worlds axes)
+	public final void start(MouseEvent e, Vec2 mouseStart, Mat4 viewPortAntiRotMat) {
 		activityStart.set(mouseStart);
-		onStart(e, mouseStart, cameraHandler);
+		onStart(e, mouseStart, viewPortAntiRotMat);
 	}
 
-	public final void start(MouseEvent e, Vec3 mouseStart, CameraHandler cameraHandler) {
-		// this should maybe pass along a flag for "model or view space" (ie if the action should be rotated to
-		// match the view or if it should be locked to the worlds axes)
-		activityStart1.set(mouseStart);
-		onStart(e, mouseStart, cameraHandler);
+	protected void onStart(MouseEvent e, Vec2 mouseStart, Mat4 viewPortAntiRotMat) {
 	}
 
-	protected void onStart(MouseEvent e, Vec2 mouseStart, CameraHandler cameraHandler) {
-	}
-
-	protected void onStart(MouseEvent e, Vec3 mouseStart, CameraHandler cameraHandler) {
-	}
-
-	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
-	}
 	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortMat) {
 	}
 
-	public void update(MouseEvent e, Vec3 mouseStart, Vec3 mouseEnd, CameraHandler cameraHandler) {
-	}
-	public void update(MouseEvent e, Vec3 mouseStart, Vec3 mouseEnd, Mat4 viewPortMat) {
-	}
-
-	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, CameraHandler cameraHandler) {
-		return null;
-	}
-
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortMat, double sizeAdj) {
-		return null;
-	}
-
-	public UndoAction finish(MouseEvent e, Vec3 mouseStart, Vec3 mouseEnd, CameraHandler cameraHandler) {
-		return null;
-	}
-
-	public UndoAction finish(MouseEvent e, Vec3 mouseStart, Vec3 mouseEnd, Mat4 viewPortMat, double sizeAdj) {
 		return null;
 	}
 

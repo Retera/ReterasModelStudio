@@ -10,9 +10,9 @@ import com.hiveworkshop.rms.ui.application.edit.animation.WrongModeException;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 
 import javax.swing.*;
@@ -78,8 +78,8 @@ public class DrawBoneActivity extends ViewportActivity {
 
 
 	@Override
-	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
-		Vec3 worldPressLocation = cameraHandler.getGeoPoint(e.getX(), e.getY());
+	public void mousePressed(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+		Vec3 worldPressLocation = new Vec3(e.getX(), e.getY(), 0).transform(viewPortAntiRotMat);
 		try {
 			Set<String> allBoneNames = new HashSet<>();
 			for (IdObject object : modelView.getModel().getIdObjects()) {
@@ -103,7 +103,7 @@ public class DrawBoneActivity extends ViewportActivity {
 
 
 	@Override
-	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
+	public void mouseMoved(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		lastMousePoint = e.getPoint();
 	}
 

@@ -3,7 +3,8 @@ layout (points) in;
 layout (triangle_strip , max_vertices = 4) out;
 
 uniform mat4 u_projection;
-const float MAGNITUDE = 0.4;
+uniform vec2 scale;
+const float MAGNITUDE = 2;
 //uniform float vertRad;
 
 in VS_OUT {
@@ -21,11 +22,12 @@ void EmVert(vec4 vPos) {
 }
 
 void DrawPoint(vec4 p1) {
+    vec2 mag = vec2(MAGNITUDE, MAGNITUDE)*scale;
 
-    EmVert(p1 + vec4(-MAGNITUDE, -MAGNITUDE, 0.0, 0.0));    // 1:bottom-left
-    EmVert(p1 + vec4( MAGNITUDE, -MAGNITUDE, 0.0, 0.0));    // 2:bottom-right
-    EmVert(p1 + vec4(-MAGNITUDE,  MAGNITUDE, 0.0, 0.0));    // 3:top-left
-    EmVert(p1 + vec4( MAGNITUDE,  MAGNITUDE, 0.0, 0.0));    // 4:top-right
+    EmVert(p1 + vec4(-mag.x, -mag.y, 0.0, 0.0));    // 1:bottom-left
+    EmVert(p1 + vec4( mag.x, -mag.y, 0.0, 0.0));    // 2:bottom-right
+    EmVert(p1 + vec4(-mag.x,  mag.y, 0.0, 0.0));    // 3:top-left
+    EmVert(p1 + vec4( mag.x,  mag.y, 0.0, 0.0));    // 4:top-right
 
     EndPrimitive();
 }

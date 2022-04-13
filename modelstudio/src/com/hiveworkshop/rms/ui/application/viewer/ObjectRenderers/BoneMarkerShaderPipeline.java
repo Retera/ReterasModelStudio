@@ -7,16 +7,16 @@ import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.*;
 
 
-public class VertMarkerShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = 4 /* position */ + 4 /* normal */ + 4 /* color */ ;
+public class BoneMarkerShaderPipeline extends ShaderPipeline {
+	private static final int STRIDE = 4 /* position */ + 0 /* normal */ + 4 /* color */ ;
 	private static final int STRIDE_BYTES = STRIDE * Float.BYTES;
 
 
-	public VertMarkerShaderPipeline() {
+	public BoneMarkerShaderPipeline() {
 		currentMatrix.setIdentity();
-		geometryShader = OtherUtils.loadShader("VertexBoxes.glsl");
-		vertexShader = OtherUtils.loadShader("VertexBoxes.vert");
-		fragmentShader = OtherUtils.loadShader("VertexBoxes.frag");
+		geometryShader = OtherUtils.loadShader("Bone.glsl");
+		vertexShader = OtherUtils.loadShader("Bone.vert");
+		fragmentShader = OtherUtils.loadShader("Bone.frag");
 //		geometryShader = OtherUtils.loadShader("NormalLines.glsl");
 //		vertexShader = OtherUtils.loadShader("NormalLines.vert");
 //		fragmentShader = OtherUtils.loadShader("NormalLines.frag");
@@ -35,14 +35,11 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, pipelineVertexBuffer, GL15.GL_DYNAMIC_DRAW);
 
 		// Vertex
-		GL20.glEnableVertexAttribArray(0);
-		GL20.glVertexAttribPointer(0, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 0);
-		// Normal
-		GL20.glEnableVertexAttribArray(1);
-		GL20.glVertexAttribPointer(1, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 4 * Float.BYTES);
-		// Color
-		GL20.glEnableVertexAttribArray(2);
-		GL20.glVertexAttribPointer(2, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 8 * Float.BYTES);
+		enableAttribArray(4, STRIDE);
+		// Rotation
+		enableAttribArray(4, STRIDE);
+//		 Color
+		enableAttribArray(4, STRIDE);
 
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL20.glUseProgram(shaderProgram);
@@ -56,10 +53,23 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 //		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), tempVec4.x, tempVec4.y, tempVec4.z);
 //		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), -24.1937f, 444.411f, 30.4879f);
 
+
+//		tempVec3.unProject(Vec2.ONE, currentMatrix);
+//		System.out.println("unprojected {1,1}: " + tempVec3 + ", 1 / x =  " + 1/tempVec3.x + ", " + "1 / y =  " + 1/tempVec3.y + ", " + "1 / z =  " + 1/tempVec3.z + " vp: {" + viewportWidth + ", " + viewportHeight + "}" + " vp/2: {" + viewportWidth/2f + ", " + viewportHeight/2f + "}");
+//
+//		tempVec4.set(0,0,0,1).transform(currentMatrix);
+//		System.out.println("vec4 {1,1,0,1} transformed: " + tempVec4);
+//		System.out.println("1 / viewportWidth =  " + 1/viewportWidth + ", " + "1 / viewportHeight =  " + 1/viewportHeight);
+//		System.out.println("w / viewportWidth =  " + tempVec4.w/viewportWidth + ", " + "w / viewportHeight =  " + tempVec4.w/viewportHeight);
+
+
+
 		tempVec4.set(0,0,0,1).transform(currentMatrix);
 		GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "scale"), tempVec4.w/viewportWidth, tempVec4.w/viewportHeight);
 
-		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
+
+
+//		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
 		pipelineMatrixBuffer.clear();
 		pipelineMatrixBuffer.put(currentMatrix.m00);
 		pipelineMatrixBuffer.put(currentMatrix.m01);
@@ -91,6 +101,8 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 		tangentCount = 0;
 		pipelineVertexBuffer.clear();
 		textureUnit = 0;
+		attributeArrayOffs = 0;
+		attributeArrayIndex = 0;
 		GL20.glUseProgram(0);
 	}
 
@@ -140,22 +152,39 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 		position.set(pos, 1);
 		normal.set(Vec3.Z_AXIS).normalize();
 		normal.set(norm).normalize();
+		tempQuat.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(45)).normalize();
 		color.set(col);
 
-		pipelineVertexBuffer.put(baseOffset + 0, position.x);
-		pipelineVertexBuffer.put(baseOffset + 1, position.y);
-		pipelineVertexBuffer.put(baseOffset + 2, position.z);
-		pipelineVertexBuffer.put(baseOffset + 3, position.w);
+		int index = 0;
 
-		pipelineVertexBuffer.put(baseOffset + 4, normal.x);
-		pipelineVertexBuffer.put(baseOffset + 5, normal.y);
-		pipelineVertexBuffer.put(baseOffset + 6, normal.z);
-		pipelineVertexBuffer.put(baseOffset + 7, 1);
+//		pipelineVertexBuffer.put(baseOffset + 0, position.x);
+//		pipelineVertexBuffer.put(baseOffset + 1, position.y);
+//		pipelineVertexBuffer.put(baseOffset + 2, position.z);
+//		pipelineVertexBuffer.put(baseOffset + 3, position.w);
+////
+////		pipelineVertexBuffer.put(baseOffset + 4, normal.x);
+////		pipelineVertexBuffer.put(baseOffset + 5, normal.y);
+////		pipelineVertexBuffer.put(baseOffset + 6, normal.z);
+////		pipelineVertexBuffer.put(baseOffset + 7, 1);
+//
+//		pipelineVertexBuffer.put(baseOffset + 4, color.x);
+//		pipelineVertexBuffer.put(baseOffset + 5, color.y);
+//		pipelineVertexBuffer.put(baseOffset + 6, color.z);
+//		pipelineVertexBuffer.put(baseOffset + 7, color.w);
+		pipelineVertexBuffer.put(baseOffset + index++, position.x);
+		pipelineVertexBuffer.put(baseOffset + index++, position.y);
+		pipelineVertexBuffer.put(baseOffset + index++, position.z);
+		pipelineVertexBuffer.put(baseOffset + index++, position.w);
 
-		pipelineVertexBuffer.put(baseOffset + 8, color.x);
-		pipelineVertexBuffer.put(baseOffset + 9, color.y);
-		pipelineVertexBuffer.put(baseOffset + 10, color.z);
-		pipelineVertexBuffer.put(baseOffset + 11, color.w);
+		pipelineVertexBuffer.put(baseOffset + index++, tempQuat.x);
+		pipelineVertexBuffer.put(baseOffset + index++, tempQuat.y);
+		pipelineVertexBuffer.put(baseOffset + index++, tempQuat.z);
+		pipelineVertexBuffer.put(baseOffset + index++, tempQuat.w);
+
+		pipelineVertexBuffer.put(baseOffset + index++, color.x);
+		pipelineVertexBuffer.put(baseOffset + index++, color.y);
+		pipelineVertexBuffer.put(baseOffset + index++, color.z);
+		pipelineVertexBuffer.put(baseOffset + index++, color.w);
 		vertexCount++;
 
 	}
