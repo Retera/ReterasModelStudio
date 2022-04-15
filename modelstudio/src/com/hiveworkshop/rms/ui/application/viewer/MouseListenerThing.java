@@ -125,8 +125,8 @@ public class MouseListenerThing extends MouseAdapter {
 
 	private Vec2 setPoint(MouseEvent e, Vec2 point) {
 		Component component = e.getComponent();
-		float xRatio = 2.0f * e.getX() / (float) component.getWidth() - 1.0f;
-		float yRatio = 1.0f - 2.0f * e.getY() / (float) component.getHeight();
+		float xRatio = 2.0f * ((float) e.getX()) / (float) component.getWidth() - 1.0f;
+		float yRatio = 1.0f - 2.0f * ((float) e.getY()) / (float) component.getHeight();
 		if(point == null){
 			point = new Vec2(xRatio, yRatio);
 		} else {

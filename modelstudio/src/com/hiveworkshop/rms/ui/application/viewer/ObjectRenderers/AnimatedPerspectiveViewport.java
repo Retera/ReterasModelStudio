@@ -47,11 +47,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	private boolean show3dVerts = false;
 
 	private boolean wireframe;
-	private ShaderPipeline pipeline;
-	private ShaderPipeline bonePipeline;
-	private ShaderPipeline vertPipeline;
-	private ShaderPipeline normPipeline;
-	private ShaderPipeline selectionPipeline;
+	private static final ShaderManager shaderManager = new ShaderManager();
 
 	Class<? extends Throwable> lastThrownErrorClass;
 	private final ProgramPreferences programPreferences;
@@ -65,6 +61,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 
 	MouseThingi mouseThingi;
 	GeosetRenderThing geosetRenderThing;
+	GridPainter2 gridPainter2;
 
 	private TextureThing textureThing;
 
@@ -110,11 +107,12 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		addKeyListener(keyAdapter);
 
 		geosetRenderThing = new GeosetRenderThing();
+		gridPainter2 = new GridPainter2(cameraManager);
 
 //
 		loadBackgroundColors();
-//		paintTimer = new Timer(16, e -> {
-		paintTimer = new Timer(200, e -> {
+		paintTimer = new Timer(16, e -> {
+//		paintTimer = new Timer(200, e -> {
 			repaint();
 			if (!isShowing()) {
 				paintTimer.stop();
@@ -217,58 +215,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		this.levelOfDetail = levelOfDetail;
 	}
 
-	private ShaderPipeline getOrCreatePipeline() {
-		if (pipeline == null) {
-//			if (model != null && ModelUtils.isShaderStringSupported(model.getFormatVersion())
-//					&& !model.getGeosets().isEmpty() && model.getGeoset(0).isHD()) {
-//				pipeline = new HDDiffuseShaderPipeline();
-//			}
-//			else {
-//				pipeline = new SimpleDiffuseShaderPipeline();
-//			}
-//			pipeline = new SimpleDiffuseShaderPipeline();
-			pipeline = new HDDiffuseShaderPipeline();
-//			pipeline = new NormalLinesShaderPipeline();
-//			pipeline = new VertMarkerShaderPipeline();
-		}
-		return pipeline;
-	}
-
-	private ShaderPipeline getOrCreateVertPipeline() {
-		if (vertPipeline == null) {
-			vertPipeline = new VertMarkerShaderPipeline();
-		}
-		return vertPipeline;
-	}
-
-	private ShaderPipeline getOrCreateNormPipeline() {
-		if (normPipeline == null) {
-			normPipeline = new NormalLinesShaderPipeline();
-		}
-		return normPipeline;
-	}
-
-	private ShaderPipeline getOrCreateSelectionPipeline() {
-		if (selectionPipeline == null) {
-			selectionPipeline = new SelectionBoxShaderPipeline();
-		}
-		return selectionPipeline;
-	}
-
-	private ShaderPipeline getOrCreateBoneMarkerShaderPipeline() {
-		if (bonePipeline == null) {
-			bonePipeline = new BoneMarkerShaderPipeline();
-		}
-		return bonePipeline;
-	}
-
 	@Override
 	public void initGL() {
-		getOrCreatePipeline();
-		getOrCreateVertPipeline();
-		getOrCreateNormPipeline();
-		getOrCreateSelectionPipeline();
-		getOrCreateBoneMarkerShaderPipeline();
+		ShaderPipeline pipeline = shaderManager.getOrCreatePipeline();
 		pipeline.onGlobalPipelineSet();
 //		NGGLDP.setPipeline(getOrCreatePipeline());
 		try {
@@ -310,6 +259,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	public void paintGL(final boolean autoRepainting) {
 		setSize(getParent().getSize());
 		cameraManager.updateCamera();
+		ShaderPipeline pipeline = shaderManager.getOrCreatePipeline();
+		ShaderPipeline bonePipeline = shaderManager.getOrCreateBoneMarkerShaderPipeline();
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 			System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
 			return;
@@ -349,7 +300,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 
 			pipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
 
-			setUpLights();
+			setUpLights(pipeline);
 
 			if (programPreferences != null && programPreferences.showPerspectiveGrid()) {
 			}
@@ -364,12 +315,15 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
 
+
+
 			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 			if (showNormals) {
+				ShaderPipeline normPipeline = shaderManager.getOrCreateNormPipeline();
 				normPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 //				normPipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
 //				normPipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
-				vertPipeline.glViewport(0, 0, (int) (getWidth()), (int) (getHeight()));
+				normPipeline.glViewport(0, 0, (int) (getWidth()), (int) (getHeight()));
 				normPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 				normPipeline.glMatrixMode(GL11.GL_PROJECTION);
 				normPipeline.glLoadIdentity();
@@ -379,6 +333,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				geosetRenderThing.drawNormals(normPipeline);
 			}
 			if (show3dVerts) {
+				ShaderPipeline vertPipeline = shaderManager.getOrCreateVertPipeline();
 				vertPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 //				vertPipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
 				vertPipeline.glViewport(0, 0, (int) (getWidth()), (int) (getHeight()));
@@ -419,8 +374,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				}
 				bonePipeline.glEnd();
 			}
-
 			paintSelectionBox();
+			paintGrid();
 
 //			if (programPreferences != null && programPreferences.getRenderParticles()) {
 //				renderParticles();
@@ -452,6 +407,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	private void paintSelectionBox() {
 //		CubePainter.paintCameraLookAt(cameraHandler);
 		if (mouseAdapter.isSelecting()) {
+			ShaderPipeline selectionPipeline = shaderManager.getOrCreateSelectionPipeline();
 			selectionPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 			selectionPipeline.glViewport(0, 0, (int) (getWidth()), (int) (getHeight()));
 			selectionPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
@@ -477,6 +433,30 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			}
 //			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(), mouseAdapter.getEndPGeo3(), cameraHandler);
 			System.out.println("is selecting!");
+		}
+	}
+	private void paintGrid() {
+//		CubePainter.paintCameraLookAt(cameraHandler);
+		if (programPreferences.showPerspectiveGrid()) {
+			ShaderPipeline pipeline = shaderManager.getOrCreateGridPipeline();
+			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+			pipeline.glViewport(0, 0, (int) (getWidth()), (int) (getHeight()));
+			pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+			pipeline.glMatrixMode(GL11.GL_PROJECTION);
+			pipeline.glLoadIdentity();
+			pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+			pipeline.glLoadIdentity();
+			pipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+
+			if(renderModel != null){
+				// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
+				pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+				GL11.glDisable(GL11.GL_TEXTURE_2D);
+
+				gridPainter2.paintGrid(pipeline);
+			}
 		}
 	}
 
@@ -512,12 +492,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		if (wantReloadAll) {
 			wantReloadAll = false;
 			wantReload = false;// If we just reloaded all, no need to reload some.
-			pipeline.discard();
-			pipeline = null;
-			vertPipeline.discard();
-			vertPipeline = null;
-			normPipeline.discard();
-			normPipeline = null;
+			shaderManager.discardPipelines();
 			try {
 				initGL();// Re-overwrite textures
 			} catch (final Exception e) {
@@ -540,7 +515,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 
-	private void setUpLights() {
+	private void setUpLights(ShaderPipeline pipeline) {
 		FloatBuffer ambientColor = BufferUtils.createFloatBuffer(4);
 		ambientColor.put(0.6f).put(0.6f).put(0.6f).put(1f).flip();
 		pipeline.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, ambientColor);
@@ -828,8 +803,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		// super in this case is calling destroy on OpenGL context entirely,
 		// that's why. But this method was happening during the app lifecycle of
 		// clearing and resetting the UI views when we open a new model.
-		pipeline = null;
-		vertPipeline = null;
+//		pipeline = null;
+//		vertPipeline = null;
+//		shaderManager.discardPipelines();
 	}
 
 	public CameraManager getCameraManager() {

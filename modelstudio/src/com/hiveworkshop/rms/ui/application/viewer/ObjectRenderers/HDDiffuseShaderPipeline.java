@@ -8,16 +8,12 @@ import org.lwjgl.opengl.*;
 
 
 public class HDDiffuseShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = 4 /* position */ + 4 /* normal */ + 4 /* tangent */ + 2 /* uv */ + 4 /* color */  + 3 /* fresnel color */ ;
-	private static final int STRIDE_BYTES = STRIDE * Float.BYTES;
-
+	private static final int STRIDE = POSITION + NORMAL + UV + COLOR + TANGENT + FRESNEL_COLOR;
 
 	public HDDiffuseShaderPipeline() {
 		currentMatrix.setIdentity();
 		vertexShader = OtherUtils.loadShader("HDDiffuse.vert");
 		fragmentShader = OtherUtils.loadShader("HDDiffuse.frag");
-//		vertexShader = OtherUtils.loadShader("vertex_basic.vert");
-//		fragmentShader = OtherUtils.loadShader("fragment_basic.frag");
 		load();
 	}
 
@@ -32,24 +28,12 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferObjectId);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, pipelineVertexBuffer, GL15.GL_DYNAMIC_DRAW);
 
-		// Vertex
-		GL20.glEnableVertexAttribArray(0);
-		GL20.glVertexAttribPointer(0, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 0);
-		// Normal
-		GL20.glEnableVertexAttribArray(1);
-		GL20.glVertexAttribPointer(1, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 4 * Float.BYTES);
-		// UV
-		GL20.glEnableVertexAttribArray(2);
-		GL20.glVertexAttribPointer(2, 2, GL11.GL_FLOAT, false, STRIDE_BYTES, 8 * Float.BYTES);
-		// Color
-		GL20.glEnableVertexAttribArray(3);
-		GL20.glVertexAttribPointer(3, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 10 * Float.BYTES);
-		// Tangent
-		GL20.glEnableVertexAttribArray(4);
-		GL20.glVertexAttribPointer(4, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 14 * Float.BYTES);
-		// Fresnel Color
-		GL20.glEnableVertexAttribArray(5);
-		GL20.glVertexAttribPointer(5, 3, GL11.GL_FLOAT, false, STRIDE_BYTES, 18 * Float.BYTES);
+		enableAttribArray(POSITION, STRIDE);
+		enableAttribArray(NORMAL, STRIDE);
+		enableAttribArray(UV, STRIDE);
+		enableAttribArray(COLOR, STRIDE);
+		enableAttribArray(TANGENT, STRIDE);
+		enableAttribArray(FRESNEL_COLOR, STRIDE);
 
 		GL20.glUseProgram(shaderProgram);
 

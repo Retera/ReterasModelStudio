@@ -9,10 +9,17 @@ import java.nio.FloatBuffer;
 
 public abstract class ShaderPipeline {
 	//https://www.khronos.org/files/opengles_shading_language.pdf
-//	protected int STRIDE = 4 /* position */ + 4 /* normal */ + 2 /* uv */ + 4 /* color */;
-//	protected int STRIDE_BYTES = STRIDE * Float.BYTES;
-//	protected int STRIDE;
-//	protected int STRIDE_BYTES = STRIDE * Float.BYTES;
+	protected static final int POSITION = 4;
+	protected static final int NORMAL = 4;
+	protected static final int TANGENT = 4;
+	protected static final int UV = 2;
+	protected static final int COLOR = 4;
+	protected static final int FRESNEL_COLOR = 3;
+	protected static final int ROTATION = 4;
+	protected static final int VEC2 = 2;
+	protected static final int VEC3 = 3;
+	protected static final int VEC4 = 4;
+	protected static final int QUAT = 4;
 
 	protected String vertexShader;
 	protected String fragmentShader;

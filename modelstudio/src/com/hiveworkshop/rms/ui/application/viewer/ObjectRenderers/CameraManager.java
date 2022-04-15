@@ -35,8 +35,8 @@ public class CameraManager extends CameraHandler {
 	protected Vec3 camForward = new Vec3();
 	protected Vec3 camBackward = new Vec3();
 	protected Vec3 target = new Vec3(0, 0, 0);
-//	protected Vec3 worldUp = new Vec3(0, 0, 1);
-	protected Vec3 worldUp = new Vec3(0, 1, 0);
+	protected Vec3 worldUp = new Vec3(0, 0, 1);
+//	protected Vec3 worldUp = new Vec3(0, 1, 0);
 	protected Vec3 vecHeap = new Vec3();
 	protected Vec4 vec4Heap = new Vec4();
 	protected Quat quatHeap = new Quat();
@@ -53,7 +53,25 @@ public class CameraManager extends CameraHandler {
 	private final Mat4 projectionMatrix = new Mat4();            // View -> Clip
 	private final Mat4 viewProjectionMatrix = new Mat4();        // World -> Clip
 	private final Mat4 inverseViewMatrix = new Mat4();           // View -> World
+	private final Mat4 inverseProjectionMatrix = new Mat4();     // View -> Clip
 	private final Mat4 inverseViewProjectionMatrix = new Mat4(); // Clip -> World
+
+
+	private final Mat4 tempMat4 = new Mat4();
+	private final Mat4 viewPortAntiRotMat = new Mat4();
+	private final Vec3 screenDimension = new Vec3();
+
+	private final Quat inverseCameraRotation = new Quat();
+	private final Quat inverseCameraRotXSpinY = new Quat();
+	private final Quat inverseCameraRotYSpinY = new Quat();
+	private final Quat inverseCameraRotZSpinX = new Quat();
+	private final Quat inverseCameraRotZSpinZ = new Quat();
+
+	private final Quat quatHeap1 = new Quat();
+	private final Quat quatHeap2 = new Quat();
+	private final Vec3 scaleHeap = new Vec3();
+
+
 	private final Component viewport;
 	// https://learnopengl.com/Getting-started/Camera
 	public CameraManager(Component viewport) {
@@ -86,7 +104,6 @@ public class CameraManager extends CameraHandler {
 		return this;
 	}
 	public void updateCamera() {
-
 		worldUp.set(Vec3.Z_AXIS);
 		camPosition.set(1,0,0).transform(totRot).scale(distance).add(target);
 		camUp.set(0,0,1).transform(totRot);
@@ -96,20 +113,13 @@ public class CameraManager extends CameraHandler {
 		camUp.set(camBackward).cross(camRight).normalize();
 
 
-		viewMatrix.setIdentity();
+		vecHeap.set(camPosition).negate();
+		tempMat4.setIdentity().translate(vecHeap);
+
 		viewMatrix.set(camRight, camUp, camBackward);
-
-		tempMat4.setIdentity();
-		camPosition.negate();
-		tempMat4.translate(camPosition);
-		camPosition.negate();
-
 		viewMatrix.mul(tempMat4);
 
-
 		float aspect = (float) viewport.getWidth()/(float) viewport.getHeight();
-//		projectionMatrix.setOrtho(-viewport.getWidth()/2, viewport.getWidth()/2, 0, viewport.getHeight(), -50, 60000);
-//		projectionMatrix.setOrtho(-viewport.getWidth()/2, viewport.getWidth()/2, 0, -viewport.getHeight(), -50, 60000);
 		if (isOrtho){
 			projectionMatrix.setOrtho(-aspect*distance/2.0f, aspect*distance/2.0f, -distance/2.0f, distance/2.0f, -6000, 6000);
 		} else {
@@ -117,12 +127,8 @@ public class CameraManager extends CameraHandler {
 			projectionMatrix.setPerspective((float) Math.toRadians(70), aspect, 1f, 20000f);
 		}
 		viewProjectionMatrix.set(projectionMatrix).mul(viewMatrix);
-
-//		camera.moveToAndFace(camPosition, target, worldUp);
-//		camera.update();
 	}
 
-	private final Mat4 tempMat4 = new Mat4();
 	public void setToLookAt(Vec3 camPosition, Vec3 target, Vec3 worldUp) {
 		camBackward.set(camPosition).sub(target).normalize();
 		camRight.set(camBackward).cross(worldUp).normalize();
@@ -174,19 +180,26 @@ public class CameraManager extends CameraHandler {
 		return target;
 	}
 
-	public Mat4 getViewProjectionMatrix(){
-//		return viewMatrix;
-		return viewProjectionMatrix;
-//		return camera.getViewProjectionMatrix();
-	}
-
 	public double sizeAdj() {
-//		return distance / 600f;
-		return 1.0/(double) viewport.getWidth();
+		Mat4 invProjectionMat = getInvProjectionMat();
+		vecHeap.set(1.0 / ((float) viewport.getWidth()), 0, 0);
+		vecHeap.transform(invProjectionMat, 1, true);
+		float x = vecHeap.x;
+		vecHeap.set(0,0,0).transform(invProjectionMat, 1, true);
+		return x-vecHeap.x;
 	}
 	public void setPosition(double a, double b) {
 		target.y = (float) a;
 		target.z = (float) b;
+	}
+
+	public void resetCamera(){
+		target.set(Vec3.ZERO);
+		upAngle = 0;
+		sideAngle = 0;
+		tiltAngle = 0;
+		distance = 1000;
+		calculateCameraRotation();
 	}
 
 	public void translate(double right, double up) {
@@ -196,17 +209,23 @@ public class CameraManager extends CameraHandler {
 	public void translate2(double dx, double dy, double dz) {
 		applyPan(dx, dy, dz);
 	}
-	private final Mat4 screenDimensionMat3Heap = new Mat4();
-	private final Vec3 screenDimension = new Vec3();
+
 	private void applyPan(double dx, double dy, double dz) {
-//		screenDimension.set(-dx, dy, dz).scale(1/distance);
-		screenDimension.set(-dx, dy, dz);
-//		screenDimensionMat3Heap.set(viewProjectionMatrix);
-//		screenDimensionMat3Heap.transpose();
-//		screenDimension.transform(0, screenDimensionMat3Heap);
-		screenDimension.transformInverted(viewProjectionMatrix);
-		screenDimension.normalize();
+//		screenDimension.set(-dx, -dy, dz);
+////		screenDimension.set(-dx*viewport.getWidth(), -dy*viewport.getHeight(), dz).scale(1/distance);
+////		vec4Heap.set(0,0,0,1).transform(viewProjectionMatrix);
+////		screenDimension.set(-dx*viewport.getWidth()/2.0/vec4Heap.w, -dy*viewport.getHeight()/2.0/vec4Heap.w, dz);
+////		screenDimension.set(-dx, -dy, dz);
+////		screenDimensionMat3Heap.set(viewProjectionMatrix);
+////		screenDimensionMat3Heap.transpose();
+////		screenDimension.transform(0, screenDimensionMat3Heap);
+//		screenDimension.transform(inverseViewProjectionMatrix, 1, true);
+//		screenDimension.set(getWorldScreenSpace1(dx,dy));
+		screenDimension.set(getWorldScreenSpace(dx,-dy)).sub(getWorldScreenSpace(0,0));
+		System.out.println(screenDimension);
+//		screenDimension.normalize();
 		target.add(screenDimension);
+//		target.set(screenDimension);
 	}
 
 
@@ -221,7 +240,12 @@ public class CameraManager extends CameraHandler {
 		if (allowRotation) {
 			upAngle = (float) Math.toRadians(right);
 			sideAngle = (float) Math.toRadians(up);
+			tiltAngle = (float) Math.toRadians(0);
 			calculateCameraRotation();
+			System.out.println("rot: " + Math.toDegrees(upAngle) + ", " + Math.toDegrees(sideAngle) + ", " + Math.toDegrees(tiltAngle)
+					+ ", dist: " + distance
+					+ ", target: " + target
+			);
 		}
 	}
 
@@ -280,10 +304,10 @@ public class CameraManager extends CameraHandler {
 	}
 
 	public CameraManager resetZoom(){
-		distance = 1650;
+//		distance = 1650;
+		distance = 1000;
 		return this;
 	}
-
 
 	public boolean isOrtho() {
 		return isOrtho;
@@ -315,22 +339,69 @@ public class CameraManager extends CameraHandler {
 
 
 	public Vec3 getGeoPoint(double viewX, double viewY) {
-//		double x_real = (viewX - (camera.rect.getWidth() / 2.0)) * distance / 600f + cameraPos.y;
-//		double y_real = -(viewY - (camera.rect.getHeight() / 2.0)) * distance / 600f + cameraPos.z;
-//		double x_real = (viewX - (camera.rect.getWidth() / 2.0));
-//		double y_real = -(viewY - (camera.rect.getHeight() / 2.0));
-		double x_real = (viewX - (viewport.getWidth() / 2.0));
-		double y_real = -(viewY - (viewport.getHeight() / 2.0));
+		return getWorldScreenSpace(viewX,viewY);
+	}
 
-//		Vec3 vec3 = new Vec3(0, x_real, y_real);
-		Vec3 vec3 = new Vec3(viewX, viewY, 0);
+	private boolean PointInOrOn(Vec3 P1, Vec3 P2, Vec3 A, Vec3 B) {
+		Vec3 P1_sub_A = new Vec3(P1).sub(A);
+		Vec3 P2_sub_A = new Vec3(P2).sub(A);
+		Vec3 CP1 = new Vec3(B).sub(A).cross(P1_sub_A);
+		Vec3 CP2 = new Vec3(B).sub(A).cross(P2_sub_A);
+		return CP1.dot(CP2) >= 0;
+	}
 
-//		vec3.transform(getViewPortAntiRotMat2());
-//		vec3.transformInverted(getViewProjectionMatrix());
-		vec3.transformInverted(viewProjectionMatrix);
-//		System.out.println("GeoMouse: [" + viewX + ", " + viewY + "], " + "zoom: " + m_zoom + ", geoP: " + vec3 + ", camPos: " + cameraPos);
+	private boolean PointInOrOnTriangle(Vec3 P, Vec3 A, Vec3 B, Vec3 C ) {
+		return PointInOrOn( P, A, B, C ) &&
+				PointInOrOn( P, B, C, A ) &&
+				PointInOrOn( P, C, A, B );
+	}
 
-		return vec3;
+	private Vec3 getWorldScreenSpace(double viewX, double viewY){
+		// https://stackoverflow.com/questions/45893277/is-it-possible-get-which-surface-of-cube-will-be-click-in-opengl
+		// https://www.3dgep.com/understanding-the-view-matrix/
+		// https://gamedev.stackexchange.com/questions/23395/how-to-convert-screen-space-into-3d-world-space
+		// https://stackoverflow.com/questions/7692988/opengl-math-projecting-screen-space-to-world-space-coords
+		// https://www.tomdalling.com/blog/modern-opengl/explaining-homogenous-coordinates-and-projective-geometry/
+
+		Mat4 invViewProjectionMat = getInvViewProjectionMat();
+		Vec3 nearWorldSpace = new Vec3(viewX, viewY, -1).transform(invViewProjectionMat, 1, true);
+		Vec3 farWorldSpace = new Vec3(viewX, viewY, 1).transform(invViewProjectionMat, 1, true);
+
+
+		// Create a ray from the near clip plane to the far clip plane.
+		Vec3 dir = new Vec3(farWorldSpace).sub(nearWorldSpace).normalize();
+
+		// Create a ray.
+		Vec3 rayPoint = nearWorldSpace;
+
+		// Calculate the ray-plane intersection point.
+		Vec3 planeNorm = new Vec3(camBackward).normalize();
+		System.out.println("planeNorm: " + planeNorm);
+
+		float pD = -target.dot(planeNorm);
+
+		// Calculate distance of intersection point from r.origin.
+		float denominator = planeNorm.dot(dir);
+		float numerator = planeNorm.dot(rayPoint) + pD;
+		float t = -(numerator / denominator);
+		System.out.println("t: " + t);
+
+		// Calculate the picked position on the y = 0 plane.
+		return nearWorldSpace.addScaled(dir,t);
+	}
+
+
+	private Vec3 getRayFromScreenSpace(double viewX, double viewY){
+		Mat4 invViewProjectionMat = getInvViewProjectionMat();
+		Vec3 nearWorldSpace = new Vec3(viewX, viewY, -1).transform(invViewProjectionMat, 1, true);
+		Vec3 farWorldSpace = new Vec3(viewX, viewY, 1).transform(invViewProjectionMat, 1, true);
+
+		// Create a ray from the near clip plane to the far clip plane.
+		Vec3 dir = new Vec3(farWorldSpace).sub(nearWorldSpace).normalize();
+
+		// Create a ray.
+		Vec3 rayPoint = nearWorldSpace;
+		return dir;
 	}
 
 	public Vec2 getPoint_ifYZplane(double viewX, double viewY) {
@@ -385,13 +456,7 @@ public class CameraManager extends CameraHandler {
 		inverseCameraRotation.set(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()).normalize();
 
 	}
-	private final Mat4 viewPortAntiRotMat = new Mat4();
-	private final Mat4 viewPortMat = new Mat4();
-	private final Quat inverseCameraRotation = new Quat();
-	private final Quat inverseCameraRotXSpinY = new Quat();
-	private final Quat inverseCameraRotYSpinY = new Quat();
-	private final Quat inverseCameraRotZSpinX = new Quat();
-	private final Quat inverseCameraRotZSpinZ = new Quat();
+
 	public Quat getInverseCameraRotation() {
 		return inverseCameraRotation;
 	}
@@ -431,33 +496,33 @@ public class CameraManager extends CameraHandler {
 		return viewPortAntiRotMat;
 	}
 
-	Quat quatHeap1 = new Quat();
-	Quat quatHeap2 = new Quat();
-	Vec3 scaleHeap = new Vec3();
-	public Mat4 getViewportMat(){
-		// Rotating camera to have +Z up and +X as forward (pointing into camera)
-		quatHeap1.setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(-90));
-		quatHeap2.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(-90));
+	public Mat4 getViewProjectionMatrix(){
+		return viewProjectionMatrix;
+	}
 
-		quatHeap.set(quatHeap1).mul(quatHeap2);
-		quatHeap.mul(quatHeap1);
+	public Mat4 getViewProjectionMat(){
+		return viewProjectionMatrix;
+	}
 
-		float xAngle = 0;
-		float yAngle = sideAngle;
-		float zAngle = upAngle;
+	public Mat4 getInvViewProjectionMat(){
+		inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
+		return inverseViewProjectionMatrix;
+	}
 
-		quatHeap1.setFromAxisAngle(Vec3.X_AXIS, (float) Math.toRadians(xAngle));
-		quatHeap.mul(quatHeap1);
-		quatHeap1.setFromAxisAngle(Vec3.Y_AXIS, (float) Math.toRadians(yAngle));
-		quatHeap.mul(quatHeap1);
-		quatHeap1.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(zAngle));
-		quatHeap.mul(quatHeap1);
+	public Mat4 getProjectionMat(){
+		return projectionMatrix;
+	}
+	public Mat4 getInvProjectionMat(){
+		inverseProjectionMatrix.set(projectionMatrix).invert();
+		return inverseProjectionMatrix;
+	}
 
-		scaleHeap.set(distance, distance, distance);
-
-		viewPortMat.fromRotationTranslationScaleOrigin(quatHeap, Vec3.Z_AXIS, scaleHeap, target);
-
-		return viewPortMat;
+	public Mat4 getViewMat(){
+		return viewMatrix;
+	}
+	public Mat4 getInvViewMat(){
+		inverseViewMatrix.set(viewMatrix).invert();
+		return inverseViewMatrix;
 	}
 
 	public Vec3 getCameraLookAt() {

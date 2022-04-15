@@ -8,8 +8,7 @@ import org.lwjgl.opengl.*;
 
 
 public class NormalLinesShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = 4 /* position */ + 4 /* normal */ + 4 /* color */ ;
-	private static final int STRIDE_BYTES = STRIDE * Float.BYTES;
+	private static final int STRIDE = POSITION + NORMAL + COLOR;
 
 
 	public NormalLinesShaderPipeline() {
@@ -31,15 +30,9 @@ public class NormalLinesShaderPipeline extends ShaderPipeline {
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferObjectId);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, pipelineVertexBuffer, GL15.GL_DYNAMIC_DRAW);
 
-		// Vertex
-		GL20.glEnableVertexAttribArray(0);
-		GL20.glVertexAttribPointer(0, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 0);
-		// Normal
-		GL20.glEnableVertexAttribArray(1);
-		GL20.glVertexAttribPointer(1, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 4 * Float.BYTES);
-		// Color
-		GL20.glEnableVertexAttribArray(2);
-		GL20.glVertexAttribPointer(2, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 8 * Float.BYTES);
+		enableAttribArray(POSITION, STRIDE);
+		enableAttribArray(NORMAL, STRIDE);
+		enableAttribArray(COLOR, STRIDE);
 
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL20.glUseProgram(shaderProgram);

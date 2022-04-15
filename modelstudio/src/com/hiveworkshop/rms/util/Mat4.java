@@ -285,7 +285,7 @@ public class Mat4 {
 		return this;
 	}
 
-	public Mat4 invert() {
+	public Mat4 invert1() {
 		float b00 = m00 * m11 - m01 * m10;
 		float b01 = m00 * m12 - m02 * m10;
 		float b02 = m00 * m13 - m03 * m10;
@@ -329,6 +329,96 @@ public class Mat4 {
 				tmp10, tmp11, tmp12, tmp13,
 				tmp20, tmp21, tmp22, tmp23,
 				tmp30, tmp31, tmp32, tmp33);
+	}
+
+	public Mat4 invert() {
+		float determinant = determinant();
+
+		if (determinant != 0) {
+			/*
+			 * m00 m01 m02 m03
+			 * m10 m11 m12 m13
+			 * m20 m21 m22 m23
+			 * m30 m31 m32 m33
+			 */
+//			if (dest == null)
+//				dest = new Matrix4f();
+			float determinant_inv = 1f/determinant;
+
+			// first row
+			float t00 =  determinant3x3(m11, m12, m13, m21, m22, m23, m31, m32, m33);
+			float t01 = -determinant3x3(m10, m12, m13, m20, m22, m23, m30, m32, m33);
+			float t02 =  determinant3x3(m10, m11, m13, m20, m21, m23, m30, m31, m33);
+			float t03 = -determinant3x3(m10, m11, m12, m20, m21, m22, m30, m31, m32);
+			// second row
+			float t10 = -determinant3x3(m01, m02, m03, m21, m22, m23, m31, m32, m33);
+			float t11 =  determinant3x3(m00, m02, m03, m20, m22, m23, m30, m32, m33);
+			float t12 = -determinant3x3(m00, m01, m03, m20, m21, m23, m30, m31, m33);
+			float t13 =  determinant3x3(m00, m01, m02, m20, m21, m22, m30, m31, m32);
+			// third row
+			float t20 =  determinant3x3(m01, m02, m03, m11, m12, m13, m31, m32, m33);
+			float t21 = -determinant3x3(m00, m02, m03, m10, m12, m13, m30, m32, m33);
+			float t22 =  determinant3x3(m00, m01, m03, m10, m11, m13, m30, m31, m33);
+			float t23 = -determinant3x3(m00, m01, m02, m10, m11, m12, m30, m31, m32);
+			// fourth row
+			float t30 = -determinant3x3(m01, m02, m03, m11, m12, m13, m21, m22, m23);
+			float t31 =  determinant3x3(m00, m02, m03, m10, m12, m13, m20, m22, m23);
+			float t32 = -determinant3x3(m00, m01, m03, m10, m11, m13, m20, m21, m23);
+			float t33 =  determinant3x3(m00, m01, m02, m10, m11, m12, m20, m21, m22);
+
+			// transpose and divide by the determinant
+			m00 = t00*determinant_inv;
+			m11 = t11*determinant_inv;
+			m22 = t22*determinant_inv;
+			m33 = t33*determinant_inv;
+			m01 = t10*determinant_inv;
+			m10 = t01*determinant_inv;
+			m20 = t02*determinant_inv;
+			m02 = t20*determinant_inv;
+			m12 = t21*determinant_inv;
+			m21 = t12*determinant_inv;
+			m03 = t30*determinant_inv;
+			m30 = t03*determinant_inv;
+			m13 = t31*determinant_inv;
+			m31 = t13*determinant_inv;
+			m32 = t23*determinant_inv;
+			m23 = t32*determinant_inv;
+			return this;
+		} else
+			return this;
+	}
+
+	private static float determinant3x3(float t00, float t01, float t02,
+	                                    float t10, float t11, float t12,
+	                                    float t20, float t21, float t22) {
+		return   t00 * (t11 * t22 - t12 * t21)
+				+ t01 * (t12 * t20 - t10 * t22)
+				+ t02 * (t10 * t21 - t11 * t20);
+	}
+
+	public float determinant() {
+		float f =
+				m00
+						* ((m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32)
+						- m13 * m22 * m31
+						- m11 * m23 * m32
+						- m12 * m21 * m33);
+		f -= m01
+				* ((m10 * m22 * m33 + m12 * m23 * m30 + m13 * m20 * m32)
+				- m13 * m22 * m30
+				- m10 * m23 * m32
+				- m12 * m20 * m33);
+		f += m02
+				* ((m10 * m21 * m33 + m11 * m23 * m30 + m13 * m20 * m31)
+				- m13 * m21 * m30
+				- m10 * m23 * m31
+				- m11 * m20 * m33);
+		f -= m03
+				* ((m10 * m21 * m32 + m11 * m22 * m30 + m12 * m20 * m31)
+				- m12 * m21 * m30
+				- m10 * m22 * m31
+				- m11 * m20 * m32);
+		return f;
 	}
 
 	// copied from ghostwolf and
@@ -739,6 +829,26 @@ public class Mat4 {
 		m12 = dir.y;
 		m22 = dir.z;
 
+		return this;
+	}
+
+	public Mat4 setOne() {
+		m00 = 1.0f;
+		m01 = 1.0f;
+		m02 = 1.0f;
+		m03 = 1.0f;
+		m10 = 1.0f;
+		m11 = 1.0f;
+		m12 = 1.0f;
+		m13 = 1.0f;
+		m20 = 1.0f;
+		m21 = 1.0f;
+		m22 = 1.0f;
+		m23 = 1.0f;
+		m30 = 1.0f;
+		m31 = 1.0f;
+		m32 = 1.0f;
+		m33 = 1.0f;
 		return this;
 	}
 }

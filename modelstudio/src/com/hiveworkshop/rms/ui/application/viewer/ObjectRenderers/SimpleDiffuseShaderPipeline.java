@@ -7,12 +7,7 @@ import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.*;
 
 public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = 4 /* position */ + 4 /* normal */ + 2 /* uv */ + 4 /* color */;
-	private static final int POS_OFFSET = 0;
-	private static final int NORM_OFFSET = 4;
-	private static final int UV_OFFSET = 8;
-	private static final int COL_OFFSET = 10;
-	private static final int STRIDE_BYTES = STRIDE * Float.BYTES;
+	private static final int STRIDE = POSITION + NORMAL + UV + COLOR;
 
 	public SimpleDiffuseShaderPipeline() {
 		currentMatrix.setIdentity();
@@ -30,18 +25,10 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferObjectId);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, pipelineVertexBuffer, GL15.GL_DYNAMIC_DRAW);
 
-		// Vertex
-		GL20.glEnableVertexAttribArray(0);
-		GL20.glVertexAttribPointer(0, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 0);
-		// Normal
-		GL20.glEnableVertexAttribArray(1);
-		GL20.glVertexAttribPointer(1, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 4 * Float.BYTES);
-		// UV
-		GL20.glEnableVertexAttribArray(2);
-		GL20.glVertexAttribPointer(2, 2, GL11.GL_FLOAT, false, STRIDE_BYTES, 8 * Float.BYTES);
-		// Color
-		GL20.glEnableVertexAttribArray(3);
-		GL20.glVertexAttribPointer(3, 4, GL11.GL_FLOAT, false, STRIDE_BYTES, 10 * Float.BYTES);
+		enableAttribArray(POSITION, STRIDE);
+		enableAttribArray(NORMAL, STRIDE);
+		enableAttribArray(UV, STRIDE);
+		enableAttribArray(COLOR, STRIDE);
 
 		GL20.glUseProgram(shaderProgram);
 

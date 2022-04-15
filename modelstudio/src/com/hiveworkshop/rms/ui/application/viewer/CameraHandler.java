@@ -174,6 +174,13 @@ public class CameraHandler {
 		cameraPos.y = (float) a;
 		cameraPos.z = (float) b;
 	}
+	public void resetCamera() {
+		cameraPos.set(1000, 0,0);
+		m_zoom = .2f;
+		xAngle = 0;
+		yAngle = 0;
+		zAngle = 0;
+	}
 
 	public void translate(double right, double up) {
 		cameraPos.y += right * cameraPos.x / 600f;

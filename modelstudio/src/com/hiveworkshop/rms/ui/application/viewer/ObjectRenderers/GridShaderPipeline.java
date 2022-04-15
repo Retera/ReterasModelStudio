@@ -7,15 +7,16 @@ import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.*;
 
 
-public class SelectionBoxShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = POSITION + COLOR;
+public class GridShaderPipeline extends ShaderPipeline {
+	private static final int STRIDE = POSITION + COLOR ;
+	private static final int STRIDE_BYTES = STRIDE * Float.BYTES;
 
 
-	public SelectionBoxShaderPipeline() {
+	public GridShaderPipeline() {
 		currentMatrix.setIdentity();
-		geometryShader = OtherUtils.loadShader("SelectionBox.glsl");
-		vertexShader = OtherUtils.loadShader("SelectionBox.vert");
-		fragmentShader = OtherUtils.loadShader("SelectionBox.frag");
+//		geometryShader = OtherUtils.loadShader("Grid.glsl");
+		vertexShader = OtherUtils.loadShader("Grid.vert");
+		fragmentShader = OtherUtils.loadShader("Grid.frag");
 		load();
 	}
 
@@ -69,6 +70,7 @@ public class SelectionBoxShaderPipeline extends ShaderPipeline {
 
 
 //		GL11.glDrawArrays(glBeginType, 0, vertexCount);
+//		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, vertexCount);
 		GL11.glDrawArrays(GL11.GL_LINES, 0, vertexCount);
 		vertexCount = 0;
 		uvCount = 0;

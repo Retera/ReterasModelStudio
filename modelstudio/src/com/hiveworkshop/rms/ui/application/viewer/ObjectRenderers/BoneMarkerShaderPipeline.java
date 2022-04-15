@@ -8,8 +8,8 @@ import org.lwjgl.opengl.*;
 
 
 public class BoneMarkerShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = 4 /* position */ + 0 /* normal */ + 4 /* color */ ;
-	private static final int STRIDE_BYTES = STRIDE * Float.BYTES;
+//	private static final int STRIDE = 4 /* position */ + 0 /* normal */ + 4 /* color */ ;
+	private static final int STRIDE = POSITION + ROTATION + COLOR;
 
 
 	public BoneMarkerShaderPipeline() {
@@ -17,9 +17,6 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		geometryShader = OtherUtils.loadShader("Bone.glsl");
 		vertexShader = OtherUtils.loadShader("Bone.vert");
 		fragmentShader = OtherUtils.loadShader("Bone.frag");
-//		geometryShader = OtherUtils.loadShader("NormalLines.glsl");
-//		vertexShader = OtherUtils.loadShader("NormalLines.vert");
-//		fragmentShader = OtherUtils.loadShader("NormalLines.frag");
 		load();
 	}
 
@@ -34,12 +31,9 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferObjectId);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, pipelineVertexBuffer, GL15.GL_DYNAMIC_DRAW);
 
-		// Vertex
-		enableAttribArray(4, STRIDE);
-		// Rotation
-		enableAttribArray(4, STRIDE);
-//		 Color
-		enableAttribArray(4, STRIDE);
+		enableAttribArray(POSITION, STRIDE);
+		enableAttribArray(ROTATION, STRIDE);
+		enableAttribArray(COLOR, STRIDE);
 
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL20.glUseProgram(shaderProgram);

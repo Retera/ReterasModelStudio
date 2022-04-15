@@ -194,10 +194,10 @@ vec3 transform(vec4 quat, vec3 v) {
 void DrawQuadAt(vec4 p1, quad q, vec4 rot) {
 //    vec2 mag = vec2(MAGNITUDE, MAGNITUDE)*scale;
 
-    EmVert(u_projection * (p1 + vec4(transform1(rot, q.p0), 0.0)));    // 1:bottom-left
-    EmVert(u_projection * (p1 + vec4(transform1(rot, q.p1), 0.0)));    // 2:bottom-right
-    EmVert(u_projection * (p1 + vec4(transform1(rot, q.p2), 0.0)));    // 3:top-left
-    EmVert(u_projection * (p1 + vec4(transform1(rot, q.p3), 0.0)));    // 4:top-right
+    EmVert(u_projection * (p1 + vec4(transform(rot, q.p0), 0.0)));    // 1:bottom-left
+    EmVert(u_projection * (p1 + vec4(transform(rot, q.p1), 0.0)));    // 2:bottom-right
+    EmVert(u_projection * (p1 + vec4(transform(rot, q.p2), 0.0)));    // 3:top-left
+    EmVert(u_projection * (p1 + vec4(transform(rot, q.p3), 0.0)));    // 4:top-right
 
     EndPrimitive();
 }
