@@ -55,7 +55,7 @@ public class TextureThing {
 		// whatever OpenGL method you want, for example:
 
 		int textureID = GL11.glGenTextures(); // Generate texture ID
-		System.out.println("texture: " + bitmap.getName() + ", id: " + textureID);
+//		System.out.println("texture: " + bitmap.getName() + ", id: " + textureID);
 		int width = texture.getWidth();
 		int height = texture.getHeight();
 		boolean wrapW = bitmap.isWrapWidth();

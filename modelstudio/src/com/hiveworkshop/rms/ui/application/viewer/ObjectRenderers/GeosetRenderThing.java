@@ -67,14 +67,18 @@ public class GeosetRenderThing {
 		return this;
 	}
 
-	public void render(ShaderPipeline pipeline) {
+	public void render(ShaderPipeline pipeline, boolean renderTextures) {
 		if(renderModel != null){
 			int formatVersion = model.getFormatVersion();
 			for (Geoset geo : model.getGeosets()) {
 				if(correctLoD(formatVersion, geo) && modelView.shouldRender(geo)){
-					colorHeap.set(renderModel.getRenderGeoset(geo).getRenderColor());
+					if(renderTextures){
+						colorHeap.set(renderModel.getRenderGeoset(geo).getRenderColor());
+					} else {
+						colorHeap.set(1,1,1,1);
+					}
 					if(colorHeap.w > RenderModel.MAGIC_RENDER_SHOW_CONSTANT){
-						render(pipeline, geo, formatVersion);
+						render(pipeline, geo, formatVersion, renderTextures);
 					} else {
 						System.out.println("invis!");
 					}
@@ -100,7 +104,7 @@ public class GeosetRenderThing {
 
 	PeriodicOut periodicOut = new PeriodicOut(1000);
 
-	private void render(ShaderPipeline pipeline, Geoset geo, int formatVersion) {
+	private void render(ShaderPipeline pipeline, Geoset geo, int formatVersion, boolean renderTextures) {
 		Material material = geo.getMaterial();
 //		System.out.println("\ngeoset: " + geo.getName());
 		fresnelColorHeap.set(0f,0f,0f);
@@ -143,8 +147,10 @@ public class GeosetRenderThing {
 			Bitmap tex = layer.getRenderTexture(renderModel.getTimeEnvironment(), model);
 //			periodicOut.print("texture: " + tex.getName() + ", geoset: " + geo.getName() + ", slot: " + i);
 //			System.out.println("texture: " + tex.getName() + ", geoset: " + geo.getName() + ", slot: " + i);
-			pipeline.prepareToBindTexture();
-			textureThing.bindLayerTexture(pipeline, layer, doSetUpFilterMode, i, twoSided, tex);
+			if(renderTextures){
+				pipeline.prepareToBindTexture();
+				textureThing.bindLayerTexture(pipeline, layer, doSetUpFilterMode, i, twoSided, tex);
+			}
 //			if (!hdTextureOnlyLayer) {
 			if (!isHD || i == 0) {
 //			if (!hdNoMetaDataLayer) {
@@ -152,17 +158,20 @@ public class GeosetRenderThing {
 //				drawGeo(pipeline, geo, layer);
 			}
 			if(!isHD || i == material.getLayers().size() - 1){
-				drawGeo(pipeline, geo, layer);
+				drawGeo(pipeline, geo, layer, renderTextures);
 				pipeline.glEnd();
 			}
 		}
 
 	}
 
-	private void drawGeo(ShaderPipeline pipeline, Geoset geo, Layer layer) {
+	Vec4 triColor = new Vec4();
+	private void drawGeo(ShaderPipeline pipeline, Geoset geo, Layer layer, boolean renderTextures) {
 		uvTransform = getUVTransform(layer);
 		RenderGeoset renderGeoset = renderModel.getRenderGeoset(geo);
 		for (Triangle tri : geo.getTriangles()) {
+			getTriRGBA(tri);
+			triColor.set(colorHeap);
 			for (GeosetVertex v : tri.getVerts()) {
 				RenderGeoset.RenderVert renderVert = renderGeoset.getRenderVert(v);
 				Vec3 renderPos = renderVert.getRenderPos();
@@ -181,6 +190,11 @@ public class GeosetRenderThing {
 //				}
 
 				getUV(layer.getCoordId(), v, uvTransform);
+
+				if(!renderTextures){
+					getFaceRGBA(v);
+					colorHeap.addScaled(triColor, .25f).scale(.8f);
+				}
 
 //				pipeline.addVert(vertexHeap, normalHeap, uvHeap, colorHeap);
 				pipeline.addVert(renderPos, renderNorm, renderTang, uvHeap, colorHeap, fresnelColorHeap);
@@ -372,6 +386,23 @@ public class GeosetRenderThing {
 		} else {
 			rgba = colorPrefs.getColorComponents(ColorThing.VERTEX_UNEDITABLE);
 			colorHeap.set(colorPrefs.getColorComponents(ColorThing.VERTEX_UNEDITABLE));
+		}
+		return rgba;
+	}
+	private float[] getFaceRGBA(GeosetVertex vertex) {
+		float[] rgba;
+		if (vertex.getGeoset() == modelView.getHighlightedGeoset()) {
+			rgba = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_HIGHLIGHTED);
+			colorHeap.set(colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_HIGHLIGHTED));
+		} else if (modelView.isEditable(vertex) && modelView.isSelected(vertex)) {
+			rgba = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_SELECTED);
+			colorHeap.set(colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_SELECTED));
+		} else if (modelView.isEditable(vertex)) {
+			rgba = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE);
+			colorHeap.set(colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE));
+		} else {
+			rgba = colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_UNEDITABLE);
+			colorHeap.set(colorPrefs.getColorComponents(ColorThing.TRIANGLE_LINE_UNEDITABLE));
 		}
 		return rgba;
 	}

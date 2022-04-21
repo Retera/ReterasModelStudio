@@ -19,7 +19,6 @@ import java.awt.event.MouseWheelEvent;
  * day, you might later want to copy GameCameraManager into here??
  */
 public class CameraManager {
-	protected ViewerCamera camera;
 	protected float zoomFactor;
 	protected float upAngle;    // pitch
 	protected float sideAngle;  // yaw
@@ -28,13 +27,13 @@ public class CameraManager {
 	protected Vec3 camPosition = new Vec3();
 	protected Vec3 camRight = new Vec3();
 	protected Vec3 camUp = new Vec3();
-	protected Vec3 camForward = new Vec3();
+//	protected Vec3 camForward = new Vec3();
 	protected Vec3 camBackward = new Vec3();
 	protected Vec3 target = new Vec3(0, 0, 0);
 	protected Vec3 worldUp = new Vec3(0, 0, 1);
 	protected Vec3 vecHeap = new Vec3();
 	protected Vec4 vec4Heap = new Vec4();
-	protected Quat quatHeap = new Quat();
+//	protected Quat quatHeap = new Quat();
 	protected Quat totRot = new Quat();
 	protected Quat upRot = new Quat();      // pitch
 	protected Quat sideRot = new Quat();    // yaw
@@ -45,9 +44,9 @@ public class CameraManager {
 	private boolean isOrtho = false;
 
 	private final Mat4 cameraSpaceMatrix = new Mat4();          // World -> View
-	private final Mat4 cameraProjectionMatrix = new Mat4();          // World -> View
-	private final Mat4 inverseCameraSpaceMatrix = new Mat4();          // World -> View
-	private final Mat4 inverseCameraProjectionMatrix = new Mat4();          // World -> View
+//	private final Mat4 cameraProjectionMatrix = new Mat4();          // World -> View
+//	private final Mat4 inverseCameraSpaceMatrix = new Mat4();          // World -> View
+//	private final Mat4 inverseCameraProjectionMatrix = new Mat4();          // World -> View
 
 	private final Mat4 viewMatrix = new Mat4();                  // World -> View
 	private final Mat4 projectionMatrix = new Mat4();            // View -> Clip
@@ -59,7 +58,7 @@ public class CameraManager {
 
 	private final Mat4 tempMat4 = new Mat4();
 	private final Mat4 viewPortAntiRotMat = new Mat4();
-	private final Vec3 screenDimension = new Vec3();
+//	private final Vec3 screenDimension = new Vec3();
 
 	private final Quat inverseCameraRotation = new Quat();
 	private final Quat inverseCameraRotXSpinY = new Quat();
@@ -67,9 +66,9 @@ public class CameraManager {
 	private final Quat inverseCameraRotZSpinX = new Quat();
 	private final Quat inverseCameraRotZSpinZ = new Quat();
 
-	private final Quat quatHeap1 = new Quat();
-	private final Quat quatHeap2 = new Quat();
-	private final Vec3 scaleHeap = new Vec3();
+//	private final Quat quatHeap1 = new Quat();
+//	private final Quat quatHeap2 = new Quat();
+//	private final Vec3 scaleHeap = new Vec3();
 
 
 	private final Ray rayHeap = new Ray();
@@ -80,7 +79,6 @@ public class CameraManager {
 	// https://learnopengl.com/Getting-started/Camera
 	public CameraManager(Component viewport) {
 		this.viewport = viewport;
-		camera = new ViewerCamera();
 		this.zoomFactor = 0.1f;
 //		this.upAngle = (float) Math.toRadians(90 - 34);
 		this.upAngle = (float) Math.toRadians(90);
@@ -236,22 +234,14 @@ public class CameraManager {
 	}
 
 	public void translate(double right, double up) {
-		applyPan(right, up, 0);
-//		applyPan(0, right, up);
+		applyPan(right, up);
 	}
-	public void translate2(double dx, double dy, double dz) {
-		applyPan(dx, dy, dz);
+	public void moveTargetDepth(double dept) {
+		vecHeap.set(camBackward).scale((float) dept);
 	}
 
-	private void applyPan(double dx, double dy, double dz) {
-//		screenDimension.set(getWorldScreenSpace(-dx,-dy)).sub(getWorldScreenSpace(0,0));
-//		System.out.println("dView.sub(origen): " + screenDimension);
-//		target.add(screenDimension);
+	private void applyPan(double dx, double dy) {
 		target.add(getWorldScreenSpaceAsDeltaRay(-dx,-dy));
-
-//		screenDimension.set(getWorldScreenSpaceAsDeltaRay(-dx,-dy));
-//		System.out.println("dView.sub(origen)ray: " + screenDimension);
-
 	}
 
 	public CameraManager setAllowRotation(boolean allowRotation) {
@@ -259,19 +249,19 @@ public class CameraManager {
 		return this;
 	}
 
-	public void rotate(double dx, double dy){
+	public void rotate(double right, double up){
 		if(allowRotation){
-			rot(0, dx, dy);
+			rot(0, right, -up);
 		} else {
-			applyPan(dx, dy, 0);
+			applyPan(right, up);
 		}
 	}
 	public void setCameraRotation(float right, float up) {
 		ViewBox viewBox = getViewBox(new Vec2(1, 1), new Vec2(-1, -1));
 		viewBox.pointInBox(new Vec3(0,0,0));
 		if (allowRotation) {
-			upAngle = (float) Math.toRadians(right);
-			sideAngle = (float) Math.toRadians(up);
+			upAngle = (float) Math.toRadians(up);
+			sideAngle = (float) Math.toRadians(right);
 			tiltAngle = (float) Math.toRadians(0);
 			calculateCameraRotation();
 			System.out.println("rot: " + Math.toDegrees(upAngle) + ", " + Math.toDegrees(sideAngle) + ", " + Math.toDegrees(tiltAngle)
@@ -280,11 +270,24 @@ public class CameraManager {
 			);
 		}
 	}
+	public void setCameraRotationRad(float right, float up) {
+		ViewBox viewBox = getViewBox(new Vec2(1, 1), new Vec2(-1, -1));
+		viewBox.pointInBox(new Vec3(0,0,0));
+		if (allowRotation) {
+			upAngle = up;
+			sideAngle = right;
+			tiltAngle = 0f;
+			calculateCameraRotation();
+		}
+	}
 
 	public void rot(double rx, double ry, double rz) {
-//		tiltAngle += Math.toRadians(rx);
-//		sideAngle -= Math.toRadians(ry);
-//		upAngle -= Math.toRadians(rz);
+		tiltAngle += Math.toRadians(rx);
+		sideAngle -= Math.toRadians(ry);
+		upAngle -= Math.toRadians(rz);
+		calculateCameraRotation();
+	}
+	public void rotRad(double rx, double ry, double rz) {
 		tiltAngle += rx;
 		sideAngle -= ry;
 		upAngle -= rz;

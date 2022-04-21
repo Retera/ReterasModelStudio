@@ -93,11 +93,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 //		cameraManager = new PortraitCameraManager();
 		cameraManager = new CameraManager(this);
 
-//		mouseThingi = new MouseThingi(cameraManager);
-//		addMouseListener(mouseThingi);
-//		addMouseMotionListener(mouseThingi);
-//		addMouseWheelListener(mouseThingi);
-
 		mouseAdapter = new MouseListenerThing(cameraManager, programPreferences);
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
@@ -260,7 +255,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		setSize(getParent().getSize());
 		cameraManager.updateCamera();
 		ShaderPipeline pipeline = shaderManager.getOrCreatePipeline();
-		ShaderPipeline bonePipeline = shaderManager.getOrCreateBoneMarkerShaderPipeline();
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 			System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
 			return;
@@ -269,9 +263,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		try {
 			updateRenderModel();
 
-			if ((programPreferences != null) && (programPreferences.viewMode() == 0)) {
+			if (programPreferences != null && wireFrame) {
 				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
-			} else if ((programPreferences == null) || (programPreferences.viewMode() == 1)) {
+			} else {
 				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 			}
 //			pipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
@@ -286,7 +280,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			pipeline.glEnableIfNeeded(GL11.GL_LIGHT1);
 			pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-			if (renderTextures()) {
+			if (renderTextures) {
 				pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
 			}
 			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, autoRepainting ? 1.0f : 0.0f);
@@ -302,14 +296,13 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 
 			setUpLights(pipeline);
 
-			if (programPreferences != null && programPreferences.showPerspectiveGrid()) {
-			}
-
-			if (renderTextures()) {
+			if (renderTextures) {
 				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 				pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
+			} else {
+				pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 			}
-			geosetRenderThing.render(pipeline);
+			geosetRenderThing.render(pipeline, renderTextures);
 
 
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -346,6 +339,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				geosetRenderThing.drawVerts(vertPipeline);
 			}
 			if (true) {
+				ShaderPipeline bonePipeline = shaderManager.getOrCreateBoneMarkerShaderPipeline();
 				bonePipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 //				bonePipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
 				bonePipeline.glViewport(0, 0, (int) (getWidth()), (int) (getHeight()));

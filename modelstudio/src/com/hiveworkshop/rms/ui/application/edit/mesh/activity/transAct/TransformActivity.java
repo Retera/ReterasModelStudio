@@ -28,7 +28,9 @@ public abstract class TransformActivity extends ViewportActivity {
 	protected final Mat4 inverseViewProjectionMatrix = new Mat4();
 	protected boolean isActing = false;
 	protected float zDepth = 0;
-	protected Vec3 heap = new Vec3();
+	protected final Vec3 tempVec3 = new Vec3();
+	protected final Vec2 tempVec2 = new Vec2();
+	protected final Vec2 vpSelectionCenter = new Vec2();
 
 	public TransformActivity(ModelHandler modelHandler,
 	                         AbstractModelEditorManager modelEditorManager, Widget widget) {
@@ -109,9 +111,9 @@ public abstract class TransformActivity extends ViewportActivity {
 			dir = directionByMouse;
 			widget.setMoveDirection(directionByMouse);
 
-			heap.set(selectionManager.getCenter());
-			heap.transform(viewProjectionMatrix, 1, true);
-			zDepth = heap.z;
+			tempVec3.set(selectionManager.getCenter());
+			tempVec3.transform(viewProjectionMatrix, 1, true);
+			zDepth = tempVec3.z;
 			this.viewProjectionMatrix.set(viewProjectionMatrix);
 			this.inverseViewProjectionMatrix.set(viewProjectionMatrix).invert();
 
@@ -146,7 +148,6 @@ public abstract class TransformActivity extends ViewportActivity {
 	public void mouseDragged(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		if (isActing) {
 			Vec2 mouseEnd = getPoint(e);
-//			Vec2 mouseStart = lastDragPoint;
 			updateMat(e, viewProjectionMatrix, mouseEnd);
 			lastDragPoint.set(mouseEnd);
 		}
@@ -195,5 +196,20 @@ public abstract class TransformActivity extends ViewportActivity {
 		} else {
 			widget.setPoint(selectionManager.getCenter());
 		}
+	}
+
+	protected Vec2 getViewportSelectionCenter(){
+//		if(selectionManager instanceof TVertSelectionManager){
+//			return selectionManager.getUVCenter(0);
+//		} else {
+//		}
+		return vpSelectionCenter.setAsProjection(selectionManager.getCenter(), viewProjectionMatrix);
+	}
+
+	public double getThetaOfDiff(Vec2 v1, Vec2 v2){
+		double tX = v1.x - v2.x;
+		double tY = v1.y - v2.y;
+
+		return Math.atan2(tY, tX);
 	}
 }

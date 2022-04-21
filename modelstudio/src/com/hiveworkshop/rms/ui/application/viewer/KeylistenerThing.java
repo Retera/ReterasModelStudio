@@ -55,7 +55,7 @@ public class KeylistenerThing extends KeyAdapter {
 		if (e.getKeyCode() == prefs.getCameraRotateUpKB()) {
 			//Left (90,0) / Right (-90,0)
 			if(0 < controlAdj){
-				cameraHandler.rotate(0.0, 15.0);
+				cameraHandler.rotate(0.0, -15.0);
 			} else {
 				cameraHandler.translate(0.0, 10.0);
 			}
@@ -63,7 +63,7 @@ public class KeylistenerThing extends KeyAdapter {
 		if (e.getKeyCode() == prefs.getCameraRotateDownKB()) {
 			//Left (90,0) / Right (-90,0)
 			if(0 < controlAdj){
-				cameraHandler.rotate(0.0, -15.0);
+				cameraHandler.rotate(0.0, 15.0);
 			} else {
 				cameraHandler.translate(0.0, -10.0);
 			}
@@ -118,11 +118,11 @@ public class KeylistenerThing extends KeyAdapter {
 //			System.out.println("Z -10");
 //		}
 		if (e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
-			cameraHandler.translate2(-10, 0, 0);
+			cameraHandler.moveTargetDepth(-10);
 			System.out.println("X -10");
 		}
 		if (e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
-			cameraHandler.translate2(10, 0, 0);
+			cameraHandler.moveTargetDepth(10);
 			System.out.println("X +10");
 		}
 	}

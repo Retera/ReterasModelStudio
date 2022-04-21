@@ -101,7 +101,7 @@ public abstract class AbstractRotateManipulator extends Manipulator {
 			double endingAngle = Math.atan2(-endingDelta.y, endingDelta.x);
 
 			deltaAngle = endingAngle - startingAngle;
-			System.out.println("S:" + startingDelta + " SA:" + startingAngle + " E:" + endingClick + " EA:" + endingAngle + ", delta: " + deltaAngle);
+//			System.out.println("S:" + startingDelta + " SA:" + startingAngle + " E:" + endingClick + " EA:" + endingAngle + ", delta: " + deltaAngle);
 
 //			double radius = getRadius();
 //			deltaAngle = (endingClick.x - startingClick.x) / radius;

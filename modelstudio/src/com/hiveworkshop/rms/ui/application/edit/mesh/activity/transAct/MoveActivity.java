@@ -22,7 +22,6 @@ public class MoveActivity extends TransformActivity {
 	}
 
 	protected void startCoord(CoordinateSystem coordinateSystem) {
-		resetMoveVector();
 		translationAction = modelEditor.beginTranslation();
 	}
 
@@ -31,10 +30,8 @@ public class MoveActivity extends TransformActivity {
 		if (isActing) {
 			Vec2 mouseEnd = new Vec2(coordinateSystem.geomX(e.getX()), coordinateSystem.geomY(e.getY()));
 
-			resetMoveVector();
 			buildMoveVector(lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			translationAction.updateTranslation(moveVector);
-			resetMoveVector();
 
 			UndoAction undoAction = translationAction;
 			if (wasCanceled && undoAction != null) {
@@ -49,13 +46,11 @@ public class MoveActivity extends TransformActivity {
 	}
 
 	protected void updateCoord(MouseEvent e, CoordinateSystem coordinateSystem, Vec2 mouseEnd) {
-		resetMoveVector();
 		buildMoveVector(lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		translationAction.updateTranslation(moveVector);
 	}
 
 	protected void startMat() {
-		resetMoveVector();
 		translationAction = modelEditor.beginTranslation();
 	}
 
@@ -63,11 +58,9 @@ public class MoveActivity extends TransformActivity {
 		if (isActing) {
 			Vec2 mouseEnd = getPoint(e);
 
-			resetMoveVector();
 			buildMoveVector(lastDragPoint, mouseEnd, inverseViewProjectionMatrix);
-//			buildMoveVector(lastDragPoint, mouseEnd, viewProjectionMatrix);
 			translationAction.updateTranslation(moveVector);
-			resetMoveVector();
+
 			System.out.println("moved from " + mouseStartPoint + " to " + mouseEnd);
 			UndoAction undoAction = translationAction;
 			if (wasCanceled && undoAction != null) {
@@ -82,12 +75,12 @@ public class MoveActivity extends TransformActivity {
 	}
 
 	protected void updateMat(MouseEvent e, Mat4 viewProjectionMatrix, Vec2 mouseEnd) {
-		resetMoveVector();
 		buildMoveVector(lastDragPoint, mouseEnd, viewProjectionMatrix);
 		translationAction.updateTranslation(moveVector);
 	}
 
 	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
+		moveVector.set(0, 0, 0);
 		if (dir.containDirection(dim1)) {
 			moveVector.setCoord(dim1, mouseEnd.x - mouseStart.x);
 		}
@@ -103,6 +96,7 @@ public class MoveActivity extends TransformActivity {
 	Vec3 heapEnd = new Vec3();
 	Vec3 heapDiff = new Vec3();
 	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewProjectionMatrix) {
+		moveVector.set(0, 0, 0);
 
 //		if(time < System.currentTimeMillis()){
 //			System.out.println("vZero: " + vZero);
@@ -118,47 +112,11 @@ public class MoveActivity extends TransformActivity {
 //			System.out.println("p2: " + heapEnd);
 //			System.out.println("d:  " + heapDiff);
 //
-//
-//			heapStart.set(mouseEnd.x, mouseEnd.y, 0).transform(inverseViewProjectionMatrix, 1, true);
-//			heapEnd.set(mouseStart.x, mouseStart.y, 0).transform(inverseViewProjectionMatrix, 1, true);
-//			heapDiff.set(heapEnd).sub(heapStart);
-//			System.out.println("MidPlane");
-//			System.out.println("p1: " + heapStart);
-//			System.out.println("p2: " + heapEnd);
-//			System.out.println("d:  " + heapDiff);
-//
-//
-//			heapStart.set(mouseEnd.x, mouseEnd.y, 1).transform(inverseViewProjectionMatrix, 1, true);
-//			heapEnd.set(mouseStart.x, mouseStart.y, 1).transform(inverseViewProjectionMatrix, 1, true);
-//			heapDiff.set(heapEnd).sub(heapStart);
-//			System.out.println("FarPlane");
-//			System.out.println("p1: " + heapStart);
-//			System.out.println("p2: " + heapEnd);
-//			System.out.println("d:  " + heapDiff);
-//
-//
-//			float zPlane = vZero.z;
-//			heapStart.set(mouseEnd.x, mouseEnd.y, zPlane).transform(inverseViewProjectionMatrix, 1, true);
-//			heapEnd.set(mouseStart.x, mouseStart.y, zPlane).transform(inverseViewProjectionMatrix, 1, true);
-//			heapDiff.set(heapEnd).sub(heapStart);
-//			System.out.println("vZeroPlane");
-//			System.out.println("p1: " + heapStart);
-//			System.out.println("p2: " + heapEnd);
-//			System.out.println("d:  " + heapDiff);
-//
 //			time = System.currentTimeMillis() + 500;
 //		}
 
-
-//		heap.set(mouseStart.x, mouseStart.y, zDepth).transform(viewProjectionMatrix, 1, true);
-//		moveVector.set(mouseEnd.x, mouseEnd.y, zDepth).transform(viewProjectionMatrix, 1, true);
-//		moveVector.sub(heap);
-		heap.set(mouseStart.x, mouseStart.y, zDepth).transform(inverseViewProjectionMatrix, 1, true);
+		tempVec3.set(mouseStart.x, mouseStart.y, zDepth).transform(inverseViewProjectionMatrix, 1, true);
 		moveVector.set(mouseEnd.x, mouseEnd.y, zDepth).transform(inverseViewProjectionMatrix, 1, true);
-		moveVector.sub(heap);
-	}
-
-	private void resetMoveVector() {
-		moveVector.set(0, 0, 0);
+		moveVector.sub(tempVec3);
 	}
 }

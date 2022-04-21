@@ -47,6 +47,7 @@ uniform mat4 u_projection;
 
 out vec2 v_uv;
 out vec4 v_color;
+out vec4 v_normal;
 out vec3 v_tangentLightPos;
 out vec3 v_tangentViewPos;
 out vec3 v_tangentFragPos;
@@ -61,6 +62,7 @@ void main() {
     vec3 binormal = normalize(cross(a_normal.xyz, tangent) * a_tangent.w);
     mat3 mv = mat3(u_projection);
     mat3 TBN = transpose(mat3(normalize(mv*tangent), normalize(mv*binormal), normalize(mv*a_normal.xyz)));
+    v_normal = u_projection * a_normal;
     v_tangentLightPos = TBN * (mv * u_lightDirection).xyz;
     v_tangentViewPos = TBN * u_viewPos;
     v_tangentFragPos = TBN * (u_projection * a_position).xyz;

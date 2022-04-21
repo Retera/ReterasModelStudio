@@ -31,7 +31,6 @@ public class ExtendActivity extends TransformActivity {
 
 
 	protected void startCoord(CoordinateSystem coordinateSystem) {
-		resetMoveVector();
 		translationAction = modelEditor.beginTranslation();
 		if (selectionManager instanceof SelectionManager) {
 			ModelView modelView = ProgramGlobals.getCurrentModelPanel().getModelView();
@@ -44,10 +43,8 @@ public class ExtendActivity extends TransformActivity {
 		if (isActing) {
 			Vec2 mouseEnd = new Vec2(coordinateSystem.geomX(e.getX()), coordinateSystem.geomY(e.getY()));
 
-			resetMoveVector();
 			buildMoveVector(lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 			translationAction.updateTranslation(moveVector);
-			resetMoveVector();
 			UndoAction undoAction;
 			if(selectionManager instanceof TVertSelectionManager){
 				undoAction = translationAction;
@@ -67,13 +64,11 @@ public class ExtendActivity extends TransformActivity {
 	}
 
 	protected void updateCoord(MouseEvent e, CoordinateSystem coordinateSystem, Vec2 mouseEnd) {
-		resetMoveVector();
 		buildMoveVector(lastDragPoint, mouseEnd, coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
 		translationAction.updateTranslation(moveVector);
 	}
 
 	protected void startMat() {
-		resetMoveVector();
 		translationAction = modelEditor.beginTranslation();
 
 		if (selectionManager instanceof SelectionManager) {
@@ -87,10 +82,8 @@ public class ExtendActivity extends TransformActivity {
 		if (isActing) {
 			Vec2 mouseEnd = getPoint(e);
 
-			resetMoveVector();
 			buildMoveVector(lastDragPoint, mouseEnd, inverseViewProjectionMatrix);
 			translationAction.updateTranslation(moveVector);
-			resetMoveVector();
 			System.out.println("moved from " + mouseStartPoint + " to " + mouseEnd);
 
 			UndoAction undoAction;
@@ -112,12 +105,12 @@ public class ExtendActivity extends TransformActivity {
 	}
 
 	protected void updateMat(MouseEvent e, Mat4 viewProjectionMatrix, Vec2 mouseEnd) {
-		resetMoveVector();
 		buildMoveVector(lastDragPoint, mouseEnd, viewProjectionMatrix);
 		translationAction.updateTranslation(moveVector);
 	}
 
 	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
+		moveVector.set(0, 0, 0);
 		if (dir.containDirection(dim1)) {
 			moveVector.setCoord(dim1, mouseEnd.x - mouseStart.x);
 		}
@@ -128,12 +121,9 @@ public class ExtendActivity extends TransformActivity {
 
 
 	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewProjectionMatrix) {
-		heap.set(mouseStart.x, mouseStart.y, zDepth).transform(viewProjectionMatrix, 1, true);
-		moveVector.set(mouseEnd.x, mouseEnd.y, zDepth).transform(viewProjectionMatrix, 1, true);
-		moveVector.sub(heap);
-	}
-
-	private void resetMoveVector() {
 		moveVector.set(0, 0, 0);
+		tempVec3.set(mouseStart.x, mouseStart.y, zDepth).transform(viewProjectionMatrix, 1, true);
+		moveVector.set(mouseEnd.x, mouseEnd.y, zDepth).transform(viewProjectionMatrix, 1, true);
+		moveVector.sub(tempVec3);
 	}
 }

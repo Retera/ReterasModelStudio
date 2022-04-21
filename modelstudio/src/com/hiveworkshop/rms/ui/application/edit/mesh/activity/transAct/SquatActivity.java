@@ -78,8 +78,7 @@ public class SquatActivity extends TransformActivity {
 	protected void startMat() {
 		Vec3 center = selectionManager.getCenter();
 		nonRotAngle = 0;
-		Vec3 axis = new Vec3(Vec3.X_AXIS);
-		axis.transform(inverseViewProjectionMatrix);
+		Vec3 axis = getAxis();
 		if(selectionManager instanceof TVertSelectionManager){
 			rotationAction = modelEditor.beginRotation(center, axis);
 		} else {
@@ -114,6 +113,13 @@ public class SquatActivity extends TransformActivity {
 
 
 
+	protected Vec3 getAxis(){
+		tempVec3.set(0, 0, -1).transform(inverseViewProjectionMatrix, 1, true);
+		Vec3 axis = new Vec3(0, 0, 1).transform(inverseViewProjectionMatrix, 1, true);
+		axis.sub(tempVec3).normalize();
+		return axis;
+	}
+
 	protected Vec2 getVec2Center(byte portFirstXYZ, byte portSecondXYZ) {
 		if(selectionManager instanceof TVertSelectionManager){
 			return selectionManager.getUVCenter(0);
@@ -126,9 +132,10 @@ public class SquatActivity extends TransformActivity {
 		if(selectionManager instanceof TVertSelectionManager){
 			return selectionManager.getUVCenter(0);
 		} else {
-			Vec3 flatCenter = new Vec3();
-			flatCenter.set(selectionManager.getCenter()).transform(viewProjectionMatrix);
-			return new Vec2(flatCenter.y, flatCenter.z);
+//			Vec3 flatCenter = new Vec3();
+//			flatCenter.set(selectionManager.getCenter()).transform(viewProjectionMatrix);
+//			return new Vec2(flatCenter.y, flatCenter.z);
+			return new Vec2().setAsProjection(selectionManager.getCenter(), viewProjectionMatrix);
 		}
 	}
 
@@ -185,20 +192,21 @@ public class SquatActivity extends TransformActivity {
 
 	protected double computeRotateRadians(MouseEvent e, Vec2 startingClick, Vec2 endingClick, Mat4 viewProjectionMatrix) {
 		double deltaAngle = 0;
-		Vec2 center = getVec2Center(viewProjectionMatrix);
+		Vec2 center = getViewportSelectionCenter();
 		if (dir == MoveDimension.XYZ) {
-//			System.out.println("S:" + startingClick + " E:" + endingClick + " C:" + center);
-			Vec2 startingDelta = Vec2.getDif(startingClick, center);
-			Vec2 endingDelta = Vec2.getDif(endingClick, center);
+//			Vec2 startingDelta = Vec2.getDif(startingClick, center);
+//			Vec2 endingDelta = Vec2.getDif(endingClick, center);
+//
+//			double startingAngle = Math.atan2(-startingDelta.y, startingDelta.x);
+//			double endingAngle = Math.atan2(-endingDelta.y, endingDelta.x);
+//
+//			deltaAngle = endingAngle - startingAngle;
 
-			double startingAngle = Math.atan2(-startingDelta.y, startingDelta.x);
-			double endingAngle = Math.atan2(-endingDelta.y, endingDelta.x);
+
+			double startingAngle = -getThetaOfDiff(startingClick, center);
+			double endingAngle = -getThetaOfDiff(endingClick, center);
 
 			deltaAngle = endingAngle - startingAngle;
-			System.out.println("S:" + startingDelta + " SA:" + startingAngle + " E:" + endingClick + " EA:" + endingAngle + ", delta: " + deltaAngle);
-
-//			double radius = getRadius();
-//			deltaAngle = (endingClick.x - startingClick.x) / radius;
 		}
 		if (e.isControlDown()) {
 			nonRotAngle += deltaAngle;

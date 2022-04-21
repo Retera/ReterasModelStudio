@@ -45,6 +45,13 @@ public class RotateActivity extends TransformActivity {
 		rotationAction = modelEditor.beginRotation(center, planeDim1, planeDim2);
 	}
 
+	protected void startMat() {
+		Vec3 center = selectionManager.getCenter();
+		nonRotAngle = 0;
+		Vec3 axis = getAxis();
+		rotationAction = modelEditor.beginRotation(center, axis);
+	}
+
 
 	protected void finnishAction(MouseEvent e, CoordinateSystem coordinateSystem, boolean wasCanceled) {
 		if (isActing) {
@@ -71,13 +78,9 @@ public class RotateActivity extends TransformActivity {
 		rotationAction.updateRotation(radians);
 	}
 
-	protected void startMat() {
-		Vec3 center = selectionManager.getCenter();
-		nonRotAngle = 0;
-		Vec3 axis = new Vec3(Vec3.X_AXIS);
-//		axis.transform(inverseViewProjectionMatrix);
-		axis.transform(viewProjectionMatrix);
-		rotationAction = modelEditor.beginRotation(center, axis);
+	protected void updateMat(MouseEvent e, Mat4 viewProjectionMatrix, Vec2 mouseEnd) {
+		double radians = computeRotateRadians(e, lastDragPoint, mouseEnd, viewProjectionMatrix);
+		rotationAction.updateRotation(radians);
 	}
 
 	protected void finnishAction(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj, boolean wasCanceled) {
@@ -100,9 +103,11 @@ public class RotateActivity extends TransformActivity {
 		}
 	}
 
-	protected void updateMat(MouseEvent e, Mat4 viewProjectionMatrix, Vec2 mouseEnd) {
-		double radians = computeRotateRadians(e, lastDragPoint, mouseEnd, viewProjectionMatrix);
-		rotationAction.updateRotation(radians);
+	protected Vec3 getAxis(){
+		tempVec3.set(0, 0, -1).transform(inverseViewProjectionMatrix, 1, true);
+		Vec3 axis = new Vec3(0, 0, 1).transform(inverseViewProjectionMatrix, 1, true);
+		axis.sub(tempVec3).normalize();
+		return axis;
 	}
 
 
@@ -169,20 +174,18 @@ public class RotateActivity extends TransformActivity {
 
 	protected double computeRotateRadians(MouseEvent e, Vec2 startingClick, Vec2 endingClick, Mat4 viewProjectionMatrix) {
 		double deltaAngle = 0;
-		Vec2 center = getVec2Center(viewProjectionMatrix);
+		Vec2 center = getViewportSelectionCenter();
 		if (dir == MoveDimension.XYZ) {
-//			System.out.println("S:" + startingClick + " E:" + endingClick + " C:" + center);
-			Vec2 startingDelta = Vec2.getDif(startingClick, center);
-			Vec2 endingDelta = Vec2.getDif(endingClick, center);
+//			Vec2 startingDelta = Vec2.getDif(startingClick, center);
+//			Vec2 endingDelta = Vec2.getDif(endingClick, center);
+//
+//			double startingAngle = Math.atan2(-startingDelta.y, startingDelta.x);
+//			double endingAngle = Math.atan2(-endingDelta.y, endingDelta.x);
 
-			double startingAngle = Math.atan2(-startingDelta.y, startingDelta.x);
-			double endingAngle = Math.atan2(-endingDelta.y, endingDelta.x);
+			double startingAngle = -getThetaOfDiff(startingClick, center);
+			double endingAngle = -getThetaOfDiff(endingClick, center);
 
 			deltaAngle = endingAngle - startingAngle;
-			System.out.println("S:" + startingDelta + " SA:" + startingAngle + " E:" + endingClick + " EA:" + endingAngle + ", delta: " + deltaAngle);
-
-//			double radius = getRadius();
-//			deltaAngle = (endingClick.x - startingClick.x) / radius;
 		}
 		if (e.isControlDown()) {
 			nonRotAngle += deltaAngle;

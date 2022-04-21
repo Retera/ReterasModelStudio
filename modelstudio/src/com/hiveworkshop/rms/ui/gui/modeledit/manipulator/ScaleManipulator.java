@@ -22,8 +22,6 @@ public final class ScaleManipulator extends AbstractScaleManipulator {
 	}
 
 	protected double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
-		System.out.println("computeScaleFactor!");
-//		Vec3 center = selectionManager.getCenter();
 		Vec2 center = selectionManager.getCenter().getProjected(dim1, dim2);
 
 		double dxEnd = 0;
@@ -61,8 +59,6 @@ public final class ScaleManipulator extends AbstractScaleManipulator {
 	}
 
 	protected double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat) {
-		System.out.println("computeScaleFactor!");
-//		Vec3 center = selectionManager.getCenter().transform(cameraHandler.getViewPortAntiRotMat());
 		Vec2 center = selectionManager.getCenter().transform(viewPortAntiRotMat).getProjected((byte) 1, (byte) 2);
 		double dxEnd = 0;
 		double dyEnd = 0;

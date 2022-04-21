@@ -7,10 +7,12 @@ import com.hiveworkshop.rms.editor.render3d.RenderNodeCamera;
 import java.awt.*;
 
 public class PortraitCameraManager extends CameraManager {
+	protected ViewerCamera camera;
 	private RenderNodeCamera renderCamera;
 
 	public PortraitCameraManager(Component viewport) {
 		super(viewport);
+		camera = new ViewerCamera();
 	}
 
 	public void updateCamera() {

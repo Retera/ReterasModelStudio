@@ -56,7 +56,6 @@ public class MouseListenerThing extends MouseAdapter {
 		if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
 			isSelecting = true;
 			if (activityManager != null) {
-//				activityManager.mousePressed(e, viewProjectionMatrix, sizeAdj);
 				Vec2 topLeft = new Vec2(startP).maximize(endP);
 				Vec2 botRight = new Vec2(endP).minimize(startP);
 				ViewBox viewBox = cameraHandler.getViewBox(topLeft, botRight);
@@ -89,24 +88,15 @@ public class MouseListenerThing extends MouseAdapter {
 			activityManager.mouseReleased(e, viewProjectionMatrix, sizeAdj);
 			getEndPGeo2();
 
-			Vec2 topRight = new Vec2(startP).maximize(endP);
-			Vec2 botLeft = new Vec2(endP).minimize(startP);
-//			ViewBox viewBox = cameraHandler.getViewBox(topRight, botLeft);
-//			ViewBox viewBox = cameraHandler.getViewBox(botLeft, topRight);
-//			viewBox.pointInBox2(new Vec3(0,0,0));
-			System.out.println("getStartPGeo: " + getStartPGeo() + " (" + startP + "), " + "getEndPGeo2: " + getEndPGeo2() + " (" + endP + "), ");
-		} else if (isSelecting){
+//			System.out.println("getStartPGeo: " + getStartPGeo() + " (" + startP + "), " + "getEndPGeo2: " + getEndPGeo2() + " (" + endP + "), ");
+		} else if (isSelecting && endP != null){
 
 			Vec2 topLeft = new Vec2(startP).maximize(endP);
 			Vec2 botRight = new Vec2(endP).minimize(startP);
 			ViewBox viewBox = cameraHandler.getViewBox(topLeft, botRight);
 
-			Mat4 viewProjectionMatrix = cameraHandler.getViewPortAntiRotMat();
 			double sizeAdj = cameraHandler.sizeAdj();
 			activityManager.mouseReleased(e, viewBox, sizeAdj);
-			System.out.println("getStartPGeo: " + getStartPGeo() + " (" + startP + "), " + "getEndPGeo2: " + getEndPGeo2() + " (" + endP + "), ");
-//			getEndPGeo2();
-			viewBox.pointInBoxPrint(new Vec3(0,0,0));
 		}
 //		if ((isActing || isSelecting) && activityManager != null) {
 //
@@ -153,6 +143,7 @@ public class MouseListenerThing extends MouseAdapter {
 //				System.out.println("transl x: " + (e.getX() - endP.y) + " (" + e.getX() + "-" + endP.y + ")" + ", transl y: " + (e.getY() - endP.z) + " (" + e.getY() + "-" + endP.z + ")");
 				cameraHandler.translate(vec2Temp.x, vec2Temp.y);
 			} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
+				vec2Temp.scale((float) Math.toDegrees(1));
 				cameraHandler.rotate(vec2Temp.x, vec2Temp.y);
 			} else if ((isActing || isSelecting) && activityManager != null) {
 				Mat4 viewProjectionMatrix = cameraHandler.getViewPortAntiRotMat();
