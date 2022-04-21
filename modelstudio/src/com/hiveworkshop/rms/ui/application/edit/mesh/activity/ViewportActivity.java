@@ -13,7 +13,6 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
@@ -28,13 +27,15 @@ import java.util.function.Consumer;
 
 public abstract class ViewportActivity implements SelectionListener {
 
+	protected Consumer<Cursor> cursorManager;
 	protected ModelEditor modelEditor;
 	protected ModelHandler modelHandler;
 	protected UndoManager undoManager;
 	protected ModelView modelView;
 	protected ProgramPreferences preferences;
-	protected Vec2 mouseStart;
-	protected Point lastMousePoint;
+//	protected final Vec2 mouseStartPoint = new Vec2();
+//	protected final Vec2 lastMousePoint = new Vec2();
+//	protected final Vec2 lastDragPoint = new Vec2();
 	protected AbstractSelectionManager selectionManager;
 	protected AbstractModelEditorManager modelEditorManager;
 
@@ -59,6 +60,7 @@ public abstract class ViewportActivity implements SelectionListener {
 	}
 
 	public void viewportChanged(Consumer<Cursor> cursorManager) {
+		this.cursorManager = cursorManager;
 	}
 
 	public abstract void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem);
@@ -73,29 +75,16 @@ public abstract class ViewportActivity implements SelectionListener {
 	}
 
 
-	public void mousePressed(MouseEvent e, CameraHandler cameraHandler) {
+	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 	}
 
-	public void mouseReleased(MouseEvent e, CameraHandler cameraHandler) {
+	public void mouseReleased(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 	}
 
-	public void mouseMoved(MouseEvent e, CameraHandler cameraHandler) {
+	public void mouseMoved(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 	}
 
-	public void mouseDragged(MouseEvent e, CameraHandler cameraHandler) {
-	}
-
-
-	public void mousePressed(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
-	}
-
-	public void mouseReleased(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
-	}
-
-	public void mouseMoved(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
-	}
-
-	public void mouseDragged(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	public void mouseDragged(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 	}
 
 

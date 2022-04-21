@@ -3,11 +3,8 @@ package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ButtonType;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.selection.ViewportSelectionHandler;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.Widget;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
@@ -18,14 +15,14 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 
 public abstract class ManipulatorBuilder {
-	protected final ViewportSelectionHandler viewportSelectionHandler;
+	protected AbstractSelectionManager selectionManager;
 	protected final ModelHandler modelHandler;
 	protected final ModelView modelView;
 	protected ModelEditor modelEditor;
 	protected Widget widget;
 
-	public ManipulatorBuilder(ModelEditor modelEditor, ViewportSelectionHandler viewportSelectionHandler, ModelHandler modelHandler) {
-		this.viewportSelectionHandler = viewportSelectionHandler;
+	public ManipulatorBuilder(ModelEditor modelEditor, AbstractSelectionManager selectionManager, ModelHandler modelHandler) {
+		this.selectionManager = selectionManager;
 		this.modelEditor = modelEditor;
 		this.modelHandler = modelHandler;
 		this.modelView = modelHandler.getModelView();
@@ -43,19 +40,7 @@ public abstract class ManipulatorBuilder {
 		Vec2 mousePoint = new Vec2(x, y);
 		if (!selectionManager.isEmpty() && widgetOffersEdit(mousePoint, coordinateSystem, selectionManager)) {
 			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-		} else if (viewportSelectionHandler.selectableUnderCursor(mousePoint, coordinateSystem)) {
-			return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
-		}
-		return null;
-	}
-
-	public Cursor getCursorAt(int x, int y, CameraHandler cameraHandler, AbstractSelectionManager selectionManager) {
-		Vec2 mousePoint = cameraHandler.getPoint_ifYZplane(x,y);
-		Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
-		double sizeAdj = cameraHandler.sizeAdj();
-		if (!selectionManager.isEmpty() && widgetOffersEdit(selectionManager)) {
-			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-		} else if (viewportSelectionHandler.selectableUnderCursor(mousePoint, viewPortAntiRotMat, sizeAdj)) {
+		} else if (selectionManager.selectableUnderCursor(mousePoint, coordinateSystem)) {
 			return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
 		}
 		return null;
@@ -65,7 +50,7 @@ public abstract class ManipulatorBuilder {
 		Vec2 mousePoint = getPoint(e);
 		if (!selectionManager.isEmpty() && widgetOffersEdit(selectionManager)) {
 			return Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-		} else if (viewportSelectionHandler.selectableUnderCursor(mousePoint, viewPortAntiRotMat, sizeAdj)) {
+		} else if (selectionManager.selectableUnderCursor(mousePoint, viewPortAntiRotMat, sizeAdj)) {
 			return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
 		}
 		return null;
@@ -79,7 +64,6 @@ public abstract class ManipulatorBuilder {
 	}
 
 	public Manipulator buildManipulator(MouseEvent e, int x, int y,
-	                                    ButtonType clickedButton,
 	                                    CoordinateSystem coordinateSystem,
 	                                    AbstractSelectionManager selectionManager) {
 		int modifiersEx = e.getModifiersEx();
@@ -91,7 +75,7 @@ public abstract class ManipulatorBuilder {
 			}
 
 		} else if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
-			return new SelectManipulator(viewportSelectionHandler, coordinateSystem);
+			return new SelectManipulator(modelEditor, selectionManager, coordinateSystem);
 		}
 		return null;
 	}
@@ -109,7 +93,7 @@ public abstract class ManipulatorBuilder {
 				return manipulatorFromWidget;
 			}
 		} else if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
-			return new SelectManipulator(viewportSelectionHandler);
+			return new SelectManipulator(modelEditor, selectionManager, MoveDimension.XYZ);
 		}
 		return null;
 	}

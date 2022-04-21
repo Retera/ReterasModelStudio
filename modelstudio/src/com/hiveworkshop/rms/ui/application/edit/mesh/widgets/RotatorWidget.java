@@ -16,25 +16,27 @@ public final class RotatorWidget extends Widget {
 
 	@Override
 	public MoveDimension getDirectionByMouse(Vec2 mousePoint, CoordinateSystem coordinateSystem) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-		double x = coordinateSystem.viewX(point.getCoord(dim1));
-		double y = coordinateSystem.viewY(point.getCoord(dim2));
+		if(coordinateSystem != null){
+			byte dim1 = coordinateSystem.getPortFirstXYZ();
+			byte dim2 = coordinateSystem.getPortSecondXYZ();
+			double x = coordinateSystem.viewX(point.getCoord(dim1));
+			double y = coordinateSystem.viewY(point.getCoord(dim2));
 
-		double deltaX = x - mousePoint.x;
-		double deltaY = y - mousePoint.y;
-		if (Math.abs(deltaX) <= 3 && Math.abs(deltaY) <= ROTATOR_RADIUS) {
-			return MoveDimension.getByByte(dim1);
-		}
-		if (Math.abs(deltaX) <= ROTATOR_RADIUS && Math.abs(deltaY) <= 3) {
-			return MoveDimension.getByByte(dim2);
-		}
-		double dstSquared = deltaY * deltaY + deltaX * deltaX;
-		if (Math.abs(Math.sqrt(dstSquared) - ROTATOR_RADIUS) <= 3) {
-			return MoveDimension.getByByte(getOutwardDimension(dim1, dim2));
-		}
-		if (dstSquared < ROTATOR_RADIUS_SQUARED) {
-			return MoveDimension.NONE;
+			double deltaX = x - mousePoint.x;
+			double deltaY = y - mousePoint.y;
+			if (Math.abs(deltaX) <= 3 && Math.abs(deltaY) <= ROTATOR_RADIUS) {
+				return MoveDimension.getByByte(dim1);
+			}
+			if (Math.abs(deltaX) <= ROTATOR_RADIUS && Math.abs(deltaY) <= 3) {
+				return MoveDimension.getByByte(dim2);
+			}
+			double dstSquared = deltaY * deltaY + deltaX * deltaX;
+			if (Math.abs(Math.sqrt(dstSquared) - ROTATOR_RADIUS) <= 3) {
+				return MoveDimension.getByByte(getOutwardDimension(dim1, dim2));
+			}
+			if (dstSquared < ROTATOR_RADIUS_SQUARED) {
+				return MoveDimension.NONE;
+			}
 		}
 
 		return MoveDimension.NONE;

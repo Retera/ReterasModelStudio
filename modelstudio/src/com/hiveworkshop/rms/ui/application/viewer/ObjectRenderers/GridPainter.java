@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import org.lwjgl.opengl.GL11;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -9,7 +8,7 @@ public class GridPainter {
 	private static final int X = 0;
 	private static final int Y = 1;
 	private static final int Z = 2;
-	CameraHandler cameraHandler;
+	CameraManager cameraHandler;
 	float lineLength = 200;
 	float lineSpacing = 100;
 	float numberOfLines = 5;
@@ -18,7 +17,7 @@ public class GridPainter {
 	float[] lineHeapPos = new float[3];
 	float[] lineHeapNeg = new float[3];
 
-	public GridPainter(CameraHandler cameraHandler) {
+	public GridPainter(CameraManager cameraHandler) {
 		this.cameraHandler = cameraHandler;
 	}
 

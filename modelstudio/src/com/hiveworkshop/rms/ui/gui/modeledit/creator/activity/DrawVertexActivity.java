@@ -102,13 +102,13 @@ public class DrawVertexActivity extends ViewportActivity {
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		Vec2 point = getPoint(e);
-		Vec3 locationCalculator = new Vec3(point.x, point.y, 0).transform(viewPortAntiRotMat);
+		Vec3 locationCalculator = new Vec3(point.x, point.y, 0).transform(viewProjectionMatrix);
 		try {
 //			Viewport viewport = viewportListener.getViewport();
 //			Vec3 facingVector = viewport == null ? new Vec3(0, 0, 1) : viewport.getFacingVector();
-			Vec3 facingVector = new Vec3(1, 0, 0).transform(viewPortAntiRotMat);
+			Vec3 facingVector = new Vec3(1, 0, 0).transform(viewProjectionMatrix);
 
 			List<UndoAction> undoActions = new ArrayList<>();
 			Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(modelView.getModel());
@@ -136,7 +136,7 @@ public class DrawVertexActivity extends ViewportActivity {
 
 
 	@Override
-	public void mouseMoved(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	public void mouseMoved(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		lastMousePoint = e.getPoint();
 	}
 

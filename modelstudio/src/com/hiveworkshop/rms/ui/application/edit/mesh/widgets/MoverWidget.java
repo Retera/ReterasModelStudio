@@ -34,32 +34,35 @@ public final class MoverWidget extends Widget {
 
 	@Override
 	public MoveDimension getDirectionByMouse(Vec2 mousePoint1, CoordinateSystem coordinateSystem) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-		double x = coordinateSystem.viewX(point.getCoord(dim1));
-		double y = coordinateSystem.viewY(point.getCoord(dim2));
-		long currentTime = System.currentTimeMillis();
-		if (debugPrintLimiter < currentTime) {
-			debugPrintLimiter = currentTime + 500;
+		if(coordinateSystem != null){
+			byte dim1 = coordinateSystem.getPortFirstXYZ();
+			byte dim2 = coordinateSystem.getPortSecondXYZ();
+			double x = coordinateSystem.viewX(point.getCoord(dim1));
+			double y = coordinateSystem.viewY(point.getCoord(dim2));
+			long currentTime = System.currentTimeMillis();
+			if (debugPrintLimiter < currentTime) {
+				debugPrintLimiter = currentTime + 500;
 //			System.out.println("d1: "  + dim1 + ", d2: " + dim2);
-		}
+			}
 
-		MoveDimension direction = MoveDimension.NONE;
-		Point mousePoint = new Point((int)mousePoint1.x, (int)mousePoint1.y);
+			MoveDimension direction = MoveDimension.NONE;
+			Point mousePoint = new Point((int)mousePoint1.x, (int)mousePoint1.y);
 
-		if (GU.getTransPolygon((int) x, (int) y, northTriangle).contains(mousePoint)
-				|| GU.getTransPolygon((int) x, (int) y, nortLineHitBox).contains(mousePoint)) {
-			direction = MoveDimension.getByByte(dim2);
-		}
-		if (GU.getTransPolygon((int) x, (int) y, eastTriangle).contains(mousePoint)
-				|| GU.getTransPolygon((int) x, (int) y, eastLineHitBox).contains(mousePoint)) {
-			direction = MoveDimension.getByByte(dim1);
-		}
-		if (new Rectangle((int) x, (int) y - LINE_SHORT, LINE_SHORT, LINE_SHORT).contains(mousePoint)) {
-			direction = MoveDimension.getByByte(dim1, dim2);
-		}
+			if (GU.getTransPolygon((int) x, (int) y, northTriangle).contains(mousePoint)
+					|| GU.getTransPolygon((int) x, (int) y, nortLineHitBox).contains(mousePoint)) {
+				direction = MoveDimension.getByByte(dim2);
+			}
+			if (GU.getTransPolygon((int) x, (int) y, eastTriangle).contains(mousePoint)
+					|| GU.getTransPolygon((int) x, (int) y, eastLineHitBox).contains(mousePoint)) {
+				direction = MoveDimension.getByByte(dim1);
+			}
+			if (new Rectangle((int) x, (int) y - LINE_SHORT, LINE_SHORT, LINE_SHORT).contains(mousePoint)) {
+				direction = MoveDimension.getByByte(dim1, dim2);
+			}
 
-		return direction;
+			return direction;
+		}
+		return MoveDimension.NONE;
 	}
 
 	public Vec3 getPoint() {

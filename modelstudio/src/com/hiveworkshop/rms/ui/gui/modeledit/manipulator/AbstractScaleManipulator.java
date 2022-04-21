@@ -11,18 +11,13 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.awt.event.MouseEvent;
 
 public abstract class AbstractScaleManipulator extends Manipulator {
-	protected final ModelEditor modelEditor;
-	protected final AbstractSelectionManager selectionManager;
 	protected final Vec3 scaleVector;
 	protected GenericScaleAction scaleAction;
-	protected MoveDimension dir;
 	protected boolean isNeg = false;
 
 	public AbstractScaleManipulator(ModelEditor modelEditor, AbstractSelectionManager selectionManager, MoveDimension dir) {
-		this.modelEditor = modelEditor;
-		this.selectionManager = selectionManager;
+		super(modelEditor, selectionManager, dir);
 		this.scaleVector = new Vec3(1, 1, 1);
-		this.dir = dir;
 	}
 
 	@Override

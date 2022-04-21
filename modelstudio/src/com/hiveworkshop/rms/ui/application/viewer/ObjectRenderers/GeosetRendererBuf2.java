@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
@@ -24,7 +23,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class GeosetRendererBuf2 {
 	private final ProgramPreferences programPreferences;
-	private CameraHandler cameraHandler;
+	private CameraManager cameraHandler;
 	private final VertRendererThingBuf vertRendererThing;
 	private TextureThing textureThing;
 	private RenderModel renderModel;
@@ -43,7 +42,7 @@ public class GeosetRendererBuf2 {
 //	VertexBuffers dotBuffers = new VertexBuffers();
 
 	boolean texLoaded = true;
-	public GeosetRendererBuf2(CameraHandler cameraHandler, ProgramPreferences programPreferences){
+	public GeosetRendererBuf2(CameraManager cameraHandler, ProgramPreferences programPreferences){
 		this.cameraHandler = cameraHandler;
 		this.programPreferences = programPreferences;
 		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();

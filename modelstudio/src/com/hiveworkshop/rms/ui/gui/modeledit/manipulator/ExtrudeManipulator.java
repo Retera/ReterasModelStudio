@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -17,8 +18,8 @@ public final class ExtrudeManipulator extends AbstractMoveManipulator {
 
 	private UndoAction beginExtrudingSelection;
 
-	public ExtrudeManipulator(ModelEditor modelEditor, MoveDimension dir) {
-		super(modelEditor, dir);
+	public ExtrudeManipulator(ModelEditor modelEditor, AbstractSelectionManager selectionManager, MoveDimension dir) {
+		super(modelEditor, selectionManager, dir);
 	}
 
 	@Override

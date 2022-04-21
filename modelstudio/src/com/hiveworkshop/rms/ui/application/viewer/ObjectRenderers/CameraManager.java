@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
 import com.hiveworkshop.rms.editor.render3d.RenderNodeCamera;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.*;
 
 import java.awt.*;
@@ -19,10 +18,7 @@ import java.awt.event.MouseWheelEvent;
  * So, conceivably for some kind of "in game preview" in the model editor some
  * day, you might later want to copy GameCameraManager into here??
  */
-public class CameraManager extends CameraHandler {
-//public class CameraManager {
-	protected final float[] cameraPositionTemp = new float[3];
-	protected final float[] cameraTargetTemp = new float[3];
+public class CameraManager {
 	protected ViewerCamera camera;
 	protected float zoomFactor;
 	protected float upAngle;    // pitch
@@ -36,7 +32,6 @@ public class CameraManager extends CameraHandler {
 	protected Vec3 camBackward = new Vec3();
 	protected Vec3 target = new Vec3(0, 0, 0);
 	protected Vec3 worldUp = new Vec3(0, 0, 1);
-//	protected Vec3 worldUp = new Vec3(0, 1, 0);
 	protected Vec3 vecHeap = new Vec3();
 	protected Vec4 vec4Heap = new Vec4();
 	protected Quat quatHeap = new Quat();
@@ -48,6 +43,11 @@ public class CameraManager extends CameraHandler {
 	private boolean allowToggleOrtho = true;
 	private boolean allowRotation = true;
 	private boolean isOrtho = false;
+
+	private final Mat4 cameraSpaceMatrix = new Mat4();          // World -> View
+	private final Mat4 cameraProjectionMatrix = new Mat4();          // World -> View
+	private final Mat4 inverseCameraSpaceMatrix = new Mat4();          // World -> View
+	private final Mat4 inverseCameraProjectionMatrix = new Mat4();          // World -> View
 
 	private final Mat4 viewMatrix = new Mat4();                  // World -> View
 	private final Mat4 projectionMatrix = new Mat4();            // View -> Clip
@@ -72,14 +72,17 @@ public class CameraManager extends CameraHandler {
 	private final Vec3 scaleHeap = new Vec3();
 
 
+	private final Ray rayHeap = new Ray();
+	private final Plane planeHeap = new Plane();
+
+
 	private final Component viewport;
 	// https://learnopengl.com/Getting-started/Camera
 	public CameraManager(Component viewport) {
-		super(viewport);
 		this.viewport = viewport;
 		camera = new ViewerCamera();
 		this.zoomFactor = 0.1f;
-//		this.horizontalAngle = (float) Math.toRadians(90 - 34);
+//		this.upAngle = (float) Math.toRadians(90 - 34);
 		this.upAngle = (float) Math.toRadians(90);
 		this.sideAngle = (float) (Math.PI / 2);
 		this.distance = 1650;
@@ -88,8 +91,8 @@ public class CameraManager extends CameraHandler {
 	}
 
 	public CameraManager loadDefaultCameraFor(double boundsRadius){
-//		this.horizontalAngle = (float) Math.toRadians(90);
-//		this.verticalAngle = (float) (Math.PI / 2);
+//		this.upAngle = (float) Math.toRadians(90);
+//		this.sideAngle = (float) (Math.PI / 2);
 		this.upAngle = 0.0f;
 		this.sideAngle = 0.0f;
 //		calculateCameraRotation();
@@ -111,13 +114,12 @@ public class CameraManager extends CameraHandler {
 		camBackward.set(camPosition).sub(target).normalize();
 		camRight.set(camUp).cross(camBackward).normalize();
 		camUp.set(camBackward).cross(camRight).normalize();
-
+		cameraSpaceMatrix.set(camRight, camUp, camBackward);
 
 		vecHeap.set(camPosition).negate();
 		tempMat4.setIdentity().translate(vecHeap);
 
-		viewMatrix.set(camRight, camUp, camBackward);
-		viewMatrix.mul(tempMat4);
+		viewMatrix.set(cameraSpaceMatrix).mul(tempMat4);
 
 		float aspect = (float) viewport.getWidth()/(float) viewport.getHeight();
 		if (isOrtho){
@@ -172,23 +174,54 @@ public class CameraManager extends CameraHandler {
 		return this;
 	}
 
-//	public ViewerCamera getCamera() {
-//		return camera;
-//	}
-
 	public Vec3 getTarget() {
 		return target;
 	}
 
 	public double sizeAdj() {
-		Mat4 invProjectionMat = getInvProjectionMat();
-		vecHeap.set(1.0 / ((float) viewport.getWidth()), 0, 0);
-		vecHeap.transform(invProjectionMat, 1, true);
-		float x = vecHeap.x;
-		vecHeap.set(0,0,0).transform(invProjectionMat, 1, true);
-		return x-vecHeap.x;
+////		Mat4 invProjectionMat = getInvProjectionMat();
+////		vecHeap.set(1.0 / ((float) viewport.getWidth()), 0, 0);
+////		vecHeap.transform(invProjectionMat, 1, true);
+////		float x = vecHeap.x;
+////		vecHeap.set(0,0,0).transform(invProjectionMat, 1, true);
+////		return x-vecHeap.x;
+////		Mat4 invProjectionMat = getInvProjectionMat();
+////		vecHeap.set(1.0 / ((float) viewport.getWidth()), 0, -1);
+////		vecHeap.transform(invProjectionMat, 1, true);
+////		float x = vecHeap.x;
+////		vecHeap.set(0,0,-1).transform(invProjectionMat, 1, true);
+////		return x-vecHeap.x;
+//		Mat4 invProjectionMat = getInvProjectionMat();
+//		vecHeap.set(1.0, 0, -1);
+//		vecHeap.transform(invProjectionMat, 1, true);
+//		float x = vecHeap.x;
+//		vecHeap.set(0,0,-1).transform(invProjectionMat, 1, true);
+//		x -= vecHeap.x;
+//		return x*2.0/((double) viewport.getWidth());
+		Vec3 worldScreenSpaceAsDeltaRay2 = getWorldScreenSpaceAsDeltaRay(1, 0);
+		return worldScreenSpaceAsDeltaRay2.length() / ((double) viewport.getWidth());
+	}
+
+	private void printPixelSize(){
+//		Mat4 invProjectionMat = getInvProjectionMat();
+//		vecHeap.set(1.0, 1.0, -1);
+//		vecHeap.transform(invProjectionMat, 1, true);
+//		System.out.println("{1.0, 1.0} -> " + vecHeap);
+//		float x = vecHeap.x;
+//		vecHeap.set(0,0,-1).transform(invProjectionMat, 1, true);
+//		x -= vecHeap.x;
+//		System.out.println("{0.0, 0.0} -> " + vecHeap);
+		Vec3 worldScreenSpaceAsDeltaRay = getWorldScreenSpaceAsDeltaRay(1, 1);
+		System.out.println("{1.0, 1.0} -> " + worldScreenSpaceAsDeltaRay);
+		System.out.println("pixelSize: " + worldScreenSpaceAsDeltaRay.x / ((double) viewport.getWidth()));
+		Vec3 worldScreenSpaceAsDeltaRay2 = getWorldScreenSpaceAsDeltaRay(1, 0);
+		System.out.println("{1.0, 0.0} -> " + worldScreenSpaceAsDeltaRay2);
+		System.out.println("pixelSize: " + worldScreenSpaceAsDeltaRay2.length() / ((double) viewport.getWidth()));
 	}
 	public void setPosition(double a, double b) {
+
+		printPixelSize();
+
 		target.y = (float) a;
 		target.z = (float) b;
 	}
@@ -211,23 +244,20 @@ public class CameraManager extends CameraHandler {
 	}
 
 	private void applyPan(double dx, double dy, double dz) {
-//		screenDimension.set(-dx, -dy, dz);
-////		screenDimension.set(-dx*viewport.getWidth(), -dy*viewport.getHeight(), dz).scale(1/distance);
-////		vec4Heap.set(0,0,0,1).transform(viewProjectionMatrix);
-////		screenDimension.set(-dx*viewport.getWidth()/2.0/vec4Heap.w, -dy*viewport.getHeight()/2.0/vec4Heap.w, dz);
-////		screenDimension.set(-dx, -dy, dz);
-////		screenDimensionMat3Heap.set(viewProjectionMatrix);
-////		screenDimensionMat3Heap.transpose();
-////		screenDimension.transform(0, screenDimensionMat3Heap);
-//		screenDimension.transform(inverseViewProjectionMatrix, 1, true);
-//		screenDimension.set(getWorldScreenSpace1(dx,dy));
-		screenDimension.set(getWorldScreenSpace(dx,-dy)).sub(getWorldScreenSpace(0,0));
-		System.out.println(screenDimension);
-//		screenDimension.normalize();
-		target.add(screenDimension);
-//		target.set(screenDimension);
+//		screenDimension.set(getWorldScreenSpace(-dx,-dy)).sub(getWorldScreenSpace(0,0));
+//		System.out.println("dView.sub(origen): " + screenDimension);
+//		target.add(screenDimension);
+		target.add(getWorldScreenSpaceAsDeltaRay(-dx,-dy));
+
+//		screenDimension.set(getWorldScreenSpaceAsDeltaRay(-dx,-dy));
+//		System.out.println("dView.sub(origen)ray: " + screenDimension);
+
 	}
 
+	public CameraManager setAllowRotation(boolean allowRotation) {
+		this.allowRotation = allowRotation;
+		return this;
+	}
 
 	public void rotate(double dx, double dy){
 		if(allowRotation){
@@ -237,6 +267,8 @@ public class CameraManager extends CameraHandler {
 		}
 	}
 	public void setCameraRotation(float right, float up) {
+		ViewBox viewBox = getViewBox(new Vec2(1, 1), new Vec2(-1, -1));
+		viewBox.pointInBox(new Vec3(0,0,0));
 		if (allowRotation) {
 			upAngle = (float) Math.toRadians(right);
 			sideAngle = (float) Math.toRadians(up);
@@ -356,6 +388,7 @@ public class CameraManager extends CameraHandler {
 				PointInOrOn( P, C, A, B );
 	}
 
+
 	private Vec3 getWorldScreenSpace(double viewX, double viewY){
 		// https://stackoverflow.com/questions/45893277/is-it-possible-get-which-surface-of-cube-will-be-click-in-opengl
 		// https://www.3dgep.com/understanding-the-view-matrix/
@@ -389,19 +422,183 @@ public class CameraManager extends CameraHandler {
 		// Calculate the picked position on the y = 0 plane.
 		return nearWorldSpace.addScaled(dir,t);
 	}
+	private Vec3 getWorldScreenSpaceRay(Vec2 view){
+		return getWorldScreenSpaceRay(view.x, view.y);
+	}
+	private Vec3 getWorldScreenSpaceRay(double viewX, double viewY){
+		// https://stackoverflow.com/questions/45893277/is-it-possible-get-which-surface-of-cube-will-be-click-in-opengl
+		// https://www.3dgep.com/understanding-the-view-matrix/
+		// https://gamedev.stackexchange.com/questions/23395/how-to-convert-screen-space-into-3d-world-space
+		// https://stackoverflow.com/questions/7692988/opengl-math-projecting-screen-space-to-world-space-coords
+		// https://www.tomdalling.com/blog/modern-opengl/explaining-homogenous-coordinates-and-projective-geometry/
 
-
-	private Vec3 getRayFromScreenSpace(double viewX, double viewY){
 		Mat4 invViewProjectionMat = getInvViewProjectionMat();
-		Vec3 nearWorldSpace = new Vec3(viewX, viewY, -1).transform(invViewProjectionMat, 1, true);
-		Vec3 farWorldSpace = new Vec3(viewX, viewY, 1).transform(invViewProjectionMat, 1, true);
+
+		// near point
+		vecHeap.set(viewX, viewY, -1).transform(invViewProjectionMat, 1, true);
+		rayHeap.setPoint(vecHeap);
+		// far point
+		vecHeap.set(viewX, viewY, 1).transform(invViewProjectionMat, 1, true);
+		rayHeap.setDirFromEnd(vecHeap);
+
+		// Calculate the ray-plane intersection point.
+		planeHeap.set(camBackward, target);
+		float intersectP = planeHeap.getIntersect(rayHeap);
+
+		return new Vec3(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectP);
+	}
+	private Vec3 getWorldScreenSpaceAsDelta(double viewX, double viewY){
+		// https://stackoverflow.com/questions/45893277/is-it-possible-get-which-surface-of-cube-will-be-click-in-opengl
+		// https://www.3dgep.com/understanding-the-view-matrix/
+		// https://gamedev.stackexchange.com/questions/23395/how-to-convert-screen-space-into-3d-world-space
+		// https://stackoverflow.com/questions/7692988/opengl-math-projecting-screen-space-to-world-space-coords
+		// https://www.tomdalling.com/blog/modern-opengl/explaining-homogenous-coordinates-and-projective-geometry/
+
+		Mat4 invViewProjectionMat = getInvViewProjectionMat();
+		Vec3 nearWorldSpaceP = new Vec3(viewX, viewY, -1).transform(invViewProjectionMat, 1, true);
+		Vec3 farWorldSpaceP = new Vec3(viewX, viewY, 1).transform(invViewProjectionMat, 1, true);
 
 		// Create a ray from the near clip plane to the far clip plane.
-		Vec3 dir = new Vec3(farWorldSpace).sub(nearWorldSpace).normalize();
+		Vec3 dirP = new Vec3(farWorldSpaceP).sub(nearWorldSpaceP).normalize();
 
 		// Create a ray.
-		Vec3 rayPoint = nearWorldSpace;
-		return dir;
+		Vec3 rayPointP = nearWorldSpaceP;
+
+		// Calculate the ray-plane intersection point.
+		Vec3 planeNorm = new Vec3(camBackward).normalize();
+		System.out.println("planeNorm: " + planeNorm);
+
+		float pD = -target.dot(planeNorm);
+
+		// Calculate distance of intersection point from r.origin.
+		float denominatorP = planeNorm.dot(dirP);
+		float numeratorP = planeNorm.dot(rayPointP) + pD;
+		float tP = -(numeratorP / denominatorP);
+		System.out.println("t: " + tP);
+
+		// Calculate the picked position on the y = 0 plane.
+		Vec3 point = new Vec3(nearWorldSpaceP).addScaled(dirP,tP);
+
+
+		// For 0,0:
+		Vec3 nearWorldSpaceO = new Vec3(0, 0, -1).transform(invViewProjectionMat, 1, true);
+		Vec3 farWorldSpaceO = new Vec3(0, 0, 1).transform(invViewProjectionMat, 1, true);
+
+
+		// Create a ray from the near clip plane to the far clip plane.
+		Vec3 dirO = new Vec3(farWorldSpaceO).sub(nearWorldSpaceO).normalize();
+
+		// Create a ray.
+		Vec3 rayPointO = nearWorldSpaceO;
+
+		// Calculate distance of intersection point from r.origin.
+		float denominatorO = planeNorm.dot(dirO);
+		float numeratorO = planeNorm.dot(rayPointO) + pD;
+		float tO = -(numeratorO / denominatorO);
+		System.out.println("t: " + tO);
+
+		Vec3 orig = new Vec3(nearWorldSpaceO).addScaled(dirO,tO);
+
+		Vec3 p1 = new Vec3(nearWorldSpaceP);
+		Vec3 pO = new Vec3(nearWorldSpaceO);
+		Vec3 d1 = new Vec3(dirP).scale(tP);
+		Vec3 dO = new Vec3(dirO).scale(tO);
+
+		Vec3 dWorld;
+
+		dWorld = p1.add(d1).sub(pO.add(dO));
+		dWorld = p1.add(d1).sub(pO).sub(dO);
+		dWorld = p1.sub(pO).add(d1).sub(dO);
+		new Vec3(nearWorldSpaceP).addScaled(dirP,tP).sub(new Vec3(nearWorldSpaceO).addScaled(dirO,tO));
+		return point.sub(orig);
+	}
+	private Vec3 getWorldScreenSpaceAsDeltaRay(double viewX, double viewY){
+		// https://stackoverflow.com/questions/45893277/is-it-possible-get-which-surface-of-cube-will-be-click-in-opengl
+		// https://www.3dgep.com/understanding-the-view-matrix/
+		// https://gamedev.stackexchange.com/questions/23395/how-to-convert-screen-space-into-3d-world-space
+		// https://stackoverflow.com/questions/7692988/opengl-math-projecting-screen-space-to-world-space-coords
+		// https://www.tomdalling.com/blog/modern-opengl/explaining-homogenous-coordinates-and-projective-geometry/
+
+		Mat4 invViewProjectionMat = getInvViewProjectionMat();
+		// Create a ray from the near clip plane to the far clip plane.
+		vecHeap.set(viewX, viewY, -1).transform(invViewProjectionMat, 1, true);
+		rayHeap.setPoint(vecHeap);
+		vecHeap.set(viewX, viewY, 1).transform(invViewProjectionMat, 1, true);
+		rayHeap.setDirFromEnd(vecHeap);
+
+		// Calculate the ray-plane intersection point.
+		planeHeap.set(camBackward, target);
+		float intersectP = planeHeap.getIntersect(rayHeap);
+
+		// Calculate the picked position on the y = 0 plane.
+		Vec3 point = new Vec3(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectP);
+
+
+		// For 0,0:
+		// Create a ray from the near clip plane to the far clip plane.
+		vecHeap.set(0, 0, -1).transform(invViewProjectionMat, 1, true);
+		rayHeap.setPoint(vecHeap);
+		vecHeap.set(0, 0, 1).transform(invViewProjectionMat, 1, true);
+		rayHeap.setDirFromEnd(vecHeap);
+
+
+		float intersectO = planeHeap.getIntersect(rayHeap);
+
+		vecHeap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectO);
+
+		return point.sub(vecHeap);
+	}
+
+
+	public ViewBox getViewBox(Vec2 topRight, Vec2 bottomLeft){
+		ViewBox viewBox = new ViewBox();
+		Vec3 topRightPoint = getWorldScreenSpaceRay(topRight).negate();
+		Ray topRightRay = getRayFromScreenSpace(topRight);
+		vecHeap.set(topRightRay.getDir()).cross(camRight);
+		viewBox.setTop(topRightPoint, vecHeap);
+		vecHeap.set(topRightRay.getDir()).cross(camUp).negate();
+		viewBox.setRight(topRightPoint, vecHeap);
+
+		Vec3 botLeftPoint = getWorldScreenSpaceRay(bottomLeft).negate();
+		Ray botLeftRay = getRayFromScreenSpace(bottomLeft);
+		vecHeap.set(botLeftRay.getDir()).cross(camRight).negate();
+		viewBox.setBot(botLeftPoint, vecHeap);
+		vecHeap.set(botLeftRay.getDir()).cross(camUp);
+//		vecHeap.set(botLeftRay.getDir()).cross(camUp).negate();
+		viewBox.setLeft(botLeftPoint, vecHeap);
+		return viewBox;
+	}
+
+	public ViewBox getViewBox1(Vec2 topRight, Vec2 bottomLeft){
+		ViewBox viewBox = new ViewBox();
+		Vec3 topRightPoint = getWorldScreenSpaceRay(topRight);
+		Ray topRightRay = getRayFromScreenSpace(topRight);
+		vecHeap.set(topRightRay.getDir()).cross(camRight).negate();
+		viewBox.setTop(topRightPoint, vecHeap);
+		vecHeap.set(topRightRay.getDir()).cross(camUp);
+		viewBox.setRight(topRightPoint, vecHeap);
+
+		Vec3 botLeftPoint = getWorldScreenSpaceRay(bottomLeft);
+		Ray botLeftRay = getRayFromScreenSpace(bottomLeft);
+		vecHeap.set(botLeftRay.getDir()).cross(camRight);
+		viewBox.setBot(botLeftPoint, vecHeap);
+		vecHeap.set(botLeftRay.getDir()).cross(camUp).negate();
+//		vecHeap.set(botLeftRay.getDir()).cross(camUp).negate();
+		viewBox.setLeft(botLeftPoint, vecHeap);
+		return viewBox;
+	}
+
+	private Ray getRayFromScreenSpace(Vec2 view){
+		return getRayFromScreenSpace(view.x, view.y);
+	}
+	private Ray getRayFromScreenSpace(double viewX, double viewY){
+		Mat4 invViewProjectionMat = getInvViewProjectionMat();
+		// Create a ray from the near clip plane to the far clip plane.
+		vecHeap.set(viewX, viewY, -1).transform(invViewProjectionMat, 1, true);
+		rayHeap.setPoint(vecHeap);
+		vecHeap.set(viewX, viewY, 1).transform(invViewProjectionMat, 1, true);
+		rayHeap.setDirFromEnd(vecHeap);
+		return rayHeap;
 	}
 
 	public Vec2 getPoint_ifYZplane(double viewX, double viewY) {

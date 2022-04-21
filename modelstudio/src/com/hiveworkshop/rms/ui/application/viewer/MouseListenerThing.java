@@ -2,6 +2,8 @@ package com.hiveworkshop.rms.ui.application.viewer;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ViewBox;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
@@ -14,7 +16,7 @@ import java.awt.event.MouseWheelEvent;
 
 public class MouseListenerThing extends MouseAdapter {
 
-	private final CameraHandler cameraHandler;
+	private final CameraManager cameraHandler;
 	private final ProgramPreferences programPreferences;
 	private ViewportActivityManager activityManager;
 
@@ -26,7 +28,7 @@ public class MouseListenerThing extends MouseAdapter {
 	private boolean isSelecting = false;
 	private boolean isActing = false;
 
-	public MouseListenerThing(CameraHandler cameraHandler, ProgramPreferences programPreferences) {
+	public MouseListenerThing(CameraManager cameraHandler, ProgramPreferences programPreferences) {
 		this.cameraHandler = cameraHandler;
 		this.programPreferences = programPreferences;
 	}
@@ -49,23 +51,27 @@ public class MouseListenerThing extends MouseAdapter {
 		endP = setPoint(e, endP);
 		startP = new Vec2(endP);
 		int modifiersEx = e.getModifiersEx();
-		Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
+		Mat4 viewProjectionMatrix = cameraHandler.getViewPortAntiRotMat();
 		double sizeAdj = cameraHandler.sizeAdj();
 		if ((ProgramGlobals.getPrefs().getSelectMouseButton() & modifiersEx) > 0) {
 			isSelecting = true;
 			if (activityManager != null) {
-				activityManager.mousePressed(e, viewPortAntiRotMat, sizeAdj);
+//				activityManager.mousePressed(e, viewProjectionMatrix, sizeAdj);
+				Vec2 topLeft = new Vec2(startP).maximize(endP);
+				Vec2 botRight = new Vec2(endP).minimize(startP);
+				ViewBox viewBox = cameraHandler.getViewBox(topLeft, botRight);
+				activityManager.mousePressed(e, viewBox, sizeAdj);
 			}
 		} else if ((ProgramGlobals.getPrefs().getModifyMouseButton() & modifiersEx) > 0) {
 			isActing = true;
 			if (activityManager != null) {
-				activityManager.mousePressed(e, viewPortAntiRotMat, sizeAdj);
+				activityManager.mousePressed(e, viewProjectionMatrix, sizeAdj);
 			}
 		} else {
 			isActing = true;
 
 			if (activityManager != null) {
-				activityManager.mousePressed(e, viewPortAntiRotMat, sizeAdj);
+				activityManager.mousePressed(e, viewProjectionMatrix, sizeAdj);
 			}
 		}
 	}
@@ -76,13 +82,45 @@ public class MouseListenerThing extends MouseAdapter {
 			endP = setPoint(e, endP);
 		}
 
-		if ((isActing || isSelecting) && activityManager != null) {
+		if ((isActing) && activityManager != null) {
 
-			Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
+			Mat4 viewProjectionMatrix = cameraHandler.getViewPortAntiRotMat();
 			double sizeAdj = cameraHandler.sizeAdj();
-			activityManager.mouseReleased(e, viewPortAntiRotMat, sizeAdj);
+			activityManager.mouseReleased(e, viewProjectionMatrix, sizeAdj);
+			getEndPGeo2();
+
+			Vec2 topRight = new Vec2(startP).maximize(endP);
+			Vec2 botLeft = new Vec2(endP).minimize(startP);
+//			ViewBox viewBox = cameraHandler.getViewBox(topRight, botLeft);
+//			ViewBox viewBox = cameraHandler.getViewBox(botLeft, topRight);
+//			viewBox.pointInBox2(new Vec3(0,0,0));
 			System.out.println("getStartPGeo: " + getStartPGeo() + " (" + startP + "), " + "getEndPGeo2: " + getEndPGeo2() + " (" + endP + "), ");
+		} else if (isSelecting){
+
+			Vec2 topLeft = new Vec2(startP).maximize(endP);
+			Vec2 botRight = new Vec2(endP).minimize(startP);
+			ViewBox viewBox = cameraHandler.getViewBox(topLeft, botRight);
+
+			Mat4 viewProjectionMatrix = cameraHandler.getViewPortAntiRotMat();
+			double sizeAdj = cameraHandler.sizeAdj();
+			activityManager.mouseReleased(e, viewBox, sizeAdj);
+			System.out.println("getStartPGeo: " + getStartPGeo() + " (" + startP + "), " + "getEndPGeo2: " + getEndPGeo2() + " (" + endP + "), ");
+//			getEndPGeo2();
+			viewBox.pointInBoxPrint(new Vec3(0,0,0));
 		}
+//		if ((isActing || isSelecting) && activityManager != null) {
+//
+//			Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
+//			double sizeAdj = cameraHandler.sizeAdj();
+//			activityManager.mouseReleased(e, viewPortAntiRotMat, sizeAdj);
+//			getEndPGeo2();
+//
+//			Vec2 topLeft = new Vec2(startP).maximize(endP);
+//			Vec2 botRight = new Vec2(endP).minimize(startP);
+//			ViewBox viewBox = cameraHandler.getViewBox(topLeft, botRight);
+//			viewBox.pointInBox(new Vec3(0,0,0));
+////			System.out.println("getStartPGeo: " + getStartPGeo() + " (" + startP + "), " + "getEndPGeo2: " + getEndPGeo2() + " (" + endP + "), ");
+//		}
 
 		startP = null;
 		endP = null;
@@ -98,6 +136,7 @@ public class MouseListenerThing extends MouseAdapter {
 
 	@Override
 	public void mouseWheelMoved(final MouseWheelEvent e) {
+		System.out.println("doZoom: " + e);
 		cameraHandler.doZoom(e);
 	}
 
@@ -112,13 +151,13 @@ public class MouseListenerThing extends MouseAdapter {
 			vec2Temp.set(endP).sub(endOld);
 			if (programPreferences.getThreeDCameraPanMouseEx() == modifiersEx) {
 //				System.out.println("transl x: " + (e.getX() - endP.y) + " (" + e.getX() + "-" + endP.y + ")" + ", transl y: " + (e.getY() - endP.z) + " (" + e.getY() + "-" + endP.z + ")");
-				cameraHandler.translate(-vec2Temp.x, vec2Temp.y);
+				cameraHandler.translate(vec2Temp.x, vec2Temp.y);
 			} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
 				cameraHandler.rotate(vec2Temp.x, vec2Temp.y);
 			} else if ((isActing || isSelecting) && activityManager != null) {
-				Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();
+				Mat4 viewProjectionMatrix = cameraHandler.getViewPortAntiRotMat();
 				double sizeAdj = cameraHandler.sizeAdj();
-				activityManager.mouseDragged(e, viewPortAntiRotMat, sizeAdj);
+				activityManager.mouseDragged(e, viewProjectionMatrix, sizeAdj);
 			}
 		}
 	}

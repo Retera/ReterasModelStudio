@@ -27,8 +27,8 @@ import java.util.List;
 public class DrawBoxActivity extends ViewportActivity {
 
 	private DrawingState drawingState = DrawingState.NOTHING;
-	private Vec2 mouseStart;
-	private Vec2 lastMousePoint;
+	private final Vec2 mouseStartPoint = new Vec2();
+	private final Vec2 lastMousePoint = new Vec2();
 	private GenericMoveAction boxAction;
 	private int numSegsX;
 	private int numSegsY;
@@ -61,7 +61,7 @@ public class DrawBoxActivity extends ViewportActivity {
 	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
 		if (drawingState == DrawingState.NOTHING) {
 			Vec3 locationCalculator = convertToVec3(coordinateSystem, e.getPoint());
-			mouseStart = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+			mouseStartPoint.set(locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ()));
 			drawingState = DrawingState.WANT_BEGIN_BASE;
 		}
 	}
@@ -115,7 +115,7 @@ public class DrawBoxActivity extends ViewportActivity {
 	}
 
 	public void updateBase(Vec2 mouseEnd, byte dim1, byte dim2) {
-		if (Math.abs(mouseEnd.x - mouseStart.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStart.y) >= 0.1) {
+		if (Math.abs(mouseEnd.x - mouseStartPoint.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStartPoint.y) >= 0.1) {
 			if (boxAction == null) {
 				Vec3 facingVector = new Vec3(0, 0, 1); // todo make this work with CameraHandler
 				try {
@@ -130,7 +130,7 @@ public class DrawBoxActivity extends ViewportActivity {
 						moveActions.add(new DoNothingMoveActionAdapter(addAction));
 					}
 
-					moveActions.add(new DrawBoxAction(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset));
+					moveActions.add(new DrawBoxAction(mouseStartPoint, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset));
 
 					boxAction = new CompoundMoveAction("Add Box", moveActions);
 					;
@@ -143,20 +143,20 @@ public class DrawBoxActivity extends ViewportActivity {
 			} else {
 				boxAction.updateTranslation(mouseEnd.x - lastMousePoint.x, mouseEnd.y - lastMousePoint.y, 0);
 			}
-			lastMousePoint = mouseEnd;
+			lastMousePoint.set(mouseEnd);
 		}
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		if (drawingState == DrawingState.NOTHING) {
-			mouseStart = getPoint(e);
+			mouseStartPoint.set(getPoint(e));
 			drawingState = DrawingState.WANT_BEGIN_BASE;
 		}
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	public void mouseReleased(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		if (drawingState == DrawingState.BASE) {
 			if (boxAction == null) {
 				drawingState = DrawingState.NOTHING;
@@ -173,12 +173,12 @@ public class DrawBoxActivity extends ViewportActivity {
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
-		mouseDragged(e, viewPortAntiRotMat, sizeAdj);
+	public void mouseMoved(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
+		mouseDragged(e, viewProjectionMatrix, sizeAdj);
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	public void mouseDragged(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		Vec2 mouseEnd = getPoint(e);
 		if (drawingState == DrawingState.WANT_BEGIN_BASE || drawingState == DrawingState.BASE) {
 			drawingState = DrawingState.BASE;
@@ -195,7 +195,7 @@ public class DrawBoxActivity extends ViewportActivity {
 	}
 
 	public void updateBase(Vec2 mouseEnd) {
-		if (Math.abs(mouseEnd.x - mouseStart.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStart.y) >= 0.1) {
+		if (Math.abs(mouseEnd.x - mouseStartPoint.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStartPoint.y) >= 0.1) {
 			if (boxAction == null) {
 				Vec3 facingVector = new Vec3(0, 0, 1); // todo make this work with CameraHandler
 				try {
@@ -210,7 +210,7 @@ public class DrawBoxActivity extends ViewportActivity {
 						moveActions.add(new DoNothingMoveActionAdapter(addAction));
 					}
 
-					moveActions.add(new DrawBoxAction2(mouseStart, mouseEnd, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset));
+					moveActions.add(new DrawBoxAction2(mouseStartPoint, mouseEnd, facingVector, numSegsX, numSegsY, numSegsZ, solidWhiteGeoset));
 
 					boxAction = new CompoundMoveAction("Add Box", moveActions);
 					;
@@ -223,7 +223,7 @@ public class DrawBoxActivity extends ViewportActivity {
 			} else {
 				boxAction.updateTranslation(mouseEnd.x - lastMousePoint.x, mouseEnd.y - lastMousePoint.y, 0);
 			}
-			lastMousePoint = mouseEnd;
+			lastMousePoint.set(mouseEnd);
 		}
 	}
 

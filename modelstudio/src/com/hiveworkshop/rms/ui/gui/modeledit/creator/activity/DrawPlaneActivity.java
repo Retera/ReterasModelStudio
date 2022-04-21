@@ -24,9 +24,9 @@ import java.awt.event.MouseEvent;
 
 public class DrawPlaneActivity extends ViewportActivity {
 	private DrawingState drawingState = DrawingState.NOTHING;
-	private Vec2 mouseStart;
-	private Vec3 mouseStartV3;
-	private Vec2 lastMousePoint;
+	private final Vec2 mouseStartPoint = new Vec2();
+	private final Vec2 lastMousePoint = new Vec2();
+	private final Vec3 mouseStartV3 = new Vec3();
 	private final Vec3 lastMousePointV3 = new Vec3();
 	private GenericMoveAction planeAction;
 	private int numSegsX;
@@ -56,7 +56,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 	public void mousePressed(MouseEvent e, CoordinateSystem coordinateSystem) {
 		if (drawingState == DrawingState.NOTHING) {
 			Vec3 locationCalculator = convertToVec3(coordinateSystem, e.getPoint());
-			mouseStart = locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ());
+			mouseStartPoint.set(locationCalculator.getProjected(coordinateSystem.getPortFirstXYZ(), coordinateSystem.getPortSecondXYZ()));
 			drawingState = DrawingState.WANT_BEGIN_BASE;
 		}
 	}
@@ -96,7 +96,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 	}
 
 	public void updateBase(Vec2 mouseEnd, byte dim1, byte dim2) {
-		if (Math.abs(mouseEnd.x - mouseStart.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStart.y) >= 0.1) {
+		if (Math.abs(mouseEnd.x - mouseStartPoint.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStartPoint.y) >= 0.1) {
 			vec3Heap.set(0, mouseEnd.x, mouseEnd.y).transform(tempMat);
 			if (planeAction == null) {
 				startThePlane(mouseEnd, dim1, dim2);
@@ -106,7 +106,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 				planeAction.updateTranslation(vec3HeapTemp);
 			}
 			lastMousePointV3.set(vec3Heap);
-			lastMousePoint = mouseEnd;
+			lastMousePoint.set(mouseEnd);
 		}
 	}
 
@@ -119,7 +119,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 			Geoset solidWhiteGeoset = getSolidWhiteGeoset(solidWhiteMaterial);
 			Mat4 vpMat = getVPMat(dim1, dim2);
 //			DrawPlaneAction drawPlaneAction = new DrawPlaneAction(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
-			DrawPlaneAction2 drawPlaneAction = new DrawPlaneAction2(mouseStart, mouseEnd, vpMat, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
+			DrawPlaneAction2 drawPlaneAction = new DrawPlaneAction2(mouseStartPoint, mouseEnd, vpMat, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
 
 			UndoAction addAction = getAddAction(solidWhiteMaterial, solidWhiteGeoset);
 			if (addAction != null) {
@@ -137,18 +137,18 @@ public class DrawPlaneActivity extends ViewportActivity {
 	}
 
 	@Override
-	public void mousePressed(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		if (drawingState == DrawingState.NOTHING) {
 //			mouseStart = new Vec2(e.getX(), e.getY());
-			mouseStart = getPoint(e);
+			mouseStartPoint.set(getPoint(e));
 //			Mat4 viewPortAntiRotMat2 = cameraHandler.getViewportMat();
-			mouseStartV3 = new Vec3(0, mouseStart.x, mouseStart.y).transform(viewPortAntiRotMat);
+			mouseStartV3.set(0, mouseStartPoint.x, mouseStartPoint.y).transform(viewProjectionMatrix);
 			drawingState = DrawingState.WANT_BEGIN_BASE;
 		}
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	public void mouseReleased(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		if (drawingState == DrawingState.BASE) {
 			if (planeAction != null) {
 				undoManager.pushAction(planeAction);
@@ -159,12 +159,12 @@ public class DrawPlaneActivity extends ViewportActivity {
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
-		mouseDragged(e, viewPortAntiRotMat, sizeAdj);
+	public void mouseMoved(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
+		mouseDragged(e, viewProjectionMatrix, sizeAdj);
 	}
 
 	@Override
-	public void mouseDragged(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	public void mouseDragged(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		if (drawingState == DrawingState.WANT_BEGIN_BASE || drawingState == DrawingState.BASE) {
 			drawingState = DrawingState.BASE;
 
@@ -172,14 +172,14 @@ public class DrawPlaneActivity extends ViewportActivity {
 			Vec2 mouseEnd = getPoint(e);
 //			Vec3 mouseEndV3 = cameraHandler.getGeoPoint(e.getX(), e.getY());
 //			Mat4 viewPortAntiRotMat2 = cameraHandler.getViewportMat();
-			updateBase(mouseEnd, viewPortAntiRotMat);
+			updateBase(mouseEnd, viewProjectionMatrix);
 //			updateBase2(mouseEnd, mouseEndV3, viewPortAntiRotMat2);
 		}
 	}
 
 
 	public void updateBase(Vec2 mouseEnd, Mat4 viewPortAntiRotMat2) {
-		if (Math.abs(mouseEnd.x - mouseStart.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStart.y) >= 0.1) {
+		if (Math.abs(mouseEnd.x - mouseStartPoint.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStartPoint.y) >= 0.1) {
 			vec3Heap.set(0, mouseEnd.x, mouseEnd.y).transform(viewPortAntiRotMat2);
 			if (planeAction == null) {
 				startTheAction(mouseEnd, viewPortAntiRotMat2);
@@ -189,12 +189,12 @@ public class DrawPlaneActivity extends ViewportActivity {
 				planeAction.updateTranslation(vec3HeapTemp);
 			}
 			lastMousePointV3.set(vec3Heap);
-			lastMousePoint = mouseEnd;
+			lastMousePoint.set(mouseEnd);
 		}
 	}
 
 	public void updateBase2(Vec2 mouseEnd, Vec3 mouseEndV3, Mat4 viewPortAntiRotMat2) {
-		if (Math.abs(mouseEnd.x - mouseStart.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStart.y) >= 0.1) {
+		if (Math.abs(mouseEnd.x - mouseStartPoint.x) >= 0.1 && Math.abs(mouseEnd.y - mouseStartPoint.y) >= 0.1) {
 			if (planeAction == null) {
 				System.out.println("starting plane: " + mouseStartV3);
 				startTheAction2(mouseEnd, mouseEndV3, viewPortAntiRotMat2);
@@ -205,7 +205,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 				planeAction.updateTranslation(vec3HeapTemp);
 			}
 			lastMousePointV3.set(mouseEndV3);
-			lastMousePoint = mouseEnd;
+			lastMousePoint.set(mouseEnd);
 		}
 	}
 
@@ -219,7 +219,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 			Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(modelView.getModel());
 			Geoset solidWhiteGeoset = getSolidWhiteGeoset(solidWhiteMaterial);
 
-			DrawPlaneAction2 drawPlaneAction2 = new DrawPlaneAction2(mouseStart, mouseEnd, mouseStartV3, mouseEndV3, viewPortAntiRotMat2, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
+			DrawPlaneAction2 drawPlaneAction2 = new DrawPlaneAction2(mouseStartPoint, mouseEnd, mouseStartV3, mouseEndV3, viewPortAntiRotMat2, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
 			UndoAction addAction = getAddAction(solidWhiteMaterial, solidWhiteGeoset);
 
 
@@ -249,7 +249,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 
 			Mat4 vpMat = getVPMat(dim1, dim2);
 //			DrawPlaneAction drawPlaneAction = new DrawPlaneAction(mouseStart, mouseEnd, dim1, dim2, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
-			DrawPlaneAction2 drawPlaneAction = new DrawPlaneAction2(mouseStart, mouseEnd, vpMat, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
+			DrawPlaneAction2 drawPlaneAction = new DrawPlaneAction2(mouseStartPoint, mouseEnd, vpMat, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
 			UndoAction addAction = getAddAction(solidWhiteMaterial, solidWhiteGeoset);
 
 			if (addAction != null) {
@@ -295,7 +295,7 @@ public class DrawPlaneActivity extends ViewportActivity {
 			Material solidWhiteMaterial = ModelUtils.getWhiteMaterial(modelView.getModel());
 			Geoset solidWhiteGeoset = getSolidWhiteGeoset(solidWhiteMaterial);
 
-			DrawPlaneAction2 drawPlaneAction2 = new DrawPlaneAction2(mouseStart, mouseEnd, viewPortAntiRotMat2, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
+			DrawPlaneAction2 drawPlaneAction2 = new DrawPlaneAction2(mouseStartPoint, mouseEnd, viewPortAntiRotMat2, facingVector, numSegsX, numSegsY, solidWhiteGeoset);
 			UndoAction addAction = getAddAction(solidWhiteMaterial, solidWhiteGeoset);
 
 			if (addAction != null) {

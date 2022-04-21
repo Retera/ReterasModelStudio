@@ -432,7 +432,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				selectionPipeline.glEnd();
 			}
 //			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(), mouseAdapter.getEndPGeo3(), cameraHandler);
-			System.out.println("is selecting!");
+//			System.out.println("is selecting!");
 		}
 	}
 	private void paintGrid() {

@@ -7,14 +7,10 @@ import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ModelLoader;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
-import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
-import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.ModelEditorManipulatorBuilder;
-import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.TVertexEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 
@@ -44,15 +40,13 @@ public class ModelPanel {
 		ModelTextureThings.setModel(modelHandler.getModel());
 		this.modelHandler = modelHandler;
 
-		viewportActivityManager = new ViewportActivityManager(null);
-		ModelEditorChangeNotifier modelEditorChangeNotifier = new ModelEditorChangeNotifier();
-		modelEditorChangeNotifier.subscribe(viewportActivityManager);
-		modelEditorManager = new ModelEditorManager(modelHandler, modelEditorChangeNotifier, viewportActivityManager);
+		modelEditorManager = new ModelEditorManager(modelHandler);
+		viewportActivityManager = new ViewportActivityManager(modelHandler, modelEditorManager);
 
-		viewportUVActivityManager = new ViewportActivityManager(null);
-		ModelEditorChangeNotifier uvModelEditorChangeNotifier = new ModelEditorChangeNotifier();
-		uvModelEditorChangeNotifier.subscribe(viewportUVActivityManager);
-		uvModelEditorManager = new TVertexEditorManager(modelHandler, uvModelEditorChangeNotifier, viewportUVActivityManager);
+		uvModelEditorManager = new TVertexEditorManager(modelHandler);
+		viewportUVActivityManager = new ViewportActivityManager(modelHandler, modelEditorManager);
+
+		changeActivity(editorActionType);
 	}
 
 	public ViewportActivityManager getViewportActivityManager() {
@@ -80,13 +74,8 @@ public class ModelPanel {
 	}
 
 	public void changeActivity(ModelEditorActionType3 action) {
-		ModelEditorManipulatorBuilder builder = new ModelEditorManipulatorBuilder(modelEditorManager, modelHandler, action);
-		MultiManipulatorActivity manipulatorActivity = new MultiManipulatorActivity(builder, modelHandler, modelEditorManager);
-		viewportActivityManager.setCurrentActivity(manipulatorActivity);
-
-		TVertexEditorManipulatorBuilder uvBuilder = new TVertexEditorManipulatorBuilder(uvModelEditorManager, modelHandler, action);
-		MultiManipulatorActivity uvManipulatorActivity = new MultiManipulatorActivity(uvBuilder, modelHandler, uvModelEditorManager);
-		viewportUVActivityManager.setCurrentActivity(uvManipulatorActivity);
+		viewportActivityManager.setCurrentActivity(action);
+		viewportUVActivityManager.setCurrentActivity(action);
 
 	}
 

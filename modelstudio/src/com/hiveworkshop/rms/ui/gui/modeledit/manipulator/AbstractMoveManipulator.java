@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.manipulator;
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
+import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -10,15 +11,12 @@ import com.hiveworkshop.rms.util.Vec3;
 import java.awt.event.MouseEvent;
 
 public abstract class AbstractMoveManipulator extends Manipulator {
-	protected final ModelEditor modelEditor;
 	protected final Vec3 moveVector;
 	private GenericMoveAction translationAction;
-	protected MoveDimension dir;
 
-	public AbstractMoveManipulator(ModelEditor modelEditor, MoveDimension dir) {
-		this.modelEditor = modelEditor;
+	public AbstractMoveManipulator(ModelEditor modelEditor, AbstractSelectionManager selectionManager, MoveDimension dir) {
+		super(modelEditor, selectionManager, dir);
 		moveVector = new Vec3(0, 0, 0);
-		this.dir = dir;
 	}
 
 	@Override
@@ -54,13 +52,15 @@ public abstract class AbstractMoveManipulator extends Manipulator {
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, Mat4 viewPortAntiRotMat) {
 		resetMoveVector();
+		inverseViewProjectionMatrix.set(viewPortAntiRotMat).invert();
 		translationAction = modelEditor.beginTranslation();
 	}
 
 	@Override
 	public void update(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat) {
 		resetMoveVector();
-		buildMoveVector(mouseStart, mouseEnd, viewPortAntiRotMat);
+//		buildMoveVector(mouseStart, mouseEnd, viewPortAntiRotMat);
+		buildMoveVector(mouseStart, mouseEnd, inverseViewProjectionMatrix);
 		translationAction.updateTranslation(moveVector);
 	}
 
@@ -72,14 +72,19 @@ public abstract class AbstractMoveManipulator extends Manipulator {
 		return translationAction;
 	}
 
-	Vec2 heap = new Vec2();
+//	Vec2 heap = new Vec2();
+	Vec3 heap = new Vec3();
 	protected void buildMoveVector(Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat) {
-		moveVector.y = (mouseEnd.x - mouseStart.x);
-		moveVector.z = (mouseEnd.y - mouseStart.y);
-		heap.set(mouseEnd).sub(mouseStart);
+//		moveVector.y = (mouseEnd.x - mouseStart.x);
+//		moveVector.z = (mouseEnd.y - mouseStart.y);
+		heap.set(mouseEnd.x, mouseEnd.y, -1).transform(viewPortAntiRotMat, 1, true);
+		moveVector.set(heap);
+		heap.set(mouseStart.x, mouseStart.y, -1).transform(viewPortAntiRotMat, 1, true);
+		moveVector.sub(heap);
 
-//		moveVector.transform(viewPortAntiRotMat);
-		moveVector.unProject(heap, viewPortAntiRotMat);
+
+//		moveVector.transform(viewPortAntiRotMat, 1, true);
+//		moveVector.unProject(heap, viewPortAntiRotMat);
 
 	}
 

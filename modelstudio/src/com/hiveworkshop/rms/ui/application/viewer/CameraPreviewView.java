@@ -4,6 +4,7 @@ import com.hiveworkshop.rms.editor.model.Camera;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.model.ComponentCameraPanel;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.ModelDependentView;
@@ -24,7 +25,7 @@ public class CameraPreviewView extends ModelDependentView {
 	private ComponentCameraPanel cameraPanel;
 	private Camera chosenCamera;
 	private RenderModel renderModel;
-	private final CameraHandler cameraHandler;
+	private final CameraManager cameraHandler;
 
 	public CameraPreviewView() {
 		super("Camera Preview", null, new JPanel());

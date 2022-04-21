@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.opengl.GL11;
 
@@ -14,7 +13,7 @@ public class CubePainter {
 	Color ugg2 = new Color(255, 255, 255);
 
 
-	public static void paintRekt(Vec3 start, Vec3 end1, Vec3 end2, Vec3 end3, CameraHandler cameraHandler) {
+	public static void paintRekt(Vec3 start, Vec3 end1, Vec3 end2, Vec3 end3, CameraManager cameraHandler) {
 
 //		glBegin(GL11.GL_TRIANGLES);
 //		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -50,7 +49,7 @@ public class CubePainter {
 	}
 
 
-	public static void paintCameraLookAt(CameraHandler cameraHandler) {
+	public static void paintCameraLookAt(CameraManager cameraHandler) {
 		Vec3 cameraLookAt = cameraHandler.getCameraLookAt();
 		float lineLength = 20;
 		GL11.glDepthMask(false);

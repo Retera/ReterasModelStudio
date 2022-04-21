@@ -12,18 +12,18 @@ public class ModelEditorManipulatorBuilder extends ManipulatorBuilder {
 	ModelEditorActionType3 currentAction;
 
 	public ModelEditorManipulatorBuilder(ModelEditorManager modelEditorManager, ModelHandler modelHandler, ModelEditorActionType3 currentAction) {
-		super(modelEditorManager.getModelEditor(), modelEditorManager.getViewportSelectionHandler(), modelHandler);
+		super(modelEditorManager.getModelEditor(), modelEditorManager.getSelectionView(), modelHandler);
 		this.currentAction = currentAction;
 		createWidget(currentAction);
 	}
 
 	protected Manipulator getManipulator(AbstractSelectionManager selectionManager, MoveDimension directionByMouse) {
 		return switch (currentAction) {
-			case TRANSLATION -> new MoveManipulator(modelEditor, directionByMouse);
+			case TRANSLATION -> new MoveManipulator(modelEditor, selectionManager, directionByMouse);
 			case ROTATION -> new RotateManipulator(modelEditor, selectionManager, directionByMouse);
 			case SCALING -> new ScaleManipulator(modelEditor, selectionManager, directionByMouse);
-			case EXTRUDE -> new ExtrudeManipulator(modelEditor, directionByMouse);
-			case EXTEND -> new ExtendManipulator(modelEditor, directionByMouse);
+			case EXTRUDE -> new ExtrudeManipulator(modelEditor, selectionManager, directionByMouse);
+			case EXTEND -> new ExtendManipulator(modelEditor, selectionManager, directionByMouse);
 			case SQUAT -> new SquatToolManipulator(modelEditor, selectionManager, directionByMouse);
 		};
 	}

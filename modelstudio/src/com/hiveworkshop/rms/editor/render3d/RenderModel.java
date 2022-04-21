@@ -6,7 +6,7 @@ import com.hiveworkshop.rms.editor.model.CameraNode.TargetNode;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.util.Quat;
@@ -42,7 +42,7 @@ public final class RenderModel {
 	private int lastUpdatedTime = 0;
 
 	private long lastConsoleLogTime = 0;
-	private CameraHandler cameraHandler;
+	private CameraManager cameraHandler;
 
 	// These guys form the corners of a 2x2 rectangle, for use in Ghostwolf particle emitter algorithm
 	private static final Vec3[] SPACIAL_VECTORS = {
@@ -259,7 +259,7 @@ public final class RenderModel {
 		}
 	}
 
-	public void setCameraHandler(CameraHandler cameraHandler) {
+	public void setCameraHandler(CameraManager cameraHandler) {
 		this.cameraHandler = cameraHandler;
 	}
 

@@ -10,17 +10,12 @@ import com.hiveworkshop.rms.util.Vec2;
 import java.awt.event.MouseEvent;
 
 public abstract class AbstractRotateManipulator extends Manipulator {
-	protected final ModelEditor modelEditor;
-	protected final AbstractSelectionManager selectionManager;
 	protected GenericRotateAction rotationAction;
-	protected MoveDimension dir;
 	protected double nonRotAngle;
 	protected double totRotAngle;
 
 	public AbstractRotateManipulator(ModelEditor modelEditor, AbstractSelectionManager selectionManager, MoveDimension dir) {
-		this.modelEditor = modelEditor;
-		this.selectionManager = selectionManager;
-		this.dir = dir;
+		super(modelEditor, selectionManager, dir);
 	}
 
 	@Override

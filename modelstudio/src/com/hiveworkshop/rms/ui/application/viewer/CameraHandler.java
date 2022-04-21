@@ -197,15 +197,15 @@ public class CameraHandler {
 
 	public void rotate(double right, double up) {
 		if (allowRotation) {
-			zAngle += right;
-			yAngle += up;
+			zAngle += Math.toRadians(right);
+			yAngle += Math.toRadians(up);
 
 
 //			cameraPos.rotate(cameraPos, Math.toRadians(up), (byte) 0, (byte) 2);
 //			cameraPos.rotate(cameraPos, Math.toRadians(right), (byte) 1, (byte) 2);
 			calculateCameraRotation();
 		} else {
-			translate(-right, up);
+			translate(right, up);
 		}
 	}
 

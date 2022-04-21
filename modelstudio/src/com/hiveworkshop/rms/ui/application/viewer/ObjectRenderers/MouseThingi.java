@@ -138,7 +138,7 @@ public class MouseThingi extends MouseAdapter {
 			if (programPreferences.getThreeDCameraPanMouseEx() == modifiersEx) {
 //				System.out.println("transl x: " + (e.getX() - endP.y) + " (" + e.getX() + "-" + endP.y + ")" + ", transl y: " + (e.getY() - endP.z) + " (" + e.getY() + "-" + endP.z + ")");
 //				cameraHandler.translate(-(e.getX() - endP.x), (e.getY() - endP.y));
-				cameraManager.translate(-(e.getX() - endP.x), (e.getY() - endP.y));
+				cameraManager.translate((e.getX() - endP.x), (e.getY() - endP.y));
 			} else if (programPreferences.getThreeDCameraSpinMouseEx() == modifiersEx) {
 //				cameraHandler.rotate((e.getX() - endP.x), (e.getY() - endP.y));
 				cameraManager.rotate((e.getX() - endP.x), (e.getY() - endP.y));

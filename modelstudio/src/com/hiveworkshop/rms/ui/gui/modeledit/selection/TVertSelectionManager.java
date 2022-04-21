@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ViewBox;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -35,6 +36,11 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 	public SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, Mat4 viewPortAntiRotMat, double sizeAdj) {
 		double vertexSize = sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0;
 		return genericSelect(min, max, vertexSize, viewPortAntiRotMat);
+	}
+
+	public SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, ViewBox viewBox, double sizeAdj) {
+		double vertexSize = sizeAdj * ProgramGlobals.getPrefs().getVertexSize() / 2.0;
+		return genericSelect(min, max, vertexSize, viewBox);
 	}
 
 	public SelectionBundle getSelectionBundle(Vec3 min3, Vec3 max3, Mat4 viewPortAntiRotMat, double sizeAdj) {
@@ -77,6 +83,20 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		return new SelectionBundle(Collections.emptySet());
 	}
 
+	public SelectionBundle genericSelect(Vec2 min, Vec2 max, double vertexSize, ViewBox viewBox) {
+		if (selectionMode == SelectionItemTypes.VERTEX) {
+//			System.out.println("Tvert genericSelect, " + "min: " + min + ", max" + max);
+			Set<GeosetVertex> selectedItems = addVertsFromArea(min, max, vertexSize, 0, viewBox);
+			return new SelectionBundle(selectedItems);
+		}
+
+		if (selectionMode == SelectionItemTypes.FACE) {
+			Set<GeosetVertex> newSel = addTrisFromArea(min, max, 0, viewBox);
+			return new SelectionBundle(newSel);
+		}
+		return new SelectionBundle(Collections.emptySet());
+	}
+
 	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, int uvLayerIndex) {
 		Set<GeosetVertex> newSelection = new HashSet<>();
 		for (Geoset geoset : modelView.getEditableGeosets()) {
@@ -96,6 +116,18 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 				if (HitTestStuff.triHitTest(triangle, min, max, uvLayerIndex, viewPortAntiRotMat)) {
 					newSelection.addAll(Arrays.asList(triangle.getVerts()));
 				}
+			}
+		}
+		return newSelection;
+	}
+
+	private Set<GeosetVertex> addTrisFromArea(Vec2 min, Vec2 max, int uvLayerIndex, ViewBox viewBox) {
+		Set<GeosetVertex> newSelection = new HashSet<>();
+		for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (Triangle triangle : geoset.getTriangles()) {
+//				if (HitTestStuff.triHitTest(triangle, min, max, uvLayerIndex, viewBox)) {
+//					newSelection.addAll(Arrays.asList(triangle.getVerts()));
+//				}
 			}
 		}
 		return newSelection;
@@ -123,6 +155,24 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 				if (geosetVertex.getTverts().size() > uvLayerIndex) {
 					Vec2 tVertex = new Vec2(geosetVertex.getTVertex(uvLayerIndex)).transform(viewPortAntiRotMat);
 					if (HitTestStuff.hitTest(min, max, tVertex, vertexSize)) {
+						newSelection.add(geosetVertex);
+					}
+				}
+			}
+		}
+
+		return newSelection;
+	}
+
+	public Set<GeosetVertex> addVertsFromArea(Vec2 min, Vec2 max, double vertexSize, int uvLayerIndex, ViewBox viewBox) {
+		Set<GeosetVertex> newSelection = new HashSet<>();
+		Vec3 vec3 = new Vec3();
+		for (Geoset geoset : modelView.getEditableGeosets()) {
+			for (GeosetVertex geosetVertex : geoset.getVertices()) {
+				if (geosetVertex.getTverts().size() > uvLayerIndex) {
+					Vec2 vec2 = geosetVertex.getTVertex(uvLayerIndex);
+					vec3.set(vec2.x, vec2.y, 0);
+					if (viewBox.pointInBox(vec3)) {
 						newSelection.add(geosetVertex);
 					}
 				}

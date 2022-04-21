@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
 import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec2;
-import com.hiveworkshop.rms.util.Vec3;
 
 import java.awt.event.MouseEvent;
 
@@ -61,25 +60,6 @@ public final class ViewportSelectionHandler {
 		return selectionManager.selectStuff(min, max, tempSelectMode, viewPortAntiRotMat, sizeAdj);
 	}
 
-	public UndoAction selectRegion(MouseEvent e, Vec3 min, Vec3 max, Mat4 viewPortAntiRotMat, double sizeAdj) {
-		SelectionMode tempSelectMode;
-
-		Integer selectMouseButton = ProgramGlobals.getPrefs().getSelectMouseButton();
-		Integer addSelectModifier = ProgramGlobals.getPrefs().getAddSelectModifier();
-		Integer removeSelectModifier = ProgramGlobals.getPrefs().getRemoveSelectModifier();
-
-		int modBut = e.getModifiersEx();
-
-		if (modBut == addSelectModifier || ProgramGlobals.getSelectionMode() == SelectionMode.ADD && modBut != removeSelectModifier) {
-			tempSelectMode = SelectionMode.ADD;
-		} else if (modBut == removeSelectModifier || ProgramGlobals.getSelectionMode() == SelectionMode.DESELECT) {
-			tempSelectMode = SelectionMode.DESELECT;
-		} else {
-			tempSelectMode = SelectionMode.SELECT;
-		}
-
-		return selectionManager.selectStuff(min, max, tempSelectMode, viewPortAntiRotMat, sizeAdj);
-	}
 
 	public boolean selectableUnderCursor(Vec2 point, CoordinateSystem axes) {
 		return selectionManager.selectableUnderCursor(point, axes);

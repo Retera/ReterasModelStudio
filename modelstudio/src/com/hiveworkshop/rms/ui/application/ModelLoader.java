@@ -48,6 +48,9 @@ public class ModelLoader {
 			TimeEnvironmentImpl editTimeEnv = modelHandler.getEditTimeEnv();
 			editTimeEnv.setSequence(anim);
 			editTimeEnv.setStaticViewMode(!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE));
+
+		} else {
+			ProgramGlobals.setEditorActionTypeButton(ModelEditorActionType3.TRANSLATION);
 		}
 
 		if ((ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE)) {

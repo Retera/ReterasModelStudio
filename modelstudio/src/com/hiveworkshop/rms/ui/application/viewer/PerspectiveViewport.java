@@ -31,7 +31,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 
 	private TextureThing textureThing;
 
-	private final CameraHandler cameraHandler;
+	private final CameraManager cameraHandler;
 	private Timer paintTimer;
 	private boolean mouseInBounds = false;
 	private boolean texLoaded = false;
@@ -70,7 +70,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	public PerspectiveViewport() throws LWJGLException {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();
-		cameraHandler = new CameraHandler(this);
+		cameraHandler = new CameraManager(this);
 		boneRenderThing = new BoneRenderThing2(cameraHandler);
 		boneRenderThingBuf = new BoneRenderThingBuf(cameraHandler);
 		cameraRenderThing = new CameraRenderThing();
@@ -156,7 +156,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		this.levelOfDetail = levelOfDetail;
 	}
 
-	public CameraHandler getCameraHandler() {
+	public CameraManager getCameraHandler() {
 		return cameraHandler;
 	}
 

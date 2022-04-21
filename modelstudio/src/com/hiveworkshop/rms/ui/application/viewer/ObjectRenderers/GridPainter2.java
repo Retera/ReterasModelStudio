@@ -1,6 +1,5 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -12,7 +11,7 @@ public class GridPainter2 {
 	private static final int X = 0;
 	private static final int Y = 1;
 	private static final int Z = 2;
-	CameraHandler cameraHandler;
+	CameraManager cameraHandler;
 	float lineLength = 200;
 	float lineSpacing = 100;
 	float numberOfLines = 5;
@@ -25,7 +24,7 @@ public class GridPainter2 {
 	Vec3 vec3Heap = new Vec3();
 	Vec4 colorHeap = new Vec4(1f, 1f, 1f, .3f);
 
-	public GridPainter2(CameraHandler cameraHandler) {
+	public GridPainter2(CameraManager cameraHandler) {
 		this.cameraHandler = cameraHandler;
 	}
 

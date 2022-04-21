@@ -2,9 +2,7 @@ package com.hiveworkshop.rms.ui.application.edit.mesh;
 
 import com.hiveworkshop.rms.ui.application.edit.animation.NodeAnimationModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
-import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionManager;
 
 public class ModelEditorManager extends AbstractModelEditorManager {
@@ -12,10 +10,8 @@ public class ModelEditorManager extends AbstractModelEditorManager {
 	GeometryModelEditor geometryModelEditor;
 	NodeAnimationModelEditor nodeAnimationModelEditor;
 
-	public ModelEditorManager(ModelHandler modelHandler,
-	                          ModelEditorChangeNotifier changeNotifier,
-	                          SelectionListener selectionListener) {
-		super(modelHandler, changeNotifier, selectionListener);
+	public ModelEditorManager(ModelHandler modelHandler) {
+		super(modelHandler);
 		selectionManager = new SelectionManager(modelHandler.getRenderModel(), modelHandler.getModelView(), MOVE_LINKED, SelectionItemTypes.VERTEX);
 		geometryModelEditor = new GeometryModelEditor((SelectionManager) selectionManager, modelHandler, SelectionItemTypes.VERTEX);
 		nodeAnimationModelEditor = new NodeAnimationModelEditor((SelectionManager) selectionManager, modelHandler, SelectionItemTypes.ANIMATE);
@@ -29,8 +25,9 @@ public class ModelEditorManager extends AbstractModelEditorManager {
 			case ANIMATE -> modelEditor = nodeAnimationModelEditor;
 		}
 
-		selectionListener.onSelectionChanged(selectionManager);
-		viewportSelectionHandler.setSelectionManager(selectionManager);
+		if(selectionListener != null){
+			selectionListener.onSelectionChanged(selectionManager);
+		}
 		changeNotifier.modelEditorChanged(modelEditor);
 	}
 }

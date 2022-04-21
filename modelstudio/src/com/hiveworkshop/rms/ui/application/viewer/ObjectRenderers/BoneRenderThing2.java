@@ -5,7 +5,6 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.EditorColorPrefs;
 import com.hiveworkshop.rms.util.Quat;
@@ -15,7 +14,7 @@ import org.lwjgl.opengl.GL11;
 import static org.lwjgl.opengl.GL11.*;
 
 public class BoneRenderThing2 {
-	private CameraHandler cameraHandler;
+	private CameraManager cameraHandler;
 	private Vec3 diffVec = new Vec3();
 	private Vec3 tempVec = new Vec3();
 	Quat difRotR = new Quat();
@@ -28,7 +27,7 @@ public class BoneRenderThing2 {
 	private Vec3[] renderPointsStemTop;
 	private Vec3[] pointsStemBot;
 	private Vec3[] renderPointsStemBot;
-	public BoneRenderThing2(CameraHandler cameraHandler){
+	public BoneRenderThing2(CameraManager cameraHandler){
 		this.cameraHandler = cameraHandler;
 		float boxRadLength = 1.0f;
 		float boxRadHeight = 1.0f;

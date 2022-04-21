@@ -11,7 +11,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.VertRendererThing;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
@@ -27,7 +27,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class UVRenderer {
 	private final ProgramPreferences programPreferences;
-	private CameraHandler cameraHandler;
+	private CameraManager cameraHandler;
 	private final VertRendererThing vertRendererThing;
 	private TextureThing textureThing;
 	private RenderModel renderModel;
@@ -38,7 +38,7 @@ public class UVRenderer {
 
 	boolean texLoaded = true;
 
-	public UVRenderer(CameraHandler cameraHandler, ProgramPreferences programPreferences) {
+	public UVRenderer(CameraManager cameraHandler, ProgramPreferences programPreferences) {
 		this.cameraHandler = cameraHandler;
 		this.programPreferences = programPreferences;
 		this.colorPrefs = ProgramGlobals.getEditorColorPrefs();

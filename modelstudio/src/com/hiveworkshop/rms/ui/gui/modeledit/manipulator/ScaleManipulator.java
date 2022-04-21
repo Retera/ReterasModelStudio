@@ -23,7 +23,9 @@ public final class ScaleManipulator extends AbstractScaleManipulator {
 
 	protected double computeScaleFactor(Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
 		System.out.println("computeScaleFactor!");
-		Vec3 center = selectionManager.getCenter();
+//		Vec3 center = selectionManager.getCenter();
+		Vec2 center = selectionManager.getCenter().getProjected(dim1, dim2);
+
 		double dxEnd = 0;
 		double dyEnd = 0;
 		double dxStart = 0;
@@ -31,13 +33,13 @@ public final class ScaleManipulator extends AbstractScaleManipulator {
 		int flipNeg = 1;
 
 		if (dir.containDirection(dim1)) {
-			dxEnd = mouseEnd.x - center.getCoord(dim1);
-			dxStart = mouseStart.x - center.getCoord(dim1);
+			dxEnd = mouseEnd.x - center.x;
+			dxStart = mouseStart.x - center.x;
 			flipNeg = getFlipNeg(dxEnd);
 		}
 		if (dir.containDirection(dim2)) {
-			dyEnd = mouseEnd.y - center.getCoord(dim2);
-			dyStart = mouseStart.y - center.getCoord(dim2);
+			dyEnd = mouseEnd.y - center.y;
+			dyStart = mouseStart.y - center.y;
 			if (!dir.containDirection(dim1)) {
 				// up is -y
 //				flipNeg = getFlipNeg(-dyEnd);
@@ -52,6 +54,7 @@ public final class ScaleManipulator extends AbstractScaleManipulator {
 
 	@Override
 	protected void onStart(MouseEvent e, Vec2 mouseStart, Mat4 viewPortAntiRotMat) {
+		inverseViewProjectionMatrix.set(viewPortAntiRotMat).invert();
 		Vec3 center = selectionManager.getCenter();
 		resetScaleVector();
 		scaleAction = modelEditor.beginScaling(center);

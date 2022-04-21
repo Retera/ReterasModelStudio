@@ -39,28 +39,31 @@ public final class ScalerWidget extends Widget {
 
 	@Override
 	public MoveDimension getDirectionByMouse(Vec2 mousePoint1, CoordinateSystem coordinateSystem) {
-		byte dim1 = coordinateSystem.getPortFirstXYZ();
-		byte dim2 = coordinateSystem.getPortSecondXYZ();
-		int x = (int) coordinateSystem.viewX(point.getCoord(dim1));
-		int y = (int) coordinateSystem.viewY(point.getCoord(dim2));
+		if(coordinateSystem != null) {
+			byte dim1 = coordinateSystem.getPortFirstXYZ();
+			byte dim2 = coordinateSystem.getPortSecondXYZ();
+			int x = (int) coordinateSystem.viewX(point.getCoord(dim1));
+			int y = (int) coordinateSystem.viewY(point.getCoord(dim2));
 
-		MoveDimension direction = MoveDimension.NONE;
+			MoveDimension direction = MoveDimension.NONE;
 
-		Point mousePoint = new Point((int) mousePoint1.x, (int) mousePoint1.y);
+			Point mousePoint = new Point((int) mousePoint1.x, (int) mousePoint1.y);
 
-		if (GU.getTransPolygon(x, y, triangle).contains(mousePoint)) {
-			return MoveDimension.XYZ;
+			if (GU.getTransPolygon(x, y, triangle).contains(mousePoint)) {
+				return MoveDimension.XYZ;
+			}
+			if (GU.getTransPolygon(x, y, northLineHitBox).contains(mousePoint)) {
+				return MoveDimension.getByByte(dim2);
+			}
+			if (GU.getTransPolygon(x, y, eastLineHitBox).contains(mousePoint)) {
+				return MoveDimension.getByByte(dim1);
+			}
+			if (GU.getTransPolygon(x, y, romb).contains(mousePoint)) {
+				return MoveDimension.getByByte(dim1, dim2);
+			}
+			return direction;
 		}
-		if (GU.getTransPolygon(x, y, northLineHitBox).contains(mousePoint)) {
-			return MoveDimension.getByByte(dim2);
-		}
-		if (GU.getTransPolygon(x, y, eastLineHitBox).contains(mousePoint)) {
-			return MoveDimension.getByByte(dim1);
-		}
-		if (GU.getTransPolygon(x, y, romb).contains(mousePoint)) {
-			return MoveDimension.getByByte(dim1, dim2);
-		}
-		return direction;
+		return MoveDimension.NONE;
 	}
 
 	public Vec3 getPoint() {

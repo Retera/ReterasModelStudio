@@ -7,8 +7,8 @@ import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
 import com.hiveworkshop.rms.ui.application.viewer.MouseListenerThing;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CubePainter;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.GridPainter;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
@@ -36,7 +36,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 
 	private TextureThing textureThing;
 
-	private final CameraHandler cameraHandler;
+	private final CameraManager cameraHandler;
 	private Timer paintTimer;
 	private boolean mouseInBounds = false;
 	private boolean texLoaded = false;
@@ -65,8 +65,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 	public TextureViewport() throws LWJGLException {
 		super();
 		this.programPreferences = ProgramGlobals.getPrefs();
-		cameraHandler = new CameraHandler(this);
-//		cameraHandler = new CameraHandler(null);
+		cameraHandler = new CameraManager(this);
 		gridPainter = new GridPainter(cameraHandler);
 
 		geosetRenderer = new UVRenderer(cameraHandler, programPreferences);
@@ -117,7 +116,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 		this.levelOfDetail = levelOfDetail;
 	}
 
-	public CameraHandler getCameraHandler() {
+	public CameraManager getCameraHandler() {
 		return cameraHandler;
 	}
 

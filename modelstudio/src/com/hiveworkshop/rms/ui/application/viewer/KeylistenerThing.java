@@ -1,17 +1,18 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
 
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 public class KeylistenerThing extends KeyAdapter {
-	private final CameraHandler cameraHandler;
+	private final CameraManager cameraHandler;
 	private final PerspectiveViewport viewport;
 	private ProgramPreferences prefs;
 
-	public KeylistenerThing(CameraHandler cameraHandler, ProgramPreferences programPreferences, PerspectiveViewport viewport) {
+	public KeylistenerThing(CameraManager cameraHandler, ProgramPreferences programPreferences, PerspectiveViewport viewport) {
 		this.cameraHandler = cameraHandler;
 		this.viewport = viewport;
 		this.prefs = programPreferences;
@@ -76,6 +77,7 @@ public class KeylistenerThing extends KeyAdapter {
 			// resetCamera (ish)
 			cameraHandler.resetZoom();
 			cameraHandler.setPosition(0, 0);
+			cameraHandler.resetCamera();
 		}
 //	    if (e.getKeyCode() == KeyEvent.VK_X) {
 //		    if (e.isControlDown()) {

@@ -78,8 +78,8 @@ public class DrawBoneActivity extends ViewportActivity {
 
 
 	@Override
-	public void mousePressed(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
-		Vec3 worldPressLocation = new Vec3(e.getX(), e.getY(), 0).transform(viewPortAntiRotMat);
+	public void mousePressed(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
+		Vec3 worldPressLocation = new Vec3(e.getX(), e.getY(), 0).transform(viewProjectionMatrix);
 		try {
 			Set<String> allBoneNames = new HashSet<>();
 			for (IdObject object : modelView.getModel().getIdObjects()) {
@@ -103,7 +103,7 @@ public class DrawBoneActivity extends ViewportActivity {
 
 
 	@Override
-	public void mouseMoved(MouseEvent e, Mat4 viewPortAntiRotMat, double sizeAdj) {
+	public void mouseMoved(MouseEvent e, Mat4 viewProjectionMatrix, double sizeAdj) {
 		lastMousePoint = e.getPoint();
 	}
 

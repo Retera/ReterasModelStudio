@@ -4,13 +4,9 @@ import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.uv.UVSnapAction;
 import com.hiveworkshop.rms.editor.model.GeosetVertex;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.MultiManipulatorActivity;
-import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivity;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
 import com.hiveworkshop.rms.ui.application.edit.uv.TVertexEditorManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
-import com.hiveworkshop.rms.ui.gui.modeledit.listener.ModelEditorChangeNotifier;
-import com.hiveworkshop.rms.ui.gui.modeledit.manipulator.TVertexEditorManipulatorBuilder;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.SelectionMode;
@@ -97,9 +93,7 @@ public class UVPanelToolBar extends JToolBar{
 	}
 	public void changeActivity(ModelEditorActionType3 newType) {
 		if (newType != null && modelEditorManager != null) {
-			TVertexEditorManipulatorBuilder manipulatorBuilder = new TVertexEditorManipulatorBuilder(modelEditorManager, modelHandler, newType);
-			ViewportActivity activity =  new MultiManipulatorActivity(manipulatorBuilder, modelHandler, modelEditorManager);
-			viewportActivityManager.setCurrentActivity(activity);
+			viewportActivityManager.setCurrentActivity(newType);
 		}
 	}
 
@@ -127,12 +121,10 @@ public class UVPanelToolBar extends JToolBar{
 
 	public UVPanelToolBar setModelHandler(ModelHandler modelHandler) {
 		this.modelHandler = modelHandler;
-		viewportActivityManager = new ViewportActivityManager(null);
 
-		ModelEditorChangeNotifier modelEditorChangeNotifier = new ModelEditorChangeNotifier();
-		modelEditorChangeNotifier.subscribe(viewportActivityManager);
-
-		modelEditorManager = new TVertexEditorManager(this.modelHandler, selectionModeGroup, modelEditorChangeNotifier, viewportActivityManager);
+		modelEditorManager = new TVertexEditorManager(this.modelHandler, selectionModeGroup);
+		viewportActivityManager = new ViewportActivityManager(modelHandler, modelEditorManager);
+		viewportActivityManager.setCurrentActivity(ModelEditorActionType3.TRANSLATION);
 		updateItemGroupTypes();
 		return this;
 	}

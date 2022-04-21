@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application.edit.uv.panel;
 import com.hiveworkshop.rms.editor.model.Bitmap;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.ViewportActivityManager;
-import com.hiveworkshop.rms.ui.application.viewer.CameraHandler;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.cutpaste.ViewportTransferHandler;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
@@ -40,7 +40,7 @@ public class UVDisplayPanel extends JPanel {
 		try {
 			vp2 = new TextureViewport();
 			vp2.setMinimumSize(new Dimension(200, 200));
-			CameraHandler cameraHandler = vp2.getCameraHandler();
+			CameraManager cameraHandler = vp2.getCameraHandler();
 			cameraHandler.toggleOrtho().setAllowToggleOrtho(false);
 			cameraHandler.setAllowRotation(false);
 
@@ -176,18 +176,18 @@ public class UVDisplayPanel extends JPanel {
 	}
 
 	public void pan(int x, int y) {
-		CameraHandler ch = vp2.getCameraHandler();
+		CameraManager ch = vp2.getCameraHandler();
 		ch.translate(x * ch.getZoom(), y * ch.getZoom());
 	}
 
 	public void pan2(double x, double y) {
-		CameraHandler ch = vp2.getCameraHandler();
+		CameraManager ch = vp2.getCameraHandler();
 //		ch.translate(x * ch.getZoom(),y * ch.getZoom());
 //		ch.translate2(0, x, y);
 	}
 
 	public void rot(int x, int y, int z) {
-		CameraHandler ch = vp2.getCameraHandler();
+		CameraManager ch = vp2.getCameraHandler();
 		ch.rot(x, y, z);
 	}
 
