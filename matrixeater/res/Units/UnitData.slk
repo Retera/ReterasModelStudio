@@ -1,0 +1,94 @@
+ID;PWXL;N;E
+P;PGeneral
+P;P0
+P;P0.00
+P;P#,##0
+P;P#,##0.00
+P;P#,##0_);;\(#,##0\)
+P;P#,##0_);;[Red]\(#,##0\)
+P;P#,##0.00_);;\(#,##0.00\)
+P;P#,##0.00_);;[Red]\(#,##0.00\)
+P;P"$"#,##0_);;\("$"#,##0\)
+P;P"$"#,##0_);;[Red]\("$"#,##0\)
+P;P"$"#,##0.00_);;\("$"#,##0.00\)
+P;P"$"#,##0.00_);;[Red]\("$"#,##0.00\)
+P;P0%
+P;P0.00%
+P;P0.00E+00
+P;P##0.0E+0
+P;P#\ ?/?
+P;P#\ ??/??
+P;Pm/d/yyyy
+P;Pd\-mmm\-yy
+P;Pd\-mmm
+P;Pmmm\-yy
+P;Ph:mm\ AM/PM
+P;Ph:mm:ss\ AM/PM
+P;Ph:mm
+P;Ph:mm:ss
+P;Pm/d/yyyy\ h:mm
+P;Pmm:ss
+P;Pmm:ss.0
+P;P@
+P;P[h]:mm:ss
+P;P_("$"* #,##0_);;_("$"* \(#,##0\);;_("$"* "-"_);;_(@_)
+P;P_(* #,##0_);;_(* \(#,##0\);;_(* "-"_);;_(@_)
+P;P_("$"* #,##0.00_);;_("$"* \(#,##0.00\);;_("$"* "-"??_);;_(@_)
+P;P_(* #,##0.00_);;_(* \(#,##0.00\);;_(* "-"??_);;_(@_)
+P;FCalibri;M220;L9
+P;FCalibri;M220;L9
+P;FCalibri;M220;L9
+P;FCalibri;M220;L9
+P;ECalibri;M220;L9
+P;ECalibri Light;M360;L55
+P;ECalibri;M300;SB;L55
+P;ECalibri;M260;SB;L55
+P;ECalibri;M220;SB;L55
+P;ECalibri;M220;L18
+P;ECalibri;M220;L21
+P;ECalibri;M220;L61
+P;ECalibri;M220;L63
+P;ECalibri;M220;SB;L64
+P;ECalibri;M220;SB;L53
+P;ECalibri;M220;L53
+P;ECalibri;M220;SB;L10
+P;ECalibri;M220;L11
+P;ECalibri;M220;SI;L24
+P;ECalibri;M220;SB;L9
+P;ECalibri;M220;L10
+P;ESegoe UI;M200;L9
+F;P0;DG0G8;M300
+B;Y1;X31;D0 0 0 30
+O;D;V0;K47;G100 0.001
+C;Y1;X1;K"unitID"
+C;X2;K"sort"
+C;X3;K"comment(s)"
+C;X4;K"race"
+C;X5;K"prio"
+C;X6;K"threat"
+C;X7;K"valid"
+C;X8;K"deathType"
+C;X9;K"death"
+C;X10;K"canSleep"
+C;X11;K"cargoSize"
+C;X12;K"movetp"
+C;X13;K"moveHeight"
+C;X14;K"moveFloor"
+C;X15;K"turnRate"
+C;X16;K"propWin"
+C;X17;K"orientInterp"
+C;X18;K"formation"
+C;X19;K"targType"
+C;X20;K"pathTex"
+C;X21;K"fatLOS"
+C;X22;K"points"
+C;X23;K"buffType"
+C;X24;K"buffRadius"
+C;X25;K"nameCount"
+C;X26;K"canFlee"
+C;X27;K"requireWaterRadius"
+C;X28;K"isBuildOn"
+C;X29;K"canBuildOn"
+C;X30;K"InBeta"
+C;X31;K"version"
+E

@@ -1,6 +1,8 @@
 package com.hiveworkshop.wc3.gui.modelviewer;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -12,6 +14,10 @@ import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.hiveworkshop.wc3.gui.modeledit.actions.newsys.ModelStructureChangeListener;
+import com.hiveworkshop.wc3.gui.modeledit.activity.UndoActionListener;
+import com.hiveworkshop.wc3.gui.modeledit.creator.actions.DrawCameraAction;
+import com.hiveworkshop.wc3.gui.modeledit.newstuff.ModelEditor;
 import com.hiveworkshop.wc3.mdl.Camera;
 import com.hiveworkshop.wc3.mdl.v2.ModelView;
 
@@ -21,12 +27,15 @@ public class CameraManagerPanel extends JPanel {
 	private final JList<Camera> cameraBox;
 	private ListSelectionListener boxChangeListener;
 
-	public CameraManagerPanel(final ModelView mdlDisp, final CameraManagerPanelListener listener) {
-		this(mdlDisp, listener, null);
+	public CameraManagerPanel(final ModelView mdlDisp, final CameraManagerPanelListener listener,
+			final ModelStructureChangeListener modelStructureChangeListener, final ModelEditor modelEditor,
+			final UndoActionListener undoActionListener) {
+		this(mdlDisp, listener, null, modelStructureChangeListener, modelEditor, undoActionListener);
 	}
 
 	public CameraManagerPanel(final ModelView mdlDisp, final CameraManagerPanelListener listener,
-			final Camera defaultCamera) {
+			final Camera defaultCamera, final ModelStructureChangeListener modelStructureChangeListener,
+			final ModelEditor modelEditor, final UndoActionListener undoActionListener) {
 		this.mdlDisp = mdlDisp;
 		final GroupLayout groupLayout = new GroupLayout(this);
 
@@ -45,8 +54,7 @@ public class CameraManagerPanel extends JPanel {
 					String displayToString;
 					if (display instanceof Camera) {
 						displayToString = ((Camera) display).getName();
-					}
-					else {
+					} else {
 						displayToString = display.toString();
 					}
 					display = "(" + mdlDisp.getModel().getCameras().indexOf(value) + ") " + displayToString;
@@ -61,8 +69,7 @@ public class CameraManagerPanel extends JPanel {
 					final Camera value = cameraBox.getSelectedValue();
 					if (value == null) {
 						listener.setDefaultCamera();
-					}
-					else {
+					} else {
 						listener.setCamera(value);
 					}
 				}
@@ -74,6 +81,16 @@ public class CameraManagerPanel extends JPanel {
 		final JScrollPane cameraScroll = new JScrollPane(cameraBox);
 
 		final JButton createCameraFromView = new JButton("Create Camera from Current View");
+		createCameraFromView.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				final Camera cameraFromView = listener.createCameraFromCurrentView();
+				final DrawCameraAction drawCameraAction = new DrawCameraAction(mdlDisp, modelStructureChangeListener,
+						cameraFromView);
+				drawCameraAction.redo();
+				undoActionListener.pushAction(drawCameraAction);
+			}
+		});
 
 		groupLayout.setHorizontalGroup(groupLayout.createSequentialGroup().addGap(8)
 				.addGroup(
@@ -99,8 +116,7 @@ public class CameraManagerPanel extends JPanel {
 		}
 		if (sawLast) {
 			cameraBox.setSelectedValue(selectedItem, true);
-		}
-		else if (selectedItem != null) {
+		} else if (selectedItem != null) {
 			for (final Camera animation : mdlDisp.getModel().getCameras()) {
 				if (animation.getName().equals(selectedItem.getName())) {
 					cameraBox.setSelectedValue(animation, true);
@@ -121,6 +137,6 @@ public class CameraManagerPanel extends JPanel {
 
 	public void setCurrentCamera(final Camera currentCamera) {
 		cameraBox.setSelectedValue(currentCamera, true);
-		boxChangeListener.valueChanged(new ListSelectionEvent(null, 0, 0, false));
+		boxChangeListener.valueChanged(new ListSelectionEvent(this, 0, 0, false));
 	}
 }

@@ -111,9 +111,9 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelView = new ModelViewManager(input);
 		undoManager = new UndoManagerImpl(undoHandler);
 		editorRenderModel = new RenderModel(input, modelView);
-		editorRenderModel.setSpawnParticles((prefs.getRenderParticles() == null) || prefs.getRenderParticles());
+		editorRenderModel.setSpawnParticles(prefs.getRenderParticles() == null || prefs.getRenderParticles());
 		editorRenderModel.setAllowInanimateParticles(
-				(prefs.getRenderStaticPoseParticles() == null) || prefs.getRenderStaticPoseParticles());
+				prefs.getRenderStaticPoseParticles() == null || prefs.getRenderStaticPoseParticles());
 		modelEditorManager = new ModelEditorManager(modelView, prefs, modeNotifier, modelEditorChangeNotifier,
 				viewportActivityManager, editorRenderModel, modelStructureChangeListener);
 		modelViewManagingTree = new ModelViewManagingTree(modelView, undoManager, modelEditorManager);
@@ -153,7 +153,8 @@ public class ModelPanel implements ActionListener, MouseListener {
 		animationController = new AnimationController(modelView, true, animationViewer,
 				animationViewer.getCurrentAnimation());
 
-		cameraController = new CameraManagerPanel(modelView, animationViewer);
+		cameraController = new CameraManagerPanel(modelView, animationViewer, modelStructureChangeListener,
+				modelEditorManager.getModelEditor(), undoManager);
 
 		frontArea.setControlsVisible(prefs.showVMControls());
 		botArea.setControlsVisible(prefs.showVMControls());
@@ -419,8 +420,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 				canceled = true;
 				break;
 			}
-		}
-		else // parent.tabbedPane.remove(myIndex);
+		} else // parent.tabbedPane.remove(myIndex);
 		if (editUVPanel != null) {
 			editUVPanel.view.setVisible(false);
 		}
@@ -515,13 +515,11 @@ public class ModelPanel implements ActionListener, MouseListener {
 		}
 		String boneList = "";
 		for (int i = 0; i < boneRefs.size(); i++) {
-			if (i == (boneRefs.size() - 2)) {
+			if (i == boneRefs.size() - 2) {
 				boneList = boneList + boneRefs.get(i).getName() + " and ";
-			}
-			else if (i == (boneRefs.size() - 1)) {
+			} else if (i == boneRefs.size() - 1) {
 				boneList = boneList + boneRefs.get(i).getName();
-			}
-			else {
+			} else {
 				boneList = boneList + boneRefs.get(i).getName() + ", ";
 			}
 		}

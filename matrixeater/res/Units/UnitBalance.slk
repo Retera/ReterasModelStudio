@@ -1,0 +1,123 @@
+ID;PWXL;N;E
+P;PGeneral
+P;P0
+P;P0.00
+P;P#,##0
+P;P#,##0.00
+P;P#,##0_);;\(#,##0\)
+P;P#,##0_);;[Red]\(#,##0\)
+P;P#,##0.00_);;\(#,##0.00\)
+P;P#,##0.00_);;[Red]\(#,##0.00\)
+P;P"$"#,##0_);;\("$"#,##0\)
+P;P"$"#,##0_);;[Red]\("$"#,##0\)
+P;P"$"#,##0.00_);;\("$"#,##0.00\)
+P;P"$"#,##0.00_);;[Red]\("$"#,##0.00\)
+P;P0%
+P;P0.00%
+P;P0.00E+00
+P;P##0.0E+0
+P;P#\ ?/?
+P;P#\ ??/??
+P;Pm/d/yyyy
+P;Pd\-mmm\-yy
+P;Pd\-mmm
+P;Pmmm\-yy
+P;Ph:mm\ AM/PM
+P;Ph:mm:ss\ AM/PM
+P;Ph:mm
+P;Ph:mm:ss
+P;Pm/d/yyyy\ h:mm
+P;Pmm:ss
+P;Pmm:ss.0
+P;P@
+P;P[h]:mm:ss
+P;P_("$"* #,##0_);;_("$"* \(#,##0\);;_("$"* "-"_);;_(@_)
+P;P_(* #,##0_);;_(* \(#,##0\);;_(* "-"_);;_(@_)
+P;P_("$"* #,##0.00_);;_("$"* \(#,##0.00\);;_("$"* "-"??_);;_(@_)
+P;P_(* #,##0.00_);;_(* \(#,##0.00\);;_(* "-"??_);;_(@_)
+P;FCalibri;M220;L9
+P;FCalibri;M220;L9
+P;FCalibri;M220;L9
+P;FCalibri;M220;L9
+P;ECalibri;M220;L9
+P;ECalibri Light;M360;L55
+P;ECalibri;M300;SB;L55
+P;ECalibri;M260;SB;L55
+P;ECalibri;M220;SB;L55
+P;ECalibri;M220;L18
+P;ECalibri;M220;L21
+P;ECalibri;M220;L61
+P;ECalibri;M220;L63
+P;ECalibri;M220;SB;L64
+P;ECalibri;M220;SB;L53
+P;ECalibri;M220;L53
+P;ECalibri;M220;SB;L10
+P;ECalibri;M220;L11
+P;ECalibri;M220;SI;L24
+P;ECalibri;M220;SB;L9
+P;ECalibri;M220;L10
+P;ESegoe UI;M200;L9
+F;P0;DG0G8;M300
+B;Y1;X61;D0 0 0 60
+O;D;V0;K47;G100 0.001
+C;Y1;X1;K"unitBalanceID"
+C;X2;K"sortBalance"
+C;X3;K"sort2"
+C;X4;K"comment(s)"
+C;X5;K"level"
+C;X7;K"type"
+C;X8;K"goldcost"
+C;X9;K"lumbercost"
+C;X10;K"goldRep"
+C;X11;K"lumberRep"
+C;X12;K"fmade"
+C;X13;K"fused"
+C;X14;K"bountydice"
+C;X15;K"bountysides"
+C;X16;K"bountyplus"
+C;X17;K"lumberbountydice"
+C;X18;K"lumberbountysides"
+C;X19;K"lumberbountyplus"
+C;X20;K"stockMax"
+C;X21;K"stockRegen"
+C;X22;K"stockStart"
+C;X23;K"HP"
+C;X24;K"realHP"
+C;X25;K"regenHP"
+C;X26;K"regenType"
+C;X27;K"manaN"
+C;X28;K"realM"
+C;X29;K"mana0"
+C;X30;K"regenMana"
+C;X31;K"def"
+C;X32;K"defUp"
+C;X33;K"realdef"
+C;X34;K"defType"
+C;X35;K"spd"
+C;X36;K"minSpd"
+C;X37;K"maxSpd"
+C;X38;K"bldtm"
+C;X39;K"reptm"
+C;X40;K"sight"
+C;X41;K"nsight"
+C;X42;K"STR"
+C;X43;K"INT"
+C;X44;K"AGI"
+C;X45;K"STRplus"
+C;X46;K"INTplus"
+C;X47;K"AGIplus"
+C;X48;K"abilTest"
+C;X49;K"Primary"
+C;X50;K"upgrades"
+C;X51;K"tilesets"
+C;X52;K"nbrandom"
+C;X53;K"isbldg"
+C;X54;K"preventPlace"
+C;X55;K"requirePlace"
+C;X56;K"repulse"
+C;X57;K"repulseParam"
+C;X58;K"repulseGroup"
+C;X59;K"repulsePrio"
+C;X60;K"collision"
+C;X61;K"InBeta"
+E

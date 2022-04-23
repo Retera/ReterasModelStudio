@@ -38,7 +38,8 @@ public class Attachment extends IdObject implements VisibilitySource {
 		// System.out.println(mdlBone.getName() + ": " +
 		// Integer.toBinaryString(bone.node.flags));
 		if ((attachment.node.flags & 2048) != 2048) {
-			System.err.println("MDX -> MDL error: A light '" + attachment.node.name + "' not flagged as light in MDX!");
+			System.err.println(
+					"MDX -> MDL error: An attachment '" + attachment.node.name + "' not flagged as attachment in MDX!");
 		}
 		// ----- Convert Base NODE to "IDOBJECT" -----
 		loadFrom(attachment.node);

@@ -28,8 +28,7 @@ public class ControlledAnimationViewer extends JPanel
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
 			perspectiveViewport.setAnimationTime(0);
 			perspectiveViewport.setLive(true);
-		}
-		catch (final LWJGLException e) {
+		} catch (final LWJGLException e) {
 			throw new RuntimeException(e);
 		}
 		setLayout(new BorderLayout());
@@ -106,5 +105,10 @@ public class ControlledAnimationViewer extends JPanel
 	@Override
 	public void setDefaultCamera() {
 		perspectiveViewport.loadDefaultCamera();
+	}
+
+	@Override
+	public Camera createCameraFromCurrentView() {
+		return perspectiveViewport.createCameraFromCurrentView();
 	}
 }

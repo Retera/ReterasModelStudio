@@ -11,6 +11,19 @@ import com.hiveworkshop.wc3.util.MathUtils;
 public final class PortraitCameraManager extends CameraManager {
 	public com.hiveworkshop.wc3.mdl.Camera modelCamera;
 	protected RenderModel modelInstance;
+	private float fieldOfView;
+	private float nearClip;
+	private float farClip;
+
+	public PortraitCameraManager() {
+		reset();
+	}
+
+	private void reset() {
+		fieldOfView = (float) Math.toRadians(50);
+		nearClip = 8;
+		farClip = 2000;
+	}
 
 	@Override
 	public void updateCamera() {
@@ -19,7 +32,6 @@ public final class PortraitCameraManager extends CameraManager {
 		vec4Heap.set(0, 0, 1, this.verticalAngle);
 		quatHeap2.setFromAxisAngle(vec4Heap);
 		Quaternion.mul(quatHeap2, quatHeap, quatHeap);
-		System.out.println();
 
 		this.position.set(0, 0, 1);
 		MathUtils.transform(this.quatHeap, this.position);
@@ -44,12 +56,8 @@ public final class PortraitCameraManager extends CameraManager {
 			this.target.set((float) (targetPosition.x + targetTranslation.x),
 					(float) (targetPosition.y + targetTranslation.y), (float) (targetPosition.z + targetTranslation.z));
 
-			this.camera.perspective((float) this.modelCamera.getFieldOfView() * 0.75f, this.camera.getAspect(),
-					(float) this.modelCamera.getNearClip(), (float) this.modelCamera.getFarClip());
 		}
-		else {
-			this.camera.perspective(70, this.camera.getAspect(), 100, 5000);
-		}
+		this.camera.perspective(fieldOfView, this.camera.getAspect(), nearClip, farClip);
 
 		this.camera.moveToAndFace(this.position, this.target, this.worldUp);
 	}
@@ -58,9 +66,12 @@ public final class PortraitCameraManager extends CameraManager {
 		this.modelInstance = modelInstance;
 		if (modelInstance == null) {
 			this.modelCamera = null;
-		}
-		else if (camera != null) {
+			reset();
+		} else if (camera != null) {
 			this.modelCamera = camera;
+			fieldOfView = (float) this.modelCamera.getFieldOfView() * 0.75f;
+			nearClip = (float) this.modelCamera.getNearClip();
+			farClip = (float) this.modelCamera.getFarClip();
 		}
 	}
 

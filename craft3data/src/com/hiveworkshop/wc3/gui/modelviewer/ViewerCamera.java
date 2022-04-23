@@ -225,8 +225,7 @@ public class ViewerCamera {
 			if (this.isPerspective) {
 				MathUtils.setPerspective(projectionMatrix, this.fov, this.aspect, this.nearClipPlane,
 						this.farClipPlane);
-			}
-			else {
+			} else {
 				MathUtils.setOrtho(projectionMatrix, this.leftClipPlane, this.rightClipPlane, this.bottomClipPlane,
 						this.topClipPlane, this.nearClipPlane, this.farClipPlane);
 			}
@@ -291,9 +290,9 @@ public class ViewerCamera {
 
 		MathUtils.project(this.viewProjectionMatrix, v, vectorHeap);
 
-		out.x = Math.round(((vectorHeap.x + 1) / 2) * viewport.width);
-		out.y = ((screenHeightCheese - viewport.y - viewport.height) + (viewport.height))
-				- Math.round(((vectorHeap.y + 1) / 2) * viewport.height);
+		out.x = Math.round((vectorHeap.x + 1) / 2 * viewport.width);
+		out.y = screenHeightCheese - viewport.y - viewport.height + viewport.height
+				- Math.round((vectorHeap.y + 1) / 2 * viewport.height);
 
 		return out;
 	}
@@ -322,5 +321,17 @@ public class ViewerCamera {
 		out[5] = b.z;
 
 		return out;
+	}
+
+	public float getNearClipPlane() {
+		return nearClipPlane;
+	}
+
+	public float getFarClipPlane() {
+		return farClipPlane;
+	}
+
+	public float getFov() {
+		return fov;
 	}
 }
