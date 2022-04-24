@@ -1,7 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.AnimatedPerspectiveViewport;
 import com.hiveworkshop.rms.ui.application.viewer.PerspDisplayPanel;
-import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.ModelDependentView;
 import net.miginfocom.swing.MigLayout;
@@ -35,22 +35,22 @@ public class PerspectiveViewUgg extends ModelDependentView {
 		return this;
 	}
 
+	public PerspDisplayPanel getPerspDisplayPanel() {
+		return perspDisplayPanel;
+	}
+	public AnimatedPerspectiveViewport getPerspectiveViewport() {
+		if (perspDisplayPanel != null){
+			return perspDisplayPanel.getViewport();
+		}
+		return null;
+	}
+
 	@Override
 	public PerspectiveViewUgg reload() {
 		if (perspDisplayPanel != null) {
 			perspDisplayPanel.reloadTextures();
 		}
 		return this;
-	}
-
-	public PerspDisplayPanel getPerspDisplayPanel() {
-		return perspDisplayPanel;
-	}
-	public PerspectiveViewport getPerspectiveViewport() {
-		if (perspDisplayPanel != null){
-			return perspDisplayPanel.getViewport();
-		}
-		return null;
 	}
 
 }

@@ -18,16 +18,14 @@ import static org.lwjgl.opengl.GL11.glEnable;
 
 public class TextureThing {
 	public static final boolean LOG_EXCEPTIONS = true;
-	private final EditableModel model;
 	private final ProgramPreferences programPreferences;
 	private final HashMap<Bitmap, Integer> textureMap = new HashMap<>();
 
-	public TextureThing(EditableModel model, ProgramPreferences programPreferences) {
-		this.model = model;
+	public TextureThing(ProgramPreferences programPreferences) {
 		this.programPreferences = programPreferences;
 	}
 
-	public void loadToTexMap(Bitmap tex) {
+	public Integer loadToTexMap(EditableModel model, Bitmap tex) {
 		if (tex != null && textureMap.get(tex) == null) {
 			String path = tex.getRenderableTexturePath();
 			if (!path.isEmpty() && !programPreferences.getAllowLoadingNonBlpTextures()) {
@@ -37,12 +35,14 @@ public class TextureThing {
 				DataSource workingDirectory = model.getWrappedDataSource();
 				Integer texture = loadTexture(BLPHandler.get().loadTexture2(workingDirectory, path), tex);
 				textureMap.put(tex, texture);
+				return texture;
 			} catch (final Exception exc) {
 				if (LOG_EXCEPTIONS) {
 					exc.printStackTrace();
 				}
 			}
 		}
+		return getTextureID(tex);
 	}
 
 	public int loadTexture(final GPUReadyTexture texture, final Bitmap bitmap) {
@@ -117,6 +117,15 @@ public class TextureThing {
 		bindTexture(textureHandle, textureSlot, wrapW, wrapH);
 	}
 
+	public void loadAndBindTexture(EditableModel model, Bitmap bitmap, int textureSlot) {
+//		int textureHandle = getTextureID(bitmap);
+		int textureHandle = loadToTexMap(model, bitmap);
+//		printThing("texture: " + bitmap.getName() + ", id: " + textureHandle, 500);
+		boolean wrapW = bitmap != null && bitmap.isWrapWidth();
+		boolean wrapH = bitmap != null && bitmap.isWrapHeight();
+		bindTexture(textureHandle, textureSlot, wrapW, wrapH);
+	}
+
 
 	public void bindTexture(Integer texture, int textureSlot, boolean wrapW, boolean wrapH) {
 		if(!textureMap.isEmpty()){
@@ -138,12 +147,16 @@ public class TextureThing {
 	}
 
 
-	public void reMakeTextureMap() {
+	public void reMakeTextureMap(EditableModel model) {
 		deleteAllTextures(textureMap);
 //		loadGeosetMaterials();
-		loadModelTextures();
+		loadModelTextures(model);
 	}
-	public void loadGeosetMaterials() {
+
+	public void clearTextureMap() {
+		deleteAllTextures(textureMap);
+	}
+	public void loadGeosetMaterials(EditableModel model) {
 		final List<Geoset> geosets = model.getGeosets();
 		for (final Geoset geo : geosets) {
 			for (int i = 0; i < geo.getMaterial().getLayers().size(); i++) {
@@ -156,20 +169,20 @@ public class TextureThing {
 				}
 				final Layer layer = geo.getMaterial().getLayers().get(i);
 				if (layer.getTextureBitmap() != null) {
-					loadToTexMap(layer.getTextureBitmap());
+					loadToTexMap(model, layer.getTextureBitmap());
 				}
 				if (layer.getTextures() != null) {
 					for (final Bitmap tex : layer.getTextures()) {
-						loadToTexMap(tex);
+						loadToTexMap(model, tex);
 					}
 				}
 			}
 		}
 	}
-	public void loadModelTextures() {
+	public void loadModelTextures(EditableModel model) {
 		List<Bitmap> textures = model.getTextures();
 		for (Bitmap texture : textures) {
-			loadToTexMap(texture);
+			loadToTexMap(model, texture);
 		}
 	}
 
@@ -257,6 +270,42 @@ public class TextureThing {
 
 
 
+	public void bindLayer(ShaderPipeline pipeline, ParticleEmitter2 particle2, Bitmap tex, Integer texture) {
+		bindTexture(tex, texture);
+		switch (particle2.getFilterMode()) {
+			case BLEND -> {
+				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			}
+			case ADDITIVE, ALPHAKEY -> {
+				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+			}
+			case MODULATE -> {
+				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_ZERO, GL11.GL_SRC_COLOR);
+			}
+			case MODULATE2X -> {
+				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
+			}
+		}
+		if (particle2.getUnshaded()) {
+			pipeline.glDisableIfNeeded(GL11.GL_LIGHTING);
+		}
+		else {
+			pipeline.glEnableIfNeeded(GL11.GL_LIGHTING);
+		}
+	}
+
+
+
+
+
 
 	public void bindLayerTexture(ShaderPipeline pipeline, Layer layer, boolean doSetUpFilterMode, int textureSlot, boolean twoSided, Bitmap tex) {
 		int textureHandle = getTextureID(tex);
@@ -273,41 +322,56 @@ public class TextureThing {
 		}
 	}
 
+
+	public void loadAndBindLayerTexture(ShaderPipeline pipeline, EditableModel model, Layer layer, boolean doSetUpFilterMode, int textureSlot, boolean twoSided, Bitmap tex) {
+		int textureHandle = getTextureID(tex);
+//		printThing("texture: " + tex.getName() + ", id: " + textureHandle + ", slot: " + textureSlot, 1000);
+		loadAndBindTexture(model, tex, textureSlot);
+
+		if (doSetUpFilterMode) {
+			bindLayer(pipeline, layer);
+			if (twoSided) {
+				GL11.glDisable(GL11.GL_CULL_FACE);
+			} else {
+				GL11.glEnable(GL11.GL_CULL_FACE);
+			}
+		}
+	}
+
 	public void bindLayer(ShaderPipeline pipeline, Layer layer) {
 		boolean depthMask = false;
 		switch (layer.getFilterMode()) {
-			case BLEND:
+			case BLEND -> {
 				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-				break;
-			case ADDITIVE:
-			case ADDALPHA:
+			}
+			case ADDITIVE, ADDALPHA -> {
 				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-				break;
-			case MODULATE:
+			}
+			case MODULATE -> {
 				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glBlendFunc(GL11.GL_ZERO, GL11.GL_SRC_COLOR);
-				break;
-			case MODULATE2X:
+			}
+			case MODULATE2X -> {
 				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 				GL11.glEnable(GL11.GL_BLEND);
 				GL11.glBlendFunc(GL11.GL_DST_COLOR, GL11.GL_SRC_COLOR);
-				break;
-			case NONE:
+			}
+			case NONE -> {
 				pipeline.glDisableIfNeeded(GL11.GL_ALPHA_TEST);
 				GL11.glDisable(GL11.GL_BLEND);
 				depthMask = true;
-				break;
-			case TRANSPARENT:
+			}
+			case TRANSPARENT -> {
 				pipeline.glEnableIfNeeded(GL11.GL_ALPHA_TEST);
 				GL11.glAlphaFunc(GL11.GL_GREATER, 0.75f);
 				GL11.glDisable(GL11.GL_BLEND);
 				depthMask = true;
-				break;
+			}
 		}
 
 		if (layer.getNoDepthTest()) {

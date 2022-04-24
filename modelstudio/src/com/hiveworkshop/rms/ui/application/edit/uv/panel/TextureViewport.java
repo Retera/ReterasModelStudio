@@ -96,7 +96,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 		if (renderModel != null) {
 			this.modelView = modelView;
 			EditableModel model = modelView.getModel();
-			textureThing = new TextureThing(model, programPreferences);
+			textureThing = new TextureThing(programPreferences);
 			geosetRenderer.updateModel(renderModel, modelView, textureThing);
 			cameraHandler.setViewportCamera(2, 0, 0, 0, -90, 90);
 			cameraHandler.translate(.5, -.5);
@@ -151,7 +151,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 	protected void forceReloadTextures() {
 		texLoaded = true;
 		if (textureThing != null) {
-			textureThing.reMakeTextureMap();
+			textureThing.reMakeTextureMap(renderModel.getModel());
 		}
 	}
 

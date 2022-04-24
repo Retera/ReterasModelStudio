@@ -20,12 +20,12 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 	public void glEnd() {
 //		System.out.println("glEnd");
 		//https://github.com/flowtsohg/mdx-m3-viewer/tree/827d1bda1731934fb8e1a5cf68d39786f9cb857d/src/viewer/handlers/w3x/shaders
-		GL30.glBindVertexArray(vertexArrayObjectId);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferObjectId);
+		GL30.glBindVertexArray(glVertexArrayId);
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, glVertexBufferId);
 
 		pipelineVertexBuffer.position(vertexCount * STRIDE);
 		pipelineVertexBuffer.flip();
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferObjectId);
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, glVertexBufferId);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, pipelineVertexBuffer, GL15.GL_DYNAMIC_DRAW);
 
 		enableAttribArray(POSITION, STRIDE);
@@ -63,36 +63,8 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 
 
 		GL11.glDrawArrays(glBeginType, 0, vertexCount);
-		vertexCount = 0;
-		uvCount = 0;
-		normalCount = 0;
-		colorCount = 0;
-		fresnelColorCount = 0;
-		tangentCount = 0;
 		pipelineVertexBuffer.clear();
-		textureUnit = 0;
 		GL20.glUseProgram(0);
-	}
-
-	private void fillPipelineMatrixBuffer() {
-		pipelineMatrixBuffer.clear();
-		pipelineMatrixBuffer.put(currentMatrix.m00);
-		pipelineMatrixBuffer.put(currentMatrix.m01);
-		pipelineMatrixBuffer.put(currentMatrix.m02);
-		pipelineMatrixBuffer.put(currentMatrix.m03);
-		pipelineMatrixBuffer.put(currentMatrix.m10);
-		pipelineMatrixBuffer.put(currentMatrix.m11);
-		pipelineMatrixBuffer.put(currentMatrix.m12);
-		pipelineMatrixBuffer.put(currentMatrix.m13);
-		pipelineMatrixBuffer.put(currentMatrix.m20);
-		pipelineMatrixBuffer.put(currentMatrix.m21);
-		pipelineMatrixBuffer.put(currentMatrix.m22);
-		pipelineMatrixBuffer.put(currentMatrix.m23);
-		pipelineMatrixBuffer.put(currentMatrix.m30);
-		pipelineMatrixBuffer.put(currentMatrix.m31);
-		pipelineMatrixBuffer.put(currentMatrix.m32);
-		pipelineMatrixBuffer.put(currentMatrix.m33);
-		pipelineMatrixBuffer.flip();
 	}
 
 	public void glEnableIfNeeded(int glEnum) {
@@ -136,165 +108,28 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 
 
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres){
-		int baseOffset = vertexCount * STRIDE;
-		ensureCapacity(baseOffset + STRIDE);
+		int baseOffset = prepareAddVertex(STRIDE);
+//		int baseOffset = vertexCount * STRIDE;
+//		currBufferOffset = 0;
+//		ensureCapacity(baseOffset + STRIDE);
 		position.set(pos, 1);
-		normal.set(norm).normalize();
+		normal.set(norm, 1).normalizeAsV3();
 		tangent.set(tang).normalizeAsV3();
 		color.set(col);
 //		color.set(1f,0f,0,1f);
 
 
-		pipelineVertexBuffer.put(baseOffset + 0, position.x);
-		pipelineVertexBuffer.put(baseOffset + 1, position.y);
-		pipelineVertexBuffer.put(baseOffset + 2, position.z);
-		pipelineVertexBuffer.put(baseOffset + 3, position.w);
+		addToBuffer(baseOffset, position);
+		addToBuffer(baseOffset, normal);
+		addToBuffer(baseOffset, uv);
+		addToBuffer(baseOffset, color);
+		addToBuffer(baseOffset, tangent);
+		addToBuffer(baseOffset, fres);
 
-		pipelineVertexBuffer.put(baseOffset + 4, normal.x);
-		pipelineVertexBuffer.put(baseOffset + 5, normal.y);
-		pipelineVertexBuffer.put(baseOffset + 6, normal.z);
-		pipelineVertexBuffer.put(baseOffset + 7, 1);
-
-		pipelineVertexBuffer.put(baseOffset + 8, uv.x);
-		pipelineVertexBuffer.put(baseOffset + 9, uv.y);
-
-		pipelineVertexBuffer.put(baseOffset + 10, color.x);
-		pipelineVertexBuffer.put(baseOffset + 11, color.y);
-		pipelineVertexBuffer.put(baseOffset + 12, color.z);
-		pipelineVertexBuffer.put(baseOffset + 13, color.w);
-
-		pipelineVertexBuffer.put(baseOffset + 14, tangent.x);
-		pipelineVertexBuffer.put(baseOffset + 15, tangent.y);
-		pipelineVertexBuffer.put(baseOffset + 16, tangent.z);
-		pipelineVertexBuffer.put(baseOffset + 17, tangent.w);
-
-		pipelineVertexBuffer.put(baseOffset + 18, fres.x);
-		pipelineVertexBuffer.put(baseOffset + 19, fres.y);
-		pipelineVertexBuffer.put(baseOffset + 20, fres.z);
-//		pipelineVertexBuffer.put(baseOffset + 18, fresnelColor.x);
-//		pipelineVertexBuffer.put(baseOffset + 19, fresnelColor.y);
-//		pipelineVertexBuffer.put(baseOffset + 20, fresnelColor.z);
 		vertexCount++;
 
 	}
 
-	public void glVertex3f(float x, float y, float z) {
-		int baseOffset = vertexCount * STRIDE;
-		ensureCapacity(baseOffset + STRIDE);
-		pushFloat(baseOffset + 0, x);
-		pushFloat(baseOffset + 1, y);
-		pushFloat(baseOffset + 2, z);
-		pushFloat(baseOffset + 3, 1);
-		pushFloat(baseOffset + 14, color.x);
-		pushFloat(baseOffset + 15, color.y);
-		pushFloat(baseOffset + 16, color.z);
-		pushFloat(baseOffset + 17, color.w);
-		pushFloat(baseOffset + 18, fresnelColor.x);
-		pushFloat(baseOffset + 19, fresnelColor.y);
-		pushFloat(baseOffset + 20, fresnelColor.z);
-		vertexCount++;
-	}
-
-//	public void glNormal3f(float x, float y, float z) {
-//		normal.set(x, y, z).transform(0f, currentMatrix).normalize();
-//		glNormal(normal);
-//	}
-//	public void glNormal3f(Vec3 norm) {
-//		normal.set(norm).transform(0f, currentMatrix).normalize();
-//		glNormal(normal);
-//	}
-//
-//	public void glNormal3f(Vec4 norm) {
-//		normal.set(norm).transform(0f, currentMatrix).normalize();
-//		glNormal(normal);
-//	}
-//
-//	private void glNormal(Vec3 normal) {
-//		int baseOffset = normalCount * STRIDE;
-//		ensureCapacity(baseOffset + STRIDE);
-//		pushFloat(baseOffset + 4, normal.x);
-//		pushFloat(baseOffset + 5, normal.y);
-//		pushFloat(baseOffset + 6, normal.z);
-//		pushFloat(baseOffset + 7, 1);
-//		normalCount++;
-//	}
-
-	public void glTexCoord2f(Vec2 uv) {
-		glTexCoord2f(uv.x, uv.y);
-	}
-	public void glTexCoord2f(float u, float v) {
-		int baseOffset = uvCount * STRIDE;
-		ensureCapacity(baseOffset + STRIDE);
-		pushFloat(baseOffset + 12, u);
-		pushFloat(baseOffset + 13, v);
-		uvCount++;
-	}
-
-//	public void glTangent4f(Vec4 vec4) {
-//		// tangents are not applicable to old style drawing
-//		tangent.set(vec4);
-//		glTangent(tangent);
-//	}
-//
-//	public void glTangent4f(float x, float y, float z, float w) {
-//		tangent.set(x, y, z, w);
-//		glTangent(tangent);
-//	}
-//
-//	private void glTangent(Vec4 tangent) {
-//		int baseOffset = tangentCount * STRIDE;
-//		ensureCapacity(baseOffset + STRIDE);
-//		pushFloat(baseOffset + 8, tangent.x);
-//		pushFloat(baseOffset + 9, tangent.y);
-//		pushFloat(baseOffset + 10, tangent.z);
-//		pushFloat(baseOffset + 11, tangent.w);
-//		tangentCount++;
-//	}
-
-
-//	public void glColor3f(float r, float g, float b) {
-//		color.set(r, g, b, color.w);
-//		glColor(color);
-//	}
-//
-//	public void glColor4ub(byte r, byte g, byte b, byte a) {
-//		color.set((r & 0xFF) / 255f, (g & 0xFF) / 255f, (b & 0xFF) / 255f, (a & 0xFF) / 255f);
-//		glColor(color);
-//	}
-//
-//	public void glColor4f(float r, float g, float b, float a) {
-//		color.set(r, g, b, a);
-//		glColor(color);
-//	}
-//
-//	private void glColor(Vec4 color) {
-//		int baseOffset = colorCount * STRIDE;
-//		ensureCapacity(baseOffset + STRIDE);
-//		pushFloat(baseOffset + 14, color.x);
-//		pushFloat(baseOffset + 15, color.y);
-//		pushFloat(baseOffset + 16, color.z);
-//		pushFloat(baseOffset + 17, color.w);
-//		colorCount++;
-//	}
-
-	public void glFresnelColor3f(Vec3 fres) {
-		fresnelColor.set(fres);
-		glFresnelColor(fresnelColor);
-	}
-
-	public void glFresnelColor3f(float r, float g, float b) {
-		fresnelColor.set(r, g, b);
-		glFresnelColor(fresnelColor);
-	}
-
-	private void glFresnelColor(Vec3 fresnelColor) {
-//		int baseOffset = fresnelColorCount * STRIDE;
-//		ensureCapacity(baseOffset + STRIDE);
-//		pushFloat(baseOffset + 18, fresnelColor.x);
-//		pushFloat(baseOffset + 19, fresnelColor.y);
-//		pushFloat(baseOffset + 20, fresnelColor.z);
-//		fresnelColorCount++;
-	}
 
 	public void glFresnelTeamColor1f(float v) {
 		this.fresnelTeamColor = v;

@@ -81,23 +81,29 @@ public class MouseListenerThing extends MouseAdapter {
 			endP = setPoint(e, endP);
 		}
 
-		if ((isActing) && activityManager != null) {
+		if (activityManager != null) {
+			if (isActing) {
 
-			Mat4 viewProjectionMatrix = cameraHandler.getViewPortAntiRotMat();
-			double sizeAdj = cameraHandler.sizeAdj();
-			activityManager.mouseReleased(e, viewProjectionMatrix, sizeAdj);
-			getEndPGeo2();
+				Mat4 viewProjectionMatrix = cameraHandler.getViewPortAntiRotMat();
+				double sizeAdj = cameraHandler.sizeAdj();
+				activityManager.mouseReleased(e, viewProjectionMatrix, sizeAdj);
+				getEndPGeo2();
 
 //			System.out.println("getStartPGeo: " + getStartPGeo() + " (" + startP + "), " + "getEndPGeo2: " + getEndPGeo2() + " (" + endP + "), ");
-		} else if (isSelecting && endP != null){
+			} else if (isSelecting && endP != null){
 
-			Vec2 topLeft = new Vec2(startP).maximize(endP);
-			Vec2 botRight = new Vec2(endP).minimize(startP);
-			ViewBox viewBox = cameraHandler.getViewBox(topLeft, botRight);
+				Vec2 topLeft = new Vec2(startP).maximize(endP);
+				Vec2 botRight = new Vec2(endP).minimize(startP);
+				ViewBox viewBox = cameraHandler.getViewBox(topLeft, botRight);
 
-			double sizeAdj = cameraHandler.sizeAdj();
-			activityManager.mouseReleased(e, viewBox, sizeAdj);
+				double sizeAdj = cameraHandler.sizeAdj();
+				activityManager.mouseReleased(e, viewBox, sizeAdj);
+			}
+		} else {
+			System.err.println("MouseListenerThing: activityManager is null!");
 		}
+
+
 //		if ((isActing || isSelecting) && activityManager != null) {
 //
 //			Mat4 viewPortAntiRotMat = cameraHandler.getViewPortAntiRotMat();

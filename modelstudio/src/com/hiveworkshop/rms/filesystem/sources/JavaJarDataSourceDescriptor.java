@@ -15,4 +15,9 @@ public class JavaJarDataSourceDescriptor implements DataSourceDescriptor {
     public DataSourceDescriptor duplicate() {
         return this;
     }
+
+
+    public String getPath() {
+        return null;
+    }
 }

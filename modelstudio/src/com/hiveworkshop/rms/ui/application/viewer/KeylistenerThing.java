@@ -9,12 +9,10 @@ import java.awt.event.KeyEvent;
 
 public class KeylistenerThing extends KeyAdapter {
 	private final CameraManager cameraHandler;
-	private final PerspectiveViewport viewport;
 	private ProgramPreferences prefs;
 
-	public KeylistenerThing(CameraManager cameraHandler, ProgramPreferences programPreferences, PerspectiveViewport viewport) {
+	public KeylistenerThing(CameraManager cameraHandler, ProgramPreferences programPreferences) {
 		this.cameraHandler = cameraHandler;
-		this.viewport = viewport;
 		this.prefs = programPreferences;
 	}
 

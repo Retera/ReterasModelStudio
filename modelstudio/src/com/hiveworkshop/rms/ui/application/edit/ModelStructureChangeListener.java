@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.ui.application.WindowHandler2;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.AnimatedPerspectiveViewport;
 import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -70,7 +71,7 @@ public class ModelStructureChangeListener {
 		ModelHandler modelHandler = modelPanel.getModelHandler();
 		PerspectiveViewUgg modelDependentView = (PerspectiveViewUgg) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PerspectiveViewUgg).findFirst().orElse(null);
 		if (modelDependentView != null && modelDependentView.getPerspectiveViewport() != null) {
-			PerspectiveViewport viewport = modelDependentView.getPerspectiveViewport();
+			AnimatedPerspectiveViewport viewport = modelDependentView.getPerspectiveViewport();
 			updateRenderModel(viewport, modelHandler.getRenderModel());
 
 		}
@@ -82,6 +83,15 @@ public class ModelStructureChangeListener {
 	}
 
 	public static void updateRenderModel(PerspectiveViewport viewport, RenderModel renderModel) {
+		renderModel.refreshFromEditor(viewport.getTextureThing());
+		TimeEnvironmentImpl timeEnv = renderModel.getTimeEnvironment();
+		int animationTime = timeEnv.getAnimationTime();
+		Sequence currentSequence = timeEnv.getCurrentSequence();
+		timeEnv.setSequence(currentSequence);
+		timeEnv.setAnimationTime(animationTime);
+	}
+
+	public static void updateRenderModel(AnimatedPerspectiveViewport viewport, RenderModel renderModel) {
 		renderModel.refreshFromEditor(viewport.getTextureThing());
 		TimeEnvironmentImpl timeEnv = renderModel.getTimeEnvironment();
 		int animationTime = timeEnv.getAnimationTime();

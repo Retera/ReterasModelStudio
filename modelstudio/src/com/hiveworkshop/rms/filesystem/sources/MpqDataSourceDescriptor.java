@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.filesystem.sources;
 
-import systems.crigges.jmpq3.*;
+import systems.crigges.jmpq3.JMpqEditor;
+import systems.crigges.jmpq3.MPQOpenOption;
 
 import java.nio.file.Paths;
 
@@ -57,6 +58,9 @@ public class MpqDataSourceDescriptor implements DataSourceDescriptor {
 	}
 
 	public String getMpqFilePath() {
+		return mpqFilePath;
+	}
+	public String getPath() {
 		return mpqFilePath;
 	}
 

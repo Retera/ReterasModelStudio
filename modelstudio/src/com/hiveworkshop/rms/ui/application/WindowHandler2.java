@@ -276,11 +276,12 @@ public class WindowHandler2 {
 		leftHandTabWindow.setSelectedTab(0);
 
 		DisplayViewUgg front = new DisplayViewUgg("Front");
-//		DisplayViewUgg top = new DisplayViewUgg("Top");
-//		DisplayViewUgg side = new DisplayViewUgg("Side");
-
 		allViews.add(front);
+
+//		DisplayViewUgg top = new DisplayViewUgg("Top");
 //		allViews.add(top);
+//
+//		DisplayViewUgg side = new DisplayViewUgg("Side");
 //		allViews.add(side);
 
 //		PerspectiveViewUgg perspective = new PerspectiveViewUgg();

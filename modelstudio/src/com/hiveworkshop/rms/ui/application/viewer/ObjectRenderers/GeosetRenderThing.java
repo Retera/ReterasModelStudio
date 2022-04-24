@@ -149,7 +149,8 @@ public class GeosetRenderThing {
 //			System.out.println("texture: " + tex.getName() + ", geoset: " + geo.getName() + ", slot: " + i);
 			if(renderTextures){
 				pipeline.prepareToBindTexture();
-				textureThing.bindLayerTexture(pipeline, layer, doSetUpFilterMode, i, twoSided, tex);
+//				textureThing.bindLayerTexture(pipeline, layer, doSetUpFilterMode, i, twoSided, tex);
+				textureThing.loadAndBindLayerTexture(pipeline, model, layer, doSetUpFilterMode, i, twoSided, tex);
 			}
 //			if (!hdTextureOnlyLayer) {
 			if (!isHD || i == 0) {
@@ -177,17 +178,6 @@ public class GeosetRenderThing {
 				Vec3 renderPos = renderVert.getRenderPos();
 				Vec3 renderNorm = renderVert.getRenderNorm();
 				Vec4 renderTang = renderVert.getRenderTang();
-//				setUpVertStuff(v);
-
-
-//				if (v.getTangent() != null) {
-//					tangentHeap.set(v.getTangent());
-//					tangentHeap.w = 0;
-//					tangentHeap.transform(skinBonesMatrixHeap);
-//
-//					tangentHeap.w = v.getTangent().w;
-//
-//				}
 
 				getUV(layer.getCoordId(), v, uvTransform);
 
@@ -196,17 +186,7 @@ public class GeosetRenderThing {
 					colorHeap.addScaled(triColor, .25f).scale(.8f);
 				}
 
-//				pipeline.addVert(vertexHeap, normalHeap, uvHeap, colorHeap);
 				pipeline.addVert(renderPos, renderNorm, renderTang, uvHeap, colorHeap, fresnelColorHeap);
-//				pipeline.glColor4f(colorHeap);
-//				pipeline.glNormal3f(normalHeap);
-//				pipeline.glTexCoord2f(uvHeap);
-//				pipeline.glVertex3f(vertexHeap);
-
-//				pipeline.glTangent4f(tangentHeap);
-//				pipeline.glFresnelColor3f(fresnelColorHeap);
-//				pipeline.glFresnelTeamColor1f(fresnelTeamColor);
-//				pipeline.glFresnelOpacity1f(fresnelOpacity);
 			}
 		}
 	}

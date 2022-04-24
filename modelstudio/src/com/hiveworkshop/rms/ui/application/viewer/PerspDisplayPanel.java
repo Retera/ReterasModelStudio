@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer;
 
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.AnimatedPerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import net.miginfocom.swing.MigLayout;
 import org.lwjgl.LWJGLException;
@@ -11,7 +12,7 @@ import java.awt.image.BufferedImage;
 
 
 public class PerspDisplayPanel extends JPanel {
-	private PerspectiveViewport vp;
+	private AnimatedPerspectiveViewport vp;
 	private String title;
 
 	public PerspDisplayPanel(String title) {
@@ -19,7 +20,7 @@ public class PerspDisplayPanel extends JPanel {
 		setOpaque(true);
 
 		try {
-			vp = new PerspectiveViewport();
+			vp = new AnimatedPerspectiveViewport();
 //			vp.setIgnoreRepaint(false);
 			vp.setMinimumSize(new Dimension(200, 200));
 		} catch (LWJGLException e) {
@@ -55,7 +56,7 @@ public class PerspDisplayPanel extends JPanel {
 		setBorder(BorderFactory.createTitledBorder(title));
 	}
 
-	public PerspectiveViewport getViewport() {
+	public AnimatedPerspectiveViewport getViewport() {
 		return vp;
 	}
 
@@ -94,17 +95,19 @@ public class PerspDisplayPanel extends JPanel {
 		return button;
 	}
 	public void zoom(double v) {
-		vp.zoom(v);
+		vp.getCameraHandler().zoom(v);
 		vp.repaint();
 	}
 
 	public void translateViewLeftRight(int i) {
-		vp.translate((i * (1 / vp.getZoomAmount())), 0);
+//		vp.getCameraHandler().translate((i * (1 / vp.getZoomAmount())), 0);
+		vp.getCameraHandler().translate((i), 0);
 		vp.repaint();
 	}
 
 	public void translateViewUpDown(int i) {
-		vp.translate(0, (i * (1 / vp.getZoomAmount())));
+//		vp.getCameraHandler().translate(0, (i * (1 / vp.getZoomAmount())));
+		vp.getCameraHandler().translate(0, i);
 		vp.repaint();
 	}
 

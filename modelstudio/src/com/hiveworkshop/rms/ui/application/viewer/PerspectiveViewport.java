@@ -83,7 +83,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		addMouseListener(mouseAdapter);
 		addMouseMotionListener(mouseAdapter);
 		addMouseWheelListener(mouseAdapter);
-		keyAdapter = new KeylistenerThing(cameraHandler, programPreferences, null);
+		keyAdapter = new KeylistenerThing(cameraHandler, programPreferences);
 //		keyAdapter = new KeylistenerThing(cameraHandler, programPreferences, this);
 		addKeyListener(keyAdapter);
 
@@ -106,7 +106,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		if(renderModel != null){
 			this.modelView = modelView;
 			EditableModel model = modelView.getModel();
-			textureThing = new TextureThing(model, programPreferences);
+			textureThing = new TextureThing(programPreferences);
 			renderEnv = renderModel.getTimeEnvironment();
 
 			modelExtent.set(model.getExtents());
@@ -203,7 +203,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	protected void forceReloadTextures() {
 		texLoaded = true;
 		if (textureThing != null && renderModel != null) {
-			textureThing.reMakeTextureMap();
+			textureThing.reMakeTextureMap(renderModel.getModel());
 			renderModel.refreshFromEditor(textureThing);
 		}
 	}
@@ -269,9 +269,9 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 				GL11.glDepthMask(true);
 				if ((programPreferences != null) && (programPreferences.getPerspectiveBackgroundColor() != null)) {
 					float[] colorComponents = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.BACKGROUND_COLOR);
-					glClearColor(colorComponents[0], colorComponents[1], colorComponents[2], autoRepainting ? 1.0f : 1.0f);
+					glClearColor(colorComponents[0], colorComponents[1], colorComponents[2], autoRepainting ? 1.0f : 0.0f);
 				} else {
-					glClearColor(.3f, .3f, .3f, autoRepainting ? 1.0f : 1.0f);
+					glClearColor(.3f, .3f, .3f, autoRepainting ? 1.0f : 0.0f);
 				}
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

@@ -19,11 +19,13 @@ out vec3 v_tangentViewPos;
 out vec3 v_tangentFragPos;
 
 void main() {
-    gl_Position = a_position;
+    gl_Position = u_projection * a_position;
+    vec4 normal = u_projection * a_normal;
+    vec3 lightDirection = normalize((vec4(u_lightDirection, 1) * u_projection).xyz);
     v_uv = a_uv;
     v_color = a_color;
     if (u_lightingEnabled != 0) {
-        vec3 lightFactorContribution = vec3(clamp(dot(a_normal.xyz, u_lightDirection), 0.0, 1.0));
+        vec3 lightFactorContribution = vec3(clamp(dot(normal.xyz, lightDirection), 0.0, 1.0));
         if (lightFactorContribution.r > 1.0 || lightFactorContribution.g > 1.0 || lightFactorContribution.b > 1.0) {
             lightFactorContribution = clamp(lightFactorContribution, 0.0, 1.0);
         }

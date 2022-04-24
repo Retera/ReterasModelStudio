@@ -184,4 +184,8 @@ public class DisplayPanel extends JPanel {
 		vp2.setShow3dVerts(show3dVerts);
 		return this;
 	}
+
+	public AnimatedPerspectiveViewport getVp2() {
+		return vp2;
+	}
 }

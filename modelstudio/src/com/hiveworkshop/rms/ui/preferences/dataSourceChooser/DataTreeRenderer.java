@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -40,6 +41,11 @@ public class DataTreeRenderer extends DefaultTreeCellRenderer {
 				label.setIcon(FolderIcon);
 			} else {
 				label.setIcon(null);
+			}
+			if (descriptor.getPath() != null && !new File(descriptor.getPath()).exists()){
+				setForeground(Color.RED.darker());
+			} else {
+				setForeground(null);
 			}
 		}
 		return comp;

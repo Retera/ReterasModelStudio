@@ -84,6 +84,10 @@ public final class RenderModel {
 		}
 	}
 
+	public EditableModel getModel() {
+		return model;
+	}
+
 	public RenderModel updateGeosets() {
 		if (renderGeosetMap.size() != model.getGeosets().size()) {
 			renderGeosetMap.clear();

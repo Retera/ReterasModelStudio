@@ -32,4 +32,9 @@ public class CompoundDataSourceDescriptor implements DataSourceDescriptor {
 	public DataSourceDescriptor duplicate() {
 		return new CompoundDataSourceDescriptor(new ArrayList<>(dataSourceDescriptors));
 	}
+
+
+	public String getPath() {
+		return null;
+	}
 }

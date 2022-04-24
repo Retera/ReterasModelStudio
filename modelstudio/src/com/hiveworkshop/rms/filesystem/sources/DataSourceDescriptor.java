@@ -8,4 +8,6 @@ public interface DataSourceDescriptor extends Serializable {
 	String getDisplayName();
 
 	DataSourceDescriptor duplicate();
+
+	String getPath();
 }

@@ -253,7 +253,7 @@ public class RenderParticleEmitter2 {
 	public void bind() {
 		Bitmap bitmap = particleEmitter2.getTexture();
 		if (!textureLoaded) {
-			textureThing.loadToTexMap(bitmap);
+			textureThing.loadToTexMap(renderModel.getModel(), bitmap);
 			textureLoaded = true;
 		}
 		textureThing.bindParticleTexture(particleEmitter2, bitmap);

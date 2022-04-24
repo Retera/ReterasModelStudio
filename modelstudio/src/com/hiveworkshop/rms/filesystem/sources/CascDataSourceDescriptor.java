@@ -60,6 +60,9 @@ public class CascDataSourceDescriptor implements DataSourceDescriptor {
 	public String getGameInstallPath() {
 		return gameInstallPath;
 	}
+	public String getPath() {
+		return gameInstallPath;
+	}
 
 	public List<String> getPrefixes() {
 		return prefixes;

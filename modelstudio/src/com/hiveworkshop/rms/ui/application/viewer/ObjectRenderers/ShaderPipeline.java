@@ -32,21 +32,19 @@ public abstract class ShaderPipeline {
 	protected final FloatBuffer pipelineMatrixBuffer = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 
 	protected int vertexCount = 0;
-	protected int normalCount = 0;
-	protected int uvCount = 0;
-	protected int colorCount = 0;
-	protected int tangentCount = 0;
-	protected int fresnelColorCount = 0;
 	protected int attributeArrayOffs = 0;
 	protected int attributeArrayIndex = 0;
+	protected int currBufferOffset = 0;
 
 	protected int glBeginType;
 	protected int shaderProgram;
-	protected int vertexBufferObjectId;
-	protected int vertexArrayObjectId; // has nothing to do with "object id" of war3 models
+	protected int glVertexBufferId;
+	protected int glVertexArrayId;
 	protected boolean loaded = false;
+
 	protected final Mat4 currentMatrix = new Mat4();
 	protected int textureUsed = 0;
+	protected int textureUnit;
 	protected int alphaTest = 0;
 	protected int lightingEnabled = 1;
 
@@ -54,7 +52,7 @@ public abstract class ShaderPipeline {
 	protected final Vec4 tempVec4 = new Vec4();
 	protected final Vec4 position = new Vec4();
 	protected final Vec4 tangent = new Vec4();
-	protected final Vec3 normal = new Vec3();
+	protected final Vec4 normal = new Vec4();
 
 	protected final Quat tempQuat = new Quat();
 	protected final Mat4 tempMat4 = new Mat4();
@@ -62,7 +60,6 @@ public abstract class ShaderPipeline {
 	protected float fresnelTeamColor = 0f;
 	protected float fresnelOpacity = 0f;
 
-	protected int textureUnit;
 	protected float viewportWidth;
 	protected float viewportHeight;
 
@@ -71,6 +68,19 @@ public abstract class ShaderPipeline {
 	}
 
 	protected void load() {
+		createShaderProgram();
+
+		glVertexArrayId = GL30.glGenVertexArrays();
+		glVertexBufferId = GL15.glGenBuffers();
+		GL30.glBindVertexArray(glVertexArrayId);
+
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, glVertexBufferId);
+		loaded = true;
+
+		// GL20.glGetAttribLocation(shaderProgram, "a_position") ?
+	}
+
+	private void createShaderProgram() {
 		shaderProgram = GL20.glCreateProgram();
 		int vertexShaderId = -1;
 		int fragmentShaderId = -1;
@@ -103,15 +113,6 @@ public abstract class ShaderPipeline {
 		if(geometryShaderId != -1){
 			GL20.glDeleteShader(geometryShaderId);
 		}
-
-		vertexArrayObjectId = GL30.glGenVertexArrays();
-		vertexBufferObjectId = GL15.glGenBuffers();
-		GL30.glBindVertexArray(vertexArrayObjectId);
-
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferObjectId);
-		loaded = true;
-
-		// GL20.glGetAttribLocation(shaderProgram, "a_position") ?
 	}
 
 	private int createShader(int shaderType, String shaderSource) {
@@ -132,13 +133,11 @@ public abstract class ShaderPipeline {
 		pipelineVertexBuffer.clear();
 		glBeginType = type;
 		vertexCount = 0;
-		uvCount = 0;
-		normalCount = 0;
-		colorCount = 0;
-		fresnelColorCount = 0;
-		tangentCount = 0;
 		attributeArrayOffs = 0;
 		attributeArrayIndex = 0;
+
+
+		textureUnit = 0;
 		switch (type) {
 			case GL11.GL_TRIANGLES:
 				break;
@@ -153,17 +152,40 @@ public abstract class ShaderPipeline {
 		}
 	}
 
+	protected void fillPipelineMatrixBuffer() {
+		pipelineMatrixBuffer.clear();
+		pipelineMatrixBuffer.put(currentMatrix.m00);
+		pipelineMatrixBuffer.put(currentMatrix.m01);
+		pipelineMatrixBuffer.put(currentMatrix.m02);
+		pipelineMatrixBuffer.put(currentMatrix.m03);
+		pipelineMatrixBuffer.put(currentMatrix.m10);
+		pipelineMatrixBuffer.put(currentMatrix.m11);
+		pipelineMatrixBuffer.put(currentMatrix.m12);
+		pipelineMatrixBuffer.put(currentMatrix.m13);
+		pipelineMatrixBuffer.put(currentMatrix.m20);
+		pipelineMatrixBuffer.put(currentMatrix.m21);
+		pipelineMatrixBuffer.put(currentMatrix.m22);
+		pipelineMatrixBuffer.put(currentMatrix.m23);
+		pipelineMatrixBuffer.put(currentMatrix.m30);
+		pipelineMatrixBuffer.put(currentMatrix.m31);
+		pipelineMatrixBuffer.put(currentMatrix.m32);
+		pipelineMatrixBuffer.put(currentMatrix.m33);
+		pipelineMatrixBuffer.flip();
+	}
+
 
 	protected void enableAttribArray(int size, int stride) {
 		GL20.glEnableVertexAttribArray(attributeArrayIndex);
-		GL20.glVertexAttribPointer(attributeArrayIndex, size, GL11.GL_FLOAT, false, stride * Float.BYTES, attributeArrayOffs * Float.BYTES);
+		GL20.glVertexAttribPointer(attributeArrayIndex, size, GL11.GL_FLOAT, false, stride * Float.BYTES, (long) attributeArrayOffs * Float.BYTES);
 		attributeArrayIndex++;
 		attributeArrayOffs += size;
 	}
 
-	protected void pushFloat(int absoluteOffset, float x) {
-		ensureCapacity(absoluteOffset);
-		pipelineVertexBuffer.put(absoluteOffset, x);
+	protected int prepareAddVertex(int stride){
+		int baseOffset = vertexCount * stride;
+		currBufferOffset = 0;
+		ensureCapacity(baseOffset + stride);
+		return baseOffset;
 	}
 
 	protected void ensureCapacity(int absoluteOffset) {
@@ -179,6 +201,25 @@ public abstract class ShaderPipeline {
 			largerBuffer.clear();
 			pipelineVertexBuffer = largerBuffer;
 		}
+	}
+
+	protected void addToBuffer(int offset, Vec4 vec4){
+		pipelineVertexBuffer.put(offset + currBufferOffset + 0, vec4.x);
+		pipelineVertexBuffer.put(offset + currBufferOffset + 1, vec4.y);
+		pipelineVertexBuffer.put(offset + currBufferOffset + 2, vec4.z);
+		pipelineVertexBuffer.put(offset + currBufferOffset + 3, vec4.w);
+		currBufferOffset +=4 ;
+	}
+	protected void addToBuffer(int offset, Vec3 vec3){
+		pipelineVertexBuffer.put(offset + currBufferOffset + 0, vec3.x);
+		pipelineVertexBuffer.put(offset + currBufferOffset + 1, vec3.y);
+		pipelineVertexBuffer.put(offset + currBufferOffset + 2, vec3.z);
+		currBufferOffset +=3 ;
+	}
+	protected void addToBuffer(int offset, Vec2 vec2){
+		pipelineVertexBuffer.put(offset + currBufferOffset + 0, vec2.x);
+		pipelineVertexBuffer.put(offset + currBufferOffset + 1, vec2.y);
+		currBufferOffset +=2 ;
 	}
 
 	public abstract void glEnd();
@@ -197,16 +238,6 @@ public abstract class ShaderPipeline {
 		GL11.glLightModel(lightModel, ambientColor);
 	}
 
-	public void glRotatef(float angle, float axisX, float axisY, float axisZ) {
-//		tempVec3.set(axisX, axisY, axisZ);
-//		tempVec3.normalize();
-//		tempVec4.set(tempVec3.x, tempVec3.y, tempVec3.z, (float) Math.toRadians(angle));
-//		tempQuat.setFromAxisAngle(tempVec4);
-//		tempQuat.normalize();
-//		tempMat4.fromQuat(tempQuat);
-//		currentMatrix.mul(tempMat4);
-	}
-
 	public void glCamera(ViewerCamera viewerCamera) {
 		Mat4 projectionMatrix = viewerCamera.getViewProjectionMatrix();
 		glSetProjectionMatrix(projectionMatrix);
@@ -218,32 +249,6 @@ public abstract class ShaderPipeline {
 		currentMatrix.setIdentity();
 		tempMat4.set(projectionMatrix).mul(currentMatrix);
 		currentMatrix.set(tempMat4);
-	}
-
-	public void glScalef(float x, float y, float z) {
-//		tempMat4.setIdentity();
-//		tempVec3.set(x, y, z);
-//		tempMat4.scale(tempVec3);
-//		currentMatrix.mul(tempMat4);
-	}
-
-	public void glTranslatef(float x, float y, float z) {
-//		tempMat4.setIdentity();
-//		tempVec3.set(x, y, z);
-//		tempMat4.translate(tempVec3);
-//		currentMatrix.mul(tempMat4);
-	}
-
-	public void glOrtho(float xMin, float xMax, float yMin,
-	                    float yMax, float zMin, float zMax) {
-		currentMatrix.setOrtho(xMin, xMax, yMin, yMax, zMin, zMax);
-	}
-
-	public void gluPerspective(float fovY, float aspect, float nearClip, float farClip) {
-//		currentMatrix.setPerspective((float) Math.toRadians(fovY), aspect, nearClip, farClip);
-		// When we are not using fixed function pipeline, notably Perspective cannot be
-		// expressed as a matrix due to the math, so to emulate legacy behavior we will
-		// set a flag and divide by negative Z factor later.
 	}
 
 	public void glMatrixMode(int mode) {
@@ -263,8 +268,8 @@ public abstract class ShaderPipeline {
 	public abstract void prepareToBindTexture();
 
 	public void onGlobalPipelineSet() {
-		GL30.glBindVertexArray(vertexArrayObjectId);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vertexBufferObjectId);
+		GL30.glBindVertexArray(glVertexArrayId);
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, glVertexBufferId);
 	}
 
 	public void glActiveHDTexture(int textureUnit) {
@@ -278,14 +283,6 @@ public abstract class ShaderPipeline {
 
 	public abstract void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres);
 
-
-
-
-	public void glFresnelColor3f(float r, float g, float b) {
-	}
-
-	public void glFresnelColor3f(Vec3 fres) {
-	}
 
 	public void glFresnelTeamColor1f(float v) {
 	}

@@ -73,6 +73,7 @@ public class CameraManager {
 
 	private final Ray rayHeap = new Ray();
 	private final Plane planeHeap = new Plane();
+	private final Vec3 worldScreenSpacePoint = new Vec3();
 
 
 	private final Component viewport;
@@ -121,7 +122,7 @@ public class CameraManager {
 
 		float aspect = (float) viewport.getWidth()/(float) viewport.getHeight();
 		if (isOrtho){
-			projectionMatrix.setOrtho(-aspect*distance/2.0f, aspect*distance/2.0f, -distance/2.0f, distance/2.0f, -6000, 6000);
+			projectionMatrix.setOrtho(-aspect*distance/2.0f, aspect*distance/2.0f, -distance/2.0f, distance/2.0f, -4000, 4000);
 		} else {
 //			projectionMatrix.setPerspective((float) Math.toRadians(70), aspect, 0.0001f, 200000f);
 			projectionMatrix.setPerspective((float) Math.toRadians(70), aspect, 1f, 20000f);
@@ -176,6 +177,7 @@ public class CameraManager {
 		return target;
 	}
 
+	// approximate pixelSize in world length
 	public double sizeAdj() {
 ////		Mat4 invProjectionMat = getInvProjectionMat();
 ////		vecHeap.set(1.0 / ((float) viewport.getWidth()), 0, 0);
@@ -197,7 +199,7 @@ public class CameraManager {
 //		x -= vecHeap.x;
 //		return x*2.0/((double) viewport.getWidth());
 		Vec3 worldScreenSpaceAsDeltaRay2 = getWorldScreenSpaceAsDeltaRay(1, 0);
-		return worldScreenSpaceAsDeltaRay2.length() / ((double) viewport.getWidth());
+		return worldScreenSpaceAsDeltaRay2.length() * 2.0 / ((double) viewport.getWidth());
 	}
 
 	private void printPixelSize(){
@@ -515,6 +517,7 @@ public class CameraManager {
 		new Vec3(nearWorldSpaceP).addScaled(dirP,tP).sub(new Vec3(nearWorldSpaceO).addScaled(dirO,tO));
 		return point.sub(orig);
 	}
+
 	private Vec3 getWorldScreenSpaceAsDeltaRay(double viewX, double viewY){
 		// https://stackoverflow.com/questions/45893277/is-it-possible-get-which-surface-of-cube-will-be-click-in-opengl
 		// https://www.3dgep.com/understanding-the-view-matrix/
@@ -534,7 +537,8 @@ public class CameraManager {
 		float intersectP = planeHeap.getIntersect(rayHeap);
 
 		// Calculate the picked position on the y = 0 plane.
-		Vec3 point = new Vec3(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectP);
+//		Vec3 point = new Vec3(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectP);
+		worldScreenSpacePoint.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectP);
 
 
 		// For 0,0:
@@ -549,7 +553,7 @@ public class CameraManager {
 
 		vecHeap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectO);
 
-		return point.sub(vecHeap);
+		return worldScreenSpacePoint.sub(vecHeap);
 	}
 
 
@@ -591,10 +595,10 @@ public class CameraManager {
 		return viewBox;
 	}
 
-	private Ray getRayFromScreenSpace(Vec2 view){
+	public Ray getRayFromScreenSpace(Vec2 view){
 		return getRayFromScreenSpace(view.x, view.y);
 	}
-	private Ray getRayFromScreenSpace(double viewX, double viewY){
+	public Ray getRayFromScreenSpace(double viewX, double viewY){
 		Mat4 invViewProjectionMat = getInvViewProjectionMat();
 		// Create a ray from the near clip plane to the far clip plane.
 		vecHeap.set(viewX, viewY, -1).transform(invViewProjectionMat, 1, true);

@@ -15,7 +15,7 @@ import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordDisplayListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
-import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.AnimatedPerspectiveViewport;
 import com.hiveworkshop.rms.ui.application.viewer.UVPanelToolBar;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.TextureListRenderer;
@@ -286,7 +286,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		mouseCoordDisplay[1].setText(String.format(Locale.US, "%3.4f", y));
 	}
 
-	PerspectiveViewport viewport;
+	AnimatedPerspectiveViewport viewport;
 	public UVPanel setModel(ModelHandler modelHandler) {
 		this.modelHandler = modelHandler;
 		toolbar.setModelHandler(modelHandler);

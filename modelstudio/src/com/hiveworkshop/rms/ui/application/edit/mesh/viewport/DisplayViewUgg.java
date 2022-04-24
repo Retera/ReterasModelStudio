@@ -1,6 +1,7 @@
 package com.hiveworkshop.rms.ui.application.edit.mesh.viewport;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.AnimatedPerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.ModelDependentView;
 import com.hiveworkshop.rms.util.TinyToggleButton;
@@ -105,5 +106,9 @@ public class DisplayViewUgg extends ModelDependentView {
 		boolConsumer.accept(initial);
 		return button;
 
+	}
+
+	public AnimatedPerspectiveViewport getPerspectiveViewport(){
+		return displayPanel.getVp2();
 	}
 }
