@@ -466,14 +466,16 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 	// }
 	public BufferedImage getBufferedImage() {
 		try {
-			final BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+			final int imageWidth = (int) (getWidth() * xRatio);
+			final int imageHeight = (int) (getHeight() * yRatio);
+			final BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
 			// paintComponent(image.getGraphics(),5);
-			final Pbuffer buffer = new Pbuffer(getWidth(), getHeight(), new PixelFormat(), null, null);
+			final Pbuffer buffer = new Pbuffer(imageWidth, imageHeight, new PixelFormat(), null, null);
 			buffer.makeCurrent();
-			final ByteBuffer pixels = ByteBuffer.allocateDirect(getWidth() * getHeight() * 4);
+			final ByteBuffer pixels = ByteBuffer.allocateDirect(imageWidth * imageHeight * 4);
 			initGL();
 			paintGL(false);
-			GL11.glReadPixels(0, 0, getWidth(), getHeight(), GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+			GL11.glReadPixels(0, 0, imageWidth, imageHeight, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
 			final int[] array = new int[pixels.capacity() / 4];
 			pixels.asIntBuffer().get(array);
 			for (int i = 0; i < array.length; i++) {
@@ -481,7 +483,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas implements Mo
 				final int a = rgba & 0xFF;
 				array[i] = rgba >>> 8 | a << 24;
 			}
-			image.getRaster().setDataElements(0, 0, getWidth(), getHeight(), array);
+			image.getRaster().setDataElements(0, 0, imageWidth, imageHeight, array);
 			buffer.releaseContext();
 			return createFlipped(image);
 		} catch (final Exception e) {
