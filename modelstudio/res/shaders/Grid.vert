@@ -14,6 +14,7 @@ out vec4 v_color;
 void main() {
     gl_Position = u_projection * a_position;
     v_color = a_color;
+//    gl_Position = a_position;
 //    vs_out.pos = a_position;
 //    vs_out.normal = (a_normal).xyz;
 //    vs_out.color = a_color;

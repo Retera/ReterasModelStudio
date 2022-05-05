@@ -1,11 +1,14 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.util.*;
 import org.lwjgl.opengl.*;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
 public abstract class ShaderPipeline {
 	//https://www.khronos.org/files/opengles_shading_language.pdf
@@ -30,6 +33,7 @@ public abstract class ShaderPipeline {
 	protected final Vec3 fresnelColor = new Vec3(0f, 0f, 0f);
 	protected FloatBuffer pipelineVertexBuffer = ByteBuffer.allocateDirect(1024 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 	protected final FloatBuffer pipelineMatrixBuffer = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+	protected final FloatBuffer uvTransformMatrixBuffer = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 
 	protected int vertexCount = 0;
 	protected int attributeArrayOffs = 0;
@@ -128,6 +132,7 @@ public abstract class ShaderPipeline {
 		return shaderId;
 	}
 
+	//Prepare setup
 	public void glBegin(int type) {
 //		System.out.println("glBegin");
 		pipelineVertexBuffer.clear();
@@ -135,6 +140,8 @@ public abstract class ShaderPipeline {
 		vertexCount = 0;
 		attributeArrayOffs = 0;
 		attributeArrayIndex = 0;
+		instances.clear();
+		currInstance = null;
 
 
 		textureUnit = 0;
@@ -150,6 +157,52 @@ public abstract class ShaderPipeline {
 			default:
 				throw new IllegalArgumentException(Integer.toString(type));
 		}
+	}
+
+
+	ArrayList<HdBufferSubInstance> instances = new ArrayList<>();
+	ArrayList<SdBufferSubInstance> sdInstances = new ArrayList<>();
+	HdBufferSubInstance currInstance;
+	SdBufferSubInstance currSdInstance;
+
+	public HdBufferSubInstance startInstance(EditableModel model, TextureThing textureThing){
+		HdBufferSubInstance instance = new HdBufferSubInstance(model, textureThing);
+
+		instances.add(instance);
+		currInstance = instance;
+		return instance;
+	}
+
+	public void startInstance(HdBufferSubInstance instance){
+		if(instance != null){
+			instances.add(0, instance);
+			instance.setOffset(vertexCount);
+		}
+		currInstance = instance;
+	}
+	public void startInstance(SdBufferSubInstance instance){
+		if(instance != null){
+			sdInstances.add(0, instance);
+			instance.setOffset(vertexCount);
+		}
+		currSdInstance = instance;
+	}
+	public void overlappingInstance(SdBufferSubInstance instance){
+		if(instance != null){
+			sdInstances.add(0, instance);
+//			instance.setOffset(currInstance.getOffset());
+//			instance.setVertCount(currInstance.getVertCount());
+		}
+	}
+	public void endInstance(){
+		if (currInstance != null) {
+			currInstance.setEnd(vertexCount);
+		}
+		if (currSdInstance != null) {
+			currSdInstance.setEnd(vertexCount);
+		}
+		currInstance = null;
+		currSdInstance = null;
 	}
 
 	protected void fillPipelineMatrixBuffer() {
@@ -171,6 +224,28 @@ public abstract class ShaderPipeline {
 		pipelineMatrixBuffer.put(currentMatrix.m32);
 		pipelineMatrixBuffer.put(currentMatrix.m33);
 		pipelineMatrixBuffer.flip();
+	}
+
+
+	protected void fillMatrixBuffer(FloatBuffer buffer, Mat4 matrix) {
+		buffer.clear();
+		buffer.put(matrix.m00);
+		buffer.put(matrix.m01);
+		buffer.put(matrix.m02);
+		buffer.put(matrix.m03);
+		buffer.put(matrix.m10);
+		buffer.put(matrix.m11);
+		buffer.put(matrix.m12);
+		buffer.put(matrix.m13);
+		buffer.put(matrix.m20);
+		buffer.put(matrix.m21);
+		buffer.put(matrix.m22);
+		buffer.put(matrix.m23);
+		buffer.put(matrix.m30);
+		buffer.put(matrix.m31);
+		buffer.put(matrix.m32);
+		buffer.put(matrix.m33);
+		buffer.flip();
 	}
 
 
@@ -222,6 +297,7 @@ public abstract class ShaderPipeline {
 		currBufferOffset +=2 ;
 	}
 
+	// draw stuff
 	public abstract void glEnd();
 
 
@@ -236,13 +312,6 @@ public abstract class ShaderPipeline {
 
 	public void glLightModel(int lightModel, FloatBuffer ambientColor) {
 		GL11.glLightModel(lightModel, ambientColor);
-	}
-
-	public void glCamera(ViewerCamera viewerCamera) {
-		Mat4 projectionMatrix = viewerCamera.getViewProjectionMatrix();
-		glSetProjectionMatrix(projectionMatrix);
-		glSetProjectionMatrix(viewerCamera.getViewProjectionMatrix());
-
 	}
 
 	public void glSetProjectionMatrix(Mat4 projectionMatrix) {

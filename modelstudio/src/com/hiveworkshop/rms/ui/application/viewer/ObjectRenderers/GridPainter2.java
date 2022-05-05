@@ -18,17 +18,216 @@ public class GridPainter2 {
 	float subDivs = 10;
 	float highlightEveryN = 5;
 	float[] lineHeapPos = new float[3];
+	float[] lineHeapDir = new float[3];
 	float[] lineHeapNeg = new float[3];
 
 	Vec2 vec2Heap = new Vec2();
 	Vec3 vec3Heap = new Vec3();
 	Vec4 colorHeap = new Vec4(1f, 1f, 1f, .3f);
 
+	Ray rayHeap = new Ray();
+	Plane planeHeapXY = new Plane();
+
+	Vec3 gridStart = new Vec3();
+	Vec3 gridEnd = new Vec3();
+
 	public GridPainter2(CameraManager cameraHandler) {
 		this.cameraHandler = cameraHandler;
 	}
+	public GridPainter2() {
+	}
 
+	long time = 0;
 	public void paintGrid(ShaderPipeline pipeline) {
+		GL11.glDepthMask(false);
+		GL11.glEnable(GL11.GL_BLEND);
+		pipeline.glEnableIfNeeded(GL11.GL_BLEND);
+		pipeline.glDisableIfNeeded(GL_ALPHA_TEST);
+		pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
+		pipeline.glDisableIfNeeded(GL_CULL_FACE);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		pipeline.glBegin(GL11.GL_LINES);
+
+		float cameraPxSize1 = (float) (cameraHandler.sizeAdj()); // 1px
+		int gridLog = (int)Math.log10(cameraPxSize1*120);
+		double v = (int)Math.log10(cameraPxSize1);
+		float lineScaleMul = (float) Math.pow(10, v);
+
+		planeHeapXY.set(Vec3.Z_AXIS, 0);
+		gridStart.set(Vec3.ZERO);
+		gridEnd.set(Vec3.ZERO);
+
+
+		rayHeap.set(cameraHandler.getRayFromScreenSpace(-1, 1));
+		float intersectTL = planeHeapXY.getIntersect(rayHeap);
+		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectTL);
+		if(vec3Heap.isValid()){
+			gridStart.minimize(vec3Heap);
+			gridEnd.maximize(vec3Heap);
+		}
+
+		rayHeap.set(cameraHandler.getRayFromScreenSpace(1,1));
+		float intersectTR = planeHeapXY.getIntersect(rayHeap);
+		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectTR);
+		if(vec3Heap.isValid()){
+			gridStart.minimize(vec3Heap);
+			gridEnd.maximize(vec3Heap);
+		}
+
+		rayHeap.set(cameraHandler.getRayFromScreenSpace(-1,-1));
+		float intersectBL = planeHeapXY.getIntersect(rayHeap);
+		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectBL);
+		if(vec3Heap.isValid()){
+			gridStart.minimize(vec3Heap);
+			gridEnd.maximize(vec3Heap);
+		}
+
+		rayHeap.set(cameraHandler.getRayFromScreenSpace(1, -1));
+		float intersectBR = planeHeapXY.getIntersect(rayHeap);
+		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectBR);
+		if(vec3Heap.isValid()){
+			gridStart.minimize(vec3Heap);
+			gridEnd.maximize(vec3Heap);
+		}
+
+
+
+//		gridStart
+//				.minimize(pointTL)
+//				.minimize(pointTR)
+//				.minimize(pointBL)
+//				.minimize(pointBR);
+//		gridEnd
+//				.maximize(pointTL)
+//				.maximize(pointTR)
+//				.maximize(pointBL)
+//				.maximize(pointBR);
+
+		if(time < System.currentTimeMillis()){
+			System.out.println("grid");
+//			System.out.println("pointTL: " + pointTL);
+//			System.out.println("pointTR: " + pointTR);
+//			System.out.println("pointBL: " + pointBL);
+//			System.out.println("pointBR: " + pointBR);
+			time = System.currentTimeMillis() + 5000;
+		}
+//		colorHeap.set(1f, 1f, 1f, .3f);
+
+		colorHeap.set(1f, .5f, .5f, 1);
+
+//		if(pointTL.isValid()){
+//			if(pointTL.distance(pointBR) > pointTR.distance(pointBL)){
+//				makeGridPoints(pipeline, pointTL, pointBR, Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+//			} else {
+//				makeGridPoints(pipeline, pointTR, pointBL, Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+//			}
+//		}
+		if(gridStart.isValid() && gridEnd.isValid()){
+			makeGridPoints(pipeline, gridStart, gridEnd, Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+		}
+
+
+//		makeGridPoints(pipeline, new Vec3(1000, 1000, 0), new Vec3(-1000, -1000, 0), Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+//		makeGridPoints(pipeline, new Vec3(100*lineScaleMul, 100*lineScaleMul, 0), new Vec3(-100*lineScaleMul, -100*lineScaleMul, 0), Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+
+		pipeline.glEnd();
+	}
+	public void paintGrid(ShaderPipeline pipeline, CameraManager cameraManager) {
+		GL11.glDepthMask(false);
+		GL11.glEnable(GL11.GL_BLEND);
+		pipeline.glEnableIfNeeded(GL11.GL_BLEND);
+		pipeline.glDisableIfNeeded(GL_ALPHA_TEST);
+		pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
+		pipeline.glDisableIfNeeded(GL_CULL_FACE);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		pipeline.glBegin(GL11.GL_LINES);
+
+		float cameraPxSize1 = (float) (cameraHandler.sizeAdj()); // 1px
+		int gridLog = (int)Math.log10(cameraPxSize1*120);
+		double v = (int)Math.log10(cameraPxSize1);
+		float lineScaleMul = (float) Math.pow(10, v);
+
+		planeHeapXY.set(Vec3.Z_AXIS, 0);
+		gridStart.set(Vec3.ZERO);
+		gridEnd.set(Vec3.ZERO);
+
+
+		rayHeap.set(cameraHandler.getRayFromScreenSpace(-1, 1));
+		float intersectTL = planeHeapXY.getIntersect(rayHeap);
+		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectTL);
+		if(vec3Heap.isValid()){
+			gridStart.minimize(vec3Heap);
+			gridEnd.maximize(vec3Heap);
+		}
+
+		rayHeap.set(cameraHandler.getRayFromScreenSpace(1,1));
+		float intersectTR = planeHeapXY.getIntersect(rayHeap);
+		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectTR);
+		if(vec3Heap.isValid()){
+			gridStart.minimize(vec3Heap);
+			gridEnd.maximize(vec3Heap);
+		}
+
+		rayHeap.set(cameraHandler.getRayFromScreenSpace(-1,-1));
+		float intersectBL = planeHeapXY.getIntersect(rayHeap);
+		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectBL);
+		if(vec3Heap.isValid()){
+			gridStart.minimize(vec3Heap);
+			gridEnd.maximize(vec3Heap);
+		}
+
+		rayHeap.set(cameraHandler.getRayFromScreenSpace(1, -1));
+		float intersectBR = planeHeapXY.getIntersect(rayHeap);
+		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectBR);
+		if(vec3Heap.isValid()){
+			gridStart.minimize(vec3Heap);
+			gridEnd.maximize(vec3Heap);
+		}
+
+
+
+//		gridStart
+//				.minimize(pointTL)
+//				.minimize(pointTR)
+//				.minimize(pointBL)
+//				.minimize(pointBR);
+//		gridEnd
+//				.maximize(pointTL)
+//				.maximize(pointTR)
+//				.maximize(pointBL)
+//				.maximize(pointBR);
+
+		if(time < System.currentTimeMillis()){
+			System.out.println("grid");
+//			System.out.println("pointTL: " + pointTL);
+//			System.out.println("pointTR: " + pointTR);
+//			System.out.println("pointBL: " + pointBL);
+//			System.out.println("pointBR: " + pointBR);
+			time = System.currentTimeMillis() + 5000;
+		}
+//		colorHeap.set(1f, 1f, 1f, .3f);
+
+		colorHeap.set(1f, .5f, .5f, 1);
+
+//		if(pointTL.isValid()){
+//			if(pointTL.distance(pointBR) > pointTR.distance(pointBL)){
+//				makeGridPoints(pipeline, pointTL, pointBR, Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+//			} else {
+//				makeGridPoints(pipeline, pointTR, pointBL, Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+//			}
+//		}
+		if(gridStart.isValid() && gridEnd.isValid()){
+			makeGridPoints(pipeline, gridStart, gridEnd, Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+		}
+
+
+//		makeGridPoints(pipeline, new Vec3(1000, 1000, 0), new Vec3(-1000, -1000, 0), Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+//		makeGridPoints(pipeline, new Vec3(100*lineScaleMul, 100*lineScaleMul, 0), new Vec3(-100*lineScaleMul, -100*lineScaleMul, 0), Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
+
+		pipeline.glEnd();
+	}
+
+	public void paintGrid1(ShaderPipeline pipeline) {
 		GL11.glDepthMask(false);
 		GL11.glEnable(GL11.GL_BLEND);
 		pipeline.glEnableIfNeeded(GL11.GL_BLEND);
@@ -43,57 +242,66 @@ public class GridPainter2 {
 		float lineScaleMul = (float) Math.pow(10, v);
 //		float lineScaleMul = (float) 1;
 
-		float[] lineSpacingArr = new float[] {10*lineScaleMul, 50*lineScaleMul, 100*lineScaleMul};
+//		float[] lineSpacingArr = new float[] {10*lineScaleMul, 50*lineScaleMul, 100*lineScaleMul};
+		float[] lineSpacingArr = new float[] {100*lineScaleMul};
 		colorHeap.set(1f, 1f, 1f, .3f);
 
-		//Grid floor X
-		fillLineHeap(X, Y, Z);
-		drawDuoLine(pipeline, lineSpacingArr, 0, Y);
 
 		float upAngle = cameraHandler.getYAngle() % 180;
 		float spinAngle = cameraHandler.getZAngle() % 180;
 		boolean isSide = upAngle == 0 && spinAngle == 90;
 		boolean isFront = upAngle == 0 && spinAngle == 0;
+
+
 		if (cameraHandler.isOrtho() && isSide) {
+			fillLineHeap(X, Y, Z);
 			//Side Horizontal Lines
 			zeroLineHeap(Y);
+			setLineHeapDir(Z, lineSpacingArr[0]);
 			drawDuoLine(pipeline, lineSpacingArr, 0, Z);
-		}
-
-		//Grid floor Y
-		fillLineHeap(Y, X, Z);
-		drawDuoLine(pipeline, lineSpacingArr, 0, X);
-
-		if(cameraHandler.isOrtho() && isFront){
-			//Front Horizontal Lines
-			zeroLineHeap(X);
-			drawDuoLine(pipeline, lineSpacingArr, 0, Z);
-		}
-
-		if(cameraHandler.isOrtho() && isSide){
 			//Side Vertical Lines
 			fillLineHeap(Z, X, Y);
+			setLineHeapDir(X, lineSpacingArr[0]);
+			drawDuoLine(pipeline, lineSpacingArr, 0, X);
+		} else if(cameraHandler.isOrtho() && isFront){
+			fillLineHeap(Y, X, Z);
+			//Front Horizontal Lines
+			zeroLineHeap(X);
+			setLineHeapDir(Z, lineSpacingArr[0]);
+			drawDuoLine(pipeline, lineSpacingArr, 0, Z);
+
+			//Front Vertical Lines
+			fillLineHeap(Z, X, Y);
+			setLineHeapDir(Y, lineSpacingArr[0]);
+			drawDuoLine(pipeline, lineSpacingArr, 0, Y);
+		} else {
+			//Grid floor X
+			fillLineHeap(X, Y, Z);
+			setLineHeapDir(Y, lineSpacingArr[0]);
+			drawDuoLine(pipeline, lineSpacingArr, 0, Y);
+			//Grid floor Y
+			fillLineHeap(Y, X, Z);
+			setLineHeapDir(X, lineSpacingArr[0]);
 			drawDuoLine(pipeline, lineSpacingArr, 0, X);
 		}
 
-		if(cameraHandler.isOrtho() && isFront){
-			//Front Vertical Lines
-			fillLineHeap(Z, X, Y);
-//			zeroLineHeap(X);
-			drawDuoLine(pipeline, lineSpacingArr, 0, Y);
-		}
-
+		// X
 		colorHeap.set(1f, .5f, .5f, .7f);
 		pipeline.addVert(vec3Heap.set(-lineLength, 0, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
 		pipeline.addVert(vec3Heap.set(lineLength, 0, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+		pipeline.addVert(vec3Heap.set(0, 0, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
 
+		// Y
 		colorHeap.set(.5f, 1f, .5f, .7f);
 		pipeline.addVert(vec3Heap.set(0, -lineLength, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
 		pipeline.addVert(vec3Heap.set(0, lineLength, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+		pipeline.addVert(vec3Heap.set(0, 0, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
 
+		// Z
 		colorHeap.set(.5f, .5f, 1f, .7f);
 		pipeline.addVert(vec3Heap.set(0, 0, -lineLength), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
 		pipeline.addVert(vec3Heap.set(0, 0, lineLength), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+		pipeline.addVert(vec3Heap.set(0, 0, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
 
 		pipeline.glEnd();
 	}
@@ -136,6 +344,12 @@ public class GridPainter2 {
 		lineHeapPos[pos] = lineLength;
 		lineHeapNeg[pos] = -lineLength;
 	}
+	private void setLineHeapDir(int pos, float value) {
+		lineHeapDir[0] = 0;
+		lineHeapDir[1] = 0;
+		lineHeapDir[2] = 0;
+		lineHeapDir[pos] = value;
+	}
 	private void zeroLineHeap(int pos) {
 		lineHeapPos[pos] = 0;
 		lineHeapNeg[pos] = 0;
@@ -152,15 +366,106 @@ public class GridPainter2 {
 		for (lineHeapNeg[lhi] = lS, lineHeapPos[lhi] = lS; lineHeapNeg[lhi] < lineLength; lineHeapNeg[lhi] += lS, lineHeapPos[lhi] += lS) {
 			pipeline.addVert(vec3Heap.set(lineHeapNeg), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
 			pipeline.addVert(vec3Heap.set(lineHeapPos), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+			pipeline.addVert(vec3Heap.set(lineHeapDir), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
 		}
 		for (lineHeapNeg[lhi] = -lS, lineHeapPos[lhi] = -lS; lineHeapNeg[lhi] > -lineLength; lineHeapNeg[lhi] -= lS, lineHeapPos[lhi] -= lS) {
 			pipeline.addVert(vec3Heap.set(lineHeapNeg), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
 			pipeline.addVert(vec3Heap.set(lineHeapPos), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+			pipeline.addVert(vec3Heap.set(lineHeapDir), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
 		}
-		if(index<lineSpacing.length-1){
-			drawDuoLine(pipeline, lineSpacing, index+1, lhi);
+//		if(index<lineSpacing.length-1){
+//			drawDuoLine(pipeline, lineSpacing, index+1, lhi);
+//		}
+	}
+
+
+	private void drawLines(){
+		float alpha = 1.0f;
+		float minPixelGridSize = 5.0f;
+
+		float gridStart = 0;
+		float gridEnd = 10000;
+
+		float gridMin = 5.0f;
+		float gridMid = gridMin*10;
+		float gridMax = gridMin*10*10;
+
+
+
+		for(int i = 0; i<10; i++) {
+			drawLine(i*gridMax);
+			for(int j = 1; j<10; j++) {
+				drawLine(i*gridMax+j*gridMid);
+				for(int k = 1; k<10; k++) {
+					drawLine(i*gridMax+j*gridMid + k*gridMin);
+				}
+			}
+		}
+
+	}
+
+	private void drawLine(float point){
+
+	}
+
+
+	Vec3 startHeap = new Vec3();
+	Vec3 endHeap = new Vec3();
+
+	private void addLinePoints(ShaderPipeline pipeline, Vec3 lineStart, Vec3 lineEnd, Vec3 spreadDir, float spread, float totSpread){
+		int i = 0;
+		for(float currSpread = 0; currSpread <= totSpread && i<200; currSpread += spread){
+			vec3Heap.set(lineStart).addScaled(spreadDir, currSpread);
+			pipeline.addVert(vec3Heap, Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+			vec3Heap.set(lineEnd).addScaled(spreadDir, currSpread);
+			pipeline.addVert(vec3Heap, Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+//			vec3Heap.set(spreadDir).scale(spread);
+//			pipeline.addVert(vec3Heap, Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
+			i++;
 		}
 	}
 
+	private void makeGridPoints(ShaderPipeline pipeline, Vec3 gridStart, Vec3 gridEnd, Vec3 gridDir1, Vec3 gridDir2, int gridLog){
+		float gridDist = (float) Math.pow(10, gridLog);
+//		float gridDist = 100f;
+
+
+//		startHeap.set(gridStart);
+//		endHeap.set(gridEnd);
+		startHeap.set(gridStart).minimize(gridEnd);
+		endHeap.set(gridStart).maximize(gridEnd);
+		vec3Heap.set(gridDir1).add(gridDir2);
+		roundVec3(endHeap, gridDist, vec3Heap);
+		roundVec3(startHeap, gridDist, vec3Heap.negate());
+
+
+		vec3Heap.set(endHeap).sub(startHeap);   // diagonal
+		float spread1 = vec3Heap.dot(gridDir1); // spread dir1 / line length dir2
+		float spread2 = vec3Heap.dot(gridDir2); // spread dir2 / line length dir1
+
+
+		// Line end
+		vec3Heap.set(gridDir2).scale(spread2);
+		endHeap.set(startHeap).add(vec3Heap);
+
+		addLinePoints(pipeline, startHeap, endHeap, gridDir1, gridDist, spread1);
+
+
+		vec3Heap.set(gridDir1).scale(spread1);
+		endHeap.set(startHeap).add(vec3Heap);
+
+		addLinePoints(pipeline, startHeap, endHeap, gridDir2, gridDist, spread2);
+
+	}
+
+
+	private void roundVec3(Vec3 vec3, float prec, Vec3 adj){
+		vec3.scale(1.0f / prec);
+		vec3.x = Math.round(vec3.x) + adj.x;
+		vec3.y = Math.round(vec3.y) + adj.y;
+		vec3.z = Math.round(vec3.z) + adj.z;
+
+		vec3.scale(prec);
+	}
 
 }

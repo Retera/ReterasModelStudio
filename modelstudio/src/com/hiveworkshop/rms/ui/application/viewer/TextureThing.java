@@ -140,7 +140,7 @@ public class TextureThing {
 
 	long lastPrint = 0;
 	private void printThing(String text, int ms){
-		if(lastPrint < System.currentTimeMillis() || true){
+		if(lastPrint < System.currentTimeMillis()){
 			lastPrint = System.currentTimeMillis() + ms;
 			System.out.println(text);
 		}
@@ -303,38 +303,12 @@ public class TextureThing {
 	}
 
 
-
-
-
-
-	public void bindLayerTexture(ShaderPipeline pipeline, Layer layer, boolean doSetUpFilterMode, int textureSlot, boolean twoSided, Bitmap tex) {
-		int textureHandle = getTextureID(tex);
-//		printThing("texture: " + tex.getName() + ", id: " + textureHandle + ", slot: " + textureSlot, 1000);
-		bindTexture(tex, textureSlot);
-
-		if (doSetUpFilterMode) {
-			bindLayer(pipeline, layer);
-			if (twoSided) {
-				GL11.glDisable(GL11.GL_CULL_FACE);
-			} else {
-				GL11.glEnable(GL11.GL_CULL_FACE);
-			}
-		}
-	}
-
-
-	public void loadAndBindLayerTexture(ShaderPipeline pipeline, EditableModel model, Layer layer, boolean doSetUpFilterMode, int textureSlot, boolean twoSided, Bitmap tex) {
-		int textureHandle = getTextureID(tex);
-//		printThing("texture: " + tex.getName() + ", id: " + textureHandle + ", slot: " + textureSlot, 1000);
-		loadAndBindTexture(model, tex, textureSlot);
-
-		if (doSetUpFilterMode) {
-			bindLayer(pipeline, layer);
-			if (twoSided) {
-				GL11.glDisable(GL11.GL_CULL_FACE);
-			} else {
-				GL11.glEnable(GL11.GL_CULL_FACE);
-			}
+	public void setUpFilterMode(ShaderPipeline pipeline, Layer layer, boolean twoSided) {
+		bindLayer(pipeline, layer);
+		if (twoSided) {
+			GL11.glDisable(GL11.GL_CULL_FACE);
+		} else {
+			GL11.glEnable(GL11.GL_CULL_FACE);
 		}
 	}
 

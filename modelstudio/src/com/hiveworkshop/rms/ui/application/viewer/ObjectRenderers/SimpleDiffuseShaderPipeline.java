@@ -32,20 +32,74 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 
 		GL20.glUseProgram(shaderProgram);
 
+
+		if(!instances.isEmpty()){
+			for (HdBufferSubInstance instance : instances){
+				setUpAndDraw(instance);
+			}
+		} else if(!sdInstances.isEmpty()){
+			for (SdBufferSubInstance instance : sdInstances){
+				setUpAndDraw(instance);
+			}
+		} else {
+			setUpAndDraw();
+		}
+		textureUsed = 0;
+		pipelineVertexBuffer.clear();
+	}
+
+	private void setUpAndDraw(HdBufferSubInstance instance) {
+		instance.setUpInstance(this);
 		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureDiffuse"), 0);
 		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureUsed"), textureUsed);
-		textureUsed = 0;
 		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_alphaTest"), alphaTest);
 		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
 		tempVec4.set(30.4879f, -24.1937f, 444.411f, 1.0f);
 //		tempVec4.transform(currentMatrix);
 //		tempVec4.normalize();
 		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), tempVec4.x, tempVec4.y, tempVec4.z);
-		fillPipelineMatrixBuffer();
+//		fillPipelineMatrixBuffer();
+		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false, pipelineMatrixBuffer);
+		fillMatrixBuffer(uvTransformMatrixBuffer, instance.getUvTransform());
+		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_uvTransform"), false, uvTransformMatrixBuffer);
+
+		GL11.glDrawArrays(glBeginType, instance.getOffset(), instance.getVertCount());
+	}
+
+	private void setUpAndDraw(SdBufferSubInstance instance) {
+		instance.setUpInstance(this);
+		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureDiffuse"), instance.getTextureSlot());
+		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureUsed"), textureUsed);
+		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_alphaTest"), alphaTest);
+		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
+		tempVec4.set(30.4879f, -24.1937f, 444.411f, 1.0f);
+//		tempVec4.transform(currentMatrix);
+//		tempVec4.normalize();
+		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), tempVec4.x, tempVec4.y, tempVec4.z);
+//		fillPipelineMatrixBuffer();
+		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false, pipelineMatrixBuffer);
+		fillMatrixBuffer(uvTransformMatrixBuffer, instance.getUvTransform());
+		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_uvTransform"), false, uvTransformMatrixBuffer);
+
+		GL11.glDrawArrays(glBeginType, instance.getOffset(), instance.getVertCount());
+	}
+
+	private void setUpAndDraw() {
+		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureDiffuse"), 0);
+		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureUsed"), textureUsed);
+		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_alphaTest"), alphaTest);
+		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
+		tempVec4.set(30.4879f, -24.1937f, 444.411f, 1.0f);
+//		tempVec4.transform(currentMatrix);
+//		tempVec4.normalize();
+		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), tempVec4.x, tempVec4.y, tempVec4.z);
+//		fillPipelineMatrixBuffer();
+		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
 		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false, pipelineMatrixBuffer);
 
 		GL11.glDrawArrays(glBeginType, 0, vertexCount);
-		pipelineVertexBuffer.clear();
 	}
 
 	public void glEnableIfNeeded(int glEnum) {

@@ -9,11 +9,14 @@ layout (location = 4) in vec4 a_tangent;
 uniform vec3 u_lightDirection;
 uniform vec3 u_viewPos;
 uniform mat4 u_projection;
+uniform mat4 u_uvTransform;
 
 uniform int u_lightingEnabled;
 
 out vec2 v_uv;
 out vec4 v_color;
+out vec4 v_normal;
+out vec3 v_lightDirection;
 out vec3 v_tangentLightPos;
 out vec3 v_tangentViewPos;
 out vec3 v_tangentFragPos;
@@ -21,11 +24,13 @@ out vec3 v_tangentFragPos;
 void main() {
     gl_Position = u_projection * a_position;
     vec4 normal = u_projection * a_normal;
-    vec3 lightDirection = normalize((vec4(u_lightDirection, 1) * u_projection).xyz);
-    v_uv = a_uv;
+    v_lightDirection = normalize((vec4(u_lightDirection, 1) * u_projection).xyz);
+//    v_uv = a_uv;
+    v_uv = (u_uvTransform * vec4(a_uv, 0.0, 1.0)).xy;
     v_color = a_color;
+    v_normal = normal;
     if (u_lightingEnabled != 0) {
-        vec3 lightFactorContribution = vec3(clamp(dot(normal.xyz, lightDirection), 0.0, 1.0));
+        vec3 lightFactorContribution = vec3(clamp(dot(normal.xyz, v_lightDirection), 0.0, 1.0));
         if (lightFactorContribution.r > 1.0 || lightFactorContribution.g > 1.0 || lightFactorContribution.b > 1.0) {
             lightFactorContribution = clamp(lightFactorContribution, 0.0, 1.0);
         }

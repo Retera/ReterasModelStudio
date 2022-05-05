@@ -231,11 +231,6 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		}
 	}
 
-
-	public boolean renderTextures() {
-		return texLoaded && ((programPreferences == null) || programPreferences.textureModels());
-	}
-
 	@Override
 	protected void exceptionOccurred(final LWJGLException exception) {
 		super.exceptionOccurred(exception);
@@ -407,6 +402,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 			}
 			geosetRenderThing.render(pipeline, renderTextures);
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
 			renderNodes();
 
 
@@ -456,6 +452,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	private void renderNormals() {
 		ShaderPipeline normPipeline = shaderManager.getOrCreateNormPipeline();
 		normPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		normPipeline.glViewport(0, 0, getWidth(),getHeight());
 		normPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 		normPipeline.glMatrixMode(GL11.GL_PROJECTION);
@@ -469,6 +466,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	private void render3DVerts() {
 		ShaderPipeline vertPipeline = shaderManager.getOrCreateVertPipeline();
 		vertPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		vertPipeline.glViewport(0, 0,getWidth(), getHeight());
 		vertPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 		vertPipeline.glMatrixMode(GL11.GL_PROJECTION);
@@ -642,7 +640,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	private void renderParticles() {
-		if (renderTextures()) {
+//		if (renderTextures()) {
+		if (renderTextures) {
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
 			glEnable(GL11.GL_TEXTURE_2D);
 		}

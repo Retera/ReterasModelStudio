@@ -16,6 +16,8 @@ uniform vec2 u_viewportSize;
 
 in vec2 v_uv;
 in vec4 v_color;
+in vec4 v_normal;
+in vec3 v_lightDirection;
 in vec3 v_tangentLightPos;
 in vec3 v_tangentViewPos;
 in vec3 v_tangentFragPos;
@@ -30,6 +32,15 @@ void main() {
     } else {
         color = v_color;
     }
+
+//    if (u_lightingEnabled != 0) {
+//        vec3 lightFactorContribution = vec3(clamp(dot(v_normal.xyz, lightDirection), 0.0, 1.0));
+//        if (lightFactorContribution.r > 1.0 || lightFactorContribution.g > 1.0 || lightFactorContribution.b > 1.0) {
+//            lightFactorContribution = clamp(lightFactorContribution, 0.0, 1.0);
+//        }
+//        color.rgb = color.rgb * clamp(lightFactorContribution + vec3(0.3f, 0.3f, 0.3f), 0.0, 1.0);
+//    }
+//
     if(u_alphaTest != 0 && color.a < 0.75) {
         discard;
     }
