@@ -259,8 +259,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			} else {
 				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 			}
-//			pipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
-			pipeline.glViewport(0, 0, getWidth(), getHeight());
+			pipeline.glViewport(getWidth(), getHeight());
+			GL11.glViewport(0, 0, getWidth(), getHeight());
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
 
 			GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -278,11 +278,15 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 0.0f);
 
 			pipeline.glMatrixMode(GL11.GL_PROJECTION);
+			GL11.glMatrixMode(GL11.GL_PROJECTION);
+			GL11.glLoadIdentity();
 			pipeline.glLoadIdentity();
 
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 			pipeline.glMatrixMode(GL11.GL_MODELVIEW);
 			pipeline.glLoadIdentity();
+			GL11.glMatrixMode(GL11.GL_MODELVIEW);
+			GL11.glLoadIdentity();
 
 			pipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
 
@@ -295,6 +299,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 			}
 			geosetRenderThing.render(pipeline, renderTextures);
+			pipeline.doRender(GL11.GL_TRIANGLES);
 			renderNodes();
 
 
@@ -366,8 +371,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			} else {
 				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 			}
-//			pipeline.glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
-			pipeline.glViewport(0, 0, getWidth(), getHeight());
+			pipeline.glViewport(getWidth(), getHeight());
+			GL11.glViewport(0, 0, getWidth(), getHeight());
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
 
 			GL11.glDepthFunc(GL11.GL_LEQUAL);
@@ -402,6 +407,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 			}
 			geosetRenderThing.render(pipeline, renderTextures);
+			pipeline.doRender(GL11.GL_TRIANGLES);
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
 			renderNodes();
 
@@ -453,34 +459,36 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		ShaderPipeline normPipeline = shaderManager.getOrCreateNormPipeline();
 		normPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		normPipeline.glViewport(0, 0, getWidth(),getHeight());
+		normPipeline.glViewport(getWidth(), getHeight());
 		normPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 		normPipeline.glMatrixMode(GL11.GL_PROJECTION);
 		normPipeline.glLoadIdentity();
 		normPipeline.glMatrixMode(GL11.GL_MODELVIEW);
 		normPipeline.glLoadIdentity();
 		normPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
-		geosetRenderThing.drawNormals(normPipeline);
+		geosetRenderThing.fillNormalsBuffer(normPipeline);
+		normPipeline.doRender(GL11.GL_POINTS);
 	}
 
 	private void render3DVerts() {
 		ShaderPipeline vertPipeline = shaderManager.getOrCreateVertPipeline();
 		vertPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		vertPipeline.glViewport(0, 0,getWidth(), getHeight());
+		vertPipeline.glViewport(getWidth(), getHeight());
 		vertPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 		vertPipeline.glMatrixMode(GL11.GL_PROJECTION);
 		vertPipeline.glLoadIdentity();
 		vertPipeline.glMatrixMode(GL11.GL_MODELVIEW);
 		vertPipeline.glLoadIdentity();
 		vertPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
-		geosetRenderThing.drawVerts(vertPipeline);
+		geosetRenderThing.fillVertsBuffer(vertPipeline);
+		vertPipeline.doRender(GL11.GL_POINTS);
 	}
 
 	private void renderNodes() {
 		ShaderPipeline bonePipeline = shaderManager.getOrCreateBoneMarkerShaderPipeline();
 		bonePipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-		bonePipeline.glViewport(0, 0, getWidth(), getHeight());
+		bonePipeline.glViewport(getWidth(), getHeight());
 		bonePipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 		bonePipeline.glMatrixMode(GL11.GL_PROJECTION);
 		bonePipeline.glLoadIdentity();
@@ -492,7 +500,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		bonePipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 
-		bonePipeline.glBegin(GL11.GL_POINTS);
+		bonePipeline.prepare();
 //			pipeline.glColor3f(1f, 1f, 3f);
 
 		Vec4 colorHeap = new Vec4(0f, .0f, 1f, 1f);
@@ -504,7 +512,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				bonePipeline.addVert(renderNode.getPivot(), Vec3.Z_AXIS, colorHeap, Vec2.ORIGIN, colorHeap, Vec3.ZERO);
 			}
 		}
-		bonePipeline.glEnd();
+		bonePipeline.doRender(GL11.GL_POINTS);
 	}
 
 	private void paintSelectionBox() {
@@ -512,7 +520,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		if (mouseAdapter.isSelecting()) {
 			ShaderPipeline selectionPipeline = shaderManager.getOrCreateSelectionPipeline();
 			selectionPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-			selectionPipeline.glViewport(0, 0, getWidth(), getHeight());
+			selectionPipeline.glViewport(getWidth(), getHeight());
 			selectionPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 			selectionPipeline.glMatrixMode(GL11.GL_PROJECTION);
 			selectionPipeline.glLoadIdentity();
@@ -527,12 +535,12 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				selectionPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 				GL11.glDisable(GL11.GL_TEXTURE_2D);
 
-				selectionPipeline.glBegin(GL11.GL_LINES);
+				selectionPipeline.prepare();
 
 				selectionPipeline.addVert(mouseAdapter.getStart(), Vec3.Z_AXIS, new Vec4(), new Vec2(), new Vec4(1, 0,0,1), Vec3.ZERO);
 				selectionPipeline.addVert(mouseAdapter.getEnd(), Vec3.Z_AXIS, new Vec4(), new Vec2(), new Vec4(1, 0,0,1), Vec3.ZERO);
 
-				selectionPipeline.glEnd();
+				selectionPipeline.doRender(GL11.GL_LINES);
 			}
 //			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(), mouseAdapter.getEndPGeo3(), cameraHandler);
 //			System.out.println("is selecting!");
@@ -543,7 +551,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 		if (programPreferences.showPerspectiveGrid()) {
 			ShaderPipeline pipeline = shaderManager.getOrCreateGridPipeline();
 			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-			pipeline.glViewport(0, 0, getWidth(), getHeight());
+			pipeline.glViewport(getWidth(), getHeight());
 			pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 			pipeline.glMatrixMode(GL11.GL_PROJECTION);
 			pipeline.glLoadIdentity();
@@ -558,7 +566,8 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 				GL11.glDisable(GL11.GL_TEXTURE_2D);
 
-				gridPainter2.paintGrid(pipeline);
+				gridPainter2.fillGridBuffer(pipeline);
+				pipeline.doRender(GL11.GL_LINES);
 			}
 		}
 	}

@@ -19,7 +19,7 @@ public class NormalLinesShaderPipeline extends ShaderPipeline {
 		load();
 	}
 
-	public void glEnd() {
+	public void doRender() {
 //		System.out.println("glEnd");
 		//https://github.com/flowtsohg/mdx-m3-viewer/tree/827d1bda1731934fb8e1a5cf68d39786f9cb857d/src/viewer/handlers/w3x/shaders
 		GL30.glBindVertexArray(glVertexArrayId);

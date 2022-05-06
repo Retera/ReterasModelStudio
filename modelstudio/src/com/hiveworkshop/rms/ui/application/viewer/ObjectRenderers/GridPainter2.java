@@ -38,7 +38,7 @@ public class GridPainter2 {
 	}
 
 	long time = 0;
-	public void paintGrid(ShaderPipeline pipeline) {
+	public void fillGridBuffer(ShaderPipeline pipeline) {
 		GL11.glDepthMask(false);
 		GL11.glEnable(GL11.GL_BLEND);
 		pipeline.glEnableIfNeeded(GL11.GL_BLEND);
@@ -46,7 +46,7 @@ public class GridPainter2 {
 		pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
 		pipeline.glDisableIfNeeded(GL_CULL_FACE);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		pipeline.glBegin(GL11.GL_LINES);
+		pipeline.prepare();
 
 		float cameraPxSize1 = (float) (cameraHandler.sizeAdj()); // 1px
 		int gridLog = (int)Math.log10(cameraPxSize1*120);
@@ -130,9 +130,8 @@ public class GridPainter2 {
 //		makeGridPoints(pipeline, new Vec3(1000, 1000, 0), new Vec3(-1000, -1000, 0), Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
 //		makeGridPoints(pipeline, new Vec3(100*lineScaleMul, 100*lineScaleMul, 0), new Vec3(-100*lineScaleMul, -100*lineScaleMul, 0), Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
 
-		pipeline.glEnd();
 	}
-	public void paintGrid(ShaderPipeline pipeline, CameraManager cameraManager) {
+	public void fillGridBuffer(ShaderPipeline pipeline, CameraManager cameraManager) {
 		GL11.glDepthMask(false);
 		GL11.glEnable(GL11.GL_BLEND);
 		pipeline.glEnableIfNeeded(GL11.GL_BLEND);
@@ -140,7 +139,7 @@ public class GridPainter2 {
 		pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
 		pipeline.glDisableIfNeeded(GL_CULL_FACE);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		pipeline.glBegin(GL11.GL_LINES);
+		pipeline.prepare();
 
 		float cameraPxSize1 = (float) (cameraHandler.sizeAdj()); // 1px
 		int gridLog = (int)Math.log10(cameraPxSize1*120);
@@ -224,7 +223,6 @@ public class GridPainter2 {
 //		makeGridPoints(pipeline, new Vec3(1000, 1000, 0), new Vec3(-1000, -1000, 0), Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
 //		makeGridPoints(pipeline, new Vec3(100*lineScaleMul, 100*lineScaleMul, 0), new Vec3(-100*lineScaleMul, -100*lineScaleMul, 0), Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
 
-		pipeline.glEnd();
 	}
 
 	public void paintGrid1(ShaderPipeline pipeline) {
@@ -235,7 +233,7 @@ public class GridPainter2 {
 		pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
 		pipeline.glDisableIfNeeded(GL_CULL_FACE);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		pipeline.glBegin(GL11.GL_LINES);
+		pipeline.prepare();
 
 		float cameraPxSize1 = (float) (cameraHandler.sizeAdj() * 2f); // 1px
 		double v = (int)Math.log10(cameraPxSize1);
@@ -303,7 +301,6 @@ public class GridPainter2 {
 		pipeline.addVert(vec3Heap.set(0, 0, lineLength), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
 		pipeline.addVert(vec3Heap.set(0, 0, 0), Vec3.Z_AXIS, colorHeap, vec2Heap, colorHeap, Vec3.ZERO);
 
-		pipeline.glEnd();
 	}
 
 	private void fillLineHeap(int pos) {

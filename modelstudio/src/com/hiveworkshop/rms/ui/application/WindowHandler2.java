@@ -1,7 +1,9 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewCanvas;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewUgg;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
+import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.CanvasTracker;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.ModelingCreatorToolsView;
@@ -117,6 +119,8 @@ public class WindowHandler2 {
 //		allViews.removeIf(view -> !view.getComponent().isVisible());
 		allViews.removeIf(view -> !isStillInUse(view));
 //		System.out.println("allViews.size()2: " + allViews.size());
+
+		canvasTracker.setModelPanel(modelPanel);
 
 		for (ModelDependentView view : allViews) {
 //			System.out.println("updating: " + view);
@@ -268,7 +272,60 @@ public class WindowHandler2 {
 		return viewingTab;
 	}
 
+	CanvasTracker canvasTracker = new CanvasTracker();
 	private SplitWindow getEditTab() {
+		ModelViewManagingView modelEditingTreeView = new ModelViewManagingView();
+		modelViewManagingTrees.add(modelEditingTreeView);
+		allViews.add(modelEditingTreeView);
+		TabWindow leftHandTabWindow = new TabWindow(new DockingWindow[] {modelEditingTreeView, getTitledView("Tools")});
+		leftHandTabWindow.setSelectedTab(0);
+
+		DisplayViewCanvas front = new DisplayViewCanvas("Front");
+		allViews.add(front);
+		canvasTracker.addCanvas(front.getPerspectiveViewport());
+
+//		DisplayViewUgg top = new DisplayViewUgg("Top");
+//		allViews.add(top);
+//
+//		DisplayViewUgg side = new DisplayViewUgg("Side");
+//		allViews.add(side);
+
+//		PerspectiveViewUgg perspective = new PerspectiveViewUgg();
+//		allViews.add(perspective);
+//		SplitWindow frBt = new SplitWindow(true, front, top);
+//		SplitWindow lfPs = new SplitWindow(true, side, perspective);
+//		SplitWindow quadView = new SplitWindow(false, frBt, lfPs);
+
+		DisplayViewCanvas top = new DisplayViewCanvas("Top");
+		allViews.add(top);
+		canvasTracker.addCanvas(top.getPerspectiveViewport());
+
+		DisplayViewCanvas side = new DisplayViewCanvas("Side");
+		allViews.add(side);
+		canvasTracker.addCanvas(side.getPerspectiveViewport());
+
+//		PerspectiveViewUgg perspective = new PerspectiveViewUgg();
+//		allViews.add(perspective);
+		SplitWindow frBt = new SplitWindow(true, front, top);
+		SplitWindow lfPs = new SplitWindow(true, side, getTitledView("ugg"));
+		SplitWindow quadView = new SplitWindow(false, frBt, lfPs);
+
+		ModelingCreatorToolsView creatorView = new ModelingCreatorToolsView();
+		editingToolChooserViews.add(creatorView);
+		allViews.add(creatorView);
+		SplitWindow splitWindow = new SplitWindow(true, 0.2f, leftHandTabWindow, new SplitWindow(true, 0.8f, quadView, creatorView));
+//		SplitWindow splitWindow = new SplitWindow(true, 0.2f, leftHandTabWindow, new SplitWindow(true, 0.8f, front, creatorView));
+
+		TimeSliderView timeSliderView = new TimeSliderView();
+		timeSliders.add(timeSliderView);
+		allViews.add(timeSliderView);
+		SplitWindow editingTab = new SplitWindow(false, 0.875f, splitWindow, timeSliderView);
+
+		editingTab.getWindowProperties().setCloseEnabled(false);
+		editingTab.getWindowProperties().setTitleProvider(arg0 -> "Edit");
+		return editingTab;
+	}
+	private SplitWindow getEditTab1() {
 		ModelViewManagingView modelEditingTreeView = new ModelViewManagingView();
 		modelViewManagingTrees.add(modelEditingTreeView);
 		allViews.add(modelEditingTreeView);

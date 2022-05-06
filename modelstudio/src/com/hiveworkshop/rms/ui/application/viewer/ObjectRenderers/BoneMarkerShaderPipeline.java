@@ -19,7 +19,7 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		load();
 	}
 
-	public void glEnd() {
+	public void doRender() {
 //		System.out.println("glEnd");
 		//https://github.com/flowtsohg/mdx-m3-viewer/tree/827d1bda1731934fb8e1a5cf68d39786f9cb857d/src/viewer/handlers/w3x/shaders
 		GL30.glBindVertexArray(glVertexArrayId);
@@ -42,7 +42,7 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 
 
 		tempVec4.set(0,0,0,1).transform(currentMatrix);
-		GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "scale"), tempVec4.w/viewportWidth, tempVec4.w/viewportHeight);
+		GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "scale"), tempVec4.w/ viewPortSize.x, tempVec4.w/ viewPortSize.y);
 
 
 

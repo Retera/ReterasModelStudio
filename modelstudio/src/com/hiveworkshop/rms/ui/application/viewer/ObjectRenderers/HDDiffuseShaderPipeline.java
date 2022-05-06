@@ -17,7 +17,7 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		load();
 	}
 
-	public void glEnd() {
+	public void doRender() {
 //		System.out.println("glEnd");
 		//https://github.com/flowtsohg/mdx-m3-viewer/tree/827d1bda1731934fb8e1a5cf68d39786f9cb857d/src/viewer/handlers/w3x/shaders
 		GL30.glBindVertexArray(glVertexArrayId);
@@ -54,11 +54,7 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 //		}
 
 		if(!instances.isEmpty()){
-			for (HdBufferSubInstance instance : instances){
-				setUpAndDraw(instance);
-			}
-		} else if(!sdInstances.isEmpty()){
-			for (SdBufferSubInstance instance : sdInstances){
+			for (BufferSubInstance instance : instances){
 				setUpAndDraw(instance);
 			}
 		} else {
@@ -71,7 +67,7 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		GL20.glUseProgram(0);
 	}
 
-	private void setUpAndDraw(HdBufferSubInstance instance) {
+	private void setUpAndDraw(BufferSubInstance instance) {
 		instance.setUpInstance(this);
 		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureDiffuse"), 0);
 		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureNormal"), 1);
@@ -90,7 +86,7 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 
 
 		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
-		GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "u_viewportSize"), viewportWidth, viewportHeight);
+		GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "u_viewportSize"), viewPortSize.x, viewPortSize.y);
 		GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelTeamColor"), instance.getFresnelTeamColor());
 		fresnelColor.set(instance.getFresnelColor());
 		GL20.glUniform4f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelColor"), fresnelColor.x, fresnelColor.y, fresnelColor.z, instance.getFresnelOpacity());
@@ -105,39 +101,6 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		GL11.glDrawArrays(glBeginType, instance.getOffset(), instance.getVertCount());
 	}
 
-	private void setUpAndDraw(SdBufferSubInstance instance) {
-		instance.setUpInstance(this);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureDiffuse"), 0);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureNormal"), 1);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureORM"), 2);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureEmissive"), 3);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureTeamColor"), 4);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureReflections"), 5);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureUsed"), textureUsed);
-//		alphaTest = 0;
-//		lightingEnabled = 0;
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_alphaTest"), alphaTest);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
-		tempVec4.set(30.4879f, -24.1937f, 444.411f, 1.0f);
-		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), tempVec4.x, tempVec4.y, tempVec4.z);
-//		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), -24.1937f, 444.411f, 30.4879f);
-
-
-		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
-		GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "u_viewportSize"), viewportWidth, viewportHeight);
-		GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelTeamColor"), instance.getFresnelTeamColor());
-		fresnelColor.set(instance.getFresnelColor());
-		GL20.glUniform4f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelColor"), fresnelColor.x, fresnelColor.y, fresnelColor.z, instance.getFresnelOpacity());
-//		fillPipelineMatrixBuffer();
-		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
-		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false, pipelineMatrixBuffer);
-		fillMatrixBuffer(uvTransformMatrixBuffer, instance.getUvTransform());
-		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_uvTransform"), false, uvTransformMatrixBuffer);
-
-
-//		System.out.println("start: " + instance.getOffset() + ", verts: " + instance.getVertCount());
-		GL11.glDrawArrays(glBeginType, instance.getOffset(), instance.getVertCount());
-	}
 	private void setUpAndDraw() {
 		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureDiffuse"), 0);
 		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureNormal"), 1);
@@ -157,7 +120,7 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 
 
 		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
-		GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "u_viewportSize"), viewportWidth, viewportHeight);
+		GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "u_viewportSize"), viewPortSize.x, viewPortSize.y);
 		GL20.glUniform1f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelTeamColor"), fresnelTeamColor);
 		GL20.glUniform4f(GL20.glGetUniformLocation(shaderProgram, "u_fresnelColor"), fresnelColor.x, fresnelColor.y, fresnelColor.z, fresnelOpacity);
 		fillPipelineMatrixBuffer();
@@ -198,7 +161,7 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 
 	public void prepareToBindTexture() {
 //		GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-		textureUsed = 1;
+//		textureUsed = 1;
 	}
 
 	public void glActiveHDTexture(int textureUnit) {

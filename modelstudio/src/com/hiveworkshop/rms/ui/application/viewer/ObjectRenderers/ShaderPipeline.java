@@ -64,8 +64,7 @@ public abstract class ShaderPipeline {
 	protected float fresnelTeamColor = 0f;
 	protected float fresnelOpacity = 0f;
 
-	protected float viewportWidth;
-	protected float viewportHeight;
+	protected final Vec2 viewPortSize = new Vec2(1,1);
 
 	public ShaderPipeline(){
 		currentMatrix.setIdentity();
@@ -132,38 +131,44 @@ public abstract class ShaderPipeline {
 		return shaderId;
 	}
 
-	//Prepare setup
-	public void glBegin(int type) {
-//		System.out.println("glBegin");
+
+	// draw stuff
+	public void doRender(int type){
+		if (vertexCount > 0){
+			attributeArrayOffs = 0;
+			attributeArrayIndex = 0;
+			glBeginType = type;
+			switch (type) {
+				case GL11.GL_TRIANGLES:
+					break;
+				case GL11.GL_QUADS:
+					break;
+				case GL11.GL_LINES:
+					break;
+				case GL11.GL_POINTS:
+					break;
+				default:
+					throw new IllegalArgumentException(Integer.toString(type));
+			}
+			doRender();
+		}
+	}
+	public abstract void doRender();
+
+	// Prepare setup
+	public void prepare() {
 		pipelineVertexBuffer.clear();
-		glBeginType = type;
 		vertexCount = 0;
 		attributeArrayOffs = 0;
 		attributeArrayIndex = 0;
 		instances.clear();
 		currInstance = null;
-
-
 		textureUnit = 0;
-		switch (type) {
-			case GL11.GL_TRIANGLES:
-				break;
-			case GL11.GL_QUADS:
-				break;
-			case GL11.GL_LINES:
-				break;
-			case GL11.GL_POINTS:
-				break;
-			default:
-				throw new IllegalArgumentException(Integer.toString(type));
-		}
 	}
 
 
-	ArrayList<HdBufferSubInstance> instances = new ArrayList<>();
-	ArrayList<SdBufferSubInstance> sdInstances = new ArrayList<>();
-	HdBufferSubInstance currInstance;
-	SdBufferSubInstance currSdInstance;
+	ArrayList<BufferSubInstance> instances = new ArrayList<>();
+	BufferSubInstance currInstance;
 
 	public HdBufferSubInstance startInstance(EditableModel model, TextureThing textureThing){
 		HdBufferSubInstance instance = new HdBufferSubInstance(model, textureThing);
@@ -173,23 +178,16 @@ public abstract class ShaderPipeline {
 		return instance;
 	}
 
-	public void startInstance(HdBufferSubInstance instance){
+	public void startInstance(BufferSubInstance instance){
 		if(instance != null){
 			instances.add(0, instance);
 			instance.setOffset(vertexCount);
 		}
 		currInstance = instance;
 	}
-	public void startInstance(SdBufferSubInstance instance){
+	public void overlappingInstance(BufferSubInstance instance){
 		if(instance != null){
-			sdInstances.add(0, instance);
-			instance.setOffset(vertexCount);
-		}
-		currSdInstance = instance;
-	}
-	public void overlappingInstance(SdBufferSubInstance instance){
-		if(instance != null){
-			sdInstances.add(0, instance);
+			instances.add(0, instance);
 //			instance.setOffset(currInstance.getOffset());
 //			instance.setVertCount(currInstance.getVertCount());
 		}
@@ -198,11 +196,7 @@ public abstract class ShaderPipeline {
 		if (currInstance != null) {
 			currInstance.setEnd(vertexCount);
 		}
-		if (currSdInstance != null) {
-			currSdInstance.setEnd(vertexCount);
-		}
 		currInstance = null;
-		currSdInstance = null;
 	}
 
 	protected void fillPipelineMatrixBuffer() {
@@ -297,9 +291,6 @@ public abstract class ShaderPipeline {
 		currBufferOffset +=2 ;
 	}
 
-	// draw stuff
-	public abstract void glEnd();
-
 
 	public void glPolygonMode(int face, int mode) {
 		GL11.glPolygonMode(face, mode);
@@ -345,9 +336,11 @@ public abstract class ShaderPipeline {
 	}
 
 	public void glViewport(int x, int y, int w, int h) {
-		this.viewportWidth = w;
-		this.viewportHeight = h;
+		glViewport(w, h);
 		GL11.glViewport(x, y, w, h);
+	}
+	public void glViewport(int w, int h) {
+		viewPortSize.set(w, h);
 	}
 
 	public abstract void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres);
