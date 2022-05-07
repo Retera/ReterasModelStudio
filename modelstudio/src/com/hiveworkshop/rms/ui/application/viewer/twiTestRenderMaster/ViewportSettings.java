@@ -6,6 +6,7 @@ public class ViewportSettings {
 	private boolean wireFrame = false;
 	private boolean showNormals = false;
 	private boolean show3dVerts = false;
+	private boolean showNodes = false;
 
 
 
@@ -21,6 +22,11 @@ public class ViewportSettings {
 
 	public ViewportSettings setWireFrame(boolean wireFrame) {
 		this.wireFrame = wireFrame;
+		return this;
+	}
+
+	public ViewportSettings setShowNodes(boolean showNodes) {
+		this.showNodes = showNodes;
 		return this;
 	}
 
@@ -47,6 +53,9 @@ public class ViewportSettings {
 
 	public boolean isShowNormals() {
 		return showNormals;
+	}
+	public boolean isShowNodes() {
+		return showNodes;
 	}
 
 	public boolean isShow3dVerts() {

@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
+import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.BufferFiller;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
@@ -72,6 +73,7 @@ public final class RenderModel {
 
 	private final ModelView modelView;
 
+	private BufferFiller bufferFiller;
 	public RenderModel(EditableModel model, ModelView modelView) {
 		this.model = model;
 		this.modelView = modelView;
@@ -82,6 +84,11 @@ public final class RenderModel {
 			RenderGeoset renderGeoset = renderGeosetMap.computeIfAbsent(geoset, k -> new RenderGeoset(geoset, this, modelView));
 			renderGeoset.updateTransforms(false);
 		}
+		bufferFiller = new BufferFiller(modelView, this, true);
+	}
+
+	public BufferFiller getBufferFiller() {
+		return bufferFiller;
 	}
 
 	public EditableModel getModel() {

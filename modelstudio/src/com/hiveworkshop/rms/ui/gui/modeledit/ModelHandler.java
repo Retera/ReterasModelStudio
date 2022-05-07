@@ -68,6 +68,23 @@ public class ModelHandler {
 	public TimeEnvironmentImpl getPreviewTimeEnv() {
 		return previewRenderModel.getTimeEnvironment();
 	}
+	public RenderModel getRenderModel(int type) {
+//		if(renderModelList.size()<type) {
+//			type = 0;
+//		}
+//		return renderModelList.get(type);
+		if(type == 0){
+			return renderModel;
+		} else if(type == 1) {
+			return previewRenderModel;
+		} else {
+			return renderModel;
+		}
+	}
+
+	public TimeEnvironmentImpl getTimeEnv(int type) {
+		return getRenderModel(type).getTimeEnvironment();
+	}
 
 	public Icon getIcon() {
 		return icon;

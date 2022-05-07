@@ -23,11 +23,12 @@ public class DisplayViewCanvas extends ModelDependentView {
 	TinyToggleButton show3dVerts;
 
 
-	public DisplayViewCanvas(String s) {
+	public DisplayViewCanvas(String s, boolean allowButtonPanel, boolean initOrtho) {
 		super(s, null, new JPanel());
 		this.name = s;
 		dudPanel = new JPanel(new MigLayout());
-		displayPanel = new DisplayPanelCanvas();
+		displayPanel = new DisplayPanelCanvas(allowButtonPanel);
+		displayPanel.setOrtho(initOrtho);
 		this.setComponent(dudPanel);
 		setUpViewAngle();
 

@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
@@ -25,7 +26,7 @@ import java.util.Set;
 
 public class AddKeyframeAction3 implements UndoAction {
 	private final ModelView modelView;
-	private final ModelHandler modelHandler;
+	private final RenderModel renderModel ;
 	private final int trackTime;
 	private final TimeEnvironmentImpl timeEnvironmentImpl;
 	private final ModelEditorActionType3 actionType;
@@ -35,11 +36,11 @@ public class AddKeyframeAction3 implements UndoAction {
 	public AddKeyframeAction3(ModelHandler modelHandler,
 	                          ModelEditorActionType3 actionType) {
 		this.actionType = actionType;
-		this.modelHandler = modelHandler;
 		this.modelView = modelHandler.getModelView();
+		this.renderModel = modelHandler.getRenderModel();
 
-		timeEnvironmentImpl = modelHandler.getEditTimeEnv();
-		trackTime = modelHandler.getRenderModel().getTimeEnvironment().getEnvTrackTime();
+		timeEnvironmentImpl = renderModel.getTimeEnvironment();
+		trackTime = timeEnvironmentImpl.getEnvTrackTime();
 
 		createKeyframeCompoundAction = createKeyframe();
 	}
@@ -71,7 +72,7 @@ public class AddKeyframeAction3 implements UndoAction {
 
 			actions.add(new AddTimelineAction<>(node, timeline));
 		}
-		RenderNode2 renderNode = modelHandler.getRenderModel().getRenderNode(node);
+		RenderNode2 renderNode = renderModel.getRenderNode(node);
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalLocation())));
 	}
 
@@ -82,7 +83,7 @@ public class AddKeyframeAction3 implements UndoAction {
 
 			actions.add(new AddTimelineAction<>(node, timeline));
 		}
-		RenderNode2 renderNode = modelHandler.getRenderModel().getRenderNode(node);
+		RenderNode2 renderNode = renderModel.getRenderNode(node);
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Vec3(renderNode.getLocalScale())));
 	}
 
@@ -93,7 +94,7 @@ public class AddKeyframeAction3 implements UndoAction {
 
 			actions.add(new AddTimelineAction<>(node, timeline));
 		}
-		RenderNode2 renderNode = modelHandler.getRenderModel().getRenderNode(node);
+		RenderNode2 renderNode = renderModel.getRenderNode(node);
 		return getAddKeyframeAction(timeline, new Entry<>(trackTime, new Quat(renderNode.getLocalRotation())));
 	}
 

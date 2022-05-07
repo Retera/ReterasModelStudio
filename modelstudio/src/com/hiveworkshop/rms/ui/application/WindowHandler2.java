@@ -3,7 +3,7 @@ package com.hiveworkshop.rms.ui.application;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewCanvas;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayViewUgg;
 import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
-import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.CanvasTracker;
+import com.hiveworkshop.rms.ui.application.viewer.PreviewViewCanv;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.ModelingCreatorToolsView;
@@ -120,8 +120,6 @@ public class WindowHandler2 {
 		allViews.removeIf(view -> !isStillInUse(view));
 //		System.out.println("allViews.size()2: " + allViews.size());
 
-		canvasTracker.setModelPanel(modelPanel);
-
 		for (ModelDependentView view : allViews) {
 //			System.out.println("updating: " + view);
 //			System.out.println(view + "#ViewProp: " + view.getViewProperties());
@@ -227,7 +225,7 @@ public class WindowHandler2 {
 	public TabWindow getStartupTabWindow() {
 		SplitWindow editingTab = getEditTab();
 
-//		DockingWindow viewingTab = getViewTab();
+		DockingWindow viewingTab = getViewTab2();
 
 //		SplitWindow modelTab = new SplitWindow(true, 0.2f, getPlaceholderView("Contents"), getTitledView("Component"));
 		ModelComponentsView modelTab = new ModelComponentsView();
@@ -235,8 +233,8 @@ public class WindowHandler2 {
 		componentBrowserTreeViews.add(modelTab);
 		allViews.add(modelTab);
 
-		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, modelTab});
-//		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
+//		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, modelTab});
+		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
 
 //        TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, viewingTab, modelTab});
 		traverseAndFix(startupTabWindow);
@@ -271,8 +269,33 @@ public class WindowHandler2 {
 		viewingTab.getWindowProperties().setTitleProvider(arg0 -> "View");
 		return viewingTab;
 	}
+	private DockingWindow getViewTab2() {
 
-	CanvasTracker canvasTracker = new CanvasTracker();
+		PreviewViewCanv previewView = new PreviewViewCanv();
+		allViews.add(previewView);
+		DockingWindow viewingTab;
+		if(ProgramGlobals.getPrefs().loadBrowsersOnStartup()){
+			UnitBrowserView unitBrowserView = new UnitBrowserView();
+			unitBrowserViews.add(unitBrowserView);
+			MPQBrowserView mpqBrowserView = new MPQBrowserView();
+			mpqBrowserViews.add(mpqBrowserView);
+
+			DockingWindow[] dockingWindow = new DockingWindow[] {unitBrowserView, mpqBrowserView};
+
+			TabWindow tabWindow = new TabWindow(dockingWindow);
+
+			tabWindow.setSelectedTab(0);
+			viewingTab = new SplitWindow(true, 0.8f, previewView, tabWindow);
+		} else {
+			viewingTab = previewView;
+		}
+
+//		viewingTab = new SplitWindow(true, 0.8f, previewView, tabWindow);
+
+		viewingTab.getWindowProperties().setTitleProvider(arg0 -> "View");
+		return viewingTab;
+	}
+
 	private SplitWindow getEditTab() {
 		ModelViewManagingView modelEditingTreeView = new ModelViewManagingView();
 		modelViewManagingTrees.add(modelEditingTreeView);
@@ -280,9 +303,8 @@ public class WindowHandler2 {
 		TabWindow leftHandTabWindow = new TabWindow(new DockingWindow[] {modelEditingTreeView, getTitledView("Tools")});
 		leftHandTabWindow.setSelectedTab(0);
 
-		DisplayViewCanvas front = new DisplayViewCanvas("Front");
+		DisplayViewCanvas front = new DisplayViewCanvas("Front", true, true);
 		allViews.add(front);
-		canvasTracker.addCanvas(front.getPerspectiveViewport());
 
 //		DisplayViewUgg top = new DisplayViewUgg("Top");
 //		allViews.add(top);
@@ -296,18 +318,20 @@ public class WindowHandler2 {
 //		SplitWindow lfPs = new SplitWindow(true, side, perspective);
 //		SplitWindow quadView = new SplitWindow(false, frBt, lfPs);
 
-		DisplayViewCanvas top = new DisplayViewCanvas("Top");
+		DisplayViewCanvas top = new DisplayViewCanvas("Top", true, true);
 		allViews.add(top);
-		canvasTracker.addCanvas(top.getPerspectiveViewport());
 
-		DisplayViewCanvas side = new DisplayViewCanvas("Side");
+		DisplayViewCanvas side = new DisplayViewCanvas("Side", true, true);
 		allViews.add(side);
-		canvasTracker.addCanvas(side.getPerspectiveViewport());
 
 //		PerspectiveViewUgg perspective = new PerspectiveViewUgg();
 //		allViews.add(perspective);
+
+		DisplayViewCanvas perspective = new DisplayViewCanvas("Perspective", false, false);
+		allViews.add(perspective);
+
 		SplitWindow frBt = new SplitWindow(true, front, top);
-		SplitWindow lfPs = new SplitWindow(true, side, getTitledView("ugg"));
+		SplitWindow lfPs = new SplitWindow(true, side, perspective);
 		SplitWindow quadView = new SplitWindow(false, frBt, lfPs);
 
 		ModelingCreatorToolsView creatorView = new ModelingCreatorToolsView();

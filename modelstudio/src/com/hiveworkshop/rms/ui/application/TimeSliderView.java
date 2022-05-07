@@ -1,5 +1,6 @@
 package com.hiveworkshop.rms.ui.application;
 
+import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeBoundChooserPanel;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeSliderPanel;
@@ -92,9 +93,10 @@ public class TimeSliderView extends ModelDependentView {
 
 			if (confirmDialogResult == JOptionPane.OK_OPTION) {
 				//			tbcPanel.applyTo(mainPanel.animatedRenderEnvironment);
-				tbcPanel.applyTo(modelPanel.getModelHandler().getEditTimeEnv());
+				RenderModel editorRenderModel = modelPanel.getModelHandler().getRenderModel();
+				tbcPanel.applyTo(editorRenderModel.getTimeEnvironment());
 				ModelStructureChangeListener.refreshFromEditor(modelPanel);
-				modelPanel.getEditorRenderModel().updateNodes(false);
+				editorRenderModel.updateNodes(false);
 			}
 		}
 	}

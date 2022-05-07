@@ -31,7 +31,7 @@ public class DisplayPanelCanvas extends JPanel {
 	private ViewportActivityManager activityListener;
 	private final Consumer<Cursor> cursorManager;
 
-	public DisplayPanelCanvas() {
+	public DisplayPanelCanvas(boolean allowButtonPanel) {
 		super(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
 //		this.viewportListener = windowHandler2.getViewportListener();
 		setupCopyPaste(ProgramGlobals.getViewportTransferHandler());
@@ -48,6 +48,7 @@ public class DisplayPanelCanvas extends JPanel {
 
 			vp2.getCameraHandler().toggleOrtho();
 			viewportSettings = vp2.getViewportSettings();
+			viewportSettings.setShowNodes(true);
 //			vp2.getCameraHandler().setAllowToggleOrtho(false);
 
 			viewHolderPanel.add(vp2, "spany, growy, growx");
@@ -57,15 +58,19 @@ public class DisplayPanelCanvas extends JPanel {
 			e.printStackTrace();
 		}
 
-		buttonPanel = getButtonPanel();
-		add(buttonPanel, "gapy 16, top");
+		if(allowButtonPanel){
+			buttonPanel = getButtonPanel();
+			add(buttonPanel, "gapy 16, top");
+		} else {
+			buttonPanel = null;
+		}
 	}
 
 	public DisplayPanelCanvas setModel(ModelHandler modelHandler, ViewportActivityManager activityListener) {
 		this.activityListener = activityListener;
 		if(modelHandler != null){
 			vp2.setModel(modelHandler.getModelView(), modelHandler.getRenderModel(), true);
-			vp2.getCameraHandler().setOrtho(true);
+//			vp2.getCameraHandler().setOrtho(true);
 			vp2.getMouseAdapter().setActivityManager(activityListener);
 		} else {
 			vp2.setModel(null, null, false);
@@ -118,7 +123,9 @@ public class DisplayPanelCanvas extends JPanel {
 	}
 
 	public void setControlsVisible(boolean flag) {
-		buttonPanel.setVisible(flag);
+		if(buttonPanel != null){
+			buttonPanel.setVisible(flag);
+		}
 	}
 
 	public DisplayPanelCanvas reload() {
@@ -181,6 +188,11 @@ public class DisplayPanelCanvas extends JPanel {
 
 	public DisplayPanelCanvas setShow3dVerts(boolean show3dVerts) {
 		viewportSettings.setShow3dVerts(show3dVerts);
+		return this;
+	}
+
+	public DisplayPanelCanvas setOrtho(boolean ortho){
+		vp2.getCameraManager().setOrtho(ortho);
 		return this;
 	}
 

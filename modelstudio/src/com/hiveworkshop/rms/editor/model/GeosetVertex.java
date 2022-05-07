@@ -33,11 +33,11 @@ public class GeosetVertex extends Vec3 {
 
 	public GeosetVertex(double x, double y, double z, Vec3 n) {
 		super(x, y, z);
-		normal = n;
+		normal.set(n);
 	}
 	public GeosetVertex(Vec3 pos, Vec3 n) {
 		super(pos);
-		normal = n;
+		normal.set(n);
 	}
 
 	private GeosetVertex(GeosetVertex old) {

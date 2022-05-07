@@ -14,10 +14,16 @@ import org.lwjgl.opengl.GL11;
 
 public class RendererThing1 {
 
-	public static void renderNormals(CameraManager cameraManager, ViewportCanvas viewportCanvas, ShaderPipeline normPipeline, GeosetBufferFiller geosetBufferFiller) {
+	public static void renderNormals(CameraManager cameraManager, ViewportCanvas viewportCanvas, ShaderPipeline normPipeline) {
+		int width = viewportCanvas.getWidth();
+		int height = viewportCanvas.getHeight();
+		renderNormals(cameraManager, normPipeline, width, height);
+	}
+
+	public static void renderNormals(CameraManager cameraManager, ShaderPipeline normPipeline, int width, int height) {
 		normPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		normPipeline.glViewport(viewportCanvas.getWidth(), viewportCanvas.getHeight());
+		normPipeline.glViewport(width, height);
 		normPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 
 		normPipeline.glMatrixMode(GL11.GL_PROJECTION);
@@ -30,9 +36,15 @@ public class RendererThing1 {
 	}
 
 	public static void render3DVerts(CameraManager cameraManager, ViewportCanvas viewportCanvas, ShaderPipeline vertPipeline) {
+		int width = viewportCanvas.getWidth();
+		int height = viewportCanvas.getHeight();
+		render3DVerts(cameraManager, vertPipeline, width, height);
+	}
+
+	public static void render3DVerts(CameraManager cameraManager, ShaderPipeline vertPipeline, int width, int height) {
 		vertPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		vertPipeline.glViewport(viewportCanvas.getWidth(), viewportCanvas.getHeight());
+		vertPipeline.glViewport(width, height);
 		vertPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 
 		vertPipeline.glMatrixMode(GL11.GL_PROJECTION);
@@ -50,8 +62,14 @@ public class RendererThing1 {
 	}
 
 	public static void renderNodes(CameraManager cameraManager, ViewportCanvas viewportCanvas, ShaderPipeline bonePipeline) {
+		int width = viewportCanvas.getWidth();
+		int height = viewportCanvas.getHeight();
+		renderNodes(cameraManager, bonePipeline, width, height);
+	}
+
+	public static void renderNodes(CameraManager cameraManager, ShaderPipeline bonePipeline, int width, int height) {
 		bonePipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-		bonePipeline.glViewport(viewportCanvas.getWidth(), viewportCanvas.getHeight());
+		bonePipeline.glViewport(width, height);
 		bonePipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 
 		bonePipeline.glMatrixMode(GL11.GL_PROJECTION);
@@ -119,7 +137,13 @@ public class RendererThing1 {
 		}
 	}
 	public static void paintGrid(CameraManager cameraManager, ViewportCanvas viewportCanvas, ShaderPipeline pipeline) {
-		pipeline.glViewport(viewportCanvas.getWidth(), viewportCanvas.getHeight());
+		int width = viewportCanvas.getWidth();
+		int height = viewportCanvas.getHeight();
+		paintGrid(cameraManager, pipeline, width, height);
+	}
+
+	public static void paintGrid(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
+		pipeline.glViewport(width, height);
 		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 

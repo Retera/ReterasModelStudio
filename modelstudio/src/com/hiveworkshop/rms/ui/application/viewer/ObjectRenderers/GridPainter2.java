@@ -48,48 +48,15 @@ public class GridPainter2 {
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		pipeline.prepare();
 
-		float cameraPxSize1 = (float) (cameraHandler.sizeAdj()); // 1px
+//		float cameraPxSize1 = (float) (cameraHandler.sizeAdj()); // 1px
+		float cameraPxSize1 = (float) (1); // 1px
 		int gridLog = (int)Math.log10(cameraPxSize1*120);
 		double v = (int)Math.log10(cameraPxSize1);
 		float lineScaleMul = (float) Math.pow(10, v);
 
-		planeHeapXY.set(Vec3.Z_AXIS, 0);
-		gridStart.set(Vec3.ZERO);
-		gridEnd.set(Vec3.ZERO);
-
-
-		rayHeap.set(cameraHandler.getRayFromScreenSpace(-1, 1));
-		float intersectTL = planeHeapXY.getIntersect(rayHeap);
-		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectTL);
-		if(vec3Heap.isValid()){
-			gridStart.minimize(vec3Heap);
-			gridEnd.maximize(vec3Heap);
-		}
-
-		rayHeap.set(cameraHandler.getRayFromScreenSpace(1,1));
-		float intersectTR = planeHeapXY.getIntersect(rayHeap);
-		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectTR);
-		if(vec3Heap.isValid()){
-			gridStart.minimize(vec3Heap);
-			gridEnd.maximize(vec3Heap);
-		}
-
-		rayHeap.set(cameraHandler.getRayFromScreenSpace(-1,-1));
-		float intersectBL = planeHeapXY.getIntersect(rayHeap);
-		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectBL);
-		if(vec3Heap.isValid()){
-			gridStart.minimize(vec3Heap);
-			gridEnd.maximize(vec3Heap);
-		}
-
-		rayHeap.set(cameraHandler.getRayFromScreenSpace(1, -1));
-		float intersectBR = planeHeapXY.getIntersect(rayHeap);
-		vec3Heap.set(rayHeap.getPoint()).addScaled(rayHeap.getDir(), intersectBR);
-		if(vec3Heap.isValid()){
-			gridStart.minimize(vec3Heap);
-			gridEnd.maximize(vec3Heap);
-		}
-
+//		findGridPoints();
+		gridStart.set(-10, -10, 0);
+		gridEnd.set(10, 10, 0);
 
 
 //		gridStart
@@ -131,21 +98,8 @@ public class GridPainter2 {
 //		makeGridPoints(pipeline, new Vec3(100*lineScaleMul, 100*lineScaleMul, 0), new Vec3(-100*lineScaleMul, -100*lineScaleMul, 0), Vec3.X_AXIS, Vec3.Y_AXIS, gridLog);
 
 	}
-	public void fillGridBuffer(ShaderPipeline pipeline, CameraManager cameraManager) {
-		GL11.glDepthMask(false);
-		GL11.glEnable(GL11.GL_BLEND);
-		pipeline.glEnableIfNeeded(GL11.GL_BLEND);
-		pipeline.glDisableIfNeeded(GL_ALPHA_TEST);
-		pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
-		pipeline.glDisableIfNeeded(GL_CULL_FACE);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		pipeline.prepare();
 
-		float cameraPxSize1 = (float) (cameraHandler.sizeAdj()); // 1px
-		int gridLog = (int)Math.log10(cameraPxSize1*120);
-		double v = (int)Math.log10(cameraPxSize1);
-		float lineScaleMul = (float) Math.pow(10, v);
-
+	private void findGridPoints() {
 		planeHeapXY.set(Vec3.Z_AXIS, 0);
 		gridStart.set(Vec3.ZERO);
 		gridEnd.set(Vec3.ZERO);
@@ -182,7 +136,24 @@ public class GridPainter2 {
 			gridStart.minimize(vec3Heap);
 			gridEnd.maximize(vec3Heap);
 		}
+	}
 
+	public void fillGridBuffer(ShaderPipeline pipeline, CameraManager cameraManager) {
+		GL11.glDepthMask(false);
+		GL11.glEnable(GL11.GL_BLEND);
+		pipeline.glEnableIfNeeded(GL11.GL_BLEND);
+		pipeline.glDisableIfNeeded(GL_ALPHA_TEST);
+		pipeline.glDisableIfNeeded(GL_TEXTURE_2D);
+		pipeline.glDisableIfNeeded(GL_CULL_FACE);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		pipeline.prepare();
+
+		float cameraPxSize1 = (float) (cameraHandler.sizeAdj()); // 1px
+		int gridLog = (int)Math.log10(cameraPxSize1*120);
+		double v = (int)Math.log10(cameraPxSize1);
+		float lineScaleMul = (float) Math.pow(10, v);
+
+		findGridPoints();
 
 
 //		gridStart

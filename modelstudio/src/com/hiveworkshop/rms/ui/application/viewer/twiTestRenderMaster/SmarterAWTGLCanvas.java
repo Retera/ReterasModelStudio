@@ -51,7 +51,7 @@ import java.awt.event.ComponentEvent;
 public class SmarterAWTGLCanvas extends AWTGLCanvas {
 	private static SharedDrawable sharedDrawable;
 	private static Pbuffer pbuffer;
-	private static PixelFormat pixelFormat = new PixelFormat();
+	private static PixelFormat pixelFormat = new PixelFormat(8,8,0);
 	private static GraphicsDevice defaultScreenDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 	static {
 		try {

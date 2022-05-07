@@ -13,10 +13,11 @@ import org.lwjgl.LWJGLException;
 
 import javax.swing.*;
 import java.awt.*;
+import java.nio.ByteBuffer;
+import java.util.function.Consumer;
 
 public class ViewportCanvas extends SmarterAWTGLCanvas {
 	private final CameraManager cameraManager;
-	private ProgramPreferences programPreferences;
 	private final ViewportSettings viewportSettings = new ViewportSettings();
 	private final MouseListenerThing mouseAdapter;
 	private final KeylistenerThing keyAdapter;
@@ -46,7 +47,7 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 	}
 
 	public ViewportCanvas setBufferFiller(BufferFiller bufferFiller) {
-		this.bufferFiller = bufferFiller;
+//		this.bufferFiller = bufferFiller;
 		return this;
 	}
 
@@ -65,6 +66,7 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 	public ViewportCanvas setModel(ModelView modelView, RenderModel renderModel, boolean autoRepainting) {
 		if(renderModel != null){
 			cameraManager.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderModel.getTimeEnvironment(), modelView.getModel().getExtents()));
+			bufferFiller = renderModel.getBufferFiller();
 		}
 		return this;
 	}
@@ -81,7 +83,9 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 	@Override
 	public void initGL() {
 //		System.out.println("initGL");
-		bufferFiller.initGL();
+		if(bufferFiller != null){
+			bufferFiller.initGL();
+		}
 	}
 
 	@Override
@@ -92,19 +96,35 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 //			throw new RuntimeException(e);
 //		}
 		setSize(getParent().getSize());
-		bufferFiller.paintCanvas(this, true);
-
-		try {
-			swapBuffers();
-		} catch (LWJGLException e) {
-			e.printStackTrace();
+		if(bufferFiller != null){
+			if(bufferConsumer != null){
+				final Consumer<ByteBuffer> bc = bufferConsumer;
+				ByteBuffer pixels = bufferFiller.paintGL2(cameraManager, viewportSettings, getWidth(), getHeight(), null);
+				SwingUtilities.invokeLater(() -> {
+					bc.accept(pixels);
+				});
+				bufferConsumer = null;
+			}
+			bufferFiller.paintCanvas(this, true);
+			try {
+				swapBuffers();
+			} catch (LWJGLException e) {
+				e.printStackTrace();
+			}
 		}
+
 		if (isShowing() && !paintTimer.isRunning()) {
 			paintTimer.restart();
 		} else if (!isShowing() && paintTimer.isRunning()) {
 			paintTimer.stop();
 		}
 	}
+
+	Consumer<ByteBuffer> bufferConsumer;
+	public void setPixelBufferListener(Consumer<ByteBuffer> bufferConsumer){
+		this.bufferConsumer = bufferConsumer;
+	}
+
 
 	@Override
 	public void update(Graphics g) {
