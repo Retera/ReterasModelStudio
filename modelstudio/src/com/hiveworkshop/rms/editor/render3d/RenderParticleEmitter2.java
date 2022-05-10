@@ -91,14 +91,14 @@ public class RenderParticleEmitter2 {
 		}
 	}
 
-	public RenderParticleEmitter2 emitObject(boolean flag) {
+	public RenderParticleEmitter2 emitObject(boolean isHead) {
 		if (alive == renderParticle2s.size()) {
 			renderParticle2s.add(new RenderParticle2(particleEmitter2));
 		}
 
 		RenderParticle2 renderParticle2 = renderParticle2s.get(alive);
 		this.alive += 1;
-		renderParticle2.reset(renderModel, flag, timeEnvironment);
+		renderParticle2.reset(renderModel, isHead, timeEnvironment);
 
 		return this;
 	}

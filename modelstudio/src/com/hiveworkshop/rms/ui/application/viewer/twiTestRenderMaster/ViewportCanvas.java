@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.ui.application.viewer.KeylistenerThing;
 import com.hiveworkshop.rms.ui.application.viewer.MouseListenerThing;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.PortraitCameraManager;
+import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderManager;
 import com.hiveworkshop.rms.ui.application.viewer.ViewportHelpers;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import org.lwjgl.LWJGLException;
@@ -46,11 +47,6 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 		paintTimer.start();
 	}
 
-	public ViewportCanvas setBufferFiller(BufferFiller bufferFiller) {
-//		this.bufferFiller = bufferFiller;
-		return this;
-	}
-
 	public CameraManager getCameraManager() {
 		return cameraManager;
 	}
@@ -72,6 +68,9 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 	}
 
 
+	public ShaderManager getShaderManager() {
+		return bufferFiller.getShaderManager();
+	}
 
 
 	public void setCamera(final Camera camera) {

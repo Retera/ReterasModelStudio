@@ -23,8 +23,7 @@ public abstract class BufferSubInstance {
 	protected int offset = 0;
 	protected int vertCount = 0;
 	protected float fresnelTeamColor = 0;
-	protected float fresnelOpacity = 0;
-	protected Vec3 fresnelColor = new Vec3();
+	protected Vec4 fresnelColor = new Vec4();
 	protected Mat4 uvTransform = new Mat4();
 	protected boolean twoSided = false;
 	protected boolean renderTextures = false;
@@ -81,11 +80,7 @@ public abstract class BufferSubInstance {
 		return fresnelTeamColor;
 	}
 
-	public float getFresnelOpacity() {
-		return fresnelOpacity;
-	}
-
-	public Vec3 getFresnelColor() {
+	public Vec4 getFresnelColor() {
 		return fresnelColor;
 	}
 
@@ -128,7 +123,6 @@ public abstract class BufferSubInstance {
 			GL11.glEnable(GL11.GL_CULL_FACE);
 		}
 		pipeline.glFresnelTeamColor1f(fresnelTeamColor);
-		pipeline.glFresnelOpacity1f(fresnelOpacity);
 	}
 
 	public Mat4 getUvTransform() {

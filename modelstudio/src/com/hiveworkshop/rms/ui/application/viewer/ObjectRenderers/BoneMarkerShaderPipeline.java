@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.viewer.ReteraShaderStuff.OtherUtils;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -8,7 +10,7 @@ import org.lwjgl.opengl.*;
 
 
 public class BoneMarkerShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = POSITION + ROTATION + COLOR;
+	private static final int STRIDE = POSITION + ROTATION + SELECTION_STATUS;
 
 
 	public BoneMarkerShaderPipeline() {
@@ -17,6 +19,19 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		vertexShader = OtherUtils.loadShader("Bone.vert");
 		fragmentShader = OtherUtils.loadShader("Bone.frag");
 		load();
+		setupUniforms();
+	}
+
+
+	protected void setupUniforms(){
+		createUniform("scale");
+//		createUniform("u_viewPos");
+		createUniform("u_projection");
+		createUniform("a_selectionStatus");
+		createUniform("u_vertColors[0]");
+		createUniform("u_vertColors[1]");
+		createUniform("u_vertColors[2]");
+		createUniform("u_vertColors[3]");
 	}
 
 	public void doRender() {
@@ -32,7 +47,7 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 
 		enableAttribArray(POSITION, STRIDE);
 		enableAttribArray(ROTATION, STRIDE);
-		enableAttribArray(COLOR, STRIDE);
+		enableAttribArray(SELECTION_STATUS, STRIDE);
 
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL20.glUseProgram(shaderProgram);
@@ -41,14 +56,25 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		lightingEnabled = 0;
 
 
+
+		float[] colorHig = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.NODE_HIGHLIGHTED);
+		float[] colorSel = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.NODE_SELECTED);
+		float[] colorEdi = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.NODE);
+		float[] colorVis = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.NODE_UNEDITABLE);
+		glUniform("u_vertColors[0]", colorHig[0], colorHig[1], colorHig[2], colorHig[3]);
+		glUniform("u_vertColors[1]", colorSel[0], colorSel[1], colorSel[2], colorSel[3]);
+		glUniform("u_vertColors[2]", colorEdi[0], colorEdi[1], colorEdi[2], colorEdi[3]);
+		glUniform("u_vertColors[3]", colorVis[0], colorVis[1], colorVis[2], colorVis[3]);
+
+
 		tempVec4.set(0,0,0,1).transform(currentMatrix);
-		GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "scale"), tempVec4.w/ viewPortSize.x, tempVec4.w/ viewPortSize.y);
+		glUniform("scale", tempVec4.w/ viewPortSize.x, tempVec4.w/ viewPortSize.y);
 
 
 
 //		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
-		fillPipelineMatrixBuffer();
-		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false, pipelineMatrixBuffer);
+		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
 
 
 //		GL11.glDrawArrays(glBeginType, 0, vertexCount);
@@ -70,9 +96,6 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		}
 	}
 
-	public void glShadeModel(int mode) {
-	}
-
 	public void glDisableIfNeeded(int glEnum) {
 		if (glEnum == GL11.GL_TEXTURE_2D) {
 			textureUsed = 0;
@@ -86,18 +109,8 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		}
 	}
 
-	public void prepareToBindTexture() {
-//		GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-		textureUsed = 1;
-	}
 
-	public void glActiveHDTexture(int textureUnit) {
-		this.textureUnit = textureUnit;
-//		GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-	}
-
-
-	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres){
+	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres, int selectionStatus){
 		int baseOffset = vertexCount * STRIDE;
 		currBufferOffset = 0;
 		ensureCapacity(baseOffset + STRIDE);
@@ -105,48 +118,12 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		normal.set(Vec3.Z_AXIS, 1).normalize();
 		normal.set(norm, 1).normalizeAsV3();
 		tempQuat.setFromAxisAngle(Vec3.Z_AXIS, (float) Math.toRadians(45)).normalize();
-		color.set(col);
+//		color.set(col);
 
-		int index = 0;
+		addToBuffer(baseOffset, position);
+		addToBuffer(baseOffset, tempQuat);
+		addToBuffer(baseOffset, selectionStatus);
 
-//		pipelineVertexBuffer.put(baseOffset + 0, position.x);
-//		pipelineVertexBuffer.put(baseOffset + 1, position.y);
-//		pipelineVertexBuffer.put(baseOffset + 2, position.z);
-//		pipelineVertexBuffer.put(baseOffset + 3, position.w);
-////
-////		pipelineVertexBuffer.put(baseOffset + 4, normal.x);
-////		pipelineVertexBuffer.put(baseOffset + 5, normal.y);
-////		pipelineVertexBuffer.put(baseOffset + 6, normal.z);
-////		pipelineVertexBuffer.put(baseOffset + 7, 1);
-//
-//		pipelineVertexBuffer.put(baseOffset + 4, color.x);
-//		pipelineVertexBuffer.put(baseOffset + 5, color.y);
-//		pipelineVertexBuffer.put(baseOffset + 6, color.z);
-//		pipelineVertexBuffer.put(baseOffset + 7, color.w);
-		pipelineVertexBuffer.put(baseOffset + index++, position.x);
-		pipelineVertexBuffer.put(baseOffset + index++, position.y);
-		pipelineVertexBuffer.put(baseOffset + index++, position.z);
-		pipelineVertexBuffer.put(baseOffset + index++, position.w);
-
-		pipelineVertexBuffer.put(baseOffset + index++, tempQuat.x);
-		pipelineVertexBuffer.put(baseOffset + index++, tempQuat.y);
-		pipelineVertexBuffer.put(baseOffset + index++, tempQuat.z);
-		pipelineVertexBuffer.put(baseOffset + index++, tempQuat.w);
-
-		pipelineVertexBuffer.put(baseOffset + index++, color.x);
-		pipelineVertexBuffer.put(baseOffset + index++, color.y);
-		pipelineVertexBuffer.put(baseOffset + index++, color.z);
-		pipelineVertexBuffer.put(baseOffset + index++, color.w);
 		vertexCount++;
-
-	}
-
-
-	public void glFresnelTeamColor1f(float v) {
-		this.fresnelTeamColor = v;
-	}
-
-	public void glFresnelOpacity1f(float v) {
-		this.fresnelOpacity = v;
 	}
 }

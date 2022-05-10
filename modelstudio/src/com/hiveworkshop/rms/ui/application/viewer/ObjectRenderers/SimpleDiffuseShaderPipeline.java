@@ -1,19 +1,39 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.viewer.ReteraShaderStuff.OtherUtils;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.*;
 
 public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = POSITION + NORMAL + UV + COLOR;
+	private static final int STRIDE = POSITION + NORMAL + UV + SELECTION_STATUS;
 
 	public SimpleDiffuseShaderPipeline() {
 		currentMatrix.setIdentity();
 		vertexShader = OtherUtils.loadShader("simpleDiffuse.vert");
 		fragmentShader = OtherUtils.loadShader("simpleDiffuse.frag");
 		load();
+		setupUniforms();
+	}
+
+
+	protected void setupUniforms(){
+		createUniform("u_textureDiffuse");
+		createUniform("u_textureUsed");
+		createUniform("u_alphaTest");
+		createUniform("u_lightingEnabled");
+		createUniform("u_lightDirection");
+		createUniform("u_projection");
+		createUniform("u_uvTransform");
+
+		createUniform("a_selectionStatus");
+		createUniform("u_vertColors[0]");
+		createUniform("u_vertColors[1]");
+		createUniform("u_vertColors[2]");
+		createUniform("u_vertColors[3]");
 	}
 
 	public void doRender() {
@@ -28,9 +48,10 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		enableAttribArray(POSITION, STRIDE);
 		enableAttribArray(NORMAL, STRIDE);
 		enableAttribArray(UV, STRIDE);
-		enableAttribArray(COLOR, STRIDE);
+		enableAttribArray(SELECTION_STATUS, STRIDE);
 
 		GL20.glUseProgram(shaderProgram);
+		setUpConstantUniforms();
 
 
 		if(!instances.isEmpty()){
@@ -44,31 +65,37 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		pipelineVertexBuffer.clear();
 	}
 
+	private void setUpConstantUniforms(){
+		glUniform("u_textureUsed", textureUsed);
+		glUniform("u_alphaTest", alphaTest);
+		glUniform("u_lightingEnabled", lightingEnabled);
+		tempVec3.set(30.4879f, -24.1937f, 444.411f);
+		glUniform("u_lightDirection", tempVec3);
+		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
+
+
+		float[] colorHig = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_HIGHLIGHTED);
+		float[] colorSel = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_SELECTED);
+		float[] colorEdi = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX);
+		float[] colorVis = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_UNEDITABLE);
+		glUniform("u_vertColors[0]", colorHig[0], colorHig[1], colorHig[2], colorHig[3]);
+		glUniform("u_vertColors[1]", colorSel[0], colorSel[1], colorSel[2], colorSel[3]);
+		glUniform("u_vertColors[2]", colorEdi[0], colorEdi[1], colorEdi[2], colorEdi[3]);
+		glUniform("u_vertColors[3]", colorVis[0], colorVis[1], colorVis[2], colorVis[3]);
+	}
+
 	private void setUpAndDraw(BufferSubInstance instance) {
 		instance.setUpInstance(this);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureDiffuse"), instance.getTextureSlot());
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureUsed"), textureUsed);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_alphaTest"), alphaTest);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
-		tempVec4.set(30.4879f, -24.1937f, 444.411f, 1.0f);
-		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), tempVec4.x, tempVec4.y, tempVec4.z);
-		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
-		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false, pipelineMatrixBuffer);
+		glUniform("u_textureDiffuse", instance.getTextureSlot());
 		fillMatrixBuffer(uvTransformMatrixBuffer, instance.getUvTransform());
-		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_uvTransform"), false, uvTransformMatrixBuffer);
+		GL20.glUniformMatrix4(getUniformLocation("u_uvTransform"), false, uvTransformMatrixBuffer);
 
 		GL11.glDrawArrays(glBeginType, instance.getOffset(), instance.getVertCount());
 	}
 
 	private void setUpAndDraw() {
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureDiffuse"), 0);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_textureUsed"), textureUsed);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_alphaTest"), alphaTest);
-		GL20.glUniform1i(GL20.glGetUniformLocation(shaderProgram, "u_lightingEnabled"), lightingEnabled);
-		tempVec4.set(30.4879f, -24.1937f, 444.411f, 1.0f);
-		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_lightDirection"), tempVec4.x, tempVec4.y, tempVec4.z);
-		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
-		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false, pipelineMatrixBuffer);
+		glUniform("u_textureDiffuse", 0);
 
 		GL11.glDrawArrays(glBeginType, 0, vertexCount);
 	}
@@ -86,9 +113,6 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		}
 	}
 
-	public void glShadeModel(int mode) {
-	}
-
 	public void glDisableIfNeeded(int glEnum) {
 		if (glEnum == GL11.GL_TEXTURE_2D) {
 			textureUsed = 0;
@@ -102,11 +126,6 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		}
 	}
 
-	public void prepareToBindTexture() {
-//		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		textureUsed = 1;
-	}
-
 
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres){
 		int baseOffset = vertexCount * STRIDE;
@@ -114,13 +133,29 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		ensureCapacity(baseOffset + STRIDE);
 		position.set(pos, 1);
 		normal.set(norm, 1).normalizeAsV3();
-		color.set(col);
 
 
 		addToBuffer(baseOffset, position);
 		addToBuffer(baseOffset, normal);
 		addToBuffer(baseOffset, uv);
-		addToBuffer(baseOffset, color);
+		addToBuffer(baseOffset, 0);
+
+		vertexCount++;
+
+	}
+
+	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres, int selectionStatus){
+		int baseOffset = vertexCount * STRIDE;
+		currBufferOffset = 0;
+		ensureCapacity(baseOffset + STRIDE);
+		position.set(pos, 1);
+		normal.set(norm, 1).normalizeAsV3();
+
+
+		addToBuffer(baseOffset, position);
+		addToBuffer(baseOffset, normal);
+		addToBuffer(baseOffset, uv);
+		addToBuffer(baseOffset, selectionStatus);
 
 		vertexCount++;
 

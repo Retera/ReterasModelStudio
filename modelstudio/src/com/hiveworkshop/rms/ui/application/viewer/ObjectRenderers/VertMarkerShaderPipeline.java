@@ -1,6 +1,8 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
+import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.viewer.ReteraShaderStuff.OtherUtils;
+import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
@@ -8,15 +10,28 @@ import org.lwjgl.opengl.*;
 
 
 public class VertMarkerShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = POSITION + NORMAL + COLOR ;
+	private static final int STRIDE = POSITION + NORMAL + SELECTION_STATUS;
 
 
 	public VertMarkerShaderPipeline() {
 		currentMatrix.setIdentity();
 		geometryShader = OtherUtils.loadShader("VertexBoxes.glsl");
-		vertexShader = OtherUtils.loadShader("VertexBoxes.vert");
+		vertexShader = OtherUtils.loadShader("VertexBoxesVC.vert");
 		fragmentShader = OtherUtils.loadShader("VertexBoxes.frag");
 		load();
+		setupUniforms();
+	}
+
+
+	protected void setupUniforms(){
+		createUniform("scale");
+		createUniform("u_viewPos");
+		createUniform("u_projection");
+		createUniform("a_selectionStatus");
+		createUniform("u_vertColors[0]");
+		createUniform("u_vertColors[1]");
+		createUniform("u_vertColors[2]");
+		createUniform("u_vertColors[3]");
 	}
 
 	public void doRender() {
@@ -32,7 +47,7 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 
 		enableAttribArray(POSITION, STRIDE);
 		enableAttribArray(NORMAL, STRIDE);
-		enableAttribArray(COLOR, STRIDE);
+		enableAttribArray(SELECTION_STATUS, STRIDE);
 
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL20.glUseProgram(shaderProgram);
@@ -41,12 +56,20 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 		lightingEnabled = 0;
 
 		tempVec4.set(0,0,0,1).transform(currentMatrix);
-		GL20.glUniform2f(GL20.glGetUniformLocation(shaderProgram, "scale"), tempVec4.w/ viewPortSize.x, tempVec4.w/ viewPortSize.y);
+		glUniform("scale", tempVec4.w/ viewPortSize.x, tempVec4.w/ viewPortSize.y);
 
-		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
-		fillPipelineMatrixBuffer();
-		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false, pipelineMatrixBuffer);
+		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
+		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
 
+		float[] colorHig = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_HIGHLIGHTED);
+		float[] colorSel = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_SELECTED);
+		float[] colorEdi = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX);
+		float[] colorVis = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_UNEDITABLE);
+		glUniform("u_vertColors[0]", colorHig[0], colorHig[1], colorHig[2], colorHig[3]);
+		glUniform("u_vertColors[1]", colorSel[0], colorSel[1], colorSel[2], colorSel[3]);
+		glUniform("u_vertColors[2]", colorEdi[0], colorEdi[1], colorEdi[2], colorEdi[3]);
+		glUniform("u_vertColors[3]", colorVis[0], colorVis[1], colorVis[2], colorVis[3]);
 
 //		GL11.glDrawArrays(glBeginType, 0, vertexCount);
 		GL11.glDrawArrays(GL11.GL_POINTS, 0, vertexCount);
@@ -67,9 +90,6 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 		}
 	}
 
-	public void glShadeModel(int mode) {
-	}
-
 	public void glDisableIfNeeded(int glEnum) {
 		if (glEnum == GL11.GL_TEXTURE_2D) {
 			textureUsed = 0;
@@ -81,16 +101,6 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 		else if (glEnum == GL11.GL_LIGHTING) {
 			lightingEnabled = 0;
 		}
-	}
-
-	public void prepareToBindTexture() {
-//		GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-		textureUsed = 1;
-	}
-
-	public void glActiveHDTexture(int textureUnit) {
-		this.textureUnit = textureUnit;
-//		GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
 	}
 
 
@@ -110,11 +120,18 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 
 	}
 
-	public void glFresnelTeamColor1f(float v) {
-		this.fresnelTeamColor = v;
-	}
+	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres, int selectionStatus){
+		int baseOffset = vertexCount * STRIDE;
+		currBufferOffset = 0;
+		ensureCapacity(baseOffset + STRIDE);
+		position.set(pos, 1);
+		normal.set(norm, 1).normalizeAsV3();
 
-	public void glFresnelOpacity1f(float v) {
-		this.fresnelOpacity = v;
+		addToBuffer(baseOffset, position);
+		addToBuffer(baseOffset, normal);
+		addToBuffer(baseOffset, selectionStatus);
+
+		vertexCount++;
+
 	}
 }

@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.viewer.ReteraShaderStuff.OtherUtils;
 import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.util.Vec2;
 import com.hiveworkshop.rms.util.Vec3;
@@ -9,15 +8,15 @@ import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.*;
 
 
-public class HDDiffuseShaderPipeline extends ShaderPipeline {
+public class CustomHDShaderPipeline extends ShaderPipeline {
 	private static final int STRIDE = POSITION + NORMAL + UV + TANGENT + FRESNEL_COLOR + SELECTION_STATUS;
 
-	public HDDiffuseShaderPipeline() {
+	public CustomHDShaderPipeline(String vertexShader, String fragmentShader) {
 		currentMatrix.setIdentity();
 //		vertexShader = OtherUtils.loadShader("HDDiffuse.vert");
 //		fragmentShader = OtherUtils.loadShader("HDDiffuse.frag");
-		vertexShader = OtherUtils.loadShader("HDDiffuseVertColor.vert");
-		fragmentShader = OtherUtils.loadShader("HDDiffuseVertColor.frag");
+		this.vertexShader = vertexShader;
+		this.fragmentShader = fragmentShader;
 		load();
 		setupUniforms();
 	}
@@ -101,7 +100,7 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		glUniform("u_vertColors[3]", colorVis[0], colorVis[1], colorVis[2], colorVis[3]);
 
 
-//		alphaTest = 0;
+		alphaTest = 0;
 //		lightingEnabled = 0;
 		glUniform("u_alphaTest", alphaTest);
 		glUniform("u_lightingEnabled", lightingEnabled);

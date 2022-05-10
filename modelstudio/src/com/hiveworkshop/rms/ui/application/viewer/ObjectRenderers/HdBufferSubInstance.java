@@ -41,7 +41,6 @@ public class HdBufferSubInstance extends BufferSubInstance {
 			GL11.glEnable(GL11.GL_CULL_FACE);
 		}
 		pipeline.glFresnelTeamColor1f(fresnelTeamColor);
-		pipeline.glFresnelOpacity1f(fresnelOpacity);
 	}
 
 	protected HdBufferSubInstance fetchTextures(TimeEnvironmentImpl timeEnvironment){
@@ -49,9 +48,9 @@ public class HdBufferSubInstance extends BufferSubInstance {
 			textures[i] = material.getLayer(i).getRenderTexture(timeEnvironment, model);
 		}
 
-		fresnelColor.set(diffuseLayer.getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_FRESNEL_COLOR, Vec3.ZERO));
+		float fresnelOpacity = diffuseLayer.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_FRESNEL_OPACITY, 0.0f);
+		fresnelColor.set(diffuseLayer.getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_FRESNEL_COLOR, Vec3.ZERO), fresnelOpacity);
 		fresnelTeamColor = diffuseLayer.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_FRESNEL_TEAM_COLOR, 0);
-		fresnelOpacity = diffuseLayer.getInterpolatedFloat(timeEnvironment, MdlUtils.TOKEN_FRESNEL_OPACITY, 0.0f);
 
 		setUVTransform(diffuseLayer, timeEnvironment);
 

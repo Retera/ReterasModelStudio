@@ -166,9 +166,26 @@ public class GeosetBufferFiller {
 					colorHeap.set(layerColorHeap);
 				}
 
-				pipeline.addVert(renderPos, renderNorm, renderTang, uvHeap, colorHeap, fresnelColorHeap);
+				int selectionStatus = getSelectionStatus(v);
+
+				pipeline.addVert(renderPos, renderNorm, renderTang, uvHeap, colorHeap, fresnelColorHeap, selectionStatus);
 			}
 		}
+	}
+
+	private int getSelectionStatus(GeosetVertex vertex){
+		if(modelView.getHighlightedGeoset() != null && modelView.getHighlightedGeoset() == vertex.getGeoset()) {
+			return 0;
+		} else if(modelView.isEditable(vertex)){
+			if (modelView.isSelected(vertex)) {
+				return 1;
+			} else {
+				return 2;
+			}
+		}
+//		else if (!modelView.isHidden(vertex)){
+//		}
+		return 3;
 	}
 
 	public void fillNormalsBuffer(ShaderPipeline pipeline) {
@@ -200,7 +217,7 @@ public class GeosetBufferFiller {
 				Vec3 renderPos = renderVert.getRenderPos();
 				Vec3 renderNorm = renderVert.getRenderNorm();
 
-				pipeline.addVert(renderPos, renderNorm, tangentHeap, uvHeap, colorHeap, fresnelColorHeap);
+				pipeline.addVert(renderPos, renderNorm, tangentHeap, uvHeap, colorHeap, Vec3.ZERO);
 			}
 		}
 	}
@@ -235,7 +252,7 @@ public class GeosetBufferFiller {
 				Vec3 renderPos = renderVert.getRenderPos();
 				Vec3 renderNorm = renderVert.getRenderNorm();
 
-				pipeline.addVert(renderPos, renderNorm, tangentHeap, uvHeap, colorHeap, fresnelColorHeap);
+				pipeline.addVert(renderPos, renderNorm, tangentHeap, uvHeap, colorHeap, fresnelColorHeap, getSelectionStatus(v));
 			}
 		}
 	}

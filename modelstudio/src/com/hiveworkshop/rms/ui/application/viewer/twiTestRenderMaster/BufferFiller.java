@@ -69,6 +69,9 @@ public class BufferFiller {
 		setModel(modelView, renderModel, loadDefaultSequence);
 	}
 
+	public ShaderManager getShaderManager() {
+		return shaderManager;
+	}
 
 	public void setModel(ModelView modelView, RenderModel renderModel, boolean loadDefaultSequence) {
 		this.renderModel = renderModel;
@@ -109,7 +112,8 @@ public class BufferFiller {
 			}
 			reloadIfNeeded();
 			updateRenderModel();
-			fillBuffers(showNormals, show3dVerts, renderTextures, pipeline);
+//			fillBuffers(showNormals, show3dVerts, renderTextures, pipeline);
+			fillBuffers(true, true, true, pipeline);
 		}
 	}
 
@@ -254,6 +258,7 @@ public class BufferFiller {
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glClearColor(0f, 0f, 0f, 0.0f);
+
 		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
 		pipeline.glLoadIdentity();
 

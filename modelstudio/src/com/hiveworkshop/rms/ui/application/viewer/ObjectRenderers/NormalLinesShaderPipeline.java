@@ -8,7 +8,7 @@ import org.lwjgl.opengl.*;
 
 
 public class NormalLinesShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = POSITION + NORMAL + COLOR;
+	private static final int STRIDE = POSITION + NORMAL;
 
 
 	public NormalLinesShaderPipeline() {
@@ -17,6 +17,14 @@ public class NormalLinesShaderPipeline extends ShaderPipeline {
 		vertexShader = OtherUtils.loadShader("NormalLines.vert");
 		fragmentShader = OtherUtils.loadShader("NormalLines.frag");
 		load();
+		setupUniforms();
+	}
+
+
+	protected void setupUniforms(){
+		createUniform("u_color");
+		createUniform("u_viewPos");
+		createUniform("u_projection");
 	}
 
 	public void doRender() {
@@ -32,7 +40,7 @@ public class NormalLinesShaderPipeline extends ShaderPipeline {
 
 		enableAttribArray(POSITION, STRIDE);
 		enableAttribArray(NORMAL, STRIDE);
-		enableAttribArray(COLOR, STRIDE);
+//		enableAttribArray(COLOR, STRIDE);
 
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL20.glUseProgram(shaderProgram);
@@ -41,9 +49,10 @@ public class NormalLinesShaderPipeline extends ShaderPipeline {
 		lightingEnabled = 0;
 
 
-		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
-		fillPipelineMatrixBuffer();
-		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false, pipelineMatrixBuffer);
+		glUniform("u_color", color);
+		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
+		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
 
 
 //		GL11.glDrawArrays(glBeginType, 0, vertexCount);
@@ -65,9 +74,6 @@ public class NormalLinesShaderPipeline extends ShaderPipeline {
 		}
 	}
 
-	public void glShadeModel(int mode) {
-	}
-
 	public void glDisableIfNeeded(int glEnum) {
 		if (glEnum == GL11.GL_TEXTURE_2D) {
 			textureUsed = 0;
@@ -81,17 +87,6 @@ public class NormalLinesShaderPipeline extends ShaderPipeline {
 		}
 	}
 
-	public void prepareToBindTexture() {
-//		GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-		textureUsed = 1;
-	}
-
-	public void glActiveHDTexture(int textureUnit) {
-		this.textureUnit = textureUnit;
-//		GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-	}
-
-
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres){
 		int baseOffset = vertexCount * STRIDE;
 		currBufferOffset = 0;
@@ -103,17 +98,8 @@ public class NormalLinesShaderPipeline extends ShaderPipeline {
 
 		addToBuffer(baseOffset, position);
 		addToBuffer(baseOffset, normal);
-		addToBuffer(baseOffset, color);
 
 		vertexCount++;
 
-	}
-
-	public void glFresnelTeamColor1f(float v) {
-		this.fresnelTeamColor = v;
-	}
-
-	public void glFresnelOpacity1f(float v) {
-		this.fresnelOpacity = v;
 	}
 }

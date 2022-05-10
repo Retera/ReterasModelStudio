@@ -18,6 +18,7 @@ public class TwilacsTools extends JMenu {
 		add(new WeldVerts().getMenuItem());
 		add(new SplitVertices().getMenuItem());
 		add(TwilacStuff.getBridgeEdgesMenuItem());
+		add(TwilacStuff.getTestShaderStuffMenuItem());
 //		add(TwilacStuff.getSelectEdgeMenuItem());
 		add(TwilacStuff.getSnapCloseVertsMenuItem());
 		add(ShowHideStuff.getHideVertsMenuItem());

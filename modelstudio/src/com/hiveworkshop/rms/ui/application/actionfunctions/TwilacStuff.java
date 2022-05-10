@@ -19,8 +19,11 @@ import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.WindowHandler2;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.tools.*;
+import com.hiveworkshop.rms.ui.application.viewer.PreviewViewCanv;
+import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.ViewportCanvas;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
@@ -207,6 +210,22 @@ public class TwilacStuff {
 
 		private static void doStuff(ModelHandler modelHandler) {
 			new SelectEdge(modelHandler);
+		}
+	}
+
+	private static class TestShaderStuff extends TwiFunction {
+
+		public TestShaderStuff() {
+			super("Shader Editor", TestShaderStuff::doStuff);
+		}
+
+		private static void doStuff(ModelHandler modelHandler) {
+
+			PreviewViewCanv modelDependentView = (PreviewViewCanv) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PreviewViewCanv).findFirst().orElse(null);
+			if(modelDependentView != null && modelDependentView.getPerspectiveViewport() != null){
+				ViewportCanvas viewport = modelDependentView.getPerspectiveViewport();
+				ShaderEditPanel.show(null, viewport.getShaderManager());
+			}
 		}
 	}
 
@@ -450,6 +469,9 @@ public class TwilacStuff {
 	}
 	public static JMenuItem getSelectEdgeMenuItem() {
 		return new SelectEdgeStuff().getMenuItem();
+	}
+	public static JMenuItem getTestShaderStuffMenuItem() {
+		return new TestShaderStuff().getMenuItem();
 	}
 
 	public static JMenuItem getMergeBoneHelpersMenuItem() {

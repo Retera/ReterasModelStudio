@@ -92,68 +92,6 @@ public class GeosetRenderThing {
 
 	PeriodicOut periodicOut = new PeriodicOut(1000);
 
-	private void render(ShaderPipeline pipeline, Geoset geo, int formatVersion, boolean renderTextures) {
-		Material material = geo.getMaterial();
-//		System.out.println("\ngeoset: " + geo.getName());
-		fresnelColorHeap.set(0f,0f,0f);
-		for (int i = 0; i < material.getLayers().size(); i++) {
-			Layer layer = material.getLayers().get(i);
-			boolean hdTextureOnlyLayer = false;
-			boolean isHD = false;
-			boolean hdNoMetaDataLayer = false;
-			boolean doSetUpFilterMode = true;
-			if (ModelUtils.isShaderStringSupported(formatVersion) && material.getShaderString() != null && material.getShaderString().length() > 0) {
-				pipeline.glActiveHDTexture(i);
-				hdTextureOnlyLayer = i != (material.getLayers().size() - 1);
-				hdNoMetaDataLayer = i != 0;
-				isHD = true;
-				doSetUpFilterMode = i == 0;
-			}
-			if (!isHD || i == 0) {
-				pipeline.prepare();
-			}
-
-			if (doSetUpFilterMode) {
-				setRenderColor(layer);
-				if (hdTextureOnlyLayer) {
-//				if (!hdNoMetaDataLayer) {
-					// (this branch assures it's HD, if you hate this code paradigm change it to "isHD()" for the check)
-					fresnelColorHeap.set(layer.getInterpolatedVector(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_FRESNEL_COLOR, Vec3.ZERO));
-//					fresnelColorHeap.set(layer.getInterpolatedVector(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_FRESNEL_COLOR, Vec3.ONE));
-					fresnelTeamColor = layer.getInterpolatedFloat(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_FRESNEL_TEAM_COLOR, 0);
-					fresnelOpacity = layer.getInterpolatedFloat(renderModel.getTimeEnvironment(), MdlUtils.TOKEN_FRESNEL_OPACITY, 0.0f);
-//					pipeline.glFresnelColor3f(fresnelColorHeap);
-					pipeline.glFresnelTeamColor1f(fresnelTeamColor);
-					pipeline.glFresnelOpacity1f(fresnelOpacity);
-				} else {
-					fresnelColorHeap.set(0f,0f,0f);
-				}
-//				fresnelColorHeap.set(1f,1f,1f);
-			}
-
-			boolean twoSided = layer.getTwoSided() || (ModelUtils.isShaderStringSupported(formatVersion) && material.getTwoSided());
-			Bitmap tex = layer.getRenderTexture(renderModel.getTimeEnvironment(), model);
-//			periodicOut.print("texture: " + tex.getName() + ", geoset: " + geo.getName() + ", slot: " + i);
-//			System.out.println("texture: " + tex.getName() + ", geoset: " + geo.getName() + ", slot: " + i);
-			if(renderTextures){
-				pipeline.prepareToBindTexture();
-//				textureThing.loadAndBindLayerTexture(pipeline, model, layer, doSetUpFilterMode, i, twoSided, tex);
-
-				textureThing.loadAndBindTexture(model, tex, i);
-
-				if (doSetUpFilterMode) {
-					textureThing.setUpFilterMode(pipeline, layer, twoSided);
-				}
-			}
-
-			if(!isHD || i == material.getLayers().size() - 1){
-				drawGeo(pipeline, geo, layer, renderTextures);
-				pipeline.doRender(GL11.GL_TRIANGLES);
-			}
-		}
-
-	}
-
 	private void renderInst(ShaderPipeline pipeline, Geoset geo, int formatVersion, boolean renderTextures) {
 		Material material = geo.getMaterial();
 //		System.out.println("\ngeoset: " + geo.getName());
@@ -341,7 +279,7 @@ public class GeosetRenderThing {
 					colorHeap.set(layerColorHeap);
 				}
 
-				pipeline.addVert(renderPos, renderNorm, renderTang, uvHeap, colorHeap, fresnelColorHeap);
+				pipeline.addVert(renderPos, renderNorm, renderTang, uvHeap, colorHeap, fresnelColorHeap, getSelectionStatus(v));
 			}
 		}
 	}
@@ -375,7 +313,7 @@ public class GeosetRenderThing {
 				Vec3 renderPos = renderVert.getRenderPos();
 				Vec3 renderNorm = renderVert.getRenderNorm();
 
-				pipeline.addVert(renderPos, renderNorm, tangentHeap, uvHeap, colorHeap, fresnelColorHeap);
+				pipeline.addVert(renderPos, renderNorm, tangentHeap, uvHeap, colorHeap, Vec3.ZERO);
 			}
 		}
 	}
@@ -410,7 +348,7 @@ public class GeosetRenderThing {
 				Vec3 renderPos = renderVert.getRenderPos();
 				Vec3 renderNorm = renderVert.getRenderNorm();
 
-				pipeline.addVert(renderPos, renderNorm, tangentHeap, uvHeap, colorHeap, fresnelColorHeap);
+				pipeline.addVert(renderPos, renderNorm, tangentHeap, uvHeap, colorHeap, fresnelColorHeap, getSelectionStatus(v));
 			}
 		}
 	}
@@ -534,5 +472,22 @@ public class GeosetRenderThing {
 	}
 	private boolean triFullyEditable(Triangle triangle){
 		return modelView.isEditable(triangle.get(0)) && modelView.isEditable(triangle.get(1)) && modelView.isEditable(triangle.get(2));
+	}
+
+
+
+	private int getSelectionStatus(GeosetVertex vertex){
+		if(modelView.getHighlightedGeoset() != null && modelView.getHighlightedGeoset() == vertex.getGeoset()) {
+			return 0;
+		} else if(modelView.isEditable(vertex)){
+			if (modelView.isSelected(vertex)) {
+				return 1;
+			} else {
+				return 2;
+			}
+		}
+//		else if (!modelView.isHidden(vertex)){
+//		}
+		return 3;
 	}
 }

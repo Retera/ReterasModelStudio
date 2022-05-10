@@ -8,7 +8,7 @@ import org.lwjgl.opengl.*;
 
 
 public class SelectionBoxShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = POSITION + COLOR;
+	private static final int STRIDE = POSITION;
 
 
 	public SelectionBoxShaderPipeline() {
@@ -17,6 +17,14 @@ public class SelectionBoxShaderPipeline extends ShaderPipeline {
 		vertexShader = OtherUtils.loadShader("SelectionBox.vert");
 		fragmentShader = OtherUtils.loadShader("SelectionBox.frag");
 		load();
+		setupUniforms();
+	}
+
+
+	protected void setupUniforms(){
+		createUniform("u_color");
+		createUniform("u_viewPos");
+		createUniform("u_projection");
 	}
 
 	public void doRender() {
@@ -31,7 +39,6 @@ public class SelectionBoxShaderPipeline extends ShaderPipeline {
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, pipelineVertexBuffer, GL15.GL_DYNAMIC_DRAW);
 
 		enableAttribArray(POSITION, STRIDE);
-		enableAttribArray(COLOR, STRIDE);
 
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL20.glUseProgram(shaderProgram);
@@ -40,9 +47,11 @@ public class SelectionBoxShaderPipeline extends ShaderPipeline {
 		lightingEnabled = 0;
 
 
-		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
-		fillPipelineMatrixBuffer();
-		GL20.glUniformMatrix4(GL20.glGetUniformLocation(shaderProgram, "u_projection"), false, pipelineMatrixBuffer);
+//		color.set(1,0,0,1);
+		glUniform("u_color", color);
+		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
+		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
 
 
 //		GL11.glDrawArrays(glBeginType, 0, vertexCount);
@@ -64,9 +73,6 @@ public class SelectionBoxShaderPipeline extends ShaderPipeline {
 		}
 	}
 
-	public void glShadeModel(int mode) {
-	}
-
 	public void glDisableIfNeeded(int glEnum) {
 		if (glEnum == GL11.GL_TEXTURE_2D) {
 			textureUsed = 0;
@@ -80,38 +86,17 @@ public class SelectionBoxShaderPipeline extends ShaderPipeline {
 		}
 	}
 
-	public void prepareToBindTexture() {
-//		GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-		textureUsed = 1;
-	}
-
-	public void glActiveHDTexture(int textureUnit) {
-		this.textureUnit = textureUnit;
-//		GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-	}
-
-
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres){
 		int baseOffset = vertexCount * STRIDE;
 		currBufferOffset = 0;
 		ensureCapacity(baseOffset + STRIDE);
 		position.set(pos, 1);
-		normal.set(norm, 1).normalizeAsV3();
+//		normal.set(norm, 1).normalizeAsV3();
 		color.set(col);
 
 		addToBuffer(baseOffset, position);
-		addToBuffer(baseOffset, color);
 
 		vertexCount++;
 
-	}
-
-
-	public void glFresnelTeamColor1f(float v) {
-		this.fresnelTeamColor = v;
-	}
-
-	public void glFresnelOpacity1f(float v) {
-		this.fresnelOpacity = v;
 	}
 }
