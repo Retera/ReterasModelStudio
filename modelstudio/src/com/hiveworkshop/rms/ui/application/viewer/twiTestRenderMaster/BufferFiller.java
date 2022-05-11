@@ -86,7 +86,7 @@ public class BufferFiller {
 				renderEnv.setSequence(ViewportHelpers.findDefaultAnimation(model));
 			}
 
-			renderModel.refreshFromEditor(textureThing);
+			renderModel.refreshFromEditor();
 			reloadAllTextures();
 		} else {
 			textureThing = null;
@@ -625,7 +625,7 @@ public class BufferFiller {
 //			textureThing.reMakeTextureMap(renderModel.getModel());
 			textureThing.clearTextureMap();
 
-			renderModel.refreshFromEditor(textureThing);
+			renderModel.refreshFromEditor();
 		}
 
 	}

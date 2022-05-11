@@ -3,20 +3,14 @@ package com.hiveworkshop.rms.editor.render3d;
 import com.hiveworkshop.rms.editor.model.Animation;
 import com.hiveworkshop.rms.editor.model.ParticleEmitter2;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.util.MathUtils;
-import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec4;
+import com.hiveworkshop.rms.util.*;
 
 //public class RenderParticle2 extends EmittedObject<RenderParticleEmitter2View> {
-public class RenderParticle2 {
-	private static final Vec3 xAxis = new Vec3(1,0,0);
-	private static final Vec3 yAxis = new Vec3(0,1,0);
-	private static final Vec3 zAxis = new Vec3(0,0,1);
+public class RenderParticle2Inst {
 	public float health;
 	public Vec3[] verticesV;
-	public float lta, lba, rta, rba, rgb;
-	public float[] lta_lba_rta_rba_rgb;
+	public float rgb;
+	public float[] lta_lba_rba_rta;
 
 	private final ParticleEmitter2 particleEmitter2;
 	private boolean head;
@@ -39,27 +33,23 @@ public class RenderParticle2 {
 	Vec3 tailHeap = new Vec3();
 	Vec3 normal = new Vec3();
 
-	public RenderParticle2(ParticleEmitter2 particleEmitter2) {
+	public RenderParticle2Inst(ParticleEmitter2 particleEmitter2) {
 		this.particleEmitter2 = particleEmitter2;
 		health = 0;
 		head = true;
 		gravity = 0;
 
 		verticesV = new Vec3[] {new Vec3(), new Vec3(), new Vec3(), new Vec3()};
-		lta = 0;
-		lba = 0;
-		rta = 0;
-		rba = 0;
 		rgb = 0;
-		lta_lba_rta_rba_rgb = new float[]{0, 0, 0, 0, 0};
+		lta_lba_rba_rta = new float[]{0, 1, 1, 0};
 	}
 
-	public void reset(RenderModel renderModel, boolean isHead, TimeEnvironmentImpl timeEnvironment) {
+	public RenderParticle2Inst reset(RenderNode2 node, boolean isHead, TimeEnvironmentImpl timeEnvironment) {
 		double latitude = Math.toRadians(particleEmitter2.getRenderLatitude(timeEnvironment));
+		this.node = node;
+		verts[0] = null;
 
-		resetScale(renderModel);
-//		resetLocation(emitterView);
-//		resetLocation(emitterView.getLength(), emitterView.getWidth());
+		resetScale();
 		resetLocation(particleEmitter2.getRenderLength(timeEnvironment), particleEmitter2.getRenderWidth(timeEnvironment));
 		resetRotation(latitude);
 
@@ -71,29 +61,30 @@ public class RenderParticle2 {
 
 
 		// Apply the rotation
-		velocity.set(zAxis).transform(rotation);
+		velocity.set(Vec3.Z_AXIS).transform(rotation);
 
 		// Apply speed
 		velocity.scale((float) particleEmitter2.getRenderSpeed(timeEnvironment) * (1 + MathUtils.randomSym(particleEmitter2.getRenderVariation(timeEnvironment))));
 
 		// Apply the parent's scale
 		velocity.multiply(scale);
+
+		return this;
 	}
 
-	private void resetScale(RenderModel renderModel) {
-		node = renderModel.getRenderNode(particleEmitter2);
+	private void resetScale() {
 		scale.set(node.getWorldScale());
 	}
 
 	private void resetRotation(double latitude) {
 		// Location rotation
-		tempRotation.setFromAxisAngle(zAxis, 0);
-		rotation.setFromAxisAngle(xAxis, MathUtils.randomSym(latitude));
+		tempRotation.setFromAxisAngle(Vec3.Z_AXIS, 0);
+		rotation.setFromAxisAngle(Vec3.X_AXIS, MathUtils.randomSym(latitude));
 		rotation.mul(tempRotation);
 
 		// If this is not a line emitter, emit in a sphere rather than a circle
 		if (!particleEmitter2.getLineEmitter()) {
-			tempRotation.setFromAxisAngle(yAxis, MathUtils.randomSym(latitude));
+			tempRotation.setFromAxisAngle(Vec3.Y_AXIS, MathUtils.randomSym(latitude));
 			rotation.mul(tempRotation);
 		}
 		// World rotation
@@ -119,11 +110,11 @@ public class RenderParticle2 {
 
 	//	@Override
 	Vec3 dLoc = new Vec3();
-	public void update(float animationSpeed, RenderModel renderModel) {
+	public void update(float animationSpeed, TimeEnvironmentImpl timeEnvironment, Vec3[] vectors, Vec3 normal) {
 		float dt = (float) (TimeEnvironmentImpl.FRAMES_PER_UPDATE * 0.001f * animationSpeed);
 
-		if(renderModel.getTimeEnvironment().getCurrentSequence() instanceof Animation && !particleEmitter2.getModelSpace()){
-			dLoc.x = -((Animation) renderModel.getTimeEnvironment().getCurrentSequence()).getMoveSpeed()*dt;
+		if(timeEnvironment.getCurrentSequence() instanceof Animation && !particleEmitter2.getModelSpace()){
+			dLoc.x = -((Animation) timeEnvironment.getCurrentSequence()).getMoveSpeed()*dt;
 		} else {
 			dLoc.x = 0;
 		}
@@ -137,37 +128,15 @@ public class RenderParticle2 {
 		float timeMiddle = (float) particleEmitter2.getTime();
 		boolean isDecaying = !(lifeFactor < timeMiddle);
 
-		float factor = getTimeFactor(lifeFactor, timeMiddle, isDecaying);
+		float factor = getTimeFactor(lifeFactor, timeMiddle);
 
 		setColor(factor, isDecaying);
 
-		Vec3 interval;
-		if(isDecaying){
-			if (head) {
-				interval = particleEmitter2.getHeadDecayUVAnim();
-			} else {
-				interval = particleEmitter2.getTailDecayUVAnim();
-			}
-		} else {
-			if (head) {
-				interval = particleEmitter2.getHeadUVAnim();
-			} else {
-				interval = particleEmitter2.getTailUVAnim();
-			}
-		}
 
 		factor = Math.min(factor, 1);
 
-		updateFlipBookTexture(factor, interval);
+		updateFlipBookTexture(factor, getTextureInterval(isDecaying, head));
 
-
-		// Choose between a default rectangle or a billboarded one
-		Vec3[] vectors;
-		if (particleEmitter2.getXYQuad()) {
-			vectors = renderModel.getSpacialVectors();
-		} else {
-			vectors = renderModel.getBillboardVectors();
-		}
 
 		float scale = getScale(factor, isDecaying);
 
@@ -198,7 +167,7 @@ public class RenderParticle2 {
 			// Get the normal to the tail in camera space
 			// This allows to build a 2D rectangle around the 3D tail
 //			Vec3 tailHeap = Vec3.getDiff(endHeap, startHeap).normalize();
-			normal.set(renderModel.getBillboardVectors()[6]);
+			normal.set(normal);
 
 			tailHeap.set(worldLocation).sub(tailLocation).normalize();
 			normal.cross(tailHeap).normalize().multiply(this.scale).scale(scale);
@@ -210,6 +179,18 @@ public class RenderParticle2 {
 //			verticesV[1].set(endHeap).add(normal);
 //			verticesV[2].set(endHeap).sub(normal);
 //			verticesV[3].set(startHeap).add(normal);
+		}
+	}
+
+	private Vec3 getTextureInterval(boolean isDecaying, boolean isHead) {
+		if(isDecaying && isHead){
+			return particleEmitter2.getHeadDecayUVAnim();
+		} else if (isDecaying){
+			return particleEmitter2.getTailDecayUVAnim();
+		} else if(isHead){
+			return particleEmitter2.getHeadUVAnim();
+		} else {
+			return particleEmitter2.getTailUVAnim();
 		}
 	}
 
@@ -242,24 +223,20 @@ public class RenderParticle2 {
 
 		int a = ((int) colorHeap.w) & 0xFF;
 
-		lta = MathUtils.uint8ToUint24((byte) right, (byte) bottom, (byte) a);
-		lba = MathUtils.uint8ToUint24((byte) left, (byte) bottom, (byte) a);
-		rta = MathUtils.uint8ToUint24((byte) right, (byte) top, (byte) a);
-		rba = MathUtils.uint8ToUint24((byte) left, (byte) top, (byte) a);
+		lta_lba_rba_rta[0] = MathUtils.uint8ToUint24((byte) right, (byte) bottom, (byte) a);
+		lta_lba_rba_rta[1] = MathUtils.uint8ToUint24((byte) left, (byte) bottom, (byte) a);
+		lta_lba_rba_rta[2] = MathUtils.uint8ToUint24((byte) left, (byte) top, (byte) a);
+		lta_lba_rba_rta[3] = MathUtils.uint8ToUint24((byte) right, (byte) top, (byte) a);
+
 		rgb = MathUtils.uint8ToUint24((byte) ((int) (colorHeap.x * 255) & 0xFF), (byte) ((int) (colorHeap.y * 255) & 0xFF), (byte) ((int) (colorHeap.z * 255) & 0xFF));
-		lta_lba_rta_rba_rgb[0] = lta;
-		lta_lba_rta_rba_rgb[1] = lba;
-		lta_lba_rta_rba_rgb[2] = rta;
-		lta_lba_rta_rba_rgb[3] = rba;
-		lta_lba_rta_rba_rgb[4] = rgb;
 	}
 
-	private float getTimeFactor(float lifeFactor, float timeMiddle, boolean isDecaying) {
+	private float getTimeFactor(float lifeFactor, float timeMiddle) {
 		float factor;
-		if(isDecaying){
-			factor = (lifeFactor - timeMiddle) / (1 - timeMiddle);
-		} else {
+		if(lifeFactor < timeMiddle){
 			factor = lifeFactor / timeMiddle;
+		} else {
+			factor = (lifeFactor - timeMiddle) / (1 - timeMiddle);
 		}
 		return factor;
 	}
@@ -272,6 +249,14 @@ public class RenderParticle2 {
 		}
 	}
 
+	private void setColor(float lifeFactor, float timeMiddle) {
+		if(lifeFactor < timeMiddle){
+			colorHeap.set(color1Heap).lerp(color2Heap, lifeFactor / timeMiddle);
+		} else {
+			colorHeap.set(color2Heap).lerp(color3Heap, (lifeFactor - timeMiddle) / (1 - timeMiddle));
+		}
+	}
+
 	private float getScale(float factor, boolean isDecaying) {
 		Vec3 scaling = particleEmitter2.getParticleScaling();
 		float scale;
@@ -281,5 +266,61 @@ public class RenderParticle2 {
 			scale = MathUtils.lerp(scaling.x, scaling.y, factor);
 		}
 		return scale;
+	}
+
+	private float getScale(float lifeFactor, float timeMiddle) {
+		Vec3 scaling = particleEmitter2.getParticleScaling();
+		float scale;
+		if (lifeFactor < timeMiddle){
+			scale = MathUtils.lerp(scaling.x, scaling.y, lifeFactor / timeMiddle);
+		} else {
+			scale = MathUtils.lerp(scaling.y, scaling.z, (lifeFactor - timeMiddle) / (1 - timeMiddle));
+		}
+		return scale;
+	}
+
+	private static final int[] quadVertOrder = new int[]{0,1,2,0,2,3};
+	public void updateRenderData(){
+		color = rgb;
+		for(int i = 0; i<6; i++){
+			setRenderData(i, verticesV[quadVertOrder[i]], lta_lba_rba_rta[quadVertOrder[i]]);
+		}
+	}
+
+
+	//RenderData
+	private Vec3[] verts = new Vec3[6];
+	private float[] uv = new float[6];
+	private float color;
+	private Vec2[] uvs;
+	private int[] uv_u = new int[6];
+	private int[] uv_v = new int[6];
+
+	public RenderParticle2Inst setRenderData(int i, Vec3 v, float uv) {
+		this.verts[i] = v;
+		this.uv[i] = uv;
+		int uvInt = (int) uv;
+		this.uv_u[i] = (byte) ((uvInt >> 16) & 0xFF);
+		this.uv_v[i] = (byte) ((uvInt >> 8) & 0xFF);
+		return this;
+	}
+
+	public float getColor() {
+		return color;
+	}
+	public int getUv_u(int i) {
+		return uv_u[i];
+	}
+
+	public int getUv_v(int i) {
+		return uv_v[i];
+	}
+
+	public float getUv(int i) {
+		return uv[i];
+	}
+
+	public Vec3 getVert(int i) {
+		return verts[i];
 	}
 }

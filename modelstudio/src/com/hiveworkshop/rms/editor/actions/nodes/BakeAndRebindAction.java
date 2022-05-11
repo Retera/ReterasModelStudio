@@ -133,7 +133,7 @@ public class BakeAndRebindAction implements UndoAction {
 	}
 
 	private void calculateCompFlags(RenderModel renderModel, TimeEnvironmentImpl timeEnvironment) {
-		renderModel.refreshFromEditor(null);
+		renderModel.refreshFromEditor();
 
 		for (Animation animation : model.getAnims()) {
 			timeEnvironment.setSequence(animation);

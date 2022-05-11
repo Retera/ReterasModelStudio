@@ -7,7 +7,6 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
-import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.BufferFiller;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionItemTypes;
 import com.hiveworkshop.rms.util.Quat;
@@ -193,7 +192,7 @@ public final class RenderModel {
 		return timeEnvironment;
 	}
 
-	public void refreshFromEditor(TextureThing textureThing) {
+	public void refreshFromEditor() {
 
 		setBilllBoardVectors();
 
@@ -203,7 +202,7 @@ public final class RenderModel {
 		setupHierarchy(null);
 		fetchCameraTargetNodes();
 
-		updateParticleStuff(textureThing);
+		updateParticleStuff();
 
 		for (AnimatedNode node : sortedNodes) {
 			getRenderNode(node).refreshFromEditor();
@@ -214,16 +213,14 @@ public final class RenderModel {
 		}
 	}
 
-	private void updateParticleStuff(TextureThing textureThing) {
+	private void updateParticleStuff() {
 		renderParticleEmitters2.clear();
-		if (textureThing != null) {
-			for (ParticleEmitter2 particleEmitter2 : model.getParticleEmitter2s()) {
-				RenderParticleEmitter2 renderParticleEmitter2 = new RenderParticleEmitter2(particleEmitter2, textureThing, this);
-				renderParticleEmitters2.add(renderParticleEmitter2);
-				emitterToRenderer2.put(particleEmitter2, renderParticleEmitter2);
-			}
-			renderParticleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
+		for (ParticleEmitter2 particleEmitter2 : model.getParticleEmitter2s()) {
+			RenderParticleEmitter2 renderParticleEmitter2 = new RenderParticleEmitter2(particleEmitter2, getRenderNode(particleEmitter2), this);
+			renderParticleEmitters2.add(renderParticleEmitter2);
+			emitterToRenderer2.put(particleEmitter2, renderParticleEmitter2);
 		}
+		renderParticleEmitters2.sort(Comparator.comparingInt(RenderParticleEmitter2::getPriorityPlane));
 	}
 
 	private void fetchCameraTargetNodes() {

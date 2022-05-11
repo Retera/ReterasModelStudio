@@ -83,7 +83,7 @@ public class ModelStructureChangeListener {
 	}
 
 	public static void updateRenderModel(PerspectiveViewport viewport, RenderModel renderModel) {
-		renderModel.refreshFromEditor(viewport.getTextureThing());
+		renderModel.refreshFromEditor();
 		TimeEnvironmentImpl timeEnv = renderModel.getTimeEnvironment();
 		int animationTime = timeEnv.getAnimationTime();
 		Sequence currentSequence = timeEnv.getCurrentSequence();
@@ -92,7 +92,7 @@ public class ModelStructureChangeListener {
 	}
 
 	public static void updateRenderModel(AnimatedPerspectiveViewport viewport, RenderModel renderModel) {
-		renderModel.refreshFromEditor(viewport.getTextureThing());
+		renderModel.refreshFromEditor();
 		TimeEnvironmentImpl timeEnv = renderModel.getTimeEnvironment();
 		int animationTime = timeEnv.getAnimationTime();
 		Sequence currentSequence = timeEnv.getCurrentSequence();

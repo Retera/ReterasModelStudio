@@ -95,7 +95,7 @@ public class BakeAndRebindActionTwi2 implements UndoAction {
 
 
 	private void calcWorldThings(RenderModel renderModel, TimeEnvironmentImpl timeEnvironment, ModelHandler modelHandler) {
-		renderModel.refreshFromEditor(null);
+		renderModel.refreshFromEditor();
 
 
 		List<Animation> anims = modelHandler.getModel().getAnims();

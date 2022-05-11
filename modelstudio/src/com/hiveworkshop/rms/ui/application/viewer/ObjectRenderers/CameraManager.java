@@ -657,7 +657,8 @@ public class CameraManager {
 		inverseCameraRotZSpinX.invertRotation();
 		inverseCameraRotZSpinZ.setFromAxisAngle(Vec3.Z_AXIS, upAngle).normalize();
 		inverseCameraRotZSpinZ.invertRotation();
-		inverseCameraRotation.set(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()).normalize();
+//		inverseCameraRotation.set(getInverseCameraRotZSpinZ()).mul(getInverseCameraRotYSpinY()).normalize();
+		inverseCameraRotation.set(sideRot).mul(upRot).normalize();
 
 	}
 

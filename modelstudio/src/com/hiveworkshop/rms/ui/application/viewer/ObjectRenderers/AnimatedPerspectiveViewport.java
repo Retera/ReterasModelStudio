@@ -61,6 +61,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 
 	GeosetRenderThing geosetRenderThing;
 	GridPainter2 gridPainter2;
+	ParticleRenderer particleRenderer;
 
 	private TextureThing textureThing;
 
@@ -92,6 +93,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 
 		geosetRenderThing = new GeosetRenderThing();
 		gridPainter2 = new GridPainter2(cameraManager);
+		particleRenderer = new ParticleRenderer();
 
 //
 		loadBackgroundColors();
@@ -151,7 +153,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 				cameraManager.loadDefaultCameraFor(ViewportHelpers.getBoundsRadius(renderEnv, model.getExtents()));
 			}
 
-			renderModel.refreshFromEditor(textureThing);
+			renderModel.refreshFromEditor();
 			reloadAllTextures();
 		} else {
 			textureThing = null;
@@ -161,6 +163,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 //		cameraManager.viewport(0, 0, getWidth() * xRatio, getHeight() * yRatio);
 		cameraManager.setOrtho(true);
 		geosetRenderThing.setModel(renderModel, modelView, textureThing);
+		particleRenderer.setModel(renderModel, textureThing);
 	}
 
 	public AnimatedPerspectiveViewport setRenderTextures(boolean renderTextures) {
@@ -197,7 +200,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 //			textureThing.reMakeTextureMap(renderModel.getModel());
 			textureThing.clearTextureMap();
 
-			renderModel.refreshFromEditor(textureThing);
+			renderModel.refreshFromEditor();
 		}
 
 	}
@@ -662,7 +665,7 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 //		renderModel.getParticleShader().use();
 		for (final RenderParticleEmitter2 particle : renderModel.getRenderParticleEmitters2()) {
 //			System.out.println("renderParticles");
-			particle.render();
+			particleRenderer.render(particle);
 		}
 
 

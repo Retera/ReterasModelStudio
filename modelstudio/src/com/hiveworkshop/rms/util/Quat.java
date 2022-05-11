@@ -350,6 +350,43 @@ public class Quat extends Vec4 {
 		float newW = (w * a.w) - (x * a.x) - (y * a.y) - (z * a.z);
 		return (Quat) set(newX, newY, newZ, newW);
 	}
+	public Quat rotX(float rad) {
+		float ax = (float) Math.sin(rad / 2.0);
+		float aw = (float) Math.cos(rad / 2.0);
+		float newX = (x * aw) + (w * ax);
+		float newY = (y * aw) + (z * ax);
+		float newZ = (z * aw) - (y * ax);
+		float newW = (w * aw) - (x * ax);
+		return (Quat) set(newX, newY, newZ, newW);
+	}
+	public Quat rotY(float rad) {
+		float ay = (float) Math.sin(rad / 2.0);
+		float aw = (float) Math.cos(rad / 2.0);
+		float newX = (x * aw) - (z * ay);
+		float newY = (y * aw) + (w * ay);
+		float newZ = (z * aw) + (x * ay);
+		float newW = (w * aw) - (y * ay);
+		return (Quat) set(newX, newY, newZ, newW);
+	}
+	public Quat rotZ(float rad) {
+		float az = (float) Math.sin(rad / 2.0);
+		float aw = (float) Math.cos(rad / 2.0);
+		float newX = (x * aw) + (y * az);
+		float newY = (y * aw) - (x * az);
+		float newZ = (z * aw) + (w * az);
+		float newW = (w * aw) - (z * az);
+		return (Quat) set(newX, newY, newZ, newW);
+	}
+//	public Quat setFromAxisAngle(float angle) {
+//		float ax = 0;
+//		float ay = 0;
+//		float az = 0;
+//		x = ax * (float) Math.sin(angle / 2.0);
+//		y = ay * (float) Math.sin(angle / 2.0);
+//		z = az * (float) Math.sin(angle / 2.0);
+//		w = (float) Math.cos(angle / 2.0);
+//		return this;
+//	}
 
 	public Quat mulLeft(Quat quat) {
 		float newX = (quat.x * w) + (quat.w * x) + (quat.y * z) - (quat.z * y);

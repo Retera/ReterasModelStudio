@@ -12,6 +12,7 @@ import com.hiveworkshop.rms.ui.preferences.ColorThing;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.BetterAWTGLCanvas;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Vec3;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -20,9 +21,12 @@ import org.lwjgl.opengl.GL11;
 
 import javax.swing.*;
 import java.awt.*;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private RenderModel renderModel;
@@ -58,6 +62,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private final BoneRenderThingBuf boneRenderThingBuf;
 	private final CameraRenderThing cameraRenderThing;
 	private final GridPainter gridPainter;
+	private final ParticleRenderer particleRenderer;
 
 	VertexBuffers idObjectBuffers = new VertexBuffers();
 
@@ -75,6 +80,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		boneRenderThingBuf = new BoneRenderThingBuf(cameraHandler);
 		cameraRenderThing = new CameraRenderThing();
 		gridPainter = new GridPainter(cameraHandler);
+		particleRenderer = new ParticleRenderer();
 
 		geosetRenderer = new GeosetRenderer(cameraHandler, programPreferences);
 //		geosetRendererBuf = new GeosetRendererBuf(cameraHandler, programPreferences);
@@ -116,7 +122,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			}
 
 			this.renderModel.setCameraHandler(cameraHandler);
-			this.renderModel.refreshFromEditor(textureThing);
+			this.renderModel.refreshFromEditor();
 //			forceReloadTextures();
 			texLoaded = false;
 		} else {
@@ -124,6 +130,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			this.modelView = null;
 		}
 		geosetRenderer.updateModel(renderModel, modelView, textureThing);
+		particleRenderer.setModel(renderModel, textureThing);
 //		geosetRendererBuf.updateModel(renderModel, modelView, textureThing);
 		return this;
 	}
@@ -204,7 +211,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 		texLoaded = true;
 		if (textureThing != null && renderModel != null) {
 			textureThing.reMakeTextureMap(renderModel.getModel());
-			renderModel.refreshFromEditor(textureThing);
+			renderModel.refreshFromEditor();
 		}
 	}
 
@@ -246,6 +253,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	private boolean hasReloadedRenderModel = false;
+	FloatBuffer pipelineMatrixBuffer = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 	public void paintGL(final boolean autoRepainting) {
 		setSize(getParent().getSize());
 
@@ -262,6 +270,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			if (renderModel != null) {
 				hasReloadedRenderModel = false;
 				updateRenderModel();
+				gluPerspective(45f, (float) getWidth() / (float) getHeight(), 5.0f, 16000.0f);
 				glViewport(0, 0, (int) (getWidth() * xRatio), (int) (getHeight() * yRatio));
 				enableGlThings(GL_DEPTH_TEST, GL_COLOR_MATERIAL, GL_LIGHTING, GL_LIGHT0, GL_LIGHT1, GL_NORMALIZE);
 
@@ -275,9 +284,12 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 				}
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//			glMatrixMode(GL_MODELVIEW);
 				glMatrixMode(GL_PROJECTION);
 				glLoadIdentity();
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
+				fillMatrixBuffer(pipelineMatrixBuffer, cameraHandler.getViewProjectionMatrix());
+				glLoadMatrix(pipelineMatrixBuffer);
 
 				cameraHandler.setUpCamera();
 
@@ -317,7 +329,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			paintTimer.stop();
 			if (renderModel != null && !hasReloadedRenderModel) {
 				hasReloadedRenderModel = true;
-				renderModel.refreshFromEditor(textureThing);
+				renderModel.refreshFromEditor();
 			}
 			lastExceptionTimeMillis = System.currentTimeMillis();
 			if ((lastThrownErrorClass == null) || (lastThrownErrorClass != e.getClass())) {
@@ -330,6 +342,27 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 			System.out.println("Failed to render");
 			throw new RuntimeException(e);
 		}
+	}
+
+	protected void fillMatrixBuffer(FloatBuffer buffer, Mat4 matrix) {
+		buffer.clear();
+		buffer.put(matrix.m00);
+		buffer.put(matrix.m01);
+		buffer.put(matrix.m02);
+		buffer.put(matrix.m03);
+		buffer.put(matrix.m10);
+		buffer.put(matrix.m11);
+		buffer.put(matrix.m12);
+		buffer.put(matrix.m13);
+		buffer.put(matrix.m20);
+		buffer.put(matrix.m21);
+		buffer.put(matrix.m22);
+		buffer.put(matrix.m23);
+		buffer.put(matrix.m30);
+		buffer.put(matrix.m31);
+		buffer.put(matrix.m32);
+		buffer.put(matrix.m33);
+		buffer.flip();
 	}
 
 	private void setUpLights() {
@@ -429,7 +462,7 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 //		renderModel.getParticleShader().use();
 		for (final RenderParticleEmitter2 particle : renderModel.getRenderParticleEmitters2()) {
 //			System.out.println("renderParticles");
-			particle.render();
+			particleRenderer.render(particle);
 		}
 	}
 
