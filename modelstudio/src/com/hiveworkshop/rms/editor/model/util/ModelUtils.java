@@ -247,32 +247,6 @@ public final class ModelUtils {
 		return (byte) (3 - portFirstXYZ - portSecondXYZ);
 	}
 
-	public static void createBox(EditableModel model, Vec3 min, Vec3 max, int segments) {
-		Geoset geoset = new Geoset();
-		Material whiteMaterial = getWhiteMaterial(model);
-		geoset.setMaterial(whiteMaterial);
-
-		Mesh box = getBoxMesh(min, max, segments, segments, segments);
-
-
-		for (GeosetVertex vertex : box.getVertices()) {
-			vertex.setGeoset(geoset);
-			geoset.add(vertex);
-		}
-		for (Triangle triangle : box.getTriangles()) {
-			geoset.add(triangle);
-			triangle.setGeoset(geoset);
-		}
-
-		geoset.setName("Box");
-
-		model.add(geoset);
-		if (!model.contains(whiteMaterial)) {
-			model.add(whiteMaterial);
-			model.add(whiteMaterial.getLayers().get(0).getTextureBitmap());
-		}
-	}
-
 	/**
 	 * Creates a box ready to add to the dataGeoset, but does not actually modify the geoset itself
 	 */
@@ -298,7 +272,7 @@ public final class ModelUtils {
 		return box;
 	}
 
-	private static Mesh getBoxMesh(Vec3 max, Vec3 min, int lengthSegs, int widthSegs, int heightSegs) {
+	public static Mesh getBoxMesh(Vec3 max, Vec3 min, int lengthSegs, int widthSegs, int heightSegs) {
 		Mesh box = new Mesh(new ArrayList<>(), new ArrayList<>());
 		for (byte side = (byte) 0; side < 2; side++) {
 			for (byte dimension = (byte) 0; dimension < 3; dimension++) {
@@ -411,33 +385,6 @@ public final class ModelUtils {
 			case 2 -> new byte[] {0, 1};
 			default -> throw new IllegalStateException();
 		};
-	}
-
-	public static void createGroundPlane(EditableModel model, Vec3 max, Vec3 min, int segments) {
-		Geoset geoset = new Geoset();
-		Material whiteMaterial = getWhiteMaterial(model);
-		geoset.setMaterial(whiteMaterial);
-
-		Vec2 minP = min.getProjected((byte) 0, (byte) 1);
-		Vec2 maxP = max.getProjected((byte) 0, (byte) 1);
-
-		Mesh sidedPlane = createPlane((byte) 2, true, 0, minP, maxP, segments);
-		for (GeosetVertex vertex : sidedPlane.getVertices()) {
-			vertex.setGeoset(geoset);
-			geoset.add(vertex);
-		}
-		for (Triangle triangle : sidedPlane.getTriangles()) {
-			triangle.setGeoset(geoset);
-			geoset.add(triangle);
-//			for (GeosetVertex vertex : triangle.getVerts()) {
-//				vertex.addTriangle(triangle);
-//			}
-		}
-		model.add(geoset);
-		if (!model.contains(whiteMaterial)) {
-			model.add(whiteMaterial);
-			model.add(whiteMaterial.getLayers().get(0).getTextureBitmap());
-		}
 	}
 
 	public static Material getWhiteMaterial(EditableModel model) {
