@@ -233,6 +233,7 @@ public class WindowHandler2 {
 		componentBrowserTreeViews.add(modelTab);
 		allViews.add(modelTab);
 
+//		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {modelTab});
 //		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {editingTab, modelTab});
 		TabWindow startupTabWindow = new TabWindow(new DockingWindow[] {viewingTab, editingTab, modelTab});
 

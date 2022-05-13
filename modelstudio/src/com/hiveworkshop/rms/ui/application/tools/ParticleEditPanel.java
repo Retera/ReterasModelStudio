@@ -119,7 +119,7 @@ public class ParticleEditPanel extends JPanel {
 		sliderPanel.add(new SmartNumberSlider("Length", copy.getLength(), 400, (i) -> copy.setLength(i)), SLIDER_CONSTRAINTS);
 		sliderPanel.add(new SmartNumberSlider("LifeSpan (~ 0.1 s)", copy.getLifeSpan() * 10, 200, (i) -> copy.setLifeSpan(i / 10d)).setMinLowerLimit(0).setMaxUpperLimit(1000), SLIDER_CONSTRAINTS);
 		sliderPanel.add(new SmartNumberSlider("TailLength", copy.getTailLength(), 100, (i) -> copy.setTailLength(i)), SLIDER_CONSTRAINTS);
-		sliderPanel.add(new SmartNumberSlider("Time (%)", copy.getTime() * 100, 100, (i) -> copy.setTime(i / 100d)).setMinLowerLimit(0).setMaxUpperLimit(100), SLIDER_CONSTRAINTS);
+		sliderPanel.add(new SmartNumberSlider("Time (%)", copy.getTime() * 100, 100, (i) -> copy.setTime(i / 100d)).setMinLowerLimit(0).setMaxUpperLimit(100).setExpandMax(false).setExpandMin(false), SLIDER_CONSTRAINTS);
 
 		sliderPanel.add(new JLabel("Sub-Textures:"), "wrap");
 		sliderPanel.add(new SmartNumberSlider("Rows", copy.getRows(), 16, (i) -> copy.setRows(i)).setMinLowerLimit(1).setMaxUpperLimit(100), SLIDER_CONSTRAINTS);
@@ -131,13 +131,13 @@ public class ParticleEditPanel extends JPanel {
 
 		spinnerPanel.add(getColorPanel(), SPINNER_CONSTRAINTS);
 
-		JPanel alphaPanel = new Vec3SpinnerArray(copy.getAlpha(), "", "", "")
+		JPanel alphaPanel = new Vec3SpinnerArray(copy.getAlpha(), 0, .1f)
 				.setVec3Consumer((v) -> copy.setAlpha(v))
 				.spinnerPanel();
 		alphaPanel.setBorder(BorderFactory.createTitledBorder("Alpha"));
 		spinnerPanel.add(alphaPanel, SPINNER_CONSTRAINTS);
 
-		JPanel scalingPanel = new Vec3SpinnerArray(copy.getParticleScaling(), "", "", "")
+		JPanel scalingPanel = new Vec3SpinnerArray(copy.getParticleScaling())
 				.setVec3Consumer((v) -> copy.setParticleScaling(v))
 				.spinnerPanel();
 		scalingPanel.setBorder(BorderFactory.createTitledBorder("Particle Scaling"));

@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 public class ShaderManager {
 	private ShaderPipeline hdPipeline;
 	private ShaderPipeline sdPipeline;
+	private ShaderPipeline particlePipeline;
 	private ShaderPipeline bonePipeline;
 	private ShaderPipeline vertPipeline;
 	private ShaderPipeline normPipeline;
@@ -127,6 +128,13 @@ public class ShaderManager {
 		return bonePipeline;
 	}
 
+	public ShaderPipeline getOrCreateParticleShaderPipeline() {
+		if (particlePipeline == null) {
+			particlePipeline = new ParticleShaderPipeline();
+		}
+		return particlePipeline;
+	}
+
 	public ShaderManager discardPipelines(){
 		System.out.println("discarding pipelines");
 		if (hdPipeline        != null) hdPipeline.discard();
@@ -136,6 +144,7 @@ public class ShaderManager {
 		if (normPipeline      != null) normPipeline.discard();
 		if (selectionPipeline != null) selectionPipeline.discard();
 		if (gridPipeline      != null) gridPipeline.discard();
+		if (particlePipeline  != null) particlePipeline.discard();
 
 
 		hdPipeline          = null;
@@ -145,6 +154,7 @@ public class ShaderManager {
 		normPipeline        = null;
 		selectionPipeline   = null;
 		gridPipeline        = null;
+		particlePipeline    = null;
 
 		if (customHDShaderPipeline != null) customHDShaderPipeline.discard();
 		customHDShaderPipeline = null;

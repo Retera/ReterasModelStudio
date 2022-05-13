@@ -98,13 +98,13 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 		if(bufferFiller != null){
 			if(bufferConsumer != null){
 				final Consumer<ByteBuffer> bc = bufferConsumer;
-				ByteBuffer pixels = bufferFiller.paintGL2(cameraManager, viewportSettings, getWidth(), getHeight(), null);
+				ByteBuffer pixels = bufferFiller.paintGL2(cameraManager, viewportSettings, getWidth(), getHeight());
 				SwingUtilities.invokeLater(() -> {
 					bc.accept(pixels);
 				});
 				bufferConsumer = null;
 			}
-			bufferFiller.paintCanvas(this, true);
+			bufferFiller.paintCanvas(this);
 			try {
 				swapBuffers();
 			} catch (LWJGLException e) {

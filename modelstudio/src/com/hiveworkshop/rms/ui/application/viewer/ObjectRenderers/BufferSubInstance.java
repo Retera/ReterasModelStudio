@@ -1,27 +1,21 @@
 package com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers;
 
-import com.hiveworkshop.rms.editor.model.Bitmap;
-import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Layer;
-import com.hiveworkshop.rms.editor.model.Material;
+import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
-import com.hiveworkshop.rms.util.Mat4;
-import com.hiveworkshop.rms.util.Quat;
-import com.hiveworkshop.rms.util.Vec3;
-import com.hiveworkshop.rms.util.Vec4;
+import com.hiveworkshop.rms.util.*;
 import org.lwjgl.opengl.GL11;
 
 public abstract class BufferSubInstance {
-	protected final Bitmap[] textures = new Bitmap[6];
-	protected Bitmap texture;
-	protected int textureSlot = 0;
-	protected Vec4[] layerColors = new Vec4[6];
-	protected Vec4 layerColor = new Vec4();
 	protected int offset = 0;
 	protected int vertCount = 0;
+	protected final Bitmap[] textures = new Bitmap[6];
+	protected Bitmap texture;
+	protected final Vec2 flipBookSize = new Vec2(1,1);
+	protected int textureSlot = 0;
+	protected Vec4 layerColor = new Vec4();
 	protected float fresnelTeamColor = 0;
 	protected Vec4 fresnelColor = new Vec4();
 	protected Mat4 uvTransform = new Mat4();
@@ -31,19 +25,11 @@ public abstract class BufferSubInstance {
 	protected final EditableModel model;
 	protected Layer diffuseLayer;
 	protected Material material;
+	protected ParticleEmitter2 particleEmitter2;
 
 	public BufferSubInstance(EditableModel model, TextureThing textureThing){
 		this.model = model;
 		this.textureThing = textureThing;
-	}
-
-	public Vec4[] getLayerColors() {
-		return layerColors;
-	}
-
-	public BufferSubInstance setLayerColors(Vec4[] layerColors) {
-		this.layerColors = layerColors;
-		return this;
 	}
 
 	public Vec4 getLayerColor() {
@@ -87,6 +73,15 @@ public abstract class BufferSubInstance {
 
 	public boolean isRenderTextures() {
 		return renderTextures;
+	}
+
+	public BufferSubInstance setFlipBookSize(Vec2 flipBookSize) {
+		this.flipBookSize.set(flipBookSize);
+		return this;
+	}
+
+	public Vec2 getFlipBookSize() {
+		return flipBookSize;
 	}
 
 	public BufferSubInstance setRenderTextures(boolean renderTextures) {
@@ -144,6 +139,17 @@ public abstract class BufferSubInstance {
 		this.twoSided = diffuseLayer.getTwoSided() || (ModelUtils.isShaderStringSupported(model.getFormatVersion()) && material.getTwoSided());
 
 		fetchTextures(timeEnvironment);
+
+		return this;
+	}
+
+	public BufferSubInstance setParticle(ParticleEmitter2 particleEmitter2, int textureSlot, TimeEnvironmentImpl timeEnvironment) {
+		this.particleEmitter2 = particleEmitter2;
+		this.textureSlot = textureSlot;
+//		System.out.println("cols: " + (particleEmitter2.getCols()+1) + ", rows: " + (particleEmitter2.getRows()+1));
+		flipBookSize.set(particleEmitter2.getCols(), particleEmitter2.getRows());
+		texture = particleEmitter2.getTexture();
+
 
 		return this;
 	}

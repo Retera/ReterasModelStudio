@@ -120,6 +120,15 @@ public class AdaptingRangeModel implements BoundedRangeModel, Serializable {
 		return this;
 	}
 
+	public AdaptingRangeModel setMaxLowerLimit(int maxLowerLimit) {
+		this.maxLowerLimit = maxLowerLimit;
+		return this;
+	}
+
+	public AdaptingRangeModel setMinUpperLimit(int minUpperLimit) {
+		this.minUpperLimit = minUpperLimit;
+		return this;
+	}
 	public AdaptingRangeModel setMinLowerLimit(int minLowerLimit) {
 		this.minLowerLimit = minLowerLimit;
 		return this;

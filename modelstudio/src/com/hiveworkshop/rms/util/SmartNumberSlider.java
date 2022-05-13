@@ -48,6 +48,11 @@ public class SmartNumberSlider extends JPanel {
 		addValueConsumer(consumer);
 	}
 
+	public SmartNumberSlider(String s, double value, int min, int max, Consumer<Integer> consumer, boolean expandMin, boolean expandMax) {
+		this(s, min, max, (int) value, expandMin, expandMax);
+		addValueConsumer(consumer);
+	}
+
 	public SmartNumberSlider(String s, int minMin, int minMax, int initial, boolean expandMin, boolean expandMax) {
 		super(new MigLayout("ins 0, fill", "[left, grow][right][right]"));
 		this.minMin = minMin;
@@ -105,6 +110,25 @@ public class SmartNumberSlider extends JPanel {
 		return this;
 	}
 
+	public SmartNumberSlider setMaxLowerLimit(int maxLowerLimit) {
+		brm.setMaxLowerLimit(maxLowerLimit);
+		return this;
+	}
+
+	public SmartNumberSlider setMinUpperLimit(int minUpperLimit) {
+		brm.setMinUpperLimit(minUpperLimit);
+		return this;
+	}
+
+	public SmartNumberSlider setExpandMin(boolean expandMin) {
+		this.expandMin = expandMin;
+		return this;
+	}
+
+	public SmartNumberSlider setExpandMax(boolean expandMax) {
+		this.expandMax = expandMax;
+		return this;
+	}
 
 	private void getPrintln(ChangeEvent e) {
 		System.out.println(e.getSource() + " is adj: " + ((JSlider) e.getSource()).getValueIsAdjusting());

@@ -3,13 +3,8 @@ package com.hiveworkshop.rms.ui.application.edit;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.ui.application.MainPanel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.WindowHandler2;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
-import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.PerspectiveViewUgg;
-import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.AnimatedPerspectiveViewport;
-import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
-import com.hiveworkshop.rms.ui.application.viewer.PreviewView;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 
@@ -69,29 +64,12 @@ public class ModelStructureChangeListener {
 	public static void refreshFromEditor(ModelPanel modelPanel) {
 		System.out.println("refreshFromEditor");
 		ModelHandler modelHandler = modelPanel.getModelHandler();
-		PerspectiveViewUgg modelDependentView = (PerspectiveViewUgg) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PerspectiveViewUgg).findFirst().orElse(null);
-		if (modelDependentView != null && modelDependentView.getPerspectiveViewport() != null) {
-			AnimatedPerspectiveViewport viewport = modelDependentView.getPerspectiveViewport();
-			updateRenderModel(viewport, modelHandler.getRenderModel());
+		updateRenderModel(modelHandler.getRenderModel());
+		updateRenderModel(modelHandler.getPreviewRenderModel());
 
-		}
-		PreviewView previewView = (PreviewView) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PreviewView).findFirst().orElse(null);
-		if (previewView != null && previewView.getPerspectiveViewport() != null) {
-			PerspectiveViewport viewport = previewView.getPerspectiveViewport();
-			updateRenderModel(viewport, modelHandler.getPreviewRenderModel());
-		}
 	}
 
-	public static void updateRenderModel(PerspectiveViewport viewport, RenderModel renderModel) {
-		renderModel.refreshFromEditor();
-		TimeEnvironmentImpl timeEnv = renderModel.getTimeEnvironment();
-		int animationTime = timeEnv.getAnimationTime();
-		Sequence currentSequence = timeEnv.getCurrentSequence();
-		timeEnv.setSequence(currentSequence);
-		timeEnv.setAnimationTime(animationTime);
-	}
-
-	public static void updateRenderModel(AnimatedPerspectiveViewport viewport, RenderModel renderModel) {
+	public static void updateRenderModel(RenderModel renderModel) {
 		renderModel.refreshFromEditor();
 		TimeEnvironmentImpl timeEnv = renderModel.getTimeEnvironment();
 		int animationTime = timeEnv.getAnimationTime();

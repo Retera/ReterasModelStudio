@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderParticle2Inst;
 import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Queue;
@@ -35,34 +36,18 @@ public class ParticleRenderer {
 		ParticleEmitter2 particleEmitter2 = emitter.getParticleEmitter2();
 		int blendSrc = particleEmitter2.getBlendSrc();
 		int blendDst = particleEmitter2.getBlendDst();
-		int rows = particleEmitter2.getRows();
-		int cols = particleEmitter2.getCols();
-		boolean isRibbonEmitter = particleEmitter2.isRibbonEmitter();
 
 		bind(particleEmitter2);
 		GL11.glBlendFunc(blendSrc, blendDst);
 		GL11.glBegin(GL11.GL_TRIANGLES);
+
 		Queue<RenderParticle2Inst> aliveQueue = emitter.getAliveQueue();
 		for (RenderParticle2Inst inst : aliveQueue) {
-			int colorInt = (int) inst.getColor();
+			Vec4 color = inst.getColorV();
 			if(inst.getVert(0) != null){
+				GL11.glColor4f(color.x, color.y, color.z, color.w);
 				for (int j = 0; j<6; j++){
-					int uvInt = (int) inst.getUv(j);
-					GL11.glColor4ub((byte) ((colorInt >>> 16) & 0xFF), (byte) ((colorInt >>> 8) & 0xFF), (byte) ((colorInt) & 0xFF), (byte) ((uvInt) & 0xFF));
-
-					float uv_u = (byte) ((uvInt >> 16) & 0xFF);
-					float uv_v = (byte) ((uvInt >> 8) & 0xFF);
-
-//				float uv_u = (byte) ((bufferDatum.getUv_u(i) >> 16) & 0xFF);
-//				float uv_v = (byte) ((bufferDatum.getUv_u(i) >> 8) & 0xFF);
-					if (isRibbonEmitter) {
-						uv_u /= 255.0f;
-						uv_v /= 255.0f;
-					} else {
-						uv_u /= cols;
-						uv_v /= rows;
-					}
-					GL11.glTexCoord2f(uv_u, uv_v);
+					GL11.glTexCoord2f(inst.getUv_u(j), inst.getUv_v(j));
 
 					Vec3 vert = inst.getVert(j);
 					GL11.glVertex3f(vert.x, vert.y, vert.z);

@@ -53,7 +53,13 @@ public class MathUtils {
 //		return (float) ((Math.random() * (2*maxDiv) - maxDiv));
 	}
 
+	public static int uint8ToUint16(byte b16, byte b8) {
+		return ((b16 << 8) & 0xFF00) | (b8 & 0xFF);
+	}
 	public static int uint8ToUint24(byte right, byte bottom, byte a) {
 		return ((right << 16) & 0xFF0000) | ((bottom << 8) & 0xFF00) | (a & 0xFF);
+	}
+	public static int uint8ToUint32(byte b32, byte b24, byte b16, byte b8) {
+		return ((b32 << 24) & 0xFF000000) | ((b24 << 16) & 0xFF0000) | ((b16 << 8) & 0xFF00) | (b8 & 0xFF);
 	}
 }

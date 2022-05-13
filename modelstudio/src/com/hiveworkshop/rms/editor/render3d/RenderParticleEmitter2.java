@@ -18,6 +18,7 @@ public class RenderParticleEmitter2 {
 	private final Queue<RenderParticle2Inst> aliveQueue = new ArrayDeque<>();
 //	private static final int MAX_POWER_OF_TWO = 1 << 30;
 //	private final int elementsPerEmit;
+	private float currentEmission = 0;
 
 	private double lastEmissionRate = -1;
 
@@ -43,7 +44,6 @@ public class RenderParticleEmitter2 {
 	}
 
 	public void fill() {
-		float currentEmission = 0;
 		double emissionRate = particleEmitter2.getRenderEmissionRate(timeEnvironment);
 		if (particleEmitter2.getSquirt()) {
 			// TODO not correct for any interp type other than "DontInterp", ghostwolf did this differently
@@ -56,10 +56,8 @@ public class RenderParticleEmitter2 {
 			currentEmission += emissionRate * TimeEnvironmentImpl.FRAMES_PER_UPDATE * 0.001 * timeEnvironment.getAnimationSpeed();
 		}
 
-		if (currentEmission >= 1) {
-			for (int i = 0; i < currentEmission; i += 1) {
-				emit();
-			}
+		for (;currentEmission>=1; currentEmission--) {
+			emit();
 		}
 	}
 
@@ -87,17 +85,19 @@ public class RenderParticleEmitter2 {
 	public void update() {
 		// Choose between a default rectangle or a billboarded one
 		Vec3[] vectors;
+		Vec3[] billboardVectors = renderModel.getBillboardVectors();
 		if (particleEmitter2.getXYQuad()) {
 			vectors = renderModel.getSpacialVectors();
 		} else {
-			vectors = renderModel.getBillboardVectors();
+			vectors = billboardVectors;
 		}
 
+		float dt = TimeEnvironmentImpl.FRAMES_PER_UPDATE * 0.001f * timeEnvironment.getAnimationSpeed();
 		for (int i = 0; i< aliveQueue.size(); i++) {
 
 			RenderParticle2Inst inst = aliveQueue.poll();
 			if(inst != null){
-				inst.update(timeEnvironment.getAnimationSpeed(), renderModel.getTimeEnvironment(), vectors, renderModel.getBillboardVectors()[6]);
+				inst.update(dt, timeEnvironment.getCurrentSequence(), vectors, billboardVectors[6]);
 				inst.updateRenderData();
 
 				if (inst.health <= 0) {

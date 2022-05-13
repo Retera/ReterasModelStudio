@@ -67,6 +67,10 @@ public abstract class ShaderPipeline {
 
 	protected Map<String, Integer> uniformMap = new HashMap<>();
 
+
+	protected ArrayList<BufferSubInstance> instances = new ArrayList<>();
+	protected BufferSubInstance currInstance;
+
 	public ShaderPipeline(){
 		currentMatrix.setIdentity();
 	}
@@ -217,9 +221,6 @@ public abstract class ShaderPipeline {
 		textureUnit = 0;
 	}
 
-
-	ArrayList<BufferSubInstance> instances = new ArrayList<>();
-	BufferSubInstance currInstance;
 	public void startInstance(BufferSubInstance instance){
 		if(instance != null){
 			instances.add(0, instance);
@@ -310,6 +311,10 @@ public abstract class ShaderPipeline {
 		pipelineVertexBuffer.put(offset + currBufferOffset + 1, vec2.y);
 		currBufferOffset +=2 ;
 	}
+	protected void addToBuffer(int offset, float i){
+		pipelineVertexBuffer.put(offset + currBufferOffset + 0, i);
+		currBufferOffset +=1 ;
+	}
 	protected void addToBuffer(int offset, int i){
 		pipelineVertexBuffer.put(offset + currBufferOffset + 0, i);
 		currBufferOffset +=1 ;
@@ -368,6 +373,7 @@ public abstract class ShaderPipeline {
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres){};
 	public void addVert(Vec3 pos){};
 	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres, int selectionStatus) {};
+	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres, float uniformScale) {};
 
 	public void glFresnelTeamColor1f(float v) {
 		this.fresnelTeamColor = v;

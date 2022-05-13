@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster;
 
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
+import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -22,7 +23,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.function.Consumer;
 
 public class BufferFiller {
 	private ModelView modelView;
@@ -31,7 +31,6 @@ public class BufferFiller {
 
 	private boolean texLoaded = false;
 
-//	private static final ShaderManager shaderManager = new ShaderManager();
 	private final ShaderManager shaderManager = new ShaderManager();
 
 	Class<? extends Throwable> lastThrownErrorClass;
@@ -39,12 +38,14 @@ public class BufferFiller {
 
 	private long lastExceptionTimeMillis = 0;
 
-	private float backgroundRed, backgroundBlue, backgroundGreen;
+	float[] backgroundColor = new float[4];
+//	private float backgroundRed, backgroundBlue, backgroundGreen;
 
 	private int levelOfDetail;
 
 	GeosetBufferFiller geosetBufferFiller;
 	GridPainter2 gridPainter2;
+	ParticleBufferFiller particleBufferFiller;
 
 	private TextureThing textureThing;
 
@@ -66,6 +67,7 @@ public class BufferFiller {
 
 		geosetBufferFiller = new GeosetBufferFiller();
 		gridPainter2 = new GridPainter2();
+		particleBufferFiller = new ParticleBufferFiller();
 		setModel(modelView, renderModel, loadDefaultSequence);
 	}
 
@@ -94,6 +96,7 @@ public class BufferFiller {
 			modelView = null;
 		}
 		geosetBufferFiller.setModel(renderModel, modelView, textureThing);
+		particleBufferFiller.setModel(textureThing, renderModel);
 	}
 
 	long nextUpdate = 0;
@@ -105,15 +108,13 @@ public class BufferFiller {
 		long millis = System.currentTimeMillis();
 		if(nextUpdate < millis){
 			nextUpdate = millis + updateInterval;
-			ShaderPipeline pipeline = shaderManager.getOrCreatePipeline();
 			if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 				System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
 				return;
 			}
 			reloadIfNeeded();
 			updateRenderModel();
-//			fillBuffers(showNormals, show3dVerts, renderTextures, pipeline);
-			fillBuffers(true, true, true, pipeline);
+			fillBuffers(true, true, true);
 		}
 	}
 
@@ -140,47 +141,16 @@ public class BufferFiller {
 			throw new RuntimeException(e);
 		}
 	}
-	public void paintCanvas(ViewportCanvas viewportCanvas, boolean autoRepainting) {
+	public void paintCanvas(ViewportCanvas viewportCanvas) {
 		ViewportSettings viewportSettings = viewportCanvas.getViewportSettings();
 		runUpdate(viewportSettings.isShowNormals(), viewportSettings.isShow3dVerts(), viewportSettings.isRenderTextures());
-		ShaderPipeline pipeline = shaderManager.getOrCreatePipeline();
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 			System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
 			return;
 		}
 		try {
 
-			paintCanvas(viewportCanvas.getCameraManager(), viewportSettings, viewportCanvas, autoRepainting, pipeline);
-
-		}
-		catch (final Throwable e) {
-			e.printStackTrace();
-			lastExceptionTimeMillis = System.currentTimeMillis();
-			if ((lastThrownErrorClass == null) || (lastThrownErrorClass != e.getClass())) {
-				lastThrownErrorClass = e.getClass();
-				popupCount++;
-				if (popupCount < 10) {
-					ExceptionPopup.display(e);
-				}
-			}
-			throw new RuntimeException(e);
-		}
-	}
-	public void paintCanvas(ViewportCanvas viewportCanvas, Consumer<ByteBuffer> bufferConsumer, boolean autoRepainting) {
-		ViewportSettings viewportSettings = viewportCanvas.getViewportSettings();
-		runUpdate(viewportSettings.isShowNormals(), viewportSettings.isShow3dVerts(), viewportSettings.isRenderTextures());
-		ShaderPipeline pipeline = shaderManager.getOrCreatePipeline();
-		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
-			System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
-			return;
-		}
-		try {
-			final Consumer<ByteBuffer> bc = bufferConsumer;
-			ByteBuffer pixels = paintGL2(viewportCanvas.getCameraManager(), viewportCanvas.getViewportSettings(), viewportCanvas.getWidth(), viewportCanvas.getHeight(), pipeline);
-			SwingUtilities.invokeLater(() -> {
-				bc.accept(pixels);
-			});
-			paintCanvas(viewportCanvas.getCameraManager(), viewportCanvas.getViewportSettings(), viewportCanvas, autoRepainting, pipeline);
+			paintCanvas(viewportCanvas.getCameraManager(), viewportSettings, viewportCanvas);
 
 		}
 		catch (final Throwable e) {
@@ -197,10 +167,11 @@ public class BufferFiller {
 		}
 	}
 
-	private void fillBuffers(boolean showNormals, boolean show3dVerts, boolean renderTextures, ShaderPipeline pipeline){
+	private void fillBuffers(boolean showNormals, boolean show3dVerts, boolean renderTextures){
 
+		programPreferences.getPerspectiveBackgroundColor().getColorComponents(backgroundColor);
 		if(renderModel != null){
-			geosetBufferFiller.fillBuffer(pipeline, renderTextures);
+			geosetBufferFiller.fillBuffer(shaderManager.getOrCreatePipeline(), renderTextures);
 
 			RendererThing1.fillNodeBuffer(shaderManager.getOrCreateBoneMarkerShaderPipeline(), modelView, renderModel);
 
@@ -216,12 +187,13 @@ public class BufferFiller {
 			}
 
 //			if (programPreferences != null && programPreferences.getRenderParticles()) {
-//				renderParticles();
+//				particleBufferFiller.fillParticleHeap();
 //			}
 		}
 	}
 
-	public void paintCanvas(CameraManager cameraManager, ViewportSettings viewportSettings, ViewportCanvas viewportCanvas, boolean autoRepainting, ShaderPipeline pipeline) {
+	public void paintCanvas(CameraManager cameraManager, ViewportSettings viewportSettings, ViewportCanvas viewportCanvas) {
+		ShaderPipeline pipeline = shaderManager.getOrCreatePipeline();
 		if (programPreferences != null && viewportSettings.isWireFrame()) {
 			pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
 		} else {
@@ -258,6 +230,7 @@ public class BufferFiller {
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glClearColor(0f, 0f, 0f, 0.0f);
+		GL11.glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0.0f);
 
 		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
 		pipeline.glLoadIdentity();
@@ -301,9 +274,16 @@ public class BufferFiller {
 				RendererThing1.paintGrid(cameraManager, viewportCanvas, shaderManager.getOrCreateGridPipeline());
 			}
 
-//			if (programPreferences != null && programPreferences.getRenderParticles()) {
-//				renderParticles();
-//			}
+			if (programPreferences != null && programPreferences.getRenderParticles()) {
+				ShaderPipeline particleShaderPipeline = shaderManager.getOrCreateParticleShaderPipeline();
+				particleShaderPipeline.glViewport(viewportCanvas.getWidth(), viewportCanvas.getHeight());
+				particleShaderPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+				for(RenderParticleEmitter2 emitter2 : renderModel.getRenderParticleEmitters2()) {
+					particleShaderPipeline.prepare();
+					particleBufferFiller.fillParticleHeap(particleShaderPipeline, emitter2);
+					particleShaderPipeline.doRender(GL11.GL_TRIANGLES);
+				}
+			}
 		}
 		GL11.glDepthMask(false);
 		GL11.glEnable(GL11.GL_BLEND);
@@ -315,100 +295,8 @@ public class BufferFiller {
 //			paintCanvas();
 //		}
 	}
-	private void paintCanvas1(CameraManager cameraManager, ViewportSettings viewportSettings, ViewportCanvas viewportCanvas, boolean autoRepainting, ShaderPipeline pipeline) {
-		if (programPreferences != null && viewportSettings.isWireFrame()) {
-			pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
-		} else {
-			pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
-		}
-		pipeline.glViewport(viewportCanvas.getWidth(), viewportCanvas.getHeight());
-		GL11.glViewport(0, 0, viewportCanvas.getWidth(), viewportCanvas.getHeight());
 
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-
-		GL11.glDepthFunc(GL11.GL_LEQUAL);
-		GL11.glDepthMask(true);
-		pipeline.glEnableIfNeeded(GL11.GL_COLOR_MATERIAL);
-		pipeline.glEnableIfNeeded(GL11.GL_LIGHTING);
-		pipeline.glEnableIfNeeded(GL11.GL_LIGHT0);
-		pipeline.glEnableIfNeeded(GL11.GL_LIGHT1);
-		pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
-		GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-		if (viewportSettings.isRenderTextures()) {
-			pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
-		}
-//			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, autoRepainting ? 1.0f : 0.0f);
-		GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 0.0f);
-
-		pipeline.glMatrixMode(GL11.GL_PROJECTION);
-		pipeline.glLoadIdentity();
-
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
-		pipeline.glLoadIdentity();
-
-		pipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
-
-		setUpLights(pipeline);
-
-		if (viewportSettings.isRenderTextures()) {
-			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
-			pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
-		} else {
-			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-		}
-
-
-		if(renderModel != null){
-			geosetBufferFiller.fillBuffer(pipeline, viewportSettings.isRenderTextures());
-			pipeline.doRender(GL11.GL_TRIANGLES);
-
-			RendererThing1.fillNodeBuffer(shaderManager.getOrCreateBoneMarkerShaderPipeline(), modelView, renderModel);
-			RendererThing1.renderNodes(cameraManager, viewportCanvas, shaderManager.getOrCreateBoneMarkerShaderPipeline());
-
-
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-
-
-			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-			if (viewportSettings.isShowNormals()) {
-				geosetBufferFiller.fillNormalsBuffer(shaderManager.getOrCreateNormPipeline());
-				RendererThing1.renderNormals(cameraManager, viewportCanvas, shaderManager.getOrCreateNormPipeline());
-			}
-			if (viewportSettings.isShow3dVerts()) {
-				geosetBufferFiller.fillVertsBuffer(shaderManager.getOrCreateVertPipeline());
-				RendererThing1.render3DVerts(cameraManager, viewportCanvas, shaderManager.getOrCreateVertPipeline());
-			}
-
-			RendererThing1.fillSelectionBoxBuffer(viewportCanvas.getMouseAdapter(), shaderManager.getOrCreateSelectionPipeline());
-			RendererThing1.paintSelectionBox(cameraManager, viewportCanvas, shaderManager.getOrCreateSelectionPipeline());
-
-			if (programPreferences.showPerspectiveGrid()) {
-				gridPainter2.fillGridBuffer(shaderManager.getOrCreateGridPipeline());
-				RendererThing1.paintGrid(cameraManager, viewportCanvas, shaderManager.getOrCreateGridPipeline());
-			}
-
-//			if (programPreferences != null && programPreferences.getRenderParticles()) {
-//				renderParticles();
-//			}
-		}
-		GL11.glDepthMask(false);
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glDisable(GL11.GL_CULL_FACE);
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-
-		if (autoRepainting) {
-
-			paintAndUpdate();
-		}
-	}
-
-	Consumer<ByteBuffer> bufferConsumer;
-	public void setPixelBufferListener(Consumer<ByteBuffer> bufferConsumer){
-		this.bufferConsumer = bufferConsumer;
-	}
-	public ByteBuffer paintGL2(CameraManager cameraManager, ViewportSettings viewportSettings, int width, int height, ShaderPipeline pipeline1) {
+	public ByteBuffer paintGL2(CameraManager cameraManager, ViewportSettings viewportSettings, int width, int height) {
 		try {
 			ShaderPipeline pipeline = shaderManager.getOrCreatePipeline();
 			if (programPreferences != null && viewportSettings.isWireFrame()) {
@@ -437,14 +325,14 @@ public class BufferFiller {
 				pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 			}
 //			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, autoRepainting ? 1.0f : 0.0f);
-			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 0.0f);
+//			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 0.0f);
 
 			pipeline.glMatrixMode(GL11.GL_PROJECTION);
 			pipeline.glLoadIdentity();
 
 //			GL11.glEnable(GL11.);
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 0.0f);
+			GL11.glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0.0f);
 			pipeline.glMatrixMode(GL11.GL_MODELVIEW);
 			pipeline.glLoadIdentity();
 
@@ -537,37 +425,6 @@ public class BufferFiller {
 		pipeline.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE, lightColor1);
 		pipeline.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, lightPos1);
 	}
-
-	private void paintAndUpdate() {
-//		try {
-//			swapBuffers();
-//		} catch (LWJGLException e) {
-//			e.printStackTrace();
-//		}
-//		if (isShowing() && !paintTimer.isRunning()) {
-//			paintTimer.restart();
-//		} else if (!isShowing() && paintTimer.isRunning()) {
-//			paintTimer.stop();
-//		}
-	}
-	private void paintCanvas() {
-//		try {
-//			swapBuffers();
-//		} catch (LWJGLException e) {
-//			e.printStackTrace();
-//		}
-	}
-//	private void update() {
-//		if (isShowing() && !paintTimer.isRunning()) {
-//			paintTimer.restart();
-//		} else if (!isShowing() && paintTimer.isRunning()) {
-//			paintTimer.stop();
-//		}
-//	}
-//
-//	private boolean isShowing(){
-//		return true;
-//	}
 
 	private void updateRenderModel() {
 		if (renderEnv.isLive()) {

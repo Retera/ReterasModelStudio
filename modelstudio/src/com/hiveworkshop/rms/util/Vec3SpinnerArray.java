@@ -22,23 +22,32 @@ public class Vec3SpinnerArray {
 	public Vec3SpinnerArray() {
 		this(new Vec3(), "", "", "");
 	}
+	public Vec3SpinnerArray(Vec3 startV) {
+		this(startV, "", "", "");
+	}
+	public Vec3SpinnerArray(Vec3 startV, float minValue, float stepSize) {
+		this(startV, "", "", "", minValue, stepSize);
+	}
 
 	public Vec3SpinnerArray(String l1, String l2, String l3) {
 		this(new Vec3(), l1, l2, l3);
 	}
 
 	public Vec3SpinnerArray(Vec3 startV, String l1, String l2, String l3) {
-		spinners[0] = getStandardSpinner(startV.x).reloadNewValue(startV.x);
-		spinners[1] = getStandardSpinner(startV.y).reloadNewValue(startV.y);
-		spinners[2] = getStandardSpinner(startV.z).reloadNewValue(startV.z);
+		this(startV, l1, l2, l3, -100000.00f, 0.1f);
+	}
+	public Vec3SpinnerArray(Vec3 startV, String l1, String l2, String l3, float minValue, float stepSize) {
+		spinners[0] = getStandardSpinner(startV.x, minValue, stepSize).reloadNewValue(startV.x);
+		spinners[1] = getStandardSpinner(startV.y, minValue, stepSize).reloadNewValue(startV.y);
+		spinners[2] = getStandardSpinner(startV.z, minValue, stepSize).reloadNewValue(startV.z);
 
 		labels[0] = new JLabel(l1);
 		labels[1] = new JLabel(l2);
 		labels[2] = new JLabel(l3);
 	}
 
-	private FloatEditorJSpinner getStandardSpinner(double startValue) {
-		return new FloatEditorJSpinner((float) startValue, -100000.00f, .1f);
+	private FloatEditorJSpinner getStandardSpinner(float startValue, float minValue, float stepSize) {
+		return new FloatEditorJSpinner(startValue, minValue, stepSize);
 	}
 
 	public JPanel spinnerPanel() {
