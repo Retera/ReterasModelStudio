@@ -32,7 +32,7 @@ public class AddSequenceAction implements UndoAction {
 			model.remove((Animation) sequence);
 		}
 		if (changeListener != null) {
-			changeListener.keyframesUpdated();
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}
@@ -45,7 +45,7 @@ public class AddSequenceAction implements UndoAction {
 			model.add((Animation) sequence);
 		}
 		if (changeListener != null) {
-			changeListener.keyframesUpdated();
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}

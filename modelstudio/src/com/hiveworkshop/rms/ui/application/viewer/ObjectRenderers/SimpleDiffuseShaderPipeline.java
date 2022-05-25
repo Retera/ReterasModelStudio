@@ -9,12 +9,19 @@ import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.*;
 
 public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
-	private static final int STRIDE = POSITION + NORMAL + UV + SELECTION_STATUS;
+	private static final int STRIDE = POSITION + NORMAL + UV + TANGENT + SELECTION_STATUS;
 
 	public SimpleDiffuseShaderPipeline() {
 		currentMatrix.setIdentity();
 		vertexShader = OtherUtils.loadShader("simpleDiffuse.vert");
 		fragmentShader = OtherUtils.loadShader("simpleDiffuse.frag");
+		load();
+		setupUniforms();
+	}
+	public SimpleDiffuseShaderPipeline(String vertexShader, String fragmentShader) {
+		currentMatrix.setIdentity();
+		this.vertexShader = vertexShader;
+		this.fragmentShader = fragmentShader;
 		load();
 		setupUniforms();
 	}
@@ -26,8 +33,11 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		createUniform("u_alphaTest");
 		createUniform("u_lightingEnabled");
 		createUniform("u_lightDirection");
+		createUniform("u_viewPos");
 		createUniform("u_projection");
+		createUniform("u_view");
 		createUniform("u_uvTransform");
+		createUniform("u_geosetColor");
 
 		createUniform("a_selectionStatus");
 		createUniform("u_vertColors[0]");
@@ -48,6 +58,7 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		enableAttribArray(POSITION, STRIDE);
 		enableAttribArray(NORMAL, STRIDE);
 		enableAttribArray(UV, STRIDE);
+		enableAttribArray(TANGENT, STRIDE);
 		enableAttribArray(SELECTION_STATUS, STRIDE);
 
 		GL20.glUseProgram(shaderProgram);
@@ -56,23 +67,29 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 
 		if(!instances.isEmpty()){
 			for (BufferSubInstance instance : instances){
-				setUpAndDraw(instance);
+				if(textureUsed == 0 && instance.getTextureSlot() == 0){
+					setUpAndDraw(instance);
+				} else {
+					setUpAndDraw(instance);
+				}
 			}
 		} else {
 			setUpAndDraw();
 		}
-		textureUsed = 0;
+//		textureUsed = 0;
 		pipelineVertexBuffer.clear();
 	}
 
 	private void setUpConstantUniforms(){
 		glUniform("u_textureUsed", textureUsed);
-		glUniform("u_alphaTest", alphaTest);
 		glUniform("u_lightingEnabled", lightingEnabled);
 		tempVec3.set(30.4879f, -24.1937f, 444.411f);
 		glUniform("u_lightDirection", tempVec3);
-		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
+		fillMatrixBuffer(pipelineMatrixBuffer, projectionMat);
 		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
+		fillMatrixBuffer(pipelineViewMatrixBuffer, viewMat);
+		GL20.glUniformMatrix4(getUniformLocation("u_view"), false, pipelineViewMatrixBuffer);
 
 
 		float[] colorHig = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_HIGHLIGHTED);
@@ -87,7 +104,12 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 
 	private void setUpAndDraw(BufferSubInstance instance) {
 		instance.setUpInstance(this);
+		if(textureUsed == 0){
+			GL11.glDisable(GL11.GL_CULL_FACE);
+		}
 		glUniform("u_textureDiffuse", instance.getTextureSlot());
+		glUniform("u_geosetColor", instance.getLayerColor());
+		glUniform("u_alphaTest", alphaTest);
 		fillMatrixBuffer(uvTransformMatrixBuffer, instance.getUvTransform());
 		GL20.glUniformMatrix4(getUniformLocation("u_uvTransform"), false, uvTransformMatrixBuffer);
 
@@ -96,6 +118,7 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 
 	private void setUpAndDraw() {
 		glUniform("u_textureDiffuse", 0);
+		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
 
 		GL11.glDrawArrays(glBeginType, 0, vertexCount);
 	}
@@ -133,11 +156,13 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		ensureCapacity(baseOffset + STRIDE);
 		position.set(pos, 1);
 		normal.set(norm, 1).normalizeAsV3();
+		tangent.set(tang).normalizeAsV3();
 
 
 		addToBuffer(baseOffset, position);
 		addToBuffer(baseOffset, normal);
 		addToBuffer(baseOffset, uv);
+		addToBuffer(baseOffset, tangent);
 		addToBuffer(baseOffset, 0);
 
 		vertexCount++;
@@ -150,11 +175,13 @@ public class SimpleDiffuseShaderPipeline extends ShaderPipeline {
 		ensureCapacity(baseOffset + STRIDE);
 		position.set(pos, 1);
 		normal.set(norm, 1).normalizeAsV3();
+		tangent.set(tang).normalizeAsV3();
 
 
 		addToBuffer(baseOffset, position);
 		addToBuffer(baseOffset, normal);
 		addToBuffer(baseOffset, uv);
+		addToBuffer(baseOffset, tangent);
 		addToBuffer(baseOffset, selectionStatus);
 
 		vertexCount++;

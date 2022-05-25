@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.IntAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
-import com.hiveworkshop.rms.editor.render3d.RenderNodeCamera;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.editors.*;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -145,7 +144,8 @@ public class ComponentCameraPanel extends ComponentPanel<Camera> {
 		undoManager.pushAction(new DeleteNodesAction(camera, changeListener, model).redo());
 	}
 	private void simplifyKFs() {
-		undoManager.pushAction(new SimplifyKeyframesAction(Collections.singleton(camera), model.getAllSequences(), 0.1f, 0.1f).redo());
+		boolean allowRemovePeaks = false;
+		undoManager.pushAction(new SimplifyKeyframesAction(Collections.singleton(camera), model.getAllSequences(), 0.1f, 0.1f, allowRemovePeaks).redo());
 	}
 
 	private void setPosition(Vec3 newPosition) {

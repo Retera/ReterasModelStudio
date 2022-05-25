@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.MoverWidget;
@@ -49,7 +50,8 @@ public class ExtrudeActivity extends TransformActivity {
 			if(selectionManager instanceof TVertSelectionManager){
 				undoAction = translationAction;
 			} else {
-				undoAction = new CompoundAction("extrude", Arrays.asList(beginExtrudingSelection, translationAction));
+				ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+				undoAction = new CompoundAction("extrude", changeListener::geosetsUpdated, beginExtrudingSelection, translationAction);
 			}
 
 			if (wasCanceled && undoAction != null) {
@@ -88,7 +90,8 @@ public class ExtrudeActivity extends TransformActivity {
 			if(selectionManager instanceof TVertSelectionManager){
 				undoAction = translationAction;
 			} else {
-				undoAction = new CompoundAction("extrude", null, beginExtrudingSelection, translationAction);
+				ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+				undoAction = new CompoundAction("extrude", changeListener::geosetsUpdated, beginExtrudingSelection, translationAction);
 			}
 			if (wasCanceled && undoAction != null) {
 				undoAction.undo();

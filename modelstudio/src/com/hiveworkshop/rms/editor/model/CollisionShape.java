@@ -14,11 +14,12 @@ import java.util.List;
  * Eric Theller 3/10/2012 3:52 PM
  */
 public class CollisionShape extends IdObject {
-	ExtLog extents;
+//	ExtLog extents;
 	Type type = Type.BOX;
 	List<Vec3> vertices = new ArrayList<>();
 	Vec3 vertex1 = new Vec3();
 	Vec3 vertex2 = new Vec3();
+	double boundsRadius = -99;
 
 	public CollisionShape(CollisionShape shape) {
 		super(shape);
@@ -29,9 +30,10 @@ public class CollisionShape extends IdObject {
 		vertex1.set(shape.vertex1);
 		vertex2.set(shape.vertex2);
 
-		if (shape.extents != null) {
-			extents = shape.extents.deepCopy();
-		}
+//		if (shape.extents != null) {
+//			extents = shape.extents.deepCopy();
+//		}
+		boundsRadius = shape.boundsRadius;
 	}
 
 	public CollisionShape(String name) {
@@ -58,21 +60,35 @@ public class CollisionShape extends IdObject {
 		vertices.add(v);
 	}
 
+	public void setVertex(int vertId, Vec3 v){
+		Vec3 vertex = getVertex(vertId);
+		if(vertex != null && v == null){
+			vertices.remove(vertId);
+		} else if(vertex != null){
+			vertex.set(v);
+		} else {
+			vertices.add(vertId, v);
+		}
+	}
+
 	public Vec3 getVertex(int vertId) {
-		return vertices.get(vertId);
+		if(vertId<vertices.size()){
+			return vertices.get(vertId);
+		}
+		return null;
 	}
 
 	public int numVerteces() {
 		return vertices.size();
 	}
 
-	public ExtLog getExtents() {
-		return extents;
-	}
+//	public ExtLog getExtents() {
+//		return extents;
+//	}
 
-	public void setExtents(ExtLog extents) {
-		this.extents = extents;
-	}
+//	public void setExtents(ExtLog extents) {
+//		this.extents = extents;
+//	}
 
 	public List<Vec3> getVertices() {
 		return vertices;
@@ -80,6 +96,14 @@ public class CollisionShape extends IdObject {
 
 	public void setVertices(List<Vec3> vertices) {
 		this.vertices = vertices;
+	}
+
+	public CollisionShape setBoundsRadius(double boundsRadius) {
+		this.boundsRadius = boundsRadius;
+		return this;
+	}
+	public double getBoundsRadius() {
+		return boundsRadius;
 	}
 
 	@Override

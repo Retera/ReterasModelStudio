@@ -442,8 +442,7 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 		stream.startBlock(MdlUtils.TOKEN_GROUPS, matrixGroups.length, matrixIndices.length);
 		int index = 0;
 		for (final long groupSize : matrixGroups) {
-			stream.writeLongSubArrayAttrib(MdlUtils.TOKEN_MATRICES, matrixIndices, index,
-					(int) (index + groupSize));
+			stream.writeLongSubArrayAttrib(MdlUtils.TOKEN_MATRICES, matrixIndices, index, (int) (index + groupSize));
 			index += groupSize;
 		}
 		stream.endBlock();
@@ -456,10 +455,10 @@ public class MdlxGeoset implements MdlxBlock, MdlxChunk {
 			stream.endBlock();
 		}
 
-		stream.writeAttribUInt32("MaterialID", materialId);
-		stream.writeAttribUInt32("SelectionGroup", selectionGroup);
+		stream.writeAttribUInt32(MdlUtils.TOKEN_MATERIAL_ID, materialId);
+		stream.writeAttribUInt32(MdlUtils.TOKEN_SELECTION_GROUP, selectionGroup);
 		if (selectionFlags == 4) {
-			stream.writeFlag("Unselectable");
+			stream.writeFlag(MdlUtils.TOKEN_UNSELECTABLE);
 		}
 
 		if (version > 800) {

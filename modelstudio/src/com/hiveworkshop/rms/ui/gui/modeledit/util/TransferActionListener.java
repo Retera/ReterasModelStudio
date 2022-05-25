@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.gui.modeledit.util;
 
 import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.language.TextKey;
+import org.lwjgl.opengl.AWTGLCanvas;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +23,7 @@ import java.beans.PropertyChangeListener;
 public class TransferActionListener implements ActionListener, PropertyChangeListener {
 	private JComponent focusOwner = null;
 	private PerspectiveViewport perspectiveViewport = null;
+	private AWTGLCanvas canvas = null;
 
 	public TransferActionListener() {
 		final KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
@@ -43,13 +45,18 @@ public class TransferActionListener implements ActionListener, PropertyChangeLis
 		} else {
 			perspectiveViewport = null;
 		}
+		if (o instanceof AWTGLCanvas) {
+			canvas = (AWTGLCanvas) o;
+		} else {
+			canvas = null;
+		}
 //		System.out.println("focusOwner: " + focusOwner);
 	}
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 //		System.out.println("actionPerformed");
-		if (focusOwner == null && perspectiveViewport == null) {
+		if (focusOwner == null && perspectiveViewport == null && canvas == null) {
 //			System.out.println("focusOwner == null");
 			return;
 		}
@@ -71,12 +78,22 @@ public class TransferActionListener implements ActionListener, PropertyChangeLis
 				System.out.println("will complete action!");
 				a.actionPerformed(new ActionEvent(parent, ActionEvent.ACTION_PERFORMED, null));
 			}
+		} else if(canvas != null){
+			final String action = e.getActionCommand();
+			System.out.println("action: " + action + " (e: " + e + ")");
+			System.out.println("action: " + action.length() + " (e: " + e + ")");
+			JPanel parent = (JPanel) canvas.getParent().getParent();
+			final Action a = parent.getActionMap().get(action);
+			if (a != null) {
+				System.out.println("will complete action!");
+				a.actionPerformed(new ActionEvent(parent, ActionEvent.ACTION_PERFORMED, null));
+			}
 		}
 	}
 
 	public void doActionPerformed(TextKey textKey) {
 		System.out.println("actionPerformed");
-		if (focusOwner == null && perspectiveViewport == null) {
+		if (focusOwner == null && perspectiveViewport == null && canvas == null) {
 			System.out.println("focusOwner == null");
 			return;
 		}
@@ -91,7 +108,14 @@ public class TransferActionListener implements ActionListener, PropertyChangeLis
 			JPanel parent = (JPanel) perspectiveViewport.getParent().getParent();
 			final Action a = parent.getActionMap().get(textKey);
 			if (a != null) {
-				System.out.println("will complete action!");
+				System.out.println("perspectiveViewport - " + "will complete action!");
+				a.actionPerformed(new ActionEvent(parent, ActionEvent.ACTION_PERFORMED, null));
+			}
+		} else if(canvas != null){
+			JPanel parent = (JPanel) canvas.getParent().getParent();
+			final Action a = parent.getActionMap().get(textKey);
+			if (a != null) {
+				System.out.println("canvas - " + "will complete action!");
 				a.actionPerformed(new ActionEvent(parent, ActionEvent.ACTION_PERFORMED, null));
 			}
 		}

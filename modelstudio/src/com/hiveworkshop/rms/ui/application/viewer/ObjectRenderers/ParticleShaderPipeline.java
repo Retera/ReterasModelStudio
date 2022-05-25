@@ -28,6 +28,7 @@ public class ParticleShaderPipeline extends ShaderPipeline {
 		createUniform("u_texture");
 		createUniform("u_alphaTest");
 		createUniform("u_projection");
+		createUniform("u_view");
 		createUniform("u_transform");
 		createUniform("u_flipBookSize");
 	}
@@ -79,6 +80,8 @@ public class ParticleShaderPipeline extends ShaderPipeline {
 		glUniform("u_flipBookSize", instance.getFlipBookSize());
 		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
 		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
+		fillMatrixBuffer(pipelineViewMatrixBuffer, viewMat);
+		GL20.glUniformMatrix4(getUniformLocation("u_view"), false, pipelineViewMatrixBuffer);
 		fillMatrixBuffer(antiRotBuffer, antiRotMat);
 		GL20.glUniformMatrix4(getUniformLocation("u_transform"), false, antiRotBuffer);
 

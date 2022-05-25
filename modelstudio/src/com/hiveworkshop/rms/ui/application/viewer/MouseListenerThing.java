@@ -91,7 +91,6 @@ public class MouseListenerThing extends MouseAdapter {
 
 //			System.out.println("getStartPGeo: " + getStartPGeo() + " (" + startP + "), " + "getEndPGeo2: " + getEndPGeo2() + " (" + endP + "), ");
 			} else if (isSelecting && endP != null){
-
 				Vec2 topLeft = new Vec2(startP).maximize(endP);
 				Vec2 botRight = new Vec2(endP).minimize(startP);
 				ViewBox viewBox = cameraHandler.getViewBox(topLeft, botRight);
@@ -132,7 +131,7 @@ public class MouseListenerThing extends MouseAdapter {
 
 	@Override
 	public void mouseWheelMoved(final MouseWheelEvent e) {
-		System.out.println("doZoom: " + e);
+//		System.out.println("doZoom: " + e);
 		cameraHandler.doZoom(e);
 	}
 

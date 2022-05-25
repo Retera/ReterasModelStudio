@@ -569,6 +569,9 @@ public class Quat extends Vec4 {
 	public Quat setFromMatrix(Mat4 m, Quat q) {
 		return q.setFromMat(m.m00, m.m01, m.m02, m.m10, m.m11, m.m12, m.m20, m.m21, m.m22);
 	}
+	public Quat setFromMatrix(Mat4 m) {
+		return setFromMat(m.m00, m.m01, m.m02, m.m10, m.m11, m.m12, m.m20, m.m21, m.m22);
+	}
 
 
 	private Quat setFromMat(float m00, float m01, float m02, float m10,

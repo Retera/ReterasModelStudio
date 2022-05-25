@@ -44,7 +44,7 @@ public class ModelPanel {
 		viewportActivityManager = new ViewportActivityManager(modelHandler, modelEditorManager);
 
 		uvModelEditorManager = new TVertexEditorManager(modelHandler);
-		viewportUVActivityManager = new ViewportActivityManager(modelHandler, modelEditorManager);
+		viewportUVActivityManager = new ViewportActivityManager(modelHandler, uvModelEditorManager);
 
 		changeActivity(editorActionType);
 	}

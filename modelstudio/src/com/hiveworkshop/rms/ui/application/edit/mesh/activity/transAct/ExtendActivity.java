@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.actions.util.GenericMoveAction;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.AbstractModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.axes.CoordinateSystem;
 import com.hiveworkshop.rms.ui.application.edit.mesh.widgets.MoverWidget;
@@ -49,7 +50,8 @@ public class ExtendActivity extends TransformActivity {
 			if(selectionManager instanceof TVertSelectionManager){
 				undoAction = translationAction;
 			} else {
-				undoAction = new CompoundAction("extend", Arrays.asList(extendAction, translationAction));
+				ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+				undoAction = new CompoundAction("extend", changeListener::geosetsUpdated, extendAction, translationAction);
 			}
 
 			if (wasCanceled && undoAction != null) {
@@ -90,7 +92,8 @@ public class ExtendActivity extends TransformActivity {
 			if(selectionManager instanceof TVertSelectionManager){
 				undoAction = translationAction;
 			} else {
-				undoAction = new CompoundAction("extend", null, extendAction, translationAction);
+				ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+				undoAction = new CompoundAction("extend", changeListener::geosetsUpdated, extendAction, translationAction);
 			}
 
 			if (wasCanceled && undoAction != null) {

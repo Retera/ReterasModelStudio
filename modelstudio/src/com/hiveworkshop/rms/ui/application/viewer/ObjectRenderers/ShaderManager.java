@@ -26,16 +26,23 @@ public class ShaderManager {
 		return this;
 	}
 
-	public void createCustomShader(String vertexShader, String fragmentShader){
-		customShaderMaker = () -> makeCustomShader(vertexShader, fragmentShader);
+	public void createCustomShader(String vertexShader, String fragmentShader, boolean isHD){
+		customShaderMaker = () -> makeCustomShader(vertexShader, fragmentShader, isHD);
 	}
-	public void makeCustomShader(String vertexShader, String fragmentShader){
+	public void makeCustomShader(String vertexShader, String fragmentShader, boolean isHD){
 		try {
-			ShaderPipeline newCustomPipeline = new CustomHDShaderPipeline(vertexShader, fragmentShader);
+			ShaderPipeline newCustomPipeline;
+			if (isHD) {
+				newCustomPipeline = new HDDiffuseShaderPipeline(vertexShader, fragmentShader);
+			} else {
+				newCustomPipeline = new SimpleDiffuseShaderPipeline(vertexShader, fragmentShader);
+			}
 			if(customHDShaderPipeline != null){
 				customHDShaderPipeline.discard();
 			}
 			customHDShaderPipeline = newCustomPipeline;
+
+			customHDShaderPipeline.onGlobalPipelineSet();
 		} catch (Exception e){
 			e.printStackTrace();
 			System.out.println("adding Exception!");
@@ -75,20 +82,37 @@ public class ShaderManager {
 //			pipeline = new SimpleDiffuseShaderPipeline();
 //			hdPipeline = new SimpleDiffuseShaderPipeline();
 			hdPipeline = new HDDiffuseShaderPipeline();
+			hdPipeline.onGlobalPipelineSet();
 //			pipeline = new NormalLinesShaderPipeline();
 //			pipeline = new VertMarkerShaderPipeline();
 		}
 		return hdPipeline;
 	}
+
+	public ShaderPipeline getOrCreatePipeline(boolean hd) {
+		if (customShaderMaker != null) {
+			customShaderMaker.run();
+		}
+		if(customHDShaderPipeline != null){
+			return customHDShaderPipeline;
+		} else if (hd) {
+			return getOrCreateHdPipeline();
+		} else {
+			return getOrCreateSdPipeline();
+		}
+	}
+
 	public ShaderPipeline getOrCreateHdPipeline() {
 		if (hdPipeline == null) {
 			hdPipeline = new HDDiffuseShaderPipeline();
+			hdPipeline.onGlobalPipelineSet();
 		}
 		return hdPipeline;
 	}
 	public ShaderPipeline getOrCreateSdPipeline() {
 		if (sdPipeline == null) {
 			sdPipeline = new SimpleDiffuseShaderPipeline();
+			sdPipeline.onGlobalPipelineSet();
 		}
 		return sdPipeline;
 	}

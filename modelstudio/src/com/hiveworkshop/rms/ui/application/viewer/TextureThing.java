@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderPipeline
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import org.lwjgl.opengl.*;
 
+import java.awt.*;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,21 @@ public class TextureThing {
 		return getTextureID(tex);
 	}
 
+	public Integer loadToTexMap(Bitmap tex, Color color) {
+		if (tex != null && textureMap.get(tex) == null) {
+			try {
+				Integer texture = loadTexture(BLPHandler.get().getColorTexture(color), tex);
+				textureMap.put(tex, texture);
+				return texture;
+			} catch (final Exception exc) {
+				if (LOG_EXCEPTIONS) {
+					exc.printStackTrace();
+				}
+			}
+		}
+		return getTextureID(tex);
+	}
+
 	public int loadTexture(final GPUReadyTexture texture, final Bitmap bitmap) {
 		if (texture == null || bitmap == null) {
 			return -1;
@@ -60,6 +76,41 @@ public class TextureThing {
 		int height = texture.getHeight();
 		boolean wrapW = bitmap.isWrapWidth();
 		boolean wrapH = bitmap.isWrapHeight();
+
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
+		GL42.glTexStorage2D(GL11.GL_TEXTURE_2D, 1, GL11.GL_RGBA8, width, height);
+		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+
+		GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);  //Generate num_mipmaps number of mipmaps here.
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, wrapW ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, wrapH ? GL11.GL_REPEAT : GL12.GL_CLAMP_TO_EDGE);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
+
+
+		// Setup texture scaling filtering
+//		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+//		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+
+		// Send texel data to OpenGL
+//		GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, texture.getWidth(), texture.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+
+		// Return the texture ID so we can bind it later again
+		return textureID;
+	}
+	public int loadTexture(final GPUReadyTexture texture, boolean wrapW, boolean wrapH) {
+		if (texture == null) {
+			return -1;
+		}
+		ByteBuffer buffer = texture.getBuffer();
+		// You now have a ByteBuffer filled with the color data of each pixel.
+		// Now just create a texture ID and bind it. Then you can load it using
+		// whatever OpenGL method you want, for example:
+
+		int textureID = GL11.glGenTextures(); // Generate texture ID
+//		System.out.println("texture: " + bitmap.getName() + ", id: " + textureID);
+		int width = texture.getWidth();
+		int height = texture.getHeight();
 
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID);
 		GL42.glTexStorage2D(GL11.GL_TEXTURE_2D, 1, GL11.GL_RGBA8, width, height);
@@ -114,20 +165,29 @@ public class TextureThing {
 //		printThing("texture: " + bitmap.getName() + ", id: " + textureHandle, 500);
 		boolean wrapW = bitmap != null && bitmap.isWrapWidth();
 		boolean wrapH = bitmap != null && bitmap.isWrapHeight();
-		bindTexture(textureHandle, textureSlot, wrapW, wrapH);
+		bindTexture(textureHandle, textureSlot);
 	}
 
 	public void loadAndBindTexture(EditableModel model, Bitmap bitmap, int textureSlot) {
 //		int textureHandle = getTextureID(bitmap);
 		int textureHandle = loadToTexMap(model, bitmap);
 //		printThing("texture: " + bitmap.getName() + ", id: " + textureHandle, 500);
-		boolean wrapW = bitmap != null && bitmap.isWrapWidth();
-		boolean wrapH = bitmap != null && bitmap.isWrapHeight();
-		bindTexture(textureHandle, textureSlot, wrapW, wrapH);
+//		boolean wrapW = bitmap != null && bitmap.isWrapWidth();
+//		boolean wrapH = bitmap != null && bitmap.isWrapHeight();
+		bindTexture(textureHandle, textureSlot);
+	}
+
+	public void loadAndBindTexture(Bitmap bitmap, Color color, int textureSlot) {
+//		int textureHandle = getTextureID(bitmap);
+		int textureHandle = loadToTexMap(bitmap, color);
+//		printThing("texture: " + bitmap.getName() + ", id: " + textureHandle, 500);
+//		boolean wrapW = bitmap != null && bitmap.isWrapWidth();
+//		boolean wrapH = bitmap != null && bitmap.isWrapHeight();
+		bindTexture(textureHandle, textureSlot);
 	}
 
 
-	public void bindTexture(Integer texture, int textureSlot, boolean wrapW, boolean wrapH) {
+	public void bindTexture(Integer texture, int textureSlot) {
 		if(!textureMap.isEmpty()){
 			GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureSlot);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);

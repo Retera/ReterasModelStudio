@@ -21,6 +21,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.mesh.GeometryModelEditor;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayPanel;
+import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.DisplayPanelCanvas;
 import com.hiveworkshop.rms.ui.application.viewer.PerspectiveViewport;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
@@ -62,6 +63,9 @@ public class ViewportTransferHandler extends TransferHandler {
 
 		PerspectiveViewport pv = null;
 		DisplayPanel dp = null;
+		DisplayPanelCanvas dpc = null;
+//		System.out.println("pasting into " + info.getComponent());
+
 		if (info.getComponent() instanceof PerspectiveViewport) {
 //			System.out.println("found PerspectiveViewport");
 			pv = (PerspectiveViewport) info.getComponent();
@@ -69,6 +73,10 @@ public class ViewportTransferHandler extends TransferHandler {
 		if (info.getComponent() instanceof DisplayPanel) {
 //			System.out.println("found DisplayPanel");
 			dp = (DisplayPanel) info.getComponent();
+		}
+		if (info.getComponent() instanceof DisplayPanelCanvas) {
+//			System.out.println("found DisplayPanel");
+			dpc = (DisplayPanelCanvas) info.getComponent();
 		}
 
 		// Fetch the data -- bail if this fails
@@ -97,7 +105,7 @@ public class ViewportTransferHandler extends TransferHandler {
 //				pasteModelIntoViewport(pastedModel, viewport, viewport.getLastMouseMotion());
 //			}
 //		}
-		if (pv != null || dp != null) {
+		if (pv != null || dp != null || dpc != null) {
 			Point point = new Point(0, 0);
 			if (info.isDrop()) { // This is a drop
 //				System.out.println("drop PerspectiveViewport_______________________________________________________");

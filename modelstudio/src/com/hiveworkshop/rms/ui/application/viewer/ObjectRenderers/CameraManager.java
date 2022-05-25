@@ -19,7 +19,7 @@ import java.awt.event.MouseWheelEvent;
  * day, you might later want to copy GameCameraManager into here??
  */
 public class CameraManager {
-	protected float zoomFactor;
+	private final double ZOOM_FACTOR = 1.07;
 	protected float upAngle;    // pitch
 	protected float sideAngle;  // yaw
 	protected float tiltAngle;  // roll
@@ -80,7 +80,6 @@ public class CameraManager {
 	// https://learnopengl.com/Getting-started/Camera
 	public CameraManager(Component viewport) {
 		this.viewport = viewport;
-		this.zoomFactor = 0.1f;
 //		this.upAngle = (float) Math.toRadians(90 - 34);
 		this.upAngle = (float) Math.toRadians(90);
 		this.sideAngle = (float) (Math.PI / 2);
@@ -225,6 +224,14 @@ public class CameraManager {
 		target.y = (float) a;
 		target.z = (float) b;
 	}
+	public void setTargetPoint(float x, float y, float z) {
+		target.x = x;
+		target.y = y;
+		target.z = z;
+	}
+	public void setTargetPoint(Vec3 v) {
+		target.set(v);
+	}
 
 	public void resetCamera(){
 		target.set(Vec3.ZERO);
@@ -259,22 +266,26 @@ public class CameraManager {
 		}
 	}
 	public void setCameraRotation(float right, float up) {
-		ViewBox viewBox = getViewBox(new Vec2(1, 1), new Vec2(-1, -1));
-		viewBox.pointInBox(new Vec3(0,0,0));
+		setCameraRotation(right, up, 0);
+	}
+	public void setCameraRotation(float right, float up, float tilt) {
 		if (allowRotation) {
-			upAngle = (float) Math.toRadians(up);
-			sideAngle = (float) Math.toRadians(right);
-			tiltAngle = (float) Math.toRadians(0);
-			calculateCameraRotation();
-			System.out.println("rot: " + Math.toDegrees(upAngle) + ", " + Math.toDegrees(sideAngle) + ", " + Math.toDegrees(tiltAngle)
-					+ ", dist: " + distance
-					+ ", target: " + target
-			);
+			setRotation(right, up, tilt);
+//			System.out.println("rot: " + Math.toDegrees(upAngle) + ", " + Math.toDegrees(sideAngle) + ", " + Math.toDegrees(tiltAngle)
+//					+ ", dist: " + distance
+//					+ ", target: " + target
+//			);
 		}
 	}
+
+	private void setRotation(float right, float up, float tilt) {
+		upAngle = (float) Math.toRadians(up);
+		sideAngle = (float) Math.toRadians(right);
+		tiltAngle = (float) Math.toRadians(tilt);
+		calculateCameraRotation();
+	}
+
 	public void setCameraRotationRad(float right, float up) {
-		ViewBox viewBox = getViewBox(new Vec2(1, 1), new Vec2(-1, -1));
-		viewBox.pointInBox(new Vec3(0,0,0));
 		if (allowRotation) {
 			upAngle = up;
 			sideAngle = right;
@@ -301,19 +312,19 @@ public class CameraManager {
 		int dir = wr < 0 ? -1 : 1;
 
 		for (int i = 0; i < wr * dir; i++) {
-			if (dir == -1) {
-				distance *= 1.15;
+			if (dir == 1) {
+				distance *= ZOOM_FACTOR;
 //				m_zoom *= ZOOM_FACTOR;
 //				cameraPos.y *= ZOOM_FACTOR;
 //				cameraPos.z *= ZOOM_FACTOR;
 			} else {
-				distance /= 1.15;
+				distance /= ZOOM_FACTOR;
 //				m_zoom /= ZOOM_FACTOR;
 //				cameraPos.y /= ZOOM_FACTOR;
 //				cameraPos.z /= ZOOM_FACTOR;
 			}
 		}
-		System.out.println("distance: " + distance);
+//		System.out.println("distance: " + distance);
 	}
 
 //	public CameraManager zoom(double v){
@@ -629,10 +640,7 @@ public class CameraManager {
 	}
 
 	public void setViewportCamera(int dist, int side, int height, int rX, int rY, int rZ) {
-		tiltAngle = rX;
-		sideAngle = rY;
-		upAngle = rZ;
-		calculateCameraRotation();
+		setRotation(rY, rZ, rX);
 
 		target.set(dist, side, height);
 //		calculateCameraRotation();

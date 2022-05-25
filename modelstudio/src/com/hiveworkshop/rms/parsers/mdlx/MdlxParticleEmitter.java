@@ -133,7 +133,7 @@ public class MdlxParticleEmitter extends MdlxGenericObject {
 		}
 
 		if (((flags & 0x8000) != 0) || ((flags & 0x10000) != 0)) {
-			stream.writeAttrib(MdlUtils.TOKEN_PATH, path);
+			stream.writeStringAttrib(MdlUtils.TOKEN_PATH, path);
 		}
 
 		stream.endBlock();

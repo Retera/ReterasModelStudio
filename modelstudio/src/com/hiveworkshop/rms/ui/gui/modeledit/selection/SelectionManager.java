@@ -297,87 +297,87 @@ public class SelectionManager extends AbstractSelectionManager {
 	}
 
 
-	public SelectionBundle getSelectionBundle(Vec3 min, Vec3 max, Mat4 viewPortAntiRotMat, double sizeAdj) {
-		Vec2 minFlat = new Vec3(min).transform(viewPortAntiRotMat).getProjected((byte) 1, (byte) 2);
-		Vec2 maxFlat = new Vec3(max).transform(viewPortAntiRotMat).getProjected((byte) 1, (byte) 2);
-		System.out.println("min: " + minFlat + ", max: " + maxFlat + "(" + min + ", " + max + ")");
-		if (selectionMode == SelectionItemTypes.VERTEX) {
-			Set<GeosetVertex> selectedVerts = addVertsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
-			Set<IdObject> selectedObjs = getIdObjectsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
-			Set<CameraNode> selectedCams = getCameraNodesFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
-			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
-		}
-
-		if (selectionMode == SelectionItemTypes.FACE) {
-			Set<GeosetVertex> selectedVerts = addTrisFromArea(minFlat, maxFlat, viewPortAntiRotMat);
-			Set<IdObject> selectedObjs = getIdObjectsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
-			Set<CameraNode> selectedCams = getCameraNodesFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
-			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
-		}
-
-		if (selectionMode == SelectionItemTypes.CLUSTER) {
-			Set<GeosetVertex> selectedVerts = getClusterBundle(vertexClusterDefinitions, addTrisFromArea(minFlat, maxFlat, viewPortAntiRotMat));
-			Set<IdObject> selectedObjs = getIdObjectsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
-			Set<CameraNode> selectedCams = getCameraNodesFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
-			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
-		}
-
-		if (selectionMode == SelectionItemTypes.GROUP) {
-			Set<GeosetVertex> selectedVerts = getGroupBundle(addTrisFromArea(minFlat, maxFlat, viewPortAntiRotMat));
-			Set<IdObject> selectedObjs = getIdObjectsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
-			Set<CameraNode> selectedCams = getCameraNodesFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
-			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
-		}
-
-//		if (selectionMode == SelectionItemTypes.TPOSE) {
+//	public SelectionBundle getSelectionBundle(Vec3 min, Vec3 max, Mat4 viewPortAntiRotMat, double sizeAdj) {
+//		Vec2 minFlat = new Vec3(min).transform(viewPortAntiRotMat).getProjected((byte) 1, (byte) 2);
+//		Vec2 maxFlat = new Vec3(max).transform(viewPortAntiRotMat).getProjected((byte) 1, (byte) 2);
+//		System.out.println("min: " + minFlat + ", max: " + maxFlat + "(" + min + ", " + max + ")");
+//		if (selectionMode == SelectionItemTypes.VERTEX) {
+//			Set<GeosetVertex> selectedVerts = addVertsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
+//			Set<IdObject> selectedObjs = getIdObjectsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
+//			Set<CameraNode> selectedCams = getCameraNodesFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
+//			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
+//		}
+//
+//		if (selectionMode == SelectionItemTypes.FACE) {
+//			Set<GeosetVertex> selectedVerts = addTrisFromArea(minFlat, maxFlat, viewPortAntiRotMat);
+//			Set<IdObject> selectedObjs = getIdObjectsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
+//			Set<CameraNode> selectedCams = getCameraNodesFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
+//			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
+//		}
+//
+//		if (selectionMode == SelectionItemTypes.CLUSTER) {
+//			Set<GeosetVertex> selectedVerts = getClusterBundle(vertexClusterDefinitions, addTrisFromArea(minFlat, maxFlat, viewPortAntiRotMat));
+//			Set<IdObject> selectedObjs = getIdObjectsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
+//			Set<CameraNode> selectedCams = getCameraNodesFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
+//			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
+//		}
+//
+//		if (selectionMode == SelectionItemTypes.GROUP) {
+//			Set<GeosetVertex> selectedVerts = getGroupBundle(addTrisFromArea(minFlat, maxFlat, viewPortAntiRotMat));
+//			Set<IdObject> selectedObjs = getIdObjectsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
+//			Set<CameraNode> selectedCams = getCameraNodesFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
+//			return new SelectionBundle(selectedVerts, selectedObjs, selectedCams);
+//		}
+//
+////		if (selectionMode == SelectionItemTypes.TPOSE) {
+////			List<IdObject> selectedItems = new ArrayList<>();
+////
+////			for (IdObject object : modelView.getEditableIdObjects()) {
+////				double vertexSize = object.getClickRadius();
+////				if (HitTestStuff.hitTest(minFlat, maxFlat, object.getPivotPoint(), coordinateSystem, vertexSize)) {
+////					selectedItems.add(object);
+////				}
+////				if (object instanceof CollisionShape) {
+////					for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
+////						if (HitTestStuff.hitTest(minFlat, maxFlat, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
+////							selectedItems.add(object);
+////						}
+////					}
+////				}
+////			}
+////			return new SelectionBundle(selectedItems);
+////		}
+//
+//		if (selectionMode == SelectionItemTypes.ANIMATE) {
+//			Vec2 vertexV2 = new Vec2();
 //			List<IdObject> selectedItems = new ArrayList<>();
 //
 //			for (IdObject object : modelView.getEditableIdObjects()) {
-//				double vertexSize = object.getClickRadius();
-//				if (HitTestStuff.hitTest(minFlat, maxFlat, object.getPivotPoint(), coordinateSystem, vertexSize)) {
-//					selectedItems.add(object);
-//				}
-//				if (object instanceof CollisionShape) {
-//					for (Vec3 vertex : ((CollisionShape) object).getVertices()) {
-//						if (HitTestStuff.hitTest(minFlat, maxFlat, vertex, coordinateSystem, IdObject.DEFAULT_CLICK_RADIUS)) {
-//							selectedItems.add(object);
-//						}
+//				if (modelView.isEditable(object)) {
+//					RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
+//					double vertexSize1 = sizeAdj * object.getClickRadius() / 2.0;
+//					vertexV2.setAsProjection(renderNode.getPivot(), viewPortAntiRotMat);
+//					if (HitTestStuff.hitTest(minFlat, maxFlat, vertexV2, vertexSize1)) {
+//						selectedItems.add(object);
 //					}
 //				}
 //			}
-//			return new SelectionBundle(selectedItems);
+//			Set<GeosetVertex> selectedVerts = addVertsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
+//			Set<CameraNode> selectedCams = new HashSet<>();
+//			for(CameraNode cameraNode : modelView.getEditableCameraNodes()) {
+//				if (modelView.isEditable(cameraNode)){
+//					RenderNodeCamera renderNode = editorRenderModel.getRenderNode(cameraNode.getParent());
+//					Vec3 pivot = cameraNode instanceof CameraNode.SourceNode ? renderNode.getPivot() : renderNode.getTarget();
+//					vertexV2.setAsProjection(pivot, viewPortAntiRotMat);
+//					if(HitTestStuff.hitTest(minFlat, maxFlat, vertexV2, 2)){
+//						selectedCams.add(cameraNode);
+//					}
+//				}
+//			}
+//			return new SelectionBundle(selectedItems, selectedVerts, selectedCams);
 //		}
-
-		if (selectionMode == SelectionItemTypes.ANIMATE) {
-			Vec2 vertexV2 = new Vec2();
-			List<IdObject> selectedItems = new ArrayList<>();
-
-			for (IdObject object : modelView.getEditableIdObjects()) {
-				if (modelView.isEditable(object)) {
-					RenderNode2 renderNode = editorRenderModel.getRenderNode(object);
-					double vertexSize1 = sizeAdj * object.getClickRadius() / 2.0;
-					vertexV2.setAsProjection(renderNode.getPivot(), viewPortAntiRotMat);
-					if (HitTestStuff.hitTest(minFlat, maxFlat, vertexV2, vertexSize1)) {
-						selectedItems.add(object);
-					}
-				}
-			}
-			Set<GeosetVertex> selectedVerts = addVertsFromArea(minFlat, maxFlat, viewPortAntiRotMat, sizeAdj);
-			Set<CameraNode> selectedCams = new HashSet<>();
-			for(CameraNode cameraNode : modelView.getEditableCameraNodes()) {
-				if (modelView.isEditable(cameraNode)){
-					RenderNodeCamera renderNode = editorRenderModel.getRenderNode(cameraNode.getParent());
-					Vec3 pivot = cameraNode instanceof CameraNode.SourceNode ? renderNode.getPivot() : renderNode.getTarget();
-					vertexV2.setAsProjection(pivot, viewPortAntiRotMat);
-					if(HitTestStuff.hitTest(minFlat, maxFlat, vertexV2, 2)){
-						selectedCams.add(cameraNode);
-					}
-				}
-			}
-			return new SelectionBundle(selectedItems, selectedVerts, selectedCams);
-		}
-		return new SelectionBundle(Collections.emptySet());
-	}
+//		return new SelectionBundle(Collections.emptySet());
+//	}
 
 	private Set<CameraNode> getCameraNodesFromArea(Vec2 min, Vec2 max, CoordinateSystem coordinateSystem) {
 		Set<CameraNode> selectedCamNodes = new HashSet<>();

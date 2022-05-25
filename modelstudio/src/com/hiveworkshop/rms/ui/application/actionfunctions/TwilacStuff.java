@@ -5,10 +5,7 @@ import com.hiveworkshop.rms.editor.actions.animation.animFlag.ChangeInterpTypeAc
 import com.hiveworkshop.rms.editor.actions.animation.animFlag.ReplaceAnimFlagsAction;
 import com.hiveworkshop.rms.editor.actions.mesh.BridgeEdgeAction;
 import com.hiveworkshop.rms.editor.actions.mesh.SnapCloseVertsAction;
-import com.hiveworkshop.rms.editor.actions.nodes.BakeAndRebindActionTwi2;
-import com.hiveworkshop.rms.editor.actions.nodes.DeleteNodesAction;
-import com.hiveworkshop.rms.editor.actions.nodes.SetParentAction;
-import com.hiveworkshop.rms.editor.actions.nodes.SetPivotAction;
+import com.hiveworkshop.rms.editor.actions.nodes.*;
 import com.hiveworkshop.rms.editor.actions.selection.RemoveSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.selection.SetSelectionUggAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
@@ -19,11 +16,8 @@ import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.FileDialog;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
-import com.hiveworkshop.rms.ui.application.WindowHandler2;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.tools.*;
-import com.hiveworkshop.rms.ui.application.viewer.PreviewViewCanv;
-import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.ViewportCanvas;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionBundle;
@@ -41,7 +35,7 @@ public class TwilacStuff {
 
 	private static class BakeAndRebindToNull extends TwiFunction{
 		public BakeAndRebindToNull() {
-			super("BakeAndRebindToNull", BakeAndRebindToNull::rebindToNull);
+			super("Rebind Node With Baked Transforms", BakeAndRebindToNull::rebindToNull);
 		}
 
 		private static void rebindToNull(ModelHandler modelHandler) {
@@ -67,7 +61,8 @@ public class TwilacStuff {
 //				UndoAction action = new BakeAndRebindAction(idObject, null, modelHandler);
 					if(newParent != idObject.getParent()){
 //						UndoAction action = new BakeAndRebindActionRenderM(idObject, newParent, modelHandler);
-						UndoAction action = new BakeAndRebindActionTwi2(idObject, newParent, modelHandler);
+//						UndoAction action = new BakeAndRebindActionTwi2(idObject, newParent, modelHandler);
+						UndoAction action = new BakeAndRebindAction(idObject, newParent, modelHandler);
 						rebindActions.add(action);
 					}
 				}
@@ -220,11 +215,8 @@ public class TwilacStuff {
 		}
 
 		private static void doStuff(ModelHandler modelHandler) {
-
-			PreviewViewCanv modelDependentView = (PreviewViewCanv) WindowHandler2.getAllViews().stream().filter(v -> v instanceof PreviewViewCanv).findFirst().orElse(null);
-			if(modelDependentView != null && modelDependentView.getPerspectiveViewport() != null){
-				ViewportCanvas viewport = modelDependentView.getPerspectiveViewport();
-				ShaderEditPanel.show(null, viewport.getShaderManager());
+			if(modelHandler != null && modelHandler.getPreviewRenderModel() != null){
+				ShaderEditPanel.show(ProgramGlobals.getMainPanel(), modelHandler.getPreviewRenderModel().getBufferFiller());
 			}
 		}
 	}
@@ -283,7 +275,8 @@ public class TwilacStuff {
 					while (nodeToReplacement.containsKey(newParent)){
 						newParent = nodeToReplacement.get(newParent);
 					}
-					System.out.println("setting parent of " + bone.getName() + " to " + newParent.getName());
+					String newParentName = newParent == null ? "NULL" : newParent.getName();
+					System.out.println("setting parent of " + bone.getName() + " to " + newParentName);
 					undoActions.add(new SetParentAction(bone, newParent, null));
 				}
 //				bone.setParent(parent.getParent());

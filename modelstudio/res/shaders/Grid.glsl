@@ -11,6 +11,7 @@ const float divs = 2;
 
 //uniform float majorDist;
 uniform mat4 u_projection;
+uniform mat4 u_view;
 
 //uniform vec2 start;
 //uniform vec2 end;

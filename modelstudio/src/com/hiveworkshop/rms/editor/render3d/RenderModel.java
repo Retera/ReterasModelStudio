@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.editor.render3d;
 import com.hiveworkshop.rms.editor.model.*;
 import com.hiveworkshop.rms.editor.model.CameraNode.SourceNode;
 import com.hiveworkshop.rms.editor.model.CameraNode.TargetNode;
+import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
@@ -73,6 +74,7 @@ public final class RenderModel {
 	private final ModelView modelView;
 
 	private BufferFiller bufferFiller;
+	private List<IdObject> rootNodes = new ArrayList<>();
 	public RenderModel(EditableModel model, ModelView modelView) {
 		this.model = model;
 		this.modelView = modelView;
@@ -84,6 +86,7 @@ public final class RenderModel {
 			renderGeoset.updateTransforms(false);
 		}
 		bufferFiller = new BufferFiller(modelView, this, true);
+		bufferFiller.setHD(ModelUtils.isShaderStringSupported(model.getFormatVersion()));
 	}
 
 	public BufferFiller getBufferFiller() {
@@ -95,6 +98,7 @@ public final class RenderModel {
 	}
 
 	public RenderModel updateGeosets() {
+		bufferFiller.setHD(ModelUtils.isShaderStringSupported(model.getFormatVersion()));
 		if (renderGeosetMap.size() != model.getGeosets().size()) {
 			renderGeosetMap.clear();
 		}
@@ -199,7 +203,7 @@ public final class RenderModel {
 		sortedNodes.clear();
 		idObjectToRenderNode.clear();
 		fetchCameraSourceNodes();
-		setupHierarchy(null);
+		setupHierarchy();
 		fetchCameraTargetNodes();
 
 		updateParticleStuff();
@@ -247,23 +251,28 @@ public final class RenderModel {
 		}
 	}
 
-	private void setupHierarchy(IdObject parent) {
-		if (parent == null) {
-			for (IdObject object : model.getIdObjects()) {
-				if (object.getParent() == null) {
-					sortedNodes.add(object);
-//					objectToRenderNode.computeIfAbsent(object, k -> new RenderNode1(this, object));
-					idObjectToRenderNode.computeIfAbsent(object, k -> new RenderNode2(this, object));
-					setupHierarchy(object);
-				}
+	private void setupHierarchy() {
+		List<IdObject> rootNodes = getRootNodes(model.getIdObjects());
+		for(IdObject rootNode : rootNodes){
+			setupHierarchy(rootNode);
+		}
+	}
+
+	private List<IdObject> getRootNodes(List<IdObject> idObjects){
+		rootNodes.clear();
+		for (IdObject object : idObjects) {
+			if (object.getParent() == null) {
+				rootNodes.add(object);
 			}
-		} else {
-			for (IdObject object : parent.getChildrenNodes()) {
-				sortedNodes.add(object);
-//				objectToRenderNode.computeIfAbsent(object, k -> new RenderNode1(this, object));
-				idObjectToRenderNode.computeIfAbsent(object, k -> new RenderNode2(this, object));
-				setupHierarchy(object);
-			}
+		}
+		return rootNodes;
+	}
+
+	private void setupHierarchy(IdObject idObject) {
+		sortedNodes.add(idObject);
+		idObjectToRenderNode.computeIfAbsent(idObject, k -> new RenderNode2(this, idObject));
+		for (IdObject child : idObject.getChildrenNodes()) {
+			setupHierarchy(child);
 		}
 	}
 

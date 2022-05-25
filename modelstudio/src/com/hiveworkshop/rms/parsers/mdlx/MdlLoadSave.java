@@ -160,7 +160,7 @@ public class MdlLoadSave {
 
 	private static void loadBindPoseBlock(List<float[]> bindPose, final MdlTokenInputStream stream) {
 		for (final String token : stream.readBlock()) {
-			if (token.equals("Matrices")) {
+			if (token.equals(MdlUtils.TOKEN_MATRICES)) {
 				final int matrices = stream.readInt();
 
 				stream.read(); // {
@@ -277,9 +277,9 @@ public class MdlLoadSave {
 
 	private static void saveBindPoseBlock(List<float[]> bindPose, final MdlTokenOutputStream stream) {
 		if (!bindPose.isEmpty()) {
-			stream.startBlock("BindPose");
+			stream.startBlock(MdlUtils.TOKEN_BIND_POSE);
 
-			stream.startBlock("Matrices", bindPose.size());
+			stream.startBlock(MdlUtils.TOKEN_MATRICES, bindPose.size());
 
 			for (final float[] matrix : bindPose) {
 				stream.writeFloatArray(matrix);

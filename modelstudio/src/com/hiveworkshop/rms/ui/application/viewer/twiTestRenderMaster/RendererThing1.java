@@ -13,78 +13,86 @@ import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec4;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
+
 public class RendererThing1 {
 
-	public static void renderNormals(CameraManager cameraManager, ViewportCanvas viewportCanvas, ShaderPipeline normPipeline) {
+	public static void renderNormals(CameraManager cameraManager, Component viewportCanvas, ShaderPipeline normPipeline) {
 		int width = viewportCanvas.getWidth();
 		int height = viewportCanvas.getHeight();
 		renderNormals(cameraManager, normPipeline, width, height);
 	}
 
-	public static void renderNormals(CameraManager cameraManager, ShaderPipeline normPipeline, int width, int height) {
-		normPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+	public static void renderNormals(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
+		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		normPipeline.glViewport(width, height);
-		normPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+		pipeline.glViewport(width, height);
+		pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 
-		normPipeline.glMatrixMode(GL11.GL_PROJECTION);
-		normPipeline.glLoadIdentity();
-		normPipeline.glMatrixMode(GL11.GL_MODELVIEW);
-		normPipeline.glLoadIdentity();
+		pipeline.glMatrixMode(GL11.GL_PROJECTION);
+		pipeline.glLoadIdentity();
+		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+		pipeline.glLoadIdentity();
 
-		normPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
-		normPipeline.doRender(GL11.GL_POINTS);
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
+		pipeline.doRender(GL11.GL_POINTS);
 	}
 
-	public static void render3DVerts(CameraManager cameraManager, ViewportCanvas viewportCanvas, ShaderPipeline vertPipeline) {
+	public static void render3DVerts(CameraManager cameraManager, Component viewportCanvas, ShaderPipeline vertPipeline) {
 		int width = viewportCanvas.getWidth();
 		int height = viewportCanvas.getHeight();
 		render3DVerts(cameraManager, vertPipeline, width, height);
 	}
 
-	public static void render3DVerts(CameraManager cameraManager, ShaderPipeline vertPipeline, int width, int height) {
-		vertPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+	public static void render3DVerts(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
+		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		vertPipeline.glViewport(width, height);
-		vertPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+		pipeline.glViewport(width, height);
+		pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 
-		vertPipeline.glMatrixMode(GL11.GL_PROJECTION);
-		vertPipeline.glLoadIdentity();
-		vertPipeline.glMatrixMode(GL11.GL_MODELVIEW);
-		vertPipeline.glLoadIdentity();
+		pipeline.glMatrixMode(GL11.GL_PROJECTION);
+		pipeline.glLoadIdentity();
+		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+		pipeline.glLoadIdentity();
 
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
 
-		vertPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
-		vertPipeline.doRender(GL11.GL_POINTS);
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
+		pipeline.doRender(GL11.GL_POINTS);
 	}
 
-	public static void renderNodes(CameraManager cameraManager, ViewportCanvas viewportCanvas, ShaderPipeline bonePipeline) {
+	public static void renderNodes(CameraManager cameraManager, Component viewportCanvas, ShaderPipeline bonePipeline) {
 		int width = viewportCanvas.getWidth();
 		int height = viewportCanvas.getHeight();
 		renderNodes(cameraManager, bonePipeline, width, height);
 	}
 
-	public static void renderNodes(CameraManager cameraManager, ShaderPipeline bonePipeline, int width, int height) {
-		bonePipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-		bonePipeline.glViewport(width, height);
-		bonePipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+	public static void renderNodes(CameraManager cameraManager, ShaderPipeline pipeline, int width, int height) {
+		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+		pipeline.glViewport(width, height);
+		pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 
-		bonePipeline.glMatrixMode(GL11.GL_PROJECTION);
-		bonePipeline.glLoadIdentity();
-		bonePipeline.glMatrixMode(GL11.GL_MODELVIEW);
-		bonePipeline.glLoadIdentity();
+		pipeline.glMatrixMode(GL11.GL_PROJECTION);
+		pipeline.glLoadIdentity();
+		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+		pipeline.glLoadIdentity();
 
-		bonePipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-		bonePipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 
-		bonePipeline.doRender(GL11.GL_POINTS);
+		pipeline.doRender(GL11.GL_POINTS);
 	}
 
 	public static void fillNodeBuffer(ShaderPipeline bonePipeline, ModelView modelView, RenderModel renderModel) {
@@ -130,28 +138,28 @@ public class RendererThing1 {
 //		}
 		return 3;
 	}
-	public static void paintSelectionBox(CameraManager cameraManager, ViewportCanvas viewportCanvas, ShaderPipeline selectionPipeline) {
-//		CubePainter.paintCameraLookAt(cameraHandler);
-		MouseListenerThing mouseAdapter = viewportCanvas.getMouseAdapter();
+	public static void paintSelectionBox(CameraManager cameraManager, MouseListenerThing mouseAdapter, Component viewportCanvas, ShaderPipeline pipeline) {
 		if (mouseAdapter.isSelecting()) {
-			selectionPipeline.glViewport(viewportCanvas.getWidth(), viewportCanvas.getHeight());
-			selectionPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-			selectionPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+			pipeline.glViewport(viewportCanvas.getWidth(), viewportCanvas.getHeight());
+			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+			pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
 
-			selectionPipeline.glMatrixMode(GL11.GL_PROJECTION);
-			selectionPipeline.glLoadIdentity();
-			selectionPipeline.glMatrixMode(GL11.GL_MODELVIEW);
-			selectionPipeline.glLoadIdentity();
+			pipeline.glMatrixMode(GL11.GL_PROJECTION);
+			pipeline.glLoadIdentity();
+			pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+			pipeline.glLoadIdentity();
 
-			selectionPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			pipeline.glSetViewMatrix(cameraManager.getViewMat());
+			pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 
 			// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
 			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-			selectionPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
 
-			selectionPipeline.doRender(GL11.GL_LINES);
+			pipeline.doRender(GL11.GL_LINES);
 		}
 	}
 	public static void fillSelectionBoxBuffer(MouseListenerThing mouseAdapter, ShaderPipeline selectionPipeline) {
@@ -166,7 +174,7 @@ public class RendererThing1 {
 //			System.out.println("is selecting!");
 		}
 	}
-	public static void paintGrid(CameraManager cameraManager, ViewportCanvas viewportCanvas, ShaderPipeline pipeline) {
+	public static void paintGrid(CameraManager cameraManager, Component viewportCanvas, ShaderPipeline pipeline) {
 		int width = viewportCanvas.getWidth();
 		int height = viewportCanvas.getHeight();
 		paintGrid(cameraManager, pipeline, width, height);
@@ -182,7 +190,9 @@ public class RendererThing1 {
 		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
 		pipeline.glLoadIdentity();
 
-		pipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 
 		// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

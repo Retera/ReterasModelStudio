@@ -128,6 +128,9 @@ public class RecalculateTangentsAction implements UndoAction {
 		Vec3 temp2 = new Vec3();
 		for(GeosetVertex vertex : affectedVertices){
 			Vec3 triSAcc = vertexSMap.get(vertex);
+			if(triSAcc == null){
+				triSAcc = new Vec3(0,0,1);
+			}
 			Vec3 normal = vertex.getNormal();
 
 			tempNorm.set(normal).scale(normal.dot(triSAcc));
@@ -137,7 +140,11 @@ public class RecalculateTangentsAction implements UndoAction {
 
 			temp2.set(normal).cross(triSAcc);
 
-			float w = temp2.dot(vertexTMap.get(vertex)) < 0.0f ? -1.0f : 1.0f;
+			Vec3 triTAcc = vertexTMap.get(vertex);
+			if(triTAcc == null){
+				triTAcc = new Vec3(0,0,1);
+			}
+			float w = temp2.dot(triTAcc) < 0.0f ? -1.0f : 1.0f;
 
 			newTangents.add(new Vec4(temp, w));
 		}

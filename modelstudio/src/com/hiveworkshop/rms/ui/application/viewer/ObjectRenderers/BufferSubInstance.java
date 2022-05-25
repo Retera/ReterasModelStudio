@@ -8,10 +8,29 @@ import com.hiveworkshop.rms.ui.application.viewer.TextureThing;
 import com.hiveworkshop.rms.util.*;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
+
 public abstract class BufferSubInstance {
 	protected int offset = 0;
 	protected int vertCount = 0;
 	protected final Bitmap[] textures = new Bitmap[6];
+	protected final Bitmap[] colorTexs = new Bitmap[6];
+	protected final Color[] colors = new Color[6];
+	{
+		colorTexs[0] = new Bitmap("Diffuse");
+		colorTexs[1] = new Bitmap("Normal");
+		colorTexs[2] = new Bitmap("ORM");
+		colorTexs[3] = new Bitmap("Emissive");
+		colorTexs[4] = new Bitmap("Team Color");
+		colorTexs[5] = new Bitmap("Reflections");
+
+		colors[0] = Color.GRAY;
+		colors[1] = new Color(.5f, .5f, 0, 1);
+		colors[2] = new Color(.9f, .2f, .8f, 0);
+		colors[3] = Color.BLACK;
+		colors[4] = Color.RED;
+		colors[5] = new Color(.56f, .89f, .92f, 1);
+	}
 	protected Bitmap texture;
 	protected final Vec2 flipBookSize = new Vec2(1,1);
 	protected int textureSlot = 0;
@@ -101,8 +120,16 @@ public abstract class BufferSubInstance {
 //				time = System.currentTimeMillis() + 1000;
 //			}
 
+			if(pipeline instanceof HDDiffuseShaderPipeline && this instanceof SdBufferSubInstance){
+				for (int i = 0; i < 6; i++){
+					textureThing.loadAndBindTexture(colorTexs[i], colors[i], i);
+				}
+			} else {
+			}
 			for (int i = 0; i < 6; i++){
-				textureThing.loadAndBindTexture(model, textures[i], i);
+				if(textures[i] != null){
+					textureThing.loadAndBindTexture(model, textures[i], i);
+				}
 			}
 			textureThing.bindLayer(pipeline, diffuseLayer);
 		} else {
@@ -167,6 +194,8 @@ public abstract class BufferSubInstance {
 					layer.getTextureAnim().getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_TRANSLATION, Vec3.ZERO),
 					layer.getTextureAnim().getInterpolatedVector(timeEnvironment, MdlUtils.TOKEN_SCALING, Vec3.ONE)
 			);
+		} else {
+			uvTransform.fromRotationTranslationScale(Quat.IDENTITY, Vec3.ZERO, Vec3.ONE);
 		}
 //		return uvTransform;
 //		return null;

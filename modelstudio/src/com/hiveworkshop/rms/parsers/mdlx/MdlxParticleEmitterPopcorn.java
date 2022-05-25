@@ -90,45 +90,45 @@ public class MdlxParticleEmitterPopcorn extends MdlxGenericObject {
 		writeGenericHeader(stream);
 
 		if ((flags & 0x10000) != 0) {
-			stream.writeFlag("SortPrimsFarZ");
+			stream.writeFlag(MdlUtils.TOKEN_SORT_PRIMS_FAR_Z);
 		}
 
 		if ((flags & 0x8000) != 0) {
-			stream.writeFlag("Unshaded");
+			stream.writeFlag(MdlUtils.TOKEN_UNSHADED);
 		}
 
 		if ((flags & 0x40000) != 0) {
-			stream.writeFlag("Unfogged");
+			stream.writeFlag(MdlUtils.TOKEN_UNFOGGED);
 		}
 
 		if (!writeTimeline(stream, AnimationMap.KPPL)) {
-			stream.writeFloatAttrib("static LifeSpan", lifeSpan);
+			stream.writeFloatAttrib(MdlUtils.TOKEN_STATIC_LIFE_SPAN, lifeSpan);
 		}
 
 		if (!writeTimeline(stream, AnimationMap.KPPE)) {
-			stream.writeFloatAttrib("static EmissionRate", emissionRate);
+			stream.writeFloatAttrib(MdlUtils.TOKEN_STATIC_EMISSION_RATE, emissionRate);
 		}
 
 		if (!writeTimeline(stream, AnimationMap.KPPS)) {
-			stream.writeFloatAttrib("static Speed", speed);
+			stream.writeFloatAttrib(MdlUtils.TOKEN_STATIC_SPEED, speed);
 		}
 
 		if (!writeTimeline(stream, AnimationMap.KPPC)) {
-			stream.writeFloatArrayAttrib("static Color", color);
+			stream.writeFloatArrayAttrib(MdlUtils.TOKEN_STATIC_COLOR, color);
 		}
 
 		if (!writeTimeline(stream, AnimationMap.KPPA)) {
-			stream.writeFloatAttrib("static Alpha", alpha);
+			stream.writeFloatAttrib(MdlUtils.TOKEN_STATIC_ALPHA, alpha);
 		}
 
 		writeTimeline(stream, AnimationMap.KPPV);
 
 		if (replaceableId != 0) {
-			stream.writeAttrib("ReplaceableId", replaceableId);
+			stream.writeAttrib(MdlUtils.TOKEN_REPLACEABLE_ID, replaceableId);
 		}
 
 		if (path.length() != 0) {
-			stream.writeStringAttrib("Path", path);
+			stream.writeStringAttrib(MdlUtils.TOKEN_PATH, path);
 		}
 
 		if (animationVisiblityGuide.length() != 0) {

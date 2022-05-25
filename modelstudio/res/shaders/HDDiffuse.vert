@@ -10,6 +10,7 @@ layout (location = 5) in vec4 a_fres_col;
 uniform vec3 u_lightDirection;
 uniform vec3 u_viewPos;
 uniform mat4 u_projection;
+uniform mat4 u_view;
 uniform mat4 u_uvTransform;
 
 out vec2 v_uv;

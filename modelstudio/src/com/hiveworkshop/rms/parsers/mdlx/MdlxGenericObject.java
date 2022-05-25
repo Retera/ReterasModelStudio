@@ -72,7 +72,7 @@ public abstract class MdlxGenericObject extends MdlxAnimatedObject {
 		stream.writeAttrib(MdlUtils.TOKEN_OBJECTID, objectId);
 
 		if (parentId != -1) {
-			stream.writeAttrib("Parent", parentId);
+			stream.writeAttrib(MdlUtils.TOKEN_PARENT, parentId);
 		}
 
 		if ((flags & 0x40) != 0) {

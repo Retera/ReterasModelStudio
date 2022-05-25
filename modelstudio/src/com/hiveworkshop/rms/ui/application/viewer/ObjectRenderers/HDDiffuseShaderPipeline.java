@@ -22,6 +22,14 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		setupUniforms();
 	}
 
+	public HDDiffuseShaderPipeline(String vertexShader, String fragmentShader) {
+		currentMatrix.setIdentity();
+		this.vertexShader = vertexShader;
+		this.fragmentShader = fragmentShader;
+		load();
+		setupUniforms();
+	}
+
 	protected void setupUniforms(){
 		createUniform("u_textureDiffuse");
 		createUniform("u_textureNormal");
@@ -43,6 +51,7 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		createUniform("u_vertColors[2]");
 		createUniform("u_vertColors[3]");
 		createUniform("u_projection");
+		createUniform("u_view");
 		createUniform("u_uvTransform");
 	}
 
@@ -111,8 +120,10 @@ public class HDDiffuseShaderPipeline extends ShaderPipeline {
 		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
 		glUniform("u_viewportSize", viewPortSize);
 
-		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+		fillMatrixBuffer(pipelineMatrixBuffer, projectionMat);
 		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
+		fillMatrixBuffer(pipelineViewMatrixBuffer, viewMat);
+		GL20.glUniformMatrix4(getUniformLocation("u_view"), false, pipelineViewMatrixBuffer);
 	}
 
 	private void setUpAndDraw(BufferSubInstance instance) {

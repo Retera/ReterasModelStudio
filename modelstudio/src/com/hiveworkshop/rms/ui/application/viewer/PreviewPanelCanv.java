@@ -103,4 +103,31 @@ public class PreviewPanelCanv extends JPanel {
 		return null;
 	}
 
+
+
+	public PreviewPanelCanv setRenderTextures(boolean renderTextures) {
+		viewportSettings.setRenderTextures(renderTextures);
+		return this;
+	}
+
+	public PreviewPanelCanv setWireFrame(boolean wireFrame) {
+		viewportSettings.setWireFrame(wireFrame);
+		return this;
+	}
+
+	public PreviewPanelCanv setShowNormals(boolean showNormals) {
+		viewportSettings.setShowNormals(showNormals);
+		return this;
+	}
+
+	public PreviewPanelCanv setShow3dVerts(boolean show3dVerts) {
+		viewportSettings.setShow3dVerts(show3dVerts);
+		return this;
+	}
+
+	public PreviewPanelCanv setOrtho(boolean ortho){
+		perspectiveViewport.getCameraManager().setOrtho(ortho);
+		return this;
+	}
+
 }

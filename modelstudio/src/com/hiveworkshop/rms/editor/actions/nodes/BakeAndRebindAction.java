@@ -1,192 +1,316 @@
 package com.hiveworkshop.rms.editor.actions.nodes;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
-import com.hiveworkshop.rms.editor.actions.animation.SimplifyKeyframesAction;
-import com.hiveworkshop.rms.editor.actions.animation.animFlag.ReplaceAnimFlagsAction;
-import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Animation;
-import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.Entry;
 import com.hiveworkshop.rms.editor.model.animflag.QuatAnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.Vec3AnimFlag;
 import com.hiveworkshop.rms.editor.render3d.RenderModel;
 import com.hiveworkshop.rms.editor.render3d.RenderNode2;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
-import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.Mat4;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.Vec3;
 
-import java.util.*;
+import java.util.List;
+import java.util.TreeMap;
 
 public class BakeAndRebindAction implements UndoAction {
-	ModelHandler modelHandler;
-	EditableModel model;
-	Map<Sequence, TreeMap<Integer, Vec3>> seqNewTransKF = new HashMap<>();
-	Map<Sequence, TreeMap<Integer, Vec3>> seqNewScaleKF = new HashMap<>();
-	Map<Sequence, TreeMap<Integer, Quat>> seqNewRotKF = new HashMap<>();
-	ArrayList<Integer> times = new ArrayList<>();
-//	TreeSet<Integer> allKF = new TreeSet<>();
-//	TreeMap<Integer, IdObject> parentChain1 = new TreeMap<>();
-//	TreeMap<Integer, IdObject> parentChain2 = new TreeMap<>();
-//
-//	Set<Entry<Vec3>> orgTransEntries = new HashSet<>();
-//	Set<Entry<Vec3>> orgScaleEntries = new HashSet<>();
-//	Set<Entry<Quat>> orgRotEntries = new HashSet<>();
+	private final TreeMap<Integer, Vec3> diffTransKF = new TreeMap<>();
+	private final TreeMap<Integer, Vec3> diffScaleKF = new TreeMap<>();
+	private final TreeMap<Integer, Quat> diffRotKF = new TreeMap<>();
 
-	List<UndoAction> keyframeActions = new ArrayList<>();
+	private final IdObject objToRebind;
+	private final IdObject oldParent;
+	private final IdObject newParent;
 
-	CompoundAction compoundAction;
+	private final AnimFlag<Vec3> orgTranslationFlag;
+	private final AnimFlag<Vec3> orgScalingFlag;
+	private final AnimFlag<Quat> orgRotationFlag;
 
-	IdObject objToRebind;
-	//	IdObject oldParent;
-	IdObject newParent;
+	private final AnimFlag<Vec3> newTranslationFlag;
+	private final AnimFlag<Vec3> newScalingFlag;
+	private final AnimFlag<Quat> newRotationFlag;
+
 
 	public BakeAndRebindAction(IdObject objToRebind, IdObject newParent, ModelHandler modelHandler) {
-		this.modelHandler = modelHandler;
-		this.model = modelHandler.getModel();
+		this(objToRebind, newParent, modelHandler.getModel().getAnims(), modelHandler);
+	}
+
+
+	public BakeAndRebindAction(IdObject objToRebind, IdObject newParent, List<Animation> anims, ModelHandler modelHandler) {
 		this.objToRebind = objToRebind;
-//		this.oldParent = objToRebind.getParent();
+		this.oldParent = objToRebind.getParent();
 		this.newParent = newParent;
 
-//		IdObject commonParent = findCommonParent(objToRebind, newParent);
+		orgTranslationFlag = objToRebind.getTranslationFlag();
+		orgScalingFlag = objToRebind.getScalingFlag();
+		orgRotationFlag = objToRebind.getRotationFlag();
+
 		RenderModel renderModel = new RenderModel(modelHandler.getModel(), modelHandler.getModelView());
 		TimeEnvironmentImpl timeEnvironment = renderModel.getTimeEnvironment();
-		timeEnvironment.setLive(true);
-		if (newParent != objToRebind.getParent()) {
-			if (objToRebind.getParent() != null) {
-				getParentKfTimes(objToRebind.getParent(), newParent);
+
+		newScalingFlag = new Vec3AnimFlag(MdlUtils.TOKEN_SCALING, InterpolationType.LINEAR, null);
+		newTranslationFlag = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION, InterpolationType.LINEAR, null);
+		newRotationFlag = new QuatAnimFlag(MdlUtils.TOKEN_ROTATION, InterpolationType.LINEAR, null);
+
+
+		calculateNewTransforms(renderModel, timeEnvironment, anims);
+
+	}
+
+	private void calculateNewTransforms(RenderModel renderModel, TimeEnvironmentImpl timeEnvironment, List<Animation> anims) {
+		renderModel.refreshFromEditor();
+
+		for (Animation animation : anims) {
+			System.out.println("Processing animation: " + animation.getName() + " (" + animation.getLength() + ")");
+			timeEnvironment.setSequence(animation);
+
+			diffRotKF.clear();
+			diffTransKF.clear();
+			diffScaleKF.clear();
+
+			calculateAnimValues(renderModel, timeEnvironment, animation);
+			addKeyframes2(animation);
+
+		}
+	}
+
+	private void calculateAnimValues(RenderModel renderModel, TimeEnvironmentImpl timeEnvironment, Animation animation) {
+		Mat4 tempMat = new Mat4();
+		Mat4 newLocMat = new Mat4();
+		Mat4 newWorldMat = new Mat4();
+
+		RenderNode2 orgRenderNode = renderModel.getRenderNode(objToRebind);
+		RenderNode2 newParentRenderNode = renderModel.getRenderNode(newParent);
+		Vec3 pivotPoint = objToRebind.getPivotPoint();
+
+		for (int i = 0; i <= animation.getLength(); i++) {
+			if (i != 0 && i % 1000 == 0) {
+				System.out.println("\tKF: " + i);
 			}
+			timeEnvironment.setAnimationTime(i);
+			renderModel.updateNodes(true, false, false);
 
-			//		calcWorldThings(renderModel, timeEnvironment, modelHandler, objToRebind.getParent());
-			calculateCompFlags(renderModel, timeEnvironment);
+			Mat4 newParentWorldMatrix = newParentRenderNode.getWorldMatrix();
+			Mat4 orgWorldMatrix = orgRenderNode.getWorldMatrix();
+
+			tempMat.set(newParentWorldMatrix).invert().mul(orgWorldMatrix);
+			Vec3 trans = new Vec3().getLocationFromMat(tempMat, pivotPoint);
+			diffTransKF.put(i, trans);
+
+			Vec3 scale = new Vec3(orgRenderNode.getWorldScale());
+			if(!objToRebind.getDontInheritScaling()){
+				scale.divide(newParentRenderNode.getWorldScale());
+			}
+			diffScaleKF.put(i, scale);
+
+			newLocMat.fromRotationTranslationScaleOrigin(Quat.IDENTITY, trans, scale, pivotPoint);
+			newWorldMat.set(newParentWorldMatrix).mul(newLocMat);
+			tempMat.set(newWorldMat).invert().mul(orgWorldMatrix);
+
+			Quat rot = new Quat().setFromUnnormalized(tempMat);
+			diffRotKF.put(i, rot);
 		}
-		createSetNewEntriesAction(objToRebind);
+	}
+
+	private void addKeyframes2(Animation animation) {
+		addRotationKeyframes2(animation);
+		addTranslationKeyframes(animation);
+		addScalingKeyframes(animation);
 
 	}
 
-//	private void calcWorldThings(RenderModel renderModel, TimeEnvironmentImpl timeEnvironment, ModelHandler modelHandler, IdObject idObject){
-//		renderModel.refreshFromEditor(null);
-//		for(Animation animation : modelHandler.getModel().getAnims()){
-//			timeEnvironment.setAnimation(animation);
-////			for (Integer i = allKF.ceiling(animation.getStart()); i != null && allKF.floor(animation.getEnd()) != null && i <= allKF.floor(animation.getEnd()); i = allKF.higher(i)){
-//			for (Integer i = allKF.ceiling(0); i != null && allKF.floor(animation.getLength()) != null && i <= allKF.floor(animation.getLength()); i = allKF.higher(i)){
-//				timeEnvironment.setAnimationTime(i);
-//				renderModel.updateNodes(true, false, false);
-//				System.out.println("time: " + i + "; Local loc: " + renderModel.getRenderNode(idObject).getLocalLocation() + ", World loc: " + renderModel.getRenderNode(idObject).getWorldLocation());
-////				newTransKF.put(i, renderModel.getRenderNode(idObject).getLocalLocation());
-////				newScaleKF.put(i, renderModel.getRenderNode(idObject).getLocalScale());
-////				newRotKF.put(i, renderModel.getRenderNode(idObject).getLocalRotation());
-//				newTransKF.put(i, new Vec3(renderModel.getRenderNode(idObject).getWorldLocation()));
-//				newScaleKF.put(i,  new Vec3(renderModel.getRenderNode(idObject).getWorldScale()));
-//				newRotKF.put(i, new Quat(renderModel.getRenderNode(idObject).getWorldRotation()));
-//			}
-//		}
-//	}
-
-//	private IdObject findCommonParent(IdObject objToRebind, IdObject newParent){
-//		getParentChain(objToRebind, parentChain1);
-//		getParentChain(newParent, parentChain2);
-//		for (Integer i : parentChain1.keySet()){
-//			for (Integer j : parentChain2.keySet()){
-//				if (parentChain1.get(i) == parentChain2.get(j)){
-//					return parentChain1.get(i);
-//				}
-//			}
-//		}
-//		return null;
-//	}
-
-	private void getParentKfTimes(IdObject obj, IdObject lastParent) {
-		TreeSet<Integer> timeSet = new TreeSet<>();
-		for (AnimFlag<?> animFlag : obj.getAnimFlags()) {
-			getAllEntries(animFlag, timeSet);
-		}
-		if (obj.getParent() != lastParent) {
-			getParentKfTimes(obj.getParent(), lastParent);
-		}
-		times.addAll(timeSet);
-	}
-
-	private void getAllEntries(AnimFlag<?> flag, TreeSet<Integer> timeSet) {
-		if (flag != null) {
-			for (Animation animation : modelHandler.getModel().getAnims()) {
-				TreeMap<Integer, ? extends Entry<?>> entryMap = flag.getEntryMap(animation);
-				if (entryMap != null) {
-					timeSet.addAll(entryMap.keySet());
+	private void addScalingKeyframes(Animation animation) {
+		Integer lastKeyScale = null;
+		for(Integer i : diffScaleKF.keySet()){
+			Vec3 scale = diffScaleKF.get(i);
+			if(scale != null){
+				boolean shouldAddScale = isShouldAddScale(diffScaleKF.higherKey(i), lastKeyScale, i, scale);
+				if (shouldAddScale){
+					newScalingFlag.addEntry(i, scale, animation);
+					lastKeyScale = i;
 				}
 			}
 		}
 	}
 
-	private void getParentChain(IdObject object, TreeMap<Integer, IdObject> mapToFill) {
-		if (object != null) {
-			mapToFill.put(mapToFill.size(), object);
-			if (object.getParent() != null) {
-				getParentChain(object.getParent(), mapToFill);
+	private boolean isShouldAddScale(Integer nextKey, Integer lastKey, Integer i, Vec3 scale) {
+		if(lastKey == null || nextKey == null){
+			return true;
+		}
+		Vec3 lastScale = diffScaleKF.get(lastKey);
+		Vec3 nextScale = diffScaleKF.get(nextKey);
+		if(lastScale == null || nextScale == null){
+			return true;
+		}
+		if(!lastScale.equalLocs(scale) || !nextScale.equalLocs(scale)){
+			float t = getTimeFactor(lastKey, i, nextKey);
+			return shouldAddVec3(lastScale, scale, t, nextScale, 0.0001);
+		}
+		return false;
+	}
+
+
+	private void addTranslationKeyframes(Animation animation) {
+		Integer lastKey = null;
+		for(Integer i : diffTransKF.keySet()){
+			Vec3 trans = diffTransKF.get(i);
+			if(trans != null){
+				boolean shouldAddTrans = isShouldAddTrans(lastKey, i, diffTransKF.higherKey(i), trans);
+				if(shouldAddTrans){
+					newTranslationFlag.addEntry(i, trans, animation);
+					lastKey = i;
+				}
 			}
 		}
 	}
 
-	private void calculateCompFlags(RenderModel renderModel, TimeEnvironmentImpl timeEnvironment) {
-		renderModel.refreshFromEditor();
+	private boolean isShouldAddTrans(Integer lastKey, Integer currKey, Integer nextKey, Vec3 currTrans) {
+		if(lastKey == null || nextKey == null){
+			return true;
+		}
+		Vec3 lastTrans =  diffTransKF.get(lastKey);
+		Vec3 nextTrans = diffTransKF.get(nextKey);
+		if(lastTrans == null || nextTrans == null){
+			return true;
+		}
+		if(!lastTrans.equalLocs(currTrans) || !nextTrans.equalLocs(currTrans)){
+			float t = getTimeFactor(lastKey, currKey, nextKey);
+			return shouldAddVec3(lastTrans, currTrans, t, nextTrans, 0.0001);
+		}
+		return false;
+	}
 
-		for (Animation animation : model.getAnims()) {
-			timeEnvironment.setSequence(animation);
-			TreeMap<Integer, Vec3> newTransKF = seqNewTransKF.computeIfAbsent(animation, k -> new TreeMap<>());
-			TreeMap<Integer, Vec3> newScaleKF = seqNewScaleKF.computeIfAbsent(animation, k -> new TreeMap<>());
-			TreeMap<Integer, Quat> newRotKF = seqNewRotKF.computeIfAbsent(animation, k -> new TreeMap<>());
 
-			Vec3 lastNewTrans = null;
-			Vec3 lastNewScale = null;
-			Quat lastNewRot = null;
-//			for (int time = 0; time < animation.getLength(); time++) {
-			for (int time : times) {
-				timeEnvironment.setAnimationTime(time);
-				renderModel.updateNodes(true, false, false);
+	Vec3 diff = new Vec3();
+	private boolean shouldAddVec3(Vec3 lastValue, Vec3 currValue, float t, Vec3 nextValue, double v) {
+		diff.set(lastValue).lerp(nextValue, t).sub(currValue);
 
-				RenderNode2 renderNode = renderModel.getRenderNode(objToRebind);
-				Vec3 newTrans = new Vec3(renderNode.getPivot()).sub(objToRebind.getPivotPoint());
-				newTransKF.put(time, newTrans);
-//				if(lastNewTrans != null && newTrans.equalLocs(lastNewTrans)){
-//					newTransKF.remove(time);
-//				}
-//				lastNewTrans = newTrans;
+		return Math.abs(diff.x) > v || Math.abs(diff.y) > v || Math.abs(diff.z) > v;
+	}
 
-				Vec3 newScale = new Vec3(renderModel.getRenderNode(objToRebind).getWorldScale());
-////				newScale.transformInverted(renderModel.getRenderNode(newParent).getWorldMatrix());
-				newScaleKF.put(time, newScale);
-//				if(newScale.equals(lastNewScale)){
-//					newTransKF.remove(time);
-//				}
-//				lastNewScale = newScale;
-//
-				Quat newRot = new Quat(renderModel.getRenderNode(objToRebind).getWorldRotation()).normalize();
-
-//				Quat newRot = new Quat(0,0,0,1);
-//				newRot.mul(renderModel.getRenderNode(objToRebind).getWorldRotation()).normalize();
-				newRotKF.put(time, newRot);
-//				if(lastNewRot != null && newRot.equals(lastNewRot)){
-//					newTransKF.remove(time);
-//				}
-//				lastNewRot = newRot;
+	private void addRotationKeyframes(Animation animation) {
+		Quat lastRot = null;
+		Integer lastKeyRot = null;
+		for(Integer i : diffRotKF.keySet()){
+			Quat quat = diffRotKF.get(i);
+			if(quat != null){
+				boolean shouldAddQuat = isShouldAddQuat(lastRot, lastKeyRot, i, quat);
+				if(shouldAddQuat){
+					newRotationFlag.addEntry(i, quat, animation);
+					lastRot = quat;
+					lastKeyRot = i;
+				}
 			}
 		}
 	}
+	private boolean isShouldAddQuat(Quat lastRot, Integer lastKeyRot, Integer i, Quat quat) {
+		Integer nextKey = diffRotKF.higherKey(i);
+		if(lastRot == null || nextKey == null){
+			return true;
+		}
+		Quat nextRot = diffRotKF.get(nextKey);
+		if (nextRot == null) {
+			return true;
+		}
+		float t = getTimeFactor(lastKeyRot, i, nextKey);
+		return shouldAddQuat(lastRot, quat, t, nextRot);
+	}
+
+	private void addRotationKeyframes2(Animation animation) {
+		Integer lastKeyRot = null;
+		for(Integer i : diffRotKF.keySet()){
+			Quat quat = diffRotKF.get(i);
+			if(quat != null){
+				boolean shouldAddQuat = isShouldAddQuat2(diffRotKF.higherKey(i), lastKeyRot, i, quat);
+				if(shouldAddQuat){
+					newRotationFlag.addEntry(i, quat, animation);
+					lastKeyRot = i;
+				}
+			}
+		}
+	}
+
+	private boolean isShouldAddQuat2(Integer nextKey, Integer lastKey, Integer i, Quat quat) {
+		if(lastKey == null || nextKey == null){
+			return true;
+		}
+		Quat lastRot = diffRotKF.get(lastKey);
+		Quat nextRot = diffRotKF.get(nextKey);
+		if (lastRot == null || nextRot == null) {
+			return true;
+		}
+		float t = getTimeFactor(lastKey, i, nextKey);
+		return shouldAddQuat(lastRot, quat, t, nextRot);
+	}
+
+	private boolean shouldAddQuat(Quat lastRot, Quat quat, float t, Quat nextRot) {
+		Quat interp = Quat.getSlerped(lastRot, nextRot, t);
+
+//		return getRotDot(1, 0, 0, quat, interp) > 0.999f
+//				|| getRotDot(0, 1, 0, quat, interp) > 0.999f
+//				|| getRotDot(0, 0, 1, quat, interp) > 0.999f;
+		return getRotAngDiff(1, 0, 0, quat, interp) < 0.1f
+				|| getRotAngDiff(0, 1, 0, quat, interp) < 0.1f
+				|| getRotAngDiff(0, 0, 1, quat, interp) < 0.1f;
+//		return getRotDot(1, 0, 0, quat, interp) < 0.9999998f
+//				|| getRotDot(0, 1, 0, quat, interp) < 0.9999998f
+//				|| getRotDot(0, 0, 1, quat, interp) < 0.9999998f;
+	}
+
+	private float getRotDot(float x, float y, float z, Quat quat, Quat interp) {
+		Vec3 temp1 = new Vec3(x,y,z).transform(interp);
+		Vec3 temp2 = new Vec3(x,y,z).transform(quat);
+		return temp1.dot(temp2);
+	}
+	private float getRotAngDiff(float x, float y, float z, Quat quat, Quat interp) {
+		Vec3 temp1 = new Vec3(x,y,z).transform(interp);
+		Vec3 temp2 = new Vec3(x,y,z).transform(quat);
+		return (float) temp1.degAngleTo(temp2);
+	}
+
+	private float getTimeFactor(Integer lastKey, Integer currKey, Integer nextKey) {
+		return (currKey - lastKey)/(float)(nextKey - lastKey);
+	}
+
 
 	@Override
 	public UndoAction undo() {
-		compoundAction.undo();
+		objToRebind.setParent(oldParent);
+		if(orgTranslationFlag != null){
+			objToRebind.add(orgTranslationFlag);
+		} else {
+			objToRebind.remove(newTranslationFlag);
+		}
+		if(orgScalingFlag != null){
+			objToRebind.add(orgScalingFlag);
+		} else {
+			objToRebind.remove(newScalingFlag);
+		}
+		if(orgRotationFlag != null){
+			objToRebind.add(orgRotationFlag);
+		} else {
+			objToRebind.remove(newRotationFlag);
+		}
+
+		ModelStructureChangeListener.changeListener.nodesUpdated();
 		return this;
 	}
 
 	@Override
 	public UndoAction redo() {
-		compoundAction.redo();
+		objToRebind.setParent(newParent);
+		objToRebind.add(newTranslationFlag);
+		objToRebind.add(newScalingFlag);
+		objToRebind.add(newRotationFlag);
+
+		ModelStructureChangeListener.changeListener.nodesUpdated();
 		return this;
 	}
 
@@ -194,122 +318,5 @@ public class BakeAndRebindAction implements UndoAction {
 	@Override
 	public String actionName() {
 		return "Baked and changed Parent";
-	}
-
-	private void createSetNewEntriesAction(IdObject objToRebind) {
-//		IdObject obj = objToRebind.getParent();
-		IdObject parent = objToRebind.getParent();
-		if (parent != null) {
-//			Bone obj = (Bone) parent.copy();
-//
-//			obj.setParent(null);
-//
-//			UndoAction addBoneAction = new DrawBoneAction(modelHandler.getModelView(), null, obj);
-//			keyframeActions.add(addBoneAction);
-
-			List<Sequence> allSequences = model.getAllSequences();
-
-//		Bone bone = new Bone();
-			List<AnimFlag<?>> replacementFlags = new ArrayList<>();
-
-			if (!seqNewTransKF.isEmpty()) {
-				System.out.println("fixing translation");
-//				AnimFlag<Vec3> translationOrg = obj.getTranslationFlag();
-				AnimFlag<Vec3> translationOrg = objToRebind.getTranslationFlag();
-
-				AnimFlag<Vec3> translation;
-				translation = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION);
-				translation.setInterpType(InterpolationType.LINEAR);
-//				if (translationOrg == null) {
-//					translation = new Vec3AnimFlag(MdlUtils.TOKEN_TRANSLATION);
-//					translation.setInterpType(InterpolationType.LINEAR);
-//				} else {
-//					translation = translationOrg.getEmptyCopy();
-//				}
-
-				AnimFlag<Vec3> filledFlag = getFilledFlag(allSequences, translation, seqNewTransKF);
-				if (filledFlag.size() > 0) {
-					if (translationOrg != null) {
-						translation.setInterpType(translationOrg.getInterpolationType());
-					}
-					replacementFlags.add(filledFlag);
-				}
-			}
-
-			if (!seqNewScaleKF.isEmpty()) {
-				System.out.println("fixing scaling");
-//				AnimFlag<Vec3> scalingOrg = obj.getScalingFlag();
-				AnimFlag<Vec3> scalingOrg = objToRebind.getScalingFlag();
-
-				AnimFlag<Vec3> scaling;
-				scaling = new Vec3AnimFlag(MdlUtils.TOKEN_SCALING);
-				scaling.setInterpType(InterpolationType.LINEAR);
-//				if (scalingOrg == null) {
-//					scaling = new Vec3AnimFlag(MdlUtils.TOKEN_SCALING);
-//					scaling.setInterpType(InterpolationType.LINEAR);
-//				} else {
-//					scaling = scalingOrg.getEmptyCopy();
-//				}
-
-
-				AnimFlag<Vec3> filledFlag = getFilledFlag(allSequences, scaling, seqNewScaleKF);
-				if (filledFlag.size() > 0) {
-//					if (scalingOrg != null){
-//						scaling.setInterpType(scalingOrg.getInterpolationType());
-//					}
-					replacementFlags.add(filledFlag);
-				}
-			}
-
-			if (!seqNewRotKF.isEmpty()) {
-				System.out.println("fixing rotation");
-//				AnimFlag<Quat> rotationOrg = obj.getRotationFlag();
-				AnimFlag<Quat> rotationOrg = objToRebind.getRotationFlag();
-
-				AnimFlag<Quat> rotation;
-				rotation = new QuatAnimFlag(MdlUtils.TOKEN_ROTATION);
-				rotation.setInterpType(InterpolationType.LINEAR);
-//				if (rotationOrg == null) {
-//					rotation = new QuatAnimFlag(MdlUtils.TOKEN_ROTATION);
-//					rotation.setInterpType(InterpolationType.LINEAR);
-//				} else {
-//					rotation = rotationOrg.getEmptyCopy();
-//				}
-
-				AnimFlag<Quat> filledFlag = getFilledFlag(allSequences, rotation, seqNewRotKF);
-				if (filledFlag.size() > 0) {
-//					if (rotationOrg != null){
-//						rotation.setInterpType(rotationOrg.getInterpolationType());
-//					}
-					replacementFlags.add(filledFlag);
-				}
-			}
-			if (!replacementFlags.isEmpty()) {
-//				UndoAction action = new ReplaceAnimFlagsAction(obj, replacementFlags, null);
-				UndoAction action = new ReplaceAnimFlagsAction(objToRebind, replacementFlags, null);
-				keyframeActions.add(action);
-			}
-//			UndoAction newParentAction = new ParentChangeAction(objToRebind, obj, null);
-			UndoAction newParentAction = new ParentChangeAction(objToRebind, null, null);
-			keyframeActions.add(newParentAction);
-
-		}
-		compoundAction = new CompoundAction("Baked and changed Parent", keyframeActions);
-	}
-
-	private <Q> AnimFlag<Q> getFilledFlag(List<Sequence> sequences, AnimFlag<Q> animFlag, Map<Sequence, TreeMap<Integer, Q>> seqNewKF) {
-		for (Sequence sequence : sequences) {
-			TreeMap<Integer, Q> newKFMap = seqNewKF.get(sequence);
-			if (newKFMap != null) {
-				for (int i : newKFMap.keySet()) {
-//					System.out.println("new entry at " + i + ": " + newKFMap.get(i));
-					animFlag.addEntry(i, newKFMap.get(i), sequence);
-				}
-			}
-		}
-		SimplifyKeyframesAction action = new SimplifyKeyframesAction(Collections.singleton(animFlag), sequences, 0.00001f);
-		System.out.println("removed " + action.getNumberOfEntriesToRemove() + " keyframes");
-		action.redo();
-		return animFlag;
 	}
 }

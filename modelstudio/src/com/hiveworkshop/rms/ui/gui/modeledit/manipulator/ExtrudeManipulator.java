@@ -5,6 +5,7 @@ import com.hiveworkshop.rms.editor.actions.mesh.ExtrudeAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
+import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditor;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.util.Mat4;
@@ -33,7 +34,8 @@ public final class ExtrudeManipulator extends AbstractMoveManipulator {
 
 	@Override
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, byte dim1, byte dim2) {
-		return new CompoundAction("extrude", Arrays.asList(beginExtrudingSelection, super.finish(e, mouseStart, mouseEnd, dim1, dim2)));
+		ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+		return new CompoundAction("extrude", changeListener::geosetsUpdated, beginExtrudingSelection, super.finish(e, mouseStart, mouseEnd, dim1, dim2));
 	}
 
 	@Override
@@ -47,7 +49,8 @@ public final class ExtrudeManipulator extends AbstractMoveManipulator {
 
 	@Override
 	public UndoAction finish(MouseEvent e, Vec2 mouseStart, Vec2 mouseEnd, Mat4 viewPortAntiRotMat, double sizeAdj) {
-		return new CompoundAction("extrude", null, beginExtrudingSelection, super.finish(e, mouseStart, mouseEnd, viewPortAntiRotMat, sizeAdj));
+		ModelStructureChangeListener changeListener = ModelStructureChangeListener.changeListener;
+		return new CompoundAction("extrude", changeListener::geosetsUpdated, beginExtrudingSelection, super.finish(e, mouseStart, mouseEnd, viewPortAntiRotMat, sizeAdj));
 	}
 
 }

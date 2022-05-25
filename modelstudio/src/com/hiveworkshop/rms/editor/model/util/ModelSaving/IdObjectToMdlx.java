@@ -57,7 +57,7 @@ public class IdObjectToMdlx {
 		}
 
 		if (mdlxShape.type == MdlxCollisionShape.Type.SPHERE || mdlxShape.type == MdlxCollisionShape.Type.CYLINDER) {
-			mdlxShape.boundsRadius = (float) collisionShape.getExtents().getBoundsRadius();
+			mdlxShape.boundsRadius = (float) collisionShape.getBoundsRadius();
 		}
 
 		return mdlxShape;

@@ -285,9 +285,12 @@ public class IdObjectFactory {
 		if (collisionShape.getType() == MdlxCollisionShape.Type.CYLINDER) {
 			System.out.println("CYLINDER!!!____________________________________");
 		}
+		if (collisionShape.getType() == MdlxCollisionShape.Type.SPHERE) {
+			System.out.println("SPHERE!!!____________________________________");
+		}
 
 		if (collisionShape.getType() == MdlxCollisionShape.Type.SPHERE || collisionShape.getType() == MdlxCollisionShape.Type.CYLINDER) {
-			collisionShape.setExtents(new ExtLog(mdlxShape.boundsRadius));
+			collisionShape.setBoundsRadius(mdlxShape.boundsRadius);
 		}
 		return collisionShape;
 	}

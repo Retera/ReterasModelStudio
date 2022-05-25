@@ -27,6 +27,7 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 		createUniform("scale");
 		createUniform("u_viewPos");
 		createUniform("u_projection");
+		createUniform("u_view");
 		createUniform("a_selectionStatus");
 		createUniform("u_vertColors[0]");
 		createUniform("u_vertColors[1]");
@@ -61,6 +62,8 @@ public class VertMarkerShaderPipeline extends ShaderPipeline {
 		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
 		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
 		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
+		fillMatrixBuffer(pipelineViewMatrixBuffer, viewMat);
+		GL20.glUniformMatrix4(getUniformLocation("u_view"), false, pipelineViewMatrixBuffer);
 
 		float[] colorHig = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_HIGHLIGHTED);
 		float[] colorSel = ProgramGlobals.getEditorColorPrefs().getColorComponents(ColorThing.VERTEX_SELECTED);

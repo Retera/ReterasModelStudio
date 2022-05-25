@@ -169,9 +169,8 @@ public class TVertSelectionManager extends AbstractSelectionManager {
 		Vec3 vec3 = new Vec3();
 		for (Geoset geoset : modelView.getEditableGeosets()) {
 			for (GeosetVertex geosetVertex : geoset.getVertices()) {
-				if (geosetVertex.getTverts().size() > uvLayerIndex) {
-					Vec2 vec2 = geosetVertex.getTVertex(uvLayerIndex);
-					vec3.set(vec2.x, vec2.y, 0);
+				if (geosetVertex.getTverts().size() > uvLayerIndex && modelView.isEditable(geosetVertex)) {
+					vec3.set(geosetVertex.getTVertex(uvLayerIndex), 0);
 					if (viewBox.pointInBox(vec3)) {
 						newSelection.add(geosetVertex);
 					}

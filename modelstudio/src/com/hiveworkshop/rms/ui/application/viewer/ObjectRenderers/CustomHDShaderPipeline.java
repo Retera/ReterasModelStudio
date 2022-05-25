@@ -42,6 +42,7 @@ public class CustomHDShaderPipeline extends ShaderPipeline {
 		createUniform("u_vertColors[2]");
 		createUniform("u_vertColors[3]");
 		createUniform("u_projection");
+		createUniform("u_view");
 		createUniform("u_uvTransform");
 	}
 
@@ -110,8 +111,10 @@ public class CustomHDShaderPipeline extends ShaderPipeline {
 		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
 		glUniform("u_viewportSize", viewPortSize);
 
-		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
+		fillMatrixBuffer(pipelineMatrixBuffer, projectionMat);
 		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
+		fillMatrixBuffer(pipelineViewMatrixBuffer, viewMat);
+		GL20.glUniformMatrix4(getUniformLocation("u_view"), false, pipelineViewMatrixBuffer);
 	}
 
 	private void setUpAndDraw(BufferSubInstance instance) {

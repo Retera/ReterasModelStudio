@@ -11,6 +11,10 @@ import java.awt.color.ColorSpace;
 import java.awt.image.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -68,9 +72,13 @@ public class BLPHandler {
 			return gpuReadyTexture;
 		} else {
 			getTexture(dataSource, filepath);
-
 			return getCachedGpuReadyTexture(lowerFilePath);
 		}
+	}
+
+	Map<Color, GPUReadyTexture> colorTextureMap = new HashMap<>();
+	public GPUReadyTexture getColorTexture(Color color){
+		return colorTextureMap.computeIfAbsent(color, k -> ImageUtils.getGPUColorTexture(color));
 	}
 
 	private GPUReadyTexture getCachedGpuReadyTexture(String lowerFilePath) {
@@ -136,33 +144,23 @@ public class BLPHandler {
 		if (dataSource.has(filepath)) {
 			try (final InputStream imageDataStream = dataSource.getResourceAsStream(filepath)) {
 				if (imageDataStream != null) {
-					if(filepath.toLowerCase().contains("peasant")){
-						System.out.println("stream not null! " + dataSource.getClass().getSimpleName() + " has " + filepath);
-					}
 					if (filepath.toLowerCase(Locale.US).endsWith(".tga")) {
-//						return TgaFile.readTGA(filepath, imageDataStream);
 						return new TwiTGAFile(imageDataStream).getAsBufferedImage();
 					} else if (filepath.toLowerCase(Locale.US).endsWith(".blp")) {
-						if(filepath.toLowerCase().contains("peasant")){
-							System.out.println("forceBufferedImagesRGB: " + dataSource.getClass().getSimpleName());
-						}
 						return forceBufferedImagesRGB(ImageIO.read(imageDataStream));
 					} else {
-						if(filepath.toLowerCase().contains("peasant")){
-							System.out.println("read: " + dataSource.getClass().getSimpleName());
-						}
 						return ImageIO.read(imageDataStream);
-					}
-				} else {
-					if(filepath.toLowerCase().contains("peasant")){
-						System.out.println("imageDataStream was null for " + filepath);
 					}
 				}
 			}
-		} else {
+		} else if(filepath.toLowerCase().matches("\\w:.+")){
+			Path path = Paths.get(filepath);
+			System.out.println("systemPath! " + filepath + ", path: " + path + " (" + path.getFileName() + ")");
+			if(!path.getFileName().toString().equals("")){
 
-			if(filepath.toLowerCase().contains("peasant")){
-				System.out.println("data source " + dataSource.getClass().getSimpleName() + " did not have " + filepath);
+				try (final InputStream imageDataStream = Files.newInputStream(path, StandardOpenOption.READ)) {
+					return ImageIO.read(imageDataStream);
+				}
 			}
 		}
 		return null;

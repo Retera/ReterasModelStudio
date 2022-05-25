@@ -353,6 +353,7 @@ public abstract class AnimFlag<T> {
 		if (animation instanceof GlobalSeq) {
 			this.globalSeq = (GlobalSeq) animation;
 		}
+		timeKeysMap.remove(animation);
 	}
 
 	public void addEntryMap(Sequence animation, Map<Integer, Entry<T>> entryMap) {

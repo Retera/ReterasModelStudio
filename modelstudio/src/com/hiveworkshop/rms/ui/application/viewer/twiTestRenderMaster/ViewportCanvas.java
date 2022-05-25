@@ -104,7 +104,7 @@ public class ViewportCanvas extends SmarterAWTGLCanvas {
 				});
 				bufferConsumer = null;
 			}
-			bufferFiller.paintCanvas(this);
+			bufferFiller.paintCanvas(viewportSettings, cameraManager, mouseAdapter, this);
 			try {
 				swapBuffers();
 			} catch (LWJGLException e) {

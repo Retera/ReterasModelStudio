@@ -95,6 +95,7 @@ quad rightQuad = quad(
 //    vec3(-1,  1, -1).scale(stemBotSize)};
 
 uniform mat4 u_projection;
+uniform mat4 u_view;
 uniform vec2 scale;
 
 //uniform vec2 start;

@@ -27,6 +27,7 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 		createUniform("scale");
 //		createUniform("u_viewPos");
 		createUniform("u_projection");
+		createUniform("u_view");
 		createUniform("a_selectionStatus");
 		createUniform("u_vertColors[0]");
 		createUniform("u_vertColors[1]");
@@ -75,6 +76,8 @@ public class BoneMarkerShaderPipeline extends ShaderPipeline {
 //		GL20.glUniform3f(GL20.glGetUniformLocation(shaderProgram, "u_viewPos"), 0, 0, -1);
 		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
 		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
+		fillMatrixBuffer(pipelineViewMatrixBuffer, viewMat);
+		GL20.glUniformMatrix4(getUniformLocation("u_view"), false, pipelineViewMatrixBuffer);
 
 
 //		GL11.glDrawArrays(glBeginType, 0, vertexCount);

@@ -7,6 +7,7 @@ layout (line_strip, max_vertices = 5) out;
 const float MAGNITUDE = 2;
 
 uniform mat4 u_projection;
+uniform mat4 u_view;
 
 //uniform vec2 start;
 //uniform vec2 end;

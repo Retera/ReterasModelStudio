@@ -98,6 +98,7 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 	}
 
 	public void rawScale(Vec3 center, Vec3 scale) {
+		double avgScale = (scale.x + scale.y + scale.z) / 3;
 		for (Vec3 vertex : selectedVertices) {
 			vertex.scale(center, scale);
 		}
@@ -108,9 +109,9 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 //				translateBone(object, scale);
 //			} else
 			if (object instanceof CollisionShape) {
-				ExtLog extents = ((CollisionShape) object).getExtents();
-				if ((extents != null) && (scale.x == scale.x) && (scale.y == scale.z)) {
-					extents.setBoundsRadius(extents.getBoundsRadius() * scale.x);
+				double boundsRadius = ((CollisionShape) object).getBoundsRadius();
+				if ((boundsRadius != -99) && (scale.x == scale.x) && (scale.y == scale.z)) {
+					((CollisionShape) object).setBoundsRadius(boundsRadius * scale.x);
 				}
 			}
 			if(object instanceof ParticleEmitter2){
@@ -118,14 +119,12 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 				((ParticleEmitter2) object).setWidth(((ParticleEmitter2) object).getWidth()*scale.y);
 				((ParticleEmitter2) object).setLength(((ParticleEmitter2) object).getLength()*scale.x);
 				((ParticleEmitter2) object).getParticleScaling().multiply(scale);
-				double avgScale = (scale.x + scale.y + scale.z) / 3;
 				((ParticleEmitter2) object).setSpeed(((ParticleEmitter2) object).getSpeed() * avgScale);
 				((ParticleEmitter2) object).setGravity(((ParticleEmitter2) object).getGravity() * avgScale);
 			}
 			if(object instanceof ParticleEmitter){
 				((ParticleEmitter) object).setLatitude(((ParticleEmitter) object).getLatitude()*scale.z);
 				((ParticleEmitter) object).setLongitude(((ParticleEmitter) object).getLongitude()*scale.y);
-				double avgScale = (scale.x + scale.y + scale.z) / 3;
 				((ParticleEmitter) object).setInitVelocity(((ParticleEmitter) object).getInitVelocity()*avgScale);
 
 			}
@@ -149,6 +148,23 @@ public class StaticMeshScaleAction implements GenericScaleAction {
 					}
 				}
 			}
+		}
+	}
+
+
+
+	private void scaleExtent(ExtLog extents, Vec3 center, Vec3 scale, double avgScale) {
+		if (extents == null) {
+			return;
+		}
+		if (extents.getMaximumExtent() != null) {
+			extents.getMaximumExtent().scale(center, scale);
+		}
+		if (extents.getMinimumExtent() != null) {
+			extents.getMinimumExtent().scale(center, scale);
+		}
+		if(extents.hasBoundsRadius()){
+			extents.setBoundsRadius(extents.getBoundsRadius() * avgScale);
 		}
 	}
 

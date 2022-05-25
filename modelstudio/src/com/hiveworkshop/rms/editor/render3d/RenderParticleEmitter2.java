@@ -84,6 +84,7 @@ public class RenderParticleEmitter2 {
 
 	public void update() {
 		// Choose between a default rectangle or a billboarded one
+//		int maxParticles = (int) (particleEmitter2.getEmissionRate()*particleEmitter2.getLifeSpan()+.5);
 		Vec3[] vectors;
 		Vec3[] billboardVectors = renderModel.getBillboardVectors();
 		if (particleEmitter2.getXYQuad()) {

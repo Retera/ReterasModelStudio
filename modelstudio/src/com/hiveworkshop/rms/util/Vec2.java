@@ -23,6 +23,10 @@ public class Vec2 {
 		this.x = old.x;
 		this.y = old.y;
 	}
+	public Vec2(final float[] floats) {
+		this.x = floats[0];
+		this.y = floats[1];
+	}
 
 	public static Vec2 centerOfGroup(final Collection<? extends Vec2> group) {
 		final Vec2 center = new Vec2();

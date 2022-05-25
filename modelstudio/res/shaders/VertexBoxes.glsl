@@ -3,6 +3,7 @@ layout (points) in;
 layout (triangle_strip , max_vertices = 4) out;
 
 uniform mat4 u_projection;
+uniform mat4 u_view;
 uniform vec2 scale;
 const float MAGNITUDE = 2;
 //uniform float vertRad;

@@ -291,7 +291,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			GL11.glMatrixMode(GL11.GL_MODELVIEW);
 			GL11.glLoadIdentity();
 
-			pipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			pipeline.glSetViewMatrix(cameraManager.getViewMat());
+			pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 
 			setUpLights(pipeline);
 
@@ -399,7 +401,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			pipeline.glMatrixMode(GL11.GL_MODELVIEW);
 			pipeline.glLoadIdentity();
 
-			pipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			pipeline.glSetViewMatrix(cameraManager.getViewMat());
+			pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 
 			setUpLights(pipeline);
 
@@ -459,51 +463,57 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 	}
 
 	private void renderNormals() {
-		ShaderPipeline normPipeline = shaderManager.getOrCreateNormPipeline();
-		normPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+		ShaderPipeline pipeline = shaderManager.getOrCreateNormPipeline();
+		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		normPipeline.glViewport(getWidth(), getHeight());
-		normPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
-		normPipeline.glMatrixMode(GL11.GL_PROJECTION);
-		normPipeline.glLoadIdentity();
-		normPipeline.glMatrixMode(GL11.GL_MODELVIEW);
-		normPipeline.glLoadIdentity();
-		normPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
-		geosetRenderThing.fillNormalsBuffer(normPipeline);
-		normPipeline.doRender(GL11.GL_POINTS);
+		pipeline.glViewport(getWidth(), getHeight());
+		pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+		pipeline.glMatrixMode(GL11.GL_PROJECTION);
+		pipeline.glLoadIdentity();
+		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+		pipeline.glLoadIdentity();
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
+		geosetRenderThing.fillNormalsBuffer(pipeline);
+		pipeline.doRender(GL11.GL_POINTS);
 	}
 
 	private void render3DVerts() {
-		ShaderPipeline vertPipeline = shaderManager.getOrCreateVertPipeline();
-		vertPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+		ShaderPipeline pipeline = shaderManager.getOrCreateVertPipeline();
+		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		vertPipeline.glViewport(getWidth(), getHeight());
-		vertPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
-		vertPipeline.glMatrixMode(GL11.GL_PROJECTION);
-		vertPipeline.glLoadIdentity();
-		vertPipeline.glMatrixMode(GL11.GL_MODELVIEW);
-		vertPipeline.glLoadIdentity();
-		vertPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
-		geosetRenderThing.fillVertsBuffer(vertPipeline);
-		vertPipeline.doRender(GL11.GL_POINTS);
+		pipeline.glViewport(getWidth(), getHeight());
+		pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+		pipeline.glMatrixMode(GL11.GL_PROJECTION);
+		pipeline.glLoadIdentity();
+		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+		pipeline.glLoadIdentity();
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
+		geosetRenderThing.fillVertsBuffer(pipeline);
+		pipeline.doRender(GL11.GL_POINTS);
 	}
 
 	private void renderNodes() {
-		ShaderPipeline bonePipeline = shaderManager.getOrCreateBoneMarkerShaderPipeline();
-		bonePipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-		bonePipeline.glViewport(getWidth(), getHeight());
-		bonePipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
-		bonePipeline.glMatrixMode(GL11.GL_PROJECTION);
-		bonePipeline.glLoadIdentity();
-		bonePipeline.glMatrixMode(GL11.GL_MODELVIEW);
-		bonePipeline.glLoadIdentity();
-		bonePipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		ShaderPipeline pipeline = shaderManager.getOrCreateBoneMarkerShaderPipeline();
+		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+		pipeline.glViewport(getWidth(), getHeight());
+		pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+		pipeline.glMatrixMode(GL11.GL_PROJECTION);
+		pipeline.glLoadIdentity();
+		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+		pipeline.glLoadIdentity();
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-		bonePipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+		pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 
-		bonePipeline.prepare();
+		pipeline.prepare();
 //			pipeline.glColor3f(1f, 1f, 3f);
 
 		Vec4 colorHeap = new Vec4(0f, .0f, 1f, 1f);
@@ -512,38 +522,40 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			if(modelView.shouldRender(v)){
 				RenderNode2 renderNode = renderModel.getRenderNode(v);
 
-				bonePipeline.addVert(renderNode.getPivot(), Vec3.Z_AXIS, colorHeap, Vec2.ORIGIN, colorHeap, Vec3.ZERO);
+				pipeline.addVert(renderNode.getPivot(), Vec3.Z_AXIS, colorHeap, Vec2.ORIGIN, colorHeap, Vec3.ZERO);
 			}
 		}
-		bonePipeline.doRender(GL11.GL_POINTS);
+		pipeline.doRender(GL11.GL_POINTS);
 	}
 
 	private void paintSelectionBox() {
 //		CubePainter.paintCameraLookAt(cameraHandler);
 		if (mouseAdapter.isSelecting()) {
-			ShaderPipeline selectionPipeline = shaderManager.getOrCreateSelectionPipeline();
-			selectionPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
-			selectionPipeline.glViewport(getWidth(), getHeight());
-			selectionPipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
-			selectionPipeline.glMatrixMode(GL11.GL_PROJECTION);
-			selectionPipeline.glLoadIdentity();
-			selectionPipeline.glMatrixMode(GL11.GL_MODELVIEW);
-			selectionPipeline.glLoadIdentity();
-			selectionPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			ShaderPipeline pipeline = shaderManager.getOrCreateSelectionPipeline();
+			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+			pipeline.glViewport(getWidth(), getHeight());
+			pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+			pipeline.glMatrixMode(GL11.GL_PROJECTION);
+			pipeline.glLoadIdentity();
+			pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+			pipeline.glLoadIdentity();
+			pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			pipeline.glSetViewMatrix(cameraManager.getViewMat());
+			pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 
 			if(renderModel != null){
 				// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader
 				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
-				selectionPipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+				pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
 				GL11.glDisable(GL11.GL_TEXTURE_2D);
 
-				selectionPipeline.prepare();
+				pipeline.prepare();
 
-				selectionPipeline.addVert(mouseAdapter.getStart(), Vec3.Z_AXIS, new Vec4(), new Vec2(), new Vec4(1, 0,0,1), Vec3.ZERO);
-				selectionPipeline.addVert(mouseAdapter.getEnd(), Vec3.Z_AXIS, new Vec4(), new Vec2(), new Vec4(1, 0,0,1), Vec3.ZERO);
+				pipeline.addVert(mouseAdapter.getStart(), Vec3.Z_AXIS, new Vec4(), new Vec2(), new Vec4(1, 0,0,1), Vec3.ZERO);
+				pipeline.addVert(mouseAdapter.getEnd(), Vec3.Z_AXIS, new Vec4(), new Vec2(), new Vec4(1, 0,0,1), Vec3.ZERO);
 
-				selectionPipeline.doRender(GL11.GL_LINES);
+				pipeline.doRender(GL11.GL_LINES);
 			}
 //			CubePainter.paintRekt(mouseAdapter.getStartPGeo(), mouseAdapter.getEndPGeo1(), mouseAdapter.getEndPGeo2(), mouseAdapter.getEndPGeo3(), cameraHandler);
 //			System.out.println("is selecting!");
@@ -560,7 +572,9 @@ public class AnimatedPerspectiveViewport extends BetterAWTGLCanvas {
 			pipeline.glLoadIdentity();
 			pipeline.glMatrixMode(GL11.GL_MODELVIEW);
 			pipeline.glLoadIdentity();
-			pipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			pipeline.glSetViewMatrix(cameraManager.getViewMat());
+			pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 
 			if(renderModel != null){
 				// https://learnopengl.com/Advanced-OpenGL/Geometry-Shader

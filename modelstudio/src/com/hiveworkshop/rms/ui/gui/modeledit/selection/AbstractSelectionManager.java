@@ -43,7 +43,7 @@ public abstract class AbstractSelectionManager {
 
 	public abstract SelectionBundle getSelectionBundle(Vec2 min, Vec2 max, ViewBox viewBox, double sizeAdj);
 
-	public abstract SelectionBundle getSelectionBundle(Vec3 min, Vec3 max, Mat4 viewPortAntiRotMat, double sizeAdj);
+//	public abstract SelectionBundle getSelectionBundle(Vec3 min, Vec3 max, Mat4 viewPortAntiRotMat, double sizeAdj);
 
 	public UndoAction selectStuff(Vec2 min, Vec2 max, SelectionMode selectionMode, CoordinateSystem coordinateSystem) {
 		SelectionBundle newSelection = getSelectionBundle(min, max, coordinateSystem);
@@ -60,10 +60,10 @@ public abstract class AbstractSelectionManager {
 		return getUndoAction(selectionMode, newSelection);
 	}
 
-	public UndoAction selectStuff(Vec3 min, Vec3 max, SelectionMode selectionMode, Mat4 viewPortAntiRotMat, double sizeAdj) {
-		SelectionBundle newSelection = getSelectionBundle(min, max, viewPortAntiRotMat, sizeAdj);
-		return getUndoAction(selectionMode, newSelection);
-	}
+//	public UndoAction selectStuff(Vec3 min, Vec3 max, SelectionMode selectionMode, Mat4 viewPortAntiRotMat, double sizeAdj) {
+//		SelectionBundle newSelection = getSelectionBundle(min, max, viewPortAntiRotMat, sizeAdj);
+//		return getUndoAction(selectionMode, newSelection);
+//	}
 
 	private UndoAction getUndoAction(SelectionMode selectionMode, SelectionBundle newSelection) {
 		if (selectionMode == null) {

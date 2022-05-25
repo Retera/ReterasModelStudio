@@ -4,6 +4,7 @@ layout (triangle_strip , max_vertices = 4) out;
 
 uniform mat4 u_transform;
 uniform mat4 u_projection;
+uniform mat4 u_view;
 uniform vec2 u_flipBookSize;
 
 in VS_OUT {

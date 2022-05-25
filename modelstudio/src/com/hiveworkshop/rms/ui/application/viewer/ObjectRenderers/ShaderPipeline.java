@@ -33,6 +33,7 @@ public abstract class ShaderPipeline {
 	protected final Vec4 color = new Vec4(1f, 1f, 1f, 1f);
 	protected FloatBuffer pipelineVertexBuffer = ByteBuffer.allocateDirect(1024 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 	protected final FloatBuffer pipelineMatrixBuffer = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+	protected final FloatBuffer pipelineViewMatrixBuffer = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 	protected final FloatBuffer uvTransformMatrixBuffer = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 
 	protected int vertexCount = 0;
@@ -47,6 +48,8 @@ public abstract class ShaderPipeline {
 	protected boolean loaded = false;
 
 	protected final Mat4 currentMatrix = new Mat4();
+	protected final Mat4 projectionMat = new Mat4();
+	protected final Mat4 viewMat = new Mat4();
 	protected int textureUsed = 0;
 	protected int textureUnit;
 	protected int alphaTest = 0;
@@ -332,10 +335,18 @@ public abstract class ShaderPipeline {
 		GL11.glLightModel(lightModel, ambientColor);
 	}
 
-	public void glSetProjectionMatrix(Mat4 projectionMatrix) {
+	public void glSetViewProjectionMatrix(Mat4 projectionMatrix) {
 		currentMatrix.setIdentity();
 		tempMat4.set(projectionMatrix).mul(currentMatrix);
 		currentMatrix.set(tempMat4);
+	}
+
+	public void glSetProjectionMatrix(Mat4 projectionMat) {
+		this.projectionMat.set(projectionMat);
+	}
+
+	public void glSetViewMatrix(Mat4 viewMat) {
+		this.viewMat.set(viewMat);
 	}
 
 	public void glMatrixMode(int mode) {

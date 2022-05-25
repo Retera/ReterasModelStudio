@@ -28,16 +28,6 @@ public class ExtLog {
 		maximumExtent = new Vec3(extent.max);
 	}
 
-	public MdlxExtent toMdlx() {
-		final MdlxExtent extent = new MdlxExtent();
-
-		extent.boundsRadius = (float)boundsRadius;
-		extent.min = minimumExtent.toFloatArray();
-		extent.max = maximumExtent.toFloatArray();
-
-		return extent;
-	}
-
 	public ExtLog(final Vec3 minE, final Vec3 maxE) {
 		minimumExtent = minE;
 		maximumExtent = maxE;
@@ -63,6 +53,16 @@ public class ExtLog {
 			maximumExtent = new Vec3(other.maximumExtent);
 		}
 		boundsRadius = other.boundsRadius;
+	}
+
+	public MdlxExtent toMdlx() {
+		final MdlxExtent extent = new MdlxExtent();
+
+		extent.boundsRadius = (float)boundsRadius;
+		extent.min = minimumExtent.toFloatArray();
+		extent.max = maximumExtent.toFloatArray();
+
+		return extent;
 	}
 
 	public void setMinMax(final ExtLog other) {
@@ -117,16 +117,8 @@ public class ExtLog {
 		return minimumExtent;
 	}
 
-	public void setMinimumExtent(final Vec3 minimumExtent) {
-		this.minimumExtent = minimumExtent;
-	}
-
 	public Vec3 getMaximumExtent() {
 		return maximumExtent;
-	}
-
-	public void setMaximumExtent(final Vec3 maximumExtent) {
-		this.maximumExtent = maximumExtent;
 	}
 
 	public double getBoundsRadius() {

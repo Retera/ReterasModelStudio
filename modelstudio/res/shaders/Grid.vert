@@ -9,6 +9,7 @@ layout (location = 1) in vec4 a_color;
 //    vec4 color;
 //} vs_out;
 uniform mat4 u_projection;
+uniform mat4 u_view;
 
 out vec4 v_color;
 void main() {

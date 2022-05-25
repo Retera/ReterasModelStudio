@@ -129,24 +129,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 		return this;
 	}
 
-	public TextureViewport setAllowRotation(boolean allow) {
-		cameraHandler.setAllowRotation(allow);
-		return this;
-	}
 
-	public TextureViewport setAllowToggleOrtho(boolean allow) {
-		cameraHandler.setAllowToggleOrtho(allow);
-		return this;
-	}
-
-	public TextureViewport toggleOrtho() {
-		cameraHandler.toggleOrtho();
-		return this;
-	}
-
-	public void translate(final double a, final double b) {
-		cameraHandler.translate(a, b);
-	}
 
 	protected void forceReloadTextures() {
 		texLoaded = true;
@@ -383,13 +366,7 @@ public class TextureViewport extends BetterAWTGLCanvas {
 		wantReloadAll = true;
 	}
 
-	public void zoom(double amount) {
-		cameraHandler.zoom(amount);
-	}
 
-	public double getZoomAmount() {
-		return cameraHandler.getZoom();
-	}
 
 	private void enableGlThings(int... thing) {
 		for (int t : thing) {

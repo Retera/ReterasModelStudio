@@ -71,7 +71,7 @@ public class GridPainter2 {
 //				.maximize(pointBR);
 
 		if(time < System.currentTimeMillis()){
-			System.out.println("grid");
+//			System.out.println("grid");
 //			System.out.println("pointTL: " + pointTL);
 //			System.out.println("pointTR: " + pointTR);
 //			System.out.println("pointBL: " + pointBL);
@@ -168,7 +168,7 @@ public class GridPainter2 {
 //				.maximize(pointBR);
 
 		if(time < System.currentTimeMillis()){
-			System.out.println("grid");
+//			System.out.println("grid");
 //			System.out.println("pointTL: " + pointTL);
 //			System.out.println("pointTR: " + pointTR);
 //			System.out.println("pointBL: " + pointBL);

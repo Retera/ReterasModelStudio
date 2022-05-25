@@ -13,10 +13,13 @@ import java.util.*;
 public class SimplifyKeyframesFlagAction<T> implements UndoAction {
 	private final AnimFlag<T> animFlag;
 	private final Map<Sequence, Set<Entry<T>>> sequenceSetMap = new HashMap<>();
+	private final boolean allowRemovePeaks;
 
-	public SimplifyKeyframesFlagAction(AnimFlag<T> animFlag, List<Sequence> sequences, float valueDiff) {
+	public SimplifyKeyframesFlagAction(AnimFlag<T> animFlag, List<Sequence> sequences, float valueDiff, boolean allowRemovePeaks) {
 		this.animFlag = animFlag;
-		findFramedToRemove(sequences, valueDiff);
+		this.allowRemovePeaks = allowRemovePeaks;
+		findFramesToRemove(sequences, valueDiff);
+
 	}
 
 	public int getNumberOfEntriesToRemove(){
@@ -27,67 +30,71 @@ public class SimplifyKeyframesFlagAction<T> implements UndoAction {
 		return found;
 	}
 
-	private void findFramedToRemove(List<Sequence> sequences, float valueDiff) {
+	private void findFramesToRemove(List<Sequence> sequences, float valueDiff) {
 		for (Sequence sequence : sequences) {
-			removeTransitionalKeyframes(valueDiff, sequence);
-		}
-	}
+			Set<Entry<T>> entrySet = sequenceSetMap.computeIfAbsent(sequence, a -> new HashSet<>());
 
-	public void removeTransitionalKeyframes(float valueDiff, Sequence sequence) {
-		Set<Entry<T>> entrySet = sequenceSetMap.computeIfAbsent(sequence, a -> new HashSet<>());
+			TreeMap<Integer, Entry<T>> entryMap = animFlag.getEntryMap(sequence);
+			if(entryMap != null && !entryMap.isEmpty()){
+				TreeMap<Integer, Entry<T>> entryMapCopy = new TreeMap<>(entryMap);
+				int end = entryMapCopy.lastEntry().getKey();
 
-		TreeMap<Integer, Entry<T>> entryMap = animFlag.getEntryMap(sequence);
-		if(entryMap != null && !entryMap.isEmpty()){
-			TreeMap<Integer, Entry<T>> entryMapCopy = new TreeMap<>(entryMap);
-			int end = entryMapCopy.lastEntry().getKey();
+				collectEntriesSparePeaks(valueDiff, entrySet, entryMapCopy, end, true);
 
-			for (Integer time = entryMapCopy.floorKey(end); time != null && time >= entryMapCopy.ceilingKey(0); time = entryMapCopy.lowerKey(time)) {
-				int beforeTime = entryMapCopy.lowerKey(time) == null ? -1 : entryMapCopy.lowerKey(time);
-				int afterTime = entryMapCopy.higherKey(time) == null ? -1 : entryMapCopy.higherKey(time);
-
-				float time_factor = (time - beforeTime) / (float) (afterTime - beforeTime);
-
-				Entry<T> entryBefore = entryMapCopy.get(beforeTime);
-				Entry<T> entryAfter = entryMapCopy.get(afterTime);
-				Entry<T> entryBetween = entryMapCopy.get(time);
-
-				Entry<T> entryToRemove = getEntryToRemove(animFlag, valueDiff, time_factor, entryBefore, entryAfter, entryBetween);
-
-				if (entryToRemove != null) {
-					entrySet.add(entryToRemove);
-					entryMapCopy.remove(time);
+				if(allowRemovePeaks){
+					collectEntriesSparePeaks(valueDiff, entrySet, entryMapCopy, end, false);
 				}
 			}
 		}
 	}
 
-	private Entry<T> getEntryToRemove(AnimFlag<T> flag, float valueDiff, float time_factor, Entry<T> entryBefore, Entry<T> entryAfter, Entry<T> entryBetween) {
+	private void collectEntriesSparePeaks(float valueDiff, Set<Entry<T>> entrySet, TreeMap<Integer, Entry<T>> entryMapCopy, int end, boolean sparePeaks) {
+		for (Integer time = entryMapCopy.floorKey(end); time != null && time >= entryMapCopy.ceilingKey(0); time = entryMapCopy.lowerKey(time)) {
+			int beforeTime = entryMapCopy.lowerKey(time) == null ? -1 : entryMapCopy.lowerKey(time);
+			int afterTime = entryMapCopy.higherKey(time) == null ? -1 : entryMapCopy.higherKey(time);
+
+			float time_factor = (time - beforeTime) / (float) (afterTime - beforeTime);
+
+			Entry<T> entryBefore = entryMapCopy.get(beforeTime);
+			Entry<T> entryAfter = entryMapCopy.get(afterTime);
+			Entry<T> entryBetween = entryMapCopy.get(time);
+			boolean shouldRemoveEntry;
+			if(sparePeaks){
+				shouldRemoveEntry = shouldRemoveEntry(animFlag, valueDiff, time_factor, entryBefore, entryAfter, entryBetween);
+			} else {
+				shouldRemoveEntry = shouldRemoveEntry2(animFlag, valueDiff, time_factor, entryBefore, entryAfter, entryBetween);
+			}
+
+			if (shouldRemoveEntry) {
+				entrySet.add(entryBetween);
+				entryMapCopy.remove(time);
+			}
+		}
+	}
+
+	private boolean shouldRemoveEntry(AnimFlag<T> flag, float valueDiff, float time_factor, Entry<T> entryBefore, Entry<T> entryAfter, Entry<T> entryBetween) {
 		if (entryBetween != null && entryBefore != null && entryAfter != null) {
 			T value = flag.getInterpolatedValue(entryBefore, entryAfter, time_factor);
-			Entry<T> entryAt = entryBetween.deepCopy().setValue(value);
-			if (isBetween(entryBetween.getValueArr(), entryBefore.getValueArr(), entryAfter.getValueArr())
-					&& withInTolerance(valueDiff, entryBetween.getValueArr(), entryAt.getValueArr())) {
-				return entryBetween;
-			}
-//			if (entryBetween.value instanceof Float
-//					&& isToRemove(valueDiff, (float) entryBetween.value, (float) entryBefore.value, (float) entryAfter.value, (float) value)
-//					|| entryBetween.value instanceof Vec3
-//					&& isToRemove(valueDiff, (Vec3) entryBetween.value, (Vec3) entryBefore.value, (Vec3) entryAfter.value, (Vec3) value)
-//					|| entryBetween.value instanceof Quat
-//					&& isToRemove(valueDiff, (Quat) entryBetween.value, (Quat) entryBefore.value, (Quat) entryAfter.value, (Quat) value)) {
-//				return entryBetween;
-//			}
+			Entry<T> interpolatedValue = entryBetween.deepCopy().setValue(value);
+
+			return isBetween(entryBetween.getValueArr(), entryBefore.getValueArr(), entryAfter.getValueArr())
+					&& withInTolerance(valueDiff, entryBetween.getValueArr(), interpolatedValue.getValueArr());
 		}
 
-		return null;
-	}
-
-	private boolean isToRemove(float valueDiff, float between, float before, float after, float value) {
-		if (MathUtils.isBetween2(before, after, between)) {
-			return Math.abs(between - value) < valueDiff;
-		}
 		return false;
 	}
+
+	private boolean shouldRemoveEntry2(AnimFlag<T> flag, float valueDiff, float time_factor, Entry<T> entryBefore, Entry<T> entryAfter, Entry<T> entryBetween) {
+		if (entryBetween != null && entryBefore != null && entryAfter != null) {
+			T value = flag.getInterpolatedValue(entryBefore, entryAfter, time_factor);
+			Entry<T> interpolatedValue = entryBetween.deepCopy().setValue(value);
+
+			return withInTolerance(valueDiff, entryBetween.getValueArr(), interpolatedValue.getValueArr());
+		}
+
+		return false;
+	}
+
 
 	private boolean isBetween (float[] between, float[] before, float[] after) {
 		for(int i = 0; i < between.length; i++){
@@ -105,17 +112,6 @@ public class SimplifyKeyframesFlagAction<T> implements UndoAction {
 		}
 		return true;
 	}
-//	private boolean isToRemove(float valueDiff, float[] between, float[] before, float[] after, float[] interpolatedValue) {
-//		if (MathUtils.isBetween2(before.x, after.x, between.x)
-//				&& MathUtils.isBetween2(before.y, after.y, between.y)
-//				&& MathUtils.isBetween2(before.z, after.z, between.z)) {
-//
-//			return Math.abs(between.x - interpolatedValue.x) < valueDiff
-//					|| Math.abs(between.y - interpolatedValue.y) < valueDiff
-//					|| Math.abs(between.z - interpolatedValue.z) < valueDiff;
-//		}
-//		return false;
-//	}
 
 
 	private boolean isToRemove(float valueDiff, Vec3 between, Vec3 before, Vec3 after, Vec3 value) {

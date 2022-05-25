@@ -6,6 +6,7 @@ layout (line_strip, max_vertices = 2) out;
 const float MAGNITUDE = 2;
 
 uniform mat4 u_projection;
+uniform mat4 u_view;
 
 in VS_OUT {
     vec4 pos;

@@ -827,6 +827,12 @@ public class Vec3 {
 		z = v.z;
 		return this;
 	}
+	public Vec3 set(final Vec2 v, float z) {
+		x = v.x;
+		y = v.y;
+		this.z = z;
+		return this;
+	}
 
 	public Vec3 set(final Vec4 v) {
 		x = v.x;
@@ -899,6 +905,23 @@ public class Vec3 {
 			default -> 0;
 		};
 		return new Vec2(projX, projY);
+	}
+
+
+
+	public Vec3 getLocationFromMat(Mat4 mat4, Vec3 pivot) {
+		x = mat4.m30 + ((mat4.m00 * pivot.x) + (mat4.m10 * pivot.y) + (mat4.m20 * pivot.z)) - pivot.x;
+		y = mat4.m31 + ((mat4.m01 * pivot.x) + (mat4.m11 * pivot.y) + (mat4.m21 * pivot.z)) - pivot.y;
+		z = mat4.m32 + ((mat4.m02 * pivot.x) + (mat4.m12 * pivot.y) + (mat4.m22 * pivot.z)) - pivot.z;
+
+		return this;
+	}
+	public Vec3 getLocationFromMat(Mat4 mat4) {
+		float tempX = mat4.m30 + ((mat4.m00 * x) + (mat4.m10 * y) + (mat4.m20 * z)) - x;
+		float tempY = mat4.m31 + ((mat4.m01 * x) + (mat4.m11 * y) + (mat4.m21 * z)) - y;
+		float tempZ = mat4.m32 + ((mat4.m02 * x) + (mat4.m12 * y) + (mat4.m22 * z)) - z;
+
+		return set(tempX, tempY, tempZ);
 	}
 
 }

@@ -1,72 +1,78 @@
 package com.hiveworkshop.rms.ui.application.model.nodepanels;
 
+import com.hiveworkshop.rms.editor.actions.nodes.SetCollisionExtents;
+import com.hiveworkshop.rms.editor.actions.nodes.SetCollisionShapeShapeAction;
 import com.hiveworkshop.rms.editor.model.CollisionShape;
+import com.hiveworkshop.rms.parsers.mdlx.MdlxCollisionShape;
+import com.hiveworkshop.rms.ui.application.model.editors.FloatEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
+import com.hiveworkshop.rms.util.TwiComboBox;
+import com.hiveworkshop.rms.util.Vec3;
+import com.hiveworkshop.rms.util.Vec3SpinnerArray;
 
 public class ComponentCollisionPanel extends ComponentIdObjectPanel<CollisionShape> {
-//	JLabel title;
-//	JTextField nameField;
-//	JLabel parentName;
-//	ParentChooser parentChooser;
-//	private CollisionShape idObject;
-
+	TwiComboBox<MdlxCollisionShape.Type> typeBox;
+	Vec3SpinnerArray v1SpinnerArray;
+	Vec3SpinnerArray v2SpinnerArray;
+	FloatEditorJSpinner boundsSpinner;
 
 	public ComponentCollisionPanel(ModelHandler modelHandler) {
 		super(modelHandler);
 
-//		parentChooser = new ParentChooser(modelHandler.getModelView());
-//
-//		setLayout(new MigLayout("fill, gap 0", "[][][grow]", "[][][grow]"));
-//		title = new JLabel("Select a CollisionShape");
-//		add(title, "wrap");
-//		nameField = new JTextField(24);
-//		nameField.addFocusListener(changeName());
-//		add(nameField, "wrap");
-//		add(new JLabel("Parent: "));
-//		parentName = new JLabel("Parent");
-//		add(parentName);
+		typeBox = new TwiComboBox<>(MdlxCollisionShape.Type.values(), MdlxCollisionShape.Type.CYLINDER);
+		typeBox.addOnSelectItemListener(this::setType);
+		v1SpinnerArray = new Vec3SpinnerArray().setVec3Consumer(this::setV1);
+		v2SpinnerArray = new Vec3SpinnerArray().setVec3Consumer(this::setV2);
+		boundsSpinner = new FloatEditorJSpinner(-99, -99, 1);
+		boundsSpinner.setFloatEditingStoppedListener(this::setBoundRad);
+
+		topPanel.add(typeBox, "wrap");
+		topPanel.add(v1SpinnerArray.spinnerPanel(), "wrap");
+		topPanel.add(v2SpinnerArray.spinnerPanel(), "wrap");
+		topPanel.add(boundsSpinner, "wrap");
 	}
 
-//	@Override
-//	public void setSelectedItem(CollisionShape itemToSelect) {
-//		idObject = itemToSelect;
-//		title.setText(idObject.getName());
-//		nameField.setText(idObject.getName());
-//		IdObject parent = idObject.getParent();
-//		if (parent != null) {
-//			this.parentName.setText(parent.getName());
-//		} else {
-//			parentName.setText("no parent");
-//		}
-//		revalidate();
-//		repaint();
-//
-//	}
+	@Override
+	public void updatePanels() {
+		typeBox.selectOrFirst(idObject.getType());
+		v1SpinnerArray.setValues(idObject.getVertex(0));
+		Vec3 v2 = idObject.getVertex(1);
+		if(v2 != null) {
+			v2SpinnerArray.setValues(v2).setEnabled(true);
+		} else {
+			v2SpinnerArray.setValues(Vec3.ZERO).setEnabled(false);
+		}
+		boundsSpinner.reloadNewValue(idObject.getBoundsRadius()).setEnabled(idObject.getBoundsRadius()>=0);
+	}
 
-//	@Override
-//	public void save(EditableModel model, UndoManager undoManager, ModelStructureChangeListener changeListener) {
-//
-//	}
+	private void setType(MdlxCollisionShape.Type type){
+		if(type != idObject.getType()){
+			undoManager.pushAction(new SetCollisionShapeShapeAction(type, idObject, changeListener).redo());
+		}
+	}
 
-//	private void chooseParent() {
-//		IdObject newParent = parentChooser.chooseParent(idObject, this.getRootPane());
-//		ParentChangeAction action = new ParentChangeAction(idObject, newParent, changeListener);
-//		action.redo();
-//		repaint();
-//		modelHandler.getUndoManager().pushAction(action);
-//	}
-//
-//	private FocusAdapter changeName() {
-//		return new FocusAdapter() {
-//			@Override
-//			public void focusLost(FocusEvent e) {
-//				String newName = nameField.getText();
-//				if (!newName.equals("")) {
-//					NameChangeAction action = new NameChangeAction(idObject, newName, changeListener);
-//					action.redo();
-//					modelHandler.getUndoManager().pushAction(action);
-//				}
-//			}
-//		};
-//	}
+	private void setV1(Vec3 v1){
+		if(v1 != idObject.getVertex(0)){
+//			Vec3 v2 = v1SpinnerArray.isEnabled() ? v1SpinnerArray.getValue() : null;
+			Vec3 v2 = idObject.getVertex(1);
+			undoManager.pushAction(new SetCollisionExtents(idObject, idObject.getBoundsRadius(), v1, v2, changeListener).redo());
+		}
+	}
+
+	private void setV2(Vec3 v2){
+		if(v2 != idObject.getVertex(1)){
+//			Vec3 v1 = v1SpinnerArray.isEnabled() ? v1SpinnerArray.getValue() : null;
+			Vec3 v1 = idObject.getVertex(0);
+			undoManager.pushAction(new SetCollisionExtents(idObject, idObject.getBoundsRadius(), v1, v2, changeListener).redo());
+		}
+	}
+	private void setBoundRad(float boundsRadius){
+		if(boundsRadius != idObject.getBoundsRadius() && boundsRadius>=0 && idObject.getBoundsRadius()>=0){
+//			Vec3 v1 = v1SpinnerArray.isEnabled() ? v1SpinnerArray.getValue() : null;
+//			Vec3 v2 = v1SpinnerArray.isEnabled() ? v1SpinnerArray.getValue() : null;
+			Vec3 v1 = idObject.getVertex(0);
+			Vec3 v2 = idObject.getVertex(1);
+			undoManager.pushAction(new SetCollisionExtents(idObject, boundsRadius, v1, v2, changeListener).redo());
+		}
+	}
 }

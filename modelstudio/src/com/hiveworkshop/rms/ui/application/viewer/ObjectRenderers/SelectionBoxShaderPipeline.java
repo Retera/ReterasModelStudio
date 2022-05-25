@@ -25,6 +25,7 @@ public class SelectionBoxShaderPipeline extends ShaderPipeline {
 		createUniform("u_color");
 		createUniform("u_viewPos");
 		createUniform("u_projection");
+		createUniform("u_view");
 	}
 
 	public void doRender() {
@@ -52,6 +53,8 @@ public class SelectionBoxShaderPipeline extends ShaderPipeline {
 		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
 		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
 		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
+		fillMatrixBuffer(pipelineViewMatrixBuffer, viewMat);
+		GL20.glUniformMatrix4(getUniformLocation("u_view"), false, pipelineViewMatrixBuffer);
 
 
 //		GL11.glDrawArrays(glBeginType, 0, vertexCount);

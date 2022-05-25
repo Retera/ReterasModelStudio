@@ -217,7 +217,7 @@ public class GeosetBufferFiller {
 				Vec3 renderPos = renderVert.getRenderPos();
 				Vec3 renderNorm = renderVert.getRenderNorm();
 
-				pipeline.addVert(renderPos, renderNorm, tangentHeap, uvHeap, colorHeap, Vec3.ZERO);
+				pipeline.addVert(renderPos, renderNorm, tangentHeap, uvHeap, colorHeap, fresnelColorHeap, getSelectionStatus(v));
 			}
 		}
 	}

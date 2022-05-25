@@ -21,6 +21,7 @@ public class AnimFlagUtils {
 				}
 			}
 			entryMap.putAll(scaledMap);
+			animFlag.setEntryMap(anim, entryMap);
 		}
 	}
 

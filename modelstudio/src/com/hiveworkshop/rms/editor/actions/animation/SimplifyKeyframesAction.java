@@ -16,41 +16,41 @@ import java.util.List;
 public class SimplifyKeyframesAction implements UndoAction {
 	private final List<SimplifyKeyframesFlagAction<?>> actions;
 
-	public SimplifyKeyframesAction(ModelView modelView, float trans, float scale, float rot) {
+	public SimplifyKeyframesAction(ModelView modelView, float trans, float scale, float rot, boolean allowRemovePeaks) {
 		List<Sequence> allSequences = modelView.getModel().getAllSequences();
 		actions = new ArrayList<>();
 		for (IdObject idObject : modelView.getSelectedIdObjects()) {
 			if (trans >= 0 && idObject.has(MdlUtils.TOKEN_TRANSLATION)) {
-				actions.add(new SimplifyKeyframesFlagAction<>(idObject.find(MdlUtils.TOKEN_TRANSLATION), allSequences, trans));
+				actions.add(new SimplifyKeyframesFlagAction<>(idObject.find(MdlUtils.TOKEN_TRANSLATION), allSequences, trans, allowRemovePeaks));
 			}
 			if (scale >= 0 && idObject.has(MdlUtils.TOKEN_SCALING)) {
-				actions.add(new SimplifyKeyframesFlagAction<>(idObject.find(MdlUtils.TOKEN_SCALING), allSequences, scale));
+				actions.add(new SimplifyKeyframesFlagAction<>(idObject.find(MdlUtils.TOKEN_SCALING), allSequences, scale, allowRemovePeaks));
 			}
 			if (rot >= 0 && idObject.has(MdlUtils.TOKEN_ROTATION)) {
-				actions.add(new SimplifyKeyframesFlagAction<>(idObject.find(MdlUtils.TOKEN_ROTATION), allSequences, rot));
+				actions.add(new SimplifyKeyframesFlagAction<>(idObject.find(MdlUtils.TOKEN_ROTATION), allSequences, rot, allowRemovePeaks));
 			}
 		}
 	}
 
-	public SimplifyKeyframesAction(Collection<Camera> cameras, List<Sequence> sequences, float trans, float rot) {
+	public SimplifyKeyframesAction(Collection<Camera> cameras, List<Sequence> sequences, float trans, float rot, boolean allowRemovePeaks) {
 		actions = new ArrayList<>();
 		for (Camera camera : cameras) {
 			if (trans >= 0 && camera.getSourceNode().has(MdlUtils.TOKEN_TRANSLATION)) {
-				actions.add(new SimplifyKeyframesFlagAction<>(camera.getSourceNode().find(MdlUtils.TOKEN_TRANSLATION), sequences, trans));
+				actions.add(new SimplifyKeyframesFlagAction<>(camera.getSourceNode().find(MdlUtils.TOKEN_TRANSLATION), sequences, trans, allowRemovePeaks));
 			}
 			if (rot >= 0 && camera.getSourceNode().has(MdlUtils.TOKEN_ROTATION)) {
-				actions.add(new SimplifyKeyframesFlagAction<>(camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION), sequences, rot));
+				actions.add(new SimplifyKeyframesFlagAction<>(camera.getSourceNode().find(MdlUtils.TOKEN_ROTATION), sequences, rot, allowRemovePeaks));
 			}
 			if (trans >= 0 && camera.getTargetNode().has(MdlUtils.TOKEN_TRANSLATION)) {
-				actions.add(new SimplifyKeyframesFlagAction<>(camera.getTargetNode().find(MdlUtils.TOKEN_TRANSLATION), sequences, trans));
+				actions.add(new SimplifyKeyframesFlagAction<>(camera.getTargetNode().find(MdlUtils.TOKEN_TRANSLATION), sequences, trans, allowRemovePeaks));
 			}
 		}
 	}
 
-	public SimplifyKeyframesAction(Collection<AnimFlag<?>> animFlags, List<Sequence> sequences, float valueDiff) {
+	public SimplifyKeyframesAction(Collection<AnimFlag<?>> animFlags, List<Sequence> sequences, float valueDiff, boolean allowRemovePeaks) {
 		actions = new ArrayList<>();
 		for (AnimFlag<?> animFlag : animFlags) {
-			actions.add(new SimplifyKeyframesFlagAction<>(animFlag, sequences, valueDiff));
+			actions.add(new SimplifyKeyframesFlagAction<>(animFlag, sequences, valueDiff, allowRemovePeaks));
 		}
 	}
 

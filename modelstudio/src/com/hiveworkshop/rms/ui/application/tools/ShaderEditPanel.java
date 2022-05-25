@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.ui.application.tools;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderManager;
 import com.hiveworkshop.rms.ui.application.viewer.ReteraShaderStuff.OtherUtils;
+import com.hiveworkshop.rms.ui.application.viewer.twiTestRenderMaster.BufferFiller;
 import com.hiveworkshop.rms.util.FramePopup;
 import com.hiveworkshop.rms.util.ScreenInfo;
 import net.infonode.docking.DockingWindow;
@@ -24,6 +25,7 @@ public class ShaderEditPanel extends JPanel {
 
 	private RSyntaxTextArea vertEditorPane;
 	private RSyntaxTextArea fragEditorPane;
+	boolean isHD;
 
 	AttributeSet redText;
 	AttributeSet whiteText;
@@ -39,29 +41,24 @@ public class ShaderEditPanel extends JPanel {
 	JLabel loadedLabel = new JLabel();
 	JTextPane logPane;
 
-	public ShaderEditPanel(ShaderManager shaderManager) {
+	public ShaderEditPanel(ShaderManager shaderManager, boolean isHD) {
 		super(new MigLayout("gap 0, ins 0, fill, wrap 1", "[grow]", "[50%][50%][]"));
 		this.shaderManager = shaderManager;
+		this.isHD = isHD;
+		loadShaderStrings(isHD);
+
 		StyleContext sc = StyleContext.getDefaultStyleContext();
 		redText = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.RED.brighter().brighter());
 		whiteText = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.WHITE.darker());
 
-		orgVertexShader = OtherUtils.loadShader("HDDiffuseVertColor.vert");
 		vertEditorPane = getRSEditorPane(orgVertexShader);
 		View vertex_view = getAsView("Vertex Shader", vertEditorPane, orgVertexShader, this::getLastVertexShader);
 		vertex_view.getWindowProperties().setDragEnabled(!ProgramGlobals.isLockLayout());
 		vertex_view.getWindowProperties().setDragEnabled(false);
-//		vertex_view.getViewProperties().getViewTitleBarProperties().setVisible(true);
 
-
-		orgFragmentShader = OtherUtils.loadShader("HDDiffuseVertColor.frag");
 		fragEditorPane = getRSEditorPane(orgFragmentShader);
-//		JPanel fsPanel = getEditorPanel(fragEditorPane, getButtonPanel(fragEditorPane, orgFragmentShader, this::getLastFragmentShader));
-		View fragment_view = getAsView("Fragment Shader", fragEditorPane, orgVertexShader, this::getLastFragmentShader);
-
-//		fragment_view.getWindowProperties().setDragEnabled(!ProgramGlobals.isLockLayout());
+		View fragment_view = getAsView("Fragment Shader", fragEditorPane, orgFragmentShader, this::getLastFragmentShader);
 		fragment_view.getWindowProperties().setDragEnabled(false);
-//		fragment_view.getViewProperties().getViewTitleBarProperties().setVisible(true);
 
 		View errorView = getErrorView();
 		TabWindow tabs = new TabWindow(new DockingWindow[] {vertex_view, fragment_view, errorView});
@@ -92,7 +89,7 @@ public class ShaderEditPanel extends JPanel {
 		}
 		currFragmentShader = newFragShader;
 
-		shaderManager.createCustomShader(currVertexShader, currFragmentShader);
+		shaderManager.createCustomShader(currVertexShader, currFragmentShader, isHD);
 
 		Timer timer = new Timer(50, e -> checkShader());
 		timer.setRepeats(false);
@@ -191,6 +188,10 @@ public class ShaderEditPanel extends JPanel {
 //		textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 		textArea.setText(text);
 
+		InputMap inputMap = textArea.getInputMap();
+		Object toggleCommentKey = inputMap.get(KeyStroke.getKeyStroke("ctrl pressed SLASH"));
+		inputMap.put(KeyStroke.getKeyStroke("ctrl pressed DIVIDE"), toggleCommentKey);
+
 		return textArea;
 	}
 
@@ -233,33 +234,22 @@ public class ShaderEditPanel extends JPanel {
 		return new View("log", null, jScrollPane);
 	}
 
-
-	public static void show(JComponent parent, ShaderManager shaderManager) {
-		ShaderEditPanel animCopyPanel = new ShaderEditPanel(shaderManager);
-//		animCopyPanel.setSize(1600, 900);
-		animCopyPanel.setPreferredSize(ScreenInfo.getSmallWindow());
-		FramePopup.show(animCopyPanel, parent, "Shader Editor");
-
-		ActionMap actionMap = animCopyPanel.vertEditorPane.getActionMap();
-		InputMap inputMap = animCopyPanel.vertEditorPane.getInputMap();
-
-		for(KeyStroke keyStroke : inputMap.allKeys()){
-			Object o = inputMap.get(keyStroke);
-			if(o != null){
-				Action action = actionMap.get(o);
-				if(action != null){
-
-					System.out.println("ActionKey[" + keyStroke + "] : " + o + " (" + action + ")");
-				}
-			}
+	private void loadShaderStrings(boolean isHD){
+		if(isHD){
+			orgVertexShader = OtherUtils.loadShader("HDDiffuseVertColor.vert");
+			orgFragmentShader = OtherUtils.loadShader("HDDiffuseVertColor.frag");
+		} else {
+			orgVertexShader = OtherUtils.loadShader("simpleDiffuse.vert");
+			orgFragmentShader = OtherUtils.loadShader("simpleDiffuse.frag");
 		}
-//		for(Object o : actionMap.allKeys()){
-//			Action action = actionMap.get(o);
-//			if(action != null){
-//
-//				System.out.println("ActionKey[" + o + "] : " + action);
-//			}
-//		}
+	}
+
+	public static void show(JComponent parent, BufferFiller bufferFiller) {
+		ShaderEditPanel shaderEditPanel = new ShaderEditPanel(bufferFiller.getShaderManager(), bufferFiller.isHD());
+//		shaderEditPanel.setSize(1600, 900);
+		shaderEditPanel.setPreferredSize(ScreenInfo.getSmallWindow());
+		FramePopup.show(shaderEditPanel, parent, "Shader Editor");
+
 	}
 
 }

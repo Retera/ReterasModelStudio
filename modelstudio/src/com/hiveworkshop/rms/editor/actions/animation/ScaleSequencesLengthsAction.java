@@ -37,7 +37,7 @@ public final class ScaleSequencesLengthsAction implements UndoAction {
 	public UndoAction undo() {
 		setSequenceLengths(sequenceToOldLength);
 		if (changeListener != null) {
-			changeListener.keyframesUpdated();
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}
@@ -46,7 +46,7 @@ public final class ScaleSequencesLengthsAction implements UndoAction {
 	public UndoAction redo() {
 		setSequenceLengths(sequenceToNewLength);
 		if (changeListener != null) {
-			changeListener.keyframesUpdated();
+			changeListener.animationParamsChanged();
 		}
 		return this;
 	}

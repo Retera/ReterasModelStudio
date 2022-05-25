@@ -25,6 +25,7 @@ public class NormalLinesShaderPipeline extends ShaderPipeline {
 		createUniform("u_color");
 		createUniform("u_viewPos");
 		createUniform("u_projection");
+		createUniform("u_view");
 	}
 
 	public void doRender() {
@@ -53,6 +54,8 @@ public class NormalLinesShaderPipeline extends ShaderPipeline {
 		glUniform("u_viewPos", Vec3.NEGATIVE_Z_AXIS);
 		fillMatrixBuffer(pipelineMatrixBuffer, currentMatrix);
 		GL20.glUniformMatrix4(getUniformLocation("u_projection"), false, pipelineMatrixBuffer);
+		fillMatrixBuffer(pipelineViewMatrixBuffer, viewMat);
+		GL20.glUniformMatrix4(getUniformLocation("u_view"), false, pipelineViewMatrixBuffer);
 
 
 //		GL11.glDrawArrays(glBeginType, 0, vertexCount);
@@ -101,5 +104,19 @@ public class NormalLinesShaderPipeline extends ShaderPipeline {
 
 		vertexCount++;
 
+	}
+	public void addVert(Vec3 pos, Vec3 norm, Vec4 tang, Vec2 uv, Vec4 col, Vec3 fres, int selectionStatus){
+		int baseOffset = vertexCount * STRIDE;
+		currBufferOffset = 0;
+		ensureCapacity(baseOffset + STRIDE);
+		position.set(pos, 1);
+		normal.set(norm, 1).normalizeAsV3();
+		color.set(col);
+
+
+		addToBuffer(baseOffset, position);
+		addToBuffer(baseOffset, normal);
+
+		vertexCount++;
 	}
 }

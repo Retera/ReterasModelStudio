@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.AbstractSelectionManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.selection.SelectionListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ModelEditorActionType3;
+import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.util.Mat4;
 
 import java.awt.*;
@@ -200,9 +201,11 @@ public final class ViewportActivityManager implements SelectionListener {
 	}
 
 	private boolean isSelect(MouseEvent e){
-		boolean isSel = (ProgramGlobals.getPrefs().getSelectMouseButton() & e.getModifiersEx()) > 0;
-		System.out.println("is selecting action: " + isSel);
-		return (ProgramGlobals.getPrefs().getSelectMouseButton() & e.getModifiersEx()) > 0;
+		ProgramPreferences prefs = ProgramGlobals.getPrefs();
+		int event_xor_MB = e.getModifiersEx() ^ prefs.getSelectMouseButton();
+		return event_xor_MB == 0 // no modifiers
+				|| (event_xor_MB ^ prefs.getAddSelectModifier()) == 0 // add selection modifier
+				||  (event_xor_MB ^ prefs.getRemoveSelectModifier()) == 0; // remove selection modifier
 	}
 	private boolean isEditing(MouseEvent e){
 		boolean isEd = (ProgramGlobals.getPrefs().getModifyMouseButton() & e.getModifiersEx()) > 0 && !selectionManager.isEmpty();

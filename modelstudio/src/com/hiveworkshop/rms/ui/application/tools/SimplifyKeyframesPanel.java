@@ -24,6 +24,7 @@ public class SimplifyKeyframesPanel extends JPanel {
 	CheckSpinner transCheckSpinner;
 	CheckSpinner scaleCheckSpinner;
 	CheckSpinner rotCheckSpinner;
+	JCheckBox sparePeaks;
 
 	public SimplifyKeyframesPanel() {
 		super(new MigLayout("fill", "", ""));
@@ -37,6 +38,8 @@ public class SimplifyKeyframesPanel extends JPanel {
 		add(scaleCheckSpinner, "wrap");
 		rotCheckSpinner = new CheckSpinner("Rotation keyframes", allowed);
 		add(rotCheckSpinner, "wrap");
+		sparePeaks = new JCheckBox("Keep keyframes at direction change");
+		add(sparePeaks, "wrap");
 
 		JButton simplifyButton = new JButton("Simplify");
 		simplifyButton.addActionListener(e -> simplifySelected());
@@ -47,8 +50,9 @@ public class SimplifyKeyframesPanel extends JPanel {
 		trans = transCheckSpinner.getValue() == null ? -1 : transCheckSpinner.getValue();
 		scale = scaleCheckSpinner.getValue() == null ? -1 : scaleCheckSpinner.getValue();
 		rot = rotCheckSpinner.getValue() == null ? -1 : rotCheckSpinner.getValue();
+		boolean allowRemovePeaks = !sparePeaks.isSelected();
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
-		SimplifyKeyframesAction action = new SimplifyKeyframesAction(modelPanel.getModelView(), trans, scale, rot);
+		SimplifyKeyframesAction action = new SimplifyKeyframesAction(modelPanel.getModelView(), trans, scale, rot, allowRemovePeaks);
 		modelPanel.getUndoManager().pushAction(action.redo());
 
 		JOptionPane.showMessageDialog(this, "Removed " + action.getNumberOfEntriesToRemove() + " keyframes", "Removed Keyframes", JOptionPane.PLAIN_MESSAGE);
@@ -58,7 +62,8 @@ public class SimplifyKeyframesPanel extends JPanel {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if(modelPanel != null) {
 			EditableModel model = modelPanel.getModel();
-			SimplifyKeyframesAction action = new SimplifyKeyframesAction(ModelUtils.getAllAnimFlags(model), model.getAllSequences(), 0);
+			boolean allowRemovePeaks = false;
+			SimplifyKeyframesAction action = new SimplifyKeyframesAction(ModelUtils.getAllAnimFlags(model), model.getAllSequences(), 0, allowRemovePeaks);
 			modelPanel.getUndoManager().pushAction(action.redo());
 
 			JOptionPane.showMessageDialog(ProgramGlobals.getMainPanel(), "Removed " + action.getNumberOfEntriesToRemove() + " keyframes", "Removed Keyframes", JOptionPane.PLAIN_MESSAGE);
@@ -96,7 +101,8 @@ public class SimplifyKeyframesPanel extends JPanel {
 	public static void simplifyKeyframes(EditableModel model) {
 		List<AnimFlag<?>> allAnimFlags = ModelUtils.getAllAnimFlags(model);
 
-		SimplifyKeyframesAction action = new SimplifyKeyframesAction(allAnimFlags, model.getAllSequences(), 0.1f);
+		boolean allowRemovePeaks = false;
+		SimplifyKeyframesAction action = new SimplifyKeyframesAction(allAnimFlags, model.getAllSequences(), 0.1f, allowRemovePeaks);
 		ProgramGlobals.getCurrentModelPanel().getUndoManager().pushAction(action.redo());
 	}
 

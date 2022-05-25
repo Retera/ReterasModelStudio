@@ -31,6 +31,7 @@ public class ModelScale {
 	}
 
 	public static void scale(EditableModel mdl, Vec3 scale, Vec3 center) {
+		double avgScale = (scale.x + scale.y + scale.z) / 3.0;
 		for (AnimFlag<?> flag : ModelUtils.getAllAnimFlags(mdl)) {
 			if (flag.getTypeId() == AnimFlag.TRANSLATION) {
 				for (Sequence anim : flag.getAnimMap().keySet()) {
@@ -53,7 +54,7 @@ public class ModelScale {
 				vertex.scale(center, scale);
 			}
 			for (Animation anim : geoset.getAnimExts().keySet()) {
-				scale(center, scale, geoset.getAnimExtent(anim));
+				scale(center, scale, geoset.getAnimExtent(anim), avgScale);
 			}
 		}
 		for (IdObject object : mdl.getIdObjects()) {
@@ -70,10 +71,8 @@ public class ModelScale {
 			for (Vec3 vertex : collision.getVertices()) {
 				vertex.scale(center, scale);
 			}
-			ExtLog extents = collision.getExtents();
-			scale(center, scale, extents);
+			collision.setBoundsRadius(collision.getBoundsRadius()*avgScale);
 		}
-		double avgScale = (scale.x + scale.y + scale.z) / 3;
 		for (ParticleEmitter2 particle : mdl.getParticleEmitter2s()) {
 			particle.setLength(particle.getLength() * avgScale);
 			particle.setWidth(particle.getWidth() * avgScale);
@@ -81,13 +80,13 @@ public class ModelScale {
 			particle.setSpeed(particle.getSpeed() * avgScale);
 			particle.setGravity(particle.getGravity() * avgScale);
 		}
-		scale(center, scale, mdl.getExtents());
+		scale(center, scale, mdl.getExtents(), avgScale);
 		for (Animation anim : mdl.getAnims()) {
-			scale(center, scale, anim.getExtents());
+			scale(center, scale, anim.getExtents(), avgScale);
 		}
 	}
 
-	private static void scale(Vec3 center, Vec3 scale, final ExtLog extents) {
+	private static void scale(Vec3 center, Vec3 scale, ExtLog extents, double avgScale) {
 		if (extents == null) {
 			return;
 		}
@@ -96,6 +95,9 @@ public class ModelScale {
 		}
 		if (extents.getMinimumExtent() != null) {
 			extents.getMinimumExtent().scale(center, scale);
+		}
+		if(extents.hasBoundsRadius()){
+			extents.setBoundsRadius(extents.getBoundsRadius() * avgScale);
 		}
 	}
 

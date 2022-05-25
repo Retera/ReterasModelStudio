@@ -30,7 +30,6 @@ vec3 getSpecular(vec4 ormTexel, vec3 normal, vec3 lightDir){
     vec3 reflectDir = reflect(-lightDir, normal);
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-//    vec3 specular = vec3(max(ormTexel.b-0.5, 0.0)) * spec /* * reflectionsTexel.xyz*/;
     vec3 specular = vec3(max(ormTexel.b, 0.0)) * spec /* * reflectionsTexel.xyz*/;
     return specular;
 }
@@ -49,64 +48,36 @@ void main() {
     vec4 color;
     vec4 ormTexel = texture2D(u_textureORM, v_uv);
     vec4 teamColorTexel = texture2D(u_textureTeamColor, v_uv);
+    vec4 normalTexel = texture2D(u_textureNormal, v_uv);
+    vec4 emissiveTexel = texture2D(u_textureEmissive, v_uv);
     if(u_textureUsed != 0) {
         vec4 texel = texture2D(u_textureDiffuse, v_uv);
-//        color = vec4(texel.rgb * ((1.0 - ormTexel.a) + (teamColorTexel.rgb * ormTexel.a)), texel.a) * v_color;
-        color = vec4(texel.rgba);
+        color = vec4(texel.rgb * ((1.0 - ormTexel.a) + (teamColorTexel.rgb * ormTexel.a)), texel.a) * v_color;
+//        color = vec4(texel.rgba);
     } else {
         color = v_colorAlt;
-//        color = vec4(1,0,1,1);
     }
-    if(u_alphaTest != 0 && color.a < 0.75) {
+    if(u_textureUsed != 0 && u_alphaTest != 0 && color.a < 0.75) {
         discard;
     }
-    if(u_lightingEnabled != 0) {
+    if(u_textureUsed != 0 && u_lightingEnabled != 0 /* && u_textureUsed != 0 */) {
+
         vec2 normalXY = texture2D(u_textureNormal, v_uv).xy * 2.0 - 1.0;
         vec3 normal = vec3(normalXY, sqrt(1.0 - dot(normalXY,normalXY)));
-        vec4 emissiveTexel = texture2D(u_textureEmissive, v_uv);
-//        vec4 reflectionsTexel = clamp(0.2+2.0*texture2D(u_textureReflections, vec2(gl_FragCoord.x/u_viewportSize.x, -gl_FragCoord.y/u_viewportSize.y)), 0.0, 1.0);
+
         vec3 lightDir = normalize(v_tangentViewPos);
         float cosTheta = (dot(lightDir, normal), 1.0);
         float lambertFactor = clamp(cosTheta, 0.0, 1.0);
         vec3 diffuse = (clamp(lambertFactor * (ormTexel.r) + 0.1, 0.0, 1.0)) * color.xyz;
-//        vec3 diffuse = cosTheta * color.rgb * ((ormTexel.r));
 
-//        vec3 viewDir = normalize(v_tangentViewPos - v_tangentFragPos);
-//        vec3 reflectDir = reflect(-lightDir, normal);
-//        vec3 halfwayDir = normalize(lightDir + viewDir);
-//        float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
         vec3 specular = getSpecular(ormTexel, normal, lightDir);
         vec3 fresnelColor = vec3(u_fresnelColor.rgb * (1.0 - u_fresnelTeamColor) + teamColorTexel.rgb *  u_fresnelTeamColor) * v_color.rgb;
-//        vec3 fresnelColor = vec3(.1,.1,.1) * v_color.rgb;
-//        vec3 fresnel = fresnelColor*pow(1.0 - cosTheta, 1.0)*u_fresnelColor.a;
+
         vec3 fresnel = fresnelColor*pow(1.0 - lambertFactor, 1.0)*u_fresnelColor.a;
-//        vec3 fresnel = fresnelColor*pow(clamp(1.0 - cosTheta, 0.0, 1.0), 1.0)*u_fresnelColor.a;
-//        FragColor = vec4(emissiveTexel.xyz + specular + diffuse + fresnel, color.a);
 
 //        float shadow = ShadowCalculation(ormTexel, lightDir);
         FragColor = vec4(emissiveTexel.rgb + specular + diffuse + fresnel, color.a);
-//        FragColor = vec4(ormTexel.rgb, 1);
     } else {
-//        ormTexel = vec4(0.5,0.5,0.0,1.0);
-//        vec3 normal = v_normal.xyz;
-//        vec4 emissiveTexel = vec4(0.0,0.0,0.0,1.0);
-//        //        vec4 reflectionsTexel = clamp(0.2+2.0*texture2D(u_textureReflections, vec2(gl_FragCoord.x/u_viewportSize.x, -gl_FragCoord.y/u_viewportSize.y)), 0.0, 1.0);
-//        vec3 lightDir = normalize(v_tangentViewPos);
-//        float cosTheta = (dot(lightDir, normal), 1.0);
-//        float lambertFactor = clamp(cosTheta, 0.0, 1.0);
-////        vec3 diffuse = color.xyz;
-//        vec3 diffuse = (clamp(lambertFactor * (ormTexel.r) + 0.1, 0.0, 1.0)) * color.xyz;
-//
-//        vec3 specular = getSpecular(ormTexel, normal, lightDir);
-////        vec3 fresnelColor = vec3(u_fresnelColor.rgb * (1.0 - u_fresnelTeamColor) + teamColorTexel.rgb *  u_fresnelTeamColor) * v_color.rgb;
-//
-////        vec3 fresnel = fresnelColor*pow(1.0 - lambertFactor, 1.0)*u_fresnelColor.a;
-//
-////        FragColor = vec4(emissiveTexel.rgb + specular + diffuse, color.a);
-//        FragColor = vec4(specular + diffuse, color.a);
-//
-
-
         FragColor = color;
     }
 

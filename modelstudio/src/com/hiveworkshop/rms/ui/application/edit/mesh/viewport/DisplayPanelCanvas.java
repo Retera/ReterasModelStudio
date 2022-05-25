@@ -35,7 +35,6 @@ public class DisplayPanelCanvas extends JPanel {
 		super(new MigLayout("gap 0, ins 0, hidemode 2", "[grow][]", "[grow]"));
 //		this.viewportListener = windowHandler2.getViewportListener();
 		setupCopyPaste(ProgramGlobals.getViewportTransferHandler());
-//		addMouseMotionListener(getMouseAdapter());
 
 		cursorManager = this::setCursor;
 
@@ -49,11 +48,9 @@ public class DisplayPanelCanvas extends JPanel {
 			vp2.getCameraHandler().toggleOrtho();
 			viewportSettings = vp2.getViewportSettings();
 			viewportSettings.setShowNodes(true);
-//			vp2.getCameraHandler().setAllowToggleOrtho(false);
 
 			viewHolderPanel.add(vp2, "spany, growy, growx");
 			add(viewHolderPanel, "spany, growy, growx");
-//			add(vp2, "spany, growy, growx");
 		} catch (LWJGLException e) {
 			e.printStackTrace();
 		}

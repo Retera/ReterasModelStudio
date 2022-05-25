@@ -6,6 +6,7 @@ import com.hiveworkshop.rms.editor.render3d.RenderParticleEmitter2;
 import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
+import com.hiveworkshop.rms.ui.application.viewer.MouseListenerThing;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.CameraManager;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.GridPainter2;
 import com.hiveworkshop.rms.ui.application.viewer.ObjectRenderers.ShaderManager;
@@ -59,6 +60,8 @@ public class BufferFiller {
 
 	Color bgColor;
 
+	boolean isHD = true;
+
 	public BufferFiller(ModelView modelView, RenderModel renderModel, boolean loadDefaultSequence){
 		this.programPreferences = ProgramGlobals.getPrefs();
 
@@ -73,6 +76,15 @@ public class BufferFiller {
 
 	public ShaderManager getShaderManager() {
 		return shaderManager;
+	}
+
+	public BufferFiller setHD(boolean HD) {
+		isHD = HD;
+		return this;
+	}
+
+	public boolean isHD() {
+		return isHD;
 	}
 
 	public void setModel(ModelView modelView, RenderModel renderModel, boolean loadDefaultSequence) {
@@ -104,7 +116,7 @@ public class BufferFiller {
 	private void setUpdateInterval(int updateInterval){
 		this.updateInterval = updateInterval;
 	}
-	private void runUpdate(boolean showNormals, boolean show3dVerts, boolean renderTextures){
+	private void runUpdate(){
 		long millis = System.currentTimeMillis();
 		if(nextUpdate < millis){
 			nextUpdate = millis + updateInterval;
@@ -114,14 +126,13 @@ public class BufferFiller {
 			}
 			reloadIfNeeded();
 			updateRenderModel();
-			fillBuffers(true, true, true);
+			fillBuffers();
 		}
 	}
 
 
 	public void initGL() {
-		ShaderPipeline pipeline = shaderManager.getOrCreatePipeline();
-		pipeline.onGlobalPipelineSet();
+		ShaderPipeline pipeline = shaderManager.getOrCreatePipeline(isHD);
 		try {
 			if ((programPreferences == null) || programPreferences.textureModels()) {
 				forceReloadTextures();
@@ -141,16 +152,15 @@ public class BufferFiller {
 			throw new RuntimeException(e);
 		}
 	}
-	public void paintCanvas(ViewportCanvas viewportCanvas) {
-		ViewportSettings viewportSettings = viewportCanvas.getViewportSettings();
-		runUpdate(viewportSettings.isShowNormals(), viewportSettings.isShow3dVerts(), viewportSettings.isRenderTextures());
+	public void paintCanvas(ViewportSettings viewportSettings, CameraManager cameraManager, MouseListenerThing mouseAdapter, Component viewportCanvas) {
+		runUpdate();
 		if ((System.currentTimeMillis() - lastExceptionTimeMillis) < 5000) {
 			System.err.println("AnimatedPerspectiveViewport omitting frames due to avoid Exception log spam");
 			return;
 		}
 		try {
 
-			paintCanvas(viewportCanvas.getCameraManager(), viewportSettings, viewportCanvas);
+			paintCanvas(cameraManager, viewportSettings, mouseAdapter, viewportCanvas);
 
 		}
 		catch (final Throwable e) {
@@ -167,20 +177,36 @@ public class BufferFiller {
 		}
 	}
 
-	private void fillBuffers(boolean showNormals, boolean show3dVerts, boolean renderTextures){
+	private void fillBuffers(){
 
 		programPreferences.getPerspectiveBackgroundColor().getColorComponents(backgroundColor);
 		if(renderModel != null){
-			geosetBufferFiller.fillBuffer(shaderManager.getOrCreatePipeline(), renderTextures);
+			geosetBufferFiller.fillBuffer(shaderManager.getOrCreatePipeline(isHD), true);
 
 			RendererThing1.fillNodeBuffer(shaderManager.getOrCreateBoneMarkerShaderPipeline(), modelView, renderModel);
 
-			if (showNormals) {
-				geosetBufferFiller.fillNormalsBuffer(shaderManager.getOrCreateNormPipeline());
+			geosetBufferFiller.fillNormalsBuffer(shaderManager.getOrCreateNormPipeline());
+			geosetBufferFiller.fillVertsBuffer(shaderManager.getOrCreateVertPipeline());
+
+			if (programPreferences.showPerspectiveGrid()) {
+				gridPainter2.fillGridBuffer(shaderManager.getOrCreateGridPipeline());
 			}
-			if (show3dVerts) {
-				geosetBufferFiller.fillVertsBuffer(shaderManager.getOrCreateVertPipeline());
-			}
+
+//			if (programPreferences != null && programPreferences.getRenderParticles()) {
+//				particleBufferFiller.fillParticleHeap();
+//			}
+		}
+	}
+	private void fillBuffers1(){
+
+		programPreferences.getPerspectiveBackgroundColor().getColorComponents(backgroundColor);
+		if(renderModel != null){
+			geosetBufferFiller.fillBuffer(shaderManager.getOrCreatePipeline(), true);
+
+			RendererThing1.fillNodeBuffer(shaderManager.getOrCreateBoneMarkerShaderPipeline(), modelView, renderModel);
+
+			geosetBufferFiller.fillNormalsBuffer(shaderManager.getOrCreateNormPipeline());
+			geosetBufferFiller.fillVertsBuffer(shaderManager.getOrCreateVertPipeline());
 
 			if (programPreferences.showPerspectiveGrid()) {
 				gridPainter2.fillGridBuffer(shaderManager.getOrCreateGridPipeline());
@@ -192,7 +218,119 @@ public class BufferFiller {
 		}
 	}
 
-	public void paintCanvas(CameraManager cameraManager, ViewportSettings viewportSettings, ViewportCanvas viewportCanvas) {
+	public void paintCanvas(CameraManager cameraManager, ViewportSettings viewportSettings, MouseListenerThing mouseAdapter, Component viewportCanvas) {
+		ShaderPipeline pipeline = shaderManager.getOrCreatePipeline(isHD);
+		if (programPreferences != null && viewportSettings.isWireFrame()) {
+			pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
+		} else {
+			pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+		}
+		cameraManager.updateCamera();
+
+		pipeline.glViewport(viewportCanvas.getWidth(), viewportCanvas.getHeight());
+		GL11.glViewport(0, 0, viewportCanvas.getWidth(), viewportCanvas.getHeight());
+
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+		GL11.glDepthFunc(GL11.GL_LEQUAL);
+		GL11.glDepthMask(true);
+		pipeline.glEnableIfNeeded(GL11.GL_COLOR_MATERIAL);
+		pipeline.glEnableIfNeeded(GL11.GL_LIGHTING);
+		pipeline.glEnableIfNeeded(GL11.GL_LIGHT0);
+		pipeline.glEnableIfNeeded(GL11.GL_LIGHT1);
+		pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+		GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+		if (viewportSettings.isRenderTextures()) {
+			pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
+		} else {
+			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+		}
+//			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, autoRepainting ? 1.0f : 0.0f);
+//		GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 0.0f);
+
+		pipeline.glMatrixMode(GL11.GL_PROJECTION);
+		pipeline.glLoadIdentity();
+
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+//		GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 0.0f);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glClearColor(0f, 0f, 0f, 0.0f);
+		GL11.glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0.0f);
+
+		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+		pipeline.glLoadIdentity();
+
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
+
+		setUpLights(pipeline);
+
+		if (viewportSettings.isRenderTextures()) {
+			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+			pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
+		} else {
+			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+		}
+
+
+		if(renderModel != null){
+			pipeline.doRender(GL11.GL_TRIANGLES);
+			if(viewportSettings.isShowNodes()){
+				RendererThing1.renderNodes(cameraManager, viewportCanvas, shaderManager.getOrCreateBoneMarkerShaderPipeline());
+			}
+
+
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
+
+
+			pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+			if (viewportSettings.isShowNormals()) {
+				RendererThing1.renderNormals(cameraManager, viewportCanvas, shaderManager.getOrCreateNormPipeline());
+			}
+			if (viewportSettings.isShow3dVerts()) {
+				RendererThing1.render3DVerts(cameraManager, viewportCanvas, shaderManager.getOrCreateVertPipeline());
+			}
+
+
+			RendererThing1.fillSelectionBoxBuffer(mouseAdapter, shaderManager.getOrCreateSelectionPipeline());
+			RendererThing1.paintSelectionBox(cameraManager, mouseAdapter, viewportCanvas, shaderManager.getOrCreateSelectionPipeline());
+
+			if (programPreferences.showPerspectiveGrid()) {
+				RendererThing1.paintGrid(cameraManager, viewportCanvas, shaderManager.getOrCreateGridPipeline());
+			}
+
+			if (programPreferences != null && programPreferences.getRenderParticles()) {
+				renderParticles(cameraManager, viewportCanvas);
+			}
+		}
+		GL11.glDepthMask(false);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glDisable(GL11.GL_CULL_FACE);
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+//		if (autoRepainting) {
+//
+//			paintCanvas();
+//		}
+	}
+
+	private void renderParticles(CameraManager cameraManager, Component viewportCanvas) {
+		ShaderPipeline pipeline = shaderManager.getOrCreateParticleShaderPipeline();
+		pipeline.glViewport(viewportCanvas.getWidth(), viewportCanvas.getHeight());
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
+		for(RenderParticleEmitter2 emitter2 : renderModel.getRenderParticleEmitters2()) {
+			pipeline.prepare();
+			particleBufferFiller.fillParticleHeap(pipeline, emitter2);
+			pipeline.doRender(GL11.GL_TRIANGLES);
+		}
+	}
+
+	public void paintCanvas1(CameraManager cameraManager, ViewportSettings viewportSettings, MouseListenerThing mouseAdapter, Component viewportCanvas) {
 		ShaderPipeline pipeline = shaderManager.getOrCreatePipeline();
 		if (programPreferences != null && viewportSettings.isWireFrame()) {
 			pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
@@ -235,7 +373,9 @@ public class BufferFiller {
 		pipeline.glMatrixMode(GL11.GL_MODELVIEW);
 		pipeline.glLoadIdentity();
 
-		pipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+		pipeline.glSetViewMatrix(cameraManager.getViewMat());
+		pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 
 		setUpLights(pipeline);
 
@@ -267,22 +407,15 @@ public class BufferFiller {
 			}
 
 
-			RendererThing1.fillSelectionBoxBuffer(viewportCanvas.getMouseAdapter(), shaderManager.getOrCreateSelectionPipeline());
-			RendererThing1.paintSelectionBox(cameraManager, viewportCanvas, shaderManager.getOrCreateSelectionPipeline());
+			RendererThing1.fillSelectionBoxBuffer(mouseAdapter, shaderManager.getOrCreateSelectionPipeline());
+			RendererThing1.paintSelectionBox(cameraManager, mouseAdapter, viewportCanvas, shaderManager.getOrCreateSelectionPipeline());
 
 			if (programPreferences.showPerspectiveGrid()) {
 				RendererThing1.paintGrid(cameraManager, viewportCanvas, shaderManager.getOrCreateGridPipeline());
 			}
 
 			if (programPreferences != null && programPreferences.getRenderParticles()) {
-				ShaderPipeline particleShaderPipeline = shaderManager.getOrCreateParticleShaderPipeline();
-				particleShaderPipeline.glViewport(viewportCanvas.getWidth(), viewportCanvas.getHeight());
-				particleShaderPipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
-				for(RenderParticleEmitter2 emitter2 : renderModel.getRenderParticleEmitters2()) {
-					particleShaderPipeline.prepare();
-					particleBufferFiller.fillParticleHeap(particleShaderPipeline, emitter2);
-					particleShaderPipeline.doRender(GL11.GL_TRIANGLES);
-				}
+				renderParticles(cameraManager, viewportCanvas);
 			}
 		}
 		GL11.glDepthMask(false);
@@ -297,6 +430,115 @@ public class BufferFiller {
 	}
 
 	public ByteBuffer paintGL2(CameraManager cameraManager, ViewportSettings viewportSettings, int width, int height) {
+		try {
+			ShaderPipeline pipeline = shaderManager.getOrCreatePipeline(isHD);
+			if (programPreferences != null && viewportSettings.isWireFrame()) {
+				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
+			} else {
+				pipeline.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+			}
+			cameraManager.updateCamera();
+
+			pipeline.glViewport(width, height);
+			GL11.glViewport(0, 0, width, height);
+
+			GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+			GL11.glDepthFunc(GL11.GL_LEQUAL);
+			GL11.glDepthMask(true);
+			pipeline.glEnableIfNeeded(GL11.GL_COLOR_MATERIAL);
+			pipeline.glEnableIfNeeded(GL11.GL_LIGHTING);
+			pipeline.glEnableIfNeeded(GL11.GL_LIGHT0);
+			pipeline.glEnableIfNeeded(GL11.GL_LIGHT1);
+			pipeline.glEnableIfNeeded(GL11.GL_NORMALIZE);
+			GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+			if (viewportSettings.isRenderTextures()) {
+				pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
+			} else {
+				pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+			}
+//			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, autoRepainting ? 1.0f : 0.0f);
+//			GL11.glClearColor(backgroundRed, backgroundGreen, backgroundBlue, 0.0f);
+
+			pipeline.glMatrixMode(GL11.GL_PROJECTION);
+			pipeline.glLoadIdentity();
+
+//			GL11.glEnable(GL11.);
+			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+			GL11.glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], 0.0f);
+			pipeline.glMatrixMode(GL11.GL_MODELVIEW);
+			pipeline.glLoadIdentity();
+
+			pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			pipeline.glSetViewMatrix(cameraManager.getViewMat());
+			pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
+
+			setUpLights(pipeline);
+
+			if (viewportSettings.isRenderTextures()) {
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_MODULATE);
+				pipeline.glEnableIfNeeded(GL11.GL_TEXTURE_2D);
+			} else {
+				pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+			}
+
+
+			if(renderModel != null){
+				pipeline.doRender(GL11.GL_TRIANGLES);
+				GL11.glDisable(GL11.GL_TEXTURE_2D);
+				if(viewportSettings.isShowNodes()){
+					RendererThing1.renderNodes(cameraManager, shaderManager.getOrCreateBoneMarkerShaderPipeline(), width, height);
+				}
+
+
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				GL11.glTexEnvi(GL11.GL_TEXTURE_ENV, GL11.GL_TEXTURE_ENV_MODE, GL11.GL_BLEND);
+
+
+
+				pipeline.glDisableIfNeeded(GL11.GL_TEXTURE_2D);
+				if (viewportSettings.isShowNormals()) {
+					RendererThing1.renderNormals(cameraManager, shaderManager.getOrCreateNormPipeline(), width, height);
+				}
+				if (viewportSettings.isShow3dVerts()) {
+					RendererThing1.render3DVerts(cameraManager, shaderManager.getOrCreateVertPipeline(), width, height);
+				}
+
+//				RendererThing1.fillSelectionBoxBuffer(viewportCanvas.getMouseAdapter(), shaderManager.getOrCreateSelectionPipeline());
+//				RendererThing1.paintSelectionBox(cameraManager, viewportCanvas, shaderManager.getOrCreateSelectionPipeline());
+
+				if (programPreferences.showPerspectiveGrid()) {
+					RendererThing1.paintGrid(cameraManager, shaderManager.getOrCreateGridPipeline(), width, height);
+				}
+
+//			if (programPreferences != null && programPreferences.getRenderParticles()) {
+//				renderParticles();
+//			}
+			}
+			ByteBuffer pixels = ByteBuffer.allocateDirect(width * height * 4);
+
+
+			GL11.glDepthMask(false);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glDisable(GL11.GL_CULL_FACE);
+			GL11.glEnable(GL11.GL_DEPTH_TEST);
+			GL11.glReadPixels(0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+
+			return pixels;
+		} catch (final Throwable e) {
+			e.printStackTrace();
+			lastExceptionTimeMillis = System.currentTimeMillis();
+			if ((lastThrownErrorClass == null) || (lastThrownErrorClass != e.getClass())) {
+				lastThrownErrorClass = e.getClass();
+				popupCount++;
+				if (popupCount < 10) {
+					ExceptionPopup.display(e);
+				}
+			}
+			throw new RuntimeException(e);
+		}
+	}
+	public ByteBuffer paintGL21(CameraManager cameraManager, ViewportSettings viewportSettings, int width, int height) {
 		try {
 			ShaderPipeline pipeline = shaderManager.getOrCreatePipeline();
 			if (programPreferences != null && viewportSettings.isWireFrame()) {
@@ -336,7 +578,9 @@ public class BufferFiller {
 			pipeline.glMatrixMode(GL11.GL_MODELVIEW);
 			pipeline.glLoadIdentity();
 
-			pipeline.glSetProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			pipeline.glSetViewProjectionMatrix(cameraManager.getViewProjectionMatrix());
+			pipeline.glSetViewMatrix(cameraManager.getViewMat());
+			pipeline.glSetProjectionMatrix(cameraManager.getProjectionMat());
 
 			setUpLights(pipeline);
 
