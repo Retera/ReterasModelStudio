@@ -65,7 +65,7 @@ public class ParticleEditPanel extends JPanel {
 //		}
 
 
-		TimeEnvironmentImpl renderEnv = tempModelHandler.getPreviewTimeEnv();
+		TimeEnvironmentImpl renderEnv = tempModelHandler.getPreviewRenderModel().getTimeEnvironment();
 		renderEnv.setRelativeAnimationTime(0);
 		renderEnv.setLive(true);
 
@@ -287,7 +287,7 @@ public class ParticleEditPanel extends JPanel {
 		tempModel.add(copy);
 
 		ModelHandler modelHandler = new ModelHandler(tempModel);
-		modelHandler.getPreviewTimeEnv().setSequence(animation);
+		modelHandler.getPreviewRenderModel().getTimeEnvironment().setSequence(animation);
 		modelHandler.getPreviewRenderModel().setVetoOverrideParticles(true);
 
 		return modelHandler;

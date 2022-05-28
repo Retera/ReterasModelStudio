@@ -614,39 +614,99 @@ public class Quat extends Vec4 {
 		return this;
 	}
 	public Quat setFromMat(Mat4 m) {
+		return setFromUnnormalized(m);
+//		float s;
+//		float tr = m.m00 + m.m11 + m.m22;
+//		if (tr >= 0.0) {
+//			s = (float) Math.sqrt(tr + 1.0);
+//			w = s * 0.5f;
+//			s = 0.5f / s;
+//			x = (m.m21 - m.m12) * s;
+//			y = (m.m02 - m.m20) * s;
+//			z = (m.m10 - m.m01) * s;
+//		} else {
+//			float max = Math.max(Math.max(m.m00, m.m11), m.m22);
+//			if (max == m.m00) {
+//				s = (float) Math.sqrt(m.m00 - (m.m11 + m.m22) + 1.0);
+//				x = s * 0.5f;
+//				s = 0.5f / s;
+//				y = (m.m01 + m.m10) * s;
+//				z = (m.m20 + m.m02) * s;
+//				w = (m.m21 - m.m12) * s;
+//			} else if (max == m.m11) {
+//				s = (float) Math.sqrt(m.m11 - (m.m22 + m.m00) + 1.0);
+//				y = s * 0.5f;
+//				s = 0.5f / s;
+//				z = (m.m12 + m.m21) * s;
+//				x = (m.m01 + m.m10) * s;
+//				w = (m.m02 - m.m20) * s;
+//			} else {
+//				s = (float) Math.sqrt(m.m22 - (m.m00 + m.m11) + 1.0);
+//				z = s * 0.5f;
+//				s = 0.5f / s;
+//				x = (m.m20 + m.m02) * s;
+//				y = (m.m12 + m.m21) * s;
+//				w = (m.m10 - m.m01) * s;
+//			}
+//		}
+//		return this;
+	}
 
+
+	public Quat setFromUnnormalized(Mat4 mat4) {
+		return setFromUnnormalized(mat4.m00, mat4.m01, mat4.m02, mat4.m10, mat4.m11, mat4.m12, mat4.m20, mat4.m21, mat4.m22);
+	}
+	public Quat setFromUnnormalized(float m00, float m01, float m02, float m10, float m11, float m12, float m20, float m21, float m22) {
+		float nm00 = m00, nm01 = m01, nm02 = m02;
+		float nm10 = m10, nm11 = m11, nm12 = m12;
+		float nm20 = m20, nm21 = m21, nm22 = m22;
+		float lenX = invsqrt(m00 * m00 + m01 * m01 + m02 * m02);
+		float lenY = invsqrt(m10 * m10 + m11 * m11 + m12 * m12);
+		float lenZ = invsqrt(m20 * m20 + m21 * m21 + m22 * m22);
+		nm00 *= lenX; nm01 *= lenX; nm02 *= lenX;
+		nm10 *= lenY; nm11 *= lenY; nm12 *= lenY;
+		nm20 *= lenZ; nm21 *= lenZ; nm22 *= lenZ;
+		return setFromNormalized(nm00, nm01, nm02, nm10, nm11, nm12, nm20, nm21, nm22);
+	}
+
+	public static float invsqrt(float r) {
+		return 1.0f / (float) Math.sqrt(r);
+	}
+	public Quat setFromNormalized(Mat4 mat4) {
+		return setFromNormalized(mat4.m00, mat4.m01, mat4.m02, mat4.m10, mat4.m11, mat4.m12, mat4.m20, mat4.m21, mat4.m22);
+	}
+	public Quat setFromNormalized(float m00, float m01, float m02, float m10, float m11, float m12, float m20, float m21, float m22) {
 		float s;
-		float tr = m.m00 + m.m11 + m.m22;
-		if (tr >= 0.0) {
-			s = (float) Math.sqrt(tr + 1.0);
+		float tr = m00 + m11 + m22;
+		if (tr >= 0.0f) {
+			s = (float) Math.sqrt(tr + 1.0f);
 			w = s * 0.5f;
 			s = 0.5f / s;
-			x = (m.m21 - m.m12) * s;
-			y = (m.m02 - m.m20) * s;
-			z = (m.m10 - m.m01) * s;
+			x = (m12 - m21) * s;
+			y = (m20 - m02) * s;
+			z = (m01 - m10) * s;
 		} else {
-			float max = Math.max(Math.max(m.m00, m.m11), m.m22);
-			if (max == m.m00) {
-				s = (float) Math.sqrt(m.m00 - (m.m11 + m.m22) + 1.0);
+			if (m00 >= m11 && m00 >= m22) {
+				s = (float) Math.sqrt(m00 - (m11 + m22) + 1.0f);
 				x = s * 0.5f;
 				s = 0.5f / s;
-				y = (m.m01 + m.m10) * s;
-				z = (m.m20 + m.m02) * s;
-				w = (m.m21 - m.m12) * s;
-			} else if (max == m.m11) {
-				s = (float) Math.sqrt(m.m11 - (m.m22 + m.m00) + 1.0);
+				y = (m10 + m01) * s;
+				z = (m02 + m20) * s;
+				w = (m12 - m21) * s;
+			} else if (m11 > m22) {
+				s = (float) Math.sqrt(m11 - (m22 + m00) + 1.0f);
 				y = s * 0.5f;
 				s = 0.5f / s;
-				z = (m.m12 + m.m21) * s;
-				x = (m.m01 + m.m10) * s;
-				w = (m.m02 - m.m20) * s;
+				z = (m21 + m12) * s;
+				x = (m10 + m01) * s;
+				w = (m20 - m02) * s;
 			} else {
-				s = (float) Math.sqrt(m.m22 - (m.m00 + m.m11) + 1.0);
+				s = (float) Math.sqrt(m22 - (m00 + m11) + 1.0f);
 				z = s * 0.5f;
 				s = 0.5f / s;
-				x = (m.m20 + m.m02) * s;
-				y = (m.m12 + m.m21) * s;
-				w = (m.m10 - m.m01) * s;
+				x = (m02 + m20) * s;
+				y = (m21 + m12) * s;
+				w = (m01 - m10) * s;
 			}
 		}
 		return this;

@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.mesh.activity.UndoManager;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.CollapsablePanel;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -24,7 +25,7 @@ import java.util.function.Consumer;
 
 public abstract class ValuePanel<T> extends JPanel {
 	protected final JComponent staticComponent;
-	protected final JComboBox<InterpolationType> interpTypeBox;
+	protected final TwiComboBox<InterpolationType> interpTypeBox;
 	protected final UndoManager undoManager;
 	protected final ModelHandler modelHandler;
 	protected final ModelStructureChangeListener changeListener;
@@ -93,8 +94,9 @@ public abstract class ValuePanel<T> extends JPanel {
 		dynamicPanel.add(spinInterpPanel, "wrap, hidemode 3");
 
 		spinInterpPanel.add(new JLabel("Interpolation:"));
-		interpTypeBox = new JComboBox<>(InterpolationType.values());
-		interpTypeBox.addItemListener(this::setInterpolationType);
+		interpTypeBox = new TwiComboBox<>(InterpolationType.values(), InterpolationType.DONT_INTERP);
+//		interpTypeBox.addItemListener(this::setInterpolationType);
+		interpTypeBox.addOnSelectItemListener(this::setInterpolationType);
 		spinInterpPanel.add(interpTypeBox, "wrap, hidemode 3");
 
 		dynamicContentPanel = new JPanel(new MigLayout("ins 0, gap 0, fill, hidemode 3", "[grow]", "[]"));
@@ -242,6 +244,14 @@ public abstract class ValuePanel<T> extends JPanel {
 				&& e.getItem() instanceof InterpolationType
 				&& e.getItem() != animFlag.getInterpolationType()) {
 			UndoAction undoAction = new ChangeInterpTypeAction<>(animFlag, (InterpolationType) e.getItem(), changeListener);
+			dynamicContentPanel.removeAll();
+			undoManager.pushAction(undoAction.redo());
+
+		}
+	}
+	private void setInterpolationType(InterpolationType type) {
+		if (type != animFlag.getInterpolationType()) {
+			UndoAction undoAction = new ChangeInterpTypeAction<>(animFlag, type, changeListener);
 			dynamicContentPanel.removeAll();
 			undoManager.pushAction(undoAction.redo());
 

@@ -11,6 +11,7 @@ import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.renderers.SequenceComboBoxRenderer;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.sound.Sound;
 import com.hiveworkshop.rms.util.sound.SoundPlayer;
 import net.miginfocom.swing.MigLayout;
@@ -20,9 +21,9 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 
 public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
-	private JPanel soundsPanel;
-	private JLabel eventName;
-	private JPanel tracksPanel;
+	private final JPanel soundsPanel;
+	private final JLabel eventName;
+	private final JPanel tracksPanel;
 
 	public ComponentEventPanel(ModelHandler modelHandler) {
 		super(modelHandler);
@@ -100,16 +101,10 @@ public class ComponentEventPanel extends ComponentIdObjectPanel<EventObject> {
 
 	private void addEventAction() {
 		JPanel panel = new JPanel(new MigLayout());
-		DefaultComboBoxModel<Sequence> animations = new DefaultComboBoxModel<>();
-		for (Sequence animation : model.getAnims()) {
-			animations.addElement(animation);
-		}
-		for (Sequence animation : model.getGlobalSeqs()) {
-			animations.addElement(animation);
-		}
+		TwiComboBox<Sequence> animationBox = new TwiComboBox<>(new Animation("Stand and work for me", 0, 1));
+		animationBox.addAll(model.getAnims());
+		animationBox.addAll(model.getGlobalSeqs());
 
-		JComboBox<Sequence> animationBox = new JComboBox<>(animations);
-		animationBox.setPrototypeDisplayValue(new Animation("Stand and work for me", 0, 1));
 		animationBox.setRenderer(new SequenceComboBoxRenderer(modelHandler));
 		panel.add(animationBox);
 		int opt = JOptionPane.showConfirmDialog(this, panel, "Add Event Track", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);

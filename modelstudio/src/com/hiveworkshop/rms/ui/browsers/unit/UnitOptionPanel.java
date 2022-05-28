@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.ui.application.MainFrame;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableAbilityData;
 import com.hiveworkshop.rms.util.ScreenInfo;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -23,10 +24,10 @@ public class UnitOptionPanel extends JPanel {
 	private GameObject selection = null;
 	private final String[] raceKeys = {"human", "orc", "undead", "nightelf", "neutrals", "naga"};
 
-	private final JComboBox<String> raceBox;
-	private final JComboBox<String> meleeBox;
-	private final JComboBox<String> tilesetBox;
-	private final JComboBox<String> levelBox;
+	private final TwiComboBox<String> raceBox;
+	private final TwiComboBox<String> meleeBox;
+	private final TwiComboBox<String> tilesetBox;
+	private final TwiComboBox<String> levelBox;
 
 //	private JComboBox<String> playerBox;
 	// DefaultComboBoxModel<String> playerBoxModel = new DefaultComboBoxModel<String>();
@@ -69,22 +70,22 @@ public class UnitOptionPanel extends JPanel {
 		specialLabel = new JLabel(WEString.getString("WESTRING_UTYPE_SPECIAL"));
 
 		String[] raceStrings = {"WESTRING_RACE_HUMAN", "WESTRING_RACE_ORC", "WESTRING_RACE_UNDEAD", "WESTRING_RACE_NIGHTELF", "WESTRING_RACE_NEUTRAL", "WESTRING_RACE_NEUTRAL_NAGA"};
-		DefaultComboBoxModel<String> raceBoxModel = getBoxModelOf(raceStrings);
+		List<String> raceList = getWEStringsOf(raceStrings);
 
 		String[] neutralRaceStrings = {"WESTRING_RACE_NEUTRAL", "WESTRING_RACE_NEUTRAL_NAGA"};
-		DefaultComboBoxModel<String> raceBoxModelNeutral = getBoxModelOf(neutralRaceStrings);
+		List<String> raceNeutralList = getWEStringsOf(neutralRaceStrings);
 
 		String[] meleeStrings = {"WESTRING_MELEE", "WESTRING_CAMPAIGN", "WESTRING_CUSTOM"};
-		DefaultComboBoxModel<String> meleeBoxModel = getBoxModelOf(meleeStrings);
-		meleeBoxModel.addElement(WEString.getString("WESTRING_ITEMSTATUS_HIDDEN").replace("\"", ""));
+		List<String> meleeList = getWEStringsOf(meleeStrings);
+		meleeList.add(WEString.getString("WESTRING_ITEMSTATUS_HIDDEN").replace("\"", ""));
 
 
-		DefaultComboBoxModel<String> tileSetBoxModel = getBoxModelOf(WE_LOC.values());
+		List<String> tileSetList = getWEStringsOf(WE_LOC.values());
 
-		DefaultComboBoxModel<String> levelBoxModel = new DefaultComboBoxModel<>();
-		levelBoxModel.addElement(WEString.getString("WESTRING_ANYLEVEL"));
+		List<String> levelList = new ArrayList<>();
+		levelList.add(WEString.getString("WESTRING_ANYLEVEL"));
 		for (int i = 0; i <= 20; i++) {
-			levelBoxModel.addElement(WEString.getString("WESTRING_LEVEL") + String.format(" %d", i));
+			levelList.add(WEString.getString("WESTRING_LEVEL") + String.format(" %d", i));
 		}
 
 		buttonsPanel = new JPanel(new MigLayout("ins 0, wrap 7"));
@@ -92,16 +93,16 @@ public class UnitOptionPanel extends JPanel {
 
 		// playerBox = getComboBox(playerBoxModel);
 
-		raceBox = getComboBox(raceBoxModel);
-		meleeBox = getComboBox(meleeBoxModel);
-		tilesetBox = getComboBox(tileSetBoxModel);
-		levelBox = getComboBox(levelBoxModel);
+		raceBox = getComboBox(raceList);
+		meleeBox = getComboBox(meleeList);
+		tilesetBox = getComboBox(tileSetList);
+		levelBox = getComboBox(levelList);
 
 		tilesetBox.setSelectedIndex(10);
 	}
 
-	public JComboBox<String> getComboBox(DefaultComboBoxModel<String> boxModel) {
-		JComboBox<String> comboBox = new JComboBox<>(boxModel);
+	public TwiComboBox<String> getComboBox(List<String> strings) {
+		TwiComboBox<String> comboBox = new TwiComboBox<>(strings, "Prototype a prototype");
 		comboBox.addActionListener(e -> relayout());
 		comboBox.setMaximumSize(new Dimension(10000, 25));
 		return comboBox;
@@ -274,10 +275,24 @@ public class UnitOptionPanel extends JPanel {
 		}
 		return boxModel;
 	}
+	private List<String> getWEStringsOf(String[] strings) {
+		List<String> boxModel = new ArrayList<>();
+		for (String string : strings) {
+			boxModel.add(WEString.getString(string));
+		}
+		return boxModel;
+	}
 	private DefaultComboBoxModel<String> getBoxModelOf(Enum<?>[] e) {
 		DefaultComboBoxModel<String> boxModel = new DefaultComboBoxModel<>();
 		for (Object o : e) {
 			boxModel.addElement(WEString.getString(o.toString()));
+		}
+		return boxModel;
+	}
+	private List<String> getWEStringsOf(Enum<?>[] e) {
+		List<String> boxModel = new ArrayList<>();
+		for (Object o : e) {
+			boxModel.add(WEString.getString(o.toString()));
 		}
 		return boxModel;
 	}

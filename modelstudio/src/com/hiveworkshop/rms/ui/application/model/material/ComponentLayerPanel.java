@@ -21,6 +21,7 @@ import com.hiveworkshop.rms.ui.application.model.editors.IntEditorJSpinner;
 import com.hiveworkshop.rms.ui.application.model.editors.TextureValuePanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.util.ZoomableImagePreviewPanel;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -150,9 +151,9 @@ public class ComponentLayerPanel extends JPanel {
 		JPanel topSettingsPanel = new JPanel(new MigLayout("ins 0"));
 
 		topSettingsPanel.add(new JLabel("Filter Mode:"));
-		JComboBox<FilterMode> filterModeDropdown = new JComboBox<>(FilterMode.values());
+		TwiComboBox<FilterMode> filterModeDropdown = new TwiComboBox<>(FilterMode.values(), FilterMode.TRANSPARENT);
 		filterModeDropdown.setSelectedItem(layer.getFilterMode());
-		filterModeDropdown.addItemListener(this::filterModeDropdownListener);
+		filterModeDropdown.addOnSelectItemListener(this::setFilterMode);
 		topSettingsPanel.add(filterModeDropdown, "wrap, growx");
 
 		topSettingsPanel.add(new JLabel("TVertex Anim:"));
@@ -191,6 +192,11 @@ public class ComponentLayerPanel extends JPanel {
 		if (e.getStateChange() == ItemEvent.SELECTED) {
 			FilterMode selectedItem = (FilterMode) e.getItem();
 			undoManager.pushAction(new SetLayerFilterModeAction(layer, selectedItem, changeListener).redo());
+		}
+	}
+	private void setFilterMode(FilterMode filterMode) {
+		if (filterMode != layer.getFilterMode()) {
+			undoManager.pushAction(new SetLayerFilterModeAction(layer, filterMode, changeListener).redo());
 		}
 	}
 

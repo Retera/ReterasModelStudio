@@ -122,12 +122,8 @@ public final class RenderModel {
 		this.allowInanimateParticles = allowInanimateParticles;
 	}
 
-	private long lastUpdated = 0;
 	public RenderModel updateAnimationTime(){
-		if(lastUpdated < System.currentTimeMillis()){
-			timeEnvironment.updateAnimationTime();
-			lastUpdated = System.currentTimeMillis() + 14;
-		}
+		timeEnvironment.updateAnimationTime();
 		return this;
 	}
 
@@ -284,8 +280,7 @@ public final class RenderModel {
 		updateNodes(false, soft, particles);
 	}
 	public void updateNodes2(boolean particles) {
-		boolean soft = lastUpdated < System.currentTimeMillis();
-		updateNodes(false, soft, particles);
+		updateNodes(false, false, particles);
 	}
 
 	public void updateNodes(boolean particles) {

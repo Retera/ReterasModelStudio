@@ -45,7 +45,7 @@ public class ModelLoader {
 				anim = null;
 			}
 			refreshAndUpdateRenderModel();
-			TimeEnvironmentImpl editTimeEnv = modelHandler.getEditTimeEnv();
+			TimeEnvironmentImpl editTimeEnv = modelPanel.getEditorRenderModel().getTimeEnvironment();
 			editTimeEnv.setSequence(anim);
 			editTimeEnv.setStaticViewMode(!(ProgramGlobals.getSelectionItemType() == SelectionItemTypes.ANIMATE));
 

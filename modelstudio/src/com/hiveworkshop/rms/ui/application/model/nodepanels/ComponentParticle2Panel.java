@@ -11,9 +11,9 @@ import com.hiveworkshop.rms.ui.application.tools.ParticleEditPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelTextureThings;
 import com.hiveworkshop.rms.util.FramePopup;
+import com.hiveworkshop.rms.util.TwiComboBox;
 
 import javax.swing.*;
-import java.awt.event.ItemEvent;
 
 public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmitter2> {
 
@@ -26,15 +26,14 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 	private final FloatValuePanel emissionPanel;
 	private final FloatValuePanel visibilityPanel;
 
-
-	private JComboBox<Bitmap> textureChooser = new JComboBox<>();
+	private final TwiComboBox<Bitmap> textureChooser;
 
 	public ComponentParticle2Panel(ModelHandler modelHandler) {
 		super(modelHandler);
 
-//		textureChooser.setRenderer(new TextureListRenderer(modelHandler.getModel()));
+		textureChooser = new TwiComboBox<>(modelHandler.getModel().getTextures(), new Bitmap("", 0));
 		textureChooser.setRenderer(ModelTextureThings.getTextureListRenderer());
-		textureChooser.addItemListener(e -> changeTexture(e));
+		textureChooser.addOnSelectItemListener(this::changeTexture);
 		topPanel.add(textureChooser);
 
 		JButton editParticle = new JButton("editParticle");
@@ -69,7 +68,7 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		gravityPanel.reloadNewValue((float) idObject.getGravity(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_GRAVITY), idObject, MdlUtils.TOKEN_GRAVITY, idObject::setGravity);
 		emissionPanel.reloadNewValue((float) idObject.getEmissionRate(), (FloatAnimFlag) idObject.find(MdlUtils.TOKEN_EMISSION_RATE), idObject, MdlUtils.TOKEN_EMISSION_RATE, idObject::setEmissionRate);
 		visibilityPanel.reloadNewValue(1f, idObject.getVisibilityFlag(), idObject, MdlUtils.TOKEN_VISIBILITY, null);
-		updateTextureChooser();
+		textureChooser.setSelectedItem(idObject.getTexture());
 	}
 
 	private void viewParticlePanel() {
@@ -77,18 +76,10 @@ public class ComponentParticle2Panel extends ComponentIdObjectPanel<ParticleEmit
 		FramePopup.show(panel, null, "Editing " + idObject.getName());
 	}
 
-	private void updateTextureChooser() {
-		DefaultComboBoxModel<Bitmap> bitmapModel = new DefaultComboBoxModel<>(modelHandler.getModel().getTextures().toArray(new Bitmap[0]));
-		bitmapModel.setSelectedItem(idObject.getTexture());
-		textureChooser.setModel(bitmapModel);
-	}
-
-	private void changeTexture(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
+	private void changeTexture(Bitmap selected) {
+		if (selected != idObject.getTexture()) {
 			System.out.println("Chose texture!");
-			Bitmap itemAt = textureChooser.getItemAt(textureChooser.getSelectedIndex());
-			ChangeParticleTextureAction action = new ChangeParticleTextureAction(idObject, itemAt, ModelStructureChangeListener.changeListener);
-			modelHandler.getUndoManager().pushAction(action.redo());
+			undoManager.pushAction(new ChangeParticleTextureAction(idObject, selected, ModelStructureChangeListener.changeListener).redo());
 		}
 	}
 }

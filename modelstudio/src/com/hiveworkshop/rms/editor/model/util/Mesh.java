@@ -9,7 +9,7 @@ public final class Mesh {
 	private final List<GeosetVertex> vertices;
 	private final List<Triangle> triangles;
 
-	Mesh(List<GeosetVertex> vertices, List<Triangle> triangles) {
+	public Mesh(List<GeosetVertex> vertices, List<Triangle> triangles) {
 		this.vertices = vertices;
 		this.triangles = triangles;
 	}

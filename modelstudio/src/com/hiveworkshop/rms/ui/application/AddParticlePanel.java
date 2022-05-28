@@ -8,6 +8,7 @@ import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import com.hiveworkshop.rms.util.Vec3;
 import com.hiveworkshop.rms.util.Vec3SpinnerArray;
 import net.miginfocom.swing.MigLayout;
@@ -142,7 +143,7 @@ public class AddParticlePanel {
 			Bone nullBone = new Bone("No parent");
 			idObjects.add(0, nullBone);
 
-			JComboBox<IdObject> parentBone = new JComboBox<>(idObjects.toArray(new IdObject[0]));
+			TwiComboBox<IdObject> parentBone = new TwiComboBox<>(idObjects.toArray(new IdObject[0]), new Helper("PrototypePrototype"));
 			parentBone.setRenderer(createParticleParentComboBox(nullBone));
 			optionsPanel.add(parentBone, "growx, wrap");
 

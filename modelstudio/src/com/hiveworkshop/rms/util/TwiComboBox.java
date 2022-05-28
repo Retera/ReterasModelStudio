@@ -13,6 +13,7 @@ import java.util.function.Function;
 public class TwiComboBox<E> extends JComboBox<E> {
 
 	TwiComboBoxModel<E> comboBoxModel;
+	private boolean allowLastToFirst = false;
 
 	public TwiComboBox(TwiComboBoxModel<E> aModel, E prototypeValue) {
 		super();
@@ -67,6 +68,10 @@ public class TwiComboBox<E> extends JComboBox<E> {
 			} else {
 				consumer.accept((E) e.getItem());
 			}
+		} else if (e.getStateChange() == ItemEvent.DESELECTED
+				&& comboBoxModel != null
+				&& comboBoxModel.getSelectedTyped() == null){
+			consumer.accept(null);
 		}
 	}
 
@@ -78,6 +83,31 @@ public class TwiComboBox<E> extends JComboBox<E> {
 	public void setModel(TwiComboBoxModel<E> comboBoxModel) {
 		this.comboBoxModel = comboBoxModel;
 		super.setModel(comboBoxModel);
+	}
+
+	public void incIndex(int steps){
+		int previousSelectedIndex = Math.max(0, getSelectedIndex());
+
+		int itemCount = getItemCount();
+		int newIndex = previousSelectedIndex + steps;
+		if(allowLastToFirst){
+			newIndex = (itemCount + newIndex) % itemCount;
+		} else {
+			newIndex = MathUtils.clamp(newIndex, 0, itemCount-1);
+		}
+
+		if (newIndex != previousSelectedIndex) {
+			setSelectedIndex(newIndex);
+		}
+	}
+
+	public TwiComboBox<E> setAllowLastToFirst(boolean allowLastToFirst) {
+		this.allowLastToFirst = allowLastToFirst;
+		return this;
+	}
+
+	public boolean isAllowLastToFirst() {
+		return allowLastToFirst;
 	}
 
 	public ComboBoxModel<E> getComboBoxModel() {
@@ -123,7 +153,7 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		return this;
 	}
 
-	public TwiComboBox<E> addAll(Collection<E> itemList) {
+	public TwiComboBox<E> addAll(Collection<? extends E> itemList) {
 		comboBoxModel.addAll(itemList);
 		return this;
 	}

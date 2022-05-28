@@ -2,10 +2,10 @@ package com.hiveworkshop.rms.ui.gui.modeledit.creator;
 
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.actionfunctions.CreateFace;
-import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
 import com.hiveworkshop.rms.ui.application.edit.animation.mdlvisripoff.TSpline;
 import com.hiveworkshop.rms.ui.application.edit.mesh.ModelEditorManager;
 import com.hiveworkshop.rms.ui.application.edit.mesh.viewport.ViewportPopupMenu;
+import com.hiveworkshop.rms.ui.application.model.nodepanels.AnimationChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.creator.activity.DrawBoneActivity;
@@ -18,13 +18,9 @@ import com.hiveworkshop.rms.ui.gui.modeledit.toolbar.ToolbarButtonGroup2;
 import com.hiveworkshop.rms.ui.preferences.ProgramPreferences;
 import com.hiveworkshop.rms.ui.util.ModeButton;
 import com.hiveworkshop.rms.util.TwiCardPanel;
-import com.hiveworkshop.rms.util.TwiComboBoxModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
-import java.awt.event.ItemEvent;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 public class CreatorModelingPanel extends JPanel {
@@ -32,7 +28,7 @@ public class CreatorModelingPanel extends JPanel {
 
 	private ModelEditorManager modelEditorManager;
 	private final ProgramPreferences programPreferences;
-	private JComboBox<Sequence> animationChooserBox;
+	private final AnimationChooser animationChooser;
 	//	private JComboBox<String> modelingOptionsBox;
 //	private CardLayout modelingOptionsCardLayout;
 	private TwiCardPanel modelingOptionsCardPanel;
@@ -48,10 +44,9 @@ public class CreatorModelingPanel extends JPanel {
 		this.programPreferences = ProgramGlobals.getPrefs();
 		setLayout(new MigLayout("ins 0", "", "[grow][][]"));
 
-
-		animationChooserBox = getAnimationChooserBox();
+		animationChooser = new AnimationChooser(true, true, false);
 		JPanel animationPanel = new JPanel(new MigLayout("ins 0, fill", "[]", "[][grow]"));
-		animationPanel.add(animationChooserBox, "wrap, growx");
+		animationPanel.add(animationChooser, "wrap, growx");
 //		animationPanel.add(getAnimationBasicsPanel(), "wrap, growx, growy");
 //		animationPanel.add(getAnimationBasicsPanel(), "wrap, growx");
 
@@ -107,23 +102,6 @@ public class CreatorModelingPanel extends JPanel {
 		ModeButton modeButton = new ModeButton(text);
 		modeButton.addActionListener(e -> action.accept(modeButton));
 		return modeButton;
-	}
-
-	private JComboBox<Sequence> getAnimationChooserBox() {
-		final TwiComboBoxModel<Sequence> animationChooserBoxModel = new TwiComboBoxModel<>();
-		JComboBox<Sequence> animationChooserBox = new JComboBox<>(animationChooserBoxModel);
-//		animationChooserBox.setPrototypeDisplayValue(new Animation("temporary prototype animation", 0, 1));
-		animationChooserBox.addItemListener(this::chooseAnimation);
-		return animationChooserBox;
-	}
-
-	private void chooseAnimation(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			Sequence selectedItem = (Sequence) animationChooserBox.getSelectedItem();
-			if (selectedItem != null && modelHandler != null) {
-				modelHandler.getEditTimeEnv().setSequence(selectedItem);
-			}
-		}
 	}
 
 	public JPanel getMeshBasicsPanel() {
@@ -234,14 +212,6 @@ public class CreatorModelingPanel extends JPanel {
 
 	public void setAnimationModeState(boolean animationModeState) {
 		modeCardPanel.show(animationModeState ? "ANIM" : "MESH");
-//		if (animationModeState) {
-////			modelingOptionsCardLayout.show(modelingOptionsCardPanel, ANIMATIONBASICS);
-//			modelingOptionsCardPanel.show(ANIMATIONBASICS);
-//		} else {
-////			modelingOptionsCardLayout.show(modelingOptionsCardPanel, modelingOptionsBox.getSelectedItem().toString());
-////			modelingOptionsCardPanel.show(modelingOptionsBox.getSelectedItem().toString());
-//			modelingOptionsCardPanel.show("Mesh Basics");
-//		}
 	}
 
 	public void setModelPanel(ModelPanel modelPanel) {
@@ -252,41 +222,17 @@ public class CreatorModelingPanel extends JPanel {
 			contextMenu = new ViewportPopupMenu(null, ProgramGlobals.getMainPanel(), modelPanel.getModelHandler(), modelPanel.getModelEditorManager());
 
 			transformPanel.setModel(modelHandler, modelEditorManager);
-			reloadAnimationList();
+			animationChooser.setModel(modelHandler.getModel(), modelHandler.getRenderModel());
 		} else {
 			this.modelHandler = null;
 			this.modelEditorManager = null;
 			contextMenu = null;
 			transformPanel.setModel(null, null);
+			animationChooser.setModel(null, null);
 		}
 	}
 
-	public void reloadAnimationList() {
-		Sequence selectedItem = (Sequence) animationChooserBox.getSelectedItem();
-//		animationChooserBoxModel.getSelectedItem()
-		List<Sequence> allSequences = new ArrayList<>();
-		allSequences.addAll(modelHandler.getModel().getAnims());
-		allSequences.addAll(modelHandler.getModel().getGlobalSeqs());
-		TwiComboBoxModel<Sequence> animationChooserBoxModel = new TwiComboBoxModel<>(allSequences);
-		animationChooserBox.setModel(animationChooserBoxModel);
-//		animationChooserBoxModel.removeAllElements();
-
-//		EditableModel model = modelHandler.getModel();
-//		for (Animation animation : model.getAnims()) {
-//			animationChooserBoxModel.addElement(animation);
-//		}
-
-//		for (GlobalSeq globalSeq : model.getGlobalSeqs()) {
-//			animationChooserBoxModel.addElement(globalSeq);
-//		}
-		if (animationChooserBoxModel.getSize() >= 1) {
-			if (selectedItem != null && allSequences.contains(selectedItem)) {
-//			animationChooserBoxModel.setSelectedItem(selectedItem);
-				animationChooserBox.setSelectedItem(selectedItem);
-			} else {
-//				animationChooserBoxModel.setSelectedItem(0);
-				animationChooserBox.setSelectedIndex(0);
-			}
-		}
+	public void updateAnimationList() {
+		animationChooser.updateAnimationList();
 	}
 }

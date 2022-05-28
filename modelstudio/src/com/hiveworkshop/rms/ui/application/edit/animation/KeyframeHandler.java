@@ -57,7 +57,7 @@ public class KeyframeHandler {
 		this.modelHandler = modelHandler;
 		if(modelHandler != null){
 			undoManager = modelHandler.getUndoManager();
-			timeEnvironment = modelHandler.getEditTimeEnv();
+			timeEnvironment = modelHandler.getRenderModel().getTimeEnvironment();
 		} else {
 			timeEnvironment = null;
 			undoManager = null;

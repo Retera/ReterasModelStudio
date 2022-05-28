@@ -290,7 +290,7 @@ public class Layer extends TimelineContainer implements Named {
 
 	@Override
 	public String visFlagName() {
-		return "Alpha";
+		return MdlUtils.TOKEN_ALPHA;
 	}
 
 	public int getTextureId() {

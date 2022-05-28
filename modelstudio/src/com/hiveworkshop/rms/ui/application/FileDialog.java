@@ -46,7 +46,7 @@ public class FileDialog {
     private ModelPanel modelPanel;
     private JComponent parent;
     private final JFileChooser fileChooser;
-    private final ExtFilter extFilter;
+    private static final ExtFilter extFilter = new ExtFilter();
 
     public FileDialog() {
         FileDialog.mainPanel = ProgramGlobals.getMainPanel();
@@ -54,7 +54,6 @@ public class FileDialog {
         this.fileChooser = new RMSFileChooser();
 //        fileChooser.setAccessory(getAccessoryPanel("Ugg!"));
         this.fileChooser.setAcceptAllFileFilterUsed(false);
-        extFilter = new ExtFilter();
     }
 
     public JPanel getAccessoryPanel(String s) {

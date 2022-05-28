@@ -20,7 +20,7 @@ public class PreviewPanel extends JPanel {
 		try {
 			perspectiveViewport = new PerspectiveViewport();
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
-			animationController = new AnimationController(this);
+			animationController = new AnimationController(this::setLevelOfDetail);
 		} catch (LWJGLException e) {
 			throw new RuntimeException(e);
 		}

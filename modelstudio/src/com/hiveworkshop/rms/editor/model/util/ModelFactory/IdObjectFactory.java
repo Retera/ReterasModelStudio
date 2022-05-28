@@ -285,8 +285,8 @@ public class IdObjectFactory {
 		if (collisionShape.getType() == MdlxCollisionShape.Type.CYLINDER) {
 			System.out.println("CYLINDER!!!____________________________________");
 		}
-		if (collisionShape.getType() == MdlxCollisionShape.Type.SPHERE) {
-			System.out.println("SPHERE!!!____________________________________");
+		if (collisionShape.getType() == MdlxCollisionShape.Type.PLANE) {
+			System.out.println("PLANE!!!____________________________________");
 		}
 
 		if (collisionShape.getType() == MdlxCollisionShape.Type.SPHERE || collisionShape.getType() == MdlxCollisionShape.Type.CYLINDER) {

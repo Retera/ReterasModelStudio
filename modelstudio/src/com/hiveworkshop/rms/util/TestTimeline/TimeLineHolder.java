@@ -103,7 +103,7 @@ public class TimeLineHolder extends JPanel {
 		if (modelHandler != null) {
 //			this.undoManager = modelHandler.getUndoManager();
 			this.modelView = modelHandler.getModelView();
-			this.renderEnv = modelHandler.getEditTimeEnv();
+			this.renderEnv = modelHandler.getRenderModel().getTimeEnvironment();
 //			this.renderEnv.addChangeListener(this);
 			setAnimationTime = renderEnv::setAnimationTime;
 			timeLinePanel.addTimeListener(setAnimationTime);

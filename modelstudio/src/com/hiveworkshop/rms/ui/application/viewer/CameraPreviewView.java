@@ -16,12 +16,12 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
 public class CameraPreviewView extends ModelDependentView {
-	private AnimationController animationController;
+	private final AnimationController animationController;
 	private JScrollPane scrollPane;
-	private PreviewPanel previewPanel;
-	private JPanel smartPanel;
-	private JPanel topLeftPanel;
-	private JPanel viewMainPanel;
+	private final PreviewPanel previewPanel;
+	private final JPanel smartPanel;
+	private final JPanel topLeftPanel;
+	private final JPanel viewMainPanel;
 	private ComponentCameraPanel cameraPanel;
 	private Camera chosenCamera;
 	private RenderModel renderModel;
@@ -34,7 +34,7 @@ public class CameraPreviewView extends ModelDependentView {
 		viewMainPanel = new JPanel(new MigLayout("fill, ins 0, gap 0","[][]", "[grow][]"));
 		previewPanel = new PreviewPanel();
 		cameraHandler = previewPanel.getPerspectiveViewport().getCameraHandler();
-		animationController = new AnimationController(previewPanel);
+		animationController = new AnimationController(previewPanel::setLevelOfDetail);
 		this.setComponent(viewMainPanel);
 	}
 
@@ -73,11 +73,11 @@ public class CameraPreviewView extends ModelDependentView {
 	}
 
 	private TwiComboBox<Camera> getCameraChooserPanel(EditableModel model){
-		TwiComboBox<Camera> cameraJComboBox = new TwiComboBox<>(model.getCameras());
-		cameraJComboBox.addOnSelectItemListener(this::setChoosenCamera);
-		cameraJComboBox.setStringFunctionRender(this::getCameraName);
+		TwiComboBox<Camera> cameraComboBox = new TwiComboBox<>(model.getCameras());
+		cameraComboBox.addOnSelectItemListener(this::setChoosenCamera);
+		cameraComboBox.setStringFunctionRender(this::getCameraName);
 
-		return cameraJComboBox;
+		return cameraComboBox;
 	}
 
 	private String getCameraName(Object object){

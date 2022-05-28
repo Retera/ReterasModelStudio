@@ -9,6 +9,7 @@ import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import com.hiveworkshop.rms.util.SklViewer;
+import com.hiveworkshop.rms.util.TwiComboBox;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -139,7 +140,7 @@ public final class MouseAdapterExtension extends MouseAdapter {
 			models.put(models.size(), m);
 		}
 
-		JComboBox<String> modelsBox = new JComboBox<>(names);
+		TwiComboBox<String> modelsBox = new TwiComboBox<>(names, "Prototype Prototype");
 		if(currentModelPanel < names.length){
 			modelsBox.setSelectedIndex(currentModelPanel);
 		}

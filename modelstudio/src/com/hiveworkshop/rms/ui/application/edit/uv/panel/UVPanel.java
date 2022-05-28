@@ -97,7 +97,7 @@ public class UVPanel extends JPanel implements CoordDisplayListener {
 		ModeButton loadImage = new ModeButton("Load Image");
 		loadImage.addActionListener(e -> loadExternalImage());
 
-		JComboBox<UnwrapDirection> unwrapDirectionBox = new JComboBox<>(UnwrapDirection.values());
+		TwiComboBox<UnwrapDirection> unwrapDirectionBox = new TwiComboBox<>(UnwrapDirection.values(), UnwrapDirection.PERSPECTIVE);
 
 		ModeButton unwrapButton = new ModeButton("Remap UVs");
 		unwrapButton.addActionListener(e -> unwrapFromView((UnwrapDirection) unwrapDirectionBox.getSelectedItem()));

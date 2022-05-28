@@ -3,6 +3,7 @@ package com.hiveworkshop.rms.editor.model;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
 import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
 import com.hiveworkshop.rms.editor.model.animflag.FloatAnimFlag;
+import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.util.Vec3;
 
@@ -70,7 +71,7 @@ public class GeosetAnim extends TimelineContainer implements Named {
 
 	@Override
 	public String visFlagName() {
-		return "Alpha";
+		return MdlUtils.TOKEN_ALPHA;
 	}
 
 	public double getStaticAlpha() {

@@ -7,6 +7,7 @@ import com.hiveworkshop.rms.editor.wrapper.v2.ModelView;
 import com.hiveworkshop.rms.parsers.mdlx.InterpolationType;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.application.edit.animation.TimeEnvironmentImpl;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
 import net.miginfocom.swing.MigLayout;
@@ -74,13 +75,14 @@ public class TSpline extends JPanel {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			ModelHandler modelHandler = modelPanel.getModelHandler();
-			int animationTime = modelHandler.getEditTimeEnv().getEnvTrackTime();
+			TimeEnvironmentImpl timeEnvironment = modelHandler.getRenderModel().getTimeEnvironment();
+			int animationTime = timeEnvironment.getEnvTrackTime();
 			Set<IdObject> selectedIdObjects = modelHandler.getModelView().getSelectedIdObjects();
 			if (selectedIdObjects.size() == 1) {
 				IdObject idObject = selectedIdObjects.stream().findFirst().get();
 				AnimFlag<?> rotation = idObject.find("Rotation");
 				if (rotation != null && rotation.tans()) {
-					setTimeline(animationTime, rotation, modelHandler.getEditTimeEnv().getCurrentSequence());
+					setTimeline(animationTime, rotation, timeEnvironment.getCurrentSequence());
 				}
 			}
 		}
@@ -89,8 +91,9 @@ public class TSpline extends JPanel {
 		ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 		if (modelPanel != null) {
 			ModelHandler modelHandler = modelPanel.getModelHandler();
-			int animationTime = modelHandler.getEditTimeEnv().getEnvTrackTime();
-			setSelection(animationTime, modelHandler.getEditTimeEnv().getCurrentSequence());
+			TimeEnvironmentImpl timeEnvironment = modelHandler.getRenderModel().getTimeEnvironment();
+			int animationTime = timeEnvironment.getEnvTrackTime();
+			setSelection(animationTime, timeEnvironment.getCurrentSequence());
 		}
 	}
 	private void testNewValues() {
@@ -98,8 +101,9 @@ public class TSpline extends JPanel {
 		if (modelPanel != null) {
 			ModelHandler modelHandler = modelPanel.getModelHandler();
 			ModelView modelView = modelHandler.getModelView();
-			if (!modelView.getSelectedIdObjects().isEmpty() && modelHandler.getEditTimeEnv().getCurrentSequence() != null) {
-				curveRenderer2.setSequence(modelHandler.getEditTimeEnv().getCurrentSequence());
+			TimeEnvironmentImpl timeEnvironment = modelHandler.getRenderModel().getTimeEnvironment();
+			if (!modelView.getSelectedIdObjects().isEmpty() && timeEnvironment.getCurrentSequence() != null) {
+				curveRenderer2.setSequence(timeEnvironment.getCurrentSequence());
 				curveRenderer2.setAnimFlag((Vec3AnimFlag) modelView.getEditableIdObjects().stream().findFirst().get().getTranslationFlag(null));
 			}
 		}

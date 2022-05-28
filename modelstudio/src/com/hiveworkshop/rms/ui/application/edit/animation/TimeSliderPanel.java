@@ -303,7 +303,7 @@ public class TimeSliderPanel extends JPanel implements SelectionListener {
 		keyframeHandler.setModelHandler(modelHandler);
 		if(modelHandler != null) {
 			this.undoManager = modelHandler.getUndoManager();
-			timeEnvironment = modelHandler.getEditTimeEnv();
+			timeEnvironment = modelHandler.getRenderModel().getTimeEnvironment();
 			timeEnvironment.addChangeListener(this);
 			timeBarPainter.setTimeEnvironment(timeEnvironment);
 			popupMenu.setTimeEnvironment(timeEnvironment);

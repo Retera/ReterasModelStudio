@@ -17,6 +17,13 @@ public class MathUtils {
 		return (min <= value) && (value <= max);
 	}
 
+	public static int clamp(int value, int min, int max){
+		return Math.min(Math.max(min, value), max);
+	}
+	public static float clamp(float value, float min, float max){
+		return Math.min(Math.max(min, value), max);
+	}
+
 	public static float lerp(float floorValue, float ceilValue, float timeFraction) {
 		return floorValue + (timeFraction * (ceilValue - floorValue));
 	}

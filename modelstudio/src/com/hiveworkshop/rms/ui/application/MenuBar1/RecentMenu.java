@@ -25,30 +25,43 @@ public class RecentMenu extends JMenu {
 	}
 
 	public void updateRecent() {
-		List<String> recent = SaveProfile.get().getRecent();
 		for (RecentItem recentItem : recentItems) {
 			remove(recentItem);
 		}
 		recentItems.clear();
-		for (int i = 0; i < recent.size(); i++) {
-			final String fp = recent.get(recent.size() - i - 1);
-			if ((recentItems.size() <= i) || (!recentItems.get(i).filepath.equals(fp))) {
-				FileDialog fileDialog = new FileDialog();
 
-				RecentItem item = new RecentItem(new File(fp).getName());
-				item.filepath = fp;
+		List<String> recent = SaveProfile.get().getRecent();
+
+		for (int i = 0; i < recent.size(); i++) {
+			String fp = recent.get(recent.size() - i - 1);
+			if (recentItems.size() <= i || !recentItems.get(i).samePath(fp)) {
+				RecentItem item = new RecentItem(new File(fp));
 				recentItems.add(item);
-				item.addActionListener(e -> fileDialog.openFile(new File(item.filepath)));
 				add(item, getItemCount() - 2);
 			}
 		}
 	}
 
 	static class RecentItem extends JMenuItem {
-		String filepath;
+		private final File file;
+		public RecentItem(File file) {
+			super(file.getName());
+			this.file = file;
+			addActionListener(e -> openFile());
+		}
 
-		public RecentItem(final String what) {
-			super(what);
+		private void openFile(){
+			new FileDialog().openFile(file);
+		}
+		public String getFilepath() {
+			return file.getPath();
+		}
+		public boolean samePath(String filepath){
+			return file.getPath().equals(filepath);
+		}
+
+		public File getFile() {
+			return file;
 		}
 	}
 

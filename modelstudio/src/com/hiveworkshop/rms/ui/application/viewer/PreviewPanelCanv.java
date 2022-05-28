@@ -16,9 +16,9 @@ import java.awt.image.BufferedImage;
 
 public class PreviewPanelCanv extends JPanel {
 	private final ViewportCanvas perspectiveViewport;
-	private ViewportSettings viewportSettings;
+	private final ViewportSettings viewportSettings;
 	private TimeEnvironmentImpl renderEnv;
-	private final AnimationControllerCanv animationController;
+	private final AnimationController animationController;
 
 	public PreviewPanelCanv() {
 		try {
@@ -26,7 +26,7 @@ public class PreviewPanelCanv extends JPanel {
 			viewportSettings = perspectiveViewport.getViewportSettings();
 			viewportSettings.setShowNodes(false);
 			perspectiveViewport.setMinimumSize(new Dimension(200, 200));
-			animationController = new AnimationControllerCanv(this);
+			animationController = new AnimationController(this::setLevelOfDetail);
 		} catch (LWJGLException e) {
 			throw new RuntimeException(e);
 		}
@@ -83,7 +83,7 @@ public class PreviewPanelCanv extends JPanel {
 	public ViewportCanvas getPerspectiveViewport() {
 		return perspectiveViewport;
 	}
-	public AnimationControllerCanv getAnimationController() {
+	public AnimationController getAnimationController() {
 		return animationController;
 	}
 

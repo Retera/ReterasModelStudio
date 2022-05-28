@@ -12,12 +12,11 @@ public class ToolBar extends JToolBar {
 	public ToolBar() {
 		super(JToolBar.HORIZONTAL);
 		setFloatable(false);
-		FileDialog fileDialog = new FileDialog();
 
 		add(getToolbarButton("New", "new.png", e -> CreateNewModel.newModel()));
-		System.out.println("loaded [New]");
-		add(getToolbarButton("Open", "open.png", e -> fileDialog.onClickOpen()));
-		add(getToolbarButton("Save", "save.png", e -> fileDialog.onClickSave()));
+//		System.out.println("loaded [New]");
+		add(getToolbarButton("Open", "open.png", e -> new FileDialog().onClickOpen()));
+		add(getToolbarButton("Save", "save.png", e -> new FileDialog().onClickSave()));
 
 		addSeparator();
 

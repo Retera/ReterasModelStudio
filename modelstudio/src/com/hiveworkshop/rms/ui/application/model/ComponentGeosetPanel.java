@@ -51,7 +51,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 	private JPanel animVisPanel;
 	private JPanel animPanel;
 
-	private JComboBox<Material> materialChooser;
+	private TwiComboBox<Material> materialChooser;
 
 	public ComponentGeosetPanel(ModelHandler modelHandler) {
 		super(modelHandler);
@@ -115,7 +115,7 @@ public class ComponentGeosetPanel extends ComponentPanel<Geoset> {
 		return geosetInfoPanel;
 	}
 
-	private JComboBox<Material> getMaterialChooser() {
+	private TwiComboBox<Material> getMaterialChooser() {
 		TwiComboBox<Material> materialComboBox = new TwiComboBox<>(modelHandler.getModel().getMaterials(), new Material());
 		materialComboBox.setRenderer(new MaterialListRenderer(modelHandler.getModel()));
 		materialComboBox.addOnSelectItemListener(this::changeTexture);
