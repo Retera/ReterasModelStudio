@@ -1,10 +1,24 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.builders.ItemFieldBuilder;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableItemData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.TopLevelCategoryFolder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.items.ItemSortByClassFolder;
 
 public class ItemTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
+
+	public ItemTabTreeBrowserBuilder(){
+		unitData = new MutableItemData();
+		editorFieldBuilder = new ItemFieldBuilder();
+		objectTabTreeBrowserBuilder = this;
+		editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("ITEM", "Item");
+		customUnitPopupRunner = () -> {};
+	}
+
+	protected void setNewUnitData(){
+		unitData = new MutableItemData();
+	}
 
 	@Override
 	public TopLevelCategoryFolder build() {
@@ -12,5 +26,4 @@ public class ItemTabTreeBrowserBuilder extends ObjectTabTreeBrowserBuilder {
 				new ItemSortByClassFolder(WEString.getString("WESTRING_IE_STANDARDITEMS")),
 				new ItemSortByClassFolder(WEString.getString("WESTRING_IE_CUSTOMITEMS")));
 	}
-
 }

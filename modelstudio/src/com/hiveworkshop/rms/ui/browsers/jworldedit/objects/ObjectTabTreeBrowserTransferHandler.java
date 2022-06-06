@@ -41,9 +41,7 @@ public class ObjectTabTreeBrowserTransferHandler extends TransferHandler {
 			try {
 				data = (byte[]) info.getTransferable().getTransferData(dataFlavor);
 				pastedObjects = new War3ObjectDataChangeset(editorPanel.getWar3ObjectDataChangesetKindChar());
-				try (BlizzardDataInputStream inputStream = new BlizzardDataInputStream(
-						new ByteArrayInputStream(data))) {
-
+				try (BlizzardDataInputStream inputStream = new BlizzardDataInputStream(new ByteArrayInputStream(data))) {
 					pastedObjects.load(inputStream, null, false);
 				}
 			} catch (final UnsupportedFlavorException ufe) {

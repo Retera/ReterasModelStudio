@@ -9,7 +9,6 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.ObjectTabTreeBrowserB
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorTree;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.War3ID;
 
@@ -36,12 +35,11 @@ public abstract class BetterSelector extends JSplitPane {
 	protected String fileString;
 	protected String variationString;
 
-	public BetterSelector(MutableObjectData unitData,
-	                      ObjectTabTreeBrowserBuilder treeBuilder,
+	public BetterSelector(ObjectTabTreeBrowserBuilder treeBuilder,
 	                      UnitEditorSettings unitEditorSettings,
 	                      String fileString,
 	                      String variationString) {
-		tree = new UnitEditorTree(unitData, treeBuilder, unitEditorSettings);
+		tree = new UnitEditorTree(treeBuilder, unitEditorSettings);
 		this.fileString = fileString;
 		this.variationString = variationString;
 

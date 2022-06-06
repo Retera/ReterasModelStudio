@@ -3,11 +3,8 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
 import com.hiveworkshop.rms.parsers.slk.DataTableHolder;
-import com.hiveworkshop.rms.parsers.slk.StandardObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.AbstractWorldEditorPanel;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.better.fields.builders.*;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.*;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.util.War3ID;
 
@@ -103,134 +100,31 @@ public final class ObjectEditorPanel extends AbstractWorldEditorPanel {
 	}
 
 	private UnitEditorPanel createUnitEditor() {
-//		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('u', "war3map.w3u");
-//		DataTable standardUnitMeta = StandardObjectData.getStandardUnitMeta();
-
-//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.UNITS, StandardObjectData.getStandardUnits(), standardUnitMeta, unitDataChangeset);
-		MutableObjectData unitData = new MutableUnitData();
-
-		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("UNIT", "Unit");
-		return new UnitEditorPanel(
-				unitData,
-				new UnitFieldBuilder(),
-				new UnitTabTreeBrowserBuilder(),
-				editorTabCustomToolbarButtonData,
-				new NewCustomUnitDialogRunner(this, unitData));
+		return new UnitEditorPanel(new UnitTabTreeBrowserBuilder());
 	}
 
 	private UnitEditorPanel createItemEditor() {
-//		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('t', "war3map.w3t");
-//		DataTable standardUnitMeta = StandardObjectData.getStandardUnitMeta();
-
-//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.ITEM, StandardObjectData.getStandardItems(), standardUnitMeta, unitDataChangeset);
-		MutableObjectData unitData = new MutableItemData();
-		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("ITEM", "Item");
-		return new UnitEditorPanel(
-				unitData,
-				new ItemFieldBuilder(),
-				new ItemTabTreeBrowserBuilder(),
-				editorTabCustomToolbarButtonData,
-				() -> {});
+		return new UnitEditorPanel(new ItemTabTreeBrowserBuilder());
 	}
 
 	private UnitEditorPanel createDestructibleEditor() {
-//		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('b', "war3map.w3b");
-//		DataTable standardUnitMeta = StandardObjectData.getStandardDestructableMeta();
-
-//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.DESTRUCTIBLES, StandardObjectData.getStandardDestructables(), standardUnitMeta, unitDataChangeset);
-		MutableObjectData unitData = new MutableDestructibleData();
-//		BasicEditorFieldBuilder editorFieldBuilder = new BasicEditorFieldBuilder(new BasicSingleFieldFactory(WorldEditorDataType.DESTRUCTIBLES), WorldEditorDataType.DESTRUCTIBLES);
-//		BasicEditorFieldBuilder editorFieldBuilder = new BasicEditorFieldBuilder(new BasicSingleFieldFactory(WorldEditorDataType.DESTRUCTIBLES));
-		BasicEditorFieldBuilder editorFieldBuilder = new BasicEditorFieldBuilder(WorldEditorDataType.DESTRUCTIBLES);
-		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("DEST", "Dest");
-		return new UnitEditorPanel(
-				unitData,
-				editorFieldBuilder,
-				new DestructableTabTreeBrowserBuilder(),
-				editorTabCustomToolbarButtonData,
-				() -> {});
+		return new UnitEditorPanel(new DestructableTabTreeBrowserBuilder());
 	}
 
 	private UnitEditorPanel createDoodadEditor() {
-//		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('d', "war3map.w3d");
-//		DataTable standardUnitMeta = StandardObjectData.getStandardDoodadMeta();
-
-//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.DOODADS, StandardObjectData.getStandardDoodads(), standardUnitMeta, unitDataChangeset);
-		MutableObjectData unitData = new MutableDoodadData();
-		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("DOOD", "Dood");
-		return new UnitEditorPanel(
-				unitData,
-				new DoodadFieldBuilder(),
-				new DoodadTabTreeBrowserBuilder(),
-				editorTabCustomToolbarButtonData,
-				() -> {});
+		return new UnitEditorPanel(new DoodadTabTreeBrowserBuilder());
 	}
 
 	private JComponent createAbilityEditor() {
-//		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('a', "war3map.w3a");
-//		DataTable standardUnitMeta = StandardObjectData.getStandardAbilityMeta();
-
-//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.ABILITIES, StandardObjectData.getStandardAbilities(), standardUnitMeta, unitDataChangeset);
-		MutableObjectData unitData = new MutableAbilityData();
-		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("ABIL", "Abil");
-		return new UnitEditorPanel(
-				unitData,
-				new AbilityFieldBuilder(),
-				new AbilityTabTreeBrowserBuilder(),
-				editorTabCustomToolbarButtonData,
-				() -> {});
+		return new UnitEditorPanel(new AbilityTabTreeBrowserBuilder());
 	}
 
 	private UnitEditorPanel createAbilityBuffEditor() {
-//		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('f', "war3map.w3h");
-//		DataTable standardUnitMeta = StandardObjectData.getStandardAbilityBuffMeta();
-
-//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.BUFFS_EFFECTS, StandardObjectData.getStandardAbilityBuffs(), standardUnitMeta, unitDataChangeset);
-		MutableObjectData unitData = new MutableBuffData();
-//		BasicEditorFieldBuilder editorFieldBuilder = new BasicEditorFieldBuilder(new BasicSingleFieldFactory(WorldEditorDataType.BUFFS_EFFECTS), WorldEditorDataType.BUFFS_EFFECTS);
-//		BasicEditorFieldBuilder editorFieldBuilder = new BasicEditorFieldBuilder(new BasicSingleFieldFactory(WorldEditorDataType.BUFFS_EFFECTS));
-		BasicEditorFieldBuilder editorFieldBuilder = new BasicEditorFieldBuilder(WorldEditorDataType.BUFFS_EFFECTS);
-		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("BUFF", "Buff");
-		return new UnitEditorPanel(
-				unitData,
-				editorFieldBuilder,
-				new BuffTabTreeBrowserBuilder(),
-				editorTabCustomToolbarButtonData,
-				() -> {});
+		return new UnitEditorPanel(new BuffTabTreeBrowserBuilder());
 	}
 
 	private UnitEditorPanel createUpgradeEditor() {
-//		War3ObjectDataChangeset unitDataChangeset = getWar3ObjectDataChangeset('g', "war3map.w3q");
-//		DataTable standardMeta = StandardObjectData.getStandardUpgradeMeta();
-		DataTable standardUpgradeEffectMeta = StandardObjectData.getStandardUpgradeEffectMeta();
-
-//		MutableObjectData unitData = new MutableObjectData(WorldEditorDataType.UPGRADES, StandardObjectData.getStandardUpgrades(), standardMeta, unitDataChangeset);
-		MutableObjectData unitData = new MutableUpgradeData();
-		EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData = new EditorTabCustomToolbarButtonData("UPGR", "Upgr");
-//		System.out.println("new UnitEditorPanel (" + "UPGR" + "ADES)");
-		return new UnitEditorPanel(
-				unitData,
-				new UpgradesFieldBuilder(standardUpgradeEffectMeta),
-				new UpgradeTabTreeBrowserBuilder(),
-				editorTabCustomToolbarButtonData,
-				() -> {});
+		return new UnitEditorPanel(new UpgradeTabTreeBrowserBuilder());
 	}
-
-
-//	private War3ObjectDataChangeset getWar3ObjectDataChangeset(char expectedkind, String fileName) {
-//		War3ObjectDataChangeset unitDataChangeset = new War3ObjectDataChangeset(expectedkind);
-//		try {
-//			CompoundDataSource gameDataFileSystem = GameDataFileSystem.getDefault();
-//
-//			if (gameDataFileSystem.has(fileName)) {
-//				BlizzardDataInputStream stream = new BlizzardDataInputStream(gameDataFileSystem.getResourceAsStream(fileName));
-//				WTS wts = gameDataFileSystem.has("war3map.wts") ? new WTSFile(gameDataFileSystem.getResourceAsStream("war3map.wts")) : null;
-//				unitDataChangeset.load(stream, wts, true);
-//			}
-//		} catch (final IOException e) {
-//			e.printStackTrace();
-//		}
-//		return unitDataChangeset;
-//	}
 
 }

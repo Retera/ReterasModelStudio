@@ -15,49 +15,20 @@ public final class AbilitySortByRaceFolder extends SortByRaceFolder {
 	private static final long serialVersionUID = 1L;
 	private static final War3ID ABIL_RACE_FIELD = War3ID.fromString("arac");
 
-//	private final Map<String, SortingFolderTreeNode> raceFolders = new HashMap<>();
-//	private final List<SortingFolderTreeNode> raceNodes = new ArrayList<>();
-
 	public AbilitySortByRaceFolder(String displayName) {
 		this(displayName, Arrays.asList(DefaultAbilityRace.values()));
 	}
 
 	public AbilitySortByRaceFolder(String displayName, List<SortRace> races) {
 		super(displayName, races);
-//		for (SortRace race : races) {
-//			AbilityRaceLevelFolder meleeCampaignFolder = getFolder(race);
-//			raceFolders.put(race.getKeyString(), meleeCampaignFolder);
-//			raceNodes.add(meleeCampaignFolder);
-//		}
 	}
 
 	protected AbilityRaceLevelFolder getFolder(SortRace race) {
 		return new AbilityRaceLevelFolder(race.getDisplayName());
 	}
 
-	protected DefaultAbilityRace raceKey(int index) {
-		return switch (index) {
-			case -1, 0 -> DefaultAbilityRace.HUMAN;
-			case 1 -> DefaultAbilityRace.ORC;
-			case 2 -> DefaultAbilityRace.UNDEAD;
-			case 3 -> DefaultAbilityRace.NIGHTELF;
-			case 4 -> DefaultAbilityRace.OTHER;
-			case 5 -> DefaultAbilityRace.NEUTRAL_HOSTILE;
-			case 6 -> DefaultAbilityRace.NEUTRAL_PASSIVE;
-			default -> DefaultAbilityRace.NEUTRAL_PASSIVE;
-		};
-	}
-
 	protected War3ID getWar3ID() {
 		return ABIL_RACE_FIELD;
 	}
 
-//	@Override
-//	public int getSortIndex(SortingFolderTreeNode childNode) {
-////		return raceNodes.indexOf(childNode);
-//		if (childNode != null){
-//			return raceNodes.indexOf(childNode);
-//		}
-//		return -1;
-//	}
 }

@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DestructableTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.util.TwiComboBoxModel;
 import com.hiveworkshop.rms.util.War3ID;
 import net.miginfocom.swing.MigLayout;
@@ -16,9 +15,8 @@ public class BetterDestructibleModelSelector extends BetterSelector {
 	private JComboBox<Integer> variantBox;
 	private ArrayList<Integer> variants;
 
-	public BetterDestructibleModelSelector(MutableObjectData unitData,
-	                                       UnitEditorSettings unitEditorSettings) {
-		super(unitData, new DestructableTabTreeBrowserBuilder(), unitEditorSettings, "bfil", "bvar");
+	public BetterDestructibleModelSelector(UnitEditorSettings unitEditorSettings) {
+		super(new DestructableTabTreeBrowserBuilder(), unitEditorSettings, "bfil", "bvar");
 	}
 
 	protected JPanel getRightPanel() {

@@ -54,8 +54,8 @@ public final class MutableGameObject {
 		CATEGORY_FIELDS.add(War3ID.fromString("feff")); // is effect
 
 		CATEGORY_FIELDS.add(War3ID.fromString("grac")); // upgrade race
-		// field structure fields - doesn't seem to be changeFlags 's' like you might
-		// hope
+
+		// field structure fields - doesn't seem to be changeFlags 's' like you might hope
 		FIELD_SETTINGS_FIELDS.add(War3ID.fromString("ubdg")); // unit is a builder
 		FIELD_SETTINGS_FIELDS.add(War3ID.fromString("dvar")); // doodad variations
 		FIELD_SETTINGS_FIELDS.add(War3ID.fromString("alev")); // ability level

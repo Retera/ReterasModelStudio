@@ -45,12 +45,14 @@ public class ComponentFaceEffectPanel extends ComponentPanel<FaceEffect> {
 	@Override
 	public ComponentPanel<FaceEffect> setSelectedItem(FaceEffect itemToSelect) {
 		faceEffect = itemToSelect;
+		String faceFXPath = faceEffect.getFaceEffect();
+
 		targetField.setText(faceEffect.getFaceEffectTarget());
-		effectField.setText(faceEffect.getFaceEffect());
+		effectField.setText(faceFXPath);
 
 		CompoundDataSource dataSource = GameDataFileSystem.getDefault();
-		exportButton.setEnabled(dataSource.has(faceEffect.getFaceEffect()));
-		exportInGameButton.setEnabled(dataSource.has(faceEffect.getFaceEffect() + "_ingame"));
+		exportButton.setEnabled(!faceFXPath.isEmpty() && dataSource.has(faceFXPath));
+		exportInGameButton.setEnabled(dataSource.has(faceFXPath + "_ingame"));
 
 		revalidate();
 		repaint();

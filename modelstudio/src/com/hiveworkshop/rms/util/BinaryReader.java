@@ -190,7 +190,13 @@ public class BinaryReader {
         for (int i = 0, l = out.length; i < l; i++) {
             out[i] = readFloat32();
         }
+        return out;
+    }
 
+    public float[] readInvFloat32Array(final float[] out) {
+        for (int i = out.length-1; i >= 0; i--) {
+            out[i] = readFloat32();
+        }
         return out;
     }
 

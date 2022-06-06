@@ -12,6 +12,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class SpliceGeosetPanel extends TwiImportPanel {
 	Geoset chosenDonGeo = null;
@@ -42,6 +43,16 @@ public class SpliceGeosetPanel extends TwiImportPanel {
 	}
 
 
+	protected JButton getButton(String text, Consumer<JButton> buttonConsumer, EditableModel model) {
+		JButton button = new JButton(text);
+		if(model != null){
+//			button.setIcon(iconHandler.getImageIcon(null, model));
+			button.setIcon(iconHandler.getImageIcon(model));
+		}
+		button.addActionListener(e -> buttonConsumer.accept(button));
+		return button;
+	}
+
 	protected void chooseDonGeosets(JButton chooseGeoset) {
 		chosenDonGeos = geosetChooser.chooseGeosets(chosenDonGeos, this);
 		if (!chosenDonGeos.isEmpty() && chosenDonGeos.get(0) != null) {
@@ -57,16 +68,16 @@ public class SpliceGeosetPanel extends TwiImportPanel {
 		repaint();
 	}
 
-	protected void chooseDonGeoset(JButton chooseGeoset) {
-		chosenDonGeo = geosetChooser.chooseGeoset(chosenDonGeo, this); // ToDo Allow multiple geosets?
-		if (chosenDonGeo != null) {
-			chooseGeoset.setText(chosenDonGeo.getName());
-		} else {
-			chooseGeoset.setText(donGeosetButtonText);
-		}
-		chooseGeoset.setIcon(iconHandler.getImageIcon(chosenDonGeo, donModel));
-		repaint();
-	}
+//	protected void chooseDonGeoset(JButton chooseGeoset) {
+//		chosenDonGeo = geosetChooser.chooseGeoset(chosenDonGeo, this); // ToDo Allow multiple geosets?
+//		if (chosenDonGeo != null) {
+//			chooseGeoset.setText(chosenDonGeo.getName());
+//		} else {
+//			chooseGeoset.setText(donGeosetButtonText);
+//		}
+//		chooseGeoset.setIcon(iconHandler.getImageIcon(chosenDonGeo, donModel));
+//		repaint();
+//	}
 
 	private void doImport(Geoset donGeoset) {
 		if (donGeoset != null) {
@@ -188,31 +199,31 @@ public class SpliceGeosetPanel extends TwiImportPanel {
 
 	}
 
-	private Bone getABone(Bone bone) {
-		JPanel panel = new JPanel(new MigLayout());
-		panel.add(new JLabel(iconHandler.getImageIcon(bone, donModel)));
-		panel.add(new JLabel(bone.getName()));
-		if (bone.getParent() != null) {
-			panel.add(new JLabel(" (" + bone.getParent().getName() + ")"));
-		}
-		panel.add(getButton(recBoneButtonText, b -> chooseRecBone1(b), recModel));
-
-		JOptionPane.showMessageDialog(this, panel, "Choose Bone", JOptionPane.PLAIN_MESSAGE);
-		return chosenRecBone;
-	}
-
-
-	protected Bone chooseRecBone1(JButton chooseBone) {
-		chosenRecBone = recBoneChooser.chooseBone(null, this);
-		if (chosenRecBone != null) {
-			chooseBone.setText(chosenRecBone.getName());
-		} else {
-			chooseBone.setText(recBoneButtonText);
-		}
-		chooseBone.setIcon(iconHandler.getImageIcon(chosenRecBone, recModel));
-		repaint();
-		return chosenRecBone;
-	}
+//	private Bone getABone(Bone bone) {
+//		JPanel panel = new JPanel(new MigLayout());
+//		panel.add(new JLabel(iconHandler.getImageIcon(bone, donModel)));
+//		panel.add(new JLabel(bone.getName()));
+//		if (bone.getParent() != null) {
+//			panel.add(new JLabel(" (" + bone.getParent().getName() + ")"));
+//		}
+//		panel.add(getButton(recBoneButtonText, b -> chooseRecBone1(b), recModel));
+//
+//		JOptionPane.showMessageDialog(this, panel, "Choose Bone", JOptionPane.PLAIN_MESSAGE);
+//		return chosenRecBone;
+//	}
+//
+//
+//	protected Bone chooseRecBone1(JButton chooseBone) {
+//		chosenRecBone = recBoneChooser.chooseBone(null, this);
+//		if (chosenRecBone != null) {
+//			chooseBone.setText(chosenRecBone.getName());
+//		} else {
+//			chooseBone.setText(recBoneButtonText);
+//		}
+//		chooseBone.setIcon(iconHandler.getImageIcon(chosenRecBone, recModel));
+//		repaint();
+//		return chosenRecBone;
+//	}
 
 	private Set<Bone> getTopLevelBones(Set<Bone> bones) {
 		Set<Bone> topLevelBones = new HashSet<>();

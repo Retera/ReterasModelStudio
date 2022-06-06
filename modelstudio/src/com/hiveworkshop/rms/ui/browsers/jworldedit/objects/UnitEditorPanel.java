@@ -46,24 +46,19 @@ public class UnitEditorPanel extends JSplitPane {
 	private JCheckBox caseSens;
 	private final Set<String> lastSelectedFields = new HashSet<>();
 
-	public UnitEditorPanel(
-			final MutableObjectData unitData,
-			final AbstractFieldBuilder editorFieldBuilder,
-			final ObjectTabTreeBrowserBuilder objectTabTreeBrowserBuilder,
-			final EditorTabCustomToolbarButtonData editorTabCustomToolbarButtonData,
-			final Runnable customUnitPopupRunner) {
+	public UnitEditorPanel(final ObjectTabTreeBrowserBuilder objectTabTreeBrowserBuilder) {
 
-		this.editorTabCustomToolbarButtonData = editorTabCustomToolbarButtonData;
-		this.customUnitPopupRunner = customUnitPopupRunner;
+		this.editorTabCustomToolbarButtonData = objectTabTreeBrowserBuilder.getEditorTabCustomToolbarButtonData();
+		this.customUnitPopupRunner = objectTabTreeBrowserBuilder.getCustomUnitPopupRunner();
 
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		this.unitData = unitData;
+		this.unitData = objectTabTreeBrowserBuilder.getUnitData();
 		this.unitMetaData = unitData.getSourceSLKMetaData();
-		this.editorFieldBuilder = editorFieldBuilder;
+		this.editorFieldBuilder = objectTabTreeBrowserBuilder.getEditorFieldBuilder();
 
 		System.out.println(unitData + ", " + objectTabTreeBrowserBuilder + ", " + settings + ", " + unitData.getWorldEditorDataType());
-		tree = new UnitEditorTree(unitData, objectTabTreeBrowserBuilder, settings);
+		tree = new UnitEditorTree(objectTabTreeBrowserBuilder, settings);
 		root = tree.getRoot();
 		JScrollPane treeScrollPane = new JScrollPane(tree);
 		setLeftComponent(treeScrollPane);
@@ -71,15 +66,7 @@ public class UnitEditorPanel extends JSplitPane {
 
 		table = getTable();
 
-		final String filepath = "replaceabletextures\\commandbuttons\\btnstormbolt.blp";
-		final BehaviorTreeNode behaviorRoot = new BehaviorTreeNode("Storm Bolt", niceIcon(filepath));
-
-		behaviorRoot.add(getLocalVarNode());
-		behaviorRoot.add(getActionsOnLearn());
-
-		behaviorRoot.add(getActionsOnCast());
-		behaviorRoot.add(getActionsOnBuffApplied());
-		behaviorRoot.add(getActionsOnBuffRemoved());
+		final BehaviorTreeNode behaviorRoot = getBehaviorTreeNode();
 
 		final JTree behaviorTree = new JTree(behaviorRoot);
 		behaviorTree.setCellRenderer(getTreeCellRenderer());
@@ -106,6 +93,19 @@ public class UnitEditorPanel extends JSplitPane {
 		setupCopyPaste(new ObjectTabTreeBrowserTransferHandler(unitData.getWorldEditorDataType()));
 
 		searchPanel = getSearchPanel();
+	}
+
+	private BehaviorTreeNode getBehaviorTreeNode() {
+		final String filepath = "replaceabletextures\\commandbuttons\\btnstormbolt.blp";
+		final BehaviorTreeNode behaviorRoot = new BehaviorTreeNode("Storm Bolt", niceIcon(filepath));
+
+		behaviorRoot.add(getLocalVarNode());
+		behaviorRoot.add(getActionsOnLearn());
+
+		behaviorRoot.add(getActionsOnCast());
+		behaviorRoot.add(getActionsOnBuffApplied());
+		behaviorRoot.add(getActionsOnBuffRemoved());
+		return behaviorRoot;
 	}
 
 	private JTable getTable() {

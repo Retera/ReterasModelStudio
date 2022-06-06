@@ -2,8 +2,6 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.War3ID;
 
@@ -16,9 +14,9 @@ import java.awt.event.MouseEvent;
 public class UnitEditorTreeBrowser extends UnitEditorTree {
 	private int rightClickX, rightClickY;
 
-	public UnitEditorTreeBrowser(MutableObjectData unitData, ObjectTabTreeBrowserBuilder browserBuilder,
-	                             UnitEditorSettings settings, WorldEditorDataType dataType) {
-		super(unitData, browserBuilder, settings);
+	public UnitEditorTreeBrowser(ObjectTabTreeBrowserBuilder browserBuilder,
+	                             UnitEditorSettings settings) {
+		super(browserBuilder, settings);
 
 		selectFirstUnit();
 

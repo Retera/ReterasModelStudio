@@ -25,8 +25,8 @@ public abstract class TwiImportPanel extends JPanel {
 	EditableModel donModel;
 	EditableModel recModel;
 	ModelHandler recModelHandler;
-	BoneChooser donBoneChooser;
-	BoneChooser recBoneChooser;
+	IdObjectChooserButton donBoneChooserButton;
+	IdObjectChooserButton recBoneChooserButton;
 
 	Animation prototypeAnim = new Animation("An Extra Empty Animation", 0, 1000);
 	AnimShell prototypeAnimShell = new AnimShell(prototypeAnim);
@@ -41,8 +41,6 @@ public abstract class TwiImportPanel extends JPanel {
 	IterableListModel<AnimShell> recAnimations = new IterableListModel<>();
 	JList<AnimShell> recAnimList = new JList<>(recAnimations);
 
-	Bone chosenDonBone = null;
-	Bone chosenRecBone = null;
 	BoneOption boneOption = BoneOption.rebindGeometry;
 	Integer boneChainDepth = -1;
 
@@ -60,57 +58,10 @@ public abstract class TwiImportPanel extends JPanel {
 		donAnimList.setPrototypeCellValue(prototypeAnimShell);
 		recAnimList.setPrototypeCellValue(prototypeAnimShell);
 
-		donBoneChooser = new BoneChooser(donModel);
-		recBoneChooser = new BoneChooser(recModel);
+		donBoneChooserButton = new IdObjectChooserButton(donModel, this);
+		recBoneChooserButton = new IdObjectChooserButton(recModel, this);
 
 		fillLists(donModel, recModel);
-	}
-
-	protected JButton getButton(String text, Consumer<JButton> buttonConsumer, EditableModel model) {
-		JButton button = new JButton(text);
-		if(model != null){
-//			button.setIcon(iconHandler.getImageIcon(null, model));
-			button.setIcon(iconHandler.getImageIcon(model));
-		}
-		button.addActionListener(e -> buttonConsumer.accept(button));
-		return button;
-	}
-
-	protected void chooseDonBone(JButton chooseBone) {
-		chosenDonBone = donBoneChooser.chooseBone(chosenDonBone, this);
-		if (chosenDonBone != null) {
-			chooseBone.setText(chosenDonBone.getName());
-//			chooseBone.setIcon(iconHandler.getImageIcon(chosenDonBone, donModel));
-		} else {
-			chooseBone.setText(donBoneButtonText);
-//			chooseBone.setIcon(null);
-		}
-		chooseBone.setIcon(iconHandler.getImageIcon(chosenDonBone, donModel));
-		repaint();
-	}
-	protected void chooseRecBone(JButton chooseBone) {
-		chosenRecBone = recBoneChooser.chooseBone(chosenRecBone, this);
-		if (chosenRecBone != null) {
-			chooseBone.setText(chosenRecBone.getName());
-//			chooseBone.setIcon(iconHandler.getImageIcon(chosenRecBone, recModel));
-		} else {
-			chooseBone.setText(recBoneButtonText);
-//			chooseBone.setIcon(null);
-		}
-		chooseBone.setIcon(iconHandler.getImageIcon(chosenRecBone, recModel));
-		repaint();
-	}
-	protected void chooseRecBone(BoneChooser boneChooser, Bone oldBone, EditableModel model, JButton button, String nullText, Consumer<Bone> boneConsumer) {
-		Bone bone = boneChooser.chooseBone(oldBone, this);
-		if (bone != null) {
-			button.setText(bone.getName());
-			button.setIcon(iconHandler.getImageIcon(bone, model));
-		} else {
-			button.setText(nullText);
-			button.setIcon(null);
-		}
-		boneConsumer.accept(bone);
-		repaint();
 	}
 
 	protected JPanel getBoneOptionPanel(){
@@ -374,14 +325,7 @@ public abstract class TwiImportPanel extends JPanel {
 	}
 
 	protected Map<IdObject, IdObject> getChainMap(Bone mapToBone, EditableModel mapToModel, Bone mapFromBone, EditableModel mapFromModel, int depth, boolean presentParent){
-		Map<IdObject, IdObject> boneChainMap = new HashMap<>();
-		if(depth == -1) depth = 10000;
-
-		boneChainMap.put(mapFromBone, mapToBone);
-
-		int currDepth = 0;
-		fillBoneChainMap(depth, boneChainMap, mapToBone, mapToModel, mapFromBone, mapFromModel, currDepth, presentParent);
-		return boneChainMap;
+		return new BoneChainMapWizard(this, mapToModel, mapFromModel).getChainMap(mapToBone, mapFromBone, depth, presentParent);
 	}
 
 	protected void fillBoneChainMap(int depth,

@@ -8,7 +8,6 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.impl.Trigger;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.impl.TriggerCategory;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.triggers.impl.TriggerEnvironment;
 import com.hiveworkshop.rms.ui.gui.modeledit.util.TransferActionListener;
-import com.hiveworkshop.rms.ui.icons.IconUtils;
 import net.sf.image4j.codec.ico.ICODecoder;
 
 import javax.swing.*;
@@ -20,8 +19,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hiveworkshop.rms.ui.browsers.jworldedit.AbstractWorldEditorPanel.getIcon;
-import static com.hiveworkshop.rms.ui.browsers.jworldedit.AbstractWorldEditorPanel.makeButton;
+import static com.hiveworkshop.rms.ui.browsers.jworldedit.AbstractWorldEditorPanel.*;
 
 public class TriggerEditor extends JPanel {
 	private JButton createNewCategoryButton;
@@ -99,8 +97,7 @@ public class TriggerEditor extends JPanel {
 		makeButton(worldEditorData, toolBar, "importEditor", "ToolBarIcon_Module_ImportManager", "WESTRING_MENU_IMPORTMANAGER");
 
 		toolBar.add(Box.createHorizontalStrut(8));
-		makeButton(worldEditorData, toolBar, "testMap",
-				new ImageIcon(IconUtils.worldEditStyleIcon(getIcon(worldEditorData, "ToolBarIcon_TestMap").getImage())), "WESTRING_TOOLBAR_TESTMAP");
+		makeButton2(worldEditorData, toolBar, "testMap", "ToolBarIcon_TestMap", "WESTRING_TOOLBAR_TESTMAP");
 		return toolBar;
 	}
 

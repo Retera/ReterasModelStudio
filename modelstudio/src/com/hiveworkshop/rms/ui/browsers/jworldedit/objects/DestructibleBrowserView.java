@@ -2,9 +2,7 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.application.MainFrame;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableDestructibleData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.War3ID;
@@ -25,7 +23,7 @@ public class DestructibleBrowserView extends View {
 	}
 
 	private static UnitEditorTree getUnitEditorTree() {
-		UnitEditorTree unitEditorTree = new UnitEditorTree(getDestructibleData(), new DestructableTabTreeBrowserBuilder(), new UnitEditorSettings());
+		UnitEditorTree unitEditorTree = new UnitEditorTree(new DestructableTabTreeBrowserBuilder(), new UnitEditorSettings());
 		unitEditorTree.selectFirstUnit();
 
 		unitEditorTree.addMouseListener(new MouseAdapter() {
@@ -40,21 +38,6 @@ public class DestructibleBrowserView extends View {
 			}
 		});
 		return unitEditorTree;
-	}
-
-	public static MutableObjectData getDestructibleData() {
-//		War3ObjectDataChangeset editorData = new War3ObjectDataChangeset('d');
-//		try {
-//			CompoundDataSource fs = GameDataFileSystem.getDefault();
-//			if (fs.has("war3map.w3d")) {
-//				BlizzardDataInputStream stream = new BlizzardDataInputStream(fs.getResourceAsStream("war3map.w3d"));
-//				WTS wts = fs.has("war3map.wts") ? new WTSFile(fs.getResourceAsStream("war3map.wts")) : null;
-//				editorData.load(stream, wts, true);
-//			}
-//		} catch (final IOException e) {
-//			e.printStackTrace();
-//		}
-		return new MutableDestructibleData();
 	}
 
 	private static void doodadViewerMouseClick(MouseEvent e, UnitEditorTree unitEditorTree) {

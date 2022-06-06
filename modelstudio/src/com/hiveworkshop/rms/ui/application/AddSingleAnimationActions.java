@@ -2,28 +2,39 @@ package com.hiveworkshop.rms.ui.application;
 
 import com.hiveworkshop.rms.editor.actions.UndoAction;
 import com.hiveworkshop.rms.editor.actions.animation.AddSequenceAction;
-import com.hiveworkshop.rms.editor.model.*;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlag;
-import com.hiveworkshop.rms.editor.model.animflag.AnimFlagUtils;
+import com.hiveworkshop.rms.editor.actions.animation.ReplaceSequenceTransformations;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.AddAnimFlagAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.RemoveFlagEntryMapAction;
+import com.hiveworkshop.rms.editor.actions.animation.animFlag.SetFlagEntryMapAction;
+import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
+import com.hiveworkshop.rms.editor.model.Animation;
+import com.hiveworkshop.rms.editor.model.EditableModel;
+import com.hiveworkshop.rms.editor.model.IdObject;
+import com.hiveworkshop.rms.editor.model.VisibilitySource;
+import com.hiveworkshop.rms.editor.model.animflag.*;
 import com.hiveworkshop.rms.editor.model.util.ModelUtils;
 import com.hiveworkshop.rms.filesystem.GameDataFileSystem;
 import com.hiveworkshop.rms.parsers.mdlx.util.MdxUtils;
 import com.hiveworkshop.rms.parsers.slk.GameObject;
 import com.hiveworkshop.rms.ui.application.actionfunctions.ImportFromObjectEditor;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
+import com.hiveworkshop.rms.ui.application.edit.animation.Sequence;
+import com.hiveworkshop.rms.ui.application.tools.BoneChainMapWizard;
 import com.hiveworkshop.rms.ui.browsers.model.ModelOptionPanel;
 import com.hiveworkshop.rms.ui.browsers.unit.UnitOptionPanel;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelPanel;
+import com.hiveworkshop.rms.ui.util.SearchableList;
+import com.hiveworkshop.rms.util.FramePopup;
+import com.hiveworkshop.rms.util.Pair;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.*;
 
 public class AddSingleAnimationActions {
 
@@ -32,7 +43,8 @@ public class AddSingleAnimationActions {
 
 		EditableModel animationSourceModel = fileDialog.chooseModelFile(FileDialog.OPEN_WC_MODEL);
 		if (animationSourceModel != null) {
-			addSingleAnimation(fileDialog.getModel(), animationSourceModel);
+			ModelHandler modelHandler = new ModelHandler(fileDialog.getModel());
+			addSingleAnimation(modelHandler, animationSourceModel);
 		}
 
 		if (ProgramGlobals.getCurrentModelPanel() != null) {
@@ -40,28 +52,60 @@ public class AddSingleAnimationActions {
 		}
 	}
 
-	public static void addSingleAnimation(EditableModel current, EditableModel animationSourceModel) {
+	public static void addSingleAnimation(ModelHandler modelHandler, EditableModel animationSourceModel) {
 		MainPanel mainPanel = ProgramGlobals.getMainPanel();
-		Animation choice = (Animation) JOptionPane.showInputDialog(mainPanel, "Choose an animation!", "Add Animation",
-				JOptionPane.QUESTION_MESSAGE, null, animationSourceModel.getAnims().toArray(),
-				animationSourceModel.getAnims().get(0));
-		if (choice == null) {
-			JOptionPane.showMessageDialog(mainPanel, "Bad choice. No animation added.");
-			return;
-		}
-		Animation visibilitySource = (Animation) JOptionPane.showInputDialog(mainPanel,
-				"Which animation from THIS model to copy visiblity from?", "Add Animation",
-				JOptionPane.QUESTION_MESSAGE, null, current.getAnims().toArray(), current.getAnims().get(0));
-		if (visibilitySource == null) {
-			JOptionPane.showMessageDialog(mainPanel, "No visibility will be copied.");
-		}
-		List<Animation> animationsAdded = addAnimationsFrom(current, animationSourceModel, Collections.singletonList(choice));
-		for (Animation anim : animationsAdded) {
-			copyVisibility(current, visibilitySource, anim);
-		}
-		JOptionPane.showMessageDialog(mainPanel, "Added " + animationSourceModel.getName() + "'s " + choice.getName()
-				+ " with " + visibilitySource.getName() + "'s visibility  OK!");
-		ModelStructureChangeListener.changeListener.animationParamsChanged();
+
+		EditableModel currModel = modelHandler.getModel();
+		BoneChainMapWizard wizard2 = new BoneChainMapWizard(mainPanel, animationSourceModel, currModel);
+		JPanel editMappingPanel = wizard2.getEditMappingPanel(-1, false, true);
+
+		SearchableList<Animation> animationsList = new SearchableList<>(AddSingleAnimationActions::filterAnims);
+		animationsList.addAll(animationSourceModel.getAnims());
+		SearchableList<Animation> visibilityList = new SearchableList<>(AddSingleAnimationActions::filterAnims);
+		visibilityList.addAll(currModel.getAnims());
+
+		JPanel animPanel = new JPanel(new MigLayout("ins 0"));
+		animPanel.add(new JLabel("Choose animation to be added from " + animationSourceModel.getName()), "spanx, wrap");
+		animPanel.add(animationsList.getScrollableList(), "growx, wrap");
+
+		JPanel visPanel = new JPanel(new MigLayout("ins 0"));
+		visPanel.add(new JLabel("Which animation from " + currModel.getName() + "(THIS) model to copy visibility from?"), "spanx, wrap");
+		visPanel.add(visibilityList.getScrollableList(), "growx, wrap");
+
+
+		JPanel panel = new JPanel(new MigLayout("fill"));
+		panel.add(animPanel, "growx, wrap");
+		panel.add(visPanel, "growx, wrap");
+		JButton doAdd = new JButton("Do Add");
+		doAdd.addActionListener(e -> doAddAnimation(modelHandler, animationSourceModel.getName(), panel, animationsList.getSelectedValue(), visibilityList.getSelectedValue(), wizard2.fillAndGetChainMap()));
+		panel.add(doAdd);
+
+		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane.addTab("Choose Animation", panel);
+		tabbedPane.addTab("Map Nodes", editMappingPanel);
+		FramePopup.show(tabbedPane, ProgramGlobals.getMainPanel(), "Add Animation");
+	}
+
+	private static boolean filterAnims(Animation animation, String text){
+		return animation.getName().toLowerCase().contains(text.toLowerCase());
+	}
+
+	private static void doAddAnimation(ModelHandler modelHandler, String animSrcName, Component parent, Animation animation, Animation vis, Map<IdObject, IdObject> nodeMap) {
+		HashMap<Sequence, Sequence> animMap = new HashMap<>();
+		animMap.put(animation, animation);
+
+		UndoAction importAction = getImportAction(modelHandler.getModel(), animMap, nodeMap);
+		UndoAction setVisibilityAction = getSetVisibilityAction(modelHandler.getModel(), vis, animation);
+
+		modelHandler.getUndoManager().pushAction(
+				new CompoundAction("Add Single Animation", ModelStructureChangeListener.changeListener::animationParamsChanged,
+						importAction,
+						setVisibilityAction)
+						.redo());
+
+
+		JOptionPane.showMessageDialog(parent, "Added " + animSrcName + "'s " + animation.getName()
+				+ " with " + vis.getName() + "'s visibility  OK!");
 	}
 
 	public static void addAnimationFromObject() {
@@ -179,7 +223,7 @@ public class AddSingleAnimationActions {
 			if (modelPanel != null && modelPanel.getModel() != null && filepath != null) {
 				try {
 					EditableModel animationSource = MdxUtils.loadEditable(GameDataFileSystem.getDefault().getFile(filepath));
-					addSingleAnimation(modelPanel.getModel(), animationSource);
+					addSingleAnimation(modelPanel.getModelHandler(), animationSource);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -192,114 +236,108 @@ public class AddSingleAnimationActions {
 
 			ModelPanel modelPanel = ProgramGlobals.getCurrentModelPanel();
 			if (modelPanel != null && modelPanel.getModel() != null) {
-				addSingleAnimation(modelPanel.getModel(), animationSource);
+				addSingleAnimation(modelPanel.getModelHandler(), animationSource);
 			}
 		}
 	}
 
-
-	public static List<Animation> addAnimationsFrom(EditableModel model, EditableModel other, final List<Animation> anims) {
-		// this process destroys the "other" model inside memory, so destroy
-		// a copy instead
-		other = TempStuffFromEditableModel.deepClone(other, "animation source file");
-
-		List<AnimFlag<?>> othersFlags = ModelUtils.getAllAnimFlags(other);
-		List<EventObject> othersEventObjs = other.getEvents();
-
-		List<Animation> newAnimations = new ArrayList<>();
-
-		// ------ Duplicate the time track in the other model -------------
-		//
-		// On this new, separate time track, we want to be able to
-		// the information specific to each node about how it will
-		// move if it gets translated into or onto the current model
-
-		List<AnimFlag<?>> newImpFlags = new ArrayList<>();
-		for (AnimFlag<?> af : othersFlags) {
-			if (!af.hasGlobalSeq()) {
-				newImpFlags.add(af.getEmptyCopy());
-			} else {
-				newImpFlags.add(af.deepCopy());
-			}
-		}
-		List<EventObject> newImpEventObjs = new ArrayList<>();
-		for (final Object e : othersEventObjs) {
-			newImpEventObjs.add(EventObject.buildEmptyFrom((EventObject) e));
-		}
-
-		// Fill the newly created time track with the exact same data, but shifted forward
-		// relative to wherever the current model's last animation starts
-		for (Animation anim : anims) {
-			int animTrackEnd = ModelUtils.animTrackEnd(model);
-			int newStart = animTrackEnd + 300;
-			int length = anim.getLength();
-			Animation newAnim = anim.deepCopy();
-			// clone the animation from the other model
-			newAnim.setAnimStuff(newStart, length);
-//			newAnim.copyToInterval(newStart, newStart + length, newAnim, othersFlags, othersEventObjs, newImpFlags, newImpEventObjs);
-
-			for (final AnimFlag<?> af : newImpFlags) {
-				if (!af.hasGlobalSeq()) {
-					AnimFlag<?> source = othersFlags.get(newImpFlags.indexOf(af));
-					AnimFlagUtils.copyFrom(af, source, anim, newAnim);
-				}
-			}
-			for (final EventObject e : newImpEventObjs) {
-				if (!e.hasGlobalSeq()) {
-					EventObject source = othersEventObjs.get(newImpEventObjs.indexOf(e));
-					e.copyFrom(source, anim, newAnim);
-				}
-			}
-
-			model.add(newAnim); // add the new animation to this model
-			newAnimations.add(newAnim);
-		}
-
-		// destroy the other model's animations, filling them in with the new stuff
-		for (final AnimFlag<?> af : othersFlags) {
-			AnimFlagUtils.setValuesTo(af, newImpFlags.get(othersFlags.indexOf(af)));
-		}
-		for (final Object e : othersEventObjs) {
-			((EventObject) e).setValuesTo(newImpEventObjs.get(othersEventObjs.indexOf(e)));
-		}
-
-		// Now, map the bones in the other model onto the bones in the current model
-		final List<Bone> leftBehind = new ArrayList<>();
-		// the bones that don't find matches in current model
-//		for (final IdObject object : other.idObjects) {
-		for (final IdObject object : other.getBones()) {
-			if (object instanceof Bone) {
-				// the bone from the other model
-				final Bone bone = (Bone) object;
-				// the object in this model of similar name
-				final Object localObject = model.getObject(bone.getName());
-				if ((localObject instanceof Bone)) {
-					final Bone localBone = (Bone) localObject;
-					localBone.copyMotionFrom(bone);
-					// if it's a match, take the data
-				} else {
-					leftBehind.add(bone);
-				}
-			}
-		}
-		for (final Bone bone : leftBehind) {
-			if (bone.animates()) {
-				model.add(bone);
-			}
-		}
-
-		return newAnimations;
-		// i think we're done????
-	}
-
-	public static void copyVisibility(EditableModel model, Animation visibilitySource, Animation target) {
-//		final List<VisibilitySource> allVisibilitySources = getAllVisibilitySources();
-		final List<VisibilitySource> allVisibilitySources = ModelUtils.getAllVis(model);
+	public static UndoAction getSetVisibilityAction(EditableModel model, Animation visibilitySource, Animation target) {
+		List<UndoAction> undoActions = new ArrayList<>();
+		List<VisibilitySource> allVisibilitySources = ModelUtils.getAllVis(model);
 		for (VisibilitySource source : allVisibilitySources) {
-			AnimFlag<?> visibilityFlag = source.getVisibilityFlag();
-			AnimFlag<?> copyFlag = visibilityFlag.deepCopy();
-			visibilityFlag.deleteAnim(target);
-			AnimFlagUtils.copyFrom(visibilityFlag, copyFlag, visibilitySource, target);
+			AnimFlag<Float> visibilityFlag = source.getVisibilityFlag();
+			TreeMap<Integer, Entry<Float>> entryMapCopy = visibilityFlag.getSequenceEntryMapCopy(visibilitySource);
+			if(entryMapCopy != null){
+				undoActions.add(new SetFlagEntryMapAction<>(visibilityFlag, target, entryMapCopy, null));
+			}
+		}
+		return new CompoundAction("Copy Visibility", undoActions, null);
+	}
+
+	private static UndoAction getImportAction(EditableModel recModel, Map<Sequence, Sequence> recToDonSequenceMap, Map<IdObject, IdObject> chainMap){
+		List<UndoAction> undoActions = new ArrayList<>();
+		undoActions.add(getAddSequencesAction(recModel, recToDonSequenceMap));
+		undoActions.add(getImportIdObjectsAction(recToDonSequenceMap, chainMap));
+
+
+		return new CompoundAction("import sub animation", undoActions, ModelStructureChangeListener.changeListener::nodesUpdated);
+	}
+
+
+	private static UndoAction getAddSequencesAction(EditableModel recModel, Map<Sequence, Sequence> recToDonSequenceMap) {
+		List<UndoAction> undoActions = new ArrayList<>();
+		for(Sequence recSeq : recToDonSequenceMap.keySet()){
+			if(!recModel.contains(recSeq)){
+				undoActions.add(new AddSequenceAction(recModel, recSeq, null));
+			}
+		}
+		return new CompoundAction("import sub animation", undoActions, null);
+	}
+	private static UndoAction getImportIdObjectsAction(Map<Sequence, Sequence> recToDonSequenceMap, Map<IdObject, IdObject> chainMap) {
+		List<UndoAction> undoActions = new ArrayList<>();
+
+		System.out.println(chainMap.size());
+
+		for (IdObject recIdObject : chainMap.keySet()) {
+			IdObject donIdObject = chainMap.get(recIdObject);
+			List<Pair<AnimFlag<?>, AnimFlag<?>>> flagPairs = getFlagPairs(recIdObject, donIdObject);
+
+			for (Pair<AnimFlag<?>, AnimFlag<?>> flagPair : flagPairs) {
+				AnimFlag<?> recAnimFlag = flagPair.getFirst();
+				AnimFlag<?> donAnimFlag = flagPair.getSecond();
+
+				if (recAnimFlag instanceof IntAnimFlag && donAnimFlag instanceof IntAnimFlag){
+					addUndoActions(recToDonSequenceMap, undoActions, (IntAnimFlag) recAnimFlag, (IntAnimFlag) donAnimFlag);
+				} else if (recAnimFlag instanceof FloatAnimFlag && donAnimFlag instanceof FloatAnimFlag){
+					addUndoActions(recToDonSequenceMap, undoActions, (FloatAnimFlag) recAnimFlag, (FloatAnimFlag) donAnimFlag);
+				} else if (recAnimFlag instanceof Vec3AnimFlag && donAnimFlag instanceof Vec3AnimFlag){
+					addUndoActions(recToDonSequenceMap, undoActions, (Vec3AnimFlag) recAnimFlag, (Vec3AnimFlag) donAnimFlag);
+				} else if (recAnimFlag instanceof QuatAnimFlag && donAnimFlag instanceof QuatAnimFlag){
+					addUndoActions(recToDonSequenceMap, undoActions, (QuatAnimFlag) recAnimFlag, (QuatAnimFlag) donAnimFlag);
+				} else if (recAnimFlag == null){
+					AnimFlag<?> newAnimFlag = donAnimFlag.getEmptyCopy();
+					for (Sequence sequence : recToDonSequenceMap.keySet()) {
+						AnimFlagUtils.copyFrom(newAnimFlag, donAnimFlag, recToDonSequenceMap.get(sequence), sequence);
+					}
+					undoActions.add(new AddAnimFlagAction<>(recIdObject, newAnimFlag, null));
+				} else if (donAnimFlag == null){
+					for (Sequence sequence : recToDonSequenceMap.keySet()) {
+						undoActions.add(new RemoveFlagEntryMapAction<>(recAnimFlag, sequence, null));
+					}
+				}
+			}
+		}
+
+		System.out.println("Done Importing! :O");
+		return new CompoundAction("import sub animation", undoActions, null);
+	}
+
+
+	private static List<Pair<AnimFlag<?>, AnimFlag<?>>> getFlagPairs(IdObject recIdObject, IdObject donIdObject){
+		List<Pair<AnimFlag<?>, AnimFlag<?>>> pairList = new ArrayList<>();
+		if(recIdObject != null && donIdObject != null){
+			ArrayList<AnimFlag<?>> recAnimFlags = recIdObject.getAnimFlags();
+			ArrayList<AnimFlag<?>> donAnimFlags = donIdObject.getAnimFlags();
+
+			Set<AnimFlag<?>> matchedFlags = new HashSet<>();
+			for (AnimFlag<?> recAnimFlag : recAnimFlags){
+				AnimFlag<?> donAnimFlag = donIdObject.find(recAnimFlag.getName());
+				pairList.add(new Pair<>(recAnimFlag, donAnimFlag));
+				matchedFlags.add(donAnimFlag);
+			}
+
+			for (AnimFlag<?> donAnimFlag : donAnimFlags){
+				if(!matchedFlags.contains(donAnimFlag)){
+					pairList.add(new Pair<>(null, donAnimFlag));
+				}
+			}
+		}
+		return pairList;
+	}
+	private static <Q> void addUndoActions(Map<Sequence, Sequence> recToDonSequenceMap, List<UndoAction> undoActions, AnimFlag<Q> recAnimFlag, AnimFlag<Q> donAnimFlag) {
+		for (Sequence recSequence : recToDonSequenceMap.keySet()) {
+			Sequence donSequence = recToDonSequenceMap.get(recSequence);
+			undoActions.add(new ReplaceSequenceTransformations<>(donAnimFlag, recAnimFlag, donSequence, recSequence, null));
 		}
 	}
 }

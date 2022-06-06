@@ -4,8 +4,12 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
+import com.hiveworkshop.rms.util.War3ID;
 
 public final class MdlxFloatTimeline extends MdlxTimeline<float[]> {
+	public MdlxFloatTimeline(War3ID name){
+		super(name);
+	}
 	@Override
 	protected int valueSize() {
 		return 1;

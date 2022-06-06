@@ -226,8 +226,10 @@ public class MdlTokenInputStream {
 	}
 
 	private void skipToken(String token) {
-		if (peek().equals(token)) {
-			read();
+		int index = this.index;
+		String peek = read();
+		if (!peek.equals(token)) {
+			this.index = index;
 		}
 	}
 

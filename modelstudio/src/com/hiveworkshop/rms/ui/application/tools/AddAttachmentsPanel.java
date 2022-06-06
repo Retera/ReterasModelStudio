@@ -6,6 +6,8 @@ import com.hiveworkshop.rms.editor.actions.nodes.SetParentAction;
 import com.hiveworkshop.rms.editor.actions.util.CompoundAction;
 import com.hiveworkshop.rms.editor.model.Attachment;
 import com.hiveworkshop.rms.editor.model.Bone;
+import com.hiveworkshop.rms.editor.model.Helper;
+import com.hiveworkshop.rms.editor.model.IdObject;
 import com.hiveworkshop.rms.ui.application.edit.ModelStructureChangeListener;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.TwiComboBox;
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 public class AddAttachmentsPanel extends JPanel {
-	private final BoneChooser boneChooser;
+	private final IdObjectChooser boneChooser;
 	private final ModelIconHandler iconHandler = new ModelIconHandler();
 	private final Set<FutureAttachment> attachments = new HashSet<>();
 	private final JPanel attachmentListPanel;
@@ -30,7 +32,7 @@ public class AddAttachmentsPanel extends JPanel {
 	public AddAttachmentsPanel(ModelHandler modelHandler){
 		super(new MigLayout("","",""));
 		this.modelHandler = modelHandler;
-		boneChooser = new BoneChooser(modelHandler.getModel());
+		boneChooser = getIdObjectChooser(modelHandler);
 		attachmentListPanel = new JPanel(new MigLayout("fillx, ins 0, wrap 1, top"));
 		addRow();
 		JPanel innerPanel = new JPanel(new MigLayout("fill, ins 0, wrap 1, top", "[]", "[][][grow]"));
@@ -50,6 +52,16 @@ public class AddAttachmentsPanel extends JPanel {
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(e -> finnish());
 		add(cancelButton);
+	}
+
+	private IdObjectChooser getIdObjectChooser(ModelHandler modelHandler) {
+		IdObjectChooser boneChooser;
+		boneChooser = new IdObjectChooser(modelHandler.getModel());
+		HashSet<Class<?>> classSet = new HashSet<>();
+		classSet.add(Bone.class);
+		classSet.add(Helper.class);
+		boneChooser.setClassSet(classSet);
+		return boneChooser;
 	}
 
 	public AddAttachmentsPanel setOnFinished(Runnable onFinished) {
@@ -123,7 +135,7 @@ public class AddAttachmentsPanel extends JPanel {
 	}
 
 	protected void chooseRecBone(JButton chooseBone, FutureAttachment attachment) {
-		Bone chosenRecBone = boneChooser.chooseBone(attachment.getParentToBe(), this);
+		IdObject chosenRecBone = boneChooser.chooseObject(attachment.getParentToBe(), this);
 		if (chosenRecBone != null) {
 			chooseBone.setText(chosenRecBone.getName());
 		} else {
@@ -281,7 +293,7 @@ public class AddAttachmentsPanel extends JPanel {
 	static class FutureAttachment{
 		JPanel panel;
 		String name;
-		Bone parentToBe;
+		IdObject parentToBe;
 		FutureAttachment(JPanel panel){
 			this.panel = panel;
 		}
@@ -299,12 +311,12 @@ public class AddAttachmentsPanel extends JPanel {
 			return name;
 		}
 
-		public FutureAttachment setParentToBe(Bone parentToBe) {
+		public FutureAttachment setParentToBe(IdObject parentToBe) {
 			this.parentToBe = parentToBe;
 			return this;
 		}
 
-		public Bone getParentToBe() {
+		public IdObject getParentToBe() {
 			return parentToBe;
 		}
 	}

@@ -1,15 +1,20 @@
 package com.hiveworkshop.rms.parsers.mdlx.timeline;
 
+import com.hiveworkshop.rms.parsers.mdlx.AnimationMap;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenInputStream;
 import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlTokenOutputStream;
 import com.hiveworkshop.rms.util.BinaryReader;
 import com.hiveworkshop.rms.util.BinaryWriter;
+import com.hiveworkshop.rms.util.War3ID;
 
 public final class MdlxFloatArrayTimeline extends MdlxTimeline<float[]> {
 	private final int arraySize;
+	private final boolean isColor;
 
-	public MdlxFloatArrayTimeline(final int arraySize) {
+	public MdlxFloatArrayTimeline(final int arraySize, War3ID name) {
+		super(name);
 		this.arraySize = arraySize;
+		isColor = name.equals(AnimationMap.KGAC.getWar3id());
 	}
 
 	@Override
@@ -19,24 +24,42 @@ public final class MdlxFloatArrayTimeline extends MdlxTimeline<float[]> {
 
 	@Override
 	protected float[] readMdxValue(final BinaryReader reader) {
-		return reader.readFloat32Array(arraySize);
+		final float[] output = new float[arraySize];
+		if(isColor){
+			reader.readInvFloat32Array(output);
+		} else {
+			reader.readFloat32Array(output);
+		}
+		return output;
 	}
 
 	@Override
 	protected float[] readMdlValue(final MdlTokenInputStream stream) {
 		final float[] output = new float[arraySize];
-		stream.readKeyframe(output);
+		if(isColor){
+			stream.readColor(output);
+		} else {
+			stream.readKeyframe(output);
+		}
 		return output;
 	}
 
 	@Override
 	protected void writeMdxValue(final BinaryWriter writer, final float[] value) {
-		writer.writeFloat32Array(value);
+		if(isColor){
+			writer.writeInvFloat32Array(value);
+		} else {
+			writer.writeFloat32Array(value);
+		}
 	}
 
 	@Override
 	protected void writeMdlValue(final MdlTokenOutputStream stream, final String prefix, final float[] value) {
-		stream.writeKeyframe(prefix, value);
+		if(isColor){
+			stream.writeColor(prefix, value);
+		} else {
+			stream.writeKeyframe(prefix, value);
+		}
 	}
 
 	public int getArraySize() {

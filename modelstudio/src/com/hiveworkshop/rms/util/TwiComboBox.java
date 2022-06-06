@@ -168,4 +168,7 @@ public class TwiComboBox<E> extends JComboBox<E> {
 		return this;
 	}
 
+	public E getSelected(){
+		return comboBoxModel.getSelectedTyped();
+	}
 }

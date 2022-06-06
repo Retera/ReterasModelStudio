@@ -139,7 +139,7 @@ public class IntAnimFlag extends AnimFlag<Integer> {
 
 	@Override
 	public MdlxUInt32Timeline toMdlx(final TimelineContainer container, EditableModel model) {
-		final MdlxUInt32Timeline mdlxTimeline = new MdlxUInt32Timeline();
+		final MdlxUInt32Timeline mdlxTimeline = new MdlxUInt32Timeline(FlagUtils.getWar3ID(name, container));
 
 		toMdlx3(mdlxTimeline, container, model);
 

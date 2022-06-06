@@ -16,6 +16,7 @@ import java.util.*;
 
 public class SpliceModelPartPanel extends TwiImportPanel {
 
+	Map<IdObject, IdObject> chainMap;
 	public SpliceModelPartPanel(EditableModel donModel, ModelHandler recModelHandler) {
 		super(donModel, recModelHandler);
 		setLayout(new MigLayout("fill, wrap 2", "[sgx half, grow][sgx half, grow][0%:0%:1%, grow 0]", "[grow 0][grow 1][grow 1][grow 0]"));
@@ -23,20 +24,32 @@ public class SpliceModelPartPanel extends TwiImportPanel {
 		add(new JLabel("Part source"), "");
 		add(new JLabel("Destination"), "");
 
-		add(getButton(donBoneButtonText, this::chooseDonBone, donModel), "");
-		add(getButton(recBoneButtonText, this::chooseRecBone, recModel), "");
+		add(donBoneChooserButton, "");
+		add(recBoneChooserButton, "");
 
 		add(getBoneOptionPanel(), "spanx, wrap");
 
+		BoneChainMapWizard boneChainMapWizard = new BoneChainMapWizard(this, donModel, recModel);
+		JButton mapBonesButton = new JButton("Map Bones!");
+		mapBonesButton.addActionListener(e -> mapBones(boneChainMapWizard, donBoneChooserButton.getChosenBone(), recBoneChooserButton.getChosenBone(), boneChainDepth));
+		add(mapBonesButton, "wrap");
+
 		JButton importButton = new JButton("Import!");
-		importButton.addActionListener(e -> doImport(chosenDonBone, chosenRecBone));
+		importButton.addActionListener(e -> doImport(donBoneChooserButton.getChosenBone(), recBoneChooserButton.getChosenBone()));
 		add(importButton, "");
+	}
+
+
+	private void mapBones(BoneChainMapWizard boneChainMapWizard, Bone donBone, Bone recBone, int boneChainDepth){
+		boneChainMapWizard.editMapping(donBone, recBone, boneChainDepth, true);
+		chainMap = boneChainMapWizard.getChainMap();
 	}
 
 	private void doImport(Bone donBone, Bone recBone) {
 		if (donBone != null) {
-//			Map<IdObject, IdObject> chainMap = getChainMapReverse(donBone, recBone, boneChainDepth); // donating bones to receiving bones
-			Map<IdObject, IdObject> chainMap = getChainMap(recBone, recModel, donBone, donModel, boneChainDepth, true); // donating bones to receiving bones
+			if(chainMap == null){
+				chainMap = getChainMap(recBone, recModel, donBone, donModel, boneChainDepth, true); // donating bones to receiving bones
+			}
 
 			Set<Bone> selectedBones = new HashSet<>();
 			chainMap.keySet().stream().filter(idObject -> idObject instanceof Bone).forEach(idObject -> selectedBones.add((Bone) idObject));

@@ -41,13 +41,18 @@ public abstract class AbstractSortingFolderTreeNode extends SortingFolderTreeNod
 	public SortingFolderTreeNode getNextNode(MutableGameObject object, TreeNodeLinker treeModel) {
 		SortingFolderTreeNode sortingFolderTreeNode = getNextNode(object);
 		if (sortingFolderTreeNode != null) {
-			int sortedInsertionIndex = 0;
-			for (int childIndex = 0; childIndex < getChildCount(); childIndex++) {
-				if (getSortIndex(sortingFolderTreeNode) >= getSortIndex(getChildAt(childIndex))) {
-					sortedInsertionIndex = childIndex + 1;
-				}
-			}
 			if (!isNodeChild(sortingFolderTreeNode)) {
+				int sortedInsertionIndex = 0;
+				int childCount = getChildCount();
+				if(childCount >0){
+					int sortIndex = getSortIndex(sortingFolderTreeNode);
+
+					for (int childIndex = 0; childIndex < childCount; childIndex++) {
+						if (sortIndex >= getSortIndex(getChildAt(childIndex))) {
+							sortedInsertionIndex = childIndex + 1;
+						}
+					}
+				}
 				treeModel.insertNodeInto(sortingFolderTreeNode, this, sortedInsertionIndex);
 			}
 		}

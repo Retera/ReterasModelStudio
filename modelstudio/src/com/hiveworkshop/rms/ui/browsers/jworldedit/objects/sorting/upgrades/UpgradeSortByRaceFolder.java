@@ -1,8 +1,7 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.upgrades;
 
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObjectSortStringComparator;
+import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortByRaceFolder;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.abilities.DefaultAbilityRace;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.buffs.DefaultBuffRace;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.BottomLevelCategoryFolder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.general.SortRace;
@@ -18,9 +17,7 @@ public final class UpgradeSortByRaceFolder extends SortByRaceFolder {
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final War3ID UPGR_RACE_FIELD = War3ID.fromString("grac");
-
-//	private final Map<String, SortingFolderTreeNode> raceFolders = new HashMap<>();
-//	private final List<SortingFolderTreeNode> raceNodes = new ArrayList<>();
+	private static final String TAG_NAME = "sort";
 
 	public UpgradeSortByRaceFolder(final String displayName) {
 		this(displayName, Arrays.asList(DefaultBuffRace.values()));
@@ -28,40 +25,29 @@ public final class UpgradeSortByRaceFolder extends SortByRaceFolder {
 
 	public UpgradeSortByRaceFolder(String displayName, List<SortRace> races) {
 		super(displayName, races);
-//		for (SortRace race : races) {
-//			BottomLevelCategoryFolder bottomLevelFolder = getFolder(race);
-//			raceFolders.put(race.getKeyString(), bottomLevelFolder);
-//			raceNodes.add(bottomLevelFolder);
-//		}
 	}
 
 	protected BottomLevelCategoryFolder getFolder(SortRace race) {
-		return new BottomLevelCategoryFolder(race.getDisplayName(), new MutableGameObjectSortStringComparator());
-	}
-
-	private DefaultAbilityRace raceKey(final int index) {
-		return switch (index) {
-			case -1, 0 -> DefaultAbilityRace.HUMAN;
-			case 1 -> DefaultAbilityRace.ORC;
-			case 2 -> DefaultAbilityRace.UNDEAD;
-			case 3 -> DefaultAbilityRace.NIGHTELF;
-			case 4 -> DefaultAbilityRace.OTHER;
-			case 5 -> DefaultAbilityRace.NEUTRAL_HOSTILE;
-			case 6 -> DefaultAbilityRace.NEUTRAL_PASSIVE;
-			default -> DefaultAbilityRace.NEUTRAL_PASSIVE;
-		};
+		return new BottomLevelCategoryFolder(race.getDisplayName(), this::compare);
 	}
 
 	protected War3ID getWar3ID() {
 		return UPGR_RACE_FIELD;
 	}
 
-//	@Override
-//	public int getSortIndex(final SortingFolderTreeNode childNode) {
-////		return raceNodes.indexOf(childNode);
-//		if (childNode != null){
-//			return raceNodes.indexOf(childNode);
-//		}
-//		return -1;
-//	}
+
+	public int compare(final MutableGameObject a, final MutableGameObject b) {
+		String a_slkTag = a.readSLKTag(TAG_NAME);
+		String b_slkTag = b.readSLKTag(TAG_NAME);
+		if (a_slkTag.equals("") && !b_slkTag.equals("")) {
+			return 1;
+		} else if (b_slkTag.equals("") && !a_slkTag.equals("")) {
+			return -1;
+		}
+		final int comp1 = a_slkTag.compareTo(b_slkTag);
+		if (comp1 == 0) {
+			return a.getName().compareTo(b.getName());
+		}
+		return comp1;
+	}
 }

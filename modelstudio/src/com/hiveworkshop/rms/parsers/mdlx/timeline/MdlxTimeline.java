@@ -25,13 +25,11 @@ public abstract class MdlxTimeline<TYPE> {
 	 */
 	private static final StringBuffer STRING_BUFFER_HEAP = new StringBuffer();
 
-	public MdlxTimeline() {
-		
+	public MdlxTimeline(final War3ID name) {
+		this.name = name;
 	}
 
-	public void readMdx(final BinaryReader reader, final War3ID name) {
-		this.name = name;
-
+	public void readMdx(final BinaryReader reader) {
 		final long keyFrameCount = reader.readUInt32();
 
 		interpolationType = InterpolationType.getType(reader.readInt32());
@@ -70,9 +68,7 @@ public abstract class MdlxTimeline<TYPE> {
 		}
 	}
 
-	public void readMdl(final MdlTokenInputStream stream, final War3ID name) {
-		this.name = name;
-
+	public void readMdl(final MdlTokenInputStream stream) {
 		final int keyFrameCount = stream.readInt();
 
 		stream.read(); // {

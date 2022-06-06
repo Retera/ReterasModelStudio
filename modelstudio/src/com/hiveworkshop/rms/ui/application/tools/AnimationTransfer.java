@@ -293,33 +293,7 @@ public class AnimationTransfer extends JPanel {
 		Animation animation = pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex());
 		Animation visibility = visFromBox.getItemAt(visFromBox.getSelectedIndex());
 		importPanel2.animTransferPartTwo(animation, visibility, show);
-
-//		waitWhileVisible(importPanel2);
-
-//		if (importPanel2.importStarted()) {
-//			waitForPanel(importPanel2);
-////			if (importPanel2.importSuccessful()) {
-//////				saveModel(receivingModel);
-////			}
-//		}
 	}
-//	private void doImportThings2(boolean show, EditableModel receivingModel) {
-//		EditableModel newDonatingModel = getEditableModel(receivingModel.getFile().getPath());
-//		ImportPanel importPanel2 = new ImportPanel(receivingModel, newDonatingModel, show);
-//
-//		Animation animation = pickAnimBox.getItemAt(pickAnimBox.getSelectedIndex());
-//		Animation visibility = visFromBox.getItemAt(visFromBox.getSelectedIndex());
-//		importPanel2.animTransferPartTwo(animation, visibility, show);
-//
-//		waitWhileVisible(importPanel2);
-//
-//		if (importPanel2.importStarted()) {
-//			waitForPanel(importPanel2);
-//			if (importPanel2.importSuccessful()) {
-//				saveModel(receivingModel);
-//			}
-//		}
-//	}
 
 	private void saveModel(EditableModel model) {
 //		trySave(model, outFileInput.getText());

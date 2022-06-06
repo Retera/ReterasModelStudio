@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.parsers.slk.WarcraftObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitTabTreeBrowserBuilder;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.util.UnitFields;
 import net.miginfocom.swing.MigLayout;
 
@@ -15,9 +14,8 @@ import java.util.List;
 
 public class BetterUnitEditorModelSelector extends BetterSelector {
 
-	public BetterUnitEditorModelSelector(MutableObjectData unitData,
-	                                     UnitEditorSettings unitEditorSettings) {
-		super(unitData, new UnitTabTreeBrowserBuilder(), unitEditorSettings, "umdl", null);
+	public BetterUnitEditorModelSelector(UnitEditorSettings unitEditorSettings) {
+		super(new UnitTabTreeBrowserBuilder(), unitEditorSettings, "umdl", null);
 	}
 
 	protected JPanel getRightPanel() {

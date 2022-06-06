@@ -2,7 +2,6 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.models;
 
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadTabTreeBrowserBuilder;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.util.TwiComboBoxModel;
 import com.hiveworkshop.rms.util.War3ID;
 import net.miginfocom.swing.MigLayout;
@@ -16,9 +15,8 @@ public class BetterDoodadModelSelector extends BetterSelector {
 	private JComboBox<Integer> variantBox;
 	private ArrayList<Integer> variants;
 
-	public BetterDoodadModelSelector(MutableObjectData unitData,
-	                                 UnitEditorSettings unitEditorSettings) {
-		super(unitData, new DoodadTabTreeBrowserBuilder(), unitEditorSettings, "dfil", "dvar");
+	public BetterDoodadModelSelector(UnitEditorSettings unitEditorSettings) {
+		super(new DoodadTabTreeBrowserBuilder(), unitEditorSettings, "dfil", "dvar");
 	}
 
 	protected JPanel getRightPanel() {

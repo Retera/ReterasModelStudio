@@ -79,8 +79,7 @@ public class UnitEditorDataChangeListener {
 			UnitEditorTreeModel model = unitEditorPanel.getTreeModel();
 			TreeNodeLinkerFromModel linker = new TreeNodeLinkerFromModel(model);
 			TopLevelCategoryFolder root = unitEditorPanel.getRoot();
-			DefaultMutableTreeNode newTreeNode = root.insertObjectInto(mutableGameObject,
-					linker);
+			DefaultMutableTreeNode newTreeNode = root.insertObjectInto(mutableGameObject, linker);
 			TreeNode node = newTreeNode.getParent();
 			while (node != null) {
 				model.nodeChanged(node);

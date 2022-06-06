@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterDestructibleModelSelector;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterSelector;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DestructibleBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
@@ -20,7 +19,7 @@ public class OpenInternalDestructible extends ActionFunction {
 	}
 
 	public static EditableModel fetchDestructibleModel() {
-		BetterDestructibleModelSelector selector = new BetterDestructibleModelSelector(DestructibleBrowserView.getDestructibleData(), new UnitEditorSettings());
+		BetterDestructibleModelSelector selector = new BetterDestructibleModelSelector(new UnitEditorSettings());
 		int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), selector, "Destructibles",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
@@ -31,7 +30,7 @@ public class OpenInternalDestructible extends ActionFunction {
 	}
 
 	public static BetterSelector fetchDestructibleSelector() {
-		BetterDestructibleModelSelector selector = new BetterDestructibleModelSelector(DestructibleBrowserView.getDestructibleData(), new UnitEditorSettings());
+		BetterDestructibleModelSelector selector = new BetterDestructibleModelSelector(new UnitEditorSettings());
 		int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), selector, "Destructibles",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 

@@ -3,7 +3,6 @@ package com.hiveworkshop.rms.ui.application.actionfunctions;
 import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.ui.gui.modeledit.importpanel.ImportPanelGui;
@@ -27,7 +26,7 @@ public class ImportFromObjectEditor extends ActionFunction{
 	}
 
 	public static EditableModel fetchObjectModel() {
-		BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(UnitBrowserView.getUnitData(), new UnitEditorSettings());
+		BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(new UnitEditorSettings());
 		int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), selector, "Select Unit",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 

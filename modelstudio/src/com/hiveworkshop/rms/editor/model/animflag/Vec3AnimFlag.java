@@ -88,7 +88,7 @@ public class Vec3AnimFlag extends AnimFlag<Vec3> {
 
 	@Override
 	public MdlxFloatArrayTimeline toMdlx(final TimelineContainer container, EditableModel model) {
-		final MdlxFloatArrayTimeline mdlxTimeline = new MdlxFloatArrayTimeline(3);
+		final MdlxFloatArrayTimeline mdlxTimeline = new MdlxFloatArrayTimeline(3, FlagUtils.getWar3ID(name, container));
 
 		toMdlx3(mdlxTimeline, container, model);
 

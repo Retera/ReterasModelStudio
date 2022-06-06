@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.image.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -137,6 +138,11 @@ public class BLPHandler {
 				return new ImageThingiHelper(dataSource.getFile(path), resultImage);
 			}
 		}
+		if(filepath.toLowerCase().matches("\\w:.+")){
+			File textureFile = getTextureFile(filepath);
+			BufferedImage bufferedImage = loadTextureFromFile(textureFile);
+			return new ImageThingiHelper(textureFile, bufferedImage);
+		}
 		return null;
 	}
 
@@ -153,14 +159,32 @@ public class BLPHandler {
 					}
 				}
 			}
-		} else if(filepath.toLowerCase().matches("\\w:.+")){
-			Path path = Paths.get(filepath);
-			System.out.println("systemPath! " + filepath + ", path: " + path + " (" + path.getFileName() + ")");
-			if(!path.getFileName().toString().equals("")){
+		}
+//		else if(filepath.toLowerCase().matches("\\w:.+")){
+//			Path path = Paths.get(filepath);
+//			System.out.println("systemPath! " + filepath + ", path: " + path + " (" + path.getFileName() + ")");
+//			if(!path.getFileName().toString().equals("")){
+//
+//				try (final InputStream imageDataStream = Files.newInputStream(path, StandardOpenOption.READ)) {
+//					return ImageIO.read(imageDataStream);
+//				}
+//			}
+//		}
+		return null;
+	}
 
-				try (final InputStream imageDataStream = Files.newInputStream(path, StandardOpenOption.READ)) {
-					return ImageIO.read(imageDataStream);
-				}
+	private File getTextureFile(String filepath) {
+		Path path = Paths.get(filepath);
+		System.out.println("systemPath! " + filepath + ", path: " + path + " (" + path.getFileName() + ")");
+		if(!path.getFileName().toString().equals("")){
+			return new File(filepath);
+		}
+		return null;
+	}
+	private BufferedImage loadTextureFromFile(File file) throws IOException {
+		if(file != null && file.exists()){
+			try (final InputStream imageDataStream = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
+				return ImageIO.read(imageDataStream);
 			}
 		}
 		return null;

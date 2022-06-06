@@ -4,7 +4,6 @@ import com.hiveworkshop.rms.editor.model.EditableModel;
 import com.hiveworkshop.rms.ui.application.ProgramGlobals;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterSelector;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.language.TextKey;
 
@@ -29,7 +28,7 @@ public class OpenInternalObject extends ActionFunction {
 	}
 
 	public static BetterSelector fetchObjectSelector() {
-		BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(UnitBrowserView.getUnitData(), new UnitEditorSettings());
+		BetterUnitEditorModelSelector selector = new BetterUnitEditorModelSelector(new UnitEditorSettings());
 		// Old title: "Object Editor - Select Unit"
 		int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), selector, "Units",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);

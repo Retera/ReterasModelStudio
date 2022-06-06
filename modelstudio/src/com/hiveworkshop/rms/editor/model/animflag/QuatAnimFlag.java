@@ -89,7 +89,7 @@ public class QuatAnimFlag extends AnimFlag<Quat> {
 
 	@Override
 	public MdlxFloatArrayTimeline toMdlx(final TimelineContainer container, EditableModel model) {
-		final MdlxFloatArrayTimeline mdlxTimeline = new MdlxFloatArrayTimeline(4);
+		final MdlxFloatArrayTimeline mdlxTimeline = new MdlxFloatArrayTimeline(4, FlagUtils.getWar3ID(name, container));
 
 		toMdlx3(mdlxTimeline, container, model);
 

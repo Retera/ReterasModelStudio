@@ -28,13 +28,15 @@ public class ImportModelPartPanel extends TwiImportPanel {
 		add(new JLabel("Parent"), "");
 
 		recBoneButtonText = "Choose Parent";
-		add(getButton(donBoneButtonText, this::chooseDonBone, donModel), "");
-		add(getButton(recBoneButtonText, this::chooseRecBone, recModel), "");
+		add(donBoneChooserButton, "");
+		recBoneChooserButton.setText("Choose Parent");
+		add(recBoneChooserButton, "");
+
 		add(getBoneOptionPanel(), "spanx");
 		add(getAnimMapPanel(), "spanx, growx, growy");
 
 		JButton importButton = new JButton("Import!");
-		importButton.addActionListener(e -> doImport(chosenDonBone, chosenRecBone));
+		importButton.addActionListener(e -> doImport(donBoneChooserButton.getChosenBone(), recBoneChooserButton.getChosenBone()));
 		add(importButton, "");
 	}
 
@@ -42,8 +44,6 @@ public class ImportModelPartPanel extends TwiImportPanel {
 		if (donBone != null) {
 			Map<IdObject, IdObject> boneCopyMap = getBoneCopyMap(donBone); //obj to copy
 			boneCopyMap.get(donBone).setParent(recBone);
-//			Set<Bone> selectedBones = new HashSet<>();
-//			boneCopyMap.keySet().stream().filter(idObject -> idObject instanceof Bone).forEach(idObject -> selectedBones.add((Bone) idObject));
 
 			Set<Bone> selectedBones = boneCopyMap.keySet().stream()
 					.filter(idObject -> idObject instanceof Bone)

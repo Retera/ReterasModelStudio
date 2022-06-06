@@ -1,7 +1,6 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.abilities;
 
 import com.hiveworkshop.rms.ui.browsers.jworldedit.WEString;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameAbilityComparator;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.AbstractSortingFolderTreeNode;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.sorting.SortingFolderTreeNode;
@@ -19,7 +18,7 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 //	private static final long serialVersionUID = 1L;
 	private static final War3ID ABIL_IS_ITEM_ABIL = War3ID.fromString("aite");
 	private static final War3ID ABIL_IS_HERO_ABIL = War3ID.fromString("aher");
-	private static final MutableGameAbilityComparator MUTABLE_GAME_ABIL_COMPARATOR = new MutableGameAbilityComparator();
+	private static final String TAG_NAME = "sort";
 
 	private final BottomLevelCategoryFolder units;
 	private final BottomLevelCategoryFolder heroes;
@@ -29,10 +28,10 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 
 	public AbilityRaceLevelFolder(String displayName) {
 		super(displayName);
-		this.units = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UNITS"), MUTABLE_GAME_ABIL_COMPARATOR);
-		this.heroes = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_HEROES"), MUTABLE_GAME_ABIL_COMPARATOR);
-		this.items = new BottomLevelCategoryFolder(WEString.getString("WESTRING_AE_ITEMS"), MUTABLE_GAME_ABIL_COMPARATOR);
-		this.hidden = new BottomLevelCategoryFolder(WEString.getString("WESTRING_ITEMSTATUS_HIDDEN"), MUTABLE_GAME_ABIL_COMPARATOR);
+		this.units = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UNITS"), this::compare);
+		this.heroes = new BottomLevelCategoryFolder(WEString.getString("WESTRING_UTYPE_HEROES"), this::compare);
+		this.items = new BottomLevelCategoryFolder(WEString.getString("WESTRING_AE_ITEMS"), this::compare);
+		this.hidden = new BottomLevelCategoryFolder(WEString.getString("WESTRING_ITEMSTATUS_HIDDEN"), this::compare);
 		folders.add(units);
 		folders.add(heroes);
 		folders.add(items);
@@ -67,4 +66,19 @@ public final class AbilityRaceLevelFolder extends AbstractSortingFolderTreeNode 
 		return -1;
 	}
 
+
+	public int compare(final MutableGameObject a, final MutableGameObject b) {
+		String a_slkTag = a.readSLKTag(TAG_NAME);
+		String b_slkTag = b.readSLKTag(TAG_NAME);
+		if (a_slkTag.equals("") && !b_slkTag.equals("")) {
+			return 1;
+		} else if (b_slkTag.equals("") && !a_slkTag.equals("")) {
+			return -1;
+		}
+		final int comp1 = a_slkTag.compareTo(b_slkTag);
+		if (comp1 == 0) {
+			return a.getName().compareTo(b.getName());
+		}
+		return comp1;
+	}
 }

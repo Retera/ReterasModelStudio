@@ -1,8 +1,5 @@
 package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableUnitData;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.WorldEditorDataType;
 import com.hiveworkshop.rms.ui.icons.RMSIcons;
 import net.infonode.docking.View;
 import net.miginfocom.swing.MigLayout;
@@ -27,7 +24,7 @@ public class UnitBrowserView extends View {
 		return panel;
 	}
 	static UnitEditorTree createUnitEditorTree() {
-		return new UnitEditorTreeBrowser(getUnitData(), new UnitTabTreeBrowserBuilder(), new UnitEditorSettings(), WorldEditorDataType.UNITS);
+		return new UnitEditorTreeBrowser(new UnitTabTreeBrowserBuilder(), new UnitEditorSettings());
 	}
 
 	/**

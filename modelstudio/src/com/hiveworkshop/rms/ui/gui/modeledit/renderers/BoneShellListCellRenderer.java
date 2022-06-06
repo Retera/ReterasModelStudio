@@ -88,7 +88,7 @@ public class BoneShellListCellRenderer extends AbstractSnapshottingListCellRende
 	}
 
 	@Override
-	protected IdObjectShell<?> valueToType(Object value) {
+	protected IdObjectShell<?> valueToTyped(Object value) {
 		return (IdObjectShell<?>) value;
 	}
 

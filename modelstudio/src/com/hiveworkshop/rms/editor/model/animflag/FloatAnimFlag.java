@@ -117,7 +117,7 @@ public class FloatAnimFlag extends AnimFlag<Float> {
 
 	@Override
 	public MdlxFloatTimeline toMdlx(final TimelineContainer container, EditableModel model) {
-		final MdlxFloatTimeline mdlxTimeline = new MdlxFloatTimeline();
+		final MdlxFloatTimeline mdlxTimeline = new MdlxFloatTimeline(FlagUtils.getWar3ID(name, container));
 
 		toMdlx3(mdlxTimeline, container, model);
 

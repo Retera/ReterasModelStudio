@@ -115,4 +115,11 @@ public class SearchableList<T> extends JList<T> {
 			filterTextConsumer.accept(filterText);
 		}
 	}
+
+	public void scrollToSelected(){
+		int selectedIndex = getSelectedIndex();
+		if(selectedIndex != -1){
+			ensureIndexIsVisible(selectedIndex);
+		}
+	}
 }

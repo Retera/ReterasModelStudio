@@ -12,7 +12,7 @@ import com.hiveworkshop.rms.parsers.mdlx.mdl.MdlUtils;
 import com.hiveworkshop.rms.ui.application.model.ComponentPanel;
 import com.hiveworkshop.rms.ui.application.model.editors.TwiTextField;
 import com.hiveworkshop.rms.ui.application.model.editors.ValueParserUtil;
-import com.hiveworkshop.rms.ui.application.tools.ParentChooser;
+import com.hiveworkshop.rms.ui.application.tools.IdObjectChooser;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
 import com.hiveworkshop.rms.util.Quat;
 import com.hiveworkshop.rms.util.TwiTextEditor.FlagPanel;
@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 public abstract class ComponentIdObjectPanel<T extends IdObject> extends ComponentPanel<T> {
 	protected TwiTextField nameField;
 	protected JLabel parentName;
-	protected ParentChooser parentChooser;
+	protected IdObjectChooser parentChooser;
 	protected T idObject;
 	protected JPanel topPanel;
 	protected FlagPanel<Vec3> transPanel2;
@@ -50,7 +50,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	public ComponentIdObjectPanel(ModelHandler modelHandler) {
 		super(modelHandler);
 
-		parentChooser = new ParentChooser(model);
+		parentChooser = new IdObjectChooser(model, true);
 
 //		setLayout(new MigLayout("fill, gap 0", "[]5[]5[grow]", "[][][][][][grow]"));
 		setLayout(new MigLayout("fillx, gap 0", "[]5[]5[grow]", "[]"));
@@ -167,7 +167,7 @@ public abstract class ComponentIdObjectPanel<T extends IdObject> extends Compone
 	}
 
 	private void chooseParent() {
-		IdObject newParent = parentChooser.chooseParent(idObject, this.getRootPane());
+		IdObject newParent = parentChooser.chooseObject(idObject, this.getRootPane());
 		if(idObject.getParent() != newParent){
 			undoManager.pushAction(new ParentChangeAction(idObject, newParent, changeListener).redo());
 		}

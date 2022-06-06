@@ -22,10 +22,6 @@ public abstract class SortByRaceFolder extends AbstractSortingFolderTreeNode {
 	protected final Map<String, SortingFolderTreeNode> raceFolders = new HashMap<>();
 	protected final List<SortingFolderTreeNode> raceNodes = new ArrayList<>();
 
-//	public SortByRaceFolder(final String displayName) {
-//		this(displayName, Arrays.asList(DefaultBuffRace.values()));
-//	}
-
 	public SortByRaceFolder(String displayName, List<SortRace> races) {
 		super(displayName);
 		for (SortRace race : races) {
@@ -36,19 +32,6 @@ public abstract class SortByRaceFolder extends AbstractSortingFolderTreeNode {
 	}
 
 	protected abstract SortingFolderTreeNode getFolder(SortRace race);
-
-//	protected DefaultAbilityRace raceKey(final int index) {
-//		return switch (index) {
-//			case -1, 0 -> DefaultAbilityRace.HUMAN;
-//			case 1 -> DefaultAbilityRace.ORC;
-//			case 2 -> DefaultAbilityRace.UNDEAD;
-//			case 3 -> DefaultAbilityRace.NIGHTELF;
-//			case 4 -> DefaultAbilityRace.OTHER;
-//			case 5 -> DefaultAbilityRace.NEUTRAL_HOSTILE;
-//			case 6 -> DefaultAbilityRace.NEUTRAL_PASSIVE;
-//			default -> DefaultAbilityRace.NEUTRAL_PASSIVE;
-//		};
-//	}
 
 	@Override
 	public SortingFolderTreeNode getNextNode(MutableGameObject object) {
@@ -72,7 +55,6 @@ public abstract class SortByRaceFolder extends AbstractSortingFolderTreeNode {
 
 	//	@Override
 	public int getSortIndex(SortingFolderTreeNode childNode) {
-//		return raceNodes.indexOf(childNode);
 		if (childNode != null) {
 			return raceNodes.indexOf(childNode);
 		}
@@ -81,7 +63,6 @@ public abstract class SortByRaceFolder extends AbstractSortingFolderTreeNode {
 
 	@Override
 	public int getSortIndex(TreeNode childNode) {
-//		return raceNodes.indexOf(childNode);
 		if (childNode != null) {
 			return raceNodes.indexOf(childNode);
 		}

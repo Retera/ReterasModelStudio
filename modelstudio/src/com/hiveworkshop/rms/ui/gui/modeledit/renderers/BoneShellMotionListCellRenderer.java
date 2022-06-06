@@ -95,7 +95,7 @@ public class BoneShellMotionListCellRenderer extends AbstractSnapshottingListCel
 	}
 
 	@Override
-	protected IdObjectShell<?> valueToType(Object value) {
+	protected IdObjectShell<?> valueToTyped(Object value) {
 		return (IdObjectShell<?>) value;
 	}
 

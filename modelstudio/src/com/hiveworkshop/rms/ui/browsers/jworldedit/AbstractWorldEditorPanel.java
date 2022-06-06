@@ -2,6 +2,7 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit;
 
 import com.hiveworkshop.rms.parsers.blp.BLPHandler;
 import com.hiveworkshop.rms.parsers.slk.DataTable;
+import com.hiveworkshop.rms.ui.icons.IconUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,10 +26,15 @@ public abstract class AbstractWorldEditorPanel extends JPanel {
 	}
 
 	public static JButton makeButton(DataTable worldEditorData, JToolBar toolBar, String actionName, String iconKey, String tooltipKey) {
-		return makeButton(worldEditorData, toolBar, actionName, getIcon(worldEditorData, iconKey), tooltipKey);
+		return makeButton(toolBar, actionName, getIcon(worldEditorData, iconKey), tooltipKey);
+	}
+	public static JButton makeButton2(DataTable worldEditorData, JToolBar toolBar, String actionName, String iconKey, String tooltipKey) {
+		Image image = getIcon(worldEditorData, iconKey).getImage();
+		ImageIcon icon = new ImageIcon(IconUtils.worldEditStyleIcon(image));
+		return makeButton(toolBar, actionName, icon, tooltipKey);
 	}
 
-	public static JButton makeButton(DataTable worldEditorData, JToolBar toolBar, String actionName, ImageIcon icon, String tooltipKey) {
+	public static JButton makeButton(JToolBar toolBar, String actionName, ImageIcon icon, String tooltipKey) {
 		JButton button = toolBar.add(new ToolbarButtonAction(actionName, icon));
 		button.setToolTipText(WEString.getString(tooltipKey).replace("&", ""));
 		button.setPreferredSize(new Dimension(24, 24));

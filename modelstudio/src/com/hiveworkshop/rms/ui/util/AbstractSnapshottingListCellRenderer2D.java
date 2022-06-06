@@ -31,8 +31,8 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 	private static final int QUARTER_SIZE = SIZE / 4;
 	private static final int EIGHTH_SIZE = SIZE / 8;
 	private final Map<TYPE, ImageIcon> matrixShellToCachedRenderer = new HashMap<>();
-	private final EditableModel model;
-	private final EditableModel other;
+	protected final EditableModel model;
+	protected final EditableModel other;
 	private static Map<EditableModel, BufferedImage> modelOutlineImageMap;
 	private static Map<EditableModel, Vec2[]> modelBoundsSizeMap;
 
@@ -49,19 +49,20 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 	@Override
 	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSel, boolean hasFoc) {
 		setBackground(null);
-		TYPE valueType = valueToType(value);
+		TYPE valueTyped = valueToTyped(value);
 
-		super.getListCellRendererComponent(list, valueType.toString(), index, isSel, hasFoc);
+		String typeString = valueTyped != null ? valueTyped.toString() : "";
+		super.getListCellRendererComponent(list, typeString, index, isSel, hasFoc);
 
-		setIcon(getImageIcon(valueType));
+		setIcon(getImageIcon(valueTyped));
 		return this;
 	}
 
-	private ImageIcon getImageIcon(TYPE valueType) {
-		ImageIcon myIcon = matrixShellToCachedRenderer.get(valueType);
+	private ImageIcon getImageIcon(TYPE valueTyped) {
+		ImageIcon myIcon = matrixShellToCachedRenderer.get(valueTyped);
 		if (myIcon == null) {
 			try {
-				Color backgroundColor = getBackgroundColor(valueType);
+				Color backgroundColor = getBackgroundColor(valueTyped);
 
 				BufferedImage image = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
 				Graphics graphics = image.getGraphics();
@@ -69,30 +70,32 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 				graphics.fill3DRect(0, 0, SIZE, SIZE, true);
 				graphics.setColor(backgroundColor.brighter());
 
-				makeBoneIcon(backgroundColor, valueType, graphics, other);
-				makeBoneIcon(backgroundColor, valueType, graphics, model);
+				makeBoneIcon(backgroundColor, valueTyped, graphics, other);
+				makeBoneIcon(backgroundColor, valueTyped, graphics, model);
 
 				graphics.dispose();
 				myIcon = new ImageIcon(image);
 			} catch (final Exception e) {
 				throw new RuntimeException(e);
 			}
-			matrixShellToCachedRenderer.put(valueType, myIcon);
+			matrixShellToCachedRenderer.put(valueTyped, myIcon);
 		}
 		return myIcon;
 	}
 
-	public void makeBoneIcon(Color backgroundColor, TYPE valueType, Graphics graphics, EditableModel model) {
-		if (contains(model, valueType)) {
+	public void makeBoneIcon(Color backgroundColor, TYPE valueTyped, Graphics graphics, EditableModel model) {
+		if (contains(model, valueTyped)) {
 			BufferedImage modelOutline = getModelOutlineImage(backgroundColor, model);
 			graphics.drawImage(modelOutline, 0, 0, null);
 			ModelThumbnailMaker.scaleAndTranslateGraphic((Graphics2D) graphics, new Rectangle(SIZE, SIZE), getModelBoundsSize(model));
-			if (valueType instanceof IdObjectShell && ((IdObjectShell<?>) valueType).getIdObject() instanceof Bone) {
-				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) ((IdObjectShell<?>) valueType).getIdObject());
-			} else if (valueType instanceof IdObjectShell<?> && ((IdObjectShell<?>) valueType).getIdObject() instanceof Bone) {
-				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) ((IdObjectShell<?>) valueType).getIdObject());
+			if (valueTyped instanceof IdObjectShell && ((IdObjectShell<?>) valueTyped).getIdObject() instanceof Bone) {
+				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) ((IdObjectShell<?>) valueTyped).getIdObject());
+			} else if (valueTyped instanceof IdObjectShell<?> && ((IdObjectShell<?>) valueTyped).getIdObject() instanceof Bone) {
+				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) ((IdObjectShell<?>) valueTyped).getIdObject());
+			} else if (valueTyped instanceof Bone) {
+				ModelThumbnailMaker.drawFilteredTriangles2(model, graphics, (byte) 1, (byte) 2, getBoneMap(model), (Bone) valueTyped);
 			}
-			ModelThumbnailMaker.drawBoneMarker(graphics, (byte) 1, (byte) 2, getRenderVertex(valueType));
+			ModelThumbnailMaker.drawBoneMarker(graphics, (byte) 1, (byte) 2, getRenderVertex(valueTyped));
 		}
 	}
 
@@ -163,7 +166,7 @@ public abstract class AbstractSnapshottingListCellRenderer2D<TYPE> extends Defau
 
 	protected abstract boolean isFromReceiving(TYPE value);
 
-	protected abstract TYPE valueToType(Object value);
+	protected abstract TYPE valueToTyped(Object value);
 
 	protected abstract Vec3 getRenderVertex(TYPE value);
 

@@ -61,7 +61,7 @@ public class MatrixEditListRenderer extends AbstractSnapshottingListCellRenderer
 	}
 
 	@Override
-	protected IdObjectShell<Bone> valueToType(final Object value) {
+	protected IdObjectShell<Bone> valueToTyped(final Object value) {
 		return (IdObjectShell<Bone>) value;
 	}
 

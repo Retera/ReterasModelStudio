@@ -25,7 +25,7 @@ public abstract class MdlxAnimatedObject implements MdlxChunk, MdlxBlock {
 			if(animationMap != null){
 				final MdlxTimeline<?> timeline = animationMap.getNewTimeline();
 
-				timeline.readMdx(reader, name);
+				timeline.readMdx(reader);
 
 				size -= timeline.getByteLength();
 
@@ -49,7 +49,7 @@ public abstract class MdlxAnimatedObject implements MdlxChunk, MdlxBlock {
 	public void readTimeline(final MdlTokenInputStream stream, final AnimationMap name) {
 		final MdlxTimeline<?> timeline = name.getNewTimeline();
 
-		timeline.readMdl(stream, name.getWar3id());
+		timeline.readMdl(stream);
 
 		timelines.add(timeline);
 	}

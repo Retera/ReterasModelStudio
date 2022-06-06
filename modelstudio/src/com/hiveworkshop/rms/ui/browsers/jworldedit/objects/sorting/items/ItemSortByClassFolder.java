@@ -29,8 +29,9 @@ public final class ItemSortByClassFolder extends AbstractSortingFolderTreeNode {
 		Element itemClasses = unitEditorData.get("itemClass");
 		int numClasses = itemClasses.getFieldValue("NumValues");
 		for (int i = 0; i < numClasses; i++) {
-			String typeName = itemClasses.getField(String.format("%2d", i).replace(' ', '0'), 0);
-			String tag = itemClasses.getField(String.format("%2d", i).replace(' ', '0'), 1);
+			String intString = String.format("%2d", i).replace(' ', '0');
+			String typeName = itemClasses.getField(intString, 0);
+			String tag = itemClasses.getField(intString, 1);
 			BottomLevelCategoryFolder classFolder = new BottomLevelCategoryFolder(WEString.getString(tag), ITEM_NAME_COMPARATOR);
 			itemClassToTreeNode.put(typeName, classFolder);
 			itemClassesList.add(classFolder);
@@ -48,8 +49,6 @@ public final class ItemSortByClassFolder extends AbstractSortingFolderTreeNode {
 
 	//	@Override
 	public int getSortIndex(SortingFolderTreeNode childNode) {
-//		return itemClassesList.indexOf(childNode);
-
 		if (childNode != null) {
 			return itemClassesList.indexOf(childNode);
 		}
@@ -59,8 +58,6 @@ public final class ItemSortByClassFolder extends AbstractSortingFolderTreeNode {
 
 	@Override
 	public int getSortIndex(TreeNode childNode) {
-//		return itemClassesList.indexOf(childNode);
-
 		if (childNode != null) {
 			return itemClassesList.indexOf(childNode);
 		}

@@ -128,6 +128,12 @@ public class BinaryWriter {
         }
     }
 
+    public void writeInvFloat32Array(final float[] values) {
+        for (int i = values.length-1; i>=0; i--){
+            writeFloat32(values[i]);
+        }
+    }
+
     public void writeFloat64Array(final double[] values) {
         for (final double value : values) {
             writeFloat64(value);

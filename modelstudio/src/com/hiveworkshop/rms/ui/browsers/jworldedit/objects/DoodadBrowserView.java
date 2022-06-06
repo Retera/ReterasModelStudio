@@ -2,9 +2,7 @@ package com.hiveworkshop.rms.ui.browsers.jworldedit.objects;
 
 import com.hiveworkshop.rms.ui.application.InternalFileLoader;
 import com.hiveworkshop.rms.ui.application.MainFrame;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableDoodadData;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableObjectData;
 import com.hiveworkshop.rms.ui.icons.IconUtils;
 import com.hiveworkshop.rms.ui.util.ExceptionPopup;
 import com.hiveworkshop.rms.util.War3ID;
@@ -18,14 +16,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class DoodadBrowserView extends View {
-	private static ImageIcon icon = new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST));
+	private static final ImageIcon icon = new ImageIcon(MainFrame.frame.getIconImage().getScaledInstance(16, 16, Image.SCALE_FAST));
 
 	public DoodadBrowserView() {
 		super("Doodad Browser", icon, new JScrollPane(getUnitEditorTree()));
 	}
 
 	private static UnitEditorTree getUnitEditorTree() {
-		UnitEditorTree unitEditorTree = new UnitEditorTree(getDoodadData(), new DoodadTabTreeBrowserBuilder(), new UnitEditorSettings());
+		UnitEditorTree unitEditorTree = new UnitEditorTree(new DoodadTabTreeBrowserBuilder(), new UnitEditorSettings());
 		unitEditorTree.selectFirstUnit();
 
 		unitEditorTree.addMouseListener(new MouseAdapter() {
@@ -40,21 +38,6 @@ public class DoodadBrowserView extends View {
 			}
 		});
 		return unitEditorTree;
-	}
-
-	public static MutableObjectData getDoodadData() {
-//		War3ObjectDataChangeset editorData = new War3ObjectDataChangeset('d');
-//		try {
-//			CompoundDataSource fs = GameDataFileSystem.getDefault();
-//			if (fs.has("war3map.w3d")) {
-//				BlizzardDataInputStream stream = new BlizzardDataInputStream(fs.getResourceAsStream("war3map.w3d"));
-//				WTS wts = fs.has("war3map.wts") ? new WTSFile(fs.getResourceAsStream("war3map.wts")) : null;
-//				editorData.load(stream, wts, true);
-//			}
-//		} catch (final IOException e) {
-//			e.printStackTrace();
-//		}
-		return new MutableDoodadData();
 	}
 
 	private static void doodadViewerMouseClick(MouseEvent e, UnitEditorTree unitEditorTree) {

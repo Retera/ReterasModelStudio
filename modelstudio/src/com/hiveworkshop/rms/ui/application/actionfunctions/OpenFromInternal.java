@@ -9,9 +9,6 @@ import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterDestructibleMode
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterDoodadModelSelector;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterSelector;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.models.BetterUnitEditorModelSelector;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DestructibleBrowserView;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.DoodadBrowserView;
-import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitBrowserView;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.UnitEditorSettings;
 import com.hiveworkshop.rms.ui.browsers.jworldedit.objects.datamodel.MutableGameObject;
 import com.hiveworkshop.rms.ui.gui.modeledit.ModelHandler;
@@ -66,9 +63,9 @@ public class OpenFromInternal extends ActionFunction {
 
 	public static BetterSelector getSelector() {
 		JTabbedPane tabbedPanel = new JTabbedPane();
-		tabbedPanel.add("Unit", new BetterUnitEditorModelSelector(UnitBrowserView.getUnitData(), new UnitEditorSettings()));
-		tabbedPanel.add("Doodad", new BetterDoodadModelSelector(DoodadBrowserView.getDoodadData(), new UnitEditorSettings()));
-		tabbedPanel.add("Destructible", new BetterDestructibleModelSelector(DestructibleBrowserView.getDestructibleData(), new UnitEditorSettings()));
+		tabbedPanel.add("Unit", new BetterUnitEditorModelSelector(new UnitEditorSettings()));
+		tabbedPanel.add("Doodad", new BetterDoodadModelSelector(new UnitEditorSettings()));
+		tabbedPanel.add("Destructible", new BetterDestructibleModelSelector(new UnitEditorSettings()));
 
 		int x = JOptionPane.showConfirmDialog(ProgramGlobals.getMainPanel(), tabbedPanel, "Internal Models",
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);

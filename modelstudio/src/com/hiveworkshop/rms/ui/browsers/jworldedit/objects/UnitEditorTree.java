@@ -27,12 +27,11 @@ public class UnitEditorTree extends JTree {
 	private final ObjectTabTreeBrowserBuilder browserBuilder;
 	private WorldEditorDataType dataType;
 
-	public UnitEditorTree(MutableObjectData unitData,
-	                      ObjectTabTreeBrowserBuilder browserBuilder,
+	public UnitEditorTree(ObjectTabTreeBrowserBuilder browserBuilder,
 	                      UnitEditorSettings settings) {
-		super(makeTreeModel(unitData, browserBuilder));
-		this.unitData = unitData;
+		super(makeTreeModel(browserBuilder));
 		this.browserBuilder = browserBuilder;
+		this.unitData = browserBuilder.getUnitData();
 		this.dataType = unitData.getWorldEditorDataType();
 		root = (TopLevelCategoryFolder) getModel().getRoot();
 		setCellRenderer(new WarcraftObjectTreeCellRenderer(settings, unitData.getWorldEditorDataType()));
@@ -102,8 +101,7 @@ public class UnitEditorTree extends JTree {
 		};
 	}
 
-	private static UnitEditorTreeModel makeTreeModel(MutableObjectData unitData,
-	                                                 ObjectTabTreeBrowserBuilder browserBuilder) {
+	private static UnitEditorTreeModel makeTreeModel(ObjectTabTreeBrowserBuilder browserBuilder) {
 		TopLevelCategoryFolder root = browserBuilder.build();
 		TreeNodeLinker linker = new PreModelCreationTreeNodeLinker();
 		for (War3ID alias : unitData.keySet()) {
@@ -117,7 +115,7 @@ public class UnitEditorTree extends JTree {
 	}
 
 	public void reloadAllObjectDataVerySlowly() {
-		setModel(makeTreeModel(unitData, browserBuilder));
+		setModel(makeTreeModel(browserBuilder));
 		root = (TopLevelCategoryFolder) getModel().getRoot();
 		selectFirstUnit();
 	}
@@ -201,19 +199,10 @@ public class UnitEditorTree extends JTree {
 	}
 
 	public void selectFirstUnit() {
-//		TreePath topTreePath = new TreePath(root);
-//		while (((TreeNode) topTreePath.getLastPathComponent()).getChildCount() > 0) {
-//			topTreePath = topTreePath.pathByAddingChild(((TreeNode) topTreePath.getLastPathComponent()).getChildAt(0));
-//		}
-//		setSelectionPath(topTreePath);
 		TreeNode[] path = root.getFirstLeaf().getPath();
-		System.out.println("TreeNodes: " + Arrays.toString(path));
 		TreePath path1 = new TreePath(path);
-		System.out.println("TreePath: " + path1);
 
 		setSelectionPath(path1);
-
-		System.out.println("getSelectionPath111");
 	}
 
 	public boolean matches(DefaultMutableTreeNode node, String text, boolean displayAsRawData, boolean caseSensitive) {
@@ -267,8 +256,8 @@ public class UnitEditorTree extends JTree {
 		return unitData.getWorldEditorDataType();
 	}
 
-	public void setUnitDataAndReloadVerySlowly(MutableObjectData newUnitData) {
-		this.unitData = newUnitData;
+	public void setUnitDataAndReloadVerySlowly() {
+		this.unitData = browserBuilder.reloadAndGetUnitData();
 		reloadAllObjectDataVerySlowly();
 	}
 

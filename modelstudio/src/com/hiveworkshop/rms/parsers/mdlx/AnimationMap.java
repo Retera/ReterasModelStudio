@@ -260,10 +260,10 @@ public enum AnimationMap {
 
 	public MdlxTimeline<?> getNewTimeline() {
 		return switch (implementation) {
-			case UINT32_TIMELINE -> new MdlxUInt32Timeline();
-			case FLOAT_TIMELINE -> new MdlxFloatTimeline();
-			case VECTOR3_TIMELINE -> new MdlxFloatArrayTimeline(3);
-			case VECTOR4_TIMELINE -> new MdlxFloatArrayTimeline(4);
+			case UINT32_TIMELINE -> new MdlxUInt32Timeline(war3id);
+			case FLOAT_TIMELINE -> new MdlxFloatTimeline(war3id);
+			case VECTOR3_TIMELINE -> new MdlxFloatArrayTimeline(3, war3id);
+			case VECTOR4_TIMELINE -> new MdlxFloatArrayTimeline(4, war3id);
 		};
 //		return timelineCreator.get();
 	}
