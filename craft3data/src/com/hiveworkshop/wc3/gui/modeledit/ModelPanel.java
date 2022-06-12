@@ -120,7 +120,7 @@ public class ModelPanel implements ActionListener, MouseListener {
 		modelViewManagingTree.setFocusable(false);
 		modelComponentBrowserTree = new ModelComponentBrowserTree(modelView, undoManager, modelEditorManager,
 				modelStructureChangeListener);
-		tracksEditorPanel = new TracksEditorPanel(modelView, undoManager, modelEditorManager,
+		tracksEditorPanel = new TracksEditorPanel(modelView, undoManager, modelEditorManager, modeNotifier,
 				modelStructureChangeListener);
 
 		selectionItemTypeNotifier.addToolbarButtonListener(new ToolbarButtonListener<SelectionItemTypes>() {

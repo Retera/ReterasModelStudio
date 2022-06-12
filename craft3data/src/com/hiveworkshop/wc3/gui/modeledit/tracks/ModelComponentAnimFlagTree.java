@@ -135,7 +135,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 				setModel(buildTreeModel(modelViewManager, undoActionListener, modelStructureChangeListener));
 				final TreePath newRootPath = new TreePath(getModel().getRoot());
 				final List<TreePath> pathsToExpand = new ArrayList<>();
-				while ((expandedDescendants != null) && expandedDescendants.hasMoreElements()) {
+				while (expandedDescendants != null && expandedDescendants.hasMoreElements()) {
 					final TreePath nextPathToExpand = expandedDescendants.nextElement();
 					TreePath newPathWithNewObjects = newRootPath;
 					DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode) getModel().getRoot();
@@ -143,7 +143,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 						final DefaultMutableTreeNode pathComponent = (DefaultMutableTreeNode) nextPathToExpand
 								.getPathComponent(i);
 						boolean foundMatchingChild = false;
-						for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
+						for (int j = 0; j < currentNode.getChildCount() && !foundMatchingChild; j++) {
 							final DefaultMutableTreeNode childAt = (DefaultMutableTreeNode) currentNode.getChildAt(j);
 							if (asElement(childAt.getUserObject())
 									.hasSameItem(asElement(pathComponent.getUserObject()))) {
@@ -183,8 +183,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 					return new TreePath(node.getPath());
 				}
 			}
-		}
-		else {
+		} else {
 			for (int i = 0; i < node.getChildCount(); i++) {
 				final DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
 				TreePath path;
@@ -203,7 +202,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 			for (int i = 1; i < selectionPath.getPathCount(); i++) {
 				final DefaultMutableTreeNode pathComponent = (DefaultMutableTreeNode) selectionPath.getPathComponent(i);
 				boolean foundMatchingChild = false;
-				for (int j = 0; (j < currentNode.getChildCount()) && !foundMatchingChild; j++) {
+				for (int j = 0; j < currentNode.getChildCount() && !foundMatchingChild; j++) {
 					final DefaultMutableTreeNode childAt = (DefaultMutableTreeNode) currentNode.getChildAt(j);
 					if (asElement(childAt.getUserObject()).hasSameItem(asElement(pathComponent.getUserObject()))) {
 						currentNode = childAt;
@@ -334,20 +333,18 @@ public final class ModelComponentAnimFlagTree extends JTree {
 						nodeToChildrenAwaitingLink.put(parent, awaitingChildrenList);
 					}
 					awaitingChildrenList.add(treeNode);
-				}
-				else {
+				} else {
 					parentTreeNode.add(treeNode);
 				}
 				final List<DefaultMutableTreeNode> childrenNeedingLinkToCurrentNode = nodeToChildrenAwaitingLink
 						.get(object);
-				if ((childrenNeedingLinkToCurrentNode != null)
+				if (childrenNeedingLinkToCurrentNode != null
 						&& !Collection.Util.isEmpty(childrenNeedingLinkToCurrentNode)) {
 					for (final DefaultMutableTreeNode child : childrenNeedingLinkToCurrentNode) {
 						treeNode.add(child);
 					}
 				}
-			}
-			else {
+			} else {
 				nodes.add(treeNode);
 			}
 
@@ -384,8 +381,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 			final ChooseableDisplayElement<?> element;
 			if (pathForLocation == null) {
 				element = null;
-			}
-			else {
+			} else {
 				final DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) pathForLocation
 						.getLastPathComponent();
 				element = (ChooseableDisplayElement<?>) lastPathComponent.getUserObject();
@@ -430,7 +426,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		}
 	}
 
-	private static abstract class ChooseableDisplayElement<T> {
+	public static abstract class ChooseableDisplayElement<T> {
 		protected final ModelViewManager modelViewManager;
 		private UndoActionListener undoActionListener;
 		protected final T item;
@@ -476,12 +472,15 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		protected abstract String getName(T item, ModelViewManager modelViewManager);
 
 		public boolean hasSameItem(final ChooseableDisplayElement<?> other) {
-			return (getClass() == other.getClass())
-					&& ((other.item == item) || ((item != null) && item.equals(other.item)));
+			return getClass() == other.getClass() && (other.item == item || item != null && item.equals(other.item));
 		}
 
 		public ImageIcon getIcon(final boolean expanded) {
 			return icon;
+		}
+
+		public T getItem() {
+			return item;
 		}
 	}
 //	final Image attachmentImage = IconUtils.loadImage("icons/nodes/attachment" + template + ".png");
@@ -650,8 +649,8 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		public boolean hasSameItem(final ChooseableDisplayElement<?> other) {
-			return (other != null) && (other.getClass() == getClass())
-					&& (globalSeqId == ((ChooseableGlobalSequenceItem) other).globalSeqId);
+			return other != null && other.getClass() == getClass()
+					&& globalSeqId == ((ChooseableGlobalSequenceItem) other).globalSeqId;
 		}
 	}
 
@@ -855,7 +854,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 		@Override
 		protected String getName(final Geoset item, final ModelViewManager modelViewManager) {
 			final String numberName = "Geoset " + (modelViewManager.getModel().getGeosetId(item) + 1);
-			if ((item.getLevelOfDetailName() != null) && (item.getLevelOfDetailName().length() > 0)) {
+			if (item.getLevelOfDetailName() != null && item.getLevelOfDetailName().length() > 0) {
 				return numberName + ": " + item.getLevelOfDetailName();
 			}
 			return numberName;
@@ -891,7 +890,10 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		protected String getName(final GeosetAnim item, final ModelViewManager modelViewManager) {
-			return "GeosetAnim " + modelViewManager.getModel().getGeosetAnims().indexOf(item);
+			final Geoset geoset = item.getGeoset();
+			return "GeosetAnim " + modelViewManager.getModel().getGeosetAnims().indexOf(item) + ": "
+					+ (geoset == null ? "GeosetId " + item.getGeosetId()
+							: geoset.getUIName(modelViewManager.getModel()));
 		}
 
 		@Override
@@ -1341,7 +1343,7 @@ public final class ModelComponentAnimFlagTree extends JTree {
 
 		@Override
 		public boolean hasSameItem(final ChooseableDisplayElement<?> other) {
-			return (other instanceof ChooseableDummyItem) && ((ChooseableDummyItem) other).name2.equals(name2);
+			return other instanceof ChooseableDummyItem && ((ChooseableDummyItem) other).name2.equals(name2);
 		}
 	}
 

@@ -25,12 +25,14 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -247,6 +249,13 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		map.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
 		map.put(TransferHandler.getCopyAction().getValue(Action.NAME), TransferHandler.getCopyAction());
 		map.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
+		map.put("Delete", new AbstractAction() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				undoListener.pushAction(modelEditor.deleteSelectedComponents());
+			}
+		});
+		getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke("DELETE"), "Delete");
 		setFocusable(true);
 	}
 
@@ -315,30 +324,29 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			}
 			final float darkIncrement = increment * 10;
 			g.setColor(Color.DARK_GRAY);
-			for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += lightIncrement) {
+			for (float x = 0; cameraOrigin.x + x < getWidth() || cameraOrigin.x - x >= 0; x += lightIncrement) {
 				g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
 				g.drawLine((int) (cameraOrigin.x - x), 0, (int) (cameraOrigin.x - x), getHeight());
 			}
-			for (float y = 0; ((cameraOrigin.y + y) < getHeight())
-					|| ((cameraOrigin.y - y) >= 0); y += lightIncrement) {
+			for (float y = 0; cameraOrigin.y + y < getHeight() || cameraOrigin.y - y >= 0; y += lightIncrement) {
 				g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
 				g.drawLine(0, (int) (cameraOrigin.y - y), getWidth(), (int) (cameraOrigin.y - y));
 			}
 			g.setColor(Color.GRAY);
-			for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += increment) {
+			for (float x = 0; cameraOrigin.x + x < getWidth() || cameraOrigin.x - x >= 0; x += increment) {
 				g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
 				g.drawLine((int) (cameraOrigin.x - x), 0, (int) (cameraOrigin.x - x), getHeight());
 			}
-			for (float y = 0; ((cameraOrigin.y + y) < getHeight()) || ((cameraOrigin.y - y) >= 0); y += increment) {
+			for (float y = 0; cameraOrigin.y + y < getHeight() || cameraOrigin.y - y >= 0; y += increment) {
 				g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
 				g.drawLine(0, (int) (cameraOrigin.y - y), getWidth(), (int) (cameraOrigin.y - y));
 			}
 			g.setColor(Color.ORANGE);
-			for (float x = 0; ((cameraOrigin.x + x) < getWidth()) || ((cameraOrigin.x - x) >= 0); x += darkIncrement) {
+			for (float x = 0; cameraOrigin.x + x < getWidth() || cameraOrigin.x - x >= 0; x += darkIncrement) {
 				g.drawLine((int) (cameraOrigin.x + x), 0, (int) (cameraOrigin.x + x), getHeight());
 				g.drawLine((int) (cameraOrigin.x - x), 0, (int) (cameraOrigin.x - x), getHeight());
 			}
-			for (float y = 0; ((cameraOrigin.y + y) < getHeight()) || ((cameraOrigin.y - y) >= 0); y += darkIncrement) {
+			for (float y = 0; cameraOrigin.y + y < getHeight() || cameraOrigin.y - y >= 0; y += darkIncrement) {
 				g.drawLine(0, (int) (cameraOrigin.y + y), getWidth(), (int) (cameraOrigin.y + y));
 				g.drawLine(0, (int) (cameraOrigin.y - y), getWidth(), (int) (cameraOrigin.y - y));
 			}
@@ -446,7 +454,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		runningSum += elapsed;
 		count += 1;
 		if (count >= 100) {
-			final long millis = ((runningSum / count) / 1000000L) + 1;
+			final long millis = runningSum / count / 1000000L + 1;
 			if (millis > paintTimer.getDelay()) {
 				final int millis2 = (int) (millis * 5);
 				System.out.println("delay=" + millis2);
@@ -472,22 +480,22 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 
 	@Override
 	public double convertX(final double x) {
-		return ((x + m_a) * m_zoom) + (getWidth() / 2);
+		return (x + m_a) * m_zoom + getWidth() / 2;
 	}
 
 	@Override
 	public double convertY(final double y) {
-		return ((-y + m_b) * m_zoom) + (getHeight() / 2);
+		return (-y + m_b) * m_zoom + getHeight() / 2;
 	}
 
 	@Override
 	public double geomX(final double x) {
-		return ((x - (getWidth() / 2)) / m_zoom) - m_a;
+		return (x - getWidth() / 2) / m_zoom - m_a;
 	}
 
 	@Override
 	public double geomY(final double y) {
-		return -(((y - (getHeight() / 2)) / m_zoom) - m_b);
+		return -((y - getHeight() / 2) / m_zoom - m_b);
 	}
 
 	@Override
@@ -511,7 +519,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 					// }
 				}
 				final PointerInfo pointerInfo = MouseInfo.getPointerInfo();
-				if ((pointerInfo == null) || (pointerInfo.getLocation() == null)) {
+				if (pointerInfo == null || pointerInfo.getLocation() == null) {
 					return;
 				}
 				final double mx = pointerInfo.getLocation().x - xoff;// MainFrame.frame.getX()-8);
@@ -526,8 +534,8 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 					lastClick.x = (int) mx;
 					lastClick.y = (int) my;
 				}
-				coordDisplayListener.notifyUpdate(m_d1, m_d2, ((mx - (getWidth() / 2)) / m_zoom) - m_a,
-						-(((my - (getHeight() / 2)) / m_zoom) - m_b));
+				coordDisplayListener.notifyUpdate(m_d1, m_d2, (mx - getWidth() / 2) / m_zoom - m_a,
+						-((my - getHeight() / 2) / m_zoom - m_b));
 				// MainFrame.panel.setMouseCoordDisplay(m_d1,m_d2,((mx-getWidth()/2)/m_zoom)-m_a,-(((my-getHeight()/2)/m_zoom)-m_b));
 				// TODO update mouse coord display could be used still
 
@@ -773,7 +781,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 	@Override
 	public void mouseExited(final MouseEvent e) {
 		if (!activityListener.isEditing()) {
-			if ((selectStart == null) && (actStart == null) && (lastClick == null)) {
+			if (selectStart == null && actStart == null && lastClick == null) {
 				clickTimer.stop();
 			}
 			mouseInBounds = false;
@@ -806,7 +814,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 
 	@Override
 	public void mouseReleased(final MouseEvent e) {
-		if ((e.getButton() == MouseEvent.BUTTON2) && (lastClick != null)) {
+		if (e.getButton() == MouseEvent.BUTTON2 && lastClick != null) {
 			m_a += (e.getX() - lastClick.x) / m_zoom;
 			m_b += (e.getY() - lastClick.y) / m_zoom;
 			lastClick = null;
@@ -829,7 +837,7 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 			// actStart = null;
 			activityListener.mouseReleased(e, this);
 		}
-		if (!mouseInBounds && (selectStart == null) && (actStart == null) && (lastClick == null)) {
+		if (!mouseInBounds && selectStart == null && actStart == null && lastClick == null) {
 			clickTimer.stop();
 		}
 //		repaint();
@@ -865,13 +873,13 @@ public class Viewport extends JPanel implements MouseListener, ActionListener, M
 		}
 		for (int i = 0; i < wr; i++) {
 			if (neg) {
-				m_a -= (mx - (getWidth() / 2)) * ((1 / m_zoom) - (1 / (m_zoom * 1.15)));
-				m_b -= (my - (getHeight() / 2)) * ((1 / m_zoom) - (1 / (m_zoom * 1.15)));
+				m_a -= (mx - getWidth() / 2) * (1 / m_zoom - 1 / (m_zoom * 1.15));
+				m_b -= (my - getHeight() / 2) * (1 / m_zoom - 1 / (m_zoom * 1.15));
 				m_zoom *= 1.15;
 			} else {
 				m_zoom /= 1.15;
-				m_a -= (mx - (getWidth() / 2)) * ((1 / (m_zoom * 1.15)) - (1 / m_zoom));
-				m_b -= (my - (getHeight() / 2)) * ((1 / (m_zoom * 1.15)) - (1 / m_zoom));
+				m_a -= (mx - getWidth() / 2) * (1 / (m_zoom * 1.15) - 1 / m_zoom);
+				m_b -= (my - getHeight() / 2) * (1 / (m_zoom * 1.15) - 1 / m_zoom);
 			}
 		}
 	}

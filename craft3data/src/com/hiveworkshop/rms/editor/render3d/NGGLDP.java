@@ -273,7 +273,7 @@ public class NGGLDP {
 			pushFloat(baseOffset + 4, tempVec4.x);
 			pushFloat(baseOffset + 5, tempVec4.y);
 			pushFloat(baseOffset + 6, tempVec4.z);
-			pushFloat(baseOffset + 7, 1);
+			pushFloat(baseOffset + 7, 0);
 			normalCount++;
 		}
 
@@ -391,11 +391,9 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 1;
 				GL13.glActiveTexture(GL13.GL_TEXTURE0);
-			}
-			else if (glEnum == GL11.GL_ALPHA_TEST) {
+			} else if (glEnum == GL11.GL_ALPHA_TEST) {
 				alphaTest = 1;
-			}
-			else if (glEnum == GL11.GL_LIGHTING) {
+			} else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 1;
 			}
 		}
@@ -409,11 +407,9 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 0;
 				GL13.glActiveTexture(0);
-			}
-			else if (glEnum == GL11.GL_ALPHA_TEST) {
+			} else if (glEnum == GL11.GL_ALPHA_TEST) {
 				alphaTest = 0;
-			}
-			else if (glEnum == GL11.GL_LIGHTING) {
+			} else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 0;
 			}
 		}
@@ -983,11 +979,9 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 1;
 				GL13.glActiveTexture(GL13.GL_TEXTURE0 + textureUnit);
-			}
-			else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
+			} else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
 				alphaTest = 1;
-			}
-			else if (glEnum == GL11.GL_LIGHTING) {
+			} else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 1;
 			}
 		}
@@ -1001,11 +995,9 @@ public class NGGLDP {
 			if (glEnum == GL11.GL_TEXTURE_2D) {
 				textureUsed = 0;
 				GL13.glActiveTexture(0);
-			}
-			else if ((glEnum == GL11.GL_ALPHA_TEST) && (textureUnit == 0)) {
+			} else if (glEnum == GL11.GL_ALPHA_TEST && textureUnit == 0) {
 				alphaTest = 0;
-			}
-			else if (glEnum == GL11.GL_LIGHTING) {
+			} else if (glEnum == GL11.GL_LIGHTING) {
 				lightingEnabled = 0;
 			}
 		}

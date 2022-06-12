@@ -371,8 +371,7 @@ public class MainPanel extends JPanel
 				if (animationModeState) {
 					timeSliderPanel.deleteSelectedKeyframes();
 				} else {
-					mpanel.getUndoManager()
-							.pushAction(mpanel.getModelEditorManager().getModelEditor().deleteSelectedComponents());
+					// NOTE delete was here
 				}
 			}
 			repaintSelfAndChildren(mpanel);
@@ -1491,7 +1490,12 @@ public class MainPanel extends JPanel
 							new Callback<EditableModel>() {
 								@Override
 								public void run(final EditableModel model) {
+									final File previousFileRef = currentModelPanel2.getModel().getFileRef();
 									currentModelPanel2.setModel(model);
+									model.setFileRef(previousFileRef); // always maintain this file ref... as a TODO,
+																		// note that it should probably not be stored on
+																		// the EditableModel class (contrary to how it
+																		// is currently)
 									reloadGUI();
 								}
 							});

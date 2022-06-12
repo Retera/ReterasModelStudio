@@ -13,7 +13,7 @@ import com.hiveworkshop.wc3.mdx.TextureAnimationChunk;
  *
  * Eric Theller 3/9/2012
  */
-public class TextureAnim {
+public class TextureAnim implements TimelineContainer {
 	ArrayList<AnimFlag> animFlags = new ArrayList();// The flags of animation
 
 	/**
@@ -102,6 +102,7 @@ public class TextureAnim {
 		writer.println(tabs + "}");
 	}
 
+	@Override
 	public void add(final AnimFlag af) {
 		animFlags.add(af);
 	}
@@ -116,5 +117,10 @@ public class TextureAnim {
 
 	public void setAnimFlags(final ArrayList<AnimFlag> animFlags) {
 		this.animFlags = animFlags;
+	}
+
+	@Override
+	public void remove(final AnimFlag timeline) {
+		this.animFlags.add(timeline);
 	}
 }
