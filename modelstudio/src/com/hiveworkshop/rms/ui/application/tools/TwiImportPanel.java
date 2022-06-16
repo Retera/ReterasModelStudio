@@ -58,8 +58,8 @@ public abstract class TwiImportPanel extends JPanel {
 		donAnimList.setPrototypeCellValue(prototypeAnimShell);
 		recAnimList.setPrototypeCellValue(prototypeAnimShell);
 
-		donBoneChooserButton = new IdObjectChooserButton(donModel, this);
-		recBoneChooserButton = new IdObjectChooserButton(recModel, this);
+		donBoneChooserButton = new IdObjectChooserButton(donModel, this).setClasses(Bone.class, Helper.class);
+		recBoneChooserButton = new IdObjectChooserButton(recModel, this).setClasses(Bone.class, Helper.class);
 
 		fillLists(donModel, recModel);
 	}

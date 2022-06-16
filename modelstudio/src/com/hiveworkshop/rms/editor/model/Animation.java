@@ -18,7 +18,7 @@ public class Animation extends Sequence {
 	public Animation(String name, int start, int end) {
 		super(start, end - start);
 		this.name = name;
-		extents = new ExtLog(ExtLog.DEFAULT_MINEXT, ExtLog.DEFAULT_MAXEXT, ExtLog.DEFAULT_BOUNDSRADIUS);
+		extents = new ExtLog(ExtLog.DEFAULT_BOUNDSRADIUS);
 	}
 
 	public Animation(String name, int start, int end, Vec3 minimumExt, Vec3 maximumExt, double boundsRad) {

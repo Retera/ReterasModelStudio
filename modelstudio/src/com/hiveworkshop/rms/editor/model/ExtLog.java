@@ -4,129 +4,124 @@ import com.hiveworkshop.rms.parsers.mdlx.MdlxExtent;
 import com.hiveworkshop.rms.util.Vec3;
 
 /**
- * MinimumExt,MaximumExt,BoundsRad
+ * MinimumExt, MaximumExt, BoundsRad
  *
  * Eric Theller 11/10/2011
  */
 public class ExtLog {
+	public static final double DEFAULT_BOUNDSRADIUS = 100.00;
 	public static final double NO_BOUNDS_RADIUS = -99;
-	private Vec3 minimumExtent;
-	private Vec3 maximumExtent;
-	private double boundsRadius = NO_BOUNDS_RADIUS;
-	static double DEFAULT_BOUNDSRADIUS = 100.00;
-	static Vec3 DEFAULT_MINEXT = new Vec3(-100, -100, -100);
-	static Vec3 DEFAULT_MAXEXT = new Vec3(100, 100, 100);
+	private static final Vec3 DEFAULT_MINEXT = new Vec3(-100, -100, -100);
+	private static final Vec3 DEFAULT_MAXEXT = new Vec3(100, 100, 100);
+	private final Vec3 minimumExtent = new Vec3();
+	private final Vec3 maximumExtent = new Vec3();
+	private double boundsRadius;
 
 	public ExtLog(final double boundsRadius) {
-		this.boundsRadius = boundsRadius;
-		setDefault();
+		this(DEFAULT_MINEXT, DEFAULT_MAXEXT, boundsRadius);
+	}
+
+	public ExtLog() {
+		this(DEFAULT_MINEXT, DEFAULT_MAXEXT, NO_BOUNDS_RADIUS);
 	}
 
 	public ExtLog(final MdlxExtent extent) {
-		boundsRadius = extent.boundsRadius;
-		minimumExtent = new Vec3(extent.min);
-		maximumExtent = new Vec3(extent.max);
+		this(extent.min, extent.max, extent.boundsRadius);
 	}
 
 	public ExtLog(final Vec3 minE, final Vec3 maxE) {
-		minimumExtent = minE;
-		maximumExtent = maxE;
+		this(minE, maxE, NO_BOUNDS_RADIUS);
 	}
 
 	public ExtLog(final Vec3 minE, final Vec3 maxE, final double boundsRad) {
-		minimumExtent = minE;
-		maximumExtent = maxE;
+		minimumExtent.set(minE);
+		maximumExtent.set(maxE);
 		boundsRadius = boundsRad;
 	}
 
 	public ExtLog(final float[] minE, final float[] maxE, final double boundsRad) {
-		minimumExtent = new Vec3(minE);
-		maximumExtent = new Vec3(maxE);
+		minimumExtent.set(minE);
+		maximumExtent.set(maxE);
 		boundsRadius = boundsRad;
 	}
 
 	private ExtLog(final ExtLog other) {
-		if (other.minimumExtent != null) {
-			minimumExtent = new Vec3(other.minimumExtent);
-		}
-		if (other.maximumExtent != null) {
-			maximumExtent = new Vec3(other.maximumExtent);
-		}
+		minimumExtent.set(other.minimumExtent);
+		maximumExtent.set(other.maximumExtent);
 		boundsRadius = other.boundsRadius;
 	}
 
 	public MdlxExtent toMdlx() {
 		final MdlxExtent extent = new MdlxExtent();
 
-		extent.boundsRadius = (float)boundsRadius;
+		extent.boundsRadius = (float) boundsRadius;
 		extent.min = minimumExtent.toFloatArray();
 		extent.max = maximumExtent.toFloatArray();
 
 		return extent;
 	}
 
-	public void setMinMax(final ExtLog other) {
+	public ExtLog setMinMax(final ExtLog other) {
 		if (other != null) {
-			if (other.minimumExtent != null) {
-				minimumExtent.minimize(other.minimumExtent);
-			}
-			if (other.maximumExtent != null) {
-				maximumExtent.maximize(other.maximumExtent);
-			}
+			minimumExtent.minimize(other.minimumExtent);
+			maximumExtent.maximize(other.maximumExtent);
 			boundsRadius = Math.max(boundsRadius, other.boundsRadius);
 		}
+		return this;
 	}
 
-	public void set(final ExtLog other) {
+	public ExtLog set(final ExtLog other) {
 		if (other != null) {
-			if (other.minimumExtent != null) {
-				minimumExtent.set(other.minimumExtent);
-			}
-			if (other.maximumExtent != null) {
-				maximumExtent.set(other.maximumExtent);
-			}
+			minimumExtent.set(other.minimumExtent);
+			maximumExtent.set(other.maximumExtent);
 			boundsRadius = other.boundsRadius;
 		} else {
 			setDefault();
 		}
-	}
-
-	public ExtLog setDefault() {
-		minimumExtent = new Vec3(DEFAULT_MINEXT);
-		maximumExtent = new Vec3(DEFAULT_MAXEXT);
 		return this;
 	}
 
-	public void setMinExt(final Vec3 v) {
-		minimumExtent = v;
+	public ExtLog setDefault() {
+		minimumExtent.set(DEFAULT_MINEXT);
+		maximumExtent.set(DEFAULT_MAXEXT);
+		return this;
 	}
 
-	public void setMaxExt(final Vec3 v) {
-		maximumExtent = v;
-	}
-
-	public void setBounds(final double b) {
-		boundsRadius = b;
-	}
-
-	public boolean hasBoundsRadius() {
-		return boundsRadius != NO_BOUNDS_RADIUS;
+	public ExtLog setExt(final Vec3 minE, final Vec3 maxE) {
+		minimumExtent.set(minE);
+		maximumExtent.set(maxE);
+		return this;
 	}
 
 	public Vec3 getMinimumExtent() {
 		return minimumExtent;
 	}
 
+	public ExtLog setMinExt(final Vec3 v) {
+		minimumExtent.set(v);
+		return this;
+	}
+
 	public Vec3 getMaximumExtent() {
 		return maximumExtent;
+	}
+
+	public ExtLog setMaxExt(final Vec3 v) {
+		maximumExtent.set(v);
+		return this;
 	}
 
 	public double getBoundsRadius() {
 		return boundsRadius;
 	}
 
-	public void setBoundsRadius(final double boundsRadius) {
+	public ExtLog setBoundsRadius(final double boundsRadius) {
 		this.boundsRadius = boundsRadius;
+		return this;
+	}
+
+	public boolean hasBoundsRadius() {
+		return boundsRadius != NO_BOUNDS_RADIUS;
 	}
 
 	public ExtLog deepCopy() {

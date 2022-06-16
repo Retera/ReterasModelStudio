@@ -7,6 +7,8 @@ import com.hiveworkshop.rms.ui.util.SearchableList;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class IdObjectChooser {
@@ -86,6 +88,10 @@ public class IdObjectChooser {
 
 	public IdObjectChooser setClassSet(Set<Class<?>> classSet) {
 		this.classSet = classSet;
+		return this;
+	}
+	public IdObjectChooser setClasses(Class<?>... clazzes) {
+		this.classSet = new HashSet<>(List.of(clazzes));
 		return this;
 	}
 }

@@ -7,6 +7,9 @@ public class WarcraftData extends ObjectData {
 	Map<StringKey, DataTable> tableMap = new HashMap<>();
 	Map<StringKey, WarcraftObject> units = new HashMap<>();
 
+	public WarcraftData() {
+	}
+
 	public WarcraftData add(final DataTable data, final String name, final boolean canMake) {
 		tableMap.put(new StringKey(name), data);
 		tables.add(data);
@@ -18,9 +21,6 @@ public class WarcraftData extends ObjectData {
 			}
 		}
 		return this;
-	}
-
-	public WarcraftData() {
 	}
 
 	public List<DataTable> getTables() {

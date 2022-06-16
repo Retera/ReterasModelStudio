@@ -35,7 +35,7 @@ public class RecalculateExtentsAction implements UndoAction {
 			max.maximize(maximumExtent);
 			min.minimize(minimumExtent);
 		}
-		newModelExtents = new ExtLog(new Vec3(min), new Vec3(max), maximumBoundsRadius);
+		newModelExtents = new ExtLog(min, max, maximumBoundsRadius);
 
 
 		for (Geoset modelGeoset : model.getGeosets()) {

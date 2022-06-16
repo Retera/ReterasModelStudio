@@ -29,10 +29,12 @@ public class ConvertToSkinBonesAction implements UndoAction {
 		Map<Matrix, Set<GeosetVertex>> matrixVertexMap = new HashMap<>();
 
 		for(GeosetVertex vertex : geoset.getVertices()){
-			if(!matrixVertexMap.containsKey(vertex.getMatrix())){
-				matrixVertexMap.put(new Matrix(vertex.getBones()), new HashSet<>());
+			if(vertex.getSkinBones() == null){
+				if(!matrixVertexMap.containsKey(vertex.getMatrix())){
+					matrixVertexMap.put(new Matrix(vertex.getBones()), new HashSet<>());
+				}
+				matrixVertexMap.get(vertex.getMatrix()).add(vertex);
 			}
-			matrixVertexMap.get(vertex.getMatrix()).add(vertex);
 
 		}
 		return matrixVertexMap;

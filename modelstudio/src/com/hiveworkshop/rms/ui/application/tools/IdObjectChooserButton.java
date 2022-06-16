@@ -2,12 +2,11 @@ package com.hiveworkshop.rms.ui.application.tools;
 
 import com.hiveworkshop.rms.editor.model.Bone;
 import com.hiveworkshop.rms.editor.model.EditableModel;
-import com.hiveworkshop.rms.editor.model.Helper;
 import com.hiveworkshop.rms.editor.model.IdObject;
 
 import javax.swing.*;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class IdObjectChooserButton extends JButton {
@@ -18,16 +17,13 @@ public class IdObjectChooserButton extends JButton {
 	private IdObject chosenIdObject = null;
 	private Function<IdObject, ImageIcon> iconFunction;
 	private Runnable updateFunction;
+	private Consumer<IdObject> idObjectConsumer;
 
 	public IdObjectChooserButton(EditableModel model, JComponent parent){
 		super();
 		setText(buttonText);
 		this.parent = parent;
 		idObjectChooser = new IdObjectChooser(model);
-		HashSet<Class<?>> classSet = new HashSet<>();
-		classSet.add(Bone.class);
-		classSet.add(Helper.class);
-		idObjectChooser.setClassSet(classSet);
 		if(model != null){
 			iconFunction = o -> iconHandler.getImageIcon(o, model);
 			setIcon(iconHandler.getImageIcon(model));
@@ -35,22 +31,24 @@ public class IdObjectChooserButton extends JButton {
 		addActionListener(e -> chooseIdObject());
 	}
 
-	public IdObjectChooserButton(EditableModel model, HashSet<Class<?>> classSet, JComponent parent){
-		super();
-		setText(buttonText);
-		this.parent = parent;
-		idObjectChooser = new IdObjectChooser(model);
+	public IdObjectChooserButton(EditableModel model, Set<Class<?>> classSet, JComponent parent){
+		this(model, parent);
 		idObjectChooser.setClassSet(classSet);
-		if(model != null){
-			iconFunction = o -> iconHandler.getImageIcon(o, model);
-			setIcon(iconHandler.getImageIcon(model));
-		}
-		addActionListener(e -> chooseIdObject());
 	}
 
 
 	protected void chooseIdObject() {
-		chosenIdObject = idObjectChooser.chooseObject(chosenIdObject, parent);
+		setChosenIdObject(idObjectChooser.chooseObject(chosenIdObject, parent));
+		if(idObjectConsumer != null){
+			idObjectConsumer.accept(chosenIdObject);
+		}
+		if(updateFunction != null){
+			updateFunction.run();
+		}
+	}
+
+	public IdObjectChooserButton setChosenIdObject(IdObject chosenIdObject) {
+		this.chosenIdObject = chosenIdObject;
 		if (chosenIdObject != null) {
 			setText(chosenIdObject.getName());
 		} else {
@@ -59,9 +57,7 @@ public class IdObjectChooserButton extends JButton {
 		if(iconFunction != null){
 			setIcon(iconFunction.apply(chosenIdObject));
 		}
-		if(updateFunction != null){
-			updateFunction.run();
-		}
+		return this;
 	}
 
 	public IdObjectChooserButton setButtonText(String text) {
@@ -91,7 +87,17 @@ public class IdObjectChooserButton extends JButton {
 		return this;
 	}
 
+	public IdObjectChooserButton setClasses(Class<?>... clazzes){
+		idObjectChooser.setClasses(clazzes);
+		return this;
+	}
+
 	public Runnable getUpdateFunction() {
 		return updateFunction;
+	}
+
+	public IdObjectChooserButton setIdObjectConsumer(Consumer<IdObject> idObjectConsumer) {
+		this.idObjectConsumer = idObjectConsumer;
+		return this;
 	}
 }

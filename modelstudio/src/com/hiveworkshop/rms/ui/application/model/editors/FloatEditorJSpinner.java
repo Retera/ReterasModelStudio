@@ -33,7 +33,10 @@ public class FloatEditorJSpinner extends JSpinner {
 	}
 
 	public FloatEditorJSpinner(float value, float minValue, float stepSize, Consumer<Float> floatConsumer) {
-		super(new SpinnerNumberModel(value, minValue, (float) Integer.MAX_VALUE, stepSize));
+		this(value, minValue, (float) Integer.MAX_VALUE, stepSize, floatConsumer);
+	}
+	public FloatEditorJSpinner(float value, float minValue, float maxValue, float stepSize, Consumer<Float> floatConsumer) {
+		super(new SpinnerNumberModel(value, minValue, maxValue, stepSize));
 		this.floatConsumer = floatConsumer;
 		init();
 	}

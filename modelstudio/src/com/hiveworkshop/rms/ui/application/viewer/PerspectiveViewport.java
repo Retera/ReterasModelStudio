@@ -69,8 +69,8 @@ public class PerspectiveViewport extends BetterAWTGLCanvas {
 	private final GeosetRenderer geosetRenderer;
 //	private final GeosetRendererBuf geosetRendererBuf;
 
-	ExtLog currentExt = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
-	ExtLog modelExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
+	ExtLog currentExt = new ExtLog(Vec3.ZERO, Vec3.ZERO, 0);
+	ExtLog modelExtent = new ExtLog(Vec3.ZERO, Vec3.ZERO, 0);
 
 	public PerspectiveViewport() throws LWJGLException {
 		super();

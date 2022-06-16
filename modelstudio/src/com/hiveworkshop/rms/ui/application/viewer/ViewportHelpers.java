@@ -11,14 +11,14 @@ public class ViewportHelpers {
 
 
 	public static double getBoundsRadius(TimeEnvironmentImpl renderEnv, ExtLog modelExtent) {
-		ExtLog defaultAnimationExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
+		ExtLog defaultAnimationExtent = new ExtLog(Vec3.ZERO, Vec3.ZERO, 0);
 		if (renderEnv != null) {
 			Animation currentAnimation = renderEnv.getCurrentAnimation();
 			if ((currentAnimation != null) && currentAnimation.getExtents() != null) {
 				defaultAnimationExtent.setMinMax(currentAnimation.getExtents());
 			}
 		}
-		ExtLog someExtent = new ExtLog(new Vec3(0, 0, 0), new Vec3(0, 0, 0), 0);
+		ExtLog someExtent = new ExtLog(Vec3.ZERO, Vec3.ZERO, 0);
 		someExtent.setMinMax(defaultAnimationExtent);
 		someExtent.setMinMax(modelExtent);
 
